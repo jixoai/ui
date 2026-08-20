@@ -1,0 +1,292 @@
+/* -------------------------------------------------------------------------
+ * ui.jixoai.com site identity — consumed from THIS repository's registry.
+ *
+ * The shared design-language token sheet (OKLCH one-hue law, dark -4° drift,
+ * hard offset shadows, radius/bevel law, mono-first fonts, terminal surfaces,
+ * reveal hook styles) is a same-source copy of registry/files/theme/jixoai.css
+ * (registry item `jixoai-theme`) installed at src/lib/jixoai.css with
+ * --brand-hue: 330. This file carries ONLY site-specific supplements:
+ *   - tokens the registry sheet does not define (readonly-code surfaces,
+ *     the build-time tokenizer palette);
+ *   - the Tailwind token→utility mappings the registry sheet leaves open;
+ *   - site surfaces: data tables, readonly code, swatch grids, the hue lab.
+ * ---------------------------------------------------------------------- */
+@import 'tailwindcss';
+@import './lib/jixoai.css';
+
+:root {
+  /* readonly code surfaces */
+  --readonly-code-bg: color-mix(in oklab, var(--muted) 42%, var(--background));
+  --readonly-code-border: color-mix(in oklab, var(--border) 18%, transparent);
+  --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 12%, var(--background));
+  --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 58%, var(--foreground));
+
+  /* tiny deterministic tokenizer palette */
+  --tok-comment: color-mix(in oklab, var(--foreground) 44%, transparent);
+  --tok-string: var(--accent);
+  --tok-keyword: var(--primary);
+  --tok-number: color-mix(in oklab, var(--secondary) 78%, var(--foreground));
+}
+.dark {
+  --readonly-code-bg: color-mix(in oklab, var(--muted) 78%, var(--background));
+  --readonly-code-border: color-mix(in oklab, var(--border) 18%, transparent);
+  --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 18%, var(--background));
+  --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 60%, oklch(1 0 0));
+
+  --tok-comment: color-mix(in oklab, var(--foreground) 55%, transparent);
+  --tok-string: var(--accent);
+  --tok-keyword: var(--primary);
+  --tok-number: var(--secondary);
+}
+
+/* Tailwind mapping supplements — kill the default rounded scale (radius law:
+ * 0 with bevel upgrade only); the registry sheet maps everything else. */
+@theme inline {
+  --radius-*: initial;
+  --radius: var(--radius);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    corner-shape: bevel;
+    scrollbar-width: thin;
+    accent-color: var(--primary);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-mono);
+  }
+  .font-nav {
+    font-family: var(--font-nav);
+  }
+  button {
+    cursor: pointer;
+  }
+  :where(a, button):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 30%, transparent);
+  }
+}
+
+/* -------------------------------------------------------------------------
+ * Data tables (catalog matrix, token docs).
+ * ---------------------------------------------------------------------- */
+.table-scroll {
+  overflow-x: auto;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.data-table th {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-weight: 600;
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+  white-space: nowrap;
+}
+.data-table td {
+  border: 1px solid color-mix(in oklab, var(--border) 32%, transparent);
+  padding: 0.45rem 0.6rem;
+  vertical-align: top;
+}
+.data-table td.dim {
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+.data-table tbody tr {
+  transition: background-color 150ms ease-out;
+}
+.data-table tbody tr:hover {
+  background: color-mix(in oklab, var(--muted) 26%, transparent);
+}
+.data-table code {
+  color: var(--accent);
+  font-size: 11.5px;
+  overflow-wrap: anywhere;
+}
+
+/* Item-name pill in the catalog table (status-dot class of rounded-full —
+ * the only rounded elements allowed by the design law). */
+.pill {
+  align-items: center;
+  background: color-mix(in oklab, var(--primary) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--primary) 45%, transparent);
+  border-radius: 9999px;
+  color: var(--primary);
+  display: inline-flex;
+  font-size: 11px;
+  gap: 0.4em;
+  line-height: 1.7;
+  padding: 0 0.6rem;
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------------------------------
+ * Readonly code surfaces (install commands, integration samples).
+ * ---------------------------------------------------------------------- */
+.readonly-code {
+  background: var(--readonly-code-bg);
+  border: 1px solid var(--readonly-code-border);
+}
+.readonly-code pre {
+  margin: 0;
+  overflow-x: auto;
+  padding: 0.875rem;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.readonly-code-meta {
+  background: var(--readonly-code-meta-bg);
+  border-bottom: 1px solid var(--readonly-code-border);
+  color: var(--readonly-code-meta-fg);
+  display: flex;
+  font-size: 11px;
+  gap: 0.5rem;
+  letter-spacing: 0.08em;
+  padding: 0.32rem 0.75rem;
+}
+.readonly-code-meta .prompt {
+  color: var(--primary);
+}
+.tok-comment {
+  color: var(--tok-comment);
+}
+.tok-string {
+  color: var(--tok-string);
+}
+.tok-keyword {
+  color: var(--tok-keyword);
+}
+.tok-number {
+  color: var(--tok-number);
+}
+
+/* Skip link (a11y) — visible only on keyboard focus. */
+.skip-link {
+  clip-path: inset(50%);
+  height: 1px;
+  left: 0;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+  width: 1px;
+}
+.skip-link:focus-visible {
+  background: var(--background);
+  border: 1px solid var(--border);
+  clip-path: none;
+  height: auto;
+  padding: 0.5rem 0.75rem;
+  width: auto;
+  z-index: 50;
+}
+
+/* Anchor targets clear the Combo ToC mobile rail exactly at its pick line:
+ * sticky bar bottom (44px) + 2em = 76px, matching the toc-engine line law. */
+[id] {
+  scroll-margin-top: 76px;
+}
+
+/* -------------------------------------------------------------------------
+ * Token lab surfaces (/tokens).
+ * ---------------------------------------------------------------------- */
+.swatch {
+  border: 1px solid var(--border);
+}
+.swatch-chip {
+  block-size: 2.6rem;
+  border-block-end: 1px solid var(--border);
+}
+.swatch dt {
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.swatch dd {
+  color: var(--muted-foreground);
+  font-size: 10.5px;
+  overflow-wrap: anywhere;
+}
+/* Mode-scoped panels: re-declare the exact :root / .dark token values so a
+ * light palette stays light even when the page theme is dark (values mirror
+ * lib/jixoai.css; the page exists to display them literally). */
+.token-scope-light {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0 0 0);
+  --card: oklch(1 0 0);
+  --muted: oklch(0.9551 0 0);
+  --muted-foreground: oklch(0.3211 0 0);
+  --primary: oklch(0.6489 0.237 var(--brand-hue));
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.968 0.211 109.7692);
+  --secondary-foreground: oklch(0 0 0);
+  --accent: oklch(0.5635 0.2408 260.8178);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0 0 0);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0 0 0);
+  --terminal: oklch(0.2 0 0);
+  --terminal-foreground: oklch(1 0 0);
+  --terminal-hover: color-mix(in oklab, var(--terminal-foreground) 14%, var(--terminal));
+  --terminal-muted: color-mix(in oklab, var(--terminal-foreground) 8%, var(--terminal));
+  --chart-1: var(--primary);
+  --chart-2: var(--secondary);
+  --chart-3: var(--accent);
+  --chart-4: oklch(0.7323 0.2492 142.4953);
+  --chart-5: oklch(0.5931 0.2726 328.3634);
+}
+.token-scope-dark {
+  --background: oklch(0 0 0);
+  --foreground: oklch(1 0 0);
+  --card: oklch(0.3211 0 0);
+  --muted: oklch(0.2178 0 0);
+  --muted-foreground: oklch(0.8452 0 0);
+  --primary: oklch(0.7044 0.1872 calc(var(--brand-hue) - 4));
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0.9691 0.2005 109.6228);
+  --secondary-foreground: oklch(0 0 0);
+  --accent: oklch(0.6755 0.1765 252.2592);
+  --accent-foreground: oklch(0 0 0);
+  --destructive: oklch(1 0 0);
+  --destructive-foreground: oklch(0 0 0);
+  --border: oklch(1 0 0);
+  --terminal: oklch(0.2 0 0);
+  --terminal-foreground: oklch(1 0 0);
+  --terminal-hover: color-mix(in oklab, var(--terminal-foreground) 14%, var(--terminal));
+  --terminal-muted: color-mix(in oklab, var(--terminal-foreground) 8%, var(--terminal));
+  --chart-1: var(--primary);
+  --chart-2: var(--secondary);
+  --chart-3: var(--accent);
+  --chart-4: oklch(0.7395 0.2268 142.8504);
+  --chart-5: oklch(0.6131 0.2458 328.0714);
+}
+
+/* Hue lab slider: native range with the accent law; tick labels beneath. */
+.hue-slider {
+  width: 100%;
+}
+
+/* -------------------------------------------------------------------------
+ * Reduced-motion law: the registry sheet already neutralizes reveal motion;
+ * these cover the site's own transitions.
+ * ---------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .data-table tbody tr {
+    transition: none;
+  }
+}

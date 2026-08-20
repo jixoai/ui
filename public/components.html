@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" href="./icon.svg" />
+    <script>
+      (() => {
+        // No-flash theme bootstrap + JS liveness flag (reveal styles key off
+        // html.js so prerendered and no-JS output stays fully visible).
+        const root = document.documentElement;
+        root.classList.add("js");
+        const isTheme = (value) => value === "light" || value === "dark" || value === "system";
+        let theme = "system";
+        try {
+          const stored = window.localStorage.getItem("theme");
+          if (isTheme(stored)) theme = stored;
+        } catch {
+          theme = "system";
+        }
+        const prefersDark =
+          typeof window.matchMedia === "function" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches;
+        root.classList.toggle("dark", theme === "dark" || (theme === "system" && prefersDark));
+        root.style.colorScheme = root.classList.contains("dark") ? "dark" : "light";
+      })();
+    </script>
+    <link href="./_app/immutable/entry/start.B9Xl7vIv.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/DurOXKI-.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/98x9mcsw.js" rel="modulepreload">
+		<link href="./_app/immutable/entry/app.DHX4wlpy.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/xihTtKlq.js" rel="modulepreload">
+		<link href="./_app/immutable/nodes/0.Ch2Jbbrm.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/BKSQOA4L.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/DAlJzYSV.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/DaTN7Mpz.js" rel="modulepreload">
+		<link href="./_app/immutable/nodes/3.o79pHWPa.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/C8Qgq5bm.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/D1ltKcnh.js" rel="modulepreload">
+		<!--136c6pl--><meta name="description" content="The jixoai component gallery: press-button, section-card, theme-toggle, reveal, the Combo ToC, and the terminal shell — every demo rendered from the registry files this site consumes."/><!----><title>Components · jixoai/ui</title>
+		<link href="./_app/immutable/assets/0.ChjXpgGE.css" rel="stylesheet">
+		<link href="./_app/immutable/assets/3.EaQyIBNO.css" rel="stylesheet">
+  </head>
+  <!--
+    data-sveltekit-reload: the site is a flat multi-page artifact (index.html,
+    components.html, tokens.html); every internal link performs a full page
+    load instead of client-route resolution.
+  -->
+  <body data-sveltekit-reload>
+    <div style="display: contents"><!--[--><!--[0--><!--[--><a href="#main" class="skip-link">Skip to content</a> <div class="flex min-h-screen flex-col bg-background text-foreground"><header class="border-border bg-terminal text-terminal-foreground border-b"><div class="mx-auto flex max-w-[90rem] flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"><a href="/" class="flex min-w-0 flex-col sm:flex-row sm:items-baseline sm:gap-3"><p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">jixoai/ui</p> <span class="font-nav truncate text-sm tracking-tight sm:text-base">ui.jixoai.com</span> <!--[0--><span class="truncate text-xs text-terminal-foreground/70">the jixoai design language</span><!--]--></a> <nav class="flex flex-wrap items-center gap-2 text-xs" aria-label="Primary"><!--[--><a href="/" class="px-2.5 py-1 transition-colors text-terminal-foreground/70 hover:text-terminal-foreground">Overview</a><a href="/components.html" aria-current="page" class="px-2.5 py-1 transition-colors bg-terminal-hover text-terminal-foreground">Components</a><a href="/tokens.html" class="px-2.5 py-1 transition-colors text-terminal-foreground/70 hover:text-terminal-foreground">Tokens</a><a href="https://github.com/jixoai/ui" target="_blank" rel="noreferrer" class="px-2.5 py-1 transition-colors text-terminal-foreground/70 hover:text-terminal-foreground">GitHub ↗</a><!--]--> <!--[0--><button type="button" class="font-nav border-terminal-foreground/30 text-terminal-foreground/70 hover:border-terminal-foreground/60 hover:text-terminal-foreground border px-2.5 py-1 text-[11px] transition-colors" aria-label="theme: system">system</button><!----><!--]--></nav></div></header><!----> <main id="main" class="flex-1"><!--[--><div class="docs-frame svelte-136c6pl"><aside class="docs-aside svelte-136c6pl" aria-label="On this page"><div class="jx-toc"><nav class="jx-toc-desktop" aria-label="Table of contents"><span class="jx-spine"><span class="jx-spine-fill"></span></span> <p class="jx-toc-title">on this page</p> <ol><!--[--><li data-id="gallery"><a href="#gallery">Gallery</a></li><li data-id="press-button"><a href="#press-button">press-button</a></li><li class="lvl-2" data-id="press-variants"><a href="#press-variants">Variants</a></li><li data-id="section-card"><a href="#section-card">section-card</a></li><li class="lvl-2" data-id="section-nesting"><a href="#section-nesting">Nesting</a></li><li data-id="theme-toggle"><a href="#theme-toggle">theme-toggle</a></li><li data-id="reveal"><a href="#reveal">reveal</a></li><li class="lvl-2" data-id="reveal-demo"><a href="#reveal-demo">Live demo</a></li><li data-id="toc"><a href="#toc">toc</a></li><li class="lvl-2" data-id="toc-contract"><a href="#toc-contract">Content contract</a></li><li data-id="shell"><a href="#shell">terminal-header / footer</a></li><li class="lvl-2" data-id="shell-code"><a href="#shell-code">Integration</a></li><!--]--></ol></nav> <div class="jx-toc-mobile jx-glass"><div class="jx-viewport"><ol><!--[--><li><a href="#gallery" data-id="gallery"><span class="jx-cursor" aria-hidden="true">❯</span> <span>Gallery</span></a></li><li><a href="#press-button" data-id="press-button"><span class="jx-cursor" aria-hidden="true">❯</span> <span>press-button</span></a></li><li><a class="lvl-2" href="#press-variants" data-id="press-variants"><span class="jx-cursor" aria-hidden="true">❯</span> <span>Variants</span></a></li><li><a href="#section-card" data-id="section-card"><span class="jx-cursor" aria-hidden="true">❯</span> <span>section-card</span></a></li><li><a class="lvl-2" href="#section-nesting" data-id="section-nesting"><span class="jx-cursor" aria-hidden="true">❯</span> <span>Nesting</span></a></li><li><a href="#theme-toggle" data-id="theme-toggle"><span class="jx-cursor" aria-hidden="true">❯</span> <span>theme-toggle</span></a></li><li><a href="#reveal" data-id="reveal"><span class="jx-cursor" aria-hidden="true">❯</span> <span>reveal</span></a></li><li><a class="lvl-2" href="#reveal-demo" data-id="reveal-demo"><span class="jx-cursor" aria-hidden="true">❯</span> <span>Live demo</span></a></li><li><a href="#toc" data-id="toc"><span class="jx-cursor" aria-hidden="true">❯</span> <span>toc</span></a></li><li><a class="lvl-2" href="#toc-contract" data-id="toc-contract"><span class="jx-cursor" aria-hidden="true">❯</span> <span>Content contract</span></a></li><li><a href="#shell" data-id="shell"><span class="jx-cursor" aria-hidden="true">❯</span> <span>terminal-header / footer</span></a></li><li><a class="lvl-2" href="#shell-code" data-id="shell-code"><span class="jx-cursor" aria-hidden="true">❯</span> <span>Integration</span></a></li><!--]--></ol></div> <button type="button" class="jx-toggle" aria-expanded="false" aria-label="Expand table of contents">▾</button></div></div><!----></aside> <div class="docs-main svelte-136c6pl"><div data-family="gallery"><div id="gallery" data-region="gallery" data-reveal=""><section class="border border-border bg-card shadow-xs "><div class="flex flex-col gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4"><!--[0--><p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">Gallery</p><!--]--> <div class="flex flex-col gap-2.5"><!--[0--><h1 class="font-nav max-w-[24ch] text-balance text-[clamp(1.58rem,2.55vw,2.7rem)] tracking-normal leading-[1.2] sm:max-w-[22ch] lg:max-w-[24ch]">Every component, rendered from the registry</h1><!--]--> <!--[0--><p class="max-w-[62ch] text-pretty text-[13px] leading-6 text-foreground/78 sm:text-[14px] sm:leading-6">Each section below consumes the exact same-source copy this site installed from registry/files — nothing is reimplemented for the showcase. The table of contents tracking this page is itself the toc component: the Rule Tracker on the right (desktop) or the glass Terminal Rail above (mobile).</p><!--]--></div></div> <div class="px-4 py-4 sm:px-5 sm:py-5"><div class="flex flex-wrap gap-3"><span class="pill">7 live components</span> <span class="pill">2 framework-free libs</span> <span class="pill">1 dogfooded ToC</span> <span class="pill">zero network</span></div><!----></div></section><!----></div></div> <div id="press-button" data-family="press-button" data-reveal=""><section class="border border-border bg-card shadow-xs "><div class="flex flex-col gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4"><!--[0--><p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">registry:ui</p><!--]--> <div class="flex flex-col gap-2.5"><!--[-1--><h2 class="font-nav text-balance text-[1.05rem] tracking-tight leading-tight sm:text-[1.22rem]">press-button</h2><!--]--> <!--[0--><p class="max-w-[64ch] text-pretty text-[13px] leading-5 text-muted-foreground sm:text-[14px] sm:leading-6">The brutalist press-physics button: hover lifts toward the viewer (shadow xs grows), active presses back into the page. The shadow is the affordance — there is no other button style in the grammar.</p><!--]--></div></div> <div class="px-4 py-4 sm:px-5 sm:py-5"><div class="flex flex-col gap-7" data-region="press-variants"><div id="press-variants" class="flex flex-col gap-3"><h3 class="text-[15px] font-bold tracking-tight">Variants, one physics</h3> <div class="flex flex-wrap items-center gap-3"><!--[-1--><button type="button" class="inline-flex items-center gap-2.5 border border-border px-3.5 py-2.5 text-sm font-medium shadow-xs transition-[transform,box-shadow,background-color] duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-sm active:translate-x-px active:translate-y-px active:shadow-none motion-reduce:transition-none bg-primary text-primary-foreground"><!---->primary<!----></button><!--]--><!----> <!--[-1--><button type="button" class="inline-flex items-center gap-2.5 border border-border px-3.5 py-2.5 text-sm font-medium shadow-xs transition-[transform,box-shadow,background-color] duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-sm active:translate-x-px active:translate-y-px active:shadow-none motion-reduce:transition-none bg-background hover:bg-muted"><!---->outline<!----></button><!--]--><!----> <!--[-1--><button type="button" aria-label="copy npx jixoai-ui add press-button" class="inline-flex items-center gap-2.5 border border-border px-3.5 py-2.5 text-sm font-medium shadow-xs transition-[transform,box-shadow,background-color] duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-sm active:translate-x-px active:translate-y-px active:shadow-none motion-reduce:transition-none bg-background hover:bg-muted"><!--[-1--><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide-icon lucide lucide-copy"><!--[--><!----><rect width="14" height="14" x="8" y="8" rx="2" ry="2"><!----></rect><!----><!----><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"><!----></path><!----><!--]--><!--[--><!--[--><!--]--><!--]--></svg><!----> <span class="font-mono text-[12px]">copied (press me)</span><!--]--><!----></button><!--]--><!----></div> <p class="text-muted-foreground text-pretty text-[13px] leading-6">The third button is the copied feedback state — click it: the command is copied and
+              the variant flips to <code class="text-accent">copied</code> (secondary surface) for
+              1.6s. Reduced-motion users get instant state changes.</p></div> <figure class="readonly-code"><!--[0--><figcaption class="readonly-code-meta"><span class="prompt" aria-hidden="true">></span> <span>usage</span></figcaption><!--]--> <pre data-lang="svelte"><code><!---->&lt;script lang=<span class="tok-string">"ts"</span>&gt;
+  <span class="tok-keyword">import</span> PressButton <span class="tok-keyword">from</span> <span class="tok-string">'@ui/press-button.svelte'</span>;
+&lt;/script&gt;
+
+&lt;PressButton variant=<span class="tok-string">"primary"</span> href=<span class="tok-string">"/docs.html"</span>&gt;Read the docs&lt;/PressButton&gt;
+&lt;PressButton variant=<span class="tok-string">"outline"</span> onclick={save}&gt;Save&lt;/PressButton&gt;<!----></code></pre></figure><!----></div><!----></div></section><!----></div> <div id="section-card" data-family="section-card" data-reveal=""><section class="border border-border bg-card shadow-xs "><div class="flex flex-col gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4"><!--[0--><p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">registry:ui</p><!--]--> <div class="flex flex-col gap-2.5"><!--[-1--><h2 class="font-nav text-balance text-[1.05rem] tracking-tight leading-tight sm:text-[1.22rem]">section-card</h2><!--]--> <!--[0--><p class="max-w-[64ch] text-pretty text-[13px] leading-5 text-muted-foreground sm:text-[14px] sm:leading-6">The content atom of the site grammar: a bordered card, header block with eyebrow (brand hue, Share Tech Mono, tracked 0.24em), font-nav title, text-pretty summary, and a body snippet slot.</p><!--]--></div></div> <div class="px-4 py-4 sm:px-5 sm:py-5"><div class="flex flex-col gap-7" data-region="section-nesting"><div id="section-nesting" class="flex flex-col gap-3"><h3 class="text-[15px] font-bold tracking-tight">Self-nesting</h3> <p class="text-muted-foreground text-pretty text-[13px] leading-6">Cards compose with themselves — a card inside a card body keeps the same border and
+              header law at a smaller scale. This is how dense reference pages stay coherent.</p> <section class="border border-border bg-card shadow-xs "><div class="flex flex-col gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4"><!--[0--><p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">inner</p><!--]--> <div class="flex flex-col gap-2.5"><!--[-1--><h2 class="font-nav text-balance text-[1.05rem] tracking-tight leading-tight sm:text-[1.22rem]">A card, nested</h2><!--]--> <!--[-1--><!--]--></div></div> <div class="px-4 py-4 sm:px-5 sm:py-5"><p class="text-muted-foreground text-pretty text-[13px] leading-6">Same component, same markup, no special variant. The outer card's body slot simply
+                renders another one.</p><!----></div></section><!----></div> <figure class="readonly-code"><!--[0--><figcaption class="readonly-code-meta"><span class="prompt" aria-hidden="true">></span> <span>usage</span></figcaption><!--]--> <pre data-lang="svelte"><code><!---->&lt;SectionCard
+  eyebrow=<span class="tok-string">"Quick start"</span>
+  title=<span class="tok-string">"Acquire a Backend. Spawn a shell."</span>
+  summary=<span class="tok-string">"One paragraph of text-pretty context."</span>
+&gt;
+  &lt;p&gt;Body slot: any content.&lt;/p&gt;
+&lt;/SectionCard&gt;<!----></code></pre></figure><!----></div><!----></div></section><!----></div> <div id="theme-toggle" data-family="theme-toggle" data-region="theme-toggle" data-reveal=""><section class="border border-border bg-card shadow-xs "><div class="flex flex-col gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4"><!--[0--><p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">registry:ui</p><!--]--> <div class="flex flex-col gap-2.5"><!--[-1--><h2 class="font-nav text-balance text-[1.05rem] tracking-tight leading-tight sm:text-[1.22rem]">theme-toggle</h2><!--]--> <!--[0--><p class="max-w-[64ch] text-pretty text-[13px] leading-5 text-muted-foreground sm:text-[14px] sm:leading-6">light / dark / system cycler with Share Tech Mono labels, cycling in that order. It drives the shared theme contract (localStorage “theme”, .dark class, colorScheme) and pairs with the no-flash inline bootstrap in app.html.</p><!--]--></div></div> <div class="px-4 py-4 sm:px-5 sm:py-5"><div class="flex flex-col gap-5"><div class="bg-terminal border border-border p-5"><div class="flex flex-wrap items-center gap-4"><span class="text-terminal-foreground/70 text-xs">rendered on its native surface:</span> <button type="button" class="font-nav border-terminal-foreground/30 text-terminal-foreground/70 hover:border-terminal-foreground/60 hover:text-terminal-foreground border px-2.5 py-1 text-[11px] transition-colors" aria-label="theme: system">system</button><!----></div></div> <p class="text-muted-foreground text-pretty text-[13px] leading-6">Click it — the whole site re-themes live. The toggle is the exact one sitting in the
+            header of this page.</p> <figure class="readonly-code"><!--[0--><figcaption class="readonly-code-meta"><span class="prompt" aria-hidden="true">></span> <span>usage</span></figcaption><!--]--> <pre data-lang="svelte"><code><!---->&lt;script lang=<span class="tok-string">"ts"</span>&gt;
+  <span class="tok-keyword">import</span> ThemeToggle <span class="tok-keyword">from</span> <span class="tok-string">'@ui/theme-toggle.svelte'</span>;
+&lt;/script&gt;
+
+&lt;!-- pair with the no-flash inline bootstrap <span class="tok-keyword">in</span> app.html (localStorage
+     <span class="tok-string">"theme"</span> light|dark|system, .dark class, colorScheme, html.js) --&gt;
+&lt;ThemeToggle /&gt;<!----></code></pre></figure><!----></div><!----></div></section><!----></div> <div id="reveal" data-family="reveal" data-reveal=""><section class="border border-border bg-card shadow-xs "><div class="flex flex-col gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4"><!--[0--><p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">registry:lib</p><!--]--> <div class="flex flex-col gap-2.5"><!--[-1--><h2 class="font-nav text-balance text-[1.05rem] tracking-tight leading-tight sm:text-[1.22rem]">reveal</h2><!--]--> <!--[0--><p class="max-w-[64ch] text-pretty text-[13px] leading-5 text-muted-foreground sm:text-[14px] sm:leading-6">The scroll-reveal action. Motion is restrained to exactly two patterns: entrance (opacity + rise, or a rule that draws in) and press physics. Every animated element on this site uses one of them.</p><!--]--></div></div> <div class="px-4 py-4 sm:px-5 sm:py-5"><div class="flex flex-col gap-7" data-region="reveal-demo"><div id="reveal-demo" class="flex flex-col gap-3"><h3 class="text-[15px] font-bold tracking-tight">Live demo</h3> <p class="text-muted-foreground text-pretty text-[13px] leading-6">Scroll these blocks in and out — each carries a static <code class="text-accent">data-reveal=""</code> attribute in the prerendered markup
+              and staggers 90ms behind its sibling. The initial-state law: the hidden state lives
+              in the template, never in mount-time JS, so flat-file page loads never flash content
+              before the animation runs.</p> <div class="grid gap-3 min-[760px]:grid-cols-3"><!--[--><div class="border border-border bg-card shadow-xs px-4 py-5" data-reveal=""><p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">block 1</p> <p class="text-muted-foreground mt-2 text-[12.5px] leading-5">threshold 0 · first-pixel entry · unobserve after reveal</p></div><div class="border border-border bg-card shadow-xs px-4 py-5" data-reveal=""><p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">block 2</p> <p class="text-muted-foreground mt-2 text-[12.5px] leading-5">threshold 0 · first-pixel entry · unobserve after reveal</p></div><div class="border border-border bg-card shadow-xs px-4 py-5" data-reveal=""><p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">block 3</p> <p class="text-muted-foreground mt-2 text-[12.5px] leading-5">threshold 0 · first-pixel entry · unobserve after reveal</p></div><!--]--></div> <div class="bg-border mt-2 h-px w-full" data-reveal="rule"></div> <p class="text-muted-foreground text-[12.5px]">↑ the rule variant: <code class="text-accent">data-reveal="rule"</code> draws a
+              horizontal line scaleX(0 → 1) instead of rising.</p></div> <figure class="readonly-code"><!--[0--><figcaption class="readonly-code-meta"><span class="prompt" aria-hidden="true">></span> <span>usage</span></figcaption><!--]--> <pre data-lang="svelte"><code><!---->&lt;script lang=<span class="tok-string">"ts"</span>&gt;
+  <span class="tok-keyword">import</span> { reveal } <span class="tok-keyword">from</span> <span class="tok-string">'@lib/reveal'</span>;
+&lt;/script&gt;
+
+&lt;!-- the hidden state is a STATIC attribute <span class="tok-keyword">in</span> the markup (never mount-time
+     JS), so flat-file loads never flash content --&gt;
+&lt;div data-reveal=<span class="tok-string">""</span> use:reveal={{ delay: <span class="tok-number">70</span>, rise: <span class="tok-number">12</span> }}&gt;
+  &lt;SectionCard eyebrow=<span class="tok-string">"Law"</span> title=<span class="tok-string">"Reveal"</span> /&gt;
+&lt;/div&gt;
+
+&lt;hr data-reveal=<span class="tok-string">"rule"</span> use:reveal /&gt;<!----></code></pre></figure><!----></div><!----></div></section><!----></div> <div id="toc" data-family="toc" data-reveal=""><section class="border border-border bg-card shadow-xs "><div class="flex flex-col gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4"><!--[0--><p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">registry:ui</p><!--]--> <div class="flex flex-col gap-2.5"><!--[-1--><h2 class="font-nav text-balance text-[1.05rem] tracking-tight leading-tight sm:text-[1.22rem]">toc — the Combo ToC</h2><!--]--> <!--[0--><p class="max-w-[64ch] text-pretty text-[13px] leading-5 text-muted-foreground sm:text-[14px] sm:leading-6">You are looking at it. Desktop gets the Rule Tracker: a scroll-progress spine, square weight-driven nodes on level-1 entries, and the pick + parent markers. Mobile gets the Terminal Rail: a glass single-row viewport where page scroll drives the row to the current entry, and expanding changes ONLY the height.</p><!--]--></div></div> <div class="px-4 py-4 sm:px-5 sm:py-5"><div class="flex flex-col gap-7" data-region="toc-contract"><div id="toc-contract" class="flex flex-col gap-3"><h3 class="text-[15px] font-bold tracking-tight">Content contract</h3> <p class="text-muted-foreground text-pretty text-[13px] leading-6">The engine (registry item <code class="text-accent">toc-engine</code>) computes IoM
+              weights — intersection area over min(block, viewport) — and a single line pick: the
+              viewport-top line on desktop, the sticky-bar bottom + 2em (76px) on mobile. A line in
+              a margin between blocks belongs to the block below. Your content only owes the
+              wrapper attributes:</p> <figure class="readonly-code"><!--[0--><figcaption class="readonly-code-meta"><span class="prompt" aria-hidden="true">></span> <span>contract</span></figcaption><!--]--> <pre data-lang="svelte"><code><!---->&lt;!-- content contract: non-overlapping leaves carry data-region;
+     parent extents carry data-family. Ids match the outline. --&gt;
+&lt;div data-family=<span class="tok-string">"core"</span>&gt;
+  &lt;h2 id=<span class="tok-string">"core"</span>&gt;Core usage&lt;/h2&gt;
+  &lt;section id=<span class="tok-string">"spawn"</span> data-region=<span class="tok-string">"core-spawn"</span>&gt;…&lt;/section&gt;
+  &lt;section id=<span class="tok-string">"write"</span> data-region=<span class="tok-string">"core-write"</span>&gt;…&lt;/section&gt;
+&lt;/div&gt;
+
+&lt;!-- the aside precedes main content <span class="tok-keyword">in</span> the DOM; the page grid places it
+     right on desktop (sticky) and as a sticky height:<span class="tok-number">0</span> rail on mobile --&gt;
+&lt;aside class=<span class="tok-string">"docs-aside"</span>&gt;
+  &lt;Toc {sections} title=<span class="tok-string">"on this page"</span> /&gt;
+&lt;/aside&gt;<!----></code></pre></figure><!----></div></div><!----></div></section><!----></div> <div id="shell" data-family="shell" data-reveal=""><section class="border border-border bg-card shadow-xs "><div class="flex flex-col gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4"><!--[0--><p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">registry:ui</p><!--]--> <div class="flex flex-col gap-2.5"><!--[-1--><h2 class="font-nav text-balance text-[1.05rem] tracking-tight leading-tight sm:text-[1.22rem]">terminal-header / terminal-footer</h2><!--]--> <!--[0--><p class="max-w-[64ch] text-pretty text-[13px] leading-5 text-muted-foreground sm:text-[14px] sm:leading-6">The site shell. The header is an always-dark CRT bezel (never a themed surface) with the brand eyebrow in brand hue, nav pills, and the theme slot at the far right; the footer is a giant ghost wordmark that closes the narrative. This page does not render a second pair — you're wearing one — so here is how they attach instead.</p><!--]--></div></div> <div class="px-4 py-4 sm:px-5 sm:py-5"><div class="flex flex-col gap-7" data-region="shell-code"><div id="shell-code" class="flex flex-col gap-3"><h3 class="text-[15px] font-bold tracking-tight">Integration</h3> <p class="text-muted-foreground text-pretty text-[13px] leading-6">The ghost wordmark recipe: clamp(3rem, 11vw, 9rem), transparent fill, 1px
+              text-stroke of the border color at 55%, with an @supports fallback — decorative,
+              aria-hidden, unselectable.</p> <figure class="readonly-code"><!--[0--><figcaption class="readonly-code-meta"><span class="prompt" aria-hidden="true">></span> <span>shell</span></figcaption><!--]--> <pre data-lang="svelte"><code><!---->&lt;script lang=<span class="tok-string">"ts"</span>&gt;
+  <span class="tok-keyword">import</span> TerminalFooter <span class="tok-keyword">from</span> <span class="tok-string">'@ui/terminal-footer.svelte'</span>;
+  <span class="tok-keyword">import</span> TerminalHeader <span class="tok-keyword">from</span> <span class="tok-string">'@ui/terminal-header.svelte'</span>;
+  <span class="tok-keyword">import</span> ThemeToggle <span class="tok-keyword">from</span> <span class="tok-string">'@ui/theme-toggle.svelte'</span>;
+&lt;/script&gt;
+
+&lt;TerminalHeader
+  brand=<span class="tok-string">"jixoai/ui"</span>
+  domain=<span class="tok-string">"ui.jixoai.com"</span>
+  subtitle=<span class="tok-string">"the jixoai design language"</span>
+  items={[
+    { href: <span class="tok-string">'/'</span>, label: <span class="tok-string">'Overview'</span>, active: <span class="tok-keyword">true</span> },
+    { href: <span class="tok-string">'https://github.com/jixoai/ui'</span>, label: <span class="tok-string">'GitHub'</span>, external: <span class="tok-keyword">true</span> },
+  ]}
+&gt;
+  {<span class="tok-comment">#snippet switcher()}</span>
+    &lt;ThemeToggle /&gt;
+  {/snippet}
+&lt;/TerminalHeader&gt;
+
+&lt;!-- … page content … --&gt;
+
+&lt;TerminalFooter
+  ghost=<span class="tok-string">"JIXOAI/UI"</span>
+  links={[{ label: <span class="tok-string">'GitHub'</span>, href: <span class="tok-string">'https://github.com/jixoai/ui'</span> }]}
+/&gt;<!----></code></pre></figure><!----></div></div><!----></div></section><!----></div></div></div><!--]--><!----></main> <footer class="mx-auto w-full max-w-[90rem] px-4 pb-10 pt-8 sm:px-6 lg:px-8"><p class="jx-footer-ghost font-nav select-none svelte-1v897ym" aria-hidden="true">JIXOAI/UI</p> <div class="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-[12.5px] text-muted-foreground"><div class="flex flex-wrap items-center gap-x-5 gap-y-2"><!--[--><a href="https://github.com/jixoai/ui" target="_blank" rel="noreferrer" class="transition-colors hover:text-primary">GitHub ↗</a><a href="/r/registry.json" target="_blank" rel="noreferrer" class="transition-colors hover:text-primary">Registry JSON ↗</a><a href="https://ui.shadcn.com/docs/registry" target="_blank" rel="noreferrer" class="transition-colors hover:text-primary">shadcn registry docs ↗</a><!--]--></div> <span>© 2026 jixoai · MIT</span></div></footer><!----></div><!--]--><!--]--> <!--[-1--><!--]--><!--]-->
+			
+			<script>
+				{
+					__sveltekit_hooavs = {
+						base: new URL(".", location).pathname.slice(0, -1)
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("./_app/immutable/entry/start.B9Xl7vIv.js"),
+						import("./_app/immutable/entry/app.DHX4wlpy.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element, {
+							node_ids: [0, 3],
+							data: [null,null],
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+  </body>
+</html>

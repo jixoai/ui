@@ -1,0 +1,1 @@
+var e=`https://github.com/jixoai/ui`;export{e as t};
