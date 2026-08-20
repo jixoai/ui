@@ -52,12 +52,12 @@
     });
   });
 
-  const items = [
+  const items = $derived([
     { href: '/', label: 'Overview', active: normalized === '/' },
     { href: '/components.html', label: 'Components', active: normalized === '/components' },
     { href: '/tokens.html', label: 'Tokens', active: normalized === '/tokens' },
     { href: GITHUB_URL, label: 'GitHub', external: true },
-  ];
+  ]);
 </script>
 
 <AppShell>
