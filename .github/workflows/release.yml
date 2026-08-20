@@ -1,0 +1,46 @@
+name: Release
+
+# Publishes the jixoai-ui CLI to npm via Trusted Publishing (OIDC). The
+# package's npm trusted publisher is bound to this repository + this
+# workflow file (release.yml) + the `npm-release` environment.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish jixoai-ui to npm
+    runs-on: ubuntu-latest
+    environment: npm-release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: https://registry.npmjs.org
+      - name: Pack the CLI
+        run: npm pack
+        working-directory: cli
+      - name: Publish via npm Trusted Publishing
+        run: |
+          set -euo pipefail
+          name="jixoai-ui"
+          version="$(node -p "require('./cli/package.json').version")"
+          tarball="jixoai-ui-${version}.tgz"
+          if npm view "${name}@${version}" version >/dev/null 2>&1; then
+            echo "skipping ${name}@${version} (already published)"
+          else
+            echo "publishing ${tarball}"
+            npm publish "${tarball}" --access public --provenance
+          fi
+        working-directory: cli
+      - name: Attach the tarball to the tagged release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: cli/jixoai-ui-*.tgz
+          generate_release_notes: true
