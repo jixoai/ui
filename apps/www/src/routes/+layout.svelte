@@ -32,8 +32,8 @@
     {items}
   >
 {#snippet logo()}
-    <!-- rainbow swatch fan: six hues, bell-curve sizes (small→large→small),
-         hard offset strokes — the freedom of the One-Hue Law -->
+    <!-- rainbow swatch fan: six hues, evenly spaced anchors, bell sizes
+         (small→large→small), hard offset strokes — the freedom of the One-Hue Law -->
     <svg viewBox="0 0 36 36" class="h-7 w-7" aria-hidden="true">
       {#each [
           { hue: 0, size: 8 },
@@ -43,8 +43,7 @@
           { hue: 240, size: 11 },
           { hue: 300, size: 8 },
         ] as swatch, i (swatch.hue)}
-        {@const center = 7 + i * 4.4}
-        {@const pos = center - swatch.size / 2}
+        {@const pos = 3 + i * 5}
         <rect
           x={pos}
           y={pos}
