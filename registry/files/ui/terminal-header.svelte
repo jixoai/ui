@@ -255,6 +255,11 @@
     -webkit-backdrop-filter: brightness(2);
     backdrop-filter: brightness(2);
     opacity: 0;
+  }
+  .jx-nav.jx-light .jx-indicator {
+    /* light bezel: the same "subtle shift" reads as a slight darken */
+    -webkit-backdrop-filter: brightness(0.85);
+    backdrop-filter: brightness(0.85);
     view-transition-name: vt-nav-active;
     transition:
       transform 450ms cubic-bezier(0.22, 1, 0.36, 1),
