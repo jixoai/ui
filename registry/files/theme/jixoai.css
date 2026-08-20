@@ -13,7 +13,7 @@
 @import '@fontsource/share-tech-mono';
 
 :root {
-  --brand-hue: 165; /* per-project identity: unipty=165, openspecui=27 */
+  --brand-hue: 0; /* default: 0 (jixoai red). per-project: unipty=165 幽绿, openspecui=27 */
 
   --background: oklch(1 0 0);
   --foreground: oklch(0 0 0);

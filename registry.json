@@ -18,7 +18,7 @@
       ],
       "cssVars": {
         "light": {
-          "--brand-hue": "165",
+          "--brand-hue": "0",
           "--background": "oklch(1 0 0)",
           "--foreground": "oklch(0 0 0)",
           "--terminal": "oklch(0.2 0 0)",
