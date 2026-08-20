@@ -2,7 +2,7 @@ name: Release
 
 # Publishes the jixoai-ui CLI to npm via Trusted Publishing (OIDC). The
 # package's npm trusted publisher is bound to this repository + this
-# workflow file (release.yml) + the `npm-release` environment.
+# workflow file (release.yml) + the `npm-publish` environment.
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
   publish:
     name: Publish jixoai-ui to npm
     runs-on: ubuntu-latest
-    environment: npm-release
+    environment: npm-publish
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
