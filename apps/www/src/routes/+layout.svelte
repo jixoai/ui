@@ -31,6 +31,23 @@
     subtitle="the jixoai design language"
     {items}
   >
+{#snippet logo()}
+    <!-- rainbow swatch fan: six hues, hard offset shadows — the freedom
+         of the One-Hue Law (ui.jixoai.com is where the hue runs free) -->
+    <svg viewBox="0 0 36 36" class="h-7 w-7" aria-hidden="true">
+      {#each [0, 60, 120, 180, 240, 300] as hue, i (hue)}
+        <rect
+          x={i * 5 + 3}
+          y={i * 5 + 3}
+          width="9"
+          height="9"
+          fill="oklch(0.7044 0.1872 {hue})"
+          stroke="oklch(1 0 0 / 0.85)"
+          stroke-width="1.5"
+        />
+      {/each}
+    </svg>
+  {/snippet}
     {#snippet switcher()}
       <ThemeToggle />
     {/snippet}

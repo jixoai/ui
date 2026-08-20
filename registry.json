@@ -83,7 +83,7 @@
       "name": "terminal-header",
       "type": "registry:ui",
       "title": "Terminal header",
-      "description": "The terminal-bar site header: always-dark CRT bezel surface, brand eyebrow in brand hue, site domain + subtitle, nav pills (active = terminal-hover), external links with \u2197.",
+      "description": "The site nav bar with a clear two-wing layout \u2014 LEFT: brand (logo snippet slot + wordmark + domain/subtitle), RIGHT: nav pills + switcher. Theme-locked CRT bezel: dark by default (inner components render dark via scoped tokens), theme='light'|'system' unlocks. Responsive: desktop one full row, tablet compact row (subtitle hidden), mobile brand row + full-width scrollable nav row.",
       "files": [
         {
           "path": "registry/files/ui/terminal-header.svelte",
