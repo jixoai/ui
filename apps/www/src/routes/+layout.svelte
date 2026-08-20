@@ -32,16 +32,25 @@
     {items}
   >
 {#snippet logo()}
-    <!-- rainbow swatch fan: six hues, hard offset shadows — the freedom
-         of the One-Hue Law (ui.jixoai.com is where the hue runs free) -->
+    <!-- rainbow swatch fan: six hues, bell-curve sizes (small→large→small),
+         hard offset strokes — the freedom of the One-Hue Law -->
     <svg viewBox="0 0 36 36" class="h-7 w-7" aria-hidden="true">
-      {#each [0, 60, 120, 180, 240, 300] as hue, i (hue)}
+      {#each [
+          { hue: 0, size: 8 },
+          { hue: 60, size: 11 },
+          { hue: 120, size: 14 },
+          { hue: 180, size: 14 },
+          { hue: 240, size: 11 },
+          { hue: 300, size: 8 },
+        ] as swatch, i (swatch.hue)}
+        {@const center = 7 + i * 4.4}
+        {@const pos = center - swatch.size / 2}
         <rect
-          x={i * 5 + 3}
-          y={i * 5 + 3}
-          width="9"
-          height="9"
-          fill="oklch(0.7044 0.1872 {hue})"
+          x={pos}
+          y={pos}
+          width={swatch.size}
+          height={swatch.size}
+          fill="oklch(0.7044 0.1872 {swatch.hue})"
           stroke="oklch(1 0 0 / 0.85)"
           stroke-width="1.5"
         />
