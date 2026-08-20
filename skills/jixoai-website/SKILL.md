@@ -34,8 +34,17 @@ across projects so the brand hue stays meaningful.
 
 ## Workflow
 
+0. **Bootstrap from the official registry** (preferred over hand-copying):
+   `npx jixoai-ui init --hue <project hue>` in the site package — registers
+   the `@jixoai` namespace in components.json, installs `jixoai-theme` (the
+   token sheet of design-tokens.md, published verbatim from this repo) and
+   applies the brand hue. Components come the same way:
+   `npx jixoai-ui add toc` / `press-button` / `section-card` /
+   `terminal-header` / `terminal-footer` / `theme-toggle`. The registry at
+   <https://ui.jixoai.com> is the canonical source; this skill's references
+   remain the law when the registry lags or a project needs bespoke pieces.
 1. Read `references/design-tokens.md` — the full token sheet template and
-   the hue derivation rules. Copy it as the site's stylesheet core.
+   the hue derivation rules (what `jixoai-theme` installs).
 2. Read `references/tech-stack.md` — the required stack, then adapt the
    deployment target to the project (reference deploys to Cloudflare
    Pages; unipty deploys to GitHub Pages via workflow). Content pipelines
