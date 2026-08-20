@@ -2,25 +2,19 @@
  * jixoai page scaffold styles (registry/files/ui/app-shell.css).
  * Import once per site alongside app-shell.svelte.
  *
- * Systematized MPA view transitions (2026-08-20):
- * 1. `@view-transition { navigation: auto; }` enables cross-document
- *    transitions (Chrome/Edge 126+; other browsers navigate normally).
- * 2. Named elements: the sticky header band is "site-header" — it persists
- *    between pages (the nav never flickers); the main column is
- *    "page-main" — it is the thing that animates.
- * 3. The page navigation is a horizontal slide paired with a blur
- *    crossfade: the old page exits toward the left while blurring out,
- *    the new page enters from the right while sharpening in. Duration and
- *    easing follow the jixoai motion law (sub-300ms UI, ease-out).
- * 4. Route-typed variants: consumers that wire
- *    view-transitions-toolkit's useAutoTypes() (render-blocking, in
- *    <head>) get from-/to-<route> types; a `jx-vt-direction` attribute on
- *    <html> (set by the toolkit or manually) can flip the slide axis.
+ * SPA view-transition system (Plan A, 2026-08-21 — openspecui tab-carousel
+ * port): the app routes client-side; every navigation runs through
+ * document.startViewTransition with an intent dataset on <html>
+ * (data-vt-kind="page-carousel", data-vt-direction="forward|backward").
+ *  - the sticky header band is "site-header" and persists untouched;
+ *  - the ACTIVE nav pill is "vt-nav-active" and MORPHS between pages
+ *    (the indicator slides along the header, 450ms — the slowest layer);
+ *  - the main column is "page-main" and slides horizontally with an
+ *    asymmetric travel (incoming 136px, outgoing 112px), scale(0.985),
+ *    blur(4px), and a soft reveal mask — keyframe values ported from
+ *    openspecui's vt-tab-* set;
+ *  - reduced motion degrades to a plain crossfade.
  */
-
-@view-transition {
-  navigation: auto;
-}
 
 .jx-skip-link {
   clip-path: inset(50%);
@@ -47,49 +41,196 @@
 .jx-page-main {
   view-transition-name: page-main;
 }
-
-/* The scaffold's sticky band holds the persistent header. The header
-   itself must carry view-transition-name: site-header — set on the band
-   wrapper so consumer headers need no changes. */
 .jx-scaffold-header {
   view-transition-name: site-header;
 }
 
-/* ── the page navigation animation: horizontal slide + blur ── */
-::view-transition-old(page-main) {
-  animation: 240ms cubic-bezier(0.22, 0.61, 0.36, 1) both jx-slide-out;
+/* ── the nav indicator: morphs between pages, slowest layer ── */
+html[data-vt-kind='page-carousel']::view-transition-group(vt-nav-active) {
+  z-index: 5;
+  animation-duration: 450ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  isolation: isolate;
+  overflow: clip;
 }
-::view-transition-new(page-main) {
-  animation: 280ms cubic-bezier(0.22, 0.61, 0.36, 1) both jx-slide-in;
+html[data-vt-kind='page-carousel']::view-transition-old(vt-nav-active),
+html[data-vt-kind='page-carousel']::view-transition-new(vt-nav-active) {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  mix-blend-mode: normal;
 }
 
-@keyframes jx-slide-out {
-  to {
-    transform: translateX(-6%);
-    filter: blur(6px);
-    opacity: 0.4;
-  }
+/* ── the page panel: asymmetric slide + scale + blur + reveal mask ── */
+html[data-vt-kind='page-carousel']::view-transition-group(page-main) {
+  z-index: 1;
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  isolation: isolate;
+  overflow: clip;
 }
-@keyframes jx-slide-in {
+html[data-vt-kind='page-carousel']::view-transition-old(page-main),
+html[data-vt-kind='page-carousel']::view-transition-new(page-main) {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  mix-blend-mode: normal;
+  mask-repeat: no-repeat;
+  mask-mode: alpha;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 400% 100%;
+  mask-size: 400% 100%;
+}
+
+html[data-vt-kind='page-carousel'][data-vt-direction='forward']::view-transition-old(page-main) {
+  -webkit-mask-image: linear-gradient(
+    to left,
+    black 0%,
+    black 25%,
+    transparent 75%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to left, black 0%, black 25%, transparent 75%, transparent 100%);
+  animation:
+    jx-page-old-forward 330ms cubic-bezier(0.4, 0, 0.2, 1) forwards,
+    jx-page-mask-forward-out 330ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+html[data-vt-kind='page-carousel'][data-vt-direction='forward']::view-transition-new(page-main) {
+  -webkit-mask-image: linear-gradient(
+    to left,
+    black 0%,
+    black 25%,
+    transparent 75%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to left, black 0%, black 25%, transparent 75%, transparent 100%);
+  animation:
+    jx-page-new-forward 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    jx-page-mask-forward-in 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transition-old(page-main) {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    black 0%,
+    black 25%,
+    transparent 75%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to right, black 0%, black 25%, transparent 75%, transparent 100%);
+  animation:
+    jx-page-old-backward 330ms cubic-bezier(0.4, 0, 0.2, 1) forwards,
+    jx-page-mask-backward-out 330ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transition-new(page-main) {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    black 0%,
+    black 25%,
+    transparent 75%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to right, black 0%, black 25%, transparent 75%, transparent 100%);
+  animation:
+    jx-page-new-backward 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    jx-page-mask-backward-in 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ── keyframes: asymmetric travel (in 136px, out 112px), scale, blur ── */
+@keyframes jx-page-new-forward {
   from {
-    transform: translateX(6%);
-    filter: blur(6px);
-    opacity: 0.4;
+    filter: blur(4px);
+    transform: translateX(136px) scale(0.985);
+  }
+  to {
+    filter: blur(0);
+    transform: translateX(0);
+  }
+}
+@keyframes jx-page-old-forward {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    filter: blur(4px);
+    transform: translateX(-112px) scale(0.985);
+  }
+}
+@keyframes jx-page-new-backward {
+  from {
+    filter: blur(4px);
+    transform: translateX(-136px) scale(0.985);
+  }
+  to {
+    filter: blur(0);
+    transform: translateX(0);
+  }
+}
+@keyframes jx-page-old-backward {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    filter: blur(4px);
+    transform: translateX(112px) scale(0.985);
   }
 }
 
-/* Reduced motion: crossfade only, no travel, no blur. */
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(page-main),
-  ::view-transition-new(page-main) {
-    animation: 120ms ease-out both;
+/* ── mask travel: the soft reveal edge ── */
+@keyframes jx-page-mask-forward-in {
+  from {
+    -webkit-mask-position: 0%;
+    mask-position: 0%;
   }
-  ::view-transition-old(page-main) {
+  to {
+    -webkit-mask-position: 100%;
+    mask-position: 100%;
+  }
+}
+@keyframes jx-page-mask-forward-out {
+  from {
+    -webkit-mask-position: 100%;
+    mask-position: 100%;
+  }
+  to {
+    -webkit-mask-position: 0%;
+    mask-position: 0%;
+  }
+}
+@keyframes jx-page-mask-backward-in {
+  from {
+    -webkit-mask-position: 100%;
+    mask-position: 100%;
+  }
+  to {
+    -webkit-mask-position: 0%;
+    mask-position: 0%;
+  }
+}
+@keyframes jx-page-mask-backward-out {
+  from {
+    -webkit-mask-position: 0%;
+    mask-position: 0%;
+  }
+  to {
+    -webkit-mask-position: 100%;
+    mask-position: 100%;
+  }
+}
+
+/* Reduced motion: plain crossfade, no travel, no blur, no mask. */
+@media (prefers-reduced-motion: reduce) {
+  html[data-vt-kind='page-carousel']::view-transition-old(page-main),
+  html[data-vt-kind='page-carousel']::view-transition-new(page-main) {
+    animation: 120ms ease-out both;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+  html[data-vt-kind='page-carousel']::view-transition-old(page-main) {
     to {
       opacity: 0;
     }
   }
-  ::view-transition-new(page-main) {
+  html[data-vt-kind='page-carousel']::view-transition-new(page-main) {
     from {
       opacity: 0;
     }

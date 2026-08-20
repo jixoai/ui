@@ -27,33 +27,8 @@
       })();
     </script>
     %sveltekit.head%
-    <script type="module" blocking="render" async>
-      // Route-typed MPA view transitions (view-transitions-toolkit pattern):
-      // from-/to-<route> types let CSS vary the page animation per pair.
-      const routeMap = { index: '/', components: '/components', tokens: '/tokens' };
-      const match = (url) => {
-        const p = new URL(url, location.origin).pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/';
-        return Object.entries(routeMap).find(([, path]) => path === p)?.[0];
-      };
-      const types = (t) => document.documentElement.style.setProperty('view-transition-name', 'root') || t;
-      // pageswap: outgoing document tags from-<route>
-      addEventListener('pageswap', (e) => {
-        const from = match(e.activation?.entry?.url ?? location.href);
-        if (from && e.viewTransition) e.viewTransition.types.add('from-' + from);
-      });
-      // pagereveal: incoming document tags to-<route>
-      addEventListener('pagereveal', (e) => {
-        const to = match(location.href);
-        if (to && e.viewTransition) e.viewTransition.types.add('to-' + to);
-      });
-    </script>
   </head>
-  <!--
-    data-sveltekit-reload: the site is a flat multi-page artifact (index.html,
-    components.html, tokens.html); every internal link performs a full page
-    load instead of client-route resolution.
-  -->
-  <body data-sveltekit-reload>
+  <body>
     <div style="display: contents">%sveltekit.body%</div>
   </body>
 </html>

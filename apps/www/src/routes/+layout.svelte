@@ -1,5 +1,6 @@
 <script lang="ts">
   import '../app.css';
+  import { onNavigate } from '$app/navigation';
   import { page } from '$app/state';
   import type { Snippet } from 'svelte';
   import AppShell from '$lib/ui/app-shell.svelte';
@@ -16,6 +17,40 @@
   const normalized = $derived(
     page.url.pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/',
   );
+
+  // SPA view transitions (Plan A, 2026-08-21): every internal navigation
+  // runs through document.startViewTransition with the tab-carousel
+  // direction law (page order index comparison, ported from openspecui).
+  // Reduced motion / unsupported browsers navigate plainly.
+  const PAGE_ORDER = ['/', '/components.html', '/tokens.html'];
+  const pageIndex = (pathname: string) => PAGE_ORDER.indexOf(pathname);
+
+  onNavigate((navigation) => {
+    if (
+      typeof document.startViewTransition !== 'function' ||
+      matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return;
+    }
+    const from = pageIndex(page.url.pathname);
+    const to = pageIndex(new URL(navigation.to.url, location.origin).pathname);
+    if (from < 0 || to < 0 || from === to) return;
+
+    const root = document.documentElement;
+    root.dataset.vtKind = 'page-carousel';
+    root.dataset.vtDirection = to > from ? 'forward' : 'backward';
+
+    return new Promise((resolve) => {
+      const transition = document.startViewTransition(async () => {
+        resolve();
+        await navigation.complete;
+      });
+      transition.finished.finally(() => {
+        delete root.dataset.vtKind;
+        delete root.dataset.vtDirection;
+      });
+    });
+  });
 
   const items = [
     { href: '/', label: 'Overview', active: normalized === '/' },
