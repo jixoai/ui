@@ -39,6 +39,9 @@
     const root = document.documentElement;
     root.dataset.vtKind = 'page-carousel';
     root.dataset.vtDirection = to > from ? 'forward' : 'backward';
+    root.dataset.vtNav = document.querySelector('.jx-nav')?.classList.contains('jx-light')
+      ? 'light'
+      : 'dark';
 
     return new Promise((resolve) => {
       const transition = document.startViewTransition(async () => {
@@ -48,6 +51,7 @@
       transition.finished.finally(() => {
         delete root.dataset.vtKind;
         delete root.dataset.vtDirection;
+        delete root.dataset.vtNav;
       });
     });
   });

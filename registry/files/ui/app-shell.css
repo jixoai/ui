@@ -59,6 +59,10 @@ html[data-vt-kind='page-carousel']::view-transition-group(vt-nav-active) {
   -webkit-backdrop-filter: brightness(2);
   backdrop-filter: brightness(2);
 }
+html[data-vt-kind='page-carousel'][data-vt-nav='light']::view-transition-group(vt-nav-active) {
+  -webkit-backdrop-filter: brightness(0.85);
+  backdrop-filter: brightness(0.85);
+}
 html[data-vt-kind='page-carousel']::view-transition-old(vt-nav-active),
 html[data-vt-kind='page-carousel']::view-transition-new(vt-nav-active) {
   width: 100%;

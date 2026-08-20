@@ -12,13 +12,16 @@
 @import '@fontsource-variable/jetbrains-mono';
 @import '@fontsource/share-tech-mono';
 
-:root {
-  --brand-hue: 330; /* jixoai/ui: 330 (pink-purple). siblings: unipty=165 幽绿, openspecui=27 */
+:root,
+.jx-light {
+  --brand-hue: 0; /* default: 0 (jixoai red). per-project: unipty=165 幽绿, openspecui=27 */
 
   --background: oklch(1 0 0);
   --foreground: oklch(0 0 0);
-  --terminal: oklch(0.2 0 0);
-  --terminal-foreground: oklch(1 0 0);
+  /* unlocked-light bezel (Owner, 2026-08-21): theme="light" surfaces get a
+     light CRT shell — dark-locked remains the default */
+  --terminal: oklch(0.9551 0 0);
+  --terminal-foreground: oklch(0 0 0);
   --terminal-hover: color-mix(in oklab, var(--terminal-foreground) 14%, var(--terminal));
   --terminal-muted: color-mix(in oklab, var(--terminal-foreground) 8%, var(--terminal));
   --card: oklch(1 0 0);
