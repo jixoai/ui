@@ -7,6 +7,7 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import ThemeToggle from '$lib/ui/theme-toggle.svelte';
   import Toc from '$lib/ui/toc.svelte';
+  import ScaffoldFloat from '$lib/ui/scaffold-float.svelte';
   import { reveal } from '$lib/reveal';
 
   // Combo ToC outline (registry component). Ids match the data-region /
@@ -151,7 +152,7 @@ ${close}
 <!-- the aside precedes main content in the DOM; the page grid places it
      right on desktop (sticky) and as a sticky height:0 rail on mobile -->
 <aside class="docs-aside">
-  <Toc {sections} title="on this page" />
+  <Toc {sections} title="on this page" scrollRoot=".jx-shell-body" />
 </aside>`;
 
   const shellUsage = `<script lang="ts">
@@ -194,11 +195,15 @@ ${close}
      content in the DOM; the page grid places it as the right column on
      desktop (sticky, align-self: start) and as a sticky height:0 glass
      single-row rail on mobile. -->
-<div class="docs-frame">
+<!-- ToC rides the top layer: authored here, adopted into .jx-top-layer
+     by the float portal (immersive sync with the header by construction) -->
+<ScaffoldFloat>
   <aside class="docs-aside" aria-label="On this page">
-    <Toc {sections} title="on this page" />
+    <Toc {sections} title="on this page" scrollRoot=".jx-shell-body" />
   </aside>
+</ScaffoldFloat>
 
+<div class="docs-frame">
   <div class="docs-main">
     <!-- Gallery family: page head. -->
     <div data-family="gallery">
@@ -484,10 +489,14 @@ ${close}
     display: block;
     padding-block: 0 1rem;
   }
+  /* the aside is adopted into .jx-top-layer by the portal: on mobile it
+     pins to the layer's bottom edge (glass rail under the header, riding
+     the immersive slide); on desktop it floats over the right column */
   .docs-aside {
-    position: sticky;
-    top: 0;
-    height: 0;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: auto;
     z-index: 30;
   }
   .docs-main {
@@ -514,12 +523,12 @@ ${close}
       padding-inline: 0;
     }
     .docs-aside {
-      grid-column: 2;
-      grid-row: 1;
-      position: sticky;
-      top: 20px;
-      align-self: start;
-      max-height: calc(100vh - 40px);
+      position: absolute;
+      top: 96px;
+      right: max(1.5rem, calc((100vw - 90rem) / 2 + 1.5rem));
+      left: auto;
+      width: 14.5rem;
+      max-height: calc(100vh - 120px);
       height: auto;
       z-index: auto;
     }

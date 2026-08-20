@@ -35,6 +35,10 @@ export interface TocLineOptions {
   /** Distance from the viewport top to the calculation line, in px.
    *  Desktop default 1; mobile default 76 (sticky bar 44 + 2em). */
   lineOffset?: number;
+  /** Scroll root for overlay-shell layouts where an internal element
+   *  scrolls instead of the document. Accepts an element or a selector
+   *  resolved at engine creation. Defaults to the window/document. */
+  scrollRoot?: string | HTMLElement | null;
 }
 
 export function createTocEngine(
@@ -42,6 +46,11 @@ export function createTocEngine(
   options: TocLineOptions = {},
 ): () => void {
   const lineOffset = options.lineOffset ?? 1;
+  const scrollRootEl =
+    typeof options.scrollRoot === 'string'
+      ? document.querySelector<HTMLElement>(options.scrollRoot)
+      : (options.scrollRoot ?? null);
+  const scrollListenerTarget: HTMLElement | Window = scrollRootEl ?? window;
   const regions = Array.from(document.querySelectorAll<HTMLElement>('[data-region]'));
   const families = Array.from(document.querySelectorAll<HTMLElement>('[data-family]'));
   let raf = 0;
@@ -98,11 +107,11 @@ export function createTocEngine(
   const schedule = (): void => {
     if (!raf) raf = requestAnimationFrame(compute);
   };
-  addEventListener('scroll', schedule, { passive: true });
+  scrollListenerTarget.addEventListener('scroll', schedule, { passive: true });
   addEventListener('resize', schedule, { passive: true });
   compute();
   return () => {
-    removeEventListener('scroll', schedule);
+    scrollListenerTarget.removeEventListener('scroll', schedule);
     removeEventListener('resize', schedule);
     if (raf) cancelAnimationFrame(raf);
   };

@@ -33,9 +33,12 @@
   interface Props {
     sections: TocSection[];
     title?: string;
+    /** Scroll root for overlay-shell layouts (selector or element);
+     *  defaults to the document. */
+    scrollRoot?: string | HTMLElement | null;
   }
 
-  let { sections, title = 'reading progress' }: Props = $props();
+  let { sections, title = 'reading progress', scrollRoot = null }: Props = $props();
 
   const flat = $derived(
     sections.flatMap((section, i) => [
@@ -90,20 +93,25 @@
           viewport.scrollTo({ top: (li as HTMLElement).offsetTop, behavior: reduce ? 'auto' : 'smooth' });
         }
       },
-      { lineOffset: innerWidth < 900 ? mobileLine : 1 },
+      { lineOffset: innerWidth < 900 ? mobileLine : 1, scrollRoot },
     );
 
+    const root =
+      typeof scrollRoot === 'string'
+        ? document.querySelector<HTMLElement>(scrollRoot)
+        : scrollRoot;
     const onScroll = () => {
       if (!spineFill) return;
-      const max = document.documentElement.scrollHeight - innerHeight;
-      const p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+      const max = root ? root.scrollHeight - root.clientHeight : document.documentElement.scrollHeight - innerHeight;
+      const y = root ? root.scrollTop : scrollY;
+      const p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
       spineFill.style.setProperty('--jx-progress', Math.max(0.02, p).toFixed(3));
     };
-    addEventListener('scroll', onScroll, { passive: true });
+    (root ?? window).addEventListener('scroll', onScroll, { passive: true });
     onScroll();
     return () => {
       stopEngine();
-      removeEventListener('scroll', onScroll);
+      (root ?? window).removeEventListener('scroll', onScroll);
     };
   });
 
