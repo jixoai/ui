@@ -67,13 +67,17 @@ html[data-vt-kind='page-carousel']::view-transition-group(page-main) {
   animation-duration: 420ms;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   isolation: isolate;
-  overflow: clip;
+  overflow: clip; /* crops the pinned-height overflow instead of morphing */
 }
 html[data-vt-kind='page-carousel']::view-transition-old(page-main),
 html[data-vt-kind='page-carousel']::view-transition-new(page-main) {
   width: 100%;
-  height: 100%;
-  object-fit: fill;
+  /* LOCK THE HEIGHT (Owner, 2026-08-21): old/new snapshots are pinned to
+     the dynamic viewport height so the group never interpolates a size —
+     no vertical morph during the slide. object-fit: none keeps pixels
+     undistorted; the group clips whatever overflows. */
+  height: 100dvh;
+  object-fit: none;
   mix-blend-mode: normal;
   mask-repeat: no-repeat;
   mask-mode: alpha;
