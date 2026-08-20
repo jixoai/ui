@@ -195,3 +195,31 @@
     transition: none;
   }
 }
+
+/* ── aside layout law (apply .jx-toc-aside to the wrapping <aside>) ──
+   DOM: the aside precedes main content; positioning is the aside's own
+   responsibility, never the re-mounted variant content's. */
+.jx-toc-aside {
+  min-width: 0;
+}
+@media (min-width: 900px) {
+  .jx-toc-aside {
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    max-height: calc(100vh - 40px);
+  }
+}
+@media (max-width: 899.9px) {
+  /* sticky with height: 0 (Owner, 2026-08-20): zero flow impact — expanding
+     never reflows the document, so anchor jumps always land; the inner
+     content overflows and stays pinned over the scrolling page. Pair with
+     ~68px top padding on the main content column. No transform here:
+     a transform would create a backdrop root and kill the glass blur. */
+  .jx-toc-aside {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: 0;
+  }
+}
