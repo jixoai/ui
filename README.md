@@ -62,4 +62,4 @@ Dependencies between items use `registryDependencies`.
 - [ ] Point `ui.jixoai.com` CNAME at GitHub Pages (same DNS flow as
       `unipty.jixoai.com`), enable Pages on the `public/r` artifact
 - [ ] Decide the default `--brand-hue` shipped in `jixoai-theme`
-      (currently `165`, unipty's 幽绿) — consumers change one number
+      (default `0`, jixoai red; unipty uses `165` 幽绿) — consumers change one number or run `jixoai-ui hue <n>`
