@@ -111,7 +111,7 @@
       "name": "theme-toggle",
       "type": "registry:ui",
       "title": "Theme toggle",
-      "description": "light / dark / system cycler (Share Tech Mono labels) driving the shared theme module; pair with the no-flash inline bootstrap.",
+      "description": "light / dark / system control in four variants: full (segmented icon+label selector), compact (icon + current), icon (icon only), text (label only). Inline SVG icons, no icon-library dependency; shared theme contract (localStorage theme, .dark + colorScheme).",
       "files": [
         {
           "path": "registry/files/ui/theme-toggle.svelte",
