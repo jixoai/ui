@@ -16,6 +16,41 @@
  *  - reduced motion degrades to a plain crossfade.
  */
 
+/* overlay architecture (Owner, 2026-08-21): the shell is a fixed-height
+   viewport; the header overlays the body, the body owns the scrolling and
+   reserves a measured padding-top for the band — no sticky geometry. */
+.jx-shell {
+  height: 100vh;
+  height: 100dvh;
+  position: relative;
+  overflow: clip;
+}
+.jx-top-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  transition: transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+/* immersive: the WHOLE top plane (header + float) slides out together */
+.jx-top-layer.jx-top-layer-hidden {
+  transform: translateY(-101%);
+}
+.jx-scaffold-header {
+  position: relative;
+}
+@media (prefers-reduced-motion: reduce) {
+  .jx-top-layer {
+    transition: none;
+  }
+}
+.jx-shell-body {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior-y: none;
+}
+
 .jx-skip-link {
   clip-path: inset(50%);
   height: 1px;
