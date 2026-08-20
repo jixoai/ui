@@ -12,7 +12,8 @@
 @import '@fontsource-variable/jetbrains-mono';
 @import '@fontsource/share-tech-mono';
 
-:root {
+:root,
+.jx-light {
   --brand-hue: 0; /* default: 0 (jixoai red). per-project: unipty=165 幽绿, openspecui=27 */
 
   --background: oklch(1 0 0);
