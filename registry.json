@@ -169,7 +169,7 @@
       "name": "terminal-card",
       "type": "registry:ui",
       "title": "Terminal card",
-      "description": "The terminal typing window: commands type in character by character (one-time entrance, never looping), outputs appear after their command, static block cursor in brand hue (no blink \u2014 the motion law), reduced-motion renders the transcript instantly. Terminal bezel chrome with title bar.",
+      "description": "The Broadside hero terminal, composed after the openspecui reference: traffic-light title bar, one large typed command line, outputs surfacing line by line, 6px hard offset shadow. One-shot typing entrance (never looping), static block cursor (jixoai motion law), prerendered/no-JS shows the settled terminal, reduced motion renders instantly.",
       "files": [
         {
           "path": "registry/files/ui/terminal-card.svelte",
@@ -177,14 +177,14 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: title, script: { cmd, out? }[], prompt ('$'), speed (ms/char, 28)."
+      "docs": "Props: barTitle, command, outputs: readonly string[]."
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "hero-section",
       "type": "registry:ui",
       "title": "Hero section",
-      "description": "The open Broadside hero (no card chrome): eyebrow, clamp-scaled font-nav title, text-pretty summary, terminal chip row, CTA snippet, and an optional right-column demo snippet (the terminal card pairs naturally). Two columns on lg+, stacked on smaller screens; static data-reveal entrance per the motion law.",
+      "description": "The Broadside hero, composed after the openspecui reference: clamp-scaled bold lead type with a primary accent tail, badge row, a copy-command PRIMARY CTA (icon + command, copied feedback) plus a secondary snippet slot, and the terminal card in a bottom-aligned second column at min-1100px (stacked below otherwise). Static data-reveal entrances per the motion law.",
       "registryDependencies": [
         "@jixoai/reveal"
       ],
@@ -195,7 +195,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: eyebrow, title, summary?, chips?: string[], actions? snippet, demo? snippet."
+      "docs": "Props: eyebrow, titleLead, titleAccent, summary, badges: readonly string[], copyCommand, copyLabel?, terminal snippet, secondary? snippet."
     }
   ]
 }
