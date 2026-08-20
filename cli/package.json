@@ -20,5 +20,13 @@
     "registry",
     "cli",
     "design-system"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jixoai/ui",
+    "directory": "cli"
+  }
 }
