@@ -52,6 +52,12 @@ html[data-vt-kind='page-carousel']::view-transition-group(vt-nav-active) {
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   isolation: isolate;
   overflow: clip;
+  /* the GROUP is the effect (Owner, 2026-08-21): with the snapshots
+     hidden, the morphing group box itself brightens whatever VT layer is
+     behind it — the persistent header with its pill text — instead of
+     painting an opaque rect over it. High stacking becomes harmless. */
+  -webkit-backdrop-filter: brightness(2);
+  backdrop-filter: brightness(2);
 }
 html[data-vt-kind='page-carousel']::view-transition-old(vt-nav-active),
 html[data-vt-kind='page-carousel']::view-transition-new(vt-nav-active) {
@@ -59,6 +65,7 @@ html[data-vt-kind='page-carousel']::view-transition-new(vt-nav-active) {
   height: 100%;
   object-fit: fill;
   mix-blend-mode: normal;
+  opacity: 0;
 }
 
 /* ── the page panel: asymmetric slide + scale + blur + reveal mask ── */
