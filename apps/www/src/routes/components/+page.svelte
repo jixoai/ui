@@ -221,17 +221,16 @@ ${close}
         summary="light / dark / system in four variants: full (segmented icon+label selector — click a mode to set it), compact (icon + current, cycles), icon (icon only, cycles), text (label only, cycles). Inline SVG icons, no icon-library dependency; drives the shared theme contract (localStorage “theme”, .dark class, colorScheme) with the no-flash bootstrap."
       >
         <div class="flex flex-col gap-5">
-          <div class="bg-terminal text-terminal-foreground border border-border p-5">
-            <div class="flex flex-wrap items-center gap-x-8 gap-y-4">
-              <label class="flex items-center gap-2 text-xs text-terminal-foreground/70"><span>full</span><ThemeToggle variant="full" /></label>
-              <label class="flex items-center gap-2 text-xs text-terminal-foreground/70"><span>compact</span><ThemeToggle variant="compact" /></label>
-              <label class="flex items-center gap-2 text-xs text-terminal-foreground/70"><span>icon</span><ThemeToggle variant="icon" /></label>
-              <label class="flex items-center gap-2 text-xs text-terminal-foreground/70"><span>text</span><ThemeToggle variant="text" /></label>
-            </div>
+          <div class="flex flex-wrap items-center gap-x-8 gap-y-4">
+            <label class="text-muted-foreground flex items-center gap-2 text-xs"><span>full</span><ThemeToggle variant="full" /></label>
+            <label class="text-muted-foreground flex items-center gap-2 text-xs"><span>compact</span><ThemeToggle variant="compact" /></label>
+            <label class="text-muted-foreground flex items-center gap-2 text-xs"><span>icon</span><ThemeToggle variant="icon" /></label>
+            <label class="text-muted-foreground flex items-center gap-2 text-xs"><span>text</span><ThemeToggle variant="text" /></label>
           </div>
           <p class="text-muted-foreground text-pretty text-[13px] leading-6">
             All four control the same live theme — click any of them and the whole site re-themes.
-            full sets a mode directly; the other three cycle light → dark → system.
+            full sets a mode directly; the other three cycle light → dark → system. The toggle
+            adapts to its container: light here, dark in the terminal header above.
           </p>
           <CodeBlock code={toggleUsage} lang="svelte" meta="usage" />
         </div>
