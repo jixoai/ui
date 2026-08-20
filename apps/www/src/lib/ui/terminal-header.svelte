@@ -180,4 +180,19 @@
       transition: none;
     }
   }
+  /* interaction polish on the bezel: WebKit's default tap-highlight is a
+     semi-transparent black flash that reads as a bug on the dark surface;
+     idle pills gain a hover affordance; focus gets a contained ring
+     instead of the site-wide 2px offset outline */
+  .jx-nav a,
+  .jx-nav button {
+    -webkit-tap-highlight-color: transparent;
+  }
+  .jx-nav nav a:not([aria-current='page']):hover {
+    background: var(--terminal-hover);
+  }
+  .jx-nav :where(a, button):focus-visible {
+    outline: 1px solid color-mix(in oklab, var(--terminal-foreground) 80%, transparent);
+    outline-offset: -1px;
+  }
 </style>
