@@ -1,7 +1,13 @@
-name: Deploy registry
+name: Deploy registry + site
 
-# Serves the built registry (public/r/*.json) on GitHub Pages. The custom
-# domain ui.jixoai.com is Owner-managed DNS on top of this deployment.
+# Serves the registry JSON (public/r/*.json) AND the ui.jixoai.com showcase
+# site (public/*.html) on GitHub Pages. The custom domain ui.jixoai.com is
+# Owner-managed DNS on top of this deployment.
+#
+# Artifact order is load-bearing (mirrors scripts/build-site.mjs): the site
+# dist is copied into a freshly emptied public/ BEFORE `shadcn build` emits
+# public/r/, so /r/*.json and the site coexist on the root domain and the
+# registry JSON paths never move.
 
 on:
   push:
@@ -25,8 +31,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: npm install --no-fund --no-audit
-      - run: npx shadcn build
+      - name: Install root deps (shadcn)
+        run: npm install --no-fund --no-audit
+      - name: Install site deps (apps/www)
+        run: npm install --no-fund --no-audit
+        working-directory: apps/www
+      - name: Build site + registry into public/
+        run: node scripts/build-site.mjs
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "shadcn build",
-    "dev": "shadcn build --watch"
+    "dev": "shadcn build --watch",
+    "build:site": "node scripts/build-site.mjs"
   },
   "devDependencies": {
     "shadcn": "^4.18.0"

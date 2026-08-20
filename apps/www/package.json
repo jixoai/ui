@@ -1,0 +1,26 @@
+{
+  "name": "@jixoai/www",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ui.jixoai.com — the jixoai design-language gallery and docs site; consumes the registry components from this repo (same-source copies, zero network).",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@fontsource-variable/jetbrains-mono": "^5.2.8",
+    "@fontsource/share-tech-mono": "^5.2.7",
+    "@sveltejs/adapter-static": "^3.0.10",
+    "@sveltejs/kit": "^2.59.1",
+    "@sveltejs/vite-plugin-svelte": "^7.1.2",
+    "@tailwindcss/vite": "^4.2.1",
+    "lucide-svelte": "^0.472.0",
+    "svelte": "^5.55.5",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.7.2",
+    "vite": "^8.0.0"
+  }
+}

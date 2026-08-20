@@ -1,0 +1,193 @@
+<script lang="ts">
+  import CodeBlock from '$lib/code-block.svelte';
+  import CopyCommand from '$lib/copy-command.svelte';
+  import PressButton from '$lib/ui/press-button.svelte';
+  import SectionCard from '$lib/ui/section-card.svelte';
+  import { reveal } from '$lib/reveal';
+  import { GITHUB_URL } from '$lib/site';
+
+  const initCode = String.raw`# register the @jixoai namespace, install the theme, set the hue
+npx jixoai-ui init --hue 330
+
+# add components (delegates to shadcn, re-applies the hue)
+npx jixoai-ui add press-button section-card toc`;
+
+  const registryCode = String.raw`{
+  "registries": {
+    "@jixoai": "https://ui.jixoai.com/r/{name}.json"
+  }
+}`;
+
+  const why = [
+    {
+      id: 'one-hue',
+      eyebrow: 'Law 01',
+      title: 'One-Hue Law',
+      body: 'Every color is OKLCH with fixed lightness and chroma; a project\'s whole identity is one CSS variable: --brand-hue. Dark mode drifts it -4°. Two jixoai sites never differ in anything except this number and their content — play with it on the Tokens page.',
+    },
+    {
+      id: 'registry',
+      eyebrow: 'Law 02',
+      title: 'A shadcn registry, not a package',
+      body: 'Components live in your repo after `npx jixoai-ui add` — same-source files, no runtime dependency, no version lock. The registry JSON this site documents is served from /r/ on this very domain.',
+    },
+    {
+      id: 'dogfooded',
+      eyebrow: 'Law 03',
+      title: 'Dogfooded by this site',
+      body: 'This page is built from the exact files the registry ships: the token sheet, the reveal action, press buttons, section cards, and the Combo ToC on the Components page. If the registry regresses, this site visibly regresses with it.',
+    },
+  ];
+
+  interface CatalogItem {
+    name: string;
+    type: string;
+    blurb: string;
+  }
+
+  const catalog: CatalogItem[] = [
+    { name: 'jixoai-theme', type: 'registry:theme', blurb: 'The full OKLCH token sheet with the --brand-hue law, hard shadows, radius 0 + bevel upgrade, mono-first fonts.' },
+    { name: 'toc-engine', type: 'registry:lib', blurb: 'Framework-free ToC geometry: IoM weights, viewport-top line pick, margin-resolves-downward law, 76px mobile line.' },
+    { name: 'reveal', type: 'registry:lib', blurb: 'Scroll-reveal action: static data-reveal hook law, delay/rise staggering, reduced-motion safety.' },
+    { name: 'press-button', type: 'registry:ui', blurb: 'The brutalist press-physics button: lift on hover, press into the page. primary / outline / copied.' },
+    { name: 'section-card', type: 'registry:ui', blurb: 'The content atom: bordered card, eyebrow in brand hue, font-nav title, text-pretty summary, body slot.' },
+    { name: 'terminal-header', type: 'registry:ui', blurb: 'Terminal-bar site header: always-dark CRT bezel, nav pills, external links with ↗, theme slot.' },
+    { name: 'terminal-footer', type: 'registry:ui', blurb: 'Ghost wordmark footer: huge hollow brand word, muted meta row transitioning to brand hue.' },
+    { name: 'theme-toggle', type: 'registry:ui', blurb: 'light / dark / system cycler in Share Tech Mono, paired with the no-flash inline bootstrap.' },
+    { name: 'toc', type: 'registry:ui', blurb: 'The Combo ToC: desktop Rule Tracker spine + mobile Terminal Rail glass single-row viewport.' },
+  ];
+</script>
+
+<svelte:head>
+  <title>jixoai/ui — the jixoai design language</title>
+  <meta
+    name="description"
+    content="The jixoai design language as a shadcn registry: terminal / neo-brutalist, mono-first, OKLCH token law with one brand hue per project."
+  />
+</svelte:head>
+
+<!-- Hero: open lead type (no card chrome), per the jixoai page grammar. -->
+<section class="mx-auto w-full max-w-[90rem] px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:px-8">
+  <div class="max-w-[62ch]">
+    <p
+      class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]"
+      data-reveal=""
+      use:reveal
+    >
+      jixoai/ui · v0.1 · shadcn registry
+    </p>
+    <h1
+      class="mt-4 text-[clamp(2.4rem,5vw,4.4rem)] leading-[1.2] font-bold tracking-[-0.02em] text-balance"
+      data-reveal=""
+      use:reveal={{ delay: 60, rise: 14 }}
+    >
+      The terminal design language of jixoai. <em class="text-primary not-italic">One hue</em> per
+      project.
+    </h1>
+    <p
+      class="text-muted-foreground mt-5 max-w-[62ch] text-pretty text-[15px] leading-6 sm:text-base sm:leading-7"
+      data-reveal=""
+      use:reveal={{ delay: 120 }}
+    >
+      Everything here graduated from production work on unipty and openspecui: an OKLCH token law
+      where a project's entire identity is a single --brand-hue variable, hard offset shadows, a
+      mono-first voice, and components you own after copying them in.
+    </p>
+    <div
+      class="text-muted-foreground font-nav mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-[0.14em]"
+      data-reveal=""
+      use:reveal={{ delay: 160 }}
+    >
+      <span>OKLCH tokens</span>
+      <span>Svelte 5 first</span>
+      <span>Zero runtime deps</span>
+      <span>MIT</span>
+    </div>
+    <div class="mt-8 flex flex-wrap gap-3" data-reveal="" use:reveal={{ delay: 200 }}>
+      <PressButton variant="primary" href="/tokens.html">Get started</PressButton>
+      <PressButton variant="outline" href="/components.html">Components</PressButton>
+      <PressButton variant="outline" href={GITHUB_URL} external>GitHub ↗</PressButton>
+    </div>
+  </div>
+</section>
+
+<!-- Why: three law cards. -->
+<section class="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-8" aria-label="Why this exists">
+  <h2
+    class="font-nav flex items-baseline gap-4 text-lg uppercase tracking-[0.3em]"
+    data-reveal=""
+    use:reveal
+  >
+    Why
+    <span class="bg-border h-px flex-1" aria-hidden="true"></span>
+  </h2>
+  <div class="mt-6 grid gap-6 min-[940px]:grid-cols-3">
+    {#each why as card, index (card.id)}
+      <div data-reveal="" use:reveal={{ delay: index * 70, rise: 12 }}>
+        <SectionCard eyebrow={card.eyebrow} title={card.title}>
+          <p class="text-muted-foreground text-pretty text-[13px] leading-6">{card.body}</p>
+        </SectionCard>
+      </div>
+    {/each}
+  </div>
+</section>
+
+<!-- Install card. -->
+<div class="mx-auto w-full max-w-[90rem] px-4 pt-8 sm:px-6 lg:px-8" data-reveal="" use:reveal>
+  <SectionCard
+    eyebrow="Install"
+    title="Two commands and the design language is yours"
+    summary="The CLI extends shadcn's components.json, installs the token sheet, and writes your hue. Components arrive as same-source files in your repo — no package to depend on, nothing to upgrade against your will."
+  >
+    <div class="flex flex-col gap-5">
+      <div class="flex flex-wrap items-center gap-3">
+        <CopyCommand command="npx jixoai-ui init --hue 330" />
+      </div>
+      <CodeBlock code={initCode} lang="sh" meta="shell" />
+      <CodeBlock code={registryCode} lang="json" meta="components.json" />
+      <p class="text-muted-foreground text-[13px] leading-5">
+        Non-Svelte projects still benefit: <code class="text-accent">jixoai-theme</code> and
+        <code class="text-accent">toc-engine</code> are framework-free. Read the full law on the
+        <a href="/tokens.html" class="text-primary underline underline-offset-2">tokens page</a> and
+        every component live on the
+        <a href="/components.html" class="text-primary underline underline-offset-2"
+          >components page</a
+        >.
+      </p>
+    </div>
+  </SectionCard>
+</div>
+
+<!-- Catalog table: the 9 registry items. -->
+<section class="mx-auto w-full max-w-[90rem] px-4 pt-8 sm:px-6 lg:px-8" data-reveal="" use:reveal>
+  <SectionCard
+    eyebrow="Catalog"
+    title="Nine items, one grammar"
+    summary="Every item is listed in registry.json and served as JSON from this domain. The add commands below are copy-ready — they resolve through the @jixoai registry URL."
+  >
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Type</th>
+            <th>What it is</th>
+            <th>Copy-ready add</th>
+          </tr>
+        </thead>
+        <tbody>
+          {#each catalog as item (item.name)}
+            <tr>
+              <td><span class="pill">{item.name}</span></td>
+              <td class="dim">{item.type}</td>
+              <td>{item.blurb}</td>
+              <td>
+                <code>npx jixoai-ui add {item.name}</code>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
+  </SectionCard>
+</section>
