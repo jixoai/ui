@@ -17,8 +17,8 @@
       with height: 0 — see README).
 -->
 <script lang="ts">
-  import { createTocEngine } from '@lib/toc-engine';
-  import '../lib/toc.css';
+  import { createTocEngine } from '$lib/toc-engine';
+  import '$lib/toc.css';
 
   export interface TocChild {
     id: string;
