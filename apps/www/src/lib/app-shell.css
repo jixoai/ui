@@ -64,20 +64,27 @@ html[data-vt-kind='page-carousel']::view-transition-new(vt-nav-active) {
 /* ── the page panel: asymmetric slide + scale + blur + reveal mask ── */
 html[data-vt-kind='page-carousel']::view-transition-group(page-main) {
   z-index: 1;
-  animation-duration: 420ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   isolation: isolate;
-  overflow: clip; /* crops the pinned-height overflow instead of morphing */
+  /* The group never tweens size/position (Owner, 2026-08-21): geometry is
+     fully owned by the old/new rules below — both snapshots share one box,
+     so there is nothing to interpolate and no vertical morph, ever. */
+  animation: none;
 }
 html[data-vt-kind='page-carousel']::view-transition-old(page-main),
 html[data-vt-kind='page-carousel']::view-transition-new(page-main) {
+  /* Precise old/new geometry (Owner, 2026-08-21): both snapshots render in
+     ONE shared box — absolutely positioned at the group's origin, full
+     width, viewport height, pixels undistorted, top-aligned (no center
+     cropping, no stretch). Height therefore never animates because both
+     states are already identical; only the slide/blur/mask keyframes run
+     on these elements themselves. */
+  position: absolute;
+  inset: 0;
   width: 100%;
-  /* LOCK THE HEIGHT (Owner, 2026-08-21): old/new snapshots are pinned to
-     the dynamic viewport height so the group never interpolates a size —
-     no vertical morph during the slide. object-fit: none keeps pixels
-     undistorted; the group clips whatever overflows. */
   height: 100dvh;
   object-fit: none;
+  object-position: top left;
+  overflow: clip;
   mix-blend-mode: normal;
   mask-repeat: no-repeat;
   mask-mode: alpha;
