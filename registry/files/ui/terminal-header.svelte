@@ -164,6 +164,20 @@
 </header>
 
 <style>
+  /* the bezel surface: without this the bar is transparent and the
+     dark-scoped white text sits on the page background — invisible */
+  .jx-nav {
+    background: var(--terminal);
+    color: var(--terminal-foreground);
+    border-bottom: 1px solid var(--border);
+  }
+  .jx-nav.dark {
+    color-scheme: dark;
+  }
+  .jx-nav.jx-light {
+    color-scheme: light;
+  }
+
   /* the hamburger bars fold into an ✕ while the panel is open */
   .jx-nav button[aria-expanded='true'] .jx-bar:first-child {
     transform: translateY(4.5px) rotate(45deg);
