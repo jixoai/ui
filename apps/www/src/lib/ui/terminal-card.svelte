@@ -1,102 +1,138 @@
 <!--
   jixoai terminal card (registry/files/ui/terminal-card.svelte).
-  The terminal typing window: commands type in character by character
-  (one-time entrance — never a looping animation), outputs appear after
-  their command completes, and the cursor is a STATIC block (no blink;
-  the jixoai motion law). Reduced motion renders the full transcript
-  instantly.
+  The Broadside hero terminal, composed after the openspecui reference:
+  traffic-light title bar, one large typed command line, outputs that
+  surface line by line, 6px hard offset shadow. Commands type in
+  character by character (one-time entrance — never looping); the cursor
+  is a STATIC block (the jixoai motion law; the reference's blink
+  predates it). Prerendered/no-JS shows the settled terminal; reduced
+  motion renders everything instantly.
 
   Props:
-    title    window/tab label (e.g. "quick-start")
-    script   steps: { cmd: string; out?: string[] } — typed sequentially
-    prompt   prompt glyph before commands (default "$")
-    speed    ms per character (default 28)
+    barTitle  window title (traffic-light bar label)
+    command   the single command line (typed)
+    outputs   lines surfaced sequentially after the command completes
 -->
 <script lang="ts">
   import { onMount } from 'svelte';
 
-  export interface TerminalStep {
-    cmd: string;
-    out?: string[];
-  }
-
   interface Props {
-    title: string;
-    script: TerminalStep[];
-    prompt?: string;
-    speed?: number;
+    barTitle: string;
+    command: string;
+    outputs: readonly string[];
   }
 
-  let { title, script, prompt = '$', speed = 28 }: Props = $props();
+  let { barTitle, command, outputs }: Props = $props();
 
-  // rendered state: for each step — the typed command so far, done?, and
-  // whether its output has appeared
-  let steps = $state(
-    script.map((step) => ({ cmd: '', full: step.cmd, out: step.out ?? [], done: false, shown: false })),
-  );
-  let cursorStep = $state(-1);
+  // Prerendered/no-JS output shows the settled terminal; hydration
+  // restarts the typing story.
+  // svelte-ignore state_referenced_locally
+  let typed = $state(command);
+  // svelte-ignore state_referenced_locally
+  let shownLines = $state(outputs.length);
 
   onMount(() => {
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) {
-      steps = script.map((step) => ({ cmd: step.cmd, full: step.cmd, out: step.out ?? [], done: true, shown: true }));
-      cursorStep = steps.length - 1;
-      return;
-    }
+    const reduce =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
 
-    let step = 0;
-    let char = 0;
-    let timer: ReturnType<typeof setTimeout>;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const clear = () => clearTimeout(timer);
 
-    const tick = () => {
-      if (step >= script.length) {
-        cursorStep = steps.length - 1;
-        return;
-      }
-      char += 1;
-      steps[step]!.cmd = script[step]!.cmd.slice(0, char);
-      if (char >= script[step]!.cmd.length) {
-        steps[step]!.done = true;
-        steps[step]!.shown = true;
-        step += 1;
-        char = 0;
-        timer = setTimeout(tick, 420);
+    typed = '';
+    shownLines = 0;
+
+    const revealOutputs = (line: number) => {
+      if (cancelled) return;
+      if (line >= outputs.length) return;
+      shownLines = line + 1;
+      timer = setTimeout(() => revealOutputs(line + 1), 110);
+    };
+    const typeNext = (index: number) => {
+      if (cancelled) return;
+      if (index <= command.length) {
+        typed = command.slice(0, index);
+        timer = setTimeout(() => typeNext(index + 1), 42 + Math.random() * 40);
       } else {
-        timer = setTimeout(tick, speed);
+        timer = setTimeout(() => revealOutputs(0), 140);
       }
     };
-    cursorStep = 0;
-    timer = setTimeout(tick, 500);
-    return () => clearTimeout(timer);
+    timer = setTimeout(() => typeNext(0), 300);
+
+    return () => {
+      cancelled = true;
+      clear();
+    };
   });
 </script>
 
-<div class="border border-terminal-foreground/25 bg-terminal text-terminal-foreground">
-  <div class="flex items-center justify-between border-b border-terminal-foreground/15 px-4 py-2">
-    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">{title}</span>
-    <span class="font-nav text-terminal-foreground/40 text-[11px]" aria-hidden="true">─ ─ ✕</span>
+<div class="jx-terminal border-border bg-terminal text-terminal-foreground w-full border">
+  <div
+    class="text-terminal-foreground/55 flex items-center gap-1.5 border-b px-3.5 py-2 font-nav text-xs tracking-[0.1em]"
+  >
+    <span class="jx-light-dot" aria-hidden="true"></span>
+    <span class="jx-light-dot jx-light-yellow" aria-hidden="true"></span>
+    <span class="jx-light-dot jx-light-green" aria-hidden="true"></span>
+    <span class="ml-2 truncate">{barTitle}</span>
   </div>
-  <div class="overflow-x-auto px-4 py-4 font-mono text-[12.5px] leading-6">
-    {#each steps as step, i (i)}
-      <p class="whitespace-pre">
-        <span class="text-terminal-foreground/60">{prompt} </span><span class="text-terminal-foreground">{step.cmd}</span>{#if cursorStep === i && (!step.done || i === steps.length - 1)}<span class="jx-cursor" aria-hidden="true"></span>{/if}
-      </p>
-      {#if step.shown}
-        {#each step.out as line (line)}
-          <p class="whitespace-pre text-terminal-foreground/75">{line}</p>
-        {/each}
-      {/if}
-    {/each}
+  <div class="p-4 sm:p-5">
+    <p class="text-lg font-semibold tracking-tight sm:text-xl">
+      <span class="text-primary mr-2">$</span><span>{typed}</span><span class="jx-cursor" aria-hidden="true"></span>
+    </p>
+    <div class="mt-3 space-y-1 text-[13px] leading-5">
+      {#each outputs as line, index (line)}
+        <p class="jx-out" class:jx-out-shown={index < shownLines}>{line}</p>
+      {/each}
+    </div>
   </div>
 </div>
 
 <style>
+  .jx-terminal {
+    box-shadow: 6px 6px 0 0 var(--shadow);
+  }
+  .jx-light-dot {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    border: 1px solid currentColor;
+    background: oklch(0.7 0.18 25);
+  }
+  .jx-light-yellow {
+    background: oklch(0.85 0.17 95);
+  }
+  .jx-light-green {
+    background: oklch(0.75 0.17 150);
+  }
+  /* static block cursor — no blink (jixoai motion law) */
   .jx-cursor {
     display: inline-block;
-    width: 0.55em;
+    width: 0.58em;
     height: 1.05em;
-    margin-left: 2px;
+    background: var(--terminal-foreground);
     vertical-align: text-bottom;
-    background: var(--primary);
+    margin-left: 2px;
+  }
+  .jx-out {
+    color: color-mix(in oklab, var(--terminal-foreground) 65%, transparent);
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  .jx-out-shown {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 150ms ease-out,
+      transform 170ms ease-out;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .jx-out,
+    .jx-out-shown {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
   }
 </style>

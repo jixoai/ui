@@ -1,54 +1,128 @@
 <!--
   jixoai hero section (registry/files/ui/hero-section.svelte).
-  The open Broadside hero (no card chrome): eyebrow + h1 + summary +
-  optional chip row + CTA actions, with an optional right-column demo
-  (the terminal card, or any snippet). Two columns on lg+, stacked below.
+  The Broadside hero, composed after the openspecui reference: large lead
+  type with a primary-colored accent, badge row, a copy-command PRIMARY
+  CTA (icon + command, copied feedback) plus a secondary outline slot,
+  and the terminal card in the second column when the hero has room
+  (min-1100px two-column, bottom-aligned; terminal falls below on
+  narrower screens).
+
+  Props:
+    eyebrow      tracked label above the title (brand hue)
+    titleLead    the title's plain lead
+    titleAccent  the title's primary-colored tail
+    summary      max-62ch lead paragraph
+    badges       uppercase mono badge row
+    copyCommand  the command on the primary CTA (copied to clipboard)
+    copyLabel    aria affordance ("copy" / language-specific)
+    terminal     snippet: the right-column demo (terminal-card)
+    secondary?   snippet: extra outline CTAs after the copy button
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import PressButton from '$lib/ui/press-button.svelte';
   import { reveal } from '$lib/reveal';
 
   interface Props {
     eyebrow: string;
-    title: string;
-    summary?: string;
-    chips?: string[];
-    actions?: Snippet;
-    demo?: Snippet;
+    titleLead: string;
+    titleAccent: string;
+    summary: string;
+    badges: readonly string[];
+    copyCommand: string;
+    copyLabel?: string;
+    terminal: Snippet;
+    secondary?: Snippet;
   }
 
-  let { eyebrow, title, summary, chips, actions, demo }: Props = $props();
+  let {
+    eyebrow,
+    titleLead,
+    titleAccent,
+    summary,
+    badges,
+    copyCommand,
+    copyLabel = 'copy',
+    terminal,
+    secondary,
+  }: Props = $props();
+
+  let copied = $state(false);
+  let copyTimer: ReturnType<typeof setTimeout> | undefined;
+
+  const copyCommandToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(copyCommand);
+    } catch {
+      const area = document.createElement('textarea');
+      area.value = copyCommand;
+      document.body.append(area);
+      area.select();
+      document.execCommand('copy');
+      area.remove();
+    }
+    copied = true;
+    clearTimeout(copyTimer);
+    copyTimer = setTimeout(() => (copied = false), 1400);
+  };
 </script>
 
-<section class="grid items-center gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
-  <div class="flex min-w-0 flex-col items-start gap-4" data-reveal="" use:reveal={{}}>
-    <p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">{eyebrow}</p>
-    <h1 class="font-nav max-w-[24ch] text-balance text-[clamp(1.9rem,3.4vw,3.1rem)] leading-[1.15] tracking-normal">
-      {title}
-    </h1>
-    {#if summary}
-      <p class="max-w-[62ch] text-pretty text-[13px] leading-6 text-foreground/75 sm:text-[14px]">
+<section class="mx-auto w-full max-w-[90rem] px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:px-8">
+  <div
+    class="grid min-[1100px]:grid-cols-[minmax(0,1fr)_minmax(25rem,31rem)] min-[1100px]:items-end gap-10 min-[1100px]:gap-14"
+  >
+    <div class="min-w-0">
+      <p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]" data-reveal="" use:reveal>
+        {eyebrow}
+      </p>
+      <h1
+        class="mt-4 text-[clamp(2.4rem,5vw,4.4rem)] font-bold leading-[1.2] tracking-[-0.02em] text-balance"
+        data-reveal=""
+        use:reveal={{ delay: 60, rise: 14 }}
+      >
+        {titleLead}<em class="text-primary not-italic">{titleAccent}</em>
+      </h1>
+      <p
+        class="text-muted-foreground mt-5 max-w-[62ch] text-pretty text-[15px] leading-6 sm:text-base sm:leading-7"
+        data-reveal=""
+        use:reveal={{ delay: 120 }}
+      >
         {summary}
       </p>
-    {/if}
-    {#if chips && chips.length > 0}
-      <ul class="flex flex-wrap gap-2 pt-1 text-[11px]">
-        {#each chips as chip (chip)}
-          <li class="border border-terminal-foreground/25 bg-terminal px-2.5 py-1 font-nav text-terminal-foreground">
-            {chip}
-          </li>
+      <div
+        class="text-muted-foreground font-nav mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-[0.14em]"
+        data-reveal=""
+        use:reveal={{ delay: 160 }}
+      >
+        {#each badges as badge (badge)}
+          <span>{badge}</span>
         {/each}
-      </ul>
-    {/if}
-    {#if actions}
-      <div class="flex flex-wrap items-center gap-3 pt-2">
-        {@render actions()}
       </div>
-    {/if}
-  </div>
-  {#if demo}
-    <div class="min-w-0" data-reveal="" use:reveal={{ delay: 90 }}>
-      {@render demo()}
+      <div class="mt-8 flex flex-wrap gap-3" data-reveal="" use:reveal={{ delay: 200 }}>
+        <PressButton
+          variant={copied ? 'copied' : 'primary'}
+          onclick={copyCommandToClipboard}
+          ariaLabel={`${copied ? 'copied' : copyLabel} ${copyCommand}`}
+        >
+          {#if copied}
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          {:else}
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="12" height="12" rx="0" />
+              <path d="M5 15V4a1 1 0 0 1 1-1h10" />
+            </svg>
+          {/if}
+          <span>{copyCommand}</span>
+        </PressButton>
+        {#if secondary}
+          {@render secondary()}
+        {/if}
+      </div>
     </div>
-  {/if}
+    <div class="min-w-0" data-reveal="" use:reveal={{ delay: 260, rise: 12 }}>
+      {@render terminal()}
+    </div>
+  </div>
 </section>
