@@ -92,10 +92,14 @@
     }
   };
 
+  let measured = false;
   $effect(() => {
-    // runs on mount and whenever items/active change
+    // runs on mount and whenever items/active change: the first measure is
+    // instant (no slide from 0); every later move animates via the CSS
+    // transition — the VT morph covers the visual when a transition runs
     void items;
-    positionIndicator(true);
+    positionIndicator(!measured);
+    measured = true;
   });
 
   onMount(() => {
