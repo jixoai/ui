@@ -1,7 +1,9 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import CopyCommand from '$lib/copy-command.svelte';
+  import HeroSection from '$lib/ui/hero-section.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
+  import TerminalCard from '$lib/ui/terminal-card.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import ThemeToggle from '$lib/ui/theme-toggle.svelte';
   import Toc from '$lib/ui/toc.svelte';
@@ -33,15 +35,72 @@
       children: [{ id: 'toc-contract', label: 'Content contract' }],
     },
     {
+      id: 'terminal-card',
+      label: 'terminal-card',
+      children: [{ id: 'terminal-replay', label: 'Live typing' }],
+    },
+    {
+      id: 'hero-section',
+      label: 'hero-section',
+      children: [{ id: 'hero-demo', label: 'Demo' }],
+    },
+    {
+      id: 'app-shell',
+      label: 'app-shell',
+      children: [{ id: 'shell-scaffold', label: 'Scaffold + transitions' }],
+    },
+    {
       id: 'shell',
       label: 'terminal-header / footer',
       children: [{ id: 'shell-code', label: 'Integration' }],
     },
   ];
 
+  let replay = $state(0);
+
   // A literal closing-script tag inside the module script would terminate
   // this component's own script tag during the HTML-level scan — splice it.
   const close = '</' + 'script>';
+
+  const heroUsage = `<script lang="ts">
+  import HeroSection from '@ui/hero-section.svelte';
+  import TerminalCard from '@ui/terminal-card.svelte';
+${close}
+
+<HeroSection
+  eyebrow="my-app · v1"
+  titleLead="Ship terminals anywhere. "
+  titleAccent="One hue."
+  summary="..."
+  badges={['OKLCH tokens', 'Svelte 5', 'MIT']}
+  copyCommand="npx jixoai-ui init --hue 200"
+>
+  {#snippet secondary()}
+    <a href="/docs" class="...">Get started</a>
+  {/snippet}
+  {#snippet terminal()}
+    <TerminalCard barTitle="quick-start — zsh"
+      command="npx jixoai-ui init --hue 200"
+      outputs={['theme installed', 'hue applied']} />
+  {/snippet}
+</HeroSection>`;
+
+  const shellUsage2 = `<script lang="ts">
+  import AppShell from '@ui/app-shell.svelte';
+  import '$lib/app-shell.css';
+${close}
+
+<AppShell>
+  {#snippet header()}
+    <TerminalHeader ... />
+  {/snippet}
+
+  {#snippet footer()}
+    <TerminalFooter ... />
+  {/snippet}
+
+  <!-- default snippet: the page -->
+</AppShell>`;
 
   const pressUsage = `<script lang="ts">
   import PressButton from '@ui/press-button.svelte';
@@ -127,7 +186,7 @@ ${close}
   <title>Components · jixoai/ui</title>
   <meta
     name="description"
-    content="The jixoai component gallery: press-button, section-card, theme-toggle, reveal, the Combo ToC, and the terminal shell — every demo rendered from the registry files this site consumes."
+    content="The jixoai component gallery: press-button, section-card, theme-toggle, reveal, the Combo ToC, the typing terminal, the hero, the app shell, and the terminal chrome — every demo rendered from the registry files this site consumes."
   />
 </svelte:head>
 
@@ -152,7 +211,7 @@ ${close}
           summary="Each section below consumes the exact same-source copy this site installed from registry/files — nothing is reimplemented for the showcase. The table of contents tracking this page is itself the toc component: the Rule Tracker on the right (desktop) or the glass Terminal Rail above (mobile)."
         >
           <div class="flex flex-wrap gap-3">
-            <span class="pill">7 live components</span>
+            <span class="pill">9 live components</span>
             <span class="pill">2 framework-free libs</span>
             <span class="pill">1 dogfooded ToC</span>
             <span class="pill">zero network</span>
@@ -299,6 +358,97 @@ ${close}
               wrapper attributes:
             </p>
             <CodeBlock code={tocContractCode} lang="svelte" meta="contract" />
+          </div>
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- terminal-card -->
+    <div id="terminal-card" data-family="terminal-card" data-reveal="" use:reveal>
+      <SectionCard
+        eyebrow="registry:ui"
+        title="terminal-card"
+        summary="The Broadside hero terminal, composed after the openspecui reference: traffic-light title bar, one large typed command, outputs surfacing line by line, 6px hard offset shadow. One-shot typing entrance (never looping), static block cursor per the motion law; prerendered/no-JS shows the settled terminal and reduced motion renders instantly."
+      >
+        <div class="flex flex-col gap-7" data-region="terminal-replay">
+          <div id="terminal-replay" class="flex flex-col gap-3">
+            <h3 class="text-[15px] font-bold tracking-tight">Live typing</h3>
+            <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+              The exact card from the homepage hero. Replay remounts the component —
+              the typing story restarts from the first character.
+            </p>
+            <div class="max-w-[36rem]">
+              {#key replay}
+                <TerminalCard
+                  barTitle="quick-start — zsh"
+                  command="npx jixoai-ui add terminal-card"
+                  outputs={[
+                    'terminal-card.svelte → src/lib/ui/',
+                    'one-shot typing · static cursor · no blink',
+                  ]}
+                />
+              {/key}
+            </div>
+            <div>
+              <PressButton onclick={() => (replay += 1)}>Replay ↻</PressButton>
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- hero-section -->
+    <div id="hero-section" data-family="hero-section" data-reveal="" use:reveal>
+      <SectionCard
+        eyebrow="registry:ui"
+        title="hero-section"
+        summary="The Broadside hero, composed after the openspecui reference: clamp-scaled bold lead type with a primary accent tail, badge row, a copy-command PRIMARY CTA with copied feedback, and the terminal card in a bottom-aligned second column at min-1100px. The homepage is the full-bleed demo; this is the component rendered in place."
+      >
+        <div class="flex flex-col gap-7" data-region="hero-demo">
+          <div id="hero-demo" class="flex flex-col gap-4">
+            <h3 class="text-[15px] font-bold tracking-tight">Demo</h3>
+            <div class="border border-border bg-muted/40">
+              <HeroSection
+                eyebrow="your-app · v0"
+                titleLead="Your product line here. "
+                titleAccent="Your accent."
+                summary="A compact instance with the real composition rules — swap the copy, keep the law."
+                badges={['badges', 'copy CTA', 'terminal demo']}
+                copyCommand="npx jixoai-ui init --hue 210"
+              >
+                {#snippet terminal()}
+                  <TerminalCard
+                    barTitle="demo"
+                    command="echo hello jixoai"
+                    outputs={['→ composed from the registry files']}
+                  />
+                {/snippet}
+              </HeroSection>
+            </div>
+            <CodeBlock code={heroUsage} lang="svelte" meta="usage" />
+          </div>
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- app-shell -->
+    <div id="app-shell" data-family="app-shell" data-reveal="" use:reveal>
+      <SectionCard
+        eyebrow="registry:ui"
+        title="app-shell"
+        summary="The page scaffold: a sticky, always-visible header band (this page's navigation never scrolls away), the main column, an optional footer band, and a skip link. It also ships the systematized MPA view transitions — cross-document navigation with a persistent site-header and a horizontal-slide + blur crossfade on page-main (navigate this site in Chrome/Edge to feel it; reduced motion crossfades)."
+      >
+        <div class="flex flex-col gap-7" data-region="shell-scaffold">
+          <div id="shell-scaffold" class="flex flex-col gap-3">
+            <h3 class="text-[15px] font-bold tracking-tight">Scaffold + transitions</h3>
+            <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+              This site runs on it: the header band above is sticky, carries
+              view-transition-name "site-header" (it persists across page navigations),
+              and this content column animates as "page-main". Route-typed variants
+              (from-/to-<route>) follow the view-transitions-toolkit pageswap/pagereveal
+              pattern wired in app.html.
+            </p>
+            <CodeBlock code={shellUsage2} lang="svelte" meta="usage" />
           </div>
         </div>
       </SectionCard>

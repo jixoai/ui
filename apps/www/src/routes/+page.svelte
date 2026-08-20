@@ -57,6 +57,9 @@ npx jixoai-ui add press-button section-card toc`;
     { name: 'terminal-footer', type: 'registry:ui', blurb: 'Ghost wordmark footer: huge hollow brand word, muted meta row transitioning to brand hue.' },
     { name: 'theme-toggle', type: 'registry:ui', blurb: 'light / dark / system cycler in Share Tech Mono, paired with the no-flash inline bootstrap.' },
     { name: 'toc', type: 'registry:ui', blurb: 'The Combo ToC: desktop Rule Tracker spine + mobile Terminal Rail glass single-row viewport.' },
+    { name: 'terminal-card', type: 'registry:ui', blurb: 'The Broadside hero terminal: traffic-light bar, typed command, line-by-line outputs, 6px hard shadow.' },
+    { name: 'hero-section', type: 'registry:ui', blurb: 'The openspecui-composed hero: lead type with primary accent, badges, copy-command CTA, terminal column.' },
+    { name: 'app-shell', type: 'registry:ui', blurb: 'Page scaffold: sticky header band + main + footer, with MPA view transitions (persistent header, slide + blur page).' },
   ];
 </script>
 
