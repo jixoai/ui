@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "theme-toggle",
+  "title": "Theme toggle",
+  "description": "light / dark / system cycler (Share Tech Mono labels) driving the shared theme module; pair with the no-flash inline bootstrap.",
+  "files": [
+    {
+      "path": "registry/files/ui/theme-toggle.svelte",
+      "content": "<!--\n  jixoai theme toggle (registry/files/ui/theme-toggle.svelte).\n  light / dark / system cycler in Share Tech Mono; drives the shared theme\n  module contract (localStorage \"theme\", .dark class + colorScheme on the\n  root). Pair with the no-flash inline bootstrap in app.html.\n-->\n<script lang=\"ts\">\n  type Theme = 'light' | 'dark' | 'system';\n  const ORDER: Theme[] = ['light', 'dark', 'system'];\n\n  let current = $state<Theme>('system');\n\n  const apply = (theme: Theme): void => {\n    const dark =\n      theme === 'dark' ||\n      (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);\n    document.documentElement.classList.toggle('dark', dark);\n    document.documentElement.style.colorScheme = dark ? 'dark' : 'light';\n  };\n\n  const init = (): void => {\n    current = (localStorage.getItem('theme') as Theme | null) ?? 'system';\n    apply(current);\n  };\n\n  const cycle = (): void => {\n    current = ORDER[(ORDER.indexOf(current) + 1) % ORDER.length]!;\n    localStorage.setItem('theme', current);\n    apply(current);\n  };\n\n  $effect(() => {\n    init();\n    const media = matchMedia('(prefers-color-scheme: dark)');\n    const onChange = () => current === 'system' && apply('system');\n    media.addEventListener('change', onChange);\n    return () => media.removeEventListener('change', onChange);\n  });\n</script>\n\n<button\n  type=\"button\"\n  onclick={cycle}\n  class=\"font-nav border-terminal-foreground/30 text-terminal-foreground/70 hover:border-terminal-foreground/60 hover:text-terminal-foreground border px-2.5 py-1 text-[11px] transition-colors\"\n  aria-label={`theme: ${current}`}\n>\n  {current}\n</button>\n",
+      "type": "registry:file",
+      "target": "@ui/theme-toggle.svelte"
+    }
+  ],
+  "type": "registry:ui"
+}

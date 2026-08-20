@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "terminal-footer",
+  "title": "Terminal footer",
+  "description": "Ghost wordmark footer: huge hollow brand word (text-stroke recipe with @supports fallback), muted meta row with links that transition to brand hue.",
+  "files": [
+    {
+      "path": "registry/files/ui/terminal-footer.svelte",
+      "content": "<!--\n  jixoai terminal footer (registry/files/ui/terminal-footer.svelte).\n  The ghost wordmark closes the narrative: huge hollow brand word\n  (text-stroke recipe, @supports fallback), muted meta row with links that\n  transition to brand hue on hover.\n-->\n<script lang=\"ts\">\n  export interface FooterLink {\n    label: string;\n    href: string;\n  }\n\n  interface Props {\n    ghost: string;\n    links: FooterLink[];\n    copyright?: string;\n  }\n\n  let { ghost, links, copyright }: Props = $props();\n  const year = new Date().getFullYear();\n</script>\n\n<footer class=\"mx-auto w-full max-w-[90rem] px-4 pb-10 pt-8 sm:px-6 lg:px-8\">\n  <p class=\"jx-footer-ghost font-nav select-none\" aria-hidden=\"true\">{ghost}</p>\n  <div\n    class=\"mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-[12.5px] text-muted-foreground\"\n  >\n    <div class=\"flex flex-wrap items-center gap-x-5 gap-y-2\">\n      {#each links as link (link.href)}\n        <a\n          href={link.href}\n          target=\"_blank\"\n          rel=\"noreferrer\"\n          class=\"transition-colors hover:text-primary\"\n        >\n          {link.label} ↗\n        </a>\n      {/each}\n    </div>\n    <span>{copyright ?? `© ${year}`}</span>\n  </div>\n</footer>\n\n<style>\n  .jx-footer-ghost {\n    font-size: clamp(3rem, 11vw, 9rem);\n    line-height: 0.9;\n    color: transparent;\n    -webkit-text-stroke: 1px color-mix(in oklab, var(--border) 55%, transparent);\n  }\n  @supports not (-webkit-text-stroke: 1px black) {\n    .jx-footer-ghost {\n      color: color-mix(in oklab, var(--border) 35%, transparent);\n    }\n  }\n</style>\n",
+      "type": "registry:file",
+      "target": "@ui/terminal-footer.svelte"
+    }
+  ],
+  "type": "registry:ui"
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "terminal-header",
+  "title": "Terminal header",
+  "description": "The terminal-bar site header: always-dark CRT bezel surface, brand eyebrow in brand hue, site domain + subtitle, nav pills (active = terminal-hover), external links with ↗.",
+  "files": [
+    {
+      "path": "registry/files/ui/terminal-header.svelte",
+      "content": "<!--\n  jixoai terminal header (registry/files/ui/terminal-header.svelte).\n  Always-dark CRT bezel: brand eyebrow in brand hue, domain + subtitle,\n  nav pills (active = terminal-hover bg), external links with ↗. The\n  switcher snippet slot (theme toggle) renders at the far right.\n-->\n<script lang=\"ts\">\n  import type { Snippet } from 'svelte';\n\n  export interface TerminalNavItem {\n    label: string;\n    href: string;\n    active?: boolean;\n    external?: boolean;\n  }\n\n  interface Props {\n    brand: string;\n    domain: string;\n    subtitle?: string;\n    items: TerminalNavItem[];\n    switcher?: Snippet;\n  }\n\n  let { brand, domain, subtitle, items, switcher }: Props = $props();\n</script>\n\n<header class=\"border-border bg-terminal text-terminal-foreground border-b\">\n  <div\n    class=\"mx-auto flex max-w-[90rem] flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8\"\n  >\n    <a href=\"/\" class=\"flex min-w-0 flex-col sm:flex-row sm:items-baseline sm:gap-3\">\n      <p class=\"font-nav text-primary text-[11px] uppercase tracking-[0.24em]\">{brand}</p>\n      <span class=\"font-nav truncate text-sm tracking-tight sm:text-base\">{domain}</span>\n      {#if subtitle}\n        <span class=\"truncate text-xs text-terminal-foreground/70\">{subtitle}</span>\n      {/if}\n    </a>\n\n    <nav class=\"flex flex-wrap items-center gap-2 text-xs\" aria-label=\"Primary\">\n      {#each items as item (item.href)}\n        <a\n          href={item.href}\n          aria-current={item.active ? 'page' : undefined}\n          target={item.external ? '_blank' : undefined}\n          rel={item.external ? 'noreferrer' : undefined}\n          class={[\n            'px-2.5 py-1 transition-colors',\n            item.active\n              ? 'bg-terminal-hover text-terminal-foreground'\n              : 'text-terminal-foreground/70 hover:text-terminal-foreground',\n          ].join(' ')}\n        >\n          {item.label}{item.external ? ' ↗' : ''}\n        </a>\n      {/each}\n      {#if switcher}\n        {@render switcher()}\n      {/if}\n    </nav>\n  </div>\n</header>\n",
+      "type": "registry:file",
+      "target": "@ui/terminal-header.svelte"
+    }
+  ],
+  "type": "registry:ui"
+}
