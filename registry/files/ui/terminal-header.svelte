@@ -18,6 +18,7 @@
                     the nav opens as a stacked disclosure panel below
 -->
 <script lang="ts">
+  import { onMount } from 'svelte';
   import type { Snippet } from 'svelte';
 
   export interface TerminalNavItem {
@@ -66,6 +67,44 @@
   });
 
   const close = () => (open = false);
+
+  // Sliding indicator (Owner, 2026-08-21): a dedicated element acts as the
+  // active background and slides between nav items (measured translateX +
+  // width). It carries the vt-nav-active name, so cross-page navigations
+  // morph it via the view transition; same-page/no-VT swaps fall back to
+  // its own CSS transition.
+  let navEl = $state<HTMLElement | null>(null);
+  let indicatorEl = $state<HTMLElement | null>(null);
+
+  const positionIndicator = (instant = false) => {
+    if (!navEl || !indicatorEl) return;
+    const active = navEl.querySelector('[aria-current="page"]');
+    if (!(active instanceof HTMLElement)) {
+      indicatorEl.style.opacity = '0';
+      return;
+    }
+    if (instant) indicatorEl.classList.add('jx-indicator-instant');
+    indicatorEl.style.opacity = '1';
+    indicatorEl.style.width = `${active.offsetWidth}px`;
+    indicatorEl.style.transform = `translateX(${active.offsetLeft}px)`;
+    if (instant) {
+      requestAnimationFrame(() => indicatorEl?.classList.remove('jx-indicator-instant'));
+    }
+  };
+
+  $effect(() => {
+    // runs on mount and whenever items/active change
+    void items;
+    positionIndicator(true);
+  });
+
+  onMount(() => {
+    const reposition = () => positionIndicator(false);
+    const ro = new ResizeObserver(reposition);
+    if (navEl) ro.observe(navEl);
+    document.fonts?.ready.then(reposition).catch(() => {});
+    return () => ro.disconnect();
+  });
 </script>
 
 <header class="jx-nav {scope === 'dark' ? 'dark' : 'jx-light'}">
@@ -96,20 +135,21 @@
       <!-- RIGHT WING · the navigation -->
       <div class="flex flex-none items-center gap-3">
         <nav
-          class="hidden items-center border border-terminal-foreground/25 p-0.5 text-xs sm:flex"
+          class="relative hidden items-center border border-terminal-foreground/25 p-0.5 text-xs sm:flex"
           aria-label="Primary"
+          bind:this={navEl}
         >
+          <span class="jx-indicator" bind:this={indicatorEl} aria-hidden="true"></span>
           {#each items as item (item.href)}
             <a
               href={item.href}
               aria-current={item.active ? 'page' : undefined}
               target={item.external ? '_blank' : undefined}
               rel={item.external ? 'noreferrer' : undefined}
-              style={item.active ? 'view-transition-name: vt-nav-active' : undefined}
               class={[
                 'px-2.5 py-1 transition-colors lg:px-3',
                 item.active
-                  ? 'bg-terminal-hover text-terminal-foreground'
+                  ? 'text-terminal-foreground'
                   : 'text-terminal-foreground/70 hover:text-terminal-foreground',
               ].join(' ')}
             >
@@ -195,6 +235,31 @@
       transition: none;
     }
   }
+  /* the sliding active background: its own element, measured into place;
+     morphs across pages via the vt-nav-active view-transition-name */
+  .jx-nav .jx-indicator {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 0;
+    width: 0;
+    z-index: 0;
+    background: var(--terminal-hover);
+    opacity: 0;
+    view-transition-name: vt-nav-active;
+    transition:
+      transform 450ms cubic-bezier(0.22, 1, 0.36, 1),
+      width 450ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 150ms ease-out;
+  }
+  .jx-nav .jx-indicator.jx-indicator-instant {
+    transition: none;
+  }
+  .jx-nav nav a {
+    position: relative;
+    z-index: 1;
+  }
+
   /* interaction polish on the bezel: WebKit's default tap-highlight is a
      semi-transparent black flash that reads as a bug on the dark surface;
      idle pills gain a hover affordance; focus gets a contained ring
