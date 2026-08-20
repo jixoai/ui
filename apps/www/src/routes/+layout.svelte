@@ -55,7 +55,7 @@
             {@const pos = swatch.center - swatch.size / 2}
             <rect
               class="jx-logo-breath"
-              style="animation-delay: {i * 220}ms"
+              style="animation-delay: {i * -600}ms"
               x={pos}
               y={pos}
               width={swatch.size}
@@ -89,14 +89,15 @@
 </AppShell>
 
 <style>
-  /* Logo breathing (Owner request, 2026-08-21): each square gently swells
-     around its own center, phase-cascading along the diagonal — an
+  /* Logo breathing (Owner request, 2026-08-21): a traveling sine wave —
+     adjacent squares sit 60° out of phase (one full wavelength across
+     the fan), negative delays so the wave is mid-flight at first paint — an
      owner-sanctioned ambient exception to the no-looping-motion law.
      The favicon stays static; this animation is in-page only. */
   .jx-logo-breath {
     transform-box: fill-box;
     transform-origin: center;
-    animation: jx-logo-breath 2.8s ease-in-out infinite;
+    animation: jx-logo-breath 3.6s ease-in-out infinite;
   }
   @keyframes jx-logo-breath {
     0%,
@@ -104,7 +105,7 @@
       transform: scale(1);
     }
     50% {
-      transform: scale(1.08);
+      transform: scale(1.1);
     }
   }
   @media (prefers-reduced-motion: reduce) {
