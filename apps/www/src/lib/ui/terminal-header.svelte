@@ -248,7 +248,12 @@
     left: 0;
     width: 0;
     z-index: 0;
-    background: var(--terminal-hover);
+    /* No background (Owner, 2026-08-21): a solid fill would cover the pill
+       text when the VT group hoists this element above the header; a
+       backdrop brightener stays visually identical on the always-dark
+       bezel and is stacking-proof. */
+    -webkit-backdrop-filter: brightness(2);
+    backdrop-filter: brightness(2);
     opacity: 0;
     view-transition-name: vt-nav-active;
     transition:
