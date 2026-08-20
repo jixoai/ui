@@ -11,7 +11,7 @@ const config = {
     // after the build, so there is nothing to crawl.
     prerender: {
       crawl: false,
-      entries: ['/', '/components', '/tokens'],
+      entries: ['/', '/components.html', '/tokens.html'],
     },
   },
 };

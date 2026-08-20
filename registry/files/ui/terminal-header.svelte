@@ -105,6 +105,7 @@
               aria-current={item.active ? 'page' : undefined}
               target={item.external ? '_blank' : undefined}
               rel={item.external ? 'noreferrer' : undefined}
+              style={item.active ? 'view-transition-name: vt-nav-active' : undefined}
               class={[
                 'px-2.5 py-1 transition-colors lg:px-3',
                 item.active
