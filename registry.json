@@ -143,6 +143,59 @@
         }
       ],
       "docs": "Give the outline as sections/children props; the component renders desktop + mobile surfaces and wires the engine. Content needs non-overlapping data-region wrappers and data-family section extents (see toc-engine docs)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "app-shell",
+      "type": "registry:ui",
+      "title": "App shell",
+      "description": "The page scaffold around terminal-header: a sticky, always-visible header band (navigation never scrolls away), main column, optional footer, and a skip link. Ships the systematized MPA view transitions: cross-document navigation with a persistent site-header and a horizontal-slide + blur crossfade on page-main (reduced-motion degrades to crossfade). Pair with view-transitions-toolkit's useAutoTypes() (render-blocking) for from-/to-route typed variants.",
+      "files": [
+        {
+          "path": "registry/files/ui/app-shell.svelte",
+          "target": "@ui/app-shell.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/app-shell.css",
+          "target": "@lib/app-shell.css",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Slots: header (required), children (main), footer (optional). Import app-shell.css once. For route-typed transitions, wire useAutoTypes({ index: '/', components: '/components', ... }) in a render-blocking module in <head> (view-transitions-toolkit/navigation)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "terminal-card",
+      "type": "registry:ui",
+      "title": "Terminal card",
+      "description": "The terminal typing window: commands type in character by character (one-time entrance, never looping), outputs appear after their command, static block cursor in brand hue (no blink \u2014 the motion law), reduced-motion renders the transcript instantly. Terminal bezel chrome with title bar.",
+      "files": [
+        {
+          "path": "registry/files/ui/terminal-card.svelte",
+          "target": "@ui/terminal-card.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: title, script: { cmd, out? }[], prompt ('$'), speed (ms/char, 28)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "hero-section",
+      "type": "registry:ui",
+      "title": "Hero section",
+      "description": "The open Broadside hero (no card chrome): eyebrow, clamp-scaled font-nav title, text-pretty summary, terminal chip row, CTA snippet, and an optional right-column demo snippet (the terminal card pairs naturally). Two columns on lg+, stacked on smaller screens; static data-reveal entrance per the motion law.",
+      "registryDependencies": [
+        "@jixoai/reveal"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/hero-section.svelte",
+          "target": "@ui/hero-section.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: eyebrow, title, summary?, chips?: string[], actions? snippet, demo? snippet."
     }
   ]
 }

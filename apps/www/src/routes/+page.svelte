@@ -1,7 +1,9 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import CopyCommand from '$lib/copy-command.svelte';
+  import HeroSection from '$lib/ui/hero-section.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
+  import TerminalCard from '$lib/ui/terminal-card.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import { reveal } from '$lib/reveal';
   import { GITHUB_URL } from '$lib/site';
@@ -11,6 +13,11 @@ npx jixoai-ui init --hue 330
 
 # add components (delegates to shadcn, re-applies the hue)
 npx jixoai-ui add press-button section-card toc`;
+
+  const quickStart = [
+    { cmd: 'npx jixoai-ui init --hue 330', out: ['registries["@jixoai"] ✓  jixoai.brandHue: 330 ✓', 'jixoai-theme installed → src/lib/jixoai.css'] },
+    { cmd: 'npx jixoai-ui add toc press-button', out: ['4 files → src/lib/ (engine + combo toc + button)', '--brand-hue: 330 applied to installed css'] },
+  ];
 
   const registryCode = String.raw`{
   "registries": {
@@ -66,49 +73,23 @@ npx jixoai-ui add press-button section-card toc`;
   />
 </svelte:head>
 
-<!-- Hero: open lead type (no card chrome), per the jixoai page grammar. -->
+<!-- Hero: hero-section + terminal-card quick start (both registry items). -->
 <section class="mx-auto w-full max-w-[90rem] px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:px-8">
-  <div class="max-w-[62ch]">
-    <p
-      class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]"
-      data-reveal=""
-      use:reveal
-    >
-      jixoai/ui · v0.1 · shadcn registry
-    </p>
-    <h1
-      class="mt-4 text-[clamp(2.4rem,5vw,4.4rem)] leading-[1.2] font-bold tracking-[-0.02em] text-balance"
-      data-reveal=""
-      use:reveal={{ delay: 60, rise: 14 }}
-    >
-      The terminal design language of jixoai. <em class="text-primary not-italic">One hue</em> per
-      project.
-    </h1>
-    <p
-      class="text-muted-foreground mt-5 max-w-[62ch] text-pretty text-[15px] leading-6 sm:text-base sm:leading-7"
-      data-reveal=""
-      use:reveal={{ delay: 120 }}
-    >
-      Everything here graduated from production work on unipty and openspecui: an OKLCH token law
-      where a project's entire identity is a single --brand-hue variable, hard offset shadows, a
-      mono-first voice, and components you own after copying them in.
-    </p>
-    <div
-      class="text-muted-foreground font-nav mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-[0.14em]"
-      data-reveal=""
-      use:reveal={{ delay: 160 }}
-    >
-      <span>OKLCH tokens</span>
-      <span>Svelte 5 first</span>
-      <span>Zero runtime deps</span>
-      <span>MIT</span>
-    </div>
-    <div class="mt-8 flex flex-wrap gap-3" data-reveal="" use:reveal={{ delay: 200 }}>
+  <HeroSection
+    eyebrow="jixoai/ui · v0.1 · shadcn registry"
+    title="The terminal design language of jixoai. One hue per project."
+    summary="Everything here graduated from production work on unipty and openspecui: an OKLCH token law where a project's entire identity is a single --brand-hue variable, hard offset shadows, a mono-first voice, and components you own after copying them in."
+    chips={['OKLCH tokens', 'Svelte 5 first', 'Zero runtime deps', 'MIT']}
+  >
+    {#snippet actions()}
       <PressButton variant="primary" href="/tokens.html">Get started</PressButton>
       <PressButton variant="outline" href="/components.html">Components</PressButton>
       <PressButton variant="outline" href={GITHUB_URL} external>GitHub ↗</PressButton>
-    </div>
-  </div>
+    {/snippet}
+    {#snippet demo()}
+      <TerminalCard title="quick-start — zsh" script={quickStart} />
+    {/snippet}
+  </HeroSection>
 </section>
 
 <!-- Why: three law cards. -->

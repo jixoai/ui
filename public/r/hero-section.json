@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "hero-section",
+  "title": "Hero section",
+  "description": "The open Broadside hero (no card chrome): eyebrow, clamp-scaled font-nav title, text-pretty summary, terminal chip row, CTA snippet, and an optional right-column demo snippet (the terminal card pairs naturally). Two columns on lg+, stacked on smaller screens; static data-reveal entrance per the motion law.",
+  "registryDependencies": [
+    "@jixoai/reveal"
+  ],
+  "files": [
+    {
+      "path": "registry/files/ui/hero-section.svelte",
+      "content": "<!--\n  jixoai hero section (registry/files/ui/hero-section.svelte).\n  The open Broadside hero (no card chrome): eyebrow + h1 + summary +\n  optional chip row + CTA actions, with an optional right-column demo\n  (the terminal card, or any snippet). Two columns on lg+, stacked below.\n-->\n<script lang=\"ts\">\n  import type { Snippet } from 'svelte';\n  import { reveal } from '$lib/reveal';\n\n  interface Props {\n    eyebrow: string;\n    title: string;\n    summary?: string;\n    chips?: string[];\n    actions?: Snippet;\n    demo?: Snippet;\n  }\n\n  let { eyebrow, title, summary, chips, actions, demo }: Props = $props();\n</script>\n\n<section class=\"grid items-center gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-14\">\n  <div class=\"flex min-w-0 flex-col items-start gap-4\" data-reveal=\"\" use:reveal={{}}>\n    <p class=\"font-nav text-primary text-[11px] uppercase tracking-[0.24em]\">{eyebrow}</p>\n    <h1 class=\"font-nav max-w-[24ch] text-balance text-[clamp(1.9rem,3.4vw,3.1rem)] leading-[1.15] tracking-normal\">\n      {title}\n    </h1>\n    {#if summary}\n      <p class=\"max-w-[62ch] text-pretty text-[13px] leading-6 text-foreground/75 sm:text-[14px]\">\n        {summary}\n      </p>\n    {/if}\n    {#if chips && chips.length > 0}\n      <ul class=\"flex flex-wrap gap-2 pt-1 text-[11px]\">\n        {#each chips as chip (chip)}\n          <li class=\"border border-terminal-foreground/25 bg-terminal px-2.5 py-1 font-nav text-terminal-foreground\">\n            {chip}\n          </li>\n        {/each}\n      </ul>\n    {/if}\n    {#if actions}\n      <div class=\"flex flex-wrap items-center gap-3 pt-2\">\n        {@render actions()}\n      </div>\n    {/if}\n  </div>\n  {#if demo}\n    <div class=\"min-w-0\" data-reveal=\"\" use:reveal={{ delay: 90 }}>\n      {@render demo()}\n    </div>\n  {/if}\n</section>\n",
+      "type": "registry:file",
+      "target": "@ui/hero-section.svelte"
+    }
+  ],
+  "docs": "Props: eyebrow, title, summary?, chips?: string[], actions? snippet, demo? snippet.",
+  "type": "registry:ui"
+}
