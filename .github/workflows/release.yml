@@ -30,7 +30,7 @@ jobs:
         run: |
           set -euo pipefail
           name="jixoai-ui"
-          version="$(node -p "require('./cli/package.json').version")"
+          version="$(node -p "require('./package.json').version")"
           tarball="jixoai-ui-${version}.tgz"
           if npm view "${name}@${version}" version >/dev/null 2>&1; then
             echo "skipping ${name}@${version} (already published)"
