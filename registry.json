@@ -196,6 +196,36 @@
         }
       ],
       "docs": "Props: eyebrow, titleLead, titleAccent, summary, badges: readonly string[], copyCommand, copyLabel?, terminal snippet, secondary? snippet."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "language-switcher",
+      "type": "registry:ui",
+      "title": "Language switcher",
+      "description": "Locale switching in two variants: pair (icon + segmented two-locale group, active fills brand hue \u2014 composed after the openspecui bilingual reference) and menu (icon + current-locale button with a hard-shadow dropdown for three or more locales). Anchor-based (each locale carries its href) so it works on fully prerendered sites; terminal-surface styling matches theme-toggle.",
+      "files": [
+        {
+          "path": "registry/files/ui/language-switcher.svelte",
+          "target": "@ui/language-switcher.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: variant 'pair'|'menu', locales: { code, label, href }[], current (code), ariaLabel?. The menu closes on select, outside click, and Escape."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "card-grid",
+      "type": "registry:ui",
+      "title": "Card grid",
+      "description": "Grid + subgrid layout that equalizes cards: shared header row and body row, so headers align and bodies fill to the tallest \u2014 no ragged tops or unequal bottoms. Columns are auto-fit minmax (responsive; min prop controls collapse width, default 260px). Works with any card whose first child is the header block (section-card unchanged); no-subgrid browsers fall back to stacked rows.",
+      "files": [
+        {
+          "path": "registry/files/ui/card-grid.svelte",
+          "target": "@ui/card-grid.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: min (CSS length, default '260px'). Wrap cards as direct children; opt a child out with data-no-subgrid."
     }
   ]
 }

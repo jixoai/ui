@@ -3,23 +3,22 @@
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import { reveal } from '$lib/reveal';
-  import { BRAND_HUE } from '$lib/site';
+  import { currentHue, setHueManually, playing, toggleHuePlay } from '$lib/hue-runtime';
 
   /* ---------------------------------------------------------------------
-   * Hue lab: one slider, the whole brand. Setting --brand-hue on the root
-   * re-derives every primary-tinted token on the page (and in the mode-
-   * scoped palette panels below) live — the One-Hue Law made tangible.
+   * Hue lab: the runtime drives --brand-hue (time-of-day seed, 30s cycle);
+   * the slider here writes manually (pausing the cycle). The CSS code
+   * block and every swatch below bind to the LIVE hue — not a hardcoded
+   * number.
    * ------------------------------------------------------------------- */
-  let hue = $state(BRAND_HUE);
+  let hue = $state(0);
+  let isPlaying = $state(true);
+  currentHue.subscribe((v) => (hue = v));
+  playing.subscribe((v) => (isPlaying = v));
 
-  const setHue = (value: number): void => {
-    hue = value;
-    document.documentElement.style.setProperty('--brand-hue', String(value));
-  };
-  const resetHue = (): void => setHue(BRAND_HUE);
-
-  const hueLawCode = String.raw`:root {
-  --brand-hue: 330; /* the ONLY per-project value */
+  const hueLawCode = $derived(
+    String.raw`:root {
+  --brand-hue: ${Math.round(hue)}; /* runs free: time-of-day + 30s cycle */
 
   --primary: oklch(0.6489 0.237 var(--brand-hue));
   --ring: var(--primary);
@@ -28,69 +27,48 @@
 .dark {
   /* perceptual compensation: the hue drifts -4° toward dark */
   --primary: oklch(0.7044 0.1872 calc(var(--brand-hue) - 4));
-}`;
+}`,
+  );
 
-  /* Palette data — literal values mirrored from lib/jixoai.css (the file
-   * this site copied from the registry). Panels re-scope the tokens so the
-   * light palette stays light even when the page theme is dark. */
+  /* Palette data — literal values from lib/jixoai.css. Displayed in the
+   * CURRENT theme (no dual panels: switch the site theme to compare). */
   interface TokenEntry {
     name: string;
-    light: string;
-    dark: string;
+    value: string;
   }
 
   const neutrals: TokenEntry[] = [
-    { name: '--background', light: 'oklch(1 0 0)', dark: 'oklch(0 0 0)' },
-    { name: '--foreground', light: 'oklch(0 0 0)', dark: 'oklch(1 0 0)' },
-    { name: '--card', light: 'oklch(1 0 0)', dark: 'oklch(0.3211 0 0)' },
-    { name: '--muted', light: 'oklch(0.9551 0 0)', dark: 'oklch(0.2178 0 0)' },
-    { name: '--muted-foreground', light: 'oklch(0.3211 0 0)', dark: 'oklch(0.8452 0 0)' },
-    { name: '--border', light: 'oklch(0 0 0)', dark: 'oklch(1 0 0)' },
-    { name: '--destructive', light: 'oklch(0 0 0)', dark: 'oklch(1 0 0)' },
+    { name: '--background', value: 'oklch(1 0 0) / oklch(0 0 0)' },
+    { name: '--foreground', value: 'oklch(0 0 0) / oklch(1 0 0)' },
+    { name: '--card', value: 'oklch(1 0 0) / oklch(0.3211 0 0)' },
+    { name: '--muted', value: 'oklch(0.9551 0 0) / oklch(0.2178 0 0)' },
+    { name: '--muted-foreground', value: 'oklch(0.3211 0 0) / oklch(0.8452 0 0)' },
+    { name: '--border', value: 'oklch(0 0 0) / oklch(1 0 0)' },
+    { name: '--destructive', value: 'oklch(0 0 0) / oklch(1 0 0)' },
   ];
 
   const brand: TokenEntry[] = [
-    {
-      name: '--primary',
-      light: 'oklch(0.6489 0.237 var(--brand-hue))',
-      dark: 'oklch(0.7044 0.1872 calc(var(--brand-hue) - 4))',
-    },
-    { name: '--primary-foreground', light: 'oklch(1 0 0)', dark: 'oklch(0 0 0)' },
-    {
-      name: '--secondary',
-      light: 'oklch(0.968 0.211 109.7692)',
-      dark: 'oklch(0.9691 0.2005 109.6228)',
-    },
-    { name: '--secondary-foreground', light: 'oklch(0 0 0)', dark: 'oklch(0 0 0)' },
-    {
-      name: '--accent',
-      light: 'oklch(0.5635 0.2408 260.8178)',
-      dark: 'oklch(0.6755 0.1765 252.2592)',
-    },
-    { name: '--accent-foreground', light: 'oklch(1 0 0)', dark: 'oklch(0 0 0)' },
+    { name: '--primary', value: 'oklch(0.6489 0.237 var(--brand-hue))' },
+    { name: '--primary-foreground', value: 'oklch(1 0 0) / oklch(0 0 0)' },
+    { name: '--secondary', value: 'oklch(0.968 0.211 109.7692)' },
+    { name: '--secondary-foreground', value: 'oklch(0 0 0)' },
+    { name: '--accent', value: 'oklch(0.5635 0.2408 260.8178)' },
+    { name: '--accent-foreground', value: 'oklch(1 0 0) / oklch(0 0 0)' },
   ];
 
   const terminal: TokenEntry[] = [
-    { name: '--terminal', light: 'oklch(0.2 0 0)', dark: 'oklch(0.2 0 0)' },
-    { name: '--terminal-foreground', light: 'oklch(1 0 0)', dark: 'oklch(1 0 0)' },
-    {
-      name: '--terminal-hover',
-      light: 'mix(terminal-fg 14% → terminal)',
-      dark: 'mix(terminal-fg 14% → terminal)',
-    },
-    {
-      name: '--terminal-muted',
-      light: 'mix(terminal-fg 8% → terminal)',
-      dark: 'mix(terminal-fg 8% → terminal)',
-    },
+    { name: '--terminal', value: 'oklch(0.2 0 0)' },
+    { name: '--terminal-foreground', value: 'oklch(1 0 0)' },
+    { name: '--terminal-hover', value: 'mix(fg 14% → terminal)' },
+    { name: '--terminal-muted', value: 'mix(fg 8% → terminal)' },
   ];
 
   const charts: TokenEntry[] = [
-    { name: '--chart-1', light: 'var(--primary)', dark: 'var(--primary)' },
-    { name: '--chart-2', light: 'var(--secondary)', dark: 'var(--secondary)' },
-    { name: '--chart-3', light: 'var(--accent)', dark: 'var(--accent)' },
-    { name: '--chart-4', light: 'oklch(0.7323 0.2492 142.4953)', dark: 'oklch(0.7395 0.2268 142.8504)' },
-    { name: '--chart-5', light: 'oklch(0.5931 0.2726 328.3634)', dark: 'oklch(0.6131 0.2458 328.0714)' },
+    { name: '--chart-1', value: 'var(--primary)' },
+    { name: '--chart-2', value: 'var(--secondary)' },
+    { name: '--chart-3', value: 'var(--accent)' },
+    { name: '--chart-4', value: 'oklch(0.7323 0.2492 142.4953)' },
+    { name: '--chart-5', value: 'oklch(0.5931 0.2726 328.3634)' },
   ];
 
   const groups: { id: string; label: string; entries: TokenEntry[] }[] = [
@@ -105,7 +83,7 @@
   <title>Tokens · jixoai/ui</title>
   <meta
     name="description"
-    content="The jixoai token law: OKLCH colors with one brand hue per project, dark -4° drift, hard offset shadows, radius 0 with bevel upgrade, and terminal surfaces. Interactive hue lab included."
+    content="The jixoai token law: OKLCH colors with the brand hue running free (time-of-day + 30s cycle), dark -4° drift, hard offset shadows, radius 0 with bevel upgrade, and terminal surfaces."
   />
 </svelte:head>
 
@@ -117,10 +95,10 @@
       tone="hero"
       eyebrow="Tokens"
       title="One variable is the whole identity"
-      summary="Colors are OKLCH with fixed lightness and chroma shared across every jixoai site; only --brand-hue varies per project (this one: 330, pink-purple). Neutrals are pure achromatic, shadows are hard offsets, radius is 0 — and the neon clip beyond sRGB is intentional, so nobody fixes it."
+      summary="Colors are OKLCH with fixed lightness and chroma shared across every jixoai site; only --brand-hue varies. On this site it runs free — seeded from the time of day and cycling every 30 seconds. Use the palette popover in the header (or the slider below) to take manual control."
     >
       <div class="flex flex-wrap gap-3">
-        <span class="pill">--brand-hue: 330</span>
+        <span class="pill">--brand-hue: <span class="tabular-nums text-primary">{Math.round(hue)}°</span> live</span>
         <span class="pill">OKLCH · fixed L/C law</span>
         <span class="pill">dark drift −4°</span>
         <span class="pill">radius 0 + bevel upgrade</span>
@@ -132,8 +110,8 @@
   <div data-reveal="" use:reveal>
     <SectionCard
       eyebrow="Hue lab"
-      title="Drag one number, rebrand everything"
-      summary="The slider writes --brand-hue on the page root. Watch the primary swatches, the button, the header-brand chip, and every node on this site re-derive — that is the entire per-project theming surface of the design language."
+      title="The hue runs free on this site"
+      summary="The runtime seeds --brand-hue from the time of day (one full day = one full 360° turn) and cycles linearly every 30 seconds. The slider writes manually — pausing the cycle; the play/pause toggle resumes from wherever the hue is."
     >
       <div class="flex flex-col gap-6">
         <div class="flex flex-col gap-3">
@@ -141,12 +119,19 @@
             <label class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground" for="hue-slider">
               --brand-hue
             </label>
-            <output
-              for="hue-slider"
-              class="font-nav text-primary text-[13px] tabular-nums"
-            >
-              {hue}
-            </output>
+            <div class="flex items-center gap-3">
+              <output for="hue-slider" class="font-nav text-primary text-[13px] tabular-nums">
+                {Math.round(hue)}°
+              </output>
+              <button
+                type="button"
+                class="border border-border px-2 py-0.5 text-[10px] font-nav transition-colors hover:bg-muted"
+                onclick={toggleHuePlay}
+                aria-label={isPlaying ? 'Pause auto-cycle' : 'Resume auto-cycle'}
+              >
+                {isPlaying ? '❚❚ pause' : '▶ play'}
+              </button>
+            </div>
           </div>
           <input
             id="hue-slider"
@@ -155,29 +140,20 @@
             min="0"
             max="359"
             step="1"
-            value={hue}
-            oninput={(event) => setHue(event.currentTarget.valueAsNumber)}
+            value={Math.round(hue)}
+            oninput={(event) => setHueManually(event.currentTarget.valueAsNumber)}
           />
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <p class="text-muted-foreground text-[12.5px] leading-5">
-              0 = jixoai red · 27 = openspecui · 165 = unipty 幽绿 · 330 = this site
-            </p>
-            <PressButton variant="outline" onclick={resetHue}>reset 330</PressButton>
-          </div>
+          <p class="text-muted-foreground text-[12.5px] leading-5">
+            0 = jixoai red · 27 = openspecui · 165 = unipty 幽绿 · this site: time-of-day → 30s cycle
+          </p>
         </div>
 
-        <div class="grid gap-4 min-[760px]:grid-cols-3">
-          <!-- light primary -->
-          <div class="token-scope-light border border-border">
+        <!-- live swatches in the CURRENT theme -->
+        <div class="grid gap-4 min-[760px]:grid-cols-2">
+          <div class="border border-border">
             <div class="swatch-chip" style="background: var(--primary)"></div>
-            <p class="px-3 py-2 text-[11.5px]">light --primary</p>
+            <p class="px-3 py-2 text-[11.5px]">--primary (current theme)</p>
           </div>
-          <!-- dark primary (the -4° drift) -->
-          <div class="token-scope-dark border border-border">
-            <div class="swatch-chip" style="background: var(--primary)"></div>
-            <p class="px-3 py-2 text-[11.5px]">dark --primary (hue − 4°)</p>
-          </div>
-          <!-- header-brand chip on the terminal bezel -->
           <div class="bg-terminal border border-border">
             <div class="flex h-[2.6rem] items-center px-3">
               <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">
@@ -201,41 +177,28 @@
     </SectionCard>
   </div>
 
-  <!-- Full palette: light and dark panels side by side. -->
+  <!-- Full palette in the current theme. -->
   <div data-reveal="" use:reveal>
     <SectionCard
       eyebrow="Palette"
-      title="The full sheet, both modes"
-      summary="Values are literal from the registry token sheet. Each panel re-scopes the tokens so the light palette renders light even while the page theme is dark — and the primary chips keep following the slider above."
+      title="The full sheet, current theme"
+      summary="Values are literal from the registry token sheet (light / dark where they differ). Switch the site theme (header toggle or palette popover) to compare the other mode — no dual panels here."
     >
       <div class="flex flex-col gap-6">
         {#each groups as group (group.id)}
           <div class="flex flex-col gap-3">
             <h3 class="text-[15px] font-bold tracking-tight">{group.label}</h3>
-            <div class="grid gap-4 min-[940px]:grid-cols-2">
-              {#each [null, 'dark'] as mode (mode ?? 'light')}
-                <div
-                  class="border border-border {mode === 'dark'
-                    ? 'token-scope-dark'
-                    : 'token-scope-light'}"
-                >
-                  <p class="border-b border-border px-3 py-1.5 text-[11px] uppercase tracking-[0.18em]">
-                    {mode === 'dark' ? '.dark' : ':root (light)'}
-                  </p>
-                  <dl class="grid grid-cols-2 gap-2 p-3 min-[560px]:grid-cols-3">
-                    {#each group.entries as entry (entry.name)}
-                      <div class="swatch">
-                        <div class="swatch-chip" style:background={`var(${entry.name})`}></div>
-                        <div class="flex flex-col gap-0.5 px-2 py-1.5">
-                          <dt>{entry.name}</dt>
-                          <dd>{mode === 'dark' ? entry.dark : entry.light}</dd>
-                        </div>
-                      </div>
-                    {/each}
-                  </dl>
+            <dl class="grid grid-cols-1 gap-2 min-[560px]:grid-cols-2 min-[860px]:grid-cols-3">
+              {#each group.entries as entry (entry.name)}
+                <div class="swatch border border-border">
+                  <div class="swatch-chip" style:background={`var(${entry.name})`}></div>
+                  <div class="flex flex-col gap-0.5 px-2 py-1.5">
+                    <dt>{entry.name}</dt>
+                    <dd class="text-muted-foreground">{entry.value}</dd>
+                  </div>
                 </div>
               {/each}
-            </div>
+            </dl>
           </div>
         {/each}
       </div>

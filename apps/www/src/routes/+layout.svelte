@@ -8,9 +8,18 @@
   import TerminalFooter from '$lib/ui/terminal-footer.svelte';
   import TerminalHeader from '$lib/ui/terminal-header.svelte';
   import ThemeToggle from '$lib/ui/theme-toggle.svelte';
+  import HuePopover from '$lib/components/hue-popover.svelte';
+  import { startHueRuntime, stopHueRuntime } from '$lib/hue-runtime';
+  import { onMount } from 'svelte';
   import { GITHUB_URL } from '$lib/site';
 
   let { children }: { children: Snippet } = $props();
+
+  // Brand hue runs free: time-of-day seed + 30s auto-cycle (Owner, 2026-08-21).
+  onMount(() => {
+    startHueRuntime();
+    return () => stopHueRuntime();
+  });
 
   // Pages are flat files (/, /components.html, /tokens.html); prerendered
   // paths lack the .html suffix the browser shows.
@@ -107,7 +116,8 @@
         </svg>
       {/snippet}
       {#snippet switcher()}
-        <ThemeToggle />
+        <HuePopover />
+        <ThemeToggle variant="icon" />
       {/snippet}
     </TerminalHeader>
   {/snippet}
