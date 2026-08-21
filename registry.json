@@ -537,6 +537,34 @@
           "type": "registry:file"
         }
       ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "combobox",
+      "type": "registry:ui",
+      "title": "Combobox",
+      "description": "Searchable select with custom-value input: real-time label filtering, allowCustom for free-text values, popover panel with roving aria-activedescendant (focus stays in input), 'No results' + 'Use xxx' affordance, blur-commit, family label/error contract.",
+      "files": [
+        {
+          "path": "registry/files/ui/combobox.svelte",
+          "target": "@ui/combobox.svelte",
+          "type": "registry:file"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "tags-input",
+      "type": "registry:ui",
+      "title": "Tags input",
+      "description": "Input + multiselect hybrid: flex-wrap tag chips with press-physics removal, Enter/comma/Tab/paste-split to add, Backspace removes last, suggestions popover with filtering, maxTags limit, duplicate flash, $bindable Tag[].",
+      "files": [
+        {
+          "path": "registry/files/ui/tags-input.svelte",
+          "target": "@ui/tags-input.svelte",
+          "type": "registry:file"
+        }
+      ]
     }
   ]
 }

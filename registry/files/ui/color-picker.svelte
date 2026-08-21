@@ -302,9 +302,12 @@
     <Input class="jx-color-picker-input font-mono text-[13px]" bind:value={textDraft} onchange={commitText} />
 
     {#if canPick}
-      <PressButton variant="outline" class="jx-color-picker-pick" onclick={pickFromScreen}>
-        Pick from screen
-      </PressButton>
+      <!-- PressButton takes no class prop — the wrapper owns the row width -->
+      <div class="jx-color-picker-pick">
+        <PressButton variant="outline" onclick={pickFromScreen}>
+          Pick from screen
+        </PressButton>
+      </div>
     {/if}
   </div>
 
@@ -411,6 +414,12 @@
     /* center on the anchor (the panel is wider than the trigger) */
     justify-self: anchor-center;
   }
+  /* display:flex on the panel would defeat the UA sheet's closed-popover
+     hiding — closed panels MUST be display:none or they render at their
+     static position and intercept pointer events (found in smoke test) */
+  .jx-color-picker-panel:not(:popover-open) {
+    display: none;
+  }
   /* Engines without CSS Anchor Positioning: authored viewport-center */
   @supports not (anchor-name: --jx-color-picker-fallback) {
     .jx-color-picker-panel {
@@ -495,6 +504,11 @@
     font-size: 12px;
   }
   .jx-color-picker-pick {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  .jx-color-picker-pick :global(button) {
     justify-content: center;
     width: 100%;
   }

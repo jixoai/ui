@@ -3,6 +3,7 @@
   import CardGrid from '$lib/ui/card-grid.svelte';
   import Checkbox from '$lib/ui/checkbox.svelte';
   import ColorPicker from '$lib/ui/color-picker.svelte';
+  import Combobox, { type ComboboxOption } from '$lib/ui/combobox.svelte';
   import DatePicker, { type DatePickerRange } from '$lib/ui/date-picker.svelte';
   import FileInput from '$lib/ui/file-input.svelte';
   import Input from '$lib/ui/input.svelte';
@@ -13,6 +14,7 @@
   import Range from '$lib/ui/range.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import Select, { type SelectOption } from '$lib/ui/select.svelte';
+  import TagsInput, { type Tag } from '$lib/ui/tags-input.svelte';
   import TerminalCard from '$lib/ui/terminal-card.svelte';
   import Textarea from '$lib/ui/textarea.svelte';
   import Toggle from '$lib/ui/toggle.svelte';
@@ -42,6 +44,8 @@
   import DatePicker from '@ui/date-picker.svelte';
   import Range from '@ui/range.svelte';
   import ColorPicker from '@ui/color-picker.svelte';
+  import Combobox from '@ui/combobox.svelte';
+  import TagsInput from '@ui/tags-input.svelte';
 ${close}
 
 <!-- every native type passes straight through -->
@@ -77,6 +81,12 @@ ${close}
 <ColorPicker label="brand" bind:value={brandColor} />
 <ColorPicker label="accent" bind:value={accentColor} format="oklch" />
 
+<!-- the searchable select: type to filter, ↑/↓/Enter commits, allowCustom -->
+<Combobox label="backend" bind:value={backend} options={backends} />
+
+<!-- input × multiselect: Enter/comma/Tab commits chips, Backspace deletes -->
+<TagsInput label="stack" bind:tags={stack} suggestions={stackSuggestions} />
+
 <Textarea label="notes" rows={5} maxlength={280} />`;
 
   const errorUsage = `<Input
@@ -104,6 +114,32 @@ ${close}
   bind:value={runtime}
   options={runtimeOptions}
 />`;
+
+  const comboboxUsage = `const backends: ComboboxOption[] = [
+  { value: 'node-pty', label: 'node-pty', description: 'conpty / forkpty addon' },
+  { value: 'bun-terminal', label: 'Bun.Terminal', description: 'linux/macos 1.3.13+, windows 1.3.14' },
+  { value: '@sigma/pty-ffi', label: '@sigma/pty-ffi', description: 'deno FFI over rust portable-pty' },
+];
+
+<!-- type to filter (label, case-insensitive); ↑/↓ + Enter commits; Escape
+     reverts; Tab keeps. No match + allowCustom → the “Use “xxx”” row -->
+<Combobox label="backend" bind:value={backend} options={backends} />
+
+<!-- strict: allowCustom={false} reverts stray text on blur -->
+<Combobox label="runtime" allowCustom={false} options={backends} />`;
+
+  const tagsUsage = `const stack = $state<Tag[]>([{ value: 'svelte' }]);
+const stackSuggestions: Tag[] = [
+  { value: 'svelte' }, { value: 'typescript' }, { value: 'node' },
+];
+
+<!-- Enter / comma / Tab commits a chip; Backspace on empty deletes the
+     last; typing filters the suggestion popover (↑/↓ + Enter) -->
+<TagsInput label="stack" bind:tags={stack} suggestions={stackSuggestions} />
+
+<!-- maxTags hides the input at the cap ("N/N tags"); duplicates flash the
+     existing chip instead of adding; removable={false} pins a chip -->
+<TagsInput label="targets" bind:tags={targets} maxTags={3} />`;
 
   const numberUsage = `<!-- click steps once; hold accelerates (300ms → 100ms/step);
      typing commits on change and clamps into [min, max] -->
@@ -189,6 +225,40 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
     { value: 'wasi', label: 'wasi — coming soon', description: 'reserved route, not implemented yet', disabled: true },
   ];
 
+  // ---- combobox demo state -------------------------------------------------
+  let backendRoute = $state<string | undefined>('node-pty');
+  let backendCustom = $state<string | undefined>(undefined);
+  let backendStrict = $state<string | undefined>(undefined);
+  let backendRtl = $state<string | undefined>('bun-terminal');
+
+  const backendOptions: ComboboxOption[] = [
+    { value: 'node-pty', label: 'node-pty', description: 'conpty / forkpty — the battle-tested addon' },
+    { value: 'bun-terminal', label: 'Bun.Terminal', description: 'linux/macos since 1.3.13, windows 1.3.14' },
+    { value: '@sigma/pty-ffi', label: '@sigma/pty-ffi', description: 'deno FFI over rust portable-pty' },
+    { value: 'termless', label: 'termless', description: 'VT emulator — not a pty host', disabled: true },
+  ];
+
+  // ---- tags input demo state -------------------------------------------------
+  let stackTags = $state<Tag[]>([{ value: 'svelte' }, { value: 'typescript' }]);
+  let targetTags = $state<Tag[]>([{ value: 'node' }, { value: 'bun' }]);
+  let pinnedTags = $state<Tag[]>([
+    { value: 'owner', removable: false },
+    { value: 'release' },
+  ]);
+  let rtlTags = $state<Tag[]>([{ value: 'svelte' }]);
+
+  const tagSuggestions: Tag[] = [
+    { value: 'svelte' },
+    { value: 'typescript' },
+    { value: 'node' },
+    { value: 'bun' },
+    { value: 'deno' },
+    { value: 'rust' },
+    { value: 'ffi' },
+    { value: 'conpty' },
+    { value: 'websocket' },
+  ];
+
   // ---- number stepper demo state -----------------------------------------
   let workers = $state(4);
   let timeout = $state(1.5);
@@ -271,7 +341,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   <title>Form components · jixoai-ui</title>
   <meta
     name="description"
-    content="input / native-select / select / number-input / textarea / checkbox / radio / toggle / file-input / date-picker / range / color-picker — the jixoai NativeHTML form base: every native input type passes through untouched, the select family splits into NativeSelect (platform popup, FormData-ready) and Select (a popover listbox with descriptions), number-input is the [- NUM +] stepper, file-input is the professional file picker (File[] contract, previews, list/cards/compact variants, maxFiles), date-picker is a zero-dependency calendar popover over hand-rolled Date math, range is the fully custom slider (div + pointer events, square thumb, ticks, rtl), and color-picker is the oklch-hub popover picker (SV pad, hue bar, hex/hsl/oklch, Eye Dropper) — label/error semantics ride on label[for] plus aria-invalid/aria-describedby throughout."
+    content="input / native-select / select / combobox / tags-input / number-input / textarea / checkbox / radio / toggle / file-input / date-picker / range / color-picker — the jixoai NativeHTML form base: every native input type passes through untouched, the select family splits into NativeSelect (platform popup, FormData-ready) and Select (a popover listbox with descriptions), combobox is the searchable select (input trigger, live label filter, ↑/↓/Enter roving highlight, allowCustom ‘Use “xxx”’ row, blur/Escape resolve-or-revert), tags-input is input × multiselect (flex-wrap chip shell, Enter/comma/Tab commits, Backspace deletes, suggestion popover, maxTags cap, duplicate flash), number-input is the [- NUM +] stepper, file-input is the professional file picker (File[] contract, previews, list/cards/compact variants, maxFiles), date-picker is a zero-dependency calendar popover over hand-rolled Date math, range is the fully custom slider (div + pointer events, square thumb, ticks, rtl), and color-picker is the oklch-hub popover picker (SV pad, hue bar, hex/hsl/oklch, Eye Dropper) — label/error semantics ride on label[for] plus aria-invalid/aria-describedby throughout."
   />
 </svelte:head>
 
@@ -289,6 +359,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
         <span class="pill">all native types</span>
         <span class="pill">pure-CSS checkbox / radio / toggle</span>
         <span class="pill">select split: native + popover</span>
+        <span class="pill">combobox + tags-input</span>
         <span class="pill">file-input + date-picker</span>
         <span class="pill">custom range + oklch color-picker</span>
         <span class="pill">label[for] + aria wiring</span>
@@ -528,6 +599,127 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
           </div>
         </div>
         <CodeBlock code={selectUsage} lang="svelte" meta="Select usage" />
+      </div>
+    </SectionCard>
+  </div>
+
+  <!-- combobox + tags input -->
+  <div id="combobox-tags" data-reveal="" use:reveal>
+    <SectionCard
+      headerRegion="combobox-tags"
+      eyebrow="combobox / tags-input"
+      title="Combobox + TagsInput — the searchable pair"
+      summary="Two high-form members that turn the popup into a conversation. Combobox is the searchable select: the trigger IS an input, typing filters the panel live (label contains, case-insensitive), ↑/↓ ride a roving aria-activedescendant highlight, Enter commits it, Escape reverts, Tab keeps — and when nothing matches, the allowCustom row offers “Use “xxx”” in the primary hue while strict fields revert stray text on blur. TagsInput is input × multiselect: the shell becomes a flex-wrap chip host where Enter / comma / Tab commits a tag, Backspace on empty deletes the last chip, maxTags swaps the input for an “N/N tags” readout, and duplicates flash the existing chip (primary border + shake) instead of adding. Both panels are the same popover=auto terminal bezel as Select — light dismiss, Escape, and top layer are the browser's; focus never leaves the text field."
+    >
+      <div class="flex flex-col gap-6">
+        <div>
+          <h3 class="text-[15px] font-bold tracking-tight">combobox — the trigger IS the input</h3>
+          <p class="text-muted-foreground mt-2 text-pretty text-[13px] leading-6">
+            Focus one: the text selects itself and the panel opens on the full list with the
+            committed row highlighted (the 2px <code class="text-accent">--primary</code> edge);
+            typing filters live and auto-highlights the first match. Try
+            <code class="text-accent">wasi</code> in the first field — no match, so the
+            “Use “wasi”” row appears in primary; press Enter to commit it as a custom value.
+            The strict field (<code class="text-accent">allowCustom={'{false}'}</code>) keeps
+            its committed label instead.
+          </p>
+          <CardGrid min="230px">
+            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+              <Combobox label="backend — type to filter" bind:value={backendRoute} options={backendOptions} />
+              <span class="text-muted-foreground text-[12.5px]">
+                allowCustom (default) · bound value: <code class="text-accent">{backendRoute ?? 'undefined'}</code>
+              </span>
+            </div>
+            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+              <Combobox
+                label="strict — no custom values"
+                bind:value={backendStrict}
+                options={backendOptions.slice(0, 3)}
+                placeholder="Search..."
+              />
+              <span class="text-muted-foreground text-[12.5px]">
+                allowCustom={'{false}'} · blur reverts stray text · value:
+                <code class="text-accent">{backendStrict ?? 'undefined'}</code>
+              </span>
+            </div>
+            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+              <Combobox
+                label="custom — try “wasi”"
+                bind:value={backendCustom}
+                options={backendOptions.slice(0, 3)}
+                placeholder="Search or type..."
+              />
+              <span class="text-muted-foreground text-[12.5px]">
+                no match → “Use “xxx”” row · value:
+                <code class="text-accent">{backendCustom ?? 'undefined'}</code>
+              </span>
+            </div>
+            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+              <Combobox label="backend" error="backend is required" options={backendOptions} />
+              <span class="text-muted-foreground text-[12.5px]">
+                error wiring: aria-invalid + dashed shell
+              </span>
+            </div>
+          </CardGrid>
+        </div>
+
+        <div class="border-border mt-1 border-t pt-5">
+          <h3 class="text-[15px] font-bold tracking-tight">tags-input — chips + suggestion popover</h3>
+          <p class="text-muted-foreground mt-2 text-pretty text-[13px] leading-6">
+            Type in the first one: matching suggestions (<code class="text-accent">label</code>
+            or <code class="text-accent">value</code> contains, case-insensitive) pop under the
+            shell with ↑/↓ + Enter; type <code class="text-accent">svelte</code> again to see the
+            duplicate flash on the existing chip. Enter / comma / Tab commits chips directly —
+            pasting <code class="text-accent">rust, ffi</code> splits into two — and Backspace on
+            an empty input deletes the last removable chip.
+          </p>
+          <CardGrid min="230px">
+            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+              <TagsInput label="stack — with suggestions" bind:tags={stackTags} suggestions={tagSuggestions} />
+              <span class="text-muted-foreground text-[12.5px]">
+                bound values: <code class="text-accent">{stackTags.map((t) => t.value).join(', ') || '—'}</code>
+              </span>
+            </div>
+            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+              <TagsInput label="targets (maxTags 3)" bind:tags={targetTags} suggestions={tagSuggestions} maxTags={3} />
+              <span class="text-muted-foreground text-[12.5px]">
+                at the cap the input hides · {targetTags.length}/3 tags
+              </span>
+            </div>
+            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+              <TagsInput label="roles — pinned chip" bind:tags={pinnedTags} suggestions={tagSuggestions} />
+              <span class="text-muted-foreground text-[12.5px]">
+                removable={'{false}'} hides the × · Backspace skips it
+              </span>
+            </div>
+            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+              <TagsInput label="labels" error="at least one label is required" suggestions={tagSuggestions} />
+              <span class="text-muted-foreground text-[12.5px]">
+                error wiring: aria-invalid + dashed shell
+              </span>
+            </div>
+          </CardGrid>
+        </div>
+
+        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+          Both components keep the popover orchestration law of the family:
+          <code class="text-accent">popover="auto"</code> panels anchored with CSS Anchor
+          Positioning (<code class="text-accent">anchor-size(width)</code>, flip fallbacks,
+          viewport-center when the engine lacks it), focus that never enters the panel — the
+          roving highlight rides <code class="text-accent">aria-activedescendant</code> +
+          <code class="text-accent">aria-owns</code> off the input itself — and geometry from
+          logical properties only, so <code class="text-accent">dir="rtl"</code> mirrors the
+          chevron, the selected-row edge, and the chip order with zero branches.
+        </p>
+        <div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
+          <Combobox label="backend (rtl)" bind:value={backendRtl} options={backendOptions} />
+          <TagsInput label="stack (rtl)" bind:tags={rtlTags} suggestions={tagSuggestions} maxTags={4} />
+          <span class="text-muted-foreground text-[12px]">
+            dir="rtl" — chevron inline-start, panel edge inline-start, chips right-first
+          </span>
+        </div>
+        <CodeBlock code={comboboxUsage} lang="svelte" meta="Combobox usage" />
+        <CodeBlock code={tagsUsage} lang="svelte" meta="TagsInput usage" />
       </div>
     </SectionCard>
   </div>
