@@ -201,6 +201,16 @@
               label: 'skeleton',
               description: 'loading placeholder',
             },
+            {
+              href: '/components/progress.html',
+              label: 'progress',
+              description: 'native progress bar',
+            },
+            {
+              href: '/components/pagination.html',
+              label: 'pagination',
+              description: 'nav of real links',
+            },
           ],
         },
         {
@@ -215,6 +225,16 @@
               href: '/components/tabs.html',
               label: 'tabs',
               description: 'APG tablist family',
+            },
+            {
+              href: '/components/tooltip.html',
+              label: 'tooltip',
+              description: 'hover-intent hint',
+            },
+            {
+              href: '/components/dropdown-menu.html',
+              label: 'dropdown-menu',
+              description: 'ARIA menu pattern',
             },
           ],
         },

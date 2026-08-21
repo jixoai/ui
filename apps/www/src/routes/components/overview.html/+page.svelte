@@ -7,7 +7,7 @@
 
   // Pure index page (2026-08-20): every demo moved to its own
   // /components/<name>.html route; this page is only the catalog.
-  // 25 documented components (form merges input/select/textarea into one
+  // 29 documented components (form merges input/select/textarea into one
   // route) + 3 framework-free libs (reveal, toc-engine, highlight).
   interface IndexEntry {
     /** Display title = the component page's subject. */
@@ -134,6 +134,14 @@
           'alert',
           'Inline notice block with live-region semantics as a prop: role=status polite by default, role=alert when assertive.',
         ),
+        entry(
+          'progress',
+          'The native <progress> element with the jixoai paint: 1px frame, brand fill, terminal stripe sweep when indeterminate.',
+        ),
+        entry(
+          'pagination',
+          'A nav landmark of real links: sticky-edge page windows, aria-current on the active page, honest disabled spans at the bounds.',
+        ),
       ],
     },
     {
@@ -159,6 +167,14 @@
         entry(
           'tabs',
           'The APG tablist contract in four family files: automatic activation, roving tabindex, deterministic id pairing.',
+        ),
+        entry(
+          'tooltip',
+          'Hover-intent hint on the popover laws: popover=manual panel, CSS anchoring, focus opens instantly, Escape closes.',
+        ),
+        entry(
+          'dropdown-menu',
+          'The ARIA menu pattern on the popover laws: item-1 focus on open, wrapping arrows, typeahead, focus restore on selection.',
         ),
       ],
     },
@@ -187,7 +203,7 @@
   <title>Components · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai-ui component index: 25 documented components across Layout, Overlay, Form, Display, Interactive, and Shell — every one a registry item installable with npx jixoai-ui add."
+    content="The jixoai-ui component index: 29 documented components across Layout, Overlay, Form, Display, Interactive, and Shell — every one a registry item installable with npx jixoai-ui add."
   />
 </svelte:head>
 
@@ -202,7 +218,7 @@
       summary="The jixoai design language component library — every item is a registry item installable via npx jixoai-ui add."
     >
       <div class="flex flex-wrap gap-3">
-        <span class="pill">25 components</span>
+        <span class="pill">29 components</span>
         <span class="pill">3 libs</span>
       </div>
     </SectionCard>

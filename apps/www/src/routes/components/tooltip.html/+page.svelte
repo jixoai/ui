@@ -1,0 +1,99 @@
+<script lang="ts">
+  import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
+  import PressButton from '$lib/ui/press-button.svelte';
+  import SectionCard from '$lib/ui/section-card.svelte';
+  import Tooltip from '$lib/ui/tooltip.svelte';
+  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import { reveal } from '$lib/reveal';
+
+  // Same-source law: the drawer shows the exact registry copy this site runs.
+  import tooltipSource from '$lib/ui/tooltip.svelte?raw';
+
+  const close = '</' + 'script>';
+
+  const usage = `<script lang="ts">
+  import Tooltip from '@ui/tooltip.svelte';
+  import PressButton from '@ui/press-button.svelte';
+${close}
+
+<Tooltip text="Copy install command">
+  <PressButton>copy</PressButton>
+</Tooltip>
+
+<!-- placement + delays -->
+<Tooltip text="Below the trigger" placement="bottom" openDelay={150}>…</Tooltip>`;
+
+  const canvasUsage = `<Tooltip text="Copy install command">
+  <PressButton>copy</PressButton>
+</Tooltip>`;
+
+  const canvasFiles: TreeFile[] = [
+    { name: 'registry/files/ui/tooltip.svelte', content: tooltipSource },
+    { name: 'src/lib/ui/tooltip-usage.svelte', content: canvasUsage },
+  ];
+</script>
+
+<svelte:head>
+  <title>Tooltip · jixoai-ui</title>
+  <meta
+    name="description"
+    content="The jixoai tooltip: a popover=manual panel on the popover laws — CSS Anchor Positioning, zero JS geometry — with the hover/focus intent model CSS alone cannot do. Non-interactive by contract."
+  />
+</svelte:head>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+  <div data-reveal="" use:reveal>
+    <SectionCard
+      headingLevel={1}
+      tone="hero"
+      eyebrow="registry:ui · NativeHTML"
+      title="tooltip — hover intent on the popover laws"
+      summary="A popover=manual panel (no light dismiss — the tip owns its exit) anchored through CSS Anchor Positioning like popover.svelte, zero JS geometry. The component exists for the one thing CSS alone cannot do: intent — pointerenter opens after a delay, the close delay lets the pointer cross onto the tip, focus opens immediately, Escape closes."
+    >
+      <div class="flex flex-wrap gap-3">
+        <span class="pill">popover=manual</span>
+        <span class="pill">400ms open · 100ms close</span>
+        <span class="pill">focus opens instantly</span>
+        <span class="pill">aria-describedby</span>
+      </div>
+    </SectionCard>
+  </div>
+
+  <div data-reveal="" use:reveal>
+    <ComponentCanvas
+      title="tooltip"
+      description="Hover the button (wait ~400ms), then focus it with the keyboard — two intent paths, one tip. Escape dismisses; moving the pointer onto the tip keeps it open."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/tooltip.svelte"
+      files={canvasFiles}
+    >
+      <div class="flex flex-wrap items-center gap-4">
+        <Tooltip text="Copy the install command to your clipboard">
+          <PressButton>copy</PressButton>
+        </Tooltip>
+        <Tooltip text="Below the trigger, for toolbar bottoms" placement="bottom">
+          <PressButton variant="outline">bottom</PressButton>
+        </Tooltip>
+      </div>
+      {#snippet playground()}
+        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
+          the tip is non-interactive by contract — actionable content belongs in a popover, where
+          light dismiss and real focus behavior apply. <code class="text-accent">text</code> is
+          plain string; hidden popover content is display:none, so the permanent
+          <code class="text-accent">aria-describedby</code> pairing only reads while shown.
+        </p>
+      {/snippet}
+    </ComponentCanvas>
+  </div>
+
+  <div data-reveal="" use:reveal>
+    <SectionCard
+      headerRegion="tooltip-base"
+      eyebrow="NativeHTML 基座"
+      title="What the platform gives, what intent adds"
+      summary="The Popover API gives the top layer, Escape plumbing and manual semantics; CSS Anchor Positioning gives placement with zero JS geometry. The intent model — hover delay, close grace, focus immediacy — is the component's entire reason to exist."
+    >
+      <CodeBlock code={usage} lang="svelte" meta="usage" />
+    </SectionCard>
+  </div>
+</div>

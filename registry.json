@@ -753,6 +753,71 @@
         }
       ],
       "docs": "Root props: value ($bindable, '' = none selected), onchange?. TabsList: orientation? ('horizontal'|'vertical'). TabsTrigger: value, disabled?. TabsContent: value."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "progress",
+      "type": "registry:ui",
+      "title": "Progress",
+      "description": "W3C-first: progress IS the native <progress> element — role, value semantics and the indeterminate state are the browser's. The component adds the jixoai paint (1px frame, brand fill, terminal stripe sweep when indeterminate) and an optional label + polite % readout.",
+      "files": [
+        {
+          "path": "registry/files/ui/progress.svelte",
+          "target": "@ui/progress.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: value? (0..max; omitted = indeterminate), max? (default 1), label?, class?."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "tooltip",
+      "type": "registry:ui",
+      "title": "Tooltip",
+      "description": "The hover-intent hint on the popover laws: a popover=manual panel (no light dismiss — the tip owns its exit) anchored via CSS Anchor Positioning, zero JS geometry. Intent model: pointerenter opens after openDelay (400ms), pointerleave closes after closeDelay (100ms, cancellable from the tip), focusin opens immediately, Escape closes. aria-describedby pairs wrapper to tip permanently (hidden popover content is display:none). Non-interactive by contract.",
+      "files": [
+        {
+          "path": "registry/files/ui/tooltip.svelte",
+          "target": "@ui/tooltip.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: id?, text, placement? ('top' default), openDelay? (400), closeDelay? (100); children snippet = the trigger content."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "pagination",
+      "type": "registry:ui",
+      "title": "Pagination",
+      "description": "W3C-first: pagination is a nav landmark of ordinary links — real hrefs (server-friendly, JS-off friendly), aria-current=page on the active one. The pageWindow algorithm keeps first/last reachable and shows siblings around the current page with aria-hidden ellipses. At the bounds prev/next become honest disabled spans, not dead links.",
+      "files": [
+        {
+          "path": "registry/files/ui/pagination.svelte",
+          "target": "@ui/pagination.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: page, pageCount, href (template fn), label?, siblings? (1), prevLabel?/nextLabel?. Module export: pageWindow(page, pageCount, siblings)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "dropdown-menu",
+      "type": "registry:ui",
+      "title": "Dropdown menu",
+      "description": "The ARIA menu pattern on the popover laws: popover=auto panel (light dismiss, Escape, top layer native) + CSS Anchor Positioning, plus the keyboard contract the platform does not ship — open focuses item 1; arrows/Home/End walk with wrapping; 500ms typeahead; selection runs the caller onclick then closes with focus restored to the trigger (explicit decision — light-dismiss clicks never steal focus).",
+      "files": [
+        {
+          "path": "registry/files/ui/dropdown-menu.svelte",
+          "target": "@ui/dropdown-menu.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/dropdown-menu-item.svelte",
+          "target": "@ui/dropdown-menu-item.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Root props: id, triggerLabel?, placement? ('bottom-end'), trigger? (custom snippet), panelClass?, onToggle?. Item props: destructive?, plus <button> passthrough; separators are plain <hr>, labels plain markup."
     }
   ]
 }
