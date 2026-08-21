@@ -287,6 +287,36 @@
         }
       ],
       "docs": "Slot children; pairs with website-scaffold's jx-scaffold-float context."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "Dialog",
+      "description": "NativeHTML dialog: a native <dialog> base with showModal() \u2014 focus trap, Escape, top-layer rendering for free. jixoai surface (1px border + hard offset shadow, radius omitted) with ::backdrop tinted by the brand hue; one shared 120ms close path for \u00d7/Escape/open=false (backdrop transitions with it, reduced-motion closes instantly); a generation token prevents reopen races during fade-out. bind:open drives the lifecycle.",
+      "files": [
+        {
+          "path": "registry/files/ui/dialog.svelte",
+          "target": "@ui/dialog.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: title?, open ($bindable); snippets children, footer?. Escape goes through the cancel event and shares the animated close path."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "popover",
+      "type": "registry:ui",
+      "title": "Popover",
+      "description": "NativeHTML popover: the native Popover API base (popover='auto' light dismiss, popovertarget trigger) \u2014 ZERO JavaScript. jixoai hard-shadow surface; authored centering via inset-area with an @supports fallback; transparent ::backdrop; the trigger's caret flips while open via :has(+ :popover-open). CSS Anchor Positioning noted as the extension direction.",
+      "files": [
+        {
+          "path": "registry/files/ui/popover.svelte",
+          "target": "@ui/popover.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: id (required, links popovertarget), triggerLabel; snippet children. Inside a popover, a second popovertarget button closes it declaratively \u2014 still zero JS."
     }
   ]
 }
