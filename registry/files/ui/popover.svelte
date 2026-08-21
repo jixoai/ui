@@ -10,7 +10,9 @@
 
   Anchored placement (2026-08-21, Owner ruling): the panel anchors to the
   trigger through the CSS Anchor Positioning API — `anchor-name` on the
-  wrapper, `position-anchor` + `inset-area` on the panel, plus native
+  wrapper, `position-anchor` + `position-area` on the panel (both the
+  current name and its `inset-area` legacy alias are set inline; Chrome
+  127+ dropped the old name, older engines ignore the new one), plus native
   `position-try-fallbacks` flipping (block/inline). Declarative CSS
   positioning replaces every line of JS geometry: no measure-and-replace,
   so the panel cannot jitter on open. Engines without anchor positioning
@@ -81,7 +83,7 @@
   {/if}
 </span>
 
-<div {id} popover="auto" class="jx-pop" style="position-anchor: {anchorName}; inset-area: {area};">
+<div {id} popover="auto" class="jx-pop" style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};">
   {@render children()}
 </div>
 
