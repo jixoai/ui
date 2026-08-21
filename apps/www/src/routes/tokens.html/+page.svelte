@@ -6,7 +6,7 @@
   import { currentHue, setHueManually, playing, toggleHuePlay } from '$lib/hue-runtime';
 
   /* ---------------------------------------------------------------------
-   * Hue lab: the runtime drives --brand-hue (time-of-day seed, 30s cycle);
+   * Hue lab: the runtime drives --brand-hue (time-of-day seed, 24h wall-clock cycle);
    * the slider here writes manually (pausing the cycle). The CSS code
    * block and every swatch below bind to the LIVE hue — not a hardcoded
    * number.
@@ -18,7 +18,7 @@
 
   const hueLawCode = $derived(
     String.raw`:root {
-  --brand-hue: ${Math.round(hue)}; /* runs free: time-of-day + 30s cycle */
+  --brand-hue: ${Math.round(hue)}; /* runs free: 24h wall-clock, 4min/deg */
 
   --primary: oklch(0.6489 0.237 var(--brand-hue));
   --ring: var(--primary);
@@ -83,7 +83,7 @@
   <title>Tokens · jixoai/ui</title>
   <meta
     name="description"
-    content="The jixoai token law: OKLCH colors with the brand hue running free (time-of-day + 30s cycle), dark -4° drift, hard offset shadows, radius 0 with bevel upgrade, and terminal surfaces."
+    content="The jixoai token law: OKLCH colors with the brand hue running free (24h wall-clock, 4min/deg), dark -4° drift, hard offset shadows, radius 0 with bevel upgrade, and terminal surfaces."
   />
 </svelte:head>
 
@@ -95,7 +95,7 @@
       tone="hero"
       eyebrow="Tokens"
       title="One variable is the whole identity"
-      summary="Colors are OKLCH with fixed lightness and chroma shared across every jixoai site; only --brand-hue varies. On this site it runs free — seeded from the time of day and cycling every 30 seconds. Use the palette popover in the header (or the slider below) to take manual control."
+      summary="Colors are OKLCH with fixed lightness and chroma shared across every jixoai site; only --brand-hue varies. On this site it runs free — seeded from the time of day and one full day = one full 360° turn (4 minutes per degree). Use the palette popover in the header (or the slider below) to take manual control."
     >
       <div class="flex flex-wrap gap-3">
         <span class="pill">--brand-hue: <span class="tabular-nums text-primary">{Math.round(hue)}°</span> live</span>
@@ -111,7 +111,7 @@
     <SectionCard
       eyebrow="Hue lab"
       title="The hue runs free on this site"
-      summary="The runtime seeds --brand-hue from the time of day (one full day = one full 360° turn) and cycles linearly every 30 seconds. The slider writes manually — pausing the cycle; the play/pause toggle resumes from wherever the hue is."
+      summary="The runtime seeds --brand-hue from the time of day (one full day = one full 360° turn) and the hue always equals the wall-clock position (one day = 360°, 4min/deg). The slider writes manually — pausing the cycle; the play/pause toggle resumes from wherever the hue is."
     >
       <div class="flex flex-col gap-6">
         <div class="flex flex-col gap-3">
@@ -144,7 +144,7 @@
             oninput={(event) => setHueManually(event.currentTarget.valueAsNumber)}
           />
           <p class="text-muted-foreground text-[12.5px] leading-5">
-            0 = jixoai red · 27 = openspecui · 165 = unipty 幽绿 · this site: time-of-day → 30s cycle
+            0 = jixoai red · 27 = openspecui · 165 = unipty 幽绿 · this site: time-of-day → 24h wall-clock (4min/deg)
           </p>
         </div>
 

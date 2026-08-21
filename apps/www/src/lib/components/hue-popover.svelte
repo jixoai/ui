@@ -2,7 +2,7 @@
   Hue popover (apps/www/src/lib/components/hue-popover.svelte).
   The ui.jixoai.com brand control: a palette icon that opens a native
   Popover with the ThemeToggle (full variant, icons only), a brand-hue
-  range slider, and a play/pause toggle for the 30s auto-cycle.
+  range slider, and a play/pause toggle for the 24h auto-cycle.
 
   Positioning: anchored below the trigger with try-position — tries
   below-right first, flips above if the viewport bottom is tight, clamps
@@ -175,7 +175,7 @@
               <path d="M8 5v14l11-7Z" />
             </svg>
           {/if}
-          <span class="text-[10px]">{isPlaying ? '30s cycle' : 'paused'}</span>
+          <span class="text-[10px]">{isPlaying ? '24h cycle' : 'paused'}</span>
         </button>
       </div>
     </div>
