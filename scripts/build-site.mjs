@@ -55,7 +55,7 @@ function buildSite() {
   if (result.status !== 0) {
     die(`vite build failed (exit ${result.status})`);
   }
-  for (const page of ["index.html", "components.html", "tokens.html"]) {
+  for (const page of ["index.html", "components/overview.html", "tokens.html"]) {
     if (!existsSync(path.join(wwwDist, page))) {
       die(`site build did not emit ${page} into apps/www/dist`);
     }
