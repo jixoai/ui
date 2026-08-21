@@ -49,10 +49,14 @@
     failed = false;
   });
 
-  /** run the caller's onerror, then swap to the fallback */
+  /** run the caller's onerror, then swap to the fallback — a throwing
+   *  caller handler must not leave the broken img on screen */
   function handleError(event: Event & { currentTarget: EventTarget & HTMLImageElement }) {
-    onerror?.(event);
-    failed = true;
+    try {
+      onerror?.(event);
+    } finally {
+      failed = true;
+    }
   }
 
   const decorative = $derived(alt === '');

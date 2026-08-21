@@ -28,6 +28,11 @@
   const tabs = getContext<TabsApi>(TABS_KEY);
 
   const selected = $derived(tabs.selected === value);
+  // the tab stop follows focus (roving law). The tabStop === '' arm is
+  // the EMPTY state (nothing focused, nothing selected): every trigger
+  // renders tabbable so keyboard/JS-off users can enter at all —
+  // tabs-list trims this to "first enabled only" right after mount
+  const isTabStop = $derived(tabs.tabStop === value || tabs.tabStop === '');
 </script>
 
 <button
@@ -36,7 +41,7 @@
   id="{tabs.uid}-tab-{value}"
   aria-selected={selected}
   aria-controls="{tabs.uid}-panel-{value}"
-  tabindex={tabs.tabStop === value ? 0 : -1}
+  tabindex={isTabStop ? 0 : -1}
   class="jx-tab {className}"
   class:jx-tab-selected={selected}
   {disabled}

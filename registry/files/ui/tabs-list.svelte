@@ -37,6 +37,27 @@
 
   let listEl = $state<HTMLDivElement>();
 
+  /** this list's OWN triggers — nested tablists (a panel hosting its own
+   *  Tabs) keep their own walker, so closest() must resolve HERE */
+  function ownTabs(): HTMLElement[] {
+    return [...(listEl?.querySelectorAll<HTMLElement>('[role=tab]') ?? [])].filter(
+      (tab) => tab.closest('[role=tablist]') === listEl,
+    );
+  }
+
+  // the empty state (no focus, no selection) renders every trigger
+  // tabbable for SSR/JS-off entry; trim to the FIRST enabled tab only —
+  // exactly one tab stop, per the APG roving law (disabled triggers
+  // explicitly -1: browsers skip them, the DOM should say so too)
+  $effect(() => {
+    if (tabs.tabStop !== '' || !listEl) return;
+    const triggers = ownTabs();
+    const firstEnabled = triggers.find((tab) => !tab.hasAttribute('disabled'));
+    for (const tab of triggers) {
+      tab.setAttribute('tabindex', tab === firstEnabled ? '0' : '-1');
+    }
+  });
+
   /** APG keyboard walk — arrows along the axis (flipped under an
    *  inherited RTL direction — nearest [dir] ancestor, html included),
    *  Home/End to the ends; wraps; skips disabled triggers */
@@ -48,9 +69,7 @@
     if (event.key !== forward && event.key !== back && event.key !== 'Home' && event.key !== 'End') {
       return;
     }
-    const triggers = [
-      ...(listEl?.querySelectorAll<HTMLElement>('[role=tab]:not([disabled])') ?? []),
-    ];
+    const triggers = ownTabs().filter((tab) => !tab.hasAttribute('disabled'));
     if (triggers.length === 0) return;
     const current = triggers.indexOf(document.activeElement as HTMLElement);
     event.preventDefault();

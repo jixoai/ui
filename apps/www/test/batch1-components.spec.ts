@@ -23,6 +23,7 @@ import Separator from '../src/lib/ui/separator.svelte';
 import Skeleton from '../src/lib/ui/skeleton.svelte';
 import AccordionHost from './fixtures/accordion-host.svelte';
 import AvatarHost from './fixtures/avatar-host.svelte';
+import EmptyTabsHost from './fixtures/empty-tabs-host.svelte';
 import TabsHost from './fixtures/tabs-host.svelte';
 
 // ---------------------------------------------------------------------------
@@ -323,5 +324,18 @@ describe('Tabs', () => {
     await fireEvent.keyDown(tabs[0], { key: 'ArrowLeft' });
     expect(document.activeElement).toBe(tabs[1]);
     expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('empty initial value still leaves exactly one keyboard entry (first enabled)', async () => {
+    // no value given: nothing selected, but the tablist must be reachable
+    const rendered = render(EmptyTabsHost);
+    const tabs = [...rendered.container.querySelectorAll('[role="tab"]')] as HTMLElement[];
+    await new Promise(requestAnimationFrame);
+
+    expect(tabs[0].tabIndex).toBe(0);
+    expect(tabs[1].tabIndex).toBe(-1);
+    expect(tabs[2].tabIndex).toBe(-1); // disabled trigger
+    // nothing is selected — the panels stay hidden until a choice is made
+    expect(tabs.every((t) => t.getAttribute('aria-selected') === 'false')).toBe(true);
   });
 });

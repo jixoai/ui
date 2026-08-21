@@ -78,8 +78,7 @@
     },
     get tabStop() {
       return focused || value;
-    },
-    setTabStop(next: string) {
+    },    setTabStop(next: string) {
       focused = next;
     },
     select(next: string) {
