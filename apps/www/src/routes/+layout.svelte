@@ -3,11 +3,10 @@
   import { onNavigate } from '$app/navigation';
   import { page } from '$app/state';
   import type { Snippet } from 'svelte';
-  import AppShell from '$lib/ui/app-shell.svelte';
-  import '$lib/app-shell.css';
+  import WebsiteScaffold from '$lib/ui/website-scaffold.svelte';
+  import '$lib/website-scaffold.css';
   import TerminalFooter from '$lib/ui/terminal-footer.svelte';
   import TerminalHeader from '$lib/ui/terminal-header.svelte';
-  import ThemeToggle from '$lib/ui/theme-toggle.svelte';
   import HuePopover from '$lib/components/hue-popover.svelte';
   import { startHueRuntime, stopHueRuntime } from '$lib/hue-runtime';
   import { onMount } from 'svelte';
@@ -31,7 +30,7 @@
   // runs through document.startViewTransition with the tab-carousel
   // direction law (page order index comparison, ported from openspecui).
   // Reduced motion / unsupported browsers navigate plainly.
-  const PAGE_ORDER = ['/', '/components.html', '/tokens.html'];
+  const PAGE_ORDER = ['/', '/components/overview.html', '/components/dialog.html', '/components/popover.html', '/components/form.html', '/tokens.html'];
   const pageIndex = (pathname: string) => PAGE_ORDER.indexOf(pathname);
 
   onNavigate((navigation) => {
@@ -67,13 +66,13 @@
 
   const items = $derived([
     { href: '/', label: 'Overview', active: normalized === '/' },
-    { href: '/components.html', label: 'Components', active: normalized === '/components' },
+    { href: '/components/overview.html', label: 'Components', active: normalized.startsWith('/components') },
     { href: '/tokens.html', label: 'Tokens', active: normalized === '/tokens' },
     { href: GITHUB_URL, label: 'GitHub', external: true },
   ]);
 </script>
 
-<AppShell>
+<WebsiteScaffold>
   {#snippet header()}
     <TerminalHeader
       brand="jixoai/ui"
@@ -117,7 +116,6 @@
       {/snippet}
       {#snippet switcher()}
         <HuePopover />
-        <ThemeToggle variant="icon" />
       {/snippet}
     </TerminalHeader>
   {/snippet}
@@ -135,7 +133,7 @@
       copyright="© 2026 jixoai · MIT"
     />
   {/snippet}
-</AppShell>
+</WebsiteScaffold>
 
 <style>
   /* Logo breathing (Owner request, 2026-08-21): a traveling sine wave —

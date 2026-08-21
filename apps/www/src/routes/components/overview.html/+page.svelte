@@ -50,7 +50,7 @@
       children: [{ id: 'hero-demo', label: 'Demo' }],
     },
     {
-      id: 'app-shell',
+      id: 'website-scaffold',
       label: 'app-shell',
       children: [{ id: 'shell-scaffold', label: 'Scaffold + transitions' }],
     },

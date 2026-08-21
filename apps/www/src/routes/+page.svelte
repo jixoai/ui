@@ -59,7 +59,7 @@ npx jixoai-ui add press-button section-card toc`;
     { name: 'toc', type: 'registry:ui', blurb: 'The Combo ToC: desktop Rule Tracker spine + mobile Terminal Rail glass single-row viewport.' },
     { name: 'terminal-card', type: 'registry:ui', blurb: 'The Broadside hero terminal: traffic-light bar, typed command, line-by-line outputs, 6px hard shadow.' },
     { name: 'hero-section', type: 'registry:ui', blurb: 'The openspecui-composed hero: lead type with primary accent, badges, copy-command CTA, terminal column.' },
-    { name: 'app-shell', type: 'registry:ui', blurb: 'Page scaffold: sticky header band + main + footer, with MPA view transitions (persistent header, slide + blur page).' },
+    { name: 'website-scaffold', type: 'registry:ui', blurb: 'WebsiteScaffold: presentation-site scaffold — overlay top layer (header + float), immersive hide/reveal, SPA carousel transitions.' },
   ];
 </script>
 
