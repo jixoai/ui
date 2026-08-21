@@ -104,9 +104,10 @@
     const ph = el.offsetHeight;
     const trigBottom = an.getBoundingClientRect().bottom;
     const trigTop = an.getBoundingClientRect().top;
-    const margin = 8;
-    const fitsBelow = trigBottom + ph <= vh - margin;
-    const fitsAbove = trigTop - ph >= margin;
+    const gap = 8; // matches --jx-pop-gap: the panel floats this far off
+    // the anchor (shadow clearance); footprint on a side is ph + gap.
+    const fitsBelow = trigBottom + ph + gap <= vh;
+    const fitsAbove = trigTop - ph - gap >= 0;
     let next: string | null = null;
     if (!fitsBelow && fitsAbove) next = flippedArea;
     else if (fitsBelow && el.style.getPropertyValue('--jx-pa') === areaOf(flippedArea)) next = area;
@@ -224,7 +225,11 @@
      names); native try-fallbacks flip on overflow — zero JS geometry. */
   .jx-pop {
     position: fixed;
-    margin: 0;
+    /* gap law (Owner, 2026-08-21): the shadow extends bottom-right; a
+       uniform margin keeps it off the anchor for EVERY placement — above
+       (shadow's bottom edge), left (shadow's right edge), and below/right
+       (adjacency itself). */
+    margin: var(--jx-pop-gap, 8px);
     position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
     position-try: flip-block, flip-inline, flip-block flip-inline;
     /* scroll law (MDN tip): when the anchor scrolls out of view (nested
