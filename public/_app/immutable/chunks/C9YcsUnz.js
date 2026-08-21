@@ -1,0 +1,1 @@
+import{A as e,G as t,M as n,S as r,X as i,a,ft as o,g as s,h as c}from"./CIrOsuIf.js";import"./xihTtKlq.js";var l=n(`<div><!></div>`);function u(n,u){let d=a(u,`min`,3,`260px`),f=a(u,`class`,3,``);var p=l(),m=i(p);r(m,()=>u.children),o(p),t(()=>{s(p,1,`jx-card-grid ${f()??``}`),c(p,`--jx-grid-min: ${d()??``}`)}),e(n,p)}export{u as t};

@@ -1,0 +1,1 @@
+.jx-card-grid{grid-template-columns:repeat(auto-fit, minmax(min(100%, var(--jx-grid-min)), 1fr));align-items:stretch;gap:1.25rem;display:grid}@supports (grid-template-rows:subgrid){.jx-card-grid{grid-template-rows:auto 1fr}.jx-card-grid>*{grid-row:span 2;grid-template-rows:subgrid;row-gap:0;display:grid}.jx-card-grid>[data-no-subgrid]{grid-row:auto;grid-template-rows:none}}

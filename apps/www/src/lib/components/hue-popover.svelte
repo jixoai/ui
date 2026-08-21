@@ -1,39 +1,126 @@
 <!--
   Hue popover (apps/www/src/lib/components/hue-popover.svelte).
   The ui.jixoai.com brand control: a palette icon that opens a native
-  Popover with the theme toggle (dark | light), a brand-hue range slider,
-  and a play/pause toggle for the 30s auto-cycle.
+  Popover with the ThemeToggle (full variant, icons only), a brand-hue
+  range slider, and a play/pause toggle for the 30s auto-cycle.
+
+  Positioning: anchored below the trigger with try-position — tries
+  below-right first, flips above if the viewport bottom is tight, clamps
+  horizontally to the viewport. Uses the native Popover API for light
+  dismiss and focus, with JS-computed fixed coordinates (CSS Anchor
+  Positioning is not yet cross-browser).
 -->
 <script lang="ts">
+  import ThemeToggle from '$lib/ui/theme-toggle.svelte';
   import { currentHue, playing, toggleHuePlay, setHueManually } from '$lib/hue-runtime';
 
   let hue = $state(0);
   let isPlaying = $state(true);
+  let triggerEl = $state<HTMLElement | null>(null);
+  let popEl = $state<HTMLElement | null>(null);
+  let pos = $state<{ top: string; left: string }>({ top: '0px', left: '0px' });
 
-  // sync from stores
   currentHue.subscribe((v) => (hue = v));
   playing.subscribe((v) => (isPlaying = v));
 
-  const setTheme = (mode: 'light' | 'dark'): void => {
-    localStorage.setItem('theme', mode);
-    document.documentElement.classList.toggle('dark', mode === 'dark');
-    document.documentElement.style.colorScheme = mode === 'dark' ? 'dark' : 'light';
+  const GAP = 8;
+
+  /** try-position: below-right → below-left → above-right → above-left,
+   *  clamped to the viewport. Returns the first fully-visible placement. */
+  const computePosition = (): { top: string; left: string } => {
+    if (!triggerEl || !popEl) return { top: '0px', left: '0px' };
+    const trigger = triggerEl.getBoundingClientRect();
+    const pop = popEl.getBoundingClientRect();
+    const vw = innerWidth;
+    const vh = innerHeight;
+
+    // candidate placements in preference order
+    const candidates = [
+      // below, right-aligned to the trigger's right edge
+      { top: trigger.bottom + GAP, left: trigger.right - pop.width },
+      // below, left-aligned to the trigger's left edge
+      { top: trigger.bottom + GAP, left: trigger.left },
+      // above, right-aligned
+      { top: trigger.top - GAP - pop.height, left: trigger.right - pop.width },
+      // above, left-aligned
+      { top: trigger.top - GAP - pop.height, left: trigger.left },
+    ];
+
+    for (const c of candidates) {
+      const fits =
+        c.top >= 0 &&
+        c.top + pop.height <= vh &&
+        c.left >= 0 &&
+        c.left + pop.width <= vw;
+      if (fits) return { top: `${c.top}px`, left: `${c.left}px` };
+    }
+
+    // nothing fits perfectly: clamp the first candidate (below-right)
+    const fallback = candidates[0]!;
+    return {
+      top: `${Math.max(GAP, Math.min(fallback.top, vh - pop.height - GAP))}px`,
+      left: `${Math.max(GAP, Math.min(fallback.left, vw - pop.width - GAP))}px`,
+    };
   };
 
-  const isDark = $derived(
-    typeof document !== 'undefined' &&
-      document.documentElement.classList.contains('dark'),
-  );
+  const position = (): void => {
+    pos = computePosition();
+  };
+
+  /** Programmatic native Popover: position FIRST (while the popover still
+   *  has its display:none dimensions from the previous open, or a minimum
+   *  estimate), then showPopover(). The declarative popovertarget approach
+   *  fires toggle after the browser has already centered the popover. */
+  const openPopover = (): void => {
+    if (!popEl) return;
+    // pre-position with an estimated width (the popover's min-width) so
+    // the first frame appears at the right coordinates
+    const trigger = triggerEl?.getBoundingClientRect();
+    if (trigger) {
+      const estWidth = Math.max(popEl.scrollWidth || 240, 240);
+      pos = {
+        top: `${trigger.bottom + GAP}px`,
+        left: `${Math.max(GAP, trigger.right - estWidth)}px`,
+      };
+    }
+    popEl.showPopover();
+    // refine after the popover has its real dimensions
+    requestAnimationFrame(() => {
+      position();
+    });
+  };
+
+  const closePopover = (): void => {
+    popEl?.hidePopover();
+  };
+
+  // outside click closes (the native popover's light dismiss handles most
+  // cases; this is a fallback for browsers without :popover-open support)
+  $effect(() => {
+    const handler = (e: Event): void => {
+      if (
+        popEl?.matches(':popover-open') &&
+        triggerEl &&
+        !triggerEl.contains(e.target as Node) &&
+        !popEl.contains(e.target as Node)
+      ) {
+        closePopover();
+      }
+    };
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
+  });
 </script>
 
 <div class="relative">
   <button
     type="button"
-    popovertarget="hue-popover"
     class="jx-hue-trigger"
     aria-label="Brand hue & theme"
+    aria-expanded={popEl?.matches(':popover-open') ?? false}
+    bind:this={triggerEl}
+    onclick={openPopover}
   >
-    <!-- palette icon -->
     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M12 22a10 10 0 1 1 10-10c0 1.7-1.3 3-3 3h-2.4a2 2 0 0 0-1.4 3.4c.4.5.6 1.1.6 1.6a2 2 0 0 1-2 2Z" />
       <circle cx="7.5" cy="11.5" r="1" fill="currentColor" stroke="none" />
@@ -43,34 +130,18 @@
     </svg>
   </button>
 
-  <div id="hue-popover" popover class="jx-hue-pop">
+  <div
+    id="hue-popover"
+    popover
+    class="jx-hue-pop"
+    bind:this={popEl}
+    style="top: {pos.top}; left: {pos.left};"
+  >
     <div class="flex flex-col gap-4 p-4">
-      <!-- theme section -->
+      <!-- theme: the registry ThemeToggle, full variant, icons only -->
       <div class="flex flex-col gap-2">
         <p class="font-nav text-primary text-[10px] uppercase tracking-[0.2em]">Theme</p>
-        <div class="flex gap-2">
-          <button
-            type="button"
-            class="jx-hue-btn {!isDark ? 'jx-hue-btn-on' : ''}"
-            onclick={() => setTheme('light')}
-          >
-            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="4" />
-              <path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
-            </svg>
-            light
-          </button>
-          <button
-            type="button"
-            class="jx-hue-btn {isDark ? 'jx-hue-btn-on' : ''}"
-            onclick={() => setTheme('dark')}
-          >
-            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
-            </svg>
-            dark
-          </button>
-        </div>
+        <ThemeToggle variant="full" hideLabels />
       </div>
 
       <!-- hue section -->
@@ -88,8 +159,6 @@
           class="jx-hue-slider"
           oninput={(e) => setHueManually(e.currentTarget.valueAsNumber)}
         />
-        <!-- rainbow gradient track -->
-        <div class="jx-hue-track" aria-hidden="true"></div>
       </div>
 
       <!-- play/pause -->
@@ -97,13 +166,11 @@
         <p class="font-nav text-primary text-[10px] uppercase tracking-[0.2em]">Auto-cycle</p>
         <button type="button" class="jx-hue-play" onclick={toggleHuePlay} aria-label={isPlaying ? 'Pause hue cycle' : 'Play hue cycle'}>
           {#if isPlaying}
-            <!-- pause icon -->
             <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <rect x="6" y="4" width="4" height="16" rx="0" />
               <rect x="14" y="4" width="4" height="16" rx="0" />
             </svg>
           {:else}
-            <!-- play icon -->
             <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M8 5v14l11-7Z" />
             </svg>
@@ -130,9 +197,12 @@
   .jx-hue-trigger:hover {
     border-color: color-mix(in oklab, currentColor 70%, transparent);
   }
+  /* Override the native popover's default centering: we position it with
+     JS (try-position), so it must be fixed at the computed coordinates. */
   .jx-hue-pop {
+    position: fixed;
     margin: 0;
-    padding: 0;
+    inset: auto;
     border: 1px solid var(--border);
     background: var(--popover);
     color: var(--popover-foreground);
@@ -141,28 +211,6 @@
   }
   .jx-hue-pop::backdrop {
     background: transparent;
-  }
-  .jx-hue-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    font-size: 11px;
-    font-family: var(--font-nav);
-    border: 1px solid color-mix(in oklab, currentColor 30%, transparent);
-    background: transparent;
-    color: color-mix(in oklab, currentColor 70%, transparent);
-    cursor: pointer;
-    transition: all 150ms ease-out;
-  }
-  .jx-hue-btn:hover {
-    color: currentColor;
-    border-color: color-mix(in oklab, currentColor 70%, transparent);
-  }
-  .jx-hue-btn-on {
-    background: var(--primary);
-    color: var(--primary-foreground);
-    border-color: var(--primary);
   }
   .jx-hue-slider {
     width: 100%;
@@ -229,8 +277,5 @@
   .jx-hue-play:hover {
     color: currentColor;
     border-color: color-mix(in oklab, currentColor 70%, transparent);
-  }
-  .jx-hue-track {
-    display: none; /* the slider itself carries the rainbow track */
   }
 </style>

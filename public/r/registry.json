@@ -146,23 +146,23 @@
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
-      "name": "app-shell",
+      "name": "website-scaffold",
       "type": "registry:ui",
-      "title": "App shell",
-      "description": "The page scaffold around terminal-header: a sticky, always-visible header band (navigation never scrolls away), main column, optional footer, and a skip link. Ships the systematized MPA view transitions: cross-document navigation with a persistent site-header and a horizontal-slide + blur crossfade on page-main (reduced-motion degrades to crossfade). Pair with view-transitions-toolkit's useAutoTypes() (render-blocking) for from-/to-route typed variants.",
+      "title": "Website scaffold",
+      "description": "WebsiteScaffold \u2014 the page scaffold for presentation sites (traditional websites) around terminal-header: a sticky, always-visible header band (navigation never scrolls away), main column, optional footer, and a skip link. Ships the systematized MPA view transitions: cross-document navigation with a persistent site-header and a horizontal-slide + blur crossfade on page-main (reduced-motion degrades to crossfade). Pair with view-transitions-toolkit's useAutoTypes() (render-blocking) for from-/to-route typed variants. Renamed from app-shell: an AppScaffold for application-style sites is a separate future design.",
       "files": [
         {
-          "path": "registry/files/ui/app-shell.svelte",
-          "target": "@ui/app-shell.svelte",
+          "path": "registry/files/ui/website-scaffold.svelte",
+          "target": "@ui/website-scaffold.svelte",
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/app-shell.css",
-          "target": "@lib/app-shell.css",
+          "path": "registry/files/ui/website-scaffold.css",
+          "target": "@lib/website-scaffold.css",
           "type": "registry:file"
         }
       ],
-      "docs": "Slots: header (required), children (main), footer (optional). Import app-shell.css once. For route-typed transitions, wire useAutoTypes({ index: '/', components: '/components', ... }) in a render-blocking module in <head> (view-transitions-toolkit/navigation)."
+      "docs": "Slots: header (required), children (main), footer (optional). Import website-scaffold.css once. For route-typed transitions, wire useAutoTypes({ index: '/', components: '/components', ... }) in a render-blocking module in <head> (view-transitions-toolkit/navigation)."
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -226,6 +226,49 @@
         }
       ],
       "docs": "Props: min (CSS length, default '260px'). Wrap cards as direct children; opt a child out with data-no-subgrid."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "input",
+      "type": "registry:ui",
+      "title": "Input",
+      "description": "NativeHTML input: every native type passes through. Text-like types get the jixoai shell (1px border, radius 0, hover lift, contained focus ring); checkbox/radio/range keep native widgets with accent-color in brand hue; file wraps a focusable hidden input in a press-button trigger with multi-file name echo; color aligns height. Optional label[for], error wiring (aria-invalid + aria-describedby, monochrome dashed ! message), labelSide for checkbox/radio. Uncontrolled by design (read via FormData).",
+      "files": [
+        {
+          "path": "registry/files/ui/input.svelte",
+          "target": "@ui/input.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: type, label?, error?, labelSide? 'left'|'right', id? (auto), class, ...restProps passed to the native input."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "select",
+      "type": "registry:ui",
+      "title": "Select",
+      "description": "NativeHTML select with appearance:none and an inline-SVG chevron; options passed as children; multiple mode drops the chevron automatically. Same label/error contract as input.",
+      "files": [
+        {
+          "path": "registry/files/ui/select.svelte",
+          "target": "@ui/select.svelte",
+          "type": "registry:file"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "textarea",
+      "type": "registry:ui",
+      "title": "Textarea",
+      "description": "NativeHTML textarea with the jixoai text shell; rows pass-through (default 4), resize: vertical. Same label/error contract as input.",
+      "files": [
+        {
+          "path": "registry/files/ui/textarea.svelte",
+          "target": "@ui/textarea.svelte",
+          "type": "registry:file"
+        }
+      ]
     }
   ]
 }
