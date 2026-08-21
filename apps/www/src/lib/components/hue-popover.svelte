@@ -110,24 +110,51 @@
     document.addEventListener('click', handler);
     return () => document.removeEventListener('click', handler);
   });
+  const togglePopover = (): void => {
+    if (popEl?.matches(':popover-open')) {
+      closePopover();
+    } else {
+      openPopover();
+    }
+  };
+
+  // track open state for the icon swap (palette ↔ X)
+  let isOpen = $state(false);
+  $effect(() => {
+    if (!popEl) return;
+    const handler = () => {
+      isOpen = popEl.matches(':popover-open');
+    };
+    popEl.addEventListener('toggle', handler);
+    return () => popEl.removeEventListener('toggle', handler);
+  });
 </script>
 
 <div class="relative">
   <button
     type="button"
     class="jx-hue-trigger"
-    aria-label="Brand hue & theme"
-    aria-expanded={popEl?.matches(':popover-open') ?? false}
+    aria-label={isOpen ? 'Close brand hue & theme' : 'Brand hue & theme'}
+    aria-expanded={isOpen}
     bind:this={triggerEl}
-    onclick={openPopover}
+    onclick={togglePopover}
   >
-    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M12 22a10 10 0 1 1 10-10c0 1.7-1.3 3-3 3h-2.4a2 2 0 0 0-1.4 3.4c.4.5.6 1.1.6 1.6a2 2 0 0 1-2 2Z" />
-      <circle cx="7.5" cy="11.5" r="1" fill="currentColor" stroke="none" />
-      <circle cx="10.5" cy="7.5" r="1" fill="currentColor" stroke="none" />
-      <circle cx="15" cy="7.5" r="1" fill="currentColor" stroke="none" />
-      <circle cx="17.5" cy="11.5" r="1" fill="currentColor" stroke="none" />
-    </svg>
+    {#if isOpen}
+      <!-- X icon while the popover is open -->
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+        <path d="M18 6 6 18" />
+        <path d="m6 6 12 12" />
+      </svg>
+    {:else}
+      <!-- palette icon -->
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 22a10 10 0 1 1 10-10c0 1.7-1.3 3-3 3h-2.4a2 2 0 0 0-1.4 3.4c.4.5.6 1.1.6 1.6a2 2 0 0 1-2 2Z" />
+        <circle cx="7.5" cy="11.5" r="1" fill="currentColor" stroke="none" />
+        <circle cx="10.5" cy="7.5" r="1" fill="currentColor" stroke="none" />
+        <circle cx="15" cy="7.5" r="1" fill="currentColor" stroke="none" />
+        <circle cx="17.5" cy="11.5" r="1" fill="currentColor" stroke="none" />
+      </svg>
+    {/if}
   </button>
 
   <div
