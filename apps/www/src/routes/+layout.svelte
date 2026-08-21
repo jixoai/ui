@@ -130,6 +130,21 @@
               label: 'toc',
               description: 'rule tracker rail',
             },
+            {
+              href: '/components/alert-dialog.html',
+              label: 'alert-dialog',
+              description: 'destructive decisions',
+            },
+            {
+              href: '/components/sheet.html',
+              label: 'sheet',
+              description: 'the side drawer',
+            },
+            {
+              href: '/components/hover-card.html',
+              label: 'hover-card',
+              description: 'rich hover panel',
+            },
           ],
         },
         {
@@ -210,6 +225,21 @@
               href: '/components/pagination.html',
               label: 'pagination',
               description: 'nav of real links',
+            },
+            {
+              href: '/components/breadcrumb.html',
+              label: 'breadcrumb',
+              description: 'trail of real links',
+            },
+            {
+              href: '/components/toast.html',
+              label: 'toast',
+              description: 'store + viewport',
+            },
+            {
+              href: '/components/kbd.html',
+              label: 'kbd',
+              description: 'keyboard glyph',
             },
           ],
         },

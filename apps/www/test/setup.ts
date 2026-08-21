@@ -42,6 +42,20 @@ if (typeof window.ToggleEvent === 'undefined') {
   Object.defineProperty(window, 'ToggleEvent', { value: ToggleEventPolyfill, writable: true });
 }
 
+// ---- 0. dialog modal methods (jsdom gap) -----------------------------------
+// jsdom ships HTMLDialogElement without showModal/close; the components
+// only need the open flag + the close event the native path fires.
+if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
+  HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement) {
+    this.open = true;
+  };
+  HTMLDialogElement.prototype.close = function (this: HTMLDialogElement) {
+    if (!this.open) return;
+    this.open = false;
+    this.dispatchEvent(new Event('close'));
+  };
+}
+
 // ---- 1. Popover API --------------------------------------------------------
 type PopoverElement = HTMLElement & { __jxPopoverOpen?: boolean };
 const isOpen = (el: PopoverElement): boolean => el.__jxPopoverOpen === true;
