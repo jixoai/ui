@@ -107,7 +107,7 @@
     <div class="jx-outer jx-outer-start">{@render outerBlockStart()}</div>
   {:else if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <!-- the shell owns the box law; the textarea inside is chromeless -->
-  <div class="jx-shell {className}" class:jx-slotted={slotted} class:jx-invalid={invalid}>
+  <div class="jx-field-shell {className}" class:jx-slotted={slotted} class:jx-invalid={invalid}>
     {#if innerBlockStart}
       <div class="jx-inner jx-inner-start">{@render innerBlockStart()}</div>
     {/if}
@@ -168,7 +168,7 @@
   /* ---- the shell ------------------------------------------------------
      owns border/fill/hover/focus; the <textarea> inside is chromeless.
      Without inner rows the pixels are identical to the old shell. */
-  .jx-shell {
+  .jx-field-shell {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -178,30 +178,30 @@
     color-scheme: light;
     transition: box-shadow 150ms ease-out;
   }
-  :global(.dark) .jx-shell {
+  :global(.dark) .jx-field-shell {
     color-scheme: dark;
   }
-  .jx-shell:not(:has(textarea:disabled)):hover:not(:has(:focus-visible)) {
+  .jx-field-shell:not(:has(textarea:disabled)):hover:not(:has(:focus-visible)) {
     box-shadow: var(--shadow-2xs);
   }
   /* the site focus law: inset 1px outline on the ring token — the shell
      carries it for the textarea AND for slot controls alike */
-  .jx-shell:has(:focus-visible) {
+  .jx-field-shell:has(:focus-visible) {
     outline: 1px solid var(--ring);
     outline-offset: -1px;
     box-shadow: none;
   }
-  .jx-shell.jx-invalid {
+  .jx-field-shell.jx-invalid {
     border-style: dashed;
   }
-  .jx-shell:has(textarea:disabled) {
+  .jx-field-shell:has(textarea:disabled) {
     opacity: 0.5;
     cursor: not-allowed;
     box-shadow: none;
   }
   /* inner rows present → the shell carries the horizontal padding and
      the textarea runs edge-to-edge above/below the hairlines */
-  .jx-shell.jx-slotted {
+  .jx-field-shell.jx-slotted {
     padding-inline: 0.75rem;
   }
   .jx-textarea {
@@ -217,7 +217,7 @@
     line-height: 1.5;
     resize: vertical;
   }
-  .jx-shell.jx-slotted .jx-textarea {
+  .jx-field-shell.jx-slotted .jx-textarea {
     padding-inline: 0;
   }
   .jx-textarea::placeholder {
@@ -266,7 +266,7 @@
     color: var(--destructive);
   }
   @media (prefers-reduced-motion: reduce) {
-    .jx-shell {
+    .jx-field-shell {
       transition: none;
     }
   }

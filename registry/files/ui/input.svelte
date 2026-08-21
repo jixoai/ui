@@ -168,7 +168,7 @@
       />
     {:else}
       <!-- the shell owns the box law; the input inside is chromeless -->
-      <div class="jx-shell {className}" class:jx-slotted={slotted} class:jx-invalid={invalid} class:jx-clearable={clearable}>
+      <div class="jx-field-shell {className}" class:jx-slotted={slotted} class:jx-invalid={invalid} class:jx-clearable={clearable}>
         {#if innerInlineStart}
           <span class="jx-slot">{@render innerInlineStart()}</span>
         {/if}
@@ -238,7 +238,7 @@
      to the old single-<input> shell. Height law: min-height 2.5rem with
      the input at calc(2.5rem - 2px) — every text-like family control
      renders the same 40px row, slotted or not. */
-  .jx-shell {
+  .jx-field-shell {
     display: flex;
     align-items: center;
     gap: 0.5rem; /* gap-2 between inner slots and the input */
@@ -251,31 +251,31 @@
     color-scheme: light;
     transition: box-shadow 150ms ease-out;
   }
-  :global(.dark) .jx-shell {
+  :global(.dark) .jx-field-shell {
     color-scheme: dark;
   }
-  .jx-shell:not(:has(input:disabled)):hover:not(:has(:focus-visible)) {
+  .jx-field-shell:not(:has(input:disabled)):hover:not(:has(:focus-visible)) {
     box-shadow: var(--shadow-2xs);
   }
   /* the site focus law (terminal-header / language-switcher): an inset
      1px outline on the ring token — the shell carries it for the input
      AND for slot controls (clear button) alike */
-  .jx-shell:has(:focus-visible) {
+  .jx-field-shell:has(:focus-visible) {
     outline: 1px solid var(--ring);
     outline-offset: -1px;
     box-shadow: none;
   }
-  .jx-shell.jx-invalid {
+  .jx-field-shell.jx-invalid {
     border-style: dashed;
   }
-  .jx-shell:has(input:disabled) {
+  .jx-field-shell:has(input:disabled) {
     opacity: 0.5;
     cursor: not-allowed;
     box-shadow: none;
   }
   /* inner slots present → the shell carries the horizontal padding and
      the input runs edge-to-edge between the gap-2 seams */
-  .jx-shell.jx-slotted {
+  .jx-field-shell.jx-slotted {
     padding-inline: 0.75rem;
   }
   .jx-input {
@@ -291,7 +291,7 @@
     font-size: 0.875rem;
     line-height: 1.45;
   }
-  .jx-shell.jx-slotted .jx-input {
+  .jx-field-shell.jx-slotted .jx-input {
     padding-inline: 0;
   }
   .jx-input::placeholder {
@@ -299,7 +299,7 @@
     opacity: 1;
   }
   /* the native search decoration bows out when our own × is on duty */
-  .jx-shell.jx-clearable .jx-input::-webkit-search-cancel-button {
+  .jx-field-shell.jx-clearable .jx-input::-webkit-search-cancel-button {
     display: none;
   }
 
@@ -401,7 +401,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .jx-shell {
+    .jx-field-shell {
       transition: none;
     }
   }

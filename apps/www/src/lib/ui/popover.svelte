@@ -28,9 +28,20 @@
     placement     anchored inset-area: 'bottom' | 'bottom-end' | 'top' |
                   'top-end' | 'top-start' | 'bottom-start' (default
                   'bottom-end' — under the trigger, right edges aligned)
-    trigger?      custom trigger snippet: render your own <button
-                  popovertarget={id}> inside; the wrapper still carries
-                  anchor-name, so anchoring stays component-owned
+    trigger?      custom trigger snippet: render your own control inside;
+                  the wrapper still carries anchor-name, so anchoring stays
+                  component-owned. With anything other than a real
+                  <button popovertarget={id}> you drive open/close through
+                  the imperative handle.
+    panelClass?   classes appended to the panel (consumer panel law: width,
+                  grid, tokens — never anchoring)
+    onToggle?     mirrors the panel's native toggle event; the ONLY
+                  open-state source of truth for aria-expanded mirroring
+    bind:this     optional imperative handle: show()/hide()/toggle() call
+                  the native popover methods (no-op without the Popover
+                  API). Exceptional-trigger escape hatch (link triggers,
+                  hover intent) — NOT a controlled state model: no open
+                  prop, no timers, no coordinates.
   Side selection (2026-08-22, Owner mobile feedback): the side is chosen
   ONCE, at open, by the native position-try fallbacks — never re-evaluated
   while open. The earlier JS bridge (rAF scroll listener picking between
@@ -50,6 +61,8 @@
     triggerLabel: string;
     placement?: 'bottom' | 'bottom-end' | 'top' | 'top-end' | 'top-start' | 'bottom-start';
     trigger?: Snippet;
+    panelClass?: string;
+    onToggle?: (open: boolean) => void;
     children: Snippet;
   }
 
@@ -58,6 +71,8 @@
     triggerLabel,
     placement = 'bottom-end',
     trigger,
+    panelClass = '',
+    onToggle,
     children,
   }: Props = $props();
 
@@ -72,6 +87,24 @@
     placement === 'top-end' ? 'top span-right' :
     'top span-left'
   );
+
+  let panel = $state<HTMLElement | null>(null);
+  const popoverApi = (el: HTMLElement | null): Pick<HTMLElement, 'showPopover' | 'hidePopover' | 'togglePopover'> | null =>
+    el && typeof el.showPopover === 'function' ? el : null;
+
+  // imperative handle (bind:this) — thin native passthroughs, nothing more
+  export function show(): void {
+    const el = popoverApi(panel);
+    if (el && !panel!.matches(':popover-open')) el.showPopover();
+  }
+  export function hide(): void {
+    const el = popoverApi(panel);
+    if (el && panel!.matches(':popover-open')) el.hidePopover();
+  }
+  export function toggle(): void {
+    const el = popoverApi(panel);
+    if (el) el.togglePopover();
+  }
 </script>
 
 <span class="jx-pop-anchor" style="anchor-name: {anchorName}">
@@ -96,7 +129,18 @@
   {/if}
 </span>
 
-<div {id} popover="auto" class="jx-pop" style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};">
+<!-- the open state is read live from :popover-open at fire time —
+     ToggleEvent.newValue is spec'd as "open"/"closed" but at least one
+     shipping engine leaves it undefined, so event fields are never
+     trusted here; the listener itself only exists when onToggle does -->
+<div
+  {id}
+  popover="auto"
+  class="jx-pop {panelClass}"
+  bind:this={panel}
+  style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
+  ontoggle={onToggle ? () => onToggle?.(panel?.matches(':popover-open') ?? false) : undefined}
+>
   {@render children()}
 </div>
 

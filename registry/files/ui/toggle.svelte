@@ -59,14 +59,14 @@
   }: Props = $props();
 </script>
 
-<label for={id} class="jx-toggle jx-toggle-{size} {className}" class:jx-toggle-disabled={disabled}>
+<label for={id} class="jx-switch-track jx-toggle-{size} {className}" class:jx-toggle-disabled={disabled}>
   {#if label}<span class="jx-toggle-label">{label}</span>{/if}
   <input {id} type="checkbox" class="jx-toggle-native" bind:checked {disabled} {...rest} />
   <span class="jx-toggle-track" aria-hidden="true"><span class="jx-toggle-knob"></span></span>
 </label>
 
 <style>
-  .jx-toggle {
+  .jx-switch-track {
     /* geometry knobs (see the size table in the header comment) */
     --jx-toggle-w: 36px;
     --jx-toggle-h: 20px;
@@ -150,7 +150,7 @@
      hover leans the unchecked rail's ring toward primary; the hidden
      input's focus-visible moves the site's inset ring law onto the
      track (sibling pair, same as :checked). */
-  .jx-toggle:not(.jx-toggle-disabled):hover:has(.jx-toggle-native:not(:checked)) .jx-toggle-track {
+  .jx-switch-track:not(.jx-toggle-disabled):hover:has(.jx-toggle-native:not(:checked)) .jx-toggle-track {
     box-shadow: 0 0 0 1px var(--primary) inset;
   }
   .jx-toggle-native:focus-visible + .jx-toggle-track {

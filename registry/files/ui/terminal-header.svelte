@@ -22,34 +22,45 @@
 
   Second level nav (2026-08-20, request: click + hover submenus on the
   native Popover API; nested disclosures on mobile): items may carry
-  `children`. Desktop pills with children orchestrate a popover="auto"
-  panel through JS only (showPopover/hidePopover — never a declarative
-  popovertarget, because the pill stays a link and hover needs grace
-  timers); light dismiss, Escape, top layer and focus restore remain
-  browser-native. The panel repeats the header's scope class so its
-  tokens resolve from itself, not from DOM ancestry surviving the
-  top-layer promotion.
+  `children`. Desktop pills with children consume the registry Popover
+  primitive (2026-08-22, Owner dogfooding directive + Codex ruling): the
+  component owns anchoring (CSS Anchor Positioning + try-fallbacks),
+  lifecycle and placement natively; header JS owns only hover intent
+  (grace timers), the link-vs-toggle click policy, and navigation
+  cleanup — never geometry. Hover corridor into the panel is wired on
+  the snippet content, which fills the panel box. Engines without the
+  Popover API or anchor positioning degrade to a plain navigable link.
 
   Grouped multi-column panels (2026-08-20, same day follow-up): children
   may be TerminalNavGroup[] — each group renders as one grid area with a
   Share Tech Mono label, separated by hairline rules. Two or more groups
   switch the panel into "mega" mode: a definite width (never content
-  sized — inline-size containment on a fit-content popover would collapse
-  it to nothing) drives an auto-fill minmax(14rem, 1fr) grid, the panel
-  itself becomes the container (container-type: inline-size; cqw units
-  resolve), and a @container rule switches the divider law to stacked
-  border-top when only one column fits. Group dividers are drawn on
-  every group and clipped at the content edge (graph-paper law), so the
-  hairlines stay correct even when groups wrap onto a second row. A
-  plain SubItem[] stays one unnamed group and keeps the narrow
-  fit-content dropdown, unchanged. navColumns="auto" (default) derives
-  columns from the panel width; a number pins repeat(N, 1fr). This
-  extends the file's 5th orthogonal intent — still at the cap; do not
-  add more here.
+  sized) drives an auto-fill minmax(14rem, 1fr) grid, the panel itself
+  becomes the container (container-type: inline-size; cqw units resolve),
+  and a @container rule switches the divider law to stacked border-top
+  when only one column fits. Group dividers are drawn on every group and
+  clipped at the content edge (graph-paper law). A plain SubItem[] stays
+  one unnamed group and keeps the narrow fit-content dropdown.
+  navColumns="auto" (default) derives columns from the panel width; a
+  number pins repeat(N, 1fr). This extends the file's 5th orthogonal
+  intent — still at the cap; do not add more here.
+
+  Mobile disclosure (2026-08-22): the in-flow stacked disclosure keeps
+  the terminal language (it pushes content down, it is not an overlay)
+  and gains a bounded scroll viewport — max-height in dvh minus the bar,
+  overscroll contained — so every link stays reachable when all groups
+  expand. Escape closes it while open.
 -->
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
   import type { Snippet } from 'svelte';
+  import Popover from './popover.svelte';
+
+  interface PopoverHandle {
+    show(): void;
+    hide(): void;
+    toggle(): void;
+  }
 
   export interface TerminalNavSubItem {
     label: string;
@@ -140,22 +151,21 @@
   };
 
   /* -----------------------------------------------------------------
-   * Second-level nav orchestration. openKey mirrors the panels' toggle
-   * events — the native close paths (light dismiss, Escape) run without
+   * Second-level nav orchestration. openKey mirrors the panels' native
+   * toggle events — light dismiss, Escape and one-at-a-time run without
    * our handlers, so the events are the single source of truth and
-   * aria-expanded never lies.
+   * aria-expanded never lies. Placement is NOT ours: the Popover
+   * primitive anchors and flips through the engine (no coordinates,
+   * no clamping, no resize listeners).
    * --------------------------------------------------------------- */
   const HOVER_GRACE_MS = 120;
-  const PANEL_GAP = 6;
 
   let openKey = $state<string | null>(null);
   // 'hover' panels survive their first click (the click confirms the
   // hover intent); only a second click on a click-opened panel closes.
   let openedBy: 'hover' | 'click' | null = null;
   let closeTimer: ReturnType<typeof setTimeout> | null = null;
-  const triggerEls: Record<string, HTMLAnchorElement | null> = {};
-  const panelEls: Record<string, HTMLElement | null> = {};
-  let panelPos = $state<Record<string, { top: string; left: string }>>({});
+  const handles: Record<string, PopoverHandle | null> = {};
 
   const cancelClose = () => {
     if (closeTimer) {
@@ -163,53 +173,18 @@
       closeTimer = null;
     }
   };
-  const hidePanel = (key: string) => {
-    const panel = panelEls[key];
-    if (panel?.matches(':popover-open')) {
-      try {
-        panel.hidePopover();
-      } catch {
-        /* engine quirk: already hidden */
-      }
-    }
-  };
+  const hidePanel = (key: string) => handles[key]?.hide();
   const showPanel = (key: string, by: 'hover' | 'click') => {
-    const panel = panelEls[key];
-    if (!panel || typeof panel.showPopover !== 'function') return;
-    // pre-position from the trigger rect so the first painted frame is
-    // already anchored; rAF refines the clamp once the panel measures
-    const rect = triggerEls[key]?.getBoundingClientRect();
-    if (rect) panelPos[key] = { top: `${rect.bottom + PANEL_GAP}px`, left: `${rect.left}px` };
     openedBy = by;
-    if (!panel.matches(':popover-open')) {
-      try {
-        panel.showPopover();
-      } catch {
-        /* engine quirk: already showing */
-      }
-    }
+    handles[key]?.show();
   };
   const scheduleClose = (key: string) => {
     cancelClose();
     closeTimer = setTimeout(() => hidePanel(key), HOVER_GRACE_MS);
   };
-  const positionPanel = (key: string) => {
-    const trigger = triggerEls[key];
-    const panel = panelEls[key];
-    if (!trigger || !panel) return;
-    const rect = trigger.getBoundingClientRect();
-    const left = Math.min(Math.max(PANEL_GAP, rect.left), innerWidth - panel.offsetWidth - PANEL_GAP);
-    // mega panels can be tall: clamp the top so the panel stays on screen
-    const top = Math.max(
-      PANEL_GAP,
-      Math.min(rect.bottom + PANEL_GAP, innerHeight - panel.offsetHeight - PANEL_GAP),
-    );
-    panelPos[key] = { top: `${top}px`, left: `${left}px` };
-  };
-  const onPanelToggle = (key: string, event: Event) => {
-    if ((event as ToggleEvent).newValue) {
+  const onPanelToggle = (key: string, open: boolean) => {
+    if (open) {
       openKey = key;
-      requestAnimationFrame(() => positionPanel(key));
     } else {
       if (openKey === key) openKey = null;
       openedBy = null;
@@ -218,8 +193,29 @@
   };
   onDestroy(cancelClose);
 
+  // engine gate: hover/click interception only when both the Popover API
+  // and CSS anchor positioning exist — otherwise pills degrade to plain
+  // navigable links (never a stranded preventDefault, never a detached
+  // centered mega panel)
+  let engineOk = $state(true);
+  onMount(() => {
+    engineOk =
+      'popover' in HTMLElement.prototype &&
+      (CSS.supports('anchor-name: --probe') || CSS.supports('position-area: bottom'));
+  });
+
   // mobile: expanded disclosure groups, keyed by the parent href as well
   let expanded = $state<Record<string, boolean>>({});
+
+  // Escape closes the mobile disclosure while it is open
+  $effect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') open = false;
+    };
+    addEventListener('keydown', onKey);
+    return () => removeEventListener('keydown', onKey);
+  });
 
   // Sliding indicator (Owner, 2026-08-21): a dedicated element acts as the
   // active background and slides between nav items (measured translateX +
@@ -232,8 +228,12 @@
   const positionIndicator = (instant = false) => {
     if (!navEl || !indicatorEl) return;
     // direct pill anchors only — dropdown child links carry their own
-    // aria-current and must never steal the indicator
-    const active = navEl.querySelector(':scope > a[aria-current="page"]');
+    // aria-current and must never steal the indicator. Popover-wrapped
+    // pills match the span branch; offsetLeft/offsetWidth still measure
+    // against this nav (the nearest positioned ancestor)
+    const active = navEl.querySelector(
+      ':scope > a[aria-current="page"], :scope > span a[aria-current="page"]',
+    );
     if (!(active instanceof HTMLElement)) {
       indicatorEl.style.opacity = '0';
       return;
@@ -341,68 +341,63 @@
         >
           <span class="jx-indicator" bind:this={indicatorEl} aria-hidden="true"></span>
           {#each items as item, i (item.href)}
-            {#if item.children?.length}
-              <a
-                href={item.href}
-                aria-current={item.active ? 'page' : undefined}
-                aria-haspopup="true"
-                aria-expanded={openKey === item.href ? 'true' : 'false'}
-                target={item.external ? '_blank' : undefined}
-                rel={item.external ? 'noreferrer' : undefined}
-                class={[
-                  'inline-flex items-center gap-1 px-2.5 py-1 transition-colors lg:px-3',
-                  item.active
-                    ? 'text-terminal-foreground'
-                    : 'text-terminal-foreground/70 hover:text-terminal-foreground',
-                ].join(' ')}
-                bind:this={triggerEls[item.href]}
-                onclick={(event) => {
-                  const panel = panelEls[item.href];
-                  if (!panel || typeof panel.showPopover !== 'function') return; // no popover engine: navigate
-                  event.preventDefault();
-                  cancelClose();
-                  if (panel.matches(':popover-open')) {
-                    if (openedBy === 'click') hidePanel(item.href);
-                    else openedBy = 'click';
-                  } else {
-                    showPanel(item.href, 'click');
-                  }
-                }}
-                onmouseenter={() => {
-                  cancelClose();
-                  showPanel(item.href, 'hover');
-                }}
-                onmouseleave={() => scheduleClose(item.href)}
-              >
-                {item.label}{item.external ? ' ↗' : ''}
-                {@render caret()}
-              </a>
-              <!-- the second-level panel: native top layer + light dismiss;
-                   JS only owns hover grace, click toggling and placement -->
+            {#if item.children?.length && engineOk}
               {@const groups = asGroups(item.children)}
               {@const mega = groups.length > 1}
-              {@const want = mega
-                ? (typeof navColumns === 'number' ? navColumns : Math.min(groups.length, 3))
-                : 1}
-              <div
+              <!-- the second-level panel: the registry Popover primitive —
+                   native anchoring, try-fallbacks, light dismiss, one-at-a-
+                   time; header JS owns only hover grace + link-vs-toggle -->
+              <Popover
                 id="jx-nav-sub-{i}"
-                popover="auto"
-                role="group"
-                aria-label={item.label}
-                class="jx-subpanel {scope === 'dark' ? 'dark' : 'jx-light'}"
-                class:jx-mega={mega}
-                style="--jx-nav-want: {want}; top: {panelPos[item.href]?.top ?? '0px'}; left: {panelPos[item.href]?.left ?? '0px'};"
-                ontoggle={(event) => onPanelToggle(item.href, event)}
-                onmouseenter={() => cancelClose()}
-                onmouseleave={() => scheduleClose(item.href)}
-                bind:this={panelEls[item.href]}
+                placement="bottom-end"
+                panelClass={`jx-subpanel ${mega ? 'jx-subpanel-mega' : ''} ${typeof navColumns === 'number' ? `jx-nav-cols-${navColumns}` : ''} ${scope === 'dark' ? 'dark' : 'jx-light'}`.replace(/\s+/g, ' ').trim()}
+                bind:this={handles[item.href]}
+                onToggle={(open) => onPanelToggle(item.href, open)}
               >
-                <!-- the clip box hugs the panel's content box; the groups
-                     grid sits 1px beyond it on every side so its own
-                     border-left/border-top rules are shaved off at the
-                     first row/column — correct hairlines even when groups
-                     wrap onto a second grid row -->
-                <div class="jx-subclip">
+                {#snippet trigger()}
+                  <a
+                    href={item.href}
+                    aria-current={item.active ? 'page' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={openKey === item.href ? 'true' : 'false'}
+                    target={item.external ? '_blank' : undefined}
+                    rel={item.external ? 'noreferrer' : undefined}
+                    class={[
+                      'inline-flex items-center gap-1 px-2.5 py-1 transition-colors lg:px-3',
+                      item.active
+                        ? 'text-terminal-foreground'
+                        : 'text-terminal-foreground/70 hover:text-terminal-foreground',
+                    ].join(' ')}
+                    onclick={(event) => {
+                      const handle = handles[item.href];
+                      if (!handle) return; // no popover engine: navigate
+                      event.preventDefault();
+                      cancelClose();
+                      if (openKey === item.href) {
+                        if (openedBy === 'click') hidePanel(item.href);
+                        else openedBy = 'click';
+                      } else {
+                        showPanel(item.href, 'click');
+                      }
+                    }}
+                    onmouseenter={() => {
+                      cancelClose();
+                      showPanel(item.href, 'hover');
+                    }}
+                    onmouseleave={() => scheduleClose(item.href)}
+                  >
+                    {item.label}{item.external ? ' ↗' : ''}
+                    {@render caret()}
+                  </a>
+                {/snippet}
+                <!-- the snippet content fills the panel box; it doubles as
+                     the hover corridor (entering it cancels the close
+                     timer, leaving re-arms it) -->
+                <div
+                  class="jx-subclip"
+                  onmouseenter={() => cancelClose()}
+                  onmouseleave={() => scheduleClose(item.href)}
+                >
                   <div
                     class="jx-subgroups"
                     class:jx-single={!mega}
@@ -425,7 +420,7 @@
                     {/each}
                   </div>
                 </div>
-              </div>
+              </Popover>
             {:else}
               <a
                 href={item.href}
@@ -461,13 +456,16 @@
       </div>
     </div>
 
-    <!-- mobile disclosure: the same nav, stacked below the bar -->
+    <!-- mobile disclosure: the same nav, stacked below the bar; the inner
+         scroller bounds it to the viewport so every group stays reachable
+         when all of them expand -->
     <div
       class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 sm:hidden"
       class:grid-rows-[1fr]={open}
     >
       <div class="overflow-hidden">
-        <nav class="flex flex-col border-t border-terminal-foreground/10 py-2 text-xs" aria-label="Primary">
+        <div class="jx-mobile-scroll">
+          <nav class="flex flex-col border-t border-terminal-foreground/10 py-2 text-xs" aria-label="Primary">
           {#each items as item (item.href)}
             {#if item.children?.length}
               <!-- parent row: full-width disclosure toggle; the parent
@@ -550,7 +548,8 @@
               </a>
             {/if}
           {/each}
-        </nav>
+          </nav>
+        </div>
       </div>
     </div>
   </div>
@@ -634,22 +633,22 @@
     transform: rotate(180deg);
   }
 
-  /* the dropdown panel law: terminal bezel surface, 1px border, hard
-     offset shadow; fixed coordinates come from JS (hover + light dismiss
-     make declarative anchoring insufficient) — the hue-popover recipe.
-     The panel carries the header's scope class itself so the tokens
-     never depend on the top-layer promotion. */
-  .jx-nav .jx-subpanel {
-    position: fixed;
-    margin: 0;
-    inset: auto;
+  /* the dropdown panel law: the registry Popover primitive's panel with
+     the terminal bezel surface on top. The panel element belongs to the
+     child component, so its rules go through :global — anchored with
+     .jx-pop (double class) they outrank the primitive's base rules
+     regardless of CSS order. The panel is a DOM descendant of .jx-nav
+     (the top layer changes painting, not ancestry) and carries the
+     header's scope class itself so tokens resolve from itself. */
+  .jx-nav :global(.jx-pop.jx-subpanel) {
+    margin: 6px; /* the nav gap law — the 4px shadow stays clear of the bar */
     min-width: 12rem;
     max-width: min(90vw, 42rem);
     padding: 0.25rem;
+    font-size: 12px;
     color: var(--terminal-foreground);
     background: var(--terminal);
-    border: 1px solid color-mix(in oklab, var(--terminal-foreground) 25%, transparent);
-    box-shadow: var(--shadow);
+    border-color: color-mix(in oklab, var(--terminal-foreground) 25%, transparent);
     transition:
       opacity 140ms ease-out,
       translate 140ms ease-out,
@@ -658,31 +657,36 @@
     opacity: 0;
     translate: 0 -4px;
   }
-  .jx-nav .jx-subpanel:popover-open {
+  .jx-nav :global(.jx-pop.jx-subpanel:popover-open) {
     opacity: 1;
     translate: 0 0;
   }
   @starting-style {
-    .jx-nav .jx-subpanel:popover-open {
+    .jx-nav :global(.jx-pop.jx-subpanel:popover-open) {
       opacity: 0;
       translate: 0 -4px;
     }
   }
   /* popovers get a ::backdrop; light dismiss must never dim the page */
-  .jx-nav .jx-subpanel::backdrop {
+  .jx-nav :global(.jx-pop.jx-subpanel::backdrop) {
     background: transparent;
   }
 
   /* mega mode (two or more groups): a DEFINITE width, never content
-     sized — the panel is the container-query container, and inline-size
-     containment on a fit-content popover would collapse it to nothing.
-     The width wants one 14rem track per group (capped at 3) but never
-     exceeds the 90vw / 42rem anti-banner limits; the auto-fill grid
-     then derives the actual column count from whatever width remains. */
-  .jx-nav .jx-subpanel.jx-mega {
+     sized — the panel is the container-query container. The width wants
+     one 14rem track per group (capped at 3) but never exceeds the 90vw /
+     42rem anti-banner limits; navColumns=N pins the track count through
+     a class (the primitive owns the element, so no inline styles). */
+  .jx-nav :global(.jx-pop.jx-subpanel.jx-subpanel-mega) {
     container-type: inline-size;
     padding: 0.375rem;
-    width: min(90vw, 42rem, calc(var(--jx-nav-want, 3) * 14rem + 2rem));
+    width: min(90vw, 42rem, calc(3 * 14rem + 2rem));
+  }
+  .jx-nav :global(.jx-pop.jx-subpanel.jx-nav-cols-2) {
+    width: min(90vw, 42rem, calc(2 * 14rem + 2rem));
+  }
+  .jx-nav :global(.jx-pop.jx-subpanel.jx-nav-cols-4) {
+    width: min(90vw, 42rem, calc(4 * 14rem + 2rem));
   }
   /* the clip box: overflow clips at its padding box, which hugs the
      panel's content box — the groups grid hangs 1px beyond it on every
@@ -791,12 +795,23 @@
   @media (prefers-reduced-motion: reduce) {
     .jx-nav .jx-caret,
     .jx-nav .jx-sub-link,
-    .jx-nav .jx-subpanel {
+    .jx-nav :global(.jx-pop.jx-subpanel) {
       transition: none;
     }
-    .jx-nav .jx-subpanel {
+    .jx-nav :global(.jx-pop.jx-subpanel) {
       opacity: 1;
       translate: none;
     }
+  }
+
+  /* mobile disclosure: a bounded scroll viewport inside the 0fr→1fr
+     animation wrapper — every link stays reachable when all groups
+     expand. dvh tracks the URL bar; contained overscroll keeps page
+     scroll out of the menu's way */
+  .jx-nav .jx-mobile-scroll {
+    max-height: calc(100dvh - 4.75rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
 </style>
