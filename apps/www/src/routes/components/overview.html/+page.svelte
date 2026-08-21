@@ -193,7 +193,9 @@
         <span class="bg-border h-px flex-1" aria-hidden="true"></span>
       </h2>
 
-      <CardGrid class="mt-6" min="300px">
+      <!-- min inherits the card-grid default (320px): two equal columns
+           through the laptop band, four on desktop — no 3+1 orphan rows. -->
+      <CardGrid class="mt-6">
         {#each group.items as item, index (item.name)}
           <div data-reveal="" use:reveal={{ delay: index * 70, rise: 12 }}>
             <!-- The reveal wrapper stays the grid child; the card re-opts

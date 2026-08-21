@@ -14,9 +14,13 @@
   this was global. The jx- prefix keeps the global surface safe.
 
   Responsive: columns are `auto-fit, minmax(min(100%, --jx-grid-min), 1fr)`
-  — pass `min` to control the collapse width (default 260px). Cards
-  without subgrid support fall back to ordinary stacked rows (no worse
-  than before).
+  — pass `min` to control the collapse width. The default 320px is tuned
+  for the 90rem page column: two equal columns through the laptop band
+  (~60–64rem containers, so 4-card groups land 2×2 instead of a ragged
+  3+1) while desktop (~86rem+) keeps four columns. A lone child would
+  stretch into a full-width banner (auto-fit collapses every empty
+  track), so it is capped at an editorial measure. Cards without subgrid
+  support fall back to ordinary stacked rows (no worse than before).
 -->
 <script lang="ts">
   interface Props {
@@ -26,7 +30,7 @@
     children: import('svelte').Snippet;
   }
 
-  let { min = '260px', class: className = '', children }: Props = $props();
+  let { min = '320px', class: className = '', children }: Props = $props();
 </script>
 
 <div class="jx-card-grid {className}" style="--jx-grid-min: {min}">
@@ -39,6 +43,12 @@
     grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--jx-grid-min)), 1fr));
     gap: 1.25rem;
     align-items: stretch;
+  }
+  /* auto-fit collapses every empty track, so a single-card group would
+     stretch to the full container width — one short card as a page-wide
+     banner. Cap the lone card at an editorial measure instead. */
+  :global(.jx-card-grid > *:only-child) {
+    max-width: 46rem;
   }
   @supports (grid-template-rows: subgrid) {
     :global(.jx-card-grid) {

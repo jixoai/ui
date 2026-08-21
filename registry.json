@@ -403,7 +403,7 @@
       "name": "table",
       "type": "registry:ui",
       "title": "Table",
-      "description": "NativeHTML table with jixoai styling: full semantic thead/tbody/tfoot/th/td preserved; figure wrapper with overflow-x auto; muted thead (font-nav, uppercase, tracked); hairline row borders; tbody hover; tfoot with topline; dense mode for compact rows. Responsive by native scroll.",
+      "description": "NativeHTML table with jixoai styling, driven by container queries on its own frame (not the viewport): full semantic thead/tbody/tfoot/th/td preserved; figure wrapper with overflow-x auto. Wide frame (>=30rem): scroll law with fit-content columns and opt-in pinned columns (data-sticky=\"start\"|\"end\" on th+td stick to the scrollport behind a hairline fold mark). Narrow frame: CodePen card mode — thead folds away, td[data-label] renders muted label ::before with the value flushed right, first cell becomes the card head; stack=false keeps the scroll law at every width. Every paint routes through the --jx-table-* local token surface (surface/head/hover/hairline/rule/edge) with theme-token defaults — hover carries the --brand-hue flow, one var overrides per instance.",
       "files": [
         {
           "path": "registry/files/ui/table.svelte",
@@ -411,7 +411,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: caption?, dense=false; snippet children (write native thead/tbody/tfoot)."
+      "docs": "Props: caption?, dense=false, stack=true; snippet children (write native thead/tbody/tfoot). Consumer cell opt-ins: data-label=\"…\" (stack-mode row label), data-sticky=\"start\"|\"end\" (pinned column in scroll mode — put it on the th AND its td's). Color freedom: override --jx-table-surface/head/hover/hairline/rule/edge per instance via style or CSS."
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",

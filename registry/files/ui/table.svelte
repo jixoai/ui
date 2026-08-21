@@ -1,12 +1,39 @@
 <!--
   jixoai table (registry/files/ui/table.svelte).
-  Native <table> with the full semantic set preserved — thead/tbody/tfoot/
-  th/td/caption stay real elements authored by the consumer as the children
-  snippet; the <figure> wrapper owns only the hairline frame and the
-  responsive overflow-x scroll (the table keeps min-width: fit-content so
-  columns never compress; narrow viewports scroll natively). Numeric columns
-  opt into right alignment with consumer classes; the component never
-  forces it.
+
+  2026-08-22 · responsive deepening (original request: 参考
+  codepen.io/viki-code/pen/JjxGgmm 改进 table 组件；配色上需要有一定的
+  自由度). The CodePen's container-query law lands here, translated onto
+  the jixoai token sheet — the frame reads ITS OWN width, so the same
+  table adapts inside any layout column, never the viewport's.
+
+  Orthogonal intents:
+  1. frame — the <figure> owns the hairline frame, the radius law
+     (var(--radius): 0, bevel upgrade where supported) and BOTH responsive
+     engines via `container: jx-table / inline-size` + native overflow-x.
+  2. scroll law (frame ≥ 30rem) — table keeps min-width: fit-content so
+     columns never compress; the frame scrolls natively. Consumer cells
+     opt into pinned columns with data-sticky="start" | "end" on the th
+     AND its td's: they stick to the frame scrollport behind a hairline
+     fold mark. Requires border-collapse: separate (collapsed borders
+     tear under sticky in some engines) — rendering is identical here
+     because the language carries only horizontal hairlines.
+  3. stack law (frame < 30rem, the CodePen card mode) — thead folds
+     away, each row becomes a card: td[data-label] renders a muted
+     label ::before with the value flushed right; the first cell takes
+     the head surface as the card head. stack={false} pins the table
+     to the scroll law at every width (data-stack="off").
+  4. color freedom — every paint routes through the --jx-table-* local
+     token surface below; defaults follow the theme sheet, and hover
+     already carries the --brand-hue flow (one number recolors it).
+     Override per instance: <Table style="--jx-table-hover: …">.
+  5. semantics — thead/tbody/tfoot/th/td/caption stay real elements
+     authored by the consumer as the children snippet; rows are never
+     wrapped, and numeric alignment stays a consumer class.
+
+  Zero dependencies. td/th paint an opaque --jx-table-surface so sticky
+  cells mask the content scrolling under them (transparent cells would
+  leak it). Dense mode survives both laws.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -16,16 +43,27 @@
     caption?: string;
     /** Compact row height (0.4rem vertical padding instead of 0.75rem). */
     dense?: boolean;
+    /**
+     * Fold into card rows when the frame is narrower than 30rem
+     * (default). false = keep the scroll law at every width.
+     */
+    stack?: boolean;
     /** Native thead/tbody/tfoot markup. */
     children: Snippet;
     class?: string;
   }
 
-  let { caption = '', dense = false, children, class: className = '' }: Props = $props();
+  let {
+    caption = '',
+    dense = false,
+    stack = true,
+    children,
+    class: className = '',
+  }: Props = $props();
 </script>
 
 <figure class={`jx-table ${className}`}>
-  <table class:dense={dense}>
+  <table class:dense={dense} data-stack={stack ? undefined : 'off'}>
     {#if caption}
       <caption>{caption}</caption>
     {/if}
@@ -35,13 +73,24 @@
 
 <style>
   .jx-table {
-    border: 1px solid color-mix(in oklab, var(--border) 18%, transparent);
+    /* color-freedom surface — one var each, theme-token defaults */
+    --jx-table-surface: var(--background);
+    --jx-table-head: var(--muted);
+    --jx-table-hover: color-mix(in oklab, var(--primary) 7%, var(--jx-table-surface));
+    --jx-table-hairline: color-mix(in oklab, var(--border) 12%, transparent);
+    --jx-table-rule: color-mix(in oklab, var(--border) 18%, transparent);
+    --jx-table-edge: color-mix(in oklab, var(--border) 34%, transparent);
+
+    border: 1px solid var(--jx-table-rule);
+    border-radius: var(--radius);
+    container: jx-table / inline-size;
     margin: 0;
     overflow-x: auto;
   }
 
   .jx-table table {
-    border-collapse: collapse;
+    border-collapse: separate; /* sticky law: collapsed borders tear */
+    border-spacing: 0;
     font-size: 12.5px;
     line-height: 1.5;
     min-width: fit-content;
@@ -58,15 +107,16 @@
 
   .jx-table :global(th),
   .jx-table :global(td) {
-    border-bottom: 1px solid color-mix(in oklab, var(--border) 12%, transparent);
+    background: var(--jx-table-surface); /* opaque: masks scrolled rows */
+    border-bottom: 1px solid var(--jx-table-hairline);
     padding: 0.75rem;
     text-align: left;
     vertical-align: top;
   }
 
   .jx-table :global(thead th) {
-    background: var(--muted);
-    border-bottom: 1px solid color-mix(in oklab, var(--border) 18%, transparent);
+    background: var(--jx-table-head);
+    border-bottom: 1px solid var(--jx-table-rule);
     color: var(--muted-foreground);
     font-family: var(--font-nav);
     font-size: 11px;
@@ -79,25 +129,122 @@
   .jx-table :global(tbody tr) {
     transition: background-color 150ms ease-out;
   }
-  .jx-table :global(tbody tr:hover) {
-    background: color-mix(in oklab, var(--muted) 55%, transparent);
+  .jx-table :global(tbody tr:hover th),
+  .jx-table :global(tbody tr:hover td) {
+    background: var(--jx-table-hover);
   }
 
   .jx-table :global(tfoot th),
   .jx-table :global(tfoot td) {
     border-bottom: none;
-    border-top: 1px solid color-mix(in oklab, var(--border) 18%, transparent);
+    border-top: 1px solid var(--jx-table-rule);
     font-weight: 500;
   }
 
   /* the figure frame closes the outer edge — no doubled bottom hairline */
-  .jx-table :global(tbody tr:last-child td) {
+  .jx-table :global(tbody tr:last-child td),
+  .jx-table :global(tbody tr:last-child th) {
     border-bottom: none;
   }
 
   .jx-table table.dense :global(th),
   .jx-table table.dense :global(td) {
     padding: 0.4rem 0.75rem;
+  }
+
+  /* ------------------------------------------------------------------
+     scroll law (frame ≥ 30rem): pin consumer columns to the scrollport.
+     Inside @container the scope anchor is the component-rendered table
+     (the container itself never matches its own query).
+  ------------------------------------------------------------------ */
+  @container jx-table (width >= 30rem) {
+    table :global([data-sticky='start']),
+    table :global([data-sticky='end']) {
+      position: sticky;
+    }
+    table :global([data-sticky='start']) {
+      box-shadow: inset -1px 0 0 var(--jx-table-edge); /* LTR fold mark */
+      left: 0;
+    }
+    table :global([data-sticky='end']) {
+      box-shadow: inset 1px 0 0 var(--jx-table-edge);
+      right: 0;
+    }
+    table :global(thead [data-sticky]) {
+      z-index: 3;
+    }
+    table :global(tbody [data-sticky]),
+    table :global(tfoot [data-sticky]) {
+      z-index: 2;
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     stack law (frame < 30rem): the CodePen card mode. Every rule rides
+     table:not([data-stack='off']) so stack={false} keeps the table a
+     table at any width.
+  ------------------------------------------------------------------ */
+  @container jx-table (width < 30rem) {
+    table:not([data-stack='off']) {
+      display: block;
+      min-width: 0;
+      width: 100%;
+    }
+    table:not([data-stack='off']) :global(thead) {
+      display: none;
+    }
+    table:not([data-stack='off']) :global(tbody tr) {
+      border-bottom: 1px solid var(--jx-table-hairline);
+      display: block;
+    }
+    table:not([data-stack='off']) :global(tbody tr:last-child) {
+      border-bottom: none;
+    }
+
+    table:not([data-stack='off']) :global(td) {
+      align-items: baseline;
+      border-bottom: none;
+      display: flex;
+      gap: 1.25rem;
+      justify-content: space-between;
+    }
+    /* label:value row — only cells that carry data-label get one */
+    table:not([data-stack='off']) :global(td[data-label])::before {
+      color: var(--muted-foreground);
+      content: attr(data-label);
+      flex: none;
+      font-family: var(--font-nav);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-align: left;
+      text-transform: uppercase;
+    }
+    table:not([data-stack='off']) :global(td:not([data-label])) {
+      justify-content: flex-start;
+    }
+    /* first cell becomes the card head */
+    table:not([data-stack='off']) :global(tbody td:first-child) {
+      background: var(--jx-table-head);
+      color: var(--foreground);
+      font-weight: 500;
+    }
+
+    /* tfoot: same flex law, closes with the rule hairline */
+    table:not([data-stack='off']) :global(tfoot) {
+      border-top: 1px solid var(--jx-table-rule);
+      display: block;
+    }
+    table:not([data-stack='off']) :global(tfoot tr) {
+      display: block;
+    }
+    table:not([data-stack='off']) :global(tfoot th),
+    table:not([data-stack='off']) :global(tfoot td) {
+      border-top: none;
+      display: flex;
+      gap: 1.25rem;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

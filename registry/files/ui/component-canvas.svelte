@@ -8,9 +8,14 @@
   paths split on "/") with code-card (highlight + copy).
 
   Layout law: header (font-nav title + description + Source press button,
-  hairline under) → demo row (stage flex-1, playground 16rem right at ≥md,
-  below it otherwise) → code bar (`</> Code` toggle) → code drawer
-  (grid-rows 0fr→1fr, the Combo ToC collapse law; inert while closed).
+  hairline under — the button folds under the title in the narrow container
+  form instead of crushing the description beside it) → demo row (stage
+  flex-1, playground 16rem right at ≥md, below it otherwise) → code bar
+  (`</> Code` toggle) → code drawer (grid-rows 0fr→1fr, the Combo ToC
+  collapse law; inert while closed). In the narrow form the drawer scrolls
+  in layers: the tree pins to the top of the drawer window (sticky) while
+  the code view scrolls inside its own capped max-height — a multi-
+  thousand-px code file never becomes one endless shared column.
   The stage keeps the readonly-code tint (color-mix muted 42%) in BOTH
   themes — the surface contrast is the point: components must read on a
   differently-tinted ground, not only on pure background.
@@ -172,17 +177,26 @@
     min-width: 0;
   }
 
-  /* header: font-nav title + description left, Source press button right */
+  /* header: font-nav title + description left, Source press button right;
+     wraps, and in the narrow container form the text takes the full first
+     row so the button folds UNDER the title instead of crushing the
+     description into a narrow column beside it */
   .jx-canvas-head {
     align-items: flex-start;
     border-bottom: 1px solid var(--border);
     display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
     justify-content: space-between;
     padding: 0.8rem 1rem;
   }
   .jx-canvas-head-text {
     min-width: 0;
+  }
+  @container (max-width: 48rem) {
+    .jx-canvas-head-text {
+      flex: 1 1 100%;
+    }
   }
   .jx-canvas-title {
     color: var(--foreground);
@@ -319,6 +333,10 @@
     min-height: 0;
     overflow: hidden;
   }
+  /* the drawer window: one bounded scroll area. Narrow form scrolls in
+     LAYERS — tree pinned sticky at the top of this window, code capped
+     into its own scroll beneath — so a multi-thousand-px file never
+     becomes one endless shared column */
   .jx-canvas-code-panels {
     display: flex;
     flex-direction: column;
@@ -331,27 +349,49 @@
     }
   }
   .jx-canvas-tree {
+    background: var(--background);
     border-bottom: 1px solid var(--border);
     flex: none;
     max-height: 15rem;
     overflow-y: auto;
     padding: 0.5rem 0.4rem;
+    /* stays visible at the top of the drawer window while the code layer
+       scrolls beneath it (narrow form; reset on desktop, where the tree
+       is a side column) */
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
   @container (min-width: 48rem) {
     .jx-canvas-tree {
       border-bottom: none;
       border-right: 1px solid var(--border);
       max-height: none;
+      position: static;
       width: 14rem;
+      z-index: auto;
     }
   }
   .jx-canvas-code-view {
     flex: 1 1 auto;
+    max-height: 24rem;
     min-width: 0;
+    overflow-y: auto;
     padding: 0.5rem;
   }
+  /* narrow form: the card keeps natural height inside the capped,
+     independently scrolling view */
   .jx-canvas-code-view :global(.jx-code-card) {
-    height: 100%;
+    height: auto;
+  }
+  @container (min-width: 48rem) {
+    .jx-canvas-code-view {
+      max-height: none;
+      overflow-y: visible;
+    }
+    .jx-canvas-code-view :global(.jx-code-card) {
+      height: 100%;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
