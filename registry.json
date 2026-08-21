@@ -317,6 +317,58 @@
         }
       ],
       "docs": "Props: id (required, links popovertarget), triggerLabel; snippet children. Inside a popover, a second popovertarget button closes it declaratively \u2014 still zero JS."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "code-card",
+      "type": "registry:ui",
+      "title": "Code card",
+      "description": "Code display with zero-dependency deterministic highlighting: figure+pre+code base, filename tab + header snippet slot, footer snippet slot, copyable control with copied feedback. Tokenizer covers ts/js/svelte/css/bash/json (keyword/string/comment/number/function/tag). Code is a runtime prop (escape-first), so literal </script> is inherently safe. readonly-code law: muted bg, hairline border, radius 0, tab-size preserved.",
+      "registryDependencies": [
+        "@jixoai/jixoai-theme"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/code-card.svelte",
+          "target": "@ui/code-card.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight.ts",
+          "target": "@lib/highlight.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: code, lang='ts', filename?, copyable=true; snippets header?, footer?. The highlight utility is a separate installable lib item."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "highlight",
+      "type": "registry:lib",
+      "title": "Syntax highlighter",
+      "description": "Zero-dependency deterministic tokenizer for code-card: single-pass escape-first, single alternation regex, first-match-wins. Covers ts/js/svelte/css/bash/json + aliases; classes keyword/string/comment/number/function/tag with --tok-* tokens.",
+      "files": [
+        {
+          "path": "registry/files/lib/highlight.ts",
+          "target": "@lib/highlight.ts",
+          "type": "registry:file"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "table",
+      "type": "registry:ui",
+      "title": "Table",
+      "description": "NativeHTML table with jixoai styling: full semantic thead/tbody/tfoot/th/td preserved; figure wrapper with overflow-x auto; muted thead (font-nav, uppercase, tracked); hairline row borders; tbody hover; tfoot with topline; dense mode for compact rows. Responsive by native scroll.",
+      "files": [
+        {
+          "path": "registry/files/ui/table.svelte",
+          "target": "@ui/table.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: caption?, dense=false; snippet children (write native thead/tbody/tfoot)."
     }
   ]
 }

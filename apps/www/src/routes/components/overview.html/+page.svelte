@@ -205,13 +205,64 @@ ${close}
   ghost="JIXOAI/UI"
   links={[{ label: 'GitHub', href: 'https://github.com/jixoai/ui' }]}
 />`;
+
+  // code-card demo sample: exercises keyword/string/comment/function/number.
+  const spawnSample = `import { UniPty } from '@unipty/core';
+import { createNodePtyBackend } from '@unipty/backend-node-pty';
+
+// readiness happens before Core construction
+const backend = await createNodePtyBackend({ runtime: 'node' });
+const unipty = new UniPty({ backend });
+
+const pty = unipty.spawn(['bash'], {
+  terminal: { cols: 80, rows: 24 },
+});
+
+for await (const chunk of pty.stream({ encoding: 'utf8' })) {
+  console.log(chunk); // Terminal Text: native text first
+}`;
+
+  const codeCardUsage = `<script lang="ts">
+  import CodeCard from '@ui/code-card.svelte';
+${close}
+
+<!-- the sample is a runtime prop: a literal ${close} inside it is inert
+     data — nothing to escape at the template level -->
+<CodeCard filename="spawn.ts" lang="ts" code={spawnSample}>
+  {#snippet header()}
+    <span class="pill">node-pty route</span>
+  {/snippet}
+  {#snippet footer()}
+    <span>zero-dep tokenizer</span>
+  {/snippet}
+</CodeCard>`;
+
+  const tableUsage = String.raw`<Table caption="Registry components — environment support">
+  <thead>
+    <tr>
+      <th>Component</th>
+      <th>Svelte 5</th>
+      <th>Prerendered SSR</th>
+      <th class="text-right">Files</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>press-button</td><td>yes</td><td>yes</td><td class="text-right">1</td></tr>
+    <tr><td>terminal-card</td><td>yes</td><td>yes</td><td class="text-right">1</td></tr>
+    <tr><td>toc + toc-engine</td><td>yes</td><td>yes</td><td class="text-right">3</td></tr>
+    <tr><td>code-card + highlight</td><td>yes</td><td>yes</td><td class="text-right">2</td></tr>
+  </tbody>
+  <tfoot>
+    <tr><td>Total</td><td>—</td><td>—</td><td class="text-right">7</td></tr>
+  </tfoot>
+</Table>`;
 </script>
 
 <svelte:head>
   <title>Components · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai component gallery: press-button, section-card, theme-toggle, reveal, the Combo ToC, the typing terminal, the hero, the app shell, and the terminal chrome — every demo rendered from the registry files this site consumes."
+    content="The jixoai component gallery: press-button, section-card, theme-toggle, reveal, the Combo ToC, the typing terminal, the hero, the app shell, the terminal chrome, the readonly code-card, and the native table — every demo rendered from the registry files this site consumes."
   />
 </svelte:head>
 
@@ -240,8 +291,8 @@ ${close}
           summary="Each section below consumes the exact same-source copy this site installed from registry/files — nothing is reimplemented for the showcase. The table of contents tracking this page is itself the toc component: the Rule Tracker on the right (desktop) or the glass Terminal Rail above (mobile)."
         >
           <div class="flex flex-wrap gap-3">
-            <span class="pill">9 live components</span>
-            <span class="pill">2 framework-free libs</span>
+            <span class="pill">11 live components</span>
+            <span class="pill">3 framework-free libs</span>
             <span class="pill">1 dogfooded ToC</span>
             <span class="pill">zero network</span>
           </div>
@@ -582,6 +633,81 @@ ${close}
             </p>
             <CodeBlock code={shellUsage} lang="svelte" meta="shell" />
           </div>
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- code-card -->
+    <div id="code-card" data-family="code-card" data-reveal="" use:reveal>
+      <SectionCard
+        headerRegion="code-card"
+        eyebrow="registry:ui"
+        title="code-card"
+        summary="The readonly code surface, promoted to the registry: a figure + pre/code base, a filename-tab head (font-nav on the accent-tinted meta strip, hairline divider), and the zero-dep deterministic tokenizer (lib/highlight) tinting keyword / string / comment / number / function / tag through the --tok-* palette — one markup serves both themes. Code is always a runtime prop, so a sample containing a literal script-closing tag is inert escaped data; horizontal overflow scrolls while Tab characters stay tabs."
+      >
+        <div class="flex flex-col gap-7" data-region="code-card-demo">
+          <div id="code-card-demo" class="flex flex-col gap-3">
+            <h3 class="text-[15px] font-bold tracking-tight">Demo — filename, header snippet, copy</h3>
+            <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+              The head's right side is the header snippet (a pill here), fully replacing the default
+              lang label; the filename tab stays on the left. Press copy: the footer control flips to
+              the <code class="text-accent">copied</code> variant (secondary surface) for 1.6s with
+              the same press physics as every other button in the grammar.
+            </p>
+            <CodeCard filename="spawn.ts" lang="ts" code={spawnSample}>
+              {#snippet header()}
+                <span class="pill">node-pty route</span>
+              {/snippet}
+              {#snippet footer()}
+                <span class="text-muted-foreground text-[11px] tracking-wide">
+                  zero-dep tokenizer · 6 token classes
+                </span>
+              {/snippet}
+            </CodeCard>
+          </div>
+          <CodeCard filename="usage.svelte" lang="svelte" code={codeCardUsage} copyable={false} />
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- table -->
+    <div id="table" data-family="table" data-reveal="" use:reveal>
+      <SectionCard
+        headerRegion="table"
+        eyebrow="registry:ui"
+        title="table"
+        summary="Native table semantics, restyled: thead/tbody/tfoot/th/td stay real elements you author as the children snippet — the figure wrapper owns only the hairline frame and the overflow-x scroll, while the table keeps min-width fit-content so columns never compress (narrow viewports scroll natively). thead gets bg-muted font-nav uppercase tracking; rows carry 12% hairlines and a muted hover; tfoot closes with a top hairline and medium weight; dense compacts the row height."
+      >
+        <div class="flex flex-col gap-7" data-region="table-demo">
+          <div id="table-demo" class="flex flex-col gap-3">
+            <h3 class="text-[15px] font-bold tracking-tight">Compatibility matrix</h3>
+            <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+              A 4 × 4 support matrix with caption and tfoot. Numeric columns right-align through
+              consumer classes (<code class="text-accent">class="text-right"</code>) — the component
+              never forces alignment. Resize below the table's fit-content width: the frame scrolls
+              instead of squeezing columns.
+            </p>
+            <Table caption="Registry components — environment support (2026-08)">
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th>Svelte 5</th>
+                  <th>Prerendered SSR</th>
+                  <th class="text-right">Files</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>press-button</td><td>yes</td><td>yes</td><td class="text-right">1</td></tr>
+                <tr><td>terminal-card</td><td>yes</td><td>yes</td><td class="text-right">1</td></tr>
+                <tr><td>toc + toc-engine</td><td>yes</td><td>yes</td><td class="text-right">3</td></tr>
+                <tr><td>code-card + highlight</td><td>yes</td><td>yes</td><td class="text-right">2</td></tr>
+              </tbody>
+              <tfoot>
+                <tr><td>Total</td><td>—</td><td>—</td><td class="text-right">7</td></tr>
+              </tfoot>
+            </Table>
+          </div>
+          <CodeCard filename="table-usage.svelte" lang="svelte" code={tableUsage} copyable={false} />
         </div>
       </SectionCard>
     </div>
