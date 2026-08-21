@@ -38,6 +38,8 @@
   let items = $state<ToastItem[]>([]);
   /** dismissed snapshots still painting their exit frame, by id */
   let leavingItems = $state<ToastItem[]>([]);
+  /** exit-window timers — all cleared when the viewport unmounts */
+  const exitTimers = new Set<ReturnType<typeof setTimeout>>();
 
   const EXIT_MS = 220; // 180ms animation + a frame of margin
 
@@ -48,14 +50,20 @@
       leavingItems = [...leavingItems, ...gone];
       items = next;
       if (gone.length > 0) {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
+          exitTimers.delete(timer);
           leavingItems = leavingItems.filter(
             (leaving) => !gone.some((g) => g.id === leaving.id),
           );
         }, EXIT_MS);
+        exitTimers.add(timer);
       }
     });
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      for (const timer of exitTimers) clearTimeout(timer);
+      exitTimers.clear();
+    };
   });
 
   const visible = $derived(items.slice(-maxVisible));

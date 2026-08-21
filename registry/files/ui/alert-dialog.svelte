@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { untrack } from 'svelte';
+  import { onDestroy, untrack } from 'svelte';
 
   interface Props {
     /** REQUIRED for alertdialog: the aria-labelledby target */
@@ -62,6 +62,14 @@
   // the focus-cancel frame — cancelled on close so a fast Escape can't
   // be overtaken by a stale frame (mirrors the dropdown-menu law)
   let focusFrame: number | undefined;
+
+  let closeTimer: ReturnType<typeof setTimeout> | undefined;
+
+  // no pending frame or fade outlives the component (Codex r2)
+  onDestroy(() => {
+    if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(focusFrame);
+    clearTimeout(closeTimer);
+  });
 
   const CLOSE_MS = 120;
   const prefersReducedMotion = (): boolean =>
@@ -107,7 +115,8 @@
       return;
     }
     closing = true;
-    window.setTimeout(() => {
+    clearTimeout(closeTimer);
+    closeTimer = window.setTimeout(() => {
       if (gen !== closeGen) return;
       closing = false;
       open = false;
