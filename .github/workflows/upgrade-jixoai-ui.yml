@@ -1,0 +1,109 @@
+name: Auto-upgrade jixoai-ui components
+
+# Auto-upgrade workflow for the ui.jixoai.com showcase site (apps/www).
+#
+# Mechanism:
+# - Daily poll (schedule, 18:00 UTC — the jixoai-labs/unipty repo's run
+#   follows one hour later at 19:00 UTC) of `npm view jixoai-ui version`.
+#   Polling npm from each consuming repo avoids cross-repo PATs: everything
+#   here runs on the default GITHUB_TOKEN with contents:write for the push.
+# - A jixoai-ui release therefore takes effect at the latest on the next
+#   day's run: poll -> `npx jixoai-ui@latest upgrade` (idempotent registry
+#   pull overwriting the apps/www components) -> `node scripts/build-site.mjs`
+#   verification (site + registry build) -> single commit that also records
+#   the new apps/www/.jixoai-ui-version marker -> push to main.
+# - workflow_dispatch runs immediately and bypasses the same-version skip.
+# - Any step failure fails the workflow: GitHub sends the default failure
+#   email to the Owner, who manually adapts the site to breaking changes.
+# - Note: pushes made with GITHUB_TOKEN do not re-trigger other workflows,
+#   so deploy.yml will NOT run for the auto-upgrade commit. Re-deploy
+#   ui.jixoai.com (site + /r registry) by dispatching deploy.yml manually
+#   after an upgrade lands; until then the deployed registry keeps serving
+#   the previous component set.
+#
+# Version marker: apps/www/.jixoai-ui-version (next to components.json)
+# records the last auto-upgraded jixoai-ui version; when it already equals
+# the npm latest, the scheduled run ends as a quiet no-op.
+
+on:
+  schedule:
+    - cron: "0 18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: upgrade-jixoai-ui
+  cancel-in-progress: false
+
+jobs:
+  upgrade:
+    name: Poll npm, upgrade, verify, push
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            apps/www/package-lock.json
+
+      # Same install layout as deploy.yml: root (shadcn) + apps/www (site).
+      - name: Install root deps (shadcn)
+        run: npm install --no-fund --no-audit
+      - name: Install site deps (apps/www)
+        run: npm install --no-fund --no-audit
+        working-directory: apps/www
+
+      - name: Poll npm for the published jixoai-ui version
+        id: poll
+        run: |
+          npm view jixoai-ui version > /tmp/jixoai-ui-before
+          BEFORE="$(cat /tmp/jixoai-ui-before)"
+          RECORDED=""
+          if [ -f apps/www/.jixoai-ui-version ]; then
+            RECORDED="$(cat apps/www/.jixoai-ui-version)"
+          fi
+          echo "published=${BEFORE} recorded=${RECORDED:-<none>}"
+          SKIP=false
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ] \
+            && [ -n "$RECORDED" ] && [ "$BEFORE" = "$RECORDED" ]; then
+            SKIP=true
+          fi
+          {
+            echo "skip=$SKIP"
+            echo "published=$BEFORE"
+            echo "recorded=$RECORDED"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Skip (npm latest already recorded)
+        if: steps.poll.outputs.skip == 'true'
+        run: echo "jixoai-ui ${{ steps.poll.outputs.recorded }} already recorded; nothing to do."
+
+      - name: Upgrade components via jixoai-ui CLI
+        if: steps.poll.outputs.skip != 'true'
+        working-directory: apps/www
+        run: npx --yes jixoai-ui@latest upgrade
+
+      - name: Verify site + registry build
+        if: steps.poll.outputs.skip != 'true'
+        run: node scripts/build-site.mjs
+
+      - name: Record version, commit, and push
+        if: steps.poll.outputs.skip != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          npm view jixoai-ui version > apps/www/.jixoai-ui-version
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Upgrade produced no tracked changes; nothing to commit."
+            exit 0
+          fi
+          git commit -m "chore(www): auto-upgrade jixoai-ui components"
+          git push
