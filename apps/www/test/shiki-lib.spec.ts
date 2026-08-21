@@ -112,4 +112,40 @@ describe('lib/shiki', () => {
     expect(getRegisteredThemes()).toContain(DEFAULT_THEME);
     expect(getRegisteredThemes()).toContain('vitesse-dark');
   });
+
+  it('shares one in-flight load across concurrent first highlights', async () => {
+    const [a, b] = await Promise.all([
+      highlightCode('<template><p>hi</p></template>', { lang: 'vue' }),
+      highlightCode('<template><p>hi</p></template>', { lang: 'vue' }),
+    ]);
+    expect(a).toContain('class="shiki');
+    expect(b).toContain('class="shiki');
+  }, 20000);
+
+  it('runs a counting grammar loader exactly once under concurrent first highlights', async () => {
+    let calls = 0;
+    registerLanguage('jsx', async () => {
+      calls++;
+      // artificial delay keeps the in-flight window open long enough that
+      // all concurrent callers must share the single promise
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      return import('shiki/langs/jsx.mjs');
+    });
+    const all = await Promise.all([
+      highlightCode('const a = <b />;', { lang: 'jsx' }),
+      highlightCode('const c = <d />;', { lang: 'jsx' }),
+      highlightCode('const e = <f />;', { lang: 'jsx' }),
+    ]);
+    expect(calls).toBe(1);
+    expect(all.every((html) => html.includes('class="shiki'))).toBe(true);
+  }, 20000);
+
+  it('recovers after a failed grammar loader is replaced', async () => {
+    registerLanguage('rust', () => Promise.reject(new Error('boom')));
+    await expect(highlightCode('fn main() {}', { lang: 'rust' })).rejects.toThrow('boom');
+
+    registerLanguage('rust', () => import('shiki/langs/rust.mjs'));
+    const html = await highlightCode('fn main() {}', { lang: 'rust' });
+    expect(html).toContain('class="shiki');
+  }, 20000);
 });

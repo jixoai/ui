@@ -11,8 +11,10 @@
  */
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { flushSync } from 'svelte';
 
 import CodeCard from '../src/lib/ui/code-card.svelte';
+import CodeCardHost from './fixtures/code-card-host.svelte';
 
 // jsdom ships no clipboard (the copy path falls back) and no execCommand
 document.execCommand = vi.fn(() => true) as unknown as typeof document.execCommand;
@@ -78,6 +80,26 @@ describe('CodeCard', () => {
     expect(plainPre.className).not.toContain('vscroll');
     expect(plainPre.getAttribute('style') ?? '').not.toContain('max-height');
   });
+
+  it('drops the stale highlight immediately when the code prop changes', async () => {
+    const { container, getByRole } = render(CodeCardHost);
+
+    await waitFor(() => expect(container.querySelector('pre code .line')).not.toBeNull(), {
+      timeout: 8000,
+    });
+
+    await fireEvent.click(getByRole('button', { name: 'swap' }));
+    flushSync();
+    // old token spans are gone synchronously; the CURRENT plain sample is
+    // the interim paint — never the previous code's highlighted content
+    expect(container.querySelector('pre code .line')).toBeNull();
+    expect(container.querySelector('pre code')!.textContent).toContain('const second = 2;');
+    expect(container.querySelector('pre code')!.textContent).not.toContain('const first');
+
+    await waitFor(() => expect(container.querySelector('pre code .line')).not.toBeNull(), {
+      timeout: 8000,
+    });
+  }, 20000);
 
   it('copies and flashes the copied feedback', async () => {
     const { container, getByRole } = render(CodeCard, {

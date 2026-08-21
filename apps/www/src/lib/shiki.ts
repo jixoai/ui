@@ -45,15 +45,19 @@ import type {
 export const DEFAULT_THEME = 'jixoai';
 
 /**
- * Shiki's own codeToHtml options, with theme/themes made optional — when
- * neither is given, highlightCode injects the jixoai default. Everything
- * else (transformers, decorations, dual themes, colorReplacements…) is the
- * untouched Shiki contract.
+ * Shiki's own codeToHtml options with one extension: both theme and themes
+ * may be omitted — then highlightCode injects the jixoai default. The two
+ * stay mutually exclusive exactly as in Shiki (the `?: never` arms make
+ * passing both a compile-time error); everything else (transformers,
+ * decorations, dual themes, colorReplacements…) is the untouched contract.
  */
 export type HighlightOptions = CodeToHastOptionsCommon &
   CodeOptionsMeta &
-  Partial<CodeOptionsSingleTheme> &
-  Partial<CodeOptionsMultipleThemes>;
+  (
+    | CodeOptionsSingleTheme
+    | CodeOptionsMultipleThemes
+    | { theme?: never; themes?: never }
+  );
 
 type LangModule = { default: LanguageInput };
 type ThemeModule = { default: ThemeInput };
@@ -120,6 +124,8 @@ let highlighterPromise: Promise<HighlighterCore> | undefined;
  * The shared lazy HighlighterCore. Created once: shiki/core + the JavaScript
  * regex engine load on first call (code-split, zero WASM); the jixoai theme
  * is created in-memory from Shiki's own css-variables factory — no fetch.
+ * A failed creation clears the cached promise so the next call retries
+ * instead of caching the rejection forever (Codex r1 hardening).
  */
 export function getHighlighter(): Promise<HighlighterCore> {
   highlighterPromise ??= (async () => {
@@ -140,7 +146,10 @@ export function getHighlighter(): Promise<HighlighterCore> {
       // tokens instead of throwing (the engine's own production recommendation)
       engine: createJavaScriptRegexEngine({ forgiving: true }),
     });
-  })();
+  })().catch((error: unknown) => {
+    highlighterPromise = undefined;
+    throw error;
+  });
   return highlighterPromise;
 }
 
@@ -174,6 +183,18 @@ export function getRegisteredThemes(): string[] {
   return [DEFAULT_THEME, ...themeLoaders.keys(), ...inlineThemes.keys()];
 }
 
+/** one in-flight load per grammar/theme id — concurrent first highlights
+    share the promise instead of double-loading (Codex r1 hardening). */
+const loadsInFlight = new Map<string, Promise<void>>();
+
+function loadOnce(key: string, load: () => Promise<void>): Promise<void> {
+  const existing = loadsInFlight.get(key);
+  if (existing) return existing;
+  const promise = load().finally(() => loadsInFlight.delete(key));
+  loadsInFlight.set(key, promise);
+  return promise;
+}
+
 /**
  * Load the grammar for `lang` (alias-resolved) plus any sub-grammars the code
  * itself hints at — markdown fences, `<script lang=…>`, frontmatter — using
@@ -196,7 +217,9 @@ async function ensureLanguage(lang: string, code: string): Promise<string> {
         `[jixoai/shiki] no grammar registered for "${lang}" — registerLanguage('${canonical}', () => import('shiki/langs/${canonical}.mjs')) first`,
       );
     }
-    await highlighter.loadLanguage((await loader()).default);
+    await loadOnce(`lang:${canonical}`, async () => {
+      await highlighter.loadLanguage((await loader()).default);
+    });
   }
   return id;
 }
@@ -208,7 +231,9 @@ async function ensureTheme(name: string): Promise<void> {
   if (highlighter.getLoadedThemes().includes(name)) return;
   const inline = inlineThemes.get(name);
   if (inline) {
-    await highlighter.loadTheme(inline);
+    await loadOnce(`theme:${name}`, async () => {
+      await highlighter.loadTheme(inline);
+    });
     return;
   }
   const loader = themeLoaders.get(name);
@@ -217,7 +242,9 @@ async function ensureTheme(name: string): Promise<void> {
       `[jixoai/shiki] no theme registered for "${name}" — registerTheme('${name}', () => import('shiki/themes/${name}.mjs')) or pass a ThemeRegistration`,
     );
   }
-  await highlighter.loadTheme((await loader()).default);
+  await loadOnce(`theme:${name}`, async () => {
+    await highlighter.loadTheme((await loader()).default);
+  });
 }
 
 /**
@@ -227,7 +254,10 @@ async function ensureTheme(name: string): Promise<void> {
  * theme nor themes is given, the jixoai css-variables theme applies.
  */
 export async function highlightCode(code: string, options: HighlightOptions): Promise<string> {
-  const { theme, themes, ...rest } = options;
+  // widen the union just enough to destructure the two optional arms
+  const { theme, themes, ...rest } = options as HighlightOptions &
+    Partial<CodeOptionsSingleTheme> &
+    Partial<CodeOptionsMultipleThemes>;
   const lang = await ensureLanguage(rest.lang, code);
   // string names load on demand; registration objects pass straight through
   // (Shiki normalizes inline themes without the registry)

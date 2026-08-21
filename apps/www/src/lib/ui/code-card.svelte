@@ -76,6 +76,11 @@
     const language = lang;
     const themeName = theme;
     const mine = ++generation;
+    // drop the previous paint IMMEDIATELY: until the new highlight resolves,
+    // the plain fallback shows the CURRENT code — never stale highlighted
+    // content from a previous code/lang/theme (Codex r1 P1)
+    tokenHtml = '';
+    preStyle = '';
     highlightCode(source, { lang: language, theme: themeName })
       .then((html) => {
         if (mine !== generation) return;
@@ -99,12 +104,15 @@
    * inner markup makes this card's <pre> the single scrollport — padding,
    * scrollbars and max-height stay one implementation across the plain and
    * highlighted paints (no CLS on the swap, no nested scroll areas).
+   * Any structure we do not recognize yields '' — the plain-text fallback —
+   * rather than feeding foreign markup to {@html} (Codex r1 hardening).
    */
   function innerCodeHtml(html: string): string {
     const open = html.indexOf('<code');
     const openEnd = html.indexOf('>', open);
     const close = html.lastIndexOf('</code>');
-    return open === -1 || openEnd === -1 || close === -1 ? html : html.slice(openEnd + 1, close);
+    if (open === -1 || openEnd === -1 || close === -1 || close <= openEnd) return '';
+    return html.slice(openEnd + 1, close);
   }
 
   /** the theme's editor colors from Shiki's <pre style="…">, verbatim */
@@ -148,6 +156,10 @@
       </span>
     </figcaption>
   {/if}
+  <!-- tabindex keeps the scrollport keyboard-reachable (arrow scrolling for
+       long lines / capped bodies) — the a11y lint prefers interactive roles,
+       but this is the same contract Shiki's own <pre tabindex="0"> ships -->
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <pre
     data-lang={lang}
     class:vscroll={maxHeight !== ''}
