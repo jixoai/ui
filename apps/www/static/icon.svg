@@ -1,5 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <rect width="48" height="48" fill="oklch(0.2 0 0)"/>
   <g stroke="oklch(1 0 0 / 0.85)" stroke-width="2">
     <rect x="1.0" y="1.0" width="11" height="11" fill="oklch(0.7044 0.1872 356)"/>
     <rect x="6.25" y="6.25" width="14.5" height="14.5" fill="oklch(0.7044 0.1872 56)"/>

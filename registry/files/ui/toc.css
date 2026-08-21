@@ -130,7 +130,6 @@
 .jx-toc .jx-toc-mobile[data-open] .jx-viewport {
   height: 56vh;
   overflow-y: auto;
-  scroll-snap-type: y mandatory;
   overscroll-behavior: contain;
 }
 .jx-toc .jx-viewport ol {
@@ -139,7 +138,7 @@
   padding: 0;
 }
 .jx-toc .jx-viewport li {
-  scroll-snap-align: start;
+  /* no scroll-snap: the engine's scrollTo owns positioning uniformly */
 }
 .jx-toc .jx-viewport li + li {
   border-top: 1px solid color-mix(in oklab, var(--border) 12%, transparent);
@@ -222,4 +221,21 @@
     z-index: 40;
     height: 0;
   }
+}
+
+/* ── the named line law (Owner, 2026-08-21) ──
+   --jx-toc-line is THE single source of truth for "where pinned content
+   ends". The toc component publishes it (measured: overlay-stack bottom
+   + 2em). The scroll CONTAINER consumes it via scroll-padding-top, so
+   anchor jumps land targets with their region top exactly on the line.
+   Do NOT also set scroll-margin on the targets for the same container:
+   the two properties stack and the landing doubles past the line.
+   Window-scrolled consumers (no .jx-shell-body) keep their own local
+   scroll-margin rule instead. The engine's line getter reads the same
+   measurement, so algorithm and landing can never drift. */
+:root {
+  --jx-toc-line: 76px;
+}
+.jx-shell-body {
+  scroll-padding-top: var(--jx-toc-line);
 }

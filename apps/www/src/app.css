@@ -196,9 +196,6 @@
 
 /* Anchor targets clear the Combo ToC mobile rail exactly at its pick line:
  * sticky bar bottom (44px) + 2em = 76px, matching the toc-engine line law. */
-[id] {
-  scroll-margin-top: 76px;
-}
 
 /* -------------------------------------------------------------------------
  * Token lab surfaces (/tokens).
