@@ -1,6 +1,7 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import CopyCommand from '$lib/copy-command.svelte';
+  import CardGrid from '$lib/ui/card-grid.svelte';
   import HeroSection from '$lib/ui/hero-section.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import TerminalCard from '$lib/ui/terminal-card.svelte';
@@ -107,15 +108,19 @@ npx jixoai-ui add press-button section-card toc`;
     Why
     <span class="bg-border h-px flex-1" aria-hidden="true"></span>
   </h2>
-  <div class="mt-6 grid gap-6 min-[940px]:grid-cols-3">
+  <CardGrid class="mt-6">
     {#each why as card, index (card.id)}
       <div data-reveal="" use:reveal={{ delay: index * 70, rise: 12 }}>
-        <SectionCard eyebrow={card.eyebrow} title={card.title}>
+        <SectionCard
+          eyebrow={card.eyebrow}
+          title={card.title}
+          class="grid grid-rows-subgrid row-span-2"
+        >
           <p class="text-muted-foreground text-pretty text-[13px] leading-6">{card.body}</p>
         </SectionCard>
       </div>
     {/each}
-  </div>
+  </CardGrid>
 </section>
 
 <!-- Install card. -->
