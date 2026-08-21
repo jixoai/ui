@@ -2,17 +2,17 @@
   "items": {
     "scaffold-float": {
       "files": {
-        "src/lib/ui/scaffold-float.svelte": "fc9a61b5b96dc353b06dfec7bb2fdda89673591c131b59cb41233790bc83d4ef"
+        "src/lib/ui/scaffold-float.svelte": "afc2b56183015c1708ac424c12405a1175dddc56a9ae1b6b1e205050fe4e1ca5"
       }
     },
     "terminal-header": {
       "files": {
-        "src/lib/ui/terminal-header.svelte": "89d11c957078d8eab9a4274cca9e9e749d6dbbac03e55bfb2bb999526a10d773"
+        "src/lib/ui/terminal-header.svelte": "dbb9cd854df8ee774380fd350d9691edb84fd23f161b6eeb4b561f449278a09d"
       }
     },
     "terminal-footer": {
       "files": {
-        "src/lib/ui/terminal-footer.svelte": "de2ba8888036a29795ae65598414612b57b3a9365d7ff01ab930fa61ee6cc6f9"
+        "src/lib/ui/terminal-footer.svelte": "529d622ab0c6e56db3b5a823e4c951c7d60b588652ac21797a969381c4d72c01"
       }
     },
     "theme-toggle": {

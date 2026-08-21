@@ -14,7 +14,7 @@
 
 :root,
 .jx-light {
-  --brand-hue: 0; /* default: 0 (jixoai red). per-project: unipty=165 幽绿, openspecui=27 */
+  --brand-hue: 330; /* default: 0 (jixoai red). per-project: unipty=165 幽绿, openspecui=27 */
 
   --background: oklch(1 0 0);
   --foreground: oklch(0 0 0);
