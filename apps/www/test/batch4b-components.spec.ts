@@ -60,11 +60,16 @@ describe('Command', () => {
   }
 
   it('opens as a modal dialog with focus in the search input', async () => {
-    const { input, dialog } = setup();
+    const { rendered, input, dialog } = setup();
     await new Promise(requestAnimationFrame);
     expect(dialog.open).toBe(true);
     expect(document.activeElement).toBe(input);
-    expect(input.getAttribute('aria-controls')).toBe(input.getAttribute('aria-controls')); // uid-scoped ids: covered by wiring test
+    // named combobox pointing at the REAL listbox node (uid-scoped id)
+    expect(input.getAttribute('aria-label')).toBeTruthy();
+    const list = rendered.container.querySelector(
+      `#${input.getAttribute('aria-controls')}`,
+    );
+    expect(list?.getAttribute('role')).toBe('listbox');
   });
 
   it('filters as you type and walks with arrows (activedescendant)', async () => {

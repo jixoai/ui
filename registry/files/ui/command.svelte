@@ -239,6 +239,7 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
       class="jx-command-input"
       type="text"
       role="combobox"
+      aria-label={label}
       aria-expanded="true"
       aria-controls={listId}
       aria-activedescendant={activeId || undefined}

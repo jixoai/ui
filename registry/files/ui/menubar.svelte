@@ -3,7 +3,9 @@
   The application menu bar — File Edit View… — with its OWN walker
   (batch-4 ruling): the top-level keyboard contract differs from a
   stack of dropdowns, so this is an independent coordinator over the
-  popover laws (popover=auto panels, native light dismiss/Escape):
+  popover laws (popover=manual panels — WE own dismissal: document
+  pointerdown outside-check + panel Escape; auto light-dismiss raced
+  the trigger click):
 
     ←/→          move between top-level triggers (panels follow an
                  open bar — glide behavior)

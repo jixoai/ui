@@ -173,6 +173,13 @@
     style="position-anchor: {anchorOf(item.id)}; inset-area: bottom span-left; position-area: bottom span-left;"
     onpointerenter={() => clearTimeout(hoverTimer)}
     onpointerleave={() => hoverTimer && close(item.id)}
+    onkeydown={(e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        close(item.id);
+        document.getElementById(`jx-navmenu-trigger-${item.id}`)?.focus();
+      }
+    }}
     ontoggle={(e: Event) => {
       const panel = e.currentTarget as HTMLElement;
       const isOpen = panel.matches(':popover-open');
