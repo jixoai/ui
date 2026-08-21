@@ -7,7 +7,7 @@
 
   // Pure index page (2026-08-20): every demo moved to its own
   // /components/<name>.html route; this page is only the catalog.
-  // 42 documented components (form merges input/select/textarea into one
+  // 50 documented components (form merges input/select/textarea into one
   // route) + 3 framework-free libs (reveal, toc-engine, highlight).
   interface IndexEntry {
     /** Display title = the component page's subject. */
@@ -170,6 +170,22 @@
           'carousel',
           'CSS scroll-snap paging, native scrolling motion, JS only reads the position for the dots — no cloning, no virtual window.',
         ),
+        entry(
+          'empty',
+          'The no-data state of the eight-state machine — terminal illustration, title, description, actions. Nothing more.',
+        ),
+        entry(
+          'statistic',
+          'The metric readout: micro-label over tabular-nums with text-glyph trends — good is yours to compose.',
+        ),
+        entry(
+          'result',
+          'The thin outcome surface: status glyph + title + description + actions. empty ≠ result by ruling.',
+        ),
+        entry(
+          'descriptions',
+          'The enterprise detail view as a real dl — dt/dd pairs in a grid; bordered is CSS, never a table in disguise.',
+        ),
       ],
     },
     {
@@ -225,6 +241,22 @@
           "The app menu bar with its own walker: arrows glide between top menus, ↓ opens and focuses, Escape returns.",
         ),
         entry(
+          'popconfirm',
+          "The LIGHT confirm bubble: light dismiss IS the cancel path, focus lands on Cancel — not an alertdialog by ruling.",
+        ),
+        entry(
+          'steps',
+          'The wizard ol: completed steps are links back, current is aria-current=step, future stays inert.',
+        ),
+        entry(
+          'timeline',
+          'The activity spine: an ol of timestamped entries, pending renders the hollow dot. Zero JS.',
+        ),
+        entry(
+          'spin',
+          'The terminal cursor under role=status; wrapping mode owns pointer events through the scrim.',
+        ),
+        entry(
           'recipes',
           'The deliberate non-components: aspect-ratio, data-table, chart, sidebar as documented composition recipes — where wrapping stops.',
         ),
@@ -255,7 +287,7 @@
   <title>Components · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai-ui component index: 42 documented components across Layout, Overlay, Form, Display, Interactive, and Shell — every one a registry item installable with npx jixoai-ui add."
+    content="The jixoai-ui component index: 50 documented components across Layout, Overlay, Form, Display, Interactive, and Shell — every one a registry item installable with npx jixoai-ui add."
   />
 </svelte:head>
 
@@ -270,7 +302,7 @@
       summary="The jixoai design language component library — every item is a registry item installable via npx jixoai-ui add."
     >
       <div class="flex flex-wrap gap-3">
-        <span class="pill">42 components</span>
+        <span class="pill">50 components</span>
         <span class="pill">3 libs</span>
       </div>
     </SectionCard>
