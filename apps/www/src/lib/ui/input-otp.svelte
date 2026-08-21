@@ -56,7 +56,16 @@
 
   const slots = $derived(Math.max(1, Math.min(12, Math.trunc(length))));
   /** per-slot chars, source of truth; value derives from the join */
-  let chars = $state<string[]>([]);
+  // eager from props so SSR paints all slots (no blank first frame)
+  let chars = $state<string[]>(
+    (() => {
+      const next = [...(value ?? '').slice(0, slots)].map((ch) =>
+        numeric && !/\d/.test(ch) ? '' : ch,
+      );
+      while (next.length < slots) next.push('');
+      return next;
+    })(),
+  );
   // two-way sync between slots and value — the equality guard is what
   // keeps the pair of effects from feeding each other forever
   // value → slots ONLY: chars is read untracked so a slot mutation can
@@ -145,8 +154,9 @@
   disabled={disabled || undefined}
   required={required}
   onjx-reset={() => (value = '')}
->
-  <div class="jx-otp {className}" role="group" aria-label={label ?? 'one-time code'}>
+></jx-form-field>
+
+<div class="jx-otp {className}" role="group" aria-label={label ?? 'one-time code'}>
     {#if label}
       <label class="jx-otp-label" for="{id}-0">{label}</label>
     {/if}
@@ -177,7 +187,6 @@
       <p id={errorId} class="jx-otp-error"><span aria-hidden="true">!</span>{error}</p>
     {/if}
   </div>
-</jx-form-field>
 
 <style>
   .jx-otp {

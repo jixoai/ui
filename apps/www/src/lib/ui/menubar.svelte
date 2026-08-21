@@ -40,6 +40,8 @@
 
   let barEl = $state<HTMLElement | null>(null);
   let openId = $state('');
+  /** the roving tab stop FOLLOWS arrow focus (initial: the first trigger) */
+  let activeBarIndex = $state(0);
   /** id marking "a panel was just opened by keyboard — focus its first item" */
   let focusIntoId = $state('');
 
@@ -78,7 +80,9 @@
     if (current === -1) return;
     const move = (delta: number): void => {
       event.preventDefault();
-      const next = bars[(current + delta + bars.length) % bars.length];
+      const nextIndex = (current + delta + bars.length) % bars.length;
+      const next = bars[nextIndex];
+      activeBarIndex = nextIndex;
       next?.focus();
       if (openId !== '') {
         const target = items.find((item) => `jx-bar-trigger-${item.id}` === next?.id);
@@ -92,7 +96,9 @@
     if (event.key === 'ArrowLeft') return move(-1);
     if (event.key === 'Home' || event.key === 'End') {
       event.preventDefault();
-      bars[event.key === 'Home' ? 0 : bars.length - 1]?.focus();
+      const index = event.key === 'Home' ? 0 : bars.length - 1;
+      activeBarIndex = index;
+      bars[index]?.focus();
       return;
     }
     const own = items[current];
@@ -163,8 +169,8 @@
         role="menuitem"
         aria-haspopup="menu"
         aria-expanded={openId === item.id}
-        tabindex={index === 0 ? 0 : -1}
-        popovertarget="jx-bar-panel-{item.id}"
+        tabindex={activeBarIndex === index ? 0 : -1}
+        onfocus={() => (activeBarIndex = index)}
         onclick={() => (openId === item.id ? closePanel(item.id, false) : openPanel(item.id, false))}
       >
         {item.label}

@@ -49,6 +49,8 @@
   let { items, label = 'site', panel, openDelay = 150, class: className = '' }: Props = $props();
 
   let openId = $state('');
+  /** the roving tab stop follows arrow focus (initial: current ?? first) */
+  let activeId = $state('');
   let hoverTimer: ReturnType<typeof setTimeout> | undefined;
 
   $effect(() => () => clearTimeout(hoverTimer));
@@ -87,8 +89,7 @@
   function handleKeydown(event: KeyboardEvent): void {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
     const triggers = [
-      ...(barEl?.querySelectorAll<HTMLButtonElement>('button[role=menuitem]:not([disabled])') ??
-        []),
+      ...(barEl?.querySelectorAll<HTMLButtonElement>('button[aria-haspopup="true"]') ?? []),
     ];
     if (triggers.length === 0) return;
     const current = triggers.indexOf(document.activeElement as HTMLButtonElement);
@@ -96,6 +97,8 @@
     event.preventDefault();
     const next =
       triggers[(current + (event.key === 'ArrowRight' ? 1 : -1) + triggers.length) % triggers.length];
+    const target = items.find((i) => `jx-navmenu-trigger-${i.id}` === next.id);
+    if (target) activeId = target.id;
     next.focus();
     // an open panel follows the walk (menubar glide behavior)
     if (openId !== '') {
@@ -109,9 +112,10 @@
 
   let barEl = $state<HTMLElement | null>(null);
 
-  // one tab stop on the bar: the current section's trigger, else the first
+  // one tab stop on the bar: the LAST-FOCUSED trigger, falling back to
+  // the current section's trigger, else the first
   const tabStopId = $derived(
-    items.find((item) => item.current && item.hasPanel)?.id ??
+    (activeId || items.find((item) => item.current && item.hasPanel)?.id) ??
       items.find((item) => item.hasPanel)?.id ??
       '',
   );
@@ -137,12 +141,12 @@
         <button
           type="button"
           id="jx-navmenu-trigger-{item.id}"
-          role="menuitem"
           aria-haspopup="true"
           aria-expanded={openId === item.id}
           aria-current={item.current ? 'true' : undefined}
           tabindex={tabStopId === item.id ? 0 : -1}
           popovertarget="jx-navmenu-panel-{item.id}"
+          onfocus={() => (activeId = item.id)}
         >
           {item.label}
         </button>

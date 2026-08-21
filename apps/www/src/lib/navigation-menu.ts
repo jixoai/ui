@@ -115,7 +115,8 @@
   // one tab stop on the bar: the LAST-FOCUSED trigger, falling back to
   // the current section's trigger, else the first
   const tabStopId = $derived(
-    (activeId || items.find((item) => item.current && item.hasPanel)?.id) ??
+    activeId ||
+      items.find((item) => item.current && item.hasPanel)?.id ??
       items.find((item) => item.hasPanel)?.id ??
       '',
   );

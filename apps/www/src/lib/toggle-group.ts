@@ -100,7 +100,7 @@
   multivalue={type === 'multiple' || undefined}
   disabled={disabled || undefined}
   onjx-reset={() => ((value = type === 'single' ? '' : []), undefined)}
-></jx-form-field>
+/>
 
 <div class="jx-tgroup {className}" role="group" aria-label={label}>
     {#each options as option (option.value)}

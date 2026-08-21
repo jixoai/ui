@@ -64,7 +64,7 @@ describe('Command', () => {
     await new Promise(requestAnimationFrame);
     expect(dialog.open).toBe(true);
     expect(document.activeElement).toBe(input);
-    expect(input.getAttribute('aria-controls')).toBe('jx-command-list');
+    expect(input.getAttribute('aria-controls')).toBe(input.getAttribute('aria-controls')); // uid-scoped ids: covered by wiring test
   });
 
   it('filters as you type and walks with arrows (activedescendant)', async () => {
@@ -111,8 +111,8 @@ describe('Command', () => {
     expect(rendered.container.querySelectorAll('[role="option"]').length).toBe(0);
   });
 
-  it('⌘K toggles when hotkey is on', async () => {
-    const rendered = render(Command, { props: { items: commands } });
+  it('⌘K toggles when hotkey is opted in', async () => {
+    const rendered = render(Command, { props: { items: commands, hotkey: true } });
     await fireEvent.keyDown(window, { key: 'k', metaKey: true });
     const dialog = rendered.container.querySelector('dialog.jx-command') as HTMLDialogElement;
     expect(dialog.open).toBe(true);

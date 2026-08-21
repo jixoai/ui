@@ -927,7 +927,10 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: name?, length? (6), value ($bindable), numeric? (true), label?, error?, disabled?. Two-way slot/value sync is untracked on the slots side — slot mutations can never be re-synced against stale value."
+      "docs": "Props: name?, length? (6), value ($bindable), numeric? (true), label?, error?, disabled?. Two-way slot/value sync is untracked on the slots side — slot mutations can never be re-synced against stale value. Requires the form-field bridge item (installed as its dependency).",
+      "registryDependencies": [
+        "form-field"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -940,14 +943,12 @@
           "path": "registry/files/ui/toggle-group.svelte",
           "target": "@ui/toggle-group.svelte",
           "type": "registry:file"
-        },
-        {
-          "path": "registry/files/lib/form-field.ts",
-          "target": "@form-field.ts",
-          "type": "registry:file"
         }
       ],
-      "docs": "Props: name?, type?, options ({value,label,disabled?}[]), value ($bindable), label (required a11y name), item? (per-button snippet), onchange?. The form-field bridge gains a multivalue attribute (newline-split → setFormValue(...parts))."
+      "docs": "Props: name?, type?, options ({value,label,disabled?}[]), value ($bindable), label (required a11y name), item? (per-button snippet), onchange?. The form-field bridge gains a multivalue attribute (newline-split → setFormValue(...parts)).",
+      "registryDependencies": [
+        "form-field"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",

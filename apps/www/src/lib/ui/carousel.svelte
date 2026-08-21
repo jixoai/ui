@@ -98,6 +98,8 @@
     slides = [...(node.children as HTMLCollectionOf<HTMLElement>)];
     const observer = new MutationObserver(() => {
       slides = [...(node.children as HTMLCollectionOf<HTMLElement>)];
+      // a removed slide must leave the dot state pointing at the void
+      if (active >= slides.length) active = Math.max(0, slides.length - 1);
     });
     observer.observe(node, { childList: true });
     return {
@@ -109,7 +111,7 @@
   }
 </script>
 
-<div class="jx-carousel {className}" aria-roledescription="carousel" aria-label={label}>
+<div class="jx-carousel {className}" role="region" aria-roledescription="carousel" aria-label={label}>
   <div class="jx-carousel-window">
     <!-- tabindex: the scroll region itself is the keyboard surface
          (native arrow scrolling); buttons page explicitly -->

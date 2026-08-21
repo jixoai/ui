@@ -75,10 +75,16 @@ export class FormField extends BaseElement {
       return;
     }
     // multivalue: checkbox-set semantics — newline-separated entries
-    // submit as separate FormData entries under the same name
+    // submit as SEPARATE FormData entries under the same name.
+    // ElementInternals.setFormValue is NOT variadic; the multi-entry
+    // contract is expressed by handing it a FormData (the only way the
+    // platform accepts multiple values for one control)
     if (this.hasAttribute('multivalue')) {
-      const parts = value.split('\n').filter((part) => part !== '');
-      this.#internals.setFormValue(...parts);
+      const data = new FormData();
+      for (const part of value.split('\n')) {
+        if (part !== '') data.append(name, part);
+      }
+      this.#internals.setFormValue(data);
     } else {
       this.#internals.setFormValue(value);
     }

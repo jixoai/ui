@@ -154,7 +154,7 @@
   disabled={disabled || undefined}
   required={required}
   onjx-reset={() => (value = '')}
-></jx-form-field>
+/>
 
 <div class="jx-otp {className}" role="group" aria-label={label ?? 'one-time code'}>
     {#if label}

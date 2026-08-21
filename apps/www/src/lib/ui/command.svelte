@@ -79,7 +79,8 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
     placeholder?: string;
     /** dialog label — required a11y name */
     label?: string;
-    /** component binds ⌘K/Ctrl+K on window; false = app owns the trigger */
+    /** bind ⌘K/Ctrl+K on window (OPT-IN: multiple instances would
+     *  otherwise all respond; the app usually owns exactly one) */
     hotkey?: boolean;
     /** replace the ranking (pure function, default rankCommandItems) */
     filter?: (items: CommandItem[], query: string) => CommandItem[];
@@ -94,13 +95,18 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
     closeOnSelect = true,
     placeholder = 'type a command…',
     label = 'command palette',
-    hotkey = true,
+    hotkey = false,
     filter = rankCommandItems,
     class: className = '',
   }: Props = $props();
 
   let dialog = $state<HTMLDialogElement | null>(null);
   let input = $state<HTMLInputElement | null>(null);
+
+  // unique surface ids per instance (multiple palettes must not collide)
+  const uid = $props.id();
+  const listId = `${uid}-list`;
+  const optionId = (id: string): string => `${uid}-opt-${id}`;
   let query = $state('');
   let activeIndex = $state(0);
   let composing = false;
@@ -184,7 +190,7 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
   }
 
   function handleKeydown(event: KeyboardEvent): void {
-    if (composing) return; // IME owns the keyboard mid-composition
+    if (composing || event.isComposing) return; // IME owns mid-composition
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault();
       activeIndex = walk(event.key === 'ArrowDown' ? 1 : -1);
@@ -215,7 +221,7 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
     );
   });
 
-  const activeId = $derived(results[activeIndex] ? `jx-cmd-opt-${results[activeIndex]!.id}` : '');
+  const activeId = $derived(results[activeIndex] ? optionId(results[activeIndex]!.id) : '');
 </script>
 
 <dialog
@@ -234,7 +240,7 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
       type="text"
       role="combobox"
       aria-expanded="true"
-      aria-controls="jx-command-list"
+      aria-controls={listId}
       aria-activedescendant={activeId || undefined}
       aria-autocomplete="list"
       {placeholder}
@@ -243,7 +249,7 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
       oncompositionstart={() => (composing = true)}
       oncompositionend={() => (composing = false)}
     />
-    <div class="jx-command-list" id="jx-command-list" role="listbox" aria-label={label} tabindex="-1">
+    <div class="jx-command-list" id={listId} role="listbox" aria-label={label} tabindex="-1">
       {#each groups as run ((run.group ?? 'root') + run.items[0]!.id)}
         {#if run.group}
           <p class="jx-command-group" aria-hidden="true">{run.group}</p>
@@ -254,7 +260,7 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
      listbox option pattern here is activedescendant-driven: the INPUT
      holds focus and keys; the option's click is a pointer shortcut -->
           <div
-            id="jx-cmd-opt-{item.id}"
+            id={optionId(item.id)}
             role="option"
             aria-selected={index === activeIndex}
             aria-disabled={item.disabled || undefined}

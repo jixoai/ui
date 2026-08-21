@@ -154,9 +154,10 @@ const nativeAttachInternals = window.HTMLElement.prototype.attachInternals;
 window.HTMLElement.prototype.attachInternals = function (this: HTMLElement) {
   const internals = nativeAttachInternals.call(this);
   if (typeof (internals as { setFormValue?: unknown }).setFormValue !== 'function') {
-    // strings only — the bridge never submits files through this seam
-    (internals as { setFormValue?: (value: string | null) => void }).setFormValue = (
-      value
+    // strings AND FormData — the platform's setFormValue accepts a
+    // FormData for multi-entry submissions (the bridge's multivalue)
+    (internals as { setFormValue?: (value: string | FormData | null) => void }).setFormValue = (
+      value,
     ) => {
       formValueByElement.set(this, value ?? '');
     };
@@ -174,7 +175,13 @@ class FormDataWithFormAssociated extends NativeFormData {
         if (!name) continue;
         const value = formValueByElement.get(field);
         if (value === undefined || value === '') continue;
-        this.append(name, value);
+        if (value instanceof NativeFormData) {
+          for (const [entryName, entryValue] of value.entries()) {
+            this.append(entryName, entryValue);
+          }
+        } else {
+          this.append(name, value);
+        }
       }
     }
   }

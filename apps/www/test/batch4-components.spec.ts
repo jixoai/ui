@@ -117,6 +117,24 @@ describe('ToggleGroup', () => {
     expect(bridge.getAttribute('value')).toBe('underline');
   });
 
+  it('multiple mode submits one FormData entry per press (real FormData)', async () => {
+    const rendered = render(ToggleGroupHost, { props: { multiple: true } });
+    const buttons = [...rendered.container.querySelectorAll('button.jx-tgroup-btn')] as HTMLButtonElement[];
+    await fireEvent.click(buttons[0]!);
+    await fireEvent.click(buttons[2]!);
+
+    const bridge = rendered.container.querySelector('jx-form-field') as HTMLElement & {
+      formResetCallback?: () => void;
+    };
+    const form = document.createElement('form');
+    const anchor = { parent: bridge.parentNode as Node, next: bridge.nextSibling };
+    form.appendChild(bridge);
+    const data = new FormData(form);
+    anchor.parent.insertBefore(bridge, anchor.next);
+
+    expect(data.getAll('style')).toEqual(['bold', 'underline']);
+  });
+
   it('the group carries a label and button-only members', () => {
     const { container } = render(ToggleGroupHost);
     expect(container.querySelector('[role="group"]')!.getAttribute('aria-label')).toBeTruthy();
