@@ -95,6 +95,7 @@
     align-items: stretch;
     gap: 0.5rem;
     width: 100%;
+    min-width: 0; /* InputGroup hardening: shrink inside grid/flex hosts */
   }
   .jx-label {
     width: fit-content;
@@ -109,6 +110,7 @@
     position: relative;
     display: block;
     width: 100%;
+    max-width: 100%; /* InputGroup hardening: never push past the host row */
   }
   .jx-select {
     width: 100%;

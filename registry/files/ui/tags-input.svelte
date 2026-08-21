@@ -28,6 +28,19 @@
   aria-describedby + dashed shell), inset 1px focus outline on the shell,
   hover lift, logical properties only (RTL flips itself), reduced-motion
   kills transitions and the shake.
+
+  Disabled law (2026-08-20): the prop is intercepted and lands on the
+  typing input AND every chip × — a disabled field must not stay edible
+  through its chips — with addTag/removeAt entry guards behind them.
+  The chips stay readable under the shell's 0.5 opacity.
+
+  NativeHTML base audit (2026-08-20): the typing input IS a native
+  <input type="text">, but chips are not form data — the field carries
+  no name; pair a hidden input with the tag values when a form must
+  submit them. Height law: shell padding-block 0.375rem + 1.625rem
+  chip/input min-heights + 1px borders = the 40px (2.5rem) row every
+  text-like family control renders at — the chips must shrink with the
+  row, not push it past the family height.
 -->
 <script module lang="ts">
   /** One chip of the tags input; suggestions reuse the same shape. */
@@ -62,6 +75,8 @@
     maxTags?: number;
     /** allow the same value twice; default false flashes the existing chip */
     allowDuplicates?: boolean;
+    /** disable the input AND every chip ×; entry guards back the buttons */
+    disabled?: boolean;
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -76,6 +91,7 @@
     id = autoId,
     maxTags,
     allowDuplicates = false,
+    disabled = false,
     class: className = '',
     ...rest
   }: Props = $props();
@@ -160,6 +176,7 @@
   }
 
   function addTag(tag: Tag): void {
+    if (disabled) return; // a disabled field neither adds nor flashes
     if (maxTags != null && tags.length >= maxTags) return;
     if (!allowDuplicates && tags.some((existing) => existing.value === tag.value)) {
       flashExisting(tag.value);
@@ -190,6 +207,7 @@
   }
 
   async function removeAt(index: number): Promise<void> {
+    if (disabled) return; // chips are read-only in a disabled field
     tags = tags.filter((_, i) => i !== index);
     // keep the flow in the input after a × click (the input may just have
     // remounted when the removal dropped the field below maxTags)
@@ -285,6 +303,7 @@
               type="button"
               class="jx-tags-remove"
               aria-label={`remove ${tag.label ?? tag.value}`}
+              {disabled}
               onclick={() => removeAt(index)}
             >
               &times;
@@ -314,6 +333,7 @@
           spellcheck="false"
           class="jx-tags-input"
           {placeholder}
+          {disabled}
           oninput={onInput}
           onkeydown={onKeydown}
           onfocusout={onFocusOut}
@@ -372,6 +392,7 @@
     align-items: stretch;
     gap: 0.5rem;
     width: 100%;
+    min-width: 0; /* InputGroup hardening: shrink inside grid/flex hosts */
   }
   .jx-label {
     width: fit-content;
@@ -383,11 +404,16 @@
     cursor: pointer;
   }
 
-  /* ---- shell: the input.svelte box law as a flex-wrap chip host ------- */
+  /* ---- shell: the input.svelte box law as a flex-wrap chip host -------
+     height law: padding-block 0.375rem + 1.625rem content (chip/input
+     min-heights) + 1px borders = 2.5rem — the 40px row every text-like
+     family control renders at; taller chips would push the shell past
+     the family height, so they shrink with the row instead. */
   .jx-tags-wrap {
     position: relative;
     display: block;
     width: 100%;
+    max-width: 100%; /* InputGroup hardening: never push past the host row */
   }
   .jx-tags-shell {
     display: flex;
@@ -395,6 +421,7 @@
     align-items: center;
     gap: 0.25rem; /* gap-1 between chips and wrap lines */
     width: 100%;
+    max-width: 100%;
     min-height: 2.5rem;
     padding: 0.375rem 0.75rem;
     border: 1px solid var(--border);
@@ -425,12 +452,14 @@
     border-style: dashed;
   }
 
-  /* ---- chips: bg-muted, 1px border, 12px text, press-physics × -------- */
+  /* ---- chips: bg-muted, 1px border, 12px text, press-physics × --------
+     1.625rem min-height: fits the 40px shell (0.375rem padding ×2 + 2px
+     borders) exactly — the × stretches to the chip, not past the row */
   .jx-tags-tag {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    min-height: 1.75rem;
+    min-height: 1.625rem;
     padding-inline-start: 0.5rem;
     border: 1px solid var(--border);
     background: var(--muted);
@@ -472,6 +501,9 @@
     outline: 1px solid var(--ring);
     outline-offset: -1px;
   }
+  .jx-tags-remove:disabled {
+    cursor: not-allowed;
+  }
   /* duplicate feedback: primary border for 200ms + a 150ms shake */
   .jx-tags-tag.jx-tags-flash {
     border-color: var(--primary);
@@ -494,7 +526,7 @@
   .jx-tags-input {
     flex: 1 1 0%;
     min-width: 120px;
-    min-height: 1.75rem;
+    min-height: 1.625rem; /* 40px shell law — see .jx-tags-shell */
     padding: 0;
     border: none;
     outline: none;
@@ -511,7 +543,7 @@
   .jx-tags-full {
     color: var(--muted-foreground);
     font-size: 12px;
-    line-height: 1.75rem;
+    line-height: 1.625rem;
   }
 
   /* ---- suggestion panel: terminal bezel (combobox panel law) ---------- */

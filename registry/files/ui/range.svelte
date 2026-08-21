@@ -27,6 +27,14 @@
   Zero dependencies. Decimal steps snap at the step's precision. A custom
   slider does not submit to FormData by itself — pair it with a hidden
   input when a form must carry it.
+
+  NativeHTML base audit (2026-08-20): deliberately no native
+  input[type=range] underneath (see intent 1) — so nothing carries form
+  association, and the a11y contract is hand-held: role="slider" +
+  tabindex + aria-valuemin/max/now/valuetext + aria-labelledby (a div
+  is not labelable). disabled blocks pointerdown/dblclick AND keydown
+  at their entries (tabindex already leaves the tab order at -1); no
+  native disabled semantics exist to lean on.
 -->
 <script lang="ts">
   interface Props {
@@ -150,6 +158,7 @@
   }
 
   function onKeydown(event: KeyboardEvent) {
+    if (disabled) return; // keyboard is an interaction path too (2026-08-20 fix)
     let next: number | null = null;
     const rtl = isRtl();
     switch (event.key) {

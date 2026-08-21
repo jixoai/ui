@@ -40,7 +40,11 @@
   The shell — not the <input> — owns border/fill/hover/focus, so slots
   never repaint the box law. Inner slots land muted at 0.75rem; the
   wrapper is scoped, so override it with an important utility
-  (text-foreground!) or an inline style. `clearable` adds an × button in
+  (text-foreground!) or an inline style. Overflow law for narrow hosts:
+  the field shrinks (min-width 0) and the shell clamps (max-width
+  100%) — inner slots keep flex:none while the input lane gives way,
+  so a 390px viewport compresses the text lane, never the container.
+  `clearable` adds an × button in
   the inline-end area: it clears the DOM value, syncs the bound value and
   re-emits `input` + a bubbling `clear` event. `value` is $bindable:
   bound ⇒ controlled; absent ⇒ the field stays purely uncontrolled
@@ -201,6 +205,7 @@
     align-items: stretch;
     gap: 0.5rem;
     width: 100%;
+    min-width: 0; /* InputGroup hardening: shrink inside grid/flex hosts */
   }
   .jx-label {
     width: fit-content;
@@ -230,12 +235,15 @@
   /* ---- text-like shell ----------------------------------------------
      the shell owns border/fill/hover/focus; the <input> inside is
      chromeless and flexes. Without inner slots the pixels are identical
-     to the old single-<input> shell. */
+     to the old single-<input> shell. Height law: min-height 2.5rem with
+     the input at calc(2.5rem - 2px) — every text-like family control
+     renders the same 40px row, slotted or not. */
   .jx-shell {
     display: flex;
     align-items: center;
     gap: 0.5rem; /* gap-2 between inner slots and the input */
     width: 100%;
+    max-width: 100%; /* InputGroup hardening: never push past the host row */
     min-height: 2.5rem;
     border: 1px solid var(--border);
     border-radius: 0;

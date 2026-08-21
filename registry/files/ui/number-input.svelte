@@ -2,12 +2,14 @@
   jixoai number-input (registry/files/ui/number-input.svelte).
   A stepper, not a text field fork: the [- NUM +] segmented control for
   bounded quantities. The shell is one bordered row — 1px var(--border),
-  radius 0, var(--background) fill — split into two 28px square buttons
-  (their own 1px borders form the dividers, negative margins overlap the
-  shell border so every line stays 1px) around a borderless, centered
-  native <input type="number">. The native spinners are hidden
-  (appearance:none) but native behavior is kept: ↑/↓ on the input steps
-  with min/max/step read straight off the element attributes.
+  radius 0, var(--background) fill, min-height 2.5rem (the 40px family
+  law every text-like control shares) — split into two full-height
+  28px-wide stepper buttons (their own 1px borders form the dividers,
+  negative margins overlap the shell border so every line stays 1px)
+  around a borderless, centered native <input type="number">. The native
+  spinners are hidden (appearance:none) but native behavior is kept:
+  ↑/↓ on the input steps with min/max/step read straight off the
+  element attributes.
 
   Buttons are text glyphs — font-nav bold "-" / "+", no icon dependency.
   DOM order is minus, input, plus; the row is plain flex, so under
@@ -28,7 +30,20 @@
   "! message" line + dashed shell border, inset 1px focus-visible
   outline on the ring token. Everything else (name, placeholder,
   autocomplete…) flows through restProps onto the native input;
-  `disabled` is intercepted so both buttons disable in lockstep.
+  `disabled` is intercepted so both buttons disable in lockstep while
+  the input turns READONLY, not disabled — it stays focusable and
+  selectable for AT (the value must remain readable) while typing and
+  ↑/↓ stepping are blocked; stepBy/beginHold/onCommit all guard the
+  entry so no path mutates a disabled field (engines differ on whether
+  disabled buttons swallow pointerdown). One trade to know: a readonly
+  value still submits with the form — drop the `name` when a disabled
+  field must exit FormData.
+
+  NativeHTML base audit (2026-08-20): the inner control IS a native
+  type="number" — ↑/↓ stepping and min/max/step live on the element,
+  only the spinners are repainted away. Form association is therefore
+  real (name + value ride into FormData). No second native <select>/
+  <input> is needed to carry it.
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
@@ -87,8 +102,11 @@
   }
 
   /** one step in direction, clamped into range; an unset value starts
-      from min (else 0) so the first press is always meaningful */
+      from min (else 0) so the first press is always meaningful.
+      THE disabled gate: every step path (button press, hold repeat)
+      funnels through here, so one guard blocks them all */
   function stepBy(direction: 1 | -1): void {
+    if (disabled) return;
     const base = value != null && Number.isFinite(value) ? value : (min ?? 0);
     value = clamp(snap(base + direction * step));
   }
@@ -100,6 +118,7 @@
   let holdInterval = 0;
 
   function beginHold(direction: 1 | -1): void {
+    if (disabled) return; // never arm timers for a disabled field
     stopHold();
     stepBy(direction);
     holdDelay = window.setTimeout(() => {
@@ -126,6 +145,12 @@
   // ---- direct typing: commit on change, then clamp/normalize ---------
   function onCommit(event: Event): void {
     const input = event.currentTarget as HTMLInputElement;
+    if (disabled) {
+      // readonly should never fire change, but an engine that lets one
+      // through must not mutate a disabled field — revert to committed
+      input.value = value == null ? '' : String(value);
+      return;
+    }
     const n = input.valueAsNumber;
     value = Number.isFinite(n) ? clamp(snap(n)) : undefined;
     // forward a caller-supplied change handler from the rest props
@@ -135,7 +160,7 @@
 
 <div class="jx-field">
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <div class="jx-num {className}" class:jx-num-invalid={invalid}>
+  <div class="jx-num {className}" class:jx-num-invalid={invalid} class:jx-num-off={disabled}>
     <button
       type="button"
       class="jx-num-btn jx-num-minus"
@@ -143,6 +168,9 @@
       {disabled}
       onpointerdown={beginHold.bind(null, -1)}
     >-</button>
+    <!-- disabled ⇒ READONLY, not disabled: the value stays focusable and
+         selectable (AT can still read it) while typing and native ↑/↓ are
+         blocked by the platform; buttons + stepBy guards cover the rest -->
     <input
       {...rest}
       {id}
@@ -151,7 +179,7 @@
       {min}
       {max}
       {step}
-      {disabled}
+      readonly={disabled}
       value={value == null ? '' : String(value)}
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}
@@ -175,6 +203,7 @@
     align-items: stretch;
     gap: 0.5rem;
     width: 100%;
+    min-width: 0; /* InputGroup hardening: shrink inside grid/flex hosts */
   }
   .jx-label {
     width: fit-content;
@@ -187,27 +216,32 @@
   }
 
   /* ---- the shell: one bordered row, dividers from the button borders -
-     height = 28px buttons + the shell's own 1px borders. Plain flex row:
-     under dir="rtl" it flips by itself — minus sits inline-end, plus
-     inline-start, no physical-CSS involvement. */
+     min-height 2.5rem — the 40px law every text-like family member
+     renders at; buttons stretch full content height, so their borders
+     read as unbroken dividers. Plain flex row: under dir="rtl" it flips
+     by itself — minus sits inline-end, plus inline-start, no
+     physical-CSS involvement. */
   .jx-num {
     display: flex;
     align-items: stretch;
     width: 100%;
-    height: 30px;
+    max-width: 100%; /* InputGroup hardening: never push past the host row */
+    min-height: 2.5rem;
     border: 1px solid var(--border);
     border-radius: 0;
     background: var(--background);
     color: var(--foreground);
     transition: box-shadow 150ms ease-out;
   }
-  .jx-num:hover:not(:focus-within) {
+  .jx-num:hover:not(:focus-within):not(.jx-num-off) {
     box-shadow: var(--shadow-2xs);
   }
   .jx-num:focus-within {
     box-shadow: none;
   }
-  .jx-num:has(input:disabled) {
+  /* disabled: the buttons carry disabled, the input readonly — the shell
+     dims off the jx-num-off class (no :has(input:disabled) to match) */
+  .jx-num.jx-num-off {
     opacity: 0.5;
     cursor: not-allowed;
   }
@@ -215,13 +249,13 @@
     border-style: dashed;
   }
 
-  /* ---- 28px square steppers; the outer edge overlaps the shell border
-     (negative inline margin) so nothing reads as 2px */
+  /* ---- 28px-wide full-height steppers; the outer edge overlaps the
+     shell border (negative inline margin) so nothing reads as 2px.
+     No fixed height / align-self: the shell's align-items: stretch
+     makes each button fill the 2.5rem − 2px content box */
   .jx-num-btn {
     flex: none;
     width: 28px;
-    height: 28px;
-    align-self: center;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -288,7 +322,7 @@
     outline: 1px solid var(--ring);
     outline-offset: -1px;
   }
-  .jx-num-input:disabled {
+  .jx-num-off .jx-num-input {
     cursor: not-allowed;
   }
 

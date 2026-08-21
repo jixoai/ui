@@ -730,7 +730,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
       headerRegion="number-input"
       eyebrow="number-input"
       title="number-input — the [- NUM +] stepper"
-      summary="A segmented control, not a text-field fork: two 28px square buttons (text glyphs in font-nav bold — no icon dependency) around a borderless, centered native number input whose spinners are hidden but whose ↑/↓ stepping survives. Click steps once and clamps into [min, max]; hold accelerates — one step, 300ms, then a step every 100ms until you release. Typing is first-class: the value commits on change and clamps."
+      summary="A segmented control, not a text-field fork: two full-height 28px-wide stepper buttons (text glyphs in font-nav bold — no icon dependency) around a borderless, centered native number input whose spinners are hidden but whose ↑/↓ stepping survives. The row renders at the family's 40px law like every text-like control. Click steps once and clamps into [min, max]; hold accelerates — one step, 300ms, then a step every 100ms until you release. Typing is first-class: the value commits on change and clamps."
     >
       <div class="flex flex-col gap-5">
         <div class="grid gap-5 min-[760px]:grid-cols-3">
@@ -748,7 +748,9 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
           </div>
           <div class="flex flex-col gap-3">
             <NumberInput label="disabled" value={3} min={1} max={8} disabled />
-            <span class="text-muted-foreground text-[12.5px]">buttons disable in lockstep</span>
+            <span class="text-muted-foreground text-[12.5px]">
+              buttons disable in lockstep · input readonly — frozen but readable
+            </span>
           </div>
         </div>
         <p class="text-muted-foreground text-pretty text-[13px] leading-6">

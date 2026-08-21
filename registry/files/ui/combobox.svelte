@@ -31,6 +31,13 @@
   The input's DOM text is display state, owned imperatively: while focused
   the user owns it; on blur / external `value` change an $effect resyncs
   it to the committed display (selected label, else the custom value).
+
+  NativeHTML base audit (2026-08-20): the trigger IS a native
+  <input type="text"> — a caller-supplied name rides through restProps
+  and the field submits, but the FormData value is the DISPLAY text
+  (label or custom string), not a code; commit-value submission needs a
+  hidden input. Select (button trigger) has no form leg at all — the
+  ElementInternals direction for both is noted, not designed here.
 -->
 <script module lang="ts">
   /** One row of the Combobox listbox. */
@@ -401,6 +408,7 @@
     align-items: stretch;
     gap: 0.5rem;
     width: 100%;
+    min-width: 0; /* InputGroup hardening: shrink inside grid/flex hosts */
   }
   .jx-label {
     width: fit-content;
@@ -417,12 +425,14 @@
     position: relative;
     display: block;
     width: 100%;
+    max-width: 100%; /* InputGroup hardening: never push past the host row */
   }
   .jx-combobox-shell {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     width: 100%;
+    max-width: 100%;
     min-height: 2.5rem;
     padding-inline: 0.75rem;
     border: 1px solid var(--border);

@@ -31,6 +31,12 @@
   radius 0, chevron that flips while open, inset focus law) but a real
   <button> — label[for] binds to it, aria-haspopup="listbox" +
   aria-expanded ride along, and ↑/↓ open it like the native control.
+
+  NativeHTML base audit (2026-08-20): NO native <select> hides inside —
+  a <button> trigger carries no name/value pair into FormData (that is
+  NativeSelect's job; the split is the file's opening law). A future
+  CustomElement + ElementInternals base could restore form association
+  without a native select — deliberately deferred, not designed here.
 -->
 <script module lang="ts">
   /** One row of the Select listbox. */
@@ -291,6 +297,7 @@
     align-items: stretch;
     gap: 0.5rem;
     width: 100%;
+    min-width: 0; /* InputGroup hardening: shrink inside grid/flex hosts */
   }
   .jx-label {
     width: fit-content;
@@ -307,6 +314,7 @@
     position: relative;
     display: block;
     width: 100%;
+    max-width: 100%; /* InputGroup hardening: never push past the host row */
   }
   .jx-sel-trigger {
     display: flex;
