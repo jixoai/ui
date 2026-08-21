@@ -1,5 +1,5 @@
 <!--
-  jixoai page scaffold (registry/files/ui/app-shell.svelte).
+  jixoai website scaffold (registry/files/ui/website-scaffold.svelte).
   Layered overlay architecture (Owner, 2026-08-21):
 
     .jx-shell                 h-100dvh relative

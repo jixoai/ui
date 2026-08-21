@@ -17,6 +17,9 @@
     command   the single command line (typed)
     outputs   lines surfaced sequentially after the command completes
     theme     'dark' | 'light' | 'system' (default 'dark')
+    speed     typing pace multiplier (default 1; 2 = twice as fast).
+              Clamped to >= 0.25. Pacing is read on mount, so a live
+              control applies its value by re-mounting (e.g. {#key}).
 -->
 <script lang="ts">
   import { onMount } from 'svelte';
@@ -26,9 +29,10 @@
     command: string;
     outputs: readonly string[];
     theme?: 'dark' | 'light' | 'system';
+    speed?: number;
   }
 
-  let { barTitle, command, outputs, theme = 'dark' }: Props = $props();
+  let { barTitle, command, outputs, theme = 'dark', speed = 1 }: Props = $props();
 
   // scoped token class: 'dark' (default lock) or 'jx-light'
   let scope = $state<'dark' | 'light'>(theme === 'light' ? 'light' : 'dark');
@@ -58,6 +62,9 @@
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) return;
 
+    // pacing: the authored rhythm divided by the speed multiplier
+    const pace = Math.max(0.25, speed || 1);
+
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const clear = () => clearTimeout(timer);
@@ -69,18 +76,18 @@
       if (cancelled) return;
       if (line >= outputs.length) return;
       shownLines = line + 1;
-      timer = setTimeout(() => revealOutputs(line + 1), 110);
+      timer = setTimeout(() => revealOutputs(line + 1), 110 / pace);
     };
     const typeNext = (index: number) => {
       if (cancelled) return;
       if (index <= command.length) {
         typed = command.slice(0, index);
-        timer = setTimeout(() => typeNext(index + 1), 42 + Math.random() * 40);
+        timer = setTimeout(() => typeNext(index + 1), (42 + Math.random() * 40) / pace);
       } else {
-        timer = setTimeout(() => revealOutputs(0), 140);
+        timer = setTimeout(() => revealOutputs(0), 140 / pace);
       }
     };
-    timer = setTimeout(() => typeNext(0), 300);
+    timer = setTimeout(() => typeNext(0), 300 / pace);
 
     return () => {
       cancelled = true;
