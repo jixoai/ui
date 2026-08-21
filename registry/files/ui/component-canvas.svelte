@@ -122,7 +122,13 @@
 
   const tree = $derived(buildTree(files));
   let selectedPath = $state('');
-  const current = $derived(files.find((f) => f.name === selectedPath) ?? files[0]);
+  // drawer default: the usage file when the list carries one (what readers
+  // of a workbench open the drawer for), else the first file
+  const current = $derived(
+    files.find((f) => f.name === selectedPath) ??
+      files.find((f) => f.name.endsWith('usage.svelte')) ??
+      files[0]
+  );
   const currentCode = $derived(
     current ? (resolveFileContent?.(current) ?? current.content) : ''
   );
