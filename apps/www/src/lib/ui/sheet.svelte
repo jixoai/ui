@@ -142,6 +142,10 @@
   .jx-sheet {
     box-sizing: border-box;
     padding: 0;
+    /* kill the UA dialog inset/margin defaults first — every side then
+       positions explicitly (Codex r1: UA defaults vary across engines) */
+    inset: 0;
+    margin: 0;
     border: 1px solid var(--border);
     background: var(--popover);
     color: var(--popover-foreground);

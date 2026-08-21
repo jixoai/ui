@@ -48,7 +48,8 @@
     class: className = '',
   }: Props = $props();
 
-  const anchorName = `--jx-hover-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  // id is mount-stable by contract; $derived keeps the name truthful
+  const anchorName = $derived(`--jx-hover-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
   const area = $derived(
     placement === 'top' ? 'top'
     : placement === 'left' ? 'left'
@@ -96,6 +97,9 @@
 
 <svelte:window onkeydown={(e) => e.key === 'Escape' && close()} />
 
+<!-- svelte-ignore a11y_no_static_element_interactions -- the wrapper
+     carries hover/focus intent only; real interaction lives in the
+     focusable trigger the consumer composed inside -->
 <span
   bind:this={anchorEl}
   class="jx-hover-anchor {className}"
@@ -113,6 +117,9 @@
   {@render trigger()}
 </span>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -- the panel's
+     pointer handlers only cancel the close grace; its interactive
+     content is composed by the consumer -->
 <div
   {id}
   popover="manual"

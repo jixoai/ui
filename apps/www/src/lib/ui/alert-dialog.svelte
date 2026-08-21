@@ -59,6 +59,9 @@
   let cancelEl = $state<HTMLButtonElement | null>(null);
   let closing = $state(false);
   let closeGen = 0;
+  // the focus-cancel frame — cancelled on close so a fast Escape can't
+  // be overtaken by a stale frame (mirrors the dropdown-menu law)
+  let focusFrame: number | undefined;
 
   const CLOSE_MS = 120;
   const prefersReducedMotion = (): boolean =>
@@ -71,9 +74,16 @@
       closing = false;
       if (dialog && !dialog.open) dialog.showModal();
       // APG: the SAFE action takes focus — the destructive path must be
-      // a deliberate move, never the landing spot
-      requestAnimationFrame(() => cancelEl?.focus());
+      // a deliberate move, never the landing spot. The frame is guarded:
+      // a fast close (Escape before the frame lands) cancels it
+      if (typeof requestAnimationFrame === 'function') {
+        const gen = closeGen;
+        focusFrame = requestAnimationFrame(() => {
+          if (gen === closeGen && dialog?.open) cancelEl?.focus();
+        });
+      }
     } else {
+      if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(focusFrame);
       untrack(() => shut());
     }
   });

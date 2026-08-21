@@ -15,9 +15,10 @@
   announcing everything), the dismiss button, and hover/focus pause
   (pointer enter freezes that toast's countdown, leave resumes it).
 
-  Entry/exit: @starting-style pop-in; exit rides a data-leaving frame
-  before the store actually drops the item. prefers-reduced-motion
-  collapses both to none.
+  Exit frames: a dismissed toast's SNAPSHOT survives in a leaving map
+  until the exit animation window passes (animationend or the sweeper)
+  — the store already dropped the item, but the pixels finish their
+  sentence. prefers-reduced-motion collapses both animations to none.
 -->
 <script lang="ts">
   import type { ToastStore, ToastItem } from '$lib/toast-store';
@@ -35,51 +36,45 @@
   let { store, maxVisible = 4, class: className = '' }: Props = $props();
 
   let items = $state<ToastItem[]>([]);
-  /** ids rendering their exit frame — removed by the store a frame later */
-  const leaving = new Set<number>();
+  /** dismissed snapshots still painting their exit frame, by id */
+  let leavingItems = $state<ToastItem[]>([]);
+
+  const EXIT_MS = 220; // 180ms animation + a frame of margin
 
   onMount(() => {
     const unsubscribe = store.subscribe((next) => {
-      for (const item of items) {
-        if (!next.some((n) => n.id === item.id)) leaving.add(item.id);
-      }
+      // adopt dismissals as exit snapshots BEFORE swapping the queue
+      const gone = items.filter((prev) => !next.some((n) => n.id === prev.id));
+      leavingItems = [...leavingItems, ...gone];
       items = next;
-      // let the exit animation paint one frame, then release the id
-      requestAnimationFrame(() => {
-        for (const id of [...leaving]) {
-          if (!items.some((item) => item.id === id)) leaving.delete(id);
-        }
-      });
+      if (gone.length > 0) {
+        setTimeout(() => {
+          leavingItems = leavingItems.filter(
+            (leaving) => !gone.some((g) => g.id === leaving.id),
+          );
+        }, EXIT_MS);
+      }
     });
-    // exit frames need a real removal pass after the animation window
-    const sweeper = setInterval(() => leaving.clear(), 400);
-    return () => {
-      unsubscribe();
-      clearInterval(sweeper);
-    };
+    return unsubscribe;
   });
 
   const visible = $derived(items.slice(-maxVisible));
-  const renders = $derived(
-    [
-      ...visible,
-      ...items.filter(
-        (item) => leaving.has(item.id) && !visible.some((v) => v.id === item.id),
-      ),
-    ].slice(-maxVisible * 2),
-  );
+  const renders = $derived([...visible.filter((v) => !leavingItems.some((l) => l.id === v.id)), ...leavingItems]);
 </script>
 
 <div class="jx-toasts {className}" aria-label="notifications">
   {#each renders as item (item.id)}
     <div
       class="jx-toast jx-toast-{item.tone ?? 'default'}"
-      class:jx-toast-leaving={leaving.has(item.id)}
+      class:jx-toast-leaving={leavingItems.some((l) => l.id === item.id)}
       role={item.assertive ? 'alert' : 'status'}
       onpointerenter={() => store.pause(item.id)}
       onpointerleave={() => store.resume(item.id)}
       onfocusin={() => store.pause(item.id)}
-      onfocusout={() => store.resume(item.id)}
+      onfocusout={(e) => {
+        // focus crossing WITHIN the toast must not resume the countdown
+        if (!e.currentTarget.contains(e.relatedTarget)) store.resume(item.id);
+      }}
     >
       <div class="jx-toast-body">
         <p class="jx-toast-title">{item.title}</p>

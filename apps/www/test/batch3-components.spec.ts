@@ -136,14 +136,18 @@ describe('ToastViewport', () => {
     expect(assertive.textContent).toContain('Build failed');
   });
 
-  it('the dismiss button clears its toast', async () => {
+  it('dismiss paints the exit frame BEFORE the toast leaves the DOM', async () => {
     const rendered = render(OverlayHost);
     await fireEvent.click(rendered.container.querySelector('[data-toast-polite]')!);
     const btn = rendered.container.querySelector('.jx-toast-dismiss') as HTMLButtonElement;
     await fireEvent.click(btn);
-    expect(rendered.container.querySelector('.jx-toasts').children.length).toBeLessThan(
-      rendered.container.querySelectorAll('.jx-toast-dismiss').length + 1,
-    );
+
+    // within the exit window the snapshot still renders, marked leaving
+    expect(rendered.container.querySelector('.jx-toast-leaving')).toBeTruthy();
+
+    // after the sweep window the frame is gone
+    await new Promise((resolve) => setTimeout(resolve, 320));
+    expect(rendered.container.querySelector('.jx-toast-leaving')).toBeNull();
   });
 });
 
