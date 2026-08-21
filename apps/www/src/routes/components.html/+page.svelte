@@ -7,6 +7,8 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import ThemeToggle from '$lib/ui/theme-toggle.svelte';
   import Toc from '$lib/ui/toc.svelte';
+  import LanguageSwitcher from '$lib/ui/language-switcher.svelte';
+  import CardGrid from '$lib/ui/card-grid.svelte';
   import ScaffoldFloat from '$lib/ui/scaffold-float.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -25,6 +27,8 @@
       children: [{ id: 'section-nesting', label: 'Nesting' }],
     },
     { id: 'theme-toggle', label: 'theme-toggle' },
+    { id: 'language-switcher', label: 'language-switcher' },
+    { id: 'card-grid', label: 'card-grid' },
     {
       id: 'reveal',
       label: 'reveal',
@@ -301,6 +305,79 @@ ${close}
           </p>
           <CodeBlock code={toggleUsage} lang="svelte" meta="usage" />
         </div>
+      </SectionCard>
+    </div>
+
+    <!-- language-switcher -->
+    <div id="language-switcher" data-family="language-switcher" data-region="language-switcher" data-reveal="" use:reveal>
+      <SectionCard
+        eyebrow="registry:ui"
+        title="language-switcher"
+        summary="Locale switching in two variants: pair — the bilingual segmented group after the openspecui reference (icon + EN/中文, active fills brand hue); menu — a dropdown for three or more locales (icon + current, hard-shadow list, closes on select / outside click / Escape). Anchor-based: every locale carries its own href, so it works on fully prerendered sites."
+      >
+        <div class="flex flex-col gap-5">
+          <div class="bg-terminal text-terminal-foreground border border-border p-5">
+            <div class="flex flex-wrap items-center gap-x-10 gap-y-4">
+              <label class="flex items-center gap-2 text-xs text-terminal-foreground/70"><span>pair</span>
+                <LanguageSwitcher
+                  variant="pair"
+                  current="en"
+                  locales={[
+                    { code: 'en', label: 'EN', href: '#language-switcher' },
+                    { code: 'zh', label: '中文', href: '#language-switcher' },
+                  ]}
+                />
+              </label>
+              <label class="flex items-center gap-2 text-xs text-terminal-foreground/70"><span>menu</span>
+                <LanguageSwitcher
+                  variant="menu"
+                  current="en"
+                  ariaLabel="Language"
+                  locales={[
+                    { code: 'en', label: 'English', href: '#language-switcher' },
+                    { code: 'zh', label: '简体中文', href: '#language-switcher' },
+                    { code: 'ja', label: '日本語', href: '#language-switcher' },
+                    { code: 'de', label: 'Deutsch', href: '#language-switcher' },
+                  ]}
+                />
+              </label>
+            </div>
+          </div>
+          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+            Open the menu — the list drops with a hard offset shadow and the current locale in brand
+            hue. The segmented pair matches the openspecui bilingual reference exactly.
+          </p>
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- card-grid -->
+    <div id="card-grid" data-family="card-grid" data-region="card-grid" data-reveal="" use:reveal>
+      <SectionCard
+        eyebrow="registry:ui"
+        title="card-grid"
+        summary="Grid + subgrid layout that equalizes cards: the grid owns two shared rows (header / body), and every direct child spans both via subgrid — headers align to one height, bodies fill to the tallest. Deliberately unbalanced demo below: notice the headers share one line and the card bottoms align anyway. Columns are auto-fit minmax (pass min to control collapse); browsers without subgrid fall back to stacked rows."
+      >
+        <CardGrid class="mt-2">
+          <SectionCard eyebrow="Law 01" title="One-Hue Law">
+            <p class="text-muted-foreground text-[13px] leading-6">
+              Short body. Identity is one variable.
+            </p>
+          </SectionCard>
+          <SectionCard eyebrow="Law 02 — a longer eyebrow wrapping to a second line" title="A registry, not a package">
+            <p class="text-muted-foreground text-[13px] leading-6">
+              Components live in your repo after npx jixoai-ui add — same-source files, no runtime
+              dependency, no version lock, and the registry JSON is served from /r/ on this very
+              domain. This body is deliberately the longest of the three so the subgrid stretch is
+              obvious: every card bottom aligns to it.
+            </p>
+          </SectionCard>
+          <SectionCard eyebrow="Law 03" title="Dogfooded">
+            <p class="text-muted-foreground text-[13px] leading-6">
+              This page is built from the registry files it documents.
+            </p>
+          </SectionCard>
+        </CardGrid>
       </SectionCard>
     </div>
 
