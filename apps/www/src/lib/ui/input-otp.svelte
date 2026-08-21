@@ -166,7 +166,7 @@
           id="{id}-{index}"
           type="text"
           inputmode={numeric ? 'numeric' : 'text'}
-          autocomplete="one-time-code"
+          autocomplete={index === 0 ? 'one-time-code' : undefined}
           maxlength={slots}
           class="jx-otp-slot"
           class:jx-otp-filled={ch !== ''}

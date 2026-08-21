@@ -81,12 +81,48 @@
     const clamped = Math.max(0, Math.min(index, slides.length - 1));
     const target = slides[clamped];
     if (!target) return;
-    // scrollTo(options) is a browser method — guard for jsdom and old engines
+    // mandatory snap fights mid-flight smooth scrolling on long jumps
+    // (the walk observed snap yanking a smooth scroll back to 0) —
+    // adjacent slides stay smooth, longer hops go instant
+    const distance = Math.abs(clamped - active);
+    const behavior: ScrollBehavior = distance > 1 ? 'instant' : 'smooth';
     if (typeof track.scrollTo === 'function') {
-      track.scrollTo({ left: target.offsetLeft, behavior: 'smooth' });
+      track.scrollTo({ left: target.offsetLeft, behavior });
     } else {
       track.scrollLeft = target.offsetLeft;
     }
+  }
+
+  /** native arrows cannot page a mandatory-snap track (snap snaps the
+   *  ~40px native scroll straight back) — the track's own keydown pages */
+  function handleTrackKeydown(event: KeyboardEvent): void {
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      step(1);
+    } else if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      step(-1);
+    }
+  }
+
+  /** desktop pointer drag pans the native scroller (touch already does;
+   *  the mouse has no native lane) — capture only, never hijack clicks */
+  let dragging = false;
+  let dragStartX = 0;
+  let dragStartScroll = 0;
+  function handlePointerDown(event: PointerEvent): void {
+    if (event.pointerType === 'mouse' && track) {
+      dragging = true;
+      dragStartX = event.clientX;
+      dragStartScroll = track.scrollLeft;
+      track.setPointerCapture?.(event.pointerId);
+    }
+  }
+  function handlePointerMove(event: PointerEvent): void {
+    if (dragging && track) track.scrollLeft = dragStartScroll - (event.clientX - dragStartX);
+  }
+  function handlePointerUp(): void {
+    dragging = false;
   }
 
   function step(direction: 1 | -1): void {
@@ -115,15 +151,21 @@
   <div class="jx-carousel-window">
     <!-- tabindex: the scroll region itself is the keyboard surface
          (native arrow scrolling); buttons page explicitly -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -- the track
-         is a scroll surface, not an interactive control; its handlers
-         only read the scroll position -->
+    <!-- svelte-ignore a11y_no_static_element_interactions, a11y_no_noninteractive_element_interactions -- the
+         track is a scroll surface: handlers page the native scroller
+         (mandatory snap eats native arrow keys) and pan with the mouse;
+         the dots and arrows remain the explicit controls -->
     <div
       class="jx-carousel-track"
       style="--jx-slide-w: {slideWidth}"
       use:collectSlides
       tabindex="0"
       onscroll={handleScroll}
+      onkeydown={handleTrackKeydown}
+      onpointerdown={handlePointerDown}
+      onpointermove={handlePointerMove}
+      onpointerup={handlePointerUp}
+      onpointercancel={handlePointerUp}
     >
       {@render children()}
     </div>

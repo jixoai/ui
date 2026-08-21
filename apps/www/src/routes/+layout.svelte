@@ -187,6 +187,11 @@
               description: 'native semantics',
             },
             {
+              href: '/components/tree-view.html',
+              label: 'tree-view',
+              description: 'ARIA file tree',
+            },
+            {
               href: '/components/theme-toggle.html',
               label: 'theme-toggle',
               description: 'light / dark / system',

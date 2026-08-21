@@ -108,7 +108,7 @@ ${close}
   </div>
 
   <!-- the live viewport for this page's demos -->
-  <ToastViewport {toast} />
+  <ToastViewport store={toast} />
 
   <div data-reveal="" use:reveal>
     <SectionCard headerRegion="toast-base" eyebrow="两缝架构" title="Usage">

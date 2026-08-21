@@ -40,7 +40,13 @@
       {/if}
     </div>
   {/if}
-  <progress class="jx-progress-bar" class:jx-indeterminate={value === undefined} {value} {max}>
+  <progress
+    class="jx-progress-bar"
+    class:jx-indeterminate={value === undefined}
+    aria-label={label ?? 'progress'}
+    {value}
+    {max}
+  >
     {#if pct !== null}{Math.round(pct)}%{/if}
   </progress>
 </div>

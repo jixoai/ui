@@ -147,6 +147,10 @@
           'The rule-tracker reading rail: IoM-weighted nodes on the desktop spine, glass terminal rail on mobile — powered by the framework-free toc-engine.',
         ),
         entry(
+          'alert-dialog',
+          'The destructive-decision surface: role=alertdialog with required labelled/described wiring, focus landing on Cancel, destructive confirm paint by default.',
+        ),
+        entry(
           'breadcrumb',
           'A nav landmark over an ordered list of real links: aria-current on the last crumb, and a middle-collapse whose ellipsis is a live link.',
         ),

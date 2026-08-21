@@ -88,7 +88,9 @@
         const target = items.find((item) => `jx-bar-trigger-${item.id}` === next?.id);
         if (target) {
           closePanel(openId, false);
-          openPanel(target.id, false);
+          // gliding with a panel open keeps the FOCUS INSIDE the panels
+          // (consistent with ↓-open, per the walkthrough note)
+          openPanel(target.id, true);
         }
       }
     };
