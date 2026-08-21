@@ -5,8 +5,9 @@
   panel plus a trigger button wired declaratively through `popovertarget`.
   Light dismiss (outside click / focus loss), Escape, aria-expanded on the
   trigger, one-auto-popover-at-a-time, and top-layer rendering are all
-  browser-native. The component ships ZERO script — markup and styling
-  only.
+  browser-native. The declarative path (default trigger) runs zero
+  listeners and zero positioning script; the only runtime script is the
+  single native toggle seam plus the optional imperative handle.
 
   Anchored placement (2026-08-21, Owner ruling): the panel anchors to the
   trigger through the CSS Anchor Positioning API — `anchor-name` on the
@@ -51,14 +52,16 @@
   "no try re-evaluation on nested-scroller scroll" behavior is now
   load-bearing: the side stays locked for the popover's lifetime, and
   `position-visibility: anchors-visible` hides the panel once the anchor
-  itself scrolls out of view. Zero runtime script, as authored.
+  itself scrolls out of view.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
 
   interface Props {
     id: string;
-    triggerLabel: string;
+    /** Button label for the default trigger; unnecessary when a custom
+        `trigger` snippet renders its own control. */
+    triggerLabel?: string;
     placement?: 'bottom' | 'bottom-end' | 'top' | 'top-end' | 'top-start' | 'bottom-start';
     trigger?: Snippet;
     panelClass?: string;
@@ -68,7 +71,7 @@
 
   let {
     id,
-    triggerLabel,
+    triggerLabel = '',
     placement = 'bottom-end',
     trigger,
     panelClass = '',

@@ -195,14 +195,27 @@
   };
   // navigation cleanup (Codex ruling): hides every panel and resets the
   // mobile disclosure; consumers call this from their router hook
-  // (SvelteKit onNavigate) — the registry component stays app-agnostic
+  // (SvelteKit onNavigate) — the registry component stays app-agnostic.
+  // openKey/openedBy clear synchronously here so a pill's aria-expanded
+  // never lags the panel behind an async native toggle event
   export function closeAll(): void {
     cancelClose();
+    openKey = null;
+    openedBy = null;
     for (const key of Object.keys(handles)) handles[key]?.hide();
     open = false;
     expanded = {};
   }
   onDestroy(cancelClose);
+
+  // crossing the sm breakpoint (rotate, resize) never carries nav state
+  // across tiers — desktop panels hide, the disclosure resets (Codex r2)
+  onMount(() => {
+    const mobile = matchMedia('(max-width: 639.98px)');
+    const onCross = () => closeAll();
+    mobile.addEventListener('change', onCross);
+    return () => mobile.removeEventListener('change', onCross);
+  });
 
   // engine gate: hover/click interception only when the Popover API AND
   // the full anchoring pair exist — a partial engine must degrade to
@@ -413,7 +426,10 @@
                 {/snippet}
                 <!-- the corridor wrapper inverts into the panel's padding
                      ring so the hover grace cancels from the panel edge;
-                     the clip box inside keeps the hairline shave law -->
+                     the clip box inside keeps the hairline shave law.
+                     Pointer-only surface: keyboard users open via the
+                     pill's native activation, so no key handlers here -->
+                <!-- svelte-ignore a11y_mouse_events_have_key_events -->
                 <div
                   class="jx-subcorridor"
                   onmouseenter={() => cancelClose()}
