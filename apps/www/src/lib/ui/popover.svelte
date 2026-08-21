@@ -31,8 +31,17 @@
     trigger?      custom trigger snippet: render your own <button
                   popovertarget={id}> inside; the wrapper still carries
                   anchor-name, so anchoring stays component-owned
+  Side selection (2026-08-21): Chromium re-runs position-try fallbacks at
+  open time but NOT on nested-scroller scroll (verified on Chrome 146 via
+  ego-browser: identical setups flip at open, stick in overflow while
+  scrolling; style invalidation does not force re-evaluation — an engine
+  gap). While open, a rAF-throttled passive scroll listener therefore
+  selects between the two AUTHORED position-areas (primary / flipped) by
+  which side fits. CSS stays the positioning authority — JS only picks
+  the predeclared state, never computes geometry.
 -->
 <script lang="ts">
+  import { onMount } from 'svelte';
   import type { Snippet } from 'svelte';
 
   interface Props {
@@ -62,9 +71,81 @@
     placement === 'top-end' ? 'top span-right' :
     'top span-left'
   );
+
+  let panel = $state<HTMLElement | null>(null);
+  let anchor = $state<HTMLElement | null>(null);
+  let scheduled = false;
+
+  const flippedArea = $derived(
+    placement === 'bottom' ? 'top' :
+    placement === 'bottom-end' ? 'top-end' :
+    placement === 'bottom-start' ? 'top-start' :
+    placement === 'top' ? 'bottom' :
+    placement === 'top-end' ? 'bottom-end' :
+    'bottom-start'
+  );
+  const areaOf = (value: string): string =>
+    value === 'top' ? 'top' :
+    value === 'top-end' ? 'top span-right' :
+    value === 'top-start' ? 'top span-left' :
+    value === 'bottom' ? 'bottom' :
+    value === 'bottom-end' ? 'bottom span-right' :
+    'bottom span-left';
+
+  // choose the authored side that fits; keep the current one when neither
+  // does (position-try fallbacks still handle the open-time decision and
+  // engines whose scroll re-evaluation works).
+  const selectSide = (): void => {
+    scheduled = false;
+    const el = panel;
+    const an = anchor;
+    if (!el?.matches(':popover-open') || !an) return;
+    const vh = innerHeight;
+    const ph = el.offsetHeight;
+    const trigBottom = an.getBoundingClientRect().bottom;
+    const trigTop = an.getBoundingClientRect().top;
+    const margin = 8;
+    const fitsBelow = trigBottom + ph <= vh - margin;
+    const fitsAbove = trigTop - ph >= margin;
+    let next: string | null = null;
+    if (!fitsBelow && fitsAbove) next = flippedArea;
+    else if (fitsBelow && el.style.getPropertyValue('--jx-pa') === areaOf(flippedArea)) next = area;
+    if (next !== null && el.style.getPropertyValue('--jx-pa') !== areaOf(next)) {
+      el.style.setProperty('--jx-pa', areaOf(next));
+    }
+  };
+
+  const onScroll = (): void => {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(selectSide);
+  };
+
+
+  onMount(() => {
+    const el = panel;
+    if (!el) return;
+    const handler = () => {
+      if (el.matches(':popover-open')) {
+        addEventListener('scroll', onScroll, { passive: true, capture: true });
+        addEventListener('resize', onScroll, { passive: true });
+        // restore the authored primary side on reopen
+        if (!el.matches(':popover-open')) el.style.setProperty('--jx-pa', areaOf(area));
+      } else {
+        removeEventListener('scroll', onScroll, { capture: true } as EventListenerOptions);
+        removeEventListener('resize', onScroll);
+      }
+    };
+    el.addEventListener('toggle', handler);
+    return () => {
+      el.removeEventListener('toggle', handler);
+      removeEventListener('scroll', onScroll, { capture: true } as EventListenerOptions);
+      removeEventListener('resize', onScroll);
+    };
+  });
 </script>
 
-<span class="jx-pop-anchor" style="anchor-name: {anchorName}">
+<span class="jx-pop-anchor" style="anchor-name: {anchorName}" bind:this={anchor}>
   {#if trigger}
     {@render trigger()}
   {:else}
@@ -86,7 +167,7 @@
   {/if}
 </span>
 
-<div {id} popover="auto" class="jx-pop" style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};">
+<div {id} popover="auto" class="jx-pop" bind:this={panel} style="position-anchor: {anchorName}; inset-area: {area}; --jx-pa: {area}; position-area: var(--jx-pa);">
   {@render children()}
 </div>
 
