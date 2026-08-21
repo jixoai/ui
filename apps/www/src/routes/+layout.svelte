@@ -125,7 +125,11 @@
               description: 'native dialog base',
               active: normalized === '/components/dialog.html',
             },
-            // toc: re-added when its docs page lands (site walkthrough P1)
+            {
+              href: '/components/toc.html',
+              label: 'toc',
+              description: 'rule tracker rail',
+            },
           ],
         },
         {
