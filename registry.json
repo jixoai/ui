@@ -369,6 +369,42 @@
         }
       ],
       "docs": "Props: caption?, dense=false; snippet children (write native thead/tbody/tfoot)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "tree-view",
+      "type": "registry:ui",
+      "title": "Tree view",
+      "description": "NativeHTML ARIA tree (ul[role=tree] with roving tabindex, arrow-key contract): directory nodes with collapsible arrows (150ms rotate), leaf nodes with language-colored status dots, selected state with terminal-hover bg + primary left border. Builds from flat file paths automatically. Full keyboard: up/down/rightarrow/leftarrow/Enter.",
+      "files": [
+        {
+          "path": "registry/files/ui/tree-view.svelte",
+          "target": "@ui/tree-view.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: tree: TreeNode[], selected?, onselect?. Module exports TreeFile, TreeNode, inferTreeLang(name)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "component-canvas",
+      "type": "registry:ui",
+      "title": "Component canvas",
+      "description": "The component documentation workbench: header (title + description + GitHub Source link), LIVE demo stage (children snippet on muted surface), Playground controls panel (snippet slot for interactive props), and a collapsible code drawer (TreeView file sidebar + CodeCard embedded). Files from a flat path list auto-build the tree.",
+      "registryDependencies": [
+        "@jixoai/press-button",
+        "@jixoai/code-card",
+        "@jixoai/tree-view",
+        "@jixoai/highlight"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/component-canvas.svelte",
+          "target": "@ui/component-canvas.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: title, description?, sourceUrl?, files: TreeFile[]; snippets children (live demo), playground? (interactive controls)."
     }
   ]
 }

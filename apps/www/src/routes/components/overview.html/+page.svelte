@@ -10,6 +10,9 @@
   import LanguageSwitcher from '$lib/ui/language-switcher.svelte';
   import CardGrid from '$lib/ui/card-grid.svelte';
   import CodeCard from '$lib/ui/code-card.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
+  import Input from '$lib/ui/input.svelte';
+  import Select from '$lib/ui/select.svelte';
   import Table from '$lib/ui/table.svelte';
   import ScaffoldFloat from '$lib/ui/scaffold-float.svelte';
   import { reveal } from '$lib/reveal';
@@ -65,6 +68,11 @@
       id: 'code-card',
       label: 'code-card',
       children: [{ id: 'code-card-demo', label: 'Demo' }],
+    },
+    {
+      id: 'component-canvas',
+      label: 'component-canvas',
+      children: [{ id: 'canvas-demo', label: 'Demo' }],
     },
     {
       id: 'table',
@@ -253,9 +261,28 @@ ${close}
     <tr><td>code-card + highlight</td><td>yes</td><td>yes</td><td class="text-right">2</td></tr>
   </tbody>
   <tfoot>
-    <tr><td>Total</td><td>—</td><td>—</td><td class="text-right">7</td></tr>
+    <tr><td>Total</td><td>—</td><td>—</td><td class="text-right">7</td></tfoot>
   </tfoot>
 </Table>`;
+
+  // component-canvas demo: one usage file for the tree (paths build the
+  // directory levels), press-button rendered live, playground controls.
+  const canvasFiles = [
+    {
+      name: 'src/lib/ui/press-button-usage.svelte',
+      content: `<script lang="ts">
+  import PressButton from '@ui/press-button.svelte';
+${close}
+
+<!-- one physics for every variant: hover lifts, active presses -->
+<PressButton variant="primary">deploy</PressButton>
+<PressButton variant="outline">cancel</PressButton>`,
+    },
+  ];
+
+  type CanvasVariant = 'primary' | 'outline';
+  let canvasVariant = $state<CanvasVariant>('primary');
+  let canvasLabel = $state('deploy');
 </script>
 
 <svelte:head>
@@ -291,7 +318,7 @@ ${close}
           summary="Each section below consumes the exact same-source copy this site installed from registry/files — nothing is reimplemented for the showcase. The table of contents tracking this page is itself the toc component: the Rule Tracker on the right (desktop) or the glass Terminal Rail above (mobile)."
         >
           <div class="flex flex-wrap gap-3">
-            <span class="pill">11 live components</span>
+            <span class="pill">12 live components</span>
             <span class="pill">3 framework-free libs</span>
             <span class="pill">1 dogfooded ToC</span>
             <span class="pill">zero network</span>
@@ -666,6 +693,56 @@ ${close}
             </CodeCard>
           </div>
           <CodeCard filename="usage.svelte" lang="svelte" code={codeCardUsage} copyable={false} />
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- component-canvas -->
+    <div id="component-canvas" data-family="component-canvas" data-reveal="" use:reveal>
+      <SectionCard
+        headerRegion="component-canvas"
+        eyebrow="registry:ui"
+        title="component-canvas"
+        summary="The component documentation workbench: a LIVE demo stage (muted tint so components prove themselves on a differently-toned ground), an optional Playground pane for consumer-authored controls, and a collapsible code drawer combining tree-view (ARIA file tree with the native keyboard contract, paths auto-built from flat file lists) with code-card highlighting. The demo below dogfoods it end to end — the controls on the right actually drive the button."
+      >
+        <div class="flex flex-col gap-7" data-region="canvas-demo">
+          <div id="canvas-demo" class="flex flex-col gap-3">
+            <h3 class="text-[15px] font-bold tracking-tight">Demo — press-button</h3>
+            <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+              The Playground pane holds the jixoai form base (select + input); they drive the live
+              instance above. Expand <code class="text-accent">&lt;/&gt; Code</code>: the drawer
+              animates open (grid-rows 0fr→1fr, the Combo ToC collapse law) with the file tree on
+              the left — <code class="text-accent">src/lib/ui/press-button-usage.svelte</code> built
+              the directory levels from the flat path — and the highlighted code card on the right.
+            </p>
+            <ComponentCanvas
+              title="press-button"
+              description="The brutalist press-physics button: hover lifts toward the viewer, active presses back into the page."
+              sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/press-button.svelte"
+              files={canvasFiles}
+            >
+              <PressButton variant={canvasVariant}>{canvasLabel}</PressButton>
+              {#snippet playground()}
+                <Select
+                  label="variant"
+                  onchange={(event) => {
+                    canvasVariant = event.currentTarget.value as CanvasVariant;
+                  }}
+                >
+                  <option value="primary">primary</option>
+                  <option value="outline">outline</option>
+                </Select>
+                <Input
+                  type="text"
+                  label="label"
+                  value={canvasLabel}
+                  oninput={(event) => {
+                    canvasLabel = event.currentTarget.value;
+                  }}
+                />
+              {/snippet}
+            </ComponentCanvas>
+          </div>
         </div>
       </SectionCard>
     </div>
