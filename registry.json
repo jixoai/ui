@@ -475,6 +475,68 @@
           "type": "registry:file"
         }
       ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "range",
+      "type": "registry:ui",
+      "title": "Range",
+      "description": "Form wave 2 \u2014 fully custom slider (never input[type=range]): div + Pointer Events with pointer capture, 4px track with primary fill law, 16px square thumb, optional step tick ruler, keyboard (arrows/Home/End) and full aria slider contract, RTL by logical properties. Decimal steps snap at step precision; pair with a hidden input when FormData must carry it.",
+      "files": [
+        {
+          "path": "registry/files/ui/range.svelte",
+          "target": "@ui/range.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: label?, error?, showValue?, min/max/step, value ($bindable). role=slider contract; aria-labelledby wiring per the family law."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "date-picker",
+      "type": "registry:ui",
+      "title": "Date picker",
+      "description": "Form wave 2 \u2014 calendar popover over hand-rolled Date math (zero date libraries): single ISO string or {start,end} range with anchor/swap semantics, Monday-first grid, strict ISO parse/format/compare. Popover API panel (popover=auto + popovertarget) CSS-anchored under a select-style trigger; light dismiss/Escape/top-layer are native.",
+      "files": [
+        {
+          "path": "registry/files/ui/date-picker.svelte",
+          "target": "@ui/date-picker.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: label?, error?, mode 'single'|'range', value ($bindable ISO string or {start?,end?}). Never a native input[type=date].",
+      "registryDependencies": [
+        "@jixoai/popover"
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "file-input",
+      "type": "registry:ui",
+      "title": "File input",
+      "description": "Form wave 2 \u2014 the professional file control (input.svelte keeps the bare native passthrough lane): press-button trigger over a visually hidden native input, list/cards/compact presentation variants with sm/md/lg sizing, File[] $bindable contract with per-File image previews (object URLs cached by identity, revoked on remove/unmount), zero-dependency type glyphs and size formatting, maxFiles overflow merged into the family error line.",
+      "files": [
+        {
+          "path": "registry/files/ui/file-input.svelte",
+          "target": "@ui/file-input.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: label?, error?, accept?, multiple?, maxFiles?, variant 'list'|'cards'|'compact', size 'sm'|'md'|'lg', files ($bindable File[])."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "color-picker",
+      "type": "registry:ui",
+      "title": "Color picker",
+      "description": "Color selection with SV pad + hue bar, format constraints (hex/hsl/oklch), Eye Dropper API support, swatch + value display, native Popover panel on terminal bezel. OKLCH as intermediate representation matching the token system.",
+      "files": [
+        {
+          "path": "registry/files/ui/color-picker.svelte",
+          "target": "@ui/color-picker.svelte",
+          "type": "registry:file"
+        }
+      ]
     }
   ]
 }

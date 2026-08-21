@@ -165,6 +165,7 @@
   /* shell: 1px border, radius 0, background — the stage tint and hairlines
      carry every internal separation */
   .jx-canvas {
+  container-type: inline-size;
     background: var(--background);
     border: 1px solid var(--border);
     border-radius: 0;
@@ -240,7 +241,7 @@
     flex-direction: column;
     gap: 0.85rem;
   }
-  @media (min-width: 48rem) {
+  @container (min-width: 48rem) {
     .jx-canvas-stage-row {
       flex-direction: row;
     }
@@ -324,7 +325,7 @@
     max-height: 28rem;
     overflow: auto;
   }
-  @media (min-width: 48rem) {
+  @container (min-width: 48rem) {
     .jx-canvas-code-panels {
       flex-direction: row;
     }
@@ -336,7 +337,7 @@
     overflow-y: auto;
     padding: 0.5rem 0.4rem;
   }
-  @media (min-width: 48rem) {
+  @container (min-width: 48rem) {
     .jx-canvas-tree {
       border-bottom: none;
       border-right: 1px solid var(--border);

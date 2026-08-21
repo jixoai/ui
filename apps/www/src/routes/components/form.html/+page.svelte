@@ -2,11 +2,15 @@
   import CodeBlock from '$lib/code-block.svelte';
   import CardGrid from '$lib/ui/card-grid.svelte';
   import Checkbox from '$lib/ui/checkbox.svelte';
+  import ColorPicker from '$lib/ui/color-picker.svelte';
+  import DatePicker, { type DatePickerRange } from '$lib/ui/date-picker.svelte';
+  import FileInput from '$lib/ui/file-input.svelte';
   import Input from '$lib/ui/input.svelte';
   import NativeSelect from '$lib/ui/native-select.svelte';
   import NumberInput from '$lib/ui/number-input.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import Radio from '$lib/ui/radio.svelte';
+  import Range from '$lib/ui/range.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import Select, { type SelectOption } from '$lib/ui/select.svelte';
   import TerminalCard from '$lib/ui/terminal-card.svelte';
@@ -34,12 +38,19 @@
   import Select from '@ui/select.svelte';
   import NumberInput from '@ui/number-input.svelte';
   import Textarea from '@ui/textarea.svelte';
+  import FileInput from '@ui/file-input.svelte';
+  import DatePicker from '@ui/date-picker.svelte';
+  import Range from '@ui/range.svelte';
+  import ColorPicker from '@ui/color-picker.svelte';
 ${close}
 
 <!-- every native type passes straight through -->
 <Input type="email" label="email" placeholder="you@host.tld" required />
 <Input type="range" label="volume" min="0" max="100" />
-<Input type="file" label="avatar" accept="image/*" />
+
+<!-- professional controls: previews/variants, calendar popover -->
+<FileInput label="avatar" accept="image/*" bind:files={avatar} />
+<DatePicker label="deploy date" bind:value={iso} />
 
 <!-- pure-CSS selectors (appearance-none + pseudo-element glyphs) -->
 <Checkbox label="subscribe" labelSide="left" />
@@ -59,6 +70,12 @@ ${close}
 
 <!-- the [- NUM +] stepper: click/hold/type, clamped into min/max -->
 <NumberInput label="workers" bind:value={workers} min={1} max={16} />
+
+<!-- fully custom slider (no input[type=range]) and the oklch picker -->
+<Range label="volume" bind:value={volume} min={0} max={100} />
+<Range label="gain" bind:value={gain} min={0} max={10} step={0.5} ticks />
+<ColorPicker label="brand" bind:value={brandColor} />
+<ColorPicker label="accent" bind:value={accentColor} format="oklch" />
 
 <Textarea label="notes" rows={5} maxlength={280} />`;
 
@@ -111,6 +128,55 @@ ${close}
   {#snippet innerBlockEnd()}<span>draft</span>{/snippet}
 </Textarea>`;
 
+  const fileUsage = `const avatar = $state<File[]>([]);
+const gallery = $state<File[]>([]);
+const uploads = $state<File[]>([]);
+
+<!-- list (default): icon + name + size + remove per row -->
+<FileInput label="avatar" accept="image/*" bind:files={avatar} />
+
+<!-- variants: list · cards (thumbnail grid) · compact (summary + expand) -->
+<!-- sizes: sm 32px · md 40px · lg 48px rows -->
+<FileInput label="gallery" variant="cards" multiple accept="image/*" bind:files={gallery} />
+<FileInput label="uploads" variant="compact" multiple size="sm" bind:files={uploads} />
+
+<!-- overflow reports, never truncates: 3 files + maxFiles=2 → error -->
+<FileInput label="evidence" multiple maxFiles={2} bind:files={evidence} />`;
+
+  const dateUsage = `const deploy = $state('2026-08-24');
+const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
+
+<!-- single: commits ISO "YYYY-MM-DD" — format only changes the display -->
+<DatePicker label="deploy date" bind:value={deploy} />
+<DatePicker label="review" format="locale" bind:value={deploy} />
+
+<!-- inclusive bounds; outside days render disabled -->
+<DatePicker label="windowed" min="2026-08-01" max="2026-08-31" bind:value={deploy} />
+
+<!-- range: first click anchors, second closes (backwards swaps) -->
+<DatePicker label="sprint" mode="range" bind:range={sprint} />`;
+
+  const rangeUsage = `<!-- fully custom: div + pointer events, no input[type=range] -->
+<Range label="volume" bind:value={volume} min={0} max={100} />
+
+<!-- decimal steps snap at the step's precision; ticks = one mark per step -->
+<Range label="gain" bind:value={gain} min={0} max={10} step={0.5} ticks />
+
+<!-- keyboard: ←→/↑↓ step · Home/End jump · geometry is logical, so
+     dir="rtl" mirrors fill, thumb, ticks and arrows with zero branches -->
+<div dir="rtl"><Range label="volume (rtl)" bind:value={v} /></div>`;
+
+  const colorUsage = `<!-- value notation follows format; oklch is the conversion hub -->
+<ColorPicker label="brand" bind:value={brandColor} />
+<ColorPicker label="accent" bind:value={accentColor} format="oklch" />
+
+<!-- trigger surface: swatch + mono value + chevron (either can be hidden) -->
+<ColorPicker label="swatch only" bind:value={c} showValue={false} />
+
+<!-- paste any notation into the panel input — invalid pastes revert;
+     Eye Dropper appears when window.EyeDropper exists -->
+<ColorPicker label="theme hue" bind:value={c} format="hsl" />`;
+
   // ---- select split demo state -------------------------------------------
   let runtime = $state('node');
   let runtimeNative = $state('node');
@@ -127,6 +193,54 @@ ${close}
   let workers = $state(4);
   let timeout = $state(1.5);
   let workersRtl = $state(2);
+
+  // ---- file input demo state ----------------------------------------------
+  // File[] is the contract; samples are generated client-side (SVG blobs)
+  // so the cards/overflow demos have something to show without a picker.
+  let avatarFiles = $state<File[]>([]);
+  let batchFiles = $state<File[]>([]);
+  let cardFiles = $state<File[]>([]);
+  let compactFiles = $state<File[]>([]);
+  let sizeFiles = $state<File[]>([]);
+  let overflowFiles = $state<File[]>([]);
+  let errorFiles = $state<File[]>([]);
+
+  function sampleImage(hue: number, name: string): File {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360" viewBox="0 0 480 360"><rect width="480" height="360" fill="hsl(${hue} 45% 88%)"/><path d="M0 360 180 130 300 290 390 200 480 360Z" fill="hsl(${hue} 55% 38%)"/><circle cx="370" cy="80" r="34" fill="hsl(${hue} 80% 62%)"/></svg>`;
+    return new File([svg], `${name}.svg`, { type: 'image/svg+xml' });
+  }
+  function sampleText(name: string, kilobytes: number): File {
+    return new File([`x`.repeat(1024 * kilobytes)], name, { type: 'text/plain' });
+  }
+  function loadCardSamples(): void {
+    cardFiles = [
+      sampleImage(150, 'phosphor-grid'),
+      sampleImage(190, 'wave-form'),
+      sampleImage(220, 'spawn-diagram'),
+    ];
+  }
+  function loadOverflow(): void {
+    overflowFiles = [sampleImage(30, 'one'), sampleImage(60, 'two'), sampleImage(90, 'three')];
+  }
+
+  // ---- date picker demo state ----------------------------------------------
+  let deployDate = $state('2026-08-24');
+  let localeDate = $state<string | undefined>(undefined);
+  let windowedDate = $state<string | undefined>(undefined);
+  let auditDate = $state<string | undefined>(undefined);
+  let sprintRange = $state<DatePickerRange>({ start: '2026-08-10', end: '2026-08-16' });
+
+  // ---- range slider demo state ---------------------------------------------
+  let volume = $state(40);
+  let gain = $state(6);
+  let tolerance = $state(0.35);
+  let volumeRtl = $state(70);
+
+  // ---- color picker demo state ----------------------------------------------
+  let brandColor = $state('#007924');
+  let accentColor = $state('oklch(0.6489 0.237 145)');
+  let swatchOnly = $state('#b7d7a8');
+  let errorColor = $state('#8a5a2f');
 
   // ---- slot system demo state (controlled inputs / textareas) ------------
   let search = $state('pty');
@@ -157,7 +271,7 @@ ${close}
   <title>Form components · jixoai-ui</title>
   <meta
     name="description"
-    content="input / native-select / select / number-input / textarea / checkbox / radio / toggle — the jixoai NativeHTML form base: every native input type passes through untouched, the select family splits into NativeSelect (platform popup, FormData-ready) and Select (a popover listbox with descriptions), number-input is the [- NUM +] stepper with press-and-hold acceleration, and label/error semantics ride on label[for] plus aria-invalid/aria-describedby."
+    content="input / native-select / select / number-input / textarea / checkbox / radio / toggle / file-input / date-picker / range / color-picker — the jixoai NativeHTML form base: every native input type passes through untouched, the select family splits into NativeSelect (platform popup, FormData-ready) and Select (a popover listbox with descriptions), number-input is the [- NUM +] stepper, file-input is the professional file picker (File[] contract, previews, list/cards/compact variants, maxFiles), date-picker is a zero-dependency calendar popover over hand-rolled Date math, range is the fully custom slider (div + pointer events, square thumb, ticks, rtl), and color-picker is the oklch-hub popover picker (SV pad, hue bar, hex/hsl/oklch, Eye Dropper) — label/error semantics ride on label[for] plus aria-invalid/aria-describedby throughout."
   />
 </svelte:head>
 
@@ -169,12 +283,14 @@ ${close}
       tone="hero"
       eyebrow="registry:ui"
       title="input / select / textarea — the NativeHTML base"
-      summary="The form family names its components after the elements they are. The native control is the contract: every input type passes through untouched, range/color keep their platform controls with accent-color set to the brand primary, and the only repaint is the shell — border, background, the inset focus outline. The selectors redraw their own paint in pure CSS: checkbox, radio, and toggle strip appearance and draw their glyphs with pseudo-elements while the native input keeps every behavior. The select family splits in two — NativeSelect keeps the platform popup, Select builds a popover listbox — and number-input adds the [- NUM +] stepper. Buttons are not part of the family; press-button already exists."
+      summary="The form family names its components after the elements they are. The native control is the contract: every input type passes through untouched, and the only repaint is the shell — border, background, the inset focus outline. The selectors redraw their own paint in pure CSS: checkbox, radio, and toggle strip appearance and draw their glyphs with pseudo-elements while the native input keeps every behavior. The select family splits in two — NativeSelect keeps the platform popup, Select builds a popover listbox — number-input adds the [- NUM +] stepper, file-input and date-picker own files and dates professionally, and the two controls the platform cannot paint our way split out as full customs: range (the fully custom slider) and color-picker (the oklch-hub popover). Buttons are not part of the family; press-button already exists."
     >
       <div class="flex flex-wrap gap-3">
         <span class="pill">all native types</span>
         <span class="pill">pure-CSS checkbox / radio / toggle</span>
         <span class="pill">select split: native + popover</span>
+        <span class="pill">file-input + date-picker</span>
+        <span class="pill">custom range + oklch color-picker</span>
         <span class="pill">label[for] + aria wiring</span>
         <span class="pill">zero deps · Svelte 5 runes</span>
       </div>
@@ -187,7 +303,7 @@ ${close}
       headerRegion="all-types"
       eyebrow="input"
       title="All native types"
-      summary="One component, every type the platform ships. Text-like types take the bordered shell; range keeps the native slider with accent-color; color keeps the native picker with its height aligned; file hides the native input (still focusable, Enter/Space opens the picker) behind a press-button trigger with a filename echo. checkbox and radio split into their own pure-CSS components — see the next section."
+      summary="One component, every type the platform ships. Text-like types take the bordered shell; range keeps the native slider with accent-color; color keeps the native picker with its height aligned. checkbox and radio split into their own pure-CSS components, and file picking now has its professional home in file-input (below) — type='file' still passes through here as the bare native control."
     >
       <CardGrid min="230px">
         <div class="demo-cell" data-no-subgrid>
@@ -221,17 +337,15 @@ ${close}
           <Radio label="radio (label left)" name="demo_radio" labelSide="left" />
         </div>
         <div class="demo-cell" data-no-subgrid>
-          <Input type="file" label="file" name="demo_file" accept="image/*,.txt" />
-        </div>
-        <div class="demo-cell" data-no-subgrid>
           <Input type="text" label="disabled" name="demo_disabled" placeholder="not allowed" disabled />
         </div>
       </CardGrid>
       <p class="text-muted-foreground mt-4 text-pretty text-[13px] leading-6">
         Tab through the grid: every control is keyboard-reachable with its platform behavior —
-        the date picker, the color swatches, the range arrows, the file dialog. checkbox and
-        radio now live in their own pure-CSS components (next section); the rest of the grid
-        keeps <code class="text-accent">accent-color: var(--primary)</code> as the only line of
+        the color swatches, the range arrows, the platform pickers. checkbox and radio live in
+        their own pure-CSS components (next section), file picking and dates have their
+        professional controls further down; the rest of the grid keeps
+        <code class="text-accent">accent-color: var(--primary)</code> as the only line of
         styling their native controls receive.
       </p>
     </SectionCard>
@@ -483,6 +597,261 @@ ${close}
     </SectionCard>
   </div>
 
+  <!-- file input -->
+  <div id="file-input" data-reveal="" use:reveal>
+    <SectionCard
+      headerRegion="file-input"
+      eyebrow="file-input"
+      title="File input — the professional control"
+      summary="Files as first-class data, split out of the native lane: File[] is the $bindable contract, and every file carries an id plus — for images — an object-URL preview that is revoked the moment you remove it (or the component unmounts). Three variants: list rows (type glyph + name + size + remove), cards (thumbnail grid, remove on hover), compact (a one-line summary that expands). Three sizes scale the trigger and the rows. The type glyphs are zero-dependency — inline SVG for image/video/audio/pdf/doc, a font-nav &lt;/&gt; for code — and maxFiles reports overflow into the error line without ever truncating the array: the caller decides."
+    >
+      <div class="flex flex-col gap-6">
+        <CardGrid min="230px">
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <FileInput label="avatar (list)" accept="image/*" bind:files={avatarFiles} />
+            <span class="text-muted-foreground text-[12.5px]">
+              bound File[] · length: <code class="text-accent">{avatarFiles.length}</code>
+            </span>
+          </div>
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <FileInput label="attachments (multiple)" multiple bind:files={batchFiles} />
+            <div class="flex flex-wrap items-center gap-2">
+              <PressButton onclick={() => (batchFiles = [...batchFiles, sampleText(`log-${batchFiles.length + 1}.txt`, 2), sampleImage(140, `shot-${batchFiles.length + 1}`)])}>seed samples</PressButton>
+              <span class="text-muted-foreground text-[12.5px]">
+                length: <code class="text-accent">{batchFiles.length}</code>
+              </span>
+            </div>
+          </div>
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <FileInput label="gallery (cards)" variant="cards" multiple accept="image/*" bind:files={cardFiles} />
+            <div class="flex flex-wrap items-center gap-2">
+              <PressButton onclick={loadCardSamples}>load 3 svg samples</PressButton>
+              <span class="text-muted-foreground text-[12.5px]">previews via object URLs</span>
+            </div>
+          </div>
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <FileInput label="uploads (compact)" variant="compact" multiple bind:files={compactFiles} />
+            <div class="flex flex-wrap items-center gap-2">
+              <PressButton onclick={() => (compactFiles = [sampleText('manifest.json', 1), sampleText('trace.log', 8)])}>seed samples</PressButton>
+            </div>
+          </div>
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <FileInput label="sizes" size="sm" multiple bind:files={sizeFiles} />
+            <FileInput label="md (default)" multiple bind:files={sizeFiles} />
+            <FileInput label="lg" size="lg" multiple bind:files={sizeFiles} />
+            <div class="flex flex-wrap items-center gap-2">
+              <PressButton onclick={() => (sizeFiles = [sampleImage(165, 'bezel'), sampleText('index.ts', 3), sampleText('thesis.pdf', 512)])}>seed mixed kinds</PressButton>
+            </div>
+          </div>
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <FileInput label="evidence (maxFiles 2)" multiple maxFiles={2} bind:files={overflowFiles} />
+            <div class="flex flex-wrap items-center gap-2">
+              <PressButton onclick={loadOverflow}>load 3 files</PressButton>
+              <span class="text-muted-foreground text-[12.5px]">overflow reports — never truncates</span>
+            </div>
+          </div>
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <FileInput label="manifest" error="checksum mismatch — re-upload" multiple bind:files={errorFiles} />
+            <span class="text-muted-foreground text-[12.5px]">
+              the error prop overrides the maxFiles line when both fire
+            </span>
+          </div>
+        </CardGrid>
+        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+          Choose from the platform picker (the trigger presses; the native input stays
+          keyboard-reachable behind it) or seed the samples to see the rows: image files render
+          their mountain-and-sun glyph in the brand primary, code files get the font-nav
+          <code class="text-accent">&lt;/&gt;</code>, and sizes format B → KB → MB at one
+          decimal. Removal revokes the preview URL immediately — no leaks, no dangling blobs.
+        </p>
+        <CodeBlock code={fileUsage} lang="svelte" meta="FileInput usage" />
+      </div>
+    </SectionCard>
+  </div>
+
+  <!-- date picker -->
+  <div id="date-picker" data-reveal="" use:reveal>
+    <SectionCard
+      headerRegion="date-picker"
+      eyebrow="date-picker"
+      title="Date picker"
+      summary="No native &lt;input type='date'>, no date library: the panel is a Popover API surface — popover='auto' wired with popovertarget, so light dismiss, Escape, one-at-a-time, and top-layer rendering are the browser's — over hand-rolled calendar math (leap years, month lengths, Monday-first grid offsets, strict ISO parse/format/compare). single commits 'YYYY-MM-DD'; range binds a start/end pair with anchor / close / swap-when-backwards semantics and a third click re-anchoring. The grid is one focus stop: ↑↓←→ walk the cursor across month boundaries (the view follows), Enter commits, Escape is native. format changes the display only — the value stays ISO forever."
+    >
+      <div class="flex flex-col gap-6">
+        <CardGrid min="230px">
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <DatePicker label="deploy date" bind:value={deployDate} />
+            <span class="text-muted-foreground text-[12.5px]">
+              bound value: <code class="text-accent">{deployDate}</code>
+            </span>
+          </div>
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <DatePicker label="review (locale display)" format="locale" bind:value={localeDate} />
+            <span class="text-muted-foreground text-[12.5px]">
+              display locale · value: <code class="text-accent">{localeDate ?? 'undefined'}</code>
+            </span>
+          </div>
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <DatePicker
+              label="windowed (min/max)"
+              min="2026-08-04"
+              max="2026-09-16"
+              bind:value={windowedDate}
+            />
+            <span class="text-muted-foreground text-[12.5px]">
+              outside days: opacity 0.3 · not-allowed
+            </span>
+          </div>
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <DatePicker label="sprint (range)" mode="range" bind:range={sprintRange} />
+            <span class="text-muted-foreground text-[12.5px]">
+              start: <code class="text-accent">{sprintRange.start ?? '—'}</code> ·
+              end: <code class="text-accent">{sprintRange.end ?? '—'}</code>
+            </span>
+          </div>
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <DatePicker label="audit date" error="audit date is required" bind:value={auditDate} />
+            <span class="text-muted-foreground text-[12.5px]">
+              error wiring: aria-invalid + dashed trigger
+            </span>
+          </div>
+        </CardGrid>
+        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+          Open one and keep typing: the panel is a terminal bezel like the Select dropdown, the
+          month label is font-nav uppercase with clamped ←/→ navigation, today reads a
+          <code class="text-accent">--primary</code> border, selected days fill primary, and
+          range interiors wash at
+          <code class="text-accent">color-mix(--primary 14%, transparent)</code>. The trigger is
+          the Select trigger's paint — ↑/↓ on it opens the panel, focus restitutes on every
+          close path.
+        </p>
+        <CodeBlock code={dateUsage} lang="svelte" meta="DatePicker usage" />
+      </div>
+    </SectionCard>
+  </div>
+
+  <!-- range slider -->
+  <div id="range-slider" data-reveal="" use:reveal>
+    <SectionCard
+      headerRegion="range-slider"
+      eyebrow="range"
+      title="Range slider — fully custom"
+      summary="No input[type=range] anywhere: a div with Pointer Events — pointerdown jumps and captures, move drags, touch-action none keeps the gesture on touch — over a 4px track (muted, radius 0) with a primary fill from the inline-start edge and a 16×16 SQUARE thumb: white fill, 1px border, primary while pressed, shadow-xs on hover. Keyboard carries the full aria slider contract (role=slider, ←→/↑↓ step, Home/End jump, tabindex 0); ticks draws one 4px mark per step as a repeating gradient; and every offset is logical, so dir=rtl mirrors fill, thumb, ticks and arrow keys with zero direction branches."
+    >
+      <div class="flex flex-col gap-5">
+        <div class="grid gap-5 min-[760px]:grid-cols-3">
+          <div class="flex flex-col gap-3">
+            <Range label="volume" bind:value={volume} min={0} max={100} />
+            <span class="text-muted-foreground text-[12.5px]">
+              pointerdown jumps · drag captures · value:
+              <code class="text-accent">{volume}</code>
+            </span>
+          </div>
+          <div class="flex flex-col gap-3">
+            <Range label="gain (ticks)" bind:value={gain} min={0} max={10} step={0.5} ticks />
+            <span class="text-muted-foreground text-[12.5px]">
+              step 0.5 · one mark per step · value: <code class="text-accent">{gain}</code>
+            </span>
+          </div>
+          <div class="flex flex-col gap-3">
+            <Range label="tolerance" bind:value={tolerance} min={0} max={1} step={0.05} />
+            <span class="text-muted-foreground text-[12.5px]">
+              decimals snap at the step's precision · value:
+              <code class="text-accent">{tolerance.toFixed(2)}</code>
+            </span>
+          </div>
+        </div>
+        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+          Tab into a slider and drive it: ←→/↑↓ step by
+          <code class="text-accent">step</code>, Home/End jump to the bounds, and the thumb takes
+          the family's inset focus law. Double-click anywhere on the track to land there —
+          the same jump a single pointerdown already performs. Geometry is entirely logical
+          (<code class="text-accent">inset-inline-start</code> fill and thumb,
+          <code class="text-accent">:dir(rtl)</code> tick ruler), so the mirrored layout below
+          costs the component nothing.
+        </p>
+        <div class="border-border mt-1 border-t pt-5">
+          <h3 class="text-[15px] font-bold tracking-tight">RTL + error wiring</h3>
+          <div class="mt-4 grid gap-5 min-[760px]:grid-cols-2">
+            <div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
+              <Range label="volume (rtl)" bind:value={volumeRtl} min={0} max={100} />
+              <Range label="gain (rtl, ticks)" bind:value={gain} min={0} max={10} step={0.5} ticks />
+              <span class="text-muted-foreground text-[12px]">
+                fill grows from the right, ticks mirror, arrow keys flip — logical properties only
+              </span>
+            </div>
+            <div class="flex flex-col gap-4">
+              <Range label="volume" error="volume is required" min={0} max={100} />
+              <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+                The <code class="text-accent">error</code> prop is the family law on a custom
+                control too: <code class="text-accent">aria-invalid</code> +
+                <code class="text-accent">aria-describedby</code> ride the role=slider element, the
+                readout takes the destructive mark, and the thumb border dashes — the monochrome
+                invalid signal, no second hue.
+              </p>
+            </div>
+          </div>
+        </div>
+        <CodeBlock code={rangeUsage} lang="svelte" meta="Range usage" />
+      </div>
+    </SectionCard>
+  </div>
+
+  <!-- color picker -->
+  <div id="color-picker" data-reveal="" use:reveal>
+    <SectionCard
+      headerRegion="color-picker"
+      eyebrow="color-picker"
+      title="Color picker"
+      summary="The one form member that is a full custom widget, because the native input[type=color] offers none of this: a terminal-bezel popover (native popover=auto + popovertarget — light dismiss, Escape and top layer are the browser's) holding a 200×150 saturation/value pad (pure-hue ground with white→transparent horizontal and black→transparent vertical overlays), a 12px full-spectrum hue bar, a hex/hsl/oklch format switch, a direct value input that parses any notation and reverts invalid pastes, and an Eye Dropper button when window.EyeDropper exists. OKLCH is the conversion hub — the token system's space — so every notation round-trips through one canonical model with zero dependencies (lib/color-utils)."
+    >
+      <div class="flex flex-col gap-5">
+        <div class="grid gap-5 min-[760px]:grid-cols-3">
+          <div class="flex flex-col gap-3">
+            <ColorPicker label="brand (hex)" bind:value={brandColor} />
+            <span class="text-muted-foreground text-[12.5px]">
+              bound value: <code class="text-accent">{brandColor}</code>
+            </span>
+          </div>
+          <div class="flex flex-col gap-3">
+            <ColorPicker label="accent (oklch)" bind:value={accentColor} format="oklch" />
+            <span class="text-muted-foreground text-[12.5px]">
+              notation follows format · value: <code class="text-accent">{accentColor}</code>
+            </span>
+          </div>
+          <div class="flex flex-col gap-3">
+            <ColorPicker label="swatch only" bind:value={swatchOnly} showValue={false} />
+            <span class="text-muted-foreground text-[12.5px]">
+              showSwatch / showValue shape the trigger
+            </span>
+          </div>
+        </div>
+        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+          Open one and drag: the SV pad maps color space (saturation right, value up) pinned to
+          ltr — the trigger, not the map, is what rtl mirrors — and both pad and bar drive through
+          Pointer Events with capture. Switching format re-emits the SAME color in the new
+          notation; pasting <code class="text-accent">#0f2</code> into an oklch picker parses,
+          converts through OKLCH, and commits canonical oklch text. The panel anchors under the
+          trigger with CSS Anchor Positioning (flip-block fallback; engines without it get the
+          authored viewport-center), and focus restitutes to the trigger on every close path.
+        </p>
+        <div class="border-border mt-1 border-t pt-5">
+          <h3 class="text-[15px] font-bold tracking-tight">error wiring</h3>
+          <div class="mt-4 grid gap-5 min-[760px]:grid-cols-2">
+            <ColorPicker label="theme hue" error="theme hue is required" bind:value={errorColor} />
+            <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+              Same law as every family member: label[for] binds to the trigger (a button is
+              labelable), <code class="text-accent">error</code> dashes the trigger border and
+              wires <code class="text-accent">aria-invalid</code> +
+              <code class="text-accent">aria-describedby</code> to the “! message” line.
+            </p>
+          </div>
+        </div>
+        <CodeBlock code={colorUsage} lang="svelte" meta="ColorPicker usage" />
+      </div>
+    </SectionCard>
+  </div>
+
   <!-- select + textarea -->
   <div id="select-textarea" data-reveal="" use:reveal>
     <SectionCard
@@ -681,9 +1050,10 @@ ${close}
               pseudo-elements — a clip-path check, a scaled dot, a sliding knob — while the
               native input underneath still owns state, keyboard toggling, and FormData.
               The remaining platform widgets keep their accent-color:
-              <code class="text-accent">range</code> keeps the native slider, color keeps its
-              picker (height-aligned); file keeps its input in the tab order behind a
-              press-button trigger with a filename echo.
+              <code class="text-accent">range</code> keeps the native slider and color keeps its
+              picker (height-aligned); file and dates have their own professional controls —
+              file-input (previews, variants, maxFiles) and date-picker (a zero-dep calendar
+              popover) — while their bare native types still pass through this component.
             </p>
           </li>
           <li class="flex flex-col gap-1">

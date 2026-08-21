@@ -7,20 +7,17 @@
       1px var(--border) shell, var(--background) fill, radius 0; hover
       lifts one pixel (shadow-2xs), focus-visible takes the site's inset
       1px outline law (outline-offset: -1px on the ring token).
-    checkbox / radio / toggle
-      SPLIT OUT — the pure-CSS redraws live in their own components:
-      checkbox.svelte, radio.svelte and toggle.svelte. Passing
-      type="checkbox"/"radio" here renders the text shell, so route those
-      types to the dedicated components.
+    checkbox / radio / toggle / file
+      SPLIT OUT — checkbox/radio/toggle redraw in their own components
+      (checkbox.svelte, radio.svelte, toggle.svelte); the professional
+      file picker (previews, variants, sizes, maxFiles) lives in
+      file-input.svelte (2026-08-20). Passing any of these types here
+      renders the plain native passthrough in the text shell — route
+      them to the dedicated components.
     range
       native slider + accent-color, label above, full width.
     color
       native picker, height aligned with the text shell.
-    file
-      the native input stays in the tab order but visually hidden inside
-      a wrapping label; a press-button-shaped trigger + filename echo
-      stand in for it (focus-visible lights the trigger; Enter/Space on
-      the hidden input opens the picker natively).
     hidden
       bare passthrough, no chrome, no slots.
 
@@ -32,7 +29,7 @@
 
   2026-08-20 · InputGroup slot system (original request: "实现 InputGroup
   槽位体系，升级 Input 和 TextArea 组件"). Four snippet slots around the
-  lanes (the text-like shell takes all four; file/range/color take only
+  lanes (the text-like shell takes all four; range/color take only
   the outer pair):
 
     outerBlockStart   outside, above — replaces the label row when given
@@ -101,7 +98,6 @@
   const describedBy = $derived(invalid ? errorId : undefined);
   const invalidAttr = $derived(invalid ? 'true' : undefined);
 
-  const isFile = $derived(type === 'file');
   const isHidden = $derived(type === 'hidden');
   const isRange = $derived(type === 'range');
   const isColor = $derived(type === 'color');
@@ -134,45 +130,11 @@
     inputEl.dispatchEvent(new Event('input', { bubbles: true }));
     inputEl.dispatchEvent(new CustomEvent('clear', { bubbles: true }));
   }
-
-  // file lane: filename echo (multiple files join with ", ")
-  let fileLabel = $state('no file selected');
-
-  function onFileChange(event: Event) {
-    const input = event.currentTarget as HTMLInputElement;
-    fileLabel =
-      input.files && input.files.length > 0
-        ? Array.from(input.files, (file) => file.name).join(', ')
-        : 'no file selected';
-    // forward a caller-supplied change handler from the rest props
-    (rest as { onchange?: (event: Event) => void }).onchange?.(event);
-  }
 </script>
 
 {#if isHidden}
   <!-- hidden: bare native passthrough (value rides as a plain attribute) -->
   <input {id} {type} {value} {...rest} />
-{:else if isFile}
-  <div class="jx-field">
-    {#if outerBlockStart}
-      <div class="jx-outer jx-outer-start">{@render outerBlockStart()}</div>
-    {:else if label}<label class="jx-label" for={id}>{label}</label>{/if}
-    <label class="jx-file" class:jx-invalid={invalid}>
-      <input
-        {id}
-        {type}
-        class="jx-file-native"
-        onchange={onFileChange}
-        aria-invalid={invalidAttr}
-        aria-describedby={describedBy}
-        {...rest}
-      />
-      <span class="jx-file-btn" aria-hidden="true">choose file</span>
-      <span class="jx-file-name">{fileLabel}</span>
-    </label>
-    {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}
-    {#if outerBlockEnd}<div class="jx-outer jx-outer-end">{@render outerBlockEnd()}</div>{/if}
-  </div>
 {:else}
   <div class="jx-field">
     {#if outerBlockStart}
@@ -414,77 +376,6 @@
     border-style: dashed;
   }
 
-  /* ---- file: visually-hidden native inside a wrapping label ------- */
-  .jx-file {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: fit-content;
-    max-width: 100%;
-    cursor: pointer;
-  }
-  .jx-file:has(input:disabled) {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .jx-file-native {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    border: 0;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-  /* press-button physics: hover lifts toward the viewer, active presses
-     back into the page — the shadow is the affordance */
-  .jx-file-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.55rem 0.9rem;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--background);
-    color: var(--foreground);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    box-shadow: var(--shadow-xs);
-    transition:
-      transform 150ms ease-out,
-      box-shadow 150ms ease-out,
-      background-color 150ms ease-out;
-  }
-  .jx-file:hover .jx-file-btn {
-    transform: translate(-2px, -2px);
-    background: var(--muted);
-    box-shadow: var(--shadow-sm);
-  }
-  .jx-file:active .jx-file-btn {
-    transform: translate(1px, 1px);
-    box-shadow: none;
-  }
-  .jx-file-native:focus-visible + .jx-file-btn {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-file.jx-invalid .jx-file-btn {
-    border-style: dashed;
-  }
-  .jx-file-name {
-    min-width: 0;
-    max-width: 24ch;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 0.75rem;
-    color: var(--muted-foreground);
-  }
-
   /* ---- error line -------------------------------------------------- */
   .jx-error {
     display: flex;
@@ -502,8 +393,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .jx-shell,
-    .jx-file-btn {
+    .jx-shell {
       transition: none;
     }
   }
