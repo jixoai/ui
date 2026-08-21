@@ -1,9 +1,15 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
+  import Input from '$lib/ui/input.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import Popover from '$lib/ui/popover.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
+
+  // Same-source law: the drawer shows the exact registry copy this site runs.
+  import popoverSource from '$lib/ui/popover.svelte?raw';
 
   let choice = $state<string | null>(null);
 
@@ -29,6 +35,30 @@ ${close}
   </p>
   <p>Any content — the snippet is the whole panel body.</p>
 </Popover>`;
+
+  // ---- component canvas (audit P1-A2): LIVE trigger + label playground --
+  let canvasTriggerLabel = $state('Actions');
+  let canvasChoice = $state<string | null>(null);
+
+  const canvasUsage = `<script lang="ts">
+  import Popover from '@ui/popover.svelte';
+${close}
+
+let triggerLabel = $state('Actions');
+${close}
+
+<!-- rows repeat popovertarget to close on select — still zero JS -->
+<Popover id="actions" {triggerLabel}>
+  <div class="flex w-52 flex-col">
+    <button type="button" class="pop-row" popovertarget="actions">Rename…</button>
+    <button type="button" class="pop-row" popovertarget="actions">Archive</button>
+  </div>
+</Popover>`;
+
+  const canvasFiles: TreeFile[] = [
+    { name: 'registry/files/ui/popover.svelte', content: popoverSource },
+    { name: 'src/lib/ui/popover-usage.svelte', content: canvasUsage },
+  ];
 </script>
 
 <svelte:head>
@@ -56,6 +86,42 @@ ${close}
         <span class="pill">0 lines of JS</span>
       </div>
     </SectionCard>
+  </div>
+
+  <!-- workbench (audit P1-A2): LIVE trigger + label playground + sources -->
+  <div data-reveal="" use:reveal>
+    <ComponentCanvas
+      title="popover"
+      description="popover=&quot;auto&quot; + popovertarget: light dismiss, Escape, aria-expanded, and top-layer rendering are the browser's — the panel anchors to the trigger through CSS Anchor Positioning. Relabel the trigger from the Playground."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/popover.svelte"
+      files={canvasFiles}
+    >
+      <div class="flex flex-col items-center gap-4">
+        <!-- the panel lives in the stage; the top layer lifts it on open -->
+        <Popover id="canvas-pop" triggerLabel={canvasTriggerLabel}>
+          <div class="flex w-52 flex-col">
+            <button type="button" class="pop-row" popovertarget="canvas-pop"
+              onclick={() => (canvasChoice = 'renamed')}>Rename…</button>
+            <button type="button" class="pop-row" popovertarget="canvas-pop"
+              onclick={() => (canvasChoice = 'link copied')}>Copy link</button>
+            <button type="button" class="pop-row pop-row-destructive" popovertarget="canvas-pop"
+              onclick={() => (canvasChoice = 'deleted')}>Delete</button>
+          </div>
+        </Popover>
+        <span class="text-muted-foreground text-[12.5px]">
+          trigger: <code class="text-accent">{canvasTriggerLabel || '—'}</code> · last action:{' '}
+          <code class="text-accent">{canvasChoice ?? '—'}</code>
+        </span>
+      </div>
+      {#snippet playground()}
+        <Input label="triggerLabel" placeholder="Actions" bind:value={canvasTriggerLabel} />
+        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
+          the playground edits the <code class="text-accent">triggerLabel</code> prop live — open
+          the panel and click outside, press Escape, or pick a row: three native exits, zero JS
+          on the close path.
+        </p>
+      {/snippet}
+    </ComponentCanvas>
   </div>
 
   <!-- Menu demo -->

@@ -1,9 +1,15 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import Dialog from '$lib/ui/dialog.svelte';
+  import Input from '$lib/ui/input.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
+
+  // Same-source law: the drawer shows the exact registry copy this site runs.
+  import dialogSource from '$lib/ui/dialog.svelte?raw';
 
   let basicOpen = $state(false);
   let formOpen = $state(false);
@@ -40,13 +46,37 @@ const confirm = () => {
 };
 ${close}
 
-<Dialog title="Rotate API key" bind:open>
+  <Dialog title="Rotate API key" bind:open>
   <p>Minting a new key revokes the current one after 24 hours.</p>
   {#snippet footer()}
     <PressButton onclick={() => (open = false)}>Cancel</PressButton>
     <PressButton variant="primary" onclick={confirm}>Rotate key</PressButton>
   {/snippet}
 </Dialog>`;
+
+  // ---- component canvas (audit P1-A2): LIVE trigger + title playground --
+  let canvasOpen = $state(false);
+  let canvasTitle = $state('Deploy queued');
+
+  const canvasUsage = `<script lang="ts">
+  import Dialog from '@ui/dialog.svelte';
+  import PressButton from '@ui/press-button.svelte';
+${close}
+
+let open = $state(false);
+let title = $state('Deploy queued');
+${close}
+
+<PressButton onclick={() => (open = true)}>Open dialog</PressButton>
+
+<Dialog {title} bind:open>
+  <p>build #128 is waiting for a runner. The log streams once it picks up.</p>
+</Dialog>`;
+
+  const canvasFiles: TreeFile[] = [
+    { name: 'registry/files/ui/dialog.svelte', content: dialogSource },
+    { name: 'src/lib/ui/dialog-usage.svelte', content: canvasUsage },
+  ];
 </script>
 
 <svelte:head>
@@ -74,6 +104,39 @@ ${close}
         <span class="pill">120ms close fade</span>
       </div>
     </SectionCard>
+  </div>
+
+  <!-- workbench (audit P1-A2): LIVE trigger + title playground + sources -->
+  <div data-reveal="" use:reveal>
+    <ComponentCanvas
+      title="dialog"
+      description="One native <dialog> driven by showModal(): the browser owns the focus trap, Escape, and the top layer — the component adds bindable open state and a 120ms close fade. Retitle it from the Playground."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/dialog.svelte"
+      files={canvasFiles}
+    >
+      <div class="flex flex-col items-center gap-5">
+        <PressButton onclick={() => (canvasOpen = true)}>Open dialog</PressButton>
+        <span class="text-muted-foreground text-[12.5px]">
+          state: <code class="text-accent">open = {canvasOpen}</code> · title:{' '}
+          <code class="text-accent">{canvasTitle || '—'}</code>
+        </span>
+      </div>
+      <!-- closed dialogs render nothing — the instance lives right here in
+           the stage; showModal() lifts it into the top layer when open -->
+      <Dialog title={canvasTitle} bind:open={canvasOpen}>
+        <p>build #128 is waiting for a runner. The log streams once it picks up.</p>
+        {#snippet footer()}
+          <PressButton onclick={() => (canvasOpen = false)}>Close</PressButton>
+        {/snippet}
+      </Dialog>
+      {#snippet playground()}
+        <Input label="title" placeholder="Deploy queued" bind:value={canvasTitle} />
+        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
+          the playground edits the <code class="text-accent">title</code> prop live — reopen the
+          dialog to read the new heading in the header bar.
+        </p>
+      {/snippet}
+    </ComponentCanvas>
   </div>
 
   <!-- Basic demo -->

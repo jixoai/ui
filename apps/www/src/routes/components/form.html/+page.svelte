@@ -1,5 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import CardGrid from '$lib/ui/card-grid.svelte';
   import Checkbox from '$lib/ui/checkbox.svelte';
   import ColorPicker from '$lib/ui/color-picker.svelte';
@@ -19,7 +20,17 @@
   import TerminalCard from '$lib/ui/terminal-card.svelte';
   import Textarea from '$lib/ui/textarea.svelte';
   import Toggle from '$lib/ui/toggle.svelte';
+  import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
+
+  // Same-source law: the canvas drawers show the exact registry copies this
+  // site runs — one ?raw import per core control (audit P1-A2).
+  import inputSource from '$lib/ui/input.svelte?raw';
+  import selectSource from '$lib/ui/select.svelte?raw';
+  import comboboxSource from '$lib/ui/combobox.svelte?raw';
+  import numberInputSource from '$lib/ui/number-input.svelte?raw';
+  import datePickerSource from '$lib/ui/date-picker.svelte?raw';
+  import tagsInputSource from '$lib/ui/tags-input.svelte?raw';
 
   // A literal closing-script tag inside the module script would terminate
   // this component's own script tag during the HTML-level scan — splice it.
@@ -355,6 +366,67 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
     outputs.push('form submitted ✓');
     result = { outputs };
   }
+
+  // ---- component canvases (audit P1-A2) -----------------------------------
+  // The six core controls also live in workbenches under the hero; each
+  // canvas drives its own state so the SectionCard catalogue below stays
+  // untangled. Sources are the ?raw registry copies; usage strings reuse
+  // the per-component usage consts already on this page.
+  const inputUsage = `<!-- every native type passes through untouched; every other
+     attribute rides through restProps (placeholder, min/max, accept…) -->
+<Input type="email" label="email" placeholder="you@host.tld" required />
+<Input type="password" label="api key" autocomplete="off" />
+
+<!-- clearable adds the × in the inner-inline-end seam; value is $bindable -->
+<Input type="search" label="search" clearable bind:value={q} />
+
+<!-- four slot seams; the shell still owns border / hover / focus -->
+<Input label="endpoint" placeholder="api.jixoai.com">
+  {#snippet innerInlineStart()}<span>https://</span>{/snippet}
+  {#snippet innerInlineEnd()}<span class="text-foreground!">/v1/spawn</span>{/snippet}
+</Input>
+
+<!-- error wiring: aria-invalid + aria-describedby + dashed shell -->
+<Input type="email" label="email" value="not-an-email" error="email is required" />`;
+
+  const inputFiles: TreeFile[] = [
+    { name: 'registry/files/ui/input.svelte', content: inputSource },
+    { name: 'src/lib/ui/input-usage.svelte', content: inputUsage },
+  ];
+  const selectFiles: TreeFile[] = [
+    { name: 'registry/files/ui/select.svelte', content: selectSource },
+    { name: 'src/lib/ui/select-usage.svelte', content: selectUsage },
+  ];
+  const comboboxFiles: TreeFile[] = [
+    { name: 'registry/files/ui/combobox.svelte', content: comboboxSource },
+    { name: 'src/lib/ui/combobox-usage.svelte', content: comboboxUsage },
+  ];
+  const numberInputFiles: TreeFile[] = [
+    { name: 'registry/files/ui/number-input.svelte', content: numberInputSource },
+    { name: 'src/lib/ui/number-input-usage.svelte', content: numberUsage },
+  ];
+  const datePickerFiles: TreeFile[] = [
+    { name: 'registry/files/ui/date-picker.svelte', content: datePickerSource },
+    { name: 'src/lib/ui/date-picker-usage.svelte', content: dateUsage },
+  ];
+  const tagsInputFiles: TreeFile[] = [
+    { name: 'registry/files/ui/tags-input.svelte', content: tagsInputSource },
+    { name: 'src/lib/ui/tags-input-usage.svelte', content: tagsUsage },
+  ];
+
+  // canvas playground state (each canvas independent from the sections below)
+  let canvasEmail = $state('');
+  let canvasInputType = $state<'text' | 'email' | 'password' | 'search'>('text');
+  let canvasInputClearable = $state(true);
+  let canvasPlaceholder = $state('pick a runtime…');
+  let canvasRuntime = $state('node');
+  let canvasAllowCustom = $state(true);
+  let canvasBackend = $state<string | undefined>('node-pty');
+  let canvasWorkers = $state(4);
+  let canvasDate = $state('2026-08-24');
+  let canvasDateFormat = $state<'iso' | 'locale'>('iso');
+  let canvasStack = $state<Tag[]>([{ value: 'svelte' }, { value: 'node' }]);
+  let canvasMaxTags = $state<number | undefined>(undefined);
 </script>
 
 <svelte:head>
@@ -397,6 +469,207 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
         <span class="pill">zero deps · Svelte 5 runes</span>
       </div>
     </SectionCard>
+  </div>
+
+  <!-- component canvases (audit P1-A2): the six core controls as workbenches
+       — LIVE stage, playground pane, source tree + GitHub link. The full
+       14-control catalogue follows below in SectionCards, unchanged. -->
+  <div data-reveal="" use:reveal>
+    <ComponentCanvas
+      title="input"
+      description="The text-shell base of the NativeHTML family: every native type passes through untouched — the component owns only label/error wiring, four slot seams, and the bordered shell."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/input.svelte"
+      files={inputFiles}
+    >
+      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+        <Input
+          type={canvasInputType}
+          label={`endpoint (${canvasInputType})`}
+          placeholder={canvasInputType === 'password' ? '••••••••' : 'you@host.tld'}
+          clearable={canvasInputClearable}
+          bind:value={canvasEmail}
+        />
+        <span class="text-muted-foreground text-[12.5px]">
+          bound value: <code class="text-accent">{canvasEmail || '—'}</code>
+        </span>
+      </div>
+      {#snippet playground()}
+        <NativeSelect
+          label="type"
+          onchange={(event) => {
+            canvasInputType = event.currentTarget.value as typeof canvasInputType;
+          }}
+        >
+          <option value="text">text</option>
+          <option value="email">email</option>
+          <option value="password">password</option>
+          <option value="search">search</option>
+        </NativeSelect>
+        <Checkbox
+          label="clearable"
+          checked={canvasInputClearable}
+          onchange={(event) => {
+            canvasInputClearable = event.currentTarget.checked;
+          }}
+        />
+        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
+          <code class="text-accent">type</code> lands on the element verbatim — switch it and the
+          platform control swaps under the same shell.
+        </p>
+      {/snippet}
+    </ComponentCanvas>
+  </div>
+
+  <div data-reveal="" use:reveal>
+    <ComponentCanvas
+      title="select"
+      description="The popover-listbox select: per-option descriptions, ↑/↓/Home/End/Enter roving highlight with focus restitution — for when the native popup can't say what you need."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/select.svelte"
+      files={selectFiles}
+    >
+      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+        <Select
+          label="runtime"
+          bind:value={canvasRuntime}
+          options={runtimeOptions}
+          placeholder={canvasPlaceholder}
+        />
+        <span class="text-muted-foreground text-[12.5px]">
+          popover panel · descriptions · bound value: <code class="text-accent">{canvasRuntime}</code>
+        </span>
+      </div>
+      {#snippet playground()}
+        <Input label="placeholder" placeholder="pick a runtime…" bind:value={canvasPlaceholder} />
+        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
+          the panel is <code class="text-accent">popover="auto"</code> wired with
+          <code class="text-accent">popovertarget</code> — light dismiss, Escape, and top-layer
+          rendering are the browser's.
+        </p>
+      {/snippet}
+    </ComponentCanvas>
+  </div>
+
+  <div data-reveal="" use:reveal>
+    <ComponentCanvas
+      title="combobox"
+      description="The searchable select: the trigger IS the input — typing filters the panel live, ↑/↓ + Enter commits, Escape reverts, and allowCustom offers the “Use “xxx”” row."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/combobox.svelte"
+      files={comboboxFiles}
+    >
+      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+        <Combobox
+          label="backend"
+          bind:value={canvasBackend}
+          options={backendOptions}
+          allowCustom={canvasAllowCustom}
+          placeholder="Search..."
+        />
+        <span class="text-muted-foreground text-[12.5px]">
+          allowCustom: <code class="text-accent">{String(canvasAllowCustom)}</code> · value:{' '}
+          <code class="text-accent">{canvasBackend ?? 'undefined'}</code>
+        </span>
+      </div>
+      {#snippet playground()}
+        <Toggle label="allowCustom" bind:checked={canvasAllowCustom} />
+        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
+          type <code class="text-accent">wasi</code> — allowCustom on shows the “Use “wasi”” row in
+          primary; off reverts stray text on blur.
+        </p>
+      {/snippet}
+    </ComponentCanvas>
+  </div>
+
+  <div data-reveal="" use:reveal>
+    <ComponentCanvas
+      title="number-input"
+      description="The [- NUM +] stepper: click steps once and clamps into [min, max], hold accelerates 300ms → 100ms/step, typing commits on change."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/number-input.svelte"
+      files={numberInputFiles}
+    >
+      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+        <NumberInput label="workers" bind:value={canvasWorkers} min={1} max={16} />
+        <span class="text-muted-foreground text-[12.5px]">
+          min 1 · max 16 · value: <code class="text-accent">{canvasWorkers}</code>
+        </span>
+      </div>
+      {#snippet playground()}
+        <Range label="drive the value" bind:value={canvasWorkers} min={1} max={16} />
+        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
+          the slider and the stepper share one binding — drag one, watch the other; Tab into the
+          input and ↑/↓ step natively.
+        </p>
+      {/snippet}
+    </ComponentCanvas>
+  </div>
+
+  <div data-reveal="" use:reveal>
+    <ComponentCanvas
+      title="date-picker"
+      description="A zero-dependency calendar popover over hand-rolled Date math — popover='auto' gives light dismiss and the top layer; single mode commits ISO 'YYYY-MM-DD'."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/date-picker.svelte"
+      files={datePickerFiles}
+    >
+      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+        <DatePicker label="deploy date" bind:value={canvasDate} format={canvasDateFormat} />
+        <span class="text-muted-foreground text-[12.5px]">
+          display {canvasDateFormat} · value: <code class="text-accent">{canvasDate}</code>
+        </span>
+      </div>
+      {#snippet playground()}
+        <NativeSelect
+          label="format"
+          onchange={(event) => {
+            canvasDateFormat = event.currentTarget.value as typeof canvasDateFormat;
+          }}
+        >
+          <option value="iso">iso</option>
+          <option value="locale">locale</option>
+        </NativeSelect>
+        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
+          format is display-only — the committed value stays ISO forever. The grid is one focus
+          stop: ↑↓←→ walk months, Enter commits, Escape is native.
+        </p>
+      {/snippet}
+    </ComponentCanvas>
+  </div>
+
+  <div data-reveal="" use:reveal>
+    <ComponentCanvas
+      title="tags-input"
+      description="Input × multiselect: Enter / comma / Tab commits chips, Backspace on empty deletes the last, duplicates flash the existing chip, maxTags swaps the input for an “N/N tags” readout."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/tags-input.svelte"
+      files={tagsInputFiles}
+    >
+      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+        <TagsInput
+          label="stack"
+          bind:tags={canvasStack}
+          suggestions={tagSuggestions}
+          maxTags={canvasMaxTags}
+        />
+        <span class="text-muted-foreground text-[12.5px]">
+          bound values: <code class="text-accent">{canvasStack.map((t) => t.value).join(', ') || '—'}</code>
+        </span>
+      </div>
+      {#snippet playground()}
+        <NativeSelect
+          label="maxTags"
+          value={canvasMaxTags === undefined ? '' : String(canvasMaxTags)}
+          onchange={(event) => {
+            const raw = event.currentTarget.value;
+            canvasMaxTags = raw === '' ? undefined : Number(raw);
+          }}
+        >
+          <option value="">no cap</option>
+          <option value="3">3</option>
+          <option value="5">5</option>
+        </NativeSelect>
+        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
+          at the cap the input hides — remove a chip to type again. Suggestions pop while typing
+          (↑/↓ + Enter); pasting <code class="text-accent">rust, ffi</code> splits into two.
+        </p>
+      {/snippet}
+    </ComponentCanvas>
   </div>
 
   <!-- all native types -->
