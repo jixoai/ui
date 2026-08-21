@@ -148,8 +148,11 @@
     }
   }
 
-  // the queued focus frame must not outlive the component (Codex r2)
-  onDestroy(() => cancelAnimationFrame(focusFrame));
+  // the queued focus frame must not outlive the component (Codex r2);
+  // rAF is a browser global — onDestroy also fires during SSR destroys
+  onDestroy(() => {
+    if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(focusFrame);
+  });
 
   function onPanelToggle(): void {
     open = panel?.matches(':popover-open') ?? false;
