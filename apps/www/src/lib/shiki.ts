@@ -30,10 +30,15 @@
  */
 
 import type {
+  CodeOptionsMeta,
+  CodeOptionsMultipleThemes,
+  CodeOptionsSingleTheme,
   CodeToHastOptions,
+  CodeToHastOptionsCommon,
   HighlighterCore,
   LanguageInput,
   ThemeInput,
+  ThemeRegistration,
 } from 'shiki/core';
 
 /** Default theme name: the zero-download css-variables theme (see below). */
@@ -45,14 +50,15 @@ export const DEFAULT_THEME = 'jixoai';
  * else (transformers, decorations, dual themes, colorReplacements…) is the
  * untouched Shiki contract.
  */
-export type HighlightOptions = Omit<CodeToHastOptions, 'theme' | 'themes'> & {
-  theme?: CodeToHastOptions['theme'];
-  themes?: CodeToHastOptions['themes'];
-};
+export type HighlightOptions = CodeToHastOptionsCommon &
+  CodeOptionsMeta &
+  Partial<CodeOptionsSingleTheme> &
+  Partial<CodeOptionsMultipleThemes>;
 
 type LangModule = { default: LanguageInput };
 type ThemeModule = { default: ThemeInput };
-type ThemeSource = ThemeInput | (() => Promise<ThemeModule>);
+/** a theme registration object, or a lazy loader (`import('shiki/themes/x.mjs')`) */
+type ThemeSource = ThemeRegistration | (() => Promise<ThemeModule>);
 
 /**
  * Grammars registered here — each entry one lazy chunk (`shiki/langs/<id>.mjs`).
@@ -179,7 +185,7 @@ async function ensureLanguage(lang: string, code: string): Promise<string> {
   const highlighter = await getHighlighter();
   const id = langAliases[lang] ?? lang;
   const { guessEmbeddedLanguages } = await import('shiki/core');
-  const wanted = [id, ...guessEmbeddedLanguages(code)];
+  const wanted = [id, ...guessEmbeddedLanguages(code, id)];
   for (const wantedId of wanted) {
     const canonical = langAliases[wantedId] ?? wantedId;
     if (highlighter.getLoadedLanguages().includes(canonical)) continue;
@@ -223,11 +229,12 @@ async function ensureTheme(name: string): Promise<void> {
 export async function highlightCode(code: string, options: HighlightOptions): Promise<string> {
   const { theme, themes, ...rest } = options;
   const lang = await ensureLanguage(rest.lang, code);
-  const themeNames =
-    theme !== undefined
-      ? [theme]
-      : Object.values(themes ?? {}).map((name) => String(name));
-  for (const name of themeNames) await ensureTheme(name);
+  // string names load on demand; registration objects pass straight through
+  // (Shiki normalizes inline themes without the registry)
+  const themeSources = theme !== undefined ? [theme] : Object.values(themes ?? {});
+  for (const source of themeSources) {
+    if (typeof source === 'string') await ensureTheme(source);
+  }
   const highlighter = await getHighlighter();
   // inject the default only when the caller passed neither theme nor themes
   const resolved: CodeToHastOptions =

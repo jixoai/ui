@@ -15,9 +15,11 @@
      columns never compress; the frame scrolls natively. Consumer cells
      opt into pinned columns with data-sticky="start" | "end" on the th
      AND its td's: they stick to the frame scrollport behind a hairline
-     fold mark. Requires border-collapse: separate (collapsed borders
-     tear under sticky in some engines) — rendering is identical here
-     because the language carries only horizontal hairlines.
+     fold mark. All pinning geometry is LOGICAL (inset-inline-*, border-
+     inline-*) so RTL mirrors for free. Requires border-collapse:
+     separate (collapsed borders tear under sticky in some engines) —
+     rendering is identical here because the language carries only
+     horizontal hairlines.
   3. stack law (frame < 30rem, the CodePen card mode) — thead folds
      away, each row becomes a card: td[data-label] renders a muted
      label ::before with the value flushed right; the first cell takes
@@ -108,7 +110,7 @@
     color: var(--muted-foreground);
     font-size: 12px;
     padding-bottom: 0.5rem;
-    text-align: left;
+    text-align: start;
   }
 
   .jx-table :global(th),
@@ -116,7 +118,7 @@
     background: var(--jx-table-surface); /* opaque: masks scrolled rows */
     border-bottom: 1px solid var(--jx-table-hairline);
     padding: 0.75rem;
-    text-align: left;
+    text-align: start;
     vertical-align: top;
   }
 
@@ -168,13 +170,14 @@
     table :global([data-sticky='end']) {
       position: sticky;
     }
+    /* logical insets + logical fold borders: RTL mirrors for free */
     table :global([data-sticky='start']) {
-      box-shadow: inset -1px 0 0 var(--jx-table-edge); /* LTR fold mark */
-      left: 0;
+      border-inline-end: 1px solid var(--jx-table-edge);
+      inset-inline-start: 0;
     }
     table :global([data-sticky='end']) {
-      box-shadow: inset 1px 0 0 var(--jx-table-edge);
-      right: 0;
+      border-inline-start: 1px solid var(--jx-table-edge);
+      inset-inline-end: 0;
     }
     table :global(thead [data-sticky]) {
       z-index: 3;
@@ -222,17 +225,21 @@
       font-family: var(--font-nav);
       font-size: 10px;
       letter-spacing: 0.12em;
-      text-align: left;
+      text-align: start;
       text-transform: uppercase;
     }
     table:not([data-stack='off']) :global(td:not([data-label])) {
       justify-content: flex-start;
     }
-    /* first cell becomes the card head */
+    /* first cell becomes the card head; the hover law still tints it —
+       the head paint would otherwise out-cascade the row hover */
     table:not([data-stack='off']) :global(tbody td:first-child) {
       background: var(--jx-table-head);
       color: var(--foreground);
       font-weight: 500;
+    }
+    table:not([data-stack='off']) :global(tbody tr:hover td:first-child) {
+      background: color-mix(in oklab, var(--jx-table-hover) 55%, var(--jx-table-head));
     }
 
     /* tfoot: same flex law, closes with the rule hairline */

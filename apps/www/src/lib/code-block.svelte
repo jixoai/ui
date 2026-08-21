@@ -17,14 +17,16 @@
   let { code, lang = 'ts', meta = '' }: Props = $props();
 </script>
 
-<CodeCard {code} {lang} copyable={false} class="jx-code-block">
-  {#if meta}
+{#if meta}
+  <CodeCard {code} {lang} copyable={false} class="jx-code-block">
     {#snippet header()}
       <span class="prompt" aria-hidden="true">&gt;</span>
       <span>{meta}</span>
     {/snippet}
-  {/if}
-</CodeCard>
+  </CodeCard>
+{:else}
+  <CodeCard {code} {lang} copyable={false} class="jx-code-block" />
+{/if}
 
 <style>
   /* the terminal prompt glyph keeps its primary tint inside the card head */
