@@ -2,6 +2,7 @@
   import CardGrid from '$lib/ui/card-grid.svelte';
   import CopyCommand from '$lib/copy-command.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import { icons } from '$lib/icons';
   import { reveal } from '$lib/reveal';
 
   // Pure index page (2026-08-20): every demo moved to its own
@@ -207,10 +208,10 @@
               <div class="pointer-events-none relative z-[1] flex flex-wrap items-center justify-between gap-3">
                 <span class="pointer-events-auto inline-flex"><CopyCommand command={`npx jixoai-ui add ${item.add}`} /></span>
                 <span
-                  class="font-nav text-muted-foreground select-none text-[11px] uppercase tracking-[0.24em]"
+                  class="text-muted-foreground/70 flex-none select-none"
                   aria-hidden="true"
                 >
-                  →
+                  {@html icons.arrowRight}
                 </span>
               </div>
               <!-- Stretched link: overlays the whole card so any click

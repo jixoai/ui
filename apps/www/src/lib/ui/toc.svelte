@@ -18,6 +18,7 @@
 -->
 <script lang="ts">
   import { createTocEngine } from '$lib/toc-engine';
+  import { icons } from '$lib/icons';
   import '$lib/toc.css';
 
   export interface TocChild {
@@ -204,7 +205,7 @@
       aria-label="Expand table of contents"
       onclick={() => (open ? close() : (open = true))}
     >
-      ▾
+      {@html icons.chevronDown}
     </button>
   </div>
 </div>

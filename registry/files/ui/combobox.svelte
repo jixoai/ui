@@ -124,14 +124,15 @@
     if (q === '') return options;
     return options.filter((option) => option.label.toLowerCase().includes(q));
   });
-  // the custom row is redundant when the query already IS an option
-  const exactMatch = $derived.by(() => {
-    const q = query.trim().toLowerCase();
-    return q !== '' && options.some((o) => o.label.toLowerCase() === q || o.value.toLowerCase() === q);
-  });
+  // the "Use “xxx”" row appears ONLY when nothing matched (2026-08-20 fix,
+  // back to the file's own law): while matches exist they are the answer —
+  // an extra custom affordance next to a live match is noise. The blur
+  // commit path still resolves unmatched text through allowCustom.
   const rows = $derived.by(() => {
     const list: Row[] = matching.map((option) => ({ kind: 'option', option }));
-    if (allowCustom && query.trim() !== '' && !exactMatch) list.push({ kind: 'custom', text: query.trim() });
+    if (allowCustom && matching.length === 0 && query.trim() !== '') {
+      list.push({ kind: 'custom', text: query.trim() });
+    }
     return list;
   });
 

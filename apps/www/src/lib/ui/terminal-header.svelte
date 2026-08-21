@@ -55,6 +55,7 @@
   import { onDestroy, onMount } from 'svelte';
   import type { Snippet } from 'svelte';
   import Popover from './popover.svelte';
+  import { icons } from '$lib/icons';
 
   interface PopoverHandle {
     show(): void;
@@ -299,7 +300,7 @@
       </span>
     {/if}
     <span class="jx-sub-text flex flex-col gap-0.5">
-      <span class="text-[13px] font-medium leading-snug">{child.label}{child.external ? ' ↗' : ''}</span>
+      <span class="text-[13px] font-medium leading-snug">{child.label}{#if child.external}<span class="jx-ext" aria-hidden="true">{@html icons.externalLink}</span>{/if}</span>
       {#if child.description}
         <span class="text-[11px] leading-snug opacity-60 line-clamp-2">{child.description}</span>
       {/if}
@@ -386,7 +387,7 @@
                     }}
                     onmouseleave={() => scheduleClose(item.href)}
                   >
-                    {item.label}{item.external ? ' ↗' : ''}
+                    {item.label}{#if item.external}<span class="jx-ext" aria-hidden="true">{@html icons.externalLink}</span>{/if}
                     {@render caret()}
                   </a>
                 {/snippet}
@@ -434,7 +435,7 @@
                     : 'text-terminal-foreground/70 hover:text-terminal-foreground',
                 ].join(' ')}
               >
-                {item.label}{item.external ? ' ↗' : ''}
+                {item.label}{#if item.external}<span class="jx-ext" aria-hidden="true">{@html icons.externalLink}</span>{/if}
               </a>
             {/if}
           {/each}
@@ -491,7 +492,7 @@
                   aria-label="all {item.label}"
                   class="flex items-center px-2 text-terminal-foreground/60 transition-colors hover:text-terminal-foreground"
                 >
-                  all →
+                  all <span class="jx-ext" aria-hidden="true">{@html icons.arrowRight}</span>
                 </a>
               </div>
               <!-- nested group: the same height-only collapse as the
@@ -520,7 +521,7 @@
                               : 'text-terminal-foreground/70 hover:text-terminal-foreground',
                           ].join(' ')}
                         >
-                          <span>{child.label}{child.external ? ' ↗' : ''}</span>
+                          <span>{child.label}{#if child.external}<span class="jx-ext" aria-hidden="true">{@html icons.externalLink}</span>{/if}</span>
                           {#if child.description}
                             <span class="text-[10px] leading-tight opacity-60">{child.description}</span>
                           {/if}
@@ -544,7 +545,7 @@
                     : 'text-terminal-foreground/70 hover:text-terminal-foreground',
                 ].join(' ')}
               >
-                {item.label}{item.external ? ' ↗' : ''}
+                {item.label}{#if item.external}<span class="jx-ext" aria-hidden="true">{@html icons.externalLink}</span>{/if}
               </a>
             {/if}
           {/each}
@@ -556,6 +557,19 @@
 </header>
 
 <style>
+  /* shared inline icon set ($lib/icons): 12px beside 13px nav text */
+  .jx-ext {
+    display: inline-flex;
+    flex: none;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-inline-start: 0.25rem;
+    vertical-align: -0.125em;
+  }
+  .jx-ext svg {
+    width: 100%;
+    height: 100%;
+  }
   /* the bezel surface: without this the bar is transparent and the
      dark-scoped white text sits on the page background — invisible */
   .jx-nav {

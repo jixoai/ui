@@ -53,6 +53,7 @@
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
+  import { icons } from '$lib/icons';
   import type { Snippet } from 'svelte';
 
   interface Props extends HTMLInputAttributes {
@@ -188,7 +189,8 @@
         {/if}
         {#if showClear}
           <button type="button" class="jx-clear" aria-label="clear value" onclick={clearValue}>
-            &times;
+            <!-- the shared inline icon set — 10px inside the 1.125rem hit area -->
+            {@html icons.x}
           </button>
         {/if}
       </div>
@@ -328,6 +330,10 @@
     font-size: 1rem;
     line-height: 1;
     cursor: pointer;
+  }
+  .jx-clear svg {
+    width: 10px;
+    height: 10px;
   }
   .jx-clear:hover {
     color: var(--foreground);

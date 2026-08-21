@@ -56,6 +56,7 @@
 
 <script lang="ts">
   import { tick } from 'svelte';
+  import { icons } from '$lib/icons';
   import type { HTMLInputAttributes } from 'svelte/elements';
 
   interface Props extends Omit<HTMLInputAttributes, 'value' | 'type'> {
@@ -306,7 +307,8 @@
               {disabled}
               onclick={() => removeAt(index)}
             >
-              &times;
+              <!-- the shared inline icon set — 10px inside the chip row -->
+              {@html icons.x}
             </button>
           {/if}
         </span>
@@ -496,6 +498,10 @@
   /* press physics: the × presses in one pixel */
   .jx-tags-remove:active {
     transform: translateY(1px);
+  }
+  .jx-tags-remove svg {
+    width: 10px;
+    height: 10px;
   }
   .jx-tags-remove:focus-visible {
     outline: 1px solid var(--ring);

@@ -5,6 +5,7 @@
   transition to brand hue on hover.
 -->
 <script lang="ts">
+  import { icons } from '$lib/icons';
   export interface FooterLink {
     label: string;
     href: string;
@@ -33,7 +34,8 @@
           rel="noreferrer"
           class="transition-colors hover:text-primary"
         >
-          {link.label} ↗
+          {link.label}
+          <span class="jx-ext" aria-hidden="true">{@html icons.externalLink}</span>
         </a>
       {/each}
     </div>
@@ -42,6 +44,19 @@
 </footer>
 
 <style>
+  /* shared inline icon set ($lib/icons): 12px beside 12.5px footer text */
+  .jx-ext {
+    display: inline-flex;
+    flex: none;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-inline-start: 0.2em;
+    vertical-align: -0.125em;
+  }
+  .jx-ext svg {
+    width: 100%;
+    height: 100%;
+  }
   .jx-footer-ghost {
     font-size: clamp(3rem, 11vw, 9rem);
     line-height: 0.9;

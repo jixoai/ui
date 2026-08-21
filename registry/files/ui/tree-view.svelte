@@ -63,6 +63,8 @@
 </script>
 
 <script lang="ts">
+  import { icons } from '$lib/icons';
+
   interface Props {
     tree: TreeNode[];
     /** Currently selected file path ("src/lib/ui/button.svelte"). */
@@ -208,7 +210,7 @@
           onclick={(event) => activate((event.currentTarget as HTMLElement).closest('li')!, { path, node, parentPath })}
         >
           {#if isDir}
-            <span class="jx-tree-view-caret" aria-hidden="true">▾</span>
+            <span class="jx-tree-view-caret" aria-hidden="true">{@html icons.chevronDown}</span>
           {:else}
             <span
               class="jx-tree-view-dot"
@@ -292,6 +294,10 @@
   }
 
   /* caret: ▾ when expanded, rotated -90° to point right when collapsed */
+  .jx-tree-view-caret svg {
+    width: 10px;
+    height: 10px;
+  }
   .jx-tree-view-caret {
     align-items: center;
     color: var(--muted-foreground);
