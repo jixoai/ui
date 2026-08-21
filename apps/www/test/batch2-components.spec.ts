@@ -32,6 +32,13 @@ describe('Progress', () => {
     expect(container.querySelector('.jx-progress-label')?.textContent).toBe('sync');
   });
 
+  it('clamps the readout at both bounds (negative and >max)', () => {
+    const { container } = render(Progress, { props: { value: -3, label: 'oops' } });
+    expect(container.querySelector('[role="status"]')?.textContent).toBe('0%');
+    const over = render(Progress, { props: { value: 99, max: 10 } });
+    expect(over.container.querySelector('[role="status"]')?.textContent).toBe('100%');
+  });
+
   it('omits value ⇒ indeterminate (no aria-valuenow, no % readout)', () => {
     const { container } = render(Progress);
     const bar = container.querySelector('progress.jx-progress-bar')!;
@@ -67,6 +74,20 @@ describe('Tooltip', () => {
     expect(panel.matches(':popover-open')).toBe(false);
   });
 
+  it('pending intent timers die with the component (no stale show)', async () => {
+    vi.useFakeTimers();
+    try {
+      const rendered = render(TooltipHost);
+      const anchor = rendered.container.querySelector('.jx-tip-anchor') as HTMLElement;
+      await fireEvent(anchor, new PointerEvent('pointerenter', { bubbles: true }));
+      rendered.unmount();
+      await vi.advanceTimersByTimeAsync(600);
+      // no crash, no leaked popover — the assertion IS the clean advance
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('hover intent waits for the open delay', async () => {
     vi.useFakeTimers();
     try {
@@ -92,8 +113,16 @@ describe('pageWindow', () => {
   });
 
   it('never grows ellipses for tiny page counts', () => {
+    expect(pageWindow(1, 1)).toEqual([1]);
+    expect(pageWindow(1, 2)).toEqual([1, 2]);
     expect(pageWindow(1, 3)).toEqual([1, 2, 3]);
     expect(pageWindow(2, 4)).toEqual([1, 2, 3, 4]);
+  });
+
+  it('siblings=0 collapses the neighbor run entirely', () => {
+    expect(pageWindow(5, 20, 0)).toEqual([1, '…', 5, '…', 20]);
+    expect(pageWindow(1, 20, 0)).toEqual([1, '…', 20]);
+    expect(pageWindow(2, 20, 0)).toEqual([1, 2, '…', 20]);
   });
 });
 

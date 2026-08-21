@@ -20,10 +20,12 @@
 
   /**
    * Page window with sticky edges: 1 … (n-1, n, n+1) … last.
-   * Siblings < 1 clamps to 1; tiny page counts never grow ellipses.
+   * siblings=0 collapses the neighbor run entirely (just the current
+   * page between the ellipses); negatives clamp to 0. Tiny page counts
+   * never grow ellipses.
    */
   export function pageWindow(page: number, pageCount: number, siblings = 1): PageItem[] {
-    const s = Math.max(1, siblings);
+    const s = Math.max(0, Math.trunc(siblings));
     const items: PageItem[] = [1];
     const from = Math.max(2, page - s);
     const to = Math.min(pageCount - 1, page + s);

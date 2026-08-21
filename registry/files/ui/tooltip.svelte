@@ -28,6 +28,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { onDestroy } from 'svelte';
 
   interface Props {
     /** panel id (aria-describedby pairs the trigger wrapper to the tip);
@@ -99,6 +100,9 @@
     clearTimeout(openTimer);
     closeTimer = setTimeout(close, closeDelay);
   }
+
+  // pending intent timers must never outlive the component (Codex r1)
+  onDestroy(clearTimers);
 </script>
 
 <svelte:window onkeydown={(e) => e.key === 'Escape' && close()} />
@@ -110,7 +114,11 @@
   onpointerenter={onEnter}
   onpointerleave={onLeave}
   onfocusin={open}
-  onfocusout={close}
+  onfocusout={(e) => {
+    // focus moving BETWEEN the wrapper's own children must not flicker
+    // the tip (only a real exit closes)
+    if (!e.currentTarget.contains(e.relatedTarget)) close();
+  }}
 >
   {@render children()}
 </span>

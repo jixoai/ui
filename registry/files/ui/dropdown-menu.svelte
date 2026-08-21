@@ -59,7 +59,19 @@
 
   let panel = $state<HTMLElement | null>(null);
   let triggerEl = $state<HTMLButtonElement | null>(null);
+  let anchorEl = $state<HTMLElement | null>(null);
   let open = $state(false);
+  // the queued focus-first-item frame — cancelled on close so a fast
+  // Escape can never let a stale frame steal focus back (Codex r1)
+  let focusFrame: number | undefined;
+
+  /** custom triggers render inside the anchor wrapper; adopt their
+   *  popovertarget button for aria mirroring + focus restoration */
+  $effect(() => {
+    if (!trigger && anchorEl) {
+      triggerEl = anchorEl.querySelector(`[popovertarget="${id}"]`) as HTMLButtonElement | null;
+    }
+  });
 
   /** context surface for dropdown-menu-item: selection closes the menu
    *  with focus restored to the trigger (APG selection contract) */
@@ -138,18 +150,23 @@
     triggerEl?.setAttribute('aria-expanded', String(open));
     onToggle?.(open);
     if (open) {
-      requestAnimationFrame(() => {
+      cancelAnimationFrame(focusFrame);
+      focusFrame = requestAnimationFrame(() => {
+        // the panel may already be closing again (fast Escape) — never
+        // steal focus into a closed menu
+        if (!panel?.matches(':popover-open')) return;
         const items = menuItems();
         if (items[0]) focusItem(items, items[0]);
       });
     } else {
+      cancelAnimationFrame(focusFrame);
       if (restoreFocus) triggerEl?.focus();
       restoreFocus = false;
     }
   }
 </script>
 
-<span class="jx-menu-anchor" style="anchor-name: {anchorName}">
+<span bind:this={anchorEl} class="jx-menu-anchor" style="anchor-name: {anchorName}">
   {#if trigger}
     {@render trigger()}
   {:else}

@@ -26,7 +26,9 @@
 
   let { value, max = 1, label, class: className = '' }: Props = $props();
 
-  const pct = $derived(value === undefined || max <= 0 ? null : Math.min(100, (value / max) * 100));
+  const pct = $derived(
+    value === undefined || max <= 0 ? null : Math.min(100, Math.max(0, (value / max) * 100)),
+  );
 </script>
 
 <div class="jx-progress {className}">
