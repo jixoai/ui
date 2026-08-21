@@ -64,10 +64,43 @@
     });
   });
 
+  // "Components" carries the second level (2026-08-20): desktop opens a
+  // native-popover dropdown under the pill (click + hover), mobile nests
+  // a disclosure group inside the hamburger panel.
   const items = $derived([
     { href: '/', label: 'Overview', active: normalized === '/' },
-    { href: '/components/overview.html', label: 'Components', active: normalized.startsWith('/components') },
-    { href: '/tokens.html', label: 'Tokens', active: normalized === '/tokens' },
+    {
+      href: '/components/overview.html',
+      label: 'Components',
+      active: normalized.startsWith('/components'),
+      children: [
+        {
+          href: '/components/overview.html',
+          label: 'overview',
+          description: 'the live gallery',
+          active: normalized === '/components/overview.html',
+        },
+        {
+          href: '/components/popover.html',
+          label: 'popover',
+          description: 'native popover base',
+          active: normalized === '/components/popover.html',
+        },
+        {
+          href: '/components/dialog.html',
+          label: 'dialog',
+          description: 'native dialog base',
+          active: normalized === '/components/dialog.html',
+        },
+        {
+          href: '/components/form.html',
+          label: 'form',
+          description: 'inputs + select',
+          active: normalized === '/components/form.html',
+        },
+      ],
+    },
+    { href: '/tokens.html', label: 'Tokens', active: normalized === '/tokens.html' },
     { href: GITHUB_URL, label: 'GitHub', external: true },
   ]);
 </script>

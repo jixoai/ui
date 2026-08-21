@@ -15,17 +15,43 @@
     tablet (sm–lg)  one row: logo + brand + domain LEFT (no subtitle);
                     compact nav group + switcher RIGHT
     mobile (<sm)    row 1: logo + brand LEFT; switcher + hamburger RIGHT;
-                    the nav opens as a stacked disclosure panel below
+                    the nav opens as a stacked disclosure panel below,
+                    items with children expanding as nested grid-rows
+                    0fr→1fr groups (the parent row toggles; an "all →"
+                    link keeps the parent href reachable)
+
+  Second-level nav (2026-08-20, request: click + hover submenus on the
+  native Popover API; nested disclosures on mobile): items may carry
+  `children`. Desktop pills with children orchestrate a popover="auto"
+  panel through JS only (showPopover/hidePopover — never a declarative
+  popovertarget, because the pill stays a link and hover needs grace
+  timers); light dismiss, Escape, top layer and focus restore remain
+  browser-native. The panel repeats the header's scope class so its
+  tokens resolve from itself, not from DOM ancestry surviving the
+  top-layer promotion. This is the file's 5th orthogonal intent — at
+  the cap; do not add more here.
 -->
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import type { Snippet } from 'svelte';
+
+  export interface TerminalNavSubItem {
+    label: string;
+    href: string;
+    external?: boolean;
+    /** Optional one-line muted description under the label. */
+    description?: string;
+    /** Marks the current page inside the dropdown / disclosure list. */
+    active?: boolean;
+  }
 
   export interface TerminalNavItem {
     label: string;
     href: string;
     active?: boolean;
     external?: boolean;
+    /** Second level: desktop popover dropdown, mobile disclosure group. */
+    children?: TerminalNavSubItem[];
   }
 
   interface Props {
@@ -68,6 +94,83 @@
 
   const close = () => (open = false);
 
+  /* -----------------------------------------------------------------
+   * Second-level nav orchestration. openKey mirrors the panels' toggle
+   * events — the native close paths (light dismiss, Escape) run without
+   * our handlers, so the events are the single source of truth and
+   * aria-expanded never lies.
+   * --------------------------------------------------------------- */
+  const HOVER_GRACE_MS = 120;
+  const PANEL_GAP = 6;
+
+  let openKey = $state<string | null>(null);
+  // 'hover' panels survive their first click (the click confirms the
+  // hover intent); only a second click on a click-opened panel closes.
+  let openedBy: 'hover' | 'click' | null = null;
+  let closeTimer: ReturnType<typeof setTimeout> | null = null;
+  const triggerEls: Record<string, HTMLAnchorElement | null> = {};
+  const panelEls: Record<string, HTMLElement | null> = {};
+  let panelPos = $state<Record<string, { top: string; left: string }>>({});
+
+  const cancelClose = () => {
+    if (closeTimer) {
+      clearTimeout(closeTimer);
+      closeTimer = null;
+    }
+  };
+  const hidePanel = (key: string) => {
+    const panel = panelEls[key];
+    if (panel?.matches(':popover-open')) {
+      try {
+        panel.hidePopover();
+      } catch {
+        /* engine quirk: already hidden */
+      }
+    }
+  };
+  const showPanel = (key: string, by: 'hover' | 'click') => {
+    const panel = panelEls[key];
+    if (!panel || typeof panel.showPopover !== 'function') return;
+    // pre-position from the trigger rect so the first painted frame is
+    // already anchored; rAF refines the clamp once the panel measures
+    const rect = triggerEls[key]?.getBoundingClientRect();
+    if (rect) panelPos[key] = { top: `${rect.bottom + PANEL_GAP}px`, left: `${rect.left}px` };
+    openedBy = by;
+    if (!panel.matches(':popover-open')) {
+      try {
+        panel.showPopover();
+      } catch {
+        /* engine quirk: already showing */
+      }
+    }
+  };
+  const scheduleClose = (key: string) => {
+    cancelClose();
+    closeTimer = setTimeout(() => hidePanel(key), HOVER_GRACE_MS);
+  };
+  const positionPanel = (key: string) => {
+    const trigger = triggerEls[key];
+    const panel = panelEls[key];
+    if (!trigger || !panel) return;
+    const rect = trigger.getBoundingClientRect();
+    const left = Math.min(Math.max(PANEL_GAP, rect.left), innerWidth - panel.offsetWidth - PANEL_GAP);
+    panelPos[key] = { top: `${rect.bottom + PANEL_GAP}px`, left: `${left}px` };
+  };
+  const onPanelToggle = (key: string, event: Event) => {
+    if ((event as ToggleEvent).newValue) {
+      openKey = key;
+      requestAnimationFrame(() => positionPanel(key));
+    } else {
+      if (openKey === key) openKey = null;
+      openedBy = null;
+      cancelClose();
+    }
+  };
+  onDestroy(cancelClose);
+
+  // mobile: expanded disclosure groups, keyed by the parent href as well
+  let expanded = $state<Record<string, boolean>>({});
+
   // Sliding indicator (Owner, 2026-08-21): a dedicated element acts as the
   // active background and slides between nav items (measured translateX +
   // width). It carries the vt-nav-active name, so cross-page navigations
@@ -78,7 +181,9 @@
 
   const positionIndicator = (instant = false) => {
     if (!navEl || !indicatorEl) return;
-    const active = navEl.querySelector('[aria-current="page"]');
+    // direct pill anchors only — dropdown child links carry their own
+    // aria-current and must never steal the indicator
+    const active = navEl.querySelector(':scope > a[aria-current="page"]');
     if (!(active instanceof HTMLElement)) {
       indicatorEl.style.opacity = '0';
       return;
@@ -110,6 +215,21 @@
     return () => ro.disconnect();
   });
 </script>
+
+{#snippet caret()}
+  <svg
+    class="jx-caret"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="m6 9 6 6 6-6" />
+  </svg>
+{/snippet}
 
 <header class="jx-nav {scope === 'dark' ? 'dark' : 'jx-light'}">
   <div class="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-8">
@@ -144,21 +264,93 @@
           bind:this={navEl}
         >
           <span class="jx-indicator" bind:this={indicatorEl} aria-hidden="true"></span>
-          {#each items as item (item.href)}
-            <a
-              href={item.href}
-              aria-current={item.active ? 'page' : undefined}
-              target={item.external ? '_blank' : undefined}
-              rel={item.external ? 'noreferrer' : undefined}
-              class={[
-                'px-2.5 py-1 transition-colors lg:px-3',
-                item.active
-                  ? 'text-terminal-foreground'
-                  : 'text-terminal-foreground/70 hover:text-terminal-foreground',
-              ].join(' ')}
-            >
-              {item.label}{item.external ? ' ↗' : ''}
-            </a>
+          {#each items as item, i (item.href)}
+            {#if item.children?.length}
+              <a
+                href={item.href}
+                aria-current={item.active ? 'page' : undefined}
+                aria-haspopup="true"
+                aria-expanded={openKey === item.href ? 'true' : 'false'}
+                target={item.external ? '_blank' : undefined}
+                rel={item.external ? 'noreferrer' : undefined}
+                class={[
+                  'inline-flex items-center gap-1 px-2.5 py-1 transition-colors lg:px-3',
+                  item.active
+                    ? 'text-terminal-foreground'
+                    : 'text-terminal-foreground/70 hover:text-terminal-foreground',
+                ].join(' ')}
+                bind:this={triggerEls[item.href]}
+                onclick={(event) => {
+                  const panel = panelEls[item.href];
+                  if (!panel || typeof panel.showPopover !== 'function') return; // no popover engine: navigate
+                  event.preventDefault();
+                  cancelClose();
+                  if (panel.matches(':popover-open')) {
+                    if (openedBy === 'click') hidePanel(item.href);
+                    else openedBy = 'click';
+                  } else {
+                    showPanel(item.href, 'click');
+                  }
+                }}
+                onmouseenter={() => {
+                  cancelClose();
+                  showPanel(item.href, 'hover');
+                }}
+                onmouseleave={() => scheduleClose(item.href)}
+              >
+                {item.label}{item.external ? ' ↗' : ''}
+                {@render caret()}
+              </a>
+              <!-- the second-level panel: native top layer + light dismiss;
+                   JS only owns hover grace, click toggling and placement -->
+              <div
+                id="jx-nav-sub-{i}"
+                popover="auto"
+                role="group"
+                aria-label={item.label}
+                class="jx-subpanel {scope === 'dark' ? 'dark' : 'jx-light'}"
+                style="top: {panelPos[item.href]?.top ?? '0px'}; left: {panelPos[item.href]?.left ?? '0px'};"
+                ontoggle={(event) => onPanelToggle(item.href, event)}
+                onmouseenter={() => cancelClose()}
+                onmouseleave={() => scheduleClose(item.href)}
+                bind:this={panelEls[item.href]}
+              >
+                <div class="flex flex-col p-1">
+                  {#each item.children as child (child.href)}
+                    <a
+                      href={child.href}
+                      aria-current={child.active ? 'page' : undefined}
+                      target={child.external ? '_blank' : undefined}
+                      rel={child.external ? 'noreferrer' : undefined}
+                      class="jx-sub-link"
+                      onclick={() => hidePanel(item.href)}
+                    >
+                      <span class="flex flex-col gap-0.5 px-2.5 py-1.5">
+                        <span>{child.label}{child.external ? ' ↗' : ''}</span>
+                        {#if child.description}
+                          <span class="text-[10px] leading-tight opacity-60">{child.description}</span>
+                        {/if}
+                      </span>
+                    </a>
+                  {/each}
+                </div>
+              </div>
+            {:else}
+              <a
+                href={item.href}
+                aria-current={item.active ? 'page' : undefined}
+                target={item.external ? '_blank' : undefined}
+                rel={item.external ? 'noreferrer' : undefined}
+                class={[
+                  'px-2.5 py-1 transition-colors lg:px-3',
+                  item.active
+                    ? 'text-terminal-foreground'
+                    : 'text-terminal-foreground/70 hover:text-terminal-foreground',
+                ].join(' ')}
+              >
+                {item.label}{item.external ? ' ↗' : ''}
+              </a>
+            {/if}
           {/each}
         </nav>
         {#if switcher}
@@ -186,21 +378,81 @@
       <div class="overflow-hidden">
         <nav class="flex flex-col border-t border-terminal-foreground/10 py-2 text-xs" aria-label="Primary">
           {#each items as item (item.href)}
-            <a
-              href={item.href}
-              onclick={close}
-              aria-current={item.active ? 'page' : undefined}
-              target={item.external ? '_blank' : undefined}
-              rel={item.external ? 'noreferrer' : undefined}
-              class={[
-                'px-1 py-2 transition-colors',
-                item.active
-                  ? 'bg-terminal-hover text-terminal-foreground'
-                  : 'text-terminal-foreground/70 hover:text-terminal-foreground',
-              ].join(' ')}
-            >
-              {item.label}{item.external ? ' ↗' : ''}
-            </a>
+            {#if item.children?.length}
+              <!-- parent row: full-width disclosure toggle; the parent
+                   href survives as the adjacent "all →" link -->
+              <div class="flex items-stretch">
+                <button
+                  type="button"
+                  class={[
+                    'flex flex-1 items-center gap-1 px-1 py-2 text-left transition-colors',
+                    item.active
+                      ? 'text-terminal-foreground'
+                      : 'text-terminal-foreground/70 hover:text-terminal-foreground',
+                  ].join(' ')}
+                  aria-expanded={expanded[item.href] ? 'true' : 'false'}
+                  onclick={() => (expanded[item.href] = !expanded[item.href])}
+                >
+                  {item.label}
+                  {@render caret()}
+                </button>
+                <a
+                  href={item.href}
+                  onclick={close}
+                  aria-label="all {item.label}"
+                  class="flex items-center px-2 text-terminal-foreground/60 transition-colors hover:text-terminal-foreground"
+                >
+                  all →
+                </a>
+              </div>
+              <!-- nested group: the same height-only collapse as the
+                   panel itself (grid-rows 0fr → 1fr) -->
+              <div
+                class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-200"
+                class:grid-rows-[1fr]={expanded[item.href]}
+              >
+                <div class="overflow-hidden">
+                  <div class="flex flex-col border-l border-terminal-foreground/15 pl-3">
+                    {#each item.children as child (child.href)}
+                      <a
+                        href={child.href}
+                        onclick={close}
+                        aria-current={child.active ? 'page' : undefined}
+                        target={child.external ? '_blank' : undefined}
+                        rel={child.external ? 'noreferrer' : undefined}
+                        class={[
+                          'flex flex-col gap-0.5 py-1.5 pl-2 transition-colors',
+                          child.active
+                            ? 'bg-terminal-hover text-terminal-foreground'
+                            : 'text-terminal-foreground/70 hover:text-terminal-foreground',
+                        ].join(' ')}
+                      >
+                        <span>{child.label}{child.external ? ' ↗' : ''}</span>
+                        {#if child.description}
+                          <span class="text-[10px] leading-tight opacity-60">{child.description}</span>
+                        {/if}
+                      </a>
+                    {/each}
+                  </div>
+                </div>
+              </div>
+            {:else}
+              <a
+                href={item.href}
+                onclick={close}
+                aria-current={item.active ? 'page' : undefined}
+                target={item.external ? '_blank' : undefined}
+                rel={item.external ? 'noreferrer' : undefined}
+                class={[
+                  'px-1 py-2 transition-colors',
+                  item.active
+                    ? 'bg-terminal-hover text-terminal-foreground'
+                    : 'text-terminal-foreground/70 hover:text-terminal-foreground',
+                ].join(' ')}
+              >
+                {item.label}{item.external ? ' ↗' : ''}
+              </a>
+            {/if}
           {/each}
         </nav>
       </div>
@@ -255,16 +507,16 @@
     -webkit-backdrop-filter: brightness(2);
     backdrop-filter: brightness(2);
     opacity: 0;
-  }
-  .jx-nav.jx-light .jx-indicator {
-    /* light bezel: the same "subtle shift" reads as a slight darken */
-    -webkit-backdrop-filter: brightness(0.85);
-    backdrop-filter: brightness(0.85);
     view-transition-name: vt-nav-active;
     transition:
       transform 450ms cubic-bezier(0.22, 1, 0.36, 1),
       width 450ms cubic-bezier(0.22, 1, 0.36, 1),
       opacity 150ms ease-out;
+  }
+  .jx-nav.jx-light .jx-indicator {
+    /* light bezel: the same "subtle shift" reads as a slight darken */
+    -webkit-backdrop-filter: brightness(0.85);
+    backdrop-filter: brightness(0.85);
   }
   .jx-nav .jx-indicator.jx-indicator-instant {
     transition: none;
@@ -272,6 +524,63 @@
   .jx-nav nav a {
     position: relative;
     z-index: 1;
+  }
+
+  /* the second-level caret marker; flips while its control is open */
+  .jx-nav .jx-caret {
+    width: 10px;
+    height: 10px;
+    flex: none;
+    transition: transform 150ms ease-out;
+  }
+  .jx-nav a[aria-expanded='true'] .jx-caret,
+  .jx-nav button[aria-expanded='true'] .jx-caret {
+    transform: rotate(180deg);
+  }
+
+  /* the dropdown panel law: terminal bezel surface, 1px border, hard
+     offset shadow; fixed coordinates come from JS (hover + light dismiss
+     make declarative anchoring insufficient) — the hue-popover recipe.
+     The panel carries the header's scope class itself so the tokens
+     never depend on the top-layer promotion. */
+  .jx-nav .jx-subpanel {
+    position: fixed;
+    margin: 0;
+    inset: auto;
+    min-width: 12rem;
+    color: var(--terminal-foreground);
+    background: var(--terminal);
+    border: 1px solid color-mix(in oklab, var(--terminal-foreground) 25%, transparent);
+    box-shadow: var(--shadow);
+    transition:
+      opacity 140ms ease-out,
+      translate 140ms ease-out,
+      display 140ms allow-discrete,
+      overlay 140ms allow-discrete;
+    opacity: 0;
+    translate: 0 -4px;
+  }
+  .jx-nav .jx-subpanel:popover-open {
+    opacity: 1;
+    translate: 0 0;
+  }
+  @starting-style {
+    .jx-nav .jx-subpanel:popover-open {
+      opacity: 0;
+      translate: 0 -4px;
+    }
+  }
+  /* popovers get a ::backdrop; light dismiss must never dim the page */
+  .jx-nav .jx-subpanel::backdrop {
+    background: transparent;
+  }
+  .jx-nav .jx-sub-link {
+    display: block;
+    transition: background-color 120ms ease-out;
+  }
+  .jx-nav .jx-sub-link:hover,
+  .jx-nav .jx-sub-link[aria-current='page'] {
+    background: var(--terminal-hover);
   }
 
   /* interaction polish on the bezel: WebKit's default tap-highlight is a
@@ -288,5 +597,16 @@
   .jx-nav :where(a, button):focus-visible {
     outline: 1px solid color-mix(in oklab, var(--terminal-foreground) 80%, transparent);
     outline-offset: -1px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .jx-nav .jx-caret,
+    .jx-nav .jx-sub-link,
+    .jx-nav .jx-subpanel {
+      transition: none;
+    }
+    .jx-nav .jx-subpanel {
+      opacity: 1;
+      translate: none;
+    }
   }
 </style>

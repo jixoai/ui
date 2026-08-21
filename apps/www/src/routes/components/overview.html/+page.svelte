@@ -9,6 +9,8 @@
   import Toc from '$lib/ui/toc.svelte';
   import LanguageSwitcher from '$lib/ui/language-switcher.svelte';
   import CardGrid from '$lib/ui/card-grid.svelte';
+  import CodeCard from '$lib/ui/code-card.svelte';
+  import Table from '$lib/ui/table.svelte';
   import ScaffoldFloat from '$lib/ui/scaffold-float.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -58,6 +60,16 @@
       id: 'shell',
       label: 'terminal-header / footer',
       children: [{ id: 'shell-code', label: 'Integration' }],
+    },
+    {
+      id: 'code-card',
+      label: 'code-card',
+      children: [{ id: 'code-card-demo', label: 'Demo' }],
+    },
+    {
+      id: 'table',
+      label: 'table',
+      children: [{ id: 'table-demo', label: 'Compatibility' }],
     },
   ];
 
@@ -171,6 +183,14 @@ ${close}
   subtitle="the jixoai design language"
   items={[
     { href: '/', label: 'Overview', active: true },
+    {
+      href: '/docs',
+      label: 'Docs',
+      children: [
+        { href: '/docs/tokens', label: 'tokens', description: 'the token sheet' },
+        { href: '/docs/components', label: 'components', description: 'the gallery' },
+      ],
+    },
     { href: 'https://github.com/jixoai/ui', label: 'GitHub', external: true },
   ]}
 >
@@ -550,7 +570,7 @@ ${close}
         headerRegion="shell"
         eyebrow="registry:ui"
         title="terminal-header / terminal-footer"
-        summary="The site shell. The header is an always-dark CRT bezel (never a themed surface) with the brand eyebrow in brand hue, nav pills, and the theme slot at the far right; the footer is a giant ghost wordmark that closes the narrative. This page does not render a second pair — you're wearing one — so here is how they attach instead."
+        summary="The site shell. The header is an always-dark CRT bezel (never a themed surface) with the brand eyebrow in brand hue, nav pills, and the theme slot at the far right; the footer is a giant ghost wordmark that closes the narrative. Second-level nav (2026-08-20): items may carry children — you are wearing the demo, hover or click the Components pill in the header above. Desktop drops a native popover=auto panel (JS-orchestrated click + hover with a 120ms close grace; light dismiss, Escape and the top layer stay browser-native) with label + description rows; under sm the hamburger panel expands the same group as a nested 0fr→1fr disclosure with an all → escape link for the parent href. This page does not render a second pair, so here is how they attach instead."
       >
         <div class="flex flex-col gap-7" data-region="shell-code">
           <div id="shell-code" class="flex flex-col gap-3">

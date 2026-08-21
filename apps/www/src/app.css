@@ -26,6 +26,8 @@
   --tok-string: var(--accent);
   --tok-keyword: var(--primary);
   --tok-number: color-mix(in oklab, var(--secondary) 78%, var(--foreground));
+  --tok-function: color-mix(in oklab, var(--primary) 62%, var(--foreground));
+  --tok-tag: var(--muted-foreground);
 }
 .dark {
   --readonly-code-bg: color-mix(in oklab, var(--muted) 78%, var(--background));
@@ -37,6 +39,8 @@
   --tok-string: var(--accent);
   --tok-keyword: var(--primary);
   --tok-number: var(--secondary);
+  --tok-function: color-mix(in oklab, var(--primary) 58%, oklch(1 0 0));
+  --tok-tag: var(--muted-foreground);
 }
 
 /* Tailwind mapping supplements — kill the default rounded scale (radius law:
@@ -171,6 +175,12 @@
 }
 .tok-number {
   color: var(--tok-number);
+}
+.tok-function {
+  color: var(--tok-function);
+}
+.tok-tag {
+  color: var(--tok-tag);
 }
 
 /* Skip link (a11y) — visible only on keyboard focus. */
