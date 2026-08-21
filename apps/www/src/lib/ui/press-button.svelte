@@ -9,6 +9,7 @@
   interface Props {
     variant?: 'primary' | 'outline' | 'copied';
     href?: string;
+    /** Opens non-internal hrefs (not starting with "/") in a new tab. */
     external?: boolean;
     onclick?: () => void;
     type?: 'button' | 'submit';
@@ -19,7 +20,7 @@
   let {
     variant = 'outline',
     href,
-    external = false,
+    external = undefined,
     onclick,
     type = 'button',
     ariaLabel,
@@ -34,13 +35,14 @@
     copied: 'bg-secondary text-secondary-foreground',
   } as const;
   const classes = $derived(`${base} ${variants[variant]}`);
+  const isExternal = $derived(external ?? (href !== undefined && !href.startsWith('/')));
 </script>
 
 {#if href}
   <a
     {href}
-    target={external ? '_blank' : undefined}
-    rel={external ? 'noreferrer' : undefined}
+    target={isExternal ? '_blank' : undefined}
+    rel={isExternal ? 'noreferrer' : undefined}
     aria-label={ariaLabel}
     class={classes}
   >
