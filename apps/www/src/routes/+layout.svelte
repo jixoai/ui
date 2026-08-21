@@ -125,11 +125,7 @@
               description: 'native dialog base',
               active: normalized === '/components/dialog.html',
             },
-            {
-              href: '/components/toc.html',
-              label: 'toc',
-              description: 'rule tracker rail',
-            },
+            // toc: re-added when its docs page lands (site walkthrough P1)
           ],
         },
         {
@@ -162,17 +158,17 @@
               description: 'the typing terminal',
             },
             {
-              href: '/components/overview.html',
+              href: '/components/code-card.html',
               label: 'code-card',
               description: 'readonly code surface',
             },
             {
-              href: '/components/overview.html',
+              href: '/components/table.html',
               label: 'table',
               description: 'native semantics',
             },
             {
-              href: '/components/overview.html',
+              href: '/components/theme-toggle.html',
               label: 'theme-toggle',
               description: 'light / dark / system',
             },

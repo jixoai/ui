@@ -43,6 +43,20 @@ ${close}
 </svelte:head>
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+    <div data-reveal="" use:reveal>
+      <SectionCard
+        headingLevel={1}
+        tone="hero"
+        eyebrow="registry:ui · Layout"
+        title="scaffold-float — the portal half"
+        summary="The consumer half of the float provider: portals children into the scaffold's top layer so they ride the immersive slide with the header."
+        >
+      <div class="flex flex-wrap gap-3">
+        <span class="pill">portal half</span>
+        <span class="pill">rides the header slide</span>
+      </div>
+    </SectionCard>
+    </div>
   <div data-reveal="" use:reveal>
     <ComponentCanvas
       title="scaffold-float"

@@ -292,12 +292,16 @@
     {@render trigger(id)}
   {/if}
 
-  <!-- restProps first: our wiring must win; caller handlers are forwarded -->
+  <!-- restProps first: our wiring must win; caller handlers are forwarded.
+       The visually-hidden input stays in the a11y tree (it is the real
+       file control), so it carries its own name — the visible label[for]
+       points at the trigger button, not here -->
   <input
     bind:this={inputEl}
     {...rest}
     type="file"
     class="jx-file-native"
+    aria-label={label || (multiple ? 'choose files' : 'choose file')}
     {accept}
     {multiple}
     onchange={onInputChange}

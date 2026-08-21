@@ -62,6 +62,7 @@
       {#each locales.slice(0, 2) as locale (locale.code)}
         <a
           href={locale.href}
+          hreflang={locale.code}
           aria-current={locale.code === current ? 'true' : undefined}
           class="jx-lang-item"
           class:jx-lang-active={locale.code === current}
@@ -101,6 +102,7 @@
             <li>
               <a
                 href={locale.href}
+                hreflang={locale.code}
                 role="option"
                 aria-selected={locale.code === current ? 'true' : undefined}
                 class="jx-lang-menu-item"

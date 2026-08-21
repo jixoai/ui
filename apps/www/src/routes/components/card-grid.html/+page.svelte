@@ -58,6 +58,21 @@ ${close}
 </svelte:head>
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+    <div data-reveal="" use:reveal>
+      <SectionCard
+        headingLevel={1}
+        tone="hero"
+        eyebrow="registry:ui · Layout"
+        title="card-grid — the subgrid equalizer"
+        summary="Shared header and body rows keep card tops aligned and bodies filled to the tallest: grid + subgrid, works with any two-block card."
+        >
+      <div class="flex flex-wrap gap-3">
+        <span class="pill">subgrid rows</span>
+        <span class="pill">any two-block card</span>
+        <span class="pill">min prop</span>
+      </div>
+    </SectionCard>
+    </div>
   <div data-reveal="" use:reveal>
     <ComponentCanvas
       title="card-grid"
