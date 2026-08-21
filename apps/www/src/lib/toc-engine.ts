@@ -33,8 +33,10 @@ export interface TocEngineUpdate {
 
 export interface TocLineOptions {
   /** Distance from the viewport top to the calculation line, in px.
-   *  Desktop default 1; mobile default 76 (sticky bar 44 + 2em). */
-  lineOffset?: number;
+   *  Static number or a live getter (re-evaluated each compute — for
+   *  overlay shells whose header/float geometry is measured, not
+   *  hardcoded). Desktop default 1; mobile default 76. */
+  lineOffset?: number | (() => number);
   /** Scroll root for overlay-shell layouts where an internal element
    *  scrolls instead of the document. Accepts an element or a selector
    *  resolved at engine creation. Defaults to the window/document. */
@@ -69,7 +71,7 @@ export function createTocEngine(
     raf = 0;
     const vw = innerWidth;
     const vh = innerHeight;
-    const line = lineOffset;
+    const line = typeof lineOffset === 'function' ? lineOffset() : lineOffset;
     const weights = new Map<string, number>();
     const familyWeights = new Map<string, number>();
 

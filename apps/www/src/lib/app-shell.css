@@ -44,11 +44,15 @@
   .jx-top-layer {
     transition: none;
   }
+  .jx-shell-body {
+    scroll-behavior: auto;
+  }
 }
 .jx-shell-body {
   height: 100%;
   overflow-y: auto;
   overscroll-behavior-y: none;
+  scroll-behavior: smooth;
 }
 
 .jx-skip-link {

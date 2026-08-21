@@ -228,6 +228,7 @@ ${close}
     <!-- press-button -->
     <div id="press-button" data-family="press-button" data-reveal="" use:reveal>
       <SectionCard
+        headerRegion="press-button"
         eyebrow="registry:ui"
         title="press-button"
         summary="The brutalist press-physics button: hover lifts toward the viewer (shadow xs grows), active presses back into the page. The shadow is the affordance — there is no other button style in the grammar."
@@ -254,6 +255,7 @@ ${close}
     <!-- section-card -->
     <div id="section-card" data-family="section-card" data-reveal="" use:reveal>
       <SectionCard
+        headerRegion="section-card"
         eyebrow="registry:ui"
         title="section-card"
         summary="The content atom of the site grammar: a bordered card, header block with eyebrow (brand hue, Share Tech Mono, tracked 0.24em), font-nav title, text-pretty summary, and a body snippet slot."
@@ -280,6 +282,7 @@ ${close}
     <!-- theme-toggle -->
     <div id="theme-toggle" data-family="theme-toggle" data-region="theme-toggle" data-reveal="" use:reveal>
       <SectionCard
+        headerRegion="theme-toggle"
         eyebrow="registry:ui"
         title="theme-toggle"
         summary="light / dark / system in four variants: full (segmented icon+label selector — click a mode to set it), compact (icon + current, cycles), icon (icon only, cycles), text (label only, cycles). Inline SVG icons, no icon-library dependency; drives the shared theme contract (localStorage “theme”, .dark class, colorScheme) with the no-flash bootstrap."
@@ -304,6 +307,7 @@ ${close}
     <!-- reveal -->
     <div id="reveal" data-family="reveal" data-reveal="" use:reveal>
       <SectionCard
+        headerRegion="reveal"
         eyebrow="registry:lib"
         title="reveal"
         summary="The scroll-reveal action. Motion is restrained to exactly two patterns: entrance (opacity + rise, or a rule that draws in) and press physics. Every animated element on this site uses one of them."
@@ -348,6 +352,7 @@ ${close}
     <!-- toc -->
     <div id="toc" data-family="toc" data-reveal="" use:reveal>
       <SectionCard
+        headerRegion="toc"
         eyebrow="registry:ui"
         title="toc — the Combo ToC"
         summary="You are looking at it. Desktop gets the Rule Tracker: a scroll-progress spine, square weight-driven nodes on level-1 entries, and the pick + parent markers. Mobile gets the Terminal Rail: a glass single-row viewport where page scroll drives the row to the current entry, and expanding changes ONLY the height."
@@ -371,6 +376,7 @@ ${close}
     <!-- terminal-card -->
     <div id="terminal-card" data-family="terminal-card" data-reveal="" use:reveal>
       <SectionCard
+        headerRegion="terminal-card"
         eyebrow="registry:ui"
         title="terminal-card"
         summary="The Broadside hero terminal, composed after the openspecui reference: traffic-light title bar, one large typed command, outputs surfacing line by line, 6px hard offset shadow. One-shot typing entrance (never looping), static block cursor per the motion law; prerendered/no-JS shows the settled terminal and reduced motion renders instantly."
@@ -405,6 +411,7 @@ ${close}
     <!-- hero-section -->
     <div id="hero-section" data-family="hero-section" data-reveal="" use:reveal>
       <SectionCard
+        headerRegion="hero-section"
         eyebrow="registry:ui"
         title="hero-section"
         summary="The Broadside hero, composed after the openspecui reference: clamp-scaled bold lead type with a primary accent tail, badge row, a copy-command PRIMARY CTA with copied feedback, and the terminal card in a bottom-aligned second column at min-1100px. The homepage is the full-bleed demo; this is the component rendered in place."
@@ -439,6 +446,7 @@ ${close}
     <!-- app-shell -->
     <div id="app-shell" data-family="app-shell" data-reveal="" use:reveal>
       <SectionCard
+        headerRegion="app-shell"
         eyebrow="registry:ui"
         title="app-shell"
         summary="The page scaffold: a sticky, always-visible header band (this page's navigation never scrolls away), the main column, an optional footer band, and a skip link. It also ships the systematized MPA view transitions — cross-document navigation with a persistent site-header and a horizontal-slide + blur crossfade on page-main (navigate this site in Chrome/Edge to feel it; reduced motion crossfades)."
@@ -462,6 +470,7 @@ ${close}
     <!-- shell -->
     <div id="shell" data-family="shell" data-reveal="" use:reveal>
       <SectionCard
+        headerRegion="shell"
         eyebrow="registry:ui"
         title="terminal-header / terminal-footer"
         summary="The site shell. The header is an always-dark CRT bezel (never a themed surface) with the brand eyebrow in brand hue, nav pills, and the theme slot at the far right; the footer is a giant ghost wordmark that closes the narrative. This page does not render a second pair — you're wearing one — so here is how they attach instead."
