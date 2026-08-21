@@ -33,7 +33,13 @@
   const PAGE_ORDER = ['/', '/components/overview.html', '/components/dialog.html', '/components/popover.html', '/components/form.html', '/tokens.html'];
   const pageIndex = (pathname: string) => PAGE_ORDER.indexOf(pathname);
 
+  // nav lifecycle (2026-08-22): every client-side navigation closes any
+  // open desktop subnav panel and resets the mobile disclosure — back/
+  // forward and programmatic navigation included (Codex review fix)
+  let headerRef: { closeAll(): void } | null = $state(null);
+
   onNavigate((navigation) => {
+    headerRef?.closeAll();
     if (
       typeof document.startViewTransition !== 'function' ||
       matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -182,6 +188,7 @@
 <WebsiteScaffold>
   {#snippet header()}
     <TerminalHeader
+      bind:this={headerRef}
       brand="jixoai-ui"
       domain="ui.jixoai.com"
       subtitle="the jixoai design language"

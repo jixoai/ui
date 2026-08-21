@@ -135,8 +135,6 @@
     return () => media.removeEventListener('change', apply);
   });
 
-  const close = () => (open = false);
-
   /* -----------------------------------------------------------------
    * Second-level nav data: children normalize to groups. A plain
    * SubItem[] (the 2026-08-20 morning shape) is one unnamed group so
@@ -175,9 +173,9 @@
     }
   };
   const hidePanel = (key: string) => handles[key]?.hide();
-  const showPanel = (key: string, by: 'hover' | 'click') => {
+  const showPanel = (key: string, by: 'hover' | 'click', source?: EventTarget | null) => {
     openedBy = by;
-    handles[key]?.show();
+    handles[key]?.show(source instanceof HTMLElement ? source : undefined);
   };
   const scheduleClose = (key: string) => {
     cancelClose();
@@ -186,33 +184,55 @@
   const onPanelToggle = (key: string, open: boolean) => {
     if (open) {
       openKey = key;
-    } else {
-      if (openKey === key) openKey = null;
+    } else if (openKey === key) {
+      // only the tracked panel's close resets the mode — popover=auto
+      // closes panel A while opening B, and A's late close event must
+      // never clear B's click state
+      openKey = null;
       openedBy = null;
       cancelClose();
     }
   };
+  // navigation cleanup (Codex ruling): hides every panel and resets the
+  // mobile disclosure; consumers call this from their router hook
+  // (SvelteKit onNavigate) — the registry component stays app-agnostic
+  export function closeAll(): void {
+    cancelClose();
+    for (const key of Object.keys(handles)) handles[key]?.hide();
+    open = false;
+    expanded = {};
+  }
   onDestroy(cancelClose);
 
-  // engine gate: hover/click interception only when both the Popover API
-  // and CSS anchor positioning exist — otherwise pills degrade to plain
-  // navigable links (never a stranded preventDefault, never a detached
-  // centered mega panel)
+  // engine gate: hover/click interception only when the Popover API AND
+  // the full anchoring pair exist — a partial engine must degrade to
+  // plain navigable links (never a stranded preventDefault, never a
+  // detached centered mega panel)
   let engineOk = $state(true);
   onMount(() => {
-    engineOk =
-      'popover' in HTMLElement.prototype &&
-      (CSS.supports('anchor-name: --probe') || CSS.supports('position-area: bottom'));
+    const anchorOk =
+      CSS.supports('anchor-name: --probe') &&
+      (CSS.supports('position-area: bottom') || CSS.supports('inset-area: bottom'));
+    engineOk = 'popover' in HTMLElement.prototype && anchorOk;
   });
 
   // mobile: expanded disclosure groups, keyed by the parent href as well
   let expanded = $state<Record<string, boolean>>({});
+  let burgerEl = $state<HTMLElement | null>(null);
 
-  // Escape closes the mobile disclosure while it is open
+  // closing the disclosure clears the expanded groups (Codex ruling:
+  // consistent reopen state) — Escape also returns focus to the hamburger
+  const close = () => {
+    open = false;
+    expanded = {};
+  };
   $effect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') open = false;
+      if (event.key === 'Escape') {
+        close();
+        burgerEl?.focus();
+      }
     };
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
@@ -378,7 +398,7 @@
                         if (openedBy === 'click') hidePanel(item.href);
                         else openedBy = 'click';
                       } else {
-                        showPanel(item.href, 'click');
+                        showPanel(item.href, 'click', event.currentTarget);
                       }
                     }}
                     onmouseenter={() => {
@@ -391,34 +411,36 @@
                     {@render caret()}
                   </a>
                 {/snippet}
-                <!-- the snippet content fills the panel box; it doubles as
-                     the hover corridor (entering it cancels the close
-                     timer, leaving re-arms it) -->
+                <!-- the corridor wrapper inverts into the panel's padding
+                     ring so the hover grace cancels from the panel edge;
+                     the clip box inside keeps the hairline shave law -->
                 <div
-                  class="jx-subclip"
+                  class="jx-subcorridor"
                   onmouseenter={() => cancelClose()}
                   onmouseleave={() => scheduleClose(item.href)}
                 >
-                  <div
-                    class="jx-subgroups"
-                    class:jx-single={!mega}
-                    style={mega && typeof navColumns === 'number'
-                      ? `grid-template-columns: repeat(${navColumns}, 1fr)`
-                      : ''}
-                  >
-                    {#each groups as group (group.label ?? group.items[0]?.href ?? '')}
-                      {@const reserveIcon = group.items.some((child) => child.icon)}
-                      <div class="jx-group">
-                        {#if group.label}
-                          <div class="jx-group-label">{group.label}</div>
-                        {/if}
-                        <div class="jx-group-list">
-                          {#each group.items as child (child.label)}
-                            {@render subLink(child, reserveIcon, item.href)}
-                          {/each}
+                  <div class="jx-subclip">
+                    <div
+                      class="jx-subgroups"
+                      class:jx-single={!mega}
+                      style={mega && typeof navColumns === 'number'
+                        ? `grid-template-columns: repeat(${navColumns}, 1fr)`
+                        : ''}
+                    >
+                      {#each groups as group (group.label ?? group.items[0]?.href ?? '')}
+                        {@const reserveIcon = group.items.some((child) => child.icon)}
+                        <div class="jx-group">
+                          {#if group.label}
+                            <div class="jx-group-label">{group.label}</div>
+                          {/if}
+                          <div class="jx-group-list">
+                            {#each group.items as child (child.label)}
+                              {@render subLink(child, reserveIcon, item.href)}
+                            {/each}
+                          </div>
                         </div>
-                      </div>
-                    {/each}
+                      {/each}
+                    </div>
                   </div>
                 </div>
               </Popover>
@@ -448,7 +470,8 @@
           class="flex h-8 w-8 flex-col items-center justify-center gap-[3px] border border-terminal-foreground/25 sm:hidden"
           aria-expanded={open}
           aria-label="Toggle navigation"
-          onclick={() => (open = !open)}
+          bind:this={burgerEl}
+          onclick={() => (open ? close() : (open = true))}
         >
           <span class="jx-bar block h-[1.5px] w-4 bg-terminal-foreground"></span>
           <span class="block h-[1.5px] w-4 bg-terminal-foreground"></span>
@@ -656,9 +679,10 @@
      header's scope class itself so tokens resolve from itself. */
   .jx-nav :global(.jx-pop.jx-subpanel) {
     margin: 6px; /* the nav gap law — the 4px shadow stays clear of the bar */
+    --jx-panel-pad: 0.25rem;
     min-width: 12rem;
     max-width: min(90vw, 42rem);
-    padding: 0.25rem;
+    padding: var(--jx-panel-pad);
     font-size: 12px;
     color: var(--terminal-foreground);
     background: var(--terminal);
@@ -693,7 +717,8 @@
      a class (the primitive owns the element, so no inline styles). */
   .jx-nav :global(.jx-pop.jx-subpanel.jx-subpanel-mega) {
     container-type: inline-size;
-    padding: 0.375rem;
+    --jx-panel-pad: 0.375rem;
+    padding: var(--jx-panel-pad);
     width: min(90vw, 42rem, calc(3 * 14rem + 2rem));
   }
   .jx-nav :global(.jx-pop.jx-subpanel.jx-nav-cols-2) {
@@ -702,6 +727,16 @@
   .jx-nav :global(.jx-pop.jx-subpanel.jx-nav-cols-4) {
     width: min(90vw, 42rem, calc(4 * 14rem + 2rem));
   }
+  /* the hover corridor: an inverted wrapper (no overflow) stretches the
+     snippet root across the panel's padding ring, so entering the panel
+     at its very edge cancels the close timer. It must stay separate from
+     the clip box — inverting the clipper would move its clip edge and
+     break the -1px hairline shave (Codex note) */
+  .jx-nav .jx-subcorridor {
+    margin: calc(var(--jx-panel-pad, 0.25rem) * -1);
+    padding: var(--jx-panel-pad, 0.25rem);
+  }
+
   /* the clip box: overflow clips at its padding box, which hugs the
      panel's content box — the groups grid hangs 1px beyond it on every
      side, so its outermost rules are shaved off (graph-paper law) */

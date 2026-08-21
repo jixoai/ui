@@ -89,13 +89,37 @@
   );
 
   let panel = $state<HTMLElement | null>(null);
+  // the DEFAULT trigger only — a custom trigger snippet owns its own
+  // aria-expanded (terminal-header's link triggers manage theirs)
+  let triggerEl = $state<HTMLButtonElement | null>(null);
+  let open = $state(false);
   const popoverApi = (el: HTMLElement | null): Pick<HTMLElement, 'showPopover' | 'hidePopover' | 'togglePopover'> | null =>
     el && typeof el.showPopover === 'function' ? el : null;
 
+  // THE toggle seam (2026-08-20 fix): one native event covers every
+  // open/close path (popovertarget, light dismiss, Escape, the handle).
+  // Open state is read LIVE from :popover-open at fire time — ToggleEvent
+  // state fields are never trusted (the pre-fix code read a nonexistent
+  // .newValue, which made every consumer onToggle receive false) — and
+  // the seam mirrors aria-expanded onto the default trigger, which
+  // popovertarget alone never does.
+  function onPanelToggle(): void {
+    open = panel?.matches(':popover-open') ?? false;
+    triggerEl?.setAttribute('aria-expanded', String(open));
+    onToggle?.(open);
+  }
+
   // imperative handle (bind:this) — thin native passthroughs, nothing more
-  export function show(): void {
+  export function show(source?: HTMLElement): void {
     const el = popoverApi(panel);
-    if (el && !panel!.matches(':popover-open')) el.showPopover();
+    if (el && !panel!.matches(':popover-open')) {
+      // `source` names the invoking control where the popover spec supports
+      // it (focus restoration, invoker semantics); engines without the
+      // options bag simply ignore the argument
+      (el as HTMLElement & { showPopover(options?: { source?: HTMLElement }): void }).showPopover(
+        source ? { source } : undefined,
+      );
+    }
   }
   export function hide(): void {
     const el = popoverApi(panel);
@@ -111,7 +135,13 @@
   {#if trigger}
     {@render trigger()}
   {:else}
-    <button type="button" class="jx-pop-trigger" popovertarget={id}>
+    <button
+      type="button"
+      class="jx-pop-trigger"
+      popovertarget={id}
+      bind:this={triggerEl}
+      aria-expanded={open}
+    >
       {triggerLabel}
       <svg
         class="jx-pop-caret"
@@ -129,17 +159,16 @@
   {/if}
 </span>
 
-<!-- the open state is read live from :popover-open at fire time —
-     ToggleEvent.newValue is spec'd as "open"/"closed" but at least one
-     shipping engine leaves it undefined, so event fields are never
-     trusted here; the listener itself only exists when onToggle does -->
+<!-- one native toggle listener is the single seam: it feeds the default
+     trigger's aria-expanded AND the optional onToggle consumer callback;
+     open state is read live from :popover-open, never from event fields -->
 <div
   {id}
   popover="auto"
   class="jx-pop {panelClass}"
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
-  ontoggle={onToggle ? () => onToggle?.(panel?.matches(':popover-open') ?? false) : undefined}
+  ontoggle={onPanelToggle}
 >
   {@render children()}
 </div>
