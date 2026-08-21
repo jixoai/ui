@@ -50,8 +50,14 @@ function timeOfDayHue(now = new Date()): number {
   return dayFraction * 360;
 }
 
+let lastWrittenHue = -1;
+
 function applyHue(value: number): void {
-  const hue = ((value % 360) + 360) % 360;
+  const hue = Math.round(((value % 360) + 360) % 360);
+  // 4min/deg means the integer hue changes only once every ~2.4 minutes;
+  // skip redundant CSS writes when the rounded value hasn't moved
+  if (hue === lastWrittenHue) return;
+  lastWrittenHue = hue;
   currentHue.set(hue);
   document.documentElement.style.setProperty('--brand-hue', String(hue));
 }

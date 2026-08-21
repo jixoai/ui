@@ -20,7 +20,7 @@
                     0fr→1fr groups (the parent row toggles; an "all →"
                     link keeps the parent href reachable)
 
-  Second-level nav (2026-08-20, request: click + hover submenus on the
+  Second level nav (2026-08-20, request: click + hover submenus on the
   native Popover API; nested disclosures on mobile): items may carry
   `children`. Desktop pills with children orchestrate a popover="auto"
   panel through JS only (showPopover/hidePopover — never a declarative
@@ -28,8 +28,24 @@
   timers); light dismiss, Escape, top layer and focus restore remain
   browser-native. The panel repeats the header's scope class so its
   tokens resolve from itself, not from DOM ancestry surviving the
-  top-layer promotion. This is the file's 5th orthogonal intent — at
-  the cap; do not add more here.
+  top-layer promotion.
+
+  Grouped multi-column panels (2026-08-20, same day follow-up): children
+  may be TerminalNavGroup[] — each group renders as one grid area with a
+  Share Tech Mono label, separated by hairline rules. Two or more groups
+  switch the panel into "mega" mode: a definite width (never content
+  sized — inline-size containment on a fit-content popover would collapse
+  it to nothing) drives an auto-fill minmax(14rem, 1fr) grid, the panel
+  itself becomes the container (container-type: inline-size; cqw units
+  resolve), and a @container rule switches the divider law to stacked
+  border-top when only one column fits. Group dividers are drawn on
+  every group and clipped at the content edge (graph-paper law), so the
+  hairlines stay correct even when groups wrap onto a second row. A
+  plain SubItem[] stays one unnamed group and keeps the narrow
+  fit-content dropdown, unchanged. navColumns="auto" (default) derives
+  columns from the panel width; a number pins repeat(N, 1fr). This
+  extends the file's 5th orthogonal intent — still at the cap; do not
+  add more here.
 -->
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
@@ -39,10 +55,18 @@
     label: string;
     href: string;
     external?: boolean;
-    /** Optional one-line muted description under the label. */
+    /** Optional one-line muted description under the label (clamped to 2 lines). */
     description?: string;
     /** Marks the current page inside the dropdown / disclosure list. */
     active?: boolean;
+    /** Optional 16px icon snippet rendered in a muted left column. */
+    icon?: Snippet;
+  }
+
+  export interface TerminalNavGroup {
+    /** Optional group heading; absent means the group renders unheaded. */
+    label?: string;
+    items: TerminalNavSubItem[];
   }
 
   export interface TerminalNavItem {
@@ -50,8 +74,10 @@
     href: string;
     active?: boolean;
     external?: boolean;
-    /** Second level: desktop popover dropdown, mobile disclosure group. */
-    children?: TerminalNavSubItem[];
+    /** Second level: SubItem[] renders one unnamed group (a narrow
+        dropdown); TerminalNavGroup[] renders a grouped multi-column
+        panel when there are two or more groups. */
+    children?: TerminalNavSubItem[] | TerminalNavGroup[];
   }
 
   interface Props {
@@ -63,6 +89,10 @@
     switcher?: Snippet;
     theme?: 'dark' | 'light' | 'system';
     homeHref?: string;
+    /** Panel column mode for grouped second-level panels: 'auto' derives
+        the column count from the panel width (auto-fill minmax(14rem,1fr));
+        a number pins repeat(N, 1fr). Ignored by single-group panels. */
+    navColumns?: number | 'auto';
   }
 
   let {
@@ -74,6 +104,7 @@
     switcher,
     theme = 'dark',
     homeHref = '/',
+    navColumns = 'auto',
   }: Props = $props();
 
   // scoped token class: 'dark' (default lock) or 'jx-light'
@@ -93,6 +124,20 @@
   });
 
   const close = () => (open = false);
+
+  /* -----------------------------------------------------------------
+   * Second-level nav data: children normalize to groups. A plain
+   * SubItem[] (the 2026-08-20 morning shape) is one unnamed group so
+   * every existing consumer keeps its narrow dropdown.
+   * --------------------------------------------------------------- */
+  const asGroups = (children?: TerminalNavItem['children']): TerminalNavGroup[] => {
+    if (!children?.length) return [];
+    const first = children[0];
+    if (first && 'items' in first && Array.isArray(first.items)) {
+      return children as TerminalNavGroup[];
+    }
+    return [{ items: children as TerminalNavSubItem[] }];
+  };
 
   /* -----------------------------------------------------------------
    * Second-level nav orchestration. openKey mirrors the panels' toggle
@@ -154,7 +199,12 @@
     if (!trigger || !panel) return;
     const rect = trigger.getBoundingClientRect();
     const left = Math.min(Math.max(PANEL_GAP, rect.left), innerWidth - panel.offsetWidth - PANEL_GAP);
-    panelPos[key] = { top: `${rect.bottom + PANEL_GAP}px`, left: `${left}px` };
+    // mega panels can be tall: clamp the top so the panel stays on screen
+    const top = Math.max(
+      PANEL_GAP,
+      Math.min(rect.bottom + PANEL_GAP, innerHeight - panel.offsetHeight - PANEL_GAP),
+    );
+    panelPos[key] = { top: `${top}px`, left: `${left}px` };
   };
   const onPanelToggle = (key: string, event: Event) => {
     if ((event as ToggleEvent).newValue) {
@@ -231,6 +281,32 @@
   </svg>
 {/snippet}
 
+<!-- one second-level row: icon column (reserved per group so labels
+     align whether or not an item carries an icon) + label/description -->
+{#snippet subLink(child: TerminalNavSubItem, reserveIcon: boolean, closeKey: string)}
+  <a
+    href={child.href}
+    aria-current={child.active ? 'page' : undefined}
+    target={child.external ? '_blank' : undefined}
+    rel={child.external ? 'noreferrer' : undefined}
+    class="jx-sub-link"
+    class:jx-with-icon={reserveIcon}
+    onclick={() => hidePanel(closeKey)}
+  >
+    {#if reserveIcon}
+      <span class="jx-sub-icon" aria-hidden="true">
+        {#if child.icon}{@render child.icon()}{/if}
+      </span>
+    {/if}
+    <span class="jx-sub-text flex flex-col gap-0.5">
+      <span class="text-[13px] font-medium leading-snug">{child.label}{child.external ? ' ↗' : ''}</span>
+      {#if child.description}
+        <span class="text-[11px] leading-snug opacity-60 line-clamp-2">{child.description}</span>
+      {/if}
+    </span>
+  </a>
+{/snippet}
+
 <header class="jx-nav {scope === 'dark' ? 'dark' : 'jx-light'}">
   <div class="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between gap-4 py-3">
@@ -303,36 +379,51 @@
               </a>
               <!-- the second-level panel: native top layer + light dismiss;
                    JS only owns hover grace, click toggling and placement -->
+              {@const groups = asGroups(item.children)}
+              {@const mega = groups.length > 1}
+              {@const want = mega
+                ? (typeof navColumns === 'number' ? navColumns : Math.min(groups.length, 3))
+                : 1}
               <div
                 id="jx-nav-sub-{i}"
                 popover="auto"
                 role="group"
                 aria-label={item.label}
                 class="jx-subpanel {scope === 'dark' ? 'dark' : 'jx-light'}"
-                style="top: {panelPos[item.href]?.top ?? '0px'}; left: {panelPos[item.href]?.left ?? '0px'};"
+                class:jx-mega={mega}
+                style="--jx-nav-want: {want}; top: {panelPos[item.href]?.top ?? '0px'}; left: {panelPos[item.href]?.left ?? '0px'};"
                 ontoggle={(event) => onPanelToggle(item.href, event)}
                 onmouseenter={() => cancelClose()}
                 onmouseleave={() => scheduleClose(item.href)}
                 bind:this={panelEls[item.href]}
               >
-                <div class="flex flex-col p-1">
-                  {#each item.children as child (child.href)}
-                    <a
-                      href={child.href}
-                      aria-current={child.active ? 'page' : undefined}
-                      target={child.external ? '_blank' : undefined}
-                      rel={child.external ? 'noreferrer' : undefined}
-                      class="jx-sub-link"
-                      onclick={() => hidePanel(item.href)}
-                    >
-                      <span class="flex flex-col gap-0.5 px-2.5 py-1.5">
-                        <span>{child.label}{child.external ? ' ↗' : ''}</span>
-                        {#if child.description}
-                          <span class="text-[10px] leading-tight opacity-60">{child.description}</span>
+                <!-- the clip box hugs the panel's content box; the groups
+                     grid sits 1px beyond it on every side so its own
+                     border-left/border-top rules are shaved off at the
+                     first row/column — correct hairlines even when groups
+                     wrap onto a second grid row -->
+                <div class="jx-subclip">
+                  <div
+                    class="jx-subgroups"
+                    class:jx-single={!mega}
+                    style={mega && typeof navColumns === 'number'
+                      ? `grid-template-columns: repeat(${navColumns}, 1fr)`
+                      : ''}
+                  >
+                    {#each groups as group (group.label ?? group.items[0]?.href ?? '')}
+                      {@const reserveIcon = group.items.some((child) => child.icon)}
+                      <div class="jx-group">
+                        {#if group.label}
+                          <div class="jx-group-label">{group.label}</div>
                         {/if}
-                      </span>
-                    </a>
-                  {/each}
+                        <div class="jx-group-list">
+                          {#each group.items as child (child.label)}
+                            {@render subLink(child, reserveIcon, item.href)}
+                          {/each}
+                        </div>
+                      </div>
+                    {/each}
+                  </div>
                 </div>
               </div>
             {:else}
@@ -413,25 +504,30 @@
               >
                 <div class="overflow-hidden">
                   <div class="flex flex-col border-l border-terminal-foreground/15 pl-3">
-                    {#each item.children as child (child.href)}
-                      <a
-                        href={child.href}
-                        onclick={close}
-                        aria-current={child.active ? 'page' : undefined}
-                        target={child.external ? '_blank' : undefined}
-                        rel={child.external ? 'noreferrer' : undefined}
-                        class={[
-                          'flex flex-col gap-0.5 py-1.5 pl-2 transition-colors',
-                          child.active
-                            ? 'bg-terminal-hover text-terminal-foreground'
-                            : 'text-terminal-foreground/70 hover:text-terminal-foreground',
-                        ].join(' ')}
-                      >
-                        <span>{child.label}{child.external ? ' ↗' : ''}</span>
-                        {#if child.description}
-                          <span class="text-[10px] leading-tight opacity-60">{child.description}</span>
-                        {/if}
-                      </a>
+                    {#each asGroups(item.children) as group, gi (gi)}
+                      {#if group.label}
+                        <div class="jx-m-group-label">{group.label}</div>
+                      {/if}
+                      {#each group.items as child (child.label)}
+                        <a
+                          href={child.href}
+                          onclick={close}
+                          aria-current={child.active ? 'page' : undefined}
+                          target={child.external ? '_blank' : undefined}
+                          rel={child.external ? 'noreferrer' : undefined}
+                          class={[
+                            'flex flex-col gap-0.5 py-1.5 pl-2 transition-colors',
+                            child.active
+                              ? 'bg-terminal-hover text-terminal-foreground'
+                              : 'text-terminal-foreground/70 hover:text-terminal-foreground',
+                          ].join(' ')}
+                        >
+                          <span>{child.label}{child.external ? ' ↗' : ''}</span>
+                          {#if child.description}
+                            <span class="text-[10px] leading-tight opacity-60">{child.description}</span>
+                          {/if}
+                        </a>
+                      {/each}
                     {/each}
                   </div>
                 </div>
@@ -548,6 +644,8 @@
     margin: 0;
     inset: auto;
     min-width: 12rem;
+    max-width: min(90vw, 42rem);
+    padding: 0.25rem;
     color: var(--terminal-foreground);
     background: var(--terminal);
     border: 1px solid color-mix(in oklab, var(--terminal-foreground) 25%, transparent);
@@ -574,13 +672,105 @@
   .jx-nav .jx-subpanel::backdrop {
     background: transparent;
   }
-  .jx-nav .jx-sub-link {
+
+  /* mega mode (two or more groups): a DEFINITE width, never content
+     sized — the panel is the container-query container, and inline-size
+     containment on a fit-content popover would collapse it to nothing.
+     The width wants one 14rem track per group (capped at 3) but never
+     exceeds the 90vw / 42rem anti-banner limits; the auto-fill grid
+     then derives the actual column count from whatever width remains. */
+  .jx-nav .jx-subpanel.jx-mega {
+    container-type: inline-size;
+    padding: 0.375rem;
+    width: min(90vw, 42rem, calc(var(--jx-nav-want, 3) * 14rem + 2rem));
+  }
+  /* the clip box: overflow clips at its padding box, which hugs the
+     panel's content box — the groups grid hangs 1px beyond it on every
+     side, so its outermost rules are shaved off (graph-paper law) */
+  .jx-nav .jx-subclip {
+    overflow: hidden;
+  }
+  .jx-nav .jx-subgroups {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    margin: -1px;
+  }
+  .jx-nav .jx-group {
+    min-width: 0;
+    padding: 0.5rem 0.75rem 0.625rem;
+    border-top: 1px solid color-mix(in oklab, var(--terminal-foreground) 15%, transparent);
+    border-left: 1px solid color-mix(in oklab, var(--terminal-foreground) 15%, transparent);
+  }
+  /* single-column law: when the panel is too narrow for a second 14rem
+     track the groups stack and only the horizontal rules remain (the
+     clip already hides the column rules; this states the law). */
+  @container (max-width: 28rem) {
+    .jx-nav .jx-group {
+      border-left: none;
+    }
+  }
+  .jx-nav .jx-group-label {
+    font-family: var(--font-nav);
+    font-size: 10px;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    opacity: 0.55;
+    padding: 0 0.625rem;
+    margin-bottom: 0.5rem;
+  }
+  /* single unnamed group: the classic narrow dropdown — no rules, no
+     grid tracks, fit-content width from the base panel */
+  .jx-nav .jx-subgroups.jx-single {
     display: block;
+    margin: 0;
+  }
+  .jx-nav .jx-subgroups.jx-single .jx-group {
+    border: none;
+    padding: 0;
+  }
+
+  .jx-nav .jx-sub-link {
+    display: grid;
+    grid-template-columns: 1fr;
+    column-gap: 0.625rem;
+    align-items: start;
+    padding: 0.4375rem 0.625rem;
     transition: background-color 120ms ease-out;
+  }
+  .jx-nav .jx-sub-link.jx-with-icon {
+    grid-template-columns: auto 1fr;
   }
   .jx-nav .jx-sub-link:hover,
   .jx-nav .jx-sub-link[aria-current='page'] {
     background: var(--terminal-hover);
+  }
+  .jx-nav .jx-sub-link[aria-current='page'] {
+    box-shadow: inset 2px 0 0 0 var(--primary);
+  }
+  .jx-nav .jx-sub-icon {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+    opacity: 0.55;
+  }
+  /* the icon snippet is consumer markup: size it through the wrapper */
+  .jx-nav .jx-sub-icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .jx-nav .jx-m-group-label {
+    font-family: var(--font-nav);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    opacity: 0.55;
+    padding: 0.625rem 0 0.25rem 0.25rem;
   }
 
   /* interaction polish on the bezel: WebKit's default tap-highlight is a

@@ -189,14 +189,36 @@ ${close}
   brand="jixoai-ui"
   domain="ui.jixoai.com"
   subtitle="the jixoai design language"
+  navColumns="auto"
   items={[
     { href: '/', label: 'Overview', active: true },
     {
       href: '/docs',
       label: 'Docs',
+      // flat SubItem[] → one unnamed group, the narrow dropdown
       children: [
         { href: '/docs/tokens', label: 'tokens', description: 'the token sheet' },
-        { href: '/docs/components', label: 'components', description: 'the gallery' },
+      ],
+    },
+    {
+      href: '/components',
+      label: 'Components',
+      // TerminalNavGroup[] → mega panel: multi-column grid areas
+      children: [
+        {
+          label: 'Layout',
+          items: [
+            { href: '/components/card', label: 'card', description: 'the content atom' },
+            { href: '/components/grid', label: 'grid', description: 'subgrid equalizer' },
+          ],
+        },
+        {
+          label: 'Overlay',
+          items: [
+            { href: '/components/dialog', label: 'dialog', description: 'native dialog base' },
+            { href: '/components/toc', label: 'toc', description: 'rule tracker rail' },
+          ],
+        },
       ],
     },
     { href: 'https://github.com/jixoai/ui', label: 'GitHub', external: true },
@@ -648,7 +670,7 @@ ${close}
         headerRegion="shell"
         eyebrow="registry:ui"
         title="terminal-header / terminal-footer"
-        summary="The site shell. The header is an always-dark CRT bezel (never a themed surface) with the brand eyebrow in brand hue, nav pills, and the theme slot at the far right; the footer is a giant ghost wordmark that closes the narrative. Second-level nav (2026-08-20): items may carry children — you are wearing the demo, hover or click the Components pill in the header above. Desktop drops a native popover=auto panel (JS-orchestrated click + hover with a 120ms close grace; light dismiss, Escape and the top layer stay browser-native) with label + description rows; under sm the hamburger panel expands the same group as a nested 0fr→1fr disclosure with an all → escape link for the parent href. This page does not render a second pair, so here is how they attach instead."
+        summary="The site shell. The header is an always-dark CRT bezel (never a themed surface) with the brand eyebrow in brand hue, nav pills, and the theme slot at the far right; the footer is a giant ghost wordmark that closes the narrative. Second-level nav (2026-08-20): items may carry children — you are wearing the demo, hover or click the Components pill in the header above. Desktop drops a native popover=auto panel (JS-orchestrated click + hover with a 120ms close grace; light dismiss, Escape and the top layer stay browser-native) with label + description rows; under sm the hamburger panel expands the same group as a nested 0fr→1fr disclosure with an all → escape link for the parent href. Grouped mega panels (same-day follow-up): children may be TerminalNavGroup[] instead of a flat list — two or more groups switch the panel into a definite-width multi-column grid (auto-fill minmax(14rem, 1fr) tracks; the panel itself is the container-query container), each group one grid area with a Share Tech Mono label and hairline rules between areas; navColumns='auto' derives the column count from the panel width while a number pins repeat(N, 1fr), and a flat SubItem[] stays one unnamed group keeping the narrow dropdown. This page does not render a second pair, so here is how they attach instead."
       >
         <div class="flex flex-col gap-7" data-region="shell-code">
           <div id="shell-code" class="flex flex-col gap-3">

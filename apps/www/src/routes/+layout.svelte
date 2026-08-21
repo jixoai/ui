@@ -66,7 +66,12 @@
 
   // "Components" carries the second level (2026-08-20): desktop opens a
   // native-popover dropdown under the pill (click + hover), mobile nests
-  // a disclosure group inside the hamburger panel.
+  // a disclosure group inside the hamburger panel. Same-day follow-up:
+  // the children are TerminalNavGroups — the panel flips into mega mode,
+  // laying the groups out as grid areas with hairline rules between
+  // them; the column count follows the panel width (auto-fill,
+  // minmax(14rem, 1fr)) so the same data reads 2×2 on desktop and
+  // stacks to one column on narrow viewports.
   const items = $derived([
     { href: '/', label: 'Overview', active: normalized === '/' },
     {
@@ -75,28 +80,97 @@
       active: normalized.startsWith('/components'),
       children: [
         {
-          href: '/components/overview.html',
-          label: 'overview',
-          description: 'the live gallery',
-          active: normalized === '/components/overview.html',
+          label: 'Layout',
+          items: [
+            {
+              href: '/components/overview.html#section-card',
+              label: 'section-card',
+              description: 'the content atom',
+            },
+            {
+              href: '/components/overview.html#card-grid',
+              label: 'card-grid',
+              description: 'subgrid equalizer',
+            },
+            {
+              href: '/components/overview.html#hero-section',
+              label: 'hero-section',
+              description: 'the broadside hero',
+            },
+            {
+              href: '/components/overview.html#app-shell',
+              label: 'app-shell',
+              description: 'sticky scaffold',
+            },
+          ],
         },
         {
-          href: '/components/popover.html',
-          label: 'popover',
-          description: 'native popover base',
-          active: normalized === '/components/popover.html',
+          label: 'Overlay',
+          items: [
+            {
+              href: '/components/popover.html',
+              label: 'popover',
+              description: 'native popover base',
+              active: normalized === '/components/popover.html',
+            },
+            {
+              href: '/components/dialog.html',
+              label: 'dialog',
+              description: 'native dialog base',
+              active: normalized === '/components/dialog.html',
+            },
+            {
+              href: '/components/overview.html#toc',
+              label: 'toc',
+              description: 'rule tracker rail',
+            },
+          ],
         },
         {
-          href: '/components/dialog.html',
-          label: 'dialog',
-          description: 'native dialog base',
-          active: normalized === '/components/dialog.html',
+          label: 'Form',
+          items: [
+            {
+              href: '/components/form.html#example-form',
+              label: 'form',
+              description: 'the live example',
+              active: normalized === '/components/form.html',
+            },
+            {
+              href: '/components/form.html#all-types',
+              label: 'input',
+              description: 'every native type',
+            },
+            {
+              href: '/components/form.html#select-textarea',
+              label: 'select + textarea',
+              description: 'options + error wiring',
+            },
+          ],
         },
         {
-          href: '/components/form.html',
-          label: 'form',
-          description: 'inputs + select',
-          active: normalized === '/components/form.html',
+          label: 'Display',
+          items: [
+            {
+              href: '/components/overview.html#terminal-card',
+              label: 'terminal-card',
+              description: 'the typing terminal',
+            },
+            {
+              href: '/components/overview.html#code-card',
+              label: 'code-card',
+              description: 'readonly code surface',
+            },
+            {
+              href: '/components/overview.html#table',
+              label: 'table',
+              description: 'native semantics',
+            },
+            {
+              href: '/components/overview.html#theme-toggle',
+              label: 'theme-toggle',
+              description: 'light / dark / system',
+            },
+          ],
         },
       ],
     },
