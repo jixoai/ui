@@ -83,22 +83,22 @@
           label: 'Layout',
           items: [
             {
-              href: '/components/overview.html#section-card',
+              href: '/components/section-card.html',
               label: 'section-card',
               description: 'the content atom',
             },
             {
-              href: '/components/overview.html#card-grid',
+              href: '/components/card-grid.html',
               label: 'card-grid',
               description: 'subgrid equalizer',
             },
             {
-              href: '/components/overview.html#hero-section',
+              href: '/components/hero-section.html',
               label: 'hero-section',
               description: 'the broadside hero',
             },
             {
-              href: '/components/overview.html#app-shell',
+              href: '/components/website-scaffold.html',
               label: 'app-shell',
               description: 'sticky scaffold',
             },
@@ -120,7 +120,7 @@
               active: normalized === '/components/dialog.html',
             },
             {
-              href: '/components/overview.html#toc',
+              href: '/components/toc.html',
               label: 'toc',
               description: 'rule tracker rail',
             },
@@ -151,22 +151,22 @@
           label: 'Display',
           items: [
             {
-              href: '/components/overview.html#terminal-card',
+              href: '/components/terminal-card.html',
               label: 'terminal-card',
               description: 'the typing terminal',
             },
             {
-              href: '/components/overview.html#code-card',
+              href: '/components/overview.html',
               label: 'code-card',
               description: 'readonly code surface',
             },
             {
-              href: '/components/overview.html#table',
+              href: '/components/overview.html',
               label: 'table',
               description: 'native semantics',
             },
             {
-              href: '/components/overview.html#theme-toggle',
+              href: '/components/overview.html',
               label: 'theme-toggle',
               description: 'light / dark / system',
             },
