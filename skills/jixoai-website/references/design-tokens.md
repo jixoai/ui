@@ -227,8 +227,12 @@ mixes); they are never brand-tinted.
   tiny secondary layer in `md+`.
 - Radius stays 0 (bevel-upgrade exception only). Rounded-full is allowed
   exclusively for small status dots/pills, never for cards or buttons.
-- The terminal bar (`--terminal` surfaces) is always dark in both themes —
-  it reads as a CRT bezel, not a themed surface.
+- Terminal bezel law (Owner, 2026-08-21): terminal-surface components
+  (terminal-header, terminal-card, …) are DARK-LOCKED by default and accept
+  `theme?: 'dark' | 'light' | 'system'` — the wrapper carries the scoped
+  token class (`.dark` / `.jx-light`), so inner components re-render with
+  that scope's tokens. Light bezel = light CRT shell
+  (`--terminal: oklch(0.9551 0 0)` under `.jx-light`).
 - Do not re-tune the shared L/C configuration per project; a project
   changes ONLY `--brand-hue` (and the icon/theme-color hex derived from
   it). Non-CSS brand assets (favicon, `theme-color`) carry the rendered

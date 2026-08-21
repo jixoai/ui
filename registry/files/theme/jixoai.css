@@ -18,8 +18,9 @@
 
   --background: oklch(1 0 0);
   --foreground: oklch(0 0 0);
-  /* unlocked-light bezel (Owner, 2026-08-21): theme="light" surfaces get a
-     light CRT shell — dark-locked remains the default */
+  /* bezel law (Owner, 2026-08-21): terminal components default to the
+     dark-locked CRT shell; theme="light" | "system" opts the surface into
+     this light CRT shell via the scoped .jx-light token class */
   --terminal: oklch(0.9551 0 0);
   --terminal-foreground: oklch(0 0 0);
   --terminal-hover: color-mix(in oklab, var(--terminal-foreground) 14%, var(--terminal));

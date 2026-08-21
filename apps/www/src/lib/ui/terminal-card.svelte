@@ -8,10 +8,15 @@
   predates it). Prerendered/no-JS shows the settled terminal; reduced
   motion renders everything instantly.
 
+  Bezel law (Owner, 2026-08-21): same as terminal-header — dark-locked by
+  default; theme="light" | "system" opts the card into the light CRT shell
+  (scoped .jx-light token class re-renders inner tokens).
+
   Props:
     barTitle  window title (traffic-light bar label)
     command   the single command line (typed)
     outputs   lines surfaced sequentially after the command completes
+    theme     'dark' | 'light' | 'system' (default 'dark')
 -->
 <script lang="ts">
   import { onMount } from 'svelte';
@@ -20,9 +25,25 @@
     barTitle: string;
     command: string;
     outputs: readonly string[];
+    theme?: 'dark' | 'light' | 'system';
   }
 
-  let { barTitle, command, outputs }: Props = $props();
+  let { barTitle, command, outputs, theme = 'dark' }: Props = $props();
+
+  // scoped token class: 'dark' (default lock) or 'jx-light'
+  let scope = $state<'dark' | 'light'>(theme === 'light' ? 'light' : 'dark');
+
+  $effect(() => {
+    if (theme !== 'system') {
+      scope = theme === 'light' ? 'light' : 'dark';
+      return;
+    }
+    const media = matchMedia('(prefers-color-scheme: dark)');
+    const apply = () => (scope = media.matches ? 'dark' : 'light');
+    apply();
+    media.addEventListener('change', apply);
+    return () => media.removeEventListener('change', apply);
+  });
 
   // Prerendered/no-JS output shows the settled terminal; hydration
   // restarts the typing story.
@@ -68,7 +89,7 @@
   });
 </script>
 
-<div class="jx-terminal border-border bg-terminal text-terminal-foreground w-full border">
+<div class="jx-terminal {scope === 'dark' ? 'dark' : 'jx-light'} border-border bg-terminal text-terminal-foreground w-full border">
   <div
     class="text-terminal-foreground/55 flex items-center gap-1.5 border-b px-3.5 py-2 font-nav text-xs tracking-[0.1em]"
   >
@@ -92,6 +113,12 @@
 <style>
   .jx-terminal {
     box-shadow: 6px 6px 0 0 var(--shadow);
+  }
+  .jx-terminal.dark {
+    color-scheme: dark;
+  }
+  .jx-terminal.jx-light {
+    color-scheme: light;
   }
   .jx-light-dot {
     width: 8px;
