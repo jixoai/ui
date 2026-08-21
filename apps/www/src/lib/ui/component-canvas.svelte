@@ -10,9 +10,10 @@
   wires up — `onreset` (title-row reset button; the page owns the state
   snapshot, the canvas never reflects consumer state), `echo` (a read-only
   terminal key/value footer replacing hand-written "bound value" captions;
-  deliberately NOT a live region), and `resolveFileContent` (code-drawer
-  content resolver so usage files can track live playground state without
-  making TreeFile.content a function). The playground snippet itself stays
+  deliberately NOT a live region; rides the playground pane, so it needs
+  the snippet present), and `resolveFileContent` (code-drawer content
+  resolver so usage files can track live playground state without making
+  TreeFile.content a function). The playground snippet itself stays
   a free Snippet: layout contract classes — .jx-play-fields, .jx-play-field,
   .jx-play-help — are styled through :global() because scoped styles never
   reach snippet children.
@@ -66,6 +67,8 @@
     echo?: readonly PlayEcho[];
     /** Code-drawer content override — lets usage files track live state. */
     resolveFileContent?: (file: TreeFile) => string;
+    /** Explicit id override when two canvases on one page would slug-collide. */
+    id?: string;
     class?: string;
   }
 
@@ -79,19 +82,23 @@
     onreset,
     echo,
     resolveFileContent,
+    id,
     class: className = '',
   }: Props = $props();
 
   // deterministic aria wiring: derived from the title so server and client
-  // agree (Math.random ids would hydrate-mismatch); canvases on one page
-  // must use distinct titles — the documented contract
-  const slug = title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-  const titleId = `jx-canvas-${slug}-title`;
-  const playgroundId = `jx-canvas-${slug}-playground`;
-  const drawerId = `jx-canvas-${slug}-drawer`;
+  // agree (Math.random ids would hydrate-mismatch). Distinct titles slug
+  // apart; same-title or collision-prone titles (non-ASCII, "A B" vs "A-B")
+  // pass an explicit `id` — the documented contract
+  const canvasId =
+    id ??
+    title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  const titleId = `jx-canvas-${canvasId}-title`;
+  const playgroundId = `jx-canvas-${canvasId}-playground`;
+  const drawerId = `jx-canvas-${canvasId}-drawer`;
 
   // flat files → nested tree: split on "/", intermediate segments are
   // directories; a name without "/" stays a root-level file
@@ -174,7 +181,12 @@
         <div class="jx-canvas-playground-head">
           <h3 class="jx-canvas-playground-title" id={playgroundId}>Playground</h3>
           {#if onreset}
-            <button type="button" class="jx-canvas-reset" onclick={() => onreset?.()}>
+            <button
+              type="button"
+              class="jx-canvas-reset"
+              ariaLabel={`Reset ${title} playground`}
+              onclick={() => onreset?.()}
+            >
               reset
             </button>
           {/if}
@@ -184,7 +196,7 @@
         </div>
         {#if echo?.length}
           <dl class="jx-canvas-echo">
-            {#each echo as item (item.label)}
+            {#each echo as item, index (`${item.label}-${index}`)}
               <div class="jx-canvas-echo-row">
                 <dt>{item.label}</dt>
                 <dd>{item.value ?? '—'}</dd>
@@ -437,6 +449,12 @@
       flex: 1 1 auto;
       overflow-y: auto;
       scrollbar-gutter: stable;
+    }
+    /* flex children default to shrink: 1 — inside the capped body a tall
+       control stack would COMPRESS instead of overflowing into the scroll.
+       Snippet children keep their natural height; the body scrolls. */
+    .jx-canvas-playground-body > :global(*) {
+      flex-shrink: 0;
     }
     .jx-canvas-echo {
       flex: none;

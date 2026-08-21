@@ -32,6 +32,7 @@
 <ComponentCanvas
   title="host widget"
   description="protocol host"
+  id="explicit"
   files={files}
   onreset={reset}
   echo={[

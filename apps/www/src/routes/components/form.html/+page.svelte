@@ -472,16 +472,19 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   }
 
   // live usage code: generated from the CURRENT playground state so the
-  // drawer never shows stale prop values
+  // drawer never shows stale prop values. Free-text values go through q()
+  // (a JSON string literal) so input like O'Reilly or a double quote can
+  // never break the generated source
+  const q = (value: string): string => JSON.stringify(value);
   const inputUsageLive = $derived(`<Input
   type="${canvasInputType}"
   label="endpoint"
-  placeholder="${canvasInputType === 'password' ? '••••••••' : 'you@host.tld'}"${canvasInputClearable ? '\n  clearable' : ''}
+  placeholder=${q(canvasInputType === 'password' ? '••••••••' : 'you@host.tld')}${canvasInputClearable ? '\n  clearable' : ''}
   bind:value
 />`);
   const selectUsageLive = $derived(`<Select
   label="runtime"
-  placeholder="${canvasPlaceholder}"
+  placeholder=${q(canvasPlaceholder)}
   options={runtimeOptions}
   bind:value
 />`);
@@ -507,13 +510,27 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   bind:tags
 />`);
 
-  // resolver factory: takes a getter (not the string) so the drawer keeps
-  // tracking live playground state — closing over the value directly would
-  // freeze the snapshot at first render
-  const canvasResolveUsage =
-    (usage: () => string) =>
+  // stable named resolvers: the getter defers the read so the drawer keeps
+  // tracking live playground state (lazy read, evaluated inside the
+  // canvas's $derived — not a value snapshot)
+  const resolveInputUsage =
     (file: TreeFile): string =>
-      file.name.endsWith('usage.svelte') ? usage() : file.content;
+      file.name.endsWith('usage.svelte') ? inputUsageLive : file.content;
+  const resolveSelectUsage =
+    (file: TreeFile): string =>
+      file.name.endsWith('usage.svelte') ? selectUsageLive : file.content;
+  const resolveComboboxUsage =
+    (file: TreeFile): string =>
+      file.name.endsWith('usage.svelte') ? comboboxUsageLive : file.content;
+  const resolveNumberUsage =
+    (file: TreeFile): string =>
+      file.name.endsWith('usage.svelte') ? numberUsageLive : file.content;
+  const resolveDateUsage =
+    (file: TreeFile): string =>
+      file.name.endsWith('usage.svelte') ? dateUsageLive : file.content;
+  const resolveTagsUsage =
+    (file: TreeFile): string =>
+      file.name.endsWith('usage.svelte') ? tagsUsageLive : file.content;
 </script>
 
 <svelte:head>
@@ -574,7 +591,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
         { label: 'value', value: canvasEmail || '—' },
         { label: 'clearable', value: canvasInputClearable },
       ]}
-      resolveFileContent={canvasResolveUsage(() => inputUsageLive)}
+      resolveFileContent={resolveInputUsage}
     >
       <div class="flex w-full max-w-xs flex-col items-start gap-3">
         <Input
@@ -629,7 +646,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
         { label: 'value', value: canvasRuntime },
         { label: 'placeholder', value: canvasPlaceholder || '—' },
       ]}
-      resolveFileContent={canvasResolveUsage(() => selectUsageLive)}
+      resolveFileContent={resolveSelectUsage}
     >
       <div class="flex w-full max-w-xs flex-col items-start gap-3">
         <Select
@@ -665,7 +682,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
         { label: 'value', value: canvasBackend ?? 'undefined' },
         { label: 'allowCustom', value: canvasAllowCustom },
       ]}
-      resolveFileContent={canvasResolveUsage(() => comboboxUsageLive)}
+      resolveFileContent={resolveComboboxUsage}
     >
       <div class="flex w-full max-w-xs flex-col items-start gap-3">
         <Combobox
@@ -701,7 +718,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
         { label: 'value', value: canvasWorkers },
         { label: 'range', value: '1…16' },
       ]}
-      resolveFileContent={canvasResolveUsage(() => numberUsageLive)}
+      resolveFileContent={resolveNumberUsage}
     >
       <div class="flex w-full max-w-xs flex-col items-start gap-3">
         <NumberInput label="workers" bind:value={canvasWorkers} min={1} max={16} />
@@ -731,7 +748,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
         { label: 'format', value: canvasDateFormat },
         { label: 'value', value: canvasDate },
       ]}
-      resolveFileContent={canvasResolveUsage(() => dateUsageLive)}
+      resolveFileContent={resolveDateUsage}
     >
       <div class="flex w-full max-w-xs flex-col items-start gap-3">
         <DatePicker label="deploy date" bind:value={canvasDate} format={canvasDateFormat} />
@@ -769,7 +786,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
         { label: 'tags', value: canvasStack.map((t) => t.value).join(', ') || '—' },
         { label: 'maxTags', value: canvasMaxTags ?? 'none' },
       ]}
-      resolveFileContent={canvasResolveUsage(() => tagsUsageLive)}
+      resolveFileContent={resolveTagsUsage}
     >
       <div class="flex w-full max-w-xs flex-col items-start gap-3">
         <TagsInput

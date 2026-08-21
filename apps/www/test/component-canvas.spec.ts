@@ -13,6 +13,7 @@ import { describe, expect, it } from 'vitest';
 
 import CanvasHost from './fixtures/canvas-host.svelte';
 import CanvasPlainHost from './fixtures/canvas-plain-host.svelte';
+import CanvasEchoDupesHost from './fixtures/canvas-echo-dupes-host.svelte';
 
 describe('ComponentCanvas semantics', () => {
   it('derives stable aria ids from the title (h2/h3 labelling + drawer controls)', () => {
@@ -69,6 +70,22 @@ describe('ComponentCanvas playground protocol', () => {
     // deliberately NOT a live region: fast control churn must not announce
     const echo = container.querySelector('.jx-canvas-echo')!;
     expect(echo.getAttribute('aria-live')).toBeNull();
+  });
+
+  it('survives duplicate echo labels (composite each key, no each_key_duplicate)', () => {
+    const { container } = render(CanvasEchoDupesHost);
+    const rows = container.querySelectorAll('.jx-canvas-echo-row');
+    expect(rows.length).toBe(2);
+    expect(rows[0].querySelector('dd')!.textContent).toBe('a');
+    expect(rows[1].querySelector('dd')!.textContent).toBe('b');
+  });
+
+  it('honors an explicit id override over the title slug', () => {
+    const { container } = render(CanvasHost);
+    const title = container.querySelector('h2.jx-canvas-title')!;
+    expect(title.id).toBe('jx-canvas-explicit-title');
+    const drawer = container.querySelector<HTMLElement>('.jx-canvas-code-drawer')!;
+    expect(drawer.id).toBe('jx-canvas-explicit-drawer');
   });
 
   it('resolveFileContent overrides only the drawer view, not the tree', async () => {

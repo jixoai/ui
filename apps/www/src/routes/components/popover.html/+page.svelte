@@ -46,12 +46,14 @@ ${close}
     canvasChoice = canvasInitial.choice;
   }
 
-  // live usage code tracks the current triggerLabel
+  // live usage code tracks the current triggerLabel; q() keeps user input
+  // (quotes, apostrophes, newlines) a legal string literal in the source
+  const q = (value: string): string => JSON.stringify(value);
   const canvasUsageLive = $derived(`<script lang="ts">
   import Popover from '@ui/popover.svelte';
 ${close}
 
-let triggerLabel = $state('${canvasTriggerLabel}');
+let triggerLabel = $state(${q(canvasTriggerLabel)});
 ${close}
 
 <!-- rows repeat popovertarget to close on select — still zero JS -->
