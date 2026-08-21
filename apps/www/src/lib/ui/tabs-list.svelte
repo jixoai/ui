@@ -49,6 +49,8 @@
   // tabbable for SSR/JS-off entry; trim to the FIRST enabled tab only —
   // exactly one tab stop, per the APG roving law (disabled triggers
   // explicitly -1: browsers skip them, the DOM should say so too)
+  // TODO(batch-3): re-trim when a trigger's disabled state flips
+  // dynamically — the effect only runs on tabStop transitions today
   $effect(() => {
     if (tabs.tabStop !== '' || !listEl) return;
     const triggers = ownTabs();

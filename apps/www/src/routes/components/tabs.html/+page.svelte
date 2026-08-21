@@ -120,6 +120,11 @@ ${close}
           Enter/Space commit. Background panels are <code class="text-accent">hidden</code> — inert,
           not just invisible.
         </p>
+        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
+          empty value ('' = nothing selected) is a deliberate progressive-enhancement compromise:
+          the SSR HTML renders every trigger tabbable so JS-off users can still reach the tabs, and
+          hydration trims the tab stops to exactly the first enabled one.
+        </p>
       {/snippet}
     </ComponentCanvas>
   </div>
