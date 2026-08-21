@@ -59,7 +59,8 @@
     children,
   }: Props = $props();
 
-  const anchorName = `--jx-tip-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  // id is mount-stable by contract; $derived keeps the name truthful
+  const anchorName = $derived(`--jx-tip-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
   const area = $derived(
     placement === 'top' ? 'top'
     : placement === 'top-start' ? 'top span-left'
@@ -107,6 +108,9 @@
 
 <svelte:window onkeydown={(e) => e.key === 'Escape' && close()} />
 
+<!-- svelte-ignore a11y_no_static_element_interactions -- the wrapper is
+     not an interactive control; hover/focus intent is decoration riding
+     over whatever focusable trigger the consumer composed inside -->
 <span
   class="jx-tip-anchor {className}"
   style="anchor-name: {anchorName}"

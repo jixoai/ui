@@ -24,7 +24,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { setContext } from 'svelte';
+  import { onDestroy, setContext } from 'svelte';
 
   interface Props {
     id: string;
@@ -47,7 +47,9 @@
     children,
   }: Props = $props();
 
-  const anchorName = `--jx-menu-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  // id is mount-stable by contract (popover ids + CSS anchors are wired
+  // once); $derived keeps the anchor name truthful if it ever flips
+  const anchorName = $derived(`--jx-menu-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
   const area = $derived(
     placement === 'bottom' ? 'bottom'
     : placement === 'bottom-end' ? 'bottom span-right'
@@ -66,9 +68,10 @@
   let focusFrame: number | undefined;
 
   /** custom triggers render inside the anchor wrapper; adopt their
-   *  popovertarget button for aria mirroring + focus restoration */
+   *  popovertarget button for aria mirroring + focus restoration
+   *  (the DEFAULT trigger binds itself directly on the button) */
   $effect(() => {
-    if (!trigger && anchorEl) {
+    if (trigger && anchorEl) {
       triggerEl = anchorEl.querySelector(`[popovertarget="${id}"]`) as HTMLButtonElement | null;
     }
   });
@@ -145,6 +148,9 @@
     }
   }
 
+  // the queued focus frame must not outlive the component (Codex r2)
+  onDestroy(() => cancelAnimationFrame(focusFrame));
+
   function onPanelToggle(): void {
     open = panel?.matches(':popover-open') ?? false;
     triggerEl?.setAttribute('aria-expanded', String(open));
@@ -198,6 +204,7 @@
   {id}
   popover="auto"
   role="menu"
+  tabindex="-1"
   class="jx-menu {panelClass}"
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"

@@ -16,6 +16,7 @@ import DropdownMenuItem from '../src/lib/ui/dropdown-menu-item.svelte';
 import Pagination, { pageWindow } from '../src/lib/ui/pagination.svelte';
 import Progress from '../src/lib/ui/progress.svelte';
 import TooltipHost from './fixtures/tooltip-host.svelte';
+import MenuCustomTriggerHost from './fixtures/menu-custom-trigger-host.svelte';
 import MenuHost from './fixtures/menu-host.svelte';
 
 // ---------------------------------------------------------------------------
@@ -241,5 +242,23 @@ describe('DropdownMenu', () => {
     const { items } = setup();
     const del = items.find((i) => i.textContent === 'Delete')!;
     expect(del.className).toContain('jx-menu-item-destructive');
+  });
+
+  // ---- custom trigger: adopted for aria + focus restoration ----------
+  it('custom trigger: selection restores focus to the caller button', async () => {
+    const rendered = render(MenuCustomTriggerHost);
+    const trigger = rendered.container.querySelector('[data-custom-trigger]') as HTMLButtonElement;
+    const menu = rendered.container.querySelector('[role="menu"]') as HTMLElement;
+    expect(trigger.getAttribute('popovertarget')).toBe(menu.id);
+
+    await fireEvent.click(trigger);
+    await new Promise(requestAnimationFrame);
+    const item = menu.querySelector('[role="menuitem"]') as HTMLElement;
+    await fireEvent.click(item);
+
+    expect(
+      rendered.container.querySelector('[data-last-action]')?.getAttribute('data-last-action'),
+    ).toBe('renamed');
+    expect(document.activeElement).toBe(trigger);
   });
 });
