@@ -54,8 +54,8 @@ export const DEFAULT_THEME = 'jixoai';
 export type HighlightOptions = CodeToHastOptionsCommon &
   CodeOptionsMeta &
   (
-    | CodeOptionsSingleTheme
-    | CodeOptionsMultipleThemes
+    | (CodeOptionsSingleTheme & { themes?: never })
+    | (CodeOptionsMultipleThemes & { theme?: never })
     | { theme?: never; themes?: never }
   );
 
