@@ -45,25 +45,24 @@
 {/if}
 
 <style>
+  /* all four frames STACK in one cell (grid overlay) — the cycling is
+     pure visibility, never layout (no four-line-tall block) */
   .jx-spin-frames {
-    display: inline-block;
+    position: relative;
+    display: inline-grid;
     width: 1ch;
     text-align: center;
-    overflow: hidden;
     vertical-align: bottom;
   }
   .jx-spin-frames i {
-    display: none;
+    grid-area: 1 / 1;
     font-style: normal;
-  }
-  .jx-spin-frames i:nth-child(1) { animation: jx-spin-frame 800ms steps(1) infinite 0ms; display: block; }
-  .jx-spin-frames i:nth-child(2) { animation: jx-spin-frame 800ms steps(1) infinite 200ms; display: block; }
-  .jx-spin-frames i:nth-child(3) { animation: jx-spin-frame 800ms steps(1) infinite 400ms; display: block; }
-  .jx-spin-frames i:nth-child(4) { animation: jx-spin-frame 800ms steps(1) infinite 600ms; display: block; }
-  /* only the frame in its active window shows */
-  .jx-spin-frames i {
     visibility: hidden;
   }
+  .jx-spin-frames i:nth-child(1) { animation: jx-spin-frame 800ms steps(1) infinite 0ms; }
+  .jx-spin-frames i:nth-child(2) { animation: jx-spin-frame 800ms steps(1) infinite 200ms; }
+  .jx-spin-frames i:nth-child(3) { animation: jx-spin-frame 800ms steps(1) infinite 400ms; }
+  .jx-spin-frames i:nth-child(4) { animation: jx-spin-frame 800ms steps(1) infinite 600ms; }
   @keyframes jx-spin-frame {
     0%,
     24% {

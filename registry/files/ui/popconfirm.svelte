@@ -65,19 +65,31 @@
   let anchorEl = $state<HTMLElement | null>(null);
   let cancelEl = $state<HTMLButtonElement | null>(null);
   let confirmed = false;
+  let isOpen = $state(false);
+  const titleId = $derived(`${id}-title`);
+  const descId = $derived(`${id}-desc`);
 
   /** adopt the wrapper's first button as the declarative trigger —
-   *  consumers compose any focusable control; we wire popovertarget */
+   *  consumers compose any focusable control; we wire popovertarget
+   *  and mirror the open state (aria-expanded/aria-controls) */
   $effect(() => {
     if (!anchorEl) return;
-    const btn = anchorEl.querySelector('button:not([popovertarget])');
-    btn?.setAttribute('popovertarget', id);
+    const btn = anchorEl.querySelector<HTMLButtonElement>('button:not([popovertarget])');
+    if (btn) {
+      btn.setAttribute('popovertarget', id);
+      btn.setAttribute('aria-controls', id);
+      if (isOpen) btn.setAttribute('aria-expanded', 'true');
+      else btn.setAttribute('aria-expanded', 'false');
+    }
   });
 
   function confirm(): void {
     confirmed = true;
-    onconfirm?.();
-    hide();
+    try {
+      onconfirm?.();
+    } finally {
+      hide();
+    }
   }
   function hide(): void {
     if (panel && typeof panel.hidePopover === 'function' && panel.matches(':popover-open')) {
@@ -88,6 +100,7 @@
   /** the toggle seam: open focuses cancel; close without confirm = cancel */
   function handleToggle(): void {
     const open = panel?.matches(':popover-open') ?? false;
+    isOpen = open;
     if (open) {
       confirmed = false;
       requestAnimationFrame(() => {
@@ -108,14 +121,17 @@
 <div
   {id}
   popover="auto"
+  role="dialog"
+  aria-labelledby={titleId}
+  aria-describedby={description ? descId : undefined}
   class="jx-pc"
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
   ontoggle={handleToggle}
 >
-  <p class="jx-pc-title">{title}</p>
+  <p id={titleId} class="jx-pc-title">{title}</p>
   {#if description}
-    <p class="jx-pc-desc">{description}</p>
+    <p id={descId} class="jx-pc-desc">{description}</p>
   {/if}
   <div class="jx-pc-actions">
     <button type="button" class="jx-pc-btn jx-pc-cancel" bind:this={cancelEl} onclick={hide}>

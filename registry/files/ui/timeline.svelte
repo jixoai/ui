@@ -11,8 +11,10 @@
 
   export interface TimelineItem {
     title: string;
-    /** the timestamp line — formatting is yours */
+    /** the timestamp line as displayed — formatting is yours */
     time?: string;
+    /** machine-readable instant (ISO 8601) for <time datetime> */
+    datetime?: string;
     /** in-flight entry: hollow dot, muted title */
     pending?: boolean;
   }
@@ -33,7 +35,9 @@
       <span class="jx-tl-dot" aria-hidden="true"></span>
       <div class="jx-tl-body">
         {#if item.time}
-          <p class="jx-tl-time">{item.time}</p>
+          <p class="jx-tl-time">
+            <time datetime={item.datetime || undefined}>{item.time}</time>
+          </p>
         {/if}
         <p class="jx-tl-title">{item.title}</p>
         {#if body}

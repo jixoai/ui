@@ -39,8 +39,12 @@ describe('Popconfirm', () => {
     expect(panel.matches(':popover-open')).toBe(true);
     const cancel = panel.querySelector('.jx-pc-cancel') as HTMLButtonElement;
     expect(document.activeElement).toBe(cancel);
-    // the light form: NOT an alertdialog
-    expect(panel.getAttribute('role')).toBeNull();
+    // the light form: role=dialog (labelled), NOT an alertdialog
+    expect(panel.getAttribute('role')).toBe('dialog');
+    expect(panel.getAttribute('aria-labelledby')).toBeTruthy();
+    // the adopted trigger mirrors open state
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    expect(trigger.getAttribute('aria-controls')).toBe(panel.id);
   });
 
   it('confirm runs onconfirm then closes', async () => {

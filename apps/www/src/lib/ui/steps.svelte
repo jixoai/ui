@@ -32,7 +32,7 @@
   {#each steps as step, index (index)}
     {@const state = index < current ? 'done' : index === current ? 'current' : 'todo'}
     <li class="jx-step jx-step-{state}" aria-current={state === 'current' ? 'step' : undefined}>
-      {#if state === 'done'}
+      {#if state === 'done' && onstepclick}
         <button
           type="button"
           class="jx-step-marker"
