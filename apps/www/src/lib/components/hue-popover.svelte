@@ -66,64 +66,15 @@
   const position = (): void => {
     pos = computePosition();
   };
-
-  /** Programmatic native Popover: position FIRST (while the popover still
-   *  has its display:none dimensions from the previous open, or a minimum
-   *  estimate), then showPopover(). The declarative popovertarget approach
-   *  fires toggle after the browser has already centered the popover. */
-  const openPopover = (): void => {
-    if (!popEl) return;
-    // pre-position with an estimated width (the popover's min-width) so
-    // the first frame appears at the right coordinates
-    const trigger = triggerEl?.getBoundingClientRect();
-    if (trigger) {
-      const estWidth = Math.max(popEl.scrollWidth || 240, 240);
-      pos = {
-        top: `${trigger.bottom + GAP}px`,
-        left: `${Math.max(GAP, trigger.right - estWidth)}px`,
-      };
-    }
-    popEl.showPopover();
-    // refine after the popover has its real dimensions
-    requestAnimationFrame(() => {
-      position();
-    });
-  };
-
-  const closePopover = (): void => {
-    popEl?.hidePopover();
-  };
-
-  // outside click closes (the native popover's light dismiss handles most
-  // cases; this is a fallback for browsers without :popover-open support)
-  $effect(() => {
-    const handler = (e: Event): void => {
-      if (
-        popEl?.matches(':popover-open') &&
-        triggerEl &&
-        !triggerEl.contains(e.target as Node) &&
-        !popEl.contains(e.target as Node)
-      ) {
-        closePopover();
-      }
-    };
-    document.addEventListener('click', handler);
-    return () => document.removeEventListener('click', handler);
-  });
-  const togglePopover = (): void => {
-    if (popEl?.matches(':popover-open')) {
-      closePopover();
-    } else {
-      openPopover();
-    }
-  };
-
   // track open state for the icon swap (palette ↔ X)
   let isOpen = $state(false);
   $effect(() => {
     if (!popEl) return;
     const handler = () => {
       isOpen = popEl.matches(':popover-open');
+      if (isOpen) {
+        requestAnimationFrame(position);
+      }
     };
     popEl.addEventListener('toggle', handler);
     return () => popEl.removeEventListener('toggle', handler);
@@ -133,11 +84,25 @@
 <div class="relative">
   <button
     type="button"
+    popovertarget="hue-popover"
     class="jx-hue-trigger"
     aria-label={isOpen ? 'Close brand hue & theme' : 'Brand hue & theme'}
     aria-expanded={isOpen}
     bind:this={triggerEl}
-    onclick={togglePopover}
+    onclick={() => {
+      // popovertarget handles the toggle; we only pre-position here
+      // (onclick fires before the popover target activation behavior)
+      if (!popEl?.matches(':popover-open')) {
+        const trigger = triggerEl?.getBoundingClientRect();
+        if (trigger) {
+          const estWidth = 240;
+          pos = {
+            top: `${trigger.bottom + GAP}px`,
+            left: `${Math.max(GAP, trigger.right - estWidth)}px`,
+          };
+        }
+      }
+    }}
   >
     {#if isOpen}
       <!-- X icon while the popover is open -->
