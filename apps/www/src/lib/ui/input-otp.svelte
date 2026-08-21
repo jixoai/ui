@@ -85,6 +85,10 @@
     if (joined !== (value ?? '')) value = joined;
   });
 
+  /** form/fieldset disable propagation (the bridge's jx-disabled) */
+  let formDisabled = $state(false);
+  const isDisabled = $derived(disabled || formDisabled);
+
   let slotEls = $state<HTMLInputElement[]>([]);
   const errorId = $derived(`${id}-error`);
   const complete = $derived(chars.every((ch) => ch !== ''));
@@ -151,9 +155,10 @@
   aria-hidden="true"
   {name}
   value={complete ? chars.join('') : ''}
-  disabled={disabled || undefined}
+  disabled={isDisabled || undefined}
   required={required}
   onjx-reset={() => (value = '')}
+  onjx-disabled={(e: CustomEvent<boolean>) => (formDisabled = e.detail)}
 ></jx-form-field>
 
 <div class="jx-otp {className}" role="group" aria-label={label ?? 'one-time code'}>
@@ -172,7 +177,7 @@
           class:jx-otp-filled={ch !== ''}
           class:jx-otp-complete={complete}
           class:jx-otp-invalid={!!error}
-          {disabled}
+          disabled={isDisabled}
           aria-invalid={error ? 'true' : undefined}
           aria-describedby={error ? errorId : undefined}
           bind:this={slotEls[index]}

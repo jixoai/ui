@@ -63,6 +63,19 @@
     if (focusFirst) focusIntoId = id;
   }
 
+  /** panels are popover=manual: WE own dismissal (popover=auto's light
+   *  dismiss raced the trigger click — outside-close then click-reopen
+   *  read as "toggle broken"; Escape is handled in the panel keydown) */
+  function handleDocPointerDown(event: PointerEvent): void {
+    if (openId === '') return;
+    const target = event.target as Node | null;
+    const panel = document.getElementById(`jx-bar-panel-${openId}`);
+    const trigger = document.getElementById(`jx-bar-trigger-${openId}`);
+    if (panel && target && !panel.contains(target) && !(trigger && trigger.contains(target))) {
+      closePanel(openId, false);
+    }
+  }
+
   function closePanel(id: string, restoreTrigger: boolean): void {
     const el = document.getElementById(`jx-bar-panel-${id}`);
     if (el && typeof el.hidePopover === 'function' && el.matches(':popover-open')) {
@@ -153,6 +166,8 @@
   });
 </script>
 
+<svelte:document onpointerdown={handleDocPointerDown} />
+
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions, a11y_interactive_supports_focus -- the
      bar hosts the menubar walk; its BUTTONS hold the roving tabindex,
      the bar itself is never a tab stop -->
@@ -184,7 +199,7 @@
 {#each items as item (item.id)}
   <div
     id="jx-bar-panel-{item.id}"
-    popover="auto"
+    popover="manual"
     role="menu"
     tabindex="-1"
     class="jx-menubar-panel"

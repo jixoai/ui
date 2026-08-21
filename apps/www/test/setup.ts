@@ -148,7 +148,7 @@ if (!window.Element.prototype.scrollIntoView) {
 
 // ---- 4. ElementInternals form-data surface ----------------------------------
 type ElementWithStore = HTMLElement & { __jxFormValue?: string };
-const formValueByElement = new WeakMap<HTMLElement, string>();
+const formValueByElement = new WeakMap<HTMLElement, string | FormData>();
 
 const nativeAttachInternals = window.HTMLElement.prototype.attachInternals;
 window.HTMLElement.prototype.attachInternals = function (this: HTMLElement) {

@@ -945,7 +945,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: name?, type?, options ({value,label,disabled?}[]), value ($bindable), label (required a11y name), item? (per-button snippet), onchange?. The form-field bridge gains a multivalue attribute (newline-split → setFormValue(...parts)).",
+      "docs": "Props: name?, type?, options ({value,label,disabled?}[]), value ($bindable), label (required a11y name), item? (per-button snippet), onchange?. The form-field bridge gains a multivalue attribute — entries append to a FormData handed to setFormValue (one submit entry per press).",
       "registryDependencies": [
         "form-field"
       ]

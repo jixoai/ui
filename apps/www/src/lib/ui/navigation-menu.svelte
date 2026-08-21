@@ -196,7 +196,7 @@
   .jx-navmenu-slot {
     display: inline-flex;
   }
-  .jx-navmenu button[role='menuitem'],
+  .jx-navmenu button[aria-haspopup='true'],
   .jx-navmenu-link {
     display: inline-flex;
     align-items: center;
@@ -210,7 +210,7 @@
     cursor: pointer;
     transition: color 150ms ease-out;
   }
-  .jx-navmenu button[role='menuitem']:hover,
+  .jx-navmenu button[aria-haspopup='true']:hover,
   .jx-navmenu-link:hover,
   .jx-navmenu button[aria-expanded='true'] {
     color: var(--foreground);

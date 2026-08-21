@@ -59,6 +59,10 @@
     onchange,
   }: Props = $props();
 
+  /** form/fieldset disable propagation (the bridge's jx-disabled) */
+  let formDisabled = $state(false);
+  const isDisabled = $derived(disabled || formDisabled);
+
   const activeValues = $derived(
     type === 'single'
       ? typeof value === 'string' && value !== ''
@@ -98,7 +102,8 @@
   {name}
   value={formValue}
   multivalue={type === 'multiple' || undefined}
-  disabled={disabled || undefined}
+  disabled={isDisabled || undefined}
+  onjx-disabled={(e: CustomEvent<boolean>) => (formDisabled = e.detail)}
   onjx-reset={() => ((value = type === 'single' ? '' : []), undefined)}
 ></jx-form-field>
 
@@ -109,7 +114,7 @@
         class="jx-tgroup-btn"
         class:jx-tgroup-on={isActive(option)}
         aria-pressed={isActive(option)}
-        disabled={disabled || option.disabled}
+        disabled={isDisabled || option.disabled}
         onclick={() => press(option)}
       >
         {#if item}
