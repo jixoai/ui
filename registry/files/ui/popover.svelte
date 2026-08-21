@@ -13,7 +13,10 @@
   wrapper, `position-anchor` + `position-area` on the panel (both the
   current name and its `inset-area` legacy alias are set inline; Chrome
   127+ dropped the old name, older engines ignore the new one), plus native
-  `position-try-fallbacks` flipping (block/inline). Declarative CSS
+  `position-try`/`position-try-fallbacks` flipping (block/inline — the
+  MDN-recommended shorthand ships alongside the longhand) and
+  `position-visibility: anchors-visible` so a panel whose anchor scrolled
+  away hides instead of floating stale. Declarative CSS
   positioning replaces every line of JS geometry: no measure-and-replace,
   so the panel cannot jitter on open. Engines without anchor positioning
   fall back to authored viewport-center (inset + margin:auto) — the same
@@ -142,6 +145,10 @@
     position: fixed;
     margin: 0;
     position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    position-try: flip-block, flip-inline, flip-block flip-inline;
+    /* scroll law (MDN tip): when the anchor scrolls out of view (nested
+       scrollers move it), hide the panel instead of leaving it stale */
+    position-visibility: anchors-visible;
     width: fit-content;
     height: fit-content;
     max-width: min(92vw, 22rem);
