@@ -32,12 +32,15 @@
   the user owns it; on blur / external `value` change an $effect resyncs
   it to the committed display (selected label, else the custom value).
 
-  NativeHTML base audit (2026-08-20): the trigger IS a native
-  <input type="text"> — a caller-supplied name rides through restProps
-  and the field submits, but the FormData value is the DISPLAY text
-  (label or custom string), not a code; commit-value submission needs a
-  hidden input. Select (button trigger) has no form leg at all — the
-  ElementInternals direction for both is noted, not designed here.
+  NativeHTML base audit (2026-08-20, updated by the form-field bridge the
+  same day): the trigger IS a native <input type="text">, but its DOM
+  text is DISPLAY state — a caller-supplied name must never submit it.
+  The name prop is intercepted and rides the FACELESS jx-form-field
+  bridge (registry/files/lib/form-field.ts) instead, which submits the
+  committed VALUE (a listed option's value, or the allowCustom string)
+  through ElementInternals — never the display label. form reset bubbles
+  back as jx-reset, form/fieldset disable as jx-disabled. Style,
+  structure and ARIA stay in this file — the bridge owns no paint.
 -->
 <script module lang="ts">
   /** One row of the Combobox listbox. */
@@ -54,6 +57,9 @@
 </script>
 
 <script lang="ts">
+  // side-effect import: registers the faceless <jx-form-field> element
+  // (client-only, idempotent) that carries this field's form association
+  import '$lib/form-field';
   import type { HTMLInputAttributes } from 'svelte/elements';
 
   interface Props extends Omit<HTMLInputAttributes, 'value'> {
@@ -65,6 +71,9 @@
     placeholder?: string;
     /** field label; renders label[for] above the control */
     label?: string;
+    /** form field name — intercepted OFF the native input; the bridge
+        submits the committed VALUE under it, never the display text */
+    name?: string;
     /** error text → aria-invalid + aria-describedby + dashed border */
     error?: string;
     /** wired into label[for] / error[id]; auto-generated when omitted */
@@ -83,6 +92,7 @@
     value = $bindable(),
     placeholder = 'Search or type...',
     label,
+    name,
     error,
     id = autoId,
     allowCustom = true,
@@ -90,6 +100,11 @@
     class: className = '',
     ...rest
   }: Props = $props();
+
+  // form lifecycle: what jx-reset restores, and the form-disable mirror
+  const initialValue = value;
+  let formDisabled = $state(false);
+  const isDisabled = $derived(disabled || formDisabled);
 
   const errorId = $derived(`${id}-error`);
   const invalid = $derived(error != null && error !== '');
@@ -289,6 +304,21 @@
 </script>
 
 <div class="jx-field">
+  <!-- faceless form bridge (form-field.ts law): the committed VALUE (not
+       the display text) rides ElementInternals into FormData; the native
+       input carries NO name of its own. jx-reset / jx-disabled bubble the
+       form lifecycle back into this component. Owns no box, no content.
+       disabled passes `|| undefined`: Svelte has no boolean-attribute
+       semantics for custom elements and would render disabled="false"
+       as a PRESENT attribute (presence = true in HTML). -->
+  <jx-form-field
+    aria-hidden="true"
+    {name}
+    value={value ?? ''}
+    disabled={isDisabled || undefined}
+    onjx-reset={() => (value = initialValue)}
+    onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
+  ></jx-form-field>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <span class="jx-combobox-wrap" style="anchor-name: {anchorName}">
     <div class="jx-combobox-shell {className}" class:jx-combobox-invalid={invalid}>
@@ -311,7 +341,7 @@
         spellcheck="false"
         class="jx-combobox-input"
         {placeholder}
-        {disabled}
+        disabled={isDisabled}
         oninput={onInput}
         onkeydown={onKeydown}
         onfocus={onFocus}
@@ -329,7 +359,7 @@
           active = freshActive();
         }}
         onmousedown={(event) => event.preventDefault()}
-        {disabled}
+        disabled={isDisabled}
       >
         <svg
           class="jx-combobox-chevron"
@@ -410,6 +440,11 @@
     gap: 0.5rem;
     width: 100%;
     min-width: 0; /* InputGroup hardening: shrink inside grid/flex hosts */
+  }
+  /* the faceless bridge owns no box — pre-hydration included, so the
+     prerendered HTML never flashes an extra flex gap before upgrade */
+  .jx-field > :global(jx-form-field) {
+    display: contents;
   }
   .jx-label {
     width: fit-content;

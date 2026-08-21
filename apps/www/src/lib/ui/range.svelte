@@ -24,25 +24,37 @@
      inset-inline-start, the thumb rides inset-inline-start, the tick ruler
      mirrors via :dir(rtl); pointer/arrow math flips on computed direction.
 
-  Zero dependencies. Decimal steps snap at the step's precision. A custom
-  slider does not submit to FormData by itself — pair it with a hidden
-  input when a form must carry it.
+  Zero dependencies. Decimal steps snap at the step's precision. Form
+  submission rides the FACELESS jx-form-field bridge
+  (registry/files/lib/form-field.ts): pass name= and the numeric string
+  of the committed value reaches FormData through ElementInternals; form
+  reset bubbles back as jx-reset, form/fieldset disable as jx-disabled.
+  The bridge owns no box, no content, no paint — the slider keeps its
+  fully custom geometry.
 
-  NativeHTML base audit (2026-08-20): deliberately no native
-  input[type=range] underneath (see intent 1) — so nothing carries form
-  association, and the a11y contract is hand-held: role="slider" +
+  NativeHTML base audit (2026-08-20, updated by the form-field bridge the
+  same day): deliberately no native
+  input[type=range] underneath (see intent 1) — form association rides
+  the jx-form-field bridge instead, and
+  the a11y contract is hand-held: role="slider" +
   tabindex + aria-valuemin/max/now/valuetext + aria-labelledby (a div
   is not labelable). disabled blocks pointerdown/dblclick AND keydown
   at their entries (tabindex already leaves the tab order at -1); no
   native disabled semantics exist to lean on.
 -->
 <script lang="ts">
+  // side-effect import: registers the faceless <jx-form-field> element
+  // (client-only, idempotent) that carries this field's form association
+  import '$lib/form-field';
+
   interface Props {
     /** committed value; bind:value — snapped into [min, max] on the step */
     value?: number;
     min?: number;
     max?: number;
     step?: number;
+    /** form field name — the bridge submits the numeric string under it */
+    name?: string;
     /** field label rendered above the track (aria-labelledby binding) */
     label?: string;
     /** error text → "! message" line + dashed thumb border */
@@ -66,6 +78,7 @@
     min = 0,
     max = 100,
     step = 1,
+    name,
     label,
     error,
     showValue = true,
@@ -74,6 +87,11 @@
     id = autoId,
     class: className = '',
   }: Props = $props();
+
+  // form lifecycle: what jx-reset restores, and the form-disable mirror
+  const initialValue = value;
+  let formDisabled = $state(false);
+  const isDisabled = $derived(disabled || formDisabled);
 
   const labelId = $derived(`${id}-label`);
   const errorId = $derived(`${id}-error`);
@@ -129,7 +147,7 @@
   }
 
   function onPointerDown(event: PointerEvent) {
-    if (disabled || event.button !== 0) return;
+    if (isDisabled || event.button !== 0) return;
     dragging = true;
     pressed = true;
     rootEl?.setPointerCapture(event.pointerId);
@@ -153,12 +171,12 @@
   // pointerdown already jumps to the click point; dblclick keeps the
   // explicit contract (a fast double press lands on the same spot)
   function onDblClick(event: MouseEvent) {
-    if (disabled) return;
+    if (isDisabled) return;
     commitFromPointer(event as PointerEvent);
   }
 
   function onKeydown(event: KeyboardEvent) {
-    if (disabled) return; // keyboard is an interaction path too (2026-08-20 fix)
+    if (isDisabled) return; // keyboard is an interaction path too (2026-08-20 fix)
     let next: number | null = null;
     const rtl = isRtl();
     switch (event.key) {
@@ -189,6 +207,21 @@
 </script>
 
 <div class="jx-field {className}">
+  <!-- faceless form bridge (form-field.ts law): the numeric string of the
+       committed value rides ElementInternals into FormData; jx-reset /
+       jx-disabled bubble the form lifecycle back into this component.
+       Owns no box, no content.
+       disabled passes `|| undefined`: Svelte has no boolean-attribute
+       semantics for custom elements and would render disabled="false"
+       as a PRESENT attribute (presence = true in HTML). -->
+  <jx-form-field
+    aria-hidden="true"
+    {name}
+    value={String(value)}
+    disabled={isDisabled || undefined}
+    onjx-reset={() => (value = initialValue)}
+    onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
+  ></jx-form-field>
   {#if label || showValue}
     <div class="jx-range-head">
       {#if label}<span class="jx-label" id={labelId}>{label}</span>{/if}
@@ -200,7 +233,7 @@
     bind:this={rootEl}
     id={id}
     role="slider"
-    tabindex={disabled ? -1 : 0}
+    tabindex={isDisabled ? -1 : 0}
     aria-labelledby={label ? labelId : undefined}
     aria-valuemin={min}
     aria-valuemax={max}
@@ -209,11 +242,11 @@
     aria-orientation="horizontal"
     aria-invalid={invalidAttr}
     aria-describedby={describedBy}
-    aria-disabled={disabled ? 'true' : undefined}
+    aria-disabled={isDisabled ? 'true' : undefined}
     class="jx-range"
     class:jx-pressed={pressed}
     class:jx-invalid={invalid}
-    class:jx-disabled={disabled}
+    class:jx-disabled={isDisabled}
     onpointerdown={onPointerDown}
     onpointermove={onPointerMove}
     onpointerup={endDrag}
@@ -242,6 +275,11 @@
     align-items: stretch;
     gap: 0.5rem;
     width: 100%;
+  }
+  /* the faceless bridge owns no box — pre-hydration included, so the
+     prerendered HTML never flashes an extra flex gap before upgrade */
+  .jx-field > :global(jx-form-field) {
+    display: contents;
   }
   .jx-label {
     width: fit-content;

@@ -23,7 +23,7 @@
       "name": "toc-engine",
       "type": "registry:lib",
       "title": "ToC geometry engine",
-      "description": "Framework-free table-of-contents engine: per-frame geometry snapshot computes IoM weights (intersection area / min(block, viewport) \u2014 saturates to 100% in both directions) and the line pick (the viewport-top line resolves to the region containing it; margins resolve DOWNWARD to the next block; mobile line sits at the sticky bar bottom + 2em).",
+      "description": "Framework-free table-of-contents engine: per-frame geometry snapshot computes IoM weights (intersection area / min(block, viewport) — saturates to 100% in both directions) and the line pick (the viewport-top line resolves to the region containing it; margins resolve DOWNWARD to the next block; mobile line sits at the sticky bar bottom + 2em).",
       "files": [
         {
           "path": "registry/files/lib/toc-engine.ts",
@@ -55,7 +55,7 @@
       "name": "press-button",
       "type": "registry:ui",
       "title": "Press button",
-      "description": "The brutalist press-physics button: lifts toward the viewer on hover (shadow xs \u2192 md), presses back into the page on active. Variants: primary / outline / copied.",
+      "description": "The brutalist press-physics button: lifts toward the viewer on hover (shadow xs → md), presses back into the page on active. Variants: primary / outline / copied.",
       "files": [
         {
           "path": "registry/files/ui/press-button.svelte",
@@ -83,13 +83,16 @@
       "name": "terminal-header",
       "type": "registry:ui",
       "title": "Terminal header",
-      "description": "The site nav bar with a clear two-wing layout \u2014 LEFT: brand (logo snippet slot + wordmark + domain/subtitle), RIGHT: nav pills + switcher. Theme-locked CRT bezel: dark by default (inner components render dark via scoped tokens), theme='light'|'system' unlocks. Responsive: desktop one full row, tablet compact row (subtitle hidden), mobile brand row + full-width scrollable nav row.",
+      "description": "The site nav bar with a clear two-wing layout — LEFT: brand (logo snippet slot + wordmark + domain/subtitle), RIGHT: nav pills + switcher. Theme-locked CRT bezel: dark by default (inner components render dark via scoped tokens), theme='light'|'system' unlocks. Responsive: desktop one full row, tablet compact row (subtitle hidden), mobile brand row + full-width scrollable nav row.",
       "files": [
         {
           "path": "registry/files/ui/terminal-header.svelte",
           "target": "@ui/terminal-header.svelte",
           "type": "registry:file"
         }
+      ],
+      "registryDependencies": [
+        "@jixoai/icons"
       ]
     },
     {
@@ -104,6 +107,9 @@
           "target": "@ui/terminal-footer.svelte",
           "type": "registry:file"
         }
+      ],
+      "registryDependencies": [
+        "@jixoai/icons"
       ]
     },
     {
@@ -128,7 +134,8 @@
       "description": "The jixoai Combo table of contents: desktop Rule Tracker (scroll-progress spine, weight-driven nodes on level-1, weight-driven text on flat level-2, pick + parent markers) and mobile Terminal Rail (glass single-row viewport with the 76px line law, expand changes ONLY height, scroll-snap list, tap = instant pick). DOM order: the aside precedes main content; desktop grid places it right, mobile sticky height:0 overlay.",
       "registryDependencies": [
         "@jixoai/toc-engine",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/icons"
       ],
       "files": [
         {
@@ -149,7 +156,7 @@
       "name": "website-scaffold",
       "type": "registry:ui",
       "title": "Website scaffold",
-      "description": "WebsiteScaffold \u2014 the page scaffold for presentation sites (traditional websites) around terminal-header: a sticky, always-visible header band (navigation never scrolls away), main column, optional footer, and a skip link. Ships the systematized MPA view transitions: cross-document navigation with a persistent site-header and a horizontal-slide + blur crossfade on page-main (reduced-motion degrades to crossfade). Pair with view-transitions-toolkit's useAutoTypes() (render-blocking) for from-/to-route typed variants. Renamed from app-shell: an AppScaffold for application-style sites is a separate future design.",
+      "description": "WebsiteScaffold — the page scaffold for presentation sites (traditional websites) around terminal-header: a sticky, always-visible header band (navigation never scrolls away), main column, optional footer, and a skip link. Ships the systematized MPA view transitions: cross-document navigation with a persistent site-header and a horizontal-slide + blur crossfade on page-main (reduced-motion degrades to crossfade). Pair with view-transitions-toolkit's useAutoTypes() (render-blocking) for from-/to-route typed variants. Renamed from app-shell: an AppScaffold for application-style sites is a separate future design.",
       "files": [
         {
           "path": "registry/files/ui/website-scaffold.svelte",
@@ -202,7 +209,7 @@
       "name": "language-switcher",
       "type": "registry:ui",
       "title": "Language switcher",
-      "description": "Locale switching in two variants: pair (icon + segmented two-locale group, active fills brand hue \u2014 composed after the openspecui bilingual reference) and menu (icon + current-locale button with a hard-shadow dropdown for three or more locales). Anchor-based (each locale carries its href) so it works on fully prerendered sites; terminal-surface styling matches theme-toggle.",
+      "description": "Locale switching in two variants: pair (icon + segmented two-locale group, active fills brand hue — composed after the openspecui bilingual reference) and menu (icon + current-locale button with a hard-shadow dropdown for three or more locales). Anchor-based (each locale carries its href) so it works on fully prerendered sites; terminal-surface styling matches theme-toggle.",
       "files": [
         {
           "path": "registry/files/ui/language-switcher.svelte",
@@ -217,7 +224,7 @@
       "name": "card-grid",
       "type": "registry:ui",
       "title": "Card grid",
-      "description": "Grid + subgrid layout that equalizes cards: shared header row and body row, so headers align and bodies fill to the tallest \u2014 no ragged tops or unequal bottoms. Columns are auto-fit minmax (responsive; min prop controls collapse width, default 260px). Works with any card whose first child is the header block (section-card unchanged); no-subgrid browsers fall back to stacked rows.",
+      "description": "Grid + subgrid layout that equalizes cards: shared header row and body row, so headers align and bodies fill to the tallest — no ragged tops or unequal bottoms. Columns are auto-fit minmax (responsive; min prop controls collapse width, default 260px). Works with any card whose first child is the header block (section-card unchanged); no-subgrid browsers fall back to stacked rows.",
       "files": [
         {
           "path": "registry/files/ui/card-grid.svelte",
@@ -240,20 +247,26 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: type, label?, error?, labelSide? 'left'|'right', id? (auto), class, ...restProps passed to the native input."
+      "docs": "Props: type, label?, error?, labelSide? 'left'|'right', id? (auto), class, ...restProps passed to the native input.",
+      "registryDependencies": [
+        "@jixoai/icons"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "select",
       "type": "registry:ui",
       "title": "Select",
-      "description": "Custom select built on the native Popover API + CSS Anchor Positioning: popover='auto' light-dismiss panel, listbox role with roving aria-activedescendant (\u2191\u2193/Home/End/Enter), terminal bezel styling with primary left-border selected state, RTL-aware. For simple forms use native-select instead.",
+      "description": "Custom select built on the native Popover API + CSS Anchor Positioning: popover='auto' light-dismiss panel, listbox role with roving aria-activedescendant (↑↓/Home/End/Enter), terminal bezel styling with primary left-border selected state, RTL-aware. name= submits the committed VALUE into FormData through the faceless form-field bridge (ElementInternals); for the platform's own overlay picker use native-select instead.",
       "files": [
         {
           "path": "registry/files/ui/select.svelte",
           "target": "@ui/select.svelte",
           "type": "registry:file"
         }
+      ],
+      "registryDependencies": [
+        "@jixoai/form-field"
       ]
     },
     {
@@ -275,7 +288,7 @@
       "name": "scaffold-float",
       "type": "registry:ui",
       "title": "Scaffold float portal",
-      "description": "The consumer-side half of the WebsiteScaffold float provider: renders children into the scaffold's top layer (.jx-top-layer) through a real portal \u2014 nodes are created here (full Svelte ownership) and adopted into the provider's insertion point on mount. The float rides the top layer's immersive hide/reveal with the header by construction.",
+      "description": "The consumer-side half of the WebsiteScaffold float provider: renders children into the scaffold's top layer (.jx-top-layer) through a real portal — nodes are created here (full Svelte ownership) and adopted into the provider's insertion point on mount. The float rides the top layer's immersive hide/reveal with the header by construction.",
       "registryDependencies": [
         "@jixoai/website-scaffold"
       ],
@@ -293,7 +306,7 @@
       "name": "dialog",
       "type": "registry:ui",
       "title": "Dialog",
-      "description": "NativeHTML dialog: a native <dialog> base with showModal() \u2014 focus trap, Escape, top-layer rendering for free. jixoai surface (1px border + hard offset shadow, radius omitted) with ::backdrop tinted by the brand hue; one shared 120ms close path for \u00d7/Escape/open=false (backdrop transitions with it, reduced-motion closes instantly); a generation token prevents reopen races during fade-out. bind:open drives the lifecycle.",
+      "description": "NativeHTML dialog: a native <dialog> base with showModal() — focus trap, Escape, top-layer rendering for free. jixoai surface (1px border + hard offset shadow, radius omitted) with ::backdrop tinted by the brand hue; one shared 120ms close path for ×/Escape/open=false (backdrop transitions with it, reduced-motion closes instantly); a generation token prevents reopen races during fade-out. bind:open drives the lifecycle.",
       "files": [
         {
           "path": "registry/files/ui/dialog.svelte",
@@ -308,7 +321,7 @@
       "name": "popover",
       "type": "registry:ui",
       "title": "Popover",
-      "description": "NativeHTML popover: the native Popover API base (popover='auto' light dismiss, popovertarget trigger) \u2014 ZERO JavaScript. jixoai hard-shadow surface; authored centering via inset-area with an @supports fallback; transparent ::backdrop; the trigger's caret flips while open via :has(+ :popover-open). CSS Anchor Positioning noted as the extension direction.",
+      "description": "NativeHTML popover: the native Popover API base (popover='auto' light dismiss, popovertarget trigger) — ZERO JavaScript. jixoai hard-shadow surface; authored centering via inset-area with an @supports fallback; transparent ::backdrop; the trigger's caret flips while open via :has(+ :popover-open). CSS Anchor Positioning noted as the extension direction.",
       "files": [
         {
           "path": "registry/files/ui/popover.svelte",
@@ -316,7 +329,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: id (required, links popovertarget), triggerLabel; snippet children. Inside a popover, a second popovertarget button closes it declaratively \u2014 still zero JS."
+      "docs": "Props: id (required, links popovertarget), triggerLabel; snippet children. Inside a popover, a second popovertarget button closes it declaratively — still zero JS."
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -356,6 +369,36 @@
       ]
     },
     {
+      "$schema": "https://ui.shadcn.com/schema.json/registry-item.json",
+      "name": "icons",
+      "type": "registry:lib",
+      "title": "Inline icon set",
+      "description": "Shared inline SVG icon strings — arrow-right / chevron-down / x / external-link / check — 16px stroke-currentColor geometry consumed via {@html icons.<name>}; decorative by contract (aria-hidden baked in, meaning lives in surrounding text or aria-label).",
+      "files": [
+        {
+          "path": "registry/files/lib/icons.ts",
+          "target": "@lib/icons.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "import { icons } from '@lib/icons'; then {@html icons.x}. Consumers own sizing via CSS; the SVGs default to 16x16 with class jx-icon."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "form-field",
+      "type": "registry:lib",
+      "title": "Form field bridge",
+      "description": "The faceless form-associated custom element (<jx-form-field>) that restores FormData submission to the family's custom-painted controls: formAssociated + attachInternals + setFormValue over name/value/disabled attributes, display:contents (no box, no paint, no ARIA — style stays in the component), form reset bubbling back as jx-reset and form/fieldset disable as jx-disabled. Client-only lazy registration, SSR-safe.",
+      "files": [
+        {
+          "path": "registry/files/lib/form-field.ts",
+          "target": "@lib/form-field.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Imported for its side effect by select/combobox/range/tags-input (no named exports needed at use sites). Law: a missing name, an empty value, or a disabled field contributes nothing to FormData — native control semantics."
+    },
+    {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "table",
       "type": "registry:ui",
@@ -383,7 +426,10 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: tree: TreeNode[], selected?, onselect?. Module exports TreeFile, TreeNode, inferTreeLang(name)."
+      "docs": "Props: tree: TreeNode[], selected?, onselect?. Module exports TreeFile, TreeNode, inferTreeLang(name).",
+      "registryDependencies": [
+        "@jixoai/icons"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -425,7 +471,7 @@
       "name": "radio",
       "type": "registry:ui",
       "title": "Radio",
-      "description": "Pure-CSS radio: appearance-none + 16px circle, :checked border primary + inner 8px dot (scale 0\u21921 transition), error wiring identical to checkbox.",
+      "description": "Pure-CSS radio: appearance-none + 16px circle, :checked border primary + inner 8px dot (scale 0→1 transition), error wiring identical to checkbox.",
       "files": [
         {
           "path": "registry/files/ui/radio.svelte",
@@ -439,7 +485,7 @@
       "name": "toggle",
       "type": "registry:ui",
       "title": "Toggle",
-      "description": "Checkbox in inline-end posture: sr-only checkbox + label-wrapped track (36\u00d720 md / 28\u00d716 sm / 44\u00d724 lg), knob slides 200ms cubic-bezier, checked = $bindable, label reads on the LEFT of the control.",
+      "description": "Checkbox in inline-end posture: sr-only checkbox + label-wrapped track (36×20 md / 28×16 sm / 44×24 lg), knob slides 200ms cubic-bezier, checked = $bindable, label reads on the LEFT of the control.",
       "files": [
         {
           "path": "registry/files/ui/toggle.svelte",
@@ -453,7 +499,7 @@
       "name": "native-select",
       "type": "registry:ui",
       "title": "Native select",
-      "description": "The original native <select> with appearance-none and self-drawn chevron \u2014 recommended for simple forms, mobile native overlay picker, and FormData submission. Multiple mode with listbox geometry.",
+      "description": "The original native <select> with appearance-none and self-drawn chevron — recommended for simple forms, mobile native overlay picker, and FormData submission. Multiple mode with listbox geometry.",
       "files": [
         {
           "path": "registry/files/ui/native-select.svelte",
@@ -467,7 +513,7 @@
       "name": "number-input",
       "type": "registry:ui",
       "title": "Number input",
-      "description": "[- NUM +] stepper: 28px square buttons (press physics, font-nav bold characters), centered chromeless input, click + long-press (300ms\u2192100ms) acceleration, min/max clamp, RTL-aware logical properties.",
+      "description": "[- NUM +] stepper: 28px square buttons (press physics, font-nav bold characters), centered chromeless input, click + long-press (300ms→100ms) acceleration, min/max clamp, RTL-aware logical properties.",
       "files": [
         {
           "path": "registry/files/ui/number-input.svelte",
@@ -481,7 +527,7 @@
       "name": "range",
       "type": "registry:ui",
       "title": "Range",
-      "description": "Form wave 2 \u2014 fully custom slider (never input[type=range]): div + Pointer Events with pointer capture, 4px track with primary fill law, 16px square thumb, optional step tick ruler, keyboard (arrows/Home/End) and full aria slider contract, RTL by logical properties. Decimal steps snap at step precision; pair with a hidden input when FormData must carry it.",
+      "description": "Form wave 2 — fully custom slider (never input[type=range]): div + Pointer Events with pointer capture, 4px track with primary fill law, 16px square thumb, optional step tick ruler, keyboard (arrows/Home/End) and full aria slider contract, RTL by logical properties. Decimal steps snap at step precision; name= submits the numeric string through the faceless form-field bridge.",
       "files": [
         {
           "path": "registry/files/ui/range.svelte",
@@ -489,14 +535,17 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: label?, error?, showValue?, min/max/step, value ($bindable). role=slider contract; aria-labelledby wiring per the family law."
+      "docs": "Props: label?, error?, showValue?, min/max/step, name?, value ($bindable). role=slider contract; aria-labelledby wiring per the family law.",
+      "registryDependencies": [
+        "@jixoai/form-field"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "date-picker",
       "type": "registry:ui",
       "title": "Date picker",
-      "description": "Form wave 2 \u2014 calendar popover over hand-rolled Date math (zero date libraries): single ISO string or {start,end} range with anchor/swap semantics, Monday-first grid, strict ISO parse/format/compare. Popover API panel (popover=auto + popovertarget) CSS-anchored under a select-style trigger; light dismiss/Escape/top-layer are native.",
+      "description": "Form wave 2 — calendar popover over hand-rolled Date math (zero date libraries): single ISO string or {start,end} range with anchor/swap semantics, Monday-first grid, strict ISO parse/format/compare. Popover API panel (popover=auto + popovertarget) CSS-anchored under a select-style trigger; light dismiss/Escape/top-layer are native.",
       "files": [
         {
           "path": "registry/files/ui/date-picker.svelte",
@@ -514,7 +563,7 @@
       "name": "file-input",
       "type": "registry:ui",
       "title": "File input",
-      "description": "Form wave 2 \u2014 the professional file control (input.svelte keeps the bare native passthrough lane): press-button trigger over a visually hidden native input, list/cards/compact presentation variants with sm/md/lg sizing, File[] $bindable contract with per-File image previews (object URLs cached by identity, revoked on remove/unmount), zero-dependency type glyphs and size formatting, maxFiles overflow merged into the family error line.",
+      "description": "Form wave 2 — the professional file control (input.svelte keeps the bare native passthrough lane): press-button trigger over a visually hidden native input, list/cards/compact presentation variants with sm/md/lg sizing, File[] $bindable contract with per-File image previews (object URLs cached by identity, revoked on remove/unmount), zero-dependency type glyphs and size formatting, maxFiles overflow merged into the family error line.",
       "files": [
         {
           "path": "registry/files/ui/file-input.svelte",
@@ -543,13 +592,16 @@
       "name": "combobox",
       "type": "registry:ui",
       "title": "Combobox",
-      "description": "Searchable select with custom-value input: real-time label filtering, allowCustom for free-text values, popover panel with roving aria-activedescendant (focus stays in input), 'No results' + 'Use xxx' affordance, blur-commit, family label/error contract.",
+      "description": "Searchable select with custom-value input: real-time label filtering, allowCustom for free-text values, popover panel with roving aria-activedescendant (focus stays in input), 'No results' + 'Use xxx' affordance, blur-commit, family label/error contract. name= is intercepted off the native input and submits the committed VALUE (option value or custom string — never the display label) through the faceless form-field bridge.",
       "files": [
         {
           "path": "registry/files/ui/combobox.svelte",
           "target": "@ui/combobox.svelte",
           "type": "registry:file"
         }
+      ],
+      "registryDependencies": [
+        "@jixoai/form-field"
       ]
     },
     {
@@ -557,13 +609,17 @@
       "name": "tags-input",
       "type": "registry:ui",
       "title": "Tags input",
-      "description": "Input + multiselect hybrid: flex-wrap tag chips with press-physics removal, Enter/comma/Tab/paste-split to add, Backspace removes last, suggestions popover with filtering, maxTags limit, duplicate flash, $bindable Tag[].",
+      "description": "Input + multiselect hybrid: flex-wrap tag chips with press-physics removal, Enter/comma/Tab/paste-split to add, Backspace removes last, suggestions popover with filtering, maxTags limit, duplicate flash, $bindable Tag[]. name= submits the tag VALUES as one JSON array string (empty set contributes nothing) through the faceless form-field bridge.",
       "files": [
         {
           "path": "registry/files/ui/tags-input.svelte",
           "target": "@ui/tags-input.svelte",
           "type": "registry:file"
         }
+      ],
+      "registryDependencies": [
+        "@jixoai/form-field",
+        "@jixoai/icons"
       ]
     }
   ]

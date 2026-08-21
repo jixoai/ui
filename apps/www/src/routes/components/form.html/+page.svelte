@@ -13,6 +13,7 @@
   import Radio from '$lib/ui/radio.svelte';
   import Range from '$lib/ui/range.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import Select, { type SelectOption } from '$lib/ui/select.svelte';
   import TagsInput, { type Tag } from '$lib/ui/tags-input.svelte';
   import TerminalCard from '$lib/ui/terminal-card.svelte';
@@ -23,6 +24,25 @@
   // A literal closing-script tag inside the module script would terminate
   // this component's own script tag during the HTML-level scan — splice it.
   const close = '</' + 'script>';
+
+  // ToC outline: the 13 demo sections below, in page order. The engine
+  // pairs these ids with the SectionCard data-family extents + header
+  // data-region leaves rendered in this page.
+  const tocSections = [
+    { id: 'all-types', label: 'All native types' },
+    { id: 'selectors', label: 'The selectors' },
+    { id: 'select-split', label: 'The select split' },
+    { id: 'combobox-tags', label: 'Combobox + TagsInput' },
+    { id: 'number-input', label: 'Number input' },
+    { id: 'file-input', label: 'File input' },
+    { id: 'date-picker', label: 'Date picker' },
+    { id: 'range-slider', label: 'Range slider' },
+    { id: 'color-picker', label: 'Color picker' },
+    { id: 'select-textarea', label: 'native-select + textarea' },
+    { id: 'slots', label: 'Slot system' },
+    { id: 'example-form', label: 'A full form' },
+    { id: 'native-base', label: 'NativeHTML 基座' },
+  ];
 
   // demo state for bindable controls
   let checked = $state(false);
@@ -345,7 +365,18 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail (2026-08-20): aside precedes main content in the DOM —
+       desktop sticky right column, mobile the glass single-row bar pinned
+       under the scaffold header (height 0, see toc.css); the content
+       column reserves the rail clearance with its mobile top padding -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <!-- page head -->
   <div data-reveal="" use:reveal>
     <SectionCard
@@ -371,6 +402,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   <!-- all native types -->
   <div id="all-types" data-reveal="" use:reveal>
     <SectionCard
+      family="all-types"
       headerRegion="all-types"
       eyebrow="input"
       title="All native types"
@@ -425,6 +457,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   <!-- checkbox / radio / toggle: pure-CSS selectors -->
   <div id="selectors" data-reveal="" use:reveal>
     <SectionCard
+      family="selectors"
       headerRegion="selectors"
       eyebrow="checkbox / radio / toggle"
       title="The selectors, redrawn in pure CSS"
@@ -524,6 +557,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   <!-- the select split -->
   <div id="select-split" data-reveal="" use:reveal>
     <SectionCard
+      family="select-split"
       headerRegion="select-split"
       eyebrow="select × 2"
       title="One family, two selects — native first"
@@ -606,6 +640,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   <!-- combobox + tags input -->
   <div id="combobox-tags" data-reveal="" use:reveal>
     <SectionCard
+      family="combobox-tags"
       headerRegion="combobox-tags"
       eyebrow="combobox / tags-input"
       title="Combobox + TagsInput — the searchable pair"
@@ -727,6 +762,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   <!-- number stepper -->
   <div id="number-input" data-reveal="" use:reveal>
     <SectionCard
+      family="number-input"
       headerRegion="number-input"
       eyebrow="number-input"
       title="number-input — the [- NUM +] stepper"
@@ -794,6 +830,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   <!-- file input -->
   <div id="file-input" data-reveal="" use:reveal>
     <SectionCard
+      family="file-input"
       headerRegion="file-input"
       eyebrow="file-input"
       title="File input — the professional control"
@@ -866,6 +903,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   <!-- date picker -->
   <div id="date-picker" data-reveal="" use:reveal>
     <SectionCard
+      family="date-picker"
       headerRegion="date-picker"
       eyebrow="date-picker"
       title="Date picker"
@@ -927,6 +965,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   <!-- range slider -->
   <div id="range-slider" data-reveal="" use:reveal>
     <SectionCard
+      family="range-slider"
       headerRegion="range-slider"
       eyebrow="range"
       title="Range slider — fully custom"
@@ -994,6 +1033,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   <!-- color picker -->
   <div id="color-picker" data-reveal="" use:reveal>
     <SectionCard
+      family="color-picker"
       headerRegion="color-picker"
       eyebrow="color-picker"
       title="Color picker"
@@ -1049,6 +1089,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   <!-- select + textarea -->
   <div id="select-textarea" data-reveal="" use:reveal>
     <SectionCard
+      family="select-textarea"
       headerRegion="select-textarea"
       eyebrow="native-select / textarea"
       title="native-select + textarea"
@@ -1106,6 +1147,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   <!-- slot system (InputGroup) -->
   <div id="slots" data-reveal="" use:reveal>
     <SectionCard
+      family="slots"
       headerRegion="slots"
       eyebrow="input / textarea"
       title="Slot system — the InputGroup posture"
@@ -1166,6 +1208,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   <!-- full example form -->
   <div id="example-form" data-reveal="" use:reveal>
     <SectionCard
+      family="example-form"
       headerRegion="example-form"
       eyebrow="composition"
       title="A full form, NativeHTML end to end"
@@ -1218,6 +1261,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   <!-- NativeHTML base explainer -->
   <div id="native-base" data-reveal="" use:reveal>
     <SectionCard
+      family="native-base"
       headerRegion="native-base"
       eyebrow="law"
       title="NativeHTML 基座"
@@ -1267,5 +1311,6 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
         <CodeBlock code={installUsage} lang="svelte" meta="usage" />
       </div>
     </SectionCard>
+  </div>
   </div>
 </div>

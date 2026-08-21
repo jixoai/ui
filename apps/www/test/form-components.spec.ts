@@ -12,16 +12,19 @@
  */
 import { fireEvent, render } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { flushSync } from 'svelte';
 
 import Checkbox from '../src/lib/ui/checkbox.svelte';
 import Combobox from '../src/lib/ui/combobox.svelte';
 import DatePicker from '../src/lib/ui/date-picker.svelte';
 import NumberInput from '../src/lib/ui/number-input.svelte';
 import Radio from '../src/lib/ui/radio.svelte';
+import Range from '../src/lib/ui/range.svelte';
 import Select from '../src/lib/ui/select.svelte';
 import TagsInput from '../src/lib/ui/tags-input.svelte';
 import Toggle from '../src/lib/ui/toggle.svelte';
 import type { Tag } from '../src/lib/ui/tags-input.svelte';
+import type { FormField } from '../src/lib/form-field';
 
 /** collect name/value pairs the way a submit would — WITHOUT moving the
  *  controls out of their component DOM (a detached input loses its label
@@ -517,5 +520,145 @@ describe('DatePicker', () => {
       trigger.textContent.indexOf('2026-08-25')
     );
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// FormField bridge — ElementInternals form association
+// (registry/files/lib/form-field.ts, the faceless <jx-form-field> element)
+// ---------------------------------------------------------------------------
+describe('FormField bridge', () => {
+  const selectOptions = [
+    { value: 'svelte', label: 'Svelte' },
+    { value: 'node', label: 'Node' },
+    { value: 'bun', label: 'Bun' },
+  ];
+
+  it('Select contributes its committed value (not the label) to FormData', async () => {
+    const { container } = render(Select, {
+      props: { options: selectOptions, value: 'svelte', name: 'runtime' },
+    });
+    const trigger = container.querySelector<HTMLButtonElement>('button[popovertarget]')!;
+    const bridge = container.querySelector<HTMLElement>('jx-form-field')!;
+
+    // the bridge is faceless: no box of its own
+    expect(bridge.style.display).toBe('contents');
+    expect(formDataOf(bridge).get('runtime')).toBe('svelte');
+
+    // committing through the panel re-syncs the bridge contribution
+    await fireEvent.click(trigger);
+    await fireEvent.click(document.getElementById(`${trigger.id}-opt-2`)!);
+    expect(trigger.textContent).toContain('Bun'); // the label is display-only
+    expect(formDataOf(bridge).get('runtime')).toBe('bun'); // FormData carries the CODE
+  });
+
+  it('Combobox submits the option value, never the display text', async () => {
+    const { container } = render(Combobox, {
+      props: { options: selectOptions, name: 'backend' },
+    });
+    const input = container.querySelector<HTMLInputElement>('input[role="combobox"]')!;
+    const bridge = container.querySelector<HTMLElement>('jx-form-field')!;
+
+    // nothing committed → no entry; the native input carries NO name, so
+    // it can never leak the display text into FormData either
+    expect(formDataOf(bridge, input).get('backend')).toBeNull();
+    expect(input.hasAttribute('name')).toBe(false);
+
+    await fireEvent.focus(input);
+    await fireEvent.input(input, { target: { value: 'bu' } });
+    await fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(input.value).toBe('Bun'); // display follows the LABEL...
+    expect(formDataOf(bridge, input).get('backend')).toBe('bun'); // ...FormData the VALUE
+  });
+
+  it('Range contributes its numeric string and follows keyboard commits', async () => {
+    const { container } = render(Range, {
+      props: { name: 'volume', value: 40, min: 0, max: 100, showValue: false },
+    });
+    const bridge = container.querySelector<HTMLElement>('jx-form-field')!;
+    const slider = container.querySelector<HTMLElement>('[role="slider"]')!;
+
+    expect(formDataOf(bridge).get('volume')).toBe('40');
+    await fireEvent.keyDown(slider, { key: 'ArrowRight' });
+    expect(formDataOf(bridge).get('volume')).toBe('41');
+  });
+
+  it('TagsInput submits its tag values as one JSON array; the empty set stays out', async () => {
+    const { container } = render(TagsInput, {
+      props: { name: 'stack', tags: [{ value: 'svelte' }, { value: 'node' }] as Tag[] },
+    });
+    const bridge = container.querySelector<HTMLElement>('jx-form-field')!;
+    const input = container.querySelector('input')!;
+
+    expect(formDataOf(bridge).get('stack')).toBe('["svelte","node"]');
+    expect(input.hasAttribute('name')).toBe(false); // the typing input never submits
+
+    await fireEvent.focus(input);
+    await fireEvent.input(input, { target: { value: 'bun' } });
+    await fireEvent.keyDown(input, { key: 'Enter' });
+    expect(formDataOf(bridge).get('stack')).toBe('["svelte","node","bun"]');
+
+    // emptying the field empties the contribution (native control semantics)
+    await fireEvent.keyDown(input, { key: 'Backspace' });
+    await fireEvent.keyDown(input, { key: 'Backspace' });
+    await fireEvent.keyDown(input, { key: 'Backspace' });
+    expect(container.querySelectorAll('.jx-tags-tag').length).toBe(0);
+    expect(formDataOf(bridge).get('stack')).toBeNull();
+  });
+
+  it('a disabled field stops contributing; an unnamed one never starts', async () => {
+    const named = render(Select, {
+      props: { options: selectOptions, value: 'svelte', name: 'runtime' },
+    });
+    const disabled = render(Select, {
+      props: { options: selectOptions, value: 'svelte', name: 'runtime', disabled: true },
+    });
+    const unnamed = render(Select, { props: { options: selectOptions, value: 'svelte' } });
+
+    expect(formDataOf(named.container.querySelector('jx-form-field')!).get('runtime')).toBe(
+      'svelte'
+    );
+    expect(formDataOf(disabled.container.querySelector('jx-form-field')!).get('runtime')).toBeNull();
+    expect(formDataOf(unnamed.container.querySelector('jx-form-field')!).get('runtime')).toBeNull();
+  });
+
+  it('form reset restores the mount value through jx-reset', async () => {
+    const { container } = render(Select, {
+      props: { options: selectOptions, value: 'svelte', name: 'runtime' },
+    });
+    const trigger = container.querySelector<HTMLButtonElement>('button[popovertarget]')!;
+    const bridge = container.querySelector<HTMLElement>('jx-form-field')!;
+
+    await fireEvent.click(trigger);
+    await fireEvent.click(document.getElementById(`${trigger.id}-opt-2`)!);
+    expect(formDataOf(bridge).get('runtime')).toBe('bun');
+
+    // jsdom does not drive formResetCallback from form.reset() — invoke it
+    // the way the platform would
+    (bridge as FormField).formResetCallback();
+    flushSync();
+
+    expect(formDataOf(bridge).get('runtime')).toBe('svelte'); // mount value restored
+    expect(trigger.textContent).toContain('Svelte'); // component state followed jx-reset
+  });
+
+  it('form-level disable reaches the control through jx-disabled', async () => {
+    const { container } = render(Combobox, {
+      props: { options: selectOptions, name: 'backend', value: 'bun' },
+    });
+    const bridge = container.querySelector<HTMLElement>('jx-form-field')!;
+    const input = container.querySelector<HTMLInputElement>('input[role="combobox"]')!;
+    expect(input.disabled).toBe(false);
+
+    (bridge as FormField).formDisabledCallback(true);
+    flushSync();
+    expect(input.disabled).toBe(true); // the control paints disabled...
+    expect(formDataOf(bridge).get('backend')).toBeNull(); // ...and stops contributing
+
+    (bridge as FormField).formDisabledCallback(false);
+    flushSync();
+    expect(input.disabled).toBe(false);
+    expect(formDataOf(bridge).get('backend')).toBe('bun');
   });
 });

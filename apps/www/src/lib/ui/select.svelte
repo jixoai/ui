@@ -32,11 +32,15 @@
   <button> — label[for] binds to it, aria-haspopup="listbox" +
   aria-expanded ride along, and ↑/↓ open it like the native control.
 
-  NativeHTML base audit (2026-08-20): NO native <select> hides inside —
-  a <button> trigger carries no name/value pair into FormData (that is
-  NativeSelect's job; the split is the file's opening law). A future
-  CustomElement + ElementInternals base could restore form association
-  without a native select — deliberately deferred, not designed here.
+  NativeHTML base audit (2026-08-20, updated by the form-field bridge the
+  same day): NO native <select> hides inside — a <button> trigger carries
+  no name/value pair of its own (NativeSelect keeps the plain-native
+  route). Form association rides the FACELESS jx-form-field bridge
+  (registry/files/lib/form-field.ts): a display:contents form-associated
+  custom element fed name/value/disabled attributes; the committed VALUE
+  (never the label) reaches FormData through ElementInternals, form reset
+  bubbles back as jx-reset, form/fieldset disable as jx-disabled. Style,
+  structure and ARIA stay in this file — the bridge owns no paint.
 -->
 <script module lang="ts">
   /** One row of the Select listbox. */
@@ -53,6 +57,9 @@
 </script>
 
 <script lang="ts">
+  // side-effect import: registers the faceless <jx-form-field> element
+  // (client-only, idempotent) that carries this field's form association
+  import '$lib/form-field';
   import type { HTMLButtonAttributes } from 'svelte/elements';
 
   interface Props extends HTMLButtonAttributes {
@@ -64,6 +71,8 @@
     placeholder?: string;
     /** field label; renders label[for] above the control */
     label?: string;
+    /** form field name — the bridge submits the committed VALUE under it */
+    name?: string;
     /** wired into label[for] / error[id]; auto-generated when omitted */
     id?: string;
     /** error text → aria-invalid + aria-describedby + dashed border */
@@ -82,12 +91,19 @@
     value = $bindable(),
     placeholder = 'Select...',
     label,
+    name,
     id = autoId,
     error,
+    disabled = false,
     multiple = false,
     class: className = '',
     ...rest
   }: Props = $props();
+
+  // form lifecycle: what jx-reset restores, and the form-disable mirror
+  const initialValue = value;
+  let formDisabled = $state(false);
+  const isDisabled = $derived(disabled || formDisabled);
 
   const panelId = $derived(`${id}-panel`);
   const listboxId = $derived(`${id}-listbox`);
@@ -204,6 +220,20 @@
 </script>
 
 <div class="jx-field">
+  <!-- faceless form bridge (form-field.ts law): the committed value rides
+       ElementInternals into FormData; jx-reset / jx-disabled bubble the
+       form lifecycle back into this component. Owns no box, no content.
+       disabled passes `|| undefined`: Svelte has no boolean-attribute
+       semantics for custom elements and would render disabled="false"
+       as a PRESENT attribute (presence = true in HTML). -->
+  <jx-form-field
+    aria-hidden="true"
+    {name}
+    value={value ?? ''}
+    disabled={isDisabled || undefined}
+    onjx-reset={() => (value = initialValue)}
+    onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
+  ></jx-form-field>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <span class="jx-sel-wrap" style="anchor-name: {anchorName}">
     <!-- aria-invalid rides the trigger although the checker's per-role
@@ -221,6 +251,7 @@
       aria-controls={listboxId}
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}
+      disabled={isDisabled}
       onkeydown={onTriggerKeydown}
       {...rest}
     >
@@ -298,6 +329,11 @@
     gap: 0.5rem;
     width: 100%;
     min-width: 0; /* InputGroup hardening: shrink inside grid/flex hosts */
+  }
+  /* the faceless bridge owns no box — pre-hydration included, so the
+     prerendered HTML never flashes an extra flex gap before upgrade */
+  .jx-field > :global(jx-form-field) {
+    display: contents;
   }
   .jx-label {
     width: fit-content;

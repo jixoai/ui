@@ -34,10 +34,16 @@
   through its chips — with addTag/removeAt entry guards behind them.
   The chips stay readable under the shell's 0.5 opacity.
 
-  NativeHTML base audit (2026-08-20): the typing input IS a native
-  <input type="text">, but chips are not form data — the field carries
-  no name; pair a hidden input with the tag values when a form must
-  submit them. Height law: shell padding-block 0.375rem + 1.625rem
+  NativeHTML base audit (2026-08-20, updated by the form-field bridge the
+  same day): the typing input IS a native <input type="text">, but it
+  must never submit — its name is intercepted away. Chips reach FormData
+  through the FACELESS jx-form-field bridge
+  (registry/files/lib/form-field.ts): pass name= and the tag VALUES ride
+  ElementInternals as ONE JSON array string (["a","b"] — lossless when a
+  tag itself contains a comma; an empty set contributes nothing). form
+  reset bubbles back as jx-reset, form/fieldset disable as jx-disabled.
+  The bridge owns no box, no content, no paint.
+  Height law: shell padding-block 0.375rem + 1.625rem
   chip/input min-heights + 1px borders = the 40px (2.5rem) row every
   text-like family control renders at — the chips must shrink with the
   row, not push it past the family height.
@@ -55,6 +61,9 @@
 </script>
 
 <script lang="ts">
+  // side-effect import: registers the faceless <jx-form-field> element
+  // (client-only, idempotent) that carries this field's form association
+  import '$lib/form-field';
   import { tick } from 'svelte';
   import { icons } from '$lib/icons';
   import type { HTMLInputAttributes } from 'svelte/elements';
@@ -64,6 +73,9 @@
     tags?: Tag[];
     /** optional suggestion list filtered into the popover while typing */
     suggestions?: Tag[];
+    /** form field name — the bridge submits the tag VALUES as one JSON
+        array string; the typing input itself carries no name */
+    name?: string;
     /** input placeholder while empty */
     placeholder?: string;
     /** field label; renders label[for] above the control */
@@ -86,6 +98,7 @@
   let {
     tags = $bindable([]),
     suggestions = [],
+    name,
     placeholder = 'Add tag...',
     label,
     error,
@@ -96,6 +109,17 @@
     class: className = '',
     ...rest
   }: Props = $props();
+
+  // form lifecycle: what jx-reset restores, and the form-disable mirror
+  const initialTags = tags;
+  let formDisabled = $state(false);
+  const isDisabled = $derived(disabled || formDisabled);
+
+  /** the form contribution: ONE JSON array of tag values (lossless when a
+      value contains a comma); an empty set contributes nothing */
+  const formValue = $derived(
+    tags.length > 0 ? JSON.stringify(tags.map((tag) => tag.value)) : ''
+  );
 
   const errorId = $derived(`${id}-error`);
   const invalid = $derived(error != null && error !== '');
@@ -177,7 +201,7 @@
   }
 
   function addTag(tag: Tag): void {
-    if (disabled) return; // a disabled field neither adds nor flashes
+    if (isDisabled) return; // a disabled field neither adds nor flashes
     if (maxTags != null && tags.length >= maxTags) return;
     if (!allowDuplicates && tags.some((existing) => existing.value === tag.value)) {
       flashExisting(tag.value);
@@ -208,7 +232,7 @@
   }
 
   async function removeAt(index: number): Promise<void> {
-    if (disabled) return; // chips are read-only in a disabled field
+    if (isDisabled) return; // chips are read-only in a disabled field
     tags = tags.filter((_, i) => i !== index);
     // keep the flow in the input after a × click (the input may just have
     // remounted when the removal dropped the field below maxTags)
@@ -282,6 +306,21 @@
 </script>
 
 <div class="jx-field">
+  <!-- faceless form bridge (form-field.ts law): the tag VALUES ride
+       ElementInternals into FormData as one JSON array string; the
+       typing input carries NO name. jx-reset / jx-disabled bubble the
+       form lifecycle back into this component. Owns no box, no content.
+       disabled passes `|| undefined`: Svelte has no boolean-attribute
+       semantics for custom elements and would render disabled="false"
+       as a PRESENT attribute (presence = true in HTML). -->
+  <jx-form-field
+    aria-hidden="true"
+    {name}
+    value={formValue}
+    disabled={isDisabled || undefined}
+    onjx-reset={() => (tags = [...initialTags])}
+    onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
+  ></jx-form-field>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <span class="jx-tags-wrap" style="anchor-name: {anchorName}">
     <div
@@ -304,7 +343,7 @@
               type="button"
               class="jx-tags-remove"
               aria-label={`remove ${tag.label ?? tag.value}`}
-              {disabled}
+              disabled={isDisabled}
               onclick={() => removeAt(index)}
             >
               <!-- the shared inline icon set — 10px inside the chip row -->
@@ -335,7 +374,7 @@
           spellcheck="false"
           class="jx-tags-input"
           {placeholder}
-          {disabled}
+          disabled={isDisabled}
           oninput={onInput}
           onkeydown={onKeydown}
           onfocusout={onFocusOut}
@@ -395,6 +434,11 @@
     gap: 0.5rem;
     width: 100%;
     min-width: 0; /* InputGroup hardening: shrink inside grid/flex hosts */
+  }
+  /* the faceless bridge owns no box — pre-hydration included, so the
+     prerendered HTML never flashes an extra flex gap before upgrade */
+  .jx-field > :global(jx-form-field) {
+    display: contents;
   }
   .jx-label {
     width: fit-content;

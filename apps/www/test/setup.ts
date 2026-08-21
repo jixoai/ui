@@ -1,7 +1,7 @@
 /*
   Global test setup for @jixoai/www (2026-08-20).
 
-  jsdom (v29) still lacks the three platform surfaces the form family
+  jsdom (v29) still lacks the four platform surfaces the form family
   orchestrates on. This file polyfills exactly those, no more:
 
   1. Popover API — showPopover/hidePopover/togglePopover on HTMLElement,
@@ -12,6 +12,14 @@
   2. ToggleEvent — the native toggle event carries newState/oldState.
   3. Element#scrollIntoView — the roving-highlight effects call it on
      aria-activedescendant moves; jsdom has no layout, so it is a no-op.
+  4. ElementInternals form-data surface — jsdom's attachInternals() exists
+     but exposes only ARIA reflection: no setFormValue, and FormData(form)
+     skips form-associated custom elements. The polyfill gives each
+     internals object a per-element setFormValue store (reached by
+     wrapping attachInternals so the host element is known) and teaches
+     the FormData constructor to collect the stored contributions of
+     jx-form-field descendants of the given form — exactly the platform
+     seam the form-field bridge rides, nothing more.
 
   The polyfill mirrors the ORDER of the platform where it matters to the
   components: the toggle event fires synchronously inside show/hide, and
@@ -123,6 +131,49 @@ document.addEventListener('keydown', (event) => {
 if (!window.Element.prototype.scrollIntoView) {
   window.Element.prototype.scrollIntoView = function scrollIntoView() {};
 }
+
+// ---- 4. ElementInternals form-data surface ----------------------------------
+type ElementWithStore = HTMLElement & { __jxFormValue?: string };
+const formValueByElement = new WeakMap<HTMLElement, string>();
+
+const nativeAttachInternals = window.HTMLElement.prototype.attachInternals;
+window.HTMLElement.prototype.attachInternals = function (this: HTMLElement) {
+  const internals = nativeAttachInternals.call(this);
+  if (typeof (internals as { setFormValue?: unknown }).setFormValue !== 'function') {
+    // strings only — the bridge never submits files through this seam
+    (internals as { setFormValue?: (value: string | null) => void }).setFormValue = (
+      value
+    ) => {
+      formValueByElement.set(this, value ?? '');
+    };
+  }
+  return internals;
+};
+
+const NativeFormData = window.FormData;
+class FormDataWithFormAssociated extends NativeFormData {
+  constructor(form?: HTMLFormElement, submitter?: HTMLElement | null) {
+    super(form, submitter);
+    if (form) {
+      for (const field of form.querySelectorAll<ElementWithStore>('jx-form-field')) {
+        const name = field.getAttribute('name');
+        if (!name) continue;
+        const value = formValueByElement.get(field);
+        if (value === undefined || value === '') continue;
+        this.append(name, value);
+      }
+    }
+  }
+}
+// window AND globalThis: vitest copies jsdom globals onto the test realm
+// once at environment setup — reassigning only window would leave the
+// bare `FormData` identifier in spec files pointing at the original.
+window.FormData = FormDataWithFormAssociated;
+Object.defineProperty(globalThis, 'FormData', {
+  value: FormDataWithFormAssociated,
+  writable: true,
+  configurable: true,
+});
 
 afterEach(() => {
   cleanup();
