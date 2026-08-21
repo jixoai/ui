@@ -2,7 +2,7 @@
   import CodeCard from '$lib/ui/code-card.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Select from '$lib/ui/select.svelte';
+  import NativeSelect from '$lib/ui/native-select.svelte';
   import TreeView, { inferTreeLang, type TreeFile, type TreeNode } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -122,7 +122,7 @@ export const reveal = (node: HTMLElement, options?: RevealOptions) => {`;
     leaf('package.json', packageSketch),
   ];
 
-  // flat leaf list for the Playground Select + the selected-file lookup
+  // flat leaf list for the Playground NativeSelect + the selected-file lookup
   const collect = (nodes: TreeNode[]): TreeFile[] =>
     nodes.flatMap((node) => (node.file ? [node.file] : collect(node.children ?? [])));
   const flatFiles: TreeFile[] = collect(fileTree);
@@ -165,7 +165,7 @@ export const reveal = (node: HTMLElement, options?: RevealOptions) => {`;
   <div data-reveal="" use:reveal>
     <ComponentCanvas
       title="tree-view"
-      description="A 3-level project tree (src → lib → ui) with a code-card reader: click a leaf — or pick one from the Playground Select — and the reader follows the selection."
+      description="A 3-level project tree (src → lib → ui) with a code-card reader: click a leaf — or pick one from the Playground NativeSelect — and the reader follows the selection."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/tree-view.svelte"
       {files}
     >
@@ -186,7 +186,7 @@ export const reveal = (node: HTMLElement, options?: RevealOptions) => {`;
         />
       </div>
       {#snippet playground()}
-        <Select
+        <NativeSelect
           label="selected file"
           value={selectedPath}
           onchange={(event) => {
@@ -196,7 +196,7 @@ export const reveal = (node: HTMLElement, options?: RevealOptions) => {`;
           {#each flatFiles as file (file.name)}
             <option value={file.name}>{file.name}</option>
           {/each}
-        </Select>
+        </NativeSelect>
         <p class="text-muted-foreground break-all text-[11px] leading-5">
           selected: {selectedPath}
         </p>

@@ -4,7 +4,7 @@
   import PressButton from '$lib/ui/press-button.svelte';
   import pressButtonSource from '$lib/ui/press-button.svelte?raw';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Select from '$lib/ui/select.svelte';
+  import NativeSelect from '$lib/ui/native-select.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -90,7 +90,7 @@ ${close}
         </div>
       </div>
       {#snippet playground()}
-        <Select
+        <NativeSelect
           label="variant"
           onchange={(event) => {
             variant = event.currentTarget.value as Variant;
@@ -99,7 +99,7 @@ ${close}
           <option value="primary">primary</option>
           <option value="outline">outline</option>
           <option value="copied">copied</option>
-        </Select>
+        </NativeSelect>
       {/snippet}
     </ComponentCanvas>
   </div>

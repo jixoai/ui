@@ -7,10 +7,11 @@
       1px var(--border) shell, var(--background) fill, radius 0; hover
       lifts one pixel (shadow-2xs), focus-visible takes the site's inset
       1px outline law (outline-offset: -1px on the ring token).
-    checkbox / radio
-      the NATIVE control kept verbatim + accent-color: var(--primary)
-      (native a11y at zero cost). Label sits on the same row — side is
-      configurable via labelSide ('left' | 'right', default right).
+    checkbox / radio / toggle
+      SPLIT OUT — the pure-CSS redraws live in their own components:
+      checkbox.svelte, radio.svelte and toggle.svelte. Passing
+      type="checkbox"/"radio" here renders the text shell, so route those
+      types to the dedicated components.
     range
       native slider + accent-color, label above, full width.
     color
@@ -21,29 +22,60 @@
       stand in for it (focus-visible lights the trigger; Enter/Space on
       the hidden input opens the picker natively).
     hidden
-      bare passthrough, no chrome.
+      bare passthrough, no chrome, no slots.
 
   Semantics added on top: label[for] (auto id via $props.id() when not
   supplied), error string → aria-invalid + aria-describedby + "! message"
   line + dashed control border. Everything else (placeholder, disabled,
-  value, name, required, checked, accept, min/max/step…) flows through
-  restProps onto the native element. Uncontrolled by design — read
-  submitted values with FormData.
+  name, required, checked, accept, min/max/step…) flows through
+  restProps onto the native element.
+
+  2026-08-20 · InputGroup slot system (original request: "实现 InputGroup
+  槽位体系，升级 Input 和 TextArea 组件"). Four snippet slots around the
+  lanes (the text-like shell takes all four; file/range/color take only
+  the outer pair):
+
+    outerBlockStart   outside, above — replaces the label row when given
+    innerInlineStart  inside the shell, left (prefix icon / unit)
+    innerInlineEnd    inside the shell, right (suffix / unit / action)
+    outerBlockEnd     outside, below — the error line still renders above
+
+  The shell — not the <input> — owns border/fill/hover/focus, so slots
+  never repaint the box law. Inner slots land muted at 0.75rem; the
+  wrapper is scoped, so override it with an important utility
+  (text-foreground!) or an inline style. `clearable` adds an × button in
+  the inline-end area: it clears the DOM value, syncs the bound value and
+  re-emits `input` + a bubbling `clear` event. `value` is $bindable:
+  bound ⇒ controlled; absent ⇒ the field stays purely uncontrolled
+  (Svelte skips undefined writes, so FormData and form.reset() keep
+  native behavior).
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
+  import type { Snippet } from 'svelte';
 
   interface Props extends HTMLInputAttributes {
     /** any native input type (default 'text') */
     type?: string;
-    /** field label; renders label[for] — same-row for checkbox/radio */
+    /** field label; renders label[for] above the control.
+        skipped when outerBlockStart takes the slot over */
     label?: string;
     /** wired into label[for] / error[id]; auto-generated when omitted */
     id?: string;
     /** error text → aria-invalid + aria-describedby + dashed border */
     error?: string;
-    /** checkbox/radio only: side of the control the label sits on */
-    labelSide?: 'left' | 'right';
+    /** text-like only: × button in the inner-inline-end area */
+    clearable?: boolean;
+    /** inside the shell, left of the input (prefix icon / unit) */
+    innerInlineStart?: Snippet;
+    /** inside the shell, right of the input (suffix / unit / action) */
+    innerInlineEnd?: Snippet;
+    /** outside the shell, above — replaces the label prop when given */
+    outerBlockStart?: Snippet;
+    /** outside the shell, below — renders below the error line */
+    outerBlockEnd?: Snippet;
+    /** $bindable; bound ⇒ controlled, absent ⇒ purely uncontrolled */
+    value?: string | number;
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -54,7 +86,12 @@
     label,
     id = autoId,
     error,
-    labelSide = 'right',
+    clearable = false,
+    innerInlineStart,
+    innerInlineEnd,
+    outerBlockStart,
+    outerBlockEnd,
+    value = $bindable(),
     class: className = '',
     ...rest
   }: Props = $props();
@@ -64,11 +101,39 @@
   const describedBy = $derived(invalid ? errorId : undefined);
   const invalidAttr = $derived(invalid ? 'true' : undefined);
 
-  const isCheckable = $derived(type === 'checkbox' || type === 'radio');
   const isFile = $derived(type === 'file');
   const isHidden = $derived(type === 'hidden');
   const isRange = $derived(type === 'range');
   const isColor = $derived(type === 'color');
+
+  // ---- controlled / clearable plumbing ---------------------------------
+  // liveValue mirrors the DOM only after real user input — the one piece
+  // of state an uncontrolled field ever touches, never written back out.
+  const controlled = $derived(value != null);
+  let liveValue = $state<string | null>(null);
+  let inputEl: HTMLInputElement | undefined = $state();
+
+  const shownValue = $derived(liveValue ?? (controlled ? String(value) : ''));
+  const slotted = $derived(Boolean(innerInlineStart || innerInlineEnd || clearable));
+  const showClear = $derived(clearable && rest.disabled !== true && shownValue !== '');
+
+  function syncValue(event: Event) {
+    const el = event.currentTarget as HTMLInputElement;
+    liveValue = el.value;
+    if (controlled) value = el.value;
+    // forward a caller-supplied input handler from the rest props
+    (rest as { oninput?: (event: Event) => void }).oninput?.(event);
+  }
+
+  function clearValue() {
+    if (!inputEl) return;
+    inputEl.value = '';
+    liveValue = '';
+    if (controlled) value = '';
+    // let bindings and plain listeners both see the reset
+    inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+    inputEl.dispatchEvent(new CustomEvent('clear', { bubbles: true }));
+  }
 
   // file lane: filename echo (multiple files join with ", ")
   let fileLabel = $state('no file selected');
@@ -85,11 +150,13 @@
 </script>
 
 {#if isHidden}
-  <!-- hidden: bare native passthrough -->
-  <input {id} {type} {...rest} />
+  <!-- hidden: bare native passthrough (value rides as a plain attribute) -->
+  <input {id} {type} {value} {...rest} />
 {:else if isFile}
   <div class="jx-field">
-    {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
+    {#if outerBlockStart}
+      <div class="jx-outer jx-outer-start">{@render outerBlockStart()}</div>
+    {:else if label}<label class="jx-label" for={id}>{label}</label>{/if}
     <label class="jx-file" class:jx-invalid={invalid}>
       <input
         {id}
@@ -104,54 +171,64 @@
       <span class="jx-file-name">{fileLabel}</span>
     </label>
     {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}
-  </div>
-{:else if isCheckable}
-  <div class="jx-field">
-    <span class="jx-check" class:jx-check-left={labelSide === 'left'}>
-      <input
-        {id}
-        {type}
-        class="jx-native {className}"
-        aria-invalid={invalidAttr}
-        aria-describedby={describedBy}
-        {...rest}
-      />
-      {#if label}<label class="jx-check-label" for={id}>{label}</label>{/if}
-    </span>
-    {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}
+    {#if outerBlockEnd}<div class="jx-outer jx-outer-end">{@render outerBlockEnd()}</div>{/if}
   </div>
 {:else}
   <div class="jx-field">
-    {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
+    {#if outerBlockStart}
+      <div class="jx-outer jx-outer-start">{@render outerBlockStart()}</div>
+    {:else if label}<label class="jx-label" for={id}>{label}</label>{/if}
     {#if isRange}
       <input
         {id}
         {type}
+        {...rest}
+        value={controlled ? value : undefined}
+        oninput={syncValue}
         class="jx-native jx-range {className}"
         aria-invalid={invalidAttr}
         aria-describedby={describedBy}
-        {...rest}
       />
     {:else if isColor}
       <input
         {id}
         {type}
+        {...rest}
+        value={controlled ? value : undefined}
+        oninput={syncValue}
         class="jx-color {className}"
         aria-invalid={invalidAttr}
         aria-describedby={describedBy}
-        {...rest}
       />
     {:else}
-      <input
-        {id}
-        {type}
-        class="jx-text {className}"
-        aria-invalid={invalidAttr}
-        aria-describedby={describedBy}
-        {...rest}
-      />
+      <!-- the shell owns the box law; the input inside is chromeless -->
+      <div class="jx-shell {className}" class:jx-slotted={slotted} class:jx-invalid={invalid} class:jx-clearable={clearable}>
+        {#if innerInlineStart}
+          <span class="jx-slot">{@render innerInlineStart()}</span>
+        {/if}
+        <input
+          bind:this={inputEl}
+          {id}
+          {type}
+          {...rest}
+          value={controlled ? value : undefined}
+          oninput={syncValue}
+          class="jx-input"
+          aria-invalid={invalidAttr}
+          aria-describedby={describedBy}
+        />
+        {#if innerInlineEnd}
+          <span class="jx-slot">{@render innerInlineEnd()}</span>
+        {/if}
+        {#if showClear}
+          <button type="button" class="jx-clear" aria-label="clear value" onclick={clearValue}>
+            &times;
+          </button>
+        {/if}
+      </div>
     {/if}
     {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}
+    {#if outerBlockEnd}<div class="jx-outer jx-outer-end">{@render outerBlockEnd()}</div>{/if}
   </div>
 {/if}
 
@@ -173,60 +250,131 @@
     cursor: pointer;
   }
 
-  /* ---- text-like shell -------------------------------------------- */
-  .jx-text {
+  /* ---- outer snippet slots ------------------------------------------
+     net 0.25rem (mb-1 / mt-1 law) away from the shell: they cancel half
+     of the 0.5rem field gap so hint text hugs the control closer than
+     a label does. */
+  .jx-outer {
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+  }
+  .jx-outer-start {
+    margin-bottom: -0.25rem;
+  }
+  .jx-outer-end {
+    margin-top: -0.25rem;
+  }
+
+  /* ---- text-like shell ----------------------------------------------
+     the shell owns border/fill/hover/focus; the <input> inside is
+     chromeless and flexes. Without inner slots the pixels are identical
+     to the old single-<input> shell. */
+  .jx-shell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* gap-2 between inner slots and the input */
     width: 100%;
     min-height: 2.5rem;
-    padding: 0.5rem 0.75rem;
     border: 1px solid var(--border);
     border-radius: 0;
     background: var(--background);
-    color: var(--foreground);
-    font-family: inherit;
-    font-size: 0.875rem;
-    line-height: 1.45;
     color-scheme: light;
     transition: box-shadow 150ms ease-out;
   }
-  :global(.dark) .jx-text {
+  :global(.dark) .jx-shell {
     color-scheme: dark;
   }
-  .jx-text::placeholder {
-    color: var(--muted-foreground);
-    opacity: 1;
-  }
-  .jx-text:hover:not(:focus-visible) {
+  .jx-shell:not(:has(input:disabled)):hover:not(:has(:focus-visible)) {
     box-shadow: var(--shadow-2xs);
   }
   /* the site focus law (terminal-header / language-switcher): an inset
-     1px outline on the ring token — no layout shift, no clipping */
-  .jx-text:focus-visible {
+     1px outline on the ring token — the shell carries it for the input
+     AND for slot controls (clear button) alike */
+  .jx-shell:has(:focus-visible) {
     outline: 1px solid var(--ring);
     outline-offset: -1px;
     box-shadow: none;
   }
-  .jx-text:disabled {
+  .jx-shell.jx-invalid {
+    border-style: dashed;
+  }
+  .jx-shell:has(input:disabled) {
     opacity: 0.5;
     cursor: not-allowed;
     box-shadow: none;
   }
-  .jx-text[aria-invalid='true'] {
-    border-style: dashed;
+  /* inner slots present → the shell carries the horizontal padding and
+     the input runs edge-to-edge between the gap-2 seams */
+  .jx-shell.jx-slotted {
+    padding-inline: 0.75rem;
+  }
+  .jx-input {
+    flex: 1 1 0%;
+    min-width: 0;
+    min-height: calc(2.5rem - 2px);
+    padding: 0.5rem 0.75rem;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--foreground);
+    font-family: inherit;
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+  .jx-shell.jx-slotted .jx-input {
+    padding-inline: 0;
+  }
+  .jx-input::placeholder {
+    color: var(--muted-foreground);
+    opacity: 1;
+  }
+  /* the native search decoration bows out when our own × is on duty */
+  .jx-shell.jx-clearable .jx-input::-webkit-search-cancel-button {
+    display: none;
   }
 
-  /* ---- native-accent family (checkbox / radio / range) ------------ */
+  /* ---- inner snippet slots + clear button --------------------------- */
+  .jx-slot {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    line-height: 1;
+  }
+  .jx-clear {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--muted-foreground);
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .jx-clear:hover {
+    color: var(--foreground);
+  }
+  .jx-clear:focus-visible {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+  }
+
+  /* ---- accent-color family (range) --------------------------------- */
   .jx-native {
     accent-color: var(--primary);
     margin: 0;
     cursor: pointer;
   }
-  .jx-check .jx-native {
-    width: 1rem;
-    height: 1rem;
-    flex: none;
-  }
   /* the native control keeps its own rendering, so its focus outline
-     sits OUTSIDE the tiny square — an inset ring would crowd the glyph */
+     sits OUTSIDE the slider — an inset ring would crowd the thumb */
   .jx-native:focus-visible {
     outline: 1px solid var(--ring);
     outline-offset: 1px;
@@ -238,20 +386,6 @@
   .jx-range {
     width: 100%;
     height: 1rem;
-  }
-  .jx-check {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    width: fit-content;
-  }
-  .jx-check-left {
-    flex-direction: row-reverse;
-  }
-  .jx-check-label {
-    font-size: 0.8125rem;
-    color: var(--foreground);
-    cursor: pointer;
   }
 
   /* ---- color: native picker, height aligned with the text shell --- */
@@ -368,7 +502,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .jx-text,
+    .jx-shell,
     .jx-file-btn {
       transition: none;
     }

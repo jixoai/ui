@@ -15,7 +15,7 @@
   const usage = `<script lang="ts">
   import ComponentCanvas from '@ui/component-canvas.svelte';
   import PressButton from '@ui/press-button.svelte';
-  import Select from '@ui/select.svelte';
+  import NativeSelect from '@ui/native-select.svelte';
 ${close}
 
 let variant = $state<'primary' | 'outline'>('primary');
@@ -30,10 +30,10 @@ ${close}
 >
   <PressButton {variant}>deploy</PressButton>
   {#snippet playground()}
-    <Select label="variant">
+    <NativeSelect label="variant">
       <option value="primary">primary</option>
       <option value="outline">outline</option>
-    </Select>
+    </NativeSelect>
   {/snippet}
 </ComponentCanvas>`;
 

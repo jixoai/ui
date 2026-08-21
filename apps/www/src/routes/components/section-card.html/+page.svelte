@@ -3,7 +3,7 @@
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import Input from '$lib/ui/input.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Select from '$lib/ui/select.svelte';
+  import NativeSelect from '$lib/ui/native-select.svelte';
   import { reveal } from '$lib/reveal';
 
   // Same-source law: the file tree shows the exact installed copy this site
@@ -93,7 +93,7 @@ ${close}
         </SectionCard>
       {/snippet}
       {#snippet playground()}
-        <Select
+        <NativeSelect
           label="tone"
           value={demoTone}
           onchange={(event) => {
@@ -102,8 +102,8 @@ ${close}
         >
           <option value="default">default</option>
           <option value="hero">hero</option>
-        </Select>
-        <Select
+        </NativeSelect>
+        <NativeSelect
           label="headingLevel"
           value={String(demoLevel)}
           onchange={(event) => {
@@ -112,7 +112,7 @@ ${close}
         >
           <option value="2">2 — h2</option>
           <option value="1">1 — h1</option>
-        </Select>
+        </NativeSelect>
         <Input
           type="text"
           label="eyebrow"

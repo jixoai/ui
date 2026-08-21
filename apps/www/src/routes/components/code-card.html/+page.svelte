@@ -2,7 +2,7 @@
   import CodeCard from '$lib/ui/code-card.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Select from '$lib/ui/select.svelte';
+  import NativeSelect from '$lib/ui/native-select.svelte';
   import { reveal } from '$lib/reveal';
 
   // Same-source law: the code drawer shows the exact registry copies this
@@ -163,7 +163,7 @@ echo "installed: 2 files into src/lib/"`,
   <div data-reveal="" use:reveal>
     <ComponentCanvas
       title="code-card"
-      description="The complete card: filename tab (head left), header snippet (head right, replacing the default lang label), footer snippet (foot left), and the copy control (foot right). The Playground Select swaps the tokenizer language."
+      description="The complete card: filename tab (head left), header snippet (head right, replacing the default lang label), footer snippet (foot left), and the copy control (foot right). The Playground NativeSelect swaps the tokenizer language."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/code-card.svelte"
       {files}
     >
@@ -183,7 +183,7 @@ echo "installed: 2 files into src/lib/"`,
         {/snippet}
       </CodeCard>
       {#snippet playground()}
-        <Select
+        <NativeSelect
           label="lang"
           value={lang}
           onchange={(event) => {
@@ -196,7 +196,7 @@ echo "installed: 2 files into src/lib/"`,
           <option value="json">json</option>
           <option value="bash">bash</option>
           <option value="css">css</option>
-        </Select>
+        </NativeSelect>
         <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
           The hint drives the tokenizer vocabulary — comment styles, keywords, tag shapes and
           number rules change per language; the markup never does.

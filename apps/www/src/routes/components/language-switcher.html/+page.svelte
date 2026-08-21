@@ -3,7 +3,7 @@
   import LanguageSwitcher from '$lib/ui/language-switcher.svelte';
   import languageSwitcherSource from '$lib/ui/language-switcher.svelte?raw';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Select from '$lib/ui/select.svelte';
+  import NativeSelect from '$lib/ui/native-select.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -120,7 +120,7 @@ ${close}
         </div>
       </div>
       {#snippet playground()}
-        <Select
+        <NativeSelect
           label="variant"
           onchange={(event) => {
             variant = event.currentTarget.value as Variant;
@@ -128,7 +128,7 @@ ${close}
         >
           <option value="pair">pair</option>
           <option value="menu">menu</option>
-        </Select>
+        </NativeSelect>
       {/snippet}
     </ComponentCanvas>
   </div>

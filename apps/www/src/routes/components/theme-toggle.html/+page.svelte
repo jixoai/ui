@@ -3,7 +3,7 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import ThemeToggle from '$lib/ui/theme-toggle.svelte';
   import themeToggleSource from '$lib/ui/theme-toggle.svelte?raw';
-  import Select from '$lib/ui/select.svelte';
+  import NativeSelect from '$lib/ui/native-select.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -91,7 +91,7 @@ ${close}
         </div>
       </div>
       {#snippet playground()}
-        <Select
+        <NativeSelect
           label="variant"
           onchange={(event) => {
             variant = event.currentTarget.value as Variant;
@@ -101,7 +101,7 @@ ${close}
           <option value="compact">compact</option>
           <option value="icon">icon</option>
           <option value="text">text</option>
-        </Select>
+        </NativeSelect>
       {/snippet}
     </ComponentCanvas>
   </div>

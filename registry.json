@@ -247,7 +247,7 @@
       "name": "select",
       "type": "registry:ui",
       "title": "Select",
-      "description": "NativeHTML select with appearance:none and an inline-SVG chevron; options passed as children; multiple mode drops the chevron automatically. Same label/error contract as input.",
+      "description": "Custom select built on the native Popover API + CSS Anchor Positioning: popover='auto' light-dismiss panel, listbox role with roving aria-activedescendant (\u2191\u2193/Home/End/Enter), terminal bezel styling with primary left-border selected state, RTL-aware. For simple forms use native-select instead.",
       "files": [
         {
           "path": "registry/files/ui/select.svelte",
@@ -405,6 +405,76 @@
         }
       ],
       "docs": "Props: title, description?, sourceUrl?, files: TreeFile[]; snippets children (live demo), playground? (interactive controls)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "checkbox",
+      "type": "registry:ui",
+      "title": "Checkbox",
+      "description": "Pure-CSS checkbox: appearance-none + 16px square + 1px border, :checked fills primary with a white checkmark (clip-path polygon, zero icon deps), :indeterminate morphs to a horizontal bar, error wiring (aria-invalid + describedby + dashed border + monochrome ! message). Label on inline-start.",
+      "files": [
+        {
+          "path": "registry/files/ui/checkbox.svelte",
+          "target": "@ui/checkbox.svelte",
+          "type": "registry:file"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "radio",
+      "type": "registry:ui",
+      "title": "Radio",
+      "description": "Pure-CSS radio: appearance-none + 16px circle, :checked border primary + inner 8px dot (scale 0\u21921 transition), error wiring identical to checkbox.",
+      "files": [
+        {
+          "path": "registry/files/ui/radio.svelte",
+          "target": "@ui/radio.svelte",
+          "type": "registry:file"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "toggle",
+      "type": "registry:ui",
+      "title": "Toggle",
+      "description": "Checkbox in inline-end posture: sr-only checkbox + label-wrapped track (36\u00d720 md / 28\u00d716 sm / 44\u00d724 lg), knob slides 200ms cubic-bezier, checked = $bindable, label reads on the LEFT of the control.",
+      "files": [
+        {
+          "path": "registry/files/ui/toggle.svelte",
+          "target": "@ui/toggle.svelte",
+          "type": "registry:file"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "native-select",
+      "type": "registry:ui",
+      "title": "Native select",
+      "description": "The original native <select> with appearance-none and self-drawn chevron \u2014 recommended for simple forms, mobile native overlay picker, and FormData submission. Multiple mode with listbox geometry.",
+      "files": [
+        {
+          "path": "registry/files/ui/native-select.svelte",
+          "target": "@ui/native-select.svelte",
+          "type": "registry:file"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "number-input",
+      "type": "registry:ui",
+      "title": "Number input",
+      "description": "[- NUM +] stepper: 28px square buttons (press physics, font-nav bold characters), centered chromeless input, click + long-press (300ms\u2192100ms) acceleration, min/max clamp, RTL-aware logical properties.",
+      "files": [
+        {
+          "path": "registry/files/ui/number-input.svelte",
+          "target": "@ui/number-input.svelte",
+          "type": "registry:file"
+        }
+      ]
     }
   ]
 }
