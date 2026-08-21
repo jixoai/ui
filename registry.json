@@ -913,6 +913,101 @@
         }
       ],
       "docs": "Props: trigger (snippet), children (the card), placement? ('bottom' default), openDelay? (300), closeDelay? (200)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "input-otp",
+      "type": "registry:ui",
+      "title": "Input OTP",
+      "description": "The one-time-code field: N single-character inputs with the mechanics a raw stack lacks — auto-advance, backstep on backspace, paste distributing across slots, focus landing on the first empty slot (entering from outside only). Submits ONE joined value through the jx-form-field ElementInternals bridge (partial codes submit empty, never a partial lie).",
+      "files": [
+        {
+          "path": "registry/files/ui/input-otp.svelte",
+          "target": "@ui/input-otp.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: name?, length? (6), value ($bindable), numeric? (true), label?, error?, disabled?. Two-way slot/value sync is untracked on the slots side — slot mutations can never be re-synced against stale value."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "toggle-group",
+      "type": "registry:ui",
+      "title": "Toggle group",
+      "description": "The joined-button set submitting as one form field: type=single presses one button ('' when none), type=multiple presses several — the bridge's multivalue mode submits one FormData entry per active value (checkbox-set semantics), not a CSV. role=group + aria-pressed buttons for both modes; arrow-walking is tabs' job, not a toggle set's.",
+      "files": [
+        {
+          "path": "registry/files/ui/toggle-group.svelte",
+          "target": "@ui/toggle-group.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/form-field.ts",
+          "target": "@form-field.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: name?, type?, options ({value,label,disabled?}[]), value ($bindable), label (required a11y name), item? (per-button snippet), onchange?. The form-field bridge gains a multivalue attribute (newline-split → setFormValue(...parts))."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "carousel",
+      "type": "registry:ui",
+      "title": "Carousel",
+      "description": "W3C-first: a carousel IS a scrolled region — CSS scroll-snap does the paging, native scrolling does the motion (momentum, keyboard when focused). JS only READS the position (rAF-throttled) to keep the dots honest. No slide cloning, no virtual window: slides are ordinary direct children of the track. Dots page; arrows page; the active dot follows the nearest snap slide.",
+      "files": [
+        {
+          "path": "registry/files/ui/carousel.svelte",
+          "target": "@ui/carousel.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: label?, slideWidth? ('100%' one-at-a-time; '80%' for peeking), dots?, prevLabel/nextLabel?, children = the slides (any elements)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "command",
+      "type": "registry:ui",
+      "title": "Command palette",
+      "description": "The ⌘K surface on the batch-4 design ruling: native dialog showModal (modal task — trap, Escape, top layer native); open focuses the search, close restores focus natively. Deterministic ranking (exact > startsWith > token > includes > keywords), no fuzzy; combobox + listbox with aria-activedescendant (input holds focus); ↑/↓ wrap cross-group, Home/End, Enter selects; no-matches is role=status state text; IME-composition-safe. ⌘K/Ctrl+K window binding, opt-out via hotkey={false}.",
+      "files": [
+        {
+          "path": "registry/files/ui/command.svelte",
+          "target": "@ui/command.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: items (CommandItem[]), open ($bindable), onopenchange?, onselect? (single execution path — no dual run()), closeOnSelect? (true), placeholder?, label?, hotkey? (true), filter? (pure function, default rankCommandItems export)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "navigation-menu",
+      "type": "registry:ui",
+      "title": "Navigation menu",
+      "description": "The site-nav bar as an independent thin coordinator (not raw popovers): top-level ←/→ walking with roving tabindex, one tab stop on the current section's trigger; hover opens with 150ms intent and adjacent triggers glide (no close bounce); Enter/Space/click opens; Escape closes + focus returns. Panels are popover=auto with CSS anchoring and carry REAL LINKS — navigation-menu moves you through a site; actions belong to dropdown-menu.",
+      "files": [
+        {
+          "path": "registry/files/ui/navigation-menu.svelte",
+          "target": "@ui/navigation-menu.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: items ({id,label,href?,current?,hasPanel?}[]), label?, panel? (snippet [item]), openDelay? (150)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "menubar",
+      "type": "registry:ui",
+      "title": "Menubar",
+      "description": "The application menu bar with its OWN walker (the top-level contract differs from stacked dropdowns): ←/→ move between triggers with panels gliding after an open bar; ↓/↑/Enter opens and focuses the first item; Home/End jump; Escape returns to the trigger. Panels are popover=auto role=menu; items inside walk with wrap (the menu contract, deliberately duplicated — registry items stay independent).",
+      "files": [
+        {
+          "path": "registry/files/ui/menubar.svelte",
+          "target": "@ui/menubar.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: items ({id,label}[]), label?, panel (snippet [item] — bring buttons/links with role=menuitem)."
     }
   ]
 }

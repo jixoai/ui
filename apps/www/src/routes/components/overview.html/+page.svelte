@@ -7,7 +7,7 @@
 
   // Pure index page (2026-08-20): every demo moved to its own
   // /components/<name>.html route; this page is only the catalog.
-  // 36 documented components (form merges input/select/textarea into one
+  // 42 documented components (form merges input/select/textarea into one
   // route) + 3 framework-free libs (reveal, toc-engine, highlight).
   interface IndexEntry {
     /** Display title = the component page's subject. */
@@ -158,6 +158,14 @@
           'toast',
           'Two seams: a DOM-free store (push/dismiss/expiry with hover pause) and a viewport mounted once — corner stack, per-item live regions.',
         ),
+        entry(
+          'input-otp',
+          'N single-char slots with auto-advance, backstep and paste distribution — one joined value through the ElementInternals bridge.',
+        ),
+        entry(
+          'carousel',
+          'CSS scroll-snap paging, native scrolling motion, JS only reads the position for the dots — no cloning, no virtual window.',
+        ),
       ],
     },
     {
@@ -196,6 +204,26 @@
           'hover-card',
           "Tooltip's intent model with an interactive panel: crossings between trigger and card never dismiss, only real exits.",
         ),
+        entry(
+          'command',
+          'The ⌘K palette on a native dialog: deterministic ranking, aria-activedescendant combobox, one execution path — no fuzzy, no cmdk layer.',
+        ),
+        entry(
+          'toggle-group',
+          'Joined press-state buttons as one form field — single picks a value, multiple submits one FormData entry per press (bridge multivalue).',
+        ),
+        entry(
+          'navigation-menu',
+          'The site-nav bar as a thin coordinator: arrow walking, hover intent with glide, popover panels carrying real links.',
+        ),
+        entry(
+          'menubar',
+          "The app menu bar with its own walker: arrows glide between top menus, ↓ opens and focuses, Escape returns.",
+        ),
+        entry(
+          'recipes',
+          'The deliberate non-components: aspect-ratio, data-table, chart, sidebar as documented composition recipes — where wrapping stops.',
+        ),
       ],
     },
     {
@@ -223,7 +251,7 @@
   <title>Components · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai-ui component index: 36 documented components across Layout, Overlay, Form, Display, Interactive, and Shell — every one a registry item installable with npx jixoai-ui add."
+    content="The jixoai-ui component index: 42 documented components across Layout, Overlay, Form, Display, Interactive, and Shell — every one a registry item installable with npx jixoai-ui add."
   />
 </svelte:head>
 
@@ -238,7 +266,7 @@
       summary="The jixoai design language component library — every item is a registry item installable via npx jixoai-ui add."
     >
       <div class="flex flex-wrap gap-3">
-        <span class="pill">36 components</span>
+        <span class="pill">42 components</span>
         <span class="pill">3 libs</span>
       </div>
     </SectionCard>

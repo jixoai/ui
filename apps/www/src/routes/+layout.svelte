@@ -241,6 +241,21 @@
               label: 'kbd',
               description: 'keyboard glyph',
             },
+            {
+              href: '/components/input-otp.html',
+              label: 'input-otp',
+              description: 'OTP slot field',
+            },
+            {
+              href: '/components/carousel.html',
+              label: 'carousel',
+              description: 'scroll-snap track',
+            },
+            {
+              href: '/components/recipes.html',
+              label: 'recipes',
+              description: 'where wrapping stops',
+            },
           ],
         },
         {
@@ -265,6 +280,26 @@
               href: '/components/dropdown-menu.html',
               label: 'dropdown-menu',
               description: 'ARIA menu pattern',
+            },
+            {
+              href: '/components/command.html',
+              label: 'command',
+              description: '⌘K palette',
+            },
+            {
+              href: '/components/toggle-group.html',
+              label: 'toggle-group',
+              description: 'press-state field',
+            },
+            {
+              href: '/components/navigation-menu.html',
+              label: 'navigation-menu',
+              description: 'site-nav bar',
+            },
+            {
+              href: '/components/menubar.html',
+              label: 'menubar',
+              description: 'app menu bar',
             },
           ],
         },

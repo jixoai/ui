@@ -1,0 +1,259 @@
+<!--
+  jixoai menubar (registry/files/ui/menubar.svelte).
+  The application menu bar — File Edit View… — with its OWN walker
+  (batch-4 ruling): the top-level keyboard contract differs from a
+  stack of dropdowns, so this is an independent coordinator over the
+  popover laws (popover=auto panels, native light dismiss/Escape):
+
+    ←/→          move between top-level triggers (panels follow an
+                 open bar — glide behavior)
+    ↓ / Enter    open the trigger's panel, focus its first item
+    ↑            opens too (menubar convention both ways)
+    Home/End     first/last trigger
+    Escape       close the panel, focus back on its trigger
+    panel items  ↓/↑/Home/End walk + wrap (the menu contract shared
+                 with dropdown-menu — duplicated deliberately: registry
+                 items stay independent, no hidden coupling)
+
+  Items are data-driven: label + panel content per item (the `panel`
+  snippet keyed by item id, rendered inside role=menu). Selection
+  semantics belong to the content (links leave, buttons act) — the
+  menubar only owns the walking and the open/close coordination.
+-->
+<script lang="ts">
+  import type { Snippet } from 'svelte';
+
+  export interface MenubarItem {
+    id: string;
+    label: string;
+  }
+
+  interface Props {
+    items: MenubarItem[];
+    label?: string;
+    /** panel content per item id */
+    panel: Snippet<[MenubarItem]>;
+    class?: string;
+  }
+
+  let { items, label = 'menu bar', panel, class: className = '' }: Props = $props();
+
+  let barEl = $state<HTMLElement | null>(null);
+  let openId = $state('');
+  /** id marking "a panel was just opened by keyboard — focus its first item" */
+  let focusIntoId = $state('');
+
+  const anchorOf = (id: string): string =>
+    `--jx-bar-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+
+  function triggers(): HTMLButtonElement[] {
+    return [
+      ...(barEl?.querySelectorAll<HTMLButtonElement>('[role=menuitem]:not([disabled])') ?? []),
+    ];
+  }
+
+  function openPanel(id: string, focusFirst: boolean): void {
+    const el = document.getElementById(`jx-bar-panel-${id}`);
+    if (el && typeof el.showPopover === 'function' && !el.matches(':popover-open')) {
+      el.showPopover();
+    }
+    openId = id;
+    if (focusFirst) focusIntoId = id;
+  }
+
+  function closePanel(id: string, restoreTrigger: boolean): void {
+    const el = document.getElementById(`jx-bar-panel-${id}`);
+    if (el && typeof el.hidePopover === 'function' && el.matches(':popover-open')) {
+      el.hidePopover();
+    }
+    if (restoreTrigger) {
+      document.getElementById(`jx-bar-trigger-${id}`)?.focus();
+    }
+    if (openId === id) openId = '';
+  }
+
+  function handleBarKeydown(event: KeyboardEvent): void {
+    const bars = triggers();
+    const current = bars.indexOf(document.activeElement as HTMLButtonElement);
+    if (current === -1) return;
+    const move = (delta: number): void => {
+      event.preventDefault();
+      const next = bars[(current + delta + bars.length) % bars.length];
+      next?.focus();
+      if (openId !== '') {
+        const target = items.find((item) => `jx-bar-trigger-${item.id}` === next?.id);
+        if (target) {
+          closePanel(openId, false);
+          openPanel(target.id, false);
+        }
+      }
+    };
+    if (event.key === 'ArrowRight') return move(1);
+    if (event.key === 'ArrowLeft') return move(-1);
+    if (event.key === 'Home' || event.key === 'End') {
+      event.preventDefault();
+      bars[event.key === 'Home' ? 0 : bars.length - 1]?.focus();
+      return;
+    }
+    const own = items[current];
+    if ((event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter') && own) {
+      event.preventDefault();
+      openPanel(own.id, true);
+    }
+  }
+
+  /** the shared menu contract: walk the panel's own [role=menuitem]s */
+  function handlePanelKeydown(event: KeyboardEvent, id: string): void {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closePanel(id, true);
+      return;
+    }
+    const menu = document.getElementById(`jx-bar-panel-${id}`);
+    const entries = [
+      ...(menu?.querySelectorAll<HTMLElement>('[role=menuitem]:not([disabled])') ?? []),
+    ];
+    if (entries.length === 0) return;
+    const current = entries.indexOf(document.activeElement as HTMLElement);
+    let next: HTMLElement | undefined;
+    if (event.key === 'ArrowDown') {
+      next = entries[(current + 1 + entries.length) % entries.length];
+    } else if (event.key === 'ArrowUp') {
+      next = entries[(current - 1 + entries.length) % entries.length];
+    } else if (event.key === 'Home') {
+      next = entries[0];
+    } else if (event.key === 'End') {
+      next = entries.at(-1);
+    }
+    if (next) {
+      event.preventDefault();
+      next.focus();
+    }
+  }
+
+  // focus the first item of a keyboard-opened panel once it is open
+  $effect(() => {
+    if (focusIntoId === '') return;
+    requestAnimationFrame(() => {
+      if (typeof requestAnimationFrame === 'function') {
+        const menu = document.getElementById(`jx-bar-panel-${focusIntoId}`);
+        const first = menu?.querySelector<HTMLElement>('[role=menuitem]:not([disabled])');
+        first?.focus();
+      }
+      focusIntoId = '';
+    });
+  });
+</script>
+
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions, a11y_interactive_supports_focus -- the
+     bar hosts the menubar walk; its BUTTONS hold the roving tabindex,
+     the bar itself is never a tab stop -->
+<div
+  bind:this={barEl}
+  class="jx-menubar {className}"
+  role="menubar"
+  aria-label={label}
+  onkeydown={handleBarKeydown}
+>
+  {#each items as item, index (item.id)}
+    <span class="jx-menubar-slot" style="anchor-name: {anchorOf(item.id)}">
+      <button
+        type="button"
+        id="jx-bar-trigger-{item.id}"
+        role="menuitem"
+        aria-haspopup="menu"
+        aria-expanded={openId === item.id}
+        tabindex={index === 0 ? 0 : -1}
+        popovertarget="jx-bar-panel-{item.id}"
+        onclick={() => (openId === item.id ? closePanel(item.id, false) : openPanel(item.id, false))}
+      >
+        {item.label}
+      </button>
+    </span>
+  {/each}
+</div>
+
+{#each items as item (item.id)}
+  <div
+    id="jx-bar-panel-{item.id}"
+    popover="auto"
+    role="menu"
+    tabindex="-1"
+    class="jx-menubar-panel"
+    style="position-anchor: {anchorOf(item.id)}; inset-area: bottom span-left; position-area: bottom span-left;"
+    onkeydown={(e) => handlePanelKeydown(e, item.id)}
+    ontoggle={(e: Event) => {
+      const el = e.currentTarget as HTMLElement;
+      if (el.matches(':popover-open')) openId = item.id;
+      else if (openId === item.id) openId = '';
+    }}
+  >
+    {@render panel(item)}
+  </div>
+{/each}
+
+<style>
+  .jx-menubar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    border: 1px solid var(--border);
+    background: var(--card);
+    box-shadow: var(--shadow-2xs);
+    width: fit-content;
+  }
+  .jx-menubar-slot {
+    display: inline-flex;
+  }
+  .jx-menubar button[role='menuitem'] {
+    padding: 0.4375rem 0.875rem;
+    border: 0;
+    border-right: 1px solid var(--border);
+    background: transparent;
+    font-family: var(--font-nav);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    transition: color 150ms ease-out, background-color 150ms ease-out;
+  }
+  .jx-menubar-slot:last-child button {
+    border-right: 0;
+  }
+  .jx-menubar button:hover,
+  .jx-menubar button[aria-expanded='true'] {
+    color: var(--foreground);
+    background: var(--muted);
+  }
+  .jx-menubar button:focus-visible {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+  }
+
+  .jx-menubar-panel {
+    position: fixed;
+    margin: var(--jx-bar-gap, 8px);
+    position-try-fallbacks: flip-block;
+    position-try: flip-block;
+    position-visibility: anchors-visible;
+    width: fit-content;
+    min-width: 10rem;
+    padding: 0.25rem;
+    border: 1px solid var(--border);
+    background: var(--popover);
+    color: var(--popover-foreground);
+    box-shadow: var(--shadow);
+  }
+  @supports not (anchor-name: --jx-bar-fallback) {
+    .jx-menubar-panel {
+      position-anchor: auto !important;
+      inset-area: none !important;
+      inset: 0;
+      margin: auto;
+    }
+  }
+  .jx-menubar-panel::backdrop {
+    background: transparent;
+  }
+</style>

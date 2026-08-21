@@ -44,7 +44,7 @@ const BaseElement: typeof HTMLElement =
 
 export class FormField extends BaseElement {
   static formAssociated = true;
-  static observedAttributes = ['name', 'value', 'disabled'];
+  static observedAttributes = ['name', 'value', 'disabled', 'multivalue'];
 
   readonly #internals = this.attachInternals();
 
@@ -72,6 +72,13 @@ export class FormField extends BaseElement {
     const disabled = this.hasAttribute('disabled');
     if (!name || disabled || value === '') {
       this.#internals.setFormValue(null);
+      return;
+    }
+    // multivalue: checkbox-set semantics — newline-separated entries
+    // submit as separate FormData entries under the same name
+    if (this.hasAttribute('multivalue')) {
+      const parts = value.split('\n').filter((part) => part !== '');
+      this.#internals.setFormValue(...parts);
     } else {
       this.#internals.setFormValue(value);
     }
