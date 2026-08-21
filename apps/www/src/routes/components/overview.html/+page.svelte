@@ -204,8 +204,8 @@
               title={item.name}
               summary={item.summary}
             >
-              <div class="relative z-[1] flex flex-wrap items-center justify-between gap-3">
-                <CopyCommand command={`npx jixoai-ui add ${item.add}`} />
+              <div class="pointer-events-none relative z-[1] flex flex-wrap items-center justify-between gap-3">
+                <span class="pointer-events-auto inline-flex"><CopyCommand command={`npx jixoai-ui add ${item.add}`} /></span>
                 <span
                   class="font-nav text-muted-foreground select-none text-[11px] uppercase tracking-[0.24em]"
                   aria-hidden="true"
