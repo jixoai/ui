@@ -1,0 +1,99 @@
+<script lang="ts">
+  import Badge from '$lib/ui/badge.svelte';
+  import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
+  import SectionCard from '$lib/ui/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import { reveal } from '$lib/reveal';
+
+  // Same-source law: the drawer shows the exact registry copy this site runs.
+  import badgeSource from '$lib/ui/badge.svelte?raw';
+
+  const close = '</' + 'script>';
+
+  const usage = `<script lang="ts">
+  import Badge from '@ui/badge.svelte';
+${close}
+
+<Badge>v1.2.0</Badge>
+<Badge tone="primary">new</Badge>
+<Badge tone="outline">beta</Badge>
+<Badge tone="destructive">failed</Badge>`;
+
+  const canvasFiles: TreeFile[] = [
+    { name: 'registry/files/ui/badge.svelte', content: badgeSource },
+    { name: 'src/lib/ui/badge-usage.svelte', content: usage },
+  ];
+</script>
+
+<svelte:head>
+  <title>Badge · jixoai-ui</title>
+  <meta
+    name="description"
+    content="The jixoai badge: an inline status chip in the site grammar — Share Tech Mono uppercase micro-label, 1px border, radius 0, tones inside the one-brand-hue law."
+  />
+</svelte:head>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+  <div data-reveal="" use:reveal>
+    <SectionCard
+      headingLevel={1}
+      tone="hero"
+      eyebrow="registry:ui · NativeHTML"
+      title="badge — the eyebrow's inline cousin"
+      summary="A plain <span> with the site's micro-label voice: font-nav uppercase, tracked, 1px border, radius 0. Tones stay inside the one-brand-hue law — there is no rainbow of statuses in this language, only muted, brand, quiet, and destructive."
+    >
+      <div class="flex flex-wrap gap-3">
+        <span class="pill">plain span</span>
+        <span class="pill">4 tones</span>
+        <span class="pill">restProps passthrough</span>
+      </div>
+    </SectionCard>
+  </div>
+
+  <div data-reveal="" use:reveal>
+    <ComponentCanvas
+      title="badge"
+      description="All four tones. The chip composes anywhere a span does — headings, table cells, terminal cards."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/badge.svelte"
+      files={canvasFiles}
+    >
+      <div class="flex flex-wrap items-center gap-3">
+        <Badge>v1.2.0</Badge>
+        <Badge tone="primary">new</Badge>
+        <Badge tone="outline">beta</Badge>
+        <Badge tone="destructive">failed</Badge>
+      </div>
+      {#snippet playground()}
+        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
+          badges are stateless display atoms — no playground state to drive. The tone prop is the
+          whole API; everything else is span attributes landing verbatim.
+        </p>
+      {/snippet}
+    </ComponentCanvas>
+  </div>
+
+  <div data-reveal="" use:reveal>
+    <SectionCard
+      headerRegion="badge-composition"
+      eyebrow="demo"
+      title="In composition"
+      summary="The chip slots next to titles and inside table cells — the muted default reads as metadata, destructive marks loss."
+    >
+      <div class="flex flex-col gap-5">
+        <div class="flex flex-col gap-3">
+          <p class="font-nav text-[15px] tracking-tight">
+            deploy pipeline <Badge tone="primary" class="ml-2">running</Badge>
+          </p>
+          <p class="font-nav text-[15px] tracking-tight">
+            release 4.7.0 <Badge class="ml-2">stable</Badge>
+          </p>
+          <p class="font-nav text-[15px] tracking-tight">
+            canary build <Badge tone="destructive" class="ml-2">failed</Badge>
+          </p>
+        </div>
+        <CodeBlock code={usage} lang="svelte" meta="usage" />
+      </div>
+    </SectionCard>
+  </div>
+</div>

@@ -629,6 +629,130 @@
         "@jixoai/form-field",
         "@jixoai/icons"
       ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "badge",
+      "type": "registry:ui",
+      "title": "Badge",
+      "description": "The inline status chip of the site grammar: Share Tech Mono uppercase micro-label, 1px border, radius 0. Tones stay inside the one-brand-hue law — default (muted), primary (solid brand), outline, destructive.",
+      "files": [
+        {
+          "path": "registry/files/ui/badge.svelte",
+          "target": "@ui/badge.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: tone? ('default'|'primary'|'outline'|'destructive'), plus every <span> attribute passthrough."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "separator",
+      "type": "registry:ui",
+      "title": "Separator",
+      "description": "W3C-first: the horizontal separator IS the native <hr> (thematic break semantics for free); only the vertical posture takes the ARIA route (<div role=separator>). 1px var(--border) both ways; length is the consumer's layout.",
+      "files": [
+        {
+          "path": "registry/files/ui/separator.svelte",
+          "target": "@ui/separator.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: orientation? ('horizontal' default | 'vertical')."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "skeleton",
+      "type": "registry:ui",
+      "title": "Skeleton",
+      "description": "The loading placeholder block: muted surface with a terminal brightness pulse, aria-hidden, pure CSS. Geometry (width/height/aspect) comes from the class prop or the parent layout; prefers-reduced-motion freezes the pulse. The loading-region a11y contract (aria-busy / live region) belongs to the container, not each block.",
+      "files": [
+        {
+          "path": "registry/files/ui/skeleton.svelte",
+          "target": "@ui/skeleton.svelte",
+          "type": "registry:file"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "avatar",
+      "type": "registry:ui",
+      "title": "Avatar",
+      "description": "NativeHTML <img> — lazy, async-decoded, intrinsic width/height so layout never shifts; radius-0 brutalist square. Failed or missing src falls back to an initials block derived code-point-wise from name (CJK-safe: 张伟 stays 张伟). alt defaults to name; pass alt=\"\" for decorative avatars beside a visible name.",
+      "files": [
+        {
+          "path": "registry/files/ui/avatar.svelte",
+          "target": "@ui/avatar.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: src?, name (required — fuels alt + initials), size? ('sm'|'md'|'lg' = 24/32/40px), alt?, plus <img> attributes."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "alert",
+      "type": "registry:ui",
+      "title": "Alert",
+      "description": "The inline notice block (not the modal alert-dialog): 1px border, hard offset shadow-xs, tone accent on border + title. Live-region semantics are a prop — assertive=false → role=status (polite, default), assertive=true → role=alert. Tones: default / primary (the brand hue's emphasis voice — there is no blue in this language) / destructive.",
+      "files": [
+        {
+          "path": "registry/files/ui/alert.svelte",
+          "target": "@ui/alert.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: tone?, assertive?, title?, icon? (snippet), children? (body; omit for title-only)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "accordion",
+      "type": "registry:ui",
+      "title": "Accordion",
+      "description": "W3C-first: the accordion IS <details>/<summary> — native toggle semantics, keyboard support and SSR state, nothing to hydrate. The group adds border collapse (one 1px frame, 1px seams) and opt-in exclusive mode (capture-phase toggle guard; also governs raw <details> children). Height animation is progressive enhancement via interpolate-size + ::details-content; unsupported engines snap natively.",
+      "files": [
+        {
+          "path": "registry/files/ui/accordion.svelte",
+          "target": "@ui/accordion.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/accordion-item.svelte",
+          "target": "@ui/accordion-item.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Group props: exclusive?, class? — children snippet holds accordion-item.svelte (or bare <details>). Item props: open ($bindable), summary (named snippet), children."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "tabs",
+      "type": "registry:ui",
+      "title": "Tabs",
+      "description": "WAI-ARIA APG tabs, composition-first: four family files sharing one context. The root owns only the selected value; tablist/triggers/panels lay out anywhere in the subtree. Automatic activation (focus moves select), roving tabindex, deterministic trigger/panel id pairing, hidden (not CSS-hidden) background panels. value='' means nothing selected — SSR-honest explicit initial state.",
+      "files": [
+        {
+          "path": "registry/files/ui/tabs.svelte",
+          "target": "@ui/tabs.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/tabs-list.svelte",
+          "target": "@ui/tabs-list.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/tabs-trigger.svelte",
+          "target": "@ui/tabs-trigger.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/tabs-content.svelte",
+          "target": "@ui/tabs-content.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Root props: value ($bindable, '' = none selected), onchange?. TabsList: orientation? ('horizontal'|'vertical'). TabsTrigger: value, disabled?. TabsContent: value."
     }
   ]
 }

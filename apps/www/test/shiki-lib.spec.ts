@@ -18,6 +18,7 @@ import {
   highlightCode,
   registerLanguage,
   registerTheme,
+  type HighlightOptions,
 } from '$lib/shiki';
 
 const loadedLanguages = async (): Promise<string[]> =>
@@ -111,6 +112,18 @@ describe('lib/shiki', () => {
     expect(getRegisteredLanguages()).toContain('vue');
     expect(getRegisteredThemes()).toContain(DEFAULT_THEME);
     expect(getRegisteredThemes()).toContain('vitesse-dark');
+  });
+
+  it('keeps theme/themes mutually exclusive at compile time (never arms)', () => {
+    // if the exclusivity regresses, the @ts-expect-error below becomes
+    // UNUSED and svelte-check fails the suite
+    // @ts-expect-error theme and themes are mutually exclusive
+    const invalid: HighlightOptions = {
+      lang: 'ts',
+      theme: 'jixoai',
+      themes: { dark: 'github-dark' },
+    };
+    expect(invalid).toBeTruthy();
   });
 
   it('shares one in-flight load across concurrent first highlights', async () => {

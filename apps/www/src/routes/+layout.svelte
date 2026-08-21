@@ -176,6 +176,46 @@
               label: 'theme-toggle',
               description: 'light / dark / system',
             },
+            {
+              href: '/components/badge.html',
+              label: 'badge',
+              description: 'inline status chip',
+            },
+            {
+              href: '/components/avatar.html',
+              label: 'avatar',
+              description: 'img + initials fallback',
+            },
+            {
+              href: '/components/alert.html',
+              label: 'alert',
+              description: 'inline notice block',
+            },
+            {
+              href: '/components/separator.html',
+              label: 'separator',
+              description: 'native hr / ARIA div',
+            },
+            {
+              href: '/components/skeleton.html',
+              label: 'skeleton',
+              description: 'loading placeholder',
+            },
+          ],
+        },
+        {
+          label: 'Interactive',
+          items: [
+            {
+              href: '/components/accordion.html',
+              label: 'accordion',
+              description: 'native details/summary',
+            },
+            {
+              href: '/components/tabs.html',
+              label: 'tabs',
+              description: 'APG tablist family',
+            },
           ],
         },
       ],

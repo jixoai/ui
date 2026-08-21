@@ -7,7 +7,7 @@
 
   // Pure index page (2026-08-20): every demo moved to its own
   // /components/<name>.html route; this page is only the catalog.
-  // 18 documented components (form merges input/select/textarea into one
+  // 25 documented components (form merges input/select/textarea into one
   // route) + 3 framework-free libs (reveal, toc-engine, highlight).
   interface IndexEntry {
     /** Display title = the component page's subject. */
@@ -114,6 +114,26 @@
           'component-canvas',
           'The documentation workbench: live demo stage, playground pane, and a collapsible code drawer pairing tree-view with code-card.',
         ),
+        entry(
+          'badge',
+          'The inline status chip: font-nav micro-label, 1px border, radius 0 — tones inside the one-brand-hue law.',
+        ),
+        entry(
+          'separator',
+          'W3C-first: the horizontal separator IS the native <hr>; only the vertical posture takes the ARIA route.',
+        ),
+        entry(
+          'skeleton',
+          'The loading placeholder block: muted surface, terminal brightness pulse, aria-hidden scenery — geometry from your layout.',
+        ),
+        entry(
+          'avatar',
+          'Native <img> — lazy, async-decoded, intrinsic dimensions — with a CJK-safe initials fallback for failed sources.',
+        ),
+        entry(
+          'alert',
+          'Inline notice block with live-region semantics as a prop: role=status polite by default, role=alert when assertive.',
+        ),
       ],
     },
     {
@@ -131,6 +151,14 @@
         entry(
           'language-switcher',
           'Locale switching, anchor-based: a bilingual segmented pair and a dropdown menu for three or more locales.',
+        ),
+        entry(
+          'accordion',
+          'W3C-first: details/summary with border collapse and opt-in exclusive mode — native toggle, keyboard, SSR state.',
+        ),
+        entry(
+          'tabs',
+          'The APG tablist contract in four family files: automatic activation, roving tabindex, deterministic id pairing.',
         ),
       ],
     },
@@ -159,7 +187,7 @@
   <title>Components · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai-ui component index: 18 documented components across Layout, Overlay, Form, Display, Interactive, and Shell — every one a registry item installable with npx jixoai-ui add."
+    content="The jixoai-ui component index: 25 documented components across Layout, Overlay, Form, Display, Interactive, and Shell — every one a registry item installable with npx jixoai-ui add."
   />
 </svelte:head>
 
@@ -174,7 +202,7 @@
       summary="The jixoai design language component library — every item is a registry item installable via npx jixoai-ui add."
     >
       <div class="flex flex-wrap gap-3">
-        <span class="pill">18 components</span>
+        <span class="pill">25 components</span>
         <span class="pill">3 libs</span>
       </div>
     </SectionCard>
