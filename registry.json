@@ -929,7 +929,7 @@
       ],
       "docs": "Props: name?, length? (6), value ($bindable), numeric? (true), label?, error?, disabled?. Two-way slot/value sync is untracked on the slots side — slot mutations can never be re-synced against stale value. Requires the form-field bridge item (installed as its dependency).",
       "registryDependencies": [
-        "form-field"
+        "@jixoai/form-field"
       ]
     },
     {
@@ -947,7 +947,7 @@
       ],
       "docs": "Props: name?, type?, options ({value,label,disabled?}[]), value ($bindable), label (required a11y name), item? (per-button snippet), onchange?. The form-field bridge gains a multivalue attribute — entries append to a FormData handed to setFormValue (one submit entry per press).",
       "registryDependencies": [
-        "form-field"
+        "@jixoai/form-field"
       ]
     },
     {
@@ -978,7 +978,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: items (CommandItem[]), open ($bindable), onopenchange?, onselect? (single execution path — no dual run()), closeOnSelect? (true), placeholder?, label?, hotkey? (true), filter? (pure function, default rankCommandItems export)."
+      "docs": "Props: items (CommandItem[]), open ($bindable), onopenchange?, onselect? (single execution path — no dual run()), closeOnSelect? (true), placeholder?, label?, hotkey? (false — opt-in), filter? (pure function, default rankCommandItems export)."
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1009,6 +1009,126 @@
         }
       ],
       "docs": "Props: items ({id,label}[]), label?, panel (snippet [item] — bring buttons/links with role=menuitem)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "popconfirm",
+      "type": "registry:ui",
+      "title": "Popconfirm",
+      "description": "The LIGHT confirm bubble for risky-but-reversible actions — antd's highest-frequency unique gift, ruled NOT an alertdialog: a popover=auto panel where light dismiss (outside click / Escape) IS the cancel path; focus lands on Cancel on open; confirm paints destructive by default.",
+      "files": [
+        {
+          "path": "registry/files/ui/popconfirm.svelte",
+          "target": "@ui/popconfirm.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: title (required), description?, onconfirm?, oncancel?, confirmLabel/cancelLabel?, confirmTone? ('destructive' default), placement? ('top'). children = the trigger; the wrapper auto-wires the first button as popovertarget."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "empty",
+      "type": "registry:ui",
+      "title": "Empty",
+      "description": "The no-data state of the eight-state machine — nothing more (error/loading/404 are alert/result surfaces). A figure: terminal illustration slot (default: the empty directory listing), title, description, actions snippet. Pure composition, zero JS.",
+      "files": [
+        {
+          "path": "registry/files/ui/empty.svelte",
+          "target": "@ui/empty.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: title (required), description?, illustration? (snippet), actions? (snippet)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "descriptions",
+      "type": "registry:ui",
+      "title": "Descriptions",
+      "description": "The enterprise detail view, W3C-first: a dl IS a description list — dt/dd pairs in a grid of term/value cells. Never disguises as a table; the bordered look is CSS on the same dl. columns=N pairs per row, container-query responsive down to 1.",
+      "files": [
+        {
+          "path": "registry/files/ui/descriptions.svelte",
+          "target": "@ui/descriptions.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: items ({term, value?}[]), columns? (1-4, default 1), bordered?, value? (per-item rich cell snippet)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "steps",
+      "type": "registry:ui",
+      "title": "Steps",
+      "description": "The wizard progress: an ol where order is the semantics. COMPLETED steps are links back (buttons the user already owns), the current step is aria-current=step, FUTURE steps are inert spans — never aria-disabled (they are not disabled controls, just not yet reachable). CSS connector line; check glyph on done.",
+      "files": [
+        {
+          "path": "registry/files/ui/steps.svelte",
+          "target": "@ui/steps.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: steps ({title, description?}[]), current (0-based), onstepclick? (fires for completed steps)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "spin",
+      "type": "registry:ui",
+      "title": "Spin",
+      "description": "The loading indicator, terminal voice: a bracket cursor cycling [/ — \\ |]. role=status (polite by construction). Bare = inline glyph; wrapping = aria-busy container where the scrim OWNS pointer events (never a visual mask with live hit areas beneath — loading and disabled are different states).",
+      "files": [
+        {
+          "path": "registry/files/ui/spin.svelte",
+          "target": "@ui/spin.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: label? ('loading'), children? (wrapping posture when given). reduced-motion freezes to the first frame."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "statistic",
+      "type": "registry:ui",
+      "title": "Statistic",
+      "description": "The metric readout: micro-label over a big tabular-nums value with prefix/suffix snippets and a text-glyph trend (▲ primary / ▼ destructive). The component never guesses what 'good' means for your metric — compose your own semantics through the snippets.",
+      "files": [
+        {
+          "path": "registry/files/ui/statistic.svelte",
+          "target": "@ui/statistic.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: title (required), value (string|number — formatting is yours), prefix?/suffix? (snippets), trend? ('up'|'down')."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "timeline",
+      "type": "registry:ui",
+      "title": "Timeline",
+      "description": "The activity stream: an ol of timestamped entries with a CSS spine and dot markers — order is the chronology, the spine is decoration. pending renders the hollow dot for in-flight entries. Pure composition, zero JS.",
+      "files": [
+        {
+          "path": "registry/files/ui/timeline.svelte",
+          "target": "@ui/timeline.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: items ({title, time?, pending?}[]), body? (per-item snippet [item, index])."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "result",
+      "type": "registry:ui",
+      "title": "Result",
+      "description": "The page-level outcome of an operation — deliberately THIN: status glyph + title + description + actions, no 403/404 routing logic, no illustration system (bring your own icon snippet). Success paints through the brand voice (no green in this language); error destructive. empty ≠ result: no-data vs operation-outcome stay different components.",
+      "files": [
+        {
+          "path": "registry/files/ui/result.svelte",
+          "target": "@ui/result.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: status? ('success'|'error'|'warning'|'info'), title (required), description?, icon? (snippet), actions? (snippet)."
     }
   ]
 }

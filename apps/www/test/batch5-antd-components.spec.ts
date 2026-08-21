@@ -8,6 +8,7 @@
  */
 import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
+import { flushSync } from 'svelte';
 
 import Descriptions from '../src/lib/ui/descriptions.svelte';
 import Empty from '../src/lib/ui/empty.svelte';
@@ -42,7 +43,8 @@ describe('Popconfirm', () => {
     // the light form: role=dialog (labelled), NOT an alertdialog
     expect(panel.getAttribute('role')).toBe('dialog');
     expect(panel.getAttribute('aria-labelledby')).toBeTruthy();
-    // the adopted trigger mirrors open state
+    // the adopted trigger mirrors open state (flush the mirroring effect)
+    flushSync();
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
     expect(trigger.getAttribute('aria-controls')).toBe(panel.id);
   });

@@ -74,13 +74,14 @@
    *  and mirror the open state (aria-expanded/aria-controls) */
   $effect(() => {
     if (!anchorEl) return;
-    const btn = anchorEl.querySelector<HTMLButtonElement>('button:not([popovertarget])');
-    if (btn) {
-      btn.setAttribute('popovertarget', id);
-      btn.setAttribute('aria-controls', id);
-      if (isOpen) btn.setAttribute('aria-expanded', 'true');
-      else btn.setAttribute('aria-expanded', 'false');
+    let btn = anchorEl.querySelector<HTMLButtonElement>(`[popovertarget="${id}"]`);
+    if (!btn) {
+      btn = anchorEl.querySelector('button:not([popovertarget])');
+      btn?.setAttribute('popovertarget', id);
+      btn?.setAttribute('aria-controls', id);
     }
+    // mirror the live state on every run (isOpen is the reactive dep)
+    btn?.setAttribute('aria-expanded', String(isOpen));
   });
 
   function confirm(): void {
