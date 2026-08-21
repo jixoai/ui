@@ -1,4 +1,4 @@
-# jixoai/ui
+# jixoai-ui
 
 The jixoai design language, distributed as a [shadcn registry](https://ui.shadcn.com/docs/registry).
 Terminal / neo-brutalist, mono-first, OKLCH token law with one brand hue per
@@ -56,7 +56,7 @@ Dependencies between items use `registryDependencies`.
 
 ## Owner TODOs (blocking first publish)
 
-- [ ] Create the GitHub repo `jixoai/ui` and push (recommend public; the
+- [x] Create the GitHub repo `jixoai/ui` (brand name jixoai-ui) and push (public; the
       central registry index only lists public namespaces, but decentralized
       hosting works either way — private repos need Pages on a paid plan)
 - [ ] Point `ui.jixoai.com` CNAME at GitHub Pages (same DNS flow as

@@ -80,7 +80,7 @@
 </script>
 
 <svelte:head>
-  <title>Tokens · jixoai/ui</title>
+  <title>Tokens · jixoai-ui</title>
   <meta
     name="description"
     content="The jixoai token law: OKLCH colors with the brand hue running free (24h wall-clock, 4min/deg), dark -4° drift, hard offset shadows, radius 0 with bevel upgrade, and terminal surfaces."
@@ -157,7 +157,7 @@
           <div class="bg-terminal border border-border">
             <div class="flex h-[2.6rem] items-center px-3">
               <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">
-                jixoai/ui
+                jixoai-ui
               </span>
             </div>
             <p class="text-terminal-foreground/70 px-3 py-2 text-[11.5px]">header brand eyebrow</p>

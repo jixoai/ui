@@ -50,7 +50,7 @@ ${close}
 </script>
 
 <svelte:head>
-  <title>Dialog · jixoai/ui</title>
+  <title>Dialog · jixoai-ui</title>
   <meta
     name="description"
     content="The jixoai dialog component: a native <dialog> base — showModal() focus trap, ::backdrop scrim, Escape teardown — plus bindable open state and a 120ms close fade. Zero focus plumbing."

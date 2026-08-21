@@ -63,7 +63,7 @@ ${close}
 </script>
 
 <svelte:head>
-  <title>Form components · jixoai/ui</title>
+  <title>Form components · jixoai-ui</title>
   <meta
     name="description"
     content="input / select / textarea — the jixoai NativeHTML form base: every native input type passes through untouched, checkboxes and ranges keep their native controls with accent-color, and label/error semantics ride on label[for] plus aria-invalid/aria-describedby."

@@ -166,7 +166,7 @@ ${close}
 ${close}
 
 <TerminalHeader
-  brand="jixoai/ui"
+  brand="jixoai-ui"
   domain="ui.jixoai.com"
   subtitle="the jixoai design language"
   items={[
@@ -188,7 +188,7 @@ ${close}
 </script>
 
 <svelte:head>
-  <title>Components · jixoai/ui</title>
+  <title>Components · jixoai-ui</title>
   <meta
     name="description"
     content="The jixoai component gallery: press-button, section-card, theme-toggle, reveal, the Combo ToC, the typing terminal, the hero, the app shell, and the terminal chrome — every demo rendered from the registry files this site consumes."

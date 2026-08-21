@@ -64,7 +64,7 @@ npx jixoai-ui add press-button section-card toc`;
 </script>
 
 <svelte:head>
-  <title>jixoai/ui — the jixoai design language</title>
+  <title>jixoai-ui — the jixoai design language</title>
   <meta
     name="description"
     content="The jixoai design language as a shadcn registry: terminal / neo-brutalist, mono-first, OKLCH token law with one brand hue per project."
@@ -73,7 +73,7 @@ npx jixoai-ui add press-button section-card toc`;
 
 <!-- Hero: hero-section + terminal-card (registry items, openspecui composition). -->
 <HeroSection
-  eyebrow="jixoai/ui · v0.1 · shadcn registry"
+  eyebrow="jixoai-ui · v0.1 · shadcn registry"
   titleLead="The terminal design language of jixoai. "
   titleAccent="One hue per project."
   summary="Everything here graduated from production work on unipty and openspecui: an OKLCH token law where a project's entire identity is a single --brand-hue variable, hard offset shadows, a mono-first voice, and components you own after copying them in."

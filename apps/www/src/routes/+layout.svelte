@@ -75,7 +75,7 @@
 <WebsiteScaffold>
   {#snippet header()}
     <TerminalHeader
-      brand="jixoai/ui"
+      brand="jixoai-ui"
       domain="ui.jixoai.com"
       subtitle="the jixoai design language"
       {items}
@@ -124,7 +124,7 @@
 
   {#snippet footer()}
     <TerminalFooter
-      ghost="JIXOAI/UI"
+      ghost="JIXOAI-UI"
       links={[
         { label: 'GitHub', href: GITHUB_URL },
         { label: 'Registry JSON', href: '/r/registry.json' },

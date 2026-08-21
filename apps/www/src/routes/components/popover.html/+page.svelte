@@ -32,7 +32,7 @@ ${close}
 </script>
 
 <svelte:head>
-  <title>Popover · jixoai/ui</title>
+  <title>Popover · jixoai-ui</title>
   <meta
     name="description"
     content="The jixoai popover component: the native Popover API — popover=&quot;auto&quot; light dismiss, a declarative popovertarget trigger, top-layer rendering — in a zero-script component. Anchored placement is the named extension direction."
