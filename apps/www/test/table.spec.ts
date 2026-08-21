@@ -66,4 +66,12 @@ describe('Table', () => {
     expect(figure.classList.contains('w-full')).toBe(true);
     expect(figure.classList.contains('extra')).toBe(true);
   });
+
+  it('lands the style passthrough on the frame — the color-freedom seam', () => {
+    const { container } = render(TableHarness, {
+      props: { frameStyle: '--jx-table-hover: color-mix(in oklab, var(--secondary) 12%, var(--background))' },
+    });
+    const figure = container.querySelector('figure')!;
+    expect(figure.getAttribute('style')).toContain('--jx-table-hover');
+  });
 });

@@ -32,7 +32,7 @@ const tree: TreeNode[] = [
               { name: 'tree-view.svelte', file: { name: 'src/lib/ui/tree-view.svelte', content } },
             ],
           },
-          { name: 'highlight.ts', file: { name: 'src/lib/highlight.ts', content } },
+          { name: 'shiki.ts', file: { name: 'src/lib/shiki.ts', content } },
         ],
       },
     ],
@@ -84,9 +84,9 @@ ${close}
   {/snippet}
 </ul>`;
 
-  const highlightSketch = `// escape-first pass, one alternation regex, first alternative wins —
-// deterministic across server prerender and client hydration
-export function highlight(code: string, lang: string): string`;
+  const shikiSketch = `// thin facade over a stock shiki/core HighlighterCore —
+// one dynamic import per grammar/theme, fetched only when requested
+export async function highlightCode(code: string, options: HighlightOptions): Promise<string>`;
 
   const revealSketch = `// two patterns total: entrance (opacity + rise) and rule (scaleX draw)
 export const reveal = (node: HTMLElement, options?: RevealOptions) => {`;
@@ -113,7 +113,7 @@ export const reveal = (node: HTMLElement, options?: RevealOptions) => {`;
                 leaf('src/lib/ui/tree-view.svelte', treeSketch),
               ],
             },
-            leaf('src/lib/highlight.ts', highlightSketch),
+            leaf('src/lib/shiki.ts', shikiSketch),
             leaf('src/lib/reveal.ts', revealSketch),
           ],
         },

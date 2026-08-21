@@ -100,7 +100,7 @@
       items: [
         entry(
           'code-card',
-          'The readonly code surface: filename tab, header/footer snippet slots, copy, and the zero-dep deterministic tokenizer in six token classes.',
+          'The readonly code surface on Shiki: filename tab, header/footer snippet slots, copy, on-demand grammars/themes, and the zero-download jixoai token theme.',
         ),
         entry(
           'table',

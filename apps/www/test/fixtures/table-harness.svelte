@@ -13,10 +13,17 @@
     dense = false,
     stack = true,
     frameClass = '',
-  }: { caption?: string; dense?: boolean; stack?: boolean; frameClass?: string } = $props();
+    frameStyle = '',
+  }: {
+    caption?: string;
+    dense?: boolean;
+    stack?: boolean;
+    frameClass?: string;
+    frameStyle?: string;
+  } = $props();
 </script>
 
-<Table {caption} {dense} {stack} class={frameClass}>
+<Table {caption} {dense} {stack} class={frameClass} style={frameStyle}>
   <thead>
     <tr>
       <th data-sticky="start" scope="col">Component</th>

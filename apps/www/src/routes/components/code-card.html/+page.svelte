@@ -10,7 +10,7 @@
   // sources (backticks, ${}, closing tags) in template literals by hand
   // would be an escaping minefield.
   import codeCardSource from '$lib/ui/code-card.svelte?raw';
-  import highlightSource from '$lib/highlight.ts?raw';
+  import shikiSource from '$lib/shiki.ts?raw';
 
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.
@@ -20,25 +20,35 @@
   import CodeCard from '@ui/code-card.svelte';
 ${close}
 
-<!-- the sample is a runtime prop: a literal ${close} inside it is inert
-     data — nothing to escape at the template level -->
+<!-- the sample is a runtime prop: Shiki escapes it, so a literal ${close}
+     inside it is inert data — nothing to escape at the template level -->
 <CodeCard filename="spawn.ts" lang="ts" code={sample}>
   {#snippet header()}
     <span class="pill">node-pty route</span>
   {/snippet}
   {#snippet footer()}
-    <span>zero-dep tokenizer</span>
+    <span>powered by Shiki</span>
   {/snippet}
 </CodeCard>`;
 
   const files = [
     { name: 'registry/files/ui/code-card.svelte', content: codeCardSource },
-    { name: 'registry/files/lib/highlight.ts', content: highlightSource },
+    { name: 'registry/files/lib/shiki.ts', content: shikiSource },
     { name: 'src/lib/ui/code-card-usage.svelte', content: usage },
   ];
 
-  // Playground: the Select re-renders the LIVE card per tokenizer language.
-  type DemoLang = 'ts' | 'js' | 'svelte' | 'json' | 'bash' | 'css';
+  // Playground: the Selects re-render the LIVE card per Shiki language and
+  // theme — each first pick fetches exactly that grammar/theme chunk.
+  type DemoLang = 'ts' | 'tsx' | 'js' | 'svelte' | 'html' | 'json' | 'bash' | 'css' | 'markdown';
+  type DemoTheme =
+    | 'jixoai'
+    | 'github-dark'
+    | 'github-light'
+    | 'vitesse-dark'
+    | 'vitesse-light'
+    | 'min-dark'
+    | 'min-light';
+
   interface DemoSample {
     filename: string;
     code: string;
@@ -59,6 +69,19 @@ const pty = unipty.spawn(['bash'], {
 });
 
 pty.resize(120, 36); // Character-Cell Size`,
+    },
+    tsx: {
+      filename: 'terminal.tsx',
+      code: `import { useState } from 'react';
+
+export function Terminal({ title }: { title: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <section className="terminal" data-open={open}>
+      <header onClick={() => setOpen(!open)}>{title}</header>
+    </section>
+  );
+}`,
     },
     js: {
       filename: 'deploy.js',
@@ -85,8 +108,27 @@ ${close}
 <TerminalCard
   barTitle="quick-start — zsh"
   command="npx jixoai-ui add code-card"
-  outputs={['code-card.svelte → src/lib/ui/', 'tokenizer: 6 token classes']}
+  outputs={['code-card.svelte → src/lib/ui/', 'highlighter: shiki, on-demand']}
 />`,
+    },
+    html: {
+      filename: 'index.html',
+      code: `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>jixoai terminal</title>
+    <link rel="stylesheet" href="/jixoai.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <nav aria-label="primary">
+        <a href="/">home</a>
+        <a href="/components">components</a>
+      </nav>
+    </header>
+  </body>
+</html>`,
     },
     json: {
       filename: 'package.json',
@@ -103,13 +145,13 @@ ${close}
     },
     bash: {
       filename: 'install.sh',
-      code: `# registry install — no network beyond npm
+      code: `# registry install — shiki joins as a normal npm dependency
 set -euo pipefail
 
 npx jixoai-ui init --hue 165
-npx jixoai-ui add code-card highlight
+npx jixoai-ui add code-card shiki
 
-echo "installed: 2 files into src/lib/"`,
+echo "installed: shiki core + on-demand grammars"`,
     },
     css: {
       filename: 'tokens.css',
@@ -126,17 +168,46 @@ echo "installed: 2 files into src/lib/"`,
   }
 }`,
     },
+    markdown: {
+      filename: 'README.md',
+      code: `# jixoai code-card
+
+Highlighting is **Shiki**, loaded on demand.
+
+\`\`\`ts
+import CodeCard from '@ui/code-card.svelte';
+
+const card = { lang: 'ts', theme: 'jixoai' };
+\`\`\`
+
+> grammars and themes are separate lazy chunks — the code fence above
+> pulls the \`typescript\` grammar the moment it is first highlighted.`,
+    },
   };
 
   let lang = $state<DemoLang>('ts');
+  let theme = $state<DemoTheme>('jixoai');
   const sample = $derived(samples[lang]);
+
+  // scroll law demo: a line wider than any column (horizontal) inside a
+  // capped body (vertical)
+  const scrollSample = `// one rule: the <pre> is the scrollport — Tab stays Tab, long lines scroll
+const manifest = {
+  route:    'registry/files/ui/code-card.svelte',
+  engine:   'shiki/core + JavaScript regex engine (no WASM)',
+  langs:    'typescript tsx javascript jsx svelte html css scss json bash markdown yaml vue',
+  themes:   'jixoai (zero-download, --tok-*) + github/vitesse/min families',
+  fallback: 'prerendered plain text → upgraded after hydration, zero layout shift',
+};
+// ── a deliberately wide line to force the horizontal lane ────────────────────────────────────────
+console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }]));`;
 </script>
 
 <svelte:head>
   <title>code-card · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai code-card component: a figure + pre/code readonly surface with a filename-tab head, a header/footer snippet, and a compact copy control — tinted by the zero-dep deterministic tokenizer (lib/highlight) through the --tok-* palette in both themes."
+    content="The jixoai code-card component: a figure + pre/code readonly surface with a filename-tab head, a header/footer snippet, and a compact copy control — highlighted by Shiki through lib/shiki: on-demand grammars and themes (separate lazy chunks, JavaScript regex engine, no WASM) and the zero-download jixoai css-variables theme bound to the --tok-* palette."
   />
 </svelte:head>
 
@@ -147,84 +218,125 @@ echo "installed: 2 files into src/lib/"`,
       headingLevel={1}
       tone="hero"
       eyebrow="registry:ui · Display"
-      title="code-card — the readonly code surface"
-      summary="A figure + pre/code base with a filename-tab head on the accent-tinted meta strip, and the zero-dep deterministic tokenizer (lib/highlight) tinting comment / string / keyword / number / function / tag through the --tok-* palette — one markup serves both themes. Code is always a runtime prop, so samples containing literal script-closing tags are inert escaped data; horizontal overflow scrolls while Tab characters stay tabs."
+      title="code-card — the readonly code surface, on Shiki"
+      summary="A figure + pre/code base with a filename-tab head and a compact copy control, highlighted by Shiki through lib/shiki: grammars and themes are separate lazy chunks fetched exactly when a card first needs them (shiki/core + the JavaScript regex engine — no WASM), and the default jixoai theme is Shiki's own css-variables recipe bound to the --tok-* palette, so token paint rides the design tokens in both themes. Code is always a runtime prop — Shiki escapes it, so samples containing literal script-closing tags are inert data; the pre is the scrollport: horizontal always, vertical when maxHeight caps it."
     >
       <div class="flex flex-wrap gap-3">
-        <span class="pill">figure + pre/code</span>
-        <span class="pill">zero-dep tokenizer · 6 classes</span>
-        <span class="pill">runtime-string code prop</span>
-        <span class="pill">copy · 1.6s feedback</span>
+        <span class="pill">based on Shiki</span>
+        <span class="pill">on-demand grammars · themes</span>
+        <span class="pill">zero-download jixoai theme</span>
+        <span class="pill">scrollport pre · thin scrollbars</span>
       </div>
     </SectionCard>
   </div>
 
-  <!-- workbench: the full card live, lang-switched from the playground -->
+  <!-- workbench: the full card live, lang + theme switched from the playground -->
   <div data-reveal="" use:reveal>
     <ComponentCanvas
       title="code-card"
-      description="The complete card: filename tab (head left), header snippet (head right, replacing the default lang label), footer snippet (foot left), and the copy control (foot right). The Playground NativeSelect swaps the tokenizer language."
+      description="The complete card: filename tab (head left), header snippet (head right, replacing the default lang label), footer snippet (foot left), and the copy control (foot right). The Playground swaps the Shiki language and the theme — each first pick fetches exactly that grammar/theme chunk."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/code-card.svelte"
       {files}
     >
       <CodeCard
         filename={sample.filename}
         lang={lang}
+        theme={theme}
         code={sample.code}
         class="w-full max-w-[40rem]"
       >
         {#snippet header()}
-          <span class="pill">tokenizer · {lang}</span>
+          <span class="pill">shiki · {lang}</span>
         {/snippet}
         {#snippet footer()}
           <span class="text-muted-foreground text-[11px] tracking-wide">
-            zero-dep tokenizer · 6 token classes
+            powered by Shiki · theme: {theme}
           </span>
         {/snippet}
       </CodeCard>
       {#snippet playground()}
-        <NativeSelect
-          label="lang"
-          value={lang}
-          onchange={(event) => {
-            lang = event.currentTarget.value as DemoLang;
-          }}
-        >
-          <option value="ts">ts</option>
-          <option value="js">js</option>
-          <option value="svelte">svelte</option>
-          <option value="json">json</option>
-          <option value="bash">bash</option>
-          <option value="css">css</option>
-        </NativeSelect>
+        <div class="flex flex-col gap-3">
+          <NativeSelect
+            label="lang"
+            value={lang}
+            onchange={(event) => {
+              lang = event.currentTarget.value as DemoLang;
+            }}
+          >
+            <option value="ts">ts</option>
+            <option value="tsx">tsx</option>
+            <option value="js">js</option>
+            <option value="svelte">svelte</option>
+            <option value="html">html</option>
+            <option value="json">json</option>
+            <option value="bash">bash</option>
+            <option value="css">css</option>
+            <option value="markdown">markdown</option>
+          </NativeSelect>
+          <NativeSelect
+            label="theme"
+            value={theme}
+            onchange={(event) => {
+              theme = event.currentTarget.value as DemoTheme;
+            }}
+          >
+            <option value="jixoai">jixoai (tokens)</option>
+            <option value="github-dark">github-dark</option>
+            <option value="github-light">github-light</option>
+            <option value="vitesse-dark">vitesse-dark</option>
+            <option value="vitesse-light">vitesse-light</option>
+            <option value="min-dark">min-dark</option>
+            <option value="min-light">min-light</option>
+          </NativeSelect>
+        </div>
         <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          The hint drives the tokenizer vocabulary — comment styles, keywords, tag shapes and
-          number rules change per language; the markup never does.
+          Every pick loads on demand: picking <code class="text-accent">markdown</code> also pulls
+          the grammars its fences hint at, and a named theme paints its own editor colors on the
+          pre. The jixoai theme downloads nothing — token colors resolve to the
+          <code class="text-accent">--tok-*</code> palette at paint time.
         </p>
       {/snippet}
     </ComponentCanvas>
   </div>
 
-  <!-- the runtime-prop law -->
+  <!-- the scroll law -->
+  <div data-reveal="" use:reveal>
+    <ComponentCanvas
+      title="scroll law"
+      description="The pre is the single scrollport: long lines scroll horizontally (Tab characters stay tabs, never wrapped), maxHeight caps the body into vertical scrolling, scrollbars are thin currentColor lanes with overscroll containment, and the region is keyboard-focusable."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/code-card.svelte"
+      files={[{ name: 'scroll-demo.ts', content: scrollSample }]}
+    >
+      <CodeCard
+        filename="manifest.ts"
+        lang="ts"
+        code={scrollSample}
+        maxHeight="14rem"
+        class="w-full max-w-[40rem]"
+      />
+    </ComponentCanvas>
+  </div>
+
+  <!-- the Shiki contract -->
   <div data-reveal="" use:reveal>
     <SectionCard
       headerRegion="code-card-law"
       eyebrow="law"
-      title="The code prop is a runtime string"
-      summary="Samples are data, never markup: the tokenizer escapes first, so HTML-significant characters — including a literal closing-script tag — cannot terminate the host page or inject tags. Consumers embed samples the same way this page does, as template literals with the closing tag spliced, or hand them straight from ?raw imports like the drawer sources above."
+      title="Based on Shiki — a facade, not a wrapper"
+      summary="lib/shiki adds loading strategy only: a lazy singleton over shiki/core with the JavaScript regex engine, one dynamic import per grammar and theme, and a zero-download default theme from Shiki's css-variables factory. It never re-interprets Shiki output — getHighlighter() hands back the stock HighlighterCore and highlightCode() forwards Shiki's own codeToHtml options (transformers, dual themes, decorations) untouched, so the whole Shiki ecosystem works here as-is."
     >
       <div class="grid gap-4 min-[760px]:grid-cols-2">
         <div class="border border-border bg-muted/40 px-4 py-4">
           <h3 class="font-nav mb-3 text-[13px] tracking-tight">what the card owns</h3>
           <ul class="flex flex-col gap-2 text-[13px] leading-6">
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>escape-first tokenization — <code class="text-accent">highlight(code, lang)</code>, deterministic in/out</span></li>
+              <span>progressive paint: the prerendered sample is escaped plain text; after hydration Shiki upgrades the SAME <code class="text-accent">&lt;code&gt;</code> element — zero layout shift</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>head renders when <code class="text-accent">filename</code> or <code class="text-accent">header</code> exists; the snippet fully replaces the default lang label</span></li>
+              <span>on-demand loading: shiki/core + engine on first highlight; every grammar/theme its own lazy chunk, fetched only when requested</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>foot renders when <code class="text-accent">footer</code> or <code class="text-accent">copyable</code>; copy flips to the <code class="text-accent">copied</code> variant for 1.6s</span></li>
+              <span>named themes ride along — the theme's editor colors from Shiki's pre output apply verbatim to the card's pre</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">pre</code> keeps its native superpowers: tabs stay tabs, long lines scroll</span></li>
+              <span>scroll law: horizontal always, vertical under <code class="text-accent">maxHeight</code>, thin scrollbars, keyboard-focusable pre</span></li>
           </ul>
         </div>
         <div class="border border-border bg-muted/40 px-4 py-4">
@@ -233,11 +345,11 @@ echo "installed: 2 files into src/lib/"`,
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
               <span>a runtime string — never inlined markup between component tags</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>spliced closing tags inside page scripts (<code class="text-accent">'&lt;/' + 'script&gt;'</code>) — the page's own tag must not terminate early</span></li>
+              <span>a Shiki language id for <code class="text-accent">lang</code> (aliases like ts/sh/md resolve in lib/shiki)</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>a tokenizer hint, not a parser: <code class="text-accent">lang</code> picks the vocabulary, aliases resolve in lib/highlight</span></li>
+              <span>extra grammars/themes in one line: <code class="text-accent">registerLanguage('python', () =&gt; import('shiki/langs/python.mjs'))</code></span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>nothing else — no theme plumbing, the --tok-* palette rides the sheet</span></li>
+              <span>nothing else — npm <code class="text-accent">shiki</code> installs with the registry item</span></li>
           </ul>
         </div>
       </div>

@@ -1,25 +1,44 @@
 <!--
   jixoai code card (registry/files/ui/code-card.svelte).
-  Readonly code surface generalized from the www CodeBlock: <figure> +
-  <pre><code> base, optional filename-tab head (font-nav on the accent-tinted
-  meta strip), zero-dep deterministic tokenizer (lib/highlight.ts), horizontal
-  overflow with Tab characters preserved (pre native), and a footer bar with
-  a compact copy control (press-button physics + `copied` variant feedback).
+  Readonly code surface — highlighting IS Shiki (lib/shiki.ts): a stock
+  `shiki/core` highlighter with on-demand grammars and themes, the JavaScript
+  regex engine (no WASM), and the default zero-download `jixoai` theme built
+  from Shiki's own css-variables recipe so token paint resolves to the --tok-*
+  palette below — light/dark adaptation is pure CSS, one markup both themes.
 
-  `code` is a runtime prop, never markup-inlined text: the tokenizer escapes
-  first, so a sample containing a literal closing-script tag is inert data
+  Intent list (2026-08-22, user): "基于 Shiki 的成熟高亮，按需加载；良好的
+  滚动支持；明确声明基于 Shiki，不过度封装，兼容 Shiki 生态。"
+  1. progressive enhancement: prerender paints the escaped plain sample
+     (readable, zero JS); after hydration Shiki resolves and the SAME <code>
+     element swaps in token spans — same box, same font, no layout shift.
+  2. scroll law: the <pre> is the scrollport — horizontal always (Tab chars
+     stay tabs, long lines never wrap), vertical when maxHeight caps it;
+     thin currentColor scrollbars, overscroll containment, keyboard-focusable.
+  3. named Shiki themes ride along: the theme's editor colors from Shiki's
+     <pre> output are re-applied to this card's <pre> verbatim, so a real
+     theme (github-dark, …) paints its own ground instead of fighting the
+     card.
+
+  `code` is a runtime prop, never markup-inlined text: Shiki HTML-escapes all
+  source, so a sample containing a literal closing-script tag is inert data
   and cannot terminate the host page's script — consumers owe no
   template-level escaping.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { highlight } from '$lib/highlight';
+  import { highlightCode } from '$lib/shiki';
 
   interface Props {
-    /** Code sample (runtime string; HTML-significant characters are escaped). */
+    /** Code sample (runtime string; Shiki escapes it into inert spans). */
     code: string;
-    /** Tokenizer language hint (ts/js/svelte/css/bash/json + aliases). Not a parser. */
+    /** Shiki language id (ts/tsx/js/jsx/svelte/html/css/scss/json/bash/… and aliases). */
     lang?: string;
+    /**
+     * Shiki theme: 'jixoai' (default — the css-variables theme bound to the
+     * --tok-* palette) or any theme registered in lib/shiki (github-dark,
+     * vitesse-light, … or your own registerTheme entry).
+     */
+    theme?: string;
     /** Filename tab on the head's left. The head renders when filename or header exists. */
     filename?: string;
     /** Custom head-right area; fully replaces the default lang label (filename stays left). */
@@ -28,20 +47,70 @@
     footer?: Snippet;
     /** Copy control on the footer bar's right (press physics, copied feedback). */
     copyable?: boolean;
+    /** CSS length that caps the code body and turns on vertical scrolling. */
+    maxHeight?: string;
     class?: string;
   }
 
   let {
     code,
     lang = 'ts',
+    theme = 'jixoai',
     filename = '',
     header,
     footer,
     copyable = true,
+    maxHeight = '',
     class: className = '',
   }: Props = $props();
 
-  const html = $derived(highlight(code, lang));
+  /** Shiki token markup (inner of its <code>); '' = plain-text paint. */
+  let tokenHtml = $state('');
+  /** Shiki's <pre> inline style (theme editor colors), applied verbatim. */
+  let preStyle = $state('');
+  /** Guards against out-of-order resolutions when props change quickly. */
+  let generation = 0;
+
+  $effect(() => {
+    const source = code;
+    const language = lang;
+    const themeName = theme;
+    const mine = ++generation;
+    highlightCode(source, { lang: language, theme: themeName })
+      .then((html) => {
+        if (mine !== generation) return;
+        tokenHtml = innerCodeHtml(html);
+        preStyle = preStyleOf(html);
+      })
+      .catch((error: unknown) => {
+        // unknown lang/theme or a highlighter failure: the plain sample is
+        // already on screen — keep it and say why in the console
+        if (mine !== generation) return;
+        tokenHtml = '';
+        preStyle = '';
+        console.warn('[jixoai/code-card] plain-text fallback:', error);
+      });
+  });
+
+  /**
+   * Shiki's classic structure is <pre …><code…>INNER</code></pre>; source
+   * text is entity-escaped inside INNER, so the first <code open and the
+   * last </code> close bracket exactly the token markup. Keeping only the
+   * inner markup makes this card's <pre> the single scrollport — padding,
+   * scrollbars and max-height stay one implementation across the plain and
+   * highlighted paints (no CLS on the swap, no nested scroll areas).
+   */
+  function innerCodeHtml(html: string): string {
+    const open = html.indexOf('<code');
+    const openEnd = html.indexOf('>', open);
+    const close = html.lastIndexOf('</code>');
+    return open === -1 || openEnd === -1 || close === -1 ? html : html.slice(openEnd + 1, close);
+  }
+
+  /** the theme's editor colors from Shiki's <pre style="…">, verbatim */
+  function preStyleOf(html: string): string {
+    return /^<pre[^>]*style="([^"]*)"/.exec(html)?.[1] ?? '';
+  }
 
   let copied = $state(false);
   let copyTimer: ReturnType<typeof setTimeout> | undefined;
@@ -79,7 +148,15 @@
       </span>
     </figcaption>
   {/if}
-  <pre data-lang={lang}><code>{@html html}</code></pre>
+  <pre
+    data-lang={lang}
+    class:vscroll={maxHeight !== ''}
+    style={[preStyle, maxHeight !== '' ? `max-height:${maxHeight}` : '']
+      .filter(Boolean)
+      .join(';')}
+    tabindex="0"
+    aria-label={filename ? `${filename} code sample` : `${lang} code sample`}
+  ><code>{#if tokenHtml}{@html tokenHtml}{:else}{code}{/if}</code></pre>
   {#if footer || copyable}
     <div class="jx-code-card-foot">
       <span class="jx-code-card-foot-side">
@@ -134,24 +211,35 @@
 <style>
   /* readonly-code law (design-tokens.md supplements): the scoped token
      definitions mirror the documented values so the card is self-sufficient
-     with only the jixoai-theme sheet installed. */
+     with only the jixoai-theme sheet installed. The variable names are the
+     Shiki css-variables theme contract (--tok-foreground / --tok-token-*),
+     so lib/shiki's default theme paints straight from here. */
   .jx-code-card {
     --readonly-code-bg: color-mix(in oklab, var(--muted) 42%, var(--background));
     --readonly-code-border: color-mix(in oklab, var(--border) 18%, transparent);
     --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 12%, var(--background));
     --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 58%, var(--foreground));
 
-    /* tokenizer palette: primary family + muted */
-    --tok-comment: color-mix(in oklab, var(--foreground) 44%, transparent);
-    --tok-string: var(--accent);
-    --tok-keyword: var(--primary);
-    --tok-number: color-mix(in oklab, var(--secondary) 78%, var(--foreground));
-    --tok-function: color-mix(in oklab, var(--primary) 62%, var(--foreground));
-    --tok-tag: var(--muted-foreground);
+    /* Shiki css-variables palette: primary family + muted, per the visual law */
+    --tok-foreground: var(--foreground);
+    --tok-background: transparent;
+    --tok-token-comment: color-mix(in oklab, var(--foreground) 44%, transparent);
+    --tok-token-string: var(--accent);
+    --tok-token-string-expression: var(--accent);
+    --tok-token-keyword: var(--primary);
+    --tok-token-constant: color-mix(in oklab, var(--secondary) 78%, var(--foreground));
+    --tok-token-function: color-mix(in oklab, var(--primary) 62%, var(--foreground));
+    --tok-token-parameter: color-mix(in oklab, var(--foreground) 78%, var(--accent));
+    --tok-token-punctuation: color-mix(in oklab, var(--foreground) 62%, transparent);
+    --tok-token-link: var(--accent);
+    --tok-token-inserted: oklch(0.58 0.12 150);
+    --tok-token-deleted: oklch(0.55 0.16 25);
+    --tok-token-changed: oklch(0.68 0.12 85);
 
     background: var(--readonly-code-bg);
     border: 1px solid var(--readonly-code-border);
     margin: 0;
+    min-width: 0;
   }
   :global(.dark) .jx-code-card {
     --readonly-code-bg: color-mix(in oklab, var(--muted) 78%, var(--background));
@@ -159,40 +247,43 @@
     --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 60%, oklch(1 0 0));
 
     /* dark: brighter primary family */
-    --tok-comment: color-mix(in oklab, var(--foreground) 55%, transparent);
-    --tok-number: var(--secondary);
-    --tok-function: color-mix(in oklab, var(--primary) 58%, oklch(1 0 0));
-    --tok-tag: var(--muted-foreground);
+    --tok-token-comment: color-mix(in oklab, var(--foreground) 55%, transparent);
+    --tok-token-constant: var(--secondary);
+    --tok-token-function: color-mix(in oklab, var(--primary) 58%, oklch(1 0 0));
   }
 
-  /* the pre keeps its native superpowers: Tab characters stay tabs, long
-     lines scroll horizontally instead of wrapping */
+  /* the pre is the scrollport: native Tab characters stay tabs, long lines
+     scroll instead of wrapping; thin currentColor scrollbars on both axes
+     with containment so a horizontal wheel/flick never chains to the page */
   .jx-code-card pre {
     font-size: 12.5px;
     line-height: 1.6;
     margin: 0;
     overflow-x: auto;
+    overflow-y: visible;
+    overscroll-behavior-x: contain;
     padding: 0.875rem;
+    scrollbar-color: color-mix(in oklab, currentColor 26%, transparent) transparent;
+    scrollbar-width: thin;
     tab-size: 4;
   }
-
-  .jx-code-card :global(.tok-comment) {
-    color: var(--tok-comment);
+  .jx-code-card pre.vscroll {
+    overflow-y: auto;
+    scrollbar-gutter: stable;
   }
-  .jx-code-card :global(.tok-string) {
-    color: var(--tok-string);
+  .jx-code-card pre::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
   }
-  .jx-code-card :global(.tok-keyword) {
-    color: var(--tok-keyword);
+  .jx-code-card pre::-webkit-scrollbar-track {
+    background: transparent;
   }
-  .jx-code-card :global(.tok-number) {
-    color: var(--tok-number);
+  .jx-code-card pre::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, currentColor 26%, transparent);
   }
-  .jx-code-card :global(.tok-function) {
-    color: var(--tok-function);
-  }
-  .jx-code-card :global(.tok-tag) {
-    color: var(--tok-tag);
+  .jx-code-card pre:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: -2px;
   }
 
   /* head: hairline divider + font-nav filename tab on the meta tint */

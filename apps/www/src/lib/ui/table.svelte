@@ -51,6 +51,11 @@
     /** Native thead/tbody/tfoot markup. */
     children: Snippet;
     class?: string;
+    /**
+     * Style passthrough landing on the frame — the color-freedom seam:
+     * <Table style="--jx-table-hover: …"> retunes one var per instance.
+     */
+    style?: string;
   }
 
   let {
@@ -59,10 +64,11 @@
     stack = true,
     children,
     class: className = '',
+    style: styleAttribute = '',
   }: Props = $props();
 </script>
 
-<figure class={`jx-table ${className}`}>
+<figure class={`jx-table ${className}`} style={styleAttribute}>
   <table class:dense={dense} data-stack={stack ? undefined : 'off'}>
     {#if caption}
       <caption>{caption}</caption>

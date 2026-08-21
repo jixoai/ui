@@ -1,10 +1,12 @@
 <!--
-  Readonly code surface: muted background, hairline border, optional meta
-  strip in accent tints. Token colors come from the theme sheet, so one
-  markup serves both light and dark themes.
+  Site-internal readonly code surface, now a thin wrapper over the registry
+  CodeCard (same-source law): the meta strip rides CodeCard's header snippet
+  slot with the terminal prompt glyph, highlighting is Shiki through
+  lib/shiki (on-demand grammars/themes), and the copy control stays off to
+  keep prose pages quiet.
 -->
 <script lang="ts">
-  import { highlight } from '$lib/highlight';
+  import CodeCard from '$lib/ui/code-card.svelte';
 
   interface Props {
     code: string;
@@ -13,16 +15,20 @@
   }
 
   let { code, lang = 'ts', meta = '' }: Props = $props();
-
-  const html = $derived(highlight(code, lang));
 </script>
 
-<figure class="readonly-code">
+<CodeCard {code} {lang} copyable={false} class="jx-code-block">
   {#if meta}
-    <figcaption class="readonly-code-meta">
+    {#snippet header()}
       <span class="prompt" aria-hidden="true">&gt;</span>
       <span>{meta}</span>
-    </figcaption>
+    {/snippet}
   {/if}
-  <pre data-lang={lang}><code>{@html html}</code></pre>
-</figure>
+</CodeCard>
+
+<style>
+  /* the terminal prompt glyph keeps its primary tint inside the card head */
+  .prompt {
+    color: var(--primary);
+  }
+</style>

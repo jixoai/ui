@@ -336,9 +336,13 @@
       "name": "code-card",
       "type": "registry:ui",
       "title": "Code card",
-      "description": "Code display with zero-dependency deterministic highlighting: figure+pre+code base, filename tab + header snippet slot, footer snippet slot, copyable control with copied feedback. Tokenizer covers ts/js/svelte/css/bash/json (keyword/string/comment/number/function/tag). Code is a runtime prop (escape-first), so literal </script> is inherently safe. readonly-code law: muted bg, hairline border, radius 0, tab-size preserved.",
+      "description": "Code display highlighting through Shiki (lib/shiki — shiki/core + the JavaScript regex engine, no WASM): on-demand grammars and themes as separate lazy chunks, the default zero-download jixoai theme is Shiki's css-variables recipe bound to the --tok-* palette. figure+pre+code base, filename tab + header snippet slot, footer snippet slot, copyable control. Scroll law: pre is the scrollport — horizontal always (tabs stay tabs), vertical when maxHeight caps it, thin scrollbars, overscroll containment, keyboard-focusable. Code is a runtime prop; Shiki escapes it, so literal </script> is inert.",
+      "dependencies": [
+        "shiki"
+      ],
       "registryDependencies": [
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/shiki"
       ],
       "files": [
         {
@@ -347,26 +351,30 @@
           "type": "registry:file"
         },
         {
-          "path": "registry/files/lib/highlight.ts",
-          "target": "@lib/highlight.ts",
+          "path": "registry/files/lib/shiki.ts",
+          "target": "@lib/shiki.ts",
           "type": "registry:file"
         }
       ],
-      "docs": "Props: code, lang='ts', filename?, copyable=true; snippets header?, footer?. The highlight utility is a separate installable lib item."
+      "docs": "Props: code, lang='ts', theme='jixoai', filename?, copyable=true, maxHeight?; snippets header?, footer?. Based on Shiki — the highlight engine in lib/shiki is a thin on-demand facade over a stock HighlighterCore; any Shiki theme/grammar/transformer works through it (see the shiki lib item). Prerender paints the escaped plain sample; Shiki upgrades it after hydration with no layout shift."
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
-      "name": "highlight",
+      "name": "shiki",
       "type": "registry:lib",
-      "title": "Syntax highlighter",
-      "description": "Zero-dependency deterministic tokenizer for code-card: single-pass escape-first, single alternation regex, first-match-wins. Covers ts/js/svelte/css/bash/json + aliases; classes keyword/string/comment/number/function/tag with --tok-* tokens.",
+      "title": "Shiki highlighter (on-demand)",
+      "description": "Thin Shiki integration — explicitly NOT a wrapper: a lazy singleton over shiki/core with the JavaScript regex engine (zero WASM), one dynamic import per grammar/theme (shiki/langs/*.mjs, shiki/themes/*.mjs code-split and fetched only when requested, sub-grammars auto-detected via Shiki's guessEmbeddedLanguages), and a zero-download default theme from Shiki's css-variables factory bound to --tok-*. getHighlighter() exposes the stock HighlighterCore; highlightCode(code, options) forwards Shiki's own codeToHtml options (transformers, dual themes, decorations) untouched; registerLanguage/registerTheme extend the on-demand sets with one-line imports.",
+      "dependencies": [
+        "shiki"
+      ],
       "files": [
         {
-          "path": "registry/files/lib/highlight.ts",
-          "target": "@lib/highlight.ts",
+          "path": "registry/files/lib/shiki.ts",
+          "target": "@lib/shiki.ts",
           "type": "registry:file"
         }
-      ]
+      ],
+      "docs": "Based on Shiki (npm: shiki) — this lib adds loading strategy only, never re-interprets Shiki output. Curated grammars: typescript/tsx/javascript/jsx/svelte/html/css/scss/json/bash/markdown/yaml/vue + aliases; curated themes: github-dark/light, vitesse-dark/light, min-dark/light; anything else joins via registerLanguage/registerTheme. The jixoai theme name resolves token colors to the consumer's --tok-* CSS variables."
     },
     {
       "$schema": "https://ui.shadcn.com/schema.json/registry-item.json",
@@ -411,7 +419,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: caption?, dense=false, stack=true; snippet children (write native thead/tbody/tfoot). Consumer cell opt-ins: data-label=\"…\" (stack-mode row label), data-sticky=\"start\"|\"end\" (pinned column in scroll mode — put it on the th AND its td's). Color freedom: override --jx-table-surface/head/hover/hairline/rule/edge per instance via style or CSS."
+      "docs": "Props: caption?, dense=false, stack=true, style? (passthrough landing on the frame — the color-freedom seam); snippet children (write native thead/tbody/tfoot). Consumer cell opt-ins: data-label=\"…\" (stack-mode row label), data-sticky=\"start\"|\"end\" (pinned column in scroll mode — put it on the th AND its td's). Color freedom: override --jx-table-surface/head/hover/hairline/rule/edge per instance via style or CSS."
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -441,7 +449,7 @@
         "@jixoai/press-button",
         "@jixoai/code-card",
         "@jixoai/tree-view",
-        "@jixoai/highlight"
+        "@jixoai/shiki"
       ],
       "files": [
         {

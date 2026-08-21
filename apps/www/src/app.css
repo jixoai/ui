@@ -6,42 +6,13 @@
  * reveal hook styles) is a same-source copy of registry/files/theme/jixoai.css
  * (registry item `jixoai-theme`) installed at src/lib/jixoai.css with
  * --brand-hue: 330. This file carries ONLY site-specific supplements:
- *   - tokens the registry sheet does not define (readonly-code surfaces,
- *     the build-time tokenizer palette);
  *   - the Tailwind token→utility mappings the registry sheet leaves open;
- *   - site surfaces: data tables, readonly code, swatch grids, the hue lab.
+ *   - site surfaces: data tables, swatch grids, the hue lab. Readonly code
+ *     surfaces are owned end-to-end by the registry code-card (Shiki tokens
+ *     through the component-scoped --tok-* palette).
  * ---------------------------------------------------------------------- */
 @import 'tailwindcss';
 @import './lib/jixoai.css';
-
-:root {
-  /* readonly code surfaces */
-  --readonly-code-bg: color-mix(in oklab, var(--muted) 42%, var(--background));
-  --readonly-code-border: color-mix(in oklab, var(--border) 18%, transparent);
-  --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 12%, var(--background));
-  --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 58%, var(--foreground));
-
-  /* tiny deterministic tokenizer palette */
-  --tok-comment: color-mix(in oklab, var(--foreground) 44%, transparent);
-  --tok-string: var(--accent);
-  --tok-keyword: var(--primary);
-  --tok-number: color-mix(in oklab, var(--secondary) 78%, var(--foreground));
-  --tok-function: color-mix(in oklab, var(--primary) 62%, var(--foreground));
-  --tok-tag: var(--muted-foreground);
-}
-.dark {
-  --readonly-code-bg: color-mix(in oklab, var(--muted) 78%, var(--background));
-  --readonly-code-border: color-mix(in oklab, var(--border) 18%, transparent);
-  --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 18%, var(--background));
-  --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 60%, oklch(1 0 0));
-
-  --tok-comment: color-mix(in oklab, var(--foreground) 55%, transparent);
-  --tok-string: var(--accent);
-  --tok-keyword: var(--primary);
-  --tok-number: var(--secondary);
-  --tok-function: color-mix(in oklab, var(--primary) 58%, oklch(1 0 0));
-  --tok-tag: var(--muted-foreground);
-}
 
 /* Tailwind mapping supplements — kill the default rounded scale (radius law:
  * 0 with bevel upgrade only); the registry sheet maps everything else. */
@@ -138,50 +109,9 @@
 }
 
 /* -------------------------------------------------------------------------
- * Readonly code surfaces (install commands, integration samples).
+ * Readonly code surfaces: owned by the registry code-card (Shiki tokens via
+ * the scoped --tok-* palette inside the component) — nothing site-side here.
  * ---------------------------------------------------------------------- */
-.readonly-code {
-  background: var(--readonly-code-bg);
-  border: 1px solid var(--readonly-code-border);
-}
-.readonly-code pre {
-  margin: 0;
-  overflow-x: auto;
-  padding: 0.875rem;
-  font-size: 12.5px;
-  line-height: 1.6;
-}
-.readonly-code-meta {
-  background: var(--readonly-code-meta-bg);
-  border-bottom: 1px solid var(--readonly-code-border);
-  color: var(--readonly-code-meta-fg);
-  display: flex;
-  font-size: 11px;
-  gap: 0.5rem;
-  letter-spacing: 0.08em;
-  padding: 0.32rem 0.75rem;
-}
-.readonly-code-meta .prompt {
-  color: var(--primary);
-}
-.tok-comment {
-  color: var(--tok-comment);
-}
-.tok-string {
-  color: var(--tok-string);
-}
-.tok-keyword {
-  color: var(--tok-keyword);
-}
-.tok-number {
-  color: var(--tok-number);
-}
-.tok-function {
-  color: var(--tok-function);
-}
-.tok-tag {
-  color: var(--tok-tag);
-}
 
 /* Skip link (a11y) — visible only on keyboard focus. */
 .skip-link {

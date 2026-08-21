@@ -32,24 +32,28 @@
     file?: TreeFile;
   }
 
-  /** Extension → canonical highlight language (aliases resolve in lib/highlight). */
+  /** Extension → Shiki language id (aliases resolve in lib/shiki). */
   export function inferTreeLang(name: string): string {
     const ext = name.split('.').pop()?.toLowerCase() ?? '';
     switch (ext) {
       case 'ts':
-      case 'tsx':
         return 'ts';
+      case 'tsx':
+        return 'tsx';
       case 'js':
       case 'mjs':
       case 'cjs':
-      case 'jsx':
         return 'js';
+      case 'jsx':
+        return 'jsx';
       case 'svelte':
-      case 'html':
         return 'svelte';
+      case 'html':
+        return 'html';
       case 'css':
-      case 'scss':
         return 'css';
+      case 'scss':
+        return 'scss';
       case 'json':
         return 'json';
       case 'sh':
@@ -234,16 +238,7 @@
 </ul>
 
 <style>
-  /* scoped token palette (self-sufficiency law, mirrors code-card): the
-     --brand-hue sheet alone is enough — dot colors track the tokenizer. */
   .jx-tree-view {
-    --tok-comment: color-mix(in oklab, var(--foreground) 44%, transparent);
-    --tok-string: var(--accent);
-    --tok-keyword: var(--primary);
-    --tok-number: color-mix(in oklab, var(--secondary) 78%, var(--foreground));
-    --tok-function: color-mix(in oklab, var(--primary) 62%, var(--foreground));
-    --tok-tag: var(--muted-foreground);
-
     color: var(--muted-foreground);
     font-family: var(--font-nav);
     font-size: 12px;
@@ -251,11 +246,6 @@
     list-style: none;
     margin: 0;
     padding: 0;
-  }
-  :global(.dark) .jx-tree-view {
-    --tok-comment: color-mix(in oklab, var(--foreground) 55%, transparent);
-    --tok-number: var(--secondary);
-    --tok-function: color-mix(in oklab, var(--primary) 58%, oklch(1 0 0));
   }
 
   .jx-tree-view ul {
@@ -313,32 +303,36 @@
     transform: rotate(-90deg);
   }
 
-  /* leaf status dot in the tokenizer palette (the rounded-full dot class) */
+  /* leaf status dot tinted with the readonly-code palette VALUES (primary
+     family + muted) — direct color-mix so the tree is self-sufficient
+     outside any code-card scope */
   .jx-tree-view-dot {
-    background: var(--tok-comment);
+    background: color-mix(in oklab, var(--foreground) 44%, transparent);
     border-radius: 9999px;
     flex: none;
     height: 6px;
     margin-inline: calc((0.75rem - 6px) / 2);
     width: 6px;
   }
-  .jx-tree-view-dot[data-lang='ts'] {
-    background: var(--tok-keyword);
+  .jx-tree-view-dot[data-lang='ts'],
+  .jx-tree-view-dot[data-lang='tsx'] {
+    background: var(--primary);
   }
-  .jx-tree-view-dot[data-lang='js'] {
-    background: var(--tok-function);
+  .jx-tree-view-dot[data-lang='js'],
+  .jx-tree-view-dot[data-lang='jsx'] {
+    background: color-mix(in oklab, var(--primary) 62%, var(--foreground));
   }
-  .jx-tree-view-dot[data-lang='svelte'] {
-    background: var(--tok-string);
+  .jx-tree-view-dot[data-lang='svelte'],
+  .jx-tree-view-dot[data-lang='html'] {
+    background: var(--accent);
   }
-  .jx-tree-view-dot[data-lang='css'] {
-    background: var(--tok-number);
+  .jx-tree-view-dot[data-lang='css'],
+  .jx-tree-view-dot[data-lang='scss'] {
+    background: var(--secondary);
   }
-  .jx-tree-view-dot[data-lang='json'] {
-    background: var(--tok-tag);
-  }
+  .jx-tree-view-dot[data-lang='json'],
   .jx-tree-view-dot[data-lang='bash'] {
-    background: var(--tok-tag);
+    background: var(--muted-foreground);
   }
 
   /* collapse: grid-rows 0fr→1fr (the ToC viewport law); inert on the same
