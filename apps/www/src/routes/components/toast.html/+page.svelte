@@ -25,7 +25,7 @@ ${close}
 // app state — created once, never a module singleton (SSR stays clean)
 const toast = createToastStore();
 let lastDeploy = $state('');
-</script>
+${close}
 
 <ToastViewport store={toast} />              <!-- once, root layout -->
 
