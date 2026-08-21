@@ -269,6 +269,24 @@
           "type": "registry:file"
         }
       ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "scaffold-float",
+      "type": "registry:ui",
+      "title": "Scaffold float portal",
+      "description": "The consumer-side half of the WebsiteScaffold float provider: renders children into the scaffold's top layer (.jx-top-layer) through a real portal \u2014 nodes are created here (full Svelte ownership) and adopted into the provider's insertion point on mount. The float rides the top layer's immersive hide/reveal with the header by construction.",
+      "registryDependencies": [
+        "@jixoai/website-scaffold"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/scaffold-float.svelte",
+          "target": "@ui/scaffold-float.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Slot children; pairs with website-scaffold's jx-scaffold-float context."
     }
   ]
 }

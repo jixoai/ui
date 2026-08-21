@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "scaffold-float",
+  "title": "Scaffold float portal",
+  "description": "The consumer-side half of the WebsiteScaffold float provider: renders children into the scaffold's top layer (.jx-top-layer) through a real portal — nodes are created here (full Svelte ownership) and adopted into the provider's insertion point on mount. The float rides the top layer's immersive hide/reveal with the header by construction.",
+  "registryDependencies": [
+    "@jixoai/website-scaffold"
+  ],
+  "files": [
+    {
+      "path": "registry/files/ui/scaffold-float.svelte",
+      "content": "<!--\n  jixoai scaffold float portal (registry/files/ui/scaffold-float.svelte).\n  The consumer-side half of the float provider: renders its children into\n  the website scaffold's top layer (.jx-top-layer) through a real portal — the\n  child nodes are created here (full Svelte ownership) and adopted into\n  the provider's insertion point on mount; teardown returns them.\n\n  The float rides the top layer's immersive hide/reveal together with\n  the header by construction — it lives in the same moving plane.\n\n  API:\n    <ScaffoldFloat>\n      …anything that should stick to the top plane…\n    </ScaffoldFloat>\n-->\n<script lang=\"ts\">\n  import { getContext, onMount } from 'svelte';\n  import type { Snippet } from 'svelte';\n  import type { ScaffoldFloatApi } from './website-scaffold.svelte';\n\n  interface Props {\n    children: Snippet;\n  }\n\n  let { children }: Props = $props();\n\n  const api = getContext<ScaffoldFloatApi>('jx-scaffold-float');\n\n  let contentEl = $state<HTMLElement | null>(null);\n  let anchorEl = $state<HTMLElement | null>(null);\n\n  onMount(() => {\n    if (!contentEl) return;\n    const unregister = api.set(contentEl);\n    return () => {\n      unregister();\n      // return the nodes to the anchor so Svelte teardown finds them\n      anchorEl?.appendChild(contentEl);\n    };\n  });\n</script>\n\n<!-- hidden anchor in place (preserves the authoring DOM position) -->\n<div class=\"jx-float-anchor\" bind:this={anchorEl} aria-hidden=\"true\"></div>\n\n<!-- the actual float content: starts here, gets adopted into .jx-top-layer -->\n<div class=\"jx-float-content\" bind:this={contentEl}>\n  {@render children()}\n</div>\n",
+      "type": "registry:file",
+      "target": "@ui/scaffold-float.svelte"
+    }
+  ],
+  "docs": "Slot children; pairs with website-scaffold's jx-scaffold-float context.",
+  "type": "registry:ui"
+}
