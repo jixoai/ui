@@ -8,49 +8,88 @@
   browser-native. The component ships ZERO script — markup and styling
   only.
 
-  Placement (v1): native anchoring defaults to viewport-center (UA
-  `margin: auto`). We restage that as an authored strategy —
-  `inset-area: center` where supported, inset + margin:auto fallback —
-  and treat ANCHORED placement next to the trigger as the extension
-  direction (CSS Anchor Positioning: `anchor-name` on the trigger,
-  `position-anchor` + `inset-area` here; a future `placement` prop).
-  Deliberately not in v1.
+  Anchored placement (2026-08-21, Owner ruling): the panel anchors to the
+  trigger through the CSS Anchor Positioning API — `anchor-name` on the
+  wrapper, `position-anchor` + `inset-area` on the panel, plus native
+  `position-try-fallbacks` flipping (block/inline). Declarative CSS
+  positioning replaces every line of JS geometry: no measure-and-replace,
+  so the panel cannot jitter on open. Engines without anchor positioning
+  fall back to authored viewport-center (inset + margin:auto) — the same
+  visual as v1, never worse.
+
+  Props:
+    id            popover id; popovertarget association + anchor name
+    triggerLabel  trigger button label (ignored when `trigger` snippet given)
+    placement     anchored inset-area: 'bottom' | 'bottom-end' | 'top' |
+                  'top-end' | 'top-start' | 'bottom-start' (default
+                  'bottom-end' — under the trigger, right edges aligned)
+    trigger?      custom trigger snippet: render your own <button
+                  popovertarget={id}> inside; the wrapper still carries
+                  anchor-name, so anchoring stays component-owned
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
 
   interface Props {
-    /** Popover id; the trigger targets it via popovertarget. */
     id: string;
-    /** Trigger button label (press-button outline physics, native button). */
     triggerLabel: string;
+    placement?: 'bottom' | 'bottom-end' | 'top' | 'top-end' | 'top-start' | 'bottom-start';
+    trigger?: Snippet;
     children: Snippet;
   }
 
-  let { id, triggerLabel, children }: Props = $props();
+  let {
+    id,
+    triggerLabel,
+    placement = 'bottom-end',
+    trigger,
+    children,
+  }: Props = $props();
+
+  // Anchor names are CSS custom-ident-ish: sanitize the id into a stable
+  // dashed token so any consumer id yields a valid --jx-pop-* name.
+  const anchorName = `--jx-pop-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  const area = $derived(
+    placement === 'bottom' ? 'bottom' :
+    placement === 'bottom-end' ? 'bottom span-right' :
+    placement === 'bottom-start' ? 'bottom span-left' :
+    placement === 'top' ? 'top' :
+    placement === 'top-end' ? 'top span-right' :
+    'top span-left'
+  );
 </script>
 
-<button type="button" class="jx-pop-trigger" popovertarget={id}>
-  {triggerLabel}
-  <svg
-    class="jx-pop-caret"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2.5"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    aria-hidden="true"
-  >
-    <path d="m6 9 6 6 6-6" />
-  </svg>
-</button>
+<span class="jx-pop-anchor" style="anchor-name: {anchorName}">
+  {#if trigger}
+    {@render trigger()}
+  {:else}
+    <button type="button" class="jx-pop-trigger" popovertarget={id}>
+      {triggerLabel}
+      <svg
+        class="jx-pop-caret"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m6 9 6 6 6-6" />
+      </svg>
+    </button>
+  {/if}
+</span>
 
-<div {id} popover="auto" class="jx-pop">
+<div {id} popover="auto" class="jx-pop" style="position-anchor: {anchorName}; inset-area: {area};">
   {@render children()}
 </div>
 
 <style>
+  .jx-pop-anchor {
+    display: inline-flex;
+  }
+
   /* Trigger: the press-button outline recipe on a native button — it must
      stay a real <button> because popovertarget only works on buttons. */
   .jx-pop-trigger {
@@ -89,17 +128,18 @@
     flex: none;
     transition: transform 150ms ease-out;
   }
-  .jx-pop-trigger:has(+ .jx-pop:popover-open) .jx-pop-caret {
+  .jx-pop-trigger:has(+ :popover-open) .jx-pop-caret,
+  .jx-pop-anchor:has(+ .jx-pop:popover-open) .jx-pop-caret {
     transform: rotate(180deg);
   }
 
-  /* Panel law: 1px border, hard offset shadow, radius 0. Placement is the
-     authored centering described in the head comment — the UA `margin:
-     auto` default is replaced by inset-area with an explicit fallback. */
+  /* Panel law: 1px border, hard offset shadow, radius 0. Anchored via
+     position-anchor + inset-area (inline styles carry the per-instance
+     names); native try-fallbacks flip on overflow — zero JS geometry. */
   .jx-pop {
     position: fixed;
     margin: 0;
-    inset-area: center;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
     width: fit-content;
     height: fit-content;
     max-width: min(92vw, 22rem);
@@ -112,8 +152,12 @@
     background: var(--popover);
     box-shadow: var(--shadow);
   }
-  @supports not (inset-area: center) {
+  /* Engines without CSS Anchor Positioning: authored viewport-center —
+     the v1 visual, never worse. */
+  @supports not (anchor-name: --jx-pop-fallback) {
     .jx-pop {
+      position-anchor: auto !important;
+      inset-area: none !important;
       inset: 0;
       margin: auto;
     }

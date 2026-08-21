@@ -1,123 +1,65 @@
 <!--
   Hue popover (apps/www/src/lib/components/hue-popover.svelte).
-  The ui.jixoai.com brand control: a palette icon that opens a native
-  Popover with the ThemeToggle (full variant, icons only), a brand-hue
-  range slider, and a play/pause toggle for the 24h wall-clock cycle.
+  The ui.jixoai.com brand control: a palette icon that opens a popover with
+  the ThemeToggle (full variant, icons only), a brand-hue range slider, and
+  a play/pause toggle for the 24h wall-clock cycle.
 
-  Fusion (2026-08-21): interaction/layout from this component's lineage
-  (try-position anchoring, pre-positioning, icon toggle palette ↔ X) +
-  theme/styling from the registry popover component (token-driven panel,
-  press-physics trigger, backdrop/caret/overflow/reduced-motion laws).
+  Fusion (2026-08-21, complete): this is now a pure consumer of the
+  registry popover component — native Popover API + CSS Anchor
+  Positioning (anchor-name wrapper, position-anchor + inset-area panel,
+  native flip fallbacks). Zero JS geometry: no measure, no rAF reposition,
+  no first-frame jump. The custom palette/X trigger rides the component's
+  `trigger` snippet; the content panel keeps the token-driven styling.
 -->
 <script lang="ts">
+  import Popover from '$lib/ui/popover.svelte';
   import ThemeToggle from '$lib/ui/theme-toggle.svelte';
   import { currentHue, playing, toggleHuePlay, setHueManually } from '$lib/hue-runtime';
 
   let hue = $state(0);
   let isPlaying = $state(true);
-  let triggerEl = $state<HTMLElement | null>(null);
   let popEl = $state<HTMLElement | null>(null);
-  let pos = $state<{ top: string; left: string }>({ top: '0px', left: '0px' });
   let isOpen = $state(false);
 
   currentHue.subscribe((v) => (hue = v));
   playing.subscribe((v) => (isPlaying = v));
 
-  const GAP = 8;
-
-  /** try-position: below-right → below-left → above-right → above-left,
-   *  clamped to the viewport. Returns the first fully-visible placement. */
-  const computePosition = (): { top: string; left: string } => {
-    if (!triggerEl || !popEl) return { top: '0px', left: '0px' };
-    const trigger = triggerEl.getBoundingClientRect();
-    const pop = popEl.getBoundingClientRect();
-    const vw = innerWidth;
-    const vh = innerHeight;
-
-    const candidates = [
-      { top: trigger.bottom + GAP, left: trigger.right - pop.width },
-      { top: trigger.bottom + GAP, left: trigger.left },
-      { top: trigger.top - GAP - pop.height, left: trigger.right - pop.width },
-      { top: trigger.top - GAP - pop.height, left: trigger.left },
-    ];
-
-    for (const c of candidates) {
-      if (c.top >= 0 && c.top + pop.height <= vh && c.left >= 0 && c.left + pop.width <= vw) {
-        return { top: `${c.top}px`, left: `${c.left}px` };
-      }
-    }
-
-    const fallback = candidates[0]!;
-    return {
-      top: `${Math.max(GAP, Math.min(fallback.top, vh - pop.height - GAP))}px`,
-      left: `${Math.max(GAP, Math.min(fallback.left, vw - pop.width - GAP))}px`,
-    };
-  };
-
-  const position = (): void => {
-    pos = computePosition();
-  };
-
-  // toggle event: track open state + refine position with real dimensions
+  // open state only (for the trigger icon); positioning is pure CSS.
   $effect(() => {
     if (!popEl) return;
-    const handler = () => {
-      isOpen = popEl.matches(':popover-open');
-      if (isOpen) {
-        requestAnimationFrame(position);
-      }
-    };
+    const handler = () => (isOpen = popEl.matches(':popover-open'));
     popEl.addEventListener('toggle', handler);
     return () => popEl.removeEventListener('toggle', handler);
   });
 </script>
 
-<div class="relative">
-  <button
-    type="button"
-    popovertarget="hue-popover"
-    class="jx-hue-trigger"
-    aria-label={isOpen ? 'Close brand hue & theme' : 'Brand hue & theme'}
-    aria-expanded={isOpen}
-    bind:this={triggerEl}
-    onclick={() => {
-      // popovertarget handles the toggle; pre-position here (onclick fires
-      // before the popover target activation behavior)
-      if (!popEl?.matches(':popover-open')) {
-        const trigger = triggerEl?.getBoundingClientRect();
-        if (trigger) {
-          const estWidth = 240;
-          pos = {
-            top: `${trigger.bottom + GAP}px`,
-            left: `${Math.max(GAP, trigger.right - estWidth)}px`,
-          };
-        }
-      }
-    }}
-  >
-    {#if isOpen}
-      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-        <path d="M18 6 6 18" />
-        <path d="m6 6 12 12" />
-      </svg>
-    {:else}
-      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M12 22a10 10 0 1 1 10-10c0 1.7-1.3 3-3 3h-2.4a2 2 0 0 0-1.4 3.4c.4.5.6 1.1.6 1.6a2 2 0 0 1-2 2Z" />
-        <circle cx="7.5" cy="11.5" r="1" fill="currentColor" stroke="none" />
-        <circle cx="10.5" cy="7.5" r="1" fill="currentColor" stroke="none" />
-        <circle cx="15" cy="7.5" r="1" fill="currentColor" stroke="none" />
-        <circle cx="17.5" cy="11.5" r="1" fill="currentColor" stroke="none" />
-      </svg>
-    {/if}
-  </button>
+<Popover id="hue-popover" triggerLabel="Brand hue & theme" placement="bottom-end">
+  {#snippet trigger()}
+    <button
+      type="button"
+      popovertarget="hue-popover"
+      class="jx-hue-trigger"
+      aria-label={isOpen ? 'Close brand hue & theme' : 'Brand hue & theme'}
+      aria-expanded={isOpen}
+    >
+      {#if isOpen}
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
+      {:else}
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 22a10 10 0 1 1 10-10c0 1.7-1.3 3-3 3h-2.4a2 2 0 0 0-1.4 3.4c.4.5.6 1.1.6 1.6a2 2 0 0 1-2 2Z" />
+          <circle cx="7.5" cy="11.5" r="1" fill="currentColor" stroke="none" />
+          <circle cx="10.5" cy="7.5" r="1" fill="currentColor" stroke="none" />
+          <circle cx="15" cy="7.5" r="1" fill="currentColor" stroke="none" />
+          <circle cx="17.5" cy="11.5" r="1" fill="currentColor" stroke="none" />
+        </svg>
+      {/if}
+    </button>
+  {/snippet}
 
-  <div
-    id="hue-popover"
-    popover="auto"
-    class="jx-hue-pop"
-    bind:this={popEl}
-    style="top: {pos.top}; left: {pos.left};"
-  >
+  <div bind:this={popEl} class="jx-hue-content">
     <div class="flex flex-col gap-4 p-3.5">
       <!-- theme: the registry ThemeToggle, full variant, icons only -->
       <div class="flex flex-col gap-2">
@@ -128,40 +70,47 @@
       <!-- hue section -->
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between">
-          <p class="jx-hue-label">--brand-hue</p>
-          <span class="font-nav text-primary text-[12px] tabular-nums">{Math.round(hue)}°</span>
+          <p class="jx-hue-label">Brand hue</p>
+          <code class="jx-hue-value">{hue}°</code>
         </div>
         <input
+          class="jx-hue-range"
           type="range"
           min="0"
           max="359"
           step="1"
-          value={Math.round(hue)}
-          class="jx-hue-slider"
-          oninput={(e) => setHueManually(e.currentTarget.valueAsNumber)}
+          bind:value={hue}
+          oninput={(e) => setHueManually(Number(e.currentTarget.value))}
+          aria-label="Brand hue"
         />
+        <div class="jx-hue-stops" aria-hidden="true"></div>
       </div>
 
-      <!-- play/pause -->
-      <div class="flex items-center justify-between">
-        <p class="jx-hue-label">Auto-cycle</p>
-        <button type="button" class="jx-hue-play" onclick={toggleHuePlay} aria-label={isPlaying ? 'Pause hue cycle' : 'Play hue cycle'}>
+      <!-- 24h auto-cycle -->
+      <div class="flex items-center justify-between gap-3">
+        <p class="jx-hue-label">Auto cycle · 24h</p>
+        <button
+          type="button"
+          class="jx-hue-play"
+          class:jx-hue-play-on={isPlaying}
+          onclick={toggleHuePlay}
+          aria-pressed={isPlaying}
+          aria-label={isPlaying ? 'Pause the hue cycle' : 'Play the hue cycle'}
+        >
           {#if isPlaying}
-            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <rect x="6" y="4" width="4" height="16" rx="0" />
-              <rect x="14" y="4" width="4" height="16" rx="0" />
+            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M7 5h4v14H7zM13 5h4v14h-4z" />
             </svg>
           {:else}
-            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M8 5v14l11-7Z" />
+            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
             </svg>
           {/if}
-          <span class="text-[10px]">{isPlaying ? '24h cycle' : 'paused'}</span>
         </button>
       </div>
     </div>
   </div>
-</div>
+</Popover>
 
 <style>
   /* ── trigger: press physics on a 32×32 icon button (from the registry
@@ -192,24 +141,6 @@
   }
 
   /* ── panel: token-driven, from the registry popover's panel law ── */
-  .jx-hue-pop {
-    position: fixed;
-    margin: 0;
-    inset: auto;
-    min-width: 220px;
-    max-width: min(92vw, 22rem);
-    max-height: 72vh;
-    overflow: auto;
-    padding: 0;
-    font-size: 13px;
-    color: var(--popover-foreground);
-    border: 1px solid var(--border);
-    background: var(--popover);
-    box-shadow: var(--shadow);
-  }
-  .jx-hue-pop::backdrop {
-    background: transparent;
-  }
 
   /* ── section labels ── */
   .jx-hue-label {
@@ -305,5 +236,11 @@
       transform: none;
       box-shadow: none;
     }
+  }
+
+  /* hue content sits inside the registry popover panel (.jx-pop owns the
+     surface law); only the hue-specific internals live here. */
+  .jx-hue-content {
+    width: 15rem;
   }
 </style>
