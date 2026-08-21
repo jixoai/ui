@@ -18,7 +18,9 @@
   let { class: className = '', ...rest }: Props = $props();
 </script>
 
-<div class="jx-skeleton {className}" aria-hidden="true" {...rest}></div>
+<!-- aria-hidden lands after the spread: a placeholder block is scenery
+     by contract — restProps (data-*, id…) pass through untouched -->
+<div class="jx-skeleton {className}" {...rest} aria-hidden="true"></div>
 
 <style>
   .jx-skeleton {

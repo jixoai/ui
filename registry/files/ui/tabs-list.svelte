@@ -37,10 +37,12 @@
 
   let listEl = $state<HTMLDivElement>();
 
-  /** APG keyboard walk — arrows along the axis (flipped in RTL),
+  /** APG keyboard walk — arrows along the axis (flipped under an
+   *  inherited RTL direction — nearest [dir] ancestor, html included),
    *  Home/End to the ends; wraps; skips disabled triggers */
   function handleKeydown(event: KeyboardEvent) {
-    const rtl = orientation === 'horizontal' && (listEl?.matches('[dir="rtl"]') ?? false);
+    const rtl =
+      orientation === 'horizontal' && (listEl?.closest('[dir]')?.dir ?? 'ltr') === 'rtl';
     const forward = orientation === 'horizontal' ? (rtl ? 'ArrowLeft' : 'ArrowRight') : 'ArrowDown';
     const back = orientation === 'horizontal' ? (rtl ? 'ArrowRight' : 'ArrowLeft') : 'ArrowUp';
     if (event.key !== forward && event.key !== back && event.key !== 'Home' && event.key !== 'End') {
@@ -60,20 +62,21 @@
           : current === -1
             ? triggers[0]
             : triggers[(current + (event.key === forward ? 1 : -1) + triggers.length) % triggers.length];
+    // focus rides the roving tabindex: the trigger's onfocus moves the
+    // tab stop; automatic activation ALSO selects on the focus move,
+    // manual waits for Enter/Space — the trigger's native click path
     next.focus();
-    // automatic activation selects on focus move; manual waits for
-    // Enter/Space — the trigger's own native click path
     if (tabs.activation === 'automatic') next.click();
   }
 </script>
 
 <div
   bind:this={listEl}
-  role="tablist"
-  aria-orientation={orientation}
   class="jx-tabs-list jx-tabs-{orientation} {className}"
   onkeydown={handleKeydown}
   {...rest}
+  role="tablist"
+  aria-orientation={orientation}
 >
   {@render children()}
 </div>

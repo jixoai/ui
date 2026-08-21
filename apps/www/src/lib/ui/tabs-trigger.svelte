@@ -36,11 +36,12 @@
   id="{tabs.uid}-tab-{value}"
   aria-selected={selected}
   aria-controls="{tabs.uid}-panel-{value}"
-  tabindex={selected ? 0 : -1}
+  tabindex={tabs.tabStop === value ? 0 : -1}
   class="jx-tab {className}"
   class:jx-tab-selected={selected}
   {disabled}
   onclick={() => tabs.select(value)}
+  onfocus={() => tabs.setTabStop(value)}
 >
   {@render children()}
 </button>

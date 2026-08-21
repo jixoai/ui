@@ -635,7 +635,7 @@
       "name": "badge",
       "type": "registry:ui",
       "title": "Badge",
-      "description": "The inline status chip of the site grammar: Share Tech Mono uppercase micro-label, 1px border, radius 0. Tones stay inside the one-brand-hue law — default (muted), primary (solid brand), outline, destructive.",
+      "description": "The inline status chip of the site grammar: Share Tech Mono uppercase micro-label, 1px border, radius 0. Semantic tones: default (muted) / primary (solid brand) / destructive — plus outline, a fill variant of default that draws less on tinted surfaces.",
       "files": [
         {
           "path": "registry/files/ui/badge.svelte",

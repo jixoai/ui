@@ -3,31 +3,60 @@
   NativeHTML first: it IS an <img> — lazy, async-decoded, intrinsic
   width/height so layout never shifts. radius 0 law = brutalist square.
 
-  Fallback: when the image fails to load (or no src is given), the img is
-  swapped for an initials block derived from `name` —
+  Fallback: when the image fails to load (or no src is given), the img
+  is swapped for an initials block derived from `name` —
     "Ada Lovelace"      → "AL"   (first char of first + last word)
     "Gaubee"            → "Ga"   (single word: first 2 chars, CJK-safe
                                    by code-point slicing)
+  The failure state resets whenever src changes, so swapping in a valid
+  URL recovers the image. A caller's own onerror composes with the
+  fallback (both run; the fallback still wins the DOM swap).
+
   alt defaults to `name` (the avatar is content); pass alt="" explicitly
-  for decorative avatars next to a visible name.
+  for decorative avatars next to a visible name — the fallback block
+  honors it too (aria-hidden, no label).
 
   Sizes are one geometry prop:  sm 24 · md 32 (default) · lg 40.
 -->
 <script lang="ts">
   import type { HTMLImgAttributes } from 'svelte/elements';
 
-  interface Props extends HTMLImgAttributes {
+  interface Props extends Omit<HTMLImgAttributes, 'alt'> {
     /** image URL; empty/failed loads fall back to the initials block */
     src?: string;
     /** the person — fuels alt text and the initials fallback */
     name: string;
+    /** defaults to `name`; pass "" for a decorative avatar */
+    alt?: string;
     /** sm 24px · md 32px (default) · lg 40px */
     size?: 'sm' | 'md' | 'lg';
   }
 
-  let { src, name, size = 'md', class: className = '', alt = name, ...rest }: Props = $props();
+  let {
+    src,
+    name,
+    alt = name,
+    size = 'md',
+    class: className = '',
+    onerror,
+    ...rest
+  }: Props = $props();
 
   let failed = $state(false);
+  // a changed src is a fresh chance: reset the failure state
+  $effect(() => {
+    void src;
+    failed = false;
+  });
+
+  /** run the caller's onerror, then swap to the fallback */
+  function handleError(event: Event & { currentTarget: EventTarget & HTMLImageElement }) {
+    onerror?.(event);
+    failed = true;
+  }
+
+  const decorative = $derived(alt === '');
+  const px = $derived(size === 'sm' ? 24 : size === 'lg' ? 40 : 32);
 
   const initials = $derived.by(() => {
     const words = name.trim().split(/\s+/).filter(Boolean);
@@ -44,13 +73,18 @@
     {alt}
     loading="lazy"
     decoding="async"
-    width={size === 'sm' ? 24 : size === 'lg' ? 40 : 32}
-    height={size === 'sm' ? 24 : size === 'lg' ? 40 : 32}
-    onerror={() => (failed = true)}
+    width={px}
+    height={px}
+    onerror={handleError}
     {...rest}
   />
 {:else}
-  <span class="jx-avatar jx-avatar-{size} jx-avatar-fallback {className}" role="img" aria-label={name}>
+  <span
+    class="jx-avatar jx-avatar-{size} jx-avatar-fallback {className}"
+    role={decorative ? undefined : 'img'}
+    aria-label={decorative ? undefined : name}
+    aria-hidden={decorative || undefined}
+  >
     {initials}
   </span>
 {/if}

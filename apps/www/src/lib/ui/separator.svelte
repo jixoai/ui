@@ -24,11 +24,13 @@
 </script>
 
 {#if orientation === 'vertical'}
+  <!-- component-owned semantics land AFTER the spread: role/aria here
+       are not overridable — the separator contract is the component's -->
   <div
-    role="separator"
-    aria-orientation="vertical"
     class="jx-separator-v {className}"
     {...(rest as HTMLAttributes<HTMLDivElement>)}
+    role="separator"
+    aria-orientation="vertical"
   ></div>
 {:else}
   <hr class="jx-separator-h {className}" {...rest} />

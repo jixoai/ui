@@ -22,6 +22,7 @@ import Badge from '../src/lib/ui/badge.svelte';
 import Separator from '../src/lib/ui/separator.svelte';
 import Skeleton from '../src/lib/ui/skeleton.svelte';
 import AccordionHost from './fixtures/accordion-host.svelte';
+import AvatarHost from './fixtures/avatar-host.svelte';
 import TabsHost from './fixtures/tabs-host.svelte';
 
 // ---------------------------------------------------------------------------
@@ -108,6 +109,40 @@ describe('Avatar', () => {
     const { container } = render(Avatar, { props: { name: '张伟' } });
     const fallback = container.querySelector('span[role="img"]')!;
     expect(fallback.textContent).toBe('张伟');
+  });
+
+  it('recovers the image when src changes after a failure', async () => {
+    const { container } = render(AvatarHost);
+    await fireEvent(container.querySelector('img')!, new Event('error'));
+    expect(container.querySelector('span[role="img"]')).toBeTruthy();
+
+    await fireEvent.click(container.querySelector('button')!);
+    await new Promise(requestAnimationFrame);
+    const img = container.querySelector('img')!;
+    expect(img.getAttribute('src')).toBe('/fresh.png');
+    expect(container.querySelector('span[role="img"]')).toBeNull();
+  });
+
+  it('honors alt="" — decorative avatars render no label semantics', () => {
+    const { container } = render(Avatar, { props: { name: 'Ada Lovelace', alt: '' } });
+    const fallback = container.querySelector('span.jx-avatar-fallback')!;
+    expect(fallback.getAttribute('role')).toBeNull();
+    expect(fallback.getAttribute('aria-label')).toBeNull();
+    expect(fallback.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('composes the caller onerror with the internal fallback', async () => {
+    const seen = { current: 0 };
+    const { container } = render(Avatar, {
+      props: {
+        src: '/missing.png',
+        name: 'Ada Lovelace',
+        onerror: () => (seen.current += 1),
+      },
+    });
+    await fireEvent(container.querySelector('img')!, new Event('error'));
+    expect(seen.current).toBe(1);
+    expect(container.querySelector('span[role="img"]')).toBeTruthy();
   });
 });
 
@@ -240,5 +275,53 @@ describe('Tabs', () => {
     await fireEvent.keyDown(tabs[0], { key: 'End' });
     expect(document.activeElement).toBe(tabs[1]);
     expect(root.getAttribute('data-value')).toBe('beta');
+  });
+
+  // ---- manual activation: roving tabindex follows FOCUS, not selection --
+  function manualSetup() {
+    const rendered = render(TabsHost);
+    const root = rendered.container.querySelector('[data-manual-value]') as HTMLElement;
+    const tabs = [...root.querySelectorAll('[role="tab"]')] as HTMLElement[];
+    return { root, tabs };
+  }
+
+  it('manual: arrows move focus AND the tab stop without selecting', async () => {
+    const { root, tabs } = manualSetup();
+    tabs[0].focus();
+    await fireEvent.focus(tabs[0]);
+    await fireEvent.keyDown(tabs[0], { key: 'ArrowRight' });
+
+    // focus moved, selection did NOT (manual waits for Enter/Space)
+    expect(document.activeElement).toBe(tabs[1]);
+    expect(root.getAttribute('data-manual-value')).toBe('alpha');
+    // the tab stop followed the focus: beta is now the tabbable one
+    expect(tabs[1].tabIndex).toBe(0);
+    expect(tabs[0].tabIndex).toBe(-1);
+  });
+
+  it('manual: Enter commits the focused trigger (native click path)', async () => {
+    const { root, tabs } = manualSetup();
+    tabs[0].focus();
+    await fireEvent.focus(tabs[0]);
+    await fireEvent.keyDown(tabs[0], { key: 'ArrowRight' });
+    // jsdom does not synthesize the browser's Enter→click default on
+    // buttons — represent it the way a real browser would fire it
+    await fireEvent.click(tabs[1]);
+
+    expect(root.getAttribute('data-manual-value')).toBe('beta');
+    expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('inherited RTL (dir on an ancestor) flips the arrow axis', async () => {
+    const rendered = render(TabsHost);
+    const list = rendered.container.querySelector('[data-rtl-list]') as HTMLElement;
+    const tabs = [...list.querySelectorAll('[role="tab"]')] as HTMLElement[];
+
+    tabs[0].focus();
+    await fireEvent.focus(tabs[0]);
+    // RTL: ArrowLEFT walks forward
+    await fireEvent.keyDown(tabs[0], { key: 'ArrowLeft' });
+    expect(document.activeElement).toBe(tabs[1]);
+    expect(tabs[1].getAttribute('aria-selected')).toBe('true');
   });
 });

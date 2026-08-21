@@ -23,6 +23,11 @@
   export interface TabsApi {
     readonly uid: string;
     readonly selected: string;
+    /** the tab stop: last-focused trigger, falling back to the selected
+     *  one — manual activation keeps roving tabindex on the FOCUSED
+     *  trigger, not the selected one (APG contract) */
+    readonly tabStop: string;
+    setTabStop(value: string): void;
     select(value: string): void;
     /** 'automatic': arrows select as they focus · 'manual': Enter/Space */
     readonly activation: 'automatic' | 'manual';
@@ -60,11 +65,22 @@
     children,
   }: Props = $props();
 
+  // '' = "nothing focused yet" → the selected trigger is the tab stop
+  let focused = $state('');
+
   setContext<TabsApi>(TABS_KEY, {
     uid: autoId,
-    activation,
+    get activation() {
+      return activation;
+    },
     get selected() {
       return value;
+    },
+    get tabStop() {
+      return focused || value;
+    },
+    setTabStop(next: string) {
+      focused = next;
     },
     select(next: string) {
       if (next === value) return;

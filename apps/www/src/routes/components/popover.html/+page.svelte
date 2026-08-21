@@ -37,14 +37,21 @@ ${close}
 </Popover>`;
 
   // ---- component canvas (audit P1-A2): LIVE trigger + label playground --
-  let canvasTriggerLabel = $state('Actions');
-  let canvasChoice = $state<string | null>(null);
+  const canvasInitial = { triggerLabel: 'Actions', choice: null as string | null };
+  let canvasTriggerLabel = $state(canvasInitial.triggerLabel);
+  let canvasChoice = $state<string | null>(canvasInitial.choice);
 
-  const canvasUsage = `<script lang="ts">
+  function resetPopoverCanvas(): void {
+    canvasTriggerLabel = canvasInitial.triggerLabel;
+    canvasChoice = canvasInitial.choice;
+  }
+
+  // live usage code tracks the current triggerLabel
+  const canvasUsageLive = $derived(`<script lang="ts">
   import Popover from '@ui/popover.svelte';
 ${close}
 
-let triggerLabel = $state('Actions');
+let triggerLabel = $state('${canvasTriggerLabel}');
 ${close}
 
 <!-- rows repeat popovertarget to close on select — still zero JS -->
@@ -53,11 +60,14 @@ ${close}
     <button type="button" class="pop-row" popovertarget="actions">Rename…</button>
     <button type="button" class="pop-row" popovertarget="actions">Archive</button>
   </div>
-</Popover>`;
+</Popover>`);
+
+  const resolveCanvasUsage = (file: TreeFile): string =>
+    file.name.endsWith('usage.svelte') ? canvasUsageLive : file.content;
 
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/popover.svelte', content: popoverSource },
-    { name: 'src/lib/ui/popover-usage.svelte', content: canvasUsage },
+    { name: 'src/lib/ui/popover-usage.svelte', content: canvasUsageLive },
   ];
 </script>
 
@@ -95,6 +105,12 @@ ${close}
       description="popover=&quot;auto&quot; + popovertarget: light dismiss, Escape, aria-expanded, and top-layer rendering are the browser's — the panel anchors to the trigger through CSS Anchor Positioning. Relabel the trigger from the Playground."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/popover.svelte"
       files={canvasFiles}
+      onreset={resetPopoverCanvas}
+      echo={[
+        { label: 'trigger', value: canvasTriggerLabel || '—' },
+        { label: 'last action', value: canvasChoice ?? '—' },
+      ]}
+      resolveFileContent={resolveCanvasUsage}
     >
       <div class="flex flex-col items-center gap-4">
         <!-- the panel lives in the stage; the top layer lifts it on open -->
@@ -108,18 +124,18 @@ ${close}
               onclick={() => (canvasChoice = 'deleted')}>Delete</button>
           </div>
         </Popover>
-        <span class="text-muted-foreground text-[12.5px]">
-          trigger: <code class="text-accent">{canvasTriggerLabel || '—'}</code> · last action:{' '}
-          <code class="text-accent">{canvasChoice ?? '—'}</code>
-        </span>
       </div>
       {#snippet playground()}
-        <Input label="triggerLabel" placeholder="Actions" bind:value={canvasTriggerLabel} />
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          the playground edits the <code class="text-accent">triggerLabel</code> prop live — open
-          the panel and click outside, press Escape, or pick a row: three native exits, zero JS
-          on the close path.
-        </p>
+        <div class="jx-play-fields">
+          <div class="jx-play-field">
+            <Input label="triggerLabel" placeholder="Actions" bind:value={canvasTriggerLabel} />
+          </div>
+          <p class="jx-play-help">
+            the playground edits the <code class="text-accent">triggerLabel</code> prop live — open
+            the panel and click outside, press Escape, or pick a row: three native exits, zero JS
+            on the close path.
+          </p>
+        </div>
       {/snippet}
     </ComponentCanvas>
   </div>

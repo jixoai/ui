@@ -3,11 +3,11 @@
   The inline status chip of the site grammar: Share Tech Mono uppercase
   micro-label, 1px border, radius 0 — the eyebrow's inline cousin.
 
-  Tones stay inside the one-brand-hue law (no rainbow semantics):
-    default     muted block + border        — neutral counts/status
-    primary     solid brand block           — the loud one
-    outline     border + foreground text    — quiet, on any surface
-    destructive solid destructive block     — error/loss only
+  Tone vocabulary law (shared with alert): semantic tones are exactly
+  default / primary / destructive — no near-synonyms. `outline` is NOT a
+  semantic tone but a fill variant of default (transparent ground, for
+  chips sitting on tinted surfaces); it says nothing different, it just
+  draws less.
 
   A plain <span> so it composes anywhere (inside headings, table cells,
   terminal cards); restProps flow through — data-*, title, aria-* land
