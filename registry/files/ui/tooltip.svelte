@@ -15,35 +15,37 @@
                      readers never wait for hover timers
     focusout    → close NOW
     Escape      → close NOW (manual popovers skip the native Esc path)
-    toggle      → the pin aims once, at open (see Arrow law)
+    toggle      → the notch mask is authored once, at open (Arrow law)
 
   a11y: the wrapper carries aria-describedby → the panel id permanently;
   hidden popover content is display:none, so assistive tech only reads
   the tip while it is actually shown. Non-interactive by contract — put
   actionable content in a popover, not a tooltip.
 
-  Arrow law (2026-08-22, seamless-notch revision after visual review):
-  `arrow` opts into a pointer notch — an inline-SVG triangle fused to the
-  panel edge: one path paints the 1px border ring as an evenodd HOLE
-  (outer triangle minus inner), the second paints the inner fill THROUGH
-  that hole, so even translucent (acrylic) fills composite over the page
-  exactly like the panel's own edge — no dark under-layer, no splicing,
-  no detached diamond, and the base covers the panel border line across
-  the notch width (XboxYan's seamless-bubble recipe, SVG form). Aimed at
-  the anchor point the placement names ('top' → the anchor's top-center,
-  'top-end' → its top-end corner; clamped inward at the panel's corners);
-  the base rides the panel edge nearest the anchor, whichever side the
-  engine's flip fallbacks chose (aimPin writes left px + data-side at
-  open; data-side=top flips the SVG with scaleY(-1)). The arrowed block
-  gap widens to house the notch, and hovering it still bridges the gap.
+  Arrow law (2026-08-23, mask-cut revision, Owner-directed — XboxYan's
+  seamless-bubble recipe, mask form): `arrow` opts into a notch that is
+  CUT FROM THE BUBBLE ITSELF, never appended. The body reserves a
+  --jx-tip-notch strip of padding on BOTH block sides (layout-stable
+  across flips), and its mask digs away everything in that strip EXCEPT
+  the tab pointing at the anchor — one SVG path outlines bubble+tab, so
+  fill, acrylic blur and silhouette are the SAME paint by construction.
+  The path is authored per open by aimPin() (all px, any side, any aim
+  x): the tab points at the anchor point the placement names ('top' →
+  the anchor's top-center, 'top-end' → its top-end corner; clamped
+  inward at the bubble's corners). The 1px border can't ride `border`
+  on a masked silhouette: the platform element opts into the
+  jx-surface border-ring layer ([data-border-ring] — the ring is the
+  silhouette minus its 1px-inset copy, mask-composite: subtract; see
+  jixoai.css). Side/aim cover all 6 placements (and generalize to any
+  side), matching the 8-direction space the recipe allows.
 
   Chromium constraint (151, empirically pinned 2026-08-22): anchor()
   inside a popover is not shippable — declarations carried by the style
   attribute or a stylesheet never resolve for an element first computed
   while the popover is closed, and even CSSOM-armed declarations
-  mis-resolve to the spec's 50% unresolvable fallback. The pin therefore
-  aims from a rect read in the popover's toggle handler, which is exactly
-  as dynamic as the panel's own flip law (popover.svelte: position-try
+  mis-resolve to the spec's 50% unresolvable fallback. aimPin() reads
+  rects in the popover's toggle handler instead, which is exactly as
+  dynamic as the panel's own flip law (popover.svelte: position-try
   settles ONCE, at open, never re-evaluated) — a once-at-open aim is
   correct by the system's contract. The panel itself uses no anchor()
   function (position-anchor + inset-area inline) and stays zero-JS.
@@ -64,11 +66,10 @@
     text: string;
     /** anchored side; 'top' (default) is the tooltip convention */
     placement?: 'top' | 'bottom' | 'top-start' | 'bottom-start' | 'top-end' | 'bottom-end';
-    /** opt-in pointer notch: a fill triangle fused to the panel edge,
+    /** opt-in pointer notch: a tab CUT FROM the bubble through its mask,
         aimed at the anchor point the placement names ('top' →
-        top-center, 'top-end' → the top-end corner); follows flip
-        fallbacks (re-aimed at every open, mirroring the once-at-open
-        flip law) */
+        top-center, 'top-end' → the top-end corner); re-authored at every
+        open, mirroring the once-at-open flip law */
     arrow?: boolean;
     /** hover-intent open delay (ms); focus opens immediately regardless */
     openDelay?: number;
@@ -109,7 +110,7 @@
     : placement === 'bottom-start' ? 'bottom span-left'
     : 'bottom span-right'
   );
-  // the anchor point the pin aims at: center placements → the side
+  // the anchor point the tab aims at: center placements → the side
   // midpoint, -start/-end → the matching corner (physical left/right,
   // mirroring the physical span-left/span-right choice in `area`)
   const aimSide = $derived(
@@ -120,32 +121,60 @@
 
   let panel = $state<HTMLElement | null>(null);
   let anchorEl = $state<HTMLElement | null>(null);
-  let pin = $state<SVGSVGElement | null>(null);
+  let body = $state<HTMLElement | null>(null);
   let openTimer: ReturnType<typeof setTimeout> | undefined;
   let closeTimer: ReturnType<typeof setTimeout> | undefined;
 
-  // notch geometry — keep ARROW in sync with --jx-tip-arrow in the styles
-  // (triangle base width); the x clamp keeps the base clear of the panel
-  // corners: half base + 2px air
-  const ARROW = 12;
-  const EDGE = ARROW / 2 + 2;
+  // notch geometry (px) — keep NOTCH in sync with --jx-tip-notch in the
+  // styles. BASE is the tab's width at the bubble edge; the x clamp
+  // keeps the tab clear of the bubble's corners.
+  const BASE = 12;
+  const NOTCH = 8;
+  const EDGE = BASE / 2 + 2;
 
-  // Aim the notch once, at open — the same moment position-try settles
-  // the panel's own flip (see Chromium constraint in the header). Plain
-  // px/decorative attributes only; no anchor() anywhere. left = the aim
-  // point on the anchor; data-side = the panel edge that ended up
-  // nearest the anchor (the stylesheet flips the triangle on it).
+  const n = (v: number): number => Math.round(v * 100) / 100;
+
+  /** outline of bubble + tab, comma path syntax (no spaces — the URI
+      stays unencoded-safe). side = which bubble edge carries the tab;
+      x = the tab apex's aim point in body-box px */
+  const shapePath = (w: number, h: number, x: number, side: 'top' | 'bottom'): string => {
+    const b = BASE / 2;
+    return side === 'bottom'
+      ? `M0,${n(NOTCH)}H${n(w)}V${n(h - NOTCH)}H${n(x + b)}L${n(x)},${n(h)}L${n(x - b)},${n(h - NOTCH)}H0Z`
+      : `M0,${n(h - NOTCH)}H${n(w)}V${n(NOTCH)}H${n(x + b)}L${n(x)},0L${n(x - b)},${n(NOTCH)}H0Z`;
+  };
+  /** the same silhouette inset by 1px (the ring's inner edge) */
+  const ringInnerPath = (w: number, h: number, x: number, side: 'top' | 'bottom'): string => {
+    const b = BASE / 2 - 1;
+    return side === 'bottom'
+      ? `M1,${n(NOTCH + 1)}H${n(w - 1)}V${n(h - NOTCH - 1)}H${n(x + b)}L${n(x)},${n(h - 1)}L${n(x - b)},${n(h - NOTCH - 1)}H1Z`
+      : `M1,${n(h - NOTCH - 1)}H${n(w - 1)}V${n(NOTCH + 1)}H${n(x + b)}L${n(x)},1L${n(x - b)},${n(NOTCH + 1)}H1Z`;
+  };
+  const svgUrl = (w: number, h: number, d: string): string =>
+    `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${n(w)} ${n(h)}' preserveAspectRatio='none'><path d='${d}' fill='black'/></svg>")`.replaceAll(' ', '%20');
+
+  // Author the notch mask once, at open — the same moment position-try
+  // settles the panel's own flip (see Chromium constraint in the
+  // header). Everything is plain px/data-URIs on custom properties; no
+  // anchor() anywhere. Sets, on the panel: --jx-tip-shape (the body's
+  // silhouette mask) and the --jx-surface-ring pair (the border ring's
+  // subtract layers).
   function aimPin(): void {
-    if (!panel || !pin || !anchorEl) return;
-    const p = panel.getBoundingClientRect();
+    if (!panel || !body || !anchorEl) return;
+    const r = body.getBoundingClientRect();
     const a = anchorEl.getBoundingClientRect();
-    const w = p.width - 2; // pin insets resolve in the padding box (1px border)
+    const w = r.width;
     const target =
       aimSide === 'left' ? a.left : aimSide === 'right' ? a.right : (a.left + a.right) / 2;
-    const x = Math.min(Math.max(target - p.left - 1, EDGE), Math.max(w - EDGE, EDGE));
-    const panelAbove = p.top + p.bottom < a.top + a.bottom;
-    pin.style.left = `${x}px`;
-    pin.dataset.side = panelAbove ? 'bottom' : 'top';
+    const x = Math.min(Math.max(target - r.left, EDGE), Math.max(w - EDGE, EDGE));
+    const side: 'top' | 'bottom' = r.top + r.bottom < a.top + a.bottom ? 'bottom' : 'top';
+    panel.style.setProperty('--jx-tip-shape', svgUrl(w, r.height, shapePath(w, r.height, x, side)));
+    panel.style.setProperty('--jx-surface-ring', svgUrl(w, r.height, shapePath(w, r.height, x, side)));
+    panel.style.setProperty(
+      '--jx-surface-ring-inner',
+      svgUrl(w, r.height, ringInnerPath(w, r.height, x, side)),
+    );
+    panel.dataset.side = side;
   }
 
   const popoverApi = (
@@ -209,25 +238,17 @@
   class="jx-tip jx-surface"
   data-variant={variant}
   data-arrow={arrow ? '' : undefined}
+  data-border-ring={arrow ? '' : undefined}
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
   ontoggle={(e) => e.newState === 'open' && aimPin()}
   onpointerenter={() => clearTimeout(closeTimer)}
   onpointerleave={onLeave}
 >
-  {#if arrow}
-    <!-- seamless notch: the ring path's evenodd HOLE lets the translucent
-         fill composite over the page (a dark under-layer would darken it
-         one tone below the panel); data-side=top flips the whole SVG -->
-    <svg class="jx-tip-arrow" viewBox="0 0 12 8" bind:this={pin} aria-hidden="true">
-      <path class="jx-tip-arrow-ring" d="M0 0H12L6 8ZM1.2 0H10.8L6 6.7Z" fill-rule="evenodd" />
-      <path class="jx-tip-arrow-fill" d="M1.2 0H10.8L6 6.7Z" />
-    </svg>
-  {/if}
-  <!-- surface body (fill + acrylic blur); the popover element paints
-       nothing (floating-surface law arch r3). The notch stays OUTSIDE
-       the body — it hugs the panel's border line -->
-  <span class="jx-tip-body jx-surface-body">{text}</span>
+  <!-- surface body (fill + acrylic blur + silhouette mask); the popover
+       element paints nothing (floating-surface law arch r3) and carries
+       the border-ring ::before for the masked outline -->
+  <span class="jx-tip-body jx-surface-body" bind:this={body}>{text}</span>
 </div>
 
 <style>
@@ -265,67 +286,49 @@
       align-self: center;
       justify-self: center;
     }
-    /* the notch's aim is anchor-driven — meaningless at viewport-center */
-    .jx-tip-arrow {
-      display: none;
+    /* the notch mask is anchor-driven — meaningless at viewport-center;
+       without aimPin the body degrades to a plain (slightly airier)
+       bordered bubble, never worse */
+    .jx-tip[data-arrow] .jx-tip-body {
+      padding-block: 5px;
     }
   }
   .jx-tip::backdrop {
     background: transparent;
   }
-  /* the shadow layer is OFF entirely (content: none) — the tip's law
-     is shadowless in every variant (arch r3: the guard targets the
-     BODY's ::after; the platform element has none) */
+  /* the shadow layer is OFF entirely (content: none) — the tip's law is
+     shadowless in every variant. Without this the law's ::after veil
+     (0.32 black, brightness-filtered, full rect UNDER the body) would
+     bleed through the masked-away notch flanks and paint them black */
+  .jx-tip.jx-surface::after {
+    content: none;
+  }
   .jx-tip-body::after {
     content: none;
   }
 
-  /* Pointer notch (seamless-bubble law): inline SVG, two paths — the
-     ring (fill: border) is an evenodd HOLE so the fill path composites
-     over the page, never over a dark under-layer; translucent (acrylic)
-     fills then match the panel's edge exactly. Base flush on the panel's
-     border line (top: 100% of the padding box) covers the line across
-     the notch width — bubble and notch read as one shape. aimPin() (rect
-     read at open, the Chromium-safe pivot — see header) supplies left =
-     the anchor point the placement names (clamped clear of the corners)
-     and data-side = the panel edge nearest the anchor (top flips via
-     scale). The arrowed block gap widens to house the notch (height +
-     3px air); inline gaps keep the 6px law. ARROW in the script and
-     --jx-tip-arrow are the same 12px base by contract (viewBox 0 0 12 8
-     scales with the CSS box). */
+  /* Notch cut (mask form, Owner-directed 2026-08-23): the body reserves
+     a NOTCH strip of padding on BOTH block sides (layout-stable across
+     flips — the visual bubble keeps its 5px inner padding on both
+     sides), drops its own border (the platform ::before ring owns the
+     outline on a masked silhouette), and masks to bubble+tab — the
+     strip is dug away on both flanks of the tab (XboxYan's recipe).
+     aimPin() authors --jx-tip-shape at open (rect read, the
+     Chromium-safe pivot — see header): fill, blur and silhouette stay
+     ONE paint, seamless by construction. NOTCH here and in the script
+     are the same 8px by contract; the block gap keeps the 6px law (the
+     tab lives INSIDE the reserved strip, no overhang). */
   .jx-tip[data-arrow] {
-    --jx-tip-arrow: 12px;
-    margin-block: calc(var(--jx-tip-arrow) * 0.6667 + 3px);
+    --jx-tip-notch: 8px;
   }
-  .jx-tip-arrow {
-    position: absolute;
-    top: 100%;
-    translate: -50% 0;
-    display: block;
-    width: var(--jx-tip-arrow);
-    height: calc(var(--jx-tip-arrow) * 0.6667);
-  }
-  .jx-tip-arrow[data-side='top'] {
-    top: auto;
-    bottom: 100%;
-    scale: 1 -1;
-  }
-  .jx-tip-arrow-ring {
-    fill: var(--border);
-  }
-  .jx-tip-arrow-fill {
-    fill: var(--popover);
-  }
-  /* variant fills follow the panel; no backdrop-filter on the notch — a
-     filtered parent is a backdrop root, so a child filter would sample the
-     panel behind it, not the page (and notch-scale blur is imperceptible) */
-  .jx-tip[data-variant='acrylic'] .jx-tip-arrow-fill,
-  .jx-tip[data-variant='auto'] .jx-tip-arrow-fill {
-    fill: var(--jx-surface-acrylic-fill, color-mix(in oklab, var(--popover) 72%, transparent));
-  }
-  @media (prefers-reduced-transparency: reduce) {
-    .jx-tip[data-variant='auto'] .jx-tip-arrow-fill {
-      fill: var(--jx-surface-solid-fill, var(--popover));
-    }
+  .jx-tip[data-arrow] .jx-tip-body {
+    border: none;
+    padding-block: calc(5px + var(--jx-tip-notch) + 1px);
+    -webkit-mask-image: var(--jx-tip-shape, none);
+    -webkit-mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-image: var(--jx-tip-shape, none);
+    mask-size: 100% 100%;
+    mask-repeat: no-repeat;
   }
 </style>

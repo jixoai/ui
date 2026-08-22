@@ -212,6 +212,9 @@
      .jx-surface-body   THE SURFACE: the variant fill, the 1px border,
                         and the acrylic backdrop-filter (blur only).
                         It never scrolls or clips.
+     ::before ring      opt-in ([data-border-ring]): the 1px outline for
+                        MASKED bodies (irregular silhouettes) — two
+                        silhouette masks subtracted into a ring.
      scroll ring        wherever content can overflow, a third element
                         inside the body owns overflow + padding.
 
@@ -316,6 +319,31 @@ html:not(.js) .jx-surface.jx-waapi:popover-open {
    components): overflow + padding + scrollbar gutter live here */
 .jx-surface-scroll {
   scrollbar-gutter: stable both-edges;
+}
+
+/* THE BORDER RING — for MASKED surfaces (2026-08-23): an irregular
+   silhouette (the tooltip notch, cut through the body's mask) can't use
+   `border`, and can't use filter: drop-shadow (the surface has a fill);
+   this layer paints the 1px outline instead. Opt in with
+   [data-border-ring] on the platform element and set
+   --jx-surface-ring (the outer silhouette) plus --jx-surface-ring-inner
+   (the same silhouette inset by 1px) as mask images — mask-composite
+   subtracts the inner from the outer, leaving exactly the ring.
+   Regular surfaces never opt in: zero paint, zero cost. */
+.jx-surface[data-border-ring]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1; /* above the surface body's fill */
+  pointer-events: none;
+  background: var(--jx-surface-border-color, var(--border));
+  -webkit-mask-image: var(--jx-surface-ring, none), var(--jx-surface-ring-inner, none);
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: var(--jx-surface-ring, none), var(--jx-surface-ring-inner, none);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  mask-composite: subtract;
 }
 
 /* THE SHADOW LAYER — static paint for BOTH renderings (the ::after
