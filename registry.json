@@ -1129,6 +1129,84 @@
         }
       ],
       "docs": "Props: status? ('success'|'error'|'warning'|'info'), title (required), description?, icon? (snippet), actions? (snippet). The icon slot is decorative by contract (aria-hidden)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "transfer",
+      "type": "registry:ui",
+      "title": "Transfer",
+      "description": "The two-panel selector: each side is a real fieldset of real checkboxes (native multi-select semantics), the middle buttons batch-move every checked row, and per-panel search filters by label. value ($bindable) is the TARGET list — moving never mutates options; selection is transient and clears after each move; disabled rows render but never move.",
+      "files": [
+        {
+          "path": "registry/files/ui/transfer.svelte",
+          "target": "@ui/transfer.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: options ({value,label,disabled?}[]), value ($bindable string[]), sourceTitle/targetTitle?, searchPlaceholder?, onchange?."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "cascader",
+      "type": "registry:ui",
+      "title": "Cascader",
+      "description": "The cascade selector, chain-of-selects route (the ruled default): N plain <select> elements, each listing the children of the previous pick — native option semantics, native keyboard, native mobile pickers, zero panels. The joined PATH submits through the jx-form-field bridge (separator '/', default); a partial path submits '' (the input-otp law). The antd multi-column search panel is the documented upgrade route.",
+      "files": [
+        {
+          "path": "registry/files/ui/cascader.svelte",
+          "target": "@ui/cascader.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: options (CascaderOption tree), name?, value ($bindable string[]), separator?, disabled?, label?, placeholder?.",
+      "registryDependencies": [
+        "@jixoai/form-field"
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "image",
+      "type": "registry:ui",
+      "title": "Image",
+      "description": "The general-purpose picture on avatar's proven laws: native <img>, lazy, async-decoded, REQUIRED intrinsic width/height (the no-CLS contract), alt semantics (text by default, '' opts decorative), and a failure fallback with src-change reset + composed onerror. Lightbox/preview is deliberately a dialog recipe, not built in.",
+      "files": [
+        {
+          "path": "registry/files/ui/image.svelte",
+          "target": "@ui/image.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: alt (required), width/height (required intrinsic), fallback? (snippet), plus <img> passthrough."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "float-button",
+      "type": "registry:ui",
+      "title": "Float button",
+      "description": "The floating action button: a fixed corner button in two idioms — plain (a lone action, e.g. back-to-top) and menu (children + actions snippet: the button toggles a popover=auto stack above it, native light dismiss). Corner is a prop, not a wrapper — the consumer's layout is never touched. Press-button physics at a fixed size.",
+      "files": [
+        {
+          "path": "registry/files/ui/float-button.svelte",
+          "target": "@ui/float-button.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: label (required — icon-only buttons must say themselves), corner? ('bottom-right' default), onclick? (plain), actions? (snippet, menu idiom), children (icon/glyph)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "badge-indicator",
+      "type": "registry:ui",
+      "title": "Badge indicator",
+      "description": "antd Badge's live half — the count/dot overlay riding a corner of its child (avatar, icon, tab): dot is presence without a number; count caps at overflow (99+ default); count=0 hides honestly (zero unread IS no badge) unless showZero. Standalone (no children) renders an inline chip.",
+      "files": [
+        {
+          "path": "registry/files/ui/badge-indicator.svelte",
+          "target": "@ui/badge-indicator.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: dot?, count?, overflow? (99), showZero?, label? (required name in dot mode), children? (the host element)."
     }
   ]
 }

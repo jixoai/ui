@@ -119,6 +119,73 @@ ${'</' + 'script'}
 
   <div data-reveal="" use:reveal>
     <SectionCard
+      headerRegion="recipe-watermark"
+      eyebrow="antd 映射 · recipe"
+      title="watermark — the pointer-events:none overlay"
+      summary="The anti-exfiltration overlay as a CSS recipe: a repeated rotated-text SVG data-URI tile (encodeURIComponent — zero libraries, no canvas) on an absolutely-positioned layer with pointer-events:none. The watermark deters and marks provenance — it is not DRM (a DOM layer is removable by a determined user)."
+    >
+      <CodeBlock
+        code={`<div class="watermarked">
+  …content…
+  <div class="wm-layer" aria-hidden="true"></div>
+</div>
+<style>
+  .watermarked { position: relative; }
+  .wm-layer {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    color: var(--foreground); opacity: 0.12;
+    background-repeat: repeat; background-size: 120px;
+    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='86'><text x='50%' y='50%' fill='currentColor' font-size='13' font-family='monospace' text-anchor='middle' transform='rotate(-22 60 43)'>jixoai</text></svg>");
+  }
+</style>`}
+        lang="svelte"
+        meta="watermark"
+      />
+    </SectionCard>
+  </div>
+
+  <div data-reveal="" use:reveal>
+    <SectionCard
+      headerRegion="recipe-image-preview"
+      eyebrow="antd 映射 · recipe"
+      title="image preview — dialog, not a lightbox framework"
+      summary="The ruling: zoom/preview is a dialog composition, not a component feature. The recipe: a thumbnail button opens a dialog holding the same src at full width; no galleries, thumbnail navigation, or gesture zoom in v1."
+    >
+      <CodeBlock
+        code={`<button type="button" onclick={() => (open = true)} aria-label="enlarge image">
+  <Image src={src} {alt} width={320} height={180} />
+</button>
+<Dialog bind:open title={alt}>
+  <img {src} {alt} style="width: 100%; height: auto" />
+</Dialog>`}
+        lang="svelte"
+        meta="image-preview"
+      />
+    </SectionCard>
+  </div>
+
+  <div data-reveal="" use:reveal>
+    <SectionCard
+      headerRegion="recipe-flexgrid"
+      eyebrow="antd 映射 · recipe"
+      title="flex / grid — Tailwind is the API"
+      summary="antd's Row/Col/Flex map to native CSS through Tailwind — no component, no props taxonomy. gutter→gap, span/offset→grid fractions, justify/align→the utilities of the same names; responsive via sm:/lg: instead of xs/md props."
+    >
+      <CodeBlock
+        code={`<!-- antd: <Row gutter={16}><Col span={8}>…</Col></Row> -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">…</div>
+
+<!-- antd: <Flex justify="space-between" align="center">…</Flex> -->
+<div class="flex items-center justify-between">…</div>`}
+        lang="svelte"
+        meta="flex / grid"
+      />
+    </SectionCard>
+  </div>
+
+  <div data-reveal="" use:reveal>
+    <SectionCard
       headerRegion="recipe-list"
       eyebrow="antd 映射 · recipe"
       title="list — ul/ol + the state atoms"

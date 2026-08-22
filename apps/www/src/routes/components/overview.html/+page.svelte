@@ -7,7 +7,7 @@
 
   // Pure index page (2026-08-20): every demo moved to its own
   // /components/<name>.html route; this page is only the catalog.
-  // 50 documented components (form merges input/select/textarea into one
+  // 55 documented components (form merges input/select/textarea into one
   // route) + 3 framework-free libs (reveal, toc-engine, highlight).
   interface IndexEntry {
     /** Display title = the component page's subject. */
@@ -186,6 +186,14 @@
           'descriptions',
           'The enterprise detail view as a real dl — dt/dd pairs in a grid; bordered is CSS, never a table in disguise.',
         ),
+        entry(
+          'image',
+          'The no-CLS native picture: required intrinsic dimensions, lazy decode, alt semantics, failure fallback. Lightbox is a dialog recipe.',
+        ),
+        entry(
+          'badge-indicator',
+          "antd Badge's live half: the count/dot overlay riding a corner — zero hides honestly, 99+ caps the count.",
+        ),
       ],
     },
     {
@@ -245,6 +253,18 @@
           "The LIGHT confirm bubble: light dismiss IS the cancel path, focus lands on Cancel — not an alertdialog by ruling.",
         ),
         entry(
+          'transfer',
+          'Two fieldsets of real checkboxes and a batch mover — value is the target list, selection is transient.',
+        ),
+        entry(
+          'cascader',
+          'A chain of native selects, each listing the children of the previous pick — the joined path submits via the bridge.',
+        ),
+        entry(
+          'float-button',
+          'The fixed corner action — plain or menu idiom, corner as a prop, layout untouched.',
+        ),
+        entry(
           'steps',
           'The wizard ol: completed steps are links back, current is aria-current=step, future stays inert.',
         ),
@@ -287,7 +307,7 @@
   <title>Components · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai-ui component index: 50 documented components across Layout, Overlay, Form, Display, Interactive, and Shell — every one a registry item installable with npx jixoai-ui add."
+    content="The jixoai-ui component index: 55 documented components across Layout, Overlay, Form, Display, Interactive, and Shell — every one a registry item installable with npx jixoai-ui add."
   />
 </svelte:head>
 
@@ -302,7 +322,7 @@
       summary="The jixoai design language component library — every item is a registry item installable via npx jixoai-ui add."
     >
       <div class="flex flex-wrap gap-3">
-        <span class="pill">50 components</span>
+        <span class="pill">55 components</span>
         <span class="pill">3 libs</span>
       </div>
     </SectionCard>
