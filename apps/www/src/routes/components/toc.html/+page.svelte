@@ -154,6 +154,16 @@ ${close}
           </p>
         </section>
       </article>
+      {#snippet playground()}
+        <div class="jx-play-fields">
+          <p class="jx-play-help">
+            the rail has no controls to wire — it reads the page. Desktop: the spine fills nodes by
+            IoM weight and bolds the line pick; below 900px it becomes the glass single-row bar
+            pinned under the header (expand it for the full list). Click any entry: the anchor
+            lands the heading exactly on the pick line.
+          </p>
+        </div>
+      {/snippet}
     </ComponentCanvas>
   </div>
   </div>

@@ -120,6 +120,16 @@ ${close}
               </p>
             {/each}
           </section>
+          {#snippet playground()}
+            <div class="jx-play-fields">
+              <p class="jx-play-help">
+                the anchor is read-only — no controls to wire. Scroll and watch the in-workbench
+                rail mark the section crossing the viewport-top line; the page ToC on the right
+                tracks the same fragments with the full engine. <code class="text-accent">offset</code>
+                (default 96px) moves the pick line below sticky headers.
+              </p>
+            </div>
+          {/snippet}
         </ComponentCanvas>
       </div>
       <aside class="jx-anchor-demo-aside">

@@ -152,9 +152,12 @@ function nodeToSatori(node) {
           fontFamily: FAMILY[node.f],
           fontSize: px(node.s),
           fontWeight: quantizeWeight(node.w8, node.f),
-          lineHeight: px(node.h),
           whiteSpace: 'pre',
-          letterSpacing: node.sp ? px(node.sp) : undefined,
+          // string px REQUIRED: satori reads NUMERIC lineHeight/
+          // letterSpacing as CSS unitless multipliers (13 ⇒ 13× the
+          // font size), hurling glyphs off-canvas
+          lineHeight: `${node.h}px`,
+          letterSpacing: node.sp ? `${node.sp}px` : undefined,
         }),
         children: node.t,
       },
