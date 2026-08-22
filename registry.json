@@ -1194,7 +1194,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: label (required — icon-only buttons must say themselves), corner? ('bottom-right' default), onclick? (plain), actions? (snippet, menu idiom), children (icon/glyph)."
+      "docs": "Props: label (required — icon-only buttons must say themselves), corner? ('bottom-right' default), onclick? (plain), actions? (snippet, menu idiom), children (icon/glyph). Menu idiom: the actions snippet must bring real buttons/links carrying role=menuitem (the walk contract is theirs)."
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",

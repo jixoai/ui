@@ -101,6 +101,7 @@
     height: auto;
   }
   .jx-image-broken {
+    box-sizing: border-box; /* padding must live INSIDE the intrinsic dims */
     display: inline-flex;
     align-items: center;
     justify-content: center;
