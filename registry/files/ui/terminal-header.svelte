@@ -86,6 +86,10 @@
     href: string;
     active?: boolean;
     external?: boolean;
+    /** Panel header action: rendered at the panel head's inline-end
+        (e.g. 'all →' linking the section index, 2026-08-23). Mobile
+        already renders the parent row's adjacent all-link itself. */
+    panelAction?: { href: string; label: string; active?: boolean };
     /** Second level: SubItem[] renders one unnamed group (a narrow
         dropdown); TerminalNavGroup[] renders a grouped multi-column
         panel when there are two or more groups. */
@@ -436,6 +440,21 @@
                   onmouseenter={() => cancelClose()}
                   onmouseleave={() => scheduleClose(item.href)}
                 >
+                  {#if item.panelAction}
+                    <!-- the panel head: item label inline-start, the
+                         section-index action inline-end (2026-08-23) -->
+                    <div class="jx-subpanel-head">
+                      <span class="jx-subpanel-title">{item.label}</span>
+                      <a
+                        href={item.panelAction.href}
+                        aria-current={item.panelAction.active ? 'page' : undefined}
+                        class="jx-subpanel-action"
+                      >
+                        {item.panelAction.label}
+                        <span class="jx-ext" aria-hidden="true">{@html icons.arrowRight}</span>
+                      </a>
+                    </div>
+                  {/if}
                   <div class="jx-subclip">
                     <div
                       class="jx-subgroups"
@@ -716,7 +735,7 @@
        here would lose acrylic (Codex r1) */
     --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
     --jx-surface-solid-fill: var(--terminal);
-    border-color: color-mix(in oklab, var(--terminal-foreground) 25%, transparent);
+    --jx-surface-border-color: color-mix(in oklab, var(--terminal-foreground) 25%, transparent);
     transition:
       opacity 200ms cubic-bezier(0.22, 1, 0.36, 1),
       translate 200ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -762,6 +781,41 @@
   }
   .jx-nav :global(.jx-pop.jx-subpanel.jx-nav-cols-4) {
     width: min(90vw, calc(4 * 14rem + 2rem));
+  }
+
+  /* the panel head: hairline-ruled, label inline-start / action
+     inline-end (2026-08-23) — nav link laws: color transitions only */
+  .jx-nav .jx-subpanel-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    /* no border-bottom: the groups grid's own hairline rules the seam —
+       a head border would double it (the -1px shave overlaps by 1px) */
+    padding: 0.5rem 0.875rem 0.375rem;
+    font-family: var(--font-nav);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+  }
+  /* the -1px top shave predates the head — with one present it pokes
+     the grid 1px up under the head's padding; drop the top shave only */
+  .jx-nav .jx-subcorridor:has(> .jx-subpanel-head) .jx-subgroups {
+    margin-top: 0;
+  }
+  .jx-nav .jx-subpanel-title {
+    color: color-mix(in oklab, var(--terminal-foreground) 45%, transparent);
+  }
+  .jx-nav .jx-subpanel-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: color-mix(in oklab, var(--terminal-foreground) 70%, transparent);
+    transition: color 150ms;
+  }
+  .jx-nav .jx-subpanel-action:hover,
+  .jx-nav .jx-subpanel-action[aria-current='page'] {
+    color: var(--terminal-foreground);
   }
   /* the hover corridor: an inverted wrapper (no overflow) stretches the
      snippet root across the panel's padding ring, so entering the panel

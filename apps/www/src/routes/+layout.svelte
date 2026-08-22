@@ -170,20 +170,9 @@
       href: '/components.html',
       label: 'Components',
       active: normalized.startsWith('/components'),
+      // the panel head's inline-end action → the section index
+      panelAction: { href: '/components.html', label: 'all', active: normalized === '/components' },
       children: [
-        // the panel's first cell: the entry point to the full index
-        // (2026-08-23, user request) — same source, same lock
-        {
-          label: 'all',
-          items: [
-            {
-              href: '/components.html',
-              label: 'all components',
-              description: `${CATALOG.length} items`,
-              active: normalized === '/components',
-            },
-          ],
-        },
         ...catalogByGroup().map(({ group, entries }) => ({
           label: group.label,
           items: entries.map((entry) => ({
