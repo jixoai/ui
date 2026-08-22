@@ -7,7 +7,9 @@
     "build": "shadcn build",
     "dev": "shadcn build --watch",
     "build:site": "node scripts/build-site.mjs",
-    "build:blueprints": "node scripts/build-blueprints.mjs"
+    "build:blueprints": "node scripts/build-blueprints.mjs",
+    "site": "node scripts/dev-site.mjs",
+    "verify:surface": "node scripts/verify-surface.mjs"
   },
   "devDependencies": {
     "@fontsource/jetbrains-mono": "^5.3.0",

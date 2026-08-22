@@ -6,7 +6,7 @@
   import Popover from '$lib/ui/popover.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import Toc from '$lib/ui/toc.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -41,10 +41,12 @@ ${close}
   const canvasInitial = { triggerLabel: 'Actions', choice: null as string | null };
   let canvasTriggerLabel = $state(canvasInitial.triggerLabel);
   let canvasChoice = $state<string | null>(canvasInitial.choice);
+  let canvasVariant = $state<'solid' | 'acrylic' | 'auto'>('auto');
 
   function resetPopoverCanvas(): void {
     canvasTriggerLabel = canvasInitial.triggerLabel;
     canvasChoice = canvasInitial.choice;
+    canvasVariant = 'auto';
   }
 
   // live usage code tracks the current triggerLabel; q() keeps user input
@@ -58,7 +60,7 @@ let triggerLabel = $state(${q(canvasTriggerLabel)});
 ${close}
 
 <!-- rows repeat popovertarget to close on select — still zero JS -->
-<Popover id="actions" {triggerLabel}>
+<Popover id="actions" {triggerLabel} variant=${q(canvasVariant)}>
   <div class="flex w-52 flex-col">
     <button type="button" class="pop-row" popovertarget="actions">Rename…</button>
     <button type="button" class="pop-row" popovertarget="actions">Archive</button>
@@ -132,7 +134,7 @@ ${close}
     >
       <div class="flex flex-col items-center gap-4">
         <!-- the panel lives in the stage; the top layer lifts it on open -->
-        <Popover id="canvas-pop" triggerLabel={canvasTriggerLabel}>
+        <Popover id="canvas-pop" triggerLabel={canvasTriggerLabel} variant={canvasVariant}>
           <div class="flex w-52 flex-col">
             <button type="button" class="pop-row" popovertarget="canvas-pop"
               onclick={() => (canvasChoice = 'renamed')}>Rename…</button>
@@ -148,10 +150,24 @@ ${close}
           <div class="jx-play-field">
             <Input label="triggerLabel" placeholder="Actions" bind:value={canvasTriggerLabel} />
           </div>
+          <div class="jx-play-field">
+            <fieldset class="jx-play-variant">
+              <legend>variant</legend>
+              <div class="jx-play-variant-row" role="radiogroup" aria-label="variant">
+                {#each ['auto', 'acrylic', 'solid'] as v (v)}
+                  <label>
+                    <input type="radio" name="jx-pop-variant" value={v} bind:group={canvasVariant} />
+                    <span>{v}</span>
+                  </label>
+                {/each}
+              </div>
+            </fieldset>
+          </div>
           <p class="jx-play-help">
-            the playground edits the <code class="text-accent">triggerLabel</code> prop live — open
-            the panel and click outside, press Escape, or pick a row: three native exits, zero JS
-            on the close path.
+            the playground edits the <code class="text-accent">triggerLabel</code> and
+            <code class="text-accent">variant</code> props live — open the panel and click outside,
+            press Escape, or pick a row: three native exits, zero JS on the close path.
+            auto = acrylic unless the environment asks for reduced transparency.
           </p>
         </div>
       {/snippet}
@@ -271,9 +287,11 @@ ${close}
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
               <span>extension: anchored placement next to the trigger — CSS Anchor Positioning (<code class="text-accent">anchor-name</code> + <code class="text-accent">position-anchor</code>/<code class="text-accent">inset-area</code>), a future <code class="text-accent">placement</code> prop</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>extension: <code class="text-accent">popover="manual"</code> variant for toast-like panels that ignore light dismiss</span></li>
+              <span>floating-surface law: the hard offset shadow is a REAL <code class="text-accent">::after</code> layer; <code class="text-accent">@starting-style</code> + <code class="text-accent">allow-discrete</code> run the open/close pull-apart — layers press together, then separate into elevation</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>progressive: open/close transitions via <code class="text-accent">@starting-style</code> + <code class="text-accent">transition-behavior: allow-discrete</code> once the motion law wants them</span></li>
+              <span>surface variants: <code class="text-accent">variant="solid | acrylic | auto"</code> — solid keeps the opaque surface with the original-color translucent shadow (black in light mode, white in dark); acrylic is a dual-layer <code class="text-accent">backdrop-filter</code> (surface blur + shadow-layer brightness); auto picks acrylic unless the environment asks for reduced transparency</span></li>
+            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <span>extension: <code class="text-accent">popover="manual"</code> variant for toast-like panels that ignore light dismiss</span></li>
           </ul>
         </div>
       </div>
@@ -305,5 +323,51 @@ ${close}
   .pop-row-destructive:hover {
     color: var(--destructive-foreground);
     background: var(--destructive);
+  }
+  .jx-play-variant {
+    margin: 0;
+    border: none;
+    padding: 0;
+  }
+  .jx-play-variant legend {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    margin-bottom: 6px;
+  }
+  .jx-play-variant-row {
+    display: inline-flex;
+    border: 1px solid var(--border);
+  }
+  .jx-play-variant-row label {
+    position: relative;
+    display: inline-flex;
+  }
+  .jx-play-variant-row label + label {
+    border-left: 1px solid var(--border);
+  }
+  .jx-play-variant-row input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .jx-play-variant-row span {
+    padding: 5px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--muted-foreground);
+    transition: background-color 120ms ease-out, color 120ms ease-out;
+  }
+  .jx-play-variant-row label:hover span {
+    background: color-mix(in oklab, currentColor 8%, transparent);
+  }
+  .jx-play-variant-row input:checked + span {
+    background: var(--foreground);
+    color: var(--background);
+  }
+  .jx-play-variant-row input:focus-visible + span {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
   }
 </style>

@@ -6,7 +6,7 @@
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import Toc from '$lib/ui/toc.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -223,8 +223,9 @@ ${close}
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
               <span><code class="text-accent">showModal()</code> — top-layer rendering, focus trap, inert background</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">::backdrop</code> — the scrim pseudo-element; tinted
-                <code class="text-accent">color-mix(in oklab, var(--primary) 14%, transparent)</code></span></li>
+              <span><code class="text-accent">::backdrop</code> — the scrim pseudo-element;
+                <code class="text-accent">--scrim</code>: semi-transparent black in light mode,
+                white in dark mode — a scrim dims/lightens, never colors</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
               <span>Escape — the <code class="text-accent">cancel</code> event, intercepted only to share the fade</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
@@ -242,9 +243,9 @@ ${close}
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
               <span>close fade — the single motion addition: opacity 120ms on dialog + backdrop, none under reduced motion</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>× close button — press physics, right of the header bar</span></li>
+              <span>floating-surface law — the hard offset shadow is a REAL <code class="text-accent">::after</code> layer; <code class="text-accent">@starting-style</code> entry pulls the layers apart, the close fade presses them back; <code class="text-accent">variant="solid | acrylic | auto"</code> paints the surface (acrylic = dual-layer <code class="text-accent">backdrop-filter</code>)</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>extension: entry fade via <code class="text-accent">@starting-style</code></span></li>
+              <span>× close button — press physics, right of the header bar</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
               <span>extension: backdrop-click close; intercepting form submits so they fade too</span></li>
           </ul>

@@ -103,6 +103,11 @@ describe('Command', () => {
     await fireEvent.keyDown(input, { key: 'Enter' });
     expect(selected?.id).toBe('deploy'); // first enabled, exact-free query
     const dialog = rendered.container.querySelector('dialog.jx-command') as HTMLDialogElement;
+    // Enter now runs the 120ms closing fade (dialog.svelte law): the
+    // panel presses its layers back before the real close
+    expect(dialog.open).toBe(true);
+    expect(dialog.classList.contains('closing')).toBe(true);
+    await new Promise((resolve) => setTimeout(resolve, 250));
     expect(dialog.open).toBe(false);
   });
 

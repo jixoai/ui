@@ -3,10 +3,16 @@
  *
  * Law (Owner decisions, 2026-08-20):
  * - OKLCH mirrors the openspecui configuration; the ONLY per-project value
- *   is --brand-hue (oklch hue degrees; dark mode drifts it -4°).
+ *   is --brand-hue (oklch hue degrees; dark mode drifts -4°).
  * - Non-primary colors keep FIXED hues across jixoai sites.
  * - Neutrals are pure achromatic; shadows are hard offsets, radius 0 with a
  *   bevel upgrade where supported; the terminal bar is always dark.
+ *
+ * Law (Owner decision, 2026-08-22 — floating surfaces): every
+ * popover/dialog-family panel paints its hard offset shadow as a REAL
+ * ::after layer (see .jx-surface below) with solid|acrylic|auto
+ * variants; dialog scrims are --scrim (semi-transparent black/white,
+ * never a brand tint).
  */
 
 @import '@fontsource-variable/jetbrains-mono';
@@ -14,13 +20,12 @@
 
 :root,
 .jx-light {
-  --brand-hue: 0; /* default: 0 (jixoai red). per-project: unipty=165 幽绿, openspecui=27 */
+  --brand-hue: 330; /* default: 0 (jixoai red). per-project: unipty=165 幽绿, openspecui=27 */
 
   --background: oklch(1 0 0);
   --foreground: oklch(0 0 0);
-  /* bezel law (Owner, 2026-08-21): terminal components default to the
-     dark-locked CRT shell; theme="light" | "system" opts the surface into
-     this light CRT shell via the scoped .jx-light token class */
+  /* unlocked-light bezel (Owner, 2026-08-21): theme="light" surfaces get a
+     light CRT shell — dark-locked remains the default */
   --terminal: oklch(0.9551 0 0);
   --terminal-foreground: oklch(0 0 0);
   --terminal-hover: color-mix(in oklab, var(--terminal-foreground) 14%, var(--terminal));
@@ -65,6 +70,31 @@
   --shadow: 4px 4px 0px 0px hsl(0 0% 0% / 1);
   --shadow-md: 4px 4px 0px 0px hsl(0 0% 0% / 1), 4px 2px 4px -1px hsl(0 0% 100% / 1);
   --shadow-lg: 4px 4px 0px 0px hsl(0 0% 0% / 1), 4px 4px 6px -1px hsl(0 0% 100% / 1);
+
+  /* floating-surface law (2026-08-22): restrained black-only scrims;
+     the shadow LAYER keeps its original color, always SEMI-TRANSPARENT
+     (Owner ruling, 2026-08-22 r2: light mode = translucent black,
+     dark mode = translucent white) — light mode DARKENS what it covers */
+  --scrim: hsl(0 0% 0% / 0.32);
+  --surface-shadow: hsl(0 0% 0% / 0.32);
+
+  /* Scrollbar law (Owner, 2026-08-22): every scrollable area paints a
+     thin, theme-linked thumb over a transparent track. currentColor is
+     the theme link — the thumb inherits the text color of the surface
+     it scrolls (dark terminal bezels get light thumbs, light panels
+     dark ones; .dark / .jx-light scoping needs no overrides here).
+     --jx-scrollbar-thin/auto are the real per-OS scrollbar widths,
+     published once by <jx-scrollbar-measure> (registry lib
+     scrollbar-measure); they stay 0px on overlay-scrollbar systems, so
+     the padding-inline compensation recipes degrade to the authored
+     padding exactly there. macOS classic reference: thin 11px, auto
+     14px — never hardcode either. */
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: color-mix(in oklab, currentColor 30%, transparent);
+  --scrollbar-thumb-hover: color-mix(in oklab, currentColor 50%, transparent);
+  --scrollbar-thumb-active: color-mix(in oklab, currentColor 66%, transparent);
+  --jx-scrollbar-thin: 0px;
+  --jx-scrollbar-auto: 0px;
 }
 
 .dark {
@@ -105,6 +135,54 @@
   --shadow: 4px 4px 0px 0px hsl(0 0% 100% / 1);
   --shadow-md: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 2px 4px -1px hsl(0 0% 0% / 1);
   --shadow-lg: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 4px 6px -1px hsl(0 0% 0% / 1);
+
+  /* floating-surface law, dark side: inverted — scrims and the shadow
+     layer are semi-transparent WHITE and BRIGHTEN (the white-shadow
+     law; same 0.32 veil strength as light mode's black) */
+  --scrim: hsl(0 0% 100% / 0.1);
+  --surface-shadow: hsl(0 0% 100% / 0.32);
+}
+
+/* ============================================================
+   Scrollbar law — application layer (Owner, 2026-08-22)
+
+   Paint is global: scrollbar-color/width are inherited properties, so
+   one `*` rule styles every scroller and non-scrollers merely carry
+   the unused value. The hover chain works because :hover propagates
+   to ancestors — the cursor anywhere over a scrollport's content
+   intensifies that scrollport's thumb (and any outer scroller's).
+
+   The GUTTER is deliberately NOT global. The spec reserves stable
+   gutters on overflow:hidden boxes too (scroll containers include
+   hidden), which would dead-band every clip surface — toggle knob
+   tracks, progress fills, name echoes — by 2x the scrollbar width on
+   classic-scrollbar systems. So each real scrollport opts in through
+   its own scoped rule:
+
+     scrollbar-gutter: stable both-edges;
+     padding-inline: max(<authored> - var(--jx-scrollbar-thin, 0px), 0px);
+
+   (the gutter sits between the inner border edge and the outer
+   padding edge, so subtracting it from padding-inline keeps the
+   visual inset unchanged; max() clamps surfaces whose authored
+   padding is thinner than the scrollbar). Engines without
+   scrollbar-gutter never see the compensated values — the probe
+   publishes widths only when BOTH scrollbar-width and
+   scrollbar-gutter are supported. Horizontal-only scrollers whose
+   vertical scrollbar can never appear (carousel track, table frame)
+   stay on the auto gutter: stable would reserve dead space forever.
+   ============================================================ */
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+  *:hover {
+    scrollbar-color: var(--scrollbar-thumb-hover) var(--scrollbar-track);
+  }
+  *:active {
+    scrollbar-color: var(--scrollbar-thumb-active) var(--scrollbar-track);
+  }
 }
 
 /* Glass material: translucent surface + real backdrop blur. Outline (not
@@ -114,6 +192,183 @@
   background: color-mix(in oklab, var(--background) 68%, transparent);
   -webkit-backdrop-filter: blur(14px) saturate(1.35);
   backdrop-filter: blur(14px) saturate(1.35);
+}
+
+/* ============================================================
+   Floating-surface law (Owner rulings, 2026-08-22 → 2026-08-23 r18)
+   Every popover/dialog-family panel is TWO (scrolling: THREE)
+   elements with strict ownership — CSS owns LAYOUT and STATIC PAINT
+   only; EVERY animation belongs to the component's WAAPI motion
+   kernel (there are NO CSS keyframes/transitions in this law):
+
+     .jx-surface        the PLATFORM element (popover attr / <dialog>):
+                        anchoring, sizing, and the open/close motion —
+                        driven by the kernel. It paints NOTHING (UA
+                        dialog backgrounds and borders die here).
+     .jx-surface-shadow the shadow layer. Kernel components render it
+                        as a REAL DOM child (pseudo-elements are
+                        unreachable from WAAPI); kernel-less components
+                        fall back to the ::after pseudo, statically.
+     .jx-surface-body   THE SURFACE: the variant fill, the 1px border,
+                        and the acrylic backdrop-filter (blur only).
+                        It never scrolls or clips.
+     scroll ring        wherever content can overflow, a third element
+                        inside the body owns overflow + padding.
+
+   Variants — data-variant="solid | acrylic | auto" (default auto):
+     solid    opaque surface fill; the shadow layer keeps its
+              ORIGINAL COLOR as a translucent veil — semi-transparent
+              black in light mode, white in dark (never opaque, never
+              brand-tinted)
+     acrylic  the body fill at 72% alpha behind blur(14px); the shadow
+              layer carries the fixed backdrop treatment
+     auto     acrylic, falling back to solid under
+              prefers-reduced-transparency
+
+   The shadow veil: --surface-shadow (black light / white dark, 0.32)
+   over a FIXED backdrop-filter — brightness(0.5) blur(8px)
+   contrast(2) — identical in light and dark. Full rect, UNDER the
+   body fill; its offset (--jx-surface-ox/oy, 6px fallback) shares its
+   signs with the slide vector, so the shadow falls to the panel's
+   outward side.
+
+   Scrim law: dialog-family ::backdrop uses --scrim — semi-transparent
+   BLACK in light mode, WHITE in dark. Never a brand tint.
+   ============================================================ */
+.jx-surface {
+  isolation: isolate; /* the shadow layer must not escape the panel */
+  /* the panel NEVER clips: the UA sheet gives modal <dialog>s
+     overflow:auto, which would cut the shadow sliver off at the box
+     edge — scroll rings own every scroll */
+  overflow: visible;
+  /* the platform element paints nothing (UA dialog backgrounds AND
+     borders die here too); the fill + border live on the
+     .jx-surface-body child */
+  background: none;
+  border: none;
+  /* opacity stays 1 in the cascade on BOTH sides: every opacity
+     CHANGE comes from the runtime kernel (an animated opacity — even
+     a constant 1 — activates the compositor's opacity channel and
+     breaks backdrop-filter blur, and a cascade flip would be an
+     unanimated jump). Closed panels are display:none anyway */
+  opacity: 1;
+  translate: var(--jx-surface-in-x, 0px) var(--jx-surface-in-y, 6px);
+}
+/* KERNEL panels only (.jx-waapi, set by the component running the
+   WAAPI motion kernel): allow-discrete holds display+overlay through
+   the kernel's whole exit run (the discrete flip lands at delay + 50%
+   of the duration = 460ms). Kernel-less popovers must NOT carry this
+   transition — nothing would animate, the closed panel would linger
+   rendered for the full window before vanishing (Codex r18 audit) */
+.jx-surface.jx-waapi[popover] {
+  transition:
+    display 460ms allow-discrete 230ms,
+    overlay 460ms allow-discrete 230ms;
+}
+/* under reduced motion the kernel is skipped — the discrete window
+   must go too, or the closed panel lingers rendered for ~700ms with
+   nothing animating (Codex r2) */
+@media (prefers-reduced-motion: reduce) {
+  .jx-surface.jx-waapi[popover] {
+    transition: none;
+  }
+}
+/* open resting pose: kernel-less components rest here directly */
+.jx-surface:popover-open,
+.jx-surface[open] {
+  opacity: 1;
+  translate: 0 0;
+}
+/* FIRST-FRAME LAW (Owner ruling, 2026-08-23 r21): a kernel panel's
+   open-state cascade opacity is 0. The popover may render one frame
+   BEFORE the toggle event creates the entry WAAPI — with a cascade of
+   1 that frame showed the fully-open panel which then vanished as the
+   animation's opacity 0 took over (the first-open flash). A cascade of
+   0 makes the pre-JS frame invisible regardless of event timing; the
+   kernel owns opacity from its first frame and pins 1 at rest */
+.jx-surface.jx-waapi:popover-open {
+  opacity: 0;
+}
+/* the kernel must never strand an invisible panel: reduced motion
+   skips the kernel (CSS must show the panel), and a no-JS page has no
+   kernel at all (the site's bootstrap tags <html class="js">) */
+@media (prefers-reduced-motion: reduce) {
+  .jx-surface.jx-waapi:popover-open {
+    opacity: 1;
+  }
+}
+html:not(.js) .jx-surface.jx-waapi:popover-open {
+  opacity: 1;
+}
+
+/* THE SURFACE: the panel's direct child — fill + border + blur. The
+   radius rides the inheritance chain so the fill, the border, and the
+   shadow share one silhouette. */
+.jx-surface-body {
+  position: relative;
+  border: 1px solid var(--jx-surface-border-color, var(--border));
+  border-radius: inherit;
+  corner-shape: inherit;
+  background: var(--jx-surface-solid-fill, var(--popover));
+}
+
+/* the scroll+padding ring inside the surface body (scrolling
+   components): overflow + padding + scrollbar gutter live here */
+.jx-surface-scroll {
+  scrollbar-gutter: stable both-edges;
+}
+
+/* THE SHADOW LAYER — static paint for BOTH renderings (the ::after
+   pseudo for kernel-less components; the real .jx-surface-shadow
+   child for kernel components — identical geometry, filter, and
+   resting pose) */
+.jx-surface::after,
+.jx-surface-shadow {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  corner-shape: inherit;
+  -webkit-backdrop-filter: brightness(0.5) blur(8px) contrast(2);
+  backdrop-filter: brightness(0.5) blur(8px) contrast(2);
+  background: var(--jx-surface-shadow, var(--surface-shadow));
+}
+.jx-surface:popover-open::after,
+.jx-surface[open]::after {
+  /* resting pose: separated at the adaptive offset */
+  opacity: 1;
+  translate: var(--jx-surface-ox, 6px) var(--jx-surface-oy, 6px);
+}
+.jx-surface-shadow {
+  /* resting pose, shared with the pseudo above */
+  translate: var(--jx-surface-ox, 6px) var(--jx-surface-oy, 6px);
+}
+
+/* open-state shadow pose for the pseudo (the real element reads the
+   same customs) */
+.jx-surface::after {
+  opacity: 0;
+  translate: 0 0;
+}
+
+/* acrylic / auto: the body carries ONE filter — blur. Bezel panels
+   retune the fill through the custom properties, keeping their
+   identity in BOTH variants. */
+.jx-surface[data-variant='acrylic'] .jx-surface-body,
+.jx-surface[data-variant='auto'] .jx-surface-body {
+  background: var(--jx-surface-acrylic-fill, color-mix(in oklab, var(--popover) 72%, transparent));
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+/* auto = acrylic UNLESS the environment asks for less transparency —
+   then exactly solid */
+@media (prefers-reduced-transparency: reduce) {
+  .jx-surface[data-variant='auto'] .jx-surface-body {
+    background: var(--jx-surface-solid-fill, var(--popover));
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 /* Tailwind v4 token → utility mapping (map EVERY token; unmapped tokens
