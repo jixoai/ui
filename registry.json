@@ -163,7 +163,7 @@
       "name": "toc",
       "type": "registry:ui",
       "title": "Combo ToC",
-      "description": "The jixoai Combo table of contents: desktop Rule Tracker (scroll-progress spine, weight-driven nodes on level-1, weight-driven text on flat level-2, pick + parent markers) and mobile Terminal Rail (glass single-row viewport with the 76px line law, expand changes ONLY height, scroll-snap list, tap = instant pick). DOM order: the aside precedes main content; desktop grid places it right, mobile sticky height:0 overlay. NEW (scroll-area family, 2026-08-22): outline mode — pass outline: { root } instead of sections; outline + extents derive from the heading tree (toc-outline lib), zero handwritten ids.",
+      "description": "The jixoai Combo table of contents: desktop Rule Tracker (scroll-progress spine, weight-driven nodes on level-1, weight-driven text on flat level-2, pick + parent markers) and mobile Terminal Rail (glass single-row viewport with the 76px line law, expand changes ONLY height, scroll-snap list, tap = instant pick). DOM order: the aside precedes main content; desktop grid places it right, mobile sticky height:0 overlay. NEW (scroll-area family, 2026-08-22): outline mode — pass outline: { root } instead of sections; outline + extents derive from the heading tree (toc-outline lib), zero handwritten ids. NEW (2026-08-23): automatic top-layer mount — when the website-scaffold jx-top-layer context exists the rail adopts itself into .jx-top-layer (topLayer={false} opts out; no context = classic in-flow behavior).",
       "registryDependencies": [
         "@jixoai/toc-engine",
         "@jixoai/jixoai-theme",
@@ -181,7 +181,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Give the outline as sections/children props; the component renders desktop + mobile surfaces and wires the engine. Content needs non-overlapping data-region wrappers and data-family section extents (see toc-engine docs).",
+      "docs": "Give the outline as sections/children props; the component renders desktop + mobile surfaces and wires the engine. Content needs non-overlapping data-region wrappers and data-family section extents (see toc-engine docs). topLayer?: boolean (default auto) — when a website-scaffold top layer exists via the jx-top-layer context, the rail self-adopts into it; pass topLayer={false} to keep classic in-flow behavior.",
       "meta": {
         "group": "navigation",
         "href": "/components/toc.html"
@@ -205,7 +205,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Slots: header (required), children (main), footer (optional). Import website-scaffold.css once. For route-typed transitions, wire useAutoTypes({ index: '/', components: '/components', ... }) in a render-blocking module in <head> (view-transitions-toolkit/navigation).",
+      "docs": "Slots: header (required), children (main), footer (optional). Import website-scaffold.css once. Publishes the jx-top-layer context (ordered multi-node adopt/release into .jx-float-slot) — scaffold-float portals through it and the toc rail self-mounts automatically. For route-typed transitions, wire useAutoTypes({ index: '/', components: '/components', ... }) in a render-blocking module in <head> (view-transitions-toolkit/navigation).",
       "meta": {
         "group": "layout",
         "href": "/components/website-scaffold.html"
@@ -292,10 +292,29 @@
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "native-form",
+      "type": "registry:lib",
+      "title": "Native form layer (Tier 1)",
+      "description": "The pure HTML+CSS native form layer: one stylesheet, daisyui-style class vocabulary, zero JS. Styles BARE native elements — .jx-field/.jx-label/.jx-error scaffolding, .jx-input (bare box) and .jx-field-shell + .jx-input-lane (wrapper posture), a pure-CSS input[type=range] slider (.jx-range: bordered thin track, square primary thumb, hover lift, press), the color field (.jx-color-field wrapper + .jx-color locked square swatch + pipette glyph via CSS mask; compact 5rem field by default, .jx-color-stretch opts into the full row), the ::-webkit-calendar-picker-indicator repaint (mask + currentColor, calendar/clock glyphs — themes light/dark automatically, click still opens the native picker), the number spinner law (hidden: engines reject custom paint on spin pseudos; native ↑/↓ stepping kept), and the placeholder-vs-value distinction (foreground/background 40% mix). The Tier-2 components (input/range/number-input) consume these classes.",
+      "files": [
+        {
+          "path": "registry/files/theme/native-form.css",
+          "target": "@lib/native-form.css",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Import once from the site css, AFTER the token sheet: @import './lib/jixoai.css'; @import './lib/native-form.css';. Glyph data-URIs mirror icons.ts (calendar/clock/pipette) — edit both or neither.",
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/form.html#all-types"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "input",
       "type": "registry:ui",
       "title": "Input",
-      "description": "NativeHTML input: every native type passes through. Text-like types get the jixoai shell (1px border, radius 0, hover lift, contained focus ring); checkbox/radio/range keep native widgets with accent-color in brand hue; file wraps a focusable hidden input in a press-button trigger with multi-file name echo; color aligns height. Optional label[for], error wiring (aria-invalid + aria-describedby, monochrome dashed ! message), labelSide for checkbox/radio. Uncontrolled by design (read via FormData).",
+      "description": "NativeHTML input: every native type passes through. Text-like types get the jixoai shell (1px border, radius 0, hover lift, inset focus ring) with the Tier-1 lane (.jx-input-lane) inside; range is the Tier-1 pure-CSS slider (.jx-range); color is the Tier-1 color field (.jx-color-field wrapper, locked square swatch, pipette glyph); date/time/number lanes restyle the platform's picker indicator and spinners via the same sheet. checkbox/radio/toggle/file have their own components (the bare types still pass through). Optional label[for], error wiring (aria-invalid + aria-describedby, monochrome dashed ! message), clearable ×, four snippet slots. value is $bindable: bound = controlled, absent = purely uncontrolled (FormData/form.reset untouched).",
       "files": [
         {
           "path": "registry/files/ui/input.svelte",
@@ -303,9 +322,10 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: type, label?, error?, labelSide? 'left'|'right', id? (auto), class, ...restProps passed to the native input.",
+      "docs": "Props: type, label?, error?, clearable?, innerInlineStart/innerInlineEnd/outerBlockStart/outerBlockEnd snippets, id? (auto), class, value ($bindable), ...restProps passed to the native input.",
       "registryDependencies": [
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/native-form"
       ],
       "meta": {
         "group": "data-entry",
@@ -367,7 +387,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Slot children; pairs with website-scaffold's jx-scaffold-float context.",
+      "docs": "Slot children; pairs with website-scaffold's jx-top-layer context (ordered multi-node adopt/release — the same mechanism the toc uses to self-mount).",
       "meta": {
         "group": "layout",
         "href": "/components/scaffold-float.html"
@@ -645,13 +665,16 @@
       "name": "number-input",
       "type": "registry:ui",
       "title": "Number input",
-      "description": "[- NUM +] stepper: 28px square buttons (press physics, font-nav bold characters), centered chromeless input, click + long-press (300ms→100ms) acceleration, min/max clamp, RTL-aware logical properties.",
+      "description": "[- NUM +] stepper: 28px square buttons (press physics, font-nav bold characters), centered chromeless input on the Tier-1 .jx-input-lane (placeholder distinction + spinner law live in the native-form sheet), click + long-press (300ms→100ms) acceleration, min/max clamp, RTL-aware logical properties.",
       "files": [
         {
           "path": "registry/files/ui/number-input.svelte",
           "target": "@ui/number-input.svelte",
           "type": "registry:file"
         }
+      ],
+      "registryDependencies": [
+        "@jixoai/native-form"
       ],
       "meta": {
         "group": "data-entry",
@@ -663,7 +686,7 @@
       "name": "range",
       "type": "registry:ui",
       "title": "Range",
-      "description": "Form wave 2 — fully custom slider (never input[type=range]): div + Pointer Events with pointer capture, 4px track with primary fill law, 16px square thumb, optional step tick ruler, keyboard (arrows/Home/End) and full aria slider contract, RTL by logical properties. Decimal steps snap at step precision; name= submits the numeric string through the faceless form-field bridge.",
+      "description": "Fully custom slider (never input[type=range]): div + Pointer Events with pointer capture over the shared slider law (2026-08-23 Tier rebase — same geometry as the Tier-1 .jx-range lane): thin bordered track box, primary fill to the thumb, 1.25rem square primary thumb with hover lift and press, optional step tick ruler, keyboard (arrows/Home/End) and full aria slider contract, RTL by logical properties. Decimal steps snap at step precision; name= submits the numeric string through the faceless form-field bridge.",
       "files": [
         {
           "path": "registry/files/ui/range.svelte",
@@ -673,7 +696,8 @@
       ],
       "docs": "Props: label?, error?, showValue?, min/max/step, name?, value ($bindable). role=slider contract; aria-labelledby wiring per the family law.",
       "registryDependencies": [
-        "@jixoai/form-field"
+        "@jixoai/form-field",
+        "@jixoai/native-form"
       ],
       "meta": {
         "group": "data-entry",
@@ -707,7 +731,7 @@
       "name": "file-input",
       "type": "registry:ui",
       "title": "File input",
-      "description": "Form wave 2 — the professional file control (input.svelte keeps the bare native passthrough lane): press-button trigger over a visually hidden native input, list/cards/compact presentation variants with sm/md/lg sizing, File[] $bindable contract with per-File image previews (object URLs cached by identity, revoked on remove/unmount), zero-dependency type glyphs and size formatting, maxFiles overflow merged into the family error line.",
+      "description": "The file picker that reads like one (2026-08-23 redesign, ant-design Upload anatomy with local-picker semantics): drop (default) renders a dashed drop zone — upload glyph, font-nav CLICK OR DRAG FILES, composed accept/max hint, drag-over swaps the dash to primary with lift physics — button renders the compact inline trigger; both are keyboard buttons over a visually hidden native input AND real drop targets (enter-depth counting, accept gate-rejection reported via the error line + onreject). Selected files render as ant-style rows in one bordered box: square thumb (image object-URL preview or kind glyph), ellipsized name + title, size, remove ×, remove-all tail. File[] $bindable contract, sm/md/lg sizing, maxFiles overflow merged into the error line (never truncates), InputGroup overflow hardening (min-width 0, max-width 100%).",
       "files": [
         {
           "path": "registry/files/ui/file-input.svelte",
@@ -715,10 +739,10 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: label?, error?, accept?, multiple?, maxFiles?, variant 'list'|'cards'|'compact', size 'sm'|'md'|'lg', files ($bindable File[]).",
+      "docs": "Props: label?, error?, hint?, accept?, multiple?, disabled?, maxFiles?, variant 'drop'|'button', size 'sm'|'md'|'lg', files ($bindable File[]), onreject? (rejected File[] from drops), zone? snippet (drop-zone content). Events: change forwards from the native input.",
       "meta": {
         "group": "data-entry",
-        "href": "/components/form.html#all-types"
+        "href": "/components/file-input.html"
       }
     },
     {
@@ -843,7 +867,7 @@
       "name": "avatar",
       "type": "registry:ui",
       "title": "Avatar",
-      "description": "NativeHTML <img> — lazy, async-decoded, intrinsic width/height so layout never shifts; radius-0 brutalist square. Failed or missing src falls back to an initials block derived code-point-wise from name (CJK-safe: 张伟 stays 张伟). alt defaults to name; pass alt=\"\" for decorative avatars beside a visible name.",
+      "description": "NativeHTML <img> — lazy, async-decoded, intrinsic width/height so layout never shifts. Failed or missing src falls back to an initials block derived code-point-wise from name (CJK-safe: 张伟 stays 张伟); at sm (24px) the block halves to one code point so it never overflows or wraps. Three silhouettes via variant: bevel (default — corner-shape: bevel with var(--radius) scaled proportionally to the size, 6/8/10px, square where unsupported), rounded (corner-shape: round + border-radius: 50% circle) and squircle (corner-shape: squircle + 50% superellipse, degrading to the circle). The full name rides a tooltip by default (tooltip={false} opts out). alt defaults to name; pass alt=\"\" for decorative avatars beside a visible name.",
       "files": [
         {
           "path": "registry/files/ui/avatar.svelte",
@@ -851,7 +875,10 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: src?, name (required — fuels alt + initials), size? ('sm'|'md'|'lg' = 24/32/40px), alt?, plus <img> attributes.",
+      "registryDependencies": [
+        "@jixoai/tooltip"
+      ],
+      "docs": "Props: src?, name (required — fuels alt + initials + tooltip), size? ('sm'|'md'|'lg' = 24/32/40px; initials halve at sm), variant? ('bevel' default | 'rounded' | 'squircle'), tooltip? (true — full-name tooltip; false opts out), alt?, plus <img> attributes.",
       "meta": {
         "group": "data-display",
         "href": "/components/avatar.html"

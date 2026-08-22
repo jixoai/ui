@@ -38,6 +38,8 @@
     labelSide?: 'left' | 'right';
     /** tri-state: lands on the element's indeterminate IDL property */
     indeterminate?: boolean;
+    /** $bindable; bound ⇒ controlled two-way, absent ⇒ uncontrolled */
+    checked?: boolean;
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -49,6 +51,7 @@
     error,
     labelSide = 'right',
     indeterminate = false,
+    checked = $bindable(),
     class: className = '',
     ...rest
   }: Props = $props();
@@ -72,6 +75,7 @@
       bind:this={el}
       {id}
       type="checkbox"
+      bind:checked
       class="jx-checkbox {className}"
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}

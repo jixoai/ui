@@ -11,6 +11,12 @@
   ↑/↓ on the input steps with min/max/step read straight off the
   element attributes.
 
+  2026-08-23 · Tier rebase: the inner input carries the Tier-1
+  .jx-input-lane class (native-form sheet) — chromeless typography,
+  placeholder distinction and the spinner law (hidden; engines reject
+  custom paint on spin pseudos, see the sheet's decision record) live
+  there, shared with bare markup.
+
   Buttons are text glyphs — font-nav bold "-" / "+", no icon dependency.
   DOM order is minus, input, plus; the row is plain flex, so under
   dir="rtl" it flips by itself (minus lands on the inline-end, plus on
@@ -170,12 +176,15 @@
     >-</button>
     <!-- disabled ⇒ READONLY, not disabled: the value stays focusable and
          selectable (AT can still read it) while typing and native ↑/↓ are
-         blocked by the platform; buttons + stepBy guards cover the rest -->
+         blocked by the platform; buttons + stepBy guards cover the rest.
+         jx-input-lane (Tier-1 native-form sheet) owns the chromeless
+         typography + placeholder distinction + spinner law; the scoped
+         .jx-num-input below only centers the text and flexes the cell -->
     <input
       {...rest}
       {id}
       type="number"
-      class="jx-num-input"
+      class="jx-input-lane jx-num-input"
       {min}
       {max}
       {step}
@@ -197,24 +206,12 @@
 </div>
 
 <style>
-  .jx-field {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-    width: 100%;
-    min-width: 0; /* InputGroup hardening: shrink inside grid/flex hosts */
-  }
-  .jx-label {
-    width: fit-content;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    cursor: pointer;
-  }
-
+  /* Tier rebase (2026-08-23): the .jx-field / .jx-label / .jx-error
+     scaffolding lives in the Tier-1 native-form sheet; the inner input
+     carries the sheet's .jx-input-lane class. Scoped below: only the
+     composite stepper shell (deliberately not the sheet's .jx-field-shell —
+     its disabled law here is readonly-not-disabled) and the centered
+     number cell. */
   /* ---- the shell: one bordered row, dividers from the button borders -
      min-height 2.5rem — the 40px law every text-like family member
      renders at; buttons stretch full content height, so their borders
@@ -293,52 +290,25 @@
     cursor: not-allowed;
   }
 
-  /* ---- the number: borderless, centered, native spinners hidden but
-     native ↑/↓ stepping kept (min/max/step live on the element) ------- */
+  /* ---- the number cell: chromeless via the Tier-1 .jx-input-lane sheet
+     class (typography, placeholder distinction, spinner hide +
+     appearance:textfield all live there); scoped here: the flex cell and
+     the centered text. Focus law rides the INPUT (typing is the primary
+     path). The composite shell (.jx-num) stays deliberately scoped: its
+     disabled law (input READONLY, not disabled) and input-level focus
+     diverge from the sheet shell's :has(input:disabled) /
+     :has(:focus-visible) laws. */
   .jx-num-input {
     flex: 1;
     min-width: 0;
-    border: none;
-    background: transparent;
-    color: var(--foreground);
-    font-family: inherit;
-    font-size: 0.875rem;
-    line-height: 1.45;
     text-align: center;
-    appearance: textfield;
-    -moz-appearance: textfield;
   }
-  .jx-num-input::-webkit-outer-spin-button,
-  .jx-num-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  .jx-num-input::placeholder {
-    color: var(--muted-foreground);
-    opacity: 1;
-  }
-  /* the site focus law rides the INPUT (typing is the primary path) */
   .jx-num-input:focus-visible {
     outline: 1px solid var(--ring);
     outline-offset: -1px;
   }
   .jx-num-off .jx-num-input {
     cursor: not-allowed;
-  }
-
-  .jx-error {
-    display: flex;
-    gap: 0.5em;
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-error-mark {
-    font-weight: 700;
-    color: var(--destructive);
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -56,6 +56,10 @@
     format?: 'iso' | 'locale';
     /** wired into label[for] / error[id]; auto-generated when omitted */
     id?: string;
+    /** floating-surface variant: solid | acrylic | auto (acrylic unless
+        the environment asks for reduced transparency; the bezel fill
+        follows the variant through the jx-surface fill props) */
+    variant?: 'solid' | 'acrylic' | 'auto';
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -72,6 +76,7 @@
     max,
     format = 'iso',
     id = autoId,
+    variant = 'auto',
     class: className = '',
   }: Props = $props();
 
@@ -365,10 +370,14 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class="jx-date-panel"
+    class="jx-date-panel jx-surface"
+    data-variant={variant}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
   >
+    <!-- surface body (bezel paint + ::after shadow); the popover element
+         paints nothing (floating-surface law arch r3) -->
+    <div class="jx-date-surface jx-surface-body">
     <div class="jx-date-nav">
       <button
         type="button"
@@ -438,6 +447,7 @@
         </div>
       {/each}
     </div>
+  </div>
   </div>
 
   {#if invalid}
@@ -523,17 +533,21 @@
   }
 
   /* ---- panel: terminal bezel (select.svelte panel law) ----------------- */
+  /* bezel surface on the jx-surface law (arch r3): the panel is the
+     PLATFORM element (no paint); the surface body carries the bezel
+     fill (identity via the fill props) and the ::after shadow. */
   .jx-date-panel {
+    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
+    --jx-surface-solid-fill: var(--terminal);
     position: fixed;
     margin: 0;
     position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
     width: fit-content;
-    padding: 12px 14px;
     font-size: 13px;
     color: var(--terminal-foreground);
-    border: 1px solid var(--border);
-    background: var(--terminal);
-    box-shadow: var(--shadow);
+  }
+  .jx-date-surface {
+    padding: 12px 14px;
   }
   /* Engines without CSS Anchor Positioning: authored viewport-center —
      the popover.svelte fallback visual, never worse. */

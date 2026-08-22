@@ -33,12 +33,21 @@
   interface Props {
     items: MenubarItem[];
     label?: string;
+    /** floating-surface variant: solid | acrylic | auto (acrylic unless
+        the environment asks for reduced transparency) */
+    variant?: 'solid' | 'acrylic' | 'auto';
     /** panel content per item id */
     panel: Snippet<[MenubarItem]>;
     class?: string;
   }
 
-  let { items, label = 'menu bar', panel, class: className = '' }: Props = $props();
+  let {
+    items,
+    label = 'menu bar',
+    variant = 'auto',
+    panel,
+    class: className = '',
+  }: Props = $props();
 
   let barEl = $state<HTMLElement | null>(null);
   let openId = $state('');
@@ -204,7 +213,8 @@
     popover="manual"
     role="menu"
     tabindex="-1"
-    class="jx-menubar-panel"
+    class="jx-menubar-panel jx-surface"
+    data-variant={variant}
     style="position-anchor: {anchorOf(item.id)}; inset-area: bottom span-left; position-area: bottom span-left;"
     onkeydown={(e) => handlePanelKeydown(e, item.id)}
     ontoggle={(e: Event) => {
@@ -213,7 +223,11 @@
       else if (openId === item.id) openId = '';
     }}
   >
-    {@render panel(item)}
+    <!-- surface body (fill + ::after shadow); the popover element paints
+         nothing (floating-surface law arch r3) -->
+    <div class="jx-bar-surface jx-surface-body">
+      {@render panel(item)}
+    </div>
   </div>
 {/each}
 
@@ -256,6 +270,9 @@
     outline-offset: -1px;
   }
 
+  /* surface on the jx-surface law (arch r3): the panel is the
+     PLATFORM element (no paint); the body ring carries the fill and
+     the ::after shadow layer. */
   .jx-menubar-panel {
     position: fixed;
     margin: var(--jx-bar-gap, 8px);
@@ -264,11 +281,10 @@
     position-visibility: anchors-visible;
     width: fit-content;
     min-width: 10rem;
-    padding: 0.25rem;
-    border: 1px solid var(--border);
-    background: var(--popover);
     color: var(--popover-foreground);
-    box-shadow: var(--shadow);
+  }
+  .jx-bar-surface {
+    padding: 0.25rem;
   }
   @supports not (anchor-name: --jx-bar-fallback) {
     .jx-menubar-panel {

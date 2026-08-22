@@ -122,6 +122,22 @@ them with grays except where `--muted` is defined.
   --shadow-sm: 2px 2px 0px 0px hsl(0 0% 0% / 1), 1px 1px 0px 1px hsl(0 0% 100% / 0.5);
   --shadow: 4px 4px 0px 0px hsl(0 0% 0% / 1);
   --shadow-md: 4px 4px 0px 0px hsl(0 0% 0% / 1), 4px 2px 4px -1px hsl(0 0% 100% / 1);
+
+  /* floating-surface law (2026-08-22): popover/dialog-family scrims and
+     the shadow LAYER's original color — restrained black-only in light
+     mode (darkens); the dark block mirrors them in white (brightens).
+     Owner ruling r2: the shadow layer is ALWAYS semi-transparent. See
+     the Floating-surface law section below. */
+  --scrim: hsl(0 0% 0% / 0.32);
+  --surface-shadow: hsl(0 0% 0% / 0.32);
+
+  /* scrollbar law — see the Scrollbar law section below */
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: color-mix(in oklab, currentColor 30%, transparent);
+  --scrollbar-thumb-hover: color-mix(in oklab, currentColor 50%, transparent);
+  --scrollbar-thumb-active: color-mix(in oklab, currentColor 66%, transparent);
+  --jx-scrollbar-thin: 0px;
+  --jx-scrollbar-auto: 0px;
 }
 
 .dark {
@@ -163,6 +179,11 @@ them with grays except where `--muted` is defined.
   --shadow-sm: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 1px 2px -1px hsl(0 0% 0% / 1);
   --shadow: 4px 4px 0px 0px hsl(0 0% 100% / 1);
   --shadow-md: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 2px 4px -1px hsl(0 0% 0% / 1);
+
+  /* floating-surface law, dark side: white scrims + white shadow veil
+     that brighten (same 0.32 veil strength as light mode's black) */
+  --scrim: hsl(0 0% 100% / 0.1);
+  --surface-shadow: hsl(0 0% 100% / 0.32);
 }
 
 /* Map EVERY token into Tailwind utilities, mirroring the reference
@@ -219,12 +240,106 @@ Diff accents are semantic and fixed: add = oklch hue 151, del = oklch hue
 22 (see the reference `--readonly-code-add-*`/`--readonly-code-del-*`
 mixes); they are never brand-tinted.
 
+## Scrollbar law (Owner, 2026-08-22)
+
+Every scrollable area paints a **thin**, theme-linked thumb over a
+**transparent** track, and real scrollports reserve **stable
+both-edges** gutters. The token sheet applies the paint globally:
+
+```css
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+  *:hover  { scrollbar-color: var(--scrollbar-thumb-hover)  var(--scrollbar-track); }
+  *:active { scrollbar-color: var(--scrollbar-thumb-active) var(--scrollbar-track); }
+}
+```
+
+- currentColor IS the theme link: the thumb inherits the text color of
+  the surface it scrolls (dark terminal bezels get light thumbs, light
+  panels dark ones) — no `.dark` overrides needed.
+- The hover chain works because `:hover` propagates to ancestors: the
+  cursor anywhere over a scrollport's content intensifies its thumb.
+- Track is transparent BY LAW — never paint a trough.
+
+**The gutter is per-scrollport, never global.** The spec reserves
+stable gutters on `overflow: hidden` boxes too, so a `*` rule would
+dead-band every clip surface (toggle tracks, progress fills) on
+classic-scrollbar systems. Each real scrollport opts in through its own
+scoped rule and hands the gutter back out of its inline padding:
+
+```css
+.scrollport {
+  scrollbar-gutter: stable both-edges;
+  /* gutter sits between the inner border edge and the outer padding
+     edge — subtract it so the visual inset stays <authored> */
+  padding-inline: max(<authored> - var(--jx-scrollbar-thin, 0px), 0px);
+}
+```
+
+`--jx-scrollbar-thin` / `--jx-scrollbar-auto` are the REAL per-OS
+scrollbar widths, published once by `<jx-scrollbar-measure>` (registry
+lib `scrollbar-measure` — shadow-DOM-isolated one-shot probe;
+`import '@lib/scrollbar-measure';` in the root layout). macOS classic
+reference: thin 11px, auto 14px — never hardcode either. The probe
+reads 0px on overlay-scrollbar systems (macOS default), so
+compensation degrades to the authored padding exactly there, and it
+publishes nothing when the engine lacks `scrollbar-gutter` support
+(Safari keeps native scrollbars and authored paddings).
+
+Hard rules:
+
+- Horizontal-only scrollers whose vertical scrollbar can never appear
+  (carousel track, table frame) stay on the auto gutter — stable would
+  reserve dead space forever.
+- Surfaces whose authored padding is thinner than the scrollbar (the
+  4px picker rings) clamp at 0 via `max()` and simply sit on the
+  gutter; never force negative padding.
+- Block-axis (horizontal scrollbar) gutters cannot be controlled by
+  the property — they keep the auto behavior by spec; compensate
+  padding-inline only.
+
 ## Rules that look negotiable but are not
 
 - Neutrals are pure achromatic oklch (`0`, `0.2`, `0.3211`, `0.9551`, `1`);
   never introduce warm/cool grays.
 - Shadows are hard offsets with 0 blur; the only soft component is the
   tiny secondary layer in `md+`.
+- Floating-surface law (Owner, 2026-08-22) for every popover/dialog-family
+  panel (`.jx-surface`, shipped in the ui registry): the hard offset shadow
+  is a REAL `::after` layer (clip-path L, `--jx-surface-ox/oy` offset),
+  never a box-shadow on the panel; the panel itself never scrolls or clips
+  (an inner body ring does, so the shadow layer can paint outside the
+  box); entry is the `@starting-style` pull-apart (layers pressed together
+  → surface rises while the shadow slides out); variants
+  `solid | acrylic | auto` (default `auto`): solid = the opaque surface
+  with the original-color translucent shadow, acrylic = the body fill at
+  72% alpha behind a `blur(14px)` (blur ONLY — r4), auto falls back to
+  solid under `prefers-reduced-transparency: reduce`. The shadow layer
+  (`.jx-surface::after`, on the OUTER box, FULL rect — NO clip, r8 — at
+  the offset; the 1px border lives on the body) carries a FIXED
+  backdrop treatment — `brightness(0.5) blur(8px) contrast(2)` —
+  identical in light and dark (Owner ruling, 2026-08-22 r4), over the
+  original-color semi-transparent veil (`--surface-shadow`: black in
+  light, white in dark; never opaque, never brand-tinted). Entry/exit are TWO-phase composite choreographies (r10), each layer
+  ONE keyframe sequence staged at 45%: ENTRY phase 1 — an opaque
+  composite (panel + shadow MERGED, relative offset 0) slides in from
+  the outward direction and stops AT THE SHADOW'S TARGET POSITION;
+  phase 2 — SEPARATION: the panel rises from the shadow's spot to its
+  own (the shadow's absolute position never moves) while BOTH layers'
+  alphas develop (fill 1 → 0.72, veil 1 → 0.32) — frosted material
+  emerges as the layers come apart, opacity 1 throughout. EXIT is the
+  exact mirror: alphas return to 1 while the panel sinks onto the
+  shadow (opacity untouched), then the merged opaque composite slides
+  out and fades as ONE unified opacity + translate. The slide DIRECTION is measured per-open (lifecycle kernel:
+  pre-style prediction from the anchor rect + last-known panel size,
+  verified one frame in against the live geometry with a freeze/
+  correct/release `.jx-hold` restart on mispredict). Dialog-family `::backdrop` scrims use `--scrim` —
+  semi-transparent black in light mode, white in dark mode; NEVER a
+  brand/primary tint. Shadow direction is pinned bottom-right; tooltip
+  stays shadowless by disabling the layer (`content: none`).
 - Radius stays 0 (bevel-upgrade exception only). Rounded-full is allowed
   exclusively for small status dots/pills, never for cards or buttons.
 - Terminal bezel law (Owner, 2026-08-21): terminal-surface components
@@ -237,3 +352,8 @@ mixes); they are never brand-tinted.
   changes ONLY `--brand-hue` (and the icon/theme-color hex derived from
   it). Non-CSS brand assets (favicon, `theme-color`) carry the rendered
   hex of the light primary (unipty: `#007924`).
+- Scrollbar law (Owner, 2026-08-22): thin everywhere, transparent
+  track, currentColor thumbs with the hover chain — global; stable
+  both-edges gutters — per real scrollport with the padding-inline
+  compensation recipe; never a global gutter rule, never a painted
+  trough, never hardcoded scrollbar widths.

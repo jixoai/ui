@@ -56,6 +56,10 @@
     label?: string;
     /** error text → "! message" line + dashed trigger border */
     error?: string;
+    /** floating-surface variant: solid | acrylic | auto (acrylic unless
+        the environment asks for reduced transparency; the bezel fill
+        follows the variant through the jx-surface fill props) */
+    variant?: 'solid' | 'acrylic' | 'auto';
     /** show the 16×16 swatch in the trigger (default true) */
     showSwatch?: boolean;
     /** show the value text in the trigger (default true) */
@@ -76,6 +80,7 @@
     showSwatch = true,
     showValue = true,
     id = autoId,
+    variant = 'auto',
     class: className = '',
   }: Props = $props();
 
@@ -261,12 +266,17 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class="jx-color-picker-panel"
+    class="jx-color-picker-panel jx-surface"
+    data-variant={variant}
     role="group"
     aria-label="color picker"
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
   >
+    <!-- surface body (bezel paint + ::after shadow + the flex column);
+         the popover element paints nothing (floating-surface law arch
+         r3) -->
+    <div class="jx-color-picker-surface jx-surface-body">
     <div
       bind:this={svEl}
       class="jx-color-picker-sv"
@@ -309,6 +319,7 @@
         </PressButton>
       </div>
     {/if}
+    </div>
   </div>
 
   {#if invalid}
@@ -398,21 +409,25 @@
   }
 
   /* ---- panel: terminal bezel popover (select.svelte law) --------------- */
+  /* bezel surface on the jx-surface law (arch r3): the panel is the
+     PLATFORM element (no paint); the surface body carries the bezel
+     fill, the flex column, and the ::after shadow layer. */
   .jx-color-picker-panel {
+    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
+    --jx-surface-solid-fill: var(--terminal);
     position: fixed;
     margin: 0;
     position-try-fallbacks: flip-block;
     width: 226px; /* 200px pad + 2×12px padding + 2px border */
-    padding: 12px;
-    border: 1px solid var(--border);
-    background: var(--terminal);
     color: var(--terminal-foreground);
-    box-shadow: var(--shadow);
+    /* center on the anchor (the panel is wider than the trigger) */
+    justify-self: anchor-center;
+  }
+  .jx-color-picker-surface {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    /* center on the anchor (the panel is wider than the trigger) */
-    justify-self: anchor-center;
+    padding: 12px;
   }
   /* display:flex on the panel would defeat the UA sheet's closed-popover
      hiding — closed panels MUST be display:none or they render at their

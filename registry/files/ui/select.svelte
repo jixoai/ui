@@ -81,6 +81,10 @@
         select listbox); accepted for API stability, ignored with a
         console warning */
     multiple?: boolean;
+    /** floating-surface variant: solid | acrylic | auto (acrylic unless
+        the environment asks for reduced transparency; the bezel fill
+        follows the variant through the jx-surface fill props) */
+    variant?: 'solid' | 'acrylic' | 'auto';
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -96,6 +100,7 @@
     error,
     disabled = false,
     multiple = false,
+    variant = 'auto',
     class: className = '',
     ...rest
   }: Props = $props();
@@ -277,10 +282,17 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class="jx-sel-panel"
+    class="jx-sel-panel jx-surface"
+    data-variant={variant}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
   >
+    <!-- surface body (bezel paint + ::after shadow) + scroll ring
+         (floating-surface law arch r3: the platform element paints
+         nothing; the bezel fill resolves through the panel's fill
+         props cascading into the body) -->
+    <div class="jx-sel-panel-body jx-surface-body">
+    <div class="jx-sel-scroll">
     <ul
       bind:this={listEl}
       id={listboxId}
@@ -314,6 +326,8 @@
         </li>
       {/each}
     </ul>
+    </div>
+    </div>
   </div>
 
   {#if invalid}
@@ -410,20 +424,30 @@
   }
 
   /* ---- panel: terminal bezel dropdown (language-switcher menu law) -- */
+  /* bezel surface on the jx-surface law (arch r3): the panel is the
+     PLATFORM element (no paint); the body ring carries the bezel fill
+     (identity in BOTH variants through the fill props cascading from
+     the panel) and the ::after shadow layer. The scroll ring sits
+     inside the body. */
   .jx-sel-panel {
+    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
+    --jx-surface-solid-fill: var(--terminal);
     position: fixed;
     margin: 0;
     position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
     width: anchor-size(width); /* exactly the trigger — the select look */
     max-width: min(92vw, 30rem);
+    color: var(--terminal-foreground);
+  }
+  .jx-sel-scroll {
     max-height: 60vh;
     overflow: auto;
     overscroll-behavior: contain;
-    padding: 4px;
-    border: 1px solid var(--border);
-    background: var(--terminal);
-    color: var(--terminal-foreground);
-    box-shadow: var(--shadow);
+    /* scrollbar law: both-edges gutters; padding-inline hands the gutter
+       back so the visual inset stays 4px */
+    scrollbar-gutter: stable both-edges;
+    padding-block: 4px;
+    padding-inline: max(4px - var(--jx-scrollbar-thin, 0px), 0px);
   }
   /* Engines without CSS Anchor Positioning: authored viewport-center —
      the popover.svelte fallback visual, never worse. */

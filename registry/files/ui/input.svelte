@@ -15,11 +15,24 @@
       renders the plain native passthrough in the text shell — route
       them to the dedicated components.
     range
-      native slider + accent-color, label above, full width.
+      the Tier-1 pure-CSS slider (.jx-range in the native-form sheet):
+      bordered thin track, square primary thumb, hover lift / press.
     color
-      native picker, height aligned with the text shell.
+      the Tier-1 color field (.jx-color-field wrapper + .jx-color
+      swatch): locked square swatch + pipette glyph.
     hidden
       bare passthrough, no chrome, no slots.
+
+  2026-08-23 · Tier rebase (original request: "native-input styling
+  overhaul — a pure HTML+CSS Tier-1 form layer + Tier-2 components
+  consuming it"). The box/lane laws moved to the shared native-form
+  sheet (registry item `native-form`, imported once from app.css after
+  jixoai.css); this component keeps ONLY what is component-owned: the
+  snippet slots, the clear button, and the outer slot spacing. The
+  native-control styling (range track/thumb, color swatch + pipette
+  glyph, date/time picker indicator, number spinners, placeholder
+  distinction) all lives in Tier-1 so bare markup gets the same paint
+  with zero JS.
 
   Semantics added on top: label[for] (auto id via $props.id() when not
   supplied), error string → aria-invalid + aria-describedby + "! message"
@@ -152,21 +165,28 @@
         {...rest}
         value={controlled ? value : undefined}
         oninput={syncValue}
-        class="jx-native jx-range {className}"
+        class="jx-range {className}"
         aria-invalid={invalidAttr}
         aria-describedby={describedBy}
       />
     {:else if isColor}
-      <input
-        {id}
-        {type}
-        {...rest}
-        value={controlled ? value : undefined}
-        oninput={syncValue}
-        class="jx-color {className}"
-        aria-invalid={invalidAttr}
-        aria-describedby={describedBy}
-      />
+      <!-- Tier-1 color field: the label wrapper opens the picker from the
+           glyph zone too; the input is the locked square swatch lane.
+           className lands on the WRAPPER (the shell-law owner, same as
+           the text lane's .jx-field-shell) — pass jx-color-stretch for
+           the full-row field (default is the compact 5rem swatch). -->
+      <label class="jx-color-field {className}">
+        <input
+          {id}
+          {type}
+          {...rest}
+          value={controlled ? value : undefined}
+          oninput={syncValue}
+          class="jx-color"
+          aria-invalid={invalidAttr}
+          aria-describedby={describedBy}
+        />
+      </label>
     {:else}
       <!-- the shell owns the box law; the input inside is chromeless -->
       <div class="jx-field-shell {className}" class:jx-slotted={slotted} class:jx-invalid={invalid} class:jx-clearable={clearable}>
@@ -180,7 +200,7 @@
           {...rest}
           value={controlled ? value : undefined}
           oninput={syncValue}
-          class="jx-input"
+          class="jx-input-lane"
           aria-invalid={invalidAttr}
           aria-describedby={describedBy}
         />
@@ -201,23 +221,13 @@
 {/if}
 
 <style>
-  .jx-field {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-    width: 100%;
-    min-width: 0; /* InputGroup hardening: shrink inside grid/flex hosts */
-  }
-  .jx-label {
-    width: fit-content;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    cursor: pointer;
-  }
+  /* Tier rebase (2026-08-23): the field scaffolding (.jx-field /
+     .jx-label / .jx-error), the shell laws (.jx-field-shell +
+     slotted/invalid/disabled/focus states), the chromeless lane
+     (.jx-input-lane), the range slider (.jx-range) and the color field
+     (.jx-color-field / .jx-color) all live in the Tier-1 native-form
+     sheet now. Component-owned below: the snippet-slot system, the
+     clear button, and the outer slot spacing. */
 
   /* ---- outer snippet slots ------------------------------------------
      net 0.25rem (mb-1 / mt-1 law) away from the shell: they cancel half
@@ -232,77 +242,6 @@
   }
   .jx-outer-end {
     margin-top: -0.25rem;
-  }
-
-  /* ---- text-like shell ----------------------------------------------
-     the shell owns border/fill/hover/focus; the <input> inside is
-     chromeless and flexes. Without inner slots the pixels are identical
-     to the old single-<input> shell. Height law: min-height 2.5rem with
-     the input at calc(2.5rem - 2px) — every text-like family control
-     renders the same 40px row, slotted or not. */
-  .jx-field-shell {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem; /* gap-2 between inner slots and the input */
-    width: 100%;
-    max-width: 100%; /* InputGroup hardening: never push past the host row */
-    min-height: 2.5rem;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--background);
-    color-scheme: light;
-    transition: box-shadow 150ms ease-out;
-  }
-  :global(.dark) .jx-field-shell {
-    color-scheme: dark;
-  }
-  .jx-field-shell:not(:has(input:disabled)):hover:not(:has(:focus-visible)) {
-    box-shadow: var(--shadow-2xs);
-  }
-  /* the site focus law (terminal-header / language-switcher): an inset
-     1px outline on the ring token — the shell carries it for the input
-     AND for slot controls (clear button) alike */
-  .jx-field-shell:has(:focus-visible) {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-    box-shadow: none;
-  }
-  .jx-field-shell.jx-invalid {
-    border-style: dashed;
-  }
-  .jx-field-shell:has(input:disabled) {
-    opacity: 0.5;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-  /* inner slots present → the shell carries the horizontal padding and
-     the input runs edge-to-edge between the gap-2 seams */
-  .jx-field-shell.jx-slotted {
-    padding-inline: 0.75rem;
-  }
-  .jx-input {
-    flex: 1 1 0%;
-    min-width: 0;
-    min-height: calc(2.5rem - 2px);
-    padding: 0.5rem 0.75rem;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: var(--foreground);
-    font-family: inherit;
-    font-size: 0.875rem;
-    line-height: 1.45;
-  }
-  .jx-field-shell.jx-slotted .jx-input {
-    padding-inline: 0;
-  }
-  .jx-input::placeholder {
-    color: var(--muted-foreground);
-    opacity: 1;
-  }
-  /* the native search decoration bows out when our own × is on duty */
-  .jx-field-shell.jx-clearable .jx-input::-webkit-search-cancel-button {
-    display: none;
   }
 
   /* ---- inner snippet slots + clear button --------------------------- */
@@ -342,73 +281,8 @@
     outline: 1px solid var(--ring);
     outline-offset: -1px;
   }
-
-  /* ---- accent-color family (range) --------------------------------- */
-  .jx-native {
-    accent-color: var(--primary);
-    margin: 0;
-    cursor: pointer;
-  }
-  /* the native control keeps its own rendering, so its focus outline
-     sits OUTSIDE the slider — an inset ring would crowd the thumb */
-  .jx-native:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: 1px;
-  }
-  .jx-native:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .jx-range {
-    width: 100%;
-    height: 1rem;
-  }
-
-  /* ---- color: native picker, height aligned with the text shell --- */
-  .jx-color {
-    width: 100%;
-    height: 2.5rem;
-    padding: 3px;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--background);
-    color-scheme: light;
-    cursor: pointer;
-  }
-  :global(.dark) .jx-color {
-    color-scheme: dark;
-  }
-  .jx-color:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-color:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .jx-color[aria-invalid='true'] {
-    border-style: dashed;
-  }
-
-  /* ---- error line -------------------------------------------------- */
-  .jx-error {
-    display: flex;
-    gap: 0.5em;
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-error-mark {
-    font-weight: 700;
-    color: var(--destructive);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-field-shell {
-      transition: none;
-    }
+  /* the native search decoration bows out when our own × is on duty */
+  .jx-field-shell.jx-clearable .jx-input-lane::-webkit-search-cancel-button {
+    display: none;
   }
 </style>

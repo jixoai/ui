@@ -28,6 +28,19 @@
      border-inline-start, logical properties only (RTL flips itself),
      reduced-motion kills the transitions.
 
+  Open/close race fix (2026-08-23, “聚焦后闪开即关，开关与否只能和…” —
+  open-on-focus flashed shut, toggling was uncontrollable around focus):
+  the popover's DOM state flips synchronously, but its `toggle` EVENT is
+  queued a task later. A re-click lands exactly in that gap — pointerdown
+  light-dismisses the panel, click fires before the queued toggle — so
+  the old `!open` guard read the stale mirror, skipped the re-show, and
+  the panel ended up slammed shut. Interaction decisions now read the
+  LIVE :popover-open state (panelOpenLive()); `open` is demoted to the
+  aria-expanded mirror (set optimistically by our show/hide, confirmed by
+  ontoggle). A re-click keeps the in-progress filter (freshOpen re-seeds
+  fresh focus only), and blur clears the focus-scoped query so a closed
+  panel can never hold a stale filter.
+
   The input's DOM text is display state, owned imperatively: while focused
   the user owns it; on blur / external `value` change an $effect resyncs
   it to the committed display (selected label, else the custom value).
@@ -82,6 +95,10 @@
     allowCustom?: boolean;
     /** disable the input and the chevron together */
     disabled?: boolean;
+    /** floating-surface variant: solid | acrylic | auto (acrylic unless
+        the environment asks for reduced transparency; the bezel fill
+        follows the variant through the jx-surface fill props) */
+    variant?: 'solid' | 'acrylic' | 'auto';
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -97,6 +114,7 @@
     id = autoId,
     allowCustom = true,
     disabled = false,
+    variant = 'auto',
     class: className = '',
     ...rest
   }: Props = $props();
@@ -189,6 +207,16 @@
   // It only syncs the `open` flag: focus never enters the panel, so there
   // is no focus-in/restitution to orchestrate, and query/active are set by
   // the call site that knows the intent (typing vs fresh open).
+  // 2026-08-23 race law: the DOM popover state flips synchronously inside
+  // showPopover/hidePopover/light-dismiss, but the toggle EVENT trails a
+  // task behind it. Any decision taken inside that gap (a re-click sits
+  // exactly there: pointerdown light-dismisses, click runs before the
+  // queued toggle) must read the LIVE state via panelOpenLive(), never
+  // the `open` mirror — stale truth is how the panel slammed shut.
+  function panelOpenLive(): boolean {
+    return panelEl != null && panelEl.isConnected && panelEl.matches(':popover-open');
+  }
+
   function onPanelToggle(event: ToggleEvent): void {
     open = event.newState === 'open';
   }
@@ -197,13 +225,17 @@
     if (panelEl?.isConnected && !panelEl.matches(':popover-open')) {
       try {
         panelEl.showPopover();
+        open = true; // optimistic aria mirror — onPanelToggle confirms it
       } catch {
         // no transient activation (programmatic focus) — the next keystroke opens
       }
     }
   }
   function hidePanel(): void {
-    if (panelEl?.matches(':popover-open')) panelEl.hidePopover();
+    if (panelEl?.matches(':popover-open')) {
+      panelEl.hidePopover();
+      open = false;
+    }
   }
   function freshOpen(): void {
     query = '';
@@ -257,7 +289,7 @@
     if (event.isComposing) return;
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault();
-      if (!open) {
+      if (!panelOpenLive()) {
         freshOpen(); // native-select muscle memory: ↑/↓ opens it
         return;
       }
@@ -277,16 +309,25 @@
 
   function onFocus(): void {
     focused = true;
-    freshOpen();
+    if (!panelOpenLive()) freshOpen(); // a live panel keeps its in-progress filter
     inputEl?.select(); // re-focus selects all — ready to retype
   }
   function onClick(): void {
-    if (!open && focused) freshOpen(); // re-clicking the input keeps the panel up
+    // Re-click on the focused field: pointerdown already light-dismissed
+    // the panel and its toggle event lands AFTER this click — only the
+    // live read sees the truth, so the panel stays up as intended. The
+    // in-progress filter survives (freshOpen re-seeds fresh focus only);
+    // the highlight is merely re-validated against the current rows.
+    if (!panelOpenLive() && focused) {
+      if (!rowEnabled(active)) active = freshActive();
+      showPanel();
+    }
   }
   function onFocusOut(): void {
     focused = false; // the display-sync effect below reverts/refreshes the text
     hidePanel();
     commitFromText();
+    query = ''; // the filter is focus-scoped — a closed panel never holds a stale one
   }
 
   // keep the displayed text honest whenever it is not being edited: on
@@ -381,10 +422,15 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class="jx-combobox-panel"
+    class="jx-combobox-panel jx-surface"
+    data-variant={variant}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
   >
+    <!-- surface body (bezel paint + ::after shadow) + scroll ring
+         (floating-surface law arch r3) -->
+    <div class="jx-combobox-panel-body jx-surface-body">
+    <div class="jx-combobox-scroll">
     {#if rows.length > 0}
       <!-- mousedown is prevented so click-to-choose never blurs the input
            into a premature blur-commit -->
@@ -425,6 +471,8 @@
     {:else}
       <p class="jx-combobox-empty">No results for “{query}”</p>
     {/if}
+    </div>
+    </div>
   </div>
 
   {#if invalid}
@@ -547,20 +595,28 @@
   }
 
   /* ---- panel: terminal bezel dropdown (select.svelte panel law) -------- */
+  /* bezel surface on the jx-surface law (arch r3): the panel is the
+     PLATFORM element (no paint); the body ring carries the bezel fill
+     and the ::after shadow layer; the scroll ring sits inside. */
   .jx-combobox-panel {
+    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
+    --jx-surface-solid-fill: var(--terminal);
     position: fixed;
     margin: 0;
     position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
     width: anchor-size(width); /* exactly the trigger — the select look */
     max-width: min(92vw, 30rem);
+    color: var(--terminal-foreground);
+  }
+  .jx-combobox-scroll {
     max-height: 60vh;
     overflow: auto;
     overscroll-behavior: contain;
-    padding: 4px;
-    border: 1px solid var(--border);
-    background: var(--terminal);
-    color: var(--terminal-foreground);
-    box-shadow: var(--shadow);
+    /* scrollbar law: both-edges gutters; padding-inline hands the gutter
+       back so the visual inset stays 4px */
+    scrollbar-gutter: stable both-edges;
+    padding-block: 4px;
+    padding-inline: max(4px - var(--jx-scrollbar-thin, 0px), 0px);
   }
   /* Engines without CSS Anchor Positioning: authored viewport-center —
      the popover.svelte fallback visual, never worse. */

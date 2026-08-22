@@ -736,24 +736,11 @@
     --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
     --jx-surface-solid-fill: var(--terminal);
     --jx-surface-border-color: color-mix(in oklab, var(--terminal-foreground) 25%, transparent);
-    transition:
-      opacity 200ms cubic-bezier(0.22, 1, 0.36, 1),
-      translate 200ms cubic-bezier(0.22, 1, 0.36, 1),
-      display 200ms allow-discrete,
-      overlay 200ms allow-discrete;
-    opacity: 0;
-    translate: 0 -4px;
   }
-  .jx-nav :global(.jx-pop.jx-subpanel:popover-open) {
-    opacity: 1;
-    translate: 0 0;
-  }
-  @starting-style {
-    .jx-nav :global(.jx-pop.jx-subpanel:popover-open) {
-      opacity: 0;
-      translate: 0 -4px;
-    }
-  }
+  /* The MOTION is fully the floating-surface law's (Owner r7): the
+     popover's enter kernel measures the slide direction against the
+     anchor, the two-phase texture and the exit ride the law — no
+     bespoke choreography here anymore */
   /* popovers get a ::backdrop; light dismiss must never dim the page */
   .jx-nav :global(.jx-pop.jx-subpanel::backdrop) {
     background: transparent;
@@ -935,13 +922,8 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .jx-nav .jx-caret,
-    .jx-nav .jx-sub-link,
-    .jx-nav :global(.jx-pop.jx-subpanel) {
+    .jx-nav .jx-sub-link {
       transition: none;
-    }
-    .jx-nav :global(.jx-pop.jx-subpanel) {
-      opacity: 1;
-      translate: none;
     }
   }
 

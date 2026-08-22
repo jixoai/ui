@@ -215,7 +215,7 @@
     ontoggle={onPanelToggle}
     onpointerenter={clearTimers}
     onpointerleave={onPointerLeave}
-    class="border-border jx-wing jx-surface"
+    class="jx-wing jx-surface"
     data-variant="auto"
     style="position-anchor: {anchorName}"
   >
@@ -295,7 +295,6 @@
     position-area: right;
     width: min(280px, 78vw);
     margin: 0 0 0 -1px; /* overlap the card's border: ONE surface */
-    border-width: 1px;
     /* hide the panel once its anchor card scrolled out (popover law) */
     position-try-fallbacks: flip-inline, --jx-wing-block-end, --jx-wing-block-start;
     position-try: flip-inline, --jx-wing-block-end, --jx-wing-block-start;

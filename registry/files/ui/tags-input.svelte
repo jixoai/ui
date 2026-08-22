@@ -34,6 +34,13 @@
   through its chips — with addTag/removeAt entry guards behind them.
   The chips stay readable under the shell's 0.5 opacity.
 
+  Chip end-padding fix (2026-08-23, “when there is NO suffix-icon,
+  rendered tags lose their padding-inline-end”): the × button doubles as
+  the chip's end inset — a removable:false chip rendered none, slamming
+  the label onto the end border. The end padding is now authored on the
+  chip itself for the no-× case (:not(:has(.jx-tags-remove))); chips
+  with the × keep their exact previous metrics.
+
   NativeHTML base audit (2026-08-20, updated by the form-field bridge the
   same day): the typing input IS a native <input type="text">, but it
   must never submit — its name is intercepted away. Chips reach FormData
@@ -90,6 +97,10 @@
     allowDuplicates?: boolean;
     /** disable the input AND every chip ×; entry guards back the buttons */
     disabled?: boolean;
+    /** floating-surface variant: solid | acrylic | auto (acrylic unless
+        the environment asks for reduced transparency; the bezel fill
+        follows the variant through the jx-surface fill props) */
+    variant?: 'solid' | 'acrylic' | 'auto';
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -106,6 +117,7 @@
     maxTags,
     allowDuplicates = false,
     disabled = false,
+    variant = 'auto',
     class: className = '',
     ...rest
   }: Props = $props();
@@ -387,10 +399,15 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class="jx-tags-panel"
+    class="jx-tags-panel jx-surface"
+    data-variant={variant}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
   >
+    <!-- surface body (bezel paint + ::after shadow) + scroll ring
+         (floating-surface law arch r3) -->
+    <div class="jx-tags-panel-body jx-surface-body">
+    <div class="jx-tags-scroll">
     {#if filtered.length > 0}
       <!-- mousedown is prevented so click-to-choose never blurs the input
            into a premature blur-commit -->
@@ -419,6 +436,8 @@
         {/each}
       </ul>
     {/if}
+    </div>
+    </div>
   </div>
 
   {#if invalid}
@@ -520,6 +539,11 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  /* the × is the chip's end inset when present; without it (removable:
+     false) the chip authors its own, mirroring the start padding */
+  .jx-tags-tag:not(:has(.jx-tags-remove)) {
+    padding-inline-end: 0.5rem;
+  }
   .jx-tags-remove {
     display: inline-flex;
     align-items: center;
@@ -597,20 +621,28 @@
   }
 
   /* ---- suggestion panel: terminal bezel (combobox panel law) ---------- */
+  /* bezel surface on the jx-surface law (arch r3): the panel is the
+     PLATFORM element (no paint); the body ring carries the bezel fill
+     and the ::after shadow layer; the scroll ring sits inside. */
   .jx-tags-panel {
+    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
+    --jx-surface-solid-fill: var(--terminal);
     position: fixed;
     margin: 0;
     position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
     width: anchor-size(width); /* exactly the shell */
     max-width: min(92vw, 30rem);
+    color: var(--terminal-foreground);
+  }
+  .jx-tags-scroll {
     max-height: 60vh;
     overflow: auto;
     overscroll-behavior: contain;
-    padding: 4px;
-    border: 1px solid var(--border);
-    background: var(--terminal);
-    color: var(--terminal-foreground);
-    box-shadow: var(--shadow);
+    /* scrollbar law: both-edges gutters; padding-inline hands the gutter
+       back so the visual inset stays 4px */
+    scrollbar-gutter: stable both-edges;
+    padding-block: 4px;
+    padding-inline: max(4px - var(--jx-scrollbar-thin, 0px), 0px);
   }
   /* Engines without CSS Anchor Positioning: authored viewport-center —
      the popover.svelte fallback visual, never worse. */

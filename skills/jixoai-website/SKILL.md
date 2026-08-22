@@ -38,7 +38,10 @@ across projects so the brand hue stays meaningful.
    `npx jixoai-ui init --hue <project hue>` in the site package — registers
    the `@jixoai` namespace in components.json, installs `jixoai-theme` (the
    token sheet of design-tokens.md, published verbatim from this repo) and
-   applies the brand hue. Components come the same way:
+   applies the brand hue. ALWAYS also `npx jixoai-ui add scrollbar-measure`
+   and `import '@lib/scrollbar-measure';` once in the root layout: it
+   publishes the measured per-OS scrollbar widths feeding the scrollbar
+   law's padding compensation. Components come the same way:
    `npx jixoai-ui add toc` / `press-button` / `section-card` /
    `terminal-header` / `terminal-footer` / `theme-toggle`. The registry at
    <https://ui.jixoai.com> is the canonical source; this skill's references
@@ -55,7 +58,13 @@ across projects so the brand hue stays meaningful.
    composition, not the content.
 4. Read `references/motion.md` — scroll reveal, press physics, and the
    reduced-motion law. Motion is restrained: two patterns total.
-5. Implement, then run the verification checklist below.
+5. Read `references/llms-txt.md` — the AI-facing export layer. Every
+   jixoai site ships `llms.txt` / `llms-full.txt` / per-page `.md`
+   mirrors: `npx jixoai-ui add llms-txt` (installs
+   `vite-plugins/llms-txt.mjs`), then ONE generation point — the vite
+   plugin for plain-build sites, or a final-orchestration
+   `generateLlmsTxt(distDir, config)` call for orchestrated builds.
+6. Implement, then run the verification checklist below.
 
 ## Sub-agent feedback protocol
 
@@ -65,6 +74,29 @@ contradictory, or impractical for the target project, and how the agent
 resolved each one. The orchestrator treats this log as evidence, not
 truth — cross-checks it against the actual diff — and feeds real friction
 back into this skill before the next sub-agent run.
+
+## Sub-agent runtime verification on this machine (2026-08-23)
+
+Confirmed by two independent sub-agents on the ui repo:
+
+- The browser-use tooling is main-agent-only; subagents CANNOT load it.
+  A sub-agent that must verify rendered UI runs its own check with
+  `playwright-core` (install in a /tmp dir) against the machine-cached
+  Chromium: `~/Library/Caches/ms-playwright/chromium-*/chrome-mac-arm64/
+  Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing`
+  (pass as `executablePath`; version-agnostic). Headless Chromium does
+  NOT render native date-picker popups — indicator/picker click tests
+  need `headless: false`.
+- macOS env facts for agent scripts: no GNU `timeout` (a swallowed
+  "command not found" can fake a passing check — run commands bare);
+  `vite dev` binds IPv6-only localhost and a system proxy intercepts
+  plain curl — use `curl --noproxy '*' "http://[::1]:PORT/…"`; concurrent
+  agents MUST pick unique dev ports and must NEVER share `vite build`
+  (the orchestrator runs the single integration build).
+- Registry mirrors under `registry/files/**` follow the registry item's
+  TARGET path (`@ui/x` → `registry/files/ui/x`), not the source-tree
+  path — e.g. source `src/lib/toc.css` mirrors to `registry/files/ui/
+  toc.css`. Check the item's `files[].path` before syncing.
 
 ## Verification checklist
 
@@ -84,7 +116,18 @@ back into this skill before the next sub-agent run.
       runtime required (adapter-static or equivalent).
 - [ ] Project-specific seams preserved (e.g. byte-identical catalog copy,
       static checks, CNAME production gate) — restyle never breaks them.
+- [ ] Scrollbar law: `scrollbar-width: thin` + transparent track +
+      currentColor thumbs globally (hover chain intact); every REAL
+      scrollport carries `scrollbar-gutter: stable both-edges` with the
+      `padding-inline: max(<pad> - var(--jx-scrollbar-thin, 0px), 0px)`
+      compensation; `<jx-scrollbar-measure>` is imported once in the root
+      layout (no hardcoded widths; overflow:hidden clip surfaces must NOT
+      reserve gutters — the gutter rule never goes on `*`).
 - [ ] `pnpm build` and the project's site checks pass.
+- [ ] AI export (references/llms-txt.md): `llms.txt` + per-page `.md`
+      mirrors ship with absolute URLs; ONE generation point (plugin OR
+      final orchestration call); byte-identical on re-run; excluded
+      pages have no mirror; robots/sitemap untouched.
 
 ## What varies per project
 

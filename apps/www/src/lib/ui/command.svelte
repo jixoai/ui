@@ -64,7 +64,7 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
 </script>
 
 <script lang="ts">
-  import { untrack } from 'svelte';
+  import { onDestroy, untrack } from 'svelte';
 
   interface Props {
     items: CommandItem[];
@@ -84,6 +84,9 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
     hotkey?: boolean;
     /** replace the ranking (pure function, default rankCommandItems) */
     filter?: (items: CommandItem[], query: string) => CommandItem[];
+    /** floating-surface variant: solid | acrylic | auto (acrylic unless
+        the environment asks for reduced transparency) */
+    variant?: 'solid' | 'acrylic' | 'auto';
     class?: string;
   }
 
@@ -97,11 +100,44 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
     label = 'command palette',
     hotkey = false,
     filter = rankCommandItems,
+    variant = 'auto',
     class: className = '',
   }: Props = $props();
 
   let dialog = $state<HTMLDialogElement | null>(null);
   let input = $state<HTMLInputElement | null>(null);
+  // the shared dialog-family close fade (dialog.svelte law): a 120ms
+  // press-back, skipped under reduced motion; a generation token stops
+  // a reopen during the fade from fighting the in-flight close
+  let closing = $state(false);
+  let closeGen = 0;
+  let closeTimer: number | undefined;
+
+  const CLOSE_MS = 120;
+  const prefersReducedMotion = (): boolean =>
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  onDestroy(() => clearTimeout(closeTimer));
+
+  const shut = (): void => {
+    if (!dialog || !dialog.open) return;
+    const gen = ++closeGen;
+    if (prefersReducedMotion()) {
+      closing = false;
+      setOpen(false);
+      dialog.close();
+      return;
+    }
+    closing = true;
+    clearTimeout(closeTimer);
+    closeTimer = window.setTimeout(() => {
+      if (gen !== closeGen) return;
+      closing = false;
+      setOpen(false);
+      dialog?.close();
+    }, CLOSE_MS);
+  };
 
   // unique surface ids per instance (multiple palettes must not collide)
   const uid = $props.id();
@@ -132,6 +168,9 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
   // state -> element, mirroring the dialog laws
   $effect(() => {
     if (open) {
+      closeGen += 1;
+      clearTimeout(closeTimer);
+      closing = false;
       if (dialog && !dialog.open) dialog.showModal();
       query = '';
       activeIndex = 0;
@@ -139,9 +178,7 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
         if (typeof requestAnimationFrame === 'function' && dialog?.open) input?.focus();
       });
     } else {
-      untrack(() => {
-        if (dialog?.open) dialog.close();
-      });
+      untrack(() => shut());
     }
   });
 
@@ -160,10 +197,13 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
 
   function handleCancel(event: Event): void {
     event.preventDefault();
-    setOpen(false);
+    // the cancel intent goes through the animated path; the close event
+    // only adopts state (a close means the dialog already left)
+    shut();
   }
 
   function handleClose(): void {
+    closing = false;
     setOpen(false);
   }
 
@@ -226,12 +266,14 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
 
 <dialog
   bind:this={dialog}
-  class="jx-command {className}"
+  class="jx-command jx-surface {className}"
+  class:closing={closing}
+  data-variant={variant}
   aria-label={label}
   oncancel={handleCancel}
   onclose={handleClose}
 >
-  <div class="jx-command-frame">
+  <div class="jx-command-frame jx-surface-body">
     <!-- svelte-ignore a11y_autofocus -- the palette's whole contract is
          type-to-search: focus must land in the input on open -->
     <input
@@ -291,17 +333,30 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
     /* sit above center — palettes read as floating queries */
     margin: 12vh auto auto;
     padding: 0;
-    border: 1px solid var(--border);
-    background: var(--popover);
     color: var(--popover-foreground);
-    box-shadow: var(--shadow);
     border-radius: var(--radius);
     max-height: min(60vh, 30rem);
   }
+  /* scrim law: --scrim — semi-transparent black (light) / white (dark),
+     never a brand tint; the .closing press-back is the jx-surface law,
+     only the ::backdrop fade is component-owned (dialog.svelte law) */
   .jx-command::backdrop {
-    background: color-mix(in oklab, var(--primary) 10%, transparent);
+    background: var(--scrim);
+  }
+  .jx-command.closing::backdrop {
+    opacity: 0;
+    transition: opacity 120ms ease-out;
+  }
+  /* r18 EXCEPTION: ::backdrop is a pseudo-element — unreachable from
+     WAAPI, so the scrim fade stays a CSS transition by necessity */
+  @media (prefers-reduced-motion: reduce) {
+    .jx-command.closing::backdrop {
+      transition: none;
+    }
   }
 
+  /* doubles as the surface body (paint + ::after shadow);
+     floating-surface law arch r3 — the <dialog> paints nothing */
   .jx-command-frame {
     display: flex;
     flex-direction: column;
@@ -328,7 +383,10 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
   .jx-command-list {
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 0.375rem;
+    /* scrollbar law: both-edges gutters; padding-inline hands the gutter back */
+    scrollbar-gutter: stable both-edges;
+    padding-block: 0.375rem;
+    padding-inline: max(0.375rem - var(--jx-scrollbar-thin, 0px), 0px);
   }
   .jx-command-group {
     margin: 0.5rem 0 0.25rem;

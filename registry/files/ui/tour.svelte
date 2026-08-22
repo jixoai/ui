@@ -27,6 +27,13 @@
     keyboard     ←/→ step, Enter = next, Escape/Skip = finish; open
                  focuses NEXT; finishing restores the invoker's focus
     SSR          nothing renders until open
+
+  Floating-surface law (2026-08-22): the card rides .jx-surface (::after
+  shadow layer, @starting-style pull-apart entry, variant solid|acrylic|
+  auto). KNOWN GAP (accepted): the {#if open && step} wrapper removes the
+  node on close, so the allow-discrete exit choreography never runs — the
+  tour closes instantly, exactly as it did before the law. Rewiring the
+  render guard to keep the node through the exit is a future change.
 -->
 <script lang="ts">
   import { untrack } from 'svelte';
@@ -53,6 +60,9 @@
     nextLabel?: string;
     prevLabel?: string;
     skipLabel?: string;
+    /** floating-surface variant: solid | acrylic | auto (acrylic unless
+        the environment asks for reduced transparency) */
+    variant?: 'solid' | 'acrylic' | 'auto';
     class?: string;
   }
 
@@ -69,6 +79,7 @@
     nextLabel = 'Next',
     prevLabel = 'Back',
     skipLabel = 'Skip tour',
+    variant = 'auto',
     class: className = '',
   }: Props = $props();
 
@@ -252,11 +263,15 @@
     tabindex="-1"
     aria-modal="false"
     aria-label={step.title}
-    class="jx-tour {className}"
+    class="jx-tour jx-surface {className}"
+    data-variant={variant}
     style="position-anchor: {leaseName}"
     bind:this={panelEl}
     onkeydown={handleKeydown}
   >
+    <!-- surface body (fill + ::after shadow); the popover element paints
+         nothing (floating-surface law arch r3) -->
+    <div class="jx-tour-surface jx-surface-body">
     <p class="jx-tour-title">{step.title}</p>
     {#if step.description}
       <p class="jx-tour-desc">{step.description}</p>
@@ -277,6 +292,7 @@
           {index >= steps.length - 1 ? 'Finish' : nextLabel}
         </button>
       </div>
+    </div>
     </div>
   </div>
 {/if}
@@ -307,20 +323,22 @@
   /* panel by anchor() functions — the SAME primitives the hole uses
      (inset-area is unsupported in engines where anchor() works; the
      walkthrough-5 geometry probe proved function positioning reliable) */
+  /* PLATFORM element (floating-surface law arch r3): anchoring + motion
+     only, no paint; the surface body carries fill/flex/padding and the
+     ::after shadow layer */
   .jx-tour {
     position: fixed;
     top: calc(anchor(bottom) + var(--jx-tour-gap, 12px));
     left: anchor(left);
     width: fit-content;
     max-width: min(88vw, 20rem);
+    color: var(--popover-foreground);
+  }
+  .jx-tour-surface {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     padding: 0.875rem 1rem;
-    border: 1px solid var(--border);
-    background: var(--popover);
-    color: var(--popover-foreground);
-    box-shadow: var(--shadow);
   }
   @supports not (anchor-name: --jx-tour-support) {
     .jx-tour {

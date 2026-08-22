@@ -21,8 +21,12 @@
   shows it. Reduced motion swaps to instant.
 
   The float slot is provider-style (like shadcn Dialog's portal): the
-  scaffold owns the insertion point, consumers render into it via the
-  `float` snippet from context — see `jxScaffoldFloat` below.
+  scaffold owns the insertion point, consumers adopt their live nodes
+  into it through the `jx-top-layer` context (Owner request, 2026-08-23:
+  "if a topLayer exists, the ToC automatically uses it; a prop can
+  disable this"). ONE adoption mechanism, many consumers — scaffold-float
+  portals arbitrary children; the toc adopts itself automatically. Both
+  ride the immersive slide by construction.
 
   View transitions (SPA page-carousel): the header band keeps
   view-transition-name "site-header" (persists across navigations);
@@ -33,11 +37,15 @@
   import { getContext, onMount, setContext } from 'svelte';
   import type { Snippet } from 'svelte';
 
-  /** Context contract: render into the scaffold's float plane. */
-  export interface ScaffoldFloatApi {
+  /** Context contract: adopt live DOM nodes into the scaffold's top layer
+   *  (the float plane). Ordered and multi-node: adoption order is the
+   *  slot's child order. Consumers keep node ownership — the returned
+   *  release fn only unregisters; reclaiming the node itself (returning
+   *  it to its authoring anchor) is the consumer's teardown job. */
+  export interface TopLayerApi {
     /** Adopt a live DOM node into the top layer; the returned fn
      *  releases it (the portal component reclaims its nodes). */
-    set: (node: HTMLElement | null) => () => void;
+    adopt: (node: HTMLElement) => () => void;
   }
 
   interface Props {
@@ -48,14 +56,14 @@
 
   let { header, children, footer }: Props = $props();
 
-  // float plane state — one adopted node (v1; a set is a later
-  // generalization if multiple floats ever coexist)
-  let floatNode = $state<HTMLElement | null>(null);
-  setContext<ScaffoldFloatApi>('jx-scaffold-float', {
-    set: (node) => {
-      floatNode = node;
+  // float plane state — the ORDERED set of adopted nodes (scaffold-float
+  // portals, the toc self-adopts; the slot renders them in adoption order)
+  let floatNodes = $state<HTMLElement[]>([]);
+  setContext<TopLayerApi>('jx-top-layer', {
+    adopt: (node) => {
+      floatNodes = [...floatNodes.filter((n) => n !== node), node];
       return () => {
-        if (floatNode === node) floatNode = null;
+        floatNodes = floatNodes.filter((n) => n !== node);
       };
     },
   });
@@ -65,11 +73,18 @@
   let bodyEl = $state<HTMLElement | null>(null);
   let hidden = $state(false);
 
-  // float adoption: move the portal's live node into the top-layer slot
+  // float adoption: move the adopted live nodes into the top-layer slot,
+  // in adoption order (an appendChild/insertBefore re-run is a no-op once
+  // every node already sits at its index)
   $effect(() => {
-    if (floatNode && floatSlotEl && floatNode.parentElement !== floatSlotEl) {
-      floatSlotEl.appendChild(floatNode);
-    }
+    if (!floatSlotEl) return;
+    // capture: the narrowed $state can't cross the forEach closure
+    const slot = floatSlotEl;
+    floatNodes.forEach((node, i) => {
+      const current = slot.children[i];
+      if (current === node) return;
+      slot.insertBefore(node, current ?? null);
+    });
   });
 
   onMount(() => {

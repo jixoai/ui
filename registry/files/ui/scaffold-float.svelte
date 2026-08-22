@@ -8,6 +8,10 @@
   The float rides the top layer's immersive hide/reveal together with
   the header by construction — it lives in the same moving plane.
 
+  Consumes the shared `jx-top-layer` context (Owner request, 2026-08-23):
+  ONE adoption mechanism for the float plane — the toc's automatic
+  top-layer mount uses the same contract.
+
   API:
     <ScaffoldFloat>
       …anything that should stick to the top plane…
@@ -16,7 +20,7 @@
 <script lang="ts">
   import { getContext, onMount } from 'svelte';
   import type { Snippet } from 'svelte';
-  import type { ScaffoldFloatApi } from './website-scaffold.svelte';
+  import type { TopLayerApi } from './website-scaffold.svelte';
 
   interface Props {
     children: Snippet;
@@ -24,18 +28,20 @@
 
   let { children }: Props = $props();
 
-  const api = getContext<ScaffoldFloatApi>('jx-scaffold-float');
+  const api = getContext<TopLayerApi>('jx-top-layer');
 
   let contentEl = $state<HTMLElement | null>(null);
   let anchorEl = $state<HTMLElement | null>(null);
 
   onMount(() => {
     if (!contentEl) return;
-    const unregister = api.set(contentEl);
+    // capture: the narrowed $state can't cross the teardown closure
+    const content = contentEl;
+    const release = api.adopt(content);
     return () => {
-      unregister();
+      release();
       // return the nodes to the anchor so Svelte teardown finds them
-      anchorEl?.appendChild(contentEl);
+      anchorEl?.appendChild(content);
     };
   });
 </script>

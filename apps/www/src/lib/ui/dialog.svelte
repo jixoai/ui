@@ -4,13 +4,17 @@
   NativeHTML base (2026-08-20): the native <dialog> element driven by
   showModal()/close(). The platform supplies the focus trap, the Escape
   key (cancel event), an inert page behind, top-layer rendering, and
-  closed-by-default (no-JS page loads never paint dialog content inline).
+  closed-by-default (no-JS page loads never paint dialog contents inline).
   The component adds exactly two things: bindable open state, and a 120ms
-  opacity close fade (skipped under prefers-reduced-motion).
+  close fade (skipped under prefers-reduced-motion) whose layer choreography
+  (surface sinks, shadow presses back) lives in the jx-surface law.
 
-  Deliberately NOT in v1 (extension directions): entry animation
-  (@starting-style), backdrop-click close, intercepting
-  form method="dialog" submits (those close instantly, no fade).
+  Floating-surface law (2026-08-22): the panel carries jx-surface — the
+  hard offset shadow is a REAL ::after layer, entry runs the
+  @starting-style pull-apart, and variant='solid' | 'acrylic' | 'auto'
+  picks the paint (auto: acrylic unless the environment asks for reduced
+  transparency). The ::backdrop scrim is --scrim: semi-transparent black
+  in light mode, white in dark mode — never a brand tint.
 -->
 <script lang="ts">
   import { untrack } from 'svelte';
@@ -21,13 +25,16 @@
     title?: string;
     /** Bindable open state: true -> showModal(), false -> animated close. */
     open?: boolean;
+    /** floating-surface variant: solid | acrylic | auto (acrylic unless
+        the environment asks for reduced transparency) */
+    variant?: 'solid' | 'acrylic' | 'auto';
     /** Dialog body. */
     children: Snippet;
     /** Action area (top-border slot) — Cancel / Confirm row. */
     footer?: Snippet;
   }
 
-  let { title, open = $bindable(false), children, footer }: Props = $props();
+  let { title, open = $bindable(false), variant = 'auto', children, footer }: Props = $props();
 
   let dialog = $state<HTMLDialogElement | null>(null);
   let closing = $state(false);
@@ -85,57 +92,69 @@
 
 <dialog
   bind:this={dialog}
-  class="jx-dialog"
+  class="jx-dialog jx-surface"
   class:closing={closing}
+  data-variant={variant}
   aria-label={title}
   onclose={handleClose}
   oncancel={handleCancel}
 >
-  <div class="jx-dialog-head">
-    {#if title}
-      <h2 class="jx-dialog-title">{title}</h2>
-    {:else}
-      <span class="jx-dialog-title" aria-hidden="true"></span>
-    {/if}
-    <button type="button" class="jx-dialog-x" onclick={shut} aria-label="Close">
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        aria-hidden="true"
-      >
-        <path d="M18 6 6 18" />
-        <path d="m6 6 12 12" />
-      </svg>
-    </button>
-  </div>
-  <div class="jx-dialog-body">
-    {@render children()}
-  </div>
-  {#if footer}
-    <div class="jx-dialog-foot">
-      {@render footer()}
+  <!-- the surface body (fill + acrylic blur + the ::after shadow
+       layer) wraps the scroll ring; the <dialog> itself paints nothing
+       (floating-surface law arch r3) -->
+  <div class="jx-dialog-surface jx-surface-body">
+  <div class="jx-dialog-scroll">
+    <div class="jx-dialog-head">
+      {#if title}
+        <h2 class="jx-dialog-title">{title}</h2>
+      {:else}
+        <span class="jx-dialog-title" aria-hidden="true"></span>
+      {/if}
+      <button type="button" class="jx-dialog-x" onclick={shut} aria-label="Close">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
+      </button>
     </div>
-  {/if}
+    <div class="jx-dialog-body">
+      {@render children()}
+    </div>
+    {#if footer}
+      <div class="jx-dialog-foot">
+        {@render footer()}
+      </div>
+    {/if}
+  </div>
+  </div>
 </dialog>
 
 <style>
-  /* Surface law: 1px border, hard offset shadow, radius 0 (bevel upgrade
-     rides the token sheet, not this component). margin: auto restates the
+  /* Surface law (arch r3): the <dialog> is the PLATFORM element —
+     border + motion only, no paint (the UA sheet's dialog background
+     dies here); the .jx-dialog-surface body carries the fill and the
+     ::after shadow layer, and never clips. margin: auto restates the
      UA modal centering. */
   .jx-dialog {
     margin: auto;
     padding: 0;
-    border: 1px solid var(--border);
-    background: var(--popover);
     color: var(--popover-foreground);
-    box-shadow: var(--shadow);
     width: min(92vw, 26rem);
     max-width: 100%;
+  }
+  .jx-dialog-scroll {
     max-height: calc(100dvh - 2rem);
     overflow: auto;
+    /* scrollbar law: both-edges gutters (no ring padding to hand back —
+       the head/body rows carry their own) */
+    scrollbar-gutter: stable both-edges;
   }
 
   .jx-dialog-head {
@@ -203,24 +222,22 @@
     border-top: 1px solid var(--border);
   }
 
-  /* Brand scrim: the only ::backdrop styling the law allows. */
+  /* Scrim law (Owner, 2026-08-22): semi-transparent black in light mode,
+     white in dark mode (--scrim) — a scrim dims/lightens, never colors. */
   .jx-dialog::backdrop {
-    background: color-mix(in oklab, var(--primary) 14%, transparent);
+    background: var(--scrim);
   }
 
-  /* Close fade (the component's single motion addition): opacity 120ms on
-     the dialog and its backdrop, then a real close(). */
-  .jx-dialog.closing {
-    opacity: 0;
-    transition: opacity 120ms ease-out;
-  }
+  /* Close fade: the jx-surface law styles the panel + shadow layer
+     (120ms press-back); only the ::backdrop fade is component-owned. */
   .jx-dialog.closing::backdrop {
     opacity: 0;
     transition: opacity 120ms ease-out;
   }
+  /* r18 EXCEPTION: ::backdrop is a pseudo-element — unreachable from
+     WAAPI, so the scrim fade stays a CSS transition by necessity */
 
   @media (prefers-reduced-motion: reduce) {
-    .jx-dialog.closing,
     .jx-dialog.closing::backdrop {
       transition: none;
     }

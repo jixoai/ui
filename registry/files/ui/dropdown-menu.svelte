@@ -31,6 +31,9 @@
     /** trigger button label (ignored when `trigger` snippet given) */
     triggerLabel?: string;
     placement?: 'bottom' | 'bottom-end' | 'bottom-start' | 'top' | 'top-end' | 'top-start';
+    /** floating-surface variant: solid | acrylic | auto (acrylic unless
+        the environment asks for reduced transparency) */
+    variant?: 'solid' | 'acrylic' | 'auto';
     trigger?: Snippet;
     panelClass?: string;
     onToggle?: (open: boolean) => void;
@@ -41,6 +44,7 @@
     id,
     triggerLabel = '',
     placement = 'bottom-end',
+    variant = 'auto',
     trigger,
     panelClass = '',
     onToggle,
@@ -208,13 +212,21 @@
   popover="auto"
   role="menu"
   tabindex="-1"
-  class="jx-menu {panelClass}"
+  class="jx-menu jx-surface {panelClass}"
+  data-variant={variant}
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
   ontoggle={onPanelToggle}
   onkeydown={handleKeydown}
 >
-  {@render children()}
+  <!-- surface body (fill + acrylic blur + the ::after shadow layer) +
+       scroll ring (floating-surface law arch r3: the platform element
+       paints nothing) -->
+  <div class="jx-menu-body jx-surface-body">
+    <div class="jx-menu-scroll">
+      {@render children()}
+    </div>
+  </div>
 </div>
 
 <style>
@@ -258,6 +270,9 @@
     transform: rotate(180deg);
   }
 
+  /* Panel law: the PLATFORM element — border + anchoring + motion only
+     (no paint; floating-surface law arch r3: the fill lives on the
+     body ring). */
   .jx-menu {
     position: fixed;
     margin: var(--jx-menu-gap, 8px);
@@ -267,14 +282,18 @@
     width: fit-content;
     min-width: 11rem;
     height: fit-content;
-    max-height: 72vh;
-    overflow: auto;
-    padding: 4px;
+    padding: 0;
     font-size: 13px;
     color: var(--popover-foreground);
-    border: 1px solid var(--border);
-    background: var(--popover);
-    box-shadow: var(--shadow);
+  }
+  .jx-menu-scroll {
+    max-height: 72vh;
+    overflow: auto;
+    /* scrollbar law: both-edges gutters; padding-inline hands the gutter
+       back (single-value var: the same default feeds both sides) */
+    scrollbar-gutter: stable both-edges;
+    padding: var(--jx-menu-pad, 4px);
+    padding-inline: max(var(--jx-menu-pad, 4px) - var(--jx-scrollbar-thin, 0px), 0px);
   }
   @supports not (anchor-name: --jx-menu-fallback) {
     .jx-menu {

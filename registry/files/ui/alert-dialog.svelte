@@ -32,6 +32,9 @@
     description: string;
     /** bindable open state — same contract as dialog.svelte */
     open?: boolean;
+    /** floating-surface variant: solid | acrylic | auto (acrylic unless
+        the environment asks for reduced transparency) */
+    variant?: 'solid' | 'acrylic' | 'auto';
     /** the agreement action's label — the decision being confirmed */
     confirmLabel: string;
     /** confirm paint; destructive by default (the loud path is opt-out) */
@@ -48,6 +51,7 @@
     title,
     description,
     open = $bindable(false),
+    variant = 'auto',
     confirmLabel,
     confirmTone = 'destructive',
     onconfirm,
@@ -132,14 +136,18 @@
 
 <dialog
   bind:this={dialog}
-  class="jx-adlg"
+  class="jx-adlg jx-surface"
   class:closing={closing}
+  data-variant={variant}
   role="alertdialog"
   aria-labelledby="jx-adlg-title"
   aria-describedby="jx-adlg-desc"
   onclose={handleClose}
   oncancel={handleCancel}
 >
+  <!-- surface body (fill + ::after shadow) wraps ALL content; the
+       <dialog> paints nothing (floating-surface law arch r3) -->
+  <div class="jx-adlg-surface jx-surface-body">
   <div class="jx-adlg-body">
     <h2 id="jx-adlg-title" class="jx-adlg-title">{title}</h2>
     <p id="jx-adlg-desc" class="jx-adlg-desc">{description}</p>
@@ -162,43 +170,35 @@
       {confirmLabel}
     </button>
   </div>
+  </div>
 </dialog>
 
 <style>
+  /* Surface law (arch r3): the <dialog> is the PLATFORM element —
+     border + motion only, no paint; the .jx-adlg-surface body carries
+     the fill and the ::after shadow layer. */
   .jx-adlg {
     box-sizing: border-box;
     width: min(28rem, calc(100vw - 2rem));
     padding: 0;
-    border: 1px solid var(--border);
-    background: var(--popover);
     color: var(--popover-foreground);
-    box-shadow: var(--shadow);
     border-radius: var(--radius);
   }
-  .jx-adlg[open] {
-    animation: jx-adlg-in 160ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .jx-adlg.closing {
-    animation: jx-adlg-out 120ms ease-in forwards;
-  }
-  @keyframes jx-adlg-in {
-    from {
-      opacity: 0;
-      transform: translateY(6px) scale(0.99);
-    }
-  }
-  @keyframes jx-adlg-out {
-    to {
-      opacity: 0;
-      transform: translateY(4px);
-    }
-  }
+  /* Scrim law: --scrim — semi-transparent black (light) / white (dark),
+     never a brand tint. Only the ::backdrop fade is component-owned. */
   .jx-adlg::backdrop {
-    background: color-mix(in oklab, var(--primary) 10%, transparent);
+    background: var(--scrim);
   }
   .jx-adlg.closing::backdrop {
+    opacity: 0;
     transition: opacity 120ms ease-in;
-    opacity: 0.4;
+  }
+  /* r18 EXCEPTION: ::backdrop is a pseudo-element — unreachable from
+     WAAPI, so the scrim fade stays a CSS transition by necessity */
+  @media (prefers-reduced-motion: reduce) {
+    .jx-adlg.closing::backdrop {
+      transition: none;
+    }
   }
 
   .jx-adlg-body {
@@ -273,9 +273,9 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .jx-adlg[open],
-    .jx-adlg.closing {
-      animation: none;
+    .jx-adlg-cancel,
+    .jx-adlg-confirm {
+      transition: none;
     }
   }
 </style>

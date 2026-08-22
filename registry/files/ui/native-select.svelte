@@ -15,9 +15,10 @@
   Same semantics law as input.svelte: label[for] block (auto id via
   $props.id()), error string → aria-invalid + aria-describedby +
   "! message" line + dashed border, inset 1px focus-visible outline on
-  the ring token, hover lifts one pixel. Options arrive as the children
-  snippet (<option>/<optgroup>); everything else (name, disabled,
-  required, multiple, value…) flows through restProps.
+  the ring token, hover lifts one pixel. `value` is $bindable (bound ⇒
+  controlled two-way, absent ⇒ uncontrolled native select). Options
+  arrive as the children snippet (<option>/<optgroup>); everything
+  else (name, disabled, required, multiple…) flows through restProps.
 
   multiple: a native multiple select is a LIST BOX, not a button — the
   chevron and its right gutter disappear (:has(select[multiple])) and the
@@ -38,6 +39,8 @@
     id?: string;
     /** error text → aria-invalid + aria-describedby + dashed border */
     error?: string;
+    /** $bindable; bound ⇒ controlled two-way, absent ⇒ uncontrolled */
+    value?: HTMLSelectAttributes['value'];
     /** the <option> / <optgroup> list, authored by the caller */
     children: Snippet;
   }
@@ -49,6 +52,7 @@
     label,
     id = autoId,
     error,
+    value = $bindable(),
     children,
     class: className = '',
     ...rest
@@ -65,6 +69,7 @@
   <span class="jx-select-wrap">
     <select
       {id}
+      bind:value
       class="jx-select {className}"
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}

@@ -32,6 +32,9 @@
     /** confirm paint — destructive by default (the loud path is opt-out) */
     confirmTone?: 'destructive' | 'primary';
     placement?: 'top' | 'bottom' | 'left' | 'right';
+    /** floating-surface variant: solid | acrylic | auto (acrylic unless
+        the environment asks for reduced transparency) */
+    variant?: 'solid' | 'acrylic' | 'auto';
     /** the trigger content; the wrapper span carries the anchoring */
     children: Snippet;
     class?: string;
@@ -49,6 +52,7 @@
     cancelLabel = 'Cancel',
     confirmTone = 'destructive',
     placement = 'top',
+    variant = 'auto',
     children,
     class: className = '',
   }: Props = $props();
@@ -125,11 +129,15 @@
   role="dialog"
   aria-labelledby={titleId}
   aria-describedby={description ? descId : undefined}
-  class="jx-pc"
+  class="jx-pc jx-surface"
+  data-variant={variant}
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
   ontoggle={handleToggle}
 >
+  <!-- surface body (fill + ::after shadow); the popover element paints
+       nothing (floating-surface law arch r3) -->
+  <div class="jx-pc-surface jx-surface-body">
   <p id={titleId} class="jx-pc-title">{title}</p>
   {#if description}
     <p id={descId} class="jx-pc-desc">{description}</p>
@@ -148,6 +156,7 @@
       {confirmLabel}
     </button>
   </div>
+  </div>
 </div>
 
 <style>
@@ -162,14 +171,19 @@
     position-visibility: anchors-visible;
     width: fit-content;
     max-width: min(88vw, 18rem);
+    color: var(--popover-foreground);
+  }
+  /* the surface body IS the flex column (padding lives with it); flex
+     display sits on the OPEN state only — a base-state display override
+     would defeat the UA sheet's closed-popover display:none and leave
+     the invisible panel hit-testable (Codex r1, color-picker.svelte
+     law). The exit transition still runs — allow-discrete holds the
+     open display for the 200ms fade. */
+  .jx-pc-surface {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     padding: 0.75rem 0.875rem;
-    border: 1px solid var(--border);
-    background: var(--popover);
-    color: var(--popover-foreground);
-    box-shadow: var(--shadow);
   }
   @supports not (anchor-name: --jx-pc-fallback) {
     .jx-pc {

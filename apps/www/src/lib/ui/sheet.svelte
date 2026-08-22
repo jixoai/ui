@@ -19,6 +19,13 @@
   footer action).
 
   header/footer are optional snippet slots; children is the body.
+
+  Floating-surface law (2026-08-22): the panel rides .jx-surface (::after
+  shadow layer, @starting-style entry, variant solid|acrylic|auto) ON TOP
+  of the side slide — transform (the slide) and translate (the law's
+  rise) compose. DECLARED TIMING EXCEPTION: the sheet keeps its own
+  200ms for entry, exit, and the ::backdrop fade (CLOSE_MS=200); the
+  dialog-family default is 120ms (Codex r2 — declared, not accidental).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -39,6 +46,9 @@
     footer?: Snippet;
     /** drawer width for left/right (CSS length); default 24rem */
     size?: string;
+    /** floating-surface variant: solid | acrylic | auto (acrylic unless
+        the environment asks for reduced transparency) */
+    variant?: 'solid' | 'acrylic' | 'auto';
   }
 
   let {
@@ -49,6 +59,7 @@
     header,
     footer,
     size = '24rem',
+    variant = 'auto',
   }: Props = $props();
 
   let dialog = $state<HTMLDialogElement | null>(null);
@@ -100,13 +111,17 @@
 
 <dialog
   bind:this={dialog}
-  class="jx-sheet jx-sheet-{side}"
+  class="jx-sheet jx-sheet-{side} jx-surface"
   class:closing={closing}
+  data-variant={variant}
   aria-label={title}
   style="--jx-sheet-size: {size}"
   onclose={handleClose}
   oncancel={handleCancel}
 >
+  <!-- surface body (fill + ::after shadow) wraps the whole drawer; the
+       <dialog> paints nothing (floating-surface law arch r3) -->
+  <div class="jx-sheet-surface jx-surface-body">
   <div class="jx-sheet-head">
     <h2 class="jx-sheet-title">{title}</h2>
     {#if header}
@@ -134,6 +149,7 @@
       {@render footer()}
     </div>
   {/if}
+  </div>
 </dialog>
 
 <style>
@@ -143,13 +159,12 @@
     box-sizing: border-box;
     padding: 0;
     /* kill the UA dialog inset/margin defaults first — every side then
-       positions explicitly (Codex r1: UA defaults vary across engines) */
+       positions explicitly (Codex r1: UA defaults vary across engines).
+       PLATFORM element only — no paint (floating-surface law arch r3):
+       the .jx-sheet-surface body carries the fill and the shadow. */
     inset: 0;
     margin: 0;
-    border: 1px solid var(--border);
-    background: var(--popover);
     color: var(--popover-foreground);
-    box-shadow: var(--shadow);
     border-radius: var(--radius);
   }
   .jx-sheet-left,
@@ -181,6 +196,9 @@
     border-radius: 0;
   }
 
+  /* r18 EXCEPTION: CSS keyframes remain here — the sheet has no WAAPI
+     kernel yet; when it adopts one, these migrate to the kernel like
+     popover's did (all-animated-styling-to-WAAPI ruling) */
   /* the slide: enter from off-screen along the docked axis, exit back */
   .jx-sheet-left[open] {
     animation: jx-sheet-in-left 200ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -215,12 +233,22 @@
   @keyframes jx-sheet-in-bottom { from { transform: translateY(100%); } }
   @keyframes jx-sheet-out-bottom { to { transform: translateY(100%); } }
 
+  /* scrim law: --scrim — semi-transparent black (light) / white
+     (dark), never a brand tint. The jx-surface law adds the rise+fade
+     on top of the side slide (transform and translate compose); the
+     close press-back runs at the sheet's own 200ms, not the law's
+     120ms dialog default (CLOSE_MS alignment). */
   .jx-sheet::backdrop {
-    background: color-mix(in oklab, var(--primary) 10%, transparent);
+    background: var(--scrim);
+  }
+  /* the unified exit choreography compressed to the sheet's own
+     CLOSE_MS (the law reads --jx-surface-exit-ms) */
+  .jx-sheet.closing {
+    --jx-surface-exit-ms: 200ms;
   }
   .jx-sheet.closing::backdrop {
     transition: opacity 200ms ease-in;
-    opacity: 0.4;
+    opacity: 0;
   }
 
   .jx-sheet-head {
@@ -274,7 +302,10 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    padding: 1.125rem;
+    /* scrollbar law: both-edges gutters; padding-inline hands the gutter back */
+    scrollbar-gutter: stable both-edges;
+    padding-block: 1.125rem;
+    padding-inline: max(1.125rem - var(--jx-scrollbar-thin, 0px), 0px);
     overflow-y: auto;
     overscroll-behavior: contain;
     font-size: 0.8125rem;

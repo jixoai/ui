@@ -26,13 +26,24 @@
     onclick?: () => void;
     /** menu idiom: the stacked actions (renders above the button) */
     actions?: Snippet;
+    /** floating-surface variant for the MENU panel: solid | acrylic |
+        auto (acrylic unless the environment asks for reduced
+        transparency) — the button itself keeps press-button physics */
+    variant?: 'solid' | 'acrylic' | 'auto';
     /** button content — an icon snippet or a glyph */
     children: Snippet;
     class?: string;
   }
 
-  let { label, corner = 'bottom-right', onclick, actions, children, class: className = '' }: Props =
-    $props();
+  let {
+    label,
+    corner = 'bottom-right',
+    onclick,
+    actions,
+    variant = 'auto',
+    children,
+    class: className = '',
+  }: Props = $props();
 
   const autoId = $props.id();
   const anchorName = $derived(`--jx-fab-${autoId.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
@@ -46,12 +57,17 @@
       id={autoId}
       popover="auto"
       role="menu"
-      class="jx-fab-menu"
+      class="jx-fab-menu jx-surface"
+      data-variant={variant}
       bind:this={btn}
       style="position-anchor: {anchorName}; inset-area: top span-right; position-area: top span-right;"
       ontoggle={(e: Event) => (open = (e.currentTarget as HTMLElement).matches(':popover-open'))}
     >
-      {@render actions()}
+      <!-- surface body (fill + ::after shadow); the popover element
+           paints nothing (floating-surface law arch r3) -->
+      <div class="jx-fab-menu-body jx-surface-body">
+        {@render actions()}
+      </div>
     </div>
     <button
       type="button"
@@ -136,6 +152,9 @@
   .jx-fab-stack .jx-fab {
     position: static;
   }
+  /* menu surface on the jx-surface law (arch r3): the popover element
+     is the PLATFORM shell (no paint); the body carries the fill and
+     the ::after shadow layer */
   .jx-fab-menu {
     position: fixed;
     margin: var(--jx-fab-gap, 8px);
@@ -144,11 +163,10 @@
     position-visibility: anchors-visible;
     width: fit-content;
     min-width: 9rem;
-    padding: 0.25rem;
-    border: 1px solid var(--border);
-    background: var(--popover);
     color: var(--popover-foreground);
-    box-shadow: var(--shadow);
+  }
+  .jx-fab-menu-body {
+    padding: 0.25rem;
   }
   .jx-fab-menu::backdrop {
     background: transparent;

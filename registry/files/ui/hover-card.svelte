@@ -33,6 +33,9 @@
     placement?: 'top' | 'bottom' | 'left' | 'right';
     openDelay?: number;
     closeDelay?: number;
+    /** floating-surface variant: solid | acrylic | auto (acrylic unless
+        the environment asks for reduced transparency) */
+    variant?: 'solid' | 'acrylic' | 'auto';
     class?: string;
   }
 
@@ -45,6 +48,7 @@
     placement = 'bottom',
     openDelay = 300,
     closeDelay = 200,
+    variant = 'auto',
     class: className = '',
   }: Props = $props();
 
@@ -123,7 +127,8 @@
 <div
   {id}
   popover="manual"
-  class="jx-hover-card"
+  class="jx-hover-card jx-surface"
+  data-variant={variant}
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
   onpointerenter={() => clearTimeout(closeTimer)}
@@ -133,7 +138,11 @@
     if (!inside(e.relatedTarget)) scheduleClose();
   }}
 >
-  {@render children()}
+  <!-- surface body (fill + ::after shadow); the popover element paints
+       nothing (floating-surface law arch r3) -->
+  <div class="jx-hover-body jx-surface-body">
+    {@render children()}
+  </div>
 </div>
 
 <style>
@@ -141,6 +150,9 @@
     display: inline-flex;
   }
 
+  /* Card law (arch r3): the popover element is the PLATFORM shell —
+     border + motion only, no paint; the .jx-hover-body surface carries
+     the fill and the ::after shadow layer. */
   .jx-hover-card {
     position: fixed;
     margin: var(--jx-hover-gap, 8px);
@@ -149,13 +161,12 @@
     position-visibility: anchors-visible;
     width: fit-content;
     max-width: min(88vw, 20rem);
-    padding: 0.875rem 1rem;
     font-size: 0.8125rem;
     line-height: 1.55;
     color: var(--popover-foreground);
-    border: 1px solid var(--border);
-    background: var(--popover);
-    box-shadow: var(--shadow);
+  }
+  .jx-hover-body {
+    padding: 0.875rem 1rem;
   }
   @supports not (anchor-name: --jx-hover-fallback) {
     .jx-hover-card {

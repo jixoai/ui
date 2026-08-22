@@ -24,6 +24,10 @@
   import { page } from '$app/state';
   import { catalogByGroup } from '$lib/catalog';
 
+  /** floating-surface variant: solid | acrylic | auto (acrylic unless
+      the environment asks for reduced transparency) */
+  let { variant = 'auto' }: { variant?: 'solid' | 'acrylic' | 'auto' } = $props();
+
   const groups = catalogByGroup();
   const normalized = $derived(
     page.url.pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/',
@@ -49,8 +53,13 @@
     popover="auto"
     role="dialog"
     aria-label="component catalog tree"
-    class="jx-ctree-panel"
+    class="jx-ctree-panel jx-surface"
+    data-variant={variant}
   >
+    <!-- surface body (paint + ::after shadow) + scroll ring
+         (floating-surface law arch r3) -->
+    <div class="jx-ctree-panel-body jx-surface-body">
+    <div class="jx-ctree-scroll">
     <nav aria-label="all components">
       {#each groups as { group, entries } (group.id)}
         <details class="jx-ctree-group" open={group.id === activeGroupId}>
@@ -75,6 +84,8 @@
         </details>
       {/each}
     </nav>
+    </div>
+    </div>
   </div>
 
   <button
@@ -155,7 +166,10 @@
     outline-offset: -1px;
   }
 
-  /* the tree panel: docks above the button via CSS anchoring */
+  /* the tree panel: docks above the button via CSS anchoring, on the
+     jx-surface law (arch r3): the panel is the PLATFORM element (no
+     paint); the body ring carries the fill and the ::after shadow
+     layer; the scroll ring sits inside. */
   .jx-ctree-panel {
     position: fixed;
     position-anchor: --jx-ctree-anchor;
@@ -164,15 +178,17 @@
     position-try-fallbacks: flip-block;
     position-try: flip-block;
     width: 16rem;
+    color: var(--popover-foreground);
+  }
+  .jx-ctree-scroll {
     max-height: min(70vh, 32rem);
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 0.5rem;
-    border: 1px solid var(--border);
-    background: var(--popover);
-    color: var(--popover-foreground);
-    box-shadow: var(--shadow);
-    scrollbar-width: thin;
+    /* scrollbar law: both-edges gutters; padding-inline hands the gutter
+       back so the visual inset stays 0.5rem (paint is the theme law) */
+    scrollbar-gutter: stable both-edges;
+    padding-block: 0.5rem;
+    padding-inline: max(0.5rem - var(--jx-scrollbar-thin, 0px), 0px);
   }
   @supports not (anchor-name: --jx-ctree-anchor) {
     .jx-ctree-panel {

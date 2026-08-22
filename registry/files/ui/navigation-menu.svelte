@@ -43,10 +43,20 @@
     panel?: Snippet<[NavMenuItem]>;
     /** hover-intent open delay (ms); 0 = instant */
     openDelay?: number;
+    /** floating-surface variant: solid | acrylic | auto (acrylic unless
+        the environment asks for reduced transparency) */
+    variant?: 'solid' | 'acrylic' | 'auto';
     class?: string;
   }
 
-  let { items, label = 'site', panel, openDelay = 150, class: className = '' }: Props = $props();
+  let {
+    items,
+    label = 'site',
+    panel,
+    openDelay = 150,
+    variant = 'auto',
+    class: className = '',
+  }: Props = $props();
 
   let openId = $state('');
   /** the roving tab stop follows arrow focus (initial: current ?? first) */
@@ -169,7 +179,8 @@
   <div
     id="jx-navmenu-panel-{item.id}"
     popover="auto"
-    class="jx-navmenu-panel"
+    class="jx-navmenu-panel jx-surface"
+    data-variant={variant}
     style="position-anchor: {anchorOf(item.id)}; inset-area: bottom span-left; position-area: bottom span-left;"
     onpointerenter={() => clearTimeout(hoverTimer)}
     onpointerleave={() => hoverTimer && close(item.id)}
@@ -187,9 +198,13 @@
       else if (openId === item.id) openId = '';
     }}
   >
-    {#if panel}
-      {@render panel(item)}
-    {/if}
+    <!-- surface body (fill + ::after shadow); the popover element paints
+         nothing (floating-surface law arch r3) -->
+    <div class="jx-navmenu-surface jx-surface-body">
+      {#if panel}
+        {@render panel(item)}
+      {/if}
+    </div>
   </div>
 {/each}
 
@@ -231,6 +246,9 @@
     color: var(--primary);
   }
 
+  /* surface on the jx-surface law (arch r3): the panel is the
+     PLATFORM element (no paint); the body ring carries the fill and
+     the ::after shadow layer. */
   .jx-navmenu-panel {
     position: fixed;
     margin: var(--jx-navmenu-gap, 8px);
@@ -239,11 +257,10 @@
     position-visibility: anchors-visible;
     width: fit-content;
     max-width: min(92vw, 26rem);
-    padding: 0.75rem 0.875rem;
-    border: 1px solid var(--border);
-    background: var(--popover);
     color: var(--popover-foreground);
-    box-shadow: var(--shadow);
+  }
+  .jx-navmenu-surface {
+    padding: 0.75rem 0.875rem;
   }
   @supports not (anchor-name: --jx-navmenu-fallback) {
     .jx-navmenu-panel {
