@@ -21,11 +21,14 @@ export function forceShowPopovers(node: HTMLElement): { destroy(): void } {
       }
     });
   };
-  // one tick: child components must mount their panels first
-  const timer = setTimeout(show, 60);
+  // two passes: one tick after mount (child components must mount
+  // their panels first), plus a later catch for panels that mount
+  // delayed (transitions, lazy chunks). MutationObserver would be
+  // overkill for a render farm page (Codex r1 suggestion, lightweight)
+  const timers = [setTimeout(show, 60), setTimeout(show, 320)];
   return {
     destroy(): void {
-      clearTimeout(timer);
+      timers.forEach(clearTimeout);
     },
   };
 }

@@ -20,6 +20,13 @@
   import { CATALOG } from '$lib/catalog';
   import { STAGE_H, STAGE_W } from '$lib/blueprints/stage';
   import { SCENES } from '$lib/blueprints/scenes';
+
+  // stages = the catalog + the overview page's guide cards (they embed
+  // blueprint bodies too — blueprints.spec.ts locks this union)
+  const stages = [
+    ...CATALOG.map((entry) => ({ name: entry.name })),
+    { name: 'recipes' },
+  ];
 </script>
 
 <svelte:head>
@@ -34,7 +41,7 @@
   </h1>
 
   <div class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6">
-    {#each CATALOG as entry (entry.name)}
+    {#each stages as entry (entry.name)}
       {@const Scene = SCENES[entry.name]}
       <figure class="flex flex-col gap-2">
         <figcaption class="font-nav text-muted-foreground text-[11px] uppercase tracking-[0.24em]">

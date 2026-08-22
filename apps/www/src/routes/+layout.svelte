@@ -2,6 +2,10 @@
     import { catalogByGroup } from '$lib/catalog';
   import ComponentTreeNav from '$lib/ui/component-tree-nav.svelte';
   import '../app.css';
+  // scrollbar law (2026-08-22): side-effect probe publishes the measured
+  // per-OS scrollbar widths (--jx-scrollbar-thin/auto) feeding the theme's
+  // both-edges padding compensation
+  import '$lib/scrollbar-measure';
   import { afterNavigate, onNavigate } from '$app/navigation';
   import { page } from '$app/state';
   import type { Snippet } from 'svelte';
@@ -50,8 +54,23 @@
   // mirrored into sessionStorage so a reload restores like native
   // document scroll would.
   const scroller = (): HTMLElement | null => document.querySelector('.jx-shell-body');
-  const scrollKey = (url: URL): string => `jx-scroll:${url.pathname}${url.search}`;
+  // the key INCLUDES the hash: a #anchor position and the plain-page
+  // position are two different memories — leaving via a hash link must
+  // never overwrite where the user actually was on the plain URL
+  // (Codex r1, blocking #2)
+  const scrollKey = (url: URL): string => `jx-scroll:${url.pathname}${url.search}${url.hash}`;
   const scrollMemory = new Map<string, number>();
+
+  // storage can throw in private/restricted modes — reads need the
+  // same guard as writes, or hydration itself crashes (Codex r1, #1)
+  function readStored(key: string): number | null {
+    try {
+      const raw = sessionStorage.getItem(key);
+      return raw === null ? null : Number(raw);
+    } catch {
+      return null;
+    }
+  }
 
   function captureScroll(url: URL): void {
     const el = scroller();
@@ -77,10 +96,19 @@
       });
       return;
     }
-    const stored = scrollMemory.get(scrollKey(url)) ?? Number(sessionStorage.getItem(scrollKey(url)));
-    // direct scrollTop assignment is never smoothed (scroll-behavior
-    // only affects scrollTo/scrollIntoView/navigations)
-    el.scrollTop = Number.isFinite(stored) ? stored : 0;
+    const stored = scrollMemory.get(scrollKey(url)) ?? readStored(scrollKey(url));
+    const y = stored !== null && Number.isFinite(stored) ? stored : 0;
+    // scrollTop assignment IS smoothed by scroll-behavior:smooth in
+    // Chrome — neutralize it so restoration is instant+deterministic,
+    // then re-apply one frame later to absorb late layout growth
+    // (lazy images, delayed mounts) that can re-clamp the offset
+    const previousBehavior = el.style.scrollBehavior;
+    el.style.scrollBehavior = 'auto';
+    el.scrollTop = y;
+    requestAnimationFrame(() => {
+      if (el.scrollTop !== y) el.scrollTop = y;
+      el.style.scrollBehavior = previousBehavior;
+    });
   }
 
   onNavigate((navigation) => {
@@ -123,9 +151,11 @@
   // navigation.complete), so the transition's new-state snapshot already
   // shows the restored offset — the carousel animates to the right
   // place. Also covers the initial load ('enter') and back/forward
-  // ('popstate') via the sessionStorage mirror.
-  afterNavigate(({ url }) => {
-    restoreScroll(url);
+  // ('popstate') via the sessionStorage mirror. NOTE: the destination
+  // URL lives on `to.url` — the afterNavigate payload has NO top-level
+  // `url` property (destructure it and every hydration crashes).
+  afterNavigate(({ to }) => {
+    if (to) restoreScroll(to.url);
   });
 
   // "Components" carries the second level (2026-08-22 regroup): the

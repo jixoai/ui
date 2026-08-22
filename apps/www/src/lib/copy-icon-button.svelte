@@ -18,18 +18,29 @@
   let { command }: Props = $props();
 
   let copied = $state(false);
+  let failed = $state(false);
   let timer: ReturnType<typeof setTimeout> | undefined;
 
   const copy = (): void => {
     clearTimeout(timer);
-    void navigator.clipboard?.writeText(command).then(() => {
-      copied = true;
-      timer = setTimeout(() => (copied = false), 1600);
-    });
+    void navigator.clipboard
+      ?.writeText(command)
+      .then(() => {
+        failed = false;
+        copied = true;
+        timer = setTimeout(() => (copied = false), 1600);
+      })
+      .catch(() => {
+        // permission denied / document not focused — surface it in the
+        // tooltip instead of an unhandled rejection (Codex r1)
+        copied = false;
+        failed = true;
+        timer = setTimeout(() => (failed = false), 1600);
+      });
   };
 </script>
 
-<Tooltip text={copied ? 'copied' : command} placement="bottom">
+<Tooltip text={copied ? 'copied' : failed ? 'copy failed — clipboard blocked' : command} placement="bottom">
   <button
     type="button"
     onclick={copy}
@@ -39,7 +50,8 @@
       hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-sm
       active:translate-x-px active:translate-y-px active:shadow-none
       motion-reduce:transition-none
-      {copied ? 'bg-secondary text-secondary-foreground' : ''}"
+      {copied ? 'bg-secondary text-secondary-foreground' : ''}
+      {failed ? 'border-destructive text-destructive' : ''}"
   >
     {#if copied}
       <Check size={13} strokeWidth={2.25} aria-hidden="true" />

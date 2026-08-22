@@ -37,28 +37,33 @@ const svgFiles = () =>
       .map((f) => f.replace(/\.svg$/, '')),
   );
 
+// non-catalog guide pages that ALSO render blueprint cards on the
+// overview — their scenes/svgs are expected, not orphans
+const GUIDE_BLUEPRINTS = ['recipes'];
+const expectedNames = () => new Set([...CATALOG.map((e) => e.name), ...GUIDE_BLUEPRINTS]);
+
 describe('blueprint pipeline coverage', () => {
   it('every catalog entry has a scene component (nothing unrenderable)', () => {
     const scenes = sceneFiles();
-    const missing = CATALOG.map((e) => e.name).filter((name) => !scenes.has(name));
-    expect(missing, 'catalog entries without scenes/<name>.svelte').toEqual([]);
+    const missing = [...expectedNames()].filter((name) => !scenes.has(name));
+    expect(missing, 'catalog/guide entries without scenes/<name>.svelte').toEqual([]);
   });
 
   it('every catalog entry has a committed blueprint SVG (run npm run build:blueprints)', () => {
     const svgs = svgFiles();
-    const missing = CATALOG.map((e) => e.name).filter((name) => !svgs.has(name));
-    expect(missing, 'catalog entries without static/blueprints/<name>.svg').toEqual([]);
+    const missing = [...expectedNames()].filter((name) => !svgs.has(name));
+    expect(missing, 'catalog/guide entries without static/blueprints/<name>.svg').toEqual([]);
   });
 
   it('scene files are not empty stubs', () => {
-    for (const name of CATALOG.map((e) => e.name)) {
+    for (const name of expectedNames()) {
       const source = readFileSync(resolve(scenesDir, `${name}.svelte`), 'utf8');
       expect(source.length, `${name}.svelte looks empty`).toBeGreaterThan(40);
     }
   });
 
   it('no orphan scenes or SVGs (both directions locked)', () => {
-    const names = new Set(CATALOG.map((e) => e.name));
+    const names = expectedNames();
     const orphanScenes = [...sceneFiles()].filter((n) => !names.has(n));
     const orphanSvgs = [...svgFiles()].filter((n) => !names.has(n));
     expect(orphanScenes, 'scene files without a catalog entry').toEqual([]);
@@ -68,7 +73,7 @@ describe('blueprint pipeline coverage', () => {
   it('generated SVGs are real vector scenes, not empty canvases', () => {
     // the empty-canvas failure mode (satori silently dropping subtrees)
     // produced ~250 byte files — a real scene carries glyph paths
-    for (const name of CATALOG.map((e) => e.name)) {
+    for (const name of expectedNames()) {
       const svg = readFileSync(resolve(svgsDir, `${name}.svg`), 'utf8');
       expect(svg.length, `${name}.svg is suspiciously small — rerun build:blueprints`).toBeGreaterThan(600);
     }

@@ -13,7 +13,7 @@
  *       serves them as plain static assets)
  *
  * Incremental: the cache (scripts/blueprints/.cache.json, gitignored)
- * keys each SVG on sha256(CONVERTER_VERSION + serialized scene JSON),
+ * keys each SVG on sha256(CONVERTER_FINGERPRINT + serialized scene JSON),
  * so a scene regenerates ONLY when its rendered pixels actually
  * changed — component tweaks rerender just the affected scenes, docs
  * edits rerender nothing. The headless render pass always runs (it IS
@@ -36,7 +36,7 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
 
 import { serializeStageInPage } from './blueprints/serialize.mjs';
-import { CONVERTER_VERSION, renderScene } from './blueprints/render.mjs';
+import { CONVERTER_FINGERPRINT, renderScene } from './blueprints/render.mjs';
 
 const require = createRequire(import.meta.url);
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -98,7 +98,7 @@ async function main() {
   }
 
   mkdirSync(outDir, { recursive: true });
-  let cache = { version: CONVERTER_VERSION, entries: {} };
+  let cache = { version: CONVERTER_FINGERPRINT, entries: {} };
   if (existsSync(cacheFile)) {
     try {
       cache = JSON.parse(readFileSync(cacheFile, 'utf8'));
@@ -106,7 +106,7 @@ async function main() {
       // corrupt cache = full rebuild
     }
   }
-  if (cache.version !== CONVERTER_VERSION) cache = { version: CONVERTER_VERSION, entries: {} };
+  if (cache.version !== CONVERTER_FINGERPRINT) cache = { version: CONVERTER_FINGERPRINT, entries: {} };
 
   const { server, port } = await serveDist();
   console.log(`[build-blueprints] serving dist on 127.0.0.1:${port}`);
@@ -157,7 +157,7 @@ async function main() {
     }, name);
     await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
     const scene = await page.evaluate(serializeStageInPage, `[data-blueprint="${name}"]`);
-    const hash = createHash('sha256').update(CONVERTER_VERSION + JSON.stringify(scene)).digest('hex');
+    const hash = createHash('sha256').update(CONVERTER_FINGERPRINT + JSON.stringify(scene)).digest('hex');
     if (cache.entries[name] === hash && existsSync(path.join(outDir, `${name}.svg`))) {
       hits++;
       continue;

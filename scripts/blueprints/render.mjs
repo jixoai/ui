@@ -20,6 +20,7 @@
  * OUTPUT semantics change — the cache key hashes it.
  */
 
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -51,6 +52,16 @@ const satoriFonts = FONT_SPECS.map(({ pkg, stem, family, weight }) => ({
   weight,
   style: 'normal',
 }));
+
+// fingerprint covers EVERYTHING that changes rendered output while the
+// serialized scene JSON may stay identical: converter semantics, the
+// satori implementation itself, and the measuring fonts (Codex r2 —
+// Hash.update takes ONE data arg; spreading the font buffers silently
+// hashed only the first font)
+const fingerprint = createHash('sha256').update(CONVERTER_VERSION);
+fingerprint.update(readFileSync(require.resolve('satori')));
+for (const font of satoriFonts) fingerprint.update(font.data);
+export const CONVERTER_FINGERPRINT = fingerprint.digest('hex');
 
 // ---- grayscale: rgba(r,g,b,a) -> rgba(l,l,l,a) ----
 const LUMA = [0.2126, 0.7152, 0.0722];
