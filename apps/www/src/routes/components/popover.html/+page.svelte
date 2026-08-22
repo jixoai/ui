@@ -120,9 +120,14 @@ ${close}
   );
 
   function toggleTry(id: string): void {
-    canvasTries = canvasTries.includes(id)
-      ? canvasTries.filter((t) => t !== id)
-      : [...TRY_CELLS.map((c) => c.id).filter((c) => canvasTries.includes(c) || c === id)];
+    if (id === 'center') {
+      // the center cell is the master switch: all-on ⇄ all-off
+      canvasTries = canvasTries.length === ALL_TRIES.length ? [] : [...ALL_TRIES];
+    } else {
+      canvasTries = canvasTries.includes(id)
+        ? canvasTries.filter((t) => t !== id)
+        : [...TRY_CELLS.map((c) => c.id).filter((c) => canvasTries.includes(c) || c === id)];
+    }
     // position-try locks when the panel opens — a live panel never
     // re-evaluates. Reopen in the same frame so the grid feels
     // immediate (the entry kernel replays on show)
@@ -522,10 +527,19 @@ ${close}
     border-color: var(--primary);
     color: var(--foreground);
   }
+  /* ON = primary foreground over a faint primary tint — unmistakable
+     in both themes; the on-hover pair keeps the SAME fg/bg pairing so
+     text never melts into its own background (the old on-state painted
+     background: foreground while :hover recolored the text foreground
+     — glyph and ground collapsed into one color) */
   .jx-try-on {
-    background: var(--foreground);
-    color: var(--background);
-    border-color: var(--foreground);
+    color: var(--primary);
+    border-color: var(--primary);
+    background: color-mix(in oklab, var(--primary) 12%, transparent);
+  }
+  .jx-try-on:hover {
+    color: var(--primary);
+    background: color-mix(in oklab, var(--primary) 22%, transparent);
   }
   .jx-try-cell:focus-visible {
     outline: 1px solid var(--ring);
