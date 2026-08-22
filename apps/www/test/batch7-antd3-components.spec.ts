@@ -59,6 +59,36 @@ describe('Anchor', () => {
     targets.forEach((t) => t.remove());
   });
 
+  it('scrolls inside an INNER container reach the spy (capture phase)', async () => {
+    vi.useFakeTimers();
+    try {
+      // the shell pattern: an inner scroller, document never scrolls
+      const shell = document.createElement('div');
+      document.body.appendChild(shell);
+      const targets = ['one', 'two'].map((id) => {
+        const el = document.createElement('section');
+        el.id = id;
+        shell.appendChild(el);
+        return el;
+      });
+      targets[0]!.getBoundingClientRect = () => ({ top: 10 } as DOMRect);
+      targets[1]!.getBoundingClientRect = () => ({ top: 900 } as DOMRect);
+
+      const { container } = render(Anchor, { props: { items } });
+      // element scroll does NOT bubble — the capture listener must hear it
+      shell.dispatchEvent(new Event('scroll'));
+      await vi.advanceTimersByTimeAsync(50);
+      expect(container.querySelector('a[aria-current="location"]')?.getAttribute('href')).toBe(
+        '#one',
+      );
+
+      targets.forEach((t) => t.remove());
+      shell.remove();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('scroll events re-run the pick (rAF-throttled)', async () => {
     vi.useFakeTimers();
     try {

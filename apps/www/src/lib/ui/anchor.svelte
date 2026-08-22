@@ -56,16 +56,62 @@
     raf = requestAnimationFrame(sync);
   }
 
+  // scroll clearance lease: each target gets scroll-margin-top = offset
+  // so sticky headers never cover the landed heading (antd Anchor's
+  // offset scrolling equivalent) — set on mount, restored on destroy
+  let leased: HTMLElement[] = [];
+  $effect(() => {
+    leased = items
+      .map((item) => document.getElementById(item.href.slice(1)))
+      .filter((el): el is HTMLElement => el !== null);
+    for (const el of leased) {
+      el.dataset.jxAnchorPriorMargin = el.style.scrollMarginTop;
+      el.style.scrollMarginTop = `${offset}px`;
+    }
+    return () => {
+      for (const el of leased) {
+        el.style.scrollMarginTop = el.dataset.jxAnchorPriorMargin ?? '';
+        delete el.dataset.jxAnchorPriorMargin;
+      }
+    };
+  });
+
   $effect(() => {
     sync();
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    // CAPTURE phase: element scroll events do NOT bubble — a page that
+    // scrolls an inner shell container (this site's .jx-shell-body)
+    // never reaches a bubble-phase window listener (walkthrough-4 P1).
+    // Capture sees BOTH the document scroller and every inner one.
+    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
     window.addEventListener('resize', handleScroll);
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll, { capture: true });
       window.removeEventListener('resize', handleScroll);
       cancelAnimationFrame(raf);
     };
   });
+
+  /** click = navigate + OWN the focus: land on the target heading
+   *  (tabindex=-1 for the ride, restored on blur — the same reversible
+   *  lease the tour contract rules for anchor-name) */
+  function handleAnchorClick(href: string): void {
+    const el = document.getElementById(href.slice(1));
+    if (!el) return;
+    const hadTabindex = el.getAttribute('tabindex');
+    el.setAttribute('tabindex', '-1');
+    // let the native fragment scroll land first, then move the focus
+    requestAnimationFrame(() => {
+      el.focus({ preventScroll: true });
+      el.addEventListener(
+        'blur',
+        () => {
+          if (hadTabindex === null) el.removeAttribute('tabindex');
+          else el.setAttribute('tabindex', hadTabindex);
+        },
+        { once: true },
+      );
+    });
+  }
 </script>
 
 <nav class="jx-anchor {className}" aria-label={label}>
@@ -77,6 +123,7 @@
           class:jx-anchor-active={activeId === item.href}
           href={item.href}
           aria-current={activeId === item.href ? 'location' : undefined}
+          onclick={() => handleAnchorClick(item.href)}
         >
           {item.label}
         </a>
