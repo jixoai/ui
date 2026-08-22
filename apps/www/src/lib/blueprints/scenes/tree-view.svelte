@@ -4,9 +4,9 @@
 <script lang="ts">
   import TreeView, { type TreeNode } from '$lib/ui/tree-view.svelte';
 
-  const leaf = (name: string): TreeNode => ({ name, file: { name, content: '' } });
+  const leaf = (name: string): TreeNode => ({ name });
 
-  const tree: TreeNode[] = [
+  const nodes: TreeNode[] = [
     {
       name: 'src',
       children: [
@@ -26,11 +26,12 @@
     leaf('package.json'),
   ];
 
+  const defaultExpanded = ['src', 'src/lib', 'src/lib/ui'];
   const selected = 'src/lib/ui/tree-view.svelte';
 </script>
 
 <div class="flex h-full w-full items-center justify-center p-10">
   <div class="border-border bg-card w-full max-w-[360px] border p-4 shadow-2xs">
-    <TreeView {tree} {selected} />
+    <TreeView {nodes} {defaultExpanded} {selected} />
   </div>
 </div>

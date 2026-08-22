@@ -27,9 +27,10 @@
   stretch the canvas — on the stacked mobile form containment is dropped
   and the page scrolls naturally) → code bar (`</> Code` toggle +
   aria-controls wiring) → code drawer (grid-rows 0fr→1fr, the Combo ToC
-  collapse law; inert while closed). In the narrow form the drawer scrolls
-  in layers: the tree pins to the top of the drawer window (sticky) while
-  the code view scrolls inside its own capped max-height.
+  collapse law; inert while closed). The drawer is a bounded LAYOUT, not
+  a scroll area (2026-08-22, user): every panel scrolls inside itself —
+  the tree in its own capped window, the code through CodeCard's fill
+  mode (head/foot pinned, the <pre> is the single code scrollport).
   The stage keeps the readonly-code tint (color-mix muted 42%) in BOTH
   themes — the surface contrast is the point: components must read on a
   differently-tinted ground, not only on pure background. The playground
@@ -40,12 +41,56 @@
   import type { Snippet } from 'svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import CodeCard from '$lib/ui/code-card.svelte';
-  import TreeView, { inferTreeLang, type TreeFile, type TreeNode } from '$lib/ui/tree-view.svelte';
+  import TreeView, { type TreeNode } from '$lib/ui/tree-view.svelte';
 
   /** Read-only playground state projection; never a live region. */
   export interface PlayEcho {
     label: string;
     value: string | number | boolean | null | undefined | readonly unknown[];
+  }
+
+  /** Demo code file for the code drawer: name may carry a path. */
+  export interface TreeFile {
+    /** File path as authored (e.g. "src/lib/ui/button.svelte") or bare name. */
+    name: string;
+    content: string;
+    /** Tokenizer hint; inferred from the name extension when omitted. */
+    lang?: string;
+    /** drawer protocol marker: the copyable usage file */
+    kind?: 'usage';
+  }
+
+  /** Extension → Shiki language id (aliases resolve in lib/shiki). */
+  export function inferTreeLang(name: string): string {
+    const ext = name.split('.').pop()?.toLowerCase() ?? '';
+    switch (ext) {
+      case 'ts':
+        return 'ts';
+      case 'tsx':
+        return 'tsx';
+      case 'js':
+      case 'mjs':
+      case 'cjs':
+        return 'js';
+      case 'jsx':
+        return 'jsx';
+      case 'svelte':
+        return 'svelte';
+      case 'html':
+        return 'html';
+      case 'css':
+        return 'css';
+      case 'scss':
+        return 'scss';
+      case 'json':
+        return 'json';
+      case 'sh':
+      case 'bash':
+      case 'zsh':
+        return 'bash';
+      default:
+        return ext || 'ts';
+    }
   }
 
   interface Props {
@@ -104,9 +149,10 @@
   const drawerId = `jx-canvas-${canvasId}-drawer`;
 
   // flat files → nested tree: split on "/", intermediate segments are
-  // directories; a name without "/" stays a root-level file
-  function buildTree(list: TreeFile[]): TreeNode[] {
-    const root: TreeNode[] = [];
+  // directories; a name without "/" stays a root-level file. The file
+  // payload rides TreeNode.meta.
+  function buildTree(list: TreeFile[]): TreeNode<TreeFile>[] {
+    const root: TreeNode<TreeFile>[] = [];
     for (const file of list) {
       const parts = file.name.split('/').filter(Boolean);
       if (parts.length === 0) continue;
@@ -116,7 +162,7 @@
         const part = parts[i];
         dirPath = dirPath === '' ? part : `${dirPath}/${part}`;
         if (i === parts.length - 1) {
-          level.push({ name: part, file });
+          level.push({ name: part, meta: file });
         } else {
           let dir = level.find((n) => n.children !== undefined && n.name === part);
           if (!dir) {
@@ -131,6 +177,20 @@
   }
 
   const tree = $derived(buildTree(files));
+  // every directory open on drawer mount (the workbench law)
+  const openFolders = $derived.by(() => {
+    const ids: string[] = [];
+    const walk = (list: TreeNode<TreeFile>[], parent: string | null): void => {
+      for (const node of list) {
+        if (!node.children) continue;
+        const path = parent === null ? node.name : `${parent}/${node.name}`;
+        ids.push(path);
+        walk(node.children, path);
+      }
+    };
+    walk(tree, null);
+    return ids;
+  });
   let selectedPath = $state('');
   $effect(() => {
     void files;
@@ -151,8 +211,7 @@
   const leafName = (path: string): string => path.split('/').pop() ?? path;
 
   const usageFile = $derived(
-    files.find((f) => (f as TreeFile & { kind?: string }).kind === 'usage') ??
-      files.find((f) => f.name.endsWith('usage.svelte')),
+    files.find((f) => f.kind === 'usage') ?? files.find((f) => f.name.endsWith('usage.svelte')),
   );
   function formatEcho(value: PlayEcho['value']): string {
     if (value === null || value === undefined) return '—';
@@ -269,9 +328,11 @@
       <div class="jx-canvas-code-panels">
         <aside class="jx-canvas-tree" aria-label="demo files">
           <TreeView
-            {tree}
+            nodes={tree}
+            defaultExpanded={openFolders}
             selected={current?.name}
-            onselect={(path) => (selectedPath = path)}
+            fileIcons
+            onselect={(ctx) => (selectedPath = ctx.id)}
           />
         </aside>
         <div class="jx-canvas-code-view">
@@ -280,6 +341,8 @@
               filename={leafName(current.name)}
               lang={current.lang ?? inferTreeLang(current.name)}
               code={currentCode}
+              fill
+              minHeight="16rem"
             />
           {/if}
         </div>
@@ -497,7 +560,8 @@
     .jx-canvas-playground-body {
       flex: 1 1 auto;
       overflow-y: auto;
-      scrollbar-gutter: stable;
+      /* scrollbar law: both-edges gutters (no ring padding to hand back) */
+      scrollbar-gutter: stable both-edges;
     }
     /* flex children default to shrink: 1 — inside the capped body a tall
        control stack would COMPRESS instead of overflowing into the scroll.
@@ -601,15 +665,16 @@
     min-height: 0;
     overflow: hidden;
   }
-  /* the drawer window: one bounded scroll area. Narrow form scrolls in
-     LAYERS — tree pinned sticky at the top of this window, code capped
-     into its own scroll beneath — so a multi-thousand-px file never
-     becomes one endless shared column */
+  /* the drawer window: a bounded LAYOUT, not a scroll area — every panel
+     scrolls inside itself. Narrow form: the tree is a capped layer with
+     its own scroll, the code view fills the rest. Desktop: side-by-side
+     columns, each stretching to the window and scrolling internally. The
+     CodeCard runs in fill mode: its head/foot pin and its <pre> is the
+     single code scrollport (2026-08-22, user — no wrapper scrolling). */
   .jx-canvas-code-panels {
     display: flex;
     flex-direction: column;
     max-height: 28rem;
-    overflow: auto;
   }
   @container (min-width: 48rem) {
     .jx-canvas-code-panels {
@@ -620,46 +685,38 @@
     background: var(--background);
     border-bottom: 1px solid var(--border);
     flex: none;
-    max-height: 15rem;
+    /* narrow-form budget: tree ≤10rem + card floor 16rem fits the 28rem
+       drawer cap; desktop stretches the column and scrolls on its own */
+    max-height: 10rem;
     overflow-y: auto;
-    padding: 0.5rem 0.4rem;
-    /* stays visible at the top of the drawer window while the code layer
-       scrolls beneath it (narrow form; reset on desktop, where the tree
-       is a side column) */
-    position: sticky;
-    top: 0;
-    z-index: 1;
+    /* scrollbar law: both-edges gutters; padding-inline hands the gutter
+       back so the visual inset stays 0.4rem */
+    scrollbar-gutter: stable both-edges;
+    padding-block: 0.5rem;
+    padding-inline: max(0.4rem - var(--jx-scrollbar-thin, 0px), 0px);
   }
   @container (min-width: 48rem) {
     .jx-canvas-tree {
       border-bottom: none;
       border-right: 1px solid var(--border);
       max-height: none;
-      position: static;
+      min-height: 0;
+      overflow-y: auto;
       width: 14rem;
-      z-index: auto;
     }
   }
   .jx-canvas-code-view {
+    display: flex;
     flex: 1 1 auto;
-    max-height: 24rem;
+    flex-direction: column;
+    min-height: 0;
     min-width: 0;
-    overflow-y: auto;
-    padding: 0.5rem;
   }
-  /* narrow form: the card keeps natural height inside the capped,
-     independently scrolling view */
+  /* the card fills the cell edge to edge; the drawer is already framed by
+     the canvas border, so the card drops its own frame — its tinted
+     ground carries the separation (2026-08-22, user) */
   .jx-canvas-code-view :global(.jx-code-card) {
-    height: auto;
-  }
-  @container (min-width: 48rem) {
-    .jx-canvas-code-view {
-      max-height: none;
-      overflow-y: visible;
-    }
-    .jx-canvas-code-view :global(.jx-code-card) {
-      height: 100%;
-    }
+    border: none;
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -12,8 +12,10 @@
      (readable, zero JS); after hydration Shiki resolves and the SAME <code>
      element swaps in token spans — same box, same font, no layout shift.
   2. scroll law: the <pre> is the scrollport — horizontal always (Tab chars
-     stay tabs, long lines never wrap), vertical when maxHeight caps it;
-     thin currentColor scrollbars, overscroll containment, keyboard-focusable.
+     stay tabs, long lines never wrap), vertical when maxHeight caps it or
+     when fill mode pins head/foot and hands the whole body height to the
+     <pre>; the theme scrollbar law (thin currentColor + both-edges
+     gutters), overscroll containment, keyboard-focusable.
   3. named Shiki themes ride along: the theme's editor colors from Shiki's
      <pre> output are re-applied to this card's <pre> verbatim, so a real
      theme (github-dark, …) paints its own ground instead of fighting the
@@ -49,6 +51,19 @@
     copyable?: boolean;
     /** CSS length that caps the code body and turns on vertical scrolling. */
     maxHeight?: string;
+    /**
+     * Fill mode: the card stretches to its container's height and the <pre>
+     * becomes the ONLY scroll area (head and foot stay pinned). The parent
+     * owes the height (flex item, grid track, or an explicit height) — the
+     * card never scrolls as a whole.
+     */
+    fill?: boolean;
+    /**
+     * CSS length that floors the card height — pairs with fill: a short
+     * sample still opens the panel to a readable size instead of a slit,
+     * while tall samples keep scrolling inside the <pre>.
+     */
+    minHeight?: string;
     class?: string;
   }
 
@@ -61,6 +76,8 @@
     footer,
     copyable = true,
     maxHeight = '',
+    fill = false,
+    minHeight = '',
     class: className = '',
   }: Props = $props();
 
@@ -141,7 +158,11 @@
   };
 </script>
 
-<figure class={`jx-code-card ${className}`}>
+<figure
+  class={`jx-code-card ${className}`}
+  class:fill={fill}
+  style={minHeight !== '' ? `min-height:${minHeight}` : ''}
+>
   {#if filename || header}
     <figcaption class="jx-code-card-head">
       {#if filename}
@@ -265,8 +286,9 @@
   }
 
   /* the pre is the scrollport: native Tab characters stay tabs, long lines
-     scroll instead of wrapping; thin currentColor scrollbars on both axes
-     with containment so a horizontal wheel/flick never chains to the page */
+     scroll instead of wrapping; scrollbar paint is the THEME scrollbar law
+     (thin, currentColor, hover chain) with containment so a horizontal
+     wheel/flick never chains to the page */
   .jx-code-card pre {
     font-size: 12.5px;
     line-height: 1.6;
@@ -274,24 +296,27 @@
     overflow-x: auto;
     overflow-y: visible;
     overscroll-behavior-x: contain;
-    padding: 0.875rem;
-    scrollbar-color: color-mix(in oklab, currentColor 26%, transparent) transparent;
-    scrollbar-width: thin;
+    /* scrollbar law: both-edges gutters; padding-inline hands the gutter
+       back so the line inset stays 0.875rem */
+    scrollbar-gutter: stable both-edges;
+    padding-block: 0.875rem;
+    padding-inline: max(0.875rem - var(--jx-scrollbar-thin, 0px), 0px);
     tab-size: 4;
   }
   .jx-code-card pre.vscroll {
     overflow-y: auto;
-    scrollbar-gutter: stable;
   }
-  .jx-code-card pre::-webkit-scrollbar {
-    height: 8px;
-    width: 8px;
+  /* fill mode: the card is a fixed-height column — head/foot pin, the pre
+     is the single scrollport; the parent owes the height */
+  .jx-code-card.fill {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
-  .jx-code-card pre::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .jx-code-card pre::-webkit-scrollbar-thumb {
-    background: color-mix(in oklab, currentColor 26%, transparent);
+  .jx-code-card.fill pre {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
   }
   .jx-code-card pre:focus-visible {
     outline: 2px solid var(--ring);

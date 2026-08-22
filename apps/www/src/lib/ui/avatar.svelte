@@ -1,16 +1,29 @@
 <!--
   jixoai avatar (registry/files/ui/avatar.svelte).
   NativeHTML first: it IS an <img> — lazy, async-decoded, intrinsic
-  width/height so layout never shifts. radius 0 law = brutalist square.
+  width/height so layout never shifts.
 
   Fallback: when the image fails to load (or no src is given), the img
   is swapped for an initials block derived from `name` —
     "Ada Lovelace"      → "AL"   (first char of first + last word)
     "Gaubee"            → "Ga"   (single word: first 2 chars, CJK-safe
                                    by code-point slicing)
-  The failure state resets whenever src changes, so swapping in a valid
-  URL recovers the image. A caller's own onerror composes with the
-  fallback (both run; the fallback still wins the DOM swap).
+  At icon size (sm 24px) the block halves to ONE code point: two full-
+  width glyphs cannot fit 24px and a badge must never wrap.
+
+  Silhouettes (variant — one geometry, three corners):
+    bevel     corner-shape: bevel + var(--radius) scaled to the box —
+              md is the token baseline (8px), sm/lg keep the same cut
+              proportion (6 / 8 / 10px); square where corner-shape is
+              unsupported
+    rounded   corner-shape: round + border-radius: 50% — a true circle
+    squircle  corner-shape: squircle + border-radius: 50% — the
+              superellipse; degrades to the circle without corner-shape
+
+  Name tooltip: ON by default the full name rides a tooltip (hover-
+  intent + focus, tooltip.svelte laws) — an avatar crops identity to
+  initials, the tooltip gives it back. Pass tooltip={false} when the
+  name is already visible beside the avatar.
 
   alt defaults to `name` (the avatar is content); pass alt="" explicitly
   for decorative avatars next to a visible name — the fallback block
@@ -20,16 +33,21 @@
 -->
 <script lang="ts">
   import type { HTMLImgAttributes } from 'svelte/elements';
+  import Tooltip from './tooltip.svelte';
 
   interface Props extends Omit<HTMLImgAttributes, 'alt'> {
     /** image URL; empty/failed loads fall back to the initials block */
     src?: string;
-    /** the person — fuels alt text and the initials fallback */
+    /** the person — fuels alt text, the initials fallback and the tooltip */
     name: string;
     /** defaults to `name`; pass "" for a decorative avatar */
     alt?: string;
     /** sm 24px · md 32px (default) · lg 40px */
     size?: 'sm' | 'md' | 'lg';
+    /** silhouette: bevel (default) | rounded (circle) | squircle */
+    variant?: 'bevel' | 'rounded' | 'squircle';
+    /** full name rides a tooltip by default; false opts out */
+    tooltip?: boolean;
   }
 
   let {
@@ -37,6 +55,8 @@
     name,
     alt = name,
     size = 'md',
+    variant = 'bevel',
+    tooltip = true,
     class: className = '',
     onerror,
     ...rest
@@ -68,29 +88,45 @@
     if (words.length === 1) return [...words[0]].slice(0, 2).join('').toUpperCase();
     return (words[0][0] + words.at(-1)![0]).toUpperCase();
   });
+  // icon size halves the block: one code point, no overflow, no wrap
+  const shown = $derived(size === 'sm' ? [...initials][0] : initials);
+
+  // nothing to tip on an empty name, whatever the flag says
+  const tipped = $derived(tooltip && name.trim().length > 0);
 </script>
 
-{#if src && !failed}
-  <img
-    class="jx-avatar jx-avatar-{size} {className}"
-    {src}
-    {alt}
-    loading="lazy"
-    decoding="async"
-    width={px}
-    height={px}
-    onerror={handleError}
-    {...rest}
-  />
+{#snippet body()}
+  {#if src && !failed}
+    <img
+      class="jx-avatar jx-avatar-{size} jx-avatar-{variant} {className}"
+      {src}
+      {alt}
+      loading="lazy"
+      decoding="async"
+      width={px}
+      height={px}
+      onerror={handleError}
+      {...rest}
+    />
+  {:else}
+    <span
+      class="jx-avatar jx-avatar-{size} jx-avatar-{variant} jx-avatar-fallback {className}"
+      role={decorative ? undefined : 'img'}
+      aria-label={decorative ? undefined : name}
+      aria-hidden={decorative || undefined}
+    >
+      {shown}
+    </span>
+  {/if}
+{/snippet}
+
+<!-- one body, two shells — the tooltip wraps it only when tipped -->
+{#if tipped}
+  <Tooltip text={name}>
+    {@render body()}
+  </Tooltip>
 {:else}
-  <span
-    class="jx-avatar jx-avatar-{size} jx-avatar-fallback {className}"
-    role={decorative ? undefined : 'img'}
-    aria-label={decorative ? undefined : name}
-    aria-hidden={decorative || undefined}
-  >
-    {initials}
-  </span>
+  {@render body()}
 {/if}
 
 <style>
@@ -116,6 +152,29 @@
     width: 40px;
     height: 40px;
   }
+  /* silhouettes: variant rules come after the base so 50% overrides
+     var(--radius); corner-shape is stated explicitly everywhere — a
+     registry install must not lean on the site's global bevel rule */
+  .jx-avatar-bevel {
+    corner-shape: bevel;
+  }
+  /* bevel scales with the box: md IS the var(--radius) baseline (8px
+     where corner-shape lives), sm/lg ride the same cut proportion
+     (24/32 = .75, 40/32 = 1.25 → 6 / 8 / 10px) */
+  .jx-avatar-sm.jx-avatar-bevel {
+    border-radius: calc(var(--radius) * 0.75);
+  }
+  .jx-avatar-lg.jx-avatar-bevel {
+    border-radius: calc(var(--radius) * 1.25);
+  }
+  .jx-avatar-rounded {
+    corner-shape: round;
+    border-radius: 50%;
+  }
+  .jx-avatar-squircle {
+    corner-shape: squircle;
+    border-radius: 50%;
+  }
   .jx-avatar-fallback {
     display: inline-flex;
     align-items: center;
@@ -125,5 +184,7 @@
     font-size: 0.75rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
   }
 </style>

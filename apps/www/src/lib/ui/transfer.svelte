@@ -241,7 +241,10 @@
   }
   .jx-tr-list {
     margin: 0;
-    padding: 0.25rem;
+    /* scrollbar law: both-edges gutters; padding-inline hands the gutter back */
+    scrollbar-gutter: stable both-edges;
+    padding-block: 0.25rem;
+    padding-inline: max(0.25rem - var(--jx-scrollbar-thin, 0px), 0px);
     list-style: none;
     max-height: 14rem;
     overflow-y: auto;

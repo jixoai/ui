@@ -1,137 +1,257 @@
 <!--
-  jixoai tree view (registry/files/ui/tree-view.svelte).
-  The file tree of the component documentation workbench: native ARIA tree
-  semantics (nested <ul role="tree"> / <ul role="group"> / <li role="treeitem">),
-  the tree keyboard contract (↑↓ move focus, → expand, ← collapse, Enter
-  activates), roving tabindex, and the collapse grammar of the Combo ToC
-  (grid-template-rows 0fr→1fr + inert on the collapsed extent — collapsed
-  content is untabbable and invisible to the keyboard walker by construction).
+  jixoai tree view, generic core (registry/files/ui/tree-view.svelte).
 
-  Visual law: font-nav 12px on line-height 2 (compact rows), a ▾ caret with
-  a 150ms rotate on directories, a status-dot in the tokenizer palette on
-  leaves (the rounded-full dot class), selected = --terminal-hover fill +
-  2px primary left edge. No card shell and no hairlines — the view embeds
-  into sidebar surfaces (component-canvas code drawer) that own the chrome.
+  Original request (2026-08-22): the old file-tree view was over-styled and
+  closed. Rebuild it as a GENERIC ARIA tree with an extension surface:
+  1. prefix/suffix slots (Snippet<[ctx]>) + onPrefixSlotRender /
+     onSuffixSlotRender resolvers that pick a snippet per node context;
+  2. disabled nodes (focusable per APG, never activatable);
+  3. built-in style variants only — toggle ('chevron' | 'plus'), lines
+     (guide rails), indent (px per level). Everything else is fixed law.
 
-  Paths are built recursively as `parent.name + '/' + node.name`; a leaf
-  carrying `file` is selectable (aria-selected + onselect(path, file)).
+  Intent list (orthogonal, max 5):
+  - data model: nested TreeNode<T> (name/children/disabled/meta), paths
+    built recursively; `meta` is the payload handed back in every ctx.
+  - extension surface: prefix/suffix/label snippets + resolver callbacks;
+    onactivate runs BEFORE default behavior and can set
+    ctx.preventDefault() to own the action (the multiselect seam).
+  - selection: single, consumer-controlled via the `selected` id prop;
+    folders toggle on activate, leaves select (file-tree lineage).
+  - keyboard contract (APG tree): roving tabindex, arrows / Home / End /
+    Enter / Space on the tree root; collapsed extents are inert.
+  - paint law: font-nav 12px on line-height 2, hover 5% fill, selected =
+    terminal-hover fill + 2px primary left edge, disabled 50% opacity,
+    suffix revealed on row hover/focus-within (the actions-row law).
+
+  画蛇添足 removed vs the old file-tree view: language-tinted status dots,
+  inferTreeLang coupling, file payload semantics. The code workbench file
+  protocol now lives in component-canvas.svelte. Built-in file/folder
+  icons returned by user request (2026-08-22) as a zero-config opt-in
+  (fileIcons) under the monochrome law — consumer prefix snippets still
+  win per node.
 -->
 <script lang="ts" module>
-  export interface TreeFile {
-    /** File path as authored (e.g. "src/lib/ui/button.svelte") or bare name. */
+  import type { Snippet } from 'svelte';
+  /**
+   * Generic tree node. `children` presence makes the node a folder
+   * (expandable); `meta` is the consumer payload returned in every ctx.
+   */
+  export interface TreeNode<T = unknown> {
     name: string;
-    content: string;
-    /** Tokenizer hint; inferred from the name extension when omitted. */
-    lang?: string;
+    children?: TreeNode<T>[];
+    /** focusable but not activatable (APG disabled treeitem) */
+    disabled?: boolean;
+    /** consumer payload — flows untouched into TreeItemCtx.node.meta */
+    meta?: T;
   }
 
-  export interface TreeNode {
-    name: string;
-    children?: TreeNode[];
-    /** Leaf payload: presence makes the node a selectable file item. */
-    file?: TreeFile;
+  /** Per-node context handed to slots, resolvers and callbacks. */
+  export interface TreeItemCtx<T = unknown> {
+    node: TreeNode<T>;
+    /** full path id ("src/lib/ui"); selection/expanded state key */
+    id: string;
+    /** 1-based depth */
+    depth: number;
+    isFolder: boolean;
+    expanded: boolean;
+    selected: boolean;
+    disabled: boolean;
+    /** true after preventDefault() cancelled the default behavior */
+    readonly defaultPrevented: boolean;
+    /** inside onactivate: cancel the default folder-toggle / leaf-select */
+    preventDefault(): void;
   }
 
-  /** Extension → Shiki language id (aliases resolve in lib/shiki). */
-  export function inferTreeLang(name: string): string {
-    const ext = name.split('.').pop()?.toLowerCase() ?? '';
-    switch (ext) {
-      case 'ts':
-        return 'ts';
-      case 'tsx':
-        return 'tsx';
-      case 'js':
-      case 'mjs':
-      case 'cjs':
-        return 'js';
-      case 'jsx':
-        return 'jsx';
-      case 'svelte':
-        return 'svelte';
-      case 'html':
-        return 'html';
-      case 'css':
-        return 'css';
-      case 'scss':
-        return 'scss';
-      case 'json':
-        return 'json';
-      case 'sh':
-      case 'bash':
-      case 'zsh':
-        return 'bash';
-      default:
-        return ext || 'ts';
-    }
-  }
-</script>
+  /** resolver: pick a snippet per node, or nothing to skip the column */
+  export type TreeSlotRender<T = unknown> = (
+    ctx: TreeItemCtx<T>,
+  ) => Snippet<[TreeItemCtx<T>]> | undefined | null | false;
 
-<script lang="ts">
-  import { icons } from '$lib/icons';
-
-  interface Props {
-    tree: TreeNode[];
-    /** Currently selected file path ("src/lib/ui/button.svelte"). */
-    selected?: string;
-    onselect?: (path: string, file: TreeFile) => void;
-  }
-
-  let { tree, selected, onselect }: Props = $props();
-
-  // collapsed directories, keyed by full path (names may repeat across dirs)
-  let collapsed = $state(new Set<string>());
-
-  function toggle(path: string): void {
-    const next = new Set(collapsed);
-    if (next.has(path)) next.delete(path);
-    else next.add(path);
-    collapsed = next;
-  }
-
-  // path → node (+ parent path), rebuilt whenever the tree prop changes
-  interface FlatEntry {
+  /** flat index entry: path ↔ node (+ parent path) */
+  export interface TreeIndexEntry<T = unknown> {
     path: string;
-    node: TreeNode;
+    node: TreeNode<T>;
     parentPath: string | null;
   }
-  const byPath = $derived.by(() => {
-    const map = new Map<string, FlatEntry>();
-    const walk = (nodes: TreeNode[], parent: string | null): void => {
-      for (const node of nodes) {
+
+  /**
+   * path index over a node list ("src/lib/ui" law): extensions
+   * (multiselect cascade, …) share the core's id semantics instead of
+   * re-deriving them.
+   */
+  export function buildTreeIndex<T>(nodes: TreeNode<T>[]): Map<string, TreeIndexEntry<T>> {
+    const map = new Map<string, TreeIndexEntry<T>>();
+    const walk = (list: TreeNode<T>[], parent: string | null): void => {
+      for (const node of list) {
         const path = parent === null ? node.name : `${parent}/${node.name}`;
         map.set(path, { path, node, parentPath: parent });
         if (node.children) walk(node.children, path);
       }
     };
-    walk(tree, null);
+    walk(nodes, null);
     return map;
-  });
+  }
 
-  // roving tabindex stop: the selected item when it exists, else the first
+  /**
+   * paths of every node disabled by its own flag OR by a disabled
+   * ancestor — the one frozen-subtree law shared by the core (activation
+   * guard, keyboard walker) and extensions (cascade skipping).
+   */
+  export function collectFrozenPaths<T>(nodes: TreeNode<T>[]): Set<string> {
+    const frozen = new Set<string>();
+    const walk = (list: TreeNode<T>[], parent: string | null, frozenParent: boolean): void => {
+      for (const node of list) {
+        const path = parent === null ? node.name : `${parent}/${node.name}`;
+        const isFrozen = frozenParent || node.disabled === true;
+        if (isFrozen) frozen.add(path);
+        if (node.children) walk(node.children, path, isFrozen);
+      }
+    };
+    walk(nodes, null, false);
+    return frozen;
+  }
+</script>
+
+<script lang="ts" generics="T = unknown">
+  import { icons } from '$lib/icons';
+
+  interface Props {
+    nodes: TreeNode<T>[];
+    /** folder ids expanded on mount; uncontrolled afterwards */
+    defaultExpanded?: string[];
+    /** single-selection path id (consumer-owned; leaves select) */
+    selected?: string;
+    /** prefix column — rendered for every node with the item ctx */
+    prefix?: Snippet<[TreeItemCtx<T>]>;
+    /** suffix column — hidden until row hover/focus-within (actions law) */
+    suffix?: Snippet<[TreeItemCtx<T>]>;
+    /** dynamic prefix: pick a snippet per node; wins over `prefix` */
+    onPrefixSlotRender?: TreeSlotRender<T>;
+    /** dynamic suffix: pick a snippet per node; wins over `suffix` */
+    onSuffixSlotRender?: TreeSlotRender<T>;
+    /** label override (default: node.name) */
+    label?: Snippet<[TreeItemCtx<T>]>;
+    /** click / Enter / Space — runs first; ctx.preventDefault() cancels default */
+    onactivate?: (ctx: TreeItemCtx<T>) => void;
+    /** folder expand/collapse; ctx.expanded is the NEW state */
+    ontoggle?: (ctx: TreeItemCtx<T>) => void;
+    /** leaf selection; ctx.selected is the pre-callback snapshot — the
+     *  controlled `selected` prop remains the source of truth */
+    onselect?: (ctx: TreeItemCtx<T>) => void;
+    /** toggler glyph variant (built-in) */
+    toggle?: 'chevron' | 'plus';
+    /**
+     * Built-in file-tree icons in the prefix column: folders paint
+     * folder/folder-open (following expansion), leaves paint a file glyph.
+     * A consumer prefix snippet or onPrefixSlotRender result always wins
+     * per node — this is the zero-config default, not a takeover.
+     */
+    fileIcons?: boolean;
+    /** vertical guide rails per indent level (built-in) */
+    lines?: boolean;
+    /** px per level (built-in) */
+    indent?: number;
+    ariaLabel?: string;
+    class?: string;
+  }
+
+  let {
+    nodes,
+    defaultExpanded = [],
+    selected,
+    prefix,
+    suffix,
+    onPrefixSlotRender,
+    onSuffixSlotRender,
+    label,
+    onactivate,
+    ontoggle,
+    onselect,
+    toggle = 'chevron',
+    fileIcons = false,
+    lines = false,
+    indent = 16,
+    ariaLabel = 'tree',
+    class: className = '',
+  }: Props = $props();
+
+  // expanded folder ids; collapsed groups carry data-collapsed + inert so
+  // the keyboard walker never sees hidden rows. defaultExpanded is
+  // deliberately captured once — expansion is uncontrolled after mount.
+  // svelte-ignore state_referenced_locally
+  let expandedIds = $state(new Set(defaultExpanded));
+
+  // path → entry, rebuilt whenever the nodes prop changes
+  const byPath = $derived(buildTreeIndex(nodes));
+
+  // disabled propagates: a disabled folder freezes its whole subtree
+  // (its children may be visible but are never activatable)
+  const frozenPaths = $derived(collectFrozenPaths(nodes));
+
+  function togglePath(path: string, node: TreeNode<T>): void {
+    const next = new Set(expandedIds);
+    if (next.has(path)) next.delete(path);
+    else next.add(path);
+    expandedIds = next;
+    ontoggle?.(makeCtx({ path, node }, next.has(path)));
+  }
+
+  function makeCtx(
+    entry: { path: string; node: TreeNode<T>; parentPath?: string | null },
+    expandedOverride?: boolean,
+  ): TreeItemCtx<T> {
+    const isFolder = entry.node.children !== undefined;
+    // preventDefault() flips a closure flag behind the readonly prop —
+    // the documented extension contract (consumers never assign directly)
+    let prevented = false;
+    return {
+      node: entry.node,
+      id: entry.path,
+      depth: entry.path.split('/').length,
+      isFolder,
+      expanded: expandedOverride ?? (isFolder && expandedIds.has(entry.path)),
+      selected: entry.path === selected,
+      disabled: frozenPaths.has(entry.path),
+      get defaultPrevented(): boolean {
+        return prevented;
+      },
+      preventDefault(): void {
+        prevented = true;
+      },
+    };
+  }
+
+  // activation: onactivate seam first (extensions own the action by
+  // calling ctx.preventDefault()), then folder→toggle / leaf→select.
+  // Disabled rows are not activatable AT ALL — not even the seam fires.
+  function activate(entry: TreeIndexEntry<T>, el: HTMLElement): void {
+    el.focus();
+    focusPath = entry.path;
+    if (frozenPaths.has(entry.path)) return;
+    const ctx = makeCtx(entry);
+    onactivate?.(ctx);
+    if (ctx.defaultPrevented) return;
+    if (ctx.isFolder) {
+      togglePath(entry.path, entry.node);
+    } else {
+      onselect?.(ctx);
+    }
+  }
+
+  // ---- roving tabindex ------------------------------------------------
   const initialStop = $derived.by(() => {
     if (selected != null && byPath.has(selected)) return selected;
-    return tree.length > 0 ? byPath.keys().next().value ?? null : null;
+    return nodes.length > 0 ? (byPath.keys().next().value ?? null) : null;
   });
   let focusPath = $state<string | null>(null);
 
   let root: HTMLUListElement | undefined = $state();
 
-  // keyboard walker: only items outside collapsed (inert) extents count
   function visibleItems(): HTMLElement[] {
     if (!root) return [];
     return [...root.querySelectorAll<HTMLElement>('li[role="treeitem"]')].filter(
       (el) => !el.closest('[data-collapsed]'),
     );
-  }
-
-  function activate(target: HTMLElement, entry: FlatEntry): void {
-    target.focus();
-    focusPath = entry.path;
-    if (entry.node.children) {
-      toggle(entry.path);
-    } else if (entry.node.file) {
-      onselect?.(entry.path, entry.node.file);
-    }
   }
 
   function onKeydown(event: KeyboardEvent): void {
@@ -140,6 +260,8 @@
     if (!path) return;
     const entry = byPath.get(path);
     if (!entry) return;
+    // focus inside a suffix/prefix control never reaches here (no
+    // data-path on the control) — interactive descendants own their keys
 
     const items = visibleItems();
     const index = items.findIndex((el) => el.dataset.path === path);
@@ -170,75 +292,121 @@
       case 'ArrowRight':
         event.preventDefault();
         if (entry.node.children) {
-          if (collapsed.has(path)) toggle(path);
+          // frozen folders never expand — but walking INTO an already
+          // open one is still navigation, not activation
+          if (!expandedIds.has(path) && !frozenPaths.has(path)) togglePath(path, entry.node);
           else focusAt(index + 1);
         }
         break;
       case 'ArrowLeft':
         event.preventDefault();
-        if (entry.node.children && !collapsed.has(path)) toggle(path);
+        // frozen folders never collapse; the focus return to the parent
+        // stays available (navigation, not activation)
+        if (entry.node.children && expandedIds.has(path) && !frozenPaths.has(path)) togglePath(path, entry.node);
         else focusPathItem(entry.parentPath);
+        break;
+      case 'Home':
+        event.preventDefault();
+        focusAt(0);
+        break;
+      case 'End':
+        event.preventDefault();
+        focusAt(items.length - 1);
         break;
       case 'Enter':
       case ' ':
         event.preventDefault();
-        activate(target as HTMLElement, entry);
+        activate(entry, target as HTMLElement);
         break;
     }
   }
 </script>
 
-<ul role="tree" aria-label="files" class="jx-tree-view" bind:this={root} onkeydown={onKeydown}>
-  {#snippet rows(nodes: TreeNode[], parentPath: string | null, depth: number)}
-    {#each nodes as node (parentPath === null ? node.name : `${parentPath}/${node.name}`)}
+<ul
+  role="tree"
+  aria-label={ariaLabel}
+  class="jx-tree {className}"
+  class:jx-tree-lines={lines}
+  style:--jx-indent="{indent}px"
+  bind:this={root}
+  onkeydown={onKeydown}
+>
+  {#snippet rows(list: TreeNode<T>[], parentPath: string | null)}
+    {#each list as node (parentPath === null ? node.name : `${parentPath}/${node.name}`)}
       {@const path = parentPath === null ? node.name : `${parentPath}/${node.name}`}
       {@const isDir = node.children !== undefined}
-      {@const isCollapsed = collapsed.has(path)}
-      {@const isSel = node.file !== undefined && path === selected}
+      {@const isCollapsed = isDir && !expandedIds.has(path)}
+      {@const isSel = !isDir && path === selected}
+      {@const isDisabled = frozenPaths.has(path)}
+      {@const ctx = makeCtx({ path, node, parentPath })}
+      {@const prefixSnippet = onPrefixSlotRender ? onPrefixSlotRender(ctx) : prefix}
+      {@const suffixSnippet = onSuffixSlotRender ? onSuffixSlotRender(ctx) : suffix}
       <li
         role="treeitem"
         data-path={path}
-        aria-level={depth}
+        aria-level={ctx.depth}
         aria-expanded={isDir ? !isCollapsed : undefined}
-        aria-selected={node.file !== undefined ? isSel : undefined}
-        data-collapsed={isDir && isCollapsed ? '' : undefined}
+        aria-selected={isDir ? undefined : isSel}
+        aria-disabled={isDisabled || undefined}
+        data-disabled={isDisabled ? '' : undefined}
+        data-collapsed={isCollapsed ? '' : undefined}
         tabindex={path === (focusPath ?? initialStop) ? 0 : -1}
         onfocusin={() => (focusPath = path)}
       >
-        <!-- the treeitem is the interactive unit (ARIA tree pattern): keys
-             are handled by the tree-level walker, clicks by this row -->
+        <!-- the treeitem owns focus (roving tabindex); the row paints and
+             handles clicks — interactive descendants never activate the row -->
         <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
         <div
-          class="jx-tree-view-row"
+          class="jx-tree-row"
           class:selected={isSel}
-          onclick={(event) => activate((event.currentTarget as HTMLElement).closest('li')!, { path, node, parentPath })}
+          onclick={(event) => {
+            const target = event.target as HTMLElement;
+            if (target.closest('button, a, input, select, textarea, [contenteditable], [data-tree-no-activate]')) return;
+            activate({ path, node, parentPath }, (event.currentTarget as HTMLElement).closest('li')!);
+          }}
         >
-          {#if isDir}
-            <span class="jx-tree-view-caret" aria-hidden="true">{@html icons.chevronDown}</span>
-          {:else}
-            <span
-              class="jx-tree-view-dot"
-              data-lang={node.file?.lang ?? inferTreeLang(node.name)}
-              aria-hidden="true"
-            ></span>
+          <span class="jx-tree-caret" aria-hidden="true">
+            {#if isDir}
+              {#if toggle === 'plus'}
+                {@html isCollapsed ? icons.plus : icons.minus}
+              {:else}
+                {@html icons.chevronDown}
+              {/if}
+            {/if}
+          </span>
+          {#if prefixSnippet}
+            <span class="jx-tree-prefix">{@render prefixSnippet(ctx)}</span>
+          {:else if fileIcons}
+            <span class="jx-tree-prefix jx-tree-typeicon" aria-hidden="true">
+              {#if isDir}
+                {@html ctx.expanded ? icons.folderOpen : icons.folder}
+              {:else}
+                {@html icons.file}
+              {/if}
+            </span>
           {/if}
-          <span class="jx-tree-view-name">{node.name}</span>
+          <span class="jx-tree-label">
+            {#if label}{@render label(ctx)}{:else}{node.name}{/if}
+          </span>
+          {#if suffixSnippet}
+            <span class="jx-tree-suffix">{@render suffixSnippet(ctx)}</span>
+          {/if}
         </div>
         {#if isDir}
-          <div class="jx-tree-view-group" data-collapsed={isCollapsed ? '' : undefined} inert={isCollapsed || undefined}>
+          <div class="jx-tree-group" data-collapsed={isCollapsed ? '' : undefined} inert={isCollapsed || undefined}>
             <ul role="group">
-              {@render rows(node.children ?? [], path, depth + 1)}
+              {@render rows(node.children ?? [], path)}
             </ul>
           </div>
         {/if}
       </li>
     {/each}
   {/snippet}
-  {@render rows(tree, null, 1)}
+  {@render rows(nodes, null)}
 </ul>
 
 <style>
-  .jx-tree-view {
+  .jx-tree {
     color: var(--muted-foreground);
     font-family: var(--font-nav);
     font-size: 12px;
@@ -248,17 +416,32 @@
     padding: 0;
   }
 
-  .jx-tree-view ul {
+  .jx-tree ul {
     list-style: none;
     margin: 0;
     padding: 0;
   }
-  .jx-tree-view ul[role='group'] {
-    padding-left: 0.9rem;
+  .jx-tree ul[role='group'] {
+    padding-left: var(--jx-indent);
   }
 
-  /* row: caret/dot column is fixed so leaves align under the caret */
-  .jx-tree-view-row {
+  /* guide rails (lines variant): one 1px rail per group under the parent
+     caret column, only as tall as the group itself */
+  .jx-tree-lines ul[role='group'] {
+    position: relative;
+  }
+  .jx-tree-lines ul[role='group']::before {
+    background: var(--border);
+    content: '';
+    inset-block: 0;
+    left: calc(var(--jx-indent) / 2 - 0.5px);
+    position: absolute;
+    width: 1px;
+  }
+
+  /* row: fixed caret column (leaf rows keep it empty so prefix icons and
+     labels align under their folder siblings) */
+  .jx-tree-row {
     align-items: center;
     border-left: 2px solid transparent;
     cursor: pointer;
@@ -268,101 +451,118 @@
     padding-inline: 0.35rem 0.5rem;
     transition: background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out;
   }
-  .jx-tree-view-row:hover {
+  .jx-tree-row:hover {
     background: color-mix(in oklab, var(--foreground) 5%, transparent);
     color: var(--foreground);
   }
-  .jx-tree-view-row.selected {
+  .jx-tree-row.selected {
     background: var(--terminal-hover);
     border-left-color: var(--primary);
     color: var(--foreground);
   }
-  .jx-tree-view-name {
+  li[data-disabled] > .jx-tree-row {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .jx-tree-label {
+    flex: 1 1 auto;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  /* caret: ▾ when expanded, rotated -90° to point right when collapsed */
-  .jx-tree-view-caret svg {
-    width: 10px;
-    height: 10px;
-  }
-  .jx-tree-view-caret {
+  /* caret column: chevron rotates -90° when collapsed; plus toggler
+     swaps glyphs (no rotation to animate, so no transition needed) */
+  .jx-tree-caret {
     align-items: center;
     color: var(--muted-foreground);
     display: inline-flex;
     flex: none;
-    font-size: 10px;
     height: 1em;
     justify-content: center;
     transition: transform 150ms ease;
     width: 0.75rem;
   }
-  .jx-tree-view li[data-collapsed] > .jx-tree-view-row .jx-tree-view-caret {
+  .jx-tree-caret :global(svg) {
+    width: 10px;
+    height: 10px;
+  }
+  li[data-collapsed] > .jx-tree-row .jx-tree-caret {
     transform: rotate(-90deg);
   }
 
-  /* leaf status dot tinted with the readonly-code palette VALUES (primary
-     family + muted) — direct color-mix so the tree is self-sufficient
-     outside any code-card scope */
-  .jx-tree-view-dot {
-    background: color-mix(in oklab, var(--foreground) 44%, transparent);
-    border-radius: 9999px;
+  /* prefix column: consumer icons live here; sizes are the consumer's */
+  .jx-tree-prefix {
+    align-items: center;
+    display: inline-flex;
     flex: none;
-    height: 6px;
-    margin-inline: calc((0.75rem - 6px) / 2);
-    width: 6px;
+    min-width: 0;
   }
-  .jx-tree-view-dot[data-lang='ts'],
-  .jx-tree-view-dot[data-lang='tsx'] {
-    background: var(--primary);
+  .jx-tree-prefix :global(svg) {
+    height: 14px;
+    width: 14px;
   }
-  .jx-tree-view-dot[data-lang='js'],
-  .jx-tree-view-dot[data-lang='jsx'] {
-    background: color-mix(in oklab, var(--primary) 62%, var(--foreground));
+  /* built-in type icons (fileIcons): monochrome law — folders read a step
+     stronger than leaves through the meta tint, leaves stay muted */
+  .jx-tree-typeicon {
+    color: var(--muted-foreground);
   }
-  .jx-tree-view-dot[data-lang='svelte'],
-  .jx-tree-view-dot[data-lang='html'] {
-    background: var(--accent);
+  .jx-tree-typeicon :global(svg) {
+    height: 13px;
+    width: 13px;
   }
-  .jx-tree-view-dot[data-lang='css'],
-  .jx-tree-view-dot[data-lang='scss'] {
-    background: var(--secondary);
+  .jx-tree-row:hover .jx-tree-typeicon,
+  .jx-tree-row.selected .jx-tree-typeicon {
+    color: color-mix(in oklab, var(--accent) 60%, var(--foreground));
   }
-  .jx-tree-view-dot[data-lang='json'],
-  .jx-tree-view-dot[data-lang='bash'] {
-    background: var(--muted-foreground);
+
+  /* suffix column (actions law): present in layout, revealed on row
+     hover/focus-within — antd-style row actions */
+  .jx-tree-suffix {
+    align-items: center;
+    display: inline-flex;
+    flex: none;
+    gap: 0.15rem;
+    margin-left: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 150ms ease-out;
+  }
+  .jx-tree-row:hover .jx-tree-suffix,
+  li:focus-within .jx-tree-suffix {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   /* collapse: grid-rows 0fr→1fr (the ToC viewport law); inert on the same
      extent keeps collapsed content out of the tab order */
-  .jx-tree-view-group {
+  .jx-tree-group {
     display: grid;
     grid-template-rows: 1fr;
     transition: grid-template-rows 150ms ease;
   }
-  .jx-tree-view-group[data-collapsed] {
+  .jx-tree-group[data-collapsed] {
     grid-template-rows: 0fr;
   }
-  .jx-tree-view-group > ul {
+  .jx-tree-group > ul {
     min-height: 0;
     overflow: hidden;
   }
 
   /* focus law: the treeitem owns focus (roving tabindex); the row paints */
-  .jx-tree-view li:focus-visible {
+  .jx-tree li:focus-visible {
     outline: none;
   }
-  .jx-tree-view li:focus-visible > .jx-tree-view-row {
+  .jx-tree li:focus-visible > .jx-tree-row {
     outline: 2px solid var(--ring);
     outline-offset: -2px;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .jx-tree-view-caret,
-    .jx-tree-view-group,
-    .jx-tree-view-row {
+    .jx-tree-caret,
+    .jx-tree-group,
+    .jx-tree-row,
+    .jx-tree-suffix {
       transition: none;
     }
   }

@@ -5,7 +5,7 @@
      shot shows the canvas in its landed reading form. -->
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import Badge from '$lib/ui/badge.svelte';
 
