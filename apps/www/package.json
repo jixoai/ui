@@ -30,6 +30,7 @@
     "vitest": "^4.1.11"
   },
   "dependencies": {
+    "@tanstack/svelte-virtual": "^3.13.36",
     "shiki": "^4.4.3"
   }
 }
