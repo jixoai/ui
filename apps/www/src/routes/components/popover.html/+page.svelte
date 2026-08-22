@@ -8,6 +8,61 @@
   import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
+  import { onMount } from 'svelte';
+
+  // the nine @position-try candidates are injected at RUNTIME: every
+  // CSS processor on the path (Svelte scoped styles AND the Vite/
+  // Tailwind pipeline) strips @position-try rule bodies — it treats
+  // inset-area as an unknown property and drops the declarations.
+  // overview-card's wing candidates have silently suffered the same
+  // fate (masked by its flip-inline fallback). A plain <style> node
+  // in the head bypasses all processors.
+  onMount(() => {
+    const style = document.createElement('style');
+    style.dataset.jxTryGrid = '';
+    // physical-inset form: Chrome's @position-try allow-list no longer
+    // accepts inset-area inside candidates — only inset/margin/size and
+    // self-alignment. Every edge is written explicitly (auto for the
+    // freed sides) because a candidate only overrides the properties it
+    // names; the flush margin stays 0 (r22). anchor-center does the
+    // span-alignment; the center cell is a viewport-centered inset 0 +
+    // margin auto pair (fit-content sizing keeps the panel small)
+    style.textContent = `
+      @position-try --jx-try-top-start {
+        bottom: anchor(top); top: auto; left: anchor(left); right: auto;
+      }
+      @position-try --jx-try-top {
+        bottom: anchor(top); top: auto; left: auto; right: auto;
+        justify-self: anchor-center;
+      }
+      @position-try --jx-try-top-end {
+        bottom: anchor(top); top: auto; left: auto; right: anchor(right);
+      }
+      @position-try --jx-try-left {
+        right: anchor(left); left: auto; top: auto; bottom: auto;
+        align-self: anchor-center;
+      }
+      @position-try --jx-try-center {
+        top: 0; bottom: 0; left: 0; right: 0; margin: auto;
+      }
+      @position-try --jx-try-right {
+        left: anchor(right); right: auto; top: auto; bottom: auto;
+        align-self: anchor-center;
+      }
+      @position-try --jx-try-bottom-start {
+        top: anchor(bottom); bottom: auto; left: anchor(left); right: auto;
+      }
+      @position-try --jx-try-bottom {
+        top: anchor(bottom); bottom: auto; left: auto; right: auto;
+        justify-self: anchor-center;
+      }
+      @position-try --jx-try-bottom-end {
+        top: anchor(bottom); bottom: auto; left: auto; right: anchor(right);
+      }
+    `;
+    document.head.appendChild(style);
+    return () => style.remove();
+  });
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import popoverSource from '$lib/ui/popover.svelte?raw';
@@ -43,10 +98,38 @@ ${close}
   let canvasChoice = $state<string | null>(canvasInitial.choice);
   let canvasVariant = $state<'solid' | 'acrylic' | 'auto'>('auto');
 
+  // nine-grid position-try: each cell toggles one custom @position-try
+  // candidate (see the @position-try rules in the page styles); the
+  // panel tries the ENABLED cells, in grid order, when the initial
+  // placement overflows
+  const TRY_CELLS: { id: string; label: string }[] = [
+    { id: 'top-start', label: '◤' },
+    { id: 'top', label: '▲' },
+    { id: 'top-end', label: '◥' },
+    { id: 'left', label: '◀' },
+    { id: 'center', label: '•' },
+    { id: 'right', label: '▶' },
+    { id: 'bottom-start', label: '◣' },
+    { id: 'bottom', label: '▼' },
+    { id: 'bottom-end', label: '◢' },
+  ];
+  const ALL_TRIES = TRY_CELLS.map((c) => c.id);
+  let canvasTries = $state<string[]>([...ALL_TRIES]);
+  const tryFallbacks = $derived(
+    canvasTries.length ? canvasTries.map((id) => `--jx-try-${id}`).join(', ') : undefined,
+  );
+
+  function toggleTry(id: string): void {
+    canvasTries = canvasTries.includes(id)
+      ? canvasTries.filter((t) => t !== id)
+      : [...TRY_CELLS.map((c) => c.id).filter((c) => canvasTries.includes(c) || c === id)];
+  }
+
   function resetPopoverCanvas(): void {
     canvasTriggerLabel = canvasInitial.triggerLabel;
     canvasChoice = canvasInitial.choice;
     canvasVariant = 'auto';
+    canvasTries = [...ALL_TRIES];
   }
 
   // live usage code tracks the current triggerLabel; q() keeps user input
@@ -134,7 +217,12 @@ ${close}
     >
       <div class="flex flex-col items-center gap-4">
         <!-- the panel lives in the stage; the top layer lifts it on open -->
-        <Popover id="canvas-pop" triggerLabel={canvasTriggerLabel} variant={canvasVariant}>
+        <Popover
+          id="canvas-pop"
+          triggerLabel={canvasTriggerLabel}
+          variant={canvasVariant}
+          {tryFallbacks}
+        >
           <div class="flex w-52 flex-col">
             <button type="button" class="pop-row" popovertarget="canvas-pop"
               onclick={() => (canvasChoice = 'renamed')}>Rename…</button>
@@ -163,11 +251,32 @@ ${close}
               </div>
             </fieldset>
           </div>
+          <div class="jx-play-field">
+            <fieldset class="jx-play-try">
+              <legend>position-try</legend>
+              <div class="jx-try-grid" role="group" aria-label="position-try candidates">
+                {#each TRY_CELLS as cell (cell.id)}
+                  <button
+                    type="button"
+                    class="jx-try-cell"
+                    class:jx-try-on={canvasTries.includes(cell.id)}
+                    aria-pressed={canvasTries.includes(cell.id)}
+                    title={cell.id}
+                    onclick={() => toggleTry(cell.id)}
+                  >{cell.label}</button>
+                {/each}
+              </div>
+              <p class="jx-play-help">
+                each cell toggles one <code class="text-accent">@position-try</code> candidate —
+                the panel tries the lit cells in order when the anchor overflows. reopen to apply.
+              </p>
+            </fieldset>
+          </div>
           <p class="jx-play-help">
-            the playground edits the <code class="text-accent">triggerLabel</code> and
-            <code class="text-accent">variant</code> props live — open the panel and click outside,
-            press Escape, or pick a row: three native exits, zero JS on the close path.
-            auto = acrylic unless the environment asks for reduced transparency.
+            the playground edits the <code class="text-accent">triggerLabel</code>,
+            <code class="text-accent">variant</code>, and position-try set live — open the panel
+            and click outside, press Escape, or pick a row: three native exits, zero JS on the
+            close path. auto = acrylic unless the environment asks for reduced transparency.
           </p>
         </div>
       {/snippet}
@@ -370,4 +479,44 @@ ${close}
     outline: 1px solid var(--ring);
     outline-offset: -1px;
   }
+
+  /* nine-grid: one toggle per candidate */
+  .jx-try-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 2rem);
+    gap: 3px;
+    width: fit-content;
+  }
+  .jx-try-cell {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    font-size: 11px;
+    line-height: 1;
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    transition:
+      background-color 120ms ease-out,
+      color 120ms ease-out,
+      border-color 120ms ease-out;
+  }
+  .jx-try-cell:hover {
+    border-color: var(--primary);
+    color: var(--foreground);
+  }
+  .jx-try-on {
+    background: var(--foreground);
+    color: var(--background);
+    border-color: var(--foreground);
+  }
+  .jx-try-cell:focus-visible {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+  }
+
 </style>

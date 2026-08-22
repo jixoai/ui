@@ -31,7 +31,7 @@
       context the classic in-flow behavior is unchanged.
 -->
 <script lang="ts">
-  import { getContext } from 'svelte';
+  import { getContext, untrack } from 'svelte';
   import { createTocEngine } from '$lib/toc-engine';
   import { deriveTocOutline, tocOutlineToSections, type TocOutlineEntry } from '$lib/toc-outline';
   import { icons } from '$lib/icons';
@@ -137,6 +137,11 @@
   $effect(() => {
     if (!rootEl || !topLayerApi || topLayer === false) return;
     const el = rootEl;
+    // untrack: adoption touches scaffold state (floatNodes) and moves
+    // DOM — neither may feed back into THIS effect's dependencies, or
+    // the flush loop exceeds update depth and kills the page runtime
+    // (the playCanvas-bindings-dead report, 2026-08-23)
+    return untrack(() => {
     // the anchor aside keeps the authoring position (grid column) — the
     // horizontal geometry source after the move; `home` is the return
     // ticket so teardown/hot-reload/route change never leaks a moved node
@@ -180,17 +185,18 @@
     const headerEl = document.querySelector<HTMLElement>('.jx-scaffold-header');
     if (headerEl) layoutWatch.observe(headerEl);
 
-    const release = topLayerApi.adopt(el);
-    return () => {
-      removeEventListener('resize', onResize);
-      layoutWatch.disconnect();
-      if (raf) cancelAnimationFrame(raf);
-      release();
-      delete el.dataset.toplayer;
-      // return the node to its authoring parent so Svelte teardown
-      // finds and destroys exactly what it created
-      home?.appendChild(el);
-    };
+      const release = topLayerApi.adopt(el);
+      return () => {
+        removeEventListener('resize', onResize);
+        layoutWatch.disconnect();
+        if (raf) cancelAnimationFrame(raf);
+        release();
+        delete el.dataset.toplayer;
+        // return the node to its authoring parent so Svelte teardown
+        // finds and destroys exactly what it created
+        home?.appendChild(el);
+      };
+    });
   });
 
   // Live line (Owner fix, 2026-08-21): the old constant 76px assumed the

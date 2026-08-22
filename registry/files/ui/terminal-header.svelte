@@ -714,7 +714,7 @@
      (the top layer changes painting, not ancestry) and carries the
      header's scope class itself so tokens resolve from itself. */
   .jx-nav :global(.jx-pop.jx-subpanel) {
-    margin: 6px; /* the nav gap law — the 4px shadow stays clear of the bar */
+    margin: 2px 0 0; /* flush hugging (r22): the adaptive shadow falls outward — a hair only, so the panel border never merges with the bar's */
     --jx-panel-pad: 0.25rem;
     /* the primitive's scroll ring carries the padding — retune BOTH
        axes here (jx-surface law, 2026-08-22: the panel itself never

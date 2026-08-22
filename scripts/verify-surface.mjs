@@ -237,7 +237,12 @@ for (const theme of ['light', 'dark']) {
 // ── 5. adaptive direction across a flip ──
 {
   const page = await openPopoverPage('light');
-  await page.evaluate(() => (document.querySelector('.jx-shell-body').scrollTop = 0));
+  // force the BELOW overflow: pin the trigger to the viewport bottom
+  // (with the nine-grid try chain a plain scrollTop=0 leaves room and
+  // the panel simply stays below — no flip to measure)
+  await page.evaluate(() =>
+    document.querySelector('button.jx-pop-trigger[popovertarget="canvas-pop"]').scrollIntoView({ block: 'end' }),
+  );
   await page.waitForTimeout(250);
   await page.click('button.jx-pop-trigger[popovertarget="canvas-pop"]');
   await page.waitForTimeout(650);
@@ -247,7 +252,9 @@ for (const theme of ['light', 'dark']) {
   });
   await page.keyboard.press('Escape');
   await page.waitForTimeout(600);
-  await page.evaluate(() => (document.querySelector('.jx-shell-body').scrollTop = 600));
+  await page.evaluate(() =>
+    document.querySelector('button.jx-pop-trigger[popovertarget="canvas-pop"]').scrollIntoView({ block: 'start' }),
+  );
   await page.waitForTimeout(250);
   await page.click('button.jx-pop-trigger[popovertarget="canvas-pop"]');
   await page.waitForTimeout(650);

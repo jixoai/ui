@@ -75,6 +75,11 @@
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
     variant?: 'solid' | 'acrylic' | 'auto';
+    /** position-try fallbacks as a raw CSS value — custom @position-try
+        idents (space/comma list) replace the default flip series; pass
+        e.g. '--try-top, --try-bottom-end' authored on the consumer side.
+        Empty/undefined = flip-block, flip-inline (the engine default) */
+    tryFallbacks?: string;
     trigger?: Snippet;
     panelClass?: string;
     onToggle?: (open: boolean) => void;
@@ -86,11 +91,25 @@
     triggerLabel = '',
     placement = 'bottom-end',
     variant = 'auto',
+    tryFallbacks = '',
     trigger,
     panelClass = '',
     onToggle,
     children,
   }: Props = $props();
+
+  // PHYSICAL placement map (r23): when tryFallbacks drives the try
+  // chain, the INITIAL position is written with physical anchor()
+  // insets too — a position-area on the panel outranks any candidate's
+  // physical insets (the engine's try allow-list dropped inset-area),
+  // so mixing the two silently disables every candidate
+  const physical = $derived.by(() => {
+    const c = placement.endsWith('-start') ? 'left: anchor(left); right: auto'
+      : placement.endsWith('-end') ? 'left: auto; right: anchor(right)'
+      : 'left: auto; right: auto; justify-self: anchor-center';
+    const r = placement.startsWith('top') ? 'top: auto; bottom: anchor(top)' : 'top: anchor(bottom); bottom: auto';
+    return `${r}; ${c};`;
+  });
 
   // Anchor names are CSS custom-ident-ish: sanitize the id into a stable
   // dashed token so any consumer id yields a valid --jx-pop-* name.
@@ -509,7 +528,7 @@
   class="jx-pop jx-surface jx-waapi {panelClass}"
   data-variant={variant}
   bind:this={panel}
-  style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
+  style="position-anchor: {anchorName}; {tryFallbacks ? `${physical}; position-try: ${tryFallbacks}; position-try-fallbacks: ${tryFallbacks};` : `inset-area: ${area}; position-area: ${area};`}"
   ontoggle={onPanelToggle}
 >
   <!-- jx-surface-body = THE SURFACE (fill + acrylic blur + the ::after
@@ -587,11 +606,11 @@
   }
   .jx-pop {
     position: fixed;
-    /* gap law (Owner, 2026-08-21): the shadow extends bottom-right; a
-       uniform margin keeps it off the anchor for EVERY placement — above
-       (shadow's bottom edge), left (shadow's right edge), and below/right
-       (adjacency itself). */
-    margin: var(--jx-pop-gap, 8px);
+    /* flush anchoring (Owner, 2026-08-23 r22): the adaptive shadow
+       always falls to the OUTWARD side (away from the anchor), so the
+       panel can hug the anchor directly — the old 8px margin existed
+       only to keep a fixed bottom-right shadow off the anchor */
+    margin: 0;
     position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
     position-try: flip-block, flip-inline, flip-block flip-inline;
     /* scroll law (MDN tip): when the anchor scrolls out of view (nested
