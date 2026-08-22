@@ -50,6 +50,28 @@ ${'</' + 'script'}
       onclick={() => (open = false)}>{s.label}</a>
   {/each}
 </Sheet>`;
+
+  // encodeURIComponent escapes the WHOLE SVG (spaces, quotes, CJK) —
+  // dynamic text needs XML entity escaping on top (& < >)
+  const wmSvg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="86">' +
+    '<text x="50%" y="50%" fill="black" font-size="13" font-family="monospace" ' +
+    'text-anchor="middle" transform="rotate(-22 60 43)">jixoai</text></svg>';
+  const watermarkRecipe =
+    '<div class="watermarked">\n' +
+    '  …content…\n' +
+    '  <div class="wm-layer" aria-hidden="true"></div>\n' +
+    '</div>\n' +
+    '<style>\n' +
+    '  .watermarked { position: relative; }\n' +
+    '  .wm-layer {\n' +
+    '    position: absolute; inset: 0;\n' +
+    '    pointer-events: none;\n' +
+    '    color: var(--foreground); opacity: 0.12;\n' +
+    '    background-repeat: repeat; background-size: 120px;\n' +
+    '    background-image: url("data:image/svg+xml," + encodeURIComponent(wmSvg));\n' +
+    '  }\n' +
+    '</style>';
 </script>
 
 <svelte:head>
@@ -125,20 +147,7 @@ ${'</' + 'script'}
       summary="The anti-exfiltration overlay as a CSS recipe: a repeated rotated-text SVG data-URI tile (encodeURIComponent — zero libraries, no canvas) on an absolutely-positioned layer with pointer-events:none. The watermark deters and marks provenance — it is not DRM (a DOM layer is removable by a determined user)."
     >
       <CodeBlock
-        code={`<div class="watermarked">
-  …content…
-  <div class="wm-layer" aria-hidden="true"></div>
-</div>
-<style>
-  .watermarked { position: relative; }
-  .wm-layer {
-    position: absolute; inset: 0;
-    pointer-events: none;
-    color: var(--foreground); opacity: 0.12;
-    background-repeat: repeat; background-size: 120px;
-    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='86'><text x='50%' y='50%' fill='currentColor' font-size='13' font-family='monospace' text-anchor='middle' transform='rotate(-22 60 43)'>jixoai</text></svg>");
-  }
-</style>`}
+        code={watermarkRecipe}
         lang="svelte"
         meta="watermark"
       />

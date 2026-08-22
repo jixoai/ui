@@ -35,17 +35,20 @@
     $props();
 
   const autoId = $props.id();
+  const anchorName = $derived(`--jx-fab-${autoId.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
   let open = $state(false);
   let btn = $state<HTMLButtonElement | null>(null);
 </script>
 
 {#if actions}
-  <div class="jx-fab-stack jx-fab-{corner} {className}">
+  <div class="jx-fab-stack jx-fab-{corner} {className}" style="anchor-name: {anchorName}">
     <div
       id={autoId}
       popover="auto"
+      role="menu"
       class="jx-fab-menu"
       bind:this={btn}
+      style="position-anchor: {anchorName}; inset-area: top span-right; position-area: top span-right;">
       ontoggle={(e: Event) => (open = (e.currentTarget as HTMLElement).matches(':popover-open'))}
     >
       {@render actions()}
@@ -134,8 +137,11 @@
     position: static;
   }
   .jx-fab-menu {
-    /* popover in top layer; visually docked above the stack via margin */
-    margin: 0;
+    position: fixed;
+    margin: var(--jx-fab-gap, 8px);
+    position-try-fallbacks: flip-block, flip-inline;
+    position-try: flip-block, flip-inline;
+    position-visibility: anchors-visible;
     width: fit-content;
     min-width: 9rem;
     padding: 0.25rem;

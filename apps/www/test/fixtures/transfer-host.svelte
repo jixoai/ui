@@ -16,6 +16,7 @@
       { value: 'c', label: 'gamma' },
       { value: 'keep', label: 'keeper' },
     ]}
+    name="picked"
     bind:value
   />
 </div>

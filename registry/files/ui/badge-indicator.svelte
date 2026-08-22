@@ -57,6 +57,7 @@
   <span
     class="jx-bi jx-bi-standalone {className}"
     class:jx-bi-dot={dot}
+    role={dot ? 'img' : undefined}
     aria-label={dot ? (label ?? 'new activity') : `${text}`}
     >{text}</span
   >

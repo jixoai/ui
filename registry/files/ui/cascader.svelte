@@ -41,6 +41,9 @@
   }
 
   const autoId = $props.id();
+  /** form/fieldset disable propagation (the bridge's jx-disabled) */
+  let formDisabled = $state(false);
+  const isDisabled = $derived(disabled || formDisabled);
 
   let {
     options,
@@ -86,6 +89,7 @@
   {name}
   value={formValue}
   disabled={disabled || undefined}
+  onjx-disabled={(e: CustomEvent<boolean>) => (formDisabled = e.detail)}
   onjx-reset={() => (value = [])}
 ></jx-form-field>
 
@@ -97,7 +101,7 @@
     {#each levels as levelOptions, level (level)}
       <select
         class="jx-cascader-select"
-        {disabled}
+        disabled={isDisabled}
         aria-label="level {level + 1}"
         value={value[level] ?? ''}
         onchange={(e) => pick(level, (e.currentTarget as HTMLSelectElement).value)}

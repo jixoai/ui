@@ -15,6 +15,8 @@
   moving never mutates them. disabled rows render but never move.
 -->
 <script lang="ts">
+  import '$lib/form-field';
+
   export interface TransferOption {
     value: string;
     label: string;
@@ -25,6 +27,8 @@
     options: TransferOption[];
     /** values living on the TARGET side; bindable */
     value?: string[];
+    /** form field name — the TARGET values submit (multi-entry) */
+    name?: string;
     sourceTitle?: string;
     targetTitle?: string;
     /** search placeholder */
@@ -36,6 +40,7 @@
   let {
     options,
     value = $bindable<string[]>([]),
+    name,
     sourceTitle = 'source',
     targetTitle = 'target',
     searchPlaceholder = 'filter…',
@@ -50,6 +55,8 @@
   let pickedTarget = $state<Set<string>>(new Set());
 
   const targetValues = $derived(new Set(value));
+  const sourceTotal = $derived(options.length - value.length);
+  const targetTotal = $derived(value.length);
   const sourceOptions = $derived(
     options.filter(
       (o) =>
@@ -89,12 +96,29 @@
   }
 </script>
 
+<jx-form-field
+  aria-hidden="true"
+  {name}
+  value={value.join('\n')}
+  multivalue={name ? true : undefined}
+  disabled={false}
+  onjx-reset={() => (value = [])}
+></jx-form-field>
+
 <div class="jx-transfer {className}">
   <!-- svelte-ignore a11y_autocomplete_valid -- search inputs over a
        checkbox fieldset, not a combobox -->
   <fieldset class="jx-tr-panel" aria-label="{sourceTitle} · {sourceOptions.length} available">
-    <legend class="jx-tr-legend">{sourceTitle} · {sourceOptions.length}</legend>
-    <input class="jx-tr-search" type="search" placeholder={searchPlaceholder} bind:value={sourceSearch} />
+    <legend class="jx-tr-legend"
+      >{sourceTitle} · {sourceOptions.length}/{sourceTotal} visible</legend
+    >
+    <input
+      class="jx-tr-search"
+      type="search"
+      aria-label="filter {sourceTitle}"
+      placeholder={searchPlaceholder}
+      bind:value={sourceSearch}
+    />
     <ul class="jx-tr-list" role="list">
       {#each sourceOptions as option (option.value)}
         <li>
@@ -134,8 +158,16 @@
   </div>
 
   <fieldset class="jx-tr-panel" aria-label="{targetTitle} · {targetOptions.length} selected">
-    <legend class="jx-tr-legend">{targetTitle} · {targetOptions.length}</legend>
-    <input class="jx-tr-search" type="search" placeholder={searchPlaceholder} bind:value={targetSearch} />
+    <legend class="jx-tr-legend"
+      >{targetTitle} · {targetOptions.length}/{targetTotal} visible</legend
+    >
+    <input
+      class="jx-tr-search"
+      type="search"
+      aria-label="filter {targetTitle}"
+      placeholder={searchPlaceholder}
+      bind:value={targetSearch}
+    />
     <ul class="jx-tr-list" role="list">
       {#each targetOptions as option (option.value)}
         <li>

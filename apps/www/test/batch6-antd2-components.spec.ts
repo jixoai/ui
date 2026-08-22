@@ -87,6 +87,13 @@ describe('Transfer', () => {
     expect(rendered.container.querySelectorAll('.jx-tr-empty').length).toBe(1);
   });
 
+  it('a named transfer submits its target list (bridge multivalue)', async () => {
+    const rendered = render(TransferHost);
+    const bridge = rendered.container.querySelector('jx-form-field')!;
+    expect(bridge.hasAttribute('multivalue')).toBe(true);
+    expect(bridge.getAttribute('value')).toBe('keep');
+  });
+
   it('disabled rows never move even when checked', async () => {
     const rendered = render(Transfer, {
       props: {
@@ -178,7 +185,22 @@ describe('Image', () => {
       props: { src: '/b.png', alt: '', width: 10, height: 10 },
     });
     await fireEvent(container.querySelector('img')!, new Event('error'));
-    expect(container.querySelector('[role="img"]')).toBeTruthy();
+    // decorative stays decorative: hidden, unnamed — never read out
+    const span = container.querySelector('.jx-image-broken')!;
+    expect(span.getAttribute('aria-hidden')).toBe('true');
+    expect(span.getAttribute('role')).toBeNull();
+  });
+
+  it('content pictures get a named, SIZED failure state (no CLS)', async () => {
+    const { container } = render(Image, {
+      props: { src: '/c.png', alt: 'diagram', width: 320, height: 180 },
+    });
+    await fireEvent(container.querySelector('img')!, new Event('error'));
+    const span = container.querySelector('.jx-image-broken')!;
+    expect(span.getAttribute('role')).toBe('img');
+    expect(span.getAttribute('aria-label')).toBe('image unavailable');
+    expect(span.getAttribute('style')).toContain('320px');
+    expect(span.getAttribute('style')).toContain('180px');
   });
 });
 

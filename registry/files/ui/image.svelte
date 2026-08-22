@@ -56,7 +56,16 @@
 {#if failed && fallback}
   {@render fallback()}
 {:else if failed}
-  <span class="jx-image-broken" role="img" aria-label="image unavailable">
+  <!-- decorative pictures (alt="") stay decorative through failure;
+       content pictures get a name. Size carries the intrinsic dims so
+       failure never shifts layout either -->
+  <span
+    class="jx-image-broken"
+    style="width: {typeof width === 'number' ? `${width}px` : width}; height: {typeof height === 'number' ? `${height}px` : height};"
+    role={alt === '' ? undefined : 'img'}
+    aria-label={alt === '' ? undefined : 'image unavailable'}
+    aria-hidden={alt === '' || undefined}
+  >
     <svg
       viewBox="0 0 24 24"
       fill="none"
