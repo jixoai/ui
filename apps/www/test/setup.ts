@@ -145,6 +145,43 @@ document.addEventListener('keydown', (event) => {
 if (!window.Element.prototype.scrollIntoView) {
   window.Element.prototype.scrollIntoView = function scrollIntoView() {};
 }
+if (typeof (window.Element.prototype as { scrollTo?: unknown }).scrollTo !== 'function') {
+  // toc's mobile row sync and scroll-area's passthrough call element
+  // scrollTo/scrollBy; jsdom ships neither on Element
+  (window.Element.prototype as Record<string, unknown>).scrollTo = function scrollTo() {};
+  (window.Element.prototype as Record<string, unknown>).scrollBy = function scrollBy() {};
+}
+
+// ---- 3b. ResizeObserver (jsdom gap) ------------------------------------------
+// @tanstack/svelte-virtual mounts through observeElementRect → ResizeObserver,
+// and scroll-area's overlay thumb geometry rides one too. jsdom has no
+// layout: observe by immediately reporting the element's (zero) bounding
+// rect once — enough for mount paths; specs that need geometry stub
+// getBoundingClientRect per element.
+if (typeof window.ResizeObserver === 'undefined') {
+  class ResizeObserverPolyfill implements ResizeObserver {
+    #callback: ResizeObserverCallback;
+    constructor(callback: ResizeObserverCallback) {
+      this.#callback = callback;
+    }
+    observe(target: Element): void {
+      this.#callback(
+        [{ target } as ResizeObserverEntry],
+        this as unknown as ResizeObserver,
+      );
+    }
+    unobserve(): void {}
+    disconnect(): void {}
+  }
+  Object.defineProperty(window, 'ResizeObserver', {
+    value: ResizeObserverPolyfill,
+    writable: true,
+  });
+  Object.defineProperty(globalThis, 'ResizeObserver', {
+    value: ResizeObserverPolyfill,
+    writable: true,
+  });
+}
 
 // ---- 4. ElementInternals form-data surface ----------------------------------
 type ElementWithStore = HTMLElement & { __jxFormValue?: string };

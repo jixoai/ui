@@ -5,7 +5,7 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import ToastViewport from '$lib/ui/toast-viewport.svelte';
   import Toc from '$lib/ui/toc.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { createToastStore } from '$lib/toast-store';
   import { reveal } from '$lib/reveal';
 

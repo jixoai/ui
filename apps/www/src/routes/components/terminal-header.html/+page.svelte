@@ -4,7 +4,7 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import Toc from '$lib/ui/toc.svelte';
   import terminalHeaderSource from '$lib/ui/terminal-header.svelte?raw';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // ToC outline: the integration law (the canvas above holds the

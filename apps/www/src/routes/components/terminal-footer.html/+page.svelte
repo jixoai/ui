@@ -6,7 +6,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import Toc from '$lib/ui/toc.svelte';
   import { GITHUB_URL } from '$lib/site';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // ToC outline: the closing recipe law (the canvas above is the workbench).

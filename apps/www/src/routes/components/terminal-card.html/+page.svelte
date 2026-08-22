@@ -6,7 +6,7 @@
   import TerminalCard from '$lib/ui/terminal-card.svelte';
   import terminalCardSource from '$lib/ui/terminal-card.svelte?raw';
   import Toc from '$lib/ui/toc.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   const usage = `<!-- command is a plain string prop; outputs surface line by

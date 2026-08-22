@@ -9,6 +9,7 @@
  * assistive tech sees it.
  */
 import { fireEvent, render } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 
 import DropdownMenu from '../src/lib/ui/dropdown-menu.svelte';
@@ -16,6 +17,7 @@ import DropdownMenuItem from '../src/lib/ui/dropdown-menu-item.svelte';
 import Pagination, { pageWindow } from '../src/lib/ui/pagination.svelte';
 import Progress from '../src/lib/ui/progress.svelte';
 import TooltipHost from './fixtures/tooltip-host.svelte';
+import TooltipArrowHost from './fixtures/tooltip-arrow-host.svelte';
 import MenuCustomTriggerHost from './fixtures/menu-custom-trigger-host.svelte';
 import MenuHost from './fixtures/menu-host.svelte';
 
@@ -100,6 +102,43 @@ describe('Tooltip', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('arrow is opt-in: absent unless asked, aims at open without anchor()', async () => {
+    const rendered = render(TooltipArrowHost);
+    await tick();
+    const { container } = rendered;
+    const [center, corner, start, bare] = [
+      ...container.querySelectorAll('[role="tooltip"]'),
+    ] as HTMLElement[];
+
+    // no pin, no flag, unless the consumer asks
+    expect(bare.querySelector('.jx-tip-arrow')).toBeNull();
+    expect(bare.hasAttribute('data-arrow')).toBe(false);
+
+    // Chromium constraint (component header): anchor() in a style
+    // attribute never resolves inside a popover — the pin aims from a
+    // rect read at open, so NO inline style may ever carry anchor().
+    // The aim geometry itself is verified in a real browser, not jsdom.
+    for (const panel of [center, corner, start]) {
+      expect(panel.hasAttribute('data-arrow')).toBe(true);
+      const pin = panel.querySelector('.jx-tip-arrow') as HTMLElement;
+      expect(pin.getAttribute('aria-hidden')).toBe('true');
+      expect(panel.getAttribute('style') ?? '').not.toContain('anchor(');
+      expect(pin.getAttribute('style') ?? '').not.toContain('anchor(');
+    }
+
+    // the panel is wired to aim the notch at open: a toggle event must
+    // write the aim insets (jsdom rects are all-zero, so the numbers are
+    // degenerate — the contract is that aiming wrote left px and picked a
+    // side for the triangle orientation, no crash)
+    const pin = center.querySelector('.jx-tip-arrow') as HTMLElement;
+    const toggle = new Event('toggle') as Event & { newState?: string };
+    toggle.newState = 'open';
+    center.dispatchEvent(toggle);
+    await tick();
+    expect(pin.style.left).toMatch(/px$/);
+    expect(pin.dataset.side === 'top' || pin.dataset.side === 'bottom').toBe(true);
   });
 });
 

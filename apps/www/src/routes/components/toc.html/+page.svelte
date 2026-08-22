@@ -3,7 +3,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import Toc, { type TocSection } from '$lib/ui/toc.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -62,8 +62,9 @@ ${close}
   class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
 >
   <!-- ToC rail — the LIVE component itself: aside precedes the content in the
-       DOM, desktop sticky right column, mobile the glass single-row bar under
-       the scaffold header. scrollRoot is mandatory in the overlay shell. -->
+       DOM, desktop sticky right column, mobile the glass single-row bar.
+       Inside this site's scaffold the rail AUTO-MOUNTS into .jx-top-layer
+       (jx-top-layer context) — topLayer={false} would keep it in flow. -->
   <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
     <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
   </aside>
@@ -82,6 +83,7 @@ ${close}
         <span class="pill">line pick</span>
         <span class="pill">desktop spine + mobile rail</span>
         <span class="pill">framework-free engine</span>
+        <span class="pill">auto top-layer mount</span>
       </div>
     </SectionCard>
   </div>
@@ -151,6 +153,14 @@ ${close}
             (heading-to-next-heading blocks), parents carry data-family on their whole extent. Get
             that right and the weights are exact — get it wrong and the engine faithfully reports
             the overlap.
+          </p>
+          <p class="max-w-[64ch] text-pretty text-[13px] leading-6 text-muted-foreground">
+            Inside a website-scaffold the rail mounts itself: when the
+            <code class="text-accent">jx-top-layer</code> context exists (Owner request, 2026-08-23),
+            the whole rail is adopted into the scaffold's top layer as a live node — it can never
+            render under later siblings or the opaque header band, and it rides the immersive
+            hide/reveal with the header. No scaffolding around? The in-flow behavior above, exactly.
+            Embedded demos opt out with <code class="text-accent">topLayer=&#123;false&#125;</code>.
           </p>
         </section>
       </article>

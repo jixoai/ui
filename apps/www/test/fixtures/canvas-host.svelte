@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
 
   const initial = { label: 'Actions', toggled: false };
   let label = $state(initial.label);

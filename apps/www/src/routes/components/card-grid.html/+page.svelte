@@ -1,6 +1,6 @@
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import CardGrid from '$lib/ui/card-grid.svelte';
   import Input from '$lib/ui/input.svelte';

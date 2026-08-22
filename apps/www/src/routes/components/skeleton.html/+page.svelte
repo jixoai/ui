@@ -5,7 +5,7 @@
   import Separator from '$lib/ui/separator.svelte';
   import Skeleton from '$lib/ui/skeleton.svelte';
   import Toc from '$lib/ui/toc.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.

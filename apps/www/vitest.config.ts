@@ -16,6 +16,14 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [svelte({ preprocess: vitePreprocess({ script: true }) })],
+  // test/llms-txt*.spec.ts imports the canonical generator straight from
+  // the REPO root's registry/files/ (same-source law — no copy); that
+  // directory must be served for the import to resolve.
+  server: {
+    fs: {
+      allow: [fileURLToPath(new URL('../../', import.meta.url))],
+    },
+  },
   resolve: {
     // Svelte 5: without the browser condition vite resolves the server
     // runtime (index-server.js) where mount() is unavailable

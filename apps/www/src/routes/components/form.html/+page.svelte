@@ -20,7 +20,7 @@
   import TerminalCard from '$lib/ui/terminal-card.svelte';
   import Textarea from '$lib/ui/textarea.svelte';
   import Toggle from '$lib/ui/toggle.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // Same-source law: the canvas drawers show the exact registry copies this
@@ -199,13 +199,16 @@ const stackSuggestions: Tag[] = [
 const gallery = $state<File[]>([]);
 const uploads = $state<File[]>([]);
 
-<!-- list (default): icon + name + size + remove per row -->
+<!-- drop (default): dashed zone, CLICK OR DRAG FILE, accept/max hint,
+     rows below: thumb + name (ellipsis) + size + remove × -->
 <FileInput label="avatar" accept="image/*" bind:files={avatar} />
 
-<!-- variants: list · cards (thumbnail grid) · compact (summary + expand) -->
+<!-- variant="button": the compact inline trigger, same list below -->
 <!-- sizes: sm 32px · md 40px · lg 48px rows -->
-<FileInput label="gallery" variant="cards" multiple accept="image/*" bind:files={gallery} />
-<FileInput label="uploads" variant="compact" multiple size="sm" bind:files={uploads} />
+<FileInput label="uploads" variant="button" multiple size="sm" bind:files={uploads} />
+
+<!-- drops that violate accept never enter the value: error line + onreject -->
+<FileInput label="gallery" multiple accept="image/*" onreject={(r) => toast(r)} bind:files={gallery} />
 
 <!-- overflow reports, never truncates: 3 files + maxFiles=2 → error -->
 <FileInput label="evidence" multiple maxFiles={2} bind:files={evidence} />`;
@@ -243,6 +246,30 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
 <!-- paste any notation into the panel input — invalid pastes revert;
      Eye Dropper appears when window.EyeDropper exists -->
 <ColorPicker label="theme hue" bind:value={c} format="hsl" />`;
+
+  // Tier-1 native form layer: bare markup, zero JS (registry item
+  // `native-form` — one stylesheet, daisyui-style class vocabulary).
+  const tier1Usage = `<!-- import once, after the token sheet:
+     @import './lib/jixoai.css';
+     @import './lib/native-form.css'; -->
+
+<label class="jx-label" for="deploy">deploy</label>
+<input class="jx-input" id="deploy" type="datetime-local" />
+
+<!-- range: pure-CSS slider — bordered thin track, square primary thumb -->
+<input class="jx-range" type="range" min="0" max="100" value="40" />
+
+<!-- color: the wrapper label opens the picker from the pipette glyph;
+     compact 5rem field by default — add jx-color-stretch for the row -->
+<label class="jx-color-field">
+  <input class="jx-color" type="color" value="#007924" />
+</label>
+
+<!-- companions? the shell wrapper owns the box, the input is chromeless -->
+<label class="jx-field-shell jx-slotted">
+  <span>https://</span>
+  <input class="jx-input-lane" placeholder="api.jixoai.com" />
+</label>`;
 
   // ---- select split demo state -------------------------------------------
   let runtime = $state('node');
@@ -537,7 +564,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   <title>Form components · jixoai-ui</title>
   <meta
     name="description"
-    content="input / native-select / select / combobox / tags-input / number-input / textarea / checkbox / radio / toggle / file-input / date-picker / range / color-picker — the jixoai NativeHTML form base: every native input type passes through untouched, the select family splits into NativeSelect (platform popup, FormData-ready) and Select (a popover listbox with descriptions), combobox is the searchable select (input trigger, live label filter, ↑/↓/Enter roving highlight, allowCustom ‘Use “xxx”’ row, blur/Escape resolve-or-revert), tags-input is input × multiselect (flex-wrap chip shell, Enter/comma/Tab commits, Backspace deletes, suggestion popover, maxTags cap, duplicate flash), number-input is the [- NUM +] stepper, file-input is the professional file picker (File[] contract, previews, list/cards/compact variants, maxFiles), date-picker is a zero-dependency calendar popover over hand-rolled Date math, range is the fully custom slider (div + pointer events, square thumb, ticks, rtl), and color-picker is the oklch-hub popover picker (SV pad, hue bar, hex/hsl/oklch, Eye Dropper) — label/error semantics ride on label[for] plus aria-invalid/aria-describedby throughout."
+    content="input / native-select / select / combobox / tags-input / number-input / textarea / checkbox / radio / toggle / file-input / date-picker / range / color-picker — the jixoai NativeHTML form base: every native input type passes through untouched, the select family splits into NativeSelect (platform popup, FormData-ready) and Select (a popover listbox with descriptions), combobox is the searchable select (input trigger, live label filter, ↑/↓/Enter roving highlight, allowCustom ‘Use “xxx”’ row, blur/Escape resolve-or-revert), tags-input is input × multiselect (flex-wrap chip shell, Enter/comma/Tab commits, Backspace deletes, suggestion popover, maxTags cap, duplicate flash), number-input is the [- NUM +] stepper, file-input is the professional file picker (drop-zone/button triggers with real drag-and-drop and accept gate-rejection, File[] contract, thumbnail rows, maxFiles), date-picker is a zero-dependency calendar popover over hand-rolled Date math, range is the fully custom slider (div + pointer events, square thumb, ticks, rtl), and color-picker is the oklch-hub popover picker (SV pad, hue bar, hex/hsl/oklch, Eye Dropper) — label/error semantics ride on label[for] plus aria-invalid/aria-describedby throughout."
   />
 </svelte:head>
 
@@ -828,7 +855,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
       headerRegion="all-types"
       eyebrow="input"
       title="All native types"
-      summary="One component, every type the platform ships. Text-like types take the bordered shell; range keeps the native slider with accent-color; color keeps the native picker with its height aligned. checkbox and radio split into their own pure-CSS components, and file picking now has its professional home in file-input (below) — type='file' still passes through here as the bare native control."
+      summary="One component, every type the platform ships. Text-like types take the bordered shell; range and color get full Tier-1 native repaints (the pure-CSS slider and the swatch-plus-pipette color field); the date/time/number lanes restyle the platform's own picker indicator and spinners inside the same shell. checkbox and radio split into their own pure-CSS components, and file picking now has its professional home in file-input (below) — type='file' still passes through here as the bare native control."
     >
       <CardGrid min="230px">
         <div class="demo-cell" data-no-subgrid>
@@ -850,6 +877,12 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
           <Input type="date" label="date" name="demo_date" />
         </div>
         <div class="demo-cell" data-no-subgrid>
+          <Input type="datetime-local" label="datetime-local" name="demo_datetime" />
+        </div>
+        <div class="demo-cell" data-no-subgrid>
+          <Input type="time" label="time" name="demo_time" />
+        </div>
+        <div class="demo-cell" data-no-subgrid>
           <Input type="range" label="range" name="demo_range" min="0" max="100" />
         </div>
         <div class="demo-cell" data-no-subgrid>
@@ -867,12 +900,55 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
       </CardGrid>
       <p class="text-muted-foreground mt-4 text-pretty text-[13px] leading-6">
         Tab through the grid: every control is keyboard-reachable with its platform behavior —
-        the color swatches, the range arrows, the platform pickers. checkbox and radio live in
-        their own pure-CSS components (next section), file picking and dates have their
-        professional controls further down; the rest of the grid keeps
-        <code class="text-accent">accent-color: var(--primary)</code> as the only line of
-        styling their native controls receive.
+        the color swatches, the range arrows, the platform pickers (the calendar indicator is
+        repainted through a mask, and clicking it still opens the native picker). checkbox and
+        radio live in their own pure-CSS components (next section), file picking and dates have
+        their professional controls further down; everything else is painted by the Tier-1
+        native-form sheet — range tracks and thumbs, color swatches, date/time indicators,
+        number spinners (hidden: engines reject custom paint on them — ↑/↓ step natively) and
+        the placeholder-vs-value distinction.
       </p>
+      <div class="border-border mt-5 border-t pt-5">
+        <h3 class="text-[15px] font-bold tracking-tight">Tier 1 — the pure-CSS native layer</h3>
+        <p class="text-muted-foreground mt-2 text-pretty text-[13px] leading-6">
+          Every native lane above is painted by ONE stylesheet —
+          <code class="text-accent">native-form.css</code> (registry item
+          <code class="text-accent">native-form</code>, imported once after the token sheet) —
+          with a daisyui-style class vocabulary and zero JS. The same classes the components
+          consume style bare markup; type in the first field and watch the placeholder read
+          clearly lighter than a value:
+        </p>
+        <div class="mt-4 grid gap-5 min-[760px]:grid-cols-2">
+          <div class="flex flex-col gap-3">
+            <label class="jx-label" for="tier1-text">bare text</label>
+            <input id="tier1-text" class="jx-input" type="text" placeholder="placeholder reads lighter" />
+            <input class="jx-input" type="date" aria-label="bare date" />
+            <input class="jx-input" type="number" aria-label="bare number" placeholder="↑/↓ steps" min="0" />
+          </div>
+          <div class="flex flex-col gap-3">
+            <label class="jx-label" for="tier1-range">bare range</label>
+            <input id="tier1-range" class="jx-range" type="range" min="0" max="100" value="40" />
+            <div class="flex items-center gap-3">
+              <!-- default: compact 5rem field (swatch + pipette zone) -->
+              <label class="jx-color-field">
+                <input type="color" class="jx-color" value="#007924" aria-label="bare color" />
+              </label>
+              <!-- opt-in: the full-row field -->
+              <label class="jx-color-field jx-color-stretch flex-1">
+                <input type="color" class="jx-color" value="#d61f69" aria-label="bare color stretched" />
+              </label>
+            </div>
+            <span class="text-muted-foreground text-[12px]">
+              .jx-input · .jx-range · .jx-color-field + .jx-color — compact by default (5rem),
+              .jx-color-stretch reclaims the full row; the wrapper label opens the picker from
+              the pipette zone too
+            </span>
+          </div>
+        </div>
+        <div class="mt-4">
+          <CodeBlock code={tier1Usage} lang="html" meta="Tier-1 · bare markup" />
+        </div>
+      </div>
     </SectionCard>
   </div>
 
@@ -1256,12 +1332,12 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
       headerRegion="file-input"
       eyebrow="file-input"
       title="File input — the professional control"
-      summary="Files as first-class data, split out of the native lane: File[] is the $bindable contract, and every file carries an id plus — for images — an object-URL preview that is revoked the moment you remove it (or the component unmounts). Three variants: list rows (type glyph + name + size + remove), cards (thumbnail grid, remove on hover), compact (a one-line summary that expands). Three sizes scale the trigger and the rows. The type glyphs are zero-dependency — inline SVG for image/video/audio/pdf/doc, a font-nav &lt;/&gt; for code — and maxFiles reports overflow into the error line without ever truncating the array: the caller decides."
+      summary="A file picker that reads like one (ant-design Upload anatomy, local-picker semantics — no upload theater): the default drop variant paints a dashed 1px zone with the upload glyph, a font-nav CLICK OR DRAG FILES title and a composed accept/max hint; drag a file over it and the dash turns primary while the zone lifts. variant='button' is the compact inline trigger. Both are keyboard buttons over a visually hidden native input AND real drop targets — files that violate accept are gate-rejected (error line + onreject, never entering the value). Selected files render as rows in one bordered box: square thumb (image object-URL preview, revoked on remove/unmount, or a zero-dependency kind glyph), ellipsized name, size, remove × — and maxFiles reports overflow into the error line without ever truncating the array."
     >
       <div class="flex flex-col gap-6">
         <CardGrid min="230px">
           <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
-            <FileInput label="avatar (list)" accept="image/*" bind:files={avatarFiles} />
+            <FileInput label="avatar (drop zone)" accept="image/*" bind:files={avatarFiles} />
             <span class="text-muted-foreground text-[12.5px]">
               bound File[] · length: <code class="text-accent">{avatarFiles.length}</code>
             </span>
@@ -1276,14 +1352,14 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
             </div>
           </div>
           <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
-            <FileInput label="gallery (cards)" variant="cards" multiple accept="image/*" bind:files={cardFiles} />
+            <FileInput label="gallery (thumbs)" multiple accept="image/*" bind:files={cardFiles} />
             <div class="flex flex-wrap items-center gap-2">
               <PressButton onclick={loadCardSamples}>load 3 svg samples</PressButton>
               <span class="text-muted-foreground text-[12.5px]">previews via object URLs</span>
             </div>
           </div>
           <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
-            <FileInput label="uploads (compact)" variant="compact" multiple bind:files={compactFiles} />
+            <FileInput label="uploads (button)" variant="button" multiple bind:files={compactFiles} />
             <div class="flex flex-wrap items-center gap-2">
               <PressButton onclick={() => (compactFiles = [sampleText('manifest.json', 1), sampleText('trace.log', 8)])}>seed samples</PressButton>
             </div>
@@ -1311,10 +1387,11 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
           </div>
         </CardGrid>
         <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-          Choose from the platform picker (the trigger presses; the native input stays
-          keyboard-reachable behind it) or seed the samples to see the rows: image files render
-          their mountain-and-sun glyph in the brand primary, code files get the font-nav
-          <code class="text-accent">&lt;/&gt;</code>, and sizes format B → KB → MB at one
+          Click the zone (the platform picker opens behind its press) or drag files onto it —
+          the dash turns primary and the surface lifts; files that violate the accept filter are
+          rejected at the gate with an error line, never entering the bound value. Rows carry a
+          square thumb: image files preview through object URLs, code files get the font-nav
+          <code class="text-accent">&lt;/&gt;</code> glyph, and sizes format B → KB → MB at one
           decimal. Removal revokes the preview URL immediately — no leaks, no dangling blobs.
         </p>
         <CodeBlock code={fileUsage} lang="svelte" meta="FileInput usage" />
@@ -1709,11 +1786,13 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
               <code class="text-accent">appearance: none</code> and draw their own glyphs with
               pseudo-elements — a clip-path check, a scaled dot, a sliding knob — while the
               native input underneath still owns state, keyboard toggling, and FormData.
-              The remaining platform widgets keep their accent-color:
-              <code class="text-accent">range</code> keeps the native slider and color keeps its
-              picker (height-aligned); file and dates have their own professional controls —
-              file-input (previews, variants, maxFiles) and date-picker (a zero-dep calendar
-              popover) — while their bare native types still pass through this component.
+              The remaining platform widgets are repainted by the Tier-1 native-form sheet:
+              <code class="text-accent">range</code> becomes the pure-CSS slider (bordered
+              track, square primary thumb), color becomes the swatch-plus-pipette field, and
+              the date/time/number lanes restyle the platform's own picker indicator and
+              spinners; file and dates have their own professional controls —
+              file-input (drop zone, thumbnail rows, maxFiles) and date-picker (a zero-dep
+              calendar popover) — while their bare native types still pass through this component.
             </p>
           </li>
           <li class="flex flex-col gap-1">

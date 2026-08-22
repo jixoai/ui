@@ -5,7 +5,7 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import Toc from '$lib/ui/toc.svelte';
   import Tooltip from '$lib/ui/tooltip.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -23,7 +23,11 @@ ${close}
 </Tooltip>
 
 <!-- placement + delays -->
-<Tooltip text="Below the trigger" placement="bottom" openDelay={150}>…</Tooltip>`;
+<Tooltip text="Below the trigger" placement="bottom" openDelay={150}>…</Tooltip>
+
+<!-- opt-in pointer pin: aimed at the anchor point the placement names -->
+<Tooltip text="Aimed at the anchor's top-center" arrow>…</Tooltip>
+<Tooltip text="Aimed at the anchor's bottom-end corner" arrow placement="bottom-end">…</Tooltip>`;
 
   const canvasUsage = `<Tooltip text="Copy install command">
   <PressButton>copy</PressButton>
@@ -68,6 +72,7 @@ ${close}
         <span class="pill">400ms open · 100ms close</span>
         <span class="pill">focus opens instantly</span>
         <span class="pill">aria-describedby</span>
+        <span class="pill">opt-in pointer pin</span>
       </div>
     </SectionCard>
   </div>
@@ -85,6 +90,15 @@ ${close}
         </Tooltip>
         <Tooltip text="Below the trigger, for toolbar bottoms" placement="bottom">
           <PressButton variant="outline">bottom</PressButton>
+        </Tooltip>
+        <Tooltip text="A pin aimed at the anchor's top-center" arrow>
+          <PressButton variant="outline">arrow</PressButton>
+        </Tooltip>
+        <Tooltip text="Aimed at the anchor's bottom-end corner" arrow placement="bottom-end">
+          <PressButton variant="outline">arrow · bottom-end</PressButton>
+        </Tooltip>
+        <Tooltip text="Clamped toward the anchor's top-start corner" arrow placement="top-start">
+          <PressButton variant="outline">arrow · top-start</PressButton>
         </Tooltip>
       </div>
       {#snippet playground()}

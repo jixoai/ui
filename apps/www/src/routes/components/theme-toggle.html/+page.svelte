@@ -6,7 +6,7 @@
   import themeToggleSource from '$lib/ui/theme-toggle.svelte?raw';
   import NativeSelect from '$lib/ui/native-select.svelte';
   import Toc from '$lib/ui/toc.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // ToC outline: the no-flash bootstrap demo + the closing contract law.

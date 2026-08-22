@@ -16,10 +16,18 @@ The official jixoai design-language CLI. It **shares shadcn's
 ```bash
 npx jixoai-ui init --hue 160   # namespace + config + theme + hue, one shot
 npx jixoai-ui add toc          # = shadcn add @jixoai/toc, hue re-applied
+npx jixoai-ui add llms-txt     # AI export: llms.txt / llms-full.txt / page .md
 npx jixoai-ui upgrade          # refresh locked items + run upgrade tasks
 npx jixoai-ui hue 165          # retheme by changing one number
 npx jixoai-ui config           # print the resolved jixoai config
 ```
+
+`llms-txt` installs `vite-plugins/llms-txt.mjs` — the build-time
+llms.txt/llms-full.txt/per-page-`.md` generator (llmstxt.org proposal
+v2). Wire it ONE way: `llmsTxt()` in vite plugins for plain-build sites,
+or `generateLlmsTxt(distDir, config)` as the last step of an orchestrated
+build. Full law + config schema:
+`skills/jixoai-website/references/llms-txt.md`.
 
 Requires `components.json` (run `npx shadcn init` first in fresh projects —
 this CLI extends shadcn's config, it never replaces it).
