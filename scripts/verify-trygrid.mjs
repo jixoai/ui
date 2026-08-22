@@ -119,16 +119,21 @@ for (const cell of cells) {
 // trigger top-pinned the initial spot always fits and NO candidate
 // fires — the panel stays on the clamped-free initial spot (exact
 // initial = bottom-end geometry: below + right-aligned)
+// r24 semantics: the MOST RECENTLY lit cell is the INITIAL position —
+// soloing a cell means the panel STARTS there; the bottom-pinned pin
+// only overflows the bottom row (which clamps onto its own start).
+// center stays the master-switch audit (clicking it toggles ALL, so
+// the probe runs the all-on chain — top-start leads and wins)
 const EXPECT = {
   'top-start': ['TOP-START'],
   top: ['TOP'],
   'top-end': ['TOP-END'],
   left: ['LEFT', 'LEFT-top', 'LEFT?'],
-  center: ['TOP-START'], // master switch proof + all-on chain lands top-start
+  center: ['TOP-START'],
   right: ['RIGHT', 'RIGHT-top', 'RIGHT?'],
-  'bottom-start': ['BOTTOM-END', 'OVERLAP/CLAMPED'], // no try ever fires — initial
-  bottom: ['BOTTOM-END', 'OVERLAP/CLAMPED'], // no try ever fires — initial
-  'bottom-end': ['BOTTOM-END', 'OVERLAP/CLAMPED'], // the initial spot itself
+  'bottom-start': ['BOTTOM-START', 'BOTTOM', 'OVERLAP/CLAMPED'],
+  bottom: ['BOTTOM', 'BOTTOM-START', 'OVERLAP/CLAMPED'],
+  'bottom-end': ['BOTTOM-END', 'OVERLAP/CLAMPED'],
 };
 let failed = 0;
 for (const r of results) {

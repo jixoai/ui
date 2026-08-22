@@ -114,19 +114,31 @@ ${close}
     { id: 'bottom-end', label: '◢' },
   ];
   const ALL_TRIES = TRY_CELLS.map((c) => c.id);
-  let canvasTries = $state<string[]>([...ALL_TRIES]);
+  // default order puts bottom-end FIRST — the classic initial position
+  // while all nine stay lit (recently lit cells unshift ahead of it)
+  let canvasTries = $state<string[]>(['bottom-end', ...ALL_TRIES.filter((t) => t !== 'bottom-end')]);
   const tryFallbacks = $derived(
     canvasTries.length ? canvasTries.map((id) => `--jx-try-${id}`).join(', ') : undefined,
   );
+  // THE INTUITED LAW (Owner report, 2026-08-23): the FIRST lit cell is
+  // the INITIAL position — the grid selects where the panel lives, the
+  // remaining cells are the overflow fallback chain. All-on (the
+  // default) keeps the classic bottom-end start; an empty grid falls
+  // back to bottom-end too (no candidates either way)
+  const canvasPlacement = $derived(canvasTries[0] ?? 'bottom-end');
 
   function toggleTry(id: string): void {
     if (id === 'center') {
       // the center cell is the master switch: all-on ⇄ all-off
-      canvasTries = canvasTries.length === ALL_TRIES.length ? [] : [...ALL_TRIES];
+      canvasTries = canvasTries.length === ALL_TRIES.length
+      ? []
+      : ['bottom-end', ...ALL_TRIES.filter((t) => t !== 'bottom-end')];
     } else {
+      // newly lit cells go FIRST — "the cell I just lit is where the
+      // panel should live" (the initial position follows canvasTries[0])
       canvasTries = canvasTries.includes(id)
         ? canvasTries.filter((t) => t !== id)
-        : [...TRY_CELLS.map((c) => c.id).filter((c) => canvasTries.includes(c) || c === id)];
+        : [id, ...canvasTries.filter((t) => t !== id)];
     }
     // position-try locks when the panel opens — a live panel never
     // re-evaluates. Reopen in the same frame so the grid feels
@@ -237,6 +249,7 @@ ${close}
           id="canvas-pop"
           triggerLabel={canvasTriggerLabel}
           variant={canvasVariant}
+          placement={canvasPlacement}
           {tryFallbacks}
         >
           <div class="flex w-52 flex-col">
@@ -283,10 +296,10 @@ ${close}
                 {/each}
               </div>
               <p class="jx-play-help">
-                each cell toggles one <code class="text-accent">@position-try</code> candidate —
-                the panel tries the lit cells in order when the anchor overflows. a live panel
-                reopens itself on toggle; scroll the trigger to a viewport edge (or shrink the
-                window) to force the overflow that triggers a try.
+                the MOST RECENTLY lit cell is the panel's initial position; the rest are the
+                <code class="text-accent">@position-try</code> fallback chain, tried in order
+                when the initial overflows. the center cell is the master switch
+                (all ⇄ none); a live panel reopens itself on toggle.
               </p>
             </fieldset>
           </div>

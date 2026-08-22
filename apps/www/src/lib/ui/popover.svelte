@@ -26,9 +26,10 @@
   Props:
     id            popover id; popovertarget association + anchor name
     triggerLabel  trigger button label (ignored when `trigger` snippet given)
-    placement     anchored inset-area: 'bottom' | 'bottom-end' | 'top' |
-                  'top-end' | 'top-start' | 'bottom-start' (default
-                  'bottom-end' — under the trigger, right edges aligned)
+    placement     the INITIAL anchored position: the six classic sides
+                  plus 'left' | 'right' | 'center' (the nine-grid
+                  positions). Default 'bottom-end' — under the trigger,
+                  right edges aligned
     variant       floating-surface variant: 'solid' | 'acrylic' | 'auto'
                   (default 'auto' — acrylic, solid under reduced
                   transparency; jixoai.css lays the law out, and the
@@ -71,7 +72,7 @@
     /** Button label for the default trigger; unnecessary when a custom
         `trigger` snippet renders its own control. */
     triggerLabel?: string;
-    placement?: 'bottom' | 'bottom-end' | 'top' | 'top-end' | 'top-start' | 'bottom-start';
+    placement?: 'bottom' | 'bottom-end' | 'bottom-start' | 'top' | 'top-end' | 'top-start' | 'left' | 'right' | 'center';
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
     variant?: 'solid' | 'acrylic' | 'auto';
@@ -104,6 +105,16 @@
   // physical insets (the engine's try allow-list dropped inset-area),
   // so mixing the two silently disables every candidate
   const physical = $derived.by(() => {
+    // left/right: hug the side, vertically centered on the anchor;
+    // center: viewport-centered (inset 0 + margin auto, the same form
+    // as the --jx-try-center candidate)
+    if (placement === 'left' || placement === 'right') {
+      const side = placement === 'left'
+        ? 'right: anchor(left); left: auto'
+        : 'left: anchor(right); right: auto';
+      return `${side}; top: auto; bottom: auto; align-self: anchor-center;`;
+    }
+    if (placement === 'center') return 'top: 0; bottom: 0; left: 0; right: 0; margin: auto;';
     const c = placement.endsWith('-start') ? 'left: anchor(left); right: auto'
       : placement.endsWith('-end') ? 'left: auto; right: anchor(right)'
       : 'left: auto; right: auto; justify-self: anchor-center';
@@ -120,6 +131,9 @@
     placement === 'bottom-start' ? 'bottom span-left' :
     placement === 'top' ? 'top' :
     placement === 'top-end' ? 'top span-right' :
+    placement === 'left' ? 'left' :
+    placement === 'right' ? 'right' :
+    placement === 'center' ? 'center' :
     'top span-left'
   );
 
