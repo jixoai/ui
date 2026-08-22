@@ -19,7 +19,11 @@
  *
  * Content contract: leaf entries are NON-OVERLAPPING heading-to-heading
  * blocks carrying data-region="<id>"; parent sections carry
- * data-family="<id>" spanning their whole family extent.
+ * data-family="<id>" spanning their whole family extent. ALTERNATIVE
+ * region source (2026-08-22, scroll-area family): the `extents` option —
+ * derived heading extents from the toc-outline lib, no data-region markup
+ * (rects synthesized start.top → end.top at compute time; the getter is
+ * re-read every pass, so re-derivations are live).
  */
 
 export type TocWeights = ReadonlyMap<string, number>;
@@ -31,6 +35,21 @@ export interface TocEngineUpdate {
   familyWeights: TocWeights;
 }
 
+/** A derived-outline region (the toc-outline lib): a heading-to-heading
+ *  extent without data-region markup. The rect is synthesized as
+ *  start.top → end.top (full viewport width) at compute time. */
+export interface TocExtent {
+  id: string;
+  /** the heading element — the region START */
+  start: Element;
+  /** the next same-or-higher heading — the region END boundary
+   *  (exclusive); null/omitted = to content end (saturates). */
+  end?: Element | null;
+}
+
+/** rect fields the IoM math reads — DOMRect or the synthesized extent rect */
+type RectLike = Pick<DOMRect, 'top' | 'right' | 'bottom' | 'left' | 'width' | 'height'>;
+
 export interface TocLineOptions {
   /** Distance from the viewport top to the calculation line, in px.
    *  Static number or a live getter (re-evaluated each compute — for
@@ -41,6 +60,13 @@ export interface TocLineOptions {
    *  scrolls instead of the document. Accepts an element or a selector
    *  resolved at engine creation. Defaults to the window/document. */
   scrollRoot?: string | HTMLElement | null;
+  /** Derived-outline region source (pairs with the toc-outline lib).
+   *  When provided, region geometry comes from the heading extents INSTEAD
+   *  of [data-region] elements (mutually exclusive sources — never double
+   *  count); [data-family] observation is untouched. The getter is re-read
+   *  every compute, so a re-derivation is picked up live without an engine
+   *  restart. */
+  extents?: () => readonly TocExtent[];
 }
 
 export function createTocEngine(
@@ -58,13 +84,22 @@ export function createTocEngine(
   let raf = 0;
   let lastKey = '';
 
-  const iomWeight = (rect: DOMRect, vw: number, vh: number): number => {
+  const iomWeight = (rect: RectLike, vw: number, vh: number): number => {
     const interW = Math.max(0, Math.min(rect.right, vw) - Math.max(rect.left, 0));
     const interH = Math.max(0, Math.min(rect.bottom, vh) - Math.max(rect.top, 0));
     if (interW <= 0 || interH <= 0) return 0;
     const inter = interW * interH;
     const min = Math.min(rect.width * rect.height, vw * vh);
     return min > 0 ? Math.min(1, inter / min) : 0;
+  };
+
+  // derived-extent rect: start.top → end.top, full viewport width; a
+  // missing end saturates past the viewport (the last region extends to
+  // content end, capping its IoM at 1 exactly like the data-region law)
+  const extentRect = (extent: TocExtent, vw: number, vh: number): RectLike => {
+    const top = extent.start.getBoundingClientRect().top;
+    const bottom = extent.end ? extent.end.getBoundingClientRect().top : vh + 1;
+    return { top, bottom, left: 0, right: vw, width: vw, height: Math.max(0, bottom - top) };
   };
 
   const compute = (): void => {
@@ -79,19 +114,26 @@ export function createTocEngine(
       const w = iomWeight(el.getBoundingClientRect(), vw, vh);
       if (w > 0) familyWeights.set(el.dataset.family!, w);
     }
+
+    // region source: derived extents when provided, [data-region]
+    // otherwise — mutually exclusive, never double counted
+    const extents = options.extents?.() ?? null;
+    const regionRects: Array<readonly [string, RectLike]> = extents
+      ? extents.map((extent) => [extent.id, extentRect(extent, vw, vh)] as const)
+      : regions.map((el) => [el.dataset.region!, el.getBoundingClientRect()] as const);
+
     // Weights visit EVERY block — the pick loop exits early, this loop must
     // not (an early exit once zeroed every block below the line even when
     // fully visible).
-    for (const el of regions) {
-      const w = iomWeight(el.getBoundingClientRect(), vw, vh);
-      if (w > 0) weights.set(el.dataset.region!, w);
+    for (const [id, rect] of regionRects) {
+      const w = iomWeight(rect, vw, vh);
+      if (w > 0) weights.set(id, w);
     }
 
-    let pick: string | null =
-      regions.length > 0 ? regions[regions.length - 1]!.dataset.region! : null;
-    for (const el of regions) {
-      if (el.getBoundingClientRect().bottom > line) {
-        pick = el.dataset.region!;
+    let pick: string | null = regionRects.length > 0 ? regionRects[regionRects.length - 1]![0] : null;
+    for (const [id, rect] of regionRects) {
+      if (rect.bottom > line) {
+        pick = id;
         break;
       }
     }

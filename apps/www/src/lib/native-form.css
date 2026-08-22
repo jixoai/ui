@@ -1,0 +1,500 @@
+/**
+ * jixoai native form layer — Tier 1 (registry/files/theme/native-form.css).
+ *
+ * Original request (2026-08-23): "two form tiers — Tier 1: a pure
+ * HTML+CSS native form layer with a daisyui-style class vocabulary that
+ * styles BARE native elements, no Svelte, no JS; Tier 2: the composable
+ * Svelte components (input / range / number-input) consuming those
+ * classes."
+ *
+ * Placement decision: this sheet lives beside the token sheet under
+ * registry/files/theme/ and is delivered by registry item `native-form`
+ * to @lib/native-form.css. It is deliberately NOT @imported from
+ * jixoai.css — the token sheet must stay installable standalone, and a
+ * baked-in relative import would 404 for token-only consumers. Import
+ * it ONCE from the site css, AFTER the token sheet:
+ *
+ *   @import './lib/jixoai.css';
+ *   @import './lib/native-form.css';
+ *
+ * Orthogonal intents (5 — the documented maximum; one opt-in class
+ * vocabulary is one intent surface, splitting it across files would
+ * fragment the vocabulary):
+ * 1. icon vocabulary — alpha-only data-URI SVG glyphs as CSS custom
+ *    properties + the mask / background: currentColor law
+ * 2. field scaffolding — .jx-field / .jx-label / .jx-error stacks
+ * 3. text lane — .jx-input (bare box), .jx-input-lane (chromeless,
+ *    inside .jx-field-shell), the placeholder-vs-value distinction, and
+ *    the native date-time indicator + number spinner laws
+ * 4. range — pure-CSS brutalist slider on a bare input[type=range]
+ *    (.jx-range; the fully custom range.svelte widget renames its root
+ *    to .jx-slider so this vocabulary stays free)
+ * 5. color field — .jx-color-field wrapper + .jx-color locked square
+ *    swatch + the pipette recognition glyph
+ *
+ * SVG-in-pseudo decision record (2026-08-23):
+ * (a) STATIC data-URI SVG in a CSS custom property + mask +
+ *     background: currentColor — the default. Alpha-only glyphs (the
+ *     encoded stroke color never renders; masks read alpha), one URI
+ *     themes everywhere via currentColor, zero runtime, cacheable.
+ * (b) runtime blob URLs feeding the same vars — REJECTED: needs JS,
+ *     which would break the pure-CSS tier.
+ * (c) hardcoded per-theme background-image — REJECTED as the default;
+ *     reserved as the documented fallback where an engine genuinely
+ *     rejects mask on a pseudo. Exactly one such case is known:
+ *     ::-webkit-inner/outer-spin-button rejects ALL custom paint (mask
+ *     AND background-image — the buttons are ThemePainter-owned and
+ *     even their geometry is not authorable), so the number lane HIDES
+ *     them (the universally reliable move) and keeps native ↑/↓ + wheel
+ *     stepping; the Tier-2 number-input component supplies the visible
+ *     [- +] steppers. ::-webkit-calendar-picker-indicator DOES accept
+ *     the mask technique (the underlying CalendarPickerIndicatorElement
+ *     is a real element; mask + background-color: currentColor is the
+ *     established dark-mode workaround), and the color-swatch pseudos
+ *     only carry border/geometry, so no other fallbacks exist.
+ *
+ * The glyph path data mirrors icons.ts (calendar / clock / pipette,
+ * lucide 0.472 geometry, stroke-width 2, round caps/joins) — keep the
+ * paths byte-identical when editing either file.
+ */
+
+/* =====================================================================
+   1 · Icon vocabulary — the mask/currentColor law
+   One alpha-only URI per glyph; consumers paint
+   `background-color: currentColor` behind `mask: var(--jx-icon-*)`.
+   The encoded stroke %23000 is an ALPHA SOURCE ONLY — it never renders,
+   so the no-hardcoded-colors law is not violated.
+   ===================================================================== */
+:root {
+  --jx-icon-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
+  --jx-icon-clock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E");
+  --jx-icon-pipette: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m2 22 1-1h3l9-9'/%3E%3Cpath d='M3 21v-3l9-9'/%3E%3Cpath d='m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z'/%3E%3C/svg%3E");
+
+  /* placeholder-vs-value distinction (user complaint 2026-08-23: too
+     close to tell apart). A foreground/background mix at 40% reads as
+     clearly-lighter-than-the-value in BOTH modes (light: dark value on
+     white vs mid-gray hint; dark: white value on black vs mid-gray
+     hint) while staying legible. */
+  --jx-placeholder: color-mix(in oklab, var(--foreground) 40%, var(--background));
+}
+
+/* =====================================================================
+   2 · Field scaffolding — the label / control / error stack.
+   The same law input.svelte / range.svelte / number-input.svelte
+   carried as scoped duplicates; the Tier-2 components now consume these
+   global rules (their scoped copies can be deleted when rebase lands).
+   ===================================================================== */
+.jx-field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0; /* shrink inside grid/flex hosts (InputGroup hardening) */
+}
+.jx-label {
+  width: fit-content;
+  font-family: var(--font-nav);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+.jx-error {
+  display: flex;
+  gap: 0.5em;
+  margin: 0;
+  font-family: var(--font-nav);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+.jx-error-mark {
+  font-weight: 700;
+  color: var(--destructive);
+}
+
+/* =====================================================================
+   3 · Text lane — .jx-input is the daisyui-style bare box (put it
+   directly on the native element); .jx-field-shell is the same box as a
+   WRAPPER posture for companions (prefix/suffix slots), and the native
+   control inside takes .jx-input-lane (chromeless — the shell owns the
+   box law). Svelte components use the wrapper classes; bare markup uses
+   .jx-input alone.
+   ===================================================================== */
+.jx-input {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-height: 2.5rem; /* the 40px family row */
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color-scheme: light; /* the platform's date/time pickers follow the lane */
+  transition: box-shadow 150ms ease-out;
+}
+.dark .jx-input {
+  color-scheme: dark;
+}
+.jx-input:hover:not(:disabled):not(:focus-visible) {
+  box-shadow: var(--shadow-2xs); /* the one-pixel hover lift */
+}
+.jx-input:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+.jx-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.jx-input[aria-invalid='true'] {
+  border-style: dashed; /* the monochrome invalid signal */
+}
+
+/* the wrapper posture: the shell owns border/fill/hover/focus, the
+   native control inside is chromeless and flexes */
+.jx-field-shell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 100%;
+  min-height: 2.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color-scheme: light;
+  transition: box-shadow 150ms ease-out;
+}
+.dark .jx-field-shell {
+  color-scheme: dark;
+}
+.jx-field-shell:not(:has(input:disabled)):hover:not(:has(:focus-visible)) {
+  box-shadow: var(--shadow-2xs);
+}
+/* the site focus law: an inset 1px outline on the ring token — the
+   shell carries it for the control AND slot controls alike */
+.jx-field-shell:has(:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+.jx-field-shell:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.jx-field-shell.jx-invalid,
+.jx-field-shell:has([aria-invalid='true']) {
+  border-style: dashed;
+}
+/* companions present → the shell carries the horizontal padding and
+   the lane runs edge-to-edge between the gap seams */
+.jx-field-shell.jx-slotted {
+  padding-inline: 0.75rem;
+}
+
+/* the chromeless lane (inside .jx-field-shell, or standalone inside any
+   composite shell that owns its own box) */
+.jx-input-lane {
+  min-height: calc(2.5rem - 2px);
+  padding: 0.5rem 0.75rem;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+.jx-field-shell .jx-input-lane {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+.jx-field-shell.jx-slotted .jx-input-lane {
+  padding-inline: 0;
+}
+
+/* placeholder-vs-value — one law for both lane classes */
+.jx-input::placeholder,
+.jx-input-lane::placeholder {
+  color: var(--jx-placeholder);
+  opacity: 1; /* kill the UA fade (Firefox dims to .54) */
+}
+
+/* ---- date/time indicator (Chromium) ---------------------------------
+   appearance:none frees the indicator's paint box WITHOUT removing the
+   element — display:none would kill the click; this keeps the native
+   picker opening. mask + background-color: currentColor theme it with
+   the lane (light AND dark follow color-scheme automatically — that is
+   the whole point). Firefox has no such pseudo and degrades to its own
+   indicator; nothing to do there. */
+.jx-input::-webkit-calendar-picker-indicator,
+.jx-input-lane::-webkit-calendar-picker-indicator {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  margin-inline-start: 0.5rem;
+  cursor: pointer;
+  color: var(--muted-foreground);
+  background-color: currentColor;
+  -webkit-mask: var(--jx-icon-calendar) center / contain no-repeat;
+  mask: var(--jx-icon-calendar) center / contain no-repeat;
+}
+.jx-input[type='time']::-webkit-calendar-picker-indicator,
+.jx-input-lane[type='time']::-webkit-calendar-picker-indicator {
+  -webkit-mask-image: var(--jx-icon-clock);
+  mask-image: var(--jx-icon-clock);
+}
+.jx-input:not(:disabled):hover::-webkit-calendar-picker-indicator,
+.jx-input-lane:not(:disabled):hover::-webkit-calendar-picker-indicator {
+  color: var(--primary); /* the hover cue stays in the one-hue law */
+}
+
+/* ---- number spinners -------------------------------------------------
+   The engine's spin buttons reject ALL custom paint (see the decision
+   record in the file header) — the jixoai lane hides them and keeps
+   native ↑/↓ + wheel stepping; Tier-2 number-input supplies visible
+   [- +] steppers. Firefox norms: appearance: textfield. */
+.jx-input[type='number'],
+.jx-input-lane[type='number'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.jx-input[type='number']::-webkit-outer-spin-button,
+.jx-input[type='number']::-webkit-inner-spin-button,
+.jx-input-lane[type='number']::-webkit-outer-spin-button,
+.jx-input-lane[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+/* =====================================================================
+   4 · Range — pure-CSS brutalist slider on a bare input[type=range].
+   Track: a thin box (1px var(--border), var(--background) fill); thumb:
+   a SQUARE var(--primary) with 1px border, hover lift, active press.
+   The focus law rides the input itself (outline OUTSIDE — an inset ring
+   would crowd the thumb). Firefox paints the same geometry through the
+   -moz pseudos (explicit box-sizing: border-box on track/thumb in both
+   engines — preflight cannot cross the UA shadow boundary).
+   No progress fill BY DESIGN: a bare input cannot know its fill percent
+   without JS, and half-painted engines would break tier parity — the
+   Tier-2 range widget owns the filled-progress look.
+   ===================================================================== */
+.jx-range {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  width: 100%;
+  height: 1.75rem; /* the hit strip */
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.jx-range:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: 1px;
+}
+.jx-range:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.jx-range::-webkit-slider-runnable-track {
+  box-sizing: border-box; /* preflight cannot cross the UA shadow boundary */
+  height: 0.5rem; /* 8px incl. the 1px borders */
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+}
+.jx-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  width: 1.25rem; /* 20px incl. the border — parity with -moz below */
+  height: 1.25rem;
+  /* center the 20px thumb on the 8px track */
+  margin-top: calc((0.5rem - 1.25rem) / 2);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--primary);
+  box-shadow: none;
+  transition: box-shadow 150ms ease-out, transform 150ms ease-out;
+}
+.jx-range:not(:disabled):hover::-webkit-slider-thumb {
+  box-shadow: var(--shadow-2xs); /* press physics: lift on hover */
+}
+.jx-range:not(:disabled):active::-webkit-slider-thumb {
+  transform: translateY(1px); /* press back INTO the page */
+  box-shadow: none;
+}
+.jx-range::-moz-range-track {
+  box-sizing: border-box;
+  height: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+}
+.jx-range::-moz-range-thumb {
+  box-sizing: border-box;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--primary);
+  box-shadow: none;
+  transition: box-shadow 150ms ease-out, transform 150ms ease-out;
+}
+.jx-range:not(:disabled):hover::-moz-range-thumb {
+  box-shadow: var(--shadow-2xs);
+}
+.jx-range:not(:disabled):active::-moz-range-thumb {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* =====================================================================
+   5 · Color field — recognizability without JS.
+   input[type=color] is a replaced element: no ::before/::after on it,
+   so the glyph lives on a WRAPPER (.jx-color-field, a <label> in the
+   recommended markup so the glyph zone also opens the picker). The
+   input itself (.jx-color) is the locked ~2.5rem square swatch — the
+   ::-webkit-color-swatch(-wrapper) / ::-moz-color-swatch pseudos make
+   the swatch fill the box cleanly. Inside the wrapper the box law moves
+   to the wrapper and the swatch becomes its inline-start cell.
+   ===================================================================== */
+.jx-color {
+  display: block;
+  width: 2.5rem; /* locked square */
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color-scheme: light;
+  cursor: pointer;
+}
+.dark .jx-color {
+  color-scheme: dark;
+}
+.jx-color::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.jx-color::-webkit-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+.jx-color::-moz-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+.jx-color:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+.jx-color:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* the wrapper: shell box + recognition glyph. Recommended markup:
+   <label class="jx-color-field"><input type="color" class="jx-color"></label>
+   — the label makes the whole row (glyph zone included) open the
+   picker. Default width is COMPACT and fixed (2026-08-23, user ruling:
+   a color field is a swatch control, not a text row) — swatch cell
+   (2.5rem) + glyph zone (0.75rem pad + 1rem glyph + 0.75rem pad) =
+   5rem; add .jx-color-stretch to reclaim the old full-row field. */
+.jx-color-field {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  width: 5rem;
+  max-width: 100%;
+  min-height: 2.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color-scheme: light;
+  cursor: pointer;
+  transition: box-shadow 150ms ease-out;
+}
+/* opt-in full row (the pre-2026-08-23 default) */
+.jx-color-field.jx-color-stretch {
+  width: 100%;
+}
+.dark .jx-color-field {
+  color-scheme: dark;
+}
+.jx-color-field:not(:has(input:disabled)):hover:not(:has(:focus-visible)) {
+  box-shadow: var(--shadow-2xs);
+}
+.jx-color-field:has(:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+.jx-color-field:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.jx-color-field.jx-invalid,
+.jx-color-field:has([aria-invalid='true']) {
+  border-style: dashed;
+}
+/* inside the wrapper: the swatch is the inline-start cell behind a 1px
+   divider; the wrapper owns border/fill/focus */
+.jx-color-field .jx-color {
+  flex: none;
+  width: calc(2.5rem - 2px);
+  height: auto;
+  align-self: stretch;
+  border: 0;
+  border-inline-end: 1px solid var(--border);
+}
+.jx-color-field .jx-color:focus-visible {
+  outline: none; /* the wrapper carries the focus law */
+}
+/* the pipette glyph — mask + currentColor, pointer-transparent so the
+   label click beneath it still opens the picker */
+.jx-color-field::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: 0.75rem;
+  top: 50%;
+  width: 1rem;
+  height: 1rem;
+  translate: 0 -50%;
+  color: var(--muted-foreground);
+  background-color: currentColor;
+  -webkit-mask: var(--jx-icon-pipette) center / contain no-repeat;
+  mask: var(--jx-icon-pipette) center / contain no-repeat;
+  pointer-events: none;
+}
+.jx-color-field:hover::after {
+  color: var(--foreground);
+}
+
+/* =====================================================================
+   Reduced-motion law: the sheet's transitions are the only motion it
+   owns — neutralize them all.
+   ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .jx-input,
+  .jx-field-shell,
+  .jx-color-field,
+  .jx-range::-webkit-slider-thumb,
+  .jx-range::-moz-range-thumb {
+    transition: none;
+  }
+}
