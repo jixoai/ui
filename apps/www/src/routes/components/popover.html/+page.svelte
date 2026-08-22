@@ -123,6 +123,17 @@ ${close}
     canvasTries = canvasTries.includes(id)
       ? canvasTries.filter((t) => t !== id)
       : [...TRY_CELLS.map((c) => c.id).filter((c) => canvasTries.includes(c) || c === id)];
+    // position-try locks when the panel opens — a live panel never
+    // re-evaluates. Reopen in the same frame so the grid feels
+    // immediate (the entry kernel replays on show)
+    const pop = document.getElementById('canvas-pop') as HTMLElement | null;
+    if (pop?.matches(':popover-open')) {
+      pop.hidePopover();
+      requestAnimationFrame(() => {
+        if (!pop.isConnected) return;
+        (pop as HTMLElement & { showPopover(): void }).showPopover();
+      });
+    }
   }
 
   function resetPopoverCanvas(): void {
@@ -268,7 +279,9 @@ ${close}
               </div>
               <p class="jx-play-help">
                 each cell toggles one <code class="text-accent">@position-try</code> candidate —
-                the panel tries the lit cells in order when the anchor overflows. reopen to apply.
+                the panel tries the lit cells in order when the anchor overflows. a live panel
+                reopens itself on toggle; scroll the trigger to a viewport edge (or shrink the
+                window) to force the overflow that triggers a try.
               </p>
             </fieldset>
           </div>
