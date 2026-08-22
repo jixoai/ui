@@ -13,6 +13,7 @@
  * ---------------------------------------------------------------------- */
 @import 'tailwindcss';
 @import './lib/jixoai.css';
+@import './lib/native-form.css';
 
 /* Tailwind mapping supplements — kill the default rounded scale (radius law:
  * 0 with bevel upgrade only); the registry sheet maps everything else. */
@@ -25,7 +26,6 @@
   * {
     @apply border-border;
     corner-shape: bevel;
-    scrollbar-width: thin;
     accent-color: var(--primary);
   }
   html {

@@ -7,10 +7,17 @@
   cannot give the brutalist square thumb or the filled progress law.
 
   Orthogonal intents:
-  1. geometry — 4px track (bg muted, radius 0), primary fill from the
-     inline-start edge to the thumb, 16×16 SQUARE thumb (1px border, white
-     fill, primary border while pressed, shadow-xs hover), optional tick
-     ruler under the track (one 4px mark per step).
+  1. geometry — the shared slider law (2026-08-23 Tier rebase, same
+     geometry as the Tier-1 .jx-range lane in the native-form sheet):
+     a thin bordered track box (1px var(--border), var(--background)
+     fill, height 0.5rem incl. borders), a 1.25rem SQUARE thumb
+     (var(--primary) fill, 1px border, shadow-2xs hover lift,
+     translateY(1px) press), the primary fill from the inline-start
+     edge to the thumb (the one law this custom widget adds over the
+     native lane), and the optional tick ruler under the track (one 4px
+     mark per step). The root stem renamed .jx-range → .jx-slider so
+     the Tier-1 sheet owns the .jx-range vocabulary for the native
+     control.
   2. interaction — pointerdown/move/up with pointer capture (touch-safe,
      touch-action none), pointerdown jumps to the point, dblclick re-jumps
      (subsumed by the pointerdown jump but kept explicit per request),
@@ -223,9 +230,9 @@
     onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
   ></jx-form-field>
   {#if label || showValue}
-    <div class="jx-range-head">
+    <div class="jx-slider-head">
       {#if label}<span class="jx-label" id={labelId}>{label}</span>{/if}
-      {#if showValue}<span class="jx-range-value" class:jx-invalid={invalid}>{display}</span>{/if}
+      {#if showValue}<span class="jx-slider-value" class:jx-invalid={invalid}>{display}</span>{/if}
     </div>
   {/if}
 
@@ -243,7 +250,7 @@
     aria-invalid={invalidAttr}
     aria-describedby={describedBy}
     aria-disabled={isDisabled ? 'true' : undefined}
-    class="jx-range"
+    class="jx-slider"
     class:jx-pressed={pressed}
     class:jx-invalid={invalid}
     class:jx-disabled={isDisabled}
@@ -254,12 +261,12 @@
     ondblclick={onDblClick}
     onkeydown={onKeydown}
   >
-    <div class="jx-range-track">
-      <div class="jx-range-fill" style:width="{fraction * 100}%"></div>
+    <div class="jx-slider-track">
+      <div class="jx-slider-fill" style:width="{fraction * 100}%"></div>
     </div>
-    <div class="jx-range-thumb" style="inset-inline-start: calc({fraction * 100}% - 8px)"></div>
+    <div class="jx-slider-thumb" style="inset-inline-start: calc({fraction * 100}% - 10px)"></div>
     {#if ticks && tickCount > 0}
-      <div class="jx-range-ticks" style="--jx-tick-step: {tickStepPct}%"></div>
+      <div class="jx-slider-ticks" style="--jx-tick-step: {tickStepPct}%"></div>
     {/if}
   </div>
 
@@ -269,79 +276,71 @@
 </div>
 
 <style>
-  .jx-field {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-    width: 100%;
-  }
+  /* Tier rebase (2026-08-23): .jx-field / .jx-label / .jx-error scaffolding
+     and the box/track/thumb laws live in the Tier-1 native-form sheet; this
+     block owns ONLY the custom widget's geometry (fill, thumb travel, tick
+     ruler) and the bridge layout. */
   /* the faceless bridge owns no box — pre-hydration included, so the
      prerendered HTML never flashes an extra flex gap before upgrade */
   .jx-field > :global(jx-form-field) {
     display: contents;
   }
-  .jx-label {
-    width: fit-content;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    cursor: pointer;
-  }
 
   /* label left, live value right (font-mono readout) */
-  .jx-range-head {
+  .jx-slider-head {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 0.75rem;
   }
-  .jx-range-value {
+  .jx-slider-value {
     font-family: var(--font-mono);
     font-size: 12px;
     color: var(--foreground);
     font-variant-numeric: tabular-nums;
   }
-  .jx-range-value.jx-invalid {
+  .jx-slider-value.jx-invalid {
     color: var(--destructive);
   }
 
-  /* the interactive strip: 20px hit area, 4px visual track inside it */
-  .jx-range {
+  /* the interactive strip: 1.75rem hit area (Tier-1 parity), the 8px
+     bordered track box and the 20px thumb centered inside it */
+  .jx-slider {
     position: relative;
     display: block;
     width: 100%;
-    height: 20px;
+    height: 1.75rem;
     margin: 0;
     cursor: pointer;
     touch-action: none; /* the drag owns the gesture on touch */
     user-select: none;
     -webkit-user-select: none;
   }
-  .jx-range:focus-visible {
+  .jx-slider:focus-visible {
     outline: none;
   }
-  .jx-range:focus-visible .jx-range-thumb {
+  .jx-slider:focus-visible .jx-slider-thumb {
     outline: 1px solid var(--ring);
     outline-offset: 1px;
   }
-  .jx-range.jx-disabled {
+  .jx-slider.jx-disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  .jx-range-track {
+  /* the shared track law (Tier-1 .jx-range parity): thin box, 1px border,
+     background fill — this widget adds the primary progress fill */
+  .jx-slider-track {
     position: absolute;
     inset-inline: 0;
     top: 50%;
-    height: 4px;
+    height: calc(0.5rem - 2px); /* 8px incl. the 1px borders */
     transform: translateY(-50%);
-    background: var(--muted);
+    background: var(--background);
+    border: 1px solid var(--border);
     border-radius: 0; /* straight line — the brutalist law */
   }
-  .jx-range-fill {
+  .jx-slider-fill {
     position: absolute;
     inset-inline-start: 0;
     top: 0;
@@ -349,38 +348,39 @@
     background: var(--primary);
   }
 
-  /* 16×16 square thumb: 1px border, white fill, primary while pressed */
-  .jx-range-thumb {
+  /* the shared thumb law (Tier-1 parity): 1.25rem SQUARE, primary fill,
+     1px border, hover lift, press back into the page */
+  .jx-slider-thumb {
     position: absolute;
     top: 50%;
-    width: 16px;
-    height: 16px;
+    width: 1.25rem;
+    height: 1.25rem;
     transform: translateY(-50%);
-    background: #fff;
+    background: var(--primary);
     border: 1px solid var(--border);
     border-radius: 0;
     box-shadow: none;
     pointer-events: none; /* the root owns the pointer geometry */
-    transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
+    transition: box-shadow 150ms ease-out, transform 150ms ease-out;
   }
-  .jx-range:hover:not(.jx-disabled) .jx-range-thumb {
-    box-shadow: var(--shadow-xs);
+  .jx-slider:hover:not(.jx-disabled) .jx-slider-thumb {
+    box-shadow: var(--shadow-2xs);
   }
-  .jx-range.jx-pressed .jx-range-thumb {
-    border-color: var(--primary);
+  .jx-slider.jx-pressed .jx-slider-thumb {
+    transform: translateY(calc(-50% + 1px)); /* press INTO the page */
     box-shadow: none;
   }
-  .jx-range.jx-invalid .jx-range-thumb {
+  .jx-slider.jx-invalid .jx-slider-thumb {
     border-style: dashed;
     border-color: var(--foreground);
   }
 
   /* tick ruler: one 4px mark per step, drawn as a repeating gradient
      (a mark every --jx-tick-step %; mirrors under :dir(rtl)) */
-  .jx-range-ticks {
+  .jx-slider-ticks {
     position: absolute;
     inset-inline: 0;
-    top: calc(50% + 8px);
+    top: calc(50% + 10px); /* clear of the 20px thumb's lower half */
     height: 4px;
     background: repeating-linear-gradient(
       to right,
@@ -389,7 +389,7 @@
     );
     pointer-events: none;
   }
-  .jx-range-ticks:dir(rtl) {
+  .jx-slider-ticks:dir(rtl) {
     background: repeating-linear-gradient(
       to left,
       var(--border) 0 1px,
@@ -397,23 +397,8 @@
     );
   }
 
-  .jx-error {
-    display: flex;
-    gap: 0.5em;
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-error-mark {
-    font-weight: 700;
-    color: var(--destructive);
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    .jx-range-thumb {
+    .jx-slider-thumb {
       transition: none;
     }
   }
