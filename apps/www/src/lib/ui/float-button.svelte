@@ -48,7 +48,7 @@
       role="menu"
       class="jx-fab-menu"
       bind:this={btn}
-      style="position-anchor: {anchorName}; inset-area: top span-right; position-area: top span-right;">
+      style="position-anchor: {anchorName}; inset-area: top span-right; position-area: top span-right;"
       ontoggle={(e: Event) => (open = (e.currentTarget as HTMLElement).matches(':popover-open'))}
     >
       {@render actions()}
