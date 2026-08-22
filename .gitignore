@@ -10,3 +10,4 @@ apps/www/.svelte-kit/
 
 # blueprint incremental-build cache (derivable; SVGs are committed)
 scripts/blueprints/.cache.json
+.zcode/
