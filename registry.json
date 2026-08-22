@@ -16,14 +16,18 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Install delivers the full token sheet as a css FILE (jixoai.css). No cssVars are injected: injection overwrote existing brand hues and produced mangled mappings on projects that already carried a token sheet."
+      "docs": "Install delivers the full token sheet as a css FILE (jixoai.css). No cssVars are injected: injection overwrote existing brand hues and produced mangled mappings on projects that already carried a token sheet.",
+      "meta": {
+        "group": "engines",
+        "href": "/tokens.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "toc-engine",
       "type": "registry:lib",
       "title": "ToC geometry engine",
-      "description": "Framework-free table-of-contents engine: per-frame geometry snapshot computes IoM weights (intersection area / min(block, viewport) — saturates to 100% in both directions) and the line pick (the viewport-top line resolves to the region containing it; margins resolve DOWNWARD to the next block; mobile line sits at the sticky bar bottom + 2em).",
+      "description": "Framework-free table-of-contents engine: per-frame geometry snapshot computes IoM weights (intersection area / min(block, viewport) — saturates to 100% in both directions) and the line pick (the viewport-top line resolves to the region containing it; margins resolve DOWNWARD to the next block; mobile line sits at the sticky bar bottom + 2em). Region source is [data-region]/[data-family] markup, OR — new in the scroll-area family (2026-08-22) — a derived-extents provider (the toc-outline lib): heading extents synthesized at compute time, re-read live every pass.",
       "files": [
         {
           "path": "registry/files/lib/toc-engine.ts",
@@ -31,7 +35,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Observe regions with data-region on leaf heading-to-heading blocks and data-family on parent section extents. The engine calls onUpdate(weights: Map<id, 0..1>, pick: id | null) on scroll/resize (rAF-throttled)."
+      "docs": "Observe regions with data-region on leaf heading-to-heading blocks and data-family on parent section extents. The engine calls onUpdate(weights: Map<id, 0..1>, pick: id | null) on scroll/resize (rAF-throttled).",
+      "meta": {
+        "group": "engines",
+        "href": "/components/toc.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -48,6 +56,10 @@
       ],
       "css": {
         "@layer base": "html { scroll-behavior: smooth; } @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } } html.js [data-reveal] { opacity: 0; transform: translateY(var(--reveal-rise, 10px)); } html.js [data-reveal].is-revealed { opacity: 1; transform: none; transition: opacity 260ms ease-out var(--reveal-delay, 0ms), transform 320ms cubic-bezier(0.22, 0.61, 0.36, 1) var(--reveal-delay, 0ms); } html.js [data-reveal='rule'] { opacity: 1; transform: scaleX(0); transform-origin: left center; } html.js [data-reveal='rule'].is-revealed { transform: scaleX(1); transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms); } @media (prefers-reduced-motion: reduce) { html.js [data-reveal], html.js [data-reveal='rule'] { opacity: 1; transform: none; transition: none; } }"
+      },
+      "meta": {
+        "group": "engines",
+        "href": "/components/overview.html"
       }
     },
     {
@@ -62,7 +74,11 @@
           "target": "@ui/press-button.svelte",
           "type": "registry:file"
         }
-      ]
+      ],
+      "meta": {
+        "group": "general",
+        "href": "/components/press-button.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -76,7 +92,11 @@
           "target": "@ui/section-card.svelte",
           "type": "registry:file"
         }
-      ]
+      ],
+      "meta": {
+        "group": "layout",
+        "href": "/components/section-card.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -93,7 +113,11 @@
       ],
       "registryDependencies": [
         "@jixoai/icons"
-      ]
+      ],
+      "meta": {
+        "group": "layout",
+        "href": "/components/terminal-header.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -110,7 +134,11 @@
       ],
       "registryDependencies": [
         "@jixoai/icons"
-      ]
+      ],
+      "meta": {
+        "group": "layout",
+        "href": "/components/terminal-footer.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -124,14 +152,18 @@
           "target": "@ui/theme-toggle.svelte",
           "type": "registry:file"
         }
-      ]
+      ],
+      "meta": {
+        "group": "general",
+        "href": "/components/theme-toggle.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "toc",
       "type": "registry:ui",
       "title": "Combo ToC",
-      "description": "The jixoai Combo table of contents: desktop Rule Tracker (scroll-progress spine, weight-driven nodes on level-1, weight-driven text on flat level-2, pick + parent markers) and mobile Terminal Rail (glass single-row viewport with the 76px line law, expand changes ONLY height, scroll-snap list, tap = instant pick). DOM order: the aside precedes main content; desktop grid places it right, mobile sticky height:0 overlay.",
+      "description": "The jixoai Combo table of contents: desktop Rule Tracker (scroll-progress spine, weight-driven nodes on level-1, weight-driven text on flat level-2, pick + parent markers) and mobile Terminal Rail (glass single-row viewport with the 76px line law, expand changes ONLY height, scroll-snap list, tap = instant pick). DOM order: the aside precedes main content; desktop grid places it right, mobile sticky height:0 overlay. NEW (scroll-area family, 2026-08-22): outline mode — pass outline: { root } instead of sections; outline + extents derive from the heading tree (toc-outline lib), zero handwritten ids.",
       "registryDependencies": [
         "@jixoai/toc-engine",
         "@jixoai/jixoai-theme",
@@ -149,7 +181,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Give the outline as sections/children props; the component renders desktop + mobile surfaces and wires the engine. Content needs non-overlapping data-region wrappers and data-family section extents (see toc-engine docs)."
+      "docs": "Give the outline as sections/children props; the component renders desktop + mobile surfaces and wires the engine. Content needs non-overlapping data-region wrappers and data-family section extents (see toc-engine docs).",
+      "meta": {
+        "group": "navigation",
+        "href": "/components/toc.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -169,7 +205,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Slots: header (required), children (main), footer (optional). Import website-scaffold.css once. For route-typed transitions, wire useAutoTypes({ index: '/', components: '/components', ... }) in a render-blocking module in <head> (view-transitions-toolkit/navigation)."
+      "docs": "Slots: header (required), children (main), footer (optional). Import website-scaffold.css once. For route-typed transitions, wire useAutoTypes({ index: '/', components: '/components', ... }) in a render-blocking module in <head> (view-transitions-toolkit/navigation).",
+      "meta": {
+        "group": "layout",
+        "href": "/components/website-scaffold.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -184,7 +224,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: barTitle, command, outputs: readonly string[]."
+      "docs": "Props: barTitle, command, outputs: readonly string[].",
+      "meta": {
+        "group": "data-display",
+        "href": "/components/terminal-card.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -202,7 +246,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: eyebrow, titleLead, titleAccent, summary, badges: readonly string[], copyCommand, copyLabel?, terminal snippet, secondary? snippet."
+      "docs": "Props: eyebrow, titleLead, titleAccent, summary, badges: readonly string[], copyCommand, copyLabel?, terminal snippet, secondary? snippet.",
+      "meta": {
+        "group": "layout",
+        "href": "/components/hero-section.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -217,7 +265,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: variant 'pair'|'menu', locales: { code, label, href }[], current (code), ariaLabel?. The menu closes on select, outside click, and Escape."
+      "docs": "Props: variant 'pair'|'menu', locales: { code, label, href }[], current (code), ariaLabel?. The menu closes on select, outside click, and Escape.",
+      "meta": {
+        "group": "navigation",
+        "href": "/components/language-switcher.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -232,7 +284,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: min (CSS length, default '260px'). Wrap cards as direct children; opt a child out with data-no-subgrid."
+      "docs": "Props: min (CSS length, default '260px'). Wrap cards as direct children; opt a child out with data-no-subgrid.",
+      "meta": {
+        "group": "layout",
+        "href": "/components/card-grid.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -250,14 +306,18 @@
       "docs": "Props: type, label?, error?, labelSide? 'left'|'right', id? (auto), class, ...restProps passed to the native input.",
       "registryDependencies": [
         "@jixoai/icons"
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/form.html#all-types"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "select",
       "type": "registry:ui",
       "title": "Select",
-      "description": "Custom select built on the native Popover API + CSS Anchor Positioning: popover='auto' light-dismiss panel, listbox role with roving aria-activedescendant (↑↓/Home/End/Enter), terminal bezel styling with primary left-border selected state, RTL-aware. name= submits the committed VALUE into FormData through the faceless form-field bridge (ElementInternals); for the platform's own overlay picker use native-select instead.",
+      "description": "Custom select built on the native Popover API + CSS Anchor Positioning: popover='auto' light-dismiss panel, listbox role with roving aria-activedescendant (↑↓/Home/End/Enter), terminal bezel styling with primary left-border selected state, RTL-aware. name= submits the committed VALUE into FormData through the faceless form-field bridge (ElementInternals); for the platform's own overlay picker use native-select instead. Floating-surface law: ::after shadow layer (semi-transparent black/white) + @starting-style entry; variant='solid' | 'acrylic' | 'auto' (acrylic falls back to solid under prefers-reduced-transparency; the terminal bezel keeps its identity through the jx-surface fill props).",
       "files": [
         {
           "path": "registry/files/ui/select.svelte",
@@ -267,7 +327,11 @@
       ],
       "registryDependencies": [
         "@jixoai/form-field"
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/form.html#select-textarea"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -281,7 +345,11 @@
           "target": "@ui/textarea.svelte",
           "type": "registry:file"
         }
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/form.html#select-textarea"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -299,14 +367,18 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Slot children; pairs with website-scaffold's jx-scaffold-float context."
+      "docs": "Slot children; pairs with website-scaffold's jx-scaffold-float context.",
+      "meta": {
+        "group": "layout",
+        "href": "/components/scaffold-float.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "dialog",
       "type": "registry:ui",
       "title": "Dialog",
-      "description": "NativeHTML dialog: a native <dialog> base with showModal() — focus trap, Escape, top-layer rendering for free. jixoai surface (1px border + hard offset shadow, radius omitted) with ::backdrop tinted by the brand hue; one shared 120ms close path for ×/Escape/open=false (backdrop transitions with it, reduced-motion closes instantly); a generation token prevents reopen races during fade-out. bind:open drives the lifecycle.",
+      "description": "NativeHTML dialog: native <dialog> + showModal() (focus trap, Escape, top layer). Floating-surface law: ::after shadow layer + @starting-style pull-apart entry; variant='solid' | 'acrylic' | 'auto'; scrim = --scrim (semi-transparent black/white, never a brand tint); 120ms JS close fade presses the layers back together.",
       "files": [
         {
           "path": "registry/files/ui/dialog.svelte",
@@ -314,14 +386,18 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: title?, open ($bindable); snippets children, footer?. Escape goes through the cancel event and shares the animated close path."
+      "docs": "Props: title?, open ($bindable); snippets children, footer?. Escape goes through the cancel event and shares the animated close path.",
+      "meta": {
+        "group": "feedback",
+        "href": "/components/dialog.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "popover",
       "type": "registry:ui",
       "title": "Popover",
-      "description": "NativeHTML popover: the native Popover API base (popover='auto' light dismiss, popovertarget trigger) — ZERO JavaScript. jixoai hard-shadow surface; authored centering via inset-area with an @supports fallback; transparent ::backdrop; the trigger's caret flips while open via :has(+ :popover-open). CSS Anchor Positioning noted as the extension direction.",
+      "description": "NativeHTML popover: the native Popover API base (popover='auto' light dismiss, popovertarget trigger, CSS Anchor Positioning). Floating-surface law: the hard offset shadow is a REAL ::after layer pulled apart by an @starting-style entry; variant='solid' | 'acrylic' (dual backdrop-filter: surface blur + shadow-layer brightness) | 'auto' (acrylic unless prefers-reduced-transparency). Transparent ::backdrop; caret flips via :has(+ :popover-open).",
       "files": [
         {
           "path": "registry/files/ui/popover.svelte",
@@ -329,7 +405,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: id (required, links popovertarget), triggerLabel; snippet children. Inside a popover, a second popovertarget button closes it declaratively — still zero JS."
+      "docs": "Props: id (required, links popovertarget), triggerLabel; snippet children. Inside a popover, a second popovertarget button closes it declaratively — still zero JS.",
+      "meta": {
+        "group": "feedback",
+        "href": "/components/popover.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -356,7 +436,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: code, lang='ts', theme='jixoai', filename?, copyable=true, maxHeight?; snippets header?, footer?. Based on Shiki — the highlight engine in lib/shiki is a thin on-demand facade over a stock HighlighterCore; any Shiki theme/grammar/transformer works through it (see the shiki lib item). Prerender paints the escaped plain sample; Shiki upgrades it after hydration with no layout shift."
+      "docs": "Props: code, lang='ts', theme='jixoai', filename?, copyable=true, maxHeight?; snippets header?, footer?. Based on Shiki — the highlight engine in lib/shiki is a thin on-demand facade over a stock HighlighterCore; any Shiki theme/grammar/transformer works through it (see the shiki lib item). Prerender paints the escaped plain sample; Shiki upgrades it after hydration with no layout shift.",
+      "meta": {
+        "group": "data-display",
+        "href": "/components/code-card.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -374,7 +458,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Based on Shiki (npm: shiki) — this lib adds loading strategy only, never re-interprets Shiki output. Curated grammars: typescript/tsx/javascript/jsx/svelte/html/css/scss/json/bash/markdown/yaml/vue + aliases; curated themes: github-dark/light, vitesse-dark/light, min-dark/light; anything else joins via registerLanguage/registerTheme. The jixoai theme name resolves token colors to the consumer's --tok-* CSS variables."
+      "docs": "Based on Shiki (npm: shiki) — this lib adds loading strategy only, never re-interprets Shiki output. Curated grammars: typescript/tsx/javascript/jsx/svelte/html/css/scss/json/bash/markdown/yaml/vue + aliases; curated themes: github-dark/light, vitesse-dark/light, min-dark/light; anything else joins via registerLanguage/registerTheme. The jixoai theme name resolves token colors to the consumer's --tok-* CSS variables.",
+      "meta": {
+        "group": "engines",
+        "href": "/components/code-card.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema.json/registry-item.json",
@@ -389,7 +477,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "import { icons } from '@lib/icons'; then {@html icons.x}. Consumers own sizing via CSS; the SVGs default to 16x16 with class jx-icon."
+      "docs": "import { icons } from '@lib/icons'; then {@html icons.x}. Consumers own sizing via CSS; the SVGs default to 16x16 with class jx-icon.",
+      "meta": {
+        "group": "engines",
+        "href": "/components/overview.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -404,7 +496,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Imported for its side effect by select/combobox/range/tags-input (no named exports needed at use sites). Law: a missing name, an empty value, or a disabled field contributes nothing to FormData — native control semantics."
+      "docs": "Imported for its side effect by select/combobox/range/tags-input (no named exports needed at use sites). Law: a missing name, an empty value, or a disabled field contributes nothing to FormData — native control semantics.",
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/form.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -419,7 +515,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: caption?, dense=false, stack=true, style? (passthrough landing on the frame — the color-freedom seam); snippet children (write native thead/tbody/tfoot). Consumer cell opt-ins: data-label=\"…\" (stack-mode row label), data-sticky=\"start\"|\"end\" (pinned column in scroll mode — put it on the th AND its td's). Color freedom: override --jx-table-surface/head/hover/hairline/rule/edge per instance via style or CSS."
+      "docs": "Props: caption?, dense=false, stack=true, style? (passthrough landing on the frame — the color-freedom seam); snippet children (write native thead/tbody/tfoot). Consumer cell opt-ins: data-label=\"…\" (stack-mode row label), data-sticky=\"start\"|\"end\" (pinned column in scroll mode — put it on the th AND its td's). Color freedom: override --jx-table-surface/head/hover/hairline/rule/edge per instance via style or CSS.",
+      "meta": {
+        "group": "data-display",
+        "href": "/components/table.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -437,7 +537,11 @@
       "docs": "Props: tree: TreeNode[], selected?, onselect?. Module exports TreeFile, TreeNode, inferTreeLang(name).",
       "registryDependencies": [
         "@jixoai/icons"
-      ]
+      ],
+      "meta": {
+        "group": "data-display",
+        "href": "/components/tree-view.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -458,7 +562,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: title, description?, sourceUrl?, files: TreeFile[]; snippets children (live demo), playground? (interactive controls)."
+      "docs": "Props: title, description?, sourceUrl?, files: TreeFile[]; snippets children (live demo), playground? (interactive controls).",
+      "meta": {
+        "group": "docs",
+        "href": "/components/component-canvas.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -472,7 +580,11 @@
           "target": "@ui/checkbox.svelte",
           "type": "registry:file"
         }
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/form.html#example-form"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -486,7 +598,11 @@
           "target": "@ui/radio.svelte",
           "type": "registry:file"
         }
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/form.html#example-form"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -500,7 +616,11 @@
           "target": "@ui/toggle.svelte",
           "type": "registry:file"
         }
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/form.html#example-form"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -514,7 +634,11 @@
           "target": "@ui/native-select.svelte",
           "type": "registry:file"
         }
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/form.html#select-textarea"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -528,7 +652,11 @@
           "target": "@ui/number-input.svelte",
           "type": "registry:file"
         }
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/form.html#all-types"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -546,14 +674,18 @@
       "docs": "Props: label?, error?, showValue?, min/max/step, name?, value ($bindable). role=slider contract; aria-labelledby wiring per the family law.",
       "registryDependencies": [
         "@jixoai/form-field"
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/form.html#all-types"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "date-picker",
       "type": "registry:ui",
       "title": "Date picker",
-      "description": "Form wave 2 — calendar popover over hand-rolled Date math (zero date libraries): single ISO string or {start,end} range with anchor/swap semantics, Monday-first grid, strict ISO parse/format/compare. Popover API panel (popover=auto + popovertarget) CSS-anchored under a select-style trigger; light dismiss/Escape/top-layer are native.",
+      "description": "Form wave 2 — calendar popover over hand-rolled Date math (zero date libraries): single ISO string or {start,end} range with anchor/swap semantics, Monday-first grid, strict ISO parse/format/compare. Popover API panel (popover=auto + popovertarget) CSS-anchored under a select-style trigger; light dismiss/Escape/top-layer are native. Floating-surface law: ::after shadow layer (semi-transparent black/white) + @starting-style entry; variant='solid' | 'acrylic' | 'auto' (acrylic falls back to solid under prefers-reduced-transparency; the terminal bezel keeps its identity through the jx-surface fill props).",
       "files": [
         {
           "path": "registry/files/ui/date-picker.svelte",
@@ -564,7 +696,11 @@
       "docs": "Props: label?, error?, mode 'single'|'range', value ($bindable ISO string or {start?,end?}). Never a native input[type=date].",
       "registryDependencies": [
         "@jixoai/popover"
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/form.html#all-types"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -579,28 +715,36 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: label?, error?, accept?, multiple?, maxFiles?, variant 'list'|'cards'|'compact', size 'sm'|'md'|'lg', files ($bindable File[])."
+      "docs": "Props: label?, error?, accept?, multiple?, maxFiles?, variant 'list'|'cards'|'compact', size 'sm'|'md'|'lg', files ($bindable File[]).",
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/form.html#all-types"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "color-picker",
       "type": "registry:ui",
       "title": "Color picker",
-      "description": "Color selection with SV pad + hue bar, format constraints (hex/hsl/oklch), Eye Dropper API support, swatch + value display, native Popover panel on terminal bezel. OKLCH as intermediate representation matching the token system.",
+      "description": "Color selection with SV pad + hue bar, format constraints (hex/hsl/oklch), Eye Dropper API support, swatch + value display, native Popover panel on terminal bezel. OKLCH as intermediate representation matching the token system. Floating-surface law: ::after shadow layer (semi-transparent black/white) + @starting-style entry; variant='solid' | 'acrylic' | 'auto' (acrylic falls back to solid under prefers-reduced-transparency; the terminal bezel keeps its identity through the jx-surface fill props).",
       "files": [
         {
           "path": "registry/files/ui/color-picker.svelte",
           "target": "@ui/color-picker.svelte",
           "type": "registry:file"
         }
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/form.html#all-types"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "combobox",
       "type": "registry:ui",
       "title": "Combobox",
-      "description": "Searchable select with custom-value input: real-time label filtering, allowCustom for free-text values, popover panel with roving aria-activedescendant (focus stays in input), 'No results' + 'Use xxx' affordance, blur-commit, family label/error contract. name= is intercepted off the native input and submits the committed VALUE (option value or custom string — never the display label) through the faceless form-field bridge.",
+      "description": "Searchable select with custom-value input: real-time label filtering, allowCustom for free-text values, popover panel with roving aria-activedescendant (focus stays in input), 'No results' + 'Use xxx' affordance, blur-commit, family label/error contract. name= is intercepted off the native input and submits the committed VALUE (option value or custom string — never the display label) through the faceless form-field bridge. Floating-surface law: ::after shadow layer (semi-transparent black/white) + @starting-style entry; variant='solid' | 'acrylic' | 'auto' (acrylic falls back to solid under prefers-reduced-transparency; the terminal bezel keeps its identity through the jx-surface fill props).",
       "files": [
         {
           "path": "registry/files/ui/combobox.svelte",
@@ -610,14 +754,18 @@
       ],
       "registryDependencies": [
         "@jixoai/form-field"
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/form.html#all-types"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "tags-input",
       "type": "registry:ui",
       "title": "Tags input",
-      "description": "Input + multiselect hybrid: flex-wrap tag chips with press-physics removal, Enter/comma/Tab/paste-split to add, Backspace removes last, suggestions popover with filtering, maxTags limit, duplicate flash, $bindable Tag[]. name= submits the tag VALUES as one JSON array string (empty set contributes nothing) through the faceless form-field bridge.",
+      "description": "Input + multiselect hybrid: flex-wrap tag chips with press-physics removal, Enter/comma/Tab/paste-split to add, Backspace removes last, suggestions popover with filtering, maxTags limit, duplicate flash, $bindable Tag[]. name= submits the tag VALUES as one JSON array string (empty set contributes nothing) through the faceless form-field bridge. Floating-surface law: ::after shadow layer (semi-transparent black/white) + @starting-style entry; variant='solid' | 'acrylic' | 'auto' (acrylic falls back to solid under prefers-reduced-transparency; the terminal bezel keeps its identity through the jx-surface fill props).",
       "files": [
         {
           "path": "registry/files/ui/tags-input.svelte",
@@ -628,7 +776,11 @@
       "registryDependencies": [
         "@jixoai/form-field",
         "@jixoai/icons"
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/form.html#all-types"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -643,7 +795,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: tone? ('default'|'primary'|'outline'|'destructive'), plus every <span> attribute passthrough."
+      "docs": "Props: tone? ('default'|'primary'|'outline'|'destructive'), plus every <span> attribute passthrough.",
+      "meta": {
+        "group": "data-display",
+        "href": "/components/badge.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -658,7 +814,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: orientation? ('horizontal' default | 'vertical')."
+      "docs": "Props: orientation? ('horizontal' default | 'vertical').",
+      "meta": {
+        "group": "layout",
+        "href": "/components/separator.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -672,7 +832,11 @@
           "target": "@ui/skeleton.svelte",
           "type": "registry:file"
         }
-      ]
+      ],
+      "meta": {
+        "group": "feedback",
+        "href": "/components/skeleton.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -687,7 +851,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: src?, name (required — fuels alt + initials), size? ('sm'|'md'|'lg' = 24/32/40px), alt?, plus <img> attributes."
+      "docs": "Props: src?, name (required — fuels alt + initials), size? ('sm'|'md'|'lg' = 24/32/40px), alt?, plus <img> attributes.",
+      "meta": {
+        "group": "data-display",
+        "href": "/components/avatar.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -702,7 +870,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: tone?, assertive?, title?, icon? (snippet), children? (body; omit for title-only)."
+      "docs": "Props: tone?, assertive?, title?, icon? (snippet), children? (body; omit for title-only).",
+      "meta": {
+        "group": "feedback",
+        "href": "/components/alert.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -722,7 +894,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Group props: exclusive?, class? — children snippet holds accordion-item.svelte (or bare <details>). Item props: open ($bindable), summary (named snippet), children."
+      "docs": "Group props: exclusive?, class? — children snippet holds accordion-item.svelte (or bare <details>). Item props: open ($bindable), summary (named snippet), children.",
+      "meta": {
+        "group": "data-display",
+        "href": "/components/accordion.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -752,7 +928,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Root props: value ($bindable, '' = none selected), onchange?. TabsList: orientation? ('horizontal'|'vertical'). TabsTrigger: value, disabled?. TabsContent: value."
+      "docs": "Root props: value ($bindable, '' = none selected), onchange?. TabsList: orientation? ('horizontal'|'vertical'). TabsTrigger: value, disabled?. TabsContent: value.",
+      "meta": {
+        "group": "navigation",
+        "href": "/components/tabs.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -767,14 +947,18 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: value? (0..max; omitted = indeterminate), max? (default 1), label?, class?."
+      "docs": "Props: value? (0..max; omitted = indeterminate), max? (default 1), label?, class?.",
+      "meta": {
+        "group": "feedback",
+        "href": "/components/progress.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "tooltip",
       "type": "registry:ui",
       "title": "Tooltip",
-      "description": "The hover-intent hint on the popover laws: a popover=manual panel (no light dismiss — the tip owns its exit) anchored via CSS Anchor Positioning, zero JS geometry. Intent model: pointerenter opens after openDelay (400ms), pointerleave closes after closeDelay (100ms, cancellable from the tip), focusin opens immediately, Escape closes. aria-describedby pairs wrapper to tip permanently (hidden popover content is display:none). Non-interactive by contract.",
+      "description": "The hover-intent hint on the popover laws: popover=manual panel (no light dismiss), delay-in/cancellable close grace, CSS anchoring. Shadowless BY LAW (the ::after layer is content:none) but rides the jx-surface entry choreography and the variant paints (solid|acrylic|auto).",
       "files": [
         {
           "path": "registry/files/ui/tooltip.svelte",
@@ -782,7 +966,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: id?, text, placement? ('top' default), openDelay? (400), closeDelay? (100); children snippet = the trigger content."
+      "docs": "Props: id?, text, placement? ('top' default), openDelay? (400), closeDelay? (100); children snippet = the trigger content.",
+      "meta": {
+        "group": "feedback",
+        "href": "/components/tooltip.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -797,14 +985,18 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: page, pageCount, href (template fn), label?, siblings? (1), prevLabel?/nextLabel?. Module export: pageWindow(page, pageCount, siblings)."
+      "docs": "Props: page, pageCount, href (template fn), label?, siblings? (1), prevLabel?/nextLabel?. Module export: pageWindow(page, pageCount, siblings).",
+      "meta": {
+        "group": "navigation",
+        "href": "/components/pagination.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "dropdown-menu",
       "type": "registry:ui",
       "title": "Dropdown menu",
-      "description": "The ARIA menu pattern on the popover laws: popover=auto panel (light dismiss, Escape, top layer native) + CSS Anchor Positioning, plus the keyboard contract the platform does not ship — open focuses item 1; arrows/Home/End walk with wrapping; 500ms typeahead; selection runs the caller onclick then closes with focus restored to the trigger (explicit decision — light-dismiss clicks never steal focus).",
+      "description": "The ARIA menu pattern on the popover laws: popover=auto panel (light dismiss, Escape, top layer native) + CSS Anchor Positioning, roving item focus, type-ahead. Floating-surface law: ::after shadow layer + @starting-style entry; variant solid|acrylic|auto.",
       "files": [
         {
           "path": "registry/files/ui/dropdown-menu.svelte",
@@ -817,7 +1009,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Root props: id, triggerLabel?, placement? ('bottom-end'), trigger? (custom snippet), panelClass?, onToggle?. Item props: destructive?, plus <button> passthrough; separators are plain <hr>, labels plain markup."
+      "docs": "Root props: id, triggerLabel?, placement? ('bottom-end'), trigger? (custom snippet), panelClass?, onToggle?. Item props: destructive?, plus <button> passthrough; separators are plain <hr>, labels plain markup.",
+      "meta": {
+        "group": "navigation",
+        "href": "/components/dropdown-menu.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -832,7 +1028,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: crumbs ({label, href}[], last = current page), label?, collapse? (max visible before the middle folds, 0 = never)."
+      "docs": "Props: crumbs ({label, href}[], last = current page), label?, collapse? (max visible before the middle folds, 0 = never).",
+      "meta": {
+        "group": "navigation",
+        "href": "/components/breadcrumb.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -847,7 +1047,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: any <kbd> attribute passthrough; children = the key label."
+      "docs": "Props: any <kbd> attribute passthrough; children = the key label.",
+      "meta": {
+        "group": "general",
+        "href": "/components/kbd.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -867,14 +1071,18 @@
           "type": "registry:file"
         }
       ],
-      "docs": "const toast = createToastStore(); <ToastViewport store={toast} /> … toast.api.push({ title, description?, tone?, duration?, assertive? }). Tones: default / primary / destructive."
+      "docs": "const toast = createToastStore(); <ToastViewport store={toast} /> … toast.api.push({ title, description?, tone?, duration?, assertive? }). Tones: default / primary / destructive.",
+      "meta": {
+        "group": "feedback",
+        "href": "/components/toast.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "alert-dialog",
       "type": "registry:ui",
       "title": "Alert dialog",
-      "description": "The destructive-decision surface on the dialog laws: native <dialog> showModal() + the same generation-token close path, plus the alertdialog contract — role=alertdialog with REQUIRED aria-labelledby/describedby (title and description props), focus lands on the CANCEL action on open (the destructive path is a deliberate move, never the landing spot), confirm is an explicit prop with destructive paint by default (the loud path is opt-out).",
+      "description": "The destructive-decision surface on the dialog laws: native <dialog> showModal() + generation-token close path, role=alertdialog with required title/description, cancel-focused safe landing. Floating-surface law: ::after shadow layer, @starting-style entry, variant solid|acrylic|auto, --scrim backdrop.",
       "files": [
         {
           "path": "registry/files/ui/alert-dialog.svelte",
@@ -882,14 +1090,18 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: title, description (both required), open ($bindable), confirmLabel, confirmTone? ('destructive' default | 'primary'), onconfirm?, cancelLabel?, children? (extra body)."
+      "docs": "Props: title, description (both required), open ($bindable), confirmLabel, confirmTone? ('destructive' default | 'primary'), onconfirm?, cancelLabel?, children? (extra body).",
+      "meta": {
+        "group": "feedback",
+        "href": "/components/alert-dialog.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "sheet",
       "type": "registry:ui",
       "title": "Sheet",
-      "description": "The side drawer as a dialog POSITIONING variant, not a second state machine: showModal() (focus trap, Escape, top layer native), the same generation-token close path, bind:open lifecycle. The panel docks to side (left/right/top/bottom) and slides in along its axis. Backdrop click is deliberately NOT wired — sheet content is often a form; close via ×, Escape, or your own footer action.",
+      "description": "The side drawer as a dialog POSITIONING variant (not a second state machine): showModal(), side docking + slide along the docked axis, generation-token close. Floating-surface law: ::after shadow layer + variant solid|acrylic|auto riding on top of the slide; --scrim backdrop; the slide keeps the sheet's own 200ms timing (declared exception to the 120ms dialog default).",
       "files": [
         {
           "path": "registry/files/ui/sheet.svelte",
@@ -897,14 +1109,18 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: open ($bindable), title, side? ('right' default), size? (CSS length, 24rem default), header?/footer? snippets, children."
+      "docs": "Props: open ($bindable), title, side? ('right' default), size? (CSS length, 24rem default), header?/footer? snippets, children.",
+      "meta": {
+        "group": "feedback",
+        "href": "/components/sheet.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "hover-card",
       "type": "registry:ui",
       "title": "Hover card",
-      "description": "The rich interactive cousin of tooltip: same intent model (hover delay in, cancellable close grace, focus opens instantly, Escape closes) on a popover=manual panel with CSS anchoring — but the panel is interactive content. No role=tooltip and no aria-describedby: the card is supplementary rich content, and the close grace spans trigger AND panel (pointer/focus crossings never dismiss).",
+      "description": "The rich interactive cousin of tooltip: popover=manual panel, close grace spans the panel, CSS anchoring. Floating-surface law: ::after shadow layer + @starting-style entry; variant solid|acrylic|auto.",
       "files": [
         {
           "path": "registry/files/ui/hover-card.svelte",
@@ -912,7 +1128,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: trigger (snippet), children (the card), placement? ('bottom' default), openDelay? (300), closeDelay? (200)."
+      "docs": "Props: trigger (snippet), children (the card), placement? ('bottom' default), openDelay? (300), closeDelay? (200).",
+      "meta": {
+        "group": "feedback",
+        "href": "/components/hover-card.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -930,7 +1150,11 @@
       "docs": "Props: name?, length? (6), value ($bindable), numeric? (true), label?, error?, disabled?. Two-way slot/value sync is untracked on the slots side — slot mutations can never be re-synced against stale value. Requires the form-field bridge item (installed as its dependency).",
       "registryDependencies": [
         "@jixoai/form-field"
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/input-otp.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -948,7 +1172,11 @@
       "docs": "Props: name?, type?, options ({value,label,disabled?}[]), value ($bindable), label (required a11y name), item? (per-button snippet), onchange?. The form-field bridge gains a multivalue attribute — entries append to a FormData handed to setFormValue (one submit entry per press).",
       "registryDependencies": [
         "@jixoai/form-field"
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/toggle-group.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -963,14 +1191,18 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: label?, slideWidth? ('100%' one-at-a-time; '80%' for peeking), dots?, prevLabel/nextLabel?, children = the slides (any elements)."
+      "docs": "Props: label?, slideWidth? ('100%' one-at-a-time; '80%' for peeking), dots?, prevLabel/nextLabel?, children = the slides (any elements).",
+      "meta": {
+        "group": "data-display",
+        "href": "/components/carousel.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "command",
       "type": "registry:ui",
       "title": "Command palette",
-      "description": "The ⌘K surface on the batch-4 design ruling: native dialog showModal (modal task — trap, Escape, top layer native); open focuses the search, close restores focus natively. Deterministic ranking (exact > startsWith > token > includes > keywords), no fuzzy; combobox + listbox with aria-activedescendant (input holds focus); ↑/↓ wrap cross-group, Home/End, Enter selects; no-matches is role=status state text; IME-composition-safe. ⌘K/Ctrl+K window binding, opt-out via hotkey={false}.",
+      "description": "The ⌘K palette on the dialog laws: native dialog showModal (modal task), input-focused roving aria-activedescendant list, pure-function ranking. Floating-surface law: ::after shadow layer, @starting-style pull-apart entry, 120ms close fade, variant solid|acrylic|auto, --scrim backdrop.",
       "files": [
         {
           "path": "registry/files/ui/command.svelte",
@@ -978,14 +1210,18 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: items (CommandItem[]), open ($bindable), onopenchange?, onselect? (single execution path — no dual run()), closeOnSelect? (true), placeholder?, label?, hotkey? (false — opt-in), filter? (pure function, default rankCommandItems export)."
+      "docs": "Props: items (CommandItem[]), open ($bindable), onopenchange?, onselect? (single execution path — no dual run()), closeOnSelect? (true), placeholder?, label?, hotkey? (false — opt-in), filter? (pure function, default rankCommandItems export).",
+      "meta": {
+        "group": "feedback",
+        "href": "/components/command.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "navigation-menu",
       "type": "registry:ui",
       "title": "Navigation menu",
-      "description": "The site-nav bar as an independent thin coordinator (not raw popovers): top-level ←/→ walking with roving tabindex, one tab stop on the current section's trigger; hover opens with 150ms intent and adjacent triggers glide (no close bounce); Enter/Space/click opens; Escape closes + focus returns. Panels are popover=auto with CSS anchoring and carry REAL LINKS — navigation-menu moves you through a site; actions belong to dropdown-menu.",
+      "description": "The site-nav bar as an independent thin coordinator (not raw popovers): top-level ←/→ walking with roving tabindex, one tab stop on the current section's trigger; hover opens with 150ms intent and adjacent triggers glide (no close bounce); Enter/Space/click opens; Escape closes + focus returns. Panels are popover=auto with CSS anchoring and carry REAL LINKS — navigation-menu moves you through a site; actions belong to dropdown-menu. Floating-surface law: ::after shadow layer (semi-transparent black/white) + @starting-style entry; variant='solid' | 'acrylic' | 'auto' (acrylic falls back to solid under prefers-reduced-transparency).",
       "files": [
         {
           "path": "registry/files/ui/navigation-menu.svelte",
@@ -993,14 +1229,18 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: items ({id,label,href?,current?,hasPanel?}[]), label?, panel? (snippet [item]), openDelay? (150)."
+      "docs": "Props: items ({id,label,href?,current?,hasPanel?}[]), label?, panel? (snippet [item]), openDelay? (150).",
+      "meta": {
+        "group": "navigation",
+        "href": "/components/navigation-menu.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "menubar",
       "type": "registry:ui",
       "title": "Menubar",
-      "description": "The application menu bar with its OWN walker (the top-level contract differs from stacked dropdowns): ←/→ move between triggers with panels gliding after an open bar; ↓/↑/Enter opens and focuses the first item; Home/End jump; Escape returns to the trigger. Panels are popover=auto role=menu; items inside walk with wrap (the menu contract, deliberately duplicated — registry items stay independent).",
+      "description": "The application menu bar with its OWN walker (the top-level contract differs from stacked dropdowns): ←/→ move between triggers with panels gliding after an open bar; ↓/↑/Enter opens and focuses the first item; Home/End jump; Escape returns to the trigger. Panels are popover=auto role=menu; items inside walk with wrap (the menu contract, deliberately duplicated — registry items stay independent). Floating-surface law: ::after shadow layer (semi-transparent black/white) + @starting-style entry; variant='solid' | 'acrylic' | 'auto' (acrylic falls back to solid under prefers-reduced-transparency).",
       "files": [
         {
           "path": "registry/files/ui/menubar.svelte",
@@ -1008,14 +1248,18 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: items ({id,label}[]), label?, panel (snippet [item] — bring buttons/links with role=menuitem)."
+      "docs": "Props: items ({id,label}[]), label?, panel (snippet [item] — bring buttons/links with role=menuitem).",
+      "meta": {
+        "group": "navigation",
+        "href": "/components/menubar.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "popconfirm",
       "type": "registry:ui",
       "title": "Popconfirm",
-      "description": "The LIGHT confirm bubble for risky-but-reversible actions — antd's highest-frequency unique gift, ruled NOT an alertdialog: a popover=auto panel where light dismiss (outside click / Escape) IS the cancel path; focus lands on Cancel on open; confirm paints destructive by default.",
+      "description": "The optimistic-action confirm bubble on the popover laws (popover=auto, NOT an alertdialog): title/description + explicit confirm/cancel, cancel takes focus. Floating-surface law: ::after shadow layer + @starting-style entry; variant solid|acrylic|auto.",
       "files": [
         {
           "path": "registry/files/ui/popconfirm.svelte",
@@ -1023,7 +1267,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: title (required), description?, onconfirm?, oncancel?, confirmLabel/cancelLabel?, confirmTone? ('destructive' default), placement? ('top'). children = the trigger; the wrapper auto-wires the first button as popovertarget."
+      "docs": "Props: title (required), description?, onconfirm?, oncancel?, confirmLabel/cancelLabel?, confirmTone? ('destructive' default), placement? ('top'). children = the trigger; the wrapper auto-wires the first button as popovertarget.",
+      "meta": {
+        "group": "feedback",
+        "href": "/components/popconfirm.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1038,7 +1286,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: title (required), description?, illustration? (snippet), actions? (snippet). The illustration slot is decorative by contract (aria-hidden) — informational art belongs in the body."
+      "docs": "Props: title (required), description?, illustration? (snippet), actions? (snippet). The illustration slot is decorative by contract (aria-hidden) — informational art belongs in the body.",
+      "meta": {
+        "group": "data-display",
+        "href": "/components/empty.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1053,7 +1305,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: items ({term, value?}[]), columns? (1-4, default 1), bordered?, value? (per-item rich cell snippet)."
+      "docs": "Props: items ({term, value?}[]), columns? (1-4, default 1), bordered?, value? (per-item rich cell snippet).",
+      "meta": {
+        "group": "data-display",
+        "href": "/components/descriptions.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1068,7 +1324,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: steps ({title, description?}[]), current (0-based), onstepclick? (fires for completed steps)."
+      "docs": "Props: steps ({title, description?}[]), current (0-based), onstepclick? (fires for completed steps).",
+      "meta": {
+        "group": "navigation",
+        "href": "/components/steps.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1083,7 +1343,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: label? ('loading'), children? (wrapping posture when given). reduced-motion freezes to the first frame."
+      "docs": "Props: label? ('loading'), children? (wrapping posture when given). reduced-motion freezes to the first frame.",
+      "meta": {
+        "group": "feedback",
+        "href": "/components/spin.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1098,7 +1362,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: title (required), value (string|number — formatting is yours), prefix?/suffix? (snippets), trend? ('up'|'down')."
+      "docs": "Props: title (required), value (string|number — formatting is yours), prefix?/suffix? (snippets), trend? ('up'|'down').",
+      "meta": {
+        "group": "data-display",
+        "href": "/components/statistic.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1113,7 +1381,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: items ({title, time?, datetime?, pending?}[]), body? (per-item snippet [item, index]). time renders inside <time datetime> when the ISO instant is given."
+      "docs": "Props: items ({title, time?, datetime?, pending?}[]), body? (per-item snippet [item, index]). time renders inside <time datetime> when the ISO instant is given.",
+      "meta": {
+        "group": "data-display",
+        "href": "/components/timeline.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1128,7 +1400,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: status? ('success'|'error'|'warning'|'info'), title (required), description?, icon? (snippet), actions? (snippet). The icon slot is decorative by contract (aria-hidden)."
+      "docs": "Props: status? ('success'|'error'|'warning'|'info'), title (required), description?, icon? (snippet), actions? (snippet). The icon slot is decorative by contract (aria-hidden).",
+      "meta": {
+        "group": "feedback",
+        "href": "/components/result.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1146,7 +1422,11 @@
       "docs": "Props: options ({value,label,disabled?}[]), value ($bindable string[]), name? (bridge: target values submit as multi-entry FormData), sourceTitle/targetTitle?, searchPlaceholder?, onchange?.",
       "registryDependencies": [
         "@jixoai/form-field"
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/transfer.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1164,7 +1444,11 @@
       "docs": "Props: options (CascaderOption tree), name?, value ($bindable string[]), separator?, disabled?, label?, placeholder?.",
       "registryDependencies": [
         "@jixoai/form-field"
-      ]
+      ],
+      "meta": {
+        "group": "data-entry",
+        "href": "/components/cascader.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1179,14 +1463,18 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: alt (required), width/height (required intrinsic), fallback? (snippet), plus <img> passthrough."
+      "docs": "Props: alt (required), width/height (required intrinsic), fallback? (snippet), plus <img> passthrough.",
+      "meta": {
+        "group": "data-display",
+        "href": "/components/image.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "float-button",
       "type": "registry:ui",
       "title": "Float button",
-      "description": "The floating action button: a fixed corner button in two idioms — plain (a lone action, e.g. back-to-top) and menu (children + actions snippet: the button toggles a popover=auto stack above it, native light dismiss). Corner is a prop, not a wrapper — the consumer's layout is never touched. Press-button physics at a fixed size.",
+      "description": "The floating action button: a fixed corner button in two idioms — plain (a lone action, e.g. back-to-top) and menu (children + actions snippet: the button toggles a popover=auto stack above it, native light dismiss). Corner is a prop, not a wrapper — the consumer's layout is never touched. Press-button physics at a fixed size. The menu panel rides the floating-surface law: ::after shadow layer (semi-transparent black/white) + @starting-style entry; variant='solid' | 'acrylic' | 'auto' (acrylic falls back to solid under prefers-reduced-transparency; the button itself keeps press-button physics).",
       "files": [
         {
           "path": "registry/files/ui/float-button.svelte",
@@ -1194,7 +1482,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: label (required — icon-only buttons must say themselves), corner? ('bottom-right' default), onclick? (plain), actions? (snippet, menu idiom), children (icon/glyph). Menu idiom: the actions snippet must bring real buttons/links carrying role=menuitem (the walk contract is theirs)."
+      "docs": "Props: label (required — icon-only buttons must say themselves), corner? ('bottom-right' default), onclick? (plain), actions? (snippet, menu idiom), children (icon/glyph). Menu idiom: the actions snippet must bring real buttons/links carrying role=menuitem (the walk contract is theirs).",
+      "meta": {
+        "group": "general",
+        "href": "/components/float-button.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1209,7 +1501,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: dot?, count?, overflow? (99), showZero?, label? (required name in dot mode), children? (the host element)."
+      "docs": "Props: dot?, count?, overflow? (99), showZero?, label? (required name in dot mode), children? (the host element).",
+      "meta": {
+        "group": "data-display",
+        "href": "/components/badge-indicator.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1227,14 +1523,18 @@
       "docs": "Props: items ({href:'#id', label}[]), label?, offset? (96 — the pick line, for sticky headers).",
       "registryDependencies": [
         "@jixoai/scroll-spy"
-      ]
+      ],
+      "meta": {
+        "group": "navigation",
+        "href": "/components/anchor.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "tour",
       "type": "registry:ui",
       "title": "Tour",
-      "description": "The guided walkthrough, implemented against the recorded design contract: anchor-name as a REVERSIBLE LEASE on each step's target (set on enter, restored on advance/close/unmount — capability wiring, not style authoring); the highlight is a target-sized transparent hole + one huge box-shadow tint sized by CSS anchor-size() (zero geometry JS; engines without anchoring degrade to a plain tint); popover=manual + role=dialog + aria-modal=false — NON-MODAL (no trap, page scrolls, scrim pointer-events:none); targets re-resolved every step with deterministic forward skip past unavailable ones; Escape/Skip finishes and restores the invoker focus. SSR renders nothing until open.",
+      "description": "The guided walkthrough, implemented against the recorded design contract: anchor-name as a REVERSIBLE LEASE on each step's target (set on enter, restored on advance/close/unmount — capability wiring, not style authoring); the highlight is a target-sized transparent hole + one huge box-shadow tint sized by CSS anchor-size() (zero geometry JS; engines without anchoring degrade to a plain tint); popover=manual + role=dialog + aria-modal=false — NON-MODAL (no trap, page scrolls, scrim pointer-events:none); targets re-resolved every step with deterministic forward skip past unavailable ones; Escape/Skip finishes and restores the invoker focus. SSR renders nothing until open. Floating-surface law: ::after shadow layer (semi-transparent black/white) + @starting-style entry; variant='solid' | 'acrylic' | 'auto' (acrylic falls back to solid under prefers-reduced-transparency).",
       "files": [
         {
           "path": "registry/files/ui/tour.svelte",
@@ -1242,7 +1542,11 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: steps ({target: selector | resolver, title, description?}[]), open ($bindable), startAt?, onfinish?(stoppedAtIndex), onstep?, nextLabel/prevLabel/skipLabel?."
+      "docs": "Props: steps ({target: selector | resolver, title, description?}[]), open ($bindable), startAt?, onfinish?(stoppedAtIndex), onstep?, nextLabel/prevLabel/skipLabel?.",
+      "meta": {
+        "group": "feedback",
+        "href": "/components/tour.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1257,7 +1561,134 @@
           "type": "registry:file"
         }
       ],
-      "docs": "createScrollSpy(targets: () => {id}[], onPick, {offset?}) → {current, sync(), destroy()}."
+      "docs": "createScrollSpy(targets: () => {id}[], onPick, {offset?}) → {current, sync(), destroy()}.",
+      "meta": {
+        "group": "engines",
+        "href": "/components/anchor.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "scrollbar-measure",
+      "type": "registry:lib",
+      "title": "Scrollbar width probe",
+      "description": "<jx-scrollbar-measure> — the scrollbar law's measurement half: a one-shot, shadow-DOM-isolated probe measuring real scrollbar widths under scrollbar-width: thin and auto (overflow:scroll offsetWidth - clientWidth), publishing --jx-scrollbar-thin / --jx-scrollbar-auto on :root, then removing itself. Overlay-scrollbar systems read 0px, so the theme's padding-inline compensation recipes degrade to authored padding. Publishes only when the engine supports BOTH scrollbar-width and scrollbar-gutter. SSR-safe side-effect import (form-field law).",
+      "files": [
+        {
+          "path": "registry/files/lib/scrollbar-measure.ts",
+          "target": "@lib/scrollbar-measure.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "import '@lib/scrollbar-measure'; once in the root layout. Feeds @jixoai/jixoai-theme's --jx-scrollbar-* variables (macOS classic reference: thin 11px, auto 14px — probed at runtime, never hardcoded).",
+      "meta": {
+        "group": "engines",
+        "href": "/tokens.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "toc-outline",
+      "type": "registry:lib",
+      "title": "ToC outline derivation",
+      "description": "The zero-handwritten-id half of automatic ToC linkage (scroll-area family, 2026-08-22): framework-free outline derivation from a content root's heading tree. Scans the configured levels (default h2/h3), slugifies labels with dedupe, stamps derived ids back onto the headings (fragment links need a real id), skips [data-toc-skip] subtrees, and exposes each entry's EXTENT (heading → next same-or-higher heading) for toc-engine's extents provider. tocOutlineToSections() collapses entries into toc.svelte's sections shape. No listeners, no DOM restructuring.",
+      "files": [
+        {
+          "path": "registry/files/lib/toc-outline.ts",
+          "target": "@lib/toc-outline.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "deriveTocOutline(root, { levels?: [2, 3] }) → TocOutlineEntry[]; tocOutlineToSections(entries) → TocSection[]. Pairs with @jixoai/toc-engine (extents option) and toc.svelte's outline prop.",
+      "meta": {
+        "group": "engines",
+        "href": "/components/scroll-area.html#toc-metadata"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "scroll-area",
+      "type": "registry:ui",
+      "title": "Scroll area",
+      "description": "The dedicated scrollable-region component (Owner request, 2026-08-22, after shadcnui — but W3C-first nativeHTML): the component IS a native scroll container; wheel, touch momentum, keyboard, PageUp/Home, scroll-snap and overscroll chaining stay native. scrollbar='native' (default) encapsulates the theme scrollbar law (thin + currentColor thumbs + both-edges gutters with the pad-compensation recipe); scrollbar='overlay' draws the custom virtual scrollbar — square theme-token thumb floating over full-width content, pointer-drag via setPointerCapture, auto-hide with reduced-motion static visibility — active ONLY on (pointer: fine); touch devices keep pure native. Instance exports (bind:this): getViewport() / scrollTo().",
+      "files": [
+        {
+          "path": "registry/files/ui/scroll-area.svelte",
+          "target": "@ui/scroll-area.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: orientation? ('vertical' | 'horizontal' | 'both'), scrollbar? ('native' | 'overlay'), label?, pad? (CSS length — inline ring padding, compensated against the reserved gutter), class/style + restProps passthrough to the viewport, children snippet. getViewport() feeds Toc scrollRoot / toc-outline root / toc-engine extents — the zero-boilerplate ToC pairing.",
+      "meta": {
+        "group": "layout",
+        "href": "/components/scroll-area.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "scroll-virtual",
+      "type": "registry:ui",
+      "title": "Scroll virtual (TanStack)",
+      "description": "Virtual scrolling for the scroll-area family — STRONGLY associated with @tanstack/svelte-virtual (the official Svelte 5 adapter over @tanstack/virtual-core) with deliberately THIN coupling: windowing semantics, dynamic measurement, scrollToIndex/scrollToOffset, lanes, getItemKey are all TanStack's; read TanStack Virtual's docs directly. This component adds only the DOM wiring: composes scroll-area (variant/label passthrough), owns the positioning layer (totalSize spacer + absolutely positioned rows), and calls item.measureElement on its own row wrappers so dynamic heights work out of the box. Opt-in by design — scroll-area alone has ZERO TanStack dependency.",
+      "dependencies": [
+        "@tanstack/svelte-virtual"
+      ],
+      "registryDependencies": [
+        "@jixoai/scroll-area"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/scroll-virtual.svelte",
+          "target": "@ui/scroll-virtual.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: count, estimateSize? (px or per-index fn, default 48), overscan?, horizontal?, virtualOptions? (TanStack VirtualizerOptions passthrough), scrollbar?/label?/class? (ScrollArea passthrough), children: Snippet<[VirtualItem]>. Instance: scrollToIndex/scrollToOffset/measure/getVirtualizer (the raw instance — or use @tanstack/svelte-virtual directly, the documented escape hatch).",
+      "meta": {
+        "group": "data-display",
+        "href": "/components/scroll-area.html#virtual-scrolling"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "icon-button",
+      "type": "registry:ui",
+      "title": "Icon button",
+      "description": "The icon+text button with an explicit two-part contract: icon is the glyph (ALWAYS decorative — wrapped aria-hidden), text is the ONE label (a single string, single-sourced). Variants: normal (icon + text side by side, press-button outline surface) and icon-only (a square size-9 button — text moves to the tooltip and stays the accessible name via aria-label; an icon-only button must say itself). Press-button physics verbatim; href renders an anchor, hrefs outside \"/\" open in a new tab.",
+      "registryDependencies": [
+        "@jixoai/tooltip"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/icon-button.svelte",
+          "target": "@ui/icon-button.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: icon (required snippet — the glyph), text (required string — the one label), variant? ('normal' default | 'icon-only'), placement? (tooltip side in icon-only, 'top' default), href?, external?, onclick?, type? ('button'), class?.",
+      "meta": {
+        "group": "general",
+        "href": "/components/icon-button.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "llms-txt",
+      "type": "registry:file",
+      "title": "llms.txt exporter",
+      "description": "Build-time AI-export generator: scans the final static dist and emits llms.txt / llms-full.txt / per-page .md mirrors (llmstxt.org proposal v2). Zero deps; absolute URLs; atomic idempotent writes; per-locale index splitting.",
+      "files": [
+        {
+          "path": "registry/files/llms-txt/llms-txt.mjs",
+          "target": "vite-plugins/llms-txt.mjs",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Vite: llmsTxt({ distDir, siteUrl, title, summary }) as the last plugin; orchestrated sites call generateLlmsTxt() on the FINAL output directory after every other step.",
+      "meta": {
+        "group": "docs",
+        "href": "/components/llms-txt.html"
+      }
     }
   ]
 }
