@@ -135,9 +135,9 @@ function nodeToSatori(node) {
     return {
       type: 'div',
       props: {
-        style: compact({ position: 'absolute', left: px(node.x), top: px(node.y), width: px(node.w), height: px(node.h), opacity }),
+        style: compact({ position: 'absolute', display: 'flex', left: px(node.x), top: px(node.y), width: px(node.w), height: px(node.h), opacity }),
+        children: [...children, ...edges],
       },
-      children: [...children, ...edges],
     };
   }
   if (node.k === 'txt') {
@@ -156,8 +156,8 @@ function nodeToSatori(node) {
           whiteSpace: 'pre',
           letterSpacing: node.sp ? px(node.sp) : undefined,
         }),
+        children: node.t,
       },
-      children: node.t,
     };
   }
   if (node.k === 'img') {
@@ -184,6 +184,18 @@ export function buildTree(scene) {
 /** @param {{name:string,w:number,h:number,bg:string,nodes:any[]}} scene */
 export async function renderScene(scene) {
   const children = buildTree(scene);
+  if (process.env.BP_DEBUG) {
+    console.error('[bp-debug] root children:', children.length, 'fonts:', satoriFonts.length);
+    try {
+      return await satori(
+        { type: 'div', props: { style: { position: 'relative', width: scene.w, height: scene.h, display: 'flex', backgroundColor: gray(scene.bg) ?? 'rgba(255,255,255,1)' } }, children },
+        { width: scene.w, height: scene.h, fonts: satoriFonts },
+      );
+    } catch (e) {
+      console.error('[bp-debug] THREW:', e.message);
+      throw e;
+    }
+  }
   return satori(
     {
       type: 'div',
@@ -195,8 +207,8 @@ export async function renderScene(scene) {
           display: 'flex',
           backgroundColor: gray(scene.bg) ?? 'rgba(255,255,255,1)',
         },
+        children,
       },
-      children,
     },
     {
       width: scene.w,

@@ -1,6 +1,6 @@
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import Input from '$lib/ui/input.svelte';
+  import Checkbox from '$lib/ui/checkbox.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import Toc from '$lib/ui/toc.svelte';
@@ -146,8 +146,7 @@ ${close}
       {#snippet playground()}
         <div class="jx-play-fields">
           <div class="jx-play-field">
-            <Input
-              type="checkbox"
+            <Checkbox
               label="inner playground pane"
               labelSide="right"
               checked={innerPlayground}
