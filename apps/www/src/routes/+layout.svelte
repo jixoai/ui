@@ -1,5 +1,6 @@
 <script lang="ts">
     import { catalogByGroup } from '$lib/catalog';
+  import ComponentTreeNav from '$lib/ui/component-tree-nav.svelte';
 import '../app.css';
   import { onNavigate } from '$app/navigation';
   import { page } from '$app/state';
@@ -90,7 +91,7 @@ import '../app.css';
             href: entry.href,
             label: entry.name,
             description: entry.type === 'registry:ui' ? '' : entry.type.replace('registry:', ''),
-            active: normalized === entry.href,
+            active: normalized === entry.href.replace(/\.html$/, '').split('#')[0].replace(/\/+$/, '') || '/',
           })),
         })),
         {
@@ -111,6 +112,7 @@ import '../app.css';
 </script>
 
 <WebsiteScaffold>
+  <ComponentTreeNav />
   {#snippet header()}
     <TerminalHeader
       bind:this={headerRef}
