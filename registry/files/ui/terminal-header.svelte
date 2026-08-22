@@ -697,18 +697,31 @@
   .jx-nav :global(.jx-pop.jx-subpanel) {
     margin: 6px; /* the nav gap law — the 4px shadow stays clear of the bar */
     --jx-panel-pad: 0.25rem;
+    /* the primitive's scroll ring carries the padding — retune BOTH
+       axes here (jx-surface law, 2026-08-22: the panel itself never
+       pads/clips; --jx-pop-pad-inline stops the ring's inline gutter
+       compensation from falling back to 14px) */
+    --jx-pop-pad: var(--jx-panel-pad);
+    --jx-pop-pad-inline: var(--jx-panel-pad);
     min-width: 12rem;
+    /* mega panels override this with a wider ceiling (2026-08-23 user
+       ruling: wide desktops should fill 3-4 columns); single-group
+       panels keep the classic anti-banner cap */
     max-width: min(90vw, 42rem);
-    padding: var(--jx-panel-pad);
     font-size: 12px;
     color: var(--terminal-foreground);
-    background: var(--terminal);
+    /* bezel identity through the jx-surface fill props (solid = the
+       opaque CRT bezel; acrylic = smoked-glass terminal) — the variant
+       rules repaint background at (0,3,0), so a bare background var
+       here would lose acrylic (Codex r1) */
+    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
+    --jx-surface-solid-fill: var(--terminal);
     border-color: color-mix(in oklab, var(--terminal-foreground) 25%, transparent);
     transition:
-      opacity 140ms ease-out,
-      translate 140ms ease-out,
-      display 140ms allow-discrete,
-      overlay 140ms allow-discrete;
+      opacity 200ms cubic-bezier(0.22, 1, 0.36, 1),
+      translate 200ms cubic-bezier(0.22, 1, 0.36, 1),
+      display 200ms allow-discrete,
+      overlay 200ms allow-discrete;
     opacity: 0;
     translate: 0 -4px;
   }
@@ -729,20 +742,26 @@
 
   /* mega mode (two or more groups): a DEFINITE width, never content
      sized — the panel is the container-query container. The width wants
-     one 14rem track per group (capped at 3) but never exceeds the 90vw /
-     42rem anti-banner limits; navColumns=N pins the track count through
-     a class (the primitive owns the element, so no inline styles). */
+     one 14rem track per group, up to FOUR on wide viewports (the 42rem
+     anti-banner cap was lifted for the mega panel by user ruling
+     2026-08-23 — 90vw still guards narrow screens); navColumns=N pins
+     the track count through a class (the primitive owns the element,
+     so no inline styles). */
   .jx-nav :global(.jx-pop.jx-subpanel.jx-subpanel-mega) {
     container-type: inline-size;
     --jx-panel-pad: 0.375rem;
-    padding: var(--jx-panel-pad);
-    width: min(90vw, 42rem, calc(3 * 14rem + 2rem));
+    /* 2026-08-23 user ruling: sufficiently wide screens should use the
+       horizontal space — the auto panel may grow to FOUR 14rem tracks
+       (~58rem); narrower viewports clamp through 90vw and auto-fill
+       simply renders fewer columns */
+    width: min(90vw, calc(4 * 14rem + 2rem));
+    max-width: min(90vw, calc(4 * 14rem + 2rem));
   }
   .jx-nav :global(.jx-pop.jx-subpanel.jx-nav-cols-2) {
-    width: min(90vw, 42rem, calc(2 * 14rem + 2rem));
+    width: min(90vw, calc(2 * 14rem + 2rem));
   }
   .jx-nav :global(.jx-pop.jx-subpanel.jx-nav-cols-4) {
-    width: min(90vw, 42rem, calc(4 * 14rem + 2rem));
+    width: min(90vw, calc(4 * 14rem + 2rem));
   }
   /* the hover corridor: an inverted wrapper (no overflow) stretches the
      snippet root across the panel's padding ring, so entering the panel
@@ -762,7 +781,9 @@
   }
   .jx-nav .jx-subgroups {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    /* 13.5rem tracks: FOUR columns fit the 58rem mega panel (14rem
+       tracks miss by the grid gap; 2026-08-23 wide-screen ruling) */
+    grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr));
     margin: -1px;
   }
   .jx-nav .jx-group {
@@ -877,6 +898,9 @@
   .jx-nav .jx-mobile-scroll {
     max-height: calc(100dvh - 4.75rem);
     overflow-y: auto;
+    /* scrollbar law: both-edges gutters (full-bleed rows — no ring
+       padding to hand back) */
+    scrollbar-gutter: stable both-edges;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
   }
