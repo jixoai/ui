@@ -1,5 +1,6 @@
 <script lang="ts">
-  import '../app.css';
+    import { catalogByGroup } from '$lib/catalog';
+import '../app.css';
   import { onNavigate } from '$app/navigation';
   import { page } from '$app/state';
   import type { Snippet } from 'svelte';
@@ -70,256 +71,27 @@
     });
   });
 
-  // "Components" carries the second level (2026-08-20): desktop opens a
-  // native-popover dropdown under the pill (click + hover), mobile nests
-  // a disclosure group inside the hamburger panel. Same-day follow-up:
-  // the children are TerminalNavGroups — the panel flips into mega mode,
-  // laying the groups out as grid areas with hairline rules between
-  // them; the column count follows the panel width (auto-fill,
-  // minmax(14rem, 1fr)) so the same data reads 2×2 on desktop and
-  // stacks to one column on narrow viewports.
+  // "Components" carries the second level (2026-08-22 regroup): the
+  // menu derives from the ONE catalog (catalogByGroup) — the same
+  // inventory the overview page renders and catalog.spec.ts locks, so
+  // "components exist but the menu never showed them" cannot recur.
+  // antd taxonomy groups; desktop mega panel auto-fills columns from
+  // the same data, mobile nests disclosure groups.
   const items = $derived([
     { href: '/', label: 'Overview', active: normalized === '/' },
     {
       href: '/components/overview.html',
       label: 'Components',
       active: normalized.startsWith('/components'),
-      children: [
-        {
-          label: 'Layout',
-          items: [
-            {
-              href: '/components/section-card.html',
-              label: 'section-card',
-              description: 'the content atom',
-            },
-            {
-              href: '/components/card-grid.html',
-              label: 'card-grid',
-              description: 'subgrid equalizer',
-            },
-            {
-              href: '/components/hero-section.html',
-              label: 'hero-section',
-              description: 'the broadside hero',
-            },
-            {
-              href: '/components/website-scaffold.html',
-              label: 'app-shell',
-              description: 'sticky scaffold',
-            },
-          ],
-        },
-        {
-          label: 'Overlay',
-          items: [
-            {
-              href: '/components/popover.html',
-              label: 'popover',
-              description: 'native popover base',
-              active: normalized === '/components/popover.html',
-            },
-            {
-              href: '/components/dialog.html',
-              label: 'dialog',
-              description: 'native dialog base',
-              active: normalized === '/components/dialog.html',
-            },
-            {
-              href: '/components/toc.html',
-              label: 'toc',
-              description: 'rule tracker rail',
-            },
-            {
-              href: '/components/anchor.html',
-              label: 'anchor',
-              description: 'fragment link rail',
-            },
-            {
-              href: '/components/tour.html',
-              label: 'tour',
-              description: 'guided walkthrough',
-            },
-            {
-              href: '/components/alert-dialog.html',
-              label: 'alert-dialog',
-              description: 'destructive decisions',
-            },
-            {
-              href: '/components/sheet.html',
-              label: 'sheet',
-              description: 'the side drawer',
-            },
-            {
-              href: '/components/hover-card.html',
-              label: 'hover-card',
-              description: 'rich hover panel',
-            },
-          ],
-        },
-        {
-          label: 'Form',
-          items: [
-            {
-              href: '/components/form.html#example-form',
-              label: 'form',
-              description: 'the live example',
-              active: normalized === '/components/form.html',
-            },
-            {
-              href: '/components/form.html#all-types',
-              label: 'input',
-              description: 'every native type',
-            },
-            {
-              href: '/components/form.html#select-textarea',
-              label: 'select + textarea',
-              description: 'options + error wiring',
-            },
-          ],
-        },
-        {
-          label: 'Display',
-          items: [
-            {
-              href: '/components/terminal-card.html',
-              label: 'terminal-card',
-              description: 'the typing terminal',
-            },
-            {
-              href: '/components/code-card.html',
-              label: 'code-card',
-              description: 'readonly code surface',
-            },
-            {
-              href: '/components/table.html',
-              label: 'table',
-              description: 'native semantics',
-            },
-            {
-              href: '/components/tree-view.html',
-              label: 'tree-view',
-              description: 'ARIA file tree',
-            },
-            {
-              href: '/components/theme-toggle.html',
-              label: 'theme-toggle',
-              description: 'light / dark / system',
-            },
-            {
-              href: '/components/badge.html',
-              label: 'badge',
-              description: 'inline status chip',
-            },
-            {
-              href: '/components/avatar.html',
-              label: 'avatar',
-              description: 'img + initials fallback',
-            },
-            {
-              href: '/components/alert.html',
-              label: 'alert',
-              description: 'inline notice block',
-            },
-            {
-              href: '/components/separator.html',
-              label: 'separator',
-              description: 'native hr / ARIA div',
-            },
-            {
-              href: '/components/skeleton.html',
-              label: 'skeleton',
-              description: 'loading placeholder',
-            },
-            {
-              href: '/components/progress.html',
-              label: 'progress',
-              description: 'native progress bar',
-            },
-            {
-              href: '/components/pagination.html',
-              label: 'pagination',
-              description: 'nav of real links',
-            },
-            {
-              href: '/components/breadcrumb.html',
-              label: 'breadcrumb',
-              description: 'trail of real links',
-            },
-            {
-              href: '/components/toast.html',
-              label: 'toast',
-              description: 'store + viewport',
-            },
-            {
-              href: '/components/kbd.html',
-              label: 'kbd',
-              description: 'keyboard glyph',
-            },
-            {
-              href: '/components/input-otp.html',
-              label: 'input-otp',
-              description: 'OTP slot field',
-            },
-            {
-              href: '/components/carousel.html',
-              label: 'carousel',
-              description: 'scroll-snap track',
-            },
-            {
-              href: '/components/recipes.html',
-              label: 'recipes',
-              description: 'where wrapping stops',
-            },
-          ],
-        },
-        {
-          label: 'Interactive',
-          items: [
-            {
-              href: '/components/accordion.html',
-              label: 'accordion',
-              description: 'native details/summary',
-            },
-            {
-              href: '/components/tabs.html',
-              label: 'tabs',
-              description: 'APG tablist family',
-            },
-            {
-              href: '/components/tooltip.html',
-              label: 'tooltip',
-              description: 'hover-intent hint',
-            },
-            {
-              href: '/components/dropdown-menu.html',
-              label: 'dropdown-menu',
-              description: 'ARIA menu pattern',
-            },
-            {
-              href: '/components/command.html',
-              label: 'command',
-              description: '⌘K palette',
-            },
-            {
-              href: '/components/toggle-group.html',
-              label: 'toggle-group',
-              description: 'press-state field',
-            },
-            {
-              href: '/components/navigation-menu.html',
-              label: 'navigation-menu',
-              description: 'site-nav bar',
-            },
-            {
-              href: '/components/menubar.html',
-              label: 'menubar',
-              description: 'app menu bar',
-            },
-          ],
-        },
-      ],
-    },
+      children: catalogByGroup().map(({ group, entries }) => ({
+        label: group.label,
+        items: entries.map((entry) => ({
+          href: entry.href,
+          label: entry.name,
+          description: entry.type === 'registry:ui' ? '' : entry.type.replace('registry:', ''),
+          active: normalized === entry.href,
+        })),
+      })),    },
     { href: '/tokens.html', label: 'Tokens', active: normalized === '/tokens.html' },
     { href: GITHUB_URL, label: 'GitHub', external: true },
   ]);
