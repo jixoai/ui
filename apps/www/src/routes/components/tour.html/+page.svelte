@@ -2,6 +2,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import Tour from '$lib/ui/tour.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
@@ -9,8 +10,19 @@
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import tourSource from '$lib/ui/tour.svelte?raw';
 
+  // playground state (P1): the page owns the snapshot
+  const canvasInitial = { finishedAt: null as number | null };
   let open = $state(false);
-  let finishedAt = $state<number | null>(null);
+  let finishedAt = $state<number | null>(canvasInitial.finishedAt);
+  function resetCanvas(): void {
+    finishedAt = canvasInitial.finishedAt;
+  }
+
+  // ToC outline: pairs with the region ids below, in page order.
+  const tocSections = [
+    { id: 'tour-workbench', label: 'workbench' },
+    { id: 'tour-law', label: 'the recorded contract' },
+  ];
 
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/tour.svelte', content: tourSource },
@@ -25,7 +37,15 @@
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -43,20 +63,18 @@
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="tour-workbench" data-region="tour-workbench" data-reveal="" use:reveal>
     <ComponentCanvas
       title="tour"
       description="Start it: the first demo card takes the lease (inspect its style), the hole+tint frame it. Next advances (←/→ also work), the last step's button reads Finish, Escape or Skip ends with focus back on the opener."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/tour.svelte"
       files={canvasFiles}
+      onreset={resetCanvas}
+      echo={[{ label: 'finished at step', value: finishedAt ?? '—' }]}
     >
       <div class="flex flex-col items-start gap-6">
         <div class="flex flex-wrap items-center gap-4">
           <PressButton onclick={() => (open = true)}>start the tour</PressButton>
-          <span class="text-muted-foreground text-[12.5px]">
-            finished at step:
-            <code class="text-accent">{finishedAt ?? '—'}</code>
-          </span>
         </div>
         <div class="jx-tour-demo-grid w-full max-w-2xl">
           <section data-tour-demo-a class="border border-border bg-card p-4">
@@ -79,6 +97,19 @@
     </ComponentCanvas>
   </div>
 
+  <!-- the recorded contract, recapped -->
+  <div id="tour-law" data-reveal="" use:reveal>
+    <SectionCard
+      family="tour-law"
+      headerRegion="tour-law"
+      eyebrow="law"
+      title="The recorded contract"
+      summary="Every walkthrough rule was recorded before the component existed, and the implementation answers it line for line: the anchor-name lease is reversible (each step's target receives it, the previous target is restored), the highlight is one huge box-shadow tint through a target-sized hole (CSS anchor-size, zero geometry JS), the surface is a non-modal popover=manual dialog — the page keeps scrolling, the tint never intercepts pointers — and every exit path restores the invoker's focus."
+    >
+      <p class="text-[13px] text-muted-foreground">See the recipes page for the full contract and its design rationale.</p>
+    </SectionCard>
+  </div>
+
   <Tour
     bind:open
     steps={[
@@ -87,6 +118,7 @@
     ]}
     onfinish={(i) => (finishedAt = i)}
   />
+  </div>
 </div>
 
 <style>

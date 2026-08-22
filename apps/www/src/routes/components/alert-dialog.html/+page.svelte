@@ -4,6 +4,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -12,8 +13,16 @@
 
   const close = '</' + 'script>';
 
+  // playground state (P1): the page owns the snapshot
+  const canvasInitial = { deleted: false };
   let open = $state(false);
-  let deleted = $state(false);
+  let deleted = $state(canvasInitial.deleted);
+  function resetCanvas(): void {
+    deleted = canvasInitial.deleted;
+  }
+
+  // ToC outline: pairs with the section ids below, in page order.
+  const tocSections = [{ id: 'alert-dialog-base', label: 'usage' }];
 
   const usage = `<script lang="ts">
   import AlertDialog from '@ui/alert-dialog.svelte';
@@ -46,7 +55,15 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -69,12 +86,11 @@ ${close}
       description="Open it: focus lands on Cancel (Tab straight to Delete). Escape cancels through the native path; the × shares it. Confirm runs your callback, then closes through the same fade."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/alert-dialog.svelte"
       files={canvasFiles}
+      onreset={resetCanvas}
+      echo={[{ label: 'deleted', value: deleted ? 'yes' : 'no' }]}
     >
       <div class="flex flex-wrap items-center gap-4">
         <PressButton onclick={() => (open = true)}>Delete pipeline…</PressButton>
-        <span class="text-muted-foreground text-[12.5px]">
-          deleted: <code class="text-accent">{deleted ? 'yes' : 'no'}</code>
-        </span>
       </div>
       {#snippet playground()}
         <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
@@ -96,9 +112,10 @@ ${close}
     <p class="text-[12.5px]">The checks being removed: lint, typecheck, size-budget, a11y-audit…</p>
   </AlertDialog>
 
-  <div data-reveal="" use:reveal>
-    <SectionCard headerRegion="alert-dialog-base" eyebrow="NativeHTML 基座" title="Usage">
+  <div id="alert-dialog-base" data-reveal="" use:reveal>
+    <SectionCard family="alert-dialog-base" headerRegion="alert-dialog-base" eyebrow="NativeHTML 基座" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
+  </div>
   </div>
 </div>

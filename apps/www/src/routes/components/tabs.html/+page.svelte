@@ -7,6 +7,7 @@
   import TabsContent from '$lib/ui/tabs-content.svelte';
   import TabsList from '$lib/ui/tabs-list.svelte';
   import TabsTrigger from '$lib/ui/tabs-trigger.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -16,8 +17,34 @@
   import tabsTriggerSource from '$lib/ui/tabs-trigger.svelte?raw';
   import tabsContentSource from '$lib/ui/tabs-content.svelte?raw';
 
-  let tab = $state('preview');
-  let lastChange = $state('');
+  // ToC outline: the workbench band + the vertical variant section.
+  const tocSections = [
+    { id: 'tabs-demo', label: 'live demo' },
+    { id: 'tabs-vertical', label: 'vertical — the sidebar shape' },
+  ];
+
+  // Playground protocol: the page owns the snapshot + reset; the echo footer
+  // replaces the hand-written "value / last change" caption (PAGE_STANDARDS
+  // anti-pattern list); the drawer's usage file tracks the pick live.
+  const canvasInitial = { tab: 'preview', lastChange: '' };
+  let tab = $state(canvasInitial.tab);
+  let lastChange = $state(canvasInitial.lastChange);
+  function resetCanvas(): void {
+    tab = canvasInitial.tab;
+    lastChange = canvasInitial.lastChange;
+  }
+  const q = (value: string): string => JSON.stringify(value);
+  const usageLive = $derived(`<Tabs value=${q(tab)}>
+  <TabsList>
+    <TabsTrigger value="preview">preview</TabsTrigger>
+    <TabsTrigger value="raw">raw</TabsTrigger>
+    <TabsTrigger value="diff">diff</TabsTrigger>
+    <TabsTrigger value="audit" disabled>audit</TabsTrigger>
+  </TabsList>
+  <TabsContent value="preview">…</TabsContent>
+</Tabs>`);
+  const resolveUsage = (file: TreeFile): string =>
+    file.name.endsWith('usage.svelte') ? usageLive : file.content;
 
   const close = '</' + 'script>';
 
@@ -60,7 +87,16 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
+       column, mobile the glass single-row bar under the scaffold header -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -78,12 +114,18 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="tabs-demo" data-region="tabs-demo" data-family="tabs-demo" data-reveal="" use:reveal>
     <ComponentCanvas
       title="tabs"
-      description="Tab across the strip: arrows walk and select, Home/End jump the ends, and the disabled trigger is skipped. The last change surfaces below — value is bound, onchange fires either way."
+      description="Tab across the strip: arrows walk and select, Home/End jump the ends, and the disabled trigger is skipped. The echo footer surfaces the bound value and the last change — onchange fires either way."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/tabs.svelte"
       files={canvasFiles}
+      onreset={resetCanvas}
+      echo={[
+        { label: 'value', value: tab },
+        { label: 'last change', value: lastChange || '—' },
+      ]}
+      resolveFileContent={resolveUsage}
     >
       <div class="flex w-full max-w-xl flex-col gap-4">
         <Tabs bind:value={tab} onchange={(v) => (lastChange = v)}>
@@ -106,10 +148,6 @@ ${close}
             <p class="text-[13px] leading-6">Disabled until the audit run completes.</p>
           </TabsContent>
         </Tabs>
-        <p class="text-muted-foreground text-[12.5px]">
-          value: <code class="text-accent">{tab}</code> · last change:
-          <code class="text-accent">{lastChange || '—'}</code>
-        </p>
       </div>
       {#snippet playground()}
         <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
@@ -129,8 +167,9 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="tabs-vertical" data-reveal="" use:reveal>
     <SectionCard
+      family="tabs-vertical"
       headerRegion="tabs-vertical"
       eyebrow="demo"
       title="Vertical — the sidebar shape"
@@ -162,5 +201,6 @@ ${close}
         <CodeBlock code={usage} lang="svelte" meta="usage" />
       </div>
     </SectionCard>
+  </div>
   </div>
 </div>

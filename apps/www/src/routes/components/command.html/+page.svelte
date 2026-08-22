@@ -5,6 +5,7 @@
   import Kbd from '$lib/ui/kbd.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -13,6 +14,15 @@
 
   let open = $state(false);
   let lastAction = $state('');
+
+  // playground state (P1): the page owns the snapshot
+  const canvasInitial = { lastAction: '' };
+  function resetCanvas(): void {
+    lastAction = canvasInitial.lastAction;
+  }
+
+  // ToC outline: pairs with the section ids below, in page order.
+  const tocSections = [{ id: 'command-base', label: 'usage' }];
 
   const items: CommandItem[] = [
     { id: 'deploy', label: 'Deploy site', group: 'actions', hint: '⌘D' },
@@ -51,7 +61,15 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -75,12 +93,13 @@ ${close}
       description="Press ⌘K (or the button). Type 'open', walk with arrows, Enter to run — the last action surfaces below. The disabled audit item renders but never activates."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/command.svelte"
       files={canvasFiles}
+      onreset={resetCanvas}
+      echo={[{ label: 'last action', value: lastAction || '—' }]}
     >
       <div class="flex flex-wrap items-center gap-4">
         <PressButton onclick={() => (open = true)}>open palette</PressButton>
         <span class="text-muted-foreground text-[12.5px]">
-          or <Kbd>⌘</Kbd> + <Kbd>K</Kbd> anywhere · last action:
-          <code class="text-accent">{lastAction || '—'}</code>
+          or <Kbd>⌘</Kbd> + <Kbd>K</Kbd> anywhere
         </span>
       </div>
       {#snippet playground()}
@@ -99,9 +118,10 @@ ${close}
     onselect={(item) => (lastAction = item.label.toLowerCase())}
   />
 
-  <div data-reveal="" use:reveal>
-    <SectionCard headerRegion="command-base" eyebrow="设计裁决" title="Usage">
+  <div id="command-base" data-reveal="" use:reveal>
+    <SectionCard family="command-base" headerRegion="command-base" eyebrow="law" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
+  </div>
   </div>
 </div>

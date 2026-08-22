@@ -5,6 +5,7 @@
   import Input from '$lib/ui/input.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -55,8 +56,19 @@ ${close}
 </Dialog>`;
 
   // ---- component canvas (audit P1-A2): LIVE trigger + title playground --
+  const canvasInitial = { title: 'Deploy queued' };
   let canvasOpen = $state(false);
-  let canvasTitle = $state('Deploy queued');
+  let canvasTitle = $state(canvasInitial.title);
+  function resetCanvas(): void {
+    canvasTitle = canvasInitial.title;
+  }
+
+  // ToC outline: pairs with the section ids below, in page order.
+  const tocSections = [
+    { id: 'dialog-basic', label: 'basic' },
+    { id: 'dialog-form', label: 'form type' },
+    { id: 'dialog-base', label: 'NativeHTML base' },
+  ];
 
   const canvasUsage = `<script lang="ts">
   import Dialog from '@ui/dialog.svelte';
@@ -87,7 +99,15 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -113,13 +133,14 @@ ${close}
       description="One native <dialog> driven by showModal(): the browser owns the focus trap, Escape, and the top layer — the component adds bindable open state and a 120ms close fade. Retitle it from the Playground."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/dialog.svelte"
       files={canvasFiles}
+      onreset={resetCanvas}
+      echo={[
+        { label: 'open', value: canvasOpen ? 'true' : 'false' },
+        { label: 'title', value: canvasTitle || '—' },
+      ]}
     >
       <div class="flex flex-col items-center gap-5">
         <PressButton onclick={() => (canvasOpen = true)}>Open dialog</PressButton>
-        <span class="text-muted-foreground text-[12.5px]">
-          state: <code class="text-accent">open = {canvasOpen}</code> · title:{' '}
-          <code class="text-accent">{canvasTitle || '—'}</code>
-        </span>
       </div>
       <!-- closed dialogs render nothing — the instance lives right here in
            the stage; showModal() lifts it into the top layer when open -->
@@ -140,8 +161,9 @@ ${close}
   </div>
 
   <!-- Basic demo -->
-  <div data-reveal="" use:reveal>
+  <div id="dialog-basic" data-reveal="" use:reveal>
     <SectionCard
+      family="dialog-basic"
       headerRegion="dialog-basic"
       eyebrow="demo"
       title="Basic"
@@ -165,8 +187,9 @@ ${close}
   </div>
 
   <!-- Form demo -->
-  <div data-reveal="" use:reveal>
+  <div id="dialog-form" data-reveal="" use:reveal>
     <SectionCard
+      family="dialog-form"
       headerRegion="dialog-form"
       eyebrow="demo"
       title="With a footer — form type"
@@ -185,8 +208,9 @@ ${close}
   </div>
 
   <!-- NativeHTML base -->
-  <div data-reveal="" use:reveal>
+  <div id="dialog-base" data-reveal="" use:reveal>
     <SectionCard
+      family="dialog-base"
       headerRegion="dialog-base"
       eyebrow="NativeHTML 基座"
       title="What the platform gives, what we add"
@@ -227,6 +251,7 @@ ${close}
         </div>
       </div>
     </SectionCard>
+  </div>
   </div>
 </div>
 

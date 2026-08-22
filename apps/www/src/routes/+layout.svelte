@@ -1,8 +1,8 @@
 <script lang="ts">
     import { catalogByGroup } from '$lib/catalog';
   import ComponentTreeNav from '$lib/ui/component-tree-nav.svelte';
-import '../app.css';
-  import { onNavigate } from '$app/navigation';
+  import '../app.css';
+  import { afterNavigate, onNavigate } from '$app/navigation';
   import { page } from '$app/state';
   import type { Snippet } from 'svelte';
   import WebsiteScaffold from '$lib/ui/website-scaffold.svelte';
@@ -40,7 +40,53 @@ import '../app.css';
   // forward and programmatic navigation included (Codex review fix)
   let headerRef: { closeAll(): void } | null = $state(null);
 
+  // Inner-scroller scroll memory (2026-08-22, user report: returning to
+  // the overview page always landed at the top). The shell's
+  // .jx-shell-body is the REAL scroller — the document never scrolls
+  // (website-scaffold.svelte) — so SvelteKit/browser scroll restoration,
+  // which only watches document.scrollingElement, never sees it. This
+  // gives the inner scroller per-URL memory: capture on leave, restore
+  // on arrive (hash navigations scroll to their anchor instead),
+  // mirrored into sessionStorage so a reload restores like native
+  // document scroll would.
+  const scroller = (): HTMLElement | null => document.querySelector('.jx-shell-body');
+  const scrollKey = (url: URL): string => `jx-scroll:${url.pathname}${url.search}`;
+  const scrollMemory = new Map<string, number>();
+
+  function captureScroll(url: URL): void {
+    const el = scroller();
+    if (!el) return;
+    scrollMemory.set(scrollKey(url), el.scrollTop);
+    try {
+      sessionStorage.setItem(scrollKey(url), String(el.scrollTop));
+    } catch {
+      // private mode — in-memory memory still holds
+    }
+  }
+
+  function restoreScroll(url: URL): void {
+    const el = scroller();
+    if (!el) return;
+    if (url.hash) {
+      // hash links must scroll the inner container themselves — the
+      // browser can only scroll the document, a no-op in this shell.
+      // One frame: the target section must be in the DOM first.
+      const id = decodeURIComponent(url.hash.slice(1));
+      requestAnimationFrame(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'instant', block: 'start' });
+      });
+      return;
+    }
+    const stored = scrollMemory.get(scrollKey(url)) ?? Number(sessionStorage.getItem(scrollKey(url)));
+    // direct scrollTop assignment is never smoothed (scroll-behavior
+    // only affects scrollTo/scrollIntoView/navigations)
+    el.scrollTop = Number.isFinite(stored) ? stored : 0;
+  }
+
   onNavigate((navigation) => {
+    // fires before the DOM swap: the outgoing page is still rendered
+    // and still holds its scroll offset
+    captureScroll(page.url);
     headerRef?.closeAll();
     if (
       typeof document.startViewTransition !== 'function' ||
@@ -70,6 +116,16 @@ import '../app.css';
         delete root.dataset.vtNav;
       });
     });
+  });
+
+  // Restore AFTER the DOM swap. With view transitions this still runs
+  // inside startViewTransition's update callback (afterNavigate precedes
+  // navigation.complete), so the transition's new-state snapshot already
+  // shows the restored offset — the carousel animates to the right
+  // place. Also covers the initial load ('enter') and back/forward
+  // ('popstate') via the sessionStorage mirror.
+  afterNavigate(({ url }) => {
+    restoreScroll(url);
   });
 
   // "Components" carries the second level (2026-08-22 regroup): the

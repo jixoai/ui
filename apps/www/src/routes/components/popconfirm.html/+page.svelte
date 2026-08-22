@@ -4,6 +4,7 @@
   import Popconfirm from '$lib/ui/popconfirm.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -11,6 +12,15 @@
   import popconfirmSource from '$lib/ui/popconfirm.svelte?raw';
 
   let outcome = $state('');
+
+  // playground state (P1): the page owns the snapshot
+  const canvasInitial = { outcome: '' };
+  function resetCanvas(): void {
+    outcome = canvasInitial.outcome;
+  }
+
+  // ToC outline: pairs with the section ids below, in page order.
+  const tocSections = [{ id: 'popconfirm-base', label: 'usage' }];
 
   const close = '</' + 'script>';
 
@@ -30,6 +40,7 @@ ${close}
 
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/popconfirm.svelte', content: popconfirmSource },
+    { name: 'src/lib/ui/popconfirm-usage.svelte', content: usage },
   ];
 </script>
 
@@ -41,7 +52,15 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -65,6 +84,8 @@ ${close}
       description="Open it — focus lands on Cancel. Confirm runs the action; clicking outside or pressing Escape runs the cancel path instead. Either way the outcome surfaces below."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/popconfirm.svelte"
       files={canvasFiles}
+      onreset={resetCanvas}
+      echo={[{ label: 'outcome', value: outcome || '—' }]}
     >
       <div class="flex flex-wrap items-center gap-4">
         <Popconfirm
@@ -76,9 +97,6 @@ ${close}
         >
           <PressButton>delete row</PressButton>
         </Popconfirm>
-        <span class="text-muted-foreground text-[12.5px]">
-          outcome: <code class="text-accent">{outcome || '—'}</code>
-        </span>
       </div>
       {#snippet playground()}
         <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
@@ -90,9 +108,10 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
-    <SectionCard headerRegion="popconfirm-base" eyebrow="antd 裁决" title="Usage">
+  <div id="popconfirm-base" data-reveal="" use:reveal>
+    <SectionCard family="popconfirm-base" headerRegion="popconfirm-base" eyebrow="law" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
+  </div>
   </div>
 </div>

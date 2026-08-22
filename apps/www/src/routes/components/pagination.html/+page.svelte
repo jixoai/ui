@@ -3,6 +3,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import Pagination, { pageWindow } from '$lib/ui/pagination.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -10,6 +11,12 @@
   import paginationSource from '$lib/ui/pagination.svelte?raw';
 
   const close = '</' + 'script>';
+
+  // ToC outline: the live demo band + the window-algorithm evidence section.
+  const tocSections = [
+    { id: 'pagination-demo', label: 'live demo' },
+    { id: 'pagination-window', label: 'the window, as evidence' },
+  ];
 
   const usage = `<script lang="ts">
   import Pagination from '@ui/pagination.svelte';
@@ -25,8 +32,21 @@ ${close}
     { name: 'src/lib/ui/pagination-usage.svelte', content: canvasUsage },
   ];
 
-  let page = $state(12);
+  // Playground protocol: page owns the snapshot + reset; echo projects the
+  // current page; the drawer's usage file tracks it live.
+  const canvasInitial = { page: 12 };
+  let page = $state(canvasInitial.page);
+  function resetCanvas(): void {
+    page = canvasInitial.page;
+  }
   const href = (p: number): string => `/components/pagination.html?page=${p}`;
+  const usageLive = $derived(`<Pagination
+  page={${page}}
+  pageCount={30}
+  href={(p) => \`/items?page=\${p}\`}
+/>`);
+  const resolveUsage = (file: TreeFile): string =>
+    file.name.endsWith('usage.svelte') ? usageLive : file.content;
 
   // the algorithm, printed as evidence
   const windows = [
@@ -46,7 +66,16 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
+       column, mobile the glass single-row bar under the scaffold header -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -64,40 +93,48 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="pagination-demo" data-region="pagination-demo" data-family="pagination-demo" data-reveal="" use:reveal>
     <ComponentCanvas
       title="pagination"
       description="The href template decides where page N lives — this demo routes back to the page itself. Watch the window slide and the ellipses collapse near the edges."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/pagination.svelte"
       files={canvasFiles}
+      onreset={resetCanvas}
+      echo={[{ label: 'page', value: page }]}
+      resolveFileContent={resolveUsage}
     >
       <div class="w-full max-w-xl">
         <Pagination {page} pageCount={30} {href} />
       </div>
       {#snippet playground()}
-        <input
-          type="range"
-          min="1"
-          max="30"
-          step="1"
-          bind:value={page}
-          aria-label="current page"
-          class="accent-[var(--primary)] w-full"
-        />
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          links carry real hrefs — the demo simply routes to itself. The window shows one sibling
-          each side by default; <code class="text-accent">siblings</code> widens it. Ellipses are
-          aria-hidden decoration: screen readers hear the nav label, numbered links and
-          aria-current, not the gaps.
-        </p>
+        <div class="jx-play-fields">
+          <div class="jx-play-field">
+            <input
+              type="range"
+              min="1"
+              max="30"
+              step="1"
+              bind:value={page}
+              aria-label="current page"
+              class="accent-[var(--primary)] w-full"
+            />
+          </div>
+          <p class="jx-play-help">
+            links carry real hrefs — the demo simply routes to itself. The window shows one sibling
+            each side by default; <code class="text-accent">siblings</code> widens it. Ellipses are
+            aria-hidden decoration: screen readers hear the nav label, numbered links and
+            aria-current, not the gaps.
+          </p>
+        </div>
       {/snippet}
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="pagination-window" data-reveal="" use:reveal>
     <SectionCard
+      family="pagination-window"
       headerRegion="pagination-window"
-      eyebrow="算法"
+      eyebrow="composition"
       title="The window, as evidence"
       summary="pageWindow(page, pageCount, siblings) — sticky edges, siblings around the current page, ellipses only when something was actually collapsed. Exported from the module for list UIs that want the same shape without the nav."
     >
@@ -112,5 +149,6 @@ ${close}
         <CodeBlock code={usage} lang="svelte" meta="usage" />
       </div>
     </SectionCard>
+  </div>
   </div>
 </div>

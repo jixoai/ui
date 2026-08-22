@@ -1,9 +1,12 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
+  import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
-  import { currentHue, setHueManually, playing, toggleHuePlay } from '$lib/hue-runtime';
+  import { currentHue, playing, resumeHue, setHueManually, toggleHuePlay } from '$lib/hue-runtime';
 
   /* ---------------------------------------------------------------------
    * Hue lab: the runtime drives --brand-hue (time-of-day seed, 24h wall-clock cycle);
@@ -15,6 +18,28 @@
   let isPlaying = $state(true);
   currentHue.subscribe((v) => (hue = v));
   playing.subscribe((v) => (isPlaying = v));
+
+  // Same-source law: the drawer shows the exact runtime this site runs.
+  import hueRuntimeSource from '$lib/hue-runtime?raw';
+
+  // A literal closing-script tag inside a template literal would terminate
+  // this component's own script tag during the HTML-level scan — splice it.
+  const close = '</' + 'script>';
+
+  // ToC outline: the four page regions, in page order.
+  const tocSections = [
+    { id: 'hue-lab', label: 'hue lab' },
+    { id: 'palette', label: 'palette' },
+    { id: 'semantics', label: 'semantics' },
+    { id: 'primary-contrast', label: 'primary contrast' },
+  ];
+
+  // Playground protocol (P1): the "reset" of a global runtime is handing
+  // control back to the wall clock (resume runs the 2s cubic-out toward
+  // the time-of-day hue; a cruising runtime is already there).
+  function resetHueLab(): void {
+    if (!isPlaying) resumeHue();
+  }
 
   const hueLawCode = $derived(
     String.raw`:root {
@@ -29,6 +54,33 @@
   --primary: oklch(0.7044 0.1872 calc(var(--brand-hue) - 4));
 }`,
   );
+
+  const hueUsage = `<script lang="ts">
+  import { currentHue, playing, setHueManually, toggleHuePlay } from '$lib/hue-runtime';
+${close}
+
+<!-- one variable is the whole identity: the slider writes (auto-pauses),
+     the toggle resumes toward the wall-clock hue (2s cubic-out) -->
+let hue = $state(0);
+let isPlaying = $state(true);
+currentHue.subscribe((v) => (hue = v));
+playing.subscribe((v) => (isPlaying = v));
+
+<label for="hue-slider">--brand-hue</label>
+<input
+  id="hue-slider"
+  type="range" min="0" max="359" step="1"
+  value={Math.round(hue)}
+  oninput={(e) => setHueManually(e.currentTarget.valueAsNumber)}
+/>
+<button type="button" onclick={toggleHuePlay}>
+  {isPlaying ? '❚❚ pause' : '▶ play'}
+</button>`;
+
+  const hueFiles: TreeFile[] = [
+    { name: 'apps/www/src/lib/hue-runtime.ts', content: hueRuntimeSource },
+    { name: 'src/lib/tokens/hue-usage.svelte', content: hueUsage },
+  ];
 
   /* Palette data — literal values from lib/jixoai.css. Displayed in the
    * CURRENT theme (no dual panels: switch the site theme to compare). */
@@ -83,11 +135,20 @@
   <title>Tokens · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai token law: OKLCH colors with the brand hue running free (24h wall-clock, 4min/deg), dark -4° drift, hard offset shadows, radius 0 with bevel upgrade, and terminal surfaces."
+    content="The jixoai token law: OKLCH colors with the brand hue running free (24h wall-clock, 4min/deg), dark -4° drift, hard offset shadows, radius 0 with bevel upgrade, and terminal surfaces. The hue lab runs the live runtime from its workbench."
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
+       glass bar under the scaffold header (height 0, see toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <!-- Page head. -->
   <div data-reveal="" use:reveal>
     <SectionCard
@@ -106,50 +167,25 @@
     </SectionCard>
   </div>
 
-  <!-- Hue lab: the interactive One-Hue Law demo. -->
-  <div data-reveal="" use:reveal>
-    <SectionCard
-      eyebrow="Hue lab"
-      title="The hue runs free on this site"
-      summary="The runtime seeds --brand-hue from the time of day (one full day = one full 360° turn) and the hue always equals the wall-clock position (one day = 360°, 4min/deg). The slider writes manually — pausing the cycle; the play/pause toggle resumes from wherever the hue is."
+  <!-- Hue lab: the interactive One-Hue Law demo, as the workbench — the
+       stage proves the tokens (swatches, press physics, the LIVE css law),
+       the playground holds the runtime controls. -->
+  <div id="hue-lab" data-region="hue-lab" data-reveal="" use:reveal>
+    <ComponentCanvas
+      title="hue runtime"
+      description="The runtime seeds --brand-hue from the time of day (one full day = one full 360° turn) and the hue always equals the wall-clock position (4min/deg). The slider writes manually — pausing the cycle; the play/pause toggle resumes from wherever the hue is. Every swatch and the CSS law below bind to the LIVE hue."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/apps/www/src/lib/hue-runtime.ts"
+      files={hueFiles}
+      stage="start"
+      onreset={resetHueLab}
+      echo={[
+        { label: '--brand-hue', value: `${Math.round(hue)}°` },
+        { label: 'cycle', value: isPlaying ? 'auto · wall-clock' : 'paused · manual' },
+      ]}
     >
-      <div class="flex flex-col gap-6">
-        <div class="flex flex-col gap-3">
-          <div class="flex flex-wrap items-baseline justify-between gap-3">
-            <label class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground" for="hue-slider">
-              --brand-hue
-            </label>
-            <div class="flex items-center gap-3">
-              <output for="hue-slider" class="font-nav text-primary text-[13px] tabular-nums">
-                {Math.round(hue)}°
-              </output>
-              <button
-                type="button"
-                class="border border-border px-2 py-0.5 text-[10px] font-nav transition-colors hover:bg-muted"
-                onclick={toggleHuePlay}
-                aria-label={isPlaying ? 'Pause auto-cycle' : 'Resume auto-cycle'}
-              >
-                {isPlaying ? '❚❚ pause' : '▶ play'}
-              </button>
-            </div>
-          </div>
-          <input
-            id="hue-slider"
-            class="hue-slider"
-            type="range"
-            min="0"
-            max="359"
-            step="1"
-            value={Math.round(hue)}
-            oninput={(event) => setHueManually(event.currentTarget.valueAsNumber)}
-          />
-          <p class="text-muted-foreground text-[12.5px] leading-5">
-            0 = jixoai red · 27 = openspecui · 165 = unipty 幽绿 · this site: time-of-day → 24h wall-clock (4min/deg)
-          </p>
-        </div>
-
+      <div class="flex w-full flex-col items-start gap-6">
         <!-- live swatches in the CURRENT theme -->
-        <div class="grid gap-4 min-[760px]:grid-cols-2">
+        <div class="grid w-full gap-4 min-[760px]:grid-cols-2">
           <div class="border border-border">
             <div class="swatch-chip" style="background: var(--primary)"></div>
             <p class="px-3 py-2 text-[11.5px]">--primary (current theme)</p>
@@ -172,14 +208,57 @@
           </span>
         </div>
 
-        <CodeBlock code={hueLawCode} lang="css" meta="lib/jixoai.css" />
+        <div class="w-full">
+          <CodeBlock code={hueLawCode} lang="css" meta="lib/jixoai.css" />
+        </div>
       </div>
-    </SectionCard>
+      {#snippet playground()}
+        <div class="jx-play-fields">
+          <div class="jx-play-field">
+            <div class="flex flex-wrap items-baseline justify-between gap-3">
+              <label class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground" for="hue-slider">
+                --brand-hue
+              </label>
+              <div class="flex items-center gap-3">
+                <output for="hue-slider" class="font-nav text-primary text-[13px] tabular-nums">
+                  {Math.round(hue)}°
+                </output>
+                <button
+                  type="button"
+                  class="border border-border px-2 py-0.5 text-[10px] font-nav transition-colors hover:bg-muted"
+                  onclick={toggleHuePlay}
+                  aria-label={isPlaying ? 'Pause auto-cycle' : 'Resume auto-cycle'}
+                >
+                  {isPlaying ? '❚❚ pause' : '▶ play'}
+                </button>
+              </div>
+            </div>
+            <input
+              id="hue-slider"
+              class="hue-slider"
+              type="range"
+              min="0"
+              max="359"
+              step="1"
+              value={Math.round(hue)}
+              oninput={(event) => setHueManually(event.currentTarget.valueAsNumber)}
+            />
+          </div>
+          <p class="jx-play-help">
+            0 = jixoai red · 27 = openspecui · 165 = unipty 幽绿 · this site: time-of-day → 24h
+            wall-clock (4min/deg). Any manual write pauses the cycle; reset hands control back to
+            the wall clock (2s cubic-out resume, instant under prefers-reduced-motion).
+          </p>
+        </div>
+      {/snippet}
+    </ComponentCanvas>
   </div>
 
   <!-- Full palette in the current theme. -->
-  <div data-reveal="" use:reveal>
+  <div id="palette" data-reveal="" use:reveal>
     <SectionCard
+      family="palette"
+      headerRegion="palette"
       eyebrow="Palette"
       title="The full sheet, current theme"
       summary="Values are literal from the registry token sheet (light / dark where they differ). Switch the site theme (header toggle or palette popover) to compare the other mode — no dual panels here."
@@ -206,8 +285,10 @@
   </div>
 
   <!-- Semantics: the non-negotiable laws with live samples. -->
-  <div data-reveal="" use:reveal>
+  <div id="semantics" data-reveal="" use:reveal>
     <SectionCard
+      family="semantics"
+      headerRegion="semantics"
       eyebrow="Semantics"
       title="Rules that look negotiable but are not"
       summary="Neutrals stay pure achromatic (no warm/cool grays), shadows stay hard (zero blur, tiny soft layer only at md+), radius stays 0 except the bevel upgrade and small status pills, and the terminal bar is dark in BOTH themes — it reads as a CRT bezel, not a themed surface."
@@ -288,8 +369,9 @@
   <!-- Owner decision pending: primary contrast (recorded 2026-08-22,
        four decision requests unanswered; this note states MEASURED
        FACTS + the three options — it is not itself a decision) -->
-  <div data-reveal="" use:reveal>
+  <div id="primary-contrast" data-reveal="" use:reveal>
     <SectionCard
+      family="primary-contrast"
       headerRegion="primary-contrast"
       eyebrow="Owner 决策待定"
       title="primary contrast — measured, decision pending"
@@ -311,5 +393,6 @@
         </p>
       </div>
     </SectionCard>
+  </div>
   </div>
 </div>

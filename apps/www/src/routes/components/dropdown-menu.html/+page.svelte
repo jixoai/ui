@@ -5,6 +5,7 @@
   import DropdownMenu from '$lib/ui/dropdown-menu.svelte';
   import DropdownMenuItem from '$lib/ui/dropdown-menu-item.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -12,7 +13,27 @@
   import dropdownMenuSource from '$lib/ui/dropdown-menu.svelte?raw';
   import dropdownMenuItemSource from '$lib/ui/dropdown-menu-item.svelte?raw';
 
-  let lastAction = $state('');
+  // ToC outline: the live demo band + the platform/component split closing.
+  const tocSections = [
+    { id: 'dropdown-menu-demo', label: 'live demo' },
+    { id: 'dropdown-menu-base', label: 'platform / component split' },
+  ];
+
+  // Playground protocol: the page owns the snapshot + reset; the echo footer
+  // replaces the hand-written "last action" caption the old page carried.
+  const canvasInitial = { lastAction: '' };
+  let lastAction = $state(canvasInitial.lastAction);
+  function resetCanvas(): void {
+    lastAction = canvasInitial.lastAction;
+  }
+  const q = (value: string): string => JSON.stringify(value);
+  const usageLive = $derived(`<DropdownMenu id="actions" triggerLabel="Actions">
+  <DropdownMenuItem onclick={rename}>Rename…</DropdownMenuItem>
+  <DropdownMenuItem destructive onclick={del}>Delete</DropdownMenuItem>
+</DropdownMenu>
+<!-- last action: ${q(lastAction || '—')} -->`);
+  const resolveUsage = (file: TreeFile): string =>
+    file.name.endsWith('usage.svelte') ? usageLive : file.content;
 
   const close = '</' + 'script>';
 
@@ -48,7 +69,16 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
+       column, mobile the glass single-row bar under the scaffold header -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -66,12 +96,15 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="dropdown-menu-demo" data-region="dropdown-menu-demo" data-family="dropdown-menu-demo" data-reveal="" use:reveal>
     <ComponentCanvas
       title="dropdown menu"
       description="Open it, then walk with arrows or type a letter ('d' jumps to Duplicate). Selecting runs the action, closes the menu, and hands focus back to the trigger."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/dropdown-menu.svelte"
       files={canvasFiles}
+      onreset={resetCanvas}
+      echo={[{ label: 'last action', value: lastAction || '—' }]}
+      resolveFileContent={resolveUsage}
     >
       <div class="flex flex-wrap items-center gap-4">
         <DropdownMenu id="canvas-actions" triggerLabel="Actions">
@@ -81,9 +114,6 @@ ${close}
           <hr />
           <DropdownMenuItem destructive onclick={() => (lastAction = 'delete')}>Delete</DropdownMenuItem>
         </DropdownMenu>
-        <span class="text-muted-foreground text-[12.5px]">
-          last action: <code class="text-accent">{lastAction || '—'}</code>
-        </span>
       </div>
       {#snippet playground()}
         <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
@@ -95,8 +125,9 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="dropdown-menu-base" data-reveal="" use:reveal>
     <SectionCard
+      family="dropdown-menu-base"
       headerRegion="dropdown-menu-base"
       eyebrow="NativeHTML 基座"
       title="Platform / component split"
@@ -113,5 +144,6 @@ ${close}
         <CodeBlock code={usage} lang="svelte" meta="usage" />
       </div>
     </SectionCard>
+  </div>
   </div>
 </div>

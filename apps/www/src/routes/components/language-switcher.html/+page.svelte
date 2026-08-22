@@ -4,12 +4,19 @@
   import languageSwitcherSource from '$lib/ui/language-switcher.svelte?raw';
   import SectionCard from '$lib/ui/section-card.svelte';
   import NativeSelect from '$lib/ui/native-select.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.
   const close = '</' + 'script>';
+
+  // ToC outline: the live demo band + the law closing section.
+  const tocSections = [
+    { id: 'language-switcher-demo', label: 'live demo' },
+    { id: 'language-switcher-law', label: 'why href, not onclick' },
+  ];
 
   const usage = `<script lang="ts">
   import LanguageSwitcher from '@ui/language-switcher.svelte';
@@ -37,24 +44,38 @@ ${close}
 />`;
 
   const files: TreeFile[] = [
-    { name: 'src/lib/ui/language-switcher.svelte', content: languageSwitcherSource },
+    { name: 'registry/files/ui/language-switcher.svelte', content: languageSwitcherSource },
     { name: 'src/lib/ui/language-switcher-usage.svelte', content: usage },
   ];
 
   // demo locale sets — hrefs point back at this page's anchor
   const pairLocales = [
-    { code: 'en', label: 'EN', href: '#language-switcher' },
-    { code: 'zh', label: '中文', href: '#language-switcher' },
+    { code: 'en', label: 'EN', href: '#language-switcher-demo' },
+    { code: 'zh', label: '中文', href: '#language-switcher-demo' },
   ];
   const menuLocales = [
-    { code: 'en', label: 'English', href: '#language-switcher' },
-    { code: 'zh', label: '简体中文', href: '#language-switcher' },
-    { code: 'ja', label: '日本語', href: '#language-switcher' },
-    { code: 'de', label: 'Deutsch', href: '#language-switcher' },
+    { code: 'en', label: 'English', href: '#language-switcher-demo' },
+    { code: 'zh', label: '简体中文', href: '#language-switcher-demo' },
+    { code: 'ja', label: '日本語', href: '#language-switcher-demo' },
+    { code: 'de', label: 'Deutsch', href: '#language-switcher-demo' },
   ];
 
-  type Variant = 'pair' | 'menu';
-  let variant = $state<Variant>('pair');
+  // Playground protocol: snapshot + reset + echo + live usage follow the
+  // page-owns-state contract (the canvas only calls back).
+  const canvasInitial = { variant: 'pair' as 'pair' | 'menu' };
+  type Variant = typeof canvasInitial.variant;
+  let variant = $state<Variant>(canvasInitial.variant);
+  function resetCanvas(): void {
+    variant = canvasInitial.variant;
+  }
+  const q = (value: string): string => JSON.stringify(value);
+  const usageLive = $derived(`<LanguageSwitcher
+  variant=${q(variant)}
+  current="en"
+  locales={[/* { code, label, href } */]}
+/>`);
+  const resolveUsage = (file: TreeFile): string =>
+    file.name.endsWith('usage.svelte') ? usageLive : file.content;
 </script>
 
 <svelte:head>
@@ -65,7 +86,16 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
+       column, mobile the glass single-row bar under the scaffold header -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -83,12 +113,15 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="language-switcher-demo" data-region="language-switcher-demo" data-family="language-switcher-demo" data-reveal="" use:reveal>
     <ComponentCanvas
       title="language-switcher"
       description="Locale switching in two variants, shown on the terminal bezel surface they were born on — open the menu: the list drops with a hard offset shadow and the current locale in brand hue."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/language-switcher.svelte"
       {files}
+      onreset={resetCanvas}
+      echo={[{ label: 'variant', value: variant }]}
+      resolveFileContent={resolveUsage}
     >
       <!-- the component speaks currentColor + terminal tokens; the dark
            bezel box is its native habitat -->
@@ -120,21 +153,31 @@ ${close}
         </div>
       </div>
       {#snippet playground()}
-        <NativeSelect
-          label="variant"
-          onchange={(event) => {
-            variant = event.currentTarget.value as Variant;
-          }}
-        >
-          <option value="pair">pair</option>
-          <option value="menu">menu</option>
-        </NativeSelect>
+        <div class="jx-play-fields">
+          <div class="jx-play-field">
+            <NativeSelect
+              label="variant"
+              onchange={(event) => {
+                variant = event.currentTarget.value as Variant;
+              }}
+            >
+              <option value="pair">pair</option>
+              <option value="menu">menu</option>
+            </NativeSelect>
+          </div>
+          <p class="jx-play-help">
+            the switcher never mutates locale state — the anchors navigate. pair caps itself at two
+            entries; menu handles three or more.
+          </p>
+        </div>
       {/snippet}
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="language-switcher-law" data-reveal="" use:reveal>
     <SectionCard
+      family="language-switcher-law"
+      headerRegion="language-switcher-law"
       eyebrow="law"
       title="Why href, not onclick"
       summary="A locale switch is navigation, not state mutation. Each locale knows the localized path of the current page, so the anchor carries the full destination and the switcher stays a pure link — crawlable, restorable, and functional before hydration (or without it entirely)."
@@ -156,5 +199,6 @@ ${close}
             pattern, not a truncated menu</span></li>
       </ul>
     </SectionCard>
+  </div>
   </div>
 </div>

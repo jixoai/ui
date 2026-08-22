@@ -3,6 +3,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -10,6 +11,12 @@
   import breadcrumbSource from '$lib/ui/breadcrumb.svelte?raw';
 
   const close = '</' + 'script>';
+
+  // ToC outline: the live demo band + the usage closing section, in page order.
+  const tocSections = [
+    { id: 'breadcrumb-demo', label: 'live demo' },
+    { id: 'breadcrumb-base', label: 'usage' },
+  ];
 
   const usage = `<script lang="ts">
   import Breadcrumb from '@ui/breadcrumb.svelte';
@@ -50,7 +57,16 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
+       column, mobile the glass single-row bar under the scaffold header -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -67,7 +83,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="breadcrumb-demo" data-region="breadcrumb-demo" data-family="breadcrumb-demo" data-reveal="" use:reveal>
     <ComponentCanvas
       title="breadcrumb"
       description="A three-crumb trail, and an eight-page trail with collapse=4 — the middle folds into an ellipsis that links to the first hidden page (never a dead span)."
@@ -87,9 +103,15 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
-    <SectionCard headerRegion="breadcrumb-base" eyebrow="NativeHTML 基座" title="Usage">
+  <div id="breadcrumb-base" data-reveal="" use:reveal>
+    <SectionCard
+      family="breadcrumb-base"
+      headerRegion="breadcrumb-base"
+      eyebrow="NativeHTML 基座"
+      title="Usage"
+    >
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
+  </div>
   </div>
 </div>

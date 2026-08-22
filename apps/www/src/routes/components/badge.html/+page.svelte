@@ -3,6 +3,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -24,6 +25,12 @@ ${close}
     { name: 'registry/files/ui/badge.svelte', content: badgeSource },
     { name: 'src/lib/ui/badge-usage.svelte', content: usage },
   ];
+
+  // ToC outline: pairs with the section ids below, in page order.
+  const tocSections = [
+    { id: 'badge-composition', label: 'In composition' },
+    { id: 'badge-law', label: 'the one-brand-hue tone law' },
+  ];
 </script>
 
 <svelte:head>
@@ -34,7 +41,15 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -73,8 +88,9 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="badge-composition" data-reveal="" use:reveal>
     <SectionCard
+      family="badge-composition"
       headerRegion="badge-composition"
       eyebrow="demo"
       title="In composition"
@@ -95,5 +111,23 @@ ${close}
         <CodeBlock code={usage} lang="svelte" meta="usage" />
       </div>
     </SectionCard>
+  </div>
+
+  <div id="badge-law" data-reveal="" use:reveal>
+    <SectionCard
+      family="badge-law"
+      headerRegion="badge-law"
+      eyebrow="law"
+      title="The one-brand-hue tone law"
+      summary="There is no rainbow of statuses in this language: muted reads as metadata, primary as the brand voice, outline as quiet structure, destructive as loss. Four tones cover every status a chip needs to say — anything more is noise the eyebrow class already owns."
+    >
+      <div class="flex flex-wrap items-center gap-3">
+        <Badge>default · metadata</Badge>
+        <Badge tone="primary">primary · brand</Badge>
+        <Badge tone="outline">outline · structure</Badge>
+        <Badge tone="destructive">destructive · loss</Badge>
+      </div>
+    </SectionCard>
+  </div>
   </div>
 </div>

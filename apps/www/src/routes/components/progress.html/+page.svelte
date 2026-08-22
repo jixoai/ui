@@ -3,6 +3,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import Progress from '$lib/ui/progress.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -26,7 +27,15 @@ ${close}
     { name: 'src/lib/ui/progress-usage.svelte', content: canvasUsage },
   ];
 
-  let value = $state(0.42);
+  // playground state (P1): the page owns the snapshot
+  const canvasInitial = { value: 0.42 };
+  let value = $state(canvasInitial.value);
+  function resetCanvas(): void {
+    value = canvasInitial.value;
+  }
+
+  // ToC outline: pairs with the section ids below, in page order.
+  const tocSections = [{ id: 'progress-base', label: 'what the platform gives' }];
 </script>
 
 <svelte:head>
@@ -37,7 +46,15 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -60,6 +77,8 @@ ${close}
       description="A determinate bar driven live from the playground, and an indeterminate one below — same element, no value attribute."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/progress.svelte"
       files={canvasFiles}
+      onreset={resetCanvas}
+      echo={[{ label: 'value', value: `${Math.round(value * 100)}%` }]}
     >
       <div class="flex w-full max-w-md flex-col gap-6">
         <Progress {value} label="deploy" />
@@ -84,8 +103,9 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="progress-base" data-reveal="" use:reveal>
     <SectionCard
+      family="progress-base"
       headerRegion="progress-base"
       eyebrow="NativeHTML 基座"
       title="What the platform gives"
@@ -93,5 +113,6 @@ ${close}
     >
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
+  </div>
   </div>
 </div>

@@ -5,6 +5,7 @@
   import Range from '$lib/ui/range.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import Table from '$lib/ui/table.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -49,10 +50,23 @@
   // Frame-width playground: the slider drags the demo wrapper across the
   // 30rem container-query line — scroll law (sticky pins + native scroll)
   // on the wide side, the CodePen card law on the narrow side.
-  let frameWidth = $state(560);
-  let dense = $state(false);
-  let stack = $state(true);
-  let hoverTone = $state('brand');
+  const canvasInitial = { frameWidth: 560, dense: false, stack: true, hoverTone: 'brand' };
+  let frameWidth = $state(canvasInitial.frameWidth);
+  let dense = $state(canvasInitial.dense);
+  let stack = $state(canvasInitial.stack);
+  let hoverTone = $state(canvasInitial.hoverTone);
+  function resetCanvas(): void {
+    frameWidth = canvasInitial.frameWidth;
+    dense = canvasInitial.dense;
+    stack = canvasInitial.stack;
+    hoverTone = canvasInitial.hoverTone;
+  }
+
+  // ToC outline: pairs with the region ids below, in page order.
+  const tocSections = [
+    { id: 'table-workbench', label: 'frame-width workbench' },
+    { id: 'table-semantic-set', label: 'semantic set' },
+  ];
 
   const hoverMixes: Record<string, string> = {
     brand: 'color-mix(in oklab, var(--primary) 7%, var(--background))',
@@ -80,7 +94,15 @@
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <!-- page head -->
   <div data-reveal="" use:reveal>
     <SectionCard
@@ -100,12 +122,19 @@
   </div>
 
   <!-- workbench: drag the frame across the 30rem line -->
-  <div data-reveal="" use:reveal>
+  <div id="table-workbench" data-region="table-workbench" data-reveal="" use:reveal>
     <ComponentCanvas
       title="table"
       description="A registry-consumer operations table — Consumer and Docs pin to the scrollport while Items/Coverage scroll under them; drag the frame width past 30rem and the same rows re-lay out into label:value cards. The hover tone control retunes --jx-table-hover live."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/table.svelte"
       {files}
+      stage="start"
+      onreset={resetCanvas}
+      echo={[
+        { label: 'frame', value: `${frameWidth}px` },
+        { label: 'stack', value: stack ? 'on' : 'off' },
+        { label: 'hover', value: hoverTone },
+      ]}
     >
       <div class="frame-rig" style={frameStyle}>
         <Table caption="registry consumers — frame-width laws" {dense} {stack}>
@@ -191,12 +220,13 @@
   </div>
 
   <!-- semantic set: the untouched native baseline -->
-  <div data-reveal="" use:reveal>
+  <div id="table-semantic-set" data-region="table-semantic-set" data-reveal="" use:reveal>
     <ComponentCanvas
       title="table · semantic set"
       description="The untouched native baseline — caption, thead/tbody/tfoot authored by hand, numeric right-align through consumer classes. The same table now also carries data-label on every cell, so the narrow-frame card law needs zero extra markup."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/table.svelte"
       files={[{ name: 'registry/files/ui/table.svelte', content: tableSource }]}
+      stage="stretch"
     >
       <Table caption="jixoai components — environment support (2026-08)" class="w-full max-w-[40rem]">
         <thead>
@@ -218,6 +248,7 @@
         </tfoot>
       </Table>
     </ComponentCanvas>
+  </div>
   </div>
 </div>
 

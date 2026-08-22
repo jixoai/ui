@@ -1,8 +1,31 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
+  import Input from '$lib/ui/input.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
+  import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
+
+  // ToC outline: the live workbench + every recipe card, in page order.
+  // Ids pair with the wrapper ids / SectionCard families below.
+  const tocSections = [
+    { id: 'watermark-live', label: 'watermark · live' },
+    { id: 'recipe-aspect', label: 'aspect-ratio' },
+    { id: 'recipe-data-table', label: 'data-table' },
+    { id: 'recipe-chart', label: 'chart' },
+    { id: 'recipe-sidebar', label: 'sidebar' },
+    { id: 'recipe-watermark', label: 'watermark' },
+    { id: 'recipe-image-preview', label: 'image preview' },
+    { id: 'recipe-flexgrid', label: 'flex / grid' },
+    { id: 'recipe-segmented', label: 'segmented' },
+    { id: 'recipe-list', label: 'list' },
+    { id: 'recipe-autocomplete', label: 'autoComplete' },
+    { id: 'recipe-typography', label: 'typography' },
+    { id: 'recipe-mentions', label: 'mentions' },
+    { id: 'recipe-tour', label: 'tour' },
+  ];
 
   const aspect = `<!-- the platform owns it: aspect-ratio is a CSS property -->
 <img src="/shot.png" alt="build output" style="aspect-ratio: 16 / 9; width: 100%; object-fit: cover" />
@@ -52,46 +75,88 @@ ${'</' + 'script'}
   {/each}
 </Sheet>`;
 
-  // encodeURIComponent escapes the WHOLE SVG (spaces, quotes, CJK) —
-  // dynamic text needs XML entity escaping on top (& < >)
-  const wmSvg =
+  // ---- watermark: ONE sample function is the single source — the live
+  // workbench below and the recipe card both render its current output.
+  // fill="currentColor" (not black) so the tile follows the container
+  // color the recipe's own CSS sets — theme-aware in both modes.
+  const watermarkSample = (textLiteral: string): string => `<!-- encodeURIComponent escapes the WHOLE SVG (spaces, quotes, CJK) —
+     dynamic text needs XML entity escaping on top (& < >) -->
+const wmSvg =
+  '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="86">' +
+  '<text x="50%" y="50%" fill="currentColor" font-size="13" font-family="monospace" ' +
+  'text-anchor="middle" transform="rotate(-22 60 43)">${textLiteral}</text></svg>';
+const watermarkRecipe =
+  '<div class="watermarked"\\n' +
+  '  style="--wm-tile: url(\\'data:image/svg+xml,\\' + encodeURIComponent(wmSvg))">\\n' +
+  '  …content…\\n' +
+  '  <div class="wm-layer" aria-hidden="true"></div>\\n' +
+  '</div>\\n' +
+  '<style>\\n' +
+  '  .watermarked { position: relative; }\\n' +
+  '  .wm-layer {\\n' +
+  '    position: absolute; inset: 0;\\n' +
+  '    pointer-events: none;\\n' +
+  '    color: var(--foreground); opacity: 0.12;\\n' +
+  '    background-repeat: repeat; background-size: 120px;\\n' +
+  '    background-image: var(--wm-tile);\\n' +
+  '  }\\n' +
+  '</style>';
+`;
+
+  // ---- playground protocol (P1): the page owns the state snapshot ----
+  const canvasInitial = { text: 'jixoai' };
+  let wmText = $state(canvasInitial.text);
+  function resetCanvas(): void {
+    wmText = canvasInitial.text;
+  }
+  // free text must become a legal string literal — quotes, apostrophes,
+  // newlines and CJK all survive q()
+  const q = (value: string): string => JSON.stringify(value);
+  // the live sample the drawer + recipe card render, tracking the input
+  const watermarkUsage = $derived(watermarkSample(q(wmText)));
+
+  // ---- the LIVE tile the stage paints, built with the same recipe ----
+  const escapeXml = (value: string): string =>
+    value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const wmSvg = $derived(
     '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="86">' +
-    '<text x="50%" y="50%" fill="black" font-size="13" font-family="monospace" ' +
-    'text-anchor="middle" transform="rotate(-22 60 43)">jixoai</text></svg>';
-  const watermarkRecipe =
-    '<div class="watermarked"\n' +
-    '  style="--wm-tile: url(\'data:image/svg+xml,\' + encodeURIComponent(wmSvg))">\n' +
-    '  …content…\n' +
-    '  <div class="wm-layer" aria-hidden="true"></div>\n' +
-    '</div>\n' +
-    '<style>\n' +
-    '  .watermarked { position: relative; }\n' +
-    '  .wm-layer {\n' +
-    '    position: absolute; inset: 0;\n' +
-    '    pointer-events: none;\n' +
-    '    color: var(--foreground); opacity: 0.12;\n' +
-    '    background-repeat: repeat; background-size: 120px;\n' +
-    '    background-image: var(--wm-tile);\n' +
-    '  }\n' +
-    '</style>';
+      '<text x="50%" y="50%" fill="currentColor" font-size="13" font-family="monospace" ' +
+      `text-anchor="middle" transform="rotate(-22 60 43)">${escapeXml(wmText)}</text></svg>`,
+  );
+  const wmTile = $derived(`url("data:image/svg+xml,${encodeURIComponent(wmSvg)}")`);
+
+  const files: TreeFile[] = [
+    { name: 'src/recipes/watermark-usage.svelte', content: watermarkSample(q(canvasInitial.text)) },
+  ];
+  const resolveUsage = (file: TreeFile): string =>
+    file.name.endsWith('usage.svelte') ? watermarkUsage : file.content;
 </script>
 
 <svelte:head>
   <title>Recipes · jixoai-ui</title>
   <meta
     name="description"
-    content="The deliberate non-components: aspect-ratio, data-table, chart, and sidebar as documented composition recipes — the batch-4 design ruling on where wrapping stops."
+    content="The deliberate non-components: aspect-ratio, data-table, chart, and sidebar as documented composition recipes — the batch-4 design ruling on where wrapping stops. The watermark recipe runs live: type into the workbench and watch the tile re-render."
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
+       glass bar under the scaffold header (height 0, see toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
       tone="hero"
       eyebrow="设计裁决 · recipes"
       title="where wrapping stops"
-      summary="Four shadcn items are deliberately NOT components here — each ruling from the batch-4 design review: the platform already owns it (aspect-ratio), composition IS the product (data-table, sidebar), or the honest surface is a semantic table (chart until an SVG-primitive lib earns its place). The recipes below are the contract."
+      summary="Four shadcn items are deliberately NOT components here — each ruling from the batch-4 design review: the platform already owns it (aspect-ratio), composition IS the product (data-table, sidebar), or the honest surface is a semantic table (chart until an SVG-primitive lib earns its place). The recipes below are the contract, and they are runnable — the watermark one runs live in the workbench."
     >
       <div class="flex flex-wrap gap-3">
         <span class="pill">aspect-ratio = CSS</span>
@@ -102,14 +167,63 @@ ${'</' + 'script'}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
-    <SectionCard headerRegion="recipe-aspect" eyebrow="recipe" title="aspect-ratio — the platform owns it">
+  <!-- workbench: the watermark recipe, running live — recipes are code,
+       so one of them proves it on a real stage -->
+  <div id="watermark-live" data-region="watermark-live" data-reveal="" use:reveal>
+    <ComponentCanvas
+      title="recipe: watermark"
+      description="The recipe runs live: the stage is a watermarked surface — try to select or click through it (the layer is pointer-events:none), then type in the Playground and watch the tile re-render. The recipe card below and this drawer share one source."
+      files={files}
+      onreset={resetCanvas}
+      echo={[{ label: 'text', value: wmText || '—' }]}
+      resolveFileContent={resolveUsage}
+    >
+      <div class="jx-wm-stage w-full max-w-[38rem]">
+        <div class="flex flex-col items-start gap-4">
+          <p class="text-[13px] leading-6">
+            the protected surface — select this text, click the button: input passes through the
+            overlay untouched.
+          </p>
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="border-border size-10 border" style="background: var(--primary)"></span>
+            <span class="border-border size-10 border" style="background: var(--secondary)"></span>
+            <span class="border-border size-10 border" style="background: var(--accent)"></span>
+            <span class="text-muted-foreground text-[10.5px]">brand primaries under the layer</span>
+          </div>
+          <PressButton variant="outline">an interactive child</PressButton>
+        </div>
+        <div class="jx-wm-layer" aria-hidden="true" style:background-image={wmTile}></div>
+      </div>
+      {#snippet playground()}
+        <div class="jx-play-fields">
+          <div class="jx-play-field">
+            <Input label="watermark text" placeholder="jixoai" bind:value={wmText} />
+          </div>
+          <p class="jx-play-help">
+            free text goes through <code class="text-accent">q()</code> in the sample and
+            <code class="text-accent">encodeURIComponent</code> in the tile — type quotes, an
+            apostrophe, or 中文: nothing breaks, in the sample or on the stage. The watermark deters
+            and marks provenance; it is not DRM.
+          </p>
+        </div>
+      {/snippet}
+    </ComponentCanvas>
+  </div>
+
+  <div id="recipe-aspect" data-reveal="" use:reveal>
+    <SectionCard
+      family="recipe-aspect"
+      headerRegion="recipe-aspect"
+      eyebrow="recipe"
+      title="aspect-ratio — the platform owns it"
+    >
       <CodeBlock code={aspect} lang="svelte" meta="aspect-ratio" />
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="recipe-data-table" data-reveal="" use:reveal>
     <SectionCard
+      family="recipe-data-table"
       headerRegion="recipe-data-table"
       eyebrow="recipe"
       title="data-table — semantics from table.svelte, state from you"
@@ -119,8 +233,9 @@ ${'</' + 'script'}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="recipe-chart" data-reveal="" use:reveal>
     <SectionCard
+      family="recipe-chart"
       headerRegion="recipe-chart"
       eyebrow="recipe"
       title="chart — semantic first, SVG primitives later"
@@ -130,8 +245,9 @@ ${'</' + 'script'}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="recipe-sidebar" data-reveal="" use:reveal>
     <SectionCard
+      family="recipe-sidebar"
       headerRegion="recipe-sidebar"
       eyebrow="recipe"
       title="sidebar — sheet + your nav"
@@ -141,23 +257,21 @@ ${'</' + 'script'}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="recipe-watermark" data-reveal="" use:reveal>
     <SectionCard
+      family="recipe-watermark"
       headerRegion="recipe-watermark"
       eyebrow="antd 映射 · recipe"
       title="watermark — the pointer-events:none overlay"
-      summary="The anti-exfiltration overlay as a CSS recipe: a repeated rotated-text SVG data-URI tile (encodeURIComponent — zero libraries, no canvas) on an absolutely-positioned layer with pointer-events:none. The watermark deters and marks provenance — it is not DRM (a DOM layer is removable by a determined user)."
+      summary="The anti-exfiltration overlay as a CSS recipe: a repeated rotated-text SVG data-URI tile (encodeURIComponent — zero libraries, no canvas) on an absolutely-positioned layer with pointer-events:none. The watermark deters and marks provenance — it is not DRM (a DOM layer is removable by a determined user). This sample is LIVE: it tracks the workbench input above."
     >
-      <CodeBlock
-        code={watermarkRecipe}
-        lang="svelte"
-        meta="watermark"
-      />
+      <CodeBlock code={watermarkUsage} lang="svelte" meta="watermark" />
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="recipe-image-preview" data-reveal="" use:reveal>
     <SectionCard
+      family="recipe-image-preview"
       headerRegion="recipe-image-preview"
       eyebrow="antd 映射 · recipe"
       title="image preview — dialog, not a lightbox framework"
@@ -176,8 +290,9 @@ ${'</' + 'script'}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="recipe-flexgrid" data-reveal="" use:reveal>
     <SectionCard
+      family="recipe-flexgrid"
       headerRegion="recipe-flexgrid"
       eyebrow="antd 映射 · recipe"
       title="flex / grid — Tailwind is the API"
@@ -195,8 +310,9 @@ ${'</' + 'script'}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="recipe-segmented" data-reveal="" use:reveal>
     <SectionCard
+      family="recipe-segmented"
       headerRegion="recipe-segmented"
       eyebrow="antd 映射 · cross-link"
       title="segmented → toggle-group type=single"
@@ -206,8 +322,9 @@ ${'</' + 'script'}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="recipe-list" data-reveal="" use:reveal>
     <SectionCard
+      family="recipe-list"
       headerRegion="recipe-list"
       eyebrow="antd 映射 · recipe"
       title="list — ul/ol + the state atoms"
@@ -234,8 +351,9 @@ ${'</' + 'script'}
   </div>
 
   <!-- antd mappings: autoComplete / typography / mentions / tour -->
-  <div data-reveal="" use:reveal>
+  <div id="recipe-autocomplete" data-reveal="" use:reveal>
     <SectionCard
+      family="recipe-autocomplete"
       headerRegion="recipe-autocomplete"
       eyebrow="antd 映射 · recipe"
       title="autoComplete → combobox"
@@ -250,8 +368,9 @@ ${'</' + 'script'}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="recipe-typography" data-reveal="" use:reveal>
     <SectionCard
+      family="recipe-typography"
       headerRegion="recipe-typography"
       eyebrow="antd 映射 · recipe"
       title="typography — HTML elements + tokens, not a component family"
@@ -273,8 +392,9 @@ Search hits render as <mark>match</mark> — native emphasis semantics.`}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="recipe-mentions" data-reveal="" use:reveal>
     <SectionCard
+      family="recipe-mentions"
       headerRegion="recipe-mentions"
       eyebrow="antd 边界"
       title="mentions — not covered, by ruling"
@@ -286,8 +406,9 @@ Search hits render as <mark>match</mark> — native emphasis semantics.`}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="recipe-tour" data-reveal="" use:reveal>
     <SectionCard
+      family="recipe-tour"
       headerRegion="recipe-tour"
       eyebrow="设计契约 · deferred"
       title="tour — deferred with its design contract on record"
@@ -298,4 +419,25 @@ Search hits render as <mark>match</mark> — native emphasis semantics.`}
       </p>
     </SectionCard>
   </div>
+  </div>
 </div>
+
+<style>
+  /* the live watermark stage: same geometry the recipe's CSS declares —
+     relative container, absolute overlay, pointer-events none. The tile
+     svg fills with currentColor so the layer inherits the foreground. */
+  .jx-wm-stage {
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    padding: 1.25rem;
+    position: relative;
+  }
+  .jx-wm-layer {
+    background-repeat: repeat;
+    background-size: 120px;
+    inset: 0;
+    opacity: 0.14;
+    pointer-events: none;
+    position: absolute;
+  }
+</style>

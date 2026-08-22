@@ -4,6 +4,7 @@
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import Sheet from '$lib/ui/sheet.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import Toggle from '$lib/ui/toggle.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
@@ -13,8 +14,16 @@
 
   const close = '</' + 'script>';
 
+  // playground state (P1): the page owns the snapshot
+  const canvasInitial = { side: 'right' as 'left' | 'right' | 'top' | 'bottom' };
   let open = $state(false);
-  let side = $state<'left' | 'right' | 'top' | 'bottom'>('right');
+  let side = $state<'left' | 'right' | 'top' | 'bottom'>(canvasInitial.side);
+  function resetCanvas(): void {
+    side = canvasInitial.side;
+  }
+
+  // ToC outline: pairs with the section ids below, in page order.
+  const tocSections = [{ id: 'sheet-base', label: 'usage' }];
 
   const usage = `<script lang="ts">
   import Sheet from '@ui/sheet.svelte';
@@ -46,7 +55,15 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -69,10 +86,11 @@ ${close}
       description="Pick a side in the playground, then open: the panel slides from that edge. Escape or the × closes through the shared fade."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/sheet.svelte"
       files={canvasFiles}
+      onreset={resetCanvas}
+      echo={[{ label: 'side', value: side }]}
     >
       <div class="flex flex-wrap items-center gap-4">
         <PressButton onclick={() => (open = true)}>Open sheet</PressButton>
-        <span class="text-muted-foreground text-[12.5px]">side: <code class="text-accent">{side}</code></span>
       </div>
       {#snippet playground()}
         <div class="flex flex-col gap-2">
@@ -95,9 +113,10 @@ ${close}
     {/snippet}
   </Sheet>
 
-  <div data-reveal="" use:reveal>
-    <SectionCard headerRegion="sheet-base" eyebrow="NativeHTML 基座" title="Usage">
+  <div id="sheet-base" data-reveal="" use:reveal>
+    <SectionCard family="sheet-base" headerRegion="sheet-base" eyebrow="NativeHTML 基座" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
+  </div>
   </div>
 </div>

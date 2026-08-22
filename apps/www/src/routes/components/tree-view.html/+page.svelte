@@ -1,8 +1,10 @@
 <script lang="ts">
+  import CodeBlock from '$lib/code-block.svelte';
   import CodeCard from '$lib/ui/code-card.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import NativeSelect from '$lib/ui/native-select.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import TreeView, { inferTreeLang, type TreeFile, type TreeNode } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -129,9 +131,19 @@ export const reveal = (node: HTMLElement, options?: RevealOptions) => {`;
 
   // Playground: the Select jumps the selection; clicking a tree row feeds
   // back through onselect and moves the Select with it.
-  let selectedPath = $state('src/lib/ui/tree-view.svelte');
+  const canvasInitial = { selectedPath: 'src/lib/ui/tree-view.svelte' };
+  let selectedPath = $state(canvasInitial.selectedPath);
+  function resetCanvas(): void {
+    selectedPath = canvasInitial.selectedPath;
+  }
   const selectedFile = $derived(flatFiles.find((f) => f.name === selectedPath) ?? flatFiles[0]!);
   const selectedLeaf = $derived(selectedFile.name.split('/').pop() ?? selectedFile.name);
+
+  // ToC outline: pairs with the region ids below, in page order.
+  const tocSections = [
+    { id: 'tree-view-workbench', label: 'workbench' },
+    { id: 'tree-view-law', label: 'the tree keyboard contract' },
+  ];
 </script>
 
 <svelte:head>
@@ -142,7 +154,15 @@ export const reveal = (node: HTMLElement, options?: RevealOptions) => {`;
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <!-- page head -->
   <div data-reveal="" use:reveal>
     <SectionCard
@@ -162,12 +182,15 @@ export const reveal = (node: HTMLElement, options?: RevealOptions) => {`;
   </div>
 
   <!-- workbench: tree + reader composition, selection from tree or playground -->
-  <div data-reveal="" use:reveal>
+  <div id="tree-view-workbench" data-region="tree-view-workbench" data-reveal="" use:reveal>
     <ComponentCanvas
       title="tree-view"
       description="A 3-level project tree (src → lib → ui) with a code-card reader: click a leaf — or pick one from the Playground NativeSelect — and the reader follows the selection."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/tree-view.svelte"
       {files}
+      stage="stretch"
+      onreset={resetCanvas}
+      echo={[{ label: 'selected', value: selectedPath }]}
     >
       <div class="grid w-full max-w-[46rem] gap-3 min-[760px]:grid-cols-[13rem_1fr]">
         <div class="jx-tree-pane">
@@ -197,15 +220,26 @@ export const reveal = (node: HTMLElement, options?: RevealOptions) => {`;
             <option value={file.name}>{file.name}</option>
           {/each}
         </NativeSelect>
-        <p class="text-muted-foreground break-all text-[11px] leading-5">
-          selected: {selectedPath}
-        </p>
         <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
           Tree clicks and the Select share one state — selection moves both ways. Directory rows
           toggle collapse; arrow keys walk the tree when a row has focus.
         </p>
       {/snippet}
     </ComponentCanvas>
+  </div>
+
+  <!-- the tree keyboard contract -->
+  <div id="tree-view-law" data-reveal="" use:reveal>
+    <SectionCard
+      family="tree-view-law"
+      headerRegion="tree-view-law"
+      eyebrow="law"
+      title="The tree keyboard contract"
+      summary="The ARIA tree pattern is a keyboard contract before it is a widget: ↑/↓ move focus between visible items, → expands a collapsed directory (or jumps into its first child), ← collapses an expanded one (or returns to the parent), Home/End jump the ends, Enter activates the item — selection. Roving tabindex keeps exactly one tab stop; collapsed extents are inert, so hidden rows are untabbable by construction."
+    >
+      <CodeBlock code={usage} lang="svelte" meta="usage" />
+    </SectionCard>
+  </div>
   </div>
 </div>
 

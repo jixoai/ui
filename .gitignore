@@ -4,3 +4,6 @@ node_modules/
 apps/www/node_modules/
 apps/www/dist/
 apps/www/.svelte-kit/
+
+# blueprint incremental-build cache (derivable; SVGs are committed)
+scripts/blueprints/.cache.json

@@ -558,7 +558,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
     <SectionCard
       headingLevel={1}
       tone="hero"
-      eyebrow="registry:ui"
+      eyebrow="registry:ui · Data Entry"
       title="input / select / textarea — the NativeHTML base"
       summary="The form family names its components after the elements they are. The native control is the contract: every input type passes through untouched, and the only repaint is the shell — border, background, the inset focus outline. The selectors redraw their own paint in pure CSS: checkbox, radio, and toggle strip appearance and draw their glyphs with pseudo-elements while the native input keeps every behavior. The select family splits in two — NativeSelect keeps the platform popup, Select builds a popover listbox — number-input adds the [- NUM +] stepper, file-input and date-picker own files and dates professionally, and the two controls the platform cannot paint our way split out as full customs: range (the fully custom slider) and color-picker (the oklch-hub popover). Buttons are not part of the family; press-button already exists."
     >

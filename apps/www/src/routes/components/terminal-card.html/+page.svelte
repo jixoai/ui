@@ -5,6 +5,7 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import TerminalCard from '$lib/ui/terminal-card.svelte';
   import terminalCardSource from '$lib/ui/terminal-card.svelte?raw';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -26,12 +27,24 @@
 {/key}`;
 
   const files: TreeFile[] = [
-    { name: 'src/lib/ui/terminal-card.svelte', content: terminalCardSource },
+    { name: 'registry/files/ui/terminal-card.svelte', content: terminalCardSource },
     { name: 'src/lib/ui/terminal-card-usage.svelte', content: usage },
   ];
 
+  // playground state (P1): the page owns the snapshot (replay re-mounts)
+  const canvasInitial = { speed: 1 };
   let replay = $state(0);
-  let speed = $state(1);
+  let speed = $state(canvasInitial.speed);
+  function resetCanvas(): void {
+    speed = canvasInitial.speed;
+    replay += 1;
+  }
+
+  // ToC outline: pairs with the region ids below, in page order.
+  const tocSections = [
+    { id: 'terminal-card-workbench', label: 'workbench' },
+    { id: 'terminal-card-law', label: 'one entrance, then stillness' },
+  ];
 </script>
 
 <svelte:head>
@@ -42,7 +55,15 @@
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -60,12 +81,14 @@
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="terminal-card-workbench" data-region="terminal-card-workbench" data-reveal="" use:reveal>
     <ComponentCanvas
       title="terminal-card"
       description="The typing demo: the command types character by character with jittered cadence, then the outputs surface one line at a time. Replay re-mounts the card and restarts the story from the first character."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/terminal-card.svelte"
       {files}
+      onreset={resetCanvas}
+      echo={[{ label: 'speed', value: `${speed}×` }]}
     >
       <div class="flex w-full max-w-[38rem] flex-col items-center gap-5">
         {#key replay}
@@ -96,15 +119,17 @@
           onchange={() => (replay += 1)}
         />
         <p class="text-muted-foreground text-pretty text-[12.5px] leading-5">
-          typing pace: <code class="text-accent">{speed}×</code> — release the slider and the card
-          replays at the new pace (pacing is read on mount).
+          release the slider and the card replays at the new pace — pacing is read on mount, so a
+          live change re-mounts through <code class="text-accent">{'{#key}'}</code>.
         </p>
       {/snippet}
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="terminal-card-law" data-reveal="" use:reveal>
     <SectionCard
+      family="terminal-card-law"
+      headerRegion="terminal-card-law"
       eyebrow="law"
       title="One entrance, then stillness"
       summary="The typing story exists to prove the component is alive, not to entertain forever. Every timing derives from one rhythm: the per-character delay is 42ms plus a 0–40ms jitter, outputs follow at 110ms, and the whole chain divides by the speed multiplier — nothing loops, nothing blinks."
@@ -128,5 +153,6 @@
             slider does</span></li>
       </ul>
     </SectionCard>
+  </div>
   </div>
 </div>

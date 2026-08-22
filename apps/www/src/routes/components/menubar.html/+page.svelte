@@ -3,6 +3,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import Menubar from '$lib/ui/menubar.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -10,6 +11,12 @@
   import menubarSource from '$lib/ui/menubar.svelte?raw';
 
   const close = '</' + 'script>';
+
+  // ToC outline: the live demo band + the usage closing section.
+  const tocSections = [
+    { id: 'menubar-demo', label: 'live demo' },
+    { id: 'menubar-base', label: 'usage' },
+  ];
 
   const usage = `<script lang="ts">
   import Menubar from '@ui/menubar.svelte';
@@ -43,7 +50,16 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
+       column, mobile the glass single-row bar under the scaffold header -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -60,7 +76,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="menubar-demo" data-region="menubar-demo" data-family="menubar-demo" data-reveal="" use:reveal>
     <ComponentCanvas
       title="menubar"
       description="Tab to File, ↓ to open and walk items, → with the panel open glides to Edit, Escape returns to the bar."
@@ -95,10 +111,16 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
-    <SectionCard headerRegion="menubar-base" eyebrow="ARIA 契约" title="Usage">
+  <div id="menubar-base" data-reveal="" use:reveal>
+    <SectionCard
+      family="menubar-base"
+      headerRegion="menubar-base"
+      eyebrow="composition"
+      title="Usage"
+    >
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
+  </div>
   </div>
 </div>
 

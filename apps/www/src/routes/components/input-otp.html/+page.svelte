@@ -3,13 +3,30 @@
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import InputOtp from '$lib/ui/input-otp.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import inputOtpSource from '$lib/ui/input-otp.svelte?raw';
 
-  let code = $state('');
+  // ToC outline: the live demo band + the usage closing section.
+  const tocSections = [
+    { id: 'otp-demo', label: 'live demo' },
+    { id: 'otp-base', label: 'usage' },
+  ];
+
+  // Playground protocol: the page owns the snapshot + reset; the echo footer
+  // replaces the hand-written "value" caption; the usage file tracks live.
+  const canvasInitial = { code: '' };
+  let code = $state(canvasInitial.code);
+  function resetCanvas(): void {
+    code = canvasInitial.code;
+  }
+  const q = (value: string): string => JSON.stringify(value);
+  const usageLive = $derived(`<InputOtp name="otp" length={6} label="one-time code" value=${q(code)} />`);
+  const resolveUsage = (file: TreeFile): string =>
+    file.name.endsWith('usage.svelte') ? usageLive : file.content;
 
   const close = '</' + 'script>';
 
@@ -35,7 +52,16 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
+       column, mobile the glass single-row bar under the scaffold header -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -53,32 +79,40 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="otp-demo" data-region="otp-demo" data-family="otp-demo" data-reveal="" use:reveal>
     <ComponentCanvas
       title="input-otp"
-      description="Type, or paste a whole code into the first slot — it distributes. The joined value surfaces below; the frame only turns brand-colored when COMPLETE."
+      description="Type, or paste a whole code into the first slot — it distributes. The joined value surfaces in the echo footer; the frame only turns brand-colored when COMPLETE."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/input-otp.svelte"
       files={canvasFiles}
+      onreset={resetCanvas}
+      echo={[{ label: 'value', value: code || '—' }]}
+      resolveFileContent={resolveUsage}
     >
       <div class="flex flex-col items-start gap-4">
         <InputOtp name="demo-otp" length={6} label="one-time code" bind:value={code} />
-        <span class="text-muted-foreground text-[12.5px]">
-          value: <code class="text-accent">{code || '—'}</code>
-        </span>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          numeric=true (default) filters non-digits; numeric={false} accepts letters for alpha
-          codes. The slot/value sync is untracked on the slots side — typing can never be
-          "re-synced" against a stale value.
-        </p>
+        <div class="jx-play-fields">
+          <p class="jx-play-help">
+            numeric=true (default) filters non-digits; numeric={false} accepts letters for alpha
+            codes. The slot/value sync is untracked on the slots side — typing can never be
+            "re-synced" against a stale value.
+          </p>
+        </div>
       {/snippet}
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
-    <SectionCard headerRegion="otp-base" eyebrow="ElementInternals 桥" title="Usage">
+  <div id="otp-base" data-reveal="" use:reveal>
+    <SectionCard
+      family="otp-base"
+      headerRegion="otp-base"
+      eyebrow="composition"
+      title="Usage"
+    >
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
+  </div>
   </div>
 </div>

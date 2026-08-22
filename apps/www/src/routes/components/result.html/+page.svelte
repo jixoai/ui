@@ -4,6 +4,7 @@
   import Result from '$lib/ui/result.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -18,20 +19,36 @@
 
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/result.svelte', content: resultSource },
+    { name: 'src/lib/ui/result-usage.svelte', content: usage },
   ];
+
+  // ToC outline: pairs with the section ids below, in page order.
+  const tocSections = [{ id: 'result-base', label: 'usage' }];
 </script>
 
 <svelte:head>
   <title>Result · jixoai-ui</title>
-  <meta name="description" content="Status glyph + title + description + actions — no routing logic, no illustration system. empty is not result: no-data vs operation-outcome stay different compon" />
+  <meta name="description" content="Status glyph + title + description + actions — no routing logic, no illustration system. empty is not result: no-data vs operation-outcome stay different components." />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
-  <div data-reveal="" use:reveal>
-    <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · antd 裁决" title="result — the thin outcome surface" summary="Status glyph + title + description + actions — no routing logic, no illustration system. empty is not result: no-data vs operation-outcome stay different components.">
-      <div class="flex flex-wrap gap-3"><span class="pill">antd phase</span></div>
-    </SectionCard>
-  </div>
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
+    <div data-reveal="" use:reveal>
+      <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · antd 裁决" title="result — the thin outcome surface" summary="Status glyph + title + description + actions — no routing logic, no illustration system. empty is not result: no-data vs operation-outcome stay different components.">
+        <div class="flex flex-wrap gap-3">
+          <span class="pill">success · error · warning · info</span>
+          <span class="pill">actions snippet</span>
+          <span class="pill">empty is not result</span>
+        </div>
+      </SectionCard>
+    </div>
 
   <div data-reveal="" use:reveal>
     <ComponentCanvas
@@ -60,9 +77,10 @@
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
-    <SectionCard headerRegion="result-base" eyebrow="antd 裁决" title="Usage">
+  <div id="result-base" data-reveal="" use:reveal>
+    <SectionCard family="result-base" headerRegion="result-base" eyebrow="law" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
+  </div>
   </div>
 </div>

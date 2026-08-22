@@ -4,6 +4,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import Input from '$lib/ui/input.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -11,7 +12,14 @@
   import avatarSource from '$lib/ui/avatar.svelte?raw';
 
   // ---- live playground state ----
-  let name = $state('Ada Lovelace');
+  const canvasInitial = { name: 'Ada Lovelace' };
+  let name = $state(canvasInitial.name);
+  function resetCanvas(): void {
+    name = canvasInitial.name;
+  }
+
+  // ToC outline: pairs with the section ids below, in page order.
+  const tocSections = [{ id: 'avatar-base', label: 'NativeHTML base' }];
 
   const close = '</' + 'script>';
 
@@ -23,16 +31,21 @@ ${close}
 <Avatar name="张伟" />            <!-- initials fallback: 张伟 -->
 <Avatar name="Gaubee" size="lg" />`;
 
-  const canvasUsage = `<script lang="ts">
+  // live usage tracks the playground's name; q() keeps free text a legal
+  // string literal (quotes, apostrophes, newlines all safe)
+  const q = (value: string): string => JSON.stringify(value);
+  const canvasUsageLive = $derived(`<script lang="ts">
   import Avatar from '@ui/avatar.svelte';
 ${close}
 
-<Avatar src={\`https://unavatar.io/github/\${handle}\`} {name} />
-<Avatar {name} />`;
+<Avatar src="/favicon.png" name=${q(name)} size="lg" />
+<Avatar name=${q(name)} size="lg" />`);
+  const resolveCanvasUsage = (file: TreeFile): string =>
+    file.name.endsWith('usage.svelte') ? canvasUsageLive : file.content;
 
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/avatar.svelte', content: avatarSource },
-    { name: 'src/lib/ui/avatar-usage.svelte', content: canvasUsage },
+    { name: 'src/lib/ui/avatar-usage.svelte', content: canvasUsageLive },
   ];
 </script>
 
@@ -44,7 +57,15 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -68,6 +89,9 @@ ${close}
       description="The left avatar loads a real image; the right one has no source and shows the initials fallback derived live from the playground's name field."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/avatar.svelte"
       files={canvasFiles}
+      onreset={resetCanvas}
+      echo={[{ label: 'name', value: name || '—' }]}
+      resolveFileContent={resolveCanvasUsage}
     >
       <div class="flex flex-wrap items-center gap-5">
         <Avatar src="/favicon.png" {name} size="lg" />
@@ -88,8 +112,9 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="avatar-base" data-reveal="" use:reveal>
     <SectionCard
+      family="avatar-base"
       headerRegion="avatar-base"
       eyebrow="NativeHTML 基座"
       title="What the platform gives, what we add"
@@ -97,5 +122,6 @@ ${close}
     >
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
+  </div>
   </div>
 </div>

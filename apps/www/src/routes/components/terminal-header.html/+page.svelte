@@ -2,14 +2,20 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import terminalHeaderSource from '$lib/ui/terminal-header.svelte?raw';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
+
+  // ToC outline: the integration law (the canvas above holds the
+  // architecture).
+  const tocSections = [{ id: 'integration', label: 'How it attaches' }];
 
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.
   const close = '</' + 'script>';
 
+  // single usage sample: the drawer file and the body CodeBlock share it
   const usage = `<script lang="ts">
   import TerminalHeader from '@ui/terminal-header.svelte';
   import ThemeToggle from '@ui/theme-toggle.svelte';
@@ -82,7 +88,7 @@ the three tiers
            nest the same collapse, "all ->" keeps the parent href`;
 
   const files: TreeFile[] = [
-    { name: 'src/lib/ui/terminal-header.svelte', content: terminalHeaderSource },
+    { name: 'registry/files/ui/terminal-header.svelte', content: terminalHeaderSource },
     { name: 'src/lib/ui/terminal-header-usage.svelte', content: usage },
   ];
 </script>
@@ -95,74 +101,96 @@ the three tiers
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
-  <div data-reveal="" use:reveal>
-    <SectionCard
-      headingLevel={1}
-      tone="hero"
-      eyebrow="registry:ui · Shell"
-      title="terminal-header — the two-wing bezel"
-      summary="The site nav bar: LEFT carries the brand (logo slot, wordmark, domain, subtitle — the page's identity), RIGHT carries the navigation as one bordered pill group plus the switcher slot — the page's routes. The wings never mix. The bar is a CRT bezel locked dark by default, so its contents read identically under any brand hue; theme=&quot;light&quot; or &quot;system&quot; unlocks the shell."
-    >
-      <div class="flex flex-wrap gap-3">
-        <span class="pill">two wings, never mixed</span>
-        <span class="pill">popover second level</span>
-        <span class="pill">mega panels · grid areas</span>
-        <span class="pill">3 responsive tiers</span>
-      </div>
-    </SectionCard>
-  </div>
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
+       glass bar under the scaffold header (height 0, see toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
 
-  <div data-reveal="" use:reveal>
-    <ComponentCanvas
-      title="terminal-header"
-      description="A header cannot nest inside a header — this page already wears the component at its top edge. The stage holds the architecture instead; the full source and the integration usage live in the code drawer."
-      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/terminal-header.svelte"
-      {files}
-    >
-      <div class="flex w-full flex-col gap-5">
-        <SectionCard
-          eyebrow="live stage, replaced"
-          title="You are already wearing the demo"
-          summary="The bar above this page — brand left, pills right, hue switcher in the switcher slot — is the component, rendered exactly once by the site layout. Rendering a second instance here would nest one banner landmark inside the page and duplicate the primary navigation, so the stage shows the structure instead."
-        >
-          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-            Open the code drawer below for the verbatim source (803 lines, the whole popover and
-            mega-panel law), then hover or click the <em>Components</em> pill in the real header
-            above — the grouped panel that drops is the data shape from the usage file, running
-            live. On a narrow viewport the same items collapse into the hamburger disclosure.
-          </p>
-        </SectionCard>
-        <CodeBlock code={architecture} lang="txt" meta="architecture" />
-      </div>
-    </ComponentCanvas>
-  </div>
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
+    <div data-reveal="" use:reveal>
+      <SectionCard
+        headingLevel={1}
+        tone="hero"
+        eyebrow="registry:ui · Layout"
+        title="terminal-header — the two-wing bezel"
+        summary="The site nav bar: LEFT carries the brand (logo slot, wordmark, domain, subtitle — the page's identity), RIGHT carries the navigation as one bordered pill group plus the switcher slot — the page's routes. The wings never mix. The bar is a CRT bezel locked dark by default, so its contents read identically under any brand hue; theme=&quot;light&quot; or &quot;system&quot; unlocks the shell."
+      >
+        <div class="flex flex-wrap gap-3">
+          <span class="pill">two wings, never mixed</span>
+          <span class="pill">popover second level</span>
+          <span class="pill">mega panels · grid areas</span>
+          <span class="pill">3 responsive tiers</span>
+        </div>
+      </SectionCard>
+    </div>
 
-  <div data-reveal="" use:reveal>
-    <SectionCard
-      eyebrow="integration"
-      title="How it attaches"
-      summary="The header renders once per site, inside the shell's header slot (app-shell, or a plain layout wrapper). Everything dynamic arrives as data: items is a literal array, so route tables stay static; the switcher slot takes any bezel-aware control."
-    >
-      <div class="flex flex-col gap-5">
-        <ul class="flex flex-col gap-2 text-[13px] leading-6">
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span>items carry <code class="text-accent">active</code> — the pill earns
+    <div data-reveal="" use:reveal>
+      <ComponentCanvas
+        title="terminal-header"
+        description="A header cannot nest inside a header — this page already wears the component at its top edge. The stage holds the architecture instead; the full source and the integration usage live in the code drawer."
+        sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/terminal-header.svelte"
+        {files}
+      >
+        <div class="flex w-full flex-col gap-5">
+          <SectionCard
+            eyebrow="live stage, replaced"
+            title="You are already wearing the demo"
+            summary="The bar above this page — brand left, pills right, hue switcher in the switcher slot — is the component, rendered exactly once by the site layout. Rendering a second instance here would nest one banner landmark inside the page and duplicate the primary navigation, so the stage shows the structure instead."
+          >
+            <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+              Open the code drawer below for the verbatim source (803 lines, the whole popover and
+              mega-panel law), then hover or click the <em>Components</em> pill in the real header
+              above — the grouped panel that drops is the data shape from the usage file, running
+              live. On a narrow viewport the same items collapse into the hamburger disclosure.
+            </p>
+          </SectionCard>
+          <CodeBlock code={architecture} lang="txt" meta="architecture" />
+        </div>
+        {#snippet playground()}
+          <div class="jx-play-fields">
+            <p class="jx-play-help">
+              the LIVE demo is the bar this page already wears: hover the <em>Components</em> pill
+              above for the mega panel (light dismiss, Escape, top layer are the browser's), or
+              narrow the viewport to watch the hamburger disclosure fold the same items. Tab order:
+              brand, pills, switcher — the panel contents join only while open.
+            </p>
+          </div>
+        {/snippet}
+      </ComponentCanvas>
+    </div>
+
+    <div id="integration" data-reveal="" use:reveal>
+      <SectionCard
+        family="integration"
+        headerRegion="integration"
+        eyebrow="composition"
+        title="How it attaches"
+        summary="The header renders once per site, inside the shell's header slot (app-shell, or a plain layout wrapper). Everything dynamic arrives as data: items is a literal array, so route tables stay static; the switcher slot takes any bezel-aware control."
+      >
+        <div class="flex flex-col gap-5">
+          <ul class="flex flex-col gap-2 text-[13px] leading-6">
+            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <span>items carry <code class="text-accent">active</code> — the pill earns
               <code class="text-accent">aria-current="page"</code> and the sliding indicator</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span>second level is data too: <code class="text-accent">SubItem[]</code> narrows,
+            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <span>second level is data too: <code class="text-accent">SubItem[]</code> narrows,
               <code class="text-accent">TerminalNavGroup[]</code> goes mega —
               <code class="text-accent">navColumns</code> pins or derives the column count</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span>panels are native <code class="text-accent">popover="auto"</code>: light dismiss,
+            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <span>panels are native <code class="text-accent">popover="auto"</code>: light dismiss,
               Escape and the top layer belong to the browser; the component adds only hover grace,
               click toggling and placement</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span>the panel repeats the header's scope class, so its tokens survive the top-layer
+            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <span>the panel repeats the header's scope class, so its tokens survive the top-layer
               promotion untouched</span></li>
-        </ul>
-        <CodeBlock code={usage} lang="svelte" meta="usage" />
-      </div>
-    </SectionCard>
+          </ul>
+          <CodeBlock code={usage} lang="svelte" meta="usage" />
+        </div>
+      </SectionCard>
+    </div>
   </div>
 </div>

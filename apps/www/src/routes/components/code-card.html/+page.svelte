@@ -2,7 +2,9 @@
   import CodeCard from '$lib/ui/code-card.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import NativeSelect from '$lib/ui/native-select.svelte';
+  import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
   // Same-source law: the code drawer shows the exact registry copies this
@@ -15,27 +17,6 @@
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.
   const close = '</' + 'script>';
-
-  const usage = `<script lang="ts">
-  import CodeCard from '@ui/code-card.svelte';
-${close}
-
-<!-- the sample is a runtime prop: Shiki escapes it, so a literal ${close}
-     inside it is inert data — nothing to escape at the template level -->
-<CodeCard filename="spawn.ts" lang="ts" code={sample}>
-  {#snippet header()}
-    <span class="pill">node-pty route</span>
-  {/snippet}
-  {#snippet footer()}
-    <span>powered by Shiki</span>
-  {/snippet}
-</CodeCard>`;
-
-  const files = [
-    { name: 'registry/files/ui/code-card.svelte', content: codeCardSource },
-    { name: 'registry/files/lib/shiki.ts', content: shikiSource },
-    { name: 'src/lib/ui/code-card-usage.svelte', content: usage },
-  ];
 
   // Playground: the Selects re-render the LIVE card per Shiki language and
   // theme — each first pick fetches exactly that grammar/theme chunk.
@@ -189,6 +170,47 @@ const card = { lang: 'ts', theme: 'jixoai' };
   let theme = $state<DemoTheme>('jixoai');
   const sample = $derived(samples[lang]);
 
+  // playground state (P1): the page owns the snapshot
+  const canvasInitial = { lang: 'ts' as DemoLang, theme: 'jixoai' as DemoTheme };
+  function resetCanvas(): void {
+    lang = canvasInitial.lang;
+    theme = canvasInitial.theme;
+  }
+
+  // live usage: the single sample tracks the playground — lang, theme and
+  // the sample filename all ride the current state (values come from
+  // closed selects; q() keeps the habit for any free-text prop)
+  const q = (value: string): string => JSON.stringify(value);
+  const usageLive = $derived(`<script lang="ts">
+  import CodeCard from '@ui/code-card.svelte';
+${close}
+
+<!-- the sample is a runtime prop: Shiki escapes it, so a literal ${close}
+     inside it is inert data — nothing to escape at the template level -->
+<CodeCard filename=${q(sample.filename)} lang=${q(lang)} theme=${q(theme)} code={sample}>
+  {#snippet header()}
+    <span class="pill">node-pty route</span>
+  {/snippet}
+  {#snippet footer()}
+    <span>powered by Shiki</span>
+  {/snippet}
+</CodeCard>`);
+
+  const files: TreeFile[] = [
+    { name: 'registry/files/ui/code-card.svelte', content: codeCardSource },
+    { name: 'registry/files/lib/shiki.ts', content: shikiSource },
+    { name: 'src/lib/ui/code-card-usage.svelte', content: '' },
+  ];
+  const resolveUsage = (file: TreeFile): string =>
+    file.name.endsWith('usage.svelte') ? usageLive : file.content;
+
+  // ToC outline: pairs with the region ids below, in page order.
+  const tocSections = [
+    { id: 'code-card-workbench', label: 'workbench' },
+    { id: 'code-card-scroll-law', label: 'scroll law' },
+    { id: 'code-card-law', label: 'the Shiki contract' },
+  ];
+
   // scroll law demo: a line wider than any column (horizontal) inside a
   // capped body (vertical)
   const scrollSample = `// one rule: the <pre> is the scrollport — Tab stays Tab, long lines scroll
@@ -211,7 +233,15 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <!-- page head -->
   <div data-reveal="" use:reveal>
     <SectionCard
@@ -231,12 +261,19 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
   </div>
 
   <!-- workbench: the full card live, lang + theme switched from the playground -->
-  <div data-reveal="" use:reveal>
+  <div id="code-card-workbench" data-region="code-card-workbench" data-reveal="" use:reveal>
     <ComponentCanvas
       title="code-card"
       description="The complete card: filename tab (head left), header snippet (head right, replacing the default lang label), footer snippet (foot left), and the copy control (foot right). The Playground swaps the Shiki language and the theme — each first pick fetches exactly that grammar/theme chunk."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/code-card.svelte"
       {files}
+      stage="stretch"
+      onreset={resetCanvas}
+      echo={[
+        { label: 'lang', value: lang },
+        { label: 'theme', value: theme },
+      ]}
+      resolveFileContent={resolveUsage}
     >
       <CodeCard
         filename={sample.filename}
@@ -255,57 +292,63 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
         {/snippet}
       </CodeCard>
       {#snippet playground()}
-        <div class="flex flex-col gap-3">
-          <NativeSelect
-            label="lang"
-            value={lang}
-            onchange={(event) => {
-              lang = event.currentTarget.value as DemoLang;
-            }}
-          >
-            <option value="ts">ts</option>
-            <option value="tsx">tsx</option>
-            <option value="js">js</option>
-            <option value="svelte">svelte</option>
-            <option value="html">html</option>
-            <option value="json">json</option>
-            <option value="bash">bash</option>
-            <option value="css">css</option>
-            <option value="markdown">markdown</option>
-          </NativeSelect>
-          <NativeSelect
-            label="theme"
-            value={theme}
-            onchange={(event) => {
-              theme = event.currentTarget.value as DemoTheme;
-            }}
-          >
-            <option value="jixoai">jixoai (tokens)</option>
-            <option value="github-dark">github-dark</option>
-            <option value="github-light">github-light</option>
-            <option value="vitesse-dark">vitesse-dark</option>
-            <option value="vitesse-light">vitesse-light</option>
-            <option value="min-dark">min-dark</option>
-            <option value="min-light">min-light</option>
-          </NativeSelect>
+        <div class="jx-play-fields">
+          <div class="jx-play-field">
+            <NativeSelect
+              label="lang"
+              value={lang}
+              onchange={(event) => {
+                lang = event.currentTarget.value as DemoLang;
+              }}
+            >
+              <option value="ts">ts</option>
+              <option value="tsx">tsx</option>
+              <option value="js">js</option>
+              <option value="svelte">svelte</option>
+              <option value="html">html</option>
+              <option value="json">json</option>
+              <option value="bash">bash</option>
+              <option value="css">css</option>
+              <option value="markdown">markdown</option>
+            </NativeSelect>
+          </div>
+          <div class="jx-play-field">
+            <NativeSelect
+              label="theme"
+              value={theme}
+              onchange={(event) => {
+                theme = event.currentTarget.value as DemoTheme;
+              }}
+            >
+              <option value="jixoai">jixoai (tokens)</option>
+              <option value="github-dark">github-dark</option>
+              <option value="github-light">github-light</option>
+              <option value="vitesse-dark">vitesse-dark</option>
+              <option value="vitesse-light">vitesse-light</option>
+              <option value="min-dark">min-dark</option>
+              <option value="min-light">min-light</option>
+            </NativeSelect>
+          </div>
+          <p class="jx-play-help">
+            Every pick loads on demand: picking <code class="text-accent">markdown</code> also
+            pulls the grammars its fences hint at, and a named theme paints its own editor colors
+            on the pre. The jixoai theme downloads nothing — token colors resolve to the
+            <code class="text-accent">--tok-*</code> palette at paint time. The usage file in the
+            drawer tracks both picks live.
+          </p>
         </div>
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          Every pick loads on demand: picking <code class="text-accent">markdown</code> also pulls
-          the grammars its fences hint at, and a named theme paints its own editor colors on the
-          pre. The jixoai theme downloads nothing — token colors resolve to the
-          <code class="text-accent">--tok-*</code> palette at paint time.
-        </p>
       {/snippet}
     </ComponentCanvas>
   </div>
 
   <!-- the scroll law -->
-  <div data-reveal="" use:reveal>
+  <div id="code-card-scroll-law" data-region="code-card-scroll-law" data-reveal="" use:reveal>
     <ComponentCanvas
       title="scroll law"
       description="The pre is the single scrollport: long lines scroll horizontally (Tab characters stay tabs, never wrapped), maxHeight caps the body into vertical scrolling, scrollbars are thin currentColor lanes with overscroll containment, and the region is keyboard-focusable."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/code-card.svelte"
       files={[{ name: 'scroll-demo.ts', content: scrollSample }]}
+      stage="stretch"
     >
       <CodeCard
         filename="manifest.ts"
@@ -318,8 +361,9 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
   </div>
 
   <!-- the Shiki contract -->
-  <div data-reveal="" use:reveal>
+  <div id="code-card-law" data-reveal="" use:reveal>
     <SectionCard
+      family="code-card-law"
       headerRegion="code-card-law"
       eyebrow="law"
       title="Based on Shiki — a facade, not a wrapper"
@@ -354,5 +398,6 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
         </div>
       </div>
     </SectionCard>
+  </div>
   </div>
 </div>

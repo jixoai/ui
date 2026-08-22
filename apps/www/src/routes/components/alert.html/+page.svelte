@@ -3,6 +3,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
+  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/tree-view.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -31,6 +32,9 @@ ${close}
     { name: 'registry/files/ui/alert.svelte', content: alertSource },
     { name: 'src/lib/ui/alert-usage.svelte', content: usage },
   ];
+
+  // ToC outline: pairs with the section ids below, in page order.
+  const tocSections = [{ id: 'alert-base', label: 'the live-region split' }];
 </script>
 
 <svelte:head>
@@ -41,7 +45,15 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+>
+  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
+
+  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="" use:reveal>
     <SectionCard
       headingLevel={1}
@@ -84,8 +96,9 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div id="alert-base" data-reveal="" use:reveal>
     <SectionCard
+      family="alert-base"
       headerRegion="alert-base"
       eyebrow="NativeHTML 基座"
       title="The live-region split"
@@ -93,5 +106,6 @@ ${close}
     >
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
+  </div>
   </div>
 </div>
