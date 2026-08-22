@@ -78,9 +78,9 @@
     if (!btn) {
       btn = anchorEl.querySelector('button:not([popovertarget])');
       btn?.setAttribute('popovertarget', id);
-      btn?.setAttribute('aria-controls', id);
     }
-    // mirror the live state on every run (isOpen is the reactive dep)
+    // BOTH paths carry the pair; the live state mirrors every run
+    btn?.setAttribute('aria-controls', id);
     btn?.setAttribute('aria-expanded', String(isOpen));
   });
 

@@ -1038,7 +1038,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: title (required), description?, illustration? (snippet), actions? (snippet)."
+      "docs": "Props: title (required), description?, illustration? (snippet), actions? (snippet). The illustration slot is decorative by contract (aria-hidden) — informational art belongs in the body."
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1113,7 +1113,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: items ({title, time?, pending?}[]), body? (per-item snippet [item, index])."
+      "docs": "Props: items ({title, time?, datetime?, pending?}[]), body? (per-item snippet [item, index]). time renders inside <time datetime> when the ISO instant is given."
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1128,7 +1128,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: status? ('success'|'error'|'warning'|'info'), title (required), description?, icon? (snippet), actions? (snippet)."
+      "docs": "Props: status? ('success'|'error'|'warning'|'info'), title (required), description?, icon? (snippet), actions? (snippet). The icon slot is decorative by contract (aria-hidden)."
     }
   ]
 }
