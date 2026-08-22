@@ -1,3 +1,6 @@
+.agents/images/
+.agents/downloads/
+public/
 node_modules/
 
 # apps/www (ui.jixoai.com) build state
