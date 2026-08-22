@@ -14,6 +14,7 @@
   import accordionItemSource from '$lib/ui/accordion-item.svelte?raw';
 
   let exclusive = $state(true);
+  let ghost = $state(false);
   let thirdOpen = $state(true);
 
   const close = '</' + 'script>';
@@ -81,7 +82,7 @@ ${close}
       files={canvasFiles}
     >
       <div class="w-full max-w-xl">
-        <Accordion {exclusive}>
+        <Accordion {exclusive} {ghost}>
           <AccordionItem>
             {#snippet summary()}Shipping <Badge class="ml-1">48h</Badge>{/snippet}
             Orders leave the warehouse within 48 hours — tracking lands in your inbox the moment
@@ -101,6 +102,7 @@ ${close}
       </div>
       {#snippet playground()}
         <Toggle bind:checked={exclusive} label="exclusive" />
+        <Toggle bind:checked={ghost} label="ghost (antd Collapse)" />
         <Toggle bind:checked={thirdOpen} label="warranty item open (bind)" />
         <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
           exclusive mode is one capture-phase <code class="text-accent">toggle</code> listener on

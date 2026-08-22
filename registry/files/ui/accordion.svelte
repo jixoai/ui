@@ -28,11 +28,14 @@
     /** radio behavior: opening one DIRECT child closes its siblings
      *  (nested accordions and wrapper divs do not participate) */
     exclusive?: boolean;
+    /** antd's ghost paint: frameless — no outer border/card, items keep
+     *  only the hairline separators (antd Collapse ghost mapping) */
+    ghost?: boolean;
     children: Snippet;
     class?: string;
   }
 
-  let { exclusive = false, children, class: className = '' }: Props = $props();
+  let { exclusive = false, ghost = false, children, class: className = '' }: Props = $props();
 
   /** capture-phase toggle delegation (see header note); parameterized so
    *  a dynamic `exclusive` flip takes effect without a remount */
@@ -57,7 +60,7 @@
   }
 </script>
 
-<div class="jx-accordion {className}" use:exclusiveGuard={exclusive}>
+<div class="jx-accordion {className}" class:jx-accordion-ghost={ghost} use:exclusiveGuard={exclusive}>
   {@render children()}
 </div>
 
@@ -73,6 +76,11 @@
   /* the 1px seam between items — shared frame, no double borders */
   .jx-accordion :global(> * + *) {
     border-top: 1px solid var(--border);
+  }
+  /* ghost: the frame leaves, the seams stay (antd Collapse ghost) */
+  .jx-accordion-ghost {
+    border-color: transparent;
+    background: transparent;
   }
   /* height:auto animation is allowed where the engine supports it —
      inherited by the items (interpolate-size is an inherited property);

@@ -1,0 +1,99 @@
+<script lang="ts">
+  import Anchor from '$lib/ui/anchor.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
+  import SectionCard from '$lib/ui/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import { reveal } from '$lib/reveal';
+
+  // Same-source law: the drawer shows the exact registry copy this site runs.
+  import anchorSource from '$lib/ui/anchor.svelte?raw';
+
+  // THIS PAGE is the demo: the sections below carry the fragment ids the
+  // rail watches — the anchor tracks the very content you are reading
+  const items = [
+    { href: '#anchor-what', label: 'what it does' },
+    { href: '#anchor-pick', label: 'the line pick' },
+    { href: '#anchor-vs-toc', label: 'anchor vs toc' },
+  ];
+
+  const canvasFiles: TreeFile[] = [
+    { name: 'registry/files/ui/anchor.svelte', content: anchorSource },
+  ];
+</script>
+
+<svelte:head>
+  <title>Anchor · jixoai-ui</title>
+  <meta
+    name="description"
+    content="The jixoai anchor: the heading-anchor link list — real fragment links, native smooth scrolling, JS only reading the scroll position to mark aria-current. The light sibling of toc."
+  />
+</svelte:head>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+  <div data-reveal="" use:reveal>
+    <SectionCard
+      headingLevel={1}
+      tone="hero"
+      eyebrow="registry:ui · antd 裁决"
+      title="anchor — real links, read-only spy"
+      summary="The heading-anchor link list (antd's Anchor) as the LIGHT sibling of toc.svelte: nav > ol of REAL fragment links — native navigation, native smooth scrolling through the theme's scroll-behavior — with JS only READING the scroll position (rAF-throttled) to mark aria-current=location. This page is the live demo: the rail tracks the sections you are reading."
+    >
+      <div class="flex flex-wrap gap-3">
+        <span class="pill">real fragment links</span>
+        <span class="pill">aria-current=location</span>
+        <span class="pill">read-only spy</span>
+      </div>
+    </SectionCard>
+  </div>
+
+  <div class="grid gap-8 min-[1024px]:grid-cols-[1fr_200px]">
+    <div class="flex min-w-0 flex-col gap-8">
+      <ComponentCanvas
+        title="anchor"
+        description="Scroll the band below — the rail (right on desktop, above on mobile) marks the section containing the viewport-top line."
+        sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/anchor.svelte"
+        files={canvasFiles}
+      >
+        <section id="anchor-what" class="flex flex-col gap-3">
+          <h2 class="font-nav text-[1.05rem] tracking-tight sm:text-[1.22rem]">what it does</h2>
+          <p class="max-w-[64ch] text-pretty text-[13px] leading-6 text-muted-foreground sm:text-[14px]">
+            A plain list of in-page anchors: clicking navigates the fragment natively (smooth via
+            scroll-behavior), hovering and focusing behave like any link. The component owns ONE
+            behavior beyond markup: the active-link pick.
+          </p>
+        </section>
+        <section id="anchor-pick" class="mt-8 flex flex-col gap-3">
+          <h2 class="font-nav text-[1.05rem] tracking-tight sm:text-[1.22rem]">the line pick</h2>
+          <p class="max-w-[64ch] text-pretty text-[13px] leading-6 text-muted-foreground sm:text-[14px]">
+            The pick is the LAST target whose top sits at or past the viewport-top line (offset
+            prop, default 96px for sticky headers) — the toc engine's downward-resolution rule,
+            simplified. Before the first target, nothing is current.
+          </p>
+        </section>
+        <section id="anchor-vs-toc" class="mt-8 flex flex-col gap-3">
+          <h2 class="font-nav text-[1.05rem] tracking-tight sm:text-[1.22rem]">anchor vs toc</h2>
+          <p class="max-w-[64ch] text-pretty text-[13px] leading-6 text-muted-foreground sm:text-[14px]">
+            Where the ToC measures IoM weights and draws the rule tracker, anchor answers the
+            simpler which-section question with zero coupling beyond target ids existing.
+          </p>
+        </section>
+      </ComponentCanvas>
+    </div>
+    <aside class="jx-anchor-demo-aside">
+      <Anchor {items} label="on this page" />
+    </aside>
+  </div>
+</div>
+
+<style>
+  .jx-anchor-demo-aside {
+    position: sticky;
+    top: 6.5rem;
+    align-self: start;
+  }
+  @media (max-width: 1023px) {
+    .jx-anchor-demo-aside {
+      position: static;
+    }
+  }
+</style>

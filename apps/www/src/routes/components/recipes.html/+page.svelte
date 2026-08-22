@@ -232,4 +232,70 @@ ${'</' + 'script'}
       />
     </SectionCard>
   </div>
+
+  <!-- antd mappings: autoComplete / typography / mentions / tour -->
+  <div data-reveal="" use:reveal>
+    <SectionCard
+      headerRegion="recipe-autocomplete"
+      eyebrow="antd 映射 · recipe"
+      title="autoComplete → combobox"
+      summary="antd's AutoComplete maps to the combobox with four honest notes: free input corresponds to the allowCustom posture; strict options correspond to the committed mode; combobox's search filtering is NOT mentions/token editing (see the mentions boundary below); and the native autocomplete attribute is a browser concept — never conflate it with antd's component of the same name."
+    >
+      <CodeBlock
+        code={`<!-- antd: <AutoComplete options={opts} /> -->
+<Combobox {options} placeholder="type to filter…" />`}
+        lang="svelte"
+        meta="autoComplete"
+      />
+    </SectionCard>
+  </div>
+
+  <div data-reveal="" use:reveal>
+    <SectionCard
+      headerRegion="recipe-typography"
+      eyebrow="antd 映射 · recipe"
+      title="typography — HTML elements + tokens, not a component family"
+      summary="Title maps to real h1–h6; Text/Paragraph map to real span/p with the token classes; Ellipsis is CSS (text-overflow / line-clamp) with the rule that visual truncation NEVER removes the accessible full text; Highlight is the native <mark>. No Typography component family — semantics belong to the elements."
+    >
+      <CodeBlock
+        code={`<!-- Title level={3} → a real heading -->
+<h3 class="font-nav text-[1.22rem] tracking-tight">…</h3>
+
+<!-- Text ellipsis — full text stays accessible -->
+<p class="truncate" title="…the full text…">…</p>
+<p class="line-clamp-2">…full text, visually clamped…</p>
+
+<!-- Highlight -->
+Search hits render as <mark>match</mark> — native emphasis semantics.`}
+        lang="svelte"
+        meta="typography"
+      />
+    </SectionCard>
+  </div>
+
+  <div data-reveal="" use:reveal>
+    <SectionCard
+      headerRegion="recipe-mentions"
+      eyebrow="antd 边界"
+      title="mentions — not covered, by ruling"
+      summary="Mentions (caret tracking, trigger characters, token insertion/deletion, IME coordination) is a different state machine from a whole-field combobox. The combobox is an adjacent foundation, NOT a mentions replacement — recorded as an honest boundary, no fake 1:1 recipe."
+    >
+      <p class="text-[12.5px] text-muted-foreground">
+        boundary: no component, no mapping — until a real use case funds the deep design.
+      </p>
+    </SectionCard>
+  </div>
+
+  <div data-reveal="" use:reveal>
+    <SectionCard
+      headerRegion="recipe-tour"
+      eyebrow="设计契约 · deferred"
+      title="tour — deferred with its design contract on record"
+      summary="Deferred to its own deep-design batch (the ruling). The contract when it lands: anchor-name injection as a reversible per-instance LEASE on the target (set on open/step, restored on close/unmount — the same class of wiring as popovertarget, not style-writing); the highlight is CSS-anchor + a target-sized transparent hole + one huge box-shadow (no geometry JS, no four-block mask); popover=manual + role=dialog + aria-modal=false — non-modal, page scrollable, default scrim pointer-events:none; per-step target re-resolution with deterministic skip when unavailable; Escape/Skip ends and restores the invoker focus."
+    >
+      <p class="text-[12.5px] text-muted-foreground">
+        this card IS the contract — tour lands only against it, in its own batch.
+      </p>
+    </SectionCard>
+  </div>
 </div>

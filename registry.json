@@ -1210,6 +1210,21 @@
         }
       ],
       "docs": "Props: dot?, count?, overflow? (99), showZero?, label? (required name in dot mode), children? (the host element)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "anchor",
+      "type": "registry:ui",
+      "title": "Anchor",
+      "description": "The heading-anchor link list (antd's Anchor) — the LIGHT sibling of toc.svelte: nav > ol of REAL fragment links (native navigation, native smooth scrolling via the theme's scroll-behavior), with JS only READING the scroll position (rAF-throttled) to mark aria-current=location. The pick follows the last target at/past the viewport-top line (the toc engine's downward-resolution rule, simplified). Where the ToC measures IoM weights and draws the rule tracker, anchor answers the simpler which-section question.",
+      "files": [
+        {
+          "path": "registry/files/ui/anchor.svelte",
+          "target": "@ui/anchor.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: items ({href:'#id', label}[]), label?, offset? (96 — the pick line, for sticky headers)."
     }
   ]
 }

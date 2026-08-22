@@ -131,6 +131,11 @@
               description: 'rule tracker rail',
             },
             {
+              href: '/components/anchor.html',
+              label: 'anchor',
+              description: 'fragment link rail',
+            },
+            {
               href: '/components/alert-dialog.html',
               label: 'alert-dialog',
               description: 'destructive decisions',
