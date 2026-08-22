@@ -587,11 +587,11 @@
   }
   .jx-pop {
     position: fixed;
-    /* gap law (Owner, 2026-08-21): the shadow extends bottom-right; a
-       uniform margin keeps it off the anchor for EVERY placement — above
-       (shadow's bottom edge), left (shadow's right edge), and below/right
-       (adjacency itself). */
-    margin: var(--jx-pop-gap, 8px);
+    /* flush anchoring (Owner, 2026-08-23 r22): the adaptive shadow
+       always falls to the OUTWARD side (away from the anchor), so the
+       panel can hug the anchor directly — the old 8px margin existed
+       only to keep a fixed bottom-right shadow off the anchor */
+    margin: 0;
     position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
     position-try: flip-block, flip-inline, flip-block flip-inline;
     /* scroll law (MDN tip): when the anchor scrolls out of view (nested
