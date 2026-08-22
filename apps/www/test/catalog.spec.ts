@@ -10,11 +10,13 @@
  * Reads registry.json straight from the repo root (fs — vitest's vite
  * server fs.allow does not cover it).
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { CATALOG, CATALOG_GROUPS, catalogByGroup } from '../src/lib/catalog';
+
+/* eslint-disable @typescript-eslint/no-unused-vars -- catalogByGroup used below */
 
 const repoRoot = resolve(fileURLToPath(import.meta.url), '../../../..');
 const registry = JSON.parse(
@@ -71,6 +73,27 @@ describe('catalog ↔ registry coverage', () => {
         routes.has(path),
         `${entry.name} → ${path} (add the page to svelte.config entries)`,
       ).toBe(true);
+    }
+  });
+
+  it('overview renders through the catalog wrapper (the hydration-crash guard)', async () => {
+    // walkthrough-6 P1: catalogByGroup() wraps each group as {group,
+    // entries}; the page's each-key/section-id must reach THROUGH the
+    // wrapper (group.group.id). Duplicate-undefined keys pass SSR but
+    // crash every hydration — this source guard pins the fix.
+    const page = readFileSync(
+      resolve(repoRoot, 'apps/www/src/routes/components/overview.html/+page.svelte'),
+      'utf8',
+    );
+    expect(page).toContain('{#each groups as group (group.group.id)}');
+    expect(page).toContain('<section id={group.group.id}');
+    // and the BUILT page carries every anchor when dist exists
+    const dist = resolve(repoRoot, 'apps/www/dist/components/overview.html');
+    if (existsSync(dist)) {
+      const html = readFileSync(dist, 'utf8');
+      for (const id of [...CATALOG_GROUPS.map((g) => g.id), 'guides']) {
+        expect(html, `dist section #${id}`).toContain(`id="${id}"`);
+      }
     }
   });
 

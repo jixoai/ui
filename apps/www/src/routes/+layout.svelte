@@ -83,15 +83,28 @@ import '../app.css';
       href: '/components/overview.html',
       label: 'Components',
       active: normalized.startsWith('/components'),
-      children: catalogByGroup().map(({ group, entries }) => ({
-        label: group.label,
-        items: entries.map((entry) => ({
-          href: entry.href,
-          label: entry.name,
-          description: entry.type === 'registry:ui' ? '' : entry.type.replace('registry:', ''),
-          active: normalized === entry.href,
+      children: [
+        ...catalogByGroup().map(({ group, entries }) => ({
+          label: group.label,
+          items: entries.map((entry) => ({
+            href: entry.href,
+            label: entry.name,
+            description: entry.type === 'registry:ui' ? '' : entry.type.replace('registry:', ''),
+            active: normalized === entry.href,
+          })),
         })),
-      })),    },
+        {
+          // guide pages that are not registry items (recipes…)
+          label: 'Guides',
+          items: [
+            {
+              href: '/components/recipes.html',
+              label: 'recipes',
+              description: 'where wrapping stops',
+            },
+          ],
+        },
+      ],    },
     { href: '/tokens.html', label: 'Tokens', active: normalized === '/tokens.html' },
     { href: GITHUB_URL, label: 'GitHub', external: true },
   ]);
