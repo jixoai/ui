@@ -1,5 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -58,7 +59,8 @@ ${'</' + 'script'}
     '<text x="50%" y="50%" fill="black" font-size="13" font-family="monospace" ' +
     'text-anchor="middle" transform="rotate(-22 60 43)">jixoai</text></svg>';
   const watermarkRecipe =
-    '<div class="watermarked">\n' +
+    '<div class="watermarked"\n' +
+    '  style="--wm-tile: url(\'data:image/svg+xml,\' + encodeURIComponent(wmSvg))">\n' +
     '  …content…\n' +
     '  <div class="wm-layer" aria-hidden="true"></div>\n' +
     '</div>\n' +
@@ -69,7 +71,7 @@ ${'</' + 'script'}
     '    pointer-events: none;\n' +
     '    color: var(--foreground); opacity: 0.12;\n' +
     '    background-repeat: repeat; background-size: 120px;\n' +
-    '    background-image: url("data:image/svg+xml," + encodeURIComponent(wmSvg));\n' +
+    '    background-image: var(--wm-tile);\n' +
     '  }\n' +
     '</style>';
 </script>
@@ -190,6 +192,17 @@ ${'</' + 'script'}
         lang="svelte"
         meta="flex / grid"
       />
+    </SectionCard>
+  </div>
+
+  <div data-reveal="" use:reveal>
+    <SectionCard
+      headerRegion="recipe-segmented"
+      eyebrow="antd 映射 · cross-link"
+      title="segmented → toggle-group type=single"
+      summary="antd's Segmented maps to toggle-group's single mode — the full semantic mapping lives on the toggle-group page (semantic mapping, not 1:1 paint: no sliding indicator imitation). This entry keeps every antd concept mapping reachable from one place."
+    >
+      <PressButton href="/components/toggle-group.html#tgroup-segmented">the mapping →</PressButton>
     </SectionCard>
   </div>
 

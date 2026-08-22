@@ -23,7 +23,10 @@
     height: number | string;
     /** rendered width/height classes when different from intrinsic */
     class?: string;
-    /** failure state (broken src, offline) — composed slot */
+    /** failure state (broken src, offline) — composed slot. CONTRACT:
+     *  keep the intrinsic dims in your slot markup; the default
+     *  fallback carries them so failure never shifts layout either */
+    fallback?: Snippet;
     fallback?: Snippet;
   }
 

@@ -50,7 +50,8 @@
         class:jx-bi-dot={dot}
         role={dot ? 'img' : undefined}
         aria-label={dot ? (label ?? 'new activity') : `${text}`}
-      ></span>
+        >{text}</span
+      >
     {/if}
   </span>
 {:else if visible}

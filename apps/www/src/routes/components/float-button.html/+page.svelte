@@ -13,6 +13,22 @@
   ];
 </script>
 
+<style>
+  /* scrollable stage: the back-top action is demonstrable in place;
+     no reveal wrapper — a transformed ancestor hijacks position:fixed
+     during the transition window (walkthrough-3 note) */
+  .jx-fab-stage {
+    position: relative;
+    max-height: 14rem;
+    overflow-y: auto;
+    border: 1px dashed var(--border);
+    padding: 0.875rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+</style>
+
 <svelte:head>
   <title>FloatButton · jixoai-ui</title>
   <meta name="description" content="The floating action button in two idioms: plain (a lone fixed action) and menu (an actions snippet toggling a popover stack above). Corner is a prop — your layo" />
@@ -32,7 +48,14 @@
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/float-button.svelte"
       files={canvasFiles}
     >
-      <div class="min-h-40">
+      <div class="jx-fab-stage">
+        <p class="text-muted-foreground text-[12.5px] leading-6">
+          scroll inside this box, then press the fixed corner button — the page rides back to its
+          top.
+        </p>
+        {#each Array(12) as _, i (i)}
+          <p class="text-[12.5px] leading-6 text-muted-foreground/70">filler row {i + 1}</p>
+        {/each}
         <FloatButton label="back to top" onclick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <span aria-hidden="true">↑</span>
         </FloatButton>

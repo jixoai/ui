@@ -88,7 +88,7 @@
   aria-hidden="true"
   {name}
   value={formValue}
-  disabled={disabled || undefined}
+  disabled={isDisabled || undefined}
   onjx-disabled={(e: CustomEvent<boolean>) => (formDisabled = e.detail)}
   onjx-reset={() => (value = [])}
 ></jx-form-field>

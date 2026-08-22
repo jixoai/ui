@@ -1143,7 +1143,10 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: options ({value,label,disabled?}[]), value ($bindable string[]), sourceTitle/targetTitle?, searchPlaceholder?, onchange?."
+      "docs": "Props: options ({value,label,disabled?}[]), value ($bindable string[]), name? (bridge: target values submit as multi-entry FormData), sourceTitle/targetTitle?, searchPlaceholder?, onchange?.",
+      "registryDependencies": [
+        "@jixoai/form-field"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",

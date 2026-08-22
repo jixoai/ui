@@ -27,7 +27,8 @@
     options: TransferOption[];
     /** values living on the TARGET side; bindable */
     value?: string[];
-    /** form field name — the TARGET values submit (multi-entry) */
+    /** form field name — the TARGET values submit as multi-entry
+     *  FormData through the jx-form-field bridge (checkbox-set law) */
     name?: string;
     sourceTitle?: string;
     targetTitle?: string;
@@ -101,14 +102,13 @@
   {name}
   value={value.join('\n')}
   multivalue={name ? true : undefined}
-  disabled={false}
   onjx-reset={() => (value = [])}
 ></jx-form-field>
 
 <div class="jx-transfer {className}">
   <!-- svelte-ignore a11y_autocomplete_valid -- search inputs over a
        checkbox fieldset, not a combobox -->
-  <fieldset class="jx-tr-panel" aria-label="{sourceTitle} · {sourceOptions.length} available">
+  <fieldset class="jx-tr-panel" aria-label="{sourceTitle} · {sourceTotal} total">
     <legend class="jx-tr-legend"
       >{sourceTitle} · {sourceOptions.length}/{sourceTotal} visible</legend
     >
@@ -157,7 +157,7 @@
     >
   </div>
 
-  <fieldset class="jx-tr-panel" aria-label="{targetTitle} · {targetOptions.length} selected">
+  <fieldset class="jx-tr-panel" aria-label="{targetTitle} · {targetTotal} total">
     <legend class="jx-tr-legend"
       >{targetTitle} · {targetOptions.length}/{targetTotal} visible</legend
     >
@@ -193,6 +193,17 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
+  }
+  /* phones: the two panels stack, movers sit between them */
+  @container (max-width: 480px) {
+    .jx-transfer {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .jx-tr-movers {
+      flex-direction: row;
+      justify-content: center;
+    }
   }
   .jx-tr-panel {
     flex: 1 1 0;
