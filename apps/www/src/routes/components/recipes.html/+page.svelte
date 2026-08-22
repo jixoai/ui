@@ -116,4 +116,31 @@ ${'</' + 'script'}
       <CodeBlock code={sidebar} lang="svelte" meta="sidebar" />
     </SectionCard>
   </div>
+
+  <div data-reveal="" use:reveal>
+    <SectionCard
+      headerRegion="recipe-list"
+      eyebrow="antd 映射 · recipe"
+      title="list — ul/ol + the state atoms"
+      summary="antd's List is a layout opinion plus state management. The recipe composes the states we already own: the list element is yours (ul/ol by semantics), empty is Empty, loading is Spin, rows are rows — pagination/selection/virtualization are separate concerns that never belong inside a list skin."
+    >
+      <CodeBlock
+        code={`{#if rows.length === 0}
+  <Empty title="no items" />
+{:else}
+  <ol role="list">
+    {#each rows as row (row.id)}
+      <li class="flex items-center justify-between gap-4">
+        <div>{row.title}</div>
+        <PressButton variant="outline">open</PressButton>
+      </li>
+    {/each}
+  </ol>
+{/if}
+<!-- loading wraps either branch: <Spin label="loading">…</Spin> -->`}
+        lang="svelte"
+        meta="list"
+      />
+    </SectionCard>
+  </div>
 </div>

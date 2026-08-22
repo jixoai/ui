@@ -105,4 +105,24 @@ ${close}
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
   </div>
+
+  <div data-reveal="" use:reveal>
+    <SectionCard
+      headerRegion="tgroup-segmented"
+      eyebrow="antd 映射"
+      title="segmented → toggle-group type=single"
+      summary="antd's Segmented maps to the single mode — same one-active-submit contract. The mapping is SEMANTIC, not 1:1 paint: antd's sliding selection indicator and its exact keyboard walk are not imitated; if a future case needs the slide indicator or a strict single tab stop, that becomes a dedicated API upgrade — not a silent divergence."
+    >
+      <CodeBlock
+        code={`<!-- antd: <Segmented options={['daily','weekly','monthly']} /> -->
+<ToggleGroup name="range" type="single" label="range" options={[
+  { value: 'daily', label: 'daily' },
+  { value: 'weekly', label: 'weekly' },
+  { value: 'monthly', label: 'monthly' },
+]} />`}
+        lang="svelte"
+        meta="mapping"
+      />
+    </SectionCard>
+  </div>
 </div>
