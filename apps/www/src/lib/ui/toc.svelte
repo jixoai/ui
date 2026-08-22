@@ -7,17 +7,33 @@
   toc-engine (IoM weights + line algorithm + margin-downward law).
 
   Usage:
-    - Pass the outline via `sections` (same shape as your docs model).
-    - Content must mark non-overlapping leaf blocks with
+    - Pass the outline via `sections` (same shape as your docs model), or
+      go zero-handwritten-id with `outline: { root }` — sections and
+      extents derive from the content's heading tree (toc-outline lib;
+      client-side, refreshed on content mutation). Explicit `sections`
+      wins over `outline`.
+    - With `sections`, content must mark non-overlapping leaf blocks with
       data-region="<id>" and parent section extents with
-      data-family="<id>".
+      data-family="<id>". With `outline`, neither is needed — the engine
+      consumes derived extents.
     - This component renders BOTH surfaces; hide rules come from toc.css.
     - Place the wrapping <aside> BEFORE main content in the DOM; position
       it with your page grid (desktop right column, sticky; mobile sticky
       with height: 0 — see README).
+    - Top-layer auto-mount (Owner request, 2026-08-23): "I noticed some
+      pages' ToC is not mounted in the website's dedicated topLayer.
+      Automate this: via the Context mechanism — if a topLayer exists,
+      the ToC automatically uses it; a prop can disable this." Inside a
+      website-scaffold the rail adopts itself into .jx-top-layer through
+      the `jx-top-layer` context (never under later siblings or the
+      header band; rides the immersive hide/reveal with the header).
+      topLayer={false} opts out (embedded demos); with NO scaffold
+      context the classic in-flow behavior is unchanged.
 -->
 <script lang="ts">
+  import { getContext } from 'svelte';
   import { createTocEngine } from '$lib/toc-engine';
+  import { deriveTocOutline, tocOutlineToSections, type TocOutlineEntry } from '$lib/toc-outline';
   import { icons } from '$lib/icons';
   import '$lib/toc.css';
 
@@ -30,19 +46,60 @@
     label: string;
     children?: TocChild[];
   }
+  /** zero-handwritten-id mode: derive sections + extents from a content
+   *  root's heading tree (the toc-outline lib). Client-side derivation —
+   *  SSR renders an empty rail that fills on hydration (the reveal
+   *  philosophy); pages needing a complete prerendered rail keep passing
+   *  `sections` by hand (an explicit `sections` wins over `outline`). */
+  export interface TocOutlineConfig {
+    /** the content container whose h2/h3 (configurable) tree is the outline */
+    root: string | HTMLElement;
+    /** heading levels, default [2, 3] */
+    levels?: readonly number[];
+  }
+
+  /** The website-scaffold top-layer adoption contract — STRUCTURAL on
+   *  purpose: the toc ships standalone in the registry and must not
+   *  depend on website-scaffold at build time; the shapes are identical
+   *  (see website-scaffold's exported TopLayerApi). */
+  interface TopLayerApi {
+    /** Adopt a live DOM node into the scaffold's top layer; the returned
+     *  fn releases it. */
+    adopt: (node: HTMLElement) => () => void;
+  }
 
   interface Props {
-    sections: TocSection[];
+    sections?: TocSection[];
+    outline?: TocOutlineConfig;
     title?: string;
     /** Scroll root for overlay-shell layouts (selector or element);
      *  defaults to the document. */
     scrollRoot?: string | HTMLElement | null;
+    /** Top-layer auto-mount (Owner request, 2026-08-23): true/undefined =
+     *  auto — adopt the rail into the website-scaffold's top layer when
+     *  the context exists; false = never (embedded demos, bespoke
+     *  layouts). No context (sites without the scaffold): unchanged
+     *  in-flow behavior either way. */
+    topLayer?: boolean;
   }
 
-  let { sections, title = 'reading progress', scrollRoot = null }: Props = $props();
+  let {
+    sections,
+    outline,
+    title = 'reading progress',
+    scrollRoot = null,
+    topLayer = true,
+  }: Props = $props();
+
+  // outline mode: sections + extents derived on the client, refreshed by a
+  // MutationObserver on the content root (add/remove/move of headings)
+  let outlineSections = $state<TocSection[]>([]);
+  let outlineEntries: readonly TocOutlineEntry[] = [];
+
+  const effectiveSections = $derived(sections ?? outlineSections);
 
   const flat = $derived(
-    sections.flatMap((section, i) => [
+    effectiveSections.flatMap((section, i) => [
       { id: section.id, label: section.label, level: 1 as const, index: i + 1 },
       ...(section.children ?? []).map((child) => ({
         id: child.id,
@@ -54,7 +111,11 @@
   );
   const order = $derived(flat.map((entry) => entry.id));
   const parentOf = $derived(
-    new Map(sections.flatMap((section) => (section.children ?? []).map((c) => [c.id, section.id] as const))),
+    new Map(
+      effectiveSections.flatMap((section) =>
+        (section.children ?? []).map((c) => [c.id, section.id] as const),
+      ),
+    ),
   );
 
   let desktopItems = $state<HTMLElement[]>([]);
@@ -64,6 +125,73 @@
   let mobileRoot = $state<HTMLElement | null>(null);
   let open = $state(false);
   let currentPick = $state<string | null>(null);
+  let rootEl = $state<HTMLElement | null>(null);
+
+  // Top-layer auto-mount: the whole rail (both surfaces) is adopted as a
+  // LIVE node — move, never clone (the scaffold-float law) — so Svelte
+  // ownership, listeners, bound refs and the engine below all survive the
+  // re-parent untouched. The engine reads region rects from the body and
+  // scroll offsets from the scroll root; neither moves.
+  const topLayerApi = getContext<TopLayerApi>('jx-top-layer');
+
+  $effect(() => {
+    if (!rootEl || !topLayerApi || topLayer === false) return;
+    const el = rootEl;
+    // the anchor aside keeps the authoring position (grid column) — the
+    // horizontal geometry source after the move; `home` is the return
+    // ticket so teardown/hot-reload/route change never leaks a moved node
+    const anchorAside = el.closest('aside');
+    const home = el.parentElement;
+    el.dataset.toplayer = '';
+
+    // Desktop re-anchoring: the float slot spans the viewport, so the
+    // rail re-takes its column from measured CSS vars (the aside's right
+    // edge + width; the header band's height for the top gap). Only
+    // horizontal boxes are read — scroll- and immersive-slide-invariant.
+    // Mobile needs no geometry: flow in the slot docks the glass bar
+    // directly below the header band.
+    const syncGeometry = () => {
+      const asideRect = anchorAside?.getBoundingClientRect();
+      if (asideRect) {
+        el.style.setProperty('--jx-toc-right', `${Math.max(0, innerWidth - asideRect.right)}px`);
+        el.style.setProperty('--jx-toc-w', `${asideRect.width}px`);
+      }
+      const header = document.querySelector<HTMLElement>('.jx-scaffold-header');
+      el.style.setProperty(
+        '--jx-toc-top',
+        `${Math.round(header?.getBoundingClientRect().height ?? 64) + 20}px`,
+      );
+    };
+    syncGeometry();
+    let raf = 0;
+    const onResize = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0; // reset BEFORE syncing — a stale handle would dead-loop every later resize (Codex r1)
+        syncGeometry();
+      });
+    };
+    addEventListener('resize', onResize, { passive: true });
+    // non-window layout changes: the aside's grid column can re-flow and
+    // the header band can grow/shrink (mobile disclosure) without any
+    // window resize event
+    const layoutWatch = new ResizeObserver(onResize);
+    if (anchorAside) layoutWatch.observe(anchorAside);
+    const headerEl = document.querySelector<HTMLElement>('.jx-scaffold-header');
+    if (headerEl) layoutWatch.observe(headerEl);
+
+    const release = topLayerApi.adopt(el);
+    return () => {
+      removeEventListener('resize', onResize);
+      layoutWatch.disconnect();
+      if (raf) cancelAnimationFrame(raf);
+      release();
+      delete el.dataset.toplayer;
+      // return the node to its authoring parent so Svelte teardown
+      // finds and destroys exactly what it created
+      home?.appendChild(el);
+    };
+  });
 
   // Live line (Owner fix, 2026-08-21): the old constant 76px assumed the
   // legacy sticky rail (top:0, 44px tall). In the overlay shell the line
@@ -82,6 +210,36 @@
     document.documentElement.style.setProperty('--jx-toc-line', `${line}px`);
     return line;
   };
+
+  // outline derivation (client-only; SSR renders the empty rail and this
+  // fills it on hydration): derive once, then re-derive on content
+  // mutations (childList subtree — attribute-only churn never re-derives).
+  // The engine reads `outlineEntries` through the extents getter each
+  // compute, so a re-derivation goes live without an engine restart.
+  $effect(() => {
+    if (!outline) return;
+    const rootEl =
+      typeof outline.root === 'string'
+        ? document.querySelector<HTMLElement>(outline.root)
+        : outline.root;
+    if (!rootEl) return;
+
+    const rederive = () => {
+      outlineEntries = deriveTocOutline(rootEl, { levels: outline?.levels });
+      outlineSections = tocOutlineToSections(outlineEntries);
+    };
+    rederive();
+
+    let raf = 0;
+    const observer = new MutationObserver(() => {
+      if (!raf) raf = requestAnimationFrame(rederive);
+    });
+    observer.observe(rootEl, { childList: true, subtree: true });
+    return () => {
+      observer.disconnect();
+      if (raf) cancelAnimationFrame(raf);
+    };
+  });
 
   $effect(() => {
     // publish the line var before any scroll/anchor logic runs so
@@ -118,7 +276,7 @@
           viewport.scrollTo({ top: (li as HTMLElement).offsetTop });
         }
       },
-      { lineOffset: tocLine, scrollRoot },
+      { lineOffset: tocLine, scrollRoot, extents: outline ? () => outlineEntries : undefined },
     );
 
     const root =
@@ -162,7 +320,7 @@
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
-<div class="jx-toc">
+<div class="jx-toc" bind:this={rootEl}>
   <nav class="jx-toc-desktop" aria-label="Table of contents">
     <span class="jx-spine"><span class="jx-spine-fill" bind:this={spineFill}></span></span>
     <p class="jx-toc-title">{title}</p>

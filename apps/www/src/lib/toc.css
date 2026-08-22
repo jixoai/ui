@@ -130,6 +130,9 @@
 .jx-toc .jx-toc-mobile[data-open] .jx-viewport {
   height: 56vh;
   overflow-y: auto;
+  /* scrollbar law: both-edges gutters (full-bleed rows — no ring
+     padding to hand back) */
+  scrollbar-gutter: stable both-edges;
   overscroll-behavior: contain;
 }
 .jx-toc .jx-viewport ol {
@@ -223,6 +226,27 @@
     top: 0;
     z-index: 40;
     height: 0;
+  }
+}
+
+/* ── top-layer adoption (Owner request, 2026-08-23) ──
+   When the website-scaffold `jx-top-layer` context adopts this rail into
+   the float plane, the moved root carries [data-toplayer]. Mobile: pure
+   flow in the slot — the glass bar docks directly below the header band,
+   full width, and rides the immersive slide by construction (replacing
+   the sticky-in-the-scrollport approximation that slid UNDER the opaque
+   band). Desktop: the slot spans the viewport, so the rail re-takes its
+   page column from measured CSS vars published by the component
+   (--jx-toc-right / --jx-toc-w from the anchor aside, --jx-toc-top from
+   the header band's height). Plain flow + margins — no position:fixed,
+   no containing-block hazards under the slide transform. */
+@media (min-width: 900px) {
+  .jx-toc[data-toplayer] {
+    margin-left: auto;
+    margin-right: var(--jx-toc-right, 2rem);
+    width: var(--jx-toc-w, 15rem);
+    margin-top: 20px;
+    max-height: calc(100dvh - var(--jx-toc-top, 96px) - 20px);
   }
 }
 
