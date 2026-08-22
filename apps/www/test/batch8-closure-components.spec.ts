@@ -201,6 +201,39 @@ describe('Tour', () => {
     expect(back.disabled).toBe(true);
   });
 
+  it('ArrowLeft SKIPS over a hidden middle step to the earlier one (no finish)', async () => {
+    const a = document.createElement('section');
+    a.id = 'tour-step-a';
+    const c = document.createElement('section');
+    c.id = 'tour-step-c';
+    document.body.append(a, c);
+    const rendered = render(Tour, {
+      props: {
+        open: true,
+        startAt: 2,
+        steps: [
+          { target: '#tour-step-a', title: 'first' },
+          { target: '#tour-step-missing', title: 'hidden middle' },
+          { target: '#tour-step-c', title: 'third' },
+        ],
+      },
+    });
+    flushSync();
+    expect(rendered.container.querySelector('.jx-tour-meta')!.textContent).toContain('3 / 3');
+    const dlg = rendered.container.querySelector('[role="dialog"]') as HTMLElement;
+    await fireEvent.keyDown(dlg, { key: 'ArrowLeft' });
+    flushSync();
+    // skipped BACKWARD over the missing middle → step 1, still open
+    expect(rendered.container.querySelector('.jx-tour-meta')!.textContent).toContain('1 / 3');
+    expect(rendered.container.querySelector('[role="dialog"]')).toBeTruthy();
+    // ArrowLeft at the earliest step is a no-op (never a finish)
+    await fireEvent.keyDown(dlg, { key: 'ArrowLeft' });
+    flushSync();
+    expect(rendered.container.querySelector('[role="dialog"]')).toBeTruthy();
+    a.remove();
+    c.remove();
+  });
+
   it('an invalid selector reads as unavailable (caught, not thrown)', async () => {
     const rendered = render(Tour, {
       props: {

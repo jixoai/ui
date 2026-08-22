@@ -84,7 +84,9 @@
   // change moves the focus onto NEXT (the contract's landing spot;
   // non-modal — no trap, the user may Tab away)
   $effect(() => {
-    if (!(open && panelEl)) return;
+    // index is a dep: EVERY step change re-lands the focus on Next
+    // (the same panel persists across steps — open alone won't re-run)
+    if (!(open && panelEl) || index < 0) return;
     if (typeof panelEl.showPopover === 'function' && !panelEl.matches(':popover-open')) {
       panelEl.showPopover();
     }
@@ -147,6 +149,7 @@
     if (prior === undefined || prior === '') leasedEl.style.removeProperty('anchor-name');
     else leasedEl.style.anchorName = prior;
     delete leasedEl.dataset.jxTourPriorAnchor;
+    if (leasedEl.getAttribute('style') === '') leasedEl.removeAttribute('style');
     leasedEl = null;
   }
 
@@ -194,7 +197,9 @@
     enterStep(index + 1);
   }
   function prev(): void {
-    if (index <= 0) return;
+    // parity with the disabled Back button: no enterable earlier step ⇒
+    // a no-op, NEVER an accidental finish
+    if (!canPrev) return;
     enterStep(index - 1, -1);
   }
 
@@ -244,6 +249,7 @@
     {autoId}
     popover="manual"
     role="dialog"
+    tabindex="-1"
     aria-modal="false"
     aria-label={step.title}
     class="jx-tour {className}"
@@ -298,12 +304,13 @@
     }
   }
 
+  /* panel by anchor() functions — the SAME primitives the hole uses
+     (inset-area is unsupported in engines where anchor() works; the
+     walkthrough-5 geometry probe proved function positioning reliable) */
   .jx-tour {
     position: fixed;
-    margin: var(--jx-tour-gap, 12px);
-    position-try-fallbacks: flip-block, flip-inline;
-    position-try: flip-block, flip-inline;
-    inset-area: bottom span-right;
+    top: calc(anchor(bottom) + var(--jx-tour-gap, 12px));
+    left: anchor(left);
     width: fit-content;
     max-width: min(88vw, 20rem);
     display: flex;

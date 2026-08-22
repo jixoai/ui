@@ -76,6 +76,12 @@
             Where the ToC measures IoM weights and draws the rule tracker, anchor answers the
             simpler which-section question with zero coupling beyond target ids existing.
           </p>
+          <!-- depth: every section must be able to cross the pick line -->
+          {#each Array(14) as _, i (i)}
+            <p class="text-[12.5px] leading-6 text-muted-foreground/70">
+              filler depth {i + 1} — keeps the last section reachable past the offset line
+            </p>
+          {/each}
         </section>
       </ComponentCanvas>
     </div>
