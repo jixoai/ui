@@ -1,6 +1,6 @@
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
@@ -112,7 +112,7 @@ ${close}
               <pre class="jx-arch-diagram" aria-label="scaffold layer diagram"><code>.jx-shell                    min-h-svh · relative
 ├── .jx-top-layer            absolute overlay · z-40 — ONE moving unit
 │   ├── .jx-scaffold-header  the nav band (visible above)
-│   └── .jx-float-slot       float portal insertion point (scaffold-float)
+│   └── .jx-float-slot       top-layer context insertion point (ordered)
 └── .jx-shell-body           THE scroll container (overflow-y auto)
     ├── main#main            padding-top = measured header height
     └── footer               optional band</code></pre>
@@ -125,6 +125,12 @@ ${close}
                   <span><strong class="font-semibold">view transitions</strong> — the header band keeps view-transition-name <code class="text-accent">site-header</code> and persists across navigations; main#main animates as <code class="text-accent">page-main</code></span></li>
                 <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
                   <span><strong class="font-semibold">skip link</strong> — a keyboard-reachable <code class="text-accent">Skip to content</code> target on #main, hidden until focused</span></li>
+                <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+                  <span><strong class="font-semibold">top-layer context</strong> — the scaffold publishes the
+                    <code class="text-accent">jx-top-layer</code> context (adopt/release, ordered multi-node);
+                    scaffold-float portals arbitrary children through it and the toc rail mounts
+                    itself automatically (Owner request, 2026-08-23) — one adoption mechanism, and
+                    everything adopted rides the immersive slide by construction</span></li>
               </ul>
             </div>
           </SectionCard>

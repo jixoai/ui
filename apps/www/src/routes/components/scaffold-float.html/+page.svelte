@@ -19,8 +19,10 @@
   // this component's own script tag during the HTML-level scan — splice it.
   const close = '</' + 'script>';
 
-  // This is the real in-production pattern: the components overview page
-  // mounts its Combo ToC rail through the float portal.
+  // Generic portal usage. NOTE (Owner request, 2026-08-23): the Combo ToC
+  // no longer needs this wrapper — inside a website-scaffold it adopts
+  // ITSELF through the same jx-top-layer context. ScaffoldFloat is for
+  // your own custom floats.
   const usage = `<script lang="ts">
   import ScaffoldFloat from '@ui/scaffold-float.svelte';
   import Toc from '@ui/toc.svelte';
@@ -29,10 +31,14 @@ ${close}
 <!-- author it anywhere in the page; on mount the live node is adopted
      into the scaffold's top layer and rides the immersive slide -->
 <ScaffoldFloat>
-  <aside class="docs-aside" aria-label="On this page">
-    <Toc {sections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
-</ScaffoldFloat>`;
+  <div class="status-strip">● deploy passing — main #142</div>
+</ScaffoldFloat>
+
+<!-- the toc mounts itself; no wrapper, no prop (topLayer={false} opts
+     out for embedded demos) -->
+<aside class="docs-aside" aria-label="On this page">
+  <Toc {sections} title="on this page" scrollRoot=".jx-shell-body" />
+</aside>`;
 
   const files: TreeFile[] = [
     { name: 'registry/files/ui/scaffold-float.svelte', content: floatSource },
@@ -82,28 +88,29 @@ ${close}
       >
         {#snippet children()}
           <!-- No LIVE instance here on purpose: the only provider in this
-               page's tree is the site's own scaffold, and adopting a demo
-               node into the real top layer would hijack the single float
-               slot. The concept card stands in; the Playground links to
-               the live in-production use. -->
+               page's tree is the site's own scaffold, whose float plane
+               already carries this page's ToC rail (self-adopted through
+               the same context). A demo float would stack page chrome
+               atop page chrome; the concept card stands in. -->
           <SectionCard
             class="w-full max-w-3xl"
             eyebrow="portal 概念 · no LIVE instance"
             title="Authored in the page, adopted by the top layer"
-            summary="A float must dock to a website-scaffold provider — and the only one reachable from this page is the site's own shell, whose single float slot is not a demo surface. So this card explains the adoption instead; the overview page runs the real portal for its ToC rail every day."
+            summary="A float must dock to a website-scaffold provider — and the only one reachable from this page is the site's own shell. So this card explains the adoption instead; every component page's ToC rail rides the real float plane every day (it adopts itself)."
           >
             <div class="flex flex-col gap-5">
               <pre class="jx-float-diagram" aria-label="float portal adoption diagram"><code>authoring DOM (full Svelte ownership)     .jx-top-layer (scroll-free plane)
 ────────────────────────────────────     ────────────────────────────────────
 &lt;ScaffoldFloat&gt;                           ├── .jx-scaffold-header
-  └─ aside.docs-aside          set()      └── .jx-float-slot
-       …children…             ──────►          └─ aside.docs-aside ← moved
-(hidden anchor stays in place)           (rides the immersive slide)</code></pre>
+  └─ aside.docs-aside        adopt()      └── .jx-float-slot
+       …children…           ──────►          ├─ toc rail ← self-adopted
+(hidden anchor stays in place)              └─ aside.docs-aside ← moved
+                                           (rides the immersive slide)</code></pre>
               <ol class="flex flex-col gap-2 text-[13px] leading-6">
                 <li class="flex gap-2"><span class="text-primary" aria-hidden="true">1.</span>
                   <span><strong class="font-semibold">author</strong> — the portal renders its children wherever you place it in the page; the nodes are ordinary Svelte-owned DOM, not a serialized snapshot</span></li>
                 <li class="flex gap-2"><span class="text-primary" aria-hidden="true">2.</span>
-                  <span><strong class="font-semibold">adopt</strong> — on mount it calls <code class="text-accent">api.set(node)</code> from the scaffold's <code class="text-accent">jx-scaffold-float</code> context; the scaffold's effect re-parents the live node into <code class="text-accent">.jx-float-slot</code> (appendChild — moved, never cloned)</span></li>
+                  <span><strong class="font-semibold">adopt</strong> — on mount it calls <code class="text-accent">api.adopt(node)</code> from the scaffold's <code class="text-accent">jx-top-layer</code> context; the scaffold's effect re-parents the live node into <code class="text-accent">.jx-float-slot</code> in adoption order (moved, never cloned)</span></li>
                 <li class="flex gap-2"><span class="text-primary" aria-hidden="true">3.</span>
                   <span><strong class="font-semibold">teardown</strong> — the hidden anchor keeps the authoring position; the release fn returns the node to it so Svelte finds and destroys its own nodes correctly</span></li>
                 <li class="flex gap-2"><span class="text-primary" aria-hidden="true">4.</span>
@@ -118,9 +125,11 @@ ${close}
               <PressButton href="/components.html">see it live — overview ToC</PressButton>
             </div>
             <p class="jx-play-help">
-              The live example is one click away: the components overview mounts its Combo ToC rail
-              through this portal — on desktop it floats over the right column, on mobile it is the
-              glass bar under the header, and both ride the immersive slide.
+              The live example is one click away: every component page's Combo ToC rail now rides
+              the top layer — on desktop it floats over the right column, on mobile it is the
+              glass bar under the header, and it slides with the header on immersive scroll. The
+              rail adopts itself through the same <code class="text-accent">jx-top-layer</code>
+              context this portal exposes.
             </p>
           </div>
         {/snippet}
@@ -144,9 +153,9 @@ ${close}
               <span>the hidden anchor at the authoring position is the return ticket: teardown
                 hands the node back so Svelte destroys exactly what it created</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>the float slot is single-occupancy by design — <code class="text-accent">set()</code>
-                replaces the previous occupant, which is why demo floats must never dock to the
-                site's own scaffold</span></li>
+              <span>the float plane is ordered multi-node — <code class="text-accent">adopt()</code>
+                appends in adoption order, so a page's self-adopted ToC rail and your custom floats
+                coexist inside <code class="text-accent">.jx-float-slot</code></span></li>
           </ul>
           <CodeBlock code={usage} lang="svelte" meta="usage" />
         </div>
