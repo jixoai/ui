@@ -77,14 +77,22 @@
   let targetEl = $state<HTMLElement | null>(null);
   let finished = false;
   let panelEl = $state<HTMLElement | null>(null);
+  let nextEl = $state<HTMLButtonElement | null>(null);
 
   // the manual popover needs its explicit show — the panel is in the
-  // top layer while the tour renders, hidden on removal
+  // top layer while the tour renders, hidden on removal. Open/step
+  // change moves the focus onto NEXT (the contract's landing spot;
+  // non-modal — no trap, the user may Tab away)
   $effect(() => {
     if (!(open && panelEl)) return;
     if (typeof panelEl.showPopover === 'function' && !panelEl.matches(':popover-open')) {
       panelEl.showPopover();
     }
+    requestAnimationFrame(() => {
+      if (typeof requestAnimationFrame === 'function' && panelEl?.matches(':popover-open')) {
+        nextEl?.focus();
+      }
+    });
     return () => {
       if (panelEl && typeof panelEl.hidePopover === 'function' && panelEl.matches(':popover-open')) {
         panelEl.hidePopover();
@@ -93,6 +101,13 @@
   });
 
   const step = $derived(steps[index]);
+  /** Back is honest: disabled when NO earlier step is enterable */
+  const canPrev = $derived.by(() => {
+    for (let i = index - 1; i >= 0; i--) {
+      if (!isUnavailable(resolve(steps[i]!))) return true;
+    }
+    return false;
+  });
   const invokerFocus = { el: null as HTMLElement | null };
 
   /** resolve a step's target; invalid selectors read as unavailable */
@@ -110,33 +125,44 @@
    *  so: the hidden attribute always counts, and checkVisibility only
    *  where the engine actually implements it */
   function isUnavailable(el: HTMLElement | null): boolean {
-    if (el === null || el.hidden) return true;
+    if (el === null || !el.isConnected || el.hidden) return true;
     if (typeof el.checkVisibility === 'function') return !el.checkVisibility();
     return false;
   }
 
-  // the lease: one target at a time, restored on every change
+  // the lease: one target at a time, held BY REFERENCE (a document
+  // query could miss shadow/detached holders), restored on every change
+  let leasedEl: HTMLElement | null = null;
   function lease(el: HTMLElement): void {
     release();
+    leasedEl = el;
     el.dataset.jxTourPriorAnchor = el.style.anchorName;
     el.style.anchorName = leaseName;
     // bring the target into view without reading geometry
     el.scrollIntoView({ block: 'nearest' });
   }
   function release(): void {
-    const holder = document.querySelector<HTMLElement>(`[style*="${leaseName}"]`);
-    if (!holder) return;
-    const prior = holder.dataset.jxTourPriorAnchor;
-    if (prior === undefined || prior === '') holder.style.removeProperty('anchor-name');
-    else holder.style.anchorName = prior;
-    delete holder.dataset.jxTourPriorAnchor;
+    if (!leasedEl) return;
+    const prior = leasedEl.dataset.jxTourPriorAnchor;
+    if (prior === undefined || prior === '') leasedEl.style.removeProperty('anchor-name');
+    else leasedEl.style.anchorName = prior;
+    delete leasedEl.dataset.jxTourPriorAnchor;
+    leasedEl = null;
   }
 
-  /** enter a step: resolve, skip forward past unavailable steps, finish
-   *  when none remain — deterministic in one pass */
-  function enterStep(next: number): void {
+  /** enter a step: resolve, skip past unavailable steps in the travel
+   *  direction (forward by default, backward for prev), finish when
+   *  none remain — deterministic in one pass */
+  function enterStep(next: number, direction: 1 | -1 = 1): void {
     index = next;
-    for (let i = next; i < steps.length; i++) {
+    const order =
+      direction === 1
+        ? steps.map((_, i) => i).slice(next)
+        : steps
+            .map((_, i) => i)
+            .slice(0, next + 1)
+            .reverse();
+    for (const i of order) {
       const el = resolve(steps[i]!);
       if (!isUnavailable(el)) {
         index = i;
@@ -146,8 +172,8 @@
         return;
       }
     }
-    // every remaining step unavailable → finish at the last index
-    finish(steps.length - 1);
+    // every step in the travel direction unavailable → finish
+    finish(direction === 1 ? steps.length - 1 : 0);
   }
 
   function finish(stoppedAt: number): void {
@@ -169,7 +195,7 @@
   }
   function prev(): void {
     if (index <= 0) return;
-    enterStep(index - 1);
+    enterStep(index - 1, -1);
   }
 
   // lifecycle: open → enter the start step; close → release + restore
@@ -233,10 +259,15 @@
     <div class="jx-tour-actions">
       <button type="button" class="jx-tour-skip" onclick={() => finish(index)}>{skipLabel}</button>
       <div class="jx-tour-nav">
-        <button type="button" class="jx-tour-btn" disabled={index === 0} onclick={prev}>
+        <button type="button" class="jx-tour-btn" disabled={!canPrev} onclick={prev}>
           {prevLabel}
         </button>
-        <button type="button" class="jx-tour-btn jx-tour-next" onclick={next}>
+        <button
+          type="button"
+          class="jx-tour-btn jx-tour-next"
+          bind:this={nextEl}
+          onclick={next}
+        >
           {index >= steps.length - 1 ? 'Finish' : nextLabel}
         </button>
       </div>
@@ -254,7 +285,7 @@
     pointer-events: none;
     background: color-mix(in oklab, var(--background) 55%, transparent);
   }
-  @supports (anchor-name: --jx-tour-support) {
+  @supports (anchor-name: --jx-tour-support) and (width: anchor-size(width)) {
     .jx-tour-hole-anchored {
       inset: auto;
       top: anchor(top);

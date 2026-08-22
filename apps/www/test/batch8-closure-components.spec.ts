@@ -169,6 +169,38 @@ describe('Tour', () => {
     expect(rendered.container.querySelector('[role="dialog"]')).toBeNull();
   });
 
+  it('open focuses NEXT (the contract landing spot)', async () => {
+    const { rendered } = setup();
+    await fireEvent.click(rendered.container.querySelector('[data-tour-open]')!);
+    await new Promise(requestAnimationFrame);
+    await new Promise(requestAnimationFrame);
+    const next = rendered.container.querySelector('.jx-tour-next') as HTMLButtonElement;
+    expect(document.activeElement).toBe(next);
+  });
+
+  it('a NON-EMPTY prior anchor-name is restored verbatim (lease exactness)', async () => {
+    const { rendered } = setup();
+    const first = rendered.container.querySelector('[data-tour-step1]') as HTMLElement;
+    first.style.anchorName = '--consumer-owned';
+    await fireEvent.click(rendered.container.querySelector('[data-tour-open]')!);
+    flushSync();
+    expect(first.style.anchorName).toContain('--jx-tour-'); // leased over
+    await fireEvent.click(rendered.container.querySelector('.jx-tour-next')!);
+    flushSync();
+    expect(first.style.anchorName).toBe('--consumer-owned'); // restored verbatim
+  });
+
+  it('prev() skips BACKWARD past unavailable steps', async () => {
+    const rendered = render(TourHost, { props: { skipFirst: true } });
+    await fireEvent.click(rendered.container.querySelector('[data-tour-open]')!);
+    flushSync();
+    expect(rendered.container.querySelector('.jx-tour-meta')!.textContent).toContain('2 / 2');
+    // step2's Back is disabled (step1 unavailable behind it) — prev
+    // cannot strand the user on a hidden step
+    const back = rendered.container.querySelector('.jx-tour-btn') as HTMLButtonElement;
+    expect(back.disabled).toBe(true);
+  });
+
   it('an invalid selector reads as unavailable (caught, not thrown)', async () => {
     const rendered = render(Tour, {
       props: {

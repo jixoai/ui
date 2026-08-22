@@ -1224,7 +1224,10 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: items ({href:'#id', label}[]), label?, offset? (96 — the pick line, for sticky headers)."
+      "docs": "Props: items ({href:'#id', label}[]), label?, offset? (96 — the pick line, for sticky headers).",
+      "registryDependencies": [
+        "@jixoai/scroll-spy"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
