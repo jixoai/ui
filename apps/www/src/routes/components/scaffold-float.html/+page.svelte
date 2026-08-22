@@ -1,6 +1,6 @@
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
@@ -115,7 +115,7 @@ ${close}
         {#snippet playground()}
           <div class="jx-play-fields">
             <div class="jx-play-field">
-              <PressButton href="/components/overview.html">see it live — overview ToC</PressButton>
+              <PressButton href="/components.html">see it live — overview ToC</PressButton>
             </div>
             <p class="jx-play-help">
               The live example is one click away: the components overview mounts its Combo ToC rail

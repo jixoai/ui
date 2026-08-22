@@ -59,7 +59,7 @@
       },
       "meta": {
         "group": "engines",
-        "href": "/components/overview.html"
+        "href": "/components.html"
       }
     },
     {
@@ -480,7 +480,7 @@
       "docs": "import { icons } from '@lib/icons'; then {@html icons.x}. Consumers own sizing via CSS; the SVGs default to 16x16 with class jx-icon.",
       "meta": {
         "group": "engines",
-        "href": "/components/overview.html"
+        "href": "/components.html"
       }
     },
     {

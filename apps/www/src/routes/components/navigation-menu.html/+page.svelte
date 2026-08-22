@@ -4,7 +4,7 @@
   import NavigationMenu from '$lib/ui/navigation-menu.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import Toc from '$lib/ui/toc.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -94,7 +94,7 @@ ${close}
         {#snippet panel(item)}
           <div class="flex min-w-44 flex-col gap-1">
             {#each [1, 2, 3] as n (n)}
-              <a class="jx-demo-nav-link" href="/components/overview.html">{item.label} link {n}</a>
+              <a class="jx-demo-nav-link" href="/components.html">{item.label} link {n}</a>
             {/each}
           </div>
         {/snippet}

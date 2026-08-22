@@ -4,7 +4,7 @@
   import HoverCard from '$lib/ui/hover-card.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import Toc from '$lib/ui/toc.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -84,7 +84,7 @@ ${close}
         shipped by
         <HoverCard>
           {#snippet trigger()}
-            <a href="/components/overview.html" class="text-primary underline decoration-dotted underline-offset-4">@gaubee</a>
+            <a href="/components.html" class="text-primary underline decoration-dotted underline-offset-4">@gaubee</a>
           {/snippet}
           <div class="flex flex-col gap-2">
             <p class="font-nav text-[0.8125rem] uppercase tracking-[0.12em]">Gaubee — systems</p>

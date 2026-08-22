@@ -7,7 +7,7 @@
   import TerminalCard from '$lib/ui/terminal-card.svelte';
   import Toc from '$lib/ui/toc.svelte';
   import CodeBlock from '$lib/code-block.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // ToC outline: the composition law (the canvas above is the workbench).
@@ -100,7 +100,7 @@ ${close}
             copyCommand="npx jixoai-ui init --hue 210"
           >
             {#snippet secondary()}
-              <PressButton variant="outline" href="/components/overview.html">
+              <PressButton variant="outline" href="/components.html">
                 browse components
               </PressButton>
             {/snippet}

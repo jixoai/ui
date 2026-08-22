@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { catalogByGroup } from '$lib/catalog';
+    import { catalogByGroup, CATALOG } from '$lib/catalog';
   import ComponentTreeNav from '$lib/ui/component-tree-nav.svelte';
   import '../app.css';
   // scrollbar law (2026-08-22): side-effect probe publishes the measured
@@ -36,7 +36,7 @@
   // runs through document.startViewTransition with the tab-carousel
   // direction law (page order index comparison, ported from openspecui).
   // Reduced motion / unsupported browsers navigate plainly.
-  const PAGE_ORDER = ['/', '/components/overview.html', '/components/dialog.html', '/components/popover.html', '/components/form.html', '/tokens.html'];
+  const PAGE_ORDER = ['/', '/components.html', '/components/dialog.html', '/components/popover.html', '/components/form.html', '/tokens.html'];
   const pageIndex = (pathname: string) => PAGE_ORDER.indexOf(pathname);
 
   // nav lifecycle (2026-08-22): every client-side navigation closes any
@@ -167,10 +167,23 @@
   const items = $derived([
     { href: '/', label: 'Overview', active: normalized === '/' },
     {
-      href: '/components/overview.html',
+      href: '/components.html',
       label: 'Components',
       active: normalized.startsWith('/components'),
       children: [
+        // the panel's first cell: the entry point to the full index
+        // (2026-08-23, user request) — same source, same lock
+        {
+          label: 'all',
+          items: [
+            {
+              href: '/components.html',
+              label: 'all components',
+              description: `${CATALOG.length} items`,
+              active: normalized === '/components',
+            },
+          ],
+        },
         ...catalogByGroup().map(({ group, entries }) => ({
           label: group.label,
           items: entries.map((entry) => ({

@@ -6,7 +6,7 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import NativeSelect from '$lib/ui/native-select.svelte';
   import Toc from '$lib/ui/toc.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // ToC outline: the anchors demo + the closing law, in page order. The
@@ -165,7 +165,7 @@ ${close}
           <div class="flex flex-wrap items-center gap-x-8 gap-y-5">
             <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>internal → same tab</span>
-              <PressButton variant="primary" href="/components/overview.html">overview</PressButton>
+              <PressButton variant="primary" href="/components.html">overview</PressButton>
             </div>
             <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>external → new tab</span>

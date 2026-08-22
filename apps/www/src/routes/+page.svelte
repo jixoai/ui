@@ -145,7 +145,7 @@ npx jixoai-ui add press-button section-card toc`;
         <code class="text-accent">toc-engine</code> are framework-free. Read the full law on the
         <a href="/tokens.html" class="text-primary underline underline-offset-2">tokens page</a> and
         every component live on the
-        <a href="/components/overview.html" class="text-primary underline underline-offset-2"
+        <a href="/components.html" class="text-primary underline underline-offset-2"
           >components page</a
         >.
       </p>
