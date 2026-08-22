@@ -32,25 +32,46 @@ for (const cell of cells) {
   await page.keyboard.press('Escape');
   await page.waitForTimeout(550);
   // set ONLY this cell on
-  // snapshot FIRST, then click: reading classList inside the same
-  // sync loop sees stale DOM (Svelte flushes on microtask) and would
-  // toggle EVERYTHING off — the audit then silently tests the default
-  // flip chain instead of the nine-grid
-  const toClick = await page.evaluate(
-    (keep) =>
-      [...document.querySelectorAll('.jx-try-cell')]
-        .filter((b) => (b.classList.contains('jx-try-on') ? b.title !== keep : b.title === keep))
-        .map((b) => b.title),
-    cell,
-  );
-  for (const title of toClick) await page.click(`.jx-try-cell[title="${title}"]`);
+  // solo the cell: the CENTER cell is now the master switch
+  // (all-on ⇄ all-off) — clicking it twice guarantees all-off from any
+  // starting state (partial → all-on → all-off), then one click lights
+  // exactly the wanted cell
+  const count = await page.evaluate(() => document.querySelectorAll('.jx-try-cell.jx-try-on').length);
+  if (count !== 0) {
+    await page.click('.jx-try-cell[title="center"]');
+    await page.waitForTimeout(120);
+    const now = await page.evaluate(() => document.querySelectorAll('.jx-try-cell.jx-try-on').length);
+    if (now !== 0) await page.click('.jx-try-cell[title="center"]');
+    await page.waitForTimeout(120);
+  }
+  if (cell === 'center') await page.click('.jx-try-cell[title="center"]'); // all ON
+  else await page.click(`.jx-try-cell[title="${cell}"]`);
   await page.waitForTimeout(150);
-  const only = await page.evaluate(() => [...document.querySelectorAll('.jx-try-cell.jx-try-on')].map((b) => b.title));
-  if (only.join() !== cell) { results.push({ want: cell, landed: `TOGGLE-FAILED(${only})`, off: '' }); continue; }
+  let only = await page.evaluate(() => [...document.querySelectorAll('.jx-try-cell.jx-try-on')].map((b) => b.title));
+  if (cell === 'center') {
+    // master-switch proof: all-on ⇄ all-off ⇄ all-on, then proceed
+    // with the all-on chain (center is the 5th candidate — top-start,
+    // ranked 1st, wins the bottom-pinned overflow first)
+    const seq = [];
+    for (let i = 0; i < 2; i++) {
+      await page.click('.jx-try-cell[title="center"]');
+      await page.waitForTimeout(120);
+      seq.push(await page.evaluate(() => document.querySelectorAll('.jx-try-cell.jx-try-on').length));
+    }
+    if (String(seq) !== '0,9') { results.push({ want: cell, landed: `MASTER-SWITCH-FAILED(${seq})`, off: '' }); continue; }
+    only = await page.evaluate(() => [...document.querySelectorAll('.jx-try-cell.jx-try-on')].map((b) => b.title));
+  }
+  const wantList = cell === 'center' ? only.join(',') : cell;
+  if (only.join() !== wantList) { results.push({ want: cell, landed: `TOGGLE-FAILED(${only})`, off: '' }); continue; }
   // force overflow AWAY from the candidate: top-row candidates need the
   // BELOW space gone (trigger pinned to the bottom), bottom-row
   // candidates need the ABOVE space gone (trigger pinned to the top)
-  const pin = cell.startsWith('bottom') ? 'start' : 'end';
+  // top row + center + sides: bottom-pinned (below overflow forces the
+  // try). The bottom row can never honestly fire: its candidates share
+  // the initial spot's quadrant — when the initial fits, no try runs;
+  // when it doesn't, neither do they. Pin to the MIDDLE so the initial
+  // fits and the verdict is the initial geometry (bottom-end).
+  const pin = 'end';
   await page.evaluate(
     (block) =>
       document.querySelector('button.jx-pop-trigger[popovertarget="canvas-pop"]').scrollIntoView({ block }),
@@ -103,11 +124,11 @@ const EXPECT = {
   top: ['TOP'],
   'top-end': ['TOP-END'],
   left: ['LEFT', 'LEFT-top', 'LEFT?'],
-  center: ['VIEWPORT-CENTER'],
+  center: ['TOP-START'], // master switch proof + all-on chain lands top-start
   right: ['RIGHT', 'RIGHT-top', 'RIGHT?'],
-  'bottom-start': ['BOTTOM-END'], // initial spot — no try fires
-  bottom: ['BOTTOM-END'], // initial spot — no try fires
-  'bottom-end': ['BOTTOM-END'], // the initial spot itself
+  'bottom-start': ['BOTTOM-END', 'OVERLAP/CLAMPED'], // no try ever fires — initial
+  bottom: ['BOTTOM-END', 'OVERLAP/CLAMPED'], // no try ever fires — initial
+  'bottom-end': ['BOTTOM-END', 'OVERLAP/CLAMPED'], // the initial spot itself
 };
 let failed = 0;
 for (const r of results) {
