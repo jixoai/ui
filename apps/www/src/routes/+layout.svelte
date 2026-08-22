@@ -147,7 +147,7 @@
             href: entry.href,
             label: entry.name,
             description: entry.type === 'registry:ui' ? '' : entry.type.replace('registry:', ''),
-            active: normalized === entry.href.replace(/\.html$/, '').split('#')[0].replace(/\/+$/, '') || '/',
+            active: normalized === (entry.href.replace(/\.html$/, '').split('#')[0].replace(/\/+$/, '') || '/'),
           })),
         })),
         {

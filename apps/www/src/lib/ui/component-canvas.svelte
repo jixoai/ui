@@ -164,10 +164,13 @@
     return text.length > 60 ? text.slice(0, 60) + '…' : text || '—';
   }
 
+  let copiedUsage = $state(false);
   function copyUsage(): void {
     const file = usageFile;
     if (!file) return;
     void navigator.clipboard?.writeText(resolveFileContent?.(file) ?? file.content);
+    copiedUsage = true;
+    setTimeout(() => (copiedUsage = false), 1600);
   }
 </script>
 
@@ -249,7 +252,7 @@
     <div class="jx-canvas-code-actions">
       {#if usageFile}
         <button type="button" class="jx-canvas-copy-usage" ariaLabel="copy the usage snippet" onclick={() => copyUsage()}>
-          copy usage
+          {copiedUsage ? 'copied ✓' : 'copy usage'}
         </button>
       {/if}
       <span class="jx-canvas-code-count">{files.length} {files.length === 1 ? 'file' : 'files'}</span>

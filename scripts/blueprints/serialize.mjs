@@ -294,10 +294,8 @@ export async function serializeStageInPage(selector) {
     }
 
     // pseudo paint rides the host geometry
-    if (cs.position !== 'static' || true) {
-      pseudoBox(el, '::before', box, cs, nodes, ctx2);
-      pseudoBox(el, '::after', box, cs, nodes, ctx2);
-    }
+    pseudoBox(el, '::before', box, cs, nodes, ctx2);
+    pseudoBox(el, '::after', box, cs, nodes, ctx2);
 
     // form-control values: the browser paints these, not DOM text nodes
     if (

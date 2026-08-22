@@ -180,25 +180,9 @@ function nodeToSatori(node) {
   return null;
 }
 
-export function buildTree(scene) {
-  return scene.nodes.map(nodeToSatori).filter(Boolean);
-}
-
 /** @param {{name:string,w:number,h:number,bg:string,nodes:any[]}} scene */
 export async function renderScene(scene) {
-  const children = buildTree(scene);
-  if (process.env.BP_DEBUG) {
-    console.error('[bp-debug] root children:', children.length, 'fonts:', satoriFonts.length);
-    try {
-      return await satori(
-        { type: 'div', props: { style: { position: 'relative', width: scene.w, height: scene.h, display: 'flex', backgroundColor: gray(scene.bg) ?? 'rgba(255,255,255,1)' } }, children },
-        { width: scene.w, height: scene.h, fonts: satoriFonts },
-      );
-    } catch (e) {
-      console.error('[bp-debug] THREW:', e.message);
-      throw e;
-    }
-  }
+  const children = scene.nodes.map(nodeToSatori).filter(Boolean);
   return satori(
     {
       type: 'div',

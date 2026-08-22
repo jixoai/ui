@@ -30,7 +30,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
@@ -162,12 +162,18 @@ async function main() {
       hits++;
       continue;
     }
-    console.log(`[debug] ${name}: ${scene.nodes.length} nodes, ${scene.w}x${scene.h}`);
     const svg = await renderScene(scene);
     writeFileSync(path.join(outDir, `${name}.svg`), svg);
     cache.entries[name] = hash;
     misses.push(name);
     rendered.push(`${name}: ${(svg.length / 1024).toFixed(1)}KB`);
+  }
+  // keep the built dist in step (the tool's internal vite build ran
+  // BEFORE these writes — a stale dist would serve the previous svgs)
+  if (misses.length) {
+    const distBlueprints = path.join(wwwDist, 'blueprints');
+    mkdirSync(distBlueprints, { recursive: true });
+    cpSync(outDir, distBlueprints, { recursive: true });
   }
 
   // orphan cleanup: svgs whose stage no longer exists

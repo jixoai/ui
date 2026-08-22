@@ -106,7 +106,7 @@
     <CardGrid class="mt-6">
       {#each guides as item, index (item.name)}
         <div data-reveal="" use:reveal={{ delay: index * 70, rise: 12 }}>
-          <OverviewCard name={item.name} type="guides" summary={item.summary} href={item.href} />
+          <OverviewCard name={item.name} type="guides" summary={item.summary} href={item.href} blueprint={false} />
         </div>
       {/each}
     </CardGrid>

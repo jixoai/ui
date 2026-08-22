@@ -33,9 +33,12 @@
     href: string;
     /** install command; omit for non-registry cards (guides) */
     command?: string;
+    /** body shows the blueprint (registry cards); guides fall back to
+     *  a text body — they have no rendered scene */
+    blueprint?: boolean;
   }
 
-  let { name, type, summary, href, command }: Props = $props();
+  let { name, type, summary, href, command, blueprint = true }: Props = $props();
 
   const WING_W = 280;
 
@@ -93,9 +96,15 @@
     {/if}
   </div>
 
-  <!-- body: ONLY the blueprint (user spec #4) -->
+  <!-- body: the blueprint for registry cards; guides (no scene) read
+       as a text body instead (user spec #4 is about the component
+       inventory) -->
   <div class="px-4 py-4 sm:px-5 sm:py-5">
-    {#if blueprintFailed}
+    {#if !blueprint}
+      <p class="text-pretty text-[13px] leading-5 text-muted-foreground sm:text-[14px] sm:leading-6">
+        {summary}
+      </p>
+    {:else if blueprintFailed}
       <!-- transitional hatch: a scene/blueprint that has not been
            generated yet (the catalog lock test makes this rare) -->
       <div

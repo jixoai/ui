@@ -50,7 +50,6 @@
     role="dialog"
     aria-label="component catalog tree"
     class="jx-ctree-panel"
-    style="anchor-name: --jx-ctree-anchor"
   >
     <nav aria-label="all components">
       {#each groups as { group, entries } (group.id)}
@@ -84,7 +83,6 @@
     popovertarget="jx-ctree-panel"
     aria-label="open the component catalog tree"
     aria-haspopup="dialog"
-    style="position-anchor: --jx-ctree-anchor"
   >
     <svg
       viewBox="0 0 24 24"
@@ -160,6 +158,8 @@
   /* the tree panel: docks above the button via CSS anchoring */
   .jx-ctree-panel {
     position: fixed;
+    position-anchor: --jx-ctree-anchor;
+    inset-area: top span-left;
     margin: var(--jx-ctree-gap, 8px);
     position-try-fallbacks: flip-block;
     position-try: flip-block;
