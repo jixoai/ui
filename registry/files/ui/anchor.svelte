@@ -14,6 +14,9 @@
   items are {href:'#section-id', label}[]; the active pick follows the
   LAST target scrolled to/past the viewport-top line (the same
   downward-resolution rule as the toc engine's line pick, simplified).
+  TODO(batch-4+): if toc.svelte ever needs the same plain pick, extract
+  the shared minimal spy interface — two active algorithms must not
+  drift (Codex batch-3 note).
 -->
 <script lang="ts">
   export interface AnchorItem {
