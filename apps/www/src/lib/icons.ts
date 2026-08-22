@@ -29,5 +29,65 @@ export const externalLink = svg(
 );
 export const check = svg('<path d="M20 6 9 17l-5-5"/>');
 
+// tree-view extension set (2026-08-22, lucide 0.472 geometry): prefix
+// icons, the plus/minus toggler variant and suffix action glyphs.
+export const folder = svg(
+  '<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>'
+);
+export const folderOpen = svg(
+  '<path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/>'
+);
+export const file = svg(
+  '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/>'
+);
+export const fileCode = svg(
+  '<path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m5 12-3 3 3 3"/><path d="m9 18 3-3-3-3"/>'
+);
+export const fileText = svg(
+  '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>'
+);
+export const braces = svg(
+  '<path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/>'
+);
+export const palette = svg(
+  '<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>'
+);
+export const plus = svg('<path d="M5 12h14"/><path d="M12 5v14"/>');
+export const minus = svg('<path d="M5 12h14"/>');
+export const ellipsis = svg(
+  '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'
+);
+
+// native-form mirror set (2026-08-23, lucide 0.472 geometry): the glyphs
+// the Tier-1 form sheet paints into UA pseudos via CSS mask. The path
+// data below and the data-URIs in registry/files/theme/native-form.css
+// are the SAME geometry — edit both or neither (single-source law).
+export const calendar = svg(
+  '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>'
+);
+export const clock = svg('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>');
+export const pipette = svg(
+  '<path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/>'
+);
+
 /** named-access bag for {@html icons.<name>} consumption */
-export const icons = { arrowRight, chevronDown, x, externalLink, check };
+export const icons = {
+  arrowRight,
+  chevronDown,
+  x,
+  externalLink,
+  check,
+  folder,
+  folderOpen,
+  file,
+  fileCode,
+  fileText,
+  braces,
+  palette,
+  plus,
+  minus,
+  ellipsis,
+  calendar,
+  clock,
+  pipette,
+};
