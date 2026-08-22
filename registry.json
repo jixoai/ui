@@ -1225,6 +1225,36 @@
         }
       ],
       "docs": "Props: items ({href:'#id', label}[]), label?, offset? (96 — the pick line, for sticky headers)."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "tour",
+      "type": "registry:ui",
+      "title": "Tour",
+      "description": "The guided walkthrough, implemented against the recorded design contract: anchor-name as a REVERSIBLE LEASE on each step's target (set on enter, restored on advance/close/unmount — capability wiring, not style authoring); the highlight is a target-sized transparent hole + one huge box-shadow tint sized by CSS anchor-size() (zero geometry JS; engines without anchoring degrade to a plain tint); popover=manual + role=dialog + aria-modal=false — NON-MODAL (no trap, page scrolls, scrim pointer-events:none); targets re-resolved every step with deterministic forward skip past unavailable ones; Escape/Skip finishes and restores the invoker focus. SSR renders nothing until open.",
+      "files": [
+        {
+          "path": "registry/files/ui/tour.svelte",
+          "target": "@ui/tour.svelte",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: steps ({target: selector | resolver, title, description?}[]), open ($bindable), startAt?, onfinish?(stoppedAtIndex), onstep?, nextLabel/prevLabel/skipLabel?."
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "scroll-spy",
+      "type": "registry:lib",
+      "title": "Scroll spy",
+      "description": "The ONE plain line-pick implementation (the drift-closure ruling: no second active-pick algorithm). CAPTURE-phase window scroll listener (element scroll never bubbles — inner shell containers are heard), the pick = the last target whose top sits at/past the offset line, rAF-throttled, resize-aware, full teardown. anchor.svelte consumes it; toc-engine stays the weighted IoM variant.",
+      "files": [
+        {
+          "path": "registry/files/lib/scroll-spy.ts",
+          "target": "@lib/scroll-spy.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "createScrollSpy(targets: () => {id}[], onPick, {offset?}) → {current, sync(), destroy()}."
     }
   ]
 }

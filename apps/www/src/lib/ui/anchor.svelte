@@ -1,24 +1,24 @@
 <!--
   jixoai anchor (registry/files/ui/anchor.svelte).
   The heading-anchor link list (antd's Anchor) — the LIGHT sibling of
-  toc.svelte: where the ToC measures IoM weights and draws the rule
-  tracker, anchor answers the simpler question "which section am I in"
-  for a plain list of in-page links:
+  toc.svelte: nav > ol of REAL fragment links (native navigation,
+  native smooth scrolling via the theme's scroll-behavior), with the
+  active pick delegated to the ONE shared implementation,
+  @lib/scroll-spy (batch-4 closure: no second line-pick algorithm —
+  toc-engine remains the weighted IoM variant, scroll-spy is the plain
+  which-section answer).
 
-    nav > ol > a[href="#id"] — REAL anchors, native navigation, native
-    smooth scrolling (the theme's scroll-behavior), JS only READS the
-    scroll position (rAF-throttled) to mark the active link
-    aria-current="location". No engine, no geometry writes, zero
-    coupling to consumer markup beyond target ids existing.
-
-  items are {href:'#section-id', label}[]; the active pick follows the
-  LAST target scrolled to/past the viewport-top line (the same
-  downward-resolution rule as the toc engine's line pick, simplified).
-  TODO(batch-4+): if toc.svelte ever needs the same plain pick, extract
-  the shared minimal spy interface — two active algorithms must not
-  drift (Codex batch-3 note).
+  Two reversible leases on the targets (the tour contract's pattern):
+    scroll-margin-top = offset  sticky headers never cover the landed
+                               heading (antd Anchor's offset scrolling)
+    tabindex=-1 on click        the focus rides onto the target
+                               heading, restored on blur
+  Both are set on demand and restored — consumer markup is never
+  permanently mutated.
 -->
 <script lang="ts">
+  import { createScrollSpy } from '$lib/scroll-spy';
+
   export interface AnchorItem {
     /** in-page fragment, '#section-id' */
     href: string;
@@ -37,28 +37,17 @@
   let { items, label = 'on this page', offset = 96, class: className = '' }: Props = $props();
 
   let activeId = $state('');
-  let raf = 0;
 
-  /** the pick: the last target whose top is at/past the line; before
-   *  the first target, nothing is current */
-  function sync(): void {
-    let picked = '';
-    for (const item of items) {
-      const el = document.getElementById(item.href.slice(1));
-      if (!el) continue;
-      if (el.getBoundingClientRect().top <= offset) picked = item.href;
-    }
-    activeId = picked;
-  }
+  $effect(() => {
+    const spy = createScrollSpy(
+      () => items.map((item) => ({ id: item.href.slice(1) })),
+      (id) => (activeId = id),
+      { offset },
+    );
+    return () => spy.destroy();
+  });
 
-  function handleScroll(): void {
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(sync);
-  }
-
-  // scroll clearance lease: each target gets scroll-margin-top = offset
-  // so sticky headers never cover the landed heading (antd Anchor's
-  // offset scrolling equivalent) — set on mount, restored on destroy
+  // scroll clearance lease (restored on destroy)
   let leased: HTMLElement[] = [];
   $effect(() => {
     leased = items
@@ -76,30 +65,13 @@
     };
   });
 
-  $effect(() => {
-    sync();
-    // CAPTURE phase: element scroll events do NOT bubble — a page that
-    // scrolls an inner shell container (this site's .jx-shell-body)
-    // never reaches a bubble-phase window listener (walkthrough-4 P1).
-    // Capture sees BOTH the document scroller and every inner one.
-    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
-    window.addEventListener('resize', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll, { capture: true });
-      window.removeEventListener('resize', handleScroll);
-      cancelAnimationFrame(raf);
-    };
-  });
-
-  /** click = navigate + OWN the focus: land on the target heading
-   *  (tabindex=-1 for the ride, restored on blur — the same reversible
-   *  lease the tour contract rules for anchor-name) */
+  /** click = navigate + OWN the focus (tabindex=-1 for the ride,
+   *  restored on blur — the reversible-lease pattern) */
   function handleAnchorClick(href: string): void {
     const el = document.getElementById(href.slice(1));
     if (!el) return;
     const hadTabindex = el.getAttribute('tabindex');
     el.setAttribute('tabindex', '-1');
-    // let the native fragment scroll land first, then move the focus
     requestAnimationFrame(() => {
       el.focus({ preventScroll: true });
       el.addEventListener(
@@ -120,9 +92,9 @@
       <li>
         <a
           class="jx-anchor-link"
-          class:jx-anchor-active={activeId === item.href}
+          class:jx-anchor-active={activeId === item.href.slice(1)}
           href={item.href}
-          aria-current={activeId === item.href ? 'location' : undefined}
+          aria-current={activeId === item.href.slice(1) ? 'location' : undefined}
           onclick={() => handleAnchorClick(item.href)}
         >
           {item.label}

@@ -7,7 +7,7 @@
 
   // Pure index page (2026-08-20): every demo moved to its own
   // /components/<name>.html route; this page is only the catalog.
-  // 56 documented components (form merges input/select/textarea into one
+  // 57 documented components (form merges input/select/textarea into one
   // route) + 3 framework-free libs (reveal, toc-engine, highlight).
   interface IndexEntry {
     /** Display title = the component page's subject. */
@@ -149,6 +149,10 @@
         entry(
           'anchor',
           'The heading-anchor link list — real fragment links, read-only scroll spy, aria-current=location. The light sibling of toc.',
+        ),
+        entry(
+          'tour',
+          'The guided walkthrough against its recorded contract — reversible anchor-name lease, box-shadow hole, non-modal dialog, deterministic skips.',
         ),
         entry(
           'alert-dialog',
@@ -311,7 +315,7 @@
   <title>Components · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai-ui component index: 56 documented components across Layout, Overlay, Form, Display, Interactive, and Shell — every one a registry item installable with npx jixoai-ui add."
+    content="The jixoai-ui component index: 57 documented components across Layout, Overlay, Form, Display, Interactive, and Shell — every one a registry item installable with npx jixoai-ui add."
   />
 </svelte:head>
 
@@ -326,7 +330,7 @@
       summary="The jixoai design language component library — every item is a registry item installable via npx jixoai-ui add."
     >
       <div class="flex flex-wrap gap-3">
-        <span class="pill">56 components</span>
+        <span class="pill">57 components</span>
         <span class="pill">3 libs</span>
       </div>
     </SectionCard>

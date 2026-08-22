@@ -1,0 +1,370 @@
+<!--
+  jixoai tour (registry/files/ui/tour.svelte).
+  The guided walkthrough, implemented EXACTLY against the design
+  contract recorded on the recipes page (batch-3 ruling, batch-4
+  closure):
+
+    anchoring    the anchor-name on each step's target is a REVERSIBLE
+                 LEASE: set on enter, restored (original inline value
+                 or removal) on advance/close/unmount — capability
+                 wiring in the popovertarget class, never style authoring
+    highlight    a target-sized transparent hole + ONE huge box-shadow
+                 tint, sized and positioned by CSS anchor + anchor-size()
+                 — ZERO geometry JS, no four-block mask; engines without
+                 anchor positioning degrade to a tint with NO hole (the
+                 panel still anchors where it can, never silently fixed)
+    surface      popover="manual" + role="dialog" + aria-modal="false" —
+                 NON-MODAL: no focus trap, no inert, the page scrolls;
+                 the default scrim is pointer-events:none (a visual hint,
+                 not a blockade — a modal/guided mode would be its own
+                 future surface, deliberately not mixed in here)
+    targets      re-resolved EVERY step (selector or resolver fn);
+                 invalid selectors are caught; a missing/hidden target
+                 is UNAVAILABLE → deterministic forward skip; when every
+                 step is unavailable the tour ends via onfinish; a target
+                 merely out of view is scrolled to with
+                 scrollIntoView({block:'nearest'}) — no geometry reads
+    keyboard     ←/→ step, Enter = next, Escape/Skip = finish; open
+                 focuses NEXT; finishing restores the invoker's focus
+    SSR          nothing renders until open
+-->
+<script lang="ts">
+  import { untrack } from 'svelte';
+
+  export interface TourStep {
+    /** CSS selector for the step's target, or a resolver (invalid
+     *  selectors are caught — the step reads as unavailable) */
+    target: string | (() => HTMLElement | null);
+    title: string;
+    description?: string;
+  }
+
+  interface Props {
+    steps: TourStep[];
+    /** bindable open state — the tour runs while true */
+    open?: boolean;
+    /** zero-based first step (skipped-forward past unavailable ones) */
+    startAt?: number;
+    /** fires when the tour finishes (end reached, skipped, or all steps
+     *  unavailable) with the step index it stopped on */
+    onfinish?: (index: number) => void;
+    /** step change notification (analytics/progress) */
+    onstep?: (index: number) => void;
+    nextLabel?: string;
+    prevLabel?: string;
+    skipLabel?: string;
+    class?: string;
+  }
+
+  const autoId = $props.id();
+  /** the per-instance lease name set on the CURRENT target */
+  const leaseName = `--jx-tour-${autoId.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+
+  let {
+    steps,
+    open = $bindable(false),
+    startAt = 0,
+    onfinish,
+    onstep,
+    nextLabel = 'Next',
+    prevLabel = 'Back',
+    skipLabel = 'Skip tour',
+    class: className = '',
+  }: Props = $props();
+
+  let index = $state(0);
+  /** the resolved element of the CURRENT step (null = unavailable) */
+  let targetEl = $state<HTMLElement | null>(null);
+  let finished = false;
+  let panelEl = $state<HTMLElement | null>(null);
+
+  // the manual popover needs its explicit show — the panel is in the
+  // top layer while the tour renders, hidden on removal
+  $effect(() => {
+    if (!(open && panelEl)) return;
+    if (typeof panelEl.showPopover === 'function' && !panelEl.matches(':popover-open')) {
+      panelEl.showPopover();
+    }
+    return () => {
+      if (panelEl && typeof panelEl.hidePopover === 'function' && panelEl.matches(':popover-open')) {
+        panelEl.hidePopover();
+      }
+    };
+  });
+
+  const step = $derived(steps[index]);
+  const invokerFocus = { el: null as HTMLElement | null };
+
+  /** resolve a step's target; invalid selectors read as unavailable */
+  function resolve(current: TourStep): HTMLElement | null {
+    try {
+      if (typeof current.target === 'function') return current.target();
+      return document.querySelector<HTMLElement>(current.target);
+    } catch {
+      return null;
+    }
+  }
+
+  /** a hidden/unrendered target is as unavailable as a missing one.
+   *  offsetParent is null for EVERYTHING in layout-less engines (jsdom),
+   *  so: the hidden attribute always counts, and checkVisibility only
+   *  where the engine actually implements it */
+  function isUnavailable(el: HTMLElement | null): boolean {
+    if (el === null || el.hidden) return true;
+    if (typeof el.checkVisibility === 'function') return !el.checkVisibility();
+    return false;
+  }
+
+  // the lease: one target at a time, restored on every change
+  function lease(el: HTMLElement): void {
+    release();
+    el.dataset.jxTourPriorAnchor = el.style.anchorName;
+    el.style.anchorName = leaseName;
+    // bring the target into view without reading geometry
+    el.scrollIntoView({ block: 'nearest' });
+  }
+  function release(): void {
+    const holder = document.querySelector<HTMLElement>(`[style*="${leaseName}"]`);
+    if (!holder) return;
+    const prior = holder.dataset.jxTourPriorAnchor;
+    if (prior === undefined || prior === '') holder.style.removeProperty('anchor-name');
+    else holder.style.anchorName = prior;
+    delete holder.dataset.jxTourPriorAnchor;
+  }
+
+  /** enter a step: resolve, skip forward past unavailable steps, finish
+   *  when none remain — deterministic in one pass */
+  function enterStep(next: number): void {
+    index = next;
+    for (let i = next; i < steps.length; i++) {
+      const el = resolve(steps[i]!);
+      if (!isUnavailable(el)) {
+        index = i;
+        targetEl = el;
+        lease(el);
+        onstep?.(i);
+        return;
+      }
+    }
+    // every remaining step unavailable → finish at the last index
+    finish(steps.length - 1);
+  }
+
+  function finish(stoppedAt: number): void {
+    if (finished) return;
+    finished = true;
+    release();
+    targetEl = null;
+    open = false;
+    onfinish?.(stoppedAt);
+    invokerFocus.el?.focus();
+  }
+
+  function next(): void {
+    if (index >= steps.length - 1) {
+      finish(index);
+      return;
+    }
+    enterStep(index + 1);
+  }
+  function prev(): void {
+    if (index <= 0) return;
+    enterStep(index - 1);
+  }
+
+  // lifecycle: open → enter the start step; close → release + restore
+  $effect(() => {
+    if (open) {
+      finished = false;
+      invokerFocus.el = untrack(() => document.activeElement as HTMLElement | null);
+      enterStep(Math.max(0, Math.min(startAt, steps.length - 1)));
+    } else {
+      untrack(() => {
+        release();
+        targetEl = null;
+      });
+    }
+  });
+
+  $effect(() => () => release());
+
+  function handleKeydown(event: KeyboardEvent): void {
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      next();
+    } else if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      prev();
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      next();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      finish(index);
+    }
+  }
+</script>
+
+{#if open && step}
+  <!-- the hole: target-sized via CSS anchor-size, ONE huge shadow tint -->
+  <div
+    class="jx-tour-hole"
+    class:jx-tour-hole-anchored={targetEl !== null}
+    style="position-anchor: {leaseName}"
+    aria-hidden="true"
+  ></div>
+
+  <div
+    {autoId}
+    popover="manual"
+    role="dialog"
+    aria-modal="false"
+    aria-label={step.title}
+    class="jx-tour {className}"
+    style="position-anchor: {leaseName}"
+    bind:this={panelEl}
+    onkeydown={handleKeydown}
+  >
+    <p class="jx-tour-title">{step.title}</p>
+    {#if step.description}
+      <p class="jx-tour-desc">{step.description}</p>
+    {/if}
+    <div class="jx-tour-meta" aria-hidden="true">{index + 1} / {steps.length}</div>
+    <div class="jx-tour-actions">
+      <button type="button" class="jx-tour-skip" onclick={() => finish(index)}>{skipLabel}</button>
+      <div class="jx-tour-nav">
+        <button type="button" class="jx-tour-btn" disabled={index === 0} onclick={prev}>
+          {prevLabel}
+        </button>
+        <button type="button" class="jx-tour-btn jx-tour-next" onclick={next}>
+          {index >= steps.length - 1 ? 'Finish' : nextLabel}
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
+
+<style>
+  /* the hole anchors to the leased target: sized by anchor-size,
+     tinted by one huge box-shadow — zero geometry JS. Without anchor
+     positioning support: a plain full-viewport tint, no hole. */
+  .jx-tour-hole {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: color-mix(in oklab, var(--background) 55%, transparent);
+  }
+  @supports (anchor-name: --jx-tour-support) {
+    .jx-tour-hole-anchored {
+      inset: auto;
+      top: anchor(top);
+      left: anchor(left);
+      width: anchor-size(width);
+      height: anchor-size(height);
+      background: transparent;
+      border: 1px solid var(--primary);
+      box-shadow: 0 0 0 100vmax color-mix(in oklab, var(--background) 55%, transparent);
+    }
+  }
+
+  .jx-tour {
+    position: fixed;
+    margin: var(--jx-tour-gap, 12px);
+    position-try-fallbacks: flip-block, flip-inline;
+    position-try: flip-block, flip-inline;
+    inset-area: bottom span-right;
+    width: fit-content;
+    max-width: min(88vw, 20rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--border);
+    background: var(--popover);
+    color: var(--popover-foreground);
+    box-shadow: var(--shadow);
+  }
+  @supports not (anchor-name: --jx-tour-support) {
+    .jx-tour {
+      position-anchor: auto !important;
+      inset: 0;
+      margin: auto 1rem auto auto;
+      align-self: center;
+    }
+  }
+  .jx-tour::backdrop {
+    background: transparent;
+  }
+
+  .jx-tour-title {
+    margin: 0;
+    font-family: var(--font-nav);
+    font-size: 0.8125rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--foreground);
+  }
+  .jx-tour-desc {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--muted-foreground);
+  }
+  .jx-tour-meta {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--muted-foreground);
+  }
+  .jx-tour-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+  }
+  .jx-tour-skip {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--muted-foreground);
+    font-family: var(--font-nav);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: underline dotted;
+    cursor: pointer;
+  }
+  .jx-tour-skip:hover {
+    color: var(--foreground);
+  }
+  .jx-tour-nav {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .jx-tour-btn {
+    appearance: none;
+    padding: 0.375rem 0.875rem;
+    border: 1px solid var(--border);
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-nav);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: var(--shadow-2xs);
+  }
+  .jx-tour-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .jx-tour-btn:focus-visible,
+  .jx-tour-skip:focus-visible {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+  }
+  .jx-tour-next {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+</style>

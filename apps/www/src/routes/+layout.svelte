@@ -136,6 +136,11 @@
               description: 'fragment link rail',
             },
             {
+              href: '/components/tour.html',
+              label: 'tour',
+              description: 'guided walkthrough',
+            },
+            {
               href: '/components/alert-dialog.html',
               label: 'alert-dialog',
               description: 'destructive decisions',
