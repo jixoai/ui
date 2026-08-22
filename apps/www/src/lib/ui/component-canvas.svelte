@@ -45,7 +45,7 @@
   /** Read-only playground state projection; never a live region. */
   export interface PlayEcho {
     label: string;
-    value: string | number | boolean | null | undefined;
+    value: string | number | boolean | null | undefined | readonly unknown[];
   }
 
   interface Props {
@@ -59,6 +59,8 @@
     files: TreeFile[];
     /** LIVE demo area — the consumer renders the component instance. */
     children: Snippet;
+    /** Stage layout: center (default) | start (left-align) | stretch (full-width) */
+    stage?: 'center' | 'start' | 'stretch';
     /** PlayCanvas controls pane — consumer-authored interactive controls. */
     playground?: Snippet;
     /** Page-owned reset: shows the title-row reset button and calls back. */
@@ -78,6 +80,7 @@
     sourceUrl,
     files,
     children,
+    stage = 'center',
     playground,
     onreset,
     echo,
@@ -129,6 +132,10 @@
 
   const tree = $derived(buildTree(files));
   let selectedPath = $state('');
+  $effect(() => {
+    void files;
+    selectedPath = '';
+  });
   // drawer default: the usage file when the list carries one (what readers
   // of a workbench open the drawer for), else the first file
   const current = $derived(
@@ -142,6 +149,26 @@
   let codeOpen = $state(false);
 
   const leafName = (path: string): string => path.split('/').pop() ?? path;
+
+  const usageFile = $derived(
+    files.find((f) => (f as TreeFile & { kind?: string }).kind === 'usage') ??
+      files.find((f) => f.name.endsWith('usage.svelte')),
+  );
+  function formatEcho(value: PlayEcho['value']): string {
+    if (value === null || value === undefined) return '—';
+    if (Array.isArray(value)) {
+      const text = value.map(String).join(', ');
+      return text.length > 40 ? text.slice(0, 40) + '…' : text || '[]';
+    }
+    const text = String(value);
+    return text.length > 60 ? text.slice(0, 60) + '…' : text || '—';
+  }
+
+  function copyUsage(): void {
+    const file = usageFile;
+    if (!file) return;
+    void navigator.clipboard?.writeText(resolveFileContent?.(file) ?? file.content);
+  }
 </script>
 
 <section class={`jx-canvas ${className}`}>
@@ -173,7 +200,7 @@
   </header>
 
   <div class="jx-canvas-stage-row">
-    <div class="jx-canvas-stage" aria-label={`${title} demo`}>
+    <div class="jx-canvas-stage jx-stage-{stage}" aria-label={`${title} demo`}>
       {@render children()}
     </div>
     {#if playground}
@@ -199,7 +226,7 @@
             {#each echo as item, index (`${item.label}-${index}`)}
               <div class="jx-canvas-echo-row">
                 <dt>{item.label}</dt>
-                <dd>{item.value ?? '—'}</dd>
+                <dd>{formatEcho(item.value)}</dd>
               </div>
             {/each}
           </dl>
@@ -219,7 +246,14 @@
       <span aria-hidden="true">{'</>'}</span>
       <span>Code</span>
     </button>
-    <span class="jx-canvas-code-count">{files.length} {files.length === 1 ? 'file' : 'files'}</span>
+    <div class="jx-canvas-code-actions">
+      {#if usageFile}
+        <button type="button" class="jx-canvas-copy-usage" ariaLabel="copy the usage snippet" onclick={() => copyUsage()}>
+          copy usage
+        </button>
+      {/if}
+      <span class="jx-canvas-code-count">{files.length} {files.length === 1 ? 'file' : 'files'}</span>
+    </div>
   </div>
 
   <div
@@ -324,6 +358,18 @@
     min-height: 200px;
     min-width: 0;
     padding: 1.5rem;
+  }
+  .jx-stage-start {
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+  .jx-stage-stretch {
+    align-items: stretch;
+    justify-content: stretch;
+  }
+  .jx-stage-stretch > :global(*) {
+    flex: 1 1 100%;
+    max-width: 100%;
   }
   /* pane layer law: stage owns the strong tint (muted 42%), the playground
      answers with a light one (muted 12%) — a layer between stage and
@@ -504,6 +550,31 @@
   }
   .jx-canvas-code-toggle[aria-expanded='true'] {
     background: var(--muted);
+  }
+  .jx-canvas-code-actions {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+  }
+  .jx-canvas-copy-usage {
+    background: none;
+    border: none;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    font-family: var(--font-nav);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-transform: uppercase;
+  }
+  .jx-canvas-copy-usage:hover {
+    color: var(--primary);
+  }
+  .jx-canvas-copy-usage:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
   }
   .jx-canvas-code-count {
     color: var(--muted-foreground);
