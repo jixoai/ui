@@ -183,14 +183,18 @@
       display: none;
     }
     .jx-ctree {
-      margin: 1.25rem 0 0 1.25rem;
+      /* cell inset via PADDING, never margin (Owner rule, 2026-08-24):
+         margin pairs badly with the grid cell's percentage max-height;
+         the gutter handback below is padding-shaped anyway */
+      padding-block-start: 1.25rem;
       max-height: calc(100% - 1.25rem);
       overflow: hidden auto;
       /* scrollbar law: both-edges gutters; padding hands the gutter back
-         so the visual inset stays 0.5rem */
+         so the visual insets stay */
       scrollbar-width: thin;
       scrollbar-gutter: stable both-edges;
-      padding-inline: max(0.5rem - var(--jx-scrollbar-thin, 0px), 0px);
+      padding-left: max(1.25rem - var(--jx-scrollbar-thin, 0px), 0px);
+      padding-right: max(0.5rem - var(--jx-scrollbar-thin, 0px), 0px);
     }
   }
 

@@ -266,9 +266,19 @@
 aside.jx-toc-aside:not(:has(> .jx-toc)) {
   display: none;
 }
+/* the rail's cell inset is PADDING, never margin (Owner rule,
+   2026-08-24): margin pairs badly with the percentage max-height the
+   grid cell imposes, and the scrollbar law below is padding-shaped */
 @media (min-width: 900px) {
   .jx-toc[data-toplayer] {
-    margin: 1.25rem 0 0 1.25rem;
+    padding-block-start: 1.25rem;
+    /* scrollbar law: the adopted rail is a REAL scrollport (the shell
+       caps it with max-height + overflow) — both-edges gutters, and the
+       padding hands the measured gutter back so the visual insets stay */
+    scrollbar-width: thin;
+    scrollbar-gutter: stable both-edges;
+    padding-left: max(1.25rem - var(--jx-scrollbar-thin, 0px), 0px);
+    padding-right: max(0.5rem - var(--jx-scrollbar-thin, 0px), 0px);
   }
 }
 
