@@ -27,10 +27,13 @@
     900–1199  cols [content 1fr][toc 15rem]                tree bottom bar
     <900      cols [content] + tocbar row under the header tree bottom bar
 
-  Immersive law (per-zone, Owner ruling 2026-08-23): scroll DOWN hides
-  navigation chrome, scroll UP reveals it, the reading state NEVER leaves:
-    header → translateY(-101%)      toc → translateY(-header-h) (compacts)
-    tree  → bar +100% / rail -101%  (css: website-scaffold.css)
+  Immersive law (per-zone, Owner rulings 2026-08-23/24): scroll DOWN
+  hides the header and the tree bottom bar, scroll UP reveals them; the
+  reading/navigation rails NEVER leave — they compact by the header
+  height instead:
+    header → translateY(-101%)          toc → translateY(-header-h)
+    tree  → bar +100%; rail compacts    (css: website-scaffold.css)
+                                          like the toc
 
   The float slot spans the whole top layer as a subgrid; adopted nodes are
   placed by their [data-area] role ('toc' | 'tree' | 'float' default) into

@@ -224,9 +224,11 @@
   transform: translateY(100%);
 }
 @container jx-shell (min-width: 1200px) {
-  /* the rail form is navigation chrome: it leaves WITH the header */
+  /* the rail form is a persistent navigation surface (Owner ruling,
+     2026-08-24): it compacts under the departing header exactly like the
+     toc — it never leaves the screen */
   .jx-shell-host[data-hidden] .jx-float-slot > [data-area='tree'] {
-    transform: translateY(-101%);
+    transform: translateY(calc(-1 * var(--jx-header-h, 64px)));
   }
 }
 

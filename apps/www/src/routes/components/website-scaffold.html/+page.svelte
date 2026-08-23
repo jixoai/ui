@@ -121,7 +121,7 @@ ${close}
                 <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
                   <span><strong class="font-semibold">one measurement</strong> — a single ResizeObserver publishes <code class="text-accent">--jx-header-h</code>; the body's chrome reservation, the toc compaction offset and the shared <code class="text-accent">--jx-toc-line</code> all derive from it in CSS. Disclosure rows re-reserve automatically</span></li>
                 <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-                  <span><strong class="font-semibold">per-zone immersive law</strong> — scroll DOWN past 8px: the header (and the catalog rail) leave upward, the tree bottom bar slides down, the toc NEVER leaves — it compacts by exactly the header height; the slightest scroll UP returns everything; reduced motion swaps to instant</span></li>
+                  <span><strong class="font-semibold">per-zone immersive law</strong> — scroll DOWN past 8px: the header leaves upward and the tree bottom bar slides down; the toc and the catalog rail NEVER leave — they compact by exactly the header height (Owner ruling, 2026-08-24); the slightest scroll UP returns everything; reduced motion swaps to instant</span></li>
                 <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
                   <span><strong class="font-semibold">view transitions</strong> — the header band keeps view-transition-name <code class="text-accent">site-header</code> and persists across navigations; main#main animates as <code class="text-accent">page-main</code></span></li>
                 <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
