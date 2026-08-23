@@ -479,7 +479,7 @@ document.body.classList.add('jx-pure');</code></pre>
         headerRegion="custom-element"
         eyebrow="demo"
         title="CustomElement — the shadow-root adoption"
-        summary="Document css never crosses the shadow boundary, so a CustomElement brings the two sheets ITSELF: fetch the registry copies, build constructable CSSStyleSheets, adopt them on the shadow root. The fixture below is LIVE — a real <jx-pure-island> element defined by this page, adopting the real token + face sheets this site runs. Fonts stay document-level (@font-face is document-scoped; the shadow inherits the loaded families)."
+        summary="Document css never crosses the shadow boundary, so a CustomElement brings the two sheets ITSELF: inline the registry copies' text (bundled ?raw here) into <style> nodes inside the shadow root — style nodes parse tolerantly where constructable sheets would throw on the token sheet's build-time at-rules. The fixture below is LIVE — a real <jx-pure-island> element defined by this page, carrying the real token + face sheets this site runs. Fonts stay document-level (@font-face is document-scoped; the shadow inherits the loaded families)."
       >
         <div class="grid gap-6 min-[760px]:grid-cols-2">
           <div class="flex flex-col gap-3">
@@ -549,8 +549,9 @@ document.body.classList.add('jx-pure');</code></pre>
             </p>
             <div class="jx-pure flex flex-wrap items-center gap-3">
               <button type="button">the law</button>
-              <span data-jx-pure-skip style="display: inline-flex; gap: 0.75rem">
-                <button type="button">skipped island</button>
+              <span data-jx-pure-skip style="display: inline-flex; align-items: center; gap: 0.75rem">
+                <button type="button">skipped button</button>
+                <input class="jx-input" type="text" placeholder="even .jx-input reverts" style="width: 14rem" aria-label="skipped jx-input" />
               </span>
             </div>
             <h3 class="text-[15px] font-bold tracking-tight">The type allowlist</h3>

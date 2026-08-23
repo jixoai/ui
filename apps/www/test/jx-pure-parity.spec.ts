@@ -124,7 +124,13 @@ describe('native-form ↔ icons.ts geometry parity', () => {
     const open = tokenSheet.indexOf('{', darkAt);
     let depth = 1;
     let i = open + 1;
-    while (depth > 0) i += tokenSheet[i++] === '{' ? 1 : tokenSheet[i - 1] === '}' ? -1 : 0;
+    while (depth > 0 && i < tokenSheet.length) {
+      const ch = tokenSheet[i];
+      if (ch === '{') depth++;
+      else if (ch === '}') depth--;
+      i++;
+    }
+    expect(depth, 'jixoai.css .dark block is balanced').toBe(0);
     const declarations = tokenSheet.slice(open + 1, i - 1).trim();
     const begin = sheet.indexOf('/* ==== BEGIN GENERATED');
     const end = sheet.indexOf('/* ==== END GENERATED');

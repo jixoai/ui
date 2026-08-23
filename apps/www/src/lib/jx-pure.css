@@ -1317,9 +1317,13 @@
     background: var(--primary);
     transition: width 150ms ease-out;
   }
-  /* indeterminate: no percent exists — a muted stripe slides across;
-     under reduced motion it parks at the start (Part C parks it) */
-  :where(.jx-pure) progress:indeterminate::-webkit-progress-bar {
+  /* indeterminate: no percent exists — a muted stripe slides across.
+     The stripe rides the ELEMENT's own background, never the UA
+     pseudos: engines reject author paint/animation on progress
+     pseudos exactly like the number spinners (Codex r4 R4-1 — the
+     pseudo path compiled but never animated). Part C parks it under
+     reduced motion. */
+  :where(.jx-pure) progress:indeterminate {
     background:
       linear-gradient(in oklab, var(--muted), var(--muted)) 0 0 / 40% 100% no-repeat,
       var(--background);
@@ -1330,10 +1334,7 @@
     background: var(--primary);
   }
   :where(.jx-pure) progress:indeterminate::-moz-progress-bar {
-    background:
-      linear-gradient(in oklab, var(--muted), var(--muted)) 0 0 / 40% 100% no-repeat,
-      var(--background);
-    animation: jx-progress-slide 1.2s linear infinite;
+    background: transparent; /* the element's stripe owns the paint */
   }
   /* meter: the semantic three-state fill (token-mapped, monochrome law) */
   :where(.jx-pure) meter::-webkit-meter-bar {
@@ -1408,20 +1409,29 @@
 
   /* =====================================================================
      B12 · the escape hatch — [data-jx-pure-skip] (Codex r1 9.4,
-     resolved 2026-08-24). Mount it on a subtree that must keep its
-     OWN paint (a third-party widget, an iframe companion, a legacy
-     island): every B-law surface inside reverts to the USER-AGENT
-     cascade — author styling from this sheet AND the host's base
-     layer step aside. `revert` rolls the whole author origin back,
-     which is the only reliable pure-CSS subtree exclusion (the
-     honest evaluation conclusion — :not() chains do not scale).
-     NOTE: Part A classes are reverted on those elements too — the
-     island is FULLY native; re-opting a single element back in
-     requires a selector that beats the hatch's (0,2,1).
+     resolved 2026-08-24; r4 R4-2 fix: UNLAYERED). Mount it on the
+     wrapper of a subtree that must keep its OWN paint (a third-party
+     widget, an iframe companion, a legacy island): every surface
+     INSIDE reverts to the USER-AGENT cascade. The rules live OUTSIDE
+     @layer components on purpose — a layered revert could never beat
+     Part A's UNLAYERED classes (layers outrank specificity), and the
+     hatch must win against BOTH parts. `revert` rolls the whole
+     author origin back — the only reliable pure-CSS subtree exclusion
+     (the honest evaluation conclusion — :not() chains do not scale).
+     Part A classes are reverted on those elements too — the island is
+     FULLY native; the B-drawn pseudos (checkbox glyph, radio dot,
+     summary marker) are reverted separately below.
      ===================================================================== */
-  .jx-pure [data-jx-pure-skip] :where(button, input, textarea, select, summary, details, fieldset, legend, table, th, td, progress, meter, figure, blockquote, pre, code, kbd, samp, hr, ul, ol, dl, dt, dd) {
-    all: revert;
-  }
+}
+/* the hatch, unlayered so it outranks Part A */
+.jx-pure [data-jx-pure-skip] :where(button, input, textarea, select, summary, details, fieldset, legend, table, th, td, progress, meter, figure, blockquote, pre, code, kbd, samp, hr, ul, ol, dl, dt, dd) {
+  all: revert;
+}
+.jx-pure [data-jx-pure-skip] :where(input[type='checkbox'])::before,
+.jx-pure [data-jx-pure-skip] :where(input[type='radio'])::after,
+.jx-pure [data-jx-pure-skip] summary::before {
+  all: revert;
+  content: none;
 }
 
 /* =====================================================================
@@ -1460,6 +1470,15 @@
   :where(.jx-pure) input[type='checkbox'],
   :where(.jx-pure) input[type='radio'] {
     transition: none;
+  }
+  /* the indeterminate stripe parks: element animation off (the
+     authored -moz pseudo animation is likewise killed — one rule per
+     surface, and the -moz one stands alone) */
+  :where(.jx-pure) progress {
+    animation: none;
+  }
+  :where(.jx-pure) progress::-moz-progress-bar {
+    animation: none;
   }
   :where(.jx-pure) input[type='checkbox']::before {
     transition: none;

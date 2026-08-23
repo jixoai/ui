@@ -80,6 +80,7 @@ const facts = await page.evaluate(() => {
   const shadowInput = islandHost?.shadowRoot?.querySelector('input');
   // served-rule scan: B rules actually landed in @layer components
   let layered = false;
+  let indetStripeServed = false;
   const sheets = [...document.styleSheets, ...(document.adoptedStyleSheets ?? [])];
   for (const sheet of sheets) {
     let rules;
@@ -94,6 +95,9 @@ const facts = await page.evaluate(() => {
         if (rule.name === 'components') {
           for (const inner of rule.cssRules) {
             if ((inner.selectorText ?? '').includes('.jx-pure')) layered = true;
+            // progress-pseudo computed styles are not reflectable (the
+            // verify-hue lesson) — assert the stripe rule is SERVED
+            if ((inner.selectorText ?? '').includes('progress:indeterminate') && inner.cssText.includes('jx-progress-slide')) indetStripeServed = true;
           }
         }
       }
@@ -147,13 +151,18 @@ const facts = await page.evaluate(() => {
     progress: {
       appearance: cs(prog, 'appearance').trim(),
       height: cs(prog, 'height'),
-      // the stripe animation rides the ::-webkit-progress-bar pseudo
-      indetAnimated: getComputedStyle(progIndet, '::-webkit-progress-bar').animationName,
+      // R4-1: the stripe is an ELEMENT animation now — reflectable
+      indetRunning: progIndet.getAnimations().length > 0,
     },
     meterBox: { appearance: cs(meterOpt, 'appearance').trim(), height: cs(meterOpt, 'height') },
     outputFont: cs(out, 'font-family'),
     figcapVoice: { font: cs(figcap, 'font-family'), transform: cs(figcap, 'text-transform') },
     skipIsland: { btnMinHeight: cs(skipBtn, 'min-height'), btnShadow: cs(skipBtn, 'box-shadow'), btnCursor: cs(skipBtn, 'cursor') },
+    skipPartA: (() => {
+      // R4-2: the hatch must beat Part A's UNLAYERED classes too
+      const el = document.querySelector('[data-jx-pure-skip] .jx-input');
+      return el ? { minH: cs(el, 'min-height'), pad: cs(el, 'padding') } : { missing: true };
+    })(),
     shadowDom: shadowBtn
       ? {
           styleNodes: islandHost.shadowRoot.querySelectorAll('style').length,
@@ -163,6 +172,7 @@ const facts = await page.evaluate(() => {
         }
       : null,
     layered,
+    indetStripeServed,
   };
 });
 const checks = [
@@ -189,7 +199,8 @@ const checks = [
   ['A2 · .jx-light.jx-pure same-element: forced light scheme under dark', facts.lightIsland.scheme === 'light' && facts.lightIsland.rootScheme === 'light'],
   ['A3 · disabled fieldset: one opacity owner (group .5, controls 1)', facts.lockedGroup.fieldsetOpacity === '0.5' && facts.lockedGroup.inputOpacity === '1'],
   ['progress: 8px track family repaint', facts.progress.appearance === 'none' && facts.progress.height === '8px'],
-  ['progress indeterminate: sliding stripe animation', facts.progress.indetAnimated === 'jx-progress-slide'],
+  ['progress indeterminate: the stripe animation RUNS (element-level)', facts.progress.indetRunning],
+  ['R4-2 · skip beats Part A: .jx-input inside the hatch reverts', facts.skipPartA.minH === 'auto' && facts.skipPartA.pad !== '8px 12px'],
   ['meter: same track family', facts.meterBox.appearance === 'none' && facts.meterBox.height === '8px'],
   ['output: mono result lane', facts.outputFont.includes('JetBrains')],
   ['figcaption: nav-font small caps voice', facts.figcapVoice.font.includes('Share Tech') && facts.figcapVoice.transform === 'uppercase'],
@@ -236,7 +247,7 @@ const ad = await page.evaluate(() => {
 await page.evaluate(() => document.querySelector('#verify-auto-dark').remove());
 await page.emulateMedia({ colorScheme: null });
 const adChecks = [
-  ['auto-dark: tokens flip under emulated dark (zero JS)', ad.bg === 'rgb(0, 0, 0)'],
+  ['auto-dark: tokens flip under emulated dark (zero JS)', ad.bg === 'rgb(0, 0, 0)' || ad.bg === 'oklch(0 0 0)'],
   ['auto-dark: scope-root companion paints the scheme', ad.scheme === 'dark'],
 ];
 for (const [name, ok] of adChecks) {
@@ -263,6 +274,7 @@ const rm = await page.evaluate(() => {
     radioAfter: getComputedStyle(radio, '::after').transitionDuration,
     rangeThumbWebkit: getComputedStyle(range, '::-webkit-slider-thumb').transitionDuration,
     btn: getComputedStyle(btn).transitionDuration,
+    indetAnim: getComputedStyle(document.querySelector('#media-flow progress:not([value])')).animationName,
   };
 });
 const still = (v) => v === '0s';
@@ -273,6 +285,7 @@ const rmChecks = [
   ['R1 · radio ::after still', still(rm.radioAfter)],
   ['R1 · range webkit thumb still', still(rm.rangeThumbWebkit)],
   ['R1 · button still', still(rm.btn)],
+  ['R4-1 · indeterminate stripe parks (animation none)', rm.indetAnim === 'none'],
 ];
 for (const [name, ok] of rmChecks) {
   console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}`);
