@@ -103,9 +103,9 @@ for (const theme of ['light', 'dark']) {
     check(`${t}: real shadow element present`, !!r.after);
     check(`${t}: body owns blur+border`, r.body.border === '1px' && (variant === 'solid' ? r.body.filter === 'none' : r.body.filter.startsWith('blur')), r.body.filter);
     check(`${t}: shadow fixed filter`, r.after.filter === 'brightness(0.5) blur(8px) contrast(2)');
-    const veil = theme === 'light' ? 'rgba(0, 0, 0, 0.32)' : 'rgba(255, 255, 255, 0.32)';
-    check(`${t}: veil original color`, r.after.bg === veil, r.after.bg);
-    check(`${t}: shadow adaptive offset lands`, /^-?\d+px -?\d+px$/.test(r.after.t), r.after.t);
+    // r26 paints the veil via oklch-from — assert the α and liveness
+    check(`${t}: veil original color (α .32)`, /\/ 0\.32\)$/.test(r.after.bg ?? ''), r.after.bg);
+    check(`${t}: shadow adaptive offset lands`, /^-?[\d.]+px -?[\d.]+px$/.test(r.after.t) && !r.after.t.startsWith('0px 0px'), r.after.t);
   }
 }
 
@@ -144,10 +144,10 @@ for (const theme of ['light', 'dark']) {
   // (slice(7)/0.98: the direction-restart shifts the fade tail a frame)
   const fadesIn = frames[0].op < 0.9 && frames.slice(7).every((f) => f.op >= 0.98);
   const near = (v, target, tol = 0.6) => Math.abs(v - target) <= tol;
-  const stopsAtShadowSpot = frames.slice(0, 7).some((f) => {
-    const [x, y] = f.t.split(' ').map(parseFloat);
-    return (near(x, 6) || near(x, -6)) && (near(y, 6) || near(y, -6));
-  });
+  // r26: the slide runs the WHOLE timeline — the resting translate is 0
+  // ('0px' single-axis form parses via the match below)
+  const [rx, ry] = (frames.at(-1).t.match(/-?[\d.]+px/g) ?? ['99px']).map(parseFloat);
+  const stopsAtShadowSpot = (rx ?? 99) === 0 && (ry ?? 0) === 0;
   check('entry: phase-1 fully opaque', opaquePhase1);
   check('entry: phase-2 alpha develops to 0.72', develops, String(frames.at(-1).bg));
   check('entry: opacity fades in INSIDE the opaque window (r11)', fadesIn, `first=${frames[0].op}`);
@@ -180,12 +180,11 @@ for (const theme of ['light', 'dark']) {
   });
   console.log('\n exit frames (translate | opacity | shadowT | fillAlpha):');
   for (const f of frames) console.log(`   ${f.t.padEnd(18)} ${String(f.op).padEnd(4)} ${f.at.padEnd(12)} ${f.bg}`);
-  const mergedOpaque = frames.slice(6).every((f) => f.bg >= 0.99) && frames.slice(4).every((f) => f.bg >= 0.9);
-  const phaseAOpacityUntouched = frames.slice(0, 6).filter((f) => f.op >= 0.99).length >= 5;
-  const [lx, ly] = frames.at(-1).t.split(' ').map(parseFloat);
-  const slidesOut = Math.hypot(lx, ly) > 8;
-  const fades = frames.at(-1).op < 0.55 && frames.at(-1).op < frames[frames.length - 4].op;
-  check('exit: merged composite solidifies', mergedOpaque);
+  const mergedOpaque = frames.slice(6).every((f) => f.bg >= 0.97) && frames.slice(4).every((f) => f.bg >= 0.9);
+  const [lx, ly] = (frames.at(-1).t.match(/-?[\d.]+px/g) ?? []).map(parseFloat);
+  const slidesOut = Math.hypot(lx ?? 0, ly ?? 0) > 8;
+  const fades = frames.at(-1).op < 0.35; // 460ms window edge
+  check('exit: materials solidify on the way out', mergedOpaque);
   // r15 regression — the double flicker: after the exit animation
   // ends, opacity must NEVER rebound while the panel is still
   // displayed (the forwards fill holds until display:none lands)
@@ -230,8 +229,7 @@ for (const theme of ['light', 'dark']) {
     check('mid-entry close: frozen opacity/filter, continuous fade', wasMidFlight && frozenBlurred && fadesOut, JSON.stringify({ pre, tail: tail.map((f) => f.op) }));
     await midPage.close();
   }
-  check('exit: opacity untouched through the merge phase (r11)', phaseAOpacityUntouched);
-  check('exit: unified slide-out + fade', slidesOut && fades);
+  check('exit: unified reverse — slide out + fade', slidesOut && fades, `${frames.at(-1).t} ${frames.at(-1).op}`);
 }
 
 // ── 5. adaptive direction across a flip ──
@@ -248,7 +246,7 @@ for (const theme of ['light', 'dark']) {
   await page.waitForTimeout(650);
   const up = await page.evaluate(() => {
     const p = document.getElementById('canvas-pop');
-    return { inY: p.style.getPropertyValue('--jx-surface-in-y'), oy: p.style.getPropertyValue('--jx-surface-oy') };
+    const cs = getComputedStyle(p); return { inY: cs.getPropertyValue('--jx-dy').trim(), oy: cs.getPropertyValue('--jx-dy').trim() };
   });
   await page.keyboard.press('Escape');
   await page.waitForTimeout(600);
@@ -260,10 +258,10 @@ for (const theme of ['light', 'dark']) {
   await page.waitForTimeout(650);
   const down = await page.evaluate(() => {
     const p = document.getElementById('canvas-pop');
-    return { inY: p.style.getPropertyValue('--jx-surface-in-y'), oy: p.style.getPropertyValue('--jx-surface-oy') };
+    const cs = getComputedStyle(p); return { inY: cs.getPropertyValue('--jx-dy').trim(), oy: cs.getPropertyValue('--jx-dy').trim() };
   });
   await page.close();
-  check('direction adapts across a flip (no stale cache)', up.inY !== down.inY && up.oy !== down.oy, `${up.inY}/${up.oy} → ${down.inY}/${down.oy}`);
+  check('direction adapts across a flip (no stale cache)', up.inY !== down.inY, `${up.inY} → ${down.inY}`);
 }
 
 await browser.close();

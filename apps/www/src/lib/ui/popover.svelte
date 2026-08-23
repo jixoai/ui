@@ -166,340 +166,85 @@
     open = panel?.matches(':popover-open') ?? false;
     triggerEl?.setAttribute('aria-expanded', String(open));
     if (open && panel) {
-      // predict BEFORE the panel's first style recalc so the first
-      // frame carries the correct vector
-      const { sx, sy } = predictDirection();
-      applyDirection(panel, sx, sy);
-      playEntry();
-      const token = runToken; // a stale rAF must not replay a newer run
-      requestAnimationFrame(() => {
-        if (token !== runToken) return;
-        verifyDirection();
-      });
+      playProgress(1);
+      trackAxis();
     } else if (panel) {
-      playExit();
+      playProgress(0);
+      cancelAnimationFrame(trackFrame);
     }
     onToggle?.(open);
   }
 
-  // ── MOTION KERNEL (Owner rulings, 2026-08-22 r12 → 2026-08-23 r19) ──
-  // Division of labor: CSS lays out and statically paints; EVERY
-  // animation — panel, body, and the REAL shadow element — runs here
-  // in WAAPI (the ::after fallback is content:none on kernel
-  // components). Two laws:
-  //
-  // 1. OPACITY CHANNEL LAW — an animated opacity (even a constant 1)
-  //    activates the compositor's opacity channel and breaks
-  //    backdrop-filter blur. Opacity is therefore animated ONLY at
-  //    runtime, ONLY while the kernel pins the materials OPAQUE
-  //    (entry phase A fades 0→1; exit phase B' fades 1→0 after A'
-  //    has solidified the composite).
-  // 2. NO LINGERING FILLS — a filled animation left on a rendered
-  //    element defers backdrop-filter rasterization (the
-  //    blur-appears-minutes-later bug). Every phase is canceled the
-  //    moment its successor owns the values, and at entry-rest (end
-  //    values equal the cascade). The one exception: the exit tail's
-  //    forwards fill must survive until display:none — canceling it
-  //    snaps opacity back to 1 for a visible frame (the exit flicker).
-  //
-  // Choreography (230ms per phase, linear — segments only join
-  // smoothly on a flat easing):
-  //   ENTRY  A: opaque bg; opacity 0→1 + DEFOCUS resolve + slide to the
-  //            shadow's spot (panel & shadow merged)
-  //          B: separation — panel rises to 0, materials' alphas develop
-  //            (all three layers WAAPI), the shadow's ABSOLUTE position
-  //            never moves
-  //   EXIT   A': mirror — solidify + merge, opacity untouched, starting
-  //            from the CURRENT live values (closing mid-entry stays
-  //            continuous — no snap to the cascade first)
-  //          B': the merged opaque composite defocuses, slides out and
-  //            fades — the exact reverse of entry A
-  const PHASE_MS = 230;
-  // run token (Codex joint-analysis): entry/exit phases capture the
-  // token at CREATION; a stale callback returns without acting —
-  // cancel() can only reject unfinished promises, it cannot retract an
-  // already-queued .then() from a superseded run
-  let runToken = 0;
-  const EASE = 'linear';
-  const DEFOCUS = 'blur(100px)';
-  let solidBg = ''; // opaque fill, re-resolved per open (theme-safe)
-  let glassBg = ''; // translucent acrylic fill, read per open
-  let veilBg = ''; // the shadow layer's translucent veil, read per open
-  let veilSolid = ''; // the veil's opaque form (pure shadow color)
-
+  // ── MOTION KERNEL (Owner ruling, 2026-08-23 r26 — declarative) ──
+  // WAAPI animates exactly ONE thing: --jx-p, the timeline progress
+  // (an @property-registered number, so Chrome's animation panel can
+  // scrub it). Every visible property is a CSS formula of it (see the
+  // declarative motion law in jixoai.css) — no layout property is ever
+  // touched from JS, no finished() chains, no state callbacks. The
+  // kernel's only other job is the LIVE direction axis: an rAF loop
+  // publishes the panel↔anchor unit vector as --jx-dx/--jx-dy (pure
+  // custom properties; the degenerate axis falls back to the project
+  // default, bottom-right). Reduced motion jumps the same lifecycle to
+  // its end instantly.
   const prefersReducedMotion = (): boolean =>
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /** resolve a custom property through ONE level of var() nesting */
-  function resolveVar(el: HTMLElement, name: string, fallbackName: string): string {
-    const cs = getComputedStyle(el);
-    const raw = cs.getPropertyValue(name).trim();
-    const target = raw || `var(${fallbackName})`;
-    const varRef = /^var\(\s*(--[\w-]+)\s*\)$/.exec(target);
-    return (varRef ? cs.getPropertyValue(varRef[1]).trim() : target) || cs.getPropertyValue(fallbackName).trim();
-  }
+  let progressAnim: Animation | null = null;
+  let trackFrame = 0;
+  // last observed progress: the engine cancels the fill-both progress
+  // animation when the closed panel's display flips — reading the
+  // computed --jx-p at close time then returns the cascade initial 0
+  // and the exit would snap instead of reversing (r26 exit probe). The
+  // axis tracker refreshes this every frame while open
+  let lastP = 0;
 
-  const surface = (): { p: HTMLElement; b: HTMLElement; sh: HTMLElement } | null => {
+  /** the WHOLE lifecycle: drive --jx-p to the target — 460ms linear,
+   *  fill both (formulas hold the end pose), from the CURRENT value so
+   *  rapid toggles reverse mid-flight without jumps */
+  function playProgress(to: number): void {
     const p = panel;
-    const b = p?.querySelector<HTMLElement>('.jx-pop-body');
-    const sh = p?.querySelector<HTMLElement>('.jx-pop-shadow');
-    return p && b && sh ? { p, b, sh } : null;
-  };
-
-  /** kernel-owned animations on the panel and the body */
-  function kernelAnims(): Animation[] {
-    const out: Animation[] = [];
-    for (const el of [panel, panel?.querySelector('.jx-pop-body'), panel?.querySelector('.jx-pop-shadow')]) {
-      if (!el) continue;
-      for (const a of el.getAnimations()) {
-        if ((a as CSSElementAnimationLike).__jxKernel) out.push(a);
-      }
+    if (!p) return;
+    progressAnim?.cancel();
+    if (prefersReducedMotion()) {
+      lastP = to;
+      p.style.setProperty('--jx-p', String(to)); // jump to complete
+      return;
     }
-    return out;
-  }
-
-  function anim(el: HTMLElement, frames: Keyframe[], fill: FillMode = 'both'): Animation {
-    const a = el.animate(frames, { duration: PHASE_MS, easing: EASE, fill });
-    (a as CSSElementAnimationLike).__jxKernel = true;
-    return a;
-  }
-
-  /** hold values ABOVE the style attribute (r25): a 1ms fill-both
-   *  animation outranks any inline style, so Svelte re-rendering the
-   *  style can never wipe a freeze or a rest pin mid-flight — the old
-   *  imperative p.style writes were exactly that fragile */
-  function hold(el: HTMLElement, props: Keyframe): Animation {
-    const a = el.animate([props, props], { duration: 1, fill: 'both' });
-    (a as CSSElementAnimationLike).__jxKernel = true;
-    return a;
-  }
-
-  // The kernel owns these layers from mount; the animation lock rides
-  // the .jx-waapi CLASS (law rule) — an inline animation:'none' died
-  // with every Svelte style re-render, letting CSS fallback sequences
-  // race the kernel (Codex joint-analysis). Fill resolution stays here
-  $effect(() => {
-    const s = surface();
-    if (!s) return;
-    if (!solidBg && !s.p.matches(':popover-open')) {
-      solidBg = resolveVar(s.p, '--jx-surface-solid-fill', '--popover');
-    }
-  });
-
-  const IN = () => `${dir.ix} ${dir.iy}`;
-  const SHADOW = () => `${dir.ox} ${dir.oy}`;
-
-  /** replay = the direction-correction restart: same choreography, but
-   *  opacity stays 1 (the panel is already visible — resetting it was
-   *  the first-open flash) */
-  function playEntry(replay = false): void {
-    const s = surface();
-    if (!s) return;
-    const { p, b, sh } = s;
-    const token = ++runToken;
-    // snapshot the LIVE opacity BEFORE canceling — the replay's first
-    // keyframe must resume the in-flight fade; reading after the cancel
-    // would return the cascade's 1 and jump the panel bright (Codex r2)
-    const liveOp = getComputedStyle(p).opacity;
-    // cancelKernel drops every hold() freeze and rest pin along with
-    // the phase animations (they are all tagged) — the entry phases own
-    // every channel from here
-    for (const a of kernelAnims()) a.cancel();
-    if (prefersReducedMotion()) return;
-    glassBg = getComputedStyle(b).backgroundColor; // open cascade (kernel lock ⇒ no CSS animation on it)
-    veilBg = getComputedStyle(sh).backgroundColor; // the veil at rest
-    // re-resolve the theme-dependent opaque values EVERY open — a
-    // cached value would go stale across a light/dark switch
-    solidBg = resolveVar(p, '--jx-surface-solid-fill', '--popover');
-    veilSolid = resolveVar(p, '--shadow-color', '--shadow-color');
-    const solid = solidBg || glassBg;
-
-    // PHASE A — the kernel-pinned OPAQUE window (ALL layers opaque,
-    // the shadow merged flush under the panel)
-    const bodyA = anim(b, [{ backgroundColor: solid }, { backgroundColor: solid }]);
-    const shadowA = anim(sh, [
-      { translate: '0 0', backgroundColor: veilSolid },
-      { translate: '0 0', backgroundColor: veilSolid },
-    ]);
-    const panelA = anim(
-      p,
-      // replay resumes the fade FROM ITS CURRENT VALUE — pinning 1
-      // here snapped 0.1→1 at the restart (the residual first-open
-      // flash); the defocus restarts fully (sub-visible at this depth)
-      replay
-        ? [
-            { opacity: liveOp, translate: IN(), filter: DEFOCUS },
-            { opacity: 1, translate: SHADOW(), filter: 'blur(0px)' },
-          ]
-        : [
-            { opacity: 0, translate: IN(), filter: DEFOCUS },
-            { opacity: 1, offset: 0.5, filter: 'blur(50px)' },
-            { opacity: 1, translate: SHADOW(), filter: 'blur(0px)' },
-          ],
+    const from = lastP;
+    progressAnim = p.animate(
+      [{ '--jx-p': from }, { '--jx-p': to }],
+      { duration: 460, easing: 'linear', fill: 'both' },
     );
-    panelA.finished
-      .then(() => {
-        if (token !== runToken || !p.matches(':popover-open')) return;
-        // hold opacity 1 for phase B (r25 hold form): the kernel cascade
-        // rests at 0 (first-frame law) and phase B never carries
-        // opacity — without the hold the panel vanishes during
-        // separation; as an animation it also survives style re-renders
-        hold(p, { opacity: '1' });
-        bodyA.cancel();
-        shadowA.cancel();
-        panelA.cancel(); // phase B starts exactly where A ended
-        // PHASE B — separation (no opacity anywhere): the panel rises
-        // while the shadow's ABSOLUTE position stays put — its relative
-        // offset grows to the shadow offset as the veil develops
-        const bodyB = anim(b, [{ backgroundColor: solid }, { backgroundColor: glassBg }]);
-        const shadowB = anim(sh, [
-          { translate: '0 0', backgroundColor: veilSolid },
-          { translate: SHADOW(), backgroundColor: veilBg },
-        ]);
-        const panelB = anim(p, [{ translate: SHADOW() }, { translate: '0 0' }]);
-        panelB.finished
-          .then(() => {
-            if (token !== runToken) return;
-            // hold the REST POSE above the style attribute, then release
-            // every phase fill (Law 2). The holds are load-bearing: once
-            // :popover-open drops, the cascade flips to the CLOSED state
-            // (panel IN(), body solid, shadow veil) — without holds the
-            // next close would snapshot the flipped cascade and exit
-            // from the entry's far spot (r20); and inline pins would be
-            // wiped by any Svelte style re-render (r25)
-            hold(p, { translate: '0px 0px', opacity: '1' }); // cascade rests at 0 (r21)
-            hold(b, { backgroundColor: glassBg });
-            hold(sh, { translate: SHADOW(), backgroundColor: veilBg });
-            bodyB.cancel();
-            shadowB.cancel();
-            panelB.cancel();
-          })
-          .catch(() => {}); // mid-entry close aborts — nothing to do
-      })
-      .catch(() => {});
   }
 
-  function playExit(): void {
-    const s = surface();
-    if (!s) return;
-    const { p, b, sh } = s;
-    const token = ++runToken;
-    // snapshot the CURRENT live values BEFORE canceling: closing
-    // mid-entry must stay continuous (cancel-first snapped the panel
-    // to the cascade — the exit-start jerk)
-    const curBg = getComputedStyle(b).backgroundColor;
-    const curT = getComputedStyle(p).translate === 'none' ? '0px 0px' : getComputedStyle(p).translate;
-    const curShBg = getComputedStyle(sh).backgroundColor;
-    const curShT = getComputedStyle(sh).translate === 'none' ? '0px 0px' : getComputedStyle(sh).translate;
-    const curOp = getComputedStyle(p).opacity;
-    const curFilter = getComputedStyle(p).filter;
-    // CANCEL FIRST, then hold: the snapshot values are read before the
-    // cancel, and the holds (tagged) must never be swept by it — the
-    // r25 migration created them BEFORE the cancel loop and they
-    // canceled themselves, freezing nothing (mid-entry closes jumped
-    // opacity straight to 1 — Codex joint-analysis find). After the
-    // cancel each cascade resolves to its CLOSED state (panel IN(),
-    // body solid); the holds rank ABOVE the style attribute, so a
-    // concurrent Svelte style re-render cannot wipe them either
-    for (const a of kernelAnims()) a.cancel();
-    if (prefersReducedMotion()) return;
-    hold(p, { opacity: curOp, filter: curFilter, translate: curT });
-    hold(sh, { translate: curShT, backgroundColor: curShBg });
-    hold(b, { backgroundColor: curBg });
-    const solid = solidBg || curBg;
-    if (!veilSolid) veilSolid = resolveVar(p, '--shadow-color', '--shadow-color');
-
-    // PHASE A' — solidify + merge (translate + fills only; the frozen
-    // inline opacity/filter hold the panel's live look)
-    const bodyA = anim(b, [{ backgroundColor: curBg }, { backgroundColor: solid }]);
-    const shadowA = anim(sh, [
-      { translate: curShT, backgroundColor: curShBg },
-      { translate: '0 0', backgroundColor: veilSolid },
-    ]);
-    const panelA = anim(p, [{ translate: curT }, { translate: SHADOW() }]);
-    panelA.finished
-      .then(() => {
-        if (token !== runToken || p.matches(':popover-open')) return; // superseded / reopened
-        panelA.cancel(); // B' owns the panel now (its fill would fight)
-        // bodyA + shadowA hold the OPAQUE fills through B' (the closed
-        // cascade resolves the translucent variant — Law 1 forbids
-        // opacity motion over it); the shadow stays merged (relative
-        // 0) and rides out with the panel
-        // PHASE B' — merged opaque composite: defocus + slide + fade,
-        // FROM THE FROZEN LIVE opacity/filter (mid-entry closes stay
-        // continuous; the materials are opaque by now, so the opacity
-        // channel is harmless)
-        anim(
-          p,
-          [
-            { translate: SHADOW(), opacity: curOp, filter: curFilter },
-            { translate: IN(), opacity: 0, filter: DEFOCUS },
-          ],
-          'forwards', // holds opacity 0 until display:none — no cancel (Law 2 exception)
-        );
-      })
-      .catch(() => {});
-  }
-
-  // ── DIRECTION KERNEL ──
-  // ONE vector, TWO magnitudes: slide distance (--jx-surface-in-*, 12px)
-  // and shadow offset (--jx-surface-ox/oy, 6px) share their signs, so
-  // the shadow always falls to the panel's outward side.
-  let lastPanelW = 0;
-  let lastPanelH = 0;
-
-  function applyDirection(_p: HTMLElement, sx: -1 | 0 | 1, sy: -1 | 0 | 1): void {
-    dir = {
-      ix: sx === 0 ? '0px' : `${sx * 12}px`,
-      iy: sy === 0 ? '0px' : `${sy * 12}px`,
-      ox: sx === 0 ? '0px' : `${sx * 6}px`,
-      oy: sy === 0 ? '0px' : `${sy * 6}px`,
-    };
-  }
-
-  /** synchronous, in the toggle event (before the first style recalc):
-   *  the authored placement plus a position-try flip prediction from
-   *  the anchor's live rect and the panel's last-known size (a
-   *  physical cache — sizes are stable across opens, directions are
-   *  not, so this can never go stale the way a cached vector would) */
-  function predictDirection(): { sx: -1 | 0 | 1; sy: -1 | 0 | 1 } {
-    let sx: -1 | 0 | 1 = placement.endsWith('-start') ? -1 : placement.endsWith('-end') ? 1 : 0;
-    let sy: -1 | 0 | 1 = placement.startsWith('top') ? -1 : 1;
-    if (anchorEl && lastPanelH > 0) {
+  /** LIVE axis (rAF loop while open): the unit vector from the anchor
+   *  center to the panel center — position-try flips and window resizes
+   *  are picked up frame by frame; the CSS engine caches the calc
+   *  chains, so the per-frame cost is two custom-property writes */
+  function trackAxis(): void {
+    cancelAnimationFrame(trackFrame);
+    const step = (): void => {
+      const p = panel;
+      if (!p || !anchorEl || !p.matches(':popover-open')) return;
+      const pv = Number(getComputedStyle(p).getPropertyValue('--jx-p'));
+      if (Number.isFinite(pv)) lastP = pv;
+      const pr = p.getBoundingClientRect();
       const ar = anchorEl.getBoundingClientRect();
-      const gap = 0; // flush anchoring (r22) — no shadow clearance left
-      const fitsBelow = window.innerHeight - ar.bottom > lastPanelH + gap;
-      const fitsAbove = ar.top > lastPanelH + gap;
-      if (sy > 0 && !fitsBelow && fitsAbove) sy = -1;
-      else if (sy < 0 && !fitsAbove && fitsBelow) sy = 1;
-      const fitsAfter = window.innerWidth - ar.right > lastPanelW + gap;
-      const fitsBefore = ar.left > lastPanelW + gap;
-      if (sx > 0 && !fitsAfter && fitsBefore) sx = -1;
-      else if (sx < 0 && !fitsBefore && fitsAfter) sx = 1;
-    }
-    return { sx, sy };
-  }
-
-  /** one frame in: the panel's REAL geometry is readable. Agreement →
-   *  nothing to do. Misprediction → replay the entry on the measured
-   *  vector (same frame cancel+replay; opacity stays 1 — sub-visible) */
-  function verifyDirection(): void {
-    const s = surface();
-    if (!s || !anchorEl || !s.p.matches(':popover-open')) return;
-    lastPanelW = s.p.offsetWidth;
-    lastPanelH = s.p.offsetHeight;
-    const pr = s.p.getBoundingClientRect();
-    const ar = anchorEl.getBoundingClientRect();
-    const sign = (d: number): -1 | 0 | 1 => (Math.abs(d) < 4 ? 0 : (Math.sign(d) as -1 | 0 | 1));
-    const sx = sign(pr.left + pr.width / 2 - (ar.left + ar.width / 2));
-    const sy = sign(pr.top + pr.height / 2 - (ar.top + ar.height / 2));
-    const agreed =
-      dir.ix === (sx === 0 ? '0px' : `${sx * 12}px`) && dir.iy === (sy === 0 ? '0px' : `${sy * 12}px`);
-    if (!agreed) {
-      applyDirection(s.p, sx, sy);
-      playEntry(true);
-    }
+      const dx = pr.left + pr.width / 2 - (ar.left + ar.width / 2);
+      const dy = pr.top + pr.height / 2 - (ar.top + ar.height / 2);
+      const len = Math.hypot(dx, dy);
+      if (len > 1) {
+        p.style.setProperty('--jx-dx', String(dx / len));
+        p.style.setProperty('--jx-dy', String(dy / len));
+      } else {
+        // degenerate axis (centers coincide) → the project default
+        p.style.setProperty('--jx-dx', '0.70710678');
+        p.style.setProperty('--jx-dy', '0.70710678');
+      }
+      trackFrame = requestAnimationFrame(step);
+    };
+    trackFrame = requestAnimationFrame(step);
   }
 
   // imperative handle (bind:this) — thin native passthroughs, nothing more

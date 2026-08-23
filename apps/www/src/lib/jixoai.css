@@ -303,19 +303,84 @@
   opacity: 1;
   translate: 0 0;
 }
-/* FIRST-FRAME LAW (Owner ruling, 2026-08-23 r21): a kernel panel's
-   open-state cascade opacity is 0. The popover may render one frame
-   BEFORE the toggle event creates the entry WAAPI — with a cascade of
-   1 that frame showed the fully-open panel which then vanished as the
-   animation's opacity 0 took over (the first-open flash). A cascade of
-   0 makes the pre-JS frame invisible regardless of event timing; the
-   kernel owns opacity from its first frame and pins 1 at rest */
-.jx-surface.jx-waapi:popover-open {
-  opacity: 0;
+/* ══ DECLARATIVE MOTION LAW (Owner ruling, 2026-08-23 r26) ══
+   ONE animated custom property — --jx-p, the timeline progress ∈[0,1]
+   (registered via @property so WAAPI can animate it and Chrome's
+   animation panel can debug it). EVERY visible property is a pure
+   formula of it; the kernel JS never touches layout properties:
+
+     T0 ───── p=0.5 (T1) ───── p=1 (T2)
+     opacity/blur   first half   (blurIn)
+     slide          whole run    (M1·(1−p) along the live axis)
+     materials      second half  (--jx-t: clamp((p−.5)·2))
+     shadow split   second half  (M2·t)
+
+   The direction is a LIVE unit vector (--jx-dx/dy), rAF-tracked from
+   the panel/anchor bounding centers by the kernel — the panel and its
+   shadow therefore always move along the real connecting axis
+   (position-try flips included; degenerate axis falls back to the
+   project default: bottom-right). All math runs on the main thread
+   every frame (no compositor acceleration) — accepted trade-off for
+   full declarativity. The first-frame law rides the formulas: at p=0
+   opacity computes to 0, so the pre-JS frame can never flash. */
+@property --jx-p {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
 }
+/* the second-half sub-progress must be a REGISTERED number: as a bare
+   custom property it stays a lazy token string, and color-mix's
+   percentage calc does not re-evaluate nested clamp(var()) per frame
+   (the body α sat at its end value through the whole entry — found in
+   the r26 live probe). Registered, it computes to a number each frame
+   and inherits as one */
+@property --jx-t {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+.jx-surface.jx-waapi {
+  --jx-dx: 0.70710678; /* live axis (rAF); degenerate → bottom-right */
+  --jx-dy: 0.70710678;
+  --jx-m1: 2.5rem; /* slide distance along the axis (configurable) */
+  --jx-m2: 8px; /* shadow separation distance (~6px per component) */
+  --jx-t: clamp(calc((var(--jx-p) - 0.5) * 2), 0, 1); /* 2nd-half sub-progress */
+  opacity: clamp(calc(var(--jx-p) * 2), 0, 1);
+  filter: blur(calc((1 - clamp(calc(var(--jx-p) * 2), 0, 1)) * 100px));
+  translate:
+    calc(var(--jx-dx) * var(--jx-m1) * (1 - var(--jx-p)))
+    calc(var(--jx-dy) * var(--jx-m1) * (1 - var(--jx-p)));
+}
+/* materials develop in the second half; solid keeps an opaque fill */
+/* the material formulas sit AFTER the variant rules on purpose: same
+   specificity as the acrylic fill, and the kernel's animated formulas
+   must win by source order (the r26 probe read a static 0.72 — the
+   acrylic rule had been overriding them all along) */
+.jx-surface.jx-surface.jx-waapi .jx-surface-body {
+  /* (0,4,0) — the variant acrylic rule (0,3,0) sits later in the file
+   and was winning the cascade all along; every "lazy paint" theory in
+   the r26 probe session was this misdiagnosis) */
+  background: oklch(
+    from var(--jx-surface-solid-fill, var(--popover))
+    l c h / calc(1 - clamp(calc((var(--jx-p) - 0.5) * 2), 0, 1) * 0.28)
+  );
+}
+.jx-surface.jx-surface.jx-waapi .jx-surface-shadow {
+  background: oklch(
+    from var(--shadow-color)
+    l c h / calc(1 - clamp(calc((var(--jx-p) - 0.5) * 2), 0, 1) * 0.68)
+  );
+  translate:
+    calc(var(--jx-dx) * var(--jx-m2) * var(--jx-t))
+    calc(var(--jx-dy) * var(--jx-m2) * var(--jx-t));
+}
+/* solid keeps an opaque fill — its formula IS the end state */
+.jx-surface.jx-surface.jx-waapi[data-variant='solid'] .jx-surface-body {
+  background: var(--jx-surface-solid-fill, var(--popover));
+}
+
 /* kernel-layer animation lock: the motion kernel owns these layers'
-   animations; the class survives Svelte style re-renders (an inline
-   animation:'none' did not — Codex joint-analysis r25) */
+   animations; the class survives Svelte style re-renders */
 .jx-surface.jx-waapi,
 .jx-surface.jx-waapi .jx-surface-body,
 .jx-surface.jx-waapi .jx-surface-shadow {
