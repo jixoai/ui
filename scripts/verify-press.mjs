@@ -176,7 +176,10 @@ check(
 
 // pulse ring must BREATHE, not blink: sample the layer's shadow spread
 // over ~1.7 cycles — consecutive deltas stay small (no teleports) and
-// the spread spends time away from 0 (the ease-out dwell-at-zero blink)
+// the spread spends time away from 0 (the ease-out dwell-at-zero blink).
+// Threshold calibrated to the Owner tuning (0.7em ≈ 9.8px, strong
+// S-curve): the slide's true peak speed is ~3.2px/100ms, so anything
+// over 5px between samples is a teleport, not motion
 const ringSamples = await page.evaluate(async () => {
   const layer = document.querySelector('.jx-pulse-layer.jx-pulse-ring');
   const spreads = [];
@@ -194,7 +197,7 @@ const ringSamples = await page.evaluate(async () => {
 });
 check(
   'pulse ring: continuous breathing (no blink teleports, lives away from 0)',
-  ringSamples.maxDelta < 2.5 && ringSamples.avgSpread > 1.5,
+  ringSamples.maxDelta < 5 && ringSamples.avgSpread > 1.5,
   JSON.stringify(ringSamples),
 );
 
