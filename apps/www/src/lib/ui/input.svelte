@@ -15,7 +15,7 @@
       renders the plain native passthrough in the text shell — route
       them to the dedicated components.
     range
-      the Tier-1 pure-CSS slider (.jx-range in the native-form sheet):
+      the Tier-1 pure-CSS slider (.jx-range in the jx-pure sheet):
       bordered thin track, square primary thumb, hover lift / press.
     color
       the Tier-1 color field (.jx-color-field wrapper + .jx-color
@@ -25,8 +25,8 @@
 
   2026-08-23 · Tier rebase (original request: "native-input styling
   overhaul — a pure HTML+CSS Tier-1 form layer + Tier-2 components
-  consuming it"). The box/lane laws moved to the shared native-form
-  sheet (registry item `native-form`, imported once from app.css after
+  consuming it"). The box/lane laws moved to the shared jx-pure
+  sheet (registry item `jx-pure`, imported once from app.css after
   jixoai.css); this component keeps ONLY what is component-owned: the
   snippet slots, the clear button, and the outer slot spacing. The
   native-control styling (range track/thumb, color swatch + pipette
@@ -225,7 +225,7 @@
      .jx-label / .jx-error), the shell laws (.jx-field-shell +
      slotted/invalid/disabled/focus states), the chromeless lane
      (.jx-input-lane), the range slider (.jx-range) and the color field
-     (.jx-color-field / .jx-color) all live in the Tier-1 native-form
+     (.jx-color-field / .jx-color) all live in the Tier-1 jx-pure
      sheet now. Component-owned below: the snippet-slot system, the
      clear button, and the outer slot spacing. */
 

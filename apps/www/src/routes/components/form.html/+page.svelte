@@ -247,11 +247,12 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
      Eye Dropper appears when window.EyeDropper exists -->
 <ColorPicker label="theme hue" bind:value={c} format="hsl" />`;
 
-  // Tier-1 native form layer: bare markup, zero JS (registry item
-  // `native-form` — one stylesheet, daisyui-style class vocabulary).
+  // Tier-1 native form layer: bare markup, zero JS — the class
+  // vocabulary lives in Part A of the jx-pure sheet now (registry item
+  // `jx-pure`; `native-form` remains a deprecated same-source alias).
   const tier1Usage = `<!-- import once, after the token sheet:
      @import './lib/jixoai.css';
-     @import './lib/native-form.css'; -->
+     @import './lib/jx-pure.css'; -->
 
 <label class="jx-label" for="deploy">deploy</label>
 <input class="jx-input" id="deploy" type="datetime-local" />
@@ -904,7 +905,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
         repainted through a mask, and clicking it still opens the native picker). checkbox and
         radio live in their own pure-CSS components (next section), file picking and dates have
         their professional controls further down; everything else is painted by the Tier-1
-        native-form sheet — range tracks and thumbs, color swatches, date/time indicators,
+        class vocabulary — range tracks and thumbs, color swatches, date/time indicators,
         number spinners (hidden: engines reject custom paint on them — ↑/↓ step natively) and
         the placeholder-vs-value distinction.
       </p>
@@ -912,8 +913,10 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
         <h3 class="text-[15px] font-bold tracking-tight">Tier 1 — the pure-CSS native layer</h3>
         <p class="text-muted-foreground mt-2 text-pretty text-[13px] leading-6">
           Every native lane above is painted by ONE stylesheet —
-          <code class="text-accent">native-form.css</code> (registry item
-          <code class="text-accent">native-form</code>, imported once after the token sheet) —
+          <code class="text-accent">jx-pure.css</code> (registry item
+          <code class="text-accent">jx-pure</code>, imported once after the token sheet; the
+          class vocabulary is its Part A — <code class="text-accent">native-form</code> remains
+          a deprecated same-source alias) —
           with a daisyui-style class vocabulary and zero JS. The same classes the components
           consume style bare markup; type in the first field and watch the placeholder read
           clearly lighter than a value:
@@ -1786,7 +1789,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
               <code class="text-accent">appearance: none</code> and draw their own glyphs with
               pseudo-elements — a clip-path check, a scaled dot, a sliding knob — while the
               native input underneath still owns state, keyboard toggling, and FormData.
-              The remaining platform widgets are repainted by the Tier-1 native-form sheet:
+              The remaining platform widgets are repainted by the Tier-1 class vocabulary (jx-pure Part A):
               <code class="text-accent">range</code> becomes the pure-CSS slider (bordered
               track, square primary thumb), color becomes the swatch-plus-pipette field, and
               the date/time/number lanes restyle the platform's own picker indicator and

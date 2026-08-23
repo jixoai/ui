@@ -8,7 +8,7 @@
 
   Orthogonal intents:
   1. geometry — the shared slider law (2026-08-23 Tier rebase, same
-     geometry as the Tier-1 .jx-range lane in the native-form sheet):
+     geometry as the Tier-1 .jx-range lane in the jx-pure sheet):
      a thin bordered track box (1px var(--border), var(--background)
      fill, height 0.5rem incl. borders), a 1.25rem SQUARE thumb
      (var(--primary) fill, 1px border, shadow-2xs hover lift,
@@ -277,7 +277,7 @@
 
 <style>
   /* Tier rebase (2026-08-23): .jx-field / .jx-label / .jx-error scaffolding
-     and the box/track/thumb laws live in the Tier-1 native-form sheet; this
+     and the box/track/thumb laws live in the Tier-1 jx-pure sheet; this
      block owns ONLY the custom widget's geometry (fill, thumb travel, tick
      ruler) and the bridge layout. */
   /* the faceless bridge owns no box — pre-hydration included, so the

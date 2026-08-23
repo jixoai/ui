@@ -13,7 +13,7 @@
  * ---------------------------------------------------------------------- */
 @import 'tailwindcss';
 @import './lib/jixoai.css';
-@import './lib/native-form.css';
+@import './lib/jx-pure.css';
 
 /* Tailwind mapping supplements — kill the default rounded scale (radius law:
  * 0 with bevel upgrade only); the registry sheet maps everything else. */

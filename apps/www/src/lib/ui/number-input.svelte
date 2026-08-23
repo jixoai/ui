@@ -12,7 +12,7 @@
   element attributes.
 
   2026-08-23 · Tier rebase: the inner input carries the Tier-1
-  .jx-input-lane class (native-form sheet) — chromeless typography,
+  .jx-input-lane class (jx-pure sheet) — chromeless typography,
   placeholder distinction and the spinner law (hidden; engines reject
   custom paint on spin pseudos, see the sheet's decision record) live
   there, shared with bare markup.
@@ -177,7 +177,7 @@
     <!-- disabled ⇒ READONLY, not disabled: the value stays focusable and
          selectable (AT can still read it) while typing and native ↑/↓ are
          blocked by the platform; buttons + stepBy guards cover the rest.
-         jx-input-lane (Tier-1 native-form sheet) owns the chromeless
+         jx-input-lane (Tier-1 jx-pure sheet) owns the chromeless
          typography + placeholder distinction + spinner law; the scoped
          .jx-num-input below only centers the text and flexes the cell -->
     <input
@@ -207,7 +207,7 @@
 
 <style>
   /* Tier rebase (2026-08-23): the .jx-field / .jx-label / .jx-error
-     scaffolding lives in the Tier-1 native-form sheet; the inner input
+     scaffolding lives in the Tier-1 jx-pure sheet; the inner input
      carries the sheet's .jx-input-lane class. Scoped below: only the
      composite stepper shell (deliberately not the sheet's .jx-field-shell —
      its disabled law here is readonly-not-disabled) and the centered

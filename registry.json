@@ -292,21 +292,40 @@
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
-      "name": "native-form",
+      "name": "jx-pure",
       "type": "registry:lib",
-      "title": "Native form layer (Tier 1)",
-      "description": "The pure HTML+CSS native form layer: one stylesheet, daisyui-style class vocabulary, zero JS. Styles BARE native elements — .jx-field/.jx-label/.jx-error scaffolding, .jx-input (bare box) and .jx-field-shell + .jx-input-lane (wrapper posture), a pure-CSS input[type=range] slider (.jx-range: bordered thin track, square primary thumb, hover lift, press), the color field (.jx-color-field wrapper + .jx-color locked square swatch + pipette glyph via CSS mask; compact 5rem field by default, .jx-color-stretch opts into the full row), the ::-webkit-calendar-picker-indicator repaint (mask + currentColor, calendar/clock glyphs — themes light/dark automatically, click still opens the native picker), the number spinner law (hidden: engines reject custom paint on spin pseudos; native ↑/↓ stepping kept), and the placeholder-vs-value distinction (foreground/background 40% mix). The Tier-2 components (input/range/number-input) consume these classes.",
+      "title": "jx-pure — the componentless face (Tier 0)",
+      "description": "One stylesheet, the whole jixoai face, zero JS: mount class jx-pure on any DOM and the subtree's BARE native elements get the law — Pico-style element defaults in @layer components (:where-scoped, so utilities always win) for typography, links, buttons (press physics), text-like inputs (TYPE ALLOWLIST), checkbox/radio/range/color repaints, fieldset/legend, details/summary, nav/ol/ul/dl, tables — PLUS the migrated native-form class vocabulary verbatim (.jx-field/.jx-input/.jx-field-shell/.jx-input-lane/.jx-range/.jx-color-field/.jx-color, the Tier-2 frozen contract). Dark mode rides the token sheet's .dark/.jx-light (color-scheme inherits from the scope root). select keeps its platform arrow by default; .jx-select opts into the gradient chevron repaint (single-select only). Deferred v1: progress/meter/output/figure repaints, floating surfaces (dialog/popover/tooltip stay Tier-2).",
       "files": [
         {
-          "path": "registry/files/theme/native-form.css",
+          "path": "registry/files/theme/jx-pure.css",
+          "target": "@lib/jx-pure.css",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Import once from the site css, AFTER the token sheet: @import './lib/jixoai.css'; @import './lib/jx-pure.css'; — then mount the class: <main class=\"jx-pure\">…bare HTML…</main>. Static no-JS pages: theme with <html class=\"dark\"> (or any ancestor); system-follow needs the host's own 3-line bootstrap, documented on components/jx-pure.html. Glyph data-URIs mirror icons.ts (calendar/clock/pipette) — edit both or neither.",
+      "meta": {
+        "group": "engines",
+        "href": "/components/jx-pure.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "native-form",
+      "type": "registry:lib",
+      "title": "Native form layer (Tier 1) — DEPRECATED alias of jx-pure",
+      "description": "DEPRECATED (2026-08-23): the native form layer was absorbed into jx-pure (same source file, same class vocabulary, verbatim). This alias keeps the old install name and target path working for one release window — new code should install @jixoai/jx-pure. The Tier-2 components (input/range/number-input) now declare @jixoai/jx-pure as their dependency.",
+      "files": [
+        {
+          "path": "registry/files/theme/jx-pure.css",
           "target": "@lib/native-form.css",
           "type": "registry:file"
         }
       ],
-      "docs": "Import once from the site css, AFTER the token sheet: @import './lib/jixoai.css'; @import './lib/native-form.css';. Glyph data-URIs mirror icons.ts (calendar/clock/pipette) — edit both or neither.",
+      "docs": "Alias of @jixoai/jx-pure — install that instead: same css (Part A is the native-form sheet verbatim), plus the .jx-pure element face. Import path stays @lib/native-form.css for existing installs until the alias retires.",
       "meta": {
         "group": "data-entry",
-        "href": "/components/form.html#all-types"
+        "href": "/components/jx-pure.html"
       }
     },
     {
@@ -325,7 +344,7 @@
       "docs": "Props: type, label?, error?, clearable?, innerInlineStart/innerInlineEnd/outerBlockStart/outerBlockEnd snippets, id? (auto), class, value ($bindable), ...restProps passed to the native input.",
       "registryDependencies": [
         "@jixoai/icons",
-        "@jixoai/native-form"
+        "@jixoai/jx-pure"
       ],
       "meta": {
         "group": "data-entry",
@@ -665,7 +684,7 @@
       "name": "number-input",
       "type": "registry:ui",
       "title": "Number input",
-      "description": "[- NUM +] stepper: 28px square buttons (press physics, font-nav bold characters), centered chromeless input on the Tier-1 .jx-input-lane (placeholder distinction + spinner law live in the native-form sheet), click + long-press (300ms→100ms) acceleration, min/max clamp, RTL-aware logical properties.",
+      "description": "[- NUM +] stepper: 28px square buttons (press physics, font-nav bold characters), centered chromeless input on the Tier-1 .jx-input-lane (placeholder distinction + spinner law live in the jx-pure sheet (Part A)), click + long-press (300ms→100ms) acceleration, min/max clamp, RTL-aware logical properties.",
       "files": [
         {
           "path": "registry/files/ui/number-input.svelte",
@@ -674,7 +693,7 @@
         }
       ],
       "registryDependencies": [
-        "@jixoai/native-form"
+        "@jixoai/jx-pure"
       ],
       "meta": {
         "group": "data-entry",
@@ -697,7 +716,7 @@
       "docs": "Props: label?, error?, showValue?, min/max/step, name?, value ($bindable). role=slider contract; aria-labelledby wiring per the family law.",
       "registryDependencies": [
         "@jixoai/form-field",
-        "@jixoai/native-form"
+        "@jixoai/jx-pure"
       ],
       "meta": {
         "group": "data-entry",

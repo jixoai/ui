@@ -36,7 +36,7 @@
   // runs through document.startViewTransition with the tab-carousel
   // direction law (page order index comparison, ported from openspecui).
   // Reduced motion / unsupported browsers navigate plainly.
-  const PAGE_ORDER = ['/', '/components.html', '/components/dialog.html', '/components/popover.html', '/components/form.html', '/tokens.html'];
+  const PAGE_ORDER = ['/', '/components.html', '/components/dialog.html', '/components/popover.html', '/components/form.html', '/components/jx-pure.html', '/tokens.html'];
   const pageIndex = (pathname: string) => PAGE_ORDER.indexOf(pathname);
 
   // nav lifecycle (2026-08-22): every client-side navigation closes any

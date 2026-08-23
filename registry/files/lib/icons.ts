@@ -58,9 +58,9 @@ export const ellipsis = svg(
   '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'
 );
 
-// native-form mirror set (2026-08-23, lucide 0.472 geometry): the glyphs
+// jx-pure Part A mirror set (2026-08-23, lucide 0.472 geometry): the glyphs
 // the Tier-1 form sheet paints into UA pseudos via CSS mask. The path
-// data below and the data-URIs in registry/files/theme/native-form.css
+// data below and the data-URIs in registry/files/theme/jx-pure.css (Part A)
 // are the SAME geometry — edit both or neither (single-source law).
 export const calendar = svg(
   '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>'

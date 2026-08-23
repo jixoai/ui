@@ -4,7 +4,7 @@
 // .jx-hue-range but left the scoped rules on .jx-hue-slider — Svelte
 // pruned the unmatched selectors and the slider silently fell back to
 // native UA styling. The fix rides the Tier-1 .jx-range law
-// (registry/files/theme/native-form.css) with hue-only overrides.
+// (registry/files/theme/jx-pure.css (Part A)) with hue-only overrides.
 //
 // Usage (site must be running, e.g. `npm run site` on :5199):
 //   node scripts/verify-hue.mjs            # default :5199
