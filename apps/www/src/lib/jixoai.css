@@ -13,6 +13,17 @@
  * ::after layer (see .jx-surface below) with solid|acrylic|auto
  * variants; dialog scrims are --scrim (semi-transparent black/white,
  * never a brand tint).
+ *
+ * Law (Owner decision, 2026-08-23 — press): interactive bodies NEVER
+ * move on hover — the shadow alone grows; active presses the body
+ * +1px into the page while the box-shadow's offsets counter-shrink
+ * by the same vector — the shadow paint stays anchored (.jx-press).
+ *
+ * Effect loops (2026-08-23 r3): shimmer / pulse / rainbow / ripple
+ * are OPT-IN press-button features modeled on the animation-svelte
+ * reference (github.com/SikandarJODD/animations); their parametric
+ * implementation lives IN the component (press-button.svelte), not
+ * here — the theme owns laws, not options.
  */
 
 @import '@fontsource-variable/jetbrains-mono';
@@ -70,6 +81,12 @@
   --shadow: 4px 4px 0px 0px hsl(0 0% 0% / 1);
   --shadow-md: 4px 4px 0px 0px hsl(0 0% 0% / 1), 4px 2px 4px -1px hsl(0 0% 100% / 1);
   --shadow-lg: 4px 4px 0px 0px hsl(0 0% 0% / 1), 4px 4px 6px -1px hsl(0 0% 100% / 1);
+  /* press poses (2026-08-23 r2): each hover pose minus the 1px press
+     vector — .jx-press:active swaps to them so the shadow paint stays
+     anchored while the body slides; keep in sync when a base changes */
+  --shadow-xs-press: 1px 1px 0px 0px hsl(0 0% 0% / 0.5);
+  --shadow-sm-press: 1px 1px 0px 0px hsl(0 0% 0% / 1), 0px 0px 0px 1px hsl(0 0% 100% / 0.5);
+  --shadow-md-press: 3px 3px 0px 0px hsl(0 0% 0% / 1), 3px 1px 4px -1px hsl(0 0% 100% / 1);
 
   /* floating-surface law (2026-08-22): restrained black-only scrims;
      the shadow LAYER keeps its original color, always SEMI-TRANSPARENT
@@ -135,6 +152,10 @@
   --shadow: 4px 4px 0px 0px hsl(0 0% 100% / 1);
   --shadow-md: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 2px 4px -1px hsl(0 0% 0% / 1);
   --shadow-lg: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 4px 6px -1px hsl(0 0% 0% / 1);
+  /* press poses — same minus-1px law as the light block above */
+  --shadow-xs-press: 3px 3px 0px 0px hsl(0 0% 100% / 0.5);
+  --shadow-sm-press: 3px 3px 0px 0px hsl(0 0% 100% / 1), 3px 0px 2px -1px hsl(0 0% 0% / 1);
+  --shadow-md-press: 3px 3px 0px 0px hsl(0 0% 100% / 1), 3px 1px 4px -1px hsl(0 0% 0% / 1);
 
   /* floating-surface law, dark side: inverted — scrims and the shadow
      layer are semi-transparent WHITE and BRIGHTEN (the white-shadow
@@ -292,6 +313,14 @@
 .jx-surface.jx-waapi:popover-open {
   opacity: 0;
 }
+/* kernel-layer animation lock: the motion kernel owns these layers'
+   animations; the class survives Svelte style re-renders (an inline
+   animation:'none' did not — Codex joint-analysis r25) */
+.jx-surface.jx-waapi,
+.jx-surface.jx-waapi .jx-surface-body,
+.jx-surface.jx-waapi .jx-surface-shadow {
+  animation: none;
+}
 /* the kernel must never strand an invisible panel: reduced motion
    skips the kernel (CSS must show the panel), and a no-JS page has no
    kernel at all (the site's bootstrap tags <html class="js">) */
@@ -346,6 +375,21 @@ html:not(.js) .jx-surface.jx-waapi:popover-open {
   mask-composite: subtract;
 }
 
+/* MASKED surfaces: the shadow veil must follow the irregular silhouette
+   too — unmasked it would bleed through the body mask's dug-away
+   regions (the tooltip's notch flanks) as a black smear. Same opt-in
+   ([data-border-ring]) and the same outer-silhouette var; the veil's
+   outward translate then reads as a sliver past the bubble's edge,
+   aligned with the notch cut. */
+.jx-surface[data-border-ring]::after {
+  -webkit-mask-image: var(--jx-surface-ring, none);
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: var(--jx-surface-ring, none);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
 /* THE SHADOW LAYER — static paint for BOTH renderings (the ::after
    pseudo for kernel-less components; the real .jx-surface-shadow
    child for kernel components — identical geometry, filter, and
@@ -396,6 +440,49 @@ html:not(.js) .jx-surface.jx-waapi:popover-open {
     background: var(--jx-surface-solid-fill, var(--popover));
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+}
+
+/* ============================================================
+   Press law (Owner rulings, 2026-08-23 → r2): hover NEVER moves the
+   body — the shadow alone grows (xs → sm). Active presses the body
+   +1px,+1px INTO the page while the box-shadow's own offsets shrink
+   by the same vector (the *-press poses above) — the shadow's PAINT
+   never moves on screen. No pseudo layer, no stacking machinery
+   (r1 painted the shadow on a counter-translated ::after; r2 dropped
+   it — one less stacking context per interactive element): the
+   shadow is the element's own box-shadow and the arithmetic lives
+   in tokens. The law owns the transition chain (unlayered rules beat
+   layered utilities): components must not carry their own
+   transition-*.
+
+   Pose opting: --jx-press-shadow / -hover / -active re-point all
+   three poses (bigger floats rest on --shadow; shadow-less surfaces
+   — ghost idioms — set all three to none and keep the bare +1px
+   press).
+   ============================================================ */
+.jx-press {
+  box-shadow: var(--jx-press-shadow, var(--shadow-xs));
+  transition:
+    translate 150ms ease-out,
+    box-shadow 150ms ease-out,
+    background-color 150ms ease-out,
+    border-color 150ms ease-out,
+    color 150ms ease-out;
+}
+.jx-press:hover {
+  box-shadow: var(--jx-press-shadow-hover, var(--shadow-sm));
+}
+/* :active comes LAST: at equal specificity the later rule wins over
+   :hover, so a mouse press swaps the hover pose straight to its
+   press twin */
+.jx-press:active {
+  translate: 1px 1px;
+  box-shadow: var(--jx-press-shadow-active, var(--shadow-sm-press));
+}
+@media (prefers-reduced-motion: reduce) {
+  .jx-press {
+    transition: none;
   }
 }
 

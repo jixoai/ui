@@ -140,11 +140,14 @@ ${close}
         ? canvasTries.filter((t) => t !== id)
         : [id, ...canvasTries.filter((t) => t !== id)];
     }
-    // position-try locks when the panel opens — a live panel never
-    // re-evaluates. Reopen in the same frame so the grid feels
-    // immediate (the entry kernel replays on show)
+    // position-try locks when the panel opens — a visible panel never
+    // re-evaluates. Reopen in the next frame so the grid feels
+    // immediate. VISIBILITY is judged by display, not :popover-open: a
+    // panel mid-exit has already dropped the pseudo-class, and skipping
+    // the reopen there stranded the panel closed (the rapid-toggle
+    // dead-panel corruption, r25)
     const pop = document.getElementById('canvas-pop') as HTMLElement | null;
-    if (pop?.matches(':popover-open')) {
+    if (pop && getComputedStyle(pop).display !== 'none') {
       pop.hidePopover();
       requestAnimationFrame(() => {
         if (!pop.isConnected) return;
