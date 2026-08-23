@@ -90,7 +90,7 @@
 
   <button
     type="button"
-    class="jx-ctree-btn"
+    class="jx-press jx-ctree-btn"
     popovertarget="jx-ctree-panel"
     aria-label="open the component catalog tree"
     aria-haspopup="dialog"
@@ -128,7 +128,7 @@
     }
   }
 
-  /* the floating trigger button (press physics) */
+  /* the floating trigger button (press law at float scale) */
   .jx-ctree-btn {
     appearance: none;
     display: inline-flex;
@@ -139,27 +139,20 @@
     border: 1px solid var(--border);
     background: var(--popover);
     color: var(--popover-foreground);
-    box-shadow: var(--shadow);
+    /* press law at float scale: rest on --shadow, hover grows to --shadow-md */
+    --jx-press-shadow: var(--shadow);
+    --jx-press-shadow-hover: var(--shadow-md);
+    --jx-press-shadow-active: var(--shadow-md-press);
     border-radius: var(--radius);
     cursor: pointer;
-    transition:
-      transform 150ms ease-out,
-      box-shadow 150ms ease-out,
-      border-color 150ms ease-out;
   }
   .jx-ctree-btn svg {
     width: 1.25rem;
     height: 1.25rem;
   }
   .jx-ctree-btn:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: var(--shadow-sm);
     border-color: var(--primary);
     color: var(--primary);
-  }
-  .jx-ctree-btn:active {
-    transform: translate(1px, 1px);
-    box-shadow: none;
   }
   .jx-ctree-btn:focus-visible {
     outline: 1px solid var(--ring);

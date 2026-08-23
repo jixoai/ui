@@ -347,7 +347,7 @@
     <button
       type="button"
       id={triggerId}
-      class="jx-file-zone"
+      class="jx-press jx-file-zone"
       class:jx-file-over={dragging}
       class:jx-file-invalid={invalid}
       aria-label={label || (multiple ? 'choose files' : 'choose file')}
@@ -384,7 +384,7 @@
     <button
       type="button"
       id={triggerId}
-      class="jx-file-trigger"
+      class="jx-press jx-file-trigger"
       class:jx-file-over={dragging}
       class:jx-file-invalid={invalid}
       aria-label={label || (multiple ? 'choose files' : 'choose file')}
@@ -575,20 +575,9 @@
     color: var(--foreground);
     font-family: inherit;
     cursor: pointer;
-    box-shadow: var(--shadow-2xs);
-    transition:
-      transform 150ms ease-out,
-      box-shadow 150ms ease-out,
-      border-color 150ms ease-out,
-      background-color 150ms ease-out;
-  }
-  .jx-file-zone:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: var(--shadow-xs);
-  }
-  .jx-file-zone:active {
-    transform: translate(1px, 1px);
-    box-shadow: none;
+    --jx-press-shadow: var(--shadow-2xs);
+    --jx-press-shadow-hover: var(--shadow-xs);
+    --jx-press-shadow-active: var(--shadow-xs-press);
   }
   .jx-file-zone:focus-visible {
     outline: 1px solid var(--ring);
@@ -664,22 +653,13 @@
     font-family: inherit;
     font-size: var(--jx-file-text);
     font-weight: 500;
-    box-shadow: var(--shadow-xs);
+    --jx-press-shadow: var(--shadow-xs);
+    --jx-press-shadow-hover: var(--shadow-sm);
+    --jx-press-shadow-active: var(--shadow-sm-press);
     cursor: pointer;
-    transition:
-      transform 150ms ease-out,
-      box-shadow 150ms ease-out,
-      background-color 150ms ease-out,
-      border-color 150ms ease-out;
   }
   .jx-file-trigger:hover {
-    transform: translate(-2px, -2px);
     background: var(--muted);
-    box-shadow: var(--shadow-sm);
-  }
-  .jx-file-trigger:active {
-    transform: translate(1px, 1px);
-    box-shadow: none;
   }
   .jx-file-trigger:focus-visible {
     outline: 1px solid var(--ring);

@@ -77,7 +77,7 @@
   <ul class="jx-pagination-list" role="list">
     <li>
       {#if page > 1}
-        <a class="jx-page-edge" href={href(page - 1)}>{prevLabel}</a>
+        <a class="jx-press jx-page-edge" href={href(page - 1)}>{prevLabel}</a>
       {:else}
         <span class="jx-page-edge jx-page-edge-off" aria-disabled="true">{prevLabel}</span>
       {/if}
@@ -87,15 +87,15 @@
         {#if item === '…'}
           <span class="jx-page-gap" aria-hidden="true">…</span>
         {:else if item === page}
-          <a class="jx-page jx-page-current" href={href(item)} aria-current="page">{item}</a>
+          <a class="jx-press jx-page jx-page-current" href={href(item)} aria-current="page">{item}</a>
         {:else}
-          <a class="jx-page" href={href(item)}>{item}</a>
+          <a class="jx-press jx-page" href={href(item)}>{item}</a>
         {/if}
       </li>
     {/each}
     <li>
       {#if page < pageCount}
-        <a class="jx-page-edge" href={href(page + 1)}>{nextLabel}</a>
+        <a class="jx-press jx-page-edge" href={href(page + 1)}>{nextLabel}</a>
       {:else}
         <span class="jx-page-edge jx-page-edge-off" aria-disabled="true">{nextLabel}</span>
       {/if}
@@ -142,15 +142,12 @@
     letter-spacing: 0.08em;
     text-decoration: none;
     cursor: pointer;
-    transition:
-      transform 150ms ease-out,
-      box-shadow 150ms ease-out,
-      border-color 150ms ease-out;
+    --jx-press-shadow: none;
+    --jx-press-shadow-hover: var(--shadow-xs);
+    --jx-press-shadow-active: var(--shadow-xs-press);
   }
   .jx-page:hover,
   .jx-page-edge:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: var(--shadow-xs);
     border-color: var(--primary);
     color: var(--primary);
   }
@@ -164,11 +161,9 @@
     background: var(--primary);
     border-color: var(--primary);
     color: var(--primary-foreground);
-  }
-  .jx-page-current:hover {
-    color: var(--primary-foreground);
-    transform: none;
-    box-shadow: none;
+    /* the current page rides the law's press, never its shadow */
+    --jx-press-shadow-hover: none;
+    --jx-press-shadow-active: none;
   }
 
   .jx-page-edge {

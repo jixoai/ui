@@ -221,8 +221,10 @@ ${close}
               dismiss, Escape, and the top layer belong to the browser; CSS anchor positioning
               keeps the stack glued to its button with flip fallbacks</span></li>
           <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span>physics are shared verbatim with press-button: hover lifts −2px,−2px, active
-              presses +1px,+1px, <code class="text-accent">:focus-visible</code> keeps the ring</span></li>
+            <span>the press law is shared with press-button (.jx-press at float scale): hover grows
+              the shadow (--shadow → --shadow-md) without moving the body, active presses +1px,+1px
+              on the anchored shadow layer, <code class="text-accent">:focus-visible</code> keeps
+              the ring</span></li>
         </ul>
       </SectionCard>
     </div>

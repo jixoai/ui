@@ -200,7 +200,7 @@
       {#if copyable}
         <button
           type="button"
-          class="jx-code-card-copy"
+          class="jx-press jx-code-card-copy"
           class:copied
           onclick={copyCode}
           aria-label={copied ? 'copied' : `copy ${filename || lang} sample`}
@@ -378,7 +378,9 @@
     align-items: center;
     background: var(--background);
     border: 1px solid var(--border);
-    box-shadow: var(--shadow-2xs);
+    --jx-press-shadow: var(--shadow-2xs);
+    --jx-press-shadow-hover: var(--shadow-xs);
+    --jx-press-shadow-active: var(--shadow-xs-press);
     color: var(--foreground);
     cursor: pointer;
     display: inline-flex;
@@ -387,20 +389,10 @@
     gap: 0.4rem;
     letter-spacing: 0.04em;
     padding: 0.25rem 0.6rem;
-    transition:
-      transform 150ms ease,
-      box-shadow 150ms ease,
-      background-color 150ms ease;
     white-space: nowrap;
   }
   .jx-code-card-copy:hover {
     background: var(--muted);
-    box-shadow: var(--shadow-xs);
-    transform: translate(-1px, -1px);
-  }
-  .jx-code-card-copy:active {
-    box-shadow: none;
-    transform: translate(1px, 1px);
   }
   .jx-code-card-copy.copied {
     background: var(--secondary);

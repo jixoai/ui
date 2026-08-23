@@ -12,9 +12,10 @@
                the tooltip AND stays the accessible name (aria-label).
                An icon-only button must say itself.
 
-  Press-button physics verbatim: hover lifts (shadow xs → sm), active
-  presses back into the page. href renders an anchor instead; hrefs
-  outside "/" open a new tab with noreferrer automatically.
+  Press law verbatim (theme .jx-press): hover grows the shadow only —
+  the body never moves; active presses +1px on an anchored shadow.
+  href renders an anchor instead; hrefs outside "/" open a new tab
+  with noreferrer automatically.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -52,7 +53,7 @@
   const iconOnly = $derived(variant === 'icon-only');
 
   const base =
-    'inline-flex items-center justify-center border border-border bg-background hover:bg-muted text-sm font-medium shadow-xs transition-[transform,box-shadow,background-color] duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-sm active:translate-x-px active:translate-y-px active:shadow-none motion-reduce:transition-none';
+    'jx-press inline-flex items-center justify-center border border-border bg-background hover:bg-muted text-sm font-medium';
   // same height as a text press-button in normal; a lone square in icon-only
   const shape = $derived(iconOnly ? 'size-9' : 'gap-2.5 px-3.5 py-2.5');
   const classes = $derived(`${base} ${shape} ${className}`);

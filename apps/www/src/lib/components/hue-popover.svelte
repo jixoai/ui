@@ -38,7 +38,7 @@
     <button
       type="button"
       popovertarget="hue-popover"
-      class="jx-hue-trigger"
+      class="jx-press jx-hue-trigger"
       aria-label={isOpen ? 'Close brand hue & theme' : 'Brand hue & theme'}
       aria-expanded={isOpen}
     >
@@ -113,8 +113,8 @@
 </Popover>
 
 <style>
-  /* ── trigger: press physics on a 32×32 icon button (from the registry
-     popover's trigger recipe, adapted for icon-only) ── */
+  /* ── trigger: press law on a 32×32 icon button (shadow only appears on
+     hover; active presses on the anchored layer) ── */
   .jx-hue-trigger {
     display: inline-flex;
     align-items: center;
@@ -124,20 +124,13 @@
     color: inherit;
     border: 1px solid color-mix(in oklab, currentColor 30%, transparent);
     background: transparent;
+    --jx-press-shadow: none;
+    --jx-press-shadow-hover: var(--shadow-xs);
+    --jx-press-shadow-active: var(--shadow-xs-press);
     cursor: pointer;
-    transition:
-      transform 150ms ease-out,
-      box-shadow 150ms ease-out,
-      border-color 150ms ease-out;
   }
   .jx-hue-trigger:hover {
-    transform: translate(-1px, -1px);
     border-color: color-mix(in oklab, currentColor 70%, transparent);
-    box-shadow: var(--shadow-xs);
-  }
-  .jx-hue-trigger:active {
-    transform: translate(1px, 1px);
-    box-shadow: none;
   }
 
   /* ── panel: token-driven, from the registry popover's panel law ── */
@@ -227,14 +220,8 @@
 
   /* ── reduced motion: all transitions off ── */
   @media (prefers-reduced-motion: reduce) {
-    .jx-hue-trigger,
     .jx-hue-play {
       transition: none;
-    }
-    .jx-hue-trigger:hover,
-    .jx-hue-trigger:active {
-      transform: none;
-      box-shadow: none;
     }
   }
 

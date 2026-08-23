@@ -111,7 +111,7 @@ ${drivenNormal}${usageTail}`;
         tone="hero"
         eyebrow="registry:ui · General"
         title="icon-button — icon and text, one contract"
-        summary="The button for actions that carry a glyph: an explicit two-part contract where icon is the glyph (always decorative) and text is the ONE label. normal shows icon + text side by side; icon-only collapses to a square button where the text does not disappear — it moves to the tooltip and stays the accessible name. Press-button physics verbatim: hover lifts, active presses."
+        summary="The button for actions that carry a glyph: an explicit two-part contract where icon is the glyph (always decorative) and text is the ONE label. normal shows icon + text side by side; icon-only collapses to a square button where the text does not disappear — it moves to the tooltip and stays the accessible name. Press law (.jx-press) verbatim: hover grows the shadow only, active presses on an anchored shadow."
       >
         <div class="flex flex-wrap gap-3">
           <span class="pill">normal · icon-only</span>

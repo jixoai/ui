@@ -11,8 +11,9 @@
                a popover=auto stack above it (native light dismiss)
 
   Positioning is a prop, not a wrapper: corner picks the fixed point;
-  the consumer's layout is never touched. The surface follows the
-  press-button laws (lift on hover, press on active) at a fixed size.
+  the consumer's layout is never touched. The button follows the press
+  law (theme .jx-press) at float scale — the --jx-press-shadow* customs
+  re-point all three poses to the --shadow family.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -71,7 +72,7 @@
     </div>
     <button
       type="button"
-      class="jx-fab"
+      class="jx-press jx-fab"
       aria-label={label}
       aria-expanded={open}
       aria-haspopup={actions ? 'menu' : undefined}
@@ -82,7 +83,12 @@
     </button>
   </div>
 {:else}
-  <button type="button" class="jx-fab jx-fab-{corner} {className}" aria-label={label} {onclick}>
+  <button
+    type="button"
+    class="jx-press jx-fab jx-fab-{corner} {className}"
+    aria-label={label}
+    {onclick}
+  >
     {#if children}{@render children()}{/if}
   </button>
 {/if}
@@ -100,23 +106,16 @@
     border: 1px solid var(--border);
     background: var(--popover);
     color: var(--popover-foreground);
-    box-shadow: var(--shadow);
+    /* press law at float scale: rest on --shadow, hover grows to --shadow-md */
+    --jx-press-shadow: var(--shadow);
+    --jx-press-shadow-hover: var(--shadow-md);
+    --jx-press-shadow-active: var(--shadow-md-press);
     border-radius: var(--radius);
     cursor: pointer;
-    transition:
-      transform 150ms ease-out,
-      box-shadow 150ms ease-out,
-      border-color 150ms ease-out;
   }
   .jx-fab:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: var(--shadow-sm);
     border-color: var(--primary);
     color: var(--primary);
-  }
-  .jx-fab:active {
-    transform: translate(1px, 1px);
-    box-shadow: none;
   }
   .jx-fab:focus-visible {
     outline: 1px solid var(--ring);

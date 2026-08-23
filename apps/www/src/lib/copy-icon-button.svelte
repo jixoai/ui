@@ -45,11 +45,8 @@
     type="button"
     onclick={copy}
     aria-label={`copy ${command}`}
-    class="border-border bg-card hover:bg-muted text-foreground/80 hover:text-foreground shadow-xs
-      pointer-events-auto inline-grid size-7 place-items-center border transition-[transform,box-shadow,background-color,color] duration-150
-      hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-sm
-      active:translate-x-px active:translate-y-px active:shadow-none
-      motion-reduce:transition-none
+    class="jx-press border-border bg-card hover:bg-muted text-foreground/80 hover:text-foreground
+      pointer-events-auto inline-grid size-7 place-items-center border
       {copied ? 'bg-secondary text-secondary-foreground' : ''}
       {failed ? 'border-destructive text-destructive' : ''}"
   >

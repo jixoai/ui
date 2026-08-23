@@ -10,7 +10,8 @@
     "build:blueprints": "node scripts/build-blueprints.mjs",
     "site": "node scripts/dev-site.mjs",
     "verify:surface": "node scripts/verify-surface.mjs",
-    "verify:trygrid": "node scripts/verify-trygrid.mjs"
+    "verify:trygrid": "node scripts/verify-trygrid.mjs",
+    "verify:press": "node scripts/verify-press.mjs"
   },
   "devDependencies": {
     "@fontsource/jetbrains-mono": "^5.3.0",

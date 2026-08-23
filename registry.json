@@ -67,7 +67,7 @@
       "name": "press-button",
       "type": "registry:ui",
       "title": "Press button",
-      "description": "The brutalist press-physics button: lifts toward the viewer on hover (shadow xs → md), presses back into the page on active. Variants: primary / outline / copied.",
+      "description": "The press-law button (theme .jx-press): hover grows the shadow only (xs → sm, the body never moves); active presses the body +1px into the page while the box-shadow offsets counter-shrink 1px (the *-press token poses) — the shadow paint stays anchored, no pseudo layer. Variants: primary / secondary / outline / ghost / destructive / link / copied. One opt-in effect loop per button via typed builders exported from the module script — shimmer() perimeter spark, pulse() sonar rings (slow/ring/ripple), rainbow() blended aurora wash (conic, three prime timelines, screen on primary / color elsewhere), ripple() press-point ink — modeled on the animation-svelte reference, options on every loop, frozen under reduced motion.",
       "files": [
         {
           "path": "registry/files/ui/press-button.svelte",
@@ -1501,7 +1501,7 @@
       "name": "float-button",
       "type": "registry:ui",
       "title": "Float button",
-      "description": "The floating action button: a fixed corner button in two idioms — plain (a lone action, e.g. back-to-top) and menu (children + actions snippet: the button toggles a popover=auto stack above it, native light dismiss). Corner is a prop, not a wrapper — the consumer's layout is never touched. Press-button physics at a fixed size. The menu panel rides the floating-surface law: ::after shadow layer (semi-transparent black/white) + @starting-style entry; variant='solid' | 'acrylic' | 'auto' (acrylic falls back to solid under prefers-reduced-transparency; the button itself keeps press-button physics).",
+      "description": "The floating action button: a fixed corner button in two idioms — plain (a lone action, e.g. back-to-top) and menu (children + actions snippet: the button toggles a popover=auto stack above it, native light dismiss). Corner is a prop, not a wrapper — the consumer's layout is never touched. Press law (.jx-press) at float scale (--shadow rest, --shadow-md hover). The menu panel rides the floating-surface law: ::after shadow layer (semi-transparent black/white) + @starting-style entry; variant='solid' | 'acrylic' | 'auto' (acrylic falls back to solid under prefers-reduced-transparency; the button itself keeps the press law).",
       "files": [
         {
           "path": "registry/files/ui/float-button.svelte",
@@ -1681,7 +1681,7 @@
       "name": "icon-button",
       "type": "registry:ui",
       "title": "Icon button",
-      "description": "The icon+text button with an explicit two-part contract: icon is the glyph (ALWAYS decorative — wrapped aria-hidden), text is the ONE label (a single string, single-sourced). Variants: normal (icon + text side by side, press-button outline surface) and icon-only (a square size-9 button — text moves to the tooltip and stays the accessible name via aria-label; an icon-only button must say itself). Press-button physics verbatim; href renders an anchor, hrefs outside \"/\" open in a new tab.",
+      "description": "The icon+text button with an explicit two-part contract: icon is the glyph (ALWAYS decorative — wrapped aria-hidden), text is the ONE label (a single string, single-sourced). Variants: normal (icon + text side by side, press-button outline surface) and icon-only (a square size-9 button — text moves to the tooltip and stays the accessible name via aria-label; an icon-only button must say itself). Press law (.jx-press) verbatim; href renders an anchor, hrefs outside \"/\" open in a new tab.",
       "registryDependencies": [
         "@jixoai/tooltip"
       ],

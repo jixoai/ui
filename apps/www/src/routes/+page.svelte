@@ -53,7 +53,7 @@ npx jixoai-ui add press-button section-card toc`;
     { name: 'jixoai-theme', type: 'registry:theme', blurb: 'The full OKLCH token sheet with the --brand-hue law, hard shadows, radius 0 + bevel upgrade, mono-first fonts.' },
     { name: 'toc-engine', type: 'registry:lib', blurb: 'Framework-free ToC geometry: IoM weights, viewport-top line pick, margin-resolves-downward law, 76px mobile line.' },
     { name: 'reveal', type: 'registry:lib', blurb: 'Scroll-reveal action: static data-reveal hook law, delay/rise staggering, reduced-motion safety.' },
-    { name: 'press-button', type: 'registry:ui', blurb: 'The brutalist press-physics button: lift on hover, press into the page. primary / outline / copied.' },
+    { name: 'press-button', type: 'registry:ui', blurb: 'The press-law button: hover grows the shadow only, active presses into the page on an anchored shadow. 7 variants + opt-in shimmer / pulse / rainbow / ripple effect loops.' },
     { name: 'section-card', type: 'registry:ui', blurb: 'The content atom: bordered card, eyebrow in brand hue, font-nav title, text-pretty summary, body slot.' },
     { name: 'terminal-header', type: 'registry:ui', blurb: 'Terminal-bar site header: always-dark CRT bezel, nav pills, external links with ↗, theme slot.' },
     { name: 'terminal-footer', type: 'registry:ui', blurb: 'Ghost wordmark footer: huge hollow brand word, muted meta row transitioning to brand hue.' },

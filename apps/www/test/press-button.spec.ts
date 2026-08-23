@@ -1,0 +1,194 @@
+/**
+ * Press-button contract suite (test/press-button.spec.ts, 2026-08-23).
+ *
+ * Covers the press law surface contract (variant paint classes + the
+ * shared .jx-press law class), the opt-in effect loops (typed builders
+ * exported from the component's module script — host classes, effect
+ * layers, the ripple ink machinery), and the button/anchor duality.
+ * Rendered from the same-source copy the site consumes ($lib/ui); the
+ * ripple runs its real click handlers against jsdom (no layout:
+ * getBoundingClientRect is all zeros, so coordinates pass through
+ * verbatim and the dot size follows max(w,h) = 0).
+ *
+ * Assertion law: state is read back through the DOM the way a user or
+ * assistive tech sees it (roles, attributes, classes) — never through
+ * component internals.
+ */
+import { fireEvent, render, waitFor } from '@testing-library/svelte';
+import { describe, expect, it } from 'vitest';
+import { tick } from 'svelte';
+
+import PressButtonHost from './fixtures/press-button-host.svelte';
+import { pulse, rainbow, ripple, shimmer } from '../src/lib/ui/press-button.svelte';
+
+// ---------------------------------------------------------------------------
+// Variant paint — one physics, seven surfaces
+// ---------------------------------------------------------------------------
+describe('press-button variants', () => {
+  it('defaults to the outline surface on the shared press law class', () => {
+    const { container } = render(PressButtonHost);
+    const btn = container.querySelector('button')!;
+    expect(btn.className).toContain('jx-press');
+    expect(btn.className).toContain('bg-background');
+    expect(btn.className).toContain('border-border');
+    // no effect loop without opting in
+    expect(btn.className).not.toContain('jx-press-');
+    expect(btn.className).not.toContain('-host');
+  });
+
+  it('ghost keeps the frame but opts its shadow out through all three law poses', () => {
+    const { container } = render(PressButtonHost, { props: { variant: 'ghost' } });
+    const btn = container.querySelector('button')!;
+    expect(btn.className).toContain('jx-press');
+    expect(btn.className).toContain('[--jx-press-shadow:none]');
+    expect(btn.className).toContain('[--jx-press-shadow-hover:none]');
+    expect(btn.className).toContain('[--jx-press-shadow-active:none]');
+  });
+
+  it('link is the frame-less surface: no press law, no border', () => {
+    const { container } = render(PressButtonHost, { props: { variant: 'link' } });
+    const btn = container.querySelector('button')!;
+    expect(btn.className).not.toContain('jx-press');
+    expect(btn.className).not.toContain('border-border');
+    expect(btn.className).toContain('hover:underline');
+  });
+
+  it('destructive carries the inverted mono pair', () => {
+    const { container } = render(PressButtonHost, { props: { variant: 'destructive' } });
+    const btn = container.querySelector('button')!;
+    expect(btn.className).toContain('bg-destructive');
+    expect(btn.className).toContain('text-destructive-foreground');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Effect loops — typed builders, one opt-in loop per button
+// ---------------------------------------------------------------------------
+describe('press-button effects', () => {
+  it('the builders return discriminated descriptors', () => {
+    expect(shimmer()).toEqual({ type: 'shimmer', color: 'currentColor', spread: '90deg', cut: '0.06em', speed: 3000 });
+    expect(shimmer({ speed: 4000, color: '#fff' }).speed).toBe(4000);
+    // the sonar ring defaults to the brand hue: currentColor would paint
+    // white-on-white (invisible) on light primary buttons
+    expect(pulse().color).toBe('var(--primary)');
+    expect(pulse({ variant: 'ring' }).variant).toBe('ring');
+    expect(rainbow().colors).toHaveLength(5);
+    expect(ripple({ duration: 300 }).duration).toBe(300);
+  });
+
+  it('shimmer / pulse / rainbow tag the host and mount their layers', () => {
+    const shimmered = render(PressButtonHost, { props: { effect: shimmer() } });
+    const shimmerHost = shimmered.container.querySelector('button.jx-shimmer-host')!;
+    // Svelte re-serializes the style attribute ("--var: value; …")
+    expect(shimmerHost.getAttribute('style')).toContain('--shimmer-speed: 3000ms');
+    expect(shimmerHost.querySelector('.jx-shimmer-spark')).toBeTruthy();
+    expect(shimmerHost.querySelector('.jx-shimmer-cover')).toBeTruthy();
+    shimmered.unmount();
+
+    const pulsed = render(PressButtonHost, { props: { effect: pulse({ variant: 'ring', duration: 900 }) } });
+    const pulseHost = pulsed.container.querySelector('button.jx-pulse-host')!;
+    expect(pulseHost.getAttribute('style')).toContain('--pulse-duration: 900ms');
+    expect(pulseHost.querySelector('.jx-pulse-layer.jx-pulse-ring')).toBeTruthy();
+    pulsed.unmount();
+
+    const rainbowed = render(PressButtonHost, { props: { effect: rainbow({ speed: 4000 }) } });
+    const rainbowHost = rainbowed.container.querySelector('button.jx-rainbow-host')!;
+    // prime timelines scale with the pace: 4000ms → x 6s · y 10s ·
+    // layers 14s / 22s / 26s / 34s
+    expect(rainbowHost.getAttribute('style')).toContain('--rainbow-tx: 6000ms');
+    expect(rainbowHost.getAttribute('style')).toContain('--rainbow-ty: 10000ms');
+    expect(rainbowHost.getAttribute('style')).toContain('--rainbow-t1: 14000ms');
+    expect(rainbowHost.getAttribute('style')).toContain('--rainbow-t4: 34000ms');
+    expect(rainbowHost.getAttribute('style')).toContain('--c1: hsl(0 100% 63%)');
+    rainbowed.unmount();
+  });
+
+  it('ripple: a click spawns ink at the point; keyboard clicks center; ink clears after the duration', async () => {
+    const { container } = render(PressButtonHost, {
+      props: { effect: ripple({ duration: 20 }) },
+    });
+    const btn = container.querySelector('button')!;
+    const layer = container.querySelector('.jx-ripple-layer')!;
+
+    // pointer click (detail > 0): jsdom's zero rect passes clientX/Y through.
+    // delegated clicks flush their DOM effects on a microtask — tick first.
+    fireEvent.click(btn, { clientX: 30, clientY: 40, detail: 1 });
+    await tick();
+    let dot = layer.querySelector('.jx-ripple-dot') as HTMLElement;
+    expect(dot.style.left).toBe('30px');
+    expect(dot.style.top).toBe('40px');
+    expect(dot.getAttribute('style')).toContain('--ripple-color: currentColor');
+
+    // ink clears once the duration elapses
+    await waitFor(() => expect(layer.querySelectorAll('.jx-ripple-dot')).toHaveLength(0));
+
+    // keyboard click (detail 0): centered on the (zero) rect
+    fireEvent.click(btn, { detail: 0 });
+    await tick();
+    dot = layer.querySelector('.jx-ripple-dot') as HTMLElement;
+    expect(dot.style.left).toBe('0px');
+    expect(dot.style.top).toBe('0px');
+  });
+
+  it('effects never paint the host inline — only --custom properties', () => {
+    // the r1/r2 bug class (pulse white-on-white ring, rainbow hijacking
+    // the fill) was born exactly here: an effect painting the host.
+    // Lock the source: effect inline styles may carry ONLY custom
+    // properties — backgrounds, colors, and borders belong to variants.
+    // (ripple feeds its options to the ink dots, so its HOST carries
+    // no inline style at all.)
+    for (const fx of [shimmer(), pulse(), rainbow()]) {
+      const { container } = render(PressButtonHost, { props: { effect: fx } });
+      const style = container.querySelector('button')!.getAttribute('style') ?? '';
+      const decls = style
+        .split(';')
+        .map((d) => d.trim())
+        .filter(Boolean);
+      expect(decls.length, `${fx.type} should carry its options`).toBeGreaterThan(0);
+      for (const d of decls) {
+        expect(d.startsWith('--'), `${fx.type} paints the host inline: ${d}`).toBe(true);
+      }
+    }
+    const rippled = render(PressButtonHost, { props: { effect: ripple() } });
+    expect(rippled.container.querySelector('button')!.getAttribute('style')).toBeNull();
+  });
+
+  it('non-ripple buttons keep the click contract untouched (no ink layers)', () => {
+    const { container } = render(PressButtonHost);
+    const btn = container.querySelector('button')!;
+    expect(btn.querySelector('.jx-ripple-layer')).toBeNull();
+    fireEvent.click(btn, { clientX: 10, clientY: 10 });
+    expect(btn.querySelector('.jx-ripple-dot')).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Button or anchor duality
+// ---------------------------------------------------------------------------
+describe('press-button anchor mode', () => {
+  it('href renders an anchor carrying the same variant + effect classes', () => {
+    const { container } = render(PressButtonHost, {
+      props: { variant: 'outline', effect: shimmer(), href: 'https://github.com/jixoai/ui' },
+    });
+    const anchor = container.querySelector('a')!;
+    expect(anchor).toBeTruthy();
+    expect(anchor.className).toContain('jx-press');
+    expect(anchor.className).toContain('jx-shimmer-host');
+    // external hrefs open a new tab with noreferrer
+    expect(anchor.getAttribute('target')).toBe('_blank');
+    expect(anchor.getAttribute('rel')).toBe('noreferrer');
+  });
+
+  it('internal hrefs navigate in place', () => {
+    const { container } = render(PressButtonHost, { props: { href: '/docs.html' } });
+    const anchor = container.querySelector('a')!;
+    expect(anchor.getAttribute('target')).toBeNull();
+    expect(anchor.getAttribute('rel')).toBeNull();
+  });
+
+  it('renders a submit-typed button when asked', () => {
+    const { container } = render(PressButtonHost, { props: { type: 'submit' } });
+    const btn = container.querySelector('button')!;
+    expect(btn.getAttribute('type')).toBe('submit');
+  });
+});

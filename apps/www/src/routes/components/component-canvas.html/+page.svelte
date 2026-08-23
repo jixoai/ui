@@ -41,7 +41,7 @@ ${close}
 <!-- files: flat TreeFile list; paths split on "/" build the tree levels -->
 <ComponentCanvas
   title="press-button"
-  description="hover lifts, active presses."
+  description="hover grows the shadow, active presses on an anchored shadow."
   sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/press-button.svelte"
   files={[{ name: 'src/lib/ui/press-button-usage.svelte', content: usage }]}
 >
@@ -67,7 +67,7 @@ ${close}
   import PressButton from '@ui/press-button.svelte';
 ${close}
 
-<!-- one physics for every variant: hover lifts, active presses -->
+<!-- one physics for every variant: hover grows the shadow, active presses -->
 <PressButton variant="primary">deploy</PressButton>`;
 
   const innerFiles = [{ name: 'src/lib/ui/press-button-usage.svelte', content: innerUsage }];

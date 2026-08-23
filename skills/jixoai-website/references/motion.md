@@ -1,6 +1,7 @@
 # Motion — jixoai website
 
-Motion is restrained: exactly two patterns. Anything beyond them needs an
+Motion is restrained: two standing patterns (scroll reveal, press)
+plus opt-in effect loops (section 2b). Anything beyond them needs an
 explicit user request.
 
 ## 0. No flash before animation (initial-state law)
@@ -59,20 +60,77 @@ template so the hidden state never outlives JS availability.
   adopting this law, grep `threshold:` across site sources and bundles to
   purge the legacy value.
 
-## 2. Press physics (interaction)
+## 2. Press law (interaction)
 
-Every interactive element (PressButton and equivalents):
+Every interactive body uses the theme's `.jx-press` class (Owner
+rulings, 2026-08-23 — restrained by decree, r2 same day):
 
 ```
-transition-[transform,box-shadow,background-color] duration-150
-hover: -translate-x-0.5 -translate-y-0.5  + grow shadow (xs → md)
-active: translate-x-px translate-y-px     + shadow-none
+hover:  body NEVER moves; the box-shadow alone grows (xs → sm)
+active: body translate +1px,+1px; the box-shadow's offsets shrink by
+        the same 1px (the *-press token poses) — the shadow's paint
+        stays ANCHORED on screen
 ```
 
-The element lifts toward the viewer on hover and physically presses back
-into the page on click — the brutalist shadow is the affordance. Add
-`motion-reduce:transition-none` to the press base class so reduced-motion
-users get instant state changes.
+The shadow is the element's OWN box-shadow — no pseudo layer, no
+stacking machinery. The arithmetic lives in tokens: each `*-press`
+pose is its hover pose minus the 1px press vector (keep them in sync
+when a base pose changes). Pose opting through `--jx-press-shadow` /
+`-hover` / `-active` (floats rest on `--shadow`; ghost idioms set all
+THREE to none and keep the bare +1px press). The law owns the
+transition chain — components never carry their own `transition-*`
+utilities (unlayered rules beat layered utilities, so a component's
+own transition would be silently overridden anyway). Reduced motion
+ships inside the law: every press transition drops to `none`.
+
+Legacy note (r1, same day): the first cut painted the shadow on a
+counter-translated `::after` layer — geometrically equivalent, but it
+put `relative` + `isolation` + `z-index: -1` on every interactive
+element for a 1px effect. Dropped in r2 in favor of the token poses.
+
+## 2b. Effect loops (opt-in, Owner request 2026-08-23 r3)
+
+`shimmer / pulse / rainbow / ripple` are OPT-IN attention loops on
+press-button, modeled on the animation-svelte reference
+(github.com/SikandarJODD/animations) and implemented INSIDE the
+component (parametric options belong to the component, not the theme
+sheet). The API is typed builders exported from the component's
+module script — `import PressButton, { shimmer } from
+'@ui/press-button.svelte'` then `effect={shimmer({ speed: 4000 })}`.
+One effect per button — loops are attention, never ambience. The
+press law holds underneath every effect: the body still never moves
+on hover and the shadow paint still anchors on active; every effect
+layer sits at negative z-index inside the host's own stacking
+context, above the fill and under the label.
+
+- `shimmer(options)` — a conic spark walks the perimeter: a
+  height-sized square slides edge-to-edge (container queries,
+  alternate) while a 3× conic arc rotates in 90° steps with holds;
+  a cover re-paints the interior so only the border band carries
+  light. Options: color / spread / cut / speed.
+- `pulse(options)` — sonar rings cast by a `background: inherit`
+  silhouette copy: `slow` expand-and-fade, `ring` breathe out and
+  back, `ripple` eased expand-fade. Options: color / duration /
+  distance / variant.
+- `rainbow(options)` — a blended aurora wash (Owner spec r4→r6): ONE
+  heavily blurred `::after` hugging the body (inset -0.2rem, blur
+  1rem) wandering by percentage (±8% x · ±5% y). FOUR background
+  layers — a base conic, a counter-rotating conic, a linear sweep,
+  and a two-tone conic — each driven by its own registered angle
+  property on its own PRIME timeline (3s / 5s / 7s / 11s / 13s /
+  17s at the default pace), stacked through background-blend-mode
+  (screen / overlay / soft-light). The whole wash then blends with
+  the variant fill: `mix-blend-mode: screen` on primary, `color`
+  elsewhere — the fill keeps its luminosity, the aurora brings the
+  hues. Options: speed (scales all six timelines) / colors.
+- `ripple(options)` — ink circles from the exact activation point
+  (state array + keyed each, scale 0→2 with fade, cleared after the
+  duration); keyboard activation (click detail 0) ripples from the
+  center. Options: color / duration.
+
+Reduced motion freezes every loop and hides the traveling light (a
+frozen stripe mid-surface reads as a defect); the ripple is skipped
+in JS — the anchored press already answers the pointer.
 
 ## Terminal cursor
 
@@ -85,6 +143,7 @@ law; new jixoai sites do not blink (a blink is a looping animation).
 - `prefers-reduced-motion: reduce` disables both patterns: reveal elements
   render immediately (`opacity: 1; transform: none; transition: none`),
   press transitions drop to none, `scroll-behavior` returns to `auto`.
-- No other animation: no looping/ambient motion, no parallax, no page
-  transitions, no spinner decorations. Loading states are textual.
+- No other animation beyond the opt-in effect loops (section 2b): no
+  looping/ambient motion, no parallax, no page transitions, no spinner
+  decorations. Loading states are textual.
 - `html { scroll-behavior: smooth }` for anchor navigation only.

@@ -185,7 +185,7 @@
   {:else}
     <button
       type="button"
-      class="jx-menu-trigger"
+      class="jx-press jx-menu-trigger"
       popovertarget={id}
       bind:this={triggerEl}
       aria-haspopup="menu"
@@ -244,21 +244,13 @@
     color: var(--foreground);
     border: 1px solid var(--border);
     background: var(--background);
-    box-shadow: var(--shadow-xs);
+    --jx-press-shadow: var(--shadow-xs);
+    --jx-press-shadow-hover: var(--shadow-sm);
+    --jx-press-shadow-active: var(--shadow-sm-press);
     cursor: pointer;
-    transition:
-      transform 150ms ease-out,
-      box-shadow 150ms ease-out,
-      background-color 150ms ease-out;
   }
   .jx-menu-trigger:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: var(--shadow-sm);
     background: var(--muted);
-  }
-  .jx-menu-trigger:active {
-    transform: translate(1px, 1px);
-    box-shadow: none;
   }
   .jx-menu-caret {
     width: 13px;

@@ -300,7 +300,7 @@
   <div class="jx-canvas-code-bar">
     <button
       type="button"
-      class="jx-canvas-code-toggle"
+      class="jx-press jx-canvas-code-toggle"
       aria-expanded={codeOpen}
       aria-controls={drawerId}
       onclick={() => (codeOpen = !codeOpen)}
@@ -574,7 +574,7 @@
     }
   }
 
-  /* code bar: `</> Code` toggle (press physics at card scale) + file count */
+  /* code bar: `</> Code` toggle (press law at card scale) + file count */
   .jx-canvas-code-bar {
     align-items: center;
     border-top: 1px solid var(--border);
@@ -587,8 +587,11 @@
     align-items: center;
     background: var(--background);
     border: 1px solid var(--border);
-    box-shadow: var(--shadow-2xs);
     color: var(--foreground);
+    /* press law at card scale: 2xs rest, xs hover */
+    --jx-press-shadow: var(--shadow-2xs);
+    --jx-press-shadow-hover: var(--shadow-xs);
+    --jx-press-shadow-active: var(--shadow-xs-press);
     cursor: pointer;
     display: inline-flex;
     font-size: 11px;
@@ -596,20 +599,10 @@
     gap: 0.4rem;
     letter-spacing: 0.04em;
     padding: 0.25rem 0.6rem;
-    transition:
-      transform 150ms ease,
-      box-shadow 150ms ease,
-      background-color 150ms ease;
     white-space: nowrap;
   }
   .jx-canvas-code-toggle:hover {
     background: var(--muted);
-    box-shadow: var(--shadow-xs);
-    transform: translate(-1px, -1px);
-  }
-  .jx-canvas-code-toggle:active {
-    box-shadow: none;
-    transform: translate(1px, 1px);
   }
   .jx-canvas-code-toggle:focus-visible {
     outline: 2px solid var(--ring);
@@ -720,8 +713,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .jx-canvas-code-drawer,
-    .jx-canvas-code-toggle {
+    .jx-canvas-code-drawer {
       transition: none;
     }
   }
