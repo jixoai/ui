@@ -73,8 +73,10 @@
           <p class="jx-hue-label">Brand hue</p>
           <code class="jx-hue-value">{hue}°</code>
         </div>
+        <!-- rides the Tier-1 .jx-range law; scoped .jx-hue-range adds only
+             the rainbow track fill + the marker thumb (see style block) -->
         <input
-          class="jx-hue-range"
+          class="jx-range jx-hue-range"
           type="range"
           min="0"
           max="359"
@@ -83,7 +85,6 @@
           oninput={(e) => setHueManually(Number(e.currentTarget.value))}
           aria-label="Brand hue"
         />
-        <div class="jx-hue-stops" aria-hidden="true"></div>
       </div>
 
       <!-- 24h auto-cycle -->
@@ -144,17 +145,11 @@
     letter-spacing: 0.2em;
   }
 
-  /* ── hue slider: rainbow track ── */
-  .jx-hue-slider {
-    width: 100%;
-    height: 18px;
-    appearance: none;
-    -webkit-appearance: none;
-    background: transparent;
-    cursor: pointer;
-  }
-  .jx-hue-slider::-webkit-slider-runnable-track {
-    height: 6px;
+  /* ── hue slider: the Tier-1 .jx-range law carries the base (appearance
+     reset, focus ring, disabled, hover lift, press physics, reduced
+     motion); hue-owned paint ONLY — the rainbow track fill and the marker
+     thumb (14px, 2px border for separation against any hue) ── */
+  .jx-hue-range::-webkit-slider-runnable-track {
     background: linear-gradient(
       to right,
       oklch(0.6489 0.237 0),
@@ -166,17 +161,15 @@
       oklch(0.6489 0.237 360)
     );
   }
-  .jx-hue-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
+  .jx-hue-range::-webkit-slider-thumb {
     width: 14px;
     height: 14px;
-    margin-top: -4px;
-    border: 2px solid var(--border);
-    background: var(--primary);
+    /* center the 14px marker on the Tier-1 8px track */
+    margin-top: calc((0.5rem - 14px) / 2);
+    border-width: 2px;
     cursor: grab;
   }
-  .jx-hue-slider::-moz-range-track {
-    height: 6px;
+  .jx-hue-range::-moz-range-track {
     background: linear-gradient(
       to right,
       oklch(0.6489 0.237 0),
@@ -188,11 +181,10 @@
       oklch(0.6489 0.237 360)
     );
   }
-  .jx-hue-slider::-moz-range-thumb {
+  .jx-hue-range::-moz-range-thumb {
     width: 14px;
     height: 14px;
-    border: 2px solid var(--border);
-    background: var(--primary);
+    border-width: 2px;
     cursor: grab;
   }
 
