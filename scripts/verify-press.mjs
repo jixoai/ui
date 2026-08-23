@@ -157,7 +157,7 @@ const rainbow = await page.evaluate(() => {
   };
 });
 check(
-  'rainbow: aurora wash — 4 layers panned independently, 6 prime timelines, blur 1rem, inset -0.2rem',
+  'rainbow: aurora wash — 4 layers panned independently, 6 prime timelines, blur 0.6rem, inset -0.2rem',
   rainbow.x &&
     rainbow.y &&
     rainbow.p1 &&
@@ -168,7 +168,7 @@ check(
     rainbow.layerBlend.includes('screen') &&
     rainbow.layerBlend.includes('soft-light') &&
     /220%/.test(rainbow.layerSizes) &&
-    rainbow.blur === 'blur(16px)' &&
+    rainbow.blur === 'blur(9.6px)' &&
     rainbow.inset === '-3.2px' &&
     rainbow.blend === 'color',
   JSON.stringify(rainbow),

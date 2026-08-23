@@ -110,12 +110,15 @@ context, above the fill and under the label.
   2px blur; the spark blends `plus-lighter` — additive light over the
   host fill. Options: color / spread / cut / speed.
 - `pulse(options)` — sonar rings cast by a `background: inherit`
-  silhouette copy: `slow` expand-and-fade, `ring` breathe out and
-  back, `ripple` eased expand-fade. Options: color / duration /
+  silhouette copy (Owner tuning 2026-08-23: 2500ms · 0.7em defaults):
+  `slow` full-color expansion fading at the extent, `ring` a strong
+  S-curve slide whose opacity crosses zero and holds a 45–55%
+  zero-opacity plateau at full distance (dissolve out, re-condense
+  back), `ripple` eased expand-fade. Options: color / duration /
   distance / variant.
 - `rainbow(options)` — a blended aurora wash (Owner spec r4→r6): ONE
   heavily blurred `::after` hugging the body (inset -0.2rem, blur
-  1rem) wandering by percentage (±8% x · ±5% y). FOUR background
+  0.6rem) wandering by percentage (±8% x · ±5% y). FOUR background
   layers — a base conic, a counter-rotating conic, a linear sweep,
   and a two-tone conic — each driven by its own registered angle
   property on its own PRIME timeline (3s / 5s / 7s / 11s / 13s /

@@ -71,8 +71,8 @@
   }
   export function pulse({
     color = 'var(--primary)',
-    duration = 1500,
-    distance = '8px',
+    duration = 2500,
+    distance = '0.7em',
     variant = 'slow',
   }: PulseOptions = {}): PulseEffect {
     return { type: 'pulse', color, duration, distance, variant };
@@ -425,9 +425,13 @@
     animation: jx-pulse-slow var(--pulse-duration) ease-out infinite;
   }
   .jx-pulse-ring {
-    /* ease-in-out: symmetric breathing — ease-out darted back to a
-       zero-spread crawl each half-cycle, reading as a blink */
-    animation: jx-pulse-ring var(--pulse-duration) ease-in-out infinite;
+    /* Owner tuning 2026-08-23: a strong S-curve holds the spread still
+       near rest, then slides it out fast — the opacity crosses zero on
+       the SAME curve and the 45–55% keyframes hold a zero-opacity
+       plateau at full distance, so the ring dissolves at its extent
+       and re-condenses on the way back (no blink: every crossing is
+       eased, nothing teleports) */
+    animation: jx-pulse-ring var(--pulse-duration) cubic-bezier(0.75, 0, 0.25, 1) infinite;
   }
   .jx-pulse-ripple {
     animation: jx-pulse-ripple var(--pulse-duration) cubic-bezier(0.16, 1, 0.3, 1) infinite;
@@ -451,9 +455,13 @@
     0%,
     100% {
       box-shadow: 0 0 0 0 var(--pulse-color);
+      opacity: 1;
+      border-radius: 0;
     }
-    50% {
+    45%, 55% {
       box-shadow: 0 0 0 var(--pulse-distance) var(--pulse-color);
+      opacity: 0;
+      border-radius: 0.1px;
     }
   }
   @keyframes jx-pulse-ripple {
@@ -467,7 +475,7 @@
 
   /* rainbow — an aurora wash (Owner spec, 2026-08-23 r4→r7): ONE
      heavily blurred ::after hugging the body (inset -0.2rem, blur
-     1rem) that WANDERS by percentage (±8% x · ±5% y). FOUR background
+     0.6rem) that WANDERS by percentage (±8% x · ±5% y). FOUR background
      layers, each PANNED INDEPENDENTLY by its own registered
      percentage on its own PRIME timeline (7s / 11s / 13s / 17s at the
      default pace) — one animation per background, four different
@@ -501,7 +509,7 @@
       50% var(--jx-bp4, 0%);
     background-size: 220%, 260%, 300%, 340%;
     background-blend-mode: normal, screen, overlay, soft-light;
-    filter: blur(1rem);
+    filter: blur(0.6rem);
     mix-blend-mode: color;
     translate: var(--jx-rx, 0%) var(--jx-ry, 0%);
     animation:
