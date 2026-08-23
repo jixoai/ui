@@ -93,9 +93,6 @@
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: subgrid;
-  /* gutter parity with .jx-shell-body's stable both-edges scrollbar
-     reservation, so the subgrid columns align across layers */
-  padding-inline: var(--jx-shell-gutter, 0px);
 
   /* base rows: header + tocbar (auto-sized: 0 when no toc is adopted) */
   grid-template-rows: auto auto minmax(0, 1fr);
@@ -171,16 +168,23 @@
   grid-area: stage;
 }
 
-/* ── the scrolling layer ── */
+/* ── the scrolling layer ──
+   The scrollbar is DIGESTED here (Owner ruling, 2026-08-24): the body
+   extends into the host's edges by its live-measured gutter
+   (--jx-shell-gutter, script-measured per side; 0 on overlay-scrollbar
+   systems) — both-edge gutters land exactly on the extension zones, the
+   scrollbar paints at the true viewport edge, and the subgrid content
+   box stays EXACTLY the shell's width. The shared columns never see the
+   scrollbar; the top layer needs no parity compensation. */
 .jx-shell-body {
   grid-row: 1;
   grid-column: 1 / -1;
+  width: calc(100% + 2 * var(--jx-shell-gutter, 0px));
+  margin-inline: calc(-1 * var(--jx-shell-gutter, 0px));
   display: grid;
   grid-template-columns: subgrid;
   overflow-y: auto;
   overscroll-behavior-y: none;
-  /* scrollbar law: both-edges gutters — the page scroller never reflows
-     when its scrollbar appears/disappears on classic-scrollbar systems */
   scrollbar-gutter: stable both-edges;
   /* chrome reservation: header band (+ the narrow toc bar) on top; the
      tree bottom bar's collapsed height at the end (Codex r2 P1: without
@@ -192,11 +196,13 @@
   scroll-padding-block-start: var(--jx-toc-line, 96px);
   scroll-behavior: smooth;
 }
-.jx-shell-body > main {
+/* main AND footer live in the content column — auto-placement would
+   drop the footer into the rail column on the wide form (Owner report,
+   2026-08-24) */
+.jx-shell-body > main,
+.jx-shell-body > footer {
   grid-column: content;
   min-inline-size: 0;
-  /* the tree bar's bottom clearance is the body's own reservation
-     (--jx-chrome-bottom) — no per-page padding */
 }
 
 /* ── immersive: per-zone transforms (ONE state, three zones) ──
