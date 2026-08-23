@@ -77,9 +77,8 @@
 
   let { header, chrome, children, footer }: Props = $props();
 
-  // float plane state — the ORDERED set of adopted nodes (scaffold-float
-  // portals, the toc and tree-nav self-adopt; the slot renders them in
-  // adoption order)
+  // dynamic float plane state — the ORDERED set of adopted nodes
+  // (scaffold-float portals; static chrome never passes through here)
   let floatNodes = $state<{ node: HTMLElement; area: TopLayerArea }[]>([]);
   setContext<TopLayerApi>('jx-top-layer', {
     adopt: (node, opts) => {

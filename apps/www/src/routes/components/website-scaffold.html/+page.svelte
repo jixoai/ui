@@ -24,13 +24,20 @@
   import TerminalHeader from '@ui/terminal-header.svelte';
 ${close}
 
-<!-- the layout root: one header band overlay, one body scroll plane -->
+<!-- the layout root: one named container, two subgrid layers -->
 <WebsiteScaffold>
   {#snippet header()}
     <TerminalHeader brand="my-app" items={[...]} />
   {/snippet}
 
-  <!-- default snippet → main#main; the body reserves the band's height -->
+  <!-- STATIC chrome (SSR-stable): toc rails / nav trees authored in
+       their final grid cells — never moved by hydration -->
+  {#snippet chrome()}
+    <MyPageToc data-area="toc" />
+    <MyCatalogTree data-area="tree" />
+  {/snippet}
+
+  <!-- default snippet → main#main in the content column -->
   <RouterOutlet />
 
   {#snippet footer()}

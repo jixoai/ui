@@ -56,7 +56,7 @@ ${close}
   class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
-       glass bar under the scaffold header (height 0, see toc.css) -->
+       glass bar under the scaffold header (standalone toc law, toc.css) -->
 
   <div class="flex min-w-0 flex-col gap-8">
     <div data-reveal="" use:reveal>
@@ -77,16 +77,16 @@ ${close}
     <div data-reveal="" use:reveal>
       <ComponentCanvas
         title="scaffold-float"
-        description="The float portal: render anything into the website scaffold's top layer from anywhere in the page. Nodes keep full Svelte ownership at their authoring position; a context provider adopts the live node into .jx-float-slot on mount, and teardown hands it back."
+        description="The float portal: render anything into the website scaffold's top layer from anywhere in the page. Nodes keep full Svelte ownership at their authoring position; a context provider adopts the live node into .jx-float-slot on mount, and teardown hands it back. Static chrome (toc rails, nav trees) belongs in the scaffold's chrome snippet instead — this is the DYNAMIC path."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/scaffold-float.svelte"
         {files}
       >
         {#snippet children()}
           <!-- No LIVE instance here on purpose: the only provider in this
-               page's tree is the site's own scaffold, whose float plane
-               already carries this page's ToC rail (self-adopted through
-               the same context). A demo float would stack page chrome
-               atop page chrome; the concept card stands in. -->
+               page's tree is the site's own scaffold (this page's toc
+               lives in its static chrome slot, not the float plane). A
+               demo float would stack page chrome atop page chrome; the
+               concept card stands in. -->
           <SectionCard
             class="w-full max-w-3xl"
             eyebrow="portal 概念 · no LIVE instance"
@@ -98,7 +98,7 @@ ${close}
 ────────────────────────────────────     ────────────────────────────────────
 &lt;ScaffoldFloat&gt;                           ├── .jx-scaffold-header
   └─ aside.docs-aside        adopt()      └── .jx-float-slot
-       …children…           ──────►          ├─ toc rail ← self-adopted
+       …children…           ──────►          ├─ any dynamic float
 (hidden anchor stays in place)              └─ aside.docs-aside ← moved
                                            (rides the immersive slide)</code></pre>
               <ol class="flex flex-col gap-2 text-[13px] leading-6">
@@ -149,8 +149,8 @@ ${close}
                 hands the node back so Svelte destroys exactly what it created</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
               <span>the float plane is ordered multi-node — <code class="text-accent">adopt()</code>
-                appends in adoption order, so a page's self-adopted ToC rail and your custom floats
-                coexist inside <code class="text-accent">.jx-float-slot</code></span></li>
+                appends in adoption order, so multiple custom floats coexist inside
+                <code class="text-accent">.jx-float-slot</code> (static chrome lives in its own slot — the two never mix)</span></li>
           </ul>
           <CodeBlock code={usage} lang="svelte" meta="usage" />
         </div>

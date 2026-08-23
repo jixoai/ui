@@ -1,29 +1,16 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import { reveal } from '$lib/reveal';
   import { onMount } from 'svelte';
 
-  // ToC outline: the demo sections below, in page order.
-  const tocSections = [
-    { id: 'getting-started', label: 'Getting started' },
-    { id: 'typography', label: 'Typography' },
-    { id: 'buttons', label: 'Buttons' },
-    { id: 'forms', label: 'Forms' },
-    { id: 'disclosure', label: 'details / summary' },
-    { id: 'nav-lists', label: 'nav · lists · dl' },
-    { id: 'tables', label: 'Tables' },
-    { id: 'media-flow', label: 'progress · meter · figure' },
-    { id: 'dark-mode', label: 'Dark mode' },
-    { id: 'custom-element', label: 'CustomElement' },
-    { id: 'scope-laws', label: 'Scope laws' },
-  ];
+  // ToC lives in +page.ts (firstpaint era: the layout's chrome snippet
+  // owns the rail from page data) — keep the section ids in sync there.
 
-  // vite asset urls for the shadow-DOM demo — the REAL registry copies
-  // this site runs, fetched and adopted as constructable sheets
-  import tokenCssUrl from '$lib/jixoai.css?url';
-  import pureCssUrl from '$lib/jx-pure.css?url';
+  // the REAL registry copies this site runs, inlined as text (?raw —
+  // the same-source law; no fetch, identical dev/build behavior)
+  import tokenCssRaw from '$lib/jixoai.css?raw';
+  import pureCssRaw from '$lib/jx-pure.css?raw';
 
   const install = `# the componentless face — one css, zero js
 npx jixoai-ui add jx-pure`;
@@ -66,15 +53,18 @@ document.documentElement.classList.toggle('dark', sysDark);
   const shadowRecipe = `// a CustomElement adopting the face inside its own shadow root
 // (document css never crosses the boundary — bring the two sheets):
 const style = document.createElement('style');
-style.textContent = tokenCss + pureCss; // the registry copies
+// tokenCss/pureCss = the two registry files' text (bundled ?raw, or
+// fetched from resolved URLs — beware: dev-time ?url serves a JS
+// module, not the css text)
+style.textContent = tokenCss.replace(/^@import.*$/gm, '') + pureCss;
 this.shadowRoot.append(style);
 // ^ a <style> node, NOT replaceSync: constructable sheets THROW on the
 // token sheet's build-time at-rules (@theme/@custom-variant), while a
-// style node parses tolerantly and skips them. Fonts stay document-
-// level: @font-face is document-scoped, the shadow inherits families`;
+// style node parses tolerantly. Strip the fontsource @imports (bare
+// specifiers cannot resolve in shadow css; fonts are document-scoped)`;
 
   // the live CustomElement fixture: real shadow root, real style nodes
-  // fed from the real registry asset urls (fonts ride the document)
+  // fed from the real registry text (fonts ride the document)
   onMount(() => {
     if (customElements.get('jx-pure-island')) return;
     customElements.define(
@@ -91,20 +81,17 @@ this.shadowRoot.append(style);
     <label><input type="checkbox" checked /> check</label>
   </p>
 </div>`;
-          Promise.all([fetch(tokenCssUrl), fetch(pureCssUrl)])
-            .then(async ([tokens, pure]) => [await tokens.text(), await pure.text()])
-            .then(([tokenCss, pureCss]) => {
-              // strip the fontsource @imports (bare specifiers cannot
-              // resolve here; the document owns the fonts anyway), then
-              // inject as <style> nodes — tolerant of the token sheet's
-              // build-time at-rules, unlike constructable sheets
-              const stripped = tokenCss.replace(/^@import.*$/gm, '');
-              for (const text of [stripped, pureCss]) {
-                const style = document.createElement('style');
-                style.textContent = text;
-                root.append(style);
-              }
-            });
+          // strip the fontsource @imports (bare specifiers cannot
+          // resolve inside a shadow style; the document owns the fonts
+          // anyway), then inject as <style> nodes — tolerant of the
+          // token sheet's build-time at-rules, unlike constructable
+          // sheets whose replaceSync would throw on them
+          const stripped = tokenCssRaw.replace(/^@import.*$/gm, '');
+          for (const text of [stripped, pureCssRaw]) {
+            const style = document.createElement('style');
+            style.textContent = text;
+            root.append(style);
+          }
         }
       },
     );
