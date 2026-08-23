@@ -91,14 +91,22 @@ describe('Tooltip', () => {
     }
   });
 
-  it('hover intent waits for the open delay', async () => {
+  it('hover opens immediately by default; openDelay opts into hover intent', async () => {
+    // Owner ruling 2026-08-23: tips show immediately — no timer advance
+    const { anchor, panel } = setup();
+    await fireEvent(anchor, new PointerEvent('pointerenter', { bubbles: true }));
+    expect(panel.matches(':popover-open')).toBe(true);
+
+    // opt-in delay: still closed right after enter, open after the window
+    const delayed = render(TooltipHost, { props: { openDelay: 150 } });
+    const dAnchor = delayed.container.querySelector('.jx-tip-anchor') as HTMLElement;
+    const dPanel = delayed.container.querySelector('[role="tooltip"]') as HTMLElement;
     vi.useFakeTimers();
     try {
-      const { anchor, panel } = setup();
-      await fireEvent(anchor, new PointerEvent('pointerenter', { bubbles: true }));
-      expect(panel.matches(':popover-open')).toBe(false); // still waiting
-      await vi.advanceTimersByTimeAsync(450);
-      expect(panel.matches(':popover-open')).toBe(true);
+      await fireEvent(dAnchor, new PointerEvent('pointerenter', { bubbles: true }));
+      expect(dPanel.matches(':popover-open')).toBe(false); // still waiting
+      await vi.advanceTimersByTimeAsync(200);
+      expect(dPanel.matches(':popover-open')).toBe(true);
     } finally {
       vi.useRealTimers();
     }
@@ -129,17 +137,36 @@ describe('Tooltip', () => {
       expect(body.getAttribute('style') ?? '').not.toContain('anchor(');
     }
 
-    // the panel is wired to author the notch mask at open: a toggle
-    // event must write the silhouette + ring data-URI vars (jsdom rects
+    // the toggle seam authors the notch mask at open through the REAL
+    // platform path (the polyfill fires toggle synchronously inside
+    // showPopover): focus-in opens, the seam reads :popover-open live
+    // and aimPin writes the silhouette + ring data-URI vars (jsdom rects
     // are all-zero, so the paths are degenerate — the contract is that
-    // the masks were authored, no crash)
-    const toggle = new Event('toggle') as Event & { newState?: string };
-    toggle.newState = 'open';
-    center.dispatchEvent(toggle);
-    await tick();
-    expect(center.style.getPropertyValue('--jx-tip-shape')).toContain('data:image/svg+xml');
-    expect(center.style.getPropertyValue('--jx-surface-ring')).toContain('data:image/svg+xml');
-    expect(center.style.getPropertyValue('--jx-surface-ring-inner')).toContain('data:image/svg+xml');
+    // the masks were authored, no crash). jsdom lacks Anchor Positioning
+    // (and even the global CSS namespace), so the capability guard must
+    // be stubbed true for the aim to run
+    const cssNS = globalThis as { CSS?: { supports?: (q: string) => boolean } };
+    const real = cssNS.CSS?.supports?.bind(cssNS.CSS);
+    const fake = (q: string) =>
+      q.includes('anchor-name') ? true : real ? real(q) : false;
+    const installedCSS = cssNS.CSS;
+    if (installedCSS?.supports) {
+      vi.spyOn(installedCSS, 'supports').mockImplementation(fake);
+    } else {
+      cssNS.CSS = { supports: fake };
+    }
+    try {
+      const wrapper = document.querySelector(`[aria-describedby="${center.id}"]`);
+      await fireEvent(wrapper, new FocusEvent('focusin', { bubbles: true }));
+      await tick();
+      expect(center.matches(':popover-open')).toBe(true);
+      expect(center.style.getPropertyValue('--jx-tip-shape')).toContain('data:image/svg+xml');
+      expect(center.style.getPropertyValue('--jx-surface-ring')).toContain('data:image/svg+xml');
+      expect(center.style.getPropertyValue('--jx-surface-ring-inner')).toContain('data:image/svg+xml');
+    } finally {
+      vi.restoreAllMocks();
+      if (!installedCSS?.supports) delete cssNS.CSS;
+    }
   });
 });
 

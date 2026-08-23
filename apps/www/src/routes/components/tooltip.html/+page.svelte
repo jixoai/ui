@@ -22,7 +22,7 @@ ${close}
   <PressButton>copy</PressButton>
 </Tooltip>
 
-<!-- placement + delays -->
+<!-- placement + opt-in hover-intent delay -->
 <Tooltip text="Below the trigger" placement="bottom" openDelay={150}>…</Tooltip>
 
 <!-- opt-in pointer pin: aimed at the anchor point the placement names -->
@@ -69,7 +69,7 @@ ${close}
     >
       <div class="flex flex-wrap gap-3">
         <span class="pill">popover=manual</span>
-        <span class="pill">400ms open · 100ms close</span>
+        <span class="pill">opens instantly · 100ms close grace</span>
         <span class="pill">focus opens instantly</span>
         <span class="pill">aria-describedby</span>
         <span class="pill">opt-in pointer pin</span>
@@ -80,7 +80,7 @@ ${close}
   <div data-reveal="" use:reveal>
     <ComponentCanvas
       title="tooltip"
-      description="Hover the button (wait ~400ms), then focus it with the keyboard — two intent paths, one tip. Escape dismisses; moving the pointer onto the tip keeps it open."
+      description="Hover the button — the tip shows immediately (a hover-intent delay is opt-in through openDelay), then focus it with the keyboard — two intent paths, one tip. Escape dismisses; moving the pointer onto the tip keeps it open."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/tooltip.svelte"
       files={canvasFiles}
     >

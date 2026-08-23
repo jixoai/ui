@@ -7,7 +7,9 @@
 
   Intent model (the part CSS alone cannot do — the reason this is a
   component and not a utility class):
-    pointerenter → open after openDelay (400ms)     hover intent
+    pointerenter → open NOW (Owner ruling 2026-08-23: tips show
+                     immediately; a hover-intent delay is opt-in through
+                     openDelay for sweep-heavy surfaces)
     pointerleave → close after closeDelay (100ms)   lets the pointer
                      cross the gap onto the tooltip itself (the panel's
                      own pointerenter cancels the pending close)
@@ -15,7 +17,8 @@
                      readers never wait for hover timers
     focusout    → close NOW
     Escape      → close NOW (manual popovers skip the native Esc path)
-    toggle      → the notch mask is authored once, at open (Arrow law)
+    toggle      → the notch mask + the slide vector are authored once, at
+                  open, and the WAAPI motion kernel plays (Arrow law)
 
   a11y: the wrapper carries aria-describedby → the panel id permanently;
   hidden popover content is display:none, so assistive tech only reads
@@ -50,6 +53,22 @@
   correct by the system's contract. The panel itself uses no anchor()
   function (position-anchor + inset-area inline) and stays zero-JS.
 
+  Motion kernel (2026-08-23 r2, popover.svelte's WAAPI kernel, VERBATIM
+  choreography — three layers: the platform panel, the surface body and
+  a REAL .jx-tip-shadow child masked to the notch silhouette; a static
+  ::after veil cannot join the choreography because pseudo-elements are
+  unreachable from WAAPI). The one structural simplification: no
+  direction predict/verify/replay — aimPin's rect read at open already
+  knows the post-flip geometry (both axes), so the slide and shadow
+  vectors are measured, not predicted. Same two laws as popover.svelte:
+  (1) opacity is animated ONLY while the kernel pins the materials
+  OPAQUE (an animated opacity activates the compositor's opacity
+  channel and breaks backdrop-filter blur); (2) no lingering fills —
+  every phase is canceled the moment its successor owns the values, the
+  exceptions being the exit tail's forwards fill (holds opacity 0 until
+  display:none) and the exit's body/shadow opaque holds through B'
+  (popover parity — they die with the panel's display:none).
+
   Anchoring, flip fallbacks and anchors-visible scroll hiding follow the
   popover.svelte laws; engines without anchor positioning fall back to
   viewport-center (never worse).
@@ -71,15 +90,17 @@
         top-center, 'top-end' → the top-end corner); re-authored at every
         open, mirroring the once-at-open flip law */
     arrow?: boolean;
-    /** hover-intent open delay (ms); focus opens immediately regardless */
+    /** delay before hover opens (ms); 0 (default) shows the tip
+        immediately — opt in for sweep-heavy surfaces; focus opens
+        immediately regardless */
     openDelay?: number;
     /** grace before closing, so the pointer can cross onto the tip */
     closeDelay?: number;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
-        the environment asks for reduced transparency). The tip keeps its
-        shadowless character in every variant — the jx-surface offset is
-        pinned to 0 below; the law contributes the entry/exit
-        choreography and the acrylic paint. */
+        the environment asks for reduced transparency). The shadow rides
+        the law's static ::after veil, masked to the notch silhouette
+        and offset to the panel's outward side (aimPin sets
+        --jx-surface-ox/oy at open). */
     variant?: 'solid' | 'acrylic' | 'auto';
     class?: string;
     /** the trigger content; the wrapper span carries the anchoring */
@@ -93,7 +114,7 @@
     text,
     placement = 'top',
     arrow = false,
-    openDelay = 400,
+    openDelay = 0,
     closeDelay = 100,
     variant = 'auto',
     class: className = '',
@@ -153,28 +174,246 @@
   const svgUrl = (w: number, h: number, d: string): string =>
     `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${n(w)} ${n(h)}' preserveAspectRatio='none'><path d='${d}' fill='black'/></svg>")`.replaceAll(' ', '%20');
 
-  // Author the notch mask once, at open — the same moment position-try
-  // settles the panel's own flip (see Chromium constraint in the
-  // header). Everything is plain px/data-URIs on custom properties; no
-  // anchor() anywhere. Sets, on the panel: --jx-tip-shape (the body's
-  // silhouette mask) and the --jx-surface-ring pair (the border ring's
-  // subtract layers).
+  // Author the notch mask and the slide vector once, at open — the same
+  // moment position-try settles the panel's own flip (see Chromium
+  // constraint in the header). Everything is plain px/data-URIs on
+  // custom properties; no anchor() anywhere. Sets, on the panel:
+  // --jx-tip-shape (the body's silhouette mask), the --jx-surface-ring
+  // pair (the border ring's subtract layers), and the --jx-surface-in-*
+  // slide vector (measured from the post-flip geometry — the kernel
+  // reads it through var() at animation time).
+  // anchor-positioning capability (Codex r2): without it the panel sits
+  // at viewport-center — a notch aimed at nothing is noise, and the
+  // arrow CSS is @supports-gated to match
+  const anchored = (): boolean =>
+    typeof CSS !== 'undefined' &&
+    typeof CSS.supports === 'function' &&
+    CSS.supports('anchor-name: --jx-tip-fallback');
+
   function aimPin(): void {
-    if (!panel || !body || !anchorEl) return;
+    if (!panel || !body || !anchorEl || !anchored()) return;
     const r = body.getBoundingClientRect();
     const a = anchorEl.getBoundingClientRect();
     const w = r.width;
-    const target =
-      aimSide === 'left' ? a.left : aimSide === 'right' ? a.right : (a.left + a.right) / 2;
-    const x = Math.min(Math.max(target - r.left, EDGE), Math.max(w - EDGE, EDGE));
     const side: 'top' | 'bottom' = r.top + r.bottom < a.top + a.bottom ? 'bottom' : 'top';
-    panel.style.setProperty('--jx-tip-shape', svgUrl(w, r.height, shapePath(w, r.height, x, side)));
-    panel.style.setProperty('--jx-surface-ring', svgUrl(w, r.height, shapePath(w, r.height, x, side)));
-    panel.style.setProperty(
-      '--jx-surface-ring-inner',
-      svgUrl(w, r.height, ringInnerPath(w, r.height, x, side)),
-    );
+    // the notch trio is arrow-only (Codex r1): a plain tip's shadow must
+    // stay rectangular — writing the ring vars unconditionally cut it
+    if (arrow) {
+      const target =
+        aimSide === 'left' ? a.left : aimSide === 'right' ? a.right : (a.left + a.right) / 2;
+      const x = Math.min(Math.max(target - r.left, EDGE), Math.max(w - EDGE, EDGE));
+      panel.style.setProperty('--jx-tip-shape', svgUrl(w, r.height, shapePath(w, r.height, x, side)));
+      panel.style.setProperty('--jx-surface-ring', svgUrl(w, r.height, shapePath(w, r.height, x, side)));
+      panel.style.setProperty(
+        '--jx-surface-ring-inner',
+        svgUrl(w, r.height, ringInnerPath(w, r.height, x, side)),
+      );
+    }
     panel.dataset.side = side;
+    // slide + shadow vectors from the MEASURED geometry (Codex r1: the
+    // requested aim ignores flip-inline — the panel can end up on the
+    // other side, and the slide/shadow must follow the REAL position):
+    // both signs read from the rects like popover's verifyDirection
+    // (4px dead zone on x), so the panel arrives from — and the shadow
+    // falls to — its actual outward side, never onto the anchor.
+    const sign = (d: number): -1 | 0 | 1 => (Math.abs(d) < 4 ? 0 : (Math.sign(d) as -1 | 0 | 1));
+    const sx = sign(r.left + r.width / 2 - (a.left + a.width / 2));
+    const sy: -1 | 1 = side === 'bottom' ? -1 : 1;
+    panel.style.setProperty('--jx-surface-in-x', sx === 0 ? '0px' : `${sx * 12}px`);
+    panel.style.setProperty('--jx-surface-in-y', `${sy * 12}px`);
+    panel.style.setProperty('--jx-surface-ox', sx === 0 ? '0px' : `${sx * 6}px`);
+    panel.style.setProperty('--jx-surface-oy', `${sy * 6}px`);
+  }
+
+  // ── MOTION KERNEL (2026-08-23 r2: popover.svelte's choreography,
+  // VERBATIM — three layers: the platform panel, the surface body and a
+  // REAL shadow child (pseudo-elements are unreachable from WAAPI, so a
+  // static ::after veil cannot join the choreography; the earlier
+  // two-layer port collapsed phase A's slide into the rest position and
+  // dropped phase B's layer separation entirely — Owner report). The
+  // only structural simplification: no direction predict/verify/replay —
+  // aimPin's rect read at open already knows the post-flip side, so the
+  // slide/shadow vectors are measured, not predicted. Same two laws as
+  // popover.svelte: (1) opacity is animated ONLY while the kernel pins
+  // the materials OPAQUE (an animated opacity activates the compositor's
+  // opacity channel and breaks backdrop-filter blur); (2) no lingering
+  // fills — every phase is canceled the moment its successor owns the
+  // values, the one exception being the exit tail's forwards fill
+  // (holds opacity 0 until display:none). ──
+  const PHASE_MS = 230; // must match the law's allow-discrete window (460/230)
+  const EASE = 'linear';
+  const DEFOCUS = 'blur(100px)';
+  let solidBg = ''; // opaque fill, re-resolved per open (theme-safe)
+  let glassBg = ''; // translucent acrylic fill, read per open
+  let veilBg = ''; // the shadow layer's translucent veil, read per open
+  let veilSolid = ''; // the veil's opaque form (pure shadow color)
+
+  interface CSSElementAnimationLike extends Animation {
+    __jxKernel?: boolean;
+  }
+
+  const prefersReducedMotion = (): boolean =>
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /** resolve a custom property through ONE level of var() nesting */
+  function resolveVar(el: HTMLElement, name: string, fallbackName: string): string {
+    const cs = getComputedStyle(el);
+    const raw = cs.getPropertyValue(name).trim();
+    const target = raw || `var(${fallbackName})`;
+    const varRef = /^var\(\s*(--[\w-]+)\s*\)$/.exec(target);
+    return (varRef ? cs.getPropertyValue(varRef[1]).trim() : target) || cs.getPropertyValue(fallbackName).trim();
+  }
+
+  const surface = (): { p: HTMLElement; b: HTMLElement; sh: HTMLElement } | null => {
+    const p = panel;
+    const b = p?.querySelector<HTMLElement>('.jx-tip-body');
+    const sh = p?.querySelector<HTMLElement>('.jx-tip-shadow');
+    return p && b && sh ? { p, b, sh } : null;
+  };
+
+  function kernelAnims(): Animation[] {
+    const out: Animation[] = [];
+    for (const el of [panel, panel?.querySelector('.jx-tip-body'), panel?.querySelector('.jx-tip-shadow')]) {
+      if (!el || typeof (el as HTMLElement).getAnimations !== 'function') continue;
+      for (const a of (el as HTMLElement).getAnimations()) {
+        if ((a as CSSElementAnimationLike).__jxKernel) out.push(a);
+      }
+    }
+    return out;
+  }
+
+  function anim(el: HTMLElement, frames: Keyframe[], fill: FillMode = 'both'): Animation {
+    const a = el.animate(frames, { duration: PHASE_MS, easing: EASE, fill });
+    (a as CSSElementAnimationLike).__jxKernel = true;
+    return a;
+  }
+
+  const IN = () => `var(--jx-surface-in-x, 0px) var(--jx-surface-in-y, 6px)`;
+  const SHADOW = () => `var(--jx-surface-ox, 6px) var(--jx-surface-oy, 6px)`;
+
+  function playEntry(): void {
+    const s = surface();
+    if (!s || typeof s.p.animate !== 'function') return; // jsdom etc.
+    const { p, b, sh } = s;
+    const token = runToken;
+    const alive = () => token === runToken && p.isConnected;
+    const liveOp = getComputedStyle(p).opacity;
+    for (const a of kernelAnims()) a.cancel();
+    // release the previous run's inline pins — the entry owns every channel
+    p.style.opacity = '';
+    p.style.filter = '';
+    p.style.translate = '';
+    sh.style.translate = '';
+    b.style.backgroundColor = '';
+    sh.style.backgroundColor = '';
+    if (prefersReducedMotion()) return;
+    glassBg = getComputedStyle(b).backgroundColor;
+    veilBg = getComputedStyle(sh).backgroundColor;
+    // re-resolve the theme-dependent opaque values EVERY open — a cached
+    // value would go stale across a light/dark switch
+    solidBg = resolveVar(p, '--jx-surface-solid-fill', '--popover') || glassBg;
+    veilSolid = resolveVar(p, '--shadow-color', '--shadow-color');
+
+    // PHASE A — the kernel-pinned OPAQUE window (ALL layers opaque, the
+    // shadow merged flush under the panel): fade + defocus + slide to
+    // the shadow's spot
+    const bodyA = anim(b, [{ backgroundColor: solidBg }, { backgroundColor: solidBg }]);
+    const shadowA = anim(sh, [
+      { translate: '0 0', backgroundColor: veilSolid },
+      { translate: '0 0', backgroundColor: veilSolid },
+    ]);
+    const panelA = anim(p, [
+      { opacity: Number.parseFloat(liveOp) || 0, translate: IN(), filter: DEFOCUS },
+      { opacity: 1, offset: 0.5, filter: 'blur(50px)' },
+      { opacity: 1, translate: SHADOW(), filter: 'blur(0px)' },
+    ]);
+    panelA.finished
+      .then(() => {
+        if (!alive() || !p.matches(':popover-open')) return;
+        // pin opacity 1 INLINE for phase B: the kernel cascade rests at 0
+        p.style.opacity = '1';
+        bodyA.cancel();
+        shadowA.cancel();
+        panelA.cancel(); // phase B starts exactly where A ended
+        // PHASE B — separation (no opacity anywhere): the panel rises to
+        // rest while the shadow's ABSOLUTE position stays put — its
+        // relative offset grows to the shadow offset as the veil develops
+        const bodyB = anim(b, [{ backgroundColor: solidBg }, { backgroundColor: glassBg }]);
+        const shadowB = anim(sh, [
+          { translate: '0 0', backgroundColor: veilSolid },
+          { translate: SHADOW(), backgroundColor: veilBg },
+        ]);
+        const panelB = anim(p, [{ translate: SHADOW() }, { translate: '0px 0px' }]);
+        panelB.finished
+          .then(() => {
+            if (!alive() || !p.matches(':popover-open')) return;
+            // pin the REST POSE INLINE, then release every fill (Law 2)
+            p.style.translate = '0px 0px';
+            p.style.opacity = '1';
+            b.style.backgroundColor = glassBg;
+            sh.style.translate = SHADOW();
+            sh.style.backgroundColor = veilBg;
+            bodyB.cancel();
+            shadowB.cancel();
+            panelB.cancel();
+          })
+          .catch(() => {}); // mid-entry close aborts — nothing to do
+      })
+      .catch(() => {});
+  }
+
+  function playExit(): void {
+    const s = surface();
+    if (!s || typeof s.p.animate !== 'function') return;
+    const { p, b, sh } = s;
+    const token = runToken;
+    const alive = () => token === runToken; // exit B' must run even detached-ish; only destroy blocks
+    // snapshot the CURRENT live values BEFORE canceling: closing
+    // mid-entry must stay continuous
+    const curBg = getComputedStyle(b).backgroundColor;
+    const curT = getComputedStyle(p).translate === 'none' ? '0px 0px' : getComputedStyle(p).translate;
+    const curShBg = getComputedStyle(sh).backgroundColor;
+    const curShT = getComputedStyle(sh).translate === 'none' ? '0px 0px' : getComputedStyle(sh).translate;
+    const curOp = getComputedStyle(p).opacity;
+    const curFilter = getComputedStyle(p).filter;
+    // freeze EVERY animated channel INLINE before canceling — after the
+    // cancel each cascade resolves to its CLOSED state
+    p.style.opacity = curOp;
+    p.style.filter = curFilter;
+    p.style.translate = curT;
+    sh.style.translate = curShT;
+    b.style.backgroundColor = curBg;
+    sh.style.backgroundColor = curShBg;
+    for (const a of kernelAnims()) a.cancel();
+    if (prefersReducedMotion()) return;
+    const solid = solidBg || curBg;
+    if (!veilSolid) veilSolid = resolveVar(p, '--shadow-color', '--shadow-color');
+
+    // PHASE A' — solidify + merge (translate + fills only; the frozen
+    // inline opacity/filter hold the panel's live look)
+    const bodyA = anim(b, [{ backgroundColor: curBg }, { backgroundColor: solid }]);
+    const shadowA = anim(sh, [
+      { translate: curShT, backgroundColor: curShBg },
+      { translate: '0 0', backgroundColor: veilSolid },
+    ]);
+    const panelA = anim(p, [{ translate: curT }, { translate: SHADOW() }]);
+    panelA.finished
+      .then(() => {
+        if (!alive() || p.matches(':popover-open')) return; // reopened mid-flight
+        panelA.cancel(); // B' owns the panel now (its fill would fight)
+        // PHASE B' — merged opaque composite: defocus + slide + fade,
+        // FROM THE FROZEN LIVE opacity/filter
+        anim(
+          p,
+          [
+            { translate: SHADOW(), opacity: curOp, filter: curFilter },
+            { translate: IN(), opacity: 0, filter: DEFOCUS },
+          ],
+          'forwards', // holds opacity 0 until display:none — no cancel (Law 2 exception)
+        );
+      })
+      .catch(() => {});
   }
 
   const popoverApi = (
@@ -198,6 +437,12 @@
 
   function onEnter(): void {
     clearTimeout(closeTimer);
+    // 0 (the default) opens synchronously — a setTimeout(…, 0) would
+    // still defer to the next macrotask and read as a lag
+    if (openDelay <= 0) {
+      open();
+      return;
+    }
     openTimer = setTimeout(open, openDelay);
   }
   function onLeave(): void {
@@ -205,8 +450,33 @@
     closeTimer = setTimeout(close, closeDelay);
   }
 
-  // pending intent timers must never outlive the component (Codex r1)
-  onDestroy(clearTimers);
+  // run/destroy token (Codex r2): a phase continuation queued as a
+  // microtask can still fire AFTER onDestroy canceled the live
+  // animations — every .then() re-validates before creating successors
+  let runToken = 0;
+
+  // pending intent timers AND kernel animations must never outlive the
+  // component (Codex r1: un-canceled WAAPI keeps animating detached DOM)
+  onDestroy(() => {
+    runToken++;
+    clearTimers();
+    for (const a of kernelAnims()) a.cancel();
+  });
+
+  // THE toggle seam (popover.svelte's): open state read LIVE from
+  // :popover-open at fire time — ToggleEvent state fields are never
+  // trusted. Open authors the notch + slide vector (pre-recalc) and
+  // plays the entry; close plays the exit (the jx-waapi law holds
+  // display+overlay through the run).
+  function onTipToggle(): void {
+    if (!panel) return;
+    if (panel.matches(':popover-open')) {
+      aimPin();
+      playEntry();
+    } else {
+      playExit();
+    }
+  }
 </script>
 
 <svelte:window onkeydown={(e) => e.key === 'Escape' && close()} />
@@ -235,16 +505,20 @@
   {id}
   popover="manual"
   role="tooltip"
-  class="jx-tip jx-surface"
+  class="jx-tip jx-surface jx-waapi"
   data-variant={variant}
   data-arrow={arrow ? '' : undefined}
   data-border-ring={arrow ? '' : undefined}
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
-  ontoggle={(e) => e.newState === 'open' && aimPin()}
+  ontoggle={onTipToggle}
   onpointerenter={() => clearTimeout(closeTimer)}
   onpointerleave={onLeave}
 >
+  <!-- the REAL shadow layer: a DOM child because pseudo-elements are
+       unreachable from WAAPI — the kernel animates it in lockstep
+       (popover r18 law), masked to the notch silhouette -->
+  <div class="jx-tip-shadow jx-surface-shadow" aria-hidden="true"></div>
   <!-- surface body (fill + acrylic blur + silhouette mask); the popover
        element paints nothing (floating-surface law arch r3) and carries
        the border-ring ::before for the masked outline -->
@@ -256,10 +530,10 @@
     display: inline-flex;
   }
 
-  /* Tip law: quiet inverse surface, 1px border, no shadow (hints do not
-     press on the page — that weight belongs to interactive panels).
-     PLATFORM element only (arch r3): the body carries the fill; the
-     shadow layer is disabled (.jx-tip-body::after content none). */
+  /* Tip law: quiet inverse surface, 1px border (the ring layer on the
+     masked silhouette), shadow veil on the law's ::after (masked to the
+     notch cut, outward offset). PLATFORM element only (arch r3): the
+     body carries the fill. */
   .jx-tip {
     position: fixed;
     margin: var(--jx-tip-gap, 6px);
@@ -296,14 +570,13 @@
   .jx-tip::backdrop {
     background: transparent;
   }
-  /* the shadow layer is OFF entirely (content: none) — the tip's law is
-     shadowless in every variant. Without this the law's ::after veil
-     (0.32 black, brightness-filtered, full rect UNDER the body) would
-     bleed through the masked-away notch flanks and paint them black */
+  /* the shadow rides a REAL child (the kernel animates it in lockstep —
+     pseudo-elements are unreachable from WAAPI), masked to the notch
+     silhouette so it never bleeds through the dug-away flanks; the
+     law's ::after fallback is disabled to avoid painting both. The
+     outward offset (--jx-surface-ox/oy) is set by aimPin from the
+     measured flip geometry — never onto the anchor */
   .jx-tip.jx-surface::after {
-    content: none;
-  }
-  .jx-tip-body::after {
     content: none;
   }
 
@@ -317,18 +590,37 @@
      Chromium-safe pivot — see header): fill, blur and silhouette stay
      ONE paint, seamless by construction. NOTCH here and in the script
      are the same 8px by contract; the block gap keeps the 6px law (the
-     tab lives INSIDE the reserved strip, no overhang). */
-  .jx-tip[data-arrow] {
-    --jx-tip-notch: 8px;
+     tab lives INSIDE the reserved strip, no overhang). EVERYTHING
+     notch-shaped is gated on Anchor Positioning (Codex r2): without it
+     the panel degrades to a plain bordered bubble — no reserved strips,
+     no masks, no ring (an unmasked ring ::before would paint a solid
+     rect), no notched shadow. */
+  @supports (anchor-name: --jx-tip-fallback) {
+    .jx-tip[data-arrow] {
+      --jx-tip-notch: 8px;
+    }
+    .jx-tip[data-arrow] .jx-tip-body {
+      border: none;
+      padding-block: calc(5px + var(--jx-tip-notch) + 1px);
+      -webkit-mask-image: var(--jx-tip-shape, none);
+      -webkit-mask-size: 100% 100%;
+      -webkit-mask-repeat: no-repeat;
+      mask-image: var(--jx-tip-shape, none);
+      mask-size: 100% 100%;
+      mask-repeat: no-repeat;
+    }
+    .jx-tip[data-arrow] .jx-tip-shadow {
+      -webkit-mask-image: var(--jx-surface-ring, none);
+      -webkit-mask-size: 100% 100%;
+      -webkit-mask-repeat: no-repeat;
+      mask-image: var(--jx-surface-ring, none);
+      mask-size: 100% 100%;
+      mask-repeat: no-repeat;
+    }
   }
-  .jx-tip[data-arrow] .jx-tip-body {
-    border: none;
-    padding-block: calc(5px + var(--jx-tip-notch) + 1px);
-    -webkit-mask-image: var(--jx-tip-shape, none);
-    -webkit-mask-size: 100% 100%;
-    -webkit-mask-repeat: no-repeat;
-    mask-image: var(--jx-tip-shape, none);
-    mask-size: 100% 100%;
-    mask-repeat: no-repeat;
+  @supports not (anchor-name: --jx-tip-fallback) {
+    .jx-tip[data-border-ring]::before {
+      content: none;
+    }
   }
 </style>

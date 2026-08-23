@@ -539,8 +539,8 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 .jx-surface[data-variant='acrylic'] .jx-surface-body,
 .jx-surface[data-variant='auto'] .jx-surface-body {
   background: var(--jx-surface-acrylic-fill, color-mix(in oklab, var(--popover) 72%, transparent));
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px) brightness(2);
+  backdrop-filter: blur(14px) brightness(2);
 }
 /* auto = acrylic UNLESS the environment asks for less transparency —
    then exactly solid */
