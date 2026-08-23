@@ -193,6 +193,11 @@
 
   let progressAnim: Animation | null = null;
   let trackFrame = 0;
+  let entryFrame = 0;
+  let exitFrame = 0;
+  // generation token: a deferred entry callback from a superseded run
+  // must not create its animation (Codex r27 review)
+  let runToken = 0;
   // last observed progress: the engine cancels the fill-both progress
   // animation when the closed panel's display flips — reading the
   // computed --jx-p at close time then returns the cascade initial 0
@@ -214,22 +219,41 @@
       return;
     }
     const from = lastP;
+    const token = ++runToken;
     // pin the start inline FIRST: an animation created while the panel
     // is still display:none never runs (the engine skips it — the entry
     // flashed straight to the end state while the exit, whose panel
     // stays rendered through the discrete window, played fine)
     p.style.setProperty('--jx-p', String(from));
     p.classList.remove('jx-rest'); // the blur formula must own filter again
+    cancelAnimationFrame(entryFrame);
+    cancelAnimationFrame(exitFrame);
+    if (from === to) return; // nothing to animate (Codex P1)
     if (to < from) {
-      // EXIT: the panel is rendered (discrete window) — start at once
+      // EXIT: the panel is rendered (discrete window) — start at once,
+      // and keep sampling the progress until the display flips so lastP
+      // lands on 0 (a stale lastP=1 made the NEXT entry a 1→1 no-op —
+      // the panel opened with no animation — Codex P0)
       progressAnim = p.animate(
         [{ '--jx-p': from }, { '--jx-p': to }],
         { duration: 460, easing: 'linear', fill: 'both' },
       );
+      const sample = (): void => {
+        if (token !== runToken) return;
+        if (getComputedStyle(p).display === 'none') {
+          lastP = 0; // the engine canceled the animation at the flip
+          return;
+        }
+        const pv = Number(getComputedStyle(p).getPropertyValue('--jx-p'));
+        if (Number.isFinite(pv)) lastP = pv;
+        exitFrame = requestAnimationFrame(sample);
+      };
+      exitFrame = requestAnimationFrame(sample);
     } else {
-      // ENTRY: create on the NEXT frame, when display has flipped
-      requestAnimationFrame(() => {
-        if (!p.matches(':popover-open')) return;
+      // ENTRY: create on the NEXT frame, when display has flipped —
+      // token-guarded so a superseded run cannot create its animation
+      entryFrame = requestAnimationFrame(() => {
+        if (token !== runToken || !p.matches(':popover-open')) return;
         progressAnim = p.animate(
           [{ '--jx-p': from }, { '--jx-p': to }],
           { duration: 460, easing: 'linear', fill: 'both' },
@@ -237,6 +261,11 @@
       });
     }
   }
+
+  // engines without @property support cannot animate the timeline —
+  // WAAPI would discretely step the progress (0 → 1 at the midpoint).
+  // Feature-gated so such engines get the kernel-less static look
+  const supportsKernel = typeof CSS !== 'undefined' && typeof CSS.registerProperty === 'function';
 
   /** LIVE axis (rAF loop while open): the unit vector from the anchor
    *  center to the panel center — position-try flips and window resizes
@@ -327,7 +356,7 @@
 <div
   {id}
   popover="auto"
-  class="jx-pop jx-surface jx-waapi {panelClass}"
+  class="jx-pop jx-surface {supportsKernel ? 'jx-waapi' : ''} {panelClass}"
   data-variant={variant}
   bind:this={panel}
   style="position-anchor: {anchorName}; --jx-surface-in-x: {dir.ix}; --jx-surface-in-y: {dir.iy}; --jx-surface-ox: {dir.ox}; --jx-surface-oy: {dir.oy}; {tryFallbacks ? `${physical}; position-try: ${tryFallbacks}; position-try-fallbacks: ${tryFallbacks};` : `inset-area: ${area}; position-area: ${area};`}"

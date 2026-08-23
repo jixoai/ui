@@ -403,6 +403,20 @@
 html:not(.js) .jx-surface.jx-waapi:popover-open {
   opacity: 1;
 }
+/* the no-JS page has no kernel: the formulas would park the panel at
+   p=0 geometry (translated out, blurred, translucent) — reset every
+   animated channel to the resting pose (Codex P1) */
+html:not(.js) .jx-surface.jx-waapi:popover-open {
+  translate: none;
+  filter: none;
+}
+html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-body {
+  background: var(--jx-surface-acrylic-fill, color-mix(in oklab, var(--popover) 72%, transparent));
+}
+html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
+  translate: var(--jx-m2, 8px) var(--jx-m2, 8px);
+  background: var(--surface-shadow);
+}
 
 /* THE SURFACE: the panel's direct child — fill + border + blur. The
    radius rides the inheritance chain so the fill, the border, and the
@@ -511,6 +525,13 @@ html:not(.js) .jx-surface.jx-waapi:popover-open {
     background: var(--jx-surface-solid-fill, var(--popover));
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+  /* the kernel's animated formula sits at (0,4,0) — the plain fallback
+     above never beat it, so auto panels kept their 0.72 alpha under
+     reduced transparency (blur died, tint stayed — Codex P0). This
+     override matches the formula's specificity and comes later */
+  .jx-surface.jx-surface.jx-waapi[data-variant='auto'] .jx-surface-body {
+    background: var(--jx-surface-solid-fill, var(--popover));
   }
 }
 
