@@ -378,6 +378,13 @@
 .jx-surface.jx-surface.jx-waapi[data-variant='solid'] .jx-surface-body {
   background: var(--jx-surface-solid-fill, var(--popover));
 }
+/* SOLID never defocuses: the variant is the opaque, static-weight
+   material — a blurred solid panel reads as broken glass, and the
+   filter would be pure compositor cost over an opaque fill (Owner
+   ruling, r28) */
+.jx-surface.jx-surface.jx-waapi[data-variant='solid'] {
+  filter: none;
+}
 
 /* kernel-layer animation lock: the motion kernel owns these layers'
    animations; the class survives Svelte style re-renders */
