@@ -17,8 +17,9 @@
   in light mode, white in dark mode — never a brand tint.
 -->
 <script lang="ts">
-  import { untrack } from 'svelte';
+  import { onDestroy, untrack } from 'svelte';
   import type { Snippet } from 'svelte';
+  import { createSurfaceMotion } from '$lib/surface-motion';
 
   interface Props {
     /** Heading shown in the header bar; omit for a chrome-less body. */
@@ -37,31 +38,33 @@
   let { title, open = $bindable(false), variant = 'auto', children, footer }: Props = $props();
 
   let dialog = $state<HTMLDialogElement | null>(null);
-  let closing = $state(false);
-  // Generation token: a reopen during the 120ms fade supersedes the
-  // in-flight close instead of fighting it.
-  let closeGen = 0;
 
-  const CLOSE_MS = 120;
-  const prefersReducedMotion = (): boolean =>
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // the shared declarative motion kernel (r29): the dialog rides the
+  // SAME timeline law as the popover — --jx-p drives every formula in
+  // jixoai.css (blurIn/slide/materials/shadow + the ::backdrop scrim's
+  // opacity). No anchor: a centered dialog's axis IS the project
+  // default (bottom-right). dialog.close() fires IMMEDIATELY on the
+  // falling edge — the allow-discrete display window holds the panel
+  // rendered through the whole exit, exactly like hidePopover
+  const motion = createSurfaceMotion(() => dialog);
 
-  // state -> element. Rising edge opens; falling edge tears down through
-  // the same animated path as the x button and Escape.
+  // state -> element. Rising edge opens; falling edge tears down
+  // through the same animated path as the x button and Escape.
   $effect(() => {
     if (open) {
-      closeGen += 1;
-      closing = false;
       if (dialog && !dialog.open) dialog.showModal();
+      motion.play(1);
+      motion.startTracking();
     } else {
       untrack(() => shut());
     }
   });
 
+  onDestroy(() => motion.destroy());
+
   // Native close paths we did not initiate (form method="dialog", an
   // external .close()) land here — adopt the state so bind:open stays
-  // truthful. These close instantly; only our own exits run the fade.
+  // truthful.
   const handleClose = (): void => {
     open = false;
   };
@@ -73,35 +76,26 @@
 
   const shut = (): void => {
     if (!dialog || !dialog.open) return;
-    const gen = ++closeGen;
-    if (prefersReducedMotion()) {
-      closing = false;
-      open = false;
-      dialog.close();
-      return;
-    }
-    closing = true;
-    window.setTimeout(() => {
-      if (gen !== closeGen) return;
-      closing = false;
-      open = false;
-      dialog?.close();
-    }, CLOSE_MS);
+    motion.stopTracking();
+    dialog.classList.remove('jx-rest');
+    motion.play(0);
+    dialog.close(); // the discrete window carries the exit
   };
 </script>
 
 <dialog
   bind:this={dialog}
-  class="jx-dialog jx-surface"
-  class:closing={closing}
+  class="jx-dialog jx-surface {motion.supported ? 'jx-waapi' : ''}"
   data-variant={variant}
   aria-label={title}
   onclose={handleClose}
   oncancel={handleCancel}
 >
-  <!-- the surface body (fill + acrylic blur + the ::after shadow
-       layer) wraps the scroll ring; the <dialog> itself paints nothing
-       (floating-surface law arch r3) -->
+  <!-- the REAL shadow layer (a DOM child because pseudo-elements are
+       unreachable from the motion timeline) -->
+  <div class="jx-dialog-shadow jx-surface-shadow" aria-hidden="true"></div>
+  <!-- the surface body (fill + acrylic blur) wraps the scroll ring; the
+       <dialog> itself paints nothing (floating-surface law arch r3) -->
   <div class="jx-dialog-surface jx-surface-body">
   <div class="jx-dialog-scroll">
     <div class="jx-dialog-head">
@@ -110,7 +104,7 @@
       {:else}
         <span class="jx-dialog-title" aria-hidden="true"></span>
       {/if}
-      <button type="button" class="jx-dialog-x" onclick={shut} aria-label="Close">
+      <button type="button" class="jx-press jx-dialog-x" onclick={shut} aria-label="Close">
         <svg
           viewBox="0 0 24 24"
           fill="none"
@@ -173,8 +167,7 @@
     letter-spacing: 0.01em;
   }
 
-  /* x button: press-button physics at icon scale — hover lifts toward the
-     viewer (shadow 2xs -> sm), active presses back into the page. */
+  /* x button: press law at icon scale (2xs rest pose, sm hover) */
   .jx-dialog-x {
     display: inline-flex;
     align-items: center;
@@ -186,21 +179,13 @@
     color: inherit;
     border: 1px solid var(--border);
     background: var(--popover);
-    box-shadow: var(--shadow-2xs);
+    --jx-press-shadow: var(--shadow-2xs);
+    --jx-press-shadow-hover: var(--shadow-sm);
+    --jx-press-shadow-active: var(--shadow-sm-press);
     cursor: pointer;
-    transition:
-      transform 150ms ease-out,
-      box-shadow 150ms ease-out,
-      background-color 150ms ease-out;
   }
   .jx-dialog-x:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: var(--shadow-sm);
     background: color-mix(in oklab, var(--popover-foreground) 6%, transparent);
-  }
-  .jx-dialog-x:active {
-    transform: translate(1px, 1px);
-    box-shadow: none;
   }
   .jx-dialog-x svg {
     width: 14px;
@@ -228,12 +213,7 @@
     background: var(--scrim);
   }
 
-  /* Close fade: the jx-surface law styles the panel + shadow layer
-     (120ms press-back); only the ::backdrop fade is component-owned. */
-  .jx-dialog.closing::backdrop {
-    opacity: 0;
-    transition: opacity 120ms ease-out;
-  }
+  
   /* r18 EXCEPTION: ::backdrop is a pseudo-element — unreachable from
      WAAPI, so the scrim fade stays a CSS transition by necessity */
 

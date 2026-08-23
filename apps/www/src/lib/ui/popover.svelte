@@ -61,6 +61,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { createSurfaceMotion } from '$lib/surface-motion';
 
   /** marker interface for kernel-owned WAAPI animations */
   interface CSSElementAnimationLike extends Animation {
@@ -166,139 +167,22 @@
     open = panel?.matches(':popover-open') ?? false;
     triggerEl?.setAttribute('aria-expanded', String(open));
     if (open && panel) {
-      playProgress(1);
-      trackAxis();
-    } else if (panel) {
-      panel.classList.remove('jx-rest');
-      playProgress(0);
-      cancelAnimationFrame(trackFrame);
+      motion.play(1);
+      motion.startTracking();
+    } else {
+      panel?.classList.remove('jx-rest');
+      motion.play(0);
+      motion.stopTracking();
     }
     onToggle?.(open);
   }
 
-  // ── MOTION KERNEL (Owner ruling, 2026-08-23 r26 — declarative) ──
-  // WAAPI animates exactly ONE thing: --jx-p, the timeline progress
-  // (an @property-registered number, so Chrome's animation panel can
-  // scrub it). Every visible property is a CSS formula of it (see the
-  // declarative motion law in jixoai.css) — no layout property is ever
-  // touched from JS, no finished() chains, no state callbacks. The
-  // kernel's only other job is the LIVE direction axis: an rAF loop
-  // publishes the panel↔anchor unit vector as --jx-dx/--jx-dy (pure
-  // custom properties; the degenerate axis falls back to the project
-  // default, bottom-right). Reduced motion jumps the same lifecycle to
-  // its end instantly.
-  const prefersReducedMotion = (): boolean =>
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  let progressAnim: Animation | null = null;
-  let trackFrame = 0;
-  let entryFrame = 0;
-  let exitFrame = 0;
-  // generation token: a deferred entry callback from a superseded run
-  // must not create its animation (Codex r27 review)
-  let runToken = 0;
-  // last observed progress: the engine cancels the fill-both progress
-  // animation when the closed panel's display flips — reading the
-  // computed --jx-p at close time then returns the cascade initial 0
-  // and the exit would snap instead of reversing (r26 exit probe). The
-  // axis tracker refreshes this every frame while open
-  let lastP = 0;
-
-  /** the WHOLE lifecycle: drive --jx-p to the target — 460ms linear,
-   *  fill both (formulas hold the end pose), from the CURRENT value so
-   *  rapid toggles reverse mid-flight without jumps */
-  function playProgress(to: number): void {
-    const p = panel;
-    if (!p) return;
-    progressAnim?.cancel();
-    if (prefersReducedMotion()) {
-      lastP = to;
-      p.style.setProperty('--jx-p', String(to)); // jump to complete
-      p.classList.toggle('jx-rest', to >= 0.999);
-      return;
-    }
-    const from = lastP;
-    const token = ++runToken;
-    // pin the start inline FIRST: an animation created while the panel
-    // is still display:none never runs (the engine skips it — the entry
-    // flashed straight to the end state while the exit, whose panel
-    // stays rendered through the discrete window, played fine)
-    p.style.setProperty('--jx-p', String(from));
-    p.classList.remove('jx-rest'); // the blur formula must own filter again
-    cancelAnimationFrame(entryFrame);
-    cancelAnimationFrame(exitFrame);
-    if (from === to) return; // nothing to animate (Codex P1)
-    if (to < from) {
-      // EXIT: the panel is rendered (discrete window) — start at once,
-      // and keep sampling the progress until the display flips so lastP
-      // lands on 0 (a stale lastP=1 made the NEXT entry a 1→1 no-op —
-      // the panel opened with no animation — Codex P0)
-      progressAnim = p.animate(
-        [{ '--jx-p': from }, { '--jx-p': to }],
-        { duration: 460, easing: 'linear', fill: 'both' },
-      );
-      const sample = (): void => {
-        if (token !== runToken) return;
-        if (getComputedStyle(p).display === 'none') {
-          lastP = 0; // the engine canceled the animation at the flip
-          return;
-        }
-        const pv = Number(getComputedStyle(p).getPropertyValue('--jx-p'));
-        if (Number.isFinite(pv)) lastP = pv;
-        exitFrame = requestAnimationFrame(sample);
-      };
-      exitFrame = requestAnimationFrame(sample);
-    } else {
-      // ENTRY: create on the NEXT frame, when display has flipped —
-      // token-guarded so a superseded run cannot create its animation
-      entryFrame = requestAnimationFrame(() => {
-        if (token !== runToken || !p.matches(':popover-open')) return;
-        progressAnim = p.animate(
-          [{ '--jx-p': from }, { '--jx-p': to }],
-          { duration: 460, easing: 'linear', fill: 'both' },
-        );
-      });
-    }
-  }
-
-  // engines without @property support cannot animate the timeline —
-  // WAAPI would discretely step the progress (0 → 1 at the midpoint).
-  // Feature-gated so such engines get the kernel-less static look
-  const supportsKernel = typeof CSS !== 'undefined' && typeof CSS.registerProperty === 'function';
-
-  /** LIVE axis (rAF loop while open): the unit vector from the anchor
-   *  center to the panel center — position-try flips and window resizes
-   *  are picked up frame by frame; the CSS engine caches the calc
-   *  chains, so the per-frame cost is two custom-property writes */
-  function trackAxis(): void {
-    cancelAnimationFrame(trackFrame);
-    const step = (): void => {
-      const p = panel;
-      if (!p || !anchorEl || !p.matches(':popover-open')) return;
-      const pv = Number(getComputedStyle(p).getPropertyValue('--jx-p'));
-      if (Number.isFinite(pv)) lastP = pv;
-      // at rest, drop the filter to none: a lingering blur(0px) still
-      // creates a filter layer and disturbs the backdrop compositing
-      // (Owner ruling, 2026-08-23 r27)
-      p.classList.toggle('jx-rest', lastP >= 0.999);
-      const pr = p.getBoundingClientRect();
-      const ar = anchorEl.getBoundingClientRect();
-      const dx = pr.left + pr.width / 2 - (ar.left + ar.width / 2);
-      const dy = pr.top + pr.height / 2 - (ar.top + ar.height / 2);
-      const len = Math.hypot(dx, dy);
-      if (len > 1) {
-        p.style.setProperty('--jx-dx', String(dx / len));
-        p.style.setProperty('--jx-dy', String(dy / len));
-      } else {
-        // degenerate axis (centers coincide) → the project default
-        p.style.setProperty('--jx-dx', '0.70710678');
-        p.style.setProperty('--jx-dy', '0.70710678');
-      }
-      trackFrame = requestAnimationFrame(step);
-    };
-    trackFrame = requestAnimationFrame(step);
-  }
+  // ── MOTION KERNEL — the shared declarative half (r29): see
+  // lib/surface-motion.ts. WAAPI animates ONE @property number
+  // (--jx-p); every visible property is a CSS formula of it (the
+  // declarative motion law in jixoai.css). The kernel here only wires
+  // the popover's toggle seam and live anchor
+  const motion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
 
   // imperative handle (bind:this) — thin native passthroughs, nothing more
   export function show(source?: HTMLElement): void {
@@ -328,7 +212,7 @@
   {:else}
     <button
       type="button"
-      class="jx-pop-trigger"
+      class="jx-press jx-pop-trigger"
       popovertarget={id}
       bind:this={triggerEl}
       aria-expanded={open}
@@ -356,7 +240,7 @@
 <div
   {id}
   popover="auto"
-  class="jx-pop jx-surface {supportsKernel ? 'jx-waapi' : ''} {panelClass}"
+  class="jx-pop jx-surface {motion.supported ? 'jx-waapi' : ''} {panelClass}"
   data-variant={variant}
   bind:this={panel}
   style="position-anchor: {anchorName}; --jx-surface-in-x: {dir.ix}; --jx-surface-in-y: {dir.iy}; --jx-surface-ox: {dir.ox}; --jx-surface-oy: {dir.oy}; {tryFallbacks ? `${physical}; position-try: ${tryFallbacks}; position-try-fallbacks: ${tryFallbacks};` : `inset-area: ${area}; position-area: ${area};`}"
@@ -395,21 +279,13 @@
     color: var(--foreground);
     border: 1px solid var(--border);
     background: var(--background);
-    box-shadow: var(--shadow-xs);
+    --jx-press-shadow: var(--shadow-xs);
+    --jx-press-shadow-hover: var(--shadow-sm);
+    --jx-press-shadow-active: var(--shadow-sm-press);
     cursor: pointer;
-    transition:
-      transform 150ms ease-out,
-      box-shadow 150ms ease-out,
-      background-color 150ms ease-out;
   }
   .jx-pop-trigger:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: var(--shadow-sm);
     background: var(--muted);
-  }
-  .jx-pop-trigger:active {
-    transform: translate(1px, 1px);
-    box-shadow: none;
   }
 
   /* Caret: flips while open via :has + ::popover-open (progressive —
@@ -482,7 +358,6 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .jx-pop-trigger,
     .jx-pop-caret {
       transition: none;
     }

@@ -103,12 +103,11 @@ describe('Command', () => {
     await fireEvent.keyDown(input, { key: 'Enter' });
     expect(selected?.id).toBe('deploy'); // first enabled, exact-free query
     const dialog = rendered.container.querySelector('dialog.jx-command') as HTMLDialogElement;
-    // Enter now runs the 120ms closing fade (dialog.svelte law): the
-    // panel presses its layers back before the real close
-    expect(dialog.open).toBe(true);
-    expect(dialog.classList.contains('closing')).toBe(true);
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    // Enter closes through the shared declarative timeline (r29):
+    // dialog.close() fires immediately — the allow-discrete display
+    // window holds the exit while --jx-p runs 1→0
     expect(dialog.open).toBe(false);
+    expect(Number(getComputedStyle(dialog).getPropertyValue('--jx-p'))).toBeLessThan(1);
   });
 
   it('no matches renders polite status text, not an option', async () => {

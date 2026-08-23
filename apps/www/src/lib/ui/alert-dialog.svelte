@@ -22,8 +22,9 @@
   focus trap).
 -->
 <script lang="ts">
-  import type { Snippet } from 'svelte';
   import { onDestroy, untrack } from 'svelte';
+  import type { Snippet } from 'svelte';
+  import { createSurfaceMotion } from '$lib/surface-motion';
 
   interface Props {
     /** REQUIRED for alertdialog: the aria-labelledby target */
@@ -60,42 +61,27 @@
   }: Props = $props();
 
   let dialog = $state<HTMLDialogElement | null>(null);
+
+  // the shared declarative motion kernel (r29) — same law as popover
+  const motion = createSurfaceMotion(() => dialog);
+
+  onDestroy(() => motion.destroy());
+
   let cancelEl = $state<HTMLButtonElement | null>(null);
-  let closing = $state(false);
-  let closeGen = 0;
-  // the focus-cancel frame — cancelled on close so a fast Escape can't
-  // be overtaken by a stale frame (mirrors the dropdown-menu law)
-  let focusFrame: number | undefined;
-
-  let closeTimer: ReturnType<typeof setTimeout> | undefined;
-
-  // no pending frame or fade outlives the component (Codex r2)
-  onDestroy(() => {
-    if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(focusFrame);
-    clearTimeout(closeTimer);
-  });
-
-  const CLOSE_MS = 120;
-  const prefersReducedMotion = (): boolean =>
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   $effect(() => {
     if (open) {
-      closeGen += 1;
-      closing = false;
       if (dialog && !dialog.open) dialog.showModal();
+      motion.play(1);
+      motion.startTracking();
       // APG: the SAFE action takes focus — the destructive path must be
-      // a deliberate move, never the landing spot. The frame is guarded:
-      // a fast close (Escape before the frame lands) cancels it
+      // a deliberate move, never the landing spot
       if (typeof requestAnimationFrame === 'function') {
-        const gen = closeGen;
-        focusFrame = requestAnimationFrame(() => {
-          if (gen === closeGen && dialog?.open) cancelEl?.focus();
+        requestAnimationFrame(() => {
+          if (dialog?.open) cancelEl?.focus();
         });
       }
     } else {
-      if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(focusFrame);
       untrack(() => shut());
     }
   });
@@ -111,33 +97,22 @@
 
   const shut = (): void => {
     if (!dialog || !dialog.open) return;
-    const gen = ++closeGen;
-    if (prefersReducedMotion()) {
-      closing = false;
-      open = false;
-      dialog.close();
-      return;
-    }
-    closing = true;
-    clearTimeout(closeTimer);
-    closeTimer = window.setTimeout(() => {
-      if (gen !== closeGen) return;
-      closing = false;
-      open = false;
-      dialog?.close();
-    }, CLOSE_MS);
+    motion.stopTracking();
+    dialog.classList.remove('jx-rest');
+    motion.play(0);
+    dialog.close();
   };
 
   const confirm = (): void => {
     onconfirm?.();
     shut();
   };
+
 </script>
 
 <dialog
   bind:this={dialog}
-  class="jx-adlg jx-surface"
-  class:closing={closing}
+  class="jx-adlg jx-surface {motion.supported ? 'jx-waapi' : ''}"
   data-variant={variant}
   role="alertdialog"
   aria-labelledby="jx-adlg-title"
@@ -147,6 +122,7 @@
 >
   <!-- surface body (fill + ::after shadow) wraps ALL content; the
        <dialog> paints nothing (floating-surface law arch r3) -->
+  <div class="jx-adlg-shadow jx-surface-shadow" aria-hidden="true"></div>
   <div class="jx-adlg-surface jx-surface-body">
   <div class="jx-adlg-body">
     <h2 id="jx-adlg-title" class="jx-adlg-title">{title}</h2>
@@ -158,12 +134,12 @@
     {/if}
   </div>
   <div class="jx-adlg-actions">
-    <button type="button" class="jx-adlg-cancel" bind:this={cancelEl} onclick={shut}>
+    <button type="button" class="jx-press jx-adlg-cancel" bind:this={cancelEl} onclick={shut}>
       {cancelLabel}
     </button>
     <button
       type="button"
-      class="jx-adlg-confirm"
+      class="jx-press jx-adlg-confirm"
       class:jx-adlg-confirm-destructive={confirmTone === 'destructive'}
       onclick={confirm}
     >
@@ -189,17 +165,7 @@
   .jx-adlg::backdrop {
     background: var(--scrim);
   }
-  .jx-adlg.closing::backdrop {
-    opacity: 0;
-    transition: opacity 120ms ease-in;
-  }
-  /* r18 EXCEPTION: ::backdrop is a pseudo-element — unreachable from
-     WAAPI, so the scrim fade stays a CSS transition by necessity */
-  @media (prefers-reduced-motion: reduce) {
-    .jx-adlg.closing::backdrop {
-      transition: none;
-    }
-  }
+
 
   .jx-adlg-body {
     display: flex;
@@ -246,16 +212,9 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     cursor: pointer;
-    box-shadow: var(--shadow-2xs);
-    transition:
-      transform 150ms ease-out,
-      box-shadow 150ms ease-out,
-      background-color 150ms ease-out;
-  }
-  .jx-adlg-cancel:hover,
-  .jx-adlg-confirm:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: var(--shadow-xs);
+    --jx-press-shadow: var(--shadow-2xs);
+    --jx-press-shadow-hover: var(--shadow-xs);
+    --jx-press-shadow-active: var(--shadow-xs-press);
   }
   .jx-adlg-cancel:focus-visible,
   .jx-adlg-confirm:focus-visible {
@@ -272,10 +231,4 @@
     color: var(--primary);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .jx-adlg-cancel,
-    .jx-adlg-confirm {
-      transition: none;
-    }
-  }
 </style>

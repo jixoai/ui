@@ -279,22 +279,34 @@
   translate: var(--jx-surface-in-x, 0px) var(--jx-surface-in-y, 6px);
 }
 /* KERNEL panels only (.jx-waapi, set by the component running the
-   WAAPI motion kernel): allow-discrete holds display+overlay through
+   shared motion kernel): allow-discrete holds display+overlay through
    the kernel's whole exit run (the discrete flip lands at delay + 50%
-   of the duration = 460ms). Kernel-less popovers must NOT carry this
-   transition — nothing would animate, the closed panel would linger
-   rendered for the full window before vanishing (Codex r18 audit) */
-.jx-surface.jx-waapi[popover] {
+   of the duration = 460ms). Covers BOTH flavors — popovers
+   (:popover-open) and dialogs ([open] removal flips display the same
+   way, so dialog.close() can fire immediately and the exit still
+   plays). Kernel-less panels must NOT carry this transition — nothing
+   would animate, the closed panel would linger rendered for the full
+   window before vanishing (Codex r18 audit) */
+.jx-surface.jx-waapi {
   transition:
     display 460ms allow-discrete 230ms,
     overlay 460ms allow-discrete 230ms;
+}
+/* the dialog-family scrim rides the SAME timeline: ::backdrop inherits
+   the dialog's custom properties (Chromium), so its opacity IS the
+   progress — one law, no parallel transition (r29) */
+.jx-surface.jx-waapi::backdrop {
+  opacity: var(--jx-p, 1);
 }
 /* under reduced motion the kernel is skipped — the discrete window
    must go too, or the closed panel lingers rendered for ~700ms with
    nothing animating (Codex r2) */
 @media (prefers-reduced-motion: reduce) {
-  .jx-surface.jx-waapi[popover] {
+  .jx-surface.jx-waapi {
     transition: none;
+  }
+  .jx-surface.jx-waapi::backdrop {
+    opacity: 1;
   }
 }
 /* open resting pose: kernel-less components rest here directly */
@@ -387,11 +399,16 @@
 }
 
 /* kernel-layer animation lock: the motion kernel owns these layers'
-   animations; the class survives Svelte style re-renders */
+   animations; the class survives Svelte style re-renders. The pseudo
+   shadow is disabled on kernel surfaces — their REAL shadow element
+   owns the split formula */
 .jx-surface.jx-waapi,
 .jx-surface.jx-waapi .jx-surface-body,
 .jx-surface.jx-waapi .jx-surface-shadow {
   animation: none;
+}
+.jx-surface.jx-waapi::after {
+  content: none;
 }
 /* at rest the filter drops to NONE: a lingering blur(0px) keeps a
    filter layer alive and disturbs the backdrop compositing (Owner

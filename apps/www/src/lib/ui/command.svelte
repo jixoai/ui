@@ -65,6 +65,8 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
 
 <script lang="ts">
   import { onDestroy, untrack } from 'svelte';
+  import type { Snippet } from 'svelte';
+  import { createSurfaceMotion } from '$lib/surface-motion';
 
   interface Props {
     items: CommandItem[];
@@ -105,51 +107,51 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
   }: Props = $props();
 
   let dialog = $state<HTMLDialogElement | null>(null);
-  let input = $state<HTMLInputElement | null>(null);
-  // the shared dialog-family close fade (dialog.svelte law): a 120ms
-  // press-back, skipped under reduced motion; a generation token stops
-  // a reopen during the fade from fighting the in-flight close
-  let closing = $state(false);
-  let closeGen = 0;
-  let closeTimer: number | undefined;
 
-  const CLOSE_MS = 120;
-  const prefersReducedMotion = (): boolean =>
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // the shared declarative motion kernel (r29) — same law as popover
+  const motion = createSurfaceMotion(() => dialog);
 
-  onDestroy(() => clearTimeout(closeTimer));
+  onDestroy(() => motion.destroy());
 
-  const shut = (): void => {
-    if (!dialog || !dialog.open) return;
-    const gen = ++closeGen;
-    if (prefersReducedMotion()) {
-      closing = false;
-      setOpen(false);
-      dialog.close();
-      return;
-    }
-    closing = true;
-    clearTimeout(closeTimer);
-    closeTimer = window.setTimeout(() => {
-      if (gen !== closeGen) return;
-      closing = false;
-      setOpen(false);
-      dialog?.close();
-    }, CLOSE_MS);
+  const activate = (index: number): void => {
+    const item = results[index];
+    if (!item || item.disabled) return;
+    setOpen(false);
+    onselect?.(item);
   };
 
-  // unique surface ids per instance (multiple palettes must not collide)
-  const uid = $props.id();
-  const listId = `${uid}-list`;
-  const optionId = (id: string): string => `${uid}-opt-${id}`;
+  const moveActive = (delta: number): void => {
+    const enabled = results.filter((r) => !r.disabled);
+    if (!enabled.length) return;
+    const current = enabled.indexOf(results[activeIndex]);
+    const next = enabled[(current + delta + enabled.length) % enabled.length];
+    activeIndex = results.indexOf(next);
+  };
+
+  function handleKeydown(event: KeyboardEvent): void {
+    if (composing) return;
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      moveActive(event.key === 'ArrowDown' ? 1 : -1);
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      activeIndex = 0;
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      activeIndex = results.length - 1;
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      activate(activeIndex);
+    }
+  }
+
+  let input = $state<HTMLInputElement | null>(null);
   let query = $state('');
   let activeIndex = $state(0);
   let composing = false;
 
   const results = $derived(filter(items, query));
   const groups = $derived.by(() => {
-    // partition into (group heading, items) runs, input order preserved
     const runs: { group: string | null; items: CommandItem[] }[] = [];
     for (const item of results) {
       const last = runs.at(-1);
@@ -159,23 +161,27 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
     return runs;
   });
 
+  // unique surface ids per instance (multiple palettes must not collide)
+  const uid = $props.id();
+  const listId = `${uid}-list`;
+  const optionId = (id: string): string => `${uid}-opt-${id}`;
+  const activeId = $derived(results[activeIndex] ? optionId(results[activeIndex]!.id) : '');
+
   function setOpen(next: boolean): void {
     if (next === open) return;
     open = next;
     onopenchange?.(next);
   }
 
-  // state -> element, mirroring the dialog laws
   $effect(() => {
     if (open) {
-      closeGen += 1;
-      clearTimeout(closeTimer);
-      closing = false;
       if (dialog && !dialog.open) dialog.showModal();
       query = '';
       activeIndex = 0;
+      motion.play(1);
+      motion.startTracking();
       requestAnimationFrame(() => {
-        if (typeof requestAnimationFrame === 'function' && dialog?.open) input?.focus();
+        if (dialog?.open) input?.focus();
       });
     } else {
       untrack(() => shut());
@@ -195,84 +201,34 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
     return () => window.removeEventListener('keydown', handler);
   });
 
-  function handleCancel(event: Event): void {
+  const handleClose = (): void => {
+    open = false;
+  };
+
+  const handleCancel = (event: Event): void => {
     event.preventDefault();
-    // the cancel intent goes through the animated path; the close event
-    // only adopts state (a close means the dialog already left)
     shut();
-  }
+  };
 
-  function handleClose(): void {
-    closing = false;
-    setOpen(false);
-  }
+  const shut = (): void => {
+    if (!dialog || !dialog.open) return;
+    motion.stopTracking();
+    dialog.classList.remove('jx-rest');
+    motion.play(0);
+    dialog.close();
+  };
 
-  function activate(index: number): void {
-    const item = results[index];
-    if (!item || item.disabled) return;
-    onselect?.(item);
-    if (closeOnSelect) setOpen(false);
-    // a fresh query starts the next open clean
-    else {
-      query = '';
-      activeIndex = 0;
-    }
-  }
-
-  function walk(direction: 1 | -1): number {
-    // skip disabled items — they render but never activate
-    let index = activeIndex;
-    for (let step = 0; step < results.length; step++) {
-      index = (index + direction + results.length) % results.length;
-      if (!results[index]?.disabled) return index;
-    }
-    return activeIndex;
-  }
-
-  function handleKeydown(event: KeyboardEvent): void {
-    if (composing || event.isComposing) return; // IME owns mid-composition
-    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      event.preventDefault();
-      activeIndex = walk(event.key === 'ArrowDown' ? 1 : -1);
-    } else if (event.key === 'Home') {
-      event.preventDefault();
-      activeIndex = results.findIndex((item) => !item.disabled);
-      if (activeIndex === -1) activeIndex = 0;
-    } else if (event.key === 'End') {
-      event.preventDefault();
-      for (let i = results.length - 1; i >= 0; i--) {
-        if (!results[i]?.disabled) {
-          activeIndex = i;
-          break;
-        }
-      }
-    } else if (event.key === 'Enter') {
-      event.preventDefault();
-      activate(activeIndex);
-    }
-  }
-
-  // a new result set resets the walk to the first enabled item
-  $effect(() => {
-    void results;
-    activeIndex = Math.max(
-      0,
-      results.findIndex((item) => !item.disabled),
-    );
-  });
-
-  const activeId = $derived(results[activeIndex] ? optionId(results[activeIndex]!.id) : '');
 </script>
 
 <dialog
   bind:this={dialog}
-  class="jx-command jx-surface {className}"
-  class:closing={closing}
+  class="jx-command jx-surface {motion.supported ? 'jx-waapi' : ''} {className}"
   data-variant={variant}
   aria-label={label}
   oncancel={handleCancel}
   onclose={handleClose}
 >
+  <div class="jx-command-shadow jx-surface-shadow" aria-hidden="true"></div>
   <div class="jx-command-frame jx-surface-body">
     <!-- svelte-ignore a11y_autofocus -- the palette's whole contract is
          type-to-search: focus must land in the input on open -->
@@ -343,17 +299,8 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
   .jx-command::backdrop {
     background: var(--scrim);
   }
-  .jx-command.closing::backdrop {
-    opacity: 0;
-    transition: opacity 120ms ease-out;
-  }
   /* r18 EXCEPTION: ::backdrop is a pseudo-element — unreachable from
      WAAPI, so the scrim fade stays a CSS transition by necessity */
-  @media (prefers-reduced-motion: reduce) {
-    .jx-command.closing::backdrop {
-      transition: none;
-    }
-  }
 
   /* doubles as the surface body (paint + ::after shadow);
      floating-surface law arch r3 — the <dialog> paints nothing */
