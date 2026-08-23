@@ -44,6 +44,14 @@ export interface SurfaceMotion {
 }
 
 const DURATION_MS = 460;
+/** the blur formula is 100px*(1-clamp(p*2)) — at p>=0.5 it computes
+ *  to blur(0px), and a RESIDUAL blur(0px) still creates a filter
+ *  layer that disturbs the backdrop compositing. The hard rule
+ *  (Owner, 2026-08-23 r30): whenever the blur would be zero, the
+ *  filter is NONE — the whole second half of the timeline and the
+ *  exit above the midpoint, not just the settled rest */
+const REST_THRESHOLD = 0.5;
+const isResting = (pv: number): boolean => pv >= REST_THRESHOLD;
 
 const prefersReducedMotion = (): boolean =>
   typeof window.matchMedia === 'function' &&
@@ -84,7 +92,7 @@ export function createSurfaceMotion(
       caf(entryFrame);
       caf(exitFrame);
       p.style.setProperty('--jx-p', String(to)); // jump to complete
-      p.classList.toggle('jx-rest', to >= 0.999);
+      p.classList.toggle('jx-rest', isResting(to));
       return;
     }
     const from = lastP;
@@ -92,7 +100,14 @@ export function createSurfaceMotion(
     // pin the start inline FIRST: an animation created while the panel
     // is still display:none never runs (the engine skips it)
     p.style.setProperty('--jx-p', String(from));
-    p.classList.remove('jx-rest'); // the blur formula must own filter again
+    if (to < from) {
+      // EXIT starts at `from` — apply the zero-blur rule IMMEDIATELY:
+      // at from>=0.5 the first exit frame computes blur(0px) and the
+      // sampler only lands next frame (r30 hard rule, frame zero)
+      p.classList.toggle('jx-rest', isResting(from));
+    } else {
+      p.classList.remove('jx-rest'); // the blur formula must own filter again
+    }
     caf(entryFrame);
     caf(exitFrame);
     if (from === to) return; // nothing to animate
@@ -110,7 +125,12 @@ export function createSurfaceMotion(
           return;
         }
         const pv = Number(getComputedStyle(p).getPropertyValue('--jx-p'));
-        if (Number.isFinite(pv)) lastP = pv;
+        if (Number.isFinite(pv)) {
+          lastP = pv;
+          // r30: during the exit, p in (0.5,1] still computes
+          // blur(0px) — the filter must be none through that stretch
+          p.classList.toggle('jx-rest', isResting(pv));
+        }
         exitFrame = raf(sample);
       };
       exitFrame = raf(sample);
@@ -139,8 +159,9 @@ export function createSurfaceMotion(
       if (!p || !isVisibleState(p)) return;
       const pv = Number(getComputedStyle(p).getPropertyValue('--jx-p'));
       if (Number.isFinite(pv)) lastP = pv;
-      // at rest, drop the filter to none (r27)
-      p.classList.toggle('jx-rest', lastP >= 0.999);
+      // r30 hard rule: filter:none whenever the blur would compute
+      // to blur(0px) — p>=0.5, not just the settled rest
+      p.classList.toggle('jx-rest', isResting(lastP));
       const a = opts.anchor?.();
       if (a) {
         const pr = p.getBoundingClientRect();

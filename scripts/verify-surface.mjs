@@ -50,6 +50,12 @@ function findChrome() {
 }
 
 const results = [];
+/** HARD RULE (Owner, r30): blur(0px) must NEVER appear — whenever
+ *  the blur would compute to zero the filter is none (a residual
+ *  blur(0px) keeps a filter layer alive and disturbs the backdrop
+ *  compositing). Every sampled filter is none or a REAL blur */
+const noZeroBlur = (f) => f.f === 'none' || /^blur\([1-9]/.test(f.f ?? '');
+
 const check = (name, ok, detail) => {
   results.push({ name, ok, detail });
   console.log(` ${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? ` — ${detail}` : ''}`);
@@ -123,6 +129,7 @@ for (const theme of ['light', 'dark']) {
       out.push({
         t: getComputedStyle(panel).translate,
         op: Number(getComputedStyle(panel).opacity),
+        f: getComputedStyle(panel).filter,
         at: (panel.querySelector('.jx-pop-shadow') ? getComputedStyle(panel.querySelector('.jx-pop-shadow')).translate : 'none'),
         bg: lastAlphaOf(getComputedStyle(body).backgroundColor),
       });
@@ -152,6 +159,7 @@ for (const theme of ['light', 'dark']) {
   check('entry: phase-2 alpha develops to 0.72', develops, String(frames.at(-1).bg));
   check('entry: opacity fades in INSIDE the opaque window (r11)', fadesIn, `first=${frames[0].op}`);
   check('entry: slide stops at the shadow spot', stopsAtShadowSpot);
+  check('entry: no residual blur(0px) — filter none at zero-blur (r30)', frames.every(noZeroBlur));
   await page.close();
 }
 
@@ -171,6 +179,7 @@ for (const theme of ['light', 'dark']) {
       out.push({
         t: getComputedStyle(panel).translate,
         op: Number(getComputedStyle(panel).opacity),
+        f: getComputedStyle(panel).filter,
         at: (panel.querySelector('.jx-pop-shadow') ? getComputedStyle(panel.querySelector('.jx-pop-shadow')).translate : 'none'),
         bg: (() => { const m = /\/\s*([\d.]+)\)/.exec(getComputedStyle(body).backgroundColor); return m ? Number(m[1]) : 1; })(),
       });
@@ -178,8 +187,8 @@ for (const theme of ['light', 'dark']) {
     }
     return out;
   });
-  console.log('\n exit frames (translate | opacity | shadowT | fillAlpha):');
-  for (const f of frames) console.log(`   ${f.t.padEnd(18)} ${String(f.op).padEnd(4)} ${f.at.padEnd(12)} ${f.bg}`);
+  console.log('\n exit frames (translate | opacity | shadowT | fillAlpha | filter):');
+  for (const f of frames) console.log(`   ${f.t.padEnd(18)} ${String(f.op).padEnd(4)} ${f.at.padEnd(12)} ${f.bg} ${f.f}`);
   const mergedOpaque = frames.slice(6).every((f) => f.bg >= 0.97) && frames.slice(4).every((f) => f.bg >= 0.9);
   const [lx, ly] = (frames.at(-1).t.match(/-?[\d.]+px/g) ?? []).map(parseFloat);
   const slidesOut = Math.hypot(lx ?? 0, ly ?? 0) > 8;
@@ -191,6 +200,7 @@ for (const theme of ['light', 'dark']) {
   const tail = frames.slice(5).map((f) => f.op);
   const noRebound = tail.every((v, i) => i === 0 || v <= tail[i - 1] + 0.05);
   check('exit: no flicker at the end (no opacity rebound)', noRebound);
+  check('exit: no residual blur(0px) — filter none at zero-blur (r30)', frames.every(noZeroBlur));
   await page.close();
 
   // ── mid-entry close: continuous, no snap to resting values ──
