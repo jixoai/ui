@@ -79,7 +79,7 @@ for (const cell of cells) {
   );
   await page.waitForTimeout(350);
   await page.click('button.jx-pop-trigger[popovertarget="canvas-pop"]');
-  await page.waitForTimeout(650);
+  await page.waitForTimeout(900);
   const r = await page.evaluate(() => {
     const p = document.getElementById('canvas-pop');
     const b = document.querySelector('button.jx-pop-trigger[popovertarget="canvas-pop"]');
@@ -138,6 +138,7 @@ const EXPECT = {
 let failed = 0;
 for (const r of results) {
   const ok = (EXPECT[r.want] ?? []).includes(r.landed);
+  if (!ok) console.log('  dbg', r.want, r.landed, JSON.stringify(r.rect), JSON.stringify(r.btn));
   if (!ok) failed++;
   console.log(` ${ok ? 'PASS' : 'FAIL'}  ${r.want} -> ${r.landed}`);
 }

@@ -169,6 +169,7 @@
       playProgress(1);
       trackAxis();
     } else if (panel) {
+      panel.classList.remove('jx-rest');
       playProgress(0);
       cancelAnimationFrame(trackFrame);
     }
@@ -209,13 +210,32 @@
     if (prefersReducedMotion()) {
       lastP = to;
       p.style.setProperty('--jx-p', String(to)); // jump to complete
+      p.classList.toggle('jx-rest', to >= 0.999);
       return;
     }
     const from = lastP;
-    progressAnim = p.animate(
-      [{ '--jx-p': from }, { '--jx-p': to }],
-      { duration: 460, easing: 'linear', fill: 'both' },
-    );
+    // pin the start inline FIRST: an animation created while the panel
+    // is still display:none never runs (the engine skips it — the entry
+    // flashed straight to the end state while the exit, whose panel
+    // stays rendered through the discrete window, played fine)
+    p.style.setProperty('--jx-p', String(from));
+    p.classList.remove('jx-rest'); // the blur formula must own filter again
+    if (to < from) {
+      // EXIT: the panel is rendered (discrete window) — start at once
+      progressAnim = p.animate(
+        [{ '--jx-p': from }, { '--jx-p': to }],
+        { duration: 460, easing: 'linear', fill: 'both' },
+      );
+    } else {
+      // ENTRY: create on the NEXT frame, when display has flipped
+      requestAnimationFrame(() => {
+        if (!p.matches(':popover-open')) return;
+        progressAnim = p.animate(
+          [{ '--jx-p': from }, { '--jx-p': to }],
+          { duration: 460, easing: 'linear', fill: 'both' },
+        );
+      });
+    }
   }
 
   /** LIVE axis (rAF loop while open): the unit vector from the anchor
@@ -229,6 +249,10 @@
       if (!p || !anchorEl || !p.matches(':popover-open')) return;
       const pv = Number(getComputedStyle(p).getPropertyValue('--jx-p'));
       if (Number.isFinite(pv)) lastP = pv;
+      // at rest, drop the filter to none: a lingering blur(0px) still
+      // creates a filter layer and disturbs the backdrop compositing
+      // (Owner ruling, 2026-08-23 r27)
+      p.classList.toggle('jx-rest', lastP >= 0.999);
       const pr = p.getBoundingClientRect();
       const ar = anchorEl.getBoundingClientRect();
       const dx = pr.left + pr.width / 2 - (ar.left + ar.width / 2);

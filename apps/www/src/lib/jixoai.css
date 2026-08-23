@@ -386,6 +386,12 @@
 .jx-surface.jx-waapi .jx-surface-shadow {
   animation: none;
 }
+/* at rest the filter drops to NONE: a lingering blur(0px) keeps a
+   filter layer alive and disturbs the backdrop compositing (Owner
+   ruling, r27); the axis tracker toggles the class from lastP */
+.jx-surface.jx-waapi.jx-rest {
+  filter: none;
+}
 /* the kernel must never strand an invisible panel: reduced motion
    skips the kernel (CSS must show the panel), and a no-JS page has no
    kernel at all (the site's bootstrap tags <html class="js">) */
