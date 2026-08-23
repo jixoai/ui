@@ -5,17 +5,12 @@
   import pressButtonSource from '$lib/ui/press-button.svelte?raw';
   import SectionCard from '$lib/ui/section-card.svelte';
   import NativeSelect from '$lib/ui/native-select.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // ToC outline: the anchors demo + the closing law, in page order. The
   // engine pairs these ids with the SectionCard data-family extents +
   // header data-region leaves rendered below.
-  const tocSections = [
-    { id: 'anchors', label: 'Button or anchor' },
-    { id: 'law', label: 'Why the shadow is the affordance' },
-  ];
 
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.
@@ -94,9 +89,6 @@ ${close}
   <!-- ToC rail: aside precedes the content column in the DOM — desktop
        sticky right column, mobile the glass bar under the scaffold header
        (height 0, see toc.css); the content column reserves its clearance -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
     <div data-reveal="" use:reveal>

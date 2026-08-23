@@ -5,7 +5,6 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import Toggle from '$lib/ui/toggle.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
@@ -15,7 +14,6 @@
   import accordionItemSource from '$lib/ui/accordion-item.svelte?raw';
 
   // ToC outline: pairs with the section ids below, in page order.
-  const tocSections = [{ id: 'accordion-base', label: 'NativeHTML base' }];
 
   // ---- playground state (P1): the page owns the snapshot ----
   const canvasInitial = { exclusive: true, ghost: false, thirdOpen: true };
@@ -70,10 +68,6 @@ ${close}
 <div
   class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
 >
-  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
   <div data-reveal="" use:reveal>

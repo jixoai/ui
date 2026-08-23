@@ -2,7 +2,6 @@
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import Tour from '$lib/ui/tour.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
@@ -19,10 +18,6 @@
   }
 
   // ToC outline: pairs with the region ids below, in page order.
-  const tocSections = [
-    { id: 'tour-workbench', label: 'workbench' },
-    { id: 'tour-law', label: 'the recorded contract' },
-  ];
 
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/tour.svelte', content: tourSource },
@@ -40,10 +35,6 @@
 <div
   class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
 >
-  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
   <div data-reveal="" use:reveal>

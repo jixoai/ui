@@ -3,7 +3,6 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -15,12 +14,6 @@
   // ToC outline: the page-level rail tracks the three demo sections living
   // inside the canvas stage — the same fragments the Anchor demo rail spies
   // on (THIS PAGE is the demo, twice over).
-  const tocSections = [
-    { id: 'anchor-what', label: 'what it does' },
-    { id: 'anchor-pick', label: 'the line pick' },
-    { id: 'anchor-vs-toc', label: 'anchor vs toc' },
-    { id: 'anchor-usage', label: 'usage' },
-  ];
 
   const usage = `<script lang="ts">
   import Anchor from '@ui/anchor.svelte';
@@ -61,9 +54,6 @@ ${close}
 >
   <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
        column, mobile the glass single-row bar under the scaffold header -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
   <div data-reveal="" use:reveal>

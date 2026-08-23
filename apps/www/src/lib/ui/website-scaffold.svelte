@@ -65,11 +65,17 @@
 
   interface Props {
     header: Snippet;
+    /** Static chrome, SSR-stable (Owner + Codex ruling, 2026-08-24): the
+     *  toc rail and the catalog tree render HERE — authored in their final
+     *  position from the first paint, never moved by hydration. Dynamic
+     *  float adoption (scaffold-float) stays on .jx-float-slot; the two
+     *  never mix, so the ordered-adoption logic cannot touch static nodes. */
+    chrome?: Snippet;
     children: Snippet;
     footer?: Snippet;
   }
 
-  let { header, children, footer }: Props = $props();
+  let { header, chrome, children, footer }: Props = $props();
 
   // float plane state — the ORDERED set of adopted nodes (scaffold-float
   // portals, the toc and tree-nav self-adopt; the slot renders them in
@@ -113,11 +119,12 @@
     const body = bodyEl;
     const band = headerEl;
 
-    // THE single layout measurement left in the shell (Codex r1): the
-    // header band's live height, published as --jx-header-h. Everything
-    // else derives from it in CSS — body reservation, the toc compaction
-    // offset and the shared --jx-toc-line. (The old paddingTop
-    // reservation and the toc's three measured vars are gone.)
+    // Header height: the CSS tokens per container form are the PRIMARY
+    // source (SSR-correct first paint — no 64→74 jump, Codex firstpaint
+    // ruling); this RO only corrects deviations (the mobile disclosure
+    // row growing the band). Everything derives from --jx-header-h in
+    // CSS — body reservation, the toc compaction offset and the shared
+    // --jx-toc-line.
     let reserved = -1;
     let reservedGutter = -1;
     const reserve = () => {
@@ -187,8 +194,15 @@
       <div class="jx-scaffold-header" bind:this={headerEl}>
         {@render header()}
       </div>
-      <!-- float plane: spans the whole layer as a subgrid; adopted nodes
-           land in named areas through their [data-area] role -->
+      <!-- static chrome plane (SSR-stable): consumers author toc/tree
+           nodes here with permanent data-area roles -->
+      {#if chrome}
+        <div class="jx-chrome-slot">
+          {@render chrome()}
+        </div>
+      {/if}
+      <!-- dynamic float plane: adopted (moved) nodes land here through
+           the jx-top-layer context — scaffold-float's territory -->
       <div class="jx-float-slot" bind:this={floatSlotEl}></div>
     </div>
   </div>

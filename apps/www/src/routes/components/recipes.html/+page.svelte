@@ -4,28 +4,11 @@
   import Input from '$lib/ui/input.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // ToC outline: the live workbench + every recipe card, in page order.
   // Ids pair with the wrapper ids / SectionCard families below.
-  const tocSections = [
-    { id: 'watermark-live', label: 'watermark · live' },
-    { id: 'recipe-aspect', label: 'aspect-ratio' },
-    { id: 'recipe-data-table', label: 'data-table' },
-    { id: 'recipe-chart', label: 'chart' },
-    { id: 'recipe-sidebar', label: 'sidebar' },
-    { id: 'recipe-watermark', label: 'watermark' },
-    { id: 'recipe-image-preview', label: 'image preview' },
-    { id: 'recipe-flexgrid', label: 'flex / grid' },
-    { id: 'recipe-segmented', label: 'segmented' },
-    { id: 'recipe-list', label: 'list' },
-    { id: 'recipe-autocomplete', label: 'autoComplete' },
-    { id: 'recipe-typography', label: 'typography' },
-    { id: 'recipe-mentions', label: 'mentions' },
-    { id: 'recipe-tour', label: 'tour' },
-  ];
 
   const aspect = `<!-- the platform owns it: aspect-ratio is a CSS property -->
 <img src="/shot.png" alt="build output" style="aspect-ratio: 16 / 9; width: 100%; object-fit: cover" />
@@ -145,9 +128,6 @@ const watermarkRecipe =
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
   <div data-reveal="" use:reveal>

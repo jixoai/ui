@@ -14,7 +14,6 @@
   import Radio from '$lib/ui/radio.svelte';
   import Range from '$lib/ui/range.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import Select, { type SelectOption } from '$lib/ui/select.svelte';
   import TagsInput, { type Tag } from '$lib/ui/tags-input.svelte';
   import TerminalCard from '$lib/ui/terminal-card.svelte';
@@ -39,21 +38,6 @@
   // ToC outline: the 13 demo sections below, in page order. The engine
   // pairs these ids with the SectionCard data-family extents + header
   // data-region leaves rendered in this page.
-  const tocSections = [
-    { id: 'all-types', label: 'All native types' },
-    { id: 'selectors', label: 'The selectors' },
-    { id: 'select-split', label: 'The select split' },
-    { id: 'combobox-tags', label: 'Combobox + TagsInput' },
-    { id: 'number-input', label: 'Number input' },
-    { id: 'file-input', label: 'File input' },
-    { id: 'date-picker', label: 'Date picker' },
-    { id: 'range-slider', label: 'Range slider' },
-    { id: 'color-picker', label: 'Color picker' },
-    { id: 'select-textarea', label: 'native-select + textarea' },
-    { id: 'slots', label: 'Slot system' },
-    { id: 'example-form', label: 'A full form' },
-    { id: 'native-base', label: 'NativeHTML 基座' },
-  ];
 
   // demo state for bindable controls
   let checked = $state(false);
@@ -576,9 +560,6 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
        desktop sticky right column, mobile the glass single-row bar pinned
        under the scaffold header (height 0, see toc.css); the content
        column reserves the rail clearance with its mobile top padding -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
   <!-- page head -->

@@ -31,20 +31,28 @@
  *   label, details / summary, nav / ol / ul / dl, base tables.
  *   :where() drops every element rule to (0,0,1) INSIDE the
  *   components layer, so Tailwind utilities and any unlayered author
- *   CSS override it cheaply (Codex D1 ruling). Deferred by ruling
- *   D6: progress / meter / output / figure / complex input repaints.
+ *   CSS override it cheaply (Codex D1 ruling). Completion round
+ *   (2026-08-24, Owner ruling over D6's deferral): progress / meter /
+ *   output / figure+figcaption / media lanes are IN (B10/B11), and
+ *   [data-jx-pure-skip] is the subtree escape hatch (B12). Still
+ *   deferred: complex input repaints beyond the allowlist.
  *
  * C · degradation laws — reduced-motion neutralization and the
  *   forced-colors fallback (custom-painted controls revert to
  *   appearance:auto so the system palette speaks).
  *
- * Dark mode (Codex D4 ruling): v1 rides ONLY the token sheet's theme
- * classes — .dark on the root (or any ancestor, or the scope itself)
- * flips every token this file consumes, and the scope root carries
- * color-scheme so native pickers/scrollbars follow. NO token copies,
- * NO prefers-color-scheme auto-dark, NO bootstrap JS in this file;
- * static pages that want system-follow ship their own 3-line
- * bootstrap and are documented on components/jx-pure.html.
+ * D · auto-dark (GENERATED) — a prefers-color-scheme gate on the
+ *   opt-in .jx-auto-dark class, derived 1:1 from jixoai.css's .dark
+ *   block by scripts/gen-jx-auto-dark.mjs (single source; never
+ *   hand-edit). Gives a truly zero-JS static page OS-following dark.
+ *
+ * Dark mode (Codex D4 ruling, amended 2026-08-24): rides the token
+ * sheet's theme classes — .dark on the root (or any ancestor, or the
+ * scope itself) flips every token this file consumes, and the scope
+ * root carries color-scheme so native pickers/scrollbars follow. NO
+ * HAND-COPIED tokens and NO bootstrap JS: OS-following dark for
+ * zero-JS pages is Part D's GENERATED media-query variant (single
+ * source — the drift risk D4 feared is locked by the parity suite).
  *
  * Scope law: .jx-pure is a subtree wrapper — it never reaches into
  * shadow roots (CustomElements must @import this sheet inside their
@@ -1271,6 +1279,149 @@
   :where(.jx-pure) tbody tr:hover {
     background: color-mix(in oklab, var(--muted) 26%, transparent);
   }
+
+  /* =====================================================================
+     B10 · progress / meter / output (Owner completion round, 2026-08-24:
+     the Codex D6 deferral is overruled — the contracts exist now).
+     progress: the range-track geometry (8px bordered box, primary
+     fill); indeterminate trades the fill for a sliding stripe, fully
+     static under reduced motion. meter: the same box with the
+     SEMANTIC token mapping — optimum=primary, suboptimal=secondary,
+     even-less-good=destructive (no hardcoded traffic lights). output:
+     the mono result lane. Engine pseudos live in SEPARATE rules (the
+     R1 law: a shared -moz list is dropped whole by Chromium).
+     ===================================================================== */
+  :where(.jx-pure) progress,
+  :where(.jx-pure) meter {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: 0.5rem; /* the 8px track family (incl. borders) */
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: 0;
+    background: var(--background);
+    appearance: none;
+    -webkit-appearance: none;
+    overflow: hidden;
+  }
+  :where(.jx-pure) progress:disabled,
+  :where(.jx-pure) meter:disabled {
+    opacity: 0.5;
+  }
+  /* chromium: the track pseudo + the value pseudo */
+  :where(.jx-pure) progress::-webkit-progress-bar {
+    background: var(--background);
+  }
+  :where(.jx-pure) progress::-webkit-progress-value {
+    background: var(--primary);
+    transition: width 150ms ease-out;
+  }
+  /* indeterminate: no percent exists — a muted stripe slides across;
+     under reduced motion it parks at the start (Part C parks it) */
+  :where(.jx-pure) progress:indeterminate::-webkit-progress-bar {
+    background:
+      linear-gradient(in oklab, var(--muted), var(--muted)) 0 0 / 40% 100% no-repeat,
+      var(--background);
+    animation: jx-progress-slide 1.2s linear infinite;
+  }
+  /* firefox: the element is the track; the bar pseudo is the value */
+  :where(.jx-pure) progress::-moz-progress-bar {
+    background: var(--primary);
+  }
+  :where(.jx-pure) progress:indeterminate::-moz-progress-bar {
+    background:
+      linear-gradient(in oklab, var(--muted), var(--muted)) 0 0 / 40% 100% no-repeat,
+      var(--background);
+    animation: jx-progress-slide 1.2s linear infinite;
+  }
+  /* meter: the semantic three-state fill (token-mapped, monochrome law) */
+  :where(.jx-pure) meter::-webkit-meter-bar {
+    background: var(--background);
+  }
+  :where(.jx-pure) meter::-webkit-meter-optimum-value {
+    background: var(--primary);
+  }
+  :where(.jx-pure) meter::-webkit-meter-suboptimum-value {
+    background: var(--secondary);
+  }
+  :where(.jx-pure) meter::-webkit-meter-even-less-good-value {
+    background: var(--destructive);
+  }
+  :where(.jx-pure) meter::-moz-meter-bar {
+    background: var(--primary);
+  }
+  :where(.jx-pure) meter:-moz-sub-optimum::-moz-meter-bar {
+    background: var(--secondary);
+  }
+  :where(.jx-pure) meter:-moz-sub-sub-optimum::-moz-meter-bar {
+    background: var(--destructive);
+  }
+  /* the stripe keyframes live OUTSIDE the layer's rule bodies… they
+     are defined once here (keyframes are global; the jx- prefix keeps
+     the namespace) — declared at the layer's end so both engine rules
+     above can reference them */
+}
+@keyframes jx-progress-slide {
+  from {
+    background-position: -40% 0, 0 0;
+  }
+  to {
+    background-position: 140% 0, 0 0;
+  }
+}
+@layer components {
+  /* output: the calculation result lane — mono, foreground, inline */
+  :where(.jx-pure) output {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--foreground);
+  }
+
+  /* =====================================================================
+     B11 · figure / media — the documentation flow. figure carries the
+     flow margin + the bordered plate; figcaption rides the caption
+     law (nav font, small caps, muted, below). Media never overflows
+     its lane.
+     ===================================================================== */
+  :where(.jx-pure) :where(img, video) {
+    max-width: 100%;
+    height: auto;
+  }
+  :where(.jx-pure) figure {
+    margin-block: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    max-width: 100%;
+  }
+  :where(.jx-pure) figure > :where(img, video, svg, pre, table) {
+    border: 1px solid var(--border);
+  }
+  :where(.jx-pure) figcaption {
+    font-family: var(--font-nav);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  /* =====================================================================
+     B12 · the escape hatch — [data-jx-pure-skip] (Codex r1 9.4,
+     resolved 2026-08-24). Mount it on a subtree that must keep its
+     OWN paint (a third-party widget, an iframe companion, a legacy
+     island): every B-law surface inside reverts to the USER-AGENT
+     cascade — author styling from this sheet AND the host's base
+     layer step aside. `revert` rolls the whole author origin back,
+     which is the only reliable pure-CSS subtree exclusion (the
+     honest evaluation conclusion — :not() chains do not scale).
+     NOTE: Part A classes are reverted on those elements too — the
+     island is FULLY native; re-opting a single element back in
+     requires a selector that beats the hatch's (0,2,1).
+     ===================================================================== */
+  .jx-pure [data-jx-pure-skip] :where(button, input, textarea, select, summary, details, fieldset, legend, table, th, td, progress, meter, figure, blockquote, pre, code, kbd, samp, hr, ul, ol, dl, dt, dd) {
+    all: revert;
+  }
 }
 
 /* =====================================================================
@@ -1355,3 +1506,68 @@
     content: none;
   }
 }
+
+/* ==== BEGIN GENERATED · jx-auto-dark — scripts/gen-jx-auto-dark.mjs (do not hand-edit) ==== */
+/* Derived 1:1 from jixoai.css's .dark block (single source). The gate
+   rides :where() so the whole variant stays maximally overridable; it
+   never fires where an explicit .dark already owns the theme, nor
+   inside .jx-light islands. Mount: <html class="jx-pure jx-auto-dark"> */
+@media (prefers-color-scheme: dark) {
+  :where(.jx-auto-dark):not(.dark, .jx-light *) {
+    --background: oklch(0 0 0);
+      --foreground: oklch(1 0 0);
+      --terminal: oklch(0.2 0 0);
+      --terminal-foreground: oklch(1 0 0);
+      --terminal-hover: color-mix(in oklab, var(--terminal-foreground) 14%, var(--terminal));
+      --terminal-muted: color-mix(in oklab, var(--terminal-foreground) 8%, var(--terminal));
+      --card: oklch(0.3211 0 0);
+      --card-foreground: oklch(1 0 0);
+      --popover: oklch(0.3211 0 0);
+      --popover-foreground: oklch(1 0 0);
+      /* the primary hue drifts -4° toward dark, mirroring the reference */
+      --primary: oklch(0.7044 0.1872 calc(var(--brand-hue) - 4));
+      --primary-foreground: oklch(0 0 0);
+      --secondary: oklch(0.9691 0.2005 109.6228);
+      --secondary-foreground: oklch(0 0 0);
+      --muted: oklch(0.2178 0 0);
+      --muted-foreground: oklch(0.8452 0 0);
+      --accent: oklch(0.6755 0.1765 252.2592);
+      --accent-foreground: oklch(0 0 0);
+      --destructive: oklch(1 0 0);
+      --destructive-foreground: oklch(0 0 0);
+      --border: oklch(1 0 0);
+      --input: oklch(1 0 0);
+      --ring: var(--primary);
+      --chart-1: var(--primary);
+      --chart-2: oklch(0.9691 0.2005 109.6228);
+      --chart-3: oklch(0.6755 0.1765 252.2592);
+      --chart-4: oklch(0.7395 0.2268 142.8504);
+      --chart-5: oklch(0.6131 0.2458 328.0714);
+
+      --shadow-color: hsl(0 0% 100%);
+      --shadow-2xs: 4px 4px 0px 0px hsl(0 0% 100% / 0.5);
+      --shadow-xs: 4px 4px 0px 0px hsl(0 0% 100% / 0.5);
+      --shadow-sm: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 1px 2px -1px hsl(0 0% 0% / 1);
+      --shadow: 4px 4px 0px 0px hsl(0 0% 100% / 1);
+      --shadow-md: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 2px 4px -1px hsl(0 0% 0% / 1);
+      --shadow-lg: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 4px 6px -1px hsl(0 0% 0% / 1);
+      /* press poses — same minus-1px law as the light block above */
+      --shadow-xs-press: 3px 3px 0px 0px hsl(0 0% 100% / 0.5);
+      --shadow-sm-press: 3px 3px 0px 0px hsl(0 0% 100% / 1), 3px 0px 2px -1px hsl(0 0% 0% / 1);
+      --shadow-md-press: 3px 3px 0px 0px hsl(0 0% 100% / 1), 3px 1px 4px -1px hsl(0 0% 0% / 1);
+
+      /* floating-surface law, dark side: inverted — scrims and the shadow
+         layer are semi-transparent WHITE and BRIGHTEN (the white-shadow
+         law; same 0.32 veil strength as light mode's black) */
+      --scrim: hsl(0 0% 100% / 0.1);
+      --surface-shadow: hsl(0 0% 100% / 0.32);
+    color-scheme: dark;
+  }
+  /* the scope-root companion: without it B0's color-scheme: light would
+     out-shout the inherited root scheme and native pickers/scrollbars
+     would stay light under dark tokens (the inverted-A2 bug) */
+  :where(.jx-auto-dark) :where(.jx-pure):not(.jx-light, .jx-light *) {
+    color-scheme: dark;
+  }
+}
+/* ==== END GENERATED · jx-auto-dark ==== */

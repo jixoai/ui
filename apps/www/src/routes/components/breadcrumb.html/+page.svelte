@@ -3,7 +3,6 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -13,10 +12,6 @@
   const close = '</' + 'script>';
 
   // ToC outline: the live demo band + the usage closing section, in page order.
-  const tocSections = [
-    { id: 'breadcrumb-demo', label: 'live demo' },
-    { id: 'breadcrumb-base', label: 'usage' },
-  ];
 
   const usage = `<script lang="ts">
   import Breadcrumb from '@ui/breadcrumb.svelte';
@@ -62,9 +57,6 @@ ${close}
 >
   <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
        column, mobile the glass single-row bar under the scaffold header -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
   <div data-reveal="" use:reveal>

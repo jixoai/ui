@@ -32,12 +32,11 @@
     </section>
   </article>
   <aside class="w-[172px] flex-none" aria-label="On this page">
-    <!-- topLayer={false}: this is an EMBEDDED miniature demo inside the
+    <!-- embedded miniature demo inside the
          blueprint stage — the rail must stay beside its own article, not
          adopt into the site scaffold's real top layer -->
     <Toc
       title="on this page"
-      topLayer={false}
       sections={[
         {
           id: 'bp-toc-law',

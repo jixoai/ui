@@ -5,7 +5,6 @@
   import Range from '$lib/ui/range.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import Table from '$lib/ui/table.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -63,10 +62,6 @@
   }
 
   // ToC outline: pairs with the region ids below, in page order.
-  const tocSections = [
-    { id: 'table-workbench', label: 'frame-width workbench' },
-    { id: 'table-semantic-set', label: 'semantic set' },
-  ];
 
   const hoverMixes: Record<string, string> = {
     brand: 'color-mix(in oklab, var(--primary) 7%, var(--background))',
@@ -97,10 +92,6 @@
 <div
   class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
 >
-  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
   <!-- page head -->

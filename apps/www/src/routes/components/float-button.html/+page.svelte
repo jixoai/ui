@@ -3,15 +3,10 @@
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import FloatButton from '$lib/ui/float-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // ToC outline: the menu-idiom demo + the closing law, in page order.
-  const tocSections = [
-    { id: 'menu-idiom', label: 'The menu idiom' },
-    { id: 'fab-law', label: 'Corner is a prop, label is the law' },
-  ];
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import floatbuttonSource from '$lib/ui/float-button.svelte?raw';
@@ -102,9 +97,6 @@ ${close}
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
     <div data-reveal="" use:reveal>

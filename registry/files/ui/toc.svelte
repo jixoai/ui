@@ -20,16 +20,16 @@
     - Place the wrapping <aside> BEFORE main content in the DOM; position
       it with your page grid (desktop right column, sticky; mobile sticky
       with height: 0 — see README).
-    - Top-layer auto-mount (Owner request, 2026-08-23): "if a topLayer
-      exists, the ToC automatically uses it; a prop can disable this."
-      Inside a website-scaffold the rail adopts itself with the area role
-      'toc' — the scaffold's grid resolves its cell per container form;
-      the immersive law keeps it on screen (it compacts under the header
-      instead of leaving). topLayer={false} opts out (embedded demos);
-      with NO scaffold context the classic in-flow behavior is unchanged.
+    - Chrome placement (firstpaint ruling, 2026-08-24): inside a
+      website-scaffold the toc is authored in the scaffold's `chrome`
+      snippet — SSR-rendered in its final grid cell (data-area='toc'),
+      never moved by hydration. The self-adoption mechanism and the
+      topLayer prop are RETIRED (Codex firstpaint review: moves were the
+      first-paint instability). Standalone consumers keep the classic
+      in-flow behavior unchanged (no shell ancestor, no data-area
+      contract to satisfy).
 -->
 <script lang="ts">
-  import { getContext, untrack } from 'svelte';
   import { createTocEngine } from '$lib/toc-engine';
   import { deriveTocOutline, tocOutlineToSections, type TocOutlineEntry } from '$lib/toc-outline';
   import { icons } from '$lib/icons';
@@ -56,18 +56,6 @@
     levels?: readonly number[];
   }
 
-  /** The website-scaffold top-layer adoption contract — STRUCTURAL on
-   *  purpose: the toc ships standalone in the registry and must not
-   *  depend on website-scaffold at build time; the shapes are identical
-   *  (see website-scaffold's exported TopLayerApi). Grid era: adoption
-   *  carries a semantic area role; the scaffold's grid resolves the
-   *  physical cell per container form. */
-  interface TopLayerApi {
-    /** Adopt a live DOM node into the scaffold's top layer with an area
-     *  role; the returned fn releases it. */
-    adopt: (node: HTMLElement, opts?: { area?: 'toc' | 'tree' | 'float' }) => () => void;
-  }
-
   interface Props {
     sections?: TocSection[];
     outline?: TocOutlineConfig;
@@ -75,12 +63,6 @@
     /** Scroll root for overlay-shell layouts (selector or element);
      *  defaults to the document. */
     scrollRoot?: string | HTMLElement | null;
-    /** Top-layer auto-mount (Owner request, 2026-08-23): true/undefined =
-     *  auto — adopt the rail into the website-scaffold's top layer when
-     *  the context exists; false = never (embedded demos, bespoke
-     *  layouts). No context (sites without the scaffold): unchanged
-     *  in-flow behavior either way. */
-    topLayer?: boolean;
   }
 
   let {
@@ -88,7 +70,6 @@
     outline,
     title = 'reading progress',
     scrollRoot = null,
-    topLayer = true,
   }: Props = $props();
 
   // outline mode: sections + extents derived on the client, refreshed by a
@@ -126,40 +107,6 @@
   let open = $state(false);
   let currentPick = $state<string | null>(null);
   let rootEl = $state<HTMLElement | null>(null);
-
-  // Top-layer auto-mount: the whole rail (both surfaces) is adopted as a
-  // LIVE node — move, never clone (the scaffold-float law) — so Svelte
-  // ownership, listeners, bound refs and the engine below all survive the
-  // re-parent untouched. The engine reads region rects from the body and
-  // scroll offsets from the scroll root; neither moves.
-  // Grid era (2026-08-23): adoption carries the semantic role 'toc'; the
-  // scaffold's grid resolves the physical cell per container form. ALL
-  // measured geometry sync (--jx-toc-right/-w/-top + the resize/layout
-  // watchers) is gone — placement is declarative now.
-  const topLayerApi = getContext<TopLayerApi>('jx-top-layer');
-
-  $effect(() => {
-    if (!rootEl || !topLayerApi || topLayer === false) return;
-    const el = rootEl;
-    // untrack: adoption touches scaffold state (floatNodes) and moves
-    // DOM — neither may feed back into THIS effect's dependencies, or
-    // the flush loop exceeds update depth and kills the page runtime
-    // (the playCanvas-bindings-dead report, 2026-08-23)
-    return untrack(() => {
-      // `home` is the return ticket so teardown/hot-reload/route change
-      // never leaks a moved node
-      const home = el.parentElement;
-      el.dataset.toplayer = '';
-      const release = topLayerApi.adopt(el, { area: 'toc' });
-      return () => {
-        release();
-        delete el.dataset.toplayer;
-        // return the node to its authoring parent so Svelte teardown
-        // finds and destroys exactly what it created
-        home?.appendChild(el);
-      };
-    });
-  });
 
   // Live line: WHERE pinned chrome ends. Inside the grid shell this reads
   // the body's resolved scroll-padding — the shell owns the single truth
@@ -219,20 +166,25 @@
     tocLine();
     const stopEngine = createTocEngine(
       ({ weights, pick }) => {
+        // persistent chrome (firstpaint era): the toc survives route
+        // changes — bound arrays hold transient nulls while the keyed
+        // list re-renders. Never trust a ref here.
         for (const li of desktopItems) {
-          li.style.setProperty('--w', (weights.get(li.dataset.id!) ?? 0).toFixed(3));
+          li?.style.setProperty('--w', (weights.get(li.dataset.id!) ?? 0).toFixed(3));
         }
         for (const a of mobileLinks) {
-          a.style.setProperty('--w', (weights.get(a.dataset.id!) ?? 0).toFixed(3));
+          a?.style.setProperty('--w', (weights.get(a.dataset.id!) ?? 0).toFixed(3));
         }
         if (!pick) return;
         currentPick = pick;
         const parent = parentOf.get(pick);
         for (const li of desktopItems) {
+          if (!li) continue;
           const current = li.dataset.id === pick || li.dataset.id === parent;
           li.classList.toggle('active', current);
         }
         for (const a of mobileLinks) {
+          if (!a) continue;
           const isPick = a.dataset.id === pick;
           a.style.setProperty('--jx-cur', isPick ? '1' : '0');
           if (isPick) a.setAttribute('aria-current', 'true');
@@ -256,7 +208,7 @@
         ? document.querySelector<HTMLElement>(scrollRoot)
         : scrollRoot;
     const onScroll = () => {
-      if (!spineFill) return;
+      if (!spineFill) return;  // transient null during route-swap re-render
       const max = root ? root.scrollHeight - root.clientHeight : document.documentElement.scrollHeight - innerHeight;
       const y = root ? root.scrollTop : scrollY;
       const p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
@@ -292,7 +244,7 @@
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
-<div class="jx-toc" bind:this={rootEl}>
+<div class="jx-toc" data-area="toc" bind:this={rootEl}>
   <nav class="jx-toc-desktop" aria-label="Table of contents">
     <span class="jx-spine"><span class="jx-spine-fill" bind:this={spineFill}></span></span>
     <p class="jx-toc-title">{title}</p>

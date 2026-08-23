@@ -5,15 +5,10 @@
   import ThemeToggle from '$lib/ui/theme-toggle.svelte';
   import themeToggleSource from '$lib/ui/theme-toggle.svelte?raw';
   import NativeSelect from '$lib/ui/native-select.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // ToC outline: the no-flash bootstrap demo + the closing contract law.
-  const tocSections = [
-    { id: 'no-flash', label: 'The no-flash bootstrap' },
-    { id: 'theme-contract', label: 'The shared theme contract' },
-  ];
 
   // Same-source law for the bootstrap half: the exact app.html this site
   // ships (the inline script is the other writer of the same storage key).
@@ -71,9 +66,6 @@ ${close}
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
     <div data-reveal="" use:reveal>

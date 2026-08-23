@@ -252,29 +252,21 @@
   }
 }
 
-/* ── top-layer adoption, grid era (2026-08-23) ──
-   The scaffold's grid places the adopted root through its [data-area]
-   role — no measured vars, no JS geometry. The toc only adds its own
-   breathing room inside the cell. The authoring anchor aside exists to
-   HOST the toc: once the rail is adopted away the aside is empty — an
-   empty landmark is a11y pollution, so it collapses. Standalone asides
-   (toc never adopted) always match :has(> .jx-toc) and stay visible. */
-/* support floor: :has() is Baseline (2023-12) — the whole shell already
-   requires subgrid + container queries, so no JS fallback is provided;
-   engines below the floor keep a 0-height empty aside (invisible, but
-   the landmark persists — accepted under the same floor). */
-aside.jx-toc-aside:not(:has(> .jx-toc)) {
-  display: none;
-}
-/* the rail's cell inset is PADDING, never margin (Owner rule,
+/* ── chrome placement, firstpaint era (2026-08-24) ──
+   Inside a website-scaffold the toc is authored in the scaffold's
+   `chrome` snippet — SSR-rendered into its grid cell through the
+   permanent data-area="toc"; the self-adoption mechanism and the
+   authoring-aside collapse rule are retired. Scoped under
+   .jx-top-layer: standalone consumers (no shell ancestor) never match.
+   The rail's cell inset is PADDING, never margin (Owner rule,
    2026-08-24): margin pairs badly with the percentage max-height the
-   grid cell imposes, and the scrollbar law below is padding-shaped */
+   grid cell imposes, and the scrollbar law below is padding-shaped. */
 @media (min-width: 900px) {
-  .jx-toc[data-toplayer] {
+  .jx-top-layer .jx-toc[data-area='toc'] {
     padding-block-start: 1.25rem;
-    /* scrollbar law: the adopted rail is a REAL scrollport (the shell
-       caps it with max-height + overflow) — both-edges gutters, and the
-       padding hands the measured gutter back so the visual insets stay */
+    /* scrollbar law: the rail is a REAL scrollport (the shell caps it
+       with max-height + overflow) — both-edges gutters, and the padding
+       hands the measured gutter back so the visual insets stay */
     scrollbar-width: thin;
     scrollbar-gutter: stable both-edges;
     padding-left: max(1.25rem - var(--jx-scrollbar-thin, 0px), 0px);

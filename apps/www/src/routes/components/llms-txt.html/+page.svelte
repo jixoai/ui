@@ -4,13 +4,8 @@
   import CodeBlock from '$lib/code-block.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import { reveal } from '$lib/reveal';
 
-  const tocSections = [
-    { id: 'wiring', label: 'Wiring' },
-    { id: 'laws', label: 'The laws' },
-  ];
 
   const viteUsage = `// vite.config.ts — plain vite build sites (one plugin line)
 import { sveltekit } from '@sveltejs/kit/vite';
@@ -89,9 +84,6 @@ console.log('llms-txt:', report.pages, 'pages,', report.files.length, 'files');`
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
     <div data-reveal="" use:reveal>

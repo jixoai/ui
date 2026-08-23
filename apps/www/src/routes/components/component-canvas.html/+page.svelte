@@ -3,7 +3,6 @@
   import Checkbox from '$lib/ui/checkbox.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -15,10 +14,6 @@
   const close = '</' + 'script>';
 
   // ToC outline: the workbench + the closing law, in page order.
-  const tocSections = [
-    { id: 'canvas-workbench', label: 'the recursive workbench' },
-    { id: 'canvas-law', label: 'canvas law' },
-  ];
 
   // Playground: toggles the inner canvas's optional Playground pane.
   let innerPlayground = $state(false);
@@ -86,9 +81,6 @@ ${close}
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
   <!-- page head -->

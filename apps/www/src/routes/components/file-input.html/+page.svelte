@@ -5,7 +5,6 @@
   import NativeSelect from '$lib/ui/native-select.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import Toggle from '$lib/ui/toggle.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -17,14 +16,6 @@
   const close = '</' + 'script>';
 
   // ToC outline: the demo sections below, in page order.
-  const tocSections = [
-    { id: 'fi-demo', label: 'live demo' },
-    { id: 'fi-drop', label: 'The drop zone' },
-    { id: 'fi-list', label: 'The file list' },
-    { id: 'fi-variants', label: 'button variant · disabled' },
-    { id: 'fi-overflow', label: 'Narrow hosts' },
-    { id: 'fi-usage', label: 'usage' },
-  ];
 
   // ---- demo state ---------------------------------------------------------
   let demoFiles = $state<File[]>([]);
@@ -124,9 +115,6 @@ ${close}
 >
   <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
        column, mobile the glass single-row bar under the scaffold header -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
   <div data-reveal="" use:reveal>

@@ -7,7 +7,6 @@
   import TabsContent from '$lib/ui/tabs-content.svelte';
   import TabsList from '$lib/ui/tabs-list.svelte';
   import TabsTrigger from '$lib/ui/tabs-trigger.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
@@ -18,10 +17,6 @@
   import tabsContentSource from '$lib/ui/tabs-content.svelte?raw';
 
   // ToC outline: the workbench band + the vertical variant section.
-  const tocSections = [
-    { id: 'tabs-demo', label: 'live demo' },
-    { id: 'tabs-vertical', label: 'vertical — the sidebar shape' },
-  ];
 
   // Playground protocol: the page owns the snapshot + reset; the echo footer
   // replaces the hand-written "value / last change" caption (PAGE_STANDARDS
@@ -92,9 +87,6 @@ ${close}
 >
   <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
        column, mobile the glass single-row bar under the scaffold header -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
   <div data-reveal="" use:reveal>

@@ -10,29 +10,21 @@
                                               tree upward — height-only,
                                               zero reflow outside itself
 
-  Mounts through the website-scaffold's `jx-top-layer` context with the
-  area role 'tree' — the shell grid places it per container form and the
-  immersive law hides it on scroll DOWN (bar slides down / rail leaves
-  with the header) and reveals on scroll UP. The catalog data comes from
+  Authored in the website-scaffold's `chrome` snippet (firstpaint era,
+  2026-08-24): SSR-rendered with the permanent data-area="tree" — the
+  shell grid places it per container form and the immersive law hides it
+  on scroll DOWN (bar slides down; the rail compacts like the toc) and
+  reveals on scroll UP. No adoption, no first-paint move. The catalog data comes from
   the ONE catalog (catalogByGroup), so the tree can never drift from the
   site inventory. Mobile is no longer delegated to the header mega menu
   alone: the bottom bar is the quick catalog surface at every narrow
   width (Owner, 2026-08-23).
 -->
 <script lang="ts">
-  import { getContext, untrack } from 'svelte';
   import { page } from '$app/state';
   import { catalogByGroup } from '$lib/catalog';
 
-  /** The website-scaffold top-layer adoption contract — STRUCTURAL on
-   *  purpose (this component is app-local; the shape mirrors
-   *  website-scaffold's exported TopLayerApi). */
-  interface TopLayerApi {
-    adopt: (node: HTMLElement, opts?: { area?: 'toc' | 'tree' | 'float' }) => () => void;
-  }
-
   const groups = catalogByGroup();
-  const topLayerApi = getContext<TopLayerApi>('jx-top-layer');
 
   const normalized = $derived(
     page.url.pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/',
@@ -56,30 +48,13 @@
     groups.find(({ entries }) => entries.some((entry) => isCurrent(entry.href)))?.group.id ?? '',
   );
 
-  let rootEl = $state<HTMLElement | null>(null);
   let open = $state(false);
 
   const close = () => (open = false);
 
-  // self-adoption into the scaffold's chrome plane with the area role
-  // 'tree' (same live-node move + untrack laws as the toc)
-  $effect(() => {
-    if (!rootEl || !topLayerApi) return;
-    const el = rootEl;
-    return untrack(() => {
-      const home = el.parentElement;
-      el.dataset.toplayer = '';
-      const release = topLayerApi.adopt(el, { area: 'tree' });
-      return () => {
-        release();
-        delete el.dataset.toplayer;
-        home?.appendChild(el);
-      };
-    });
-  });
 </script>
 
-<nav class="jx-ctree" bind:this={rootEl} aria-label="component catalog">
+<nav class="jx-ctree" data-area="tree" aria-label="component catalog">
   <!-- rail surface (wide form): grouped tree, always expanded -->
   <div class="jx-ctree-rail">
     <p class="jx-ctree-title">component catalog</p>
@@ -158,16 +133,9 @@
 
 <style>
   /* the component itself is placement-neutral: the shell grid owns the
-     cell ([data-area='tree']); only the surface pair switches here.
-     Authored inside main — invisible until adopted so SSR/hydration
-     never flashes it at the top of the content column (this component
-     is app-local and always scaffold-hosted; the header mega menu
-     remains the no-JS fallback). */
+     cell ([data-area='tree']); only the surface pair switches here */
   .jx-ctree {
     min-width: 0;
-  }
-  .jx-ctree:not([data-toplayer]) {
-    display: none;
   }
 
   /* surface switching follows the SHELL's container form (grid era,

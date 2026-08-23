@@ -5,11 +5,9 @@
   import Input from '$lib/ui/input.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import NativeSelect from '$lib/ui/native-select.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import { reveal } from '$lib/reveal';
 
   // ToC outline: the closing law (the canvas above is the workbench).
-  const tocSections = [{ id: 'card-law', label: 'Anatomy & ToC wiring' }];
 
   // Same-source law: the file tree shows the exact installed copy this site
   // consumes — ?raw imports the bytes, never a retyped duplicate.
@@ -97,9 +95,6 @@ ${close}
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
     <div data-reveal="" use:reveal>

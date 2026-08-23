@@ -3,7 +3,6 @@
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
   import { currentHue, playing, resumeHue, setHueManually, toggleHuePlay } from '$lib/hue-runtime';
@@ -27,12 +26,6 @@
   const close = '</' + 'script>';
 
   // ToC outline: the four page regions, in page order.
-  const tocSections = [
-    { id: 'hue-lab', label: 'hue lab' },
-    { id: 'palette', label: 'palette' },
-    { id: 'semantics', label: 'semantics' },
-    { id: 'primary-contrast', label: 'primary contrast' },
-  ];
 
   // Playground protocol (P1): the "reset" of a global runtime is handing
   // control back to the wall clock (resume runs the 2s cubic-out toward
@@ -144,9 +137,6 @@ playing.subscribe((v) => (isPlaying = v));
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
   <!-- Page head. -->

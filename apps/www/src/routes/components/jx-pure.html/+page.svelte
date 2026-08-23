@@ -3,8 +3,9 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import Toc from '$lib/ui/toc.svelte';
   import { reveal } from '$lib/reveal';
+  import { onMount } from 'svelte';
 
-  // ToC outline: the eight demo sections below, in page order.
+  // ToC outline: the demo sections below, in page order.
   const tocSections = [
     { id: 'getting-started', label: 'Getting started' },
     { id: 'typography', label: 'Typography' },
@@ -13,9 +14,16 @@
     { id: 'disclosure', label: 'details / summary' },
     { id: 'nav-lists', label: 'nav · lists · dl' },
     { id: 'tables', label: 'Tables' },
+    { id: 'media-flow', label: 'progress · meter · figure' },
     { id: 'dark-mode', label: 'Dark mode' },
+    { id: 'custom-element', label: 'CustomElement' },
     { id: 'scope-laws', label: 'Scope laws' },
   ];
+
+  // vite asset urls for the shadow-DOM demo — the REAL registry copies
+  // this site runs, fetched and adopted as constructable sheets
+  import tokenCssUrl from '$lib/jixoai.css?url';
+  import pureCssUrl from '$lib/jx-pure.css?url';
 
   const install = `# the componentless face — one css, zero js
 npx jixoai-ui add jx-pure`;
@@ -47,6 +55,60 @@ npx jixoai-ui add jx-pure`;
   const bootstrap = `const sysDark = matchMedia('(prefers-color-scheme: dark)').matches;
 document.documentElement.classList.toggle('dark', sysDark);
 // ^ the host's OWN bootstrap — jx-pure deliberately ships no JS (Codex D4)`;
+
+  const autoDark = `<!-- OS-follow dark with ZERO JS — the generated Part D:
+     tokens flip under prefers-color-scheme: dark; an explicit
+     .dark always wins; .jx-light islands stay light -->
+<html class="jx-pure jx-auto-dark">
+  …
+</html>`;
+
+  const shadowRecipe = `// a CustomElement adopting the face inside its own shadow root
+// (document css never crosses the boundary — bring the two sheets):
+const style = document.createElement('style');
+style.textContent = tokenCss + pureCss; // the registry copies
+this.shadowRoot.append(style);
+// ^ a <style> node, NOT replaceSync: constructable sheets THROW on the
+// token sheet's build-time at-rules (@theme/@custom-variant), while a
+// style node parses tolerantly and skips them. Fonts stay document-
+// level: @font-face is document-scoped, the shadow inherits families`;
+
+  // the live CustomElement fixture: real shadow root, real style nodes
+  // fed from the real registry asset urls (fonts ride the document)
+  onMount(() => {
+    if (customElements.get('jx-pure-island')) return;
+    customElements.define(
+      'jx-pure-island',
+      class extends HTMLElement {
+        constructor() {
+          super();
+          const root = this.attachShadow({ mode: 'open' });
+          root.innerHTML = `<div class="jx-pure" style="max-width:22rem">
+  <p><label>shadow lane</label><br />
+    <input type="text" placeholder="painted inside the shadow root" /></p>
+  <p>
+    <button type="button">shadow button</button>
+    <label><input type="checkbox" checked /> check</label>
+  </p>
+</div>`;
+          Promise.all([fetch(tokenCssUrl), fetch(pureCssUrl)])
+            .then(async ([tokens, pure]) => [await tokens.text(), await pure.text()])
+            .then(([tokenCss, pureCss]) => {
+              // strip the fontsource @imports (bare specifiers cannot
+              // resolve here; the document owns the fonts anyway), then
+              // inject as <style> nodes — tolerant of the token sheet's
+              // build-time at-rules, unlike constructable sheets
+              const stripped = tokenCss.replace(/^@import.*$/gm, '');
+              for (const text of [stripped, pureCss]) {
+                const style = document.createElement('style');
+                style.textContent = text;
+                root.append(style);
+              }
+            });
+        }
+      },
+    );
+  });
 </script>
 
 <svelte:head>
@@ -60,9 +122,6 @@ document.documentElement.classList.toggle('dark', sysDark);
 <div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
     <div data-reveal="" use:reveal>
@@ -241,7 +300,7 @@ document.body.classList.add('jx-pure');</code></pre>
           </details>
           <details open>
             <summary>And what is deliberately not?</summary>
-            <p>progress, meter, output and figure repaints; floating surfaces; select popup internals. The platform keeps those until a cross-engine contract exists.</p>
+            <p>Floating surfaces (dialog / popover / tooltip — Tier-2 territory) and select popup internals. The platform keeps those: their top-layer and closing-order laws are component ground.</p>
           </details>
         </div>
       </SectionCard>
@@ -302,6 +361,7 @@ document.body.classList.add('jx-pure');</code></pre>
               <tr><td>range</td><td>verified: webkit pseudos</td><td>-moz pseudos authored</td><td>webkit pseudos authored</td></tr>
               <tr><td>date/time indicator</td><td>verified: mask glyph</td><td>native indicator</td><td>native indicator</td></tr>
               <tr><td>select.jx-select</td><td>verified: gradient chevron</td><td>same law, unverified build</td><td>same law, unverified build</td></tr>
+              <tr><td>progress / meter</td><td>verified: track family + token fills</td><td>-moz bar pseudos authored</td><td>native bar (webkit pseudos)</td></tr>
             </tbody>
           </table>
         </div>
@@ -313,13 +373,57 @@ document.body.classList.add('jx-pure');</code></pre>
       </SectionCard>
     </div>
 
+    <div id="media-flow" data-reveal="" use:reveal>
+      <SectionCard
+        family="media-flow"
+        headerRegion="media-flow"
+        eyebrow="demo"
+        title="progress · meter · output · figure"
+        summary="The completion round (2026-08-24): progress and meter ride the 8px track family — meter maps its semantics onto tokens (optimum=primary, suboptimal=secondary, even-less-good=destructive; no hardcoded traffic lights), progress's indeterminate state trades the fill for a sliding stripe that parks under reduced motion. output is the mono result lane; figure carries the bordered plate with the caption law below, and media never overflows its lane."
+      >
+        <div class="grid gap-6 min-[760px]:grid-cols-2">
+          <div class="jx-pure flex flex-col gap-4" style="max-width: 30rem">
+            <div>
+              <small>progress · 60%</small><br />
+              <progress value="60" max="100"></progress>
+            </div>
+            <div>
+              <small>progress · indeterminate (stripe; static under reduced motion)</small><br />
+              <progress max="100"></progress>
+            </div>
+            <div>
+              <small>meter · optimum / suboptimum / even-less-good</small><br />
+              <meter value="70" min="0" max="100" low="30" high="90" optimum="80"></meter>
+              <meter value="20" min="0" max="100" low="30" high="90" optimum="80"></meter>
+              <meter value="95" min="0" max="100" low="30" high="90" optimum="80"></meter>
+            </div>
+            <form onsubmit={(e) => e.preventDefault()} class="flex flex-wrap items-center gap-2">
+              <label for="mf-a">a</label>
+              <input id="mf-a" type="number" value="6" style="width: 5rem" />
+              <label for="mf-b">b</label>
+              <input id="mf-b" type="number" value="7" style="width: 5rem" />
+              <button type="button" onclick={(e) => { const f = e.currentTarget.closest('form'); f.querySelector('output').value = Number(f.querySelector('#mf-a').value) * Number(f.querySelector('#mf-b').value); }}>a × b =</button>
+              <output name="result" for="mf-a mf-b">42</output>
+            </form>
+          </div>
+          <div class="jx-pure" style="max-width: 30rem">
+            <figure>
+              <img src="/blueprints/jx-pure.svg" alt="the jx-pure blueprint scene" style="background: var(--muted)" />
+              <figcaption>figure · the componentless face — its own blueprint</figcaption>
+            </figure>
+            <p><small>media (img / video) never exceeds its lane; the plate's 1px border is the figure law.</small></p>
+          </div>
+        </div>
+      </SectionCard>
+    </div>
+
     <div id="dark-mode" data-reveal="" use:reveal>
       <SectionCard
         family="dark-mode"
         headerRegion="dark-mode"
         eyebrow="law"
         title="Dark mode"
-        summary="v1 rides ONLY the token sheet's theme classes — zero token copies, zero prefers-color-scheme auto-dark, zero bootstrap JS inside jx-pure (Codex D4: a copied .dark block would drift, and a hidden bootstrap is not 'zero JS'). .dark on the root (or any ancestor, or the scope itself) flips every token; the scope root carries color-scheme so native pickers and scrollbars follow. Both panels below are the SAME bare markup — the only difference is the theme class."
+        summary="Theme rides the token sheet's classes — .dark on the root (or any ancestor, or the scope itself) flips every token; the scope root carries color-scheme so native pickers and scrollbars follow. NO hand-copied tokens and NO bootstrap JS: OS-following dark for zero-JS pages is the GENERATED .jx-auto-dark variant (below). The panels are the SAME bare markup — the only difference is the theme class."
       >
         <div class="grid gap-6 min-[760px]:grid-cols-2">
           <div class="flex flex-col gap-2">
@@ -359,13 +463,60 @@ document.body.classList.add('jx-pure');</code></pre>
           </div>
         </div>
         <div class="border-border mt-5 border-t pt-5">
-          <h3 class="text-[15px] font-bold tracking-tight">System-follow is the host's 3 lines</h3>
+          <h3 class="text-[15px] font-bold tracking-tight">System-follow, still zero JS — .jx-auto-dark</h3>
           <p class="text-muted-foreground mt-2 text-pretty text-[13px] leading-6">
-            A static page that wants to follow the OS theme ships its own bootstrap before first
-            paint — jx-pure deliberately never does this for you:
+            The zero-JS answer to OS-following dark: mount
+            <code class="text-accent">jx-auto-dark</code> next to the scope class and Part D's
+            <em>generated</em> media-query variant flips the tokens — derived 1:1 from the token
+            sheet's .dark block by <code class="text-accent">scripts/gen-jx-auto-dark.mjs</code>
+            (single source; the parity suite fails on drift). An explicit <code class="text-accent">.dark</code>
+            always wins, <code class="text-accent">.jx-light</code> islands stay light:
           </p>
           <div class="mt-3 max-w-xl">
-            <CodeBlock code={bootstrap} lang="js" meta="host-owned bootstrap" />
+            <CodeBlock code={autoDark} lang="html" meta="zero-JS system follow" />
+          </div>
+          <p class="text-muted-foreground mt-2 text-pretty text-[13px] leading-6">
+            Prefer a theme toggle over OS-follow? The host's own 3-line bootstrap remains the
+            fully-JS route:
+          </p>
+          <div class="mt-3 max-w-xl">
+            <CodeBlock code={bootstrap} lang="js" meta="host-owned bootstrap (the JS alternative)" />
+          </div>
+        </div>
+      </SectionCard>
+    </div>
+
+    <div id="custom-element" data-reveal="" use:reveal>
+      <SectionCard
+        family="custom-element"
+        headerRegion="custom-element"
+        eyebrow="demo"
+        title="CustomElement — the shadow-root adoption"
+        summary="Document css never crosses the shadow boundary, so a CustomElement brings the two sheets ITSELF: fetch the registry copies, build constructable CSSStyleSheets, adopt them on the shadow root. The fixture below is LIVE — a real <jx-pure-island> element defined by this page, adopting the real token + face sheets this site runs. Fonts stay document-level (@font-face is document-scoped; the shadow inherits the loaded families)."
+      >
+        <div class="grid gap-6 min-[760px]:grid-cols-2">
+          <div class="flex flex-col gap-3">
+            <span class="text-muted-foreground text-[11px]">the live island (shadow internals, view source: it's empty light DOM)</span>
+            <jx-pure-island></jx-pure-island>
+            <span class="text-muted-foreground text-[11px]">
+              the SAME markup sits outside any shadow root below — painted by the page's own
+              import, not the island's sheets (two adoptions, one law):
+            </span>
+            <div class="jx-pure" style="max-width: 22rem">
+              <p><label for="ce-lane">light-dom lane</label><br />
+                <input id="ce-lane" type="text" placeholder="painted by the page import" /></p>
+              <p><button type="button">light-dom button</button></p>
+            </div>
+          </div>
+          <div class="flex flex-col gap-3">
+            <CodeBlock code={shadowRecipe} lang="js" meta="the adoption recipe" />
+            <p class="text-muted-foreground text-[13px] leading-6">
+              Resource note: inject as <code class="text-accent">&lt;style&gt;</code> nodes, not
+              constructable sheets — <code class="text-accent">replaceSync</code> throws on the
+              token sheet's build-time at-rules while a style node parses tolerantly; strip the
+              fontsource <code class="text-accent">@import</code>s (bare specifiers cannot resolve
+              inside a shadow style; fonts belong to the document anyway).
+            </p>
           </div>
         </div>
       </SectionCard>
@@ -398,10 +549,23 @@ document.body.classList.add('jx-pure');</code></pre>
             </p>
             <h3 class="text-[15px] font-bold tracking-tight">Shadow DOM needs its own import</h3>
             <p class="text-muted-foreground">
-              Document css never crosses the shadow boundary. A CustomElement that wants the face
-              imports the same two sheets inside its own shadow &lt;style&gt; (or adoptedStyleSheets) —
-              resource paths resolve against the import site.
+              Document css never crosses the shadow boundary — the live adoption fixture is the
+              CustomElement section above.
             </p>
+            <h3 class="text-[15px] font-bold tracking-tight">The escape hatch — data-jx-pure-skip</h3>
+            <p class="text-muted-foreground">
+              A subtree that must keep its OWN paint (third-party widget, legacy island) mounts
+              <code class="text-accent">data-jx-pure-skip</code>: every B-law surface inside
+              <code class="text-accent">revert</code>s to the USER-AGENT cascade — author styling
+              steps aside entirely. It is fully native; re-opting one element back in needs a
+              selector that beats the hatch's (0,2,1).
+            </p>
+            <div class="jx-pure flex flex-wrap items-center gap-3">
+              <button type="button">the law</button>
+              <span data-jx-pure-skip style="display: inline-flex; gap: 0.75rem">
+                <button type="button">skipped island</button>
+              </span>
+            </div>
             <h3 class="text-[15px] font-bold tracking-tight">The type allowlist</h3>
             <p class="text-muted-foreground">
               Text-like styling catches ONLY the 13 text types + no-type inputs. hidden / file /
@@ -418,12 +582,13 @@ document.body.classList.add('jx-pure');</code></pre>
               input / range / number-input now declare
               <code class="text-accent">@jixoai/jx-pure</code>.
             </p>
-            <h3 class="text-[15px] font-bold tracking-tight">Deferred from v1</h3>
+            <h3 class="text-[15px] font-bold tracking-tight">Still deferred</h3>
             <p class="text-muted-foreground">
-              progress / meter / output / figure repaints; select popup internals; floating
-              surfaces (dialog / popover / tooltip — Tier-2 territory); disclosure open/close
-              animation. Forced-colors: custom-painted controls revert to appearance:auto so the
-              system palette speaks.
+              Select popup internals; floating surfaces (dialog / popover / tooltip — Tier-2
+              territory); disclosure open/close animation; input repaints beyond the allowlist;
+              the Firefox/WebKit measured matrix (authored laws + forced-colors fallbacks are in
+              place — the engine table states exactly what is verified). Forced-colors:
+              custom-painted controls revert to appearance:auto so the system palette speaks.
             </p>
             <h3 class="text-[15px] font-bold tracking-tight">Focus is the host's law</h3>
             <p class="text-muted-foreground">

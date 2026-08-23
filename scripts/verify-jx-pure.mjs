@@ -66,6 +66,18 @@ const facts = await page.evaluate(() => {
   // the one-opacity-owner law (Codex review A3)
   const lockedFieldset = document.querySelector('#forms fieldset[disabled]');
   const lockedInput = lockedFieldset.querySelector('input[type="text"]');
+  // completion-round surfaces: progress / meter / output / figure
+  const prog = document.querySelector('#media-flow progress[value]');
+  const progIndet = document.querySelector('#media-flow progress:not([value])');
+  const meterOpt = document.querySelector('#media-flow meter');
+  const out = document.querySelector('#media-flow output');
+  const figcap = document.querySelector('#media-flow figcaption');
+  // the escape hatch island
+  const skipBtn = document.querySelector('[data-jx-pure-skip] button');
+  // the live CustomElement shadow root
+  const islandHost = document.querySelector('jx-pure-island');
+  const shadowBtn = islandHost?.shadowRoot?.querySelector('button');
+  const shadowInput = islandHost?.shadowRoot?.querySelector('input');
   // served-rule scan: B rules actually landed in @layer components
   let layered = false;
   const sheets = [...document.styleSheets, ...(document.adoptedStyleSheets ?? [])];
@@ -132,6 +144,24 @@ const facts = await page.evaluate(() => {
     lightLane: { scheme: cs(lightBox, 'color-scheme').trim(), bg: cs(lightBox, 'background-color').trim() },
     lightIsland: { scheme: cs(lightIsland, 'color-scheme').trim(), bg: cs(lightIsland, 'background-color').trim(), rootScheme: cs(lightIslandBox, 'color-scheme').trim() },
     lockedGroup: { fieldsetOpacity: cs(lockedFieldset, 'opacity'), inputOpacity: cs(lockedInput, 'opacity') },
+    progress: {
+      appearance: cs(prog, 'appearance').trim(),
+      height: cs(prog, 'height'),
+      // the stripe animation rides the ::-webkit-progress-bar pseudo
+      indetAnimated: getComputedStyle(progIndet, '::-webkit-progress-bar').animationName,
+    },
+    meterBox: { appearance: cs(meterOpt, 'appearance').trim(), height: cs(meterOpt, 'height') },
+    outputFont: cs(out, 'font-family'),
+    figcapVoice: { font: cs(figcap, 'font-family'), transform: cs(figcap, 'text-transform') },
+    skipIsland: { btnMinHeight: cs(skipBtn, 'min-height'), btnShadow: cs(skipBtn, 'box-shadow'), btnCursor: cs(skipBtn, 'cursor') },
+    shadowDom: shadowBtn
+      ? {
+          styleNodes: islandHost.shadowRoot.querySelectorAll('style').length,
+          btnShadow: cs(shadowBtn, 'box-shadow'),
+          btnMinHeight: cs(shadowBtn, 'min-height'),
+          inputMinHeight: cs(shadowInput, 'min-height'),
+        }
+      : null,
     layered,
   };
 });
@@ -158,6 +188,13 @@ const checks = [
   ['light lane: white lane under :root', facts.lightLane.scheme === 'light'],
   ['A2 · .jx-light.jx-pure same-element: forced light scheme under dark', facts.lightIsland.scheme === 'light' && facts.lightIsland.rootScheme === 'light'],
   ['A3 · disabled fieldset: one opacity owner (group .5, controls 1)', facts.lockedGroup.fieldsetOpacity === '0.5' && facts.lockedGroup.inputOpacity === '1'],
+  ['progress: 8px track family repaint', facts.progress.appearance === 'none' && facts.progress.height === '8px'],
+  ['progress indeterminate: sliding stripe animation', facts.progress.indetAnimated === 'jx-progress-slide'],
+  ['meter: same track family', facts.meterBox.appearance === 'none' && facts.meterBox.height === '8px'],
+  ['output: mono result lane', facts.outputFont.includes('JetBrains')],
+  ['figcaption: nav-font small caps voice', facts.figcapVoice.font.includes('Share Tech') && facts.figcapVoice.transform === 'uppercase'],
+  ['escape hatch: skip island reverts to UA paint', facts.skipIsland.btnMinHeight === 'auto' && facts.skipIsland.btnShadow === 'none'],
+  ['CustomElement: shadow root carries both style nodes + law paints inside', facts.shadowDom !== null && facts.shadowDom.styleNodes === 2 && facts.shadowDom.btnShadow !== 'none' && facts.shadowDom.btnMinHeight === '40px' && facts.shadowDom.inputMinHeight === '40px'],
   ['B rules served inside @layer components', facts.layered],
 ];
 
@@ -173,6 +210,40 @@ await page.locator('#forms').scrollIntoViewIfNeeded();
 await page.waitForTimeout(400);
 await page.screenshot({ path: `${OUT}/forms.png` });
 console.log(`screenshots: ${OUT}/page-top.png, ${OUT}/forms.png`);
+
+// ---- auto-dark round: emulate prefers-color-scheme: dark and mount a
+// .jx-auto-dark island — the GENERATED Part D must flip tokens with
+// zero JS (completion round, Owner goal)
+await page.emulateMedia({ colorScheme: 'dark' });
+await page.evaluate(() => {
+  const host = document.createElement('div');
+  host.className = 'jx-auto-dark jx-pure';
+  host.id = 'verify-auto-dark';
+  host.innerHTML = '<input type="text" placeholder="auto dark lane">';
+  document.body.appendChild(host);
+});
+await page.waitForTimeout(300);
+const ad = await page.evaluate(() => {
+  const host = document.querySelector('#verify-auto-dark');
+  const lane = host.querySelector('input');
+  return {
+    // nothing paints the host div itself — the B4 box law paints the
+    // lane, so THAT computed background proves the token flip
+    bg: getComputedStyle(lane).backgroundColor,
+    scheme: getComputedStyle(lane).colorScheme,
+  };
+});
+await page.evaluate(() => document.querySelector('#verify-auto-dark').remove());
+await page.emulateMedia({ colorScheme: null });
+const adChecks = [
+  ['auto-dark: tokens flip under emulated dark (zero JS)', ad.bg === 'rgb(0, 0, 0)'],
+  ['auto-dark: scope-root companion paints the scheme', ad.scheme === 'dark'],
+];
+for (const [name, ok] of adChecks) {
+  console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}`);
+  if (!ok) failed++;
+}
+console.log('auto-dark facts:', ad);
 
 // ---- R1 round (Codex r2): the full-stillness contract under
 // prefers-reduced-motion — engine pseudos in a shared selector list

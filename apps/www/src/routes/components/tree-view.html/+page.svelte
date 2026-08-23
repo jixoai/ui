@@ -23,7 +23,6 @@
   import ComponentCanvas, { type TreeFile } from '$lib/ui/component-canvas.svelte';
   import NativeSelect from '$lib/ui/native-select.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import Toc from '$lib/ui/toc.svelte';
   import TreeView, { type TreeItemCtx, type TreeNode } from '$lib/ui/tree-view.svelte';
   import TreeViewMulti from '$lib/ui/tree-view-multiselect.svelte';
   import Avatar from '$lib/ui/avatar.svelte';
@@ -328,11 +327,6 @@ ${close}
   ];
 
   // ToC outline: pairs with the region ids below, in page order.
-  const tocSections = [
-    { id: 'tree-view-effects', label: 'the seven effects' },
-    { id: 'tree-view-extensions', label: 'suffix actions & disabled' },
-    { id: 'tree-view-law', label: 'the tree keyboard contract' },
-  ];
 </script>
 
 <svelte:head>
@@ -386,10 +380,6 @@ ${close}
 <div
   class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
 >
-  <!-- ToC rail: desktop sticky right column, mobile glass row (toc.css) -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
   <!-- page head -->

@@ -64,7 +64,8 @@ ${close}
   <!-- ToC rail — the LIVE component itself: aside precedes the content in the
        DOM, desktop sticky right column, mobile the glass single-row bar.
        Inside this site's scaffold the rail AUTO-MOUNTS into .jx-top-layer
-       (jx-top-layer context) — topLayer={false} would keep it in flow. -->
+       authored in the scaffold's `chrome` snippet — SSR-rendered in its
+       final grid cell, never moved by hydration. -->
   <aside class="jx-toc-aside" aria-label="On this page">
     <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
   </aside>
@@ -160,7 +161,7 @@ ${close}
             the whole rail is adopted into the scaffold's top layer as a live node — it can never
             render under later siblings or the opaque header band, and it rides the immersive
             hide/reveal with the header. No scaffolding around? The in-flow behavior above, exactly.
-            Embedded demos opt out with <code class="text-accent">topLayer=&#123;false&#125;</code>.
+            Embedded demos simply render the toc inline — no shell chrome, no grid contract.
           </p>
         </section>
       </article>

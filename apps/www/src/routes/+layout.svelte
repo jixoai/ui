@@ -1,6 +1,7 @@
 <script lang="ts">
     import { catalogByGroup, CATALOG } from '$lib/catalog';
   import ComponentTreeNav from '$lib/ui/component-tree-nav.svelte';
+  import Toc, { type TocSection } from '$lib/ui/toc.svelte';
   import '../app.css';
   // scrollbar law (2026-08-22): side-effect probe publishes the measured
   // per-OS scrollbar widths (--jx-scrollbar-thin/auto) feeding the theme's
@@ -247,6 +248,14 @@
   // "components exist but the menu never showed them" cannot recur.
   // antd taxonomy groups; desktop mega panel auto-fills columns from
   // the same data, mobile nests disclosure groups.
+  // Route-level toc policy (Codex firstpaint review): pages ship their
+  // sections as PAGE DATA (+page.ts load) — the layout owns ONE toc in
+  // the scaffold's chrome snippet, SSR-rendered in its final cell.
+  // undefined = no toc on this route; an array = explicit sections
+  // (exact parity with the retired per-page authoring); 'outline' =
+  // self-derive from main#main headings (future per-page migration).
+  const pageToc = $derived(page.data.toc as TocSection[] | 'outline' | undefined);
+
   const items = $derived([
     { href: '/', label: 'Overview', active: normalized === '/' },
     {
@@ -283,7 +292,18 @@
 </script>
 
 <WebsiteScaffold>
-  <ComponentTreeNav />
+  {#snippet chrome()}
+    <!-- static chrome (SSR-stable): the catalog tree + the page toc —
+         authored in their final grid cells from the first paint -->
+    <ComponentTreeNav />
+    {#if pageToc}
+      <Toc
+        {...(Array.isArray(pageToc) ? { sections: pageToc } : { outline: { root: '#main' } })}
+        title="on this page"
+        scrollRoot=".jx-shell-body"
+      />
+    {/if}
+  {/snippet}
   {#snippet header()}
     <TerminalHeader
       bind:this={headerRef}
