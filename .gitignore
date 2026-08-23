@@ -1,5 +1,5 @@
-.agents/images/
-.agents/downloads/
+.agents/
+!.agents/skills/
 public/
 node_modules/
 
