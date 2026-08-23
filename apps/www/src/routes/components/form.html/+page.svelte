@@ -570,17 +570,17 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
 >
   <!-- ToC rail (2026-08-20): aside precedes main content in the DOM —
        desktop sticky right column, mobile the glass single-row bar pinned
        under the scaffold header (height 0, see toc.css); the content
        column reserves the rail clearance with its mobile top padding -->
-  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+  <aside class="jx-toc-aside" aria-label="On this page">
     <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
   </aside>
 
-  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
+  <div class="flex min-w-0 flex-col gap-8">
   <!-- page head -->
   <div data-reveal="" use:reveal>
     <SectionCard

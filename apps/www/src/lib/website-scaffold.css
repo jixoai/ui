@@ -1,62 +1,227 @@
 /**
- * jixoai page scaffold styles (registry/files/ui/website-scaffold.css).
- * Import once per site alongside app-shell.svelte.
+ * jixoai website scaffold styles (registry/files/ui/website-scaffold.css).
+ * Import once per site alongside website-scaffold.svelte.
  *
- * SPA view-transition system (Plan A, 2026-08-21 — openspecui tab-carousel
- * port): the app routes client-side; every navigation runs through
- * document.startViewTransition with an intent dataset on <html>
- * (data-vt-kind="page-carousel", data-vt-direction="forward|backward").
- *  - the sticky header band is "site-header" and persists untouched;
- *  - the ACTIVE nav pill is "vt-nav-active" and MORPHS between pages
- *    (the indicator slides along the header, 450ms — the slowest layer);
- *  - the main column is "page-main" and slides horizontally with an
- *    asymmetric travel (incoming 136px, outgoing 112px), scale(0.985),
- *    blur(4px), and a soft reveal mask — keyframe values ported from
- *    openspecui's vt-tab-* set;
- *  - reduced motion degrades to a plain crossfade.
+ * Grid architecture (Owner + Codex review, 2026-08-23 — supersedes the
+ * 2026-08-21 absolute-overlay plane). THE container is .jx-shell-host;
+ * every form below is a container query on it, so the scaffold is
+ * embeddable and its layers can never desync from the pages they frame:
+ *
+ *   .jx-shell-host (container: jx-shell, inline-size)
+ *   .jx-shell      grid: columns per form, ONE row; both layers span
+ *                  everything (line placement, never areas — see the
+ *                  component header comment)
+ *   .jx-top-layer  column-subgrid + own rows/areas per form; chrome plane
+ *   .jx-shell-body column-subgrid only; the scroller; chrome reserved by
+ *                  padding driven by --jx-header-h (the one measurement)
+ *
+ * SPA view-transition system (Plan A, 2026-08-21 — unchanged): the header
+ * band is "site-header" and persists; the ACTIVE nav pill is
+ * "vt-nav-active" and morphs between pages; the main column is
+ * "page-main" and slides with an asymmetric travel + blur + reveal mask;
+ * reduced motion degrades to a plain crossfade.
  */
 
-/* overlay architecture (Owner, 2026-08-21): the shell is a fixed-height
-   viewport; the header overlays the body, the body owns the scrolling and
-   reserves a measured padding-top for the band — no sticky geometry. */
-.jx-shell {
-  height: 100vh;
-  height: 100dvh;
-  position: relative;
+/* ── the shell grid ── */
+.jx-shell-host {
+  container-type: inline-size;
+  container-name: jx-shell;
+  block-size: 100vh;
+  block-size: 100dvh;
   overflow: clip;
 }
-.jx-top-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 40;
-  transition: transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+
+.jx-shell {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  block-size: 100%;
+
+  /* base form (<900): content only. Shared vars live here so both layers
+     and every descendant read ONE truth:
+     --jx-header-h     measured (scaffold script) — the header band height
+     --jx-chrome-bar   the single-row chrome bar height (toc top bar, tree
+                       bottom bar — Codex r2: one constant, no scattering)
+     --jx-chrome-top   extra chrome overlaying the body top (toc bar row)
+     --jx-chrome-bottom  bottom reservation clearing the tree bar (Codex
+                       r2 P1: without it the bar covers the footer links)
+     --jx-toc-line     where pinned chrome ends; consumed as the body's
+                       scroll-padding so anchor jumps land ON the line */
+  grid-template-columns: [content-start] minmax(0, 1fr) [content-end];
+  --jx-chrome-bar: 44px;
+  --jx-chrome-top: 0px;
+  --jx-chrome-bottom: 0px;
+  --jx-line-extra: 0px;
+  --jx-toc-line: calc(
+    var(--jx-header-h, 64px) + var(--jx-chrome-top) + var(--jx-line-extra)
+  );
 }
-/* immersive: the WHOLE top plane (header + float) slides out together */
-.jx-top-layer.jx-top-layer-hidden {
-  transform: translateY(-101%);
+/* a toc is adopted → the narrow form owes it the bar row and the
+   anchor line its extra breathing room */
+.jx-shell:has(.jx-float-slot [data-area='toc']) {
+  --jx-chrome-top: 0px;
+  --jx-line-extra: 32px;
+}
+@container jx-shell (max-width: 899.9px) {
+  .jx-shell:has(.jx-float-slot [data-area='toc']) {
+    --jx-chrome-top: var(--jx-chrome-bar);
+  }
+}
+/* a tree is adopted on the bar forms → the body clears its bottom bar
+   (the expanded panel is an overlay and needs no reservation) */
+@container jx-shell (max-width: 1199.9px) {
+  .jx-shell:has(.jx-float-slot [data-area='tree']) {
+    --jx-chrome-bottom: calc(var(--jx-chrome-bar) + 0.75rem);
+  }
+}
+@container jx-shell (min-width: 900px) {
+  .jx-shell {
+    grid-template-columns:
+      [content-start] minmax(0, 1fr) [content-end toc-start] 15rem [toc-end];
+  }
+}
+@container jx-shell (min-width: 1200px) {
+  .jx-shell {
+    grid-template-columns:
+      [rail-start] 16rem [rail-end content-start] minmax(0, 1fr)
+      [content-end toc-start] 15rem [toc-end];
+  }
+}
+
+/* ── the chrome plane ── */
+.jx-top-layer {
+  grid-row: 1;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  /* gutter parity with .jx-shell-body's stable both-edges scrollbar
+     reservation, so the subgrid columns align across layers */
+  padding-inline: var(--jx-shell-gutter, 0px);
+
+  /* base rows: header + tocbar (auto-sized: 0 when no toc is adopted) */
+  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-areas:
+    'header'
+    'tocbar'
+    'stage';
+  pointer-events: none;
+  z-index: 40;
+}
+@container jx-shell (min-width: 900px) {
+  .jx-top-layer {
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas:
+      'header header'
+      'stage toc';
+  }
+}
+@container jx-shell (min-width: 1200px) {
+  .jx-top-layer {
+    grid-template-areas:
+      'header header header'
+      'tree stage toc';
+  }
 }
 .jx-scaffold-header {
-  position: relative;
+  grid-area: header;
+  pointer-events: auto;
 }
-@media (prefers-reduced-motion: reduce) {
-  .jx-top-layer {
-    transition: none;
-  }
-  .jx-shell-body {
-    scroll-behavior: auto;
+/* the float slot repeats the layer's whole grid so adopted nodes land in
+   its named areas through their [data-area] role */
+.jx-float-slot {
+  grid-row: 1 / -1;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-template-rows: subgrid;
+}
+.jx-float-slot > * {
+  pointer-events: auto;
+}
+
+/* role → cell resolution (one role, many cells — never per-form JS) */
+.jx-float-slot > [data-area='toc'] {
+  grid-area: tocbar;
+}
+@container jx-shell (min-width: 900px) {
+  .jx-float-slot > [data-area='toc'] {
+    grid-area: toc;
+    align-self: start;
+    /* leave room for the tree bottom bar on the medium form */
+    max-height: calc(100% - 5rem);
+    overflow: hidden auto;
   }
 }
+@container jx-shell (min-width: 1200px) {
+  .jx-float-slot > [data-area='toc'] {
+    max-height: calc(100% - 1.25rem);
+  }
+}
+.jx-float-slot > [data-area='tree'] {
+  grid-row: stage;
+  grid-column: 1 / -1;
+  align-self: end;
+}
+@container jx-shell (min-width: 1200px) {
+  .jx-float-slot > [data-area='tree'] {
+    grid-area: tree;
+    align-self: start;
+  }
+}
+.jx-float-slot > [data-area='float'] {
+  grid-area: stage;
+}
+
+/* ── the scrolling layer ── */
 .jx-shell-body {
-  height: 100%;
+  grid-row: 1;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
   overflow-y: auto;
-  /* scrollbar law: both-edges gutters — the page scroller never reflows
-     when its scrollbar appears/disappears on classic-scrollbar systems
-     (the shell paints no ring padding; main handles its own margins) */
-  scrollbar-gutter: stable both-edges;
   overscroll-behavior-y: none;
+  /* scrollbar law: both-edges gutters — the page scroller never reflows
+     when its scrollbar appears/disappears on classic-scrollbar systems */
+  scrollbar-gutter: stable both-edges;
+  /* chrome reservation: header band (+ the narrow toc bar) on top; the
+     tree bottom bar's collapsed height at the end (Codex r2 P1: without
+     it the bar covers the footer). The grid supplies columns; rows stay
+     the body's own flow (row-subgrid is disproven — see the component
+     header comment) */
+  padding-block-start: calc(var(--jx-header-h, 64px) + var(--jx-chrome-top, 0px));
+  padding-block-end: var(--jx-chrome-bottom, 0px);
+  scroll-padding-block-start: var(--jx-toc-line, 96px);
   scroll-behavior: smooth;
+}
+.jx-shell-body > main {
+  grid-column: content;
+  min-inline-size: 0;
+  /* the tree bar's bottom clearance is the body's own reservation
+     (--jx-chrome-bottom) — no per-page padding */
+}
+
+/* ── immersive: per-zone transforms (ONE state, three zones) ──
+   The plane never moves; navigation chrome leaves, the reading state
+   compacts by exactly the header band (Owner ruling, 2026-08-23). */
+.jx-scaffold-header,
+.jx-float-slot > [data-area='toc'],
+.jx-float-slot > [data-area='tree'] {
+  transition: transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
+}
+.jx-shell-host[data-hidden] .jx-scaffold-header {
+  transform: translateY(-101%);
+}
+.jx-shell-host[data-hidden] .jx-float-slot > [data-area='toc'] {
+  transform: translateY(calc(-1 * var(--jx-header-h, 64px)));
+}
+.jx-shell-host[data-hidden] .jx-float-slot > [data-area='tree'] {
+  transform: translateY(100%);
+}
+@container jx-shell (min-width: 1200px) {
+  /* the rail form is navigation chrome: it leaves WITH the header */
+  .jx-shell-host[data-hidden] .jx-float-slot > [data-area='tree'] {
+    transform: translateY(-101%);
+  }
 }
 
 .jx-skip-link {
@@ -282,8 +447,16 @@ html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transitio
   }
 }
 
-/* Reduced motion: plain crossfade, no travel, no blur, no mask. */
+/* Reduced motion: instant chrome swaps, plain crossfade pages. */
 @media (prefers-reduced-motion: reduce) {
+  .jx-scaffold-header,
+  .jx-float-slot > [data-area='toc'],
+  .jx-float-slot > [data-area='tree'] {
+    transition: none;
+  }
+  .jx-shell-body {
+    scroll-behavior: auto;
+  }
   html[data-vt-kind='page-carousel']::view-transition-old(page-main),
   html[data-vt-kind='page-carousel']::view-transition-new(page-main) {
     animation: 120ms ease-out both;

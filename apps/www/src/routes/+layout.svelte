@@ -23,7 +23,24 @@
   // Brand hue runs free: time-of-day seed + 30s auto-cycle (Owner, 2026-08-21).
   onMount(() => {
     startHueRuntime();
-    return () => stopHueRuntime();
+    // hash-link takeover (capture beats the router's bubble-phase click
+    // handler; a prevented default makes the router skip the link) +
+    // hashchange for back/forward fragment restores
+    document.addEventListener('click', onClickHashLink, true);
+    // hash arrivals (link clicks, back/forward) land precisely; fragment
+    // EXITS (Back from #anchor to the plain URL) restore position
+    // ourselves — SvelteKit skips the navigation pipeline for hash-only
+    // popstates, so afterNavigate never runs there
+    const onHashChange = () => {
+      if (location.hash) scrollToHashLine(location.hash);
+      else restoreScroll(new URL(location.href));
+    };
+    addEventListener('hashchange', onHashChange);
+    return () => {
+      stopHueRuntime();
+      document.removeEventListener('click', onClickHashLink, true);
+      removeEventListener('hashchange', onHashChange);
+    };
   });
 
   // Pages are flat files (/, /components.html, /tokens.html); prerendered
@@ -83,17 +100,83 @@
     }
   }
 
+  // Hash links must scroll the INNER container (the browser can only
+  // scroll the document — a no-op in this shell) and land exactly ON the
+  // toc line. The engine's native "scroll to fragment" computes its own
+  // offset (observed 10px past our scroll-padding, Chromium 2026-08);
+  // the hashchange ladder in scrollToHashLine corrects it without
+  // touching history — every entry stays fully native.
+  function scrollToHashLine(hash: string): void {
+    let id = '';
+    try {
+      id = decodeURIComponent(hash.slice(1));
+    } catch {
+      return; // malformed hash (truncated %-sequence) — nothing to do
+    }
+    if (!id) return;
+    // one frame: the target section must be in the DOM first
+    requestAnimationFrame(() => {
+      const target = document.getElementById(id);
+      const sc = scroller();
+      if (!target || !sc) return;
+      // neutralize scroll-behavior:smooth so every jump is instant
+      const jump = () => target.scrollIntoView({ behavior: 'instant', block: 'start' });
+      const previousBehavior = sc.style.scrollBehavior;
+      sc.style.scrollBehavior = 'auto';
+      jump();
+      requestAnimationFrame(() => jump());
+      // late re-assert: scrollIntoView honors TRANSFORMS — a target still
+      // carrying its pre-reveal rise (--reveal-rise, 10px) lands 10px low,
+      // and the engine's own fragment scroll may follow our first jump.
+      // Re-jump once entrances settle — but never fight a user who has
+      // scrolled away in the meantime (drift beyond the reveal band).
+      setTimeout(() => {
+        const line = parseInt(getComputedStyle(sc).scrollPaddingTop, 10) || 96;
+        const drift = Math.abs(target.getBoundingClientRect().top - sc.getBoundingClientRect().top - line);
+        if (drift > 1 && drift <= 12) jump();
+        sc.style.scrollBehavior = previousBehavior;
+      }, 450);
+    });
+  }
+
+  // Same-hash repeat clicks only (Codex r2, P1): hand-rolled pushState
+  // for hash changes grows history.length and desyncs SvelteKit's
+  // history index — Back returns the plain URL but the scroller stays at
+  // the anchor. So we NEVER pushState: different-hash clicks go to the
+  // router untouched (a fully native entry; the hashchange ladder lands
+  // precisely), and we intercept ONLY the same-hash case — mirroring
+  // SvelteKit's own no-history handling of it, minus its imprecise
+  // scrollIntoView.
+  const onClickHashLink = (event: MouseEvent) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const anchor = (event.target as HTMLElement | null)?.closest?.('a[href^="#"]');
+    if (!anchor) return;
+    const href = anchor.getAttribute('href');
+    if (!href || href.length < 2) return; // bare "#"
+    if (location.hash !== href) {
+      // different hash → the router's path. But hash-only navigations
+      // never fire onNavigate (Codex r3), so the plain URL's position
+      // would never be captured — Back could only restore 0. Capture it
+      // NOW; the fragment-exit branch of onHashChange restores it.
+      captureScroll(page.url);
+      return;
+    }
+    let id = '';
+    try {
+      id = decodeURIComponent(href.slice(1));
+    } catch {
+      return;
+    }
+    if (!id || !document.getElementById(id)) return;
+    event.preventDefault();
+    scrollToHashLine(href);
+  };
+
   function restoreScroll(url: URL): void {
     const el = scroller();
     if (!el) return;
     if (url.hash) {
-      // hash links must scroll the inner container themselves — the
-      // browser can only scroll the document, a no-op in this shell.
-      // One frame: the target section must be in the DOM first.
-      const id = decodeURIComponent(url.hash.slice(1));
-      requestAnimationFrame(() => {
-        document.getElementById(id)?.scrollIntoView({ behavior: 'instant', block: 'start' });
-      });
+      scrollToHashLine(url.hash);
       return;
     }
     const stored = scrollMemory.get(scrollKey(url)) ?? readStored(scrollKey(url));

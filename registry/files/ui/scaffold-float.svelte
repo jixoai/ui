@@ -5,28 +5,32 @@
   child nodes are created here (full Svelte ownership) and adopted into
   the provider's insertion point on mount; teardown returns them.
 
-  The float rides the top layer's immersive hide/reveal together with
-  the header by construction — it lives in the same moving plane.
+  Grid era (2026-08-23): adoption takes a semantic `area` role — the
+  scaffold's grid resolves the physical cell per container form ('float'
+  = the stage area, the free-form default). The immersive law is per
+  zone; un-roled floats stay on screen by default.
 
   Consumes the shared `jx-top-layer` context (Owner request, 2026-08-23):
-  ONE adoption mechanism for the float plane — the toc's automatic
-  top-layer mount uses the same contract.
+  ONE adoption mechanism for the float plane — the toc's and tree-nav's
+  automatic top-layer mounts use the same contract.
 
   API:
-    <ScaffoldFloat>
-      …anything that should stick to the top plane…
+    <ScaffoldFloat area="float">
+      …anything that should stick to the chrome plane…
     </ScaffoldFloat>
 -->
 <script lang="ts">
   import { getContext, onMount } from 'svelte';
   import type { Snippet } from 'svelte';
-  import type { TopLayerApi } from './website-scaffold.svelte';
+  import type { TopLayerArea, TopLayerApi } from './website-scaffold.svelte';
 
   interface Props {
     children: Snippet;
+    /** semantic placement role; the shell grid resolves the cell */
+    area?: TopLayerArea;
   }
 
-  let { children }: Props = $props();
+  let { children, area = 'float' }: Props = $props();
 
   const api = getContext<TopLayerApi>('jx-top-layer');
 
@@ -37,7 +41,8 @@
     if (!contentEl) return;
     // capture: the narrowed $state can't cross the teardown closure
     const content = contentEl;
-    const release = api.adopt(content);
+    const role = area;
+    const release = api.adopt(content, { area: role });
     return () => {
       release();
       // return the nodes to the anchor so Svelte teardown finds them

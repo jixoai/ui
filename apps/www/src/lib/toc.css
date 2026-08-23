@@ -123,7 +123,7 @@
 }
 .jx-toc .jx-viewport {
   position: relative;
-  height: 44px;
+  height: var(--jx-chrome-bar, 44px);
   overflow: hidden;
   transition: height 240ms cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -150,7 +150,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  height: 44px;
+  height: var(--jx-chrome-bar, 44px);
   padding-inline: 16px 52px;
   font-family: var(--font-nav);
   font-size: 12.5px;
@@ -179,8 +179,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: var(--jx-chrome-bar, 44px);
+  height: var(--jx-chrome-bar, 44px);
   border: 0;
   outline: 1px solid color-mix(in oklab, var(--border) 25%, transparent);
   outline-offset: -1px;
@@ -229,40 +229,58 @@
   }
 }
 
-/* ── top-layer adoption (Owner request, 2026-08-23) ──
-   When the website-scaffold `jx-top-layer` context adopts this rail into
-   the float plane, the moved root carries [data-toplayer]. Mobile: pure
-   flow in the slot — the glass bar docks directly below the header band,
-   full width, and rides the immersive slide by construction (replacing
-   the sticky-in-the-scrollport approximation that slid UNDER the opaque
-   band). Desktop: the slot spans the viewport, so the rail re-takes its
-   page column from measured CSS vars published by the component
-   (--jx-toc-right / --jx-toc-w from the anchor aside, --jx-toc-top from
-   the header band's height). Plain flow + margins — no position:fixed,
-   no containing-block hazards under the slide transform. */
+/* ── surface switching ──
+   Standalone consumers (no website-scaffold): the viewport media query
+   decides. Inside the grid shell, the SHELL's container form is the
+   truth — the two @container blocks re-assert the pair and win by source
+   order, so an embedded narrow shell shows the narrow surface even in a
+   wide window (and the 900–1024 desync era is structurally gone). */
+@container jx-shell (max-width: 899.9px) {
+  .jx-toc .jx-toc-desktop {
+    display: none;
+  }
+  .jx-toc .jx-toc-mobile {
+    display: block;
+  }
+}
+@container jx-shell (min-width: 900px) {
+  .jx-toc .jx-toc-desktop {
+    display: block;
+  }
+  .jx-toc .jx-toc-mobile {
+    display: none;
+  }
+}
+
+/* ── top-layer adoption, grid era (2026-08-23) ──
+   The scaffold's grid places the adopted root through its [data-area]
+   role — no measured vars, no JS geometry. The toc only adds its own
+   breathing room inside the cell. The authoring anchor aside exists to
+   HOST the toc: once the rail is adopted away the aside is empty — an
+   empty landmark is a11y pollution, so it collapses. Standalone asides
+   (toc never adopted) always match :has(> .jx-toc) and stay visible. */
+/* support floor: :has() is Baseline (2023-12) — the whole shell already
+   requires subgrid + container queries, so no JS fallback is provided;
+   engines below the floor keep a 0-height empty aside (invisible, but
+   the landmark persists — accepted under the same floor). */
+aside.jx-toc-aside:not(:has(> .jx-toc)) {
+  display: none;
+}
 @media (min-width: 900px) {
   .jx-toc[data-toplayer] {
-    margin-left: auto;
-    margin-right: var(--jx-toc-right, 2rem);
-    width: var(--jx-toc-w, 15rem);
-    margin-top: 20px;
-    max-height: calc(100dvh - var(--jx-toc-top, 96px) - 20px);
+    margin: 1.25rem 0 0 1.25rem;
   }
 }
 
 /* ── the named line law (Owner, 2026-08-21) ──
    --jx-toc-line is THE single source of truth for "where pinned content
-   ends". The toc component publishes it (measured: overlay-stack bottom
-   + 2em). The scroll CONTAINER consumes it via scroll-padding-top, so
-   anchor jumps land targets with their region top exactly on the line.
-   Do NOT also set scroll-margin on the targets for the same container:
-   the two properties stack and the landing doubles past the line.
-   Window-scrolled consumers (no .jx-shell-body) keep their own local
-   scroll-margin rule instead. The engine's line getter reads the same
-   measurement, so algorithm and landing can never drift. */
+   ends". Inside the grid shell the BODY's scroll-padding-top carries it
+   (website-scaffold.css derives it from the measured header height +
+   the toc bar row; the toc engine reads the resolved value). The :root
+   default below serves standalone consumers only: they keep their own
+   local scroll-margin rules instead. Do NOT also set scroll-margin on
+   the targets for the same container: the two properties stack and the
+   landing doubles past the line. */
 :root {
   --jx-toc-line: 76px;
-}
-.jx-shell-body {
-  scroll-padding-top: var(--jx-toc-line);
 }

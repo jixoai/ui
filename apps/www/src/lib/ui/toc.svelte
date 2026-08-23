@@ -20,15 +20,13 @@
     - Place the wrapping <aside> BEFORE main content in the DOM; position
       it with your page grid (desktop right column, sticky; mobile sticky
       with height: 0 — see README).
-    - Top-layer auto-mount (Owner request, 2026-08-23): "I noticed some
-      pages' ToC is not mounted in the website's dedicated topLayer.
-      Automate this: via the Context mechanism — if a topLayer exists,
-      the ToC automatically uses it; a prop can disable this." Inside a
-      website-scaffold the rail adopts itself into .jx-top-layer through
-      the `jx-top-layer` context (never under later siblings or the
-      header band; rides the immersive hide/reveal with the header).
-      topLayer={false} opts out (embedded demos); with NO scaffold
-      context the classic in-flow behavior is unchanged.
+    - Top-layer auto-mount (Owner request, 2026-08-23): "if a topLayer
+      exists, the ToC automatically uses it; a prop can disable this."
+      Inside a website-scaffold the rail adopts itself with the area role
+      'toc' — the scaffold's grid resolves its cell per container form;
+      the immersive law keeps it on screen (it compacts under the header
+      instead of leaving). topLayer={false} opts out (embedded demos);
+      with NO scaffold context the classic in-flow behavior is unchanged.
 -->
 <script lang="ts">
   import { getContext, untrack } from 'svelte';
@@ -61,11 +59,13 @@
   /** The website-scaffold top-layer adoption contract — STRUCTURAL on
    *  purpose: the toc ships standalone in the registry and must not
    *  depend on website-scaffold at build time; the shapes are identical
-   *  (see website-scaffold's exported TopLayerApi). */
+   *  (see website-scaffold's exported TopLayerApi). Grid era: adoption
+   *  carries a semantic area role; the scaffold's grid resolves the
+   *  physical cell per container form. */
   interface TopLayerApi {
-    /** Adopt a live DOM node into the scaffold's top layer; the returned
-     *  fn releases it. */
-    adopt: (node: HTMLElement) => () => void;
+    /** Adopt a live DOM node into the scaffold's top layer with an area
+     *  role; the returned fn releases it. */
+    adopt: (node: HTMLElement, opts?: { area?: 'toc' | 'tree' | 'float' }) => () => void;
   }
 
   interface Props {
@@ -132,6 +132,10 @@
   // ownership, listeners, bound refs and the engine below all survive the
   // re-parent untouched. The engine reads region rects from the body and
   // scroll offsets from the scroll root; neither moves.
+  // Grid era (2026-08-23): adoption carries the semantic role 'toc'; the
+  // scaffold's grid resolves the physical cell per container form. ALL
+  // measured geometry sync (--jx-toc-right/-w/-top + the resize/layout
+  // watchers) is gone — placement is declarative now.
   const topLayerApi = getContext<TopLayerApi>('jx-top-layer');
 
   $effect(() => {
@@ -142,54 +146,12 @@
     // the flush loop exceeds update depth and kills the page runtime
     // (the playCanvas-bindings-dead report, 2026-08-23)
     return untrack(() => {
-    // the anchor aside keeps the authoring position (grid column) — the
-    // horizontal geometry source after the move; `home` is the return
-    // ticket so teardown/hot-reload/route change never leaks a moved node
-    const anchorAside = el.closest('aside');
-    const home = el.parentElement;
-    el.dataset.toplayer = '';
-
-    // Desktop re-anchoring: the float slot spans the viewport, so the
-    // rail re-takes its column from measured CSS vars (the aside's right
-    // edge + width; the header band's height for the top gap). Only
-    // horizontal boxes are read — scroll- and immersive-slide-invariant.
-    // Mobile needs no geometry: flow in the slot docks the glass bar
-    // directly below the header band.
-    const syncGeometry = () => {
-      const asideRect = anchorAside?.getBoundingClientRect();
-      if (asideRect) {
-        el.style.setProperty('--jx-toc-right', `${Math.max(0, innerWidth - asideRect.right)}px`);
-        el.style.setProperty('--jx-toc-w', `${asideRect.width}px`);
-      }
-      const header = document.querySelector<HTMLElement>('.jx-scaffold-header');
-      el.style.setProperty(
-        '--jx-toc-top',
-        `${Math.round(header?.getBoundingClientRect().height ?? 64) + 20}px`,
-      );
-    };
-    syncGeometry();
-    let raf = 0;
-    const onResize = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0; // reset BEFORE syncing — a stale handle would dead-loop every later resize (Codex r1)
-        syncGeometry();
-      });
-    };
-    addEventListener('resize', onResize, { passive: true });
-    // non-window layout changes: the aside's grid column can re-flow and
-    // the header band can grow/shrink (mobile disclosure) without any
-    // window resize event
-    const layoutWatch = new ResizeObserver(onResize);
-    if (anchorAside) layoutWatch.observe(anchorAside);
-    const headerEl = document.querySelector<HTMLElement>('.jx-scaffold-header');
-    if (headerEl) layoutWatch.observe(headerEl);
-
-      const release = topLayerApi.adopt(el);
+      // `home` is the return ticket so teardown/hot-reload/route change
+      // never leaks a moved node
+      const home = el.parentElement;
+      el.dataset.toplayer = '';
+      const release = topLayerApi.adopt(el, { area: 'toc' });
       return () => {
-        removeEventListener('resize', onResize);
-        layoutWatch.disconnect();
-        if (raf) cancelAnimationFrame(raf);
         release();
         delete el.dataset.toplayer;
         // return the node to its authoring parent so Svelte teardown
@@ -199,22 +161,26 @@
     });
   });
 
-  // Live line (Owner fix, 2026-08-21): the old constant 76px assumed the
-  // legacy sticky rail (top:0, 44px tall). In the overlay shell the line
-  // must sit at the bottom of whatever top-layer stack covers the content
-  // column + 2em: on mobile that is this glass rail itself; on desktop the
-  // scaffold header band. The same value is published as --jx-toc-line so
-  // anchor scroll-margin lands headings exactly ON the line — then the
-  // margin-resolves-downward law picks the jumped entry deterministically.
+  // Live line: WHERE pinned chrome ends. Inside the grid shell this reads
+  // the body's resolved scroll-padding — the shell owns the single truth
+  // (--jx-toc-line derives from the measured header height + the toc bar
+  // row; website-scaffold.css). Standalone consumers (no shell) keep the
+  // legacy measurement: mobile = this glass rail's bottom, desktop = the
+  // header band's bottom, + 32px breathing room. The engine's line getter
+  // and the anchor landing share one value, so algorithm and landing can
+  // never drift.
   const tocLine = () => {
+    const shellBody = document.querySelector<HTMLElement>('.jx-shell-body');
+    if (shellBody) {
+      const line = parseInt(getComputedStyle(shellBody).scrollPaddingTop, 10);
+      if (Number.isFinite(line) && line > 0) return line;
+    }
     const mobile = innerWidth < 900;
     const anchor = mobile
       ? (viewport as HTMLElement | null)
       : (document.querySelector('.jx-scaffold-header') as HTMLElement | null);
     const rect = anchor?.getBoundingClientRect();
-    const line = rect ? Math.round(rect.bottom) + 32 : mobile ? 76 : 106;
-    document.documentElement.style.setProperty('--jx-toc-line', `${line}px`);
-    return line;
+    return rect ? Math.round(rect.bottom) + 32 : mobile ? 76 : 106;
   };
 
   // outline derivation (client-only; SSR renders the empty rail and this

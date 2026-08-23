@@ -1,51 +1,63 @@
 <!--
   jixoai website scaffold (registry/files/ui/website-scaffold.svelte).
-  Layered overlay architecture (Owner, 2026-08-21):
+  Grid architecture (Owner + Codex review, 2026-08-23 — supersedes the
+  2026-08-21 overlay plane):
 
-    .jx-shell                 h-100dvh relative
-    ├── .jx-top-layer         absolute overlay, z-40 — moves as ONE unit:
-    │   ├── scaffold-header   the nav band
-    │   └── scaffold-float    docked to the top layer's flow (ToC rail,
-    │                          mobile glass bar, …) — sticks visually
-    │                          because the top layer is the scroll-free
-    │                          plane over the scrolling body
-    └── .jx-shell-body        the scroll container (overflow-y auto):
-        ├── main#main
-        └── footer
+    .jx-shell-host      the named container (container-type: inline-size,
+                        container-name: jx-shell) — the ONE responsive
+                        truth source; forms switch on ITS width, so the
+                        scaffold is embeddable (a narrow host shows the
+                        narrow form inside a wide window)
+    .jx-shell           one grid; both layers overlap by spanning all
+                        columns of row 1 (line placement — NEVER
+                        grid-template-areas on the shell: an areas string
+                        pins its named area to the first column only)
+    .jx-top-layer       column-subgrid + own rows/areas per form; the
+                        click-through chrome plane (pointer-events none,
+                        children opt back in); per-zone immersive
+                        transforms — the plane itself never moves
+    .jx-shell-body      column-subgrid ONLY (row-subgrid disproven by a
+                        live Chromium test: tall main overflows the page
+                        track and overlaps the footer); the scroll
+                        container; reserves chrome via padding driven by
+                        the single measured var --jx-header-h
 
-  The body reserves a measured padding-top for the header band
-  (ResizeObserver-tracked; the mobile disclosure row re-reserves on
-  grow/shrink). Immersive behavior moves the WHOLE top layer: scrolling
-  DOWN slides it out (translateY -101%) — header and float leave
-  together; the slightest scroll UP slides it back; the body top always
-  shows it. Reduced motion swaps to instant.
+  Forms (container queries on jx-shell; areas on the top layer):
+    >=1200px  cols [rail 16rem][content 1fr][toc 15rem]   tree nav rail
+    900–1199  cols [content 1fr][toc 15rem]                tree bottom bar
+    <900      cols [content] + tocbar row under the header tree bottom bar
 
-  The float slot is provider-style (like shadcn Dialog's portal): the
-  scaffold owns the insertion point, consumers adopt their live nodes
-  into it through the `jx-top-layer` context (Owner request, 2026-08-23:
-  "if a topLayer exists, the ToC automatically uses it; a prop can
-  disable this"). ONE adoption mechanism, many consumers — scaffold-float
-  portals arbitrary children; the toc adopts itself automatically. Both
-  ride the immersive slide by construction.
+  Immersive law (per-zone, Owner ruling 2026-08-23): scroll DOWN hides
+  navigation chrome, scroll UP reveals it, the reading state NEVER leaves:
+    header → translateY(-101%)      toc → translateY(-header-h) (compacts)
+    tree  → bar +100% / rail -101%  (css: website-scaffold.css)
+
+  The float slot spans the whole top layer as a subgrid; adopted nodes are
+  placed by their [data-area] role ('toc' | 'tree' | 'float' default) into
+  the form's named areas. Consumers keep node ownership; adopt(node,
+  { area }) returns a release fn and teardown is the consumer's job
+  (the portal component reclaims its nodes).
 
   View transitions (SPA page-carousel): the header band keeps
   view-transition-name "site-header" (persists across navigations);
-  main#main keeps "page-main" (slide + blur + reveal mask per
-  app-shell.css).
+  main#main keeps "page-main" (slide + blur + reveal mask per css below).
 -->
 <script lang="ts">
-  import { getContext, onMount, setContext } from 'svelte';
+  import { onMount, setContext } from 'svelte';
   import type { Snippet } from 'svelte';
 
-  /** Context contract: adopt live DOM nodes into the scaffold's top layer
-   *  (the float plane). Ordered and multi-node: adoption order is the
-   *  slot's child order. Consumers keep node ownership — the returned
-   *  release fn only unregisters; reclaiming the node itself (returning
-   *  it to its authoring anchor) is the consumer's teardown job. */
+  /** Semantic placement roles for adopted float nodes. The physical grid
+   *  cell is resolved per container form by website-scaffold.css — one
+   *  role, many cells, no per-breakpoint JS. */
+  export type TopLayerArea = 'toc' | 'tree' | 'float';
+
+  /** Context contract: adopt live DOM nodes into the scaffold's top layer.
+   *  Ordered and multi-node: adoption order is the slot's child order.
+   *  Consumers keep node ownership — the returned release fn only
+   *  unregisters; reclaiming the node itself (returning it to its
+   *  authoring anchor) is the consumer's teardown job. */
   export interface TopLayerApi {
-    /** Adopt a live DOM node into the top layer; the returned fn
-     *  releases it (the portal component reclaims its nodes). */
-    adopt: (node: HTMLElement) => () => void;
+    adopt: (node: HTMLElement, opts?: { area?: TopLayerArea }) => () => void;
   }
 
   interface Props {
@@ -57,30 +69,35 @@
   let { header, children, footer }: Props = $props();
 
   // float plane state — the ORDERED set of adopted nodes (scaffold-float
-  // portals, the toc self-adopts; the slot renders them in adoption order)
-  let floatNodes = $state<HTMLElement[]>([]);
+  // portals, the toc and tree-nav self-adopt; the slot renders them in
+  // adoption order)
+  let floatNodes = $state<{ node: HTMLElement; area: TopLayerArea }[]>([]);
   setContext<TopLayerApi>('jx-top-layer', {
-    adopt: (node) => {
-      floatNodes = [...floatNodes.filter((n) => n !== node), node];
+    adopt: (node, opts) => {
+      const area = opts?.area ?? 'float';
+      floatNodes = [...floatNodes.filter((n) => n.node !== node), { node, area }];
+      node.dataset.area = area;
       return () => {
-        floatNodes = floatNodes.filter((n) => n !== node);
+        floatNodes = floatNodes.filter((n) => n.node !== node);
+        delete node.dataset.area;
       };
     },
   });
 
+  let hostEl = $state<HTMLElement | null>(null);
   let headerEl = $state<HTMLElement | null>(null);
   let floatSlotEl = $state<HTMLElement | null>(null);
   let bodyEl = $state<HTMLElement | null>(null);
   let hidden = $state(false);
 
   // float adoption: move the adopted live nodes into the top-layer slot,
-  // in adoption order (an appendChild/insertBefore re-run is a no-op once
-  // every node already sits at its index)
+  // in adoption order (an insertBefore re-run is a no-op once every node
+  // already sits at its index)
   $effect(() => {
     if (!floatSlotEl) return;
     // capture: the narrowed $state can't cross the forEach closure
     const slot = floatSlotEl;
-    floatNodes.forEach((node, i) => {
+    floatNodes.forEach(({ node }, i) => {
       const current = slot.children[i];
       if (current === node) return;
       slot.insertBefore(node, current ?? null);
@@ -88,31 +105,48 @@
   });
 
   onMount(() => {
-    // reserve exactly the header's height (incl. the mobile disclosure
-    // row) as the body's top padding — the overlay never covers content
+    if (!hostEl || !headerEl || !bodyEl) return;
+    const host = hostEl;
+    const body = bodyEl;
+    const band = headerEl;
+
+    // THE single layout measurement left in the shell (Codex r1): the
+    // header band's live height, published as --jx-header-h. Everything
+    // else derives from it in CSS — body reservation, the toc compaction
+    // offset and the shared --jx-toc-line. (The old paddingTop
+    // reservation and the toc's three measured vars are gone.)
     let reserved = -1;
+    let reservedGutter = -1;
     const reserve = () => {
-      if (!headerEl || !bodyEl) return;
-      const h = headerEl.offsetHeight;
+      const h = band.offsetHeight;
       if (h !== reserved) {
         reserved = h;
-        bodyEl.style.paddingTop = `${h}px`;
+        host.style.setProperty('--jx-header-h', `${h}px`);
+      }
+      // gutter parity: the body reserves both-edge scrollbar gutters; the
+      // top layer must reserve the same inline padding or the subgrid
+      // columns drift apart on classic-scrollbar systems
+      const gutter = body.offsetWidth - body.clientWidth;
+      if (gutter !== reservedGutter) {
+        reservedGutter = gutter;
+        host.style.setProperty('--jx-shell-gutter', `${gutter / 2}px`);
       }
     };
     const ro = new ResizeObserver(reserve);
-    if (headerEl) ro.observe(headerEl);
+    ro.observe(band);
+    ro.observe(body);
     reserve();
 
-    // immersive hide/reveal driven by the BODY's own scroll; the WHOLE
-    // top layer (header + float) moves as one unit
-    let lastY = bodyEl?.scrollTop ?? 0;
+    // immersive hide/reveal driven by the BODY's own scroll; ONE state,
+    // per-zone transforms (header/tree leave, toc compacts — see css)
+    let lastY = body.scrollTop;
     let raf = 0;
     const THRESHOLD = 8;
     const onScroll = () => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
-        const y = bodyEl?.scrollTop ?? 0;
+        const y = body.scrollTop;
         const delta = y - lastY;
         lastY = y;
         if (y <= THRESHOLD) {
@@ -123,33 +157,36 @@
         else if (delta < -THRESHOLD) hidden = false;
       });
     };
-    bodyEl?.addEventListener('scroll', onScroll, { passive: true });
+    body.addEventListener('scroll', onScroll, { passive: true });
 
     return () => {
       ro.disconnect();
-      bodyEl?.removeEventListener('scroll', onScroll);
+      body.removeEventListener('scroll', onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
   });
 </script>
 
-<div class="jx-shell flex min-h-svh flex-col bg-background text-foreground">
+<div class="jx-shell-host" bind:this={hostEl} data-hidden={hidden || undefined}>
   <a href="#main" class="jx-skip-link">Skip to content</a>
 
-  <div class="jx-top-layer" class:jx-top-layer-hidden={hidden}>
-    <div class="jx-scaffold-header" bind:this={headerEl}>
-      {@render header()}
+  <div class="jx-shell">
+    <div class="jx-shell-body" bind:this={bodyEl}>
+      <main id="main" class="jx-page-main flex-1">
+        {@render children()}
+      </main>
+      {#if footer}
+        {@render footer()}
+      {/if}
     </div>
-    <!-- float plane insertion point: portal nodes are adopted here -->
-    <div class="jx-float-slot" bind:this={floatSlotEl}></div>
-  </div>
 
-  <div class="jx-shell-body" bind:this={bodyEl}>
-    <main id="main" class="jx-page-main flex-1">
-      {@render children()}
-    </main>
-    {#if footer}
-      {@render footer()}
-    {/if}
+    <div class="jx-top-layer">
+      <div class="jx-scaffold-header" bind:this={headerEl}>
+        {@render header()}
+      </div>
+      <!-- float plane: spans the whole layer as a subgrid; adopted nodes
+           land in named areas through their [data-area] role -->
+      <div class="jx-float-slot" bind:this={floatSlotEl}></div>
+    </div>
   </div>
 </div>
