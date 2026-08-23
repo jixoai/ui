@@ -20,6 +20,9 @@
      the FormData constructor to collect the stored contributions of
      jx-form-field descendants of the given form — exactly the platform
      seam the form-field bridge rides, nothing more.
+  5. WAAPI — Element#animate + animation.finished for the press-button
+     ripple ink lifecycle: finished resolves after the requested
+     duration, mirroring the browser's clearing cadence.
 
   The polyfill mirrors the ORDER of the platform where it matters to the
   components: the toggle event fires synchronously inside show/hide, and
@@ -140,6 +143,33 @@ document.addEventListener('keydown', (event) => {
     if (isOpen(panel)) panel.hidePopover();
   }
 });
+
+// ---- 2b. WAAPI (jsdom gap) ---------------------------------------------------
+// press-button's ripple ink is driven by Element#animate and leaves the
+// DOM on animation.finished. jsdom ships no WAAPI; this stub resolves
+// finished after the requested duration (the lifecycle specs observe the
+// same clearing cadence as the browser) and tolerates cancel().
+if (typeof Element.prototype.animate !== 'function') {
+  type StubAnimation = Pick<Animation, 'finished' | 'cancel'>;
+  const animate = function (
+    _keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
+    options?: number | KeyframeAnimationOptions
+  ): StubAnimation {
+    const duration = typeof options === 'number' ? options : options?.duration;
+    const ms = typeof duration === 'number' ? duration : 0;
+    return {
+      finished: new Promise<void>((resolve) => {
+        setTimeout(resolve, ms);
+      }),
+      cancel() {},
+    };
+  };
+  Object.defineProperty(Element.prototype, 'animate', {
+    value: animate,
+    writable: true,
+    configurable: true,
+  });
+}
 
 // ---- 3. scrollIntoView (no layout in jsdom → no-op) -------------------------
 if (!window.Element.prototype.scrollIntoView) {

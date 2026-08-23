@@ -9,11 +9,12 @@
 
   One opt-in effect loop per button, modeled on the animation-svelte
   reference (github.com/SikandarJODD/animations, 2026-08-23 user
-  request): shimmer (a conic spark walks the perimeter), pulse (sonar
-  rings from the body's own silhouette), rainbow (a blended aurora
-  wash on three prime timelines), ripple (ink circles from the
-  activation point). Effects are typed builders exported from the
-  module script:
+  request): shimmer (a conic spark walks the perimeter, additive
+  plus-lighter — Owner polish), pulse (sonar rings from the body's own
+  silhouette), rainbow (a blended aurora wash on three prime
+  timelines), ripple (ink from the activation point — WAAPI-driven,
+  removed on animation.finished, round or bevel/diamond silhouette).
+  Effects are typed builders exported from the module script:
 
     import PressButton, { shimmer, pulse, rainbow, ripple }
       from '@ui/press-button.svelte';
@@ -106,15 +107,31 @@
     color?: string;
     /** one ink expansion, in ms */
     duration?: number;
+    /** the ink silhouette — round pins against the site-wide bevel law;
+     *  bevel cuts the corners into a diamond (a 45° square where
+     *  corner-shape is unsupported — the same shape to the eye) */
+    shape?: 'round' | 'bevel';
   }
   export interface RippleEffect {
     readonly type: 'ripple';
     color: string;
     duration: number;
+    shape: 'round' | 'bevel';
   }
-  export function ripple({ color = 'currentColor', duration = 600 }: RippleOptions = {}): RippleEffect {
-    return { type: 'ripple', color, duration };
+  export function ripple({
+    color = 'currentColor',
+    duration = 600,
+    shape = 'round',
+  }: RippleOptions = {}): RippleEffect {
+    return { type: 'ripple', color, duration, shape };
   }
+
+  // corner-shape gates the bevel ink's fast path; where it's missing the
+  // flat fallback turns a square 45° — the same diamond to the eye
+  const bevelInk =
+    typeof CSS !== 'undefined' &&
+    typeof CSS.supports === 'function' &&
+    CSS.supports('corner-shape', 'bevel');
 </script>
 
 <script lang="ts">
@@ -201,7 +218,6 @@
   let ripples = $state<{ x: number; y: number; size: number; key: number }[]>([]);
   let rippleSeq = 0;
   const spawnRipple = (
-    effect: RippleEffect,
     host: HTMLElement,
     clientX: number,
     clientY: number,
@@ -215,15 +231,29 @@
     const py = fromPointer ? clientY : rect.top + rect.height / 2;
     const key = ++rippleSeq;
     ripples = [...ripples, { x: px - rect.left - size / 2, y: py - rect.top - size / 2, size, key }];
-    setTimeout(() => {
-      ripples = ripples.filter((r) => r.key !== key);
-    }, effect.duration);
   };
-  const onRippleClick = (
-    effect: RippleEffect,
-    event: MouseEvent & { currentTarget: HTMLElement }
-  ): void => {
-    spawnRipple(effect, event.currentTarget, event.clientX, event.clientY, event.detail > 0);
+  // WAAPI owns the ink lifecycle: the dot expands by script and leaves
+  // the DOM when the animation finishes — no timer racing the paint
+  const ink = (dot: HTMLElement, params: { key: number; duration: number }) => {
+    const anim = dot.animate(
+      [
+        { transform: 'scale(0)', opacity: 1 },
+        { transform: 'scale(2)', opacity: 0 },
+      ],
+      { duration: params.duration, easing: 'ease-out', fill: 'both' }
+    );
+    const clear = () => {
+      ripples = ripples.filter((r) => r.key !== params.key);
+    };
+    anim.finished.then(clear, clear);
+    return {
+      destroy() {
+        anim.cancel();
+      },
+    };
+  };
+  const onRippleClick = (event: MouseEvent & { currentTarget: HTMLElement }): void => {
+    spawnRipple(event.currentTarget, event.clientX, event.clientY, event.detail > 0);
     onclick?.();
   };
 
@@ -258,15 +288,17 @@
     aria-label={ariaLabel}
     class={classes}
     style={effectStyle || undefined}
-    onclick={effect?.type === 'ripple' ? (e) => onRippleClick(effect, e) : undefined}
+    onclick={effect?.type === 'ripple' ? onRippleClick : undefined}
   >
     {#if effect?.type === 'ripple'}
       <span class="jx-ripple-layer" aria-hidden="true">
         {#each ripples as r (r.key)}
           <span
-            class="jx-ripple-dot"
+            class="jx-ripple-dot{effect.shape === 'bevel' && !bevelInk ? ' jx-ripple-flat' : ''}"
+            data-shape={effect.shape}
             style="width:{r.size}px; height:{r.size}px; top:{r.y}px; left:{r.x}px;
-              --ripple-color:{effect.color}; --ripple-duration:{effect.duration}ms"
+              --ripple-color:{effect.color}"
+            use:ink={{ key: r.key, duration: effect.duration }}
           ></span>
         {/each}
       </span>
@@ -277,11 +309,7 @@
 {:else}
   <button
     {type}
-    onclick={
-      effect?.type === 'ripple'
-        ? (e) => onRippleClick(effect, e)
-        : onclick
-    }
+    onclick={effect?.type === 'ripple' ? onRippleClick : onclick}
     aria-label={ariaLabel}
     class={classes}
     style={effectStyle || undefined}
@@ -290,9 +318,11 @@
       <span class="jx-ripple-layer" aria-hidden="true">
         {#each ripples as r (r.key)}
           <span
-            class="jx-ripple-dot"
+            class="jx-ripple-dot{effect.shape === 'bevel' && !bevelInk ? ' jx-ripple-flat' : ''}"
+            data-shape={effect.shape}
             style="width:{r.size}px; height:{r.size}px; top:{r.y}px; left:{r.x}px;
-              --ripple-color:{effect.color}; --ripple-duration:{effect.duration}ms"
+              --ripple-color:{effect.color}"
+            use:ink={{ key: r.key, duration: effect.duration }}
           ></span>
         {/each}
       </span>
@@ -309,10 +339,11 @@
      never occluded — no content wrapper needed. */
 
   /* shimmer — a conic spark walks the perimeter (animation-svelte
-     reference): a height-sized square slides edge-to-edge (container
-     queries) while a 3× conic spark rotates in 90° steps with holds;
-     the cover re-paints the interior in the host's own fill so only
-     the border band carries light. */
+     reference, Owner polish 2026-08-23): a height-sized square slides
+     edge-to-edge (container queries) while a 3× conic spark rotates in
+     90° steps with holds. The BOX owns the clip (not the host) and
+     bleeds 1px past the border so the 2px blur keeps its edge; the
+     spark blends plus-lighter — additive light over the host fill. */
   .jx-shimmer-host {
     position: relative;
     z-index: 0;
@@ -323,9 +354,9 @@
     z-index: -2;
     container-type: size;
     filter: blur(2px);
-    pointer-events: none;
     overflow: hidden;
     mix-blend-mode: plus-lighter;
+    pointer-events: none;
   }
   .jx-shimmer-slide {
     position: absolute;
@@ -564,8 +595,11 @@
     }
   }
 
-  /* ripple — ink circles from the activation point; the layer clips
-     the ink to the body silhouette */
+  /* ripple — ink from the activation point (WAAPI drives the dot:
+     scale 0→2, opacity 1→0, removed on finished); the layer clips
+     the ink to the body silhouette. shape: round pins against the
+     site-wide bevel law; bevel cuts half-side corners into a diamond
+     (flat 45° square where corner-shape is unsupported) */
   .jx-ripple-host {
     position: relative;
     z-index: 0;
@@ -582,31 +616,31 @@
   .jx-ripple-dot {
     position: absolute;
     border-radius: 9999px;
+    /* the site-wide bevel law must not reach the ink — round is round */
+    corner-shape: round;
     background: var(--ripple-color);
-    transform: scale(0);
-    animation: jx-rippling var(--ripple-duration) ease-out forwards;
   }
-  @keyframes jx-rippling {
-    0% {
-      opacity: 1;
-    }
-    100% {
-      transform: scale(2);
-      opacity: 0;
-    }
+  .jx-ripple-dot[data-shape='bevel'] {
+    /* half-side cuts: the octagon degenerates into the diamond */
+    border-radius: 50%;
+    corner-shape: bevel;
+  }
+  .jx-ripple-dot.jx-ripple-flat {
+    /* no corner-shape support: a square turned 45° is the same diamond */
+    border-radius: 0;
+    rotate: 45deg;
   }
 
   /* effect loops under reduced motion: every loop freezes and the
      traveling light vanishes (a frozen stripe mid-surface reads as a
-     defect); the ripple is skipped in JS too */
+     defect); the ripple is skipped in JS too (WAAPI never spawns) */
   @media (prefers-reduced-motion: reduce) {
     .jx-shimmer-slide,
     .jx-shimmer-spark,
     .jx-pulse-slow,
     .jx-pulse-ring,
     .jx-pulse-ripple,
-    .jx-rainbow-host::after,
-    .jx-ripple-dot {
+    .jx-rainbow-host::after {
       animation: none;
     }
     .jx-shimmer-box,

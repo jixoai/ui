@@ -231,19 +231,56 @@ const ripple = await page.evaluate(() => {
   const r = host.getBoundingClientRect();
   const dot = host.querySelector('.jx-ripple-dot');
   const dotCs = dot ? getComputedStyle(dot) : null;
+  const anims = dot ? dot.getAnimations() : [];
+  const timing = anims[0]?.effect?.getTiming?.() ?? {};
   return {
     dots: host.querySelectorAll('.jx-ripple-dot').length,
     left: dot ? dot.style.left : 'none',
-    anim: dotCs ? dotCs.animationName : 'none',
+    shape: dot ? dot.dataset.shape : 'none',
+    corner: dotCs ? dotCs.cornerShape : 'none',
+    radius: dotCs ? dotCs.borderRadius : 'none',
+    flat: dot ? dot.classList.contains('jx-ripple-flat') : null,
+    waapiAnims: anims.length,
+    waapiDuration: timing.duration,
+    waapiEasing: timing.easing,
     expectLeft: `${Math.round(r.width / 2 - Math.max(r.width, r.height) / 2)}px`,
   };
 });
 check(
-  'ripple: press-point ink spawns and expands',
+  'ripple: press-point ink spawns, WAAPI-driven (finished-removed), round by law',
   ripple.dots >= 1 &&
     Math.abs(Number.parseFloat(ripple.left) - Number.parseFloat(ripple.expectLeft)) < 1 &&
-    /rippling/.test(ripple.anim),
+    ripple.waapiAnims >= 1 &&
+    ripple.waapiDuration === 800 &&
+    /ease-out/.test(String(ripple.waapiEasing)) &&
+    ripple.shape === 'round' &&
+    ripple.corner === 'round' &&
+    ripple.flat === false,
   JSON.stringify(ripple),
+);
+
+// the bevel silhouette: Chromium knows corner-shape — the diamond is the
+// half-side bevel cut, NOT the flat fallback. The injected probe dot must
+// carry the Svelte scoping class or the component CSS never matches it
+// (the site-wide `* { corner-shape: bevel }` would mask the result).
+const bevelInk = await page.evaluate(() => {
+  const layer = document.querySelector('.jx-ripple-layer');
+  const scope = [...layer.classList].find((c) => /^svelte-/.test(c));
+  const dot = document.createElement('span');
+  dot.className = `jx-ripple-dot ${scope ?? ''}`;
+  dot.dataset.shape = 'bevel';
+  dot.style.width = '100px';
+  dot.style.height = '100px';
+  layer.appendChild(dot);
+  const cs = getComputedStyle(dot);
+  const out = { corner: cs.cornerShape, radius: cs.borderRadius, rotate: cs.rotate };
+  dot.remove();
+  return out;
+});
+check(
+  'ripple bevel ink: corner-shape bevel at half-side radius (the diamond)',
+  bevelInk.corner === 'bevel' && bevelInk.radius === '50%' && bevelInk.rotate === 'none',
+  JSON.stringify(bevelInk),
 );
 
 // ---- variant × effect paint matrix (the r1/r2 bug class) ----

@@ -130,6 +130,57 @@ describe('press-button effects', () => {
     expect(dot.style.top).toBe('0px');
   });
 
+  it('ripple ink is WAAPI-driven: the dot animates by script with the builder duration', async () => {
+    const durations: (number | 'auto')[] = [];
+    const nativeAnimate = Element.prototype.animate;
+    Element.prototype.animate = function (
+      this: Element,
+      keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
+      options?: number | KeyframeAnimationOptions
+    ) {
+      durations.push(typeof options === 'number' ? options : (options?.duration ?? 'auto'));
+      return nativeAnimate.call(this, keyframes, options);
+    };
+    let container: HTMLElement;
+    try {
+      ({ container } = render(PressButtonHost, {
+        props: { effect: ripple({ duration: 350, shape: 'bevel' }) },
+      }));
+      const btn = container.querySelector('button')!;
+      fireEvent.click(btn, { clientX: 8, clientY: 8, detail: 1 });
+      await tick();
+      expect(durations).toEqual([350]);
+      // the expansion keyframes: scale 0→2 with opacity fading out
+      expect(container.querySelector('.jx-ripple-dot')).toBeTruthy();
+    } finally {
+      Element.prototype.animate = nativeAnimate;
+    }
+    // ink clears on finished (the setup polyfill resolves after the duration)
+    await waitFor(() =>
+      expect(container.querySelectorAll('.jx-ripple-dot')).toHaveLength(0)
+    );
+  });
+
+  it('ripple shape: round is the pinned default; bevel rides the flat fallback where corner-shape is unsupported', async () => {
+    // round — data-shape carries the choice, no fallback class
+    const round = render(PressButtonHost, { props: { effect: ripple() } });
+    fireEvent.click(round.container.querySelector('button')!, { clientX: 3, clientY: 3, detail: 1 });
+    await tick();
+    let dot = round.container.querySelector('.jx-ripple-dot') as HTMLElement;
+    expect(dot.dataset.shape).toBe('round');
+    expect(dot.className).not.toContain('jx-ripple-flat');
+    round.unmount();
+
+    // bevel — jsdom knows no corner-shape, so the diamond arrives as the
+    // 45° flat square; a corner-shape browser keeps the bevel cut instead
+    const bevel = render(PressButtonHost, { props: { effect: ripple({ shape: 'bevel' }) } });
+    fireEvent.click(bevel.container.querySelector('button')!, { clientX: 3, clientY: 3, detail: 1 });
+    await tick();
+    dot = bevel.container.querySelector('.jx-ripple-dot') as HTMLElement;
+    expect(dot.dataset.shape).toBe('bevel');
+    expect(dot.className).toContain('jx-ripple-flat');
+  });
+
   it('effects never paint the host inline — only --custom properties', () => {
     // the r1/r2 bug class (pulse white-on-white ring, rainbow hijacking
     // the fill) was born exactly here: an effect painting the host.

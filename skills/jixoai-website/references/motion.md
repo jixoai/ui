@@ -103,11 +103,12 @@ on hover and the shadow paint still anchors on active; every effect
 layer sits at negative z-index inside the host's own stacking
 context, above the fill and under the label.
 
-- `shimmer(options)` — a conic spark walks the perimeter: a
-  height-sized square slides edge-to-edge (container queries,
-  alternate) while a 3× conic arc rotates in 90° steps with holds;
-  a cover re-paints the interior so only the border band carries
-  light. Options: color / spread / cut / speed.
+- `shimmer(options)` — a conic spark walks the perimeter (Owner polish
+  2026-08-23): a height-sized square slides edge-to-edge (container
+  queries, alternate) while a 3× conic arc rotates in 90° steps with
+  holds. The BOX owns the clip and bleeds 1px past the border for the
+  2px blur; the spark blends `plus-lighter` — additive light over the
+  host fill. Options: color / spread / cut / speed.
 - `pulse(options)` — sonar rings cast by a `background: inherit`
   silhouette copy: `slow` expand-and-fade, `ring` breathe out and
   back, `ripple` eased expand-fade. Options: color / duration /
@@ -123,10 +124,15 @@ context, above the fill and under the label.
   the variant fill: `mix-blend-mode: screen` on primary, `color`
   elsewhere — the fill keeps its luminosity, the aurora brings the
   hues. Options: speed (scales all six timelines) / colors.
-- `ripple(options)` — ink circles from the exact activation point
-  (state array + keyed each, scale 0→2 with fade, cleared after the
-  duration); keyboard activation (click detail 0) ripples from the
-  center. Options: color / duration.
+- `ripple(options)` — ink from the exact activation point (Owner
+  spec 2026-08-23): WAAPI drives every dot (`scale 0→2` with fade,
+  `fill: both`) and the dot leaves the DOM on `animation.finished` —
+  no timer racing the paint. Keyboard activation (click detail 0)
+  ripples from the center. `shape: 'round'` (default) PINS
+  `corner-shape: round` on the ink against the site-wide bevel law;
+  `shape: 'bevel'` cuts half-side corners into a diamond — where
+  corner-shape is unsupported, a flat square rotated 45° carries the
+  same silhouette. Options: color / duration / shape.
 
 Reduced motion freezes every loop and hides the traveling light (a
 frozen stripe mid-surface reads as a defect); the ripple is skipped
