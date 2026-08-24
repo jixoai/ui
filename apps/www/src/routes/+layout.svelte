@@ -265,7 +265,7 @@
 
   // D8 single-active law: the Components pill owns /docs/components*;
   // every other docs route (sections/registry) lights the Docs pill
-  const isComponentsTree = normalized.startsWith('/docs/components');
+  const isComponentsTree = $derived(normalized.startsWith('/docs/components'));
   const items = $derived([
     { href: '/', label: 'Overview', active: normalized === '/' },
     {

@@ -2,38 +2,27 @@
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import OverviewCard from '$lib/overview-card.svelte';
-  import { CATALOG, catalogByGroup } from '$lib/catalog';
+  import { flatComponents, installTargets, docsComponentGroups } from '$lib/docs-route-model';
 
-  // Catalog-driven index (2026-08-22, user ruling): the page renders the
-  // FULL registry inventory (77 items) from the ONE catalog — overview,
-  // header menu, and catalog.spec.ts all derive from it, so "components
-  // exist but are not shown" can no longer happen silently. Grouping
-  // follows antd's official taxonomy (General/Layout/Navigation/Data
-  // Entry/Data Display/Feedback) + Engines & Theme + Docs Tooling.
+  // The UI-module inventory (docs-restructure r2, Codex P1-1): the page
+  // renders docsComponentGroups — registry:ui ONLY, from the ONE route
+  // model — never the raw catalog. Non-UI install targets (engines,
+  // theme, files) live on the registry overview; the recipes guide is a
+  // Sections chapter. Locked by test/docs-structure.spec.ts (the page's
+  // card set == the 73 ui names, source-guarded + dist-checked).
   //
   // Card law (2026-08-25, Owner rulings): body = ONLY the satori
   // blueprint; no hover-revealed description wing; hover never moves
   // the card (border/shadow only — the press law); the copy control is
   // the top-corner icon (tooltip carries the command).
-  const groups = $derived(catalogByGroup());
-  const uiCount = $derived(CATALOG.filter((entry) => entry.type === 'registry:ui').length);
-  const libCount = $derived(CATALOG.filter((entry) => entry.type === 'registry:lib').length);
-
-  // non-registry guide pages (deliberately OUTSIDE the catalog lock)
-  const guides = [
-    {
-      name: 'recipes',
-      href: '/docs/recipes.html',
-      summary: 'The deliberate non-components and antd concept mappings — where wrapping stops: watermark, image-preview, flex/grid, typography, mentions, tour contract.',
-    },
-  ];
+  const groups = $derived(docsComponentGroups);
 </script>
 
 <svelte:head>
   <title>Components · jixoai-ui</title>
   <meta
     name="description"
-    content="The full jixoai-ui catalog — every registry item, grouped by the antd taxonomy: General, Layout, Navigation, Data Entry, Data Display, Feedback, plus Engines & Theme and Docs Tooling. Installable with npx jixoai-ui add."
+    content="The jixoai-ui component inventory — every registry:ui module grouped by the antd taxonomy: General, Layout, Navigation, Layer, Data Entry, Data Display, Feedback. Installable with npx jixoai-ui add."
   />
 </svelte:head>
 
@@ -43,15 +32,13 @@
     <SectionCard
       headingLevel={1}
       tone="hero"
-      eyebrow="jixoai-ui"
-      title="Components — the full inventory"
-      summary="The full registry inventory, grouped by the antd taxonomy (General / Layout / Navigation / Data Entry / Data Display / Feedback) plus Engines & Theme and Docs Tooling. Every card installs with npx jixoai-ui add — nothing is hidden, nothing is invented (catalog.spec.ts locks both directions)."
+      eyebrow="jixoai-ui · docs"
+      title="Components — the UI-module inventory"
+      summary="Every registry:ui module, grouped by the antd taxonomy (General / Layout / Navigation / Layer / Data Entry / Data Display / Feedback). Non-UI registry items — the engines, the theme sheet, the file payloads — are install targets documented on the registry overview, not components."
     >
       <div class="flex flex-wrap gap-3">
-        <span class="pill">{CATALOG.length} registry items</span>
-        <span class="pill">{uiCount} components</span>
-        <span class="pill">{libCount} engines</span>
-        <span class="pill">1 theme</span>
+        <span class="pill">{flatComponents.length} ui modules</span>
+        <span class="pill">{installTargets.length} install targets → registry</span>
       </div>
     </SectionCard>
   </div>
@@ -86,24 +73,4 @@
       </CardGrid>
     </section>
   {/each}
-
-  <!-- Guides: real pages that are not registry items (outside the
-       catalog lock by definition) -->
-  <section id="guides" aria-label="guides" data-region="guides">
-    <h2
-      class="font-nav flex items-baseline gap-4 text-lg uppercase tracking-[0.3em]"
-      data-reveal=""
-    >
-      Guides
-      <span class="text-muted-foreground text-[0.8em] tracking-[0.2em]">指引</span>
-      <span class="bg-border h-px flex-1" aria-hidden="true"></span>
-    </h2>
-    <CardGrid class="mt-6">
-      {#each guides as item, index (item.name)}
-        <div data-reveal="">
-          <OverviewCard name={item.name} type="guides" summary={item.summary} href={item.href} />
-        </div>
-      {/each}
-    </CardGrid>
-  </section>
 </div>

@@ -102,6 +102,18 @@ function emitLegacyShells() {
 </html>
 `;
     writeFileSync(target, html);
+    // self-check the D1 contract at emit time (closed loop, race-free):
+    // every shell must carry all four pieces before the build continues
+    for (const piece of [
+      `http-equiv="refresh" content="0;url=${route.to}"`,
+      `rel="canonical" href="https://ui.jixoai.com${route.to}"`,
+      "noindex,follow",
+      `location.replace("${route.to}"`,
+    ]) {
+      if (!html.includes(piece)) {
+        die(`legacy shell ${route.from} lost contract piece: ${piece}`);
+      }
+    }
     emitted++;
   }
   console.log(`[build-site] legacy shells: ${emitted} emitted from the frozen map`);
@@ -163,6 +175,17 @@ function generateAiExports() {
       },
     ],
   });
+  // mirror self-check (docs-restructure r2 P1-3): every canonical UI
+  // page must have its .md mirror in the SAME generation — closes the
+  // loop at generation time, immune to the shared-worktree races
+  const registry = JSON.parse(readFileSync(path.join(repoRoot, "registry.json"), "utf8"));
+  for (const item of registry.items) {
+    if (item.type !== "registry:ui") continue;
+    const md = path.join(publicDir, item.meta.href.replace(/\.html$/, ".md").slice(1));
+    if (!existsSync(md)) {
+      die(`llms mirror missing for ${item.name}: ${md}`);
+    }
+  }
   const total = report.files.reduce((sum, file) => sum + file.bytes, 0);
   console.log(
     `[build-site] llms-txt: ${report.pages} pages → ${report.files.length} files, ${total}B total`,

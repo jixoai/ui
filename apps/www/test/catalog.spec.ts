@@ -20,6 +20,7 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { CATALOG, CATALOG_GROUPS, catalogByGroup } from '../src/lib/catalog';
+import { docsComponentGroups } from '../src/lib/docs-route-model';
 
 const repoRoot = resolve(fileURLToPath(import.meta.url), '../../../..');
 const registry = JSON.parse(
@@ -96,9 +97,13 @@ describe('catalog ↔ registry single-source derivation', () => {
     const dist = resolve(repoRoot, 'apps/www/dist/docs/components.html');
     if (existsSync(dist)) {
       const html = readFileSync(dist, 'utf8');
-      for (const id of [...CATALOG_GROUPS.map((g) => g.id), 'guides']) {
-        expect(html, `dist section #${id}`).toContain(`id="${id}"`);
+      // r2: the index page renders UI modules only (docsComponentGroups
+      // — engines has no ui members, guides is a Sections chapter now)
+      for (const { group } of docsComponentGroups) {
+        expect(html, `dist section #${group.id}`).toContain(`id="${group.id}"`);
       }
+      expect(html, 'engines section is gone').not.toContain('id="engines"');
+      expect(html, 'guides section is gone').not.toContain('id="guides"');
     }
   });
 });

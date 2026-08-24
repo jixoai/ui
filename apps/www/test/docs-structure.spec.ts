@@ -14,7 +14,7 @@
  *   - the legacy manifest covers every old /components path and points
  *     into the new tree only
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -28,6 +28,13 @@ import {
 import { CATALOG } from '../src/lib/catalog';
 
 const repoRoot = resolve(fileURLToPath(import.meta.url), '../../../..');
+
+/** pages born from the family splits (P0) — they never had old URLs */
+const SPLIT_FROM_FAMILY_PAGES = new Set([
+  'input', 'select', 'textarea', 'checkbox', 'radio', 'toggle',
+  'native-select', 'number-input', 'range', 'date-picker',
+  'color-picker', 'combobox', 'tags-input', 'scroll-virtual',
+]);
 
 describe('docs-route-model — the section spine', () => {
   it('exactly three sections: Sections / Components / Registry', () => {
@@ -114,13 +121,97 @@ describe('docs-route-model — install targets & the legacy map', () => {
     }
   });
 
-  it('the frozen legacy manifest covers old routes → new tree only', () => {
+  it('legacy manifest is the EXACT derived set (closed loop, r2 P1-3)', () => {
     const manifest = JSON.parse(readFileSync(resolve(repoRoot, 'legacy-doc-routes.json'), 'utf8'));
-    const routes: { from: string; to: string }[] = manifest.routes;
-    expect(routes.length).toBeGreaterThanOrEqual(64);
+    const routes: { from: string; to: string; preserveHash?: boolean }[] = manifest.routes;
+    // the old world is frozen history (git-time truth): the snapshot
+    // pins it EXACTLY — 59 one-to-one pages + the form/scroll hubs +
+    // the three /docs-level moves + the index. Any drift on either
+    // side (a deleted route, a hand-edit, a duplicate) fails loudly.
+    const OLD_ONE_TO_ONE = CATALOG.filter(
+      (e) =>
+        e.type === 'registry:ui' &&
+        !SPLIT_FROM_FAMILY_PAGES.has(e.name) &&
+        e.name !== 'scroll-area',
+    ).map((e) => `/components/${e.name}.html`);
+    const expected = [
+      '/components.html',
+      ...OLD_ONE_TO_ONE,
+      '/components/form.html',
+      '/components/scroll-area.html',
+      '/components/recipes.html',
+      '/components/jx-pure.html',
+      '/components/llms-txt.html',
+    ].sort();
+    expect(routes.map((r) => r.from).sort(), 'frozen old-world snapshot').toEqual(expected);
+    expect(new Set(routes.map((r) => r.from)).size, 'from unique').toBe(routes.length);
     for (const r of routes) {
-      expect(r.from.startsWith('/components'), `${r.from} is not a legacy doc route`).toBe(true);
       expect(r.to.startsWith('/docs') || r.to.startsWith('/tokens'), `${r.from} → ${r.to}`).toBe(true);
+      expect(r.preserveHash, `${r.from} must preserve the fragment`).toBe(true);
+      // the target must be REAL (a source route or the tokens page) —
+      // a deleted destination can never keep a live shell
+      if (r.to.startsWith('/docs')) {
+        expect(existsSync(resolve(repoRoot, 'apps/www/src/routes', `.${r.to.replace(/\.html$/, '.html')}`)), `target route for ${r.from} → ${r.to}`).toBe(true);
+      }
+    }
+  });
+
+  it('svelte.config entries are the EXACT derived set (no silent prerender drift)', () => {
+    const config = readFileSync(resolve(repoRoot, 'apps/www/svelte.config.js'), 'utf8');
+    const entries = new Set([
+      '/',
+      ...(config.match(/'\/[^']+'/g)?.map((m) => m.slice(1, -1)) ?? []),
+    ]);
+    const canonical = CATALOG.filter((e) => e.type === 'registry:ui').map((e) => e.href.split('#')[0]);
+    const expected = new Set([
+      '/', '/probe-folder-css', '/docs.html', '/docs/components.html',
+      '/docs/components/form.html', '/docs/registry.html', '/docs/recipes.html',
+      '/docs/jx-pure.html', '/docs/llms-txt.html', '/tokens.html', '/blueprints.html',
+      ...canonical,
+    ]);
+    const missing = [...expected].filter((e) => !entries.has(e));
+    const extra = [...entries].filter((e) => !expected.has(e));
+    expect({ missing, extra }, 'entries exact-set drift').toEqual({ missing: [], extra: [] });
+    // every canonical path has a real source route dir
+    for (const path of canonical) {
+      const dir = resolve(repoRoot, 'apps/www/src/routes', `.${path}`);
+      expect(existsSync(dir), `source route for ${path}`).toBe(true);
+    }
+  });
+
+  it('built dist closes the loop for every canonical page (r2 P1-3)', () => {
+    // NOTE: the legacy shells and llms md mirrors are verified by the
+    // build-site emitter/generator SELF-CHECKS at generation time — the
+    // shared worktree regenerates public/ concurrently and a vitest
+    // read can race a half-written artifact (observed live during r2);
+    // dist/ is the vite-owned output this suite can trust
+    const dist = resolve(repoRoot, 'apps/www/dist');
+    if (!existsSync(resolve(dist, 'docs.html'))) return; // pre-build runs skip
+    const canonical = CATALOG.filter((e) => e.type === 'registry:ui').map((e) => e.href.split('#')[0]);
+    for (const path of canonical) {
+      expect(existsSync(resolve(dist, path.slice(1))), `dist page ${path}`).toBe(true);
+    }
+    // the family hub + the moved sections pages are real routes too
+    for (const extra of ['/docs/components/form.html', '/docs/registry.html', '/docs/recipes.html', '/docs/jx-pure.html', '/docs/llms-txt.html']) {
+      expect(existsSync(resolve(dist, extra.slice(1))), `dist page ${extra}`).toBe(true);
+    }
+  });
+
+  it('the catalog index page IS the UI inventory (r2 P1-1 source guard)', () => {
+    const page = readFileSync(
+      resolve(repoRoot, 'apps/www/src/routes/docs/components.html/+page.svelte'),
+      'utf8',
+    );
+    expect(page).toContain('docsComponentGroups');
+    expect(page).not.toContain('catalogByGroup');
+    expect(page).not.toContain("from '$lib/catalog'");
+    expect(page).not.toContain('id="guides"');
+    const dist = resolve(repoRoot, 'apps/www/dist/docs/components.html');
+    if (existsSync(dist)) {
+      const html = readFileSync(dist, 'utf8');
+      expect(html).toContain('npx jixoai-ui add press-button');
+      expect(html).not.toContain('npx jixoai-ui add utils');
+      expect(html).not.toContain('npx jixoai-ui add toc-engine');
     }
   });
 });
