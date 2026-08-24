@@ -26,8 +26,9 @@
 </script>
 
 <kbd
+  data-jx-kbd
   class={cn(
-    'jx-kbd inline-block px-1.5 border border-border rounded-none bg-muted shadow-2xs font-mono text-[0.75em] leading-[1.6] text-foreground whitespace-nowrap',
+    'inline-block px-1.5 border border-border rounded-none bg-muted shadow-2xs font-mono text-[0.75em] leading-[1.6] text-foreground whitespace-nowrap',
     className,
   )}
   {...rest}

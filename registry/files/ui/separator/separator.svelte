@@ -30,11 +30,11 @@
   <!-- component-owned semantics land AFTER the spread: role/aria here
        are not overridable — the separator contract is the component's -->
   <div
-    class={cn('jx-separator-v inline-block self-stretch flex-none w-px min-w-px bg-border', className)}
+    data-jx-separator-v class={cn('inline-block self-stretch flex-none w-px min-w-px bg-border', className)}
     {...(rest as HTMLAttributes<HTMLDivElement>)}
     role="separator"
     aria-orientation="vertical"
   ></div>
 {:else}
-  <hr class={cn('jx-separator-h flex-none border-0 border-t border-border m-0', className)} {...rest} />
+  <hr data-jx-separator-h class={cn('flex-none border-0 border-t border-border m-0', className)} {...rest} />
 {/if}

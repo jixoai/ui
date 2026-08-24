@@ -52,9 +52,9 @@
 </script>
 
 <!-- hidden anchor in place (preserves the authoring DOM position) -->
-<div class="jx-float-anchor" bind:this={anchorEl} aria-hidden="true"></div>
+<div data-jx-float-anchor bind:this={anchorEl} aria-hidden="true"></div>
 
 <!-- the actual float content: starts here, gets adopted into .jx-top-layer -->
-<div class="jx-float-content" bind:this={contentEl}>
+<div data-jx-float-content bind:this={contentEl}>
   {@render children()}
 </div>

@@ -58,7 +58,7 @@
   <!-- rail surface (wide form): grouped tree, always expanded -->
   <div class="jx-ctree-rail">
     <p class="jx-ctree-title">component catalog</p>
-    <div class="jx-ctree-groups">
+    <div data-jx-ctree-groups>
       {#each groups as { group, entries } (group.id)}
         <details class="jx-ctree-group" open={group.id === activeGroupId}>
           <summary class="jx-ctree-group-label">

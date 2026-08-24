@@ -75,15 +75,15 @@
 
 <label
   for={id}
+  data-jx-toggle={size}
   class={cn(
     'jx-switch-track inline-flex items-center justify-end gap-[0.6rem] w-fit cursor-pointer select-none',
     sizeUtilities[size],
-    'jx-toggle-{size}',
     disabled && 'jx-toggle-disabled opacity-50 cursor-not-allowed',
     className,
   )}
 >
-  {#if label}<span class="jx-toggle-label text-[0.8125rem] text-foreground">{label}</span>{/if}
+  {#if label}<span data-jx-toggle-label class="text-[0.8125rem] text-foreground">{label}</span>{/if}
   <input {id} type="checkbox" class="jx-toggle-native sr-only" bind:checked {disabled} {...rest} />
   <span
     class="jx-toggle-track relative flex-none box-border p-[2px] rounded-full bg-muted w-(--jx-toggle-w) h-(--jx-toggle-h) shadow-[inset_0_0_0_1px_var(--border)] transition-[background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"

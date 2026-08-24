@@ -53,7 +53,7 @@ describe('Badge', () => {
 describe('Separator', () => {
   it('renders a native <hr> for the horizontal (thematic break) posture', () => {
     const { container } = render(Separator);
-    const hr = container.querySelector('hr.jx-separator-h')!;
+    const hr = container.querySelector('hr[data-jx-separator-h]')!;
     expect(hr).toBeTruthy();
     // a thematic break is announced natively — no role attribute needed
     expect(hr.getAttribute('role')).toBeNull();
@@ -157,7 +157,7 @@ describe('Alert', () => {
     });
     const alert = container.querySelector('[role="status"]')!;
     expect(alert.className).toContain('jx-alert-default');
-    expect(alert.querySelector('.jx-alert-title')?.textContent).toContain('Deployed');
+    expect(alert.querySelector('[data-jx-alert-title]')?.textContent).toContain('Deployed');
   });
 
   it('takes the assertive alert role and the destructive tone', () => {

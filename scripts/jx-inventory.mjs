@@ -35,6 +35,14 @@ const EXCLUDE_DIRS = new Set(['node_modules', '.svelte-kit', 'dist', '.git', '.a
 // verify-hook-law.mjs (single source of truth, versioned with the engine).
 export const AUDITOR_SOURCES = new Set(['jx-inventory.mjs', 'verify-hook-law.mjs']);
 const lineAt = (text, idx) => text.slice(0, Math.max(0, idx)).split('\n').length;
+// engine@3.2 masks: keyframe names inside animate-[...] and custom
+// property names inside [--jx-*:...] arbitrary-property utilities are
+// NOT class hooks (skeleton/toggle false positives, caught in impl)
+const MASK_NONCLASS = (t) => t
+  .replace(/animate-\[[^\]]*\]/g, (mm) => ' '.repeat(mm.length))
+  .replace(/\[--jx-[a-z0-9-]*:[^\]]*\]/g, (mm) => ' '.repeat(mm.length))
+  // v4 var-shorthand utilities: w-(--jx-x) / h-(--jx-x)
+  .replace(/\(--jx-[a-z0-9-]+\)/g, (mm) => ' '.repeat(mm.length));
 // strip comments WITHOUT changing offsets (mask with spaces)
 const maskLineComments = (code) => code.replace(/(^|[^:])\/\/[^\n]*/g, (m) => m[0] + ' '.repeat(m.length - 1));
 const maskBlockComments = (code) => code.replace(/\/\*[\s\S]*?\*\//g, (m) => ' '.repeat(m.length));
@@ -134,6 +142,7 @@ export function buildInventory(root) {
   // class-expression scanner: expr is source text; base/baseOffset map
   // match indices back to absolute file offsets for line evidence
   const scanClassExpression = (expr, file, baseText, baseOffset) => {
+    expr = MASK_NONCLASS(expr);
     const where = (i) => `${rel(file)}:${lineAt(baseText, baseOffset + i)}`;
     for (const t of expr.matchAll(/jx-[a-z0-9-]*\$\{|jx-\$\{/g)) {
       addFamily(t[0].slice(3).replace(/\$\{$/, '').replace(/-$/, ''), where(t.index), 'dynamic', 'template');
@@ -190,6 +199,9 @@ export function buildInventory(root) {
             }
             for (const frag of frags) {
               if (frag.type === 'Text') {
+                // engine@3.2: mask non-class utilities in STATIC class
+                // text too (w-(--jx-x), animate-[jx-…], [--jx-x:…])
+                frag.data = MASK_NONCLASS(frag.data);
                 const maskedText = frag.data.replace(/jx-[a-z0-9-]*-\{[^}]*\}/g, (mm) => {
                   addFamily(mm.slice(3, mm.indexOf('-{')), `${rel(f)}:${lineAt(raw, frag.start)}`, 'dynamic', 'text-interp');
                   return ' '.repeat(mm.length);
@@ -272,6 +284,7 @@ function scanScriptSection(code, file, rel, bag, opts = {}) {
     const stripped = maskBlockComments(maskLineComments(code));
     const where = (i) => `${rel(file)}:${lineAt(raw, base + i)}`;
     const scanLiteral = (lit, at) => {
+      lit = MASK_NONCLASS(lit);
       if (!/jx-/.test(lit)) return;
       // template families
       for (const t of lit.matchAll(/jx-[a-z0-9-]*\$\{/g)) {
@@ -335,7 +348,7 @@ if (process.argv[1] && process.argv[1].endsWith('jx-inventory.mjs')) {
   const inv = await buildInventory(rootArg);
   const jsonIdx = process.argv.indexOf('--json');
   const payload = {
-    engine: 'jx-inventory@3.1',
+    engine: 'jx-inventory@3.2',
     root: label,
     counts: {
       defined: inv.defined.size,
