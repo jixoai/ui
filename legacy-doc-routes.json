@@ -1,0 +1,325 @@
+{
+  "_comment": "frozen legacy doc-route map (docs-restructure D1) \u2014 consumed by scripts/build-site.mjs emitter + catalog lock tests",
+  "routes": [
+    {
+      "from": "/components.html",
+      "to": "/docs/components.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/accordion.html",
+      "to": "/docs/components/accordion.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/alert-dialog.html",
+      "to": "/docs/components/alert-dialog.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/alert.html",
+      "to": "/docs/components/alert.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/anchor.html",
+      "to": "/docs/components/anchor.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/avatar.html",
+      "to": "/docs/components/avatar.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/badge-indicator.html",
+      "to": "/docs/components/badge-indicator.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/badge.html",
+      "to": "/docs/components/badge.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/breadcrumb.html",
+      "to": "/docs/components/breadcrumb.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/card-grid.html",
+      "to": "/docs/components/card-grid.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/carousel.html",
+      "to": "/docs/components/carousel.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/cascader.html",
+      "to": "/docs/components/cascader.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/code-card.html",
+      "to": "/docs/components/code-card.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/command.html",
+      "to": "/docs/components/command.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/component-canvas.html",
+      "to": "/docs/components/component-canvas.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/descriptions.html",
+      "to": "/docs/components/descriptions.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/dialog.html",
+      "to": "/docs/components/dialog.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/dropdown-menu.html",
+      "to": "/docs/components/dropdown-menu.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/empty.html",
+      "to": "/docs/components/empty.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/file-input.html",
+      "to": "/docs/components/file-input.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/float-button.html",
+      "to": "/docs/components/float-button.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/form.html",
+      "to": "/docs/components/form.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/hero-section.html",
+      "to": "/docs/components/hero-section.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/hover-card.html",
+      "to": "/docs/components/hover-card.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/icon-button.html",
+      "to": "/docs/components/icon-button.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/image.html",
+      "to": "/docs/components/image.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/input-otp.html",
+      "to": "/docs/components/input-otp.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/jx-pure.html",
+      "to": "/docs/jx-pure.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/kbd.html",
+      "to": "/docs/components/kbd.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/language-switcher.html",
+      "to": "/docs/components/language-switcher.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/llms-txt.html",
+      "to": "/docs/llms-txt.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/menubar.html",
+      "to": "/docs/components/menubar.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/navigation-menu.html",
+      "to": "/docs/components/navigation-menu.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/pagination.html",
+      "to": "/docs/components/pagination.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/popconfirm.html",
+      "to": "/docs/components/popconfirm.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/popover.html",
+      "to": "/docs/components/popover.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/press-button.html",
+      "to": "/docs/components/press-button.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/progress.html",
+      "to": "/docs/components/progress.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/recipes.html",
+      "to": "/docs/recipes.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/result.html",
+      "to": "/docs/components/result.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/scaffold-float.html",
+      "to": "/docs/components/scaffold-float.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/scroll-area.html",
+      "to": "/docs/components/scroll-area.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/section-card.html",
+      "to": "/docs/components/section-card.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/separator.html",
+      "to": "/docs/components/separator.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/sheet.html",
+      "to": "/docs/components/sheet.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/skeleton.html",
+      "to": "/docs/components/skeleton.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/spin.html",
+      "to": "/docs/components/spin.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/statistic.html",
+      "to": "/docs/components/statistic.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/steps.html",
+      "to": "/docs/components/steps.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/table.html",
+      "to": "/docs/components/table.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/tabs.html",
+      "to": "/docs/components/tabs.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/terminal-card.html",
+      "to": "/docs/components/terminal-card.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/terminal-footer.html",
+      "to": "/docs/components/terminal-footer.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/terminal-header.html",
+      "to": "/docs/components/terminal-header.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/theme-toggle.html",
+      "to": "/docs/components/theme-toggle.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/timeline.html",
+      "to": "/docs/components/timeline.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/toast.html",
+      "to": "/docs/components/toast.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/toc.html",
+      "to": "/docs/components/toc.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/toggle-group.html",
+      "to": "/docs/components/toggle-group.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/tooltip.html",
+      "to": "/docs/components/tooltip.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/tour.html",
+      "to": "/docs/components/tour.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/transfer.html",
+      "to": "/docs/components/transfer.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/tree-view.html",
+      "to": "/docs/components/tree-view.html",
+      "preserveHash": true
+    },
+    {
+      "from": "/components/website-scaffold.html",
+      "to": "/docs/components/website-scaffold.html",
+      "preserveHash": true
+    }
+  ]
+}

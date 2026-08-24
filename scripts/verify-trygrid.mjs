@@ -21,7 +21,8 @@ import { homedir } from 'node:os';
 const CHROME = homedir() + '/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing';
 const browser = await chromium.launch({ executablePath: CHROME });
 const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-await page.goto('http://localhost:5199/components/popover.html');
+// docs-restructure: component pages now live under /docs/components/
+await page.goto('http://localhost:5199/docs/components/popover.html');
 await page.waitForLoadState('domcontentloaded');
 await page.waitForTimeout(2500);
 

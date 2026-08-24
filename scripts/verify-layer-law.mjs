@@ -34,7 +34,8 @@ const browser = await chromium.launch({
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 
 // ── 1. layer membership + geometry (accordion page carries shell+toc) ──
-await page.goto(`http://localhost:${port}/components/accordion.html`, { waitUntil: 'networkidle' });
+// docs-restructure: component pages now live under /docs/components/
+await page.goto(`http://localhost:${port}/docs/components/accordion.html`, { waitUntil: 'networkidle' });
 const sheets = await page.evaluate(() => {
   let tocL = 0, tocU = 0, shellL = 0, shellU = 0;
   const walk = (rules, layer) => {
@@ -73,7 +74,7 @@ const override = await page.evaluate(() => {
 check('generated utility beats the layerized sheets', override.ok, JSON.stringify(override));
 
 // ── 3. Tier-2 Part A exception intact (jx-pure page law pair) ──────
-await page.goto(`http://localhost:${port}/components/jx-pure.html`, { waitUntil: 'networkidle' });
+await page.goto(`http://localhost:${port}/docs/jx-pure.html`, { waitUntil: 'networkidle' });
 const law = await page.evaluate(() => {
   // the scope-laws section's pair: bare button (Part A law) vs .bg-muted utility button
   const utilBtn = document.querySelector('#scope-laws .jx-pure button.bg-muted');
@@ -85,7 +86,7 @@ const law = await page.evaluate(() => {
 check('jx-pure law pair present (Part A context)', law.ok, JSON.stringify(law));
 
 // ── 4. compiled-context on an UNRELATED route ──────────────────────
-await page.goto(`http://localhost:${port}/components/kbd.html`, { waitUntil: 'networkidle' });
+await page.goto(`http://localhost:${port}/docs/components/kbd.html`, { waitUntil: 'networkidle' });
 const ctx = await page.evaluate(() => {
   const probe = document.createElement('div');
   probe.className = 'bg-background border border-border';
@@ -121,7 +122,8 @@ check('dark:* variant resolves on unrelated route', ctx.darkVariantFlips);
 // exception's mandatory executable evidence — terminal-header subpanel
 // over the Popover primitive's law; tooltip/popover jx-surface pseudo
 // disables; each paired with a consumer-override proof) ────────────
-await page.goto(`http://localhost:${port}/components.html`, { waitUntil: 'networkidle' });
+// docs-restructure: the catalog index moved to /docs/components.html
+await page.goto(`http://localhost:${port}/docs/components.html`, { waitUntil: 'networkidle' });
 const kernelHeader = await page.evaluate(async () => {
   // open a subpanel: click the first nav trigger that owns one
   const trigger = document.querySelector('.jx-nav button[aria-expanded], .jx-nav a[aria-expanded]');
@@ -156,7 +158,7 @@ check('terminal-header subpanel: bezel law + consumer static override', kernelHe
 // ── 5b. TOOLTIP kernel probe: a real tip opens, the enumerated
 // foreign-law override applies (::after disabled), and a consumer
 // utility on the tip's own content still wins ─────────────────────
-await page.goto(`http://localhost:${port}/components/tooltip.html`, { waitUntil: 'networkidle' });
+await page.goto(`http://localhost:${port}/docs/components/tooltip.html`, { waitUntil: 'networkidle' });
 const kernelTooltip = await page.evaluate(async () => {
   // the docs page's tips open on hover — dispatch real pointer events
   const host = document.querySelector('[data-jx-tip-anchor], [data-tip-host], [aria-describedby]');
@@ -183,7 +185,7 @@ check('tooltip kernel: ::after disabled + consumer override on body', kernelTool
 // ── 5c. POPOVER kernel probe: a real popover opens, the enumerated
 // override applies, and a consumer utility on popover-owned content
 // still wins ────────────────────────────────────────────────────────
-await page.goto(`http://localhost:${port}/components/popover.html`, { waitUntil: 'networkidle' });
+await page.goto(`http://localhost:${port}/docs/components/popover.html`, { waitUntil: 'networkidle' });
 const kernelPop = await page.evaluate(async () => {
   const trigger = document.querySelector('.jx-pop-anchor button, .jx-pop-anchor, [popovertarget]');
   if (!trigger) return { ok: false, why: 'no popover trigger' };
@@ -207,7 +209,7 @@ check('popover kernel: ::after disabled + consumer override on content', kernelP
 
 // sheet state machine beats markup animation utilities (the carve-out
 // contract Codex prescribed)
-await page.goto(`http://localhost:${port}/components/sheet.html`, { waitUntil: 'networkidle' });
+await page.goto(`http://localhost:${port}/docs/components/sheet.html`, { waitUntil: 'networkidle' });
 const sheetLaw = await page.evaluate(async () => {
   const trigger = document.querySelector('button[data-demo-open], .jx-sheet ~ *, button');
   const sheetEl = document.querySelector('.jx-sheet');

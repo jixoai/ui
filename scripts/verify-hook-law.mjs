@@ -139,13 +139,14 @@ if (liveIdx > -1) {
   const { chromium } = await import('playwright-core');
   const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROME_PATH ?? chromium.executablePath() });
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-  await page.goto(`http://localhost:${port}/components/kbd.html`, { waitUntil: 'networkidle' });
+  // docs-restructure: component pages now live under /docs/components/
+  await page.goto(`http://localhost:${port}/docs/components/kbd.html`, { waitUntil: 'networkidle' });
   const live = await page.evaluate(() => ({
     dataKbd: !!document.querySelector('[data-jx-kbd]'),
     classKbd: !!document.querySelector('.jx-kbd'),
   }));
   ok('live: [data-jx-kbd] present, .jx-kbd gone', live.dataKbd && !live.classKbd, JSON.stringify(live));
-  await page.goto(`http://localhost:${port}/components/alert.html`, { waitUntil: 'networkidle' });
+  await page.goto(`http://localhost:${port}/docs/components/alert.html`, { waitUntil: 'networkidle' });
   const variant = await page.evaluate(() => ({
     valued: !!document.querySelector('[data-jx-alert]'),
     sample: document.querySelector('[data-jx-alert]')?.getAttribute('data-jx-alert') ?? null,

@@ -1,0 +1,111 @@
+/* docs pager (docs-restructure 2026-08-25): prev/next + related, the
+   terminal way — hairline cells, engagement law (color only, the press
+   law forbids hover movement). Scoped under the wrap; unlayered
+   :where() to sit under consumer utilities. */
+
+:where(.jx-docs-pager-wrap) {
+  max-width: 90rem;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+@media (min-width: 640px) {
+  :where(.jx-docs-pager-wrap) {
+    padding-inline: 1.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  :where(.jx-docs-pager-wrap) {
+    padding-inline: 2rem;
+  }
+}
+
+:where(.jx-docs-pager-related .jx-docs-pager-title) {
+  margin: 0 0 0.625rem;
+  font-family: var(--font-nav);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+:where(.jx-docs-pager-related ul) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem 1.25rem;
+}
+:where(.jx-docs-pager-related li) {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  font-size: 0.8125rem;
+}
+:where(.jx-docs-pager-related li)::before {
+  content: '>';
+  color: var(--primary);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+:where(.jx-docs-pager-related a) {
+  color: var(--muted-foreground);
+  text-decoration: none;
+  transition: color 100ms ease-out;
+}
+:where(.jx-docs-pager-related a:hover) {
+  color: var(--foreground);
+}
+:where(.jx-docs-pager-related a:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+:where(.jx-docs-pager) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  border: 1px solid var(--border);
+  background: var(--border);
+}
+:where(.jx-docs-pager a) {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--card);
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: border-color 120ms ease-out;
+}
+:where(.jx-docs-pager a:hover) {
+  border-color: var(--primary);
+}
+:where(.jx-docs-pager a:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+:where(.jx-docs-pager .jx-docs-pager-next) {
+  align-items: flex-end;
+  text-align: right;
+}
+:where(.jx-docs-pager-direction) {
+  font-family: var(--font-nav);
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+:where(.jx-docs-pager-label) {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:where(.jx-docs-pager a:hover .jx-docs-pager-label) {
+  color: var(--primary);
+}

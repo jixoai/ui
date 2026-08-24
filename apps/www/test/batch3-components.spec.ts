@@ -23,8 +23,8 @@ import { createToastStore } from '../src/lib/toast-store';
 describe('Breadcrumb', () => {
   const crumbs = [
     { label: 'registry', href: '/' },
-    { label: 'components', href: '/components' },
-    { label: 'table', href: '/components/table.html' },
+    { label: 'components', href: '/docs/components' },
+    { label: 'table', href: '/docs/components/table.html' },
   ];
 
   it('is a labeled nav over an ordered list of real links', () => {

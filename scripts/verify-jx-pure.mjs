@@ -27,7 +27,8 @@ const browser = await chromium.launch({
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
 });
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-await page.goto(`http://localhost:${port}/components/jx-pure.html`, { waitUntil: 'domcontentloaded' });
+// docs-restructure: the jx-pure special page now lives at /docs/jx-pure.html
+await page.goto(`http://localhost:${port}/docs/jx-pure.html`, { waitUntil: 'domcontentloaded' });
 await page.waitForTimeout(1500);
 
 // hydration races the island's constructor — wait for its style
@@ -521,7 +522,7 @@ const upChecks = [
   ['D5 · invalid range fill flips to error (mirror)', facts.validation.badRangeVar === facts.validation.errorResolved.error],
 ];
 // (b) form.html: the pipette glyph + the Tier-1 class fill
-await page.goto(`http://localhost:${port}/components/form.html`, { waitUntil: 'domcontentloaded' });
+await page.goto(`http://localhost:${port}/docs/components/form.html`, { waitUntil: 'domcontentloaded' });
 await page.waitForTimeout(2000);
 // the pipette is a thin diagonal glyph — single-point sampling misses
 // it; count zone pixels that differ from the lane reference instead.

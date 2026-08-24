@@ -4,7 +4,7 @@
 <script lang="ts">
   import Pagination from '$lib/ui/pagination/pagination.svelte';
 
-  const href = (page: number): string => `/components?page=${page}`;
+  const href = (page: number): string => `/docs/components?page=${page}`;
 </script>
 
 <div class="flex h-full w-full flex-col items-start justify-center gap-8 p-10">

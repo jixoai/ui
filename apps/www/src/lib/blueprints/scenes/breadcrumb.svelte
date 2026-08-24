@@ -8,9 +8,9 @@
     collapse={4}
     crumbs={[
       { href: '/', label: 'ui.jixoai.com' },
-      { href: '/components/overview.html', label: 'components' },
-      { href: '/components/form.html', label: 'data entry' },
-      { href: '/components/form.html#example-form', label: 'checkbox' },
+      { href: '/docs/components/overview.html', label: 'components' },
+      { href: '/docs/components/form.html', label: 'data entry' },
+      { href: '/docs/components/form.html#example-form', label: 'checkbox' },
     ]}
   />
 </div>

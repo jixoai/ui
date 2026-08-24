@@ -20,7 +20,7 @@
 
 import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
-import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -61,7 +61,7 @@ function buildSite() {
   if (result.status !== 0) {
     die(`vite build failed (exit ${result.status})`);
   }
-  for (const page of ["index.html", "components.html", "tokens.html"]) {
+  for (const page of ["index.html", "docs.html", "docs/components.html", "tokens.html"]) {
     if (!existsSync(path.join(wwwDist, page))) {
       die(`site build did not emit ${page} into apps/www/dist`);
     }
@@ -73,6 +73,38 @@ function publishPublic() {
   rmSync(publicDir, { recursive: true, force: true });
   mkdirSync(publicDir, { recursive: true });
   cpSync(wwwDist, publicDir, { recursive: true });
+}
+
+/** 3.5 Legacy doc-route shells (docs-restructure D1, 2026-08-25): the
+ * frozen map (legacy-doc-routes.json) emits meta-refresh + canonical +
+ * noindex shells for every pre-/docs URL, so external links (old
+ * registry meta.href, llms mirrors) keep landing. JS only preserves
+ * the fragment; no-js still reaches the new page. */
+function emitLegacyShells() {
+  const manifest = JSON.parse(readFileSync(path.join(repoRoot, "legacy-doc-routes.json"), "utf8"));
+  let emitted = 0;
+  for (const route of manifest.routes) {
+    const fromRel = route.from.replace(/^\//, "");
+    const target = path.join(publicDir, fromRel);
+    mkdirSync(path.dirname(target), { recursive: true });
+    const url = route.to + (route.preserveHash ? '" + location.hash + "' : "");
+    const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="refresh" content="0;url=${route.to}">
+<link rel="canonical" href="https://ui.jixoai.com${route.to}">
+<meta name="robots" content="noindex,follow">
+<title>moved — ${route.to}</title>
+<script>location.replace("${url}")</script>
+</head>
+<body><a href="${route.to}">moved to ${route.to}</a></body>
+</html>
+`;
+    writeFileSync(target, html);
+    emitted++;
+  }
+  console.log(`[build-site] legacy shells: ${emitted} emitted from the frozen map`);
 }
 
 /** 4. Registry JSON: `shadcn build` from the repo root → public/r/*.json. */
@@ -100,21 +132,26 @@ function generateAiExports() {
       "404.html",
       // the satori render farm — an internal, noindex playground
       "blueprints.html",
+      // legacy redirect shells (docs-restructure D1): noindex passthroughs
+      // must never enter the AI index — the canonical /docs tree is it
+      "components.html",
+      "components/**",
     ],
     sections: [
       {
-        title: "Start here",
-        include: ["index.html", "tokens.html", "components.html", "components/recipes.html"],
+        title: "Docs — the learning path",
+        include: ["index.html", "docs.html", "tokens.html", "docs/recipes.html", "docs/jx-pure.html"],
       },
       {
         title: "Docs tooling",
         include: [
-          "components/component-canvas.html",
-          "components/llms-txt.html",
-          "components/website-scaffold.html",
+          "docs/components/component-canvas.html",
+          "docs/llms-txt.html",
+          "docs/components/website-scaffold.html",
+          "docs/registry.html",
         ],
       },
-      { title: "Components & engines", include: ["components/**"] },
+      { title: "Components", include: ["docs/components/**"] },
     ],
     additionalEntries: [
       {
@@ -133,12 +170,14 @@ function generateAiExports() {
 }
 
 function main() {
-  console.log("[build-site] 1/6 building apps/www (SvelteKit static)");
+  console.log("[build-site] 1/7 building apps/www (SvelteKit static)");
   buildSite();
-  console.log("[build-site] 2/6 emptying public/");
-  console.log("[build-site] 3/6 copying site dist → public/");
+  console.log("[build-site] 2/7 emptying public/");
+  console.log("[build-site] 3/7 copying site dist → public/");
   publishPublic();
-  console.log("[build-site] 4/6 building registry JSON → public/r/");
+  console.log("[build-site] 4/7 emitting legacy doc-route shells");
+  emitLegacyShells();
+  console.log("[build-site] 5/7 building registry JSON → public/r/");
   buildRegistry();
 
   // Fail BEFORE generating the index: an index whose registry link 404s
@@ -148,8 +187,8 @@ function main() {
   if (!index) die("public/index.html missing after build");
   if (!registry) die("public/r/registry.json missing after shadcn build");
 
-  console.log("[build-site] 5/6 asserted site + registry coexist");
-  console.log("[build-site] 6/6 generating llms.txt / llms-full.txt / page .md mirrors");
+  console.log("[build-site] 6/7 asserted site + registry coexist");
+  console.log("[build-site] 7/7 generating llms.txt / llms-full.txt / page .md mirrors");
   generateAiExports();
   if (!existsSync(path.join(publicDir, "llms.txt"))) {
     die("public/llms.txt missing after generation");

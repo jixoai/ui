@@ -17,7 +17,7 @@
 // Curated classifications (the ONLY hand-maintained part):
 const SITE_ONLY = [
   // mirror files that are docs-site chrome, never registry items
-  { path: 'apps/www/src/lib/ui/component-tree-nav.svelte', note: 'site secondary-nav chrome' },
+  { path: 'apps/www/src/lib/ui/docs-sections-nav.svelte', note: 'site docs sections rail (docs-restructure D2)' },
   { path: 'apps/www/src/lib/catalog.ts', note: 'site catalog index' },
   { path: 'apps/www/src/lib/site.ts', note: 'site helpers' },
   { path: 'apps/www/src/lib/hue-runtime.ts', note: 'tokens-page hue lab runtime' },

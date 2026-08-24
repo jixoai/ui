@@ -87,13 +87,13 @@ describe('catalog ↔ registry single-source derivation', () => {
     // wrapper (group.group.id). Duplicate-undefined keys pass SSR but
     // crash every hydration — this source guard pins the fix.
     const page = readFileSync(
-      resolve(repoRoot, 'apps/www/src/routes/components.html/+page.svelte'),
+      resolve(repoRoot, 'apps/www/src/routes/docs/components.html/+page.svelte'),
       'utf8',
     );
     expect(page).toContain('{#each groups as group (group.group.id)}');
     expect(page).toContain('<section id={group.group.id}');
     // and the BUILT page carries every anchor when dist exists
-    const dist = resolve(repoRoot, 'apps/www/dist/components.html');
+    const dist = resolve(repoRoot, 'apps/www/dist/docs/components.html');
     if (existsSync(dist)) {
       const html = readFileSync(dist, 'utf8');
       for (const id of [...CATALOG_GROUPS.map((g) => g.id), 'guides']) {

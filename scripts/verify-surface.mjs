@@ -70,7 +70,8 @@ const browser = await chromium.launch({ executablePath: findChrome() });
 async function openPopoverPage(theme = 'light') {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   await page.addInitScript((t) => localStorage.setItem('theme', t), theme);
-  await page.goto(`${BASE}/components/popover.html`);
+  // docs-restructure: component pages now live under /docs/components/
+  await page.goto(`${BASE}/docs/components/popover.html`);
   await page.waitForLoadState('domcontentloaded');
   await page.waitForTimeout(1800);
   return page;

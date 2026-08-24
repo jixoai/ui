@@ -15,7 +15,7 @@
     subtitle="the jixoai design language"
     items={[
       { href: '/', label: 'Overview', active: true },
-      { href: '/components', label: 'Components' },
+      { href: '/docs/components', label: 'Components' },
       { href: '/tokens', label: 'Tokens' },
       { href: 'https://github.com/jixoai/ui', label: 'GitHub', external: true },
     ]}

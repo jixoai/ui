@@ -42,7 +42,8 @@ async function runEngine(name, launch) {
   const failed = [];
   const ok = (n, c) => { console.log(`${c ? 'PASS' : 'FAIL'}  [${name}] ${n}`); if (!c) failed.push(n); };
 
-  await page.goto(`http://localhost:${port}/components/jx-pure.html`, { waitUntil: 'domcontentloaded' });
+  // docs-restructure: the jx-pure page now lives at /docs/jx-pure.html
+  await page.goto(`http://localhost:${port}/docs/jx-pure.html`, { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(2500);
 
   // ---- D1: thin rail + fill + (engine-specific) thumb visibility ----

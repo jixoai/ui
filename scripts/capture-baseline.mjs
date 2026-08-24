@@ -21,14 +21,19 @@ const PORT = process.env.PORT ?? '5199';
 const mode = process.argv[2] ?? 'baseline';
 const shotsRoot = join(root, '.agents/shots');
 
-// discover routes: every <name>.html dir under components/ + the top pages
+// discover routes: every <name>.html dir under docs/components/ + the
+// docs pages + the top pages (docs-restructure: /components/* → /docs/*)
 const routesDir = join(root, 'apps/www/src/routes');
+const docsDir = join(routesDir, 'docs');
 const routes = ['/', '/tokens.html', '/blueprints.html'];
 for (const entry of readdirSync(routesDir, { withFileTypes: true })) {
   if (entry.isDirectory() && entry.name.endsWith('.html')) routes.push(`/${entry.name}`);
+}
+for (const entry of readdirSync(docsDir, { withFileTypes: true })) {
+  if (entry.isDirectory() && entry.name.endsWith('.html')) routes.push(`/docs/${entry.name}`);
   if (entry.isDirectory() && entry.name === 'components') {
-    for (const c of readdirSync(join(routesDir, 'components'), { withFileTypes: true })) {
-      if (c.isDirectory() && c.name.endsWith('.html')) routes.push(`/components/${c.name}`);
+    for (const c of readdirSync(join(docsDir, 'components'), { withFileTypes: true })) {
+      if (c.isDirectory() && c.name.endsWith('.html')) routes.push(`/docs/components/${c.name}`);
     }
   }
 }

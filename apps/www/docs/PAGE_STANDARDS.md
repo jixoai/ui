@@ -12,7 +12,7 @@
 
 # 组件文档页 · 开发最佳实践 + 评分体系
 
-适用范围：`src/routes/components/*.html/+page.svelte`（registry 组件页 + overview/recipes 指南页）。
+适用范围：`src/routes/docs/components/*.html/+page.svelte`（registry 组件页 + overview/recipes 指南页）。
 基准实现：`form.html`（最完整：ToC + 多 canvas + live usage）、`tabs.html` / `tour.html`（近期标准单页）、`popover.html`（中期过渡形态）。
 
 ---

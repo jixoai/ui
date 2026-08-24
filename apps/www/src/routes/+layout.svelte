@@ -1,6 +1,7 @@
 <script lang="ts">
     import { catalogByGroup, CATALOG } from '$lib/catalog';
-  import ComponentTreeNav from '$lib/ui/component-tree-nav.svelte';
+  import DocsSectionsNav from '$lib/ui/docs-sections-nav.svelte';
+  import DocsPager from '$lib/ui/docs-pager.svelte';
   import Toc, { type TocSection } from '$lib/ui/toc/toc.svelte';
   import '../app.css';
   // site-only docs surfaces (tw4 P2.2): tables + pill serve several routes
@@ -19,6 +20,9 @@
   import { startHueRuntime, stopHueRuntime } from '$lib/hue-runtime';
   import { onMount } from 'svelte';
   import { GITHUB_URL } from '$lib/site';
+  // the docs tree's single route model feeds BOTH header pills (D8's
+  // single-active law lives in the items derivation below)
+  import { docsComponentGroups, docsSections } from '$lib/docs-route-model';
 
   let { children }: { children: Snippet } = $props();
 
@@ -45,7 +49,7 @@
     };
   });
 
-  // Pages are flat files (/, /components.html, /tokens.html); prerendered
+  // Pages are flat files (/, /docs.html, /docs/components.html, /tokens.html); prerendered
   // paths lack the .html suffix the browser shows.
   const normalized = $derived(
     page.url.pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/',
@@ -55,7 +59,9 @@
   // runs through document.startViewTransition with the tab-carousel
   // direction law (page order index comparison, ported from openspecui).
   // Reduced motion / unsupported browsers navigate plainly.
-  const PAGE_ORDER = ['/', '/components.html', '/components/dialog.html', '/components/popover.html', '/components/form.html', '/components/jx-pure.html', '/tokens.html'];
+  // D8 (docs-restructure): only top-level pages ride the carousel; detail
+  // pages take the default transition (no 73-page pairwise semantics)
+  const PAGE_ORDER = ['/', '/docs', '/docs/components', '/tokens'];
   const pageIndex = (pathname: string) => PAGE_ORDER.indexOf(pathname);
 
   // nav lifecycle (2026-08-22): every client-side navigation closes any
@@ -257,36 +263,40 @@
   // self-derive from main#main headings (future per-page migration).
   const pageToc = $derived(page.data.toc as TocSection[] | 'outline' | undefined);
 
+  // D8 single-active law: the Components pill owns /docs/components*;
+  // every other docs route (sections/registry) lights the Docs pill
+  const isComponentsTree = normalized.startsWith('/docs/components');
   const items = $derived([
     { href: '/', label: 'Overview', active: normalized === '/' },
     {
-      href: '/components.html',
-      label: 'Components',
-      active: normalized.startsWith('/components'),
-      // the panel head's inline-end action → the section index
-      panelAction: { href: '/components.html', label: 'all', active: normalized === '/components' },
-      children: [
-        ...catalogByGroup().map(({ group, entries }) => ({
-          label: group.label,
-          items: entries.map((entry) => ({
-            href: entry.href,
-            label: entry.name,
-            description: entry.type === 'registry:ui' ? '' : entry.type.replace('registry:', ''),
-            active: normalized === (entry.href.replace(/\.html$/, '').split('#')[0].replace(/\/+$/, '') || '/'),
-          })),
+      href: '/docs.html',
+      label: 'Docs',
+      active: normalized.startsWith('/docs') && !isComponentsTree,
+      panelAction: { href: '/docs.html', label: 'docs home', active: normalized === '/docs' },
+      children: docsSections.map((section) => ({
+        label: section.label,
+        items: section.pages.map((pg) => ({
+          href: pg.href,
+          label: pg.label,
+          external: pg.href === '/r/registry.json',
         })),
-        {
-          // guide pages that are not registry items (recipes…)
-          label: 'Guides',
-          items: [
-            {
-              href: '/components/recipes.html',
-              label: 'recipes',
-              description: 'where wrapping stops',
-            },
-          ],
-        },
-      ],    },
+      })),
+    },
+    {
+      href: '/docs/components.html',
+      label: 'Components',
+      active: isComponentsTree,
+      panelAction: { href: '/docs/components.html', label: 'all', active: normalized === '/docs/components' },
+      children: docsComponentGroups.map(({ group, entries }) => ({
+        label: group.label,
+        items: entries.map((entry) => ({
+          href: entry.href,
+          label: entry.name,
+          description: entry.type === 'registry:ui' ? '' : entry.type.replace('registry:', ''),
+          active: normalized === entry.href.replace(/\.html$/, '').split('#')[0].replace(/\/+$/, '') || '/',
+        })),
+      })),
+    },
     { href: '/tokens.html', label: 'Tokens', active: normalized === '/tokens.html' },
     { href: GITHUB_URL, label: 'GitHub', external: true },
   ]);
@@ -296,10 +306,11 @@
   {#snippet chrome()}
     <!-- static chrome (SSR-stable): the catalog tree + the page toc —
          authored in their final grid cells from the first paint -->
-    {#if normalized !== '/'}
-      <!-- the catalog nav belongs to content routes; the homepage IS
-           the catalog (Owner request, 2026-08-24) -->
-      <ComponentTreeNav />
+    {#if normalized.startsWith('/docs')}
+      <!-- the sections rail IS the docs navigation (D2: it took the
+           chrome tree cell; ComponentTreeNav retired with the flat
+           catalog tree) -->
+      <DocsSectionsNav />
     {/if}
     {#if pageToc}
       <Toc
@@ -358,6 +369,12 @@
   {/snippet}
 
   {@render children()}
+
+  <!-- the page relations on every component page (layout-level: zero
+       per-page wiring; non-inventory pages render nothing) -->
+  {#if normalized.startsWith('/docs/components/')}
+    <DocsPager />
+  {/if}
 
   {#snippet footer()}
     <TerminalFooter

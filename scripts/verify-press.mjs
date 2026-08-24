@@ -25,7 +25,8 @@ const CHROME =
 
 const browser = await chromium.launch({ executablePath: CHROME });
 const page = await browser.newPage({ viewport: { width: 1280, height: 1080 } });
-await page.goto(`http://localhost:${PORT}/components/press-button.html`);
+// docs-restructure: component pages now live under /docs/components/
+await page.goto(`http://localhost:${PORT}/docs/components/press-button.html`);
 await page.waitForLoadState('domcontentloaded');
 await page.waitForTimeout(1200);
 
