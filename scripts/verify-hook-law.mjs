@@ -33,6 +33,38 @@ const ok = (name, cond, detail = '') => {
   if (!cond) failures.push(name);
 };
 
+// THE shadow collector (r3 B1/B2): scans product inputs only — the
+// auditor's own source (selftest/live literals) is excluded by name.
+export function collectDataJx(rootDir) {
+  const found = []; // {name('jx-x'), file, line}
+  const auditor = 'verify-hook-law.mjs';
+  const scan = (dir, exts) => {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      if (['node_modules', '.svelte-kit', 'dist', '.git', '.agents'].includes(e.name)) continue;
+      const p = join(dir, e.name);
+      if (e.isDirectory()) scan(p, exts);
+      else if (exts.some((x) => e.name.endsWith(x)) && e.name !== auditor) {
+        const text = readFileSync(p, 'utf8');
+        text.split('\n').forEach((line, i) => {
+          for (const m of line.matchAll(/data-jx-([a-z0-9-]+)/g)) {
+            found.push({ name: `jx-${m[1]}`, file: p, line: i + 1 });
+          }
+        });
+      }
+    }
+  };
+  scan(join(rootDir, 'registry/files'), ['.svelte', '.ts']);
+  scan(join(rootDir, 'apps/www/src'), ['.svelte', '.ts']);
+  scan(join(rootDir, 'apps/www/test'), ['.svelte', '.ts']);
+  scan(join(rootDir, 'scripts'), ['.mjs']);
+  return found;
+}
+const shadowCheck = (invObj, rootDir) => {
+  const hits = collectDataJx(rootDir);
+  const famBases = new Set(invObj.families.keys());
+  return hits.filter((h) => invObj.defined.has(h.name) || famBases.has(h.name.slice(3)));
+};
+
 const inv = await buildInventory(root);
 
 // A. regression fixtures (the r1/r2 traps, asserted every run)
@@ -50,6 +82,15 @@ ok('fixture: every family has variants + shapes', bare.length === 0, bare.join('
 const qref = inv.references.filter((r) => r.kind === 'query' && typeof r.line === 'number');
 const hasScriptQuery = qref.some((r) => /tooltip|toc|layout/.test(r.file));
 ok('fixture: svelte-script query references visible with lines', hasScriptQuery, `${qref.length} query refs, sample: ${qref.slice(0, 2).map((r) => r.file).join(', ')}`);
+// r3 B3: parts/variants mutual exclusion
+const doubles = [];
+for (const [base, fam] of inv.families) for (const v of fam.variants.keys()) {
+  if (v !== 'dynamic' && inv.staticHooks.has(`jx-${base}-${v}`)) doubles.push(`${base}:${v}`);
+}
+ok('fixture: no token double-classified (part + variant)', doubles.length === 0, doubles.join(','));
+// r3 B4: directives carry token + file:line + condition source
+const dirOk = inv.directives.length > 0 && inv.directives.every((d) => d.site.includes(':') && d.expr.length > 0);
+ok('fixture: class directives carry site + condition evidence', dirOk, `${inv.directives.length} directives, sample ${inv.directives[0]?.site}`);
 
 // B/C. the hook set itself
 const hookCount = inv.staticHooks.size;
@@ -59,45 +100,33 @@ if (post) {
   ok('post: zero dynamic jx- families remain', inv.families.size === 0, familyList.join(', '));
   ok('post: zero hand-review ambiguities', inv.handReview.length === 0, `${inv.handReview.length} site(s): ${inv.handReview.slice(0, 4).map((h) => `${h.file}:${h.line}`).join(', ')}`);
   // D(b) static half: data-jx names must not shadow css-defined selectors
-  // B3: names normalized to the SAME jx- namespace, exact selector +
-  // family base compared, scope widened to tests/scripts (same roots
-  // the inventory reads — one input boundary)
-  const dataJx = new Set();
-  const scan = (dir, exts) => {
-    for (const e of readdirSync(dir, { withFileTypes: true })) {
-      if (['node_modules', '.svelte-kit', 'dist', '.git', '.agents'].includes(e.name)) continue;
-      const p = join(dir, e.name);
-      if (e.isDirectory()) scan(p, exts);
-      else if (exts.some((x) => e.name.endsWith(x))) {
-        for (const m of readFileSync(p, 'utf8').matchAll(/data-jx-([a-z0-9-]+)/g)) dataJx.add(`jx-${m[1]}`);
-      }
-    }
-  };
-  scan(join(root, 'registry/files'), ['.svelte', '.ts']);
-  scan(join(root, 'apps/www/src'), ['.svelte', '.ts']);
-  scan(join(root, 'apps/www/test'), ['.svelte', '.ts']);
-  scan(join(root, 'scripts'), ['.mjs']);
-  const shadows = [...dataJx].filter((n) => inv.defined.has(n) || inv.families.has(n.slice(3)));
-  ok('post: no data-jx name shadows a css-defined selector or family', shadows.length === 0, shadows.join(', '));
+  // r3 B1/B2: the shared collector (auditor source excluded)
+  const shadows = shadowCheck(inv, root);
+  ok('post: no data-jx name shadows a css-defined selector or family', shadows.length === 0, shadows.slice(0, 4).map((s2) => `${s2.name}@${s2.file}:${s2.line}`).join(', '));
 } else {
   console.log(`PRE-STATE (the migration's target set): ${hookCount} static hooks, ${inv.families.size} families (${familyList.join(', ')}), ${inv.handReview.length} hand-review sites, ${inv.references.length} reference sites — enumerated, not gated (use --post after the rewrite)`);
 }
 
-// selftest: the shadow assertion must CATCH an injected violation
+// selftest (r3 B2): inject a UNIQUE css-defined conflict and prove the
+// SAME collector the --post gate uses catches it with file:line; then
+// prove the clean tree has zero shadow hits.
 if (process.argv.includes('--selftest')) {
   const probePath = join(root, 'apps/www/src/lib/__shadow-probe__.svelte');
-  writeFileSync(probePath, '<div data-jx-alert="x"></div>\n');
-  const inv2 = await buildInventory(root);
-  const caught = inv2.defined.has('jx-alert') || inv2.families.has('alert');
+  writeFileSync(probePath, '<div data-jx-toggle-track="probe"></div>\n');
+  const hits = collectDataJx(root).filter((h) => h.name === 'jx-toggle-track');
+  const caught = hits.length === 1 && hits[0].file === probePath && typeof hits[0].line === 'number';
+  const shadowsIncludingProbe = shadowCheck(inv, root);
   rmSync(probePath);
-  ok('selftest: injected data-jx-alert shadow is detectable', caught);
+  const cleanShadows = shadowCheck(inv, root);
+  ok('selftest: injected css-defined shadow caught with file:line', caught && shadowsIncludingProbe.some((s2) => s2.name === 'jx-toggle-track'));
+  ok('selftest: clean tree has zero shadow hits', cleanShadows.length === 0, cleanShadows.map((s2) => s2.name).join(','));
 }
 
 // D. browser probes
 if (liveIdx > -1) {
   const port = process.argv[liveIdx + 1] ?? '5199';
   const { chromium } = await import('playwright-core');
-  const browser = await chromium.launch({ headless: true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
+  const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROME_PATH ?? chromium.executablePath() });
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   await page.goto(`http://localhost:${port}/components/kbd.html`, { waitUntil: 'networkidle' });
   const live = await page.evaluate(() => ({
@@ -110,7 +139,8 @@ if (liveIdx > -1) {
     valued: !!document.querySelector('[data-jx-alert]'),
     sample: document.querySelector('[data-jx-alert]')?.getAttribute('data-jx-alert') ?? null,
   }));
-  ok('live: variant family resolves as a valued attribute', variant.valued, JSON.stringify(variant));
+  const knownTones = ['default', 'primary', 'destructive'];
+  ok('live: variant valued attribute carries a known tone', variant.valued && knownTones.includes(variant.sample), JSON.stringify(variant));
   await browser.close();
 }
 
