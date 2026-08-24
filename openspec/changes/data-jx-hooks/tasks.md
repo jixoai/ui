@@ -6,8 +6,9 @@
 
 - [ ] 0.1 DONE r2: `scripts/jx-inventory.mjs` (structured scanner)
       + `scripts/verify-hook-law.mjs` (failing gate, proven failing
-      pre-migration) are committed; `.agents/jx-inventory.json` is the
-      stable schema output. Original:
+      pre-migration) are committed; the COMMITTED authoritative manifest is
+      `openspec/changes/data-jx-hooks/inventory.json` (clean-worktree
+      regeneration, --label provenance). Original:
       DEFINED/HOOK split + variant families + foreign reference map;
       its JSON output is the codemod's seed.
 - [ ] 0.2 `scripts/codemod-data-jx.mjs` implements the D1 shape table
