@@ -22,8 +22,7 @@
 //   node scripts/verify-shadcn-add.mjs
 // Scratch lives under .agents/fixtures/ (gitignored), wiped per run.
 
-import { createServer } from 'node:http';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,7 +32,9 @@ const scratch = join(root, '.agents/fixtures/2026-08-24-tw4-p0-consumer');
 const registryDir = join(scratch, 'registry', 'r');
 const consumerDir = join(scratch, 'consumer');
 const PORT = 5399;
+const BASE = `http://127.0.0.1:${PORT}/r`;
 
+const die = (msg) => { console.error(`[verify-shadcn-add] ${msg}`); process.exit(1); };
 const results = [];
 const check = (name, ok, detail = '') => {
   results.push({ name, ok });
@@ -91,17 +92,26 @@ writeFileSync(
   }),
 );
 
+// the CLI resolves its default base (incl. r/colors/neutral.json)
+// from REGISTRY_URL — cache the palette locally so the fixture never
+// depends on ui.shadcn.com reachability
+const neutral = spawnSync('curl', ['-s', '-m', '15', 'https://ui.shadcn.com/r/colors/neutral.json'], { encoding: 'utf8' });
+if (neutral.status !== 0 || !neutral.stdout.trim().startsWith('{')) die('cannot cache r/colors/neutral.json (offline?)');
+mkdirSync(join(registryDir, 'colors'), { recursive: true });
+writeFileSync(join(registryDir, 'colors', 'neutral.json'), neutral.stdout);
+
 // ── 2. local HTTP registry ─────────────────────────────────────────
-const server = createServer((req, res) => {
-  const name = req.url.replace(/^\/r\//, '').replace(/\.json$/, '');
-  const file = join(registryDir, `${name}.json`);
-  if (req.url === '/r/registry.json' || !existsSync(file)) {
-    res.writeHead(404).end('not found');
-    return;
-  }
-  res.writeHead(200, { 'content-type': 'application/json' }).end(readFileSync(file));
-});
-await new Promise((r) => server.listen(PORT, r));
+// python's http.server over node's: the shadcn CLI's undici fetch hit
+// Headers Timeout against a bare node keep-alive server; python's
+// battle-tested static server (same one build-site documents) does not.
+const registryRoot = join(scratch, 'registry');
+const server = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '127.0.0.1', '--directory', registryRoot], { stdio: 'ignore' });
+// wait until the registry answers
+for (let i = 0; i < 50; i++) {
+  const probe = spawnSync('curl', ['-s', '-o', '/dev/null', '-w', '%{http_code}', `http://127.0.0.1:${PORT}/r/accordion.json`], { encoding: 'utf8' });
+  if (probe.stdout.trim() === '200') break;
+  await new Promise((r) => setTimeout(r, 200));
+}
 
 // ── 3. scratch consumer (vite + svelte plugin, $lib alias) ────────
 mkdirSync(join(consumerDir, 'src/lib/ui'), { recursive: true });
@@ -135,7 +145,7 @@ write('components.json', JSON.stringify({
   tailwind: { config: '', css: 'src/app.css', baseColor: 'neutral', cssVariables: true, prefix: '' },
   iconLibrary: 'lucide',
   aliases: { components: 'src/lib', utils: 'src/lib/utils', ui: 'src/lib/ui', lib: 'src/lib', hooks: 'src/lib/hooks' },
-  registries: { '@jixoai': `http://localhost:${PORT}/r/{name}.json` },
+  registries: { '@jixoai': `${BASE}/{name}.json` },
 }, null, 2));
 
 write('vite.config.ts', `import { defineConfig } from 'vite';
@@ -203,7 +213,13 @@ console.log('npm install (consumer deps)…');
 run('npm', ['install', '--no-audit', '--no-fund', '--loglevel=error']);
 
 console.log('shadcn add @jixoai/accordion @jixoai/toast …');
-run('npx', ['shadcn', 'add', '@jixoai/accordion', '@jixoai/toast', '--yes', '--overwrite']);
+// The CLI's default base (REGISTRY_URL) also points at the local
+// registry — colors/neutral.json is served from the cache above, so
+// nothing needs ui.shadcn.com. The local base stays OFF any proxy
+// (the machine proxy black-holes localhost — the earlier curl 502).
+run('npx', ['shadcn', 'add', '@jixoai/accordion', '@jixoai/toast', '--yes', '--overwrite'], {
+  env: { ...process.env, REGISTRY_URL: BASE, NO_PROXY: 'localhost,127.0.0.1', no_proxy: 'localhost,127.0.0.1' },
+});
 
 // ── 5. assertions ─────────────────────────────────────────────────
 const exists = (p) => existsSync(join(consumerDir, p));
@@ -238,7 +254,7 @@ try {
   check('consumer vite build passes', false);
 }
 
-server.close();
+server.kill();
 
 // keep the scratch tree for inspection; next run wipes it
 const failed = results.filter((r) => !r.ok);

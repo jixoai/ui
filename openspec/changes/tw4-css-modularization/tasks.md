@@ -21,7 +21,7 @@
       against dev AND the production build; found + codified the
       ORDER LAW (canonical layer prologue required — see design.md
       D2 and the css-architecture delta).
-- [ ] 0.2 Real-consumer install probes (TWO fixtures, STAGED INPUT:
+- [x] 0.2 Real-consumer install probes (TWO fixtures, STAGED INPUT:
       served from a TEMP folder-shaped registry generated from the
       0.3 manifest — the current flat payloads are NOT the input; the
       real moved-tree proofs live in P1.5): (a) the multi-file
@@ -33,6 +33,13 @@
       at it) AND the shared `@lib` dependency (`toast-store.ts` stays
       canonical, installs without duplication/clobber). Served via
       `shadcn add` from a local HTTP registry.
+      DONE 2026-08-24: `scripts/verify-shadcn-add.mjs` ALL GREEN —
+      real `shadcn add` against a python-served temp folder registry
+      (REGISTRY_URL also localized; r/colors/neutral.json cached so
+      the fixture is offline-safe): accordion folder layout + barrel,
+      toast non-identical main + toast-store.ts exactly once at
+      canonical @lib, consumer vite build passes (import resolution +
+      svelte compile).
 - [x] 0.3 Inventory + migration mapping table + drift block:
       DONE 2026-08-24 — scripts/gen-mirror-manifest.mjs (gen + --check
       drift modes) + apps/www/mirror-manifest.json (84 items / 91
