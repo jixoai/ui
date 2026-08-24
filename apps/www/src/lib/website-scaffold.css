@@ -47,6 +47,12 @@
      --jx-toc-line     where pinned chrome ends; consumed as the body's
                        scroll-padding so anchor jumps land ON the line */
   grid-template-columns: [content-start] minmax(0, 1fr) [content-end];
+  /* slot-aware side columns (Owner request, 2026-08-24): the rail/toc
+     tracks collapse to 0 when their chrome is absent (:has detects the
+     [data-area] node) — the content column expands, no dead side
+     whitespace. Track COUNT stays constant so the areas stay valid. */
+  --jx-rail-w: 0px;
+  --jx-toc-w: 0px;
   /* header band height per form — the PRIMARY source (Codex firstpaint
      ruling): measured collapsed heights 58px (<900) / 74px (>=900); the
      scaffold script's RO only corrects deviations (disclosure open) */
@@ -80,15 +86,21 @@
 @container jx-shell (min-width: 900px) {
   .jx-shell {
     grid-template-columns:
-      [content-start] minmax(0, 1fr) [content-end toc-start] 15rem [toc-end];
+      [content-start] minmax(0, 1fr) [content-end toc-start] var(--jx-toc-w) [toc-end];
     --jx-header-h: 74px;
+  }
+  .jx-shell:has(.jx-top-layer [data-area='toc']) {
+    --jx-toc-w: 15rem;
   }
 }
 @container jx-shell (min-width: 1200px) {
   .jx-shell {
     grid-template-columns:
-      [rail-start] 16rem [rail-end content-start] minmax(0, 1fr)
-      [content-end toc-start] 15rem [toc-end];
+      [rail-start] var(--jx-rail-w) [rail-end content-start] minmax(0, 1fr)
+      [content-end toc-start] var(--jx-toc-w) [toc-end];
+  }
+  .jx-shell:has(.jx-top-layer [data-area='tree']) {
+    --jx-rail-w: 16rem;
   }
 }
 
