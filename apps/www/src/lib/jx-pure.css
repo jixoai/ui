@@ -201,8 +201,8 @@
   box-shadow: none;
 }
 .jx-input[aria-invalid='true'] {
-  border-style: dashed; /* the monochrome invalid signal */
-  border-color: var(--destructive);
+  border-style: dashed; /* the invalid signal */
+  border-color: var(--error);
   padding-inline-end: 2rem; /* room for the '!' ink */
   background-image: var(--jx-icon-invalid-ink);
   background-position: right 0.625rem center;
@@ -236,7 +236,7 @@
 .dark .jx-field-shell {
   color-scheme: dark;
 }
-.jx-field-shell:not(:has(input:disabled)):hover:not(:has(:focus-visible)) {
+.jx-field-shell:not(:has(:disabled)):hover:not(:has(:focus-visible)) {
   box-shadow: var(--shadow-2xs);
 }
 /* the site focus law: an inset 1px outline on the ring token — the
@@ -246,7 +246,7 @@
   outline-offset: -1px;
   box-shadow: none;
 }
-.jx-field-shell:has(input:disabled) {
+.jx-field-shell:has(:disabled) {
   opacity: 0.5;
   cursor: not-allowed;
   box-shadow: none;
@@ -259,6 +259,206 @@
    the lane runs edge-to-edge between the gap seams */
 .jx-field-shell.jx-slotted {
   padding-inline: 0.75rem;
+}
+
+/* ---- the label-based input group (openspec D6, amended by the
+   Owner 2026-08-24: NO class — the STRUCTURE is the opt-in, this is
+   the jx-pure face's own syntax). Inside .jx-pure, a <label> that has
+   a DIRECT-CHILD text-like control AND a direct-child span composes
+   into the group shell: the label takes the box law, the spans ride
+   as prefix/suffix, the control goes chromeless. A plain
+   <label>text <input></label> (no span child) stays untouched, and
+   checkbox/radio/range/color/file labels never match the allowlist. */
+:where(.jx-pure) label:has(> input:where(
+    :not([type]),
+    [type='text'],
+    [type='password'],
+    [type='email'],
+    [type='url'],
+    [type='tel'],
+    [type='search'],
+    [type='number'],
+    [type='date'],
+    [type='time'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='week']
+  )):has(> span),
+:where(.jx-pure) label:has(> textarea):has(> span),
+:where(.jx-pure) label:has(> select):has(> span) {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 100%;
+  min-height: 2.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color-scheme: light;
+  transition: box-shadow 150ms ease-out;
+  cursor: text; /* the whole shell targets the control */
+}
+.dark :where(.jx-pure) label:has(> input:where(
+    :not([type]),
+    [type='text'],
+    [type='password'],
+    [type='email'],
+    [type='url'],
+    [type='tel'],
+    [type='search'],
+    [type='number'],
+    [type='date'],
+    [type='time'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='week']
+  )):has(> span),
+.dark :where(.jx-pure) label:has(> textarea):has(> span),
+.dark :where(.jx-pure) label:has(> select):has(> span) {
+  color-scheme: dark;
+}
+:where(.jx-pure) label:has(> input:where(
+    :not([type]),
+    [type='text'],
+    [type='password'],
+    [type='email'],
+    [type='url'],
+    [type='tel'],
+    [type='search'],
+    [type='number'],
+    [type='date'],
+    [type='time'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='week']
+  )):has(> span):not(:has(:disabled)):hover:not(:has(:focus-visible)),
+:where(.jx-pure) label:has(> textarea):has(> span):not(:has(:disabled)):hover:not(:has(:focus-visible)),
+:where(.jx-pure) label:has(> select):has(> span):not(:has(:disabled)):hover:not(:has(:focus-visible)) {
+  box-shadow: var(--shadow-2xs);
+}
+:where(.jx-pure) label:has(> input:where(
+    :not([type]),
+    [type='text'],
+    [type='password'],
+    [type='email'],
+    [type='url'],
+    [type='tel'],
+    [type='search'],
+    [type='number'],
+    [type='date'],
+    [type='time'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='week']
+  )):has(> span):has(:focus-visible),
+:where(.jx-pure) label:has(> textarea):has(> span):has(:focus-visible),
+:where(.jx-pure) label:has(> select):has(> span):has(:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+:where(.jx-pure) label:has(> input:where(
+    :not([type]),
+    [type='text'],
+    [type='password'],
+    [type='email'],
+    [type='url'],
+    [type='tel'],
+    [type='search'],
+    [type='number'],
+    [type='date'],
+    [type='time'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='week']
+  )):has(> span):has(:disabled),
+:where(.jx-pure) label:has(> textarea):has(> span):has(:disabled),
+:where(.jx-pure) label:has(> select):has(> span):has(:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+:where(.jx-pure) label:has(> input:where(
+    :not([type]),
+    [type='text'],
+    [type='password'],
+    [type='email'],
+    [type='url'],
+    [type='tel'],
+    [type='search'],
+    [type='number'],
+    [type='date'],
+    [type='time'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='week']
+  )):has(> span):has([aria-invalid='true']),
+:where(.jx-pure) label:has(> textarea):has(> span):has([aria-invalid='true']),
+:where(.jx-pure) label:has(> select):has(> span):has([aria-invalid='true']) {
+  border-style: dashed;
+  border-color: var(--error);
+}
+/* the spans ride as prefix/suffix; the control goes chromeless.
+   The CHILD-control selector repeats the shell's text-like allowlist
+   — a bare `> input` here would chromeless checkbox/radio/range/
+   color/file controls inside labels that never got the shell
+   (r9 final blocker 1) */
+:where(.jx-pure) label:has(> input:where(
+    :not([type]),
+    [type='text'],
+    [type='password'],
+    [type='email'],
+    [type='url'],
+    [type='tel'],
+    [type='search'],
+    [type='number'],
+    [type='date'],
+    [type='time'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='week']
+  )):has(> span) > span,
+:where(.jx-pure) label:has(> textarea):has(> span) > span,
+:where(.jx-pure) label:has(> select):has(> span) > span {
+  flex: none;
+  padding-inline: 0.75rem;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  user-select: none;
+}
+:where(.jx-pure) label:has(> input:where(
+    :not([type]),
+    [type='text'],
+    [type='password'],
+    [type='email'],
+    [type='url'],
+    [type='tel'],
+    [type='search'],
+    [type='number'],
+    [type='date'],
+    [type='time'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='week']
+  )):has(> span) > input,
+:where(.jx-pure) label:has(> textarea):has(> span) > textarea,
+:where(.jx-pure) label:has(> select):has(> span) > select {
+  flex: 1 1 0%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0.5rem 0.75rem;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+:where(.jx-pure) label:has(> select):has(> span) > select {
+  padding-inline-end: 2rem; /* chevron room inside the shell */
 }
 
 /* the chromeless lane (inside .jx-field-shell, or standalone inside any
@@ -322,107 +522,98 @@
    record in the file header) — the jixoai lane hides them and keeps
    native ↑/↓ + wheel stepping; Tier-2 number-input supplies visible
    [- +] steppers. Firefox norms: appearance: textfield. */
-.jx-input[type='number'],
-.jx-input-lane[type='number'] {
-  appearance: textfield;
-  -moz-appearance: textfield;
-}
-.jx-input[type='number']::-webkit-outer-spin-button,
-.jx-input[type='number']::-webkit-inner-spin-button,
-.jx-input-lane[type='number']::-webkit-outer-spin-button,
-.jx-input-lane[type='number']::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  appearance: none;
-  margin: 0;
-}
+/* number lane: spin pseudos stay PLATFORM-painted (openspec D3) —
+   hiding them removed the only zero-JS stepper. Composite steppers
+   (hold-to-accelerate) remain the Tier-2 number-input component. */
 
 /* =====================================================================
-   4 · Range — the zero-JS progress fill (2026-08-24 upgrade, Owner
-   request "参考 daisyui range"; SAME-THICKNESS amendment hours later,
-   Owner ruling: "不希望它这么粗，和轨道同粗就行"). Technique lifted
-   from daisyUI: the thumb's ONLY box-shadow layer is a 100cqw spread
-   shoved to the start side, and overflow:hidden on the input clips
-   it — the fill extends exactly to the thumb with ZERO JS, and BOTH
-   engines run the SAME law. CONSTRAINT (structural): the shadow
-   rect grows in ALL directions, so the fill's height is ALWAYS the
-   clip box = the INPUT's height. Equal thickness therefore means the
-   paint box IS the rail: the input renders at rail height (8px) and
-   the thumb is a rail-height square carriage. The hit affordance
-   narrows to the rail (keyboard + drag pointer-capture remain native);
-   fat touch targets are the Tier-2 range component's own DOM.
-   .jx-range-sm / -lg scale the whole rail. RTL flips via
-   --jx-range-dir.
+   4 · Range — the daisyUI law, tokens included (Owner ruling
+   2026-08-24: "重新参考 daisyui 进行重构绘制" — two square-language
+   attempts missed; this control now rides the ROUND language, aligned
+   with the Tier-2 toggle's pill posture; the radio-dot circle
+   precedent extends here). Geometry straight from daisyUI: the input
+   IS the thumb-sized pill (overflow:hidden + border-radius clips the
+   fill into the pill), the groove = half-thumb rounded, the thumb =
+   a full circle on a thick primary ring. Fill = the cqw shadow
+   technique (thumb's last shadow layer, zero JS, both engines).
+   Sizes scale everything from --jx-range-thumb: sm 1rem, md 1.5rem,
+   lg 1.75rem. Invalid flips fill + ring to var(--error).
    ===================================================================== */
 .jx-range {
-  --jx-range-rail: 0.5rem;
+  --jx-range-thumb: 1.5rem;
   --jx-range-fill-color: var(--primary);
   --jx-range-dir: 1;
   appearance: none;
   -webkit-appearance: none;
   display: block;
   width: 100%;
-  height: var(--jx-range-rail); /* the paint box — and the fill's clip box */
+  height: var(--jx-range-thumb); /* the pill — and the fill's clip box */
   margin: 0;
+  border: none;
+  border-radius: calc(infinity * 1px); /* the pill */
   background: transparent;
   cursor: pointer;
-  container-type: inline-size; /* cqw resolves against the input itself */
-  overflow: hidden; /* the clip that turns the thumb shadow into a fill */
+  container-type: inline-size;
+  overflow: hidden;
 }
 .jx-range-sm {
-  --jx-range-rail: 0.375rem;
+  --jx-range-thumb: 1rem;
 }
 .jx-range-lg {
-  --jx-range-rail: 0.75rem;
+  --jx-range-thumb: 1.75rem;
 }
-:where([dir='rtl']) .jx-range {
+:where([dir='rtl']) .jx-range,
+.jx-range[dir='rtl'] {
   --jx-range-dir: -1;
 }
 .jx-range:focus-visible {
-  outline: 1px solid var(--ring);
-  outline-offset: 2px; /* clear the thin rail */
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }
 .jx-range:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 .jx-range::-webkit-slider-runnable-track {
-  box-sizing: border-box;
-  height: 100%;
-  border: 1px solid var(--border);
-  border-radius: 0;
-  background: var(--background);
+  height: calc(var(--jx-range-thumb) / 2); /* the half-thumb groove */
+  border-radius: calc(infinity * 1px);
+  background: color-mix(in oklab, var(--foreground) 10%, transparent);
 }
 .jx-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   box-sizing: border-box;
-  width: var(--jx-range-rail); /* the carriage: a rail-height square */
-  height: var(--jx-range-rail);
-  border: 1px solid var(--border);
-  border-radius: 0;
-  background: var(--primary);
-  /* THE FILL: a spread-everywhere shadow shoved to the start side,
-     clipped by the input's overflow:hidden into "everything before
-     the thumb" — daisyUI's trick, equal thickness by construction */
-  box-shadow: calc(var(--jx-range-dir) * (-100cqw - var(--jx-range-rail) / 2)) 0 0 100cqw
+  width: var(--jx-range-thumb);
+  height: var(--jx-range-thumb);
+  /* daisyUI thumb: light disc on a thick primary ring */
+  border: 0.25rem solid var(--primary);
+  border-radius: calc(infinity * 1px);
+  background: var(--background);
+  /* keep the disc webkit-centered on the groove */
+  margin-top: calc(var(--jx-range-thumb) / -4);
+  /* THE FILL: spread shadow shoved to the start side, clipped by the
+     input's overflow:hidden pill into "everything before the thumb" */
+  box-shadow: calc(var(--jx-range-dir) * (-100cqw - var(--jx-range-thumb) / 2)) 0 0 100cqw
     var(--jx-range-fill-color);
 }
+/* firefox: native pseudos — progress fill + the same ringed disc */
 .jx-range::-moz-range-track {
-  box-sizing: border-box;
-  height: 100%;
-  border: 1px solid var(--border);
-  border-radius: 0;
-  background: var(--background);
+  height: calc(var(--jx-range-thumb) / 2);
+  border-radius: calc(infinity * 1px);
+  background: color-mix(in oklab, var(--foreground) 10%, transparent);
+}
+.jx-range::-moz-range-progress {
+  height: calc(var(--jx-range-thumb) / 2);
+  border-radius: calc(infinity * 1px);
+  background: var(--jx-range-fill-color);
 }
 .jx-range::-moz-range-thumb {
   box-sizing: border-box;
-  width: var(--jx-range-rail);
-  height: var(--jx-range-rail);
-  border: 1px solid var(--border);
-  border-radius: 0;
-  background: var(--primary);
-  box-shadow: calc(var(--jx-range-dir) * (-100cqw - var(--jx-range-rail) / 2)) 0 0 100cqw
-    var(--jx-range-fill-color);
+  width: var(--jx-range-thumb);
+  height: var(--jx-range-thumb);
+  border: 0.25rem solid var(--primary);
+  border-radius: calc(infinity * 1px);
+  background: var(--background);
 }
 
 /* =====================================================================
@@ -891,18 +1082,9 @@
     min-height: 5rem;
     resize: vertical;
   }
-  /* number lane: the engine's spin buttons reject custom paint (Part A
-     decision record) — hide them, keep native ↑/↓ + wheel stepping */
-  :where(.jx-pure) input[type='number'] {
-    appearance: textfield;
-    -moz-appearance: textfield;
-  }
-  :where(.jx-pure) input[type='number']::-webkit-outer-spin-button,
-  :where(.jx-pure) input[type='number']::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    appearance: none;
-    margin: 0;
-  }
+  /* number lane: spin buttons stay PLATFORM-painted (openspec D3) —
+     visible steppers beat hidden ones at zero JS; composite steppers
+     are the Tier-2 number-input component */
   /* date/time indicators ride the Part A INK fallback (the UA-shadow
      pseudo rejects author mask paint — see the path (c) record) */
   :where(.jx-pure) input:where([type='date'], [type='datetime-local'], [type='month'], [type='week'])::-webkit-calendar-picker-indicator {
@@ -920,36 +1102,39 @@
     background-image: var(--jx-icon-clock-ink);
   }
 
-  /* ---- select: DEFAULT keeps the platform arrow (Codex D7 — the
-     affordance is worth more than pixel parity); the box law above
-     already themes it and padding-inline-end reserves arrow room.
-     The OPT-IN repaint (.jx-select, single-select only) hides the
-     platform arrow and draws the chevron from TWO token-colored
-     gradients — a bare select takes no pseudo-elements, and a
-     data-URI stroke would hardcode a color that dies on one theme;
-     gradients ride var(--muted-foreground) so both themes live.
-     multiple/size lists keep the listbox posture (no arrow, no
-     button cursor). */
+  /* ---- select: INSIDE .jx-pure everything is jx (openspec D2 —
+     the r1 D7 opt-in stance is overruled by the Owner). Single
+     selects hide the platform arrow and draw the chevron from TWO
+     token-colored gradients (a bare select takes no pseudo-elements,
+     and a data-URI stroke would hardcode a color that dies on one
+     theme); multiple/size lists keep the listbox posture. Native
+     paint returns via the .no-jx-pure subtree hatch (B12). */
   :where(.jx-pure) select {
     padding-inline-end: 2rem;
   }
-  :where(.jx-pure) select.jx-select:where(:not([multiple], [size])) {
-    appearance: none;
-    -webkit-appearance: none;
-    cursor: pointer;
-    background-image:
-      linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
-      linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
-    background-position:
-      calc(100% - 1.1875rem) calc(50% - 0.1875rem),
-      calc(100% - 0.8125rem) calc(50% - 0.1875rem);
-    background-size: 0.375rem 0.375rem;
-    background-repeat: no-repeat;
-  }
-  :where(.jx-pure) select.jx-select:not([multiple], [size]):hover {
-    background-image:
-      linear-gradient(45deg, transparent 50%, var(--primary) 50%),
-      linear-gradient(135deg, var(--primary) 50%, transparent 50%);
+  /* FF does not paint author background-images on select (cross-engine
+     finding, 2026-08-24, verified) — the same degradation law as the
+     date indicators: Firefox keeps its PLATFORM arrow, everything
+     else gets the jx chevron */
+  @supports not selector(::-moz-range-progress) {
+    :where(.jx-pure) select:where(:not([multiple], [size])) {
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+        linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+      background-position:
+        calc(100% - 1.1875rem) calc(50% - 0.1875rem),
+        calc(100% - 0.8125rem) calc(50% - 0.1875rem);
+      background-size: 0.375rem 0.375rem;
+      background-repeat: no-repeat;
+    }
+    :where(.jx-pure) select:where(:not([multiple], [size])):hover {
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--primary) 50%),
+        linear-gradient(135deg, var(--primary) 50%, transparent 50%);
+    }
   }
   :where(.jx-pure) select:where([multiple], [size]) {
     min-height: 5.75rem;
@@ -1069,29 +1254,31 @@
     transform: scale(1);
   }
 
-  /* range: the .jx-range law mirrored element-scoped — the zero-JS
-     cqw shadow fill at RAIL THICKNESS (see Part A section 4 for the
-     full decision record); sm/lg upgrade it via the Part A classes */
+  /* range: the .jx-range daisyUI law mirrored element-scoped; the
+     Part A size classes upgrade it inside a .jx-pure subtree too */
   :where(.jx-pure) input[type='range'] {
-    --jx-range-rail: 0.5rem;
+    --jx-range-thumb: 1.5rem;
     --jx-range-fill-color: var(--primary);
     --jx-range-dir: 1;
     appearance: none;
     -webkit-appearance: none;
     display: block;
     width: 100%;
-    height: var(--jx-range-rail);
+    height: var(--jx-range-thumb);
     margin: 0;
+    border: none;
+    border-radius: calc(infinity * 1px);
     background: transparent;
     cursor: pointer;
     container-type: inline-size;
     overflow: hidden;
   }
-  :where([dir='rtl']) :where(.jx-pure) input[type='range'] {
+  :where([dir='rtl']) :where(.jx-pure) input[type='range'],
+  :where(.jx-pure[dir='rtl']) input[type='range'] {
     --jx-range-dir: -1;
   }
   :where(.jx-pure) input[type='range']:focus-visible {
-    outline: 1px solid var(--ring);
+    outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
   :where(.jx-pure) input[type='range']:disabled {
@@ -1099,40 +1286,40 @@
     cursor: not-allowed;
   }
   :where(.jx-pure) input[type='range']::-webkit-slider-runnable-track {
-    box-sizing: border-box;
-    height: 100%;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--background);
+    height: calc(var(--jx-range-thumb) / 2);
+    border-radius: calc(infinity * 1px);
+    background: color-mix(in oklab, var(--foreground) 10%, transparent);
   }
   :where(.jx-pure) input[type='range']::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     box-sizing: border-box;
-    width: var(--jx-range-rail);
-    height: var(--jx-range-rail);
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--primary);
-    box-shadow: calc(var(--jx-range-dir) * (-100cqw - var(--jx-range-rail) / 2)) 0 0 100cqw
+    width: var(--jx-range-thumb);
+    height: var(--jx-range-thumb);
+    border: 0.25rem solid var(--primary);
+    border-radius: calc(infinity * 1px);
+    background: var(--background);
+    margin-top: calc(var(--jx-range-thumb) / -4);
+    box-shadow: calc(var(--jx-range-dir) * (-100cqw - var(--jx-range-thumb) / 2)) 0 0 100cqw
       var(--jx-range-fill-color);
   }
   :where(.jx-pure) input[type='range']::-moz-range-track {
-    box-sizing: border-box;
-    height: 100%;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--background);
+    height: calc(var(--jx-range-thumb) / 2);
+    border-radius: calc(infinity * 1px);
+    background: color-mix(in oklab, var(--foreground) 10%, transparent);
+  }
+  :where(.jx-pure) input[type='range']::-moz-range-progress {
+    height: calc(var(--jx-range-thumb) / 2);
+    border-radius: calc(infinity * 1px);
+    background: var(--jx-range-fill-color);
   }
   :where(.jx-pure) input[type='range']::-moz-range-thumb {
     box-sizing: border-box;
-    width: var(--jx-range-rail);
-    height: var(--jx-range-rail);
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--primary);
-    box-shadow: calc(var(--jx-range-dir) * (-100cqw - var(--jx-range-rail) / 2)) 0 0 100cqw
-      var(--jx-range-fill-color);
+    width: var(--jx-range-thumb);
+    height: var(--jx-range-thumb);
+    border: 0.25rem solid var(--primary);
+    border-radius: calc(infinity * 1px);
+    background: var(--background);
   }
 
   /* color: the locked square swatch (the pipette glyph needs the Part A
@@ -1455,67 +1642,102 @@
   }
 
   /* =====================================================================
-     B13 · switch — role=switch on a checkbox (Pico contract, square
-     law). The ROLE attribute is the opt-in — no class, no wrapper; the
-     checkbox keeps native state/label/FormData, appearance:none strips
-     only the paint. Geometry: 2.25×1.25rem track, square thumb at
-     100%-minus-borders height, slide via margin-inline-start.
+     B13 · switch — the daisyUI pill law (Owner ruling 2026-08-24:
+     rebuild per daisyUI; the square attempts read as checkboxes).
+     Pill track (rounded-full), circular knob, hard state contrast:
+       off: track var(--muted), knob var(--background)
+       on:  track var(--primary), knob var(--primary-foreground)
+     Sizes (track w×h / knob / travel): sm 32×20/14/12 · md 40×24/18/16
+     · lg 48×28/22/20 — knob = h − 6px (2px pad + 1px border a side).
+     role=switch on a checkbox, zero classes, native semantics intact.
      ===================================================================== */
   :where(.jx-pure) input[type='checkbox'][role='switch'] {
+    --jx-switch-w: 2.5rem;
+    --jx-switch-h: 1.5rem;
+    --jx-switch-knob: calc(var(--jx-switch-h) - 6px);
+    --jx-switch-travel: calc(var(--jx-switch-w) - var(--jx-switch-h));
     appearance: none;
     -webkit-appearance: none;
     box-sizing: border-box;
-    width: 2.25rem;
-    height: 1.25rem;
+    width: var(--jx-switch-w);
+    height: var(--jx-switch-h);
     margin: 0;
     flex: none;
+    padding: 2px;
     border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--background);
+    border-radius: calc(infinity * 1px); /* the pill */
+    background: var(--muted); /* the off track */
     cursor: pointer;
     transition:
       background-color 150ms ease-out,
       border-color 150ms ease-out;
   }
   :where(.jx-pure) input[type='checkbox'][role='switch']::before {
+    /* reset the B5 checkbox glyph law (opacity/clip-path/rotate) */
+    opacity: 1;
+    clip-path: none;
+    transform: none;
     content: '';
     display: block;
     box-sizing: border-box;
-    height: calc(100% - 2px);
-    aspect-ratio: 1;
-    background: var(--muted-foreground);
-    transition: margin 150ms cubic-bezier(0.22, 1, 0.36, 1), background-color 150ms ease-out;
+    width: var(--jx-switch-knob);
+    height: var(--jx-switch-knob);
+    border-radius: calc(infinity * 1px); /* the round knob */
+    background: var(--background); /* the off knob */
+    transition:
+      margin-inline-start 150ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 150ms ease-out;
   }
   :where(.jx-pure) input[type='checkbox'][role='switch']:hover:not(:disabled) {
-    border-color: var(--primary);
+    border-color: var(--primary); /* the off-track lean */
   }
   :where(.jx-pure) input[type='checkbox'][role='switch']:checked {
     background: var(--primary);
     border-color: var(--primary);
   }
   :where(.jx-pure) input[type='checkbox'][role='switch']:checked::before {
-    margin-inline-start: 1rem; /* 2.25rem track − 1.25rem thumb */
+    clip-path: none;
+    opacity: 1;
+    margin-inline-start: var(--jx-switch-travel);
     background: var(--primary-foreground);
   }
   :where(.jx-pure) input[type='checkbox'][role='switch']:focus-visible {
     outline: 1px solid var(--ring);
-    outline-offset: -1px;
+    outline-offset: 2px;
   }
   :where(.jx-pure) input[type='checkbox'][role='switch']:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
+  /* sizes */
+  :where(.jx-pure) input[type='checkbox'][role='switch'].jx-switch-sm,
+  .jx-pure .jx-switch-sm input[type='checkbox'][role='switch'] {
+    --jx-switch-w: 2rem;
+    --jx-switch-h: 1.25rem;
+  }
+  :where(.jx-pure) input[type='checkbox'][role='switch'].jx-switch-lg,
+  .jx-pure .jx-switch-lg input[type='checkbox'][role='switch'] {
+    --jx-switch-w: 3rem;
+    --jx-switch-h: 1.75rem;
+  }
+  /* the label posture: text inline-start, switch inline-end, one
+     clickable surface (:has() engines only — harmless elsewhere) */
+  :where(.jx-pure) label:has(> input[type='checkbox'][role='switch']) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+  }
 
   /* =====================================================================
-     B14 · validation states — the Pico state matrix on the jixoai
-     monochrome palette (Owner request 2026-08-24, 全面参考
-     picocss.com/docs/forms validation-states):
-       aria-invalid='false' → the accent LEANS primary (the one-hue
-                              positive; borders go primary)
-       aria-invalid='true'  → every primary accent FLIPS to destructive
-                              (+ the lanes' dashed border signal)
-     Lanes additionally carry an inline-end INK glyph ('!' invalid /
-     '✓' valid) reserved by padding — the calendar-ink pattern.
+     B14 · validation states — the Pico state matrix on the SEMANTIC
+     palette (openspec D5): aria-invalid='false' leans --success ('✓'
+     ink + success border + success hover lean); aria-invalid='true'
+     flips every accent to --error (dashed lanes + '!' ink, checked
+     fills, the radio DOT, switch track, range fill + thumb).
+     --destructive is NOT used here — it stays the monochrome
+     inversion pair for destructive actions. Native :invalid stays
+     deliberately unhooked (no empty-required surprises).
      ===================================================================== */
   /* lanes: border-color states + the ink glyphs */
   :where(.jx-pure) input:where(
@@ -1530,7 +1752,7 @@
     )[aria-invalid='true'],
   :where(.jx-pure) textarea[aria-invalid='true'],
   :where(.jx-pure) select[aria-invalid='true'] {
-    border-color: var(--destructive);
+    border-color: var(--error);
   }
   :where(.jx-pure) input:where(
       :not([type]),
@@ -1544,7 +1766,7 @@
     )[aria-invalid='false'],
   :where(.jx-pure) textarea[aria-invalid='false'],
   :where(.jx-pure) select[aria-invalid='false'] {
-    border-color: var(--primary);
+    border-color: var(--success);
   }
   :where(.jx-pure) input:where(
       :not([type]),
@@ -1580,57 +1802,47 @@
     background-size: 0.75rem 0.75rem;
     background-repeat: no-repeat;
   }
-  /* checkbox / radio: the checked accent flips */
+  /* checkbox / radio: the checked accent flips to error */
   :where(.jx-pure) input[type='checkbox'][aria-invalid='true']:checked,
   :where(.jx-pure) input[type='checkbox'][aria-invalid='true']:indeterminate,
   :where(.jx-pure) input[type='radio'][aria-invalid='true']:checked {
-    background: var(--destructive);
-    border-color: var(--destructive);
+    background: var(--error);
+    border-color: var(--error);
   }
-  /* the radio's checked DOT is its own ::after paint — flip it too
-     (Codex r7 R7-1: the root flip alone left the dot primary) */
   :where(.jx-pure) input[type='radio'][aria-invalid='true']:checked::after {
-    background: var(--destructive);
+    background: var(--error-foreground);
   }
   :where(.jx-pure) input[type='checkbox'][aria-invalid='false']:hover:not(:checked):not(:disabled),
   :where(.jx-pure) input[type='radio'][aria-invalid='false']:hover:not(:checked):not(:disabled) {
-    border-color: var(--primary); /* the valid lean */
+    border-color: var(--success); /* the valid lean */
   }
   /* switch: the checked track flips */
-  :where(.jx-pure) input[type='checkbox'][role='switch'][aria-invalid='true']:checked {
-    background: var(--destructive);
-    border-color: var(--destructive);
+  :where(.jx-pure) input[type='checkbox'][role='switch'][aria-invalid='true'] {
+    border-color: var(--error);
   }
-  /* range: thumb + fill flip */
+  :where(.jx-pure) input[type='checkbox'][role='switch'][aria-invalid='true']:checked {
+    background: var(--error);
+    border-color: var(--error);
+  }
+  :where(.jx-pure) input[type='checkbox'][role='switch'][aria-invalid='true']:checked::before {
+    border-color: transparent;
+  }
+  /* range: fill + thumb flip */
   :where(.jx-pure) input[type='range'][aria-invalid='true'] {
-    --jx-range-fill-color: var(--destructive);
+    --jx-range-fill-color: var(--error);
   }
   :where(.jx-pure) input[type='range'][aria-invalid='true']::-webkit-slider-thumb {
-    background: var(--destructive);
+    border-color: var(--error);
   }
   :where(.jx-pure) input[type='range'][aria-invalid='true']::-moz-range-thumb {
-    background: var(--destructive);
-  }
-
-/* ==== :root ink additions (splice beside the calendar inks) ====
-  --jx-icon-valid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
-  --jx-icon-invalid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 16.5h.01'/%3E%3C/svg%3E");
-  (.dark → %23fff variants; .jx-light → %23000 again)
-*/
-
-/* ==== Part C additions ==== */
-  /* the switch slide + validation transitions park */
-  :where(.jx-pure) input[type='checkbox'][role='switch'],
-  :where(.jx-pure) input[type='checkbox'][role='switch']::before {
-    transition: none;
+    background: var(--error);
   }
 
   /* =====================================================================
-     B12 · the escape hatch — [data-jx-pure-skip] (Codex r1 9.4,
-     resolved 2026-08-24; r4 R4-2 fix: UNLAYERED). Mount it on the
-     wrapper of a subtree that must keep its OWN paint (a third-party
-     widget, an iframe companion, a legacy island): every surface
-     INSIDE reverts to the USER-AGENT cascade. The rules live OUTSIDE
+     B12 · the reverse scope — .no-jx-pure (Owner ruling 2026-08-24,
+     openspec D2; the r4 R4-2 unlayered posture kept). Inside .jx-pure
+     everything is jx; mount .no-jx-pure on any element to revert IT
+     and its whole subtree to the USER-AGENT cascade. The rules live OUTSIDE
      @layer components on purpose — a layered revert could never beat
      Part A's UNLAYERED classes (layers outrank specificity), and the
      hatch must win against BOTH parts. `revert` rolls the whole
@@ -1641,13 +1853,20 @@
      summary marker) are reverted separately below.
      ===================================================================== */
 }
-/* the hatch, unlayered so it outranks Part A */
-.jx-pure [data-jx-pure-skip] :where(button, input, textarea, select, summary, details, fieldset, legend, table, th, td, progress, meter, figure, blockquote, pre, code, kbd, samp, hr, ul, ol, dl, dt, dd) {
-  all: revert;
+/* the reverse scope, unlayered so it outranks Part A; the element
+   itself AND every descendant revert (all:revert also rolls back
+   font/layout/display authoring — the island is FULLY native) */
+.jx-pure .no-jx-pure,
+.jx-pure .no-jx-pure * {
+  /* !important is the contract: author-!important outranks INLINE
+     styles too — the island is fully native even against the host's
+     inline/utility authoring on its nodes */
+  all: revert !important;
 }
-.jx-pure [data-jx-pure-skip] :where(input[type='checkbox'])::before,
-.jx-pure [data-jx-pure-skip] :where(input[type='radio'])::after,
-.jx-pure [data-jx-pure-skip] summary::before {
+/* pseudos are not matched by * — reset the B-drawn glyph surfaces */
+.jx-pure .no-jx-pure :where(input[type='checkbox'])::before,
+.jx-pure .no-jx-pure :where(input[type='radio'])::after,
+.jx-pure .no-jx-pure summary::before {
   all: revert;
   content: none;
 }
@@ -1724,7 +1943,7 @@
   :where(.jx-pure) input[type='radio'],
   :where(.jx-pure) input[type='range'],
   :where(.jx-pure) input[type='color'],
-  :where(.jx-pure) select.jx-select {
+  :where(.jx-pure) select {
     appearance: auto;
     -webkit-appearance: auto;
     background-image: none;
@@ -1766,11 +1985,20 @@
       --border: oklch(1 0 0);
       --input: oklch(1 0 0);
       --ring: var(--primary);
+      --success: oklch(0.72 0.16 145);
+      --success-foreground: oklch(0 0 0);
+      --warning: oklch(0.78 0.17 85);
+      --warning-foreground: oklch(0 0 0);
+      --info: oklch(0.74 0.14 245);
+      --info-foreground: oklch(0 0 0);
+      --error: oklch(0.72 0.16 25);
+      --error-foreground: oklch(0 0 0);
+
       --chart-1: var(--primary);
-      --chart-2: oklch(0.9691 0.2005 109.6228);
-      --chart-3: oklch(0.6755 0.1765 252.2592);
-      --chart-4: oklch(0.7395 0.2268 142.8504);
-      --chart-5: oklch(0.6131 0.2458 328.0714);
+      --chart-2: var(--success);
+      --chart-3: var(--info);
+      --chart-4: var(--warning);
+      --chart-5: var(--error);
 
       --shadow-color: hsl(0 0% 100%);
       --shadow-2xs: 4px 4px 0px 0px hsl(0 0% 100% / 0.5);

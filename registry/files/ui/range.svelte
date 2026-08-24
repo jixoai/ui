@@ -328,51 +328,42 @@
     cursor: not-allowed;
   }
 
-  /* the shared track law (Tier-1 .jx-range parity, 2026-08-24 equal-
-     thickness amendment): the 8px bordered groove + an 8px primary
-     fill — SAME THICKNESS as the groove (Owner ruling). This widget's
-     own DOM paints the fill as a plain div inside the track, so it
-     keeps BOTH the fat 1.75rem hit strip AND the 20px thumb — the
-     affordances the bare Tier-1 input traded away for pure CSS */
+  /* the shared track law (Tier-1 .jx-range parity, 2026-08-24 daisyUI
+     rebuild): pill groove at half-thumb height + a full-strip-height
+     pill fill; the thumb is a light disc on a thick primary ring.
+     This widget's own DOM paints the fill as a plain div — proper
+     rounded ends both sides, zero shadow tricks */
   .jx-slider-track {
     position: absolute;
     inset-inline: 0;
     top: 50%;
-    height: calc(0.5rem - 2px); /* 8px incl. the 1px borders */
+    height: calc(var(--jx-slider-thumb, 1.5rem) / 2); /* the half-thumb groove */
     transform: translateY(-50%);
-    background: var(--background);
-    border: 1px solid var(--border);
-    border-radius: 0; /* straight line — the brutalist law */
+    background: color-mix(in oklab, var(--foreground) 10%, transparent);
+    border-radius: calc(infinity * 1px);
   }
   .jx-slider-fill {
     position: absolute;
+    inset-block: calc(var(--jx-slider-thumb, 1.5rem) / -4);
     inset-inline-start: 0;
-    top: 0;
-    height: 100%; /* of the 8px groove — equal thickness with it */
+    height: var(--jx-slider-thumb, 1.5rem); /* the pill fill */
     background: var(--primary);
+    border-radius: calc(infinity * 1px);
   }
 
-  /* the shared thumb law (Tier-1 parity): 1.25rem SQUARE, primary fill,
-     1px border, hover lift, press back into the page */
+  /* the shared thumb law (Tier-1 parity, daisyUI rebuild): a light
+     disc on a thick primary ring */
   .jx-slider-thumb {
     position: absolute;
     top: 50%;
-    width: 1.25rem;
-    height: 1.25rem;
+    width: var(--jx-slider-thumb, 1.5rem);
+    height: var(--jx-slider-thumb, 1.5rem);
     transform: translateY(-50%);
-    background: var(--primary);
-    border: 1px solid var(--border);
-    border-radius: 0;
+    background: var(--background);
+    border: 0.25rem solid var(--primary);
+    border-radius: calc(infinity * 1px);
     box-shadow: none;
     pointer-events: none; /* the root owns the pointer geometry */
-    transition: box-shadow 150ms ease-out, transform 150ms ease-out;
-  }
-  .jx-slider:hover:not(.jx-disabled) .jx-slider-thumb {
-    box-shadow: var(--shadow-2xs);
-  }
-  .jx-slider.jx-pressed .jx-slider-thumb {
-    transform: translateY(calc(-50% + 1px)); /* press INTO the page */
-    box-shadow: none;
   }
   .jx-slider.jx-invalid .jx-slider-thumb {
     border-style: dashed;

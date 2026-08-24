@@ -168,17 +168,20 @@
     overflow: visible; /* no fill shadow here — the 14px marker must not be clipped */
   }
   .jx-hue-range::-webkit-slider-runnable-track {
-    height: 6px; /* the rainbow groove, centered in the strip */
+    height: 8px; /* the rainbow groove, centered in the strip */
+    border-radius: calc(infinity * 1px);
   }
   .jx-hue-range::-moz-range-track {
-    height: 6px;
+    height: 8px;
+    border-radius: calc(infinity * 1px);
   }
   .jx-hue-range::-webkit-slider-thumb {
-    width: 14px;
-    height: 14px;
-    /* center the 14px marker on the 6px groove */
+    width: 16px;
+    height: 16px;
+    /* center the 16px marker on the 8px groove */
     margin-top: -4px;
     border-width: 2px;
+    border-radius: calc(infinity * 1px);
     box-shadow: none;
     cursor: grab;
   }
@@ -195,9 +198,10 @@
     );
   }
   .jx-hue-range::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     border-width: 2px;
+    border-radius: calc(infinity * 1px);
     box-shadow: none;
     cursor: grab;
   }

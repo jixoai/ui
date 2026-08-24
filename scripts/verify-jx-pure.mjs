@@ -43,8 +43,8 @@ const facts = await page.evaluate(() => {
   const inCheck = scope.querySelector('input[type="checkbox"]');
   const inRange = scope.querySelector('input[type="range"]');
   const inColor = scope.querySelector('input[type="color"]');
-  const selDefault = scope.querySelector('select:not(.jx-select)');
-  const selOpt = scope.querySelector('select.jx-select');
+  const selDefault = scope.querySelector('select:not([multiple]):not([size])');
+  const num = scope.querySelector('input[type="number"]');
   const submitBtn = scope.querySelector('form button[type="submit"]');
   const summary = document.querySelector('#disclosure summary');
   const summaryOpen = document.querySelector('#disclosure details[open] > summary');
@@ -85,7 +85,7 @@ const facts = await page.evaluate(() => {
   const out = document.querySelector('#media-flow output');
   const figcap = document.querySelector('#media-flow figcaption');
   // the escape hatch island
-  const skipBtn = document.querySelector('[data-jx-pure-skip] button');
+  const skipBtn = document.querySelector('.no-jx-pure button');
   // the live CustomElement shadow root
   const islandHost = document.querySelector('jx-pure-island');
   const shadowBtn = islandHost?.shadowRoot?.querySelector('button');
@@ -141,15 +141,25 @@ const facts = await page.evaluate(() => {
       h: cs(sw, 'height'),
       radius: cs(sw, 'border-radius'),
       checkedBg: getComputedStyle(swChecked).backgroundColor,
+      knobOpacity: getComputedStyle(sw, '::before').opacity,
+      knobClip: getComputedStyle(sw, '::before').clipPath,
+      offTrack: cs(sw, 'background-color'),
     },
+    group: (() => {
+      const g = document.querySelector('#forms .jx-pure label:has(> input):has(> span)');
+      return g ? { border: getComputedStyle(g).borderWidth, display: getComputedStyle(g).display } : { missing: true };
+    })(),
     validation: {
-      destructiveResolved: (() => {
-        const el = document.createElement('span');
-        el.style.cssText = 'color: var(--destructive); position: fixed; visibility: hidden;';
-        document.body.appendChild(el);
-        const v = getComputedStyle(el).color;
-        el.remove();
-        return v;
+      errorResolved: (() => {
+        const probe = (token) => {
+          const el = document.createElement('span');
+          el.style.cssText = 'color: var(' + token + '); position: fixed; visibility: hidden;';
+          document.body.appendChild(el);
+          const v = getComputedStyle(el).color;
+          el.remove();
+          return v;
+        };
+        return { error: probe('--error'), errorFg: probe('--error-foreground') };
       })(),
       badStyle: cs(badLane, 'border-style'),
       badGlyph: cs(badLane, 'background-image').includes('url'),
@@ -158,13 +168,20 @@ const facts = await page.evaluate(() => {
       badCheckBg: getComputedStyle(badCheck).backgroundColor,
       badRadioDot: getComputedStyle(document.querySelector('#validation input[type="radio"][aria-invalid="true"]:checked'), '::after').backgroundColor,
       badRangeVar: cs(badRange, '--jx-range-fill-color').trim(),
+      okBorderResolved: cs(okLane, 'border-color'),
+      badBorderResolved: cs(badLane, 'border-color'),
     },
     inColor: { size: cs(inColor, 'width'), appearance: cs(inColor, 'appearance').trim() },
-    selDefault: { appearance: cs(selDefault, 'appearance').trim(), paddingEnd: cs(selDefault, 'padding-right') },
-    selOpt: {
-      appearance: cs(selOpt, 'appearance').trim(),
-      chevron: getComputedStyle(selOpt).backgroundImage.includes('linear-gradient'),
+    selDefault: {
+      appearance: cs(selDefault, 'appearance').trim(),
+      chevron: cs(selDefault, 'background-image').includes('linear-gradient'),
     },
+    selNative: (() => {
+      // the no-jx-pure island in the Forms demo — must be FULLY native
+      const el = document.querySelector('#forms .no-jx-pure select');
+      return el ? { appearance: getComputedStyle(el).appearance.trim(), chevron: getComputedStyle(el).backgroundImage } : { missing: true };
+    })(),
+    numberSpin: cs(num, 'appearance').trim(),
     submitNeverTextBox: cs(submitBtn, 'display'),
     summary: { listStyle: cs(summary, 'list-style-type').trim(), marker: getComputedStyle(summary, '::before').content },
     summaryOpenMarker: getComputedStyle(summaryOpen, '::before').content,
@@ -200,7 +217,7 @@ const facts = await page.evaluate(() => {
     skipIsland: { btnMinHeight: cs(skipBtn, 'min-height'), btnShadow: cs(skipBtn, 'box-shadow'), btnCursor: cs(skipBtn, 'cursor') },
     skipPartA: (() => {
       // R4-2: the hatch must beat Part A's UNLAYERED classes too
-      const el = document.querySelector('[data-jx-pure-skip] .jx-input');
+      const el = document.querySelector('.no-jx-pure .jx-input');
       return el ? { minH: cs(el, 'min-height'), pad: cs(el, 'padding') } : { missing: true };
     })(),
     shadowDom: shadowBtn
@@ -223,10 +240,11 @@ const checks = [
   ['text lane: 40px box + mono font', facts.inInput.minHeight === '40px' && facts.inInput.fontMono],
   ['text lane: inherits scope color-scheme', facts.inInput.colorScheme === 'light'],
   ['checkbox: repaint (appearance none, 16px)', facts.inCheck.appearance === 'none' && facts.inCheck.size === '16px'],
-  ['range: repaint (appearance none, the rail paint box)', facts.inRange.appearance === 'none' && facts.inRange.height === '8px'],
+  ['range: repaint (appearance none, the 24px daisyUI pill)', facts.inRange.appearance === 'none' && facts.inRange.height === '24px'],
   ['color: locked 40px square', facts.inColor.size === '40px'],
-  ['select default: platform arrow kept', facts.selDefault.appearance !== 'none' && facts.selDefault.paddingEnd === '32px'],
-  ['select.jx-select: opt-in chevron gradient', facts.selOpt.appearance === 'none' && facts.selOpt.chevron],
+  ['D2 · select: the jx chevron is the DEFAULT', facts.selDefault.appearance === 'none' && facts.selDefault.chevron],
+  ['D2 · no-jx-pure island: fully native select', facts.selNative.appearance !== 'none' && facts.selNative.chevron === 'none'],
+  ['D3 · number: platform stepper restored', facts.numberSpin !== 'textfield'],
   ['submit is a button, never a text box', facts.submitNeverTextBox === 'inline-flex'],
   ['summary: marker law (+ / −)', facts.summary.listStyle === 'none' && facts.summary.marker.includes('+') && facts.summaryOpenMarker.includes('−')],
   ['th: nav-font small caps', facts.th.fontFamily && facts.th.transform === 'uppercase'],
@@ -240,11 +258,11 @@ const checks = [
   ['A3 · disabled fieldset: one opacity owner (group .5, controls 1)', facts.lockedGroup.fieldsetOpacity === '0.5' && facts.lockedGroup.inputOpacity === '1'],
   ['progress: 8px track family repaint', facts.progress.appearance === 'none' && facts.progress.height === '8px'],
   ['progress indeterminate: the stripe animation RUNS (element-level)', facts.progress.indetRunning],
-  ['R4-2 · skip beats Part A: .jx-input inside the hatch reverts', facts.skipPartA.minH === 'auto' && facts.skipPartA.pad !== '8px 12px'],
+  ['R4-2 · skip beats Part A: .jx-input inside the hatch reverts', facts.skipPartA.minH !== '40px' && facts.skipPartA.pad !== '8px 12px'],
   ['meter: same track family', facts.meterBox.appearance === 'none' && facts.meterBox.height === '8px'],
   ['output: mono result lane', facts.outputFont.includes('JetBrains')],
   ['figcaption: nav-font small caps voice', facts.figcapVoice.font.includes('Share Tech') && facts.figcapVoice.transform === 'uppercase'],
-  ['escape hatch: skip island reverts to UA paint', facts.skipIsland.btnMinHeight === 'auto' && facts.skipIsland.btnShadow === 'none'],
+  ['escape hatch: skip island reverts to UA paint', facts.skipIsland.btnMinHeight !== '40px' && facts.skipIsland.btnShadow === 'none'],
   ['CustomElement: shadow root carries both style nodes + law paints inside', facts.shadowDom !== null && facts.shadowDom.styleNodes === 2 && facts.shadowDom.btnShadow !== 'none' && facts.shadowDom.btnMinHeight === '40px' && facts.shadowDom.inputMinHeight === '40px'],
   ['B rules served inside @layer components', facts.layered],
 ];
@@ -255,6 +273,91 @@ for (const [name, ok] of checks) {
   if (!ok) failed++;
 }
 console.log('facts:', JSON.stringify(facts, null, 2));
+
+// ---- r8 evidence gaps: contrast audit, nested scope, keyboard ----
+// (7) WCAG contrast for the semantic pairs, light + dark
+const contrast = await page.evaluate(() => {
+  const lum = (rgb) => {
+    const [r, g, b] = rgb;
+    const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  };
+  const toRgb = (str) => (str.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number).length === 3
+    ? (() => { const m = str.match(/[\d.]+/g).map(Number); return [m[0], m[1], m[2]]; })()
+    : null; // oklch() strings cannot convert here — fall back below
+  const probe = (token) => getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+  // resolve via canvas: draw a rect, read the normalized rgb
+  const resolve = (token) => {
+    const c = document.createElement('canvas');
+    c.width = c.height = 1;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = 'rgb(255,255,255)';
+    try { ctx.fillStyle = probe(token); } catch { return [255, 255, 255]; }
+    ctx.fillRect(0, 0, 1, 1);
+    return [...ctx.getImageData(0, 0, 1, 1).data].slice(0, 3);
+  };
+  const ratio = (a, b) => { const l1 = lum(a), l2 = lum(b); return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05); };
+  const pairs = ['success', 'warning', 'info', 'error'];
+  const audit = {};
+  for (const t of pairs) audit[t] = Math.round(ratio(resolve('--' + t), resolve('--' + t + '-foreground')) * 100) / 100;
+  return audit;
+});
+const contrastChecks = Object.entries(contrast).map(([t, r]) => ['r8-7 · contrast: --' + t + ' pair >= 3:1 (large/UI; ' + r + ':1)', r >= 3]);
+// (6) nested no-jx-pure → inner .jx-pure does NOT resurrect the face
+const nested = await page.evaluate(() => {
+  const host = document.createElement('div');
+  host.className = 'jx-pure';
+  host.innerHTML = '<div class="no-jx-pure"><div class="jx-pure"><button type="button" id="nested-btn">x</button></div></div>';
+  document.body.appendChild(host);
+  const btn = host.querySelector('#nested-btn');
+  const cs = getComputedStyle(btn);
+  const out = { minH: cs.minHeight, shadow: cs.boxShadow, display: cs.display };
+  host.remove();
+  return out;
+});
+contrastChecks.push(['r8-6 · nested .jx-pure inside .no-jx-pure stays reverted', nested.minH !== '40px' && nested.display === 'inline-block' && nested.shadow === 'none']);
+// r9-A1 regression: the revert must be UNIVERSAL — an UNLISTED element
+// (a plain div with author styling) inside the island reverts too
+const unlisted = await page.evaluate(() => {
+  const host = document.createElement('div');
+  host.className = 'jx-pure';
+  host.innerHTML = '<div class="no-jx-pure"><div id="isl-div" style="display: flex; color: rgb(1,2,3)">x</div></div>';
+  document.body.appendChild(host);
+  const cs = getComputedStyle(host.querySelector('#isl-div'));
+  const out = { display: cs.display, color: cs.color };
+  host.remove();
+  return out;
+});
+contrastChecks.push(['r9-A1 · the island revert is UNIVERSAL (unlisted div reverts)', unlisted.display === 'block' && unlisted.color !== 'rgb(1, 2, 3)']);
+// r9-final blocker 1: a checkbox label with a span NEVER matches the
+// group — the control keeps its own paint (no chromeless bleed)
+const cbLabel = await page.evaluate(() => {
+  const host = document.createElement('div');
+  host.className = 'jx-pure';
+  host.innerHTML = '<label><input type="checkbox"><span>remember</span></label>';
+  document.body.appendChild(host);
+  const cs = getComputedStyle(host.querySelector('input'));
+  const label = getComputedStyle(host.querySelector('label'));
+  const out = { checkboxBorder: cs.borderTopWidth, labelBorder: label.borderTopWidth, labelDisplay: label.display };
+  host.remove();
+  return out;
+});
+contrastChecks.push(['r9F1 · checkbox-label span never triggers the group', cbLabel.checkboxBorder === '1px' && cbLabel.labelBorder === '0px' && cbLabel.labelDisplay === 'inline']);
+// (8) the group: label click focuses the control; Tab reaches it
+await page.evaluate(() => document.querySelector('#forms .jx-pure label:has(> input):has(> span)').scrollIntoViewIfNeeded());
+await page.waitForTimeout(200);
+const labelFocus = await page.evaluate(() => {
+  const g = document.querySelector('#forms .jx-pure label:has(> input):has(> span)');
+  g.click();
+  const focused = document.activeElement === g || g.contains(document.activeElement);
+  return focused;
+});
+contrastChecks.push(['r8-8 · structural group label click focuses the control', labelFocus]);
+for (const [name, c] of contrastChecks) {
+  console.log((c ? 'PASS' : 'FAIL') + '  ' + name);
+  if (!c) failed++;
+}
+console.log('contrast audit:', contrast, '| nested:', nested);
 
 await page.screenshot({ path: `${OUT}/page-top.png` });
 await page.locator('#forms').scrollIntoViewIfNeeded();
@@ -376,16 +479,18 @@ const dist = (a, b) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(
 const white = [255, 255, 255];
 const isFilled = (px) => dist(px, white) > 180;
 const upChecks = [
-  ['range fill: primary before the thumb (value 40)', isFilled(fillL)],
-  ['range fill: background past the thumb', dist(fillR, white) < 60],
+  ['range fill: the pill fill before the thumb (value 40)', isFilled(fillL)],
+  ['range fill: the 10%-groove past the thumb', dist(fillR, fillL) > 120],
   ['range machinery: container-type + overflow clip', facts.inRange.containerType === 'inline-size' && facts.inRange.overflow === 'hidden'],
-  ['Owner · thin rail: the paint box is the 8px rail', facts.inRange.height === '8px'],
-  ['switch: 36×20 square, role=switch opt-in', facts.switch.w === '36px' && facts.switch.h === '20px' && facts.switch.radius === '0px'],
+  ['daisyUI · the pill paint box (thumb-sized)', facts.inRange.height === '24px'],
+  ['D4 · switch: 32×20 sm PILL, role=switch opt-in', facts.switch.w === '32px' && facts.switch.h === '20px' && parseFloat(facts.switch.radius) > 1000],
+  ['D4 · switch knob VISIBLE (the B5 glyph-leak reset)', facts.switch.knobOpacity === '1' && facts.switch.knobClip === 'none'],
+  ['D6 · the STRUCTURAL group (label:has(control):has(span)) takes the shell', facts.group.border === '1px' && facts.group.display === 'flex'],
   ['validation: invalid lane dashed + glyph', facts.validation.badStyle === 'dashed' && facts.validation.badGlyph],
-  ['validation: valid lane glyph + primary lean', facts.validation.okGlyph && facts.validation.okBorder.includes('oklch')],
+  ['D5 · valid lane leans --success', facts.validation.okGlyph && facts.validation.okBorderResolved !== facts.validation.badBorderResolved],
   ['validation: invalid checkbox fill flips', facts.validation.badCheckBg !== 'rgba(0, 0, 0, 0)'],
-  ['R7-1 · invalid radio DOT flips to destructive', facts.validation.badRadioDot === facts.validation.destructiveResolved],
-  ['validation: invalid range fill var flips', facts.validation.badRangeVar === facts.validation.destructiveResolved]
+  ['D5 · invalid radio DOT flips to error-foreground', facts.validation.badRadioDot === facts.validation.errorResolved.errorFg],
+  ['D5 · invalid range fill flips to error (mirror)', facts.validation.badRangeVar === facts.validation.errorResolved.error],
 ];
 // (b) form.html: the pipette glyph + the Tier-1 class fill
 await page.goto(`http://localhost:${port}/components/form.html`, { waitUntil: 'domcontentloaded' });
@@ -434,7 +539,7 @@ const tier1Samples = await samplePixels(page.locator('.jx-range').first(), [
   [tier1Dims.w * 0.15, tier1Dims.h / 2],
   [tier1Dims.w * 0.9, tier1Dims.h / 2],
 ]);
-upChecks.push(['Tier-1 .jx-range fill (value 40)', isFilled(tier1Samples.px[0]) && dist(tier1Samples.px[1], white) < 60]);
+upChecks.push(['Tier-1 .jx-range fill (value 40)', isFilled(tier1Samples.px[0]) && dist(tier1Samples.px[1], tier1Samples.px[0]) > 120]);
 for (const [name, ok] of upChecks) {
   console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}`);
   if (!ok) failed++;

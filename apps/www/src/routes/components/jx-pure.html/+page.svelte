@@ -211,7 +211,7 @@ document.body.classList.add('jx-pure');</code></pre>
         headerRegion="forms"
         eyebrow="demo"
         title="Forms"
-        summary="The migrated native-form law, now element-scoped under a TYPE ALLOWLIST: text-like lanes take the bordered box; checkbox/radio/range/color are full pure-CSS repaints (native state, label and FormData keep working — appearance:none strips paint only). select keeps its platform arrow by default; .jx-select opts into the gradient chevron (single-select only). hidden/file are never touched."
+        summary="The migrated native-form law, now element-scoped under a TYPE ALLOWLIST: text-like lanes take the bordered box; checkbox/radio/range/color are full pure-CSS repaints (native state, label and FormData keep working — appearance:none strips paint only). select is ALWAYS the jx chevron inside .jx-pure (gradient-drawn, single-select); number keeps its PLATFORM stepper (the only zero-JS stepper there is); time/date/month/week lanes carry the ink indicators. hidden/file are never touched."
       >
         <div class="jx-pure grid gap-5 min-[760px]:grid-cols-2" style="max-width: 60rem">
           <form onsubmit={(e) => e.preventDefault()}>
@@ -238,13 +238,19 @@ document.body.classList.add('jx-pure');</code></pre>
                 <option>second option</option>
                 <option>third option</option>
               </select></p>
-            <p><label for="f-sel2">select.jx-select — the opt-in chevron</label><br />
-              <select id="f-sel2" class="jx-select">
-                <option>first option</option>
-                <option>second option</option>
-              </select></p>
-            <p><label for="f-date">date</label> <label for="f-num">number</label><br />
-              <input id="f-date" type="date" /> <input id="f-num" type="number" min="0" placeholder="42" /></p>
+            <p><label for="f-sel2">select — native island (no-jx-pure)</label><br />
+              <span class="no-jx-pure" style="display: inline-block; width: 100%">
+                <select id="f-sel2" style="width: 100%">
+                  <option>first option</option>
+                  <option>second option</option>
+                </select>
+              </span></p>
+            <p><label for="f-date">date</label> <label for="f-time">time</label><br />
+              <input id="f-date" type="date" /> <input id="f-time" type="time" /></p>
+            <p><label for="f-dtl">datetime-local</label> <label for="f-week">week</label><br />
+              <input id="f-dtl" type="datetime-local" /> <input id="f-week" type="week" /></p>
+            <p><label for="f-num">number — the platform stepper rides inside</label><br />
+              <input id="f-num" type="number" min="0" step="1" placeholder="42" /></p>
             <p><label for="f-range">range</label><br />
               <input id="f-range" type="range" min="0" max="100" value="40" /></p>
             <p>
@@ -266,6 +272,23 @@ document.body.classList.add('jx-pure');</code></pre>
                 <input id="f-locked" type="text" placeholder="one opacity owner: the fieldset" /></p>
               <p><button type="button">frozen</button></p>
             </fieldset>
+            <!-- the label-based input group — STRUCTURE IS THE OPT-IN:
+                 a label with a direct-child control + span(s), zero classes -->
+            <label>
+              <span>https://</span>
+              <input type="text" aria-label="website name" placeholder="your-site" />
+              <span>.example.com</span>
+            </label>
+            <label>
+              <select aria-label="protocol">
+                <option>GET</option><option>POST</option>
+              </select>
+              <span>/api/v1</span>
+            </label>
+            <label>
+              <input type="number" aria-label="timeout" value="300" min="0" step="50" />
+              <span>ms</span>
+            </label>
           </div>
         </div>
       </SectionCard>
@@ -409,18 +432,17 @@ document.body.classList.add('jx-pure');</code></pre>
     headerRegion="switch"
     eyebrow="demo"
     title="switch — role=switch on a checkbox"
-    summary="The Pico contract, zero classes: put role='switch' on a bare checkbox inside .jx-pure and it becomes the jixoai switch — square track, square sliding thumb, native state/label/FormData untouched (appearance:none strips paint only). Checked rides primary; the Tier-2 toggle component remains the rich lane (labels, postures, sizes) for component consumers."
+    summary="The Pico contract, zero classes: role='switch' on a bare checkbox inside .jx-pure becomes the jixoai switch — square track, square knob with hard on/off contrast (off: muted track + background knob; on: primary track + primary-foreground knob), logical travel (RTL-native), native state/label/FormData untouched. Sizes sm/md/lg (32×20 / 40×24 / 48×28) via the wrapper class or on the input itself."
   >
-    <div class="jx-pure flex flex-wrap items-center gap-6" style="max-width: 40rem">
-      <label><input type="checkbox" role="switch" /> auto-save</label>
-      <label><input type="checkbox" role="switch" checked /> notifications</label>
+    <div class="jx-pure flex flex-wrap items-center gap-6" style="max-width: 44rem">
+      <label class="jx-switch-sm"><input type="checkbox" role="switch" /> sm auto-save</label>
+      <label><input type="checkbox" role="switch" /> md notifications</label>
+      <label class="jx-switch-lg"><input type="checkbox" role="switch" checked /> lg telemetry</label>
       <label><input type="checkbox" role="switch" disabled /> locked</label>
       <label><input type="checkbox" role="switch" aria-invalid="true" checked /> failing</label>
     </div>
   </SectionCard>
 </div>
-
---- #validation section ---
 
 <div id="validation" data-reveal="">
   <SectionCard
@@ -428,7 +450,7 @@ document.body.classList.add('jx-pure');</code></pre>
     headerRegion="validation"
     eyebrow="law"
     title="Validation states — the aria-invalid matrix"
-    summary="The Pico state contract on the jixoai monochrome palette: aria-invalid='false' leans every accent primary (the one-hue positive); aria-invalid='true' FLIPS every primary accent to destructive — lanes go dashed with the '!' ink glyph, valid lanes carry the '✓' glyph, checkbox/radio/switch checked fills flip, and the range's fill + thumb flip. Native :invalid is deliberately NOT hooked — the state is always the author's explicit aria (no empty-required surprises)."
+    summary="The Pico state contract on the SEMANTIC palette (success / warning / info / error tokens now in jixoai.css): aria-invalid='false' leans --success ('✓' ink glyph + success border); aria-invalid='true' flips every accent to --error (dashed lanes + '!' ink, checked checkbox/radio fills, the switch track, the range fill + thumb). --destructive is untouched — it stays the monochrome inversion pair for destructive actions. Native :invalid is deliberately NOT hooked."
   >
     <div class="jx-pure grid gap-5 min-[760px]:grid-cols-2" style="max-width: 52rem">
       <form onsubmit={(e) => e.preventDefault()} class="flex flex-col gap-3">
@@ -588,17 +610,17 @@ document.body.classList.add('jx-pure');</code></pre>
               Document css never crosses the shadow boundary — the live adoption fixture is the
               CustomElement section above.
             </p>
-            <h3 class="text-[15px] font-bold tracking-tight">The escape hatch — data-jx-pure-skip</h3>
+            <h3 class="text-[15px] font-bold tracking-tight">The reverse scope — no-jx-pure</h3>
             <p class="text-muted-foreground">
-              A subtree that must keep its OWN paint (third-party widget, legacy island) mounts
-              <code class="text-accent">data-jx-pure-skip</code>: every B-law surface inside
-              <code class="text-accent">revert</code>s to the USER-AGENT cascade — author styling
-              steps aside entirely. It is fully native; re-opting one element back in needs a
-              selector that beats the hatch's (0,2,1).
+              Inside <code class="text-accent">.jx-pure</code> EVERYTHING is jx (select included —
+              the r1 opt-in stance is overruled). Mount <code class="text-accent">no-jx-pure</code>
+              on any element to revert IT and its whole subtree to the USER-AGENT cascade —
+              <code class="text-accent">all: revert</code> also rolls back font/layout authoring,
+              so the island is fully native (see the select demo in Forms).
             </p>
             <div class="jx-pure flex flex-wrap items-center gap-3">
               <button type="button">the law</button>
-              <span data-jx-pure-skip style="display: inline-flex; align-items: center; gap: 0.75rem">
+              <span class="no-jx-pure" style="display: inline-flex; align-items: center; gap: 0.75rem">
                 <button type="button">skipped button</button>
                 <input class="jx-input" type="text" placeholder="even .jx-input reverts" style="width: 14rem" aria-label="skipped jx-input" />
               </span>

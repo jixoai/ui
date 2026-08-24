@@ -108,14 +108,14 @@ describe('native-form ↔ icons.ts geometry parity', () => {
     }
   });
 
-  it('size budget: the whole face stays under 16KB gzip (release gate)', () => {
+  it('size budget: the whole face stays under 17KB gzip (release gate)', () => {
     const gz = gzipSync(Buffer.from(sheet, 'utf8')).length;
     // baseline was native-form 5,598B gzip. Gate history: r1 11KB →
-    // completion round 14KB (B10-B12 + the GENERATED auto-dark) →
-    // 16KB (2026-08-24 Owner round: the cqw range fill + the indicator
-    // INK fallback — four literal-stroke data-URIs that gzip poorly).
-    // Data-URI weight is the documented cost of the path (c) fallback.
-    expect(gz, `jx-pure.css gzipped to ${gz}B`).toBeLessThanOrEqual(16 * 1024);
+    // completion 14KB (B10-B12 + auto-dark) → 16KB (cqw fill + INK
+    // fallback) → 17KB (openspec Owner round 2: switch redesign with
+    // size classes, the the structural group vocabulary, the error/success B14
+    // remap). Data-URI weight remains the documented (c)-path cost.
+    expect(gz, `jx-pure.css gzipped to ${gz}B`).toBeLessThanOrEqual(17 * 1024);
   });
 
   it('auto-dark region stays in sync with jixoai.css .dark (run scripts/gen-jx-auto-dark.mjs on drift)', () => {
