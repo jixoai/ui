@@ -54,18 +54,12 @@
     z-index: 1;
   }
 
-  /* the hover corridor: an inverted wrapper (no overflow) stretches the
-     snippet root across the panel's padding ring, so entering the panel
-     at its very edge cancels the close timer. It must stay separate from
-     the clip box — inverting the clipper would move its clip edge and
-     break the -1px hairline shave (Codex note) */
-  :where(.jx-nav .jx-subcorridor) {
-    margin: calc(var(--jx-panel-pad, 0.25rem) * -1);
-    padding: var(--jx-panel-pad, 0.25rem);
-  }
-  /* the -1px top shave predates the head — with one present it pokes
-     the grid 1px up under the head's padding; drop the top shave only */
-  :where(.jx-nav .jx-subcorridor:has(> .jx-subpanel-head) .jx-subgroups) {
+  /* the -1px top shave predates the panel head — with one present it
+     pokes the grid 1px up under the head's padding; drop the top shave
+     only. (The hover corridor wrapper retired with the hover path,
+     2026-08-25 — click-open panels need no pointer-traversal surface,
+     so the head keys on its clip-box sibling instead.) */
+  :where(.jx-nav .jx-subpanel-head + .jx-subclip .jx-subgroups) {
     margin-top: 0;
   }
 }

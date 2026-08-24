@@ -1,0 +1,41 @@
+# tasks — data-jx-hooks
+
+> DRAFT for Codex review — implementation starts only after Approve.
+
+## P0 — inventory + codemod
+
+- [ ] 0.1 DONE r2: `scripts/jx-inventory.mjs` (structured scanner)
+      + `scripts/verify-hook-law.mjs` (failing gate, proven failing
+      pre-migration) are committed; `.agents/jx-inventory.json` is the
+      stable schema output. Original:
+      DEFINED/HOOK split + variant families + foreign reference map;
+      its JSON output is the codemod's seed.
+- [ ] 0.2 `scripts/codemod-data-jx.mjs` implements the D1 shape table
+      + D3 six file classes with a dry-run
+      mode; hand-review sites reported, not auto-forced.
+- [ ] 0.3 DONE r2: verify-hook-law.mjs committed; fixtures green;
+      --post proven failing on the pre-migration tree (3 failures).
+
+## P1 — the rewrite
+
+- [ ] 1.1 Codemod pass over component .svelte (registry + mirror),
+      tests, docs routes, scenes, scripts, site src.
+- [ ] 1.2 Hand-review sites resolved per D2; decisions recorded.
+- [ ] 1.3 Mirror byte-equality + manifest regenerate.
+
+## P2 — gates
+
+- [ ] 2.1 Full battery: vitest, npm run build, apps build + build:site,
+      manifest --check, verify-layer-law, verify-folder-css,
+      shadcn-add fixtures, clean-consumer.
+- [ ] 2.2 verify-hook-law browser probes (D4(c)).
+- [ ] 2.3 Screenshot oracle: capture + compare vs the archived
+      baseline (markup-only change; 0 CHANGED expected — any delta is
+      a finding).
+
+## P3 — docs + archive
+
+- [ ] 3.1 README consume section: the breaking markup-contract note
+      (hooks are data-jx-* attributes).
+- [ ] 3.2 verification.md with evidence; Codex implementation review;
+      archive.

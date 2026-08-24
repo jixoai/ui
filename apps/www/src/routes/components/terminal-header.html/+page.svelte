@@ -76,7 +76,7 @@ second level — the shape of item.children decides the panel
                          auto-fill minmax(14rem, 1fr) grid areas,
                          cqw container rules, hairline dividers
   both ride popover="auto": top layer, light dismiss, Escape
-  JS owns only hover grace (120ms), click toggle, placement
+  JS owns only the click toggle and placement
 
 the three tiers
   >=lg     full brand stack + complete pill group + switcher
@@ -137,7 +137,7 @@ the three tiers
           >
             <p class="text-muted-foreground text-pretty text-[13px] leading-6">
               Open the code drawer below for the verbatim source (803 lines, the whole popover and
-              mega-panel law), then hover or click the <em>Components</em> pill in the real header
+              mega-panel law), then click the <em>Components</em> pill in the real header
               above — the grouped panel that drops is the data shape from the usage file, running
               live. On a narrow viewport the same items collapse into the hamburger disclosure.
             </p>
@@ -147,10 +147,11 @@ the three tiers
         {#snippet playground()}
           <div class="jx-play-fields">
             <p class="jx-play-help">
-              the LIVE demo is the bar this page already wears: hover the <em>Components</em> pill
-              above for the mega panel (light dismiss, Escape, top layer are the browser's), or
-              narrow the viewport to watch the hamburger disclosure fold the same items. Tab order:
-              brand, pills, switcher — the panel contents join only while open.
+              the LIVE demo is the bar this page already wears: click the <em>Components</em> pill
+              above for the mega panel (click-again, outside click, Escape and the top layer are
+              the browser's), or narrow the viewport to watch the hamburger disclosure fold the
+              same items. Tab order: brand, pills, switcher — the panel contents join only while
+              open.
             </p>
           </div>
         {/snippet}
@@ -176,8 +177,8 @@ the three tiers
               <code class="text-accent">navColumns</code> pins or derives the column count</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
               <span>panels are native <code class="text-accent">popover="auto"</code>: light dismiss,
-              Escape and the top layer belong to the browser; the component adds only hover grace,
-              click toggling and placement</span></li>
+              Escape and the top layer belong to the browser; the component adds only click
+              toggling and placement</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
               <span>the panel repeats the header's scope class, so its tokens survive the top-layer
               promotion untouched</span></li>

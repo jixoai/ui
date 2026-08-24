@@ -20,16 +20,17 @@
                     0fr→1fr groups (the parent row toggles; an "all →"
                     link keeps the parent href reachable)
 
-  Second level nav (2026-08-20, request: click + hover submenus on the
-  native Popover API; nested disclosures on mobile): items may carry
-  `children`. Desktop pills with children consume the registry Popover
-  primitive (2026-08-22, Owner dogfooding directive + Codex ruling): the
-  component owns anchoring (CSS Anchor Positioning + try-fallbacks),
-  lifecycle and placement natively; header JS owns only hover intent
-  (grace timers), the link-vs-toggle click policy, and navigation
-  cleanup — never geometry. Hover corridor into the panel is wired on
-  the snippet content, which fills the panel box. Engines without the
-  Popover API or anchor positioning degrade to a plain navigable link.
+  Second level nav (2026-08-20, request: submenus on the native Popover
+  API; nested disclosures on mobile; 2026-08-25, Owner ruling: CLICK
+  open only — the hover path, its grace timers and its corridor are
+  retired): items may carry `children`. Desktop pills with children
+  consume the registry Popover primitive (2026-08-22, Owner dogfooding
+  directive + Codex ruling): the component owns anchoring (CSS Anchor
+  Positioning + try-fallbacks), lifecycle and placement natively;
+  header JS owns only the click toggle and navigation cleanup — never
+  geometry. Click opens; click again, outside click (native light
+  dismiss) and Escape close. Engines without the Popover API or anchor
+  positioning degrade to a plain navigable link.
 
   Grouped multi-column panels (2026-08-20, same day follow-up): children
   may be TerminalNavGroup[] — each group renders as one grid area with a
@@ -52,7 +53,7 @@
   expand. Escape closes it while open.
 -->
 <script lang="ts">
-  import { onDestroy, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import type { Snippet } from 'svelte';
   import Popover from '$lib/ui/popover/popover.svelte';
   import { icons } from '$lib/icons';
@@ -155,63 +156,45 @@
   };
 
   /* -----------------------------------------------------------------
-   * Second-level nav orchestration. openKey mirrors the panels' native
-   * toggle events — light dismiss, Escape and one-at-a-time run without
-   * our handlers, so the events are the single source of truth and
-   * aria-expanded never lies. Placement is NOT ours: the Popover
-   * primitive anchors and flips through the engine (no coordinates,
-   * no clamping, no resize listeners).
+   * Second-level nav orchestration (click-only, 2026-08-25). openKey
+   * mirrors the panels' native toggle events — outside click (light
+   * dismiss), Escape and one-at-a-time run without our handlers, so
+   * the events are the single source of truth and aria-expanded never
+   * lies. The click toggle is race-free on the native engine: light
+   * dismiss runs AFTER click handlers (engine-probed on Chromium,
+   * 2026-08-25), so the handler always reads the live open state.
+   * Placement is NOT ours: the Popover primitive anchors and flips
+   * through the engine (no coordinates, no clamping, no resize
+   * listeners).
    * --------------------------------------------------------------- */
-  const HOVER_GRACE_MS = 120;
-
   let openKey = $state<string | null>(null);
-  // 'hover' panels survive their first click (the click confirms the
-  // hover intent); only a second click on a click-opened panel closes.
-  let openedBy: 'hover' | 'click' | null = null;
-  let closeTimer: ReturnType<typeof setTimeout> | null = null;
   const handles: Record<string, PopoverHandle | null> = {};
 
-  const cancelClose = () => {
-    if (closeTimer) {
-      clearTimeout(closeTimer);
-      closeTimer = null;
-    }
-  };
   const hidePanel = (key: string) => handles[key]?.hide();
-  const showPanel = (key: string, by: 'hover' | 'click', source?: EventTarget | null) => {
-    openedBy = by;
+  const showPanel = (key: string, source?: EventTarget | null) => {
     handles[key]?.show(source instanceof HTMLElement ? source : undefined);
-  };
-  const scheduleClose = (key: string) => {
-    cancelClose();
-    closeTimer = setTimeout(() => hidePanel(key), HOVER_GRACE_MS);
   };
   const onPanelToggle = (key: string, open: boolean) => {
     if (open) {
       openKey = key;
     } else if (openKey === key) {
-      // only the tracked panel's close resets the mode — popover=auto
+      // only the tracked panel's close resets the key — popover=auto
       // closes panel A while opening B, and A's late close event must
-      // never clear B's click state
+      // never clear B's state
       openKey = null;
-      openedBy = null;
-      cancelClose();
     }
   };
   // navigation cleanup (Codex ruling): hides every panel and resets the
   // mobile disclosure; consumers call this from their router hook
   // (SvelteKit onNavigate) — the registry component stays app-agnostic.
-  // openKey/openedBy clear synchronously here so a pill's aria-expanded
-  // never lags the panel behind an async native toggle event
+  // openKey clears synchronously here so a pill's aria-expanded never
+  // lags the panel behind an async native toggle event
   export function closeAll(): void {
-    cancelClose();
     openKey = null;
-    openedBy = null;
     for (const key of Object.keys(handles)) handles[key]?.hide();
     open = false;
     expanded = {};
   }
-  onDestroy(cancelClose);
 
   // crossing the sm breakpoint (rotate, resize) never carries nav state
   // across tiers — desktop panels hide, the disclosure resets (Codex r2)
@@ -416,83 +399,65 @@
                     onclick={(event) => {
                       const handle = handles[item.href];
                       if (!handle) return; // no popover engine: navigate
+                      // modified clicks keep the link's native behavior
+                      // (new tab / window) — never a toggle
+                      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
                       event.preventDefault();
-                      cancelClose();
-                      if (openKey === item.href) {
-                        if (openedBy === 'click') hidePanel(item.href);
-                        else openedBy = 'click';
-                      } else {
-                        showPanel(item.href, 'click', event.currentTarget);
-                      }
+                      if (openKey === item.href) hidePanel(item.href);
+                      else showPanel(item.href, event.currentTarget);
                     }}
-                    onmouseenter={() => {
-                      cancelClose();
-                      showPanel(item.href, 'hover');
-                    }}
-                    onmouseleave={() => scheduleClose(item.href)}
                   >
                     {item.label}{#if item.external}<span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}
                     {@render caret()}
                   </a>
                 {/snippet}
-                <!-- the corridor wrapper inverts into the panel's padding
-                     ring so the hover grace cancels from the panel edge;
-                     the clip box inside keeps the hairline shave law.
-                     Pointer-only surface: keyboard users open via the
-                     pill's native activation, so no key handlers here -->
-                <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-                <!-- svelte-ignore a11y_no_static_element_interactions -->
-                <div
-                  class="jx-subcorridor"
-                  onmouseenter={() => cancelClose()}
-                  onmouseleave={() => scheduleClose(item.href)}
-                >
-                  {#if item.panelAction}
-                    <!-- the panel head: item label inline-start, the
-                         section-index action inline-end (2026-08-23) -->
-                    <div
-                      class="jx-subpanel-head flex items-baseline justify-between gap-4 pt-2 pe-[0.875rem] pb-[0.375rem] font-nav text-[11px] tracking-[0.08em] lowercase"
+                {#if item.panelAction}
+                  <!-- the panel head: item label inline-start, the
+                       section-index action inline-end (2026-08-23) -->
+                  <div
+                    class="jx-subpanel-head flex items-baseline justify-between gap-4 pt-2 pe-[0.875rem] pb-[0.375rem] font-nav text-[11px] tracking-[0.08em] lowercase"
+                  >
+                    <span class="jx-subpanel-title text-[color:color-mix(in_oklab,var(--terminal-foreground)_45%,transparent)]">{item.label}</span>
+                    <a
+                      href={item.panelAction.href}
+                      aria-current={item.panelAction.active ? 'page' : undefined}
+                      class="jx-subpanel-action inline-flex items-center gap-[0.375rem] text-[color:color-mix(in_oklab,var(--terminal-foreground)_70%,transparent)] transition-colors duration-150"
                     >
-                      <span class="jx-subpanel-title text-[color:color-mix(in_oklab,var(--terminal-foreground)_45%,transparent)]">{item.label}</span>
-                      <a
-                        href={item.panelAction.href}
-                        aria-current={item.panelAction.active ? 'page' : undefined}
-                        class="jx-subpanel-action inline-flex items-center gap-[0.375rem] text-[color:color-mix(in_oklab,var(--terminal-foreground)_70%,transparent)] transition-colors duration-150"
+                      {item.panelAction.label}
+                      <span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.arrowRight}</span>
+                    </a>
+                  </div>
+                {/if}
+                <!-- the clip box keeps the hairline shave law; keyboard
+                     users open via the pill's native activation -->
+                <div class="jx-subclip overflow-hidden">
+                  <div
+                    class="jx-subgroups {mega
+                      ? 'grid -m-px'
+                      : 'jx-single block m-0'}{mega && typeof navColumns !== 'number'
+                      ? ' grid-cols-[repeat(auto-fill,minmax(13.5rem,1fr))]'
+                      : ''}"
+                    style={mega && typeof navColumns === 'number'
+                      ? `grid-template-columns: repeat(${navColumns}, 1fr)`
+                      : ''}
+                  >
+                    {#each groups as group (group.label ?? group.items[0]?.href ?? '')}
+                      {@const reserveIcon = group.items.some((child) => child.icon)}
+                      <div
+                        class="jx-group {mega
+                          ? 'min-w-0 py-2 px-3 pb-[0.625rem] border-t border-l border-[color-mix(in_oklab,var(--terminal-foreground)_15%,transparent)]'
+                          : 'min-w-0'}"
                       >
-                        {item.panelAction.label}
-                        <span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.arrowRight}</span>
-                      </a>
-                    </div>
-                  {/if}
-                  <div class="jx-subclip overflow-hidden">
-                    <div
-                      class="jx-subgroups {mega
-                        ? 'grid -m-px'
-                        : 'jx-single block m-0'}{mega && typeof navColumns !== 'number'
-                        ? ' grid-cols-[repeat(auto-fill,minmax(13.5rem,1fr))]'
-                        : ''}"
-                      style={mega && typeof navColumns === 'number'
-                        ? `grid-template-columns: repeat(${navColumns}, 1fr)`
-                        : ''}
-                    >
-                      {#each groups as group (group.label ?? group.items[0]?.href ?? '')}
-                        {@const reserveIcon = group.items.some((child) => child.icon)}
-                        <div
-                          class="jx-group {mega
-                            ? 'min-w-0 py-2 px-3 pb-[0.625rem] border-t border-l border-[color-mix(in_oklab,var(--terminal-foreground)_15%,transparent)]'
-                            : 'min-w-0'}"
-                        >
-                          {#if group.label}
-                            <div class="jx-group-label font-nav text-[10px] leading-[1.2] uppercase tracking-[0.18em] opacity-55 p-0 pe-[0.625rem] mb-2">{group.label}</div>
-                          {/if}
-                          <div class="jx-group-list">
-                            {#each group.items as child (child.label)}
-                              {@render subLink(child, reserveIcon, item.href)}
-                            {/each}
-                          </div>
+                        {#if group.label}
+                          <div class="jx-group-label font-nav text-[10px] leading-[1.2] uppercase tracking-[0.18em] opacity-55 p-0 pe-[0.625rem] mb-2">{group.label}</div>
+                        {/if}
+                        <div class="jx-group-list">
+                          {#each group.items as child (child.label)}
+                            {@render subLink(child, reserveIcon, item.href)}
+                          {/each}
                         </div>
-                      {/each}
-                    </div>
+                      </div>
+                    {/each}
                   </div>
                 </div>
               </Popover>

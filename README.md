@@ -52,6 +52,29 @@ authored css, a colocated `<name>.css` (standard CSS only —
 layer prologue; consumer utilities always win over component paint).
 The engine and theme items stay framework-free.
 
+### Markup contract: semantic hooks are `data-jx-*` attributes
+
+Component markup carries css-OWNED selector names as classes (state
+machines, surfaces — e.g. `.jx-toggle-track`, `.jx-sheet`) and every
+css-less semantic anchor as a `data-jx-*` attribute. **Breaking
+change (2026-08-25, data-jx-hooks)**: the old css-less `.jx-*` hook
+classes are gone — no compatibility classes are kept. Query migration:
+
+```js
+// before (hook-class era)          // after
+document.querySelector('.jx-kbd')   document.querySelector('[data-jx-kbd]')
+'.jx-badge-destructive'             '[data-jx-badge="destructive"]'  // variant = valued attribute
+el.classList.add('jx-foo')          el.setAttribute('data-jx-foo', '')
+el.classList.contains('jx-foo')     el.hasAttribute('data-jx-foo')
+```
+
+Variant families collapse into ONE valued attribute
+(`data-jx-badge={tone}`); part anchors stay boolean
+(`data-jx-badge-title`). The repo's own auditors:
+`scripts/jx-inventory.mjs` (structured scan) and
+`scripts/verify-hook-law.mjs --post` (fails on any css-less `jx-*`
+token or namespace shadow).
+
 ## Catalog
 
 | Item | Type | What it is |
