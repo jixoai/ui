@@ -184,7 +184,7 @@
       optional jx-pure import) so the P3a fixture and the final P4
       check share one logic; utility-authored UI items declare
       `@jixoai/jixoai-theme` in `registryDependencies` uniformly.
-- [ ] 3.2 One-shot matrix (Owner ruling 2026-08-24: ALL 72 styled
+- [x] 3.2 One-shot matrix (Owner ruling 2026-08-24: ALL 72 styled
       components in this change — the 0.3 per-component baseline
       matrix is the oracle): migrate per family with the same
       discipline — form family first (input, number-input, select,
@@ -202,10 +202,20 @@
       build resolves `@lib/jixoai.css`, and compiled output asserts
       `dark:*`, `border-border`, `bg-background` and the component
       utilities.
-- [ ] 3.3 Close the matrix: every styled component migrated, full
+- [x] 3.3 Close the matrix: DONE 2026-08-24 — 72/72 styled components
+      migrated (4 orchestrator-led paradigms + 68 via four parallel
+      subagents, orchestrator-verified: zero scoped styles, mirrors
+      byte-identical, per-batch computed probes; integration gates
+      manifest 221 pairs / vitest 327 / build 85 payloads /
+      verify-layer-law 8/8 / folder-css green; screenshot oracle 0.5%
+      calibrated — sole CHANGED = home (hero + utils catalog row,
+      intended)). every styled component migrated, full
       screenshot diff green, no scoped-paint remnants outside the
       documented D1 exemptions.
-- [ ] 3.4 Assert the customization contract suite-wide: consumer
+- [x] 3.4 Assert the customization contract suite-wide: DONE via
+      scripts/verify-layer-law.mjs (consumer utility overrides Tier-1
+      paint — hidden probe + kbd bg-primary live check; Tier-2 Part A
+      still wins — the jx-pure law pair). consumer
       utility overrides Tier-1 paint; Tier-2 Part A still beats
       utilities; unmigrated (if any remain) carry no cn() obligation.
 

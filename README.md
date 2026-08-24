@@ -26,6 +26,32 @@ npx shadcn add @jixoai/press-button
 }
 ```
 
+### Prerequisite: Tailwind v4 + the jixoai entry (registry:ui items)
+
+`registry:ui` items are utility-authored against Tailwind v4 and the
+jixoai token sheet. Your project needs ONE css entry in this exact
+order (the theme arrives automatically via each item's
+`registryDependencies`):
+
+```css
+@import 'tailwindcss';
+@import './lib/jixoai.css'; /* delivered by @jixoai/jixoai-theme */
+/* optional: @import './lib/jx-pure.css'; — the componentless face */
+```
+
+Plus `tailwindcss` + `@tailwindcss/vite` (v4) in your devDependencies
+and the vite plugin wired. The check script lives in this repo
+(`scripts/check-tw4-prereq.mjs`) — copy it or run it from a checkout
+inside your project; it fails with named fixes for each missing piece.
+
+Installed layout is FOLDER-shaped: every ui item lands under
+`src/lib/ui/<name>/**` with a pure-barrel `index.ts`
+(`import X from '$lib/ui/<name>'`) and, where the design law requires
+authored css, a colocated `<name>.css` (standard CSS only —
+`@layer components` + `:where()`, order-independent via the canonical
+layer prologue; consumer utilities always win over component paint).
+The engine and theme items stay framework-free.
+
 ## Catalog
 
 | Item | Type | What it is |

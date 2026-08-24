@@ -10,7 +10,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "check:tw4": "node ../../scripts/check-tw4-prereq.mjs src/app.css"
   },
   "devDependencies": {
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
