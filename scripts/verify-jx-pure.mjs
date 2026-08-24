@@ -30,6 +30,11 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 await page.goto(`http://localhost:${port}/components/jx-pure.html`, { waitUntil: 'domcontentloaded' });
 await page.waitForTimeout(1500);
 
+// hydration races the island's constructor — wait for its style
+// injection before sampling the shadow law
+await page
+  .waitForFunction(() => document.querySelector('jx-pure-island')?.shadowRoot?.querySelectorAll('style')?.length >= 2, { timeout: 5000 })
+  .catch(() => {});
 const facts = await page.evaluate(() => {
   const cs = (el, prop) => getComputedStyle(el).getPropertyValue(prop);
   const scope = document.querySelector('#forms .jx-pure');
@@ -66,6 +71,13 @@ const facts = await page.evaluate(() => {
   // the one-opacity-owner law (Codex review A3)
   const lockedFieldset = document.querySelector('#forms fieldset[disabled]');
   const lockedInput = lockedFieldset.querySelector('input[type="text"]');
+  // Owner round: switch + validation surfaces
+  const sw = document.querySelector('#switch input[role="switch"]');
+  const swChecked = document.querySelector('#switch input[role="switch"]:checked');
+  const badLane = document.querySelector('#validation input[aria-invalid="true"]');
+  const okLane = document.querySelector('#validation input[aria-invalid="false"]');
+  const badCheck = document.querySelector('#validation input[type="checkbox"][aria-invalid="true"]:checked');
+  const badRange = document.querySelector('#validation input[type="range"][aria-invalid="true"]');
   // completion-round surfaces: progress / meter / output / figure
   const prog = document.querySelector('#media-flow progress[value]');
   const progIndet = document.querySelector('#media-flow progress:not([value])');
@@ -118,7 +130,35 @@ const facts = await page.evaluate(() => {
       placeholderVar: true,
     },
     inCheck: { appearance: cs(inCheck, 'appearance').trim(), size: cs(inCheck, 'width') },
-    inRange: { appearance: cs(inRange, 'appearance').trim(), height: cs(inRange, 'height') },
+    inRange: {
+      appearance: cs(inRange, 'appearance').trim(),
+      height: cs(inRange, 'height'),
+      containerType: cs(inRange, 'container-type').trim(),
+      overflow: cs(inRange, 'overflow').trim(),
+    },
+    switch: {
+      w: cs(sw, 'width'),
+      h: cs(sw, 'height'),
+      radius: cs(sw, 'border-radius'),
+      checkedBg: getComputedStyle(swChecked).backgroundColor,
+    },
+    validation: {
+      destructiveResolved: (() => {
+        const el = document.createElement('span');
+        el.style.cssText = 'color: var(--destructive); position: fixed; visibility: hidden;';
+        document.body.appendChild(el);
+        const v = getComputedStyle(el).color;
+        el.remove();
+        return v;
+      })(),
+      badStyle: cs(badLane, 'border-style'),
+      badGlyph: cs(badLane, 'background-image').includes('url'),
+      okGlyph: cs(okLane, 'background-image').includes('url'),
+      okBorder: cs(okLane, 'border-color'),
+      badCheckBg: getComputedStyle(badCheck).backgroundColor,
+      badRadioDot: getComputedStyle(document.querySelector('#validation input[type="radio"][aria-invalid="true"]:checked'), '::after').backgroundColor,
+      badRangeVar: cs(badRange, '--jx-range-fill-color').trim(),
+    },
     inColor: { size: cs(inColor, 'width'), appearance: cs(inColor, 'appearance').trim() },
     selDefault: { appearance: cs(selDefault, 'appearance').trim(), paddingEnd: cs(selDefault, 'padding-right') },
     selOpt: {
@@ -183,7 +223,7 @@ const checks = [
   ['text lane: 40px box + mono font', facts.inInput.minHeight === '40px' && facts.inInput.fontMono],
   ['text lane: inherits scope color-scheme', facts.inInput.colorScheme === 'light'],
   ['checkbox: repaint (appearance none, 16px)', facts.inCheck.appearance === 'none' && facts.inCheck.size === '16px'],
-  ['range: repaint (appearance none, 28px strip)', facts.inRange.appearance === 'none' && facts.inRange.height === '28px'],
+  ['range: repaint (appearance none, the rail paint box)', facts.inRange.appearance === 'none' && facts.inRange.height === '8px'],
   ['color: locked 40px square', facts.inColor.size === '40px'],
   ['select default: platform arrow kept', facts.selDefault.appearance !== 'none' && facts.selDefault.paddingEnd === '32px'],
   ['select.jx-select: opt-in chevron gradient', facts.selOpt.appearance === 'none' && facts.selOpt.chevron],
@@ -293,6 +333,113 @@ for (const [name, ok] of rmChecks) {
 }
 console.log('reduced-motion facts:', rm);
 await page.emulateMedia({ reducedMotion: null });
+
+// ---- upgrade round (2026-08-24): the cqw fill pixels + the glyph proofs
+async function samplePixels(locator, points) {
+  const buf = await locator.screenshot();
+  return await page.evaluate(async ({ b64, points }) => {
+    const img = new Image();
+    img.src = 'data:image/png;base64,' + b64;
+    await img.decode();
+    const c = document.createElement('canvas');
+    c.width = img.width;
+    c.height = img.height;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    return {
+      w: img.width,
+      h: img.height,
+      px: points.map(([x, y]) => [...ctx.getImageData(Math.round(x), Math.round(y), 1, 1).data].slice(0, 3)),
+    };
+  }, { b64: buf.toString('base64'), points });
+}
+// (a) the element-face fill at value=40: primary left, background right
+const fillShot = await page.locator('#forms .jx-pure input[type="range"]').screenshot();
+const rangeDims = await page.evaluate(async (b64) => {
+  const img = new Image();
+  img.src = 'data:image/png;base64,' + b64;
+  await img.decode();
+  return { w: img.width, h: img.height };
+}, fillShot.toString('base64'));
+const rangeSamples = await samplePixels(page.locator('#forms .jx-pure input[type="range"]'), [
+  [rangeDims.w * 0.15, rangeDims.h / 2],
+  [rangeDims.w * 0.9, rangeDims.h / 2],
+  // thin-rail proof: 2px above the top edge of the 8px rail = page background
+  [rangeDims.w * 0.15, 1],
+]);
+const fillL = rangeSamples.px[0];
+const fillR = rangeSamples.px[1];
+// the brand hue CYCLES (24h clock) and Chrome keeps computed colors as
+// oklch() strings — assert FILL-ness hue-agnostically: the filled side
+// is a saturated dark paint, the unfilled side is near-background
+const dist = (a, b) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
+const white = [255, 255, 255];
+const isFilled = (px) => dist(px, white) > 180;
+const upChecks = [
+  ['range fill: primary before the thumb (value 40)', isFilled(fillL)],
+  ['range fill: background past the thumb', dist(fillR, white) < 60],
+  ['range machinery: container-type + overflow clip', facts.inRange.containerType === 'inline-size' && facts.inRange.overflow === 'hidden'],
+  ['Owner · thin rail: the paint box is the 8px rail', facts.inRange.height === '8px'],
+  ['switch: 36×20 square, role=switch opt-in', facts.switch.w === '36px' && facts.switch.h === '20px' && facts.switch.radius === '0px'],
+  ['validation: invalid lane dashed + glyph', facts.validation.badStyle === 'dashed' && facts.validation.badGlyph],
+  ['validation: valid lane glyph + primary lean', facts.validation.okGlyph && facts.validation.okBorder.includes('oklch')],
+  ['validation: invalid checkbox fill flips', facts.validation.badCheckBg !== 'rgba(0, 0, 0, 0)'],
+  ['R7-1 · invalid radio DOT flips to destructive', facts.validation.badRadioDot === facts.validation.destructiveResolved],
+  ['validation: invalid range fill var flips', facts.validation.badRangeVar === facts.validation.destructiveResolved]
+];
+// (b) form.html: the pipette glyph + the Tier-1 class fill
+await page.goto(`http://localhost:${port}/components/form.html`, { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(2000);
+// the pipette is a thin diagonal glyph — single-point sampling misses
+// it; count zone pixels that differ from the lane reference instead.
+// reveal sections paint transparent until scrolled into view — scroll first
+await page.locator('.jx-color-field').first().scrollIntoViewIfNeeded();
+await page.waitForTimeout(600);
+const fieldDark = await (async () => {
+  const buf = await page.locator('.jx-color-field').first().screenshot();
+  return await page.evaluate(async (b64) => {
+    const img = new Image();
+    img.src = 'data:image/png;base64,' + b64;
+    await img.decode();
+    const c = document.createElement('canvas');
+    c.width = img.width;
+    c.height = img.height;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    // theme-agnostic: the lane reference at x=w-40 vs the glyph zone —
+    // count pixels that DIFFER from the reference (works light or dark)
+    const ref = [...ctx.getImageData(img.width - 40, Math.floor(img.height / 2), 1, 1).data].slice(0, 3);
+    let dark = 0;
+    for (let y = 4; y < img.height - 4; y++) {
+      for (let x = Math.floor(img.width * 0.6); x < img.width - 4; x++) {
+        const px = [...ctx.getImageData(x, y, 1, 1).data].slice(0, 3);
+        if (Math.abs(px[0] - ref[0]) + Math.abs(px[1] - ref[1]) + Math.abs(px[2] - ref[2]) > 60) dark++;
+      }
+    }
+    return dark;
+  }, buf.toString('base64'));
+})();
+const glyphZone = { differPixels: fieldDark };
+upChecks.push(['pipette glyph paints (zone pixels differ from lane)', fieldDark > 40]);
+await page.locator('.jx-range').first().scrollIntoViewIfNeeded();
+await page.waitForTimeout(400);
+const tier1Shot = await page.locator('.jx-range').first().screenshot();
+const tier1Dims = await page.evaluate(async (b64) => {
+  const img = new Image();
+  img.src = 'data:image/png;base64,' + b64;
+  await img.decode();
+  return { w: img.width, h: img.height };
+}, tier1Shot.toString('base64'));
+const tier1Samples = await samplePixels(page.locator('.jx-range').first(), [
+  [tier1Dims.w * 0.15, tier1Dims.h / 2],
+  [tier1Dims.w * 0.9, tier1Dims.h / 2],
+]);
+upChecks.push(['Tier-1 .jx-range fill (value 40)', isFilled(tier1Samples.px[0]) && dist(tier1Samples.px[1], white) < 60]);
+for (const [name, ok] of upChecks) {
+  console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}`);
+  if (!ok) failed++;
+}
+console.log('upgrade facts:', { fillL, fillR, glyphZone });
 
 await browser.close();
 if (failed) {

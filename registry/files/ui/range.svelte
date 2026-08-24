@@ -328,8 +328,12 @@
     cursor: not-allowed;
   }
 
-  /* the shared track law (Tier-1 .jx-range parity): thin box, 1px border,
-     background fill — this widget adds the primary progress fill */
+  /* the shared track law (Tier-1 .jx-range parity, 2026-08-24 equal-
+     thickness amendment): the 8px bordered groove + an 8px primary
+     fill — SAME THICKNESS as the groove (Owner ruling). This widget's
+     own DOM paints the fill as a plain div inside the track, so it
+     keeps BOTH the fat 1.75rem hit strip AND the 20px thumb — the
+     affordances the bare Tier-1 input traded away for pure CSS */
   .jx-slider-track {
     position: absolute;
     inset-inline: 0;
@@ -344,7 +348,7 @@
     position: absolute;
     inset-inline-start: 0;
     top: 0;
-    height: 100%;
+    height: 100%; /* of the 8px groove — equal thickness with it */
     background: var(--primary);
   }
 

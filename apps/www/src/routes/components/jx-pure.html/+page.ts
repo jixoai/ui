@@ -12,6 +12,8 @@ const toc: TocSection[] = [
     { id: 'nav-lists', label: 'nav · lists · dl' },
     { id: 'tables', label: 'Tables' },
     { id: 'media-flow', label: 'progress · meter · figure' },
+    { id: 'switch', label: 'switch · role=switch' },
+    { id: 'validation', label: 'Validation states' },
     { id: 'dark-mode', label: 'Dark mode' },
     { id: 'custom-element', label: 'CustomElement' },
     { id: 'scope-laws', label: 'Scope laws' },

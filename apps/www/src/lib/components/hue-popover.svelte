@@ -145,10 +145,12 @@
     letter-spacing: 0.2em;
   }
 
-  /* ── hue slider: the Tier-1 .jx-range law carries the base (appearance
-     reset, focus ring, disabled, hover lift, press physics, reduced
-     motion); hue-owned paint ONLY — the rainbow track fill and the marker
-     thumb (14px, 2px border for separation against any hue) ── */
+  /* ── hue slider: NOT a .jx-range geometry consumer anymore — the
+     Tier-1 paint box shrank to rail height (equal-thickness amendment)
+     and its overflow clip would shear this 14px marker. The rainbow
+     groove IS the value display, so no fill shadow exists here at all:
+     the input keeps its own fat hit strip, unclipped thumb, and only
+     the appearance reset + focus law ride the Tier-1 face ── */
   .jx-hue-range::-webkit-slider-runnable-track {
     background: linear-gradient(
       to right,
@@ -161,12 +163,23 @@
       oklch(0.6489 0.237 360)
     );
   }
+  .jx-hue-range {
+    height: 1.75rem; /* own fat hit strip — the rail-height Tier-1 box does not apply */
+    overflow: visible; /* no fill shadow here — the 14px marker must not be clipped */
+  }
+  .jx-hue-range::-webkit-slider-runnable-track {
+    height: 6px; /* the rainbow groove, centered in the strip */
+  }
+  .jx-hue-range::-moz-range-track {
+    height: 6px;
+  }
   .jx-hue-range::-webkit-slider-thumb {
     width: 14px;
     height: 14px;
-    /* center the 14px marker on the Tier-1 8px track */
-    margin-top: calc((0.5rem - 14px) / 2);
+    /* center the 14px marker on the 6px groove */
+    margin-top: -4px;
     border-width: 2px;
+    box-shadow: none;
     cursor: grab;
   }
   .jx-hue-range::-moz-range-track {
@@ -185,6 +198,7 @@
     width: 14px;
     height: 14px;
     border-width: 2px;
+    box-shadow: none;
     cursor: grab;
   }
 

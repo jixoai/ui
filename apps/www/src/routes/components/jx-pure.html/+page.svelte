@@ -1,7 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import { reveal } from '$lib/reveal';
   import { onMount } from 'svelte';
 
   // ToC lives in +page.ts (firstpaint era: the layout's chrome snippet
@@ -111,7 +110,7 @@ this.shadowRoot.append(style);
        glass bar under the scaffold header (height 0, see toc.css) -->
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -128,7 +127,7 @@ this.shadowRoot.append(style);
       </SectionCard>
     </div>
 
-    <div id="getting-started" data-reveal="" use:reveal>
+    <div id="getting-started" data-reveal="">
       <SectionCard
         family="getting-started"
         headerRegion="getting-started"
@@ -143,7 +142,7 @@ this.shadowRoot.append(style);
       </SectionCard>
     </div>
 
-    <div id="typography" data-reveal="" use:reveal>
+    <div id="typography" data-reveal="">
       <SectionCard
         family="typography"
         headerRegion="typography"
@@ -172,7 +171,7 @@ document.body.classList.add('jx-pure');</code></pre>
       </SectionCard>
     </div>
 
-    <div id="buttons" data-reveal="" use:reveal>
+    <div id="buttons" data-reveal="">
       <SectionCard
         family="buttons"
         headerRegion="buttons"
@@ -206,7 +205,7 @@ document.body.classList.add('jx-pure');</code></pre>
       </SectionCard>
     </div>
 
-    <div id="forms" data-reveal="" use:reveal>
+    <div id="forms" data-reveal="">
       <SectionCard
         family="forms"
         headerRegion="forms"
@@ -272,7 +271,7 @@ document.body.classList.add('jx-pure');</code></pre>
       </SectionCard>
     </div>
 
-    <div id="disclosure" data-reveal="" use:reveal>
+    <div id="disclosure" data-reveal="">
       <SectionCard
         family="disclosure"
         headerRegion="disclosure"
@@ -293,7 +292,7 @@ document.body.classList.add('jx-pure');</code></pre>
       </SectionCard>
     </div>
 
-    <div id="nav-lists" data-reveal="" use:reveal>
+    <div id="nav-lists" data-reveal="">
       <SectionCard
         family="nav-lists"
         headerRegion="nav-lists"
@@ -329,7 +328,7 @@ document.body.classList.add('jx-pure');</code></pre>
       </SectionCard>
     </div>
 
-    <div id="tables" data-reveal="" use:reveal>
+    <div id="tables" data-reveal="">
       <SectionCard
         family="tables"
         headerRegion="tables"
@@ -360,7 +359,7 @@ document.body.classList.add('jx-pure');</code></pre>
       </SectionCard>
     </div>
 
-    <div id="media-flow" data-reveal="" use:reveal>
+    <div id="media-flow" data-reveal="">
       <SectionCard
         family="media-flow"
         headerRegion="media-flow"
@@ -404,7 +403,57 @@ document.body.classList.add('jx-pure');</code></pre>
       </SectionCard>
     </div>
 
-    <div id="dark-mode" data-reveal="" use:reveal>
+<div id="switch" data-reveal="">
+  <SectionCard
+    family="switch"
+    headerRegion="switch"
+    eyebrow="demo"
+    title="switch — role=switch on a checkbox"
+    summary="The Pico contract, zero classes: put role='switch' on a bare checkbox inside .jx-pure and it becomes the jixoai switch — square track, square sliding thumb, native state/label/FormData untouched (appearance:none strips paint only). Checked rides primary; the Tier-2 toggle component remains the rich lane (labels, postures, sizes) for component consumers."
+  >
+    <div class="jx-pure flex flex-wrap items-center gap-6" style="max-width: 40rem">
+      <label><input type="checkbox" role="switch" /> auto-save</label>
+      <label><input type="checkbox" role="switch" checked /> notifications</label>
+      <label><input type="checkbox" role="switch" disabled /> locked</label>
+      <label><input type="checkbox" role="switch" aria-invalid="true" checked /> failing</label>
+    </div>
+  </SectionCard>
+</div>
+
+--- #validation section ---
+
+<div id="validation" data-reveal="">
+  <SectionCard
+    family="validation"
+    headerRegion="validation"
+    eyebrow="law"
+    title="Validation states — the aria-invalid matrix"
+    summary="The Pico state contract on the jixoai monochrome palette: aria-invalid='false' leans every accent primary (the one-hue positive); aria-invalid='true' FLIPS every primary accent to destructive — lanes go dashed with the '!' ink glyph, valid lanes carry the '✓' glyph, checkbox/radio/switch checked fills flip, and the range's fill + thumb flip. Native :invalid is deliberately NOT hooked — the state is always the author's explicit aria (no empty-required surprises)."
+  >
+    <div class="jx-pure grid gap-5 min-[760px]:grid-cols-2" style="max-width: 52rem">
+      <form onsubmit={(e) => e.preventDefault()} class="flex flex-col gap-3">
+        <label for="v-ok">valid lane (aria-invalid='false')</label>
+        <input id="v-ok" type="text" value="gaubee" aria-invalid="false" />
+        <label for="v-bad">invalid lane (aria-invalid='true')</label>
+        <input id="v-bad" type="text" value="nope!" aria-invalid="true" />
+        <label for="v-sel-bad">invalid select</label>
+        <select id="v-sel-bad" aria-invalid="true"><option>pick…</option></select>
+      </form>
+      <div class="flex flex-col gap-3">
+        <label><input type="checkbox" aria-invalid="true" checked /> invalid checkbox</label>
+        <label><input type="checkbox" aria-invalid="false" checked /> valid checkbox</label>
+        <label><input type="radio" name="v-radio" aria-invalid="true" checked /> invalid radio</label>
+        <label><input type="checkbox" role="switch" aria-invalid="true" checked /> invalid switch</label>
+        <div>
+          <small>invalid range — fill + thumb flip destructive</small><br />
+          <input type="range" min="0" max="100" value="70" aria-invalid="true" />
+        </div>
+      </div>
+    </div>
+  </SectionCard>
+</div>
+
+    <div id="dark-mode" data-reveal="">
       <SectionCard
         family="dark-mode"
         headerRegion="dark-mode"
@@ -473,7 +522,7 @@ document.body.classList.add('jx-pure');</code></pre>
       </SectionCard>
     </div>
 
-    <div id="custom-element" data-reveal="" use:reveal>
+    <div id="custom-element" data-reveal="">
       <SectionCard
         family="custom-element"
         headerRegion="custom-element"
@@ -509,7 +558,7 @@ document.body.classList.add('jx-pure');</code></pre>
       </SectionCard>
     </div>
 
-    <div id="scope-laws" data-reveal="" use:reveal>
+    <div id="scope-laws" data-reveal="">
       <SectionCard
         family="scope-laws"
         headerRegion="scope-laws"

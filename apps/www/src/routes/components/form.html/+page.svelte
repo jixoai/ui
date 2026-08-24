@@ -20,7 +20,6 @@
   import Textarea from '$lib/ui/textarea.svelte';
   import Toggle from '$lib/ui/toggle.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the canvas drawers show the exact registry copies this
   // site runs — one ?raw import per core control (audit P1-A2).
@@ -241,7 +240,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
 <label class="jx-label" for="deploy">deploy</label>
 <input class="jx-input" id="deploy" type="datetime-local" />
 
-<!-- range: pure-CSS slider — bordered thin track, square primary thumb -->
+<!-- range: pure-CSS slider — zero-JS fill to the thumb, thick strip + 8px groove, square thumb -->
 <input class="jx-range" type="range" min="0" max="100" value="40" />
 
 <!-- color: the wrapper label opens the picker from the pipette glyph;
@@ -563,7 +562,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
 
   <div class="flex min-w-0 flex-col gap-8">
   <!-- page head -->
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -588,7 +587,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
        — LIVE stage, playground pane (reset + echo + live usage code), source
        tree + GitHub link. The full 14-control catalogue follows below in
        SectionCards, unchanged. -->
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="input"
       description="The text-shell base of the NativeHTML family: every native type passes through untouched — the component owns only label/error wiring, four slot seams, and the bordered shell."
@@ -644,7 +643,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="select"
       description="The popover-listbox select: per-option descriptions, ↑/↓/Home/End/Enter roving highlight with focus restitution — for when the native popup can't say what you need."
@@ -680,7 +679,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="combobox"
       description="The searchable select: the trigger IS the input — typing filters the panel live, ↑/↓ + Enter commits, Escape reverts, and allowCustom offers the “Use “xxx”” row."
@@ -716,7 +715,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="number-input"
       description="The [- NUM +] stepper: click steps once and clamps into [min, max], hold accelerates 300ms → 100ms/step, typing commits on change."
@@ -746,7 +745,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="date-picker"
       description="A zero-dependency calendar popover over hand-rolled Date math — popover='auto' gives light dismiss and the top layer; single mode commits ISO 'YYYY-MM-DD'."
@@ -784,7 +783,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="tags-input"
       description="Input × multiselect: Enter / comma / Tab commits chips, Backspace on empty deletes the last, duplicates flash the existing chip, maxTags swaps the input for an “N/N tags” readout."
@@ -831,7 +830,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   </div>
 
   <!-- all native types -->
-  <div id="all-types" data-reveal="" use:reveal>
+  <div id="all-types" data-reveal="">
     <SectionCard
       family="all-types"
       headerRegion="all-types"
@@ -937,7 +936,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   </div>
 
   <!-- checkbox / radio / toggle: pure-CSS selectors -->
-  <div id="selectors" data-reveal="" use:reveal>
+  <div id="selectors" data-reveal="">
     <SectionCard
       family="selectors"
       headerRegion="selectors"
@@ -1037,7 +1036,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   </div>
 
   <!-- the select split -->
-  <div id="select-split" data-reveal="" use:reveal>
+  <div id="select-split" data-reveal="">
     <SectionCard
       family="select-split"
       headerRegion="select-split"
@@ -1120,7 +1119,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   </div>
 
   <!-- combobox + tags input -->
-  <div id="combobox-tags" data-reveal="" use:reveal>
+  <div id="combobox-tags" data-reveal="">
     <SectionCard
       family="combobox-tags"
       headerRegion="combobox-tags"
@@ -1242,7 +1241,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   </div>
 
   <!-- number stepper -->
-  <div id="number-input" data-reveal="" use:reveal>
+  <div id="number-input" data-reveal="">
     <SectionCard
       family="number-input"
       headerRegion="number-input"
@@ -1310,7 +1309,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   </div>
 
   <!-- file input -->
-  <div id="file-input" data-reveal="" use:reveal>
+  <div id="file-input" data-reveal="">
     <SectionCard
       family="file-input"
       headerRegion="file-input"
@@ -1384,7 +1383,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   </div>
 
   <!-- date picker -->
-  <div id="date-picker" data-reveal="" use:reveal>
+  <div id="date-picker" data-reveal="">
     <SectionCard
       family="date-picker"
       headerRegion="date-picker"
@@ -1446,7 +1445,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   </div>
 
   <!-- range slider -->
-  <div id="range-slider" data-reveal="" use:reveal>
+  <div id="range-slider" data-reveal="">
     <SectionCard
       family="range-slider"
       headerRegion="range-slider"
@@ -1514,7 +1513,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   </div>
 
   <!-- color picker -->
-  <div id="color-picker" data-reveal="" use:reveal>
+  <div id="color-picker" data-reveal="">
     <SectionCard
       family="color-picker"
       headerRegion="color-picker"
@@ -1570,7 +1569,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   </div>
 
   <!-- select + textarea -->
-  <div id="select-textarea" data-reveal="" use:reveal>
+  <div id="select-textarea" data-reveal="">
     <SectionCard
       family="select-textarea"
       headerRegion="select-textarea"
@@ -1628,7 +1627,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   </div>
 
   <!-- slot system (InputGroup) -->
-  <div id="slots" data-reveal="" use:reveal>
+  <div id="slots" data-reveal="">
     <SectionCard
       family="slots"
       headerRegion="slots"
@@ -1689,7 +1688,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   </div>
 
   <!-- full example form -->
-  <div id="example-form" data-reveal="" use:reveal>
+  <div id="example-form" data-reveal="">
     <SectionCard
       family="example-form"
       headerRegion="example-form"
@@ -1742,7 +1741,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   </div>
 
   <!-- NativeHTML base explainer -->
-  <div id="native-base" data-reveal="" use:reveal>
+  <div id="native-base" data-reveal="">
     <SectionCard
       family="native-base"
       headerRegion="native-base"
@@ -1771,8 +1770,8 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
               pseudo-elements — a clip-path check, a scaled dot, a sliding knob — while the
               native input underneath still owns state, keyboard toggling, and FormData.
               The remaining platform widgets are repainted by the Tier-1 class vocabulary (jx-pure Part A):
-              <code class="text-accent">range</code> becomes the pure-CSS slider (bordered
-              track, square primary thumb), color becomes the swatch-plus-pipette field, and
+              <code class="text-accent">range</code> becomes the pure-CSS slider (the zero-JS
+              cqw shadow fill, square thumb), color becomes the swatch-plus-pipette field, and
               the date/time/number lanes restyle the platform's own picker indicator and
               spinners; file and dates have their own professional controls —
               file-input (drop zone, thumbnail rows, maxFiles) and date-picker (a zero-dep
