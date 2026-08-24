@@ -1,10 +1,16 @@
 # design-tokens — the jixoai token-sheet law (living spec)
 
+## Purpose
+
+The jixoai token-sheet law: OKLCH one-hue colors with dark drift, structure laws (hard shadows, radius/bevel, mono-first, terminal surfaces), semantic palette, and degradation laws.
+
 > Capability owner: `registry/files/theme/jixoai.css` (registry item
 > `jixoai-theme`, mirrored at `apps/www/src/lib/jixoai.css` with
 > `--brand-hue: 330`). One number — the hue — changes per project.
 
 ## Current contract (state: 2026-08-24)
+
+## Requirements
 
 ### Requirement: OKLCH one-hue law
 

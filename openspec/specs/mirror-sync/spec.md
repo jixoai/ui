@@ -1,5 +1,9 @@
 # mirror-sync — apps/www same-source consumption (living spec)
 
+## Purpose
+
+How the apps/www docs site consumes the registry same-source: the full mirror manifest, the dual parity invariants (source to payload, source to mirror), and the behavioral verification suite.
+
 > Capability owner: `apps/www/jixoai-ui.lock` +
 > `apps/www/.jixoai-ui-version` + the parity test suite. The docs site
 > consumes the registry from THIS repository with zero network: the
@@ -8,43 +12,66 @@
 
 ## Current contract (state: 2026-08-24, verified)
 
-### Requirement: same-source copies (intended discipline)
+## Requirements
 
-`apps/www/src/lib/ui/*` mirrors `registry/files/ui/*` (and lib/theme
-equivalently: `src/lib/jixoai.css`, `src/lib/jx-pure.css`). An edit to
-one side is mirrored to the other in the same commit.
+### Requirement: same-source copies
 
-**Verified reality (2026-08-24 inventory):** the drift detection is
-PARTIAL. `jixoai-ui.lock` hashes only 6 items; the vitest parity guard
-(`registry-payload-parity.spec.ts`) compares published `public/r/*.json`
-payloads against `registry/files/**` sources — it does NOT compare the
-apps/www mirror. Known exceptions: `component-tree-nav.svelte` exists
-mirror-only (site chrome, not a registry item); `toc.css` /
-`website-scaffold.css` exist registry-side under `files/ui/` while the
-mirror keeps them at `src/lib/` (import-path difference, not content
-drift). A full source↔mirror manifest is not yet implemented — the
-tw4-css-modularization change defines it.
+`apps/www/src/lib/ui/<name>/**` SHALL mirror
+`registry/files/ui/<name>/**` folder-for-folder, with cross-root files
+mapped by a FIXED canonical mapping table (no per-run freedom):
+
+```
+registry/files/ui/<name>/**   → apps/www/src/lib/ui/<name>/**
+registry/files/lib/<x>        → apps/www/src/lib/<x>          (engine/lib files)
+registry/files/theme/jixoai.css → apps/www/src/lib/jixoai.css
+registry/files/theme/jx-pure.css → apps/www/src/lib/jx-pure.css
+```
+
+Drift detection MUST be complete: a committed manifest
+(normalized relative paths + sha256 per file) covering every mapped
+pair, with an explicit exceptions inventory split into two lists —
+pre-migration known exceptions (e.g. mirror-only
+`component-tree-nav.svelte` site chrome) and post-migration permanent
+exceptions (site-only files that never become items). After P1, an
+item's css living outside its folder is NOT an allowed exception.
+The manifest-replacing lock regenerates on every mirror-touching
+commit.
 
 #### Scenario: registry payload edited without rebuild
 
-- GIVEN `registry/files/ui/<x>.svelte` changes
+- GIVEN `registry/files/ui/<x>` changes
 - WHEN vitest runs before the root `shadcn build` regenerates payloads
 - THEN `registry-payload-parity.spec.ts` fails, naming the stale file
+  (the source↔payload invariant — unchanged by this change)
 
 #### Scenario: mirror drift today
 
-- GIVEN a one-sided edit to a mirrored file not covered by the 6-item
-  lock
-- THEN nothing fails today — the gap this spec records honestly
+- GIVEN a one-sided edit to a mirrored file
+- THEN the FULL manifest check fails, naming the drifted file and side
+  (the pre-refactor 6-item-lock gap this change closed; the scenario
+  name carries that history)
+
+#### Scenario: registry component edited
+
+- GIVEN `registry/files/ui/kbd/kbd.svelte` gains a prop
+- WHEN the mirror is updated and the manifest regenerated
+- THEN both parity tests are green and `apps/www` renders the new prop
+
+#### Scenario: drift introduced (either side)
+
+- GIVEN a one-sided edit, addition, or deletion (registry without
+  mirror, mirror without registry, or stale manifest)
+- WHEN the source↔mirror test runs
+- THEN it fails, naming the drifted file and side
 
 ### Requirement: parity verification (dual invariants)
 
-Two distinct invariants exist and MUST stay separately named/tested:
-(1) source↔published-payload (the vitest guard above); (2)
-source↔mirror content (intended; today only the partial lock).
-Behavioral verification: the vitest suite (~25 spec files) plus root
-`scripts/verify-*.mjs` playwright probes run against a RUNNING dev
-server (`npm run site`, :5199).
+Two invariants MUST remain separately named and separately tested:
+(1) source↔published-payload (the existing
+`registry-payload-parity.spec.ts`); (2) source↔mirror (the new
+manifest test). Test names and failure messages MUST distinguish the
+two (a payload-staleness failure says "re-run shadcn build"; a mirror
+failure says "sync the mirror + regenerate the manifest").
 
 #### Scenario: component behavior change
 

@@ -221,13 +221,13 @@
 
 ## P4 — registry + docs re-index
 
-- [ ] 4.1 README/catalog: Tailwind v4 prerequisite for `registry:ui`
+- [x] 4.1 README/catalog: Tailwind v4 prerequisite for `registry:ui`
       consumers + the detection entry fixed to a concrete file
       (`scripts/check-tw4-prereq.mjs`, wired into the consumer docs /
       CI of this repo's site build, failure message names the missing
       requirement); folder-shaped install layout; breaking
       install/import note.
-- [ ] 4.2 PAGE_STANDARDS + llms.txt exports re-generated.
-- [ ] 4.3 `openspec validate --strict` clean; deltas applied;
+- [x] 4.2 PAGE_STANDARDS + llms.txt exports re-generated.
+- [x] 4.3 `openspec validate --strict` clean; deltas applied;
       verification.md written with evidence; Codex final review;
       archive.

@@ -56,6 +56,13 @@ canonical `@lib` file paths; code-card's npm/registry dependency
 chain is asserted in the P0.3 mapping + P1 full gate), not inferred
 from `shadcn build` output.
 
+#### Scenario: consumer installs a multi-file item
+
+- GIVEN a multi-file item (accordion: group + item + barrel + css)
+- WHEN it is installed via `shadcn add`
+- THEN every file lands inside its folder target — the flat-sibling
+  era's name-mangling is gone; this scenario name carries that history
+
 #### Scenario: consumer installs a folder-shaped item
 
 - GIVEN a consumer with `@jixoai` namespace configured

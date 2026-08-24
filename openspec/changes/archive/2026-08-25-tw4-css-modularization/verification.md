@@ -13,11 +13,11 @@
 | Registry payloads | `npm run build` | 85 payloads, folder-shaped targets |
 | Unit/behavior suite | `npm --prefix apps/www run test` | 327/327 (24 files) |
 | Site build | `npm --prefix apps/www run build` + `npm run build:site` | pass; llms.txt 67 pages |
-| Layer law (dual axes + context) | `node scripts/verify-layer-law.mjs` | 8/8 |
+| Layer law (dual axes + context + kernel probes) | `node scripts/verify-layer-law.mjs` | 12/12 (r3: + terminal-header subpanel, tooltip, popover, sheet state machine) |
 | Folder-css contract | `node scripts/verify-folder-css.mjs` | ALL GREEN (dev + production build) |
 | Real-consumer install | `node scripts/verify-shadcn-add.mjs` | ALL GREEN — accordion + toast + code-card chain (shiki.ts exactly once at canonical @lib; utils/theme/fontsource arrive; consumer vite build passes) |
 | Clean-consumer entry gate | `node scripts/verify-clean-consumer.mjs` | 10/10 — empty project, public 2-line entry, fontsource closure, compiled dark:*/border-border/bg-background + kbd utilities |
-| Screenshot oracle | `node scripts/capture-baseline.mjs` | 67/67 REAL routes (200 + main-content marker enforced); P3-r1 delta median 0.000% / max 0.004% |
+| Screenshot oracle | `node scripts/capture-baseline.mjs` | 67/67 REAL routes (200 + marker + frozen clock + reduced-motion); committed-script back-to-back 67/67 within tolerance; compare = failing gate (metrics + allowlist) |
 | Prerequisite check | `npm --prefix apps/www run check:tw4` | OK (this repo's own entry) |
 | OpenSpec | `openspec validate tw4-css-modularization --strict` | valid |
 
@@ -110,8 +110,14 @@ threshold is a triage hypothesis, not an acceptance bound.
 
 ## Archive readiness
 
-- [x] All tasks P0–P3 checked with evidence; P4 docs/checks landed
-      (README prerequisite, check:tw4, blueprint scene for utils).
-- [x] review-r6 Approve (spec) + implementation reviews recorded
-      (review-p3-impl.md r0 BLOCK 5.5 → r1 verdict appended by Codex).
-- [ ] Owner final approval + `openspec archive tw4-css-modularization`.
+- [x] All tasks P0–P4 checked with evidence; docs/checks landed
+      (README prerequisite, check:tw4, blueprint scene for utils,
+      verification.md).
+- [x] Spec rounds r1–r6 (r6 Approve 9/10) + implementation rounds
+      r0 BLOCK 5.5 → r1 BLOCK 7.0 → r2 BLOCK 7.5 → **r3 ACCEPT 8.5**
+      (review-p3-impl.md; non-blocking suggestions applied: bezel
+      assertion gated, this file updated to the r3 command/results).
+- [x] Parity debt documented (terminal-card IACVT shadow, transfer
+      dead @container, pagination demo gap) — Codex-ruled non-blocking.
+- [ ] Owner final approval recorded + `openspec archive
+      tw4-css-modularization` (this commit).

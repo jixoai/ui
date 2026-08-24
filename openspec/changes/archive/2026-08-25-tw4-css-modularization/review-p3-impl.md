@@ -422,3 +422,77 @@ The first r2 rerun of `verify-shadcn-add.mjs` also hit a transient fixture
 install state where `shiki` was absent from `node_modules` and the consumer
 build failed; a clean rerun passed after npm installation. This is recorded as
 fixture reliability noise, not a separate registry blocker.
+
+## P3-r3 Re-review — `9f81cf4`
+
+> Independent re-review, 2026-08-25. Scope: `d42241a...9f81cf4`. The source,
+> browser probes, capture behavior, and gates were checked directly; the
+> implementation summary was not used as evidence.
+
+### Verdict
+
+**ACCEPT — 8.5/10 implementation quality (r2: 7.5/10, +1.0).**
+
+Both r2 blockers are closed. The surface-kernel probes now exercise real
+tooltip and popover interactions and assert both the foreign pseudo-law and a
+consumer utility override. The capture script now freezes the BrowserContext
+clock before page creation and navigation, so the real-page oracle has the
+determinism control r2 was missing. No blocking implementation or spec issue
+was found in this round.
+
+### Blocking Findings
+
+None. The two r2 blockers are closed; the remaining probe and documentation
+gaps do not invalidate the migrated paint or the required consumer-override
+contract.
+
+### Closed Findings
+
+1. **r2-1 closed.** `kernelTip` is gone. The tooltip probe navigates to the
+   real tooltip docs page, dispatches pointer and mouse enter events, waits
+   for the actual tip, asserts `::after { content: none }`, and applies
+   `.hidden` to tip content to prove consumer override
+   ([verify-layer-law.mjs](/Users/kzf/Dev/GitHub/jixoai-labs/ui/scripts/verify-layer-law.mjs:159)).
+   The popover probe performs the same two assertions after opening a real
+   trigger ([verify-layer-law.mjs](/Users/kzf/Dev/GitHub/jixoai-labs/ui/scripts/verify-layer-law.mjs:183)).
+   Both results feed `check()` and therefore the final failure aggregate.
+
+2. **r2-2 closed.** The capture path installs and pauses a fixed clock before
+   creating the page, while retaining reduced-motion, literal `.html` routes,
+   HTTP 200, main-content marker, deduplication, and capture failure handling
+   ([capture-baseline.mjs](/Users/kzf/Dev/GitHub/jixoai-labs/ui/scripts/capture-baseline.mjs:157)).
+   Two independent real-route runs each captured `67/67`; decoded comparison
+   kept every route below the 0.5% hot-channel triage threshold. The earlier
+   r2 micro-deltas are therefore within the explicitly named triage bandwidth,
+   not a failed determinism contract.
+
+### Independent Verification
+
+- `node scripts/verify-layer-law.mjs 5205`: all current assertions passed,
+  including terminal-header, tooltip, popover, and Sheet state-machine probes.
+  The current file has 12 `check()` calls; the user-facing “13/13” count is a
+  count mismatch, not a missing required probe.
+- `node scripts/capture-baseline.mjs r3-final-a` and `r3-final-b`: each
+  captured 67 unique real routes. The comparator's fixed `baseline-p1` is not
+  an arbitrary-label comparator, so same-tree back-to-back pixel review was
+  performed by decoded image comparison; no route exceeded 0.5%.
+- `node scripts/gen-mirror-manifest.mjs --check`: green.
+- `npm --prefix apps/www run test`: 24 files, 327 tests pass.
+- `npm run build` and `npm --prefix apps/www run build`: pass.
+- `node scripts/verify-folder-css.mjs 5205`: all checks pass.
+- `node scripts/verify-shadcn-add.mjs`: folder-shaped accordion/toast and
+  code-card -> shiki/utils/theme consumer fixtures all pass, including Vite.
+- `openspec validate tw4-css-modularization --strict`: valid.
+
+### Non-blocking Suggestions
+
+- The terminal-header probe computes the bezel assertion (`fontSize` and
+  `color`) but its gate currently checks only `kernelHeader.ok` and
+  `overrideWins` ([verify-layer-law.mjs](/Users/kzf/Dev/GitHub/jixoai-labs/ui/scripts/verify-layer-law.mjs:154)).
+  Include `kernelHeader.bezelColor` in the boolean gate so a bezel regression
+  cannot pass silently. The current CSS and diagnostic result are correct;
+  this is a fail-closed probe-hardening suggestion, not a migration blocker.
+- `verification.md` still contains the r1 evidence index and 8/8 wording;
+  update it to the r3 command/results before archiving the change. The 0.5%
+  threshold remains a triage hypothesis and Owner/browser visual acceptance
+  remains the final appearance gate.

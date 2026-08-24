@@ -151,7 +151,7 @@ const kernelHeader = await page.evaluate(async () => {
   trigger.click();
   return { ok: !!link, bezelColor: bezel, linkDisplay, overrideWins };
 });
-check('terminal-header subpanel: bezel law + consumer static override', kernelHeader.ok && kernelHeader.overrideWins, JSON.stringify(kernelHeader));
+check('terminal-header subpanel: bezel law + consumer static override', kernelHeader.ok && !!kernelHeader.bezelColor && kernelHeader.overrideWins, JSON.stringify(kernelHeader));
 
 // ── 5b. TOOLTIP kernel probe: a real tip opens, the enumerated
 // foreign-law override applies (::after disabled), and a consumer

@@ -25,6 +25,20 @@ item's css living outside its folder is NOT an allowed exception.
 The manifest-replacing lock regenerates on every mirror-touching
 commit.
 
+#### Scenario: registry payload edited without rebuild
+
+- GIVEN `registry/files/ui/<x>` changes
+- WHEN vitest runs before the root `shadcn build` regenerates payloads
+- THEN `registry-payload-parity.spec.ts` fails, naming the stale file
+  (the source↔payload invariant — unchanged by this change)
+
+#### Scenario: mirror drift today
+
+- GIVEN a one-sided edit to a mirrored file
+- THEN the FULL manifest check fails, naming the drifted file and side
+  (the pre-refactor 6-item-lock gap this change closed; the scenario
+  name carries that history)
+
 #### Scenario: registry component edited
 
 - GIVEN `registry/files/ui/kbd/kbd.svelte` gains a prop

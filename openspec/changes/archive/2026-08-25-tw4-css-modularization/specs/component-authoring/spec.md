@@ -26,6 +26,16 @@ explicitly re-express selector boundaries (`:global()` child
 selectors, pseudo-elements, `@supports`, media queries) rather than
 pattern-copying.
 
+#### Scenario: consumer restyles an installed component
+
+- GIVEN a utility-authored component with paint in `@layer components`
+- WHEN the consumer passes any token utility on `class`
+- THEN the consumer's utility wins by the layer/specificity law — the
+  pre-refactor silent-loss defect (scoped-style specificity inversion)
+  is gone; this scenario name carries that history
+- AND unmigrated components, while any remain, keep legacy behavior
+  with no override guarantee (the migration's transitional state)
+
 #### Scenario: consumer restyles a migrated component
 
 - GIVEN a utility-authored component with paint in `@layer components`
