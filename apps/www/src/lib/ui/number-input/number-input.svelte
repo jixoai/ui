@@ -203,10 +203,7 @@
       {...rest}
       {id}
       type="number"
-      class={cn(
-        'jx-input-lane jx-num-input flex-1 min-w-0 text-center [appearance:textfield]',
-        disabled && 'cursor-not-allowed',
-      )}
+      class={'jx-input-lane ' + cn('jx-num-input flex-1 min-w-0 text-center [appearance:textfield]', disabled && 'cursor-not-allowed')}
       {min}
       {max}
       {step}

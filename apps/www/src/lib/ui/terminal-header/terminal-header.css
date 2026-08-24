@@ -1,89 +1,151 @@
 @layer theme, base, components, utilities;
 
-/* jixoai terminal-header — D1-exempt residue (tw4, 2026-08-24). The
- * bezel paint, the icon/caret/label/link statics and the mobile scroll
- * viewport live as token utilities in the markup; what remains is the
- * machinery utilities cannot express:
- *   - the sliding active indicator (JS-measured + view-transition
- *     morph, mixed per-property durations);
- *   - the hamburger fold and caret flip (aria-expanded state machines);
- *   - the second-level panel law on the registry Popover's OWN element
- *     (.jx-pop.jx-subpanel) — these keep their plain specificity ON
- *     PURPOSE: the double class must outrank the primitive's base
- *     rules; :where() would zero it and hand the panel back;
- *   - the hover corridor geometry (+ its :has() shave), the sub-link
- *     engagement states, nav hover/focus-visible/tap-highlight,
- *     the single-column @container kill, reduced-motion.
+/* jixoai terminal-header — D1-exempt residue (tw4, 2026-08-24; narrowed
+ * per Codex P3-r1 blocker 3). The bezel paint, icon/caret/label/link
+ * statics and the mobile scroll viewport live as token utilities in
+ * the markup. This sheet holds three bands, each at its lawful place:
  *
- * Everything below rides UNLAYERED (the original scoped sheet was
- * unlayered; the layer law's carve-out preserves that standing against
- * the utility layer). */
+ *   1. @layer components + :where() — ORDINARY STATIC machinery
+ *      (indicator geometry, nav stacking, corridor geometry): no
+ *      markup utility competes, so the layer law places them below
+ *      consumer utilities where they belong;
+ *   2. UNLAYERED :where() — the STATE-MACHINE carve-out (hamburger
+ *      fold, caret flip, engagement/current fills, container kills,
+ *      focus rings, reduced-motion): these repaint the component's
+ *      own utility paint, which the utilities layer would otherwise
+ *     always win (the Part A precedent);
+ *   3. UNLAYERED with NATURAL specificity — the SURFACE-KERNEL
+ *      OVERRIDE exception (css-architecture spec, third exception):
+ *      the enumerated .jx-pop.jx-subpanel rules override the registry
+ *      Popover primitive's own unlayered surface law; :where() would
+ *      zero the specificity the override needs. Enumeration is the
+ *      contract — do not add rules to band 3 without a probe. */
 
-/* shared inline icon set ($lib/icons): 12px beside 13px nav text — the
-   svg sizing rides [&_svg] utilities in the markup */
+@layer components {
+  /* the sliding active background: its own element, measured into place;
+     morphs across pages via the vt-nav-active view-transition-name.
+     No background (Owner, 2026-08-21): a solid fill would cover the pill
+     text when the VT group hoists this element above the header; a
+     backdrop brightener stays visually identical on the always-dark
+     bezel and is stacking-proof. */
+  :where(.jx-nav .jx-indicator) {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 0;
+    width: 0;
+    z-index: 0;
+    -webkit-backdrop-filter: brightness(2);
+    backdrop-filter: brightness(2);
+    opacity: 0;
+    view-transition-name: vt-nav-active;
+    transition:
+      transform 450ms cubic-bezier(0.22, 1, 0.36, 1),
+      width 450ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 150ms ease-out;
+  }
+  :where(.jx-nav.jx-light .jx-indicator) {
+    /* light bezel: the same "subtle shift" reads as a slight darken */
+    -webkit-backdrop-filter: brightness(0.85);
+    backdrop-filter: brightness(0.85);
+  }
+  :where(.jx-nav nav a) {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* the hover corridor: an inverted wrapper (no overflow) stretches the
+     snippet root across the panel's padding ring, so entering the panel
+     at its very edge cancels the close timer. It must stay separate from
+     the clip box — inverting the clipper would move its clip edge and
+     break the -1px hairline shave (Codex note) */
+  :where(.jx-nav .jx-subcorridor) {
+    margin: calc(var(--jx-panel-pad, 0.25rem) * -1);
+    padding: var(--jx-panel-pad, 0.25rem);
+  }
+  /* the -1px top shave predates the head — with one present it pokes
+     the grid 1px up under the head's padding; drop the top shave only */
+  :where(.jx-nav .jx-subcorridor:has(> .jx-subpanel-head) .jx-subgroups) {
+    margin-top: 0;
+  }
+}
+
+/* ── band 2: the state-machine carve-out (unlayered, zero specificity) ── */
 
 /* the hamburger bars fold into an ✕ while the panel is open */
-.jx-nav button[aria-expanded='true'] .jx-bar:first-child {
+:where(.jx-nav button[aria-expanded='true'] .jx-bar:first-child) {
   transform: translateY(4.5px) rotate(45deg);
 }
-.jx-nav button[aria-expanded='true'] .jx-bar:last-child {
+:where(.jx-nav button[aria-expanded='true'] .jx-bar:last-child) {
   transform: translateY(-4.5px) rotate(-45deg);
 }
+/* the second-level caret marker; flips while its control is open */
+:where(.jx-nav a[aria-expanded='true'] .jx-caret),
+:where(.jx-nav button[aria-expanded='true'] .jx-caret) {
+  transform: rotate(180deg);
+}
+:where(.jx-nav .jx-indicator.jx-indicator-instant) {
+  transition: none;
+}
+
+/* the panel head's action link: engagement law (color transitions only) */
+:where(.jx-nav .jx-subpanel-action:hover),
+:where(.jx-nav .jx-subpanel-action[aria-current='page']) {
+  color: var(--terminal-foreground);
+}
+
+/* single-column law: when the panel is too narrow for a second 14rem
+   track the groups stack and only the horizontal rules remain (the
+   clip already hides the column rules; this states the law). */
+@container (max-width: 28rem) {
+  :where(.jx-nav .jx-group) {
+    border-left: none;
+  }
+}
+
+/* sub-link engagement: hover/current fill + the 2px primary inset edge */
+:where(.jx-nav .jx-sub-link:hover),
+:where(.jx-nav .jx-sub-link[aria-current='page']) {
+  background: var(--terminal-hover);
+}
+:where(.jx-nav .jx-sub-link[aria-current='page']) {
+  box-shadow: inset 2px 0 0 0 var(--primary);
+}
+
+/* interaction polish on the bezel: WebKit's default tap-highlight is a
+   semi-transparent black flash that reads as a bug on the dark surface;
+   idle pills gain a hover affordance; focus gets a contained ring
+   instead of the site-wide 2px offset outline */
+:where(.jx-nav a),
+:where(.jx-nav button) {
+  -webkit-tap-highlight-color: transparent;
+}
+:where(.jx-nav nav a:not([aria-current='page']):hover) {
+  background: var(--terminal-hover);
+}
+:where(.jx-nav :where(a, button):focus-visible) {
+  outline: 1px solid color-mix(in oklab, var(--terminal-foreground) 80%, transparent);
+  outline-offset: -1px;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .jx-nav .jx-bar,
-  .jx-nav .grid {
+  :where(.jx-nav .jx-bar),
+  :where(.jx-nav .grid),
+  :where(.jx-nav .jx-caret),
+  :where(.jx-nav .jx-sub-link) {
     transition: none;
   }
 }
 
-/* the sliding active background: its own element, measured into place;
-   morphs across pages via the vt-nav-active view-transition-name */
-.jx-nav .jx-indicator {
-  position: absolute;
-  top: 2px;
-  bottom: 2px;
-  left: 0;
-  width: 0;
-  z-index: 0;
-  /* No background (Owner, 2026-08-21): a solid fill would cover the pill
-     text when the VT group hoists this element above the header; a
-     backdrop brightener stays visually identical on the always-dark
-     bezel and is stacking-proof. */
-  -webkit-backdrop-filter: brightness(2);
-  backdrop-filter: brightness(2);
-  opacity: 0;
-  view-transition-name: vt-nav-active;
-  transition:
-    transform 450ms cubic-bezier(0.22, 1, 0.36, 1),
-    width 450ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 150ms ease-out;
-}
-.jx-nav.jx-light .jx-indicator {
-  /* light bezel: the same "subtle shift" reads as a slight darken */
-  -webkit-backdrop-filter: brightness(0.85);
-  backdrop-filter: brightness(0.85);
-}
-.jx-nav .jx-indicator.jx-indicator-instant {
-  transition: none;
-}
-.jx-nav nav a {
-  position: relative;
-  z-index: 1;
-}
-
-/* the second-level caret marker; flips while its control is open */
-.jx-nav a[aria-expanded='true'] .jx-caret,
-.jx-nav button[aria-expanded='true'] .jx-caret {
-  transform: rotate(180deg);
-}
-
-/* the dropdown panel law: the registry Popover primitive's panel with
-   the terminal bezel surface on top. The panel element belongs to the
-   child component, so its rules stay here — anchored with .jx-pop
-   (double class) they outrank the primitive's base rules regardless of
-   CSS order. The panel is a DOM descendant of .jx-nav (the top layer
-   changes painting, not ancestry) and carries the header's scope class
-   itself so tokens resolve from itself. */
+/* ── band 3: the SURFACE-KERNEL OVERRIDE (unlayered, natural specificity;
+   enumerated — the registry Popover primitive's own element) ────────────
+   The dropdown panel law: the primitive's panel with the terminal bezel
+   surface on top. The panel element belongs to the child component, so
+   its rules stay here — anchored with .jx-pop (double class) they
+   outrank the primitive's base rules regardless of CSS order. The panel
+   is a DOM descendant of .jx-nav (the top layer changes painting, not
+   ancestry) and carries the header's scope class itself so tokens
+   resolve from itself. */
 .jx-nav .jx-pop.jx-subpanel {
   margin: 2px 0 0; /* flush hugging (r22): the adaptive shadow falls outward — a hair only, so the panel border never merges with the bar's */
   --jx-panel-pad: 0.25rem;
@@ -139,64 +201,4 @@
 }
 .jx-nav .jx-pop.jx-subpanel.jx-nav-cols-4 {
   width: min(90vw, calc(4 * 14rem + 2rem));
-}
-
-/* the panel head's action link: engagement law (color transitions only) */
-.jx-nav .jx-subpanel-action:hover,
-.jx-nav .jx-subpanel-action[aria-current='page'] {
-  color: var(--terminal-foreground);
-}
-/* the hover corridor: an inverted wrapper (no overflow) stretches the
-   snippet root across the panel's padding ring, so entering the panel
-   at its very edge cancels the close timer. It must stay separate from
-   the clip box — inverting the clipper would move its clip edge and
-   break the -1px hairline shave (Codex note) */
-.jx-nav .jx-subcorridor {
-  margin: calc(var(--jx-panel-pad, 0.25rem) * -1);
-  padding: var(--jx-panel-pad, 0.25rem);
-}
-/* the -1px top shave predates the head — with one present it pokes
-   the grid 1px up under the head's padding; drop the top shave only */
-.jx-nav .jx-subcorridor:has(> .jx-subpanel-head) .jx-subgroups {
-  margin-top: 0;
-}
-
-/* single-column law: when the panel is too narrow for a second 14rem
-   track the groups stack and only the horizontal rules remain (the
-   clip already hides the column rules; this states the law). */
-@container (max-width: 28rem) {
-  .jx-nav .jx-group {
-    border-left: none;
-  }
-}
-
-/* sub-link engagement: hover/current fill + the 2px primary inset edge */
-.jx-nav .jx-sub-link:hover,
-.jx-nav .jx-sub-link[aria-current='page'] {
-  background: var(--terminal-hover);
-}
-.jx-nav .jx-sub-link[aria-current='page'] {
-  box-shadow: inset 2px 0 0 0 var(--primary);
-}
-
-/* interaction polish on the bezel: WebKit's default tap-highlight is a
-   semi-transparent black flash that reads as a bug on the dark surface;
-   idle pills gain a hover affordance; focus gets a contained ring
-   instead of the site-wide 2px offset outline */
-.jx-nav a,
-.jx-nav button {
-  -webkit-tap-highlight-color: transparent;
-}
-.jx-nav nav a:not([aria-current='page']):hover {
-  background: var(--terminal-hover);
-}
-.jx-nav :where(a, button):focus-visible {
-  outline: 1px solid color-mix(in oklab, var(--terminal-foreground) 80%, transparent);
-  outline-offset: -1px;
-}
-@media (prefers-reduced-motion: reduce) {
-  .jx-nav .jx-caret,
-  .jx-nav .jx-sub-link {
-    transition: none;
-  }
 }

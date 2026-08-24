@@ -101,7 +101,9 @@
         "group": "layout",
         "href": "/components/section-card.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -628,17 +630,13 @@
       ],
       "registryDependencies": [
         "@jixoai/jixoai-theme",
-        "@jixoai/shiki"
+        "@jixoai/shiki",
+        "@jixoai/utils"
       ],
       "files": [
         {
           "path": "registry/files/ui/code-card/code-card.svelte",
           "target": "@ui/code-card/code-card.svelte",
-          "type": "registry:file"
-        },
-        {
-          "path": "registry/files/lib/shiki.ts",
-          "target": "@lib/shiki.ts",
           "type": "registry:file"
         },
         {
@@ -2564,7 +2562,8 @@
       "title": "Icon button",
       "description": "The icon+text button with an explicit two-part contract: icon is the glyph (ALWAYS decorative \u2014 wrapped aria-hidden), text is the ONE label (a single string, single-sourced). Variants: normal (icon + text side by side, press-button outline surface) and icon-only (a square size-9 button \u2014 text moves to the tooltip and stays the accessible name via aria-label; an icon-only button must say itself). Press law (.jx-press) verbatim; href renders an anchor, hrefs outside \"/\" open in a new tab.",
       "registryDependencies": [
-        "@jixoai/tooltip"
+        "@jixoai/tooltip",
+        "@jixoai/jixoai-theme"
       ],
       "files": [
         {

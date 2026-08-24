@@ -172,7 +172,7 @@
         {...rest}
         value={controlled ? value : undefined}
         oninput={syncValue}
-        class={cn('jx-range', className)}
+        class={'jx-range ' + className}
         aria-invalid={invalidAttr}
         aria-describedby={describedBy}
       />
@@ -182,7 +182,7 @@
            className lands on the WRAPPER (the shell-law owner, same as
            the text lane's .jx-field-shell) — pass jx-color-stretch for
            the full-row field (default is the compact 5rem swatch). -->
-      <label class={cn('jx-color-field', className)}>
+      <label class={'jx-color-field ' + className}>
         <input
           {id}
           {type}
@@ -197,7 +197,7 @@
     {:else}
       <!-- the shell owns the box law; the input inside is chromeless -->
       <div
-        class={cn('jx-field-shell', className)}
+        class={'jx-field-shell ' + className}
         class:jx-slotted={slotted}
         class:jx-invalid={invalid}
         class:jx-clearable={clearable}

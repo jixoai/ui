@@ -240,7 +240,7 @@
   }
 </script>
 
-<div class={cn('jx-field', className)}>
+<div class={'jx-field ' + className}>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
 
   <span class="jx-color-picker-wrap relative block w-full" style="anchor-name: {anchorName}">

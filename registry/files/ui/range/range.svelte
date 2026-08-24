@@ -222,7 +222,7 @@
   }
 </script>
 
-<div class={cn('jx-field', className)}>
+<div class={'jx-field ' + className}>
   <!-- faceless form bridge (form-field.ts law): the numeric string of the
        committed value rides ElementInternals into FormData; jx-reset /
        jx-disabled bubble the form lifecycle back into this component.

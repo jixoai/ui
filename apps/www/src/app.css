@@ -13,7 +13,10 @@
  * drift, hard offset shadows, radius/bevel law, mono-first fonts,
  * terminal surfaces, reveal hook styles) is a same-source copy of
  * registry/files/theme/jixoai.css (registry item `jixoai-theme`)
- * installed at src/lib/jixoai.css with --brand-hue: 330. Readonly code
+ * installed at src/lib/jixoai.css; --brand-hue starts at 330 as the
+ * INITIAL FALLBACK — the site's hue-runtime (lib/hue-runtime.ts)
+ * animates it live (time-of-day cycle; Codex P3-r1 ruling 2026-08-24).
+ * Readonly code
  * surfaces are owned end-to-end by the registry code-card (Shiki tokens
  * through the component-scoped --tok-* palette).
  * ---------------------------------------------------------------------- */

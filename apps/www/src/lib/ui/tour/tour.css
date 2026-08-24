@@ -12,12 +12,12 @@
  * reliable) — and its top/left fallbacks likewise own no utility
  * counterparts. Without anchor positioning support: a plain
  * full-viewport tint, no hole. Card/text paint lives in the markup. */
-.jx-tour-hole {
+:where(.jx-tour-hole) {
   inset: 0;
   background: color-mix(in oklab, var(--background) 55%, transparent);
 }
 @supports (anchor-name: --jx-tour-support) and (width: anchor-size(width)) {
-  .jx-tour-hole-anchored {
+  :where(.jx-tour-hole-anchored) {
     inset: auto;
     top: anchor(top);
     left: anchor(left);
@@ -29,7 +29,7 @@
   }
 }
 
-.jx-tour {
+:where(.jx-tour) {
   position: fixed;
   top: calc(anchor(bottom) + var(--jx-tour-gap, 12px));
   left: anchor(left);
@@ -38,14 +38,14 @@
   color: var(--popover-foreground);
 }
 @supports not (anchor-name: --jx-tour-support) {
-  .jx-tour {
+  :where(.jx-tour) {
     position-anchor: auto !important;
     inset: 0;
     margin: auto 1rem auto auto;
     align-self: center;
   }
 }
-.jx-tour::backdrop {
+:where(.jx-tour)::backdrop {
   background: transparent;
 }
 }

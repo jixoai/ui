@@ -57,11 +57,11 @@ orthogonal intents (with timestamps) per the repo law.
   historically
 - THEN the stylesheet appears exactly once in the built output
 
-### Requirement: utilities win over Tier-1-owned css; two documented exceptions
+### Requirement: utilities win over Tier-1-owned css; three documented exceptions
 
 All Tier-1-owned STATIC authored css MUST sit in `@layer components`
-behind `:where()` so consumer utilities win. Two exceptions exist, both
-deliberate:
+behind `:where()` so consumer utilities win. Three exceptions exist, all
+deliberate and bounded:
 
 1. The frozen Tier-2 vocabulary (jx-pure Part A) is the intentionally
    unlayered cascade exception — by design it beats layered utilities.
@@ -74,6 +74,20 @@ deliberate:
    zero-specificity keeps consumer css tie-winning at the unlayered
    level while the component's STATIC utility paint stays
    consumer-overridable.
+3. The SURFACE-KERNEL OVERRIDE (P3-r1 finding, Codex ruling
+   2026-08-24): enumerated rules that override ANOTHER component's
+   unlayered surface law (the floating-surface kernel) ride unlayered
+   with NATURAL specificity — `:where()` would zero the specificity
+   the override needs and a components-layer copy always loses to the
+   unlayered kernel. The exception is BOUNDED: each use MUST enumerate
+   its selectors in the sheet header, state the foreign law it
+   overrides, and carry a consumer-override probe; it SHALL NOT
+   justify unlayering a whole sheet (terminal-header's statics moved
+   back into `@layer components` `:where()` under this ruling).
+   Current enumerated uses: terminal-header `.jx-nav .jx-pop.jx-subpanel*`
+   (over the Popover primitive's panel law), tooltip/popover
+   `.jx-tip.jx-surface::after` + notch-mask family (over the
+   jx-surface law's pseudo-shadow ownership).
 
 jx-pure Parts B–D are an externally-owned living sheet, outside this
 change's scope (consume-only, unchanged — not a layering exception).

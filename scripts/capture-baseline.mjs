@@ -147,16 +147,35 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 await page.emulateMedia({ reducedMotion: 'reduce' });
 
 let n = 0;
+const seen = new Set();
+const failed = [];
 for (const r of routes) {
-  const path = r === '/' ? '/' : r.replace(/\.html$/, '');
+  if (seen.has(slug(r))) continue; // route discovery yields duplicate .html entries
+  seen.add(slug(r));
+  // the docs routes are LITERAL .html paths (routes/<name>.html dirs) —
+  // never strip the suffix; the dev server 404s the stripped form and
+  // the fallback still paints the shell, which silently poisons the
+  // oracle (Codex P3-r1 finding #4)
   try {
-    await page.goto(`http://localhost:${PORT}${path}`, { waitUntil: 'networkidle', timeout: 20000 });
+    const resp = await page.goto(`http://localhost:${PORT}${r}`, { waitUntil: 'networkidle', timeout: 20000 });
+    if (!resp || resp.status() !== 200) throw new Error(`HTTP ${resp?.status()}`);
+    // page-specific marker: the shell alone is NOT evidence (404s paint it too)
+    const marker = await page.evaluate(() => {
+      const main = document.querySelector('main');
+      return !!main && (main.textContent?.trim().length ?? 0) > 200;
+    });
+    if (!marker) throw new Error('no main-content marker (suspected fallback page)');
     await page.waitForTimeout(400); // reveal animations settle
     await page.screenshot({ path: join(outDir, `${slug(r)}.png`), fullPage: true });
     n += 1;
   } catch (e) {
-    console.error(`FAIL capture ${r}: ${e.message.split('\n')[0]}`);
+    failed.push(`${r}: ${e.message.split('\n')[0]}`);
   }
 }
 await browser.close();
-console.log(`captured ${n}/${routes.length} routes → .agents/shots/${mode}/`);
+if (failed.length) {
+  console.error(`capture FAILURES (${failed.length}):`);
+  failed.forEach((f) => console.error(`  ${f}`));
+  process.exitCode = 1;
+}
+console.log(`captured ${n}/${seen.size} unique routes → .agents/shots/${mode}/`);

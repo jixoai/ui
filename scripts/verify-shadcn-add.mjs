@@ -58,46 +58,48 @@ const payload = (item) =>
       type: item.type,
       title: item.title,
       description: `P0.2 folder-shape probe for ${item.name}`,
+      dependencies: item.dependencies,
+      registryDependencies: item.registryDependencies,
       files: item.files,
     },
     null,
     2,
   );
 
-writeFileSync(
-  join(registryDir, 'accordion.json'),
-  payload({
-    name: 'accordion',
-    type: 'registry:ui',
-    title: 'Accordion',
-    files: [
-      { path: 'registry/files/ui/accordion/accordion.svelte', content: source('registry/files/ui/accordion/accordion.svelte'), type: 'registry:file', target: '@ui/accordion/accordion.svelte' },
-      { path: 'registry/files/ui/accordion/accordion-item.svelte', content: source('registry/files/ui/accordion/accordion-item.svelte'), type: 'registry:file', target: '@ui/accordion/accordion-item.svelte' },
-      { path: 'index.ts', content: barrel('accordion.svelte', [['AccordionItem', 'accordion-item.svelte']]), type: 'registry:file', target: '@ui/accordion/index.ts' },
-    ],
-  }),
-);
-
-writeFileSync(
-  join(registryDir, 'toast.json'),
-  payload({
-    name: 'toast',
-    type: 'registry:ui',
-    title: 'Toast',
-    files: [
-      { path: 'registry/files/ui/toast/toast-viewport.svelte', content: source('registry/files/ui/toast/toast-viewport.svelte'), type: 'registry:file', target: '@ui/toast/toast-viewport.svelte' },
-      { path: 'registry/files/lib/toast-store.ts', content: source('registry/files/lib/toast-store.ts'), type: 'registry:file', target: '@lib/toast-store.ts' },
-      { path: 'index.ts', content: barrel('toast-viewport.svelte'), type: 'registry:file', target: '@ui/toast/index.ts' },
-    ],
-  }),
-);
+// payloads DERIVED from the real registry.json (file sets + deps stay
+// in lockstep with the source of truth — hand-built lists drift, as the
+// missing per-item css files proved in P3-r1)
+const registryItems = JSON.parse(source('registry.json')).items ?? JSON.parse(source('registry.json'));
+const byName = new Map(registryItems.map((i) => [i.name, i]));
+for (const name of ['accordion', 'toast', 'code-card', 'shiki', 'jixoai-theme', 'utils']) {
+  const item = byName.get(name);
+  if (!item) die(`registry.json has no item ${name}`);
+  writeFileSync(
+    join(registryDir, `${name}.json`),
+    payload({
+      name: item.name,
+      type: item.type,
+      title: item.title ?? item.name,
+      dependencies: item.dependencies,
+      registryDependencies: item.registryDependencies,
+      files: (item.files ?? []).map((f) => ({
+        path: f.path,
+        content: f.path.endsWith('index.ts') && !existsSync(join(root, f.path))
+          ? barrel(f.path.split('/').at(-2) === 'toast' ? 'toast-viewport.svelte' : `${f.path.split('/').at(-2)}.svelte`)
+          : source(f.path),
+        type: f.type,
+        target: f.target,
+      })),
+    }),
+  );
+}
 
 // the CLI resolves its default base (incl. r/colors/neutral.json)
 // from REGISTRY_URL — cache the palette locally so the fixture never
 // depends on ui.shadcn.com reachability
+mkdirSync(join(registryDir, 'colors'), { recursive: true });
 const neutral = spawnSync('curl', ['-s', '-m', '15', 'https://ui.shadcn.com/r/colors/neutral.json'], { encoding: 'utf8' });
 if (neutral.status !== 0 || !neutral.stdout.trim().startsWith('{')) die('cannot cache r/colors/neutral.json (offline?)');
-mkdirSync(join(registryDir, 'colors'), { recursive: true });
 writeFileSync(join(registryDir, 'colors', 'neutral.json'), neutral.stdout);
 
 // ── 2. local HTTP registry ─────────────────────────────────────────
@@ -190,6 +192,7 @@ write(
   // THE import-resolution probe: folder entries via the index barrels
   import Accordion, { AccordionItem } from '$lib/ui/accordion';
   import ToastViewport from '$lib/ui/toast';
+  import CodeCard from '$lib/ui/code-card';
 </script>
 
 <Accordion>
@@ -217,7 +220,7 @@ console.log('shadcn add @jixoai/accordion @jixoai/toast …');
 // registry — colors/neutral.json is served from the cache above, so
 // nothing needs ui.shadcn.com. The local base stays OFF any proxy
 // (the machine proxy black-holes localhost — the earlier curl 502).
-run('npx', ['shadcn', 'add', '@jixoai/accordion', '@jixoai/toast', '--yes', '--overwrite'], {
+run('npx', ['shadcn', 'add', '@jixoai/accordion', '@jixoai/toast', '@jixoai/code-card', '--yes', '--overwrite'], {
   env: { ...process.env, REGISTRY_URL: BASE, NO_PROXY: 'localhost,127.0.0.1', no_proxy: 'localhost,127.0.0.1' },
 });
 
@@ -245,6 +248,14 @@ const walkFiles = (dir) => {
 };
 walkFiles(join(consumerDir, 'src'));
 check('toast-store.ts appears exactly once tree-wide', storeHits.length === 1, `${storeHits.length} hit(s)`);
+
+// code-card chain assertions (P3-r1 blocker 2): exactly-once @lib files
+check('code-card chain: shiki.ts exactly once at canonical @lib', exists('src/lib/shiki.ts') && !exists('src/lib/ui/code-card/shiki.ts'));
+check('code-card chain: utils.ts arrived', exists('src/lib/utils.ts'));
+check('code-card chain: jixoai.css (theme) arrived', exists('src/lib/jixoai.css'));
+const chainPkg = JSON.parse(readFileSync(join(consumerDir, 'package.json'), 'utf8'));
+const chainDeps = { ...chainPkg.dependencies, ...chainPkg.devDependencies };
+check('code-card chain: npm shiki installed', !!chainDeps.shiki);
 
 console.log('vite build (import resolution + svelte compile gate)…');
 try {
