@@ -57,16 +57,28 @@ orthogonal intents (with timestamps) per the repo law.
   historically
 - THEN the stylesheet appears exactly once in the built output
 
-### Requirement: utilities win over Tier-1-owned css; Tier-2 is the exception
+### Requirement: utilities win over Tier-1-owned css; two documented exceptions
 
-All Tier-1-owned authored css MUST sit in `@layer components` behind
-`:where()` so consumer utilities win. Two distinct external facts bound
-this law: (1) the frozen Tier-2 vocabulary (jx-pure Part A) is the
-ONLY intentionally unlayered cascade exception — by design it beats
-layered utilities; (2) jx-pure Parts B–D are an externally-owned living
-sheet, outside this change's scope (consume-only, unchanged — not a
-layering exception). Components MUST consume them and MUST NOT copy,
-move, redefine, or re-wrap them. Changing the Part A cascade REQUIRES a
+All Tier-1-owned STATIC authored css MUST sit in `@layer components`
+behind `:where()` so consumer utilities win. Two exceptions exist, both
+deliberate:
+
+1. The frozen Tier-2 vocabulary (jx-pure Part A) is the intentionally
+   unlayered cascade exception — by design it beats layered utilities.
+2. The STATE-MACHINE CARVE-OUT (P3 finding, 2026-08-24 — the Part A
+   precedent applied to components): residue rules that must override
+   the component's OWN utility paint (sibling `:checked`/`:has()`/
+   `:focus-visible` repaints, reduced-motion kills of `animate-*`
+   utilities) ride unlayered behind `:where(...)`. Layered placement
+   would make them permanently lose to the utilities layer; unlayered
+   zero-specificity keeps consumer css tie-winning at the unlayered
+   level while the component's STATIC utility paint stays
+   consumer-overridable.
+
+jx-pure Parts B–D are an externally-owned living sheet, outside this
+change's scope (consume-only, unchanged — not a layering exception).
+Components MUST consume Part A/B/C/D and MUST NOT copy, move,
+redefine, or re-wrap them. Changing the Part A cascade REQUIRES a
 separate change against the jx-pure living spec.
 
 #### Scenario: specificity probe (Tier-1)
@@ -80,3 +92,13 @@ separate change against the jx-pure living spec.
 - GIVEN `.jx-input` defined by jx-pure Part A (unlayered)
 - WHEN a consumer utility attempts to override one of its declarations
 - THEN Part A wins — by design — and this change leaves that untouched
+
+#### Scenario: state-machine carve-out (component-own override)
+
+- GIVEN a migrated component whose `:checked` residue must repaint its
+  own `bg-muted` utility paint
+- WHEN the state activates
+- THEN the unlayered `:where(...:checked...)` rule wins over the
+  utilities layer (verified: toggle flips rail/knob/travel)
+- AND the component's STATIC paint stays consumer-overridable (a
+  consumer utility still beats the unchecked `bg-muted`)
