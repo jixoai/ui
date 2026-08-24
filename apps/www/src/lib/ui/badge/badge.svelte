@@ -12,55 +12,38 @@
   A plain <span> so it composes anywhere (inside headings, table cells,
   terminal cards); restProps flow through — data-*, title, aria-* land
   verbatim.
+
+  tw4 (2026-08-24): utility-authored — the chip paint and the tone fills
+  are token utilities in the markup (tone rides a deterministic map, so
+  no two tone utilities ever collide in the sheet); `jx-badge` and the
+  `jx-badge-*` tone hooks stay as semantic hooks only, no css defines
+  them.
 -->
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
+  import { cn } from '$lib/utils';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
     tone?: 'default' | 'primary' | 'outline' | 'destructive';
   }
 
   let { tone = 'default', class: className = '', children, ...rest }: Props = $props();
+
+  const toneUtilities = {
+    default: 'bg-muted text-foreground',
+    primary: 'bg-primary border-primary text-primary-foreground',
+    outline: 'bg-transparent text-foreground',
+    destructive: 'bg-destructive border-destructive text-destructive-foreground',
+  } as const;
 </script>
 
-<span class="jx-badge jx-badge-{tone} {className}" {...rest}>
+<span
+  class={cn(
+    `jx-badge jx-badge-${tone} inline-flex items-center gap-1.5 box-border max-w-full px-[0.4375rem] py-[0.0625rem] border border-border font-nav text-[11px] leading-[1.5] tracking-[0.14em] uppercase whitespace-nowrap rounded-(--radius)`,
+    toneUtilities[tone],
+    className,
+  )}
+  {...rest}
+>
   {@render children?.()}
 </span>
-
-<style>
-  .jx-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    box-sizing: border-box;
-    max-width: 100%;
-    padding: 0.0625rem 0.4375rem;
-    border: 1px solid var(--border);
-    font-family: var(--font-nav);
-    font-size: 11px;
-    line-height: 1.5;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    border-radius: var(--radius);
-  }
-
-  .jx-badge-default {
-    background: var(--muted);
-    color: var(--foreground);
-  }
-  .jx-badge-primary {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: var(--primary-foreground);
-  }
-  .jx-badge-outline {
-    background: transparent;
-    color: var(--foreground);
-  }
-  .jx-badge-destructive {
-    background: var(--destructive);
-    border-color: var(--destructive);
-    color: var(--destructive-foreground);
-  }
-</style>

@@ -1,0 +1,13 @@
+@layer theme, base, components, utilities;
+
+/* jixoai toggle-group — D1-exempt residue (tw4, 2026-08-24): ONLY the
+ * focus-visible ring — the state machine utilities cannot express (a
+ * :focus-visible rule behind :where(), unlayered per the toggle/Part A
+ * cascade carve-out; zero specificity, still beats layered utilities).
+ * The static paint, the hover lean and the disabled dim live as token
+ * utilities in the markup. */
+
+:where(.jx-tgroup-btn:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}

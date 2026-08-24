@@ -1,0 +1,113 @@
+@layer theme, base, components, utilities;
+
+/* jixoai tree-view — D1-exempt residue (tw4, 2026-08-24). The static
+ * row/column/collapse paint lives as token utilities in the markup;
+ * what remains is what utilities cannot express:
+ *   - the guide-rail pseudo build (lines variant) — static geometry,
+ *     @layer components;
+ *   - descendant repaints keyed on row hover/selection, the collapsed
+ *     caret flip, focus-visible and the reduced-motion kill — state
+ *     machines on the UNLAYERED :where() carve-out (they override the
+ *     component's own utility paint; the toggle/Part A precedent). */
+
+@layer components {
+  /* guide rails (lines variant): one 1px rail per group under the parent
+     caret column, only as tall as the group itself */
+  .jx-tree-lines ul[role='group']::before {
+    background: var(--border);
+    content: '';
+    inset-block: 0;
+    left: calc(var(--jx-indent) / 2 - 0.5px);
+    position: absolute;
+    width: 1px;
+  }
+}
+
+/* built-in type icons (fileIcons): monochrome law — folders read a step
+   stronger than leaves through the meta tint once the row is engaged */
+:where(.jx-tree-row:hover .jx-tree-typeicon),
+:where(.jx-tree-row.selected .jx-tree-typeicon) {
+  color: color-mix(in oklab, var(--accent) 60%, var(--foreground));
+}
+
+/* suffix column (actions law): revealed on row hover/focus-within */
+:where(.jx-tree-row:hover .jx-tree-suffix),
+:where(.jx-tree li:focus-within .jx-tree-suffix) {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* chevron rotates -90° while its folder is collapsed (plus toggers swap
+   glyphs instead — no transform to animate) */
+:where(.jx-tree li[data-collapsed] > .jx-tree-row .jx-tree-caret) {
+  transform: rotate(-90deg);
+}
+
+/* focus law: the treeitem owns focus (roving tabindex); the row paints */
+:where(.jx-tree li:focus-visible) {
+  outline: none;
+}
+:where(.jx-tree li:focus-visible > .jx-tree-row) {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-tree-caret),
+  :where(.jx-tree-group),
+  :where(.jx-tree-row),
+  :where(.jx-tree-suffix) {
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   multiselect (tree-view-multiselect.svelte) — the compact tri-state
+   box. Static paint rides utilities in its markup; the state machine
+   (hover lean, :checked / [data-mixed] repaint overriding the utility
+   ground, the clip-path glyph build) rides the same carve-out.
+------------------------------------------------------------------ */
+:where(.jx-tree-check:hover:not(:checked):not(:disabled):not([data-mixed])) {
+  border-color: var(--primary);
+}
+:where(.jx-tree-check:checked),
+:where(.jx-tree-check[data-mixed]) {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+:where(.jx-tree-check:disabled) {
+  cursor: not-allowed;
+}
+
+/* glyph: the checkbox.svelte 45° clip-path check, scaled to the 10px
+   inset box; mixed renders the horizontal dash instead */
+:where(.jx-tree-check)::before {
+  background: var(--primary-foreground);
+  clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 80%, 70% 80%, 70% 100%);
+  content: '';
+  display: block;
+  inset: 1px;
+  opacity: 0;
+  position: absolute;
+  transform: rotate(45deg);
+  transition:
+    clip-path 150ms ease-out,
+    opacity 150ms ease-out,
+    transform 150ms ease-out;
+}
+:where(.jx-tree-check:checked)::before {
+  clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%);
+  opacity: 1;
+}
+:where(.jx-tree-check[data-mixed])::before {
+  clip-path: polygon(10% 40%, 10% 60%, 45% 60%, 55% 60%, 90% 60%, 90% 40%);
+  opacity: 1;
+  transform: rotate(0deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-tree-check),
+  :where(.jx-tree-check)::before {
+    transition: none;
+  }
+}

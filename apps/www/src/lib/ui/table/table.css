@@ -1,0 +1,176 @@
+@layer theme, base, components, utilities;
+
+/* jixoai table — D1-exempt residue (tw4, 2026-08-24). The frame
+ * paint, the --jx-table-* token surface, the container declaration
+ * and the table/caption statics live as utilities in the markup.
+ * What remains here is everything utilities cannot own:
+ *   - the consumer-authored descendants (th/td/tbody/…) — a
+ *     :global() descendant boundary (the children snippet authors
+ *     those elements, so no markup of ours can carry their paint);
+ *   - the @container engines (the frame is the named container; the
+ *     responsive laws must read IT, never the viewport);
+ *   - the hover/stack state machines and the reduced-motion kill.
+ *
+ * CASCADE CARVE-OUT (toggle/Part A precedent): rules that must
+ * override the component's own utility paint — the stack law's
+ * display/min-width/width on the table, which repaves the w-full
+ * min-w-fit utilities — ride UNLAYERED behind :where(). The static
+ * descendant paint stays in @layer components so consumer utilities
+ * on their own th/td always win. */
+
+@layer components {
+  .jx-table th,
+  .jx-table td {
+    background: var(--jx-table-surface); /* opaque: masks scrolled rows */
+    border-bottom: 1px solid var(--jx-table-hairline);
+    padding: 0.75rem;
+    text-align: start;
+    vertical-align: top;
+  }
+
+  .jx-table thead th {
+    background: var(--jx-table-head);
+    border-bottom: 1px solid var(--jx-table-rule);
+    color: var(--muted-foreground);
+    font-family: var(--font-nav);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .jx-table tbody tr {
+    transition: background-color 150ms ease-out;
+  }
+
+  .jx-table tfoot th,
+  .jx-table tfoot td {
+    border-bottom: none;
+    border-top: 1px solid var(--jx-table-rule);
+    font-weight: 500;
+  }
+
+  /* the figure frame closes the outer edge — no doubled bottom hairline */
+  .jx-table tbody tr:last-child td,
+  .jx-table tbody tr:last-child th {
+    border-bottom: none;
+  }
+
+  .jx-table table.dense th,
+  .jx-table table.dense td {
+    padding: 0.4rem 0.75rem;
+  }
+}
+
+/* state machines + the responsive engines — unlayered carve-out */
+:where(.jx-table tbody tr:hover th),
+:where(.jx-table tbody tr:hover td) {
+  background: var(--jx-table-hover);
+}
+
+/* ------------------------------------------------------------------
+   scroll law (frame ≥ 30rem): pin consumer columns to the scrollport.
+   Inside @container the scope anchor is the component-rendered table
+   (the container itself never matches its own query).
+------------------------------------------------------------------ */
+@container jx-table (width >= 30rem) {
+  :where(table [data-sticky='start']),
+  :where(table [data-sticky='end']) {
+    position: sticky;
+  }
+  /* logical insets + logical fold borders: RTL mirrors for free */
+  :where(table [data-sticky='start']) {
+    border-inline-end: 1px solid var(--jx-table-edge);
+    inset-inline-start: 0;
+  }
+  :where(table [data-sticky='end']) {
+    border-inline-start: 1px solid var(--jx-table-edge);
+    inset-inline-end: 0;
+  }
+  :where(table thead [data-sticky]) {
+    z-index: 3;
+  }
+  :where(table tbody [data-sticky]),
+  :where(table tfoot [data-sticky]) {
+    z-index: 2;
+  }
+}
+
+/* ------------------------------------------------------------------
+   stack law (frame < 30rem): the CodePen card mode. Every rule rides
+   table:not([data-stack='off']) so stack={false} keeps the table a
+   table at any width.
+------------------------------------------------------------------ */
+@container jx-table (width < 30rem) {
+  :where(table:not([data-stack='off'])) {
+    display: block;
+    min-width: 0;
+    width: 100%;
+  }
+  :where(table:not([data-stack='off']) thead) {
+    display: none;
+  }
+  :where(table:not([data-stack='off']) tbody tr) {
+    border-bottom: 1px solid var(--jx-table-hairline);
+    display: block;
+  }
+  :where(table:not([data-stack='off']) tbody tr:last-child) {
+    border-bottom: none;
+  }
+
+  :where(table:not([data-stack='off']) td) {
+    align-items: baseline;
+    border-bottom: none;
+    display: flex;
+    gap: 1.25rem;
+    justify-content: space-between;
+  }
+  /* label:value row — only cells that carry data-label get one */
+  :where(table:not([data-stack='off']) td[data-label])::before {
+    color: var(--muted-foreground);
+    content: attr(data-label);
+    flex: none;
+    font-family: var(--font-nav);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-align: start;
+    text-transform: uppercase;
+  }
+  :where(table:not([data-stack='off']) td:not([data-label])) {
+    justify-content: flex-start;
+  }
+  /* first cell becomes the card head; the hover law still tints it —
+     the head paint would otherwise out-cascade the row hover */
+  :where(table:not([data-stack='off']) tbody td:first-child) {
+    background: var(--jx-table-head);
+    color: var(--foreground);
+    font-weight: 500;
+  }
+  :where(table:not([data-stack='off']) tbody tr:hover td:first-child) {
+    background: color-mix(in oklab, var(--jx-table-hover) 55%, var(--jx-table-head));
+  }
+
+  /* tfoot: same flex law, closes with the rule hairline */
+  :where(table:not([data-stack='off']) tfoot) {
+    border-top: 1px solid var(--jx-table-rule);
+    display: block;
+  }
+  :where(table:not([data-stack='off']) tfoot tr) {
+    display: block;
+  }
+  :where(table:not([data-stack='off']) tfoot th),
+  :where(table:not([data-stack='off']) tfoot td) {
+    border-top: none;
+    display: flex;
+    gap: 1.25rem;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-table tbody tr) {
+    transition: none;
+  }
+}

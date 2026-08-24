@@ -56,6 +56,7 @@
   import type { Snippet } from 'svelte';
   import Popover from '$lib/ui/popover/popover.svelte';
   import { icons } from '$lib/icons';
+  import './terminal-header.css';
 
   interface PopoverHandle {
     show(): void;
@@ -306,7 +307,7 @@
 
 {#snippet caret()}
   <svg
-    class="jx-caret"
+    class="jx-caret w-2.5 h-2.5 flex-none transition-transform duration-150 ease-out"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -327,17 +328,21 @@
     aria-current={child.active ? 'page' : undefined}
     target={child.external ? '_blank' : undefined}
     rel={child.external ? 'noreferrer' : undefined}
-    class="jx-sub-link"
-    class:jx-with-icon={reserveIcon}
+    class="jx-sub-link grid items-start py-[0.4375rem] px-[0.625rem] transition-[background-color] duration-[120ms] ease-out {reserveIcon
+      ? 'jx-with-icon grid-cols-[auto_1fr] column-gap-[0.625rem]'
+      : 'grid-cols-1'}"
     onclick={() => hidePanel(closeKey)}
   >
     {#if reserveIcon}
-      <span class="jx-sub-icon" aria-hidden="true">
+      <span
+        class="jx-sub-icon w-4 h-4 flex-none flex items-center justify-center mt-px opacity-55 [&_svg]:w-full [&_svg]:h-full"
+        aria-hidden="true"
+      >
         {#if child.icon}{@render child.icon()}{/if}
       </span>
     {/if}
     <span class="jx-sub-text flex flex-col gap-0.5">
-      <span class="text-[13px] font-medium leading-snug">{child.label}{#if child.external}<span class="jx-ext" aria-hidden="true">{@html icons.externalLink}</span>{/if}</span>
+      <span class="text-[13px] font-medium leading-snug">{child.label}{#if child.external}<span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}</span>
       {#if child.description}
         <span class="text-[11px] leading-snug opacity-60 line-clamp-2">{child.description}</span>
       {/if}
@@ -345,7 +350,9 @@
   </a>
 {/snippet}
 
-<header class="jx-nav {scope === 'dark' ? 'dark' : 'jx-light'}">
+<header
+  class="jx-nav bg-terminal text-terminal-foreground border-b border-border {scope === 'dark' ? 'dark [color-scheme:dark]' : 'jx-light [color-scheme:light]'}"
+>
   <div class="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between gap-4 py-3">
       <!-- LEFT WING · the brand -->
@@ -424,7 +431,7 @@
                     }}
                     onmouseleave={() => scheduleClose(item.href)}
                   >
-                    {item.label}{#if item.external}<span class="jx-ext" aria-hidden="true">{@html icons.externalLink}</span>{/if}
+                    {item.label}{#if item.external}<span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}
                     {@render caret()}
                   </a>
                 {/snippet}
@@ -443,31 +450,40 @@
                   {#if item.panelAction}
                     <!-- the panel head: item label inline-start, the
                          section-index action inline-end (2026-08-23) -->
-                    <div class="jx-subpanel-head">
-                      <span class="jx-subpanel-title">{item.label}</span>
+                    <div
+                      class="jx-subpanel-head flex items-baseline justify-between gap-4 pt-2 pe-[0.875rem] pb-[0.375rem] font-nav text-[11px] tracking-[0.08em] lowercase"
+                    >
+                      <span class="jx-subpanel-title text-[color:color-mix(in_oklab,var(--terminal-foreground)_45%,transparent)]">{item.label}</span>
                       <a
                         href={item.panelAction.href}
                         aria-current={item.panelAction.active ? 'page' : undefined}
-                        class="jx-subpanel-action"
+                        class="jx-subpanel-action inline-flex items-center gap-[0.375rem] text-[color:color-mix(in_oklab,var(--terminal-foreground)_70%,transparent)] transition-colors duration-150"
                       >
                         {item.panelAction.label}
-                        <span class="jx-ext" aria-hidden="true">{@html icons.arrowRight}</span>
+                        <span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.arrowRight}</span>
                       </a>
                     </div>
                   {/if}
-                  <div class="jx-subclip">
+                  <div class="jx-subclip overflow-hidden">
                     <div
-                      class="jx-subgroups"
-                      class:jx-single={!mega}
+                      class="jx-subgroups {mega
+                        ? 'grid -m-px'
+                        : 'jx-single block m-0'}{mega && typeof navColumns !== 'number'
+                        ? ' grid-cols-[repeat(auto-fill,minmax(13.5rem,1fr))]'
+                        : ''}"
                       style={mega && typeof navColumns === 'number'
                         ? `grid-template-columns: repeat(${navColumns}, 1fr)`
                         : ''}
                     >
                       {#each groups as group (group.label ?? group.items[0]?.href ?? '')}
                         {@const reserveIcon = group.items.some((child) => child.icon)}
-                        <div class="jx-group">
+                        <div
+                          class="jx-group {mega
+                            ? 'min-w-0 py-2 px-3 pb-[0.625rem] border-t border-l border-[color-mix(in_oklab,var(--terminal-foreground)_15%,transparent)]'
+                            : 'min-w-0'}"
+                        >
                           {#if group.label}
-                            <div class="jx-group-label">{group.label}</div>
+                            <div class="jx-group-label font-nav text-[10px] leading-[1.2] uppercase tracking-[0.18em] opacity-55 p-0 pe-[0.625rem] mb-2">{group.label}</div>
                           {/if}
                           <div class="jx-group-list">
                             {#each group.items as child (child.label)}
@@ -493,7 +509,7 @@
                     : 'text-terminal-foreground/70 hover:text-terminal-foreground',
                 ].join(' ')}
               >
-                {item.label}{#if item.external}<span class="jx-ext" aria-hidden="true">{@html icons.externalLink}</span>{/if}
+                {item.label}{#if item.external}<span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}
               </a>
             {/if}
           {/each}
@@ -509,9 +525,9 @@
           bind:this={burgerEl}
           onclick={() => (open ? close() : (open = true))}
         >
-          <span class="jx-bar block h-[1.5px] w-4 bg-terminal-foreground"></span>
+          <span class="jx-bar block h-[1.5px] w-4 bg-terminal-foreground transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"></span>
           <span class="block h-[1.5px] w-4 bg-terminal-foreground"></span>
-          <span class="jx-bar block h-[1.5px] w-4 bg-terminal-foreground"></span>
+          <span class="jx-bar block h-[1.5px] w-4 bg-terminal-foreground transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"></span>
         </button>
       </div>
     </div>
@@ -524,7 +540,9 @@
       class:grid-rows-[1fr]={open}
     >
       <div class="overflow-hidden">
-        <div class="jx-mobile-scroll">
+        <div
+          class="jx-mobile-scroll max-h-[calc(100dvh-4.75rem)] overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges] [-webkit-overflow-scrolling:touch]"
+        >
           <nav class="flex flex-col border-t border-terminal-foreground/10 py-2 text-xs" aria-label="Primary">
           {#each items as item (item.href)}
             {#if item.children?.length}
@@ -551,7 +569,7 @@
                   aria-label="all {item.label}"
                   class="flex items-center px-2 text-terminal-foreground/60 transition-colors hover:text-terminal-foreground"
                 >
-                  all <span class="jx-ext" aria-hidden="true">{@html icons.arrowRight}</span>
+                  all <span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.arrowRight}</span>
                 </a>
               </div>
               <!-- nested group: the same height-only collapse as the
@@ -564,7 +582,7 @@
                   <div class="flex flex-col border-l border-terminal-foreground/15 pl-3">
                     {#each asGroups(item.children) as group, gi (gi)}
                       {#if group.label}
-                        <div class="jx-m-group-label">{group.label}</div>
+                        <div class="jx-m-group-label font-nav text-[10px] uppercase tracking-[0.18em] opacity-55 pt-[0.625rem] pb-1 ps-1">{group.label}</div>
                       {/if}
                       {#each group.items as child (child.label)}
                         <a
@@ -580,7 +598,7 @@
                               : 'text-terminal-foreground/70 hover:text-terminal-foreground',
                           ].join(' ')}
                         >
-                          <span>{child.label}{#if child.external}<span class="jx-ext" aria-hidden="true">{@html icons.externalLink}</span>{/if}</span>
+                          <span>{child.label}{#if child.external}<span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}</span>
                           {#if child.description}
                             <span class="text-[10px] leading-tight opacity-60">{child.description}</span>
                           {/if}
@@ -604,7 +622,7 @@
                     : 'text-terminal-foreground/70 hover:text-terminal-foreground',
                 ].join(' ')}
               >
-                {item.label}{#if item.external}<span class="jx-ext" aria-hidden="true">{@html icons.externalLink}</span>{/if}
+                {item.label}{#if item.external}<span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}
               </a>
             {/if}
           {/each}
@@ -614,330 +632,3 @@
     </div>
   </div>
 </header>
-
-<style>
-  /* shared inline icon set ($lib/icons): 12px beside 13px nav text */
-  .jx-ext {
-    display: inline-flex;
-    flex: none;
-    width: 0.75rem;
-    height: 0.75rem;
-    margin-inline-start: 0.25rem;
-    vertical-align: -0.125em;
-  }
-  .jx-ext svg {
-    width: 100%;
-    height: 100%;
-  }
-  /* the bezel surface: without this the bar is transparent and the
-     dark-scoped white text sits on the page background — invisible */
-  .jx-nav {
-    background: var(--terminal);
-    color: var(--terminal-foreground);
-    border-bottom: 1px solid var(--border);
-  }
-  .jx-nav.dark {
-    color-scheme: dark;
-  }
-  .jx-nav.jx-light {
-    color-scheme: light;
-  }
-
-  /* the hamburger bars fold into an ✕ while the panel is open */
-  .jx-nav button[aria-expanded='true'] .jx-bar:first-child {
-    transform: translateY(4.5px) rotate(45deg);
-  }
-  .jx-nav button[aria-expanded='true'] .jx-bar:last-child {
-    transform: translateY(-4.5px) rotate(-45deg);
-  }
-  .jx-nav .jx-bar {
-    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .jx-nav .jx-bar,
-    .jx-nav .grid {
-      transition: none;
-    }
-  }
-  /* the sliding active background: its own element, measured into place;
-     morphs across pages via the vt-nav-active view-transition-name */
-  .jx-nav .jx-indicator {
-    position: absolute;
-    top: 2px;
-    bottom: 2px;
-    left: 0;
-    width: 0;
-    z-index: 0;
-    /* No background (Owner, 2026-08-21): a solid fill would cover the pill
-       text when the VT group hoists this element above the header; a
-       backdrop brightener stays visually identical on the always-dark
-       bezel and is stacking-proof. */
-    -webkit-backdrop-filter: brightness(2);
-    backdrop-filter: brightness(2);
-    opacity: 0;
-    view-transition-name: vt-nav-active;
-    transition:
-      transform 450ms cubic-bezier(0.22, 1, 0.36, 1),
-      width 450ms cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 150ms ease-out;
-  }
-  .jx-nav.jx-light .jx-indicator {
-    /* light bezel: the same "subtle shift" reads as a slight darken */
-    -webkit-backdrop-filter: brightness(0.85);
-    backdrop-filter: brightness(0.85);
-  }
-  .jx-nav .jx-indicator.jx-indicator-instant {
-    transition: none;
-  }
-  .jx-nav nav a {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* the second-level caret marker; flips while its control is open */
-  .jx-nav .jx-caret {
-    width: 10px;
-    height: 10px;
-    flex: none;
-    transition: transform 150ms ease-out;
-  }
-  .jx-nav a[aria-expanded='true'] .jx-caret,
-  .jx-nav button[aria-expanded='true'] .jx-caret {
-    transform: rotate(180deg);
-  }
-
-  /* the dropdown panel law: the registry Popover primitive's panel with
-     the terminal bezel surface on top. The panel element belongs to the
-     child component, so its rules go through :global — anchored with
-     .jx-pop (double class) they outrank the primitive's base rules
-     regardless of CSS order. The panel is a DOM descendant of .jx-nav
-     (the top layer changes painting, not ancestry) and carries the
-     header's scope class itself so tokens resolve from itself. */
-  .jx-nav :global(.jx-pop.jx-subpanel) {
-    margin: 2px 0 0; /* flush hugging (r22): the adaptive shadow falls outward — a hair only, so the panel border never merges with the bar's */
-    --jx-panel-pad: 0.25rem;
-    /* the primitive's scroll ring carries the padding — retune BOTH
-       axes here (jx-surface law, 2026-08-22: the panel itself never
-       pads/clips; --jx-pop-pad-inline stops the ring's inline gutter
-       compensation from falling back to 14px) */
-    --jx-pop-pad: var(--jx-panel-pad);
-    --jx-pop-pad-inline: var(--jx-panel-pad);
-    min-width: 12rem;
-    /* mega panels override this with a wider ceiling (2026-08-23 user
-       ruling: wide desktops should fill 3-4 columns); single-group
-       panels keep the classic anti-banner cap */
-    max-width: min(90vw, 42rem);
-    font-size: 12px;
-    color: var(--terminal-foreground);
-    /* bezel identity through the jx-surface fill props (solid = the
-       opaque CRT bezel; acrylic = smoked-glass terminal) — the variant
-       rules repaint background at (0,3,0), so a bare background var
-       here would lose acrylic (Codex r1) */
-    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
-    --jx-surface-solid-fill: var(--terminal);
-    --jx-surface-border-color: color-mix(in oklab, var(--terminal-foreground) 25%, transparent);
-  }
-  /* The MOTION is fully the floating-surface law's (Owner r7): the
-     popover's enter kernel measures the slide direction against the
-     anchor, the two-phase texture and the exit ride the law — no
-     bespoke choreography here anymore */
-  /* popovers get a ::backdrop; light dismiss must never dim the page */
-  .jx-nav :global(.jx-pop.jx-subpanel::backdrop) {
-    background: transparent;
-  }
-
-  /* mega mode (two or more groups): a DEFINITE width, never content
-     sized — the panel is the container-query container. The width wants
-     one 14rem track per group, up to FOUR on wide viewports (the 42rem
-     anti-banner cap was lifted for the mega panel by user ruling
-     2026-08-23 — 90vw still guards narrow screens); navColumns=N pins
-     the track count through a class (the primitive owns the element,
-     so no inline styles). */
-  .jx-nav :global(.jx-pop.jx-subpanel.jx-subpanel-mega) {
-    container-type: inline-size;
-    --jx-panel-pad: 0.375rem;
-    /* 2026-08-23 user ruling: sufficiently wide screens should use the
-       horizontal space — the auto panel may grow to FOUR 14rem tracks
-       (~58rem); narrower viewports clamp through 90vw and auto-fill
-       simply renders fewer columns */
-    width: min(90vw, calc(4 * 14rem + 2rem));
-    max-width: min(90vw, calc(4 * 14rem + 2rem));
-  }
-  .jx-nav :global(.jx-pop.jx-subpanel.jx-nav-cols-2) {
-    width: min(90vw, calc(2 * 14rem + 2rem));
-  }
-  .jx-nav :global(.jx-pop.jx-subpanel.jx-nav-cols-4) {
-    width: min(90vw, calc(4 * 14rem + 2rem));
-  }
-
-  /* the panel head: hairline-ruled, label inline-start / action
-     inline-end (2026-08-23) — nav link laws: color transitions only */
-  .jx-nav .jx-subpanel-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-    /* no border-bottom: the groups grid's own hairline rules the seam —
-       a head border would double it (the -1px shave overlaps by 1px) */
-    padding: 0.5rem 0.875rem 0.375rem;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: lowercase;
-  }
-  /* the -1px top shave predates the head — with one present it pokes
-     the grid 1px up under the head's padding; drop the top shave only */
-  .jx-nav .jx-subcorridor:has(> .jx-subpanel-head) .jx-subgroups {
-    margin-top: 0;
-  }
-  .jx-nav .jx-subpanel-title {
-    color: color-mix(in oklab, var(--terminal-foreground) 45%, transparent);
-  }
-  .jx-nav .jx-subpanel-action {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    color: color-mix(in oklab, var(--terminal-foreground) 70%, transparent);
-    transition: color 150ms;
-  }
-  .jx-nav .jx-subpanel-action:hover,
-  .jx-nav .jx-subpanel-action[aria-current='page'] {
-    color: var(--terminal-foreground);
-  }
-  /* the hover corridor: an inverted wrapper (no overflow) stretches the
-     snippet root across the panel's padding ring, so entering the panel
-     at its very edge cancels the close timer. It must stay separate from
-     the clip box — inverting the clipper would move its clip edge and
-     break the -1px hairline shave (Codex note) */
-  .jx-nav .jx-subcorridor {
-    margin: calc(var(--jx-panel-pad, 0.25rem) * -1);
-    padding: var(--jx-panel-pad, 0.25rem);
-  }
-
-  /* the clip box: overflow clips at its padding box, which hugs the
-     panel's content box — the groups grid hangs 1px beyond it on every
-     side, so its outermost rules are shaved off (graph-paper law) */
-  .jx-nav .jx-subclip {
-    overflow: hidden;
-  }
-  .jx-nav .jx-subgroups {
-    display: grid;
-    /* 13.5rem tracks: FOUR columns fit the 58rem mega panel (14rem
-       tracks miss by the grid gap; 2026-08-23 wide-screen ruling) */
-    grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr));
-    margin: -1px;
-  }
-  .jx-nav .jx-group {
-    min-width: 0;
-    padding: 0.5rem 0.75rem 0.625rem;
-    border-top: 1px solid color-mix(in oklab, var(--terminal-foreground) 15%, transparent);
-    border-left: 1px solid color-mix(in oklab, var(--terminal-foreground) 15%, transparent);
-  }
-  /* single-column law: when the panel is too narrow for a second 14rem
-     track the groups stack and only the horizontal rules remain (the
-     clip already hides the column rules; this states the law). */
-  @container (max-width: 28rem) {
-    .jx-nav .jx-group {
-      border-left: none;
-    }
-  }
-  .jx-nav .jx-group-label {
-    font-family: var(--font-nav);
-    font-size: 10px;
-    line-height: 1.2;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    opacity: 0.55;
-    padding: 0 0.625rem;
-    margin-bottom: 0.5rem;
-  }
-  /* single unnamed group: the classic narrow dropdown — no rules, no
-     grid tracks, fit-content width from the base panel */
-  .jx-nav .jx-subgroups.jx-single {
-    display: block;
-    margin: 0;
-  }
-  .jx-nav .jx-subgroups.jx-single .jx-group {
-    border: none;
-    padding: 0;
-  }
-
-  .jx-nav .jx-sub-link {
-    display: grid;
-    grid-template-columns: 1fr;
-    column-gap: 0.625rem;
-    align-items: start;
-    padding: 0.4375rem 0.625rem;
-    transition: background-color 120ms ease-out;
-  }
-  .jx-nav .jx-sub-link.jx-with-icon {
-    grid-template-columns: auto 1fr;
-  }
-  .jx-nav .jx-sub-link:hover,
-  .jx-nav .jx-sub-link[aria-current='page'] {
-    background: var(--terminal-hover);
-  }
-  .jx-nav .jx-sub-link[aria-current='page'] {
-    box-shadow: inset 2px 0 0 0 var(--primary);
-  }
-  .jx-nav .jx-sub-icon {
-    width: 16px;
-    height: 16px;
-    flex: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 1px;
-    opacity: 0.55;
-  }
-  /* the icon snippet is consumer markup: size it through the wrapper */
-  .jx-nav .jx-sub-icon :global(svg) {
-    width: 100%;
-    height: 100%;
-  }
-
-  .jx-nav .jx-m-group-label {
-    font-family: var(--font-nav);
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    opacity: 0.55;
-    padding: 0.625rem 0 0.25rem 0.25rem;
-  }
-
-  /* interaction polish on the bezel: WebKit's default tap-highlight is a
-     semi-transparent black flash that reads as a bug on the dark surface;
-     idle pills gain a hover affordance; focus gets a contained ring
-     instead of the site-wide 2px offset outline */
-  .jx-nav a,
-  .jx-nav button {
-    -webkit-tap-highlight-color: transparent;
-  }
-  .jx-nav nav a:not([aria-current='page']):hover {
-    background: var(--terminal-hover);
-  }
-  .jx-nav :where(a, button):focus-visible {
-    outline: 1px solid color-mix(in oklab, var(--terminal-foreground) 80%, transparent);
-    outline-offset: -1px;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .jx-nav .jx-caret,
-    .jx-nav .jx-sub-link {
-      transition: none;
-    }
-  }
-
-  /* mobile disclosure: a bounded scroll viewport inside the 0fr→1fr
-     animation wrapper — every link stays reachable when all groups
-     expand. dvh tracks the URL bar; contained overscroll keeps page
-     scroll out of the menu's way */
-  .jx-nav .jx-mobile-scroll {
-    max-height: calc(100dvh - 4.75rem);
-    overflow-y: auto;
-    /* scrollbar law: both-edges gutters (full-bleed rows — no ring
-       padding to hand back) */
-    scrollbar-gutter: stable both-edges;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-  }
-</style>

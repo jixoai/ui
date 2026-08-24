@@ -25,10 +25,19 @@
   source, so a sample containing a literal closing-script tag is inert data
   and cannot terminate the host page's script — consumers owe no
   template-level escaping.
+
+  tw4 (2026-08-24): card/head/foot/copy statics + the fill/vscroll
+  conditional paint ride token utilities in the markup (deterministic
+  branches); code-card.css keeps the D1-exempt residue — the --tok-*
+  Shiki palette wiring (with its .dark adaptation), the pre scrollport
+  law (scrollbar-gutter compensation recipe), focus-visible rings and
+  the reduced-motion kill.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { highlightCode } from '$lib/shiki';
+  import { cn } from '$lib/utils';
+  import './code-card.css';
 
   interface Props {
     /** Code sample (runtime string; Shiki escapes it into inert spans). */
@@ -159,20 +168,25 @@
 </script>
 
 <figure
-  class={`jx-code-card ${className}`}
-  class:fill={fill}
+  class={cn(
+    'jx-code-card bg-[color:var(--readonly-code-bg)] border border-[color:var(--readonly-code-border)] m-0 min-w-0',
+    fill && 'fill flex flex-col h-full',
+    className,
+  )}
   style={minHeight !== '' ? `min-height:${minHeight}` : ''}
 >
   {#if filename || header}
-    <figcaption class="jx-code-card-head">
+    <figcaption
+      class="jx-code-card-head flex items-center gap-3 min-w-0 px-3 py-[0.32rem] text-[11px] tracking-[0.08em] bg-[color:var(--readonly-code-meta-bg)] border-b border-[color:var(--readonly-code-border)] text-[color:var(--readonly-code-meta-fg)]"
+    >
       {#if filename}
-        <span class="jx-code-card-file">{filename}</span>
+        <span class="jx-code-card-file font-nav truncate">{filename}</span>
       {/if}
-      <span class="jx-code-card-side">
+      <span class="jx-code-card-side flex items-center ml-auto min-w-0">
         {#if header}
           {@render header()}
         {:else}
-          <span class="jx-code-card-lang">{lang}</span>
+          <span class="jx-code-card-lang tracking-[0.14em] opacity-75 uppercase whitespace-nowrap">{lang}</span>
         {/if}
       </span>
     </figcaption>
@@ -183,7 +197,7 @@
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <pre
     data-lang={lang}
-    class:vscroll={maxHeight !== ''}
+    class={cn('jx-code-card-pre', maxHeight !== '' && 'vscroll overflow-y-auto', fill && 'flex-1 min-h-0 overflow-y-auto')}
     style={[preStyle, maxHeight !== '' ? `max-height:${maxHeight}` : '']
       .filter(Boolean)
       .join(';')}
@@ -191,8 +205,10 @@
     aria-label={filename ? `${filename} code sample` : `${lang} code sample`}
   ><code>{#if tokenHtml}{@html tokenHtml}{:else}{code}{/if}</code></pre>
   {#if footer || copyable}
-    <div class="jx-code-card-foot">
-      <span class="jx-code-card-foot-side">
+    <div
+      class="jx-code-card-foot flex items-center justify-between gap-3 min-h-[2.1rem] pt-[0.3rem] pe-2 pb-[0.3rem] ps-3 border-t border-[color:var(--readonly-code-border)]"
+    >
+      <span class="flex items-center min-w-0">
         {#if footer}
           {@render footer()}
         {/if}
@@ -200,14 +216,19 @@
       {#if copyable}
         <button
           type="button"
-          class="jx-press jx-code-card-copy"
-          class:copied
+          class={cn(
+            'jx-press jx-code-card-copy inline-flex items-center gap-[0.4rem] bg-background border border-border text-foreground cursor-pointer text-[11px] font-medium tracking-[0.04em] px-[0.6rem] py-1 whitespace-nowrap',
+            '[--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]',
+            copied
+              ? 'copied bg-secondary text-secondary-foreground hover:bg-secondary'
+              : 'hover:bg-muted',
+          )}
           onclick={copyCode}
           aria-label={copied ? 'copied' : `copy ${filename || lang} sample`}
         >
           {#if copied}
             <svg
-              class="jx-code-card-icon"
+              class="jx-code-card-icon h-3 w-3"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -221,7 +242,7 @@
             <span>copied</span>
           {:else}
             <svg
-              class="jx-code-card-icon"
+              class="jx-code-card-icon h-3 w-3"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -240,176 +261,3 @@
     </div>
   {/if}
 </figure>
-
-<style>
-  /* readonly-code law (design-tokens.md supplements): the scoped token
-     definitions mirror the documented values so the card is self-sufficient
-     with only the jixoai-theme sheet installed. The variable names are the
-     Shiki css-variables theme contract (--tok-foreground / --tok-token-*),
-     so lib/shiki's default theme paints straight from here. */
-  .jx-code-card {
-    --readonly-code-bg: color-mix(in oklab, var(--muted) 42%, var(--background));
-    --readonly-code-border: color-mix(in oklab, var(--border) 18%, transparent);
-    --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 12%, var(--background));
-    --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 58%, var(--foreground));
-
-    /* Shiki css-variables palette: primary family + muted, per the visual law */
-    --tok-foreground: var(--foreground);
-    --tok-background: transparent;
-    --tok-token-comment: color-mix(in oklab, var(--foreground) 44%, transparent);
-    --tok-token-string: var(--accent);
-    --tok-token-string-expression: var(--accent);
-    --tok-token-keyword: var(--primary);
-    --tok-token-constant: color-mix(in oklab, var(--secondary) 78%, var(--foreground));
-    --tok-token-function: color-mix(in oklab, var(--primary) 62%, var(--foreground));
-    --tok-token-parameter: color-mix(in oklab, var(--foreground) 78%, var(--accent));
-    --tok-token-punctuation: color-mix(in oklab, var(--foreground) 62%, transparent);
-    --tok-token-link: var(--accent);
-    --tok-token-inserted: oklch(0.58 0.12 150);
-    --tok-token-deleted: oklch(0.55 0.16 25);
-    --tok-token-changed: oklch(0.68 0.12 85);
-
-    background: var(--readonly-code-bg);
-    border: 1px solid var(--readonly-code-border);
-    margin: 0;
-    min-width: 0;
-  }
-  :global(.dark) .jx-code-card {
-    --readonly-code-bg: color-mix(in oklab, var(--muted) 78%, var(--background));
-    --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 18%, var(--background));
-    --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 60%, oklch(1 0 0));
-
-    /* dark: brighter primary family */
-    --tok-token-comment: color-mix(in oklab, var(--foreground) 55%, transparent);
-    --tok-token-constant: var(--secondary);
-    --tok-token-function: color-mix(in oklab, var(--primary) 58%, oklch(1 0 0));
-  }
-
-  /* the pre is the scrollport: native Tab characters stay tabs, long lines
-     scroll instead of wrapping; scrollbar paint is the THEME scrollbar law
-     (thin, currentColor, hover chain) with containment so a horizontal
-     wheel/flick never chains to the page */
-  .jx-code-card pre {
-    font-size: 12.5px;
-    line-height: 1.6;
-    margin: 0;
-    overflow-x: auto;
-    overflow-y: visible;
-    overscroll-behavior-x: contain;
-    /* scrollbar law: both-edges gutters; padding-inline hands the gutter
-       back so the line inset stays 0.875rem */
-    scrollbar-gutter: stable both-edges;
-    padding-block: 0.875rem;
-    padding-inline: max(0.875rem - var(--jx-scrollbar-thin, 0px), 0px);
-    tab-size: 4;
-  }
-  .jx-code-card pre.vscroll {
-    overflow-y: auto;
-  }
-  /* fill mode: the card is a fixed-height column — head/foot pin, the pre
-     is the single scrollport; the parent owes the height */
-  .jx-code-card.fill {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  .jx-code-card.fill pre {
-    flex: 1 1 0;
-    min-height: 0;
-    overflow-y: auto;
-  }
-  .jx-code-card pre:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: -2px;
-  }
-
-  /* head: hairline divider + font-nav filename tab on the meta tint */
-  .jx-code-card-head {
-    align-items: center;
-    background: var(--readonly-code-meta-bg);
-    border-bottom: 1px solid var(--readonly-code-border);
-    color: var(--readonly-code-meta-fg);
-    display: flex;
-    font-size: 11px;
-    gap: 0.75rem;
-    letter-spacing: 0.08em;
-    min-width: 0;
-    padding: 0.32rem 0.75rem;
-  }
-  .jx-code-card-file {
-    font-family: var(--font-nav);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .jx-code-card-side {
-    align-items: center;
-    display: flex;
-    margin-left: auto;
-    min-width: 0;
-  }
-  .jx-code-card-lang {
-    letter-spacing: 0.14em;
-    opacity: 0.75;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-  /* foot: hairline divider; custom content left, copy control right */
-  .jx-code-card-foot {
-    align-items: center;
-    border-top: 1px solid var(--readonly-code-border);
-    display: flex;
-    gap: 0.75rem;
-    justify-content: space-between;
-    min-height: 2.1rem;
-    padding: 0.3rem 0.5rem 0.3rem 0.75rem;
-  }
-  .jx-code-card-foot-side {
-    align-items: center;
-    display: flex;
-    min-width: 0;
-  }
-
-  /* compact copy control: the press-button grammar (shadow lift on hover,
-     press on active) at card scale — press-button ships no size prop, so the
-     same vocabulary is scoped here */
-  .jx-code-card-copy {
-    align-items: center;
-    background: var(--background);
-    border: 1px solid var(--border);
-    --jx-press-shadow: var(--shadow-2xs);
-    --jx-press-shadow-hover: var(--shadow-xs);
-    --jx-press-shadow-active: var(--shadow-xs-press);
-    color: var(--foreground);
-    cursor: pointer;
-    display: inline-flex;
-    font-size: 11px;
-    font-weight: 500;
-    gap: 0.4rem;
-    letter-spacing: 0.04em;
-    padding: 0.25rem 0.6rem;
-    white-space: nowrap;
-  }
-  .jx-code-card-copy:hover {
-    background: var(--muted);
-  }
-  .jx-code-card-copy.copied {
-    background: var(--secondary);
-    color: var(--secondary-foreground);
-  }
-  .jx-code-card-copy:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
-  }
-  .jx-code-card-icon {
-    height: 12px;
-    width: 12px;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-code-card-copy {
-      transition: none;
-    }
-  }
-</style>

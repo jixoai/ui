@@ -1,0 +1,89 @@
+@layer theme, base, components, utilities;
+
+/* jixoai code-card — D1-exempt residue (tw4, 2026-08-24). Card/head/
+ * foot/copy statics and the fill/vscroll branches live as token
+ * utilities in the markup; what remains:
+ *   - the --tok-* Shiki css-variables palette + its .dark adaptation
+ *     (theme wiring, the documented contract with lib/shiki) and the
+ *     --readonly-code-* meta tints — @layer components, so a consumer
+ *     can retune any of them with one arbitrary-property utility;
+ *   - the pre scrollport law: the scrollbar-gutter compensation
+ *     recipe (both-edges gutters, padding-inline hands the gutter
+ *     back) — a coherent law, @layer components;
+ *   - focus-visible rings and the reduced-motion kill — state
+ *     machines on the UNLAYERED :where() carve-out (they override the
+ *     component's own utility paint; the toggle/Part A precedent). */
+
+@layer components {
+  /* readonly-code law (design-tokens.md supplements): the scoped token
+     definitions mirror the documented values so the card is self-sufficient
+     with only the jixoai-theme sheet installed. The variable names are the
+     Shiki css-variables theme contract (--tok-foreground / --tok-token-*),
+     so lib/shiki's default theme paints straight from here. */
+  .jx-code-card {
+    --readonly-code-bg: color-mix(in oklab, var(--muted) 42%, var(--background));
+    --readonly-code-border: color-mix(in oklab, var(--border) 18%, transparent);
+    --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 12%, var(--background));
+    --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 58%, var(--foreground));
+
+    /* Shiki css-variables palette: primary family + muted, per the visual law */
+    --tok-foreground: var(--foreground);
+    --tok-background: transparent;
+    --tok-token-comment: color-mix(in oklab, var(--foreground) 44%, transparent);
+    --tok-token-string: var(--accent);
+    --tok-token-string-expression: var(--accent);
+    --tok-token-keyword: var(--primary);
+    --tok-token-constant: color-mix(in oklab, var(--secondary) 78%, var(--foreground));
+    --tok-token-function: color-mix(in oklab, var(--primary) 62%, var(--foreground));
+    --tok-token-parameter: color-mix(in oklab, var(--foreground) 78%, var(--accent));
+    --tok-token-punctuation: color-mix(in oklab, var(--foreground) 62%, transparent);
+    --tok-token-link: var(--accent);
+    --tok-token-inserted: oklch(0.58 0.12 150);
+    --tok-token-deleted: oklch(0.55 0.16 25);
+    --tok-token-changed: oklch(0.68 0.12 85);
+  }
+  .dark .jx-code-card {
+    --readonly-code-bg: color-mix(in oklab, var(--muted) 78%, var(--background));
+    --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 18%, var(--background));
+    --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 60%, oklch(1 0 0));
+
+    /* dark: brighter primary family */
+    --tok-token-comment: color-mix(in oklab, var(--foreground) 55%, transparent);
+    --tok-token-constant: var(--secondary);
+    --tok-token-function: color-mix(in oklab, var(--primary) 58%, oklch(1 0 0));
+  }
+
+  /* the pre is the scrollport: native Tab characters stay tabs, long lines
+     scroll instead of wrapping; scrollbar paint is the THEME scrollbar law
+     (thin, currentColor, hover chain) with containment so a horizontal
+     wheel/flick never chains to the page */
+  .jx-code-card pre {
+    font-size: 12.5px;
+    line-height: 1.6;
+    margin: 0;
+    overflow-x: auto;
+    overflow-y: visible;
+    overscroll-behavior-x: contain;
+    /* scrollbar law: both-edges gutters; padding-inline hands the gutter
+       back so the line inset stays 0.875rem */
+    scrollbar-gutter: stable both-edges;
+    padding-block: 0.875rem;
+    padding-inline: max(0.875rem - var(--jx-scrollbar-thin, 0px), 0px);
+    tab-size: 4;
+  }
+}
+
+:where(.jx-code-card pre:focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+:where(.jx-code-card-copy:focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-code-card-copy) {
+    transition: none;
+  }
+}

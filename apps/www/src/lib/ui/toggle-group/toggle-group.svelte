@@ -19,10 +19,18 @@
   Space/Enter toggle natively, Tab walks the row (a group is not a
   focus trap — arrows belong to tablists and menus, this is a simple
   control set). disabled dims the whole set; jx-reset clears it.
+
+  tw4 (2026-08-24): static paint + hover/disabled states ride token
+  utilities (deterministic per-state strings — the pressed repaint is
+  a full branch, never two colliding utilities); ONLY the focus-visible
+  ring stays in toggle-group.css — D1-exempt residue on the unlayered
+  :where() carve-out (the toggle/Part A precedent).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
   import '$lib/form-field';
+  import './toggle-group.css';
 
   interface ToggleGroupOption {
     value: string;
@@ -107,12 +115,17 @@
   onjx-reset={() => ((value = type === 'single' ? '' : []), undefined)}
 ></jx-form-field>
 
-<div class="jx-tgroup {className}" role="group" aria-label={label}>
+<div class={cn('jx-tgroup inline-flex flex-wrap border border-border rounded-(--radius) bg-card shadow-2xs w-fit', className)} role="group" aria-label={label}>
     {#each options as option (option.value)}
       <button
         type="button"
-        class="jx-tgroup-btn"
-        class:jx-tgroup-on={isActive(option)}
+        class={cn(
+          'jx-tgroup-btn appearance-none cursor-pointer px-[0.875rem] py-[0.4375rem] border-r border-border font-nav text-xs tracking-[0.1em] uppercase last:border-r-0 transition-[color,background-color] duration-150 ease-out',
+          isActive(option)
+            ? 'jx-tgroup-on bg-primary text-primary-foreground hover:not-disabled:text-primary-foreground'
+            : 'bg-transparent text-muted-foreground hover:not-disabled:text-foreground',
+          'disabled:opacity-45 disabled:cursor-not-allowed',
+        )}
         aria-pressed={isActive(option)}
         disabled={isDisabled || option.disabled}
         onclick={() => press(option)}
@@ -125,50 +138,3 @@
       </button>
     {/each}
   </div>
-
-<style>
-  .jx-tgroup {
-    display: inline-flex;
-    flex-wrap: wrap;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--card);
-    box-shadow: var(--shadow-2xs);
-    width: fit-content;
-  }
-  .jx-tgroup-btn {
-    appearance: none;
-    padding: 0.4375rem 0.875rem;
-    border: 0;
-    border-right: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted-foreground);
-    font-family: var(--font-nav);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: color 150ms ease-out, background-color 150ms ease-out;
-  }
-  .jx-tgroup-btn:last-child {
-    border-right: 0;
-  }
-  .jx-tgroup-btn:hover:not(:disabled) {
-    color: var(--foreground);
-  }
-  .jx-tgroup-btn:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-tgroup-btn:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-  .jx-tgroup-on {
-    background: var(--primary);
-    color: var(--primary-foreground);
-  }
-  .jx-tgroup-on:hover:not(:disabled) {
-    color: var(--primary-foreground);
-  }
-</style>

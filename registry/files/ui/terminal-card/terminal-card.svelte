@@ -20,9 +20,17 @@
     speed     typing pace multiplier (default 1; 2 = twice as fast).
               Clamped to >= 0.25. Pacing is read on mount, so a live
               control applies its value by re-mounting (e.g. {#key}).
+
+  tw4 (2026-08-24): bezel paint, traffic lights, the static block
+  cursor and the color-scheme lock ride token utilities in the markup
+  (the color-mix output tint too); ONLY the line-reveal state machine
+  (.jx-out/.jx-out-shown + reduced-motion) stays in terminal-card.css —
+  D1-exempt residue on the unlayered carve-out.
 -->
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './terminal-card.css';
 
   interface Props {
     barTitle: string;
@@ -96,77 +104,28 @@
   });
 </script>
 
-<div class="jx-terminal {scope === 'dark' ? 'dark' : 'jx-light'} border-border bg-terminal text-terminal-foreground w-full border">
+<div
+  class={cn(
+    'jx-terminal border-border bg-terminal text-terminal-foreground w-full border [box-shadow:6px_6px_0_0_var(--shadow)]',
+    scope === 'dark' ? 'dark [color-scheme:dark]' : 'jx-light [color-scheme:light]',
+  )}
+>
   <div
     class="text-terminal-foreground/55 flex items-center gap-1.5 border-b px-3.5 py-2 font-nav text-xs tracking-[0.1em]"
   >
-    <span class="jx-light-dot" aria-hidden="true"></span>
-    <span class="jx-light-dot jx-light-yellow" aria-hidden="true"></span>
-    <span class="jx-light-dot jx-light-green" aria-hidden="true"></span>
+    <span class="jx-light-dot w-2 h-2 flex-none border border-current bg-[oklch(0.7_0.18_25)]" aria-hidden="true"></span>
+    <span class="jx-light-dot jx-light-yellow w-2 h-2 flex-none border border-current bg-[oklch(0.85_0.17_95)]" aria-hidden="true"></span>
+    <span class="jx-light-dot jx-light-green w-2 h-2 flex-none border border-current bg-[oklch(0.75_0.17_150)]" aria-hidden="true"></span>
     <span class="ml-2 truncate">{barTitle}</span>
   </div>
   <div class="p-4 sm:p-5">
     <p class="text-lg font-semibold tracking-tight sm:text-xl">
-      <span class="text-primary mr-2">$</span><span>{typed}</span><span class="jx-cursor" aria-hidden="true"></span>
+      <span class="text-primary mr-2">$</span><span>{typed}</span><span class="jx-cursor inline-block w-[0.58em] h-[1.05em] bg-terminal-foreground align-text-bottom ml-0.5" aria-hidden="true"></span>
     </p>
     <div class="mt-3 space-y-1 text-[13px] leading-5">
       {#each outputs as line, index (line)}
-        <p class="jx-out" class:jx-out-shown={index < shownLines}>{line}</p>
+        <p class={cn('jx-out', index < shownLines && 'jx-out-shown')}>{line}</p>
       {/each}
     </div>
   </div>
 </div>
-
-<style>
-  .jx-terminal {
-    box-shadow: 6px 6px 0 0 var(--shadow);
-  }
-  .jx-terminal.dark {
-    color-scheme: dark;
-  }
-  .jx-terminal.jx-light {
-    color-scheme: light;
-  }
-  .jx-light-dot {
-    width: 8px;
-    height: 8px;
-    flex: none;
-    border: 1px solid currentColor;
-    background: oklch(0.7 0.18 25);
-  }
-  .jx-light-yellow {
-    background: oklch(0.85 0.17 95);
-  }
-  .jx-light-green {
-    background: oklch(0.75 0.17 150);
-  }
-  /* static block cursor — no blink (jixoai motion law) */
-  .jx-cursor {
-    display: inline-block;
-    width: 0.58em;
-    height: 1.05em;
-    background: var(--terminal-foreground);
-    vertical-align: text-bottom;
-    margin-left: 2px;
-  }
-  .jx-out {
-    color: color-mix(in oklab, var(--terminal-foreground) 65%, transparent);
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  .jx-out-shown {
-    opacity: 1;
-    transform: none;
-    transition:
-      opacity 150ms ease-out,
-      transform 170ms ease-out;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .jx-out,
-    .jx-out-shown {
-      opacity: 1;
-      transform: none;
-      transition: none;
-    }
-  }
-</style>

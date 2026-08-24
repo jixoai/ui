@@ -17,6 +17,10 @@
   虚拟化沿单轴（horizontal ? x : y）；行间距用行内 margin 表达（TanStack
   无 gap 概念）。ring padding（ScrollArea 的 pad）不要与水平虚拟列表同用
   —— inline 起点会偏移 scrollMargin。
+
+  tw4 (2026-08-24): utility-authored — the spacer's positioning law is
+  one utility in the markup; zero css residue (the positioning styles
+  of rows/spacer are TanStack-driven inline styles by design).
 -->
 <script lang="ts" generics="T = unknown">
   import { createVirtualizer } from '@tanstack/svelte-virtual';
@@ -138,7 +142,7 @@
 
 <ScrollArea bind:this={scrollAreaEl} {scrollbar} {label} {onscroll} orientation={horizontal ? 'horizontal' : 'vertical'} class={className}>
   <div
-    class="jx-sv-spacer"
+    class="jx-sv-spacer relative"
     style={horizontal
       ? `inline-size: ${$virtualizer.getTotalSize()}px; block-size: 100%`
       : `block-size: ${$virtualizer.getTotalSize()}px; inline-size: 100%`}
@@ -157,9 +161,3 @@
     {/each}
   </div>
 </ScrollArea>
-
-<style>
-  .jx-sv-spacer {
-    position: relative;
-  }
-</style>

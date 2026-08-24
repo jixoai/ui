@@ -15,8 +15,8 @@
   resolver so usage files can track live playground state without making
   TreeFile.content a function). The playground snippet itself stays
   a free Snippet: layout contract classes — .jx-play-fields, .jx-play-field,
-  .jx-play-help — are styled through :global() because scoped styles never
-  reach snippet children.
+  .jx-play-help — are styled through the residue sheet because in-markup
+  utilities never reach snippet children.
 
   Layout law: header (font-nav h2 title + description + Source press button,
   hairline under — the button folds under the title in the narrow container
@@ -36,12 +36,23 @@
   differently-tinted ground, not only on pure background. The playground
   pane answers with a much lighter tint (muted 12%) — a layer between
   stage and background, never a second stage.
+
+  tw4 (2026-08-24): every element this file authors carries its paint as
+  token utilities (deterministic branches for stage posture, drawer open
+  and toggle pressed states); component-canvas.css keeps ONLY the
+  D1-exempt residue — the two 48rem container tiers (cqi clamp math),
+  the snippet-children layout contracts, the tree's scrollbar-gutter
+  recipe, the code-card frame strip, focus-visible rings and the
+  reduced-motion kill. The canvas chrome is every docs page's frame:
+  when in doubt, it stays residue.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
   import TreeView, { type TreeNode } from '$lib/ui/tree-view/tree-view.svelte';
+  import { cn } from '$lib/utils';
+  import './component-canvas.css';
 
   /** Read-only playground state projection; never a live region. */
   export interface PlayEcho {
@@ -201,10 +212,10 @@
   const current = $derived(
     files.find((f) => f.name === selectedPath) ??
       files.find((f) => f.name.endsWith('usage.svelte')) ??
-      files[0]
+      files[0],
   );
   const currentCode = $derived(
-    current ? (resolveFileContent?.(current) ?? current.content) : ''
+    current ? (resolveFileContent?.(current) ?? current.content) : '',
   );
   let codeOpen = $state(false);
 
@@ -231,20 +242,27 @@
     copiedUsage = true;
     setTimeout(() => (copiedUsage = false), 1600);
   }
+
+  // stage posture: one deterministic branch per prop value
+  const stageUtilities = {
+    center: '',
+    start: 'jx-stage-start items-start justify-start',
+    stretch: 'jx-stage-stretch items-stretch [justify-content:stretch]',
+  } as const;
 </script>
 
-<section class={`jx-canvas ${className}`}>
-  <header class="jx-canvas-head">
-    <div class="jx-canvas-head-text">
-      <h2 class="jx-canvas-title" id={titleId}>{title}</h2>
+<section class={cn('jx-canvas @container bg-background border border-border rounded-none min-w-0', className)}>
+  <header class="jx-canvas-head flex flex-wrap items-start justify-between gap-4 px-4 py-[0.8rem] border-b border-border">
+    <div class="jx-canvas-head-text min-w-0">
+      <h2 class="jx-canvas-title m-0 text-foreground font-nav text-[15px] font-normal tracking-[0.01em] leading-[1.3]" id={titleId}>{title}</h2>
       {#if description}
-        <p class="jx-canvas-description">{description}</p>
+        <p class="jx-canvas-description m-0 mt-[0.3rem] text-muted-foreground text-[12.5px] leading-[1.5] max-w-[62ch] text-pretty">{description}</p>
       {/if}
     </div>
     {#if sourceUrl}
       <PressButton variant="outline" href={sourceUrl} external ariaLabel={`${title} source on GitHub`}>
         <svg
-          class="jx-canvas-source-icon"
+          class="jx-canvas-source-icon h-[13px] w-[13px]"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -261,18 +279,24 @@
     {/if}
   </header>
 
-  <div class="jx-canvas-stage-row">
-    <div class="jx-canvas-stage jx-stage-{stage}" aria-label={`${title} demo`}>
+  <div class="jx-canvas-stage-row flex flex-col">
+    <div
+      class={cn(
+        'jx-canvas-stage flex flex-1 flex-wrap items-center justify-center gap-4 min-h-[200px] min-w-0 p-6 bg-[color-mix(in_oklab,var(--muted)_42%,var(--background))]',
+        stageUtilities[stage],
+      )}
+      aria-label={`${title} demo`}
+    >
       {@render children()}
     </div>
     {#if playground}
-      <aside class="jx-canvas-playground" aria-labelledby={playgroundId}>
-        <div class="jx-canvas-playground-head">
-          <h3 class="jx-canvas-playground-title" id={playgroundId}>Playground</h3>
+      <aside class="jx-canvas-playground flex flex-col min-w-0 pt-[0.85rem] px-4 pb-4 bg-[color-mix(in_oklab,var(--muted)_12%,var(--background))] border-t border-border" aria-labelledby={playgroundId}>
+        <div class="jx-canvas-playground-head flex items-baseline justify-between gap-3">
+          <h3 class="jx-canvas-playground-title m-0 mb-[0.65rem] text-muted-foreground font-nav text-[10px] tracking-[0.24em] uppercase" id={playgroundId}>Playground</h3>
           {#if onreset}
             <button
               type="button"
-              class="jx-canvas-reset"
+              class="jx-canvas-reset bg-transparent border-transparent text-muted-foreground hover:text-foreground cursor-pointer font-nav text-[10px] tracking-[0.18em] mb-[0.65rem] p-0 underline [text-underline-offset:3px] uppercase"
               ariaLabel={`Reset ${title} playground`}
               onclick={() => onreset?.()}
             >
@@ -280,15 +304,15 @@
             </button>
           {/if}
         </div>
-        <div class="jx-canvas-playground-body">
+        <div class="jx-canvas-playground-body flex flex-col gap-[0.85rem] min-h-0 min-w-0">
           {@render playground()}
         </div>
         {#if echo?.length}
-          <dl class="jx-canvas-echo">
+          <dl class="jx-canvas-echo grid gap-[0.3rem] m-0 mt-[0.85rem] pt-[0.7rem] border-t border-border">
             {#each echo as item, index (`${item.label}-${index}`)}
-              <div class="jx-canvas-echo-row">
-                <dt>{item.label}</dt>
-                <dd>{formatEcho(item.value)}</dd>
+              <div class="jx-canvas-echo-row grid items-baseline gap-[0.6rem] grid-cols-[minmax(5.5rem,auto)_minmax(0,1fr)]">
+                <dt class="text-muted-foreground font-nav text-[10px] tracking-[0.14em] uppercase">{item.label}</dt>
+                <dd class="text-[color:var(--accent-foreground,var(--foreground))] font-mono text-[11.5px] m-0 min-w-0 [overflow-wrap:anywhere]">{formatEcho(item.value)}</dd>
               </div>
             {/each}
           </dl>
@@ -297,10 +321,14 @@
     {/if}
   </div>
 
-  <div class="jx-canvas-code-bar">
+  <div class="jx-canvas-code-bar flex items-center justify-between gap-3 border-t border-border pt-[0.35rem] pe-2 pb-[0.35rem] ps-[0.6rem]">
     <button
       type="button"
-      class="jx-press jx-canvas-code-toggle"
+      class={cn(
+        'jx-press jx-canvas-code-toggle inline-flex items-center gap-[0.4rem] bg-background border border-border text-foreground hover:bg-muted cursor-pointer text-[11px] font-medium tracking-[0.04em] px-[0.6rem] py-1 whitespace-nowrap',
+        '[--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]',
+        codeOpen && 'bg-muted',
+      )}
       aria-expanded={codeOpen}
       aria-controls={drawerId}
       onclick={() => (codeOpen = !codeOpen)}
@@ -308,25 +336,31 @@
       <span aria-hidden="true">{'</>'}</span>
       <span>Code</span>
     </button>
-    <div class="jx-canvas-code-actions">
+    <div class="jx-canvas-code-actions flex items-center gap-3">
       {#if usageFile}
-        <button type="button" class="jx-canvas-copy-usage" ariaLabel="copy the usage snippet" onclick={() => copyUsage()}>
+        <button type="button" class="jx-canvas-copy-usage bg-transparent border-transparent text-muted-foreground hover:text-primary cursor-pointer font-nav text-[10px] tracking-[0.14em] p-0 underline [text-underline-offset:3px] uppercase" ariaLabel="copy the usage snippet" onclick={() => copyUsage()}>
           {copiedUsage ? 'copied ✓' : 'copy usage'}
         </button>
       {/if}
-      <span class="jx-canvas-code-count">{files.length} {files.length === 1 ? 'file' : 'files'}</span>
+      <span class="jx-canvas-code-count text-muted-foreground text-[10.5px] tracking-[0.08em] uppercase">{files.length} {files.length === 1 ? 'file' : 'files'}</span>
     </div>
   </div>
 
   <div
-    class="jx-canvas-code-drawer"
+    class={cn(
+      'jx-canvas-code-drawer border-t border-border grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]',
+      codeOpen && 'grid-rows-[1fr]',
+    )}
     id={drawerId}
     data-open={codeOpen || undefined}
     inert={!codeOpen || undefined}
   >
-    <div class="jx-canvas-code-clip">
-      <div class="jx-canvas-code-panels">
-        <aside class="jx-canvas-tree" aria-label="demo files">
+    <div class="jx-canvas-code-clip min-h-0 overflow-hidden">
+      <div class="jx-canvas-code-panels flex flex-col max-h-[28rem]">
+        <aside
+          class="jx-canvas-tree bg-background border-b border-border flex-none max-h-40 overflow-y-auto"
+          aria-label="demo files"
+        >
           <TreeView
             nodes={tree}
             defaultExpanded={openFolders}
@@ -335,7 +369,7 @@
             onselect={(ctx) => (selectedPath = ctx.id)}
           />
         </aside>
-        <div class="jx-canvas-code-view">
+        <div class="jx-canvas-code-view flex flex-1 flex-col min-h-0 min-w-0">
           {#if current}
             <CodeCard
               filename={leafName(current.name)}
@@ -350,371 +384,3 @@
     </div>
   </div>
 </section>
-
-<style>
-  /* shell: 1px border, radius 0, background — the stage tint and hairlines
-     carry every internal separation */
-  .jx-canvas {
-    container-type: inline-size;
-    background: var(--background);
-    border: 1px solid var(--border);
-    border-radius: 0;
-    min-width: 0;
-  }
-
-  /* header: font-nav h2 title + description left, Source press button right;
-     wraps, and in the narrow container form the text takes the full first
-     row so the button folds UNDER the title instead of crushing the
-     description into a narrow column beside it */
-  .jx-canvas-head {
-    align-items: flex-start;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: space-between;
-    padding: 0.8rem 1rem;
-  }
-  .jx-canvas-head-text {
-    min-width: 0;
-  }
-  @container (max-width: 48rem) {
-    .jx-canvas-head-text {
-      flex: 1 1 100%;
-    }
-  }
-  .jx-canvas-title {
-    color: var(--foreground);
-    font-family: var(--font-nav);
-    font-size: 15px;
-    font-weight: 400;
-    letter-spacing: 0.01em;
-    line-height: 1.3;
-    margin: 0;
-  }
-  .jx-canvas-description {
-    color: var(--muted-foreground);
-    font-size: 12.5px;
-    line-height: 1.5;
-    margin: 0.3rem 0 0;
-    max-width: 62ch;
-    text-wrap: pretty;
-  }
-  .jx-canvas-source-icon {
-    height: 13px;
-    width: 13px;
-  }
-
-  /* demo row: stage flexes; the playground pane takes a container-relative
-     clamp right at ≥48rem and stacks below otherwise. The clamp protects
-     the pane at mid widths (18rem floor) while stopping it from eating the
-     stage on wide containers (22rem ceiling). */
-  .jx-canvas-stage-row {
-    display: flex;
-    flex-direction: column;
-  }
-  .jx-canvas-stage {
-    align-items: center;
-    background: color-mix(in oklab, var(--muted) 42%, var(--background));
-    display: flex;
-    flex: 1 1 auto;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-    min-height: 200px;
-    min-width: 0;
-    padding: 1.5rem;
-  }
-  .jx-stage-start {
-    align-items: flex-start;
-    justify-content: flex-start;
-  }
-  .jx-stage-stretch {
-    align-items: stretch;
-    justify-content: stretch;
-  }
-  .jx-stage-stretch > :global(*) {
-    flex: 1 1 100%;
-    max-width: 100%;
-  }
-  /* pane layer law: stage owns the strong tint (muted 42%), the playground
-     answers with a light one (muted 12%) — a layer between stage and
-     background, never a second stage */
-  .jx-canvas-playground {
-    background: color-mix(in oklab, var(--muted) 12%, var(--background));
-    border-top: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    min-inline-size: 0;
-    padding: 0.85rem 1rem 1rem;
-  }
-  .jx-canvas-playground-head {
-    align-items: baseline;
-    display: flex;
-    gap: 0.75rem;
-    justify-content: space-between;
-  }
-  .jx-canvas-playground-title {
-    color: var(--muted-foreground);
-    font-family: var(--font-nav);
-    font-size: 10px;
-    letter-spacing: 0.24em;
-    margin: 0 0 0.65rem;
-    text-transform: uppercase;
-  }
-  /* reset: page-owned state protocol — the canvas only renders the button
-     and keeps focus on it (no focus juggling after the call) */
-  .jx-canvas-reset {
-    background: none;
-    border: none;
-    color: var(--muted-foreground);
-    cursor: pointer;
-    font-family: var(--font-nav);
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    margin-bottom: 0.65rem;
-    padding: 0;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-transform: uppercase;
-  }
-  .jx-canvas-reset:hover {
-    color: var(--foreground);
-  }
-  .jx-canvas-reset:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
-  }
-  .jx-canvas-playground-body {
-    display: flex;
-    flex-direction: column;
-    gap: 0.85rem;
-    min-height: 0;
-    min-inline-size: 0;
-  }
-  /* snippet layout contract: scoped styles never reach snippet children,
-     so the documented classes are styled through :global() pinned under
-     this pane — .jx-play-fields (control stack), .jx-play-field (one
-     control row), .jx-play-help (separated prose zone that must not carry
-     form-field visual weight) */
-  .jx-canvas-playground-body :global(.jx-play-fields) {
-    display: grid;
-    gap: 0.75rem;
-    min-inline-size: 0;
-  }
-  .jx-canvas-playground-body :global(.jx-play-field) {
-    min-inline-size: 0;
-  }
-  .jx-canvas-playground-body :global(.jx-play-help) {
-    border-top: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
-    color: var(--muted-foreground);
-    font-size: 11.5px;
-    line-height: 1.55;
-    margin: 0.25rem 0 0;
-    padding-top: 0.7rem;
-    text-wrap: pretty;
-  }
-  /* echo: terminal status footer. Read-only projection, never a live
-     region (Range/input churn would swamp screen readers) */
-  .jx-canvas-echo {
-    border-top: 1px solid var(--border);
-    display: grid;
-    gap: 0.3rem;
-    margin: 0.85rem 0 0;
-    padding-top: 0.7rem;
-  }
-  .jx-canvas-echo-row {
-    align-items: baseline;
-    display: grid;
-    gap: 0.6rem;
-    grid-template-columns: minmax(5.5rem, auto) minmax(0, 1fr);
-  }
-  .jx-canvas-echo-row dt {
-    color: var(--muted-foreground);
-    font-family: var(--font-nav);
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-  .jx-canvas-echo-row dd {
-    color: var(--accent-foreground, var(--foreground));
-    font-family: var(--font-mono, monospace);
-    font-size: 11.5px;
-    margin: 0;
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-  @container (min-width: 48rem) {
-    .jx-canvas-stage-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) clamp(18rem, 26cqi, 22rem);
-    }
-    .jx-canvas-playground {
-      border-top: none;
-      border-left: 1px solid var(--border);
-      /* side-by-side containment: the controls body scrolls inside a capped
-         block size so tall stacks never stretch the canvas or push the code
-         bar away; the title row and echo footer stay pinned */
-      max-block-size: min(36rem, 70vh);
-    }
-    .jx-canvas-playground-body {
-      flex: 1 1 auto;
-      overflow-y: auto;
-      /* scrollbar law: both-edges gutters (no ring padding to hand back) */
-      scrollbar-gutter: stable both-edges;
-    }
-    /* flex children default to shrink: 1 — inside the capped body a tall
-       control stack would COMPRESS instead of overflowing into the scroll.
-       Snippet children keep their natural height; the body scrolls. */
-    .jx-canvas-playground-body > :global(*) {
-      flex-shrink: 0;
-    }
-    .jx-canvas-echo {
-      flex: none;
-    }
-  }
-
-  /* code bar: `</> Code` toggle (press law at card scale) + file count */
-  .jx-canvas-code-bar {
-    align-items: center;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 0.75rem;
-    justify-content: space-between;
-    padding: 0.35rem 0.5rem 0.35rem 0.6rem;
-  }
-  .jx-canvas-code-toggle {
-    align-items: center;
-    background: var(--background);
-    border: 1px solid var(--border);
-    color: var(--foreground);
-    /* press law at card scale: 2xs rest, xs hover */
-    --jx-press-shadow: var(--shadow-2xs);
-    --jx-press-shadow-hover: var(--shadow-xs);
-    --jx-press-shadow-active: var(--shadow-xs-press);
-    cursor: pointer;
-    display: inline-flex;
-    font-size: 11px;
-    font-weight: 500;
-    gap: 0.4rem;
-    letter-spacing: 0.04em;
-    padding: 0.25rem 0.6rem;
-    white-space: nowrap;
-  }
-  .jx-canvas-code-toggle:hover {
-    background: var(--muted);
-  }
-  .jx-canvas-code-toggle:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
-  }
-  .jx-canvas-code-toggle[aria-expanded='true'] {
-    background: var(--muted);
-  }
-  .jx-canvas-code-actions {
-    align-items: center;
-    display: flex;
-    gap: 0.75rem;
-  }
-  .jx-canvas-copy-usage {
-    background: none;
-    border: none;
-    color: var(--muted-foreground);
-    cursor: pointer;
-    font-family: var(--font-nav);
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    padding: 0;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-transform: uppercase;
-  }
-  .jx-canvas-copy-usage:hover {
-    color: var(--primary);
-  }
-  .jx-canvas-copy-usage:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
-  }
-  .jx-canvas-code-count {
-    color: var(--muted-foreground);
-    font-size: 10.5px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  /* code drawer: grid-rows 0fr→1fr collapse (the ToC viewport law);
-     inert while closed keeps the hidden tree/code out of the tab order */
-  .jx-canvas-code-drawer {
-    border-top: 1px solid var(--border);
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .jx-canvas-code-drawer[data-open] {
-    grid-template-rows: 1fr;
-  }
-  .jx-canvas-code-clip {
-    min-height: 0;
-    overflow: hidden;
-  }
-  /* the drawer window: a bounded LAYOUT, not a scroll area — every panel
-     scrolls inside itself. Narrow form: the tree is a capped layer with
-     its own scroll, the code view fills the rest. Desktop: side-by-side
-     columns, each stretching to the window and scrolling internally. The
-     CodeCard runs in fill mode: its head/foot pin and its <pre> is the
-     single code scrollport (2026-08-22, user — no wrapper scrolling). */
-  .jx-canvas-code-panels {
-    display: flex;
-    flex-direction: column;
-    max-height: 28rem;
-  }
-  @container (min-width: 48rem) {
-    .jx-canvas-code-panels {
-      flex-direction: row;
-    }
-  }
-  .jx-canvas-tree {
-    background: var(--background);
-    border-bottom: 1px solid var(--border);
-    flex: none;
-    /* narrow-form budget: tree ≤10rem + card floor 16rem fits the 28rem
-       drawer cap; desktop stretches the column and scrolls on its own */
-    max-height: 10rem;
-    overflow-y: auto;
-    /* scrollbar law: both-edges gutters; padding-inline hands the gutter
-       back so the visual inset stays 0.4rem */
-    scrollbar-gutter: stable both-edges;
-    padding-block: 0.5rem;
-    padding-inline: max(0.4rem - var(--jx-scrollbar-thin, 0px), 0px);
-  }
-  @container (min-width: 48rem) {
-    .jx-canvas-tree {
-      border-bottom: none;
-      border-right: 1px solid var(--border);
-      max-height: none;
-      min-height: 0;
-      overflow-y: auto;
-      width: 14rem;
-    }
-  }
-  .jx-canvas-code-view {
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    min-height: 0;
-    min-width: 0;
-  }
-  /* the card fills the cell edge to edge; the drawer is already framed by
-     the canvas border, so the card drops its own frame — its tinted
-     ground carries the separation (2026-08-22, user) */
-  .jx-canvas-code-view :global(.jx-code-card) {
-    border: none;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-canvas-code-drawer {
-      transition: none;
-    }
-  }
-</style>

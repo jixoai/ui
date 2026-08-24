@@ -10,9 +10,15 @@
 
   hidden states are honest: count=0 hides the indicator entirely
   (zero unread IS no badge); showZero opts into showing it.
+
+  tw4 (2026-08-24): utility-authored, zero css residue. dot and count
+  paint as two DETERMINISTIC utility strings (never two utilities for
+  one property — the sheet's internal order must never be load-
+  bearing); the `jx-bi*` classes stay as semantic hooks only.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
 
   interface Props {
     /** the dot idiom — beats count when only presence matters */
@@ -39,15 +45,22 @@
     if (count === undefined) return '';
     return count > overflow ? `${overflow}+` : String(count);
   });
+
+  // two complete paints: the count chip (18px min box, destructive) and
+  // the 10px primary presence dot — standalone drops the corner offsets
+  // (a bare span is position:static already)
+  const chip = dot
+    ? 'jx-bi jx-bi-dot w-2.5 min-w-2.5 h-2.5 p-0 box-border inline-flex items-center justify-center border border-background bg-primary font-mono text-[0.625rem] leading-none rounded-(--radius)'
+    : 'jx-bi min-w-[1.125rem] h-[1.125rem] box-border px-1 py-0 inline-flex items-center justify-center border border-background bg-destructive text-destructive-foreground font-mono text-[0.625rem] leading-none rounded-(--radius)';
+  const placement = children ? 'absolute -top-1.5 -right-1.5' : 'jx-bi-standalone';
 </script>
 
 {#if children}
-  <span class="jx-bi-wrap {className}">
+  <span class={cn('jx-bi-wrap relative inline-flex', className)}>
     {@render children()}
     {#if visible}
       <span
-        class="jx-bi"
-        class:jx-bi-dot={dot}
+        class={cn(chip, placement)}
         role={dot ? 'img' : undefined}
         aria-label={dot ? (label ?? 'new activity') : `${text}`}
         >{text}</span
@@ -56,47 +69,9 @@
   </span>
 {:else if visible}
   <span
-    class="jx-bi jx-bi-standalone {className}"
-    class:jx-bi-dot={dot}
+    class={cn(chip, placement, className)}
     role={dot ? 'img' : undefined}
     aria-label={dot ? (label ?? 'new activity') : `${text}`}
     >{text}</span
   >
 {/if}
-
-<style>
-  .jx-bi-wrap {
-    position: relative;
-    display: inline-flex;
-  }
-  .jx-bi {
-    position: absolute;
-    top: -0.375rem;
-    right: -0.375rem;
-    min-width: 1.125rem;
-    height: 1.125rem;
-    box-sizing: border-box;
-    padding: 0 0.25rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--background);
-    background: var(--destructive);
-    color: var(--destructive-foreground);
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    line-height: 1;
-    border-radius: var(--radius);
-  }
-  .jx-bi-dot {
-    min-width: 0.625rem;
-    width: 0.625rem;
-    height: 0.625rem;
-    padding: 0;
-    background: var(--primary);
-    border-color: var(--background);
-  }
-  .jx-bi-standalone {
-    position: static;
-  }
-</style>

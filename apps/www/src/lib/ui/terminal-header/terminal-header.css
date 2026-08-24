@@ -1,0 +1,202 @@
+@layer theme, base, components, utilities;
+
+/* jixoai terminal-header — D1-exempt residue (tw4, 2026-08-24). The
+ * bezel paint, the icon/caret/label/link statics and the mobile scroll
+ * viewport live as token utilities in the markup; what remains is the
+ * machinery utilities cannot express:
+ *   - the sliding active indicator (JS-measured + view-transition
+ *     morph, mixed per-property durations);
+ *   - the hamburger fold and caret flip (aria-expanded state machines);
+ *   - the second-level panel law on the registry Popover's OWN element
+ *     (.jx-pop.jx-subpanel) — these keep their plain specificity ON
+ *     PURPOSE: the double class must outrank the primitive's base
+ *     rules; :where() would zero it and hand the panel back;
+ *   - the hover corridor geometry (+ its :has() shave), the sub-link
+ *     engagement states, nav hover/focus-visible/tap-highlight,
+ *     the single-column @container kill, reduced-motion.
+ *
+ * Everything below rides UNLAYERED (the original scoped sheet was
+ * unlayered; the layer law's carve-out preserves that standing against
+ * the utility layer). */
+
+/* shared inline icon set ($lib/icons): 12px beside 13px nav text — the
+   svg sizing rides [&_svg] utilities in the markup */
+
+/* the hamburger bars fold into an ✕ while the panel is open */
+.jx-nav button[aria-expanded='true'] .jx-bar:first-child {
+  transform: translateY(4.5px) rotate(45deg);
+}
+.jx-nav button[aria-expanded='true'] .jx-bar:last-child {
+  transform: translateY(-4.5px) rotate(-45deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .jx-nav .jx-bar,
+  .jx-nav .grid {
+    transition: none;
+  }
+}
+
+/* the sliding active background: its own element, measured into place;
+   morphs across pages via the vt-nav-active view-transition-name */
+.jx-nav .jx-indicator {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 0;
+  width: 0;
+  z-index: 0;
+  /* No background (Owner, 2026-08-21): a solid fill would cover the pill
+     text when the VT group hoists this element above the header; a
+     backdrop brightener stays visually identical on the always-dark
+     bezel and is stacking-proof. */
+  -webkit-backdrop-filter: brightness(2);
+  backdrop-filter: brightness(2);
+  opacity: 0;
+  view-transition-name: vt-nav-active;
+  transition:
+    transform 450ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 450ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 150ms ease-out;
+}
+.jx-nav.jx-light .jx-indicator {
+  /* light bezel: the same "subtle shift" reads as a slight darken */
+  -webkit-backdrop-filter: brightness(0.85);
+  backdrop-filter: brightness(0.85);
+}
+.jx-nav .jx-indicator.jx-indicator-instant {
+  transition: none;
+}
+.jx-nav nav a {
+  position: relative;
+  z-index: 1;
+}
+
+/* the second-level caret marker; flips while its control is open */
+.jx-nav a[aria-expanded='true'] .jx-caret,
+.jx-nav button[aria-expanded='true'] .jx-caret {
+  transform: rotate(180deg);
+}
+
+/* the dropdown panel law: the registry Popover primitive's panel with
+   the terminal bezel surface on top. The panel element belongs to the
+   child component, so its rules stay here — anchored with .jx-pop
+   (double class) they outrank the primitive's base rules regardless of
+   CSS order. The panel is a DOM descendant of .jx-nav (the top layer
+   changes painting, not ancestry) and carries the header's scope class
+   itself so tokens resolve from itself. */
+.jx-nav .jx-pop.jx-subpanel {
+  margin: 2px 0 0; /* flush hugging (r22): the adaptive shadow falls outward — a hair only, so the panel border never merges with the bar's */
+  --jx-panel-pad: 0.25rem;
+  /* the primitive's scroll ring carries the padding — retune BOTH
+     axes here (jx-surface law, 2026-08-22: the panel itself never
+     pads/clips; --jx-pop-pad-inline stops the ring's inline gutter
+     compensation from falling back to 14px) */
+  --jx-pop-pad: var(--jx-panel-pad);
+  --jx-pop-pad-inline: var(--jx-panel-pad);
+  min-width: 12rem;
+  /* mega panels override this with a wider ceiling (2026-08-23 user
+     ruling: wide desktops should fill 3-4 columns); single-group
+     panels keep the classic anti-banner cap */
+  max-width: min(90vw, 42rem);
+  font-size: 12px;
+  color: var(--terminal-foreground);
+  /* bezel identity through the jx-surface fill props (solid = the
+     opaque CRT bezel; acrylic = smoked-glass terminal) — the variant
+     rules repaint background at (0,3,0), so a bare background var
+     here would lose acrylic (Codex r1) */
+  --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
+  --jx-surface-solid-fill: var(--terminal);
+  --jx-surface-border-color: color-mix(in oklab, var(--terminal-foreground) 25%, transparent);
+}
+/* The MOTION is fully the floating-surface law's (Owner r7): the
+   popover's enter kernel measures the slide direction against the
+   anchor, the two-phase texture and the exit ride the law — no
+   bespoke choreography here anymore */
+/* popovers get a ::backdrop; light dismiss must never dim the page */
+.jx-nav .jx-pop.jx-subpanel::backdrop {
+  background: transparent;
+}
+
+/* mega mode (two or more groups): a DEFINITE width, never content
+   sized — the panel is the container-query container. The width wants
+   one 14rem track per group, up to FOUR on wide viewports (the 42rem
+   anti-banner cap was lifted for the mega panel by user ruling
+   2026-08-23 — 90vw still guards narrow screens); navColumns=N pins
+   the track count through a class (the primitive owns the element,
+   so no inline styles). */
+.jx-nav .jx-pop.jx-subpanel.jx-subpanel-mega {
+  container-type: inline-size;
+  --jx-panel-pad: 0.375rem;
+  /* 2026-08-23 user ruling: sufficiently wide screens should use the
+     horizontal space — the auto panel may grow to FOUR 14rem tracks
+     (~58rem); narrower viewports clamp through 90vw and auto-fill
+     simply renders fewer columns */
+  width: min(90vw, calc(4 * 14rem + 2rem));
+  max-width: min(90vw, calc(4 * 14rem + 2rem));
+}
+.jx-nav .jx-pop.jx-subpanel.jx-nav-cols-2 {
+  width: min(90vw, calc(2 * 14rem + 2rem));
+}
+.jx-nav .jx-pop.jx-subpanel.jx-nav-cols-4 {
+  width: min(90vw, calc(4 * 14rem + 2rem));
+}
+
+/* the panel head's action link: engagement law (color transitions only) */
+.jx-nav .jx-subpanel-action:hover,
+.jx-nav .jx-subpanel-action[aria-current='page'] {
+  color: var(--terminal-foreground);
+}
+/* the hover corridor: an inverted wrapper (no overflow) stretches the
+   snippet root across the panel's padding ring, so entering the panel
+   at its very edge cancels the close timer. It must stay separate from
+   the clip box — inverting the clipper would move its clip edge and
+   break the -1px hairline shave (Codex note) */
+.jx-nav .jx-subcorridor {
+  margin: calc(var(--jx-panel-pad, 0.25rem) * -1);
+  padding: var(--jx-panel-pad, 0.25rem);
+}
+/* the -1px top shave predates the head — with one present it pokes
+   the grid 1px up under the head's padding; drop the top shave only */
+.jx-nav .jx-subcorridor:has(> .jx-subpanel-head) .jx-subgroups {
+  margin-top: 0;
+}
+
+/* single-column law: when the panel is too narrow for a second 14rem
+   track the groups stack and only the horizontal rules remain (the
+   clip already hides the column rules; this states the law). */
+@container (max-width: 28rem) {
+  .jx-nav .jx-group {
+    border-left: none;
+  }
+}
+
+/* sub-link engagement: hover/current fill + the 2px primary inset edge */
+.jx-nav .jx-sub-link:hover,
+.jx-nav .jx-sub-link[aria-current='page'] {
+  background: var(--terminal-hover);
+}
+.jx-nav .jx-sub-link[aria-current='page'] {
+  box-shadow: inset 2px 0 0 0 var(--primary);
+}
+
+/* interaction polish on the bezel: WebKit's default tap-highlight is a
+   semi-transparent black flash that reads as a bug on the dark surface;
+   idle pills gain a hover affordance; focus gets a contained ring
+   instead of the site-wide 2px offset outline */
+.jx-nav a,
+.jx-nav button {
+  -webkit-tap-highlight-color: transparent;
+}
+.jx-nav nav a:not([aria-current='page']):hover {
+  background: var(--terminal-hover);
+}
+.jx-nav :where(a, button):focus-visible {
+  outline: 1px solid color-mix(in oklab, var(--terminal-foreground) 80%, transparent);
+  outline-offset: -1px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .jx-nav .jx-caret,
+  .jx-nav .jx-sub-link {
+    transition: none;
+  }
+}

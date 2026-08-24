@@ -27,9 +27,19 @@
   API contract（克制原则）: orientation / scrollbar / label / pad / class +
   restProps 透传到滚动口 + children。实例导出（bind:this）:
   getViewport() / scrollTo()。仅此而已。
+
+  tw4 (2026-08-24): the container, the scrollport's orientation overflow
+  laws and the overlay thumb's static paint/geometry ride token
+  utilities in the markup (orientation is a deterministic prop branch);
+  scroll-area.css keeps the D1-exempt residue — the native scrollbar
+  gutter compensation recipe, the overlay native-bar hiding (webkit
+  pseudos), the thumb liveness state machine, hover/active repaints,
+  focus-visible and the reduced-motion kill.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './scroll-area.css';
 
   export type ScrollOrientation = 'vertical' | 'horizontal' | 'both';
   export type ScrollbarVariant = 'native' | 'overlay';
@@ -213,12 +223,27 @@
     scheduleSync();
     return () => ro.disconnect();
   });
+
+  // orientation → the scrollport's overflow law (deterministic branch)
+  const orientationUtilities = {
+    vertical: 'overflow-x-hidden overflow-y-auto',
+    horizontal: 'overflow-x-auto overflow-y-hidden',
+    both: 'overflow-x-auto overflow-y-auto',
+  } as const;
+
+  // the virtual thumb: square (radius 0 law), logical-geometry per axis
+  const thumbPaint =
+    'absolute z-[1] invisible opacity-0 pointer-events-none bg-[color:var(--scrollbar-thumb)] transition-opacity duration-[180ms] ease-out';
+  const thumbGeometry = {
+    y: 'y [inline-size:var(--jx-scroll-thumb-w,8px)] [inset-block:2px] [inset-inline-end:2px] [min-block-size:24px]',
+    x: 'x [block-size:var(--jx-scroll-thumb-w,8px)] [inset-block-end:2px] [inset-inline:2px] [min-inline-size:24px]',
+  } as const;
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions (hover liveness only —
      the interactive surface is the focusable viewport below) -->
 <div
-  class="jx-scroll-area"
+  class="jx-scroll-area relative"
   data-orientation={orientation}
   data-scrollbar={scrollbar}
   data-overlay={overlayOn ? 'on' : undefined}
@@ -236,7 +261,7 @@
        region pattern: role=region + name + tabindex makes it a keyboard
        scroll surface — the platform's own arrows/PageUp/Home drive it) -->
   <div
-    class="jx-scroll-viewport {className}"
+    class={cn('jx-scroll-viewport overscroll-contain', orientationUtilities[orientation], className)}
     role="region"
     aria-label={label}
     tabindex="0"
@@ -245,7 +270,7 @@
     style={[pad ? `--jx-scroll-pad: ${pad}` : null, style].filter(Boolean).join('; ') || undefined}
     {...restProps}
   >
-    <div class="jx-scroll-content" bind:this={contentEl}>
+    <div class="jx-scroll-content h-full" bind:this={contentEl}>
       {@render children()}
     </div>
   </div>
@@ -253,109 +278,11 @@
   {#if overlayOn}
     {#if orientation !== 'horizontal'}
       <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <div class="jx-scroll-thumb y" bind:this={thumbYEl} aria-hidden="true" onpointerdown={thumbDrag('y')}></div>
+      <div class={cn('jx-scroll-thumb', thumbPaint, thumbGeometry.y)} bind:this={thumbYEl} aria-hidden="true" onpointerdown={thumbDrag('y')}></div>
     {/if}
     {#if orientation !== 'vertical'}
       <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <div class="jx-scroll-thumb x" bind:this={thumbXEl} aria-hidden="true" onpointerdown={thumbDrag('x')}></div>
+      <div class={cn('jx-scroll-thumb', thumbPaint, thumbGeometry.x)} bind:this={thumbXEl} aria-hidden="true" onpointerdown={thumbDrag('x')}></div>
     {/if}
   {/if}
 </div>
-
-<style>
-  .jx-scroll-area {
-    position: relative;
-  }
-  .jx-scroll-viewport {
-    /* sizing law (the h-56 regression, 2026-08-22): NO height/width
-       declarations here — scoped component styles are unlayered and would
-       beat every consumer utility (h-56, max-h-… live in @layer
-       utilities). The scrollport sizes like any native div: give it a
-       height via class or through the parent; unsized = content height =
-       honestly not scrollable. */
-    overflow-x: hidden;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-  .jx-scroll-content {
-    /* chains the viewport's consumer-set height down to the content tree
-       (scroll-virtual's horizontal rows stretch to block-size:100%); never
-       receives consumer classes, so the unlayered-beats-utilities trap of
-       the viewport sizing law cannot bite here. Against an unsized
-       (auto-height) viewport the percentage resolves back to auto. */
-    height: 100%;
-  }
-  .jx-scroll-area[data-orientation='horizontal'] .jx-scroll-viewport {
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-  .jx-scroll-area[data-orientation='both'] .jx-scroll-viewport {
-    overflow-x: auto;
-    overflow-y: auto;
-  }
-  .jx-scroll-viewport:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-
-  /* native variant = the theme scrollbar law, vertical-capable axes only
-   * (a horizontal-only scrollport can never grow a vertical scrollbar —
-   * stable would reserve dead space forever, the law's carve-out) */
-  .jx-scroll-area:not([data-overlay='on'])[data-orientation='vertical'] .jx-scroll-viewport,
-  .jx-scroll-area:not([data-overlay='on'])[data-orientation='both'] .jx-scroll-viewport {
-    scrollbar-gutter: stable both-edges;
-    padding-inline: max(var(--jx-scroll-pad, 0px) - var(--jx-scrollbar-thin, 0px), 0px);
-  }
-
-  /* overlay variant live: hide every native scrollbar (standard property
-   * + the webkit pseudos for engines without scrollbar-width — scoped to
-   * this component only, never global) */
-  .jx-scroll-area[data-overlay='on'] .jx-scroll-viewport {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .jx-scroll-area[data-overlay='on'] .jx-scroll-viewport::-webkit-scrollbar {
-    display: none;
-    height: 0;
-    width: 0;
-  }
-
-  /* the virtual thumb: square (radius 0 law), theme-token paint over a
-   * transparent track, auto-fade; visible state comes from data-thumb-live */
-  .jx-scroll-thumb {
-    background: var(--scrollbar-thumb);
-    opacity: 0;
-    pointer-events: none;
-    position: absolute;
-    transition: opacity 180ms ease-out;
-    visibility: hidden;
-    z-index: 1;
-  }
-  .jx-scroll-area[data-thumb-live='on'] .jx-scroll-thumb {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  .jx-scroll-thumb:hover {
-    background: var(--scrollbar-thumb-hover);
-  }
-  .jx-scroll-thumb:active {
-    background: var(--scrollbar-thumb-active);
-  }
-  .jx-scroll-thumb.y {
-    inline-size: var(--jx-scroll-thumb-w, 8px);
-    inset-block: 2px;
-    inset-inline-end: 2px;
-    min-block-size: 24px;
-  }
-  .jx-scroll-thumb.x {
-    block-size: var(--jx-scroll-thumb-w, 8px);
-    inset-block-end: 2px;
-    inset-inline: 2px;
-    min-inline-size: 24px;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .jx-scroll-thumb {
-      transition: none;
-    }
-  }
-</style>

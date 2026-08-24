@@ -30,9 +30,16 @@
   honors it too (aria-hidden, no label).
 
   Sizes are one geometry prop:  sm 24 · md 32 (default) · lg 40.
+
+  tw4 (2026-08-24): utility-authored, zero css residue — sizes and
+  silhouettes ride deterministic per-combination utility maps (corner-
+  shape has no scale utility, so it rides arbitrary-property utilities;
+  the radius stays variant-owned so no two radius utilities can collide);
+  the `jx-avatar*` classes stay as semantic hooks only.
 -->
 <script lang="ts">
   import type { HTMLImgAttributes } from 'svelte/elements';
+  import { cn } from '$lib/utils';
   import Tooltip from '$lib/ui/tooltip/tooltip.svelte';
 
   interface Props extends Omit<HTMLImgAttributes, 'alt'> {
@@ -82,6 +89,20 @@
   const decorative = $derived(alt === '');
   const px = $derived(size === 'sm' ? 24 : size === 'lg' ? 40 : 32);
 
+  // one geometry, deterministic per combination: the size owns the box,
+  // the silhouette owns the corners (bevel's cut scales with the box —
+  // md IS the var(--radius) baseline, sm/lg ride the same proportion)
+  const sizeUtilities = { sm: 'w-6 h-6', md: 'w-8 h-8', lg: 'w-10 h-10' } as const;
+  const variantUtilities = {
+    bevel: {
+      sm: '[corner-shape:bevel] rounded-[calc(var(--radius)*0.75)]',
+      md: '[corner-shape:bevel] rounded-(--radius)',
+      lg: '[corner-shape:bevel] rounded-[calc(var(--radius)*1.25)]',
+    },
+    rounded: { sm: '[corner-shape:round] rounded-full', md: '[corner-shape:round] rounded-full', lg: '[corner-shape:round] rounded-full' },
+    squircle: { sm: '[corner-shape:squircle] rounded-full', md: '[corner-shape:squircle] rounded-full', lg: '[corner-shape:squircle] rounded-full' },
+  } as const;
+
   const initials = $derived.by(() => {
     const words = name.trim().split(/\s+/).filter(Boolean);
     if (words.length === 0) return '?';
@@ -93,12 +114,21 @@
 
   // nothing to tip on an empty name, whatever the flag says
   const tipped = $derived(tooltip && name.trim().length > 0);
+
+  const shell = $derived(
+    cn(
+      'jx-avatar flex-none box-border object-cover border border-border bg-card text-muted-foreground',
+      sizeUtilities[size],
+      variantUtilities[variant][size],
+      `jx-avatar-${size} jx-avatar-${variant}`,
+    ),
+  );
 </script>
 
 {#snippet body()}
   {#if src && !failed}
     <img
-      class="jx-avatar jx-avatar-{size} jx-avatar-{variant} {className}"
+      class={cn(shell, 'inline-block', className)}
       {src}
       {alt}
       loading="lazy"
@@ -110,7 +140,7 @@
     />
   {:else}
     <span
-      class="jx-avatar jx-avatar-{size} jx-avatar-{variant} jx-avatar-fallback {className}"
+      class={cn(shell, 'jx-avatar-fallback inline-flex items-center justify-center bg-muted font-nav text-xs tracking-[0.06em] uppercase whitespace-nowrap overflow-hidden', className)}
       role={decorative ? undefined : 'img'}
       aria-label={decorative ? undefined : name}
       aria-hidden={decorative || undefined}
@@ -128,63 +158,3 @@
 {:else}
   {@render body()}
 {/if}
-
-<style>
-  .jx-avatar {
-    flex: none;
-    display: inline-block;
-    box-sizing: border-box;
-    object-fit: cover;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--card);
-    color: var(--muted-foreground);
-  }
-  .jx-avatar-sm {
-    width: 24px;
-    height: 24px;
-  }
-  .jx-avatar-md {
-    width: 32px;
-    height: 32px;
-  }
-  .jx-avatar-lg {
-    width: 40px;
-    height: 40px;
-  }
-  /* silhouettes: variant rules come after the base so 50% overrides
-     var(--radius); corner-shape is stated explicitly everywhere — a
-     registry install must not lean on the site's global bevel rule */
-  .jx-avatar-bevel {
-    corner-shape: bevel;
-  }
-  /* bevel scales with the box: md IS the var(--radius) baseline (8px
-     where corner-shape lives), sm/lg ride the same cut proportion
-     (24/32 = .75, 40/32 = 1.25 → 6 / 8 / 10px) */
-  .jx-avatar-sm.jx-avatar-bevel {
-    border-radius: calc(var(--radius) * 0.75);
-  }
-  .jx-avatar-lg.jx-avatar-bevel {
-    border-radius: calc(var(--radius) * 1.25);
-  }
-  .jx-avatar-rounded {
-    corner-shape: round;
-    border-radius: 50%;
-  }
-  .jx-avatar-squircle {
-    corner-shape: squircle;
-    border-radius: 50%;
-  }
-  .jx-avatar-fallback {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--muted);
-    font-family: var(--font-nav);
-    font-size: 0.75rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-</style>

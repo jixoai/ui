@@ -1,0 +1,61 @@
+@layer theme, base, components, utilities;
+
+/* jixoai scroll-area — D1-exempt residue (tw4, 2026-08-24). The
+ * container, the orientation overflow laws and the thumb's static
+ * paint/geometry live as token utilities in the markup; what remains
+ * is the machinery utilities cannot express, on the UNLAYERED :where()
+ * carve-out (it must override the component's own utility paint —
+ * thumb liveness beats the opacity-0/pointer-events-none utilities;
+ * the toggle/Part A precedent):
+ *   - the native scrollbar law (stable gutters + the --jx-scroll-pad
+ *     compensation recipe) on vertical-capable axes;
+ *   - the overlay variant's native-bar hiding, incl. the webkit
+ *     pseudo-element build;
+ *   - thumb liveness, hover/active repaints, focus-visible,
+ *     reduced-motion. */
+
+/* the scrollport's keyboard focus: the inset ring law */
+:where(.jx-scroll-viewport:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+/* native variant = the theme scrollbar law, vertical-capable axes only
+   (a horizontal-only scrollport can never grow a vertical scrollbar —
+   stable would reserve dead space forever, the law's carve-out) */
+:where(.jx-scroll-area:not([data-overlay='on'])[data-orientation='vertical'] .jx-scroll-viewport),
+:where(.jx-scroll-area:not([data-overlay='on'])[data-orientation='both'] .jx-scroll-viewport) {
+  scrollbar-gutter: stable both-edges;
+  padding-inline: max(var(--jx-scroll-pad, 0px) - var(--jx-scrollbar-thin, 0px), 0px);
+}
+
+/* overlay variant live: hide every native scrollbar (standard property
+   + the webkit pseudos for engines without scrollbar-width — scoped to
+   this component only, never global) */
+:where(.jx-scroll-area[data-overlay='on'] .jx-scroll-viewport) {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+:where(.jx-scroll-area[data-overlay='on'] .jx-scroll-viewport)::-webkit-scrollbar {
+  display: none;
+  height: 0;
+  width: 0;
+}
+
+/* the virtual thumb's liveness: visible state comes from data-thumb-live */
+:where(.jx-scroll-area[data-thumb-live='on'] .jx-scroll-thumb) {
+  opacity: 1;
+  pointer-events: auto;
+}
+:where(.jx-scroll-thumb:hover) {
+  background: var(--scrollbar-thumb-hover);
+}
+:where(.jx-scroll-thumb:active) {
+  background: var(--scrollbar-thumb-active);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-scroll-thumb) {
+    transition: none;
+  }
+}

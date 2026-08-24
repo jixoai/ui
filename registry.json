@@ -24,7 +24,8 @@
       "dependencies": [
         "@fontsource-variable/jetbrains-mono",
         "@fontsource/share-tech-mono"
-      ]
+      ],
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -43,7 +44,8 @@
       "meta": {
         "group": "engines",
         "href": "/components/toc.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -66,7 +68,8 @@
       "meta": {
         "group": "general",
         "href": "/components/press-button.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -89,7 +92,8 @@
       "meta": {
         "group": "layout",
         "href": "/components/section-card.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -107,10 +111,16 @@
           "path": "registry/files/ui/terminal-header/index.ts",
           "target": "@ui/terminal-header/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/terminal-header/terminal-header.css",
+          "target": "@ui/terminal-header/terminal-header.css",
+          "type": "registry:file"
         }
       ],
       "registryDependencies": [
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "layout",
@@ -133,10 +143,17 @@
           "path": "registry/files/ui/terminal-footer/index.ts",
           "target": "@ui/terminal-footer/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/terminal-footer/terminal-footer.css",
+          "target": "@ui/terminal-footer/terminal-footer.css",
+          "type": "registry:file"
         }
       ],
       "registryDependencies": [
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "layout",
@@ -164,7 +181,8 @@
       "meta": {
         "group": "general",
         "href": "/components/theme-toggle.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -227,7 +245,8 @@
       "meta": {
         "group": "layout",
         "href": "/components/website-scaffold.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -245,13 +264,22 @@
           "path": "registry/files/ui/terminal-card/index.ts",
           "target": "@ui/terminal-card/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/terminal-card/terminal-card.css",
+          "target": "@ui/terminal-card/terminal-card.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: barTitle, command, outputs: readonly string[].",
       "meta": {
         "group": "data-display",
         "href": "/components/terminal-card.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -260,7 +288,8 @@
       "title": "Hero section",
       "description": "The Broadside hero, composed after the openspecui reference: clamp-scaled bold lead type with a primary accent tail, badge row, a copy-command PRIMARY CTA (icon + command, copied feedback) plus a secondary snippet slot, and the terminal card in a bottom-aligned second column at min-1100px (stacked below otherwise). Static data-reveal entrances per the motion law.",
       "registryDependencies": [
-        "@jixoai/reveal"
+        "@jixoai/reveal",
+        "@jixoai/jixoai-theme"
       ],
       "files": [
         {
@@ -271,6 +300,11 @@
         {
           "path": "registry/files/ui/hero-section/index.ts",
           "target": "@ui/hero-section/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/hero-section/hero-section.css",
+          "target": "@ui/hero-section/hero-section.css",
           "type": "registry:file"
         }
       ],
@@ -302,7 +336,8 @@
       "meta": {
         "group": "navigation",
         "href": "/components/language-switcher.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -320,13 +355,22 @@
           "path": "registry/files/ui/card-grid/index.ts",
           "target": "@ui/card-grid/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/card-grid/card-grid.css",
+          "target": "@ui/card-grid/card-grid.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: min (CSS length, default '260px'). Wrap cards as direct children; opt a child out with data-no-subgrid.",
       "meta": {
         "group": "layout",
         "href": "/components/card-grid.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -345,7 +389,8 @@
       "meta": {
         "group": "engines",
         "href": "/components/jx-pure.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -364,7 +409,8 @@
       "meta": {
         "group": "data-entry",
         "href": "/components/jx-pure.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -441,7 +487,8 @@
       "meta": {
         "group": "data-entry",
         "href": "/components/form.html#select-textarea"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -524,7 +571,8 @@
       "meta": {
         "group": "feedback",
         "href": "/components/popover.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -554,6 +602,11 @@
           "path": "registry/files/ui/code-card/index.ts",
           "target": "@ui/code-card/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/code-card/code-card.css",
+          "target": "@ui/code-card/code-card.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: code, lang='ts', theme='jixoai', filename?, copyable=true, maxHeight?; snippets header?, footer?. Based on Shiki \u2014 the highlight engine in lib/shiki is a thin on-demand facade over a stock HighlighterCore; any Shiki theme/grammar/transformer works through it (see the shiki lib item). Prerender paints the escaped plain sample; Shiki upgrades it after hydration with no layout shift.",
@@ -582,7 +635,8 @@
       "meta": {
         "group": "engines",
         "href": "/components/code-card.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema.json/registry-item.json",
@@ -601,7 +655,8 @@
       "meta": {
         "group": "engines",
         "href": "/components.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -620,7 +675,8 @@
       "meta": {
         "group": "data-entry",
         "href": "/components/form.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -638,13 +694,22 @@
           "path": "registry/files/ui/table/index.ts",
           "target": "@ui/table/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/table/table.css",
+          "target": "@ui/table/table.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: caption?, dense=false, stack=true, style? (passthrough landing on the frame \u2014 the color-freedom seam); snippet children (write native thead/tbody/tfoot). Consumer cell opt-ins: data-label=\"\u2026\" (stack-mode row label), data-sticky=\"start\"|\"end\" (pinned column in scroll mode \u2014 put it on the th AND its td's). Color freedom: override --jx-table-surface/head/hover/hairline/rule/edge per instance via style or CSS.",
       "meta": {
         "group": "data-display",
         "href": "/components/table.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -662,11 +727,18 @@
           "path": "registry/files/ui/tree-view/index.ts",
           "target": "@ui/tree-view/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/tree-view/tree-view.css",
+          "target": "@ui/tree-view/tree-view.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: tree: TreeNode[], selected?, onselect?. Module exports TreeFile, TreeNode, inferTreeLang(name).",
       "registryDependencies": [
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "data-display",
@@ -683,7 +755,9 @@
         "@jixoai/press-button",
         "@jixoai/code-card",
         "@jixoai/tree-view",
-        "@jixoai/shiki"
+        "@jixoai/shiki",
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
       ],
       "files": [
         {
@@ -694,6 +768,11 @@
         {
           "path": "registry/files/ui/component-canvas/index.ts",
           "target": "@ui/component-canvas/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/component-canvas/component-canvas.css",
+          "target": "@ui/component-canvas/component-canvas.css",
           "type": "registry:file"
         }
       ],
@@ -724,7 +803,8 @@
       "meta": {
         "group": "data-entry",
         "href": "/components/form.html#example-form"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -747,7 +827,8 @@
       "meta": {
         "group": "data-entry",
         "href": "/components/form.html#example-form"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -802,7 +883,8 @@
       "meta": {
         "group": "data-entry",
         "href": "/components/form.html#select-textarea"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -907,7 +989,8 @@
       "meta": {
         "group": "data-entry",
         "href": "/components/file-input.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -930,7 +1013,8 @@
       "meta": {
         "group": "data-entry",
         "href": "/components/form.html#all-types"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1007,7 +1091,11 @@
       "meta": {
         "group": "data-display",
         "href": "/components/badge.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1088,7 +1176,9 @@
         }
       ],
       "registryDependencies": [
-        "@jixoai/tooltip"
+        "@jixoai/tooltip",
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
       ],
       "docs": "Props: src?, name (required \u2014 fuels alt + initials + tooltip), size? ('sm'|'md'|'lg' = 24/32/40px; initials halve at sm), variant? ('bevel' default | 'rounded' | 'squircle'), tooltip? (true \u2014 full-name tooltip; false opts out), alt?, plus <img> attributes.",
       "meta": {
@@ -1209,7 +1299,8 @@
       "meta": {
         "group": "navigation",
         "href": "/components/tabs.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1266,7 +1357,8 @@
       "meta": {
         "group": "feedback",
         "href": "/components/tooltip.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1290,7 +1382,8 @@
       "meta": {
         "group": "navigation",
         "href": "/components/pagination.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1319,7 +1412,8 @@
       "meta": {
         "group": "navigation",
         "href": "/components/dropdown-menu.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1343,7 +1437,8 @@
       "meta": {
         "group": "navigation",
         "href": "/components/breadcrumb.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1499,7 +1594,8 @@
       "meta": {
         "group": "feedback",
         "href": "/components/hover-card.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1544,11 +1640,18 @@
           "path": "registry/files/ui/toggle-group/index.ts",
           "target": "@ui/toggle-group/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/toggle-group/toggle-group.css",
+          "target": "@ui/toggle-group/toggle-group.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: name?, type?, options ({value,label,disabled?}[]), value ($bindable), label (required a11y name), item? (per-button snippet), onchange?. The form-field bridge gains a multivalue attribute \u2014 entries append to a FormData handed to setFormValue (one submit entry per press).",
       "registryDependencies": [
-        "@jixoai/form-field"
+        "@jixoai/form-field",
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "data-entry",
@@ -1610,7 +1713,8 @@
       "meta": {
         "group": "feedback",
         "href": "/components/command.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1634,7 +1738,8 @@
       "meta": {
         "group": "navigation",
         "href": "/components/navigation-menu.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1658,7 +1763,8 @@
       "meta": {
         "group": "navigation",
         "href": "/components/menubar.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1985,7 +2091,11 @@
       "meta": {
         "group": "data-display",
         "href": "/components/image.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -2009,7 +2119,8 @@
       "meta": {
         "group": "general",
         "href": "/components/float-button.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -2033,7 +2144,11 @@
       "meta": {
         "group": "data-display",
         "href": "/components/badge-indicator.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -2084,7 +2199,8 @@
       "meta": {
         "group": "feedback",
         "href": "/components/tour.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -2103,7 +2219,8 @@
       "meta": {
         "group": "engines",
         "href": "/components/anchor.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -2122,7 +2239,8 @@
       "meta": {
         "group": "engines",
         "href": "/tokens.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -2141,7 +2259,8 @@
       "meta": {
         "group": "engines",
         "href": "/components/scroll-area.html#toc-metadata"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -2159,13 +2278,22 @@
           "path": "registry/files/ui/scroll-area/index.ts",
           "target": "@ui/scroll-area/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/scroll-area/scroll-area.css",
+          "target": "@ui/scroll-area/scroll-area.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: orientation? ('vertical' | 'horizontal' | 'both'), scrollbar? ('native' | 'overlay'), label?, pad? (CSS length \u2014 inline ring padding, compensated against the reserved gutter), class/style + restProps passthrough to the viewport, children snippet. getViewport() feeds Toc scrollRoot / toc-outline root / toc-engine extents \u2014 the zero-boilerplate ToC pairing.",
       "meta": {
         "group": "layout",
         "href": "/components/scroll-area.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -2177,7 +2305,8 @@
         "@tanstack/svelte-virtual"
       ],
       "registryDependencies": [
-        "@jixoai/scroll-area"
+        "@jixoai/scroll-area",
+        "@jixoai/jixoai-theme"
       ],
       "files": [
         {
@@ -2241,7 +2370,8 @@
       "meta": {
         "group": "docs",
         "href": "/components/llms-txt.html"
-      }
+      },
+      "registryDependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -2264,7 +2394,8 @@
       "meta": {
         "group": "engines",
         "href": "/components.html"
-      }
+      },
+      "registryDependencies": []
     }
   ]
 }

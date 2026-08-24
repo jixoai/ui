@@ -29,6 +29,13 @@
   icons returned by user request (2026-08-22) as a zero-config opt-in
   (fileIcons) under the monochrome law — consumer prefix snippets still
   win per node.
+
+  tw4 (2026-08-24): static paint (rows, columns, collapse groups,
+  disabled/selected states) rides token utilities in the markup as
+  DETERMINISTIC per-state strings; tree-view.css keeps only the
+  D1-exempt residue — the guide-rail pseudo build, the hover/focus-
+  within descendant repaints, the collapsed caret flip, focus-visible
+  and the reduced-motion kill.
 -->
 <script lang="ts" module>
   import type { Snippet } from 'svelte';
@@ -114,6 +121,8 @@
 
 <script lang="ts" generics="T = unknown">
   import { icons } from '$lib/icons';
+  import { cn } from '$lib/utils';
+  import './tree-view.css';
 
   interface Props {
     nodes: TreeNode<T>[];
@@ -325,8 +334,7 @@
 <ul
   role="tree"
   aria-label={ariaLabel}
-  class="jx-tree {className}"
-  class:jx-tree-lines={lines}
+  class={cn('jx-tree text-muted-foreground font-nav text-xs leading-[2] list-none m-0 p-0', lines && 'jx-tree-lines', className)}
   style:--jx-indent="{indent}px"
   bind:this={root}
   onkeydown={onKeydown}
@@ -357,15 +365,20 @@
              handles clicks — interactive descendants never activate the row -->
         <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
         <div
-          class="jx-tree-row"
-          class:selected={isSel}
+          class={cn(
+            'jx-tree-row flex items-center gap-[0.45rem] min-w-0 border-l-2 ps-[0.35rem] pe-2 transition-[background-color,border-color,color] duration-150 ease-out',
+            isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+            isSel
+              ? 'selected bg-terminal-hover border-l-primary text-foreground'
+              : 'border-l-transparent hover:bg-[color-mix(in_oklab,var(--foreground)_5%,transparent)] hover:text-foreground',
+          )}
           onclick={(event) => {
             const target = event.target as HTMLElement;
             if (target.closest('button, a, input, select, textarea, [contenteditable], [data-tree-no-activate]')) return;
             activate({ path, node, parentPath }, (event.currentTarget as HTMLElement).closest('li')!);
           }}
         >
-          <span class="jx-tree-caret" aria-hidden="true">
+          <span class="jx-tree-caret inline-flex items-center justify-center h-[1em] w-[0.75rem] flex-none text-muted-foreground transition-transform duration-150 ease-[ease] [&_svg]:h-2.5 [&_svg]:w-2.5" aria-hidden="true">
             {#if isDir}
               {#if toggle === 'plus'}
                 {@html isCollapsed ? icons.plus : icons.minus}
@@ -375,9 +388,9 @@
             {/if}
           </span>
           {#if prefixSnippet}
-            <span class="jx-tree-prefix">{@render prefixSnippet(ctx)}</span>
+            <span class="jx-tree-prefix inline-flex items-center flex-none min-w-0 [&_svg]:h-3.5 [&_svg]:w-3.5">{@render prefixSnippet(ctx)}</span>
           {:else if fileIcons}
-            <span class="jx-tree-prefix jx-tree-typeicon" aria-hidden="true">
+            <span class="jx-tree-prefix jx-tree-typeicon inline-flex items-center flex-none min-w-0 text-muted-foreground [&_svg]:h-[13px] [&_svg]:w-[13px]" aria-hidden="true">
               {#if isDir}
                 {@html ctx.expanded ? icons.folderOpen : icons.folder}
               {:else}
@@ -385,16 +398,23 @@
               {/if}
             </span>
           {/if}
-          <span class="jx-tree-label">
+          <span class="jx-tree-label flex-1 truncate">
             {#if label}{@render label(ctx)}{:else}{node.name}{/if}
           </span>
           {#if suffixSnippet}
-            <span class="jx-tree-suffix">{@render suffixSnippet(ctx)}</span>
+            <span class="jx-tree-suffix inline-flex items-center flex-none gap-[0.15rem] ml-auto opacity-0 pointer-events-none transition-opacity duration-150 ease-out">{@render suffixSnippet(ctx)}</span>
           {/if}
         </div>
         {#if isDir}
-          <div class="jx-tree-group" data-collapsed={isCollapsed ? '' : undefined} inert={isCollapsed || undefined}>
-            <ul role="group">
+          <div
+            class={cn(
+              'jx-tree-group grid transition-[grid-template-rows] duration-150 ease-[ease]',
+              isCollapsed ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]',
+            )}
+            data-collapsed={isCollapsed ? '' : undefined}
+            inert={isCollapsed || undefined}
+          >
+            <ul role="group" class={cn('list-none m-0 p-0 ps-(--jx-indent) min-h-0 overflow-hidden', lines && 'relative')}>
               {@render rows(node.children ?? [], path)}
             </ul>
           </div>
@@ -404,166 +424,3 @@
   {/snippet}
   {@render rows(nodes, null)}
 </ul>
-
-<style>
-  .jx-tree {
-    color: var(--muted-foreground);
-    font-family: var(--font-nav);
-    font-size: 12px;
-    line-height: 2;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .jx-tree ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .jx-tree ul[role='group'] {
-    padding-left: var(--jx-indent);
-  }
-
-  /* guide rails (lines variant): one 1px rail per group under the parent
-     caret column, only as tall as the group itself */
-  .jx-tree-lines ul[role='group'] {
-    position: relative;
-  }
-  .jx-tree-lines ul[role='group']::before {
-    background: var(--border);
-    content: '';
-    inset-block: 0;
-    left: calc(var(--jx-indent) / 2 - 0.5px);
-    position: absolute;
-    width: 1px;
-  }
-
-  /* row: fixed caret column (leaf rows keep it empty so prefix icons and
-     labels align under their folder siblings) */
-  .jx-tree-row {
-    align-items: center;
-    border-left: 2px solid transparent;
-    cursor: pointer;
-    display: flex;
-    gap: 0.45rem;
-    min-width: 0;
-    padding-inline: 0.35rem 0.5rem;
-    transition: background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out;
-  }
-  .jx-tree-row:hover {
-    background: color-mix(in oklab, var(--foreground) 5%, transparent);
-    color: var(--foreground);
-  }
-  .jx-tree-row.selected {
-    background: var(--terminal-hover);
-    border-left-color: var(--primary);
-    color: var(--foreground);
-  }
-  li[data-disabled] > .jx-tree-row {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-  .jx-tree-label {
-    flex: 1 1 auto;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  /* caret column: chevron rotates -90° when collapsed; plus toggler
-     swaps glyphs (no rotation to animate, so no transition needed) */
-  .jx-tree-caret {
-    align-items: center;
-    color: var(--muted-foreground);
-    display: inline-flex;
-    flex: none;
-    height: 1em;
-    justify-content: center;
-    transition: transform 150ms ease;
-    width: 0.75rem;
-  }
-  .jx-tree-caret :global(svg) {
-    width: 10px;
-    height: 10px;
-  }
-  li[data-collapsed] > .jx-tree-row .jx-tree-caret {
-    transform: rotate(-90deg);
-  }
-
-  /* prefix column: consumer icons live here; sizes are the consumer's */
-  .jx-tree-prefix {
-    align-items: center;
-    display: inline-flex;
-    flex: none;
-    min-width: 0;
-  }
-  .jx-tree-prefix :global(svg) {
-    height: 14px;
-    width: 14px;
-  }
-  /* built-in type icons (fileIcons): monochrome law — folders read a step
-     stronger than leaves through the meta tint, leaves stay muted */
-  .jx-tree-typeicon {
-    color: var(--muted-foreground);
-  }
-  .jx-tree-typeicon :global(svg) {
-    height: 13px;
-    width: 13px;
-  }
-  .jx-tree-row:hover .jx-tree-typeicon,
-  .jx-tree-row.selected .jx-tree-typeicon {
-    color: color-mix(in oklab, var(--accent) 60%, var(--foreground));
-  }
-
-  /* suffix column (actions law): present in layout, revealed on row
-     hover/focus-within — antd-style row actions */
-  .jx-tree-suffix {
-    align-items: center;
-    display: inline-flex;
-    flex: none;
-    gap: 0.15rem;
-    margin-left: auto;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 150ms ease-out;
-  }
-  .jx-tree-row:hover .jx-tree-suffix,
-  li:focus-within .jx-tree-suffix {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  /* collapse: grid-rows 0fr→1fr (the ToC viewport law); inert on the same
-     extent keeps collapsed content out of the tab order */
-  .jx-tree-group {
-    display: grid;
-    grid-template-rows: 1fr;
-    transition: grid-template-rows 150ms ease;
-  }
-  .jx-tree-group[data-collapsed] {
-    grid-template-rows: 0fr;
-  }
-  .jx-tree-group > ul {
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  /* focus law: the treeitem owns focus (roving tabindex); the row paints */
-  .jx-tree li:focus-visible {
-    outline: none;
-  }
-  .jx-tree li:focus-visible > .jx-tree-row {
-    outline: 2px solid var(--ring);
-    outline-offset: -2px;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-tree-caret,
-    .jx-tree-group,
-    .jx-tree-row,
-    .jx-tree-suffix {
-      transition: none;
-    }
-  }
-</style>

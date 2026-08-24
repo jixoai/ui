@@ -24,10 +24,16 @@
     fully on); oncheck(ids, ctx) fires after every commit.
   - paint: a 12px compact checkbox (checkbox.svelte is form-row oriented
     at 16px with label/error chrome — duplicated compactly here because
-    scoped styles cannot reach into it and tree rows are 24px law).
+    styles cannot reach into it and tree rows are 24px law).
+
+  tw4 (2026-08-24): the box's static paint rides token utilities; the
+  tri-state machinery (hover lean, :checked/[data-mixed] repaint, the
+  clip-path glyph build, reduced-motion) stays in tree-view.css —
+  D1-exempt residue shared by the folder's two components.
 -->
 <script lang="ts" generics="T = unknown">
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
   import TreeView, {
     buildTreeIndex,
     collectFrozenPaths,
@@ -142,7 +148,10 @@
     {@const state = stateOf(ctx)}
     <input
       type="checkbox"
-      class="jx-tree-check"
+      class={cn(
+        'jx-tree-check appearance-none [-webkit-appearance:none] relative m-0 w-3 h-3 flex-none bg-background border border-border transition-[background-color,border-color] duration-150 ease-out disabled:opacity-50',
+        ctx.disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+      )}
       tabindex={-1}
       checked={state === 'on'}
       aria-checked={state === 'mixed' ? 'mixed' : undefined}
@@ -156,63 +165,3 @@
     />
   {/snippet}
 </TreeView>
-
-<style>
-  /* compact tri-state box: 12px for the 24px tree rows (the form-row
-     checkbox is 16px + label/error chrome — sizes differ by design) */
-  .jx-tree-check {
-    appearance: none;
-    -webkit-appearance: none;
-    background: var(--background);
-    border: 1px solid var(--border);
-    cursor: pointer;
-    flex: none;
-    height: 12px;
-    margin: 0;
-    position: relative;
-    transition: background-color 150ms ease-out, border-color 150ms ease-out;
-    width: 12px;
-  }
-  .jx-tree-check:hover:not(:checked):not(:disabled):not([data-mixed]) {
-    border-color: var(--primary);
-  }
-  .jx-tree-check:checked,
-  .jx-tree-check[data-mixed] {
-    background: var(--primary);
-    border-color: var(--primary);
-  }
-  .jx-tree-check:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-
-  /* glyph: the checkbox.svelte 45° clip-path check, scaled to the 10px
-     inset box; mixed renders the horizontal dash instead */
-  .jx-tree-check::before {
-    background: var(--primary-foreground);
-    clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 80%, 70% 80%, 70% 100%);
-    content: '';
-    display: block;
-    inset: 1px;
-    opacity: 0;
-    position: absolute;
-    transform: rotate(45deg);
-    transition: clip-path 150ms ease-out, opacity 150ms ease-out, transform 150ms ease-out;
-  }
-  .jx-tree-check:checked::before {
-    clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%);
-    opacity: 1;
-  }
-  .jx-tree-check[data-mixed]::before {
-    clip-path: polygon(10% 40%, 10% 60%, 45% 60%, 55% 60%, 90% 60%, 90% 40%);
-    opacity: 1;
-    transform: rotate(0deg);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-tree-check,
-    .jx-tree-check::before {
-      transition: none;
-    }
-  }
-</style>

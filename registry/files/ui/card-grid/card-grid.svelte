@@ -19,10 +19,10 @@
   the header block and second child the body (section-card qualifies
   unchanged).
 
-  The layout rules are :global on purpose: the cards come from the
-  consumer's children snippet, so scoped selectors can never reach them
-  (a scoped `> *` matches nothing) — subgrid silently never applied until
-  this was global. The jx- prefix keeps the global surface safe.
+  The layout rules are on consumer children on purpose: the cards come
+  from the consumer's children snippet, so no markup of ours can carry
+  their paint (the subgrid law must reach them through the cascade).
+  The jx- prefix keeps the global surface safe.
 
   Responsive: columns are `auto-fit, minmax(min(100%, --jx-grid-min), 1fr)`
   — pass `min` to control the collapse width. The default 320px is tuned
@@ -32,9 +32,16 @@
   stretch into a full-width banner (auto-fit collapses every empty
   track), so it is capped at an editorial measure. Cards without subgrid
   support fall back to ordinary stacked rows (no worse than before).
+
+  tw4 (2026-08-24): the grid container's own paint rides utilities;
+  every rule that reaches the consumer-authored children (subgrid laws,
+  the only-child cap, the entrance state machine) stays in
+  card-grid.css — D1-exempt residue.
 -->
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './card-grid.css';
 
   interface Props {
     /** Minimum column width before the grid collapses a column. */
@@ -75,70 +82,13 @@
   });
 </script>
 
-<div class="jx-card-grid {className}" style="--jx-grid-min: {min}" bind:this={gridEl}>
+<div
+  class={cn(
+    'jx-card-grid grid grid-cols-[repeat(auto-fit,minmax(min(100%,var(--jx-grid-min)),1fr))] gap-5 items-stretch',
+    className,
+  )}
+  style="--jx-grid-min: {min}"
+  bind:this={gridEl}
+>
   {@render children()}
 </div>
-
-<style>
-  :global(.jx-card-grid) {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--jx-grid-min)), 1fr));
-    gap: 1.25rem;
-    align-items: stretch;
-  }
-  /* auto-fit collapses every empty track, so a single-card group would
-     stretch to the full container width — one short card as a page-wide
-     banner. Cap the lone card at an editorial measure instead. */
-  :global(.jx-card-grid > *:only-child) {
-    max-width: 46rem;
-  }
-  @supports (grid-template-rows: subgrid) {
-    :global(.jx-card-grid) {
-      grid-template-rows: auto 1fr;
-    }
-    /* every card spans the shared rows and subgrids them: row 1 = header
-       (all headers stretch to the tallest, e.g. a two-line eyebrow), row 2
-       = body (fills to the tallest). row-gap 0: the card's own chrome
-       (borders/padding) provides the internal rhythm. */
-    :global(.jx-card-grid > *) {
-      display: grid;
-      grid-row: span 2;
-      grid-template-rows: subgrid;
-      row-gap: 0;
-    }
-    /* opt a child out when it is not a two-block card */
-    :global(.jx-card-grid > *[data-no-subgrid]) {
-      grid-row: auto;
-      grid-template-rows: none;
-    }
-  }
-
-  /* ── the internal stagger (time axis) ──
-     Hidden only while JS is live (html.js) and not yet entered; the
-     is-entered class flips the cascade: each card transitions with a
-     per-index delay (70ms steps, capped at the 8th child). */
-  :global(html.js .jx-card-grid:not(.is-entered) > *) {
-    opacity: 0;
-    transform: translateY(26px);
-  }
-  :global(.jx-card-grid.is-entered > *) {
-    opacity: 1;
-    transform: none;
-    transition:
-      opacity 320ms ease-out calc(var(--jx-card-i, 0) * 70ms),
-      transform 420ms cubic-bezier(0.22, 1, 0.36, 1) calc(var(--jx-card-i, 0) * 70ms);
-  }
-  :global(.jx-card-grid > *:nth-child(2)) { --jx-card-i: 1; }
-  :global(.jx-card-grid > *:nth-child(3)) { --jx-card-i: 2; }
-  :global(.jx-card-grid > *:nth-child(4)) { --jx-card-i: 3; }
-  :global(.jx-card-grid > *:nth-child(5)) { --jx-card-i: 4; }
-  :global(.jx-card-grid > *:nth-child(6)) { --jx-card-i: 5; }
-  :global(.jx-card-grid > *:nth-child(7)) { --jx-card-i: 6; }
-  :global(.jx-card-grid > *:nth-child(8)) { --jx-card-i: 7; }
-  @media (prefers-reduced-motion: reduce) {
-    :global(html.js .jx-card-grid:not(.is-entered) > *),
-    :global(.jx-card-grid.is-entered > *) {
-      transition: none;
-    }
-  }
-</style>
