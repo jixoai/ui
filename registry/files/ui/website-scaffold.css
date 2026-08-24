@@ -110,10 +110,6 @@
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: subgrid;
-  /* gutter parity with .jx-shell-body's stable both-edges scrollbar
-     reservation, so the subgrid columns align across layers (0px on
-     overlay-scrollbar systems) */
-  padding-inline: var(--jx-shell-gutter, 0px);
 
   /* base rows: header + tocbar (auto-sized: 0 when no toc is adopted) */
   grid-template-rows: auto auto minmax(0, 1fr);
@@ -196,21 +192,20 @@
 }
 
 /* ── the scrolling layer ──
-   The scrollbar lives INSIDE the body (Owner ruling 2026-08-24, rev.2):
-   the earlier width-extension experiment painted the scrollbar beyond
-   the host's box — where the host's overflow:clip cropped it INVISIBLE
-   (gutter reserved, thumb gone). The body digests its scrollbar the
-   direct way — both-edges gutters — and the TOP LAYER compensates with
-   the same live-measured --jx-shell-gutter padding so the subgrid
-   columns align across layers. */
+   The scrollbar mounts on the CORRECT DOM (Owner ruling, 2026-08-24,
+   rev.3): the scroller IS the content-column cell — not a full-width
+   underlay beneath the chrome. Its scrollbar renders at the content
+   column's own edge: geometrically inside the layout, touching no
+   chrome, needing no parity compensation anywhere. The slot-aware
+   columns make it degrade perfectly — with no toc rail the content
+   column IS the full width, so the scrollbar sits at the viewport
+   edge. The scroller keeps the full grid height (content scrolls under
+   the header band via the --jx-header-h padding reservation). */
 .jx-shell-body {
   grid-row: 1;
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: subgrid;
+  grid-column: content;
   overflow-y: auto;
   overscroll-behavior-y: none;
-  scrollbar-gutter: stable both-edges;
   /* chrome reservation: header band (+ the narrow toc bar) on top; the
      tree bottom bar's collapsed height at the end (Codex r2 P1: without
      it the bar covers the footer). The grid supplies columns; rows stay
@@ -221,12 +216,10 @@
   scroll-padding-block-start: var(--jx-toc-line, 96px);
   scroll-behavior: smooth;
 }
-/* main AND footer live in the content column — auto-placement would
-   drop the footer into the rail column on the wide form (Owner report,
-   2026-08-24) */
+/* plain flow inside the scroller cell — the grid column placement is
+   the scroller's own job now */
 .jx-shell-body > main,
 .jx-shell-body > footer {
-  grid-column: content;
   min-inline-size: 0;
 }
 

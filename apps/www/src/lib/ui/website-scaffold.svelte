@@ -125,25 +125,15 @@
     // CSS — body reservation, the toc compaction offset and the shared
     // --jx-toc-line.
     let reserved = -1;
-    let reservedGutter = -1;
     const reserve = () => {
       const h = band.offsetHeight;
       if (h !== reserved) {
         reserved = h;
         host.style.setProperty('--jx-header-h', `${h}px`);
       }
-      // gutter parity: the body reserves both-edge scrollbar gutters; the
-      // top layer must reserve the same inline padding or the subgrid
-      // columns drift apart on classic-scrollbar systems
-      const gutter = body.offsetWidth - body.clientWidth;
-      if (gutter !== reservedGutter) {
-        reservedGutter = gutter;
-        host.style.setProperty('--jx-shell-gutter', `${gutter / 2}px`);
-      }
     };
     const ro = new ResizeObserver(reserve);
     ro.observe(band);
-    ro.observe(body);
     reserve();
 
     // immersive hide/reveal driven by the BODY's own scroll; ONE state,
