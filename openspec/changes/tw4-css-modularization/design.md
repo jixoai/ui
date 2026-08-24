@@ -59,12 +59,24 @@ tailwind entry + import order ───────────▶ app.css keeps
                                            site-only supplements move out (r4 B10 ruling)
 ```
 
-Folder css contract (fixed, verified by P0.1 before any move):
+Folder css contract (fixed, verified by P0.1 — evidence 2026-08-24,
+`scripts/verify-folder-css.mjs` ALL GREEN in dev AND against the
+production build):
 
 - Loaded by a RELATIVE side-effect import from the component file
   (`import './toc.css'`) — the item is self-contained; the site's
   `+layout.svelte`/`$lib/...` manual imports are REMOVED (one load
-  path, loaded once).
+  path, loaded once — verified: route + component both import the
+  sheet, exactly one sheet carries the rules in the built output).
+- **ORDER LAW (P0.1 finding)**: the sheet OPENS with the canonical
+  layer statement `@layer theme, base, components, utilities;` before
+  any `@layer components` block. Reason: vite dev can inject the
+  component sheet BEFORE the site's Tailwind entry; CSS layer order
+  follows FIRST declaration per name across sheets, so a bare
+  `@layer components` in an early sheet sorts components BEFORE base —
+  preflight's `border: 0 solid` then beats folder rules (reproduced:
+  border-block-start computed 0px with the rule present). The prologue
+  makes the sheet order-independent; verified fixed in dev + build.
 - Contains ONLY standard CSS: token custom properties,
   `@layer components` + `:where()`, the at-rules D1 exempts.
   `@utility` is FORBIDDEN in folder css this change —
@@ -73,13 +85,13 @@ Folder css contract (fixed, verified by P0.1 before any move):
   context, so `@utility` there does not expand. If a custom utility is
   ever needed it goes into the single Tailwind entry/theme item with
   its own compiled-output probe.
+- Container-query shape: the query container is a WRAPPER element; an
+  element can never be its own query container (verified: rules on the
+  container element itself never apply).
 - Scoped-style migration MUST preserve selector boundaries explicitly:
   Svelte `:global(...)` child selectors (e.g. accordion's
   `.jx-accordion :global(> * + *)`), pseudo-elements, `@supports`,
   media queries are re-expressed deliberately, not pattern-copied.
-- P0.1 verifies (with fixtures): vite output correctness, layer order,
-  pseudo/`@container` survival, single-load, and computed
-  `:where()`-vs-utility specificity in a browser.
 
 ## D3 — Folder anatomy + consumer proof [r1: B3/D5.1/D5.4; r2: B8 scope ruling]
 

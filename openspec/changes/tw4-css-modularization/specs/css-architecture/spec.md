@@ -17,7 +17,12 @@ Styling SHALL live in exactly one place per kind:
    above). `@utility` MUST NOT appear in folder css (a standalone css
    file has no Tailwind context); custom utilities, if ever needed,
    MUST live in the single Tailwind entry/theme item with their own
-   compiled-output probe.
+   compiled-output probe. Every folder sheet MUST open with the
+   canonical layer statement `@layer theme, base, components,
+   utilities;` so sheet injection order can never reorder the cascade
+   (P0.1 finding: a bare `@layer components` in a sheet injected
+   before the Tailwind entry sorts components before base, and
+   preflight then beats folder rules).
 3. Tokens + element-default sheets → `registry/files/theme/`
    (jixoai.css, jx-pure.css) — consume-only, unchanged by this change.
 4. Site-only surfaces → colocated with the route/module they serve.

@@ -9,7 +9,7 @@
 
 ## P0 — pipeline probes (no moves yet; each probe BLOCKS its phase)
 
-- [ ] 0.1 Folder-css contract probe: a scratch item with
+- [x] 0.1 Folder-css contract probe: a scratch item with
       `ui/probe/probe.svelte` + `probe.css` (relative side-effect
       import; `@layer components` + `:where()`; pseudo-element +
       `@container` content). Assert in a browser fixture: vite output
@@ -17,6 +17,10 @@
       EXACTLY once (imported by component AND elsewhere), computed
       specificity — a consumer utility beats the `:where()` rule.
       Record evidence in design.md D2. `@utility` stays forbidden.
+      DONE 2026-08-24: `scripts/verify-folder-css.mjs` ALL GREEN
+      against dev AND the production build; found + codified the
+      ORDER LAW (canonical layer prologue required — see design.md
+      D2 and the css-architecture delta).
 - [ ] 0.2 Real-consumer install probes (TWO fixtures, STAGED INPUT:
       served from a TEMP folder-shaped registry generated from the
       0.3 manifest — the current flat payloads are NOT the input; the
