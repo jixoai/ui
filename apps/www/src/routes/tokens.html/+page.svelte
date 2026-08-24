@@ -5,6 +5,8 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { currentHue, playing, resumeHue, setHueManually, toggleHuePlay } from '$lib/hue-runtime';
+  // site-only token-lab surfaces (tw4 P2.2): swatches + scope panels + hue slider
+  import '$lib/site/token-lab.css';
 
   /* ---------------------------------------------------------------------
    * Hue lab: the runtime drives --brand-hue (time-of-day seed, 24h wall-clock cycle);

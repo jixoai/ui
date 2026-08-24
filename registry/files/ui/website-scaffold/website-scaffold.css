@@ -1,3 +1,6 @@
+@layer theme, base, components, utilities;
+
+@layer components {
 /**
  * jixoai website scaffold styles (registry/files/ui/website-scaffold.css).
  * Import once per site alongside website-scaffold.svelte.
@@ -23,7 +26,7 @@
  */
 
 /* ── the shell grid ── */
-.jx-shell-host {
+:where(.jx-shell-host){
   container-type: inline-size;
   container-name: jx-shell;
   block-size: 100vh;
@@ -31,7 +34,7 @@
   overflow: clip;
 }
 
-.jx-shell {
+:where(.jx-shell){
   display: grid;
   grid-template-rows: minmax(0, 1fr);
   block-size: 100%;
@@ -67,45 +70,49 @@
 }
 /* a toc is adopted → the narrow form owes it the bar row and the
    anchor line its extra breathing room */
-.jx-shell:has(.jx-top-layer [data-area='toc']) {
+:where(.jx-shell:has(.jx-top-layer [data-area='toc'])){
   --jx-chrome-top: 0px;
   --jx-line-extra: 32px;
 }
 @container jx-shell (max-width: 899.9px) {
-  .jx-shell:has(.jx-top-layer [data-area='toc']) {
+  :where(.jx-shell:has(.jx-top-layer [data-area='toc'])){
     --jx-chrome-top: var(--jx-chrome-bar);
   }
+
 }
 /* a tree is adopted on the bar forms → the body clears its bottom bar
    (the expanded panel is an overlay and needs no reservation) */
 @container jx-shell (max-width: 1199.9px) {
-  .jx-shell:has(.jx-top-layer [data-area='tree']) {
+  :where(.jx-shell:has(.jx-top-layer [data-area='tree'])){
     --jx-chrome-bottom: calc(var(--jx-chrome-bar) + 0.75rem);
   }
+
 }
 @container jx-shell (min-width: 900px) {
-  .jx-shell {
+  :where(.jx-shell){
     grid-template-columns:
       [content-start] minmax(0, 1fr) [content-end toc-start] var(--jx-toc-w) [toc-end];
     --jx-header-h: 74px;
   }
-  .jx-shell:has(.jx-top-layer [data-area='toc']) {
+  :where(.jx-shell:has(.jx-top-layer [data-area='toc'])){
     --jx-toc-w: 15rem;
   }
+
 }
 @container jx-shell (min-width: 1200px) {
-  .jx-shell {
+  :where(.jx-shell){
     grid-template-columns:
       [rail-start] var(--jx-rail-w) [rail-end content-start] minmax(0, 1fr)
       [content-end toc-start] var(--jx-toc-w) [toc-end];
   }
-  .jx-shell:has(.jx-top-layer [data-area='tree']) {
+  :where(.jx-shell:has(.jx-top-layer [data-area='tree'])){
     --jx-rail-w: 16rem;
   }
+
 }
 
 /* ── the chrome plane ── */
-.jx-top-layer {
+:where(.jx-top-layer){
   grid-row: 1;
   grid-column: 1 / -1;
   display: grid;
@@ -121,21 +128,23 @@
   z-index: 40;
 }
 @container jx-shell (min-width: 900px) {
-  .jx-top-layer {
+  :where(.jx-top-layer){
     grid-template-rows: auto minmax(0, 1fr);
     grid-template-areas:
       'header header'
       'stage toc';
   }
+
 }
 @container jx-shell (min-width: 1200px) {
-  .jx-top-layer {
+  :where(.jx-top-layer){
     grid-template-areas:
       'header header header'
       'tree stage toc';
   }
+
 }
-.jx-scaffold-header {
+:where(.jx-scaffold-header){
   grid-area: header;
   pointer-events: auto;
 }
@@ -144,8 +153,8 @@
    whole grid so their children land in named areas through [data-area]
    roles. Static and dynamic NEVER mix (Codex firstpaint risk 3): the
    ordered-adoption logic only ever touches .jx-float-slot's children. */
-.jx-chrome-slot,
-.jx-float-slot {
+:where(.jx-chrome-slot),
+:where(.jx-float-slot){
   grid-row: 1 / -1;
   grid-column: 1 / -1;
   display: grid;
@@ -153,41 +162,44 @@
   grid-template-rows: subgrid;
   pointer-events: none;
 }
-.jx-chrome-slot > *,
-.jx-float-slot > * {
+:where(.jx-chrome-slot > *),
+:where(.jx-float-slot > *){
   pointer-events: auto;
 }
 
 /* role → cell resolution (one role, many cells — never per-form JS) */
-.jx-top-layer [data-area='toc'] {
+:where(.jx-top-layer [data-area='toc']){
   grid-area: tocbar;
 }
 @container jx-shell (min-width: 900px) {
-  .jx-top-layer [data-area='toc'] {
+  :where(.jx-top-layer [data-area='toc']){
     grid-area: toc;
     align-self: start;
     /* leave room for the tree bottom bar on the medium form */
     max-height: calc(100% - 5rem);
     overflow: hidden auto;
   }
+
 }
 @container jx-shell (min-width: 1200px) {
-  .jx-top-layer [data-area='toc'] {
+  :where(.jx-top-layer [data-area='toc']){
     max-height: calc(100% - 1.25rem);
   }
+
 }
-.jx-top-layer [data-area='tree'] {
+:where(.jx-top-layer [data-area='tree']){
   grid-row: stage;
   grid-column: 1 / -1;
   align-self: end;
 }
 @container jx-shell (min-width: 1200px) {
-  .jx-top-layer [data-area='tree'] {
+  :where(.jx-top-layer [data-area='tree']){
     grid-area: tree;
     align-self: start;
   }
+
 }
-.jx-top-layer [data-area='float'] {
+:where(.jx-top-layer [data-area='float']){
   grid-area: stage;
 }
 
@@ -201,7 +213,7 @@
    column IS the full width, so the scrollbar sits at the viewport
    edge. The scroller keeps the full grid height (content scrolls under
    the header band via the --jx-header-h padding reservation). */
-.jx-shell-body {
+:where(.jx-shell-body){
   grid-row: 1;
   grid-column: content;
   overflow-y: auto;
@@ -218,39 +230,40 @@
 }
 /* plain flow inside the scroller cell — the grid column placement is
    the scroller's own job now */
-.jx-shell-body > main,
-.jx-shell-body > footer {
+:where(.jx-shell-body > main),
+:where(.jx-shell-body > footer){
   min-inline-size: 0;
 }
 
 /* ── immersive: per-zone transforms (ONE state, three zones) ──
    The plane never moves; navigation chrome leaves, the reading state
    compacts by exactly the header band (Owner ruling, 2026-08-23). */
-.jx-scaffold-header,
-.jx-top-layer [data-area='toc'],
-.jx-top-layer [data-area='tree'] {
+:where(.jx-scaffold-header),
+:where(.jx-top-layer [data-area='toc']),
+:where(.jx-top-layer [data-area='tree']){
   transition: transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
   will-change: transform;
 }
-.jx-shell-host[data-hidden] .jx-scaffold-header {
+:where(.jx-shell-host[data-hidden] .jx-scaffold-header){
   transform: translateY(-101%);
 }
-.jx-shell-host[data-hidden] .jx-top-layer [data-area='toc'] {
+:where(.jx-shell-host[data-hidden] .jx-top-layer [data-area='toc']){
   transform: translateY(calc(-1 * var(--jx-header-h, 64px)));
 }
-.jx-shell-host[data-hidden] .jx-top-layer [data-area='tree'] {
+:where(.jx-shell-host[data-hidden] .jx-top-layer [data-area='tree']){
   transform: translateY(100%);
 }
 @container jx-shell (min-width: 1200px) {
   /* the rail form is a persistent navigation surface (Owner ruling,
      2026-08-24): it compacts under the departing header exactly like the
      toc — it never leaves the screen */
-  .jx-shell-host[data-hidden] .jx-top-layer [data-area='tree'] {
+  :where(.jx-shell-host[data-hidden] .jx-top-layer [data-area='tree']){
     transform: translateY(calc(-1 * var(--jx-header-h, 64px)));
   }
+
 }
 
-.jx-skip-link {
+:where(.jx-skip-link){
   clip-path: inset(50%);
   height: 1px;
   left: 0;
@@ -261,7 +274,7 @@
   width: 1px;
   z-index: 100;
 }
-.jx-skip-link:focus-visible {
+:where(.jx-skip-link:focus-visible){
   clip-path: none;
   height: auto;
   width: auto;
@@ -272,15 +285,15 @@
   outline-offset: -1px;
 }
 
-.jx-page-main {
+:where(.jx-page-main){
   view-transition-name: page-main;
 }
-.jx-scaffold-header {
+:where(.jx-scaffold-header){
   view-transition-name: site-header;
 }
 
 /* ── the nav indicator: morphs between pages, slowest layer ── */
-html[data-vt-kind='page-carousel']::view-transition-group(vt-nav-active) {
+:where(html[data-vt-kind='page-carousel']::view-transition-group(vt-nav-active)){
   z-index: 5;
   animation-duration: 450ms;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
@@ -293,12 +306,12 @@ html[data-vt-kind='page-carousel']::view-transition-group(vt-nav-active) {
   -webkit-backdrop-filter: brightness(2);
   backdrop-filter: brightness(2);
 }
-html[data-vt-kind='page-carousel'][data-vt-nav='light']::view-transition-group(vt-nav-active) {
+:where(html[data-vt-kind='page-carousel'][data-vt-nav='light']::view-transition-group(vt-nav-active)){
   -webkit-backdrop-filter: brightness(0.85);
   backdrop-filter: brightness(0.85);
 }
-html[data-vt-kind='page-carousel']::view-transition-old(vt-nav-active),
-html[data-vt-kind='page-carousel']::view-transition-new(vt-nav-active) {
+:where(html[data-vt-kind='page-carousel']::view-transition-old(vt-nav-active)),
+:where(html[data-vt-kind='page-carousel']::view-transition-new(vt-nav-active)){
   width: 100%;
   height: 100%;
   object-fit: fill;
@@ -307,7 +320,7 @@ html[data-vt-kind='page-carousel']::view-transition-new(vt-nav-active) {
 }
 
 /* ── the page panel: asymmetric slide + scale + blur + reveal mask ── */
-html[data-vt-kind='page-carousel']::view-transition-group(page-main) {
+:where(html[data-vt-kind='page-carousel']::view-transition-group(page-main)){
   z-index: 1;
   isolation: isolate;
   /* The group never tweens size/position (Owner, 2026-08-21): geometry is
@@ -315,8 +328,8 @@ html[data-vt-kind='page-carousel']::view-transition-group(page-main) {
      so there is nothing to interpolate and no vertical morph, ever. */
   animation: none;
 }
-html[data-vt-kind='page-carousel']::view-transition-old(page-main),
-html[data-vt-kind='page-carousel']::view-transition-new(page-main) {
+:where(html[data-vt-kind='page-carousel']::view-transition-old(page-main)),
+:where(html[data-vt-kind='page-carousel']::view-transition-new(page-main)){
   /* Precise old/new geometry (Owner, 2026-08-21): both snapshots render in
      ONE shared box — absolutely positioned at the group's origin, full
      width, viewport height, pixels undistorted, top-aligned (no center
@@ -338,7 +351,7 @@ html[data-vt-kind='page-carousel']::view-transition-new(page-main) {
   mask-size: 400% 100%;
 }
 
-html[data-vt-kind='page-carousel'][data-vt-direction='forward']::view-transition-old(page-main) {
+:where(html[data-vt-kind='page-carousel'][data-vt-direction='forward']::view-transition-old(page-main)){
   -webkit-mask-image: linear-gradient(
     to left,
     black 0%,
@@ -351,7 +364,7 @@ html[data-vt-kind='page-carousel'][data-vt-direction='forward']::view-transition
     jx-page-old-forward 330ms cubic-bezier(0.4, 0, 0.2, 1) forwards,
     jx-page-mask-forward-out 330ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
-html[data-vt-kind='page-carousel'][data-vt-direction='forward']::view-transition-new(page-main) {
+:where(html[data-vt-kind='page-carousel'][data-vt-direction='forward']::view-transition-new(page-main)){
   -webkit-mask-image: linear-gradient(
     to left,
     black 0%,
@@ -364,7 +377,7 @@ html[data-vt-kind='page-carousel'][data-vt-direction='forward']::view-transition
     jx-page-new-forward 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
     jx-page-mask-forward-in 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transition-old(page-main) {
+:where(html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transition-old(page-main)){
   -webkit-mask-image: linear-gradient(
     to right,
     black 0%,
@@ -377,7 +390,7 @@ html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transitio
     jx-page-old-backward 330ms cubic-bezier(0.4, 0, 0.2, 1) forwards,
     jx-page-mask-backward-out 330ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
-html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transition-new(page-main) {
+:where(html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transition-new(page-main)){
   -webkit-mask-image: linear-gradient(
     to right,
     black 0%,
@@ -392,7 +405,7 @@ html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transitio
 }
 
 /* ── keyframes: asymmetric travel (in 136px, out 112px), scale, blur ── */
-@keyframes jx-page-new-forward {
+@keyframes jx-page-new-forward{
   from {
     filter: blur(4px);
     transform: translateX(136px) scale(0.985);
@@ -402,7 +415,7 @@ html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transitio
     transform: translateX(0);
   }
 }
-@keyframes jx-page-old-forward {
+@keyframes jx-page-old-forward{
   from {
     transform: translateX(0);
   }
@@ -411,7 +424,7 @@ html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transitio
     transform: translateX(-112px) scale(0.985);
   }
 }
-@keyframes jx-page-new-backward {
+@keyframes jx-page-new-backward{
   from {
     filter: blur(4px);
     transform: translateX(-136px) scale(0.985);
@@ -421,7 +434,7 @@ html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transitio
     transform: translateX(0);
   }
 }
-@keyframes jx-page-old-backward {
+@keyframes jx-page-old-backward{
   from {
     transform: translateX(0);
   }
@@ -432,7 +445,7 @@ html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transitio
 }
 
 /* ── mask travel: the soft reveal edge ── */
-@keyframes jx-page-mask-forward-in {
+@keyframes jx-page-mask-forward-in{
   from {
     -webkit-mask-position: 0%;
     mask-position: 0%;
@@ -442,7 +455,7 @@ html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transitio
     mask-position: 100%;
   }
 }
-@keyframes jx-page-mask-forward-out {
+@keyframes jx-page-mask-forward-out{
   from {
     -webkit-mask-position: 100%;
     mask-position: 100%;
@@ -452,7 +465,7 @@ html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transitio
     mask-position: 0%;
   }
 }
-@keyframes jx-page-mask-backward-in {
+@keyframes jx-page-mask-backward-in{
   from {
     -webkit-mask-position: 100%;
     mask-position: 100%;
@@ -462,7 +475,7 @@ html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transitio
     mask-position: 0%;
   }
 }
-@keyframes jx-page-mask-backward-out {
+@keyframes jx-page-mask-backward-out{
   from {
     -webkit-mask-position: 0%;
     mask-position: 0%;
@@ -475,28 +488,30 @@ html[data-vt-kind='page-carousel'][data-vt-direction='backward']::view-transitio
 
 /* Reduced motion: instant chrome swaps, plain crossfade pages. */
 @media (prefers-reduced-motion: reduce) {
-  .jx-scaffold-header,
-  .jx-top-layer [data-area='toc'],
-  .jx-top-layer [data-area='tree'] {
+  :where(.jx-scaffold-header),
+:where(.jx-top-layer [data-area='toc']),
+:where(.jx-top-layer [data-area='tree']){
     transition: none;
   }
-  .jx-shell-body {
+  :where(.jx-shell-body){
     scroll-behavior: auto;
   }
-  html[data-vt-kind='page-carousel']::view-transition-old(page-main),
-  html[data-vt-kind='page-carousel']::view-transition-new(page-main) {
+  :where(html[data-vt-kind='page-carousel']::view-transition-old(page-main)),
+:where(html[data-vt-kind='page-carousel']::view-transition-new(page-main)){
     animation: 120ms ease-out both;
     mask-image: none;
     -webkit-mask-image: none;
   }
-  html[data-vt-kind='page-carousel']::view-transition-old(page-main) {
+  :where(html[data-vt-kind='page-carousel']::view-transition-old(page-main)){
     to {
       opacity: 0;
     }
   }
-  html[data-vt-kind='page-carousel']::view-transition-new(page-main) {
+  :where(html[data-vt-kind='page-carousel']::view-transition-new(page-main)){
     from {
       opacity: 0;
     }
   }
+
+}
 }

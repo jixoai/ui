@@ -1,0 +1,85 @@
+@layer theme, base, components, utilities;
+
+@layer components {
+/**
+ * jixoai token lab (apps/www/src/lib/site/token-lab.css).
+ * Site-only surface module (tw4 P2.2): the /tokens swatch grid, the
+ * mode-scoped palette panels and the hue lab slider. Single-loaded via
+ * tokens.html/+page.svelte. Owner: site (never a registry item).
+ */
+
+:where(.swatch){
+  border: 1px solid var(--border);
+}
+:where(.swatch-chip){
+  block-size: 2.6rem;
+  border-block-end: 1px solid var(--border);
+}
+:where(.swatch dt){
+  font-size: 11.5px;
+  font-weight: 600;
+}
+:where(.swatch dd){
+  color: var(--muted-foreground);
+  font-size: 10.5px;
+  overflow-wrap: anywhere;
+}
+/* Mode-scoped panels: re-declare the exact :root / .dark token values so a
+ * light palette stays light even when the page theme is dark (values mirror
+ * lib/jixoai.css; the page exists to display them literally). */
+:where(.token-scope-light){
+  --background: oklch(1 0 0);
+  --foreground: oklch(0 0 0);
+  --card: oklch(1 0 0);
+  --muted: oklch(0.9551 0 0);
+  --muted-foreground: oklch(0.3211 0 0);
+  --primary: oklch(0.6489 0.237 var(--brand-hue));
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.968 0.211 109.7692);
+  --secondary-foreground: oklch(0 0 0);
+  --accent: oklch(0.5635 0.2408 260.8178);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0 0 0);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0 0 0);
+  --terminal: oklch(0.2 0 0);
+  --terminal-foreground: oklch(1 0 0);
+  --terminal-hover: color-mix(in oklab, var(--terminal-foreground) 14%, var(--terminal));
+  --terminal-muted: color-mix(in oklab, var(--terminal-foreground) 8%, var(--terminal));
+  --chart-1: var(--primary);
+  --chart-2: var(--secondary);
+  --chart-3: var(--accent);
+  --chart-4: oklch(0.7323 0.2492 142.4953);
+  --chart-5: oklch(0.5931 0.2726 328.3634);
+}
+:where(.token-scope-dark){
+  --background: oklch(0 0 0);
+  --foreground: oklch(1 0 0);
+  --card: oklch(0.3211 0 0);
+  --muted: oklch(0.2178 0 0);
+  --muted-foreground: oklch(0.8452 0 0);
+  --primary: oklch(0.7044 0.1872 calc(var(--brand-hue) - 4));
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0.9691 0.2005 109.6228);
+  --secondary-foreground: oklch(0 0 0);
+  --accent: oklch(0.6755 0.1765 252.2592);
+  --accent-foreground: oklch(0 0 0);
+  --destructive: oklch(1 0 0);
+  --destructive-foreground: oklch(0 0 0);
+  --border: oklch(1 0 0);
+  --terminal: oklch(0.2 0 0);
+  --terminal-foreground: oklch(1 0 0);
+  --terminal-hover: color-mix(in oklab, var(--terminal-foreground) 14%, var(--terminal));
+  --terminal-muted: color-mix(in oklab, var(--terminal-foreground) 8%, var(--terminal));
+  --chart-1: var(--primary);
+  --chart-2: var(--secondary);
+  --chart-3: var(--accent);
+  --chart-4: oklch(0.7395 0.2268 142.8504);
+  --chart-5: oklch(0.6131 0.2458 328.0714);
+}
+
+/* Hue lab slider: native range with the accent law; tick labels beneath. */
+:where(.hue-slider){
+  width: 100%;
+}
+}

@@ -136,13 +136,13 @@
 
 ## P2 — cascade + selector rewrite (layer law lands here; TWO acceptance axes)
 
-- [ ] 2.1 Wrap the item css in `@layer components` + `:where()` per
+- [x] 2.1 Wrap the item css in `@layer components` + `:where()` per
       D2, applying written selector-rewrite rules (`:global()` child
       selectors → explicit descendant/child selectors, pseudo/
       `@supports`/media preserved); representative computed-style
       probes per sheet (container-query states, sticky/scroll law
       survives), not just "stylesheet present".
-- [ ] 2.2 `app.css` three-way boundary (r3 B10): (1) app.css KEEPS
+- [x] 2.2 `app.css` three-way boundary (r3 B10): (1) app.css KEEPS
       the sole `@import 'tailwindcss'`, theme imports, ALL global
       `@theme`/`@custom-variant`/`@layer base` rules and import
       order; (2) only demonstrably site-only, non-compiler-context
@@ -150,7 +150,17 @@
       hue-slider) move to named site module css with owner/import
       recorded; (3) no global context rule is scattered into route
       css.
-- [ ] 2.3 Full gate on BOTH axes: (a) docs visual/behavior parity vs
+- [x] 2.3 Full gate on BOTH axes: DONE 2026-08-24 — (a) visual
+      parity 0/69 CHANGED (tolerant pixel comparator; sub-visual
+      compositing deltas max ±7/255 on ~0.03% of bytes, concentrated
+      in the header nav pill, accepted as parity — Chrome regroups
+      paint when css layers change); (b) verify-layer-law.mjs 8/8:
+      sheets fully layered + geometry survives + generated utility
+      beats the sheets + jx-pure law pair intact; (c) compiled-context
+      probe: bg-background/border-border resolve, global base layer
+      alive, dark:* flips on an unrelated route. Battery: vitest
+      327/327, root build, apps build, build:site 6/6, manifest
+      GREEN, P0.2 fixtures GREEN. (a) docs visual/behavior parity vs
       0.3 screenshots + verify scripts; (b) NEW consumer-override
       probes (utilities beat the moved sheets; Tier-2 Part A still
       wins — exception intact); (c) compiled-output probe — `dark:*`,

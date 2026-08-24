@@ -114,6 +114,7 @@ for (const item of items) {
 const SITE_ONLY_PREFIXES = [
   'apps/www/src/lib/blueprints/', // blueprint scene stage (site-only)
   'apps/www/src/lib/components/', // site-composed components
+  'apps/www/src/lib/site/', // site-only surface modules (tw4 P2.2 placement law)
   'apps/www/src/lib/__probe__/', // P0 scratch (removed when the probe retires)
 ];
 

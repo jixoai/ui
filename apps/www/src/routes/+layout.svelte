@@ -3,6 +3,8 @@
   import ComponentTreeNav from '$lib/ui/component-tree-nav.svelte';
   import Toc, { type TocSection } from '$lib/ui/toc/toc.svelte';
   import '../app.css';
+  // site-only docs surfaces (tw4 P2.2): tables + pill serve several routes
+  import '$lib/site/docs-tables.css';
   // scrollbar law (2026-08-22): side-effect probe publishes the measured
   // per-OS scrollbar widths (--jx-scrollbar-thin/auto) feeding the theme's
   // both-edges padding compensation

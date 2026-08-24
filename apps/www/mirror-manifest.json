@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-24T12:10:44.259Z",
+  "generatedAt": "2026-08-24T12:39:49.529Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "section-card": "registry/files/ui/section-card/section-card.svelte",
@@ -225,8 +225,8 @@
           "source": "registry/files/ui/toc/toc.css",
           "mirror": "apps/www/src/lib/ui/toc/toc.css",
           "target": "@ui/toc/toc.css",
-          "sourceSha": "12d1cf74c4d2958409d055b99f567fa4e4c44afabd1fd2ae1d3490d91e622dd6",
-          "mirrorSha": "12d1cf74c4d2958409d055b99f567fa4e4c44afabd1fd2ae1d3490d91e622dd6"
+          "sourceSha": "b17f6ff8e039a63e598ec5713594ce0f8fcb6f6c28cf75f8d9b8f61b5a871e26",
+          "mirrorSha": "b17f6ff8e039a63e598ec5713594ce0f8fcb6f6c28cf75f8d9b8f61b5a871e26"
         },
         {
           "source": "registry/files/ui/toc/index.ts",
@@ -253,8 +253,8 @@
           "source": "registry/files/ui/website-scaffold/website-scaffold.css",
           "mirror": "apps/www/src/lib/ui/website-scaffold/website-scaffold.css",
           "target": "@ui/website-scaffold/website-scaffold.css",
-          "sourceSha": "e61cd12caf63371372cfc0858ecab16ea304c1a5be2331407d13e2edb38d4892",
-          "mirrorSha": "e61cd12caf63371372cfc0858ecab16ea304c1a5be2331407d13e2edb38d4892"
+          "sourceSha": "efa9d805361b6aac01412ba3301650b8fd6e8b9e1fc5efd914ce2c267a163030",
+          "mirrorSha": "efa9d805361b6aac01412ba3301650b8fd6e8b9e1fc5efd914ce2c267a163030"
         },
         {
           "source": "registry/files/ui/website-scaffold/index.ts",

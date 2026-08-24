@@ -1,0 +1,73 @@
+@layer theme, base, components, utilities;
+
+@layer components {
+/**
+ * jixoai docs tables (apps/www/src/lib/site/docs-tables.css).
+ * Site-only surface module (tw4 P2.2): the catalog matrix / token-doc
+ * data tables + the item-name pill. Serves the home page, components
+ * index, tokens and recipes pages — single-loaded via +layout.svelte.
+ * Owner: site (never a registry item).
+ */
+
+:where(.table-scroll){
+  overflow-x: auto;
+}
+:where(.data-table){
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+:where(.data-table th){
+  background: var(--muted);
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-weight: 600;
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+  white-space: nowrap;
+}
+:where(.data-table td){
+  border: 1px solid color-mix(in oklab, var(--border) 32%, transparent);
+  padding: 0.45rem 0.6rem;
+  vertical-align: top;
+}
+:where(.data-table td.dim){
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+:where(.data-table tbody tr){
+  transition: background-color 150ms ease-out;
+}
+:where(.data-table tbody tr:hover){
+  background: color-mix(in oklab, var(--muted) 26%, transparent);
+}
+:where(.data-table code){
+  color: var(--accent);
+  font-size: 11.5px;
+  overflow-wrap: anywhere;
+}
+
+/* Item-name pill in the catalog table (status-dot class of rounded-full —
+ * the only rounded elements allowed by the design law). */
+:where(.pill){
+  align-items: center;
+  background: color-mix(in oklab, var(--primary) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--primary) 45%, transparent);
+  border-radius: 9999px;
+  color: var(--primary);
+  display: inline-flex;
+  font-size: 11px;
+  gap: 0.4em;
+  line-height: 1.7;
+  padding: 0 0.6rem;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.data-table tbody tr){
+    transition: none;
+  }
+
+}
+}
