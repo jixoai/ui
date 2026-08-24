@@ -19,7 +19,7 @@
 //   node scripts/verify-hook-law.mjs            # pre-state report + fixtures
 //   node scripts/verify-hook-law.mjs --post     # the failing gate
 //   node scripts/verify-hook-law.mjs --live 5199
-import { buildInventory } from './jx-inventory.mjs';
+import { buildInventory, AUDITOR_SOURCES } from './jx-inventory.mjs';
 import { readFileSync, readdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,17 +33,16 @@ const ok = (name, cond, detail = '') => {
   if (!cond) failures.push(name);
 };
 
-// THE shadow collector (r3 B1/B2): scans product inputs only — the
-// auditor's own source (selftest/live literals) is excluded by name.
+// THE shadow collector (r4 B1): scans product inputs only, sharing the
+// inventory's versioned AUDITOR_SOURCES exclusion (single boundary).
 export function collectDataJx(rootDir) {
   const found = []; // {name('jx-x'), file, line}
-  const auditor = 'verify-hook-law.mjs';
   const scan = (dir, exts) => {
     for (const e of readdirSync(dir, { withFileTypes: true })) {
       if (['node_modules', '.svelte-kit', 'dist', '.git', '.agents'].includes(e.name)) continue;
       const p = join(dir, e.name);
       if (e.isDirectory()) scan(p, exts);
-      else if (exts.some((x) => e.name.endsWith(x)) && e.name !== auditor) {
+      else if (exts.some((x) => e.name.endsWith(x)) && !AUDITOR_SOURCES.has(e.name)) {
         const text = readFileSync(p, 'utf8');
         text.split('\n').forEach((line, i) => {
           for (const m of line.matchAll(/data-jx-([a-z0-9-]+)/g)) {
@@ -88,6 +87,12 @@ for (const [base, fam] of inv.families) for (const v of fam.variants.keys()) {
   if (v !== 'dynamic' && inv.staticHooks.has(`jx-${base}-${v}`)) doubles.push(`${base}:${v}`);
 }
 ok('fixture: no token double-classified (part + variant)', doubles.length === 0, doubles.join(','));
+// r4 B1: the auditors' own sources contribute NOTHING to the inventory
+const auditorLeak = [
+  ...[...inv.staticHooks.values()].flat().filter((site) => [...AUDITOR_SOURCES].some((a) => site.includes(a))),
+  ...inv.handReview.filter((h) => [...AUDITOR_SOURCES].some((a) => h.file.includes(a))),
+];
+ok('fixture: auditor sources are invisible to the inventory', auditorLeak.length === 0, auditorLeak.slice(0, 3).join(' | '));
 // r3 B4: directives carry token + file:line + condition source
 const dirOk = inv.directives.length > 0 && inv.directives.every((d) => d.site.includes(':') && d.expr.length > 0);
 ok('fixture: class directives carry site + condition evidence', dirOk, `${inv.directives.length} directives, sample ${inv.directives[0]?.site}`);

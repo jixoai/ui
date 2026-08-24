@@ -29,6 +29,11 @@ const require = createRequire(import.meta.url);
 const svelteCompiler = require(require.resolve('svelte/compiler', { paths: [join(dirname(fileURLToPath(import.meta.url)), '..', 'apps', 'www')] }));
 
 const EXCLUDE_DIRS = new Set(['node_modules', '.svelte-kit', 'dist', '.git', '.agents', 'shots-site', 'cli']);
+// PRODUCT INPUT BOUNDARY (r4 B1): the auditors' own sources are never
+// inventory inputs — their comments/fixtures/regex literals would make
+// handReview unreachable-zero post-migration. Shared with
+// verify-hook-law.mjs (single source of truth, versioned with the engine).
+export const AUDITOR_SOURCES = new Set(['jx-inventory.mjs', 'verify-hook-law.mjs']);
 const lineAt = (text, idx) => text.slice(0, Math.max(0, idx)).split('\n').length;
 // strip comments WITHOUT changing offsets (mask with spaces)
 const maskLineComments = (code) => code.replace(/(^|[^:])\/\/[^\n]*/g, (m) => m[0] + ' '.repeat(m.length - 1));
@@ -39,7 +44,7 @@ export function buildInventory(root) {
     let entries;
     try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return out; }
     for (const e of entries) {
-      if (EXCLUDE_DIRS.has(e.name)) continue;
+      if (EXCLUDE_DIRS.has(e.name) || AUDITOR_SOURCES.has(e.name)) continue;
       const p = join(dir, e.name);
       if (e.isDirectory()) walk(p, exts, out);
       else if (exts.some((x) => e.name.endsWith(x))) out.push(p);
@@ -330,7 +335,7 @@ if (process.argv[1] && process.argv[1].endsWith('jx-inventory.mjs')) {
   const inv = await buildInventory(rootArg);
   const jsonIdx = process.argv.indexOf('--json');
   const payload = {
-    engine: 'jx-inventory@3',
+    engine: 'jx-inventory@3.1',
     root: label,
     counts: {
       defined: inv.defined.size,

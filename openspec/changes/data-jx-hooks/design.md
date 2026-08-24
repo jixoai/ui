@@ -23,19 +23,24 @@ One importable scanner, three structured inputs, fail-closed output:
   literal `'jx-<base>-' +`. Literal part tokens (`jx-alert-title`) are
   STATIC hooks even when they share a family prefix. A family is
   pruned when every concrete selector `jx-<base>*` is css-defined.
-- JSON CLI (`--json --root=<tree>`) emits the stable schema (engine
-  version, counts, defined, hooks, families{variants,shapes,sites},
-  handReview, references) — the COMMITTED authoritative manifest lives
-  at `openspec/changes/data-jx-hooks/inventory.json`, regenerated from
-  a clean `git worktree` at HEAD (the live tree may carry Owner WIP —
+- JSON CLI (`--json --root=<tree> --label=<provenance>`) emits the
+  stable schema (engine version, counts, defined, hooks,
+  families{variants,shapes,sites}, directives, handReview,
+  references) — the COMMITTED authoritative manifest lives at
+  `openspec/changes/data-jx-hooks/inventory.json`, regenerated from a
+  clean `git worktree` at HEAD (the live tree may carry Owner WIP —
   the r2 review caught exactly that drift).
+- PRODUCT INPUT BOUNDARY (r4 B1, shared with verify-hook-law via the
+  exported AUDITOR_SOURCES set): the auditors' own scripts are never
+  inventory inputs — a gate fixture asserts they contribute zero
+  hooks/handReview, keeping `handReview===0` REACHABLE post-migration.
 - Family evidence rule: zero css-defined `jx-<base>-*` selectors →
   the family survives; ≥1 → MIXED, surfaced in handReview for an
   explicit ruling (state families like sheet sides are css-defined;
   file-icon's kind variants are css-less hooks — the engine no longer
   guesses).
 
-Clean-HEAD measurement (engine@2): see inventory.json counts. The r0
+Clean-HEAD measurement (engine@3.1): see inventory.json counts. The r0
 figures 529/232 are the HISTORICAL regex-baseline, not an acceptance
 value.
 
