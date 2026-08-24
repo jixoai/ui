@@ -33,7 +33,20 @@
       at it) AND the shared `@lib` dependency (`toast-store.ts` stays
       canonical, installs without duplication/clobber). Served via
       `shadcn add` from a local HTTP registry.
-- [ ] 0.3 Inventory + migration mapping table + drift block:
+- [x] 0.3 Inventory + migration mapping table + drift block:
+      DONE 2026-08-24 — scripts/gen-mirror-manifest.mjs (gen + --check
+      drift modes) + apps/www/mirror-manifest.json (84 items / 91
+      pairs / canonicalMain 73, toast overridden) +
+      mirror-manifest.schema.json + `npm run verify:mirror`. FIRST
+      LIVE CATCH: toggle.svelte + number-input.svelte mirrors were
+      stale (r9 commit 39b6a46 updated registry without syncing —
+      repaired). Findings: tree-view-multiselect.svelte
+      mirrored-but-unreferenced (P1 folds into tree-view or removes);
+      color-utils/surface-motion unreferenced-but-mirrored;
+      native-form shared-claim of jx-pure.css recorded.
+      scripts/capture-baseline.mjs → .agents/shots/baseline/ 69/69
+      routes captured (compare mode = the P1–P3 oracle). Original
+      spec:
       machine-generate the two-sided inventory (registry↔mirror,
       normalized relative paths + sha256, per the mirror-sync mapping
       table); the mapping table lands at a FIXED path

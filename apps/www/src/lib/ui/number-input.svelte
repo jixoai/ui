@@ -298,7 +298,12 @@
      disabled law (input READONLY, not disabled) and input-level focus
      diverge from the sheet shell's :has(input:disabled) /
      :has(:focus-visible) laws. */
+  /* D3 guard: the bare-number law now RESTORES platform spinners —
+     this composite owns its own [- +] steppers, so the inner lane
+     pins the spinner OFF to avoid double controls */
   .jx-num-input {
+    appearance: textfield;
+    -moz-appearance: textfield;
     flex: 1;
     min-width: 0;
     text-align: center;

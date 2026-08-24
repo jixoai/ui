@@ -68,8 +68,8 @@
 <style>
   .jx-switch-track {
     /* geometry knobs (see the size table in the header comment) */
-    --jx-toggle-w: 36px;
-    --jx-toggle-h: 20px;
+    --jx-toggle-w: 40px;
+    --jx-toggle-h: 24px;
     display: inline-flex;
     align-items: center;
     justify-content: flex-end;
@@ -80,12 +80,12 @@
     user-select: none;
   }
   .jx-toggle-sm {
-    --jx-toggle-w: 28px;
-    --jx-toggle-h: 16px;
+    --jx-toggle-w: 32px;
+    --jx-toggle-h: 20px;
   }
   .jx-toggle-lg {
-    --jx-toggle-w: 44px;
-    --jx-toggle-h: 24px;
+    --jx-toggle-w: 48px;
+    --jx-toggle-h: 28px;
   }
   .jx-toggle-disabled {
     opacity: 0.5;

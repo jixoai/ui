@@ -1,0 +1,1361 @@
+{
+  "$schema": "./mirror-manifest.schema.json",
+  "version": 1,
+  "generatedAt": "2026-08-24T11:45:36.554Z",
+  "canonicalMain": {
+    "press-button": "registry/files/ui/press-button.svelte",
+    "section-card": "registry/files/ui/section-card.svelte",
+    "terminal-header": "registry/files/ui/terminal-header.svelte",
+    "terminal-footer": "registry/files/ui/terminal-footer.svelte",
+    "theme-toggle": "registry/files/ui/theme-toggle.svelte",
+    "toc": "registry/files/ui/toc.svelte",
+    "website-scaffold": "registry/files/ui/website-scaffold.svelte",
+    "terminal-card": "registry/files/ui/terminal-card.svelte",
+    "hero-section": "registry/files/ui/hero-section.svelte",
+    "language-switcher": "registry/files/ui/language-switcher.svelte",
+    "card-grid": "registry/files/ui/card-grid.svelte",
+    "input": "registry/files/ui/input.svelte",
+    "select": "registry/files/ui/select.svelte",
+    "textarea": "registry/files/ui/textarea.svelte",
+    "scaffold-float": "registry/files/ui/scaffold-float.svelte",
+    "dialog": "registry/files/ui/dialog.svelte",
+    "popover": "registry/files/ui/popover.svelte",
+    "code-card": "registry/files/ui/code-card.svelte",
+    "table": "registry/files/ui/table.svelte",
+    "tree-view": "registry/files/ui/tree-view.svelte",
+    "component-canvas": "registry/files/ui/component-canvas.svelte",
+    "checkbox": "registry/files/ui/checkbox.svelte",
+    "radio": "registry/files/ui/radio.svelte",
+    "toggle": "registry/files/ui/toggle.svelte",
+    "native-select": "registry/files/ui/native-select.svelte",
+    "number-input": "registry/files/ui/number-input.svelte",
+    "range": "registry/files/ui/range.svelte",
+    "date-picker": "registry/files/ui/date-picker.svelte",
+    "file-input": "registry/files/ui/file-input.svelte",
+    "color-picker": "registry/files/ui/color-picker.svelte",
+    "combobox": "registry/files/ui/combobox.svelte",
+    "tags-input": "registry/files/ui/tags-input.svelte",
+    "badge": "registry/files/ui/badge.svelte",
+    "separator": "registry/files/ui/separator.svelte",
+    "skeleton": "registry/files/ui/skeleton.svelte",
+    "avatar": "registry/files/ui/avatar.svelte",
+    "alert": "registry/files/ui/alert.svelte",
+    "accordion": "registry/files/ui/accordion.svelte",
+    "tabs": "registry/files/ui/tabs.svelte",
+    "progress": "registry/files/ui/progress.svelte",
+    "tooltip": "registry/files/ui/tooltip.svelte",
+    "pagination": "registry/files/ui/pagination.svelte",
+    "dropdown-menu": "registry/files/ui/dropdown-menu.svelte",
+    "breadcrumb": "registry/files/ui/breadcrumb.svelte",
+    "kbd": "registry/files/ui/kbd.svelte",
+    "toast": "registry/files/ui/toast-viewport.svelte",
+    "alert-dialog": "registry/files/ui/alert-dialog.svelte",
+    "sheet": "registry/files/ui/sheet.svelte",
+    "hover-card": "registry/files/ui/hover-card.svelte",
+    "input-otp": "registry/files/ui/input-otp.svelte",
+    "toggle-group": "registry/files/ui/toggle-group.svelte",
+    "carousel": "registry/files/ui/carousel.svelte",
+    "command": "registry/files/ui/command.svelte",
+    "navigation-menu": "registry/files/ui/navigation-menu.svelte",
+    "menubar": "registry/files/ui/menubar.svelte",
+    "popconfirm": "registry/files/ui/popconfirm.svelte",
+    "empty": "registry/files/ui/empty.svelte",
+    "descriptions": "registry/files/ui/descriptions.svelte",
+    "steps": "registry/files/ui/steps.svelte",
+    "spin": "registry/files/ui/spin.svelte",
+    "statistic": "registry/files/ui/statistic.svelte",
+    "timeline": "registry/files/ui/timeline.svelte",
+    "result": "registry/files/ui/result.svelte",
+    "transfer": "registry/files/ui/transfer.svelte",
+    "cascader": "registry/files/ui/cascader.svelte",
+    "image": "registry/files/ui/image.svelte",
+    "float-button": "registry/files/ui/float-button.svelte",
+    "badge-indicator": "registry/files/ui/badge-indicator.svelte",
+    "anchor": "registry/files/ui/anchor.svelte",
+    "tour": "registry/files/ui/tour.svelte",
+    "scroll-area": "registry/files/ui/scroll-area.svelte",
+    "scroll-virtual": "registry/files/ui/scroll-virtual.svelte",
+    "icon-button": "registry/files/ui/icon-button.svelte"
+  },
+  "items": [
+    {
+      "itemName": "jixoai-theme",
+      "type": "registry:theme",
+      "files": [
+        {
+          "source": "registry/files/theme/jixoai.css",
+          "mirror": "apps/www/src/lib/jixoai.css",
+          "target": "@lib/jixoai.css",
+          "sourceSha": "1257cce34ed232e51a0b3daa933de473a5a42d2882e70b6b640c9ded97886f36",
+          "mirrorSha": "1257cce34ed232e51a0b3daa933de473a5a42d2882e70b6b640c9ded97886f36"
+        }
+      ]
+    },
+    {
+      "itemName": "toc-engine",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/toc-engine.ts",
+          "mirror": "apps/www/src/lib/toc-engine.ts",
+          "target": "@lib/toc-engine.ts",
+          "sourceSha": "2c9194cf950f722ad8505f88d51c39da1774319c016bb84d479bd01437e79cd6",
+          "mirrorSha": "2c9194cf950f722ad8505f88d51c39da1774319c016bb84d479bd01437e79cd6"
+        }
+      ]
+    },
+    {
+      "itemName": "press-button",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/press-button.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/press-button.svelte",
+          "mirror": "apps/www/src/lib/ui/press-button.svelte",
+          "target": "@ui/press-button.svelte",
+          "sourceSha": "5647583dfa9dd69f7f605a9d4d2b0225270a055985d3cf7660c44c722abbdb83",
+          "mirrorSha": "5647583dfa9dd69f7f605a9d4d2b0225270a055985d3cf7660c44c722abbdb83"
+        }
+      ]
+    },
+    {
+      "itemName": "section-card",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/section-card.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/section-card.svelte",
+          "mirror": "apps/www/src/lib/ui/section-card.svelte",
+          "target": "@ui/section-card.svelte",
+          "sourceSha": "113719b5cc29346014a4836c9e06fedc86826424fd3d0fdf3d14b3c10fa7e4b8",
+          "mirrorSha": "113719b5cc29346014a4836c9e06fedc86826424fd3d0fdf3d14b3c10fa7e4b8"
+        }
+      ]
+    },
+    {
+      "itemName": "terminal-header",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/terminal-header.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/terminal-header.svelte",
+          "mirror": "apps/www/src/lib/ui/terminal-header.svelte",
+          "target": "@ui/terminal-header.svelte",
+          "sourceSha": "b9e3fc7052132f5c2a19abfecc844b0c95e8094ce75fc427ec6e8f49839018ed",
+          "mirrorSha": "b9e3fc7052132f5c2a19abfecc844b0c95e8094ce75fc427ec6e8f49839018ed"
+        }
+      ]
+    },
+    {
+      "itemName": "terminal-footer",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/terminal-footer.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/terminal-footer.svelte",
+          "mirror": "apps/www/src/lib/ui/terminal-footer.svelte",
+          "target": "@ui/terminal-footer.svelte",
+          "sourceSha": "529d622ab0c6e56db3b5a823e4c951c7d60b588652ac21797a969381c4d72c01",
+          "mirrorSha": "529d622ab0c6e56db3b5a823e4c951c7d60b588652ac21797a969381c4d72c01"
+        }
+      ]
+    },
+    {
+      "itemName": "theme-toggle",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/theme-toggle.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/theme-toggle.svelte",
+          "mirror": "apps/www/src/lib/ui/theme-toggle.svelte",
+          "target": "@ui/theme-toggle.svelte",
+          "sourceSha": "d874234c1b407e194dd265c242f32cf5f44d047185e60245235d869260206bdd",
+          "mirrorSha": "d874234c1b407e194dd265c242f32cf5f44d047185e60245235d869260206bdd"
+        }
+      ]
+    },
+    {
+      "itemName": "toc",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/toc.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/toc.svelte",
+          "mirror": "apps/www/src/lib/ui/toc.svelte",
+          "target": "@ui/toc.svelte",
+          "sourceSha": "12f51e3b784d2d971ec355046c358abe7030efa32bd873aeaafe43e69c126fac",
+          "mirrorSha": "12f51e3b784d2d971ec355046c358abe7030efa32bd873aeaafe43e69c126fac"
+        },
+        {
+          "source": "registry/files/ui/toc.css",
+          "mirror": "apps/www/src/lib/toc.css",
+          "target": "@lib/toc.css",
+          "sourceSha": "12d1cf74c4d2958409d055b99f567fa4e4c44afabd1fd2ae1d3490d91e622dd6",
+          "mirrorSha": "12d1cf74c4d2958409d055b99f567fa4e4c44afabd1fd2ae1d3490d91e622dd6"
+        }
+      ]
+    },
+    {
+      "itemName": "website-scaffold",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/website-scaffold.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/website-scaffold.svelte",
+          "mirror": "apps/www/src/lib/ui/website-scaffold.svelte",
+          "target": "@ui/website-scaffold.svelte",
+          "sourceSha": "8018b530172b07423a80ca46507e427d0a7a0c51b2989b15af6b2b03e9568926",
+          "mirrorSha": "8018b530172b07423a80ca46507e427d0a7a0c51b2989b15af6b2b03e9568926"
+        },
+        {
+          "source": "registry/files/ui/website-scaffold.css",
+          "mirror": "apps/www/src/lib/website-scaffold.css",
+          "target": "@lib/website-scaffold.css",
+          "sourceSha": "e61cd12caf63371372cfc0858ecab16ea304c1a5be2331407d13e2edb38d4892",
+          "mirrorSha": "e61cd12caf63371372cfc0858ecab16ea304c1a5be2331407d13e2edb38d4892"
+        }
+      ]
+    },
+    {
+      "itemName": "terminal-card",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/terminal-card.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/terminal-card.svelte",
+          "mirror": "apps/www/src/lib/ui/terminal-card.svelte",
+          "target": "@ui/terminal-card.svelte",
+          "sourceSha": "32a99cf7ab495d188c2ef0d5f732fcd5f3ba78351771461654a62561ea2a4f16",
+          "mirrorSha": "32a99cf7ab495d188c2ef0d5f732fcd5f3ba78351771461654a62561ea2a4f16"
+        }
+      ]
+    },
+    {
+      "itemName": "hero-section",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/hero-section.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/hero-section.svelte",
+          "mirror": "apps/www/src/lib/ui/hero-section.svelte",
+          "target": "@ui/hero-section.svelte",
+          "sourceSha": "a65909fd46bc3f54c107dfcd2da334da052d2499d271a68d1693e36684dbb848",
+          "mirrorSha": "a65909fd46bc3f54c107dfcd2da334da052d2499d271a68d1693e36684dbb848"
+        }
+      ]
+    },
+    {
+      "itemName": "language-switcher",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/language-switcher.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/language-switcher.svelte",
+          "mirror": "apps/www/src/lib/ui/language-switcher.svelte",
+          "target": "@ui/language-switcher.svelte",
+          "sourceSha": "ea134e0079444352e2eb679254c5343eaff53389c6b21f1343e3af4fc088b7a1",
+          "mirrorSha": "ea134e0079444352e2eb679254c5343eaff53389c6b21f1343e3af4fc088b7a1"
+        }
+      ]
+    },
+    {
+      "itemName": "card-grid",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/card-grid.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/card-grid.svelte",
+          "mirror": "apps/www/src/lib/ui/card-grid.svelte",
+          "target": "@ui/card-grid.svelte",
+          "sourceSha": "7423822c6fbfe729deea748449a4dfe6cacd8a8c1afa2c69cf5580d26007cec1",
+          "mirrorSha": "7423822c6fbfe729deea748449a4dfe6cacd8a8c1afa2c69cf5580d26007cec1"
+        }
+      ]
+    },
+    {
+      "itemName": "jx-pure",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/theme/jx-pure.css",
+          "mirror": "apps/www/src/lib/jx-pure.css",
+          "target": "@lib/jx-pure.css",
+          "sourceSha": "cc22246b9e65eb189ff1004a78e97312ae21272433102d63d207a89114e7455e",
+          "mirrorSha": "cc22246b9e65eb189ff1004a78e97312ae21272433102d63d207a89114e7455e"
+        }
+      ]
+    },
+    {
+      "itemName": "native-form",
+      "type": "registry:lib",
+      "files": [
+        {
+          "sharedClaimOf": "jx-pure",
+          "source": "registry/files/theme/jx-pure.css"
+        }
+      ]
+    },
+    {
+      "itemName": "input",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/input.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/input.svelte",
+          "mirror": "apps/www/src/lib/ui/input.svelte",
+          "target": "@ui/input.svelte",
+          "sourceSha": "c028b03be59e96d0ff7dbf5a557f37103b458d4826734c42e5f37380e572286e",
+          "mirrorSha": "c028b03be59e96d0ff7dbf5a557f37103b458d4826734c42e5f37380e572286e"
+        }
+      ]
+    },
+    {
+      "itemName": "select",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/select.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/select.svelte",
+          "mirror": "apps/www/src/lib/ui/select.svelte",
+          "target": "@ui/select.svelte",
+          "sourceSha": "69fad66ccb6cc64ef15437e65840386e4e7bfd50f554c4619a1683cb7ffd78dd",
+          "mirrorSha": "69fad66ccb6cc64ef15437e65840386e4e7bfd50f554c4619a1683cb7ffd78dd"
+        }
+      ]
+    },
+    {
+      "itemName": "textarea",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/textarea.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/textarea.svelte",
+          "mirror": "apps/www/src/lib/ui/textarea.svelte",
+          "target": "@ui/textarea.svelte",
+          "sourceSha": "553c95311ee0809a3ee9fbaad1f2adf41ec88bf71160799ff64b68df10cbd94c",
+          "mirrorSha": "553c95311ee0809a3ee9fbaad1f2adf41ec88bf71160799ff64b68df10cbd94c"
+        }
+      ]
+    },
+    {
+      "itemName": "scaffold-float",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/scaffold-float.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/scaffold-float.svelte",
+          "mirror": "apps/www/src/lib/ui/scaffold-float.svelte",
+          "target": "@ui/scaffold-float.svelte",
+          "sourceSha": "719d0e5b0b3862ff1fb55e75dc19834785ab498728a0463b73abe847763e5a51",
+          "mirrorSha": "719d0e5b0b3862ff1fb55e75dc19834785ab498728a0463b73abe847763e5a51"
+        }
+      ]
+    },
+    {
+      "itemName": "dialog",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/dialog.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/dialog.svelte",
+          "mirror": "apps/www/src/lib/ui/dialog.svelte",
+          "target": "@ui/dialog.svelte",
+          "sourceSha": "63dddcb8fbd256b33e4047fd58adb5a89db545d8cbd08d0c6913feec98b8edcf",
+          "mirrorSha": "63dddcb8fbd256b33e4047fd58adb5a89db545d8cbd08d0c6913feec98b8edcf"
+        }
+      ]
+    },
+    {
+      "itemName": "popover",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/popover.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/popover.svelte",
+          "mirror": "apps/www/src/lib/ui/popover.svelte",
+          "target": "@ui/popover.svelte",
+          "sourceSha": "fb1255be79c430858a2e4c5fc548d4d84f3ffb61f9e892f393a63fdd7170bcaa",
+          "mirrorSha": "fb1255be79c430858a2e4c5fc548d4d84f3ffb61f9e892f393a63fdd7170bcaa"
+        }
+      ]
+    },
+    {
+      "itemName": "code-card",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/code-card.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/code-card.svelte",
+          "mirror": "apps/www/src/lib/ui/code-card.svelte",
+          "target": "@ui/code-card.svelte",
+          "sourceSha": "25ac935b4c485c3eaa1c0e93d297e23310e7fd71e40039cc75b48195737c37eb",
+          "mirrorSha": "25ac935b4c485c3eaa1c0e93d297e23310e7fd71e40039cc75b48195737c37eb"
+        },
+        {
+          "source": "registry/files/lib/shiki.ts",
+          "mirror": "apps/www/src/lib/shiki.ts",
+          "target": "@lib/shiki.ts",
+          "sourceSha": "e701e23c0bb0b54fd7b41848ce1633ae87ce477ca8e4ce4890fae5484580b7e1",
+          "mirrorSha": "e701e23c0bb0b54fd7b41848ce1633ae87ce477ca8e4ce4890fae5484580b7e1"
+        }
+      ]
+    },
+    {
+      "itemName": "shiki",
+      "type": "registry:lib",
+      "files": [
+        {
+          "sharedClaimOf": "code-card",
+          "source": "registry/files/lib/shiki.ts"
+        }
+      ]
+    },
+    {
+      "itemName": "icons",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/icons.ts",
+          "mirror": "apps/www/src/lib/icons.ts",
+          "target": "@lib/icons.ts",
+          "sourceSha": "f028a2d3135bfd98a0d3c3013d57599d15542148bd40163a136b46a1ac45a3e4",
+          "mirrorSha": "f028a2d3135bfd98a0d3c3013d57599d15542148bd40163a136b46a1ac45a3e4"
+        }
+      ]
+    },
+    {
+      "itemName": "form-field",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/form-field.ts",
+          "mirror": "apps/www/src/lib/form-field.ts",
+          "target": "@lib/form-field.ts",
+          "sourceSha": "d767b1acc25dc9e5bb8e9d9ce5bb2350337a7c33a7ed023cd3746e8541dcc642",
+          "mirrorSha": "d767b1acc25dc9e5bb8e9d9ce5bb2350337a7c33a7ed023cd3746e8541dcc642"
+        }
+      ]
+    },
+    {
+      "itemName": "table",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/table.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/table.svelte",
+          "mirror": "apps/www/src/lib/ui/table.svelte",
+          "target": "@ui/table.svelte",
+          "sourceSha": "5a3da67cdb1e3f9b2ec6e1a10c51dd545c1725644b59c8003031efa7cdbd3a2a",
+          "mirrorSha": "5a3da67cdb1e3f9b2ec6e1a10c51dd545c1725644b59c8003031efa7cdbd3a2a"
+        }
+      ]
+    },
+    {
+      "itemName": "tree-view",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/tree-view.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/tree-view.svelte",
+          "mirror": "apps/www/src/lib/ui/tree-view.svelte",
+          "target": "@ui/tree-view.svelte",
+          "sourceSha": "cd89b8a3fb28843fbdefe793d30b43c2211878c34db41c0f10d30df99cc27315",
+          "mirrorSha": "cd89b8a3fb28843fbdefe793d30b43c2211878c34db41c0f10d30df99cc27315"
+        }
+      ]
+    },
+    {
+      "itemName": "component-canvas",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/component-canvas.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/component-canvas.svelte",
+          "mirror": "apps/www/src/lib/ui/component-canvas.svelte",
+          "target": "@ui/component-canvas.svelte",
+          "sourceSha": "de845b6d837413a357c2d4f29dace594753ff0d01ae6bc62257fc6f9855c4255",
+          "mirrorSha": "de845b6d837413a357c2d4f29dace594753ff0d01ae6bc62257fc6f9855c4255"
+        }
+      ]
+    },
+    {
+      "itemName": "checkbox",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/checkbox.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/checkbox.svelte",
+          "mirror": "apps/www/src/lib/ui/checkbox.svelte",
+          "target": "@ui/checkbox.svelte",
+          "sourceSha": "f8d6bfca5712d635b13dc4065d791f0ca6ac6d8a638d906edb499d2724c59671",
+          "mirrorSha": "f8d6bfca5712d635b13dc4065d791f0ca6ac6d8a638d906edb499d2724c59671"
+        }
+      ]
+    },
+    {
+      "itemName": "radio",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/radio.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/radio.svelte",
+          "mirror": "apps/www/src/lib/ui/radio.svelte",
+          "target": "@ui/radio.svelte",
+          "sourceSha": "24b601e5578d20ee24d02c8495c0f7cd25445f51f87773906f2aa4dbf02306e6",
+          "mirrorSha": "24b601e5578d20ee24d02c8495c0f7cd25445f51f87773906f2aa4dbf02306e6"
+        }
+      ]
+    },
+    {
+      "itemName": "toggle",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/toggle.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/toggle.svelte",
+          "mirror": "apps/www/src/lib/ui/toggle.svelte",
+          "target": "@ui/toggle.svelte",
+          "sourceSha": "988de494f9c3a6fdc1735adf53cfac5f259e46ff40af147d5ec168aa7d8e6a34",
+          "mirrorSha": "988de494f9c3a6fdc1735adf53cfac5f259e46ff40af147d5ec168aa7d8e6a34"
+        }
+      ]
+    },
+    {
+      "itemName": "native-select",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/native-select.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/native-select.svelte",
+          "mirror": "apps/www/src/lib/ui/native-select.svelte",
+          "target": "@ui/native-select.svelte",
+          "sourceSha": "b5a3e0b3a49ba789ab830db47e33b46775945387641a10ad3801b93e607a4116",
+          "mirrorSha": "b5a3e0b3a49ba789ab830db47e33b46775945387641a10ad3801b93e607a4116"
+        }
+      ]
+    },
+    {
+      "itemName": "number-input",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/number-input.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/number-input.svelte",
+          "mirror": "apps/www/src/lib/ui/number-input.svelte",
+          "target": "@ui/number-input.svelte",
+          "sourceSha": "63e22279170a46762c0b95f1ccbfcd98ae366e07ce762b64749265841f422b69",
+          "mirrorSha": "63e22279170a46762c0b95f1ccbfcd98ae366e07ce762b64749265841f422b69"
+        }
+      ]
+    },
+    {
+      "itemName": "range",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/range.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/range.svelte",
+          "mirror": "apps/www/src/lib/ui/range.svelte",
+          "target": "@ui/range.svelte",
+          "sourceSha": "c58f2f44b9291e04e7d9f9d83fd796488c922475b1fe9696ce4e4d2a5c1900a7",
+          "mirrorSha": "c58f2f44b9291e04e7d9f9d83fd796488c922475b1fe9696ce4e4d2a5c1900a7"
+        }
+      ]
+    },
+    {
+      "itemName": "date-picker",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/date-picker.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/date-picker.svelte",
+          "mirror": "apps/www/src/lib/ui/date-picker.svelte",
+          "target": "@ui/date-picker.svelte",
+          "sourceSha": "92f4a6273ea868ace2982823ef80e29b834ecfbb13187b789f260bb668f1d85c",
+          "mirrorSha": "92f4a6273ea868ace2982823ef80e29b834ecfbb13187b789f260bb668f1d85c"
+        }
+      ]
+    },
+    {
+      "itemName": "file-input",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/file-input.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/file-input.svelte",
+          "mirror": "apps/www/src/lib/ui/file-input.svelte",
+          "target": "@ui/file-input.svelte",
+          "sourceSha": "fc1b15e9a0f6c96883793a29ae8ffac38dfd1994a7e268f60950212c6b09cfb0",
+          "mirrorSha": "fc1b15e9a0f6c96883793a29ae8ffac38dfd1994a7e268f60950212c6b09cfb0"
+        }
+      ]
+    },
+    {
+      "itemName": "color-picker",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/color-picker.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/color-picker.svelte",
+          "mirror": "apps/www/src/lib/ui/color-picker.svelte",
+          "target": "@ui/color-picker.svelte",
+          "sourceSha": "1147670618a1814f340112425b6633e1bfd789747269e44d07fadc536c32e031",
+          "mirrorSha": "1147670618a1814f340112425b6633e1bfd789747269e44d07fadc536c32e031"
+        }
+      ]
+    },
+    {
+      "itemName": "combobox",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/combobox.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/combobox.svelte",
+          "mirror": "apps/www/src/lib/ui/combobox.svelte",
+          "target": "@ui/combobox.svelte",
+          "sourceSha": "89b10d7a5f277d339516f4b07fbc04c5736f1716b756e25e4eedd5e2bd40d46e",
+          "mirrorSha": "89b10d7a5f277d339516f4b07fbc04c5736f1716b756e25e4eedd5e2bd40d46e"
+        }
+      ]
+    },
+    {
+      "itemName": "tags-input",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/tags-input.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/tags-input.svelte",
+          "mirror": "apps/www/src/lib/ui/tags-input.svelte",
+          "target": "@ui/tags-input.svelte",
+          "sourceSha": "dbdf20dcd18b644af95b4ca50a2dd19d0a2c0e4e49e2db42e5de7adb6a92bbf0",
+          "mirrorSha": "dbdf20dcd18b644af95b4ca50a2dd19d0a2c0e4e49e2db42e5de7adb6a92bbf0"
+        }
+      ]
+    },
+    {
+      "itemName": "badge",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/badge.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/badge.svelte",
+          "mirror": "apps/www/src/lib/ui/badge.svelte",
+          "target": "@ui/badge.svelte",
+          "sourceSha": "5ee289a96cf1e659316e12a001e5d3bc08f0e6f604d31427b7000dc7c2255c90",
+          "mirrorSha": "5ee289a96cf1e659316e12a001e5d3bc08f0e6f604d31427b7000dc7c2255c90"
+        }
+      ]
+    },
+    {
+      "itemName": "separator",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/separator.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/separator.svelte",
+          "mirror": "apps/www/src/lib/ui/separator.svelte",
+          "target": "@ui/separator.svelte",
+          "sourceSha": "62f04de9d4a2c532cb5603e298b383c22abd840a823306c3fcd2b58dc6503d8e",
+          "mirrorSha": "62f04de9d4a2c532cb5603e298b383c22abd840a823306c3fcd2b58dc6503d8e"
+        }
+      ]
+    },
+    {
+      "itemName": "skeleton",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/skeleton.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/skeleton.svelte",
+          "mirror": "apps/www/src/lib/ui/skeleton.svelte",
+          "target": "@ui/skeleton.svelte",
+          "sourceSha": "3ccc9fc2db4b94cae94303bc49dbcbea414ce5e973b3f4eec7de9390b80b878d",
+          "mirrorSha": "3ccc9fc2db4b94cae94303bc49dbcbea414ce5e973b3f4eec7de9390b80b878d"
+        }
+      ]
+    },
+    {
+      "itemName": "avatar",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/avatar.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/avatar.svelte",
+          "mirror": "apps/www/src/lib/ui/avatar.svelte",
+          "target": "@ui/avatar.svelte",
+          "sourceSha": "e468b5c1b30f9923dc4bf6faeb28b00979957de5c7816c040e2049d4bef804e8",
+          "mirrorSha": "e468b5c1b30f9923dc4bf6faeb28b00979957de5c7816c040e2049d4bef804e8"
+        }
+      ]
+    },
+    {
+      "itemName": "alert",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/alert.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/alert.svelte",
+          "mirror": "apps/www/src/lib/ui/alert.svelte",
+          "target": "@ui/alert.svelte",
+          "sourceSha": "16c75967983478103b4088f573f71cee00eb1f4e0f74660d6bde963771994e3e",
+          "mirrorSha": "16c75967983478103b4088f573f71cee00eb1f4e0f74660d6bde963771994e3e"
+        }
+      ]
+    },
+    {
+      "itemName": "accordion",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/accordion.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/accordion.svelte",
+          "mirror": "apps/www/src/lib/ui/accordion.svelte",
+          "target": "@ui/accordion.svelte",
+          "sourceSha": "4f3a7041b766d4c68c5a1d32a0fd8ee15caa44061fc37debb21a1bd6cb9aa1cd",
+          "mirrorSha": "4f3a7041b766d4c68c5a1d32a0fd8ee15caa44061fc37debb21a1bd6cb9aa1cd"
+        },
+        {
+          "source": "registry/files/ui/accordion-item.svelte",
+          "mirror": "apps/www/src/lib/ui/accordion-item.svelte",
+          "target": "@ui/accordion-item.svelte",
+          "sourceSha": "14d7fa19921f58141483e0361dc23bdf52e0079887a9227eff214c20df37c97f",
+          "mirrorSha": "14d7fa19921f58141483e0361dc23bdf52e0079887a9227eff214c20df37c97f"
+        }
+      ]
+    },
+    {
+      "itemName": "tabs",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/tabs.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/tabs.svelte",
+          "mirror": "apps/www/src/lib/ui/tabs.svelte",
+          "target": "@ui/tabs.svelte",
+          "sourceSha": "426a3bd86a8a15ea2f8a0c47639ef3198c5d6417c12ade0eb5c66b4a356c47ee",
+          "mirrorSha": "426a3bd86a8a15ea2f8a0c47639ef3198c5d6417c12ade0eb5c66b4a356c47ee"
+        },
+        {
+          "source": "registry/files/ui/tabs-list.svelte",
+          "mirror": "apps/www/src/lib/ui/tabs-list.svelte",
+          "target": "@ui/tabs-list.svelte",
+          "sourceSha": "ec12a9a6470a995112239273c44699690b3fe6e64ce62c0d4147168b2d0df267",
+          "mirrorSha": "ec12a9a6470a995112239273c44699690b3fe6e64ce62c0d4147168b2d0df267"
+        },
+        {
+          "source": "registry/files/ui/tabs-trigger.svelte",
+          "mirror": "apps/www/src/lib/ui/tabs-trigger.svelte",
+          "target": "@ui/tabs-trigger.svelte",
+          "sourceSha": "30d41728e27dce22f09f74a87e17d88638cbb24b09f4d3a798421ce3c83f0256",
+          "mirrorSha": "30d41728e27dce22f09f74a87e17d88638cbb24b09f4d3a798421ce3c83f0256"
+        },
+        {
+          "source": "registry/files/ui/tabs-content.svelte",
+          "mirror": "apps/www/src/lib/ui/tabs-content.svelte",
+          "target": "@ui/tabs-content.svelte",
+          "sourceSha": "1c8557c1045ea2b70b5c582dcc326b5ff6674220e05f282cbe83d72027e8c838",
+          "mirrorSha": "1c8557c1045ea2b70b5c582dcc326b5ff6674220e05f282cbe83d72027e8c838"
+        }
+      ]
+    },
+    {
+      "itemName": "progress",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/progress.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/progress.svelte",
+          "mirror": "apps/www/src/lib/ui/progress.svelte",
+          "target": "@ui/progress.svelte",
+          "sourceSha": "0f23e446806e64bfab29819b8adff0320056a366a160ba42dd26439e64b29c1b",
+          "mirrorSha": "0f23e446806e64bfab29819b8adff0320056a366a160ba42dd26439e64b29c1b"
+        }
+      ]
+    },
+    {
+      "itemName": "tooltip",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/tooltip.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/tooltip.svelte",
+          "mirror": "apps/www/src/lib/ui/tooltip.svelte",
+          "target": "@ui/tooltip.svelte",
+          "sourceSha": "b63f0452ac20bd82d32c8ca9335db763b71a1dea8c3455a90a8b8cefc03dd18c",
+          "mirrorSha": "b63f0452ac20bd82d32c8ca9335db763b71a1dea8c3455a90a8b8cefc03dd18c"
+        }
+      ]
+    },
+    {
+      "itemName": "pagination",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/pagination.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/pagination.svelte",
+          "mirror": "apps/www/src/lib/ui/pagination.svelte",
+          "target": "@ui/pagination.svelte",
+          "sourceSha": "4b2ca9db6e536451b8e6b4f89be18f6304c6766c46195e12a50465cecb0d275c",
+          "mirrorSha": "4b2ca9db6e536451b8e6b4f89be18f6304c6766c46195e12a50465cecb0d275c"
+        }
+      ]
+    },
+    {
+      "itemName": "dropdown-menu",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/dropdown-menu.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/dropdown-menu.svelte",
+          "mirror": "apps/www/src/lib/ui/dropdown-menu.svelte",
+          "target": "@ui/dropdown-menu.svelte",
+          "sourceSha": "16aa3209fedaf028a205d0c37e80f1029a88acd2112ef7861e7ae59a4e03c6db",
+          "mirrorSha": "16aa3209fedaf028a205d0c37e80f1029a88acd2112ef7861e7ae59a4e03c6db"
+        },
+        {
+          "source": "registry/files/ui/dropdown-menu-item.svelte",
+          "mirror": "apps/www/src/lib/ui/dropdown-menu-item.svelte",
+          "target": "@ui/dropdown-menu-item.svelte",
+          "sourceSha": "7716550a1572f9f557cae5a4afb02537d39b06feadc060cff3e5563947b64d93",
+          "mirrorSha": "7716550a1572f9f557cae5a4afb02537d39b06feadc060cff3e5563947b64d93"
+        }
+      ]
+    },
+    {
+      "itemName": "breadcrumb",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/breadcrumb.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/breadcrumb.svelte",
+          "mirror": "apps/www/src/lib/ui/breadcrumb.svelte",
+          "target": "@ui/breadcrumb.svelte",
+          "sourceSha": "86b47c1e6066f5799075c458153eea2e867f35a804dbf7c5994d5d404b8e5dcd",
+          "mirrorSha": "86b47c1e6066f5799075c458153eea2e867f35a804dbf7c5994d5d404b8e5dcd"
+        }
+      ]
+    },
+    {
+      "itemName": "kbd",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/kbd.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/kbd.svelte",
+          "mirror": "apps/www/src/lib/ui/kbd.svelte",
+          "target": "@ui/kbd.svelte",
+          "sourceSha": "841da641ffbb20869944205073b83642719c1f426837f923d5a266dfddef6a92",
+          "mirrorSha": "841da641ffbb20869944205073b83642719c1f426837f923d5a266dfddef6a92"
+        }
+      ]
+    },
+    {
+      "itemName": "toast",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/toast-viewport.svelte",
+      "files": [
+        {
+          "source": "registry/files/lib/toast-store.ts",
+          "mirror": "apps/www/src/lib/toast-store.ts",
+          "target": "@lib/toast-store.ts",
+          "sourceSha": "71de8702d279a7b3ba1d86a429728931436e94f5f0c8319b2fdd5ed2f0b93359",
+          "mirrorSha": "71de8702d279a7b3ba1d86a429728931436e94f5f0c8319b2fdd5ed2f0b93359"
+        },
+        {
+          "source": "registry/files/ui/toast-viewport.svelte",
+          "mirror": "apps/www/src/lib/ui/toast-viewport.svelte",
+          "target": "@ui/toast-viewport.svelte",
+          "sourceSha": "f8412c5ffa1c033722c710a705518aafe98b9f7d0dcea1449b282cac7df96219",
+          "mirrorSha": "f8412c5ffa1c033722c710a705518aafe98b9f7d0dcea1449b282cac7df96219"
+        }
+      ]
+    },
+    {
+      "itemName": "alert-dialog",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/alert-dialog.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/alert-dialog.svelte",
+          "mirror": "apps/www/src/lib/ui/alert-dialog.svelte",
+          "target": "@ui/alert-dialog.svelte",
+          "sourceSha": "c1641373c613fb2ffe12bdd54765e3d1ee558a3b9015566c4290c7e2e75e4929",
+          "mirrorSha": "c1641373c613fb2ffe12bdd54765e3d1ee558a3b9015566c4290c7e2e75e4929"
+        }
+      ]
+    },
+    {
+      "itemName": "sheet",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/sheet.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/sheet.svelte",
+          "mirror": "apps/www/src/lib/ui/sheet.svelte",
+          "target": "@ui/sheet.svelte",
+          "sourceSha": "131dcbf793037ac1646bddbd8dca44d814a58a9c1c05f7b7a9f3e58d9246644b",
+          "mirrorSha": "131dcbf793037ac1646bddbd8dca44d814a58a9c1c05f7b7a9f3e58d9246644b"
+        }
+      ]
+    },
+    {
+      "itemName": "hover-card",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/hover-card.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/hover-card.svelte",
+          "mirror": "apps/www/src/lib/ui/hover-card.svelte",
+          "target": "@ui/hover-card.svelte",
+          "sourceSha": "72b7e0c17079e489a890d3052d91a132df58c05cd01a1d0539e56e31538e8fb9",
+          "mirrorSha": "72b7e0c17079e489a890d3052d91a132df58c05cd01a1d0539e56e31538e8fb9"
+        }
+      ]
+    },
+    {
+      "itemName": "input-otp",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/input-otp.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/input-otp.svelte",
+          "mirror": "apps/www/src/lib/ui/input-otp.svelte",
+          "target": "@ui/input-otp.svelte",
+          "sourceSha": "1dbdb4b028eef29f4e8bb0f97d67a943b48a9d2359cfb5921bb77d1073a9faf4",
+          "mirrorSha": "1dbdb4b028eef29f4e8bb0f97d67a943b48a9d2359cfb5921bb77d1073a9faf4"
+        }
+      ]
+    },
+    {
+      "itemName": "toggle-group",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/toggle-group.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/toggle-group.svelte",
+          "mirror": "apps/www/src/lib/ui/toggle-group.svelte",
+          "target": "@ui/toggle-group.svelte",
+          "sourceSha": "9554edfa6a53f04cae96b16d868ca3aff8948fa062f6a0adbad5003827adee72",
+          "mirrorSha": "9554edfa6a53f04cae96b16d868ca3aff8948fa062f6a0adbad5003827adee72"
+        }
+      ]
+    },
+    {
+      "itemName": "carousel",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/carousel.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/carousel.svelte",
+          "mirror": "apps/www/src/lib/ui/carousel.svelte",
+          "target": "@ui/carousel.svelte",
+          "sourceSha": "ecbeb0ec606719814672e33c8fdf75c42c15e47654536b3a0975c4cdcce1175e",
+          "mirrorSha": "ecbeb0ec606719814672e33c8fdf75c42c15e47654536b3a0975c4cdcce1175e"
+        }
+      ]
+    },
+    {
+      "itemName": "command",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/command.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/command.svelte",
+          "mirror": "apps/www/src/lib/ui/command.svelte",
+          "target": "@ui/command.svelte",
+          "sourceSha": "beb3e6ea2f10c3d02cc4bf16f96b1cf5aaec3f1f594dbe770863f940076f4f54",
+          "mirrorSha": "beb3e6ea2f10c3d02cc4bf16f96b1cf5aaec3f1f594dbe770863f940076f4f54"
+        }
+      ]
+    },
+    {
+      "itemName": "navigation-menu",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/navigation-menu.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/navigation-menu.svelte",
+          "mirror": "apps/www/src/lib/ui/navigation-menu.svelte",
+          "target": "@ui/navigation-menu.svelte",
+          "sourceSha": "d03443851e38637fc88aa27f2bb0a30628910263c5bdac912bd617e64f2cc5ea",
+          "mirrorSha": "d03443851e38637fc88aa27f2bb0a30628910263c5bdac912bd617e64f2cc5ea"
+        }
+      ]
+    },
+    {
+      "itemName": "menubar",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/menubar.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/menubar.svelte",
+          "mirror": "apps/www/src/lib/ui/menubar.svelte",
+          "target": "@ui/menubar.svelte",
+          "sourceSha": "fa175ae163a955eedd9f3434513ef0f080daa291af4296b390ca14255a4cb09b",
+          "mirrorSha": "fa175ae163a955eedd9f3434513ef0f080daa291af4296b390ca14255a4cb09b"
+        }
+      ]
+    },
+    {
+      "itemName": "popconfirm",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/popconfirm.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/popconfirm.svelte",
+          "mirror": "apps/www/src/lib/ui/popconfirm.svelte",
+          "target": "@ui/popconfirm.svelte",
+          "sourceSha": "b05b37960873e299c8a0dfeceb4506a854d4a1255fcb1ce7979f16c7444f671d",
+          "mirrorSha": "b05b37960873e299c8a0dfeceb4506a854d4a1255fcb1ce7979f16c7444f671d"
+        }
+      ]
+    },
+    {
+      "itemName": "empty",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/empty.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/empty.svelte",
+          "mirror": "apps/www/src/lib/ui/empty.svelte",
+          "target": "@ui/empty.svelte",
+          "sourceSha": "2bc63b531dc2e016c0c0a6a7676e3122e31d0dc7e7b84583e690c2a4f321b55d",
+          "mirrorSha": "2bc63b531dc2e016c0c0a6a7676e3122e31d0dc7e7b84583e690c2a4f321b55d"
+        }
+      ]
+    },
+    {
+      "itemName": "descriptions",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/descriptions.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/descriptions.svelte",
+          "mirror": "apps/www/src/lib/ui/descriptions.svelte",
+          "target": "@ui/descriptions.svelte",
+          "sourceSha": "4ecd39bda9e0d9126017b2b5de4a063adaf575fd5ac23555a476cc35cdf796f6",
+          "mirrorSha": "4ecd39bda9e0d9126017b2b5de4a063adaf575fd5ac23555a476cc35cdf796f6"
+        }
+      ]
+    },
+    {
+      "itemName": "steps",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/steps.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/steps.svelte",
+          "mirror": "apps/www/src/lib/ui/steps.svelte",
+          "target": "@ui/steps.svelte",
+          "sourceSha": "fedce09478d4d4b9cb31545731a5439d84a1ac20111e7c460fc1362d9d5e0195",
+          "mirrorSha": "fedce09478d4d4b9cb31545731a5439d84a1ac20111e7c460fc1362d9d5e0195"
+        }
+      ]
+    },
+    {
+      "itemName": "spin",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/spin.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/spin.svelte",
+          "mirror": "apps/www/src/lib/ui/spin.svelte",
+          "target": "@ui/spin.svelte",
+          "sourceSha": "14655972c8a47617afab93f2d8eb025e8e8ab509eb6dc5a8eaea89ff7732d49e",
+          "mirrorSha": "14655972c8a47617afab93f2d8eb025e8e8ab509eb6dc5a8eaea89ff7732d49e"
+        }
+      ]
+    },
+    {
+      "itemName": "statistic",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/statistic.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/statistic.svelte",
+          "mirror": "apps/www/src/lib/ui/statistic.svelte",
+          "target": "@ui/statistic.svelte",
+          "sourceSha": "73d63eb58247789efdea0a872d74b7a4e41096783a9f0f901207efa24fb55182",
+          "mirrorSha": "73d63eb58247789efdea0a872d74b7a4e41096783a9f0f901207efa24fb55182"
+        }
+      ]
+    },
+    {
+      "itemName": "timeline",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/timeline.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/timeline.svelte",
+          "mirror": "apps/www/src/lib/ui/timeline.svelte",
+          "target": "@ui/timeline.svelte",
+          "sourceSha": "a06101e3cc1a3bcb5775510767308de7fdb3f56340388a202a9de4f752af7f09",
+          "mirrorSha": "a06101e3cc1a3bcb5775510767308de7fdb3f56340388a202a9de4f752af7f09"
+        }
+      ]
+    },
+    {
+      "itemName": "result",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/result.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/result.svelte",
+          "mirror": "apps/www/src/lib/ui/result.svelte",
+          "target": "@ui/result.svelte",
+          "sourceSha": "a746f795e8735d4e8ce18e9dbe13a09508963815decedbd7baa90f9b9c6f979c",
+          "mirrorSha": "a746f795e8735d4e8ce18e9dbe13a09508963815decedbd7baa90f9b9c6f979c"
+        }
+      ]
+    },
+    {
+      "itemName": "transfer",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/transfer.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/transfer.svelte",
+          "mirror": "apps/www/src/lib/ui/transfer.svelte",
+          "target": "@ui/transfer.svelte",
+          "sourceSha": "6b5b9336ca8d89f43838f4c79e480d0c256a2cefe0c293dde0c041ce1c44304e",
+          "mirrorSha": "6b5b9336ca8d89f43838f4c79e480d0c256a2cefe0c293dde0c041ce1c44304e"
+        }
+      ]
+    },
+    {
+      "itemName": "cascader",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/cascader.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/cascader.svelte",
+          "mirror": "apps/www/src/lib/ui/cascader.svelte",
+          "target": "@ui/cascader.svelte",
+          "sourceSha": "dc407b2078d0c2357576fecc0539600d512714fb6920c9c6749a4f8d041b83e1",
+          "mirrorSha": "dc407b2078d0c2357576fecc0539600d512714fb6920c9c6749a4f8d041b83e1"
+        }
+      ]
+    },
+    {
+      "itemName": "image",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/image.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/image.svelte",
+          "mirror": "apps/www/src/lib/ui/image.svelte",
+          "target": "@ui/image.svelte",
+          "sourceSha": "2a07eaaf19fd2434694b1cf708994414dbb3335ff87392467f4c2376df05e6dd",
+          "mirrorSha": "2a07eaaf19fd2434694b1cf708994414dbb3335ff87392467f4c2376df05e6dd"
+        }
+      ]
+    },
+    {
+      "itemName": "float-button",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/float-button.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/float-button.svelte",
+          "mirror": "apps/www/src/lib/ui/float-button.svelte",
+          "target": "@ui/float-button.svelte",
+          "sourceSha": "331ca767ed4ddc291f15531887ab4fae56d46f59bcf89e6bdfec1b85a593b52d",
+          "mirrorSha": "331ca767ed4ddc291f15531887ab4fae56d46f59bcf89e6bdfec1b85a593b52d"
+        }
+      ]
+    },
+    {
+      "itemName": "badge-indicator",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/badge-indicator.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/badge-indicator.svelte",
+          "mirror": "apps/www/src/lib/ui/badge-indicator.svelte",
+          "target": "@ui/badge-indicator.svelte",
+          "sourceSha": "360fd9e89d2434d721fd0e1e00d48a81259b85a59dc54e249174023b7e127113",
+          "mirrorSha": "360fd9e89d2434d721fd0e1e00d48a81259b85a59dc54e249174023b7e127113"
+        }
+      ]
+    },
+    {
+      "itemName": "anchor",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/anchor.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/anchor.svelte",
+          "mirror": "apps/www/src/lib/ui/anchor.svelte",
+          "target": "@ui/anchor.svelte",
+          "sourceSha": "614118ff834549dfd8848745ce21a10499591897efd761377a552b25f5426bcd",
+          "mirrorSha": "614118ff834549dfd8848745ce21a10499591897efd761377a552b25f5426bcd"
+        }
+      ]
+    },
+    {
+      "itemName": "tour",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/tour.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/tour.svelte",
+          "mirror": "apps/www/src/lib/ui/tour.svelte",
+          "target": "@ui/tour.svelte",
+          "sourceSha": "148b6e4741a0984dd78abce29c83e2ccd253ac6b49048b71823df92d9bdcb02b",
+          "mirrorSha": "148b6e4741a0984dd78abce29c83e2ccd253ac6b49048b71823df92d9bdcb02b"
+        }
+      ]
+    },
+    {
+      "itemName": "scroll-spy",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/scroll-spy.ts",
+          "mirror": "apps/www/src/lib/scroll-spy.ts",
+          "target": "@lib/scroll-spy.ts",
+          "sourceSha": "15abf0c6574836f4e671e7630b250fdaaaa1c593f47e54016c13487b161414f0",
+          "mirrorSha": "15abf0c6574836f4e671e7630b250fdaaaa1c593f47e54016c13487b161414f0"
+        }
+      ]
+    },
+    {
+      "itemName": "scrollbar-measure",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/scrollbar-measure.ts",
+          "mirror": "apps/www/src/lib/scrollbar-measure.ts",
+          "target": "@lib/scrollbar-measure.ts",
+          "sourceSha": "ff8466abdb0f3809bb25c40676f9111203ed9d0b41c4db45bc46c458766009ae",
+          "mirrorSha": "ff8466abdb0f3809bb25c40676f9111203ed9d0b41c4db45bc46c458766009ae"
+        }
+      ]
+    },
+    {
+      "itemName": "toc-outline",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/toc-outline.ts",
+          "mirror": "apps/www/src/lib/toc-outline.ts",
+          "target": "@lib/toc-outline.ts",
+          "sourceSha": "b317b053987b90e10e4ea45c7f5cea9595ac07bb11b3efa0738138b17813def2",
+          "mirrorSha": "b317b053987b90e10e4ea45c7f5cea9595ac07bb11b3efa0738138b17813def2"
+        }
+      ]
+    },
+    {
+      "itemName": "scroll-area",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/scroll-area.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/scroll-area.svelte",
+          "mirror": "apps/www/src/lib/ui/scroll-area.svelte",
+          "target": "@ui/scroll-area.svelte",
+          "sourceSha": "45da6adde345414d182a8c73b4fb7f4ed5384294eb47363dac65a7b6f72ca192",
+          "mirrorSha": "45da6adde345414d182a8c73b4fb7f4ed5384294eb47363dac65a7b6f72ca192"
+        }
+      ]
+    },
+    {
+      "itemName": "scroll-virtual",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/scroll-virtual.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/scroll-virtual.svelte",
+          "mirror": "apps/www/src/lib/ui/scroll-virtual.svelte",
+          "target": "@ui/scroll-virtual.svelte",
+          "sourceSha": "71643ffd8dd916112a3f4a0ab289d722f093587f3e440ebb4cec80eaefd62ea1",
+          "mirrorSha": "71643ffd8dd916112a3f4a0ab289d722f093587f3e440ebb4cec80eaefd62ea1"
+        }
+      ]
+    },
+    {
+      "itemName": "icon-button",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/icon-button.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/icon-button.svelte",
+          "mirror": "apps/www/src/lib/ui/icon-button.svelte",
+          "target": "@ui/icon-button.svelte",
+          "sourceSha": "361cfcf02468bdd65d3e80828fc5f9894eb9a28a142a3aa68f440d065f6ee31c",
+          "mirrorSha": "361cfcf02468bdd65d3e80828fc5f9894eb9a28a142a3aa68f440d065f6ee31c"
+        }
+      ]
+    },
+    {
+      "itemName": "llms-txt",
+      "type": "registry:file",
+      "files": [
+        {
+          "source": "registry/files/llms-txt/llms-txt.mjs",
+          "mirror": "registry/files/llms-txt/llms-txt.mjs",
+          "target": "vite-plugins/llms-txt.mjs",
+          "sourceSha": "fd95ec00ae49d7f763922b690161c95698e0f33b7e8339f03faeca79310938f8",
+          "mirrorSha": "fd95ec00ae49d7f763922b690161c95698e0f33b7e8339f03faeca79310938f8"
+        }
+      ]
+    }
+  ],
+  "siteOnly": [
+    {
+      "path": "apps/www/src/lib/ui/component-tree-nav.svelte",
+      "note": "site secondary-nav chrome"
+    },
+    {
+      "path": "apps/www/src/lib/catalog.ts",
+      "note": "site catalog index"
+    },
+    {
+      "path": "apps/www/src/lib/site.ts",
+      "note": "site helpers"
+    },
+    {
+      "path": "apps/www/src/lib/hue-runtime.ts",
+      "note": "tokens-page hue lab runtime"
+    },
+    {
+      "path": "apps/www/src/lib/code-block.svelte",
+      "note": "site docs code surface"
+    },
+    {
+      "path": "apps/www/src/lib/copy-command.svelte",
+      "note": "site docs copy affordance"
+    },
+    {
+      "path": "apps/www/src/lib/copy-icon-button.svelte",
+      "note": "site docs copy affordance"
+    },
+    {
+      "path": "apps/www/src/lib/overview-card.svelte",
+      "note": "site docs overview card"
+    },
+    {
+      "path": "apps/www/src/lib/toc.css",
+      "note": "MIRROR ROOT COPY of the toc item css (pre-migration path mapping)"
+    },
+    {
+      "path": "apps/www/src/lib/website-scaffold.css",
+      "note": "MIRROR ROOT COPY of the website-scaffold item css (pre-migration path mapping)"
+    }
+  ],
+  "registryOnly": [],
+  "unreferencedLib": [
+    {
+      "path": "registry/files/lib/color-utils.ts",
+      "note": "site-consumed, unreferenced by items"
+    },
+    {
+      "path": "registry/files/lib/surface-motion.ts",
+      "note": "site-consumed, unreferenced by items"
+    },
+    {
+      "path": "registry/files/ui/tree-view-multiselect.svelte",
+      "note": "mirrored + unreferenced; P1 must fold into the tree-view item or remove both sides"
+    }
+  ]
+}
