@@ -1,0 +1,5712 @@
+{
+  "engine": "jx-inventory@2",
+  "root": "/tmp/jx-clean-head",
+  "counts": {
+    "defined": 281,
+    "staticHooks": 360,
+    "families": 13,
+    "handReview": 284,
+    "references": 300
+  },
+  "defined": [
+    "jx-acc-item",
+    "jx-acc-summary",
+    "jx-accordion",
+    "jx-adlg",
+    "jx-alert-icon",
+    "jx-anchor-demo-aside",
+    "jx-arch-diagram",
+    "jx-auto-dark",
+    "jx-bar",
+    "jx-breadcrumb-list",
+    "jx-button",
+    "jx-canvas-code-drawer",
+    "jx-canvas-code-panels",
+    "jx-canvas-code-toggle",
+    "jx-canvas-code-view",
+    "jx-canvas-copy-usage",
+    "jx-canvas-echo",
+    "jx-canvas-head-text",
+    "jx-canvas-playground",
+    "jx-canvas-playground-body",
+    "jx-canvas-reset",
+    "jx-canvas-stage-row",
+    "jx-canvas-tree",
+    "jx-card-grid",
+    "jx-card-link",
+    "jx-caret",
+    "jx-carousel-track",
+    "jx-cascader-select",
+    "jx-checkbox",
+    "jx-chrome-slot",
+    "jx-clear",
+    "jx-clearable",
+    "jx-code-card",
+    "jx-code-card-copy",
+    "jx-color",
+    "jx-color-field",
+    "jx-color-picker-chevron",
+    "jx-color-picker-panel",
+    "jx-color-picker-pick",
+    "jx-color-picker-sv",
+    "jx-color-picker-trigger",
+    "jx-color-stretch",
+    "jx-combobox-chevron",
+    "jx-combobox-option",
+    "jx-combobox-panel",
+    "jx-combobox-shell",
+    "jx-combobox-toggle",
+    "jx-command",
+    "jx-count-btn",
+    "jx-ctree",
+    "jx-ctree-bar",
+    "jx-ctree-bar-label",
+    "jx-ctree-bar-row",
+    "jx-ctree-count",
+    "jx-ctree-current",
+    "jx-ctree-expand",
+    "jx-ctree-group",
+    "jx-ctree-group-label",
+    "jx-ctree-group-zh",
+    "jx-ctree-link",
+    "jx-ctree-list",
+    "jx-ctree-rail",
+    "jx-ctree-title",
+    "jx-ctree-toggle",
+    "jx-cursor",
+    "jx-date-active",
+    "jx-date-chevron",
+    "jx-date-day",
+    "jx-date-fill",
+    "jx-date-grid",
+    "jx-date-nav-btn",
+    "jx-date-off",
+    "jx-date-panel",
+    "jx-date-trigger",
+    "jx-demo-act",
+    "jx-demo-bar-item",
+    "jx-demo-nav-link",
+    "jx-demo-num",
+    "jx-demo-slide",
+    "jx-desc",
+    "jx-dialog",
+    "jx-dialog-x",
+    "jx-error",
+    "jx-error-mark",
+    "jx-fab-menu",
+    "jx-fab-menu-item",
+    "jx-fab-stage",
+    "jx-field",
+    "jx-field-shell",
+    "jx-file",
+    "jx-file-clear",
+    "jx-file-icon",
+    "jx-file-over",
+    "jx-file-remove",
+    "jx-file-row",
+    "jx-file-trigger",
+    "jx-file-zone",
+    "jx-file-zone-glyph",
+    "jx-file-zone-title",
+    "jx-float-diagram",
+    "jx-float-slot",
+    "jx-footer-ghost",
+    "jx-glass",
+    "jx-grid-hint",
+    "jx-group",
+    "jx-hero-step",
+    "jx-hover-card",
+    "jx-hue-content",
+    "jx-hue-label",
+    "jx-hue-play",
+    "jx-hue-range",
+    "jx-hue-trigger",
+    "jx-indeterminate",
+    "jx-indicator",
+    "jx-indicator-instant",
+    "jx-input",
+    "jx-input-lane",
+    "jx-invalid",
+    "jx-label",
+    "jx-light",
+    "jx-log",
+    "jx-log-line",
+    "jx-logo-breath",
+    "jx-menu",
+    "jx-menu-anchor",
+    "jx-menu-caret",
+    "jx-menu-item",
+    "jx-menu-item-destructive",
+    "jx-menubar-panel",
+    "jx-meta-item",
+    "jx-meta-rail",
+    "jx-nav",
+    "jx-nav-cols-2",
+    "jx-nav-cols-4",
+    "jx-navmenu-panel",
+    "jx-num",
+    "jx-num-btn",
+    "jx-num-input",
+    "jx-num-off",
+    "jx-otp-complete",
+    "jx-otp-slot",
+    "jx-out",
+    "jx-out-shown",
+    "jx-page-main",
+    "jx-pc",
+    "jx-play-field",
+    "jx-play-fields",
+    "jx-play-help",
+    "jx-play-variant",
+    "jx-play-variant-row",
+    "jx-pop",
+    "jx-pop-anchor",
+    "jx-pop-caret",
+    "jx-press",
+    "jx-probe",
+    "jx-probe-box",
+    "jx-probe-frame",
+    "jx-probe-lane",
+    "jx-progress-bar",
+    "jx-pulse-layer",
+    "jx-pulse-ring",
+    "jx-pulse-ripple",
+    "jx-pulse-slow",
+    "jx-pure",
+    "jx-radio",
+    "jx-rainbow-host",
+    "jx-range",
+    "jx-range-lg",
+    "jx-range-sm",
+    "jx-rest",
+    "jx-ripple-dot",
+    "jx-ripple-flat",
+    "jx-ripple-layer",
+    "jx-sample-index",
+    "jx-scaffold-header",
+    "jx-scroll-area",
+    "jx-scroll-thumb",
+    "jx-scroll-viewport",
+    "jx-sel-chevron",
+    "jx-sel-list",
+    "jx-sel-option",
+    "jx-sel-panel",
+    "jx-sel-trigger",
+    "jx-select",
+    "jx-select-chevron",
+    "jx-select-wrap",
+    "jx-sheet",
+    "jx-sheet-bottom",
+    "jx-sheet-left",
+    "jx-sheet-right",
+    "jx-sheet-top",
+    "jx-sheet-x",
+    "jx-shell",
+    "jx-shell-body",
+    "jx-shell-host",
+    "jx-shimmer-box",
+    "jx-shimmer-cover",
+    "jx-shimmer-slide",
+    "jx-shimmer-spark",
+    "jx-skeleton",
+    "jx-skip-link",
+    "jx-slider",
+    "jx-slider-thumb",
+    "jx-slider-ticks",
+    "jx-slotted",
+    "jx-spin-frames",
+    "jx-spine",
+    "jx-spine-fill",
+    "jx-stage-stretch",
+    "jx-step",
+    "jx-step-done",
+    "jx-sub-link",
+    "jx-subclip",
+    "jx-subgroups",
+    "jx-subpanel",
+    "jx-subpanel-action",
+    "jx-subpanel-head",
+    "jx-subpanel-mega",
+    "jx-surface",
+    "jx-surface-body",
+    "jx-surface-scroll",
+    "jx-surface-shadow",
+    "jx-switch-lg",
+    "jx-switch-sm",
+    "jx-switch-track",
+    "jx-tab-selected",
+    "jx-table",
+    "jx-tabs-vertical",
+    "jx-tags-flash",
+    "jx-tags-panel",
+    "jx-tags-remove",
+    "jx-tags-shell",
+    "jx-tags-suggestion",
+    "jx-tags-tag",
+    "jx-tgroup-btn",
+    "jx-tip",
+    "jx-tip-body",
+    "jx-tip-shadow",
+    "jx-tl-item",
+    "jx-toast",
+    "jx-toast-leaving",
+    "jx-toc",
+    "jx-toc-aside",
+    "jx-toc-desktop",
+    "jx-toc-mobile",
+    "jx-toc-title",
+    "jx-toggle",
+    "jx-toggle-disabled",
+    "jx-toggle-knob",
+    "jx-toggle-native",
+    "jx-toggle-track",
+    "jx-top-layer",
+    "jx-tour",
+    "jx-tour-demo-grid",
+    "jx-tour-hole",
+    "jx-tour-hole-anchored",
+    "jx-tr-disabled",
+    "jx-tr-move",
+    "jx-tr-movers",
+    "jx-tr-row",
+    "jx-tr-search",
+    "jx-transfer",
+    "jx-tree",
+    "jx-tree-caret",
+    "jx-tree-check",
+    "jx-tree-group",
+    "jx-tree-lines",
+    "jx-tree-pane",
+    "jx-tree-row",
+    "jx-tree-suffix",
+    "jx-tree-typeicon",
+    "jx-try-cell",
+    "jx-try-grid",
+    "jx-try-on",
+    "jx-viewport",
+    "jx-vrow",
+    "jx-waapi",
+    "jx-wing",
+    "jx-wing-scroll",
+    "jx-wm-layer",
+    "jx-wm-stage"
+  ],
+  "hooks": {
+    "jx-acc-body": [
+      "registry/files/ui/accordion/accordion-item.svelte",
+      "apps/www/src/lib/ui/accordion/accordion-item.svelte"
+    ],
+    "jx-accordion-ghost": [
+      "registry/files/ui/accordion/accordion.svelte",
+      "registry/files/ui/accordion/accordion.svelte",
+      "apps/www/src/lib/ui/accordion/accordion.svelte",
+      "apps/www/src/lib/ui/accordion/accordion.svelte"
+    ],
+    "jx-adlg-actions": [
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte"
+    ],
+    "jx-adlg-body": [
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte"
+    ],
+    "jx-adlg-cancel": [
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/test/batch3-components.spec.ts"
+    ],
+    "jx-adlg-confirm": [
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/test/batch3-components.spec.ts"
+    ],
+    "jx-adlg-confirm-destructive": [
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte"
+    ],
+    "jx-adlg-desc": [
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte"
+    ],
+    "jx-adlg-extra": [
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte"
+    ],
+    "jx-adlg-shadow": [
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte"
+    ],
+    "jx-adlg-surface": [
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte"
+    ],
+    "jx-adlg-title": [
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte"
+    ],
+    "jx-alert": [
+      "registry/files/ui/alert/alert.svelte",
+      "registry/files/ui/alert/alert.svelte",
+      "apps/www/src/lib/ui/alert/alert.svelte",
+      "apps/www/src/lib/ui/alert/alert.svelte"
+    ],
+    "jx-alert-body": [
+      "registry/files/ui/alert/alert.svelte",
+      "apps/www/src/lib/ui/alert/alert.svelte"
+    ],
+    "jx-alert-title": [
+      "registry/files/ui/alert/alert.svelte",
+      "registry/files/ui/alert/alert.svelte",
+      "apps/www/src/lib/ui/alert/alert.svelte",
+      "apps/www/src/lib/ui/alert/alert.svelte"
+    ],
+    "jx-anchor": [
+      "registry/files/ui/anchor/anchor.svelte",
+      "registry/files/ui/anchor/anchor.svelte",
+      "apps/www/src/lib/ui/anchor/anchor.svelte",
+      "apps/www/src/lib/ui/anchor/anchor.svelte"
+    ],
+    "jx-anchor-active": [
+      "registry/files/ui/anchor/anchor.svelte",
+      "registry/files/ui/anchor/anchor.svelte",
+      "apps/www/src/lib/ui/anchor/anchor.svelte",
+      "apps/www/src/lib/ui/anchor/anchor.svelte"
+    ],
+    "jx-anchor-link": [
+      "registry/files/ui/anchor/anchor.svelte",
+      "registry/files/ui/anchor/anchor.svelte",
+      "apps/www/src/lib/ui/anchor/anchor.svelte",
+      "apps/www/src/lib/ui/anchor/anchor.svelte"
+    ],
+    "jx-avatar": [
+      "registry/files/ui/avatar/avatar.svelte",
+      "apps/www/src/lib/ui/avatar/avatar.svelte"
+    ],
+    "jx-avatar-fallback": [
+      "registry/files/ui/avatar/avatar.svelte",
+      "registry/files/ui/avatar/avatar.svelte",
+      "apps/www/src/lib/ui/avatar/avatar.svelte",
+      "apps/www/src/lib/ui/avatar/avatar.svelte"
+    ],
+    "jx-badge": [
+      "registry/files/ui/badge/badge.svelte",
+      "registry/files/ui/badge/badge.svelte",
+      "apps/www/src/lib/ui/badge/badge.svelte",
+      "apps/www/src/lib/ui/badge/badge.svelte",
+      "apps/www/test/batch1-components.spec.ts"
+    ],
+    "jx-bar-surface": [
+      "registry/files/ui/menubar/menubar.svelte",
+      "apps/www/src/lib/ui/menubar/menubar.svelte"
+    ],
+    "jx-bi": [
+      "apps/www/test/batch6-antd2-components.spec.ts",
+      "apps/www/test/batch6-antd2-components.spec.ts"
+    ],
+    "jx-bi-dot": [
+      "apps/www/test/batch6-antd2-components.spec.ts"
+    ],
+    "jx-bi-standalone": [
+      "apps/www/test/batch6-antd2-components.spec.ts",
+      "apps/www/test/batch6-antd2-components.spec.ts",
+      "apps/www/test/batch6-antd2-components.spec.ts"
+    ],
+    "jx-bi-wrap": [
+      "registry/files/ui/badge-indicator/badge-indicator.svelte",
+      "registry/files/ui/badge-indicator/badge-indicator.svelte",
+      "apps/www/src/lib/ui/badge-indicator/badge-indicator.svelte",
+      "apps/www/src/lib/ui/badge-indicator/badge-indicator.svelte"
+    ],
+    "jx-breadcrumb": [
+      "registry/files/ui/breadcrumb/breadcrumb.svelte",
+      "registry/files/ui/breadcrumb/breadcrumb.svelte",
+      "apps/www/src/lib/ui/breadcrumb/breadcrumb.svelte",
+      "apps/www/src/lib/ui/breadcrumb/breadcrumb.svelte"
+    ],
+    "jx-breadcrumb-current": [
+      "registry/files/ui/breadcrumb/breadcrumb.svelte",
+      "apps/www/src/lib/ui/breadcrumb/breadcrumb.svelte"
+    ],
+    "jx-breadcrumb-link": [
+      "registry/files/ui/breadcrumb/breadcrumb.svelte",
+      "registry/files/ui/breadcrumb/breadcrumb.svelte",
+      "apps/www/src/lib/ui/breadcrumb/breadcrumb.svelte",
+      "apps/www/src/lib/ui/breadcrumb/breadcrumb.svelte"
+    ],
+    "jx-canvas": [
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte"
+    ],
+    "jx-canvas-code-actions": [
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte"
+    ],
+    "jx-canvas-code-bar": [
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte"
+    ],
+    "jx-canvas-code-clip": [
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte"
+    ],
+    "jx-canvas-code-count": [
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte"
+    ],
+    "jx-canvas-description": [
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte"
+    ],
+    "jx-canvas-echo-row": [
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
+      "apps/www/test/component-canvas.spec.ts",
+      "apps/www/test/component-canvas.spec.ts"
+    ],
+    "jx-canvas-head": [
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte"
+    ],
+    "jx-canvas-playground-head": [
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte"
+    ],
+    "jx-canvas-playground-title": [
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte"
+    ],
+    "jx-canvas-source-icon": [
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte"
+    ],
+    "jx-canvas-stage": [
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte"
+    ],
+    "jx-canvas-title": [
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
+      "apps/www/test/component-canvas.spec.ts",
+      "apps/www/test/component-canvas.spec.ts"
+    ],
+    "jx-carousel": [
+      "registry/files/ui/carousel/carousel.svelte",
+      "registry/files/ui/carousel/carousel.svelte",
+      "apps/www/src/lib/ui/carousel/carousel.svelte",
+      "apps/www/src/lib/ui/carousel/carousel.svelte"
+    ],
+    "jx-carousel-arrow": [
+      "registry/files/ui/carousel/carousel.svelte",
+      "registry/files/ui/carousel/carousel.svelte",
+      "apps/www/src/lib/ui/carousel/carousel.svelte",
+      "apps/www/src/lib/ui/carousel/carousel.svelte"
+    ],
+    "jx-carousel-dot": [
+      "registry/files/ui/carousel/carousel.svelte",
+      "registry/files/ui/carousel/carousel.svelte",
+      "apps/www/src/lib/ui/carousel/carousel.svelte",
+      "apps/www/src/lib/ui/carousel/carousel.svelte",
+      "apps/www/test/batch4-components.spec.ts"
+    ],
+    "jx-carousel-dot-on": [
+      "registry/files/ui/carousel/carousel.svelte",
+      "registry/files/ui/carousel/carousel.svelte",
+      "apps/www/src/lib/ui/carousel/carousel.svelte",
+      "apps/www/src/lib/ui/carousel/carousel.svelte"
+    ],
+    "jx-carousel-dots": [
+      "registry/files/ui/carousel/carousel.svelte",
+      "apps/www/src/lib/ui/carousel/carousel.svelte"
+    ],
+    "jx-carousel-next": [
+      "registry/files/ui/carousel/carousel.svelte",
+      "apps/www/src/lib/ui/carousel/carousel.svelte"
+    ],
+    "jx-carousel-prev": [
+      "registry/files/ui/carousel/carousel.svelte",
+      "apps/www/src/lib/ui/carousel/carousel.svelte"
+    ],
+    "jx-carousel-window": [
+      "registry/files/ui/carousel/carousel.svelte",
+      "apps/www/src/lib/ui/carousel/carousel.svelte"
+    ],
+    "jx-cascader": [
+      "registry/files/ui/cascader/cascader.svelte",
+      "registry/files/ui/cascader/cascader.svelte",
+      "apps/www/src/lib/ui/cascader/cascader.svelte",
+      "apps/www/src/lib/ui/cascader/cascader.svelte"
+    ],
+    "jx-cascader-chain": [
+      "registry/files/ui/cascader/cascader.svelte",
+      "apps/www/src/lib/ui/cascader/cascader.svelte"
+    ],
+    "jx-cascader-label": [
+      "registry/files/ui/cascader/cascader.svelte",
+      "apps/www/src/lib/ui/cascader/cascader.svelte"
+    ],
+    "jx-check": [
+      "registry/files/ui/checkbox/checkbox.svelte",
+      "registry/files/ui/checkbox/checkbox.svelte",
+      "registry/files/ui/radio/radio.svelte",
+      "registry/files/ui/radio/radio.svelte",
+      "apps/www/src/lib/ui/checkbox/checkbox.svelte",
+      "apps/www/src/lib/ui/checkbox/checkbox.svelte",
+      "apps/www/src/lib/ui/radio/radio.svelte",
+      "apps/www/src/lib/ui/radio/radio.svelte"
+    ],
+    "jx-check-label": [
+      "registry/files/ui/checkbox/checkbox.svelte",
+      "registry/files/ui/radio/radio.svelte",
+      "apps/www/src/lib/ui/checkbox/checkbox.svelte",
+      "apps/www/src/lib/ui/radio/radio.svelte"
+    ],
+    "jx-check-left": [
+      "registry/files/ui/checkbox/checkbox.svelte",
+      "registry/files/ui/checkbox/checkbox.svelte",
+      "registry/files/ui/radio/radio.svelte",
+      "registry/files/ui/radio/radio.svelte",
+      "apps/www/src/lib/ui/checkbox/checkbox.svelte",
+      "apps/www/src/lib/ui/checkbox/checkbox.svelte",
+      "apps/www/src/lib/ui/radio/radio.svelte",
+      "apps/www/src/lib/ui/radio/radio.svelte"
+    ],
+    "jx-code-card-file": [
+      "registry/files/ui/code-card/code-card.svelte",
+      "apps/www/src/lib/ui/code-card/code-card.svelte",
+      "apps/www/test/code-card.spec.ts"
+    ],
+    "jx-code-card-foot": [
+      "registry/files/ui/code-card/code-card.svelte",
+      "apps/www/src/lib/ui/code-card/code-card.svelte",
+      "apps/www/test/code-card.spec.ts"
+    ],
+    "jx-code-card-head": [
+      "registry/files/ui/code-card/code-card.svelte",
+      "apps/www/src/lib/ui/code-card/code-card.svelte",
+      "apps/www/test/code-card.spec.ts"
+    ],
+    "jx-code-card-icon": [
+      "registry/files/ui/code-card/code-card.svelte",
+      "registry/files/ui/code-card/code-card.svelte",
+      "apps/www/src/lib/ui/code-card/code-card.svelte",
+      "apps/www/src/lib/ui/code-card/code-card.svelte"
+    ],
+    "jx-code-card-lang": [
+      "registry/files/ui/code-card/code-card.svelte",
+      "apps/www/src/lib/ui/code-card/code-card.svelte",
+      "apps/www/test/code-card.spec.ts"
+    ],
+    "jx-code-card-pre": [
+      "registry/files/ui/code-card/code-card.svelte",
+      "registry/files/ui/code-card/code-card.svelte",
+      "apps/www/src/lib/ui/code-card/code-card.svelte",
+      "apps/www/src/lib/ui/code-card/code-card.svelte"
+    ],
+    "jx-code-card-side": [
+      "registry/files/ui/code-card/code-card.svelte",
+      "apps/www/src/lib/ui/code-card/code-card.svelte"
+    ],
+    "jx-color-picker-dot": [
+      "registry/files/ui/color-picker/color-picker.svelte",
+      "registry/files/ui/color-picker/color-picker.svelte",
+      "apps/www/src/lib/ui/color-picker/color-picker.svelte",
+      "apps/www/src/lib/ui/color-picker/color-picker.svelte"
+    ],
+    "jx-color-picker-dot-hue": [
+      "registry/files/ui/color-picker/color-picker.svelte",
+      "apps/www/src/lib/ui/color-picker/color-picker.svelte"
+    ],
+    "jx-color-picker-hue": [
+      "registry/files/ui/color-picker/color-picker.svelte",
+      "registry/files/ui/color-picker/color-picker.svelte",
+      "apps/www/src/lib/ui/color-picker/color-picker.svelte",
+      "apps/www/src/lib/ui/color-picker/color-picker.svelte"
+    ],
+    "jx-color-picker-surface": [
+      "registry/files/ui/color-picker/color-picker.svelte",
+      "apps/www/src/lib/ui/color-picker/color-picker.svelte"
+    ],
+    "jx-color-picker-swatch": [
+      "registry/files/ui/color-picker/color-picker.svelte",
+      "apps/www/src/lib/ui/color-picker/color-picker.svelte"
+    ],
+    "jx-color-picker-value": [
+      "registry/files/ui/color-picker/color-picker.svelte",
+      "apps/www/src/lib/ui/color-picker/color-picker.svelte"
+    ],
+    "jx-color-picker-wrap": [
+      "registry/files/ui/color-picker/color-picker.svelte",
+      "apps/www/src/lib/ui/color-picker/color-picker.svelte"
+    ],
+    "jx-combobox-active": [
+      "registry/files/ui/combobox/combobox.svelte",
+      "registry/files/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte"
+    ],
+    "jx-combobox-disabled": [
+      "registry/files/ui/combobox/combobox.svelte",
+      "registry/files/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte"
+    ],
+    "jx-combobox-empty": [
+      "registry/files/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte",
+      "apps/www/test/form-components.spec.ts"
+    ],
+    "jx-combobox-input": [
+      "registry/files/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte"
+    ],
+    "jx-combobox-invalid": [
+      "registry/files/ui/combobox/combobox.svelte",
+      "registry/files/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte"
+    ],
+    "jx-combobox-list": [
+      "registry/files/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte"
+    ],
+    "jx-combobox-option-desc": [
+      "registry/files/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte"
+    ],
+    "jx-combobox-option-label": [
+      "registry/files/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte"
+    ],
+    "jx-combobox-panel-body": [
+      "registry/files/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte"
+    ],
+    "jx-combobox-scroll": [
+      "registry/files/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte"
+    ],
+    "jx-combobox-selected": [
+      "registry/files/ui/combobox/combobox.svelte",
+      "registry/files/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte"
+    ],
+    "jx-combobox-use": [
+      "registry/files/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte"
+    ],
+    "jx-combobox-wrap": [
+      "registry/files/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte"
+    ],
+    "jx-command-empty": [
+      "registry/files/ui/command/command.svelte",
+      "apps/www/src/lib/ui/command/command.svelte"
+    ],
+    "jx-command-frame": [
+      "registry/files/ui/command/command.svelte",
+      "apps/www/src/lib/ui/command/command.svelte"
+    ],
+    "jx-command-group": [
+      "registry/files/ui/command/command.svelte",
+      "apps/www/src/lib/ui/command/command.svelte"
+    ],
+    "jx-command-hint": [
+      "registry/files/ui/command/command.svelte",
+      "apps/www/src/lib/ui/command/command.svelte"
+    ],
+    "jx-command-input": [
+      "registry/files/ui/command/command.svelte",
+      "apps/www/src/lib/ui/command/command.svelte"
+    ],
+    "jx-command-item": [
+      "registry/files/ui/command/command.svelte",
+      "registry/files/ui/command/command.svelte",
+      "apps/www/src/lib/ui/command/command.svelte",
+      "apps/www/src/lib/ui/command/command.svelte"
+    ],
+    "jx-command-item-active": [
+      "registry/files/ui/command/command.svelte",
+      "registry/files/ui/command/command.svelte",
+      "apps/www/src/lib/ui/command/command.svelte",
+      "apps/www/src/lib/ui/command/command.svelte"
+    ],
+    "jx-command-item-disabled": [
+      "registry/files/ui/command/command.svelte",
+      "registry/files/ui/command/command.svelte",
+      "apps/www/src/lib/ui/command/command.svelte",
+      "apps/www/src/lib/ui/command/command.svelte"
+    ],
+    "jx-command-label": [
+      "registry/files/ui/command/command.svelte",
+      "apps/www/src/lib/ui/command/command.svelte"
+    ],
+    "jx-command-list": [
+      "registry/files/ui/command/command.svelte",
+      "apps/www/src/lib/ui/command/command.svelte"
+    ],
+    "jx-command-shadow": [
+      "registry/files/ui/command/command.svelte",
+      "apps/www/src/lib/ui/command/command.svelte"
+    ],
+    "jx-count": [
+      "registry/files/ui/textarea/textarea.svelte",
+      "apps/www/src/lib/ui/textarea/textarea.svelte"
+    ],
+    "jx-crumb-gap": [
+      "registry/files/ui/breadcrumb/breadcrumb.svelte",
+      "apps/www/src/lib/ui/breadcrumb/breadcrumb.svelte"
+    ],
+    "jx-ctree-groups": [
+      "apps/www/src/lib/ui/component-tree-nav.svelte"
+    ],
+    "jx-date-error-mark": [
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte"
+    ],
+    "jx-date-field": [
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte"
+    ],
+    "jx-date-headrow": [
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte"
+    ],
+    "jx-date-in": [
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte"
+    ],
+    "jx-date-month": [
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte"
+    ],
+    "jx-date-nav": [
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte"
+    ],
+    "jx-date-out": [
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte"
+    ],
+    "jx-date-placeholder": [
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte"
+    ],
+    "jx-date-surface": [
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte"
+    ],
+    "jx-date-today": [
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte"
+    ],
+    "jx-date-value": [
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte"
+    ],
+    "jx-date-weekday": [
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte"
+    ],
+    "jx-date-weekrow": [
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte"
+    ],
+    "jx-date-wrap": [
+      "registry/files/ui/date-picker/date-picker.svelte",
+      "apps/www/src/lib/ui/date-picker/date-picker.svelte"
+    ],
+    "jx-desc-bordered": [
+      "registry/files/ui/descriptions/descriptions.svelte",
+      "registry/files/ui/descriptions/descriptions.svelte",
+      "apps/www/src/lib/ui/descriptions/descriptions.svelte",
+      "apps/www/src/lib/ui/descriptions/descriptions.svelte"
+    ],
+    "jx-desc-cell": [
+      "registry/files/ui/descriptions/descriptions.svelte",
+      "registry/files/ui/descriptions/descriptions.svelte",
+      "apps/www/src/lib/ui/descriptions/descriptions.svelte",
+      "apps/www/src/lib/ui/descriptions/descriptions.svelte"
+    ],
+    "jx-desc-cols": [
+      "registry/files/ui/descriptions/descriptions.svelte",
+      "apps/www/src/lib/ui/descriptions/descriptions.svelte"
+    ],
+    "jx-desc-term": [
+      "registry/files/ui/descriptions/descriptions.svelte",
+      "registry/files/ui/descriptions/descriptions.svelte",
+      "apps/www/src/lib/ui/descriptions/descriptions.svelte",
+      "apps/www/src/lib/ui/descriptions/descriptions.svelte"
+    ],
+    "jx-desc-value": [
+      "registry/files/ui/descriptions/descriptions.svelte",
+      "apps/www/src/lib/ui/descriptions/descriptions.svelte"
+    ],
+    "jx-dialog-body": [
+      "registry/files/ui/dialog/dialog.svelte",
+      "apps/www/src/lib/ui/dialog/dialog.svelte"
+    ],
+    "jx-dialog-foot": [
+      "registry/files/ui/dialog/dialog.svelte",
+      "apps/www/src/lib/ui/dialog/dialog.svelte"
+    ],
+    "jx-dialog-head": [
+      "registry/files/ui/dialog/dialog.svelte",
+      "apps/www/src/lib/ui/dialog/dialog.svelte"
+    ],
+    "jx-dialog-scroll": [
+      "registry/files/ui/dialog/dialog.svelte",
+      "apps/www/src/lib/ui/dialog/dialog.svelte"
+    ],
+    "jx-dialog-shadow": [
+      "registry/files/ui/dialog/dialog.svelte",
+      "apps/www/src/lib/ui/dialog/dialog.svelte"
+    ],
+    "jx-dialog-surface": [
+      "registry/files/ui/dialog/dialog.svelte",
+      "apps/www/src/lib/ui/dialog/dialog.svelte"
+    ],
+    "jx-dialog-title": [
+      "registry/files/ui/dialog/dialog.svelte",
+      "registry/files/ui/dialog/dialog.svelte",
+      "apps/www/src/lib/ui/dialog/dialog.svelte",
+      "apps/www/src/lib/ui/dialog/dialog.svelte"
+    ],
+    "jx-disabled": [
+      "registry/files/ui/range/range.svelte",
+      "registry/files/ui/range/range.svelte",
+      "apps/www/src/lib/ui/range/range.svelte",
+      "apps/www/src/lib/ui/range/range.svelte"
+    ],
+    "jx-empty": [
+      "registry/files/ui/empty/empty.svelte",
+      "registry/files/ui/empty/empty.svelte",
+      "apps/www/src/lib/ui/empty/empty.svelte",
+      "apps/www/src/lib/ui/empty/empty.svelte",
+      "apps/www/test/batch5-antd-components.spec.ts"
+    ],
+    "jx-empty-actions": [
+      "registry/files/ui/empty/empty.svelte",
+      "apps/www/src/lib/ui/empty/empty.svelte"
+    ],
+    "jx-empty-art": [
+      "registry/files/ui/empty/empty.svelte",
+      "apps/www/src/lib/ui/empty/empty.svelte"
+    ],
+    "jx-empty-caption": [
+      "registry/files/ui/empty/empty.svelte",
+      "apps/www/src/lib/ui/empty/empty.svelte"
+    ],
+    "jx-empty-desc": [
+      "registry/files/ui/empty/empty.svelte",
+      "apps/www/src/lib/ui/empty/empty.svelte"
+    ],
+    "jx-empty-term": [
+      "registry/files/ui/empty/empty.svelte",
+      "apps/www/src/lib/ui/empty/empty.svelte"
+    ],
+    "jx-empty-title": [
+      "registry/files/ui/empty/empty.svelte",
+      "apps/www/src/lib/ui/empty/empty.svelte",
+      "apps/www/test/batch5-antd-components.spec.ts"
+    ],
+    "jx-empty-zero": [
+      "registry/files/ui/empty/empty.svelte",
+      "apps/www/src/lib/ui/empty/empty.svelte",
+      "apps/www/test/batch5-antd-components.spec.ts"
+    ],
+    "jx-ext": [
+      "registry/files/ui/terminal-footer/terminal-footer.svelte",
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-footer/terminal-footer.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte"
+    ],
+    "jx-fab-menu-body": [
+      "registry/files/ui/float-button/float-button.svelte",
+      "apps/www/src/lib/ui/float-button/float-button.svelte"
+    ],
+    "jx-fab-stack": [
+      "registry/files/ui/float-button/float-button.svelte",
+      "registry/files/ui/float-button/float-button.svelte",
+      "apps/www/src/lib/ui/float-button/float-button.svelte",
+      "apps/www/src/lib/ui/float-button/float-button.svelte"
+    ],
+    "jx-file-clearrow": [
+      "registry/files/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte"
+    ],
+    "jx-file-code-glyph": [
+      "registry/files/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte"
+    ],
+    "jx-file-disabled": [
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte"
+    ],
+    "jx-file-error-mark": [
+      "registry/files/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte"
+    ],
+    "jx-file-h": [
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte"
+    ],
+    "jx-file-invalid": [
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte"
+    ],
+    "jx-file-list": [
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte"
+    ],
+    "jx-file-name": [
+      "registry/files/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte"
+    ],
+    "jx-file-native": [
+      "registry/files/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte"
+    ],
+    "jx-file-size": [
+      "registry/files/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte"
+    ],
+    "jx-file-text": [
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte"
+    ],
+    "jx-file-thumb": [
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte"
+    ],
+    "jx-file-thumb-img": [
+      "registry/files/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte"
+    ],
+    "jx-file-trigger-glyph": [
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte"
+    ],
+    "jx-file-zone-hint": [
+      "registry/files/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte"
+    ],
+    "jx-file-zone-pad": [
+      "registry/files/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte"
+    ],
+    "jx-float-anchor": [
+      "registry/files/ui/scaffold-float/scaffold-float.svelte",
+      "apps/www/src/lib/ui/scaffold-float/scaffold-float.svelte"
+    ],
+    "jx-float-content": [
+      "registry/files/ui/scaffold-float/scaffold-float.svelte",
+      "apps/www/src/lib/ui/scaffold-float/scaffold-float.svelte"
+    ],
+    "jx-grid-min": [
+      "registry/files/ui/card-grid/card-grid.svelte",
+      "apps/www/src/lib/ui/card-grid/card-grid.svelte"
+    ],
+    "jx-group-label": [
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte"
+    ],
+    "jx-group-list": [
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte"
+    ],
+    "jx-hover-anchor": [
+      "registry/files/ui/hover-card/hover-card.svelte",
+      "registry/files/ui/hover-card/hover-card.svelte",
+      "apps/www/src/lib/ui/hover-card/hover-card.svelte",
+      "apps/www/src/lib/ui/hover-card/hover-card.svelte",
+      "apps/www/test/batch3-components.spec.ts"
+    ],
+    "jx-hover-body": [
+      "registry/files/ui/hover-card/hover-card.svelte",
+      "apps/www/src/lib/ui/hover-card/hover-card.svelte"
+    ],
+    "jx-hue-play-on": [
+      "apps/www/src/lib/components/hue-popover.svelte"
+    ],
+    "jx-hue-value": [
+      "apps/www/src/lib/components/hue-popover.svelte"
+    ],
+    "jx-image": [
+      "registry/files/ui/image/image.svelte",
+      "registry/files/ui/image/image.svelte",
+      "apps/www/src/lib/ui/image/image.svelte",
+      "apps/www/src/lib/ui/image/image.svelte"
+    ],
+    "jx-image-broken": [
+      "registry/files/ui/image/image.svelte",
+      "apps/www/src/lib/ui/image/image.svelte",
+      "apps/www/test/batch6-antd2-components.spec.ts",
+      "apps/www/test/batch6-antd2-components.spec.ts",
+      "apps/www/test/batch6-antd2-components.spec.ts"
+    ],
+    "jx-indent": [
+      "registry/files/ui/tree-view/tree-view.svelte",
+      "apps/www/src/lib/ui/tree-view/tree-view.svelte"
+    ],
+    "jx-inner": [
+      "registry/files/ui/textarea/textarea.svelte",
+      "registry/files/ui/textarea/textarea.svelte",
+      "apps/www/src/lib/ui/textarea/textarea.svelte",
+      "apps/www/src/lib/ui/textarea/textarea.svelte"
+    ],
+    "jx-inner-end": [
+      "registry/files/ui/textarea/textarea.svelte",
+      "apps/www/src/lib/ui/textarea/textarea.svelte"
+    ],
+    "jx-inner-start": [
+      "registry/files/ui/textarea/textarea.svelte",
+      "apps/www/src/lib/ui/textarea/textarea.svelte"
+    ],
+    "jx-kbd": [
+      "registry/files/ui/kbd/kbd.svelte",
+      "registry/files/ui/kbd/kbd.svelte",
+      "apps/www/src/lib/ui/kbd/kbd.svelte",
+      "apps/www/src/lib/ui/kbd/kbd.svelte",
+      "scripts/verify-hook-law.mjs"
+    ],
+    "jx-lang": [
+      "registry/files/ui/language-switcher/language-switcher.svelte",
+      "apps/www/src/lib/ui/language-switcher/language-switcher.svelte"
+    ],
+    "jx-lang-active": [
+      "registry/files/ui/language-switcher/language-switcher.svelte",
+      "registry/files/ui/language-switcher/language-switcher.svelte",
+      "apps/www/src/lib/ui/language-switcher/language-switcher.svelte",
+      "apps/www/src/lib/ui/language-switcher/language-switcher.svelte"
+    ],
+    "jx-lang-btn": [
+      "registry/files/ui/language-switcher/language-switcher.svelte",
+      "apps/www/src/lib/ui/language-switcher/language-switcher.svelte"
+    ],
+    "jx-lang-item": [
+      "registry/files/ui/language-switcher/language-switcher.svelte",
+      "registry/files/ui/language-switcher/language-switcher.svelte",
+      "apps/www/src/lib/ui/language-switcher/language-switcher.svelte",
+      "apps/www/src/lib/ui/language-switcher/language-switcher.svelte"
+    ],
+    "jx-lang-menu": [
+      "registry/files/ui/language-switcher/language-switcher.svelte",
+      "apps/www/src/lib/ui/language-switcher/language-switcher.svelte"
+    ],
+    "jx-lang-menu-active": [
+      "registry/files/ui/language-switcher/language-switcher.svelte",
+      "registry/files/ui/language-switcher/language-switcher.svelte",
+      "apps/www/src/lib/ui/language-switcher/language-switcher.svelte",
+      "apps/www/src/lib/ui/language-switcher/language-switcher.svelte"
+    ],
+    "jx-lang-menu-item": [
+      "registry/files/ui/language-switcher/language-switcher.svelte",
+      "registry/files/ui/language-switcher/language-switcher.svelte",
+      "apps/www/src/lib/ui/language-switcher/language-switcher.svelte",
+      "apps/www/src/lib/ui/language-switcher/language-switcher.svelte"
+    ],
+    "jx-lang-seg": [
+      "registry/files/ui/language-switcher/language-switcher.svelte",
+      "apps/www/src/lib/ui/language-switcher/language-switcher.svelte"
+    ],
+    "jx-light-dot": [
+      "registry/files/ui/terminal-card/terminal-card.svelte",
+      "registry/files/ui/terminal-card/terminal-card.svelte",
+      "registry/files/ui/terminal-card/terminal-card.svelte",
+      "apps/www/src/lib/ui/terminal-card/terminal-card.svelte",
+      "apps/www/src/lib/ui/terminal-card/terminal-card.svelte",
+      "apps/www/src/lib/ui/terminal-card/terminal-card.svelte"
+    ],
+    "jx-light-green": [
+      "registry/files/ui/terminal-card/terminal-card.svelte",
+      "apps/www/src/lib/ui/terminal-card/terminal-card.svelte"
+    ],
+    "jx-light-yellow": [
+      "registry/files/ui/terminal-card/terminal-card.svelte",
+      "apps/www/src/lib/ui/terminal-card/terminal-card.svelte"
+    ],
+    "jx-m-group-label": [
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte"
+    ],
+    "jx-menu-body": [
+      "registry/files/ui/dropdown-menu/dropdown-menu.svelte",
+      "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.svelte"
+    ],
+    "jx-menu-pad": [
+      "registry/files/ui/dropdown-menu/dropdown-menu.svelte",
+      "registry/files/ui/dropdown-menu/dropdown-menu.svelte",
+      "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.svelte",
+      "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.svelte"
+    ],
+    "jx-menu-scroll": [
+      "registry/files/ui/dropdown-menu/dropdown-menu.svelte",
+      "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.svelte"
+    ],
+    "jx-menu-trigger": [
+      "registry/files/ui/dropdown-menu/dropdown-menu.svelte",
+      "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.svelte"
+    ],
+    "jx-menubar": [
+      "registry/files/ui/menubar/menubar.svelte",
+      "registry/files/ui/menubar/menubar.svelte",
+      "apps/www/src/lib/ui/menubar/menubar.svelte",
+      "apps/www/src/lib/ui/menubar/menubar.svelte"
+    ],
+    "jx-menubar-slot": [
+      "registry/files/ui/menubar/menubar.svelte",
+      "apps/www/src/lib/ui/menubar/menubar.svelte"
+    ],
+    "jx-mobile-scroll": [
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte"
+    ],
+    "jx-navmenu": [
+      "registry/files/ui/navigation-menu/navigation-menu.svelte",
+      "registry/files/ui/navigation-menu/navigation-menu.svelte",
+      "apps/www/src/lib/ui/navigation-menu/navigation-menu.svelte",
+      "apps/www/src/lib/ui/navigation-menu/navigation-menu.svelte"
+    ],
+    "jx-navmenu-link": [
+      "registry/files/ui/navigation-menu/navigation-menu.svelte",
+      "registry/files/ui/navigation-menu/navigation-menu.svelte",
+      "apps/www/src/lib/ui/navigation-menu/navigation-menu.svelte",
+      "apps/www/src/lib/ui/navigation-menu/navigation-menu.svelte",
+      "apps/www/test/batch4b-components.spec.ts"
+    ],
+    "jx-navmenu-slot": [
+      "registry/files/ui/navigation-menu/navigation-menu.svelte",
+      "apps/www/src/lib/ui/navigation-menu/navigation-menu.svelte"
+    ],
+    "jx-navmenu-surface": [
+      "registry/files/ui/navigation-menu/navigation-menu.svelte",
+      "apps/www/src/lib/ui/navigation-menu/navigation-menu.svelte"
+    ],
+    "jx-num-invalid": [
+      "registry/files/ui/number-input/number-input.svelte",
+      "apps/www/src/lib/ui/number-input/number-input.svelte"
+    ],
+    "jx-num-minus": [
+      "registry/files/ui/number-input/number-input.svelte",
+      "apps/www/src/lib/ui/number-input/number-input.svelte"
+    ],
+    "jx-num-plus": [
+      "registry/files/ui/number-input/number-input.svelte",
+      "apps/www/src/lib/ui/number-input/number-input.svelte"
+    ],
+    "jx-otp": [
+      "registry/files/ui/input-otp/input-otp.svelte",
+      "registry/files/ui/input-otp/input-otp.svelte",
+      "apps/www/src/lib/ui/input-otp/input-otp.svelte",
+      "apps/www/src/lib/ui/input-otp/input-otp.svelte"
+    ],
+    "jx-otp-error": [
+      "registry/files/ui/input-otp/input-otp.svelte",
+      "apps/www/src/lib/ui/input-otp/input-otp.svelte"
+    ],
+    "jx-otp-filled": [
+      "registry/files/ui/input-otp/input-otp.svelte",
+      "registry/files/ui/input-otp/input-otp.svelte",
+      "apps/www/src/lib/ui/input-otp/input-otp.svelte",
+      "apps/www/src/lib/ui/input-otp/input-otp.svelte"
+    ],
+    "jx-otp-invalid": [
+      "registry/files/ui/input-otp/input-otp.svelte",
+      "registry/files/ui/input-otp/input-otp.svelte",
+      "apps/www/src/lib/ui/input-otp/input-otp.svelte",
+      "apps/www/src/lib/ui/input-otp/input-otp.svelte"
+    ],
+    "jx-otp-label": [
+      "registry/files/ui/input-otp/input-otp.svelte",
+      "apps/www/src/lib/ui/input-otp/input-otp.svelte"
+    ],
+    "jx-otp-slots": [
+      "registry/files/ui/input-otp/input-otp.svelte",
+      "apps/www/src/lib/ui/input-otp/input-otp.svelte"
+    ],
+    "jx-outer": [
+      "registry/files/ui/input/input.svelte",
+      "registry/files/ui/input/input.svelte",
+      "registry/files/ui/textarea/textarea.svelte",
+      "registry/files/ui/textarea/textarea.svelte",
+      "apps/www/src/lib/ui/input/input.svelte",
+      "apps/www/src/lib/ui/input/input.svelte",
+      "apps/www/src/lib/ui/textarea/textarea.svelte",
+      "apps/www/src/lib/ui/textarea/textarea.svelte"
+    ],
+    "jx-outer-end": [
+      "registry/files/ui/input/input.svelte",
+      "registry/files/ui/textarea/textarea.svelte",
+      "apps/www/src/lib/ui/input/input.svelte",
+      "apps/www/src/lib/ui/textarea/textarea.svelte"
+    ],
+    "jx-outer-start": [
+      "registry/files/ui/input/input.svelte",
+      "registry/files/ui/textarea/textarea.svelte",
+      "apps/www/src/lib/ui/input/input.svelte",
+      "apps/www/src/lib/ui/textarea/textarea.svelte"
+    ],
+    "jx-page": [
+      "registry/files/ui/pagination/pagination.svelte",
+      "registry/files/ui/pagination/pagination.svelte",
+      "apps/www/src/lib/ui/pagination/pagination.svelte",
+      "apps/www/src/lib/ui/pagination/pagination.svelte"
+    ],
+    "jx-page-current": [
+      "registry/files/ui/pagination/pagination.svelte",
+      "apps/www/src/lib/ui/pagination/pagination.svelte"
+    ],
+    "jx-page-edge": [
+      "registry/files/ui/pagination/pagination.svelte",
+      "registry/files/ui/pagination/pagination.svelte",
+      "registry/files/ui/pagination/pagination.svelte",
+      "registry/files/ui/pagination/pagination.svelte",
+      "apps/www/src/lib/ui/pagination/pagination.svelte",
+      "apps/www/src/lib/ui/pagination/pagination.svelte",
+      "apps/www/src/lib/ui/pagination/pagination.svelte",
+      "apps/www/src/lib/ui/pagination/pagination.svelte",
+      "apps/www/test/batch2-components.spec.ts"
+    ],
+    "jx-page-edge-off": [
+      "registry/files/ui/pagination/pagination.svelte",
+      "registry/files/ui/pagination/pagination.svelte",
+      "apps/www/src/lib/ui/pagination/pagination.svelte",
+      "apps/www/src/lib/ui/pagination/pagination.svelte"
+    ],
+    "jx-page-gap": [
+      "registry/files/ui/pagination/pagination.svelte",
+      "apps/www/src/lib/ui/pagination/pagination.svelte",
+      "apps/www/test/batch2-components.spec.ts"
+    ],
+    "jx-pagination": [
+      "registry/files/ui/pagination/pagination.svelte",
+      "registry/files/ui/pagination/pagination.svelte",
+      "apps/www/src/lib/ui/pagination/pagination.svelte",
+      "apps/www/src/lib/ui/pagination/pagination.svelte"
+    ],
+    "jx-pagination-list": [
+      "registry/files/ui/pagination/pagination.svelte",
+      "apps/www/src/lib/ui/pagination/pagination.svelte"
+    ],
+    "jx-pagination-status": [
+      "registry/files/ui/pagination/pagination.svelte",
+      "apps/www/src/lib/ui/pagination/pagination.svelte"
+    ],
+    "jx-pc-actions": [
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte"
+    ],
+    "jx-pc-anchor": [
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte"
+    ],
+    "jx-pc-btn": [
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte"
+    ],
+    "jx-pc-cancel": [
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte",
+      "apps/www/test/batch5-antd-components.spec.ts",
+      "apps/www/test/batch5-antd-components.spec.ts"
+    ],
+    "jx-pc-confirm": [
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte",
+      "apps/www/test/batch5-antd-components.spec.ts",
+      "apps/www/test/batch5-antd-components.spec.ts"
+    ],
+    "jx-pc-confirm-destructive": [
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte",
+      "apps/www/test/batch5-antd-components.spec.ts"
+    ],
+    "jx-pc-confirm-primary": [
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte"
+    ],
+    "jx-pc-desc": [
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte"
+    ],
+    "jx-pc-gap": [
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte"
+    ],
+    "jx-pc-surface": [
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte"
+    ],
+    "jx-pc-title": [
+      "registry/files/ui/popconfirm/popconfirm.svelte",
+      "apps/www/src/lib/ui/popconfirm/popconfirm.svelte"
+    ],
+    "jx-play-try": [
+      "apps/www/src/routes/components/popover.html/+page.svelte"
+    ],
+    "jx-pop-body": [
+      "registry/files/ui/popover/popover.svelte",
+      "apps/www/src/lib/ui/popover/popover.svelte",
+      "scripts/verify-layer-law.mjs",
+      "scripts/verify-surface.mjs",
+      "scripts/verify-surface.mjs",
+      "scripts/verify-surface.mjs"
+    ],
+    "jx-pop-pad": [
+      "registry/files/ui/popover/popover.svelte",
+      "apps/www/src/lib/ui/popover/popover.svelte"
+    ],
+    "jx-pop-pad-inline": [
+      "registry/files/ui/popover/popover.svelte",
+      "apps/www/src/lib/ui/popover/popover.svelte"
+    ],
+    "jx-pop-scroll": [
+      "registry/files/ui/popover/popover.svelte",
+      "apps/www/src/lib/ui/popover/popover.svelte"
+    ],
+    "jx-pop-shadow": [
+      "registry/files/ui/popover/popover.svelte",
+      "apps/www/src/lib/ui/popover/popover.svelte",
+      "scripts/verify-surface.mjs",
+      "scripts/verify-surface.mjs",
+      "scripts/verify-surface.mjs"
+    ],
+    "jx-pop-trigger": [
+      "registry/files/ui/popover/popover.svelte",
+      "apps/www/src/lib/ui/popover/popover.svelte",
+      "scripts/verify-surface.mjs",
+      "scripts/verify-surface.mjs",
+      "scripts/verify-trygrid.mjs",
+      "scripts/verify-trygrid.mjs"
+    ],
+    "jx-press-shadow": [
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "registry/files/ui/code-card/code-card.svelte",
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "registry/files/ui/dialog/dialog.svelte",
+      "registry/files/ui/dropdown-menu/dropdown-menu.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/popover/popover.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/code-card/code-card.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/dialog/dialog.svelte",
+      "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/popover/popover.svelte"
+    ],
+    "jx-press-shadow-active": [
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "registry/files/ui/code-card/code-card.svelte",
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "registry/files/ui/dialog/dialog.svelte",
+      "registry/files/ui/dropdown-menu/dropdown-menu.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/popover/popover.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/code-card/code-card.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/dialog/dialog.svelte",
+      "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/popover/popover.svelte"
+    ],
+    "jx-press-shadow-hover": [
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "registry/files/ui/code-card/code-card.svelte",
+      "registry/files/ui/component-canvas/component-canvas.svelte",
+      "registry/files/ui/dialog/dialog.svelte",
+      "registry/files/ui/dropdown-menu/dropdown-menu.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/file-input/file-input.svelte",
+      "registry/files/ui/popover/popover.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte",
+      "apps/www/src/lib/ui/code-card/code-card.svelte",
+      "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
+      "apps/www/src/lib/ui/dialog/dialog.svelte",
+      "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "apps/www/src/lib/ui/popover/popover.svelte"
+    ],
+    "jx-pressed": [
+      "registry/files/ui/range/range.svelte",
+      "apps/www/src/lib/ui/range/range.svelte"
+    ],
+    "jx-progress": [
+      "registry/files/ui/progress/progress.svelte",
+      "registry/files/ui/progress/progress.svelte",
+      "apps/www/src/lib/ui/progress/progress.svelte",
+      "apps/www/src/lib/ui/progress/progress.svelte"
+    ],
+    "jx-progress-head": [
+      "registry/files/ui/progress/progress.svelte",
+      "apps/www/src/lib/ui/progress/progress.svelte"
+    ],
+    "jx-progress-label": [
+      "registry/files/ui/progress/progress.svelte",
+      "apps/www/src/lib/ui/progress/progress.svelte",
+      "apps/www/test/batch2-components.spec.ts"
+    ],
+    "jx-progress-run": [
+      "registry/files/ui/progress/progress.svelte",
+      "apps/www/src/lib/ui/progress/progress.svelte"
+    ],
+    "jx-progress-value": [
+      "registry/files/ui/progress/progress.svelte",
+      "apps/www/src/lib/ui/progress/progress.svelte"
+    ],
+    "jx-pulse-host": [
+      "apps/www/test/press-button.spec.ts"
+    ],
+    "jx-result": [
+      "registry/files/ui/result/result.svelte",
+      "registry/files/ui/result/result.svelte",
+      "apps/www/src/lib/ui/result/result.svelte",
+      "apps/www/src/lib/ui/result/result.svelte"
+    ],
+    "jx-result-actions": [
+      "registry/files/ui/result/result.svelte",
+      "apps/www/src/lib/ui/result/result.svelte"
+    ],
+    "jx-result-desc": [
+      "registry/files/ui/result/result.svelte",
+      "apps/www/src/lib/ui/result/result.svelte"
+    ],
+    "jx-result-glyph": [
+      "registry/files/ui/result/result.svelte",
+      "registry/files/ui/result/result.svelte",
+      "apps/www/src/lib/ui/result/result.svelte",
+      "apps/www/src/lib/ui/result/result.svelte"
+    ],
+    "jx-result-icon": [
+      "registry/files/ui/result/result.svelte",
+      "registry/files/ui/result/result.svelte",
+      "apps/www/src/lib/ui/result/result.svelte",
+      "apps/www/src/lib/ui/result/result.svelte"
+    ],
+    "jx-result-title": [
+      "registry/files/ui/result/result.svelte",
+      "apps/www/src/lib/ui/result/result.svelte"
+    ],
+    "jx-ripple-host": [
+      "scripts/verify-press.mjs"
+    ],
+    "jx-scroll-content": [
+      "registry/files/ui/scroll-area/scroll-area.svelte",
+      "apps/www/src/lib/ui/scroll-area/scroll-area.svelte"
+    ],
+    "jx-scrollbar-thin": [
+      "registry/files/ui/combobox/combobox.svelte",
+      "registry/files/ui/command/command.svelte",
+      "registry/files/ui/dropdown-menu/dropdown-menu.svelte",
+      "registry/files/ui/popover/popover.svelte",
+      "registry/files/ui/select/select.svelte",
+      "registry/files/ui/sheet/sheet.svelte",
+      "registry/files/ui/tags-input/tags-input.svelte",
+      "registry/files/ui/transfer/transfer.svelte",
+      "registry/files/ui/transfer/transfer.svelte",
+      "apps/www/src/lib/ui/combobox/combobox.svelte",
+      "apps/www/src/lib/ui/command/command.svelte",
+      "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.svelte",
+      "apps/www/src/lib/ui/popover/popover.svelte",
+      "apps/www/src/lib/ui/select/select.svelte",
+      "apps/www/src/lib/ui/sheet/sheet.svelte",
+      "apps/www/src/lib/ui/tags-input/tags-input.svelte",
+      "apps/www/src/lib/ui/transfer/transfer.svelte",
+      "apps/www/src/lib/ui/transfer/transfer.svelte"
+    ],
+    "jx-sel-active": [
+      "registry/files/ui/select/select.svelte",
+      "registry/files/ui/select/select.svelte",
+      "apps/www/src/lib/ui/select/select.svelte",
+      "apps/www/src/lib/ui/select/select.svelte"
+    ],
+    "jx-sel-disabled": [
+      "registry/files/ui/select/select.svelte",
+      "registry/files/ui/select/select.svelte",
+      "apps/www/src/lib/ui/select/select.svelte",
+      "apps/www/src/lib/ui/select/select.svelte"
+    ],
+    "jx-sel-option-desc": [
+      "registry/files/ui/select/select.svelte",
+      "apps/www/src/lib/ui/select/select.svelte"
+    ],
+    "jx-sel-option-label": [
+      "registry/files/ui/select/select.svelte",
+      "apps/www/src/lib/ui/select/select.svelte"
+    ],
+    "jx-sel-panel-body": [
+      "registry/files/ui/select/select.svelte",
+      "apps/www/src/lib/ui/select/select.svelte"
+    ],
+    "jx-sel-placeholder": [
+      "registry/files/ui/select/select.svelte",
+      "registry/files/ui/select/select.svelte",
+      "apps/www/src/lib/ui/select/select.svelte",
+      "apps/www/src/lib/ui/select/select.svelte"
+    ],
+    "jx-sel-scroll": [
+      "registry/files/ui/select/select.svelte",
+      "apps/www/src/lib/ui/select/select.svelte"
+    ],
+    "jx-sel-selected": [
+      "registry/files/ui/select/select.svelte",
+      "registry/files/ui/select/select.svelte",
+      "apps/www/src/lib/ui/select/select.svelte",
+      "apps/www/src/lib/ui/select/select.svelte"
+    ],
+    "jx-sel-value": [
+      "registry/files/ui/select/select.svelte",
+      "registry/files/ui/select/select.svelte",
+      "apps/www/src/lib/ui/select/select.svelte",
+      "apps/www/src/lib/ui/select/select.svelte"
+    ],
+    "jx-sel-wrap": [
+      "registry/files/ui/select/select.svelte",
+      "apps/www/src/lib/ui/select/select.svelte"
+    ],
+    "jx-separator-h": [
+      "registry/files/ui/separator/separator.svelte",
+      "registry/files/ui/separator/separator.svelte",
+      "apps/www/src/lib/ui/separator/separator.svelte",
+      "apps/www/src/lib/ui/separator/separator.svelte",
+      "apps/www/test/batch1-components.spec.ts"
+    ],
+    "jx-separator-v": [
+      "registry/files/ui/separator/separator.svelte",
+      "registry/files/ui/separator/separator.svelte",
+      "apps/www/src/lib/ui/separator/separator.svelte",
+      "apps/www/src/lib/ui/separator/separator.svelte"
+    ],
+    "jx-sheet-body": [
+      "registry/files/ui/sheet/sheet.svelte",
+      "registry/files/ui/sheet/sheet.svelte",
+      "apps/www/src/lib/ui/sheet/sheet.svelte",
+      "apps/www/src/lib/ui/sheet/sheet.svelte"
+    ],
+    "jx-sheet-foot": [
+      "registry/files/ui/sheet/sheet.svelte",
+      "apps/www/src/lib/ui/sheet/sheet.svelte"
+    ],
+    "jx-sheet-head": [
+      "registry/files/ui/sheet/sheet.svelte",
+      "apps/www/src/lib/ui/sheet/sheet.svelte"
+    ],
+    "jx-sheet-head-extra": [
+      "registry/files/ui/sheet/sheet.svelte",
+      "apps/www/src/lib/ui/sheet/sheet.svelte"
+    ],
+    "jx-sheet-surface": [
+      "registry/files/ui/sheet/sheet.svelte",
+      "apps/www/src/lib/ui/sheet/sheet.svelte"
+    ],
+    "jx-sheet-title": [
+      "registry/files/ui/sheet/sheet.svelte",
+      "apps/www/src/lib/ui/sheet/sheet.svelte"
+    ],
+    "jx-shimmer-host": [
+      "apps/www/test/press-button.spec.ts",
+      "scripts/verify-press.mjs",
+      "scripts/verify-press.mjs"
+    ],
+    "jx-single": [
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte"
+    ],
+    "jx-skeleton-pulse": [
+      "registry/files/ui/skeleton/skeleton.svelte",
+      "apps/www/src/lib/ui/skeleton/skeleton.svelte"
+    ],
+    "jx-slide": [
+      "apps/www/test/fixtures/carousel-host.svelte",
+      "apps/www/test/fixtures/carousel-host.svelte",
+      "apps/www/test/fixtures/carousel-host.svelte"
+    ],
+    "jx-slider-fill": [
+      "registry/files/ui/range/range.svelte",
+      "apps/www/src/lib/ui/range/range.svelte"
+    ],
+    "jx-slider-head": [
+      "registry/files/ui/range/range.svelte",
+      "apps/www/src/lib/ui/range/range.svelte"
+    ],
+    "jx-slider-track": [
+      "registry/files/ui/range/range.svelte",
+      "apps/www/src/lib/ui/range/range.svelte"
+    ],
+    "jx-slider-value": [
+      "registry/files/ui/range/range.svelte",
+      "registry/files/ui/range/range.svelte",
+      "apps/www/src/lib/ui/range/range.svelte",
+      "apps/www/src/lib/ui/range/range.svelte"
+    ],
+    "jx-slot": [
+      "registry/files/ui/input/input.svelte",
+      "registry/files/ui/input/input.svelte",
+      "apps/www/src/lib/ui/input/input.svelte",
+      "apps/www/src/lib/ui/input/input.svelte"
+    ],
+    "jx-spin-content": [
+      "registry/files/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte"
+    ],
+    "jx-spin-cursor": [
+      "registry/files/ui/spin/spin.svelte",
+      "registry/files/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte"
+    ],
+    "jx-spin-frame": [
+      "registry/files/ui/spin/spin.svelte",
+      "registry/files/ui/spin/spin.svelte",
+      "registry/files/ui/spin/spin.svelte",
+      "registry/files/ui/spin/spin.svelte",
+      "registry/files/ui/spin/spin.svelte",
+      "registry/files/ui/spin/spin.svelte",
+      "registry/files/ui/spin/spin.svelte",
+      "registry/files/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte"
+    ],
+    "jx-spin-inline": [
+      "registry/files/ui/spin/spin.svelte",
+      "registry/files/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte",
+      "apps/www/test/batch5-antd-components.spec.ts"
+    ],
+    "jx-spin-live": [
+      "registry/files/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte"
+    ],
+    "jx-spin-scrim": [
+      "registry/files/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte"
+    ],
+    "jx-spin-wrap": [
+      "registry/files/ui/spin/spin.svelte",
+      "registry/files/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte",
+      "apps/www/src/lib/ui/spin/spin.svelte"
+    ],
+    "jx-stat": [
+      "registry/files/ui/statistic/statistic.svelte",
+      "registry/files/ui/statistic/statistic.svelte",
+      "apps/www/src/lib/ui/statistic/statistic.svelte",
+      "apps/www/src/lib/ui/statistic/statistic.svelte"
+    ],
+    "jx-stat-affix": [
+      "registry/files/ui/statistic/statistic.svelte",
+      "registry/files/ui/statistic/statistic.svelte",
+      "apps/www/src/lib/ui/statistic/statistic.svelte",
+      "apps/www/src/lib/ui/statistic/statistic.svelte"
+    ],
+    "jx-stat-num": [
+      "registry/files/ui/statistic/statistic.svelte",
+      "apps/www/src/lib/ui/statistic/statistic.svelte",
+      "apps/www/test/batch5-antd-components.spec.ts"
+    ],
+    "jx-stat-title": [
+      "registry/files/ui/statistic/statistic.svelte",
+      "apps/www/src/lib/ui/statistic/statistic.svelte"
+    ],
+    "jx-stat-trend": [
+      "registry/files/ui/statistic/statistic.svelte",
+      "registry/files/ui/statistic/statistic.svelte",
+      "apps/www/src/lib/ui/statistic/statistic.svelte",
+      "apps/www/src/lib/ui/statistic/statistic.svelte",
+      "apps/www/test/batch5-antd-components.spec.ts"
+    ],
+    "jx-stat-value": [
+      "registry/files/ui/statistic/statistic.svelte",
+      "apps/www/src/lib/ui/statistic/statistic.svelte"
+    ],
+    "jx-step-desc": [
+      "registry/files/ui/steps/steps.svelte",
+      "apps/www/src/lib/ui/steps/steps.svelte"
+    ],
+    "jx-step-index": [
+      "registry/files/ui/steps/steps.svelte",
+      "registry/files/ui/steps/steps.svelte",
+      "apps/www/src/lib/ui/steps/steps.svelte",
+      "apps/www/src/lib/ui/steps/steps.svelte"
+    ],
+    "jx-step-marker": [
+      "registry/files/ui/steps/steps.svelte",
+      "registry/files/ui/steps/steps.svelte",
+      "registry/files/ui/steps/steps.svelte",
+      "registry/files/ui/steps/steps.svelte",
+      "apps/www/src/lib/ui/steps/steps.svelte",
+      "apps/www/src/lib/ui/steps/steps.svelte",
+      "apps/www/src/lib/ui/steps/steps.svelte",
+      "apps/www/src/lib/ui/steps/steps.svelte"
+    ],
+    "jx-step-text": [
+      "registry/files/ui/steps/steps.svelte",
+      "apps/www/src/lib/ui/steps/steps.svelte"
+    ],
+    "jx-step-title": [
+      "registry/files/ui/steps/steps.svelte",
+      "registry/files/ui/steps/steps.svelte",
+      "apps/www/src/lib/ui/steps/steps.svelte",
+      "apps/www/src/lib/ui/steps/steps.svelte"
+    ],
+    "jx-steps": [
+      "registry/files/ui/steps/steps.svelte",
+      "registry/files/ui/steps/steps.svelte",
+      "apps/www/src/lib/ui/steps/steps.svelte",
+      "apps/www/src/lib/ui/steps/steps.svelte"
+    ],
+    "jx-sub-icon": [
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte"
+    ],
+    "jx-sub-text": [
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte"
+    ],
+    "jx-subpanel-title": [
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte"
+    ],
+    "jx-sv-row": [
+      "registry/files/ui/scroll-virtual/scroll-virtual.svelte",
+      "apps/www/src/lib/ui/scroll-virtual/scroll-virtual.svelte"
+    ],
+    "jx-sv-spacer": [
+      "registry/files/ui/scroll-virtual/scroll-virtual.svelte",
+      "apps/www/src/lib/ui/scroll-virtual/scroll-virtual.svelte",
+      "apps/www/test/scroll-area-family.spec.ts",
+      "apps/www/test/scroll-area-family.spec.ts"
+    ],
+    "jx-tab": [
+      "registry/files/ui/tabs/tabs-trigger.svelte",
+      "registry/files/ui/tabs/tabs-trigger.svelte",
+      "apps/www/src/lib/ui/tabs/tabs-trigger.svelte",
+      "apps/www/src/lib/ui/tabs/tabs-trigger.svelte"
+    ],
+    "jx-tab-panel": [
+      "registry/files/ui/tabs/tabs-content.svelte",
+      "apps/www/src/lib/ui/tabs/tabs-content.svelte"
+    ],
+    "jx-table-edge": [
+      "registry/files/ui/table/table.svelte",
+      "apps/www/src/lib/ui/table/table.svelte"
+    ],
+    "jx-table-hairline": [
+      "registry/files/ui/table/table.svelte",
+      "apps/www/src/lib/ui/table/table.svelte"
+    ],
+    "jx-table-head": [
+      "registry/files/ui/table/table.svelte",
+      "apps/www/src/lib/ui/table/table.svelte"
+    ],
+    "jx-table-hover": [
+      "registry/files/ui/table/table.svelte",
+      "apps/www/src/lib/ui/table/table.svelte"
+    ],
+    "jx-table-rule": [
+      "registry/files/ui/table/table.svelte",
+      "registry/files/ui/table/table.svelte",
+      "apps/www/src/lib/ui/table/table.svelte",
+      "apps/www/src/lib/ui/table/table.svelte"
+    ],
+    "jx-table-surface": [
+      "registry/files/ui/table/table.svelte",
+      "registry/files/ui/table/table.svelte",
+      "apps/www/src/lib/ui/table/table.svelte",
+      "apps/www/src/lib/ui/table/table.svelte"
+    ],
+    "jx-tabs-list": [
+      "registry/files/ui/tabs/tabs-list.svelte",
+      "registry/files/ui/tabs/tabs-list.svelte",
+      "apps/www/src/lib/ui/tabs/tabs-list.svelte",
+      "apps/www/src/lib/ui/tabs/tabs-list.svelte"
+    ],
+    "jx-tags-full": [
+      "registry/files/ui/tags-input/tags-input.svelte",
+      "apps/www/src/lib/ui/tags-input/tags-input.svelte",
+      "apps/www/test/form-components.spec.ts",
+      "apps/www/test/form-components.spec.ts"
+    ],
+    "jx-tags-input": [
+      "registry/files/ui/tags-input/tags-input.svelte",
+      "apps/www/src/lib/ui/tags-input/tags-input.svelte"
+    ],
+    "jx-tags-invalid": [
+      "registry/files/ui/tags-input/tags-input.svelte",
+      "registry/files/ui/tags-input/tags-input.svelte",
+      "apps/www/src/lib/ui/tags-input/tags-input.svelte",
+      "apps/www/src/lib/ui/tags-input/tags-input.svelte"
+    ],
+    "jx-tags-list": [
+      "registry/files/ui/tags-input/tags-input.svelte",
+      "apps/www/src/lib/ui/tags-input/tags-input.svelte"
+    ],
+    "jx-tags-panel-body": [
+      "registry/files/ui/tags-input/tags-input.svelte",
+      "apps/www/src/lib/ui/tags-input/tags-input.svelte"
+    ],
+    "jx-tags-scroll": [
+      "registry/files/ui/tags-input/tags-input.svelte",
+      "apps/www/src/lib/ui/tags-input/tags-input.svelte"
+    ],
+    "jx-tags-shake": [
+      "registry/files/ui/tags-input/tags-input.svelte",
+      "apps/www/src/lib/ui/tags-input/tags-input.svelte"
+    ],
+    "jx-tags-suggestion-active": [
+      "registry/files/ui/tags-input/tags-input.svelte",
+      "registry/files/ui/tags-input/tags-input.svelte",
+      "apps/www/src/lib/ui/tags-input/tags-input.svelte",
+      "apps/www/src/lib/ui/tags-input/tags-input.svelte"
+    ],
+    "jx-tags-tag-label": [
+      "registry/files/ui/tags-input/tags-input.svelte",
+      "apps/www/src/lib/ui/tags-input/tags-input.svelte"
+    ],
+    "jx-tags-wrap": [
+      "registry/files/ui/tags-input/tags-input.svelte",
+      "apps/www/src/lib/ui/tags-input/tags-input.svelte"
+    ],
+    "jx-terminal": [
+      "registry/files/ui/terminal-card/terminal-card.svelte",
+      "registry/files/ui/terminal-card/terminal-card.svelte",
+      "apps/www/src/lib/ui/terminal-card/terminal-card.svelte",
+      "apps/www/src/lib/ui/terminal-card/terminal-card.svelte"
+    ],
+    "jx-textarea": [
+      "registry/files/ui/textarea/textarea.svelte",
+      "registry/files/ui/textarea/textarea.svelte",
+      "apps/www/src/lib/ui/textarea/textarea.svelte",
+      "apps/www/src/lib/ui/textarea/textarea.svelte"
+    ],
+    "jx-tgroup": [
+      "registry/files/ui/toggle-group/toggle-group.svelte",
+      "registry/files/ui/toggle-group/toggle-group.svelte",
+      "apps/www/src/lib/ui/toggle-group/toggle-group.svelte",
+      "apps/www/src/lib/ui/toggle-group/toggle-group.svelte"
+    ],
+    "jx-tgroup-on": [
+      "registry/files/ui/toggle-group/toggle-group.svelte",
+      "registry/files/ui/toggle-group/toggle-group.svelte",
+      "apps/www/src/lib/ui/toggle-group/toggle-group.svelte",
+      "apps/www/src/lib/ui/toggle-group/toggle-group.svelte"
+    ],
+    "jx-theme-btn": [
+      "registry/files/ui/theme-toggle/theme-toggle.svelte",
+      "registry/files/ui/theme-toggle/theme-toggle.svelte",
+      "apps/www/src/lib/ui/theme-toggle/theme-toggle.svelte",
+      "apps/www/src/lib/ui/theme-toggle/theme-toggle.svelte"
+    ],
+    "jx-theme-icon": [
+      "registry/files/ui/theme-toggle/theme-toggle.svelte",
+      "registry/files/ui/theme-toggle/theme-toggle.svelte",
+      "registry/files/ui/theme-toggle/theme-toggle.svelte",
+      "apps/www/src/lib/ui/theme-toggle/theme-toggle.svelte",
+      "apps/www/src/lib/ui/theme-toggle/theme-toggle.svelte",
+      "apps/www/src/lib/ui/theme-toggle/theme-toggle.svelte"
+    ],
+    "jx-theme-seg": [
+      "registry/files/ui/theme-toggle/theme-toggle.svelte",
+      "registry/files/ui/theme-toggle/theme-toggle.svelte",
+      "apps/www/src/lib/ui/theme-toggle/theme-toggle.svelte",
+      "apps/www/src/lib/ui/theme-toggle/theme-toggle.svelte"
+    ],
+    "jx-theme-segmented": [
+      "registry/files/ui/theme-toggle/theme-toggle.svelte",
+      "apps/www/src/lib/ui/theme-toggle/theme-toggle.svelte"
+    ],
+    "jx-timeline": [
+      "registry/files/ui/timeline/timeline.svelte",
+      "registry/files/ui/timeline/timeline.svelte",
+      "apps/www/src/lib/ui/timeline/timeline.svelte",
+      "apps/www/src/lib/ui/timeline/timeline.svelte"
+    ],
+    "jx-tip-anchor": [
+      "registry/files/ui/tooltip/tooltip.svelte",
+      "registry/files/ui/tooltip/tooltip.svelte",
+      "apps/www/src/lib/ui/tooltip/tooltip.svelte",
+      "apps/www/src/lib/ui/tooltip/tooltip.svelte",
+      "apps/www/test/batch2-components.spec.ts",
+      "apps/www/test/batch2-components.spec.ts",
+      "apps/www/test/batch2-components.spec.ts",
+      "scripts/verify-layer-law.mjs"
+    ],
+    "jx-tl-body": [
+      "registry/files/ui/timeline/timeline.svelte",
+      "apps/www/src/lib/ui/timeline/timeline.svelte"
+    ],
+    "jx-tl-dot": [
+      "registry/files/ui/timeline/timeline.svelte",
+      "registry/files/ui/timeline/timeline.svelte",
+      "apps/www/src/lib/ui/timeline/timeline.svelte",
+      "apps/www/src/lib/ui/timeline/timeline.svelte"
+    ],
+    "jx-tl-pending": [
+      "registry/files/ui/timeline/timeline.svelte",
+      "registry/files/ui/timeline/timeline.svelte",
+      "apps/www/src/lib/ui/timeline/timeline.svelte",
+      "apps/www/src/lib/ui/timeline/timeline.svelte"
+    ],
+    "jx-tl-time": [
+      "registry/files/ui/timeline/timeline.svelte",
+      "apps/www/src/lib/ui/timeline/timeline.svelte",
+      "apps/www/test/batch5-antd-components.spec.ts"
+    ],
+    "jx-tl-title": [
+      "registry/files/ui/timeline/timeline.svelte",
+      "registry/files/ui/timeline/timeline.svelte",
+      "apps/www/src/lib/ui/timeline/timeline.svelte",
+      "apps/www/src/lib/ui/timeline/timeline.svelte"
+    ],
+    "jx-toast-body": [
+      "registry/files/ui/toast/toast-viewport.svelte",
+      "apps/www/src/lib/ui/toast/toast-viewport.svelte"
+    ],
+    "jx-toast-desc": [
+      "registry/files/ui/toast/toast-viewport.svelte",
+      "apps/www/src/lib/ui/toast/toast-viewport.svelte"
+    ],
+    "jx-toast-dismiss": [
+      "registry/files/ui/toast/toast-viewport.svelte",
+      "apps/www/src/lib/ui/toast/toast-viewport.svelte"
+    ],
+    "jx-toast-in": [
+      "registry/files/ui/toast/toast-viewport.svelte",
+      "apps/www/src/lib/ui/toast/toast-viewport.svelte"
+    ],
+    "jx-toast-out": [
+      "registry/files/ui/toast/toast-viewport.svelte",
+      "apps/www/src/lib/ui/toast/toast-viewport.svelte"
+    ],
+    "jx-toast-title": [
+      "registry/files/ui/toast/toast-viewport.svelte",
+      "registry/files/ui/toast/toast-viewport.svelte",
+      "apps/www/src/lib/ui/toast/toast-viewport.svelte",
+      "apps/www/src/lib/ui/toast/toast-viewport.svelte"
+    ],
+    "jx-toasts": [
+      "registry/files/ui/toast/toast-viewport.svelte",
+      "registry/files/ui/toast/toast-viewport.svelte",
+      "apps/www/src/lib/ui/toast/toast-viewport.svelte",
+      "apps/www/src/lib/ui/toast/toast-viewport.svelte",
+      "apps/www/test/batch3-components.spec.ts",
+      "apps/www/test/batch3-components.spec.ts"
+    ],
+    "jx-toggle-h": [
+      "registry/files/ui/toggle/toggle.svelte",
+      "registry/files/ui/toggle/toggle.svelte",
+      "registry/files/ui/toggle/toggle.svelte",
+      "apps/www/src/lib/ui/toggle/toggle.svelte",
+      "apps/www/src/lib/ui/toggle/toggle.svelte",
+      "apps/www/src/lib/ui/toggle/toggle.svelte"
+    ],
+    "jx-toggle-label": [
+      "registry/files/ui/toggle/toggle.svelte",
+      "apps/www/src/lib/ui/toggle/toggle.svelte"
+    ],
+    "jx-toggle-w": [
+      "registry/files/ui/toggle/toggle.svelte",
+      "apps/www/src/lib/ui/toggle/toggle.svelte"
+    ],
+    "jx-tour-actions": [
+      "registry/files/ui/tour/tour.svelte",
+      "apps/www/src/lib/ui/tour/tour.svelte"
+    ],
+    "jx-tour-btn": [
+      "apps/www/test/batch8-closure-components.spec.ts"
+    ],
+    "jx-tour-desc": [
+      "registry/files/ui/tour/tour.svelte",
+      "apps/www/src/lib/ui/tour/tour.svelte"
+    ],
+    "jx-tour-meta": [
+      "registry/files/ui/tour/tour.svelte",
+      "apps/www/src/lib/ui/tour/tour.svelte",
+      "apps/www/test/batch8-closure-components.spec.ts",
+      "apps/www/test/batch8-closure-components.spec.ts",
+      "apps/www/test/batch8-closure-components.spec.ts",
+      "apps/www/test/batch8-closure-components.spec.ts",
+      "apps/www/test/batch8-closure-components.spec.ts"
+    ],
+    "jx-tour-nav": [
+      "registry/files/ui/tour/tour.svelte",
+      "apps/www/src/lib/ui/tour/tour.svelte"
+    ],
+    "jx-tour-next": [
+      "registry/files/ui/tour/tour.svelte",
+      "registry/files/ui/tour/tour.svelte",
+      "apps/www/src/lib/ui/tour/tour.svelte",
+      "apps/www/src/lib/ui/tour/tour.svelte",
+      "apps/www/test/batch8-closure-components.spec.ts",
+      "apps/www/test/batch8-closure-components.spec.ts",
+      "apps/www/test/batch8-closure-components.spec.ts",
+      "apps/www/test/batch8-closure-components.spec.ts",
+      "apps/www/test/batch8-closure-components.spec.ts"
+    ],
+    "jx-tour-skip": [
+      "registry/files/ui/tour/tour.svelte",
+      "apps/www/src/lib/ui/tour/tour.svelte"
+    ],
+    "jx-tour-surface": [
+      "registry/files/ui/tour/tour.svelte",
+      "apps/www/src/lib/ui/tour/tour.svelte"
+    ],
+    "jx-tour-title": [
+      "registry/files/ui/tour/tour.svelte",
+      "apps/www/src/lib/ui/tour/tour.svelte"
+    ],
+    "jx-tr-empty": [
+      "registry/files/ui/transfer/transfer.svelte",
+      "registry/files/ui/transfer/transfer.svelte",
+      "apps/www/src/lib/ui/transfer/transfer.svelte",
+      "apps/www/src/lib/ui/transfer/transfer.svelte",
+      "apps/www/test/batch6-antd2-components.spec.ts"
+    ],
+    "jx-tr-label": [
+      "registry/files/ui/transfer/transfer.svelte",
+      "registry/files/ui/transfer/transfer.svelte",
+      "apps/www/src/lib/ui/transfer/transfer.svelte",
+      "apps/www/src/lib/ui/transfer/transfer.svelte"
+    ],
+    "jx-tr-legend": [
+      "registry/files/ui/transfer/transfer.svelte",
+      "registry/files/ui/transfer/transfer.svelte",
+      "apps/www/src/lib/ui/transfer/transfer.svelte",
+      "apps/www/src/lib/ui/transfer/transfer.svelte"
+    ],
+    "jx-tr-list": [
+      "registry/files/ui/transfer/transfer.svelte",
+      "registry/files/ui/transfer/transfer.svelte",
+      "apps/www/src/lib/ui/transfer/transfer.svelte",
+      "apps/www/src/lib/ui/transfer/transfer.svelte"
+    ],
+    "jx-tr-panel": [
+      "registry/files/ui/transfer/transfer.svelte",
+      "registry/files/ui/transfer/transfer.svelte",
+      "apps/www/src/lib/ui/transfer/transfer.svelte",
+      "apps/www/src/lib/ui/transfer/transfer.svelte"
+    ],
+    "jx-tree-label": [
+      "registry/files/ui/tree-view/tree-view.svelte",
+      "apps/www/src/lib/ui/tree-view/tree-view.svelte"
+    ],
+    "jx-tree-prefix": [
+      "registry/files/ui/tree-view/tree-view.svelte",
+      "registry/files/ui/tree-view/tree-view.svelte",
+      "apps/www/src/lib/ui/tree-view/tree-view.svelte",
+      "apps/www/src/lib/ui/tree-view/tree-view.svelte"
+    ],
+    "jx-wing-body": [
+      "apps/www/src/lib/overview-card.svelte"
+    ],
+    "jx-with-icon": [
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "registry/files/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
+      "apps/www/src/lib/ui/terminal-header/terminal-header.svelte"
+    ]
+  },
+  "families": {
+    "alert": {
+      "variants": {
+        "dynamic": [
+          "registry/files/ui/alert/alert.svelte",
+          "apps/www/src/lib/ui/alert/alert.svelte"
+        ],
+        "title": [
+          "apps/www/test/batch1-components.spec.ts"
+        ]
+      },
+      "shapes": [
+        "template",
+        "query"
+      ],
+      "sites": [
+        "registry/files/ui/alert/alert.svelte",
+        "apps/www/src/lib/ui/alert/alert.svelte",
+        "apps/www/test/batch1-components.spec.ts"
+      ]
+    },
+    "avatar": {
+      "variants": {
+        "dynamic": [
+          "registry/files/ui/avatar/avatar.svelte",
+          "registry/files/ui/avatar/avatar.svelte",
+          "apps/www/src/lib/ui/avatar/avatar.svelte",
+          "apps/www/src/lib/ui/avatar/avatar.svelte"
+        ],
+        "fallback": [
+          "apps/www/test/batch1-components.spec.ts"
+        ]
+      },
+      "shapes": [
+        "template",
+        "query"
+      ],
+      "sites": [
+        "registry/files/ui/avatar/avatar.svelte",
+        "registry/files/ui/avatar/avatar.svelte",
+        "apps/www/src/lib/ui/avatar/avatar.svelte",
+        "apps/www/src/lib/ui/avatar/avatar.svelte",
+        "apps/www/test/batch1-components.spec.ts"
+      ]
+    },
+    "badge": {
+      "variants": {
+        "dynamic": [
+          "registry/files/ui/badge/badge.svelte",
+          "apps/www/src/lib/ui/badge/badge.svelte"
+        ]
+      },
+      "shapes": [
+        "template"
+      ],
+      "sites": [
+        "registry/files/ui/badge/badge.svelte",
+        "apps/www/src/lib/ui/badge/badge.svelte"
+      ]
+    },
+    "file": {
+      "variants": {
+        "dynamic": [
+          "registry/files/ui/file-input/file-input.svelte",
+          "apps/www/src/lib/ui/file-input/file-input.svelte"
+        ],
+        "disabled": [
+          "registry/files/ui/file-input/file-input.svelte",
+          "apps/www/src/lib/ui/file-input/file-input.svelte"
+        ],
+        "invalid": [
+          "registry/files/ui/file-input/file-input.svelte",
+          "apps/www/src/lib/ui/file-input/file-input.svelte",
+          "apps/www/src/lib/ui/file-input/file-input.svelte",
+          "apps/www/src/lib/ui/file-input/file-input.svelte"
+        ]
+      },
+      "shapes": [
+        "template",
+        "and-guard"
+      ],
+      "sites": [
+        "registry/files/ui/file-input/file-input.svelte",
+        "registry/files/ui/file-input/file-input.svelte",
+        "registry/files/ui/file-input/file-input.svelte",
+        "apps/www/src/lib/ui/file-input/file-input.svelte",
+        "apps/www/src/lib/ui/file-input/file-input.svelte",
+        "apps/www/src/lib/ui/file-input/file-input.svelte",
+        "apps/www/src/lib/ui/file-input/file-input.svelte",
+        "apps/www/src/lib/ui/file-input/file-input.svelte"
+      ]
+    },
+    "file-icon": {
+      "variants": {
+        "dynamic": [
+          "registry/files/ui/file-input/file-input.svelte",
+          "apps/www/src/lib/ui/file-input/file-input.svelte"
+        ]
+      },
+      "shapes": [
+        "text-interp"
+      ],
+      "sites": [
+        "registry/files/ui/file-input/file-input.svelte",
+        "apps/www/src/lib/ui/file-input/file-input.svelte"
+      ]
+    },
+    "fab": {
+      "variants": {
+        "dynamic": [
+          "registry/files/ui/float-button/float-button.svelte",
+          "apps/www/src/lib/ui/float-button/float-button.svelte"
+        ]
+      },
+      "shapes": [
+        "template"
+      ],
+      "sites": [
+        "registry/files/ui/float-button/float-button.svelte",
+        "apps/www/src/lib/ui/float-button/float-button.svelte"
+      ]
+    },
+    "result": {
+      "variants": {
+        "dynamic": [
+          "registry/files/ui/result/result.svelte",
+          "apps/www/src/lib/ui/result/result.svelte"
+        ],
+        "glyph": [
+          "apps/www/test/batch5-antd-components.spec.ts",
+          "apps/www/test/batch5-antd-components.spec.ts",
+          "apps/www/test/batch5-antd-components.spec.ts"
+        ],
+        "success": [
+          "apps/www/test/batch5-antd-components.spec.ts"
+        ],
+        "title": [
+          "apps/www/test/batch5-antd-components.spec.ts"
+        ],
+        "error": [
+          "apps/www/test/batch5-antd-components.spec.ts"
+        ]
+      },
+      "shapes": [
+        "template",
+        "query"
+      ],
+      "sites": [
+        "registry/files/ui/result/result.svelte",
+        "apps/www/src/lib/ui/result/result.svelte",
+        "apps/www/test/batch5-antd-components.spec.ts",
+        "apps/www/test/batch5-antd-components.spec.ts",
+        "apps/www/test/batch5-antd-components.spec.ts",
+        "apps/www/test/batch5-antd-components.spec.ts",
+        "apps/www/test/batch5-antd-components.spec.ts",
+        "apps/www/test/batch5-antd-components.spec.ts"
+      ]
+    },
+    "sheet": {
+      "variants": {
+        "dynamic": [
+          "registry/files/ui/sheet/sheet.svelte",
+          "apps/www/src/lib/ui/sheet/sheet.svelte"
+        ]
+      },
+      "shapes": [
+        "template"
+      ],
+      "sites": [
+        "registry/files/ui/sheet/sheet.svelte",
+        "apps/www/src/lib/ui/sheet/sheet.svelte"
+      ]
+    },
+    "stat-trend": {
+      "variants": {
+        "dynamic": [
+          "registry/files/ui/statistic/statistic.svelte",
+          "apps/www/src/lib/ui/statistic/statistic.svelte"
+        ]
+      },
+      "shapes": [
+        "template"
+      ],
+      "sites": [
+        "registry/files/ui/statistic/statistic.svelte",
+        "apps/www/src/lib/ui/statistic/statistic.svelte"
+      ]
+    },
+    "step": {
+      "variants": {
+        "dynamic": [
+          "registry/files/ui/steps/steps.svelte",
+          "apps/www/src/lib/ui/steps/steps.svelte"
+        ],
+        "marker": [
+          "apps/www/test/batch5-antd-components.spec.ts",
+          "apps/www/test/batch5-antd-components.spec.ts"
+        ],
+        "index": [
+          "apps/www/test/batch5-antd-components.spec.ts"
+        ]
+      },
+      "shapes": [
+        "template",
+        "query"
+      ],
+      "sites": [
+        "registry/files/ui/steps/steps.svelte",
+        "apps/www/src/lib/ui/steps/steps.svelte",
+        "apps/www/test/batch5-antd-components.spec.ts",
+        "apps/www/test/batch5-antd-components.spec.ts",
+        "apps/www/test/batch5-antd-components.spec.ts"
+      ]
+    },
+    "tabs": {
+      "variants": {
+        "dynamic": [
+          "registry/files/ui/tabs/tabs-list.svelte",
+          "apps/www/src/lib/ui/tabs/tabs-list.svelte"
+        ]
+      },
+      "shapes": [
+        "template"
+      ],
+      "sites": [
+        "registry/files/ui/tabs/tabs-list.svelte",
+        "apps/www/src/lib/ui/tabs/tabs-list.svelte"
+      ]
+    },
+    "toast": {
+      "variants": {
+        "dynamic": [
+          "registry/files/ui/toast/toast-viewport.svelte",
+          "apps/www/src/lib/ui/toast/toast-viewport.svelte"
+        ],
+        "leaving": [
+          "registry/files/ui/toast/toast-viewport.svelte",
+          "apps/www/src/lib/ui/toast/toast-viewport.svelte",
+          "apps/www/test/batch3-components.spec.ts",
+          "apps/www/test/batch3-components.spec.ts"
+        ],
+        "dismiss": [
+          "apps/www/test/batch3-components.spec.ts"
+        ]
+      },
+      "shapes": [
+        "template",
+        "and-guard",
+        "query"
+      ],
+      "sites": [
+        "registry/files/ui/toast/toast-viewport.svelte",
+        "registry/files/ui/toast/toast-viewport.svelte",
+        "apps/www/src/lib/ui/toast/toast-viewport.svelte",
+        "apps/www/src/lib/ui/toast/toast-viewport.svelte",
+        "apps/www/test/batch3-components.spec.ts",
+        "apps/www/test/batch3-components.spec.ts",
+        "apps/www/test/batch3-components.spec.ts"
+      ]
+    },
+    "toggle": {
+      "variants": {
+        "dynamic": [
+          "registry/files/ui/toggle/toggle.svelte",
+          "apps/www/src/lib/ui/toggle/toggle.svelte"
+        ],
+        "disabled": [
+          "registry/files/ui/toggle/toggle.svelte",
+          "apps/www/src/lib/ui/toggle/toggle.svelte"
+        ]
+      },
+      "shapes": [
+        "text-interp",
+        "and-guard"
+      ],
+      "sites": [
+        "registry/files/ui/toggle/toggle.svelte",
+        "registry/files/ui/toggle/toggle.svelte",
+        "apps/www/src/lib/ui/toggle/toggle.svelte",
+        "apps/www/src/lib/ui/toggle/toggle.svelte"
+      ]
+    }
+  },
+  "handReview": [
+    {
+      "file": "registry/files/ui/avatar/avatar.svelte",
+      "line": 81,
+      "excerpt": "jx-avatar flex-none box-border object-cover border border-border bg-card text-mu"
+    },
+    {
+      "file": "registry/files/ui/avatar/avatar.svelte",
+      "line": 84,
+      "excerpt": "jx-avatar-${size} jx-avatar-${variant}"
+    },
+    {
+      "file": "registry/files/ui/badge-indicator/badge-indicator.svelte",
+      "line": 35,
+      "excerpt": "jx-bi jx-bi-dot w-2.5 min-w-2.5 h-2.5 p-0 box-border inline-flex items-center ju"
+    },
+    {
+      "file": "registry/files/ui/badge-indicator/badge-indicator.svelte",
+      "line": 36,
+      "excerpt": "jx-bi min-w-[1.125rem] h-[1.125rem] box-border px-1 py-0 inline-flex items-cente"
+    },
+    {
+      "file": "registry/files/ui/badge-indicator/badge-indicator.svelte",
+      "line": 37,
+      "excerpt": "jx-bi-standalone"
+    },
+    {
+      "file": "registry/files/ui/component-canvas/component-canvas.svelte",
+      "line": 110,
+      "excerpt": "jx-canvas-${canvasId}-title"
+    },
+    {
+      "file": "registry/files/ui/component-canvas/component-canvas.svelte",
+      "line": 111,
+      "excerpt": "jx-canvas-${canvasId}-playground"
+    },
+    {
+      "file": "registry/files/ui/component-canvas/component-canvas.svelte",
+      "line": 112,
+      "excerpt": "jx-canvas-${canvasId}-drawer"
+    },
+    {
+      "file": "registry/files/ui/component-canvas/component-canvas.svelte",
+      "line": 201,
+      "excerpt": "jx-stage-start items-start justify-start"
+    },
+    {
+      "file": "registry/files/ui/component-canvas/component-canvas.svelte",
+      "line": 202,
+      "excerpt": "jx-stage-stretch items-stretch [justify-content:stretch]"
+    },
+    {
+      "file": "registry/files/ui/dropdown-menu/dropdown-menu-item.svelte",
+      "line": 19,
+      "excerpt": "jx-dropdown-menu"
+    },
+    {
+      "file": "registry/files/ui/dropdown-menu/dropdown-menu.svelte",
+      "line": 63,
+      "excerpt": "jx-dropdown-menu"
+    },
+    {
+      "file": "registry/files/ui/float-button/float-button.svelte",
+      "line": 41,
+      "excerpt": "jx-fab-bottom-right bottom-5 right-5"
+    },
+    {
+      "file": "registry/files/ui/float-button/float-button.svelte",
+      "line": 42,
+      "excerpt": "jx-fab-bottom-left bottom-5 left-5"
+    },
+    {
+      "file": "registry/files/ui/float-button/float-button.svelte",
+      "line": 43,
+      "excerpt": "jx-fab-top-right top-[5.5rem] right-5"
+    },
+    {
+      "file": "registry/files/ui/float-button/float-button.svelte",
+      "line": 44,
+      "excerpt": "jx-fab-top-left top-[5.5rem] left-5"
+    },
+    {
+      "file": "registry/files/ui/icon-button/icon-button.svelte",
+      "line": 37,
+      "excerpt": "jx-press inline-flex items-center justify-center border border-border bg-backgro"
+    },
+    {
+      "file": "registry/files/ui/menubar/menubar.svelte",
+      "line": 47,
+      "excerpt": "jx-bar-panel-${id}"
+    },
+    {
+      "file": "registry/files/ui/menubar/menubar.svelte",
+      "line": 61,
+      "excerpt": "jx-bar-panel-${openId}"
+    },
+    {
+      "file": "registry/files/ui/menubar/menubar.svelte",
+      "line": 62,
+      "excerpt": "jx-bar-trigger-${openId}"
+    },
+    {
+      "file": "registry/files/ui/menubar/menubar.svelte",
+      "line": 69,
+      "excerpt": "jx-bar-panel-${id}"
+    },
+    {
+      "file": "registry/files/ui/menubar/menubar.svelte",
+      "line": 74,
+      "excerpt": "jx-bar-trigger-${id}"
+    },
+    {
+      "file": "registry/files/ui/menubar/menubar.svelte",
+      "line": 90,
+      "excerpt": "jx-bar-trigger-${item.id}"
+    },
+    {
+      "file": "registry/files/ui/menubar/menubar.svelte",
+      "line": 122,
+      "excerpt": "jx-bar-panel-${id}"
+    },
+    {
+      "file": "registry/files/ui/menubar/menubar.svelte",
+      "line": 149,
+      "excerpt": "jx-bar-panel-${focusIntoId}"
+    },
+    {
+      "file": "registry/files/ui/navigation-menu/navigation-menu.svelte",
+      "line": 53,
+      "excerpt": "jx-navmenu-panel-${id}"
+    },
+    {
+      "file": "registry/files/ui/navigation-menu/navigation-menu.svelte",
+      "line": 61,
+      "excerpt": "jx-navmenu-panel-${id}"
+    },
+    {
+      "file": "registry/files/ui/navigation-menu/navigation-menu.svelte",
+      "line": 89,
+      "excerpt": "jx-navmenu-trigger-${i.id}"
+    },
+    {
+      "file": "registry/files/ui/navigation-menu/navigation-menu.svelte",
+      "line": 94,
+      "excerpt": "jx-navmenu-trigger-${i.id}"
+    },
+    {
+      "file": "registry/files/ui/press-button/press-button.svelte",
+      "line": 38,
+      "excerpt": "jx-press border border-border"
+    },
+    {
+      "file": "registry/files/ui/press-button/press-button.svelte",
+      "line": 57,
+      "excerpt": "jx-shimmer-host relative z-0"
+    },
+    {
+      "file": "registry/files/ui/press-button/press-button.svelte",
+      "line": 59,
+      "excerpt": "jx-pulse-host relative z-0"
+    },
+    {
+      "file": "registry/files/ui/press-button/press-button.svelte",
+      "line": 61,
+      "excerpt": "jx-rainbow-host relative z-0"
+    },
+    {
+      "file": "registry/files/ui/press-button/press-button.svelte",
+      "line": 63,
+      "excerpt": "jx-ripple-host relative z-0"
+    },
+    {
+      "file": "registry/files/ui/scaffold-float/scaffold-float.svelte",
+      "line": 14,
+      "excerpt": "jx-top-layer"
+    },
+    {
+      "file": "registry/files/ui/tabs/tabs.svelte",
+      "line": 18,
+      "excerpt": "jx-tabs"
+    },
+    {
+      "file": "registry/files/ui/terminal-card/terminal-card.svelte",
+      "line": 16,
+      "excerpt": "jx-light"
+    },
+    {
+      "file": "registry/files/ui/terminal-header/terminal-header.svelte",
+      "line": 74,
+      "excerpt": "jx-light"
+    },
+    {
+      "file": "registry/files/ui/toc/toc.svelte",
+      "line": 89,
+      "excerpt": ".jx-shell-body"
+    },
+    {
+      "file": "registry/files/ui/tooltip/tooltip.svelte",
+      "line": 197,
+      "excerpt": ".jx-tip-body"
+    },
+    {
+      "file": "registry/files/ui/tooltip/tooltip.svelte",
+      "line": 198,
+      "excerpt": ".jx-tip-shadow"
+    },
+    {
+      "file": "registry/files/ui/tour/tour.svelte",
+      "line": 217,
+      "excerpt": "jx-tour-btn inline-flex cursor-pointer appearance-none border px-[0.875rem] py-1"
+    },
+    {
+      "file": "registry/files/ui/website-scaffold/website-scaffold.svelte",
+      "line": 37,
+      "excerpt": "jx-top-layer"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/menubar.svelte",
+      "line": 14,
+      "excerpt": "jx-bar-panel-file"
+    },
+    {
+      "file": "apps/www/src/lib/overview-card.svelte",
+      "line": 24,
+      "excerpt": "jx-wing-${name.toLowerCase().replace(/[^a-z0-9]+/g, "
+    },
+    {
+      "file": "apps/www/src/lib/ui/avatar/avatar.svelte",
+      "line": 81,
+      "excerpt": "jx-avatar flex-none box-border object-cover border border-border bg-card text-mu"
+    },
+    {
+      "file": "apps/www/src/lib/ui/avatar/avatar.svelte",
+      "line": 84,
+      "excerpt": "jx-avatar-${size} jx-avatar-${variant}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/badge-indicator/badge-indicator.svelte",
+      "line": 35,
+      "excerpt": "jx-bi jx-bi-dot w-2.5 min-w-2.5 h-2.5 p-0 box-border inline-flex items-center ju"
+    },
+    {
+      "file": "apps/www/src/lib/ui/badge-indicator/badge-indicator.svelte",
+      "line": 36,
+      "excerpt": "jx-bi min-w-[1.125rem] h-[1.125rem] box-border px-1 py-0 inline-flex items-cente"
+    },
+    {
+      "file": "apps/www/src/lib/ui/badge-indicator/badge-indicator.svelte",
+      "line": 37,
+      "excerpt": "jx-bi-standalone"
+    },
+    {
+      "file": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
+      "line": 110,
+      "excerpt": "jx-canvas-${canvasId}-title"
+    },
+    {
+      "file": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
+      "line": 111,
+      "excerpt": "jx-canvas-${canvasId}-playground"
+    },
+    {
+      "file": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
+      "line": 112,
+      "excerpt": "jx-canvas-${canvasId}-drawer"
+    },
+    {
+      "file": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
+      "line": 201,
+      "excerpt": "jx-stage-start items-start justify-start"
+    },
+    {
+      "file": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
+      "line": 202,
+      "excerpt": "jx-stage-stretch items-stretch [justify-content:stretch]"
+    },
+    {
+      "file": "apps/www/src/lib/ui/dropdown-menu/dropdown-menu-item.svelte",
+      "line": 19,
+      "excerpt": "jx-dropdown-menu"
+    },
+    {
+      "file": "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.svelte",
+      "line": 63,
+      "excerpt": "jx-dropdown-menu"
+    },
+    {
+      "file": "apps/www/src/lib/ui/float-button/float-button.svelte",
+      "line": 41,
+      "excerpt": "jx-fab-bottom-right bottom-5 right-5"
+    },
+    {
+      "file": "apps/www/src/lib/ui/float-button/float-button.svelte",
+      "line": 42,
+      "excerpt": "jx-fab-bottom-left bottom-5 left-5"
+    },
+    {
+      "file": "apps/www/src/lib/ui/float-button/float-button.svelte",
+      "line": 43,
+      "excerpt": "jx-fab-top-right top-[5.5rem] right-5"
+    },
+    {
+      "file": "apps/www/src/lib/ui/float-button/float-button.svelte",
+      "line": 44,
+      "excerpt": "jx-fab-top-left top-[5.5rem] left-5"
+    },
+    {
+      "file": "apps/www/src/lib/ui/icon-button/icon-button.svelte",
+      "line": 37,
+      "excerpt": "jx-press inline-flex items-center justify-center border border-border bg-backgro"
+    },
+    {
+      "file": "apps/www/src/lib/ui/menubar/menubar.svelte",
+      "line": 47,
+      "excerpt": "jx-bar-panel-${id}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/menubar/menubar.svelte",
+      "line": 61,
+      "excerpt": "jx-bar-panel-${openId}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/menubar/menubar.svelte",
+      "line": 62,
+      "excerpt": "jx-bar-trigger-${openId}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/menubar/menubar.svelte",
+      "line": 69,
+      "excerpt": "jx-bar-panel-${id}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/menubar/menubar.svelte",
+      "line": 74,
+      "excerpt": "jx-bar-trigger-${id}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/menubar/menubar.svelte",
+      "line": 90,
+      "excerpt": "jx-bar-trigger-${item.id}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/menubar/menubar.svelte",
+      "line": 122,
+      "excerpt": "jx-bar-panel-${id}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/menubar/menubar.svelte",
+      "line": 149,
+      "excerpt": "jx-bar-panel-${focusIntoId}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/navigation-menu/navigation-menu.svelte",
+      "line": 53,
+      "excerpt": "jx-navmenu-panel-${id}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/navigation-menu/navigation-menu.svelte",
+      "line": 61,
+      "excerpt": "jx-navmenu-panel-${id}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/navigation-menu/navigation-menu.svelte",
+      "line": 89,
+      "excerpt": "jx-navmenu-trigger-${i.id}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/navigation-menu/navigation-menu.svelte",
+      "line": 94,
+      "excerpt": "jx-navmenu-trigger-${i.id}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/press-button/press-button.svelte",
+      "line": 38,
+      "excerpt": "jx-press border border-border"
+    },
+    {
+      "file": "apps/www/src/lib/ui/press-button/press-button.svelte",
+      "line": 57,
+      "excerpt": "jx-shimmer-host relative z-0"
+    },
+    {
+      "file": "apps/www/src/lib/ui/press-button/press-button.svelte",
+      "line": 59,
+      "excerpt": "jx-pulse-host relative z-0"
+    },
+    {
+      "file": "apps/www/src/lib/ui/press-button/press-button.svelte",
+      "line": 61,
+      "excerpt": "jx-rainbow-host relative z-0"
+    },
+    {
+      "file": "apps/www/src/lib/ui/press-button/press-button.svelte",
+      "line": 63,
+      "excerpt": "jx-ripple-host relative z-0"
+    },
+    {
+      "file": "apps/www/src/lib/ui/scaffold-float/scaffold-float.svelte",
+      "line": 14,
+      "excerpt": "jx-top-layer"
+    },
+    {
+      "file": "apps/www/src/lib/ui/tabs/tabs.svelte",
+      "line": 18,
+      "excerpt": "jx-tabs"
+    },
+    {
+      "file": "apps/www/src/lib/ui/terminal-card/terminal-card.svelte",
+      "line": 16,
+      "excerpt": "jx-light"
+    },
+    {
+      "file": "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
+      "line": 74,
+      "excerpt": "jx-light"
+    },
+    {
+      "file": "apps/www/src/lib/ui/toc/toc.svelte",
+      "line": 89,
+      "excerpt": ".jx-shell-body"
+    },
+    {
+      "file": "apps/www/src/lib/ui/tooltip/tooltip.svelte",
+      "line": 197,
+      "excerpt": ".jx-tip-body"
+    },
+    {
+      "file": "apps/www/src/lib/ui/tooltip/tooltip.svelte",
+      "line": 198,
+      "excerpt": ".jx-tip-shadow"
+    },
+    {
+      "file": "apps/www/src/lib/ui/tour/tour.svelte",
+      "line": 217,
+      "excerpt": "jx-tour-btn inline-flex cursor-pointer appearance-none border px-[0.875rem] py-1"
+    },
+    {
+      "file": "apps/www/src/lib/ui/website-scaffold/website-scaffold.svelte",
+      "line": 37,
+      "excerpt": "jx-top-layer"
+    },
+    {
+      "file": "apps/www/src/routes/+layout.svelte",
+      "line": 58,
+      "excerpt": "/components/jx-pure.html"
+    },
+    {
+      "file": "apps/www/src/routes/+layout.svelte",
+      "line": 80,
+      "excerpt": "jx-scroll:${url.pathname}${url.search}${url.hash}"
+    },
+    {
+      "file": "apps/www/src/routes/components/form.html/+page.svelte",
+      "line": 235,
+      "excerpt": "jx-pure"
+    },
+    {
+      "file": "apps/www/src/routes/components/form.html/+page.svelte",
+      "line": 238,
+      "excerpt": "./lib/jx-pure.css"
+    },
+    {
+      "file": "apps/www/src/routes/components/form.html/+page.svelte",
+      "line": 240,
+      "excerpt": "jx-label"
+    },
+    {
+      "file": "apps/www/src/routes/components/form.html/+page.svelte",
+      "line": 241,
+      "excerpt": "jx-input"
+    },
+    {
+      "file": "apps/www/src/routes/components/form.html/+page.svelte",
+      "line": 244,
+      "excerpt": "jx-range"
+    },
+    {
+      "file": "apps/www/src/routes/components/form.html/+page.svelte",
+      "line": 248,
+      "excerpt": "jx-color-field"
+    },
+    {
+      "file": "apps/www/src/routes/components/form.html/+page.svelte",
+      "line": 249,
+      "excerpt": "jx-color"
+    },
+    {
+      "file": "apps/www/src/routes/components/form.html/+page.svelte",
+      "line": 253,
+      "excerpt": "jx-field-shell jx-slotted"
+    },
+    {
+      "file": "apps/www/src/routes/components/form.html/+page.svelte",
+      "line": 255,
+      "excerpt": "jx-input-lane"
+    },
+    {
+      "file": "apps/www/src/routes/components/jx-pure.html/+page.svelte",
+      "line": 12,
+      "excerpt": "$lib/jx-pure.css?raw"
+    },
+    {
+      "file": "apps/www/src/routes/components/jx-pure.html/+page.svelte",
+      "line": 19,
+      "excerpt": "jx-pure.css"
+    },
+    {
+      "file": "apps/www/src/routes/components/jx-pure.html/+page.svelte",
+      "line": 22,
+      "excerpt": "jx-pure"
+    },
+    {
+      "file": "apps/www/src/routes/components/jx-pure.html/+page.svelte",
+      "line": 38,
+      "excerpt": "jx-light jx-pure"
+    },
+    {
+      "file": "apps/www/src/routes/components/jx-pure.html/+page.svelte",
+      "line": 43,
+      "excerpt": "s OWN bootstrap — jx-pure deliberately ships no JS (Codex D4)"
+    },
+    {
+      "file": "apps/www/src/routes/components/jx-pure.html/+page.svelte",
+      "line": 48,
+      "excerpt": "jx-pure jx-auto-dark"
+    },
+    {
+      "file": "apps/www/src/routes/components/jx-pure.html/+page.svelte",
+      "line": 68,
+      "excerpt": "jx-pure-island"
+    },
+    {
+      "file": "apps/www/src/routes/components/jx-pure.html/+page.svelte",
+      "line": 70,
+      "excerpt": "jx-pure-island"
+    },
+    {
+      "file": "apps/www/src/routes/components/jx-pure.html/+page.svelte",
+      "line": 75,
+      "excerpt": "jx-pure"
+    },
+    {
+      "file": "apps/www/src/routes/components/scaffold-float.html/+page.svelte",
+      "line": 37,
+      "excerpt": ".jx-shell-body"
+    },
+    {
+      "file": "apps/www/src/routes/components/tree-view.html/+page.svelte",
+      "line": 282,
+      "excerpt": "jx-demo-act"
+    },
+    {
+      "file": "apps/www/src/routes/components/tree-view.html/+page.svelte",
+      "line": 285,
+      "excerpt": "jx-demo-act"
+    },
+    {
+      "file": "registry/files/lib/form-field.ts",
+      "line": 66,
+      "excerpt": "jx-disabled"
+    },
+    {
+      "file": "registry/files/lib/form-field.ts",
+      "line": 97,
+      "excerpt": "jx-form-field"
+    },
+    {
+      "file": "registry/files/lib/form-field.ts",
+      "line": 98,
+      "excerpt": "jx-form-field"
+    },
+    {
+      "file": "registry/files/lib/icons.ts",
+      "line": 15,
+      "excerpt": "jx-icon"
+    },
+    {
+      "file": "registry/files/lib/icons.ts",
+      "line": 22,
+      "excerpt": "jx-icon"
+    },
+    {
+      "file": "registry/files/lib/scrollbar-measure.ts",
+      "line": 35,
+      "excerpt": "jx-scrollbar-measure"
+    },
+    {
+      "file": "registry/files/lib/scrollbar-measure.ts",
+      "line": 82,
+      "excerpt": "jx-scrollbar-measure"
+    },
+    {
+      "file": "registry/files/lib/scrollbar-measure.ts",
+      "line": 83,
+      "excerpt": "jx-scrollbar-measure"
+    },
+    {
+      "file": "apps/www/src/lib/form-field.ts",
+      "line": 66,
+      "excerpt": "jx-disabled"
+    },
+    {
+      "file": "apps/www/src/lib/form-field.ts",
+      "line": 97,
+      "excerpt": "jx-form-field"
+    },
+    {
+      "file": "apps/www/src/lib/form-field.ts",
+      "line": 98,
+      "excerpt": "jx-form-field"
+    },
+    {
+      "file": "apps/www/src/lib/icons.ts",
+      "line": 15,
+      "excerpt": "jx-icon"
+    },
+    {
+      "file": "apps/www/src/lib/icons.ts",
+      "line": 22,
+      "excerpt": "jx-icon"
+    },
+    {
+      "file": "apps/www/src/lib/scrollbar-measure.ts",
+      "line": 35,
+      "excerpt": "jx-scrollbar-measure"
+    },
+    {
+      "file": "apps/www/src/lib/scrollbar-measure.ts",
+      "line": 82,
+      "excerpt": "jx-scrollbar-measure"
+    },
+    {
+      "file": "apps/www/src/lib/scrollbar-measure.ts",
+      "line": 83,
+      "excerpt": "jx-scrollbar-measure"
+    },
+    {
+      "file": "apps/www/test/batch1-components.spec.ts",
+      "line": 37,
+      "excerpt": "jx-badge-default"
+    },
+    {
+      "file": "apps/www/test/batch1-components.spec.ts",
+      "line": 45,
+      "excerpt": "jx-badge-destructive"
+    },
+    {
+      "file": "apps/www/test/batch1-components.spec.ts",
+      "line": 78,
+      "excerpt": "jx-skeleton"
+    },
+    {
+      "file": "apps/www/test/batch1-components.spec.ts",
+      "line": 159,
+      "excerpt": "jx-alert-default"
+    },
+    {
+      "file": "apps/www/test/batch1-components.spec.ts",
+      "line": 168,
+      "excerpt": "jx-alert-destructive"
+    },
+    {
+      "file": "apps/www/test/batch2-components.spec.ts",
+      "line": 311,
+      "excerpt": "jx-menu-item-destructive"
+    },
+    {
+      "file": "apps/www/test/batch3-components.spec.ts",
+      "line": 65,
+      "excerpt": "jx-kbd"
+    },
+    {
+      "file": "apps/www/test/batch3-components.spec.ts",
+      "line": 163,
+      "excerpt": "jx-adlg-title"
+    },
+    {
+      "file": "apps/www/test/batch3-components.spec.ts",
+      "line": 164,
+      "excerpt": "jx-adlg-desc"
+    },
+    {
+      "file": "apps/www/test/batch3-components.spec.ts",
+      "line": 175,
+      "excerpt": "jx-adlg-confirm-destructive"
+    },
+    {
+      "file": "apps/www/test/batch3-components.spec.ts",
+      "line": 193,
+      "excerpt": "jx-sheet-right"
+    },
+    {
+      "file": "apps/www/test/batch4-components.spec.ts",
+      "line": 45,
+      "excerpt": "jx-otp-complete"
+    },
+    {
+      "file": "apps/www/test/batch4-components.spec.ts",
+      "line": 154,
+      "excerpt": "jx-carousel-track"
+    },
+    {
+      "file": "apps/www/test/batch4b-components.spec.ts",
+      "line": 181,
+      "excerpt": ".jx-menubar-panel [role="
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "line": 160,
+      "excerpt": "jx-desc-bordered"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "line": 230,
+      "excerpt": "jx-stat-trend-up"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "line": 250,
+      "excerpt": "jx-tl-pending"
+    },
+    {
+      "file": "apps/www/test/batch6-antd2-components.spec.ts",
+      "line": 234,
+      "excerpt": "jx-fab-bottom-right"
+    },
+    {
+      "file": "apps/www/test/batch7-antd3-components.spec.ts",
+      "line": 31,
+      "excerpt": "jx-accordion-ghost"
+    },
+    {
+      "file": "apps/www/test/batch7-antd3-components.spec.ts",
+      "line": 118,
+      "excerpt": "jx-accordion-ghost"
+    },
+    {
+      "file": "apps/www/test/batch7-antd3-components.spec.ts",
+      "line": 131,
+      "excerpt": "jx-accordion-ghost"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "line": 22,
+      "excerpt": "jx-canvas-host-widget-title"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "line": 25,
+      "excerpt": ".jx-canvas-code-toggle"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "line": 26,
+      "excerpt": ".jx-canvas-code-drawer"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "line": 28,
+      "excerpt": "jx-canvas-host-widget-drawer"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "line": 37,
+      "excerpt": ".jx-canvas-playground"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "line": 56,
+      "excerpt": ".jx-canvas-reset"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "line": 86,
+      "excerpt": "jx-canvas-explicit-title"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "line": 87,
+      "excerpt": ".jx-canvas-code-drawer"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "line": 88,
+      "excerpt": "jx-canvas-explicit-drawer"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "line": 96,
+      "excerpt": ".jx-canvas-code-toggle"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "line": 98,
+      "excerpt": ".jx-canvas-code-drawer"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "line": 55,
+      "excerpt": ".jx-num-minus"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "line": 56,
+      "excerpt": ".jx-num-plus"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "line": 94,
+      "excerpt": ".jx-num-minus"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "line": 95,
+      "excerpt": ".jx-num-plus"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "line": 124,
+      "excerpt": ".jx-num-plus"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "line": 300,
+      "excerpt": "jx-toggle-disabled"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "line": 469,
+      "excerpt": "button.jx-date-trigger"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "line": 500,
+      "excerpt": "jx-date-off"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "line": 542,
+      "excerpt": "jx-form-field"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "line": 560,
+      "excerpt": "jx-form-field"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "line": 579,
+      "excerpt": "jx-form-field"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "line": 591,
+      "excerpt": "jx-form-field"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "line": 631,
+      "excerpt": "jx-form-field"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "line": 646,
+      "excerpt": "form-level disable reaches the control through jx-disabled"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "line": 650,
+      "excerpt": "jx-form-field"
+    },
+    {
+      "file": "apps/www/test/jx-pure-parity.spec.ts",
+      "line": 25,
+      "excerpt": "../src/lib/jx-pure.css"
+    },
+    {
+      "file": "apps/www/test/jx-pure-parity.spec.ts",
+      "line": 63,
+      "excerpt": "the registry native-form alias ships the SAME jx-pure source (one css, two insta"
+    },
+    {
+      "file": "apps/www/test/jx-pure-parity.spec.ts",
+      "line": 67,
+      "excerpt": "jx-pure"
+    },
+    {
+      "file": "apps/www/test/jx-pure-parity.spec.ts",
+      "line": 69,
+      "excerpt": "the jx-pure item points at the canonical source"
+    },
+    {
+      "file": "apps/www/test/jx-pure-parity.spec.ts",
+      "line": 70,
+      "excerpt": "registry/files/theme/jx-pure.css"
+    },
+    {
+      "file": "apps/www/test/jx-pure-parity.spec.ts",
+      "line": 73,
+      "excerpt": "registry/files/theme/jx-pure.css"
+    },
+    {
+      "file": "apps/www/test/jx-pure-parity.spec.ts",
+      "line": 81,
+      "excerpt": "registry/files/theme/jx-pure.css"
+    },
+    {
+      "file": "apps/www/test/jx-pure-parity.spec.ts",
+      "line": 88,
+      "excerpt": ".jx-input {"
+    },
+    {
+      "file": "apps/www/test/jx-pure-parity.spec.ts",
+      "line": 101,
+      "excerpt": ":where(.jx-pure) :where(button"
+    },
+    {
+      "file": "apps/www/test/jx-pure-parity.spec.ts",
+      "line": 102,
+      "excerpt": ":where(.jx-pure) input:where("
+    },
+    {
+      "file": "apps/www/test/jx-pure-parity.spec.ts",
+      "line": 103,
+      "excerpt": ":where(.jx-pure) summary"
+    },
+    {
+      "file": "apps/www/test/jx-pure-parity.spec.ts",
+      "line": 104,
+      "excerpt": ":where(.jx-pure) table"
+    },
+    {
+      "file": "apps/www/test/jx-pure-parity.spec.ts",
+      "line": 105,
+      "excerpt": ":where(.jx-pure.jx-light)"
+    },
+    {
+      "file": "apps/www/test/jx-pure-parity.spec.ts",
+      "line": 120,
+      "excerpt": "jx-pure.css gzipped to ${gz}B"
+    },
+    {
+      "file": "apps/www/test/jx-pure-parity.spec.ts",
+      "line": 123,
+      "excerpt": "auto-dark region stays in sync with jixoai.css .dark (run scripts/gen-jx-auto-da"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "line": 31,
+      "excerpt": "jx-press"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "line": 35,
+      "excerpt": "jx-press-"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "line": 42,
+      "excerpt": "jx-press"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "line": 51,
+      "excerpt": "jx-press"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "line": 171,
+      "excerpt": "jx-ripple-flat"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "line": 181,
+      "excerpt": "jx-ripple-flat"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "line": 226,
+      "excerpt": "jx-press"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "line": 227,
+      "excerpt": "jx-shimmer-host"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "line": 311,
+      "excerpt": ".jx-shell-body"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "line": 326,
+      "excerpt": ".jx-shell-body"
+    },
+    {
+      "file": "apps/www/test/setup.ts",
+      "line": 240,
+      "excerpt": "jx-form-field"
+    },
+    {
+      "file": "scripts/gen-jx-auto-dark.mjs",
+      "line": 33,
+      "excerpt": "registry/files/theme/jx-pure.css"
+    },
+    {
+      "file": "scripts/gen-jx-auto-dark.mjs",
+      "line": 35,
+      "excerpt": "/* ==== BEGIN GENERATED · jx-auto-dark — scripts/gen-jx-auto-dark.mjs (do not ha"
+    },
+    {
+      "file": "scripts/gen-jx-auto-dark.mjs",
+      "line": 36,
+      "excerpt": "/* ==== END GENERATED · jx-auto-dark ==== */"
+    },
+    {
+      "file": "scripts/gen-jx-auto-dark.mjs",
+      "line": 62,
+      "excerpt": "jx-pure jx-auto-dark"
+    },
+    {
+      "file": "scripts/gen-jx-auto-dark.mjs",
+      "line": 90,
+      "excerpt": "jx-auto-dark region regenerated (%d declaration lines)"
+    },
+    {
+      "file": "scripts/jx-inventory.mjs",
+      "line": 130,
+      "excerpt": "jx-alert-default"
+    },
+    {
+      "file": "scripts/jx-inventory.mjs",
+      "line": 131,
+      "excerpt": "jx-tgroup-on"
+    },
+    {
+      "file": "scripts/jx-inventory.mjs",
+      "line": 168,
+      "excerpt": "jx-foo-{x}"
+    },
+    {
+      "file": "scripts/jx-inventory.mjs",
+      "line": 201,
+      "excerpt": "jx-foo-"
+    },
+    {
+      "file": "scripts/jx-inventory.mjs",
+      "line": 202,
+      "excerpt": "jx-file-icon-{fn(x)}"
+    },
+    {
+      "file": "scripts/jx-inventory.mjs",
+      "line": 356,
+      "excerpt": "jx-inventory.mjs"
+    },
+    {
+      "file": "scripts/jx-inventory.mjs",
+      "line": 361,
+      "excerpt": "jx-inventory@2"
+    },
+    {
+      "file": "scripts/verify-folder-css.mjs",
+      "line": 63,
+      "excerpt": "jx-probe"
+    },
+    {
+      "file": "scripts/verify-folder-css.mjs",
+      "line": 118,
+      "excerpt": "jx-probe"
+    },
+    {
+      "file": "scripts/verify-hook-law.mjs",
+      "line": 22,
+      "excerpt": "./jx-inventory.mjs"
+    },
+    {
+      "file": "scripts/verify-hook-law.mjs",
+      "line": 39,
+      "excerpt": "fixture: jx-try-on is css-defined (stays a class)"
+    },
+    {
+      "file": "scripts/verify-hook-law.mjs",
+      "line": 40,
+      "excerpt": "fixture: jx-bar-panel / jx-bar-trigger id-families invisible"
+    },
+    {
+      "file": "scripts/verify-hook-law.mjs",
+      "line": 91,
+      "excerpt": "jx-alert"
+    },
+    {
+      "file": "scripts/verify-hue.mjs",
+      "line": 34,
+      "excerpt": "#hue-popover input.jx-hue-range"
+    },
+    {
+      "file": "scripts/verify-hue.mjs",
+      "line": 57,
+      "excerpt": ".jx-hue-range.svelte-hash::pseudo"
+    },
+    {
+      "file": "scripts/verify-hue.mjs",
+      "line": 60,
+      "excerpt": ".jx-hue-range"
+    },
+    {
+      "file": "scripts/verify-hue.mjs",
+      "line": 61,
+      "excerpt": ".jx-hue-range"
+    },
+    {
+      "file": "scripts/verify-hue.mjs",
+      "line": 119,
+      "excerpt": "#hue-popover .jx-hue-value"
+    },
+    {
+      "file": "scripts/verify-hue.mjs",
+      "line": 122,
+      "excerpt": "#hue-popover .jx-hue-value"
+    },
+    {
+      "file": "scripts/verify-jx-pure-engines.mjs",
+      "line": 13,
+      "excerpt": "/tmp/jx-pure-engines"
+    },
+    {
+      "file": "scripts/verify-jx-pure-engines.mjs",
+      "line": 45,
+      "excerpt": "http://localhost:${port}/components/jx-pure.html"
+    },
+    {
+      "file": "scripts/verify-jx-pure-engines.mjs",
+      "line": 57,
+      "excerpt": "#forms .jx-pure input[type="
+    },
+    {
+      "file": "scripts/verify-jx-pure-engines.mjs",
+      "line": 59,
+      "excerpt": "#forms .jx-pure input[type="
+    },
+    {
+      "file": "scripts/verify-jx-pure-engines.mjs",
+      "line": 60,
+      "excerpt": "#forms .jx-pure input[type="
+    },
+    {
+      "file": "scripts/verify-jx-pure-engines.mjs",
+      "line": 69,
+      "excerpt": "#forms .jx-pure input[type="
+    },
+    {
+      "file": "scripts/verify-jx-pure-engines.mjs",
+      "line": 97,
+      "excerpt": "#forms .jx-pure select"
+    },
+    {
+      "file": "scripts/verify-jx-pure-engines.mjs",
+      "line": 99,
+      "excerpt": "#forms .jx-pure select"
+    },
+    {
+      "file": "scripts/verify-jx-pure-engines.mjs",
+      "line": 113,
+      "excerpt": "#forms .jx-pure select"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 20,
+      "excerpt": "/tmp/jx-pure-verify"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 30,
+      "excerpt": "http://localhost:${port}/components/jx-pure.html"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 109,
+      "excerpt": ".jx-pure"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 112,
+      "excerpt": "jx-progress-slide"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 246,
+      "excerpt": "D2 · no-jx-pure island: fully native select"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 257,
+      "excerpt": "A2 · .jx-light.jx-pure same-element: forced light scheme under dark"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 308,
+      "excerpt": "jx-pure"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 309,
+      "excerpt": "no-jx-pure"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 317,
+      "excerpt": "r8-6 · nested .jx-pure inside .no-jx-pure stays reverted"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 323,
+      "excerpt": "jx-pure"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 324,
+      "excerpt": "no-jx-pure"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 327,
+      "excerpt": "jx-input"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 345,
+      "excerpt": "jx-pure"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 383,
+      "excerpt": "jx-auto-dark jx-pure"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 406,
+      "excerpt": "jx-auto-dark jx-pure"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 407,
+      "excerpt": "no-jx-pure"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 488,
+      "excerpt": "#forms .jx-pure input[type="
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 495,
+      "excerpt": "#forms .jx-pure input[type="
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 529,
+      "excerpt": ".jx-color-field"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 532,
+      "excerpt": ".jx-color-field"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 557,
+      "excerpt": ".jx-range"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 559,
+      "excerpt": ".jx-range"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 566,
+      "excerpt": ".jx-range"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "line": 570,
+      "excerpt": "Tier-1 .jx-range fill (value 40)"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "line": 44,
+      "excerpt": ".jx-toc"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "line": 45,
+      "excerpt": ".jx-shell"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "line": 76,
+      "excerpt": "http://localhost:${port}/components/jx-pure.html"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "line": 85,
+      "excerpt": "jx-pure law pair present (Part A context)"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "line": 223,
+      "excerpt": "jx-sheet"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "line": 231,
+      "excerpt": ".jx-ripple-host"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "line": 273,
+      "excerpt": "jx-ripple-dot ${scope ?? "
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "line": 90,
+      "excerpt": "button.jx-pop-trigger[popovertarget="
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "line": 123,
+      "excerpt": "button.jx-pop-trigger[popovertarget="
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "line": 171,
+      "excerpt": "button.jx-pop-trigger[popovertarget="
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "line": 211,
+      "excerpt": "button.jx-pop-trigger[popovertarget="
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "line": 255,
+      "excerpt": "button.jx-pop-trigger[popovertarget="
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "line": 267,
+      "excerpt": "button.jx-pop-trigger[popovertarget="
+    },
+    {
+      "file": "scripts/verify-trygrid.mjs",
+      "line": 41,
+      "excerpt": ".jx-try-cell[title="
+    },
+    {
+      "file": "scripts/verify-trygrid.mjs",
+      "line": 44,
+      "excerpt": ".jx-try-cell[title="
+    },
+    {
+      "file": "scripts/verify-trygrid.mjs",
+      "line": 47,
+      "excerpt": ".jx-try-cell[title="
+    },
+    {
+      "file": "scripts/verify-trygrid.mjs",
+      "line": 48,
+      "excerpt": ".jx-try-cell[title="
+    },
+    {
+      "file": "scripts/verify-trygrid.mjs",
+      "line": 57,
+      "excerpt": ".jx-try-cell[title="
+    },
+    {
+      "file": "scripts/verify-trygrid.mjs",
+      "line": 81,
+      "excerpt": "button.jx-pop-trigger[popovertarget="
+    },
+    {
+      "file": "family:alert",
+      "line": 0,
+      "excerpt": "mixed family: css defines jx-alert-icon — rule whether the dynamic variants are states (drop family) or hooks (keep)"
+    },
+    {
+      "file": "family:file",
+      "line": 0,
+      "excerpt": "mixed family: css defines jx-file-zone-glyph, jx-file-icon, jx-file-row, jx-file-zone +5 — rule whether the dynamic variants are states (drop family) or hooks (keep)"
+    },
+    {
+      "file": "family:fab",
+      "line": 0,
+      "excerpt": "mixed family: css defines jx-fab-menu, jx-fab-stage, jx-fab-menu-item — rule whether the dynamic variants are states (drop family) or hooks (keep)"
+    },
+    {
+      "file": "family:sheet",
+      "line": 0,
+      "excerpt": "mixed family: css defines jx-sheet-x, jx-sheet-left, jx-sheet-right, jx-sheet-top +1 — rule whether the dynamic variants are states (drop family) or hooks (keep)"
+    },
+    {
+      "file": "family:step",
+      "line": 0,
+      "excerpt": "mixed family: css defines jx-step-done — rule whether the dynamic variants are states (drop family) or hooks (keep)"
+    },
+    {
+      "file": "family:tabs",
+      "line": 0,
+      "excerpt": "mixed family: css defines jx-tabs-vertical — rule whether the dynamic variants are states (drop family) or hooks (keep)"
+    },
+    {
+      "file": "family:toast",
+      "line": 0,
+      "excerpt": "mixed family: css defines jx-toast-leaving — rule whether the dynamic variants are states (drop family) or hooks (keep)"
+    },
+    {
+      "file": "family:toggle",
+      "line": 0,
+      "excerpt": "mixed family: css defines jx-toggle-native, jx-toggle-track, jx-toggle-knob, jx-toggle-disabled — rule whether the dynamic variants are states (drop family) or hooks (keep)"
+    }
+  ],
+  "references": [
+    {
+      "file": "registry/files/ui/alert-dialog/alert-dialog.svelte",
+      "kind": "classList",
+      "line": 80,
+      "token": "jx-rest"
+    },
+    {
+      "file": "registry/files/ui/card-grid/card-grid.svelte",
+      "kind": "classList",
+      "line": 26,
+      "token": "is-entered"
+    },
+    {
+      "file": "registry/files/ui/card-grid/card-grid.svelte",
+      "kind": "classList",
+      "line": 33,
+      "token": "is-entered"
+    },
+    {
+      "file": "registry/files/ui/command/command.svelte",
+      "kind": "classList",
+      "line": 153,
+      "token": "jx-rest"
+    },
+    {
+      "file": "registry/files/ui/dialog/dialog.svelte",
+      "kind": "classList",
+      "line": 63,
+      "token": "jx-rest"
+    },
+    {
+      "file": "registry/files/ui/popover/popover.svelte",
+      "kind": "classList",
+      "line": 114,
+      "token": "jx-rest"
+    },
+    {
+      "file": "registry/files/ui/terminal-header/terminal-header.svelte",
+      "kind": "classList",
+      "line": 209,
+      "token": "jx-indicator-instant"
+    },
+    {
+      "file": "registry/files/ui/terminal-header/terminal-header.svelte",
+      "kind": "classList",
+      "line": 214,
+      "token": "jx-indicator-instant"
+    },
+    {
+      "file": "registry/files/ui/theme-toggle/theme-toggle.svelte",
+      "kind": "classList",
+      "line": 24,
+      "token": "dark"
+    },
+    {
+      "file": "registry/files/ui/toc/toc.svelte",
+      "kind": "query",
+      "line": 97,
+      "token": ".jx-scaffold-header"
+    },
+    {
+      "file": "registry/files/ui/toc/toc.svelte",
+      "kind": "classList",
+      "line": 153,
+      "token": "active"
+    },
+    {
+      "file": "registry/files/ui/tooltip/tooltip.svelte",
+      "kind": "query",
+      "line": 204,
+      "token": ".jx-tip-body"
+    },
+    {
+      "file": "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte",
+      "kind": "classList",
+      "line": 80,
+      "token": "jx-rest"
+    },
+    {
+      "file": "apps/www/src/lib/ui/card-grid/card-grid.svelte",
+      "kind": "classList",
+      "line": 26,
+      "token": "is-entered"
+    },
+    {
+      "file": "apps/www/src/lib/ui/card-grid/card-grid.svelte",
+      "kind": "classList",
+      "line": 33,
+      "token": "is-entered"
+    },
+    {
+      "file": "apps/www/src/lib/ui/command/command.svelte",
+      "kind": "classList",
+      "line": 153,
+      "token": "jx-rest"
+    },
+    {
+      "file": "apps/www/src/lib/ui/dialog/dialog.svelte",
+      "kind": "classList",
+      "line": 63,
+      "token": "jx-rest"
+    },
+    {
+      "file": "apps/www/src/lib/ui/popover/popover.svelte",
+      "kind": "classList",
+      "line": 114,
+      "token": "jx-rest"
+    },
+    {
+      "file": "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
+      "kind": "classList",
+      "line": 209,
+      "token": "jx-indicator-instant"
+    },
+    {
+      "file": "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
+      "kind": "classList",
+      "line": 214,
+      "token": "jx-indicator-instant"
+    },
+    {
+      "file": "apps/www/src/lib/ui/theme-toggle/theme-toggle.svelte",
+      "kind": "classList",
+      "line": 24,
+      "token": "dark"
+    },
+    {
+      "file": "apps/www/src/lib/ui/toc/toc.svelte",
+      "kind": "query",
+      "line": 97,
+      "token": ".jx-scaffold-header"
+    },
+    {
+      "file": "apps/www/src/lib/ui/toc/toc.svelte",
+      "kind": "classList",
+      "line": 153,
+      "token": "active"
+    },
+    {
+      "file": "apps/www/src/lib/ui/tooltip/tooltip.svelte",
+      "kind": "query",
+      "line": 204,
+      "token": ".jx-tip-body"
+    },
+    {
+      "file": "apps/www/src/routes/+layout.svelte",
+      "kind": "query",
+      "line": 75,
+      "token": ".jx-shell-body"
+    },
+    {
+      "file": "apps/www/src/routes/+layout.svelte",
+      "kind": "classList",
+      "line": 217,
+      "token": "jx-light"
+    },
+    {
+      "file": "apps/www/src/routes/components/float-button.html/+page.svelte",
+      "kind": "query",
+      "line": 44,
+      "token": ".jx-shell-body"
+    },
+    {
+      "file": "apps/www/src/routes/components/jx-pure.html/+page.svelte",
+      "kind": "classList",
+      "line": 42,
+      "token": "dark"
+    },
+    {
+      "file": "apps/www/src/routes/components/website-scaffold.html/+page.svelte",
+      "kind": "query",
+      "line": 56,
+      "token": ".jx-shell-body"
+    },
+    {
+      "file": "registry/files/lib/surface-motion.ts",
+      "kind": "classList",
+      "line": 95,
+      "token": "jx-rest"
+    },
+    {
+      "file": "registry/files/lib/surface-motion.ts",
+      "kind": "classList",
+      "line": 107,
+      "token": "jx-rest"
+    },
+    {
+      "file": "registry/files/lib/surface-motion.ts",
+      "kind": "classList",
+      "line": 109,
+      "token": "jx-rest"
+    },
+    {
+      "file": "registry/files/lib/surface-motion.ts",
+      "kind": "classList",
+      "line": 132,
+      "token": "jx-rest"
+    },
+    {
+      "file": "registry/files/lib/surface-motion.ts",
+      "kind": "classList",
+      "line": 164,
+      "token": "jx-rest"
+    },
+    {
+      "file": "apps/www/src/lib/surface-motion.ts",
+      "kind": "classList",
+      "line": 95,
+      "token": "jx-rest"
+    },
+    {
+      "file": "apps/www/src/lib/surface-motion.ts",
+      "kind": "classList",
+      "line": 107,
+      "token": "jx-rest"
+    },
+    {
+      "file": "apps/www/src/lib/surface-motion.ts",
+      "kind": "classList",
+      "line": 109,
+      "token": "jx-rest"
+    },
+    {
+      "file": "apps/www/src/lib/surface-motion.ts",
+      "kind": "classList",
+      "line": 132,
+      "token": "jx-rest"
+    },
+    {
+      "file": "apps/www/src/lib/surface-motion.ts",
+      "kind": "classList",
+      "line": 164,
+      "token": "jx-rest"
+    },
+    {
+      "file": "apps/www/test/batch1-components.spec.ts",
+      "kind": "query",
+      "line": 36,
+      "token": "span.jx-badge"
+    },
+    {
+      "file": "apps/www/test/batch1-components.spec.ts",
+      "kind": "query",
+      "line": 56,
+      "token": "hr.jx-separator-h"
+    },
+    {
+      "file": "apps/www/test/batch1-components.spec.ts",
+      "kind": "query",
+      "line": 129,
+      "token": "span.jx-avatar-fallback"
+    },
+    {
+      "file": "apps/www/test/batch1-components.spec.ts",
+      "kind": "query",
+      "line": 160,
+      "token": ".jx-alert-title"
+    },
+    {
+      "file": "apps/www/test/batch1-components.spec.ts",
+      "kind": "query",
+      "line": 187,
+      "token": ".jx-accordion"
+    },
+    {
+      "file": "apps/www/test/batch2-components.spec.ts",
+      "kind": "query",
+      "line": 30,
+      "token": "progress.jx-progress-bar"
+    },
+    {
+      "file": "apps/www/test/batch2-components.spec.ts",
+      "kind": "query",
+      "line": 35,
+      "token": ".jx-progress-label"
+    },
+    {
+      "file": "apps/www/test/batch2-components.spec.ts",
+      "kind": "query",
+      "line": 47,
+      "token": "progress.jx-progress-bar"
+    },
+    {
+      "file": "apps/www/test/batch2-components.spec.ts",
+      "kind": "query",
+      "line": 59,
+      "token": ".jx-tip-anchor"
+    },
+    {
+      "file": "apps/www/test/batch2-components.spec.ts",
+      "kind": "query",
+      "line": 84,
+      "token": ".jx-tip-anchor"
+    },
+    {
+      "file": "apps/www/test/batch2-components.spec.ts",
+      "kind": "query",
+      "line": 102,
+      "token": ".jx-tip-anchor"
+    },
+    {
+      "file": "apps/www/test/batch2-components.spec.ts",
+      "kind": "query",
+      "line": 124,
+      "token": ".jx-tip-body"
+    },
+    {
+      "file": "apps/www/test/batch2-components.spec.ts",
+      "kind": "query",
+      "line": 135,
+      "token": ".jx-tip-body"
+    },
+    {
+      "file": "apps/www/test/batch2-components.spec.ts",
+      "kind": "query",
+      "line": 216,
+      "token": ".jx-page-edge"
+    },
+    {
+      "file": "apps/www/test/batch2-components.spec.ts",
+      "kind": "query",
+      "line": 225,
+      "token": ".jx-page-gap"
+    },
+    {
+      "file": "apps/www/test/batch3-components.spec.ts",
+      "kind": "query",
+      "line": 131,
+      "token": ".jx-toasts [role="
+    },
+    {
+      "file": "apps/www/test/batch3-components.spec.ts",
+      "kind": "query",
+      "line": 135,
+      "token": ".jx-toasts [role="
+    },
+    {
+      "file": "apps/www/test/batch3-components.spec.ts",
+      "kind": "query",
+      "line": 142,
+      "token": ".jx-toast-dismiss"
+    },
+    {
+      "file": "apps/www/test/batch3-components.spec.ts",
+      "kind": "query",
+      "line": 146,
+      "token": ".jx-toast-leaving"
+    },
+    {
+      "file": "apps/www/test/batch3-components.spec.ts",
+      "kind": "query",
+      "line": 150,
+      "token": ".jx-toast-leaving"
+    },
+    {
+      "file": "apps/www/test/batch3-components.spec.ts",
+      "kind": "query",
+      "line": 171,
+      "token": ".jx-adlg-cancel"
+    },
+    {
+      "file": "apps/www/test/batch3-components.spec.ts",
+      "kind": "query",
+      "line": 174,
+      "token": ".jx-adlg-confirm"
+    },
+    {
+      "file": "apps/www/test/batch3-components.spec.ts",
+      "kind": "query",
+      "line": 191,
+      "token": "dialog.jx-sheet"
+    },
+    {
+      "file": "apps/www/test/batch3-components.spec.ts",
+      "kind": "query",
+      "line": 203,
+      "token": ".jx-hover-anchor"
+    },
+    {
+      "file": "apps/www/test/batch3-components.spec.ts",
+      "kind": "query",
+      "line": 204,
+      "token": ".jx-hover-card"
+    },
+    {
+      "file": "apps/www/test/batch4-components.spec.ts",
+      "kind": "query",
+      "line": 28,
+      "token": "input.jx-otp-slot"
+    },
+    {
+      "file": "apps/www/test/batch4-components.spec.ts",
+      "kind": "query",
+      "line": 39,
+      "token": "input.jx-otp-slot"
+    },
+    {
+      "file": "apps/www/test/batch4-components.spec.ts",
+      "kind": "query",
+      "line": 52,
+      "token": "input.jx-otp-slot"
+    },
+    {
+      "file": "apps/www/test/batch4-components.spec.ts",
+      "kind": "query",
+      "line": 63,
+      "token": "jx-form-field"
+    },
+    {
+      "file": "apps/www/test/batch4-components.spec.ts",
+      "kind": "query",
+      "line": 64,
+      "token": "input.jx-otp-slot"
+    },
+    {
+      "file": "apps/www/test/batch4-components.spec.ts",
+      "kind": "query",
+      "line": 89,
+      "token": "button.jx-tgroup-btn"
+    },
+    {
+      "file": "apps/www/test/batch4-components.spec.ts",
+      "kind": "query",
+      "line": 92,
+      "token": "jx-form-field"
+    },
+    {
+      "file": "apps/www/test/batch4-components.spec.ts",
+      "kind": "query",
+      "line": 105,
+      "token": "button.jx-tgroup-btn"
+    },
+    {
+      "file": "apps/www/test/batch4-components.spec.ts",
+      "kind": "query",
+      "line": 106,
+      "token": "jx-form-field"
+    },
+    {
+      "file": "apps/www/test/batch4-components.spec.ts",
+      "kind": "query",
+      "line": 122,
+      "token": "button.jx-tgroup-btn"
+    },
+    {
+      "file": "apps/www/test/batch4-components.spec.ts",
+      "kind": "query",
+      "line": 126,
+      "token": "jx-form-field"
+    },
+    {
+      "file": "apps/www/test/batch4-components.spec.ts",
+      "kind": "query",
+      "line": 151,
+      "token": ".jx-carousel-track"
+    },
+    {
+      "file": "apps/www/test/batch4-components.spec.ts",
+      "kind": "query",
+      "line": 159,
+      "token": ".jx-carousel-dot"
+    },
+    {
+      "file": "apps/www/test/batch4b-components.spec.ts",
+      "kind": "query",
+      "line": 55,
+      "token": "dialog.jx-command"
+    },
+    {
+      "file": "apps/www/test/batch4b-components.spec.ts",
+      "kind": "query",
+      "line": 105,
+      "token": "dialog.jx-command"
+    },
+    {
+      "file": "apps/www/test/batch4b-components.spec.ts",
+      "kind": "query",
+      "line": 126,
+      "token": "dialog.jx-command"
+    },
+    {
+      "file": "apps/www/test/batch4b-components.spec.ts",
+      "kind": "query",
+      "line": 142,
+      "token": "a.jx-navmenu-link"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 32,
+      "token": ".jx-pc"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 41,
+      "token": ".jx-pc-cancel"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 55,
+      "token": ".jx-pc-confirm"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 78,
+      "token": ".jx-pc-cancel"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 86,
+      "token": ".jx-pc"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 89,
+      "token": ".jx-pc-confirm"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 103,
+      "token": ".jx-step-marker"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 119,
+      "token": ".jx-pc-confirm-destructive"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 131,
+      "token": "figure.jx-empty"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 132,
+      "token": ".jx-empty-title"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 133,
+      "token": ".jx-empty-zero"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 150,
+      "token": "dl.jx-desc"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 190,
+      "token": "button.jx-step-marker"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 196,
+      "token": ".jx-step-index"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 215,
+      "token": ".jx-spin-inline"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 227,
+      "token": ".jx-stat-num"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 228,
+      "token": ".jx-stat-trend"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 249,
+      "token": ".jx-tl-time"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 262,
+      "token": ".jx-result-glyph"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 263,
+      "token": ".jx-result-success .jx-result-glyph"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 264,
+      "token": ".jx-result-title"
+    },
+    {
+      "file": "apps/www/test/batch5-antd-components.spec.ts",
+      "kind": "query",
+      "line": 271,
+      "token": ".jx-result-error .jx-result-glyph"
+    },
+    {
+      "file": "apps/www/test/batch6-antd2-components.spec.ts",
+      "kind": "query",
+      "line": 44,
+      "token": ".jx-tr-move"
+    },
+    {
+      "file": "apps/www/test/batch6-antd2-components.spec.ts",
+      "kind": "query",
+      "line": 87,
+      "token": ".jx-tr-empty"
+    },
+    {
+      "file": "apps/www/test/batch6-antd2-components.spec.ts",
+      "kind": "query",
+      "line": 92,
+      "token": "jx-form-field"
+    },
+    {
+      "file": "apps/www/test/batch6-antd2-components.spec.ts",
+      "kind": "query",
+      "line": 106,
+      "token": ".jx-tr-move"
+    },
+    {
+      "file": "apps/www/test/batch6-antd2-components.spec.ts",
+      "kind": "query",
+      "line": 167,
+      "token": "jx-form-field"
+    },
+    {
+      "file": "apps/www/test/batch6-antd2-components.spec.ts",
+      "kind": "query",
+      "line": 197,
+      "token": ".jx-image-broken"
+    },
+    {
+      "file": "apps/www/test/batch6-antd2-components.spec.ts",
+      "kind": "query",
+      "line": 207,
+      "token": ".jx-image-broken"
+    },
+    {
+      "file": "apps/www/test/batch6-antd2-components.spec.ts",
+      "kind": "query",
+      "line": 217,
+      "token": ".jx-image-broken"
+    },
+    {
+      "file": "apps/www/test/batch6-antd2-components.spec.ts",
+      "kind": "query",
+      "line": 253,
+      "token": ".jx-bi-standalone"
+    },
+    {
+      "file": "apps/www/test/batch6-antd2-components.spec.ts",
+      "kind": "query",
+      "line": 255,
+      "token": ".jx-bi-standalone"
+    },
+    {
+      "file": "apps/www/test/batch6-antd2-components.spec.ts",
+      "kind": "query",
+      "line": 257,
+      "token": ".jx-bi"
+    },
+    {
+      "file": "apps/www/test/batch6-antd2-components.spec.ts",
+      "kind": "query",
+      "line": 259,
+      "token": ".jx-bi-standalone"
+    },
+    {
+      "file": "apps/www/test/batch6-antd2-components.spec.ts",
+      "kind": "query",
+      "line": 269,
+      "token": ".jx-bi"
+    },
+    {
+      "file": "apps/www/test/batch6-antd2-components.spec.ts",
+      "kind": "query",
+      "line": 277,
+      "token": ".jx-bi-dot"
+    },
+    {
+      "file": "apps/www/test/batch7-antd3-components.spec.ts",
+      "kind": "query",
+      "line": 30,
+      "token": ".jx-accordion"
+    },
+    {
+      "file": "apps/www/test/batch7-antd3-components.spec.ts",
+      "kind": "query",
+      "line": 117,
+      "token": ".jx-accordion"
+    },
+    {
+      "file": "apps/www/test/batch7-antd3-components.spec.ts",
+      "kind": "query",
+      "line": 123,
+      "token": ".jx-accordion"
+    },
+    {
+      "file": "apps/www/test/batch7-antd3-components.spec.ts",
+      "kind": "query",
+      "line": 130,
+      "token": ".jx-accordion"
+    },
+    {
+      "file": "apps/www/test/batch8-closure-components.spec.ts",
+      "kind": "query",
+      "line": 83,
+      "token": ".jx-tour-hole"
+    },
+    {
+      "file": "apps/www/test/batch8-closure-components.spec.ts",
+      "kind": "query",
+      "line": 108,
+      "token": ".jx-tour-next"
+    },
+    {
+      "file": "apps/www/test/batch8-closure-components.spec.ts",
+      "kind": "query",
+      "line": 116,
+      "token": ".jx-tour-meta"
+    },
+    {
+      "file": "apps/www/test/batch8-closure-components.spec.ts",
+      "kind": "query",
+      "line": 125,
+      "token": ".jx-tour-next"
+    },
+    {
+      "file": "apps/www/test/batch8-closure-components.spec.ts",
+      "kind": "query",
+      "line": 127,
+      "token": ".jx-tour-next"
+    },
+    {
+      "file": "apps/www/test/batch8-closure-components.spec.ts",
+      "kind": "query",
+      "line": 147,
+      "token": ".jx-tour-meta"
+    },
+    {
+      "file": "apps/www/test/batch8-closure-components.spec.ts",
+      "kind": "query",
+      "line": 177,
+      "token": ".jx-tour-next"
+    },
+    {
+      "file": "apps/www/test/batch8-closure-components.spec.ts",
+      "kind": "query",
+      "line": 188,
+      "token": ".jx-tour-next"
+    },
+    {
+      "file": "apps/www/test/batch8-closure-components.spec.ts",
+      "kind": "query",
+      "line": 197,
+      "token": ".jx-tour-meta"
+    },
+    {
+      "file": "apps/www/test/batch8-closure-components.spec.ts",
+      "kind": "query",
+      "line": 200,
+      "token": ".jx-tour-btn"
+    },
+    {
+      "file": "apps/www/test/batch8-closure-components.spec.ts",
+      "kind": "query",
+      "line": 222,
+      "token": ".jx-tour-meta"
+    },
+    {
+      "file": "apps/www/test/batch8-closure-components.spec.ts",
+      "kind": "query",
+      "line": 227,
+      "token": ".jx-tour-meta"
+    },
+    {
+      "file": "apps/www/test/code-card.spec.ts",
+      "kind": "query",
+      "line": 112,
+      "token": ".jx-code-card-copy"
+    },
+    {
+      "file": "apps/www/test/code-card.spec.ts",
+      "kind": "query",
+      "line": 117,
+      "token": ".jx-code-card-file"
+    },
+    {
+      "file": "apps/www/test/code-card.spec.ts",
+      "kind": "query",
+      "line": 118,
+      "token": ".jx-code-card-lang"
+    },
+    {
+      "file": "apps/www/test/code-card.spec.ts",
+      "kind": "query",
+      "line": 121,
+      "token": ".jx-code-card-head"
+    },
+    {
+      "file": "apps/www/test/code-card.spec.ts",
+      "kind": "query",
+      "line": 122,
+      "token": ".jx-code-card-foot"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "kind": "query",
+      "line": 21,
+      "token": "h2.jx-canvas-title"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "kind": "query",
+      "line": 34,
+      "token": ".jx-canvas-playground"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "kind": "query",
+      "line": 47,
+      "token": ".jx-canvas-reset"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "kind": "query",
+      "line": 65,
+      "token": ".jx-canvas-echo-row"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "kind": "query",
+      "line": 71,
+      "token": ".jx-canvas-echo"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "kind": "query",
+      "line": 77,
+      "token": ".jx-canvas-echo-row"
+    },
+    {
+      "file": "apps/www/test/component-canvas.spec.ts",
+      "kind": "query",
+      "line": 85,
+      "token": "h2.jx-canvas-title"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "kind": "query",
+      "line": 377,
+      "token": ".jx-combobox-empty"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "kind": "query",
+      "line": 398,
+      "token": ".jx-tags-tag"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "kind": "query",
+      "line": 412,
+      "token": ".jx-tags-tag"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "kind": "query",
+      "line": 426,
+      "token": ".jx-tags-tag"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "kind": "query",
+      "line": 428,
+      "token": ".jx-tags-full"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "kind": "query",
+      "line": 431,
+      "token": ".jx-tags-full"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "kind": "query",
+      "line": 432,
+      "token": ".jx-tags-tag"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "kind": "query",
+      "line": 446,
+      "token": ".jx-tags-tag"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "kind": "classList",
+      "line": 448,
+      "token": "jx-tags-flash"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "kind": "classList",
+      "line": 451,
+      "token": "jx-tags-flash"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "kind": "query",
+      "line": 606,
+      "token": ".jx-tags-tag"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "kind": "query",
+      "line": 619,
+      "token": "jx-form-field"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "kind": "query",
+      "line": 622,
+      "token": "jx-form-field"
+    },
+    {
+      "file": "apps/www/test/form-components.spec.ts",
+      "kind": "query",
+      "line": 623,
+      "token": "jx-form-field"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "kind": "query",
+      "line": 81,
+      "token": "button.jx-shimmer-host"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "kind": "query",
+      "line": 84,
+      "token": ".jx-shimmer-spark"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "kind": "query",
+      "line": 85,
+      "token": ".jx-shimmer-cover"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "kind": "query",
+      "line": 89,
+      "token": "button.jx-pulse-host"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "kind": "query",
+      "line": 91,
+      "token": ".jx-pulse-layer.jx-pulse-ring"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "kind": "query",
+      "line": 95,
+      "token": "button.jx-rainbow-host"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "kind": "query",
+      "line": 111,
+      "token": ".jx-ripple-layer"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "kind": "query",
+      "line": 117,
+      "token": ".jx-ripple-dot"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "kind": "query",
+      "line": 123,
+      "token": ".jx-ripple-dot"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "kind": "query",
+      "line": 128,
+      "token": ".jx-ripple-dot"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "kind": "query",
+      "line": 154,
+      "token": ".jx-ripple-dot"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "kind": "query",
+      "line": 160,
+      "token": ".jx-ripple-dot"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "kind": "query",
+      "line": 169,
+      "token": ".jx-ripple-dot"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "kind": "query",
+      "line": 179,
+      "token": ".jx-ripple-dot"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "kind": "query",
+      "line": 210,
+      "token": ".jx-ripple-layer"
+    },
+    {
+      "file": "apps/www/test/press-button.spec.ts",
+      "kind": "query",
+      "line": 212,
+      "token": ".jx-ripple-dot"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "kind": "query",
+      "line": 69,
+      "token": ".jx-scroll-viewport"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "kind": "query",
+      "line": 76,
+      "token": ".jx-scroll-area"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "kind": "query",
+      "line": 78,
+      "token": ".jx-scroll-thumb"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "kind": "query",
+      "line": 84,
+      "token": ".jx-scroll-area"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "kind": "query",
+      "line": 86,
+      "token": ".jx-scroll-area"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "kind": "query",
+      "line": 95,
+      "token": ".jx-scroll-thumb"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "kind": "query",
+      "line": 96,
+      "token": ".jx-scroll-area"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "kind": "query",
+      "line": 103,
+      "token": ".jx-scroll-thumb"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "kind": "classList",
+      "line": 104,
+      "token": "y"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "kind": "query",
+      "line": 105,
+      "token": ".jx-scroll-area"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "kind": "query",
+      "line": 113,
+      "token": ".jx-scroll-viewport"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "kind": "query",
+      "line": 135,
+      "token": ".jx-sv-spacer"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "kind": "query",
+      "line": 163,
+      "token": ".jx-sv-spacer"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "kind": "query",
+      "line": 315,
+      "token": ".jx-toc-desktop a"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "kind": "query",
+      "line": 330,
+      "token": ".jx-toc-desktop a"
+    },
+    {
+      "file": "apps/www/test/scroll-area-family.spec.ts",
+      "kind": "query",
+      "line": 336,
+      "token": ".jx-toc-desktop a"
+    },
+    {
+      "file": "apps/www/test/table.spec.ts",
+      "kind": "query",
+      "line": 21,
+      "token": "figure.jx-table"
+    },
+    {
+      "file": "apps/www/test/table.spec.ts",
+      "kind": "classList",
+      "line": 55,
+      "token": "dense"
+    },
+    {
+      "file": "apps/www/test/table.spec.ts",
+      "kind": "classList",
+      "line": 59,
+      "token": "dense"
+    },
+    {
+      "file": "apps/www/test/table.spec.ts",
+      "kind": "classList",
+      "line": 65,
+      "token": "jx-table"
+    },
+    {
+      "file": "apps/www/test/table.spec.ts",
+      "kind": "classList",
+      "line": 66,
+      "token": "w-full"
+    },
+    {
+      "file": "apps/www/test/table.spec.ts",
+      "kind": "classList",
+      "line": 67,
+      "token": "extra"
+    },
+    {
+      "file": "apps/www/test/tree-view.spec.ts",
+      "kind": "query",
+      "line": 42,
+      "token": ".jx-tree-row"
+    },
+    {
+      "file": "apps/www/test/tree-view.spec.ts",
+      "kind": "query",
+      "line": 47,
+      "token": ".jx-tree-row"
+    },
+    {
+      "file": "apps/www/test/tree-view.spec.ts",
+      "kind": "query",
+      "line": 88,
+      "token": ".jx-tree-row"
+    },
+    {
+      "file": "apps/www/test/tree-view.spec.ts",
+      "kind": "query",
+      "line": 113,
+      "token": ".jx-tree-row"
+    },
+    {
+      "file": "apps/www/test/tree-view.spec.ts",
+      "kind": "query",
+      "line": 114,
+      "token": ".jx-tree-row"
+    },
+    {
+      "file": "apps/www/test/tree-view.spec.ts",
+      "kind": "query",
+      "line": 150,
+      "token": ".jx-tree-row"
+    },
+    {
+      "file": "apps/www/test/tree-view.spec.ts",
+      "kind": "query",
+      "line": 154,
+      "token": ".jx-tree-row"
+    },
+    {
+      "file": "apps/www/test/tree-view.spec.ts",
+      "kind": "query",
+      "line": 175,
+      "token": ".jx-tree-row"
+    },
+    {
+      "file": "scripts/blueprints/serialize.mjs",
+      "kind": "classList",
+      "line": 278,
+      "token": "bp-skip"
+    },
+    {
+      "file": "scripts/verify-folder-css.mjs",
+      "kind": "query",
+      "line": 104,
+      "token": ".jx-probe-box"
+    },
+    {
+      "file": "scripts/verify-folder-css.mjs",
+      "kind": "classList",
+      "line": 135,
+      "token": "p-8"
+    },
+    {
+      "file": "scripts/verify-folder-css.mjs",
+      "kind": "classList",
+      "line": 136,
+      "token": "text-primary"
+    },
+    {
+      "file": "scripts/verify-hook-law.mjs",
+      "kind": "query",
+      "line": 104,
+      "token": "[data-jx-kbd]"
+    },
+    {
+      "file": "scripts/verify-hook-law.mjs",
+      "kind": "query",
+      "line": 105,
+      "token": ".jx-kbd"
+    },
+    {
+      "file": "scripts/verify-hook-law.mjs",
+      "kind": "query",
+      "line": 110,
+      "token": "[data-jx-alert]"
+    },
+    {
+      "file": "scripts/verify-hook-law.mjs",
+      "kind": "query",
+      "line": 111,
+      "token": "[data-jx-alert]"
+    },
+    {
+      "file": "scripts/verify-hue.mjs",
+      "kind": "classList",
+      "line": 65,
+      "token": "jx-range"
+    },
+    {
+      "file": "scripts/verify-jx-pure-engines.mjs",
+      "kind": "query",
+      "line": 50,
+      "token": "#forms .jx-pure input[type="
+    },
+    {
+      "file": "scripts/verify-jx-pure-engines.mjs",
+      "kind": "query",
+      "line": 103,
+      "token": "#forms .jx-pure select"
+    },
+    {
+      "file": "scripts/verify-jx-pure-engines.mjs",
+      "kind": "query",
+      "line": 109,
+      "token": "#forms .jx-pure select:not([multiple])"
+    },
+    {
+      "file": "scripts/verify-jx-pure-engines.mjs",
+      "kind": "query",
+      "line": 124,
+      "token": "#forms .jx-pure input[type="
+    },
+    {
+      "file": "scripts/verify-jx-pure-engines.mjs",
+      "kind": "query",
+      "line": 125,
+      "token": "#forms .jx-pure select:not([multiple])"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 36,
+      "token": "jx-pure-island"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 40,
+      "token": "#forms .jx-pure"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 53,
+      "token": "#typography .jx-pure a"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 63,
+      "token": "#scope-laws .jx-pure button"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 64,
+      "token": "#scope-laws .jx-pure button.bg-muted"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 66,
+      "token": "#dark-mode .dark.jx-pure input"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 67,
+      "token": "#dark-mode .jx-pure input"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 69,
+      "token": "#dark-mode .dark.jx-pure .jx-light.jx-pure input"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 70,
+      "token": "#dark-mode .dark.jx-pure .jx-light.jx-pure"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 88,
+      "token": ".no-jx-pure button"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 90,
+      "token": "jx-pure-island"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 149,
+      "token": "#forms .jx-pure label:has(> input):has(> span)"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 181,
+      "token": "#forms .no-jx-pure select"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 220,
+      "token": ".no-jx-pure .jx-input"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 356,
+      "token": "#forms .jx-pure label:has(> input):has(> span)"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 359,
+      "token": "#forms .jx-pure label:has(> input):has(> span)"
+    },
+    {
+      "file": "scripts/verify-jx-pure.mjs",
+      "kind": "query",
+      "line": 436,
+      "token": "#forms .jx-pure"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 49,
+      "token": ".jx-shell"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 50,
+      "token": ".jx-spine"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 51,
+      "token": ".jx-shell-body"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 65,
+      "token": ".jx-toc-aside"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "classList",
+      "line": 68,
+      "token": "hidden"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "classList",
+      "line": 70,
+      "token": "hidden"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 79,
+      "token": "#scope-laws .jx-pure button.bg-muted"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "classList",
+      "line": 102,
+      "token": "dark"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "classList",
+      "line": 104,
+      "token": "dark"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 127,
+      "token": ".jx-nav button[aria-expanded], .jx-nav a[aria-expanded]"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 131,
+      "token": ".jx-nav .jx-pop.jx-subpanel"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 142,
+      "token": ".jx-sub-link"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "classList",
+      "line": 147,
+      "token": "hidden"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "classList",
+      "line": 149,
+      "token": "hidden"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 162,
+      "token": ".jx-tip-anchor, [data-tip-host], [aria-describedby]"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 167,
+      "token": ".jx-tip.jx-surface, .jx-surface.jx-tip"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 173,
+      "token": ".jx-tip-body, p, div"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "classList",
+      "line": 176,
+      "token": "hidden"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "classList",
+      "line": 178,
+      "token": "hidden"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 188,
+      "token": ".jx-pop-anchor button, .jx-pop-anchor, [popovertarget]"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 192,
+      "token": ".jx-pop.jx-surface"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 198,
+      "token": ".jx-caret, .jx-pop-body, h3, p, div, button"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "classList",
+      "line": 201,
+      "token": "hidden"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "classList",
+      "line": 203,
+      "token": "hidden"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 212,
+      "token": "button[data-demo-open], .jx-sheet ~ *, button"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 213,
+      "token": ".jx-sheet"
+    },
+    {
+      "file": "scripts/verify-layer-law.mjs",
+      "kind": "query",
+      "line": 220,
+      "token": ".jx-sheet[open], .jx-sheet.popover-open, dialog.jx-sheet[open]"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "query",
+      "line": 105,
+      "token": ".jx-shimmer-host"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "query",
+      "line": 106,
+      "token": ".jx-shimmer-slide"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "query",
+      "line": 107,
+      "token": ".jx-shimmer-cover"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "query",
+      "line": 120,
+      "token": ".jx-pulse-layer"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "query",
+      "line": 140,
+      "token": ".jx-rainbow-host"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "query",
+      "line": 184,
+      "token": ".jx-pulse-layer.jx-pulse-ring"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "query",
+      "line": 208,
+      "token": "button.bg-primary.jx-rainbow-host"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "query",
+      "line": 233,
+      "token": ".jx-ripple-host"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "query",
+      "line": 235,
+      "token": ".jx-ripple-dot"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "query",
+      "line": 240,
+      "token": ".jx-ripple-dot"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "classList",
+      "line": 245,
+      "token": "jx-ripple-flat"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "query",
+      "line": 270,
+      "token": ".jx-ripple-layer"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "classList",
+      "line": 343,
+      "token": "jx-shimmer-host"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "query",
+      "line": 344,
+      "token": ".jx-pulse-layer"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "query",
+      "line": 345,
+      "token": ".jx-pulse-layer"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "classList",
+      "line": 347,
+      "token": "jx-rainbow-host"
+    },
+    {
+      "file": "scripts/verify-press.mjs",
+      "kind": "query",
+      "line": 350,
+      "token": ".jx-ripple-layer"
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "kind": "query",
+      "line": 88,
+      "token": ".jx-shell-body"
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "kind": "query",
+      "line": 94,
+      "token": ".jx-pop-body"
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "kind": "query",
+      "line": 97,
+      "token": ".jx-pop-shadow"
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "kind": "classList",
+      "line": 103,
+      "token": "dark"
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "kind": "query",
+      "line": 121,
+      "token": ".jx-shell-body"
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "kind": "query",
+      "line": 126,
+      "token": ".jx-pop-body"
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "kind": "query",
+      "line": 133,
+      "token": ".jx-pop-shadow"
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "kind": "query",
+      "line": 169,
+      "token": ".jx-shell-body"
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "kind": "query",
+      "line": 176,
+      "token": ".jx-pop-body"
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "kind": "query",
+      "line": 183,
+      "token": ".jx-pop-shadow"
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "kind": "query",
+      "line": 209,
+      "token": ".jx-shell-body"
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "kind": "query",
+      "line": 252,
+      "token": "button.jx-pop-trigger[popovertarget="
+    },
+    {
+      "file": "scripts/verify-surface.mjs",
+      "kind": "query",
+      "line": 264,
+      "token": "button.jx-pop-trigger[popovertarget="
+    },
+    {
+      "file": "scripts/verify-trygrid.mjs",
+      "kind": "query",
+      "line": 39,
+      "token": ".jx-try-cell.jx-try-on"
+    },
+    {
+      "file": "scripts/verify-trygrid.mjs",
+      "kind": "query",
+      "line": 43,
+      "token": ".jx-try-cell.jx-try-on"
+    },
+    {
+      "file": "scripts/verify-trygrid.mjs",
+      "kind": "query",
+      "line": 50,
+      "token": ".jx-try-cell.jx-try-on"
+    },
+    {
+      "file": "scripts/verify-trygrid.mjs",
+      "kind": "query",
+      "line": 59,
+      "token": ".jx-try-cell.jx-try-on"
+    },
+    {
+      "file": "scripts/verify-trygrid.mjs",
+      "kind": "query",
+      "line": 62,
+      "token": ".jx-try-cell.jx-try-on"
+    },
+    {
+      "file": "scripts/verify-trygrid.mjs",
+      "kind": "query",
+      "line": 77,
+      "token": "button.jx-pop-trigger[popovertarget="
+    },
+    {
+      "file": "scripts/verify-trygrid.mjs",
+      "kind": "query",
+      "line": 85,
+      "token": "button.jx-pop-trigger[popovertarget="
+    }
+  ]
+}
