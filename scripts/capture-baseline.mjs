@@ -100,16 +100,22 @@ if (mode === 'compare') {
   const comparePixels = (fileA, fileB) => {
     const A = decodePng(readFileSync(fileA));
     const B = decodePng(readFileSync(fileB));
-    if (A.w !== B.w || A.h !== B.h) return false;
+    if (A.w !== B.w || A.h !== B.h) return { same: false, ratio: 1 };
     const a = A.pixels, b = B.pixels;
     let hot = 0;
     for (let i = 0; i < a.length; i++) {
       if (Math.abs(a[i] - b[i]) > 8) hot += 1;
     }
-    return hot <= a.length * 0.005;
+    return { same: hot <= a.length * 0.005, hotChannels: hot, ratio: hot / a.length };
   };
+  // allowlist: sanctioned deltas named on the invocation, e.g.
+  //   node scripts/capture-baseline.mjs compare after-p4 "^/$"
+  const allowRx = process.argv[4] ? new RegExp(process.argv[4]) : null;
   const report = [];
+  const seen = new Set();
   for (const r of routes) {
+    if (seen.has(slug(r))) continue;
+    seen.add(slug(r));
     const f = `${slug(r)}.png`;
     const a = join(base, f);
     const b = join(after, f);
@@ -117,18 +123,27 @@ if (mode === 'compare') {
       report.push({ route: r, status: 'missing' });
       continue;
     }
-    let same;
+    let res;
     try {
-      same = comparePixels(a, b);
+      res = comparePixels(a, b);
     } catch {
-      same = createHash('sha256').update(readFileSync(a)).digest('hex') === createHash('sha256').update(readFileSync(b)).digest('hex');
+      const same = createHash('sha256').update(readFileSync(a)).digest('hex') === createHash('sha256').update(readFileSync(b)).digest('hex');
+      res = { same, hotChannels: null, ratio: null, note: 'byte fallback (decoder limitation)' };
     }
-    report.push({ route: r, status: same ? 'same' : 'CHANGED' });
+    report.push({ route: r, status: res.same ? 'same' : 'CHANGED', hotChannels: res.hotChannels ?? null, hotChannelRatio: res.ratio ?? null, ...(res.note ? { note: res.note } : {}) });
   }
   const changed = report.filter((x) => x.status === 'CHANGED');
+  const missing = report.filter((x) => x.status === 'missing');
+  const unallowed = changed.filter((x) => !allowRx?.test(x.route));
   writeFileSync(join(shotsRoot, `compare-${label}.json`), JSON.stringify(report, null, 2));
-  console.log(`compare vs baseline-p1 (pixel-hash): ${report.length} routes — ${changed.length} CHANGED, ${report.filter((x) => x.status === 'missing').length} missing (report: .agents/shots/compare-${label}.json)`);
-  changed.slice(0, 30).forEach((x) => console.log(`  CHANGED ${x.route}`));
+  console.log(`compare vs baseline-p1 (tolerant pixel, hot-CHANNEL ratio, 0.5% triage threshold): ${report.length} routes — ${changed.length} CHANGED, ${missing.length} missing (report: .agents/shots/compare-${label}.json)`);
+  changed.forEach((x) => console.log(`  ${allowRx?.test(x.route) ? 'ALLOWED' : 'CHANGED'} ${x.route} (${(x.hotChannelRatio * 100).toFixed(3)}%)`));
+  missing.forEach((x) => console.log(`  MISSING ${x.route}`));
+  // a failing gate: missing images or non-allowlisted changes are errors
+  if (missing.length || unallowed.length) {
+    console.error(`visual gate FAILED: ${unallowed.length} unallowed change(s), ${missing.length} missing`);
+    process.exit(1);
+  }
   process.exit(0);
 }
 

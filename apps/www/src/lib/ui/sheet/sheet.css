@@ -1,16 +1,15 @@
 @layer theme, base, components, utilities;
 
-/* jixoai sheet — D1-exempt residue (tw4, 2026-08-24): ONLY the slide
- * choreography utilities cannot own —
- *   - the 8 slide keyframes (not expressible as utilities);
- *   - the [open]/.closing animation state machine (a utility `open:`
- *     variant would out-specify a plain exit utility and freeze the
- *     exit — source order here is the law);
- *   - the ::backdrop rules (pseudo elements are not class-targetable);
- *   - the reduced-motion kill (overrides the choreography, so it rides
- *     UNLAYERED behind :where — the toggle/Part A precedent).
+/* jixoai sheet — D1-exempt residue (tw4, 2026-08-24).
  * Edge docking, sizing, and all static paint live as token utilities
- * in the markup.
+ * in the markup. What remains:
+ *   - @layer components :where() — the x-glyph descendant boundary
+ *     (a static rule; utilities never own it);
+ *   - UNLAYERED :where() — the [open]/.closing animation STATE MACHINE
+ *     (the carve-out): the panel markup carries entry animation
+ *     utilities, the exit and the reduced-motion kill MUST beat them
+ *     (Part A precedent; Codex P3-r1 rulings r0-3/r1-1). Source order
+ *     inside the state block is the only correct ordering.
  *
  * r18 EXCEPTION: CSS keyframes remain here — the sheet has no WAAPI
  * kernel yet; when it adopts one, these migrate to the kernel like
@@ -22,69 +21,66 @@
     width: 0.875rem;
     height: 0.875rem;
   }
+}
 
+/* ── the state machine (unlayered, zero specificity) ──────────────── */
+
+/* the slide: enter from off-screen along the docked axis, exit back */
+:where(.jx-sheet-left[open]) {
+  animation: jx-sheet-in-left 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+:where(.jx-sheet-left.closing) {
+  animation: jx-sheet-out-left 200ms ease-in forwards;
+}
+:where(.jx-sheet-right[open]) {
+  animation: jx-sheet-in-right 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+:where(.jx-sheet-right.closing) {
+  animation: jx-sheet-out-right 200ms ease-in forwards;
+}
+:where(.jx-sheet-top[open]) {
+  animation: jx-sheet-in-top 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+:where(.jx-sheet-top.closing) {
+  animation: jx-sheet-out-top 200ms ease-in forwards;
+}
+:where(.jx-sheet-bottom[open]) {
+  animation: jx-sheet-in-bottom 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+:where(.jx-sheet-bottom.closing) {
+  animation: jx-sheet-out-bottom 200ms ease-in forwards;
+}
+
+@keyframes jx-sheet-in-left { from { transform: translateX(-100%); } }
+@keyframes jx-sheet-out-left { to { transform: translateX(-100%); } }
+@keyframes jx-sheet-in-right { from { transform: translateX(100%); } }
+@keyframes jx-sheet-out-right { to { transform: translateX(100%); } }
+@keyframes jx-sheet-in-top { from { transform: translateY(-100%); } }
+@keyframes jx-sheet-out-top { to { transform: translateY(-100%); } }
+@keyframes jx-sheet-in-bottom { from { transform: translateY(100%); } }
+@keyframes jx-sheet-out-bottom { to { transform: translateY(100%); } }
+
+/* scrim law: --scrim — semi-transparent black (light) / white
+   (dark), never a brand tint. The jx-surface law adds the rise+fade
+   on top of the side slide (transform and translate compose); the
+   close press-back runs at the sheet's own 200ms, not the law's
+   120ms dialog default (CLOSE_MS alignment). */
+:where(.jx-sheet)::backdrop {
+  background: var(--scrim);
+}
+/* the unified exit choreography compressed to the sheet's own
+   CLOSE_MS (the law reads --jx-surface-exit-ms) */
+:where(.jx-sheet.closing) {
+  --jx-surface-exit-ms: 200ms;
+}
+:where(.jx-sheet.closing)::backdrop {
+  transition: opacity 200ms ease-in;
+  opacity: 0;
+}
 
 @media (prefers-reduced-motion: reduce) {
   :where(.jx-sheet[open]),
   :where(.jx-sheet.closing) {
     animation: none;
-  }
-}
-
-/* ── the [open]/.closing animation state machine — UNLAYERED :where()
-   (the carve-out): the panel markup carries entry animation utilities;
-   the exit MUST beat them, so these ride unlayered at zero
-   specificity (Part A precedent; Codex P3-r1 blocker 3).
-   Source order inside this block is the only correct ordering. */
-  /* the slide: enter from off-screen along the docked axis, exit back */
-  .jx-sheet-left[open] {
-    animation: jx-sheet-in-left 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .jx-sheet-left.closing {
-    animation: jx-sheet-out-left 200ms ease-in forwards;
-  }
-  .jx-sheet-right[open] {
-    animation: jx-sheet-in-right 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .jx-sheet-right.closing {
-    animation: jx-sheet-out-right 200ms ease-in forwards;
-  }
-  .jx-sheet-top[open] {
-    animation: jx-sheet-in-top 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .jx-sheet-top.closing {
-    animation: jx-sheet-out-top 200ms ease-in forwards;
-  }
-  .jx-sheet-bottom[open] {
-    animation: jx-sheet-in-bottom 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .jx-sheet-bottom.closing {
-    animation: jx-sheet-out-bottom 200ms ease-in forwards;
-  }
-  @keyframes jx-sheet-in-left { from { transform: translateX(-100%); } }
-  @keyframes jx-sheet-out-left { to { transform: translateX(-100%); } }
-  @keyframes jx-sheet-in-right { from { transform: translateX(100%); } }
-  @keyframes jx-sheet-out-right { to { transform: translateX(100%); } }
-  @keyframes jx-sheet-in-top { from { transform: translateY(-100%); } }
-  @keyframes jx-sheet-out-top { to { transform: translateY(-100%); } }
-  @keyframes jx-sheet-in-bottom { from { transform: translateY(100%); } }
-  @keyframes jx-sheet-out-bottom { to { transform: translateY(100%); } }
-
-  /* scrim law: --scrim — semi-transparent black (light) / white
-     (dark), never a brand tint. The jx-surface law adds the rise+fade
-     on top of the side slide (transform and translate compose); the
-     close press-back runs at the sheet's own 200ms, not the law's
-     120ms dialog default (CLOSE_MS alignment). */
-  :where(.jx-sheet)::backdrop {
-    background: var(--scrim);
-  }
-  /* the unified exit choreography compressed to the sheet's own
-     CLOSE_MS (the law reads --jx-surface-exit-ms) */
-  :where(.jx-sheet.closing) {
-    --jx-surface-exit-ms: 200ms;
-  }
-  :where(.jx-sheet.closing)::backdrop {
-    transition: opacity 200ms ease-in;
-    opacity: 0;
   }
 }

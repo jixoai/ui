@@ -175,3 +175,135 @@ the final appearance acceptance.
 
 The Svelte/a11y diagnostics printed by test/build remain warnings; none is
 used to waive the four blockers above.
+
+## P3-r1 Re-review — `1f90bb9`
+
+> Independent re-review, 2026-08-24. The remediation commit was assessed
+> against its parent `087c757`, with the original P3 cutoff `22b0ea3` used
+> for r0-to-r1 regression context. This section is based on current source,
+> the generated manifest, and locally executed gates; it does not rely on
+> the implementation self-report.
+
+### Verdict
+
+**BLOCK — 7.0/10 implementation quality (r0: 5.5/10, +1.5).**
+
+The increase reflects real closure of B1 and B2, plus a sounder capture phase
+for B4. The remaining B3 and B4 contract failures are release-blocking: the
+claimed Sheet state-machine carve-out is still layerized, the newly normative
+surface-kernel probes do not exist, and a screenshot comparison never fails
+for a missing or unexpected image.
+
+### Closed Findings
+
+1. **B1 closed.** The five Part A consumers now retain their frozen classes
+   outside `cn()`: input uses plain composition for range/color/shell
+   ([input.svelte](/Users/kzf/Dev/GitHub/jixoai-labs/ui/registry/files/ui/input/input.svelte:175)),
+   textarea does the same for its shell
+   ([textarea.svelte](/Users/kzf/Dev/GitHub/jixoai-labs/ui/registry/files/ui/textarea/textarea.svelte:122)),
+   and number-input keeps `jx-input-lane` on the left of the `cn()` result
+   ([number-input.svelte](/Users/kzf/Dev/GitHub/jixoai-labs/ui/registry/files/ui/number-input/number-input.svelte:206)).
+   Range and color-picker likewise use plain Part A composition. The manifest
+   check confirms their mirrors remain byte-identical.
+
+2. **B2 closed.** `code-card` now declares `@jixoai/utils`, has no direct
+   `shiki.ts` file claim, and reaches the single canonical `@lib/shiki.ts`
+   through `@jixoai/shiki` ([registry.json](/Users/kzf/Dev/GitHub/jixoai-labs/ui/registry.json:631)).
+   `verify-shadcn-add.mjs` derives its staged payloads from `registry.json`
+   ([verify-shadcn-add.mjs](/Users/kzf/Dev/GitHub/jixoai-labs/ui/scripts/verify-shadcn-add.mjs:69))
+   and the locally re-run clean-consumer fixture passed all code-card chain
+   assertions plus its Vite build.
+
+3. **B3 partial only.** `terminal-header.css` now has the intended three
+   bands: static rules are layered and zero-specificity, state rules are
+   unlayered and zero-specificity, and the sole enumerated subpanel override
+   is naturally specific ([terminal-header.css](/Users/kzf/Dev/GitHub/jixoai-labs/ui/registry/files/ui/terminal-header/terminal-header.css:24)).
+   The bounded third exception is also now written into the architecture
+   delta. This does not close the sheet defect or satisfy its own probe law.
+
+4. **B4 capture phase closed.** Capture now visits literal `.html` routes,
+   requires HTTP 200 and main content, deduplicates route slugs, and returns
+   nonzero when capture fails
+   ([capture-baseline.mjs](/Users/kzf/Dev/GitHub/jixoai-labs/ui/scripts/capture-baseline.mjs:149)).
+   These changes prevent the prior 404-shell capture failure, but do not make
+   the comparison a failing gate.
+
+### Blocking Findings
+
+1. **B3: Sheet's stated unlayered state-machine carve-out is still inside
+   `@layer components`.** [sheet.css](/Users/kzf/Dev/GitHub/jixoai-labs/ui/registry/files/ui/sheet/sheet.css:19)
+   opens the layer and does not close it until line 90. Consequently the
+   reduced-motion kill and every `[open]`/`.closing` rule remain layerized;
+   the latter also use natural selectors such as `.jx-sheet-left[open]`
+   ([line 40](/Users/kzf/Dev/GitHub/jixoai-labs/ui/registry/files/ui/sheet/sheet.css:40)),
+   rather than the documented unlayered `:where(...)` state-machine form.
+   A utilities-layer animation can still beat the exit/reduced-motion rule,
+   precisely the failure this carve-out was meant to prevent.
+
+   Fix by closing `@layer components` immediately after the static glyph
+   rule, then placing the media kill and state selectors outside it and
+   wrapping each selector in `:where(...)`. Add a computed-style browser
+   probe that proves the state/reduced-motion rule beats the component's own
+   animation utility while an unrelated consumer utility can still override
+   static paint. Keep both registry and www mirrors identical.
+
+2. **B3: the new SURFACE-KERNEL OVERRIDE requirement has no required
+   consumer-override probes.** The delta requires every enumerated use to
+   carry one, but [verify-layer-law.mjs](/Users/kzf/Dev/GitHub/jixoai-labs/ui/scripts/verify-layer-law.mjs:36)
+   tests only toc/scaffold, Part A, and global context. It contains no
+   terminal-header, tooltip, or popover coverage. The exception is therefore
+   described but not accepted by its prescribed executable evidence.
+
+   Add browser probes for the terminal-header subpanel and both tooltip and
+   popover surface overrides. Each must prove the foreign `jx-surface` law is
+   overridden where required and that the documented consumer override still
+   has its intended result. Make the probes part of a failing verification
+   script, then re-run it on the consumer build.
+
+3. **B4: comparison mode still accepts missing and unexpected visual
+   changes.** [capture-baseline.mjs](/Users/kzf/Dev/GitHub/jixoai-labs/ui/scripts/capture-baseline.mjs:116)
+   records `missing` and `CHANGED`, but always calls `process.exit(0)` at
+   line 132. It also records status only, so neither a per-route hot-channel
+   ratio nor an allowlist decision is reproducible. The capture-side nonzero
+   exit does not protect the actual baseline comparison.
+
+   Return the measured hot-channel count and ratio for every route, dedupe
+   before reporting, and fail the compare process for missing images or any
+   `CHANGED` route not in an explicit allowlist. A sanctioned change must be
+   named in the invocation or committed report; all other changes must be
+   nonzero. Retain 0.5% only as a clearly named triage threshold, with
+   Owner/browser inspection still deciding appearance acceptance.
+
+### Standards
+
+One documented-standard breach remains: the Sheet state selectors are both
+layerized and naturally specific despite the architecture law requiring an
+unlayered zero-specificity state-machine carve-out. One judgement-call smell
+also remains: `verify-shadcn-add.mjs` parses the same registry document twice
+in its fallback expression. The latter is non-blocking.
+
+### Spec
+
+B1 and B2 meet their r0 repair requirements. B3 is still partial because the
+Sheet carve-out has not been implemented and the new surface-kernel exception
+lacks its mandatory probes. B4 is still partial because route capture is now
+sounder, but comparison has no executable failure behavior for a missing or
+unallowlisted visual delta.
+
+### Verification Evidence
+
+- `node scripts/gen-mirror-manifest.mjs --check`: green.
+- `npm --prefix apps/www run test`: 24 files, 327 tests pass.
+- `npm run build` and `npm --prefix apps/www run build`: pass.
+- `node scripts/verify-shadcn-add.mjs`: all accordion, toast, and code-card
+  clean-consumer assertions plus Vite build pass.
+- `node scripts/verify-layer-law.mjs 5199` and
+  `node scripts/verify-folder-css.mjs 5199`: pass, but neither covers the
+  two B3 gaps above.
+- `openspec validate tw4-css-modularization --strict`: valid.
+
+### Non-blocking Note
+
+`verify-shadcn-add.mjs` parses `registry.json` twice in its null-coalescing
+expression ([line 72](/Users/kzf/Dev/GitHub/jixoai-labs/ui/scripts/verify-shadcn-add.mjs:72)).
+Parse once before selecting `.items`; this has no observed behavioral impact.
