@@ -1,0 +1,60 @@
+@layer theme, base, components, utilities;
+
+/* jixoai radio — D1-exempt residue (tw4, 2026-08-24): the dot ::after
+ * build (pseudo-element paint, utilities cannot express) and the state
+ * machine (:checked repaint, hover lean, focus-visible ring, disabled,
+ * invalid). Static paint lives as token utilities in the markup; the
+ * .jx-field/.jx-label/.jx-error scaffold is consumed from jx-pure
+ * Part A.
+ *
+ * CASCADE CARVE-OUT (the Part A precedent): state rules that override
+ * the element's own utility paint ride UNLAYERED behind :where() —
+ * zero specificity, still beats layered utilities. The static dot build
+ * stays in @layer components (nothing competes with it). */
+
+@layer components {
+  /* ---- the dot: 8px primary circle, scale 0 → 1 -------------------- */
+  :where(.jx-radio)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+    border-radius: 50%;
+    background: var(--primary);
+    transform: scale(0);
+    transition: transform 150ms ease-out;
+  }
+}
+
+/* ---- the state machine (unlayered carve-out) ----------------------- */
+:where(.jx-radio:hover:not(:checked):not(:disabled)) {
+  border-color: var(--primary);
+}
+:where(.jx-radio:checked) {
+  border-color: var(--primary);
+}
+:where(.jx-radio:checked)::after {
+  transform: scale(1);
+}
+/* the site focus law: inset 1px outline on the ring token */
+:where(.jx-radio:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+:where(.jx-radio:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+:where(.jx-radio[aria-invalid='true']) {
+  border-style: dashed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-radio),
+  :where(.jx-radio)::after {
+    transition: none;
+  }
+}

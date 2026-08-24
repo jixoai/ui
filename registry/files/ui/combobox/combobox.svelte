@@ -54,6 +54,15 @@
   through ElementInternals — never the display label. form reset bubbles
   back as jx-reset, form/fieldset disable as jx-disabled. Style,
   structure and ARIA stay in this file — the bridge owns no paint.
+
+  tw4 (2026-08-24): trigger/shell/rows/scroll static paint is token
+  utilities in the markup (markup-known states — the invalid dash, the
+  open chevron flip, selected/active/disabled rows — ride conditional
+  utilities); the .jx-field scaffold is consumed from jx-pure Part A.
+  Only the anchor-positioned panel (static residue with its @supports
+  fallback + ::backdrop), the shell's :has() hover/focus/disabled
+  machines, the toggle/row hover states and the reduced-motion kill
+  remain in combobox.css (D1-exempt residue under the layer law).
 -->
 <script module lang="ts">
   /** One row of the Combobox listbox. */
@@ -74,6 +83,8 @@
   // (client-only, idempotent) that carries this field's form association
   import '$lib/form-field';
   import type { HTMLInputAttributes } from 'svelte/elements';
+  import { cn } from '$lib/utils';
+  import './combobox.css';
 
   interface Props extends Omit<HTMLInputAttributes, 'value'> {
     /** the full option list (order = panel order) */
@@ -348,11 +359,14 @@
   <!-- faceless form bridge (form-field.ts law): the committed VALUE (not
        the display text) rides ElementInternals into FormData; the native
        input carries NO name of its own. jx-reset / jx-disabled bubble the
-       form lifecycle back into this component. Owns no box, no content.
+       form lifecycle back into this component. Owns no box, no content —
+       the `contents` utility keeps the prerendered HTML from flashing an
+       extra flex gap pre-upgrade.
        disabled passes `|| undefined`: Svelte has no boolean-attribute
        semantics for custom elements and would render disabled="false"
        as a PRESENT attribute (presence = true in HTML). -->
   <jx-form-field
+    class="contents"
     aria-hidden="true"
     {name}
     value={value ?? ''}
@@ -361,8 +375,14 @@
     onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
   ></jx-form-field>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span class="jx-combobox-wrap" style="anchor-name: {anchorName}">
-    <div class="jx-combobox-shell {className}" class:jx-combobox-invalid={invalid}>
+  <span class="jx-combobox-wrap relative block w-full max-w-full" style="anchor-name: {anchorName}">
+    <div
+      class={cn(
+        'jx-combobox-shell flex items-center gap-2 w-full max-w-full min-h-10 px-3 border border-border rounded-none bg-background scheme-light dark:scheme-dark transition-[box-shadow] duration-150 ease-out',
+        invalid && 'jx-combobox-invalid border-dashed',
+        className,
+      )}
+    >
       <input
         bind:this={inputEl}
         {...rest}
@@ -380,7 +400,7 @@
         autocomplete="off"
         autocapitalize="off"
         spellcheck="false"
-        class="jx-combobox-input"
+        class="jx-combobox-input flex-1 min-w-0 min-h-[calc(2.5rem_-_2px)] p-0 border-0 outline-none bg-transparent text-foreground text-sm leading-[1.45] placeholder:text-muted-foreground placeholder:opacity-100"
         {placeholder}
         disabled={isDisabled}
         oninput={onInput}
@@ -391,7 +411,7 @@
       />
       <button
         type="button"
-        class="jx-combobox-toggle"
+        class="jx-combobox-toggle flex-none inline-flex items-center justify-center w-5 h-5 p-0 border-0 bg-transparent text-muted-foreground cursor-pointer disabled:cursor-not-allowed"
         tabindex="-1"
         aria-hidden="true"
         popovertarget={panelId}
@@ -403,7 +423,10 @@
         disabled={isDisabled}
       >
         <svg
-          class="jx-combobox-chevron"
+          class={cn(
+            'jx-combobox-chevron w-3 h-3 pointer-events-none transition-transform duration-150 ease-out',
+            open && 'rotate-180',
+          )}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -430,13 +453,13 @@
     <!-- surface body (bezel paint + ::after shadow) + scroll ring
          (floating-surface law arch r3) -->
     <div class="jx-combobox-panel-body jx-surface-body">
-    <div class="jx-combobox-scroll">
+    <div class="jx-combobox-scroll max-h-[60vh] overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-1 px-[max(4px_-_var(--jx-scrollbar-thin,0px),0px)]">
     {#if rows.length > 0}
       <!-- mousedown is prevented so click-to-choose never blurs the input
            into a premature blur-commit -->
       <ul
         id={listboxId}
-        class="jx-combobox-list"
+        class="jx-combobox-list m-0 p-0 list-none"
         role="listbox"
         aria-label={label ?? placeholder}
         onmousedown={(event) => event.preventDefault()}
@@ -451,25 +474,27 @@
             role="option"
             aria-selected={row.kind === 'option' && row.option.value === value ? 'true' : 'false'}
             aria-disabled={row.kind === 'option' && row.option.disabled ? 'true' : undefined}
-            class="jx-combobox-option"
-            class:jx-combobox-selected={row.kind === 'option' && row.option.value === value}
-            class:jx-combobox-active={index === active}
-            class:jx-combobox-disabled={row.kind === 'option' && row.option.disabled}
+            class={cn(
+              'jx-combobox-option flex flex-col gap-0.5 px-[10px] py-[6px] text-[13px] leading-[1.45] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
+              index === active && 'jx-combobox-active bg-terminal-hover text-terminal-foreground',
+              row.kind === 'option' && row.option.value === value && 'jx-combobox-selected bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
+              row.kind === 'option' && row.option.disabled && 'jx-combobox-disabled opacity-50 pointer-events-none',
+            )}
             onclick={() => chooseRow(row)}
           >
             {#if row.kind === 'option'}
-              <span class="jx-combobox-option-label">{row.option.label}</span>
+              <span class="jx-combobox-option-label min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{row.option.label}</span>
               {#if row.option.description}
-                <span class="jx-combobox-option-desc">{row.option.description}</span>
+                <span class="jx-combobox-option-desc text-[11px] leading-[1.4] text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]">{row.option.description}</span>
               {/if}
             {:else}
-              <span class="jx-combobox-use">Use “{row.text}”</span>
+              <span class="jx-combobox-use text-primary">Use “{row.text}”</span>
             {/if}
           </li>
         {/each}
       </ul>
     {:else}
-      <p class="jx-combobox-empty">No results for “{query}”</p>
+      <p class="jx-combobox-empty m-0 px-[10px] py-[6px] text-[13px] text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]">No results for “{query}”</p>
     {/if}
     </div>
     </div>
@@ -479,235 +504,3 @@
     <p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>
   {/if}
 </div>
-
-<style>
-  .jx-field {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-    width: 100%;
-    min-width: 0; /* InputGroup hardening: shrink inside grid/flex hosts */
-  }
-  /* the faceless bridge owns no box — pre-hydration included, so the
-     prerendered HTML never flashes an extra flex gap before upgrade */
-  .jx-field > :global(jx-form-field) {
-    display: contents;
-  }
-  .jx-label {
-    width: fit-content;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    cursor: pointer;
-  }
-
-  /* ---- trigger: the input.svelte shell, chromeless input + chevron ----- */
-  .jx-combobox-wrap {
-    position: relative;
-    display: block;
-    width: 100%;
-    max-width: 100%; /* InputGroup hardening: never push past the host row */
-  }
-  .jx-combobox-shell {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-    max-width: 100%;
-    min-height: 2.5rem;
-    padding-inline: 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--background);
-    color-scheme: light;
-    transition: box-shadow 150ms ease-out;
-  }
-  :global(.dark) .jx-combobox-shell {
-    color-scheme: dark;
-  }
-  .jx-combobox-shell:not(:has(input:disabled)):hover:not(:has(:focus-visible)) {
-    box-shadow: var(--shadow-2xs);
-  }
-  /* the site focus law (input.svelte): the shell carries the inset 1px
-     outline on the ring token for the input inside */
-  .jx-combobox-shell:has(:focus-visible) {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-    box-shadow: none;
-  }
-  .jx-combobox-shell:has(input:disabled) {
-    opacity: 0.5;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-  .jx-combobox-shell.jx-combobox-invalid {
-    border-style: dashed;
-  }
-  .jx-combobox-input {
-    flex: 1 1 0%;
-    min-width: 0;
-    min-height: calc(2.5rem - 2px);
-    padding: 0;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: var(--foreground);
-    font-family: inherit;
-    font-size: 0.875rem;
-    line-height: 1.45;
-  }
-  .jx-combobox-input::placeholder {
-    color: var(--muted-foreground);
-    opacity: 1;
-  }
-  /* the toggle is a decorative affordance (tabindex -1, aria-hidden): the
-     keyboard opens the panel by typing or with ↑/↓, like the native combobox */
-  .jx-combobox-toggle {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.25rem;
-    height: 1.25rem;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--muted-foreground);
-    cursor: pointer;
-  }
-  .jx-combobox-toggle:hover:not(:disabled) {
-    color: var(--foreground);
-  }
-  .jx-combobox-toggle:disabled {
-    cursor: not-allowed;
-  }
-  .jx-combobox-chevron {
-    width: 0.75rem;
-    height: 0.75rem;
-    pointer-events: none;
-    transition: transform 150ms ease-out;
-  }
-  .jx-combobox-input[aria-expanded='true'] ~ .jx-combobox-toggle .jx-combobox-chevron {
-    transform: rotate(180deg);
-  }
-
-  /* ---- panel: terminal bezel dropdown (select.svelte panel law) -------- */
-  /* bezel surface on the jx-surface law (arch r3): the panel is the
-     PLATFORM element (no paint); the body ring carries the bezel fill
-     and the ::after shadow layer; the scroll ring sits inside. */
-  .jx-combobox-panel {
-    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
-    --jx-surface-solid-fill: var(--terminal);
-    position: fixed;
-    margin: 0;
-    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
-    width: anchor-size(width); /* exactly the trigger — the select look */
-    max-width: min(92vw, 30rem);
-    color: var(--terminal-foreground);
-  }
-  .jx-combobox-scroll {
-    max-height: 60vh;
-    overflow: auto;
-    overscroll-behavior: contain;
-    /* scrollbar law: both-edges gutters; padding-inline hands the gutter
-       back so the visual inset stays 4px */
-    scrollbar-gutter: stable both-edges;
-    padding-block: 4px;
-    padding-inline: max(4px - var(--jx-scrollbar-thin, 0px), 0px);
-  }
-  /* Engines without CSS Anchor Positioning: authored viewport-center —
-     the popover.svelte fallback visual, never worse. */
-  @supports not (anchor-name: --jx-cbx-fallback) {
-    .jx-combobox-panel {
-      position-anchor: auto !important;
-      inset-area: none !important;
-      inset: 0;
-      margin: auto;
-      width: min(92vw, 22rem);
-    }
-  }
-  /* Popovers get a ::backdrop too; light dismiss must never dim the page. */
-  .jx-combobox-panel::backdrop {
-    background: transparent;
-  }
-
-  .jx-combobox-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .jx-combobox-option {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 6px 10px;
-    font-size: 13px;
-    line-height: 1.45;
-    color: color-mix(in oklab, var(--terminal-foreground) 72%, transparent);
-    /* the selected edge line is reserved as transparent so selecting a
-       row never shifts it — and border-inline-start flips under rtl */
-    border-inline-start: 2px solid transparent;
-    cursor: pointer;
-    transition: background-color 100ms ease-out, color 100ms ease-out;
-  }
-  .jx-combobox-option:hover,
-  .jx-combobox-option.jx-combobox-active {
-    background: var(--terminal-hover);
-    color: var(--terminal-foreground);
-  }
-  .jx-combobox-option.jx-combobox-selected {
-    background: var(--terminal-hover);
-    color: var(--terminal-foreground);
-    border-inline-start-color: var(--primary);
-  }
-  .jx-combobox-option.jx-combobox-disabled {
-    opacity: 0.5;
-    pointer-events: none;
-  }
-  .jx-combobox-option-label {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .jx-combobox-option-desc {
-    font-size: 11px;
-    line-height: 1.4;
-    color: color-mix(in oklab, var(--terminal-foreground) 55%, transparent);
-  }
-  .jx-combobox-use {
-    color: var(--primary);
-  }
-  .jx-combobox-empty {
-    margin: 0;
-    padding: 6px 10px;
-    font-size: 13px;
-    color: color-mix(in oklab, var(--terminal-foreground) 55%, transparent);
-  }
-
-  .jx-error {
-    display: flex;
-    gap: 0.5em;
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-error-mark {
-    font-weight: 700;
-    color: var(--destructive);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-combobox-shell,
-    .jx-combobox-chevron,
-    .jx-combobox-option {
-      transition: none;
-    }
-  }
-</style>

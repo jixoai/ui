@@ -13,9 +13,16 @@
 
   A partial path submits '' (never a half lie — the same law as
   input-otp). disabled blocks the whole chain after it.
+
+  tw4 (2026-08-24): pure utility migration for the static paint (group,
+  label, chain, select shells — the disabled dim rides the disabled:
+  variant); only the :focus outline law remains in cascader.css
+  (D1-exempt residue under the layer law).
 -->
 <script lang="ts">
   import '$lib/form-field';
+  import { cn } from '$lib/utils';
+  import './cascader.css';
 
   export interface CascaderOption {
     value: string;
@@ -57,7 +64,7 @@
   }: Props = $props();
 
   /** the chain of option lists: level 0 = options, level i = children of
-   *  the level i-1 pick (stops at the first leaf-less pick) */
+   * the level i-1 pick (stops at the first leaf-less pick) */
   const levels = $derived.by(() => {
     const lists: CascaderOption[][] = [options];
     for (const picked of value) {
@@ -93,14 +100,14 @@
   onjx-reset={() => (value = [])}
 ></jx-form-field>
 
-<div class="jx-cascader {className}" role="group" aria-label={label ?? 'cascade'}>
+<div class={cn('jx-cascader flex flex-col gap-1.5 w-fit', className)} role="group" aria-label={label ?? 'cascade'}>
   {#if label}
-    <span class="jx-cascader-label" id="{autoId}-label">{label}</span>
+    <span class="jx-cascader-label font-nav text-xs tracking-[0.1em] uppercase text-muted-foreground" id="{autoId}-label">{label}</span>
   {/if}
-  <div class="jx-cascader-chain" aria-labelledby={label ? `${autoId}-label` : undefined}>
+  <div class="jx-cascader-chain flex flex-wrap gap-1.5" aria-labelledby={label ? `${autoId}-label` : undefined}>
     {#each levels as levelOptions, level (level)}
       <select
-        class="jx-cascader-select"
+        class="jx-cascader-select py-[0.4375rem] px-[0.625rem] border border-border bg-background text-foreground font-mono text-[0.8125rem] rounded-(--radius) disabled:opacity-50"
         disabled={isDisabled}
         aria-label="level {level + 1}"
         value={value[level] ?? ''}
@@ -116,40 +123,3 @@
     {/each}
   </div>
 </div>
-
-<style>
-  .jx-cascader {
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
-    width: fit-content;
-  }
-  .jx-cascader-label {
-    font-family: var(--font-nav);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-  }
-  .jx-cascader-chain {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.375rem;
-  }
-  .jx-cascader-select {
-    padding: 0.4375rem 0.625rem;
-    border: 1px solid var(--border);
-    background: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    border-radius: var(--radius);
-  }
-  .jx-cascader-select:focus {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-cascader-select:disabled {
-    opacity: 0.5;
-  }
-</style>

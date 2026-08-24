@@ -33,8 +33,18 @@
   5. hardening — InputGroup law: min-width 0 on every flex child,
      max-width 100% shells, ellipsized names with title tooltips; the
      component survives 390px hosts with unbroken filenames.
--->
 
+  tw4 (2026-08-24): the static paint (size knobs as arbitrary-property
+  utilities per size, zone/trigger shells, list rows, thumbs, glyphs)
+  is token utilities in the markup; the .jx-label/.jx-error scaffolding
+  is consumed from the jx-pure sheet's Part A; the press poses ride the
+  global .jx-press law via --jx-press-shadow* custom-property utilities.
+  Only the drag-over poses (they must out-rank the unlayered .jx-press
+  law at the original (0,3,0) precedence), the sibling hairline, the
+  icon svg sizing, the hover/focus/disabled machines and the
+  reduced-motion kill remain in file-input.css (D1-exempt residue under
+  the layer law).
+-->
 <script module lang="ts">
   /** One selected file with component-managed identity. */
   export interface FileItem {
@@ -49,8 +59,10 @@
 
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { cn } from '$lib/utils';
   import type { Snippet } from 'svelte';
   import type { HTMLInputAttributes } from 'svelte/elements';
+  import './file-input.css';
 
   type FileKind = 'image' | 'video' | 'audio' | 'pdf' | 'code' | 'doc';
   // spec list (.ts/.js/.svelte/.css/.json/.html) plus its obvious siblings
@@ -111,6 +123,14 @@
     class: className = '',
     ...rest
   }: Props = $props();
+
+  // size knobs as arbitrary-property utilities (the toggle precedent):
+  // row height, thumb size, glyph size, text size, zone padding/glyph
+  const sizeUtilities = {
+    sm: '[--jx-file-h:32px] [--jx-file-thumb:20px] [--jx-file-icon:14px] [--jx-file-text:11px] [--jx-file-zone-pad:1rem] [--jx-file-zone-glyph:18px]',
+    md: '[--jx-file-h:40px] [--jx-file-thumb:28px] [--jx-file-icon:16px] [--jx-file-text:12.5px] [--jx-file-zone-pad:1.5rem] [--jx-file-zone-glyph:22px]',
+    lg: '[--jx-file-h:48px] [--jx-file-thumb:36px] [--jx-file-icon:18px] [--jx-file-text:14px] [--jx-file-zone-pad:2rem] [--jx-file-zone-glyph:26px]',
+  } as const;
 
   const errorId = $derived(`${id}-error`);
   const listId = $derived(`${id}-list`);
@@ -332,7 +352,7 @@
     </svg>
   {:else if kind === 'code'}
     <!-- "</>" as a font-nav text glyph — no SVG needed -->
-    <span class="jx-file-code-glyph">&lt;/&gt;</span>
+    <span class="jx-file-code-glyph font-nav font-bold text-[calc(var(--jx-file-icon)*0.72)] tracking-[-0.02em] leading-none">&lt;/&gt;</span>
   {:else}
     <!-- 通用文档图形 -->
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -347,9 +367,11 @@
     <button
       type="button"
       id={triggerId}
-      class="jx-press jx-file-zone"
+      class={cn(
+        'jx-press jx-file-zone flex flex-col items-center justify-center gap-2 w-full min-w-0 max-w-full min-h-[calc(var(--jx-file-h)*2.25)] p-(--jx-file-zone-pad) border border-dashed border-border rounded-none bg-background text-foreground [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]',
+        invalid && 'jx-file-invalid border-destructive',
+      )}
       class:jx-file-over={dragging}
-      class:jx-file-invalid={invalid}
       aria-label={label || (multiple ? 'choose files' : 'choose file')}
       aria-describedby={describedBy}
       disabled={disabled}
@@ -362,7 +384,13 @@
       {#if zone}
         {@render zone()}
       {:else}
-        <span class="jx-file-zone-glyph" aria-hidden="true">
+        <span
+          class={cn(
+            'jx-file-zone-glyph inline-flex items-center justify-center w-(--jx-file-zone-glyph) h-(--jx-file-zone-glyph) text-muted-foreground transition-colors duration-150 ease-out',
+            dragging && 'text-primary',
+          )}
+          aria-hidden="true"
+        >
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -376,17 +404,24 @@
             <path d="M4 15.5v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path>
           </svg>
         </span>
-        <span class="jx-file-zone-title">{multiple ? 'click or drag files' : 'click or drag file'}</span>
-        {#if zoneHint}<span class="jx-file-zone-hint">{zoneHint}</span>{/if}
+        <span
+          class={cn(
+            'jx-file-zone-title font-nav text-[11px] tracking-[0.2em] uppercase text-foreground max-w-full [overflow-wrap:anywhere] text-center transition-colors duration-150 ease-out',
+            dragging && 'text-primary',
+          )}
+        >{multiple ? 'click or drag files' : 'click or drag file'}</span>
+        {#if zoneHint}<span class="jx-file-zone-hint font-nav text-[10.5px] tracking-[0.08em] text-muted-foreground max-w-full [overflow-wrap:anywhere] text-center">{zoneHint}</span>{/if}
       {/if}
     </button>
   {:else}
     <button
       type="button"
       id={triggerId}
-      class="jx-press jx-file-trigger"
+      class={cn(
+        'jx-press jx-file-trigger inline-flex items-center gap-2 w-fit max-w-full min-h-(--jx-file-h) px-[0.9rem] py-[0.45rem] border border-border rounded-none bg-background text-foreground text-(length:--jx-file-text) font-medium [--jx-press-shadow:var(--shadow-xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)]',
+        invalid && 'jx-file-invalid border-dashed border-destructive',
+      )}
       class:jx-file-over={dragging}
-      class:jx-file-invalid={invalid}
       aria-label={label || (multiple ? 'choose files' : 'choose file')}
       aria-describedby={describedBy}
       disabled={disabled}
@@ -397,7 +432,10 @@
       ondrop={onDrop}
     >
       <svg
-        class="jx-file-trigger-glyph"
+        class={cn(
+          'jx-file-trigger-glyph w-[calc(var(--jx-file-icon)*0.9)] h-[calc(var(--jx-file-icon)*0.9)] flex-none text-muted-foreground',
+          dragging && 'text-primary',
+        )}
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -415,8 +453,8 @@
   {/if}
 {/snippet}
 
-<div class="jx-file jx-file-{size} {className}" class:jx-file-disabled={disabled}>
-  {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
+<div class={cn('jx-file flex flex-col items-stretch gap-2 w-full min-w-0 max-w-full', sizeUtilities[size], `jx-file-${size}`, disabled && 'jx-file-disabled opacity-50', className)}>
+  {#if label}<label class="jx-label max-w-full overflow-hidden text-ellipsis whitespace-nowrap" for={id}>{label}</label>{/if}
 
   {@render triggerShell(id)}
 
@@ -433,7 +471,7 @@
     bind:this={inputEl}
     {...rest}
     type="file"
-    class="jx-file-native"
+    class="jx-file-native sr-only"
     tabindex={-1}
     aria-hidden="true"
     {accept}
@@ -443,23 +481,30 @@
   />
 
   {#if items.length}
-    <ul id={listId} class="jx-file-list" class:jx-file-invalid={invalid} aria-label="selected files">
+    <ul
+      id={listId}
+      class={cn(
+        'jx-file-list min-w-0 max-w-full m-0 p-0 list-none border border-border bg-background',
+        invalid && 'jx-file-invalid border-dashed',
+      )}
+      aria-label="selected files"
+    >
       {#each items as item (item.id)}
-        <li class="jx-file-row">
-          <span class="jx-file-thumb" aria-hidden="true">
+        <li class="jx-file-row flex items-center gap-3 min-w-0 min-h-(--jx-file-h) px-3">
+          <span class="jx-file-thumb flex-none inline-flex items-center justify-center w-[calc(var(--jx-file-thumb)+2px)] h-[calc(var(--jx-file-thumb)+2px)] border border-border bg-muted overflow-hidden" aria-hidden="true">
             {#if item.previewUrl}
-              <img class="jx-file-thumb-img" src={item.previewUrl} alt="" loading="lazy" />
+              <img class="jx-file-thumb-img block w-(--jx-file-thumb) h-(--jx-file-thumb) object-cover" src={item.previewUrl} alt="" loading="lazy" />
             {:else}
-              <span class="jx-file-icon jx-file-icon-{fileKind(item.file)}">
+              <span class="jx-file-icon inline-flex items-center justify-center w-(--jx-file-icon) h-(--jx-file-icon) text-muted-foreground jx-file-icon-{fileKind(item.file)}">
                 {@render kindIcon(fileKind(item.file))}
               </span>
             {/if}
           </span>
-          <span class="jx-file-name" title={item.file.name}>{item.file.name}</span>
-          <span class="jx-file-size">{formatSize(item.file.size)}</span>
+          <span class="jx-file-name flex-[1_1_0%] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-(length:--jx-file-text) text-foreground" title={item.file.name}>{item.file.name}</span>
+          <span class="jx-file-size flex-none text-(length:--jx-file-text) tabular-nums text-muted-foreground">{formatSize(item.file.size)}</span>
           <button
             type="button"
-            class="jx-file-remove"
+            class="jx-file-remove flex-none inline-flex items-center justify-center w-5 h-5 p-0 border-0 bg-transparent text-muted-foreground text-base leading-none cursor-pointer transition-[color,transform] duration-150 ease-out disabled:cursor-not-allowed"
             aria-label="remove {item.file.name}"
             disabled={disabled}
             onclick={() => removeItem(item)}
@@ -467,389 +512,14 @@
         </li>
       {/each}
       {#if items.length > 1 && !disabled}
-        <li class="jx-file-clearrow">
-          <button type="button" class="jx-file-clear" onclick={clearAll}>remove all</button>
+        <li class="jx-file-clearrow border-t border-border">
+          <button type="button" class="jx-file-clear inline-flex items-center min-h-[calc(var(--jx-file-h)*0.75)] py-[0.15rem] border-0 bg-transparent text-muted-foreground font-nav text-[10.5px] tracking-[0.18em] uppercase cursor-pointer transition-colors duration-150 ease-out" onclick={clearAll}>remove all</button>
         </li>
       {/if}
     </ul>
   {/if}
 
   {#if invalid}
-    <p id={errorId} class="jx-error"><span class="jx-file-error-mark" aria-hidden="true">!</span>{shownError}</p>
+    <p id={errorId} class="jx-error"><span class="jx-file-error-mark font-bold text-destructive" aria-hidden="true">!</span>{shownError}</p>
   {/if}
 </div>
-
-<style>
-  /* size knobs: row height, thumb size, glyph size, text size */
-  .jx-file {
-    --jx-file-h: 40px;
-    --jx-file-thumb: 28px;
-    --jx-file-icon: 16px;
-    --jx-file-text: 12.5px;
-    --jx-file-zone-pad: 1.5rem;
-    --jx-file-zone-glyph: 22px;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-    width: 100%;
-    /* InputGroup hardening: shrink inside flex/grid hosts and never push
-       past the host row — long filenames ellipsize inside instead */
-    min-width: 0;
-    max-width: 100%;
-  }
-  .jx-file-sm {
-    --jx-file-h: 32px;
-    --jx-file-thumb: 20px;
-    --jx-file-icon: 14px;
-    --jx-file-text: 11px;
-    --jx-file-zone-pad: 1rem;
-    --jx-file-zone-glyph: 18px;
-  }
-  .jx-file-lg {
-    --jx-file-h: 48px;
-    --jx-file-thumb: 36px;
-    --jx-file-icon: 18px;
-    --jx-file-text: 14px;
-    --jx-file-zone-pad: 2rem;
-    --jx-file-zone-glyph: 26px;
-  }
-  .jx-file-disabled {
-    opacity: 0.5;
-  }
-  .jx-file-disabled .jx-file-zone,
-  .jx-file-disabled .jx-file-trigger {
-    cursor: not-allowed;
-  }
-
-  /* dashed = drop target (idle, --border) — the invalid shell and the
-     drag-over state are the two other dashed/solid signals; drag-over
-     swaps to --primary so it can never be mistaken for an error */
-  .jx-file-invalid {
-    border-style: dashed;
-  }
-
-  .jx-label {
-    width: fit-content;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    cursor: pointer;
-  }
-
-  /* ---- the visually hidden native input (family clip) ---------------- */
-  .jx-file-native {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    border: 0;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
-  /* ---- drop zone: the unmistakable file-picker surface ---------------- */
-  .jx-file-zone {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
-    min-height: calc(var(--jx-file-h) * 2.25);
-    padding: var(--jx-file-zone-pad);
-    border: 1px dashed var(--border);
-    border-radius: 0;
-    background: var(--background);
-    color: var(--foreground);
-    font-family: inherit;
-    cursor: pointer;
-    --jx-press-shadow: var(--shadow-2xs);
-    --jx-press-shadow-hover: var(--shadow-xs);
-    --jx-press-shadow-active: var(--shadow-xs-press);
-  }
-  .jx-file-zone:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-file-zone:disabled {
-    cursor: not-allowed;
-    pointer-events: none;
-  }
-  /* drag-over: the dash turns primary + the surface lifts and tints —
-     press physics from the trigger law, magnetism from ant's Dragger */
-  .jx-file-zone.jx-file-over {
-    border-color: var(--primary);
-    background: var(--muted);
-    transform: translate(-2px, -2px);
-    box-shadow: var(--shadow-xs);
-  }
-  .jx-file-zone.jx-file-over .jx-file-zone-glyph,
-  .jx-file-zone.jx-file-over .jx-file-zone-title {
-    color: var(--primary);
-  }
-  .jx-file-zone.jx-file-invalid {
-    border-style: dashed;
-    border-color: var(--destructive);
-  }
-  .jx-file-zone-glyph {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--jx-file-zone-glyph);
-    height: var(--jx-file-zone-glyph);
-    color: var(--muted-foreground);
-    transition: color 150ms ease-out;
-  }
-  .jx-file-zone-glyph svg {
-    width: 100%;
-    height: 100%;
-  }
-  .jx-file-zone-title {
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--foreground);
-    max-width: 100%;
-    overflow-wrap: anywhere;
-    text-align: center;
-    transition: color 150ms ease-out;
-  }
-  .jx-file-zone-hint {
-    font-family: var(--font-nav);
-    font-size: 10.5px;
-    letter-spacing: 0.08em;
-    color: var(--muted-foreground);
-    max-width: 100%;
-    overflow-wrap: anywhere;
-    text-align: center;
-  }
-
-  /* ---- button variant: compact inline trigger -------------------------- */
-  .jx-file-trigger {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    width: fit-content;
-    max-width: 100%;
-    min-height: var(--jx-file-h);
-    padding: 0.45rem 0.9rem;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--background);
-    color: var(--foreground);
-    font-family: inherit;
-    font-size: var(--jx-file-text);
-    font-weight: 500;
-    --jx-press-shadow: var(--shadow-xs);
-    --jx-press-shadow-hover: var(--shadow-sm);
-    --jx-press-shadow-active: var(--shadow-sm-press);
-    cursor: pointer;
-  }
-  .jx-file-trigger:hover {
-    background: var(--muted);
-  }
-  .jx-file-trigger:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-file-trigger:disabled {
-    cursor: not-allowed;
-    pointer-events: none;
-  }
-  .jx-file-trigger.jx-file-over {
-    border-style: dashed;
-    border-color: var(--primary);
-    background: var(--muted);
-    transform: translate(-2px, -2px);
-    box-shadow: var(--shadow-sm);
-  }
-  .jx-file-trigger.jx-file-invalid {
-    border-style: dashed;
-    border-color: var(--destructive);
-  }
-  .jx-file-trigger-glyph {
-    width: calc(var(--jx-file-icon) * 0.9);
-    height: calc(var(--jx-file-icon) * 0.9);
-    flex: none;
-    color: var(--muted-foreground);
-  }
-  .jx-file-trigger.jx-file-over .jx-file-trigger-glyph {
-    color: var(--primary);
-  }
-
-  /* ---- selected-file list: ant picture-list rows in one bordered box --- */
-  .jx-file-list {
-    min-width: 0;
-    max-width: 100%;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    border: 1px solid var(--border);
-    background: var(--background);
-  }
-  .jx-file-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    min-width: 0;
-    min-height: var(--jx-file-h);
-    padding-inline: 0.75rem;
-  }
-  .jx-file-row + .jx-file-row {
-    border-top: 1px solid var(--border);
-  }
-  .jx-file-thumb {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: calc(var(--jx-file-thumb) + 2px);
-    height: calc(var(--jx-file-thumb) + 2px);
-    border: 1px solid var(--border);
-    background: var(--muted);
-    overflow: hidden;
-  }
-  .jx-file-thumb-img {
-    display: block;
-    width: var(--jx-file-thumb);
-    height: var(--jx-file-thumb);
-    object-fit: cover;
-  }
-  .jx-file-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--jx-file-icon);
-    height: var(--jx-file-icon);
-    color: var(--muted-foreground);
-  }
-  .jx-file-icon svg {
-    width: 100%;
-    height: 100%;
-  }
-  .jx-file-code-glyph {
-    font-family: var(--font-nav);
-    font-weight: 700;
-    font-size: calc(var(--jx-file-icon) * 0.72);
-    letter-spacing: -0.02em;
-    line-height: 1;
-  }
-  .jx-file-name {
-    flex: 1 1 0%;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: var(--jx-file-text);
-    color: var(--foreground);
-  }
-  .jx-file-size {
-    flex: none;
-    font-size: var(--jx-file-text);
-    font-variant-numeric: tabular-nums;
-    color: var(--muted-foreground);
-  }
-  .jx-file-remove {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.25rem;
-    height: 1.25rem;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--muted-foreground);
-    font-family: inherit;
-    font-size: 1rem;
-    line-height: 1;
-    cursor: pointer;
-    transition: color 150ms ease-out, transform 150ms ease-out;
-  }
-  .jx-file-remove:hover {
-    color: var(--foreground);
-  }
-  /* press physics: press back into the page */
-  .jx-file-remove:active {
-    transform: translateY(1px);
-  }
-  .jx-file-remove:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-file-remove:disabled {
-    cursor: not-allowed;
-    opacity: 0.4;
-    pointer-events: none;
-  }
-
-  /* "remove all" tail row for multi-file lists */
-  .jx-file-clearrow {
-    border-top: 1px solid var(--border);
-  }
-  .jx-file-clear {
-    display: inline-flex;
-    align-items: center;
-    min-height: calc(var(--jx-file-h) * 0.75);
-    padding: 0.15rem 0;
-    border: 0;
-    background: transparent;
-    color: var(--muted-foreground);
-    font-family: var(--font-nav);
-    font-size: 10.5px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: color 150ms ease-out;
-  }
-  .jx-file-clear:hover {
-    color: var(--foreground);
-  }
-  .jx-file-clear:active {
-    transform: translateY(1px);
-  }
-  .jx-file-clear:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-
-  /* ---- error line (family law) ----------------------------------------- */
-  .jx-error {
-    display: flex;
-    gap: 0.5em;
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-file-error-mark {
-    font-weight: 700;
-    color: var(--destructive);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-file-zone,
-    .jx-file-trigger,
-    .jx-file-remove,
-    .jx-file-clear,
-    .jx-file-zone-glyph,
-    .jx-file-zone-title {
-      transition: none;
-    }
-  }
-</style>

@@ -50,9 +50,19 @@
   only the spinners are repainted away. Form association is therefore
   real (name + value ride into FormData). No second native <select>/
   <input> is needed to carry it.
+
+  tw4 (2026-08-24): the composite's static paint (shell row, steppers,
+  centered number cell) is token/arbitrary utilities in the markup —
+  deliberately NOT the sheet's .jx-field-shell (its disabled law here is
+  readonly-not-disabled); the .jx-field/.jx-label/.jx-error scaffolding
+  is consumed from jx-pure Part A. Only the hover/focus/press state
+  machines and the reduced-motion kill remain in number-input.css
+  (D1-exempt residue under the layer law).
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
+  import { cn } from '$lib/utils';
+  import './number-input.css';
 
   interface Props extends HTMLInputAttributes {
     /** committed quantity; bind:value — undefined renders empty */
@@ -166,10 +176,18 @@
 
 <div class="jx-field">
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <div class="jx-num {className}" class:jx-num-invalid={invalid} class:jx-num-off={disabled}>
+  <div
+    class={cn(
+      'jx-num flex items-stretch w-full max-w-full min-h-10 border border-border rounded-none bg-background text-foreground transition-[box-shadow] duration-150 ease-out',
+      invalid && 'border-dashed',
+      disabled && 'jx-num-off opacity-50 cursor-not-allowed',
+      className,
+    )}
+    class:jx-num-invalid={invalid}
+  >
     <button
       type="button"
-      class="jx-num-btn jx-num-minus"
+      class="jx-num-btn jx-num-minus flex-none w-7 -ms-px inline-flex items-center justify-center p-0 border border-border rounded-none bg-background text-foreground font-nav font-bold text-sm leading-none cursor-pointer touch-manipulation transition-[background-color,transform] duration-150 ease-out disabled:cursor-not-allowed"
       aria-label="decrease"
       {disabled}
       onpointerdown={beginHold.bind(null, -1)}
@@ -178,13 +196,17 @@
          selectable (AT can still read it) while typing and native ↑/↓ are
          blocked by the platform; buttons + stepBy guards cover the rest.
          jx-input-lane (Tier-1 jx-pure sheet) owns the chromeless
-         typography + placeholder distinction + spinner law; the scoped
-         .jx-num-input below only centers the text and flexes the cell -->
+         typography + placeholder distinction + spinner law; the utilities
+         here only center the text and flex the cell (appearance:textfield
+         pins the spinner OFF — this composite owns its own [- +] pair) -->
     <input
       {...rest}
       {id}
       type="number"
-      class="jx-input-lane jx-num-input"
+      class={cn(
+        'jx-input-lane jx-num-input flex-1 min-w-0 text-center [appearance:textfield]',
+        disabled && 'cursor-not-allowed',
+      )}
       {min}
       {max}
       {step}
@@ -196,7 +218,7 @@
     />
     <button
       type="button"
-      class="jx-num-btn jx-num-plus"
+      class="jx-num-btn jx-num-plus flex-none w-7 -me-px inline-flex items-center justify-center p-0 border border-border rounded-none bg-background text-foreground font-nav font-bold text-sm leading-none cursor-pointer touch-manipulation transition-[background-color,transform] duration-150 ease-out disabled:cursor-not-allowed"
       aria-label="increase"
       {disabled}
       onpointerdown={beginHold.bind(null, 1)}
@@ -204,122 +226,3 @@
   </div>
   {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}
 </div>
-
-<style>
-  /* Tier rebase (2026-08-23): the .jx-field / .jx-label / .jx-error
-     scaffolding lives in the Tier-1 jx-pure sheet; the inner input
-     carries the sheet's .jx-input-lane class. Scoped below: only the
-     composite stepper shell (deliberately not the sheet's .jx-field-shell —
-     its disabled law here is readonly-not-disabled) and the centered
-     number cell. */
-  /* ---- the shell: one bordered row, dividers from the button borders -
-     min-height 2.5rem — the 40px law every text-like family member
-     renders at; buttons stretch full content height, so their borders
-     read as unbroken dividers. Plain flex row: under dir="rtl" it flips
-     by itself — minus sits inline-end, plus inline-start, no
-     physical-CSS involvement. */
-  .jx-num {
-    display: flex;
-    align-items: stretch;
-    width: 100%;
-    max-width: 100%; /* InputGroup hardening: never push past the host row */
-    min-height: 2.5rem;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--background);
-    color: var(--foreground);
-    transition: box-shadow 150ms ease-out;
-  }
-  .jx-num:hover:not(:focus-within):not(.jx-num-off) {
-    box-shadow: var(--shadow-2xs);
-  }
-  .jx-num:focus-within {
-    box-shadow: none;
-  }
-  /* disabled: the buttons carry disabled, the input readonly — the shell
-     dims off the jx-num-off class (no :has(input:disabled) to match) */
-  .jx-num.jx-num-off {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .jx-num-invalid {
-    border-style: dashed;
-  }
-
-  /* ---- 28px-wide full-height steppers; the outer edge overlaps the
-     shell border (negative inline margin) so nothing reads as 2px.
-     No fixed height / align-self: the shell's align-items: stretch
-     makes each button fill the 2.5rem − 2px content box */
-  .jx-num-btn {
-    flex: none;
-    width: 28px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-nav);
-    font-weight: 700;
-    font-size: 14px;
-    line-height: 1;
-    cursor: pointer;
-    touch-action: manipulation; /* no double-tap-zoom delay on touch */
-    transition: background-color 150ms ease-out, transform 150ms ease-out;
-  }
-  .jx-num-minus {
-    margin-inline-start: -1px;
-  }
-  .jx-num-plus {
-    margin-inline-end: -1px;
-  }
-  .jx-num-btn:hover:not(:disabled) {
-    background: var(--muted);
-  }
-  /* press physics, direction-neutral: press back INTO the page */
-  .jx-num-btn:active:not(:disabled) {
-    transform: translateY(1px);
-  }
-  .jx-num-btn:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-num-btn:disabled {
-    cursor: not-allowed;
-  }
-
-  /* ---- the number cell: chromeless via the Tier-1 .jx-input-lane sheet
-     class (typography, placeholder distinction, spinner hide +
-     appearance:textfield all live there); scoped here: the flex cell and
-     the centered text. Focus law rides the INPUT (typing is the primary
-     path). The composite shell (.jx-num) stays deliberately scoped: its
-     disabled law (input READONLY, not disabled) and input-level focus
-     diverge from the sheet shell's :has(input:disabled) /
-     :has(:focus-visible) laws. */
-  /* D3 guard: the bare-number law now RESTORES platform spinners —
-     this composite owns its own [- +] steppers, so the inner lane
-     pins the spinner OFF to avoid double controls */
-  .jx-num-input {
-    appearance: textfield;
-    -moz-appearance: textfield;
-    flex: 1;
-    min-width: 0;
-    text-align: center;
-  }
-  .jx-num-input:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-num-off .jx-num-input {
-    cursor: not-allowed;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-num,
-    .jx-num-btn {
-      transition: none;
-    }
-  }
-</style>

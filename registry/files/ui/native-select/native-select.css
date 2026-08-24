@@ -1,0 +1,46 @@
+@layer theme, base, components, utilities;
+
+/* jixoai native-select — D1-exempt residue (tw4, 2026-08-24): the
+ * closed-control shell and chevron paint as token utilities in the
+ * markup; only the state machine remains — the hover lift, the focus
+ * ring, disabled, the invalid dash, the :has(select[multiple]) listbox
+ * posture (it repaints the base utilities, so it rides the unlayered
+ * carve-out per the Part A precedent) and the reduced-motion kill.
+ * The .jx-field/.jx-label/.jx-error scaffold is consumed from
+ * jx-pure Part A. */
+
+:where(.jx-select:hover:not(:focus-visible)) {
+  box-shadow: var(--shadow-2xs);
+}
+/* the site focus law: inset 1px outline on the ring token */
+:where(.jx-select:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+:where(.jx-select:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+:where(.jx-select[aria-invalid='true']) {
+  border-style: dashed;
+}
+
+/* a multiple select is a list box, not a button — no chevron, no right
+   gutter, listbox geometry instead: ~3 visible rows tall by default
+   (the rows attribute still sizes it through restProps), tighter block
+   padding hugging the option stack, and a default cursor */
+:where(.jx-select-wrap:has(select[multiple])) :where(.jx-select-chevron) {
+  display: none;
+}
+:where(.jx-select-wrap:has(select[multiple])) :where(.jx-select) {
+  min-height: 5.75rem;
+  padding: 0.375rem 0.5rem;
+  cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-select) {
+    transition: none;
+  }
+}

@@ -25,6 +25,15 @@
   format ('iso' | 'locale') changes the DISPLAY only — the committed
   value stays ISO forever. min/max are inclusive ISO bounds; days
   outside render at 0.3 opacity with cursor: not-allowed.
+
+  tw4 (2026-08-24): trigger/nav/grid/cell static paint is token utilities
+  in the markup (markup-known cell states — today ring, anchor fill,
+  in-range tint, off/out dim — ride conditional utilities); the
+  .jx-label/.jx-error scaffolding is consumed from the jx-pure sheet's
+  Part A. Only the anchor-positioned panel (static residue with its
+  @supports fallback + ::backdrop), the hover/focus/disabled state
+  machines (incl. the nav glyph svg sizing) and the reduced-motion kill
+  remain in date-picker.css (D1-exempt residue under the layer law).
 -->
 <script module lang="ts">
   /** Range mode's committed pair (ISO "YYYY-MM-DD" strings). */
@@ -35,6 +44,9 @@
 </script>
 
 <script lang="ts">
+  import { cn } from '$lib/utils';
+  import './date-picker.css';
+
   interface Props {
     /** ISO "YYYY-MM-DD"; $bindable — single mode's committed value */
     value?: string;
@@ -334,14 +346,17 @@
   }
 </script>
 
-<div class="jx-date-field">
+<div class="jx-date-field flex flex-col items-stretch gap-2 w-full">
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span class="jx-date-wrap" style="anchor-name: {anchorName}">
+  <span class="jx-date-wrap relative block w-full" style="anchor-name: {anchorName}">
     <button
       bind:this={triggerEl}
       type="button"
       id={id}
-      class="jx-date-trigger {className}"
+      class={cn(
+        'jx-date-trigger flex items-center gap-3 w-full min-h-10 py-2 px-3 border border-border rounded-none bg-background text-foreground text-sm leading-[1.45] text-start cursor-pointer transition-[box-shadow] duration-150 ease-out',
+        className,
+      )}
       popovertarget={panelId}
       aria-haspopup="grid"
       aria-expanded={open}
@@ -350,9 +365,17 @@
       aria-describedby={describedBy}
       onkeydown={onTriggerKeydown}
     >
-      <span class="jx-date-value" class:jx-date-placeholder={!hasValue}>{triggerText}</span>
+      <span
+        class={cn(
+          'jx-date-value flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-start',
+          !hasValue && 'jx-date-placeholder text-muted-foreground',
+        )}
+      >{triggerText}</span>
       <svg
-        class="jx-date-chevron"
+        class={cn(
+          'jx-date-chevron flex-none w-3 h-3 pointer-events-none text-muted-foreground transition-transform duration-150 ease-out',
+          open && 'rotate-180',
+        )}
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -377,11 +400,11 @@
   >
     <!-- surface body (bezel paint + ::after shadow); the popover element
          paints nothing (floating-surface law arch r3) -->
-    <div class="jx-date-surface jx-surface-body">
-    <div class="jx-date-nav">
+    <div class="jx-date-surface jx-surface-body px-3.5 py-3">
+    <div class="jx-date-nav flex items-center justify-between gap-2 -mb-2.5">
       <button
         type="button"
-        class="jx-date-nav-btn"
+        class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
         aria-label="previous month"
         disabled={prevDisabled}
         onclick={() => stepMonth(-1)}
@@ -390,10 +413,10 @@
           <path d="m15 18-6-6 6-6"></path>
         </svg>
       </button>
-      <span class="jx-date-month">{monthLabel}</span>
+      <span class="jx-date-month font-nav text-[11px] tracking-[0.2em] uppercase">{monthLabel}</span>
       <button
         type="button"
-        class="jx-date-nav-btn"
+        class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
         aria-label="next month"
         disabled={nextDisabled}
         onclick={() => stepMonth(1)}
@@ -407,23 +430,23 @@
     <div
       bind:this={gridEl}
       id={gridId}
-      class="jx-date-grid"
+      class="jx-date-grid flex flex-col gap-0.5"
       role="grid"
       tabindex="-1"
       aria-label={label ? `${label} calendar` : 'calendar'}
       aria-activedescendant={activeCellId}
       onkeydown={onGridKeydown}
     >
-      <div role="row" class="jx-date-headrow">
+      <div role="row" class="jx-date-headrow grid grid-cols-[repeat(7,2rem)] gap-0.5">
         {#each WEEKDAYS as wd, index (wd)}
-          <span role="columnheader" class="jx-date-weekday" aria-label={WEEKDAYS_FULL[index]}>{wd}</span>
+          <span role="columnheader" class="jx-date-weekday flex items-center justify-center h-6 font-nav text-[10px] tracking-[0.08em] uppercase text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]" aria-label={WEEKDAYS_FULL[index]}>{wd}</span>
         {/each}
       </div>
       {#each weeks as week}
-        <div role="row" class="jx-date-weekrow">
+        <div role="row" class="jx-date-weekrow grid grid-cols-[repeat(7,2rem)] gap-0.5">
           {#each week as cell (cell.iso)}
             {#if cell.out}
-              <div role="gridcell" class="jx-date-day jx-date-out" aria-hidden="true">{cell.day}</div>
+              <div role="gridcell" class="jx-date-day jx-date-out inline-flex items-center justify-center w-8 h-8 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] tabular-nums leading-none cursor-default select-none opacity-35" aria-hidden="true">{cell.day}</div>
             {:else}
               <!-- cells are click-only BY PATTERN (select.svelte law): the
                    keyboard path rides the focusable grid + the
@@ -432,12 +455,14 @@
               <div
                 role="gridcell"
                 id={`${id}-d-${cell.iso}`}
-                class="jx-date-day"
-                class:jx-date-today={cell.today}
-                class:jx-date-fill={isAnchor(cell.iso)}
-                class:jx-date-in={inRange(cell.iso)}
-                class:jx-date-off={cell.disabled}
-                class:jx-date-active={cell.iso === activeIso}
+                class={cn(
+                  'jx-date-day inline-flex items-center justify-center w-8 h-8 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] tabular-nums leading-none cursor-pointer select-none transition-[background-color,color] duration-100 ease-out',
+                  cell.today && 'jx-date-today border-primary',
+                  isAnchor(cell.iso) && 'jx-date-fill bg-primary text-primary-foreground',
+                  inRange(cell.iso) && 'jx-date-in bg-[color-mix(in_oklab,var(--primary)_14%,transparent)]',
+                  cell.disabled && 'jx-date-off opacity-30 cursor-not-allowed',
+                  cell.iso === activeIso && 'jx-date-active',
+                )}
                 aria-selected={isAnchor(cell.iso) ? 'true' : 'false'}
                 aria-disabled={cell.disabled ? 'true' : undefined}
                 onclick={() => commitDay(cell)}
@@ -451,254 +476,6 @@
   </div>
 
   {#if invalid}
-    <p id={errorId} class="jx-error"><span class="jx-date-error-mark" aria-hidden="true">!</span>{error}</p>
+    <p id={errorId} class="jx-error"><span class="jx-date-error-mark font-bold text-destructive" aria-hidden="true">!</span>{error}</p>
   {/if}
 </div>
-
-<style>
-  .jx-date-field {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-    width: 100%;
-  }
-  .jx-label {
-    width: fit-content;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    cursor: pointer;
-  }
-
-  /* ---- trigger: the closed select's paint, on a real <button> ---------- */
-  .jx-date-wrap {
-    position: relative;
-    display: block;
-    width: 100%;
-  }
-  .jx-date-trigger {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-    min-height: 2.5rem;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--background);
-    color: var(--foreground);
-    font-family: inherit;
-    font-size: 0.875rem;
-    line-height: 1.45;
-    text-align: start;
-    cursor: pointer;
-    transition: box-shadow 150ms ease-out;
-  }
-  .jx-date-trigger:hover:not(:focus-visible) {
-    box-shadow: var(--shadow-2xs);
-  }
-  /* the site focus law: inset 1px outline on the ring token */
-  .jx-date-trigger:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-    box-shadow: none;
-  }
-  .jx-date-trigger[aria-invalid='true'] {
-    border-style: dashed;
-  }
-  .jx-date-value {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    text-align: start;
-  }
-  .jx-date-placeholder {
-    color: var(--muted-foreground);
-  }
-  .jx-date-chevron {
-    flex: none;
-    width: 0.75rem;
-    height: 0.75rem;
-    pointer-events: none;
-    color: var(--muted-foreground);
-    transition: transform 150ms ease-out;
-  }
-  .jx-date-trigger[aria-expanded='true'] .jx-date-chevron {
-    transform: rotate(180deg);
-  }
-
-  /* ---- panel: terminal bezel (select.svelte panel law) ----------------- */
-  /* bezel surface on the jx-surface law (arch r3): the panel is the
-     PLATFORM element (no paint); the surface body carries the bezel
-     fill (identity via the fill props) and the ::after shadow. */
-  .jx-date-panel {
-    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
-    --jx-surface-solid-fill: var(--terminal);
-    position: fixed;
-    margin: 0;
-    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
-    width: fit-content;
-    font-size: 13px;
-    color: var(--terminal-foreground);
-  }
-  .jx-date-surface {
-    padding: 12px 14px;
-  }
-  /* Engines without CSS Anchor Positioning: authored viewport-center —
-     the popover.svelte fallback visual, never worse. */
-  @supports not (anchor-name: --jx-date-fb) {
-    .jx-date-panel {
-      position-anchor: auto !important;
-      inset-area: none !important;
-      inset: 0;
-      margin: auto;
-    }
-  }
-  /* Popovers get a ::backdrop too; light dismiss must never dim the page. */
-  .jx-date-panel::backdrop {
-    background: transparent;
-  }
-
-  /* ---- month navigation ------------------------------------------------ */
-  .jx-date-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: 0.625rem;
-  }
-  .jx-date-nav-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    padding: 0;
-    border: 1px solid transparent;
-    background: transparent;
-    color: var(--terminal-foreground);
-    cursor: pointer;
-    transition: background-color 100ms ease-out, transform 100ms ease-out;
-  }
-  .jx-date-nav-btn:hover:not(:disabled) {
-    background: var(--terminal-hover);
-  }
-  .jx-date-nav-btn:active:not(:disabled) {
-    transform: translateY(1px);
-  }
-  .jx-date-nav-btn:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-date-nav-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-  .jx-date-nav-btn svg {
-    width: 13px;
-    height: 13px;
-  }
-  .jx-date-month {
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-  }
-
-  /* ---- the grid: 7 columns of 32px square cells -------------------------- */
-  .jx-date-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  /* the grid itself is the programmatic focus stop (aria-activedescendant
-     roving pattern) — the active cell IS the focus indication */
-  .jx-date-grid:focus-visible {
-    outline: none;
-  }
-  .jx-date-headrow,
-  .jx-date-weekrow {
-    display: grid;
-    grid-template-columns: repeat(7, 2rem);
-    gap: 2px;
-  }
-  .jx-date-weekday {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 1.5rem;
-    font-family: var(--font-nav);
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: color-mix(in oklab, var(--terminal-foreground) 55%, transparent);
-  }
-  .jx-date-day {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    border: 1px solid transparent; /* reserved so today's ring never shifts */
-    background: transparent;
-    color: color-mix(in oklab, var(--terminal-foreground) 72%, transparent);
-    font-variant-numeric: tabular-nums;
-    line-height: 1;
-    cursor: pointer;
-    -webkit-user-select: none;
-    user-select: none;
-    transition: background-color 100ms ease-out, color 100ms ease-out;
-  }
-  .jx-date-day:not(.jx-date-fill):not(.jx-date-off):hover,
-  .jx-date-day.jx-date-active:not(.jx-date-fill):not(.jx-date-off) {
-    background: var(--terminal-hover);
-    color: var(--terminal-foreground);
-  }
-  .jx-date-today {
-    border-color: var(--primary);
-  }
-  .jx-date-fill {
-    background: var(--primary);
-    color: var(--primary-foreground);
-  }
-  .jx-date-in {
-    background: color-mix(in oklab, var(--primary) 14%, transparent);
-  }
-  .jx-date-off {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-  .jx-date-out {
-    opacity: 0.35;
-    cursor: default;
-  }
-
-  .jx-error {
-    display: flex;
-    gap: 0.5em;
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-date-error-mark {
-    font-weight: 700;
-    color: var(--destructive);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-date-trigger,
-    .jx-date-chevron,
-    .jx-date-nav-btn,
-    .jx-date-day {
-      transition: none;
-    }
-  }
-</style>

@@ -9,15 +9,12 @@
   Orthogonal intents:
   1. geometry — the shared slider law (2026-08-23 Tier rebase, same
      geometry as the Tier-1 .jx-range lane in the jx-pure sheet):
-     a thin bordered track box (1px var(--border), var(--background)
-     fill, height 0.5rem incl. borders), a 1.25rem SQUARE thumb
-     (var(--primary) fill, 1px border, shadow-2xs hover lift,
-     translateY(1px) press), the primary fill from the inline-start
-     edge to the thumb (the one law this custom widget adds over the
-     native lane), and the optional tick ruler under the track (one 4px
-     mark per step). The root stem renamed .jx-range → .jx-slider so
-     the Tier-1 sheet owns the .jx-range vocabulary for the native
-     control.
+     the daisyUI round language (2026-08-24 rebuild) — a pill groove at
+     half-thumb height, a light disc thumb on a thick primary ring, the
+     primary fill as a full-strip-height pill from the inline-start edge,
+     and the optional tick ruler under the track (one 4px mark per step).
+     The root stem is .jx-slider so the Tier-1 sheet owns the .jx-range
+     vocabulary for the native control.
   2. interaction — pointerdown/move/up with pointer capture (touch-safe,
      touch-action none), pointerdown jumps to the point, dblclick re-jumps
      (subsumed by the pointerdown jump but kept explicit per request),
@@ -48,11 +45,23 @@
   is not labelable). disabled blocks pointerdown/dblclick AND keydown
   at their entries (tabindex already leaves the tab order at -1); no
   native disabled semantics exist to lean on.
+
+  tw4 (2026-08-24): static geometry (head row, readout, groove, fill,
+  disc thumb, tick ruler geometry) is token/arbitrary utilities in the
+  markup; the .jx-field/.jx-label/.jx-error scaffolding is CONSUMED from
+  the jx-pure sheet's Part A; only the tick ruler's repeating-gradient
+  pair (:dir(rtl) mirror utilities cannot key on computed direction),
+  the focus-visible machine (root outline kill + thumb ring) and the
+  invalid→thumb repaint remain in range.css (D1-exempt residue). The
+  old scoped block's vestigial reduced-motion kill (a transition:none
+  on a thumb that carries no transition) was dropped as a no-op.
 -->
 <script lang="ts">
   // side-effect import: registers the faceless <jx-form-field> element
   // (client-only, idempotent) that carries this field's form association
   import '$lib/form-field';
+  import { cn } from '$lib/utils';
+  import './range.css';
 
   interface Props {
     /** committed value; bind:value — snapped into [min, max] on the step */
@@ -213,15 +222,17 @@
   }
 </script>
 
-<div class="jx-field {className}">
+<div class={cn('jx-field', className)}>
   <!-- faceless form bridge (form-field.ts law): the numeric string of the
        committed value rides ElementInternals into FormData; jx-reset /
        jx-disabled bubble the form lifecycle back into this component.
-       Owns no box, no content.
+       Owns no box, no content — the `contents` utility keeps the
+       prerendered HTML from flashing an extra flex gap pre-upgrade.
        disabled passes `|| undefined`: Svelte has no boolean-attribute
        semantics for custom elements and would render disabled="false"
        as a PRESENT attribute (presence = true in HTML). -->
   <jx-form-field
+    class="contents"
     aria-hidden="true"
     {name}
     value={String(value)}
@@ -230,9 +241,9 @@
     onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
   ></jx-form-field>
   {#if label || showValue}
-    <div class="jx-slider-head">
+    <div class="jx-slider-head flex items-baseline justify-between gap-3">
       {#if label}<span class="jx-label" id={labelId}>{label}</span>{/if}
-      {#if showValue}<span class="jx-slider-value" class:jx-invalid={invalid}>{display}</span>{/if}
+      {#if showValue}<span class={cn('jx-slider-value font-mono text-xs text-foreground tabular-nums', invalid && 'text-destructive')} class:jx-invalid={invalid}>{display}</span>{/if}
     </div>
   {/if}
 
@@ -250,10 +261,12 @@
     aria-invalid={invalidAttr}
     aria-describedby={describedBy}
     aria-disabled={isDisabled ? 'true' : undefined}
-    class="jx-slider"
+    class={cn(
+      'jx-slider relative block w-full h-7 m-0 cursor-pointer touch-none select-none',
+      isDisabled && 'jx-disabled opacity-50 cursor-not-allowed',
+    )}
     class:jx-pressed={pressed}
     class:jx-invalid={invalid}
-    class:jx-disabled={isDisabled}
     onpointerdown={onPointerDown}
     onpointermove={onPointerMove}
     onpointerup={endDrag}
@@ -261,12 +274,19 @@
     ondblclick={onDblClick}
     onkeydown={onKeydown}
   >
-    <div class="jx-slider-track">
-      <div class="jx-slider-fill" style:width="{fraction * 100}%"></div>
-    </div>
-    <div class="jx-slider-thumb" style="inset-inline-start: calc({fraction * 100}% - 10px)"></div>
+    <div
+      class="jx-slider-track absolute inset-x-0 top-1/2 h-[calc(var(--jx-slider-thumb,1.5rem)/2)] -translate-y-1/2 bg-[color-mix(in_oklab,var(--foreground)_10%,transparent)] rounded-[calc(infinity*1px)]"
+    ></div>
+    <div
+      class="jx-slider-fill absolute start-0 h-[var(--jx-slider-thumb,1.5rem)] bg-primary rounded-[calc(infinity*1px)] [inset-block:calc(var(--jx-slider-thumb,1.5rem)/-4)]"
+      style:width="{fraction * 100}%"
+    ></div>
+    <div
+      class="jx-slider-thumb absolute top-1/2 -translate-y-1/2 w-[var(--jx-slider-thumb,1.5rem)] h-[var(--jx-slider-thumb,1.5rem)] bg-background border-4 border-primary rounded-[calc(infinity*1px)] shadow-none pointer-events-none"
+      style="inset-inline-start: calc({fraction * 100}% - 10px)"
+    ></div>
     {#if ticks && tickCount > 0}
-      <div class="jx-slider-ticks" style="--jx-tick-step: {tickStepPct}%"></div>
+      <div class="jx-slider-ticks absolute inset-x-0 top-[calc(50%_+_10px)] h-1 pointer-events-none" style="--jx-tick-step: {tickStepPct}%"></div>
     {/if}
   </div>
 
@@ -274,127 +294,3 @@
     <p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>
   {/if}
 </div>
-
-<style>
-  /* Tier rebase (2026-08-23): .jx-field / .jx-label / .jx-error scaffolding
-     and the box/track/thumb laws live in the Tier-1 jx-pure sheet; this
-     block owns ONLY the custom widget's geometry (fill, thumb travel, tick
-     ruler) and the bridge layout. */
-  /* the faceless bridge owns no box — pre-hydration included, so the
-     prerendered HTML never flashes an extra flex gap before upgrade */
-  .jx-field > :global(jx-form-field) {
-    display: contents;
-  }
-
-  /* label left, live value right (font-mono readout) */
-  .jx-slider-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.75rem;
-  }
-  .jx-slider-value {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--foreground);
-    font-variant-numeric: tabular-nums;
-  }
-  .jx-slider-value.jx-invalid {
-    color: var(--destructive);
-  }
-
-  /* the interactive strip: 1.75rem hit area (Tier-1 parity), the 8px
-     bordered track box and the 20px thumb centered inside it */
-  .jx-slider {
-    position: relative;
-    display: block;
-    width: 100%;
-    height: 1.75rem;
-    margin: 0;
-    cursor: pointer;
-    touch-action: none; /* the drag owns the gesture on touch */
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  .jx-slider:focus-visible {
-    outline: none;
-  }
-  .jx-slider:focus-visible .jx-slider-thumb {
-    outline: 1px solid var(--ring);
-    outline-offset: 1px;
-  }
-  .jx-slider.jx-disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* the shared track law (Tier-1 .jx-range parity, 2026-08-24 daisyUI
-     rebuild): pill groove at half-thumb height + a full-strip-height
-     pill fill; the thumb is a light disc on a thick primary ring.
-     This widget's own DOM paints the fill as a plain div — proper
-     rounded ends both sides, zero shadow tricks */
-  .jx-slider-track {
-    position: absolute;
-    inset-inline: 0;
-    top: 50%;
-    height: calc(var(--jx-slider-thumb, 1.5rem) / 2); /* the half-thumb groove */
-    transform: translateY(-50%);
-    background: color-mix(in oklab, var(--foreground) 10%, transparent);
-    border-radius: calc(infinity * 1px);
-  }
-  .jx-slider-fill {
-    position: absolute;
-    inset-block: calc(var(--jx-slider-thumb, 1.5rem) / -4);
-    inset-inline-start: 0;
-    height: var(--jx-slider-thumb, 1.5rem); /* the pill fill */
-    background: var(--primary);
-    border-radius: calc(infinity * 1px);
-  }
-
-  /* the shared thumb law (Tier-1 parity, daisyUI rebuild): a light
-     disc on a thick primary ring */
-  .jx-slider-thumb {
-    position: absolute;
-    top: 50%;
-    width: var(--jx-slider-thumb, 1.5rem);
-    height: var(--jx-slider-thumb, 1.5rem);
-    transform: translateY(-50%);
-    background: var(--background);
-    border: 0.25rem solid var(--primary);
-    border-radius: calc(infinity * 1px);
-    box-shadow: none;
-    pointer-events: none; /* the root owns the pointer geometry */
-  }
-  .jx-slider.jx-invalid .jx-slider-thumb {
-    border-style: dashed;
-    border-color: var(--foreground);
-  }
-
-  /* tick ruler: one 4px mark per step, drawn as a repeating gradient
-     (a mark every --jx-tick-step %; mirrors under :dir(rtl)) */
-  .jx-slider-ticks {
-    position: absolute;
-    inset-inline: 0;
-    top: calc(50% + 10px); /* clear of the 20px thumb's lower half */
-    height: 4px;
-    background: repeating-linear-gradient(
-      to right,
-      var(--border) 0 1px,
-      transparent 1px var(--jx-tick-step)
-    );
-    pointer-events: none;
-  }
-  .jx-slider-ticks:dir(rtl) {
-    background: repeating-linear-gradient(
-      to left,
-      var(--border) 0 1px,
-      transparent 1px var(--jx-tick-step)
-    );
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-slider-thumb {
-      transition: none;
-    }
-  }
-</style>

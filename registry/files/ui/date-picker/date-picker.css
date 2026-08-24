@@ -1,0 +1,102 @@
+@layer theme, base, components, utilities;
+
+/* jixoai date-picker — D1-exempt residue (tw4, 2026-08-24): trigger,
+ * nav, grid and cell paint as token utilities in the markup (cell
+ * states — today ring, anchor fill, in-range tint, off/out dim — ride
+ * conditional utilities); the .jx-label/.jx-error scaffold is consumed
+ * from jx-pure Part A. What remains here:
+ *  - the anchor-positioned panel (static residue: CSS Anchor
+ *    Positioning has no utilities; the @supports fallback and the
+ *    ::backdrop pseudo ride along) — @layer components;
+ *  - the hover/focus/disabled state machines, including the day-cell
+ *    hover pose (guarded by :not(.jx-date-fill)/:not(.jx-date-off), so
+ *    it must not fight the conditional fill/dim utilities) and the nav
+ *    glyph svg sizing (unlayered carve-out per the Part A precedent);
+ *  - the reduced-motion kill. */
+
+@layer components {
+  /* ---- panel: terminal bezel (select.svelte panel law) -----------------
+     bezel surface on the jx-surface law (arch r3): the panel is the
+     PLATFORM element (no paint); the surface body carries the bezel
+     fill (identity via the fill props) and the ::after shadow. */
+  :where(.jx-date-panel) {
+    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
+    --jx-surface-solid-fill: var(--terminal);
+    position: fixed;
+    margin: 0;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    width: fit-content;
+    font-size: 13px;
+    color: var(--terminal-foreground);
+  }
+  /* Engines without CSS Anchor Positioning: authored viewport-center —
+     the popover.svelte fallback visual, never worse. */
+  @supports not (anchor-name: --jx-date-fb) {
+    :where(.jx-date-panel) {
+      position-anchor: auto !important;
+      inset-area: none !important;
+      inset: 0;
+      margin: auto;
+    }
+  }
+  /* Popovers get a ::backdrop too; light dismiss must never dim the page. */
+  :where(.jx-date-panel)::backdrop {
+    background: transparent;
+  }
+  /* the nav glyphs arrive as inline svg with no class hook */
+  :where(.jx-date-nav-btn) :where(svg) {
+    width: 13px;
+    height: 13px;
+  }
+}
+
+/* ---- the state machines (unlayered carve-out) ----------------------- */
+:where(.jx-date-trigger:hover:not(:focus-visible)) {
+  box-shadow: var(--shadow-2xs);
+}
+/* the site focus law: inset 1px outline on the ring token */
+:where(.jx-date-trigger:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+:where(.jx-date-trigger[aria-invalid='true']) {
+  border-style: dashed;
+}
+
+:where(.jx-date-nav-btn:hover:not(:disabled)) {
+  background: var(--terminal-hover);
+}
+:where(.jx-date-nav-btn:active:not(:disabled)) {
+  transform: translateY(1px);
+}
+:where(.jx-date-nav-btn:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+:where(.jx-date-nav-btn:disabled) {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* the grid itself is the programmatic focus stop (aria-activedescendant
+   roving pattern) — the active cell IS the focus indication */
+:where(.jx-date-grid:focus-visible) {
+  outline: none;
+}
+/* the hover/keyboard pose never repaints anchor fills or out-of-bounds
+   cells — the :not() guards keep the conditional utilities honest */
+:where(.jx-date-day:not(.jx-date-fill):not(.jx-date-off):hover),
+:where(.jx-date-day.jx-date-active:not(.jx-date-fill):not(.jx-date-off)) {
+  background: var(--terminal-hover);
+  color: var(--terminal-foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-date-trigger),
+  :where(.jx-date-chevron),
+  :where(.jx-date-nav-btn),
+  :where(.jx-date-day) {
+    transition: none;
+  }
+}

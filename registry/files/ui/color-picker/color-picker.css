@@ -1,0 +1,97 @@
+@layer theme, base, components, utilities;
+
+/* jixoai color-picker — D1-exempt residue (tw4, 2026-08-24): trigger,
+ * SV pad, hue bar and markers paint as token/arbitrary utilities in the
+ * markup; the .jx-field scaffold is consumed from jx-pure Part A. What
+ * remains here:
+ *  - the anchor-positioned panel (static residue: CSS Anchor Positioning
+ *    + anchor-center have no utilities; the closed-state display law,
+ *    the @supports fallback and the ::backdrop pseudo ride along) —
+ *    @layer components;
+ *  - the SV pad's overlay pseudos (white→transparent / black→transparent
+ *    gradients are COLOR-SPACE constants, not themeable tokens) —
+ *    @layer components;
+ *  - the Pick-from-screen button descendant (PressButton takes no class
+ *    prop) — @layer components;
+ *  - the trigger hover/focus machines and the reduced-motion kill
+ *    (unlayered carve-out per the Part A precedent). */
+
+@layer components {
+  /* ---- panel: terminal bezel popover (select.svelte law) ---------------
+     bezel surface on the jx-surface law (arch r3): the panel is the
+     PLATFORM element (no paint); the surface body carries the bezel
+     fill, the flex column, and the ::after shadow layer. */
+  :where(.jx-color-picker-panel) {
+    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
+    --jx-surface-solid-fill: var(--terminal);
+    position: fixed;
+    margin: 0;
+    position-try-fallbacks: flip-block;
+    width: 226px; /* 200px pad + 2×12px padding + 2px border */
+    color: var(--terminal-foreground);
+    /* center on the anchor (the panel is wider than the trigger) */
+    justify-self: anchor-center;
+  }
+  /* display:flex on the panel would defeat the UA sheet's closed-popover
+     hiding — closed panels MUST be display:none or they render at their
+     static position and intercept pointer events (found in smoke test) */
+  :where(.jx-color-picker-panel:not(:popover-open)) {
+    display: none;
+  }
+  /* Engines without CSS Anchor Positioning: authored viewport-center */
+  @supports not (anchor-name: --jx-color-picker-fallback) {
+    :where(.jx-color-picker-panel) {
+      position-anchor: auto !important;
+      inset-area: none !important;
+      inset: 0;
+      margin: auto;
+      width: min(92vw, 226px);
+      height: fit-content;
+    }
+  }
+  /* Popovers get a ::backdrop too; light dismiss must never dim the page. */
+  :where(.jx-color-picker-panel)::backdrop {
+    background: transparent;
+  }
+
+  /* ---- SV pad overlays: color-space constants, not theme tokens -------- */
+  :where(.jx-color-picker-sv)::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, #fff, transparent);
+  }
+  :where(.jx-color-picker-sv)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, #000, transparent);
+  }
+
+  /* the pick row's button fills the wrapper (PressButton takes no class) */
+  :where(.jx-color-picker-pick) :where(button) {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+/* ---- the state machines (unlayered carve-out) ----------------------- */
+:where(.jx-color-picker-trigger:hover:not(:focus-visible)) {
+  box-shadow: var(--shadow-2xs);
+}
+/* the site focus law: inset 1px outline on the ring token */
+:where(.jx-color-picker-trigger:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+:where(.jx-color-picker-trigger[aria-invalid='true']) {
+  border-style: dashed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-color-picker-trigger),
+  :where(.jx-color-picker-chevron) {
+    transition: none;
+  }
+}

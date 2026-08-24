@@ -1,0 +1,78 @@
+@layer theme, base, components, utilities;
+
+/* jixoai combobox — D1-exempt residue (tw4, 2026-08-24): the trigger
+ * shell, chromeless input, toggle and rows paint as token utilities in
+ * the markup (the markup-known states — invalid dash, open chevron flip,
+ * selected/active/disabled rows — ride conditional utilities); the
+ * .jx-field scaffold is consumed from jx-pure Part A. What remains here:
+ *  - the anchor-positioned panel (static residue: CSS Anchor
+ *    Positioning has no utilities; the @supports fallback and the
+ *    ::backdrop pseudo ride along) — @layer components;
+ *  - the shell's :has() hover/focus/disabled machines and the toggle /
+ *    row hover states (unlayered carve-out per the Part A precedent —
+ *    they override the component's own utility paint);
+ *  - the reduced-motion kill. */
+
+@layer components {
+  /* ---- panel: terminal bezel dropdown (select.svelte panel law) --------
+     bezel surface on the jx-surface law (arch r3): the panel is the
+     PLATFORM element (no paint); the body ring carries the bezel fill
+     and the ::after shadow layer; the scroll ring sits inside. */
+  :where(.jx-combobox-panel) {
+    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
+    --jx-surface-solid-fill: var(--terminal);
+    position: fixed;
+    margin: 0;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    width: anchor-size(width); /* exactly the trigger — the select look */
+    max-width: min(92vw, 30rem);
+    color: var(--terminal-foreground);
+  }
+  /* Engines without CSS Anchor Positioning: authored viewport-center —
+     the popover.svelte fallback visual, never worse. */
+  @supports not (anchor-name: --jx-cbx-fallback) {
+    :where(.jx-combobox-panel) {
+      position-anchor: auto !important;
+      inset-area: none !important;
+      inset: 0;
+      margin: auto;
+      width: min(92vw, 22rem);
+    }
+  }
+  /* Popovers get a ::backdrop too; light dismiss must never dim the page. */
+  :where(.jx-combobox-panel)::backdrop {
+    background: transparent;
+  }
+}
+
+/* ---- the state machines (unlayered carve-out) ----------------------- */
+:where(.jx-combobox-shell:not(:has(input:disabled)):hover:not(:has(:focus-visible))) {
+  box-shadow: var(--shadow-2xs);
+}
+/* the site focus law (input.svelte): the shell carries the inset 1px
+   outline on the ring token for the input inside */
+:where(.jx-combobox-shell:has(:focus-visible)) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+:where(.jx-combobox-shell:has(input:disabled)) {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+:where(.jx-combobox-toggle:hover:not(:disabled)) {
+  color: var(--foreground);
+}
+:where(.jx-combobox-option:hover) {
+  background: var(--terminal-hover);
+  color: var(--terminal-foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-combobox-shell),
+  :where(.jx-combobox-chevron),
+  :where(.jx-combobox-option) {
+    transition: none;
+  }
+}

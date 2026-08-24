@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-24T12:58:00.069Z",
+  "generatedAt": "2026-08-24T14:03:01.032Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "section-card": "registry/files/ui/section-card/section-card.svelte",
@@ -113,8 +113,8 @@
           "source": "registry/files/ui/press-button/press-button.svelte",
           "mirror": "apps/www/src/lib/ui/press-button/press-button.svelte",
           "target": "@ui/press-button/press-button.svelte",
-          "sourceSha": "5647583dfa9dd69f7f605a9d4d2b0225270a055985d3cf7660c44c722abbdb83",
-          "mirrorSha": "5647583dfa9dd69f7f605a9d4d2b0225270a055985d3cf7660c44c722abbdb83"
+          "sourceSha": "d0249da70409aa5fe80fcce9b8de772b0fb1a07fffcb435dadc1276cd6155958",
+          "mirrorSha": "d0249da70409aa5fe80fcce9b8de772b0fb1a07fffcb435dadc1276cd6155958"
         },
         {
           "source": "registry/files/ui/press-button/index.ts",
@@ -122,6 +122,13 @@
           "target": "@ui/press-button/index.ts",
           "sourceSha": "20260490fdd4b169a1f05ae808ca3e18a4e493c8fa132bc2714a3caf1c536509",
           "mirrorSha": "20260490fdd4b169a1f05ae808ca3e18a4e493c8fa132bc2714a3caf1c536509"
+        },
+        {
+          "source": "registry/files/ui/press-button/press-button.css",
+          "mirror": "apps/www/src/lib/ui/press-button/press-button.css",
+          "target": "@ui/press-button/press-button.css",
+          "sourceSha": "4645d4cfbe4764067738ffb4db0237805aae9e8ab483e8bba722bd83a3d45e50",
+          "mirrorSha": "4645d4cfbe4764067738ffb4db0237805aae9e8ab483e8bba722bd83a3d45e50"
         }
       ]
     },
@@ -155,8 +162,8 @@
           "source": "registry/files/ui/terminal-header/terminal-header.svelte",
           "mirror": "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
           "target": "@ui/terminal-header/terminal-header.svelte",
-          "sourceSha": "ecaca74e7115e2ea796c022b1bf461d8ef0db554f3c2b4a864ce880ce17379a3",
-          "mirrorSha": "ecaca74e7115e2ea796c022b1bf461d8ef0db554f3c2b4a864ce880ce17379a3"
+          "sourceSha": "8f09f9cf0d3e6fa981ba9643d02d493b9d5a943444da099d1d168b3189d0fe9b",
+          "mirrorSha": "8f09f9cf0d3e6fa981ba9643d02d493b9d5a943444da099d1d168b3189d0fe9b"
         },
         {
           "source": "registry/files/ui/terminal-header/index.ts",
@@ -164,6 +171,13 @@
           "target": "@ui/terminal-header/index.ts",
           "sourceSha": "abf00d15005eb35f7275186506ffeffaddd43be6fb4393170d0bfdd65000a88c",
           "mirrorSha": "abf00d15005eb35f7275186506ffeffaddd43be6fb4393170d0bfdd65000a88c"
+        },
+        {
+          "source": "registry/files/ui/terminal-header/terminal-header.css",
+          "mirror": "apps/www/src/lib/ui/terminal-header/terminal-header.css",
+          "target": "@ui/terminal-header/terminal-header.css",
+          "sourceSha": "7cff8d2baea7d94d530eb074e543152925cb20a81dc5dc4ce93bd7141509cb37",
+          "mirrorSha": "7cff8d2baea7d94d530eb074e543152925cb20a81dc5dc4ce93bd7141509cb37"
         }
       ]
     },
@@ -176,8 +190,8 @@
           "source": "registry/files/ui/terminal-footer/terminal-footer.svelte",
           "mirror": "apps/www/src/lib/ui/terminal-footer/terminal-footer.svelte",
           "target": "@ui/terminal-footer/terminal-footer.svelte",
-          "sourceSha": "529d622ab0c6e56db3b5a823e4c951c7d60b588652ac21797a969381c4d72c01",
-          "mirrorSha": "529d622ab0c6e56db3b5a823e4c951c7d60b588652ac21797a969381c4d72c01"
+          "sourceSha": "66167948edeece0758130c932f9fe960497e25b7c5ac5e2aa9c17c2c9c0a04c8",
+          "mirrorSha": "66167948edeece0758130c932f9fe960497e25b7c5ac5e2aa9c17c2c9c0a04c8"
         },
         {
           "source": "registry/files/ui/terminal-footer/index.ts",
@@ -185,6 +199,13 @@
           "target": "@ui/terminal-footer/index.ts",
           "sourceSha": "8ec23b7dbaef48390f776925d7b221c56a07799a65443c68280578dc75bf19dc",
           "mirrorSha": "8ec23b7dbaef48390f776925d7b221c56a07799a65443c68280578dc75bf19dc"
+        },
+        {
+          "source": "registry/files/ui/terminal-footer/terminal-footer.css",
+          "mirror": "apps/www/src/lib/ui/terminal-footer/terminal-footer.css",
+          "target": "@ui/terminal-footer/terminal-footer.css",
+          "sourceSha": "3bd98c2de3d5fbe78bde3da9daad94acd1631be1affeecdf8a1c3f82e966aabe",
+          "mirrorSha": "3bd98c2de3d5fbe78bde3da9daad94acd1631be1affeecdf8a1c3f82e966aabe"
         }
       ]
     },
@@ -197,8 +218,8 @@
           "source": "registry/files/ui/theme-toggle/theme-toggle.svelte",
           "mirror": "apps/www/src/lib/ui/theme-toggle/theme-toggle.svelte",
           "target": "@ui/theme-toggle/theme-toggle.svelte",
-          "sourceSha": "d874234c1b407e194dd265c242f32cf5f44d047185e60245235d869260206bdd",
-          "mirrorSha": "d874234c1b407e194dd265c242f32cf5f44d047185e60245235d869260206bdd"
+          "sourceSha": "fd515f12b430241da22379822dce93b5437dfc9f3690701f216ba73b977b1297",
+          "mirrorSha": "fd515f12b430241da22379822dce93b5437dfc9f3690701f216ba73b977b1297"
         },
         {
           "source": "registry/files/ui/theme-toggle/index.ts",
@@ -274,8 +295,8 @@
           "source": "registry/files/ui/terminal-card/terminal-card.svelte",
           "mirror": "apps/www/src/lib/ui/terminal-card/terminal-card.svelte",
           "target": "@ui/terminal-card/terminal-card.svelte",
-          "sourceSha": "32a99cf7ab495d188c2ef0d5f732fcd5f3ba78351771461654a62561ea2a4f16",
-          "mirrorSha": "32a99cf7ab495d188c2ef0d5f732fcd5f3ba78351771461654a62561ea2a4f16"
+          "sourceSha": "604fff14de8895b10aea7bb5eb01d1c4c0b59ae870c27ed75572f4f795a93b27",
+          "mirrorSha": "604fff14de8895b10aea7bb5eb01d1c4c0b59ae870c27ed75572f4f795a93b27"
         },
         {
           "source": "registry/files/ui/terminal-card/index.ts",
@@ -283,6 +304,13 @@
           "target": "@ui/terminal-card/index.ts",
           "sourceSha": "2997b40c4c5dca8b42de17435f4020c17313817e69fea12d2027a47b8a8d92ae",
           "mirrorSha": "2997b40c4c5dca8b42de17435f4020c17313817e69fea12d2027a47b8a8d92ae"
+        },
+        {
+          "source": "registry/files/ui/terminal-card/terminal-card.css",
+          "mirror": "apps/www/src/lib/ui/terminal-card/terminal-card.css",
+          "target": "@ui/terminal-card/terminal-card.css",
+          "sourceSha": "08861119097435bc8a70f79cf612939752c16d1e2298ef994903901e23d9d316",
+          "mirrorSha": "08861119097435bc8a70f79cf612939752c16d1e2298ef994903901e23d9d316"
         }
       ]
     },
@@ -295,8 +323,8 @@
           "source": "registry/files/ui/hero-section/hero-section.svelte",
           "mirror": "apps/www/src/lib/ui/hero-section/hero-section.svelte",
           "target": "@ui/hero-section/hero-section.svelte",
-          "sourceSha": "d23b52c42e4f21641c275ddd92095a83094da8b4023a9209bd9cfcd40999f759",
-          "mirrorSha": "d23b52c42e4f21641c275ddd92095a83094da8b4023a9209bd9cfcd40999f759"
+          "sourceSha": "dac200046da2ab5425382ded2c34d66a6b1ee5256f82e2bdc745873e2dab489a",
+          "mirrorSha": "dac200046da2ab5425382ded2c34d66a6b1ee5256f82e2bdc745873e2dab489a"
         },
         {
           "source": "registry/files/ui/hero-section/index.ts",
@@ -304,6 +332,13 @@
           "target": "@ui/hero-section/index.ts",
           "sourceSha": "87d5a050b2321516f2dc12b851afadd3b02ab1a9479d8cd7e6ddd436a064d450",
           "mirrorSha": "87d5a050b2321516f2dc12b851afadd3b02ab1a9479d8cd7e6ddd436a064d450"
+        },
+        {
+          "source": "registry/files/ui/hero-section/hero-section.css",
+          "mirror": "apps/www/src/lib/ui/hero-section/hero-section.css",
+          "target": "@ui/hero-section/hero-section.css",
+          "sourceSha": "86742c94d9054f5e839ab2b514f462bdbe3a14d3c759b10b94e14bd459a83292",
+          "mirrorSha": "86742c94d9054f5e839ab2b514f462bdbe3a14d3c759b10b94e14bd459a83292"
         }
       ]
     },
@@ -316,8 +351,8 @@
           "source": "registry/files/ui/language-switcher/language-switcher.svelte",
           "mirror": "apps/www/src/lib/ui/language-switcher/language-switcher.svelte",
           "target": "@ui/language-switcher/language-switcher.svelte",
-          "sourceSha": "ea134e0079444352e2eb679254c5343eaff53389c6b21f1343e3af4fc088b7a1",
-          "mirrorSha": "ea134e0079444352e2eb679254c5343eaff53389c6b21f1343e3af4fc088b7a1"
+          "sourceSha": "5caca3657bb35ae3207128dde90fc0eee572d2e2f79f8445243a8b0197687363",
+          "mirrorSha": "5caca3657bb35ae3207128dde90fc0eee572d2e2f79f8445243a8b0197687363"
         },
         {
           "source": "registry/files/ui/language-switcher/index.ts",
@@ -337,8 +372,8 @@
           "source": "registry/files/ui/card-grid/card-grid.svelte",
           "mirror": "apps/www/src/lib/ui/card-grid/card-grid.svelte",
           "target": "@ui/card-grid/card-grid.svelte",
-          "sourceSha": "7423822c6fbfe729deea748449a4dfe6cacd8a8c1afa2c69cf5580d26007cec1",
-          "mirrorSha": "7423822c6fbfe729deea748449a4dfe6cacd8a8c1afa2c69cf5580d26007cec1"
+          "sourceSha": "dc2a745c0481041f04537da8bef5de8bd1051a7e83f19391c507398504e1caf5",
+          "mirrorSha": "dc2a745c0481041f04537da8bef5de8bd1051a7e83f19391c507398504e1caf5"
         },
         {
           "source": "registry/files/ui/card-grid/index.ts",
@@ -346,6 +381,13 @@
           "target": "@ui/card-grid/index.ts",
           "sourceSha": "9af2bf660c21abb1db38c4c4c94efd308df2a773e1d6a400f0752bfd553e3fd6",
           "mirrorSha": "9af2bf660c21abb1db38c4c4c94efd308df2a773e1d6a400f0752bfd553e3fd6"
+        },
+        {
+          "source": "registry/files/ui/card-grid/card-grid.css",
+          "mirror": "apps/www/src/lib/ui/card-grid/card-grid.css",
+          "target": "@ui/card-grid/card-grid.css",
+          "sourceSha": "e454ae8be9780b172bc94cc43e51eba60d5b65b1f5bd8eb209c86f621f543fbc",
+          "mirrorSha": "e454ae8be9780b172bc94cc43e51eba60d5b65b1f5bd8eb209c86f621f543fbc"
         }
       ]
     },
@@ -381,8 +423,8 @@
           "source": "registry/files/ui/input/input.svelte",
           "mirror": "apps/www/src/lib/ui/input/input.svelte",
           "target": "@ui/input/input.svelte",
-          "sourceSha": "c028b03be59e96d0ff7dbf5a557f37103b458d4826734c42e5f37380e572286e",
-          "mirrorSha": "c028b03be59e96d0ff7dbf5a557f37103b458d4826734c42e5f37380e572286e"
+          "sourceSha": "f9d53bf67f2aeeec8f2c0c47fa9df01e44f8a16923d18c0e3623a547d5a3118f",
+          "mirrorSha": "f9d53bf67f2aeeec8f2c0c47fa9df01e44f8a16923d18c0e3623a547d5a3118f"
         },
         {
           "source": "registry/files/ui/input/index.ts",
@@ -390,6 +432,13 @@
           "target": "@ui/input/index.ts",
           "sourceSha": "5f6dd657afec16cd02c791b70e6552c7da6bac404cbdd28015c9fa94d23220f0",
           "mirrorSha": "5f6dd657afec16cd02c791b70e6552c7da6bac404cbdd28015c9fa94d23220f0"
+        },
+        {
+          "source": "registry/files/ui/input/input.css",
+          "mirror": "apps/www/src/lib/ui/input/input.css",
+          "target": "@ui/input/input.css",
+          "sourceSha": "df3c5807e3b9d2ba8be908c0f2b6c8c7265fb38e009554fc1e187649c268756b",
+          "mirrorSha": "df3c5807e3b9d2ba8be908c0f2b6c8c7265fb38e009554fc1e187649c268756b"
         }
       ]
     },
@@ -402,8 +451,8 @@
           "source": "registry/files/ui/select/select.svelte",
           "mirror": "apps/www/src/lib/ui/select/select.svelte",
           "target": "@ui/select/select.svelte",
-          "sourceSha": "69fad66ccb6cc64ef15437e65840386e4e7bfd50f554c4619a1683cb7ffd78dd",
-          "mirrorSha": "69fad66ccb6cc64ef15437e65840386e4e7bfd50f554c4619a1683cb7ffd78dd"
+          "sourceSha": "ed1dfff9bf11ff97fe6defb03722672e152414918c07746f45d5433a361a228f",
+          "mirrorSha": "ed1dfff9bf11ff97fe6defb03722672e152414918c07746f45d5433a361a228f"
         },
         {
           "source": "registry/files/ui/select/index.ts",
@@ -411,6 +460,13 @@
           "target": "@ui/select/index.ts",
           "sourceSha": "6e828d8ddfbe1c8a97b43cce7eb9dc8f1f6de64da09c0bce3913f486c989e0d1",
           "mirrorSha": "6e828d8ddfbe1c8a97b43cce7eb9dc8f1f6de64da09c0bce3913f486c989e0d1"
+        },
+        {
+          "source": "registry/files/ui/select/select.css",
+          "mirror": "apps/www/src/lib/ui/select/select.css",
+          "target": "@ui/select/select.css",
+          "sourceSha": "e382de72a58f18769172d2c14831e4d70df9214c6b72678f02cd1bed709ce53c",
+          "mirrorSha": "e382de72a58f18769172d2c14831e4d70df9214c6b72678f02cd1bed709ce53c"
         }
       ]
     },
@@ -423,8 +479,8 @@
           "source": "registry/files/ui/textarea/textarea.svelte",
           "mirror": "apps/www/src/lib/ui/textarea/textarea.svelte",
           "target": "@ui/textarea/textarea.svelte",
-          "sourceSha": "553c95311ee0809a3ee9fbaad1f2adf41ec88bf71160799ff64b68df10cbd94c",
-          "mirrorSha": "553c95311ee0809a3ee9fbaad1f2adf41ec88bf71160799ff64b68df10cbd94c"
+          "sourceSha": "9975c827073818be36c069a2de86b3b9cb6fb44ec729528309a84aad54ef6f67",
+          "mirrorSha": "9975c827073818be36c069a2de86b3b9cb6fb44ec729528309a84aad54ef6f67"
         },
         {
           "source": "registry/files/ui/textarea/index.ts",
@@ -465,8 +521,8 @@
           "source": "registry/files/ui/dialog/dialog.svelte",
           "mirror": "apps/www/src/lib/ui/dialog/dialog.svelte",
           "target": "@ui/dialog/dialog.svelte",
-          "sourceSha": "63dddcb8fbd256b33e4047fd58adb5a89db545d8cbd08d0c6913feec98b8edcf",
-          "mirrorSha": "63dddcb8fbd256b33e4047fd58adb5a89db545d8cbd08d0c6913feec98b8edcf"
+          "sourceSha": "1b8ed74f3c24d7c4bec44efb2446c0f78cbef4972309ac192139326ac01f9e5e",
+          "mirrorSha": "1b8ed74f3c24d7c4bec44efb2446c0f78cbef4972309ac192139326ac01f9e5e"
         },
         {
           "source": "registry/files/ui/dialog/index.ts",
@@ -474,6 +530,13 @@
           "target": "@ui/dialog/index.ts",
           "sourceSha": "cb56fda290a68e6dee9cdd0a7c16fe43577100ebbc2e93c6bd494407bf150874",
           "mirrorSha": "cb56fda290a68e6dee9cdd0a7c16fe43577100ebbc2e93c6bd494407bf150874"
+        },
+        {
+          "source": "registry/files/ui/dialog/dialog.css",
+          "mirror": "apps/www/src/lib/ui/dialog/dialog.css",
+          "target": "@ui/dialog/dialog.css",
+          "sourceSha": "0043c4319d186f622a0b34c80967875aac2b94676490065334884855d691651d",
+          "mirrorSha": "0043c4319d186f622a0b34c80967875aac2b94676490065334884855d691651d"
         }
       ]
     },
@@ -486,8 +549,8 @@
           "source": "registry/files/ui/popover/popover.svelte",
           "mirror": "apps/www/src/lib/ui/popover/popover.svelte",
           "target": "@ui/popover/popover.svelte",
-          "sourceSha": "fb1255be79c430858a2e4c5fc548d4d84f3ffb61f9e892f393a63fdd7170bcaa",
-          "mirrorSha": "fb1255be79c430858a2e4c5fc548d4d84f3ffb61f9e892f393a63fdd7170bcaa"
+          "sourceSha": "4b4cf2d58311518de0bd140bce7f60489d2f347f513bf59c6da7260777c0d7a4",
+          "mirrorSha": "4b4cf2d58311518de0bd140bce7f60489d2f347f513bf59c6da7260777c0d7a4"
         },
         {
           "source": "registry/files/ui/popover/index.ts",
@@ -495,6 +558,13 @@
           "target": "@ui/popover/index.ts",
           "sourceSha": "e456f3aa25ecad5f6ff66fbc1d2504eceb7d953312f6250d9516e9ff65d67db0",
           "mirrorSha": "e456f3aa25ecad5f6ff66fbc1d2504eceb7d953312f6250d9516e9ff65d67db0"
+        },
+        {
+          "source": "registry/files/ui/popover/popover.css",
+          "mirror": "apps/www/src/lib/ui/popover/popover.css",
+          "target": "@ui/popover/popover.css",
+          "sourceSha": "6064e79cc12484eba370cf3d9c3678ff6c7255783e51bf1b167380e7c60cd473",
+          "mirrorSha": "6064e79cc12484eba370cf3d9c3678ff6c7255783e51bf1b167380e7c60cd473"
         }
       ]
     },
@@ -507,8 +577,8 @@
           "source": "registry/files/ui/code-card/code-card.svelte",
           "mirror": "apps/www/src/lib/ui/code-card/code-card.svelte",
           "target": "@ui/code-card/code-card.svelte",
-          "sourceSha": "25ac935b4c485c3eaa1c0e93d297e23310e7fd71e40039cc75b48195737c37eb",
-          "mirrorSha": "25ac935b4c485c3eaa1c0e93d297e23310e7fd71e40039cc75b48195737c37eb"
+          "sourceSha": "982a9ea14bfe62d76549d9bfe40b8f8ac685ddeeee1b64efdb013d77efab029a",
+          "mirrorSha": "982a9ea14bfe62d76549d9bfe40b8f8ac685ddeeee1b64efdb013d77efab029a"
         },
         {
           "source": "registry/files/lib/shiki.ts",
@@ -523,6 +593,13 @@
           "target": "@ui/code-card/index.ts",
           "sourceSha": "ce1ba7c697dda8ed916c1ddc957705035215a091384e6a8e2d32620e8f2a9ad9",
           "mirrorSha": "ce1ba7c697dda8ed916c1ddc957705035215a091384e6a8e2d32620e8f2a9ad9"
+        },
+        {
+          "source": "registry/files/ui/code-card/code-card.css",
+          "mirror": "apps/www/src/lib/ui/code-card/code-card.css",
+          "target": "@ui/code-card/code-card.css",
+          "sourceSha": "dd59a738f5c2658a942b4c00325d22d7e9e14c7bf2f10e0a4aa47b4ae1a10515",
+          "mirrorSha": "dd59a738f5c2658a942b4c00325d22d7e9e14c7bf2f10e0a4aa47b4ae1a10515"
         }
       ]
     },
@@ -571,8 +648,8 @@
           "source": "registry/files/ui/table/table.svelte",
           "mirror": "apps/www/src/lib/ui/table/table.svelte",
           "target": "@ui/table/table.svelte",
-          "sourceSha": "5a3da67cdb1e3f9b2ec6e1a10c51dd545c1725644b59c8003031efa7cdbd3a2a",
-          "mirrorSha": "5a3da67cdb1e3f9b2ec6e1a10c51dd545c1725644b59c8003031efa7cdbd3a2a"
+          "sourceSha": "55631198d454b470028d7dde526fcba51f4e104a91cefd4a6b5c7a2c057420c6",
+          "mirrorSha": "55631198d454b470028d7dde526fcba51f4e104a91cefd4a6b5c7a2c057420c6"
         },
         {
           "source": "registry/files/ui/table/index.ts",
@@ -580,6 +657,13 @@
           "target": "@ui/table/index.ts",
           "sourceSha": "5770b1b8b1d979391b0374eb1079622be4f980a4f1c12c661084bb731ee4107b",
           "mirrorSha": "5770b1b8b1d979391b0374eb1079622be4f980a4f1c12c661084bb731ee4107b"
+        },
+        {
+          "source": "registry/files/ui/table/table.css",
+          "mirror": "apps/www/src/lib/ui/table/table.css",
+          "target": "@ui/table/table.css",
+          "sourceSha": "1e36ad4502f103dfe3358c134cdb4c3d8afdeab150959de5b73d88521d779758",
+          "mirrorSha": "1e36ad4502f103dfe3358c134cdb4c3d8afdeab150959de5b73d88521d779758"
         }
       ]
     },
@@ -592,8 +676,8 @@
           "source": "registry/files/ui/tree-view/tree-view.svelte",
           "mirror": "apps/www/src/lib/ui/tree-view/tree-view.svelte",
           "target": "@ui/tree-view/tree-view.svelte",
-          "sourceSha": "cd89b8a3fb28843fbdefe793d30b43c2211878c34db41c0f10d30df99cc27315",
-          "mirrorSha": "cd89b8a3fb28843fbdefe793d30b43c2211878c34db41c0f10d30df99cc27315"
+          "sourceSha": "4874f3ca5841c6f174f792dc346699e01c9b67e772db187628d07c20c58d7e71",
+          "mirrorSha": "4874f3ca5841c6f174f792dc346699e01c9b67e772db187628d07c20c58d7e71"
         },
         {
           "source": "registry/files/ui/tree-view/index.ts",
@@ -601,6 +685,13 @@
           "target": "@ui/tree-view/index.ts",
           "sourceSha": "2f68e1544f73e279c97932c1e1403ff12c9f647fd2b07cbc6b1cb43152ad53d6",
           "mirrorSha": "2f68e1544f73e279c97932c1e1403ff12c9f647fd2b07cbc6b1cb43152ad53d6"
+        },
+        {
+          "source": "registry/files/ui/tree-view/tree-view.css",
+          "mirror": "apps/www/src/lib/ui/tree-view/tree-view.css",
+          "target": "@ui/tree-view/tree-view.css",
+          "sourceSha": "5fe1063d24539bbb4c0758430a1e7d6cceb0897750ac6787d677e9801007a9e0",
+          "mirrorSha": "5fe1063d24539bbb4c0758430a1e7d6cceb0897750ac6787d677e9801007a9e0"
         }
       ]
     },
@@ -613,8 +704,8 @@
           "source": "registry/files/ui/component-canvas/component-canvas.svelte",
           "mirror": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
           "target": "@ui/component-canvas/component-canvas.svelte",
-          "sourceSha": "9ddfc0eec8d432a65af3732a370e7a471a56ea889247d97ec263079b5dedc9fb",
-          "mirrorSha": "9ddfc0eec8d432a65af3732a370e7a471a56ea889247d97ec263079b5dedc9fb"
+          "sourceSha": "6ecda8bb8e15b09740f6b6a1586b520af03b046ed6ec947163d6287bd3dd554e",
+          "mirrorSha": "6ecda8bb8e15b09740f6b6a1586b520af03b046ed6ec947163d6287bd3dd554e"
         },
         {
           "source": "registry/files/ui/component-canvas/index.ts",
@@ -622,6 +713,13 @@
           "target": "@ui/component-canvas/index.ts",
           "sourceSha": "5d1379724c15f5557770dfc40037d2cbc6ef6d2b493efd0158930eeb8bbf759c",
           "mirrorSha": "5d1379724c15f5557770dfc40037d2cbc6ef6d2b493efd0158930eeb8bbf759c"
+        },
+        {
+          "source": "registry/files/ui/component-canvas/component-canvas.css",
+          "mirror": "apps/www/src/lib/ui/component-canvas/component-canvas.css",
+          "target": "@ui/component-canvas/component-canvas.css",
+          "sourceSha": "2b7caff0868a0057484d66cb0eb9c650a6eff26039bf34d85279521b2ff7a066",
+          "mirrorSha": "2b7caff0868a0057484d66cb0eb9c650a6eff26039bf34d85279521b2ff7a066"
         }
       ]
     },
@@ -634,8 +732,8 @@
           "source": "registry/files/ui/checkbox/checkbox.svelte",
           "mirror": "apps/www/src/lib/ui/checkbox/checkbox.svelte",
           "target": "@ui/checkbox/checkbox.svelte",
-          "sourceSha": "f8d6bfca5712d635b13dc4065d791f0ca6ac6d8a638d906edb499d2724c59671",
-          "mirrorSha": "f8d6bfca5712d635b13dc4065d791f0ca6ac6d8a638d906edb499d2724c59671"
+          "sourceSha": "a43fbbfad7f3167c71ffe72c7838c43548f6edbf5b834d074fa83559e755de8c",
+          "mirrorSha": "a43fbbfad7f3167c71ffe72c7838c43548f6edbf5b834d074fa83559e755de8c"
         },
         {
           "source": "registry/files/ui/checkbox/index.ts",
@@ -643,6 +741,13 @@
           "target": "@ui/checkbox/index.ts",
           "sourceSha": "1c6140606bb19832b9e8654ac9b7fc834c2b69bc93e8d2ad19903b666c979a15",
           "mirrorSha": "1c6140606bb19832b9e8654ac9b7fc834c2b69bc93e8d2ad19903b666c979a15"
+        },
+        {
+          "source": "registry/files/ui/checkbox/checkbox.css",
+          "mirror": "apps/www/src/lib/ui/checkbox/checkbox.css",
+          "target": "@ui/checkbox/checkbox.css",
+          "sourceSha": "7f37bd7edcf19baf70c408e7ce599400e807c8e2736e940e1223e198526fc9c5",
+          "mirrorSha": "7f37bd7edcf19baf70c408e7ce599400e807c8e2736e940e1223e198526fc9c5"
         }
       ]
     },
@@ -655,8 +760,8 @@
           "source": "registry/files/ui/radio/radio.svelte",
           "mirror": "apps/www/src/lib/ui/radio/radio.svelte",
           "target": "@ui/radio/radio.svelte",
-          "sourceSha": "24b601e5578d20ee24d02c8495c0f7cd25445f51f87773906f2aa4dbf02306e6",
-          "mirrorSha": "24b601e5578d20ee24d02c8495c0f7cd25445f51f87773906f2aa4dbf02306e6"
+          "sourceSha": "c4ce0f680309c26e869d365326818e4ed3218af084a93e2e4a1ebe636878cba1",
+          "mirrorSha": "c4ce0f680309c26e869d365326818e4ed3218af084a93e2e4a1ebe636878cba1"
         },
         {
           "source": "registry/files/ui/radio/index.ts",
@@ -664,6 +769,13 @@
           "target": "@ui/radio/index.ts",
           "sourceSha": "ffb47e38c8707061954a4dbd40d8ca70a3c87cc5e186cc1774fbef3b8e316a3e",
           "mirrorSha": "ffb47e38c8707061954a4dbd40d8ca70a3c87cc5e186cc1774fbef3b8e316a3e"
+        },
+        {
+          "source": "registry/files/ui/radio/radio.css",
+          "mirror": "apps/www/src/lib/ui/radio/radio.css",
+          "target": "@ui/radio/radio.css",
+          "sourceSha": "fdcc39b4d2c83704e1a7539ee32bd1a0094933ee7301eb1c6d0df5c3382c00bd",
+          "mirrorSha": "fdcc39b4d2c83704e1a7539ee32bd1a0094933ee7301eb1c6d0df5c3382c00bd"
         }
       ]
     },
@@ -704,8 +816,8 @@
           "source": "registry/files/ui/native-select/native-select.svelte",
           "mirror": "apps/www/src/lib/ui/native-select/native-select.svelte",
           "target": "@ui/native-select/native-select.svelte",
-          "sourceSha": "b5a3e0b3a49ba789ab830db47e33b46775945387641a10ad3801b93e607a4116",
-          "mirrorSha": "b5a3e0b3a49ba789ab830db47e33b46775945387641a10ad3801b93e607a4116"
+          "sourceSha": "aaa3e6fd02b6f824a0ff40fbbf5b8b72d6381d0e86d99e5eb4ed00756103e1f5",
+          "mirrorSha": "aaa3e6fd02b6f824a0ff40fbbf5b8b72d6381d0e86d99e5eb4ed00756103e1f5"
         },
         {
           "source": "registry/files/ui/native-select/index.ts",
@@ -713,6 +825,13 @@
           "target": "@ui/native-select/index.ts",
           "sourceSha": "16c3ea8c6c26f7cb36f4b811429b63ac39089b884edb0ae8a3494d9f80577130",
           "mirrorSha": "16c3ea8c6c26f7cb36f4b811429b63ac39089b884edb0ae8a3494d9f80577130"
+        },
+        {
+          "source": "registry/files/ui/native-select/native-select.css",
+          "mirror": "apps/www/src/lib/ui/native-select/native-select.css",
+          "target": "@ui/native-select/native-select.css",
+          "sourceSha": "05145d5f9c6ceac46cf61af0959c8654e60639447e24476b2f64c06b9fa7be3e",
+          "mirrorSha": "05145d5f9c6ceac46cf61af0959c8654e60639447e24476b2f64c06b9fa7be3e"
         }
       ]
     },
@@ -725,8 +844,8 @@
           "source": "registry/files/ui/number-input/number-input.svelte",
           "mirror": "apps/www/src/lib/ui/number-input/number-input.svelte",
           "target": "@ui/number-input/number-input.svelte",
-          "sourceSha": "63e22279170a46762c0b95f1ccbfcd98ae366e07ce762b64749265841f422b69",
-          "mirrorSha": "63e22279170a46762c0b95f1ccbfcd98ae366e07ce762b64749265841f422b69"
+          "sourceSha": "4488dce7ef4d4b5f1d983fab44fdcff9bcf590e8b1edec7cf552cb3f613807d8",
+          "mirrorSha": "4488dce7ef4d4b5f1d983fab44fdcff9bcf590e8b1edec7cf552cb3f613807d8"
         },
         {
           "source": "registry/files/ui/number-input/index.ts",
@@ -734,6 +853,13 @@
           "target": "@ui/number-input/index.ts",
           "sourceSha": "80d30c09a0141cfa4e95f0252ae8b8a9a379164ed4882158ab264a1de8baaf74",
           "mirrorSha": "80d30c09a0141cfa4e95f0252ae8b8a9a379164ed4882158ab264a1de8baaf74"
+        },
+        {
+          "source": "registry/files/ui/number-input/number-input.css",
+          "mirror": "apps/www/src/lib/ui/number-input/number-input.css",
+          "target": "@ui/number-input/number-input.css",
+          "sourceSha": "4b4b4208ea89a6c527f9fc4d9c7f51f33d89c46cbf648ed712883ba1487c7010",
+          "mirrorSha": "4b4b4208ea89a6c527f9fc4d9c7f51f33d89c46cbf648ed712883ba1487c7010"
         }
       ]
     },
@@ -746,8 +872,8 @@
           "source": "registry/files/ui/range/range.svelte",
           "mirror": "apps/www/src/lib/ui/range/range.svelte",
           "target": "@ui/range/range.svelte",
-          "sourceSha": "c58f2f44b9291e04e7d9f9d83fd796488c922475b1fe9696ce4e4d2a5c1900a7",
-          "mirrorSha": "c58f2f44b9291e04e7d9f9d83fd796488c922475b1fe9696ce4e4d2a5c1900a7"
+          "sourceSha": "a22ef9036a1f4e4b2b3596f86cff01fc4af0fc026a1db98baf78076d9afebbf0",
+          "mirrorSha": "a22ef9036a1f4e4b2b3596f86cff01fc4af0fc026a1db98baf78076d9afebbf0"
         },
         {
           "source": "registry/files/ui/range/index.ts",
@@ -755,6 +881,13 @@
           "target": "@ui/range/index.ts",
           "sourceSha": "5e1fdd9771ddb4d6f0aa23ad9e95f86f913222b39254f2dfe344205da7549431",
           "mirrorSha": "5e1fdd9771ddb4d6f0aa23ad9e95f86f913222b39254f2dfe344205da7549431"
+        },
+        {
+          "source": "registry/files/ui/range/range.css",
+          "mirror": "apps/www/src/lib/ui/range/range.css",
+          "target": "@ui/range/range.css",
+          "sourceSha": "e368356ac232cc7a132ed074d9d5eaf9e1ce493034c78880de94241babd8df10",
+          "mirrorSha": "e368356ac232cc7a132ed074d9d5eaf9e1ce493034c78880de94241babd8df10"
         }
       ]
     },
@@ -767,8 +900,8 @@
           "source": "registry/files/ui/date-picker/date-picker.svelte",
           "mirror": "apps/www/src/lib/ui/date-picker/date-picker.svelte",
           "target": "@ui/date-picker/date-picker.svelte",
-          "sourceSha": "92f4a6273ea868ace2982823ef80e29b834ecfbb13187b789f260bb668f1d85c",
-          "mirrorSha": "92f4a6273ea868ace2982823ef80e29b834ecfbb13187b789f260bb668f1d85c"
+          "sourceSha": "7003c791db1d8333ac3df9896886ab8905fce35a25289e3693b5a81892158d5a",
+          "mirrorSha": "7003c791db1d8333ac3df9896886ab8905fce35a25289e3693b5a81892158d5a"
         },
         {
           "source": "registry/files/ui/date-picker/index.ts",
@@ -776,6 +909,13 @@
           "target": "@ui/date-picker/index.ts",
           "sourceSha": "3d670e2359efa402ec9df2daf4d0349fdfc8176ba1372a4eafee6a2a296d8ee6",
           "mirrorSha": "3d670e2359efa402ec9df2daf4d0349fdfc8176ba1372a4eafee6a2a296d8ee6"
+        },
+        {
+          "source": "registry/files/ui/date-picker/date-picker.css",
+          "mirror": "apps/www/src/lib/ui/date-picker/date-picker.css",
+          "target": "@ui/date-picker/date-picker.css",
+          "sourceSha": "1d9a3a011fe2a8666bb7dad3508297d377b7233b8a90d8b9bf97ad1a7cb84de5",
+          "mirrorSha": "1d9a3a011fe2a8666bb7dad3508297d377b7233b8a90d8b9bf97ad1a7cb84de5"
         }
       ]
     },
@@ -788,8 +928,8 @@
           "source": "registry/files/ui/file-input/file-input.svelte",
           "mirror": "apps/www/src/lib/ui/file-input/file-input.svelte",
           "target": "@ui/file-input/file-input.svelte",
-          "sourceSha": "fc1b15e9a0f6c96883793a29ae8ffac38dfd1994a7e268f60950212c6b09cfb0",
-          "mirrorSha": "fc1b15e9a0f6c96883793a29ae8ffac38dfd1994a7e268f60950212c6b09cfb0"
+          "sourceSha": "f9f1506a54688880998ec02965c43abbb3ae614b68cff595dd55507080a80159",
+          "mirrorSha": "f9f1506a54688880998ec02965c43abbb3ae614b68cff595dd55507080a80159"
         },
         {
           "source": "registry/files/ui/file-input/index.ts",
@@ -797,6 +937,13 @@
           "target": "@ui/file-input/index.ts",
           "sourceSha": "46e799da1d1d2b14499a3d9ebb7eac95100f24a350c80925dbd9eb3faeb504ec",
           "mirrorSha": "46e799da1d1d2b14499a3d9ebb7eac95100f24a350c80925dbd9eb3faeb504ec"
+        },
+        {
+          "source": "registry/files/ui/file-input/file-input.css",
+          "mirror": "apps/www/src/lib/ui/file-input/file-input.css",
+          "target": "@ui/file-input/file-input.css",
+          "sourceSha": "6479d8ddb42a70a06fe0562d74a1a58a1d4bd39d96fe360304b60a315529f003",
+          "mirrorSha": "6479d8ddb42a70a06fe0562d74a1a58a1d4bd39d96fe360304b60a315529f003"
         }
       ]
     },
@@ -809,8 +956,8 @@
           "source": "registry/files/ui/color-picker/color-picker.svelte",
           "mirror": "apps/www/src/lib/ui/color-picker/color-picker.svelte",
           "target": "@ui/color-picker/color-picker.svelte",
-          "sourceSha": "faf37cf6dfd5a40c8d1747d54ddc27540640dd4746dc278e6f48541fd21a0868",
-          "mirrorSha": "faf37cf6dfd5a40c8d1747d54ddc27540640dd4746dc278e6f48541fd21a0868"
+          "sourceSha": "47a9fffd746307cd1f9630f951f8530eacaa05ae3aa610e8918a2e3b01c7df26",
+          "mirrorSha": "47a9fffd746307cd1f9630f951f8530eacaa05ae3aa610e8918a2e3b01c7df26"
         },
         {
           "source": "registry/files/ui/color-picker/index.ts",
@@ -818,6 +965,13 @@
           "target": "@ui/color-picker/index.ts",
           "sourceSha": "78ee8a612cf9ceba8a88f3e0098819307f8999189494ca75d588b8640a949a71",
           "mirrorSha": "78ee8a612cf9ceba8a88f3e0098819307f8999189494ca75d588b8640a949a71"
+        },
+        {
+          "source": "registry/files/ui/color-picker/color-picker.css",
+          "mirror": "apps/www/src/lib/ui/color-picker/color-picker.css",
+          "target": "@ui/color-picker/color-picker.css",
+          "sourceSha": "40a6e7c772ad1aff86761486dfe1d6ce2728f29f477c3889826426986d6eedb5",
+          "mirrorSha": "40a6e7c772ad1aff86761486dfe1d6ce2728f29f477c3889826426986d6eedb5"
         }
       ]
     },
@@ -830,8 +984,8 @@
           "source": "registry/files/ui/combobox/combobox.svelte",
           "mirror": "apps/www/src/lib/ui/combobox/combobox.svelte",
           "target": "@ui/combobox/combobox.svelte",
-          "sourceSha": "89b10d7a5f277d339516f4b07fbc04c5736f1716b756e25e4eedd5e2bd40d46e",
-          "mirrorSha": "89b10d7a5f277d339516f4b07fbc04c5736f1716b756e25e4eedd5e2bd40d46e"
+          "sourceSha": "cdd21135cb4af742d4b980e01f1c1818cda60e3f3cd598161af971f09b50e09b",
+          "mirrorSha": "cdd21135cb4af742d4b980e01f1c1818cda60e3f3cd598161af971f09b50e09b"
         },
         {
           "source": "registry/files/ui/combobox/index.ts",
@@ -839,6 +993,13 @@
           "target": "@ui/combobox/index.ts",
           "sourceSha": "4c211ea54c4eeeb0e4c81e64a2af05cc864dd4df183816465671302e8c4af009",
           "mirrorSha": "4c211ea54c4eeeb0e4c81e64a2af05cc864dd4df183816465671302e8c4af009"
+        },
+        {
+          "source": "registry/files/ui/combobox/combobox.css",
+          "mirror": "apps/www/src/lib/ui/combobox/combobox.css",
+          "target": "@ui/combobox/combobox.css",
+          "sourceSha": "dc461b38174edd08ff314a4ce322a3b3ad82ac8c6995ef00794ea8e7fa81e14a",
+          "mirrorSha": "dc461b38174edd08ff314a4ce322a3b3ad82ac8c6995ef00794ea8e7fa81e14a"
         }
       ]
     },
@@ -851,8 +1012,8 @@
           "source": "registry/files/ui/tags-input/tags-input.svelte",
           "mirror": "apps/www/src/lib/ui/tags-input/tags-input.svelte",
           "target": "@ui/tags-input/tags-input.svelte",
-          "sourceSha": "dbdf20dcd18b644af95b4ca50a2dd19d0a2c0e4e49e2db42e5de7adb6a92bbf0",
-          "mirrorSha": "dbdf20dcd18b644af95b4ca50a2dd19d0a2c0e4e49e2db42e5de7adb6a92bbf0"
+          "sourceSha": "e8f486d14197143440df9b584552329070bed66a41dc26ebe3705604330ce414",
+          "mirrorSha": "e8f486d14197143440df9b584552329070bed66a41dc26ebe3705604330ce414"
         },
         {
           "source": "registry/files/ui/tags-input/index.ts",
@@ -860,6 +1021,13 @@
           "target": "@ui/tags-input/index.ts",
           "sourceSha": "ca0337952d9e7c9ca50631fde56405ab669d46381871b8553c4fb3ff8d4c7b0f",
           "mirrorSha": "ca0337952d9e7c9ca50631fde56405ab669d46381871b8553c4fb3ff8d4c7b0f"
+        },
+        {
+          "source": "registry/files/ui/tags-input/tags-input.css",
+          "mirror": "apps/www/src/lib/ui/tags-input/tags-input.css",
+          "target": "@ui/tags-input/tags-input.css",
+          "sourceSha": "38c14f684d904ab8074b6b5d9b09490c91d4d3574388d4ff09804be90f7f6457",
+          "mirrorSha": "38c14f684d904ab8074b6b5d9b09490c91d4d3574388d4ff09804be90f7f6457"
         }
       ]
     },
@@ -872,8 +1040,8 @@
           "source": "registry/files/ui/badge/badge.svelte",
           "mirror": "apps/www/src/lib/ui/badge/badge.svelte",
           "target": "@ui/badge/badge.svelte",
-          "sourceSha": "5ee289a96cf1e659316e12a001e5d3bc08f0e6f604d31427b7000dc7c2255c90",
-          "mirrorSha": "5ee289a96cf1e659316e12a001e5d3bc08f0e6f604d31427b7000dc7c2255c90"
+          "sourceSha": "b142df0b18e0df94613418715818731681aeb77cd2038db88bf9e46e046ad362",
+          "mirrorSha": "b142df0b18e0df94613418715818731681aeb77cd2038db88bf9e46e046ad362"
         },
         {
           "source": "registry/files/ui/badge/index.ts",
@@ -942,8 +1110,8 @@
           "source": "registry/files/ui/avatar/avatar.svelte",
           "mirror": "apps/www/src/lib/ui/avatar/avatar.svelte",
           "target": "@ui/avatar/avatar.svelte",
-          "sourceSha": "480be0f8d918abea0ad121778d81d6a488916e448c10b514f74499e9839c2e0b",
-          "mirrorSha": "480be0f8d918abea0ad121778d81d6a488916e448c10b514f74499e9839c2e0b"
+          "sourceSha": "07a427db6ad13c6de65438e3403ebd8f1992536d5df4cdfabccd8d4b69cb49fc",
+          "mirrorSha": "07a427db6ad13c6de65438e3403ebd8f1992536d5df4cdfabccd8d4b69cb49fc"
         },
         {
           "source": "registry/files/ui/avatar/index.ts",
@@ -963,8 +1131,8 @@
           "source": "registry/files/ui/alert/alert.svelte",
           "mirror": "apps/www/src/lib/ui/alert/alert.svelte",
           "target": "@ui/alert/alert.svelte",
-          "sourceSha": "16c75967983478103b4088f573f71cee00eb1f4e0f74660d6bde963771994e3e",
-          "mirrorSha": "16c75967983478103b4088f573f71cee00eb1f4e0f74660d6bde963771994e3e"
+          "sourceSha": "ee417033da882f34aa19ba17c62567050a940ebc5fdc1da391f598d73721599f",
+          "mirrorSha": "ee417033da882f34aa19ba17c62567050a940ebc5fdc1da391f598d73721599f"
         },
         {
           "source": "registry/files/ui/alert/index.ts",
@@ -972,6 +1140,13 @@
           "target": "@ui/alert/index.ts",
           "sourceSha": "050d091f3a84375ef1381a9bd9892fa28ddce65c4ad877985957ec71d0d1fbc0",
           "mirrorSha": "050d091f3a84375ef1381a9bd9892fa28ddce65c4ad877985957ec71d0d1fbc0"
+        },
+        {
+          "source": "registry/files/ui/alert/alert.css",
+          "mirror": "apps/www/src/lib/ui/alert/alert.css",
+          "target": "@ui/alert/alert.css",
+          "sourceSha": "b7748b817fe5f8213baf2b1f81b6278eb0183dea9f8e1769d46314d11946dcb7",
+          "mirrorSha": "b7748b817fe5f8213baf2b1f81b6278eb0183dea9f8e1769d46314d11946dcb7"
         }
       ]
     },
@@ -984,15 +1159,15 @@
           "source": "registry/files/ui/accordion/accordion.svelte",
           "mirror": "apps/www/src/lib/ui/accordion/accordion.svelte",
           "target": "@ui/accordion/accordion.svelte",
-          "sourceSha": "4f3a7041b766d4c68c5a1d32a0fd8ee15caa44061fc37debb21a1bd6cb9aa1cd",
-          "mirrorSha": "4f3a7041b766d4c68c5a1d32a0fd8ee15caa44061fc37debb21a1bd6cb9aa1cd"
+          "sourceSha": "0a31f0c36dc90bc89cea7123e6864da5d9b35388863068b5a9a5228498878939",
+          "mirrorSha": "0a31f0c36dc90bc89cea7123e6864da5d9b35388863068b5a9a5228498878939"
         },
         {
           "source": "registry/files/ui/accordion/accordion-item.svelte",
           "mirror": "apps/www/src/lib/ui/accordion/accordion-item.svelte",
           "target": "@ui/accordion/accordion-item.svelte",
-          "sourceSha": "14d7fa19921f58141483e0361dc23bdf52e0079887a9227eff214c20df37c97f",
-          "mirrorSha": "14d7fa19921f58141483e0361dc23bdf52e0079887a9227eff214c20df37c97f"
+          "sourceSha": "6529bcf9cc2da220926fa308dd9f844243f3b6f4724996ddc5e002d637b95493",
+          "mirrorSha": "6529bcf9cc2da220926fa308dd9f844243f3b6f4724996ddc5e002d637b95493"
         },
         {
           "source": "registry/files/ui/accordion/index.ts",
@@ -1000,6 +1175,20 @@
           "target": "@ui/accordion/index.ts",
           "sourceSha": "2df07f6a7f9fa4cd7db30e9360e5eecf2d298f3bc72d9f49ade1482303e23d17",
           "mirrorSha": "2df07f6a7f9fa4cd7db30e9360e5eecf2d298f3bc72d9f49ade1482303e23d17"
+        },
+        {
+          "source": "registry/files/ui/accordion/accordion.css",
+          "mirror": "apps/www/src/lib/ui/accordion/accordion.css",
+          "target": "@ui/accordion/accordion.css",
+          "sourceSha": "32dd5d8ea28c68e1ba509d7c082b0a3bb50ad0682d3e3c2d6e12ebfd902b7849",
+          "mirrorSha": "32dd5d8ea28c68e1ba509d7c082b0a3bb50ad0682d3e3c2d6e12ebfd902b7849"
+        },
+        {
+          "source": "registry/files/ui/accordion/accordion-item.css",
+          "mirror": "apps/www/src/lib/ui/accordion/accordion-item.css",
+          "target": "@ui/accordion/accordion-item.css",
+          "sourceSha": "e2a518d058a174be507f89e66ed048ab5a00fe9630d0dbc4443ff4209a369b14",
+          "mirrorSha": "e2a518d058a174be507f89e66ed048ab5a00fe9630d0dbc4443ff4209a369b14"
         }
       ]
     },
@@ -1019,15 +1208,15 @@
           "source": "registry/files/ui/tabs/tabs-list.svelte",
           "mirror": "apps/www/src/lib/ui/tabs/tabs-list.svelte",
           "target": "@ui/tabs/tabs-list.svelte",
-          "sourceSha": "ec12a9a6470a995112239273c44699690b3fe6e64ce62c0d4147168b2d0df267",
-          "mirrorSha": "ec12a9a6470a995112239273c44699690b3fe6e64ce62c0d4147168b2d0df267"
+          "sourceSha": "752f65d6896c1f254084b14447c5a1d61dce6bb8070a28b9711e3650473bceb0",
+          "mirrorSha": "752f65d6896c1f254084b14447c5a1d61dce6bb8070a28b9711e3650473bceb0"
         },
         {
           "source": "registry/files/ui/tabs/tabs-trigger.svelte",
           "mirror": "apps/www/src/lib/ui/tabs/tabs-trigger.svelte",
           "target": "@ui/tabs/tabs-trigger.svelte",
-          "sourceSha": "30d41728e27dce22f09f74a87e17d88638cbb24b09f4d3a798421ce3c83f0256",
-          "mirrorSha": "30d41728e27dce22f09f74a87e17d88638cbb24b09f4d3a798421ce3c83f0256"
+          "sourceSha": "7a6327dcb1e7ba4ecfecd1f0cd6ec55445ac372de7993cd824b061f8653b4eed",
+          "mirrorSha": "7a6327dcb1e7ba4ecfecd1f0cd6ec55445ac372de7993cd824b061f8653b4eed"
         },
         {
           "source": "registry/files/ui/tabs/tabs-content.svelte",
@@ -1042,6 +1231,13 @@
           "target": "@ui/tabs/index.ts",
           "sourceSha": "9a34e2455e0d8918c2a8874fd1c256d28d63acbea2c312c85fed0a5aec1319ed",
           "mirrorSha": "9a34e2455e0d8918c2a8874fd1c256d28d63acbea2c312c85fed0a5aec1319ed"
+        },
+        {
+          "source": "registry/files/ui/tabs/tabs-trigger.css",
+          "mirror": "apps/www/src/lib/ui/tabs/tabs-trigger.css",
+          "target": "@ui/tabs/tabs-trigger.css",
+          "sourceSha": "8758995245f393a2780c10d7829447c47d94160f3e463d9fc5fc1b9d02d9ab79",
+          "mirrorSha": "8758995245f393a2780c10d7829447c47d94160f3e463d9fc5fc1b9d02d9ab79"
         }
       ]
     },
@@ -1054,8 +1250,8 @@
           "source": "registry/files/ui/progress/progress.svelte",
           "mirror": "apps/www/src/lib/ui/progress/progress.svelte",
           "target": "@ui/progress/progress.svelte",
-          "sourceSha": "0f23e446806e64bfab29819b8adff0320056a366a160ba42dd26439e64b29c1b",
-          "mirrorSha": "0f23e446806e64bfab29819b8adff0320056a366a160ba42dd26439e64b29c1b"
+          "sourceSha": "32e09f1f6ea6f513f633c46315610e8d156899b3f8e4134a6bac48e5648eda06",
+          "mirrorSha": "32e09f1f6ea6f513f633c46315610e8d156899b3f8e4134a6bac48e5648eda06"
         },
         {
           "source": "registry/files/ui/progress/index.ts",
@@ -1063,6 +1259,13 @@
           "target": "@ui/progress/index.ts",
           "sourceSha": "78ba5d66ee29b187a0006ed917d04e7716ad0b9b14b30902b33e0e804e504a0b",
           "mirrorSha": "78ba5d66ee29b187a0006ed917d04e7716ad0b9b14b30902b33e0e804e504a0b"
+        },
+        {
+          "source": "registry/files/ui/progress/progress.css",
+          "mirror": "apps/www/src/lib/ui/progress/progress.css",
+          "target": "@ui/progress/progress.css",
+          "sourceSha": "d4ea05ccb0dfc3d9f45a7b4a12c4d22d58841ea52807833da4b33b420589c1ef",
+          "mirrorSha": "d4ea05ccb0dfc3d9f45a7b4a12c4d22d58841ea52807833da4b33b420589c1ef"
         }
       ]
     },
@@ -1075,8 +1278,8 @@
           "source": "registry/files/ui/tooltip/tooltip.svelte",
           "mirror": "apps/www/src/lib/ui/tooltip/tooltip.svelte",
           "target": "@ui/tooltip/tooltip.svelte",
-          "sourceSha": "b63f0452ac20bd82d32c8ca9335db763b71a1dea8c3455a90a8b8cefc03dd18c",
-          "mirrorSha": "b63f0452ac20bd82d32c8ca9335db763b71a1dea8c3455a90a8b8cefc03dd18c"
+          "sourceSha": "e94e377543897a91f2ab9ad736cc8e03aca152ba7dff935191dfa13cb64ea83a",
+          "mirrorSha": "e94e377543897a91f2ab9ad736cc8e03aca152ba7dff935191dfa13cb64ea83a"
         },
         {
           "source": "registry/files/ui/tooltip/index.ts",
@@ -1084,6 +1287,13 @@
           "target": "@ui/tooltip/index.ts",
           "sourceSha": "f9a336192b2010057cc7b3ea3a04484be3209aecb359582d65779e1e2c6ddfe5",
           "mirrorSha": "f9a336192b2010057cc7b3ea3a04484be3209aecb359582d65779e1e2c6ddfe5"
+        },
+        {
+          "source": "registry/files/ui/tooltip/tooltip.css",
+          "mirror": "apps/www/src/lib/ui/tooltip/tooltip.css",
+          "target": "@ui/tooltip/tooltip.css",
+          "sourceSha": "337edfd3a5ebd0ceacf92f67d99209c9dca0be4b699a46a9d69c715364cdbc79",
+          "mirrorSha": "337edfd3a5ebd0ceacf92f67d99209c9dca0be4b699a46a9d69c715364cdbc79"
         }
       ]
     },
@@ -1096,8 +1306,8 @@
           "source": "registry/files/ui/pagination/pagination.svelte",
           "mirror": "apps/www/src/lib/ui/pagination/pagination.svelte",
           "target": "@ui/pagination/pagination.svelte",
-          "sourceSha": "4b2ca9db6e536451b8e6b4f89be18f6304c6766c46195e12a50465cecb0d275c",
-          "mirrorSha": "4b2ca9db6e536451b8e6b4f89be18f6304c6766c46195e12a50465cecb0d275c"
+          "sourceSha": "b7c738ba6ba757c5eef38720529e36d9039df249cd81218cc63ba68dcaeb70de",
+          "mirrorSha": "b7c738ba6ba757c5eef38720529e36d9039df249cd81218cc63ba68dcaeb70de"
         },
         {
           "source": "registry/files/ui/pagination/index.ts",
@@ -1117,15 +1327,15 @@
           "source": "registry/files/ui/dropdown-menu/dropdown-menu.svelte",
           "mirror": "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.svelte",
           "target": "@ui/dropdown-menu/dropdown-menu.svelte",
-          "sourceSha": "16aa3209fedaf028a205d0c37e80f1029a88acd2112ef7861e7ae59a4e03c6db",
-          "mirrorSha": "16aa3209fedaf028a205d0c37e80f1029a88acd2112ef7861e7ae59a4e03c6db"
+          "sourceSha": "e12d5228f164af270308261f2527ec2e298d2f3dff8b4042af6f59d55dd80db9",
+          "mirrorSha": "e12d5228f164af270308261f2527ec2e298d2f3dff8b4042af6f59d55dd80db9"
         },
         {
           "source": "registry/files/ui/dropdown-menu/dropdown-menu-item.svelte",
           "mirror": "apps/www/src/lib/ui/dropdown-menu/dropdown-menu-item.svelte",
           "target": "@ui/dropdown-menu/dropdown-menu-item.svelte",
-          "sourceSha": "7716550a1572f9f557cae5a4afb02537d39b06feadc060cff3e5563947b64d93",
-          "mirrorSha": "7716550a1572f9f557cae5a4afb02537d39b06feadc060cff3e5563947b64d93"
+          "sourceSha": "ad6c0795a59b3384587bfa82c18b5fc1b877cf41f12f8d19e6d6d39c334d7c87",
+          "mirrorSha": "ad6c0795a59b3384587bfa82c18b5fc1b877cf41f12f8d19e6d6d39c334d7c87"
         },
         {
           "source": "registry/files/ui/dropdown-menu/index.ts",
@@ -1133,6 +1343,13 @@
           "target": "@ui/dropdown-menu/index.ts",
           "sourceSha": "afaae2f2feec7898d181e6d80de5e429fc42e784456e91a60882d277b12d46ba",
           "mirrorSha": "afaae2f2feec7898d181e6d80de5e429fc42e784456e91a60882d277b12d46ba"
+        },
+        {
+          "source": "registry/files/ui/dropdown-menu/dropdown-menu.css",
+          "mirror": "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.css",
+          "target": "@ui/dropdown-menu/dropdown-menu.css",
+          "sourceSha": "04d80798478635aa7566d442549e2e46a551e5de607b0d063ca1b77ece54d096",
+          "mirrorSha": "04d80798478635aa7566d442549e2e46a551e5de607b0d063ca1b77ece54d096"
         }
       ]
     },
@@ -1145,8 +1362,8 @@
           "source": "registry/files/ui/breadcrumb/breadcrumb.svelte",
           "mirror": "apps/www/src/lib/ui/breadcrumb/breadcrumb.svelte",
           "target": "@ui/breadcrumb/breadcrumb.svelte",
-          "sourceSha": "86b47c1e6066f5799075c458153eea2e867f35a804dbf7c5994d5d404b8e5dcd",
-          "mirrorSha": "86b47c1e6066f5799075c458153eea2e867f35a804dbf7c5994d5d404b8e5dcd"
+          "sourceSha": "ea6a76d9e6d25890872781cdb011b9c7ce1885914c70a14a30b0294f93a66180",
+          "mirrorSha": "ea6a76d9e6d25890872781cdb011b9c7ce1885914c70a14a30b0294f93a66180"
         },
         {
           "source": "registry/files/ui/breadcrumb/index.ts",
@@ -1154,6 +1371,13 @@
           "target": "@ui/breadcrumb/index.ts",
           "sourceSha": "021d67dc766577936a5517818803e352550e229863afe14ecee0e95857d170ab",
           "mirrorSha": "021d67dc766577936a5517818803e352550e229863afe14ecee0e95857d170ab"
+        },
+        {
+          "source": "registry/files/ui/breadcrumb/breadcrumb.css",
+          "mirror": "apps/www/src/lib/ui/breadcrumb/breadcrumb.css",
+          "target": "@ui/breadcrumb/breadcrumb.css",
+          "sourceSha": "29ccdaabb97975a71e5c7285ee1c0a2bd1565c8ebbd4d4f58e97d1e706998d75",
+          "mirrorSha": "29ccdaabb97975a71e5c7285ee1c0a2bd1565c8ebbd4d4f58e97d1e706998d75"
         }
       ]
     },
@@ -1194,8 +1418,8 @@
           "source": "registry/files/ui/toast/toast-viewport.svelte",
           "mirror": "apps/www/src/lib/ui/toast/toast-viewport.svelte",
           "target": "@ui/toast/toast-viewport.svelte",
-          "sourceSha": "f8412c5ffa1c033722c710a705518aafe98b9f7d0dcea1449b282cac7df96219",
-          "mirrorSha": "f8412c5ffa1c033722c710a705518aafe98b9f7d0dcea1449b282cac7df96219"
+          "sourceSha": "1f871fcd55915c6fb8299ea6da909786835bbfdde165cb3cdc34443c8c6d6d31",
+          "mirrorSha": "1f871fcd55915c6fb8299ea6da909786835bbfdde165cb3cdc34443c8c6d6d31"
         },
         {
           "source": "registry/files/ui/toast/index.ts",
@@ -1203,6 +1427,13 @@
           "target": "@ui/toast/index.ts",
           "sourceSha": "4c36a70ca4b5b2ea9843a273e84063de4c01dbf461deec132249678cd7f316e1",
           "mirrorSha": "4c36a70ca4b5b2ea9843a273e84063de4c01dbf461deec132249678cd7f316e1"
+        },
+        {
+          "source": "registry/files/ui/toast/toast.css",
+          "mirror": "apps/www/src/lib/ui/toast/toast.css",
+          "target": "@ui/toast/toast.css",
+          "sourceSha": "387b7b5900dd73f3861589ede95aa021bb152b2c55ae30cf6b2457f5c923a160",
+          "mirrorSha": "387b7b5900dd73f3861589ede95aa021bb152b2c55ae30cf6b2457f5c923a160"
         }
       ]
     },
@@ -1215,8 +1446,8 @@
           "source": "registry/files/ui/alert-dialog/alert-dialog.svelte",
           "mirror": "apps/www/src/lib/ui/alert-dialog/alert-dialog.svelte",
           "target": "@ui/alert-dialog/alert-dialog.svelte",
-          "sourceSha": "c1641373c613fb2ffe12bdd54765e3d1ee558a3b9015566c4290c7e2e75e4929",
-          "mirrorSha": "c1641373c613fb2ffe12bdd54765e3d1ee558a3b9015566c4290c7e2e75e4929"
+          "sourceSha": "fb392b6aa00bf495c379a9e09ef1f39206027b3f44df23721b3e775721a39ce5",
+          "mirrorSha": "fb392b6aa00bf495c379a9e09ef1f39206027b3f44df23721b3e775721a39ce5"
         },
         {
           "source": "registry/files/ui/alert-dialog/index.ts",
@@ -1224,6 +1455,13 @@
           "target": "@ui/alert-dialog/index.ts",
           "sourceSha": "8d65a9a683923a7c1ea5e909f8c9a830946f75569ea2b7f8f11b9c7409c2b213",
           "mirrorSha": "8d65a9a683923a7c1ea5e909f8c9a830946f75569ea2b7f8f11b9c7409c2b213"
+        },
+        {
+          "source": "registry/files/ui/alert-dialog/alert-dialog.css",
+          "mirror": "apps/www/src/lib/ui/alert-dialog/alert-dialog.css",
+          "target": "@ui/alert-dialog/alert-dialog.css",
+          "sourceSha": "2b730ab3abb9d556d5b86ddcd2d12ea72746a5021810389b7699b592eeef2c92",
+          "mirrorSha": "2b730ab3abb9d556d5b86ddcd2d12ea72746a5021810389b7699b592eeef2c92"
         }
       ]
     },
@@ -1236,8 +1474,8 @@
           "source": "registry/files/ui/sheet/sheet.svelte",
           "mirror": "apps/www/src/lib/ui/sheet/sheet.svelte",
           "target": "@ui/sheet/sheet.svelte",
-          "sourceSha": "131dcbf793037ac1646bddbd8dca44d814a58a9c1c05f7b7a9f3e58d9246644b",
-          "mirrorSha": "131dcbf793037ac1646bddbd8dca44d814a58a9c1c05f7b7a9f3e58d9246644b"
+          "sourceSha": "1755f205fe0ec1d76e22d0f2820db01f63eabe3dc283c73fb5e8097dd130d0d4",
+          "mirrorSha": "1755f205fe0ec1d76e22d0f2820db01f63eabe3dc283c73fb5e8097dd130d0d4"
         },
         {
           "source": "registry/files/ui/sheet/index.ts",
@@ -1245,6 +1483,13 @@
           "target": "@ui/sheet/index.ts",
           "sourceSha": "993f31df79cc43f8faf5d9017c4225e6bd65573c4d5dd6bfbd75a1326895c71e",
           "mirrorSha": "993f31df79cc43f8faf5d9017c4225e6bd65573c4d5dd6bfbd75a1326895c71e"
+        },
+        {
+          "source": "registry/files/ui/sheet/sheet.css",
+          "mirror": "apps/www/src/lib/ui/sheet/sheet.css",
+          "target": "@ui/sheet/sheet.css",
+          "sourceSha": "f0e2482702aa98bb697a911da50631c2413737fc6a70156b3bd0513b5e855036",
+          "mirrorSha": "f0e2482702aa98bb697a911da50631c2413737fc6a70156b3bd0513b5e855036"
         }
       ]
     },
@@ -1257,8 +1502,8 @@
           "source": "registry/files/ui/hover-card/hover-card.svelte",
           "mirror": "apps/www/src/lib/ui/hover-card/hover-card.svelte",
           "target": "@ui/hover-card/hover-card.svelte",
-          "sourceSha": "72b7e0c17079e489a890d3052d91a132df58c05cd01a1d0539e56e31538e8fb9",
-          "mirrorSha": "72b7e0c17079e489a890d3052d91a132df58c05cd01a1d0539e56e31538e8fb9"
+          "sourceSha": "1e0512c0418428af78418a2babe81847a9d382b0251e24822ff92b53a29592ea",
+          "mirrorSha": "1e0512c0418428af78418a2babe81847a9d382b0251e24822ff92b53a29592ea"
         },
         {
           "source": "registry/files/ui/hover-card/index.ts",
@@ -1266,6 +1511,13 @@
           "target": "@ui/hover-card/index.ts",
           "sourceSha": "f871de1e6aa762952b2a18cc5c104d1882019c5e47b13c70f668c60b16340a8d",
           "mirrorSha": "f871de1e6aa762952b2a18cc5c104d1882019c5e47b13c70f668c60b16340a8d"
+        },
+        {
+          "source": "registry/files/ui/hover-card/hover-card.css",
+          "mirror": "apps/www/src/lib/ui/hover-card/hover-card.css",
+          "target": "@ui/hover-card/hover-card.css",
+          "sourceSha": "1430ab93589cece8e0ab18bead28c37d3b755615698950b54f26f4cc597b67a5",
+          "mirrorSha": "1430ab93589cece8e0ab18bead28c37d3b755615698950b54f26f4cc597b67a5"
         }
       ]
     },
@@ -1278,8 +1530,8 @@
           "source": "registry/files/ui/input-otp/input-otp.svelte",
           "mirror": "apps/www/src/lib/ui/input-otp/input-otp.svelte",
           "target": "@ui/input-otp/input-otp.svelte",
-          "sourceSha": "1dbdb4b028eef29f4e8bb0f97d67a943b48a9d2359cfb5921bb77d1073a9faf4",
-          "mirrorSha": "1dbdb4b028eef29f4e8bb0f97d67a943b48a9d2359cfb5921bb77d1073a9faf4"
+          "sourceSha": "2b84134b1168eaae4e8ad0235651db021e2899cf5a9a0f6febb8f71abdfdfa89",
+          "mirrorSha": "2b84134b1168eaae4e8ad0235651db021e2899cf5a9a0f6febb8f71abdfdfa89"
         },
         {
           "source": "registry/files/ui/input-otp/index.ts",
@@ -1287,6 +1539,13 @@
           "target": "@ui/input-otp/index.ts",
           "sourceSha": "78eb1c6dafb20bf71a4242ac61c632fc704d23171b4d7e242cc82d900c3eabc6",
           "mirrorSha": "78eb1c6dafb20bf71a4242ac61c632fc704d23171b4d7e242cc82d900c3eabc6"
+        },
+        {
+          "source": "registry/files/ui/input-otp/input-otp.css",
+          "mirror": "apps/www/src/lib/ui/input-otp/input-otp.css",
+          "target": "@ui/input-otp/input-otp.css",
+          "sourceSha": "ba588006ac4e02c190b6f1de571566c03da83319c8c2a4110d6304e71fcfa110",
+          "mirrorSha": "ba588006ac4e02c190b6f1de571566c03da83319c8c2a4110d6304e71fcfa110"
         }
       ]
     },
@@ -1299,8 +1558,8 @@
           "source": "registry/files/ui/toggle-group/toggle-group.svelte",
           "mirror": "apps/www/src/lib/ui/toggle-group/toggle-group.svelte",
           "target": "@ui/toggle-group/toggle-group.svelte",
-          "sourceSha": "9554edfa6a53f04cae96b16d868ca3aff8948fa062f6a0adbad5003827adee72",
-          "mirrorSha": "9554edfa6a53f04cae96b16d868ca3aff8948fa062f6a0adbad5003827adee72"
+          "sourceSha": "e524a9e00b85c3956856b3b5bc180dc0dd7e16247ec424d88d61a00d8a363540",
+          "mirrorSha": "e524a9e00b85c3956856b3b5bc180dc0dd7e16247ec424d88d61a00d8a363540"
         },
         {
           "source": "registry/files/ui/toggle-group/index.ts",
@@ -1308,6 +1567,13 @@
           "target": "@ui/toggle-group/index.ts",
           "sourceSha": "d3423106b0d73957aa6f0090d157f97565351b86f69d0fb3474d30d16501b134",
           "mirrorSha": "d3423106b0d73957aa6f0090d157f97565351b86f69d0fb3474d30d16501b134"
+        },
+        {
+          "source": "registry/files/ui/toggle-group/toggle-group.css",
+          "mirror": "apps/www/src/lib/ui/toggle-group/toggle-group.css",
+          "target": "@ui/toggle-group/toggle-group.css",
+          "sourceSha": "bb4c11ce4b74cb4f9286093e52375152f393c0a4905fe953f1104f50ceb5c2bf",
+          "mirrorSha": "bb4c11ce4b74cb4f9286093e52375152f393c0a4905fe953f1104f50ceb5c2bf"
         }
       ]
     },
@@ -1320,8 +1586,8 @@
           "source": "registry/files/ui/carousel/carousel.svelte",
           "mirror": "apps/www/src/lib/ui/carousel/carousel.svelte",
           "target": "@ui/carousel/carousel.svelte",
-          "sourceSha": "ecbeb0ec606719814672e33c8fdf75c42c15e47654536b3a0975c4cdcce1175e",
-          "mirrorSha": "ecbeb0ec606719814672e33c8fdf75c42c15e47654536b3a0975c4cdcce1175e"
+          "sourceSha": "d3094703d2f8af8e512b3e496a4fc438b3ee31dc9eb15a9d1189163b25b1da22",
+          "mirrorSha": "d3094703d2f8af8e512b3e496a4fc438b3ee31dc9eb15a9d1189163b25b1da22"
         },
         {
           "source": "registry/files/ui/carousel/index.ts",
@@ -1329,6 +1595,13 @@
           "target": "@ui/carousel/index.ts",
           "sourceSha": "444e0da55c4eefe8cacb654c89ec6da7a6e1e12a542614e32152a1a2e1f24473",
           "mirrorSha": "444e0da55c4eefe8cacb654c89ec6da7a6e1e12a542614e32152a1a2e1f24473"
+        },
+        {
+          "source": "registry/files/ui/carousel/carousel.css",
+          "mirror": "apps/www/src/lib/ui/carousel/carousel.css",
+          "target": "@ui/carousel/carousel.css",
+          "sourceSha": "6bd440fbd20ce1f52ab11d3b04d6e058c6a10aa758fe4c90ceaacc20ea912dbd",
+          "mirrorSha": "6bd440fbd20ce1f52ab11d3b04d6e058c6a10aa758fe4c90ceaacc20ea912dbd"
         }
       ]
     },
@@ -1341,8 +1614,8 @@
           "source": "registry/files/ui/command/command.svelte",
           "mirror": "apps/www/src/lib/ui/command/command.svelte",
           "target": "@ui/command/command.svelte",
-          "sourceSha": "beb3e6ea2f10c3d02cc4bf16f96b1cf5aaec3f1f594dbe770863f940076f4f54",
-          "mirrorSha": "beb3e6ea2f10c3d02cc4bf16f96b1cf5aaec3f1f594dbe770863f940076f4f54"
+          "sourceSha": "0726e9aea60372695bdf15b166639d6af0dad484d9cec84769350bb0c20f3bd8",
+          "mirrorSha": "0726e9aea60372695bdf15b166639d6af0dad484d9cec84769350bb0c20f3bd8"
         },
         {
           "source": "registry/files/ui/command/index.ts",
@@ -1350,6 +1623,13 @@
           "target": "@ui/command/index.ts",
           "sourceSha": "00cc89aeaae1867e99d438d24f4c6d521cc7639f2ae9adb34049af3b4203c94e",
           "mirrorSha": "00cc89aeaae1867e99d438d24f4c6d521cc7639f2ae9adb34049af3b4203c94e"
+        },
+        {
+          "source": "registry/files/ui/command/command.css",
+          "mirror": "apps/www/src/lib/ui/command/command.css",
+          "target": "@ui/command/command.css",
+          "sourceSha": "f3f32092fa760adf473b21a6bb5f9d4b474973e8f3a73df90f48acd11a93c127",
+          "mirrorSha": "f3f32092fa760adf473b21a6bb5f9d4b474973e8f3a73df90f48acd11a93c127"
         }
       ]
     },
@@ -1362,8 +1642,8 @@
           "source": "registry/files/ui/navigation-menu/navigation-menu.svelte",
           "mirror": "apps/www/src/lib/ui/navigation-menu/navigation-menu.svelte",
           "target": "@ui/navigation-menu/navigation-menu.svelte",
-          "sourceSha": "d03443851e38637fc88aa27f2bb0a30628910263c5bdac912bd617e64f2cc5ea",
-          "mirrorSha": "d03443851e38637fc88aa27f2bb0a30628910263c5bdac912bd617e64f2cc5ea"
+          "sourceSha": "6a482b2cf5a122201cb73b1390571e415d777de8a389f0c8ea5a620912c912eb",
+          "mirrorSha": "6a482b2cf5a122201cb73b1390571e415d777de8a389f0c8ea5a620912c912eb"
         },
         {
           "source": "registry/files/ui/navigation-menu/index.ts",
@@ -1371,6 +1651,13 @@
           "target": "@ui/navigation-menu/index.ts",
           "sourceSha": "7db2915c016aa24dfd461b2f6453f4b1fcbf8ab926c879424ea594781ad71b02",
           "mirrorSha": "7db2915c016aa24dfd461b2f6453f4b1fcbf8ab926c879424ea594781ad71b02"
+        },
+        {
+          "source": "registry/files/ui/navigation-menu/navigation-menu.css",
+          "mirror": "apps/www/src/lib/ui/navigation-menu/navigation-menu.css",
+          "target": "@ui/navigation-menu/navigation-menu.css",
+          "sourceSha": "a4e42e4c7d61313d20d7bf1605c6139e5d3d05d95aac9a46f52974eb715493c6",
+          "mirrorSha": "a4e42e4c7d61313d20d7bf1605c6139e5d3d05d95aac9a46f52974eb715493c6"
         }
       ]
     },
@@ -1383,8 +1670,8 @@
           "source": "registry/files/ui/menubar/menubar.svelte",
           "mirror": "apps/www/src/lib/ui/menubar/menubar.svelte",
           "target": "@ui/menubar/menubar.svelte",
-          "sourceSha": "fa175ae163a955eedd9f3434513ef0f080daa291af4296b390ca14255a4cb09b",
-          "mirrorSha": "fa175ae163a955eedd9f3434513ef0f080daa291af4296b390ca14255a4cb09b"
+          "sourceSha": "405edb702762b2df3fd9d570106dca45b0fd39c2c4c45727a58978f832744236",
+          "mirrorSha": "405edb702762b2df3fd9d570106dca45b0fd39c2c4c45727a58978f832744236"
         },
         {
           "source": "registry/files/ui/menubar/index.ts",
@@ -1392,6 +1679,13 @@
           "target": "@ui/menubar/index.ts",
           "sourceSha": "f59e8ab5cd68a0cc42d1dba90da3ef9b72a2c9cda329b653f5722af8c7cb0418",
           "mirrorSha": "f59e8ab5cd68a0cc42d1dba90da3ef9b72a2c9cda329b653f5722af8c7cb0418"
+        },
+        {
+          "source": "registry/files/ui/menubar/menubar.css",
+          "mirror": "apps/www/src/lib/ui/menubar/menubar.css",
+          "target": "@ui/menubar/menubar.css",
+          "sourceSha": "2be9975e052fe0ce2f85a186e3b054a349bfb89e0215a5e42e404700f79bd83b",
+          "mirrorSha": "2be9975e052fe0ce2f85a186e3b054a349bfb89e0215a5e42e404700f79bd83b"
         }
       ]
     },
@@ -1404,8 +1698,8 @@
           "source": "registry/files/ui/popconfirm/popconfirm.svelte",
           "mirror": "apps/www/src/lib/ui/popconfirm/popconfirm.svelte",
           "target": "@ui/popconfirm/popconfirm.svelte",
-          "sourceSha": "b05b37960873e299c8a0dfeceb4506a854d4a1255fcb1ce7979f16c7444f671d",
-          "mirrorSha": "b05b37960873e299c8a0dfeceb4506a854d4a1255fcb1ce7979f16c7444f671d"
+          "sourceSha": "0e3568729467a0c4ec5e22a389cbd4aa5580567a623e2538ed63775d46cfc362",
+          "mirrorSha": "0e3568729467a0c4ec5e22a389cbd4aa5580567a623e2538ed63775d46cfc362"
         },
         {
           "source": "registry/files/ui/popconfirm/index.ts",
@@ -1413,6 +1707,13 @@
           "target": "@ui/popconfirm/index.ts",
           "sourceSha": "e25701e44e2de75331054bb1893e8c9753f062e658f733ae0f3752ea0b5cbd9f",
           "mirrorSha": "e25701e44e2de75331054bb1893e8c9753f062e658f733ae0f3752ea0b5cbd9f"
+        },
+        {
+          "source": "registry/files/ui/popconfirm/popconfirm.css",
+          "mirror": "apps/www/src/lib/ui/popconfirm/popconfirm.css",
+          "target": "@ui/popconfirm/popconfirm.css",
+          "sourceSha": "26960b5d1b8a6c0f8438160378297da2b17d4ce72a0c3fd6a42c7151a53baf16",
+          "mirrorSha": "26960b5d1b8a6c0f8438160378297da2b17d4ce72a0c3fd6a42c7151a53baf16"
         }
       ]
     },
@@ -1425,8 +1726,8 @@
           "source": "registry/files/ui/empty/empty.svelte",
           "mirror": "apps/www/src/lib/ui/empty/empty.svelte",
           "target": "@ui/empty/empty.svelte",
-          "sourceSha": "2bc63b531dc2e016c0c0a6a7676e3122e31d0dc7e7b84583e690c2a4f321b55d",
-          "mirrorSha": "2bc63b531dc2e016c0c0a6a7676e3122e31d0dc7e7b84583e690c2a4f321b55d"
+          "sourceSha": "4e8f685e0bf101d724c50354770026a1f65fa13e2020385e996ea526cf341a01",
+          "mirrorSha": "4e8f685e0bf101d724c50354770026a1f65fa13e2020385e996ea526cf341a01"
         },
         {
           "source": "registry/files/ui/empty/index.ts",
@@ -1446,8 +1747,8 @@
           "source": "registry/files/ui/descriptions/descriptions.svelte",
           "mirror": "apps/www/src/lib/ui/descriptions/descriptions.svelte",
           "target": "@ui/descriptions/descriptions.svelte",
-          "sourceSha": "4ecd39bda9e0d9126017b2b5de4a063adaf575fd5ac23555a476cc35cdf796f6",
-          "mirrorSha": "4ecd39bda9e0d9126017b2b5de4a063adaf575fd5ac23555a476cc35cdf796f6"
+          "sourceSha": "c40912e63c9d323500e441a792dac7d50df059d54d964f2132d1868579865354",
+          "mirrorSha": "c40912e63c9d323500e441a792dac7d50df059d54d964f2132d1868579865354"
         },
         {
           "source": "registry/files/ui/descriptions/index.ts",
@@ -1455,6 +1756,13 @@
           "target": "@ui/descriptions/index.ts",
           "sourceSha": "5b2b032060d71085fe3329545175ddfc19de7f44588a0f8da0fb12e6923871cc",
           "mirrorSha": "5b2b032060d71085fe3329545175ddfc19de7f44588a0f8da0fb12e6923871cc"
+        },
+        {
+          "source": "registry/files/ui/descriptions/descriptions.css",
+          "mirror": "apps/www/src/lib/ui/descriptions/descriptions.css",
+          "target": "@ui/descriptions/descriptions.css",
+          "sourceSha": "54856cefb87caa26a8ab839484f0d7805ffeedcef34a6d81af1de667ee5a4b50",
+          "mirrorSha": "54856cefb87caa26a8ab839484f0d7805ffeedcef34a6d81af1de667ee5a4b50"
         }
       ]
     },
@@ -1467,8 +1775,8 @@
           "source": "registry/files/ui/steps/steps.svelte",
           "mirror": "apps/www/src/lib/ui/steps/steps.svelte",
           "target": "@ui/steps/steps.svelte",
-          "sourceSha": "fedce09478d4d4b9cb31545731a5439d84a1ac20111e7c460fc1362d9d5e0195",
-          "mirrorSha": "fedce09478d4d4b9cb31545731a5439d84a1ac20111e7c460fc1362d9d5e0195"
+          "sourceSha": "0f637acfe110c4d91c94cd5310f495972eb75c94ca3267c2350dae74bb56675a",
+          "mirrorSha": "0f637acfe110c4d91c94cd5310f495972eb75c94ca3267c2350dae74bb56675a"
         },
         {
           "source": "registry/files/ui/steps/index.ts",
@@ -1476,6 +1784,13 @@
           "target": "@ui/steps/index.ts",
           "sourceSha": "1935c1ec871dccb2162b08e52d9cff63f689525bb4cab251706cf9a8c8847b45",
           "mirrorSha": "1935c1ec871dccb2162b08e52d9cff63f689525bb4cab251706cf9a8c8847b45"
+        },
+        {
+          "source": "registry/files/ui/steps/steps.css",
+          "mirror": "apps/www/src/lib/ui/steps/steps.css",
+          "target": "@ui/steps/steps.css",
+          "sourceSha": "cc5b4c50d35cd85d741108b2fb19e9a69f194acd248906ffa9d6343f6729f7de",
+          "mirrorSha": "cc5b4c50d35cd85d741108b2fb19e9a69f194acd248906ffa9d6343f6729f7de"
         }
       ]
     },
@@ -1488,8 +1803,8 @@
           "source": "registry/files/ui/spin/spin.svelte",
           "mirror": "apps/www/src/lib/ui/spin/spin.svelte",
           "target": "@ui/spin/spin.svelte",
-          "sourceSha": "14655972c8a47617afab93f2d8eb025e8e8ab509eb6dc5a8eaea89ff7732d49e",
-          "mirrorSha": "14655972c8a47617afab93f2d8eb025e8e8ab509eb6dc5a8eaea89ff7732d49e"
+          "sourceSha": "f8b354de8e41bbda98ea5f75a6ead0bee7fe719f71d735d9ee4a7887a52c36df",
+          "mirrorSha": "f8b354de8e41bbda98ea5f75a6ead0bee7fe719f71d735d9ee4a7887a52c36df"
         },
         {
           "source": "registry/files/ui/spin/index.ts",
@@ -1497,6 +1812,13 @@
           "target": "@ui/spin/index.ts",
           "sourceSha": "05d7a80d6626c0ec3630e38fae6bc8b6f88a401b5045e8002bc8013542e64da3",
           "mirrorSha": "05d7a80d6626c0ec3630e38fae6bc8b6f88a401b5045e8002bc8013542e64da3"
+        },
+        {
+          "source": "registry/files/ui/spin/spin.css",
+          "mirror": "apps/www/src/lib/ui/spin/spin.css",
+          "target": "@ui/spin/spin.css",
+          "sourceSha": "38e4bc09705f08a3d7c5937a8d5a694faa65f69ff3499473c6e6cd0c1a30e0bc",
+          "mirrorSha": "38e4bc09705f08a3d7c5937a8d5a694faa65f69ff3499473c6e6cd0c1a30e0bc"
         }
       ]
     },
@@ -1509,8 +1831,8 @@
           "source": "registry/files/ui/statistic/statistic.svelte",
           "mirror": "apps/www/src/lib/ui/statistic/statistic.svelte",
           "target": "@ui/statistic/statistic.svelte",
-          "sourceSha": "73d63eb58247789efdea0a872d74b7a4e41096783a9f0f901207efa24fb55182",
-          "mirrorSha": "73d63eb58247789efdea0a872d74b7a4e41096783a9f0f901207efa24fb55182"
+          "sourceSha": "3a9bfc370f6f288d6d8f40ae7417b30588364df2a1f80823f8f151f077ad0c88",
+          "mirrorSha": "3a9bfc370f6f288d6d8f40ae7417b30588364df2a1f80823f8f151f077ad0c88"
         },
         {
           "source": "registry/files/ui/statistic/index.ts",
@@ -1530,8 +1852,8 @@
           "source": "registry/files/ui/timeline/timeline.svelte",
           "mirror": "apps/www/src/lib/ui/timeline/timeline.svelte",
           "target": "@ui/timeline/timeline.svelte",
-          "sourceSha": "a06101e3cc1a3bcb5775510767308de7fdb3f56340388a202a9de4f752af7f09",
-          "mirrorSha": "a06101e3cc1a3bcb5775510767308de7fdb3f56340388a202a9de4f752af7f09"
+          "sourceSha": "a9d897d02aa6ab1bc78142426d12d26d9f28674b6f0196d435fd286901d5f87f",
+          "mirrorSha": "a9d897d02aa6ab1bc78142426d12d26d9f28674b6f0196d435fd286901d5f87f"
         },
         {
           "source": "registry/files/ui/timeline/index.ts",
@@ -1539,6 +1861,13 @@
           "target": "@ui/timeline/index.ts",
           "sourceSha": "ac2f36b2e27c3bdb57ef2ee012a31fa603b11a7f0b6e5c791ed92ac3e0a23977",
           "mirrorSha": "ac2f36b2e27c3bdb57ef2ee012a31fa603b11a7f0b6e5c791ed92ac3e0a23977"
+        },
+        {
+          "source": "registry/files/ui/timeline/timeline.css",
+          "mirror": "apps/www/src/lib/ui/timeline/timeline.css",
+          "target": "@ui/timeline/timeline.css",
+          "sourceSha": "b384b57e0b5bec0768c3331e28c6a80878a57b84df309c5a69c00c9a0fec2458",
+          "mirrorSha": "b384b57e0b5bec0768c3331e28c6a80878a57b84df309c5a69c00c9a0fec2458"
         }
       ]
     },
@@ -1551,8 +1880,8 @@
           "source": "registry/files/ui/result/result.svelte",
           "mirror": "apps/www/src/lib/ui/result/result.svelte",
           "target": "@ui/result/result.svelte",
-          "sourceSha": "a746f795e8735d4e8ce18e9dbe13a09508963815decedbd7baa90f9b9c6f979c",
-          "mirrorSha": "a746f795e8735d4e8ce18e9dbe13a09508963815decedbd7baa90f9b9c6f979c"
+          "sourceSha": "aa5923e3543ec43203805ad15a313a95864167ac2a8d16d54d2bd2c2de045cbb",
+          "mirrorSha": "aa5923e3543ec43203805ad15a313a95864167ac2a8d16d54d2bd2c2de045cbb"
         },
         {
           "source": "registry/files/ui/result/index.ts",
@@ -1572,8 +1901,8 @@
           "source": "registry/files/ui/transfer/transfer.svelte",
           "mirror": "apps/www/src/lib/ui/transfer/transfer.svelte",
           "target": "@ui/transfer/transfer.svelte",
-          "sourceSha": "6b5b9336ca8d89f43838f4c79e480d0c256a2cefe0c293dde0c041ce1c44304e",
-          "mirrorSha": "6b5b9336ca8d89f43838f4c79e480d0c256a2cefe0c293dde0c041ce1c44304e"
+          "sourceSha": "c177fb550c0b372a6bade958e53cf7284d773bbea36ebcc8455a79adfdd2ba39",
+          "mirrorSha": "c177fb550c0b372a6bade958e53cf7284d773bbea36ebcc8455a79adfdd2ba39"
         },
         {
           "source": "registry/files/ui/transfer/index.ts",
@@ -1581,6 +1910,13 @@
           "target": "@ui/transfer/index.ts",
           "sourceSha": "8378b7b5edbede3a58ad0c4d19fda25079c7da866619cf4144b8283f7d7c6d09",
           "mirrorSha": "8378b7b5edbede3a58ad0c4d19fda25079c7da866619cf4144b8283f7d7c6d09"
+        },
+        {
+          "source": "registry/files/ui/transfer/transfer.css",
+          "mirror": "apps/www/src/lib/ui/transfer/transfer.css",
+          "target": "@ui/transfer/transfer.css",
+          "sourceSha": "3fa005bc7cbb62ceb77a7fe3eb4358a961a242f0bb987591531362f89fa334a9",
+          "mirrorSha": "3fa005bc7cbb62ceb77a7fe3eb4358a961a242f0bb987591531362f89fa334a9"
         }
       ]
     },
@@ -1593,8 +1929,8 @@
           "source": "registry/files/ui/cascader/cascader.svelte",
           "mirror": "apps/www/src/lib/ui/cascader/cascader.svelte",
           "target": "@ui/cascader/cascader.svelte",
-          "sourceSha": "dc407b2078d0c2357576fecc0539600d512714fb6920c9c6749a4f8d041b83e1",
-          "mirrorSha": "dc407b2078d0c2357576fecc0539600d512714fb6920c9c6749a4f8d041b83e1"
+          "sourceSha": "cd62556e0f8638caacde94e5ad98e334ea5bde85bcd5b35e97b42e05ea54ce5a",
+          "mirrorSha": "cd62556e0f8638caacde94e5ad98e334ea5bde85bcd5b35e97b42e05ea54ce5a"
         },
         {
           "source": "registry/files/ui/cascader/index.ts",
@@ -1602,6 +1938,13 @@
           "target": "@ui/cascader/index.ts",
           "sourceSha": "a20730dadcaab1d2cd4c60e2933e5c5c5966a93beba1827b7783dde299a0e9c8",
           "mirrorSha": "a20730dadcaab1d2cd4c60e2933e5c5c5966a93beba1827b7783dde299a0e9c8"
+        },
+        {
+          "source": "registry/files/ui/cascader/cascader.css",
+          "mirror": "apps/www/src/lib/ui/cascader/cascader.css",
+          "target": "@ui/cascader/cascader.css",
+          "sourceSha": "6e864b75df1f5fac2b3db70a50588f1ac0c9f2870519bd385874d927271d215f",
+          "mirrorSha": "6e864b75df1f5fac2b3db70a50588f1ac0c9f2870519bd385874d927271d215f"
         }
       ]
     },
@@ -1614,8 +1957,8 @@
           "source": "registry/files/ui/image/image.svelte",
           "mirror": "apps/www/src/lib/ui/image/image.svelte",
           "target": "@ui/image/image.svelte",
-          "sourceSha": "2a07eaaf19fd2434694b1cf708994414dbb3335ff87392467f4c2376df05e6dd",
-          "mirrorSha": "2a07eaaf19fd2434694b1cf708994414dbb3335ff87392467f4c2376df05e6dd"
+          "sourceSha": "68d7792da89b6a639ff3fedbbe55489d9efcfb5c0af1398524eb6b2a5f1db33b",
+          "mirrorSha": "68d7792da89b6a639ff3fedbbe55489d9efcfb5c0af1398524eb6b2a5f1db33b"
         },
         {
           "source": "registry/files/ui/image/index.ts",
@@ -1635,8 +1978,8 @@
           "source": "registry/files/ui/float-button/float-button.svelte",
           "mirror": "apps/www/src/lib/ui/float-button/float-button.svelte",
           "target": "@ui/float-button/float-button.svelte",
-          "sourceSha": "331ca767ed4ddc291f15531887ab4fae56d46f59bcf89e6bdfec1b85a593b52d",
-          "mirrorSha": "331ca767ed4ddc291f15531887ab4fae56d46f59bcf89e6bdfec1b85a593b52d"
+          "sourceSha": "740b1aa8c17df0b9373686d2e131a6033ace0f611eecde1eb2a1488ba89f6feb",
+          "mirrorSha": "740b1aa8c17df0b9373686d2e131a6033ace0f611eecde1eb2a1488ba89f6feb"
         },
         {
           "source": "registry/files/ui/float-button/index.ts",
@@ -1644,6 +1987,13 @@
           "target": "@ui/float-button/index.ts",
           "sourceSha": "a8795c29a9ef7c4055d41a3d44c37a6532df0cf0cab187fb152aba820eb46ced",
           "mirrorSha": "a8795c29a9ef7c4055d41a3d44c37a6532df0cf0cab187fb152aba820eb46ced"
+        },
+        {
+          "source": "registry/files/ui/float-button/float-button.css",
+          "mirror": "apps/www/src/lib/ui/float-button/float-button.css",
+          "target": "@ui/float-button/float-button.css",
+          "sourceSha": "a7e2ae47fcd7909ae0e5d75dc3664fad12a3b74b42755e2e3494ac96ebaca726",
+          "mirrorSha": "a7e2ae47fcd7909ae0e5d75dc3664fad12a3b74b42755e2e3494ac96ebaca726"
         }
       ]
     },
@@ -1656,8 +2006,8 @@
           "source": "registry/files/ui/badge-indicator/badge-indicator.svelte",
           "mirror": "apps/www/src/lib/ui/badge-indicator/badge-indicator.svelte",
           "target": "@ui/badge-indicator/badge-indicator.svelte",
-          "sourceSha": "360fd9e89d2434d721fd0e1e00d48a81259b85a59dc54e249174023b7e127113",
-          "mirrorSha": "360fd9e89d2434d721fd0e1e00d48a81259b85a59dc54e249174023b7e127113"
+          "sourceSha": "81a73a6eeaf0a0402410616a8a515ea08498417b31a9bba3b81c6ade4d60fc64",
+          "mirrorSha": "81a73a6eeaf0a0402410616a8a515ea08498417b31a9bba3b81c6ade4d60fc64"
         },
         {
           "source": "registry/files/ui/badge-indicator/index.ts",
@@ -1677,8 +2027,8 @@
           "source": "registry/files/ui/anchor/anchor.svelte",
           "mirror": "apps/www/src/lib/ui/anchor/anchor.svelte",
           "target": "@ui/anchor/anchor.svelte",
-          "sourceSha": "614118ff834549dfd8848745ce21a10499591897efd761377a552b25f5426bcd",
-          "mirrorSha": "614118ff834549dfd8848745ce21a10499591897efd761377a552b25f5426bcd"
+          "sourceSha": "5e771f20db9aa430d228ba6828e900f2b6ede4e803249c58eedba909704771e4",
+          "mirrorSha": "5e771f20db9aa430d228ba6828e900f2b6ede4e803249c58eedba909704771e4"
         },
         {
           "source": "registry/files/ui/anchor/index.ts",
@@ -1698,8 +2048,8 @@
           "source": "registry/files/ui/tour/tour.svelte",
           "mirror": "apps/www/src/lib/ui/tour/tour.svelte",
           "target": "@ui/tour/tour.svelte",
-          "sourceSha": "148b6e4741a0984dd78abce29c83e2ccd253ac6b49048b71823df92d9bdcb02b",
-          "mirrorSha": "148b6e4741a0984dd78abce29c83e2ccd253ac6b49048b71823df92d9bdcb02b"
+          "sourceSha": "76124ef40f2aeafc3c1e53cbdff2b6ab07d707ddd2976ccfed9eae87190e0639",
+          "mirrorSha": "76124ef40f2aeafc3c1e53cbdff2b6ab07d707ddd2976ccfed9eae87190e0639"
         },
         {
           "source": "registry/files/ui/tour/index.ts",
@@ -1707,6 +2057,13 @@
           "target": "@ui/tour/index.ts",
           "sourceSha": "0c29ad8a5bb5527bd176b61eb31ca9c9d41f69a10318ee5751ec4f00d3508b87",
           "mirrorSha": "0c29ad8a5bb5527bd176b61eb31ca9c9d41f69a10318ee5751ec4f00d3508b87"
+        },
+        {
+          "source": "registry/files/ui/tour/tour.css",
+          "mirror": "apps/www/src/lib/ui/tour/tour.css",
+          "target": "@ui/tour/tour.css",
+          "sourceSha": "836ff2d06a5d9554ef3772e0094b93541cff7c509c8e38c90557cee1930be79a",
+          "mirrorSha": "836ff2d06a5d9554ef3772e0094b93541cff7c509c8e38c90557cee1930be79a"
         }
       ]
     },
@@ -1758,8 +2115,8 @@
           "source": "registry/files/ui/scroll-area/scroll-area.svelte",
           "mirror": "apps/www/src/lib/ui/scroll-area/scroll-area.svelte",
           "target": "@ui/scroll-area/scroll-area.svelte",
-          "sourceSha": "45da6adde345414d182a8c73b4fb7f4ed5384294eb47363dac65a7b6f72ca192",
-          "mirrorSha": "45da6adde345414d182a8c73b4fb7f4ed5384294eb47363dac65a7b6f72ca192"
+          "sourceSha": "a12545fc16d3f32c3fc413109b9ca5ac38945febf3157a21886d04de0dcaa6e9",
+          "mirrorSha": "a12545fc16d3f32c3fc413109b9ca5ac38945febf3157a21886d04de0dcaa6e9"
         },
         {
           "source": "registry/files/ui/scroll-area/index.ts",
@@ -1767,6 +2124,13 @@
           "target": "@ui/scroll-area/index.ts",
           "sourceSha": "3d48e15a4a7d2a2a09386201fb56e7af56cc54fb0633845490ccc6b106efd354",
           "mirrorSha": "3d48e15a4a7d2a2a09386201fb56e7af56cc54fb0633845490ccc6b106efd354"
+        },
+        {
+          "source": "registry/files/ui/scroll-area/scroll-area.css",
+          "mirror": "apps/www/src/lib/ui/scroll-area/scroll-area.css",
+          "target": "@ui/scroll-area/scroll-area.css",
+          "sourceSha": "06db7fd53f9e5ed9702c409ab48b491c295cad292e1b7423a62630fa00cb62ce",
+          "mirrorSha": "06db7fd53f9e5ed9702c409ab48b491c295cad292e1b7423a62630fa00cb62ce"
         }
       ]
     },
@@ -1779,8 +2143,8 @@
           "source": "registry/files/ui/scroll-virtual/scroll-virtual.svelte",
           "mirror": "apps/www/src/lib/ui/scroll-virtual/scroll-virtual.svelte",
           "target": "@ui/scroll-virtual/scroll-virtual.svelte",
-          "sourceSha": "9e85d85ee3d4260c13911b2601fbb14484787f6ca3e3678c174a58dd823ee907",
-          "mirrorSha": "9e85d85ee3d4260c13911b2601fbb14484787f6ca3e3678c174a58dd823ee907"
+          "sourceSha": "56aae94c9e07f5797d4b28e1d7a44ba792269462a8cef00b261387828dee5469",
+          "mirrorSha": "56aae94c9e07f5797d4b28e1d7a44ba792269462a8cef00b261387828dee5469"
         },
         {
           "source": "registry/files/ui/scroll-virtual/index.ts",

@@ -38,8 +38,8 @@
   rendered tags lose their padding-inline-end”): the × button doubles as
   the chip's end inset — a removable:false chip rendered none, slamming
   the label onto the end border. The end padding is now authored on the
-  chip itself for the no-× case (:not(:has(.jx-tags-remove))); chips
-  with the × keep their exact previous metrics.
+  chip itself for the no-× case (a conditional utility); chips with the ×
+  keep their exact previous metrics.
 
   NativeHTML base audit (2026-08-20, updated by the form-field bridge the
   same day): the typing input IS a native <input type="text">, but it
@@ -54,6 +54,15 @@
   chip/input min-heights + 1px borders = the 40px (2.5rem) row every
   text-like family control renders at — the chips must shrink with the
   row, not push it past the family height.
+
+  tw4 (2026-08-24): shell/chips/input/rows static paint is token utilities
+  in the markup (markup-known states — invalid dash, the duplicate flash,
+  the no-× chip end padding, active/added suggestion rows — ride
+  conditional utilities); the .jx-field scaffold is consumed from
+  jx-pure Part A. Only the shake keyframes, the × glyph svg sizing, the
+  shell's :has() hover/focus/disabled machines, the hover states and the
+  reduced-motion kills remain in tags-input.css (D1-exempt residue under
+  the layer law).
 -->
 <script module lang="ts">
   /** One chip of the tags input; suggestions reuse the same shape. */
@@ -73,7 +82,9 @@
   import '$lib/form-field';
   import { tick } from 'svelte';
   import { icons } from '$lib/icons';
+  import { cn } from '$lib/utils';
   import type { HTMLInputAttributes } from 'svelte/elements';
+  import './tags-input.css';
 
   interface Props extends Omit<HTMLInputAttributes, 'value' | 'type'> {
     /** the committed tag set; bind:tags */
@@ -321,11 +332,14 @@
   <!-- faceless form bridge (form-field.ts law): the tag VALUES ride
        ElementInternals into FormData as one JSON array string; the
        typing input carries NO name. jx-reset / jx-disabled bubble the
-       form lifecycle back into this component. Owns no box, no content.
+       form lifecycle back into this component. Owns no box, no content —
+       the `contents` utility keeps the prerendered HTML from flashing an
+       extra flex gap pre-upgrade.
        disabled passes `|| undefined`: Svelte has no boolean-attribute
        semantics for custom elements and would render disabled="false"
        as a PRESENT attribute (presence = true in HTML). -->
   <jx-form-field
+    class="contents"
     aria-hidden="true"
     {name}
     value={formValue}
@@ -334,10 +348,13 @@
     onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
   ></jx-form-field>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span class="jx-tags-wrap" style="anchor-name: {anchorName}">
+  <span class="jx-tags-wrap relative block w-full max-w-full" style="anchor-name: {anchorName}">
     <div
-      class="jx-tags-shell {className}"
-      class:jx-tags-invalid={invalid}
+      class={cn(
+        'jx-tags-shell flex flex-wrap items-center gap-1 w-full max-w-full min-h-10 px-3 py-1.5 border border-border rounded-none bg-background scheme-light dark:scheme-dark transition-[box-shadow] duration-150 ease-out',
+        invalid && 'jx-tags-invalid border-dashed',
+        className,
+      )}
       role="listbox"
       aria-orientation="horizontal"
       aria-label={label ?? 'tags'}
@@ -346,14 +363,17 @@
         <span
           role="option"
           aria-selected="true"
-          class="jx-tags-tag"
-          class:jx-tags-flash={tag.value === flashValue}
+          class={cn(
+            'jx-tags-tag inline-flex items-center gap-1 min-h-[1.625rem] ps-2 border border-border bg-muted text-foreground text-xs leading-[1.2] transition-[border-color] duration-100 ease-out',
+            tag.removable === false && 'pe-2',
+            tag.value === flashValue && 'jx-tags-flash border-primary animate-[jx-tags-shake_150ms_ease-in-out]',
+          )}
         >
-          <span class="jx-tags-tag-label">{tag.label ?? tag.value}</span>
+          <span class="jx-tags-tag-label min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{tag.label ?? tag.value}</span>
           {#if tag.removable !== false}
             <button
               type="button"
-              class="jx-tags-remove"
+              class="jx-tags-remove inline-flex items-center justify-center self-stretch w-[1.375rem] p-0 border-0 bg-transparent text-muted-foreground text-base leading-none cursor-pointer transition-[color,transform] duration-100 ease-out disabled:cursor-not-allowed"
               aria-label={`remove ${tag.label ?? tag.value}`}
               disabled={isDisabled}
               onclick={() => removeAt(index)}
@@ -365,7 +385,7 @@
         </span>
       {/each}
       {#if full}
-        <span class="jx-tags-full">{tags.length}/{maxTags} tags</span>
+        <span class="jx-tags-full text-muted-foreground text-xs leading-[1.625rem]">{tags.length}/{maxTags} tags</span>
       {:else}
         <input
           bind:this={inputEl}
@@ -384,7 +404,7 @@
           autocomplete="off"
           autocapitalize="off"
           spellcheck="false"
-          class="jx-tags-input"
+          class="jx-tags-input flex-[1_1_0%] min-w-[120px] min-h-[1.625rem] p-0 border-0 outline-none bg-transparent text-foreground text-sm leading-[1.45] placeholder:text-muted-foreground placeholder:opacity-100"
           {placeholder}
           disabled={isDisabled}
           oninput={onInput}
@@ -407,13 +427,13 @@
     <!-- surface body (bezel paint + ::after shadow) + scroll ring
          (floating-surface law arch r3) -->
     <div class="jx-tags-panel-body jx-surface-body">
-    <div class="jx-tags-scroll">
+    <div class="jx-tags-scroll max-h-[60vh] overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-1 px-[max(4px_-_var(--jx-scrollbar-thin,0px),0px)]">
     {#if filtered.length > 0}
       <!-- mousedown is prevented so click-to-choose never blurs the input
            into a premature blur-commit -->
       <ul
         id={listboxId}
-        class="jx-tags-list"
+        class="jx-tags-list m-0 p-0 list-none"
         role="listbox"
         aria-label={label ? `${label} suggestions` : 'suggestions'}
         onmousedown={(event) => event.preventDefault()}
@@ -427,8 +447,11 @@
             id={suggestionId(index)}
             role="option"
             aria-selected={tags.some((tag) => tag.value === suggestion.value) ? 'true' : 'false'}
-            class="jx-tags-suggestion"
-            class:jx-tags-suggestion-active={index === active}
+            class={cn(
+              'jx-tags-suggestion px-[10px] py-[6px] text-[13px] leading-[1.45] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
+              index === active && 'jx-tags-suggestion-active bg-terminal-hover text-terminal-foreground',
+              tags.some((tag) => tag.value === suggestion.value) && 'bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
+            )}
             onclick={() => addTag(suggestion)}
           >
             {suggestion.label ?? suggestion.value}
@@ -444,273 +467,3 @@
     <p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>
   {/if}
 </div>
-
-<style>
-  .jx-field {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-    width: 100%;
-    min-width: 0; /* InputGroup hardening: shrink inside grid/flex hosts */
-  }
-  /* the faceless bridge owns no box — pre-hydration included, so the
-     prerendered HTML never flashes an extra flex gap before upgrade */
-  .jx-field > :global(jx-form-field) {
-    display: contents;
-  }
-  .jx-label {
-    width: fit-content;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    cursor: pointer;
-  }
-
-  /* ---- shell: the input.svelte box law as a flex-wrap chip host -------
-     height law: padding-block 0.375rem + 1.625rem content (chip/input
-     min-heights) + 1px borders = 2.5rem — the 40px row every text-like
-     family control renders at; taller chips would push the shell past
-     the family height, so they shrink with the row instead. */
-  .jx-tags-wrap {
-    position: relative;
-    display: block;
-    width: 100%;
-    max-width: 100%; /* InputGroup hardening: never push past the host row */
-  }
-  .jx-tags-shell {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.25rem; /* gap-1 between chips and wrap lines */
-    width: 100%;
-    max-width: 100%;
-    min-height: 2.5rem;
-    padding: 0.375rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--background);
-    color-scheme: light;
-    transition: box-shadow 150ms ease-out;
-  }
-  :global(.dark) .jx-tags-shell {
-    color-scheme: dark;
-  }
-  .jx-tags-shell:not(:has(input:disabled)):hover:not(:has(:focus-visible)) {
-    box-shadow: var(--shadow-2xs);
-  }
-  /* the site focus law (input.svelte): the shell carries the inset 1px
-     outline on the ring token for the input inside */
-  .jx-tags-shell:has(:focus-visible) {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-    box-shadow: none;
-  }
-  .jx-tags-shell:has(input:disabled) {
-    opacity: 0.5;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-  .jx-tags-shell.jx-tags-invalid {
-    border-style: dashed;
-  }
-
-  /* ---- chips: bg-muted, 1px border, 12px text, press-physics × --------
-     1.625rem min-height: fits the 40px shell (0.375rem padding ×2 + 2px
-     borders) exactly — the × stretches to the chip, not past the row */
-  .jx-tags-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    min-height: 1.625rem;
-    padding-inline-start: 0.5rem;
-    border: 1px solid var(--border);
-    background: var(--muted);
-    color: var(--foreground);
-    font-size: 12px;
-    line-height: 1.2;
-    transition: border-color 100ms ease-out;
-  }
-  .jx-tags-tag-label {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  /* the × is the chip's end inset when present; without it (removable:
-     false) the chip authors its own, mirroring the start padding */
-  .jx-tags-tag:not(:has(.jx-tags-remove)) {
-    padding-inline-end: 0.5rem;
-  }
-  .jx-tags-remove {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    align-self: stretch;
-    width: 1.375rem;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--muted-foreground);
-    font-family: inherit;
-    font-size: 1rem;
-    line-height: 1;
-    cursor: pointer;
-    transition: color 100ms ease-out, transform 100ms ease-out;
-  }
-  .jx-tags-remove:hover {
-    color: var(--foreground);
-  }
-  /* press physics: the × presses in one pixel */
-  .jx-tags-remove:active {
-    transform: translateY(1px);
-  }
-  .jx-tags-remove svg {
-    width: 10px;
-    height: 10px;
-  }
-  .jx-tags-remove:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-tags-remove:disabled {
-    cursor: not-allowed;
-  }
-  /* duplicate feedback: primary border for 200ms + a 150ms shake */
-  .jx-tags-tag.jx-tags-flash {
-    border-color: var(--primary);
-    animation: jx-tags-shake 150ms ease-in-out;
-  }
-  @keyframes jx-tags-shake {
-    0%,
-    100% {
-      transform: translateX(0);
-    }
-    25% {
-      transform: translateX(-2px);
-    }
-    75% {
-      transform: translateX(2px);
-    }
-  }
-
-  /* ---- the input: borderless, flexes, wraps when crowded -------------- */
-  .jx-tags-input {
-    flex: 1 1 0%;
-    min-width: 120px;
-    min-height: 1.625rem; /* 40px shell law — see .jx-tags-shell */
-    padding: 0;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: var(--foreground);
-    font-family: inherit;
-    font-size: 0.875rem;
-    line-height: 1.45;
-  }
-  .jx-tags-input::placeholder {
-    color: var(--muted-foreground);
-    opacity: 1;
-  }
-  .jx-tags-full {
-    color: var(--muted-foreground);
-    font-size: 12px;
-    line-height: 1.625rem;
-  }
-
-  /* ---- suggestion panel: terminal bezel (combobox panel law) ---------- */
-  /* bezel surface on the jx-surface law (arch r3): the panel is the
-     PLATFORM element (no paint); the body ring carries the bezel fill
-     and the ::after shadow layer; the scroll ring sits inside. */
-  .jx-tags-panel {
-    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
-    --jx-surface-solid-fill: var(--terminal);
-    position: fixed;
-    margin: 0;
-    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
-    width: anchor-size(width); /* exactly the shell */
-    max-width: min(92vw, 30rem);
-    color: var(--terminal-foreground);
-  }
-  .jx-tags-scroll {
-    max-height: 60vh;
-    overflow: auto;
-    overscroll-behavior: contain;
-    /* scrollbar law: both-edges gutters; padding-inline hands the gutter
-       back so the visual inset stays 4px */
-    scrollbar-gutter: stable both-edges;
-    padding-block: 4px;
-    padding-inline: max(4px - var(--jx-scrollbar-thin, 0px), 0px);
-  }
-  /* Engines without CSS Anchor Positioning: authored viewport-center —
-     the popover.svelte fallback visual, never worse. */
-  @supports not (anchor-name: --jx-tags-fallback) {
-    .jx-tags-panel {
-      position-anchor: auto !important;
-      inset-area: none !important;
-      inset: 0;
-      margin: auto;
-      width: min(92vw, 22rem);
-    }
-  }
-  /* Popovers get a ::backdrop too; light dismiss must never dim the page. */
-  .jx-tags-panel::backdrop {
-    background: transparent;
-  }
-
-  .jx-tags-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .jx-tags-suggestion {
-    padding: 6px 10px;
-    font-size: 13px;
-    line-height: 1.45;
-    color: color-mix(in oklab, var(--terminal-foreground) 72%, transparent);
-    /* the already-added edge line is reserved as transparent so it never
-       shifts — and border-inline-start flips under rtl */
-    border-inline-start: 2px solid transparent;
-    cursor: pointer;
-    transition: background-color 100ms ease-out, color 100ms ease-out;
-  }
-  .jx-tags-suggestion:hover,
-  .jx-tags-suggestion.jx-tags-suggestion-active {
-    background: var(--terminal-hover);
-    color: var(--terminal-foreground);
-  }
-  .jx-tags-suggestion[aria-selected='true'] {
-    background: var(--terminal-hover);
-    color: var(--terminal-foreground);
-    border-inline-start-color: var(--primary);
-  }
-
-  .jx-error {
-    display: flex;
-    gap: 0.5em;
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-error-mark {
-    font-weight: 700;
-    color: var(--destructive);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-tags-shell,
-    .jx-tags-tag,
-    .jx-tags-remove,
-    .jx-tags-suggestion {
-      transition: none;
-    }
-    .jx-tags-tag.jx-tags-flash {
-      animation: none; /* the border flash survives; the shake does not */
-    }
-  }
-</style>

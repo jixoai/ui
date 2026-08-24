@@ -1,0 +1,114 @@
+@layer theme, base, components, utilities;
+
+/* jixoai tags-input — D1-exempt residue (tw4, 2026-08-24): the shell,
+ * chips, typing input and suggestion rows paint as token utilities in
+ * the markup (markup-known states — invalid dash, the duplicate flash,
+ * the no-× chip end padding, active/added rows — ride conditional
+ * utilities); the .jx-field scaffold is consumed from jx-pure Part A.
+ * What remains here:
+ *  - the shake keyframes (not expressible as utilities; cascade-immune,
+ *    so they live outside every layer);
+ *  - the anchor-positioned panel (static residue: CSS Anchor
+ *    Positioning has no utilities; the @supports fallback and the
+ *    ::backdrop pseudo ride along) — @layer components;
+ *  - the shell's :has() hover/focus/disabled machines, the × glyph svg
+ *    sizing and the hover states (unlayered carve-out per the Part A
+ *    precedent);
+ *  - the reduced-motion kills (transitions AND the shake — the border
+ *    flash survives). */
+
+@keyframes jx-tags-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+@layer components {
+  /* ---- panel: terminal bezel (combobox panel law) ------------------------
+     bezel surface on the jx-surface law (arch r3): the panel is the
+     PLATFORM element (no paint); the body ring carries the bezel fill
+     and the ::after shadow layer; the scroll ring sits inside. */
+  :where(.jx-tags-panel) {
+    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
+    --jx-surface-solid-fill: var(--terminal);
+    position: fixed;
+    margin: 0;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    width: anchor-size(width); /* exactly the shell */
+    max-width: min(92vw, 30rem);
+    color: var(--terminal-foreground);
+  }
+  /* Engines without CSS Anchor Positioning: authored viewport-center —
+     the popover.svelte fallback visual, never worse. */
+  @supports not (anchor-name: --jx-tags-fallback) {
+    :where(.jx-tags-panel) {
+      position-anchor: auto !important;
+      inset-area: none !important;
+      inset: 0;
+      margin: auto;
+      width: min(92vw, 22rem);
+    }
+  }
+  /* Popovers get a ::backdrop too; light dismiss must never dim the page. */
+  :where(.jx-tags-panel)::backdrop {
+    background: transparent;
+  }
+  /* the shared inline icon set — 10px inside the chip row */
+  :where(.jx-tags-remove) :where(svg) {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+/* ---- the state machines (unlayered carve-out) ----------------------- */
+:where(.jx-tags-shell:not(:has(input:disabled)):hover:not(:has(:focus-visible))) {
+  box-shadow: var(--shadow-2xs);
+}
+/* the site focus law (input.svelte): the shell carries the inset 1px
+   outline on the ring token for the input inside */
+:where(.jx-tags-shell:has(:focus-visible)) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+:where(.jx-tags-shell:has(input:disabled)) {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+:where(.jx-tags-remove:hover) {
+  color: var(--foreground);
+}
+/* press physics: the × presses in one pixel */
+:where(.jx-tags-remove:active) {
+  transform: translateY(1px);
+}
+:where(.jx-tags-remove:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+:where(.jx-tags-suggestion:hover) {
+  background: var(--terminal-hover);
+  color: var(--terminal-foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-tags-shell),
+  :where(.jx-tags-tag),
+  :where(.jx-tags-remove),
+  :where(.jx-tags-suggestion) {
+    transition: none;
+  }
+  :where(.jx-tags-tag.jx-tags-flash) {
+    animation: none; /* the border flash survives; the shake does not */
+  }
+}

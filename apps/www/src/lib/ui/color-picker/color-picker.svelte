@@ -31,12 +31,23 @@
   — the same law as the Select panel, so the picker reads as one family.
   Reduced motion: nothing animates during drag (markers track the pointer
   directly); only the chevron flip is transitioned and neutralized.
+
+  tw4 (2026-08-24): trigger/pad/bar/marker static paint is token/arbitrary
+  utilities in the markup (the SV ground reads the live hue through the
+  --jx-color-picker-hue custom property set inline); the .jx-field scaffold
+  is consumed from jx-pure Part A. Only the anchor-positioned panel
+  (static residue with its closed-state display law, @supports fallback +
+  ::backdrop), the SV pad's overlay pseudos (color-space constants, not
+  themeable), the trigger/pick hover/focus machines and the reduced-motion
+  kill remain in color-picker.css (D1-exempt residue under the layer law).
 -->
 <script lang="ts">
   import { onMount } from 'svelte';
   import Input from '$lib/ui/input/input.svelte';
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import { cn } from '$lib/utils';
+  import './color-picker.css';
   import {
     colorFormats,
     formatColor,
@@ -229,15 +240,15 @@
   }
 </script>
 
-<div class="jx-field {className}">
+<div class={cn('jx-field', className)}>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
 
-  <span class="jx-color-picker-wrap" style="anchor-name: {anchorName}">
+  <span class="jx-color-picker-wrap relative block w-full" style="anchor-name: {anchorName}">
     <button
       bind:this={triggerEl}
       type="button"
       id={id}
-      class="jx-color-picker-trigger"
+      class="jx-color-picker-trigger flex items-center gap-2.5 w-full min-h-10 py-2 px-3 border border-border rounded-none bg-background text-foreground text-sm leading-[normal] cursor-pointer transition-[box-shadow] duration-150 ease-out"
       popovertarget={panelId}
       aria-haspopup="dialog"
       aria-expanded={open}
@@ -245,10 +256,13 @@
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}
     >
-      {#if showSwatch}<span class="jx-color-picker-swatch" style:background={swatch}></span>{/if}
-      {#if showValue}<span class="jx-color-picker-value">{value}</span>{/if}
+      {#if showSwatch}<span class="jx-color-picker-swatch flex-none w-4 h-4 border border-border bg-muted" style:background={swatch}></span>{/if}
+      {#if showValue}<span class="jx-color-picker-value flex-[1_1_auto] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-start font-mono text-xs">{value}</span>{/if}
       <svg
-        class="jx-color-picker-chevron"
+        class={cn(
+          'jx-color-picker-chevron flex-none w-3 h-3 pointer-events-none text-muted-foreground transition-transform duration-150 ease-out',
+          open && 'rotate-180',
+        )}
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -276,10 +290,10 @@
     <!-- surface body (bezel paint + ::after shadow + the flex column);
          the popover element paints nothing (floating-surface law arch
          r3) -->
-    <div class="jx-color-picker-surface jx-surface-body">
+    <div class="jx-color-picker-surface jx-surface-body flex flex-col gap-2.5 p-3">
     <div
       bind:this={svEl}
-      class="jx-color-picker-sv"
+      class="jx-color-picker-sv relative [direction:ltr] w-[200px] h-[150px] border border-border bg-[hsl(var(--jx-color-picker-hue)_100%_50%)] cursor-crosshair touch-none select-none"
       style="--jx-color-picker-hue: {hue}"
       onpointerdown={onSvDown}
       onpointermove={(event) => dragSV && svFromPointer(event)}
@@ -287,23 +301,23 @@
       onpointercancel={(event) => (dragSV = endDrag(svEl, event, dragSV) ? false : dragSV)}
     >
       <span
-        class="jx-color-picker-dot"
+        class="jx-color-picker-dot absolute w-2.5 h-2.5 bg-transparent border border-white shadow-[0_0_0_1px_#000] pointer-events-none"
         style="inset-inline-start: calc({sat * 100}% - 5px); top: calc({(1 - val) * 100}% - 5px)"
       ></span>
     </div>
 
     <div
       bind:this={hueEl}
-      class="jx-color-picker-hue"
+      class="jx-color-picker-hue relative [direction:ltr] w-[200px] h-3 border border-border cursor-crosshair touch-none select-none bg-[linear-gradient(to_right,hsl(0_100%_50%),hsl(60_100%_50%),hsl(120_100%_50%),hsl(180_100%_50%),hsl(240_100%_50%),hsl(300_100%_50%),hsl(360_100%_50%))]"
       onpointerdown={onHueDown}
       onpointermove={(event) => dragHue && hueFromPointer(event)}
       onpointerup={(event) => (dragHue = endDrag(hueEl, event, dragHue) ? false : dragHue)}
       onpointercancel={(event) => (dragHue = endDrag(hueEl, event, dragHue) ? false : dragHue)}
     >
-      <span class="jx-color-picker-dot jx-color-picker-dot-hue" style="inset-inline-start: calc({(hue / 360) * 100}% - 5px)"></span>
+      <span class="jx-color-picker-dot jx-color-picker-dot-hue absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-transparent border border-white shadow-[0_0_0_1px_#000] pointer-events-none" style="inset-inline-start: calc({(hue / 360) * 100}% - 5px)"></span>
     </div>
 
-    <NativeSelect class="jx-color-picker-format" value={format} onchange={setFormat} aria-label="color format">
+    <NativeSelect class="jx-color-picker-format text-xs" value={format} onchange={setFormat} aria-label="color format">
       <option value="hex">hex</option>
       <option value="hsl">hsl</option>
       <option value="oklch">oklch</option>
@@ -313,7 +327,7 @@
 
     {#if canPick}
       <!-- PressButton takes no class prop — the wrapper owns the row width -->
-      <div class="jx-color-picker-pick">
+      <div class="jx-color-picker-pick flex justify-center w-full">
         <PressButton variant="outline" onclick={pickFromScreen}>
           Pick from screen
         </PressButton>
@@ -326,227 +340,3 @@
     <p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>
   {/if}
 </div>
-
-<style>
-  .jx-field {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-    width: 100%;
-  }
-  .jx-label {
-    width: fit-content;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    cursor: pointer;
-  }
-
-  /* ---- trigger: family shell + swatch + mono readout + chevron -------- */
-  .jx-color-picker-wrap {
-    position: relative;
-    display: block;
-    width: 100%;
-  }
-  .jx-color-picker-trigger {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    width: 100%;
-    min-height: 2.5rem;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--background);
-    color: var(--foreground);
-    font-family: inherit;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: box-shadow 150ms ease-out;
-  }
-  .jx-color-picker-trigger:hover:not(:focus-visible) {
-    box-shadow: var(--shadow-2xs);
-  }
-  /* the site focus law: inset 1px outline on the ring token */
-  .jx-color-picker-trigger:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-    box-shadow: none;
-  }
-  .jx-color-picker-trigger[aria-invalid='true'] {
-    border-style: dashed;
-  }
-  .jx-color-picker-swatch {
-    flex: none;
-    width: 16px;
-    height: 16px;
-    border: 1px solid var(--border);
-    background: var(--muted);
-  }
-  .jx-color-picker-value {
-    flex: 1 1 auto;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    text-align: start;
-    font-family: var(--font-mono);
-    font-size: 12px;
-  }
-  .jx-color-picker-chevron {
-    flex: none;
-    width: 0.75rem;
-    height: 0.75rem;
-    pointer-events: none;
-    color: var(--muted-foreground);
-    transition: transform 150ms ease-out;
-  }
-  .jx-color-picker-trigger[aria-expanded='true'] .jx-color-picker-chevron {
-    transform: rotate(180deg);
-  }
-
-  /* ---- panel: terminal bezel popover (select.svelte law) --------------- */
-  /* bezel surface on the jx-surface law (arch r3): the panel is the
-     PLATFORM element (no paint); the surface body carries the bezel
-     fill, the flex column, and the ::after shadow layer. */
-  .jx-color-picker-panel {
-    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
-    --jx-surface-solid-fill: var(--terminal);
-    position: fixed;
-    margin: 0;
-    position-try-fallbacks: flip-block;
-    width: 226px; /* 200px pad + 2×12px padding + 2px border */
-    color: var(--terminal-foreground);
-    /* center on the anchor (the panel is wider than the trigger) */
-    justify-self: anchor-center;
-  }
-  .jx-color-picker-surface {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 12px;
-  }
-  /* display:flex on the panel would defeat the UA sheet's closed-popover
-     hiding — closed panels MUST be display:none or they render at their
-     static position and intercept pointer events (found in smoke test) */
-  .jx-color-picker-panel:not(:popover-open) {
-    display: none;
-  }
-  /* Engines without CSS Anchor Positioning: authored viewport-center */
-  @supports not (anchor-name: --jx-color-picker-fallback) {
-    .jx-color-picker-panel {
-      position-anchor: auto !important;
-      inset-area: none !important;
-      inset: 0;
-      margin: auto;
-      width: min(92vw, 226px);
-      height: fit-content;
-    }
-  }
-  .jx-color-picker-panel::backdrop {
-    background: transparent;
-  }
-
-  /* ---- SV pad: pure-hue ground + the two overlay gradients -------------
-     direction is pinned ltr: the pad maps color space (sat right, value
-     up), not document flow — RTL flips the trigger, never the map. */
-  .jx-color-picker-sv {
-    position: relative;
-    direction: ltr;
-    width: 200px;
-    height: 150px;
-    background: hsl(var(--jx-color-picker-hue) 100% 50%);
-    border: 1px solid var(--border);
-    cursor: crosshair;
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  .jx-color-picker-sv::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to right, #fff, transparent);
-  }
-  .jx-color-picker-sv::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, #000, transparent);
-  }
-  .jx-color-picker-dot {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background: transparent;
-    border: 1px solid #fff;
-    box-shadow: 0 0 0 1px #000; /* readable on any ground */
-    pointer-events: none;
-  }
-
-  /* ---- hue bar: full spectrum, 12px tall, square marker ---------------- */
-  .jx-color-picker-hue {
-    position: relative;
-    direction: ltr;
-    width: 200px;
-    height: 12px;
-    background: linear-gradient(
-      to right,
-      hsl(0 100% 50%),
-      hsl(60 100% 50%),
-      hsl(120 100% 50%),
-      hsl(180 100% 50%),
-      hsl(240 100% 50%),
-      hsl(300 100% 50%),
-      hsl(360 100% 50%)
-    );
-    border: 1px solid var(--border);
-    cursor: crosshair;
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  .jx-color-picker-dot-hue {
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
-  /* ---- panel controls ride the bezel ----------------------------------- */
-  .jx-color-picker-format {
-    font-size: 12px;
-  }
-  .jx-color-picker-pick {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-  }
-  .jx-color-picker-pick :global(button) {
-    justify-content: center;
-    width: 100%;
-  }
-
-  .jx-error {
-    display: flex;
-    gap: 0.5em;
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-error-mark {
-    font-weight: 700;
-    color: var(--destructive);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-color-picker-trigger,
-    .jx-color-picker-chevron {
-      transition: none;
-    }
-  }
-</style>

@@ -404,7 +404,9 @@
         "group": "engines",
         "href": "/components/jx-pure.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -442,12 +444,19 @@
           "path": "registry/files/ui/input/index.ts",
           "target": "@ui/input/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/input/input.css",
+          "target": "@ui/input/input.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: type, label?, error?, clearable?, innerInlineStart/innerInlineEnd/outerBlockStart/outerBlockEnd snippets, id? (auto), class, value ($bindable), ...restProps passed to the native input.",
       "registryDependencies": [
         "@jixoai/icons",
-        "@jixoai/jx-pure"
+        "@jixoai/jx-pure",
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "data-entry",
@@ -470,10 +479,18 @@
           "path": "registry/files/ui/select/index.ts",
           "target": "@ui/select/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/select/select.css",
+          "target": "@ui/select/select.css",
+          "type": "registry:file"
         }
       ],
       "registryDependencies": [
-        "@jixoai/form-field"
+        "@jixoai/form-field",
+        "@jixoai/utils",
+        "@jixoai/jx-pure",
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "data-entry",
@@ -502,7 +519,11 @@
         "group": "data-entry",
         "href": "/components/form.html#select-textarea"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jx-pure",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -820,13 +841,22 @@
           "path": "registry/files/ui/checkbox/index.ts",
           "target": "@ui/checkbox/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/checkbox/checkbox.css",
+          "target": "@ui/checkbox/checkbox.css",
+          "type": "registry:file"
         }
       ],
       "meta": {
         "group": "data-entry",
         "href": "/components/form.html#example-form"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jx-pure",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -844,13 +874,22 @@
           "path": "registry/files/ui/radio/index.ts",
           "target": "@ui/radio/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/radio/radio.css",
+          "target": "@ui/radio/radio.css",
+          "type": "registry:file"
         }
       ],
       "meta": {
         "group": "data-entry",
         "href": "/components/form.html#example-form"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jx-pure",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -900,13 +939,22 @@
           "path": "registry/files/ui/native-select/index.ts",
           "target": "@ui/native-select/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/native-select/native-select.css",
+          "target": "@ui/native-select/native-select.css",
+          "type": "registry:file"
         }
       ],
       "meta": {
         "group": "data-entry",
         "href": "/components/form.html#select-textarea"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jx-pure",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -924,10 +972,17 @@
           "path": "registry/files/ui/number-input/index.ts",
           "target": "@ui/number-input/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/number-input/number-input.css",
+          "target": "@ui/number-input/number-input.css",
+          "type": "registry:file"
         }
       ],
       "registryDependencies": [
-        "@jixoai/jx-pure"
+        "@jixoai/jx-pure",
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "data-entry",
@@ -950,12 +1005,19 @@
           "path": "registry/files/ui/range/index.ts",
           "target": "@ui/range/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/range/range.css",
+          "target": "@ui/range/range.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: label?, error?, showValue?, min/max/step, name?, value ($bindable). role=slider contract; aria-labelledby wiring per the family law.",
       "registryDependencies": [
         "@jixoai/form-field",
-        "@jixoai/jx-pure"
+        "@jixoai/jx-pure",
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "data-entry",
@@ -978,11 +1040,19 @@
           "path": "registry/files/ui/date-picker/index.ts",
           "target": "@ui/date-picker/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/date-picker/date-picker.css",
+          "target": "@ui/date-picker/date-picker.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: label?, error?, mode 'single'|'range', value ($bindable ISO string or {start?,end?}). Never a native input[type=date].",
       "registryDependencies": [
-        "@jixoai/popover"
+        "@jixoai/popover",
+        "@jixoai/utils",
+        "@jixoai/jx-pure",
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "data-entry",
@@ -1005,6 +1075,11 @@
           "path": "registry/files/ui/file-input/index.ts",
           "target": "@ui/file-input/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/file-input/file-input.css",
+          "target": "@ui/file-input/file-input.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: label?, error?, hint?, accept?, multiple?, disabled?, maxFiles?, variant 'drop'|'button', size 'sm'|'md'|'lg', files ($bindable File[]), onreject? (rejected File[] from drops), zone? snippet (drop-zone content). Events: change forwards from the native input.",
@@ -1012,7 +1087,10 @@
         "group": "data-entry",
         "href": "/components/file-input.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1030,13 +1108,22 @@
           "path": "registry/files/ui/color-picker/index.ts",
           "target": "@ui/color-picker/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/color-picker/color-picker.css",
+          "target": "@ui/color-picker/color-picker.css",
+          "type": "registry:file"
         }
       ],
       "meta": {
         "group": "data-entry",
         "href": "/components/form.html#all-types"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jx-pure",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1054,10 +1141,18 @@
           "path": "registry/files/ui/combobox/index.ts",
           "target": "@ui/combobox/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/combobox/combobox.css",
+          "target": "@ui/combobox/combobox.css",
+          "type": "registry:file"
         }
       ],
       "registryDependencies": [
-        "@jixoai/form-field"
+        "@jixoai/form-field",
+        "@jixoai/utils",
+        "@jixoai/jx-pure",
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "data-entry",
@@ -1080,11 +1175,19 @@
           "path": "registry/files/ui/tags-input/index.ts",
           "target": "@ui/tags-input/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/tags-input/tags-input.css",
+          "target": "@ui/tags-input/tags-input.css",
+          "type": "registry:file"
         }
       ],
       "registryDependencies": [
         "@jixoai/form-field",
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/utils",
+        "@jixoai/jx-pure",
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "data-entry",
@@ -1678,11 +1781,18 @@
           "path": "registry/files/ui/input-otp/index.ts",
           "target": "@ui/input-otp/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/input-otp/input-otp.css",
+          "target": "@ui/input-otp/input-otp.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: name?, length? (6), value ($bindable), numeric? (true), label?, error?, disabled?. Two-way slot/value sync is untracked on the slots side \u2014 slot mutations can never be re-synced against stale value. Requires the form-field bridge item (installed as its dependency).",
       "registryDependencies": [
-        "@jixoai/form-field"
+        "@jixoai/form-field",
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "data-entry",
@@ -2120,11 +2230,18 @@
           "path": "registry/files/ui/transfer/index.ts",
           "target": "@ui/transfer/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/transfer/transfer.css",
+          "target": "@ui/transfer/transfer.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: options ({value,label,disabled?}[]), value ($bindable string[]), name? (bridge: target values submit as multi-entry FormData), sourceTitle/targetTitle?, searchPlaceholder?, onchange?.",
       "registryDependencies": [
-        "@jixoai/form-field"
+        "@jixoai/form-field",
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "data-entry",
@@ -2147,11 +2264,18 @@
           "path": "registry/files/ui/cascader/index.ts",
           "target": "@ui/cascader/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/cascader/cascader.css",
+          "target": "@ui/cascader/cascader.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: options (CascaderOption tree), name?, value ($bindable string[]), separator?, disabled?, label?, placeholder?.",
       "registryDependencies": [
-        "@jixoai/form-field"
+        "@jixoai/form-field",
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "data-entry",

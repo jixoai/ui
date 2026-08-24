@@ -1,0 +1,17 @@
+@layer theme, base, components, utilities;
+
+/* jixoai input-otp — D1-exempt residue (tw4, 2026-08-24): slot, label
+ * and error paint live as token utilities in the markup (filled /
+ * complete / invalid borders ride conditional utilities). Only the
+ * :focus outline law remains — plus the complete-state ink swap, which
+ * composes two states (focus AND complete) on one element. Unlayered
+ * :where() carve-out per the Part A precedent: zero specificity, still
+ * beats the layered utility paint. */
+
+:where(.jx-otp-slot:focus) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+:where(.jx-otp-slot.jx-otp-complete:focus) {
+  outline-color: var(--primary);
+}

@@ -1,0 +1,32 @@
+@layer theme, base, components, utilities;
+
+/* jixoai input — D1-exempt residue (tw4, 2026-08-24): the slot/clear
+ * static paint lives as token utilities in the markup; only the
+ * descendant + pseudo rules utilities cannot express remain — the ×
+ * glyph's svg sizing (the icon arrives via {@html}, no class hook),
+ * the native search-cancel pseudo kill (a UA pseudo-element build),
+ * and the clear button's hover/focus state machine (unlayered carve-out
+ * — it must beat the button's own utility paint). The box/lane laws
+ * (.jx-field-shell / .jx-input-lane / .jx-range / .jx-color-field) are
+ * consumed from jx-pure Part A, never redefined here. */
+
+@layer components {
+  /* the shared inline icon set — 10px inside the 1.125rem hit area */
+  :where(.jx-clear) :where(svg) {
+    width: 10px;
+    height: 10px;
+  }
+  /* the native search decoration bows out when our own × is on duty */
+  :where(.jx-field-shell.jx-clearable) :where(.jx-input-lane)::-webkit-search-cancel-button {
+    display: none;
+  }
+}
+
+/* ---- the clear button state machine (unlayered carve-out) ---------- */
+:where(.jx-clear:hover) {
+  color: var(--foreground);
+}
+:where(.jx-clear:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}

@@ -1,0 +1,74 @@
+@layer theme, base, components, utilities;
+
+/* jixoai checkbox — D1-exempt residue (tw4, 2026-08-24): the glyph
+ * ::before build (pseudo-element paint, utilities cannot express) and
+ * the state machine (:checked/:indeterminate repaint, hover lean,
+ * focus-visible ring, disabled, invalid). Static paint lives as token
+ * utilities in the markup; the .jx-field/.jx-label/.jx-error scaffold
+ * is consumed from jx-pure Part A.
+ *
+ * CASCADE CARVE-OUT (the Part A precedent): state rules that override
+ * the element's own utility paint ride UNLAYERED behind :where() —
+ * zero specificity, still beats layered utilities. The static glyph
+ * build stays in @layer components (nothing competes with it). */
+
+@layer components {
+  /* ---- the glyph: one ::before, clip-path + rotate ------------------
+     a 10×10 box (inset 2px inside the 14px padding box) rotated 45°,
+     clipped to a 6-vertex polygon. unchecked = collapsed sliver +
+     opacity 0; checked = the check grows upward (vertices D/E travel
+     80%→0%); indeterminate = rotate back to 0 and morph into a
+     horizontal bar. Same vertex count everywhere so CSS interpolates. */
+  :where(.jx-checkbox)::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    display: block;
+    background: var(--primary-foreground);
+    opacity: 0;
+    transform: rotate(45deg);
+    clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 80%, 70% 80%, 70% 100%);
+    transition:
+      clip-path 150ms ease-out,
+      opacity 150ms ease-out,
+      transform 150ms ease-out;
+  }
+}
+
+/* ---- the state machine (unlayered carve-out) ----------------------- */
+:where(.jx-checkbox:hover:not(:checked):not(:disabled)) {
+  border-color: var(--primary);
+}
+:where(.jx-checkbox:checked),
+:where(.jx-checkbox:indeterminate) {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+:where(.jx-checkbox:checked)::before {
+  opacity: 1;
+  clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%);
+}
+:where(.jx-checkbox:indeterminate)::before {
+  opacity: 1;
+  transform: rotate(0deg);
+  clip-path: polygon(10% 40%, 10% 60%, 45% 60%, 55% 60%, 90% 60%, 90% 40%);
+}
+/* the site focus law: inset 1px outline on the ring token */
+:where(.jx-checkbox:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+:where(.jx-checkbox:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+:where(.jx-checkbox[aria-invalid='true']) {
+  border-style: dashed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-checkbox),
+  :where(.jx-checkbox)::before {
+    transition: none;
+  }
+}

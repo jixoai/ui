@@ -1,0 +1,43 @@
+@layer theme, base, components, utilities;
+
+/* jixoai number-input — D1-exempt residue (tw4, 2026-08-24): the
+ * composite's static paint (shell row, steppers, centered cell) lives
+ * as token utilities in the markup; only the state machines remain —
+ * the shell's hover lift / focus-within shadow kill (the inner INPUT
+ * carries the focus law, typing being the primary path), the stepper
+ * hover/press poses, both focus rings and the reduced-motion kill.
+ * The rules ride UNLAYERED behind :where() (the Part A precedent):
+ * zero specificity, still beating the components' own layered utility
+ * paint. The .jx-field scaffold is consumed from jx-pure Part A. */
+
+:where(.jx-num:hover:not(:focus-within):not(.jx-num-off)) {
+  box-shadow: var(--shadow-2xs);
+}
+:where(.jx-num:focus-within) {
+  box-shadow: none;
+}
+
+:where(.jx-num-btn:hover:not(:disabled)) {
+  background: var(--muted);
+}
+/* press physics, direction-neutral: press back INTO the page */
+:where(.jx-num-btn:active:not(:disabled)) {
+  transform: translateY(1px);
+}
+:where(.jx-num-btn:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+/* focus law rides the INPUT (typing is the primary path) */
+:where(.jx-num-input:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-num),
+  :where(.jx-num-btn) {
+    transition: none;
+  }
+}

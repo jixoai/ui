@@ -41,6 +41,14 @@
   (never the label) reaches FormData through ElementInternals, form reset
   bubbles back as jx-reset, form/fieldset disable as jx-disabled. Style,
   structure and ARIA stay in this file — the bridge owns no paint.
+
+  tw4 (2026-08-24): trigger/rows/scroll static paint is token utilities
+  in the markup (markup-known states — selected/active/disabled rows, the
+  open chevron flip — ride conditional utilities); the .jx-field scaffold
+  is consumed from jx-pure Part A. Only the anchor-positioned panel
+  (static residue with its @supports fallback + ::backdrop), the
+  hover/focus/disabled state machines and the reduced-motion kill remain
+  in select.css (D1-exempt residue under the layer law).
 -->
 <script module lang="ts">
   /** One row of the Select listbox. */
@@ -61,6 +69,8 @@
   // (client-only, idempotent) that carries this field's form association
   import '$lib/form-field';
   import type { HTMLButtonAttributes } from 'svelte/elements';
+  import { cn } from '$lib/utils';
+  import './select.css';
 
   interface Props extends HTMLButtonAttributes {
     /** the full option list (order = panel order) */
@@ -227,11 +237,14 @@
 <div class="jx-field">
   <!-- faceless form bridge (form-field.ts law): the committed value rides
        ElementInternals into FormData; jx-reset / jx-disabled bubble the
-       form lifecycle back into this component. Owns no box, no content.
+       form lifecycle back into this component. Owns no box, no content —
+       the `contents` utility keeps the prerendered HTML from flashing an
+       extra flex gap pre-upgrade.
        disabled passes `|| undefined`: Svelte has no boolean-attribute
        semantics for custom elements and would render disabled="false"
        as a PRESENT attribute (presence = true in HTML). -->
   <jx-form-field
+    class="contents"
     aria-hidden="true"
     {name}
     value={value ?? ''}
@@ -240,7 +253,7 @@
     onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
   ></jx-form-field>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span class="jx-sel-wrap" style="anchor-name: {anchorName}">
+  <span class="jx-sel-wrap relative block w-full max-w-full" style="anchor-name: {anchorName}">
     <!-- aria-invalid rides the trigger although the checker's per-role
          list doesn't include it: it IS a WAI-ARIA global state, and the
          family law wires invalid state on the control itself -->
@@ -249,7 +262,10 @@
       bind:this={triggerEl}
       type="button"
       id={id}
-      class="jx-sel-trigger {className}"
+      class={cn(
+        'jx-sel-trigger flex items-center gap-3 w-full min-h-10 py-2 px-3 border border-border rounded-none bg-background text-foreground text-sm leading-[1.45] text-start cursor-pointer transition-[box-shadow] duration-150 ease-out',
+        className,
+      )}
       popovertarget={panelId}
       aria-haspopup="listbox"
       aria-expanded={open}
@@ -260,11 +276,19 @@
       onkeydown={onTriggerKeydown}
       {...rest}
     >
-      <span class="jx-sel-value" class:jx-sel-placeholder={!selected}>
+      <span
+        class={cn(
+          'jx-sel-value flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-start',
+          !selected && 'jx-sel-placeholder text-muted-foreground',
+        )}
+      >
         {selected?.label ?? placeholder}
       </span>
       <svg
-        class="jx-sel-chevron"
+        class={cn(
+          'jx-sel-chevron flex-none w-3 h-3 pointer-events-none text-muted-foreground transition-transform duration-150 ease-out',
+          open && 'rotate-180',
+        )}
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -292,11 +316,11 @@
          nothing; the bezel fill resolves through the panel's fill
          props cascading into the body) -->
     <div class="jx-sel-panel-body jx-surface-body">
-    <div class="jx-sel-scroll">
+    <div class="jx-sel-scroll max-h-[60vh] overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-1 px-[max(4px_-_var(--jx-scrollbar-thin,0px),0px)]">
     <ul
       bind:this={listEl}
       id={listboxId}
-      class="jx-sel-list"
+      class="jx-sel-list m-0 p-0 list-none"
       role="listbox"
       tabindex="-1"
       aria-label={label ?? placeholder}
@@ -313,15 +337,17 @@
           role="option"
           aria-selected={option.value === value ? 'true' : 'false'}
           aria-disabled={option.disabled ? 'true' : undefined}
-          class="jx-sel-option"
-          class:jx-sel-selected={option.value === value}
-          class:jx-sel-active={index === active}
-          class:jx-sel-disabled={option.disabled}
+          class={cn(
+            'jx-sel-option flex flex-col gap-0.5 px-[10px] py-[6px] text-[13px] leading-[1.45] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
+            index === active && 'jx-sel-active bg-terminal-hover text-terminal-foreground',
+            option.value === value && 'jx-sel-selected bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
+            option.disabled && 'jx-sel-disabled opacity-50 pointer-events-none',
+          )}
           onclick={() => choose(option)}
         >
-          <span class="jx-sel-option-label">{option.label}</span>
+          <span class="jx-sel-option-label min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{option.label}</span>
           {#if option.description}
-            <span class="jx-sel-option-desc">{option.description}</span>
+            <span class="jx-sel-option-desc text-[11px] leading-[1.4] text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]">{option.description}</span>
           {/if}
         </li>
       {/each}
@@ -334,207 +360,3 @@
     <p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>
   {/if}
 </div>
-
-<style>
-  .jx-field {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-    width: 100%;
-    min-width: 0; /* InputGroup hardening: shrink inside grid/flex hosts */
-  }
-  /* the faceless bridge owns no box — pre-hydration included, so the
-     prerendered HTML never flashes an extra flex gap before upgrade */
-  .jx-field > :global(jx-form-field) {
-    display: contents;
-  }
-  .jx-label {
-    width: fit-content;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    cursor: pointer;
-  }
-
-  /* ---- trigger: the closed native select's paint, on a real <button> -- */
-  .jx-sel-wrap {
-    position: relative;
-    display: block;
-    width: 100%;
-    max-width: 100%; /* InputGroup hardening: never push past the host row */
-  }
-  .jx-sel-trigger {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-    min-height: 2.5rem;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--background);
-    color: var(--foreground);
-    font-family: inherit;
-    font-size: 0.875rem;
-    line-height: 1.45;
-    text-align: start;
-    cursor: pointer;
-    transition: box-shadow 150ms ease-out;
-  }
-  .jx-sel-trigger:hover:not(:focus-visible) {
-    box-shadow: var(--shadow-2xs);
-  }
-  /* the site focus law: inset 1px outline on the ring token */
-  .jx-sel-trigger:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-    box-shadow: none;
-  }
-  .jx-sel-trigger:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .jx-sel-trigger[aria-invalid='true'] {
-    border-style: dashed;
-  }
-  .jx-sel-value {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    text-align: start;
-  }
-  .jx-sel-placeholder {
-    color: var(--muted-foreground);
-  }
-  .jx-sel-chevron {
-    flex: none;
-    width: 0.75rem;
-    height: 0.75rem;
-    pointer-events: none;
-    color: var(--muted-foreground);
-    transition: transform 150ms ease-out;
-  }
-  .jx-sel-trigger[aria-expanded='true'] .jx-sel-chevron {
-    transform: rotate(180deg);
-  }
-
-  /* ---- panel: terminal bezel dropdown (language-switcher menu law) -- */
-  /* bezel surface on the jx-surface law (arch r3): the panel is the
-     PLATFORM element (no paint); the body ring carries the bezel fill
-     (identity in BOTH variants through the fill props cascading from
-     the panel) and the ::after shadow layer. The scroll ring sits
-     inside the body. */
-  .jx-sel-panel {
-    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
-    --jx-surface-solid-fill: var(--terminal);
-    position: fixed;
-    margin: 0;
-    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
-    width: anchor-size(width); /* exactly the trigger — the select look */
-    max-width: min(92vw, 30rem);
-    color: var(--terminal-foreground);
-  }
-  .jx-sel-scroll {
-    max-height: 60vh;
-    overflow: auto;
-    overscroll-behavior: contain;
-    /* scrollbar law: both-edges gutters; padding-inline hands the gutter
-       back so the visual inset stays 4px */
-    scrollbar-gutter: stable both-edges;
-    padding-block: 4px;
-    padding-inline: max(4px - var(--jx-scrollbar-thin, 0px), 0px);
-  }
-  /* Engines without CSS Anchor Positioning: authored viewport-center —
-     the popover.svelte fallback visual, never worse. */
-  @supports not (anchor-name: --jx-sel-fallback) {
-    .jx-sel-panel {
-      position-anchor: auto !important;
-      inset-area: none !important;
-      inset: 0;
-      margin: auto;
-      width: min(92vw, 22rem);
-    }
-  }
-  /* Popovers get a ::backdrop too; light dismiss must never dim the page. */
-  .jx-sel-panel::backdrop {
-    background: transparent;
-  }
-
-  .jx-sel-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  /* the list itself is the programmatic focus stop (aria-activedescendant
-     roving pattern) — the highlighted row IS the focus indication */
-  .jx-sel-list:focus-visible {
-    outline: none;
-  }
-  .jx-sel-option {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 6px 10px;
-    font-size: 13px;
-    line-height: 1.45;
-    color: color-mix(in oklab, var(--terminal-foreground) 72%, transparent);
-    /* the selected edge line is reserved as transparent so selecting a
-       row never shifts it — and border-inline-start flips under rtl */
-    border-inline-start: 2px solid transparent;
-    cursor: pointer;
-    transition: background-color 100ms ease-out, color 100ms ease-out;
-  }
-  .jx-sel-option:hover,
-  .jx-sel-option.jx-sel-active {
-    background: var(--terminal-hover);
-    color: var(--terminal-foreground);
-  }
-  .jx-sel-option.jx-sel-selected {
-    background: var(--terminal-hover);
-    color: var(--terminal-foreground);
-    border-inline-start-color: var(--primary);
-  }
-  .jx-sel-option.jx-sel-disabled {
-    opacity: 0.5;
-    pointer-events: none;
-  }
-  .jx-sel-option-label {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .jx-sel-option-desc {
-    font-size: 11px;
-    line-height: 1.4;
-    color: color-mix(in oklab, var(--terminal-foreground) 55%, transparent);
-  }
-
-  .jx-error {
-    display: flex;
-    gap: 0.5em;
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-error-mark {
-    font-weight: 700;
-    color: var(--destructive);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-sel-trigger,
-    .jx-sel-chevron,
-    .jx-sel-option {
-      transition: none;
-    }
-  }
-</style>

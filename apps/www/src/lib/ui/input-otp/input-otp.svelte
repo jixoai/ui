@@ -15,11 +15,19 @@
 
   Keyboard: the slots are real inputs — arrows walk them, and typing
   anywhere advances. disabled dims the whole set.
+
+  tw4 (2026-08-24): static slot/label/error paint is token utilities in
+  the markup (markup-known states — filled/complete/invalid borders —
+  ride conditional utilities); only the :focus outline law (and its
+  complete-state ink) remains in input-otp.css (D1-exempt residue under
+  the layer law).
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
   import { untrack } from 'svelte';
+  import { cn } from '$lib/utils';
   import '$lib/form-field';
+  import './input-otp.css';
 
   interface Props extends Omit<HTMLInputAttributes, 'value' | 'type' | 'maxlength'> {
     /** form field name — the joined code submits under this name */
@@ -142,7 +150,7 @@
   }
 
   /** focus ENTERING the set from outside lands on the first empty
-   *  slot; moves between slots (arrows, typing) are left alone */
+   * slot; moves between slots (arrows, typing) are left alone */
   function handleFocusIn(event: FocusEvent): void {
     if (event.currentTarget.contains(event.relatedTarget)) return;
     const target = Math.max(0, chars.findIndex((ch) => ch === ''));
@@ -161,11 +169,11 @@
   onjx-disabled={(e: CustomEvent<boolean>) => (formDisabled = e.detail)}
 ></jx-form-field>
 
-<div class="jx-otp {className}" role="group" aria-label={label ?? 'one-time code'}>
+<div class={cn('jx-otp flex flex-col gap-1.5 w-fit', className)} role="group" aria-label={label ?? 'one-time code'}>
     {#if label}
-      <label class="jx-otp-label" for="{id}-0">{label}</label>
+      <label class="jx-otp-label font-nav text-xs tracking-[0.1em] uppercase text-muted-foreground" for="{id}-0">{label}</label>
     {/if}
-    <div class="jx-otp-slots" onfocusin={handleFocusIn}>
+    <div class="jx-otp-slots flex gap-1.5" onfocusin={handleFocusIn}>
       {#each chars as ch, index (index)}
         <input
           id="{id}-{index}"
@@ -173,10 +181,12 @@
           inputmode={numeric ? 'numeric' : 'text'}
           autocomplete={index === 0 ? 'one-time-code' : undefined}
           maxlength={slots}
-          class="jx-otp-slot"
-          class:jx-otp-filled={ch !== ''}
-          class:jx-otp-complete={complete}
-          class:jx-otp-invalid={!!error}
+          class={cn(
+            'jx-otp-slot box-border w-[2.375rem] h-[2.75rem] p-0 border border-border bg-background text-foreground font-mono text-lg text-center rounded-(--radius) caret-primary disabled:opacity-50 disabled:cursor-not-allowed',
+            ch !== '' && 'jx-otp-filled border-foreground',
+            complete && 'jx-otp-complete border-primary',
+            !!error && 'jx-otp-invalid border-destructive border-dashed',
+          )}
           disabled={isDisabled}
           aria-invalid={error ? 'true' : undefined}
           aria-describedby={error ? errorId : undefined}
@@ -189,69 +199,6 @@
       {/each}
     </div>
     {#if error}
-      <p id={errorId} class="jx-otp-error"><span aria-hidden="true">!</span>{error}</p>
+      <p id={errorId} class="jx-otp-error m-0 flex items-center gap-1.5 text-xs text-destructive"><span aria-hidden="true">!</span>{error}</p>
     {/if}
   </div>
-
-<style>
-  .jx-otp {
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
-    width: fit-content;
-  }
-  .jx-otp-label {
-    font-family: var(--font-nav);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-  }
-  .jx-otp-slots {
-    display: flex;
-    gap: 0.375rem;
-  }
-  .jx-otp-slot {
-    box-sizing: border-box;
-    width: 2.375rem;
-    height: 2.75rem;
-    padding: 0;
-    border: 1px solid var(--border);
-    background: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-mono);
-    font-size: 1.125rem;
-    text-align: center;
-    border-radius: var(--radius);
-    caret-color: var(--primary);
-  }
-  .jx-otp-slot:focus {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-otp-filled {
-    border-color: var(--foreground);
-  }
-  .jx-otp-complete {
-    border-color: var(--primary);
-  }
-  .jx-otp-complete:focus {
-    outline-color: var(--primary);
-  }
-  .jx-otp-invalid {
-    border-color: var(--destructive);
-    border-style: dashed;
-  }
-  .jx-otp-slot:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .jx-otp-error {
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: 0.75rem;
-    color: var(--destructive);
-  }
-</style>

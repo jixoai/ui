@@ -13,9 +13,19 @@
 
   value is $bindable (the TARGET value list); options stay static —
   moving never mutates them. disabled rows render but never move.
+
+  tw4 (2026-08-24): panels/rows/movers static paint is token utilities
+  in the markup (the disabled dim of rows and mover buttons rides
+  conditional/disabled: utilities). Only the phones @container stacking
+  law (container math utilities cannot express, and it overrides the
+  root's own flex utilities — unlayered carve-out), the row/mover hover
+  poses and the focus laws remain in transfer.css (D1-exempt residue
+  under the layer law).
 -->
 <script lang="ts">
   import '$lib/form-field';
+  import { cn } from '$lib/utils';
+  import './transfer.css';
 
   export interface TransferOption {
     value: string;
@@ -105,43 +115,48 @@
   onjx-reset={() => (value = [])}
 ></jx-form-field>
 
-<div class="jx-transfer {className}">
+<div class={cn('jx-transfer flex items-center gap-3', className)}>
   <!-- svelte-ignore a11y_autocomplete_valid -- search inputs over a
        checkbox fieldset, not a combobox -->
-  <fieldset class="jx-tr-panel" aria-label="{sourceTitle} · {sourceTotal} total">
-    <legend class="jx-tr-legend"
+  <fieldset class="jx-tr-panel flex-[1_1_0%] min-w-0 m-0 p-0 border border-border bg-card shadow-2xs rounded-(--radius)" aria-label="{sourceTitle} · {sourceTotal} total">
+    <legend class="jx-tr-legend px-[0.625rem] py-[0.4375rem] font-nav text-[0.6875rem] tracking-[0.12em] uppercase text-muted-foreground"
       >{sourceTitle} · {sourceOptions.length}/{sourceTotal} visible</legend
     >
     <input
-      class="jx-tr-search"
+      class="jx-tr-search box-border w-full px-[0.625rem] py-[0.4375rem] border-x-0 border-y border-border bg-background text-foreground font-mono text-xs"
       type="search"
       aria-label="filter {sourceTitle}"
       placeholder={searchPlaceholder}
       bind:value={sourceSearch}
     />
-    <ul class="jx-tr-list" role="list">
+    <ul class="jx-tr-list m-0 py-1 px-[max(0.25rem_-_var(--jx-scrollbar-thin,0px),0px)] list-none max-h-56 overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges]" role="list">
       {#each sourceOptions as option (option.value)}
         <li>
-          <label class="jx-tr-row" class:jx-tr-disabled={option.disabled}>
+          <label
+            class={cn(
+              'jx-tr-row flex items-center gap-2 px-[0.375rem] py-[0.3125rem] text-[0.8125rem] text-foreground cursor-pointer',
+              option.disabled && 'jx-tr-disabled opacity-45 cursor-not-allowed',
+            )}
+          >
             <input
               type="checkbox"
               checked={pickedSource.has(option.value)}
               disabled={option.disabled}
               onchange={() => toggle(pickedSource, option.value)}
             />
-            <span class="jx-tr-label">{option.label}</span>
+            <span class="jx-tr-label min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{option.label}</span>
           </label>
         </li>
       {:else}
-        <li class="jx-tr-empty">no matches</li>
+        <li class="jx-tr-empty px-2 py-4 text-center text-xs text-muted-foreground">no matches</li>
       {/each}
     </ul>
   </fieldset>
 
-  <div class="jx-tr-movers">
+  <div class="jx-tr-movers flex flex-col gap-2">
     <button
       type="button"
-      class="jx-tr-move"
+      class="jx-tr-move appearance-none w-8 h-8 border border-border bg-card text-foreground text-base leading-none cursor-pointer shadow-2xs disabled:opacity-35 disabled:cursor-not-allowed"
       aria-label="move selected to {targetTitle}"
       disabled={movableSource.length === 0}
       onclick={() => move('to-target')}
@@ -149,7 +164,7 @@
     >
     <button
       type="button"
-      class="jx-tr-move"
+      class="jx-tr-move appearance-none w-8 h-8 border border-border bg-card text-foreground text-base leading-none cursor-pointer shadow-2xs disabled:opacity-35 disabled:cursor-not-allowed"
       aria-label="move selected to {sourceTitle}"
       disabled={movableTarget.length === 0}
       onclick={() => move('to-source')}
@@ -157,154 +172,38 @@
     >
   </div>
 
-  <fieldset class="jx-tr-panel" aria-label="{targetTitle} · {targetTotal} total">
-    <legend class="jx-tr-legend"
+  <fieldset class="jx-tr-panel flex-[1_1_0%] min-w-0 m-0 p-0 border border-border bg-card shadow-2xs rounded-(--radius)" aria-label="{targetTitle} · {targetTotal} total">
+    <legend class="jx-tr-legend px-[0.625rem] py-[0.4375rem] font-nav text-[0.6875rem] tracking-[0.12em] uppercase text-muted-foreground"
       >{targetTitle} · {targetOptions.length}/{targetTotal} visible</legend
     >
     <input
-      class="jx-tr-search"
+      class="jx-tr-search box-border w-full px-[0.625rem] py-[0.4375rem] border-x-0 border-y border-border bg-background text-foreground font-mono text-xs"
       type="search"
       aria-label="filter {targetTitle}"
       placeholder={searchPlaceholder}
       bind:value={targetSearch}
     />
-    <ul class="jx-tr-list" role="list">
+    <ul class="jx-tr-list m-0 py-1 px-[max(0.25rem_-_var(--jx-scrollbar-thin,0px),0px)] list-none max-h-56 overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges]" role="list">
       {#each targetOptions as option (option.value)}
         <li>
-          <label class="jx-tr-row" class:jx-tr-disabled={option.disabled}>
+          <label
+            class={cn(
+              'jx-tr-row flex items-center gap-2 px-[0.375rem] py-[0.3125rem] text-[0.8125rem] text-foreground cursor-pointer',
+              option.disabled && 'jx-tr-disabled opacity-45 cursor-not-allowed',
+            )}
+          >
             <input
               type="checkbox"
               checked={pickedTarget.has(option.value)}
               disabled={option.disabled}
               onchange={() => toggle(pickedTarget, option.value)}
             />
-            <span class="jx-tr-label">{option.label}</span>
+            <span class="jx-tr-label min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{option.label}</span>
           </label>
         </li>
       {:else}
-        <li class="jx-tr-empty">nothing here yet</li>
+        <li class="jx-tr-empty px-2 py-4 text-center text-xs text-muted-foreground">nothing here yet</li>
       {/each}
     </ul>
   </fieldset>
 </div>
-
-<style>
-  .jx-transfer {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  /* phones: the two panels stack, movers sit between them */
-  @container (max-width: 480px) {
-    .jx-transfer {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .jx-tr-movers {
-      flex-direction: row;
-      justify-content: center;
-    }
-  }
-  .jx-tr-panel {
-    flex: 1 1 0;
-    min-width: 0;
-    margin: 0;
-    padding: 0;
-    border: 1px solid var(--border);
-    background: var(--card);
-    box-shadow: var(--shadow-2xs);
-    border-radius: var(--radius);
-  }
-  .jx-tr-legend {
-    padding: 0.4375rem 0.625rem;
-    font-family: var(--font-nav);
-    font-size: 0.6875rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-  }
-  .jx-tr-search {
-    box-sizing: border-box;
-    width: 100%;
-    padding: 0.4375rem 0.625rem;
-    border: 0;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    background: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-  }
-  .jx-tr-search:focus {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-tr-list {
-    margin: 0;
-    /* scrollbar law: both-edges gutters; padding-inline hands the gutter back */
-    scrollbar-gutter: stable both-edges;
-    padding-block: 0.25rem;
-    padding-inline: max(0.25rem - var(--jx-scrollbar-thin, 0px), 0px);
-    list-style: none;
-    max-height: 14rem;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-  .jx-tr-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.3125rem 0.375rem;
-    font-size: 0.8125rem;
-    color: var(--foreground);
-    cursor: pointer;
-  }
-  .jx-tr-row:hover:not(.jx-tr-disabled) {
-    background: var(--muted);
-  }
-  .jx-tr-disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-  .jx-tr-label {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .jx-tr-empty {
-    padding: 1rem 0.5rem;
-    text-align: center;
-    font-size: 0.75rem;
-    color: var(--muted-foreground);
-  }
-  .jx-tr-movers {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  .jx-tr-move {
-    appearance: none;
-    width: 2rem;
-    height: 2rem;
-    border: 1px solid var(--border);
-    background: var(--card);
-    color: var(--foreground);
-    font-size: 1rem;
-    line-height: 1;
-    cursor: pointer;
-    box-shadow: var(--shadow-2xs);
-  }
-  .jx-tr-move:hover:not(:disabled) {
-    border-color: var(--primary);
-    color: var(--primary);
-  }
-  .jx-tr-move:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-  }
-  .jx-tr-move:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-</style>

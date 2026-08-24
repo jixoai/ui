@@ -1,0 +1,100 @@
+@layer theme, base, components, utilities;
+
+/* jixoai file-input — D1-exempt residue (tw4, 2026-08-24): the static
+ * paint (size knobs as arbitrary-property utilities per size, zone /
+ * trigger shells, list rows, thumbs, glyphs) lives in the markup; the
+ * .jx-label/.jx-error scaffold is consumed from jx-pure Part A; press
+ * physics ride the global unlayered .jx-press law. What remains here:
+ *  - the drag-over poses: they must outrank the UNLAYERED .jx-press
+ *    hover/active rules, so they cannot use the zero-specificity
+ *    :where() carve-out alone — :where(.jx-file) :is(...pair...) lands
+ *    at exactly the (0,3,0) precedence the scoped block had;
+ *  - the sibling hairline between file rows (static residue,
+ *    @layer components);
+ *  - the kind-glyph svg sizing (inline svg, no class hook);
+ *  - the hover/focus/disabled machines (unlayered carve-out) and the
+ *    reduced-motion kill. */
+
+@layer components {
+  /* the zone glyph and the kind glyphs arrive as inline svg */
+  :where(.jx-file-zone-glyph) :where(svg),
+  :where(.jx-file-icon) :where(svg) {
+    width: 100%;
+    height: 100%;
+  }
+  /* ant picture-list: hairline between consecutive file rows */
+  :where(.jx-file-row + .jx-file-row) {
+    border-top: 1px solid var(--border);
+  }
+}
+
+/* ---- the drag-over poses ((0,3,0) vs the unlayered press law) -------- */
+/* drag-over: the dash turns primary + the surface lifts and tints —
+   press physics from the trigger law, magnetism from ant's Dragger */
+:where(.jx-file) :is(.jx-file-zone.jx-file-over) {
+  border-color: var(--primary);
+  background: var(--muted);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-xs);
+}
+:where(.jx-file) :is(.jx-file-trigger.jx-file-over) {
+  border-style: dashed;
+  border-color: var(--primary);
+  background: var(--muted);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---- the state machines (unlayered carve-out) ----------------------- */
+:where(.jx-file-trigger:hover) {
+  background: var(--muted);
+}
+:where(.jx-file-zone:focus-visible),
+:where(.jx-file-trigger:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+:where(.jx-file-zone:disabled),
+:where(.jx-file-trigger:disabled) {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+:where(.jx-file-remove:hover) {
+  color: var(--foreground);
+}
+/* press physics: press back into the page */
+:where(.jx-file-remove:active) {
+  transform: translateY(1px);
+}
+:where(.jx-file-remove:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+:where(.jx-file-remove:disabled) {
+  cursor: not-allowed;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+:where(.jx-file-clear:hover) {
+  color: var(--foreground);
+}
+:where(.jx-file-clear:active) {
+  transform: translateY(1px);
+}
+:where(.jx-file-clear:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-file-zone),
+  :where(.jx-file-trigger),
+  :where(.jx-file-remove),
+  :where(.jx-file-clear),
+  :where(.jx-file-zone-glyph),
+  :where(.jx-file-zone-title) {
+    transition: none;
+  }
+}

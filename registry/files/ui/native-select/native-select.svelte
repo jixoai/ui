@@ -8,7 +8,7 @@
   appearance-none strips the UA chrome and an absolutely-positioned inline
   SVG chevron (the same chevron path as language-switcher) stands in; the
   option popup keeps its native rendering (color-scheme follows the site
-  theme). For a description-rich, fully-styled listbox see select.svelte
+  theme). For a description-rich, fully styled listbox see select.svelte
   (the Popover-based sibling); reach for that one only when the native
   popup can't say what you need.
 
@@ -27,10 +27,19 @@
   block padding around the option stack, and a default cursor. Set
   <NativeSelect multiple size={n}> to control exactly how many rows the
   platform shows.
+
+  tw4 (2026-08-24): static paint (closed-control shell, chevron) is
+  token utilities in the markup; the .jx-field/.jx-label/.jx-error
+  scaffolding is CONSUMED from the jx-pure sheet's Part A. Only the
+  state machine (hover lift, focus ring, disabled, invalid dash, the
+  :has(select[multiple]) listbox posture, reduced-motion kill) remains
+  in native-select.css (D1-exempt residue under the layer law).
 -->
 <script lang="ts">
   import type { HTMLSelectAttributes } from 'svelte/elements';
+  import { cn } from '$lib/utils';
   import type { Snippet } from 'svelte';
+  import './native-select.css';
 
   interface Props extends HTMLSelectAttributes {
     /** field label; renders label[for] above the control */
@@ -66,11 +75,14 @@
 
 <div class="jx-field">
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span class="jx-select-wrap">
+  <span class="jx-select-wrap relative block w-full max-w-full">
     <select
       {id}
       bind:value
-      class="jx-select {className}"
+      class={cn(
+        'jx-select w-full min-h-10 py-2 pl-3 pr-8 appearance-none border border-border rounded-none bg-background text-foreground text-sm leading-[1.45] scheme-light dark:scheme-dark cursor-pointer transition-[box-shadow] duration-150 ease-out',
+        className,
+      )}
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}
       {...rest}
@@ -78,7 +90,7 @@
       {@render children()}
     </select>
     <svg
-      class="jx-select-chevron"
+      class="jx-select-chevron absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none text-muted-foreground"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -92,106 +104,3 @@
   </span>
   {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}
 </div>
-
-<style>
-  .jx-field {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-    width: 100%;
-    min-width: 0; /* InputGroup hardening: shrink inside grid/flex hosts */
-  }
-  .jx-label {
-    width: fit-content;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    cursor: pointer;
-  }
-  .jx-select-wrap {
-    position: relative;
-    display: block;
-    width: 100%;
-    max-width: 100%; /* InputGroup hardening: never push past the host row */
-  }
-  .jx-select {
-    width: 100%;
-    min-height: 2.5rem;
-    padding: 0.5rem 2rem 0.5rem 0.75rem;
-    appearance: none;
-    -webkit-appearance: none;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--background);
-    color: var(--foreground);
-    font-family: inherit;
-    font-size: 0.875rem;
-    line-height: 1.45;
-    color-scheme: light;
-    cursor: pointer;
-    transition: box-shadow 150ms ease-out;
-  }
-  :global(.dark) .jx-select {
-    color-scheme: dark;
-  }
-  .jx-select:hover:not(:focus-visible) {
-    box-shadow: var(--shadow-2xs);
-  }
-  /* the site focus law: inset 1px outline on the ring token */
-  .jx-select:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-    box-shadow: none;
-  }
-  .jx-select:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .jx-select[aria-invalid='true'] {
-    border-style: dashed;
-  }
-  .jx-select-chevron {
-    position: absolute;
-    right: 0.75rem;
-    top: 50%;
-    width: 0.75rem;
-    height: 0.75rem;
-    transform: translateY(-50%);
-    pointer-events: none;
-    color: var(--muted-foreground);
-  }
-  /* a multiple select is a list box, not a button — no chevron, no right
-     gutter, listbox geometry instead: ~3 visible rows tall by default
-     (the rows attribute still sizes it through restProps), tighter block
-     padding hugging the option stack, and a default cursor */
-  .jx-select-wrap:has(select[multiple]) .jx-select-chevron {
-    display: none;
-  }
-  .jx-select-wrap:has(select[multiple]) .jx-select {
-    min-height: 5.75rem;
-    padding: 0.375rem 0.5rem;
-    cursor: default;
-  }
-  .jx-error {
-    display: flex;
-    gap: 0.5em;
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-error-mark {
-    font-weight: 700;
-    color: var(--destructive);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .jx-select {
-      transition: none;
-    }
-  }
-</style>

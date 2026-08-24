@@ -1,0 +1,50 @@
+@layer theme, base, components, utilities;
+
+/* jixoai range — D1-exempt residue (tw4, 2026-08-24): the custom
+ * slider's static geometry (groove, fill, disc thumb, tick ruler box)
+ * lives as token/arbitrary utilities in the markup; the .jx-field /
+ * .jx-label / .jx-error scaffolding is consumed from jx-pure Part A.
+ * What remains here:
+ *  - the tick ruler's repeating-gradient pair — the :dir(rtl) mirror
+ *    keys on COMPUTED direction; a rtl: utility variant only matches a
+ *    [dir=rtl] ancestor, and two conflicting bg-image utilities cannot
+ *    ride one class list cleanly (static residue, @layer components);
+ *  - the focus-visible machine (the root's outline kill + the ring
+ *    moved onto the thumb — a descendant state, unlayered carve-out
+ *    per the Part A precedent);
+ *  - the invalid→thumb repaint (parent-state descendant, unlayered). */
+
+@layer components {
+  /* tick ruler: one 4px mark per step, drawn as a repeating gradient
+     (a mark every --jx-tick-step %; mirrors under :dir(rtl)) */
+  :where(.jx-slider-ticks) {
+    background: repeating-linear-gradient(
+      to right,
+      var(--border) 0 1px,
+      transparent 1px var(--jx-tick-step)
+    );
+  }
+  :where(.jx-slider-ticks):dir(rtl) {
+    background: repeating-linear-gradient(
+      to left,
+      var(--border) 0 1px,
+      transparent 1px var(--jx-tick-step)
+    );
+  }
+}
+
+/* ---- the state machines (unlayered carve-out) ----------------------- */
+:where(.jx-slider:focus-visible) {
+  outline: none;
+}
+/* the focus ring moves onto the thumb — the root is the hit area, the
+   thumb is the visual slider */
+:where(.jx-slider:focus-visible) :where(.jx-slider-thumb) {
+  outline: 1px solid var(--ring);
+  outline-offset: 1px;
+}
+/* invalid dashes the thumb's ring and re-inks it to foreground */
+:where(.jx-slider.jx-invalid) :where(.jx-slider-thumb) {
+  border-style: dashed;
+  border-color: var(--foreground);
+}

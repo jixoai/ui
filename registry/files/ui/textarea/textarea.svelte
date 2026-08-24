@@ -25,16 +25,25 @@
   The shell — not the <textarea> — owns border/fill/hover/focus, so slot
   rows never repaint the box law; without inner slots the pixels are
   identical to the old single-<textarea> shell. Inner rows land muted at
-  0.75rem; the wrapper is scoped, so override it with an important
-  utility (text-foreground!) or an inline style. `count` appends a
+  0.75rem; the wrapper is utility-authored now, so override it with a
+  plain utility (text-foreground) or an inline style. `count` appends a
   "N / maxLength" readout to inner-block-end (plain N without maxlength).
   `value` is $bindable: bound ⇒ controlled; absent ⇒ the field stays
   purely uncontrolled (Svelte skips undefined writes, so FormData and
   form.reset() keep native behavior); the count mirrors the DOM either
   way.
+
+  tw4 (2026-08-24): PURE utility migration, zero css residue — the
+  shell/lane laws (.jx-field-shell row+hover+focus+disabled+invalid+
+  slotted, .jx-field/.jx-label/.jx-error) are CONSUMED from the jx-pure
+  sheet's Part A (Tier-2 consume-only law; the shell only adds the
+  column direction as a utility), and every component-owned pixel
+  (chromeless lane, hairline rows, count readout, outer slots) is token
+  utilities in the markup.
 -->
 <script lang="ts">
   import type { HTMLTextareaAttributes } from 'svelte/elements';
+  import { cn } from '$lib/utils';
   import type { Snippet } from 'svelte';
 
   interface Props extends HTMLTextareaAttributes {
@@ -104,12 +113,18 @@
 
 <div class="jx-field">
   {#if outerBlockStart}
-    <div class="jx-outer jx-outer-start">{@render outerBlockStart()}</div>
+    <div class="jx-outer jx-outer-start text-muted-foreground text-xs -mb-1">{@render outerBlockStart()}</div>
   {:else if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <!-- the shell owns the box law; the textarea inside is chromeless -->
-  <div class="jx-field-shell {className}" class:jx-slotted={slotted} class:jx-invalid={invalid}>
+  <!-- the shell owns the box law; the textarea inside is chromeless.
+       Part A's shell law carries the box/hover/focus/disabled/invalid
+       paint — the only component-owned geometry is the column direction -->
+  <div
+    class={cn('jx-field-shell flex-col', className)}
+    class:jx-slotted={slotted}
+    class:jx-invalid={invalid}
+  >
     {#if innerBlockStart}
-      <div class="jx-inner jx-inner-start">{@render innerBlockStart()}</div>
+      <div class="jx-inner jx-inner-start flex items-center gap-3 py-1.5 text-muted-foreground text-xs border-b border-border">{@render innerBlockStart()}</div>
     {/if}
     <textarea
       {id}
@@ -117,157 +132,20 @@
       {...rest}
       value={controlled ? value : undefined}
       oninput={syncValue}
-      class="jx-textarea"
+      class={cn(
+        'jx-textarea w-full flex-[1_1_auto] px-3 py-2 border-0 outline-none bg-transparent text-foreground text-sm leading-[1.5] resize-y placeholder:text-muted-foreground placeholder:opacity-100 disabled:cursor-not-allowed',
+        slotted && 'px-0',
+      )}
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}
     ></textarea>
     {#if innerBlockEnd || count}
-      <div class="jx-inner jx-inner-end">
+      <div class="jx-inner jx-inner-end flex items-center gap-3 py-1.5 text-muted-foreground text-xs border-t border-border">
         {#if innerBlockEnd}{@render innerBlockEnd()}{/if}
-        {#if count}<span class="jx-count">{countLabel}</span>{/if}
+        {#if count}<span class="jx-count ms-auto font-nav text-[11px] tracking-[0.08em]">{countLabel}</span>{/if}
       </div>
     {/if}
   </div>
   {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}
-  {#if outerBlockEnd}<div class="jx-outer jx-outer-end">{@render outerBlockEnd()}</div>{/if}
+  {#if outerBlockEnd}<div class="jx-outer jx-outer-end text-muted-foreground text-xs -mt-1">{@render outerBlockEnd()}</div>{/if}
 </div>
-
-<style>
-  .jx-field {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-    width: 100%;
-  }
-  .jx-label {
-    width: fit-content;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    cursor: pointer;
-  }
-
-  /* ---- outer snippet slots ------------------------------------------
-     net 0.25rem (mb-1 / mt-1 law) away from the shell: they cancel half
-     of the 0.5rem field gap so hint text hugs the control closer than
-     a label does. */
-  .jx-outer {
-    color: var(--muted-foreground);
-    font-size: 0.75rem;
-  }
-  .jx-outer-start {
-    margin-bottom: -0.25rem;
-  }
-  .jx-outer-end {
-    margin-top: -0.25rem;
-  }
-
-  /* ---- the shell ------------------------------------------------------
-     owns border/fill/hover/focus; the <textarea> inside is chromeless.
-     Without inner rows the pixels are identical to the old shell. */
-  .jx-field-shell {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--background);
-    color-scheme: light;
-    transition: box-shadow 150ms ease-out;
-  }
-  :global(.dark) .jx-field-shell {
-    color-scheme: dark;
-  }
-  .jx-field-shell:not(:has(textarea:disabled)):hover:not(:has(:focus-visible)) {
-    box-shadow: var(--shadow-2xs);
-  }
-  /* the site focus law: inset 1px outline on the ring token — the shell
-     carries it for the textarea AND for slot controls alike */
-  .jx-field-shell:has(:focus-visible) {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-    box-shadow: none;
-  }
-  .jx-field-shell.jx-invalid {
-    border-style: dashed;
-  }
-  .jx-field-shell:has(textarea:disabled) {
-    opacity: 0.5;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-  /* inner rows present → the shell carries the horizontal padding and
-     the textarea runs edge-to-edge above/below the hairlines */
-  .jx-field-shell.jx-slotted {
-    padding-inline: 0.75rem;
-  }
-  .jx-textarea {
-    width: 100%;
-    flex: 1 1 auto;
-    padding: 0.5rem 0.75rem;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: var(--foreground);
-    font-family: inherit;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    resize: vertical;
-  }
-  .jx-field-shell.jx-slotted .jx-textarea {
-    padding-inline: 0;
-  }
-  .jx-textarea::placeholder {
-    color: var(--muted-foreground);
-    opacity: 1;
-  }
-  .jx-textarea:disabled {
-    cursor: not-allowed;
-  }
-
-  /* ---- inner snippet rows --------------------------------------------
-     toolbar above / status below, each behind its own 1px hairline */
-  .jx-inner {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding-block: 0.375rem;
-    color: var(--muted-foreground);
-    font-size: 0.75rem;
-  }
-  .jx-inner-start {
-    border-bottom: 1px solid var(--border);
-  }
-  .jx-inner-end {
-    border-top: 1px solid var(--border);
-  }
-  .jx-count {
-    margin-inline-start: auto;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-  }
-
-  .jx-error {
-    display: flex;
-    gap: 0.5em;
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-error-mark {
-    font-weight: 700;
-    color: var(--destructive);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .jx-field-shell {
-      transition: none;
-    }
-  }
-</style>

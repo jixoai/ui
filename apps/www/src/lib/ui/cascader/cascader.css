@@ -1,0 +1,13 @@
+@layer theme, base, components, utilities;
+
+/* jixoai cascader — D1-exempt residue (tw4, 2026-08-24): the group,
+ * label, chain and select shells paint as token utilities in the markup
+ * (the disabled dim rides the disabled: variant). Only the :focus
+ * outline law remains — the site's inset 1px ring. Unlayered :where()
+ * carve-out per the Part A precedent: zero specificity, still beats the
+ * layered utility paint. */
+
+:where(.jx-cascader-select:focus) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}

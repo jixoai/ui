@@ -52,8 +52,8 @@
 
   The shell — not the <input> — owns border/fill/hover/focus, so slots
   never repaint the box law. Inner slots land muted at 0.75rem; the
-  wrapper is scoped, so override it with an important utility
-  (text-foreground!) or an inline style. Overflow law for narrow hosts:
+  wrapper is utility-authored now, so override it with a plain utility
+  (text-foreground) or an inline style. Overflow law for narrow hosts:
   the field shrinks (min-width 0) and the shell clamps (max-width
   100%) — inner slots keep flex:none while the input lane gives way,
   so a 390px viewport compresses the text lane, never the container.
@@ -63,11 +63,18 @@
   bound ⇒ controlled; absent ⇒ the field stays purely uncontrolled
   (Svelte skips undefined writes, so FormData and form.reset() keep
   native behavior).
+
+  tw4 (2026-08-24): the component-owned paint (slot rows, clear button,
+  outer spacing) is token utilities in the markup; ONLY the clear
+  glyph's svg descendant sizing, the search-cancel pseudo kill and the
+  clear hover/focus states remain in input.css (D1-exempt residue).
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
   import { icons } from '$lib/icons';
+  import { cn } from '$lib/utils';
   import type { Snippet } from 'svelte';
+  import './input.css';
 
   interface Props extends HTMLInputAttributes {
     /** any native input type (default 'text') */
@@ -156,7 +163,7 @@
 {:else}
   <div class="jx-field">
     {#if outerBlockStart}
-      <div class="jx-outer jx-outer-start">{@render outerBlockStart()}</div>
+      <div class="jx-outer jx-outer-start text-muted-foreground text-xs -mb-1">{@render outerBlockStart()}</div>
     {:else if label}<label class="jx-label" for={id}>{label}</label>{/if}
     {#if isRange}
       <input
@@ -165,7 +172,7 @@
         {...rest}
         value={controlled ? value : undefined}
         oninput={syncValue}
-        class="jx-range {className}"
+        class={cn('jx-range', className)}
         aria-invalid={invalidAttr}
         aria-describedby={describedBy}
       />
@@ -175,7 +182,7 @@
            className lands on the WRAPPER (the shell-law owner, same as
            the text lane's .jx-field-shell) — pass jx-color-stretch for
            the full-row field (default is the compact 5rem swatch). -->
-      <label class="jx-color-field {className}">
+      <label class={cn('jx-color-field', className)}>
         <input
           {id}
           {type}
@@ -189,9 +196,14 @@
       </label>
     {:else}
       <!-- the shell owns the box law; the input inside is chromeless -->
-      <div class="jx-field-shell {className}" class:jx-slotted={slotted} class:jx-invalid={invalid} class:jx-clearable={clearable}>
+      <div
+        class={cn('jx-field-shell', className)}
+        class:jx-slotted={slotted}
+        class:jx-invalid={invalid}
+        class:jx-clearable={clearable}
+      >
         {#if innerInlineStart}
-          <span class="jx-slot">{@render innerInlineStart()}</span>
+          <span class="jx-slot flex-none inline-flex items-center gap-1.5 text-muted-foreground text-xs leading-none">{@render innerInlineStart()}</span>
         {/if}
         <input
           bind:this={inputEl}
@@ -205,10 +217,15 @@
           aria-describedby={describedBy}
         />
         {#if innerInlineEnd}
-          <span class="jx-slot">{@render innerInlineEnd()}</span>
+          <span class="jx-slot flex-none inline-flex items-center gap-1.5 text-muted-foreground text-xs leading-none">{@render innerInlineEnd()}</span>
         {/if}
         {#if showClear}
-          <button type="button" class="jx-clear" aria-label="clear value" onclick={clearValue}>
+          <button
+            type="button"
+            class="jx-clear flex-none inline-flex items-center justify-center w-[1.125rem] h-[1.125rem] p-0 border-0 bg-transparent text-muted-foreground text-base leading-none cursor-pointer"
+            aria-label="clear value"
+            onclick={clearValue}
+          >
             <!-- the shared inline icon set — 10px inside the 1.125rem hit area -->
             {@html icons.x}
           </button>
@@ -216,73 +233,6 @@
       </div>
     {/if}
     {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}
-    {#if outerBlockEnd}<div class="jx-outer jx-outer-end">{@render outerBlockEnd()}</div>{/if}
+    {#if outerBlockEnd}<div class="jx-outer jx-outer-end text-muted-foreground text-xs -mt-1">{@render outerBlockEnd()}</div>{/if}
   </div>
 {/if}
-
-<style>
-  /* Tier rebase (2026-08-23): the field scaffolding (.jx-field /
-     .jx-label / .jx-error), the shell laws (.jx-field-shell +
-     slotted/invalid/disabled/focus states), the chromeless lane
-     (.jx-input-lane), the range slider (.jx-range) and the color field
-     (.jx-color-field / .jx-color) all live in the Tier-1 jx-pure
-     sheet now. Component-owned below: the snippet-slot system, the
-     clear button, and the outer slot spacing. */
-
-  /* ---- outer snippet slots ------------------------------------------
-     net 0.25rem (mb-1 / mt-1 law) away from the shell: they cancel half
-     of the 0.5rem field gap so hint text hugs the control closer than
-     a label does. */
-  .jx-outer {
-    color: var(--muted-foreground);
-    font-size: 0.75rem;
-  }
-  .jx-outer-start {
-    margin-bottom: -0.25rem;
-  }
-  .jx-outer-end {
-    margin-top: -0.25rem;
-  }
-
-  /* ---- inner snippet slots + clear button --------------------------- */
-  .jx-slot {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    color: var(--muted-foreground);
-    font-size: 0.75rem;
-    line-height: 1;
-  }
-  .jx-clear {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.125rem;
-    height: 1.125rem;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--muted-foreground);
-    font-family: inherit;
-    font-size: 1rem;
-    line-height: 1;
-    cursor: pointer;
-  }
-  .jx-clear svg {
-    width: 10px;
-    height: 10px;
-  }
-  .jx-clear:hover {
-    color: var(--foreground);
-  }
-  .jx-clear:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  /* the native search decoration bows out when our own × is on duty */
-  .jx-field-shell.jx-clearable .jx-input-lane::-webkit-search-cancel-button {
-    display: none;
-  }
-</style>

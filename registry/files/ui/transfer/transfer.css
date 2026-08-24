@@ -1,0 +1,39 @@
+@layer theme, base, components, utilities;
+
+/* jixoai transfer — D1-exempt residue (tw4, 2026-08-24): panels, rows,
+ * movers and the search lanes paint as token utilities in the markup
+ * (the disabled dims ride conditional/disabled: utilities). What
+ * remains here:
+ *  - the phones @container stacking law (@container size math has no
+ *    utilities) — UNLAYERED because it overrides the root's own flex
+ *    utilities when it matches (the Part A carve-out precedent);
+ *  - the row/mover hover poses and the focus laws (unlayered :where()
+ *    carve-out). */
+
+/* phones: the two panels stack, movers sit between them */
+@container (max-width: 480px) {
+  :where(.jx-transfer) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  :where(.jx-tr-movers) {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+:where(.jx-tr-row:hover:not(.jx-tr-disabled)) {
+  background: var(--muted);
+}
+:where(.jx-tr-search:focus) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+:where(.jx-tr-move:hover:not(:disabled)) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+:where(.jx-tr-move:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
