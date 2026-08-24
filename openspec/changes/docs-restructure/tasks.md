@@ -40,5 +40,9 @@
        local verification is the gate)
 - [x] 14. Full chain green: build:site + tests + ego walkthrough
        (desktop/mobile, three sections, chains, pill panels, redirects)
-- [ ] 15. Codex review round → findings fixed → verification.md →
-       archive
+- [x] 15. Codex review rounds (r2 7.2 → r3 8.3; blockers fixed each
+       round) → verification.md → archive
+- [ ] 16. DEBT (r3 P2, non-blocking): svelte.config entries still a
+       hand list (the exact-set lock catches drift; the single-source
+       generator from the route model is future work); dist/md locks
+       cover existence, not content parity

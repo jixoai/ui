@@ -29,12 +29,6 @@ import { CATALOG } from '../src/lib/catalog';
 
 const repoRoot = resolve(fileURLToPath(import.meta.url), '../../../..');
 
-/** pages born from the family splits (P0) — they never had old URLs */
-const SPLIT_FROM_FAMILY_PAGES = new Set([
-  'input', 'select', 'textarea', 'checkbox', 'radio', 'toggle',
-  'native-select', 'number-input', 'range', 'date-picker',
-  'color-picker', 'combobox', 'tags-input', 'scroll-virtual',
-]);
 
 describe('docs-route-model — the section spine', () => {
   it('exactly three sections: Sections / Components / Registry', () => {
@@ -124,26 +118,77 @@ describe('docs-route-model — install targets & the legacy map', () => {
   it('legacy manifest is the EXACT derived set (closed loop, r2 P1-3)', () => {
     const manifest = JSON.parse(readFileSync(resolve(repoRoot, 'legacy-doc-routes.json'), 'utf8'));
     const routes: { from: string; to: string; preserveHash?: boolean }[] = manifest.routes;
-    // the old world is frozen history (git-time truth): the snapshot
-    // pins it EXACTLY — 59 one-to-one pages + the form/scroll hubs +
-    // the three /docs-level moves + the index. Any drift on either
-    // side (a deleted route, a hand-edit, a duplicate) fails loudly.
-    const OLD_ONE_TO_ONE = CATALOG.filter(
-      (e) =>
-        e.type === 'registry:ui' &&
-        !SPLIT_FROM_FAMILY_PAGES.has(e.name) &&
-        e.name !== 'scroll-area',
-    ).map((e) => `/components/${e.name}.html`);
-    const expected = [
+    // the old world is a FROZEN LITERAL (r3 P1): git-time truth, never
+    // derived from the live catalog — a future component must never
+    // demand a legacy shell, and a deleted manifest entry can never be
+    // papered over by catalog changes. Drift on either side fails here.
+    const FROZEN_OLD_FROMS = [
       '/components.html',
-      ...OLD_ONE_TO_ONE,
+      '/components/accordion.html',
+      '/components/alert-dialog.html',
+      '/components/alert.html',
+      '/components/anchor.html',
+      '/components/avatar.html',
+      '/components/badge-indicator.html',
+      '/components/badge.html',
+      '/components/breadcrumb.html',
+      '/components/card-grid.html',
+      '/components/carousel.html',
+      '/components/cascader.html',
+      '/components/code-card.html',
+      '/components/command.html',
+      '/components/component-canvas.html',
+      '/components/descriptions.html',
+      '/components/dialog.html',
+      '/components/dropdown-menu.html',
+      '/components/empty.html',
+      '/components/file-input.html',
+      '/components/float-button.html',
       '/components/form.html',
-      '/components/scroll-area.html',
-      '/components/recipes.html',
+      '/components/hero-section.html',
+      '/components/hover-card.html',
+      '/components/icon-button.html',
+      '/components/image.html',
+      '/components/input-otp.html',
       '/components/jx-pure.html',
+      '/components/kbd.html',
+      '/components/language-switcher.html',
       '/components/llms-txt.html',
+      '/components/menubar.html',
+      '/components/navigation-menu.html',
+      '/components/pagination.html',
+      '/components/popconfirm.html',
+      '/components/popover.html',
+      '/components/press-button.html',
+      '/components/progress.html',
+      '/components/recipes.html',
+      '/components/result.html',
+      '/components/scaffold-float.html',
+      '/components/scroll-area.html',
+      '/components/section-card.html',
+      '/components/separator.html',
+      '/components/sheet.html',
+      '/components/skeleton.html',
+      '/components/spin.html',
+      '/components/statistic.html',
+      '/components/steps.html',
+      '/components/table.html',
+      '/components/tabs.html',
+      '/components/terminal-card.html',
+      '/components/terminal-footer.html',
+      '/components/terminal-header.html',
+      '/components/theme-toggle.html',
+      '/components/timeline.html',
+      '/components/toast.html',
+      '/components/toc.html',
+      '/components/toggle-group.html',
+      '/components/tooltip.html',
+      '/components/tour.html',
+      '/components/transfer.html',
+      '/components/tree-view.html',
+      '/components/website-scaffold.html',
     ].sort();
-    expect(routes.map((r) => r.from).sort(), 'frozen old-world snapshot').toEqual(expected);
+    expect(routes.map((r) => r.from).sort(), 'frozen old-world snapshot').toEqual(FROZEN_OLD_FROMS);
     expect(new Set(routes.map((r) => r.from)).size, 'from unique').toBe(routes.length);
     for (const r of routes) {
       expect(r.to.startsWith('/docs') || r.to.startsWith('/tokens'), `${r.from} → ${r.to}`).toBe(true);

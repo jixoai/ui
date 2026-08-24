@@ -179,11 +179,21 @@ function generateAiExports() {
   // page must have its .md mirror in the SAME generation — closes the
   // loop at generation time, immune to the shared-worktree races
   const registry = JSON.parse(readFileSync(path.join(repoRoot, "registry.json"), "utf8"));
-  for (const item of registry.items) {
-    if (item.type !== "registry:ui") continue;
-    const md = path.join(publicDir, item.meta.href.replace(/\.html$/, ".md").slice(1));
+  const mdExpectations = [
+    ...registry.items
+      .filter((item) => item.type === "registry:ui")
+      .map((item) => item.meta.href),
+    // the family hub + the sections/registry pages ship md mirrors too
+    "/docs/components/form.html",
+    "/docs/registry.html",
+    "/docs/recipes.html",
+    "/docs/jx-pure.html",
+    "/docs/llms-txt.html",
+  ];
+  for (const href of mdExpectations) {
+    const md = path.join(publicDir, href.replace(/\.html$/, ".md").slice(1));
     if (!existsSync(md)) {
-      die(`llms mirror missing for ${item.name}: ${md}`);
+      die(`llms mirror missing: ${md}`);
     }
   }
   const total = report.files.reduce((sum, file) => sum + file.bytes, 0);
