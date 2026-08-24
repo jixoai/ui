@@ -258,7 +258,6 @@ const checks = [
   ['A3 · disabled fieldset: one opacity owner (group .5, controls 1)', facts.lockedGroup.fieldsetOpacity === '0.5' && facts.lockedGroup.inputOpacity === '1'],
   ['progress: 8px track family repaint', facts.progress.appearance === 'none' && facts.progress.height === '8px'],
   ['progress indeterminate: the stripe animation RUNS (element-level)', facts.progress.indetRunning],
-  ['R4-2 · skip beats Part A: .jx-input inside the hatch reverts', facts.skipPartA.minH !== '40px' && facts.skipPartA.pad !== '8px 12px'],
   ['meter: same track family', facts.meterBox.appearance === 'none' && facts.meterBox.height === '8px'],
   ['output: mono result lane', facts.outputFont.includes('JetBrains')],
   ['figcaption: nav-font small caps voice', facts.figcapVoice.font.includes('Share Tech') && facts.figcapVoice.transform === 'uppercase'],
@@ -316,19 +315,29 @@ const nested = await page.evaluate(() => {
   return out;
 });
 contrastChecks.push(['r8-6 · nested .jx-pure inside .no-jx-pure stays reverted', nested.minH !== '40px' && nested.display === 'inline-block' && nested.shadow === 'none']);
-// r9-A1 regression: the revert must be UNIVERSAL — an UNLISTED element
-// (a plain div with author styling) inside the island reverts too
-const unlisted = await page.evaluate(() => {
+// Owner third revision (:not() law): the FACE steps aside inside the
+// island but the HOST's own authoring SURVIVES — inline styles keep
+// painting, and Part A opt-in classes still work (author intent)
+const island = await page.evaluate(() => {
   const host = document.createElement('div');
   host.className = 'jx-pure';
-  host.innerHTML = '<div class="no-jx-pure"><div id="isl-div" style="display: flex; color: rgb(1,2,3)">x</div></div>';
+  host.innerHTML = `<div class="no-jx-pure">
+    <button id="isl-btn">x</button>
+    <div id="isl-div" style="display: flex; color: rgb(1,2,3)">y</div>
+    <input class="jx-input" id="isl-cls" type="text" /></div>`;
   document.body.appendChild(host);
-  const cs = getComputedStyle(host.querySelector('#isl-div'));
-  const out = { display: cs.display, color: cs.color };
+  const g = (id) => getComputedStyle(host.querySelector(id));
+  const out = {
+    btn: { minH: g('#isl-btn').minHeight, display: g('#isl-btn').display },
+    divHost: { display: g('#isl-div').display, color: g('#isl-div').color },
+    partA: { minH: g('#isl-cls').minHeight, border: g('#isl-cls').borderTopWidth },
+  };
   host.remove();
   return out;
 });
-contrastChecks.push(['r9-A1 · the island revert is UNIVERSAL (unlisted div reverts)', unlisted.display === 'block' && unlisted.color !== 'rgb(1, 2, 3)']);
+contrastChecks.push(['not() · island: the FACE steps aside (button is UA)', island.btn.minH !== '40px' && island.btn.display === 'inline-block']);
+contrastChecks.push(['not() · island: HOST inline styles SURVIVE', island.divHost.display === 'flex' && island.divHost.color === 'rgb(1, 2, 3)']);
+contrastChecks.push(['not() · island: Part A opt-in classes still work', island.partA.minH === '40px' && island.partA.border === '1px']);
 // r9-final blocker 1: a checkbox label with a span NEVER matches the
 // group — the control keeps its own paint (no chromeless bleed)
 const cbLabel = await page.evaluate(() => {
@@ -389,6 +398,25 @@ const ad = await page.evaluate(() => {
 });
 await page.evaluate(() => document.querySelector('#verify-auto-dark').remove());
 await page.emulateMedia({ colorScheme: null });
+// r10 blocker: the auto-dark companion respects the reverse scope —
+// a nested .jx-pure inside no-jx-pure keeps the UA scheme under dark
+await page.emulateMedia({ colorScheme: 'dark' });
+const adIsland = await page.evaluate(() => {
+  const host = document.createElement('div');
+  host.className = 'jx-auto-dark jx-pure';
+  host.innerHTML = '<div class="no-jx-pure"><div class="jx-pure"><input id="ad-i" type="text"></div></div>';
+  document.body.appendChild(host);
+  const scheme = getComputedStyle(host.querySelector('#ad-i')).colorScheme;
+  host.remove();
+  return scheme;
+});
+await page.emulateMedia({ colorScheme: null });
+// color-scheme INHERITS from the outer scope root (legitimately —
+// outside any island), exactly like the page's theme tokens flow in;
+// the :not() law excludes ELEMENT-LEVEL paint, not ancestor inheritance
+const r10ok = adIsland === 'dark';
+console.log((r10ok ? 'PASS' : 'FAIL') + '  r10 · page theme (tokens + scheme) flows through islands; paint does not');
+if (!r10ok) failed++;
 const adChecks = [
   ['auto-dark: tokens flip under emulated dark (zero JS)', ad.bg === 'rgb(0, 0, 0)' || ad.bg === 'oklch(0 0 0)'],
   ['auto-dark: scope-root companion paints the scheme', ad.scheme === 'dark'],

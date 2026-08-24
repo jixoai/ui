@@ -43,11 +43,13 @@ RTL 通过 `--jx-range-dir:-1`（`[dir='rtl']` 或 scope 内继承）翻转 cqw 
 
 ## D2 — `no-jx-pure` 是反向作用域
 
-**裁决。** 选 **(b)**。保留现有 unlayered `all: revert` 逃生机制，删除
+**裁决（第三次修订，Owner 2026-08-24 终裁：`:not()` 规则级排除）。** 原裁定 (b) 的 `all: revert !important` 太暴力——连宿主自己的工具类/inline 样式都会被抹掉，库不应与宿主样式开战。终态：每条面规则的 subject 追加 `:not(.no-jx-pure, .no-jx-pure *)`——岛内元素不再获得 jx 面，但宿主的一切样式原封不动，Part A 显式类照常生效。原裁定 (b) 的机制保留于历史
+
+**历史裁定（已被 :not() 终裁取代，以下仅为过程记录）。** 选 **(b)**。保留 unlayered `all: revert` 逃生机制，删除
 `[data-jx-pure-skip]` 词汇并将其泛化为 `.no-jx-pure`；这样不会让每条 B 规则
 膨胀 `:not()`，也能同时压过 Part A 未分层规则和 B 的 layered 规则。
 
-**具体规格。** `.jx-pure` 内所有 B 规则默认生效，包含单选 `select` 的自绘
+**过程记录（已被 :not() 终裁取代）。** `.jx-pure` 内所有 B 规则默认生效，包含单选 `select` 的自绘
 chevron；`.no-jx-pure` 可挂在任意后代元素上，元素自身及其全部后代（含
 `::before`、`::after`、summary marker、checkbox/radio 伪元素）回到 UA/用户
 层：对 B surface 使用 `all:revert`，并显式 `content:revert`/`background:revert`

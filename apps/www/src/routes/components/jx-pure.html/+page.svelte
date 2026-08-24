@@ -614,15 +614,17 @@ document.body.classList.add('jx-pure');</code></pre>
             <p class="text-muted-foreground">
               Inside <code class="text-accent">.jx-pure</code> EVERYTHING is jx (select included —
               the r1 opt-in stance is overruled). Mount <code class="text-accent">no-jx-pure</code>
-              on any element to revert IT and its whole subtree to the USER-AGENT cascade —
-              <code class="text-accent">all: revert</code> also rolls back font/layout authoring,
-              so the island is fully native (see the select demo in Forms).
+              on any element and the FACE steps aside for it and its whole subtree — via
+              <code class="text-accent">:not(.no-jx-pure, .no-jx-pure *)</code> on every face
+              rule, so YOUR OWN authoring there (utilities, inline styles, third-party css)
+              is untouched, and the opt-in class vocabulary still works (see the select
+              demo in Forms).
             </p>
             <div class="jx-pure flex flex-wrap items-center gap-3">
               <button type="button">the law</button>
               <span class="no-jx-pure" style="display: inline-flex; align-items: center; gap: 0.75rem">
                 <button type="button">skipped button</button>
-                <input class="jx-input" type="text" placeholder="even .jx-input reverts" style="width: 14rem" aria-label="skipped jx-input" />
+                <input class="jx-input" type="text" placeholder="explicit .jx-input still works" style="width: 14rem" aria-label="skipped jx-input" />
               </span>
             </div>
             <h3 class="text-[15px] font-bold tracking-tight">The type allowlist</h3>

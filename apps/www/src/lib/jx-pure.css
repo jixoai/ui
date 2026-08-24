@@ -37,9 +37,9 @@
  *   components layer, so Tailwind utilities and any unlayered author
  *   CSS override it cheaply (Codex D1 ruling). Completion round
  *   (2026-08-24, Owner ruling over D6's deferral): progress / meter /
- *   output / figure+figcaption / media lanes are IN (B10/B11), and
- *   [data-jx-pure-skip] is the subtree escape hatch (B12). Still
- *   deferred: complex input repaints beyond the allowlist.
+ *   output / figure+figcaption / media lanes are IN (B10/B11); the
+ *   reverse scope is .no-jx-pure via per-rule :not() exclusion (B12).
+ *   Still deferred: complex input repaints beyond the allowlist.
  *
  * C · degradation laws — reduced-motion neutralization and the
  *   forced-colors fallback (custom-painted controls revert to
@@ -283,9 +283,9 @@
     [type='datetime-local'],
     [type='month'],
     [type='week']
-  )):has(> span),
-:where(.jx-pure) label:has(> textarea):has(> span),
-:where(.jx-pure) label:has(> select):has(> span) {
+  )):has(> span):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> textarea):has(> span):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> select):has(> span):not(.no-jx-pure, .no-jx-pure *) {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -313,9 +313,9 @@
     [type='datetime-local'],
     [type='month'],
     [type='week']
-  )):has(> span),
-.dark :where(.jx-pure) label:has(> textarea):has(> span),
-.dark :where(.jx-pure) label:has(> select):has(> span) {
+  )):has(> span):not(.no-jx-pure, .no-jx-pure *),
+    .dark :where(.jx-pure) label:has(> textarea):has(> span):not(.no-jx-pure, .no-jx-pure *),
+    .dark :where(.jx-pure) label:has(> select):has(> span):not(.no-jx-pure, .no-jx-pure *) {
   color-scheme: dark;
 }
 :where(.jx-pure) label:has(> input:where(
@@ -332,9 +332,9 @@
     [type='datetime-local'],
     [type='month'],
     [type='week']
-  )):has(> span):not(:has(:disabled)):hover:not(:has(:focus-visible)),
-:where(.jx-pure) label:has(> textarea):has(> span):not(:has(:disabled)):hover:not(:has(:focus-visible)),
-:where(.jx-pure) label:has(> select):has(> span):not(:has(:disabled)):hover:not(:has(:focus-visible)) {
+  )):has(> span):not(:has(:disabled)):hover:not(:has(:focus-visible)):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> textarea):has(> span):not(:has(:disabled)):hover:not(:has(:focus-visible)):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> select):has(> span):not(:has(:disabled)):hover:not(:has(:focus-visible)):not(.no-jx-pure, .no-jx-pure *) {
   box-shadow: var(--shadow-2xs);
 }
 :where(.jx-pure) label:has(> input:where(
@@ -351,9 +351,9 @@
     [type='datetime-local'],
     [type='month'],
     [type='week']
-  )):has(> span):has(:focus-visible),
-:where(.jx-pure) label:has(> textarea):has(> span):has(:focus-visible),
-:where(.jx-pure) label:has(> select):has(> span):has(:focus-visible) {
+  )):has(> span):has(:focus-visible):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> textarea):has(> span):has(:focus-visible):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> select):has(> span):has(:focus-visible):not(.no-jx-pure, .no-jx-pure *) {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
   box-shadow: none;
@@ -372,9 +372,9 @@
     [type='datetime-local'],
     [type='month'],
     [type='week']
-  )):has(> span):has(:disabled),
-:where(.jx-pure) label:has(> textarea):has(> span):has(:disabled),
-:where(.jx-pure) label:has(> select):has(> span):has(:disabled) {
+  )):has(> span):has(:disabled):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> textarea):has(> span):has(:disabled):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> select):has(> span):has(:disabled):not(.no-jx-pure, .no-jx-pure *) {
   opacity: 0.5;
   cursor: not-allowed;
   box-shadow: none;
@@ -393,9 +393,9 @@
     [type='datetime-local'],
     [type='month'],
     [type='week']
-  )):has(> span):has([aria-invalid='true']),
-:where(.jx-pure) label:has(> textarea):has(> span):has([aria-invalid='true']),
-:where(.jx-pure) label:has(> select):has(> span):has([aria-invalid='true']) {
+  )):has(> span):has([aria-invalid='true']):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> textarea):has(> span):has([aria-invalid='true']):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> select):has(> span):has([aria-invalid='true']):not(.no-jx-pure, .no-jx-pure *) {
   border-style: dashed;
   border-color: var(--error);
 }
@@ -418,9 +418,9 @@
     [type='datetime-local'],
     [type='month'],
     [type='week']
-  )):has(> span) > span,
-:where(.jx-pure) label:has(> textarea):has(> span) > span,
-:where(.jx-pure) label:has(> select):has(> span) > span {
+  )):has(> span) > span:not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> textarea):has(> span) > span:not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> select):has(> span) > span:not(.no-jx-pure, .no-jx-pure *) {
   flex: none;
   padding-inline: 0.75rem;
   color: var(--muted-foreground);
@@ -442,9 +442,9 @@
     [type='datetime-local'],
     [type='month'],
     [type='week']
-  )):has(> span) > input,
-:where(.jx-pure) label:has(> textarea):has(> span) > textarea,
-:where(.jx-pure) label:has(> select):has(> span) > select {
+  )):has(> span) > input:not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> textarea):has(> span) > textarea:not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> select):has(> span) > select:not(.no-jx-pure, .no-jx-pure *) {
   flex: 1 1 0%;
   min-width: 0;
   min-height: 0;
@@ -457,7 +457,7 @@
   font-size: 0.875rem;
   line-height: 1.45;
 }
-:where(.jx-pure) label:has(> select):has(> span) > select {
+:where(.jx-pure) label:has(> select):has(> span) > select:not(.no-jx-pure, .no-jx-pure *) {
   padding-inline-end: 2rem; /* chevron room inside the shell */
 }
 
@@ -772,15 +772,15 @@
      themes every native picker, scrollbar and form control in the
      subtree: light under :root, dark under .dark (ancestor or self),
      forced light under .jx-light. */
-  :where(.jx-pure) {
+  :where(.jx-pure):not(.no-jx-pure, .no-jx-pure *) {
     color-scheme: light;
   }
-  :where(.dark) :where(.jx-pure),
-  :where(.jx-pure.dark) {
+  :where(.dark) :where(.jx-pure):not(.no-jx-pure, .no-jx-pure *),
+  :where(.jx-pure.dark):not(.no-jx-pure, .no-jx-pure *) {
     color-scheme: dark;
   }
-  :where(.jx-light) :where(.jx-pure),
-  :where(.jx-pure.jx-light) {
+  :where(.jx-light) :where(.jx-pure):not(.no-jx-pure, .no-jx-pure *),
+  :where(.jx-pure.jx-light):not(.no-jx-pure, .no-jx-pure *) {
     color-scheme: light;
   }
 
@@ -791,59 +791,59 @@
      flow margins are EXPLICIT because preflight zeroes them: a
      Tailwind host without this block would render wall-of-text prose.
      ===================================================================== */
-  :where(.jx-pure) :where(h1, h2, h3, h4, h5, h6) {
+  :where(.jx-pure) :where(h1, h2, h3, h4, h5, h6):not(.no-jx-pure, .no-jx-pure *) {
     margin: 1.5em 0 0.6em;
     font-weight: 700;
     line-height: 1.25;
     color: var(--foreground);
   }
-  :where(.jx-pure) h1 {
+  :where(.jx-pure) h1:not(.no-jx-pure, .no-jx-pure *) {
     font-size: 1.875rem;
   }
-  :where(.jx-pure) h2 {
+  :where(.jx-pure) h2:not(.no-jx-pure, .no-jx-pure *) {
     font-size: 1.5rem;
   }
-  :where(.jx-pure) h3 {
+  :where(.jx-pure) h3:not(.no-jx-pure, .no-jx-pure *) {
     font-size: 1.25rem;
   }
-  :where(.jx-pure) h4 {
+  :where(.jx-pure) h4:not(.no-jx-pure, .no-jx-pure *) {
     font-size: 1.125rem;
   }
-  :where(.jx-pure) :where(h5, h6) {
+  :where(.jx-pure) :where(h5, h6):not(.no-jx-pure, .no-jx-pure *) {
     font-size: 1rem;
   }
-  :where(.jx-pure) :where(p, ul, ol, dl, blockquote, pre, table, hr) {
+  :where(.jx-pure) :where(p, ul, ol, dl, blockquote, pre, table, hr):not(.no-jx-pure, .no-jx-pure *) {
     margin-block: 0.75rem;
   }
-  :where(.jx-pure) p {
+  :where(.jx-pure) p:not(.no-jx-pure, .no-jx-pure *) {
     line-height: 1.6;
   }
-  :where(.jx-pure) :where(h1, h2, h3, h4, h5, h6) :where(p, ul, ol, dl, blockquote, pre, table):first-child {
+  :where(.jx-pure) :where(h1, h2, h3, h4, h5, h6) :where(p, ul, ol, dl, blockquote, pre, table):first-child:not(.no-jx-pure, .no-jx-pure *) {
     margin-block-start: 0;
   }
-  :where(.jx-pure) small {
+  :where(.jx-pure) small:not(.no-jx-pure, .no-jx-pure *) {
     font-size: 0.8125rem;
     color: var(--muted-foreground);
   }
-  :where(.jx-pure) :where(strong, b) {
+  :where(.jx-pure) :where(strong, b):not(.no-jx-pure, .no-jx-pure *) {
     font-weight: 700;
   }
-  :where(.jx-pure) blockquote {
+  :where(.jx-pure) blockquote:not(.no-jx-pure, .no-jx-pure *) {
     padding-inline-start: 0.875rem;
     border-inline-start: 1px solid var(--border);
     color: var(--muted-foreground);
   }
-  :where(.jx-pure) :where(code, kbd, samp) {
+  :where(.jx-pure) :where(code, kbd, samp):not(.no-jx-pure, .no-jx-pure *) {
     padding: 0.1em 0.4em;
     border: 1px solid var(--border);
     background: var(--muted);
     font-family: var(--font-mono);
     font-size: 0.8125rem;
   }
-  :where(.jx-pure) kbd {
+  :where(.jx-pure) kbd:not(.no-jx-pure, .no-jx-pure *) {
     box-shadow: 0 1px 0 var(--border); /* the key cap's lifted edge */
   }
-  :where(.jx-pure) pre {
+  :where(.jx-pure) pre:not(.no-jx-pure, .no-jx-pure *) {
     padding: 0.75rem 1rem;
     border: 1px solid var(--border);
     background: var(--background);
@@ -853,18 +853,18 @@
     line-height: 1.55;
   }
   /* the code-in-pre lane drops its inline box — the pre owns the box */
-  :where(.jx-pure) pre :where(code, samp) {
+  :where(.jx-pure) pre :where(code, samp):not(.no-jx-pure, .no-jx-pure *) {
     padding: 0;
     border: 0;
     background: transparent;
     font-size: inherit;
   }
-  :where(.jx-pure) mark {
+  :where(.jx-pure) mark:not(.no-jx-pure, .no-jx-pure *) {
     padding: 0.05em 0.25em;
     background: color-mix(in oklab, var(--secondary) 45%, var(--background));
     color: var(--foreground);
   }
-  :where(.jx-pure) hr {
+  :where(.jx-pure) hr:not(.no-jx-pure, .no-jx-pure *) {
     margin-block: 1.5rem;
     border: 0;
     border-top: 1px solid var(--border);
@@ -876,17 +876,17 @@
      read as chrome, not prose: foreground at rest, primary + underline
      as the hover cue.
      ===================================================================== */
-  :where(.jx-pure) a {
+  :where(.jx-pure) a:not(.no-jx-pure, .no-jx-pure *) {
     color: var(--primary);
     text-underline-offset: 4px;
   }
-  :where(.jx-pure) a:hover {
+  :where(.jx-pure) a:hover:not(.no-jx-pure, .no-jx-pure *) {
     text-decoration-line: underline;
   }
-  :where(.jx-pure) nav a {
+  :where(.jx-pure) nav a:not(.no-jx-pure, .no-jx-pure *) {
     color: var(--foreground);
   }
-  :where(.jx-pure) nav a:hover {
+  :where(.jx-pure) nav a:hover:not(.no-jx-pure, .no-jx-pure *) {
     color: var(--primary);
     text-decoration-line: underline;
   }
@@ -901,7 +901,7 @@
      deliberately NOT set here: the host's focus law owns it (site
      base layer paints a/button; static pages keep the UA ring).
      ===================================================================== */
-  :where(.jx-pure) :where(button, input:where([type='button'], [type='submit'], [type='reset']), .jx-button) {
+  :where(.jx-pure) :where(button, input:where([type='button'], [type='submit'], [type='reset']), .jx-button):not(.no-jx-pure, .no-jx-pure *) {
     box-sizing: border-box;
     display: inline-flex;
     align-items: center;
@@ -925,16 +925,16 @@
       border-color 150ms ease-out,
       color 150ms ease-out;
   }
-  :where(.jx-pure) :where(button, input:where([type='button'], [type='submit'], [type='reset']), .jx-button):hover:not(:disabled) {
+  :where(.jx-pure) :where(button, input:where([type='button'], [type='submit'], [type='reset']), .jx-button):hover:not(:disabled):not(.no-jx-pure, .no-jx-pure *) {
     background: var(--muted);
     box-shadow: var(--jx-press-shadow-hover, var(--shadow-sm));
   }
   /* :active LAST — at equal specificity the later rule wins the hover pose */
-  :where(.jx-pure) :where(button, input:where([type='button'], [type='submit'], [type='reset']), .jx-button):active:not(:disabled) {
+  :where(.jx-pure) :where(button, input:where([type='button'], [type='submit'], [type='reset']), .jx-button):active:not(:disabled):not(.no-jx-pure, .no-jx-pure *) {
     translate: 1px 1px;
     box-shadow: var(--jx-press-shadow-active, var(--shadow-sm-press));
   }
-  :where(.jx-pure) :where(button, input:where([type='button'], [type='submit'], [type='reset']), .jx-button):disabled {
+  :where(.jx-pure) :where(button, input:where([type='button'], [type='submit'], [type='reset']), .jx-button):disabled:not(.no-jx-pure, .no-jx-pure *) {
     opacity: 0.5;
     cursor: not-allowed;
     box-shadow: none;
@@ -960,9 +960,9 @@
       [type='datetime-local'],
       [type='month'],
       [type='week']
-    ),
-  :where(.jx-pure) textarea,
-  :where(.jx-pure) select {
+    ):not(.no-jx-pure, .no-jx-pure *),
+      :where(.jx-pure) textarea:not(.no-jx-pure, .no-jx-pure *),
+      :where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *) {
     box-sizing: border-box;
     display: block;
     width: 100%;
@@ -992,9 +992,9 @@
       [type='datetime-local'],
       [type='month'],
       [type='week']
-    ):hover:not(:disabled):not(:focus-visible),
-  :where(.jx-pure) textarea:hover:not(:disabled):not(:focus-visible),
-  :where(.jx-pure) select:hover:not(:disabled):not(:focus-visible) {
+    ):hover:not(:disabled):not(:focus-visible):not(.no-jx-pure, .no-jx-pure *),
+      :where(.jx-pure) textarea:hover:not(:disabled):not(:focus-visible):not(.no-jx-pure, .no-jx-pure *),
+      :where(.jx-pure) select:hover:not(:disabled):not(:focus-visible):not(.no-jx-pure, .no-jx-pure *) {
     box-shadow: var(--shadow-2xs); /* the one-pixel hover lift */
   }
   :where(.jx-pure) input:where(
@@ -1011,9 +1011,9 @@
       [type='datetime-local'],
       [type='month'],
       [type='week']
-    ):focus-visible,
-  :where(.jx-pure) textarea:focus-visible,
-  :where(.jx-pure) select:focus-visible {
+    ):focus-visible:not(.no-jx-pure, .no-jx-pure *),
+      :where(.jx-pure) textarea:focus-visible:not(.no-jx-pure, .no-jx-pure *),
+      :where(.jx-pure) select:focus-visible:not(.no-jx-pure, .no-jx-pure *) {
     outline: 1px solid var(--ring);
     outline-offset: -1px;
     box-shadow: none;
@@ -1032,9 +1032,9 @@
       [type='datetime-local'],
       [type='month'],
       [type='week']
-    ):disabled,
-  :where(.jx-pure) textarea:disabled,
-  :where(.jx-pure) select:disabled {
+    ):disabled:not(.no-jx-pure, .no-jx-pure *),
+      :where(.jx-pure) textarea:disabled:not(.no-jx-pure, .no-jx-pure *),
+      :where(.jx-pure) select:disabled:not(.no-jx-pure, .no-jx-pure *) {
     opacity: 0.5;
     cursor: not-allowed;
     box-shadow: none;
@@ -1053,9 +1053,9 @@
       [type='datetime-local'],
       [type='month'],
       [type='week']
-    )[aria-invalid='true'],
-  :where(.jx-pure) textarea[aria-invalid='true'],
-  :where(.jx-pure) select[aria-invalid='true'] {
+    )[aria-invalid='true']:not(.no-jx-pure, .no-jx-pure *),
+      :where(.jx-pure) textarea[aria-invalid='true']:not(.no-jx-pure, .no-jx-pure *),
+      :where(.jx-pure) select[aria-invalid='true']:not(.no-jx-pure, .no-jx-pure *) {
     border-style: dashed; /* the monochrome invalid signal */
   }
   :where(.jx-pure) input:where(
@@ -1072,12 +1072,12 @@
       [type='datetime-local'],
       [type='month'],
       [type='week']
-    )::placeholder,
-  :where(.jx-pure) textarea::placeholder {
+    ):not(.no-jx-pure, .no-jx-pure *)::placeholder,
+      :where(.jx-pure) textarea:not(.no-jx-pure, .no-jx-pure *)::placeholder {
     color: var(--jx-placeholder);
     opacity: 1; /* kill the UA fade (Firefox dims to .54) */
   }
-  :where(.jx-pure) textarea {
+  :where(.jx-pure) textarea:not(.no-jx-pure, .no-jx-pure *) {
     height: auto;
     min-height: 5rem;
     resize: vertical;
@@ -1087,7 +1087,7 @@
      are the Tier-2 number-input component */
   /* date/time indicators ride the Part A INK fallback (the UA-shadow
      pseudo rejects author mask paint — see the path (c) record) */
-  :where(.jx-pure) input:where([type='date'], [type='datetime-local'], [type='month'], [type='week'])::-webkit-calendar-picker-indicator {
+  :where(.jx-pure) input:where([type='date'], [type='datetime-local'], [type='month'], [type='week']):not(.no-jx-pure, .no-jx-pure *)::-webkit-calendar-picker-indicator {
     -webkit-appearance: none;
     appearance: none;
     width: 1rem;
@@ -1098,7 +1098,7 @@
     background-size: contain;
     background-repeat: no-repeat;
   }
-  :where(.jx-pure) input[type='time']::-webkit-calendar-picker-indicator {
+  :where(.jx-pure) input[type='time']:not(.no-jx-pure, .no-jx-pure *)::-webkit-calendar-picker-indicator {
     background-image: var(--jx-icon-clock-ink);
   }
 
@@ -1109,7 +1109,7 @@
      and a data-URI stroke would hardcode a color that dies on one
      theme); multiple/size lists keep the listbox posture. Native
      paint returns via the .no-jx-pure subtree hatch (B12). */
-  :where(.jx-pure) select {
+  :where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *) {
     padding-inline-end: 2rem;
   }
   /* FF does not paint author background-images on select (cross-engine
@@ -1117,7 +1117,7 @@
      date indicators: Firefox keeps its PLATFORM arrow, everything
      else gets the jx chevron */
   @supports not selector(::-moz-range-progress) {
-    :where(.jx-pure) select:where(:not([multiple], [size])) {
+    :where(.jx-pure) select:where(:not([multiple], [size])):not(.no-jx-pure, .no-jx-pure *) {
       appearance: none;
       -webkit-appearance: none;
       cursor: pointer;
@@ -1130,13 +1130,13 @@
       background-size: 0.375rem 0.375rem;
       background-repeat: no-repeat;
     }
-    :where(.jx-pure) select:where(:not([multiple], [size])):hover {
+    :where(.jx-pure) select:where(:not([multiple], [size])):hover:not(.no-jx-pure, .no-jx-pure *) {
       background-image:
         linear-gradient(45deg, transparent 50%, var(--primary) 50%),
         linear-gradient(135deg, var(--primary) 50%, transparent 50%);
     }
   }
-  :where(.jx-pure) select:where([multiple], [size]) {
+  :where(.jx-pure) select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *) {
     min-height: 5.75rem;
     padding-block: 0.375rem 0.5rem;
     cursor: default; /* a list box is not a button */
@@ -1147,7 +1147,7 @@
      restated element-scoped. Native state, label and FormData keep
      working: appearance:none strips PAINT only.
      ===================================================================== */
-  :where(.jx-pure) input[type='checkbox'] {
+  :where(.jx-pure) input[type='checkbox']:not(.no-jx-pure, .no-jx-pure *) {
     appearance: none;
     -webkit-appearance: none;
     position: relative;
@@ -1164,26 +1164,26 @@
       background-color 150ms ease-out,
       border-color 150ms ease-out;
   }
-  :where(.jx-pure) input[type='checkbox']:hover:not(:checked):not(:disabled) {
+  :where(.jx-pure) input[type='checkbox']:hover:not(:checked):not(:disabled):not(.no-jx-pure, .no-jx-pure *) {
     border-color: var(--primary);
   }
-  :where(.jx-pure) input[type='checkbox']:checked,
-  :where(.jx-pure) input[type='checkbox']:indeterminate {
+  :where(.jx-pure) input[type='checkbox']:checked:not(.no-jx-pure, .no-jx-pure *),
+  :where(.jx-pure) input[type='checkbox']:indeterminate:not(.no-jx-pure, .no-jx-pure *) {
     background: var(--primary);
     border-color: var(--primary);
   }
-  :where(.jx-pure) input[type='checkbox']:focus-visible {
+  :where(.jx-pure) input[type='checkbox']:focus-visible:not(.no-jx-pure, .no-jx-pure *) {
     outline: 1px solid var(--ring);
     outline-offset: -1px;
   }
-  :where(.jx-pure) input[type='checkbox']:disabled {
+  :where(.jx-pure) input[type='checkbox']:disabled:not(.no-jx-pure, .no-jx-pure *) {
     opacity: 0.5;
     cursor: not-allowed;
   }
   /* the glyph: the component law verbatim — a 45°-rotated inset box
      clipped to a 6-vertex polygon; checked grows the check,
      indeterminate rotates back into a dash */
-  :where(.jx-pure) input[type='checkbox']::before {
+  :where(.jx-pure) input[type='checkbox']:not(.no-jx-pure, .no-jx-pure *)::before {
     content: '';
     position: absolute;
     inset: 2px;
@@ -1197,17 +1197,17 @@
       opacity 150ms ease-out,
       transform 150ms ease-out;
   }
-  :where(.jx-pure) input[type='checkbox']:checked::before {
+  :where(.jx-pure) input[type='checkbox']:checked:not(.no-jx-pure, .no-jx-pure *)::before {
     opacity: 1;
     clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%);
   }
-  :where(.jx-pure) input[type='checkbox']:indeterminate::before {
+  :where(.jx-pure) input[type='checkbox']:indeterminate:not(.no-jx-pure, .no-jx-pure *)::before {
     opacity: 1;
     transform: rotate(0deg);
     clip-path: polygon(10% 40%, 10% 60%, 45% 60%, 55% 60%, 90% 60%, 90% 40%);
   }
 
-  :where(.jx-pure) input[type='radio'] {
+  :where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *) {
     appearance: none;
     -webkit-appearance: none;
     position: relative;
@@ -1222,22 +1222,22 @@
     cursor: pointer;
     transition: border-color 150ms ease-out;
   }
-  :where(.jx-pure) input[type='radio']:hover:not(:checked):not(:disabled) {
+  :where(.jx-pure) input[type='radio']:hover:not(:checked):not(:disabled):not(.no-jx-pure, .no-jx-pure *) {
     border-color: var(--primary);
   }
-  :where(.jx-pure) input[type='radio']:checked {
+  :where(.jx-pure) input[type='radio']:checked:not(.no-jx-pure, .no-jx-pure *) {
     border-color: var(--primary);
   }
-  :where(.jx-pure) input[type='radio']:focus-visible {
+  :where(.jx-pure) input[type='radio']:focus-visible:not(.no-jx-pure, .no-jx-pure *) {
     outline: 1px solid var(--ring);
     outline-offset: -1px;
   }
-  :where(.jx-pure) input[type='radio']:disabled {
+  :where(.jx-pure) input[type='radio']:disabled:not(.no-jx-pure, .no-jx-pure *) {
     opacity: 0.5;
     cursor: not-allowed;
   }
   /* the dot: 8px primary circle, scale 0 → 1 */
-  :where(.jx-pure) input[type='radio']::after {
+  :where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *)::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -1250,13 +1250,13 @@
     transform: scale(0);
     transition: transform 150ms ease-out;
   }
-  :where(.jx-pure) input[type='radio']:checked::after {
+  :where(.jx-pure) input[type='radio']:checked:not(.no-jx-pure, .no-jx-pure *)::after {
     transform: scale(1);
   }
 
   /* range: the .jx-range daisyUI law mirrored element-scoped; the
      Part A size classes upgrade it inside a .jx-pure subtree too */
-  :where(.jx-pure) input[type='range'] {
+  :where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *) {
     --jx-range-thumb: 1.5rem;
     --jx-range-fill-color: var(--primary);
     --jx-range-dir: 1;
@@ -1273,24 +1273,24 @@
     container-type: inline-size;
     overflow: hidden;
   }
-  :where([dir='rtl']) :where(.jx-pure) input[type='range'],
-  :where(.jx-pure[dir='rtl']) input[type='range'] {
+  :where([dir='rtl']) :where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *),
+  :where(.jx-pure[dir='rtl']) input[type='range']:not(.no-jx-pure, .no-jx-pure *) {
     --jx-range-dir: -1;
   }
-  :where(.jx-pure) input[type='range']:focus-visible {
+  :where(.jx-pure) input[type='range']:focus-visible:not(.no-jx-pure, .no-jx-pure *) {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
-  :where(.jx-pure) input[type='range']:disabled {
+  :where(.jx-pure) input[type='range']:disabled:not(.no-jx-pure, .no-jx-pure *) {
     opacity: 0.5;
     cursor: not-allowed;
   }
-  :where(.jx-pure) input[type='range']::-webkit-slider-runnable-track {
+  :where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *)::-webkit-slider-runnable-track {
     height: calc(var(--jx-range-thumb) / 2);
     border-radius: calc(infinity * 1px);
     background: color-mix(in oklab, var(--foreground) 10%, transparent);
   }
-  :where(.jx-pure) input[type='range']::-webkit-slider-thumb {
+  :where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *)::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     box-sizing: border-box;
@@ -1303,17 +1303,17 @@
     box-shadow: calc(var(--jx-range-dir) * (-100cqw - var(--jx-range-thumb) / 2)) 0 0 100cqw
       var(--jx-range-fill-color);
   }
-  :where(.jx-pure) input[type='range']::-moz-range-track {
+  :where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *)::-moz-range-track {
     height: calc(var(--jx-range-thumb) / 2);
     border-radius: calc(infinity * 1px);
     background: color-mix(in oklab, var(--foreground) 10%, transparent);
   }
-  :where(.jx-pure) input[type='range']::-moz-range-progress {
+  :where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *)::-moz-range-progress {
     height: calc(var(--jx-range-thumb) / 2);
     border-radius: calc(infinity * 1px);
     background: var(--jx-range-fill-color);
   }
-  :where(.jx-pure) input[type='range']::-moz-range-thumb {
+  :where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *)::-moz-range-thumb {
     box-sizing: border-box;
     width: var(--jx-range-thumb);
     height: var(--jx-range-thumb);
@@ -1324,7 +1324,7 @@
 
   /* color: the locked square swatch (the pipette glyph needs the Part A
      wrapper construct — the bare element keeps the swatch-only face) */
-  :where(.jx-pure) input[type='color'] {
+  :where(.jx-pure) input[type='color']:not(.no-jx-pure, .no-jx-pure *) {
     display: block;
     box-sizing: border-box;
     width: 2.5rem;
@@ -1335,22 +1335,22 @@
     background: var(--background);
     cursor: pointer;
   }
-  :where(.jx-pure) input[type='color']::-webkit-color-swatch-wrapper {
+  :where(.jx-pure) input[type='color']:not(.no-jx-pure, .no-jx-pure *)::-webkit-color-swatch-wrapper {
     padding: 0;
   }
-  :where(.jx-pure) input[type='color']::-webkit-color-swatch {
+  :where(.jx-pure) input[type='color']:not(.no-jx-pure, .no-jx-pure *)::-webkit-color-swatch {
     border: none;
     border-radius: 0;
   }
-  :where(.jx-pure) input[type='color']::-moz-color-swatch {
+  :where(.jx-pure) input[type='color']:not(.no-jx-pure, .no-jx-pure *)::-moz-color-swatch {
     border: none;
     border-radius: 0;
   }
-  :where(.jx-pure) input[type='color']:focus-visible {
+  :where(.jx-pure) input[type='color']:focus-visible:not(.no-jx-pure, .no-jx-pure *) {
     outline: 1px solid var(--ring);
     outline-offset: -1px;
   }
-  :where(.jx-pure) input[type='color']:disabled {
+  :where(.jx-pure) input[type='color']:disabled:not(.no-jx-pure, .no-jx-pure *) {
     opacity: 0.5;
     cursor: not-allowed;
   }
@@ -1358,27 +1358,27 @@
   /* =====================================================================
      B6 · label / fieldset / legend — the group posture.
      ===================================================================== */
-  :where(.jx-pure) label {
+  :where(.jx-pure) label:not(.no-jx-pure, .no-jx-pure *) {
     cursor: pointer;
   }
-  :where(.jx-pure) fieldset {
+  :where(.jx-pure) fieldset:not(.no-jx-pure, .no-jx-pure *) {
     min-width: 0;
     margin-block: 0.75rem;
     padding: 0.875rem 1rem 1rem;
     border: 1px solid var(--border);
     border-radius: 0;
   }
-  :where(.jx-pure) fieldset:disabled {
+  :where(.jx-pure) fieldset:disabled:not(.no-jx-pure, .no-jx-pure *) {
     opacity: 0.5;
   }
   /* ONE opacity owner per subtree (Codex review A3): the group dims to
      .5 and the controls inside stay at 1 — two stacked .5 layers
      composite to ~.25 and the contrast collapses */
-  :where(.jx-pure) fieldset:disabled :where(input, textarea, select, button) {
+  :where(.jx-pure) fieldset:disabled :where(input, textarea, select, button):not(.no-jx-pure, .no-jx-pure *) {
     opacity: 1;
     cursor: not-allowed;
   }
-  :where(.jx-pure) legend {
+  :where(.jx-pure) legend:not(.no-jx-pure, .no-jx-pure *) {
     padding-inline: 0.5rem;
     font-family: var(--font-nav);
     font-size: 11px;
@@ -1393,7 +1393,7 @@
      open/close animation (progressive enhancement deferred); the
      visible focus ring is never replaced by the marker.
      ===================================================================== */
-  :where(.jx-pure) summary {
+  :where(.jx-pure) summary:not(.no-jx-pure, .no-jx-pure *) {
     display: flex;
     align-items: center;
     gap: 0.625rem;
@@ -1411,11 +1411,11 @@
       border-color 150ms ease-out,
       box-shadow 150ms ease-out;
   }
-  :where(.jx-pure) summary::-webkit-details-marker {
+  :where(.jx-pure) summary:not(.no-jx-pure, .no-jx-pure *)::-webkit-details-marker {
     display: none;
   }
   /* the marker: a bordered square holding + / − (static swap) */
-  :where(.jx-pure) summary::before {
+  :where(.jx-pure) summary:not(.no-jx-pure, .no-jx-pure *)::before {
     content: '+';
     box-sizing: border-box;
     display: grid;
@@ -1431,17 +1431,17 @@
     font-size: 12px;
     line-height: 1;
   }
-  :where(.jx-pure) details[open] > summary::before {
+  :where(.jx-pure) details[open] > summary:not(.no-jx-pure, .no-jx-pure *)::before {
     content: '−';
   }
-  :where(.jx-pure) summary:hover {
+  :where(.jx-pure) summary:hover:not(.no-jx-pure, .no-jx-pure *) {
     border-color: var(--primary); /* leans like the checkbox border */
   }
-  :where(.jx-pure) summary:focus-visible {
+  :where(.jx-pure) summary:focus-visible:not(.no-jx-pure, .no-jx-pure *) {
     outline: 1px solid var(--ring);
     outline-offset: -1px;
   }
-  :where(.jx-pure) details > * + * {
+  :where(.jx-pure) details > * + *:not(.no-jx-pure, .no-jx-pure *) {
     margin-block-start: 0.5rem;
   }
 
@@ -1450,42 +1450,42 @@
      removes (classless parity) and theme them; nav's link law lives
      in B2.
      ===================================================================== */
-  :where(.jx-pure) ul {
+  :where(.jx-pure) ul:not(.no-jx-pure, .no-jx-pure *) {
     list-style: disc;
     padding-inline-start: 1.5rem;
   }
-  :where(.jx-pure) ol {
+  :where(.jx-pure) ol:not(.no-jx-pure, .no-jx-pure *) {
     list-style: decimal;
     padding-inline-start: 1.5rem;
   }
-  :where(.jx-pure) li::marker {
+  :where(.jx-pure) li:not(.no-jx-pure, .no-jx-pure *)::marker {
     color: var(--muted-foreground);
   }
-  :where(.jx-pure) dl {
+  :where(.jx-pure) dl:not(.no-jx-pure, .no-jx-pure *) {
     display: grid;
     grid-template-columns: auto 1fr;
     gap: 0.375rem 1rem;
   }
-  :where(.jx-pure) dt {
+  :where(.jx-pure) dt:not(.no-jx-pure, .no-jx-pure *) {
     font-family: var(--font-nav);
     font-size: 11px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--muted-foreground);
   }
-  :where(.jx-pure) dd {
+  :where(.jx-pure) dd:not(.no-jx-pure, .no-jx-pure *) {
     margin: 0;
   }
 
   /* =====================================================================
      B9 · Tables — the bordered grid law.
      ===================================================================== */
-  :where(.jx-pure) table {
+  :where(.jx-pure) table:not(.no-jx-pure, .no-jx-pure *) {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.875rem;
   }
-  :where(.jx-pure) caption {
+  :where(.jx-pure) caption:not(.no-jx-pure, .no-jx-pure *) {
     margin-block-start: 0.375rem;
     font-family: var(--font-nav);
     font-size: 11px;
@@ -1495,12 +1495,12 @@
     caption-side: bottom;
     text-align: start;
   }
-  :where(.jx-pure) :where(th, td) {
+  :where(.jx-pure) :where(th, td):not(.no-jx-pure, .no-jx-pure *) {
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--border);
     text-align: start;
   }
-  :where(.jx-pure) th {
+  :where(.jx-pure) th:not(.no-jx-pure, .no-jx-pure *) {
     background: var(--muted);
     font-family: var(--font-nav);
     font-size: 11px;
@@ -1510,7 +1510,7 @@
     color: var(--muted-foreground);
     white-space: nowrap;
   }
-  :where(.jx-pure) tbody tr:hover {
+  :where(.jx-pure) tbody tr:hover:not(.no-jx-pure, .no-jx-pure *) {
     background: color-mix(in oklab, var(--muted) 26%, transparent);
   }
 
@@ -1525,8 +1525,8 @@
      the mono result lane. Engine pseudos live in SEPARATE rules (the
      R1 law: a shared -moz list is dropped whole by Chromium).
      ===================================================================== */
-  :where(.jx-pure) progress,
-  :where(.jx-pure) meter {
+  :where(.jx-pure) progress:not(.no-jx-pure, .no-jx-pure *),
+  :where(.jx-pure) meter:not(.no-jx-pure, .no-jx-pure *) {
     display: block;
     box-sizing: border-box;
     width: 100%;
@@ -1539,15 +1539,15 @@
     -webkit-appearance: none;
     overflow: hidden;
   }
-  :where(.jx-pure) progress:disabled,
-  :where(.jx-pure) meter:disabled {
+  :where(.jx-pure) progress:disabled:not(.no-jx-pure, .no-jx-pure *),
+  :where(.jx-pure) meter:disabled:not(.no-jx-pure, .no-jx-pure *) {
     opacity: 0.5;
   }
   /* chromium: the track pseudo + the value pseudo */
-  :where(.jx-pure) progress::-webkit-progress-bar {
+  :where(.jx-pure) progress:not(.no-jx-pure, .no-jx-pure *)::-webkit-progress-bar {
     background: var(--background);
   }
-  :where(.jx-pure) progress::-webkit-progress-value {
+  :where(.jx-pure) progress:not(.no-jx-pure, .no-jx-pure *)::-webkit-progress-value {
     background: var(--primary);
     transition: width 150ms ease-out;
   }
@@ -1557,39 +1557,39 @@
      pseudos exactly like the number spinners (Codex r4 R4-1 — the
      pseudo path compiled but never animated). Part C parks it under
      reduced motion. */
-  :where(.jx-pure) progress:indeterminate {
+  :where(.jx-pure) progress:indeterminate:not(.no-jx-pure, .no-jx-pure *) {
     background:
       linear-gradient(in oklab, var(--muted), var(--muted)) 0 0 / 40% 100% no-repeat,
       var(--background);
     animation: jx-progress-slide 1.2s linear infinite;
   }
   /* firefox: the element is the track; the bar pseudo is the value */
-  :where(.jx-pure) progress::-moz-progress-bar {
+  :where(.jx-pure) progress:not(.no-jx-pure, .no-jx-pure *)::-moz-progress-bar {
     background: var(--primary);
   }
-  :where(.jx-pure) progress:indeterminate::-moz-progress-bar {
+  :where(.jx-pure) progress:indeterminate:not(.no-jx-pure, .no-jx-pure *)::-moz-progress-bar {
     background: transparent; /* the element's stripe owns the paint */
   }
   /* meter: the semantic three-state fill (token-mapped, monochrome law) */
-  :where(.jx-pure) meter::-webkit-meter-bar {
+  :where(.jx-pure) meter:not(.no-jx-pure, .no-jx-pure *)::-webkit-meter-bar {
     background: var(--background);
   }
-  :where(.jx-pure) meter::-webkit-meter-optimum-value {
+  :where(.jx-pure) meter:not(.no-jx-pure, .no-jx-pure *)::-webkit-meter-optimum-value {
     background: var(--primary);
   }
-  :where(.jx-pure) meter::-webkit-meter-suboptimum-value {
+  :where(.jx-pure) meter:not(.no-jx-pure, .no-jx-pure *)::-webkit-meter-suboptimum-value {
     background: var(--secondary);
   }
-  :where(.jx-pure) meter::-webkit-meter-even-less-good-value {
+  :where(.jx-pure) meter:not(.no-jx-pure, .no-jx-pure *)::-webkit-meter-even-less-good-value {
     background: var(--destructive);
   }
-  :where(.jx-pure) meter::-moz-meter-bar {
+  :where(.jx-pure) meter:not(.no-jx-pure, .no-jx-pure *)::-moz-meter-bar {
     background: var(--primary);
   }
-  :where(.jx-pure) meter:-moz-sub-optimum::-moz-meter-bar {
+  :where(.jx-pure) meter:-moz-sub-optimum:not(.no-jx-pure, .no-jx-pure *)::-moz-meter-bar {
     background: var(--secondary);
   }
-  :where(.jx-pure) meter:-moz-sub-sub-optimum::-moz-meter-bar {
+  :where(.jx-pure) meter:-moz-sub-sub-optimum:not(.no-jx-pure, .no-jx-pure *)::-moz-meter-bar {
     background: var(--destructive);
   }
   /* the stripe keyframes live OUTSIDE the layer's rule bodies… they
@@ -1607,7 +1607,7 @@
 }
 @layer components {
   /* output: the calculation result lane — mono, foreground, inline */
-  :where(.jx-pure) output {
+  :where(.jx-pure) output:not(.no-jx-pure, .no-jx-pure *) {
     font-family: var(--font-mono);
     font-size: 0.875rem;
     color: var(--foreground);
@@ -1619,21 +1619,21 @@
      law (nav font, small caps, muted, below). Media never overflows
      its lane.
      ===================================================================== */
-  :where(.jx-pure) :where(img, video) {
+  :where(.jx-pure) :where(img, video):not(.no-jx-pure, .no-jx-pure *) {
     max-width: 100%;
     height: auto;
   }
-  :where(.jx-pure) figure {
+  :where(.jx-pure) figure:not(.no-jx-pure, .no-jx-pure *) {
     margin-block: 0.75rem;
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
     max-width: 100%;
   }
-  :where(.jx-pure) figure > :where(img, video, svg, pre, table) {
+  :where(.jx-pure) figure > :where(img, video, svg, pre, table):not(.no-jx-pure, .no-jx-pure *) {
     border: 1px solid var(--border);
   }
-  :where(.jx-pure) figcaption {
+  :where(.jx-pure) figcaption:not(.no-jx-pure, .no-jx-pure *) {
     font-family: var(--font-nav);
     font-size: 11px;
     letter-spacing: 0.14em;
@@ -1651,7 +1651,7 @@
      · lg 48×28/22/20 — knob = h − 6px (2px pad + 1px border a side).
      role=switch on a checkbox, zero classes, native semantics intact.
      ===================================================================== */
-  :where(.jx-pure) input[type='checkbox'][role='switch'] {
+  :where(.jx-pure) input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *) {
     --jx-switch-w: 2.5rem;
     --jx-switch-h: 1.5rem;
     --jx-switch-knob: calc(var(--jx-switch-h) - 6px);
@@ -1672,7 +1672,7 @@
       background-color 150ms ease-out,
       border-color 150ms ease-out;
   }
-  :where(.jx-pure) input[type='checkbox'][role='switch']::before {
+  :where(.jx-pure) input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *)::before {
     /* reset the B5 checkbox glyph law (opacity/clip-path/rotate) */
     opacity: 1;
     clip-path: none;
@@ -1688,41 +1688,41 @@
       margin-inline-start 150ms cubic-bezier(0.22, 1, 0.36, 1),
       background-color 150ms ease-out;
   }
-  :where(.jx-pure) input[type='checkbox'][role='switch']:hover:not(:disabled) {
+  :where(.jx-pure) input[type='checkbox'][role='switch']:hover:not(:disabled):not(.no-jx-pure, .no-jx-pure *) {
     border-color: var(--primary); /* the off-track lean */
   }
-  :where(.jx-pure) input[type='checkbox'][role='switch']:checked {
+  :where(.jx-pure) input[type='checkbox'][role='switch']:checked:not(.no-jx-pure, .no-jx-pure *) {
     background: var(--primary);
     border-color: var(--primary);
   }
-  :where(.jx-pure) input[type='checkbox'][role='switch']:checked::before {
+  :where(.jx-pure) input[type='checkbox'][role='switch']:checked:not(.no-jx-pure, .no-jx-pure *)::before {
     clip-path: none;
     opacity: 1;
     margin-inline-start: var(--jx-switch-travel);
     background: var(--primary-foreground);
   }
-  :where(.jx-pure) input[type='checkbox'][role='switch']:focus-visible {
+  :where(.jx-pure) input[type='checkbox'][role='switch']:focus-visible:not(.no-jx-pure, .no-jx-pure *) {
     outline: 1px solid var(--ring);
     outline-offset: 2px;
   }
-  :where(.jx-pure) input[type='checkbox'][role='switch']:disabled {
+  :where(.jx-pure) input[type='checkbox'][role='switch']:disabled:not(.no-jx-pure, .no-jx-pure *) {
     opacity: 0.5;
     cursor: not-allowed;
   }
   /* sizes */
-  :where(.jx-pure) input[type='checkbox'][role='switch'].jx-switch-sm,
-  .jx-pure .jx-switch-sm input[type='checkbox'][role='switch'] {
+  :where(.jx-pure) input[type='checkbox'][role='switch'].jx-switch-sm:not(.no-jx-pure, .no-jx-pure *),
+  .jx-pure .jx-switch-sm input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *) {
     --jx-switch-w: 2rem;
     --jx-switch-h: 1.25rem;
   }
-  :where(.jx-pure) input[type='checkbox'][role='switch'].jx-switch-lg,
-  .jx-pure .jx-switch-lg input[type='checkbox'][role='switch'] {
+  :where(.jx-pure) input[type='checkbox'][role='switch'].jx-switch-lg:not(.no-jx-pure, .no-jx-pure *),
+  .jx-pure .jx-switch-lg input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *) {
     --jx-switch-w: 3rem;
     --jx-switch-h: 1.75rem;
   }
   /* the label posture: text inline-start, switch inline-end, one
      clickable surface (:has() engines only — harmless elsewhere) */
-  :where(.jx-pure) label:has(> input[type='checkbox'][role='switch']) {
+  :where(.jx-pure) label:has(> input[type='checkbox'][role='switch']):not(.no-jx-pure, .no-jx-pure *) {
     display: inline-flex;
     align-items: center;
     gap: 0.75rem;
@@ -1749,9 +1749,9 @@
       [type='tel'],
       [type='search'],
       [type='number']
-    )[aria-invalid='true'],
-  :where(.jx-pure) textarea[aria-invalid='true'],
-  :where(.jx-pure) select[aria-invalid='true'] {
+    )[aria-invalid='true']:not(.no-jx-pure, .no-jx-pure *),
+      :where(.jx-pure) textarea[aria-invalid='true']:not(.no-jx-pure, .no-jx-pure *),
+      :where(.jx-pure) select[aria-invalid='true']:not(.no-jx-pure, .no-jx-pure *) {
     border-color: var(--error);
   }
   :where(.jx-pure) input:where(
@@ -1763,9 +1763,9 @@
       [type='tel'],
       [type='search'],
       [type='number']
-    )[aria-invalid='false'],
-  :where(.jx-pure) textarea[aria-invalid='false'],
-  :where(.jx-pure) select[aria-invalid='false'] {
+    )[aria-invalid='false']:not(.no-jx-pure, .no-jx-pure *),
+      :where(.jx-pure) textarea[aria-invalid='false']:not(.no-jx-pure, .no-jx-pure *),
+      :where(.jx-pure) select[aria-invalid='false']:not(.no-jx-pure, .no-jx-pure *) {
     border-color: var(--success);
   }
   :where(.jx-pure) input:where(
@@ -1777,8 +1777,8 @@
       [type='tel'],
       [type='search'],
       [type='number']
-    )[aria-invalid='true']:not(select),
-  :where(.jx-pure) textarea[aria-invalid='true'] {
+    )[aria-invalid='true']:not(select):not(.no-jx-pure, .no-jx-pure *),
+      :where(.jx-pure) textarea[aria-invalid='true']:not(.no-jx-pure, .no-jx-pure *) {
     padding-inline-end: 2rem;
     background-image: var(--jx-icon-invalid-ink);
     background-position: right 0.625rem center;
@@ -1794,8 +1794,8 @@
       [type='tel'],
       [type='search'],
       [type='number']
-    )[aria-invalid='false']:not(select),
-  :where(.jx-pure) textarea[aria-invalid='false'] {
+    )[aria-invalid='false']:not(select):not(.no-jx-pure, .no-jx-pure *),
+      :where(.jx-pure) textarea[aria-invalid='false']:not(.no-jx-pure, .no-jx-pure *) {
     padding-inline-end: 2rem;
     background-image: var(--jx-icon-valid-ink);
     background-position: right 0.625rem center;
@@ -1803,73 +1803,58 @@
     background-repeat: no-repeat;
   }
   /* checkbox / radio: the checked accent flips to error */
-  :where(.jx-pure) input[type='checkbox'][aria-invalid='true']:checked,
-  :where(.jx-pure) input[type='checkbox'][aria-invalid='true']:indeterminate,
-  :where(.jx-pure) input[type='radio'][aria-invalid='true']:checked {
+  :where(.jx-pure) input[type='checkbox'][aria-invalid='true']:checked:not(.no-jx-pure, .no-jx-pure *),
+  :where(.jx-pure) input[type='checkbox'][aria-invalid='true']:indeterminate:not(.no-jx-pure, .no-jx-pure *),
+  :where(.jx-pure) input[type='radio'][aria-invalid='true']:checked:not(.no-jx-pure, .no-jx-pure *) {
     background: var(--error);
     border-color: var(--error);
   }
-  :where(.jx-pure) input[type='radio'][aria-invalid='true']:checked::after {
+  :where(.jx-pure) input[type='radio'][aria-invalid='true']:checked:not(.no-jx-pure, .no-jx-pure *)::after {
     background: var(--error-foreground);
   }
-  :where(.jx-pure) input[type='checkbox'][aria-invalid='false']:hover:not(:checked):not(:disabled),
-  :where(.jx-pure) input[type='radio'][aria-invalid='false']:hover:not(:checked):not(:disabled) {
+  :where(.jx-pure) input[type='checkbox'][aria-invalid='false']:hover:not(:checked):not(:disabled):not(.no-jx-pure, .no-jx-pure *),
+  :where(.jx-pure) input[type='radio'][aria-invalid='false']:hover:not(:checked):not(:disabled):not(.no-jx-pure, .no-jx-pure *) {
     border-color: var(--success); /* the valid lean */
   }
   /* switch: the checked track flips */
-  :where(.jx-pure) input[type='checkbox'][role='switch'][aria-invalid='true'] {
+  :where(.jx-pure) input[type='checkbox'][role='switch'][aria-invalid='true']:not(.no-jx-pure, .no-jx-pure *) {
     border-color: var(--error);
   }
-  :where(.jx-pure) input[type='checkbox'][role='switch'][aria-invalid='true']:checked {
+  :where(.jx-pure) input[type='checkbox'][role='switch'][aria-invalid='true']:checked:not(.no-jx-pure, .no-jx-pure *) {
     background: var(--error);
     border-color: var(--error);
   }
-  :where(.jx-pure) input[type='checkbox'][role='switch'][aria-invalid='true']:checked::before {
+  :where(.jx-pure) input[type='checkbox'][role='switch'][aria-invalid='true']:checked:not(.no-jx-pure, .no-jx-pure *)::before {
     border-color: transparent;
   }
   /* range: fill + thumb flip */
-  :where(.jx-pure) input[type='range'][aria-invalid='true'] {
+  :where(.jx-pure) input[type='range'][aria-invalid='true']:not(.no-jx-pure, .no-jx-pure *) {
     --jx-range-fill-color: var(--error);
   }
-  :where(.jx-pure) input[type='range'][aria-invalid='true']::-webkit-slider-thumb {
+  :where(.jx-pure) input[type='range'][aria-invalid='true']:not(.no-jx-pure, .no-jx-pure *)::-webkit-slider-thumb {
     border-color: var(--error);
   }
-  :where(.jx-pure) input[type='range'][aria-invalid='true']::-moz-range-thumb {
+  :where(.jx-pure) input[type='range'][aria-invalid='true']:not(.no-jx-pure, .no-jx-pure *)::-moz-range-thumb {
     background: var(--error);
   }
 
-  /* =====================================================================
-     B12 · the reverse scope — .no-jx-pure (Owner ruling 2026-08-24,
-     openspec D2; the r4 R4-2 unlayered posture kept). Inside .jx-pure
-     everything is jx; mount .no-jx-pure on any element to revert IT
-     and its whole subtree to the USER-AGENT cascade. The rules live OUTSIDE
-     @layer components on purpose — a layered revert could never beat
-     Part A's UNLAYERED classes (layers outrank specificity), and the
-     hatch must win against BOTH parts. `revert` rolls the whole
-     author origin back — the only reliable pure-CSS subtree exclusion
-     (the honest evaluation conclusion — :not() chains do not scale).
-     Part A classes are reverted on those elements too — the island is
-     FULLY native; the B-drawn pseudos (checkbox glyph, radio dot,
-     summary marker) are reverted separately below.
-     ===================================================================== */
+
 }
-/* the reverse scope, unlayered so it outranks Part A; the element
-   itself AND every descendant revert (all:revert also rolls back
-   font/layout/display authoring — the island is FULLY native) */
-.jx-pure .no-jx-pure,
-.jx-pure .no-jx-pure * {
-  /* !important is the contract: author-!important outranks INLINE
-     styles too — the island is fully native even against the host's
-     inline/utility authoring on its nodes */
-  all: revert !important;
-}
-/* pseudos are not matched by * — reset the B-drawn glyph surfaces */
-.jx-pure .no-jx-pure :where(input[type='checkbox'])::before,
-.jx-pure .no-jx-pure :where(input[type='radio'])::after,
-.jx-pure .no-jx-pure summary::before {
-  all: revert;
-  content: none;
-}
+
+/* =====================================================================
+   B12 · the reverse scope — .no-jx-pure (Owner third revision,
+   2026-08-24): the r8/r9 `all: revert !important` hatch was too
+   violent — it also rolled back the HOST's own utilities and inline
+   styles. Every face rule now carries the exclusion on its subject:
+   :not(.no-jx-pure, .no-jx-pure *) — an element that IS, or lives
+   inside, a no-jx-pure subtree never receives the face; everything
+   the host authored there is untouched. Part A opt-in classes still
+   work inside islands (author intent, not face paint). INHERITED
+   properties (color-scheme, custom property tokens) keep flowing
+   through islands from ancestors — the exclusion is element-level
+   paint, never a war against the page's theme or the host.
+   =====================================================================
+ */
 
 /* =====================================================================
    C · DEGRADATION LAWS — motion and forced colors.
@@ -1880,8 +1865,7 @@
    displacements (the press translate, the thumb press transform) are
    pinned back to their rest poses so nothing ever moves. */
 @media (prefers-reduced-motion: reduce) {
-  :where(.jx-pure) :where(button, input:where([type='button'], [type='submit'], [type='reset']), .jx-button),
-  :where(.jx-pure) input:where(
+  :where(.jx-pure) :where(button, input:where([type='button'], [type='submit'], [type='reset']), .jx-button):not(.no-jx-pure, .no-jx-pure *), :where(.jx-pure) input:where(
       :not([type]),
       [type='text'],
       [type='password'],
@@ -1895,38 +1879,35 @@
       [type='datetime-local'],
       [type='month'],
       [type='week']
-    ),
-  :where(.jx-pure) :where(textarea, select),
-  :where(.jx-pure) summary,
-  :where(.jx-pure) summary::before {
+    ):not(.no-jx-pure, .no-jx-pure *), :where(.jx-pure) :where(textarea, select):not(.no-jx-pure, .no-jx-pure *), :where(.jx-pure) summary:not(.no-jx-pure, .no-jx-pure *), :where(.jx-pure) summary:not(.no-jx-pure, .no-jx-pure *)::before {
     transition: none;
   }
   /* engine pseudos NEVER share a selector list — a non-forgiving list
      with an unknown -moz pseudo is dropped WHOLE by Chromium (Codex
      r2 R1); one rule per engine surface */
-  :where(.jx-pure) input[type='checkbox'],
-  :where(.jx-pure) input[type='radio'] {
+  :where(.jx-pure) input[type='checkbox']:not(.no-jx-pure, .no-jx-pure *),
+  :where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *) {
     transition: none;
   }
   /* the indeterminate stripe parks: element animation off (the
      authored -moz pseudo animation is likewise killed — one rule per
      surface, and the -moz one stands alone) */
-  :where(.jx-pure) progress {
+  :where(.jx-pure) progress:not(.no-jx-pure, .no-jx-pure *) {
     animation: none;
   }
-  :where(.jx-pure) progress::-moz-progress-bar {
+  :where(.jx-pure) progress:not(.no-jx-pure, .no-jx-pure *)::-moz-progress-bar {
     animation: none;
   }
-  :where(.jx-pure) input[type='checkbox']::before {
+  :where(.jx-pure) input[type='checkbox']:not(.no-jx-pure, .no-jx-pure *)::before {
     transition: none;
   }
-  :where(.jx-pure) input[type='checkbox'][role='switch'] {
+  :where(.jx-pure) input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *) {
     transition: none;
   }
-  :where(.jx-pure) input[type='radio']::after {
+  :where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *)::after {
     transition: none;
   }
-  :where(.jx-pure) :where(button, input:where([type='button'], [type='submit'], [type='reset']), .jx-button):active:not(:disabled) {
+  :where(.jx-pure) :where(button, input:where([type='button'], [type='submit'], [type='reset']), .jx-button):active:not(:disabled):not(.no-jx-pure, .no-jx-pure *) {
     translate: none;
   }
 }
@@ -1939,17 +1920,17 @@
    colors. The opt-in select ALSO drops its gradient chevron or the
    restored platform arrow would double up with the leftover paint. */
 @media (forced-colors: active) {
-  :where(.jx-pure) input[type='checkbox'],
-  :where(.jx-pure) input[type='radio'],
-  :where(.jx-pure) input[type='range'],
-  :where(.jx-pure) input[type='color'],
-  :where(.jx-pure) select {
+  :where(.jx-pure) input[type='checkbox']:not(.no-jx-pure, .no-jx-pure *),
+  :where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *),
+  :where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *),
+  :where(.jx-pure) input[type='color']:not(.no-jx-pure, .no-jx-pure *),
+  :where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *) {
     appearance: auto;
     -webkit-appearance: auto;
     background-image: none;
   }
-  :where(.jx-pure) input[type='checkbox']::before,
-  :where(.jx-pure) input[type='radio']::after {
+  :where(.jx-pure) input[type='checkbox']:not(.no-jx-pure, .no-jx-pure *)::before,
+  :where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *)::after {
     content: none;
   }
 }
@@ -2022,7 +2003,7 @@
   /* the scope-root companion: without it B0's color-scheme: light would
      out-shout the inherited root scheme and native pickers/scrollbars
      would stay light under dark tokens (the inverted-A2 bug) */
-  :where(.jx-auto-dark) :where(.jx-pure):not(.jx-light, .jx-light *) {
+  :where(.jx-auto-dark) :where(.jx-pure):not(.jx-light, .jx-light *):not(.no-jx-pure, .no-jx-pure *) {
     color-scheme: dark;
   }
 }

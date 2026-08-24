@@ -71,7 +71,7 @@ ${declarations
   /* the scope-root companion: without it B0's color-scheme: light would
      out-shout the inherited root scheme and native pickers/scrollbars
      would stay light under dark tokens (the inverted-A2 bug) */
-  :where(.jx-auto-dark) :where(.jx-pure):not(.jx-light, .jx-light *) {
+  :where(.jx-auto-dark) :where(.jx-pure):not(.jx-light, .jx-light *):not(.no-jx-pure, .no-jx-pure *) {
     color-scheme: dark;
   }
 }
