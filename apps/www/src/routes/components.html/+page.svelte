@@ -72,18 +72,16 @@
       <!-- min inherits the card-grid default (320px): two equal columns
            through the laptop band, four on desktop — no 3+1 orphan rows. -->
       <CardGrid class="mt-6">
-        {#each group.entries as item, index (item.name)}
-          <!-- The reveal wrapper stays the grid child; the card re-opts
-               into the shared subgrid rows (homepage law). -->
-          <div data-reveal="">
-            <OverviewCard
-              name={item.name}
-              type={item.type.replace('registry:', '')}
-              summary={item.summary}
-              href={item.href}
-              command="npx jixoai-ui add {item.name}"
-            />
-          </div>
+        {#each group.entries as item (item.name)}
+          <!-- the card re-opts into the shared subgrid rows (homepage
+               law); CardGrid owns the staggered entrance -->
+          <OverviewCard
+            name={item.name}
+            type={item.type.replace('registry:', '')}
+            summary={item.summary}
+            href={item.href}
+            command="npx jixoai-ui add {item.name}"
+          />
         {/each}
       </CardGrid>
     </section>
