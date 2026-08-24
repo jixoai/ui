@@ -9,11 +9,11 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import { flushSync } from 'svelte';
 
-import BadgeIndicator from '../src/lib/ui/badge-indicator.svelte';
-import Cascader from '../src/lib/ui/cascader.svelte';
-import FloatButton from '../src/lib/ui/float-button.svelte';
-import Image from '../src/lib/ui/image.svelte';
-import Transfer from '../src/lib/ui/transfer.svelte';
+import BadgeIndicator from '../src/lib/ui/badge-indicator/badge-indicator.svelte';
+import Cascader from '../src/lib/ui/cascader/cascader.svelte';
+import FloatButton from '../src/lib/ui/float-button/float-button.svelte';
+import Image from '../src/lib/ui/image/image.svelte';
+import Transfer from '../src/lib/ui/transfer/transfer.svelte';
 import CascaderHost from './fixtures/cascader-host.svelte';
 import TransferHost from './fixtures/transfer-host.svelte';
 

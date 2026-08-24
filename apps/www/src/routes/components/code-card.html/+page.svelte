@@ -1,15 +1,15 @@
 <script lang="ts">
-  import CodeCard from '$lib/ui/code-card.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import NativeSelect from '$lib/ui/native-select.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import CodeCard from '$lib/ui/code-card/code-card.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the code drawer shows the exact registry copies this
   // site runs. `?raw` keeps them byte-identical — embedding component
   // sources (backticks, ${}, closing tags) in template literals by hand
   // would be an escaping minefield.
-  import codeCardSource from '$lib/ui/code-card.svelte?raw';
+  import codeCardSource from '$lib/ui/code-card/code-card.svelte?raw';
   import shikiSource from '$lib/shiki.ts?raw';
 
   // A literal closing-script tag inside a template literal would terminate

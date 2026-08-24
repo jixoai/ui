@@ -4,7 +4,7 @@
   failure state resetting across the prop change.
 -->
 <script lang="ts">
-  import Avatar from '../../src/lib/ui/avatar.svelte';
+  import Avatar from '../../src/lib/ui/avatar/avatar.svelte';
 
   let src = $state('/missing.png');
 

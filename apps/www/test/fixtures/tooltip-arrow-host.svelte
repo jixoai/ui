@@ -6,7 +6,7 @@
   the aim geometry itself is verified in a real browser.
 -->
 <script lang="ts">
-  import Tooltip from '../../src/lib/ui/tooltip.svelte';
+  import Tooltip from '../../src/lib/ui/tooltip/tooltip.svelte';
 </script>
 
 <Tooltip text="Aimed at the anchor's top-center" arrow>

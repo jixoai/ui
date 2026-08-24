@@ -12,10 +12,10 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 
-import DropdownMenu from '../src/lib/ui/dropdown-menu.svelte';
-import DropdownMenuItem from '../src/lib/ui/dropdown-menu-item.svelte';
-import Pagination, { pageWindow } from '../src/lib/ui/pagination.svelte';
-import Progress from '../src/lib/ui/progress.svelte';
+import DropdownMenu from '../src/lib/ui/dropdown-menu/dropdown-menu.svelte';
+import DropdownMenuItem from '../src/lib/ui/dropdown-menu/dropdown-menu-item.svelte';
+import Pagination, { pageWindow } from '../src/lib/ui/pagination/pagination.svelte';
+import Progress from '../src/lib/ui/progress/progress.svelte';
 import TooltipHost from './fixtures/tooltip-host.svelte';
 import TooltipArrowHost from './fixtures/tooltip-arrow-host.svelte';
 import MenuCustomTriggerHost from './fixtures/menu-custom-trigger-host.svelte';

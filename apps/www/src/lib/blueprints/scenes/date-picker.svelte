@@ -2,8 +2,8 @@
      calendar panel forced open on the committed month, the picked day
      filled primary (use:forceShowPopovers). -->
 <script lang="ts">
-  import DatePicker from '$lib/ui/date-picker.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import DatePicker from '$lib/ui/date-picker/date-picker.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 
   // a month away from "today" keeps the today ring out of the frame —

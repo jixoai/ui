@@ -1,34 +1,34 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import CardGrid from '$lib/ui/card-grid.svelte';
-  import Checkbox from '$lib/ui/checkbox.svelte';
-  import ColorPicker from '$lib/ui/color-picker.svelte';
-  import Combobox, { type ComboboxOption } from '$lib/ui/combobox.svelte';
-  import DatePicker, { type DatePickerRange } from '$lib/ui/date-picker.svelte';
-  import FileInput from '$lib/ui/file-input.svelte';
-  import Input from '$lib/ui/input.svelte';
-  import NativeSelect from '$lib/ui/native-select.svelte';
-  import NumberInput from '$lib/ui/number-input.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import Radio from '$lib/ui/radio.svelte';
-  import Range from '$lib/ui/range.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import Select, { type SelectOption } from '$lib/ui/select.svelte';
-  import TagsInput, { type Tag } from '$lib/ui/tags-input.svelte';
-  import TerminalCard from '$lib/ui/terminal-card.svelte';
-  import Textarea from '$lib/ui/textarea.svelte';
-  import Toggle from '$lib/ui/toggle.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
+  import Checkbox from '$lib/ui/checkbox/checkbox.svelte';
+  import ColorPicker from '$lib/ui/color-picker/color-picker.svelte';
+  import Combobox, { type ComboboxOption } from '$lib/ui/combobox/combobox.svelte';
+  import DatePicker, { type DatePickerRange } from '$lib/ui/date-picker/date-picker.svelte';
+  import FileInput from '$lib/ui/file-input/file-input.svelte';
+  import Input from '$lib/ui/input/input.svelte';
+  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
+  import NumberInput from '$lib/ui/number-input/number-input.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import Radio from '$lib/ui/radio/radio.svelte';
+  import Range from '$lib/ui/range/range.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import Select, { type SelectOption } from '$lib/ui/select/select.svelte';
+  import TagsInput, { type Tag } from '$lib/ui/tags-input/tags-input.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
+  import Textarea from '$lib/ui/textarea/textarea.svelte';
+  import Toggle from '$lib/ui/toggle/toggle.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the canvas drawers show the exact registry copies this
   // site runs — one ?raw import per core control (audit P1-A2).
-  import inputSource from '$lib/ui/input.svelte?raw';
-  import selectSource from '$lib/ui/select.svelte?raw';
-  import comboboxSource from '$lib/ui/combobox.svelte?raw';
-  import numberInputSource from '$lib/ui/number-input.svelte?raw';
-  import datePickerSource from '$lib/ui/date-picker.svelte?raw';
-  import tagsInputSource from '$lib/ui/tags-input.svelte?raw';
+  import inputSource from '$lib/ui/input/input.svelte?raw';
+  import selectSource from '$lib/ui/select/select.svelte?raw';
+  import comboboxSource from '$lib/ui/combobox/combobox.svelte?raw';
+  import numberInputSource from '$lib/ui/number-input/number-input.svelte?raw';
+  import datePickerSource from '$lib/ui/date-picker/date-picker.svelte?raw';
+  import tagsInputSource from '$lib/ui/tags-input/tags-input.svelte?raw';
 
   // A literal closing-script tag inside the module script would terminate
   // this component's own script tag during the HTML-level scan — splice it.

@@ -8,8 +8,8 @@
 import { cleanup, fireEvent, render } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { tick } from 'svelte';
-import ScrollVirtual from '$lib/ui/scroll-virtual.svelte';
-import Toc from '$lib/ui/toc.svelte';
+import ScrollVirtual from '$lib/ui/scroll-virtual/scroll-virtual.svelte';
+import Toc from '$lib/ui/toc/toc.svelte';
 import ScrollAreaHost from './fixtures/scroll-area-host.svelte';
 import { createTocEngine, type TocEngineUpdate } from '$lib/toc-engine';
 import { deriveTocOutline, tocOutlineToSections } from '$lib/toc-outline';

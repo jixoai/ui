@@ -1,16 +1,16 @@
 <script lang="ts">
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
 
   // ToC outline: the closing law (the canvas above holds the architecture).
 
   // Same-source law: the file tree shows the exact installed copy this site
   // consumes — ?raw imports the bytes, never a retyped duplicate.
-  import scaffoldSource from '$lib/ui/website-scaffold.svelte?raw';
-  import scaffoldCss from '$lib/website-scaffold.css?raw';
+  import scaffoldSource from '$lib/ui/website-scaffold/website-scaffold.svelte?raw';
+  import scaffoldCss from '$lib/ui/website-scaffold/website-scaffold.css?raw';
 
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.
@@ -18,7 +18,7 @@
 
   const usage = `<script lang="ts">
   import WebsiteScaffold from '@ui/website-scaffold.svelte';
-  import '@ui/website-scaffold.css';
+  import '@ui/website-scaffold/website-scaffold.css';
   import TerminalFooter from '@ui/terminal-footer.svelte';
   import TerminalHeader from '@ui/terminal-header.svelte';
 ${close}
@@ -46,7 +46,7 @@ ${close}
 
   const files: TreeFile[] = [
     { name: 'registry/files/ui/website-scaffold.svelte', content: scaffoldSource },
-    { name: 'registry/files/ui/website-scaffold.css', content: scaffoldCss },
+    { name: 'registry/files/ui/website-scaffold/website-scaffold.css', content: scaffoldCss },
     { name: 'src/lib/ui/website-scaffold-usage.svelte', content: usage },
   ];
 

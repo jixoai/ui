@@ -20,17 +20,17 @@
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas, { type TreeFile } from '$lib/ui/component-canvas.svelte';
-  import NativeSelect from '$lib/ui/native-select.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import TreeView, { type TreeItemCtx, type TreeNode } from '$lib/ui/tree-view.svelte';
-  import TreeViewMulti from '$lib/ui/tree-view-multiselect.svelte';
-  import Avatar from '$lib/ui/avatar.svelte';
+  import ComponentCanvas, { type TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TreeView, { type TreeItemCtx, type TreeNode } from '$lib/ui/tree-view/tree-view.svelte';
+  import TreeViewMulti from '$lib/ui/tree-view/tree-view-multiselect.svelte';
+  import Avatar from '$lib/ui/avatar/avatar.svelte';
   import { icons } from '$lib/icons';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import treeViewSource from '$lib/ui/tree-view.svelte?raw';
-  import treeViewMultiSource from '$lib/ui/tree-view-multiselect.svelte?raw';
+  import treeViewSource from '$lib/ui/tree-view/tree-view.svelte?raw';
+  import treeViewMultiSource from '$lib/ui/tree-view/tree-view-multiselect.svelte?raw';
 
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.

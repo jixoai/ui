@@ -1,8 +1,8 @@
 <!-- popover blueprint: anchored panel forced shown (use:forceShowPopovers
      calls showPopover() on every [popover] in the subtree). -->
 <script lang="ts">
-  import Popover from '$lib/ui/popover.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import Popover from '$lib/ui/popover/popover.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 </script>
 

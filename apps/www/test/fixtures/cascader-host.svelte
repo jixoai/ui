@@ -2,7 +2,7 @@
   Test host for the cascader contract: named bridge, bindable path.
 -->
 <script lang="ts">
-  import Cascader from '../../src/lib/ui/cascader.svelte';
+  import Cascader from '../../src/lib/ui/cascader/cascader.svelte';
 
   let { name = 'region' }: { name?: string } = $props();
   let value = $state<string[]>([]);

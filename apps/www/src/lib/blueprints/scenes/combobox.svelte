@@ -2,7 +2,7 @@
      carries the committed display, the panel shows the filtered rows
      with the selected edge line (use:forceShowPopovers). -->
 <script lang="ts">
-  import Combobox, { type ComboboxOption } from '$lib/ui/combobox.svelte';
+  import Combobox, { type ComboboxOption } from '$lib/ui/combobox/combobox.svelte';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 
   const options: ComboboxOption[] = [

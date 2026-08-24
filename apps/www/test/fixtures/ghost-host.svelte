@@ -3,8 +3,8 @@
   side by side, one bare item for the native contract check.
 -->
 <script lang="ts">
-  import Accordion from '../../src/lib/ui/accordion.svelte';
-  import AccordionItem from '../../src/lib/ui/accordion-item.svelte';
+  import Accordion from '../../src/lib/ui/accordion/accordion.svelte';
+  import AccordionItem from '../../src/lib/ui/accordion/accordion-item.svelte';
 
   let { ghost = false }: { ghost?: boolean } = $props();
 </script>

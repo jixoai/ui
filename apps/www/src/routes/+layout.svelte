@@ -1,7 +1,7 @@
 <script lang="ts">
     import { catalogByGroup, CATALOG } from '$lib/catalog';
   import ComponentTreeNav from '$lib/ui/component-tree-nav.svelte';
-  import Toc, { type TocSection } from '$lib/ui/toc.svelte';
+  import Toc, { type TocSection } from '$lib/ui/toc/toc.svelte';
   import '../app.css';
   // scrollbar law (2026-08-22): side-effect probe publishes the measured
   // per-OS scrollbar widths (--jx-scrollbar-thin/auto) feeding the theme's
@@ -10,10 +10,9 @@
   import { afterNavigate, onNavigate } from '$app/navigation';
   import { page } from '$app/state';
   import type { Snippet } from 'svelte';
-  import WebsiteScaffold from '$lib/ui/website-scaffold.svelte';
-  import '$lib/website-scaffold.css';
-  import TerminalFooter from '$lib/ui/terminal-footer.svelte';
-  import TerminalHeader from '$lib/ui/terminal-header.svelte';
+  import WebsiteScaffold from '$lib/ui/website-scaffold/website-scaffold.svelte';
+  import TerminalFooter from '$lib/ui/terminal-footer/terminal-footer.svelte';
+  import TerminalHeader from '$lib/ui/terminal-header/terminal-header.svelte';
   import HuePopover from '$lib/components/hue-popover.svelte';
   import { startHueRuntime, stopHueRuntime } from '$lib/hue-runtime';
   import { onMount } from 'svelte';

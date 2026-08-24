@@ -1,9 +1,9 @@
 <script lang="ts">
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
 
 
   const viteUsage = `// vite.config.ts — plain vite build sites (one plugin line)

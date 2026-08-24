@@ -1,14 +1,14 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import Command, { type CommandItem } from '$lib/ui/command.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import Kbd from '$lib/ui/kbd.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import Command, { type CommandItem } from '$lib/ui/command/command.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import Kbd from '$lib/ui/kbd/kbd.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import commandSource from '$lib/ui/command.svelte?raw';
+  import commandSource from '$lib/ui/command/command.svelte?raw';
 
   let open = $state(false);
   let lastAction = $state('');

@@ -1,6 +1,6 @@
 <!-- separator blueprint: horizontal thematic break + vertical posture. -->
 <script lang="ts">
-  import Separator from '$lib/ui/separator.svelte';
+  import Separator from '$lib/ui/separator/separator.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col justify-center gap-5 p-10">

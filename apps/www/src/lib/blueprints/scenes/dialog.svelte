@@ -2,9 +2,9 @@
      floating over muted context content. The serializer re-anchors
      top-layer panels into the stage. -->
 <script lang="ts">
-  import Dialog from '$lib/ui/dialog.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import Dialog from '$lib/ui/dialog/dialog.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col justify-center gap-4 p-10 opacity-70">

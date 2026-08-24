@@ -6,7 +6,7 @@
   script, exactly as a consumer would use them.
 -->
 <script lang="ts">
-  import PressButton, { type PressEffect } from '../../src/lib/ui/press-button.svelte';
+  import PressButton, { type PressEffect } from '../../src/lib/ui/press-button/press-button.svelte';
 
   let {
     variant = undefined,

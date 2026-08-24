@@ -10,9 +10,9 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { flushSync } from 'svelte';
 
-import Carousel from '../src/lib/ui/carousel.svelte';
-import InputOtp from '../src/lib/ui/input-otp.svelte';
-import ToggleGroup from '../src/lib/ui/toggle-group.svelte';
+import Carousel from '../src/lib/ui/carousel/carousel.svelte';
+import InputOtp from '../src/lib/ui/input-otp/input-otp.svelte';
+import ToggleGroup from '../src/lib/ui/toggle-group/toggle-group.svelte';
 import CarouselHost from './fixtures/carousel-host.svelte';
 import OtpHost from './fixtures/otp-host.svelte';
 import ToggleGroupHost from './fixtures/toggle-group-host.svelte';

@@ -6,7 +6,7 @@
   keep prose pages quiet.
 -->
 <script lang="ts">
-  import CodeCard from '$lib/ui/code-card.svelte';
+  import CodeCard from '$lib/ui/code-card/code-card.svelte';
 
   interface Props {
     code: string;

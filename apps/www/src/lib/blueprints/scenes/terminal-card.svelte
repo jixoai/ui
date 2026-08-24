@@ -4,7 +4,7 @@
      (The blueprint pass runs reduced-motion, so the one-time typing
      entrance renders settled — the prerendered/no-JS paint.) -->
 <script lang="ts">
-  import TerminalCard from '$lib/ui/terminal-card.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
 </script>
 
 <div class="flex h-full w-full items-center justify-center p-10">

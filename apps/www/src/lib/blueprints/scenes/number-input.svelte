@@ -1,7 +1,7 @@
 <!-- number-input blueprint: the [- NUM +] steppers with committed values —
      an int inside [1,16] and a decimal snapped to a 0.5 step. -->
 <script lang="ts">
-  import NumberInput from '$lib/ui/number-input.svelte';
+  import NumberInput from '$lib/ui/number-input/number-input.svelte';
 
   let workers = $state(4);
   let timeout = $state(2.5);

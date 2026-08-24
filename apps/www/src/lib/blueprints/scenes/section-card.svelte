@@ -1,7 +1,7 @@
 <!-- section-card blueprint: the content atom itself, nested small cards. -->
 <script lang="ts">
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import Badge from '$lib/ui/badge.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import Badge from '$lib/ui/badge/badge.svelte';
 </script>
 
 <div class="flex h-full w-full items-center justify-center p-10">

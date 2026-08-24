@@ -2,7 +2,7 @@
      network) — a cover picture plus a two-thumb row, intrinsic
      width/height reserved on every one (the no-CLS contract). -->
 <script lang="ts">
-  import Image from '$lib/ui/image.svelte';
+  import Image from '$lib/ui/image/image.svelte';
 
   const COVER_SRC =
     "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 240'%3E%3Crect width='480' height='240' fill='%23e4e4e7'/%3E%3Cpath d='M0 190 120 90l80 70 90-110 190 140' fill='none' stroke='%23a1a1aa' stroke-width='8'/%3E%3Ccircle cx='390' cy='60' r='26' fill='%23a1a1aa'/%3E%3C/svg%3E";

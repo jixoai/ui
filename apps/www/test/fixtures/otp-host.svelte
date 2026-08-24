@@ -3,7 +3,7 @@
   value tests read directly.
 -->
 <script lang="ts">
-  import InputOtp from '../../src/lib/ui/input-otp.svelte';
+  import InputOtp from '../../src/lib/ui/input-otp/input-otp.svelte';
 
   let { name = 'otp', length = 3 }: { name?: string; length?: number } = $props();
 </script>

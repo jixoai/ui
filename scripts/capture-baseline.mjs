@@ -68,6 +68,11 @@ const browser = await chromium.launch({
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
 });
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+// determinism law: the design's reduced-motion degradation renders every
+// reveal/transition in its FINAL state — byte-stable captures. Without
+// this the same tree hashes differently run-to-run (measured 2026-08-24:
+// 67/67 routes differed back-to-back on the dev server).
+await page.emulateMedia({ reducedMotion: 'reduce' });
 
 let n = 0;
 for (const r of routes) {

@@ -2,7 +2,7 @@
      — the committed row carries the primary edge line, the trigger shows
      the commit, one row stays disabled. -->
 <script lang="ts">
-  import Select, { type SelectOption } from '$lib/ui/select.svelte';
+  import Select, { type SelectOption } from '$lib/ui/select/select.svelte';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 
   const options: SelectOption[] = [

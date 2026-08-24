@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
   import { Check, Copy } from 'lucide-svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
 
   interface Props {
     /** Command text to copy. */

@@ -2,7 +2,7 @@
      only (no network image — the serialization pass must stay
      deterministic). sm carries the halved one-code-point block. -->
 <script lang="ts">
-  import Avatar from '$lib/ui/avatar.svelte';
+  import Avatar from '$lib/ui/avatar/avatar.svelte';
 
   const variants = ['bevel', 'rounded', 'squircle'] as const;
 </script>

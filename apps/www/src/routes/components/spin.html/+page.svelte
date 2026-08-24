@@ -1,12 +1,12 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import Spin from '$lib/ui/spin.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import Spin from '$lib/ui/spin/spin.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import spinSource from '$lib/ui/spin.svelte?raw';
+  import spinSource from '$lib/ui/spin/spin.svelte?raw';
 
   const close = '</' + 'script>';
 

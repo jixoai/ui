@@ -1,16 +1,16 @@
 <script lang="ts">
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
-  import CardGrid from '$lib/ui/card-grid.svelte';
-  import Input from '$lib/ui/input.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
+  import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
+  import Input from '$lib/ui/input/input.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
 
   // ToC outline: the closing law (the canvas above is the workbench).
 
   // Same-source law: the file tree shows the exact installed copy this site
   // consumes — ?raw imports the bytes, never a retyped duplicate.
-  import gridSource from '$lib/ui/card-grid.svelte?raw';
+  import gridSource from '$lib/ui/card-grid/card-grid.svelte?raw';
 
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.

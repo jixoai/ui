@@ -1,13 +1,13 @@
 <script lang="ts">
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import Input from '$lib/ui/input.svelte';
-  import NativeSelect from '$lib/ui/native-select.svelte';
-  import Range from '$lib/ui/range.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import Table from '$lib/ui/table.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import Input from '$lib/ui/input/input.svelte';
+  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
+  import Range from '$lib/ui/range/range.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import Table from '$lib/ui/table/table.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import tableSource from '$lib/ui/table.svelte?raw';
+  import tableSource from '$lib/ui/table/table.svelte?raw';
 
   // No closing-script tags in this sample — String.raw keeps it verbatim.
   const usage = String.raw`<Table caption="registry consumers — frame-width laws">

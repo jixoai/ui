@@ -5,10 +5,10 @@
      ElementInternals), plus the submit that lands them in FormData.
      Reset/disable flow back as jx-reset / jx-disabled events. -->
 <script lang="ts">
-  import Input from '$lib/ui/input.svelte';
-  import Select from '$lib/ui/select.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import Badge from '$lib/ui/badge.svelte';
+  import Input from '$lib/ui/input/input.svelte';
+  import Select from '$lib/ui/select/select.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import Badge from '$lib/ui/badge/badge.svelte';
 </script>
 
 <div class="flex h-full w-full items-center justify-center p-10">

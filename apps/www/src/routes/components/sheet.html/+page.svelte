@@ -1,14 +1,14 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import Sheet from '$lib/ui/sheet.svelte';
-  import Toggle from '$lib/ui/toggle.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import Sheet from '$lib/ui/sheet/sheet.svelte';
+  import Toggle from '$lib/ui/toggle/toggle.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import sheetSource from '$lib/ui/sheet.svelte?raw';
+  import sheetSource from '$lib/ui/sheet/sheet.svelte?raw';
 
   const close = '</' + 'script>';
 

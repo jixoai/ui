@@ -25,8 +25,6 @@ const SITE_ONLY = [
   { path: 'apps/www/src/lib/copy-command.svelte', note: 'site docs copy affordance' },
   { path: 'apps/www/src/lib/copy-icon-button.svelte', note: 'site docs copy affordance' },
   { path: 'apps/www/src/lib/overview-card.svelte', note: 'site docs overview card' },
-  { path: 'apps/www/src/lib/toc.css', note: 'MIRROR ROOT COPY of the toc item css (pre-migration path mapping)' },
-  { path: 'apps/www/src/lib/website-scaffold.css', note: 'MIRROR ROOT COPY of the website-scaffold item css (pre-migration path mapping)' },
 ];
 const REGISTRY_ONLY = [
   // registry files with NO mirror and no item reference — resolved by P1
@@ -35,19 +33,16 @@ const UNREFERENCED_LIB = [
   // same-source pairs not referenced by any item (site-consumed)
   { path: 'registry/files/lib/color-utils.ts', note: 'site-consumed, unreferenced by items' },
   { path: 'registry/files/lib/surface-motion.ts', note: 'site-consumed, unreferenced by items' },
-  { path: 'registry/files/ui/tree-view-multiselect.svelte', note: 'mirrored + unreferenced; P1 must fold into the tree-view item or remove both sides' },
+  { path: 'registry/files/ui/tree-view/tree-view-multiselect.svelte', note: 'folded into the tree-view folder (P1); still unreferenced by items — future change either ships it or removes it' },
 ];
 // canonical main overrides for registry:ui items whose main file is not
 // name-identical (B11/B9 ruling: manifest is the single machine source)
 const CANONICAL_MAIN_OVERRIDES = {
-  toast: 'registry/files/ui/toast-viewport.svelte',
+  toast: 'registry/files/ui/toast/toast-viewport.svelte',
 };
 // mirror-path overrides for files whose mirror does not follow the
 // default rule (pre-migration item css living at src/lib root)
-const MIRROR_PATH_OVERRIDES = {
-  'registry/files/ui/toc.css': 'apps/www/src/lib/toc.css',
-  'registry/files/ui/website-scaffold.css': 'apps/www/src/lib/website-scaffold.css',
-};
+const MIRROR_PATH_OVERRIDES = {};
 
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
@@ -76,7 +71,7 @@ const uiItems = items.filter((i) => i.type === 'registry:ui');
 const canonicalMain = {};
 for (const item of uiItems) {
   const override = CANONICAL_MAIN_OVERRIDES[item.name];
-  const sameName = `registry/files/ui/${item.name}.svelte`;
+  const sameName = `registry/files/ui/${item.name}/${item.name}.svelte`;
   const main = override ?? (existsSync(join(root, sameName)) ? sameName : null);
   if (!main) die(`registry:ui item ${item.name} has no canonicalMain (no same-name .svelte, no override)`);
   if (!item.files.some((f) => f.path === main)) die(`canonicalMain of ${item.name} is not in its files[]: ${main}`);

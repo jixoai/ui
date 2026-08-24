@@ -1,7 +1,7 @@
 <!-- textarea blueprint: the slotted shell — toolbar row above a filled
      value, draft status + "N / maxLength" count below the hairlines. -->
 <script lang="ts">
-  import Textarea from '$lib/ui/textarea.svelte';
+  import Textarea from '$lib/ui/textarea/textarea.svelte';
 
   let notes = $state('Publish the form family: nineteen controls, one box law, zero dependencies.');
 </script>

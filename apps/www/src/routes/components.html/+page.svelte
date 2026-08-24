@@ -1,6 +1,6 @@
 <script lang="ts">
-  import CardGrid from '$lib/ui/card-grid.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
+  import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import OverviewCard from '$lib/overview-card.svelte';
   import { CATALOG, catalogByGroup } from '$lib/catalog';
 

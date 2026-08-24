@@ -1,6 +1,6 @@
 <!-- kbd blueprint: a keyboard shortcut row. -->
 <script lang="ts">
-  import Kbd from '$lib/ui/kbd.svelte';
+  import Kbd from '$lib/ui/kbd/kbd.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col items-start justify-center gap-5 p-10">

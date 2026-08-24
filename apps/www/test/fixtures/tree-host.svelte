@@ -6,8 +6,8 @@
   extension with its tri-state cascade.
 -->
 <script lang="ts">
-  import TreeView, { type TreeItemCtx, type TreeNode } from '$lib/ui/tree-view.svelte';
-  import TreeViewMulti from '$lib/ui/tree-view-multiselect.svelte';
+  import TreeView, { type TreeItemCtx, type TreeNode } from '$lib/ui/tree-view/tree-view.svelte';
+  import TreeViewMulti from '$lib/ui/tree-view/tree-view-multiselect.svelte';
 
   let {
     onselect: onselectProp = () => {},

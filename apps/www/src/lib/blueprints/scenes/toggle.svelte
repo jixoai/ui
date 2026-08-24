@@ -1,7 +1,7 @@
 <!-- toggle blueprint: the inline-end switch — an on/off mix across the
      size ramp, real bind:checked state. -->
 <script lang="ts">
-  import Toggle from '$lib/ui/toggle.svelte';
+  import Toggle from '$lib/ui/toggle/toggle.svelte';
 
   let notifications = $state(true);
   let digest = $state(false);

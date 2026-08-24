@@ -3,8 +3,8 @@
      with faint page content above it. Explicit copyright keeps the
      render deterministic (no wall-clock year in the shot). -->
 <script lang="ts">
-  import TerminalFooter from '$lib/ui/terminal-footer.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import TerminalFooter from '$lib/ui/terminal-footer/terminal-footer.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col justify-between p-8">

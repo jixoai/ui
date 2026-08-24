@@ -2,7 +2,7 @@
      spectrum bar forced open over the trigger (use:forceShowPopovers),
      swatch and mono readout on the closed control. -->
 <script lang="ts">
-  import ColorPicker from '$lib/ui/color-picker.svelte';
+  import ColorPicker from '$lib/ui/color-picker/color-picker.svelte';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 
   let brand = $state('#007924');

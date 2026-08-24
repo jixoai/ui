@@ -1,12 +1,12 @@
 <script lang="ts">
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import Tour from '$lib/ui/tour.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import Tour from '$lib/ui/tour/tour.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import tourSource from '$lib/ui/tour.svelte?raw';
+  import tourSource from '$lib/ui/tour/tour.svelte?raw';
 
   // playground state (P1): the page owns the snapshot
   const canvasInitial = { finishedAt: null as number | null };

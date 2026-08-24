@@ -1,6 +1,6 @@
 <!-- breadcrumb blueprint: a trail with the middle collapsed. -->
 <script lang="ts">
-  import Breadcrumb from '$lib/ui/breadcrumb.svelte';
+  import Breadcrumb from '$lib/ui/breadcrumb/breadcrumb.svelte';
 </script>
 
 <div class="flex h-full w-full items-center justify-center p-10">

@@ -1,7 +1,7 @@
 <!-- empty blueprint: the no-data state with a primary action. -->
 <script lang="ts">
-  import Empty from '$lib/ui/empty.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
+  import Empty from '$lib/ui/empty/empty.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
 </script>
 
 <div class="flex h-full w-full items-center justify-center p-10">

@@ -19,7 +19,7 @@ import { describe, expect, it } from 'vitest';
 import { tick } from 'svelte';
 
 import PressButtonHost from './fixtures/press-button-host.svelte';
-import { pulse, rainbow, ripple, shimmer } from '../src/lib/ui/press-button.svelte';
+import { pulse, rainbow, ripple, shimmer } from '../src/lib/ui/press-button/press-button.svelte';
 
 // ---------------------------------------------------------------------------
 // Variant paint — one physics, seven surfaces

@@ -9,7 +9,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { flushSync } from 'svelte';
 
 import { createScrollSpy } from '../src/lib/scroll-spy';
-import Tour from '../src/lib/ui/tour.svelte';
+import Tour from '../src/lib/ui/tour/tour.svelte';
 import TourHost from './fixtures/tour-host.svelte';
 
 // ---------------------------------------------------------------------------

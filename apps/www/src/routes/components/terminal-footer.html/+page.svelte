@@ -1,11 +1,11 @@
 <script lang="ts">
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import TerminalFooter from '$lib/ui/terminal-footer.svelte';
-  import terminalFooterSource from '$lib/ui/terminal-footer.svelte?raw';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TerminalFooter from '$lib/ui/terminal-footer/terminal-footer.svelte';
+  import terminalFooterSource from '$lib/ui/terminal-footer/terminal-footer.svelte?raw';
   import CodeBlock from '$lib/code-block.svelte';
   import { GITHUB_URL } from '$lib/site';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // ToC outline: the closing recipe law (the canvas above is the workbench).
 

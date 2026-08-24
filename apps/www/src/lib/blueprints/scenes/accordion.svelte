@@ -1,7 +1,7 @@
 <!-- accordion blueprint: native details/summary, one panel open. -->
 <script lang="ts">
-  import Accordion from '$lib/ui/accordion.svelte';
-  import AccordionItem from '$lib/ui/accordion-item.svelte';
+  import Accordion from '$lib/ui/accordion/accordion.svelte';
+  import AccordionItem from '$lib/ui/accordion/accordion-item.svelte';
 </script>
 
 <Accordion exclusive class="flex h-full w-full flex-col justify-center p-10">

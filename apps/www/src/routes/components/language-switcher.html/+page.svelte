@@ -1,10 +1,10 @@
 <script lang="ts">
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import LanguageSwitcher from '$lib/ui/language-switcher.svelte';
-  import languageSwitcherSource from '$lib/ui/language-switcher.svelte?raw';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import NativeSelect from '$lib/ui/native-select.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import LanguageSwitcher from '$lib/ui/language-switcher/language-switcher.svelte';
+  import languageSwitcherSource from '$lib/ui/language-switcher/language-switcher.svelte?raw';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.

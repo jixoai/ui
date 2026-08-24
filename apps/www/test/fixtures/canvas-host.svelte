@@ -6,8 +6,8 @@
   use. State lives HERE (page ownership law), never inside the canvas.
 -->
 <script lang="ts">
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   const initial = { label: 'Actions', toggled: false };
   let label = $state(initial.label);

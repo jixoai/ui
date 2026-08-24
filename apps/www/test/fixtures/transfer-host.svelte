@@ -3,7 +3,7 @@
   data attribute; 'keep' starts on the target side.
 -->
 <script lang="ts">
-  import Transfer from '../../src/lib/ui/transfer.svelte';
+  import Transfer from '../../src/lib/ui/transfer/transfer.svelte';
 
   let value = $state(['keep']);
 </script>

@@ -5,7 +5,7 @@
   hover-intent opt-in assertions.
 -->
 <script lang="ts">
-  import Tooltip from '../../src/lib/ui/tooltip.svelte';
+  import Tooltip from '../../src/lib/ui/tooltip/tooltip.svelte';
 
   let { openDelay = 0 }: { openDelay?: number } = $props();
 </script>

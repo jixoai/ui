@@ -2,7 +2,7 @@
      a peeking slideWidth keeps 1+ slides visible at rest; dots and
      prev/next arrows are the component's own honest controls. -->
 <script lang="ts">
-  import Carousel from '$lib/ui/carousel.svelte';
+  import Carousel from '$lib/ui/carousel/carousel.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col justify-center p-10">

@@ -1,9 +1,9 @@
 <!-- dropdown-menu blueprint: the open menu (use:forceShowPopovers calls
      showPopover() on the popover=auto panel) over muted context rows. -->
 <script lang="ts">
-  import DropdownMenu from '$lib/ui/dropdown-menu.svelte';
-  import DropdownMenuItem from '$lib/ui/dropdown-menu-item.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import DropdownMenu from '$lib/ui/dropdown-menu/dropdown-menu.svelte';
+  import DropdownMenuItem from '$lib/ui/dropdown-menu/dropdown-menu-item.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 </script>
 

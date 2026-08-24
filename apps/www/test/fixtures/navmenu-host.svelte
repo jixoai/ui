@@ -3,7 +3,7 @@
   plain link; "components" is the current section.
 -->
 <script lang="ts">
-  import NavigationMenu from '../../src/lib/ui/navigation-menu.svelte';
+  import NavigationMenu from '../../src/lib/ui/navigation-menu/navigation-menu.svelte';
 </script>
 
 <NavigationMenu

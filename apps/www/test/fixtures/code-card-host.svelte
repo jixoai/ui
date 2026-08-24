@@ -4,7 +4,7 @@
   prop change and the async Shiki resolution.
 -->
 <script lang="ts">
-  import CodeCard from '../../src/lib/ui/code-card.svelte';
+  import CodeCard from '../../src/lib/ui/code-card/code-card.svelte';
 
   let code = $state('const first = 1;');
 

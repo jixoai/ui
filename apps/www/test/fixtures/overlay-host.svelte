@@ -4,9 +4,9 @@
   so tests read behavior through the DOM.
 -->
 <script lang="ts">
-  import AlertDialog from '../../src/lib/ui/alert-dialog.svelte';
-  import Sheet from '../../src/lib/ui/sheet.svelte';
-  import ToastViewport from '../../src/lib/ui/toast-viewport.svelte';
+  import AlertDialog from '../../src/lib/ui/alert-dialog/alert-dialog.svelte';
+  import Sheet from '../../src/lib/ui/sheet/sheet.svelte';
+  import ToastViewport from '../../src/lib/ui/toast/toast-viewport.svelte';
   import { createToastStore } from '../../src/lib/toast-store';
 
   let alertOpen = $state(false);

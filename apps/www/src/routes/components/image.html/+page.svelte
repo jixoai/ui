@@ -1,12 +1,12 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import Image from '$lib/ui/image.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import Image from '$lib/ui/image/image.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import imageSource from '$lib/ui/image.svelte?raw';
+  import imageSource from '$lib/ui/image/image.svelte?raw';
 
   const usage = `<!-- width/height are REQUIRED — the no-CLS contract is not optional -->
 <Image src="/icon.svg" alt="the jixoai mark" width={96} height={96} />

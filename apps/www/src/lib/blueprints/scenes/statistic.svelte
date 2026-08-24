@@ -1,7 +1,7 @@
 <!-- statistic blueprint: three metric readouts — a trend glyph, an affix
      suffix, and a down-trend, separated by hairlines. -->
 <script lang="ts">
-  import Statistic from '$lib/ui/statistic.svelte';
+  import Statistic from '$lib/ui/statistic/statistic.svelte';
 </script>
 
 <div class="flex h-full w-full items-center justify-center gap-10 p-10">

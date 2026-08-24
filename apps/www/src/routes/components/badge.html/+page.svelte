@@ -1,12 +1,12 @@
 <script lang="ts">
-  import Badge from '$lib/ui/badge.svelte';
+  import Badge from '$lib/ui/badge/badge.svelte';
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import badgeSource from '$lib/ui/badge.svelte?raw';
+  import badgeSource from '$lib/ui/badge/badge.svelte?raw';
 
   const close = '</' + 'script>';
 

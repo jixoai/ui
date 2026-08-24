@@ -3,7 +3,7 @@
      (the pass waits past network-idle), and the same <code> element
      carries the plain fallback paint with zero layout shift. -->
 <script lang="ts">
-  import CodeCard from '$lib/ui/code-card.svelte';
+  import CodeCard from '$lib/ui/code-card/code-card.svelte';
 
   const sample = `import { UniPty } from '@unipty/core';
 

@@ -1,14 +1,14 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import FloatButton from '$lib/ui/float-button.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import FloatButton from '$lib/ui/float-button/float-button.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // ToC outline: the menu-idiom demo + the closing law, in page order.
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import floatbuttonSource from '$lib/ui/float-button.svelte?raw';
+  import floatbuttonSource from '$lib/ui/float-button/float-button.svelte?raw';
 
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.

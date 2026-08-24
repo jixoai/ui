@@ -6,7 +6,7 @@
   container-query laws read. Props mirror the Table API for variation.
 -->
 <script lang="ts">
-  import Table from '../../src/lib/ui/table.svelte';
+  import Table from '../../src/lib/ui/table/table.svelte';
 
   let {
     caption = '',

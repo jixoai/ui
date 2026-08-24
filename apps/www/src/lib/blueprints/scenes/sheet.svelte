@@ -1,9 +1,9 @@
 <!-- sheet blueprint: the right drawer forced open (open={true} →
      showModal()) over muted page context — header, body, sticky footer. -->
 <script lang="ts">
-  import Sheet from '$lib/ui/sheet.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import Sheet from '$lib/ui/sheet/sheet.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col justify-center gap-4 p-10 opacity-70">

@@ -4,9 +4,9 @@
      action mapping (PressButton). The watermark/flex-grid/typography
      recipes are patterns, not components — the table IS their index. -->
 <script lang="ts">
-  import Table from '$lib/ui/table.svelte';
-  import Badge from '$lib/ui/badge.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
+  import Table from '$lib/ui/table/table.svelte';
+  import Badge from '$lib/ui/badge/badge.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col gap-5 p-10">

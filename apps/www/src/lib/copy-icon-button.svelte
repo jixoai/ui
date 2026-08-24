@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
   import { Check, Copy } from 'lucide-svelte';
-  import Tooltip from '$lib/ui/tooltip.svelte';
+  import Tooltip from '$lib/ui/tooltip/tooltip.svelte';
 
   interface Props {
     /** Command text to copy (and to show in the tooltip). */

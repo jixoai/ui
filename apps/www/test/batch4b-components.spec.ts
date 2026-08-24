@@ -8,7 +8,7 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 
-import Command, { rankCommandItems, type CommandItem } from '../src/lib/ui/command.svelte';
+import Command, { rankCommandItems, type CommandItem } from '../src/lib/ui/command/command.svelte';
 import MenubarHost from './fixtures/menubar-host.svelte';
 import NavMenuHost from './fixtures/navmenu-host.svelte';
 

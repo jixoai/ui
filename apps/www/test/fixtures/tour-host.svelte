@@ -3,7 +3,7 @@
   invoker button, finished-step surfaced as data.
 -->
 <script lang="ts">
-  import Tour from '../../src/lib/ui/tour.svelte';
+  import Tour from '../../src/lib/ui/tour/tour.svelte';
 
   let { skipFirst = false, hideSecond = false }: { skipFirst?: boolean; hideSecond?: boolean } =
     $props();

@@ -84,7 +84,7 @@
 
 ## P1 — mechanical moves to folder shape (zero visual delta; self-consistent items at every commit)
 
-- [ ] 1.1 Script the move: each item's canonical main comes ONLY from
+- [x] 1.1 Script the move: each item's canonical main comes ONLY from
       the manifest's `canonicalMainSource` field (same-name items are
       script-derivable defaults committed to the manifest; toast is
       the explicit `toast-viewport.svelte` row) + ALL sub-file
@@ -96,24 +96,36 @@
       public types only; folder-relative snippet/context imports stay
       relative and unpromoted). Shared `@lib` files stay canonical
       (per 0.3 table).
-- [ ] 1.2 registry.json: rewrite `files[]` paths/targets for the 73
+- [x] 1.2 registry.json: rewrite `files[]` paths/targets for the 73
       `registry:ui` items (item css targets its folder — no
       `@lib/toc.css` legacy alias survives P1); `registry:lib`/
       `theme`/`file` items untouched; `/r/<name>.json` names
       unchanged.
-- [ ] 1.3 Mirror to `apps/www/src/lib/ui/<name>/` (same batch); the
+- [x] 1.3 Mirror to `apps/www/src/lib/ui/<name>/` (same batch); the
       site's manual css imports (`toc.svelte` `$lib/toc.css`,
       `+layout.svelte` website-scaffold.css) are removed — the
       component's relative import is the single load path; REPLACE
       the 6-item lock with the full manifest (0.3, committed); wire a
       separately-named source↔mirror vitest beside the existing
       source↔payload parity test (distinct failure messages).
-- [ ] 1.4 Update the import graph (`$lib/ui/<name>` via index), tests,
+- [x] 1.4 Update the import graph (`$lib/ui/<name>` via index), tests,
       fixtures, catalog.ts, verify scripts, PAGE_STANDARDS refs,
       llms.txt generators, docs `?raw` imports + usage snippets. The
       rewrite touches ONLY component-local relative paths — canonical
       `@lib` dependency imports/targets are NOT rewritten.
-- [ ] 1.5 Full gate: vitest (both parity tests), verify-*.mjs against
+- [x] 1.5 Full gate: DONE 2026-08-24 — vitest 327/327; root build
+      (folder targets) + apps/www build + build:site 6/6 (85 payloads,
+      llms.txt 67 pages); manifest check GREEN (166 pairs; old
+      jixoai-ui.lock REMOVED — superseded); verify:press 12/12,
+      jx-pure, trygrid, surface 47/47; P0.2 shadcn-add fixtures
+      re-run GREEN against the moved tree; folder-css contract GREEN.
+      Screenshot hash-compare proven non-discriminative on the dev
+      server (noise floor: 67/67 routes differ back-to-back — reveal
+      timing); determinism fix landed (capture now emulates
+      reducedMotion per the design's own degradation law); P1's
+      zero-visual-delta stands on the functional gates + computed-style
+      verifies; deterministic baseline-p1 captured post-commit as the
+      P2/P3 oracle. vitest (both parity tests), verify-*.mjs against
       `npm run site`, `npm run build` + `build:site`, screenshot diff
       vs 0.3, and the consumer fixture suite re-run against the moved
       tree: (a) accordion + toast (P0.2 set); (b) NAMED code-card

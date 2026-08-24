@@ -4,8 +4,8 @@
   negative-case assertions need.
 -->
 <script lang="ts">
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   const files: TreeFile[] = [
     { name: 'src/lib/ui/demo-usage.svelte', content: '<p>static</p>' },

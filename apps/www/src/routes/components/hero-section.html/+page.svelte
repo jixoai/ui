@@ -1,12 +1,12 @@
 <script lang="ts">
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import HeroSection from '$lib/ui/hero-section.svelte';
-  import heroSectionSource from '$lib/ui/hero-section.svelte?raw';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import TerminalCard from '$lib/ui/terminal-card.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import HeroSection from '$lib/ui/hero-section/hero-section.svelte';
+  import heroSectionSource from '$lib/ui/hero-section/hero-section.svelte?raw';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import CodeBlock from '$lib/code-block.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // ToC outline: the composition law (the canvas above is the workbench).
 

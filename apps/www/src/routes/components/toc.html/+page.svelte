@@ -1,12 +1,12 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import Toc, { type TocSection } from '$lib/ui/toc.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import Toc, { type TocSection } from '$lib/ui/toc/toc.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import tocSource from '$lib/ui/toc.svelte?raw';
+  import tocSource from '$lib/ui/toc/toc.svelte?raw';
   import tocEngineSource from '$lib/toc-engine?raw';
 
   const close = '</' + 'script>';

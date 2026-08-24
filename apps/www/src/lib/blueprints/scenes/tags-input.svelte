@@ -2,7 +2,7 @@
      affordances, and a capped field showing "3/3 tags" with a pinned
      (non-removable) chip. -->
 <script lang="ts">
-  import TagsInput, { type Tag } from '$lib/ui/tags-input.svelte';
+  import TagsInput, { type Tag } from '$lib/ui/tags-input/tags-input.svelte';
 
   const suggestions: Tag[] = [
     { value: 'svelte' },

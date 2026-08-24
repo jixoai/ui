@@ -3,9 +3,9 @@
      them, so a targeted showPopover() on mount opens exactly one (the
      same mechanism force-show.ts itself uses). -->
 <script lang="ts">
-  import Menubar from '$lib/ui/menubar.svelte';
-  import type { MenubarItem } from '$lib/ui/menubar.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import Menubar from '$lib/ui/menubar/menubar.svelte';
+  import type { MenubarItem } from '$lib/ui/menubar/menubar.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { onMount } from 'svelte';
 
   const items: MenubarItem[] = [

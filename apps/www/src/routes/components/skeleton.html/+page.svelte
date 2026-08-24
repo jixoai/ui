@@ -1,13 +1,13 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import Separator from '$lib/ui/separator.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import Separator from '$lib/ui/separator/separator.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import skeletonSource from '$lib/ui/skeleton.svelte?raw';
+  import skeletonSource from '$lib/ui/skeleton/skeleton.svelte?raw';
 
   const usage = `<!-- geometry is the consumer's; the block is bare -->
 <Skeleton class="h-4 w-2/3" />

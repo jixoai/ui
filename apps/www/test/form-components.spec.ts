@@ -14,16 +14,16 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushSync } from 'svelte';
 
-import Checkbox from '../src/lib/ui/checkbox.svelte';
-import Combobox from '../src/lib/ui/combobox.svelte';
-import DatePicker from '../src/lib/ui/date-picker.svelte';
-import NumberInput from '../src/lib/ui/number-input.svelte';
-import Radio from '../src/lib/ui/radio.svelte';
-import Range from '../src/lib/ui/range.svelte';
-import Select from '../src/lib/ui/select.svelte';
-import TagsInput from '../src/lib/ui/tags-input.svelte';
-import Toggle from '../src/lib/ui/toggle.svelte';
-import type { Tag } from '../src/lib/ui/tags-input.svelte';
+import Checkbox from '../src/lib/ui/checkbox/checkbox.svelte';
+import Combobox from '../src/lib/ui/combobox/combobox.svelte';
+import DatePicker from '../src/lib/ui/date-picker/date-picker.svelte';
+import NumberInput from '../src/lib/ui/number-input/number-input.svelte';
+import Radio from '../src/lib/ui/radio/radio.svelte';
+import Range from '../src/lib/ui/range/range.svelte';
+import Select from '../src/lib/ui/select/select.svelte';
+import TagsInput from '../src/lib/ui/tags-input/tags-input.svelte';
+import Toggle from '../src/lib/ui/toggle/toggle.svelte';
+import type { Tag } from '../src/lib/ui/tags-input/tags-input.svelte';
 import type { FormField } from '../src/lib/form-field';
 
 /** collect name/value pairs the way a submit would — WITHOUT moving the

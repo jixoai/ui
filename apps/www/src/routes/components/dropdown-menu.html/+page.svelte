@@ -1,15 +1,15 @@
 <script lang="ts">
-  import Badge from '$lib/ui/badge.svelte';
+  import Badge from '$lib/ui/badge/badge.svelte';
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import DropdownMenu from '$lib/ui/dropdown-menu.svelte';
-  import DropdownMenuItem from '$lib/ui/dropdown-menu-item.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DropdownMenu from '$lib/ui/dropdown-menu/dropdown-menu.svelte';
+  import DropdownMenuItem from '$lib/ui/dropdown-menu/dropdown-menu-item.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import dropdownMenuSource from '$lib/ui/dropdown-menu.svelte?raw';
-  import dropdownMenuItemSource from '$lib/ui/dropdown-menu-item.svelte?raw';
+  import dropdownMenuSource from '$lib/ui/dropdown-menu/dropdown-menu.svelte?raw';
+  import dropdownMenuItemSource from '$lib/ui/dropdown-menu/dropdown-menu-item.svelte?raw';
 
   // ToC outline: the live demo band + the platform/component split closing.
 

@@ -6,10 +6,10 @@
   (direction inherited from an ancestor, not the list itself).
 -->
 <script lang="ts">
-  import Tabs from '../../src/lib/ui/tabs.svelte';
-  import TabsList from '../../src/lib/ui/tabs-list.svelte';
-  import TabsTrigger from '../../src/lib/ui/tabs-trigger.svelte';
-  import TabsContent from '../../src/lib/ui/tabs-content.svelte';
+  import Tabs from '../../src/lib/ui/tabs/tabs.svelte';
+  import TabsList from '../../src/lib/ui/tabs/tabs-list.svelte';
+  import TabsTrigger from '../../src/lib/ui/tabs/tabs-trigger.svelte';
+  import TabsContent from '../../src/lib/ui/tabs/tabs-content.svelte';
 
   let value = $state('alpha');
   let lastChange = $state('');

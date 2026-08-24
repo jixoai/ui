@@ -1,11 +1,11 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import PressButton, { pulse, rainbow, ripple, shimmer } from '$lib/ui/press-button.svelte';
-  import pressButtonSource from '$lib/ui/press-button.svelte?raw';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import NativeSelect from '$lib/ui/native-select.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import PressButton, { pulse, rainbow, ripple, shimmer } from '$lib/ui/press-button/press-button.svelte';
+  import pressButtonSource from '$lib/ui/press-button/press-button.svelte?raw';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // ToC outline: the anchors demo + the closing law, in page order. The
   // engine pairs these ids with the SectionCard data-family extents +

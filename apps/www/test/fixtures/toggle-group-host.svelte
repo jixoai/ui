@@ -3,7 +3,7 @@
   multiple mode.
 -->
 <script lang="ts">
-  import ToggleGroup from '../../src/lib/ui/toggle-group.svelte';
+  import ToggleGroup from '../../src/lib/ui/toggle-group/toggle-group.svelte';
 
   let { multiple = false }: { multiple?: boolean } = $props();
 </script>

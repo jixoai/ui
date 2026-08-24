@@ -13,7 +13,7 @@ import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { flushSync } from 'svelte';
 
-import CodeCard from '../src/lib/ui/code-card.svelte';
+import CodeCard from '../src/lib/ui/code-card/code-card.svelte';
 import CodeCardHost from './fixtures/code-card-host.svelte';
 
 // jsdom ships no clipboard (the copy path falls back) and no execCommand

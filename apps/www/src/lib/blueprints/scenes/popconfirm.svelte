@@ -1,9 +1,9 @@
 <!-- popconfirm blueprint: the light confirm bubble forced shown over its
      trigger (use:forceShowPopovers → showPopover on the popover=auto panel). -->
 <script lang="ts">
-  import Popconfirm from '$lib/ui/popconfirm.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import Popconfirm from '$lib/ui/popconfirm/popconfirm.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 </script>
 

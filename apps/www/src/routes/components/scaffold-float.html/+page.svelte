@@ -1,16 +1,16 @@
 <script lang="ts">
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
 
   // ToC outline: the closing law (the canvas above holds the adoption
   // walkthrough).
 
   // Same-source law: the file tree shows the exact installed copy this site
   // consumes — ?raw imports the bytes, never a retyped duplicate.
-  import floatSource from '$lib/ui/scaffold-float.svelte?raw';
+  import floatSource from '$lib/ui/scaffold-float/scaffold-float.svelte?raw';
 
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.

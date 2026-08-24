@@ -1,11 +1,11 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import Input from '$lib/ui/input.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import Popover from '$lib/ui/popover.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import Input from '$lib/ui/input/input.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import Popover from '$lib/ui/popover/popover.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { onMount } from 'svelte';
 
   // the nine @position-try candidates are injected at RUNTIME: every
@@ -63,7 +63,7 @@
   });
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import popoverSource from '$lib/ui/popover.svelte?raw';
+  import popoverSource from '$lib/ui/popover/popover.svelte?raw';
 
   let choice = $state<string | null>(null);
 

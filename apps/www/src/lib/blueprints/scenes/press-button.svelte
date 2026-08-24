@@ -1,7 +1,7 @@
 <!-- press-button blueprint: the variant row + one effect loop. -->
 <script lang="ts">
-  import PressButton, { rainbow, shimmer } from '$lib/ui/press-button.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import PressButton, { rainbow, shimmer } from '$lib/ui/press-button/press-button.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col justify-center gap-6 p-10">

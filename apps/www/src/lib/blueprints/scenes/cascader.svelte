@@ -1,7 +1,7 @@
 <!-- cascader blueprint: a complete three-level chain — registry / files /
      ui — every select in the row carrying its committed pick. -->
 <script lang="ts">
-  import Cascader from '$lib/ui/cascader.svelte';
+  import Cascader from '$lib/ui/cascader/cascader.svelte';
 
   const options = [
     {

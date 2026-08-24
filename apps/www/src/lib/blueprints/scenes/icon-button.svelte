@@ -2,8 +2,8 @@
      icon+text button beside two icon-only squares, one tooltip forced
      shown so the "text becomes the tip" law reads in the static pass. -->
 <script lang="ts">
-  import IconButton from '$lib/ui/icon-button.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import IconButton from '$lib/ui/icon-button/icon-button.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 </script>
 

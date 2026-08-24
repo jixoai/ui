@@ -1,9 +1,9 @@
 <!-- hover-card blueprint: the rich peek forced shown under its trigger
      (use:forceShowPopovers → showPopover on the popover=manual panel). -->
 <script lang="ts">
-  import HoverCard from '$lib/ui/hover-card.svelte';
-  import Avatar from '$lib/ui/avatar.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import HoverCard from '$lib/ui/hover-card/hover-card.svelte';
+  import Avatar from '$lib/ui/avatar/avatar.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 </script>
 

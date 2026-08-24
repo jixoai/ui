@@ -1,8 +1,8 @@
 <!-- timeline blueprint: the activity stream — timestamped entries on the
      CSS spine, per-item bodies, the last entry pending (hollow dot). -->
 <script lang="ts">
-  import Timeline from '$lib/ui/timeline.svelte';
-  import type { TimelineItem } from '$lib/ui/timeline.svelte';
+  import Timeline from '$lib/ui/timeline/timeline.svelte';
+  import type { TimelineItem } from '$lib/ui/timeline/timeline.svelte';
 
   const items: TimelineItem[] = [
     { title: 'commit pushed', time: '09:41', datetime: '2026-08-22T09:41:00Z' },

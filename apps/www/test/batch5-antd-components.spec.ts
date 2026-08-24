@@ -10,15 +10,15 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import { flushSync } from 'svelte';
 
-import Descriptions from '../src/lib/ui/descriptions.svelte';
-import Empty from '../src/lib/ui/empty.svelte';
-import Popconfirm from '../src/lib/ui/popconfirm.svelte';
+import Descriptions from '../src/lib/ui/descriptions/descriptions.svelte';
+import Empty from '../src/lib/ui/empty/empty.svelte';
+import Popconfirm from '../src/lib/ui/popconfirm/popconfirm.svelte';
 import PopconfirmHost from './fixtures/popconfirm-host.svelte';
-import Result from '../src/lib/ui/result.svelte';
-import Spin from '../src/lib/ui/spin.svelte';
-import Statistic from '../src/lib/ui/statistic.svelte';
-import Steps from '../src/lib/ui/steps.svelte';
-import Timeline from '../src/lib/ui/timeline.svelte';
+import Result from '../src/lib/ui/result/result.svelte';
+import Spin from '../src/lib/ui/spin/spin.svelte';
+import Statistic from '../src/lib/ui/statistic/statistic.svelte';
+import Steps from '../src/lib/ui/steps/steps.svelte';
+import Timeline from '../src/lib/ui/timeline/timeline.svelte';
 
 // ---------------------------------------------------------------------------
 // Popconfirm — light confirm bubble (NOT an alertdialog)

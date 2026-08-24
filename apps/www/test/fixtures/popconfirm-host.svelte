@@ -3,7 +3,7 @@
   attribute; a focusable trigger composed inside the wrapper.
 -->
 <script lang="ts">
-  import Popconfirm from '../../src/lib/ui/popconfirm.svelte';
+  import Popconfirm from '../../src/lib/ui/popconfirm/popconfirm.svelte';
 
   let outcome = $state('');
 </script>

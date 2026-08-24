@@ -7,7 +7,7 @@
      component's own docs page). Grid era: Owner + Codex review,
      2026-08-23. -->
 <script lang="ts">
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col justify-center p-10">

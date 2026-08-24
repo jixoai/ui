@@ -11,9 +11,9 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 
 import AlertDialogHost from './fixtures/overlay-host.svelte';
-import Breadcrumb from '../src/lib/ui/breadcrumb.svelte';
+import Breadcrumb from '../src/lib/ui/breadcrumb/breadcrumb.svelte';
 import HoverCardHost from './fixtures/hover-host.svelte';
-import Kbd from '../src/lib/ui/kbd.svelte';
+import Kbd from '../src/lib/ui/kbd/kbd.svelte';
 import OverlayHost from './fixtures/overlay-host.svelte';
 import { createToastStore } from '../src/lib/toast-store';
 

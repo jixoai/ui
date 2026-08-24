@@ -4,8 +4,8 @@
   as a data attribute so tests read selection through the DOM.
 -->
 <script lang="ts">
-  import DropdownMenu from '../../src/lib/ui/dropdown-menu.svelte';
-  import DropdownMenuItem from '../../src/lib/ui/dropdown-menu-item.svelte';
+  import DropdownMenu from '../../src/lib/ui/dropdown-menu/dropdown-menu.svelte';
+  import DropdownMenuItem from '../../src/lib/ui/dropdown-menu/dropdown-menu-item.svelte';
 
   let lastAction = $state('');
 </script>

@@ -2,8 +2,8 @@
      back (button marker with the check glyph), the current is aria-current,
      the future is inert. -->
 <script lang="ts">
-  import Steps from '$lib/ui/steps.svelte';
-  import type { StepItem } from '$lib/ui/steps.svelte';
+  import Steps from '$lib/ui/steps/steps.svelte';
+  import type { StepItem } from '$lib/ui/steps/steps.svelte';
 
   const steps: StepItem[] = [
     { title: 'connect', description: 'link the git origin' },

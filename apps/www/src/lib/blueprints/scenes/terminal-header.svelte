@@ -3,9 +3,9 @@
      the nav pill group with the active item plus the switcher slot,
      floating over muted page context. -->
 <script lang="ts">
-  import TerminalHeader from '$lib/ui/terminal-header.svelte';
-  import ThemeToggle from '$lib/ui/theme-toggle.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import TerminalHeader from '$lib/ui/terminal-header/terminal-header.svelte';
+  import ThemeToggle from '$lib/ui/theme-toggle/theme-toggle.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col gap-8 p-10">

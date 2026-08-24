@@ -1,7 +1,7 @@
 <!-- native-select blueprint: the platform picker — a committed value on
      the closed control, and the multiple listbox posture beside it. -->
 <script lang="ts">
-  import NativeSelect from '$lib/ui/native-select.svelte';
+  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
 
   let plan = $state('pro');
 </script>

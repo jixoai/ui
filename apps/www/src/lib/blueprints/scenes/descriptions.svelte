@@ -1,9 +1,9 @@
 <!-- descriptions blueprint: the enterprise detail view — a bordered dl
    grid of term/value pairs with one rich cell (a status badge). -->
 <script lang="ts">
-  import Descriptions from '$lib/ui/descriptions.svelte';
-  import type { DescriptionItem } from '$lib/ui/descriptions.svelte';
-  import Badge from '$lib/ui/badge.svelte';
+  import Descriptions from '$lib/ui/descriptions/descriptions.svelte';
+  import type { DescriptionItem } from '$lib/ui/descriptions/descriptions.svelte';
+  import Badge from '$lib/ui/badge/badge.svelte';
 
   const items: DescriptionItem[] = [
     { term: 'owner', value: 'grace@jixoai.com' },

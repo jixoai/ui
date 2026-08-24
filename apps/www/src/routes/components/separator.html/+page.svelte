@@ -1,14 +1,14 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import Separator from '$lib/ui/separator.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import Separator from '$lib/ui/separator/separator.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // ToC outline: the length demo + the native base, in page order.
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import separatorSource from '$lib/ui/separator.svelte?raw';
+  import separatorSource from '$lib/ui/separator/separator.svelte?raw';
 
   // single usage sample: the drawer file and the body CodeBlock share it
   const usage = `<Separator />                        <!-- hr: thematic break -->

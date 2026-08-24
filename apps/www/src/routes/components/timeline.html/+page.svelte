@@ -1,12 +1,12 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import Timeline from '$lib/ui/timeline.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import Timeline from '$lib/ui/timeline/timeline.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import timelineSource from '$lib/ui/timeline.svelte?raw';
+  import timelineSource from '$lib/ui/timeline/timeline.svelte?raw';
 
   const items = [
     { title: 'pushed', time: '07:02', datetime: '2026-08-22T07:02:00Z' },

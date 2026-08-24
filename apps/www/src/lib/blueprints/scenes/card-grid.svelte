@@ -3,8 +3,8 @@
      tops aligned and the bodies filled to the tallest. min="240px" holds
      two columns inside the stage. -->
 <script lang="ts">
-  import CardGrid from '$lib/ui/card-grid.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
+  import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
 </script>
 
 <div class="flex h-full w-full items-center justify-center p-10">

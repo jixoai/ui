@@ -2,8 +2,8 @@
      over muted page context. The serializer clamps position:fixed into
      the stage; the glyph is the shared arrowRight icon rotated upright. -->
 <script lang="ts">
-  import FloatButton from '$lib/ui/float-button.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import FloatButton from '$lib/ui/float-button/float-button.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { icons } from '$lib/icons';
 </script>
 

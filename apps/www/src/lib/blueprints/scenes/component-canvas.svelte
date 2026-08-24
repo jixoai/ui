@@ -4,10 +4,10 @@
      drawer's open state is internal to the component (no prop), so the
      shot shows the canvas in its landed reading form. -->
 <script lang="ts">
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import Badge from '$lib/ui/badge.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import Badge from '$lib/ui/badge/badge.svelte';
 
   const files: TreeFile[] = [
     {

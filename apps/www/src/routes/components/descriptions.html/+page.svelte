@@ -1,12 +1,12 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import Descriptions from '$lib/ui/descriptions.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import Descriptions from '$lib/ui/descriptions/descriptions.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import descriptionsSource from '$lib/ui/descriptions.svelte?raw';
+  import descriptionsSource from '$lib/ui/descriptions/descriptions.svelte?raw';
 
   const items = [
     { term: 'build', value: '4f2a' },

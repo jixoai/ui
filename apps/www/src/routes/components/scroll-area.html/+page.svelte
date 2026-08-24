@@ -1,17 +1,17 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import ScrollArea from '$lib/ui/scroll-area.svelte';
-  import ScrollVirtual from '$lib/ui/scroll-virtual.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import Toc from '$lib/ui/toc.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import ScrollArea from '$lib/ui/scroll-area/scroll-area.svelte';
+  import ScrollVirtual from '$lib/ui/scroll-virtual/scroll-virtual.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import Toc from '$lib/ui/toc/toc.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { createTocEngine } from '$lib/toc-engine';
   import { deriveTocOutline } from '$lib/toc-outline';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import scrollAreaSource from '$lib/ui/scroll-area.svelte?raw';
-  import scrollVirtualSource from '$lib/ui/scroll-virtual.svelte?raw';
+  import scrollAreaSource from '$lib/ui/scroll-area/scroll-area.svelte?raw';
+  import scrollVirtualSource from '$lib/ui/scroll-virtual/scroll-virtual.svelte?raw';
   import tocOutlineSource from '$lib/toc-outline.ts?raw';
 
   const close = '</' + 'script>';

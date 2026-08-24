@@ -2,9 +2,9 @@
      showModal()) — grouped results, kbd hints, the first item active.
      The serializer re-anchors the top-layer panel into the stage. -->
 <script lang="ts">
-  import Command from '$lib/ui/command.svelte';
-  import type { CommandItem } from '$lib/ui/command.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import Command from '$lib/ui/command/command.svelte';
+  import type { CommandItem } from '$lib/ui/command/command.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
 
   const items: CommandItem[] = [
     { id: 'deploy', label: 'deploy production', group: 'actions', hint: '⌘D' },

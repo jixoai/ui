@@ -2,7 +2,7 @@
   Test host for the menubar contract: two top menus with button items.
 -->
 <script lang="ts">
-  import Menubar from '../../src/lib/ui/menubar.svelte';
+  import Menubar from '../../src/lib/ui/menubar/menubar.svelte';
 </script>
 
 <Menubar

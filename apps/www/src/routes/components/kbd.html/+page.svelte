@@ -1,14 +1,14 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import Kbd from '$lib/ui/kbd.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import Kbd from '$lib/ui/kbd/kbd.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // ToC outline: the composition demo + the native base, in page order.
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import kbdSource from '$lib/ui/kbd.svelte?raw';
+  import kbdSource from '$lib/ui/kbd/kbd.svelte?raw';
 
   // single usage sample: the drawer file and the body CodeBlock share it
   const usage = `<Kbd>⌘</Kbd> + <Kbd>K</Kbd> opens the palette

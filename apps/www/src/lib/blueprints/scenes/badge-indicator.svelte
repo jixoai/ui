@@ -1,9 +1,9 @@
 <!-- badge-indicator blueprint: the live overlay — a dot on an initials
      avatar, a capped count on a real button, and the standalone chip. -->
 <script lang="ts">
-  import BadgeIndicator from '$lib/ui/badge-indicator.svelte';
-  import Avatar from '$lib/ui/avatar.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
+  import BadgeIndicator from '$lib/ui/badge-indicator/badge-indicator.svelte';
+  import Avatar from '$lib/ui/avatar/avatar.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col items-start justify-center gap-8 p-10">

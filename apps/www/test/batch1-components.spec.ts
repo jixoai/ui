@@ -15,12 +15,12 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 
-import Accordion from '../src/lib/ui/accordion.svelte';
-import Alert from '../src/lib/ui/alert.svelte';
-import Avatar from '../src/lib/ui/avatar.svelte';
-import Badge from '../src/lib/ui/badge.svelte';
-import Separator from '../src/lib/ui/separator.svelte';
-import Skeleton from '../src/lib/ui/skeleton.svelte';
+import Accordion from '../src/lib/ui/accordion/accordion.svelte';
+import Alert from '../src/lib/ui/alert/alert.svelte';
+import Avatar from '../src/lib/ui/avatar/avatar.svelte';
+import Badge from '../src/lib/ui/badge/badge.svelte';
+import Separator from '../src/lib/ui/separator/separator.svelte';
+import Skeleton from '../src/lib/ui/skeleton/skeleton.svelte';
 import AccordionHost from './fixtures/accordion-host.svelte';
 import AvatarHost from './fixtures/avatar-host.svelte';
 import EmptyTabsHost from './fixtures/empty-tabs-host.svelte';

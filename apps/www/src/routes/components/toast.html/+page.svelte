@@ -1,14 +1,14 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import ToastViewport from '$lib/ui/toast-viewport.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import ToastViewport from '$lib/ui/toast/toast-viewport.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { createToastStore } from '$lib/toast-store';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import toastViewportSource from '$lib/ui/toast-viewport.svelte?raw';
+  import toastViewportSource from '$lib/ui/toast/toast-viewport.svelte?raw';
   import toastStoreSource from '$lib/toast-store?raw';
 
   const close = '</' + 'script>';

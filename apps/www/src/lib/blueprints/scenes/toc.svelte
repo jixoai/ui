@@ -4,7 +4,7 @@
      marks are live: toc-engine runs for real and picks the entry that
      holds the line. -->
 <script lang="ts">
-  import Toc from '$lib/ui/toc.svelte';
+  import Toc from '$lib/ui/toc/toc.svelte';
 </script>
 
 <div class="flex h-full w-full items-center justify-center gap-10 p-10">

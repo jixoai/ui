@@ -1,11 +1,11 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import ThemeToggle from '$lib/ui/theme-toggle.svelte';
-  import themeToggleSource from '$lib/ui/theme-toggle.svelte?raw';
-  import NativeSelect from '$lib/ui/native-select.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import ThemeToggle from '$lib/ui/theme-toggle/theme-toggle.svelte';
+  import themeToggleSource from '$lib/ui/theme-toggle/theme-toggle.svelte?raw';
+  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // ToC outline: the no-flash bootstrap demo + the closing contract law.
 

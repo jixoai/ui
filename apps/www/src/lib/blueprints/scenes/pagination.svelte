@@ -2,7 +2,7 @@
      ellipses and the active fill, and the first-page bound where
      ‹ prev renders as a dead span. -->
 <script lang="ts">
-  import Pagination from '$lib/ui/pagination.svelte';
+  import Pagination from '$lib/ui/pagination/pagination.svelte';
 
   const href = (page: number): string => `/components?page=${page}`;
 </script>

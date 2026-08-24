@@ -1,7 +1,7 @@
 <!-- checkbox blueprint: the state mix on one preference list — checked,
      unchecked, indeterminate, and a disabled checked row. -->
 <script lang="ts">
-  import Checkbox from '$lib/ui/checkbox.svelte';
+  import Checkbox from '$lib/ui/checkbox/checkbox.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col items-start justify-center p-10">

@@ -1,7 +1,7 @@
 <!-- radio blueprint: one name group — the selected ring carries the
      primary dot, its siblings stay empty. -->
 <script lang="ts">
-  import Radio from '$lib/ui/radio.svelte';
+  import Radio from '$lib/ui/radio/radio.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col items-start justify-center p-10">

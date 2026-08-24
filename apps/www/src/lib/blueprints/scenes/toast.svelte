@@ -1,8 +1,8 @@
 <!-- toast blueprint: the corner viewport with two live toasts pushed
      on mount (the real store → real viewport path). -->
 <script lang="ts">
-  import ToastViewport from '$lib/ui/toast-viewport.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import ToastViewport from '$lib/ui/toast/toast-viewport.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { createToastStore } from '$lib/toast-store';
   import { onMount } from 'svelte';
 

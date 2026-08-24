@@ -1,19 +1,19 @@
 <script lang="ts">
-  import Badge from '$lib/ui/badge.svelte';
+  import Badge from '$lib/ui/badge/badge.svelte';
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import Tabs from '$lib/ui/tabs.svelte';
-  import TabsContent from '$lib/ui/tabs-content.svelte';
-  import TabsList from '$lib/ui/tabs-list.svelte';
-  import TabsTrigger from '$lib/ui/tabs-trigger.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import Tabs from '$lib/ui/tabs/tabs.svelte';
+  import TabsContent from '$lib/ui/tabs/tabs-content.svelte';
+  import TabsList from '$lib/ui/tabs/tabs-list.svelte';
+  import TabsTrigger from '$lib/ui/tabs/tabs-trigger.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import tabsSource from '$lib/ui/tabs.svelte?raw';
-  import tabsListSource from '$lib/ui/tabs-list.svelte?raw';
-  import tabsTriggerSource from '$lib/ui/tabs-trigger.svelte?raw';
-  import tabsContentSource from '$lib/ui/tabs-content.svelte?raw';
+  import tabsSource from '$lib/ui/tabs/tabs.svelte?raw';
+  import tabsListSource from '$lib/ui/tabs/tabs-list.svelte?raw';
+  import tabsTriggerSource from '$lib/ui/tabs/tabs-trigger.svelte?raw';
+  import tabsContentSource from '$lib/ui/tabs/tabs-content.svelte?raw';
 
   // ToC outline: the workbench band + the vertical variant section.
 

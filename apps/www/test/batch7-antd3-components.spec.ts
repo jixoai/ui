@@ -7,7 +7,7 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 
-import Anchor from '../src/lib/ui/anchor.svelte';
+import Anchor from '../src/lib/ui/anchor/anchor.svelte';
 import GhostHost from './fixtures/ghost-host.svelte';
 
 // ---------------------------------------------------------------------------

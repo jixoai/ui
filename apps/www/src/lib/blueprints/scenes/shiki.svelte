@@ -5,8 +5,8 @@
      (the pass waits past network-idle), and the same <code> element
      carries the escaped plain fallback until it does. -->
 <script lang="ts">
-  import CodeCard from '$lib/ui/code-card.svelte';
-  import Badge from '$lib/ui/badge.svelte';
+  import CodeCard from '$lib/ui/code-card/code-card.svelte';
+  import Badge from '$lib/ui/badge/badge.svelte';
 
   const sample = `import { highlightCode } from '@lib/shiki';
 

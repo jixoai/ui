@@ -1,7 +1,7 @@
 <!-- input-otp blueprint: six slots, three filled — and a complete code in
      its dashed error state below. -->
 <script lang="ts">
-  import InputOtp from '$lib/ui/input-otp.svelte';
+  import InputOtp from '$lib/ui/input-otp/input-otp.svelte';
 
   let code = $state('482');
   let backup = $state('904177');

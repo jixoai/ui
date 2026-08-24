@@ -1,6 +1,6 @@
 <!-- skeleton blueprint: the loading placeholder in a page-shaped layout. -->
 <script lang="ts">
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col gap-4 p-10">

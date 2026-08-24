@@ -1,8 +1,8 @@
 <!-- result blueprint: the page-level outcome — status glyph in the framed
      tile, uppercase title, description, action row. -->
 <script lang="ts">
-  import Result from '$lib/ui/result.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
+  import Result from '$lib/ui/result/result.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
 </script>
 
 <div class="flex h-full w-full items-center justify-center p-10">

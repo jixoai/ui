@@ -2,7 +2,7 @@
      text) on the terminal bezel surface — their native habitat, matching
      the docs demo composition. -->
 <script lang="ts">
-  import ThemeToggle from '$lib/ui/theme-toggle.svelte';
+  import ThemeToggle from '$lib/ui/theme-toggle/theme-toggle.svelte';
 </script>
 
 <div class="flex h-full w-full items-center justify-center p-10">

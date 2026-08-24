@@ -3,8 +3,8 @@
      panel shows itself on open (forceShowPopovers backs it up), and the
      box-shadow hole tints around the target. -->
 <script lang="ts">
-  import Tour from '$lib/ui/tour.svelte';
-  import type { TourStep } from '$lib/ui/tour.svelte';
+  import Tour from '$lib/ui/tour/tour.svelte';
+  import type { TourStep } from '$lib/ui/tour/tour.svelte';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 
   const steps: TourStep[] = [

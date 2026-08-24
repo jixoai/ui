@@ -117,7 +117,7 @@ ${close}
 
   const files: TreeFile[] = [
     { name: 'registry/files/ui/thing.svelte', content: thingSource },
-    { name: 'src/lib/ui/thing-usage.svelte', content: usage },
+    { name: 'src/lib/ui/thing-usage/thing-usage.svelte', content: usage },
   ];
 
   // ---- playground 协议：页面拥有状态；canvas 只回调 ----
@@ -310,7 +310,7 @@ const resolve = (f: TreeFile) =>                    // ⑥ 命名 resolver：惰
 ```
 ✔ files = [
     { name: 'registry/files/ui/thing.svelte',  content: thingSource },  // ?raw 导入
-    { name: 'src/lib/ui/thing-usage.svelte',   content: usage },        // 页面维护的唯一样本
+    { name: 'src/lib/ui/thing-usage/thing-usage.svelte',   content: usage },        // 页面维护的唯一样本
   ]
 ✘ 手抄一份组件源码放进 drawer（与站点运行的代码漂移）
 ✘ usage 字符串复制两份分别喂 canvas 和 CodeBlock

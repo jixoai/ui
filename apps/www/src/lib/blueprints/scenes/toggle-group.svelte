@@ -1,7 +1,7 @@
 <!-- toggle-group blueprint: the joined-button set — single mode with one
      pressed, multiple mode with two pressed. -->
 <script lang="ts">
-  import ToggleGroup from '$lib/ui/toggle-group.svelte';
+  import ToggleGroup from '$lib/ui/toggle-group/toggle-group.svelte';
 
   const alignOptions = [
     { value: 'left', label: 'left' },

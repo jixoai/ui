@@ -1,16 +1,16 @@
 <script lang="ts">
-  import Accordion from '$lib/ui/accordion.svelte';
-  import AccordionItem from '$lib/ui/accordion-item.svelte';
-  import Badge from '$lib/ui/badge.svelte';
+  import Accordion from '$lib/ui/accordion/accordion.svelte';
+  import AccordionItem from '$lib/ui/accordion/accordion-item.svelte';
+  import Badge from '$lib/ui/badge/badge.svelte';
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import Toggle from '$lib/ui/toggle.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import Toggle from '$lib/ui/toggle/toggle.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import accordionSource from '$lib/ui/accordion.svelte?raw';
-  import accordionItemSource from '$lib/ui/accordion-item.svelte?raw';
+  import accordionSource from '$lib/ui/accordion/accordion.svelte?raw';
+  import accordionItemSource from '$lib/ui/accordion/accordion-item.svelte?raw';
 
   // ToC outline: pairs with the section ids below, in page order.
 

@@ -1,7 +1,7 @@
 <!-- range blueprint: mid-commit sliders — the square thumb over the
      primary fill, the second one with the tick ruler. -->
 <script lang="ts">
-  import Range from '$lib/ui/range.svelte';
+  import Range from '$lib/ui/range/range.svelte';
 
   let volume = $state(40);
   let gain = $state(6);

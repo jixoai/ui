@@ -1,9 +1,9 @@
 <!-- tooltip blueprint: the hover-intent tip forced shown on both a
      plain trigger and an icon trigger. -->
 <script lang="ts">
-  import Tooltip from '$lib/ui/tooltip.svelte';
-  import Kbd from '$lib/ui/kbd.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import Tooltip from '$lib/ui/tooltip/tooltip.svelte';
+  import Kbd from '$lib/ui/kbd/kbd.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 </script>
 

@@ -1,6 +1,6 @@
 <!-- badge blueprint: the four tones as a status row. -->
 <script lang="ts">
-  import Badge from '$lib/ui/badge.svelte';
+  import Badge from '$lib/ui/badge/badge.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col items-start justify-center gap-4 p-10">

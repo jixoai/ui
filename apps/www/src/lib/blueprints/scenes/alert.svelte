@@ -1,6 +1,6 @@
 <!-- alert blueprint: the three tones as inline notice rows. -->
 <script lang="ts">
-  import Alert from '$lib/ui/alert.svelte';
+  import Alert from '$lib/ui/alert/alert.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col justify-center gap-5 p-10">

@@ -2,8 +2,8 @@
      tracks — real ids, real links; the shared scroll-spy paints the
      active pick (first heading at this scroll position). -->
 <script lang="ts">
-  import Anchor from '$lib/ui/anchor.svelte';
-  import type { AnchorItem } from '$lib/ui/anchor.svelte';
+  import Anchor from '$lib/ui/anchor/anchor.svelte';
+  import type { AnchorItem } from '$lib/ui/anchor/anchor.svelte';
 
   const items: AnchorItem[] = [
     { href: '#bp-anchor-what', label: 'what it does' },

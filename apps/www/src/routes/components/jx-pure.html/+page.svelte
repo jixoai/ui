@@ -1,6 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import { onMount } from 'svelte';
 
   // ToC lives in +page.ts (firstpaint era: the layout's chrome snippet

@@ -1,11 +1,11 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import CopyCommand from '$lib/copy-command.svelte';
-  import CardGrid from '$lib/ui/card-grid.svelte';
-  import HeroSection from '$lib/ui/hero-section.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import TerminalCard from '$lib/ui/terminal-card.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
+  import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
+  import HeroSection from '$lib/ui/hero-section/hero-section.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import { icons } from '$lib/icons';
   import { GITHUB_URL } from '$lib/site';
 

@@ -1,11 +1,11 @@
 <script lang="ts">
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import Input from '$lib/ui/input.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import TerminalCard from '$lib/ui/terminal-card.svelte';
-  import terminalCardSource from '$lib/ui/terminal-card.svelte?raw';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import Input from '$lib/ui/input/input.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
+  import terminalCardSource from '$lib/ui/terminal-card/terminal-card.svelte?raw';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   const usage = `<!-- command is a plain string prop; outputs surface line by
      line after the typing completes. One-shot entrance, never looping. -->

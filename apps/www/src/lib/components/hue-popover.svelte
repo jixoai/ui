@@ -12,8 +12,8 @@
   `trigger` snippet; the content panel keeps the token-driven styling.
 -->
 <script lang="ts">
-  import Popover from '$lib/ui/popover.svelte';
-  import ThemeToggle from '$lib/ui/theme-toggle.svelte';
+  import Popover from '$lib/ui/popover/popover.svelte';
+  import ThemeToggle from '$lib/ui/theme-toggle/theme-toggle.svelte';
   import { currentHue, playing, toggleHuePlay, setHueManually } from '$lib/hue-runtime';
 
   let hue = $state(0);

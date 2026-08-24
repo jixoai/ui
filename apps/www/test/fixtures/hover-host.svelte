@@ -3,7 +3,7 @@
   a rich card behind it.
 -->
 <script lang="ts">
-  import HoverCard from '../../src/lib/ui/hover-card.svelte';
+  import HoverCard from '../../src/lib/ui/hover-card/hover-card.svelte';
 </script>
 
 <HoverCard>

@@ -1,7 +1,7 @@
 <!-- transfer blueprint: mid-move — dialog and toast already across to the
      release side, the → / ← movers between the checkbox fieldsets. -->
 <script lang="ts">
-  import Transfer from '$lib/ui/transfer.svelte';
+  import Transfer from '$lib/ui/transfer/transfer.svelte';
 
   const options = [
     { value: 'press-button', label: 'press-button' },

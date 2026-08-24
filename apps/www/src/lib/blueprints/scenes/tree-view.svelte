@@ -2,7 +2,7 @@
      expanded down to the leaves, tree-view.svelte selected (terminal
      fill + primary edge), package.json at the root. -->
 <script lang="ts">
-  import TreeView, { type TreeNode } from '$lib/ui/tree-view.svelte';
+  import TreeView, { type TreeNode } from '$lib/ui/tree-view/tree-view.svelte';
 
   const leaf = (name: string): TreeNode => ({ name });
 

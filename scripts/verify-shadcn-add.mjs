@@ -71,8 +71,8 @@ writeFileSync(
     type: 'registry:ui',
     title: 'Accordion',
     files: [
-      { path: 'registry/files/ui/accordion.svelte', content: source('registry/files/ui/accordion.svelte'), type: 'registry:file', target: '@ui/accordion/accordion.svelte' },
-      { path: 'registry/files/ui/accordion-item.svelte', content: source('registry/files/ui/accordion-item.svelte'), type: 'registry:file', target: '@ui/accordion/accordion-item.svelte' },
+      { path: 'registry/files/ui/accordion/accordion.svelte', content: source('registry/files/ui/accordion/accordion.svelte'), type: 'registry:file', target: '@ui/accordion/accordion.svelte' },
+      { path: 'registry/files/ui/accordion/accordion-item.svelte', content: source('registry/files/ui/accordion/accordion-item.svelte'), type: 'registry:file', target: '@ui/accordion/accordion-item.svelte' },
       { path: 'index.ts', content: barrel('accordion.svelte', [['AccordionItem', 'accordion-item.svelte']]), type: 'registry:file', target: '@ui/accordion/index.ts' },
     ],
   }),
@@ -85,7 +85,7 @@ writeFileSync(
     type: 'registry:ui',
     title: 'Toast',
     files: [
-      { path: 'registry/files/ui/toast-viewport.svelte', content: source('registry/files/ui/toast-viewport.svelte'), type: 'registry:file', target: '@ui/toast/toast-viewport.svelte' },
+      { path: 'registry/files/ui/toast/toast-viewport.svelte', content: source('registry/files/ui/toast/toast-viewport.svelte'), type: 'registry:file', target: '@ui/toast/toast-viewport.svelte' },
       { path: 'registry/files/lib/toast-store.ts', content: source('registry/files/lib/toast-store.ts'), type: 'registry:file', target: '@lib/toast-store.ts' },
       { path: 'index.ts', content: barrel('toast-viewport.svelte'), type: 'registry:file', target: '@ui/toast/index.ts' },
     ],

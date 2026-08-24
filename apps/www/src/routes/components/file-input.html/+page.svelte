@@ -1,14 +1,14 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas, { type TreeFile } from '$lib/ui/component-canvas.svelte';
-  import FileInput from '$lib/ui/file-input.svelte';
-  import NativeSelect from '$lib/ui/native-select.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import Toggle from '$lib/ui/toggle.svelte';
+  import ComponentCanvas, { type TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import FileInput from '$lib/ui/file-input/file-input.svelte';
+  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import Toggle from '$lib/ui/toggle/toggle.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import fileInputSource from '$lib/ui/file-input.svelte?raw';
+  import fileInputSource from '$lib/ui/file-input/file-input.svelte?raw';
 
   // A literal closing-script tag inside a code string would terminate this
   // component's own script tag during the HTML-level scan — splice it.

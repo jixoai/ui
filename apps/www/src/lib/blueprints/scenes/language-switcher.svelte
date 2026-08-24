@@ -4,7 +4,7 @@
      The menu's dropdown itself is internal open state the scene cannot
      force, so the shot shows the closed trigger. -->
 <script lang="ts">
-  import LanguageSwitcher from '$lib/ui/language-switcher.svelte';
+  import LanguageSwitcher from '$lib/ui/language-switcher/language-switcher.svelte';
 
   const pairLocales = [
     { code: 'en', label: 'EN', href: '/en/blueprints' },

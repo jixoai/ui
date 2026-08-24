@@ -2,9 +2,9 @@
      forced shown (use:forceShowPopovers → showPopover on the popover=auto
      panel; the current section's trigger carries aria-current). -->
 <script lang="ts">
-  import NavigationMenu from '$lib/ui/navigation-menu.svelte';
-  import type { NavMenuItem } from '$lib/ui/navigation-menu.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import NavigationMenu from '$lib/ui/navigation-menu/navigation-menu.svelte';
+  import type { NavMenuItem } from '$lib/ui/navigation-menu/navigation-menu.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 
   const items: NavMenuItem[] = [

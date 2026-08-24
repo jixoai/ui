@@ -2,8 +2,8 @@
      (open={true} → showModal()), floating over muted context content.
      The serializer re-anchors top-layer panels into the stage. -->
 <script lang="ts">
-  import AlertDialog from '$lib/ui/alert-dialog.svelte';
-  import Skeleton from '$lib/ui/skeleton.svelte';
+  import AlertDialog from '$lib/ui/alert-dialog/alert-dialog.svelte';
+  import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col justify-center gap-4 p-10 opacity-70">

@@ -1,12 +1,12 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import ToggleGroup from '$lib/ui/toggle-group.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import ToggleGroup from '$lib/ui/toggle-group/toggle-group.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import toggleGroupSource from '$lib/ui/toggle-group.svelte?raw';
+  import toggleGroupSource from '$lib/ui/toggle-group/toggle-group.svelte?raw';
 
   // ToC outline: the live demo band + usage + the antd segmented mapping.
 

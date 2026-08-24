@@ -1,12 +1,12 @@
 <script lang="ts">
-  import Breadcrumb from '$lib/ui/breadcrumb.svelte';
+  import Breadcrumb from '$lib/ui/breadcrumb/breadcrumb.svelte';
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import breadcrumbSource from '$lib/ui/breadcrumb.svelte?raw';
+  import breadcrumbSource from '$lib/ui/breadcrumb/breadcrumb.svelte?raw';
 
   const close = '</' + 'script>';
 

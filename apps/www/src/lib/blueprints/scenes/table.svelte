@@ -1,6 +1,6 @@
 <!-- table blueprint: a dense semantic table with caption and footer. -->
 <script lang="ts">
-  import Table from '$lib/ui/table.svelte';
+  import Table from '$lib/ui/table/table.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col justify-center p-10">

@@ -4,8 +4,8 @@
   exports (rendered.component.getArea()).
 -->
 <script lang="ts">
-  import ScrollArea from '$lib/ui/scroll-area.svelte';
-  import type { ViewportScrollEvent } from '$lib/ui/scroll-area.svelte';
+  import ScrollArea from '$lib/ui/scroll-area/scroll-area.svelte';
+  import type { ViewportScrollEvent } from '$lib/ui/scroll-area/scroll-area.svelte';
 
   let {
     orientation = 'vertical',

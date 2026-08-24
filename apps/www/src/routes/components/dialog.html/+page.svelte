@@ -1,14 +1,14 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import Dialog from '$lib/ui/dialog.svelte';
-  import Input from '$lib/ui/input.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import Dialog from '$lib/ui/dialog/dialog.svelte';
+  import Input from '$lib/ui/input/input.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
-  import dialogSource from '$lib/ui/dialog.svelte?raw';
+  import dialogSource from '$lib/ui/dialog/dialog.svelte?raw';
 
   let basicOpen = $state(false);
   let formOpen = $state(false);

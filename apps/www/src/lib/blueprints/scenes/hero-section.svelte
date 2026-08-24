@@ -6,9 +6,9 @@
      serializer pairs measured rects with computed font sizes, so
      transform/zoom would desync glyph sizes). -->
 <script lang="ts">
-  import HeroSection from '$lib/ui/hero-section.svelte';
-  import TerminalCard from '$lib/ui/terminal-card.svelte';
-  import PressButton from '$lib/ui/press-button.svelte';
+  import HeroSection from '$lib/ui/hero-section/hero-section.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
 </script>
 
 <div class="h-full w-full overflow-hidden">

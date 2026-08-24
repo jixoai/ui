@@ -4,8 +4,8 @@
   attribute.
 -->
 <script lang="ts">
-  import Accordion from '../../src/lib/ui/accordion.svelte';
-  import AccordionItem from '../../src/lib/ui/accordion-item.svelte';
+  import Accordion from '../../src/lib/ui/accordion/accordion.svelte';
+  import AccordionItem from '../../src/lib/ui/accordion/accordion-item.svelte';
 
   let loose = $state(false);
 </script>
