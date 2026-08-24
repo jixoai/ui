@@ -1023,7 +1023,11 @@
       "meta": {
         "group": "layout",
         "href": "/components/separator.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1041,12 +1045,21 @@
           "path": "registry/files/ui/skeleton/index.ts",
           "target": "@ui/skeleton/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/skeleton/skeleton.css",
+          "target": "@ui/skeleton/skeleton.css",
+          "type": "registry:file"
         }
       ],
       "meta": {
         "group": "feedback",
         "href": "/components/skeleton.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",

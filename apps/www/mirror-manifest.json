@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-24T12:55:39.646Z",
+  "generatedAt": "2026-08-24T12:58:00.069Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "section-card": "registry/files/ui/section-card/section-card.svelte",
@@ -893,8 +893,8 @@
           "source": "registry/files/ui/separator/separator.svelte",
           "mirror": "apps/www/src/lib/ui/separator/separator.svelte",
           "target": "@ui/separator/separator.svelte",
-          "sourceSha": "62f04de9d4a2c532cb5603e298b383c22abd840a823306c3fcd2b58dc6503d8e",
-          "mirrorSha": "62f04de9d4a2c532cb5603e298b383c22abd840a823306c3fcd2b58dc6503d8e"
+          "sourceSha": "8af855740e5072b49d143298dea6c46859f863a041db8323fdb17c4b1ed42c46",
+          "mirrorSha": "8af855740e5072b49d143298dea6c46859f863a041db8323fdb17c4b1ed42c46"
         },
         {
           "source": "registry/files/ui/separator/index.ts",
@@ -914,8 +914,8 @@
           "source": "registry/files/ui/skeleton/skeleton.svelte",
           "mirror": "apps/www/src/lib/ui/skeleton/skeleton.svelte",
           "target": "@ui/skeleton/skeleton.svelte",
-          "sourceSha": "3ccc9fc2db4b94cae94303bc49dbcbea414ce5e973b3f4eec7de9390b80b878d",
-          "mirrorSha": "3ccc9fc2db4b94cae94303bc49dbcbea414ce5e973b3f4eec7de9390b80b878d"
+          "sourceSha": "ec65bbce937c8ab3117ba6a8f31e90495a0e834e50e7f6df558bc103ee1ba6f3",
+          "mirrorSha": "ec65bbce937c8ab3117ba6a8f31e90495a0e834e50e7f6df558bc103ee1ba6f3"
         },
         {
           "source": "registry/files/ui/skeleton/index.ts",
@@ -923,6 +923,13 @@
           "target": "@ui/skeleton/index.ts",
           "sourceSha": "47a38e49cd7235f02ec41bfc095767d9596561604a3c441ab1e1b6454a3ebe2d",
           "mirrorSha": "47a38e49cd7235f02ec41bfc095767d9596561604a3c441ab1e1b6454a3ebe2d"
+        },
+        {
+          "source": "registry/files/ui/skeleton/skeleton.css",
+          "mirror": "apps/www/src/lib/ui/skeleton/skeleton.css",
+          "target": "@ui/skeleton/skeleton.css",
+          "sourceSha": "092b4c79b5db446a435565b5440bdc3310308432f78e367334bfab487db9a711",
+          "mirrorSha": "092b4c79b5db446a435565b5440bdc3310308432f78e367334bfab487db9a711"
         }
       ]
     },
