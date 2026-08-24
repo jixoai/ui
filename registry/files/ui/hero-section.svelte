@@ -71,33 +71,30 @@
     class="grid min-[1100px]:grid-cols-[minmax(0,1fr)_minmax(25rem,31rem)] min-[1100px]:items-end gap-10 min-[1100px]:gap-14"
   >
     <div class="min-w-0">
-      <p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]" data-reveal="">
+      <p class="jx-hero-step font-nav text-primary text-[11px] uppercase tracking-[0.24em]" style="--jx-hero-delay: 0ms">
         {eyebrow}
       </p>
       <h1
-        class="mt-4 text-[clamp(2.4rem,5vw,4.4rem)] font-bold leading-[1.2] tracking-[-0.02em] text-balance"
-        data-reveal=""
-        use:reveal={{ delay: 60, rise: 14 }}
+        class="jx-hero-step mt-4 text-[clamp(2.4rem,5vw,4.4rem)] font-bold leading-[1.2] tracking-[-0.02em] text-balance"
+        style="--jx-hero-delay: 60ms; --jx-hero-rise: 14px"
       >
         {titleLead}<em class="text-primary not-italic">{titleAccent}</em>
       </h1>
       <p
-        class="text-muted-foreground mt-5 max-w-[62ch] text-pretty text-[15px] leading-6 sm:text-base sm:leading-7"
-        data-reveal=""
-        use:reveal={{ delay: 120 }}
+        class="jx-hero-step text-muted-foreground mt-5 max-w-[62ch] text-pretty text-[15px] leading-6 sm:text-base sm:leading-7"
+        style="--jx-hero-delay: 120ms"
       >
         {summary}
       </p>
       <div
-        class="text-muted-foreground font-nav mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-[0.14em]"
-        data-reveal=""
-        use:reveal={{ delay: 160 }}
+        class="jx-hero-step text-muted-foreground font-nav mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-[0.14em]"
+        style="--jx-hero-delay: 160ms"
       >
         {#each badges as badge (badge)}
           <span>{badge}</span>
         {/each}
       </div>
-      <div class="mt-8 flex flex-wrap gap-3" data-reveal="" use:reveal={{ delay: 200 }}>
+      <div class="jx-hero-step mt-8 flex flex-wrap gap-3" style="--jx-hero-delay: 200ms">
         <PressButton
           variant={copied ? 'copied' : 'primary'}
           onclick={copyCommandToClipboard}
@@ -120,8 +117,33 @@
         {/if}
       </div>
     </div>
-    <div class="min-w-0" data-reveal="" use:reveal={{ delay: 260, rise: 12 }}>
+    <div class="jx-hero-step min-w-0" style="--jx-hero-delay: 260ms; --jx-hero-rise: 12px">
       {@render terminal()}
     </div>
   </div>
 </section>
+
+<style>
+  /* The hero's entrance is a TIME-based cascade (Owner request,
+     2026-08-24 — after the scroll-driven era made above-fold content
+     appear without any entrance): the old staggered reveal (0/60/120/
+     160/200/260ms, rise 12-14px) reborn as pure CSS. `backwards` holds
+     the from-state through each delay; it plays at first paint — no JS,
+     no hydration wait. Scroll-driven [data-reveal] is intentionally NOT
+     used here: above-fold elements are past their entry range. */
+  .jx-hero-step {
+    animation: jx-hero-rise 480ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: var(--jx-hero-delay, 0ms);
+  }
+  @keyframes jx-hero-rise {
+    from {
+      opacity: 0;
+      transform: translateY(var(--jx-hero-rise, 10px));
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .jx-hero-step {
+      animation: none;
+    }
+  }
+</style>

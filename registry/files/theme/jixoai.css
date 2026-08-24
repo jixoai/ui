@@ -58,11 +58,25 @@
   --border: oklch(0 0 0);
   --input: oklch(0 0 0);
   --ring: var(--primary);
+  /* semantic state palette (Owner ruling 2026-08-24, openspec D5):
+     success/warning/info/error with -foreground pairs; dark lifts L,
+     lowers C, keeps the hue. --destructive STAYS the monochrome
+     inversion pair (destructive actions) — error is the red semantic. */
+  --success: oklch(0.62 0.19 145);
+  --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.82 0.18 85);
+  --warning-foreground: oklch(0 0 0);
+  --info: oklch(0.62 0.16 245);
+  --info-foreground: oklch(1 0 0);
+  --error: oklch(0.6 0.2 25);
+  --error-foreground: oklch(1 0 0);
+
+  /* chart rides the semantic palette (D5 harmony audit) */
   --chart-1: var(--primary);
-  --chart-2: oklch(0.968 0.211 109.7692);
-  --chart-3: oklch(0.5635 0.2408 260.8178);
-  --chart-4: oklch(0.7323 0.2492 142.4953);
-  --chart-5: oklch(0.5931 0.2726 328.3634);
+  --chart-2: var(--success);
+  --chart-3: var(--info);
+  --chart-4: var(--warning);
+  --chart-5: var(--error);
 
   --font-sans: 'JetBrains Mono Variable', 'JetBrains Mono', SFMono-Regular, Menlo,
     Consolas, 'Liberation Mono', monospace;
@@ -139,11 +153,20 @@
   --border: oklch(1 0 0);
   --input: oklch(1 0 0);
   --ring: var(--primary);
+  --success: oklch(0.72 0.16 145);
+  --success-foreground: oklch(0 0 0);
+  --warning: oklch(0.78 0.17 85);
+  --warning-foreground: oklch(0 0 0);
+  --info: oklch(0.74 0.14 245);
+  --info-foreground: oklch(0 0 0);
+  --error: oklch(0.72 0.16 25);
+  --error-foreground: oklch(0 0 0);
+
   --chart-1: var(--primary);
-  --chart-2: oklch(0.9691 0.2005 109.6228);
-  --chart-3: oklch(0.6755 0.1765 252.2592);
-  --chart-4: oklch(0.7395 0.2268 142.8504);
-  --chart-5: oklch(0.6131 0.2458 328.0714);
+  --chart-2: var(--success);
+  --chart-3: var(--info);
+  --chart-4: var(--warning);
+  --chart-5: var(--error);
 
   --shadow-color: hsl(0 0% 100%);
   --shadow-2xs: 4px 4px 0px 0px hsl(0 0% 100% / 0.5);
@@ -629,6 +652,14 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-error: var(--error);
+  --color-error-foreground: var(--error-foreground);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -660,7 +691,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   [data-reveal] {
     animation: jx-reveal-rise both;
     animation-timeline: view();
-    animation-range: entry 0% entry 60%;
+    animation-range: entry 0% entry 75%;
   }
   [data-reveal='rule'] {
     animation: jx-reveal-rule both;
@@ -671,7 +702,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 @keyframes jx-reveal-rise {
   from {
     opacity: 0;
-    transform: translateY(var(--reveal-rise, 10px));
+    transform: translateY(var(--reveal-rise, 26px));
   }
 }
 @keyframes jx-reveal-rule {

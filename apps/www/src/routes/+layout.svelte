@@ -295,7 +295,11 @@
   {#snippet chrome()}
     <!-- static chrome (SSR-stable): the catalog tree + the page toc —
          authored in their final grid cells from the first paint -->
-    <ComponentTreeNav />
+    {#if normalized !== '/'}
+      <!-- the catalog nav belongs to content routes; the homepage IS
+           the catalog (Owner request, 2026-08-24) -->
+      <ComponentTreeNav />
+    {/if}
     {#if pageToc}
       <Toc
         {...(Array.isArray(pageToc) ? { sections: pageToc } : { outline: { root: '#main' } })}
