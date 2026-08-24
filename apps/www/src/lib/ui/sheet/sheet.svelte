@@ -152,11 +152,11 @@
 >
   <!-- surface body (fill + ::after shadow) wraps the whole drawer; the
        <dialog> paints nothing (floating-surface law arch r3) -->
-  <div class="jx-sheet-surface jx-surface-body">
-  <div class="jx-sheet-head flex items-center gap-3 px-[1.125rem] py-3.5 border-b border-border">
-    <h2 class="jx-sheet-title font-nav text-[0.8125rem] tracking-[0.12em] uppercase text-foreground">{title}</h2>
+  <div data-jx-sheet-surface="" class="jx-surface-body">
+  <div data-jx-sheet-head="" class="flex items-center gap-3 px-[1.125rem] py-3.5 border-b border-border">
+    <h2 data-jx-sheet-title="" class="font-nav text-[0.8125rem] tracking-[0.12em] uppercase text-foreground">{title}</h2>
     {#if header}
-      <div class="jx-sheet-head-extra flex flex-1 items-center min-w-0">{@render header()}</div>
+      <div data-jx-sheet-head-extra="" class="flex flex-1 items-center min-w-0">{@render header()}</div>
     {/if}
     <button
       type="button"
@@ -178,15 +178,16 @@
     </button>
   </div>
   <div
+    data-jx-sheet-body=""
     class={cn(
-      'jx-sheet-body jx-surface-scroll flex flex-col gap-4 overflow-y-auto overscroll-contain pt-[1.125rem] pb-[1.125rem] [padding-inline:max(1.125rem-var(--jx-scrollbar-thin,0px),0px)] text-[0.8125rem] leading-[1.6]',
+      'jx-surface-scroll flex flex-col gap-4 overflow-y-auto overscroll-contain pt-[1.125rem] pb-[1.125rem] [padding-inline:max(1.125rem-var(--jx-scrollbar-thin,0px),0px)] text-[0.8125rem] leading-[1.6]',
       (side === 'left' || side === 'right') && 'max-h-[calc(100dvh-4.25rem)]',
     )}
   >
     {@render children()}
   </div>
   {#if footer}
-    <div class="jx-sheet-foot flex justify-end gap-2.5 px-[1.125rem] py-3.5 border-t border-border">
+    <div data-jx-sheet-foot="" class="flex justify-end gap-2.5 px-[1.125rem] py-3.5 border-t border-border">
       {@render footer()}
     </div>
   {/if}

@@ -60,16 +60,17 @@
   const isCurrent = $derived((c: (typeof items)[number]) => c === items.at(-1));
 </script>
 
-<nav class={cn('jx-breadcrumb', className)} aria-label={label}>
+<nav data-jx-breadcrumb="" class={className} aria-label={label}>
   <ol
     class="jx-breadcrumb-list m-0 flex list-none flex-wrap items-center gap-1.5 font-nav text-xs uppercase tracking-[0.08em]"
     role="list"
   >
     {#each items as crumb, index (index)}
-      <li class:jx-crumb-gap={crumb.gap}>
+      <li data-jx-crumb-gap={crumb.gap ? '' : undefined}>
         {#if isCurrent(crumb) && !crumb.gap}
           <a
-            class="jx-breadcrumb-current text-foreground no-underline"
+            data-jx-breadcrumb-current=""
+            class="text-foreground no-underline"
             href={crumb.href}
             aria-current="page"
           >
@@ -77,8 +78,9 @@
           </a>
         {:else}
           <a
+            data-jx-breadcrumb-link=""
             class={cn(
-              'jx-breadcrumb-link text-muted-foreground no-underline transition-colors duration-150 ease-out hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-2',
+              'text-muted-foreground no-underline transition-colors duration-150 ease-out hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-2',
               crumb.gap && 'tracking-normal',
             )}
             href={crumb.href}

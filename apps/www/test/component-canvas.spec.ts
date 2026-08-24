@@ -18,7 +18,7 @@ import CanvasEchoDupesHost from './fixtures/canvas-echo-dupes-host.svelte';
 describe('ComponentCanvas semantics', () => {
   it('derives stable aria ids from the title (h2/h3 labelling + drawer controls)', () => {
     const { container } = render(CanvasPlainHost);
-    const title = container.querySelector('h2.jx-canvas-title')!;
+    const title = container.querySelector('h2[data-jx-canvas-title]')!;
     expect(title.id).toBe('jx-canvas-host-widget-title');
 
     // code toggle ↔ drawer wiring
@@ -62,7 +62,7 @@ describe('ComponentCanvas playground protocol', () => {
 
   it('echo renders a read-only dl; undefined falls back to the em dash', () => {
     const { container } = render(CanvasHost);
-    const rows = container.querySelectorAll('.jx-canvas-echo-row');
+    const rows = container.querySelectorAll('[data-jx-canvas-echo-row]');
     expect(rows.length).toBe(3);
     expect(rows[0].querySelector('dt')!.textContent).toBe('label');
     expect(rows[0].querySelector('dd')!.textContent).toBe('Actions');
@@ -74,7 +74,7 @@ describe('ComponentCanvas playground protocol', () => {
 
   it('survives duplicate echo labels (composite each key, no each_key_duplicate)', () => {
     const { container } = render(CanvasEchoDupesHost);
-    const rows = container.querySelectorAll('.jx-canvas-echo-row');
+    const rows = container.querySelectorAll('[data-jx-canvas-echo-row]');
     expect(rows.length).toBe(2);
     expect(rows[0].querySelector('dd')!.textContent).toBe('a');
     expect(rows[1].querySelector('dd')!.textContent).toBe('b');
@@ -82,7 +82,7 @@ describe('ComponentCanvas playground protocol', () => {
 
   it('honors an explicit id override over the title slug', () => {
     const { container } = render(CanvasHost);
-    const title = container.querySelector('h2.jx-canvas-title')!;
+    const title = container.querySelector('h2[data-jx-canvas-title]')!;
     expect(title.id).toBe('jx-canvas-explicit-title');
     const drawer = container.querySelector<HTMLElement>('.jx-canvas-code-drawer')!;
     expect(drawer.id).toBe('jx-canvas-explicit-drawer');

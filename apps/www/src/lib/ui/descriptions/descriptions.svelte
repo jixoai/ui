@@ -43,17 +43,18 @@
 </script>
 
 <dl
+  data-jx-desc-bordered={bordered ? '' : undefined}
   class={cn(
     'jx-desc grid grid-cols-[repeat(var(--jx-desc-cols),minmax(0,1fr))] gap-0 m-0 @container',
-    bordered && 'jx-desc-bordered border border-border bg-card',
+    bordered && 'border border-border bg-card',
     className,
   )}
   style="--jx-desc-cols: {cols}"
 >
   {#each items as item, index (item.term + index)}
-    <div class={cn('jx-desc-cell grid grid-cols-[minmax(7rem,12rem)_1fr] min-w-0', bordered && 'border-b border-border')}>
-      <dt class={cn('jx-desc-term truncate px-3 py-2 font-nav text-[0.6875rem] tracking-[0.12em] uppercase text-muted-foreground', bordered && 'bg-muted border-r border-border')}>{item.term}</dt>
-      <dd class="jx-desc-value m-0 px-3 py-2 text-[0.8125rem] leading-[1.5] text-foreground min-w-0 [overflow-wrap:anywhere]">
+    <div data-jx-desc-cell="" class={cn('grid grid-cols-[minmax(7rem,12rem)_1fr] min-w-0', bordered && 'border-b border-border')}>
+      <dt data-jx-desc-term="" class={cn('truncate px-3 py-2 font-nav text-[0.6875rem] tracking-[0.12em] uppercase text-muted-foreground', bordered && 'bg-muted border-r border-border')}>{item.term}</dt>
+      <dd data-jx-desc-value="" class="m-0 px-3 py-2 text-[0.8125rem] leading-[1.5] text-foreground min-w-0 [overflow-wrap:anywhere]">
         {#if value}
           {@render value(item, index)}
         {:else}

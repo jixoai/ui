@@ -102,7 +102,7 @@ check('primary surface carries real chroma', primaryBg.c > 0.1, primaryBg.raw);
 
 // ---- effects (component-local, animation-svelte reference) ----
 const shimmer = await page.evaluate(() => {
-  const host = document.querySelector('.jx-shimmer-host');
+  const host = document.querySelector('[data-jx-shimmer-host]');
   const slide = host?.querySelector('.jx-shimmer-slide');
   const cover = host?.querySelector('.jx-shimmer-cover');
   return {
@@ -228,9 +228,9 @@ check(
 
 // a REAL pointer click (detail 1, trusted coordinates) — Element.click()
 // would be detail 0 and legitimately ripple from the center (keyboard path)
-await page.click('.jx-ripple-host');
+await page.click('[data-jx-ripple-host]');
 const ripple = await page.evaluate(() => {
-  const host = document.querySelector('.jx-ripple-host');
+  const host = document.querySelector('[data-jx-ripple-host]');
   const r = host.getBoundingClientRect();
   const dot = host.querySelector('.jx-ripple-dot');
   const dotCs = dot ? getComputedStyle(dot) : null;
@@ -340,7 +340,7 @@ const readDriven = () =>
     return {
       bg: cs.backgroundColor,
       fg: cs.color,
-      shimmer: btn.classList.contains('jx-shimmer-host'),
+      shimmer: btn.hasAttribute('data-jx-shimmer-host'),
       pulseAnim: btn.querySelector('.jx-pulse-layer')
         ? getComputedStyle(btn.querySelector('.jx-pulse-layer')).animationName
         : 'none',

@@ -270,7 +270,7 @@
     style={[pad ? `--jx-scroll-pad: ${pad}` : null, style].filter(Boolean).join('; ') || undefined}
     {...restProps}
   >
-    <div class="jx-scroll-content h-full" bind:this={contentEl}>
+    <div data-jx-scroll-content class="h-full" bind:this={contentEl}>
       {@render children()}
     </div>
   </div>

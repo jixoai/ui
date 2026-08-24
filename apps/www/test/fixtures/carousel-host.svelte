@@ -6,7 +6,7 @@
 </script>
 
 <Carousel>
-  <figure class="jx-slide">one</figure>
-  <figure class="jx-slide">two</figure>
-  <figure class="jx-slide">three</figure>
+  <figure data-jx-slide>one</figure>
+  <figure data-jx-slide>two</figure>
+  <figure data-jx-slide>three</figure>
 </Carousel>

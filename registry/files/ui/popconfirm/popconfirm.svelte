@@ -133,7 +133,7 @@
   }
 </script>
 
-<span bind:this={anchorEl} class={cn('jx-pc-anchor inline-flex', className)} style="anchor-name: {anchorName}">
+<span bind:this={anchorEl} data-jx-pc-anchor="" class={cn('inline-flex', className)} style="anchor-name: {anchorName}">
   {#if children}{@render children()}{/if}
 </span>
 
@@ -151,15 +151,17 @@
 >
   <!-- surface body (fill + ::after shadow); the popover element paints
        nothing (floating-surface law arch r3) -->
-  <div class="jx-pc-surface jx-surface-body flex flex-col gap-2 px-3.5 py-3">
-  <p id={titleId} class="jx-pc-title font-nav text-xs tracking-[0.08em] uppercase text-foreground">{title}</p>
+  <div data-jx-pc-surface="" class="jx-surface-body flex flex-col gap-2 px-3.5 py-3">
+  <p id={titleId} data-jx-pc-title="" class="font-nav text-xs tracking-[0.08em] uppercase text-foreground">{title}</p>
   {#if description}
-    <p id={descId} class="jx-pc-desc text-[0.8125rem] leading-[1.5] text-muted-foreground">{description}</p>
+    <p id={descId} data-jx-pc-desc="" class="text-[0.8125rem] leading-[1.5] text-muted-foreground">{description}</p>
   {/if}
-  <div class="jx-pc-actions flex justify-end gap-2">
+  <div data-jx-pc-actions="" class="flex justify-end gap-2">
     <button
       type="button"
-      class="jx-pc-btn jx-pc-cancel appearance-none px-3 py-[5px] border border-border bg-background text-foreground font-nav text-[0.6875rem] tracking-[0.1em] uppercase cursor-pointer shadow-2xs focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      data-jx-pc-btn=""
+      data-jx-pc-cancel=""
+      class="appearance-none px-3 py-[5px] border border-border bg-background text-foreground font-nav text-[0.6875rem] tracking-[0.1em] uppercase cursor-pointer shadow-2xs focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
       bind:this={cancelEl}
       onclick={hide}
     >
@@ -167,11 +169,15 @@
     </button>
     <button
       type="button"
+      data-jx-pc-btn=""
+      data-jx-pc-confirm=""
+      data-jx-pc-confirm-destructive={confirmTone === 'destructive' ? '' : undefined}
+      data-jx-pc-confirm-primary={confirmTone !== 'destructive' ? '' : undefined}
       class={cn(
-        'jx-pc-btn jx-pc-confirm appearance-none px-3 py-[5px] border border-border bg-background text-foreground font-nav text-[0.6875rem] tracking-[0.1em] uppercase cursor-pointer shadow-2xs focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
+        'appearance-none px-3 py-[5px] border border-border bg-background text-foreground font-nav text-[0.6875rem] tracking-[0.1em] uppercase cursor-pointer shadow-2xs focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
         confirmTone === 'destructive'
-          ? 'jx-pc-confirm-destructive border-destructive bg-destructive text-destructive-foreground'
-          : 'jx-pc-confirm-primary border-primary text-primary',
+          ? 'border-destructive bg-destructive text-destructive-foreground'
+          : 'border-primary text-primary',
       )}
       onclick={confirm}
     >

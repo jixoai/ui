@@ -69,9 +69,10 @@
 </script>
 
 <div
+  data-jx-accordion-ghost={ghost ? '' : undefined}
   class={cn(
     'jx-accordion flex flex-col box-border border border-border bg-card rounded',
-    ghost && 'jx-accordion-ghost border-transparent bg-transparent',
+    ghost && 'border-transparent bg-transparent',
     className,
   )}
   use:exclusiveGuard={exclusive}

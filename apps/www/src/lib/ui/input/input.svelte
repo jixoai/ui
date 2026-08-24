@@ -163,7 +163,7 @@
 {:else}
   <div class="jx-field">
     {#if outerBlockStart}
-      <div class="jx-outer jx-outer-start text-muted-foreground text-xs -mb-1">{@render outerBlockStart()}</div>
+      <div data-jx-outer data-jx-outer-start class="text-muted-foreground text-xs -mb-1">{@render outerBlockStart()}</div>
     {:else if label}<label class="jx-label" for={id}>{label}</label>{/if}
     {#if isRange}
       <input
@@ -203,7 +203,7 @@
         class:jx-clearable={clearable}
       >
         {#if innerInlineStart}
-          <span class="jx-slot flex-none inline-flex items-center gap-1.5 text-muted-foreground text-xs leading-none">{@render innerInlineStart()}</span>
+          <span data-jx-slot class="flex-none inline-flex items-center gap-1.5 text-muted-foreground text-xs leading-none">{@render innerInlineStart()}</span>
         {/if}
         <input
           bind:this={inputEl}
@@ -217,7 +217,7 @@
           aria-describedby={describedBy}
         />
         {#if innerInlineEnd}
-          <span class="jx-slot flex-none inline-flex items-center gap-1.5 text-muted-foreground text-xs leading-none">{@render innerInlineEnd()}</span>
+          <span data-jx-slot class="flex-none inline-flex items-center gap-1.5 text-muted-foreground text-xs leading-none">{@render innerInlineEnd()}</span>
         {/if}
         {#if showClear}
           <button
@@ -233,6 +233,6 @@
       </div>
     {/if}
     {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}
-    {#if outerBlockEnd}<div class="jx-outer jx-outer-end text-muted-foreground text-xs -mt-1">{@render outerBlockEnd()}</div>{/if}
+    {#if outerBlockEnd}<div data-jx-outer data-jx-outer-end class="text-muted-foreground text-xs -mt-1">{@render outerBlockEnd()}</div>{/if}
   </div>
 {/if}

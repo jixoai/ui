@@ -13,7 +13,8 @@
   tw4 (2026-08-24): utility-authored, zero css residue — the img's
   responsive law and the broken-source panel are token utilities in
   the markup (the fallback svg is component-owned, so it takes its
-  2rem box directly); `jx-image*` stay as semantic hooks only.
+  2rem box directly); the hooks ride `data-jx-image` /
+  `data-jx-image-broken` attributes (data-jx-hooks, 2026-08-25).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -68,7 +69,8 @@
        content pictures get a name. Size carries the intrinsic dims so
        failure never shifts layout either -->
   <span
-    class="jx-image-broken box-border inline-flex items-center justify-center border border-dashed border-border bg-muted text-muted-foreground p-6"
+    data-jx-image-broken
+    class="box-border inline-flex items-center justify-center border border-dashed border-border bg-muted text-muted-foreground p-6"
     style="width: {typeof width === 'number' ? `${width}px` : width}; height: {typeof height === 'number' ? `${height}px` : height};"
     role={alt === '' ? undefined : 'img'}
     aria-label={alt === '' ? undefined : 'image unavailable'}
@@ -90,7 +92,8 @@
   </span>
 {:else}
   <img
-    class={cn('jx-image max-w-full h-auto', className)}
+    data-jx-image
+    class={cn('max-w-full h-auto', className)}
     {alt}
     {width}
     {height}

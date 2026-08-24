@@ -159,7 +159,7 @@ check('terminal-header subpanel: bezel law + consumer static override', kernelHe
 await page.goto(`http://localhost:${port}/components/tooltip.html`, { waitUntil: 'networkidle' });
 const kernelTooltip = await page.evaluate(async () => {
   // the docs page's tips open on hover — dispatch real pointer events
-  const host = document.querySelector('.jx-tip-anchor, [data-tip-host], [aria-describedby]');
+  const host = document.querySelector('[data-jx-tip-anchor], [data-tip-host], [aria-describedby]');
   if (!host) return { ok: false, why: 'no tip host' };
   host.dispatchEvent(new PointerEvent('pointerenter', { bubbles: true }));
   host.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
@@ -195,7 +195,7 @@ const kernelPop = await page.evaluate(async () => {
   const pseudoDisabled = getComputedStyle(pop, '::after').content === 'none';
   // consumer override: any popover-owned content child (statics are
   // component-owned) hides under a generated utility
-  const child = pop.querySelector('.jx-caret, .jx-pop-body, h3, p, div, button');
+  const child = pop.querySelector('.jx-caret, [data-jx-pop-body], h3, p, div, button');
   if (!child) return { ok: false, why: 'no content child in popover', pseudoDisabled };
   const before = getComputedStyle(child).display;
   child.classList.add('hidden');

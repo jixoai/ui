@@ -375,11 +375,12 @@
     onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
   ></jx-form-field>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span class="jx-combobox-wrap relative block w-full max-w-full" style="anchor-name: {anchorName}">
+  <span data-jx-combobox-wrap class="relative block w-full max-w-full" style="anchor-name: {anchorName}">
     <div
+      data-jx-combobox-invalid={invalid ? '' : undefined}
       class={cn(
         'jx-combobox-shell flex items-center gap-2 w-full max-w-full min-h-10 px-3 border border-border rounded-none bg-background scheme-light dark:scheme-dark transition-[box-shadow] duration-150 ease-out',
-        invalid && 'jx-combobox-invalid border-dashed',
+        invalid && 'border-dashed',
         className,
       )}
     >
@@ -400,7 +401,8 @@
         autocomplete="off"
         autocapitalize="off"
         spellcheck="false"
-        class="jx-combobox-input flex-1 min-w-0 min-h-[calc(2.5rem_-_2px)] p-0 border-0 outline-none bg-transparent text-foreground text-sm leading-[1.45] placeholder:text-muted-foreground placeholder:opacity-100"
+        data-jx-combobox-input
+        class="flex-1 min-w-0 min-h-[calc(2.5rem_-_2px)] p-0 border-0 outline-none bg-transparent text-foreground text-sm leading-[1.45] placeholder:text-muted-foreground placeholder:opacity-100"
         {placeholder}
         disabled={isDisabled}
         oninput={onInput}
@@ -452,14 +454,15 @@
   >
     <!-- surface body (bezel paint + ::after shadow) + scroll ring
          (floating-surface law arch r3) -->
-    <div class="jx-combobox-panel-body jx-surface-body">
-    <div class="jx-combobox-scroll max-h-[60vh] overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-1 px-[max(4px_-_var(--jx-scrollbar-thin,0px),0px)]">
+    <div data-jx-combobox-panel-body class="jx-surface-body">
+    <div data-jx-combobox-scroll class="max-h-[60vh] overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-1 px-[max(4px_-_var(--jx-scrollbar-thin,0px),0px)]">
     {#if rows.length > 0}
       <!-- mousedown is prevented so click-to-choose never blurs the input
            into a premature blur-commit -->
       <ul
         id={listboxId}
-        class="jx-combobox-list m-0 p-0 list-none"
+        data-jx-combobox-list
+        class="m-0 p-0 list-none"
         role="listbox"
         aria-label={label ?? placeholder}
         onmousedown={(event) => event.preventDefault()}
@@ -474,27 +477,30 @@
             role="option"
             aria-selected={row.kind === 'option' && row.option.value === value ? 'true' : 'false'}
             aria-disabled={row.kind === 'option' && row.option.disabled ? 'true' : undefined}
+            data-jx-combobox-active={index === active ? '' : undefined}
+            data-jx-combobox-selected={row.kind === 'option' && row.option.value === value ? '' : undefined}
+            data-jx-combobox-disabled={row.kind === 'option' && row.option.disabled ? '' : undefined}
             class={cn(
               'jx-combobox-option flex flex-col gap-0.5 px-[10px] py-[6px] text-[13px] leading-[1.45] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
-              index === active && 'jx-combobox-active bg-terminal-hover text-terminal-foreground',
-              row.kind === 'option' && row.option.value === value && 'jx-combobox-selected bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
-              row.kind === 'option' && row.option.disabled && 'jx-combobox-disabled opacity-50 pointer-events-none',
+              index === active && 'bg-terminal-hover text-terminal-foreground',
+              row.kind === 'option' && row.option.value === value && 'bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
+              row.kind === 'option' && row.option.disabled && 'opacity-50 pointer-events-none',
             )}
             onclick={() => chooseRow(row)}
           >
             {#if row.kind === 'option'}
-              <span class="jx-combobox-option-label min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{row.option.label}</span>
+              <span data-jx-combobox-option-label class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{row.option.label}</span>
               {#if row.option.description}
-                <span class="jx-combobox-option-desc text-[11px] leading-[1.4] text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]">{row.option.description}</span>
+                <span data-jx-combobox-option-desc class="text-[11px] leading-[1.4] text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]">{row.option.description}</span>
               {/if}
             {:else}
-              <span class="jx-combobox-use text-primary">Use “{row.text}”</span>
+              <span data-jx-combobox-use class="text-primary">Use “{row.text}”</span>
             {/if}
           </li>
         {/each}
       </ul>
     {:else}
-      <p class="jx-combobox-empty m-0 px-[10px] py-[6px] text-[13px] text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]">No results for “{query}”</p>
+      <p data-jx-combobox-empty class="m-0 px-[10px] py-[6px] text-[13px] text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]">No results for “{query}”</p>
     {/if}
     </div>
     </div>

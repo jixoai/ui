@@ -61,20 +61,22 @@
 
   // corner → fixed point (top corners clear the sticky bar: 5.5rem)
   const corners = {
-    'bottom-right': 'jx-fab-bottom-right bottom-5 right-5',
-    'bottom-left': 'jx-fab-bottom-left bottom-5 left-5',
-    'top-right': 'jx-fab-top-right top-[5.5rem] right-5',
-    'top-left': 'jx-fab-top-left top-[5.5rem] left-5',
+    'bottom-right': 'bottom-5 right-5',
+    'bottom-left': 'bottom-5 left-5',
+    'top-right': 'top-[5.5rem] right-5',
+    'top-left': 'top-[5.5rem] left-5',
   } as const;
 
   // press law at float scale: rest on --shadow, hover grows to --shadow-md
   const fabPaint =
-    'jx-press jx-fab inline-flex h-11 w-11 appearance-none items-center justify-center rounded border border-border bg-popover text-popover-foreground cursor-pointer [--jx-press-shadow:var(--shadow)] [--jx-press-shadow-hover:var(--shadow-md)] [--jx-press-shadow-active:var(--shadow-md-press)] hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
+    'jx-press inline-flex h-11 w-11 appearance-none items-center justify-center rounded border border-border bg-popover text-popover-foreground cursor-pointer [--jx-press-shadow:var(--shadow)] [--jx-press-shadow-hover:var(--shadow-md)] [--jx-press-shadow-active:var(--shadow-md-press)] hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
 </script>
 
 {#if actions}
   <div
-    class={cn(`jx-fab-stack jx-fab-${corner} fixed z-[80] flex flex-col items-center gap-2`, corners[corner], className)}
+    data-jx-fab-stack=""
+    data-jx-fab={corner}
+    class={cn('fixed z-[80] flex flex-col items-center gap-2', corners[corner], className)}
     style="anchor-name: {anchorName}"
   >
     <div
@@ -89,7 +91,7 @@
     >
       <!-- surface body (fill + ::after shadow); the popover element
            paints nothing (floating-surface law arch r3) -->
-      <div class="jx-fab-menu-body jx-surface-body p-1">
+      <div data-jx-fab-menu-body="" class="jx-surface-body p-1">
         {@render actions()}
       </div>
     </div>
@@ -108,6 +110,7 @@
 {:else}
   <button
     type="button"
+    data-jx-fab={corner}
     class={cn(fabPaint, 'fixed z-[80]', corners[corner], className)}
     aria-label={label}
     {onclick}

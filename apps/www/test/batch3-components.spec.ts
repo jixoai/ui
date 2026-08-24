@@ -62,7 +62,7 @@ describe('Kbd', () => {
     const { container } = render(Kbd, { props: { title: 'command', 'data-testid': 'k' } });
     const kbd = container.querySelector('[data-testid="k"]')!;
     expect(kbd.tagName).toBe('KBD');
-    expect(kbd.className).toContain('jx-kbd');
+    expect(kbd.hasAttribute('data-jx-kbd')).toBe(true);
     expect(kbd.getAttribute('title')).toBe('command');
   });
 });
@@ -128,18 +128,18 @@ describe('ToastViewport', () => {
   it('renders pushed toasts with per-item live-region semantics', async () => {
     const rendered = render(OverlayHost);
     await fireEvent.click(rendered.container.querySelector('[data-toast-polite]')!);
-    const polite = rendered.container.querySelector('.jx-toasts [role="status"]')!;
+    const polite = rendered.container.querySelector('[data-jx-toasts] [role="status"]')!;
     expect(polite.textContent).toContain('Deployed');
 
     await fireEvent.click(rendered.container.querySelector('[data-toast-sticky]')!);
-    const assertive = rendered.container.querySelector('.jx-toasts [role="alert"]')!;
+    const assertive = rendered.container.querySelector('[data-jx-toasts] [role="alert"]')!;
     expect(assertive.textContent).toContain('Build failed');
   });
 
   it('dismiss paints the exit frame BEFORE the toast leaves the DOM', async () => {
     const rendered = render(OverlayHost);
     await fireEvent.click(rendered.container.querySelector('[data-toast-polite]')!);
-    const btn = rendered.container.querySelector('.jx-toast-dismiss') as HTMLButtonElement;
+    const btn = rendered.container.querySelector('[data-jx-toast-dismiss]') as HTMLButtonElement;
     await fireEvent.click(btn);
 
     // within the exit window the snapshot still renders, marked leaving
@@ -168,11 +168,11 @@ describe('AlertDialog', () => {
     const rendered = render(AlertDialogHost);
     await fireEvent.click(rendered.container.querySelector('button')!);
     await new Promise(requestAnimationFrame);
-    const cancel = rendered.container.querySelector('.jx-adlg-cancel') as HTMLButtonElement;
+    const cancel = rendered.container.querySelector('[data-jx-adlg-cancel]') as HTMLButtonElement;
     expect(document.activeElement).toBe(cancel);
 
-    const confirm = rendered.container.querySelector('.jx-adlg-confirm') as HTMLButtonElement;
-    expect(confirm.className).toContain('jx-adlg-confirm-destructive');
+    const confirm = rendered.container.querySelector('[data-jx-adlg-confirm]') as HTMLButtonElement;
+    expect(confirm.className).getAttribute('data-jx-adlg-confirm') === 'destructive';
     await fireEvent.click(confirm);
     expect(rendered.container.querySelector('[data-deleted]')?.getAttribute('data-deleted')).toBe(
       'true',
@@ -200,7 +200,7 @@ describe('Sheet', () => {
 describe('HoverCard', () => {
   it('opens on focus instantly and closes on a real focus exit', async () => {
     const rendered = render(HoverCardHost);
-    const anchor = rendered.container.querySelector('.jx-hover-anchor') as HTMLElement;
+    const anchor = rendered.container.querySelector('[data-jx-hover-anchor]') as HTMLElement;
     const panel = rendered.container.querySelector('.jx-hover-card') as HTMLElement;
     expect(panel.getAttribute('popover')).toBe('manual');
 

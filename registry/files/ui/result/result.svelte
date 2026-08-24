@@ -49,10 +49,11 @@
   } as const;
 </script>
 
-<div class={cn(`jx-result jx-result-${status} flex flex-col items-center gap-3 px-6 py-12 text-center`, className)}>
+<div data-jx-result={status} class={cn('flex flex-col items-center gap-3 px-6 py-12 text-center', className)}>
   <div
+    data-jx-result-icon=""
     class={cn(
-      'jx-result-icon inline-flex items-center justify-center size-[3.5rem] border border-border bg-card shadow-xs',
+      'inline-flex items-center justify-center size-[3.5rem] border border-border bg-card shadow-xs',
       iconBorder[status],
     )}
     aria-hidden="true"
@@ -60,15 +61,15 @@
     {#if icon}
       {@render icon()}
     {:else}
-      <span class={cn('jx-result-glyph font-mono text-2xl leading-none', glyphColor[status])}>{glyph}</span>
+      <span data-jx-result-glyph="" class={cn('font-mono text-2xl leading-none', glyphColor[status])}>{glyph}</span>
     {/if}
   </div>
-  <h2 class="jx-result-title font-nav text-base tracking-[0.06em] uppercase text-foreground">{title}</h2>
+  <h2 data-jx-result-title="" class="font-nav text-base tracking-[0.06em] uppercase text-foreground">{title}</h2>
   {#if description}
-    <p class="jx-result-desc max-w-[44ch] text-[0.8125rem] leading-[1.6] text-muted-foreground">{description}</p>
+    <p data-jx-result-desc="" class="max-w-[44ch] text-[0.8125rem] leading-[1.6] text-muted-foreground">{description}</p>
   {/if}
   {#if actions}
-    <div class="jx-result-actions mt-2 flex flex-wrap justify-center gap-2.5">
+    <div data-jx-result-actions="" class="mt-2 flex flex-wrap justify-center gap-2.5">
       {@render actions()}
     </div>
   {/if}

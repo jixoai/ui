@@ -104,16 +104,16 @@
 >
   <!-- the REAL shadow layer (a DOM child because pseudo-elements are
        unreachable from the motion timeline) -->
-  <div class="jx-dialog-shadow jx-surface-shadow" aria-hidden="true"></div>
+  <div data-jx-dialog-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
   <!-- the surface body (fill + acrylic blur) wraps the scroll ring; the
        <dialog> itself paints nothing (floating-surface law arch r3) -->
-  <div class="jx-dialog-surface jx-surface-body">
-  <div class="jx-dialog-scroll jx-surface-scroll max-h-[calc(100dvh-2rem)] overflow-auto">
-    <div class="jx-dialog-head flex items-center justify-between gap-3 py-2.5 pr-2.5 pl-3.5 border-b border-border">
+  <div data-jx-dialog-surface="" class="jx-surface-body">
+  <div data-jx-dialog-scroll="" class="jx-surface-scroll max-h-[calc(100dvh-2rem)] overflow-auto">
+    <div data-jx-dialog-head="" class="flex items-center justify-between gap-3 py-2.5 pr-2.5 pl-3.5 border-b border-border">
       {#if title}
-        <h2 class="jx-dialog-title font-nav text-[15px] leading-[1.3] tracking-[0.01em]">{title}</h2>
+        <h2 data-jx-dialog-title="" class="font-nav text-[15px] leading-[1.3] tracking-[0.01em]">{title}</h2>
       {:else}
-        <span class="jx-dialog-title" aria-hidden="true"></span>
+        <span data-jx-dialog-title="" aria-hidden="true"></span>
       {/if}
       <button
         type="button"
@@ -134,11 +134,11 @@
         </svg>
       </button>
     </div>
-    <div class="jx-dialog-body p-3.5 text-[13px] leading-[1.6] text-[color-mix(in_oklab,var(--popover-foreground)_80%,transparent)]">
+    <div data-jx-dialog-body="" class="p-3.5 text-[13px] leading-[1.6] text-[color-mix(in_oklab,var(--popover-foreground)_80%,transparent)]">
       {@render children()}
     </div>
     {#if footer}
-      <div class="jx-dialog-foot flex justify-end gap-2.5 px-3.5 py-3 border-t border-border">
+      <div data-jx-dialog-foot="" class="flex justify-end gap-2.5 px-3.5 py-3 border-t border-border">
         {@render footer()}
       </div>
     {/if}

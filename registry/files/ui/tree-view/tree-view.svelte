@@ -388,9 +388,9 @@
             {/if}
           </span>
           {#if prefixSnippet}
-            <span class="jx-tree-prefix inline-flex items-center flex-none min-w-0 [&_svg]:h-3.5 [&_svg]:w-3.5">{@render prefixSnippet(ctx)}</span>
+            <span data-jx-tree-prefix class="inline-flex items-center flex-none min-w-0 [&_svg]:h-3.5 [&_svg]:w-3.5">{@render prefixSnippet(ctx)}</span>
           {:else if fileIcons}
-            <span class="jx-tree-prefix jx-tree-typeicon inline-flex items-center flex-none min-w-0 text-muted-foreground [&_svg]:h-[13px] [&_svg]:w-[13px]" aria-hidden="true">
+            <span data-jx-tree-prefix class="jx-tree-typeicon inline-flex items-center flex-none min-w-0 text-muted-foreground [&_svg]:h-[13px] [&_svg]:w-[13px]" aria-hidden="true">
               {#if isDir}
                 {@html ctx.expanded ? icons.folderOpen : icons.folder}
               {:else}
@@ -398,7 +398,7 @@
               {/if}
             </span>
           {/if}
-          <span class="jx-tree-label flex-1 truncate">
+          <span data-jx-tree-label class="flex-1 truncate">
             {#if label}{@render label(ctx)}{:else}{node.name}{/if}
           </span>
           {#if suffixSnippet}

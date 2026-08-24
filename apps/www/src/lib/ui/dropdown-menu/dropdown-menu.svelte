@@ -195,7 +195,8 @@
   {:else}
     <button
       type="button"
-      class="jx-press jx-menu-trigger inline-flex cursor-pointer items-center gap-2.5 border border-border bg-background px-3.5 py-2.5 font-sans text-sm font-medium text-foreground [--jx-press-shadow:var(--shadow-xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-muted"
+      data-jx-menu-trigger=""
+      class="jx-press inline-flex cursor-pointer items-center gap-2.5 border border-border bg-background px-3.5 py-2.5 font-sans text-sm font-medium text-foreground [--jx-press-shadow:var(--shadow-xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-muted"
       popovertarget={id}
       bind:this={triggerEl}
       aria-haspopup="menu"
@@ -232,9 +233,10 @@
   <!-- surface body (fill + acrylic blur + the ::after shadow layer) +
        scroll ring (floating-surface law arch r3: the platform element
        paints nothing) -->
-  <div class="jx-menu-body jx-surface-body">
+  <div data-jx-menu-body="" class="jx-surface-body">
     <div
-      class="jx-menu-scroll max-h-[72vh] overflow-auto [scrollbar-gutter:stable_both-edges] [padding:var(--jx-menu-pad,4px)] [padding-inline:max(var(--jx-menu-pad,4px)-var(--jx-scrollbar-thin,0px),0px)]"
+      data-jx-menu-scroll=""
+      class="max-h-[72vh] overflow-auto [scrollbar-gutter:stable_both-edges] [padding:var(--jx-menu-pad,4px)] [padding-inline:max(var(--jx-menu-pad,4px)-var(--jx-scrollbar-thin,0px),0px)]"
     >
       {@render children()}
     </div>

@@ -113,7 +113,7 @@
 
 <div class="jx-field">
   {#if outerBlockStart}
-    <div class="jx-outer jx-outer-start text-muted-foreground text-xs -mb-1">{@render outerBlockStart()}</div>
+    <div data-jx-outer data-jx-outer-start class="text-muted-foreground text-xs -mb-1">{@render outerBlockStart()}</div>
   {:else if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <!-- the shell owns the box law; the textarea inside is chromeless.
        Part A's shell law carries the box/hover/focus/disabled/invalid
@@ -124,7 +124,7 @@
     class:jx-invalid={invalid}
   >
     {#if innerBlockStart}
-      <div class="jx-inner jx-inner-start flex items-center gap-3 py-1.5 text-muted-foreground text-xs border-b border-border">{@render innerBlockStart()}</div>
+      <div data-jx-inner data-jx-inner-start class="flex items-center gap-3 py-1.5 text-muted-foreground text-xs border-b border-border">{@render innerBlockStart()}</div>
     {/if}
     <textarea
       {id}
@@ -132,20 +132,21 @@
       {...rest}
       value={controlled ? value : undefined}
       oninput={syncValue}
+      data-jx-textarea
       class={cn(
-        'jx-textarea w-full flex-[1_1_auto] px-3 py-2 border-0 outline-none bg-transparent text-foreground text-sm leading-[1.5] resize-y placeholder:text-muted-foreground placeholder:opacity-100 disabled:cursor-not-allowed',
+        'w-full flex-[1_1_auto] px-3 py-2 border-0 outline-none bg-transparent text-foreground text-sm leading-[1.5] resize-y placeholder:text-muted-foreground placeholder:opacity-100 disabled:cursor-not-allowed',
         slotted && 'px-0',
       )}
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}
     ></textarea>
     {#if innerBlockEnd || count}
-      <div class="jx-inner jx-inner-end flex items-center gap-3 py-1.5 text-muted-foreground text-xs border-t border-border">
+      <div data-jx-inner data-jx-inner-end class="flex items-center gap-3 py-1.5 text-muted-foreground text-xs border-t border-border">
         {#if innerBlockEnd}{@render innerBlockEnd()}{/if}
-        {#if count}<span class="jx-count ms-auto font-nav text-[11px] tracking-[0.08em]">{countLabel}</span>{/if}
+        {#if count}<span data-jx-count class="ms-auto font-nav text-[11px] tracking-[0.08em]">{countLabel}</span>{/if}
       </div>
     {/if}
   </div>
   {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}
-  {#if outerBlockEnd}<div class="jx-outer jx-outer-end text-muted-foreground text-xs -mt-1">{@render outerBlockEnd()}</div>{/if}
+    {#if outerBlockEnd}<div data-jx-outer data-jx-outer-end class="text-muted-foreground text-xs -mt-1">{@render outerBlockEnd()}</div>{/if}
 </div>

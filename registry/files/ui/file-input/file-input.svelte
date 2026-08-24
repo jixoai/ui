@@ -352,7 +352,7 @@
     </svg>
   {:else if kind === 'code'}
     <!-- "</>" as a font-nav text glyph — no SVG needed -->
-    <span class="jx-file-code-glyph font-nav font-bold text-[calc(var(--jx-file-icon)*0.72)] tracking-[-0.02em] leading-none">&lt;/&gt;</span>
+    <span data-jx-file-code-glyph class="font-nav font-bold text-[calc(var(--jx-file-icon)*0.72)] tracking-[-0.02em] leading-none">&lt;/&gt;</span>
   {:else}
     <!-- 通用文档图形 -->
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -367,9 +367,10 @@
     <button
       type="button"
       id={triggerId}
+      data-jx-file={invalid ? 'invalid' : undefined}
       class={cn(
         'jx-press jx-file-zone flex flex-col items-center justify-center gap-2 w-full min-w-0 max-w-full min-h-[calc(var(--jx-file-h)*2.25)] p-(--jx-file-zone-pad) border border-dashed border-border rounded-none bg-background text-foreground [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]',
-        invalid && 'jx-file-invalid border-destructive',
+        invalid && 'border-destructive',
       )}
       class:jx-file-over={dragging}
       aria-label={label || (multiple ? 'choose files' : 'choose file')}
@@ -410,16 +411,17 @@
             dragging && 'text-primary',
           )}
         >{multiple ? 'click or drag files' : 'click or drag file'}</span>
-        {#if zoneHint}<span class="jx-file-zone-hint font-nav text-[10.5px] tracking-[0.08em] text-muted-foreground max-w-full [overflow-wrap:anywhere] text-center">{zoneHint}</span>{/if}
+        {#if zoneHint}<span data-jx-file-zone-hint class="font-nav text-[10.5px] tracking-[0.08em] text-muted-foreground max-w-full [overflow-wrap:anywhere] text-center">{zoneHint}</span>{/if}
       {/if}
     </button>
   {:else}
     <button
       type="button"
       id={triggerId}
+      data-jx-file={invalid ? 'invalid' : undefined}
       class={cn(
         'jx-press jx-file-trigger inline-flex items-center gap-2 w-fit max-w-full min-h-(--jx-file-h) px-[0.9rem] py-[0.45rem] border border-border rounded-none bg-background text-foreground text-(length:--jx-file-text) font-medium [--jx-press-shadow:var(--shadow-xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)]',
-        invalid && 'jx-file-invalid border-dashed border-destructive',
+        invalid && 'border-dashed border-destructive',
       )}
       class:jx-file-over={dragging}
       aria-label={label || (multiple ? 'choose files' : 'choose file')}
@@ -432,8 +434,9 @@
       ondrop={onDrop}
     >
       <svg
+        data-jx-file-trigger-glyph
         class={cn(
-          'jx-file-trigger-glyph w-[calc(var(--jx-file-icon)*0.9)] h-[calc(var(--jx-file-icon)*0.9)] flex-none text-muted-foreground',
+          'w-[calc(var(--jx-file-icon)*0.9)] h-[calc(var(--jx-file-icon)*0.9)] flex-none text-muted-foreground',
           dragging && 'text-primary',
         )}
         viewBox="0 0 24 24"
@@ -453,7 +456,7 @@
   {/if}
 {/snippet}
 
-<div class={cn('jx-file flex flex-col items-stretch gap-2 w-full min-w-0 max-w-full', sizeUtilities[size], `jx-file-${size}`, disabled && 'jx-file-disabled opacity-50', className)}>
+<div data-jx-file={disabled ? 'disabled' : size} class={cn('jx-file flex flex-col items-stretch gap-2 w-full min-w-0 max-w-full', sizeUtilities[size], disabled && 'opacity-50', className)}>
   {#if label}<label class="jx-label max-w-full overflow-hidden text-ellipsis whitespace-nowrap" for={id}>{label}</label>{/if}
 
   {@render triggerShell(id)}
@@ -471,7 +474,8 @@
     bind:this={inputEl}
     {...rest}
     type="file"
-    class="jx-file-native sr-only"
+    data-jx-file-native
+    class="sr-only"
     tabindex={-1}
     aria-hidden="true"
     {accept}
@@ -483,25 +487,27 @@
   {#if items.length}
     <ul
       id={listId}
+      data-jx-file-list
+      data-jx-file={invalid ? 'invalid' : undefined}
       class={cn(
-        'jx-file-list min-w-0 max-w-full m-0 p-0 list-none border border-border bg-background',
-        invalid && 'jx-file-invalid border-dashed',
+        'min-w-0 max-w-full m-0 p-0 list-none border border-border bg-background',
+        invalid && 'border-dashed',
       )}
       aria-label="selected files"
     >
       {#each items as item (item.id)}
         <li class="jx-file-row flex items-center gap-3 min-w-0 min-h-(--jx-file-h) px-3">
-          <span class="jx-file-thumb flex-none inline-flex items-center justify-center w-[calc(var(--jx-file-thumb)+2px)] h-[calc(var(--jx-file-thumb)+2px)] border border-border bg-muted overflow-hidden" aria-hidden="true">
+          <span data-jx-file-thumb class="flex-none inline-flex items-center justify-center w-[calc(var(--jx-file-thumb)+2px)] h-[calc(var(--jx-file-thumb)+2px)] border border-border bg-muted overflow-hidden" aria-hidden="true">
             {#if item.previewUrl}
-              <img class="jx-file-thumb-img block w-(--jx-file-thumb) h-(--jx-file-thumb) object-cover" src={item.previewUrl} alt="" loading="lazy" />
+              <img data-jx-file-thumb-img class="block w-(--jx-file-thumb) h-(--jx-file-thumb) object-cover" src={item.previewUrl} alt="" loading="lazy" />
             {:else}
-              <span class="jx-file-icon inline-flex items-center justify-center w-(--jx-file-icon) h-(--jx-file-icon) text-muted-foreground jx-file-icon-{fileKind(item.file)}">
+              <span data-jx-file-icon={fileKind(item.file)} class="jx-file-icon inline-flex items-center justify-center w-(--jx-file-icon) h-(--jx-file-icon) text-muted-foreground">
                 {@render kindIcon(fileKind(item.file))}
               </span>
             {/if}
           </span>
-          <span class="jx-file-name flex-[1_1_0%] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-(length:--jx-file-text) text-foreground" title={item.file.name}>{item.file.name}</span>
-          <span class="jx-file-size flex-none text-(length:--jx-file-text) tabular-nums text-muted-foreground">{formatSize(item.file.size)}</span>
+          <span data-jx-file-name class="flex-[1_1_0%] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-(length:--jx-file-text) text-foreground" title={item.file.name}>{item.file.name}</span>
+          <span data-jx-file-size class="flex-none text-(length:--jx-file-text) tabular-nums text-muted-foreground">{formatSize(item.file.size)}</span>
           <button
             type="button"
             class="jx-file-remove flex-none inline-flex items-center justify-center w-5 h-5 p-0 border-0 bg-transparent text-muted-foreground text-base leading-none cursor-pointer transition-[color,transform] duration-150 ease-out disabled:cursor-not-allowed"
@@ -512,7 +518,7 @@
         </li>
       {/each}
       {#if items.length > 1 && !disabled}
-        <li class="jx-file-clearrow border-t border-border">
+        <li data-jx-file-clearrow class="border-t border-border">
           <button type="button" class="jx-file-clear inline-flex items-center min-h-[calc(var(--jx-file-h)*0.75)] py-[0.15rem] border-0 bg-transparent text-muted-foreground font-nav text-[10.5px] tracking-[0.18em] uppercase cursor-pointer transition-colors duration-150 ease-out" onclick={clearAll}>remove all</button>
         </li>
       {/if}
@@ -520,6 +526,6 @@
   {/if}
 
   {#if invalid}
-    <p id={errorId} class="jx-error"><span class="jx-file-error-mark font-bold text-destructive" aria-hidden="true">!</span>{shownError}</p>
+    <p id={errorId} class="jx-error"><span data-jx-file-error-mark class="font-bold text-destructive" aria-hidden="true">!</span>{shownError}</p>
   {/if}
 </div>

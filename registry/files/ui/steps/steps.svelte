@@ -43,34 +43,36 @@
   } as const;
 </script>
 
-<ol class={cn('jx-steps flex flex-wrap', className)} role="list">
+<ol data-jx-steps="" class={cn('flex flex-wrap', className)} role="list">
   {#each steps as step, index (index)}
     {@const state = index < current ? 'done' : index === current ? 'current' : 'todo'}
     <li
-      class={cn(`jx-step jx-step-${state} relative flex flex-1 items-start gap-2.5 min-w-[9rem] pr-4`)}
+      data-jx-step={state}
+      class={cn('jx-step relative flex flex-1 items-start gap-2.5 min-w-[9rem] pr-4', state === 'done' && 'jx-step-done')}
       aria-current={state === 'current' ? 'step' : undefined}
     >
       {#if state === 'done' && onstepclick}
         <button
           type="button"
+          data-jx-step-marker=""
           class={cn(
-            'jx-step-marker flex-none inline-flex items-center justify-center size-6 border font-nav text-[0.6875rem] cursor-pointer hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
+            'flex-none inline-flex items-center justify-center size-6 border font-nav text-[0.6875rem] cursor-pointer hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
             markerPaint[state],
           )}
           aria-label="completed: {step.title} — go back"
           onclick={() => onstepclick?.(index)}
         >
-          <span class="jx-step-index" aria-hidden="true">✓</span>
+          <span data-jx-step-index="" aria-hidden="true">✓</span>
         </button>
       {:else}
-        <span class={cn('jx-step-marker flex-none inline-flex items-center justify-center size-6 border font-nav text-[0.6875rem]', markerPaint[state])} aria-hidden="true">
-          <span class="jx-step-index">{index + 1}</span>
+        <span data-jx-step-marker="" class={cn('flex-none inline-flex items-center justify-center size-6 border font-nav text-[0.6875rem]', markerPaint[state])} aria-hidden="true">
+          <span data-jx-step-index="">{index + 1}</span>
         </span>
       {/if}
-      <span class="jx-step-text flex min-w-0 flex-col gap-[0.125rem]">
-        <span class={cn('jx-step-title font-nav text-xs tracking-[0.08em] uppercase', state === 'current' ? 'text-foreground' : 'text-muted-foreground')}>{step.title}</span>
+      <span data-jx-step-text="" class="flex min-w-0 flex-col gap-[0.125rem]">
+        <span data-jx-step-title="" class={cn('font-nav text-xs tracking-[0.08em] uppercase', state === 'current' ? 'text-foreground' : 'text-muted-foreground')}>{step.title}</span>
         {#if step.description}
-          <span class="jx-step-desc text-xs leading-[1.45] text-muted-foreground opacity-80">{step.description}</span>
+          <span data-jx-step-desc="" class="text-xs leading-[1.45] text-muted-foreground opacity-80">{step.description}</span>
         {/if}
       </span>
     </li>

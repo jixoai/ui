@@ -116,10 +116,10 @@ console.log('facts:', facts);
 
 // behavioral check: keyboard step updates the hue readout
 await input.focus();
-const before = await page.locator('#hue-popover .jx-hue-value').textContent();
+const before = await page.locator('#hue-popover [data-jx-hue-value]').textContent();
 await page.keyboard.press('ArrowRight');
 await page.waitForTimeout(150);
-const after = await page.locator('#hue-popover .jx-hue-value').textContent();
+const after = await page.locator('#hue-popover [data-jx-hue-value]').textContent();
 const stepped = before !== after;
 console.log(`${stepped ? 'PASS' : 'FAIL'}  keyboard step moves the readout (${before} → ${after})`);
 if (!stepped) failed++;

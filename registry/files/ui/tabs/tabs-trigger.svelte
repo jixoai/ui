@@ -50,8 +50,9 @@
   aria-selected={selected}
   aria-controls="{tabs.uid}-panel-{value}"
   tabindex={isTabStop ? 0 : -1}
+  data-jx-tab=""
   class={cn(
-    'jx-tab relative inline-flex appearance-none items-center gap-2 border-0 bg-transparent px-[0.875rem] py-2 font-nav text-xs uppercase tracking-[0.12em] cursor-pointer transition-colors duration-150 ease-out hover:[&:not(:disabled)]:text-foreground disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+    'relative inline-flex appearance-none items-center gap-2 border-0 bg-transparent px-[0.875rem] py-2 font-nav text-xs uppercase tracking-[0.12em] cursor-pointer transition-colors duration-150 ease-out hover:[&:not(:disabled)]:text-foreground disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
     selected ? 'jx-tab-selected text-foreground' : 'text-muted-foreground',
     className,
   )}

@@ -156,7 +156,7 @@ describe('Carousel', () => {
 
   it('dots: one per slide, clickable to page', async () => {
     const { container } = render(CarouselHost);
-    const dots = [...container.querySelectorAll('.jx-carousel-dot')] as HTMLButtonElement[];
+    const dots = [...container.querySelectorAll('[data-jx-carousel-dot]')] as HTMLButtonElement[];
     expect(dots.length).toBe(3);
     // jsdom: scrollTo is a no-op stub — clicking must not throw and the
     // active dot is still readable

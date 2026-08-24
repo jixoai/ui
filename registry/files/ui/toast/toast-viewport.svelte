@@ -92,12 +92,13 @@
   } as const;
 </script>
 
-<div class={cn('jx-toasts fixed right-4 bottom-4 z-[90] flex flex-col gap-2 w-[min(22rem,calc(100vw-2rem))] pointer-events-none', className)} aria-label="notifications">
+<div data-jx-toasts="" class={cn('fixed right-4 bottom-4 z-[90] flex flex-col gap-2 w-[min(22rem,calc(100vw-2rem))] pointer-events-none', className)} aria-label="notifications">
   {#each renders as item (item.id)}
     {@const leaving = leavingItems.some((l) => l.id === item.id)}
     <div
+      data-jx-toast={item.tone ?? 'default'}
       class={cn(
-        `jx-toast jx-toast-${item.tone ?? 'default'} flex items-start gap-2.5 box-border px-3.5 py-3 border bg-popover text-popover-foreground shadow rounded pointer-events-auto animate-[jx-toast-in_200ms_cubic-bezier(0.22,1,0.36,1)]`,
+        `jx-toast flex items-start gap-2.5 box-border px-3.5 py-3 border bg-popover text-popover-foreground shadow rounded pointer-events-auto animate-[jx-toast-in_200ms_cubic-bezier(0.22,1,0.36,1)]`,
         toneBorder[item.tone ?? 'default'],
         leaving && 'jx-toast-leaving animate-[jx-toast-out_180ms_ease-in_forwards]',
       )}
@@ -110,15 +111,16 @@
         if (!e.currentTarget.contains(e.relatedTarget)) store.resume(item.id);
       }}
     >
-      <div class="jx-toast-body flex flex-1 flex-col gap-1 min-w-0">
-        <p class={cn('jx-toast-title font-nav text-xs tracking-[0.1em] uppercase', titleColor[item.tone ?? 'default'])}>{item.title}</p>
+      <div data-jx-toast-body="" class="flex flex-1 flex-col gap-1 min-w-0">
+        <p data-jx-toast-title="" class={cn('font-nav text-xs tracking-[0.1em] uppercase', titleColor[item.tone ?? 'default'])}>{item.title}</p>
         {#if item.description}
-          <p class="jx-toast-desc text-[0.8125rem] leading-[1.5] text-muted-foreground">{item.description}</p>
+          <p data-jx-toast-desc="" class="text-[0.8125rem] leading-[1.5] text-muted-foreground">{item.description}</p>
         {/if}
       </div>
       <button
         type="button"
-        class="jx-toast-dismiss flex-none appearance-none inline-flex items-center justify-center size-5 -mt-0.5 -mr-1 border-0 bg-transparent text-muted-foreground text-base leading-none cursor-pointer hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+        data-jx-toast-dismiss=""
+        class="flex-none appearance-none inline-flex items-center justify-center size-5 -mt-0.5 -mr-1 border-0 bg-transparent text-muted-foreground text-base leading-none cursor-pointer hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
         aria-label="dismiss notification"
         onclick={() => store.api.dismiss(item.id)}
       >

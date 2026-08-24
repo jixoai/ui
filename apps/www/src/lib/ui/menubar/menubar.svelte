@@ -192,13 +192,14 @@
      the bar itself is never a tab stop -->
 <div
   bind:this={barEl}
-  class={cn('jx-menubar flex w-fit flex-wrap items-stretch border border-border bg-card shadow-2xs', className)}
+  data-jx-menubar=""
+  class={cn('flex w-fit flex-wrap items-stretch border border-border bg-card shadow-2xs', className)}
   role="menubar"
   aria-label={label}
   onkeydown={handleBarKeydown}
 >
   {#each items as item, index (item.id)}
-    <span class="jx-menubar-slot inline-flex" style="anchor-name: {anchorOf(item.id)}">
+    <span data-jx-menubar-slot="" class="inline-flex" style="anchor-name: {anchorOf(item.id)}">
       <button
         type="button"
         id="jx-bar-trigger-{item.id}"
@@ -240,7 +241,7 @@
   >
     <!-- surface body (fill + ::after shadow); the popover element paints
          nothing (floating-surface law arch r3) -->
-    <div class="jx-bar-surface jx-surface-body p-1">
+    <div data-jx-bar-surface="" class="jx-surface-body p-1">
       {@render panel(item)}
     </div>
   </div>

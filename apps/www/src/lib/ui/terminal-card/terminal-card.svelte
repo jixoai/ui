@@ -42,7 +42,7 @@
 
   let { barTitle, command, outputs, theme = 'dark', speed = 1 }: Props = $props();
 
-  // scoped token class: 'dark' (default lock) or 'jx-light'
+  // scoped token class: dark (default lock) or jx-light (css-defined)
   let scope = $state<'dark' | 'light'>(theme === 'light' ? 'light' : 'dark');
 
   $effect(() => {
@@ -105,17 +105,18 @@
 </script>
 
 <div
+  data-jx-terminal
   class={cn(
-    'jx-terminal border-border bg-terminal text-terminal-foreground w-full border [box-shadow:6px_6px_0_0_var(--shadow)]',
+    'border-border bg-terminal text-terminal-foreground w-full border [box-shadow:6px_6px_0_0_var(--shadow)]',
     scope === 'dark' ? 'dark [color-scheme:dark]' : 'jx-light [color-scheme:light]',
   )}
 >
   <div
     class="text-terminal-foreground/55 flex items-center gap-1.5 border-b px-3.5 py-2 font-nav text-xs tracking-[0.1em]"
   >
-    <span class="jx-light-dot w-2 h-2 flex-none border border-current bg-[oklch(0.7_0.18_25)]" aria-hidden="true"></span>
-    <span class="jx-light-dot jx-light-yellow w-2 h-2 flex-none border border-current bg-[oklch(0.85_0.17_95)]" aria-hidden="true"></span>
-    <span class="jx-light-dot jx-light-green w-2 h-2 flex-none border border-current bg-[oklch(0.75_0.17_150)]" aria-hidden="true"></span>
+    <span data-jx-light-dot class="w-2 h-2 flex-none border border-current bg-[oklch(0.7_0.18_25)]" aria-hidden="true"></span>
+    <span data-jx-light-dot data-jx-light-yellow class="w-2 h-2 flex-none border border-current bg-[oklch(0.85_0.17_95)]" aria-hidden="true"></span>
+    <span data-jx-light-dot data-jx-light-green class="w-2 h-2 flex-none border border-current bg-[oklch(0.75_0.17_150)]" aria-hidden="true"></span>
     <span class="ml-2 truncate">{barTitle}</span>
   </div>
   <div class="p-4 sm:p-5">

@@ -62,9 +62,11 @@
 
 <div class="jx-field">
   <span
+    data-jx-check
+    data-jx-check-left={labelSide === 'left' ? '' : undefined}
     class={cn(
-      'jx-check inline-flex items-center gap-[0.6rem] w-fit',
-      labelSide === 'left' && 'jx-check-left flex-row-reverse',
+      'inline-flex items-center gap-[0.6rem] w-fit',
+      labelSide === 'left' && 'flex-row-reverse',
     )}
   >
     <input
@@ -78,7 +80,7 @@
       aria-describedby={describedBy}
       {...rest}
     />
-    {#if label}<label class="jx-check-label text-[0.8125rem] text-foreground cursor-pointer" for={id}>{label}</label>{/if}
+    {#if label}<label data-jx-check-label class="text-[0.8125rem] text-foreground cursor-pointer" for={id}>{label}</label>{/if}
   </span>
   {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}
 </div>

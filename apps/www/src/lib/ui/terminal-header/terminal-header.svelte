@@ -125,7 +125,7 @@
     navColumns = 'auto',
   }: Props = $props();
 
-  // scoped token class: 'dark' (default lock) or 'jx-light'
+  // scoped token class: dark (default lock) or jx-light (css-defined)
   let scope = $state<'dark' | 'light'>(theme === 'light' ? 'light' : 'dark');
   let open = $state(false);
 
@@ -311,21 +311,23 @@
     aria-current={child.active ? 'page' : undefined}
     target={child.external ? '_blank' : undefined}
     rel={child.external ? 'noreferrer' : undefined}
+    data-jx-with-icon={reserveIcon ? '' : undefined}
     class="jx-sub-link grid items-start py-[0.4375rem] px-[0.625rem] transition-[background-color] duration-[120ms] ease-out {reserveIcon
-      ? 'jx-with-icon grid-cols-[auto_1fr] column-gap-[0.625rem]'
+      ? 'grid-cols-[auto_1fr] column-gap-[0.625rem]'
       : 'grid-cols-1'}"
     onclick={() => hidePanel(closeKey)}
   >
     {#if reserveIcon}
       <span
-        class="jx-sub-icon w-4 h-4 flex-none flex items-center justify-center mt-px opacity-55 [&_svg]:w-full [&_svg]:h-full"
+        data-jx-sub-icon
+        class="w-4 h-4 flex-none flex items-center justify-center mt-px opacity-55 [&_svg]:w-full [&_svg]:h-full"
         aria-hidden="true"
       >
         {#if child.icon}{@render child.icon()}{/if}
       </span>
     {/if}
-    <span class="jx-sub-text flex flex-col gap-0.5">
-      <span class="text-[13px] font-medium leading-snug">{child.label}{#if child.external}<span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}</span>
+    <span data-jx-sub-text class="flex flex-col gap-0.5">
+      <span class="text-[13px] font-medium leading-snug">{child.label}{#if child.external}<span data-jx-ext class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}</span>
       {#if child.description}
         <span class="text-[11px] leading-snug opacity-60 line-clamp-2">{child.description}</span>
       {/if}
@@ -407,7 +409,7 @@
                       else showPanel(item.href, event.currentTarget);
                     }}
                   >
-                    {item.label}{#if item.external}<span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}
+                    {item.label}{#if item.external}<span data-jx-ext class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}
                     {@render caret()}
                   </a>
                 {/snippet}
@@ -417,14 +419,14 @@
                   <div
                     class="jx-subpanel-head flex items-baseline justify-between gap-4 pt-2 pe-[0.875rem] pb-[0.375rem] font-nav text-[11px] tracking-[0.08em] lowercase"
                   >
-                    <span class="jx-subpanel-title text-[color:color-mix(in_oklab,var(--terminal-foreground)_45%,transparent)]">{item.label}</span>
+                    <span data-jx-subpanel-title class="text-[color:color-mix(in_oklab,var(--terminal-foreground)_45%,transparent)]">{item.label}</span>
                     <a
                       href={item.panelAction.href}
                       aria-current={item.panelAction.active ? 'page' : undefined}
                       class="jx-subpanel-action inline-flex items-center gap-[0.375rem] text-[color:color-mix(in_oklab,var(--terminal-foreground)_70%,transparent)] transition-colors duration-150"
                     >
                       {item.panelAction.label}
-                      <span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.arrowRight}</span>
+                      <span data-jx-ext class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.arrowRight}</span>
                     </a>
                   </div>
                 {/if}
@@ -432,9 +434,10 @@
                      users open via the pill's native activation -->
                 <div class="jx-subclip overflow-hidden">
                   <div
+                    data-jx-single={mega ? undefined : ''}
                     class="jx-subgroups {mega
                       ? 'grid -m-px'
-                      : 'jx-single block m-0'}{mega && typeof navColumns !== 'number'
+                      : 'block m-0'}{mega && typeof navColumns !== 'number'
                       ? ' grid-cols-[repeat(auto-fill,minmax(13.5rem,1fr))]'
                       : ''}"
                     style={mega && typeof navColumns === 'number'
@@ -449,9 +452,9 @@
                           : 'min-w-0'}"
                       >
                         {#if group.label}
-                          <div class="jx-group-label font-nav text-[10px] leading-[1.2] uppercase tracking-[0.18em] opacity-55 p-0 pe-[0.625rem] mb-2">{group.label}</div>
+                          <div data-jx-group-label class="font-nav text-[10px] leading-[1.2] uppercase tracking-[0.18em] opacity-55 p-0 pe-[0.625rem] mb-2">{group.label}</div>
                         {/if}
-                        <div class="jx-group-list">
+                        <div data-jx-group-list>
                           {#each group.items as child (child.label)}
                             {@render subLink(child, reserveIcon, item.href)}
                           {/each}
@@ -474,7 +477,7 @@
                     : 'text-terminal-foreground/70 hover:text-terminal-foreground',
                 ].join(' ')}
               >
-                {item.label}{#if item.external}<span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}
+                {item.label}{#if item.external}<span data-jx-ext class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}
               </a>
             {/if}
           {/each}
@@ -506,7 +509,8 @@
     >
       <div class="overflow-hidden">
         <div
-          class="jx-mobile-scroll max-h-[calc(100dvh-4.75rem)] overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges] [-webkit-overflow-scrolling:touch]"
+          data-jx-mobile-scroll
+          class="max-h-[calc(100dvh-4.75rem)] overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges] [-webkit-overflow-scrolling:touch]"
         >
           <nav class="flex flex-col border-t border-terminal-foreground/10 py-2 text-xs" aria-label="Primary">
           {#each items as item (item.href)}
@@ -534,7 +538,7 @@
                   aria-label="all {item.label}"
                   class="flex items-center px-2 text-terminal-foreground/60 transition-colors hover:text-terminal-foreground"
                 >
-                  all <span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.arrowRight}</span>
+                  all <span data-jx-ext class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.arrowRight}</span>
                 </a>
               </div>
               <!-- nested group: the same height-only collapse as the
@@ -547,7 +551,7 @@
                   <div class="flex flex-col border-l border-terminal-foreground/15 pl-3">
                     {#each asGroups(item.children) as group, gi (gi)}
                       {#if group.label}
-                        <div class="jx-m-group-label font-nav text-[10px] uppercase tracking-[0.18em] opacity-55 pt-[0.625rem] pb-1 ps-1">{group.label}</div>
+                        <div data-jx-m-group-label class="font-nav text-[10px] uppercase tracking-[0.18em] opacity-55 pt-[0.625rem] pb-1 ps-1">{group.label}</div>
                       {/if}
                       {#each group.items as child (child.label)}
                         <a
@@ -563,7 +567,7 @@
                               : 'text-terminal-foreground/70 hover:text-terminal-foreground',
                           ].join(' ')}
                         >
-                          <span>{child.label}{#if child.external}<span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}</span>
+                          <span>{child.label}{#if child.external}<span data-jx-ext class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}</span>
                           {#if child.description}
                             <span class="text-[10px] leading-tight opacity-60">{child.description}</span>
                           {/if}
@@ -587,7 +591,7 @@
                     : 'text-terminal-foreground/70 hover:text-terminal-foreground',
                 ].join(' ')}
               >
-                {item.label}{#if item.external}<span class="jx-ext inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}
+                {item.label}{#if item.external}<span data-jx-ext class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}
               </a>
             {/if}
           {/each}

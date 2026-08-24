@@ -222,7 +222,8 @@
   {:else}
     <button
       type="button"
-      class="jx-press jx-pop-trigger inline-flex cursor-pointer items-center gap-2.5 border border-border bg-background px-3.5 py-2.5 font-sans text-sm font-medium text-foreground [--jx-press-shadow:var(--shadow-xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-muted"
+      data-jx-pop-trigger=""
+      class="jx-press inline-flex cursor-pointer items-center gap-2.5 border border-border bg-background px-3.5 py-2.5 font-sans text-sm font-medium text-foreground [--jx-press-shadow:var(--shadow-xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-muted"
       popovertarget={id}
       bind:this={triggerEl}
       aria-expanded={open}
@@ -260,13 +261,14 @@
        shadow layer); it never scrolls or clips. The scroll+padding ring
        sits inside it (floating-surface law, arch r3: the platform
        element paints nothing). -->
-  <div class="jx-pop-shadow jx-surface-shadow" aria-hidden="true"></div>
+  <div data-jx-pop-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
   <!-- the REAL shadow layer: a DOM child because pseudo-elements are
        unreachable from WAAPI — the kernel animates it in lockstep
        (Owner ruling r18) -->
-  <div class="jx-pop-body jx-surface-body">
+  <div data-jx-pop-body="" class="jx-surface-body">
     <div
-      class="jx-pop-scroll max-h-[72vh] overflow-auto [scrollbar-gutter:stable_both-edges] [padding:var(--jx-pop-pad,12px_14px)] [padding-inline:max(var(--jx-pop-pad-inline,14px)-var(--jx-scrollbar-thin,0px),0px)]"
+      data-jx-pop-scroll=""
+      class="max-h-[72vh] overflow-auto [scrollbar-gutter:stable_both-edges] [padding:var(--jx-pop-pad,12px_14px)] [padding-inline:max(var(--jx-pop-pad-inline,14px)-var(--jx-scrollbar-thin,0px),0px)]"
     >
       {@render children()}
     </div>

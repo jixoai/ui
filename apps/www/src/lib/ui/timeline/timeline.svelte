@@ -37,25 +37,27 @@
   let { items, body, class: className = '' }: Props = $props();
 </script>
 
-<ol class={cn('jx-timeline m-0 p-0 list-none', className)} role="list">
+<ol data-jx-timeline="" class={cn('m-0 p-0 list-none', className)} role="list">
   {#each items as item, index (index)}
-    <li class={cn('jx-tl-item relative flex gap-[0.875rem] pb-5 pl-5', item.pending && 'jx-tl-pending')}>
+    <li data-jx-tl-pending={item.pending ? '' : undefined} class={cn('jx-tl-item relative flex gap-[0.875rem] pb-5 pl-5')}>
       <span
+        data-jx-tl-dot=""
         class={cn(
-          'jx-tl-dot absolute left-0 top-[0.3125rem] w-2.5 h-2.5 box-border border border-primary',
+          'absolute left-0 top-[0.3125rem] w-2.5 h-2.5 box-border border border-primary',
           item.pending ? 'bg-transparent' : 'bg-primary',
         )}
         aria-hidden="true"
       ></span>
-      <div class="jx-tl-body flex flex-col gap-1 min-w-0">
+      <div data-jx-tl-body="" class="flex flex-col gap-1 min-w-0">
         {#if item.time}
-          <p class="jx-tl-time m-0 font-mono text-[0.6875rem] text-muted-foreground">
+          <p data-jx-tl-time="" class="m-0 font-mono text-[0.6875rem] text-muted-foreground">
             <time datetime={item.datetime || undefined}>{item.time}</time>
           </p>
         {/if}
         <p
+          data-jx-tl-title=""
           class={cn(
-            'jx-tl-title m-0 font-nav text-xs tracking-[0.08em] uppercase',
+            'm-0 font-nav text-xs tracking-[0.08em] uppercase',
             item.pending ? 'text-muted-foreground' : 'text-foreground',
           )}
         >{item.title}</p>

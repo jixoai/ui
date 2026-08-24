@@ -199,13 +199,13 @@
     if (!effect) return '';
     switch (effect.type) {
       case 'shimmer':
-        return 'jx-shimmer-host relative z-0';
+        return 'relative z-0';
       case 'pulse':
-        return 'jx-pulse-host relative z-0';
+        return 'relative z-0';
       case 'rainbow':
         return 'jx-rainbow-host relative z-0';
       case 'ripple':
-        return 'jx-ripple-host relative z-0';
+        return 'relative z-0';
     }
   });
   const effectStyle = $derived.by(() => {
@@ -298,6 +298,9 @@
     target={isExternal ? '_blank' : undefined}
     rel={isExternal ? 'noreferrer' : undefined}
     aria-label={ariaLabel}
+    data-jx-shimmer-host={effect?.type === 'shimmer' ? '' : undefined}
+    data-jx-pulse-host={effect?.type === 'pulse' ? '' : undefined}
+    data-jx-ripple-host={effect?.type === 'ripple' ? '' : undefined}
     class={classes}
     style={effectStyle || undefined}
     onclick={effect?.type === 'ripple' ? onRippleClick : undefined}
@@ -323,6 +326,9 @@
     {type}
     onclick={effect?.type === 'ripple' ? onRippleClick : onclick}
     aria-label={ariaLabel}
+    data-jx-shimmer-host={effect?.type === 'shimmer' ? '' : undefined}
+    data-jx-pulse-host={effect?.type === 'pulse' ? '' : undefined}
+    data-jx-ripple-host={effect?.type === 'ripple' ? '' : undefined}
     class={classes}
     style={effectStyle || undefined}
   >

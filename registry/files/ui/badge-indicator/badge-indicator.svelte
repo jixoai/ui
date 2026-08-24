@@ -14,7 +14,8 @@
   tw4 (2026-08-24): utility-authored, zero css residue. dot and count
   paint as two DETERMINISTIC utility strings (never two utilities for
   one property — the sheet's internal order must never be load-
-  bearing); the `jx-bi*` classes stay as semantic hooks only.
+  bearing); the hooks ride `data-jx-bi*` attributes (data-jx-hooks,
+  2026-08-25 — no css ever defined the classes).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -50,16 +51,19 @@
   // the 10px primary presence dot — standalone drops the corner offsets
   // (a bare span is position:static already)
   const chip = dot
-    ? 'jx-bi jx-bi-dot w-2.5 min-w-2.5 h-2.5 p-0 box-border inline-flex items-center justify-center border border-background bg-primary font-mono text-[0.625rem] leading-none rounded-(--radius)'
-    : 'jx-bi min-w-[1.125rem] h-[1.125rem] box-border px-1 py-0 inline-flex items-center justify-center border border-background bg-destructive text-destructive-foreground font-mono text-[0.625rem] leading-none rounded-(--radius)';
-  const placement = children ? 'absolute -top-1.5 -right-1.5' : 'jx-bi-standalone';
+    ? 'w-2.5 min-w-2.5 h-2.5 p-0 box-border inline-flex items-center justify-center border border-background bg-primary font-mono text-[0.625rem] leading-none rounded-(--radius)'
+    : 'min-w-[1.125rem] h-[1.125rem] box-border px-1 py-0 inline-flex items-center justify-center border border-background bg-destructive text-destructive-foreground font-mono text-[0.625rem] leading-none rounded-(--radius)';
+  const placement = children ? 'absolute -top-1.5 -right-1.5' : '';
 </script>
 
 {#if children}
-  <span class={cn('jx-bi-wrap relative inline-flex', className)}>
+  <span data-jx-bi-wrap class={cn('relative inline-flex', className)}>
     {@render children()}
     {#if visible}
       <span
+        data-jx-bi
+        data-jx-bi-dot={dot ? '' : undefined}
+        data-jx-bi-standalone={children ? undefined : ''}
         class={cn(chip, placement)}
         role={dot ? 'img' : undefined}
         aria-label={dot ? (label ?? 'new activity') : `${text}`}
@@ -69,6 +73,9 @@
   </span>
 {:else if visible}
   <span
+    data-jx-bi
+    data-jx-bi-dot={dot ? '' : undefined}
+    data-jx-bi-standalone={children ? undefined : ''}
     class={cn(chip, placement, className)}
     role={dot ? 'img' : undefined}
     aria-label={dot ? (label ?? 'new activity') : `${text}`}

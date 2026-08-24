@@ -346,9 +346,9 @@
   }
 </script>
 
-<div class="jx-date-field flex flex-col items-stretch gap-2 w-full">
+<div data-jx-date-field class="flex flex-col items-stretch gap-2 w-full">
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span class="jx-date-wrap relative block w-full" style="anchor-name: {anchorName}">
+  <span data-jx-date-wrap class="relative block w-full" style="anchor-name: {anchorName}">
     <button
       bind:this={triggerEl}
       type="button"
@@ -366,9 +366,11 @@
       onkeydown={onTriggerKeydown}
     >
       <span
+        data-jx-date-value
+        data-jx-date-placeholder={!hasValue ? '' : undefined}
         class={cn(
-          'jx-date-value flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-start',
-          !hasValue && 'jx-date-placeholder text-muted-foreground',
+          'flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-start',
+          !hasValue && 'text-muted-foreground',
         )}
       >{triggerText}</span>
       <svg
@@ -400,8 +402,8 @@
   >
     <!-- surface body (bezel paint + ::after shadow); the popover element
          paints nothing (floating-surface law arch r3) -->
-    <div class="jx-date-surface jx-surface-body px-3.5 py-3">
-    <div class="jx-date-nav flex items-center justify-between gap-2 -mb-2.5">
+    <div data-jx-date-surface class="jx-surface-body px-3.5 py-3">
+    <div data-jx-date-nav class="flex items-center justify-between gap-2 -mb-2.5">
       <button
         type="button"
         class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
@@ -413,7 +415,7 @@
           <path d="m15 18-6-6 6-6"></path>
         </svg>
       </button>
-      <span class="jx-date-month font-nav text-[11px] tracking-[0.2em] uppercase">{monthLabel}</span>
+      <span data-jx-date-month class="font-nav text-[11px] tracking-[0.2em] uppercase">{monthLabel}</span>
       <button
         type="button"
         class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
@@ -437,16 +439,16 @@
       aria-activedescendant={activeCellId}
       onkeydown={onGridKeydown}
     >
-      <div role="row" class="jx-date-headrow grid grid-cols-[repeat(7,2rem)] gap-0.5">
+      <div role="row" data-jx-date-headrow class="grid grid-cols-[repeat(7,2rem)] gap-0.5">
         {#each WEEKDAYS as wd, index (wd)}
-          <span role="columnheader" class="jx-date-weekday flex items-center justify-center h-6 font-nav text-[10px] tracking-[0.08em] uppercase text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]" aria-label={WEEKDAYS_FULL[index]}>{wd}</span>
+          <span role="columnheader" data-jx-date-weekday class="flex items-center justify-center h-6 font-nav text-[10px] tracking-[0.08em] uppercase text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]" aria-label={WEEKDAYS_FULL[index]}>{wd}</span>
         {/each}
       </div>
       {#each weeks as week}
-        <div role="row" class="jx-date-weekrow grid grid-cols-[repeat(7,2rem)] gap-0.5">
+        <div role="row" data-jx-date-weekrow class="grid grid-cols-[repeat(7,2rem)] gap-0.5">
           {#each week as cell (cell.iso)}
             {#if cell.out}
-              <div role="gridcell" class="jx-date-day jx-date-out inline-flex items-center justify-center w-8 h-8 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] tabular-nums leading-none cursor-default select-none opacity-35" aria-hidden="true">{cell.day}</div>
+              <div role="gridcell" data-jx-date-out class="jx-date-day inline-flex items-center justify-center w-8 h-8 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] tabular-nums leading-none cursor-default select-none opacity-35" aria-hidden="true">{cell.day}</div>
             {:else}
               <!-- cells are click-only BY PATTERN (select.svelte law): the
                    keyboard path rides the focusable grid + the
@@ -455,11 +457,13 @@
               <div
                 role="gridcell"
                 id={`${id}-d-${cell.iso}`}
+                data-jx-date-today={cell.today ? '' : undefined}
+                data-jx-date-in={inRange(cell.iso) ? '' : undefined}
                 class={cn(
                   'jx-date-day inline-flex items-center justify-center w-8 h-8 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] tabular-nums leading-none cursor-pointer select-none transition-[background-color,color] duration-100 ease-out',
-                  cell.today && 'jx-date-today border-primary',
+                  cell.today && 'border-primary',
                   isAnchor(cell.iso) && 'jx-date-fill bg-primary text-primary-foreground',
-                  inRange(cell.iso) && 'jx-date-in bg-[color-mix(in_oklab,var(--primary)_14%,transparent)]',
+                  inRange(cell.iso) && 'bg-[color-mix(in_oklab,var(--primary)_14%,transparent)]',
                   cell.disabled && 'jx-date-off opacity-30 cursor-not-allowed',
                   cell.iso === activeIso && 'jx-date-active',
                 )}
@@ -476,6 +480,6 @@
   </div>
 
   {#if invalid}
-    <p id={errorId} class="jx-error"><span class="jx-date-error-mark font-bold text-destructive" aria-hidden="true">!</span>{error}</p>
+    <p id={errorId} class="jx-error"><span data-jx-date-error-mark class="font-bold text-destructive" aria-hidden="true">!</span>{error}</p>
   {/if}
 </div>

@@ -99,8 +99,9 @@
 
 <div
   bind:this={listEl}
+  data-jx-tabs-list=""
   class={cn(
-    `jx-tabs-list jx-tabs-${orientation} flex items-stretch gap-0.5 box-border`,
+    `jx-tabs-${orientation} flex items-stretch gap-0.5 box-border`,
     orientation === 'vertical' ? 'flex-col border-r border-border' : 'border-b border-border',
     className,
   )}

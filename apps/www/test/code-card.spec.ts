@@ -114,11 +114,11 @@ describe('CodeCard', () => {
 
   it('renders the head only with filename/header and the default lang label', () => {
     const withFile = render(CodeCard, { props: { code: 'x', filename: 'a.ts' } });
-    expect(withFile.container.querySelector('.jx-code-card-file')!.textContent).toBe('a.ts');
-    expect(withFile.container.querySelector('.jx-code-card-lang')!.textContent).toBe('ts');
+    expect(withFile.container.querySelector('[data-jx-code-card-file]')!.textContent).toBe('a.ts');
+    expect(withFile.container.querySelector('[data-jx-code-card-lang]')!.textContent).toBe('ts');
 
     const bare = render(CodeCard, { props: { code: 'x', copyable: false } });
-    expect(bare.container.querySelector('.jx-code-card-head')).toBeNull();
-    expect(bare.container.querySelector('.jx-code-card-foot')).toBeNull();
+    expect(bare.container.querySelector('[data-jx-code-card-head]')).toBeNull();
+    expect(bare.container.querySelector('[data-jx-code-card-foot]')).toBeNull();
   });
 });

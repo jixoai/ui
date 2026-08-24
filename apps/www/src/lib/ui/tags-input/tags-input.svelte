@@ -348,11 +348,12 @@
     onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
   ></jx-form-field>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span class="jx-tags-wrap relative block w-full max-w-full" style="anchor-name: {anchorName}">
+  <span data-jx-tags-wrap class="relative block w-full max-w-full" style="anchor-name: {anchorName}">
     <div
+      data-jx-tags-invalid={invalid ? '' : undefined}
       class={cn(
         'jx-tags-shell flex flex-wrap items-center gap-1 w-full max-w-full min-h-10 px-3 py-1.5 border border-border rounded-none bg-background scheme-light dark:scheme-dark transition-[box-shadow] duration-150 ease-out',
-        invalid && 'jx-tags-invalid border-dashed',
+        invalid && 'border-dashed',
         className,
       )}
       role="listbox"
@@ -369,7 +370,7 @@
             tag.value === flashValue && 'jx-tags-flash border-primary animate-[jx-tags-shake_150ms_ease-in-out]',
           )}
         >
-          <span class="jx-tags-tag-label min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{tag.label ?? tag.value}</span>
+          <span data-jx-tags-tag-label class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{tag.label ?? tag.value}</span>
           {#if tag.removable !== false}
             <button
               type="button"
@@ -385,7 +386,7 @@
         </span>
       {/each}
       {#if full}
-        <span class="jx-tags-full text-muted-foreground text-xs leading-[1.625rem]">{tags.length}/{maxTags} tags</span>
+        <span data-jx-tags-full class="text-muted-foreground text-xs leading-[1.625rem]">{tags.length}/{maxTags} tags</span>
       {:else}
         <input
           bind:this={inputEl}
@@ -404,7 +405,8 @@
           autocomplete="off"
           autocapitalize="off"
           spellcheck="false"
-          class="jx-tags-input flex-[1_1_0%] min-w-[120px] min-h-[1.625rem] p-0 border-0 outline-none bg-transparent text-foreground text-sm leading-[1.45] placeholder:text-muted-foreground placeholder:opacity-100"
+          data-jx-tags-input
+          class="flex-[1_1_0%] min-w-[120px] min-h-[1.625rem] p-0 border-0 outline-none bg-transparent text-foreground text-sm leading-[1.45] placeholder:text-muted-foreground placeholder:opacity-100"
           {placeholder}
           disabled={isDisabled}
           oninput={onInput}
@@ -426,14 +428,15 @@
   >
     <!-- surface body (bezel paint + ::after shadow) + scroll ring
          (floating-surface law arch r3) -->
-    <div class="jx-tags-panel-body jx-surface-body">
-    <div class="jx-tags-scroll max-h-[60vh] overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-1 px-[max(4px_-_var(--jx-scrollbar-thin,0px),0px)]">
+    <div data-jx-tags-panel-body class="jx-surface-body">
+    <div data-jx-tags-scroll class="max-h-[60vh] overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-1 px-[max(4px_-_var(--jx-scrollbar-thin,0px),0px)]">
     {#if filtered.length > 0}
       <!-- mousedown is prevented so click-to-choose never blurs the input
            into a premature blur-commit -->
       <ul
         id={listboxId}
-        class="jx-tags-list m-0 p-0 list-none"
+        data-jx-tags-list
+        class="m-0 p-0 list-none"
         role="listbox"
         aria-label={label ? `${label} suggestions` : 'suggestions'}
         onmousedown={(event) => event.preventDefault()}
@@ -447,9 +450,10 @@
             id={suggestionId(index)}
             role="option"
             aria-selected={tags.some((tag) => tag.value === suggestion.value) ? 'true' : 'false'}
+            data-jx-tags-suggestion-active={index === active ? '' : undefined}
             class={cn(
               'jx-tags-suggestion px-[10px] py-[6px] text-[13px] leading-[1.45] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
-              index === active && 'jx-tags-suggestion-active bg-terminal-hover text-terminal-foreground',
+              index === active && 'bg-terminal-hover text-terminal-foreground',
               tags.some((tag) => tag.value === suggestion.value) && 'bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
             )}
             onclick={() => addTag(suggestion)}

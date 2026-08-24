@@ -133,21 +133,22 @@
 >
   <!-- surface body (fill + ::after shadow) wraps ALL content; the
        <dialog> paints nothing (floating-surface law arch r3) -->
-  <div class="jx-adlg-shadow jx-surface-shadow" aria-hidden="true"></div>
-  <div class="jx-adlg-surface jx-surface-body">
-  <div class="jx-adlg-body flex flex-col gap-2.5 px-5 py-[1.125rem]">
-    <h2 id="jx-adlg-title" class="jx-adlg-title font-nav text-[0.9375rem] tracking-[0.08em] uppercase text-foreground">{title}</h2>
-    <p id="jx-adlg-desc" class="jx-adlg-desc text-[0.8125rem] leading-[1.6] text-muted-foreground">{description}</p>
+  <div data-jx-adlg-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
+  <div data-jx-adlg-surface="" class="jx-surface-body">
+  <div data-jx-adlg-body="" class="flex flex-col gap-2.5 px-5 py-[1.125rem]">
+    <h2 id="jx-adlg-title" data-jx-adlg-title="" class="font-nav text-[0.9375rem] tracking-[0.08em] uppercase text-foreground">{title}</h2>
+    <p id="jx-adlg-desc" data-jx-adlg-desc="" class="text-[0.8125rem] leading-[1.6] text-muted-foreground">{description}</p>
     {#if children}
-      <div class="jx-adlg-extra text-[0.8125rem] leading-[1.6] text-muted-foreground">
+      <div data-jx-adlg-extra="" class="text-[0.8125rem] leading-[1.6] text-muted-foreground">
         {@render children()}
       </div>
     {/if}
   </div>
-  <div class="jx-adlg-actions flex justify-end gap-2.5 px-5 py-3.5 border-t border-border">
+  <div data-jx-adlg-actions="" class="flex justify-end gap-2.5 px-5 py-3.5 border-t border-border">
     <button
       type="button"
-      class="jx-press jx-adlg-cancel appearance-none px-4 py-2 border border-border bg-background text-foreground font-nav text-xs tracking-[0.1em] uppercase cursor-pointer [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      data-jx-adlg-cancel=""
+      class="jx-press appearance-none px-4 py-2 border border-border bg-background text-foreground font-nav text-xs tracking-[0.1em] uppercase cursor-pointer [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
       bind:this={cancelEl}
       onclick={shut}
     >
@@ -155,10 +156,12 @@
     </button>
     <button
       type="button"
+      data-jx-adlg-confirm=""
+      data-jx-adlg-confirm-destructive={confirmTone === 'destructive' ? '' : undefined}
       class={cn(
-        'jx-press jx-adlg-confirm appearance-none px-4 py-2 border bg-background text-foreground font-nav text-xs tracking-[0.1em] uppercase cursor-pointer [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
+        'jx-press appearance-none px-4 py-2 border bg-background text-foreground font-nav text-xs tracking-[0.1em] uppercase cursor-pointer [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
         confirmTone === 'destructive'
-          ? 'jx-adlg-confirm-destructive border-destructive bg-destructive text-destructive-foreground'
+          ? 'border-destructive bg-destructive text-destructive-foreground'
           : 'border-primary text-primary',
       )}
       onclick={confirm}

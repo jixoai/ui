@@ -139,7 +139,7 @@ describe('NavigationMenu', () => {
     expect(triggers.length).toBe(2);
     // the current section is a PANEL trigger (button), marked aria-current
     expect(nav.querySelector('[aria-current="true"]')!.textContent).toBe('components');
-    const link = nav.querySelector('a.jx-navmenu-link')!;
+    const link = nav.querySelector('a[data-jx-navmenu-link]')!;
     expect(link.textContent).toBe('docs');
     expect(link.getAttribute('aria-current')).toBeNull();
     const stops = triggers.filter((t) => t.tabIndex === 0);

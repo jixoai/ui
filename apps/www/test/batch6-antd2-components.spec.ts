@@ -84,7 +84,7 @@ describe('Transfer', () => {
     ) as HTMLInputElement;
     await fireEvent.input(search, { target: { value: 'zzz' } });
     expect(checkboxes('source').length).toBe(0);
-    expect(rendered.container.querySelectorAll('.jx-tr-empty').length).toBe(1);
+    expect(rendered.container.querySelectorAll('[data-jx-tr-empty]').length).toBe(1);
   });
 
   it('a named transfer submits its target list (REAL FormData)', async () => {
@@ -194,7 +194,7 @@ describe('Image', () => {
       props: { src: '/broken.png', alt: 'x', width: 10, height: 10 },
     });
     await fireEvent(rendered.container.querySelector('img')!, new Event('error'));
-    expect(rendered.container.querySelector('.jx-image-broken')).toBeTruthy();
+    expect(rendered.container.querySelector('[data-jx-image-broken]')).toBeTruthy();
     expect(rendered.container.querySelector('img')).toBeNull();
   });
 
@@ -204,7 +204,7 @@ describe('Image', () => {
     });
     await fireEvent(container.querySelector('img')!, new Event('error'));
     // decorative stays decorative: hidden, unnamed — never read out
-    const span = container.querySelector('.jx-image-broken')!;
+    const span = container.querySelector('[data-jx-image-broken]')!;
     expect(span.getAttribute('aria-hidden')).toBe('true');
     expect(span.getAttribute('role')).toBeNull();
   });
@@ -214,7 +214,7 @@ describe('Image', () => {
       props: { src: '/c.png', alt: 'diagram', width: 320, height: 180 },
     });
     await fireEvent(container.querySelector('img')!, new Event('error'));
-    const span = container.querySelector('.jx-image-broken')!;
+    const span = container.querySelector('[data-jx-image-broken]')!;
     expect(span.getAttribute('role')).toBe('img');
     expect(span.getAttribute('aria-label')).toBe('image unavailable');
     expect(span.getAttribute('style')).toContain('320px');
@@ -231,7 +231,7 @@ describe('FloatButton', () => {
       props: { label: 'compose', children: undefined },
     });
     const btn = container.querySelector('button[aria-label="compose"]')!;
-    expect(btn.className).toContain('jx-fab-bottom-right');
+    expect(btn.className).getAttribute('data-jx-fab') === 'bottom-right';
   });
 
   it('menu idiom wires popovertarget + haspopup + controls', () => {
@@ -250,13 +250,13 @@ describe('FloatButton', () => {
 describe('BadgeIndicator', () => {
   it('count renders capped at overflow; zero hides honestly', () => {
     const a = render(BadgeIndicator, { props: { count: 5 } });
-    expect(a.container.querySelector('.jx-bi-standalone')!.getAttribute('aria-label')).toBe('5');
+    expect(a.container.querySelector('[data-jx-bi-standalone]')!.getAttribute('aria-label')).toBe('5');
     const b = render(BadgeIndicator, { props: { count: 250 } });
-    expect(b.container.querySelector('.jx-bi-standalone')!.textContent).toBe('99+');
+    expect(b.container.querySelector('[data-jx-bi-standalone]')!.textContent).toBe('99+');
     const c = render(BadgeIndicator, { props: { count: 0 } });
-    expect(c.container.querySelector('.jx-bi')).toBeNull();
+    expect(c.container.querySelector('[data-jx-bi]')).toBeNull();
     const d = render(BadgeIndicator, { props: { count: 0, showZero: true } });
-    expect(d.container.querySelector('.jx-bi-standalone')).toBeTruthy();
+    expect(d.container.querySelector('[data-jx-bi-standalone]')).toBeTruthy();
   });
 
   it('count mode renders the VISIBLE digit on a child (walkthrough-3 P2)', async () => {
@@ -266,7 +266,7 @@ describe('BadgeIndicator', () => {
     // children: undefined hits standalone in jsdom — use the host fixture
     // path instead: the wrap branch is covered by the page demo; here we
     // assert the class wiring the demo relies on
-    expect(container.querySelector('.jx-bi')).toBeTruthy();
+    expect(container.querySelector('[data-jx-bi]')).toBeTruthy();
   });
 
   it('dot mode rides a child with an accessible name', () => {
@@ -274,6 +274,6 @@ describe('BadgeIndicator', () => {
       props: { dot: true, label: '2 unread', children: undefined },
     });
     // standalone dot carries the name
-    expect(container.querySelector('.jx-bi-dot')!.getAttribute('aria-label')).toBe('2 unread');
+    expect(container.querySelector('[data-jx-bi-dot]')!.getAttribute('aria-label')).toBe('2 unread');
   });
 });

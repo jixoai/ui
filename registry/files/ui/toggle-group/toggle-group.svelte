@@ -115,14 +115,15 @@
   onjx-reset={() => ((value = type === 'single' ? '' : []), undefined)}
 ></jx-form-field>
 
-<div class={cn('jx-tgroup inline-flex flex-wrap border border-border rounded-(--radius) bg-card shadow-2xs w-fit', className)} role="group" aria-label={label}>
+<div data-jx-tgroup class={cn('inline-flex flex-wrap border border-border rounded-(--radius) bg-card shadow-2xs w-fit', className)} role="group" aria-label={label}>
     {#each options as option (option.value)}
       <button
         type="button"
+        data-jx-tgroup={isActive(option) ? 'on' : undefined}
         class={cn(
           'jx-tgroup-btn appearance-none cursor-pointer px-[0.875rem] py-[0.4375rem] border-r border-border font-nav text-xs tracking-[0.1em] uppercase last:border-r-0 transition-[color,background-color] duration-150 ease-out',
           isActive(option)
-            ? 'jx-tgroup-on bg-primary text-primary-foreground hover:not-disabled:text-primary-foreground'
+            ? 'bg-primary text-primary-foreground hover:not-disabled:text-primary-foreground'
             : 'bg-transparent text-muted-foreground hover:not-disabled:text-foreground',
           'disabled:opacity-45 disabled:cursor-not-allowed',
         )}

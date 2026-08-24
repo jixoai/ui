@@ -274,7 +274,7 @@ ${close}
             </fieldset>
           </div>
           <div class="jx-play-field">
-            <fieldset class="jx-play-try">
+            <fieldset data-jx-play-try>
               <legend>position-try</legend>
               <div class="jx-try-grid" role="group" aria-label="position-try candidates">
                 {#each TRY_CELLS as cell (cell.id)}

@@ -494,7 +494,8 @@
      not an interactive control; hover/focus intent is decoration riding
      over whatever focusable trigger the consumer composed inside -->
 <span
-  class={cn('jx-tip-anchor inline-flex', className)}
+  data-jx-tip-anchor=""
+  class={cn('inline-flex', className)}
   style="anchor-name: {anchorName}"
   aria-describedby={id}
   bind:this={anchorEl}

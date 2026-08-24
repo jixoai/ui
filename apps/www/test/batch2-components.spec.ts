@@ -32,7 +32,7 @@ describe('Progress', () => {
     expect(bar.getAttribute('max')).toBe('1'); // the element's spec default
     expect(bar.textContent).toBe('42%'); // fallback content for old engines
     expect(container.querySelector('[role="status"]')?.textContent).toBe('42%');
-    expect(container.querySelector('.jx-progress-label')?.textContent).toBe('sync');
+    expect(container.querySelector('[data-jx-progress-label]')?.textContent).toBe('sync');
   });
 
   it('clamps the readout at both bounds (negative and >max)', () => {
@@ -56,7 +56,7 @@ describe('Progress', () => {
 describe('Tooltip', () => {
   function setup() {
     const rendered = render(TooltipHost);
-    const anchor = rendered.container.querySelector('.jx-tip-anchor') as HTMLElement;
+    const anchor = rendered.container.querySelector('[data-jx-tip-anchor]') as HTMLElement;
     const panel = rendered.container.querySelector('[role="tooltip"]') as HTMLElement;
     return { anchor, panel };
   }
@@ -81,7 +81,7 @@ describe('Tooltip', () => {
     vi.useFakeTimers();
     try {
       const rendered = render(TooltipHost);
-      const anchor = rendered.container.querySelector('.jx-tip-anchor') as HTMLElement;
+      const anchor = rendered.container.querySelector('[data-jx-tip-anchor]') as HTMLElement;
       await fireEvent(anchor, new PointerEvent('pointerenter', { bubbles: true }));
       rendered.unmount();
       await vi.advanceTimersByTimeAsync(600);
@@ -99,7 +99,7 @@ describe('Tooltip', () => {
 
     // opt-in delay: still closed right after enter, open after the window
     const delayed = render(TooltipHost, { props: { openDelay: 150 } });
-    const dAnchor = delayed.container.querySelector('.jx-tip-anchor') as HTMLElement;
+    const dAnchor = delayed.container.querySelector('[data-jx-tip-anchor]') as HTMLElement;
     const dPanel = delayed.container.querySelector('[role="tooltip"]') as HTMLElement;
     vi.useFakeTimers();
     try {
@@ -213,7 +213,7 @@ describe('Pagination', () => {
 
   it('prev/next walk; at the bounds they become honest disabled spans', () => {
     const { nav, links } = setup(1, 20);
-    const prev = nav.querySelector('.jx-page-edge')!;
+    const prev = nav.querySelector('[data-jx-page-edge]')!;
     expect(prev.tagName).toBe('SPAN'); // no dead link at page 1
     expect(prev.getAttribute('aria-disabled')).toBe('true');
     const next = links.find((a) => a.textContent === 'next ›')!;
@@ -222,7 +222,7 @@ describe('Pagination', () => {
 
   it('ellipses are decoration only (aria-hidden)', () => {
     const { nav } = setup(10, 30);
-    for (const gap of nav.querySelectorAll('.jx-page-gap')) {
+    for (const gap of nav.querySelectorAll('[data-jx-page-gap]')) {
       expect(gap.getAttribute('aria-hidden')).toBe('true');
     }
   });

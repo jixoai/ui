@@ -169,11 +169,11 @@
   onjx-disabled={(e: CustomEvent<boolean>) => (formDisabled = e.detail)}
 ></jx-form-field>
 
-<div class={cn('jx-otp flex flex-col gap-1.5 w-fit', className)} role="group" aria-label={label ?? 'one-time code'}>
+<div data-jx-otp class={cn('flex flex-col gap-1.5 w-fit', className)} role="group" aria-label={label ?? 'one-time code'}>
     {#if label}
-      <label class="jx-otp-label font-nav text-xs tracking-[0.1em] uppercase text-muted-foreground" for="{id}-0">{label}</label>
+      <label data-jx-otp-label class="font-nav text-xs tracking-[0.1em] uppercase text-muted-foreground" for="{id}-0">{label}</label>
     {/if}
-    <div class="jx-otp-slots flex gap-1.5" onfocusin={handleFocusIn}>
+    <div data-jx-otp-slots class="flex gap-1.5" onfocusin={handleFocusIn}>
       {#each chars as ch, index (index)}
         <input
           id="{id}-{index}"
@@ -181,11 +181,13 @@
           inputmode={numeric ? 'numeric' : 'text'}
           autocomplete={index === 0 ? 'one-time-code' : undefined}
           maxlength={slots}
+          data-jx-otp-filled={ch !== '' ? '' : undefined}
+          data-jx-otp-invalid={!!error ? '' : undefined}
           class={cn(
             'jx-otp-slot box-border w-[2.375rem] h-[2.75rem] p-0 border border-border bg-background text-foreground font-mono text-lg text-center rounded-(--radius) caret-primary disabled:opacity-50 disabled:cursor-not-allowed',
-            ch !== '' && 'jx-otp-filled border-foreground',
+            ch !== '' && 'border-foreground',
             complete && 'jx-otp-complete border-primary',
-            !!error && 'jx-otp-invalid border-destructive border-dashed',
+            !!error && 'border-destructive border-dashed',
           )}
           disabled={isDisabled}
           aria-invalid={error ? 'true' : undefined}
@@ -199,6 +201,6 @@
       {/each}
     </div>
     {#if error}
-      <p id={errorId} class="jx-otp-error m-0 flex items-center gap-1.5 text-xs text-destructive"><span aria-hidden="true">!</span>{error}</p>
+      <p id={errorId} data-jx-otp-error class="m-0 flex items-center gap-1.5 text-xs text-destructive"><span aria-hidden="true">!</span>{error}</p>
     {/if}
   </div>

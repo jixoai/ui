@@ -105,7 +105,7 @@ describe('Tour', () => {
     flushSync();
     const first = rendered.container.querySelector('[data-tour-step1]') as HTMLElement;
 
-    await fireEvent.click(rendered.container.querySelector('.jx-tour-next')!);
+    await fireEvent.click(rendered.container.querySelector('[data-jx-tour-next]')!);
     flushSync();
     // the old lease is RESTORED (was absent originally → removed)
     expect(first.style.anchorName).toBe('');
@@ -113,7 +113,7 @@ describe('Tour', () => {
     const second = rendered.container.querySelector('[data-tour-step2]') as HTMLElement;
     expect(second.style.anchorName).toContain('--jx-tour-');
     // progress meta follows
-    expect(rendered.container.querySelector('.jx-tour-meta')!.textContent).toContain('2 / 2');
+    expect(rendered.container.querySelector('[data-jx-tour-meta]')!.textContent).toContain('2 / 2');
   });
 
   it('finishing on the last step restores the invoker focus + releases', async () => {
@@ -122,9 +122,9 @@ describe('Tour', () => {
     opener.focus();
     await fireEvent.click(opener);
     flushSync();
-    await fireEvent.click(rendered.container.querySelector('.jx-tour-next')!);
+    await fireEvent.click(rendered.container.querySelector('[data-jx-tour-next]')!);
     flushSync();
-    const finishBtn = rendered.container.querySelector('.jx-tour-next') as HTMLButtonElement;
+    const finishBtn = rendered.container.querySelector('[data-jx-tour-next]') as HTMLButtonElement;
     expect(finishBtn.textContent).toContain('Finish');
     await fireEvent.click(finishBtn);
     flushSync();
@@ -144,7 +144,7 @@ describe('Tour', () => {
     await fireEvent.click(rendered.container.querySelector('[data-tour-open]')!);
     flushSync();
     // step1 hidden → the tour entered at step2 directly
-    expect(rendered.container.querySelector('.jx-tour-meta')!.textContent).toContain('2 / 2');
+    expect(rendered.container.querySelector('[data-jx-tour-meta]')!.textContent).toContain('2 / 2');
     const second = rendered.container.querySelector('[data-tour-step2]') as HTMLElement;
     expect(second.style.anchorName).toContain('--jx-tour-');
   });
@@ -174,7 +174,7 @@ describe('Tour', () => {
     await fireEvent.click(rendered.container.querySelector('[data-tour-open]')!);
     await new Promise(requestAnimationFrame);
     await new Promise(requestAnimationFrame);
-    const next = rendered.container.querySelector('.jx-tour-next') as HTMLButtonElement;
+    const next = rendered.container.querySelector('[data-jx-tour-next]') as HTMLButtonElement;
     expect(document.activeElement).toBe(next);
   });
 
@@ -185,7 +185,7 @@ describe('Tour', () => {
     await fireEvent.click(rendered.container.querySelector('[data-tour-open]')!);
     flushSync();
     expect(first.style.anchorName).toContain('--jx-tour-'); // leased over
-    await fireEvent.click(rendered.container.querySelector('.jx-tour-next')!);
+    await fireEvent.click(rendered.container.querySelector('[data-jx-tour-next]')!);
     flushSync();
     expect(first.style.anchorName).toBe('--consumer-owned'); // restored verbatim
   });
@@ -194,10 +194,10 @@ describe('Tour', () => {
     const rendered = render(TourHost, { props: { skipFirst: true } });
     await fireEvent.click(rendered.container.querySelector('[data-tour-open]')!);
     flushSync();
-    expect(rendered.container.querySelector('.jx-tour-meta')!.textContent).toContain('2 / 2');
+    expect(rendered.container.querySelector('[data-jx-tour-meta]')!.textContent).toContain('2 / 2');
     // step2's Back is disabled (step1 unavailable behind it) — prev
     // cannot strand the user on a hidden step
-    const back = rendered.container.querySelector('.jx-tour-btn') as HTMLButtonElement;
+    const back = rendered.container.querySelector('[data-jx-tour-btn]') as HTMLButtonElement;
     expect(back.disabled).toBe(true);
   });
 
@@ -219,12 +219,12 @@ describe('Tour', () => {
       },
     });
     flushSync();
-    expect(rendered.container.querySelector('.jx-tour-meta')!.textContent).toContain('3 / 3');
+    expect(rendered.container.querySelector('[data-jx-tour-meta]')!.textContent).toContain('3 / 3');
     const dlg = rendered.container.querySelector('[role="dialog"]') as HTMLElement;
     await fireEvent.keyDown(dlg, { key: 'ArrowLeft' });
     flushSync();
     // skipped BACKWARD over the missing middle → step 1, still open
-    expect(rendered.container.querySelector('.jx-tour-meta')!.textContent).toContain('1 / 3');
+    expect(rendered.container.querySelector('[data-jx-tour-meta]')!.textContent).toContain('1 / 3');
     expect(rendered.container.querySelector('[role="dialog"]')).toBeTruthy();
     // ArrowLeft at the earliest step is a no-op (never a finish)
     await fireEvent.keyDown(dlg, { key: 'ArrowLeft' });

@@ -32,19 +32,20 @@
   const trendColor = { up: 'text-primary', down: 'text-destructive' } as const;
 </script>
 
-<div class={cn('jx-stat flex flex-col gap-1', className)}>
-  <p class="jx-stat-title font-nav text-[0.6875rem] tracking-[0.14em] uppercase text-muted-foreground">{title}</p>
-  <p class="jx-stat-value flex items-baseline gap-1.5 text-foreground">
-    {#if prefix}<span class="jx-stat-affix text-[0.8125rem] text-muted-foreground">{@render prefix()}</span>{/if}
-    <span class="jx-stat-num font-mono text-[1.75rem] leading-[1.1] tabular-nums tracking-[-0.02em]">{value}</span>
+<div data-jx-stat="" class={cn('flex flex-col gap-1', className)}>
+  <p data-jx-stat-title="" class="font-nav text-[0.6875rem] tracking-[0.14em] uppercase text-muted-foreground">{title}</p>
+  <p data-jx-stat-value="" class="flex items-baseline gap-1.5 text-foreground">
+    {#if prefix}<span data-jx-stat-affix="" class="text-[0.8125rem] text-muted-foreground">{@render prefix()}</span>{/if}
+    <span data-jx-stat-num="" class="font-mono text-[1.75rem] leading-[1.1] tabular-nums tracking-[-0.02em]">{value}</span>
     {#if trend}
       <span
-        class={cn(`jx-stat-trend jx-stat-trend-${trend} text-xs`, trendColor[trend])}
+        data-jx-stat-trend={trend}
+        class={cn('text-xs', trendColor[trend])}
         aria-label="trend {trend}"
       >
         {trend === 'up' ? '▲' : '▼'}
       </span>
     {/if}
-    {#if suffix}<span class="jx-stat-affix text-[0.8125rem] text-muted-foreground">{@render suffix()}</span>{/if}
+    {#if suffix}<span data-jx-stat-affix="" class="text-[0.8125rem] text-muted-foreground">{@render suffix()}</span>{/if}
   </p>
 </div>

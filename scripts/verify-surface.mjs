@@ -87,14 +87,14 @@ for (const theme of ['light', 'dark']) {
     }, variant);
     await page.evaluate(() => (document.querySelector('.jx-shell-body').scrollTop = 0));
     await page.waitForTimeout(250);
-    await page.click('button.jx-pop-trigger[popovertarget="canvas-pop"]');
+    await page.click('button[data-jx-pop-trigger][popovertarget="canvas-pop"]');
     await page.waitForTimeout(650);
     const r = await page.evaluate(() => {
       const panel = document.getElementById('canvas-pop');
-      const body = panel.querySelector('.jx-pop-body');
+      const body = panel.querySelector('[data-jx-pop-body]');
       const pcs = getComputedStyle(panel);
       const bcs = getComputedStyle(body);
-      const shadow = panel.querySelector('.jx-pop-shadow');
+      const shadow = panel.querySelector('[data-jx-pop-shadow]');
       const scs = shadow ? getComputedStyle(shadow) : null;
       return {
         panel: { bg: pcs.backgroundColor, filter: pcs.backdropFilter },
@@ -120,17 +120,17 @@ for (const theme of ['light', 'dark']) {
   const page = await openPopoverPage('light');
   await page.evaluate(() => (document.querySelector('.jx-shell-body').scrollTop = 0));
   await page.waitForTimeout(250);
-  await page.click('button.jx-pop-trigger[popovertarget="canvas-pop"]');
+  await page.click('button[data-jx-pop-trigger][popovertarget="canvas-pop"]');
   const frames = await page.evaluate(async () => {
     const panel = document.getElementById('canvas-pop');
-    const body = panel.querySelector('.jx-pop-body');
+    const body = panel.querySelector('[data-jx-pop-body]');
     const out = [];
     for (let i = 0; i < 11; i++) {
       out.push({
         t: getComputedStyle(panel).translate,
         op: Number(getComputedStyle(panel).opacity),
         f: getComputedStyle(panel).filter,
-        at: (panel.querySelector('.jx-pop-shadow') ? getComputedStyle(panel.querySelector('.jx-pop-shadow')).translate : 'none'),
+        at: (panel.querySelector('[data-jx-pop-shadow]') ? getComputedStyle(panel.querySelector('[data-jx-pop-shadow]')).translate : 'none'),
         bg: lastAlphaOf(getComputedStyle(body).backgroundColor),
       });
       await new Promise((r) => setTimeout(r, 42));
@@ -168,19 +168,19 @@ for (const theme of ['light', 'dark']) {
   const page = await openPopoverPage('light');
   await page.evaluate(() => (document.querySelector('.jx-shell-body').scrollTop = 0));
   await page.waitForTimeout(250);
-  await page.click('button.jx-pop-trigger[popovertarget="canvas-pop"]');
+  await page.click('button[data-jx-pop-trigger][popovertarget="canvas-pop"]');
   await page.waitForTimeout(700);
   await page.mouse.click(640, 700);
   const frames = await page.evaluate(async () => {
     const panel = document.getElementById('canvas-pop');
-    const body = panel.querySelector('.jx-pop-body');
+    const body = panel.querySelector('[data-jx-pop-body]');
     const out = [];
     for (let i = 0; i < 10; i++) {
       out.push({
         t: getComputedStyle(panel).translate,
         op: Number(getComputedStyle(panel).opacity),
         f: getComputedStyle(panel).filter,
-        at: (panel.querySelector('.jx-pop-shadow') ? getComputedStyle(panel.querySelector('.jx-pop-shadow')).translate : 'none'),
+        at: (panel.querySelector('[data-jx-pop-shadow]') ? getComputedStyle(panel.querySelector('[data-jx-pop-shadow]')).translate : 'none'),
         bg: (() => { const m = /\/\s*([\d.]+)\)/.exec(getComputedStyle(body).backgroundColor); return m ? Number(m[1]) : 1; })(),
       });
       await new Promise((r) => setTimeout(r, 42));
@@ -208,7 +208,7 @@ for (const theme of ['light', 'dark']) {
     const midPage = await openPopoverPage('light');
     await midPage.evaluate(() => (document.querySelector('.jx-shell-body').scrollTop = 0));
     await midPage.waitForTimeout(250);
-    await midPage.click('button.jx-pop-trigger[popovertarget="canvas-pop"]');
+    await midPage.click('button[data-jx-pop-trigger][popovertarget="canvas-pop"]');
     await midPage.waitForTimeout(110); // inside phase A
     // sample the LIVE state right BEFORE the close (the continuity
     // baseline — Codex r2: post-close-only sampling proves nothing)
@@ -249,10 +249,10 @@ for (const theme of ['light', 'dark']) {
   // (with the nine-grid try chain a plain scrollTop=0 leaves room and
   // the panel simply stays below — no flip to measure)
   await page.evaluate(() =>
-    document.querySelector('button.jx-pop-trigger[popovertarget="canvas-pop"]').scrollIntoView({ block: 'end' }),
+    document.querySelector('button[data-jx-pop-trigger][popovertarget="canvas-pop"]').scrollIntoView({ block: 'end' }),
   );
   await page.waitForTimeout(250);
-  await page.click('button.jx-pop-trigger[popovertarget="canvas-pop"]');
+  await page.click('button[data-jx-pop-trigger][popovertarget="canvas-pop"]');
   await page.waitForTimeout(650);
   const up = await page.evaluate(() => {
     const p = document.getElementById('canvas-pop');
@@ -261,10 +261,10 @@ for (const theme of ['light', 'dark']) {
   await page.keyboard.press('Escape');
   await page.waitForTimeout(600);
   await page.evaluate(() =>
-    document.querySelector('button.jx-pop-trigger[popovertarget="canvas-pop"]').scrollIntoView({ block: 'start' }),
+    document.querySelector('button[data-jx-pop-trigger][popovertarget="canvas-pop"]').scrollIntoView({ block: 'start' }),
   );
   await page.waitForTimeout(250);
-  await page.click('button.jx-pop-trigger[popovertarget="canvas-pop"]');
+  await page.click('button[data-jx-pop-trigger][popovertarget="canvas-pop"]');
   await page.waitForTimeout(650);
   const down = await page.evaluate(() => {
     const p = document.getElementById('canvas-pop');

@@ -12,14 +12,14 @@
  *   and hero-section inline SVGs).
  * - aria-hidden="true" baked in: these are ALWAYS decorative; meaning
  *   lives in the surrounding text or the control's aria-label.
- * - class="jx-icon" for consumer CSS targeting (`.foo svg` also works).
+ * - data-jx-icon for consumer targeting (`.foo svg` also works).
  * - Sizing: consumers override width/height through CSS when a row is
  *   tighter than 16px (tags chip ×, tree caret) — never by editing here.
  */
 
 /** shared opening tag — every icon below only differs in its paths */
 const svg = (paths: string): string =>
-  `<svg class="jx-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+  `<svg data-jx-icon viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
 
 export const arrowRight = svg('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>');
 export const chevronDown = svg('<path d="m6 9 6 6 6-6"/>');

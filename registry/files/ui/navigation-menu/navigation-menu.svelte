@@ -151,7 +151,8 @@
      interactive elements -->
 <nav
   bind:this={barEl}
-  class={cn('jx-navmenu flex flex-wrap items-stretch gap-1', className)}
+  data-jx-navmenu=""
+  class={cn('flex flex-wrap items-stretch gap-1', className)}
   aria-label={label}
   onkeydown={handleKeydown}
   onpointerleave={leaveBar}
@@ -159,7 +160,8 @@
   {#each items as item (item.id)}
     {#if item.hasPanel}
       <span
-        class="jx-navmenu-slot inline-flex"
+        data-jx-navmenu-slot=""
+        class="inline-flex"
         style="anchor-name: {anchorOf(item.id)}"
         onpointerenter={() => hoverIntent(item.id)}
       >
@@ -186,7 +188,8 @@
       </span>
     {:else if item.href}
       <a
-        class={cn('jx-navmenu-link', itemPaint, item.current ? 'text-primary' : 'text-muted-foreground hover:text-foreground')}
+        class={cn(itemPaint, item.current ? 'text-primary' : 'text-muted-foreground hover:text-foreground')}
+        data-jx-navmenu-link=""
         href={item.href}
         aria-current={item.current ? 'page' : undefined}
       >
@@ -223,7 +226,7 @@
   >
     <!-- surface body (fill + ::after shadow); the popover element paints
          nothing (floating-surface law arch r3) -->
-    <div class="jx-navmenu-surface jx-surface-body px-[0.875rem] py-3">
+    <div data-jx-navmenu-surface="" class="jx-surface-body px-[0.875rem] py-3">
       {#if panel}
         {@render panel(item)}
       {/if}

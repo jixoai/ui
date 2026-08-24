@@ -91,15 +91,17 @@
   }
 </script>
 
-<nav class={cn('jx-anchor', className)} aria-label={label}>
+<nav data-jx-anchor="" class={className} aria-label={label}>
   <ol class="m-0 flex list-none flex-col gap-0.5 border-l border-border p-0" role="list">
     {#each items as item (item.href)}
       <li>
         <a
+          data-jx-anchor-link=""
+          data-jx-anchor-active={activeId === item.href.slice(1) ? '' : undefined}
           class={cn(
-            'jx-anchor-link -ml-px block border-l-2 py-[0.3125rem] px-3 font-nav text-xs uppercase tracking-[0.08em] no-underline transition-[color,border-color] duration-150 ease-out hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+            '-ml-px block border-l-2 py-[0.3125rem] px-3 font-nav text-xs uppercase tracking-[0.08em] no-underline transition-[color,border-color] duration-150 ease-out hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
             activeId === item.href.slice(1)
-              ? 'jx-anchor-active border-l-primary text-foreground'
+              ? 'border-l-primary text-foreground'
               : 'border-l-transparent text-muted-foreground',
           )}
           href={item.href}

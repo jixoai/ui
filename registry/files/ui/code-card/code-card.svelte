@@ -177,16 +177,17 @@
 >
   {#if filename || header}
     <figcaption
-      class="jx-code-card-head flex items-center gap-3 min-w-0 px-3 py-[0.32rem] text-[11px] tracking-[0.08em] bg-[color:var(--readonly-code-meta-bg)] border-b border-[color:var(--readonly-code-border)] text-[color:var(--readonly-code-meta-fg)]"
+      data-jx-code-card-head
+      class="flex items-center gap-3 min-w-0 px-3 py-[0.32rem] text-[11px] tracking-[0.08em] bg-[color:var(--readonly-code-meta-bg)] border-b border-[color:var(--readonly-code-border)] text-[color:var(--readonly-code-meta-fg)]"
     >
       {#if filename}
-        <span class="jx-code-card-file font-nav truncate">{filename}</span>
+        <span data-jx-code-card-file class="font-nav truncate">{filename}</span>
       {/if}
-      <span class="jx-code-card-side flex items-center ml-auto min-w-0">
+      <span data-jx-code-card-side class="flex items-center ml-auto min-w-0">
         {#if header}
           {@render header()}
         {:else}
-          <span class="jx-code-card-lang tracking-[0.14em] opacity-75 uppercase whitespace-nowrap">{lang}</span>
+          <span data-jx-code-card-lang class="tracking-[0.14em] opacity-75 uppercase whitespace-nowrap">{lang}</span>
         {/if}
       </span>
     </figcaption>
@@ -197,7 +198,8 @@
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <pre
     data-lang={lang}
-    class={cn('jx-code-card-pre', maxHeight !== '' && 'vscroll overflow-y-auto', fill && 'flex-1 min-h-0 overflow-y-auto')}
+    data-jx-code-card-pre
+    class={cn(maxHeight !== '' && 'vscroll overflow-y-auto', fill && 'flex-1 min-h-0 overflow-y-auto')}
     style={[preStyle, maxHeight !== '' ? `max-height:${maxHeight}` : '']
       .filter(Boolean)
       .join(';')}
@@ -206,7 +208,8 @@
   ><code>{#if tokenHtml}{@html tokenHtml}{:else}{code}{/if}</code></pre>
   {#if footer || copyable}
     <div
-      class="jx-code-card-foot flex items-center justify-between gap-3 min-h-[2.1rem] pt-[0.3rem] pe-2 pb-[0.3rem] ps-3 border-t border-[color:var(--readonly-code-border)]"
+      data-jx-code-card-foot
+      class="flex items-center justify-between gap-3 min-h-[2.1rem] pt-[0.3rem] pe-2 pb-[0.3rem] ps-3 border-t border-[color:var(--readonly-code-border)]"
     >
       <span class="flex items-center min-w-0">
         {#if footer}
@@ -228,7 +231,8 @@
         >
           {#if copied}
             <svg
-              class="jx-code-card-icon h-3 w-3"
+              data-jx-code-card-icon
+              class="h-3 w-3"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -242,7 +246,8 @@
             <span>copied</span>
           {:else}
             <svg
-              class="jx-code-card-icon h-3 w-3"
+              data-jx-code-card-icon
+              class="h-3 w-3"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"

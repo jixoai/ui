@@ -118,8 +118,8 @@
 <div class={cn('jx-transfer flex items-center gap-3', className)}>
   <!-- svelte-ignore a11y_autocomplete_valid -- search inputs over a
        checkbox fieldset, not a combobox -->
-  <fieldset class="jx-tr-panel flex-[1_1_0%] min-w-0 m-0 p-0 border border-border bg-card shadow-2xs rounded-(--radius)" aria-label="{sourceTitle} · {sourceTotal} total">
-    <legend class="jx-tr-legend px-[0.625rem] py-[0.4375rem] font-nav text-[0.6875rem] tracking-[0.12em] uppercase text-muted-foreground"
+  <fieldset data-jx-tr-panel class="flex-[1_1_0%] min-w-0 m-0 p-0 border border-border bg-card shadow-2xs rounded-(--radius)" aria-label="{sourceTitle} · {sourceTotal} total">
+    <legend data-jx-tr-legend class="px-[0.625rem] py-[0.4375rem] font-nav text-[0.6875rem] tracking-[0.12em] uppercase text-muted-foreground"
       >{sourceTitle} · {sourceOptions.length}/{sourceTotal} visible</legend
     >
     <input
@@ -129,7 +129,7 @@
       placeholder={searchPlaceholder}
       bind:value={sourceSearch}
     />
-    <ul class="jx-tr-list m-0 py-1 px-[max(0.25rem_-_var(--jx-scrollbar-thin,0px),0px)] list-none max-h-56 overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges]" role="list">
+    <ul data-jx-tr-list class="m-0 py-1 px-[max(0.25rem_-_var(--jx-scrollbar-thin,0px),0px)] list-none max-h-56 overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges]" role="list">
       {#each sourceOptions as option (option.value)}
         <li>
           <label
@@ -144,11 +144,11 @@
               disabled={option.disabled}
               onchange={() => toggle(pickedSource, option.value)}
             />
-            <span class="jx-tr-label min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{option.label}</span>
+            <span data-jx-tr-label class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{option.label}</span>
           </label>
         </li>
       {:else}
-        <li class="jx-tr-empty px-2 py-4 text-center text-xs text-muted-foreground">no matches</li>
+        <li data-jx-tr-empty class="px-2 py-4 text-center text-xs text-muted-foreground">no matches</li>
       {/each}
     </ul>
   </fieldset>
@@ -172,8 +172,8 @@
     >
   </div>
 
-  <fieldset class="jx-tr-panel flex-[1_1_0%] min-w-0 m-0 p-0 border border-border bg-card shadow-2xs rounded-(--radius)" aria-label="{targetTitle} · {targetTotal} total">
-    <legend class="jx-tr-legend px-[0.625rem] py-[0.4375rem] font-nav text-[0.6875rem] tracking-[0.12em] uppercase text-muted-foreground"
+  <fieldset data-jx-tr-panel class="flex-[1_1_0%] min-w-0 m-0 p-0 border border-border bg-card shadow-2xs rounded-(--radius)" aria-label="{targetTitle} · {targetTotal} total">
+    <legend data-jx-tr-legend class="px-[0.625rem] py-[0.4375rem] font-nav text-[0.6875rem] tracking-[0.12em] uppercase text-muted-foreground"
       >{targetTitle} · {targetOptions.length}/{targetTotal} visible</legend
     >
     <input
@@ -183,7 +183,7 @@
       placeholder={searchPlaceholder}
       bind:value={targetSearch}
     />
-    <ul class="jx-tr-list m-0 py-1 px-[max(0.25rem_-_var(--jx-scrollbar-thin,0px),0px)] list-none max-h-56 overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges]" role="list">
+    <ul data-jx-tr-list class="m-0 py-1 px-[max(0.25rem_-_var(--jx-scrollbar-thin,0px),0px)] list-none max-h-56 overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges]" role="list">
       {#each targetOptions as option (option.value)}
         <li>
           <label
@@ -198,11 +198,11 @@
               disabled={option.disabled}
               onchange={() => toggle(pickedTarget, option.value)}
             />
-            <span class="jx-tr-label min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{option.label}</span>
+            <span data-jx-tr-label class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{option.label}</span>
           </label>
         </li>
       {:else}
-        <li class="jx-tr-empty px-2 py-4 text-center text-xs text-muted-foreground">nothing here yet</li>
+        <li data-jx-tr-empty class="px-2 py-4 text-center text-xs text-muted-foreground">nothing here yet</li>
       {/each}
     </ul>
   </fieldset>

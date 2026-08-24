@@ -41,7 +41,7 @@
 
 <details class={cn('jx-acc-item block', className)} bind:open>
   <summary class="jx-acc-summary flex items-center gap-2.5 box-border px-3.5 py-[0.6875rem] cursor-pointer list-none select-none font-nav text-[0.8125rem] tracking-[0.08em] uppercase text-foreground transition-colors duration-150 ease-out hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]">{@render summary()}</summary>
-  <div class="jx-acc-body pl-6 pr-3.5 pb-3.5 text-[0.8125rem] leading-[1.6] text-muted-foreground">
+  <div data-jx-acc-body="" class="pl-6 pr-3.5 pb-3.5 text-[0.8125rem] leading-[1.6] text-muted-foreground">
     {@render children()}
   </div>
 </details>

@@ -71,7 +71,7 @@
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between">
           <p class="jx-hue-label">Brand hue</p>
-          <code class="jx-hue-value">{hue}°</code>
+          <code data-jx-hue-value>{hue}°</code>
         </div>
         <!-- rides the Tier-1 .jx-range law; scoped .jx-hue-range adds only
              the rainbow track fill + the marker thumb (see style block) -->
@@ -93,7 +93,7 @@
         <button
           type="button"
           class="jx-hue-play"
-          class:jx-hue-play-on={isPlaying}
+          data-jx-hue-play-on={isPlaying ? '' : undefined}
           onclick={toggleHuePlay}
           aria-pressed={isPlaying}
           aria-label={isPlaying ? 'Pause the hue cycle' : 'Play the hue cycle'}

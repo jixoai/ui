@@ -132,7 +132,7 @@ describe('scroll-virtual (TanStack, thin coupling)', () => {
       props: { count: 1000, estimateSize: 48, children },
     });
     await tick();
-    const spacer = rendered.container.querySelector('.jx-sv-spacer') as HTMLElement;
+    const spacer = rendered.container.querySelector('[data-jx-sv-spacer]') as HTMLElement;
     // zero-size jsdom viewport → empty window, estimates hold the total
     expect(spacer.getAttribute('style')).toContain('block-size: 48000px');
     const virtualizer = (
@@ -160,7 +160,7 @@ describe('scroll-virtual (TanStack, thin coupling)', () => {
     });
     await tick();
     expect(
-      (rendered.container.querySelector('.jx-sv-spacer') as HTMLElement).getAttribute('style'),
+      (rendered.container.querySelector('[data-jx-sv-spacer]') as HTMLElement).getAttribute('style'),
     ).toContain('inline-size: 2400px');
     const instance = rendered.component as unknown as {
       scrollToIndex(index: number, options?: { align?: string }): void;

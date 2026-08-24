@@ -155,8 +155,8 @@
   }
 </script>
 
-<div class={cn('jx-carousel flex flex-col gap-3', className)} role="region" aria-roledescription="carousel" aria-label={label}>
-  <div class="jx-carousel-window relative">
+<div data-jx-carousel="" class={cn('flex flex-col gap-3', className)} role="region" aria-roledescription="carousel" aria-label={label}>
+  <div data-jx-carousel-window="" class="relative">
     <!-- tabindex: the scroll region itself is the keyboard surface
          (native arrow scrolling); buttons page explicitly -->
     <!-- svelte-ignore a11y_no_static_element_interactions, a11y_no_noninteractive_element_interactions -- the
@@ -179,25 +179,31 @@
     </div>
     <button
       type="button"
-      class="jx-carousel-arrow jx-carousel-prev absolute top-1/2 -translate-y-1/2 -left-4 appearance-none inline-flex items-center justify-center size-8 border border-border bg-popover text-foreground text-lg leading-none cursor-pointer shadow-2xs hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      data-jx-carousel-arrow=""
+      data-jx-carousel-prev=""
+      class="absolute top-1/2 -translate-y-1/2 -left-4 appearance-none inline-flex items-center justify-center size-8 border border-border bg-popover text-foreground text-lg leading-none cursor-pointer shadow-2xs hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
       aria-label="previous slide"
       onclick={() => step(-1)}
     >{prevLabel}</button>
     <button
       type="button"
-      class="jx-carousel-arrow jx-carousel-next absolute top-1/2 -translate-y-1/2 -right-4 appearance-none inline-flex items-center justify-center size-8 border border-border bg-popover text-foreground text-lg leading-none cursor-pointer shadow-2xs hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      data-jx-carousel-arrow=""
+      data-jx-carousel-next=""
+      class="absolute top-1/2 -translate-y-1/2 -right-4 appearance-none inline-flex items-center justify-center size-8 border border-border bg-popover text-foreground text-lg leading-none cursor-pointer shadow-2xs hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
       aria-label="next slide"
       onclick={() => step(1)}
     >{nextLabel}</button>
   </div>
   {#if dots && slides.length > 1}
-    <div class="jx-carousel-dots flex justify-center gap-2" role="group" aria-label="slides">
+    <div data-jx-carousel-dots="" class="flex justify-center gap-2" role="group" aria-label="slides">
       {#each slides as _, index (index)}
         <button
           type="button"
+          data-jx-carousel-dot=""
+          data-jx-carousel-dot-on={active === index ? '' : undefined}
           class={cn(
-            'jx-carousel-dot appearance-none size-2 border border-border bg-muted cursor-pointer focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[2px]',
-            active === index && 'jx-carousel-dot-on bg-primary border-primary',
+            'appearance-none size-2 border border-border bg-muted cursor-pointer focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[2px]',
+            active === index && 'bg-primary border-primary',
           )}
           aria-label="go to slide {index + 1}"
           aria-current={active === index ? 'true' : undefined}

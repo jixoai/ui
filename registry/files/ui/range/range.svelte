@@ -241,9 +241,9 @@
     onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
   ></jx-form-field>
   {#if label || showValue}
-    <div class="jx-slider-head flex items-baseline justify-between gap-3">
+    <div data-jx-slider-head class="flex items-baseline justify-between gap-3">
       {#if label}<span class="jx-label" id={labelId}>{label}</span>{/if}
-      {#if showValue}<span class={cn('jx-slider-value font-mono text-xs text-foreground tabular-nums', invalid && 'text-destructive')} class:jx-invalid={invalid}>{display}</span>{/if}
+      {#if showValue}<span data-jx-slider-value class={cn('font-mono text-xs text-foreground tabular-nums', invalid && 'text-destructive')} class:jx-invalid={invalid}>{display}</span>{/if}
     </div>
   {/if}
 
@@ -263,9 +263,10 @@
     aria-disabled={isDisabled ? 'true' : undefined}
     class={cn(
       'jx-slider relative block w-full h-7 m-0 cursor-pointer touch-none select-none',
-      isDisabled && 'jx-disabled opacity-50 cursor-not-allowed',
+      isDisabled && 'opacity-50 cursor-not-allowed',
     )}
-    class:jx-pressed={pressed}
+    data-jx-disabled={isDisabled ? '' : undefined}
+    data-jx-pressed={pressed ? '' : undefined}
     class:jx-invalid={invalid}
     onpointerdown={onPointerDown}
     onpointermove={onPointerMove}
@@ -275,10 +276,12 @@
     onkeydown={onKeydown}
   >
     <div
-      class="jx-slider-track absolute inset-x-0 top-1/2 h-[calc(var(--jx-slider-thumb,1.5rem)/2)] -translate-y-1/2 bg-[color-mix(in_oklab,var(--foreground)_10%,transparent)] rounded-[calc(infinity*1px)]"
+      data-jx-slider-track
+      class="absolute inset-x-0 top-1/2 h-[calc(var(--jx-slider-thumb,1.5rem)/2)] -translate-y-1/2 bg-[color-mix(in_oklab,var(--foreground)_10%,transparent)] rounded-[calc(infinity*1px)]"
     ></div>
     <div
-      class="jx-slider-fill absolute start-0 h-[var(--jx-slider-thumb,1.5rem)] bg-primary rounded-[calc(infinity*1px)] [inset-block:calc(var(--jx-slider-thumb,1.5rem)/-4)]"
+      data-jx-slider-fill
+      class="absolute start-0 h-[var(--jx-slider-thumb,1.5rem)] bg-primary rounded-[calc(infinity*1px)] [inset-block:calc(var(--jx-slider-thumb,1.5rem)/-4)]"
       style:width="{fraction * 100}%"
     ></div>
     <div

@@ -243,26 +243,29 @@
     setTimeout(() => (copiedUsage = false), 1600);
   }
 
-  // stage posture: one deterministic branch per prop value
+  // stage posture: one deterministic branch per prop value (the
+  // css-defined .jx-stage-stretch kernel class rides the template cn
+  // below, where the inventory's class-usage scan sees it)
   const stageUtilities = {
     center: '',
-    start: 'jx-stage-start items-start justify-start',
-    stretch: 'jx-stage-stretch items-stretch [justify-content:stretch]',
+    start: 'items-start justify-start',
+    stretch: 'items-stretch [justify-content:stretch]',
   } as const;
 </script>
 
-<section class={cn('jx-canvas @container bg-background border border-border rounded-none min-w-0', className)}>
-  <header class="jx-canvas-head flex flex-wrap items-start justify-between gap-4 px-4 py-[0.8rem] border-b border-border">
+<section data-jx-canvas class={cn('@container bg-background border border-border rounded-none min-w-0', className)}>
+  <header data-jx-canvas-head class="flex flex-wrap items-start justify-between gap-4 px-4 py-[0.8rem] border-b border-border">
     <div class="jx-canvas-head-text min-w-0">
-      <h2 class="jx-canvas-title m-0 text-foreground font-nav text-[15px] font-normal tracking-[0.01em] leading-[1.3]" id={titleId}>{title}</h2>
+      <h2 data-jx-canvas-title class="m-0 text-foreground font-nav text-[15px] font-normal tracking-[0.01em] leading-[1.3]" id={titleId}>{title}</h2>
       {#if description}
-        <p class="jx-canvas-description m-0 mt-[0.3rem] text-muted-foreground text-[12.5px] leading-[1.5] max-w-[62ch] text-pretty">{description}</p>
+        <p data-jx-canvas-description class="m-0 mt-[0.3rem] text-muted-foreground text-[12.5px] leading-[1.5] max-w-[62ch] text-pretty">{description}</p>
       {/if}
     </div>
     {#if sourceUrl}
       <PressButton variant="outline" href={sourceUrl} external ariaLabel={`${title} source on GitHub`}>
         <svg
-          class="jx-canvas-source-icon h-[13px] w-[13px]"
+          data-jx-canvas-source-icon
+          class="h-[13px] w-[13px]"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -281,8 +284,11 @@
 
   <div class="jx-canvas-stage-row flex flex-col">
     <div
+      data-jx-canvas-stage
+      data-jx-stage-start={stage === 'start' ? '' : undefined}
       class={cn(
-        'jx-canvas-stage flex flex-1 flex-wrap items-center justify-center gap-4 min-h-[200px] min-w-0 p-6 bg-[color-mix(in_oklab,var(--muted)_42%,var(--background))]',
+        'flex flex-1 flex-wrap items-center justify-center gap-4 min-h-[200px] min-w-0 p-6 bg-[color-mix(in_oklab,var(--muted)_42%,var(--background))]',
+        stage === 'stretch' && 'jx-stage-stretch',
         stageUtilities[stage],
       )}
       aria-label={`${title} demo`}
@@ -291,8 +297,8 @@
     </div>
     {#if playground}
       <aside class="jx-canvas-playground flex flex-col min-w-0 pt-[0.85rem] px-4 pb-4 bg-[color-mix(in_oklab,var(--muted)_12%,var(--background))] border-t border-border" aria-labelledby={playgroundId}>
-        <div class="jx-canvas-playground-head flex items-baseline justify-between gap-3">
-          <h3 class="jx-canvas-playground-title m-0 mb-[0.65rem] text-muted-foreground font-nav text-[10px] tracking-[0.24em] uppercase" id={playgroundId}>Playground</h3>
+        <div data-jx-canvas-playground-head class="flex items-baseline justify-between gap-3">
+          <h3 data-jx-canvas-playground-title class="m-0 mb-[0.65rem] text-muted-foreground font-nav text-[10px] tracking-[0.24em] uppercase" id={playgroundId}>Playground</h3>
           {#if onreset}
             <button
               type="button"
@@ -310,7 +316,7 @@
         {#if echo?.length}
           <dl class="jx-canvas-echo grid gap-[0.3rem] m-0 mt-[0.85rem] pt-[0.7rem] border-t border-border">
             {#each echo as item, index (`${item.label}-${index}`)}
-              <div class="jx-canvas-echo-row grid items-baseline gap-[0.6rem] grid-cols-[minmax(5.5rem,auto)_minmax(0,1fr)]">
+              <div data-jx-canvas-echo-row class="grid items-baseline gap-[0.6rem] grid-cols-[minmax(5.5rem,auto)_minmax(0,1fr)]">
                 <dt class="text-muted-foreground font-nav text-[10px] tracking-[0.14em] uppercase">{item.label}</dt>
                 <dd class="text-[color:var(--accent-foreground,var(--foreground))] font-mono text-[11.5px] m-0 min-w-0 [overflow-wrap:anywhere]">{formatEcho(item.value)}</dd>
               </div>
@@ -321,7 +327,7 @@
     {/if}
   </div>
 
-  <div class="jx-canvas-code-bar flex items-center justify-between gap-3 border-t border-border pt-[0.35rem] pe-2 pb-[0.35rem] ps-[0.6rem]">
+  <div data-jx-canvas-code-bar class="flex items-center justify-between gap-3 border-t border-border pt-[0.35rem] pe-2 pb-[0.35rem] ps-[0.6rem]">
     <button
       type="button"
       class={cn(
@@ -336,13 +342,13 @@
       <span aria-hidden="true">{'</>'}</span>
       <span>Code</span>
     </button>
-    <div class="jx-canvas-code-actions flex items-center gap-3">
+    <div data-jx-canvas-code-actions class="flex items-center gap-3">
       {#if usageFile}
         <button type="button" class="jx-canvas-copy-usage bg-transparent border-transparent text-muted-foreground hover:text-primary cursor-pointer font-nav text-[10px] tracking-[0.14em] p-0 underline [text-underline-offset:3px] uppercase" ariaLabel="copy the usage snippet" onclick={() => copyUsage()}>
           {copiedUsage ? 'copied ✓' : 'copy usage'}
         </button>
       {/if}
-      <span class="jx-canvas-code-count text-muted-foreground text-[10.5px] tracking-[0.08em] uppercase">{files.length} {files.length === 1 ? 'file' : 'files'}</span>
+      <span data-jx-canvas-code-count class="text-muted-foreground text-[10.5px] tracking-[0.08em] uppercase">{files.length} {files.length === 1 ? 'file' : 'files'}</span>
     </div>
   </div>
 
@@ -355,7 +361,7 @@
     data-open={codeOpen || undefined}
     inert={!codeOpen || undefined}
   >
-    <div class="jx-canvas-code-clip min-h-0 overflow-hidden">
+    <div data-jx-canvas-code-clip class="min-h-0 overflow-hidden">
       <div class="jx-canvas-code-panels flex flex-col max-h-[28rem]">
         <aside
           class="jx-canvas-tree bg-background border-b border-border flex-none max-h-40 overflow-y-auto"

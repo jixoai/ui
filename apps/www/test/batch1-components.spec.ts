@@ -33,8 +33,8 @@ describe('Badge', () => {
   it('renders a span chip with the default tone and passes content through', () => {
     const { container } = render(Badge, { props: { children: undefined } });
     // children snippet omitted: still a valid empty chip
-    const chip = container.querySelector('span.jx-badge')!;
-    expect(chip.className).toContain('jx-badge-default');
+    const chip = container.querySelector('span[data-jx-badge]')!;
+    expect(chip.className).getAttribute('data-jx-badge') === 'default';
   });
 
   it('carries the destructive tone and restProps land verbatim', async () => {
@@ -42,7 +42,7 @@ describe('Badge', () => {
       props: { tone: 'destructive', title: 'build failed', 'data-testid': 'chip' },
     });
     const chip = container.querySelector('[data-testid="chip"]')!;
-    expect(chip.className).toContain('jx-badge-destructive');
+    expect(chip.className).getAttribute('data-jx-badge') === 'destructive';
     expect(chip.getAttribute('title')).toBe('build failed');
   });
 });
@@ -126,7 +126,7 @@ describe('Avatar', () => {
 
   it('honors alt="" — decorative avatars render no label semantics', () => {
     const { container } = render(Avatar, { props: { name: 'Ada Lovelace', alt: '' } });
-    const fallback = container.querySelector('span.jx-avatar-fallback')!;
+    const fallback = container.querySelector('span[data-jx-avatar-fallback]')!;
     expect(fallback.getAttribute('role')).toBeNull();
     expect(fallback.getAttribute('aria-label')).toBeNull();
     expect(fallback.getAttribute('aria-hidden')).toBe('true');
@@ -156,7 +156,7 @@ describe('Alert', () => {
       props: { title: 'Deployed', children: null },
     });
     const alert = container.querySelector('[role="status"]')!;
-    expect(alert.className).toContain('jx-alert-default');
+    expect(alert.className).getAttribute('data-jx-alert') === 'default';
     expect(alert.querySelector('[data-jx-alert-title]')?.textContent).toContain('Deployed');
   });
 
@@ -165,7 +165,7 @@ describe('Alert', () => {
       props: { tone: 'destructive', assertive: true, title: 'Build failed', children: null },
     });
     const alert = container.querySelector('[role="alert"]')!;
-    expect(alert.className).toContain('jx-alert-destructive');
+    expect(alert.className).getAttribute('data-jx-alert') === 'destructive';
   });
 });
 

@@ -32,7 +32,7 @@ describe('press-button variants', () => {
     expect(btn.className).toContain('bg-background');
     expect(btn.className).toContain('border-border');
     // no effect loop without opting in
-    expect(btn.className).not.toContain('jx-press-');
+    expect(btn.className).not.toContain('jx-press');
     expect(btn.className).not.toContain('-host');
   });
 
@@ -78,7 +78,7 @@ describe('press-button effects', () => {
 
   it('shimmer / pulse / rainbow tag the host and mount their layers', () => {
     const shimmered = render(PressButtonHost, { props: { effect: shimmer() } });
-    const shimmerHost = shimmered.container.querySelector('button.jx-shimmer-host')!;
+    const shimmerHost = shimmered.container.querySelector('button[data-jx-shimmer-host]')!;
     // Svelte re-serializes the style attribute ("--var: value; …")
     expect(shimmerHost.getAttribute('style')).toContain('--shimmer-speed: 3000ms');
     expect(shimmerHost.querySelector('.jx-shimmer-spark')).toBeTruthy();
@@ -86,7 +86,7 @@ describe('press-button effects', () => {
     shimmered.unmount();
 
     const pulsed = render(PressButtonHost, { props: { effect: pulse({ variant: 'ring', duration: 900 }) } });
-    const pulseHost = pulsed.container.querySelector('button.jx-pulse-host')!;
+    const pulseHost = pulsed.container.querySelector('button[data-jx-pulse-host]')!;
     expect(pulseHost.getAttribute('style')).toContain('--pulse-duration: 900ms');
     expect(pulseHost.querySelector('.jx-pulse-layer.jx-pulse-ring')).toBeTruthy();
     pulsed.unmount();
@@ -224,7 +224,7 @@ describe('press-button anchor mode', () => {
     const anchor = container.querySelector('a')!;
     expect(anchor).toBeTruthy();
     expect(anchor.className).toContain('jx-press');
-    expect(anchor.className).toContain('jx-shimmer-host');
+    expect(anchor.hasAttribute('data-jx-shimmer-host')).toBe(true);
     // external hrefs open a new tab with noreferrer
     expect(anchor.getAttribute('target')).toBe('_blank');
     expect(anchor.getAttribute('rel')).toBe('noreferrer');

@@ -38,7 +38,7 @@ describe('Popconfirm', () => {
     await fireEvent.click(trigger);
     await new Promise(requestAnimationFrame);
     expect(panel.matches(':popover-open')).toBe(true);
-    const cancel = panel.querySelector('.jx-pc-cancel') as HTMLButtonElement;
+    const cancel = panel.querySelector('[data-jx-pc-cancel]') as HTMLButtonElement;
     expect(document.activeElement).toBe(cancel);
     // the light form: role=dialog (labelled), NOT an alertdialog
     expect(panel.getAttribute('role')).toBe('dialog');
@@ -52,7 +52,7 @@ describe('Popconfirm', () => {
   it('confirm runs onconfirm then closes', async () => {
     const { rendered, trigger, panel } = setup();
     await fireEvent.click(trigger);
-    await fireEvent.click(panel.querySelector('.jx-pc-confirm')!);
+    await fireEvent.click(panel.querySelector('[data-jx-pc-confirm]')!);
     expect(rendered.container.querySelector('[data-outcome]')?.getAttribute('data-outcome')).toBe(
       'confirmed',
     );
@@ -75,7 +75,7 @@ describe('Popconfirm', () => {
     await fireEvent.click(trigger);
     await new Promise(requestAnimationFrame);
     // close via the cancel button (a non-confirm path)
-    await fireEvent.click(panel.querySelector('.jx-pc-cancel')!);
+    await fireEvent.click(panel.querySelector('[data-jx-pc-cancel]')!);
     expect(panel.matches(':popover-open')).toBe(false);
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
@@ -86,7 +86,7 @@ describe('Popconfirm', () => {
     const panel = rendered.container.querySelector('.jx-pc') as HTMLElement;
     // make confirm throw on the next call
     await fireEvent.click(trigger);
-    const confirm = panel.querySelector('.jx-pc-confirm') as HTMLButtonElement;
+    const confirm = panel.querySelector('[data-jx-pc-confirm]') as HTMLButtonElement;
     confirm.addEventListener('click', () => {
       throw new Error('consumer error');
     });
@@ -100,7 +100,7 @@ describe('Popconfirm', () => {
       props: { steps: [{ title: 'a' }, { title: 'b' }, { title: 'c' }], current: 1 },
     });
     expect(container.querySelectorAll('button').length).toBe(0);
-    expect(container.querySelectorAll('.jx-step-marker').length).toBe(3); // inert markers stay
+    expect(container.querySelectorAll('[data-jx-step-marker]').length).toBe(3); // inert markers stay
   });
 
   it('timeline renders <time datetime> when the instant is given', () => {
@@ -116,7 +116,7 @@ describe('Popconfirm', () => {
     const { container } = render(Popconfirm, {
       props: { title: 'Delete?', children: undefined },
     });
-    expect(container.querySelector('.jx-pc-confirm-destructive')).toBeTruthy();
+    expect(container.querySelector('[data-jx-pc-confirm-destructive]')).toBeTruthy();
   });
 });
 
@@ -128,9 +128,9 @@ describe('Empty', () => {
     const { container } = render(Empty, {
       props: { title: 'no checks yet', description: 'add the first check to start the audit' },
     });
-    const figure = container.querySelector('figure.jx-empty')!;
-    expect(figure.querySelector('.jx-empty-title')!.textContent).toBe('no checks yet');
-    expect(figure.querySelector('.jx-empty-zero')!.textContent).toBe('0 items');
+    const figure = container.querySelector('figure[data-jx-empty]')!;
+    expect(figure.querySelector('[data-jx-empty-title]')!.textContent).toBe('no checks yet');
+    expect(figure.querySelector('[data-jx-empty-zero]')!.textContent).toBe('0 items');
     expect(figure.querySelector('[role]')?.getAttribute('role')).toBeUndefined();
   });
 });
@@ -157,7 +157,7 @@ describe('Descriptions', () => {
   it('columns drives the grid; bordered adds the hairline frame', () => {
     const { container } = render(Descriptions, { props: { items, columns: 2, bordered: true } });
     const dl = container.querySelector('dl')!;
-    expect(dl.className).toContain('jx-desc-bordered');
+    expect(dl.className).hasAttribute('data-jx-desc-bordered');
     expect(dl.getAttribute('style')).toContain('--jx-desc-cols: 2');
   });
 
@@ -187,13 +187,13 @@ describe('Steps', () => {
     const items = [...container.querySelectorAll('li')];
     expect(items[1]!.getAttribute('aria-current')).toBe('step');
     // completed = button (a link back)
-    expect(items[0]!.querySelector('button.jx-step-marker')).toBeTruthy();
+    expect(items[0]!.querySelector('button[data-jx-step-marker]')).toBeTruthy();
     await fireEvent.click(items[0]!.querySelector('button')!);
     expect(clicked).toEqual([0]);
     // future = inert span, never aria-disabled
     expect(items[2]!.querySelector('button')).toBeNull();
     expect(items[2]!.getAttribute('aria-disabled')).toBeNull();
-    expect(items[0]!.querySelector('.jx-step-index')!.textContent).toBe('✓');
+    expect(items[0]!.querySelector('[data-jx-step-index]')!.textContent).toBe('✓');
   });
 });
 
@@ -212,7 +212,7 @@ describe('Spin', () => {
       props: { label: 'syncing', children: undefined },
     });
     // bare posture when no children — wrap posture needs the snippet
-    expect(container.querySelector('.jx-spin-inline')).toBeTruthy();
+    expect(container.querySelector('[data-jx-spin-inline]')).toBeTruthy();
   });
 });
 
@@ -224,10 +224,10 @@ describe('Statistic', () => {
     const { container } = render(Statistic, {
       props: { title: 'deploys / week', value: '42', trend: 'up' },
     });
-    expect(container.querySelector('.jx-stat-num')!.textContent).toBe('42');
-    const trend = container.querySelector('.jx-stat-trend')!;
+    expect(container.querySelector('[data-jx-stat-num]')!.textContent).toBe('42');
+    const trend = container.querySelector('[data-jx-stat-trend]')!;
     expect(trend.textContent).toContain('▲');
-    expect(trend.className).toContain('jx-stat-trend-up');
+    expect(trend.className).getAttribute('data-jx-stat-trend') === 'up';
   });
 });
 
@@ -246,8 +246,8 @@ describe('Timeline', () => {
     });
     const items = [...container.querySelectorAll('li')];
     expect(items.length).toBe(2);
-    expect(items[0]!.querySelector('.jx-tl-time')!.textContent).toBe('07:02');
-    expect(items[1]!.className).toContain('jx-tl-pending');
+    expect(items[0]!.querySelector('[data-jx-tl-time]')!.textContent).toBe('07:02');
+    expect(items[1]!.className).hasAttribute('data-jx-tl-pending');
   });
 });
 
@@ -259,15 +259,15 @@ describe('Result', () => {
     const { container } = render(Result, {
       props: { status: 'success', title: 'Deployed', description: 'build 4f2a is live' },
     });
-    expect(container.querySelector('.jx-result-glyph')!.textContent).toBe('✓');
-    expect(container.querySelector('.jx-result-success .jx-result-glyph')).toBeTruthy();
-    expect(container.querySelector('.jx-result-title')!.textContent).toBe('Deployed');
+    expect(container.querySelector('[data-jx-result-glyph]')!.textContent).toBe('✓');
+    expect(container.querySelector('[data-jx-result="success"] [data-jx-result-glyph]')).toBeTruthy();
+    expect(container.querySelector('[data-jx-result-title]')!.textContent).toBe('Deployed');
   });
 
   it('error paints destructive; actions compose', () => {
     const { container } = render(Result, {
       props: { status: 'error', title: 'Build failed', children: undefined },
     });
-    expect(container.querySelector('.jx-result-error .jx-result-glyph')).toBeTruthy();
+    expect(container.querySelector('[data-jx-result="error"] [data-jx-result-glyph]')).toBeTruthy();
   });
 });

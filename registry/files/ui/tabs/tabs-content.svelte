@@ -30,7 +30,8 @@
   role="tabpanel"
   aria-labelledby="{tabs.uid}-tab-{value}"
   tabindex="0"
-  class="jx-tab-panel {className}"
+  data-jx-tab-panel=""
+  class={className}
   hidden={!active}
 >
   {#if active}

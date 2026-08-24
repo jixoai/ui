@@ -60,19 +60,20 @@
 
 <div
   class={cn(
-    `jx-alert jx-alert-${tone} flex flex-col gap-1.5 box-border border bg-card px-3.5 py-3 shadow-2xs rounded`,
+    `flex flex-col gap-1.5 box-border border bg-card px-3.5 py-3 shadow-2xs rounded`,
     toneBorder[tone],
     className,
   )}
+  data-jx-alert={tone}
   role={assertive ? 'alert' : 'status'}
 >
   {#if title}
-    <p class={cn('jx-alert-title flex items-center gap-2 font-nav text-[0.8125rem] tracking-[0.08em] uppercase', titleColor[tone])}>
+    <p data-jx-alert-title="" class={cn('flex items-center gap-2 font-nav text-[0.8125rem] tracking-[0.08em] uppercase', titleColor[tone])}>
       {#if icon}<span class="jx-alert-icon inline-flex">{@render icon()}</span>{/if}{title}
     </p>
   {/if}
   {#if children}
-    <div class="jx-alert-body text-[0.8125rem] leading-[1.55] text-muted-foreground">
+    <div data-jx-alert-body="" class="text-[0.8125rem] leading-[1.55] text-muted-foreground">
       {@render children()}
     </div>
   {/if}

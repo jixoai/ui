@@ -51,7 +51,8 @@
         >
           {link.label}
           <span
-            class="jx-ext inline-flex flex-none w-3 h-3 ms-[0.2em] align-[-0.125em] [&_svg]:w-full [&_svg]:h-full"
+            data-jx-ext
+            class="inline-flex flex-none w-3 h-3 ms-[0.2em] align-[-0.125em] [&_svg]:w-full [&_svg]:h-full"
             aria-hidden="true"
           >{@html icons.externalLink}</span>
         </a>

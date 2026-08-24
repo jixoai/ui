@@ -243,7 +243,7 @@
 <div class={'jx-field ' + className}>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
 
-  <span class="jx-color-picker-wrap relative block w-full" style="anchor-name: {anchorName}">
+  <span data-jx-color-picker-wrap class="relative block w-full" style="anchor-name: {anchorName}">
     <button
       bind:this={triggerEl}
       type="button"
@@ -256,8 +256,8 @@
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}
     >
-      {#if showSwatch}<span class="jx-color-picker-swatch flex-none w-4 h-4 border border-border bg-muted" style:background={swatch}></span>{/if}
-      {#if showValue}<span class="jx-color-picker-value flex-[1_1_auto] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-start font-mono text-xs">{value}</span>{/if}
+      {#if showSwatch}<span data-jx-color-picker-swatch class="flex-none w-4 h-4 border border-border bg-muted" style:background={swatch}></span>{/if}
+      {#if showValue}<span data-jx-color-picker-value class="flex-[1_1_auto] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-start font-mono text-xs">{value}</span>{/if}
       <svg
         class={cn(
           'jx-color-picker-chevron flex-none w-3 h-3 pointer-events-none text-muted-foreground transition-transform duration-150 ease-out',
@@ -290,7 +290,7 @@
     <!-- surface body (bezel paint + ::after shadow + the flex column);
          the popover element paints nothing (floating-surface law arch
          r3) -->
-    <div class="jx-color-picker-surface jx-surface-body flex flex-col gap-2.5 p-3">
+    <div data-jx-color-picker-surface class="jx-surface-body flex flex-col gap-2.5 p-3">
     <div
       bind:this={svEl}
       class="jx-color-picker-sv relative [direction:ltr] w-[200px] h-[150px] border border-border bg-[hsl(var(--jx-color-picker-hue)_100%_50%)] cursor-crosshair touch-none select-none"
@@ -301,29 +301,31 @@
       onpointercancel={(event) => (dragSV = endDrag(svEl, event, dragSV) ? false : dragSV)}
     >
       <span
-        class="jx-color-picker-dot absolute w-2.5 h-2.5 bg-transparent border border-white shadow-[0_0_0_1px_#000] pointer-events-none"
+        data-jx-color-picker-dot
+        class="absolute w-2.5 h-2.5 bg-transparent border border-white shadow-[0_0_0_1px_#000] pointer-events-none"
         style="inset-inline-start: calc({sat * 100}% - 5px); top: calc({(1 - val) * 100}% - 5px)"
       ></span>
     </div>
 
     <div
       bind:this={hueEl}
-      class="jx-color-picker-hue relative [direction:ltr] w-[200px] h-3 border border-border cursor-crosshair touch-none select-none bg-[linear-gradient(to_right,hsl(0_100%_50%),hsl(60_100%_50%),hsl(120_100%_50%),hsl(180_100%_50%),hsl(240_100%_50%),hsl(300_100%_50%),hsl(360_100%_50%))]"
+      data-jx-color-picker-hue
+      class="relative [direction:ltr] w-[200px] h-3 border border-border cursor-crosshair touch-none select-none bg-[linear-gradient(to_right,hsl(0_100%_50%),hsl(60_100%_50%),hsl(120_100%_50%),hsl(180_100%_50%),hsl(240_100%_50%),hsl(300_100%_50%),hsl(360_100%_50%))]"
       onpointerdown={onHueDown}
       onpointermove={(event) => dragHue && hueFromPointer(event)}
       onpointerup={(event) => (dragHue = endDrag(hueEl, event, dragHue) ? false : dragHue)}
       onpointercancel={(event) => (dragHue = endDrag(hueEl, event, dragHue) ? false : dragHue)}
     >
-      <span class="jx-color-picker-dot jx-color-picker-dot-hue absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-transparent border border-white shadow-[0_0_0_1px_#000] pointer-events-none" style="inset-inline-start: calc({(hue / 360) * 100}% - 5px)"></span>
+      <span data-jx-color-picker-dot data-jx-color-picker-dot-hue class="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-transparent border border-white shadow-[0_0_0_1px_#000] pointer-events-none" style="inset-inline-start: calc({(hue / 360) * 100}% - 5px)"></span>
     </div>
 
-    <NativeSelect class="jx-color-picker-format text-xs" value={format} onchange={setFormat} aria-label="color format">
+    <NativeSelect data-jx-color-picker-format class="text-xs" value={format} onchange={setFormat} aria-label="color format">
       <option value="hex">hex</option>
       <option value="hsl">hsl</option>
       <option value="oklch">oklch</option>
     </NativeSelect>
 
-    <Input class="jx-color-picker-input font-mono text-[13px]" bind:value={textDraft} onchange={commitText} />
+    <Input data-jx-color-picker-input class="font-mono text-[13px]" bind:value={textDraft} onchange={commitText} />
 
     {#if canPick}
       <!-- PressButton takes no class prop — the wrapper owns the row width -->

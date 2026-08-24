@@ -41,7 +41,7 @@
   let activeLabel = $derived(locales.find((l) => l.code === current)?.label ?? current);
 </script>
 
-<div class="jx-lang flex items-center gap-2" bind:this={root}>
+<div data-jx-lang="" class="flex items-center gap-2" bind:this={root}>
   <svg
     class="h-3.5 w-3.5 opacity-70"
     viewBox="0 0 24 24"
@@ -62,7 +62,8 @@
 
   {#if variant === 'pair'}
     <div
-      class="jx-lang-seg inline-flex w-fit max-w-full overflow-hidden border border-[color-mix(in_oklab,currentColor_30%,transparent)] bg-[color-mix(in_oklab,currentColor_6%,transparent)]"
+      data-jx-lang-seg=""
+      class="inline-flex w-fit max-w-full overflow-hidden border border-[color-mix(in_oklab,currentColor_30%,transparent)] bg-[color-mix(in_oklab,currentColor_6%,transparent)]"
       role="group"
       aria-label={ariaLabel}
     >
@@ -71,10 +72,12 @@
           href={locale.href}
           hreflang={locale.code}
           aria-current={locale.code === current ? 'true' : undefined}
+          data-jx-lang-item=""
+          data-jx-lang-active={locale.code === current ? '' : undefined}
           class={cn(
-            'jx-lang-item px-2.5 py-1 text-xs font-medium no-underline transition-[color,background-color] duration-150 ease-out',
+            'px-2.5 py-1 text-xs font-medium no-underline transition-[color,background-color] duration-150 ease-out',
             locale.code === current
-              ? 'jx-lang-active bg-primary text-primary-foreground'
+              ? 'bg-primary text-primary-foreground'
               : 'text-[color-mix(in_oklab,currentColor_72%,transparent)] hover:bg-[color-mix(in_oklab,currentColor_12%,transparent)] hover:text-current',
           )}
         >
@@ -86,7 +89,8 @@
     <div class="relative">
       <button
         type="button"
-        class="jx-lang-btn inline-flex cursor-pointer items-center gap-1.5 border border-[color-mix(in_oklab,currentColor_30%,transparent)] bg-[color-mix(in_oklab,currentColor_6%,transparent)] px-2.5 py-1 text-xs font-medium text-[color-mix(in_oklab,currentColor_72%,transparent)] transition-[color,border-color] duration-150 ease-out hover:border-[color-mix(in_oklab,currentColor_70%,transparent)] hover:text-current"
+        data-jx-lang-btn=""
+        class="inline-flex cursor-pointer items-center gap-1.5 border border-[color-mix(in_oklab,currentColor_30%,transparent)] bg-[color-mix(in_oklab,currentColor_6%,transparent)] px-2.5 py-1 text-xs font-medium text-[color-mix(in_oklab,currentColor_72%,transparent)] transition-[color,border-color] duration-150 ease-out hover:border-[color-mix(in_oklab,currentColor_70%,transparent)] hover:text-current"
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={ariaLabel}
@@ -109,7 +113,8 @@
       </button>
       {#if open}
         <ul
-          class="jx-lang-menu absolute right-0 top-[calc(100%+6px)] z-50 m-0 min-w-[9rem] list-none border border-border bg-terminal p-1 text-terminal-foreground shadow"
+          data-jx-lang-menu=""
+          class="absolute right-0 top-[calc(100%+6px)] z-50 m-0 min-w-[9rem] list-none border border-border bg-terminal p-1 text-terminal-foreground shadow"
           role="listbox"
           aria-label={ariaLabel}
         >
@@ -120,10 +125,12 @@
                 hreflang={locale.code}
                 role="option"
                 aria-selected={locale.code === current ? 'true' : undefined}
+                data-jx-lang-menu-item=""
+                data-jx-lang-menu-active={locale.code === current ? '' : undefined}
                 class={cn(
-                  'jx-lang-menu-item block px-2.5 py-1.5 text-xs no-underline transition-[color,background-color] duration-150 ease-out',
+                  'block px-2.5 py-1.5 text-xs no-underline transition-[color,background-color] duration-150 ease-out',
                   locale.code === current
-                    ? 'jx-lang-menu-active text-primary'
+                    ? 'text-primary'
                     : 'text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:bg-terminal-hover hover:text-terminal-foreground',
                 )}
                 onclick={() => (open = false)}

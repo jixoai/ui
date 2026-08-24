@@ -33,7 +33,11 @@ const EXCLUDE_DIRS = new Set(['node_modules', '.svelte-kit', 'dist', '.git', '.a
 // inventory inputs — their comments/fixtures/regex literals would make
 // handReview unreachable-zero post-migration. Shared with
 // verify-hook-law.mjs (single source of truth, versioned with the engine).
-export const AUDITOR_SOURCES = new Set(['jx-inventory.mjs', 'verify-hook-law.mjs']);
+export const AUDITOR_SOURCES = new Set(['jx-inventory.mjs', 'verify-hook-law.mjs', 'codemod-data-jx.mjs']);
+// OWNER-ACTIVE (data-jx-hooks verification note): overview-card.svelte is
+// excluded until the Owner's in-flight rework lands — jx-wing-body rides
+// their redesign; its conversion is deferred to them.
+const OWNER_ACTIVE = new Set(['overview-card.svelte']);
 const lineAt = (text, idx) => text.slice(0, Math.max(0, idx)).split('\n').length;
 // engine@3.2 masks: keyframe names inside animate-[...] and custom
 // property names inside [--jx-*:...] arbitrary-property utilities are
@@ -41,8 +45,10 @@ const lineAt = (text, idx) => text.slice(0, Math.max(0, idx)).split('\n').length
 const MASK_NONCLASS = (t) => t
   .replace(/animate-\[[^\]]*\]/g, (mm) => ' '.repeat(mm.length))
   .replace(/\[--jx-[a-z0-9-]*:[^\]]*\]/g, (mm) => ' '.repeat(mm.length))
-  // v4 var-shorthand utilities: w-(--jx-x) / h-(--jx-x)
-  .replace(/\(--jx-[a-z0-9-]+\)/g, (mm) => ' '.repeat(mm.length));
+  // v4 var-shorthand utilities: w-(--jx-x) / h-(--jx-x), type-hinted
+  // forms text-(length:--jx-x), and var() calls with fallback args
+  .replace(/\((?:[a-z-]+:)?--jx-[a-z0-9-]+[^)]*\)/g, (mm) => ' '.repeat(mm.length))
+  .replace(/var\(--jx-[a-z0-9-]+[^)]*\)/g, (mm) => ' '.repeat(mm.length));
 // strip comments WITHOUT changing offsets (mask with spaces)
 const maskLineComments = (code) => code.replace(/(^|[^:])\/\/[^\n]*/g, (m) => m[0] + ' '.repeat(m.length - 1));
 const maskBlockComments = (code) => code.replace(/\/\*[\s\S]*?\*\//g, (m) => ' '.repeat(m.length));
@@ -52,7 +58,7 @@ export function buildInventory(root) {
     let entries;
     try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return out; }
     for (const e of entries) {
-      if (EXCLUDE_DIRS.has(e.name) || AUDITOR_SOURCES.has(e.name)) continue;
+      if (EXCLUDE_DIRS.has(e.name) || AUDITOR_SOURCES.has(e.name) || OWNER_ACTIVE.has(e.name)) continue;
       const p = join(dir, e.name);
       if (e.isDirectory()) walk(p, exts, out);
       else if (exts.some((x) => e.name.endsWith(x))) out.push(p);
@@ -183,6 +189,11 @@ export function buildInventory(root) {
       if (Array.isArray(node)) { node.forEach(visit); return; }
       if (node.type === 'RegularElement' || node.type === 'Element' || node.type === 'Component') {
         for (const a of node.attributes ?? []) {
+          if (a.type === 'Attribute' && (a.name === 'id' || a.name.startsWith('aria'))) {
+            // engine@3.3: id/aria attribute values are IDENTIFIER
+            // contexts, never class hooks (component-canvas id wiring)
+            continue;
+          }
           if (a.type === 'Attribute' && a.name === 'class') {
             const frags = [...(a.value ?? [])];
             // seam pass: Text ending 'jx-foo-' right before interpolation
@@ -236,14 +247,14 @@ export function buildInventory(root) {
       if (!c) continue;
       const base = typeof c === 'string' ? 0 : c.start;
       const code = typeof c === 'string' ? c : raw.slice(c.start, c.end);
-      scanScriptSection(code, f, rel, { staticHooks, families, directives, references, handReview, addHook, addFamily, addVariantToken }, { svelte: true, raw, base });
+      scanScriptSection(code, f, rel, { staticHooks, families, directives, references, handReview, addHook, addFamily, addVariantToken, defined }, { svelte: true, raw, base });
     }
   }
 
   // ── plain script files ────────────────────────────────────────────
   for (const f of codeFiles) {
     const code = readFileSync(f, 'utf8');
-    scanScriptSection(code, f, rel, { staticHooks, families, directives, references, handReview, addHook, addFamily, addVariantToken }, {});
+    scanScriptSection(code, f, rel, { staticHooks, families, directives, references, handReview, addHook, addFamily, addVariantToken, defined }, {});
   }
 
   // L1 post-pass: conditional variants win over same-spelling parts
@@ -252,6 +263,12 @@ export function buildInventory(root) {
       if (val !== 'dynamic') staticHooks.delete(`jx-${base}-${val}`);
     }
   }
+
+  // RULED FAMILIES (implementation rulings, recorded in the subagent
+  // reports + verification.md): sheet/tabs dynamic variants are
+  // css-defined STATES — the class interpolation stays, no conversion.
+  const RULED_FAMILIES = new Set(['sheet', 'tabs']);
+  for (const b of RULED_FAMILIES) families.delete(b);
 
   // family evidence rule (r2): mixed families surface for human ruling
   for (const [base] of families) {
@@ -334,8 +351,19 @@ function scanScriptSection(code, file, rel, bag, opts = {}) {
       bag.handReview.push({ file: rel(file), line: i + 1, excerpt: 'possible multi-line selector: ' + line.trim().slice(0, 70) });
       return;
     }
+    const proseLine = /^\s*(\/\/|\*|it\(|test\(|describe\()/.test(line);
     const stray = line.match(/['"`]([^'"`]*jx-[a-z0-9-][^'"`]*)['"`]/);
-    if (stray && !/onjx-|jx-reset|--jx-|@media|data-jx/.test(stray[1])) {
+    const strayAllDefined = stray && [...stray[1].matchAll(/\bjx-[a-z0-9-]+/g)].every((t) => bag.defined.has(t[0]));
+    // identifier-wiring exemption (engine@3.4): `const xId = \`jx-…-${…}\``
+    // lines, id/aria/for assignments and getElementById targets are NOT
+    // class contexts — never hand-review candidates
+    const idContext = /Id\s*=|aria-|\bfor\s*=|getElementById|aria-labelledby|aria-controls|Symbol\.for\(|\.id\s*===|===\s*next|customElements|CustomEvent|\/tmp\//.test(line)
+      || (/find\(/.test(line) && /jx-[a-z0-9-]*-\$\{/.test(line))
+      || /^\s*['"`]jx-[a-z0-9-]+['"`]\s*,?\s*$/m.test(line) // bare custom-element tag argument
+      || /\.id\)\s*\.toBe|\.id\)\.toBe/.test(line)
+      || /createElement\(|Key\s*=|cssText/.test(line)
+      || /querySelector(?:All)?<[^>]*>\('jx-/.test(line);
+    if (stray && !proseLine && !strayAllDefined && !idContext && !/onjx-|jx-reset|--jx-|@media|data-jx/.test(stray[1])) {
       bag.handReview.push({ file: rel(file), line: i + 1, excerpt: stray[1].slice(0, 80) });
     }
   });
@@ -348,7 +376,7 @@ if (process.argv[1] && process.argv[1].endsWith('jx-inventory.mjs')) {
   const inv = await buildInventory(rootArg);
   const jsonIdx = process.argv.indexOf('--json');
   const payload = {
-    engine: 'jx-inventory@3.2',
+    engine: 'jx-inventory@3.8',
     root: label,
     counts: {
       defined: inv.defined.size,

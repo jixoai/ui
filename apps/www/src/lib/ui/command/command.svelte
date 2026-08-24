@@ -239,13 +239,14 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
   oncancel={handleCancel}
   onclose={handleClose}
 >
-  <div class="jx-command-shadow jx-surface-shadow" aria-hidden="true"></div>
-  <div class="jx-command-frame jx-surface-body flex flex-col [max-height:inherit]">
+  <div data-jx-command-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
+  <div data-jx-command-frame="" class="jx-surface-body flex flex-col [max-height:inherit]">
     <!-- svelte-ignore a11y_autofocus -- the palette's whole contract is
          type-to-search: focus must land in the input on open -->
     <input
       bind:this={input}
-      class="jx-command-input box-border w-full border-b border-border bg-transparent px-4 py-[0.875rem] font-mono text-[0.9375rem] text-foreground placeholder:text-muted-foreground focus:outline-none"
+      data-jx-command-input=""
+      class="box-border w-full border-b border-border bg-transparent px-4 py-[0.875rem] font-mono text-[0.9375rem] text-foreground placeholder:text-muted-foreground focus:outline-none"
       type="text"
       role="combobox"
       aria-label={label}
@@ -260,7 +261,8 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
       oncompositionend={() => (composing = false)}
     />
     <div
-      class="jx-command-list overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-[0.375rem] [padding-inline:max(0.375rem-var(--jx-scrollbar-thin,0px),0px)]"
+      data-jx-command-list=""
+      class="overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-[0.375rem] [padding-inline:max(0.375rem-var(--jx-scrollbar-thin,0px),0px)]"
       id={listId}
       role="listbox"
       aria-label={label}
@@ -269,7 +271,8 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
       {#each groups as run ((run.group ?? 'root') + run.items[0]!.id)}
         {#if run.group}
           <p
-            class="jx-command-group mt-2 mb-1 px-2 font-nav text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground"
+            data-jx-command-group=""
+            class="mt-2 mb-1 px-2 font-nav text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground"
             aria-hidden="true"
           >
             {run.group}
@@ -285,21 +288,25 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
             role="option"
             aria-selected={index === activeIndex}
             aria-disabled={item.disabled || undefined}
+            data-jx-command-item=""
+            data-jx-command-item-disabled={item.disabled ? '' : undefined}
+            data-jx-command-item-active={!item.disabled && index === activeIndex ? '' : undefined}
             class={cn(
-              'jx-command-item flex items-center justify-between gap-3 px-[0.625rem] py-2 text-[0.8125rem] text-foreground',
+              'flex items-center justify-between gap-3 px-[0.625rem] py-2 text-[0.8125rem] text-foreground',
               item.disabled
-                ? 'jx-command-item-disabled cursor-not-allowed opacity-45'
+                ? 'cursor-not-allowed opacity-45'
                 : index === activeIndex
-                  ? 'jx-command-item-active cursor-pointer bg-muted shadow-[inset_2px_0_0_var(--primary)]'
+                  ? 'cursor-pointer bg-muted shadow-[inset_2px_0_0_var(--primary)]'
                   : 'cursor-pointer',
             )}
             onclick={() => activate(index)}
             onpointerenter={() => !item.disabled && (activeIndex = index)}
           >
-            <span class="jx-command-label min-w-0 truncate">{item.label}</span>
+            <span data-jx-command-label="" class="min-w-0 truncate">{item.label}</span>
             {#if item.hint}
               <span
-                class="jx-command-hint flex-none border border-border px-[0.375rem] font-nav text-[0.6875rem] tracking-[0.1em] text-muted-foreground"
+                data-jx-command-hint=""
+                class="flex-none border border-border px-[0.375rem] font-nav text-[0.6875rem] tracking-[0.1em] text-muted-foreground"
               >
                 {item.hint}
               </span>
@@ -307,7 +314,7 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
           </div>
         {/each}
       {:else}
-        <div class="jx-command-empty px-[0.625rem] py-5 text-center text-[0.8125rem] text-muted-foreground" role="status">
+        <div data-jx-command-empty="" class="px-[0.625rem] py-5 text-center text-[0.8125rem] text-muted-foreground" role="status">
           no matches — {query.trim() || '…'}
         </div>
       {/each}

@@ -34,8 +34,11 @@
   tw4 (2026-08-24): utility-authored, zero css residue — sizes and
   silhouettes ride deterministic per-combination utility maps (corner-
   shape has no scale utility, so it rides arbitrary-property utilities;
-  the radius stays variant-owned so no two radius utilities can collide);
-  the `jx-avatar*` classes stay as semantic hooks only.
+  the radius stays variant-owned so no two radius utilities can collide).
+  data-jx-hooks (2026-08-25): the `jx-avatar*` hook classes are gone —
+  size and silhouette ride the valued attributes `data-jx-avatar={size}`
+  and `data-jx-avatar-variant={variant}` (one per dimension, exact-match
+  queryable); the initials block adds boolean `data-jx-avatar-fallback`.
 -->
 <script lang="ts">
   import type { HTMLImgAttributes } from 'svelte/elements';
@@ -117,10 +120,9 @@
 
   const shell = $derived(
     cn(
-      'jx-avatar flex-none box-border object-cover border border-border bg-card text-muted-foreground',
+      'flex-none box-border object-cover border border-border bg-card text-muted-foreground',
       sizeUtilities[size],
       variantUtilities[variant][size],
-      `jx-avatar-${size} jx-avatar-${variant}`,
     ),
   );
 </script>
@@ -128,6 +130,8 @@
 {#snippet body()}
   {#if src && !failed}
     <img
+      data-jx-avatar={size}
+      data-jx-avatar-variant={variant}
       class={cn(shell, 'inline-block', className)}
       {src}
       {alt}
@@ -140,7 +144,10 @@
     />
   {:else}
     <span
-      class={cn(shell, 'jx-avatar-fallback inline-flex items-center justify-center bg-muted font-nav text-xs tracking-[0.06em] uppercase whitespace-nowrap overflow-hidden', className)}
+      data-jx-avatar={size}
+      data-jx-avatar-variant={variant}
+      data-jx-avatar-fallback
+      class={cn(shell, 'inline-flex items-center justify-center bg-muted font-nav text-xs tracking-[0.06em] uppercase whitespace-nowrap overflow-hidden', className)}
       role={decorative ? undefined : 'img'}
       aria-label={decorative ? undefined : name}
       aria-hidden={decorative || undefined}

@@ -258,7 +258,7 @@
   // nav buttons: the terminal chip (border, bg, shadow-2xs) + the
   // Next variant's brand lean; disabled rides a conditional swap
   const navBtn =
-    'jx-tour-btn inline-flex cursor-pointer appearance-none border px-[0.875rem] py-1.5 font-nav text-[0.6875rem] uppercase tracking-[0.1em] shadow-2xs disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
+    'inline-flex cursor-pointer appearance-none border px-[0.875rem] py-1.5 font-nav text-[0.6875rem] uppercase tracking-[0.1em] shadow-2xs disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
 </script>
 
 {#if open && step}
@@ -287,27 +287,30 @@
   >
     <!-- surface body (fill + ::after shadow); the popover element paints
          nothing (floating-surface law arch r3) -->
-    <div class="jx-tour-surface jx-surface-body flex flex-col gap-2 px-4 py-[0.875rem]">
-    <p class="jx-tour-title m-0 font-nav text-[0.8125rem] uppercase tracking-[0.1em] text-foreground">{step.title}</p>
+    <div data-jx-tour-surface="" class="jx-surface-body flex flex-col gap-2 px-4 py-[0.875rem]">
+    <p data-jx-tour-title="" class="m-0 font-nav text-[0.8125rem] uppercase tracking-[0.1em] text-foreground">{step.title}</p>
     {#if step.description}
-      <p class="jx-tour-desc m-0 text-[0.8125rem] leading-[1.55] text-muted-foreground">{step.description}</p>
+      <p data-jx-tour-desc="" class="m-0 text-[0.8125rem] leading-[1.55] text-muted-foreground">{step.description}</p>
     {/if}
-    <div class="jx-tour-meta font-mono text-[0.6875rem] text-muted-foreground" aria-hidden="true">{index + 1} / {steps.length}</div>
-    <div class="jx-tour-actions mt-1 flex items-center justify-between gap-3">
+    <div data-jx-tour-meta="" class="font-mono text-[0.6875rem] text-muted-foreground" aria-hidden="true">{index + 1} / {steps.length}</div>
+    <div data-jx-tour-actions="" class="mt-1 flex items-center justify-between gap-3">
       <button
         type="button"
-        class="jx-tour-skip cursor-pointer appearance-none border-0 bg-transparent font-nav text-[0.6875rem] uppercase tracking-[0.1em] text-muted-foreground underline decoration-dotted hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1"
+        data-jx-tour-skip=""
+        class="cursor-pointer appearance-none border-0 bg-transparent font-nav text-[0.6875rem] uppercase tracking-[0.1em] text-muted-foreground underline decoration-dotted hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1"
         onclick={() => finish(index)}
       >
         {skipLabel}
       </button>
-      <div class="jx-tour-nav flex gap-2">
-        <button type="button" class={navBtn} disabled={!canPrev} onclick={prev}>
+      <div data-jx-tour-nav="" class="flex gap-2">
+        <button type="button" data-jx-tour-btn="" class={navBtn} disabled={!canPrev} onclick={prev}>
           {prevLabel}
         </button>
         <button
           type="button"
-          class={cn(navBtn, 'jx-tour-next border-primary bg-background text-primary')}
+          data-jx-tour-btn=""
+          data-jx-tour-next=""
+          class={cn(navBtn, 'border-primary bg-background text-primary')}
           bind:this={nextEl}
           onclick={next}
         >

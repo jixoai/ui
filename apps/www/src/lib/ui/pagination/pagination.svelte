@@ -96,22 +96,25 @@
   );
 </script>
 
-<nav class={cn('jx-pagination', 'block', className)} aria-label={label}>
+<nav data-jx-pagination="" class={cn('block', className)} aria-label={label}>
   <!-- visible status line for sighted users; screen readers already get
       the full picture from the nav label + numbered links + aria-current -->
   <p
-    class="jx-pagination-status m-0 mb-2 font-nav text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground"
+    data-jx-pagination-status=""
+    class="m-0 mb-2 font-nav text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground"
     aria-hidden="true"
   >
     {totalPagesLabel}
   </p>
-  <ul class="jx-pagination-list m-0 flex list-none flex-wrap items-center gap-1 p-0" role="list">
+  <ul data-jx-pagination-list="" class="m-0 flex list-none flex-wrap items-center gap-1 p-0" role="list">
     <li>
       {#if page > 1}
-        <a class="jx-press jx-page-edge {pageChip} uppercase" href={href(page - 1)}>{prevLabel}</a>
+        <a data-jx-page-edge="" class="jx-press {pageChip} uppercase" href={href(page - 1)}>{prevLabel}</a>
       {:else}
         <span
-          class="jx-page-edge jx-page-edge-off inline-flex h-[1.875rem] min-w-[1.875rem] items-center justify-center box-border border border-border bg-card px-2 font-nav text-xs uppercase tracking-[0.08em] text-foreground opacity-45 shadow-none cursor-not-allowed"
+          data-jx-page-edge=""
+          data-jx-page-edge-off=""
+          class="inline-flex h-[1.875rem] min-w-[1.875rem] items-center justify-center box-border border border-border bg-card px-2 font-nav text-xs uppercase tracking-[0.08em] text-foreground opacity-45 shadow-none cursor-not-allowed"
           aria-disabled="true"
         >
           {prevLabel}
@@ -122,27 +125,30 @@
       <li>
         {#if item === '…'}
           <span
-            class="jx-page-gap inline-flex items-center px-1 text-muted-foreground select-none"
+            data-jx-page-gap=""
+            class="inline-flex items-center px-1 text-muted-foreground select-none"
             aria-hidden="true"
           >
             …
           </span>
         {:else if item === page}
-          <a class="jx-press jx-page jx-page-current {currentPageChip}" href={href(item)} aria-current="page"
+          <a data-jx-page="" data-jx-page-current="" class="jx-press {currentPageChip}" href={href(item)} aria-current="page"
           >
             {item}
           </a>
         {:else}
-          <a class="jx-press jx-page {pageChip}" href={href(item)}>{item}</a>
+          <a data-jx-page="" class="jx-press {pageChip}" href={href(item)}>{item}</a>
         {/if}
       </li>
     {/each}
     <li>
       {#if page < pageCount}
-        <a class="jx-press jx-page-edge {pageChip} uppercase" href={href(page + 1)}>{nextLabel}</a>
+        <a data-jx-page-edge="" class="jx-press {pageChip} uppercase" href={href(page + 1)}>{nextLabel}</a>
       {:else}
         <span
-          class="jx-page-edge jx-page-edge-off inline-flex h-[1.875rem] min-w-[1.875rem] items-center justify-center box-border border border-border bg-card px-2 font-nav text-xs uppercase tracking-[0.08em] text-foreground opacity-45 shadow-none cursor-not-allowed"
+          data-jx-page-edge=""
+          data-jx-page-edge-off=""
+          class="inline-flex h-[1.875rem] min-w-[1.875rem] items-center justify-center box-border border border-border bg-card px-2 font-nav text-xs uppercase tracking-[0.08em] text-foreground opacity-45 shadow-none cursor-not-allowed"
           aria-disabled="true"
         >
           {nextLabel}

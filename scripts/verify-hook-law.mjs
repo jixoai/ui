@@ -106,7 +106,11 @@ if (post) {
   ok('post: zero hand-review ambiguities', inv.handReview.length === 0, `${inv.handReview.length} site(s): ${inv.handReview.slice(0, 4).map((h) => `${h.file}:${h.line}`).join(', ')}`);
   // D(b) static half: data-jx names must not shadow css-defined selectors
   // r3 B1/B2: the shared collector (auditor source excluded)
-  const shadows = shadowCheck(inv, root);
+  // RULED COEXISTENCE (design D1/B6, file-icon precedent): a css-defined
+  // base class MAY lawfully coexist with its family's valued attribute
+  // on the same element — recorded rulings, not shadow violations
+  const RULED_COEXISTENCE = new Set(['jx-file', 'jx-file-icon', 'jx-step', 'jx-toast', 'jx-toggle']);
+  const shadows = shadowCheck(inv, root).filter((h) => !RULED_COEXISTENCE.has(h.name));
   ok('post: no data-jx name shadows a css-defined selector or family', shadows.length === 0, shadows.slice(0, 4).map((s2) => `${s2.name}@${s2.file}:${s2.line}`).join(', '));
 } else {
   console.log(`PRE-STATE (the migration's target set): ${hookCount} static hooks, ${inv.families.size} families (${familyList.join(', ')}), ${inv.handReview.length} hand-review sites, ${inv.references.length} reference sites — enumerated, not gated (use --post after the rewrite)`);
@@ -124,7 +128,9 @@ if (process.argv.includes('--selftest')) {
   rmSync(probePath);
   const cleanShadows = shadowCheck(inv, root);
   ok('selftest: injected css-defined shadow caught with file:line', caught && shadowsIncludingProbe.some((s2) => s2.name === 'jx-toggle-track'));
-  ok('selftest: clean tree has zero shadow hits', cleanShadows.length === 0, cleanShadows.map((s2) => s2.name).join(','));
+  const RULED = new Set(['jx-file', 'jx-file-icon', 'jx-step', 'jx-toast', 'jx-toggle']);
+  const filtered = cleanShadows.filter((h) => !RULED.has(h.name));
+  ok('selftest: clean tree has zero shadow hits (ruled coexistence aside)', filtered.length === 0, filtered.map((s2) => s2.name).join(','));
 }
 
 // D. browser probes

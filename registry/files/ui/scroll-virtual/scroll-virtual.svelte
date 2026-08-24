@@ -142,14 +142,15 @@
 
 <ScrollArea bind:this={scrollAreaEl} {scrollbar} {label} {onscroll} orientation={horizontal ? 'horizontal' : 'vertical'} class={className}>
   <div
-    class="jx-sv-spacer relative"
+    data-jx-sv-spacer
+    class="relative"
     style={horizontal
       ? `inline-size: ${$virtualizer.getTotalSize()}px; block-size: 100%`
       : `block-size: ${$virtualizer.getTotalSize()}px; inline-size: 100%`}
   >
     {#each $virtualizer.getVirtualItems() as item (item.key)}
       <div
-        class="jx-sv-row"
+        data-jx-sv-row
         data-index={item.index}
         style={horizontal
           ? `position: absolute; inset-block-start: 0; inset-inline-start: ${item.start}px; block-size: 100%`

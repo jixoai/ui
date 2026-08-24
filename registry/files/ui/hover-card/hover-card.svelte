@@ -113,7 +113,8 @@
      focusable trigger the consumer composed inside -->
 <span
   bind:this={anchorEl}
-  class={cn('jx-hover-anchor inline-flex', className)}
+  data-jx-hover-anchor=""
+  class={cn('inline-flex', className)}
   style="anchor-name: {anchorName}"
   onpointerenter={() => {
     clearTimeout(closeTimer);
@@ -147,7 +148,7 @@
 >
   <!-- surface body (fill + ::after shadow); the popover element paints
        nothing (floating-surface law arch r3) -->
-  <div class="jx-hover-body jx-surface-body px-4 py-[0.875rem]">
+  <div data-jx-hover-body="" class="jx-surface-body px-4 py-[0.875rem]">
     {@render children()}
   </div>
 </div>

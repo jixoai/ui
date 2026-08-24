@@ -100,11 +100,11 @@
   onjx-reset={() => (value = [])}
 ></jx-form-field>
 
-<div class={cn('jx-cascader flex flex-col gap-1.5 w-fit', className)} role="group" aria-label={label ?? 'cascade'}>
+<div data-jx-cascader class={cn('flex flex-col gap-1.5 w-fit', className)} role="group" aria-label={label ?? 'cascade'}>
   {#if label}
-    <span class="jx-cascader-label font-nav text-xs tracking-[0.1em] uppercase text-muted-foreground" id="{autoId}-label">{label}</span>
+    <span data-jx-cascader-label class="font-nav text-xs tracking-[0.1em] uppercase text-muted-foreground" id="{autoId}-label">{label}</span>
   {/if}
-  <div class="jx-cascader-chain flex flex-wrap gap-1.5" aria-labelledby={label ? `${autoId}-label` : undefined}>
+  <div data-jx-cascader-chain class="flex flex-wrap gap-1.5" aria-labelledby={label ? `${autoId}-label` : undefined}>
     {#each levels as levelOptions, level (level)}
       <select
         class="jx-cascader-select py-[0.4375rem] px-[0.625rem] border border-border bg-background text-foreground font-mono text-[0.8125rem] rounded-(--radius) disabled:opacity-50"

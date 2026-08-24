@@ -42,12 +42,12 @@
   );
 </script>
 
-<div class={cn('jx-progress flex flex-col gap-1.5', className)}>
+<div data-jx-progress="" class={cn('flex flex-col gap-1.5', className)}>
   {#if label || pct !== null}
-    <div class="jx-progress-head flex items-baseline justify-between gap-3">
-      {#if label}<span class="jx-progress-label font-nav text-xs tracking-[0.1em] uppercase text-muted-foreground">{label}</span>{/if}
+    <div data-jx-progress-head="" class="flex items-baseline justify-between gap-3">
+      {#if label}<span data-jx-progress-label="" class="font-nav text-xs tracking-[0.1em] uppercase text-muted-foreground">{label}</span>{/if}
       {#if pct !== null}
-        <span class="jx-progress-value text-xs tabular-nums text-foreground" role="status">{Math.round(pct)}%</span>
+        <span data-jx-progress-value="" class="text-xs tabular-nums text-foreground" role="status">{Math.round(pct)}%</span>
       {/if}
     </div>
   {/if}

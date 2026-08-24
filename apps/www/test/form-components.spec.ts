@@ -52,8 +52,8 @@ describe('NumberInput', () => {
       props: { value: 15, min: 1, max: 16, label: 'workers' },
     });
     const input = container.querySelector('input[type="number"]')!;
-    const minus = container.querySelector<HTMLButtonElement>('.jx-num-minus')!;
-    const plus = container.querySelector<HTMLButtonElement>('.jx-num-plus')!;
+    const minus = container.querySelector<HTMLButtonElement>('[data-jx-num-minus]')!;
+    const plus = container.querySelector<HTMLButtonElement>('[data-jx-num-plus]')!;
 
     // normal step up lands exactly on the max
     await fireEvent.pointerDown(plus);
@@ -91,8 +91,8 @@ describe('NumberInput', () => {
       props: { value: 5, min: 0, max: 10, disabled: true },
     });
     const input = container.querySelector('input[type="number"]')!;
-    const minus = container.querySelector<HTMLButtonElement>('.jx-num-minus')!;
-    const plus = container.querySelector<HTMLButtonElement>('.jx-num-plus')!;
+    const minus = container.querySelector<HTMLButtonElement>('[data-jx-num-minus]')!;
+    const plus = container.querySelector<HTMLButtonElement>('[data-jx-num-plus]')!;
 
     // the buttons carry disabled; the input turns READONLY (stays readable
     // for AT) — the component's documented disabled contract
@@ -121,7 +121,7 @@ describe('NumberInput', () => {
         props: { value: 0, min: 0, max: 1000 },
       });
       const input = container.querySelector('input[type="number"]')!;
-      const plus = container.querySelector<HTMLButtonElement>('.jx-num-plus')!;
+      const plus = container.querySelector<HTMLButtonElement>('[data-jx-num-plus]')!;
 
       // immediate step on press, 300ms delay, then one step every 100ms
       await fireEvent.pointerDown(plus);
@@ -374,7 +374,7 @@ describe('Combobox', () => {
     await fireEvent.focus(input);
     await fireEvent.input(input, { target: { value: 'zzz' } });
 
-    expect(panel().querySelector('.jx-combobox-empty')?.textContent).toContain(
+    expect(panel().querySelector('[data-jx-combobox-empty]')?.textContent).toContain(
       'No results for “zzz”'
     );
 
@@ -425,10 +425,10 @@ describe('TagsInput', () => {
 
     expect(container.querySelectorAll('.jx-tags-tag').length).toBe(2);
     expect(container.querySelector('input')).toBeNull(); // input hidden at cap
-    expect(container.querySelector('.jx-tags-full')?.textContent).toBe('2/2 tags');
+    expect(container.querySelector('[data-jx-tags-full]')?.textContent).toBe('2/2 tags');
 
     // the cap also blocks programmatic commits through the entry guard
-    await fireEvent.keyDown(container.querySelector('.jx-tags-full')!, { key: 'Enter' });
+    await fireEvent.keyDown(container.querySelector('[data-jx-tags-full]')!, { key: 'Enter' });
     expect(container.querySelectorAll('.jx-tags-tag').length).toBe(2);
   });
 

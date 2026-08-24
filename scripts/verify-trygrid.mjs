@@ -74,15 +74,15 @@ for (const cell of cells) {
   const pin = 'end';
   await page.evaluate(
     (block) =>
-      document.querySelector('button.jx-pop-trigger[popovertarget="canvas-pop"]').scrollIntoView({ block }),
+      document.querySelector('button[data-jx-pop-trigger][popovertarget="canvas-pop"]').scrollIntoView({ block }),
     pin,
   );
   await page.waitForTimeout(350);
-  await page.click('button.jx-pop-trigger[popovertarget="canvas-pop"]');
+  await page.click('button[data-jx-pop-trigger][popovertarget="canvas-pop"]');
   await page.waitForTimeout(900);
   const r = await page.evaluate(() => {
     const p = document.getElementById('canvas-pop');
-    const b = document.querySelector('button.jx-pop-trigger[popovertarget="canvas-pop"]');
+    const b = document.querySelector('button[data-jx-pop-trigger][popovertarget="canvas-pop"]');
     const pr = p.getBoundingClientRect();
     const br = b.getBoundingClientRect();
     const off = p.style.getPropertyValue('--jx-surface-ox') + ',' + p.style.getPropertyValue('--jx-surface-oy');

@@ -253,7 +253,7 @@
     onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
   ></jx-form-field>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span class="jx-sel-wrap relative block w-full max-w-full" style="anchor-name: {anchorName}">
+  <span data-jx-sel-wrap class="relative block w-full max-w-full" style="anchor-name: {anchorName}">
     <!-- aria-invalid rides the trigger although the checker's per-role
          list doesn't include it: it IS a WAI-ARIA global state, and the
          family law wires invalid state on the control itself -->
@@ -277,9 +277,11 @@
       {...rest}
     >
       <span
+        data-jx-sel-value
+        data-jx-sel-placeholder={!selected ? '' : undefined}
         class={cn(
-          'jx-sel-value flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-start',
-          !selected && 'jx-sel-placeholder text-muted-foreground',
+          'flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-start',
+          !selected && 'text-muted-foreground',
         )}
       >
         {selected?.label ?? placeholder}
@@ -315,8 +317,8 @@
          (floating-surface law arch r3: the platform element paints
          nothing; the bezel fill resolves through the panel's fill
          props cascading into the body) -->
-    <div class="jx-sel-panel-body jx-surface-body">
-    <div class="jx-sel-scroll max-h-[60vh] overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-1 px-[max(4px_-_var(--jx-scrollbar-thin,0px),0px)]">
+    <div data-jx-sel-panel-body class="jx-surface-body">
+    <div data-jx-sel-scroll class="max-h-[60vh] overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-1 px-[max(4px_-_var(--jx-scrollbar-thin,0px),0px)]">
     <ul
       bind:this={listEl}
       id={listboxId}
@@ -337,17 +339,20 @@
           role="option"
           aria-selected={option.value === value ? 'true' : 'false'}
           aria-disabled={option.disabled ? 'true' : undefined}
+          data-jx-sel-active={index === active ? '' : undefined}
+          data-jx-sel-selected={option.value === value ? '' : undefined}
+          data-jx-sel-disabled={option.disabled ? '' : undefined}
           class={cn(
             'jx-sel-option flex flex-col gap-0.5 px-[10px] py-[6px] text-[13px] leading-[1.45] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
-            index === active && 'jx-sel-active bg-terminal-hover text-terminal-foreground',
-            option.value === value && 'jx-sel-selected bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
-            option.disabled && 'jx-sel-disabled opacity-50 pointer-events-none',
+            index === active && 'bg-terminal-hover text-terminal-foreground',
+            option.value === value && 'bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
+            option.disabled && 'opacity-50 pointer-events-none',
           )}
           onclick={() => choose(option)}
         >
-          <span class="jx-sel-option-label min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{option.label}</span>
+          <span data-jx-sel-option-label class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{option.label}</span>
           {#if option.description}
-            <span class="jx-sel-option-desc text-[11px] leading-[1.4] text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]">{option.description}</span>
+            <span data-jx-sel-option-desc class="text-[11px] leading-[1.4] text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]">{option.description}</span>
           {/if}
         </li>
       {/each}

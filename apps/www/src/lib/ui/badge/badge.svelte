@@ -15,9 +15,10 @@
 
   tw4 (2026-08-24): utility-authored — the chip paint and the tone fills
   are token utilities in the markup (tone rides a deterministic map, so
-  no two tone utilities ever collide in the sheet); `jx-badge` and the
-  `jx-badge-*` tone hooks stay as semantic hooks only, no css defines
-  them.
+  no two tone utilities ever collide in the sheet); the tone rides the
+  ONE valued hook attribute `data-jx-badge={tone}` (data-jx-hooks,
+  2026-08-25: bare `jx-badge` and the `jx-badge-*` family merged into
+  it — no css ever defined them).
 -->
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
@@ -38,8 +39,9 @@
 </script>
 
 <span
+  data-jx-badge={tone}
   class={cn(
-    `jx-badge jx-badge-${tone} inline-flex items-center gap-1.5 box-border max-w-full px-[0.4375rem] py-[0.0625rem] border border-border font-nav text-[11px] leading-[1.5] tracking-[0.14em] uppercase whitespace-nowrap rounded-(--radius)`,
+    `inline-flex items-center gap-1.5 box-border max-w-full px-[0.4375rem] py-[0.0625rem] border border-border font-nav text-[11px] leading-[1.5] tracking-[0.14em] uppercase whitespace-nowrap rounded-(--radius)`,
     toneUtilities[tone],
     className,
   )}
