@@ -37,7 +37,10 @@ const slug = (r) => (r === '/' ? 'index' : r.replaceAll('/', '_').replace(/\.htm
 
 if (mode === 'compare') {
   const label = process.argv[3];
-  const base = join(shotsRoot, 'baseline-p1');
+  // base label: argv[4] when it starts with 'baseline-', else the fixed
+  // canonical name (kept for compatibility)
+  const baseLabel = process.argv[4]?.startsWith('baseline-') ? process.argv[4] : 'baseline-p1';
+  const base = join(shotsRoot, baseLabel);
   const after = join(shotsRoot, label);
   // PIXEL-hash comparator: Chrome's PNG encoder emits non-identical
   // compressed streams run-to-run while decoding to identical pixels
@@ -136,7 +139,7 @@ if (mode === 'compare') {
   const missing = report.filter((x) => x.status === 'missing');
   const unallowed = changed.filter((x) => !allowRx?.test(x.route));
   writeFileSync(join(shotsRoot, `compare-${label}.json`), JSON.stringify(report, null, 2));
-  console.log(`compare vs baseline-p1 (tolerant pixel, hot-CHANNEL ratio, 0.5% triage threshold): ${report.length} routes — ${changed.length} CHANGED, ${missing.length} missing (report: .agents/shots/compare-${label}.json)`);
+  console.log(`compare vs ${baseLabel} (tolerant pixel, hot-CHANNEL ratio, 0.5% triage threshold): ${report.length} routes — ${changed.length} CHANGED, ${missing.length} missing (report: .agents/shots/compare-${label}.json)`);
   changed.forEach((x) => console.log(`  ${allowRx?.test(x.route) ? 'ALLOWED' : 'CHANGED'} ${x.route} (${(x.hotChannelRatio * 100).toFixed(3)}%)`));
   missing.forEach((x) => console.log(`  MISSING ${x.route}`));
   // a failing gate: missing images or non-allowlisted changes are errors

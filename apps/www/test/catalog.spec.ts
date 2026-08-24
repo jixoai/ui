@@ -10,7 +10,7 @@
  *     throw in catalog.ts gives instructions; this test gives a list
  *   - the group is a known taxonomy id
  *   - the href targets a route that actually exists (dead links fail)
- *   - the description (the wing's summary source) is present
+ *   - the description (the card's sr-only summary source) is present
  *
  * Reads registry.json straight from the repo root (fs — vitest's vite
  * server fs.allow does not cover it).
@@ -57,7 +57,7 @@ describe('catalog ↔ registry single-source derivation', () => {
     }
   });
 
-  it('every item has a description (the wing summary source)', () => {
+  it('every item has a description (the card summary source)', () => {
     const bare = registry.items.filter((item) => !item.description || item.description.length < 8);
     expect(bare.map((item) => item.name), 'items without a meaningful description').toEqual([]);
   });

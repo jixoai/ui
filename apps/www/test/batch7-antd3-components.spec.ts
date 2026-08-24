@@ -28,7 +28,7 @@ describe('Anchor', () => {
       it('ghost combines with exclusive (the antd ghost+accordion pairing)', () => {
     const { container } = render(GhostHost, { props: { ghost: true } });
     const group = container.querySelector('.jx-accordion')!;
-    expect(group.className).hasAttribute('data-jx-accordion-ghost');
+    expect(group.hasAttribute('data-jx-accordion-ghost')).toBe(true);
     // the exclusive guard action is attached regardless of paint
     expect(group.querySelector('details')).toBeTruthy();
   });
@@ -115,7 +115,7 @@ describe('Accordion ghost', () => {
   it('ghost removes the frame class; the item contract is untouched', () => {
     const { container } = render(GhostHost, { props: { ghost: true } });
     const group = container.querySelector('.jx-accordion')!;
-    expect(group.className).hasAttribute('data-jx-accordion-ghost');
+    expect(group.hasAttribute('data-jx-accordion-ghost')).toBe(true);
     expect(container.querySelector('details > summary')!.textContent).toContain('Ghost one');
 
     // non-ghost stays framed
@@ -128,7 +128,7 @@ describe('Accordion ghost combos', () => {
   it('ghost + native details coexist (the antd ghost+accordion pairing)', () => {
     const { container } = render(GhostHost, { props: { ghost: true } });
     const group = container.querySelector('.jx-accordion')!;
-    expect(group.className).hasAttribute('data-jx-accordion-ghost');
+    expect(group.hasAttribute('data-jx-accordion-ghost')).toBe(true);
     expect(group.querySelector('details > summary')).toBeTruthy();
   });
 });

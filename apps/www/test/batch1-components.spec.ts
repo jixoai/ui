@@ -34,7 +34,7 @@ describe('Badge', () => {
     const { container } = render(Badge, { props: { children: undefined } });
     // children snippet omitted: still a valid empty chip
     const chip = container.querySelector('span[data-jx-badge]')!;
-    expect(chip.className).getAttribute('data-jx-badge') === 'default';
+    expect(chip.getAttribute('data-jx-badge')).toBe('default');
   });
 
   it('carries the destructive tone and restProps land verbatim', async () => {
@@ -42,7 +42,7 @@ describe('Badge', () => {
       props: { tone: 'destructive', title: 'build failed', 'data-testid': 'chip' },
     });
     const chip = container.querySelector('[data-testid="chip"]')!;
-    expect(chip.className).getAttribute('data-jx-badge') === 'destructive';
+    expect(chip.getAttribute('data-jx-badge')).toBe('destructive');
     expect(chip.getAttribute('title')).toBe('build failed');
   });
 });
@@ -156,7 +156,7 @@ describe('Alert', () => {
       props: { title: 'Deployed', children: null },
     });
     const alert = container.querySelector('[role="status"]')!;
-    expect(alert.className).getAttribute('data-jx-alert') === 'default';
+    expect(alert.getAttribute('data-jx-alert')).toBe('default');
     expect(alert.querySelector('[data-jx-alert-title]')?.textContent).toContain('Deployed');
   });
 
@@ -165,7 +165,7 @@ describe('Alert', () => {
       props: { tone: 'destructive', assertive: true, title: 'Build failed', children: null },
     });
     const alert = container.querySelector('[role="alert"]')!;
-    expect(alert.className).getAttribute('data-jx-alert') === 'destructive';
+    expect(alert.getAttribute('data-jx-alert')).toBe('destructive');
   });
 });
 

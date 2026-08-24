@@ -32,7 +32,10 @@ describe('press-button variants', () => {
     expect(btn.className).toContain('bg-background');
     expect(btn.className).toContain('border-border');
     // no effect loop without opting in
-    expect(btn.className).not.toContain('jx-press');
+    // no effect loop without opting in — the effect hosts are attributes now
+    for (const host of ['data-jx-shimmer-host', 'data-jx-pulse-host', 'data-jx-ripple-host', 'data-jx-rainbow-host']) {
+      expect(btn.hasAttribute(host)).toBe(false);
+    }
     expect(btn.className).not.toContain('-host');
   });
 
@@ -48,7 +51,10 @@ describe('press-button variants', () => {
   it('link is the frame-less surface: no press law, no border', () => {
     const { container } = render(PressButtonHost, { props: { variant: 'link' } });
     const btn = container.querySelector('button')!;
-    expect(btn.className).not.toContain('jx-press');
+    // no effect loop without opting in — the effect hosts are attributes now
+    for (const host of ['data-jx-shimmer-host', 'data-jx-pulse-host', 'data-jx-ripple-host', 'data-jx-rainbow-host']) {
+      expect(btn.hasAttribute(host)).toBe(false);
+    }
     expect(btn.className).not.toContain('border-border');
     expect(btn.className).toContain('hover:underline');
   });

@@ -157,7 +157,7 @@ describe('Descriptions', () => {
   it('columns drives the grid; bordered adds the hairline frame', () => {
     const { container } = render(Descriptions, { props: { items, columns: 2, bordered: true } });
     const dl = container.querySelector('dl')!;
-    expect(dl.className).hasAttribute('data-jx-desc-bordered');
+    expect(dl.hasAttribute('data-jx-desc-bordered')).toBe(true);
     expect(dl.getAttribute('style')).toContain('--jx-desc-cols: 2');
   });
 
@@ -227,7 +227,7 @@ describe('Statistic', () => {
     expect(container.querySelector('[data-jx-stat-num]')!.textContent).toBe('42');
     const trend = container.querySelector('[data-jx-stat-trend]')!;
     expect(trend.textContent).toContain('▲');
-    expect(trend.className).getAttribute('data-jx-stat-trend') === 'up';
+    expect(trend.getAttribute('data-jx-stat-trend')).toBe('up');
   });
 });
 
@@ -247,7 +247,7 @@ describe('Timeline', () => {
     const items = [...container.querySelectorAll('li')];
     expect(items.length).toBe(2);
     expect(items[0]!.querySelector('[data-jx-tl-time]')!.textContent).toBe('07:02');
-    expect(items[1]!.className).hasAttribute('data-jx-tl-pending');
+    expect(items[1]!.hasAttribute('data-jx-tl-pending')).toBe(true);
   });
 });
 

@@ -156,8 +156,7 @@
     </button>
     <button
       type="button"
-      data-jx-adlg-confirm=""
-      data-jx-adlg-confirm-destructive={confirmTone === 'destructive' ? '' : undefined}
+      data-jx-adlg-confirm={confirmTone}
       class={cn(
         'jx-press appearance-none px-4 py-2 border bg-background text-foreground font-nav text-xs tracking-[0.1em] uppercase cursor-pointer [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
         confirmTone === 'destructive'

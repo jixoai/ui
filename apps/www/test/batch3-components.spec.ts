@@ -172,7 +172,7 @@ describe('AlertDialog', () => {
     expect(document.activeElement).toBe(cancel);
 
     const confirm = rendered.container.querySelector('[data-jx-adlg-confirm]') as HTMLButtonElement;
-    expect(confirm.className).getAttribute('data-jx-adlg-confirm') === 'destructive';
+    expect(confirm.getAttribute('data-jx-adlg-confirm')).toBe('destructive');
     await fireEvent.click(confirm);
     expect(rendered.container.querySelector('[data-deleted]')?.getAttribute('data-deleted')).toBe(
       'true',

@@ -231,7 +231,7 @@ describe('FloatButton', () => {
       props: { label: 'compose', children: undefined },
     });
     const btn = container.querySelector('button[aria-label="compose"]')!;
-    expect(btn.className).getAttribute('data-jx-fab') === 'bottom-right';
+    expect(btn.getAttribute('data-jx-fab')).toBe('bottom-right');
   });
 
   it('menu idiom wires popovertarget + haspopup + controls', () => {
