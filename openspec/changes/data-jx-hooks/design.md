@@ -23,17 +23,28 @@ One importable scanner, three structured inputs, fail-closed output:
   literal `'jx-<base>-' +`. Literal part tokens (`jx-alert-title`) are
   STATIC hooks even when they share a family prefix. A family is
   pruned when every concrete selector `jx-<base>*` is css-defined.
-- JSON CLI (`--json`) emits the stable schema (defined, hooks,
-  families, handReview, references) the codemod consumes.
+- JSON CLI (`--json --root=<tree>`) emits the stable schema (engine
+  version, counts, defined, hooks, families{variants,shapes,sites},
+  handReview, references) — the COMMITTED authoritative manifest lives
+  at `openspec/changes/data-jx-hooks/inventory.json`, regenerated from
+  a clean `git worktree` at HEAD (the live tree may carry Owner WIP —
+  the r2 review caught exactly that drift).
+- Family evidence rule: zero css-defined `jx-<base>-*` selectors →
+  the family survives; ≥1 → MIXED, surfaced in handReview for an
+  explicit ruling (state families like sheet sides are css-defined;
+  file-icon's kind variants are css-less hooks — the engine no longer
+  guesses).
 
-Current measurement: **281 defined / 374 static hooks / 12 families /
-159 hand-review / 271 reference sites**.
+Clean-HEAD measurement (engine@2): see inventory.json counts. The r0
+figures 529/232 are the HISTORICAL regex-baseline, not an acceptance
+value.
 
 ## D1 — The mapping table (per SHAPE, r1 B3)
 
 | shape (real source form) | example | becomes |
 | --- | --- | --- |
 | static hook in class string | `'jx-kbd …'` in cn/text | `data-jx-kbd` boolean attr |
+| SAME-BASE MERGE (B6 law) | `'jx-alert jx-alert-${tone}'` | ONE attribute `data-jx-alert={tone}` — the bare base token is DROPPED (hasAttribute covers presence: `[data-jx-alert]` matches the valued form); the base token survives as a CLASS only when css-defined (then class + attribute coexist lawfully, e.g. file-icon) |
 | svelte class directive | `class:jx-hue-play-on={x}` | `data-jx-hue-play-on={x ? '' : undefined}` |
 | template family | `` `jx-alert-${tone}` `` | `data-jx-alert={tone}` (one valued attr) |
 | concat family | `'jx-badge-' + tone` | `data-jx-badge={tone}` |

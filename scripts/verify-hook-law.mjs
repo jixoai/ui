@@ -20,7 +20,7 @@
 //   node scripts/verify-hook-law.mjs --post     # the failing gate
 //   node scripts/verify-hook-law.mjs --live 5199
 import { buildInventory } from './jx-inventory.mjs';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -35,11 +35,21 @@ const ok = (name, cond, detail = '') => {
 
 const inv = await buildInventory(root);
 
-// A. regression fixtures (the r1 traps, asserted every run)
+// A. regression fixtures (the r1/r2 traps, asserted every run)
 ok('fixture: jx-try-on is css-defined (stays a class)', inv.defined.has('jx-try-on') && !inv.staticHooks.has('jx-try-on'));
 ok('fixture: jx-bar-panel / jx-bar-trigger id-families invisible', !inv.families.has('bar-panel') && !inv.families.has('bar-trigger'));
 const eventInvisible = ![...inv.staticHooks.keys()].some((k) => k === 'jx-reset' || k === 'onjx-disabled');
 ok('fixture: event protocol names invisible', eventInvisible);
+// B1: no trailing-dash token may ever enter staticHooks
+const trailing = [...inv.staticHooks.keys()].filter((k) => k.endsWith('-'));
+ok('fixture: zero trailing-dash static hooks', trailing.length === 0, trailing.join(','));
+// B2: every family carries variants + shapes evidence
+const bare = [...inv.families.entries()].filter(([, v]) => v.variants.size === 0 || v.shapes.size === 0).map(([b]) => b);
+ok('fixture: every family has variants + shapes', bare.length === 0, bare.join(','));
+// B7: svelte-script query references are visible (kind + line)
+const qref = inv.references.filter((r) => r.kind === 'query' && typeof r.line === 'number');
+const hasScriptQuery = qref.some((r) => /tooltip|toc|layout/.test(r.file));
+ok('fixture: svelte-script query references visible with lines', hasScriptQuery, `${qref.length} query refs, sample: ${qref.slice(0, 2).map((r) => r.file).join(', ')}`);
 
 // B/C. the hook set itself
 const hookCount = inv.staticHooks.size;
@@ -49,6 +59,9 @@ if (post) {
   ok('post: zero dynamic jx- families remain', inv.families.size === 0, familyList.join(', '));
   ok('post: zero hand-review ambiguities', inv.handReview.length === 0, `${inv.handReview.length} site(s): ${inv.handReview.slice(0, 4).map((h) => `${h.file}:${h.line}`).join(', ')}`);
   // D(b) static half: data-jx names must not shadow css-defined selectors
+  // B3: names normalized to the SAME jx- namespace, exact selector +
+  // family base compared, scope widened to tests/scripts (same roots
+  // the inventory reads — one input boundary)
   const dataJx = new Set();
   const scan = (dir, exts) => {
     for (const e of readdirSync(dir, { withFileTypes: true })) {
@@ -56,16 +69,28 @@ if (post) {
       const p = join(dir, e.name);
       if (e.isDirectory()) scan(p, exts);
       else if (exts.some((x) => e.name.endsWith(x))) {
-        for (const m of readFileSync(p, 'utf8').matchAll(/data-jx-([a-z0-9-]+)/g)) dataJx.add(m[1]);
+        for (const m of readFileSync(p, 'utf8').matchAll(/data-jx-([a-z0-9-]+)/g)) dataJx.add(`jx-${m[1]}`);
       }
     }
   };
   scan(join(root, 'registry/files'), ['.svelte', '.ts']);
   scan(join(root, 'apps/www/src'), ['.svelte', '.ts']);
-  const shadows = [...dataJx].filter((n) => inv.defined.has(n));
-  ok('post: no data-jx name shadows a css-defined selector', shadows.length === 0, shadows.join(', '));
+  scan(join(root, 'apps/www/test'), ['.svelte', '.ts']);
+  scan(join(root, 'scripts'), ['.mjs']);
+  const shadows = [...dataJx].filter((n) => inv.defined.has(n) || inv.families.has(n.slice(3)));
+  ok('post: no data-jx name shadows a css-defined selector or family', shadows.length === 0, shadows.join(', '));
 } else {
   console.log(`PRE-STATE (the migration's target set): ${hookCount} static hooks, ${inv.families.size} families (${familyList.join(', ')}), ${inv.handReview.length} hand-review sites, ${inv.references.length} reference sites — enumerated, not gated (use --post after the rewrite)`);
+}
+
+// selftest: the shadow assertion must CATCH an injected violation
+if (process.argv.includes('--selftest')) {
+  const probePath = join(root, 'apps/www/src/lib/__shadow-probe__.svelte');
+  writeFileSync(probePath, '<div data-jx-alert="x"></div>\n');
+  const inv2 = await buildInventory(root);
+  const caught = inv2.defined.has('jx-alert') || inv2.families.has('alert');
+  rmSync(probePath);
+  ok('selftest: injected data-jx-alert shadow is detectable', caught);
 }
 
 // D. browser probes

@@ -119,28 +119,68 @@ export function buildInventory(root) {
     if (!staticHooks.has(token)) staticHooks.set(token, []);
     staticHooks.get(token).push(rel(file));
   };
-  const addFamily = (base, file, hint = '') => {
-    if (!families.has(base)) families.set(base, { variants: new Set(), sites: [] });
-    families.get(base).sites.push(rel(file) + (hint ? `:${hint}` : ''));
+  const addFamily = (base, file, hint = '', variant = 'dynamic', shape = 'family') => {
+    if (!families.has(base)) families.set(base, { variants: new Map(), sites: [], shapes: new Set() });
+    const fam = families.get(base);
+    fam.sites.push(rel(file) + (hint ? `:${hint}` : ''));
+    fam.shapes.add(shape);
+    if (!fam.variants.has(variant)) fam.variants.set(variant, []);
+    fam.variants.get(variant).push(rel(file));
   };
-  const scanClassExpression = (expr, file) => {
-    // string literals inside the class expression
-    for (const m of expr.matchAll(/'([^']*)'|"([^"]*)"/g)) {
-      const lit = m[1] ?? m[2];
-      for (const t of lit.matchAll(/\bjx-[a-z0-9-]*|\bjx-\$\{?/g)) {
-        const tok = t[0];
-        if (tok.endsWith('-')) { addFamily(tok.slice(3, -1), file); continue; }
-        if (tok === 'jx-' || tok.startsWith('jx-${')) { addFamily(tok.slice(3).replace('${', ''), file); continue; }
-        addHook(tok, file);
+  // a concrete variant observed as a full token ('jx-alert-default',
+  // ternary branch 'jx-tgroup-on') feeds the family's variant table
+  const addVariantToken = (token, file, shape) => {
+    // family-vs-part law (r1): a LITERAL token is a PART (static hook)
+    // even when it shares a family prefix; only CONDITIONAL shapes
+    // (ternary / and-guard / query against a family) feed variants
+    if (shape === 'literal' || shape === 'classList') return false;
+    for (const [base] of families) {
+      if (token.startsWith(`jx-${base}-`)) {
+        addFamily(base, file, '', token.slice(`jx-${base}-`.length), shape);
+        return true;
       }
     }
-    // template literals: `jx-foo-${bar}` and `...${x} jx-y ...`
-    for (const m of expr.matchAll(/`([^`]*)`/g)) {
-      const tpl = m[1];
-      for (const t of tpl.matchAll(/jx-[a-z0-9-]*\$\{|jx-\$\{/g)) {
-        addFamily(t[0].slice(3).replace(/\$\{$/, '').replace(/-$/, ''), file);
+    return false;
+  };
+  const scanClassExpression = (expr, file) => {
+    // B1: recognize family spans FIRST, then mask them so trailing-dash
+    // prefixes can never enter staticHooks
+    const familySpans = [];
+    const recordFamily = (wholeMatch, base, shape) => {
+      addFamily(base, file, '', 'dynamic', shape);
+      familySpans.push([wholeMatch.length, wholeMatch.index]);
+    };
+    let work = expr;
+    for (const t of work.matchAll(/jx-[a-z0-9-]*\$\{|jx-\$\{/g)) {
+      addFamily(t[0].slice(3).replace(/\$\{$/, '').replace(/-$/, ''), file, '', 'dynamic', 'template');
+    }
+    for (const t of work.matchAll(/'jx-[a-z0-9-]*-'\s*\+|"jx-[a-z0-9-]*-"\s*\+/g)) {
+      const base = t[0].replace(/['"]\s*\+$/, '').replace(/^['"]jx-/, '').replace(/-$/, '');
+      addFamily(base, file, '', 'dynamic', 'concat');
+    }
+    // mask family-dynamic spans (template `${` tails and concat prefixes)
+    const masked = work
+      .replace(/jx-[a-z0-9-]*\$\{[^}]*\}/g, (mm) => ' '.repeat(mm.length))
+      .replace(/(['"])jx-[a-z0-9-]*-\1\s*\+/g, (mm) => ' '.repeat(mm.length));
+    // static tokens on the masked text only
+    for (const t of masked.matchAll(/['"`]([^'`]*)['"`]/g)) {
+      const lit = t[1];
+      // literal hook-family spelling: 'jx-foo-{x}' inside a quoted string
+      for (const m of lit.matchAll(/\bjx-[a-z0-9-]*-\{[^}]*\}/g)) {
+        addFamily(m[0].slice(3, m[0].indexOf('-{')), file, '', 'dynamic', 'text-interp');
       }
-      for (const t of tpl.matchAll(/\bjx-[a-z0-9-]+/g)) addHook(t[0], file);
+      const litMasked = lit.replace(/\bjx-[a-z0-9-]*-\{[^}]*\}/g, (mm) => ' '.repeat(mm.length));
+      for (const m of litMasked.matchAll(/\bjx-[a-z0-9-]+/g)) addHook(m[0], file);
+    }
+    for (const t of masked.matchAll(/\bjx-[a-z0-9-]+(?=[\s'\"`]|$)/g)) {
+      if (!addVariantToken(t[0], file, 'literal')) addHook(t[0], file);
+    }
+    // B4: conditional shapes — ternary branches / && guards holding hooks
+    for (const t of masked.matchAll(/([?&])\s*['"`]?([^'"`?:&]{0,120}?)\b(jx-[a-z0-9-]+)\b/g)) {
+      const token = t[3];
+      if (addVariantToken(token, file, t[1] === '?' ? 'ternary' : 'and-guard')) {
+        // nothing else — recorded as a concrete conditional variant
+      }
     }
   };
 
@@ -157,9 +197,33 @@ export function buildInventory(root) {
       if (node.type === 'RegularElement' || node.type === 'Element' || node.type === 'Component') {
         for (const a of node.attributes ?? []) {
           if (a.type === 'Attribute' && a.name === 'class') {
-            for (const frag of a.value ?? []) {
+            // two passes: (1) seam detection — a Text fragment ending in
+            // 'jx-foo-' immediately before a Mustache is a FAMILY
+            // (`class="jx-file-icon-{fn(x)}"`); (2) token scanning on
+            // the seam-truncated copies
+            const frags = [...(a.value ?? [])];
+            for (let i = 0; i < frags.length; i += 1) {
+              const fr = frags[i];
+              const next = frags[i + 1];
+              if (fr?.type === 'Text' && (next?.type === 'MustacheTag' || next?.type === 'ExpressionTag')) {
+                const m2 = fr.data.match(/\bjx-[a-z0-9-]*-$/);
+                if (m2) {
+                  addFamily(m2[0].slice(3, -1), f, '', 'dynamic', 'text-interp');
+                  fr.data = fr.data.slice(0, fr.data.length - m2[0].length);
+                }
+              }
+            }
+            for (const frag of frags) {
               if (frag.type === 'Text') {
-                for (const t of frag.data.matchAll(/\bjx-[a-z0-9-]+/g)) addHook(t[0], f);
+                // svelte {var} interpolation inside class text: jx-foo-{x}
+                // is a FAMILY (masked before static token scanning)
+                const maskedText = frag.data.replace(/jx-[a-z0-9-]*-\{[^}]*\}/g, (mm) => {
+                  addFamily(mm.slice(3, mm.indexOf('-{')), f, '', 'dynamic', 'text-interp');
+                  return ' '.repeat(mm.length);
+                });
+                for (const t of maskedText.matchAll(/\bjx-[a-z0-9-]+/g)) {
+                  if (!addVariantToken(t[0], f, 'literal')) addHook(t[0], f);
+                }
               } else if (frag.type === 'ExpressionTag' || frag.type === 'MustacheTag') {
                 // ESTree expression: slice source via start/end (.code absent)
                 const e = frag.expression;
@@ -183,23 +247,32 @@ export function buildInventory(root) {
       if (!c) continue;
       // ESTree Program: slice the source text via its start/end offsets
       const code = typeof c === 'string' ? c : raw.slice(c.start, c.end);
-      scanScriptSection(code, f, rel, { staticHooks, families, references, handReview, addHook, addFamily }, { svelte: true });
+      scanScriptSection(code, f, rel, { staticHooks, families, references, handReview, addHook, addFamily, addVariantToken }, { svelte: true });
     }
   }
 
   // ── script-file usage (.ts/.mjs) ──────────────────────────────────
   for (const f of codeFiles) {
-    scanScriptSection(readFileSync(f, 'utf8'), f, rel, { staticHooks, families, references, handReview, addHook, addFamily });
+    scanScriptSection(readFileSync(f, 'utf8'), f, rel, { staticHooks, families, references, handReview, addHook, addFamily, addVariantToken });
   }
 
   if (process.env.JX_DEBUG) console.error('PRE-PRUNE families:', [...families.keys()]);
-  // families: drop any base whose concrete staticHooks variant is fully
-  // css-defined (family with no css-less variant is not a hook family)
+  // families — evidence rule (r2 B1/audit): a family with ZERO
+  // css-defined `jx-<base>-*` selectors survives (its variants are
+  // css-less hooks); a family with ≥1 defined selector is MIXED
+  // (state machines like jx-sheet-left live in css) and goes to
+  // handReview for an explicit human ruling — never auto-dropped.
   for (const [base, info] of families) {
-    const familySelectorsDefined = [...defined].some((d) => d === `jx-${base}` || d.startsWith(`jx-${base}-`));
-    if (familySelectorsDefined && ![...staticHooks.keys()].some((h) => h.startsWith(`jx-${base}-`))) {
-      // css-defined family (e.g. jx-alert-* tones painted by residue css)
-      families.delete(base);
+    const definedVariants = [...defined].filter((d) => d.startsWith(`jx-${base}-`));
+    if (definedVariants.length > 0) {
+      handReview.push({
+        file: `family:${base}`,
+        line: 0,
+        excerpt: `mixed family: css defines ${definedVariants.slice(0, 4).join(', ')}${definedVariants.length > 4 ? ` +${definedVariants.length - 4}` : ''} — rule whether the dynamic variants are states (drop family) or hooks (keep)`,
+      });
+      if (defined.has(`jx-${base}`) && ![...staticHooks.keys()].some((h) => h.startsWith(`jx-${base}-`))) {
+        families.delete(base); // base + all visible variants defined → state family
+      }
     }
   }
 
@@ -212,26 +285,27 @@ export function buildInventory(root) {
 function scanScriptSection(code, file, rel, bag, opts = {}) {
   const isSvelteScript = !!opts.svelte;
   const lines = code.split('\n');
-    if (isSvelteScript) {
-    // svelte script sections: cn(...) spans carry class strings — the
-  // class-assignment idiom lives here (often MULTI-LINE), so work on
-  // balanced-paren spans of a comment-stripped copy, plus any
-  // template literal containing jx- (the cn arg / direct class form)
+
+  // ── svelte scripts, stage 1: cn(...) spans (class strings, often
+  // multi-line) — balanced parens on a comment-stripped copy.
+  // NO early return: stage 2 (query/classList) still runs (r2 B7).
   if (isSvelteScript) {
     const stripped = lines.map((l) => l.replace(/(^|[^:])\/\/.*$/, '$1')).join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
     const scanLiteral = (lit, isTpl) => {
       if (!/jx-/.test(lit)) return;
       if (isTpl) {
-        for (const t of lit.matchAll(/jx-[a-z0-9-]*\$\{/g)) bag.addFamily(t[0].slice(3).replace(/\$\{$/, '').replace(/-$/, ''), file);
-        for (const t of lit.matchAll(/\bjx-[a-z0-9-]+/g)) bag.addHook(t[0], file);
+        for (const t of lit.matchAll(/jx-[a-z0-9-]*\$\{/g)) bag.addFamily(t[0].slice(3).replace(/\$\{$/, '').replace(/-$/, ''), file, '', 'dynamic', 'template');
+        const maskedTpl = lit.replace(/jx-[a-z0-9-]*\$\{[^}]*\}/g, (mm) => ' '.repeat(mm.length));
+        for (const t of maskedTpl.matchAll(/\bjx-[a-z0-9-]+/g)) bag.addHook(t[0], file);
       } else {
         for (const t of lit.matchAll(/\bjx-[a-z0-9-]*/g)) {
-          if (t[0].endsWith('-')) bag.addFamily(t[0].slice(3, -1), file);
-          else if (t[0].length > 3) bag.addHook(t[0], file);
+          if (t[0].endsWith('-')) bag.addFamily(t[0].slice(3, -1), file, '', 'dynamic', 'concat');
+          else if (t[0].length > 3) {
+            if (!bag.addVariantToken(t[0], file, 'literal')) bag.addHook(t[0], file);
+          }
         }
       }
     };
-    // cn( ... ) spans
     for (const m of stripped.matchAll(/\bcn\(/g)) {
       let depth = 1, i = m.index + m[0].length;
       while (i < stripped.length && depth > 0) {
@@ -240,35 +314,37 @@ function scanScriptSection(code, file, rel, bag, opts = {}) {
         i += 1;
       }
       const span = stripped.slice(m.index, i);
-      for (const s of span.matchAll(/'([^']*)'|"([^"]*)"|`([^`]*)`/g)) scanLiteral(s[1] ?? s[2] ?? s[3], !!s[3]);
+      for (const s2 of span.matchAll(/'([^']*)'|"([^"]*)"|`([^`]*)`/g)) scanLiteral(s2[1] ?? s2[2] ?? s2[3], !!s2[3]);
+      // conditional shapes inside the span (ternary / &&)
+      for (const t of span.matchAll(/([?&])\s*['"`]?[^'"`?:&]{0,120}?\b(jx-[a-z0-9-]+)\b/g)) {
+        bag.addVariantToken(t[2], file, t[1] === '?' ? 'ternary' : 'and-guard');
+      }
     }
-    // NOTE: no catch-all template scan — id/getElementById templates
-    // (e.g. jx-bar-panel-${id}) are structurally invisible here and any
-    // genuinely class-shaped template outside cn() lands in handReview
-    // via the stray-string net. (Codex r1 B2.)
-    return; // line-level rules below are for plain scripts only
   }
-    return;
-  }
+
+  // ── stage 2 (ALL scripts, incl. svelte): classList + query references
   lines.forEach((line, i) => {
-    // classList method args
     const cl = line.match(/classList\.(add|remove|toggle|contains)\(\s*['"`]([^'"`]+)['"`]/);
     if (cl) {
       for (const t of cl[2].matchAll(/\bjx-[a-z0-9-]+/g)) {
-        if (cl[2].endsWith('-') || t[0].endsWith('-')) bag.addFamily(t[0].slice(3, -1), file, `L${i + 1}`);
-        else bag.addHook(t[0], file);
+        if (!bag.addVariantToken(t[0], file, 'classList')) bag.addHook(t[0], file);
       }
-      bag.references.push({ file: rel(file), kind: 'classList', token: cl[2] });
+      bag.references.push({ file: rel(file), kind: 'classList', line: i + 1, token: cl[2] });
       return;
     }
-    // selector-shaped strings on query APIs
     const q = line.match(/(querySelector(?:All)?|closest|matches)\(\s*['"`]([^'"`]+)['"`]/);
     if (q && /jx-/.test(q[2])) {
-      bag.references.push({ file: rel(file), kind: 'query', token: q[2] });
-      for (const t of q[2].matchAll(/\.jx-[a-z0-9-]+/g)) bag.addHook(t[0].slice(1), file);
+      bag.references.push({ file: rel(file), kind: 'query', line: i + 1, token: q[2] });
+      for (const t of q[2].matchAll(/\.jx-[a-z0-9-]+/g)) {
+        if (!bag.addVariantToken(t[0].slice(1), file, 'query')) bag.addHook(t[0].slice(1), file);
+      }
       return;
     }
-    // fail-closed: any other jx- token in a quoted string on this line
+    // fail-closed: multi-line/concat selector shapes containing jx-
+    if (/querySelector|closest|matches|classList/.test(line) && /jx-/.test(line) && !/\(/.test(line.split('jx-')[0])) {
+      bag.handReview.push({ file: rel(file), line: i + 1, excerpt: 'possible multi-line selector: ' + line.trim().slice(0, 70) });
+      return;
+    }
     const stray = line.match(/['"`]([^'"`]*jx-[a-z0-9-][^'"`]*)['"`]/);
     if (stray && !/onjx-|jx-reset|--jx-|@media|data-jx/.test(stray[1])) {
       bag.handReview.push({ file: rel(file), line: i + 1, excerpt: stray[1].slice(0, 80) });
@@ -278,26 +354,33 @@ function scanScriptSection(code, file, rel, bag, opts = {}) {
 
 // ── CLI ─────────────────────────────────────────────────────────────
 if (process.argv[1] && process.argv[1].endsWith('jx-inventory.mjs')) {
-  const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-  const inv = buildInventory(root);
+  const rootArg = process.argv.find((a) => a.startsWith('--root='))?.slice(7) ?? join(dirname(fileURLToPath(import.meta.url)), '..');
+  const inv = await buildInventory(rootArg);
   const jsonIdx = process.argv.indexOf('--json');
   const payload = {
-    stats: {
+    engine: 'jx-inventory@2',
+    root: rootArg,
+    counts: {
       defined: inv.defined.size,
       staticHooks: inv.staticHooks.size,
-      families: [...inv.families.keys()],
-      familyCount: inv.families.size,
+      families: inv.families.size,
       handReview: inv.handReview.length,
       references: inv.references.length,
     },
+    defined: [...inv.defined].sort(),
+    hooks: Object.fromEntries([...inv.staticHooks.entries()].sort().map(([k, v]) => [k, v])),
+    families: Object.fromEntries([...inv.families.entries()].map(([b, v]) => [b, {
+      variants: Object.fromEntries([...v.variants.entries()].map(([val, sites]) => [val, sites])),
+      shapes: [...v.shapes],
+      sites: v.sites.slice(0, 12),
+    }])),
     handReview: inv.handReview,
-    hooks: [...inv.staticHooks.keys()].sort(),
-    familiesDetail: Object.fromEntries([...inv.families].map(([b, v]) => [b, { sites: v.sitecount ?? v.sites?.length ?? 0 }])),
+    references: inv.references,
   };
   if (jsonIdx > -1) writeFileSync(process.argv[jsonIdx + 1], JSON.stringify(payload, null, 2));
-  console.log(JSON.stringify(payload.stats, null, 1));
+  console.log(JSON.stringify(payload.counts, null, 1));
   if (inv.handReview.length) {
     console.log(`\nhand-review sites (${inv.handReview.length}):`);
-    inv.handReview.slice(0, 20).forEach((h) => console.log(`  ${h.file}:${h.line} — ${h.excerpt}`));
+    inv.handReview.slice(0, 12).forEach((h) => console.log(`  ${h.file}:${h.line} — ${h.excerpt}`));
   }
 }

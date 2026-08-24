@@ -69,8 +69,10 @@ el.classList.contains('jx-foo')     el.hasAttribute('data-jx-foo')
 ```
 
 Variant families collapse into ONE valued attribute
-(`data-jx-badge={tone}`); part anchors stay boolean
-(`data-jx-badge-title`). The repo's own auditors:
+(`data-jx-badge={tone}`) — when a bare base hook coexists with the
+family (`jx-alert jx-alert-${tone}`) they MERGE into that single
+valued attribute (`[data-jx-alert]` still matches by presence); part
+anchors stay boolean (`data-jx-badge-title`). The repo's own auditors:
 `scripts/jx-inventory.mjs` (structured scan) and
 `scripts/verify-hook-law.mjs --post` (fails on any css-less `jx-*`
 token or namespace shadow).
