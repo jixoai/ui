@@ -1,13 +1,13 @@
 {
-  "engine": "jx-inventory@3",
+  "engine": "jx-inventory@3.1",
   "root": "clean-worktree@HEAD",
   "counts": {
     "defined": 281,
     "staticHooks": 360,
     "families": 13,
     "directives": 36,
-    "handReview": 282,
-    "references": 300
+    "handReview": 273,
+    "references": 296
   },
   "defined": [
     "jx-acc-item",
@@ -1114,8 +1114,7 @@
       "registry/files/ui/kbd/kbd.svelte:30",
       "registry/files/ui/kbd/kbd.svelte:30",
       "apps/www/src/lib/ui/kbd/kbd.svelte:30",
-      "apps/www/src/lib/ui/kbd/kbd.svelte:30",
-      "scripts/verify-hook-law.mjs:134"
+      "apps/www/src/lib/ui/kbd/kbd.svelte:30"
     ],
     "jx-lang": [
       "registry/files/ui/language-switcher/language-switcher.svelte:44",
@@ -3651,21 +3650,6 @@
       "excerpt": "jx-auto-dark region regenerated (%d declaration lines)"
     },
     {
-      "file": "scripts/jx-inventory.mjs",
-      "line": 174,
-      "excerpt": "jx-foo-"
-    },
-    {
-      "file": "scripts/jx-inventory.mjs",
-      "line": 327,
-      "excerpt": "jx-inventory.mjs"
-    },
-    {
-      "file": "scripts/jx-inventory.mjs",
-      "line": 333,
-      "excerpt": "jx-inventory@3"
-    },
-    {
       "file": "scripts/verify-folder-css.mjs",
       "line": 63,
       "excerpt": "jx-probe"
@@ -3674,36 +3658,6 @@
       "file": "scripts/verify-folder-css.mjs",
       "line": 118,
       "excerpt": "jx-probe"
-    },
-    {
-      "file": "scripts/verify-hook-law.mjs",
-      "line": 22,
-      "excerpt": "./jx-inventory.mjs"
-    },
-    {
-      "file": "scripts/verify-hook-law.mjs",
-      "line": 39,
-      "excerpt": "jx-x"
-    },
-    {
-      "file": "scripts/verify-hook-law.mjs",
-      "line": 71,
-      "excerpt": "fixture: jx-try-on is css-defined (stays a class)"
-    },
-    {
-      "file": "scripts/verify-hook-law.mjs",
-      "line": 72,
-      "excerpt": "fixture: jx-bar-panel / jx-bar-trigger id-families invisible"
-    },
-    {
-      "file": "scripts/verify-hook-law.mjs",
-      "line": 116,
-      "excerpt": "jx-toggle-track"
-    },
-    {
-      "file": "scripts/verify-hook-law.mjs",
-      "line": 121,
-      "excerpt": "jx-toggle-track"
     },
     {
       "file": "scripts/verify-hue.mjs",
@@ -5290,30 +5244,6 @@
       "kind": "classList",
       "line": 136,
       "token": "text-primary"
-    },
-    {
-      "file": "scripts/verify-hook-law.mjs",
-      "kind": "query",
-      "line": 133,
-      "token": "[data-jx-kbd]"
-    },
-    {
-      "file": "scripts/verify-hook-law.mjs",
-      "kind": "query",
-      "line": 134,
-      "token": ".jx-kbd"
-    },
-    {
-      "file": "scripts/verify-hook-law.mjs",
-      "kind": "query",
-      "line": 139,
-      "token": "[data-jx-alert]"
-    },
-    {
-      "file": "scripts/verify-hook-law.mjs",
-      "kind": "query",
-      "line": 140,
-      "token": "[data-jx-alert]"
     },
     {
       "file": "scripts/verify-hue.mjs",
