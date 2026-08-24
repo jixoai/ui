@@ -82,3 +82,15 @@
   自检承担（同时机无竞态）
 - 修复后门禁：**338/338**（含 11 项结构锁）+ build:site 7/7（自检
   全过）+ 浏览器行为复验 6/6
+
+## Codex r3（确认轮）
+
+- **8.3/10（↑1.1）**，14m49s；完整结论 review-r3.md
+- 判定：P1-1 fixed（curl 实证 73 UI 全等、utils/toc-engine/guides=0）、
+  P1-2 fixed（$derived 实证）、P1-3 partial——快照曾从活 catalog 推导
+- r3 修复（本轮）：**冻结字面量快照**（64 条 from 写死在测试内，
+  不再随 catalog 演化——未来新组件不再错误要求 legacy 壳）；
+  md 镜像自检扩展到 hub + sections/registry 页；P2 两项
+  （entries 单一来源生成器、dist/md 内容级 parity）记为显性债务
+  （tasks #16）
+- 终态门禁：338/338、build:site 7/7（自检 0 失败）、锁 18 项全绿
