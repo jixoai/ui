@@ -21,9 +21,17 @@
   snippet keyed by item id, rendered inside role=menu). Selection
   semantics belong to the content (links leave, buttons act) — the
   menubar only owns the walking and the open/close coordination.
+
+  tw4 (2026-08-24): bar/trigger paint as token utilities (open state
+  and the last-trigger border are JS-known → conditional strings);
+  ONLY the anchored panel law (position-try geometry, the @supports
+  viewport-center fallback, ::backdrop) remains in menubar.css —
+  D1-exempt residue.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './menubar.css';
 
   export interface MenubarItem {
     id: string;
@@ -184,13 +192,13 @@
      the bar itself is never a tab stop -->
 <div
   bind:this={barEl}
-  class="jx-menubar {className}"
+  class={cn('jx-menubar flex w-fit flex-wrap items-stretch border border-border bg-card shadow-2xs', className)}
   role="menubar"
   aria-label={label}
   onkeydown={handleBarKeydown}
 >
   {#each items as item, index (item.id)}
-    <span class="jx-menubar-slot" style="anchor-name: {anchorOf(item.id)}">
+    <span class="jx-menubar-slot inline-flex" style="anchor-name: {anchorOf(item.id)}">
       <button
         type="button"
         id="jx-bar-trigger-{item.id}"
@@ -198,6 +206,13 @@
         aria-haspopup="menu"
         aria-expanded={openId === item.id}
         tabindex={activeBarIndex === index ? 0 : -1}
+        class={cn(
+          'px-[0.875rem] py-[0.4375rem] font-nav text-xs uppercase tracking-[0.1em] cursor-pointer transition-[color,background-color] duration-150 ease-out focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+          index === items.length - 1 ? 'border-r-0' : 'border-r border-border',
+          openId === item.id
+            ? 'bg-muted text-foreground'
+            : 'bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground',
+        )}
         onfocus={() => (activeBarIndex = index)}
         onclick={() => (openId === item.id ? closePanel(item.id, false) : openPanel(item.id, false))}
       >
@@ -225,76 +240,8 @@
   >
     <!-- surface body (fill + ::after shadow); the popover element paints
          nothing (floating-surface law arch r3) -->
-    <div class="jx-bar-surface jx-surface-body">
+    <div class="jx-bar-surface jx-surface-body p-1">
       {@render panel(item)}
     </div>
   </div>
 {/each}
-
-<style>
-  .jx-menubar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: stretch;
-    border: 1px solid var(--border);
-    background: var(--card);
-    box-shadow: var(--shadow-2xs);
-    width: fit-content;
-  }
-  .jx-menubar-slot {
-    display: inline-flex;
-  }
-  .jx-menubar button[role='menuitem'] {
-    padding: 0.4375rem 0.875rem;
-    border: 0;
-    border-right: 1px solid var(--border);
-    background: transparent;
-    font-family: var(--font-nav);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    cursor: pointer;
-    transition: color 150ms ease-out, background-color 150ms ease-out;
-  }
-  .jx-menubar-slot:last-child button {
-    border-right: 0;
-  }
-  .jx-menubar button:hover,
-  .jx-menubar button[aria-expanded='true'] {
-    color: var(--foreground);
-    background: var(--muted);
-  }
-  .jx-menubar button:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-
-  /* surface on the jx-surface law (arch r3): the panel is the
-     PLATFORM element (no paint); the body ring carries the fill and
-     the ::after shadow layer. */
-  .jx-menubar-panel {
-    position: fixed;
-    margin: var(--jx-bar-gap, 8px);
-    position-try-fallbacks: flip-block;
-    position-try: flip-block;
-    position-visibility: anchors-visible;
-    width: fit-content;
-    min-width: 10rem;
-    color: var(--popover-foreground);
-  }
-  .jx-bar-surface {
-    padding: 0.25rem;
-  }
-  @supports not (anchor-name: --jx-bar-fallback) {
-    .jx-menubar-panel {
-      position-anchor: auto !important;
-      inset-area: none !important;
-      inset: 0;
-      margin: auto;
-    }
-  }
-  .jx-menubar-panel::backdrop {
-    background: transparent;
-  }
-</style>

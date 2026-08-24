@@ -58,10 +58,20 @@
   load-bearing: the side stays locked for the popover's lifetime, and
   `position-visibility: anchors-visible` hides the panel once the anchor
   itself scrolls out of view.
+
+  tw4 (2026-08-24): trigger/caret/scroll paint as token utilities (press
+  poses ride --jx-press* custom-property utilities, verbatim law);
+  popover.css keeps the D1-exempt machinery — panel anchor geometry +
+  flush margin (the @supports viewport-center fallback re-sets margin to
+  auto in the same layer, so a margin utility is forbidden), the
+  caret's :has()+:popover-open flip, the reduced-motion caret kill, the
+  override of the unlayered jx-surface ::after law, and ::backdrop.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
+  import { cn } from '$lib/utils';
+  import './popover.css';
 
   /** marker interface for kernel-owned WAAPI animations */
   interface CSSElementAnimationLike extends Animation {
@@ -206,20 +216,20 @@
   }
 </script>
 
-<span class="jx-pop-anchor" style="anchor-name: {anchorName}" bind:this={anchorEl}>
+<span class="jx-pop-anchor inline-flex" style="anchor-name: {anchorName}" bind:this={anchorEl}>
   {#if trigger}
     {@render trigger()}
   {:else}
     <button
       type="button"
-      class="jx-press jx-pop-trigger"
+      class="jx-press jx-pop-trigger inline-flex cursor-pointer items-center gap-2.5 border border-border bg-background px-3.5 py-2.5 font-sans text-sm font-medium text-foreground [--jx-press-shadow:var(--shadow-xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-muted"
       popovertarget={id}
       bind:this={triggerEl}
       aria-expanded={open}
     >
       {triggerLabel}
       <svg
-        class="jx-pop-caret"
+        class="jx-pop-caret h-[13px] w-[13px] flex-none transition-transform duration-150 ease-out"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -240,7 +250,7 @@
 <div
   {id}
   popover="auto"
-  class="jx-pop jx-surface {motion.supported ? 'jx-waapi' : ''} {panelClass}"
+  class={cn('jx-pop jx-surface', motion.supported && 'jx-waapi', panelClass)}
   data-variant={variant}
   bind:this={panel}
   style="position-anchor: {anchorName}; --jx-surface-in-x: {dir.ix}; --jx-surface-in-y: {dir.iy}; --jx-surface-ox: {dir.ox}; --jx-surface-oy: {dir.oy}; {tryFallbacks ? `${physical}; position-try: ${tryFallbacks}; position-try-fallbacks: ${tryFallbacks};` : `inset-area: ${area}; position-area: ${area};`}"
@@ -255,111 +265,10 @@
        unreachable from WAAPI — the kernel animates it in lockstep
        (Owner ruling r18) -->
   <div class="jx-pop-body jx-surface-body">
-    <div class="jx-pop-scroll">
+    <div
+      class="jx-pop-scroll max-h-[72vh] overflow-auto [scrollbar-gutter:stable_both-edges] [padding:var(--jx-pop-pad,12px_14px)] [padding-inline:max(var(--jx-pop-pad-inline,14px)-var(--jx-scrollbar-thin,0px),0px)]"
+    >
       {@render children()}
     </div>
   </div>
 </div>
-
-<style>
-  .jx-pop-anchor {
-    display: inline-flex;
-  }
-
-  /* Trigger: the press-button outline recipe on a native button — it must
-     stay a real <button> because popovertarget only works on buttons. */
-  .jx-pop-trigger {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    font-family: var(--font-sans);
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--foreground);
-    border: 1px solid var(--border);
-    background: var(--background);
-    --jx-press-shadow: var(--shadow-xs);
-    --jx-press-shadow-hover: var(--shadow-sm);
-    --jx-press-shadow-active: var(--shadow-sm-press);
-    cursor: pointer;
-  }
-  .jx-pop-trigger:hover {
-    background: var(--muted);
-  }
-
-  /* Caret: flips while open via :has + ::popover-open (progressive —
-     engines without it simply keep the closed caret). */
-  .jx-pop-caret {
-    width: 13px;
-    height: 13px;
-    flex: none;
-    transition: transform 150ms ease-out;
-  }
-    .jx-pop-anchor:has(+ .jx-pop:popover-open) .jx-pop-caret {
-    transform: rotate(180deg);
-  }
-
-  /* Panel law: the PLATFORM element — 1px border, anchoring, and the
-     open/close motion ONLY (floating-surface law arch r3: no paint
-     here; the fill lives on .jx-pop-body). Anchored via
-     position-anchor + inset-area (inline styles carry the per-instance
-     names); native try-fallbacks flip on overflow — zero JS geometry.
-     The panel never scrolls or clips. */
-  /* the real .jx-pop-shadow child owns the shadow here; the law's
-     ::after fallback is disabled to avoid painting both */
-  .jx-pop.jx-surface::after {
-    content: none;
-  }
-  .jx-pop {
-    position: fixed;
-    /* flush anchoring (Owner, 2026-08-23 r22): the adaptive shadow
-       always falls to the OUTWARD side (away from the anchor), so the
-       panel can hug the anchor directly — the old 8px margin existed
-       only to keep a fixed bottom-right shadow off the anchor */
-    margin: 0;
-    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
-    position-try: flip-block, flip-inline, flip-block flip-inline;
-    /* scroll law (MDN tip): when the anchor scrolls out of view (nested
-       scrollers move it), hide the panel instead of leaving it stale */
-    position-visibility: anchors-visible;
-    width: fit-content;
-    height: fit-content;
-    max-width: min(92vw, 22rem);
-    padding: 0;
-    font-size: 13px;
-    color: var(--popover-foreground);
-  }
-  /* the scroll+padding ring inside the surface body — consumers retune
-     padding through --jx-pop-pad (terminal-header's bezel does) */
-  .jx-pop-scroll {
-    max-height: 72vh;
-    overflow: auto;
-    /* scrollbar law: both-edges gutters; padding-inline hands the gutter
-       back. --jx-pop-pad-inline mirrors the shorthand's inline value —
-       retune inline padding through it whenever you set --jx-pop-pad */
-    scrollbar-gutter: stable both-edges;
-    padding: var(--jx-pop-pad, 12px 14px);
-    padding-inline: max(var(--jx-pop-pad-inline, 14px) - var(--jx-scrollbar-thin, 0px), 0px);
-  }
-  /* Engines without CSS Anchor Positioning: authored viewport-center —
-     the v1 visual, never worse. */
-  @supports not (anchor-name: --jx-pop-fallback) {
-    .jx-pop {
-      position-anchor: auto !important;
-      inset-area: none !important;
-      inset: 0;
-      margin: auto;
-    }
-  }
-  /* Popovers get a ::backdrop too; light dismiss must never dim the page. */
-  .jx-pop::backdrop {
-    background: transparent;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-pop-caret {
-      transition: none;
-    }
-  }
-</style>

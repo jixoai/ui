@@ -14,9 +14,17 @@
   the consumer's layout is never touched. The button follows the press
   law (theme .jx-press) at float scale — the --jx-press-shadow* customs
   re-point all three poses to the --shadow family.
+
+  tw4 (2026-08-24): button/stack paint as token utilities (corner is a
+  prop → conditional strings; the stack's inner button swaps fixed for
+  static the same way — the scoped descendant rule is gone); ONLY the
+  MENU panel law (anchor geometry + ::backdrop) remains in
+  float-button.css — D1-exempt residue.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './float-button.css';
 
   interface Props {
     /** accessible name — required (an icon-only button must say itself) */
@@ -50,10 +58,25 @@
   const anchorName = $derived(`--jx-fab-${autoId.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
   let open = $state(false);
   let btn = $state<HTMLButtonElement | null>(null);
+
+  // corner → fixed point (top corners clear the sticky bar: 5.5rem)
+  const corners = {
+    'bottom-right': 'jx-fab-bottom-right bottom-5 right-5',
+    'bottom-left': 'jx-fab-bottom-left bottom-5 left-5',
+    'top-right': 'jx-fab-top-right top-[5.5rem] right-5',
+    'top-left': 'jx-fab-top-left top-[5.5rem] left-5',
+  } as const;
+
+  // press law at float scale: rest on --shadow, hover grows to --shadow-md
+  const fabPaint =
+    'jx-press jx-fab inline-flex h-11 w-11 appearance-none items-center justify-center rounded border border-border bg-popover text-popover-foreground cursor-pointer [--jx-press-shadow:var(--shadow)] [--jx-press-shadow-hover:var(--shadow-md)] [--jx-press-shadow-active:var(--shadow-md-press)] hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
 </script>
 
 {#if actions}
-  <div class="jx-fab-stack jx-fab-{corner} {className}" style="anchor-name: {anchorName}">
+  <div
+    class={cn(`jx-fab-stack jx-fab-${corner} fixed z-[80] flex flex-col items-center gap-2`, corners[corner], className)}
+    style="anchor-name: {anchorName}"
+  >
     <div
       id={autoId}
       popover="auto"
@@ -66,13 +89,13 @@
     >
       <!-- surface body (fill + ::after shadow); the popover element
            paints nothing (floating-surface law arch r3) -->
-      <div class="jx-fab-menu-body jx-surface-body">
+      <div class="jx-fab-menu-body jx-surface-body p-1">
         {@render actions()}
       </div>
     </div>
     <button
       type="button"
-      class="jx-press jx-fab"
+      class={cn(fabPaint, 'static z-[80]', className)}
       aria-label={label}
       aria-expanded={open}
       aria-haspopup={actions ? 'menu' : undefined}
@@ -85,89 +108,10 @@
 {:else}
   <button
     type="button"
-    class="jx-press jx-fab jx-fab-{corner} {className}"
+    class={cn(fabPaint, 'fixed z-[80]', corners[corner], className)}
     aria-label={label}
     {onclick}
   >
     {#if children}{@render children()}{/if}
   </button>
 {/if}
-
-<style>
-  .jx-fab {
-    position: fixed;
-    z-index: 80;
-    appearance: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    border: 1px solid var(--border);
-    background: var(--popover);
-    color: var(--popover-foreground);
-    /* press law at float scale: rest on --shadow, hover grows to --shadow-md */
-    --jx-press-shadow: var(--shadow);
-    --jx-press-shadow-hover: var(--shadow-md);
-    --jx-press-shadow-active: var(--shadow-md-press);
-    border-radius: var(--radius);
-    cursor: pointer;
-  }
-  .jx-fab:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-  }
-  .jx-fab:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-
-  .jx-fab-bottom-right {
-    right: 1.25rem;
-    bottom: 1.25rem;
-  }
-  .jx-fab-bottom-left {
-    left: 1.25rem;
-    bottom: 1.25rem;
-  }
-  .jx-fab-top-right {
-    right: 1.25rem;
-    top: 5.5rem;
-  }
-  .jx-fab-top-left {
-    left: 1.25rem;
-    top: 5.5rem;
-  }
-
-  /* menu idiom: the fixed stack anchors the popover visually */
-  .jx-fab-stack {
-    position: fixed;
-    z-index: 80;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .jx-fab-stack .jx-fab {
-    position: static;
-  }
-  /* menu surface on the jx-surface law (arch r3): the popover element
-     is the PLATFORM shell (no paint); the body carries the fill and
-     the ::after shadow layer */
-  .jx-fab-menu {
-    position: fixed;
-    margin: var(--jx-fab-gap, 8px);
-    position-try-fallbacks: flip-block, flip-inline;
-    position-try: flip-block, flip-inline;
-    position-visibility: anchors-visible;
-    width: fit-content;
-    min-width: 9rem;
-    color: var(--popover-foreground);
-  }
-  .jx-fab-menu-body {
-    padding: 0.25rem;
-  }
-  .jx-fab-menu::backdrop {
-    background: transparent;
-  }
-</style>

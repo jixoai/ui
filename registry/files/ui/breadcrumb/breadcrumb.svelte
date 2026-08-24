@@ -14,8 +14,15 @@
   Overflow on long trails collapses the MIDDLE into a single "…" link
   when `collapse` is set (the omitted pages are one click away through
   it — it links to the first hidden crumb, never a dead ellipsis).
+
+  tw4 (2026-08-24): trail/link paint as token utilities in the markup;
+  ONLY the CSS-drawn chevron (a pseudo-element build on the li+li
+  sibling) remains in breadcrumb.css — D1-exempt residue.
 -->
 <script lang="ts">
+  import { cn } from '$lib/utils';
+  import './breadcrumb.css';
+
   interface Crumb {
     label: string;
     href: string;
@@ -53,65 +60,33 @@
   const isCurrent = $derived((c: (typeof items)[number]) => c === items.at(-1));
 </script>
 
-<nav class="jx-breadcrumb {className}" aria-label={label}>
-  <ol class="jx-breadcrumb-list" role="list">
+<nav class={cn('jx-breadcrumb', className)} aria-label={label}>
+  <ol
+    class="jx-breadcrumb-list m-0 flex list-none flex-wrap items-center gap-1.5 font-nav text-xs uppercase tracking-[0.08em]"
+    role="list"
+  >
     {#each items as crumb, index (index)}
       <li class:jx-crumb-gap={crumb.gap}>
         {#if isCurrent(crumb) && !crumb.gap}
-          <a class="jx-breadcrumb-current" href={crumb.href} aria-current="page">{crumb.label}</a>
+          <a
+            class="jx-breadcrumb-current text-foreground no-underline"
+            href={crumb.href}
+            aria-current="page"
+          >
+            {crumb.label}
+          </a>
         {:else}
-          <a class="jx-breadcrumb-link" href={crumb.href}>{crumb.label}</a>
+          <a
+            class={cn(
+              'jx-breadcrumb-link text-muted-foreground no-underline transition-colors duration-150 ease-out hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-2',
+              crumb.gap && 'tracking-normal',
+            )}
+            href={crumb.href}
+          >
+            {crumb.label}
+          </a>
         {/if}
       </li>
     {/each}
   </ol>
 </nav>
-
-<style>
-  .jx-breadcrumb-list {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.375rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    font-family: var(--font-nav);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  /* the separator: CSS-drawn chevron, decoration only */
-  .jx-breadcrumb-list li + li::before {
-    content: '';
-    display: inline-block;
-    margin-right: 0.375rem;
-    width: 0.375rem;
-    height: 0.375rem;
-    border-right: 1px solid var(--muted-foreground);
-    border-bottom: 1px solid var(--muted-foreground);
-    transform: rotate(-45deg);
-    opacity: 0.7;
-  }
-
-  .jx-breadcrumb-link {
-    color: var(--muted-foreground);
-    text-decoration: none;
-    transition: color 150ms ease-out;
-  }
-  .jx-breadcrumb-link:hover {
-    color: var(--primary);
-  }
-  .jx-breadcrumb-link:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: 2px;
-  }
-
-  .jx-breadcrumb-current {
-    color: var(--foreground);
-    text-decoration: none;
-  }
-  .jx-crumb-gap .jx-breadcrumb-link {
-    letter-spacing: 0;
-  }
-</style>

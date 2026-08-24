@@ -1,0 +1,51 @@
+@layer theme, base, components, utilities;
+
+@layer components {
+/* jixoai tour — D1-exempt residue (tw4, 2026-08-24): geometry only.
+ * The hole anchors to the leased target: sized by anchor-size, tinted
+ * by one huge box-shadow — zero geometry JS. Its @supports form re-sets
+ * inset AND background, so neither may ride a markup utility (utilities
+ * would beat this components-layer rule and break the anchored hole).
+ * The panel places by anchor() functions — the SAME primitives the
+ * hole uses (inset-area is unsupported in engines where anchor()
+ * works; the walkthrough-5 geometry probe proved function positioning
+ * reliable) — and its top/left fallbacks likewise own no utility
+ * counterparts. Without anchor positioning support: a plain
+ * full-viewport tint, no hole. Card/text paint lives in the markup. */
+.jx-tour-hole {
+  inset: 0;
+  background: color-mix(in oklab, var(--background) 55%, transparent);
+}
+@supports (anchor-name: --jx-tour-support) and (width: anchor-size(width)) {
+  .jx-tour-hole-anchored {
+    inset: auto;
+    top: anchor(top);
+    left: anchor(left);
+    width: anchor-size(width);
+    height: anchor-size(height);
+    background: transparent;
+    border: 1px solid var(--primary);
+    box-shadow: 0 0 0 100vmax color-mix(in oklab, var(--background) 55%, transparent);
+  }
+}
+
+.jx-tour {
+  position: fixed;
+  top: calc(anchor(bottom) + var(--jx-tour-gap, 12px));
+  left: anchor(left);
+  width: fit-content;
+  max-width: min(88vw, 20rem);
+  color: var(--popover-foreground);
+}
+@supports not (anchor-name: --jx-tour-support) {
+  .jx-tour {
+    position-anchor: auto !important;
+    inset: 0;
+    margin: auto 1rem auto auto;
+    align-self: center;
+  }
+}
+.jx-tour::backdrop {
+  background: transparent;
+}
+}

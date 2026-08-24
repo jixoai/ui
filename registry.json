@@ -63,13 +63,21 @@
           "path": "registry/files/ui/press-button/index.ts",
           "target": "@ui/press-button/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/press-button/press-button.css",
+          "target": "@ui/press-button/press-button.css",
+          "type": "registry:file"
         }
       ],
       "meta": {
         "group": "general",
         "href": "/components/press-button.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -182,7 +190,10 @@
         "group": "general",
         "href": "/components/theme-toggle.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -337,7 +348,10 @@
         "group": "navigation",
         "href": "/components/language-switcher.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -565,6 +579,11 @@
           "path": "registry/files/ui/popover/index.ts",
           "target": "@ui/popover/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/popover/popover.css",
+          "target": "@ui/popover/popover.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: id (required, links popovertarget), triggerLabel; snippet children. Inside a popover, a second popovertarget button closes it declaratively \u2014 still zero JS.",
@@ -572,7 +591,10 @@
         "group": "feedback",
         "href": "/components/popover.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1293,6 +1315,11 @@
           "path": "registry/files/ui/tabs/index.ts",
           "target": "@ui/tabs/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/tabs/tabs-trigger.css",
+          "target": "@ui/tabs/tabs-trigger.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Root props: value ($bindable, '' = none selected), onchange?. TabsList: orientation? ('horizontal'|'vertical'). TabsTrigger: value, disabled?. TabsContent: value.",
@@ -1300,7 +1327,10 @@
         "group": "navigation",
         "href": "/components/tabs.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1351,6 +1381,11 @@
           "path": "registry/files/ui/tooltip/index.ts",
           "target": "@ui/tooltip/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/tooltip/tooltip.css",
+          "target": "@ui/tooltip/tooltip.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: id?, text, placement? ('top' default), openDelay? (400), closeDelay? (100); children snippet = the trigger content.",
@@ -1358,7 +1393,10 @@
         "group": "feedback",
         "href": "/components/tooltip.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1383,7 +1421,10 @@
         "group": "navigation",
         "href": "/components/pagination.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1406,6 +1447,11 @@
           "path": "registry/files/ui/dropdown-menu/index.ts",
           "target": "@ui/dropdown-menu/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/dropdown-menu/dropdown-menu.css",
+          "target": "@ui/dropdown-menu/dropdown-menu.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Root props: id, triggerLabel?, placement? ('bottom-end'), trigger? (custom snippet), panelClass?, onToggle?. Item props: destructive?, plus <button> passthrough; separators are plain <hr>, labels plain markup.",
@@ -1413,7 +1459,10 @@
         "group": "navigation",
         "href": "/components/dropdown-menu.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1431,6 +1480,11 @@
           "path": "registry/files/ui/breadcrumb/index.ts",
           "target": "@ui/breadcrumb/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/breadcrumb/breadcrumb.css",
+          "target": "@ui/breadcrumb/breadcrumb.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: crumbs ({label, href}[], last = current page), label?, collapse? (max visible before the middle folds, 0 = never).",
@@ -1438,7 +1492,10 @@
         "group": "navigation",
         "href": "/components/breadcrumb.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1588,6 +1645,11 @@
           "path": "registry/files/ui/hover-card/index.ts",
           "target": "@ui/hover-card/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/hover-card/hover-card.css",
+          "target": "@ui/hover-card/hover-card.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: trigger (snippet), children (the card), placement? ('bottom' default), openDelay? (300), closeDelay? (200).",
@@ -1595,7 +1657,10 @@
         "group": "feedback",
         "href": "/components/hover-card.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1707,6 +1772,11 @@
           "path": "registry/files/ui/command/index.ts",
           "target": "@ui/command/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/command/command.css",
+          "target": "@ui/command/command.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: items (CommandItem[]), open ($bindable), onopenchange?, onselect? (single execution path \u2014 no dual run()), closeOnSelect? (true), placeholder?, label?, hotkey? (false \u2014 opt-in), filter? (pure function, default rankCommandItems export).",
@@ -1714,7 +1784,10 @@
         "group": "feedback",
         "href": "/components/command.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1732,6 +1805,11 @@
           "path": "registry/files/ui/navigation-menu/index.ts",
           "target": "@ui/navigation-menu/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/navigation-menu/navigation-menu.css",
+          "target": "@ui/navigation-menu/navigation-menu.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: items ({id,label,href?,current?,hasPanel?}[]), label?, panel? (snippet [item]), openDelay? (150).",
@@ -1739,7 +1817,10 @@
         "group": "navigation",
         "href": "/components/navigation-menu.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1757,6 +1838,11 @@
           "path": "registry/files/ui/menubar/index.ts",
           "target": "@ui/menubar/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/menubar/menubar.css",
+          "target": "@ui/menubar/menubar.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: items ({id,label}[]), label?, panel (snippet [item] \u2014 bring buttons/links with role=menuitem).",
@@ -1764,7 +1850,10 @@
         "group": "navigation",
         "href": "/components/menubar.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -2113,6 +2202,11 @@
           "path": "registry/files/ui/float-button/index.ts",
           "target": "@ui/float-button/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/float-button/float-button.css",
+          "target": "@ui/float-button/float-button.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: label (required \u2014 icon-only buttons must say themselves), corner? ('bottom-right' default), onclick? (plain), actions? (snippet, menu idiom), children (icon/glyph). Menu idiom: the actions snippet must bring real buttons/links carrying role=menuitem (the walk contract is theirs).",
@@ -2120,7 +2214,10 @@
         "group": "general",
         "href": "/components/float-button.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -2170,7 +2267,9 @@
       ],
       "docs": "Props: items ({href:'#id', label}[]), label?, offset? (96 \u2014 the pick line, for sticky headers).",
       "registryDependencies": [
-        "@jixoai/scroll-spy"
+        "@jixoai/scroll-spy",
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "navigation",
@@ -2193,6 +2292,11 @@
           "path": "registry/files/ui/tour/index.ts",
           "target": "@ui/tour/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/tour/tour.css",
+          "target": "@ui/tour/tour.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: steps ({target: selector | resolver, title, description?}[]), open ($bindable), startAt?, onfinish?(stoppedAtIndex), onstep?, nextLabel/prevLabel/skipLabel?.",
@@ -2200,7 +2304,10 @@
         "group": "feedback",
         "href": "/components/tour.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",

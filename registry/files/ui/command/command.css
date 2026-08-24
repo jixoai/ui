@@ -1,0 +1,13 @@
+@layer theme, base, components, utilities;
+
+@layer components {
+/* jixoai command palette — D1-exempt residue (tw4, 2026-08-24): the
+ * ::backdrop scrim is a pseudo-element (not authorable as a utility).
+ * Scrim law: --scrim — semi-transparent black (light) / white (dark),
+ * never a brand tint; the fade itself rides the motion kernel's
+ * --jx-p timeline (jixoai.css law, r29), so ONLY the color lives
+ * here. All other paint is token utilities in the markup. */
+.jx-command::backdrop {
+  background: var(--scrim);
+}
+}

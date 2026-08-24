@@ -1,0 +1,32 @@
+@layer theme, base, components, utilities;
+
+@layer components {
+/* jixoai hover card — D1-exempt residue (tw4, 2026-08-24): the panel
+ * law only — CSS Anchor Positioning geometry (position-try fallbacks,
+ * anchors-visible scroll hiding), the @supports viewport-center
+ * fallback (its margin:auto re-sets the gap margin in this same layer,
+ * so a margin utility is forbidden), and the transparent ::backdrop.
+ * Card law (arch r3): the popover element is the PLATFORM shell —
+ * motion only, no paint; the body carries the fill. Anchor/body paint
+ * lives as token utilities in the markup. */
+.jx-hover-card {
+  position: fixed;
+  margin: var(--jx-hover-gap, 8px);
+  position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+  position-try: flip-block, flip-inline, flip-block flip-inline;
+  position-visibility: anchors-visible;
+}
+@supports not (anchor-name: --jx-hover-fallback) {
+  .jx-hover-card {
+    position-anchor: auto !important;
+    inset-area: none !important;
+    inset: 0;
+    margin: auto;
+    align-self: center;
+    justify-self: center;
+  }
+}
+.jx-hover-card::backdrop {
+  background: transparent;
+}
+}

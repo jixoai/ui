@@ -26,6 +26,11 @@
   (closeOnSelect={false} keeps it open for batch actions). ⌘K/Ctrl+K
   is bound by the component on window; hotkey={false} opts out and
   the app owns the trigger.
+
+  tw4 (2026-08-24): paint as token utilities in the markup (active/
+  disabled option states are JS-known → conditional strings); ONLY
+  the ::backdrop scrim (a pseudo-element) remains in command.css —
+  D1-exempt residue.
 -->
 <script lang="ts" module>
 export interface CommandItem {
@@ -67,6 +72,8 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
   import { onDestroy, untrack } from 'svelte';
   import type { Snippet } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
+  import { cn } from '$lib/utils';
+  import './command.css';
 
   interface Props {
     items: CommandItem[];
@@ -222,19 +229,23 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
 
 <dialog
   bind:this={dialog}
-  class="jx-command jx-surface {motion.supported ? 'jx-waapi' : ''} {className}"
+  class={cn(
+    'jx-command jx-surface box-border mt-[12vh] mx-auto mb-auto w-[min(560px,calc(100vw-2rem))] max-h-[min(60vh,30rem)] rounded p-0 text-popover-foreground',
+    motion.supported && 'jx-waapi',
+    className,
+  )}
   data-variant={variant}
   aria-label={label}
   oncancel={handleCancel}
   onclose={handleClose}
 >
   <div class="jx-command-shadow jx-surface-shadow" aria-hidden="true"></div>
-  <div class="jx-command-frame jx-surface-body">
+  <div class="jx-command-frame jx-surface-body flex flex-col [max-height:inherit]">
     <!-- svelte-ignore a11y_autofocus -- the palette's whole contract is
          type-to-search: focus must land in the input on open -->
     <input
       bind:this={input}
-      class="jx-command-input"
+      class="jx-command-input box-border w-full border-b border-border bg-transparent px-4 py-[0.875rem] font-mono text-[0.9375rem] text-foreground placeholder:text-muted-foreground focus:outline-none"
       type="text"
       role="combobox"
       aria-label={label}
@@ -248,10 +259,21 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
       oncompositionstart={() => (composing = true)}
       oncompositionend={() => (composing = false)}
     />
-    <div class="jx-command-list" id={listId} role="listbox" aria-label={label} tabindex="-1">
+    <div
+      class="jx-command-list overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-[0.375rem] [padding-inline:max(0.375rem-var(--jx-scrollbar-thin,0px),0px)]"
+      id={listId}
+      role="listbox"
+      aria-label={label}
+      tabindex="-1"
+    >
       {#each groups as run ((run.group ?? 'root') + run.items[0]!.id)}
         {#if run.group}
-          <p class="jx-command-group" aria-hidden="true">{run.group}</p>
+          <p
+            class="jx-command-group mt-2 mb-1 px-2 font-nav text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground"
+            aria-hidden="true"
+          >
+            {run.group}
+          </p>
         {/if}
         {#each run.items as item (item.id)}
           {@const index = results.indexOf(item)}
@@ -263,124 +285,32 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
             role="option"
             aria-selected={index === activeIndex}
             aria-disabled={item.disabled || undefined}
-            class="jx-command-item"
-            class:jx-command-item-active={index === activeIndex}
-            class:jx-command-item-disabled={item.disabled}
+            class={cn(
+              'jx-command-item flex items-center justify-between gap-3 px-[0.625rem] py-2 text-[0.8125rem] text-foreground',
+              item.disabled
+                ? 'jx-command-item-disabled cursor-not-allowed opacity-45'
+                : index === activeIndex
+                  ? 'jx-command-item-active cursor-pointer bg-muted shadow-[inset_2px_0_0_var(--primary)]'
+                  : 'cursor-pointer',
+            )}
             onclick={() => activate(index)}
             onpointerenter={() => !item.disabled && (activeIndex = index)}
           >
-            <span class="jx-command-label">{item.label}</span>
+            <span class="jx-command-label min-w-0 truncate">{item.label}</span>
             {#if item.hint}
-              <span class="jx-command-hint">{item.hint}</span>
+              <span
+                class="jx-command-hint flex-none border border-border px-[0.375rem] font-nav text-[0.6875rem] tracking-[0.1em] text-muted-foreground"
+              >
+                {item.hint}
+              </span>
             {/if}
           </div>
         {/each}
       {:else}
-        <div class="jx-command-empty" role="status">no matches — {query.trim() || '…'}</div>
+        <div class="jx-command-empty px-[0.625rem] py-5 text-center text-[0.8125rem] text-muted-foreground" role="status">
+          no matches — {query.trim() || '…'}
+        </div>
       {/each}
     </div>
   </div>
 </dialog>
-
-<style>
-  .jx-command {
-    box-sizing: border-box;
-    width: min(560px, calc(100vw - 2rem));
-    /* sit above center — palettes read as floating queries */
-    margin: 12vh auto auto;
-    padding: 0;
-    color: var(--popover-foreground);
-    border-radius: var(--radius);
-    max-height: min(60vh, 30rem);
-  }
-  /* scrim law: --scrim — semi-transparent black (light) / white (dark),
-     never a brand tint; the .closing press-back is the jx-surface law,
-     only the ::backdrop fade is component-owned (dialog.svelte law) */
-  .jx-command::backdrop {
-    background: var(--scrim);
-  }
-  /* r18 EXCEPTION: ::backdrop is a pseudo-element — unreachable from
-     WAAPI, so the scrim fade stays a CSS transition by necessity */
-
-  /* doubles as the surface body (paint + ::after shadow);
-     floating-surface law arch r3 — the <dialog> paints nothing */
-  .jx-command-frame {
-    display: flex;
-    flex-direction: column;
-    max-height: inherit;
-  }
-  .jx-command-input {
-    box-sizing: border-box;
-    width: 100%;
-    padding: 0.875rem 1rem;
-    border: 0;
-    border-bottom: 1px solid var(--border);
-    background: transparent;
-    color: var(--foreground);
-    font-family: var(--font-mono);
-    font-size: 0.9375rem;
-  }
-  .jx-command-input::placeholder {
-    color: var(--muted-foreground);
-  }
-  .jx-command-input:focus {
-    outline: none;
-  }
-
-  .jx-command-list {
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    /* scrollbar law: both-edges gutters; padding-inline hands the gutter back */
-    scrollbar-gutter: stable both-edges;
-    padding-block: 0.375rem;
-    padding-inline: max(0.375rem - var(--jx-scrollbar-thin, 0px), 0px);
-  }
-  .jx-command-group {
-    margin: 0.5rem 0 0.25rem;
-    padding: 0 0.5rem;
-    font-family: var(--font-nav);
-    font-size: 0.6875rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-  }
-  .jx-command-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.5rem 0.625rem;
-    cursor: pointer;
-    font-size: 0.8125rem;
-    color: var(--foreground);
-  }
-  .jx-command-item-active {
-    background: var(--muted);
-    box-shadow: inset 2px 0 0 var(--primary);
-  }
-  .jx-command-item-disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-  .jx-command-label {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .jx-command-hint {
-    flex: none;
-    font-family: var(--font-nav);
-    font-size: 0.6875rem;
-    letter-spacing: 0.1em;
-    color: var(--muted-foreground);
-    border: 1px solid var(--border);
-    padding: 0 0.375rem;
-  }
-  .jx-command-empty {
-    padding: 1.25rem 0.625rem;
-    text-align: center;
-    font-size: 0.8125rem;
-    color: var(--muted-foreground);
-  }
-</style>

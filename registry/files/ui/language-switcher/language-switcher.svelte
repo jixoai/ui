@@ -12,8 +12,15 @@
   the localized path of the current page), so the switcher works on fully
   prerendered sites. Terminal-surface styling matches theme-toggle
   (light border on the dark bezel).
+
+  tw4 (2026-08-24): PURE utility migration, zero css residue — the
+  bezel's currentColor color-mix paint rides arbitrary-value utilities,
+  and the active-locale states are JS-known, so conditional strings
+  carry them.
 -->
 <script lang="ts">
+  import { cn } from '$lib/utils';
+
   export interface SwitcherLocale {
     code: string;
     label: string;
@@ -55,7 +62,7 @@
 
   {#if variant === 'pair'}
     <div
-      class="jx-lang-seg"
+      class="jx-lang-seg inline-flex w-fit max-w-full overflow-hidden border border-[color-mix(in_oklab,currentColor_30%,transparent)] bg-[color-mix(in_oklab,currentColor_6%,transparent)]"
       role="group"
       aria-label={ariaLabel}
     >
@@ -64,8 +71,12 @@
           href={locale.href}
           hreflang={locale.code}
           aria-current={locale.code === current ? 'true' : undefined}
-          class="jx-lang-item"
-          class:jx-lang-active={locale.code === current}
+          class={cn(
+            'jx-lang-item px-2.5 py-1 text-xs font-medium no-underline transition-[color,background-color] duration-150 ease-out',
+            locale.code === current
+              ? 'jx-lang-active bg-primary text-primary-foreground'
+              : 'text-[color-mix(in_oklab,currentColor_72%,transparent)] hover:bg-[color-mix(in_oklab,currentColor_12%,transparent)] hover:text-current',
+          )}
         >
           {locale.label}
         </a>
@@ -75,7 +86,7 @@
     <div class="relative">
       <button
         type="button"
-        class="jx-lang-btn"
+        class="jx-lang-btn inline-flex cursor-pointer items-center gap-1.5 border border-[color-mix(in_oklab,currentColor_30%,transparent)] bg-[color-mix(in_oklab,currentColor_6%,transparent)] px-2.5 py-1 text-xs font-medium text-[color-mix(in_oklab,currentColor_72%,transparent)] transition-[color,border-color] duration-150 ease-out hover:border-[color-mix(in_oklab,currentColor_70%,transparent)] hover:text-current"
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={ariaLabel}
@@ -97,7 +108,11 @@
         </svg>
       </button>
       {#if open}
-        <ul class="jx-lang-menu" role="listbox" aria-label={ariaLabel}>
+        <ul
+          class="jx-lang-menu absolute right-0 top-[calc(100%+6px)] z-50 m-0 min-w-[9rem] list-none border border-border bg-terminal p-1 text-terminal-foreground shadow"
+          role="listbox"
+          aria-label={ariaLabel}
+        >
           {#each locales as locale (locale.code)}
             <li>
               <a
@@ -105,8 +120,12 @@
                 hreflang={locale.code}
                 role="option"
                 aria-selected={locale.code === current ? 'true' : undefined}
-                class="jx-lang-menu-item"
-                class:jx-lang-menu-active={locale.code === current}
+                class={cn(
+                  'jx-lang-menu-item block px-2.5 py-1.5 text-xs no-underline transition-[color,background-color] duration-150 ease-out',
+                  locale.code === current
+                    ? 'jx-lang-menu-active text-primary'
+                    : 'text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:bg-terminal-hover hover:text-terminal-foreground',
+                )}
                 onclick={() => (open = false)}
               >
                 {locale.label}
@@ -124,76 +143,3 @@
     if (open && root && !root.contains(e.target as Node)) open = false;
   }}
 />
-
-<style>
-  .jx-lang-seg {
-    display: inline-flex;
-    width: fit-content;
-    max-width: 100%;
-    overflow: hidden;
-    border: 1px solid color-mix(in oklab, currentColor 30%, transparent);
-    background: color-mix(in oklab, currentColor 6%, transparent);
-  }
-  .jx-lang-item {
-    padding: 4px 10px;
-    font-size: 12px;
-    font-weight: 500;
-    color: color-mix(in oklab, currentColor 72%, transparent);
-    text-decoration: none;
-    transition: color 150ms ease-out, background-color 150ms ease-out;
-  }
-  .jx-lang-item:hover {
-    color: currentColor;
-    background: color-mix(in oklab, currentColor 12%, transparent);
-  }
-  .jx-lang-active {
-    background: var(--primary);
-    color: var(--primary-foreground);
-  }
-  .jx-lang-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    font-size: 12px;
-    font-weight: 500;
-    border: 1px solid color-mix(in oklab, currentColor 30%, transparent);
-    background: color-mix(in oklab, currentColor 6%, transparent);
-    color: color-mix(in oklab, currentColor 72%, transparent);
-    cursor: pointer;
-    transition: color 150ms ease-out, border-color 150ms ease-out;
-  }
-  .jx-lang-btn:hover {
-    color: currentColor;
-    border-color: color-mix(in oklab, currentColor 70%, transparent);
-  }
-  .jx-lang-menu {
-    position: absolute;
-    top: calc(100% + 6px);
-    right: 0;
-    z-index: 50;
-    min-width: 9rem;
-    margin: 0;
-    padding: 4px;
-    list-style: none;
-    background: var(--terminal);
-    color: var(--terminal-foreground);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-  }
-  .jx-lang-menu-item {
-    display: block;
-    padding: 6px 10px;
-    font-size: 12px;
-    text-decoration: none;
-    color: color-mix(in oklab, var(--terminal-foreground) 72%, transparent);
-    transition: color 150ms ease-out, background-color 150ms ease-out;
-  }
-  .jx-lang-menu-item:hover {
-    color: var(--terminal-foreground);
-    background: var(--terminal-hover);
-  }
-  .jx-lang-menu-active {
-    color: var(--primary);
-  }
-</style>

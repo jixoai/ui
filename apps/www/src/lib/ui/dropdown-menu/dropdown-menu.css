@@ -1,0 +1,69 @@
+@layer theme, base, components, utilities;
+
+@layer components {
+/* jixoai dropdown menu — D1-exempt residue (tw4, 2026-08-24), root +
+ * item shared. Panel law: CSS Anchor Positioning geometry, the
+ * @supports viewport-center fallback (its margin/inset deliberately
+ * own no utility counterparts — a margin utility would beat this
+ * components-layer rule and break the fallback), and the transparent
+ * ::backdrop. Trigger/item static paint lives in the markup. */
+.jx-menu {
+  position: fixed;
+  margin: var(--jx-menu-gap, 8px);
+  position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+  position-try: flip-block, flip-inline, flip-block flip-inline;
+  position-visibility: anchors-visible;
+  width: fit-content;
+  min-width: 11rem;
+  height: fit-content;
+  padding: 0;
+  font-size: 13px;
+  color: var(--popover-foreground);
+}
+@supports not (anchor-name: --jx-menu-fallback) {
+  .jx-menu {
+    position-anchor: auto !important;
+    inset-area: none !important;
+    inset: 0;
+    margin: auto;
+  }
+}
+.jx-menu::backdrop {
+  background: transparent;
+}
+}
+
+/* CASCADE CARVE-OUT (P3 finding, 2026-08-24 — the Part A precedent):
+ * state-machine rules that must override the component's OWN utility
+ * paint cannot live under @layer components (utilities layer always
+ * wins there). They ride UNLAYERED behind :where() — zero specificity,
+ * so consumer css still ties-wins within the unlayered level. */
+
+/* caret flip while open — :has() + :popover-open state machine */
+:where(.jx-menu-anchor:has(+ .jx-menu:popover-open)) .jx-menu-caret {
+  transform: rotate(180deg);
+}
+
+/* the item walk's highlight: aria-current is authored imperatively by
+ * the root on ANY [role=menuitem] (raw consumer items included) — a
+ * markup utility can never carry it */
+:where(.jx-menu-item:hover),
+:where(.jx-menu-item[aria-current='true']),
+:where(.jx-menu-item:focus-visible) {
+  background: color-mix(in oklab, currentColor 8%, transparent);
+  outline: none;
+}
+:where(.jx-menu-item:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+:where(.jx-menu-item:disabled) {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+:where(.jx-menu-item-destructive:hover),
+:where(.jx-menu-item-destructive[aria-current='true']) {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+}

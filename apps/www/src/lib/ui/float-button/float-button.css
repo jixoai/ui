@@ -1,0 +1,23 @@
+@layer theme, base, components, utilities;
+
+@layer components {
+/* jixoai float button — D1-exempt residue (tw4, 2026-08-24): the MENU
+ * panel law only — anchor geometry (position-try fallbacks,
+ * anchors-visible scroll hiding; the gap margin must stay here: no
+ * utility counterpart may exist, or it would fight the anchored pose)
+ * and the transparent ::backdrop. Button + stack paint live as token
+ * utilities in the markup. */
+.jx-fab-menu {
+  position: fixed;
+  margin: var(--jx-fab-gap, 8px);
+  position-try-fallbacks: flip-block, flip-inline;
+  position-try: flip-block, flip-inline;
+  position-visibility: anchors-visible;
+  width: fit-content;
+  min-width: 9rem;
+  color: var(--popover-foreground);
+}
+.jx-fab-menu::backdrop {
+  background: transparent;
+}
+}

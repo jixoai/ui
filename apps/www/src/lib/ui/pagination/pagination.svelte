@@ -14,6 +14,11 @@
 
   At the bounds, prev/next render as disabled spans (aria-disabled), not
   dead links — a link that goes nowhere is a lie to every input mode.
+
+  tw4 (2026-08-24): PURE utility migration, zero css residue — every
+  state (current page, edge bounds, gaps) is JS-known, so conditional
+  utility strings carry the paint; the press poses ride the --jx-press*
+  custom-property utilities (the press law's wiring, verbatim).
 -->
 <script lang="ts" module>
   export type PageItem = number | '…';
@@ -38,6 +43,8 @@
 </script>
 
 <script lang="ts">
+  import { cn } from '$lib/utils';
+
   interface Props {
     /** the active page, 1-based */
     page: number;
@@ -68,118 +75,79 @@
 
   const items = $derived(pageWindow(page, pageCount, siblings));
   const totalPagesLabel = $derived(`page ${page} of ${pageCount}`);
+
+  // the page-chip geometry + press poses (the current page rides the
+  // law's press, never its shadow — hover/active poses re-point to none)
+  const chipPose =
+    '[--jx-press-shadow:none] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]';
+  const chipPoseCurrent =
+    '[--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]';
+  const chipBase =
+    'inline-flex h-[1.875rem] min-w-[1.875rem] items-center justify-center box-border border px-2 font-nav text-xs no-underline tracking-[0.08em] cursor-pointer focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
+  const pageChip = cn(
+    chipBase,
+    chipPose,
+    'border-border bg-card text-foreground hover:border-primary hover:text-primary',
+  );
+  const currentPageChip = cn(
+    chipBase,
+    chipPoseCurrent,
+    'border-primary bg-primary text-primary-foreground',
+  );
 </script>
 
-<nav class="jx-pagination {className}" aria-label={label}>
+<nav class={cn('jx-pagination', 'block', className)} aria-label={label}>
   <!-- visible status line for sighted users; screen readers already get
       the full picture from the nav label + numbered links + aria-current -->
-  <p class="jx-pagination-status" aria-hidden="true">{totalPagesLabel}</p>
-  <ul class="jx-pagination-list" role="list">
+  <p
+    class="jx-pagination-status m-0 mb-2 font-nav text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground"
+    aria-hidden="true"
+  >
+    {totalPagesLabel}
+  </p>
+  <ul class="jx-pagination-list m-0 flex list-none flex-wrap items-center gap-1 p-0" role="list">
     <li>
       {#if page > 1}
-        <a class="jx-press jx-page-edge" href={href(page - 1)}>{prevLabel}</a>
+        <a class="jx-press jx-page-edge {pageChip} uppercase" href={href(page - 1)}>{prevLabel}</a>
       {:else}
-        <span class="jx-page-edge jx-page-edge-off" aria-disabled="true">{prevLabel}</span>
+        <span
+          class="jx-page-edge jx-page-edge-off inline-flex h-[1.875rem] min-w-[1.875rem] items-center justify-center box-border border border-border bg-card px-2 font-nav text-xs uppercase tracking-[0.08em] text-foreground opacity-45 shadow-none cursor-not-allowed"
+          aria-disabled="true"
+        >
+          {prevLabel}
+        </span>
       {/if}
     </li>
     {#each items as item, index (index)}
       <li>
         {#if item === '…'}
-          <span class="jx-page-gap" aria-hidden="true">…</span>
+          <span
+            class="jx-page-gap inline-flex items-center px-1 text-muted-foreground select-none"
+            aria-hidden="true"
+          >
+            …
+          </span>
         {:else if item === page}
-          <a class="jx-press jx-page jx-page-current" href={href(item)} aria-current="page">{item}</a>
+          <a class="jx-press jx-page jx-page-current {currentPageChip}" href={href(item)} aria-current="page"
+          >
+            {item}
+          </a>
         {:else}
-          <a class="jx-press jx-page" href={href(item)}>{item}</a>
+          <a class="jx-press jx-page {pageChip}" href={href(item)}>{item}</a>
         {/if}
       </li>
     {/each}
     <li>
       {#if page < pageCount}
-        <a class="jx-press jx-page-edge" href={href(page + 1)}>{nextLabel}</a>
+        <a class="jx-press jx-page-edge {pageChip} uppercase" href={href(page + 1)}>{nextLabel}</a>
       {:else}
-        <span class="jx-page-edge jx-page-edge-off" aria-disabled="true">{nextLabel}</span>
+        <span
+          class="jx-page-edge jx-page-edge-off inline-flex h-[1.875rem] min-w-[1.875rem] items-center justify-center box-border border border-border bg-card px-2 font-nav text-xs uppercase tracking-[0.08em] text-foreground opacity-45 shadow-none cursor-not-allowed"
+          aria-disabled="true"
+        >
+          {nextLabel}
+        </span>
       {/if}
     </li>
   </ul>
 </nav>
-
-<style>
-  .jx-pagination {
-    display: block;
-  }
-  .jx-pagination-status {
-    margin: 0 0 0.5rem;
-    font-family: var(--font-nav);
-    font-size: 0.6875rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-  }
-  .jx-pagination-list {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.25rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .jx-page,
-  .jx-page-edge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    min-width: 1.875rem;
-    height: 1.875rem;
-    padding: 0 0.5rem;
-    border: 1px solid var(--border);
-    background: var(--card);
-    color: var(--foreground);
-    font-family: var(--font-nav);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-decoration: none;
-    cursor: pointer;
-    --jx-press-shadow: none;
-    --jx-press-shadow-hover: var(--shadow-xs);
-    --jx-press-shadow-active: var(--shadow-xs-press);
-  }
-  .jx-page:hover,
-  .jx-page-edge:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-  }
-  .jx-page:focus-visible,
-  .jx-page-edge:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-
-  .jx-page-current {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: var(--primary-foreground);
-    /* the current page rides the law's press, never its shadow */
-    --jx-press-shadow-hover: none;
-    --jx-press-shadow-active: none;
-  }
-
-  .jx-page-edge {
-    text-transform: uppercase;
-  }
-  .jx-page-edge-off {
-    opacity: 0.45;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-
-  .jx-page-gap {
-    display: inline-flex;
-    align-items: center;
-    padding: 0 0.25rem;
-    color: var(--muted-foreground);
-    user-select: none;
-  }
-</style>

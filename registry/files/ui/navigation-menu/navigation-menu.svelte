@@ -20,9 +20,18 @@
 
   Data-driven: items carry label + href + a panel slot id; panels are
   composed through the `panel` snippet keyed by item id.
+
+  tw4 (2026-08-24): bar/trigger/link paint as token utilities (the
+  current + open states are JS-known → conditional strings, preserving
+  the original hover-beats-aria-current specificity order); ONLY the
+  anchored panel law (position-try geometry, the @supports
+  viewport-center fallback, ::backdrop) remains in navigation-menu.css
+  — D1-exempt residue.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './navigation-menu.css';
 
   export interface NavMenuItem {
     id: string;
@@ -129,6 +138,12 @@
       items.find((item) => item.hasPanel)?.id ??
       '',
   );
+
+  // the shared trigger/link paint; the current/open color states are
+  // conditional strings (mirroring the scoped era's specificity order:
+  // open beats current, hover beats current-but-closed)
+  const itemPaint =
+    'inline-flex items-center px-[0.875rem] py-2 font-nav text-xs uppercase tracking-[0.12em] no-underline cursor-pointer transition-colors duration-150 ease-out focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions, a11y_no_static_element_interactions -- the
@@ -136,7 +151,7 @@
      interactive elements -->
 <nav
   bind:this={barEl}
-  class="jx-navmenu {className}"
+  class={cn('jx-navmenu flex flex-wrap items-stretch gap-1', className)}
   aria-label={label}
   onkeydown={handleKeydown}
   onpointerleave={leaveBar}
@@ -144,7 +159,7 @@
   {#each items as item (item.id)}
     {#if item.hasPanel}
       <span
-        class="jx-navmenu-slot"
+        class="jx-navmenu-slot inline-flex"
         style="anchor-name: {anchorOf(item.id)}"
         onpointerenter={() => hoverIntent(item.id)}
       >
@@ -155,6 +170,14 @@
           aria-expanded={openId === item.id}
           aria-current={item.current ? 'true' : undefined}
           tabindex={tabStopId === item.id ? 0 : -1}
+          class={cn(
+            itemPaint,
+            openId === item.id
+              ? 'text-foreground'
+              : item.current
+                ? 'text-primary hover:text-foreground'
+                : 'text-muted-foreground hover:text-foreground',
+          )}
           popovertarget="jx-navmenu-panel-{item.id}"
           onfocus={() => (activeId = item.id)}
         >
@@ -163,7 +186,7 @@
       </span>
     {:else if item.href}
       <a
-        class="jx-navmenu-link"
+        class={cn('jx-navmenu-link', itemPaint, item.current ? 'text-primary' : 'text-muted-foreground hover:text-foreground')}
         href={item.href}
         aria-current={item.current ? 'page' : undefined}
       >
@@ -200,77 +223,10 @@
   >
     <!-- surface body (fill + ::after shadow); the popover element paints
          nothing (floating-surface law arch r3) -->
-    <div class="jx-navmenu-surface jx-surface-body">
+    <div class="jx-navmenu-surface jx-surface-body px-[0.875rem] py-3">
       {#if panel}
         {@render panel(item)}
       {/if}
     </div>
   </div>
 {/each}
-
-<style>
-  .jx-navmenu {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: stretch;
-    gap: 0.25rem;
-  }
-  .jx-navmenu-slot {
-    display: inline-flex;
-  }
-  .jx-navmenu button[aria-haspopup='true'],
-  .jx-navmenu-link {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.5rem 0.875rem;
-    font-family: var(--font-nav);
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    text-decoration: none;
-    cursor: pointer;
-    transition: color 150ms ease-out;
-  }
-  .jx-navmenu button[aria-haspopup='true']:hover,
-  .jx-navmenu-link:hover,
-  .jx-navmenu button[aria-expanded='true'] {
-    color: var(--foreground);
-  }
-  .jx-navmenu button:focus-visible,
-  .jx-navmenu-link:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-navmenu [aria-current] {
-    color: var(--primary);
-  }
-
-  /* surface on the jx-surface law (arch r3): the panel is the
-     PLATFORM element (no paint); the body ring carries the fill and
-     the ::after shadow layer. */
-  .jx-navmenu-panel {
-    position: fixed;
-    margin: var(--jx-navmenu-gap, 8px);
-    position-try-fallbacks: flip-block;
-    position-try: flip-block;
-    position-visibility: anchors-visible;
-    width: fit-content;
-    max-width: min(92vw, 26rem);
-    color: var(--popover-foreground);
-  }
-  .jx-navmenu-surface {
-    padding: 0.75rem 0.875rem;
-  }
-  @supports not (anchor-name: --jx-navmenu-fallback) {
-    .jx-navmenu-panel {
-      position-anchor: auto !important;
-      inset-area: none !important;
-      inset: 0;
-      margin: auto;
-    }
-  }
-  .jx-navmenu-panel::backdrop {
-    background: transparent;
-  }
-</style>

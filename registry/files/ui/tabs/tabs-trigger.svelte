@@ -9,11 +9,19 @@
   Terminal styling: font-nav micro-label; the selected tab carries a
   2px brand underline that rides the list's bottom border (negative
   margin re-draws OVER the border — no layout shift on selection).
+
+  tw4 (2026-08-24): paint as token utilities in the markup (selected/
+  disabled ride conditional strings — the states are JS-known); ONLY
+  the selected ::after bar (a pseudo-element build, vertical variant
+  via the .jx-tabs-vertical descendant) remains in tabs-trigger.css —
+  D1-exempt residue.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { getContext } from 'svelte';
+  import { cn } from '$lib/utils';
   import { TABS_KEY, type TabsApi } from './tabs.svelte';
+  import './tabs-trigger.css';
 
   interface Props {
     /** the tab's identity — pairs with the same value on a TabsContent */
@@ -42,64 +50,14 @@
   aria-selected={selected}
   aria-controls="{tabs.uid}-panel-{value}"
   tabindex={isTabStop ? 0 : -1}
-  class="jx-tab {className}"
-  class:jx-tab-selected={selected}
+  class={cn(
+    'jx-tab relative inline-flex appearance-none items-center gap-2 border-0 bg-transparent px-[0.875rem] py-2 font-nav text-xs uppercase tracking-[0.12em] cursor-pointer transition-colors duration-150 ease-out hover:[&:not(:disabled)]:text-foreground disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+    selected ? 'jx-tab-selected text-foreground' : 'text-muted-foreground',
+    className,
+  )}
   {disabled}
   onclick={() => tabs.select(value)}
   onfocus={() => tabs.setTabStop(value)}
 >
   {@render children()}
 </button>
-
-<style>
-  .jx-tab {
-    appearance: none;
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.875rem;
-    border: 0;
-    background: transparent;
-    font-family: var(--font-nav);
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    cursor: pointer;
-    transition: color 150ms ease-out;
-  }
-  .jx-tab:hover:not(:disabled) {
-    color: var(--foreground);
-  }
-  .jx-tab:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-  .jx-tab:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-
-  /* selection: foreground text + a 2px brand bar redrawn over the
-     list's own bottom border (or the right border, vertical) */
-  .jx-tab-selected {
-    color: var(--foreground);
-  }
-  .jx-tab-selected::after {
-    content: '';
-    position: absolute;
-    inset-inline: 0;
-    bottom: -1px;
-    height: 2px;
-    background: var(--primary);
-  }
-  :global(.jx-tabs-vertical) .jx-tab-selected::after {
-    inset-block: 0;
-    inset-inline: auto;
-    left: auto;
-    right: -1px;
-    width: 2px;
-    height: auto;
-  }
-</style>

@@ -11,11 +11,19 @@
   Keyboard walking, typeahead and aria-current highlight live on the
   root (DOM delegation over [role=menuitem]) — this file owns only the
   item's own paint and the select-and-close path.
+
+  tw4 (2026-08-24): static paint as token utilities (destructive rides
+  a conditional string); the hover/[aria-current]/focus-visible state
+  machines stay in dropdown-menu.css (shared with the root) — aria-
+  current is authored imperatively by the ROOT on any menuitem,
+  including raw consumer items, so it can never be a markup utility.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLButtonAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './dropdown-menu.css';
 
   interface Props extends HTMLButtonAttributes {
     /** destructive paint: red text, destructive hover fill */
@@ -39,52 +47,13 @@
 <button
   type="button"
   role="menuitem"
-  class="jx-menu-item {className}"
-  class:jx-menu-item-destructive={destructive}
+  class={cn(
+    'jx-menu-item flex w-full box-border items-center gap-2 border-0 px-2.5 py-1.5 text-left font-sans text-[13px] transition-[background-color,color] duration-100 ease-out',
+    destructive ? 'jx-menu-item-destructive text-destructive' : 'bg-transparent text-inherit',
+    className,
+  )}
   onclick={handleActivate}
   {...rest}
 >
   {@render children()}
 </button>
-
-<style>
-  .jx-menu-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-    box-sizing: border-box;
-    padding: 6px 10px;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    font-family: var(--font-sans);
-    font-size: 13px;
-    text-align: left;
-    cursor: pointer;
-    transition: background-color 100ms ease-out, color 100ms ease-out;
-  }
-  .jx-menu-item:hover,
-  .jx-menu-item[aria-current='true'],
-  .jx-menu-item:focus-visible {
-    background: color-mix(in oklab, currentColor 8%, transparent);
-    outline: none;
-  }
-  .jx-menu-item:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-menu-item:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-
-  .jx-menu-item-destructive {
-    color: var(--destructive);
-  }
-  .jx-menu-item-destructive:hover,
-  .jx-menu-item-destructive[aria-current='true'] {
-    background: var(--destructive);
-    color: var(--destructive-foreground);
-  }
-</style>

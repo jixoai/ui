@@ -72,10 +72,19 @@
   Anchoring, flip fallbacks and anchors-visible scroll hiding follow the
   popover.svelte laws; engines without anchor positioning fall back to
   viewport-center (never worse).
+
+  tw4 (2026-08-24): anchor/body paint as token utilities in the markup;
+  tooltip.css keeps the D1-exempt machinery — panel anchor geometry +
+  the @supports viewport-center fallback, ::backdrop, the notch-mask
+  builds, and the overrides of the unlayered jx-surface ::after/::before
+  law (unlayered themselves, with natural specificity: a layered copy
+  could never beat the law).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { onDestroy } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './tooltip.css';
 
   interface Props {
     /** panel id (aria-describedby pairs the trigger wrapper to the tip);
@@ -485,7 +494,7 @@
      not an interactive control; hover/focus intent is decoration riding
      over whatever focusable trigger the consumer composed inside -->
 <span
-  class="jx-tip-anchor {className}"
+  class={cn('jx-tip-anchor inline-flex', className)}
   style="anchor-name: {anchorName}"
   aria-describedby={id}
   bind:this={anchorEl}
@@ -505,7 +514,7 @@
   {id}
   popover="manual"
   role="tooltip"
-  class="jx-tip jx-surface jx-waapi"
+  class="jx-tip jx-surface jx-waapi fixed w-fit max-w-[min(80vw,18rem)] text-xs leading-[1.5] text-center text-popover-foreground"
   data-variant={variant}
   data-arrow={arrow ? '' : undefined}
   data-border-ring={arrow ? '' : undefined}
@@ -522,105 +531,5 @@
   <!-- surface body (fill + acrylic blur + silhouette mask); the popover
        element paints nothing (floating-surface law arch r3) and carries
        the border-ring ::before for the masked outline -->
-  <span class="jx-tip-body jx-surface-body" bind:this={body}>{text}</span>
+  <span class="jx-tip-body jx-surface-body block px-[9px] py-[5px]" bind:this={body}>{text}</span>
 </div>
-
-<style>
-  .jx-tip-anchor {
-    display: inline-flex;
-  }
-
-  /* Tip law: quiet inverse surface, 1px border (the ring layer on the
-     masked silhouette), shadow veil on the law's ::after (masked to the
-     notch cut, outward offset). PLATFORM element only (arch r3): the
-     body carries the fill. */
-  .jx-tip {
-    position: fixed;
-    margin: var(--jx-tip-gap, 6px);
-    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
-    position-try: flip-block, flip-inline, flip-block flip-inline;
-    position-visibility: anchors-visible;
-    width: fit-content;
-    max-width: min(80vw, 18rem);
-    font-size: 12px;
-    line-height: 1.5;
-    text-align: center;
-    color: var(--popover-foreground);
-  }
-  .jx-tip-body {
-    display: block;
-    padding: 5px 9px;
-  }
-  @supports not (anchor-name: --jx-tip-fallback) {
-    .jx-tip {
-      position-anchor: auto !important;
-      inset-area: none !important;
-      inset: 0;
-      margin: auto;
-      align-self: center;
-      justify-self: center;
-    }
-    /* the notch mask is anchor-driven — meaningless at viewport-center;
-       without aimPin the body degrades to a plain (slightly airier)
-       bordered bubble, never worse */
-    .jx-tip[data-arrow] .jx-tip-body {
-      padding-block: 5px;
-    }
-  }
-  .jx-tip::backdrop {
-    background: transparent;
-  }
-  /* the shadow rides a REAL child (the kernel animates it in lockstep —
-     pseudo-elements are unreachable from WAAPI), masked to the notch
-     silhouette so it never bleeds through the dug-away flanks; the
-     law's ::after fallback is disabled to avoid painting both. The
-     outward offset (--jx-surface-ox/oy) is set by aimPin from the
-     measured flip geometry — never onto the anchor */
-  .jx-tip.jx-surface::after {
-    content: none;
-  }
-
-  /* Notch cut (mask form, Owner-directed 2026-08-23): the body reserves
-     a NOTCH strip of padding on BOTH block sides (layout-stable across
-     flips — the visual bubble keeps its 5px inner padding on both
-     sides), drops its own border (the platform ::before ring owns the
-     outline on a masked silhouette), and masks to bubble+tab — the
-     strip is dug away on both flanks of the tab (XboxYan's recipe).
-     aimPin() authors --jx-tip-shape at open (rect read, the
-     Chromium-safe pivot — see header): fill, blur and silhouette stay
-     ONE paint, seamless by construction. NOTCH here and in the script
-     are the same 8px by contract; the block gap keeps the 6px law (the
-     tab lives INSIDE the reserved strip, no overhang). EVERYTHING
-     notch-shaped is gated on Anchor Positioning (Codex r2): without it
-     the panel degrades to a plain bordered bubble — no reserved strips,
-     no masks, no ring (an unmasked ring ::before would paint a solid
-     rect), no notched shadow. */
-  @supports (anchor-name: --jx-tip-fallback) {
-    .jx-tip[data-arrow] {
-      --jx-tip-notch: 8px;
-    }
-    .jx-tip[data-arrow] .jx-tip-body {
-      border: none;
-      padding-block: calc(5px + var(--jx-tip-notch) + 1px);
-      -webkit-mask-image: var(--jx-tip-shape, none);
-      -webkit-mask-size: 100% 100%;
-      -webkit-mask-repeat: no-repeat;
-      mask-image: var(--jx-tip-shape, none);
-      mask-size: 100% 100%;
-      mask-repeat: no-repeat;
-    }
-    .jx-tip[data-arrow] .jx-tip-shadow {
-      -webkit-mask-image: var(--jx-surface-ring, none);
-      -webkit-mask-size: 100% 100%;
-      -webkit-mask-repeat: no-repeat;
-      mask-image: var(--jx-surface-ring, none);
-      mask-size: 100% 100%;
-      mask-repeat: no-repeat;
-    }
-  }
-  @supports not (anchor-name: --jx-tip-fallback) {
-    .jx-tip[data-border-ring]::before {
-      content: none;
-    }
-  }
-</style>

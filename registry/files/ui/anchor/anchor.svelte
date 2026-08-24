@@ -15,8 +15,13 @@
                                heading, restored on blur
   Both are set on demand and restored — consumer markup is never
   permanently mutated.
+
+  tw4 (2026-08-24): PURE utility migration, zero css residue — the
+  active pick is JS-known (activeId), so the spine highlight rides
+  conditional utility strings instead of a scoped state class.
 -->
 <script lang="ts">
+  import { cn } from '$lib/utils';
   import { createScrollSpy } from '$lib/scroll-spy';
 
   export interface AnchorItem {
@@ -86,13 +91,17 @@
   }
 </script>
 
-<nav class="jx-anchor {className}" aria-label={label}>
-  <ol role="list">
+<nav class={cn('jx-anchor', className)} aria-label={label}>
+  <ol class="m-0 flex list-none flex-col gap-0.5 border-l border-border p-0" role="list">
     {#each items as item (item.href)}
       <li>
         <a
-          class="jx-anchor-link"
-          class:jx-anchor-active={activeId === item.href.slice(1)}
+          class={cn(
+            'jx-anchor-link -ml-px block border-l-2 py-[0.3125rem] px-3 font-nav text-xs uppercase tracking-[0.08em] no-underline transition-[color,border-color] duration-150 ease-out hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+            activeId === item.href.slice(1)
+              ? 'jx-anchor-active border-l-primary text-foreground'
+              : 'border-l-transparent text-muted-foreground',
+          )}
           href={item.href}
           aria-current={activeId === item.href.slice(1) ? 'location' : undefined}
           onclick={() => handleAnchorClick(item.href)}
@@ -103,39 +112,3 @@
     {/each}
   </ol>
 </nav>
-
-<style>
-  .jx-anchor ol {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-    border-left: 1px solid var(--border);
-  }
-  .jx-anchor-link {
-    display: block;
-    padding: 0.3125rem 0.75rem;
-    border-left: 2px solid transparent;
-    margin-left: -1px;
-    font-family: var(--font-nav);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    text-decoration: none;
-    transition: color 150ms ease-out, border-color 150ms ease-out;
-  }
-  .jx-anchor-link:hover {
-    color: var(--foreground);
-  }
-  .jx-anchor-link:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-anchor-active {
-    border-left-color: var(--primary);
-    color: var(--foreground);
-  }
-</style>

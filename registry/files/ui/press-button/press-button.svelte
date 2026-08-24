@@ -21,6 +21,15 @@
     <PressButton variant="primary" effect={shimmer({ speed: 4000 })}>
       deploy
     </PressButton>
+
+  tw4 (2026-08-24): the button body was already utility-authored
+  (variants + the --jx-press* pose wiring ride utilities — the press
+  law's wiring is untouched); the effect loops move VERBATIM to
+  press-button.css — keyframes, @property registrations, cqw math and
+  ::after builds are all D1-exempt machinery, and splitting each
+  layer's static half from its animated half would separate one
+  logical unit across two sheets. Only the hosts' stacking pose
+  (relative z-0) became utilities.
 -->
 <script module lang="ts">
   /** the one opt-in effect loop — builders keep options typed and discoverable */
@@ -136,6 +145,7 @@
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import './press-button.css';
 
   interface Props {
     variant?:
@@ -182,18 +192,20 @@
     copied: `${frame} bg-secondary text-secondary-foreground`,
   } as const;
 
-  // effect host class + the custom properties its loop reads
+  // effect host class (the stacking pose rides utilities: relative z-0
+  // keeps the negative-z layers under the in-flow label) + the custom
+  // properties its loop reads
   const effectClass = $derived.by(() => {
     if (!effect) return '';
     switch (effect.type) {
       case 'shimmer':
-        return 'jx-shimmer-host';
+        return 'jx-shimmer-host relative z-0';
       case 'pulse':
-        return 'jx-pulse-host';
+        return 'jx-pulse-host relative z-0';
       case 'rainbow':
-        return 'jx-rainbow-host';
+        return 'jx-rainbow-host relative z-0';
       case 'ripple':
-        return 'jx-ripple-host';
+        return 'jx-ripple-host relative z-0';
     }
   });
   const effectStyle = $derived.by(() => {
@@ -331,329 +343,3 @@
     {@render children()}
   </button>
 {/if}
-
-<style>
-  /* All layers sit at NEGATIVE z-index under the in-flow label but
-     above the host's own background: the host carries relative z-0
-     (its own stacking context), so nothing escapes and the label is
-     never occluded — no content wrapper needed. */
-
-  /* shimmer — a conic spark walks the perimeter (animation-svelte
-     reference, Owner polish 2026-08-23): a height-sized square slides
-     edge-to-edge (container queries) while a 3× conic spark rotates in
-     90° steps with holds. The BOX owns the clip (not the host) and
-     bleeds 1px past the border so the 2px blur keeps its edge; the
-     spark blends plus-lighter — additive light over the host fill. */
-  .jx-shimmer-host {
-    position: relative;
-    z-index: 0;
-  }
-  .jx-shimmer-box {
-    position: absolute;
-    inset: -1px;
-    z-index: -2;
-    container-type: size;
-    filter: blur(2px);
-    overflow: hidden;
-    mix-blend-mode: plus-lighter;
-    pointer-events: none;
-  }
-  .jx-shimmer-slide {
-    position: absolute;
-    inset: 0;
-    height: 100cqh;
-    aspect-ratio: 1;
-    animation: jx-shimmer-slide var(--shimmer-speed) ease-in-out infinite alternate;
-  }
-  .jx-shimmer-spark {
-    position: absolute;
-    inset: -100%;
-    background: conic-gradient(
-      from calc(270deg - (var(--shimmer-spread) * 0.5)),
-      transparent 0,
-      var(--shimmer-color) var(--shimmer-spread),
-      transparent var(--shimmer-spread)
-    );
-    animation: jx-shimmer-spin calc(var(--shimmer-speed) * 2) infinite linear;
-  }
-  .jx-shimmer-cover {
-    position: absolute;
-    inset: var(--shimmer-cut);
-    z-index: -1;
-    background: inherit;
-    border-radius: inherit;
-    corner-shape: inherit;
-    pointer-events: none;
-  }
-  @keyframes jx-shimmer-slide {
-    to {
-      translate: calc(100cqw - 100%) 0;
-    }
-  }
-  @keyframes jx-shimmer-spin {
-    0% {
-      rotate: 0deg;
-    }
-    15%,
-    35% {
-      rotate: 90deg;
-    }
-    65%,
-    85% {
-      rotate: 270deg;
-    }
-    100% {
-      rotate: 360deg;
-    }
-  }
-
-  /* pulse — sonar rings cast by a silhouette copy of the body */
-  .jx-pulse-host {
-    position: relative;
-    z-index: 0;
-  }
-  .jx-pulse-layer {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: inherit;
-    border-radius: inherit;
-    corner-shape: inherit;
-    pointer-events: none;
-  }
-  .jx-pulse-slow {
-    animation: jx-pulse-slow var(--pulse-duration) ease-out infinite;
-  }
-  .jx-pulse-ring {
-    /* Owner tuning 2026-08-23: a strong S-curve holds the spread still
-       near rest, then slides it out fast — the opacity crosses zero on
-       the SAME curve and the 45–55% keyframes hold a zero-opacity
-       plateau at full distance, so the ring dissolves at its extent
-       and re-condenses on the way back (no blink: every crossing is
-       eased, nothing teleports) */
-    animation: jx-pulse-ring var(--pulse-duration) cubic-bezier(0.75, 0, 0.25, 1) infinite;
-  }
-  .jx-pulse-ripple {
-    animation: jx-pulse-ripple var(--pulse-duration) cubic-bezier(0.16, 1, 0.3, 1) infinite;
-  }
-  /* slow: full-color expansion, fade only at the extent — an alpha fade
-     running across the whole cycle washes the ring into the page before
-     it ever reads (the ripple variant's color-mix keeps the fade
-     hue-safe: oklab premultiplied, no gray detour) */
-  @keyframes jx-pulse-slow {
-    0% {
-      box-shadow: 0 0 0 0 var(--pulse-color);
-    }
-    70% {
-      box-shadow: 0 0 0 var(--pulse-distance) var(--pulse-color);
-    }
-    100% {
-      box-shadow: 0 0 0 var(--pulse-distance) color-mix(in oklab, var(--pulse-color) 0%, transparent);
-    }
-  }
-  @keyframes jx-pulse-ring {
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 var(--pulse-color);
-      opacity: 1;
-      border-radius: 0;
-    }
-    45%, 55% {
-      box-shadow: 0 0 0 var(--pulse-distance) var(--pulse-color);
-      opacity: 0;
-      border-radius: 0.1px;
-    }
-  }
-  @keyframes jx-pulse-ripple {
-    0% {
-      box-shadow: 0 0 0 0 color-mix(in oklab, var(--pulse-color) 100%, transparent);
-    }
-    100% {
-      box-shadow: 0 0 0 var(--pulse-distance) color-mix(in oklab, var(--pulse-color) 0%, transparent);
-    }
-  }
-
-  /* rainbow — an aurora wash (Owner spec, 2026-08-23 r4→r7): ONE
-     heavily blurred ::after hugging the body (inset -0.2rem, blur
-     0.6rem) that WANDERS by percentage (±8% x · ±5% y). FOUR background
-     layers, each PANNED INDEPENDENTLY by its own registered
-     percentage on its own PRIME timeline (7s / 11s / 13s / 17s at the
-     default pace) — one animation per background, four different
-     trajectories (diagonal, anti-diagonal, horizontal, vertical via
-     calc(100% − var)); per-layer background-size oversizing makes the
-     percentage pans travel. Layer stacking blends through
-     background-blend-mode (screen / overlay / soft-light over the
-     base conic); the whole wash then blends with the variant fill —
-     screen on primary, color elsewhere — so the fill keeps its
-     luminosity and the aurora brings the hues. */
-  .jx-rainbow-host {
-    position: relative;
-    z-index: 0;
-  }
-  .jx-rainbow-host::after {
-    content: '';
-    position: absolute;
-    inset: -0.2rem;
-    z-index: -1;
-    border-radius: inherit;
-    corner-shape: inherit;
-    background:
-      conic-gradient(from 0deg, var(--c1), var(--c2), var(--c3), var(--c4), var(--c5), var(--c1)),
-      conic-gradient(from 130deg, var(--c2), var(--c4), var(--c1), var(--c5), var(--c3), var(--c2)),
-      linear-gradient(90deg, var(--c5), transparent 55%, var(--c3)),
-      conic-gradient(from 250deg, var(--c4), var(--c1), var(--c4));
-    background-position:
-      var(--jx-bp1, 0%) calc(100% - var(--jx-bp1, 0%)),
-      calc(100% - var(--jx-bp2, 0%)) var(--jx-bp2, 0%),
-      var(--jx-bp3, 0%) 50%,
-      50% var(--jx-bp4, 0%);
-    background-size: 220%, 260%, 300%, 340%;
-    background-blend-mode: normal, screen, overlay, soft-light;
-    filter: blur(0.6rem);
-    mix-blend-mode: color;
-    translate: var(--jx-rx, 0%) var(--jx-ry, 0%);
-    animation:
-      jx-rainbow-x var(--rainbow-tx, 3s) ease-in-out infinite alternate,
-      jx-rainbow-y var(--rainbow-ty, 5s) ease-in-out infinite alternate,
-      jx-rainbow-p1 var(--rainbow-t1, 7s) ease-in-out infinite alternate,
-      jx-rainbow-p2 var(--rainbow-t2, 11s) ease-in-out infinite alternate,
-      jx-rainbow-p3 var(--rainbow-t3, 13s) ease-in-out infinite alternate,
-      jx-rainbow-p4 var(--rainbow-t4, 17s) ease-in-out infinite alternate;
-    pointer-events: none;
-  }
-  .jx-rainbow-host.bg-primary::after {
-    mix-blend-mode: screen;
-  }
-  @property --jx-rx {
-    syntax: '<length-percentage>';
-    inherits: false;
-    initial-value: 0%;
-  }
-  @property --jx-ry {
-    syntax: '<length-percentage>';
-    inherits: false;
-    initial-value: 0%;
-  }
-  @property --jx-bp1 {
-    syntax: '<length-percentage>';
-    inherits: false;
-    initial-value: 0%;
-  }
-  @property --jx-bp2 {
-    syntax: '<length-percentage>';
-    inherits: false;
-    initial-value: 0%;
-  }
-  @property --jx-bp3 {
-    syntax: '<length-percentage>';
-    inherits: false;
-    initial-value: 0%;
-  }
-  @property --jx-bp4 {
-    syntax: '<length-percentage>';
-    inherits: false;
-    initial-value: 0%;
-  }
-  @keyframes jx-rainbow-x {
-    from {
-      --jx-rx: -8%;
-    }
-    to {
-      --jx-rx: 8%;
-    }
-  }
-  @keyframes jx-rainbow-y {
-    from {
-      --jx-ry: -5%;
-    }
-    to {
-      --jx-ry: 5%;
-    }
-  }
-  @keyframes jx-rainbow-p1 {
-    from {
-      --jx-bp1: 0%;
-    }
-    to {
-      --jx-bp1: 100%;
-    }
-  }
-  @keyframes jx-rainbow-p2 {
-    from {
-      --jx-bp2: 0%;
-    }
-    to {
-      --jx-bp2: 100%;
-    }
-  }
-  @keyframes jx-rainbow-p3 {
-    from {
-      --jx-bp3: 0%;
-    }
-    to {
-      --jx-bp3: 100%;
-    }
-  }
-  @keyframes jx-rainbow-p4 {
-    from {
-      --jx-bp4: 0%;
-    }
-    to {
-      --jx-bp4: 100%;
-    }
-  }
-
-  /* ripple — ink from the activation point (WAAPI drives the dot:
-     scale 0→2, opacity 1→0, removed on finished); the layer clips
-     the ink to the body silhouette. shape: round pins against the
-     site-wide bevel law; bevel cuts half-side corners into a diamond
-     (flat 45° square where corner-shape is unsupported) */
-  .jx-ripple-host {
-    position: relative;
-    z-index: 0;
-  }
-  .jx-ripple-layer {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    overflow: hidden;
-    border-radius: inherit;
-    corner-shape: inherit;
-    pointer-events: none;
-  }
-  .jx-ripple-dot {
-    position: absolute;
-    border-radius: 9999px;
-    /* the site-wide bevel law must not reach the ink — round is round */
-    corner-shape: round;
-    background: var(--ripple-color);
-  }
-  .jx-ripple-dot[data-shape='bevel'] {
-    /* half-side cuts: the octagon degenerates into the diamond */
-    border-radius: 50%;
-    corner-shape: bevel;
-  }
-  .jx-ripple-dot.jx-ripple-flat {
-    /* no corner-shape support: a square turned 45° is the same diamond */
-    border-radius: 0;
-    rotate: 45deg;
-  }
-
-  /* effect loops under reduced motion: every loop freezes and the
-     traveling light vanishes (a frozen stripe mid-surface reads as a
-     defect); the ripple is skipped in JS too (WAAPI never spawns) */
-  @media (prefers-reduced-motion: reduce) {
-    .jx-shimmer-slide,
-    .jx-shimmer-spark,
-    .jx-pulse-slow,
-    .jx-pulse-ring,
-    .jx-pulse-ripple,
-    .jx-rainbow-host::after {
-      animation: none;
-    }
-    .jx-shimmer-box,
-    .jx-ripple-layer {
-      display: none;
-    }
-  }
-</style>

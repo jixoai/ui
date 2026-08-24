@@ -18,10 +18,17 @@
   Delays are hover-card paced: 300ms open, 200ms close grace.
   Non-interactive by necessity? No — interactive BY DESIGN; if you only
   need text, that is what tooltip.svelte is for.
+
+  tw4 (2026-08-24): anchor/body paint as token utilities in the markup;
+  hover-card.css keeps ONLY the D1-exempt panel law — anchor geometry
+  (the gap margin must stay: the @supports viewport-center fallback
+  re-sets it to auto in the same layer), and the transparent ::backdrop.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { onDestroy } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './hover-card.css';
 
   interface Props {
     id?: string;
@@ -106,7 +113,7 @@
      focusable trigger the consumer composed inside -->
 <span
   bind:this={anchorEl}
-  class="jx-hover-anchor {className}"
+  class={cn('jx-hover-anchor inline-flex', className)}
   style="anchor-name: {anchorName}"
   onpointerenter={() => {
     clearTimeout(closeTimer);
@@ -127,7 +134,7 @@
 <div
   {id}
   popover="manual"
-  class="jx-hover-card jx-surface"
+  class="jx-hover-card jx-surface fixed w-fit max-w-[min(88vw,20rem)] text-[0.8125rem] leading-[1.55] text-popover-foreground"
   data-variant={variant}
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
@@ -140,45 +147,7 @@
 >
   <!-- surface body (fill + ::after shadow); the popover element paints
        nothing (floating-surface law arch r3) -->
-  <div class="jx-hover-body jx-surface-body">
+  <div class="jx-hover-body jx-surface-body px-4 py-[0.875rem]">
     {@render children()}
   </div>
 </div>
-
-<style>
-  .jx-hover-anchor {
-    display: inline-flex;
-  }
-
-  /* Card law (arch r3): the popover element is the PLATFORM shell —
-     border + motion only, no paint; the .jx-hover-body surface carries
-     the fill and the ::after shadow layer. */
-  .jx-hover-card {
-    position: fixed;
-    margin: var(--jx-hover-gap, 8px);
-    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
-    position-try: flip-block, flip-inline, flip-block flip-inline;
-    position-visibility: anchors-visible;
-    width: fit-content;
-    max-width: min(88vw, 20rem);
-    font-size: 0.8125rem;
-    line-height: 1.55;
-    color: var(--popover-foreground);
-  }
-  .jx-hover-body {
-    padding: 0.875rem 1rem;
-  }
-  @supports not (anchor-name: --jx-hover-fallback) {
-    .jx-hover-card {
-      position-anchor: auto !important;
-      inset-area: none !important;
-      inset: 0;
-      margin: auto;
-      align-self: center;
-      justify-self: center;
-    }
-  }
-  .jx-hover-card::backdrop {
-    background: transparent;
-  }
-</style>

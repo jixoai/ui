@@ -34,9 +34,18 @@
   node on close, so the allow-discrete exit choreography never runs — the
   tour closes instantly, exactly as it did before the law. Rewiring the
   render guard to keep the node through the exit is a future change.
+
+  tw4 (2026-08-24): title/desc/actions paint as token utilities in the
+  markup (canPrev and last-step states are JS-known → conditional
+  strings); tour.css keeps the D1-exempt geometry — the anchor-size()
+  hole (its @supports form re-sets inset/background, so no inset or
+  background utility may ride the hole), the panel's anchor() placement
+  (+ @supports fallback), and ::backdrop.
 -->
 <script lang="ts">
   import { untrack } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './tour.css';
 
   export interface TourStep {
     /** CSS selector for the step's target, or a resolver (invalid
@@ -245,12 +254,19 @@
       finish(index);
     }
   }
+
+  // nav buttons: the terminal chip (border, bg, shadow-2xs) + the
+  // Next variant's brand lean; disabled rides a conditional swap
+  const navBtn =
+    'jx-tour-btn inline-flex cursor-pointer appearance-none border px-[0.875rem] py-1.5 font-nav text-[0.6875rem] uppercase tracking-[0.1em] shadow-2xs disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
 </script>
 
 {#if open && step}
-  <!-- the hole: target-sized via CSS anchor-size, ONE huge shadow tint -->
+  <!-- the hole: target-sized via CSS anchor-size, ONE huge shadow tint.
+       inset stays in the css (the anchored form re-sets it — a markup
+       inset utility would beat the components layer and break it) -->
   <div
-    class="jx-tour-hole"
+    class="jx-tour-hole fixed pointer-events-none"
     class:jx-tour-hole-anchored={targetEl !== null}
     style="position-anchor: {leaseName}"
     aria-hidden="true"
@@ -263,7 +279,7 @@
     tabindex="-1"
     aria-modal="false"
     aria-label={step.title}
-    class="jx-tour jx-surface {className}"
+    class={cn('jx-tour jx-surface', className)}
     data-variant={variant}
     style="position-anchor: {leaseName}"
     bind:this={panelEl}
@@ -271,21 +287,27 @@
   >
     <!-- surface body (fill + ::after shadow); the popover element paints
          nothing (floating-surface law arch r3) -->
-    <div class="jx-tour-surface jx-surface-body">
-    <p class="jx-tour-title">{step.title}</p>
+    <div class="jx-tour-surface jx-surface-body flex flex-col gap-2 px-4 py-[0.875rem]">
+    <p class="jx-tour-title m-0 font-nav text-[0.8125rem] uppercase tracking-[0.1em] text-foreground">{step.title}</p>
     {#if step.description}
-      <p class="jx-tour-desc">{step.description}</p>
+      <p class="jx-tour-desc m-0 text-[0.8125rem] leading-[1.55] text-muted-foreground">{step.description}</p>
     {/if}
-    <div class="jx-tour-meta" aria-hidden="true">{index + 1} / {steps.length}</div>
-    <div class="jx-tour-actions">
-      <button type="button" class="jx-tour-skip" onclick={() => finish(index)}>{skipLabel}</button>
-      <div class="jx-tour-nav">
-        <button type="button" class="jx-tour-btn" disabled={!canPrev} onclick={prev}>
+    <div class="jx-tour-meta font-mono text-[0.6875rem] text-muted-foreground" aria-hidden="true">{index + 1} / {steps.length}</div>
+    <div class="jx-tour-actions mt-1 flex items-center justify-between gap-3">
+      <button
+        type="button"
+        class="jx-tour-skip cursor-pointer appearance-none border-0 bg-transparent font-nav text-[0.6875rem] uppercase tracking-[0.1em] text-muted-foreground underline decoration-dotted hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1"
+        onclick={() => finish(index)}
+      >
+        {skipLabel}
+      </button>
+      <div class="jx-tour-nav flex gap-2">
+        <button type="button" class={navBtn} disabled={!canPrev} onclick={prev}>
           {prevLabel}
         </button>
         <button
           type="button"
-          class="jx-tour-btn jx-tour-next"
+          class={cn(navBtn, 'jx-tour-next border-primary bg-background text-primary')}
           bind:this={nextEl}
           onclick={next}
         >
@@ -296,131 +318,3 @@
     </div>
   </div>
 {/if}
-
-<style>
-  /* the hole anchors to the leased target: sized by anchor-size,
-     tinted by one huge box-shadow — zero geometry JS. Without anchor
-     positioning support: a plain full-viewport tint, no hole. */
-  .jx-tour-hole {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    background: color-mix(in oklab, var(--background) 55%, transparent);
-  }
-  @supports (anchor-name: --jx-tour-support) and (width: anchor-size(width)) {
-    .jx-tour-hole-anchored {
-      inset: auto;
-      top: anchor(top);
-      left: anchor(left);
-      width: anchor-size(width);
-      height: anchor-size(height);
-      background: transparent;
-      border: 1px solid var(--primary);
-      box-shadow: 0 0 0 100vmax color-mix(in oklab, var(--background) 55%, transparent);
-    }
-  }
-
-  /* panel by anchor() functions — the SAME primitives the hole uses
-     (inset-area is unsupported in engines where anchor() works; the
-     walkthrough-5 geometry probe proved function positioning reliable) */
-  /* PLATFORM element (floating-surface law arch r3): anchoring + motion
-     only, no paint; the surface body carries fill/flex/padding and the
-     ::after shadow layer */
-  .jx-tour {
-    position: fixed;
-    top: calc(anchor(bottom) + var(--jx-tour-gap, 12px));
-    left: anchor(left);
-    width: fit-content;
-    max-width: min(88vw, 20rem);
-    color: var(--popover-foreground);
-  }
-  .jx-tour-surface {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.875rem 1rem;
-  }
-  @supports not (anchor-name: --jx-tour-support) {
-    .jx-tour {
-      position-anchor: auto !important;
-      inset: 0;
-      margin: auto 1rem auto auto;
-      align-self: center;
-    }
-  }
-  .jx-tour::backdrop {
-    background: transparent;
-  }
-
-  .jx-tour-title {
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 0.8125rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-tour-desc {
-    margin: 0;
-    font-size: 0.8125rem;
-    line-height: 1.55;
-    color: var(--muted-foreground);
-  }
-  .jx-tour-meta {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    color: var(--muted-foreground);
-  }
-  .jx-tour-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    margin-top: 0.25rem;
-  }
-  .jx-tour-skip {
-    appearance: none;
-    border: 0;
-    background: transparent;
-    color: var(--muted-foreground);
-    font-family: var(--font-nav);
-    font-size: 0.6875rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-decoration: underline dotted;
-    cursor: pointer;
-  }
-  .jx-tour-skip:hover {
-    color: var(--foreground);
-  }
-  .jx-tour-nav {
-    display: flex;
-    gap: 0.5rem;
-  }
-  .jx-tour-btn {
-    appearance: none;
-    padding: 0.375rem 0.875rem;
-    border: 1px solid var(--border);
-    background: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-nav);
-    font-size: 0.6875rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    box-shadow: var(--shadow-2xs);
-  }
-  .jx-tour-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-  .jx-tour-btn:focus-visible,
-  .jx-tour-skip:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-tour-next {
-    border-color: var(--primary);
-    color: var(--primary);
-  }
-</style>

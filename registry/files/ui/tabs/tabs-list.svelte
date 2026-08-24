@@ -13,11 +13,17 @@
   Triggers are whatever the consumer nests (tabs-trigger.svelte pairs
   here, but any [role=tab] joins the walk) — keyboard handling is DOM
   delegation over :scope [role=tab]:not([disabled]), no registration.
+
+  tw4 (2026-08-24): PURE utility migration, zero css residue — the
+  orientation axis is a prop, so the horizontal/vertical border rides
+  conditional utility strings; jx-tabs-vertical stays as the hook the
+  trigger's selected-bar residue keys on.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
+  import { cn } from '$lib/utils';
   import { TABS_KEY, type TabsApi } from './tabs.svelte';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -93,7 +99,11 @@
 
 <div
   bind:this={listEl}
-  class="jx-tabs-list jx-tabs-{orientation} {className}"
+  class={cn(
+    `jx-tabs-list jx-tabs-${orientation} flex items-stretch gap-0.5 box-border`,
+    orientation === 'vertical' ? 'flex-col border-r border-border' : 'border-b border-border',
+    className,
+  )}
   onkeydown={handleKeydown}
   {...rest}
   role="tablist"
@@ -101,19 +111,3 @@
 >
   {@render children()}
 </div>
-
-<style>
-  .jx-tabs-list {
-    display: flex;
-    align-items: stretch;
-    gap: 0.125rem;
-    box-sizing: border-box;
-    border-bottom: 1px solid var(--border);
-  }
-  .jx-tabs-vertical {
-    flex-direction: column;
-    align-items: stretch;
-    border-bottom: 0;
-    border-right: 1px solid var(--border);
-  }
-</style>

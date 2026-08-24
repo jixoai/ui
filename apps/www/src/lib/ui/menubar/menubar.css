@@ -1,0 +1,34 @@
+@layer theme, base, components, utilities;
+
+@layer components {
+/* jixoai menubar — D1-exempt residue (tw4, 2026-08-24): the anchored
+ * panel law only — CSS Anchor Positioning geometry (position-try
+ * fallbacks, anchors-visible scroll hiding), the @supports
+ * viewport-center fallback for engines without anchoring, and the
+ * ::backdrop pseudo (transparent: light dismiss must never dim).
+ * Static residue: nothing here fights the markup's utilities — the
+ * fallback's margin/inset own no utility counterparts on purpose
+ * (a margin utility would beat this components-layer rule and break
+ * the fallback). Bar + trigger paint live in the markup. */
+.jx-menubar-panel {
+  position: fixed;
+  margin: var(--jx-bar-gap, 8px);
+  position-try-fallbacks: flip-block;
+  position-try: flip-block;
+  position-visibility: anchors-visible;
+  width: fit-content;
+  min-width: 10rem;
+  color: var(--popover-foreground);
+}
+@supports not (anchor-name: --jx-bar-fallback) {
+  .jx-menubar-panel {
+    position-anchor: auto !important;
+    inset-area: none !important;
+    inset: 0;
+    margin: auto;
+  }
+}
+.jx-menubar-panel::backdrop {
+  background: transparent;
+}
+}

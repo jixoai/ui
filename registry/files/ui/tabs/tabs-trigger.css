@@ -1,0 +1,26 @@
+@layer theme, base, components, utilities;
+
+@layer components {
+/* jixoai tabs trigger — D1-exempt residue (tw4, 2026-08-24): the
+ * selection bar is a pseudo-element build (utilities cannot author
+ * ::after), redrawn 1px over the list's own bottom border (or the
+ * right border, vertical — the list's orientation hook carries the
+ * variant). All paint besides this bar lives as token utilities in
+ * the markup. */
+.jx-tab-selected::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--primary);
+}
+.jx-tabs-vertical .jx-tab-selected::after {
+  inset-block: 0;
+  inset-inline: auto;
+  left: auto;
+  right: -1px;
+  width: 2px;
+  height: auto;
+}
+}

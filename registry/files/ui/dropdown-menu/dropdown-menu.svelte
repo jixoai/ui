@@ -21,10 +21,20 @@
   here, but any [role=menuitem] joins the walk (DOM delegation, no
   registration). Separators are plain <hr>, labels plain markup — the
   W3C elements already mean the right things.
+
+  tw4 (2026-08-24): trigger/caret/scroll paint as token utilities (the
+  press poses ride --jx-press* custom-property utilities, verbatim
+  law); dropdown-menu.css keeps ONLY what utilities cannot express —
+  the caret's :has()+:popover-open flip, the item hover/[aria-current]/
+  focus-visible state machines (aria-current is set imperatively by
+  this root on ANY [role=menuitem], including raw consumer items), the
+  anchored panel law (@supports fallback), and ::backdrop.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { onDestroy, setContext } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './dropdown-menu.css';
 
   interface Props {
     id: string;
@@ -179,20 +189,20 @@
   }
 </script>
 
-<span bind:this={anchorEl} class="jx-menu-anchor" style="anchor-name: {anchorName}">
+<span bind:this={anchorEl} class="jx-menu-anchor inline-flex" style="anchor-name: {anchorName}">
   {#if trigger}
     {@render trigger()}
   {:else}
     <button
       type="button"
-      class="jx-press jx-menu-trigger"
+      class="jx-press jx-menu-trigger inline-flex cursor-pointer items-center gap-2.5 border border-border bg-background px-3.5 py-2.5 font-sans text-sm font-medium text-foreground [--jx-press-shadow:var(--shadow-xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-muted"
       popovertarget={id}
       bind:this={triggerEl}
       aria-haspopup="menu"
     >
       {triggerLabel}
       <svg
-        class="jx-menu-caret"
+        class="jx-menu-caret h-[13px] w-[13px] flex-none transition-transform duration-150 ease-out"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -212,7 +222,7 @@
   popover="auto"
   role="menu"
   tabindex="-1"
-  class="jx-menu jx-surface {panelClass}"
+  class={cn('jx-menu jx-surface', panelClass)}
   data-variant={variant}
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
@@ -223,79 +233,10 @@
        scroll ring (floating-surface law arch r3: the platform element
        paints nothing) -->
   <div class="jx-menu-body jx-surface-body">
-    <div class="jx-menu-scroll">
+    <div
+      class="jx-menu-scroll max-h-[72vh] overflow-auto [scrollbar-gutter:stable_both-edges] [padding:var(--jx-menu-pad,4px)] [padding-inline:max(var(--jx-menu-pad,4px)-var(--jx-scrollbar-thin,0px),0px)]"
+    >
       {@render children()}
     </div>
   </div>
 </div>
-
-<style>
-  .jx-menu-anchor {
-    display: inline-flex;
-  }
-  .jx-menu-trigger {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    font-family: var(--font-sans);
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--foreground);
-    border: 1px solid var(--border);
-    background: var(--background);
-    --jx-press-shadow: var(--shadow-xs);
-    --jx-press-shadow-hover: var(--shadow-sm);
-    --jx-press-shadow-active: var(--shadow-sm-press);
-    cursor: pointer;
-  }
-  .jx-menu-trigger:hover {
-    background: var(--muted);
-  }
-  .jx-menu-caret {
-    width: 13px;
-    height: 13px;
-    flex: none;
-    transition: transform 150ms ease-out;
-  }
-  .jx-menu-anchor:has(+ .jx-menu:popover-open) .jx-menu-caret {
-    transform: rotate(180deg);
-  }
-
-  /* Panel law: the PLATFORM element — border + anchoring + motion only
-     (no paint; floating-surface law arch r3: the fill lives on the
-     body ring). */
-  .jx-menu {
-    position: fixed;
-    margin: var(--jx-menu-gap, 8px);
-    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
-    position-try: flip-block, flip-inline, flip-block flip-inline;
-    position-visibility: anchors-visible;
-    width: fit-content;
-    min-width: 11rem;
-    height: fit-content;
-    padding: 0;
-    font-size: 13px;
-    color: var(--popover-foreground);
-  }
-  .jx-menu-scroll {
-    max-height: 72vh;
-    overflow: auto;
-    /* scrollbar law: both-edges gutters; padding-inline hands the gutter
-       back (single-value var: the same default feeds both sides) */
-    scrollbar-gutter: stable both-edges;
-    padding: var(--jx-menu-pad, 4px);
-    padding-inline: max(var(--jx-menu-pad, 4px) - var(--jx-scrollbar-thin, 0px), 0px);
-  }
-  @supports not (anchor-name: --jx-menu-fallback) {
-    .jx-menu {
-      position-anchor: auto !important;
-      inset-area: none !important;
-      inset: 0;
-      margin: auto;
-    }
-  }
-  .jx-menu::backdrop {
-    background: transparent;
-  }
-</style>

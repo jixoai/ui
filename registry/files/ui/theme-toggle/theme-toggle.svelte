@@ -8,8 +8,15 @@
   Drives the shared theme contract (localStorage "theme", .dark class +
   colorScheme on the root). Pair with the no-flash inline bootstrap in
   app.html. Icons are inline SVG — no icon-library dependency.
+
+  tw4 (2026-08-24): PURE utility migration, zero css residue — the
+  bezel's currentColor color-mix paint rides arbitrary-value utilities;
+  the segmented group's last-slot border and the data-active fill are
+  JS-known, so conditional strings carry them.
 -->
 <script lang="ts">
+  import { cn } from '$lib/utils';
+
   type Theme = 'light' | 'dark' | 'system';
   type Variant = 'full' | 'compact' | 'icon' | 'text';
 
@@ -50,20 +57,25 @@
     media.addEventListener('change', onChange);
     return () => media.removeEventListener('change', onChange);
   });
+
+  // the bezel recipe theme-toggle/language-switcher share: 1px
+  // currentColor border, transparent fill, hover leans the border in
+  const bezel =
+    'inline-flex cursor-pointer items-center gap-1.5 border border-[color-mix(in_oklab,currentColor_35%,transparent)] bg-transparent text-[11px] text-inherit transition-[color,border-color,background-color] duration-150 ease-out';
 </script>
 
 {#snippet iconFor(theme: Theme)}
   {#if theme === 'light'}
-    <svg class="jx-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+    <svg class="jx-theme-icon h-[13px] w-[13px] flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
       <circle cx="12" cy="12" r="4" />
       <path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
     </svg>
   {:else if theme === 'dark'}
-    <svg class="jx-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <svg class="jx-theme-icon h-[13px] w-[13px] flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
     </svg>
   {:else}
-    <svg class="jx-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <svg class="jx-theme-icon h-[13px] w-[13px] flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <rect x="2" y="3" width="20" height="14" rx="0" />
       <path d="M8 21h8m-4-4v4" />
     </svg>
@@ -71,14 +83,20 @@
 {/snippet}
 
 {#if variant === 'full'}
-  <div class="jx-theme-segmented font-nav" role="group" aria-label="Color theme">
-    {#each ORDER as theme (theme)}
+  <div class="jx-theme-segmented font-nav inline-flex" role="group" aria-label="Color theme">
+    {#each ORDER as theme, index (theme)}
       <button
         type="button"
         onclick={() => set(theme)}
         aria-pressed={current === theme}
         aria-label={hideLabels ? LABEL[theme] : undefined}
-        class="jx-theme-seg"
+        class={cn(
+          'jx-theme-seg py-1',
+          bezel,
+          index === ORDER.length - 1 ? 'border-r' : 'border-r-0',
+          'px-[9px]',
+          current === theme && 'bg-[color-mix(in_oklab,currentColor_16%,transparent)]',
+        )}
         data-active={current === theme || undefined}
       >
         {@render iconFor(theme)}
@@ -92,7 +110,7 @@
   <button
     type="button"
     onclick={cycle}
-    class="jx-theme-btn font-nav"
+    class={cn('jx-theme-btn font-nav px-2.5 py-1', bezel, 'hover:border-[color-mix(in_oklab,currentColor_70%,transparent)]')}
     aria-label={`theme: ${current}`}
   >
     {#if variant === 'compact'}
@@ -105,40 +123,3 @@
     {/if}
   </button>
 {/if}
-
-<style>
-  .jx-theme-icon {
-    width: 13px;
-    height: 13px;
-    flex: none;
-  }
-  .jx-theme-btn,
-  .jx-theme-seg {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: transparent;
-    border: 1px solid color-mix(in oklab, currentColor 35%, transparent);
-    color: inherit;
-    font-size: 11px;
-    padding: 4px 10px;
-    cursor: pointer;
-    transition: color 150ms ease-out, border-color 150ms ease-out, background-color 150ms ease-out;
-  }
-  .jx-theme-btn:hover {
-    border-color: color-mix(in oklab, currentColor 70%, transparent);
-  }
-  .jx-theme-segmented {
-    display: inline-flex;
-  }
-  .jx-theme-segmented .jx-theme-seg {
-    border-right-width: 0;
-    padding: 4px 9px;
-  }
-  .jx-theme-segmented .jx-theme-seg:last-child {
-    border-right-width: 1px;
-  }
-  .jx-theme-seg[data-active] {
-    background: color-mix(in oklab, currentColor 16%, transparent);
-  }
-</style>
