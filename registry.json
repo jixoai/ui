@@ -20,7 +20,11 @@
       "meta": {
         "group": "engines",
         "href": "/tokens.html"
-      }
+      },
+      "dependencies": [
+        "@fontsource-variable/jetbrains-mono",
+        "@fontsource/share-tech-mono"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1301,7 +1305,11 @@
       "meta": {
         "group": "general",
         "href": "/components/kbd.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -2078,6 +2086,29 @@
       "meta": {
         "group": "docs",
         "href": "/components/llms-txt.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "utils",
+      "type": "registry:lib",
+      "title": "cn() class-merge utility",
+      "description": "cn() = clsx + tailwind-merge: class-string hygiene for utility-authored components (conditional join + conflicting-utility dedupe inside one string). NOT a cascade mechanism \u2014 override behavior comes from the layer law.",
+      "files": [
+        {
+          "path": "registry/files/lib/utils.ts",
+          "target": "@lib/utils.ts",
+          "type": "registry:file"
+        }
+      ],
+      "dependencies": [
+        "clsx",
+        "tailwind-merge"
+      ],
+      "docs": "import { cn } from '$lib/utils'. npm deps clsx + tailwind-merge arrive via the item `dependencies` field.",
+      "meta": {
+        "group": "engines",
+        "href": "/components.html"
       }
     }
   ]

@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-24T12:39:49.529Z",
+  "generatedAt": "2026-08-24T12:43:02.099Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "section-card": "registry/files/ui/section-card/section-card.svelte",
@@ -1808,6 +1808,19 @@
           "target": "vite-plugins/llms-txt.mjs",
           "sourceSha": "fd95ec00ae49d7f763922b690161c95698e0f33b7e8339f03faeca79310938f8",
           "mirrorSha": "fd95ec00ae49d7f763922b690161c95698e0f33b7e8339f03faeca79310938f8"
+        }
+      ]
+    },
+    {
+      "itemName": "utils",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/utils.ts",
+          "mirror": "apps/www/src/lib/utils.ts",
+          "target": "@lib/utils.ts",
+          "sourceSha": "334a8e25b2e7059204384096f5a52de10e5bb6c653eb98c343ae600a3dbfe1ac",
+          "mirrorSha": "334a8e25b2e7059204384096f5a52de10e5bb6c653eb98c343ae600a3dbfe1ac"
         }
       ]
     }

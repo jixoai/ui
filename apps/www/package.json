@@ -2,7 +2,7 @@
   "name": "@jixoai/www",
   "version": "0.1.0",
   "private": true,
-  "description": "ui.jixoai.com — the jixoai design-language gallery and docs site; consumes the registry components from this repo (same-source copies, zero network).",
+  "description": "ui.jixoai.com \u2014 the jixoai design-language gallery and docs site; consumes the registry components from this repo (same-source copies, zero network).",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -31,6 +31,8 @@
   },
   "dependencies": {
     "@tanstack/svelte-virtual": "^3.13.36",
-    "shiki": "^4.4.3"
+    "shiki": "^4.4.3",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.3.1"
   }
 }

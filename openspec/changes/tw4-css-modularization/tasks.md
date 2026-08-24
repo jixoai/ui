@@ -170,7 +170,7 @@
 
 ## P3 — Tier-1 utility re-authoring (visual parity + override contract locked)
 
-- [ ] 3.1 Create the `utils` registry item (`cn()` = clsx +
+- [x] 3.1 Create the `utils` registry item (`cn()` = clsx +
       tailwind-merge; npm `dependencies`), consumer fixture proves the
       install; wire it ONLY into migrated components' utility-authored
       class slots (per the component-authoring delta's WHEN clause).
