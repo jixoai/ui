@@ -1,0 +1,41 @@
+@layer theme, base, components, utilities;
+
+/* jixoai toggle — D1-exempt residue (tw4, 2026-08-24): ONLY the state
+ * machine utilities cannot express — sibling-combinator :checked
+ * repainting, the :has() hover lean, focus-visible's sibling ring and
+ * the reduced-motion kill. The static paint lives as token utilities
+ * in the markup; geometry custom properties ride arbitrary-property
+ * utilities per size.
+ *
+ * CASCADE CARVE-OUT (P3 finding, 2026-08-24 — the Part A precedent):
+ * state-machine rules that must override the component's OWN utility
+ * paint cannot live under @layer components (utilities layer always
+ * wins there). They ride UNLAYERED behind :where() — zero specificity,
+ * so consumer css still ties-wins within the unlayered level, and the
+ * component's static utility paint stays consumer-overridable. Same
+ * rationale as jx-pure Part A's deliberate unlayering. */
+
+:where(.jx-toggle-native:checked + .jx-toggle-track) {
+  background: var(--primary);
+}
+:where(.jx-toggle-native:checked + .jx-toggle-track .jx-toggle-knob) {
+  background: var(--primary-foreground);
+  transform: translateX(calc(var(--jx-toggle-w) - var(--jx-toggle-h)));
+}
+
+/* hover leans the unchecked rail's ring toward primary */
+:where(.jx-switch-track:not(.jx-toggle-disabled):hover:has(.jx-toggle-native:not(:checked)) .jx-toggle-track) {
+  box-shadow: 0 0 0 1px var(--primary) inset;
+}
+/* the hidden input's focus moves the inset ring law onto the track */
+:where(.jx-toggle-native:focus-visible + .jx-toggle-track) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-toggle-track),
+  :where(.jx-toggle-knob) {
+    transition: none;
+  }
+}

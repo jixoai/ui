@@ -757,12 +757,21 @@
           "path": "registry/files/ui/toggle/index.ts",
           "target": "@ui/toggle/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/toggle/toggle.css",
+          "target": "@ui/toggle/toggle.css",
+          "type": "registry:file"
         }
       ],
       "meta": {
         "group": "data-entry",
         "href": "/components/form.html#example-form"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",

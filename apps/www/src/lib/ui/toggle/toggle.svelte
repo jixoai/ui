@@ -1,12 +1,12 @@
 <!--
-  jixoai toggle (registry/files/ui/toggle.svelte).
+  jixoai toggle (registry/files/ui/toggle/toggle.svelte).
   A checkbox in its other posture: where checkbox sits inline-start of
   its label, toggle is the inline-end form — the label reads on the
   LEFT, the control lands on the RIGHT, and the state is a slide, not a
   glyph. Pure CSS, zero deps:
 
     <label> wraps everything (click anywhere toggles)
-      <input type="checkbox">  visually hidden, keyboard-reachable,
+      <input type="checkbox">  visually hidden (sr-only), keyboard-reachable,
                                carries the native semantics + FormData
       <span class="jx-toggle-track">  the rounded rail, repainted through
                                the input:checked + track sibling pair
@@ -29,9 +29,17 @@
   checked is $bindable (controlled-friendly); everything else (name,
   value, required, onchange…) flows through restProps onto the hidden
   input — a named toggle participates in FormData like any checkbox.
+
+  tw4 (2026-08-24): static paint is token utilities in the markup
+  (sizes ride arbitrary-property utilities); ONLY the state machine
+  (sibling :checked repaint, :has() hover lean, focus-visible ring,
+  reduced-motion) remains in toggle.css — D1-exempt residue under the
+  layer law.
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
+  import { cn } from '$lib/utils';
+  import './toggle.css';
 
   interface Props extends HTMLInputAttributes {
     /** toggle state; bindable (bind:checked) for controlled use */
@@ -57,111 +65,30 @@
     class: className = '',
     ...rest
   }: Props = $props();
+
+  const sizeUtilities = {
+    sm: '[--jx-toggle-w:32px] [--jx-toggle-h:20px]',
+    md: '[--jx-toggle-w:36px] [--jx-toggle-h:20px]',
+    lg: '[--jx-toggle-w:44px] [--jx-toggle-h:24px]',
+  } as const;
 </script>
 
-<label for={id} class="jx-switch-track jx-toggle-{size} {className}" class:jx-toggle-disabled={disabled}>
-  {#if label}<span class="jx-toggle-label">{label}</span>{/if}
-  <input {id} type="checkbox" class="jx-toggle-native" bind:checked {disabled} {...rest} />
-  <span class="jx-toggle-track" aria-hidden="true"><span class="jx-toggle-knob"></span></span>
+<label
+  for={id}
+  class={cn(
+    'jx-switch-track inline-flex items-center justify-end gap-[0.6rem] w-fit cursor-pointer select-none',
+    sizeUtilities[size],
+    'jx-toggle-{size}',
+    disabled && 'jx-toggle-disabled opacity-50 cursor-not-allowed',
+    className,
+  )}
+>
+  {#if label}<span class="jx-toggle-label text-[0.8125rem] text-foreground">{label}</span>{/if}
+  <input {id} type="checkbox" class="jx-toggle-native sr-only" bind:checked {disabled} {...rest} />
+  <span
+    class="jx-toggle-track relative flex-none box-border p-[2px] rounded-full bg-muted w-(--jx-toggle-w) h-(--jx-toggle-h) shadow-[inset_0_0_0_1px_var(--border)] transition-[background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"
+    aria-hidden="true"
+    ><span
+      class="jx-toggle-knob block rounded-full bg-muted-foreground w-[calc(var(--jx-toggle-h)-4px)] h-[calc(var(--jx-toggle-h)-4px)] transition-[transform,background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
+    ></span></span>
 </label>
-
-<style>
-  .jx-switch-track {
-    /* geometry knobs (see the size table in the header comment) */
-    --jx-toggle-w: 40px;
-    --jx-toggle-h: 24px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.6rem;
-    width: fit-content;
-    cursor: pointer;
-    -webkit-user-select: none;
-    user-select: none;
-  }
-  .jx-toggle-sm {
-    --jx-toggle-w: 32px;
-    --jx-toggle-h: 20px;
-  }
-  .jx-toggle-lg {
-    --jx-toggle-w: 48px;
-    --jx-toggle-h: 28px;
-  }
-  .jx-toggle-disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .jx-toggle-label {
-    font-size: 0.8125rem;
-    color: var(--foreground);
-  }
-
-  /* ---- the visually-hidden native input (file-lane clip) ----------- */
-  .jx-toggle-native {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    border: 0;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
-  /* ---- the track: rounded rail, inset ring instead of border -------- */
-  .jx-toggle-track {
-    position: relative;
-    flex: none;
-    box-sizing: border-box;
-    width: var(--jx-toggle-w);
-    height: var(--jx-toggle-h);
-    padding: 2px;
-    border-radius: 9999px;
-    background: var(--muted);
-    box-shadow: 0 0 0 1px var(--border) inset;
-    transition: background-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  /* ---- the knob: circle, slides by width − height ------------------- */
-  .jx-toggle-knob {
-    display: block;
-    width: calc(var(--jx-toggle-h) - 4px);
-    height: calc(var(--jx-toggle-h) - 4px);
-    border-radius: 50%;
-    background: var(--muted-foreground);
-    transition:
-      transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
-      background-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
-    will-change: transform;
-  }
-
-  /* ---- checked: primary rail + primary-foreground knob -------------- */
-  .jx-toggle-native:checked + .jx-toggle-track {
-    background: var(--primary);
-  }
-  .jx-toggle-native:checked + .jx-toggle-track .jx-toggle-knob {
-    background: var(--primary-foreground);
-    transform: translateX(calc(var(--jx-toggle-w) - var(--jx-toggle-h)));
-  }
-
-  /* ---- affordances ----------------------------------------------------
-     hover leans the unchecked rail's ring toward primary; the hidden
-     input's focus-visible moves the site's inset ring law onto the
-     track (sibling pair, same as :checked). */
-  .jx-switch-track:not(.jx-toggle-disabled):hover:has(.jx-toggle-native:not(:checked)) .jx-toggle-track {
-    box-shadow: 0 0 0 1px var(--primary) inset;
-  }
-  .jx-toggle-native:focus-visible + .jx-toggle-track {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-toggle-track,
-    .jx-toggle-knob {
-      transition: none;
-    }
-  }
-</style>
