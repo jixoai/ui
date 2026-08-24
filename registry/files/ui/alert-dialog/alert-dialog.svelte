@@ -20,11 +20,22 @@
   open — the safe exit is one Tab-less keypress away; Escape cancels
   through the native cancel path. Tab is the modal's (the platform's
   focus trap).
+
+  tw4 (2026-08-24): utility-authored — the platform element keeps its
+  geometry-only utilities (it still paints NOTHING; the theme's
+  jx-surface-body owns fill + border + blur, the shadow layer the
+  shadow), and the body/actions/button paint lives in the markup
+  (tone voices are conditional utilities; the press custom properties
+  ride arbitrary-property utilities). ONLY the ::backdrop scrim stays
+  in alert-dialog.css (D1-exempt residue — the kernel animates its
+  opacity via --jx-p, its color is paint).
 -->
 <script lang="ts">
   import { onDestroy, untrack } from 'svelte';
   import type { Snippet } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
+  import { cn } from '$lib/utils';
+  import './alert-dialog.css';
 
   interface Props {
     /** REQUIRED for alertdialog: the aria-labelledby target */
@@ -112,7 +123,7 @@
 
 <dialog
   bind:this={dialog}
-  class="jx-adlg jx-surface {motion.supported ? 'jx-waapi' : ''}"
+  class="jx-adlg jx-surface p-0 w-[min(28rem,calc(100vw-2rem))] text-popover-foreground rounded {motion.supported ? 'jx-waapi' : ''}"
   data-variant={variant}
   role="alertdialog"
   aria-labelledby="jx-adlg-title"
@@ -124,23 +135,32 @@
        <dialog> paints nothing (floating-surface law arch r3) -->
   <div class="jx-adlg-shadow jx-surface-shadow" aria-hidden="true"></div>
   <div class="jx-adlg-surface jx-surface-body">
-  <div class="jx-adlg-body">
-    <h2 id="jx-adlg-title" class="jx-adlg-title">{title}</h2>
-    <p id="jx-adlg-desc" class="jx-adlg-desc">{description}</p>
+  <div class="jx-adlg-body flex flex-col gap-2.5 px-5 py-[1.125rem]">
+    <h2 id="jx-adlg-title" class="jx-adlg-title font-nav text-[0.9375rem] tracking-[0.08em] uppercase text-foreground">{title}</h2>
+    <p id="jx-adlg-desc" class="jx-adlg-desc text-[0.8125rem] leading-[1.6] text-muted-foreground">{description}</p>
     {#if children}
-      <div class="jx-adlg-extra">
+      <div class="jx-adlg-extra text-[0.8125rem] leading-[1.6] text-muted-foreground">
         {@render children()}
       </div>
     {/if}
   </div>
-  <div class="jx-adlg-actions">
-    <button type="button" class="jx-press jx-adlg-cancel" bind:this={cancelEl} onclick={shut}>
+  <div class="jx-adlg-actions flex justify-end gap-2.5 px-5 py-3.5 border-t border-border">
+    <button
+      type="button"
+      class="jx-press jx-adlg-cancel appearance-none px-4 py-2 border border-border bg-background text-foreground font-nav text-xs tracking-[0.1em] uppercase cursor-pointer [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      bind:this={cancelEl}
+      onclick={shut}
+    >
       {cancelLabel}
     </button>
     <button
       type="button"
-      class="jx-press jx-adlg-confirm"
-      class:jx-adlg-confirm-destructive={confirmTone === 'destructive'}
+      class={cn(
+        'jx-press jx-adlg-confirm appearance-none px-4 py-2 border bg-background text-foreground font-nav text-xs tracking-[0.1em] uppercase cursor-pointer [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
+        confirmTone === 'destructive'
+          ? 'jx-adlg-confirm-destructive border-destructive bg-destructive text-destructive-foreground'
+          : 'border-primary text-primary',
+      )}
       onclick={confirm}
     >
       {confirmLabel}
@@ -148,87 +168,3 @@
   </div>
   </div>
 </dialog>
-
-<style>
-  /* Surface law (arch r3): the <dialog> is the PLATFORM element —
-     border + motion only, no paint; the .jx-adlg-surface body carries
-     the fill and the ::after shadow layer. */
-  .jx-adlg {
-    box-sizing: border-box;
-    width: min(28rem, calc(100vw - 2rem));
-    padding: 0;
-    color: var(--popover-foreground);
-    border-radius: var(--radius);
-  }
-  /* Scrim law: --scrim — semi-transparent black (light) / white (dark),
-     never a brand tint. Only the ::backdrop fade is component-owned. */
-  .jx-adlg::backdrop {
-    background: var(--scrim);
-  }
-
-
-  .jx-adlg-body {
-    display: flex;
-    flex-direction: column;
-    gap: 0.625rem;
-    padding: 1.125rem 1.25rem;
-  }
-  .jx-adlg-title {
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 0.9375rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-adlg-desc {
-    margin: 0;
-    font-size: 0.8125rem;
-    line-height: 1.6;
-    color: var(--muted-foreground);
-  }
-  .jx-adlg-extra {
-    font-size: 0.8125rem;
-    line-height: 1.6;
-    color: var(--muted-foreground);
-  }
-
-  .jx-adlg-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.625rem;
-    padding: 0.875rem 1.25rem;
-    border-top: 1px solid var(--border);
-  }
-  .jx-adlg-cancel,
-  .jx-adlg-confirm {
-    appearance: none;
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--border);
-    background: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-nav);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    --jx-press-shadow: var(--shadow-2xs);
-    --jx-press-shadow-hover: var(--shadow-xs);
-    --jx-press-shadow-active: var(--shadow-xs-press);
-  }
-  .jx-adlg-cancel:focus-visible,
-  .jx-adlg-confirm:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-adlg-confirm-destructive {
-    border-color: var(--destructive);
-    background: var(--destructive);
-    color: var(--destructive-foreground);
-  }
-  .jx-adlg-confirm:not(.jx-adlg-confirm-destructive) {
-    border-color: var(--primary);
-    color: var(--primary);
-  }
-
-</style>

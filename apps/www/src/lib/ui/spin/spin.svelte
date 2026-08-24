@@ -1,7 +1,7 @@
 <!--
   jixoai spin (registry/files/ui/spin.svelte).
   The loading indicator, terminal voice: a bracket cursor cycling
-  [ ─ \\ | / ] — the platform's oldest spinner, drawn in text.
+  [ ─ \ | / ] — the platform's oldest spinner, drawn in text.
   role=status + aria-label (polite by construction; loading is never
   an interruption).
 
@@ -13,9 +13,19 @@
                     areas beneath — loading and disabled are different
                     states, and the overlay must own both pointers and
                     clearly-presented keyboard state)
+
+  tw4 (2026-08-24): utility-authored — the stacked-frame cycling is
+  per-frame visibility + animation utilities in the markup (frame 1
+  rests visible, the rest invisible — exactly the reduced-motion
+  fallback); ONLY the keyframes and their reduced-motion kill stay in
+  spin.css (D1-exempt residue — keyframes are not utilities, and the
+  kill overrides the animate utility, so it rides the unlayered
+  :where carve-out).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './spin.css';
 
   interface Props {
     /** announced to assistive tech ("loading checks") */
@@ -29,93 +39,17 @@
 </script>
 
 {#if children}
-  <div class="jx-spin-wrap {className}" aria-busy="true">
-    <div class="jx-spin-live" role="status" aria-label={label}>
-      <span class="jx-spin-cursor" aria-hidden="true">[&nbsp;<span class="jx-spin-frames"><i>/</i><i>—</i><i>\\</i><i>|</i></span>&nbsp;]</span>
+  <div class={cn('jx-spin-wrap relative block', className)} aria-busy="true">
+    <div class="jx-spin-live absolute start-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1] px-3.5 py-2 border border-border bg-popover shadow-xs" role="status" aria-label={label}>
+      <span class="jx-spin-cursor font-mono text-[0.875rem] text-primary" aria-hidden="true">[&nbsp;<span class="jx-spin-frames relative inline-grid w-[1ch] text-center align-bottom"><i class="not-italic row-start-1 col-start-1 visible animate-[jx-spin-frame_800ms_steps(1)_infinite]">/</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-spin-frame_800ms_steps(1)_infinite] [animation-delay:200ms]">—</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-spin-frame_800ms_steps(1)_infinite] [animation-delay:400ms]">\\</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-spin-frame_800ms_steps(1)_infinite] [animation-delay:600ms]">|</i></span>&nbsp;]</span>
     </div>
     <div class="jx-spin-content" aria-hidden="false">
       {@render children()}
     </div>
-    <div class="jx-spin-scrim" aria-hidden="true"></div>
+    <div class="jx-spin-scrim absolute inset-0 bg-[color-mix(in_oklab,var(--background)_55%,transparent)]" aria-hidden="true"></div>
   </div>
 {:else}
-  <span class="jx-spin-inline {className}" role="status" aria-label={label}>
-    <span class="jx-spin-cursor" aria-hidden="true">[&nbsp;<span class="jx-spin-frames"><i>/</i><i>—</i><i>\\</i><i>|</i></span>&nbsp;]</span>
+  <span class={cn('jx-spin-inline inline-flex items-center font-mono text-[0.8125rem] text-primary', className)} role="status" aria-label={label}>
+    <span class="jx-spin-cursor" aria-hidden="true">[&nbsp;<span class="jx-spin-frames relative inline-grid w-[1ch] text-center align-bottom"><i class="not-italic row-start-1 col-start-1 visible animate-[jx-spin-frame_800ms_steps(1)_infinite]">/</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-spin-frame_800ms_steps(1)_infinite] [animation-delay:200ms]">—</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-spin-frame_800ms_steps(1)_infinite] [animation-delay:400ms]">\\</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-spin-frame_800ms_steps(1)_infinite] [animation-delay:600ms]">|</i></span>&nbsp;]</span>
   </span>
 {/if}
-
-<style>
-  /* all four frames STACK in one cell (grid overlay) — the cycling is
-     pure visibility, never layout (no four-line-tall block) */
-  .jx-spin-frames {
-    position: relative;
-    display: inline-grid;
-    width: 1ch;
-    text-align: center;
-    vertical-align: bottom;
-  }
-  .jx-spin-frames i {
-    grid-area: 1 / 1;
-    font-style: normal;
-    visibility: hidden;
-  }
-  .jx-spin-frames i:nth-child(1) { animation: jx-spin-frame 800ms steps(1) infinite 0ms; }
-  .jx-spin-frames i:nth-child(2) { animation: jx-spin-frame 800ms steps(1) infinite 200ms; }
-  .jx-spin-frames i:nth-child(3) { animation: jx-spin-frame 800ms steps(1) infinite 400ms; }
-  .jx-spin-frames i:nth-child(4) { animation: jx-spin-frame 800ms steps(1) infinite 600ms; }
-  @keyframes jx-spin-frame {
-    0%,
-    24% {
-      visibility: visible;
-    }
-    25%,
-    100% {
-      visibility: hidden;
-    }
-  }
-
-  .jx-spin-inline {
-    display: inline-flex;
-    align-items: center;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--primary);
-  }
-
-  .jx-spin-wrap {
-    position: relative;
-    display: block;
-  }
-  .jx-spin-live {
-    position: absolute;
-    inset-inline-start: 50%;
-    inset-block-start: 50%;
-    translate: -50% -50%;
-    z-index: 1;
-    padding: 0.5rem 0.875rem;
-    border: 1px solid var(--border);
-    background: var(--popover);
-    box-shadow: var(--shadow-xs);
-  }
-  .jx-spin-live .jx-spin-cursor {
-    font-family: var(--font-mono);
-    font-size: 0.875rem;
-    color: var(--primary);
-  }
-  .jx-spin-scrim {
-    position: absolute;
-    inset: 0;
-    /* the mask OWNS pointers: no ghost clicks through a loading state */
-    background: color-mix(in oklab, var(--background) 55%, transparent);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-spin-frames i:nth-child(n) {
-      animation: none;
-      visibility: hidden;
-    }
-    .jx-spin-frames i:nth-child(1) {
-      visibility: visible;
-    }
-  }
-</style>

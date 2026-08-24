@@ -1,0 +1,25 @@
+@layer theme, base, components, utilities;
+
+/* jixoai popconfirm — D1-exempt residue (tw4, 2026-08-24): ONLY the
+ * ::backdrop transparent pass-through (pseudo elements are not
+ * class-targetable) and the pre-anchor-positioning fallback (an
+ * @supports gate utilities cannot express; its !important centering
+ * must beat the markup's margin utility). All static paint — panel
+ * geometry, surface, buttons, tones — lives as token utilities in the
+ * markup. Static residue, @layer components. */
+
+@layer components {
+  :where(.jx-pc)::backdrop {
+    background: transparent;
+  }
+  @supports not (anchor-name: --jx-pc-fallback) {
+    :where(.jx-pc) {
+      position-anchor: auto !important;
+      inset-area: none !important;
+      inset: 0;
+      margin: auto;
+      align-self: center;
+      justify-self: center;
+    }
+  }
+}

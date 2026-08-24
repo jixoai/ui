@@ -486,13 +486,21 @@
           "path": "registry/files/ui/dialog/index.ts",
           "target": "@ui/dialog/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/dialog/dialog.css",
+          "target": "@ui/dialog/dialog.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: title?, open ($bindable); snippets children, footer?. Escape goes through the cancel event and shares the animated close path.",
       "meta": {
         "group": "feedback",
         "href": "/components/dialog.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1104,13 +1112,22 @@
           "path": "registry/files/ui/alert/index.ts",
           "target": "@ui/alert/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/alert/alert.css",
+          "target": "@ui/alert/alert.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: tone?, assertive?, title?, icon? (snippet), children? (body; omit for title-only).",
       "meta": {
         "group": "feedback",
         "href": "/components/alert.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1133,13 +1150,27 @@
           "path": "registry/files/ui/accordion/index.ts",
           "target": "@ui/accordion/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/accordion/accordion.css",
+          "target": "@ui/accordion/accordion.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/accordion/accordion-item.css",
+          "target": "@ui/accordion/accordion-item.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Group props: exclusive?, class? \u2014 children snippet holds accordion-item.svelte (or bare <details>). Item props: open ($bindable), summary (named snippet), children.",
       "meta": {
         "group": "data-display",
         "href": "/components/accordion.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1196,13 +1227,22 @@
           "path": "registry/files/ui/progress/index.ts",
           "target": "@ui/progress/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/progress/progress.css",
+          "target": "@ui/progress/progress.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: value? (0..max; omitted = indeterminate), max? (default 1), label?, class?.",
       "meta": {
         "group": "feedback",
         "href": "/components/progress.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1354,13 +1394,22 @@
           "path": "registry/files/ui/toast/index.ts",
           "target": "@ui/toast/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/toast/toast.css",
+          "target": "@ui/toast/toast.css",
+          "type": "registry:file"
         }
       ],
       "docs": "const toast = createToastStore(); <ToastViewport store={toast} /> \u2026 toast.api.push({ title, description?, tone?, duration?, assertive? }). Tones: default / primary / destructive.",
       "meta": {
         "group": "feedback",
         "href": "/components/toast.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1378,13 +1427,22 @@
           "path": "registry/files/ui/alert-dialog/index.ts",
           "target": "@ui/alert-dialog/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/alert-dialog/alert-dialog.css",
+          "target": "@ui/alert-dialog/alert-dialog.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: title, description (both required), open ($bindable), confirmLabel, confirmTone? ('destructive' default | 'primary'), onconfirm?, cancelLabel?, children? (extra body).",
       "meta": {
         "group": "feedback",
         "href": "/components/alert-dialog.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1402,13 +1460,22 @@
           "path": "registry/files/ui/sheet/index.ts",
           "target": "@ui/sheet/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/sheet/sheet.css",
+          "target": "@ui/sheet/sheet.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: open ($bindable), title, side? ('right' default), size? (CSS length, 24rem default), header?/footer? snippets, children.",
       "meta": {
         "group": "feedback",
         "href": "/components/sheet.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1504,13 +1571,22 @@
           "path": "registry/files/ui/carousel/index.ts",
           "target": "@ui/carousel/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/carousel/carousel.css",
+          "target": "@ui/carousel/carousel.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: label?, slideWidth? ('100%' one-at-a-time; '80%' for peeking), dots?, prevLabel/nextLabel?, children = the slides (any elements).",
       "meta": {
         "group": "data-display",
         "href": "/components/carousel.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1600,13 +1676,22 @@
           "path": "registry/files/ui/popconfirm/index.ts",
           "target": "@ui/popconfirm/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/popconfirm/popconfirm.css",
+          "target": "@ui/popconfirm/popconfirm.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: title (required), description?, onconfirm?, oncancel?, confirmLabel/cancelLabel?, confirmTone? ('destructive' default), placement? ('top'). children = the trigger; the wrapper auto-wires the first button as popovertarget.",
       "meta": {
         "group": "feedback",
         "href": "/components/popconfirm.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1630,7 +1715,11 @@
       "meta": {
         "group": "data-display",
         "href": "/components/empty.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1648,13 +1737,22 @@
           "path": "registry/files/ui/descriptions/index.ts",
           "target": "@ui/descriptions/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/descriptions/descriptions.css",
+          "target": "@ui/descriptions/descriptions.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: items ({term, value?}[]), columns? (1-4, default 1), bordered?, value? (per-item rich cell snippet).",
       "meta": {
         "group": "data-display",
         "href": "/components/descriptions.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1672,13 +1770,22 @@
           "path": "registry/files/ui/steps/index.ts",
           "target": "@ui/steps/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/steps/steps.css",
+          "target": "@ui/steps/steps.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: steps ({title, description?}[]), current (0-based), onstepclick? (fires for completed steps).",
       "meta": {
         "group": "navigation",
         "href": "/components/steps.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1696,13 +1803,22 @@
           "path": "registry/files/ui/spin/index.ts",
           "target": "@ui/spin/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/spin/spin.css",
+          "target": "@ui/spin/spin.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: label? ('loading'), children? (wrapping posture when given). reduced-motion freezes to the first frame.",
       "meta": {
         "group": "feedback",
         "href": "/components/spin.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1726,7 +1842,11 @@
       "meta": {
         "group": "data-display",
         "href": "/components/statistic.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1744,13 +1864,22 @@
           "path": "registry/files/ui/timeline/index.ts",
           "target": "@ui/timeline/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/timeline/timeline.css",
+          "target": "@ui/timeline/timeline.css",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: items ({title, time?, datetime?, pending?}[]), body? (per-item snippet [item, index]). time renders inside <time datetime> when the ISO instant is given.",
       "meta": {
         "group": "data-display",
         "href": "/components/timeline.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -1774,7 +1903,11 @@
       "meta": {
         "group": "feedback",
         "href": "/components/result.html"
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",

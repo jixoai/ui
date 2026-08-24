@@ -7,6 +7,13 @@
   semantics. columns=N splits rows into N term/value pairs per row
   (responsive down to 1 on narrow containers via container queries —
   the consumer's container owns the width).
+
+  tw4 (2026-08-24): static paint + the column math ride token
+  utilities in the markup (columns flow through the --jx-desc-cols
+  custom property on an arbitrary-value grid template); ONLY the
+  narrow-container @container fallback stays in descriptions.css —
+  D1-exempt residue (container queries on the element itself never
+  self-match, so no utility can express it).
 -->
 <script lang="ts">
   export interface DescriptionItem {
@@ -29,19 +36,24 @@
   let { items, columns = 1, bordered = false, value, class: className = '' }: Props = $props();
 
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './descriptions.css';
 
   const cols = $derived(Math.max(1, Math.min(4, Math.trunc(columns))));
 </script>
 
 <dl
-  class="jx-desc {className}"
-  class:jx-desc-bordered={bordered}
+  class={cn(
+    'jx-desc grid grid-cols-[repeat(var(--jx-desc-cols),minmax(0,1fr))] gap-0 m-0 @container',
+    bordered && 'jx-desc-bordered border border-border bg-card',
+    className,
+  )}
   style="--jx-desc-cols: {cols}"
 >
   {#each items as item, index (item.term + index)}
-    <div class="jx-desc-cell">
-      <dt class="jx-desc-term">{item.term}</dt>
-      <dd class="jx-desc-value">
+    <div class={cn('jx-desc-cell grid grid-cols-[minmax(7rem,12rem)_1fr] min-w-0', bordered && 'border-b border-border')}>
+      <dt class={cn('jx-desc-term truncate px-3 py-2 font-nav text-[0.6875rem] tracking-[0.12em] uppercase text-muted-foreground', bordered && 'bg-muted border-r border-border')}>{item.term}</dt>
+      <dd class="jx-desc-value m-0 px-3 py-2 text-[0.8125rem] leading-[1.5] text-foreground min-w-0 [overflow-wrap:anywhere]">
         {#if value}
           {@render value(item, index)}
         {:else}
@@ -51,57 +63,3 @@
     </div>
   {/each}
 </dl>
-
-<style>
-  .jx-desc {
-    display: grid;
-    grid-template-columns: repeat(var(--jx-desc-cols), minmax(0, 1fr));
-    gap: 0;
-    margin: 0;
-    container-type: inline-size;
-  }
-  .jx-desc-cell {
-    display: grid;
-    grid-template-columns: minmax(7rem, 12rem) 1fr;
-    min-width: 0;
-  }
-  /* narrow containers: one pair per row regardless of columns */
-  @container (max-width: 640px) {
-    .jx-desc {
-      grid-template-columns: 1fr;
-    }
-  }
-  .jx-desc-term {
-    padding: 0.5rem 0.75rem;
-    font-family: var(--font-nav);
-    font-size: 0.6875rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .jx-desc-value {
-    margin: 0;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.8125rem;
-    line-height: 1.5;
-    color: var(--foreground);
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-
-  /* bordered: hairline grid on the same dl — never a table in disguise */
-  .jx-desc-bordered {
-    border: 1px solid var(--border);
-    background: var(--card);
-  }
-  .jx-desc-bordered .jx-desc-cell {
-    border-bottom: 1px solid var(--border);
-  }
-  .jx-desc-bordered .jx-desc-term {
-    background: var(--muted);
-    border-right: 1px solid var(--border);
-  }
-</style>

@@ -26,10 +26,20 @@
   rise) compose. DECLARED TIMING EXCEPTION: the sheet keeps its own
   200ms for entry, exit, and the ::backdrop fade (CLOSE_MS=200); the
   dialog-family default is 120ms (Codex r2 — declared, not accidental).
+
+  tw4 (2026-08-24): utility-authored — edge docking, sizing, and the
+  head/body/foot paint live in the markup (side maps to a utility
+  string; the body's scrollbar compensation rides an arbitrary-property
+  utility next to the theme's jx-surface-scroll gutter law); ONLY the
+  slide keyframes + the [open]/.closing animation choreography (a state
+  machine utilities cannot order), the ::backdrop rules, and the
+  reduced-motion kill stay in sheet.css (D1-exempt residue).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { untrack } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './sheet.css';
 
   interface Props {
     /** bindable open state — same contract as dialog.svelte */
@@ -71,6 +81,23 @@
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /** edge docking per side: the margin that hugs the panel to its edge
+   *  (inset: 0 + the auto margin on the cross axes pins it there) */
+  const dockUtilities = {
+    left: 'mr-auto',
+    right: 'ml-auto',
+    top: 'mb-auto',
+    bottom: 'mt-auto',
+  } as const;
+  /** the docked axis geometry: full-height side panels, full-width
+   *  top/bottom panels with a dvh cap */
+  const axisUtilities = {
+    left: 'h-dvh w-[min(var(--jx-sheet-size),92vw)] max-h-none',
+    right: 'h-dvh w-[min(var(--jx-sheet-size),92vw)] max-h-none',
+    top: 'w-screen max-w-[100vw] max-h-[85dvh]',
+    bottom: 'w-screen max-w-[100vw] max-h-[85dvh]',
+  } as const;
+
   $effect(() => {
     if (open) {
       closeGen += 1;
@@ -111,8 +138,12 @@
 
 <dialog
   bind:this={dialog}
-  class="jx-sheet jx-sheet-{side} jx-surface"
-  class:closing={closing}
+  class={cn(
+    `jx-sheet jx-sheet-${side} jx-surface inset-0 m-0 p-0 rounded-none text-popover-foreground`,
+    dockUtilities[side],
+    axisUtilities[side],
+    closing && 'closing',
+  )}
   data-variant={variant}
   aria-label={title}
   style="--jx-sheet-size: {size}"
@@ -122,12 +153,17 @@
   <!-- surface body (fill + ::after shadow) wraps the whole drawer; the
        <dialog> paints nothing (floating-surface law arch r3) -->
   <div class="jx-sheet-surface jx-surface-body">
-  <div class="jx-sheet-head">
-    <h2 class="jx-sheet-title">{title}</h2>
+  <div class="jx-sheet-head flex items-center gap-3 px-[1.125rem] py-3.5 border-b border-border">
+    <h2 class="jx-sheet-title font-nav text-[0.8125rem] tracking-[0.12em] uppercase text-foreground">{title}</h2>
     {#if header}
-      <div class="jx-sheet-head-extra">{@render header()}</div>
+      <div class="jx-sheet-head-extra flex flex-1 items-center min-w-0">{@render header()}</div>
     {/if}
-    <button type="button" class="jx-sheet-x" onclick={shut} aria-label="Close">
+    <button
+      type="button"
+      class="jx-sheet-x flex-none appearance-none inline-flex items-center justify-center size-7 border border-border bg-transparent text-muted-foreground cursor-pointer hover:text-foreground hover:border-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      onclick={shut}
+      aria-label="Close"
+    >
       <svg
         viewBox="0 0 24 24"
         fill="none"
@@ -141,192 +177,18 @@
       </svg>
     </button>
   </div>
-  <div class="jx-sheet-body">
+  <div
+    class={cn(
+      'jx-sheet-body jx-surface-scroll flex flex-col gap-4 overflow-y-auto overscroll-contain pt-[1.125rem] pb-[1.125rem] [padding-inline:max(1.125rem-var(--jx-scrollbar-thin,0px),0px)] text-[0.8125rem] leading-[1.6]',
+      (side === 'left' || side === 'right') && 'max-h-[calc(100dvh-4.25rem)]',
+    )}
+  >
     {@render children()}
   </div>
   {#if footer}
-    <div class="jx-sheet-foot">
+    <div class="jx-sheet-foot flex justify-end gap-2.5 px-[1.125rem] py-3.5 border-t border-border">
       {@render footer()}
     </div>
   {/if}
   </div>
 </dialog>
-
-<style>
-  /* edge docking: the dialog element hugs its side and spans the cross
-     axis; movement is a translate along the docked axis */
-  .jx-sheet {
-    box-sizing: border-box;
-    padding: 0;
-    /* kill the UA dialog inset/margin defaults first — every side then
-       positions explicitly (Codex r1: UA defaults vary across engines).
-       PLATFORM element only — no paint (floating-surface law arch r3):
-       the .jx-sheet-surface body carries the fill and the shadow. */
-    inset: 0;
-    margin: 0;
-    color: var(--popover-foreground);
-    border-radius: var(--radius);
-  }
-  .jx-sheet-left,
-  .jx-sheet-right {
-    height: 100dvh;
-    width: min(var(--jx-sheet-size), 92vw);
-    max-height: none;
-  }
-  .jx-sheet-left {
-    margin: 0 auto 0 0;
-    border-radius: 0;
-  }
-  .jx-sheet-right {
-    margin: 0 0 0 auto;
-    border-radius: 0;
-  }
-  .jx-sheet-top,
-  .jx-sheet-bottom {
-    width: 100vw;
-    max-width: 100vw;
-    max-height: 85dvh;
-  }
-  .jx-sheet-top {
-    margin: 0 0 auto 0;
-    border-radius: 0;
-  }
-  .jx-sheet-bottom {
-    margin: auto 0 0 0;
-    border-radius: 0;
-  }
-
-  /* r18 EXCEPTION: CSS keyframes remain here — the sheet has no WAAPI
-     kernel yet; when it adopts one, these migrate to the kernel like
-     popover's did (all-animated-styling-to-WAAPI ruling) */
-  /* the slide: enter from off-screen along the docked axis, exit back */
-  .jx-sheet-left[open] {
-    animation: jx-sheet-in-left 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .jx-sheet-left.closing {
-    animation: jx-sheet-out-left 200ms ease-in forwards;
-  }
-  .jx-sheet-right[open] {
-    animation: jx-sheet-in-right 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .jx-sheet-right.closing {
-    animation: jx-sheet-out-right 200ms ease-in forwards;
-  }
-  .jx-sheet-top[open] {
-    animation: jx-sheet-in-top 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .jx-sheet-top.closing {
-    animation: jx-sheet-out-top 200ms ease-in forwards;
-  }
-  .jx-sheet-bottom[open] {
-    animation: jx-sheet-in-bottom 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .jx-sheet-bottom.closing {
-    animation: jx-sheet-out-bottom 200ms ease-in forwards;
-  }
-  @keyframes jx-sheet-in-left { from { transform: translateX(-100%); } }
-  @keyframes jx-sheet-out-left { to { transform: translateX(-100%); } }
-  @keyframes jx-sheet-in-right { from { transform: translateX(100%); } }
-  @keyframes jx-sheet-out-right { to { transform: translateX(100%); } }
-  @keyframes jx-sheet-in-top { from { transform: translateY(-100%); } }
-  @keyframes jx-sheet-out-top { to { transform: translateY(-100%); } }
-  @keyframes jx-sheet-in-bottom { from { transform: translateY(100%); } }
-  @keyframes jx-sheet-out-bottom { to { transform: translateY(100%); } }
-
-  /* scrim law: --scrim — semi-transparent black (light) / white
-     (dark), never a brand tint. The jx-surface law adds the rise+fade
-     on top of the side slide (transform and translate compose); the
-     close press-back runs at the sheet's own 200ms, not the law's
-     120ms dialog default (CLOSE_MS alignment). */
-  .jx-sheet::backdrop {
-    background: var(--scrim);
-  }
-  /* the unified exit choreography compressed to the sheet's own
-     CLOSE_MS (the law reads --jx-surface-exit-ms) */
-  .jx-sheet.closing {
-    --jx-surface-exit-ms: 200ms;
-  }
-  .jx-sheet.closing::backdrop {
-    transition: opacity 200ms ease-in;
-    opacity: 0;
-  }
-
-  .jx-sheet-head {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.875rem 1.125rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .jx-sheet-title {
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 0.8125rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-sheet-head-extra {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    min-width: 0;
-  }
-  .jx-sheet-x {
-    flex: none;
-    appearance: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted-foreground);
-    cursor: pointer;
-  }
-  .jx-sheet-x:hover {
-    color: var(--foreground);
-    border-color: var(--primary);
-  }
-  .jx-sheet-x:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-sheet-x svg {
-    width: 0.875rem;
-    height: 0.875rem;
-  }
-
-  .jx-sheet-body {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    /* scrollbar law: both-edges gutters; padding-inline hands the gutter back */
-    scrollbar-gutter: stable both-edges;
-    padding-block: 1.125rem;
-    padding-inline: max(1.125rem - var(--jx-scrollbar-thin, 0px), 0px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    font-size: 0.8125rem;
-    line-height: 1.6;
-  }
-  .jx-sheet-left .jx-sheet-body,
-  .jx-sheet-right .jx-sheet-body {
-    max-height: calc(100dvh - 4.25rem);
-  }
-  .jx-sheet-foot {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.625rem;
-    padding: 0.875rem 1.125rem;
-    border-top: 1px solid var(--border);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-sheet[open],
-    .jx-sheet.closing {
-      animation: none;
-    }
-  }
-</style>

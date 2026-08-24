@@ -19,10 +19,21 @@
   until the exit animation window passes (animationend or the sweeper)
   — the store already dropped the item, but the pixels finish their
   sentence. prefers-reduced-motion collapses both animations to none.
+
+  tw4 (2026-08-24): utility-authored — the corner stack, the toast
+  card, tone voices (conditional utilities per tone prop), and the
+  enter/exit animations (arbitrary-value animate utilities; the
+  leaving swap rides cn()'s tail so tailwind-merge resolves the
+  conflict) live in the markup; ONLY the two keyframes and the
+  reduced-motion kill stay in toast.css (D1-exempt residue — keyframes
+  are not utilities, and the kill overrides the animate utility, so it
+  rides the unlayered :where carve-out).
 -->
 <script lang="ts">
   import type { ToastStore, ToastItem } from '$lib/toast-store';
   import { onMount } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './toast.css';
 
   interface Props {
     /** the app-created store (createToastStore()) */
@@ -68,13 +79,28 @@
 
   const visible = $derived(items.slice(-maxVisible));
   const renders = $derived([...visible.filter((v) => !leavingItems.some((l) => l.id === v.id)), ...leavingItems]);
+
+  const toneBorder = {
+    default: 'border-border',
+    primary: 'border-primary',
+    destructive: 'border-destructive',
+  } as const;
+  const titleColor = {
+    default: 'text-foreground',
+    primary: 'text-primary',
+    destructive: 'text-destructive',
+  } as const;
 </script>
 
-<div class="jx-toasts {className}" aria-label="notifications">
+<div class={cn('jx-toasts fixed right-4 bottom-4 z-[90] flex flex-col gap-2 w-[min(22rem,calc(100vw-2rem))] pointer-events-none', className)} aria-label="notifications">
   {#each renders as item (item.id)}
+    {@const leaving = leavingItems.some((l) => l.id === item.id)}
     <div
-      class="jx-toast jx-toast-{item.tone ?? 'default'}"
-      class:jx-toast-leaving={leavingItems.some((l) => l.id === item.id)}
+      class={cn(
+        `jx-toast jx-toast-${item.tone ?? 'default'} flex items-start gap-2.5 box-border px-3.5 py-3 border bg-popover text-popover-foreground shadow rounded pointer-events-auto animate-[jx-toast-in_200ms_cubic-bezier(0.22,1,0.36,1)]`,
+        toneBorder[item.tone ?? 'default'],
+        leaving && 'jx-toast-leaving animate-[jx-toast-out_180ms_ease-in_forwards]',
+      )}
       role={item.assertive ? 'alert' : 'status'}
       onpointerenter={() => store.pause(item.id)}
       onpointerleave={() => store.resume(item.id)}
@@ -84,15 +110,15 @@
         if (!e.currentTarget.contains(e.relatedTarget)) store.resume(item.id);
       }}
     >
-      <div class="jx-toast-body">
-        <p class="jx-toast-title">{item.title}</p>
+      <div class="jx-toast-body flex flex-1 flex-col gap-1 min-w-0">
+        <p class={cn('jx-toast-title font-nav text-xs tracking-[0.1em] uppercase', titleColor[item.tone ?? 'default'])}>{item.title}</p>
         {#if item.description}
-          <p class="jx-toast-desc">{item.description}</p>
+          <p class="jx-toast-desc text-[0.8125rem] leading-[1.5] text-muted-foreground">{item.description}</p>
         {/if}
       </div>
       <button
         type="button"
-        class="jx-toast-dismiss"
+        class="jx-toast-dismiss flex-none appearance-none inline-flex items-center justify-center size-5 -mt-0.5 -mr-1 border-0 bg-transparent text-muted-foreground text-base leading-none cursor-pointer hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
         aria-label="dismiss notification"
         onclick={() => store.api.dismiss(item.id)}
       >
@@ -101,113 +127,3 @@
     </div>
   {/each}
 </div>
-
-<style>
-  .jx-toasts {
-    position: fixed;
-    right: 1rem;
-    bottom: 1rem;
-    z-index: 90;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    width: min(22rem, calc(100vw - 2rem));
-    pointer-events: none; /* the corner itself never blocks the page */
-  }
-
-  .jx-toast {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.625rem;
-    box-sizing: border-box;
-    padding: 0.75rem 0.875rem;
-    border: 1px solid var(--border);
-    background: var(--popover);
-    color: var(--popover-foreground);
-    box-shadow: var(--shadow);
-    border-radius: var(--radius);
-    pointer-events: auto;
-    animation: jx-toast-in 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .jx-toast-leaving {
-    animation: jx-toast-out 180ms ease-in forwards;
-  }
-  @keyframes jx-toast-in {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-  }
-  @keyframes jx-toast-out {
-    to {
-      opacity: 0;
-      transform: translateX(12px);
-    }
-  }
-
-  .jx-toast-body {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    gap: 0.25rem;
-    min-width: 0;
-  }
-  .jx-toast-title {
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-toast-desc {
-    margin: 0;
-    font-size: 0.8125rem;
-    line-height: 1.5;
-    color: var(--muted-foreground);
-  }
-
-  .jx-toast-primary {
-    border-color: var(--primary);
-  }
-  .jx-toast-primary .jx-toast-title {
-    color: var(--primary);
-  }
-  .jx-toast-destructive {
-    border-color: var(--destructive);
-  }
-  .jx-toast-destructive .jx-toast-title {
-    color: var(--destructive);
-  }
-
-  .jx-toast-dismiss {
-    flex: none;
-    appearance: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.25rem;
-    height: 1.25rem;
-    margin: -0.125rem -0.25rem 0 0;
-    border: 0;
-    background: transparent;
-    color: var(--muted-foreground);
-    font-size: 1rem;
-    line-height: 1;
-    cursor: pointer;
-  }
-  .jx-toast-dismiss:hover {
-    color: var(--foreground);
-  }
-  .jx-toast-dismiss:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-toast,
-    .jx-toast-leaving {
-      animation: none;
-    }
-  }
-</style>

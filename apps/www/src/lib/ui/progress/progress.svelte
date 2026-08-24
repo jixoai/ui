@@ -12,8 +12,19 @@
   label + live value readout — announced politely (role=status) because
   progress changes are exactly the "polite update" case; the bar itself
   stays aria-hidden-free (the native element already exposes values).
+
+  tw4 (2026-08-24): utility-authored — the bar frame, the label/value
+  readout, and the indeterminate stripe (arbitrary-value background +
+  animate utility, gated on the jx-indeterminate hook) live in the
+  markup; ONLY the native ::-webkit/::-moz progress pseudo resets, the
+  stripe keyframes, and the reduced-motion kills stay in progress.css
+  (D1-exempt residue; the kills override markup utilities, so they
+  ride the unlayered :where carve-out).
 -->
 <script lang="ts">
+  import { cn } from '$lib/utils';
+  import './progress.css';
+
   interface Props {
     /** 0..max; omitted ⇒ indeterminate ("activity", not "progress") */
     value?: number;
@@ -31,18 +42,21 @@
   );
 </script>
 
-<div class="jx-progress {className}">
+<div class={cn('jx-progress flex flex-col gap-1.5', className)}>
   {#if label || pct !== null}
-    <div class="jx-progress-head">
-      {#if label}<span class="jx-progress-label">{label}</span>{/if}
+    <div class="jx-progress-head flex items-baseline justify-between gap-3">
+      {#if label}<span class="jx-progress-label font-nav text-xs tracking-[0.1em] uppercase text-muted-foreground">{label}</span>{/if}
       {#if pct !== null}
-        <span class="jx-progress-value" role="status">{Math.round(pct)}%</span>
+        <span class="jx-progress-value text-xs tabular-nums text-foreground" role="status">{Math.round(pct)}%</span>
       {/if}
     </div>
   {/if}
   <progress
-    class="jx-progress-bar"
-    class:jx-indeterminate={value === undefined}
+    class={cn(
+      'jx-progress-bar appearance-none block w-full h-2.5 border border-border rounded bg-muted overflow-hidden',
+      value === undefined &&
+        'jx-indeterminate relative bg-transparent bg-[repeating-linear-gradient(-55deg,var(--primary)_0_6px,transparent_6px_12px)] bg-[length:24px_100%] animate-[jx-progress-run_900ms_linear_infinite]',
+    )}
     aria-label={label ?? 'progress'}
     {value}
     {max}
@@ -50,92 +64,3 @@
     {#if pct !== null}{Math.round(pct)}%{/if}
   </progress>
 </div>
-
-<style>
-  .jx-progress {
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
-  }
-  .jx-progress-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.75rem;
-  }
-  .jx-progress-label {
-    font-family: var(--font-nav);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-  }
-  .jx-progress-value {
-    font-size: 0.75rem;
-    font-variant-numeric: tabular-nums;
-    color: var(--foreground);
-  }
-
-  /* the bar: 1px frame on the muted track, brand fill — the native
-     ::-webkit-progress-* / ::-moz-progress pseudo-elements are reset so
-     both engines paint identically */
-  .jx-progress-bar {
-    appearance: none;
-    display: block;
-    width: 100%;
-    height: 10px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--muted);
-    overflow: hidden;
-  }
-  .jx-progress-bar::-webkit-progress-inner {
-    display: none;
-  }
-  .jx-progress-bar::-webkit-progress-bar {
-    background: transparent;
-  }
-  .jx-progress-bar::-webkit-progress-value {
-    background: var(--primary);
-    transition: width 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .jx-progress-bar::-moz-progress-bar {
-    background: var(--primary);
-    transition: width 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  /* indeterminate: the engine animations differ — one authored stripe
-     sweep paints the same story on both */
-  .jx-indeterminate.jx-progress-bar::-webkit-progress-value {
-    background: transparent;
-  }
-  .jx-indeterminate.jx-progress-bar::-moz-progress-bar {
-    background: transparent;
-  }
-  .jx-indeterminate.jx-progress-bar {
-    position: relative;
-    background:
-      repeating-linear-gradient(
-          -55deg,
-          var(--primary) 0 6px,
-          transparent 6px 12px
-        )
-        0 0 / 24px 100%;
-    animation: jx-progress-run 900ms linear infinite;
-  }
-  @keyframes jx-progress-run {
-    to {
-      background-position: 24px 0;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-progress-bar::-webkit-progress-value,
-    .jx-progress-bar::-moz-progress-bar {
-      transition: none;
-    }
-    .jx-indeterminate.jx-progress-bar {
-      animation-duration: 4s;
-    }
-  }
-</style>

@@ -17,9 +17,17 @@
 
   Composition: optional `icon` snippet lands inline-start of the title
   (bring your own — lucide, svg, text glyph); children is the body copy.
+
+  tw4 (2026-08-24): utility-authored — the banner paint composes from
+  token utilities (layer law: consumer utilities always win); tone maps
+  to border/title color utilities per prop. ONLY the passed-through
+  icon-glyph normalization (a descendant boundary) stays in alert.css;
+  `jx-alert*` classes are semantic hooks, css defines them not.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './alert.css';
 
   interface Props {
     /** tone drives border + title color */
@@ -37,68 +45,35 @@
 
   let { tone = 'default', assertive = false, title, icon, children, class: className = '' }: Props =
     $props();
+
+  const toneBorder = {
+    default: 'border-border',
+    primary: 'border-primary',
+    destructive: 'border-destructive',
+  } as const;
+  const titleColor = {
+    default: 'text-foreground',
+    primary: 'text-primary',
+    destructive: 'text-destructive',
+  } as const;
 </script>
 
-<div class="jx-alert jx-alert-{tone} {className}" role={assertive ? 'alert' : 'status'}>
+<div
+  class={cn(
+    `jx-alert jx-alert-${tone} flex flex-col gap-1.5 box-border border bg-card px-3.5 py-3 shadow-2xs rounded`,
+    toneBorder[tone],
+    className,
+  )}
+  role={assertive ? 'alert' : 'status'}
+>
   {#if title}
-    <p class="jx-alert-title">
-      {#if icon}<span class="jx-alert-icon">{@render icon()}</span>{/if}{title}
+    <p class={cn('jx-alert-title flex items-center gap-2 font-nav text-[0.8125rem] tracking-[0.08em] uppercase', titleColor[tone])}>
+      {#if icon}<span class="jx-alert-icon inline-flex">{@render icon()}</span>{/if}{title}
     </p>
   {/if}
   {#if children}
-    <div class="jx-alert-body">
+    <div class="jx-alert-body text-[0.8125rem] leading-[1.55] text-muted-foreground">
       {@render children()}
     </div>
   {/if}
 </div>
-
-<style>
-  .jx-alert {
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
-    box-sizing: border-box;
-    padding: 0.75rem 0.875rem;
-    border: 1px solid var(--border);
-    background: var(--card);
-    box-shadow: var(--shadow-2xs);
-    border-radius: var(--radius);
-  }
-  .jx-alert-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 0.8125rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-alert-icon {
-    display: inline-flex;
-    color: currentColor;
-  }
-  .jx-alert-icon :global(svg) {
-    width: 1em;
-    height: 1em;
-  }
-  .jx-alert-body {
-    font-size: 0.8125rem;
-    line-height: 1.55;
-    color: var(--muted-foreground);
-  }
-
-  .jx-alert-primary {
-    border-color: var(--primary);
-  }
-  .jx-alert-primary .jx-alert-title {
-    color: var(--primary);
-  }
-  .jx-alert-destructive {
-    border-color: var(--destructive);
-  }
-  .jx-alert-destructive .jx-alert-title {
-    color: var(--destructive);
-  }
-</style>

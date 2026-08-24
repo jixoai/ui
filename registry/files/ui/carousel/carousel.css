@@ -1,0 +1,15 @@
+@layer theme, base, components, utilities;
+
+/* jixoai carousel — D1-exempt residue (tw4, 2026-08-24): ONLY the
+ * slide law — every DIRECT child of the track is sized to
+ * --jx-slide-w and snapped to the start edge. A child boundary is
+ * selector architecture utilities never own. The track, arrows, and
+ * dots paint (incl. hover/focus-visible and the on-dot state) live as
+ * token utilities in the markup. Static residue, @layer components. */
+
+@layer components {
+  :where(.jx-carousel-track) > * {
+    flex: 0 0 var(--jx-slide-w);
+    scroll-snap-align: start;
+  }
+}

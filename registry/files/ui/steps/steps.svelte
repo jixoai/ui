@@ -9,8 +9,17 @@
   The connector is a CSS line between markers; the marker for a
   completed step carries a check glyph. onstepclick receives the index
   of a completed step the user re-entered.
+
+  tw4 (2026-08-24): utility-authored — marker/title state paints map
+  to conditional color utilities in the markup; ONLY the connector
+  pseudo build (a ::after line with its done-state repaint) stays in
+  steps.css. `jx-step*` classes are semantic hooks, css defines them
+  (the connector) or nothing (the rest).
 -->
 <script lang="ts">
+  import { cn } from '$lib/utils';
+  import './steps.css';
+
   export interface StepItem {
     title: string;
     description?: string;
@@ -26,121 +35,44 @@
   }
 
   let { steps, current, onstepclick, class: className = '' }: Props = $props();
+
+  const markerPaint = {
+    done: 'border-primary bg-card text-primary',
+    current: 'border-primary bg-primary text-primary-foreground',
+    todo: 'border-border bg-card text-muted-foreground',
+  } as const;
 </script>
 
-<ol class="jx-steps {className}" role="list">
+<ol class={cn('jx-steps flex flex-wrap', className)} role="list">
   {#each steps as step, index (index)}
     {@const state = index < current ? 'done' : index === current ? 'current' : 'todo'}
-    <li class="jx-step jx-step-{state}" aria-current={state === 'current' ? 'step' : undefined}>
+    <li
+      class={cn(`jx-step jx-step-${state} relative flex flex-1 items-start gap-2.5 min-w-[9rem] pr-4`)}
+      aria-current={state === 'current' ? 'step' : undefined}
+    >
       {#if state === 'done' && onstepclick}
         <button
           type="button"
-          class="jx-step-marker"
+          class={cn(
+            'jx-step-marker flex-none inline-flex items-center justify-center size-6 border font-nav text-[0.6875rem] cursor-pointer hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
+            markerPaint[state],
+          )}
           aria-label="completed: {step.title} — go back"
           onclick={() => onstepclick?.(index)}
         >
           <span class="jx-step-index" aria-hidden="true">✓</span>
         </button>
       {:else}
-        <span class="jx-step-marker" aria-hidden="true">
+        <span class={cn('jx-step-marker flex-none inline-flex items-center justify-center size-6 border font-nav text-[0.6875rem]', markerPaint[state])} aria-hidden="true">
           <span class="jx-step-index">{index + 1}</span>
         </span>
       {/if}
-      <span class="jx-step-text">
-        <span class="jx-step-title">{step.title}</span>
+      <span class="jx-step-text flex min-w-0 flex-col gap-[0.125rem]">
+        <span class={cn('jx-step-title font-nav text-xs tracking-[0.08em] uppercase', state === 'current' ? 'text-foreground' : 'text-muted-foreground')}>{step.title}</span>
         {#if step.description}
-          <span class="jx-step-desc">{step.description}</span>
+          <span class="jx-step-desc text-xs leading-[1.45] text-muted-foreground opacity-80">{step.description}</span>
         {/if}
       </span>
     </li>
   {/each}
 </ol>
-
-<style>
-  .jx-steps {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .jx-step {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.625rem;
-    flex: 1 1 0;
-    min-width: 9rem;
-    position: relative;
-    padding-right: 1rem;
-  }
-  /* the connector: a line running from this marker toward the next */
-  .jx-step:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    top: 0.75rem;
-    left: calc(1.5rem + 0.625rem);
-    right: 0.5rem;
-    height: 1px;
-    background: var(--border);
-  }
-  .jx-step-done:not(:last-child)::after {
-    background: var(--primary);
-  }
-  .jx-step-marker {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.5rem;
-    height: 1.5rem;
-    border: 1px solid var(--border);
-    background: var(--card);
-    color: var(--muted-foreground);
-    font-family: var(--font-nav);
-    font-size: 0.6875rem;
-    padding: 0;
-  }
-  button.jx-step-marker {
-    cursor: pointer;
-  }
-  button.jx-step-marker:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-  }
-  button.jx-step-marker:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-step-done .jx-step-marker {
-    border-color: var(--primary);
-    color: var(--primary);
-  }
-  .jx-step-current .jx-step-marker {
-    border-color: var(--primary);
-    background: var(--primary);
-    color: var(--primary-foreground);
-  }
-  .jx-step-text {
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-    min-width: 0;
-  }
-  .jx-step-title {
-    font-family: var(--font-nav);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-  }
-  .jx-step-current .jx-step-title {
-    color: var(--foreground);
-  }
-  .jx-step-desc {
-    font-size: 0.75rem;
-    line-height: 1.45;
-    color: var(--muted-foreground);
-    opacity: 0.8;
-  }
-</style>

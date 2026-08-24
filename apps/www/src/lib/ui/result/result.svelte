@@ -10,9 +10,14 @@
   empty ≠ result: empty says "no data"; result says "an operation
   reached an outcome". They are different states and stay different
   components.
+
+  tw4 (2026-08-24): pure token utilities, zero css residue — status
+  maps to icon border/glyph color utilities per prop; `jx-result*`
+  classes are semantic hooks, css defines them not.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
 
   interface Props {
     /** success uses the brand voice (no green in this language) */
@@ -30,83 +35,41 @@
   const glyph = $derived(
     status === 'success' ? '✓' : status === 'error' ? '✕' : status === 'warning' ? '!' : 'i',
   );
+  const iconBorder = {
+    success: 'border-primary',
+    error: 'border-destructive',
+    warning: 'border-border',
+    info: 'border-border',
+  } as const;
+  const glyphColor = {
+    success: 'text-primary',
+    error: 'text-destructive',
+    warning: '',
+    info: '',
+  } as const;
 </script>
 
-<div class="jx-result jx-result-{status} {className}">
-  <div class="jx-result-icon" aria-hidden="true">
+<div class={cn(`jx-result jx-result-${status} flex flex-col items-center gap-3 px-6 py-12 text-center`, className)}>
+  <div
+    class={cn(
+      'jx-result-icon inline-flex items-center justify-center size-[3.5rem] border border-border bg-card shadow-xs',
+      iconBorder[status],
+    )}
+    aria-hidden="true"
+  >
     {#if icon}
       {@render icon()}
     {:else}
-      <span class="jx-result-glyph">{glyph}</span>
+      <span class={cn('jx-result-glyph font-mono text-2xl leading-none', glyphColor[status])}>{glyph}</span>
     {/if}
   </div>
-  <h2 class="jx-result-title">{title}</h2>
+  <h2 class="jx-result-title font-nav text-base tracking-[0.06em] uppercase text-foreground">{title}</h2>
   {#if description}
-    <p class="jx-result-desc">{description}</p>
+    <p class="jx-result-desc max-w-[44ch] text-[0.8125rem] leading-[1.6] text-muted-foreground">{description}</p>
   {/if}
   {#if actions}
-    <div class="jx-result-actions">
+    <div class="jx-result-actions mt-2 flex flex-wrap justify-center gap-2.5">
       {@render actions()}
     </div>
   {/if}
 </div>
-
-<style>
-  .jx-result {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 3rem 1.5rem;
-    text-align: center;
-  }
-  .jx-result-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 3.5rem;
-    height: 3.5rem;
-    border: 1px solid var(--border);
-    background: var(--card);
-    box-shadow: var(--shadow-xs);
-  }
-  .jx-result-glyph {
-    font-family: var(--font-mono);
-    font-size: 1.5rem;
-    line-height: 1;
-  }
-  .jx-result-success .jx-result-icon {
-    border-color: var(--primary);
-  }
-  .jx-result-success .jx-result-glyph {
-    color: var(--primary);
-  }
-  .jx-result-error .jx-result-icon {
-    border-color: var(--destructive);
-  }
-  .jx-result-error .jx-result-glyph {
-    color: var(--destructive);
-  }
-  .jx-result-title {
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 1rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-result-desc {
-    margin: 0;
-    max-width: 44ch;
-    font-size: 0.8125rem;
-    line-height: 1.6;
-    color: var(--muted-foreground);
-  }
-  .jx-result-actions {
-    margin-top: 0.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.625rem;
-  }
-</style>

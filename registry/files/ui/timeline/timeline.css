@@ -1,0 +1,24 @@
+@layer theme, base, components, utilities;
+
+/* jixoai timeline — D1-exempt residue (tw4, 2026-08-24): ONLY the
+ * spine, a pseudo-element build no utility can express. Static
+ * geometry that overrides no utility paint, so it lives in
+ * @layer components (the ORDER LAW keeps this sheet from ever
+ * reordering the cascade). */
+
+@layer components {
+  /* the spine: one 1px line through every dot */
+  .jx-tl-item::before {
+    content: '';
+    position: absolute;
+    left: 0.3125rem;
+    top: 0.5rem;
+    bottom: -0.25rem;
+    width: 1px;
+    background: var(--border);
+  }
+  .jx-tl-item:last-child::before {
+    bottom: auto;
+    height: 0;
+  }
+}

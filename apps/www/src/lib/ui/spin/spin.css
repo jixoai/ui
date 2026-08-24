@@ -1,0 +1,26 @@
+@layer theme, base, components, utilities;
+
+/* jixoai spin — D1-exempt residue (tw4, 2026-08-24): ONLY the frame
+ * keyframes (not expressible as utilities) and the reduced-motion
+ * kill. The frames' visibility rests in the markup (frame 1 visible,
+ * the rest invisible), so killing the animation under reduced motion
+ * lands exactly on the static first-frame fallback. The kill
+ * overrides the markup's animate utility, so it rides the UNLAYERED
+ * :where carve-out (the toggle/Part A precedent). */
+
+@keyframes jx-spin-frame {
+  0%,
+  24% {
+    visibility: visible;
+  }
+  25%,
+  100% {
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-spin-frames i) {
+    animation: none;
+  }
+}

@@ -6,9 +6,14 @@
   the shared law: up=primary (brand emphasis), down=destructive;
   invert with tone="down-good" semantics by passing your own snippets
   — the component never guesses what "good" means for YOUR metric.
+
+  tw4 (2026-08-24): pure token utilities, zero css residue — the trend
+  voice maps to color utilities per prop; `jx-stat*` classes are
+  semantic hooks, css defines them not.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
 
   interface Props {
     /** the metric's name — the micro-label above the value */
@@ -23,61 +28,23 @@
   }
 
   let { title, value, prefix, suffix, trend, class: className = '' }: Props = $props();
+
+  const trendColor = { up: 'text-primary', down: 'text-destructive' } as const;
 </script>
 
-<div class="jx-stat {className}">
-  <p class="jx-stat-title">{title}</p>
-  <p class="jx-stat-value">
-    {#if prefix}<span class="jx-stat-affix">{@render prefix()}</span>{/if}
-    <span class="jx-stat-num">{value}</span>
+<div class={cn('jx-stat flex flex-col gap-1', className)}>
+  <p class="jx-stat-title font-nav text-[0.6875rem] tracking-[0.14em] uppercase text-muted-foreground">{title}</p>
+  <p class="jx-stat-value flex items-baseline gap-1.5 text-foreground">
+    {#if prefix}<span class="jx-stat-affix text-[0.8125rem] text-muted-foreground">{@render prefix()}</span>{/if}
+    <span class="jx-stat-num font-mono text-[1.75rem] leading-[1.1] tabular-nums tracking-[-0.02em]">{value}</span>
     {#if trend}
-      <span class="jx-stat-trend jx-stat-trend-{trend}" aria-label="trend {trend}">
+      <span
+        class={cn(`jx-stat-trend jx-stat-trend-${trend} text-xs`, trendColor[trend])}
+        aria-label="trend {trend}"
+      >
         {trend === 'up' ? '▲' : '▼'}
       </span>
     {/if}
-    {#if suffix}<span class="jx-stat-affix">{@render suffix()}</span>{/if}
+    {#if suffix}<span class="jx-stat-affix text-[0.8125rem] text-muted-foreground">{@render suffix()}</span>{/if}
   </p>
 </div>
-
-<style>
-  .jx-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-  .jx-stat-title {
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 0.6875rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-  }
-  .jx-stat-value {
-    margin: 0;
-    display: flex;
-    align-items: baseline;
-    gap: 0.375rem;
-    color: var(--foreground);
-  }
-  .jx-stat-num {
-    font-family: var(--font-mono);
-    font-size: 1.75rem;
-    line-height: 1.1;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
-  }
-  .jx-stat-affix {
-    font-size: 0.8125rem;
-    color: var(--muted-foreground);
-  }
-  .jx-stat-trend {
-    font-size: 0.75rem;
-  }
-  .jx-stat-trend-up {
-    color: var(--primary);
-  }
-  .jx-stat-trend-down {
-    color: var(--destructive);
-  }
-</style>

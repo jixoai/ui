@@ -1,0 +1,18 @@
+@layer theme, base, components, utilities;
+
+/* jixoai descriptions — D1-exempt residue (tw4, 2026-08-24). ONLY the
+ * narrow-container fallback: one term/value pair per row once the dl's
+ * own container drops under 640px. A container query can never live on
+ * the element itself (self-containers don't match their own query), so
+ * no utility variant can express this rule.
+ *
+ * CASCADE CARVE-OUT (the toggle/Part A precedent): the fallback must
+ * override the component's OWN grid-cols utility paint, so it rides
+ * UNLAYERED behind :where() — under @layer components the utilities
+ * layer would always win and narrow containers would keep N columns. */
+
+@container (max-width: 640px) {
+  :where(.jx-desc) {
+    grid-template-columns: 1fr;
+  }
+}

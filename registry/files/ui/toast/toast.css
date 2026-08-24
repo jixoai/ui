@@ -1,0 +1,28 @@
+@layer theme, base, components, utilities;
+
+/* jixoai toast — D1-exempt residue (tw4, 2026-08-24): ONLY the enter/
+ * exit keyframes (not expressible as utilities) and the reduced-motion
+ * kill. The animations themselves live as arbitrary-value animate
+ * utilities in the markup (the leaving swap is a conditional that
+ * tailwind-merge resolves inside cn()); the kill overrides them, so
+ * it rides UNLAYERED behind :where() — the toggle/Part A precedent. */
+
+@keyframes jx-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes jx-toast-out {
+  to {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-toast),
+  :where(.jx-toast-leaving) {
+    animation: none;
+  }
+}

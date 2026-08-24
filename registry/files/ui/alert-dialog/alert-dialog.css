@@ -1,0 +1,17 @@
+@layer theme, base, components, utilities;
+
+/* jixoai alert-dialog — D1-exempt residue (tw4, 2026-08-24): ONLY the
+ * ::backdrop scrim pseudo (the WAAPI kernel animates its opacity via
+ * --jx-p; its color is paint no utility owns — pseudo elements are not
+ * class-targetable). The platform element still paints NOTHING; the
+ * theme's jx-surface-body owns fill + border + blur, the shadow layer
+ * owns the shadow (the floating-surface law, intact). Static residue,
+ * @layer components. */
+
+@layer components {
+  /* Scrim law: --scrim — semi-transparent black (light) / white (dark),
+     never a brand tint. Only the ::backdrop fade is component-owned. */
+  :where(.jx-adlg)::backdrop {
+    background: var(--scrim);
+  }
+}

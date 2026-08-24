@@ -1,0 +1,22 @@
+@layer theme, base, components, utilities;
+
+/* jixoai steps — D1-exempt residue (tw4, 2026-08-24): ONLY the
+ * connector pseudo build remains — a ::after line running from this
+ * marker toward the next, repainted primary by the done state. All
+ * static and same-element state paint lives as token utilities in
+ * the markup (the :where keeps the residue consumer-overridable). */
+
+@layer components {
+  :where(.jx-step:not(:last-child))::after {
+    content: '';
+    position: absolute;
+    top: 0.75rem;
+    left: calc(1.5rem + 0.625rem);
+    right: 0.5rem;
+    height: 1px;
+    background: var(--border);
+  }
+  :where(.jx-step-done:not(:last-child))::after {
+    background: var(--primary);
+  }
+}

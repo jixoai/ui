@@ -20,9 +20,17 @@
   allow-keywords + ::details-content transition animates to
   height:auto on supporting engines; everywhere else it snaps (native
   behavior, never broken).
+
+  tw4 (2026-08-24): utility-authored — the frame and the ghost
+  variant (conditional utilities, same element) live in the markup;
+  ONLY the sibling seam (a `> * + *` boundary no utility may own) and
+  the @supports interpolate-size gate stay in accordion.css (D1-exempt
+  residue, static @layer components).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './accordion.css';
 
   interface Props {
     /** radio behavior: opening one DIRECT child closes its siblings
@@ -60,34 +68,13 @@
   }
 </script>
 
-<div class="jx-accordion {className}" class:jx-accordion-ghost={ghost} use:exclusiveGuard={exclusive}>
+<div
+  class={cn(
+    'jx-accordion flex flex-col box-border border border-border bg-card rounded',
+    ghost && 'jx-accordion-ghost border-transparent bg-transparent',
+    className,
+  )}
+  use:exclusiveGuard={exclusive}
+>
   {@render children()}
 </div>
-
-<style>
-  .jx-accordion {
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    border: 1px solid var(--border);
-    background: var(--card);
-    border-radius: var(--radius);
-  }
-  /* the 1px seam between items — shared frame, no double borders */
-  .jx-accordion :global(> * + *) {
-    border-top: 1px solid var(--border);
-  }
-  /* ghost: the frame leaves, the seams stay (antd Collapse ghost) */
-  .jx-accordion-ghost {
-    border-color: transparent;
-    background: transparent;
-  }
-  /* height:auto animation is allowed where the engine supports it —
-     inherited by the items (interpolate-size is an inherited property);
-     the item file owns the actual ::details-content rules */
-  @supports selector(::details-content) and (interpolate-size: allow-keywords) {
-    .jx-accordion {
-      interpolate-size: allow-keywords;
-    }
-  }
-</style>

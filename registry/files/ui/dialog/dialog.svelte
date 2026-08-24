@@ -15,11 +15,22 @@
   picks the paint (auto: acrylic unless the environment asks for reduced
   transparency). The ::backdrop scrim is --scrim: semi-transparent black
   in light mode, white in dark mode — never a brand tint.
+
+  tw4 (2026-08-24): utility-authored — the platform element keeps its
+  geometry-only utilities (it still paints NOTHING; fill + border +
+  blur stay the theme's jx-surface-body, the shadow the shadow layer),
+  and the head/body/foot paint lives in the markup. ONLY the scrim
+  pseudo and the x-glyph descendant scale stay in dialog.css
+  (D1-exempt residue). The old reduced-motion block died with its
+  targets: the WAAPI kernel owns the ::backdrop timeline now (the
+  theme's kernel reduced-motion block kills it), and the x button's
+  transition chain is the press law's own (jixoai.css).
 -->
 <script lang="ts">
   import { onDestroy, untrack } from 'svelte';
   import type { Snippet } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
+  import './dialog.css';
 
   interface Props {
     /** Heading shown in the header bar; omit for a chrome-less body. */
@@ -85,7 +96,7 @@
 
 <dialog
   bind:this={dialog}
-  class="jx-dialog jx-surface {motion.supported ? 'jx-waapi' : ''}"
+  class="jx-dialog jx-surface m-auto p-0 w-[min(92vw,26rem)] max-w-full text-popover-foreground {motion.supported ? 'jx-waapi' : ''}"
   data-variant={variant}
   aria-label={title}
   onclose={handleClose}
@@ -97,14 +108,19 @@
   <!-- the surface body (fill + acrylic blur) wraps the scroll ring; the
        <dialog> itself paints nothing (floating-surface law arch r3) -->
   <div class="jx-dialog-surface jx-surface-body">
-  <div class="jx-dialog-scroll">
-    <div class="jx-dialog-head">
+  <div class="jx-dialog-scroll jx-surface-scroll max-h-[calc(100dvh-2rem)] overflow-auto">
+    <div class="jx-dialog-head flex items-center justify-between gap-3 py-2.5 pr-2.5 pl-3.5 border-b border-border">
       {#if title}
-        <h2 class="jx-dialog-title">{title}</h2>
+        <h2 class="jx-dialog-title font-nav text-[15px] leading-[1.3] tracking-[0.01em]">{title}</h2>
       {:else}
         <span class="jx-dialog-title" aria-hidden="true"></span>
       {/if}
-      <button type="button" class="jx-press jx-dialog-x" onclick={shut} aria-label="Close">
+      <button
+        type="button"
+        class="jx-press jx-dialog-x inline-flex items-center justify-center flex-none size-[30px] p-0 border border-border bg-popover cursor-pointer [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-[color-mix(in_oklab,var(--popover-foreground)_6%,transparent)]"
+        onclick={shut}
+        aria-label="Close"
+      >
         <svg
           viewBox="0 0 24 24"
           fill="none"
@@ -118,111 +134,14 @@
         </svg>
       </button>
     </div>
-    <div class="jx-dialog-body">
+    <div class="jx-dialog-body p-3.5 text-[13px] leading-[1.6] text-[color-mix(in_oklab,var(--popover-foreground)_80%,transparent)]">
       {@render children()}
     </div>
     {#if footer}
-      <div class="jx-dialog-foot">
+      <div class="jx-dialog-foot flex justify-end gap-2.5 px-3.5 py-3 border-t border-border">
         {@render footer()}
       </div>
     {/if}
   </div>
   </div>
 </dialog>
-
-<style>
-  /* Surface law (arch r3): the <dialog> is the PLATFORM element —
-     border + motion only, no paint (the UA sheet's dialog background
-     dies here); the .jx-dialog-surface body carries the fill and the
-     ::after shadow layer, and never clips. margin: auto restates the
-     UA modal centering. */
-  .jx-dialog {
-    margin: auto;
-    padding: 0;
-    color: var(--popover-foreground);
-    width: min(92vw, 26rem);
-    max-width: 100%;
-  }
-  .jx-dialog-scroll {
-    max-height: calc(100dvh - 2rem);
-    overflow: auto;
-    /* scrollbar law: both-edges gutters (no ring padding to hand back —
-       the head/body rows carry their own) */
-    scrollbar-gutter: stable both-edges;
-  }
-
-  .jx-dialog-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 10px 10px 10px 14px;
-    border-bottom: 1px solid var(--border);
-  }
-  .jx-dialog-title {
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 15px;
-    line-height: 1.3;
-    letter-spacing: 0.01em;
-  }
-
-  /* x button: press law at icon scale (2xs rest pose, sm hover) */
-  .jx-dialog-x {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: none;
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    color: inherit;
-    border: 1px solid var(--border);
-    background: var(--popover);
-    --jx-press-shadow: var(--shadow-2xs);
-    --jx-press-shadow-hover: var(--shadow-sm);
-    --jx-press-shadow-active: var(--shadow-sm-press);
-    cursor: pointer;
-  }
-  .jx-dialog-x:hover {
-    background: color-mix(in oklab, var(--popover-foreground) 6%, transparent);
-  }
-  .jx-dialog-x svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  .jx-dialog-body {
-    padding: 14px;
-    font-size: 13px;
-    line-height: 1.6;
-    color: color-mix(in oklab, var(--popover-foreground) 80%, transparent);
-  }
-
-  .jx-dialog-foot {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 12px 14px;
-    border-top: 1px solid var(--border);
-  }
-
-  /* Scrim law (Owner, 2026-08-22): semi-transparent black in light mode,
-     white in dark mode (--scrim) — a scrim dims/lightens, never colors. */
-  .jx-dialog::backdrop {
-    background: var(--scrim);
-  }
-
-  
-  /* r18 EXCEPTION: ::backdrop is a pseudo-element — unreachable from
-     WAAPI, so the scrim fade stays a CSS transition by necessity */
-
-  @media (prefers-reduced-motion: reduce) {
-    .jx-dialog.closing::backdrop {
-      transition: none;
-    }
-    .jx-dialog-x {
-      transition: none;
-    }
-  }
-</style>

@@ -13,9 +13,23 @@
     action, the alert-dialog law in its light form). The trigger is
     whatever focusable control you compose inside; the wrapper carries
     the anchor name.
+
+  tw4 (2026-08-24): utility-authored — anchoring extras ride
+  arbitrary-property utilities (position-try/-fallbacks,
+  position-visibility); the panel, surface, and button paint (tone
+  voices conditional per prop) live in the markup; ONLY the
+  ::backdrop and the @supports no-anchor fallback stay in
+  popconfirm.css (D1-exempt residue). The platform element still
+  paints NOTHING; the theme's jx-surface-body owns fill + border +
+  blur, the shadow layer owns the shadow (floating-surface law,
+  intact). NO display utility ever lands on the panel itself — a base
+  display override would defeat the UA sheet's closed-popover
+  display:none (Codex r1, color-picker.svelte law).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './popconfirm.css';
 
   interface Props {
     id?: string;
@@ -119,7 +133,7 @@
   }
 </script>
 
-<span bind:this={anchorEl} class="jx-pc-anchor {className}" style="anchor-name: {anchorName}">
+<span bind:this={anchorEl} class={cn('jx-pc-anchor inline-flex', className)} style="anchor-name: {anchorName}">
   {#if children}{@render children()}{/if}
 </span>
 
@@ -129,7 +143,7 @@
   role="dialog"
   aria-labelledby={titleId}
   aria-describedby={description ? descId : undefined}
-  class="jx-pc jx-surface"
+  class="jx-pc jx-surface fixed m-[var(--jx-pc-gap,8px)] [position-try-fallbacks:flip-block,flip-inline] [position-try:flip-block,flip-inline] [position-visibility:anchors-visible] w-fit max-w-[min(88vw,18rem)] text-popover-foreground"
   data-variant={variant}
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
@@ -137,20 +151,28 @@
 >
   <!-- surface body (fill + ::after shadow); the popover element paints
        nothing (floating-surface law arch r3) -->
-  <div class="jx-pc-surface jx-surface-body">
-  <p id={titleId} class="jx-pc-title">{title}</p>
+  <div class="jx-pc-surface jx-surface-body flex flex-col gap-2 px-3.5 py-3">
+  <p id={titleId} class="jx-pc-title font-nav text-xs tracking-[0.08em] uppercase text-foreground">{title}</p>
   {#if description}
-    <p id={descId} class="jx-pc-desc">{description}</p>
+    <p id={descId} class="jx-pc-desc text-[0.8125rem] leading-[1.5] text-muted-foreground">{description}</p>
   {/if}
-  <div class="jx-pc-actions">
-    <button type="button" class="jx-pc-btn jx-pc-cancel" bind:this={cancelEl} onclick={hide}>
+  <div class="jx-pc-actions flex justify-end gap-2">
+    <button
+      type="button"
+      class="jx-pc-btn jx-pc-cancel appearance-none px-3 py-[5px] border border-border bg-background text-foreground font-nav text-[0.6875rem] tracking-[0.1em] uppercase cursor-pointer shadow-2xs focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      bind:this={cancelEl}
+      onclick={hide}
+    >
       {cancelLabel}
     </button>
     <button
       type="button"
-      class="jx-pc-btn jx-pc-confirm"
-      class:jx-pc-confirm-destructive={confirmTone === 'destructive'}
-      class:jx-pc-confirm-primary={confirmTone === 'primary'}
+      class={cn(
+        'jx-pc-btn jx-pc-confirm appearance-none px-3 py-[5px] border border-border bg-background text-foreground font-nav text-[0.6875rem] tracking-[0.1em] uppercase cursor-pointer shadow-2xs focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
+        confirmTone === 'destructive'
+          ? 'jx-pc-confirm-destructive border-destructive bg-destructive text-destructive-foreground'
+          : 'jx-pc-confirm-primary border-primary text-primary',
+      )}
       onclick={confirm}
     >
       {confirmLabel}
@@ -158,89 +180,3 @@
   </div>
   </div>
 </div>
-
-<style>
-  .jx-pc-anchor {
-    display: inline-flex;
-  }
-  .jx-pc {
-    position: fixed;
-    margin: var(--jx-pc-gap, 8px);
-    position-try-fallbacks: flip-block, flip-inline;
-    position-try: flip-block, flip-inline;
-    position-visibility: anchors-visible;
-    width: fit-content;
-    max-width: min(88vw, 18rem);
-    color: var(--popover-foreground);
-  }
-  /* the surface body IS the flex column (padding lives with it); flex
-     display sits on the OPEN state only — a base-state display override
-     would defeat the UA sheet's closed-popover display:none and leave
-     the invisible panel hit-testable (Codex r1, color-picker.svelte
-     law). The exit transition still runs — allow-discrete holds the
-     open display for the 200ms fade. */
-  .jx-pc-surface {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.75rem 0.875rem;
-  }
-  @supports not (anchor-name: --jx-pc-fallback) {
-    .jx-pc {
-      position-anchor: auto !important;
-      inset-area: none !important;
-      inset: 0;
-      margin: auto;
-      align-self: center;
-      justify-self: center;
-    }
-  }
-  .jx-pc::backdrop {
-    background: transparent;
-  }
-  .jx-pc-title {
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-pc-desc {
-    margin: 0;
-    font-size: 0.8125rem;
-    line-height: 1.5;
-    color: var(--muted-foreground);
-  }
-  .jx-pc-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-  }
-  .jx-pc-btn {
-    appearance: none;
-    padding: 0.3125rem 0.75rem;
-    border: 1px solid var(--border);
-    background: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-nav);
-    font-size: 0.6875rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    box-shadow: var(--shadow-2xs);
-  }
-  .jx-pc-btn:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  .jx-pc-confirm-destructive {
-    border-color: var(--destructive);
-    background: var(--destructive);
-    color: var(--destructive-foreground);
-  }
-  .jx-pc-confirm-primary {
-    border-color: var(--primary);
-    color: var(--primary);
-  }
-</style>

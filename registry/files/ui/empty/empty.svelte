@@ -12,9 +12,13 @@
 
   Pure composition — no JS, no state; the illustration is a slot so
   consumers bring their own glyph without a dependency.
+
+  tw4 (2026-08-24): pure token utilities, zero css residue; `jx-empty*`
+  classes are semantic hooks, css defines them not.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
 
   interface Props {
     title: string;
@@ -28,83 +32,24 @@
   let { title, description, illustration, actions, class: className = '' }: Props = $props();
 </script>
 
-<figure class="jx-empty {className}">
-  <div class="jx-empty-art" aria-hidden="true">
+<figure class={cn('jx-empty flex flex-col items-center gap-4 border border-dashed border-border bg-muted px-6 py-10', className)}>
+  <div class="jx-empty-art flex flex-col gap-1 border border-border bg-card px-4 py-3 shadow-2xs font-mono text-xs" aria-hidden="true">
     {#if illustration}
       {@render illustration()}
     {:else}
-      <span class="jx-empty-term">ls checks/</span>
-      <span class="jx-empty-zero">0 items</span>
+      <span class="jx-empty-term text-muted-foreground">ls checks/</span>
+      <span class="jx-empty-zero text-primary">0 items</span>
     {/if}
   </div>
-  <figcaption class="jx-empty-caption">
-    <p class="jx-empty-title">{title}</p>
+  <figcaption class="jx-empty-caption flex flex-col items-center gap-1.5 text-center">
+    <p class="jx-empty-title font-nav text-[0.8125rem] tracking-[0.12em] uppercase text-foreground">{title}</p>
     {#if description}
-      <p class="jx-empty-desc">{description}</p>
+      <p class="jx-empty-desc max-w-[36ch] text-[0.8125rem] leading-[1.55] text-muted-foreground">{description}</p>
     {/if}
     {#if actions}
-      <div class="jx-empty-actions">
+      <div class="jx-empty-actions mt-1.5 flex flex-wrap justify-center gap-2.5">
         {@render actions()}
       </div>
     {/if}
   </figcaption>
 </figure>
-
-<style>
-  .jx-empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    margin: 0;
-    padding: 2.5rem 1.5rem;
-    border: 1px dashed var(--border);
-    background: var(--muted);
-  }
-  .jx-empty-art {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--border);
-    background: var(--card);
-    box-shadow: var(--shadow-2xs);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-  }
-  .jx-empty-term {
-    color: var(--muted-foreground);
-  }
-  .jx-empty-zero {
-    color: var(--primary);
-  }
-  .jx-empty-caption {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.375rem;
-    text-align: center;
-  }
-  .jx-empty-title {
-    margin: 0;
-    font-family: var(--font-nav);
-    font-size: 0.8125rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--foreground);
-  }
-  .jx-empty-desc {
-    margin: 0;
-    max-width: 36ch;
-    font-size: 0.8125rem;
-    line-height: 1.55;
-    color: var(--muted-foreground);
-  }
-  .jx-empty-actions {
-    margin-top: 0.375rem;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.625rem;
-  }
-</style>
