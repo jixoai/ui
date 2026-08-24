@@ -4,7 +4,6 @@
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import alertSource from '$lib/ui/alert.svelte?raw';
@@ -48,7 +47,7 @@ ${close}
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -64,7 +63,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="alert"
       description="Three tones and both live-region roles. The icon snippet composes inline-start of the title — bring your own glyph."
@@ -90,7 +89,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="alert-base" data-reveal="" use:reveal>
+  <div id="alert-base" data-reveal="">
     <SectionCard
       family="alert-base"
       headerRegion="alert-base"

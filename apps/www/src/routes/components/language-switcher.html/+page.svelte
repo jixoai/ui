@@ -5,7 +5,6 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import NativeSelect from '$lib/ui/native-select.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.
@@ -88,7 +87,7 @@ ${close}
        column, mobile the glass single-row bar under the scaffold header -->
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -105,7 +104,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="language-switcher-demo" data-region="language-switcher-demo" data-family="language-switcher-demo" data-reveal="" use:reveal>
+  <div id="language-switcher-demo" data-region="language-switcher-demo" data-family="language-switcher-demo" data-reveal="">
     <ComponentCanvas
       title="language-switcher"
       description="Locale switching in two variants, shown on the terminal bezel surface they were born on — open the menu: the list drops with a hard offset shadow and the current locale in brand hue."
@@ -166,7 +165,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="language-switcher-law" data-reveal="" use:reveal>
+  <div id="language-switcher-law" data-reveal="">
     <SectionCard
       family="language-switcher-law"
       headerRegion="language-switcher-law"

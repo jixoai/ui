@@ -4,7 +4,6 @@
   import Cascader from '$lib/ui/cascader.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import cascaderSource from '$lib/ui/cascader.svelte?raw';
@@ -78,7 +77,7 @@ const options = [
        column, mobile the glass single-row bar under the scaffold header -->
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -95,7 +94,7 @@ const options = [
     </SectionCard>
   </div>
 
-  <div id="cascader-demo" data-region="cascader-demo" data-family="cascader-demo" data-reveal="" use:reveal>
+  <div id="cascader-demo" data-region="cascader-demo" data-family="cascader-demo" data-reveal="">
     <ComponentCanvas
       title="cascader"
       description="Pick Asia, then Japan — the chain grows one select at a time; re-picking an earlier level truncates the deeper ones. The echo footer shows the joined path."
@@ -119,7 +118,7 @@ const options = [
     </ComponentCanvas>
   </div>
 
-  <div id="cascader-base" data-reveal="" use:reveal>
+  <div id="cascader-base" data-reveal="">
     <SectionCard
       family="cascader-base"
       headerRegion="cascader-base"

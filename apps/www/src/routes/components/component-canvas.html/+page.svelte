@@ -4,7 +4,6 @@
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import componentCanvasSource from '$lib/ui/component-canvas.svelte?raw';
@@ -84,7 +83,7 @@ ${close}
 
   <div class="flex min-w-0 flex-col gap-8">
   <!-- page head -->
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -102,7 +101,7 @@ ${close}
   </div>
 
   <!-- workbench: the recursive demo -->
-  <div id="canvas-workbench" data-region="canvas-workbench" data-reveal="" use:reveal>
+  <div id="canvas-workbench" data-region="canvas-workbench" data-reveal="">
     <ComponentCanvas
       title="component-canvas"
       description="The canvas rendering a canvas: the LIVE stage below embeds a simplified second instance. The Playground checkbox toggles the inner pane — and the usage file in this drawer tracks it."
@@ -158,7 +157,7 @@ ${close}
   </div>
 
   <!-- the canvas law: what the platform gives, what the workbench adds -->
-  <div id="canvas-law" data-reveal="" use:reveal>
+  <div id="canvas-law" data-reveal="">
     <SectionCard
       family="canvas-law"
       headerRegion="canvas-law"

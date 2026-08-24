@@ -4,7 +4,6 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import ToggleGroup from '$lib/ui/toggle-group.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import toggleGroupSource from '$lib/ui/toggle-group.svelte?raw';
@@ -74,7 +73,7 @@ ${close}
        column, mobile the glass single-row bar under the scaffold header -->
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -90,7 +89,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="tgroup-demo" data-region="tgroup-demo" data-family="tgroup-demo" data-reveal="" use:reveal>
+  <div id="tgroup-demo" data-region="tgroup-demo" data-family="tgroup-demo" data-reveal="">
     <ComponentCanvas
       title="toggle-group"
       description="Single swaps; multiple stacks — the bound values surface in the echo footer, one row per mode."
@@ -118,7 +117,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="tgroup-base" data-reveal="" use:reveal>
+  <div id="tgroup-base" data-reveal="">
     <SectionCard
       family="tgroup-base"
       headerRegion="tgroup-base"
@@ -129,7 +128,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="tgroup-segmented" data-reveal="" use:reveal>
+  <div id="tgroup-segmented" data-reveal="">
     <SectionCard
       family="tgroup-segmented"
       headerRegion="tgroup-segmented"

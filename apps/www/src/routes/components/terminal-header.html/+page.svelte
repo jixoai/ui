@@ -4,7 +4,6 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import terminalHeaderSource from '$lib/ui/terminal-header.svelte?raw';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // ToC outline: the integration law (the canvas above holds the
   // architecture).
@@ -106,7 +105,7 @@ the three tiers
        glass bar under the scaffold header (height 0, see toc.css) -->
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -123,7 +122,7 @@ the three tiers
       </SectionCard>
     </div>
 
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="terminal-header"
         description="A header cannot nest inside a header — this page already wears the component at its top edge. The stage holds the architecture instead; the full source and the integration usage live in the code drawer."
@@ -158,7 +157,7 @@ the three tiers
       </ComponentCanvas>
     </div>
 
-    <div id="integration" data-reveal="" use:reveal>
+    <div id="integration" data-reveal="">
       <SectionCard
         family="integration"
         headerRegion="integration"

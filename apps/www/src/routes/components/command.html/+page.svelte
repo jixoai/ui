@@ -6,7 +6,6 @@
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import commandSource from '$lib/ui/command.svelte?raw';
@@ -64,7 +63,7 @@ ${close}
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -81,7 +80,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="command"
       description="Press ⌘K (or the button). Type 'open', walk with arrows, Enter to run — the last action surfaces below. The disabled audit item renders but never activates."
@@ -112,7 +111,7 @@ ${close}
     onselect={(item) => (lastAction = item.label.toLowerCase())}
   />
 
-  <div id="command-base" data-reveal="" use:reveal>
+  <div id="command-base" data-reveal="">
     <SectionCard family="command-base" headerRegion="command-base" eyebrow="law" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

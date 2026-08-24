@@ -8,7 +8,6 @@
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { createTocEngine } from '$lib/toc-engine';
   import { deriveTocOutline } from '$lib/toc-outline';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import scrollAreaSource from '$lib/ui/scroll-area.svelte?raw';
@@ -147,7 +146,7 @@ const sections = tocOutlineToSections(entries);
   </aside>
 
   <div id="sa-content" class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -164,7 +163,7 @@ const sections = tocOutlineToSections(entries);
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       family="scroll-native"
       headerRegion="scroll-native"
@@ -194,7 +193,7 @@ const sections = tocOutlineToSections(entries);
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       family="scroll-overlay"
       headerRegion="scroll-overlay"
@@ -223,7 +222,7 @@ const sections = tocOutlineToSections(entries);
     </SectionCard>
   </div>
 
-  <div id="virtual-scrolling" data-reveal="" use:reveal>
+  <div id="virtual-scrolling" data-reveal="">
     <ComponentCanvas
       title="scroll-virtual"
       description="TanStack Virtual through a thin DOM-wiring layer: this demo renders up to 100,000 rows — only the visible window plus overscan exists in the DOM. Row heights measure automatically (the component calls measureElement on its own wrappers)."
@@ -302,7 +301,7 @@ const sections = tocOutlineToSections(entries);
     </ComponentCanvas>
   </div>
 
-  <div id="toc-metadata" data-reveal="" use:reveal>
+  <div id="toc-metadata" data-reveal="">
     <ComponentCanvas
       title="toc metadata export"
       description="The scrollable area exports what the ToC needs: the viewport element (scrollRoot), and the outline its content derives — heading-to-heading extents, no data-region markup. The page rail on the right already runs in outline mode; this demo pairs an inner scroller with the engine directly."
@@ -348,7 +347,7 @@ const sections = tocOutlineToSections(entries);
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       family="scroll-usage"
       headerRegion="scroll-usage"

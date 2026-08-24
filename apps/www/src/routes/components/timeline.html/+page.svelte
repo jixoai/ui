@@ -4,7 +4,6 @@
   import Timeline from '$lib/ui/timeline.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import timelineSource from '$lib/ui/timeline.svelte?raw';
@@ -40,7 +39,7 @@
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · antd 裁决" title="timeline — the activity spine" summary="An ol of timestamped entries with a CSS spine and dot markers — order is the chronology, the spine is decoration. pending renders the hollow dot. Zero JS.">
         <div class="flex flex-wrap gap-3">
           <span class="pill">ol · order is chronology</span>
@@ -51,7 +50,7 @@
       </SectionCard>
     </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="timeline"
       description="timeline — the activity spine"
@@ -75,7 +74,7 @@
     </ComponentCanvas>
   </div>
 
-  <div id="timeline-base" data-reveal="" use:reveal>
+  <div id="timeline-base" data-reveal="">
     <SectionCard family="timeline-base" headerRegion="timeline-base" eyebrow="law" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

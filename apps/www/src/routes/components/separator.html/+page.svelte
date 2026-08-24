@@ -4,7 +4,6 @@
   import Separator from '$lib/ui/separator.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // ToC outline: the length demo + the native base, in page order.
 
@@ -40,7 +39,7 @@
        glass bar under the scaffold header (height 0, see toc.css) -->
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -56,7 +55,7 @@
       </SectionCard>
     </div>
 
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="separator"
         description="Horizontal renders the native hr; vertical renders the ARIA div and stretches its container's cross axis."
@@ -87,7 +86,7 @@
       </ComponentCanvas>
     </div>
 
-    <div id="length-layout" data-reveal="" use:reveal>
+    <div id="length-layout" data-reveal="">
       <SectionCard
         family="length-layout"
         headerRegion="length-layout"
@@ -117,7 +116,7 @@
       </SectionCard>
     </div>
 
-    <div id="separator-base" data-reveal="" use:reveal>
+    <div id="separator-base" data-reveal="">
       <SectionCard
         family="separator-base"
         headerRegion="separator-base"

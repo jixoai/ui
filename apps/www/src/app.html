@@ -7,8 +7,9 @@
     <link rel="icon" href="%sveltekit.assets%/icon.svg" />
     <script>
       (() => {
-        // No-flash theme bootstrap + JS liveness flag (reveal styles key off
-        // html.js so prerendered and no-JS output stays fully visible).
+        // No-flash theme bootstrap + the html.js liveness flag. Reveal is
+        // scroll-driven CSS now, but the SURFACE family's no-JS fallback
+        // branch still gates on it (jixoai.css html:not(.js)) — keep it.
         const root = document.documentElement;
         root.classList.add("js");
         const isTheme = (value) => value === "light" || value === "dark" || value === "system";

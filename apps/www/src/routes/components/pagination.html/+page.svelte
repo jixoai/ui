@@ -4,7 +4,6 @@
   import Pagination, { pageWindow } from '$lib/ui/pagination.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import paginationSource from '$lib/ui/pagination.svelte?raw';
@@ -68,7 +67,7 @@ ${close}
        column, mobile the glass single-row bar under the scaffold header -->
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -85,7 +84,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="pagination-demo" data-region="pagination-demo" data-family="pagination-demo" data-reveal="" use:reveal>
+  <div id="pagination-demo" data-region="pagination-demo" data-family="pagination-demo" data-reveal="">
     <ComponentCanvas
       title="pagination"
       description="The href template decides where page N lives — this demo routes back to the page itself. Watch the window slide and the ellipses collapse near the edges."
@@ -122,7 +121,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="pagination-window" data-reveal="" use:reveal>
+  <div id="pagination-window" data-reveal="">
     <SectionCard
       family="pagination-window"
       headerRegion="pagination-window"

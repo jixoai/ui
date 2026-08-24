@@ -7,7 +7,6 @@
   import NativeSelect from '$lib/ui/native-select.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import avatarSource from '$lib/ui/avatar.svelte?raw';
@@ -82,7 +81,7 @@ ${close}
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -99,7 +98,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="avatar"
       description="The left avatar loads a real image; the right one has no source and shows the initials fallback derived live from the playground's name field. Every instance re-corners with the silhouette pick — and at sm the fallback halves to one code point. Hover (or focus) an avatar: the full name rides the default tooltip."
@@ -137,7 +136,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="avatar-shapes" data-reveal="" use:reveal>
+  <div id="avatar-shapes" data-reveal="">
     <SectionCard
       family="avatar-shapes"
       headerRegion="avatar-shapes"
@@ -159,7 +158,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="avatar-base" data-reveal="" use:reveal>
+  <div id="avatar-base" data-reveal="">
     <SectionCard
       family="avatar-base"
       headerRegion="avatar-base"

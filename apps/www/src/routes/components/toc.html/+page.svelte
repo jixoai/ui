@@ -4,7 +4,6 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import Toc, { type TocSection } from '$lib/ui/toc.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import tocSource from '$lib/ui/toc.svelte?raw';
@@ -71,7 +70,7 @@ ${close}
   </aside>
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -91,7 +90,7 @@ ${close}
 
   <!-- workbench: the tracked article lives on the stage; the page rail spies
        on it through the data-region / data-family marks -->
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="toc"
       description="Scroll and watch the rail: nodes fill proportionally to how much of their block occupies the viewport, and the bold marker is the viewport-top line pick. Resize across 900px to watch the desktop spine and the mobile glass row swap."

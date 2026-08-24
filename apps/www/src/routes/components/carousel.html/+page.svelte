@@ -4,7 +4,6 @@
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import carouselSource from '$lib/ui/carousel.svelte?raw';
@@ -49,7 +48,7 @@ ${close}
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -65,7 +64,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="carousel"
       description="Drag/scroll the track (or focus it and use arrow keys), page with the dots or arrows — the active dot follows the nearest snap slide."
@@ -92,7 +91,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="carousel-base" data-reveal="" use:reveal>
+  <div id="carousel-base" data-reveal="">
     <SectionCard family="carousel-base" headerRegion="carousel-base" eyebrow="NativeHTML 基座" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

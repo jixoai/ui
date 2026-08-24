@@ -5,7 +5,6 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import Tooltip from '$lib/ui/tooltip.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import tooltipSource from '$lib/ui/tooltip.svelte?raw';
@@ -53,7 +52,7 @@ ${close}
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -71,7 +70,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="tooltip"
       description="Hover the button — the tip shows immediately (a hover-intent delay is opt-in through openDelay), then focus it with the keyboard — two intent paths, one tip. Escape dismisses; moving the pointer onto the tip keeps it open."
@@ -106,7 +105,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="tooltip-base" data-reveal="" use:reveal>
+  <div id="tooltip-base" data-reveal="">
     <SectionCard
       family="tooltip-base"
       headerRegion="tooltip-base"

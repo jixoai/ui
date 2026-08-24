@@ -4,7 +4,6 @@
   import CodeBlock from '$lib/code-block.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import { reveal } from '$lib/reveal';
 
   // ToC outline: the closing law (the canvas above holds the adoption
   // walkthrough).
@@ -59,7 +58,7 @@ ${close}
        glass bar under the scaffold header (standalone toc law, toc.css) -->
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -74,7 +73,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="scaffold-float"
         description="The float portal: render anything into the website scaffold's top layer from anywhere in the page. Nodes keep full Svelte ownership at their authoring position; a context provider adopts the live node into .jx-float-slot on mount, and teardown hands it back. Static chrome (toc rails, nav trees) belongs in the scaffold's chrome snippet instead — this is the DYNAMIC path."
@@ -131,7 +130,7 @@ ${close}
       </ComponentCanvas>
     </div>
 
-    <div id="portal-law" data-reveal="" use:reveal>
+    <div id="portal-law" data-reveal="">
       <SectionCard
         family="portal-law"
         headerRegion="portal-law"

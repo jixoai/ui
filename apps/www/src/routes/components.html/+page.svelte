@@ -2,7 +2,6 @@
   import CardGrid from '$lib/ui/card-grid.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import OverviewCard from '$lib/overview-card.svelte';
-  import { reveal } from '$lib/reveal';
   import { CATALOG, catalogByGroup } from '$lib/catalog';
 
   // Catalog-driven index (2026-08-22, user ruling): the page renders the
@@ -40,7 +39,7 @@
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-4 py-10 sm:px-6 lg:px-8">
   <!-- Index hero. -->
-  <div id="gallery" data-reveal="" use:reveal>
+  <div id="gallery" data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -64,7 +63,6 @@
       <h2
         class="font-nav flex items-baseline gap-4 text-lg uppercase tracking-[0.3em]"
         data-reveal=""
-        use:reveal
       >
         {group.group.label}
         <span class="text-muted-foreground text-[0.8em] tracking-[0.2em]">{group.group.zh}</span>
@@ -77,7 +75,7 @@
         {#each group.entries as item, index (item.name)}
           <!-- The reveal wrapper stays the grid child; the card re-opts
                into the shared subgrid rows (homepage law). -->
-          <div data-reveal="" use:reveal={{ delay: index * 70, rise: 12 }}>
+          <div data-reveal="">
             <OverviewCard
               name={item.name}
               type={item.type.replace('registry:', '')}
@@ -97,7 +95,6 @@
     <h2
       class="font-nav flex items-baseline gap-4 text-lg uppercase tracking-[0.3em]"
       data-reveal=""
-      use:reveal
     >
       Guides
       <span class="text-muted-foreground text-[0.8em] tracking-[0.2em]">指引</span>
@@ -105,7 +102,7 @@
     </h2>
     <CardGrid class="mt-6">
       {#each guides as item, index (item.name)}
-        <div data-reveal="" use:reveal={{ delay: index * 70, rise: 12 }}>
+        <div data-reveal="">
           <OverviewCard name={item.name} type="guides" summary={item.summary} href={item.href} />
         </div>
       {/each}

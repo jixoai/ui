@@ -5,7 +5,6 @@
   import Separator from '$lib/ui/separator.svelte';
   import Skeleton from '$lib/ui/skeleton.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import skeletonSource from '$lib/ui/skeleton.svelte?raw';
@@ -43,7 +42,7 @@
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -59,7 +58,7 @@
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="skeleton"
       description="A loading card in the common shape — avatar block, two text lanes. The pulse is a brightness oscillation, not a shimmer sweep."
@@ -90,7 +89,7 @@
     </ComponentCanvas>
   </div>
 
-  <div id="skeleton-base" data-reveal="" use:reveal>
+  <div id="skeleton-base" data-reveal="">
     <SectionCard
       family="skeleton-base"
       headerRegion="skeleton-base"

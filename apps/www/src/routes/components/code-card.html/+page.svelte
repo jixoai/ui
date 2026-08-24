@@ -4,7 +4,6 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import NativeSelect from '$lib/ui/native-select.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the code drawer shows the exact registry copies this
   // site runs. `?raw` keeps them byte-identical — embedding component
@@ -233,7 +232,7 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
 
   <div class="flex min-w-0 flex-col gap-8">
   <!-- page head -->
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -251,7 +250,7 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
   </div>
 
   <!-- workbench: the full card live, lang + theme switched from the playground -->
-  <div id="code-card-workbench" data-region="code-card-workbench" data-reveal="" use:reveal>
+  <div id="code-card-workbench" data-region="code-card-workbench" data-reveal="">
     <ComponentCanvas
       title="code-card"
       description="The complete card: filename tab (head left), header snippet (head right, replacing the default lang label), footer snippet (foot left), and the copy control (foot right). The Playground swaps the Shiki language and the theme — each first pick fetches exactly that grammar/theme chunk."
@@ -332,7 +331,7 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
   </div>
 
   <!-- the scroll law -->
-  <div id="code-card-scroll-law" data-region="code-card-scroll-law" data-reveal="" use:reveal>
+  <div id="code-card-scroll-law" data-region="code-card-scroll-law" data-reveal="">
     <ComponentCanvas
       title="scroll law"
       description="The pre is the single scrollport: long lines scroll horizontally (Tab characters stay tabs, never wrapped), maxHeight caps the body into vertical scrolling, scrollbars are thin currentColor lanes with overscroll containment, and the region is keyboard-focusable."
@@ -351,7 +350,7 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
   </div>
 
   <!-- the Shiki contract -->
-  <div id="code-card-law" data-reveal="" use:reveal>
+  <div id="code-card-law" data-reveal="">
     <SectionCard
       family="code-card-law"
       headerRegion="code-card-law"

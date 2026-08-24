@@ -4,7 +4,6 @@
   import Steps from '$lib/ui/steps.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import stepsSource from '$lib/ui/steps.svelte?raw';
@@ -56,7 +55,7 @@ ${close}
        column, mobile the glass single-row bar under the scaffold header -->
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -73,7 +72,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="steps-demo" data-region="steps-demo" data-family="steps-demo" data-reveal="" use:reveal>
+  <div id="steps-demo" data-region="steps-demo" data-family="steps-demo" data-reveal="">
     <ComponentCanvas
       title="steps"
       description="Walk the wizard: click a completed step's check-marker to go back, or reset and climb again — the current step is the one the marker sits on."
@@ -97,7 +96,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="steps-base" data-reveal="" use:reveal>
+  <div id="steps-base" data-reveal="">
     <SectionCard
       family="steps-base"
       headerRegion="steps-base"

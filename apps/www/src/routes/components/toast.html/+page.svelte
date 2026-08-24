@@ -6,7 +6,6 @@
   import ToastViewport from '$lib/ui/toast-viewport.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
   import { createToastStore } from '$lib/toast-store';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import toastViewportSource from '$lib/ui/toast-viewport.svelte?raw';
@@ -62,7 +61,7 @@ ${close}
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -79,7 +78,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="toast"
       description="Push a polite toast, a sticky assertive one, or a burst — hover a toast to freeze its countdown; the × dismisses. Older toasts queue past the visible four."
@@ -116,7 +115,7 @@ ${close}
   <!-- the live viewport for this page's demos -->
   <ToastViewport store={toast} />
 
-  <div id="toast-base" data-reveal="" use:reveal>
+  <div id="toast-base" data-reveal="">
     <SectionCard family="toast-base" headerRegion="toast-base" eyebrow="两缝架构" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

@@ -7,7 +7,6 @@
   import TerminalCard from '$lib/ui/terminal-card.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // ToC outline: the composition law (the canvas above is the workbench).
 
@@ -61,7 +60,7 @@ ${close}
        glass bar under the scaffold header (height 0, see toc.css) -->
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -78,7 +77,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="hero-section"
         description="A complete hero, rendered live — press the CTA to copy the command (watch the copied surface), or narrow the viewport past 1100px and watch the terminal card drop below the lead."
@@ -121,7 +120,7 @@ ${close}
       </ComponentCanvas>
     </div>
 
-    <div id="slots" data-reveal="" use:reveal>
+    <div id="slots" data-reveal="">
       <SectionCard
         family="slots"
         headerRegion="slots"

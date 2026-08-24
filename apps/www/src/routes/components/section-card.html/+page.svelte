@@ -5,7 +5,6 @@
   import Input from '$lib/ui/input.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import NativeSelect from '$lib/ui/native-select.svelte';
-  import { reveal } from '$lib/reveal';
 
   // ToC outline: the closing law (the canvas above is the workbench).
 
@@ -97,7 +96,7 @@ ${close}
        glass bar under the scaffold header (height 0, see toc.css) -->
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -113,7 +112,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="section-card"
         description="The content atom of the site grammar: a bordered card, header block (optional eyebrow in brand hue + font-nav title + optional summary), and the body snippet slot. Every page on this site is built from it — and this very canvas page wears two instances right now."
@@ -192,7 +191,7 @@ ${close}
       </ComponentCanvas>
     </div>
 
-    <div id="card-law" data-reveal="" use:reveal>
+    <div id="card-law" data-reveal="">
       <SectionCard
         family="card-law"
         headerRegion="card-law"

@@ -4,7 +4,6 @@
   import HoverCard from '$lib/ui/hover-card.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import hoverCardSource from '$lib/ui/hover-card.svelte?raw';
@@ -51,7 +50,7 @@ ${close}
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -67,7 +66,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="hover card"
       description="Hover the handle, then MOVE ONTO the card — it stays. Click the link inside it. Tab to the trigger: the card opens instantly and stays while focus crosses into it."
@@ -96,7 +95,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="hover-card-base" data-reveal="" use:reveal>
+  <div id="hover-card-base" data-reveal="">
     <SectionCard family="hover-card-base" headerRegion="hover-card-base" eyebrow="NativeHTML 基座" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

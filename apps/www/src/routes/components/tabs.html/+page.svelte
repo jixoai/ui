@@ -8,7 +8,6 @@
   import TabsList from '$lib/ui/tabs-list.svelte';
   import TabsTrigger from '$lib/ui/tabs-trigger.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import tabsSource from '$lib/ui/tabs.svelte?raw';
@@ -89,7 +88,7 @@ ${close}
        column, mobile the glass single-row bar under the scaffold header -->
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -106,7 +105,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="tabs-demo" data-region="tabs-demo" data-family="tabs-demo" data-reveal="" use:reveal>
+  <div id="tabs-demo" data-region="tabs-demo" data-family="tabs-demo" data-reveal="">
     <ComponentCanvas
       title="tabs"
       description="Tab across the strip: arrows walk and select, Home/End jump the ends, and the disabled trigger is skipped. The echo footer surfaces the bound value and the last change — onchange fires either way."
@@ -159,7 +158,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="tabs-vertical" data-reveal="" use:reveal>
+  <div id="tabs-vertical" data-reveal="">
     <SectionCard
       family="tabs-vertical"
       headerRegion="tabs-vertical"

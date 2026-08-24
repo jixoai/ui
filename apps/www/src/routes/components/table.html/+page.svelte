@@ -5,7 +5,6 @@
   import Range from '$lib/ui/range.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import Table from '$lib/ui/table.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import tableSource from '$lib/ui/table.svelte?raw';
@@ -95,7 +94,7 @@
 
   <div class="flex min-w-0 flex-col gap-8">
   <!-- page head -->
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -113,7 +112,7 @@
   </div>
 
   <!-- workbench: drag the frame across the 30rem line -->
-  <div id="table-workbench" data-region="table-workbench" data-reveal="" use:reveal>
+  <div id="table-workbench" data-region="table-workbench" data-reveal="">
     <ComponentCanvas
       title="table"
       description="A registry-consumer operations table — Consumer and Docs pin to the scrollport while Items/Coverage scroll under them; drag the frame width past 30rem and the same rows re-lay out into label:value cards. The hover tone control retunes --jx-table-hover live."
@@ -211,7 +210,7 @@
   </div>
 
   <!-- semantic set: the untouched native baseline -->
-  <div id="table-semantic-set" data-region="table-semantic-set" data-reveal="" use:reveal>
+  <div id="table-semantic-set" data-region="table-semantic-set" data-reveal="">
     <ComponentCanvas
       title="table · semantic set"
       description="The untouched native baseline — caption, thead/tbody/tfoot authored by hand, numeric right-align through consumer classes. The same table now also carries data-label on every cell, so the narrow-frame card law needs zero extra markup."

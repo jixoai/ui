@@ -5,7 +5,6 @@
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import emptySource from '$lib/ui/empty.svelte?raw';
@@ -34,7 +33,7 @@
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · antd 裁决" title="empty — the no-data state, nothing more" summary="The eight-state machine's no-data member (error/loading/404 are alert/result surfaces — ruled separate). Terminal illustration slot, title, description, actions. Zero JS.">
       <div class="flex flex-wrap gap-3">
         <span class="pill">zero JS</span>
@@ -44,7 +43,7 @@
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="empty"
       description="empty — the no-data state, nothing more"
@@ -66,7 +65,7 @@
     </ComponentCanvas>
   </div>
 
-  <div id="empty-base" data-reveal="" use:reveal>
+  <div id="empty-base" data-reveal="">
     <SectionCard family="empty-base" headerRegion="empty-base" eyebrow="law" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

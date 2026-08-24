@@ -6,7 +6,6 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import NativeSelect from '$lib/ui/native-select.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // ToC outline: the anchors demo + the closing law, in page order. The
   // engine pairs these ids with the SectionCard data-family extents +
@@ -91,7 +90,7 @@ ${close}
        (height 0, see toc.css); the content column reserves its clearance -->
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -108,7 +107,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="press-button"
         description="The press-law button: hover grows the shadow only (xs → sm, the body never moves); active presses the body +1px into the page while the shadow layer stays anchored. The playground drives the lower instance; the echo line tracks the variant."
@@ -231,7 +230,7 @@ ${close}
       </ComponentCanvas>
     </div>
 
-    <div id="anchors" data-reveal="" use:reveal>
+    <div id="anchors" data-reveal="">
       <SectionCard
         family="anchors"
         headerRegion="anchors"
@@ -274,7 +273,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="law" data-reveal="" use:reveal>
+    <div id="law" data-reveal="">
       <SectionCard
         family="law"
         headerRegion="law"

@@ -4,7 +4,6 @@
   import Statistic from '$lib/ui/statistic.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import statisticSource from '$lib/ui/statistic.svelte?raw';
@@ -31,7 +30,7 @@
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · antd 裁决" title="statistic — the metric readout" summary="Micro-label over a big tabular-nums value with prefix/suffix snippets and text-glyph trends. The component never guesses what good means for your metric — you compose it.">
         <div class="flex flex-wrap gap-3">
           <span class="pill">tabular-nums value</span>
@@ -41,7 +40,7 @@
       </SectionCard>
     </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="statistic"
       description="statistic — the metric readout"
@@ -61,7 +60,7 @@
     </ComponentCanvas>
   </div>
 
-  <div id="statistic-base" data-reveal="" use:reveal>
+  <div id="statistic-base" data-reveal="">
     <SectionCard family="statistic-base" headerRegion="statistic-base" eyebrow="law" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

@@ -6,7 +6,6 @@
   import Sheet from '$lib/ui/sheet.svelte';
   import Toggle from '$lib/ui/toggle.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import sheetSource from '$lib/ui/sheet.svelte?raw';
@@ -58,7 +57,7 @@ ${close}
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -74,7 +73,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="sheet"
       description="Pick a side in the playground, then open: the panel slides from that edge. Escape or the × closes through the shared fade."
@@ -107,7 +106,7 @@ ${close}
     {/snippet}
   </Sheet>
 
-  <div id="sheet-base" data-reveal="" use:reveal>
+  <div id="sheet-base" data-reveal="">
     <SectionCard family="sheet-base" headerRegion="sheet-base" eyebrow="NativeHTML 基座" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

@@ -5,7 +5,6 @@
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import alertDialogSource from '$lib/ui/alert-dialog.svelte?raw';
@@ -58,7 +57,7 @@ ${close}
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -74,7 +73,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="alert dialog"
       description="Open it: focus lands on Cancel (Tab straight to Delete). Escape cancels through the native path; the × shares it. Confirm runs your callback, then closes through the same fade."
@@ -106,7 +105,7 @@ ${close}
     <p class="text-[12.5px]">The checks being removed: lint, typecheck, size-budget, a11y-audit…</p>
   </AlertDialog>
 
-  <div id="alert-dialog-base" data-reveal="" use:reveal>
+  <div id="alert-dialog-base" data-reveal="">
     <SectionCard family="alert-dialog-base" headerRegion="alert-dialog-base" eyebrow="NativeHTML 基座" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

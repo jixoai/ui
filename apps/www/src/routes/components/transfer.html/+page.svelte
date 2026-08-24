@@ -4,7 +4,6 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import Transfer from '$lib/ui/transfer.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import transferSource from '$lib/ui/transfer.svelte?raw';
@@ -63,7 +62,7 @@ const options = [
        column, mobile the glass single-row bar under the scaffold header -->
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -80,7 +79,7 @@ const options = [
     </SectionCard>
   </div>
 
-  <div id="transfer-demo" data-region="transfer-demo" data-family="transfer-demo" data-reveal="" use:reveal>
+  <div id="transfer-demo" data-region="transfer-demo" data-family="transfer-demo" data-reveal="">
     <ComponentCanvas
       title="transfer"
       description="Check rows on either side, then fire the middle mover — every checked row crosses at once and the selection clears. The echo footer shows the target list."
@@ -105,7 +104,7 @@ const options = [
     </ComponentCanvas>
   </div>
 
-  <div id="transfer-base" data-reveal="" use:reveal>
+  <div id="transfer-base" data-reveal="">
     <SectionCard
       family="transfer-base"
       headerRegion="transfer-base"

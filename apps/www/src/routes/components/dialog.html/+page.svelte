@@ -6,7 +6,6 @@
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import dialogSource from '$lib/ui/dialog.svelte?raw';
@@ -98,7 +97,7 @@ ${close}
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -117,7 +116,7 @@ ${close}
   </div>
 
   <!-- workbench (audit P1-A2): LIVE trigger + title playground + sources -->
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="dialog"
       description="One native <dialog> driven by showModal(): the browser owns the focus trap, Escape, and the top layer — the component adds bindable open state and a 120ms close fade. Retitle it from the Playground."
@@ -151,7 +150,7 @@ ${close}
   </div>
 
   <!-- Basic demo -->
-  <div id="dialog-basic" data-reveal="" use:reveal>
+  <div id="dialog-basic" data-reveal="">
     <SectionCard
       family="dialog-basic"
       headerRegion="dialog-basic"
@@ -177,7 +176,7 @@ ${close}
   </div>
 
   <!-- Form demo -->
-  <div id="dialog-form" data-reveal="" use:reveal>
+  <div id="dialog-form" data-reveal="">
     <SectionCard
       family="dialog-form"
       headerRegion="dialog-form"
@@ -198,7 +197,7 @@ ${close}
   </div>
 
   <!-- NativeHTML base -->
-  <div id="dialog-base" data-reveal="" use:reveal>
+  <div id="dialog-base" data-reveal="">
     <SectionCard
       family="dialog-base"
       headerRegion="dialog-base"

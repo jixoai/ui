@@ -4,7 +4,6 @@
   import BadgeIndicator from '$lib/ui/badge-indicator.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import badgeindicatorSource from '$lib/ui/badge-indicator.svelte?raw';
@@ -40,7 +39,7 @@
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -56,7 +55,7 @@
       </SectionCard>
     </div>
 
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="badge-indicator"
         description="Three postures: the dot (presence, no number), a capped count, and the standalone chip. The demo children are plain spans — anything with a corner carries the badge."
@@ -80,7 +79,7 @@
       </ComponentCanvas>
     </div>
 
-    <div id="badge-indicator-law" data-reveal="" use:reveal>
+    <div id="badge-indicator-law" data-reveal="">
       <SectionCard
         family="badge-indicator-law"
         headerRegion="badge-indicator-law"

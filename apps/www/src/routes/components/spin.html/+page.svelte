@@ -4,7 +4,6 @@
   import Spin from '$lib/ui/spin.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import spinSource from '$lib/ui/spin.svelte?raw';
@@ -32,7 +31,7 @@
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · antd 裁决" title="spin — the terminal cursor" summary="The bracket cursor cycling frames under role=status. Wrapping posture: an aria-busy container whose scrim OWNS pointer events — never a visual mask over live hit areas.">
         <div class="flex flex-wrap gap-3">
           <span class="pill">role=status frames</span>
@@ -42,7 +41,7 @@
       </SectionCard>
     </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="spin"
       description="spin — the terminal cursor"
@@ -68,7 +67,7 @@
     </ComponentCanvas>
   </div>
 
-  <div id="spin-base" data-reveal="" use:reveal>
+  <div id="spin-base" data-reveal="">
     <SectionCard family="spin-base" headerRegion="spin-base" eyebrow="law" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

@@ -4,7 +4,6 @@
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import badgeSource from '$lib/ui/badge.svelte?raw';
@@ -41,7 +40,7 @@ ${close}
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -57,7 +56,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="badge"
       description="All four tones. The chip composes anywhere a span does — headings, table cells, terminal cards."
@@ -79,7 +78,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="badge-composition" data-reveal="" use:reveal>
+  <div id="badge-composition" data-reveal="">
     <SectionCard
       family="badge-composition"
       headerRegion="badge-composition"
@@ -104,7 +103,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="badge-law" data-reveal="" use:reveal>
+  <div id="badge-law" data-reveal="">
     <SectionCard
       family="badge-law"
       headerRegion="badge-law"

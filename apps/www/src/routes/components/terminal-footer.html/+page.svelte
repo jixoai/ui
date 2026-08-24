@@ -6,7 +6,6 @@
   import CodeBlock from '$lib/code-block.svelte';
   import { GITHUB_URL } from '$lib/site';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // ToC outline: the closing recipe law (the canvas above is the workbench).
 
@@ -49,7 +48,7 @@ ${close}
        glass bar under the scaffold header (height 0, see toc.css) -->
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -66,7 +65,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="terminal-footer"
         description="A real footer renders here — the live instance below is the same component closing this very page, staged inline at the canvas width. The ghost scales with the viewport (11vw with clamps), so narrow the window and watch the wordmark breathe."
@@ -98,7 +97,7 @@ ${close}
       </ComponentCanvas>
     </div>
 
-    <div id="ghost-recipe" data-reveal="" use:reveal>
+    <div id="ghost-recipe" data-reveal="">
       <SectionCard
         family="ghost-recipe"
         headerRegion="ghost-recipe"

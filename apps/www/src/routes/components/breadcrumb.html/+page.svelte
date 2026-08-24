@@ -4,7 +4,6 @@
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import breadcrumbSource from '$lib/ui/breadcrumb.svelte?raw';
@@ -59,7 +58,7 @@ ${close}
        column, mobile the glass single-row bar under the scaffold header -->
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -75,7 +74,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="breadcrumb-demo" data-region="breadcrumb-demo" data-family="breadcrumb-demo" data-reveal="" use:reveal>
+  <div id="breadcrumb-demo" data-region="breadcrumb-demo" data-family="breadcrumb-demo" data-reveal="">
     <ComponentCanvas
       title="breadcrumb"
       description="A three-crumb trail, and an eight-page trail with collapse=4 — the middle folds into an ellipsis that links to the first hidden page (never a dead span)."
@@ -95,7 +94,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="breadcrumb-base" data-reveal="" use:reveal>
+  <div id="breadcrumb-base" data-reveal="">
     <SectionCard
       family="breadcrumb-base"
       headerRegion="breadcrumb-base"

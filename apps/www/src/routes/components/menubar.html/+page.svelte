@@ -4,7 +4,6 @@
   import Menubar from '$lib/ui/menubar.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import menubarSource from '$lib/ui/menubar.svelte?raw';
@@ -52,7 +51,7 @@ ${close}
        column, mobile the glass single-row bar under the scaffold header -->
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -68,7 +67,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="menubar-demo" data-region="menubar-demo" data-family="menubar-demo" data-reveal="" use:reveal>
+  <div id="menubar-demo" data-region="menubar-demo" data-family="menubar-demo" data-reveal="">
     <ComponentCanvas
       title="menubar"
       description="Tab to File, ↓ to open and walk items, → with the panel open glides to Edit, Escape returns to the bar."
@@ -103,7 +102,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="menubar-base" data-reveal="" use:reveal>
+  <div id="menubar-base" data-reveal="">
     <SectionCard
       family="menubar-base"
       headerRegion="menubar-base"

@@ -4,7 +4,6 @@
   import CodeBlock from '$lib/code-block.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import { reveal } from '$lib/reveal';
 
   // ToC outline: the closing law (the canvas above holds the architecture).
 
@@ -75,7 +74,7 @@ ${close}
        glass bar under the scaffold header (height 0, see toc.css) -->
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -92,7 +91,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="website-scaffold"
         description="The grid shell: .jx-shell-host is the named container (the ONE responsive truth source); both layers span the same grid and subgrid its named columns — header, children, optional footer, skip link, and the per-zone immersive law."
@@ -155,7 +154,7 @@ ${close}
       </ComponentCanvas>
     </div>
 
-    <div id="shell-law" data-reveal="" use:reveal>
+    <div id="shell-law" data-reveal="">
       <SectionCard
         family="shell-law"
         headerRegion="shell-law"

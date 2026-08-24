@@ -6,7 +6,6 @@
   import Popover from '$lib/ui/popover.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
   import { onMount } from 'svelte';
 
   // the nine @position-try candidates are injected at RUNTIME: every
@@ -205,7 +204,7 @@ ${close}
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -224,7 +223,7 @@ ${close}
   </div>
 
   <!-- workbench (audit P1-A2): LIVE trigger + label playground + sources -->
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="popover"
       description="popover=&quot;auto&quot; + popovertarget: light dismiss, Escape, aria-expanded, and top-layer rendering are the browser's — the panel anchors to the trigger through CSS Anchor Positioning. Relabel the trigger from the Playground."
@@ -309,7 +308,7 @@ ${close}
   </div>
 
   <!-- Menu demo -->
-  <div id="popover-menu" data-reveal="" use:reveal>
+  <div id="popover-menu" data-reveal="">
     <SectionCard
       family="popover-menu"
       headerRegion="popover-menu"
@@ -348,7 +347,7 @@ ${close}
   </div>
 
   <!-- Card demo -->
-  <div id="popover-card" data-reveal="" use:reveal>
+  <div id="popover-card" data-reveal="">
     <SectionCard
       family="popover-card"
       headerRegion="popover-card"
@@ -387,7 +386,7 @@ ${close}
   </div>
 
   <!-- NativeHTML base -->
-  <div id="popover-base" data-reveal="" use:reveal>
+  <div id="popover-base" data-reveal="">
     <SectionCard
       family="popover-base"
       headerRegion="popover-base"

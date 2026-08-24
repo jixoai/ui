@@ -6,7 +6,6 @@
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import Toggle from '$lib/ui/toggle.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import fileInputSource from '$lib/ui/file-input.svelte?raw';
@@ -117,7 +116,7 @@ ${close}
        column, mobile the glass single-row bar under the scaffold header -->
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -137,7 +136,7 @@ ${close}
   </div>
 
   <!-- live demo + playground -->
-  <div id="fi-demo" data-region="fi-demo" data-family="fi-demo" data-reveal="" use:reveal>
+  <div id="fi-demo" data-region="fi-demo" data-family="fi-demo" data-reveal="">
     <ComponentCanvas
       title="file-input"
       description="The full control, live: pick through the zone, drag files onto it, remove rows. The playground swaps the trigger posture (drop / button), multiple, and disabled — the usage file in the drawer tracks every toggle."
@@ -195,7 +194,7 @@ ${close}
   </div>
 
   <!-- the drop zone -->
-  <div id="fi-drop" data-reveal="" use:reveal>
+  <div id="fi-drop" data-reveal="">
     <SectionCard
       family="fi-drop"
       headerRegion="fi-drop"
@@ -244,7 +243,7 @@ ${close}
   </div>
 
   <!-- the file list -->
-  <div id="fi-list" data-reveal="" use:reveal>
+  <div id="fi-list" data-reveal="">
     <SectionCard
       family="fi-list"
       headerRegion="fi-list"
@@ -277,7 +276,7 @@ ${close}
   </div>
 
   <!-- variants + disabled -->
-  <div id="fi-variants" data-reveal="" use:reveal>
+  <div id="fi-variants" data-reveal="">
     <SectionCard
       family="fi-variants"
       headerRegion="fi-variants"
@@ -303,7 +302,7 @@ ${close}
   </div>
 
   <!-- narrow hosts -->
-  <div id="fi-overflow" data-reveal="" use:reveal>
+  <div id="fi-overflow" data-reveal="">
     <SectionCard
       family="fi-overflow"
       headerRegion="fi-overflow"
@@ -331,7 +330,7 @@ ${close}
   </div>
 
   <!-- usage -->
-  <div id="fi-usage" data-reveal="" use:reveal>
+  <div id="fi-usage" data-reveal="">
     <SectionCard family="fi-usage" headerRegion="fi-usage" eyebrow="composition" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

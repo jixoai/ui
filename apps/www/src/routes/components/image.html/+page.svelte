@@ -4,7 +4,6 @@
   import Image from '$lib/ui/image.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import imageSource from '$lib/ui/image.svelte?raw';
@@ -33,7 +32,7 @@
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · antd 裁决" title="image — the no-CLS native picture" summary="The general-purpose picture: lazy, async-decoded, REQUIRED intrinsic width and height (layout never shifts), alt semantics, failure fallback with src-change recovery. Lightbox is a dialog recipe, not built in.">
         <div class="flex flex-wrap gap-3">
           <span class="pill">no-CLS width/height</span>
@@ -43,7 +42,7 @@
       </SectionCard>
     </div>
 
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="image"
         description="Left: a real load. Right: a broken source exercising the fallback — the dashed frame plus glyph; a later src change re-arms the load."
@@ -62,7 +61,7 @@
       </ComponentCanvas>
     </div>
 
-    <div id="image-law" data-reveal="" use:reveal>
+    <div id="image-law" data-reveal="">
       <SectionCard
         family="image-law"
         headerRegion="image-law"

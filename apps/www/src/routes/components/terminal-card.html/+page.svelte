@@ -6,7 +6,6 @@
   import TerminalCard from '$lib/ui/terminal-card.svelte';
   import terminalCardSource from '$lib/ui/terminal-card.svelte?raw';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   const usage = `<!-- command is a plain string prop; outputs surface line by
      line after the typing completes. One-shot entrance, never looping. -->
@@ -55,7 +54,7 @@
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -72,7 +71,7 @@
     </SectionCard>
   </div>
 
-  <div id="terminal-card-workbench" data-region="terminal-card-workbench" data-reveal="" use:reveal>
+  <div id="terminal-card-workbench" data-region="terminal-card-workbench" data-reveal="">
     <ComponentCanvas
       title="terminal-card"
       description="The typing demo: the command types character by character with jittered cadence, then the outputs surface one line at a time. Replay re-mounts the card and restarts the story from the first character."
@@ -117,7 +116,7 @@
     </ComponentCanvas>
   </div>
 
-  <div id="terminal-card-law" data-reveal="" use:reveal>
+  <div id="terminal-card-law" data-reveal="">
     <SectionCard
       family="terminal-card-law"
       headerRegion="terminal-card-law"

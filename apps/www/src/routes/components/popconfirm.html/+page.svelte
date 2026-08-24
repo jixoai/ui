@@ -5,7 +5,6 @@
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import popconfirmSource from '$lib/ui/popconfirm.svelte?raw';
@@ -55,7 +54,7 @@ ${close}
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -72,7 +71,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="popconfirm"
       description="Open it — focus lands on Cancel. Confirm runs the action; clicking outside or pressing Escape runs the cancel path instead. Either way the outcome surfaces below."
@@ -102,7 +101,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="popconfirm-base" data-reveal="" use:reveal>
+  <div id="popconfirm-base" data-reveal="">
     <SectionCard family="popconfirm-base" headerRegion="popconfirm-base" eyebrow="law" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

@@ -4,7 +4,6 @@
   import FloatButton from '$lib/ui/float-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // ToC outline: the menu-idiom demo + the closing law, in page order.
 
@@ -99,7 +98,7 @@ ${close}
        glass bar under the scaffold header (height 0, see toc.css) -->
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -116,7 +115,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="float-button"
         description="float-button — the fixed corner action: scroll this box (or the page), then press the corner button to ride back to the top."
@@ -147,7 +146,7 @@ ${close}
       </ComponentCanvas>
     </div>
 
-    <div id="menu-idiom" data-reveal="" use:reveal>
+    <div id="menu-idiom" data-reveal="">
       <SectionCard
         family="menu-idiom"
         headerRegion="menu-idiom"
@@ -193,7 +192,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="fab-law" data-reveal="" use:reveal>
+    <div id="fab-law" data-reveal="">
       <SectionCard
         family="fab-law"
         headerRegion="fab-law"

@@ -4,7 +4,6 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import Tour from '$lib/ui/tour.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import tourSource from '$lib/ui/tour.svelte?raw';
@@ -37,7 +36,7 @@
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -54,7 +53,7 @@
     </SectionCard>
   </div>
 
-  <div id="tour-workbench" data-region="tour-workbench" data-reveal="" use:reveal>
+  <div id="tour-workbench" data-region="tour-workbench" data-reveal="">
     <ComponentCanvas
       title="tour"
       description="Start it: the first demo card takes the lease (inspect its style), the hole+tint frame it. Next advances (←/→ also work), the last step's button reads Finish, Escape or Skip ends with focus back on the opener."
@@ -89,7 +88,7 @@
   </div>
 
   <!-- the recorded contract, recapped -->
-  <div id="tour-law" data-reveal="" use:reveal>
+  <div id="tour-law" data-reveal="">
     <SectionCard
       family="tour-law"
       headerRegion="tour-law"

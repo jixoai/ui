@@ -5,7 +5,6 @@
   import CardGrid from '$lib/ui/card-grid.svelte';
   import Input from '$lib/ui/input.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import { reveal } from '$lib/reveal';
 
   // ToC outline: the closing law (the canvas above is the workbench).
 
@@ -84,7 +83,7 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
        glass bar under the scaffold header (height 0, see toc.css) -->
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -100,7 +99,7 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
       </SectionCard>
     </div>
 
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="card-grid"
         description="Grid + subgrid equalizer: cards span the grid's two shared rows (header / body), so every header aligns to the tallest header and every body fills to the tallest body — no ragged tops, no unequal bottoms. The slider drives the collapse width; the checkbox opts card 03 out."
@@ -199,7 +198,7 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
       </ComponentCanvas>
     </div>
 
-    <div id="subgrid-law" data-reveal="" use:reveal>
+    <div id="subgrid-law" data-reveal="">
       <SectionCard
         family="subgrid-law"
         headerRegion="subgrid-law"

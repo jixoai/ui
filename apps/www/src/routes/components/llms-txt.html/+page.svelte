@@ -4,7 +4,6 @@
   import CodeBlock from '$lib/code-block.svelte';
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
-  import { reveal } from '$lib/reveal';
 
 
   const viteUsage = `// vite.config.ts — plain vite build sites (one plugin line)
@@ -86,7 +85,7 @@ console.log('llms-txt:', report.pages, 'pages,', report.files.length, 'files');`
        glass bar under the scaffold header (height 0, see toc.css) -->
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -103,7 +102,7 @@ console.log('llms-txt:', report.pages, 'pages,', report.files.length, 'files');`
       </SectionCard>
     </div>
 
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="llms-txt"
         description="One deterministic pass over the final dist: extract each page's main content, whitelist-convert it to Markdown, mirror it beside the HTML, and compose the index (plus the single-file llms-full.txt)."
@@ -159,7 +158,7 @@ console.log('llms-txt:', report.pages, 'pages,', report.files.length, 'files');`
       </ComponentCanvas>
     </div>
 
-    <div id="wiring" data-reveal="" use:reveal>
+    <div id="wiring" data-reveal="">
       <SectionCard
         family="wiring"
         headerRegion="wiring"
@@ -187,7 +186,7 @@ console.log('llms-txt:', report.pages, 'pages,', report.files.length, 'files');`
       </SectionCard>
     </div>
 
-    <div id="laws" data-reveal="" use:reveal>
+    <div id="laws" data-reveal="">
       <SectionCard
         family="laws"
         headerRegion="laws"

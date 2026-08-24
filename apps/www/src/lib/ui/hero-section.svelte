@@ -21,7 +21,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import PressButton from '$lib/ui/press-button.svelte';
-  import { reveal } from '$lib/reveal';
 
   interface Props {
     eyebrow: string;
@@ -72,7 +71,7 @@
     class="grid min-[1100px]:grid-cols-[minmax(0,1fr)_minmax(25rem,31rem)] min-[1100px]:items-end gap-10 min-[1100px]:gap-14"
   >
     <div class="min-w-0">
-      <p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]" data-reveal="" use:reveal>
+      <p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]" data-reveal="">
         {eyebrow}
       </p>
       <h1

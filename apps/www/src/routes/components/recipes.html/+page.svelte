@@ -5,7 +5,6 @@
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // ToC outline: the live workbench + every recipe card, in page order.
   // Ids pair with the wrapper ids / SectionCard families below.
@@ -130,7 +129,7 @@ const watermarkRecipe =
        glass bar under the scaffold header (height 0, see toc.css) -->
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -149,7 +148,7 @@ const watermarkRecipe =
 
   <!-- workbench: the watermark recipe, running live — recipes are code,
        so one of them proves it on a real stage -->
-  <div id="watermark-live" data-region="watermark-live" data-reveal="" use:reveal>
+  <div id="watermark-live" data-region="watermark-live" data-reveal="">
     <ComponentCanvas
       title="recipe: watermark"
       description="The recipe runs live: the stage is a watermarked surface — try to select or click through it (the layer is pointer-events:none), then type in the Playground and watch the tile re-render. The recipe card below and this drawer share one source."
@@ -190,7 +189,7 @@ const watermarkRecipe =
     </ComponentCanvas>
   </div>
 
-  <div id="recipe-aspect" data-reveal="" use:reveal>
+  <div id="recipe-aspect" data-reveal="">
     <SectionCard
       family="recipe-aspect"
       headerRegion="recipe-aspect"
@@ -201,7 +200,7 @@ const watermarkRecipe =
     </SectionCard>
   </div>
 
-  <div id="recipe-data-table" data-reveal="" use:reveal>
+  <div id="recipe-data-table" data-reveal="">
     <SectionCard
       family="recipe-data-table"
       headerRegion="recipe-data-table"
@@ -213,7 +212,7 @@ const watermarkRecipe =
     </SectionCard>
   </div>
 
-  <div id="recipe-chart" data-reveal="" use:reveal>
+  <div id="recipe-chart" data-reveal="">
     <SectionCard
       family="recipe-chart"
       headerRegion="recipe-chart"
@@ -225,7 +224,7 @@ const watermarkRecipe =
     </SectionCard>
   </div>
 
-  <div id="recipe-sidebar" data-reveal="" use:reveal>
+  <div id="recipe-sidebar" data-reveal="">
     <SectionCard
       family="recipe-sidebar"
       headerRegion="recipe-sidebar"
@@ -237,7 +236,7 @@ const watermarkRecipe =
     </SectionCard>
   </div>
 
-  <div id="recipe-watermark" data-reveal="" use:reveal>
+  <div id="recipe-watermark" data-reveal="">
     <SectionCard
       family="recipe-watermark"
       headerRegion="recipe-watermark"
@@ -249,7 +248,7 @@ const watermarkRecipe =
     </SectionCard>
   </div>
 
-  <div id="recipe-image-preview" data-reveal="" use:reveal>
+  <div id="recipe-image-preview" data-reveal="">
     <SectionCard
       family="recipe-image-preview"
       headerRegion="recipe-image-preview"
@@ -270,7 +269,7 @@ const watermarkRecipe =
     </SectionCard>
   </div>
 
-  <div id="recipe-flexgrid" data-reveal="" use:reveal>
+  <div id="recipe-flexgrid" data-reveal="">
     <SectionCard
       family="recipe-flexgrid"
       headerRegion="recipe-flexgrid"
@@ -290,7 +289,7 @@ const watermarkRecipe =
     </SectionCard>
   </div>
 
-  <div id="recipe-segmented" data-reveal="" use:reveal>
+  <div id="recipe-segmented" data-reveal="">
     <SectionCard
       family="recipe-segmented"
       headerRegion="recipe-segmented"
@@ -302,7 +301,7 @@ const watermarkRecipe =
     </SectionCard>
   </div>
 
-  <div id="recipe-list" data-reveal="" use:reveal>
+  <div id="recipe-list" data-reveal="">
     <SectionCard
       family="recipe-list"
       headerRegion="recipe-list"
@@ -331,7 +330,7 @@ const watermarkRecipe =
   </div>
 
   <!-- antd mappings: autoComplete / typography / mentions / tour -->
-  <div id="recipe-autocomplete" data-reveal="" use:reveal>
+  <div id="recipe-autocomplete" data-reveal="">
     <SectionCard
       family="recipe-autocomplete"
       headerRegion="recipe-autocomplete"
@@ -348,7 +347,7 @@ const watermarkRecipe =
     </SectionCard>
   </div>
 
-  <div id="recipe-typography" data-reveal="" use:reveal>
+  <div id="recipe-typography" data-reveal="">
     <SectionCard
       family="recipe-typography"
       headerRegion="recipe-typography"
@@ -372,7 +371,7 @@ Search hits render as <mark>match</mark> — native emphasis semantics.`}
     </SectionCard>
   </div>
 
-  <div id="recipe-mentions" data-reveal="" use:reveal>
+  <div id="recipe-mentions" data-reveal="">
     <SectionCard
       family="recipe-mentions"
       headerRegion="recipe-mentions"
@@ -386,7 +385,7 @@ Search hits render as <mark>match</mark> — native emphasis semantics.`}
     </SectionCard>
   </div>
 
-  <div id="recipe-tour" data-reveal="" use:reveal>
+  <div id="recipe-tour" data-reveal="">
     <SectionCard
       family="recipe-tour"
       headerRegion="recipe-tour"

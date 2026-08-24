@@ -4,7 +4,6 @@
   import Descriptions from '$lib/ui/descriptions.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import descriptionsSource from '$lib/ui/descriptions.svelte?raw';
@@ -41,7 +40,7 @@
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · antd 裁决" title="descriptions — a dl, never a table" summary="The enterprise detail view, W3C-first: a dl IS a description list — dt/dd pairs in a grid of term/value cells. The bordered look is CSS on the same dl, never a table in disguise.">
       <div class="flex flex-wrap gap-3">
         <span class="pill">dl · never a table</span>
@@ -52,7 +51,7 @@
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="descriptions"
       description="descriptions — a dl, never a table"
@@ -71,7 +70,7 @@
     </ComponentCanvas>
   </div>
 
-  <div id="descriptions-base" data-reveal="" use:reveal>
+  <div id="descriptions-base" data-reveal="">
     <SectionCard family="descriptions-base" headerRegion="descriptions-base" eyebrow="law" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

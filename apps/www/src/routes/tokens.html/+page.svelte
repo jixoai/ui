@@ -4,7 +4,6 @@
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
   import { currentHue, playing, resumeHue, setHueManually, toggleHuePlay } from '$lib/hue-runtime';
 
   /* ---------------------------------------------------------------------
@@ -140,7 +139,7 @@ playing.subscribe((v) => (isPlaying = v));
 
   <div class="flex min-w-0 flex-col gap-8">
   <!-- Page head. -->
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -160,7 +159,7 @@ playing.subscribe((v) => (isPlaying = v));
   <!-- Hue lab: the interactive One-Hue Law demo, as the workbench — the
        stage proves the tokens (swatches, press physics, the LIVE css law),
        the playground holds the runtime controls. -->
-  <div id="hue-lab" data-region="hue-lab" data-reveal="" use:reveal>
+  <div id="hue-lab" data-region="hue-lab" data-reveal="">
     <ComponentCanvas
       title="hue runtime"
       description="The runtime seeds --brand-hue from the time of day (one full day = one full 360° turn) and the hue always equals the wall-clock position (4min/deg). The slider writes manually — pausing the cycle; the play/pause toggle resumes from wherever the hue is. Every swatch and the CSS law below bind to the LIVE hue."
@@ -245,7 +244,7 @@ playing.subscribe((v) => (isPlaying = v));
   </div>
 
   <!-- Full palette in the current theme. -->
-  <div id="palette" data-reveal="" use:reveal>
+  <div id="palette" data-reveal="">
     <SectionCard
       family="palette"
       headerRegion="palette"
@@ -275,7 +274,7 @@ playing.subscribe((v) => (isPlaying = v));
   </div>
 
   <!-- Semantics: the non-negotiable laws with live samples. -->
-  <div id="semantics" data-reveal="" use:reveal>
+  <div id="semantics" data-reveal="">
     <SectionCard
       family="semantics"
       headerRegion="semantics"
@@ -359,7 +358,7 @@ playing.subscribe((v) => (isPlaying = v));
   <!-- Owner decision pending: primary contrast (recorded 2026-08-22,
        four decision requests unanswered; this note states MEASURED
        FACTS + the three options — it is not itself a decision) -->
-  <div id="primary-contrast" data-reveal="" use:reveal>
+  <div id="primary-contrast" data-reveal="">
     <SectionCard
       family="primary-contrast"
       headerRegion="primary-contrast"

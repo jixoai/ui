@@ -4,7 +4,6 @@
   import ComponentCanvas from '$lib/ui/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import anchorSource from '$lib/ui/anchor.svelte?raw';
@@ -56,7 +55,7 @@ ${close}
        column, mobile the glass single-row bar under the scaffold header -->
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -72,7 +71,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <div class="grid gap-8 min-[1024px]:grid-cols-[1fr_200px]">
       <div class="flex min-w-0 flex-col gap-8">
         <ComponentCanvas
@@ -128,7 +127,7 @@ ${close}
     </div>
   </div>
 
-  <div id="anchor-usage" data-reveal="" use:reveal>
+  <div id="anchor-usage" data-reveal="">
     <SectionCard
       family="anchor-usage"
       headerRegion="anchor-usage"

@@ -6,7 +6,6 @@
   import SectionCard from '$lib/ui/section-card.svelte';
   import NativeSelect from '$lib/ui/native-select.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // ToC outline: the icon-only demo + the closing law, in page order. The
   // engine pairs these ids with the SectionCard data-family extents +
@@ -97,7 +96,7 @@ ${drivenNormal}${usageTail}`;
        (height 0, see toc.css); the content column reserves its clearance -->
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -114,7 +113,7 @@ ${drivenNormal}${usageTail}`;
       </SectionCard>
     </div>
 
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="icon-button"
         description="The icon+text button: normal renders icon and text together; icon-only renders the square and tips the text. The playground drives the lower instance; the echo line tracks variant and placement."
@@ -203,7 +202,7 @@ ${drivenNormal}${usageTail}`;
       </ComponentCanvas>
     </div>
 
-    <div id="icon-only" data-reveal="" use:reveal>
+    <div id="icon-only" data-reveal="">
       <SectionCard
         family="icon-only"
         headerRegion="icon-only"
@@ -228,7 +227,7 @@ ${drivenNormal}${usageTail}`;
       </SectionCard>
     </div>
 
-    <div id="law" data-reveal="" use:reveal>
+    <div id="law" data-reveal="">
       <SectionCard
         family="law"
         headerRegion="law"

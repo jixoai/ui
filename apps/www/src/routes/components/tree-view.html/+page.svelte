@@ -27,7 +27,6 @@
   import TreeViewMulti from '$lib/ui/tree-view-multiselect.svelte';
   import Avatar from '$lib/ui/avatar.svelte';
   import { icons } from '$lib/icons';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import treeViewSource from '$lib/ui/tree-view.svelte?raw';
@@ -383,7 +382,7 @@ ${close}
 
   <div class="flex min-w-0 flex-col gap-8">
   <!-- page head -->
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -402,7 +401,7 @@ ${close}
   </div>
 
   <!-- the seven reference effects -->
-  <div id="tree-view-effects" data-region="tree-view-effects" data-reveal="" use:reveal>
+  <div id="tree-view-effects" data-region="tree-view-effects" data-reveal="">
     <SectionCard
       family="tree-view-effects"
       headerRegion="tree-view-effects"
@@ -580,7 +579,7 @@ ${close}
   </div>
 
   <!-- beyond the reference: suffix actions + disabled -->
-  <div id="tree-view-extensions" data-region="tree-view-extensions" data-reveal="" use:reveal>
+  <div id="tree-view-extensions" data-region="tree-view-extensions" data-reveal="">
     <ComponentCanvas
       title="tree-view · suffix actions + disabled"
       description="onSuffixSlotRender arms only the folders with Add / More icon buttons (revealed on row hover or focus), and the archive subtree ships disabled: focusable for screen readers, never activatable."
@@ -607,7 +606,7 @@ ${close}
   </div>
 
   <!-- the tree keyboard contract -->
-  <div id="tree-view-law" data-reveal="" use:reveal>
+  <div id="tree-view-law" data-reveal="">
     <SectionCard
       family="tree-view-law"
       headerRegion="tree-view-law"

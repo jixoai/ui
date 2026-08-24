@@ -6,7 +6,6 @@
   import DropdownMenuItem from '$lib/ui/dropdown-menu-item.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import dropdownMenuSource from '$lib/ui/dropdown-menu.svelte?raw';
@@ -71,7 +70,7 @@ ${close}
        column, mobile the glass single-row bar under the scaffold header -->
 
   <div class="flex min-w-0 flex-col gap-8">
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
@@ -88,7 +87,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="dropdown-menu-demo" data-region="dropdown-menu-demo" data-family="dropdown-menu-demo" data-reveal="" use:reveal>
+  <div id="dropdown-menu-demo" data-region="dropdown-menu-demo" data-family="dropdown-menu-demo" data-reveal="">
     <ComponentCanvas
       title="dropdown menu"
       description="Open it, then walk with arrows or type a letter ('d' jumps to Duplicate). Selecting runs the action, closes the menu, and hands focus back to the trigger."
@@ -117,7 +116,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="dropdown-menu-base" data-reveal="" use:reveal>
+  <div id="dropdown-menu-base" data-reveal="">
     <SectionCard
       family="dropdown-menu-base"
       headerRegion="dropdown-menu-base"

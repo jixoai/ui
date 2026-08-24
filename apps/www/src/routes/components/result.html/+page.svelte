@@ -5,7 +5,6 @@
   import PressButton from '$lib/ui/press-button.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import resultSource from '$lib/ui/result.svelte?raw';
@@ -34,7 +33,7 @@
 >
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · antd 裁决" title="result — the thin outcome surface" summary="Status glyph + title + description + actions — no routing logic, no illustration system. empty is not result: no-data vs operation-outcome stay different components.">
         <div class="flex flex-wrap gap-3">
           <span class="pill">success · error · warning · info</span>
@@ -44,7 +43,7 @@
       </SectionCard>
     </div>
 
-  <div data-reveal="" use:reveal>
+  <div data-reveal="">
     <ComponentCanvas
       title="result"
       description="result — the thin outcome surface"
@@ -71,7 +70,7 @@
     </ComponentCanvas>
   </div>
 
-  <div id="result-base" data-reveal="" use:reveal>
+  <div id="result-base" data-reveal="">
     <SectionCard family="result-base" headerRegion="result-base" eyebrow="law" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

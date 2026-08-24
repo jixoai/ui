@@ -646,33 +646,42 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --shadow-lg: var(--shadow-lg);
 }
 
-/* Reveal hooks: hidden only while JS is live (html.js added by the inline
-   bootstrap in <head>); static data-reveal attributes in markup. */
-html.js [data-reveal] {
-  opacity: 0;
-  transform: translateY(var(--reveal-rise, 10px));
+/* Reveal hooks, scroll-driven era (Owner approval, 2026-08-24): pure CSS.
+   animation-timeline: view() resolves against the NEAREST scrollport
+   (the grid shell's .jx-shell-body here) — entrances settle from the
+   FIRST PAINT with zero hydration dependency, and below-fold content
+   reveals as it enters the scrollport. The reveal.ts IO action, the
+   html.js gate and the .is-revealed classes are retired. Above-fold
+   content at load is already past its entry range = final state,
+   instantly visible — no flash, no wait. Engines without scroll-driven
+   animations see everything visible (the no-JS semantics, by design).
+   Markup contract unchanged: static data-reveal attributes only. */
+@supports (animation-timeline: view()) {
+  [data-reveal] {
+    animation: jx-reveal-rise both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+  [data-reveal='rule'] {
+    animation: jx-reveal-rule both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 70%;
+  }
 }
-html.js [data-reveal].is-revealed {
-  opacity: 1;
-  transform: none;
-  transition:
-    opacity 260ms ease-out var(--reveal-delay, 0ms),
-    transform 320ms cubic-bezier(0.22, 0.61, 0.36, 1) var(--reveal-delay, 0ms);
+@keyframes jx-reveal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--reveal-rise, 10px));
+  }
 }
-html.js [data-reveal='rule'] {
-  opacity: 1;
-  transform: scaleX(0);
-  transform-origin: left center;
-}
-html.js [data-reveal='rule'].is-revealed {
-  transform: scaleX(1);
-  transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms);
+@keyframes jx-reveal-rule {
+  from {
+    transform: scaleX(0);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  html.js [data-reveal],
-  html.js [data-reveal='rule'] {
-    opacity: 1;
-    transform: none;
-    transition: none;
+  [data-reveal],
+  [data-reveal='rule'] {
+    animation: none;
   }
 }

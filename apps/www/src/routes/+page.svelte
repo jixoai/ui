@@ -7,7 +7,6 @@
   import TerminalCard from '$lib/ui/terminal-card.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import { icons } from '$lib/icons';
-  import { reveal } from '$lib/reveal';
   import { GITHUB_URL } from '$lib/site';
 
   const initCode = String.raw`# register the @jixoai namespace, install the theme, set the hue
@@ -107,14 +106,13 @@ npx jixoai-ui add press-button section-card toc`;
   <h2
     class="font-nav flex items-baseline gap-4 text-lg uppercase tracking-[0.3em]"
     data-reveal=""
-    use:reveal
   >
     Why
     <span class="bg-border h-px flex-1" aria-hidden="true"></span>
   </h2>
   <CardGrid class="mt-6">
     {#each why as card, index (card.id)}
-      <div data-reveal="" use:reveal={{ delay: index * 70, rise: 12 }}>
+      <div data-reveal="">
         <SectionCard
           eyebrow={card.eyebrow}
           title={card.title}
@@ -128,7 +126,7 @@ npx jixoai-ui add press-button section-card toc`;
 </section>
 
 <!-- Install card. -->
-<div class="mx-auto w-full max-w-[90rem] px-4 pt-8 sm:px-6 lg:px-8" data-reveal="" use:reveal>
+<div class="mx-auto w-full max-w-[90rem] px-4 pt-8 sm:px-6 lg:px-8" data-reveal="">
   <SectionCard
     eyebrow="Install"
     title="Two commands and the design language is yours"
@@ -154,7 +152,7 @@ npx jixoai-ui add press-button section-card toc`;
 </div>
 
 <!-- Catalog table: the 9 registry items. -->
-<section class="mx-auto w-full max-w-[90rem] px-4 pt-8 sm:px-6 lg:px-8" data-reveal="" use:reveal>
+<section class="mx-auto w-full max-w-[90rem] px-4 pt-8 sm:px-6 lg:px-8" data-reveal="">
   <SectionCard
     eyebrow="Catalog"
     title="Nine items, one grammar"

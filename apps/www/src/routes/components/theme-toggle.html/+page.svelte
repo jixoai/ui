@@ -6,7 +6,6 @@
   import themeToggleSource from '$lib/ui/theme-toggle.svelte?raw';
   import NativeSelect from '$lib/ui/native-select.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // ToC outline: the no-flash bootstrap demo + the closing contract law.
 
@@ -68,7 +67,7 @@ ${close}
        glass bar under the scaffold header (height 0, see toc.css) -->
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -85,7 +84,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="theme-toggle"
         description="light / dark / system in four variants. All of them below control the same live theme — click any one and the whole site re-themes. The playground drives the lower instance."
@@ -148,7 +147,7 @@ ${close}
       </ComponentCanvas>
     </div>
 
-    <div id="no-flash" data-reveal="" use:reveal>
+    <div id="no-flash" data-reveal="">
       <SectionCard
         family="no-flash"
         headerRegion="no-flash"
@@ -160,7 +159,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="theme-contract" data-reveal="" use:reveal>
+    <div id="theme-contract" data-reveal="">
       <SectionCard
         family="theme-contract"
         headerRegion="theme-contract"

@@ -4,7 +4,6 @@
   import Kbd from '$lib/ui/kbd.svelte';
   import SectionCard from '$lib/ui/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas.svelte';
-  import { reveal } from '$lib/reveal';
 
   // ToC outline: the composition demo + the native base, in page order.
 
@@ -36,7 +35,7 @@
        glass bar under the scaffold header (height 0, see toc.css) -->
 
   <div class="flex min-w-0 flex-col gap-8">
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -51,7 +50,7 @@
       </SectionCard>
     </div>
 
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="kbd"
         description="Shortcut rows in prose, tables, menus — the glyph reads at body size (0.75em, inherits the context)."
@@ -77,7 +76,7 @@
       </ComponentCanvas>
     </div>
 
-    <div id="shortcut-rows" data-reveal="" use:reveal>
+    <div id="shortcut-rows" data-reveal="">
       <SectionCard
         family="shortcut-rows"
         headerRegion="shortcut-rows"
@@ -130,7 +129,7 @@
       </SectionCard>
     </div>
 
-    <div id="kbd-base" data-reveal="" use:reveal>
+    <div id="kbd-base" data-reveal="">
       <SectionCard
         family="kbd-base"
         headerRegion="kbd-base"
