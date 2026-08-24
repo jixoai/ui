@@ -32,10 +32,12 @@ describe('press-button variants', () => {
     expect(btn.className).toContain('bg-background');
     expect(btn.className).toContain('border-border');
     // no effect loop without opting in
-    // no effect loop without opting in — the effect hosts are attributes now
-    for (const host of ['data-jx-shimmer-host', 'data-jx-pulse-host', 'data-jx-ripple-host', 'data-jx-rainbow-host']) {
+    // no effect loop without opting in — migrated hosts are attributes;
+    // jx-rainbow-host is css-OWNED and stays a class
+    for (const host of ['data-jx-shimmer-host', 'data-jx-pulse-host', 'data-jx-ripple-host']) {
       expect(btn.hasAttribute(host)).toBe(false);
     }
+    expect(btn.classList.contains('jx-rainbow-host')).toBe(false);
     expect(btn.className).not.toContain('-host');
   });
 
@@ -51,10 +53,12 @@ describe('press-button variants', () => {
   it('link is the frame-less surface: no press law, no border', () => {
     const { container } = render(PressButtonHost, { props: { variant: 'link' } });
     const btn = container.querySelector('button')!;
-    // no effect loop without opting in — the effect hosts are attributes now
-    for (const host of ['data-jx-shimmer-host', 'data-jx-pulse-host', 'data-jx-ripple-host', 'data-jx-rainbow-host']) {
+    // no effect loop without opting in — migrated hosts are attributes;
+    // jx-rainbow-host is css-OWNED and stays a class
+    for (const host of ['data-jx-shimmer-host', 'data-jx-pulse-host', 'data-jx-ripple-host']) {
       expect(btn.hasAttribute(host)).toBe(false);
     }
+    expect(btn.classList.contains('jx-rainbow-host')).toBe(false);
     expect(btn.className).not.toContain('border-border');
     expect(btn.className).toContain('hover:underline');
   });

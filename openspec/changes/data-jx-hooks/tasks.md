@@ -11,7 +11,7 @@
       regeneration, --label provenance). Original:
       DEFINED/HOOK split + variant families + foreign reference map;
       its JSON output is the codemod's seed.
-- [ ] 0.2 `scripts/codemod-data-jx.mjs` implements the D1 shape table
+- [x] 0.2 DONE: codemod v2 = the provably-mechanical subset (selectors/classList/directives); class-expression sites migrated by the manifest-guided subagent batches. `scripts/codemod-data-jx.mjs` implements the D1 shape table
       + D3 six file classes with a dry-run
       mode; hand-review sites reported, not auto-forced.
 - [ ] 0.3 DONE r2: verify-hook-law.mjs committed; fixtures green;
