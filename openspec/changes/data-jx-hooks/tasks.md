@@ -19,24 +19,24 @@
 
 ## P1 — the rewrite
 
-- [ ] 1.1 Codemod pass over component .svelte (registry + mirror),
+- [x] 1.1 Codemod pass over component .svelte (registry + mirror),
       tests, docs routes, scenes, scripts, site src.
-- [ ] 1.2 Hand-review sites resolved per D2; decisions recorded.
-- [ ] 1.3 Mirror byte-equality + manifest regenerate.
+- [x] 1.2 Hand-review sites resolved per D2; decisions recorded.
+- [x] 1.3 Mirror byte-equality + manifest regenerate.
 
 ## P2 — gates
 
-- [ ] 2.1 Full battery: vitest, npm run build, apps build + build:site,
+- [x] 2.1 DONE (build:site blocked by Owner prototype-docs WIP — see verification.md): vitest, npm run build, apps build + build:site,
       manifest --check, verify-layer-law, verify-folder-css,
       shadcn-add fixtures, clean-consumer.
-- [ ] 2.2 verify-hook-law browser probes (D4(c)).
-- [ ] 2.3 Screenshot oracle: capture + compare vs the archived
+- [x] 2.2 verify-hook-law browser probes (D4(c)).
+- [x] 2.3 Screenshot oracle: capture + compare vs the archived
       baseline (markup-only change; 0 CHANGED expected — any delta is
       a finding).
 
 ## P3 — docs + archive
 
-- [ ] 3.1 README consume section: the breaking markup-contract note
+- [x] 3.1 README consume section: the breaking markup-contract note
       (hooks are data-jx-* attributes).
 - [ ] 3.2 verification.md with evidence; Codex implementation review;
       archive.
