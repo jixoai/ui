@@ -307,3 +307,118 @@ unallowlisted visual delta.
 `verify-shadcn-add.mjs` parses `registry.json` twice in its null-coalescing
 expression ([line 72](/Users/kzf/Dev/GitHub/jixoai-labs/ui/scripts/verify-shadcn-add.mjs:72)).
 Parse once before selecting `.items`; this has no observed behavioral impact.
+
+## P3-r2 Re-review — `d42241a`
+
+> Independent re-review, 2026-08-24. Scope: `1f90bb9...d42241a` plus the
+> current working tree. The r1 report remains historical; this section does
+> not treat the r2 commit message or verification prose as proof without
+> matching executable behavior.
+
+### Verdict
+
+**BLOCK — 7.5/10 implementation quality (r1: 7.0/10, +0.5).**
+
+The Sheet cascade repair and compare failure semantics are real and were
+verified locally. Two r2 claims remain incomplete: the surface-kernel probe
+suite still does not provide the required tooltip/popover consumer-override
+assertions, and the claimed Playwright-clock determinism is absent from the
+capture script. The release verdict is therefore **BLOCK**.
+
+### Closed In This Round
+
+1. **r1-1 closed.** The Sheet mirror and registry CSS now close
+   `@layer components` after the x-glyph rule ([sheet.css](/Users/kzf/Dev/GitHub/jixoai-labs/ui/registry/files/ui/sheet/sheet.css:18)).
+   The `[open]`/`.closing` rules, backdrop/exit rules, keyframes, and reduced-
+   motion kill are outside the layer and use `:where()` ([sheet.css](/Users/kzf/Dev/GitHub/jixoai-labs/ui/registry/files/ui/sheet/sheet.css:29)).
+   The manifest check confirms the registry and `apps/www` copies match.
+
+2. **r1-3 closed.** Compare now deduplicates routes, emits
+   `hotChannels`/`hotChannelRatio`, accepts only an invocation-supplied
+   regular-expression allowlist, and exits 1 for missing or unallowlisted
+   changes ([capture-baseline.mjs](/Users/kzf/Dev/GitHub/jixoai-labs/ui/scripts/capture-baseline.mjs:100)).
+   A local compare against the current valid label reported 67 routes with
+   zero changes/missing and exit 0; a nonexistent label reported 67 missing
+   and exit 1.
+
+3. **r1-2 partially closed.** The terminal-header subpanel and Sheet probes
+   are executable, and the local `verify-layer-law.mjs 5202` run reported
+   11/11 GREEN. The terminal probe proves the bezel values and a descendant
+   `.hidden` utility override ([verify-layer-law.mjs](/Users/kzf/Dev/GitHub/jixoai-labs/ui/scripts/verify-layer-law.mjs:124)).
+
+### Blocking Findings
+
+1. **Surface-kernel coverage is still incomplete for tooltip and popover.**
+   The CSS delta requires every enumerated surface-kernel use to carry a
+   consumer-override probe. `kernelTip` only detects a possible host and
+   returns `{ skipped: false }`; its result is never checked
+   ([verify-layer-law.mjs](/Users/kzf/Dev/GitHub/jixoai-labs/ui/scripts/verify-layer-law.mjs:156)).
+   The popover probe checks only that `jx-surface::after` is `none` and stores
+   a `margin-top` value without asserting a consumer utility or foreign-law
+   override ([verify-layer-law.mjs](/Users/kzf/Dev/GitHub/jixoai-labs/ui/scripts/verify-layer-law.mjs:164)).
+   Thus 11/11 is not evidence for the tooltip/popover exception contract.
+
+   Fix by opening real tooltip and popover examples, asserting each
+   enumerated foreign-surface override, injecting a known consumer utility,
+   and failing when the utility result is not the expected one. Remove the
+   no-op `kernelTip` path and make each probe's result part of `failed`.
+
+2. **The claimed deterministic real-page capture is not implemented.**
+   The committed capture script launches a page and emulates reduced motion,
+   but has no `page.clock.install()`, `pauseAt()`, or equivalent timer/random
+   freeze before navigation ([capture-baseline.mjs](/Users/kzf/Dev/GitHub/jixoai-labs/ui/scripts/capture-baseline.mjs:153)).
+   The site still contains live timers/intervals, including the hue runtime,
+   toast expiry, and spinner animation. Therefore the claimed back-to-back
+   real-route determinism cannot be reproduced from the committed command;
+   the current `waitForTimeout(400)` is not a clock freeze.
+
+   Fix by installing and pausing Playwright's clock before every navigation
+   (and pinning any random/time seed used by the page), then capture two clean
+   67-route sets and compare decoded pixels with the committed comparator.
+
+   Independent reproduction produced two complete `67/67` captures, but
+   decoded comparison still found hot-channel deltas on `7/67` routes
+   (aggregate about `0.001%`, highest observed route about `0.034%`). The
+   current tolerance classifies those as `same`; it does not make the claimed
+   timer freeze true.
+
+### Standards
+
+The Sheet layer/specificity breach from r1 is closed. The remaining
+standards/spec breach is the missing executable evidence for the bounded
+surface-kernel exception; the no-op tooltip probe does not satisfy the
+documented consumer-override law. The capture determinism claim is also not
+represented in the source implementation.
+
+### Spec
+
+r1-1 and r1-3 satisfy their requested contracts. r1-2 is partial: only the
+terminal-header descendant proof and Sheet state proof are real. The
+deterministic oracle requirement is partial because the source has no clock
+freeze despite the stated requirement.
+
+### Verification Evidence
+
+- `node scripts/gen-mirror-manifest.mjs --check`: green.
+- `npm --prefix apps/www run test`: 24 files, 327 tests pass.
+- `npm run build` and `npm --prefix apps/www run build`: pass.
+- `node scripts/verify-layer-law.mjs 5202`: 11/11 reported GREEN, with the
+  tooltip/popover limitations described above.
+- `node scripts/verify-folder-css.mjs 5202`: green.
+- `node scripts/verify-shadcn-add.mjs`: clean-consumer fixture passes.
+- Two fresh local capture passes each reported `67/67`; the decoded
+  back-to-back check above is the reason this is not accepted as clock-frozen
+  evidence.
+- `openspec validate tw4-css-modularization --strict`: valid.
+
+### Non-blocking Documentation Note
+
+`verification.md` remains an r1 evidence index: it records layer-law 8/8 and
+the pre-r2 oracle wording rather than the new 11-probe implementation. Update
+it with the r2 command, the actual probe limitations, and the deterministic
+capture evidence only after the two blockers above are fixed.
+
+The first r2 rerun of `verify-shadcn-add.mjs` also hit a transient fixture
+install state where `shiki` was absent from `node_modules` and the consumer
+build failed; a clean rerun passed after npm installation. This is recorded as
+fixture reliability noise, not a separate registry blocker.

@@ -154,7 +154,16 @@ const browser = await chromium.launch({
   headless: true,
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
 });
-const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+// determinism laws (measured 2026-08-24):
+// 1. reduced-motion renders every reveal/transition in its FINAL state;
+// 2. a FROZEN clock stops the LIVE widgets (toast auto-dismiss timers,
+//    the hue-lab spin, spinner frames) from mutating the DOM between
+//    captures — real pages carry timers the old 404-shell captures
+//    never exercised (Codex P3-r1/r2 oracle findings).
+await context.clock.install({ time: new Date('2026-08-24T12:00:00') });
+await context.clock.pauseAt('2026-08-24T12:00:05');
+const page = await context.newPage();
 // determinism law: the design's reduced-motion degradation renders every
 // reveal/transition in its FINAL state — byte-stable captures. Without
 // this the same tree hashes differently run-to-run (measured 2026-08-24:
@@ -187,6 +196,7 @@ for (const r of routes) {
     failed.push(`${r}: ${e.message.split('\n')[0]}`);
   }
 }
+await context.close();
 await browser.close();
 if (failed.length) {
   console.error(`capture FAILURES (${failed.length}):`);

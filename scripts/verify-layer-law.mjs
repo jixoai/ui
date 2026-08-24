@@ -153,30 +153,57 @@ const kernelHeader = await page.evaluate(async () => {
 });
 check('terminal-header subpanel: bezel law + consumer static override', kernelHeader.ok && kernelHeader.overrideWins, JSON.stringify(kernelHeader));
 
-const kernelTip = await page.evaluate(async () => {
-  // any tooltip trigger on the page (kbd page has several; reuse nav)
-  const tipHost = document.querySelector('[data-tooltip-host], .jx-tip-anchor, [aria-describedby]');
-  if (!tipHost) return { skipped: true };
-  return { skipped: false };
+// ── 5b. TOOLTIP kernel probe: a real tip opens, the enumerated
+// foreign-law override applies (::after disabled), and a consumer
+// utility on the tip's own content still wins ─────────────────────
+await page.goto(`http://localhost:${port}/components/tooltip.html`, { waitUntil: 'networkidle' });
+const kernelTooltip = await page.evaluate(async () => {
+  // the docs page's tips open on hover — dispatch real pointer events
+  const host = document.querySelector('.jx-tip-anchor, [data-tip-host], [aria-describedby]');
+  if (!host) return { ok: false, why: 'no tip host' };
+  host.dispatchEvent(new PointerEvent('pointerenter', { bubbles: true }));
+  host.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+  await new Promise((r) => setTimeout(r, 550));
+  const tip = document.querySelector('.jx-tip.jx-surface, .jx-surface.jx-tip');
+  if (!tip) return { ok: false, why: 'tip did not open' };
+  // enumerated override: the jx-surface law's ::after shadow disabled
+  const pseudoDisabled = getComputedStyle(tip, '::after').content === 'none';
+  // consumer override on the tip body (statics are component-owned):
+  // `hidden` is guaranteed generated (utility-generation trap)
+  const body = tip.querySelector('.jx-tip-body, p, div');
+  if (!body) return { ok: false, why: 'no tip body', pseudoDisabled };
+  const before = getComputedStyle(body).display;
+  body.classList.add('hidden');
+  const overrideWins = getComputedStyle(body).display === 'none';
+  body.classList.remove('hidden');
+  return { ok: true, pseudoDisabled, before, overrideWins };
 });
-// tooltip/popover pseudo disables: the jx-surface ::after must be none
-// on a rendered tip/pop (the docs popover page carries live ones)
+check('tooltip kernel: ::after disabled + consumer override on body', kernelTooltip.ok && kernelTooltip.pseudoDisabled && kernelTooltip.overrideWins, JSON.stringify(kernelTooltip));
+
+// ── 5c. POPOVER kernel probe: a real popover opens, the enumerated
+// override applies, and a consumer utility on popover-owned content
+// still wins ────────────────────────────────────────────────────────
 await page.goto(`http://localhost:${port}/components/popover.html`, { waitUntil: 'networkidle' });
 const kernelPop = await page.evaluate(async () => {
   const trigger = document.querySelector('.jx-pop-anchor button, .jx-pop-anchor, [popovertarget]');
   if (!trigger) return { ok: false, why: 'no popover trigger' };
   trigger.click();
-  await new Promise((r) => setTimeout(r, 450));
-  const pop = document.querySelector('.jx-tip.jx-surface') || document.querySelector('.jx-pop.jx-surface') || document.querySelector('.jx-surface[popover-open], dialog.jx-surface[open]');
-  const target = pop;
-  if (!target) return { ok: false, why: 'no surface element open' };
-  const after = getComputedStyle(target, '::after');
-  const pseudoDisabled = after.content === 'none';
-  // consumer override on the surface's static paint
-  const before = getComputedStyle(target).getPropertyValue('margin-top') || '';
-  return { ok: true, pseudoDisabled, before };
+  await new Promise((r) => setTimeout(r, 550));
+  const pop = document.querySelector('.jx-pop.jx-surface') || document.querySelector('.jx-surface[popover-open], dialog.jx-surface[open]');
+  if (!pop) return { ok: false, why: 'no surface element open' };
+  // enumerated override: the jx-surface law's ::after shadow disabled
+  const pseudoDisabled = getComputedStyle(pop, '::after').content === 'none';
+  // consumer override: any popover-owned content child (statics are
+  // component-owned) hides under a generated utility
+  const child = pop.querySelector('.jx-caret, .jx-pop-body, h3, p, div, button');
+  if (!child) return { ok: false, why: 'no content child in popover', pseudoDisabled };
+  const before = getComputedStyle(child).display;
+  child.classList.add('hidden');
+  const overrideWins = getComputedStyle(child).display === 'none';
+  child.classList.remove('hidden');
+  return { ok: true, pseudoDisabled, before, overrideWins };
 });
-check('surface-kernel: jx-surface ::after disabled on open surfaces', kernelPop.ok && kernelPop.pseudoDisabled, JSON.stringify(kernelPop));
+check('popover kernel: ::after disabled + consumer override on content', kernelPop.ok && kernelPop.pseudoDisabled && kernelPop.overrideWins, JSON.stringify(kernelPop));
 
 // sheet state machine beats markup animation utilities (the carve-out
 // contract Codex prescribed)
