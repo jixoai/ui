@@ -49,9 +49,19 @@
   child (not the ::after pseudo) rides under jx-waapi (jixoai.css law).
   The KNOWN GAP above still applies to the exit: the {#if} unmount can
   race the 460ms window.
+
+  composition-first-apis (2026-08-25): steps[{target,title?,description?}]
+  stay (targets are behavior-domain data, driver.js precedent; title/
+  description are METADATA consumed by the DEFAULT card). `card` is the
+  structural escape — a snippet receiving TourApi {index, total, step,
+  next, prev, skip} — callers author the whole card interior (buttons
+  included; the label props died with the closed card). The default
+  rendering (the current card) remains when absent; with a custom card
+  the panel itself takes the landing focus (no Next button exists).
 -->
 <script lang="ts">
   import { onDestroy, untrack } from 'svelte';
+  import type { Snippet } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './tour.css';
@@ -60,8 +70,27 @@
     /** CSS selector for the step's target, or a resolver (invalid
      *  selectors are caught — the step reads as unavailable) */
     target: string | (() => HTMLElement | null);
-    title: string;
+    /** metadata for the DEFAULT card rendering (a custom card snippet
+     *  receives it on api.step — render it or ignore it) */
+    title?: string;
     description?: string;
+  }
+
+  /** the card snippet's API surface (composition-first-apis) */
+  export interface TourApi {
+    /** zero-based index of the current step */
+    readonly index: number;
+    /** steps.length */
+    readonly total: number;
+    /** the current step object (its title/description are yours to
+     *  render or ignore) */
+    readonly step: TourStep;
+    /** advance (finishes on the last step) */
+    next(): void;
+    /** back (no-op when no earlier step is enterable) */
+    prev(): void;
+    /** end the tour now (the Escape path) */
+    skip(): void;
   }
 
   interface Props {
@@ -75,9 +104,9 @@
     onfinish?: (index: number) => void;
     /** step change notification (analytics/progress) */
     onstep?: (index: number) => void;
-    nextLabel?: string;
-    prevLabel?: string;
-    skipLabel?: string;
+    /** replaces the default card interior — receives TourApi; the
+     *  default rendering (title/description/meta/nav) stays when absent */
+    card?: Snippet<[TourApi]>;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
     variant?: 'solid' | 'acrylic' | 'auto';
@@ -94,9 +123,7 @@
     startAt = 0,
     onfinish,
     onstep,
-    nextLabel = 'Next',
-    prevLabel = 'Back',
-    skipLabel = 'Skip tour',
+    card,
     variant = 'auto',
     class: className = '',
   }: Props = $props();
@@ -132,7 +159,9 @@
     }
     requestAnimationFrame(() => {
       if (typeof requestAnimationFrame === 'function' && panelEl?.matches(':popover-open')) {
-        nextEl?.focus();
+        // the landing spot: the default card's Next button; a custom
+        // card has no Next — the panel itself (tabindex=-1) takes it
+        (nextEl ?? panelEl)?.focus();
       }
     });
     return () => {
@@ -314,7 +343,12 @@
     <!-- surface body (fill + ::after shadow); the popover element paints
          nothing (floating-surface law arch r3) -->
     <div data-jx-tour-surface="" class="jx-surface-body flex flex-col gap-2 px-4 py-[0.875rem]">
-    <p data-jx-tour-title="" class="m-0 font-nav text-[0.8125rem] uppercase tracking-[0.1em] text-foreground">{step.title}</p>
+    {#if card}
+      {@render card({ index, total: steps.length, step, next, prev, skip: () => finish(index) })}
+    {:else}
+    {#if step.title}
+      <p data-jx-tour-title="" class="m-0 font-nav text-[0.8125rem] uppercase tracking-[0.1em] text-foreground">{step.title}</p>
+    {/if}
     {#if step.description}
       <p data-jx-tour-desc="" class="m-0 text-[0.8125rem] leading-[1.55] text-muted-foreground">{step.description}</p>
     {/if}
@@ -326,11 +360,11 @@
         class="cursor-pointer appearance-none border-0 bg-transparent font-nav text-[0.6875rem] uppercase tracking-[0.1em] text-muted-foreground underline decoration-dotted hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1"
         onclick={() => finish(index)}
       >
-        {skipLabel}
+        Skip tour
       </button>
       <div data-jx-tour-nav="" class="flex gap-2">
         <button type="button" data-jx-tour-btn="" class={navBtn} disabled={!canPrev} onclick={prev}>
-          {prevLabel}
+          Back
         </button>
         <button
           type="button"
@@ -340,10 +374,11 @@
           bind:this={nextEl}
           onclick={next}
         >
-          {index >= steps.length - 1 ? 'Finish' : nextLabel}
+          {index >= steps.length - 1 ? 'Finish' : 'Next'}
         </button>
       </div>
     </div>
+    {/if}
     </div>
   </div>
 {/if}

@@ -15,12 +15,11 @@
   <div class="w-[900px]">
     <HeroSection
       eyebrow="your-app · v0"
-      titleLead="Ship "
-      titleAccent="it."
       summary="Installs into your repo. The source stays yours."
-      badges={['registry', 'copy CTA']}
       copyCommand="npx jixoai-ui init"
     >
+      {#snippet title()}Ship <em>it.</em>{/snippet}
+      {#snippet badges()}<span>registry</span><span>copy CTA</span>{/snippet}
       {#snippet secondary()}
         <PressButton variant="outline">overview</PressButton>
       {/snippet}

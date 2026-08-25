@@ -2,7 +2,7 @@
 
 @layer components {
 /**
- * jixoai Combo ToC styles (registry/files/ui/toc.css).
+ * jixoai Combo ToC styles (registry/files/ui/toc/toc.css).
  * Import once per site alongside the toc component.
  *
  * Architecture (Owner decisions, 2026-08-20):
@@ -20,6 +20,11 @@
  *   a normal sticky grid item on desktop (align-self: start).
  * - Weight-driven properties carry NO css transition: the engine updates
  *   them per frame; transitions would ripple.
+ *
+ * composition-first-apis (2026-08-25): the family renders TocList <ul> /
+ *   TocItem <li> / TocLink <a>; level-2 is STRUCTURAL nesting (a TocList
+ *   inside a TocItem) — the li li / li li a descendant selectors replace
+ *   the old .lvl-2 class. Paint is unchanged.
  */
 
 :where(.jx-toc){
@@ -67,7 +72,7 @@
     font-size: 11px;
     margin: 0 0 12px;
   }
-  :where(.jx-toc .jx-toc-desktop ol){
+  :where(.jx-toc .jx-toc-desktop ul){
     list-style: none;
     margin: 0;
     padding: 0;
@@ -77,7 +82,7 @@
     margin: 6px 0;
   }
   :where(.jx-toc .jx-toc-desktop li::before){
-    /* square node on level-1 only; level-2 drops it (Owner) */
+    /* square node on level-1 only; nested items drop it (Owner) */
     content: '';
     position: absolute;
     left: -21px;
@@ -93,7 +98,7 @@
         var(--primary) calc(var(--w, 0) * 100%)
       );
   }
-  :where(.jx-toc .jx-toc-desktop li.lvl-2::before){
+  :where(.jx-toc .jx-toc-desktop li li::before){
     display: none;
   }
   :where(.jx-toc .jx-toc-desktop li.active::before){
@@ -113,7 +118,7 @@
     color: var(--primary);
     font-weight: 700;
   }
-  :where(.jx-toc .jx-toc-desktop li.lvl-2 a){
+  :where(.jx-toc .jx-toc-desktop li li a){
     font-size: 11.5px;
   }
 
@@ -139,7 +144,7 @@
   scrollbar-gutter: stable both-edges;
   overscroll-behavior: contain;
 }
-:where(.jx-toc .jx-viewport ol){
+:where(.jx-toc .jx-viewport ul){
   list-style: none;
   margin: 0;
   padding: 0;
@@ -173,7 +178,7 @@
   width: 12px;
   flex: none;
 }
-:where(.jx-toc .jx-viewport a.lvl-2){
+:where(.jx-toc .jx-viewport li li a){
   font-size: 11.5px;
 }
 :where(.jx-toggle){

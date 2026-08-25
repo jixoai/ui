@@ -1,54 +1,65 @@
 <!--
-  jixoai Combo ToC (registry/files/ui/toc.svelte).
-  Desktop: Rule Tracker (spine + weight-driven level-1 nodes, flat
-  weight-driven level-2 text, pick + parent markers). Mobile: Terminal Rail
-  (glass single-row viewport — expand changes ONLY height; page scroll
-  drives the row via the line pick; scroll-snap list). Powered by
-  toc-engine (IoM weights + line algorithm + margin-downward law).
+  jixoai ToC rail — the ROOT of the composition-first toc family
+  (registry/files/ui/toc/toc.svelte, 2026-08-25).
 
-  Usage:
-    - Pass the outline via `sections` (same shape as your docs model), or
-      go zero-handwritten-id with `outline: { root }` — sections and
-      extents derive from the content's heading tree (toc-outline lib;
-      client-side, refreshed on content mutation). Explicit `sections`
-      wins over `outline`.
-    - With `sections`, content must mark non-overlapping leaf blocks with
-      data-region="<id>" and parent section extents with
-      data-family="<id>". With `outline`, neither is needed — the engine
-      consumes derived extents.
-    - This component renders BOTH surfaces; hide rules come from toc.css.
-    - Place the wrapping <aside> BEFORE main content in the DOM; position
-      it with your page grid (desktop right column, sticky; mobile sticky
-      with height: 0 — see README).
-    - Chrome placement (firstpaint ruling, 2026-08-24): inside a
-      website-scaffold the toc is authored in the scaffold's `chrome`
-      snippet — SSR-rendered in its final grid cell (data-area='toc'),
-      never moved by hydration. The self-adoption mechanism and the
-      topLayer prop are RETIRED (Codex firstpaint review: moves were the
-      first-paint instability). Standalone consumers keep the classic
-      in-flow behavior unchanged (no shell ancestor, no data-area
-      contract to satisfy).
+  Desktop: Rule Tracker (spine + weight-driven level-1 nodes, flat
+  weight-driven level-2 text, pick + parent markers). Mobile: Terminal
+  Rail (glass single-row viewport — expand changes ONLY height; page
+  scroll drives the row via the line pick). Powered by toc-engine
+  (IoM weights + line algorithm + margin-downward law).
+
+  TWO modes (composition-first-apis):
+
+    AUTO (outline)    <Toc outline={{ root: 'main' }} />
+                      derives the link tree from the content's headings
+                      at runtime (toc-outline lib) and renders THROUGH
+                      the same List/Item/Link parts. DECLARED SSR
+                      EXCEPTION (design.md r4): the outline is a runtime
+                      DOM scan, so SSR paints the rail shell only and
+                      the links arrive on hydrate.
+
+    MANUAL            <Toc><TocList><TocItem>
+                        <TocLink href="#a">Setup</TocLink>
+                        <TocList><TocItem>…</TocItem></TocList>
+                      </TocItem></TocList></Toc>
+                      a legal composed list tree — SSR-complete. The
+                      link is ALWAYS TocLink (a nested TocList inside a
+                      TocItem is the nesting mechanism; anchors never
+                      nest). sections[] is dead.
+
+  Scrollspy is ROOT behavior, DOM-DELEGATED (the family context
+  contract): the rail reads its own subtree (`a[data-jx-toc-link]`,
+  re-queried per engine update — keyed reorders and conditional
+  inserts need no registration), derives each link's target from its
+  href fragment, and synthesizes heading-to-heading extents for the
+  engine. Weights paint as --w on items/links; the pick toggles the
+  active marker + aria-current; the parent of the pick (a nested
+  TocList's enclosing TocItem link) inherits the active marker.
+
+  Placement (firstpaint ruling, 2026-08-24): inside a website-scaffold
+  the toc is authored in the scaffold's `chrome` snippet — SSR-rendered
+  in its final grid cell (data-area='toc'), never moved by hydration.
+  Standalone consumers keep the classic in-flow behavior.
 -->
 <script lang="ts">
-  import { createTocEngine } from '$lib/toc-engine';
-  import { deriveTocOutline, tocOutlineToSections, type TocOutlineEntry } from '$lib/toc-outline';
+  import type { Snippet } from 'svelte';
+  import { createTocEngine, type TocExtent } from '$lib/toc-engine';
+  import {
+    deriveTocOutline,
+    tocOutlineToSections,
+    type TocOutlineEntry,
+    type TocOutlineSection,
+  } from '$lib/toc-outline';
   import { icons } from '$lib/icons';
+  import TocList from './toc-list.svelte';
+  import TocItem from './toc-item.svelte';
+  import TocLink from './toc-link.svelte';
   import './toc.css';
 
-  export interface TocChild {
-    id: string;
-    label: string;
-  }
-  export interface TocSection {
-    id: string;
-    label: string;
-    children?: TocChild[];
-  }
-  /** zero-handwritten-id mode: derive sections + extents from a content
-   *  root's heading tree (the toc-outline lib). Client-side derivation —
-   *  SSR renders an empty rail that fills on hydration (the reveal
-   *  philosophy); pages needing a complete prerendered rail keep passing
-   *  `sections` by hand (an explicit `sections` wins over `outline`). */
+  /** zero-handwritten-id mode: derive the link tree from a content
+   *  root's headings (the toc-outline lib). Client-side derivation —
+   *  SSR renders the empty rail that fills on hydration (the DECLARED
+   *  exception; the manual composed tree is SSR-complete). */
   export interface TocOutlineConfig {
     /** the content container whose h2/h3 (configurable) tree is the outline */
     root: string | HTMLElement;
@@ -57,50 +68,29 @@
   }
 
   interface Props {
-    sections?: TocSection[];
+    /** AUTO mode: derive the outline from a content root's headings */
     outline?: TocOutlineConfig;
+    /** the desktop rail label */
     title?: string;
     /** Scroll root for overlay-shell layouts (selector or element);
      *  defaults to the document. */
     scrollRoot?: string | HTMLElement | null;
+    /** MANUAL mode: the composed TocList tree */
+    children?: Snippet;
   }
 
   let {
-    sections,
     outline,
     title = 'reading progress',
     scrollRoot = null,
+    children,
   }: Props = $props();
 
   // outline mode: sections + extents derived on the client, refreshed by a
   // MutationObserver on the content root (add/remove/move of headings)
-  let outlineSections = $state<TocSection[]>([]);
+  let outlineSections = $state<TocOutlineSection[]>([]);
   let outlineEntries: readonly TocOutlineEntry[] = [];
 
-  const effectiveSections = $derived(sections ?? outlineSections);
-
-  const flat = $derived(
-    effectiveSections.flatMap((section, i) => [
-      { id: section.id, label: section.label, level: 1 as const, index: i + 1 },
-      ...(section.children ?? []).map((child) => ({
-        id: child.id,
-        label: child.label,
-        level: 2 as const,
-        index: i + 1,
-      })),
-    ]),
-  );
-  const order = $derived(flat.map((entry) => entry.id));
-  const parentOf = $derived(
-    new Map(
-      effectiveSections.flatMap((section) =>
-        (section.children ?? []).map((c) => [c.id, section.id] as const),
-      ),
-    ),
-  );
-
-  let desktopItems = $state<HTMLElement[]>([]);
-  let mobileLinks = $state<HTMLElement[]>([]);
   let spineFill = $state<HTMLElement | null>(null);
   let viewport = $state<HTMLElement | null>(null);
   let mobileRoot = $state<HTMLElement | null>(null);
@@ -137,14 +127,14 @@
   // compute, so a re-derivation goes live without an engine restart.
   $effect(() => {
     if (!outline) return;
-    const rootEl =
+    const contentRoot =
       typeof outline.root === 'string'
         ? document.querySelector<HTMLElement>(outline.root)
         : outline.root;
-    if (!rootEl) return;
+    if (!contentRoot) return;
 
     const rederive = () => {
-      outlineEntries = deriveTocOutline(rootEl, { levels: outline?.levels });
+      outlineEntries = deriveTocOutline(contentRoot, { levels: outline?.levels });
       outlineSections = tocOutlineToSections(outlineEntries);
     };
     rederive();
@@ -153,12 +143,56 @@
     const observer = new MutationObserver(() => {
       if (!raf) raf = requestAnimationFrame(rederive);
     });
-    observer.observe(rootEl, { childList: true, subtree: true });
+    observer.observe(contentRoot, { childList: true, subtree: true });
     return () => {
       observer.disconnect();
       if (raf) cancelAnimationFrame(raf);
     };
   });
+
+  // ── DOM-delegated rail reads ─────────────────────────────────────
+  // No registration exists anywhere: every engine update re-queries the
+  // rail's own subtree, so keyed {#each} reorders, conditional inserts
+  // and deletions are seen live (family context contract clauses 3–4).
+
+  /** the fragment id a rail link points at */
+  const fragmentOf = (link: Element): string => {
+    const href = link.getAttribute('href') ?? '';
+    return href.startsWith('#') ? decodeURIComponent(href.slice(1)) : '';
+  };
+
+  /** MANUAL-mode extents: each link's target element, extent = target →
+   *  the NEXT link's target (heading-to-heading, generalized from the
+   *  outline lib's derivation — the composed tree IS the region list).
+   *  Re-read per compute, so a changed tree goes live without a restart. */
+  const treeExtents = (): readonly TocExtent[] => {
+    const links = [...(rootEl?.querySelectorAll('.jx-toc-desktop a[data-jx-toc-link]') ?? [])];
+    const targets = links
+      .map((link) => document.getElementById(fragmentOf(link)))
+      .filter((el): el is HTMLElement => el !== null);
+    const seen = new Set<string>();
+    const extents: TocExtent[] = [];
+    for (let i = 0; i < targets.length; i++) {
+      const el = targets[i]!;
+      if (seen.has(el.id)) continue; // a duplicated fragment owns one extent
+      seen.add(el.id);
+      extents.push({ id: el.id, start: el, end: targets[i + 1] ?? null });
+    }
+    return extents;
+  };
+
+  /** the enclosing TocItem's own link fragment — the pick's parent (the
+   *  desktop parent marker). Resolved through the DOM, never an ordered
+   *  registry. */
+  const parentIdOf = (id: string): string | null => {
+    if (!rootEl) return null;
+    const link = [...rootEl.querySelectorAll('.jx-toc-desktop a[data-jx-toc-link]')].find(
+      (a) => fragmentOf(a) === id,
+    );
+    const outerItem = link?.closest('li')?.parentElement?.closest('li');
+    const parentLink = outerItem?.querySelector(':scope > a[data-jx-toc-link]');
+    return parentLink ? fragmentOf(parentLink) : null;
+  };
 
   $effect(() => {
     // publish the line var before any scroll/anchor logic runs so
@@ -166,41 +200,46 @@
     tocLine();
     const stopEngine = createTocEngine(
       ({ weights, pick }) => {
-        // persistent chrome (firstpaint era): the toc survives route
-        // changes — bound arrays hold transient nulls while the keyed
-        // list re-renders. Never trust a ref here.
-        for (const li of desktopItems) {
-          li?.style.setProperty('--w', (weights.get(li.dataset.id!) ?? 0).toFixed(3));
-        }
-        for (const a of mobileLinks) {
-          a?.style.setProperty('--w', (weights.get(a.dataset.id!) ?? 0).toFixed(3));
-        }
-        if (!pick) return;
-        currentPick = pick;
-        const parent = parentOf.get(pick);
-        for (const li of desktopItems) {
-          if (!li) continue;
-          const current = li.dataset.id === pick || li.dataset.id === parent;
+        if (!rootEl) return; // transient null during route-swap re-render
+        const parent = pick ? parentIdOf(pick) : null;
+        for (const li of rootEl.querySelectorAll<HTMLElement>('.jx-toc-desktop li')) {
+          const link = li.querySelector(':scope > a[data-jx-toc-link]');
+          if (!link) continue;
+          const id = fragmentOf(link);
+          li.style.setProperty('--w', (weights.get(id) ?? 0).toFixed(3));
+          const current = id === pick || id === parent;
           li.classList.toggle('active', current);
+          if (current) link.setAttribute('aria-current', 'true');
+          else link.removeAttribute('aria-current');
         }
-        for (const a of mobileLinks) {
-          if (!a) continue;
-          const isPick = a.dataset.id === pick;
+        for (const a of rootEl.querySelectorAll<HTMLElement>('.jx-viewport a[data-jx-toc-link]')) {
+          const id = fragmentOf(a);
+          a.style.setProperty('--w', (weights.get(id) ?? 0).toFixed(3));
+          const isPick = id === pick;
           a.style.setProperty('--jx-cur', isPick ? '1' : '0');
           if (isPick) a.setAttribute('aria-current', 'true');
           else a.removeAttribute('aria-current');
         }
+        if (!pick) return;
+        currentPick = pick;
         // unified sync (Owner, 2026-08-21): ONE algorithm for both paths —
         // page scroll and expanded-click alike. Instant scrollTo on the
         // collapsed row: no smooth animation to race the height transition,
         // no snap semantics to disagree with. The 44px row shows exactly
         // the picked li, every time.
-        const li = mobileLinks.find((a) => a.dataset.id === pick)?.closest('li');
+        const picked = [
+          ...rootEl.querySelectorAll('.jx-viewport a[data-jx-toc-link]'),
+        ].find((a) => fragmentOf(a) === pick);
+        const li = picked?.closest('li');
         if (viewport && li) {
           viewport.scrollTo({ top: (li as HTMLElement).offsetTop });
         }
       },
-      { lineOffset: tocLine, scrollRoot, extents: outline ? () => outlineEntries : undefined },
+      {
+        lineOffset: tocLine,
+        scrollRoot,
+        extents: outline ? () => outlineEntries : treeExtents,
+      },
     );
 
     const root =
@@ -208,7 +247,7 @@
         ? document.querySelector<HTMLElement>(scrollRoot)
         : scrollRoot;
     const onScroll = () => {
-      if (!spineFill) return;  // transient null during route-swap re-render
+      if (!spineFill) return; // transient null during route-swap re-render
       const max = root ? root.scrollHeight - root.clientHeight : document.documentElement.scrollHeight - innerHeight;
       const y = root ? root.scrollTop : scrollY;
       const p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
@@ -223,7 +262,11 @@
   });
 
   const syncRow = () => {
-    const li = mobileLinks.find((a) => a.dataset.id === currentPick)?.closest('li');
+    if (!rootEl || !currentPick) return;
+    const picked = [...rootEl.querySelectorAll('.jx-viewport a[data-jx-toc-link]')].find(
+      (a) => fragmentOf(a) === currentPick,
+    );
+    const li = picked?.closest('li');
     if (viewport && li) viewport.scrollTo({ top: (li as HTMLElement).offsetTop });
   };
 
@@ -241,44 +284,52 @@
       { once: true },
     );
   };
+
+  // mobile link taps collapse the expanded rail (delegated — the composed
+  // tree is re-queried, conditional links need no wiring of their own)
+  const handleViewportClick = (event: MouseEvent) => {
+    if ((event.target as Element | null)?.closest?.('a[data-jx-toc-link]')) close();
+  };
 </script>
 
-<!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
+<!-- the link tree, rendered into BOTH surfaces (the snippet renders
+     twice by design: desktop spine + mobile rail share one structure) -->
+{#snippet tree()}
+  {#if outline}
+    <TocList>
+      {#each outlineSections as section (section.id)}
+        <TocItem>
+          <TocLink href={`#${section.id}`}>{section.label}</TocLink>
+          {#if section.children?.length}
+            <TocList>
+              {#each section.children as child (child.id)}
+                <TocItem><TocLink href={`#${child.id}`}>{child.label}</TocLink></TocItem>
+              {/each}
+            </TocList>
+          {/if}
+        </TocItem>
+      {/each}
+    </TocList>
+  {:else if children}
+    {@render children()}
+  {/if}
+{/snippet}
+
 <div class="jx-toc" data-area="toc" bind:this={rootEl}>
   <nav class="jx-toc-desktop" aria-label="Table of contents">
     <span class="jx-spine"><span class="jx-spine-fill" bind:this={spineFill}></span></span>
     <p class="jx-toc-title">{title}</p>
-    <ol>
-      {#each flat as entry (entry.id)}
-        <li
-          class={entry.level === 2 ? 'lvl-2' : ''}
-          data-id={entry.id}
-          bind:this={desktopItems[order.indexOf(entry.id)]}
-        >
-          <a href={`#${entry.id}`}>{entry.label}</a>
-        </li>
-      {/each}
-    </ol>
+    {@render tree()}
   </nav>
 
   <div class="jx-toc-mobile jx-glass" bind:this={mobileRoot} data-open={open || undefined}>
-    <div class="jx-viewport" bind:this={viewport}>
-      <ol>
-        {#each flat as entry (entry.id)}
-          <li>
-            <a
-              class={entry.level === 2 ? 'lvl-2' : ''}
-              href={`#${entry.id}`}
-              data-id={entry.id}
-              onclick={close}
-              bind:this={mobileLinks[order.indexOf(entry.id)]}
-            >
-              <span class="jx-cursor" aria-hidden="true">❯</span>
-              <span>{entry.label}</span>
-            </a>
-          </li>
-        {/each}
-      </ol>
+    <!-- the handler is a pointer-convenience collapse after an anchor
+         tap; the links themselves are real anchors (keyboard path
+         unaffected — Enter navigates, the rail stays expanded) -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="jx-viewport" bind:this={viewport} onclick={handleViewportClick}>
+      {@render tree()}
     </div>
     <button
       type="button"

@@ -1,15 +1,35 @@
+<!--
+  Docs page for hero-section (2026-08-25, composition-first-apis).
+  Intents:
+  1. Hero summary from the registry catalog (CATALOG lookup, fail-loud).
+  2. One ComponentCanvas: the full composed hero — title snippet with
+     the accent em, badges snippet composing Badge parts, the default
+     copy CTA, secondary + terminal snippets.
+  3. Composition section: what each snippet owns (incl. the copy
+     override).
+  4. Usage CodeBlock shared with the canvas drawer.
+  Constraint: docs only — the component family itself is untouchable.
+-->
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import HeroSection from '$lib/ui/hero-section/hero-section.svelte';
-  import heroSectionSource from '$lib/ui/hero-section/hero-section.svelte?raw';
+  import Badge from '$lib/ui/badge/badge.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
+  import { CATALOG } from '$lib/catalog';
 
-  // ToC outline: the composition law (the canvas above is the workbench).
+  import heroSectionSource from '$lib/ui/hero-section/hero-section.svelte?raw';
+
+  // catalog sync-binding: the hero summary IS the registry description;
+  // a miss means registry.json meta drifted — fail loud, never patch copy.
+  const entry = CATALOG.find((candidate) => candidate.name === 'hero-section');
+  if (!entry) {
+    throw new Error('catalog miss: "hero-section" has no registry meta — fix registry.json');
+  }
 
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.
@@ -18,18 +38,21 @@
   // single usage sample: the drawer file and the body CodeBlock share it
   const usage = `<script lang="ts">
   import HeroSection from '@ui/hero-section.svelte';
+  import Badge from '@ui/badge.svelte';
   import PressButton from '@ui/press-button.svelte';
   import TerminalCard from '@ui/terminal-card.svelte';
 ${close}
 
 <HeroSection
   eyebrow="my-app · v1"
-  titleLead="Ship terminals anywhere. "
-  titleAccent="One hue."
   summary="One paragraph of max-62ch lead context."
-  badges={['OKLCH tokens', 'Svelte 5', 'MIT']}
   copyCommand="npx jixoai-ui init --hue 200"
 >
+  {#snippet title()}Ship terminals anywhere. <em>One hue.</em>{/snippet}
+  {#snippet badges()}
+    <Badge>OKLCH tokens</Badge>
+    <Badge tone="primary">Svelte 5</Badge>
+  {/snippet}
   {#snippet secondary()}
     <PressButton variant="outline" href="/docs.html">Get started</PressButton>
   {/snippet}
@@ -40,9 +63,9 @@ ${close}
   {/snippet}
 </HeroSection>`;
 
-  const files: TreeFile[] = [
-    { name: 'registry/files/ui/hero-section.svelte', content: heroSectionSource },
-    { name: 'src/lib/ui/hero-section-usage.svelte', content: usage },
+  const canvasFiles: TreeFile[] = [
+    { name: 'registry/files/ui/hero-section/hero-section.svelte', content: heroSectionSource },
+    { name: 'src/lib/ui/hero-section-usage.svelte', content: usage, kind: 'usage' },
   ];
 </script>
 
@@ -50,28 +73,25 @@ ${close}
   <title>Hero section · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai hero-section component: the Broadside hero — clamp-scaled bold lead type with a primary accent tail, badge row, a copy-command PRIMARY CTA with copied feedback, and the terminal card in a bottom-aligned second column at min-1100px."
+    content="The jixoai hero-section component, composition-first: title and badges arrive as snippets (the em carries the accent paint, Badge parts compose the row), the copy-command CTA stays a default overridable by a copy snippet, the terminal snippet rides the second column at min-1100px."
   />
 </svelte:head>
 
 <div
   class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
 >
-  <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
-       glass bar under the scaffold header (height 0, see toc.css) -->
-
   <div class="flex min-w-0 flex-col gap-8">
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
         eyebrow="registry:ui · Layout"
-        title="hero-section — the Broadside hero"
-        summary="The opening statement of a page: a tracked eyebrow, clamp-scaled bold lead type whose accent tail carries the brand hue, a max-62ch text-pretty summary, a mono badge row, and the copy-command PRIMARY CTA — press it and the command reaches the clipboard while the button flips to its copied surface for 1.4s. The terminal snippet rides a bottom-aligned second column once the viewport reaches 1100px."
+        title="hero-section — the Broadside hero, opened"
+        summary={entry.summary}
       >
         <div class="flex flex-wrap gap-3">
-          <span class="pill">copy-command CTA</span>
-          <span class="pill">accent tail</span>
+          <span class="pill">title / badges snippets</span>
+          <span class="pill">copy CTA default + override</span>
           <span class="pill">terminal snippet slot</span>
           <span class="pill">staggered reveal</span>
         </div>
@@ -82,19 +102,21 @@ ${close}
       <ComponentCanvas
         title="hero-section"
         stage="fill"
-        description="A complete hero, rendered live — press the CTA to copy the command (watch the copied surface), or narrow the viewport past 1100px and watch the terminal card drop below the lead."
-        sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/hero-section.svelte"
-        {files}
-      >
+        description="A complete composed hero — the title snippet carries its own accent em, the badges snippet composes Badge parts, the default copy CTA flips to its copied surface on press. Narrow the viewport past 1100px and the terminal card drops below the lead."
+        sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/hero-section/hero-section.svelte"
+        files={canvasFiles}      >
         <div class="w-full border border-border bg-muted/40">
           <HeroSection
             eyebrow="your-app · v0"
-            titleLead="Ship the registry into your repo. "
-            titleAccent="Keep the source."
             summary="A compact instance with the real composition rules — the copy stays yours, the law stays ours. The CTA copies the init command; the terminal demo composes from the same registry files."
-            badges={['registry', 'copy CTA', 'terminal demo']}
             copyCommand="npx jixoai-ui init --hue 210"
           >
+            {#snippet title()}Ship the registry into your repo. <em>Keep the source.</em>{/snippet}
+            {#snippet badges()}
+              <Badge>registry</Badge>
+              <Badge tone="primary">copy CTA</Badge>
+              <Badge tone="outline">terminal demo</Badge>
+            {/snippet}
             {#snippet secondary()}
               <PressButton variant="outline" href="/docs/components.html">
                 browse components
@@ -113,9 +135,10 @@ ${close}
           <PlayFields>
             <PlayHelp>
               press the PRIMARY CTA — the command hits the clipboard and the button flips to its
-              <code>copied</code> surface for 1.4s (a press-button underneath). Then narrow the
-              viewport past 1100px: the terminal card drops below the lead, the staggered entrance
-              choreography stays intact.
+              <code>copied</code> surface for 1.4s (a press-button underneath). The title's
+              <code class="text-accent">em</code> carries the accent paint wherever you put it;
+              the badges row is whatever you compose. A <code class="text-accent">copy</code>
+              snippet replaces the default CTA wholesale when you need your own.
             </PlayHelp>
           </PlayFields>
         {/snippet}
@@ -127,33 +150,34 @@ ${close}
         family="slots"
         headerRegion="slots"
         eyebrow="composition"
-        title="What the slots own"
-        summary="Every degree of freedom is a prop or a snippet with one owner: copy arrives as props, extra CTAs and the terminal demo arrive as snippets, and the component owns the grid, the type scale, and the staggered reveal choreography."
+        title="What the snippets own"
+        summary="Structure and chrome are the component's; content is authored. Strings survive only where they are payload or plain text — everything that changes WHAT renders is a snippet."
       >
         <div class="flex flex-col gap-5">
           <ul class="flex flex-col gap-2 text-[13px] leading-6">
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">titleLead</code> +
-                <code class="text-accent">titleAccent</code> — the title splits so the accent tail can
-                carry <code class="text-accent">text-primary</code> without a markup escape hatch</span></li>
+              <span><code class="text-accent">title</code> snippet — the whole h1 content; any
+                <code class="text-accent">&lt;em&gt;</code> inside carries the accent paint
+                (component css <code>:where()</code> rule — the split-em styling the old
+                titleLead/titleAccent props carried)</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">copyCommand</code> — the PRIMARY CTA label AND its
-                clipboard payload; pressing it flips the press-button to the
-                <code class="text-accent">copied</code> surface for 1.4s with a check icon</span></li>
+              <span><code class="text-accent">badges</code> snippet — compose Badge parts
+                (<code class="text-accent">badges: string[]</code> is dead); the row keeps the
+                mono uppercase strip layout</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">terminal</code> snippet — usually a terminal-card; the
-                hero only owns the column and the bottom alignment
+              <span><code class="text-accent">copyCommand</code> — the payload: the default CTA's
+                label AND its clipboard target; pressing it flips the press-button to the
+                <code class="text-accent">copied</code> surface for 1.4s</span></li>
+            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <span><code class="text-accent">copy</code> snippet — replaces the default copy CTA
+                (the command string is still yours to use however you render it)</span></li>
+            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <span><code class="text-accent">terminal</code> snippet — usually a terminal-card;
+                the hero only owns the column and the bottom alignment
                 (<code class="text-accent">min-[1100px]</code> two-column grid)</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">secondary</code> snippet — outline CTAs after the copy
-                button; omit it and the row holds the CTA alone</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>clipboard has a fallback path (<code class="text-accent">execCommand</code> via a
-                transient textarea) for non-secure contexts</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>entrance choreography is built in: static
-                <code class="text-accent">data-reveal</code> attributes with staggered delays (60 →
-                260ms), so flat-file loads never flash</span></li>
+              <span><code class="text-accent">secondary</code> snippet — outline CTAs after the
+                copy button; omit it and the row holds the CTA alone</span></li>
           </ul>
           <CodeBlock code={usage} lang="svelte" meta="usage" />
         </div>

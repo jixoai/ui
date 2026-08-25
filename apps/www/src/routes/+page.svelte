@@ -3,6 +3,7 @@
   import CopyCommand from '$lib/copy-command.svelte';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import HeroSection from '$lib/ui/hero-section/hero-section.svelte';
+  import Badge from '$lib/ui/badge/badge.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -75,12 +76,16 @@ npx jixoai-ui add press-button section-card toc`;
 <!-- Hero: hero-section + terminal-card (registry items, openspecui composition). -->
 <HeroSection
   eyebrow="jixoai-ui · v0.1 · shadcn registry"
-  titleLead="The terminal design language of jixoai. "
-  titleAccent="One hue per project."
   summary="Everything here graduated from production work on unipty and openspecui: an OKLCH token law where a project's entire identity is a single --brand-hue variable, hard offset shadows, a mono-first voice, and components you own after copying them in."
-  badges={['OKLCH tokens', 'Svelte 5 first', 'Zero runtime deps', 'MIT']}
   copyCommand="npx jixoai-ui init --hue 330"
 >
+  {#snippet title()}The terminal design language of jixoai. <em>One hue per project.</em>{/snippet}
+  {#snippet badges()}
+    <Badge>OKLCH tokens</Badge>
+    <Badge>Svelte 5 first</Badge>
+    <Badge>Zero runtime deps</Badge>
+    <Badge>MIT</Badge>
+  {/snippet}
   {#snippet secondary()}
     <PressButton variant="outline" href="/tokens.html">Get started</PressButton>
     <PressButton variant="outline" href={GITHUB_URL} external>

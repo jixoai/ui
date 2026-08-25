@@ -30,6 +30,15 @@
   kernel (lib/surface-motion.ts) — the toggle seam drives the --jx-p
   timeline and the live panel↔anchor axis; a REAL shadow child (not
   the ::after pseudo) rides under jx-waapi (jixoai.css law).
+
+  composition-first-apis (2026-08-25, the MILDER ruling — a compact
+  confirm popover, not a page dialog): the trigger stays children
+  (compose any focusable control); the panel's content area (title/
+  description) and action row open to `content` / `actions` snippets
+  with the CURRENT rendering as defaults. title/description/
+  confirmLabel/cancelLabel survive as default strings only — a content
+  override owns the semantics (aria-labelledby follows: the override
+  wires its own ids).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -40,15 +49,18 @@
 
   interface Props {
     id?: string;
-    /** the question — one line, past-tense verb ("Delete this row?") */
+    /** the question — one line, past-tense verb ("Delete this row?");
+     *  DEFAULT rendering only (a content snippet replaces it) */
     title: string;
-    /** optional supporting line */
+    /** optional supporting line — DEFAULT rendering only */
     description?: string;
     /** runs on confirm (then closes) */
     onconfirm?: () => void;
     /** runs on ANY non-confirm dismissal (light dismiss included) */
     oncancel?: () => void;
+    /** confirm label — DEFAULT rendering only */
     confirmLabel?: string;
+    /** cancel label — DEFAULT rendering only */
     cancelLabel?: string;
     /** confirm paint — destructive by default (the loud path is opt-out) */
     confirmTone?: 'destructive' | 'primary';
@@ -56,6 +68,10 @@
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
     variant?: 'solid' | 'acrylic' | 'auto';
+    /** replaces the title/description area (the caller owns semantics) */
+    content?: Snippet;
+    /** replaces the confirm/cancel action row */
+    actions?: Snippet;
     /** the trigger content; the wrapper span carries the anchoring */
     children: Snippet;
     class?: string;
@@ -74,6 +90,8 @@
     confirmTone = 'destructive',
     placement = 'top',
     variant = 'auto',
+    content,
+    actions,
     children,
     class: className = '',
   }: Props = $props();
@@ -160,8 +178,8 @@
   {id}
   popover="auto"
   role="dialog"
-  aria-labelledby={titleId}
-  aria-describedby={description ? descId : undefined}
+  aria-labelledby={content ? undefined : titleId}
+  aria-describedby={description && !content ? descId : undefined}
   class={cn(
     'jx-pc jx-surface fixed m-[var(--jx-pc-gap,8px)] [position-try-fallbacks:flip-block,flip-inline] [position-try:flip-block,flip-inline] [position-visibility:anchors-visible] w-fit max-w-[min(88vw,18rem)] text-popover-foreground',
     motion.supported && 'jx-waapi',
@@ -177,11 +195,18 @@
   <!-- surface body (fill + ::after shadow); the popover element paints
        nothing (floating-surface law arch r3) -->
   <div data-jx-pc-surface="" class="jx-surface-body flex flex-col gap-2 px-3.5 py-3">
-  <p id={titleId} data-jx-pc-title="" class="font-nav text-xs tracking-[0.08em] uppercase text-foreground">{title}</p>
-  {#if description}
-    <p id={descId} data-jx-pc-desc="" class="text-[0.8125rem] leading-[1.5] text-muted-foreground">{description}</p>
+  {#if content}
+    {@render content()}
+  {:else}
+    <p id={titleId} data-jx-pc-title="" class="font-nav text-xs tracking-[0.08em] uppercase text-foreground">{title}</p>
+    {#if description}
+      <p id={descId} data-jx-pc-desc="" class="text-[0.8125rem] leading-[1.5] text-muted-foreground">{description}</p>
+    {/if}
   {/if}
-  <div data-jx-pc-actions="" class="flex justify-end gap-2">
+  {#if actions}
+    {@render actions()}
+  {:else}
+    <div data-jx-pc-actions="" class="flex justify-end gap-2">
     <button
       type="button"
       data-jx-pc-btn=""
@@ -208,6 +233,7 @@
     >
       {confirmLabel}
     </button>
-  </div>
+    </div>
+  {/if}
   </div>
 </div>

@@ -1,5 +1,6 @@
 <!--
-  jixoai hero section (registry/files/ui/hero-section.svelte).
+  jixoai hero section (registry/files/ui/hero-section/hero-section.svelte,
+  2026-08-25).
   The Broadside hero, composed after the openspecui reference: large lead
   type with a primary-colored accent, badge row, a copy-command PRIMARY
   CTA (icon + command, copied feedback) plus a secondary outline slot,
@@ -7,22 +8,30 @@
   (min-1100px two-column, bottom-aligned; terminal falls below on
   narrower screens).
 
-  Props:
-    eyebrow      tracked label above the title (brand hue)
-    titleLead    the title's plain lead
-    titleAccent  the title's primary-colored tail
-    summary      max-62ch lead paragraph
-    badges       uppercase mono badge row
-    copyCommand  the command on the primary CTA (copied to clipboard)
-    copyLabel    aria affordance ("copy" / language-specific)
-    terminal     snippet: the right-column demo (terminal-card)
-    secondary?   snippet: extra outline CTAs after the copy button
+  Composition-first API (composition-first-apis, 2026-08-25) — content
+  is authored, not configured:
+
+    eyebrow: string          tracked label above the title (brand hue)
+    title?: snippet         the h1 content — the em carries the accent
+                             paint (component css :where() rule; plain
+                             text also legal)
+    summary: string         max-62ch lead paragraph
+    badges?: snippet        the badge row content — compose Badge parts
+                             (badges: string[] is dead)
+    copyCommand: string     the command on the primary CTA (clipboard
+                             payload — value-domain data)
+    copyLabel?: string      aria affordance of the DEFAULT copy CTA
+    copy?: snippet          replaces the default copy CTA wholesale
+    terminal: snippet       the right-column demo (terminal-card)
+    secondary?: snippet     extra outline CTAs after the copy button
 
   tw4 (2026-08-24): the entrance cascade rides an animate-* arbitrary
   utility per step (delay through an animation-delay arbitrary
-  property); ONLY the @keyframes + the reduced-motion kill stay in
-  hero-section.css — D1-exempt residue (the kill overrides the animate
-  utility, so it rides the unlayered carve-out; the skeleton pattern).
+  property); the keyframes + the reduced-motion kill stay in
+  hero-section.css (D1-exempt residue). composition-first adds the
+  title-em accent rule — caller-authored content, so a :where()
+  components-layer descendant rule is the only route (consumer
+  utilities still win by the layer law).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -31,24 +40,29 @@
 
   interface Props {
     eyebrow: string;
-    titleLead: string;
-    titleAccent: string;
     summary: string;
-    badges: readonly string[];
+    /** the clipboard payload — the default CTA's label AND copy target */
     copyCommand: string;
+    /** aria affordance for the default copy CTA ("copy" / localized) */
     copyLabel?: string;
+    /** the h1 content; <em> inside carries the accent paint */
+    title?: Snippet;
+    /** the badge row content — compose Badge children */
+    badges?: Snippet;
+    /** replaces the default copy CTA */
+    copy?: Snippet;
     terminal: Snippet;
     secondary?: Snippet;
   }
 
   let {
     eyebrow,
-    titleLead,
-    titleAccent,
     summary,
-    badges,
     copyCommand,
     copyLabel = 'copy',
+    title,
+    badges,
+    copy,
     terminal,
     secondary,
   }: Props = $props();
@@ -86,44 +100,51 @@
       <p class="{step} font-nav text-primary text-[11px] uppercase tracking-[0.24em]" style="--jx-hero-delay: 0ms">
         {eyebrow}
       </p>
-      <h1
-        class="{step} mt-4 text-[clamp(2.4rem,5vw,4.4rem)] font-bold leading-[1.2] tracking-[-0.02em] text-balance"
-        style="--jx-hero-delay: 60ms; --jx-hero-rise: 14px"
-      >
-        {titleLead}<em class="text-primary not-italic">{titleAccent}</em>
-      </h1>
+      {#if title}
+        <h1
+          data-jx-hero-title=""
+          class="{step} mt-4 text-[clamp(2.4rem,5vw,4.4rem)] font-bold leading-[1.2] tracking-[-0.02em] text-balance"
+          style="--jx-hero-delay: 60ms; --jx-hero-rise: 14px"
+        >
+          {@render title()}
+        </h1>
+      {/if}
       <p
         class="{step} text-muted-foreground mt-5 max-w-[62ch] text-pretty text-[15px] leading-6 sm:text-base sm:leading-7"
         style="--jx-hero-delay: 120ms"
       >
         {summary}
       </p>
-      <div
-        class="{step} text-muted-foreground font-nav mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-[0.14em]"
-        style="--jx-hero-delay: 160ms"
-      >
-        {#each badges as badge (badge)}
-          <span>{badge}</span>
-        {/each}
-      </div>
-      <div class="{step} mt-8 flex flex-wrap gap-3" style="--jx-hero-delay: 200ms">
-        <PressButton
-          variant={copied ? 'copied' : 'primary'}
-          onclick={copyCommandToClipboard}
-          ariaLabel={`${copied ? 'copied' : copyLabel} ${copyCommand}`}
+      {#if badges}
+        <div
+          class="{step} text-muted-foreground font-nav mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-[0.14em]"
+          style="--jx-hero-delay: 160ms"
         >
-          {#if copied}
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M20 6 9 17l-5-5" />
-            </svg>
-          {:else}
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="9" y="9" width="12" height="12" rx="0" />
-              <path d="M5 15V4a1 1 0 0 1 1-1h10" />
-            </svg>
-          {/if}
-          <span>{copyCommand}</span>
-        </PressButton>
+          {@render badges()}
+        </div>
+      {/if}
+      <div class="{step} mt-8 flex flex-wrap gap-3" style="--jx-hero-delay: 200ms">
+        {#if copy}
+          {@render copy()}
+        {:else}
+          <PressButton
+            variant={copied ? 'copied' : 'primary'}
+            onclick={copyCommandToClipboard}
+            ariaLabel={`${copied ? 'copied' : copyLabel} ${copyCommand}`}
+          >
+            {#if copied}
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+            {:else}
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="9" width="12" height="12" rx="0" />
+                <path d="M5 15V4a1 1 0 0 1 1-1h10" />
+              </svg>
+            {/if}
+            <span>{copyCommand}</span>
+          </PressButton>
+        {/if}
         {#if secondary}
           {@render secondary()}
         {/if}
