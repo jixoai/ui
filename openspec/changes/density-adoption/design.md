@@ -300,3 +300,21 @@ Packets never edit `registry.json`, `mirror-manifest.json`, generated
   mirror edit in the same packet; payload parity and manifest checks
   are separate failures; only the orchestrator regenerates after the
   exact-list merge.
+
+## 9. Spec-delta operations (the authoritative classification)
+
+- `specs/jx-pure/spec.md` — **ADDED** requirements (the living spec is
+  narrative; the delta converts Parts A–D + boundaries into explicit
+  requirements with the v2 renames, and the APPLY note replaces the
+  narrative on archive).
+- `specs/design-tokens/spec.md` — **ADDED** requirements (the ctl
+  alias interface, the kernel ruler-role allowlist, the exception
+  registry — no living targets existed).
+- `specs/css-architecture/spec.md` — **MODIFIED** (placement law,
+  utilities/layer law, derived-scale law, stamped-attribute painting).
+- `specs/component-authoring/spec.md` — **MODIFIED** (Tier system,
+  props discipline, styling posture, the density contract, the shared
+  ruler, the Item family system) + **ADDED** (the hit-lane contract).
+
+The earlier outline in the r2 provenance artifact mislabeled the
+first two as MODIFIED; this section supersedes it.

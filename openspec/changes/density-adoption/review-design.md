@@ -421,3 +421,28 @@ density-adoption --strict` and `git diff --check 8cdd3df..HEAD` both pass.
 The last P0 is a one-word repair, but it is normative scenario text and can
 cause a packet agent to restore the prohibited public `size` policy. Fix it,
 correct the P1 outline, then this contract is ready for K0/F.
+
+## Round 5
+
+Review target: `488d014` after `468610c`. The Item policy scenario now reads
+`mode/density/layout/dividers` at `specs/component-authoring/spec.md:242`,
+and the delta grep has no remaining policy-size scenario. Strict OpenSpec
+validation and whitespace checks pass. The four Round 3 losses are therefore
+resolved.
+
+The claimed outline repair is not present in the checked-in files. The
+authoritative R2 response still says “The implementation change will carry
+these `MODIFIED` requirements” at
+`.agents/documents/2026-08-26-density-adoption/codex-r2-response.md:616-631`,
+which incorrectly classifies jx-pure and design-tokens; the current
+`openspec/changes/density-adoption/design.md` has no replacement spec-delta
+outline. Correct or remove that stale outline so it states `ADDED` for
+jx-pure/design-tokens and `MODIFIED` for css-architecture/component-authoring.
+
+### Decision
+
+**Score: 9.2/10. BLOCK K0/F implementation start.**
+
+The execution contract is otherwise ready, but the authoritative planning
+source still directs the wrong OpenSpec operation for two deltas. Start K0/F
+only after that source-of-truth mismatch is corrected and revalidated.
