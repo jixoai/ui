@@ -80,7 +80,7 @@ describe('docs sections nav — components-tree mode', () => {
     page.url = new URL('http://localhost/docs/components/press-button.html');
     render(DocsSectionsNav);
     const titles = [...document.querySelectorAll('.jx-dsn-rail .jx-dsn-link-title')].map((n) => n.textContent?.trim());
-    expect(titles.length).toBe(73);
+    expect(titles.length).toBe(74);
     expect(titles).toContain('press-button');
     expect(titles).toContain('dialog');
     expect(titles).toContain('scroll-virtual');

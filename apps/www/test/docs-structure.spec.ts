@@ -3,7 +3,7 @@
  * r1 design). The model is THE single source for the docs tree; these
  * locks keep the r1 rulings true by construction:
  *
- *   - Components nav = registry:ui ONLY (73, one canonical page each)
+ *   - Components nav = registry:ui ONLY (74, one canonical page each)
  *   - non-UI items never appear under Components (install targets, not
  *     doc destinations — the registry overview carries them)
  *   - the reading chain covers every ui item exactly once, prev/next
@@ -58,7 +58,7 @@ describe('docs-route-model — the section spine', () => {
     expect(navNames.size, 'one canonical page per ui item').toBe(
       CATALOG.filter((e) => e.type === 'registry:ui').length,
     );
-    // and every ui item's canonical href is unique (73 own pages)
+    // and every ui item's canonical href is unique (74 own pages)
     const navHrefs = docsComponentGroups.flatMap(({ entries }) => entries.map((e) => e.href.split('#')[0]));
     expect(new Set(navHrefs).size, 'canonical page per ui item is unique').toBe(navHrefs.length);
   });
@@ -69,7 +69,7 @@ describe('docs-route-model — the section spine', () => {
     // visual break — any taxonomy change must update this snapshot
     const shape = docsComponentGroups.map(({ group, entries }) => `${group.id}:${entries.length}`);
     expect(shape).toEqual([
-      'general:5', 'layout:9', 'navigation:10', 'layer:10',
+      'general:6', 'layout:10', 'navigation:10', 'layer:10',
       'data-entry:18', 'data-display:16', 'feedback:5',
     ]);
     expect(shape.every((x) => !x.endsWith(':1')), 'no single-member groups').toBe(true);

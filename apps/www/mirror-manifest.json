@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-25T08:29:04.124Z",
+  "generatedAt": "2026-08-25T09:28:25.971Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "section-card": "registry/files/ui/section-card/section-card.svelte",
@@ -75,7 +75,8 @@
     "tour": "registry/files/ui/tour/tour.svelte",
     "scroll-area": "registry/files/ui/scroll-area/scroll-area.svelte",
     "scroll-virtual": "registry/files/ui/scroll-virtual/scroll-virtual.svelte",
-    "icon-button": "registry/files/ui/icon-button/icon-button.svelte"
+    "icon-button": "registry/files/ui/icon-button/icon-button.svelte",
+    "progressive-blur": "registry/files/ui/progressive-blur/progressive-blur.svelte"
   },
   "items": [
     {
@@ -617,8 +618,8 @@
           "source": "registry/files/lib/icons.ts",
           "mirror": "apps/www/src/lib/icons.ts",
           "target": "@lib/icons.ts",
-          "sourceSha": "1f3059da1d511daba5a7049629d1c1b7142c3c53946eb5dc0ff70f76112e9d35",
-          "mirrorSha": "1f3059da1d511daba5a7049629d1c1b7142c3c53946eb5dc0ff70f76112e9d35"
+          "sourceSha": "2dc2379b1b1837098d44020cfb0d54a18a0de8c2c39c53db2bddb85645efe44c",
+          "mirrorSha": "2dc2379b1b1837098d44020cfb0d54a18a0de8c2c39c53db2bddb85645efe44c"
         }
       ]
     },
@@ -1638,8 +1639,8 @@
           "source": "registry/files/ui/navigation-menu/navigation-menu.svelte",
           "mirror": "apps/www/src/lib/ui/navigation-menu/navigation-menu.svelte",
           "target": "@ui/navigation-menu/navigation-menu.svelte",
-          "sourceSha": "67ef65131b8440221dd06dfa4d27c0e60f289e33f98f43ad9208da675506c013",
-          "mirrorSha": "67ef65131b8440221dd06dfa4d27c0e60f289e33f98f43ad9208da675506c013"
+          "sourceSha": "92239e2517328d35ab3f2b28a2dff8db5fa159ec0d09929e3f0f2767427c9e8e",
+          "mirrorSha": "92239e2517328d35ab3f2b28a2dff8db5fa159ec0d09929e3f0f2767427c9e8e"
         },
         {
           "source": "registry/files/ui/navigation-menu/index.ts",
@@ -1647,13 +1648,6 @@
           "target": "@ui/navigation-menu/index.ts",
           "sourceSha": "7db2915c016aa24dfd461b2f6453f4b1fcbf8ab926c879424ea594781ad71b02",
           "mirrorSha": "7db2915c016aa24dfd461b2f6453f4b1fcbf8ab926c879424ea594781ad71b02"
-        },
-        {
-          "source": "registry/files/ui/navigation-menu/navigation-menu.css",
-          "mirror": "apps/www/src/lib/ui/navigation-menu/navigation-menu.css",
-          "target": "@ui/navigation-menu/navigation-menu.css",
-          "sourceSha": "a4e42e4c7d61313d20d7bf1605c6139e5d3d05d95aac9a46f52974eb715493c6",
-          "mirrorSha": "a4e42e4c7d61313d20d7bf1605c6139e5d3d05d95aac9a46f52974eb715493c6"
         }
       ]
     },
@@ -2169,6 +2163,34 @@
           "target": "@ui/icon-button/index.ts",
           "sourceSha": "b98ef575c937b0f818979ae9098dfe105577da7f5a4cc8b1eb69e80df81c3d5e",
           "mirrorSha": "b98ef575c937b0f818979ae9098dfe105577da7f5a4cc8b1eb69e80df81c3d5e"
+        }
+      ]
+    },
+    {
+      "itemName": "progressive-blur",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/progressive-blur/progressive-blur.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/progressive-blur/progressive-blur.svelte",
+          "mirror": "apps/www/src/lib/ui/progressive-blur/progressive-blur.svelte",
+          "target": "@ui/progressive-blur/progressive-blur.svelte",
+          "sourceSha": "27ad109894e7e048fd11f661730076f6d8263160991eb0c6277da06fc6b9cfd3",
+          "mirrorSha": "27ad109894e7e048fd11f661730076f6d8263160991eb0c6277da06fc6b9cfd3"
+        },
+        {
+          "source": "registry/files/ui/progressive-blur/progressive-blur.css",
+          "mirror": "apps/www/src/lib/ui/progressive-blur/progressive-blur.css",
+          "target": "@ui/progressive-blur/progressive-blur.css",
+          "sourceSha": "7ee8da9b7742ef630d03215d9591b9fe18cf09528788b609f322e1b4fb530992",
+          "mirrorSha": "7ee8da9b7742ef630d03215d9591b9fe18cf09528788b609f322e1b4fb530992"
+        },
+        {
+          "source": "registry/files/ui/progressive-blur/index.ts",
+          "mirror": "apps/www/src/lib/ui/progressive-blur/index.ts",
+          "target": "@ui/progressive-blur/index.ts",
+          "sourceSha": "bba160f341694f94fd204ab60fa7999585aa098736b6d9a1789fe6839988b038",
+          "mirrorSha": "bba160f341694f94fd204ab60fa7999585aa098736b6d9a1789fe6839988b038"
         }
       ]
     },

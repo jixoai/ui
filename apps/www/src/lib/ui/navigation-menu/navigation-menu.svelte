@@ -8,35 +8,46 @@
     top-level focus walking is the bar's: ←/→ move between triggers
     (roving tabindex over triggers, like tabs — a nav bar is walked,
     not hunted); Enter/Space/click opens the panel; Escape closes and
-    focus returns to the trigger. Hover OPENS with 150ms intent (the
-    terminal voice: pointer users glide) and moving between adjacent
-    triggers swaps panels without a close bounce.
+    focus returns to the trigger. While a panel is open, walking swaps
+    panels without a close bounce (menubar glide — keyboard-driven).
 
-  Panels are popover=auto (native light dismiss + one-at-a-time) with
-  CSS anchor positioning, and they carry REAL LINKS — navigation-menu
-  moves you through a site; actions belong to dropdown-menu.
-  The current section marks its trigger aria-current (the page's own
-  truth, passed in — the menu never guesses).
+  CLICK OPEN ONLY (Owner ruling, 2026-08-25 — the terminal-header
+  law, realigned here 2026-08-25 after a drift round): the hover path,
+  its 150ms intent, its grace timers and its pointer corridor are
+  RETIRED. Panels are the registry Popover primitive (native popover=
+  auto light dismiss + one-at-a-time, CSS anchor positioning with
+  try-fallbacks, and the WAAPI surface-motion entry/exit — the
+  animation the raw-div era never had); triggers are BUTTONS, so the
+  open/close toggle rides the DECLARATIVE popovertarget wire (the
+  primitive's zero-listener path — the invoker association exempts the
+  trigger from light dismiss by construction, no click-order race),
+  and open state mirrors ONLY through the primitive's onToggle seam.
+  terminal-header keeps the imperative dance because ITS triggers are
+  links; a nav bar's panel triggers are buttons and take the native
+  wire. Panels carry REAL LINKS — navigation-menu moves you through a
+  site; actions belong to dropdown-menu. The current section marks its
+  trigger aria-current (the page's own truth, passed in — the menu
+  never guesses).
 
   Data-driven: items carry label + href + a panel slot id; panels are
   composed through the `panel` snippet keyed by item id.
 
   tw4 (2026-08-24): bar/trigger/link paint as token utilities (the
   current + open states are JS-known → conditional strings, preserving
-  the original hover-beats-aria-current specificity order); ONLY the
-  anchored panel law (position-try geometry, the @supports
-  viewport-center fallback, ::backdrop) remains in navigation-menu.css
-  — D1-exempt residue.
+  the hover-beats-aria-current specificity order); the anchored panel
+  law lives in the Popover primitive (its css), and this folder's
+  navigation-menu.css dissolved with the 2026-08-25 rebuild — the
+  consumer residue is panelClass utilities only.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import Popover from '$lib/ui/popover/popover.svelte';
   import { cn } from '$lib/utils';
-  import './navigation-menu.css';
 
   export interface NavMenuItem {
     id: string;
     label: string;
-    /** the section root — the trigger links there when no panel */
+    /** the section root — shown by plain-link items without panels */
     href?: string;
     /** set on the section's own top-level trigger */
     current?: boolean;
@@ -50,8 +61,6 @@
     label?: string;
     /** panel content per item id (rendered inside the popover) */
     panel?: Snippet<[NavMenuItem]>;
-    /** hover-intent open delay (ms); 0 = instant */
-    openDelay?: number;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
     variant?: 'solid' | 'acrylic' | 'auto';
@@ -62,46 +71,24 @@
     items,
     label = 'site',
     panel,
-    openDelay = 150,
     variant = 'auto',
     class: className = '',
   }: Props = $props();
 
+  /** the popover primitive's imperative handles — the arrow-walk glide
+      only; the click toggle itself is the declarative popovertarget */
+  const handles: Record<string, { show(source?: HTMLElement): void; hide(): void } | null> = {};
+
+  /** open state mirrors ONLY the primitive's onToggle seam — the
+      native toggle event covers click, light dismiss, Escape and
+      one-at-a-time, so aria-expanded never lies */
   let openId = $state('');
   /** the roving tab stop follows arrow focus (initial: current ?? first) */
   let activeId = $state('');
-  let hoverTimer: ReturnType<typeof setTimeout> | undefined;
 
-  $effect(() => () => clearTimeout(hoverTimer));
-
-  const anchorOf = (id: string): string =>
-    `--jx-navmenu-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-
-  function open(id: string): void {
-    clearTimeout(hoverTimer);
-    openId = id;
-    const el = document.getElementById(`jx-navmenu-panel-${id}`);
-    if (el && typeof el.showPopover === 'function' && !el.matches(':popover-open')) {
-      el.showPopover();
-    }
-  }
-  function close(id: string): void {
-    clearTimeout(hoverTimer);
-    if (openId === id) openId = '';
-    const el = document.getElementById(`jx-navmenu-panel-${id}`);
-    if (el && typeof el.hidePopover === 'function' && el.matches(':popover-open')) {
-      el.hidePopover();
-    }
-  }
-  function hoverIntent(id: string): void {
-    clearTimeout(hoverTimer);
-    if (openId === id) return;
-    hoverTimer = setTimeout(() => open(id), openDelay);
-  }
-  function leaveBar(): void {
-    if (openId === '') return;
-    // grace: let the pointer cross into the open panel
-    hoverTimer = setTimeout(() => close(openId), 250);
+  function onPanelToggle(id: string, open: boolean): void {
+    if (open) openId = id;
+    else if (openId === id) openId = '';
   }
 
   /** the bar's own keyboard walk — arrows move between triggers */
@@ -120,12 +107,9 @@
     if (target) activeId = target.id;
     next.focus();
     // an open panel follows the walk (menubar glide behavior)
-    if (openId !== '') {
-      const item = items.find((i) => `jx-navmenu-trigger-${i.id}` === next.id);
-      if (item) {
-        close(openId);
-        open(item.id);
-      }
+    if (openId !== '' && target && target.id !== openId) {
+      handles[openId]?.hide();
+      handles[target.id]?.show(next);
     }
   }
 
@@ -146,7 +130,7 @@
     'inline-flex items-center px-[0.875rem] py-2 font-nav text-xs uppercase tracking-[0.12em] no-underline cursor-pointer transition-colors duration-150 ease-out focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
 </script>
 
-<!-- svelte-ignore a11y_no_noninteractive_element_interactions, a11y_no_static_element_interactions -- the
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -- the
      nav hosts the top-level arrow walk; its triggers are the
      interactive elements -->
 <nav
@@ -155,37 +139,56 @@
   class={cn('flex flex-wrap items-stretch gap-1', className)}
   aria-label={label}
   onkeydown={handleKeydown}
-  onpointerleave={leaveBar}
 >
   {#each items as item (item.id)}
     {#if item.hasPanel}
-      <span
-        data-jx-navmenu-slot=""
-        class="inline-flex"
-        style="anchor-name: {anchorOf(item.id)}"
-        onpointerenter={() => hoverIntent(item.id)}
+      <Popover
+        id="jx-navmenu-{item.id}"
+        placement="bottom-start"
+        variant={variant}
+        panelClass="w-fit max-w-[min(92vw,26rem)]"
+        bind:this={handles[item.id]}
+        onToggle={(open) => onPanelToggle(item.id, open)}
       >
-        <button
-          type="button"
-          id="jx-navmenu-trigger-{item.id}"
-          aria-haspopup="true"
-          aria-expanded={openId === item.id}
-          aria-current={item.current ? 'true' : undefined}
-          tabindex={tabStopId === item.id ? 0 : -1}
-          class={cn(
-            itemPaint,
-            openId === item.id
-              ? 'text-foreground'
-              : item.current
-                ? 'text-primary hover:text-foreground'
-                : 'text-muted-foreground hover:text-foreground',
-          )}
-          popovertarget="jx-navmenu-panel-{item.id}"
-          onfocus={() => (activeId = item.id)}
+        {#snippet trigger()}
+          <button
+            type="button"
+            id="jx-navmenu-trigger-{item.id}"
+            popovertarget="jx-navmenu-{item.id}"
+            aria-haspopup="true"
+            aria-expanded={openId === item.id}
+            aria-current={item.current ? 'true' : undefined}
+            tabindex={tabStopId === item.id ? 0 : -1}
+            class={cn(
+              itemPaint,
+              openId === item.id
+                ? 'text-foreground'
+                : item.current
+                  ? 'text-primary hover:text-foreground'
+                  : 'text-muted-foreground hover:text-foreground',
+            )}
+            onfocus={() => (activeId = item.id)}
+          >
+            {item.label}
+          </button>
+        {/snippet}
+        <!-- Escape hands focus back to the trigger (the close itself is
+             the native close request — platform and polyfill alike) -->
+        <div
+          class="flex flex-col"
+          data-jx-navmenu-panel-body=""
+          onkeydown={(e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              document.getElementById(`jx-navmenu-trigger-${item.id}`)?.focus();
+            }
+          }}
         >
-          {item.label}
-        </button>
-      </span>
+          {#if panel}
+            {@render panel(item)}
+          {/if}
+        </div>
+      </Popover>
     {:else if item.href}
       <a
         class={cn(itemPaint, item.current ? 'text-primary' : 'text-muted-foreground hover:text-foreground')}
@@ -198,38 +201,3 @@
     {/if}
   {/each}
 </nav>
-
-{#each items.filter((item) => item.hasPanel) as item (item.id)}
-<!-- svelte-ignore a11y_no_static_element_interactions -- the panel's
-     pointer handlers only manage hover intent; its links act -->
-  <div
-    id="jx-navmenu-panel-{item.id}"
-    popover="auto"
-    class="jx-navmenu-panel jx-surface"
-    data-variant={variant}
-    style="position-anchor: {anchorOf(item.id)}; inset-area: bottom span-left; position-area: bottom span-left;"
-    onpointerenter={() => clearTimeout(hoverTimer)}
-    onpointerleave={() => hoverTimer && close(item.id)}
-    onkeydown={(e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        close(item.id);
-        document.getElementById(`jx-navmenu-trigger-${item.id}`)?.focus();
-      }
-    }}
-    ontoggle={(e: Event) => {
-      const panel = e.currentTarget as HTMLElement;
-      const isOpen = panel.matches(':popover-open');
-      if (isOpen) openId = item.id;
-      else if (openId === item.id) openId = '';
-    }}
-  >
-    <!-- surface body (fill + ::after shadow); the popover element paints
-         nothing (floating-surface law arch r3) -->
-    <div data-jx-navmenu-surface="" class="jx-surface-body px-[0.875rem] py-3">
-      {#if panel}
-        {@render panel(item)}
-      {/if}
-    </div>
-  </div>
-{/each}

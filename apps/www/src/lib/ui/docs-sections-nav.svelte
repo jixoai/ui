@@ -13,11 +13,18 @@
 
   Authored in the scaffold's `chrome` snippet with data-area="tree":
   SSR-rendered in its final grid cell, immersive hide laws inherited.
+
+  Scroll-edge blur (2026-08-25): both scroll surfaces (the wide rail
+  cell and the mobile expansion viewport) wear the progressive-blur
+  atom at their top edge, reveal='scroll' — the same-layer-sticky
+  practice (sticky surfaces blur what passes under them) expressed for
+  a list scrolling under its OWN edge.
 -->
 <script lang="ts">
   import { page } from '$app/state';
   import { docsComponentGroups, docsSections } from '$lib/docs-route-model';
   import { icons } from '$lib/icons';
+  import ProgressiveBlur from '$lib/ui/progressive-blur/progressive-blur.svelte';
 
   const normalized = $derived(
     page.url.pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/',
@@ -106,6 +113,11 @@
 </script>
 
 <nav class="jx-dsn" data-area="tree" aria-label="docs sections">
+  <!-- scroll-edge blur (2026-08-25): the rail is a same-layer sticky
+       list — the rail cell itself scrolls — so the top edge takes the
+       progressive-blur atom, reveal riding the scroller (nothing
+       blurs while the list rests at the top) -->
+  <ProgressiveBlur position="top" reveal="scroll" height="4.5rem" />
   <!-- rail surface (wide form): the spine, always expanded -->
   <div class="jx-dsn-rail">
     <p class="jx-dsn-title">{railTitle}</p>
@@ -181,6 +193,8 @@
       </button>
     </div>
     <div class="jx-dsn-expand">
+      <!-- the same scroll-edge law on the mobile expansion viewport -->
+      <ProgressiveBlur position="top" reveal="scroll" height="4rem" />
       <div class="jx-dsn-search jx-dsn-bar-search">
         <input
           class="jx-dsn-input"

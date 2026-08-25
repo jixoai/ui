@@ -75,6 +75,9 @@
     label?: string;
     /** error text → "! message" line + dashed thumb border */
     error?: string;
+    /** visually hide the label while keeping the aria-labelledby wiring
+        (field-like compositions name the control from outside) */
+    srLabel?: boolean;
     /** show the current value right of the label row (default true) */
     showValue?: boolean;
     /** draw one 4px tick per step under the track */
@@ -97,6 +100,7 @@
     name,
     label,
     error,
+    srLabel = false,
     showValue = true,
     ticks = false,
     disabled = false,
@@ -242,7 +246,7 @@
   ></jx-form-field>
   {#if label || showValue}
     <div data-jx-slider-head class="flex items-baseline justify-between gap-3">
-      {#if label}<span class="jx-label" id={labelId}>{label}</span>{/if}
+      {#if label}<span class={"jx-label" + (srLabel ? " sr-only" : "")} id={labelId}>{label}</span>{/if}
       {#if showValue}<span data-jx-slider-value class={cn('font-mono text-xs text-foreground tabular-nums', invalid && 'text-destructive')} class:jx-invalid={invalid}>{display}</span>{/if}
     </div>
   {/if}

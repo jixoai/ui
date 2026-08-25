@@ -80,6 +80,81 @@
       ]
     },
     {
+      "name": "list-item",
+      "type": "registry:ui",
+      "title": "List item",
+      "description": "The slot-composition list row (shadcn Item philosophy) on GRID: a :has()-driven presence matrix rewrites the template by which slots exist — media / content / actions in the main row, header / footer as optional full rows, actions dropping to its own row inside narrow groups. ItemContent is the required slot; variants (default/outline/muted × default/sm/xs) are geometry-neutral visual matrices. The root is <a> when href is given, <div> otherwise — no asChild; interactive behavior belongs in ItemActions. ItemGroup is the vertical role=list stack AND the container items query for the narrow wrap; ItemSeparator hairlines belong to the group, not the item.",
+      "files": [
+        {
+          "path": "registry/files/ui/list-item/item.svelte",
+          "target": "@ui/list-item/item.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item-group.svelte",
+          "target": "@ui/list-item/item-group.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item-separator.svelte",
+          "target": "@ui/list-item/item-separator.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item-media.svelte",
+          "target": "@ui/list-item/item-media.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item-content.svelte",
+          "target": "@ui/list-item/item-content.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item-title.svelte",
+          "target": "@ui/list-item/item-title.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item-description.svelte",
+          "target": "@ui/list-item/item-description.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item-actions.svelte",
+          "target": "@ui/list-item/item-actions.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item-header.svelte",
+          "target": "@ui/list-item/item-header.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item-footer.svelte",
+          "target": "@ui/list-item/item-footer.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item.css",
+          "target": "@ui/list-item/item.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/index.ts",
+          "target": "@ui/list-item/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "registryDependencies": [
+        "separator"
+      ],
+      "meta": {
+        "group": "layout",
+        "href": "/docs/components/list-item.html"
+      }
+    },
+    {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "section-card",
       "type": "registry:ui",
@@ -1902,7 +1977,7 @@
       "name": "navigation-menu",
       "type": "registry:ui",
       "title": "Navigation menu",
-      "description": "The site-nav bar as an independent thin coordinator (not raw popovers): top-level ←/→ walking with roving tabindex, one tab stop on the current section's trigger; hover opens with 150ms intent and adjacent triggers glide (no close bounce); Enter/Space/click opens; Escape closes + focus returns. Panels are popover=auto with CSS anchoring and carry REAL LINKS — navigation-menu moves you through a site; actions belong to dropdown-menu. Floating-surface law: ::after shadow layer (semi-transparent black/white) + @starting-style entry; variant='solid' | 'acrylic' | 'auto' (acrylic falls back to solid under prefers-reduced-transparency).",
+      "description": "The site-nav bar as an independent thin coordinator (not raw popovers): top-level ←/→ walking with roving tabindex, one tab stop on the current section's trigger; Enter/Space/click opens; Escape closes + focus returns; while open, walking glides panels (no close bounce). CLICK OPEN ONLY (Owner ruling 2026-08-25, realigned after a drift round): the hover path, its intent timer and its grace corridor are retired. Panels are the registry Popover primitive — native popover=auto light dismiss + one-at-a-time, CSS anchor positioning, and the WAAPI surface-motion entry/exit — and they carry REAL LINKS (navigation-menu moves you through a site; actions belong to dropdown-menu). variant='solid' | 'acrylic' | 'auto'.",
       "files": [
         {
           "path": "registry/files/ui/navigation-menu/navigation-menu.svelte",
@@ -1913,19 +1988,15 @@
           "path": "registry/files/ui/navigation-menu/index.ts",
           "target": "@ui/navigation-menu/index.ts",
           "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/navigation-menu/navigation-menu.css",
-          "target": "@ui/navigation-menu/navigation-menu.css",
-          "type": "registry:file"
         }
       ],
-      "docs": "Props: items ({id,label,href?,current?,hasPanel?}[]), label?, panel? (snippet [item]), openDelay? (150).",
+      "docs": "Props: items ({id,label,href?,current?,hasPanel?}[]), label?, panel? (snippet [item]), variant? ('auto' | 'solid' | 'acrylic'). The panel rides the popover primitive's motion kernel; open state mirrors the native toggle seam only.",
       "meta": {
         "group": "navigation",
         "href": "/docs/components/navigation-menu.html"
       },
       "registryDependencies": [
+        "@jixoai/popover",
         "@jixoai/utils",
         "@jixoai/jixoai-theme"
       ]
@@ -2581,6 +2652,38 @@
       "meta": {
         "group": "general",
         "href": "/docs/components/icon-button.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "progressive-blur",
+      "type": "registry:ui",
+      "title": "Progressive blur",
+      "description": "The scroll-edge blur atom (Magic UI port, 2026-08-25): stacked masked backdrop-filter bands ramp blur from clear at the inner edge to the full stack at the scrollport edge — content scrolling under its OWN container's edge diffuses instead of slicing. The overlay root is a sticky h-0 pin (zero layout impact, glued to the scrollport edge; abspos-in-scroller scrolls away), so the whole component is markup + css, zero JS. jixoai extension: reveal='scroll' fades the ladder in with the CSS scroll timeline (nothing blurs at rest) — @supports-gated, degrading to no effect.",
+      "registryDependencies": [
+        "@jixoai/jixoai-theme"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/progressive-blur/progressive-blur.svelte",
+          "target": "@ui/progressive-blur/progressive-blur.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/progressive-blur/progressive-blur.css",
+          "target": "@ui/progressive-blur/progressive-blur.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/progressive-blur/index.ts",
+          "target": "@ui/progressive-blur/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Drop as an EARLY CHILD of the scroll container. Props: position? ('bottom' default | 'top' | 'both'), height? (any definite CSS length, default 6rem — % unsupported: the band resolves against the 0-height sticky root), blurLevels? (px ladder inner-edge first, default [0.5,1,2,4,8,16,32,64], ≥2), reveal? ('static' default = always painted | 'scroll' = scroll-timeline fade over --jx-pblur-ramp, 72px default), class?.",
+      "meta": {
+        "group": "general",
+        "href": "/docs/components/progressive-blur.html"
       }
     },
     {

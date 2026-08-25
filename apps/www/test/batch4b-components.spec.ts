@@ -154,6 +154,37 @@ describe('NavigationMenu', () => {
     await fireEvent.keyDown(triggers[0]!, { key: 'ArrowRight' });
     expect(document.activeElement).toBe(triggers[1]);
   });
+
+  // the 2026-08-25 realignment: CLICK open only, state mirrored from
+  // the popover primitive's native toggle seam (the polyfill fires it
+  // synchronously inside show/hide, like the platform)
+  it('click opens the panel through the toggle seam; a second click closes', async () => {
+    const { container } = render(NavMenuHost);
+    const trigger = container.querySelector(
+      'button#jx-navmenu-trigger-components',
+    ) as HTMLButtonElement;
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    await fireEvent.click(trigger);
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    // one-at-a-time (popover=auto): opening the other panel flips state
+    const other = container.querySelector(
+      'button#jx-navmenu-trigger-registry',
+    ) as HTMLButtonElement;
+    await fireEvent.click(other);
+    expect(other.getAttribute('aria-expanded')).toBe('true');
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    await fireEvent.click(other);
+    expect(other.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('hovering a trigger opens NOTHING (the hover path is retired)', async () => {
+    const { container } = render(NavMenuHost);
+    const triggers = [...container.querySelectorAll('button[aria-haspopup="true"]')] as HTMLButtonElement[];
+    await fireEvent.pointerEnter(triggers[0]!);
+    await fireEvent.pointerEnter(triggers[1]!);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    expect(triggers.every((t) => t.getAttribute('aria-expanded') === 'false')).toBe(true);
+  });
 });
 
 // ---------------------------------------------------------------------------

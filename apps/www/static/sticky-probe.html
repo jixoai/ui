@@ -1,0 +1,15 @@
+<!doctype html><meta charset=utf-8>
+<style>
+  body { margin: 20px; display: flex; gap: 20px; }
+  .scroller { height: 260px; width: 180px; overflow: hidden auto; }
+  .content { height: 1600px; background: linear-gradient(#fff, #000); }
+  .sticky { position: sticky; top: 0; height: 0; z-index: 10; }
+  .a { border: 1px solid red; padding-block-start: 20px; }
+  .b { border: 1px solid red; }
+  .c { padding-block-start: 20px; }
+  .d { border: 1px solid red; padding-block-start: 20px; scrollbar-gutter: stable both-edges; }
+</style>
+<div class="scroller a"><div class="sticky"></div><div class="content"></div></div>
+<div class="scroller b"><div class="sticky"></div><div class="content"></div></div>
+<div class="scroller c"><div class="sticky"></div><div class="content"></div></div>
+<div class="scroller d"><div class="sticky"></div><div class="content"></div></div>

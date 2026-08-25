@@ -40,7 +40,7 @@ ${close}
   <title>Navigation menu · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai navigation menu: the site-nav bar as an independent thin coordinator — arrow walking, hover intent with glide, popover=auto panels carrying real links."
+    content="The jixoai navigation menu: the site-nav bar as an independent thin coordinator — arrow walking, click-open panels on the Popover primitive's motion kernel, popover=auto panels carrying real links."
   />
 </svelte:head>
 
@@ -56,12 +56,12 @@ ${close}
       headingLevel={1}
       tone="hero"
       eyebrow="registry:ui · ARIA"
-      title="navigation menu — a bar you WALK, with panels that glide"
-      summary="The site-nav pattern as an independent thin coordinator: ←/→ walk the top-level triggers (one tab stop, on the current section), hover opens with 150ms intent, and moving between adjacent triggers swaps panels without a close bounce. Panels are popover=auto with CSS anchoring and carry REAL LINKS — navigation moves you; actions belong to dropdown-menu."
+      title="navigation menu — a bar you WALK, with panels that move"
+      summary="The site-nav pattern as an independent thin coordinator: ←/→ walk the top-level triggers (one tab stop, on the current section), click opens a panel, Escape closes and hands focus back. Panels ride the registry Popover primitive — native light dismiss, CSS anchoring, and the WAAPI surface-motion entry/exit — and carry REAL LINKS: navigation moves you; actions belong to dropdown-menu. Click-open only (Owner ruling 2026-08-25): the hover path and its grace timers are retired, same law as terminal-header."
     >
       <div class="flex flex-wrap gap-3">
         <span class="pill">roving walk</span>
-        <span class="pill">hover intent 150ms</span>
+        <span class="pill">click open</span>
         <span class="pill">panels = links</span>
       </div>
     </SectionCard>
@@ -70,7 +70,7 @@ ${close}
   <div id="navmenu-demo" data-region="navmenu-demo" data-family="navmenu-demo" data-reveal="">
     <ComponentCanvas
       title="navigation menu"
-      description="Tab to the bar (components is the tab stop — it's the current section), walk with arrows, hover to glide between panels, Escape closes."
+      description="Tab to the bar (components is the tab stop — it's the current section), walk with arrows, click a trigger to open its panel, Escape closes."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/navigation-menu.svelte"
       files={canvasFiles}
     >
@@ -93,7 +93,9 @@ ${close}
       {#snippet playground()}
         <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
           plain items (href, no panel) render as ordinary links with aria-current — the bar mixes
-          panel triggers and links freely; openDelay tunes the hover intent (0 = instant).
+          panel triggers and links freely; the panel's entry/exit runs on the popover primitive's
+          motion kernel (the floating-surface timeline), and open state mirrors the native
+          toggle seam only.
         </p>
       {/snippet}
     </ComponentCanvas>
