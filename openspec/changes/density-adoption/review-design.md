@@ -301,3 +301,91 @@ Do not start K0/F while the delta application can silently erase living laws
 and the scanner's token rule remains self-contradictory. Restore the omitted
 normative material, unify the closed rule, explicitly supersede the jx-pure
 narrative, then re-run strict validation and this review.
+
+## Round 3
+
+Review target: remediation commit `8cdd3df` after the Round 2 review. I
+compared every matching `MODIFIED` requirement and its scenarios with the
+living requirement, then checked the change-specific R2 contract, design, and
+tasks. `openspec validate density-adoption --strict` passes and
+`git show --check 8cdd3df` is clean.
+
+### Former-blocker verdicts
+
+1. **Resolved — packet ownership and source pointers.** The manifest remains
+   the sole local ownership source; the design and tasks now point to it rather
+   than R2/design transcriptions. Its declared `P(...)` grammar is unchanged
+   and sufficient for the orchestrator's exact-list check.
+
+2. **Resolved — delta targets and jx-pure replacement.** The design-tokens
+   laws are `ADDED`, while the jx-pure delta now carries an explicit APPLY note
+   replacing the living `Current contract`; Parts A-D and all boundaries remain
+   present with v2 names and no aliases.
+
+3. **Partial — living-block preservation is materially repaired, but four
+   contract losses remain.** The placement law retains all four items and all
+   original scenarios; the layer law retains its bounded carve-outs and
+   probes; component Tier/props/styling, CSS topology, and Item prose/scenarios
+   are now carried forward. The following still block the normative result:
+
+   - The component delta no longer contains the R2 `hit-lane contract`
+     requirement and its physical-wrapper scenario. The change's own design
+     and task gates still require `ctl-hit` rectangles (`design.md:76-83,`
+     `157-170`; `tasks.md:28-37`), and the R2 spec-delta outline names this
+     requirement (`design.md:649-658`). Restore it to
+     `specs/component-authoring/spec.md`; otherwise the K0/F implementation
+     contract is split between design/tasks and the normative delta.
+   - The density scenario still says `WHEN the group's size prop changes`
+     (`specs/component-authoring/spec.md:136-141`), and the Item policy
+     scenario still says `mode/size/layout/dividers`
+     (`:239-245`). Both contradict the same delta's density-only law
+     (`:125-127`), the explicit rename note (`:302-303`), and design/tasks'
+     removal of policy `size` (`design.md:26-28`, `tasks.md:11-16`). Rename
+     these scenario inputs to `density`; a note after the block cannot
+     override a normative scenario.
+   - The CSS derived-scale delta (`specs/css-architecture/spec.md:137-168`)
+     drops the living requirement's explicit `Browser assertions SHALL
+     compare USED values` law (`openspec/specs/css-architecture/spec.md:179-
+     188`). Design §5's verifier rule is supporting detail, not a replacement
+     for the requirement. Restore the used-value/serialization rule in this
+     block.
+   - The CSS stamped-attribute delta's grouped-media scenario only says
+     "registered deltas" (`specs/css-architecture/spec.md:223-228`). Restore
+     the normative source and posture: the media track comes from
+     `--jx-d-media-image`, the row lane is line-derived, and the probes assert
+     those values. The component shared-ruler scenario does not repair this
+     separate CSS requirement.
+
+4. **Resolved — K0/F barriers and dispatch ordering.** The full-suite gates at
+   K0 and F still precede A-E dispatch, and G remains proof-only for residuals.
+
+5. **Resolved — verifier contract.** The packet CLI, static/browser phases,
+   row-addressed failures, used-value normalization, fixture-server behavior,
+   and complete K0 registry rows remain explicit and consistent with tasks.
+
+6. **Resolved — closed token rule.** Design §2/§5, the CSS derived-scale
+   delta, both component rules, and the design-tokens allowlist now agree:
+   ctl aliases are mandatory for control footprints, named kernel roles are
+   legal only for established semantic roles, and the scanner rejects other
+   uses. No former Round 2 contradiction remains.
+
+### New findings
+
+1. `design.md:618` still says the change carries `MODIFIED` requirements for
+   jx-pure and design-tokens, although their actual deltas are `ADDED`. Update
+   the spec-delta outline (including its Part C/APPLY wording) so the design
+   cannot direct an agent to apply the wrong operation type.
+2. The remaining density and Item `size` scenario text is not merely stale
+   vocabulary: it is an executable trigger that can cause an agent to restore
+   the prohibited policy prop. Treat it as a contract defect, not editorial
+   cleanup.
+
+### Decision
+
+**Score: 7.1/10. BLOCK K0 and F implementation.**
+
+The remediation closes the broad Round 2 failures and makes the documents
+substantially delegable. Do not start K0/F until the hit-lane requirement is
+restored, the two policy scenarios are renamed, and the used-value/media
+posture clauses are explicit in their owning deltas; then update the stale
+spec-delta outline and re-run this review.

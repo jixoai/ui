@@ -136,7 +136,7 @@ the object); optical correction is ONE bounded token (±U/2).
 #### Scenario: a group changes density after mount
 
 - GIVEN an ItemGroup with density-adopting rows
-- WHEN the group's size prop changes
+- WHEN the group's density prop changes
 - THEN rows re-resolve and re-stamp data-density reactively, and the
   CSS scope cascade repaints them in the same frame
 
@@ -301,3 +301,17 @@ stamps replace rather than merge.
 
 > density-adoption: the family's policy prop is renamed `density`
 > (visual `size` never returns as policy); `controlSize` is removed.
+
+### Requirement: the hit-lane contract
+
+Every interactive control SHALL expose a PHYSICAL activation
+rectangle at `min-block-size: var(--jx-d-ctl-hit)`; visual glyph
+dimensions (ctl-icon and friends) are separate declarations. Probes
+measure the clickable rectangle, not an ancestor min-height.
+
+#### Scenario: a checkbox lane is clicked at the corner
+
+- GIVEN a checkbox wrapper lane at xs density
+- WHEN the probe clicks the wrapper's physical corner
+- THEN the input toggles — the lane, not just the 16px square, is the
+  target

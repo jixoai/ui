@@ -139,7 +139,7 @@ cascade still REQUIRES a change against the jx-pure living spec.
 Geometry and type tokens SHALL be derived from the ruler by written
 equations in the canonical theme sheet (calc chains from
 --jx-ruler-unit and the text base), never hand-picked per component.
-Density scopes ([data-density]) exist ONLY in that sheet and its byte-identical generated mirror; components
+Browser assertions SHALL compare USED values — raw custom-property text is serialization-fragile. Density scopes ([data-density]) exist ONLY in that sheet and its byte-identical generated mirror; components
 consume the inherited --jx-d-* aliases. The four-density computed
 table (text/line/gaps/inset/row-min/hit-min/media) is asserted by a
 real-browser gate; the adoption registry enforces the no-literal
@@ -224,5 +224,7 @@ inner list, and direct-child row wrappers only.
 
 - GIVEN a media-content-end group at standard vs layout=media
 - WHEN probed at xs/default/lg
-- THEN the registered deltas (track width, block-start alignment,
-  stack gap) are observable — inert vocabulary is removed instead
+- THEN the media track width comes from --jx-d-media-image, the row
+  media lane is line-derived (min-block-size equals the derived
+  object size), block-start alignment and stack gap are asserted —
+  inert vocabulary is removed instead of kept
