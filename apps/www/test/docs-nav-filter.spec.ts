@@ -9,6 +9,7 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import DocsSectionsNav from '../src/lib/ui/docs-sections-nav.svelte';
 import { page } from '../test/mocks/app-state';
+import { CATALOG } from '../src/lib/catalog';
 
 // the nav reads $app/state's `page`; the mock starts at /docs.html
 // (sections mode) — components-mode tests re-point the URL before render
@@ -80,7 +81,7 @@ describe('docs sections nav — components-tree mode', () => {
     page.url = new URL('http://localhost/docs/components/press-button.html');
     render(DocsSectionsNav);
     const titles = [...document.querySelectorAll('.jx-dsn-rail .jx-dsn-link-title')].map((n) => n.textContent?.trim());
-    expect(titles.length).toBe(74);
+    expect(titles.length).toBe(CATALOG.filter((e) => e.type === 'registry:ui').length);
     expect(titles).toContain('press-button');
     expect(titles).toContain('dialog');
     expect(titles).toContain('scroll-virtual');
