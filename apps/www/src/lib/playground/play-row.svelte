@@ -1,13 +1,15 @@
 <!--
-  PlayRow — the standard playground control row: an Item composition
-  (ItemContent/ItemTitle carries the label, ItemActions carries the
-  control). Provides the FIELD CONTEXT (row id via svelte context) so
-  leaf controls wire aria-labelledby without page plumbing (Codex D3).
+  PlayRow — the standard playground control row, bridged onto
+  ItemField (openspec list-item-systemization task 4): the field owns
+  the label/description/error scaffold; leaf controls keep wiring
+  through the jx-play-row field context (Codex D3 contract unchanged —
+  context.rowId now carries the REAL label node id, so every
+  aria-labelledby resolves).
 -->
 <script lang="ts">
   import { getContext, setContext } from 'svelte';
   import type { Snippet } from 'svelte';
-  import { Item, ItemContent, ItemTitle, ItemDescription, ItemEnd, ItemActions } from '$lib/ui/list-item';
+  import { ItemField, ItemActions } from '$lib/ui/list-item';
 
   let {
     label,
@@ -24,19 +26,20 @@
   let uid = getContext<{ seq: number }>('jx-play-uid');
   const rowId = `jx-play-row-${++uid.seq}`;
 
-  setContext('jx-play-row', { rowId, label });
+  // text mode: naming rides aria-labelledby — the leaf controls
+  // self-wire through this context; the getter keeps `label` reactive
+  setContext('jx-play-row', {
+    rowId: `${rowId}-label`,
+    get label() {
+      return label;
+    },
+  });
 </script>
 
-<Item variant="outline" size="sm" class="jx-play-row">
-  <ItemContent>
-    <ItemTitle as="span" class="font-nav text-[11px] uppercase tracking-[0.08em]" id={rowId}>{label}</ItemTitle>
-    {#if hint}
-      <ItemDescription>{hint}</ItemDescription>
-    {/if}
-  </ItemContent>
-  <ItemEnd>
+<ItemField id={rowId} labelMode="text" {label} description={hint} variant="outline" size="sm" class="jx-play-row">
+  {#snippet control()}
     <ItemActions>
       {@render children()}
     </ItemActions>
-  </ItemEnd>
-</Item>
+  {/snippet}
+</ItemField>

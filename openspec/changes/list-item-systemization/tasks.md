@@ -46,7 +46,7 @@
   carries aria-labelledby. Browser keyboard smoke: toggle/checkbox/
   radio (same-name arrows)/select (options snippet, popup)/input —
   native behavior unchanged.*
-- [ ] 4. **PlayRow bridge** — reimplement play-row.svelte on ItemField
+- [x] 4. **PlayRow bridge** — reimplement play-row.svelte on ItemField
   (generic control snippet), preserving the `jx-play-row` context for
   PlayToggle/PlaySelect/… callers (inventory of current consumers
   regenerated at execution time; counts drift under parallel work).
