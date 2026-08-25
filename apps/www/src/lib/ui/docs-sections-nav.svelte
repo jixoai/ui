@@ -192,6 +192,7 @@
         type="button"
         class="jx-dsn-toggle"
         aria-expanded={open}
+        aria-controls="jx-dsn-expand"
         aria-label="Expand the docs sections"
         onclick={() => (open ? close() : (open = true))}
       >
@@ -200,7 +201,7 @@
         </svg>
       </button>
     </div>
-    <div class="jx-dsn-expand">
+    <div id="jx-dsn-expand" class="jx-dsn-expand">
       <!-- the same sticky-head + scroll-edge law on the mobile
            expansion viewport: the filter pins, the groups scroll
            under it through the band -->

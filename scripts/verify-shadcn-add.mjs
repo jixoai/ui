@@ -71,7 +71,7 @@ const payload = (item) =>
 // missing per-item css files proved in P3-r1)
 const registryItems = JSON.parse(source('registry.json')).items ?? JSON.parse(source('registry.json'));
 const byName = new Map(registryItems.map((i) => [i.name, i]));
-for (const name of ['accordion', 'toast', 'code-card', 'shiki', 'jixoai-theme', 'utils']) {
+for (const name of ['accordion', 'toast', 'code-card', 'shiki', 'jixoai-theme', 'utils', 'progressive-blur']) {
   const item = byName.get(name);
   if (!item) die(`registry.json has no item ${name}`);
   writeFileSync(
@@ -193,12 +193,17 @@ write(
   import Accordion, { AccordionItem } from '$lib/ui/accordion';
   import ToastViewport from '$lib/ui/toast';
   import CodeCard from '$lib/ui/code-card';
+  import ProgressiveBlur from '$lib/ui/progressive-blur';
 </script>
 
 <Accordion>
   <AccordionItem summary="one">first</AccordionItem>
 </Accordion>
 <ToastViewport />
+<div class="relative h-32 overflow-auto">
+  <ProgressiveBlur position="top" reveal="scroll" height="3rem" />
+  <p>scrolling content</p>
+</div>
 `,
 );
 
@@ -220,7 +225,7 @@ console.log('shadcn add @jixoai/accordion @jixoai/toast …');
 // registry — colors/neutral.json is served from the cache above, so
 // nothing needs ui.shadcn.com. The local base stays OFF any proxy
 // (the machine proxy black-holes localhost — the earlier curl 502).
-run('npx', ['shadcn', 'add', '@jixoai/accordion', '@jixoai/toast', '@jixoai/code-card', '--yes', '--overwrite'], {
+run('npx', ['shadcn', 'add', '@jixoai/accordion', '@jixoai/toast', '@jixoai/code-card', '@jixoai/progressive-blur', '--yes', '--overwrite'], {
   env: { ...process.env, REGISTRY_URL: BASE, NO_PROXY: 'localhost,127.0.0.1', no_proxy: 'localhost,127.0.0.1' },
 });
 
@@ -256,6 +261,12 @@ check('code-card chain: jixoai.css (theme) arrived', exists('src/lib/jixoai.css'
 const chainPkg = JSON.parse(readFileSync(join(consumerDir, 'package.json'), 'utf8'));
 const chainDeps = { ...chainPkg.dependencies, ...chainPkg.devDependencies };
 check('code-card chain: npm shiki installed', !!chainDeps.shiki);
+
+// progressive-blur chain (Codex r2 blocking #1): the item imports
+// $lib/utils, so a closed install MUST carry utils.ts; the folder
+// ships its css + barrel, and the App import above compiles it
+check('progressive-blur chain: folder complete', exists('src/lib/ui/progressive-blur/progressive-blur.svelte') && exists('src/lib/ui/progressive-blur/progressive-blur.css') && exists('src/lib/ui/progressive-blur/index.ts'));
+check('progressive-blur chain: $lib/utils resolvable', exists('src/lib/utils.ts'));
 
 console.log('vite build (import resolution + svelte compile gate)…');
 try {

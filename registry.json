@@ -2636,8 +2636,9 @@
       "name": "icon-button",
       "type": "registry:ui",
       "title": "Icon button",
-      "description": "The icon+text button with an explicit two-part contract: icon is the glyph (ALWAYS decorative — wrapped aria-hidden), text is the ONE label (a single string, single-sourced). Variants: normal (icon + text side by side, press-button outline surface) and icon-only (a square size-9 button — text moves to the tooltip and stays the accessible name via aria-label; an icon-only button must say itself). Press law (.jx-press) verbatim; href renders an anchor, hrefs outside \"/\" open in a new tab.",
+      "description": "The icon+text button with an explicit two-part contract: icon is the glyph (ALWAYS decorative — wrapped aria-hidden), text is the ONE label (a single string, single-sourced). Two postures: text (icon + label side by side) and iconOnly (a square on the same 42px band as a text button — the label moves to the tooltip and stays the accessible name via aria-label; an icon-only button must say itself). Composed ON press-button: every paint variant and effect loop, href/external anchoring and the press law pass through verbatim.",
       "registryDependencies": [
+        "@jixoai/press-button",
         "@jixoai/tooltip",
         "@jixoai/jixoai-theme"
       ],
@@ -2653,7 +2654,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: icon (required snippet — the glyph), text (required string — the one label), variant? ('normal' default | 'icon-only'), placement? (tooltip side in icon-only, 'top' default), href?, external?, onclick?, type? ('button'), class?.",
+      "docs": "Props: icon (required snippet — the glyph, always decorative), text (required string — the one label), variant? (press-button paint union, default 'outline'), iconOnly? (boolean — square posture: text moves to the tooltip AND stays aria-label), placement? (tooltip side, icon-only only), effect? (shimmer/pulse/rainbow/ripple — inherited), href?, external?, onclick?, type?, class?. Composed ON press-button: every capability passes through verbatim; the icon-only square rides the same 42px band (size-10.5).",
       "meta": {
         "group": "general",
         "href": "/docs/components/icon-button.html"
@@ -2666,6 +2667,7 @@
       "title": "Progressive blur",
       "description": "The scroll-edge blur atom (Magic UI port, 2026-08-25): stacked masked backdrop-filter bands ramp blur from clear at the inner edge to the full stack at the scrollport edge — content scrolling under its OWN container's edge diffuses instead of slicing. The overlay root is a sticky h-0 pin (zero layout impact, glued to the scrollport edge; abspos-in-scroller scrolls away), so the whole component is markup + css, zero JS. jixoai extension: reveal='scroll' fades the ladder in with the CSS scroll timeline (nothing blurs at rest) — @supports-gated, degrading to no effect.",
       "registryDependencies": [
+        "@jixoai/utils",
         "@jixoai/jixoai-theme"
       ],
       "files": [

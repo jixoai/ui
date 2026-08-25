@@ -17,4 +17,5 @@
 - [x] 10. Codex review round 1 (Herdr, gpt-5.6-terra xhigh): 9.0/10,
       zero blockers; all three non-blocking findings processed
       (probe coverage 4→11, probe resilience, float-button naming)
-- [ ] 11. Codex review round 2 (fix confirmation)
+- [x] 11. Codex review round 2 (fix confirmation): 9.5/10, zero
+      blockers; doc-level findings closed in ad43329 (review-r2.md)

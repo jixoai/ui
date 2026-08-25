@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-25T11:00:09.853Z",
+  "generatedAt": "2026-08-25T12:06:12.717Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -157,8 +157,8 @@
           "source": "registry/files/ui/list-item/item-separator.svelte",
           "mirror": "apps/www/src/lib/ui/list-item/item-separator.svelte",
           "target": "@ui/list-item/item-separator.svelte",
-          "sourceSha": "69a8c4ec75f8ac5bb734b78835fb937fe922ff47776c957037c45006f158e9d5",
-          "mirrorSha": "69a8c4ec75f8ac5bb734b78835fb937fe922ff47776c957037c45006f158e9d5"
+          "sourceSha": "e91d54676393a2133f6f723effc4b85796a3d67cd308ec45a88eeceb3af94958",
+          "mirrorSha": "e91d54676393a2133f6f723effc4b85796a3d67cd308ec45a88eeceb3af94958"
         },
         {
           "source": "registry/files/ui/list-item/item-media.svelte",
@@ -213,8 +213,8 @@
           "source": "registry/files/ui/list-item/item.css",
           "mirror": "apps/www/src/lib/ui/list-item/item.css",
           "target": "@ui/list-item/item.css",
-          "sourceSha": "07653d8e468bcef61937ae8c045625cc82a4e8053cd8a28035533b0beca985b4",
-          "mirrorSha": "07653d8e468bcef61937ae8c045625cc82a4e8053cd8a28035533b0beca985b4"
+          "sourceSha": "064844bb7724b742f5780470fc45acdb603e19c0fce0faa5de2ef362037ddc42",
+          "mirrorSha": "064844bb7724b742f5780470fc45acdb603e19c0fce0faa5de2ef362037ddc42"
         },
         {
           "source": "registry/files/ui/list-item/index.ts",
@@ -800,8 +800,8 @@
           "source": "registry/files/ui/component-canvas/component-canvas.svelte",
           "mirror": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
           "target": "@ui/component-canvas/component-canvas.svelte",
-          "sourceSha": "ae61f09a4544998ca809e69a1d38eab9d9a817bb77dfdab706b9c1387cae152f",
-          "mirrorSha": "ae61f09a4544998ca809e69a1d38eab9d9a817bb77dfdab706b9c1387cae152f"
+          "sourceSha": "af29a4a57eacff41dedc10d63bab04502cc9eaa79bbe27e5a7db98b4bdd4126f",
+          "mirrorSha": "af29a4a57eacff41dedc10d63bab04502cc9eaa79bbe27e5a7db98b4bdd4126f"
         },
         {
           "source": "registry/files/ui/component-canvas/index.ts",
@@ -2067,8 +2067,8 @@
           "source": "registry/files/ui/float-button/float-button.svelte",
           "mirror": "apps/www/src/lib/ui/float-button/float-button.svelte",
           "target": "@ui/float-button/float-button.svelte",
-          "sourceSha": "71170708d5778a078d3083a6d5c9c3ede78ac2eedbb32a0d589f6b5782e6ee28",
-          "mirrorSha": "71170708d5778a078d3083a6d5c9c3ede78ac2eedbb32a0d589f6b5782e6ee28"
+          "sourceSha": "e2bde5030fc4781c9be22ab134b25022ed0f6fc9558a62333b12d960bcefc6fc",
+          "mirrorSha": "e2bde5030fc4781c9be22ab134b25022ed0f6fc9558a62333b12d960bcefc6fc"
         },
         {
           "source": "registry/files/ui/float-button/index.ts",
