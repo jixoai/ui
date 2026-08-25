@@ -87,3 +87,34 @@ clean instance none of the main-session IAB input quirks reproduced
 IAB session's input synthesis, not the components. The main-session
 proxy (127.0.0.1:17890) also explains the localhost 502s seen via
 curl (bypass: --noproxy / [::1]).
+
+## r2 (Owner feedback) + the Codex review loop (2026-08-25 evening)
+
+The Owner reported the effect invisible and clarified the intended
+design: a STICKY HEAD (title + filter pinned) with the list scrolling
+under it through the progressive blur — r2 rebuilt the rail exactly so
+(head z-10 over the band z-[5], inset inside the sticky box), and the
+docs demo leads with that composition.
+
+Codex review (herdr, gpt-5.6-terra, xhigh) — three rounds:
+
+| round | score | blockers found | fixed in |
+| --- | --- | --- | --- |
+| r1 | 4.5/10 | Escape didn't close (preventDefault cancels the native close request); popover didn't ship surface-motion (clean-install chain broken); docs page flat-era paths | dab4c55 |
+| r2 | 6.0/10 | progressive-blur missing @jixoai/utils (single-item install uncompilable); committed manifest carried the concurrent session's uncommitted hashes (clean-checkout gate red) | a304866 |
+| r3 | **9.0/10 — accepted, zero blockers** | — (residual: 8-layer backdrop-filter cost = documented, blurLevels-configurable limit; popover immutable-id + handles-container warnings = pre-existing low-risk contracts) | — |
+
+Round-2/r3 additions beyond the blockers: aria-controls on the mobile
+expand toggle (stable id on the viewport), data-reveal→data-variant
+rename (the docs entrance system's bare [data-reveal] selector was
+driving a view()-timeline transform that pinned the band ~10px off the
+clip edge — vision-review finding, band gap now 0), blurLevels < 2
+normalization, :where() wrapping, and the verify-shadcn-add harness now
+installs + compiles progressive-blur in the scratch consumer (the
+regression gate for the install chain).
+
+Vision review r2 (real Chromium + analyzer + DOM cross-checks): 10/10
+after the attribute rename — head pinned byte-identically across
+scrollTop 0→1417, entries diffuse progressively under it, pinned text
+crisp, band within bounds, rest state clean; the reveal ramp measured
+exactly linear (0 → 0.5 at 36px → 1.0 at 72px).
