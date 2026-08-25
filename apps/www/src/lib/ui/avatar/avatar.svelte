@@ -95,7 +95,16 @@
   // one geometry, deterministic per combination: the size owns the box,
   // the silhouette owns the corners (bevel's cut scales with the box —
   // md IS the var(--radius) baseline, sm/lg ride the same proportion)
-  const sizeUtilities = { sm: 'w-6 h-6', md: 'w-8 h-8', lg: 'w-10 h-10' } as const;
+  // md is CONTEXT-OWNED: inside a list-item media host the provider
+  // injects --jx-avatar-md (the derived media square) so the avatar
+  // fills its box with zero override fights (utilities layer keeps
+  // winning over component css — so the size RIDES a token instead);
+  // everywhere else the fallback keeps the classic 2rem
+  const sizeUtilities = {
+    sm: 'w-6 h-6',
+    md: 'w-[var(--jx-avatar-md,2rem)] h-[var(--jx-avatar-md,2rem)]',
+    lg: 'w-10 h-10',
+  } as const;
   const variantUtilities = {
     bevel: {
       sm: '[corner-shape:bevel] rounded-[calc(var(--radius)*0.75)]',

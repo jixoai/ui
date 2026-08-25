@@ -33,7 +33,7 @@ const row = (parts, extra = '') =>
   `<li data-slot="item-row"><div class="jx-item"${extra ? ` ${extra}` : ''}>${parts}</li></div>`.replace('</li></div>', '</div></li>');
 const media = slot('item-media', 'data-variant="image"');
 const content = (t) => `<div data-slot="item-content"><span>${t}</span></div>`;
-const end = (t, wrap = 'auto') => `<div data-slot="item-end" data-wrap="${wrap}">${t}</div>`;
+const end = (t, wrap = 'auto') => `<div data-slot="item-end" data-wrap="${wrap}"><span data-slot="item-after">${t}</span></div>`;
 
 const wide = `
 <ul data-slot="item-list" data-ruler="media-content-end" data-dividers="auto">
@@ -47,6 +47,9 @@ const narrow = `
 <ul data-slot="item-list" data-ruler="content-end">
   ${row(content('auto row label') + end('WRAPS', 'auto'))}
   ${row(content('never row label') + end('STAYS', 'never'))}
+</ul>
+<ul data-slot="item-list" data-ruler="media-content-end" id="narrow-chevron">
+  ${row(media + content('separator') + `<div data-slot="item-end" data-wrap="auto"><span data-slot="item-chevron">›</span></div>`)}
 </ul>`;
 // the Owner's defect scene: the checkbox-group shape (field rows in a
 // narrow column) — content + a control end lane, wrap=never
@@ -118,6 +121,10 @@ const geom = await page.evaluate(() => {
   const neverEnd = [...narrowList.querySelectorAll('[data-slot="item-end"]')][1].getBoundingClientRect();
   const neverContent = [...narrowList.querySelectorAll('[data-slot="item-content"]')][1].getBoundingClientRect();
 
+  const chevList = document.getElementById('narrow-chevron');
+  const chevContent = chevList.querySelector('[data-slot="item-content"]').getBoundingClientRect();
+  const chevEnd = chevList.querySelector('[data-slot="item-end"]').getBoundingClientRect();
+
   const cbx = document.getElementById('cbx');
   const cbxContent = cbx.querySelector('[data-slot="item-content"]').getBoundingClientRect();
   const cbxEnd = cbx.querySelector('[data-slot="item-end"]').getBoundingClientRect();
@@ -138,6 +145,7 @@ const geom = await page.evaluate(() => {
     autoEndFullWidth: Math.abs(autoEnd.left - [...narrowList.querySelectorAll('[data-slot="item-content"]')][0].getBoundingClientRect().left) < 1,
     neverInline: neverEnd.left > neverContent.right && Math.abs(neverEnd.top - neverContent.top) < neverContent.height,
     cbxBeside: cbxEnd.left > cbxContent.right && cbxEnd.top < cbxContent.bottom && cbxEnd.bottom > cbxContent.top,
+    chevInline: chevEnd.left > chevContent.right && Math.abs(chevEnd.top - chevContent.top) < chevContent.height,
   };
 });
 
@@ -156,6 +164,7 @@ check('divider spans the ruler', geom.dividerSpans === true);
 check('narrow auto end takes its own full row', geom.autoEndBelow === true && geom.autoEndFullWidth === true);
 check('narrow never end stays on the shared line', geom.neverInline === true);
 check('checkbox scene: control BESIDE label (never stacked)', geom.cbxBeside === true);
+check('chevron-only lane stays on the main row at narrow', geom.chevInline === true);
 
 await browser.close();
 server.close();
