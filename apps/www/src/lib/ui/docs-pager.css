@@ -44,11 +44,13 @@
   align-items: baseline;
   font-size: 0.8125rem;
 }
-:where(.jx-docs-pager-related li)::before {
-  content: '>';
-  color: var(--primary);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
+:where(.jx-docs-pager .jx-dp-ico) {
+  display: inline-flex;
+  align-items: center;
+}
+:where(.jx-docs-pager .jx-dp-ico svg) {
+  width: 0.75rem;
+  height: 0.75rem;
 }
 :where(.jx-docs-pager-related a) {
   color: var(--muted-foreground);

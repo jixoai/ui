@@ -63,7 +63,7 @@
                   href={pg.href}
                   aria-current={hrefNormalized(pg.href) === normalized ? 'page' : undefined}
                 >
-                  <span class="text-primary col-start-1 row-start-1 font-mono text-xs" aria-hidden="true">&gt;</span>
+                  <span class="text-primary col-start-1 row-start-1 flex items-center [&_svg]:h-3 [&_svg]:w-3" aria-hidden="true">{@html icons.arrowRight}</span>
                   <span class="col-start-2 row-start-1 flex items-baseline gap-2">
                     <span class="font-mono text-xs">{pg.title}</span>
                     {#if pg.count !== undefined}

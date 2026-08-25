@@ -17,6 +17,7 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { docsComponentGroups, docsSections } from '$lib/docs-route-model';
+  import { icons } from '$lib/icons';
 
   const normalized = $derived(
     page.url.pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/',
@@ -118,7 +119,7 @@
         onkeydown={onFilterKeydown}
       />
       {#if filter}
-        <button type="button" class="jx-dsn-clear" aria-label="Clear the filter" onclick={() => (filter = '')}>×</button>
+        <button type="button" class="jx-dsn-clear" aria-label="Clear the filter" onclick={() => (filter = '')}>{@html icons.x}</button>
       {/if}
     </div>
     <div data-jx-dsn-groups>
@@ -190,7 +191,7 @@
           onkeydown={onFilterKeydown}
         />
         {#if filter}
-          <button type="button" class="jx-dsn-clear" aria-label="Clear the filter" onclick={() => (filter = '')}>×</button>
+          <button type="button" class="jx-dsn-clear" aria-label="Clear the filter" onclick={() => (filter = '')}>{@html icons.x}</button>
         {/if}
       </div>
       {#if needle && visibleSections.length === 0}
@@ -313,7 +314,6 @@
     background: none;
     color: var(--muted-foreground);
     font-family: var(--font-mono);
-    font-size: 0.75rem;
     line-height: 1;
     cursor: pointer;
   }
