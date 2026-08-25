@@ -1,80 +1,69 @@
 <!--
-  jixoai steps (registry/files/ui/steps.svelte).
-  The wizard progress: an ol of steps where ORDER is the semantics.
-  The ruling on clickability: COMPLETED steps are links back (the
-  user already owns that state), the CURRENT step is aria-current,
-  FUTURE steps are inert (never aria-disabled — they are not disabled
-  controls, they simply are not yet reachable).
+  jixoai steps — the ROOT half (registry/files/ui/steps/steps.svelte,
+  composition-first-apis, 2026-08-25).
+  The wizard progress as a composed family (shadcn-vue Stepper law):
+  the root owns ONLY the shared state — `current`, 0-based, bindable —
+  and hands it to the subtree through context (Symbol.for, so family
+  files stay independent registry items):
 
-  The connector is a CSS line between markers; the marker for a
-  completed step carries a check glyph. onstepclick receives the index
-  of a completed step the user re-entered.
+    <Steps bind:current>
+      <StepsItem step={0} onclick={() => go(0)}>   ← REQUIRED ordinal;
+                                                       state = pure
+                                                       comparison
+        <StepsIndicator />                          ← number → ✓ when
+                                                       done; THE button
+                                                       when onclick+done
+        <StepsTitle>connect</StepsTitle>
+        <StepsDescription>link the repo</StepsDescription>
+        <StepsSeparator />                          ← self-hides on the
+                                                       last item (css)
+      </StepsItem>
+    </Steps>
 
-  tw4 (2026-08-24): utility-authored — marker/title state paints map
-  to conditional color utilities in the markup; ONLY the connector
-  pseudo build (a ::after line with its done-state repaint) stays in
-  steps.css. `jx-step*` classes are semantic hooks, css defines them
-  (the connector) or nothing (the rest).
+  Ordinals are caller truth (the family context contract): state is a
+  pure `step < / == / > current` comparison computed inside each Item,
+  so duplicates paint every match current and gaps simply paint no
+  current — nothing to corrupt, zero registration.
 -->
+<script lang="ts" module>
+  /** context surface the family shares (import type where needed) */
+  export interface StepsApi {
+    /** 0-based index of the current step — the one source of truth */
+    readonly current: number;
+  }
+
+  /** context key — global symbol registry, independent registry items */
+  export const STEPS_KEY = Symbol.for('jx-steps');
+</script>
+
 <script lang="ts">
+  import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
+  import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
   import './steps.css';
 
-  export interface StepItem {
-    title: string;
-    description?: string;
-  }
-
-  interface Props {
-    steps: StepItem[];
-    /** 0-based index of the current step */
-    current: number;
-    /** fired when the user re-enters a COMPLETED step */
-    onstepclick?: (index: number) => void;
+  interface Props extends HTMLAttributes<HTMLOListElement> {
+    /** 0-based ordinal of the current step; bindable (bind:current) */
+    current?: number;
     class?: string;
+    children: Snippet;
   }
 
-  let { steps, current, onstepclick, class: className = '' }: Props = $props();
+  let {
+    current = $bindable(0),
+    class: className = '',
+    children,
+    ...rest
+  }: Props = $props();
 
-  const markerPaint = {
-    done: 'border-primary bg-card text-primary',
-    current: 'border-primary bg-primary text-primary-foreground',
-    todo: 'border-border bg-card text-muted-foreground',
-  } as const;
+  setContext<StepsApi>(STEPS_KEY, {
+    get current() {
+      return current;
+    },
+  });
 </script>
 
-<ol data-jx-steps="" class={cn('flex flex-wrap', className)} role="list">
-  {#each steps as step, index (index)}
-    {@const state = index < current ? 'done' : index === current ? 'current' : 'todo'}
-    <li
-      data-jx-step={state}
-      class={cn('jx-step relative flex flex-1 items-start gap-2.5 min-w-[9rem] pr-4', state === 'done' && 'jx-step-done')}
-      aria-current={state === 'current' ? 'step' : undefined}
-    >
-      {#if state === 'done' && onstepclick}
-        <button
-          type="button"
-          data-jx-step-marker=""
-          class={cn(
-            'flex-none inline-flex items-center justify-center size-6 border font-nav text-[0.6875rem] cursor-pointer hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
-            markerPaint[state],
-          )}
-          aria-label="completed: {step.title} — go back"
-          onclick={() => onstepclick?.(index)}
-        >
-          <span data-jx-step-index="" aria-hidden="true">✓</span>
-        </button>
-      {:else}
-        <span data-jx-step-marker="" class={cn('flex-none inline-flex items-center justify-center size-6 border font-nav text-[0.6875rem]', markerPaint[state])} aria-hidden="true">
-          <span data-jx-step-index="">{index + 1}</span>
-        </span>
-      {/if}
-      <span data-jx-step-text="" class="flex min-w-0 flex-col gap-[0.125rem]">
-        <span data-jx-step-title="" class={cn('font-nav text-xs tracking-[0.08em] uppercase', state === 'current' ? 'text-foreground' : 'text-muted-foreground')}>{step.title}</span>
-        {#if step.description}
-          <span data-jx-step-desc="" class="text-xs leading-[1.45] text-muted-foreground opacity-80">{step.description}</span>
-        {/if}
-      </span>
-    </li>
-  {/each}
+<ol data-jx-steps="" class={cn('flex flex-wrap', className)} {...rest} role="list">
+  {@render children()}
 </ol>

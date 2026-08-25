@@ -1,45 +1,60 @@
 <!--
-  jixoai descriptions (registry/files/ui/descriptions.svelte).
-  The enterprise detail view (antd's staple), W3C-first: a dl IS a
-  description list — dt/dd pairs in source order, laid out as a grid
-  of term/value cells. The ruling: descriptions never disguises as a
-  table; the bordered look is CSS on the same dl, not different
-  semantics. columns=N splits rows into N term/value pairs per row
-  (responsive down to 1 on narrow containers via container queries —
-  the consumer's container owns the width).
+  jixoai descriptions — the ROOT half (registry/files/ui/descriptions.svelte,
+  composition-first-apis, 2026-08-25).
+  The enterprise detail view (antd's staple), W3C-first and now
+  composed: a dl IS a description list — dt/dd pairs in source order,
+  laid out as a grid of term/value cells, one DescriptionsItem per
+  pair:
 
-  tw4 (2026-08-24): static paint + the column math ride token
-  utilities in the markup (columns flow through the --jx-desc-cols
-  custom property on an arbitrary-value grid template); ONLY the
-  narrow-container @container fallback stays in descriptions.css —
-  D1-exempt residue (container queries on the element itself never
-  self-match, so no utility can express it).
+    <Descriptions columns={2} bordered>
+      <DescriptionsItem term="Owner">gaubee</DescriptionsItem>
+    </Descriptions>
+
+  The ruling stands: descriptions never disguises as a table; the
+  bordered look is CSS on the same dl, not different semantics.
+  columns=N splits rows into N term/value pairs per row (responsive
+  down to 1 on narrow containers via container queries — the
+  consumer's container owns the width). Both are HOW-props (they
+  change how the grid paints, never what renders) and stay on the
+  root; `bordered` rides context down to the Items for their hairline
+  paint.
 -->
-<script lang="ts">
-  export interface DescriptionItem {
-    term: string;
-    /** plain value text; compose richer cells through the value snippet */
-    value?: string;
+<script lang="ts" module>
+  /** context surface the family shares (import type where needed) */
+  export interface DescriptionsApi {
+    /** the bordered hairline frame — Items paint their cell edges from it */
+    readonly bordered: boolean;
   }
 
-  interface Props {
-    items: DescriptionItem[];
+  /** context key — global symbol registry, independent registry items */
+  export const DESCRIPTIONS_KEY = Symbol.for('jx-descriptions');
+</script>
+
+<script lang="ts">
+  import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
+  import { setContext } from 'svelte';
+  import { cn } from '$lib/utils';
+  import './descriptions.css';
+
+  interface Props extends HTMLAttributes<HTMLDListElement> {
     /** term/value pairs per row (default 1; responsive clamp to 1) */
     columns?: number;
     /** hairline cell borders (the "bordered" antd look, CSS not table) */
     bordered?: boolean;
-    /** optional per-item rich cell — snippet keyed by the item */
-    value?: Snippet<[DescriptionItem, number]>;
     class?: string;
+    children: Snippet;
   }
 
-  let { items, columns = 1, bordered = false, value, class: className = '' }: Props = $props();
-
-  import type { Snippet } from 'svelte';
-  import { cn } from '$lib/utils';
-  import './descriptions.css';
+  let { columns = 1, bordered = false, class: className = '', children, ...rest }: Props = $props();
 
   const cols = $derived(Math.max(1, Math.min(4, Math.trunc(columns))));
+
+  setContext<DescriptionsApi>(DESCRIPTIONS_KEY, {
+    get bordered() {
+      return bordered;
+    },
+  });
 </script>
 
 <dl
@@ -49,18 +64,8 @@
     bordered && 'border border-border bg-card',
     className,
   )}
+  {...rest}
   style="--jx-desc-cols: {cols}"
 >
-  {#each items as item, index (item.term + index)}
-    <div data-jx-desc-cell="" class={cn('grid grid-cols-[minmax(7rem,12rem)_1fr] min-w-0', bordered && 'border-b border-border')}>
-      <dt data-jx-desc-term="" class={cn('truncate px-3 py-2 font-nav text-[0.6875rem] tracking-[0.12em] uppercase text-muted-foreground', bordered && 'bg-muted border-r border-border')}>{item.term}</dt>
-      <dd data-jx-desc-value="" class="m-0 px-3 py-2 text-[0.8125rem] leading-[1.5] text-foreground min-w-0 [overflow-wrap:anywhere]">
-        {#if value}
-          {@render value(item, index)}
-        {:else}
-          {item.value ?? '—'}
-        {/if}
-      </dd>
-    </div>
-  {/each}
+  {@render children()}
 </dl>

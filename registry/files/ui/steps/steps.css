@@ -1,13 +1,23 @@
 @layer theme, base, components, utilities;
 
-/* jixoai steps — D1-exempt residue (tw4, 2026-08-24): ONLY the
- * connector pseudo build remains — a ::after line running from this
- * marker toward the next, repainted primary by the done state. All
- * static and same-element state paint lives as token utilities in
- * the markup (the :where keeps the residue consumer-overridable). */
+/* jixoai steps — connector residue (composition-first-apis, 2026-08-25).
+ * ONLY the connector pseudo build lives here, keyed on REAL DOM hooks
+ * (the default-parts law: component names never appear in the DOM):
+ *
+ *   [data-jx-step-separator]           the authored overlay; its ::after
+ *                                      is the line running from this
+ *                                      marker toward the next
+ *   [data-jx-step='done']              the owning li's state paint —
+ *                                      repaints its connector primary
+ *   [data-jx-step-item]:last-child     the self-hide chrome exception:
+ *                                      the last item's separator never
+ *                                      shows
+ *
+ * All same-element paint lives as token utilities in the markup (the
+ * :where keeps the residue consumer-overridable under the layer law). */
 
 @layer components {
-  :where(.jx-step:not(:last-child))::after {
+  :where([data-jx-step-separator])::after {
     content: '';
     position: absolute;
     top: 0.75rem;
@@ -16,7 +26,10 @@
     height: 1px;
     background: var(--border);
   }
-  :where(.jx-step-done:not(:last-child))::after {
+  :where([data-jx-step='done']) :where([data-jx-step-separator])::after {
     background: var(--primary);
+  }
+  :where([data-jx-step-item]:last-child) [data-jx-step-separator] {
+    display: none;
   }
 }

@@ -1,14 +1,26 @@
 @layer theme, base, components, utilities;
 
-/* jixoai timeline — D1-exempt residue (tw4, 2026-08-24): ONLY the
- * spine, a pseudo-element build no utility can express. Static
- * geometry that overrides no utility paint, so it lives in
- * @layer components (the ORDER LAW keeps this sheet from ever
- * reordering the cascade). */
+/* jixoai timeline — spine + pending residue (composition-first-apis,
+ * 2026-08-25). Keyed on REAL DOM hooks (the default-parts law:
+ * component names never appear in the DOM):
+ *
+ *   [data-jx-tl-connector]        the authored overlay; its ::before
+ *                                 is the spine segment through the dot
+ *   [data-jx-tl-item]:last-child  the self-hide chrome exception: the
+ *                                 last entry's connector never shows
+ *   [data-jx-tl-dot]              the marker fill — primary, hollowed
+ *                                 (transparent) under pending
+ *   [data-jx-tl-title]            the headline color — foreground,
+ *                                 muted under pending
+ *
+ * The pending pair is ATTRIBUTE PAINT on purpose (design law): the Dot
+ * and Title parts stay stateless; the state lives on the item's
+ * data-jx-tl-pending attribute alone. Both colors live here (base +
+ * pending override, source order) so consumer utilities still win by
+ * the layer law. */
 
 @layer components {
-  /* the spine: one 1px line through every dot */
-  .jx-tl-item::before {
+  :where([data-jx-tl-connector])::before {
     content: '';
     position: absolute;
     left: 0.3125rem;
@@ -17,8 +29,19 @@
     width: 1px;
     background: var(--border);
   }
-  .jx-tl-item:last-child::before {
-    bottom: auto;
-    height: 0;
+  :where([data-jx-tl-item]:last-child) [data-jx-tl-connector] {
+    display: none;
+  }
+  :where([data-jx-tl-dot]) {
+    background: var(--primary);
+  }
+  :where([data-jx-tl-pending]) :where([data-jx-tl-dot]) {
+    background: transparent;
+  }
+  :where([data-jx-tl-title]) {
+    color: var(--foreground);
+  }
+  :where([data-jx-tl-pending]) :where([data-jx-tl-title]) {
+    color: var(--muted-foreground);
   }
 }
