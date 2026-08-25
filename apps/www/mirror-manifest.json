@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-25T19:27:28.415Z",
+  "generatedAt": "2026-08-25T19:52:50.581Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -747,8 +747,8 @@
           "source": "registry/files/ui/popover/popover.css",
           "mirror": "apps/www/src/lib/ui/popover/popover.css",
           "target": "@ui/popover/popover.css",
-          "sourceSha": "29d485454af921738a2e8ea1a4f46fa7bca8b338ec4f68b0c65b841e5b8c7a6b",
-          "mirrorSha": "29d485454af921738a2e8ea1a4f46fa7bca8b338ec4f68b0c65b841e5b8c7a6b"
+          "sourceSha": "979953090c19c73df8a210fa40ea77112a475b6dbe264bd9d6653b35e1818708",
+          "mirrorSha": "979953090c19c73df8a210fa40ea77112a475b6dbe264bd9d6653b35e1818708"
         },
         {
           "source": "registry/files/lib/surface-motion.ts",
