@@ -66,9 +66,11 @@
   const autoId = $props.id();
   const anchorName = $derived(`--jx-fab-${autoId.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
   let open = $state(false);
-  // the menu popover panel (`btn`) and the fixed stack wrapper carrying
+  // the menu popover panel and the fixed stack wrapper carrying
   // anchor-name — the kernel measures the slide axis panel↔anchor, live
-  let btn = $state<HTMLButtonElement | null>(null);
+  // (Codex r1 review: the panel is a <div popover=auto> — a `btn` name
+  // + HTMLButtonElement type misdescribed the binding)
+  let panel = $state<HTMLDivElement | null>(null);
   let anchorEl = $state<HTMLElement | null>(null);
 
   // ── MOTION KERNEL — the shared declarative half (r29): see
@@ -76,7 +78,7 @@
   // (--jx-p); every visible property is a CSS formula of it (the
   // declarative motion law in jixoai.css). The kernel here only wires
   // the menu's toggle seam and the live stack anchor
-  const motion = createSurfaceMotion(() => btn, { anchor: () => anchorEl });
+  const motion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
 
   onDestroy(() => motion.destroy());
 
@@ -107,7 +109,7 @@
       role="menu"
       class={cn('jx-fab-menu jx-surface', motion.supported && 'jx-waapi')}
       data-variant={variant}
-      bind:this={btn}
+      bind:this={panel}
       style="position-anchor: {anchorName}; inset-area: top span-right; position-area: top span-right;"
       ontoggle={(e: Event) => {
         const el = e.currentTarget as HTMLElement;

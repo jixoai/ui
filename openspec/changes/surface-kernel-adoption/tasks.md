@@ -11,6 +11,10 @@
 - [x] 7. ZCode gates: shadcn build + verify:mirror + vitest + manifest
 - [x] 8. Cross-batch fixes: menubar per-panel kernels (glide ghost),
       surfaceMotionSupported export; per-batch commits
-- [x] 9. Browser walkthrough (verify-kernel-adoption 14/14 GREEN;
-      verify:surface 46/47, the failure pre-exists on f87ec87)
-- [ ] 10. Codex review round (Herdr, async) + iterate
+- [x] 9. Browser walkthrough (verify-kernel-adoption — FULL 11-adopter
+      matrix 34/34 GREEN after Codex r1; verify:surface 46/47, the
+      failure pre-exists on f87ec87)
+- [x] 10. Codex review round 1 (Herdr, gpt-5.6-terra xhigh): 9.0/10,
+      zero blockers; all three non-blocking findings processed
+      (probe coverage 4→11, probe resilience, float-button naming)
+- [ ] 11. Codex review round 2 (fix confirmation)

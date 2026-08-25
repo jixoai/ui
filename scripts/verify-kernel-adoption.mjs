@@ -57,6 +57,17 @@ const browser = await chromium.launch({ executablePath: findChrome() });
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 await page.addInitScript(() => localStorage.setItem('theme', 'light'));
 
+/** section runner: a navigation/context teardown mid-section becomes a
+ *  FAIL row, never a crash (Codex r1 review: reruns died on destroyed
+ *  contexts) */
+async function section(name, fn) {
+  try {
+    await fn();
+  } catch (e) {
+    check(`${name}: section ran`, false, String(e).slice(0, 120));
+  }
+}
+
 async function openPage(path) {
   await page.goto(`${BASE}/docs/components/${path}.html`);
   await page.waitForLoadState('networkidle').catch(() => {});
@@ -99,9 +110,43 @@ const keySample = async (key, panelSel, dur) => {
   }), [panelSel, dur]);
 };
 
+/** the generic adopter probe: open via `trigSel` click, verify the
+ *  kernel structure + entry timeline, close via Escape, verify the
+ *  exit timeline. `trusted: true` opens with a REAL locator click —
+ *  focus-driven openers (combobox/tags-input inputs) never respond
+ *  to synthetic el.click(), which fires no focus event. `type` adds
+ *  keystrokes after the click (tags-input's panel follows the
+ *  filter: no matching suggestion → no panel) */
+async function probeAdopter(name, page_, trigSel, panelSel, trusted = false, type = '') {
+  let entry;
+  if (trusted) {
+    await page_.locator(trigSel).first().click();
+    if (type) await page_.keyboard.type(type, { delay: 20 });
+    entry = await page_.evaluate((s) => new Promise((resolve) => {
+      const el = document.querySelector(s);
+      const out = [];
+      const t0 = performance.now();
+      const step = () => {
+        const cs = getComputedStyle(el);
+        out.push({ p: Number(cs.getPropertyValue('--jx-p')) || 0, disp: cs.display, cls: el.className });
+        if (performance.now() - t0 < 700) requestAnimationFrame(step);
+        else resolve(out);
+      };
+      requestAnimationFrame(step);
+    }), panelSel);
+  } else {
+    entry = await clickSample(trigSel, panelSel, 700);
+  }
+  const cls = entry.at(-1)?.cls ?? '';
+  check(`${name}: jx-waapi + shadow child while open`, cls.includes('jx-waapi') && !!await page_.evaluate((s) => !!document.querySelector(`${s} .jx-surface-shadow`), panelSel), cls);
+  check(`${name}: entry drives --jx-p 0→1`, rises(entry), ps(p0(entry)));
+  const exit = await keySample('Escape', panelSel, 700);
+  check(`${name}: exit drives --jx-p down`, falls(exit), ps(p0(exit)));
+}
+
 // ── 1. dropdown-menu ─────────────────────────────────────────────
 await openPage('dropdown-menu');
-{
+await section('dropdown-menu', async () => {
   const panel = '.jx-menu.jx-surface';
   const entry = await clickSample('button[data-jx-menu-trigger]', panel, 700);
   const cls = entry.at(-1)?.cls ?? '';
@@ -111,11 +156,11 @@ await openPage('dropdown-menu');
   const exit = await keySample('Escape', panel, 700);
   check('dropdown-menu: exit drives --jx-p down', falls(exit), ps(p0(exit)));
   check('dropdown-menu: allow-discrete holds panel through exit', exit.some((f) => f.disp !== 'none' && f.p < 0.5));
-}
+});
 
 // ── 2. menubar: glide isolation (close A → open B) ────────────────
 await openPage('menubar');
-{
+await section('menubar', async () => {
   const ids = await page.evaluate(() => [...document.querySelectorAll('[id^="jx-bar-trigger-"]')].map((b) => b.id));
   check('menubar: ≥2 triggers on the page', ids.length >= 2, `${ids.length} found: ${ids.join(',')}`);
   if (ids.length >= 2) {
@@ -127,37 +172,33 @@ await openPage('menubar');
     await page.click(`#jx-bar-trigger-${a}`);
     await page.waitForTimeout(560); // A fully open, then glide
     await page.click(`#jx-bar-trigger-${b}`);
-    const glide = await page.evaluate(([ai, bi]) => {
+    const glide = await page.evaluate(([ai, bi]) => new Promise((resolve) => {
       const ea = document.getElementById(`jx-bar-panel-${ai}`);
       const eb = document.getElementById(`jx-bar-panel-${bi}`);
       const out = { a: [], b: [] };
       const t0 = performance.now();
-      const step = () => {
+      const tick = () => {
         out.a.push(Number(getComputedStyle(ea).getPropertyValue('--jx-p')) || 0);
         out.b.push(Number(getComputedStyle(eb).getPropertyValue('--jx-p')) || 0);
-        if (performance.now() - t0 < 700) requestAnimationFrame(step);
-        return Promise.resolve(out);
+        if (performance.now() - t0 < 700) requestAnimationFrame(tick);
+        else resolve(out);
       };
-      return new Promise((resolve) => {
-        const tick = () => {
-          const v = step();
-          if (performance.now() - t0 >= 700) resolve(v);
-          else requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
-      });
-    }, [a, b]);
-    check('menubar: glide — A exits (p falls)', glide.a[0] >= 0.9 && glide.a.at(-1) < glide.a[0], ps(glide.a));
+      requestAnimationFrame(tick);
+    }), [a, b]);
+    // 0.85 not 0.9: rAF sampling can miss A's exact rest frame (Codex
+    // r1 review saw 0.893 land first) — the assertion needs "A was
+    // essentially at rest", not frame-exact rest
+    check('menubar: glide — A exits (p falls)', glide.a[0] >= 0.85 && glide.a.at(-1) < glide.a[0], ps(glide.a));
     check('menubar: glide — B enters (p rises to rest)', glide.b.at(-1) >= 0.9, ps(glide.b));
     check('menubar: glide — A not ghost-pinned at 1', !glide.a.every((v) => v >= 0.999));
     await page.keyboard.press('Escape');
     await page.waitForTimeout(600);
   }
-}
+});
 
 // ── 3. hover-card (Pattern C, no ontoggle) ────────────────────────
 await openPage('hover-card');
-{
+await section('hover-card', async () => {
   const state = await page.evaluate(() => {
     const anchor = document.querySelector('[data-jx-hover-anchor]');
     anchor?.dispatchEvent(new PointerEvent('pointerenter', { bubbles: false }));
@@ -176,19 +217,44 @@ await openPage('hover-card');
     return new Promise((resolve) => setTimeout(() => resolve(document.querySelector('.jx-hover-card')?.matches(':popover-open') === false), 350));
   });
   check('hover-card: closes on pointer exit', closed);
+});
+
+// ── 4-11. the full adopter matrix (Codex r1 review: coverage was
+//    4/11; every adopter now gets the same entry/exit probe) ────────
+const adopters = [
+  ['select', 'select', '.jx-sel-trigger', '.jx-sel-panel', false],
+  ['combobox', 'combobox', '.jx-combobox-shell input', '.jx-combobox-panel', true],
+  ['tags-input', 'tags-input', '.jx-tags-shell input', '.jx-tags-panel', true, 's'],
+  ['date-picker', 'date-picker', '.jx-date-trigger', '.jx-date-panel', false],
+  ['color-picker', 'color-picker', '.jx-color-picker-trigger', '.jx-color-picker-panel', false],
+  ['popconfirm', 'popconfirm', '[data-jx-pc-anchor] button', '.jx-pc', false],
+  ['float-button', 'float-button', '[data-jx-fab-stack] > button.jx-press', '.jx-fab-menu', false],
+];
+for (const [name, route, trig, panelSel, trusted, type] of adopters) {
+  await openPage(route);
+  await section(name, async () => {
+    await probeAdopter(name, page, trig, panelSel, trusted, type);
+  });
 }
 
-// ── 4. select (listbox family representative) ────────────────────
-await openPage('select');
-{
-  const panel = '.jx-sel-panel';
-  const entry = await clickSample('.jx-sel-trigger', panel, 700);
-  const cls = entry.at(-1)?.cls ?? '';
-  check('select: jx-waapi + shadow child', cls.includes('jx-waapi') && !!await page.evaluate((s) => !!document.querySelector(`${s} .jx-surface-shadow`), panel), cls);
-  check('select: entry drives --jx-p 0→1', rises(entry), ps(p0(entry)));
-  const exit = await keySample('Escape', panel, 700);
-  check('select: exit drives --jx-p down', falls(exit), ps(p0(exit)));
-}
+// ── tour: entry + structure (the exit is the documented instant-
+//    close gap — no panel survives the unmount, nothing to sample) ──
+await openPage('tour');
+await section('tour', async () => {
+  await page.getByRole('button', { name: 'start the tour' }).click();
+  const state = await page.evaluate(() => new Promise((resolve) => {
+    const el = document.querySelector('.jx-tour');
+    setTimeout(() => {
+      const cs = getComputedStyle(el);
+      resolve({ cls: el?.className ?? '', p: Number(cs.getPropertyValue('--jx-p')) || 0, open: el?.matches(':popover-open') });
+    }, 700);
+  }));
+  check('tour: opens with kernel (p→1, jx-waapi, shadow child)', state.open && state.cls.includes('jx-waapi') && state.p >= 0.9 && !!await page.evaluate(() => !!document.querySelector('.jx-tour .jx-surface-shadow')), JSON.stringify(state));
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(200);
+  const closed = await page.evaluate(() => !document.querySelector('.jx-tour')?.matches(':popover-open'));
+  check('tour: closes on Escape', closed);
+});
 
 await browser.close();
 const failed = results.filter((r) => !r.ok);

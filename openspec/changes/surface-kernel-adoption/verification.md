@@ -65,3 +65,23 @@ The Owner's other session worked the same tree concurrently
 surface-motion.ts, mirror-manifest.json and registry.json before this
 change's own commits landed. History accepted as-is (no rebase on a
 live tree); the feature commit below carries the 11 components.
+
+## Codex review round 1 (2026-08-25, gpt-5.6-terra xhigh, Herdr)
+
+Verdict: **9.0/10, zero blocking issues** (independently re-ran
+build / verify:mirror / vitest 356/356 / probe 14/14). Non-blocking
+findings, all processed this round:
+
+1. probe covered 4/11 adopters → extended to the FULL matrix
+   (34 checks GREEN): combobox/tags-input need TRUSTED clicks
+   (focus-driven openers ignore synthetic clicks — no focus event)
+   and tags-input needs a typed query (the panel follows the
+   filter); tour gets entry + structure checks (its exit is the
+   documented instant-close gap)
+2. probe timing false-fails → menubar glide threshold 0.9→0.85
+   (rAF can miss A's exact rest frame), per-section try/catch so a
+   destroyed context FAILs a row instead of crashing the run
+3. float-button's panel state was named `btn` typed
+   HTMLButtonElement (pre-existing, now kernel-load-bearing) →
+   renamed `panel: HTMLDivElement | null`, mirrors synced
+
