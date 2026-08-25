@@ -92,6 +92,18 @@
         e.g. '--try-top, --try-bottom-end' authored on the consumer side.
         Empty/undefined = flip-block, flip-inline (the engine default) */
     tryFallbacks?: string;
+    /** anchor gap, MARGIN semantics (2026-08-26, Owner ruling): number
+        → N px on all sides (uniform — also insets the inline alignment
+        edges); or a full 1–4 value CSS margin shorthand ("8px 0 0 0")
+        to gap ONLY the side facing the anchor while the inline edges
+        stay flush-aligned with the trigger. Default 0 = the r22 flush
+        law. Known limits: position-try flips do not mirror margins —
+        a flipped state hugs flush again; placement="center" with
+        tryFallbacks writes margin:auto (the viewport-center pair) which
+        overrides the gap — center has no anchor side to gap. Validated
+        against the length grammar; invalid input is ignored (dev-mode
+        warns) */
+    gap?: number | string;
     trigger?: Snippet;
     panelClass?: string;
     onToggle?: (open: boolean) => void;
@@ -104,6 +116,7 @@
     placement = 'bottom-end',
     variant = 'auto',
     tryFallbacks = '',
+    gap = undefined,
     trigger,
     panelClass = '',
     onToggle,
@@ -136,6 +149,31 @@
   // Anchor names are CSS custom-ident-ish: sanitize the id into a stable
   // dashed token so any consumer id yields a valid --jx-pop-* name.
   const anchorName = `--jx-pop-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+
+  // the gap prop's trust boundary (Codex co-review): finite numbers
+  // become px, strings must survive the margin-shorthand grammar (1–4
+  // whitespace-separated zero-or-length tokens, each a STRICT number —
+  // "1..2px" and friends are dropped, not smuggled) — anything else is
+  // dropped so a hostile string can never smuggle a declaration into
+  // the style attr
+  const isLength = (t: string): boolean =>
+    t === '0' || /^(\d+(\.\d+)?|\.\d+)(px|rem|em|vw|vh|%)$/.test(t);
+  const gapValue = $derived.by(() => {
+    if (gap === undefined || gap === null) return '';
+    if (typeof gap === 'number') {
+      if (!Number.isFinite(gap)) {
+        if (import.meta.env.DEV) console.warn(`[popover] invalid gap ${gap} — ignored (finite number or 1–4 CSS lengths)`);
+        return '';
+      }
+      return `${gap}px`;
+    }
+    const tokens = gap.trim().split(/\s+/);
+    if (tokens.length < 1 || tokens.length > 4 || !tokens.every(isLength)) {
+      if (import.meta.env.DEV) console.warn(`[popover] invalid gap "${gap}" — ignored (1–4 CSS lengths or a number)`);
+      return '';
+    }
+    return tokens.join(' ');
+  });
   const area = $derived(
     placement === 'bottom' ? 'bottom' :
     placement === 'bottom-end' ? 'bottom span-right' :
@@ -254,7 +292,7 @@
   class={cn('jx-pop jx-surface', motion.supported && 'jx-waapi', panelClass)}
   data-variant={variant}
   bind:this={panel}
-  style="position-anchor: {anchorName}; --jx-surface-in-x: {dir.ix}; --jx-surface-in-y: {dir.iy}; --jx-surface-ox: {dir.ox}; --jx-surface-oy: {dir.oy}; {tryFallbacks ? `${physical}; position-try: ${tryFallbacks}; position-try-fallbacks: ${tryFallbacks};` : `inset-area: ${area}; position-area: ${area};`}"
+  style="--jx-pop-gap: {gapValue || '0px'}; position-anchor: {anchorName}; --jx-surface-in-x: {dir.ix}; --jx-surface-in-y: {dir.iy}; --jx-surface-ox: {dir.ox}; --jx-surface-oy: {dir.oy}; {tryFallbacks ? `${physical}; position-try: ${tryFallbacks}; position-try-fallbacks: ${tryFallbacks};` : `inset-area: ${area}; position-area: ${area};`}"
   ontoggle={onPanelToggle}
 >
   <!-- jx-surface-body = THE SURFACE (fill + acrylic blur + the ::after

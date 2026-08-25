@@ -7,7 +7,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { onMount } from 'svelte';
-  import { PlayFields, PlayRow, PlaySegmented, PlayHelp } from '$lib/playground';
+  import { PlayFields, PlayRow, PlayRange, PlaySegmented, PlayHelp } from '$lib/playground';
 
   // the nine @position-try candidates are injected at RUNTIME: every
   // CSS processor on the path (Svelte scoped styles AND the Vite/
@@ -131,6 +131,29 @@ ${close}
   // back to bottom-end too (no candidates either way)
   const canvasPlacement = $derived(canvasTries[0] ?? 'bottom-end');
 
+  // anchor gap playground (2026-08-26): 'side' puts the value on the
+  // edge FACING the initial cell (flush inline alignment — the default
+  // demo); 'uniform' demonstrates the all-sides margin ring (the inline
+  // alignment edge insets by the same value). 0 = the r22 flush law
+  let canvasGap = $state(0);
+  let canvasGapMode = $state<'side' | 'uniform'>('side');
+  const gapModeOptions: { value: 'side' | 'uniform'; label: string }[] = [
+    { value: 'side', label: 'anchored side' },
+    { value: 'uniform', label: 'uniform' },
+  ];
+  const sideGap = $derived.by(() => {
+    if (canvasGap === 0 || canvasGapMode !== 'side') return undefined;
+    const g = `${canvasGap}px`;
+    if (canvasPlacement.startsWith('bottom')) return `${g} 0 0 0`;
+    if (canvasPlacement.startsWith('top')) return `0 0 ${g} 0`;
+    if (canvasPlacement === 'left') return `0 ${g} 0 0`;
+    if (canvasPlacement === 'right') return `0 0 0 ${g}`;
+    return g; // center: a ring reads better than any single side
+  });
+  const canvasGapProp = $derived(
+    canvasGap === 0 ? undefined : canvasGapMode === 'uniform' ? canvasGap : sideGap,
+  );
+
   function toggleTry(id: string): void {
     if (id === 'center') {
       // the center cell is the master switch: all-on ⇄ all-off
@@ -166,6 +189,8 @@ ${close}
     canvasChoice = canvasInitial.choice;
     canvasVariant = 'auto';
     canvasTries = [...ALL_TRIES];
+    canvasGap = 0;
+    canvasGapMode = 'side';
   }
 
   // live usage code tracks the current triggerLabel; q() keeps user input
@@ -179,7 +204,7 @@ let triggerLabel = $state(${q(canvasTriggerLabel)});
 ${close}
 
 <!-- rows repeat popovertarget to close on select — still zero JS -->
-<Popover id="actions" {triggerLabel} variant=${q(canvasVariant)}>
+<Popover id="actions" {triggerLabel} variant=${q(canvasVariant)}${canvasGapProp !== undefined ? ` gap=${q(String(canvasGapProp))}` : ''}>
   <div class="flex w-52 flex-col">
     <button type="button" class="pop-row" popovertarget="actions">Rename…</button>
     <button type="button" class="pop-row" popovertarget="actions">Archive</button>
@@ -251,6 +276,7 @@ ${close}
           variant={canvasVariant}
           placement={canvasPlacement}
           {tryFallbacks}
+          gap={canvasGapProp}
         >
           <div class="flex w-52 flex-col">
             <button type="button" class="pop-row" popovertarget="canvas-pop"
@@ -297,9 +323,23 @@ ${close}
             when the initial overflows. the center cell is the master switch
             (all ⇄ none); a live panel reopens itself on toggle.
           </PlayHelp>
+          <PlayRow label="gap (px)">
+            <PlayRange bind:value={canvasGap} min={0} max={16} step={1} />
+          </PlayRow>
+          <PlayRow label="gap mode">
+            <PlaySegmented bind:value={canvasGapMode} options={gapModeOptions} />
+          </PlayRow>
+          <PlayHelp>
+            the anchor <code>gap</code> rides margin semantics:
+            <strong>anchored side</strong> puts the value on the edge facing the
+            initial cell (inline edges stay flush — the precise form), while
+            <strong>uniform</strong> rings all four sides (the alignment edge
+            insets by the same value). 0 = the r22 flush law. flips do not
+            carry the gap — a flipped state hugs flush again.
+          </PlayHelp>
           <PlayHelp>
             the playground edits the <code>triggerLabel</code>,
-            <code>variant</code>, and position-try set live — open the panel
+            <code>variant</code>, gap, and position-try set live — open the panel
             and click outside, press Escape, or pick a row: three native exits, zero JS on the
             close path. auto = acrylic unless the environment asks for reduced transparency.
           </PlayHelp>
