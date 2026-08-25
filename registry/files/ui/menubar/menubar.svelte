@@ -1,5 +1,5 @@
 <!--
-  jixoai menubar (registry/files/ui/menubar.svelte).
+  jixoai menubar — the ROOT half (registry/files/ui/menubar/menubar.svelte).
   The application menu bar — File Edit View… — with its OWN walker
   (batch-4 ruling): the top-level keyboard contract differs from a
   stack of dropdowns, so this is an independent coordinator over the
@@ -17,152 +17,200 @@
                  with dropdown-menu — duplicated deliberately: registry
                  items stay independent, no hidden coupling)
 
-  Items are data-driven: label + panel content per item (the `panel`
-  snippet keyed by item id, rendered inside role=menu). Selection
-  semantics belong to the content (links leave, buttons act) — the
-  menubar only owns the walking and the open/close coordination.
+  Composition-first (2026-08-25, composition-first-apis): the bar owns
+  STATE + BEHAVIOR only — open-panel id, the roving tab stop, the
+  walkers, the document dismissal — never membership ORDER. Triggers
+  and panels are discovered through the DOM (the family context
+  contract): the bar's walk queries [role=menuitem] scoped to entries
+  whose closest [role=menubar] is THIS bar and whose closest [role=menu]
+  is null, so panel content and nested dropdown-menu families never
+  leak into the bar walk; the glide resolves a trigger → panel through
+  its aria-controls (the deterministic derived id is the registry key).
 
-  tw4 (2026-08-24): bar/trigger paint as token utilities (open state
-  and the last-trigger border are JS-known → conditional strings);
-  ONLY the anchored panel law (position-try geometry, the @supports
+  Panel handles (imperative show/hide for the glide and the trigger
+  toggle) register at Panel INIT under the PANEL id (`${itemId}-panel`,
+  NEVER the registrant's own $props.id()) and unregister onDestroy;
+  first registration wins on duplicate panel ids AND duplicate
+  sanitized anchor names (dev-mode console error — a collision is
+  observable exactly there). A conditionally removed panel leaves no
+  ghost handle behind.
+
+  tw4 (2026-08-24): bar/trigger paint as token utilities; ONLY the
+  anchored panel law (position-try geometry, the @supports
   viewport-center fallback, ::backdrop) remains in menubar.css —
   D1-exempt residue.
-
-  Motion kernel (2026-08-25): the panels adopt the shared surface
-  motion kernel (lib/surface-motion.ts) — ONE kernel PER PANEL,
-  lazily created (a single shared instance has one animation slot:
-  gliding between slots would cancel the outgoing exit and ghost it
-  at rest through the allow-discrete window). The slot-wrapper map
-  feeds each kernel's live anchor axis, .jx-waapi (behind the
-  exported engine probe — no instance exists at render time) opts
-  into the jixoai.css formulas, and the real shadow rides a DOM
-  child (data-jx-bar-shadow) each kernel animates in lockstep.
 -->
+<script module lang="ts">
+  /** imperative panel surface — registered at INIT under the PANEL id */
+  export interface MenubarPanelHandles {
+    show(source?: HTMLElement): void;
+    hide(): void;
+  }
+
+  /** the bar's context surface: state + behavior, never membership order */
+  export interface MenubarApi {
+    /** first-wins registry for the glide/toggle; key = `${itemId}-panel` */
+    register(panelId: string, anchorName: string, handles: MenubarPanelHandles): void;
+    /** identity-guarded: only the winning registrant can remove itself */
+    unregister(panelId: string, handles: MenubarPanelHandles): void;
+    /** the open panel's derived id ('' = closed) */
+    readonly openPanelId: string;
+    /** the roving tab stop: trigger id ('' = unresolved — see below) */
+    readonly tabStop: string;
+    setTabStop(triggerId: string): void;
+    /** open/close through the registered handles (toggle + glide paths) */
+    openPanel(panelId: string, focusFirst: boolean): void;
+    closePanel(panelId: string): void;
+    /** the popover toggle seam's state mirror (panels report here) */
+    markOpen(panelId: string): void;
+    markClosed(panelId: string): void;
+    /** floating-surface variant for every panel in the bar */
+    readonly variant: 'solid' | 'acrylic' | 'auto';
+  }
+
+  /** context key — global symbol registry so the family files stay
+   *  independent registry items */
+  export const MENUBAR_KEY = Symbol.for('jx-menubar');
+</script>
+
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { onDestroy } from 'svelte';
-  import { createSurfaceMotion, surfaceMotionSupported, type SurfaceMotion } from '$lib/surface-motion';
+  import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
   import './menubar.css';
 
-  export interface MenubarItem {
-    id: string;
-    label: string;
-  }
-
   interface Props {
-    items: MenubarItem[];
+    /** menubar landmark label — announced to assistive tech */
     label?: string;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
     variant?: 'solid' | 'acrylic' | 'auto';
-    /** panel content per item id */
-    panel: Snippet<[MenubarItem]>;
     class?: string;
+    children: Snippet;
   }
 
   let {
-    items,
     label = 'menu bar',
     variant = 'auto',
-    panel,
     class: className = '',
+    children,
   }: Props = $props();
 
+  const dev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
+
   let barEl = $state<HTMLElement | null>(null);
-  let openId = $state('');
-  /** the roving tab stop FOLLOWS arrow focus (initial: the first trigger) */
-  let activeBarIndex = $state(0);
-  /** id marking "a panel was just opened by keyboard — focus its first item" */
+  let openPanelId = $state('');
+  /** the roving tab stop FOLLOWS arrow focus; '' = unresolved (the
+   *  empty-state law: every trigger renders tabbable until the bar
+   *  trims to one after mount — the tabs-list precedent) */
+  let tabStop = $state('');
+  /** panel id marking "just opened by keyboard — focus its first item" */
   let focusIntoId = $state('');
 
-  const anchorOf = (id: string): string =>
-    `--jx-bar-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  // ── the panel registry: first-wins on BOTH keys (panel id and the
+  //    sanitized anchor name — `foo/bar` vs `foo?bar` both → `foo-bar`
+  //    collide on the anchor while carrying distinct DOM ids). Later
+  //    registrants are ignored and their handles never fire.
+  const panels = new Map<string, MenubarPanelHandles>();
+  const anchors = new Map<string, string>();
 
-  // ── MOTION KERNEL — the shared declarative half (r29): see
-  // lib/surface-motion.ts. ONE kernel PER PANEL, lazily created: a
-  // single shared instance holds ONE animation slot, so gliding
-  // between slots (close A, open B in the same breath) would cancel
-  // A's exit mid-run — A's inline --jx-p pin then holds it at the
-  // rest pose through the whole allow-discrete window (a ~460ms
-  // ghost panel beside B). Per-panel slots keep every run isolated,
-  // the same mental model as N independent popover instances: A
-  // exits while B enters. bind:this writes the slot-wrapper entry
-  // as a property and nulls it on unmount — the ?? null keeps the
-  // kernel's anchor contract either way
-  const slotEls: Record<string, HTMLElement | null> = {};
-  const kernels = new Map<string, SurfaceMotion>();
-  const kernelOf = (id: string): SurfaceMotion => {
-    let kernel = kernels.get(id);
-    if (!kernel) {
-      kernel = createSurfaceMotion(() => document.getElementById(`jx-bar-panel-${id}`), {
-        anchor: () => slotEls[id] ?? null,
-      });
-      kernels.set(id, kernel);
-    }
-    return kernel;
-  };
-
-  onDestroy(() => {
-    for (const kernel of kernels.values()) kernel.destroy();
+  setContext<MenubarApi>(MENUBAR_KEY, {
+    register(panelId, anchorName, handles) {
+      if (panels.has(panelId) || anchors.has(anchorName)) {
+        if (dev) {
+          console.error(
+            `jixoai menubar: duplicate registration — panel id "${panelId}" / anchor name "${anchorName}" already claimed; first registration wins`,
+          );
+        }
+        return;
+      }
+      panels.set(panelId, handles);
+      anchors.set(anchorName, panelId);
+    },
+    unregister(panelId, handles) {
+      if (panels.get(panelId) !== handles) return;
+      panels.delete(panelId);
+      for (const [anchorName, owner] of anchors) {
+        if (owner === panelId) anchors.delete(anchorName);
+      }
+    },
+    get openPanelId() {
+      return openPanelId;
+    },
+    get tabStop() {
+      return tabStop;
+    },
+    setTabStop(triggerId) {
+      tabStop = triggerId;
+    },
+    openPanel(panelId, focusFirst) {
+      panels.get(panelId)?.show();
+      openPanelId = panelId;
+      if (focusFirst) focusIntoId = panelId;
+    },
+    closePanel(panelId) {
+      panels.get(panelId)?.hide();
+      if (openPanelId === panelId) openPanelId = '';
+    },
+    markOpen(panelId) {
+      openPanelId = panelId;
+    },
+    markClosed(panelId) {
+      if (openPanelId === panelId) openPanelId = '';
+    },
+    get variant() {
+      return variant;
+    },
   });
 
-  function triggers(): HTMLButtonElement[] {
+  /** the BAR's walk scope: menuitems directly under this menubar —
+   *  not inside any [role=menu] panel (menubar panels AND nested
+   *  dropdown families) and not inside a nested menubar */
+  function barTriggers(): HTMLButtonElement[] {
     return [
       ...(barEl?.querySelectorAll<HTMLButtonElement>('[role=menuitem]:not([disabled])') ?? []),
-    ];
-  }
-
-  function openPanel(id: string, focusFirst: boolean): void {
-    const el = document.getElementById(`jx-bar-panel-${id}`);
-    if (el && typeof el.showPopover === 'function' && !el.matches(':popover-open')) {
-      el.showPopover();
-    }
-    openId = id;
-    if (focusFirst) focusIntoId = id;
+    ].filter(
+      (el) => el.closest('[role="menubar"]') === barEl && el.closest('[role="menu"]') === null,
+    );
   }
 
   /** panels are popover=manual: WE own dismissal (popover=auto's light
    *  dismiss raced the trigger click — outside-close then click-reopen
    *  read as "toggle broken"; Escape is handled in the panel keydown) */
   function handleDocPointerDown(event: PointerEvent): void {
-    if (openId === '') return;
+    if (openPanelId === '') return;
     const target = event.target as Node | null;
-    const panel = document.getElementById(`jx-bar-panel-${openId}`);
-    const trigger = document.getElementById(`jx-bar-trigger-${openId}`);
+    const panel = document.getElementById(openPanelId);
+    const trigger = barTriggers().find((t) => t.getAttribute('aria-controls') === openPanelId);
     if (panel && target && !panel.contains(target) && !(trigger && trigger.contains(target))) {
-      closePanel(openId, false);
+      panels.get(openPanelId)?.hide();
+      openPanelId = '';
     }
-  }
-
-  function closePanel(id: string, restoreTrigger: boolean): void {
-    const el = document.getElementById(`jx-bar-panel-${id}`);
-    if (el && typeof el.hidePopover === 'function' && el.matches(':popover-open')) {
-      el.hidePopover();
-    }
-    if (restoreTrigger) {
-      document.getElementById(`jx-bar-trigger-${id}`)?.focus();
-    }
-    if (openId === id) openId = '';
   }
 
   function handleBarKeydown(event: KeyboardEvent): void {
-    const bars = triggers();
+    const bars = barTriggers();
     const current = bars.indexOf(document.activeElement as HTMLButtonElement);
     if (current === -1) return;
     const move = (delta: number): void => {
       event.preventDefault();
       const nextIndex = (current + delta + bars.length) % bars.length;
       const next = bars[nextIndex];
-      activeBarIndex = nextIndex;
+      tabStop = next?.id ?? '';
       next?.focus();
-      if (openId !== '') {
-        const target = items.find((item) => `jx-bar-trigger-${item.id}` === next?.id);
-        if (target) {
-          closePanel(openId, false);
+      if (openPanelId !== '') {
+        // the glide resolves trigger → panel through aria-controls (the
+        // deterministic derived id — the wire never depends on order)
+        const nextPanelId = next?.getAttribute('aria-controls');
+        if (nextPanelId) {
+          const closing = openPanelId;
+          panels.get(closing)?.hide();
+          if (openPanelId === closing) openPanelId = '';
           // gliding with a panel open keeps the FOCUS INSIDE the panels
           // (consistent with ↓-open, per the walkthrough note)
-          openPanel(target.id, true);
+          panels.get(nextPanelId)?.show();
+          openPanelId = nextPanelId;
+          focusIntoId = nextPanelId;
         }
       }
     };
@@ -171,53 +219,43 @@
     if (event.key === 'Home' || event.key === 'End') {
       event.preventDefault();
       const index = event.key === 'Home' ? 0 : bars.length - 1;
-      activeBarIndex = index;
+      tabStop = bars[index]?.id ?? '';
       bars[index]?.focus();
       return;
     }
-    const own = items[current];
-    if ((event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter') && own) {
+    const ownPanelId = bars[current]?.getAttribute('aria-controls');
+    if (
+      (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter') &&
+      ownPanelId
+    ) {
       event.preventDefault();
-      openPanel(own.id, true);
+      panels.get(ownPanelId)?.show();
+      openPanelId = ownPanelId;
+      focusIntoId = ownPanelId;
     }
   }
 
-  /** the shared menu contract: walk the panel's own [role=menuitem]s */
-  function handlePanelKeydown(event: KeyboardEvent, id: string): void {
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      closePanel(id, true);
-      return;
+  // trim the empty-state tab stop after mount ('' → first trigger) and
+  // re-resolve when the focused trigger disappears (keyed reorders keep
+  // their stop while it survives)
+  $effect(() => {
+    if (!barEl) return;
+    const stops = barTriggers();
+    if (tabStop === '' || !stops.some((t) => t.id === tabStop)) {
+      tabStop = stops[0]?.id ?? '';
     }
-    const menu = document.getElementById(`jx-bar-panel-${id}`);
-    const entries = [
-      ...(menu?.querySelectorAll<HTMLElement>('[role=menuitem]:not([disabled])') ?? []),
-    ];
-    if (entries.length === 0) return;
-    const current = entries.indexOf(document.activeElement as HTMLElement);
-    let next: HTMLElement | undefined;
-    if (event.key === 'ArrowDown') {
-      next = entries[(current + 1 + entries.length) % entries.length];
-    } else if (event.key === 'ArrowUp') {
-      next = entries[(current - 1 + entries.length) % entries.length];
-    } else if (event.key === 'Home') {
-      next = entries[0];
-    } else if (event.key === 'End') {
-      next = entries.at(-1);
-    }
-    if (next) {
-      event.preventDefault();
-      next.focus();
-    }
-  }
+  });
 
   // focus the first item of a keyboard-opened panel once it is open
   $effect(() => {
     if (focusIntoId === '') return;
+    const targetId = focusIntoId;
     requestAnimationFrame(() => {
       if (typeof requestAnimationFrame === 'function') {
-        const menu = document.getElementById(`jx-bar-panel-${focusIntoId}`);
-        const first = menu?.querySelector<HTMLElement>('[role=menuitem]:not([disabled])');
+        const menu = document.getElementById(targetId);
+        const first = [
+          ...(menu?.querySelectorAll<HTMLElement>('[role=menuitem]:not([disabled])') ?? []),
+        ].find((el) => el.closest('[role="menu"]') === menu);
         first?.focus();
       }
       focusIntoId = '';
@@ -230,76 +268,16 @@
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions, a11y_interactive_supports_focus -- the
      bar hosts the menubar walk; its BUTTONS hold the roving tabindex,
      the bar itself is never a tab stop -->
-<div
+<ul
   bind:this={barEl}
   data-jx-menubar=""
-  class={cn('flex w-fit flex-wrap items-stretch border border-border bg-card shadow-2xs', className)}
+  class={cn(
+    'flex w-fit list-none flex-wrap items-stretch border border-border bg-card p-0 m-0 shadow-2xs',
+    className,
+  )}
   role="menubar"
   aria-label={label}
   onkeydown={handleBarKeydown}
 >
-  {#each items as item, index (item.id)}
-    <span
-      data-jx-menubar-slot=""
-      class="inline-flex"
-      style="anchor-name: {anchorOf(item.id)}"
-      bind:this={slotEls[item.id]}
-    >
-      <button
-        type="button"
-        id="jx-bar-trigger-{item.id}"
-        role="menuitem"
-        aria-haspopup="menu"
-        aria-expanded={openId === item.id}
-        tabindex={activeBarIndex === index ? 0 : -1}
-        class={cn(
-          'px-[0.875rem] py-[0.4375rem] font-nav text-xs uppercase tracking-[0.1em] cursor-pointer transition-[color,background-color] duration-150 ease-out focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
-          index === items.length - 1 ? 'border-r-0' : 'border-r border-border',
-          openId === item.id
-            ? 'bg-muted text-foreground'
-            : 'bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground',
-        )}
-        onfocus={() => (activeBarIndex = index)}
-        onclick={() => (openId === item.id ? closePanel(item.id, false) : openPanel(item.id, false))}
-      >
-        {item.label}
-      </button>
-    </span>
-  {/each}
-</div>
-
-{#each items as item (item.id)}
-  <div
-    id="jx-bar-panel-{item.id}"
-    popover="manual"
-    role="menu"
-    tabindex="-1"
-    class={cn('jx-menubar-panel jx-surface', surfaceMotionSupported && 'jx-waapi')}
-    data-variant={variant}
-    style="position-anchor: {anchorOf(item.id)}; inset-area: bottom span-left; position-area: bottom span-left;"
-    onkeydown={(e) => handlePanelKeydown(e, item.id)}
-    ontoggle={(e: Event) => {
-      const el = e.currentTarget as HTMLElement;
-      if (el.matches(':popover-open')) {
-        openId = item.id;
-        const kernel = kernelOf(item.id);
-        kernel.play(1);
-        kernel.startTracking();
-      } else {
-        el.classList.remove('jx-rest');
-        kernelOf(item.id).play(0);
-        kernelOf(item.id).stopTracking();
-        if (openId === item.id) openId = '';
-      }
-    }}
-  >
-    <!-- surface body (fill + ::after shadow); the popover element paints
-         nothing (floating-surface law arch r3) -->
-    <div data-jx-bar-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
-    <!-- the REAL shadow layer: a DOM child because pseudo-elements are
-         unreachable from WAAPI — the kernel animates it in lockstep -->
-    <div data-jx-bar-surface="" class="jx-surface-body p-1">
-      {@render panel(item)}
-    </div>
-  </div>
-{/each}
+  {@render children()}
+</ul>

@@ -20,7 +20,7 @@
   min-width: 10rem;
   color: var(--popover-foreground);
 }
-@supports not (anchor-name: --jx-bar-fallback) {
+@supports not (anchor-name: --jx-menubar-fallback) {
   .jx-menubar-panel {
     position-anchor: auto !important;
     inset-area: none !important;
@@ -31,4 +31,15 @@
 .jx-menubar-panel::backdrop {
   background: transparent;
 }
+}
+
+/* ── UNLAYERED ───────────────────────────────────────────────────────
+ * CASCADE CARVE-OUT (the toggle/Part A precedent): the last-trigger
+ * border kill must override the trigger's own border-r utility, so it
+ * rides UNLAYERED behind :where() — zero specificity, consumer css
+ * still ties-wins within the unlayered level. The composed family
+ * replaced the items[] index with the DOM truth: the last Item's
+ * trigger carries no right border (2026-08-25). */
+:where([data-jx-menubar-item]:last-child) [data-jx-menubar-trigger] {
+  border-right-width: 0;
 }

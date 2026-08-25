@@ -19,8 +19,9 @@
 
   Items are whatever the consumer nests: dropdown-menu-item.svelte pairs
   here, but any [role=menuitem] joins the walk (DOM delegation, no
-  registration). Separators are plain <hr>, labels plain markup — the
-  W3C elements already mean the right things.
+  registration) — SCOPED to this panel's nearest menu (nested submenu
+  families never leak; 2026-08-25 drive-by). Separators are plain <hr>,
+  labels plain markup — the W3C elements already mean the right things.
 
   tw4 (2026-08-24): trigger/caret/scroll paint as token utilities (the
   press poses ride --jx-press* custom-property utilities, verbatim
@@ -113,8 +114,14 @@
   });
 
   // ---- the menu keyboard contract (see header) -----------------------
+  // SCOPED to the nearest menu (composition-first-apis, 2026-08-25):
+  // only entries whose closest [role=menu] is THIS panel — a nested
+  // dropdown/submenu family inside the panel owns its own walk and
+  // never leaks into this one (the family context contract, clause 3)
   const menuItems = () =>
-    [...(panel?.querySelectorAll<HTMLElement>('[role=menuitem]:not([disabled])') ?? [])];
+    [...(panel?.querySelectorAll<HTMLElement>('[role=menuitem]:not([disabled])') ?? [])].filter(
+      (el) => el.closest('[role="menu"]') === panel,
+    );
 
   let typed = '';
   let typedAt = 0;

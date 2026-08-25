@@ -1,5 +1,6 @@
 <!--
-  jixoai toggle group (registry/files/ui/toggle-group.svelte).
+  jixoai toggle group — the ROOT half
+  (registry/files/ui/toggle-group/toggle-group.svelte).
   The joined-button set: a row of press-state buttons that submits as
   ONE form field. The group is not a single native control — exactly
   the case the jx-form-field bridge exists for:
@@ -20,51 +21,62 @@
   focus trap — arrows belong to tablists and menus, this is a simple
   control set). disabled dims the whole set; jx-reset clears it.
 
+  Composition-first (2026-08-25, composition-first-apis): the root
+  owns STATE + the value law only — the buttons are ToggleGroupItem
+  parts reading the group context (isActive/toggle). items data and
+  the per-button snippet die with the closed API; ordinal state never
+  exists (the caller's values ARE the identity).
+
   tw4 (2026-08-24): static paint + hover/disabled states ride token
-  utilities (deterministic per-state strings — the pressed repaint is
-  a full branch, never two colliding utilities); ONLY the focus-visible
-  ring stays in toggle-group.css — D1-exempt residue on the unlayered
-  :where() carve-out (the toggle/Part A precedent).
+  utilities on the Item part; ONLY the focus-visible ring stays in
+  toggle-group.css — D1-exempt residue on the unlayered :where()
+  carve-out (the toggle/Part A precedent).
 -->
+<script module lang="ts">
+  /** the group's context surface: the value law, nothing else */
+  export interface ToggleGroupApi {
+    readonly type: 'single' | 'multiple';
+    /** group-level disable (prop + form/fieldset bridge propagation) */
+    readonly disabled: boolean;
+    isActive(value: string): boolean;
+    toggle(value: string): void;
+  }
+
+  /** context key — global symbol registry (independent registry items) */
+  export const TOGGLE_GROUP_KEY = Symbol.for('jx-toggle-group');
+</script>
+
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
   import '$lib/form-field';
   import './toggle-group.css';
-
-  interface ToggleGroupOption {
-    value: string;
-    label: string;
-    disabled?: boolean;
-  }
 
   interface Props {
     /** form field name — the pressed value(s) submit under this name */
     name?: string;
     /** one value (single) or many (multiple) */
     type?: 'single' | 'multiple';
-    options: ToggleGroupOption[];
     /** active value(s); bindable (bind:value) for controlled use */
     value?: string | string[];
     disabled?: boolean;
-    /** nav landmark label — announced to assistive tech */
+    /** group landmark label — announced to assistive tech */
     label: string;
     class?: string;
-    /** per-button content override (defaults to the option label) */
-    item?: Snippet<[ToggleGroupOption, boolean]>;
     onchange?: (value: string | string[]) => void;
+    children: Snippet;
   }
 
   let {
     name,
     type = 'single',
-    options,
     value = $bindable<string | string[]>([]),
     disabled = false,
     label,
     class: className = '',
-    item,
     onchange,
+    children,
   }: Props = $props();
 
   /** form/fieldset disable propagation (the bridge's jx-disabled) */
@@ -81,21 +93,30 @@
         : [],
   );
 
-  const isActive = (option: ToggleGroupOption): boolean => activeValues.includes(option.value);
-
-  function press(option: ToggleGroupOption): void {
+  function toggle(next: string): void {
     if (type === 'single') {
-      const next = isActive(option) ? '' : option.value;
-      value = next;
-      onchange?.(next);
+      const single = activeValues.includes(next) ? '' : next;
+      value = single;
+      onchange?.(single);
       return;
     }
-    const next = isActive(option)
-      ? activeValues.filter((v) => v !== option.value)
-      : [...activeValues, option.value];
-    value = next;
-    onchange?.(next);
+    const multi = activeValues.includes(next)
+      ? activeValues.filter((v) => v !== next)
+      : [...activeValues, next];
+    value = multi;
+    onchange?.(multi);
   }
+
+  setContext<ToggleGroupApi>(TOGGLE_GROUP_KEY, {
+    get type() {
+      return type;
+    },
+    get disabled() {
+      return isDisabled;
+    },
+    isActive: (candidate) => activeValues.includes(candidate),
+    toggle,
+  });
 
   /** the bridge payload: single → one entry ('' when none); multiple →
    *  newline-joined, with multivalue so the bridge submits one FormData
@@ -115,27 +136,14 @@
   onjx-reset={() => ((value = type === 'single' ? '' : []), undefined)}
 ></jx-form-field>
 
-<div data-jx-tgroup class={cn('inline-flex flex-wrap border border-border rounded-(--radius) bg-card shadow-2xs w-fit', className)} role="group" aria-label={label}>
-    {#each options as option (option.value)}
-      <button
-        type="button"
-        data-jx-tgroup={isActive(option) ? 'on' : undefined}
-        class={cn(
-          'jx-tgroup-btn appearance-none cursor-pointer px-[0.875rem] py-[0.4375rem] border-r border-border font-nav text-xs tracking-[0.1em] uppercase last:border-r-0 transition-[color,background-color] duration-150 ease-out',
-          isActive(option)
-            ? 'bg-primary text-primary-foreground hover:not-disabled:text-primary-foreground'
-            : 'bg-transparent text-muted-foreground hover:not-disabled:text-foreground',
-          'disabled:opacity-45 disabled:cursor-not-allowed',
-        )}
-        aria-pressed={isActive(option)}
-        disabled={isDisabled || option.disabled}
-        onclick={() => press(option)}
-      >
-        {#if item}
-          {@render item(option, isActive(option))}
-        {:else}
-          {option.label}
-        {/if}
-      </button>
-    {/each}
-  </div>
+<div
+  data-jx-tgroup
+  class={cn(
+    'inline-flex w-fit flex-wrap rounded-(--radius) border border-border bg-card shadow-2xs',
+    className,
+  )}
+  role="group"
+  aria-label={label}
+>
+  {@render children()}
+</div>

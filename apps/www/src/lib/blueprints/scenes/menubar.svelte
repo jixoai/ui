@@ -1,21 +1,19 @@
 <!-- menubar blueprint: the application bar with the File menu open.
      The panels are popover=manual — forceShowPopovers would open ALL of
      them, so a targeted showPopover() on mount opens exactly one (the
-     same mechanism force-show.ts itself uses). -->
+     same mechanism force-show.ts itself uses). (composition-first-apis
+     2026-08-25: Item/Trigger/Panel parts replace the items[] data +
+     keyed panel snippet; the raw menuitem buttons stay verbatim.) -->
 <script lang="ts">
   import Menubar from '$lib/ui/menubar/menubar.svelte';
-  import type { MenubarItem } from '$lib/ui/menubar/menubar.svelte';
+  import MenubarItem from '$lib/ui/menubar/menubar-item.svelte';
+  import MenubarTrigger from '$lib/ui/menubar/menubar-trigger.svelte';
+  import MenubarPanel from '$lib/ui/menubar/menubar-panel.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { onMount } from 'svelte';
 
-  const items: MenubarItem[] = [
-    { id: 'file', label: 'File' },
-    { id: 'edit', label: 'Edit' },
-    { id: 'view', label: 'View' },
-  ];
-
   onMount(() => {
-    const panel = document.getElementById('jx-bar-panel-file') as
+    const panel = document.getElementById('file-panel') as
       | (HTMLElement & { showPopover?(): void })
       | null;
     try {
@@ -31,10 +29,11 @@
     <Skeleton class="h-3 w-2/3"></Skeleton>
     <Skeleton class="h-3 w-1/2"></Skeleton>
   </div>
-  <Menubar label="app" {items}>
-    {#snippet panel(item)}
-      <div class="flex min-w-40 flex-col">
-        {#if item.id === 'file'}
+  <Menubar label="app">
+    <MenubarItem id="file">
+      <MenubarTrigger>File</MenubarTrigger>
+      <MenubarPanel>
+        <div class="flex min-w-40 flex-col">
           <button type="button" role="menuitem" class="hover:bg-muted px-2.5 py-1 text-left text-[13px]">
             new workspace
           </button>
@@ -44,22 +43,34 @@
           <button type="button" role="menuitem" class="hover:bg-muted px-2.5 py-1 text-left text-[13px]">
             export snapshot
           </button>
-        {:else if item.id === 'edit'}
+        </div>
+      </MenubarPanel>
+    </MenubarItem>
+    <MenubarItem id="edit">
+      <MenubarTrigger>Edit</MenubarTrigger>
+      <MenubarPanel>
+        <div class="flex min-w-40 flex-col">
           <button type="button" role="menuitem" class="hover:bg-muted px-2.5 py-1 text-left text-[13px]">
             rename
           </button>
           <button type="button" role="menuitem" class="hover:bg-muted px-2.5 py-1 text-left text-[13px]">
             duplicate
           </button>
-        {:else}
+        </div>
+      </MenubarPanel>
+    </MenubarItem>
+    <MenubarItem id="view">
+      <MenubarTrigger>View</MenubarTrigger>
+      <MenubarPanel>
+        <div class="flex min-w-40 flex-col">
           <button type="button" role="menuitem" class="hover:bg-muted px-2.5 py-1 text-left text-[13px]">
             toggle tree
           </button>
           <button type="button" role="menuitem" class="hover:bg-muted px-2.5 py-1 text-left text-[13px]">
             split editor
           </button>
-        {/if}
-      </div>
-    {/snippet}
+        </div>
+      </MenubarPanel>
+    </MenubarItem>
   </Menubar>
 </div>
