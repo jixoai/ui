@@ -8,6 +8,7 @@
   import { page } from '$app/state';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import { docsSections, flatComponents } from '$lib/docs-route-model';
+  import { icons } from '$lib/icons';
   import { CATALOG } from '$lib/catalog';
 
   const sections = docsSections;
