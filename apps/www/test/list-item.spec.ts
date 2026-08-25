@@ -42,11 +42,12 @@ describe('Item family — structure the matrix keys off', () => {
     // standalone auto → its own surface
     expect(div.getAttribute('data-variant')).toBe('auto');
     expect(div.getAttribute('data-item-chrome')).toBe('surface');
-    expect(div.getAttribute('data-size')).toBe('default');
+    // density stamps (the kernel contract); data-size authority is gone
+    expect(div.getAttribute('data-density')).toBe('default');
     expect(div.getAttribute('data-layout')).toBe('standard');
 
     const { container: c2 } = render(Item, {
-      props: { href: '/x', variant: 'outline', size: 'sm', children },
+      props: { href: '/x', variant: 'outline', size: 'xs', children },
     });
     const a = c2.querySelector('[data-slot="item"]')!;
     expect(a.tagName).toBe('A');
@@ -54,7 +55,7 @@ describe('Item family — structure the matrix keys off', () => {
     // explicit variant always wins over the group policy (escape hatch)
     expect(a.getAttribute('data-variant')).toBe('outline');
     expect(a.getAttribute('data-item-chrome')).toBe('outline');
-    expect(a.getAttribute('data-size')).toBe('sm');
+    expect(a.getAttribute('data-density')).toBe('xs'); // explicit DENSITY override
     // the stamp union is CLOSED: explicit default normalizes to none
     const { container: c3 } = render(Item, { props: { variant: 'default', children } });
     const d = c3.querySelector('[data-slot="item"]')!;
@@ -85,6 +86,10 @@ describe('Item family — structure the matrix keys off', () => {
     // data-dividers lives ONLY on the ul (adjacency owner)
     expect(list.getAttribute('data-dividers')).toBe('auto');
     expect(section.getAttribute('data-dividers')).toBeNull();
+    // the group is the density provider + owns the explicit ruler
+    expect(section.getAttribute('data-density')).toBe('default');
+    expect(list.getAttribute('data-density')).toBe('default');
+    expect(list.getAttribute('data-ruler')).toBe('content-end');
     // rows are li wrappers keeping anchor semantics inside
     const rows = list.querySelectorAll(':scope > [data-slot="item-row"]');
     expect(rows.length).toBe(2);
@@ -164,6 +169,12 @@ describe('Item family — the CSS contract (source guard)', () => {
     expect(css).toContain(`'end end'`);
     // container lives on the list; dividers on the ul only
     expect(css).toContain('container: jx-items / inline-size');
+    // the kernel laws: subgrid ruler + density aliases + no data-size
+    expect(css).toContain('grid-template-columns: subgrid');
+    expect(css).toContain("[data-ruler='media-content-end']");
+    expect(css).toMatch(/var\(--jx-d-(text|inline-gap|row-min|hit-min)/);
+    expect(css).not.toMatch(/\[data-size=/);
+    expect(css).toContain("[data-wrap='never']");
     expect(css).toMatch(/\[data-slot='item-list'\]\[data-dividers='auto'\] > \[data-slot='item-row'\] \+ \[data-slot='item-row'\]/);
     // terminal law: chrome paints terminal-muted, never --card
     expect(css).toContain(`background: var(--terminal-muted)`);
@@ -179,7 +190,7 @@ describe('Item family — the CSS contract (source guard)', () => {
     const wideBlock = css.slice(0, css.indexOf('/* ── slot geometry'));
     expect(wideBlock.match(/grid-template-areas/g)!.length).toBe(16);
     expect(wideBlock.match(/grid-template-columns/g)!.length).toBe(16);
-    expect(css.match(/grid-template-areas/g)!.length).toBe(24); // 16 wide + 8 narrow
+    expect(css.match(/grid-template-areas/g)!.length).toBe(30); // 16 wide + 8 narrow standalone/fallback + 6 grouped ruler (appendix B)
     // the cascade law: every matrix selector is :where()-wrapped — no
     // bare .jx-item rule may exist (impl-review r2-10)
     expect(css).not.toMatch(/^\s*\.jx-item[\s,{]/m);
@@ -199,7 +210,7 @@ describe('Item family — the reactive policy law (impl-review r1-7)', () => {
     expect(outerList.getAttribute('data-dividers')).toBe('auto');
     // nested group shadows: inner rows are sm despite outer default
     const innerRow = outer.querySelector('[data-probe="inner"] [data-slot="item"]');
-    expect(innerRow!.getAttribute('data-size')).toBe('sm');
+    expect(innerRow!.getAttribute('data-density')).toBe('sm');
 
     // muted forces none even when 'auto' is supplied explicitly
     await rerender({ mode: 'muted', dividers: 'auto', size: 'default' });
@@ -210,8 +221,8 @@ describe('Item family — the reactive policy law (impl-review r1-7)', () => {
     // omission cases get their own fresh renders below
     await rerender({ mode: 'plain', dividers: 'none', size: 'sm' });
     expect(outer.querySelector(':scope > [data-slot="item-list"]')!.getAttribute('data-dividers')).toBe('none');
-    expect(outer.getAttribute('data-size')).toBe('sm');
-    expect(innerRow!.getAttribute('data-size')).toBe('sm');
+    expect(outer.getAttribute('data-density')).toBe('sm');
+    expect(innerRow!.getAttribute('data-density')).toBe('sm');
     await rerender({ mode: 'plain', dividers: 'auto', size: 'default' });
     expect(outer.querySelector(':scope > [data-slot="item-list"]')!.getAttribute('data-dividers')).toBe('auto');
     // layout re-resolves too: the frame stamps it, auto rows inherit it
@@ -220,7 +231,7 @@ describe('Item family — the reactive policy law (impl-review r1-7)', () => {
     expect(outer.querySelector(':scope > [data-slot="item-list"] > [data-slot="item-row"] [data-slot="item"]')!.getAttribute('data-layout')).toBe('media');
     // grouped rows re-resolved size through the whole rerender chain
     const groupedRow = outer.querySelector(':scope > [data-slot="item-list"] > [data-slot="item-row"] [data-slot="item"]');
-    expect(groupedRow!.getAttribute('data-size')).toBe('default');
+    expect(groupedRow!.getAttribute('data-density')).toBe('default');
     expect(groupedRow!.getAttribute('data-item-chrome')).toBe('none');
 
     // the omission matrix on fresh trees: plain omitted → none,

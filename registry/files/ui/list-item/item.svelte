@@ -19,7 +19,8 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAnchorAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
-  import { ITEM_GROUP_KEY, type ItemGroupPolicy, type ItemSize } from './item-group.svelte';
+  import { ITEM_GROUP_KEY, type ItemGroupPolicy } from './item-group.svelte';
+  import { resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
   import './item.css';
 
   type ItemLayout = 'auto' | 'standard' | 'media';
@@ -27,8 +28,8 @@
   interface Props extends Omit<HTMLAnchorAttributes, 'class'> {
     /** visual variant (geometry-neutral): auto | default | outline | muted */
     variant?: 'auto' | 'default' | 'outline' | 'muted';
-    /** density: omitted = nearest group's, then 'default' */
-    size?: ItemSize;
+    /** DENSITY override: omitted = nearest provider, then 'default' */
+    size?: Density;
     /** row layout: 'auto' inherits the group's, else standard */
     layout?: ItemLayout;
     /** visual selection state ONLY — never emits aria-selected */
@@ -42,6 +43,7 @@
   let {
     variant = 'auto',
     size,
+    'data-density': _callerDensity,
     layout = 'auto',
     selected = false,
     href,
@@ -51,13 +53,14 @@
   }: Props = $props();
 
   const policy = getContext<ItemGroupPolicy | undefined>(ITEM_GROUP_KEY);
+  const outerDensity = getDensityContext();
 
   // explicit 'default' normalizes to chrome 'none' (the transparent
   // escape hatch) — data-item-chrome never leaves its closed union
   const chrome = $derived(
     variant === 'auto' ? (policy ? 'none' : 'surface') : variant === 'default' ? 'none' : variant,
   );
-  const resolvedSize: ItemSize = $derived(size ?? policy?.size ?? 'default');
+  const resolvedSize: Density = $derived(resolveDensity(size, outerDensity));
   const resolvedLayout = $derived(layout === 'auto' ? (policy?.layout ?? 'standard') : layout);
   const klass = $derived(cn('jx-item', className));
 </script>
@@ -70,7 +73,7 @@
     data-slot="item"
     data-variant={variant}
     data-item-chrome={chrome}
-    data-size={resolvedSize}
+    data-density={resolvedSize}
     data-layout={resolvedLayout}
     data-selected={selected ? 'true' : undefined}
     class={klass}

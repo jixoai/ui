@@ -11,7 +11,8 @@
   import Toggle from '$lib/ui/toggle/toggle.svelte';
   import ItemField from './item-field.svelte';
   import type { ItemFieldContext } from './item-field.svelte';
-  import type { ItemLayout, ItemSize, ItemVariant } from './index';
+  import type { ItemLayout, ItemVariant } from './index';
+  import type { Density } from '$lib/density.svelte';
 
   type ControlProps = Omit<
     ComponentProps<typeof Toggle>,
@@ -25,8 +26,8 @@
     id?: string;
     labelMode?: 'for' | 'text';
     variant?: ItemVariant;
-    /** field density: omitted = nearest group's, then 'default' */
-    size?: ItemSize;
+    /** DENSITY override: omitted = nearest provider, then 'default' */
+    size?: Density;
     layout?: ItemLayout;
     disabled?: boolean;
     /** the Toggle's own footprint (sm/md/lg) — the field's density is `size` */

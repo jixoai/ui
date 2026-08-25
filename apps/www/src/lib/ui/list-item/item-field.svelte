@@ -18,7 +18,9 @@
   import Item from './item.svelte';
   import ItemContent from './item-content.svelte';
   import ItemEnd from './item-end.svelte';
-  import type { ItemLayout, ItemSize, ItemVariant } from './index';
+  // the field lane law (design §5): a field's control lane NEVER splits
+  import type { ItemLayout, ItemVariant } from './index';
+  import type { Density } from '$lib/density.svelte';
   import './item.css';
 
   /** the wiring contract every control snippet receives */
@@ -42,8 +44,8 @@
     /** 'for' (labelable controls) | 'text' (aria-labelledby wiring) */
     labelMode?: 'for' | 'text';
     variant?: ItemVariant;
-    /** field density: omitted = nearest group's, then 'default' */
-    size?: ItemSize;
+    /** DENSITY override: omitted = nearest provider, then 'default' */
+    size?: Density;
     layout?: ItemLayout;
     class?: string;
     control: Snippet<[ItemFieldContext]>;
@@ -95,7 +97,7 @@
       <span class="jx-item-field-error" id={errorId}>{error}</span>
     {/if}
   </ItemContent>
-  <ItemEnd>
+  <ItemEnd wrap="never">
     {@render control(field)}
   </ItemEnd>
 </Item>

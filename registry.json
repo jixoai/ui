@@ -192,6 +192,7 @@
         }
       ],
       "registryDependencies": [
+        "@jixoai/density",
         "@jixoai/toggle",
         "@jixoai/checkbox",
         "@jixoai/radio",
@@ -2967,7 +2968,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: icon (required snippet — the glyph, always decorative), text (required string — the one label), variant? (press-button paint union, default 'outline'), iconOnly? (boolean — square posture: text moves to the tooltip AND stays aria-label), placement? (tooltip side, icon-only only), effect? (shimmer/pulse/rainbow/ripple — inherited), href?, external?, onclick?, type?, class?. Composed ON press-button: every capability passes through verbatim; the icon-only square rides the same 42px band (size-10.5).",
+      "docs": "Props: icon (required snippet — the glyph, always decorative), text (required string — the one label), variant? (press-button paint union, default 'outline'), iconOnly? (boolean — square posture: text moves to the tooltip AND stays aria-label), placement? (tooltip side, icon-only only), arrow? (the tip's aimed pointer notch — ON by default, opt out for plain bubbles), effect? (shimmer/pulse/rainbow/ripple — inherited), href?, external?, onclick?, type?, class?. Composed ON press-button: every capability passes through verbatim; the icon-only square rides the same 42px band (size-10.5).",
       "meta": {
         "group": "general",
         "href": "/docs/components/icon-button.html"
@@ -3049,6 +3050,26 @@
         "href": "/docs/components.html"
       },
       "registryDependencies": []
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "density",
+      "type": "registry:lib",
+      "title": "Density context",
+      "description": "Getter-backed Svelte density context for inherited design-language scopes.",
+      "files": [
+        {
+          "path": "registry/files/lib/density.svelte.ts",
+          "target": "@lib/density.svelte.ts",
+          "type": "registry:file"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components.html"
+      }
     }
   ]
 }

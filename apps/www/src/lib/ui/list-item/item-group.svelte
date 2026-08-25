@@ -1,29 +1,27 @@
 <!--
   jixoai ItemGroup (registry/files/ui/list-item/item-group.svelte).
-  The surface owner (openspec list-item-systemization design §1–§2):
-  a <section|div> frame around a native <ul>. Owns mode/inset/dividers
-  paint, density + layout defaults, the optional accessible label,
-  and the TYPED POLICY context Items resolve against — stable object
-  identity, getter-backed reactive fields, Symbol key (never the old
-  boolean).
-
-  DOM law: the frame keeps data-mode/inset/size/layout; data-dividers
-  lives ONLY on the <ul> — it owns row adjacency, so the divider
-  selectors never reach through the frame.
+  The surface owner (design-language-kernel design §2–§3): a
+  <section|div> frame around a native <ul>. THE FIRST DENSITY PROVIDER
+  — provideDensity (getter-backed) + data-density stamps on frame and
+  list; Items resolve their density from here. Owns the explicit RULER
+  (content-end default — deliberately media-less; media-content-end
+  opts into the shared media track) stamped on the ul, and the divider
+  policy (data-dividers lives ONLY on the ul — the adjacency owner).
 -->
 <script module lang="ts">
-  /** the typed policy seam: Items read size/layout defaults from the
-      nearest group (nested groups shadow outer ones — context law) */
+  import type { Density, DensityContext } from '$lib/density.svelte';
+
   export const ITEM_GROUP_KEY = Symbol('jx-item-group');
 
-  export interface ItemGroupPolicy {
-    readonly size: ItemSize;
-    readonly layout: ItemGroupLayout;
-  }
-
-  export type ItemSize = 'default' | 'sm' | 'xs';
   export type ItemGroupMode = 'default' | 'muted' | 'plain';
   export type ItemGroupLayout = 'standard' | 'media';
+  export type ItemRuler = 'content-end' | 'media-content-end';
+
+  export interface ItemGroupPolicy extends DensityContext {
+    readonly size: Density;
+    readonly layout: ItemGroupLayout;
+    readonly ruler: ItemRuler;
+  }
 </script>
 
 <script lang="ts">
@@ -31,23 +29,23 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { provideDensity, resolveDensity, getDensityContext, DEFAULT_DENSITY, type Density } from '$lib/density.svelte';
   import './item.css';
 
   interface Props extends HTMLAttributes<HTMLElement> {
-    /** frame posture: default (border+dividers) · muted (slab, no
-        dividers ever) · plain (host owns the surface) */
+    /** frame posture: default (border+dividers) · muted (slab) · plain (host surface) */
     mode?: ItemGroupMode;
-    /** fixed 0.75rem inline margins — boolean only, no responsive
-        enum (a container cannot query its own width) */
+    /** fixed 0.75rem inline margins — boolean only */
     inset?: boolean;
-    /** density default for auto rows + the list rhythm */
-    size?: ItemSize;
+    /** DENSITY: default for auto rows + the list rhythm (explicit ?? inherited ?? default) */
+    size?: Density;
     layout?: ItemGroupLayout;
-    /** OPTIONAL raw prop — omission must stay distinguishable:
+    /** the shared ruler: content-end (media-less, default) | media-content-end */
+    ruler?: ItemRuler;
+    /** OPTIONAL raw prop — omission stays distinguishable:
         default-mode ?? 'auto', plain ?? 'none', muted forced 'none' */
     dividers?: 'auto' | 'none';
-    /** renders the frame as <section aria-labelledby> + visible label
-        outside the list */
+    /** renders the frame as <section aria-labelledby> + visible label */
     label?: string;
     id?: string;
     class?: string;
@@ -60,18 +58,24 @@
   let {
     mode = 'default',
     inset = false,
-    size = 'default',
+    size,
     layout = 'standard',
+    ruler = 'content-end',
     dividers,
     label,
     id,
     class: className = '',
     children,
-    // component-owned stamp: the ul carries data-dividers — a caller
-    // key here would double-stamp the frame (impl-review r2-9)
+    // component-owned stamps: the caller cannot forge density or the
+    // ul-only divider stamp on the frame
+    'data-density': _callerDensity,
     'data-dividers': _callerDividers,
     ...rest
   }: Props = $props();
+
+  const outerDensity = getDensityContext();
+  const resolved = $derived(resolveDensity(size, outerDensity) ?? DEFAULT_DENSITY);
+  provideDensity(() => resolved);
 
   const labelId = $derived(`${id ?? autoId}-label`);
   const resolvedDividers = $derived(
@@ -80,10 +84,16 @@
 
   setContext(ITEM_GROUP_KEY, {
     get size() {
-      return size;
+      return resolved;
     },
     get layout() {
       return layout;
+    },
+    get density() {
+      return resolved;
+    },
+    get ruler() {
+      return ruler;
     },
   } satisfies ItemGroupPolicy);
 </script>
@@ -93,9 +103,9 @@
   {...rest}
   id={id}
   data-slot="item-group"
+  data-density={resolved}
   data-mode={mode}
   data-inset={inset ? 'true' : undefined}
-  data-size={size}
   data-layout={layout}
   class={cn('jx-item-group', className)}
   aria-labelledby={label ? labelId : undefined}
@@ -103,7 +113,13 @@
   {#if label}
     <div class="jx-item-group-label" id={labelId}>{label}</div>
   {/if}
-  <ul data-slot="item-list" role="list" data-dividers={resolvedDividers} data-size={size}>
+  <ul
+    data-slot="item-list"
+    role="list"
+    data-density={resolved}
+    data-ruler={ruler}
+    data-dividers={resolvedDividers}
+  >
     {@render children()}
   </ul>
 </svelte:element>

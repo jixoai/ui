@@ -12,7 +12,8 @@
   import Radio from '$lib/ui/radio/radio.svelte';
   import ItemField from './item-field.svelte';
   import type { ItemFieldContext } from './item-field.svelte';
-  import type { ItemLayout, ItemSize, ItemVariant } from './index';
+  import type { ItemLayout, ItemVariant } from './index';
+  import type { Density } from '$lib/density.svelte';
 
   type ControlProps = Omit<
     ComponentProps<typeof Radio>,
@@ -26,7 +27,7 @@
     id?: string;
     labelMode?: 'for' | 'text';
     variant?: ItemVariant;
-    size?: ItemSize;
+    size?: Density;
     layout?: ItemLayout;
     disabled?: boolean;
     class?: string;
