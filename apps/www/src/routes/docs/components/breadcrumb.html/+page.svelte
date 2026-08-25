@@ -1,54 +1,78 @@
+<!--
+  Docs page for the breadcrumb family (composition-first, 2026-08-25).
+  Intents: hero summary, one ComponentCanvas over the composed trail
+  (three-crumb + the eight-page opt-in fold), usage sample. Structure
+  follows the list-item exemplar; the component family is untouchable
+  from here.
+-->
 <script lang="ts">
-  import Breadcrumb from '$lib/ui/breadcrumb/breadcrumb.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
+  import Breadcrumb from '$lib/ui/breadcrumb/breadcrumb.svelte';
+  import BreadcrumbList from '$lib/ui/breadcrumb/breadcrumb-list.svelte';
+  import BreadcrumbItem from '$lib/ui/breadcrumb/breadcrumb-item.svelte';
+  import BreadcrumbLink from '$lib/ui/breadcrumb/breadcrumb-link.svelte';
+  import BreadcrumbPage from '$lib/ui/breadcrumb/breadcrumb-page.svelte';
+  import BreadcrumbSeparator from '$lib/ui/breadcrumb/breadcrumb-separator.svelte';
+  import BreadcrumbCollapse from '$lib/ui/breadcrumb/breadcrumb-collapse.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import breadcrumbSource from '$lib/ui/breadcrumb/breadcrumb.svelte?raw';
+  import breadcrumbCollapseSource from '$lib/ui/breadcrumb/breadcrumb-collapse.svelte?raw';
+  import breadcrumbCssSource from '$lib/ui/breadcrumb/breadcrumb.css?raw';
 
   const close = '</' + 'script>';
 
-  // ToC outline: the live demo band + the usage closing section, in page order.
-
+  // single usage sample: the drawer's usage file and the body CodeBlock share it
   const usage = `<script lang="ts">
-  import Breadcrumb from '@ui/breadcrumb.svelte';
+  import {
+    Breadcrumb,
+    BreadcrumbList,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+    BreadcrumbCollapse,
+  } from '@ui/breadcrumb/index';
 ${close}
 
-<Breadcrumb crumbs={[
-  { label: 'registry', href: '/' },
-  { label: 'components', href: '/docs/components.html' },
-  { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
-]} />
+<!-- the trail is authored, not passed as data; the ol's order IS the hierarchy -->
+<Breadcrumb>
+  <BreadcrumbList>
+    <BreadcrumbItem><BreadcrumbLink href="/">registry</BreadcrumbLink></BreadcrumbItem>
+    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+    <BreadcrumbItem>
+      <BreadcrumbPage href="/docs/components/breadcrumb.html">breadcrumb</BreadcrumbPage>
+    </BreadcrumbItem>
+  </BreadcrumbList>
+</Breadcrumb>
 
-<!-- long trails: collapse the middle into a live ellipsis link -->
-<Breadcrumb {crumbs} collapse={4} />`;
-
-  const canvasUsage = `<Breadcrumb {crumbs} />`;
+<!-- long trails: wrap the middle in BreadcrumbCollapse — the folded
+     items self-hide and the ellipsis links to the first hidden page -->
+<BreadcrumbCollapse>
+  <BreadcrumbItem><BreadcrumbLink href="/2">page 2</BreadcrumbLink></BreadcrumbItem>
+</BreadcrumbCollapse>`;
 
   const canvasFiles: TreeFile[] = [
-    { name: 'registry/files/ui/breadcrumb.svelte', content: breadcrumbSource },
-    { name: 'src/lib/ui/breadcrumb-usage.svelte', content: canvasUsage },
+    { name: 'registry/files/ui/breadcrumb/breadcrumb.svelte', content: breadcrumbSource },
+    { name: 'registry/files/ui/breadcrumb/breadcrumb-collapse.svelte', content: breadcrumbCollapseSource },
+    { name: 'registry/files/ui/breadcrumb/breadcrumb.css', content: breadcrumbCssSource },
+    { name: 'src/lib/ui/breadcrumb-usage.svelte', content: usage, kind: 'usage' },
   ];
 
-  const crumbs = [
-    { label: 'registry', href: '/' },
-    { label: 'components', href: '/docs/components.html' },
-    { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
-  ];
-  const longCrumbs = Array.from({ length: 8 }, (_, i) => ({
-    label: `page ${i + 1}`,
-    href: `/docs/components/breadcrumb.html?trail=${i + 1}`,
-  }));
+  // the eight-page trail: first + fold(p2..p6) + last two — the same
+  // shape the closed collapse=4 produced
+  const folded = [2, 3, 4, 5, 6].map((n) => `/docs/components/breadcrumb.html?trail=${n}`);
 </script>
 
 <svelte:head>
   <title>Breadcrumb · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai breadcrumb: a nav landmark over an ordered list of real links — aria-current on the last crumb, CSS chevrons as decoration, and a middle-collapse that keeps every page one click away."
+    content="The jixoai breadcrumb family: a nav landmark over an ordered list of real links — List/Item/Link/Page/Separator parts, aria-current on the page, and an opt-in BreadcrumbCollapse fold whose ellipsis keeps every page one click away."
   />
 </svelte:head>
 
@@ -65,12 +89,13 @@ ${close}
       tone="hero"
       eyebrow="registry:ui · NativeHTML"
       title="breadcrumb — the trail the platform already defines"
-      summary="nav[aria-label] wrapping an ol of ordinary links: the entire semantics in three elements, no roles to maintain — the list's order IS the hierarchy. The last crumb carries aria-current=page; a CSS chevron separates items as pure decoration."
+      summary="nav[aria-label] wrapping an ol of ordinary links, composed part by part: the list carries the order, Link is a real href, Page marks aria-current=page, Separator is pure decoration — the entire semantics in native elements, no roles to maintain. Long trails fold by WRAPPING the middle items in BreadcrumbCollapse: the nesting is the opt-in, no width magic, and the ellipsis stays a live link to the first hidden page."
     >
       <div class="flex flex-wrap gap-3">
         <span class="pill">nav + ol + a</span>
         <span class="pill">aria-current</span>
-        <span class="pill">collapse = live ellipsis link</span>
+        <span class="pill">BreadcrumbCollapse = opt-in fold</span>
+        <span class="pill">Link child() escape</span>
       </div>
     </SectionCard>
   </div>
@@ -79,19 +104,55 @@ ${close}
     <ComponentCanvas
       title="breadcrumb"
       stage="fill"
-      description="A three-crumb trail, and an eight-page trail with collapse=4 — the middle folds into an ellipsis that links to the first hidden page (never a dead span)."
-      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/breadcrumb.svelte"
+      description="A three-crumb trail, and an eight-page trail with the middle wrapped in BreadcrumbCollapse — the folded items self-hide and the ellipsis links to the first hidden page (never a dead span)."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/breadcrumb/breadcrumb.svelte"
       files={canvasFiles}
     >
       <div class="flex flex-col items-start gap-5">
-        <Breadcrumb {crumbs} />
-        <Breadcrumb crumbs={longCrumbs} collapse={4} />
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem><BreadcrumbLink href="/">registry</BreadcrumbLink></BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/docs/components.html">components</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbPage href="/docs/components/breadcrumb.html">breadcrumb</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/docs/components/breadcrumb.html?trail=1">page 1</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbCollapse>
+              {#each folded as href, i (href)}
+                <BreadcrumbItem>
+                  <BreadcrumbLink {href}>page {i + 2}</BreadcrumbLink>
+                </BreadcrumbItem>
+              {/each}
+            </BreadcrumbCollapse>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/docs/components/breadcrumb.html?trail=7">page 7</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbPage href="/docs/components/breadcrumb.html?trail=8">page 8</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
       {#snippet playground()}
         <PlayFields>
           <PlayHelp>
             the current page stays a real link — deep links and reloads remain honest. Hover the
-            ellipsis: it points at the first collapsed page, one click restores the path.
+            ellipsis: it derives its destination from the wrapped items (the first hidden page,
+            one click restores the path). BreadcrumbEllipsis exists too — the manual,
+            non-interactive gap glyph.
           </PlayHelp>
         </PlayFields>
       {/snippet}

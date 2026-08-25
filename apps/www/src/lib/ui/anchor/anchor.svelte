@@ -1,12 +1,17 @@
 <!--
-  jixoai anchor (registry/files/ui/anchor.svelte).
-  The heading-anchor link list (antd's Anchor) — the LIGHT sibling of
-  toc.svelte: nav > ol of REAL fragment links (native navigation,
-  native smooth scrolling via the theme's scroll-behavior), with the
-  active pick delegated to the ONE shared implementation,
-  @lib/scroll-spy (batch-4 closure: no second line-pick algorithm —
-  toc-engine remains the weighted IoM variant, scroll-spy is the plain
-  which-section answer).
+  jixoai Anchor root (registry/files/ui/anchor/anchor.svelte,
+  composition-first, 2026-08-25).
+  The heading-anchor rail (antd's Anchor) — the LIGHT sibling of
+  toc.svelte — as a DOM-DELEGATED family: the root is a nav landmark
+  whose children are AnchorItem parts; the spy derives its targets
+  from the root's OWN DOM (child a[href^="#"], scoped via closest() so
+  nested families never leak into each other) — zero registration, so
+  keyed reorders and conditional inserts/deletes cannot corrupt it.
+
+  The active pick stays the ONE shared implementation, @lib/scroll-spy
+  (batch-4 closure: no second line-pick algorithm), flowing to the
+  items through family context (state, never membership order — the
+  context contract).
 
   Two reversible leases on the targets (the tour contract's pattern):
     scroll-margin-top = offset  sticky headers never cover the landed
@@ -14,66 +19,104 @@
     tabindex=-1 on click        the focus rides onto the target
                                heading, restored on blur
   Both are set on demand and restored — consumer markup is never
-  permanently mutated.
+  permanently mutated. A childList MutationObserver re-derives targets
+  (and re-leases) when items enter or leave after mount.
 
-  tw4 (2026-08-24): PURE utility migration, zero css residue — the
-  active pick is JS-known (activeId), so the spine highlight rides
-  conditional utility strings instead of a scoped state class.
+  tw4 posture (unchanged): PURE utility paint, zero css residue.
 -->
+<script lang="ts" module>
+  /** context surface the family shares (the active pick) */
+  export interface AnchorApi {
+    readonly activeId: string;
+  }
+
+  /** context key — global symbol registry so the family files stay
+   *  independent registry items (tabs precedent) */
+  export const ANCHOR_KEY = Symbol.for('jx-anchor');
+</script>
+
 <script lang="ts">
+  import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
+  import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
   import { createScrollSpy } from '$lib/scroll-spy';
 
-  export interface AnchorItem {
-    /** in-page fragment, '#section-id' */
-    href: string;
-    label: string;
-  }
-
-  interface Props {
-    items: AnchorItem[];
+  interface Props extends HTMLAttributes<HTMLElement> {
     /** nav landmark label */
     label?: string;
     /** offset of the pick line from the viewport top (sticky headers) */
     offset?: number;
     class?: string;
+    children: Snippet;
   }
 
-  let { items, label = 'on this page', offset = 96, class: className = '' }: Props = $props();
+  let { label = 'on this page', offset = 96, class: className = '', children, ...rest }: Props = $props();
 
+  let navEl = $state<HTMLElement | undefined>();
   let activeId = $state('');
 
+  setContext<AnchorApi>(ANCHOR_KEY, {
+    get activeId() {
+      return activeId;
+    },
+  });
+
+  /** the spy's targets, derived from THIS root's own DOM on every
+   *  read — live, so conditional items join/leave the spy for free */
+  function ownFragmentIds(): { id: string }[] {
+    return [...(navEl?.querySelectorAll<HTMLAnchorElement>('a[href^="#"]') ?? [])]
+      .filter((a) => a.closest('nav') === navEl)
+      .map((a) => ({ id: (a.getAttribute('href') ?? '').slice(1) }))
+      .filter((target) => target.id !== '');
+  }
+
   $effect(() => {
-    const spy = createScrollSpy(
-      () => items.map((item) => ({ id: item.href.slice(1) })),
-      (id) => (activeId = id),
-      { offset },
-    );
+    const spy = createScrollSpy(ownFragmentIds, (id) => (activeId = id), { offset });
     return () => spy.destroy();
   });
 
-  // scroll clearance lease (restored on destroy)
+  // scroll clearance lease (set on demand, restored on destroy)
   let leased: HTMLElement[] = [];
-  $effect(() => {
-    leased = items
-      .map((item) => document.getElementById(item.href.slice(1)))
+  function release(): void {
+    for (const el of leased) {
+      el.style.scrollMarginTop = el.dataset.jxAnchorPriorMargin ?? '';
+      delete el.dataset.jxAnchorPriorMargin;
+    }
+    leased = [];
+  }
+  function lease(): void {
+    release();
+    leased = ownFragmentIds()
+      .map((target) => document.getElementById(target.id))
       .filter((el): el is HTMLElement => el !== null);
     for (const el of leased) {
       el.dataset.jxAnchorPriorMargin = el.style.scrollMarginTop;
       el.style.scrollMarginTop = `${offset}px`;
     }
+  }
+
+  // re-derive when items enter/leave after mount (childList only —
+  // attribute paint like aria-current never re-triggers this)
+  $effect(() => {
+    if (!navEl) return;
+    lease();
+    const observer = new MutationObserver(() => lease());
+    observer.observe(navEl, { childList: true, subtree: true });
     return () => {
-      for (const el of leased) {
-        el.style.scrollMarginTop = el.dataset.jxAnchorPriorMargin ?? '';
-        delete el.dataset.jxAnchorPriorMargin;
-      }
+      observer.disconnect();
+      release();
     };
   });
 
   /** click = navigate + OWN the focus (tabindex=-1 for the ride,
-   *  restored on blur — the reversible-lease pattern) */
-  function handleAnchorClick(href: string): void {
-    const el = document.getElementById(href.slice(1));
+   *  restored on blur — the reversible-lease pattern), delegated to
+   *  the root so items carry no handlers of their own */
+  function handleClick(event: MouseEvent): void {
+    const link = (event.target as HTMLElement | null)?.closest?.('a[href^="#"]');
+    if (!link || !navEl?.contains(link)) return;
+    const hash = link.getAttribute('href') ?? '';
+    const el = document.getElementById(hash.slice(1));
     if (!el) return;
     const hadTabindex = el.getAttribute('tabindex');
     el.setAttribute('tabindex', '-1');
@@ -91,26 +134,13 @@
   }
 </script>
 
-<nav data-jx-anchor="" class={className} aria-label={label}>
-  <ol class="m-0 flex list-none flex-col gap-0.5 border-l border-border p-0" role="list">
-    {#each items as item (item.href)}
-      <li>
-        <a
-          data-jx-anchor-link=""
-          data-jx-anchor-active={activeId === item.href.slice(1) ? '' : undefined}
-          class={cn(
-            '-ml-px block border-l-2 py-[0.3125rem] px-3 font-nav text-xs uppercase tracking-[0.08em] no-underline transition-[color,border-color] duration-150 ease-out hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
-            activeId === item.href.slice(1)
-              ? 'border-l-primary text-foreground'
-              : 'border-l-transparent text-muted-foreground',
-          )}
-          href={item.href}
-          aria-current={activeId === item.href.slice(1) ? 'location' : undefined}
-          onclick={() => handleAnchorClick(item.href)}
-        >
-          {item.label}
-        </a>
-      </li>
-    {/each}
-  </ol>
+<nav
+  bind:this={navEl}
+  data-jx-anchor=""
+  class={cn('flex flex-col gap-0.5 border-l border-border', className)}
+  aria-label={label}
+  onclick={handleClick}
+  {...rest}
+>
+  {@render children()}
 </nav>

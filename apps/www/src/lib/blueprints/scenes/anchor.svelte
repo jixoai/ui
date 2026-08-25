@@ -3,21 +3,15 @@
      active pick (first heading at this scroll position). -->
 <script lang="ts">
   import Anchor from '$lib/ui/anchor/anchor.svelte';
-  import type { AnchorItem } from '$lib/ui/anchor/anchor.svelte';
-
-  const items: AnchorItem[] = [
-    { href: '#bp-anchor-what', label: 'what it does' },
-    { href: '#bp-anchor-pick', label: 'the line pick' },
-    { href: '#bp-anchor-lease', label: 'the lease' },
-  ];
+  import AnchorItem from '$lib/ui/anchor/anchor-item.svelte';
 </script>
 
 <div class="grid h-full w-full grid-cols-[minmax(0,1fr)_11rem] items-start gap-8 p-10">
   <div class="flex min-w-0 flex-col gap-3">
     <h2 id="bp-anchor-what" class="font-mono text-sm">what it does</h2>
     <p class="text-muted-foreground text-sm leading-6">
-      nav &gt; ol of real fragment links — native navigation, native smooth scrolling, no
-      second pick algorithm.
+      nav of real fragment links — native navigation, native smooth scrolling, no second pick
+      algorithm.
     </p>
     <h2 id="bp-anchor-pick" class="mt-2 font-mono text-sm">the line pick</h2>
     <p class="text-muted-foreground text-sm leading-6">
@@ -30,6 +24,10 @@
     </p>
   </div>
   <aside class="self-start pt-0.5">
-    <Anchor {items} label="on this page" offset={8} />
+    <Anchor label="on this page" offset={8}>
+      <AnchorItem href="#bp-anchor-what">what it does</AnchorItem>
+      <AnchorItem href="#bp-anchor-pick">the line pick</AnchorItem>
+      <AnchorItem href="#bp-anchor-lease">the lease</AnchorItem>
+    </Anchor>
   </aside>
 </div>
