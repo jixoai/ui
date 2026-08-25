@@ -40,6 +40,9 @@
     error?: string;
     /** side of the control the label sits on (default right) */
     labelSide?: 'left' | 'right';
+    /** $bindable two-way selected VALUE (Svelte's radio channel:
+        bind:group — checked alone cannot bind on radios) */
+    group?: string | number;
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -50,6 +53,7 @@
     id = autoId,
     error,
     labelSide = 'right',
+    group = $bindable(),
     class: className = '',
     ...rest
   }: Props = $props();
@@ -72,6 +76,7 @@
     <input
       {id}
       type="radio"
+      bind:group
       class={cn(
         'jx-radio appearance-none relative box-border w-4 h-4 m-0 flex-none border border-border rounded-full bg-background cursor-pointer transition-[border-color] duration-150 ease-out',
         className,

@@ -60,6 +60,13 @@
    *  root's headings (the toc-outline lib). Client-side derivation —
    *  SSR renders the empty rail that fills on hydration (the DECLARED
    *  exception; the manual composed tree is SSR-complete). */
+  /** a manual ToC section: { id, label } — what +page.ts toc arrays
+      carry (the layout's and every docs page's import) */
+  export interface TocSection {
+    id: string;
+    label: string;
+  }
+
   export interface TocOutlineConfig {
     /** the content container whose h2/h3 (configurable) tree is the outline */
     root: string | HTMLElement;

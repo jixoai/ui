@@ -11,4 +11,4 @@
   let { class: className = '' }: { class?: string } = $props();
 </script>
 
-<span data-slot="item-chevron" class={cn(className)}>{@html icons.chevronRight}</span>
+<span data-slot="item-chevron" aria-hidden="true" class={cn(className)}>{@html icons.chevronRight}</span>

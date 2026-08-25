@@ -43,6 +43,18 @@ describe('ItemField — the settings-row wiring', () => {
     expect(container.querySelector('#c1-error')!.textContent).toContain('flag');
   });
 
+  it('ItemRadio group is the two-way channel (bind:group law)', async () => {
+    const { container } = render(Host);
+    const r1 = container.querySelector('#r1') as HTMLInputElement;
+    const r2 = container.querySelector('#r2') as HTMLInputElement;
+    expect(r1.checked).toBe(true);
+    expect(r2.checked).toBe(false);
+    r2.click();
+    await new Promise((r) => setTimeout(r));
+    expect(r2.checked).toBe(true);
+    expect(r1.checked).toBe(false);
+  });
+
   it('field rows stamp the Item contract (auto chrome, group inheritance)', () => {
     const { container } = render(Host);
     const standaloneRow = container.querySelector('#t1')!.closest('[data-slot="item"]')!;

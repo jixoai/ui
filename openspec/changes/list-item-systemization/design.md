@@ -68,15 +68,21 @@ Group frame stamps: data-mode · data-inset("true" when on) · data-size · data
 Group list stamps: data-slot="item-list" · data-dividers
 ```
 
-**Time model (one law — review blocker 1):** ItemGroup creates its
-context object ONCE; its policy fields are `$state`-backed; every
-Item re-resolves REACTIVELY when its own props or any relevant group
-policy field changes. SSR requires only that the INITIAL stamps are
-deterministic before hydration — resolution is a pure function of
-(current item props, current group policy), never a mount-time
-snapshot. Implementation: typed context via a module-local Symbol
-key with an exported `ItemGroupPolicy` type (no `createContext`
-dependency; `$props.id()` for every generated id).
+**Time model (one law — amended in the impl round):** ItemGroup
+creates its context object ONCE; its policy fields are GETTER-BACKED
+over the group's prop signals — the zero-boilerplate reactive holder
+(a `$state` object plus a sync effect is strictly more code with
+desync risk; the getter form reads the prop signals directly and
+cannot drift). Every Item re-resolves REACTIVELY when its own props
+or any relevant group policy field changes. SSR requires only that
+the INITIAL stamps are deterministic before hydration — resolution
+is a pure function of (current item props, current group policy),
+never a mount-time snapshot. The stamped chrome union is CLOSED: an
+explicit `variant="default"` normalizes to `data-item-chrome="none"`
+(the transparent escape hatch paints exactly like grouped auto).
+Implementation: typed context via a module-local Symbol key with an
+exported `ItemGroupPolicy` type (no `createContext` dependency;
+`$props.id()` for every generated id).
 
 CSS NEVER infers chrome from descendant context. Group paint targets
 `[data-slot="item-group"]` and direct-child `[data-slot="item-row"]`
@@ -158,9 +164,9 @@ the full ItemField prop set above, plus:
 
 | adapter | additional public/bindable props | control-reserved (Omit) sets |
 |---|---|---|
-| `ItemToggle` | `checked — $bindable(false)`; `size: 'sm'\|'md'\|'lg' — 'md'`; all non-reserved Toggle props | `label` (visible label suppressed — the field owns it) + field-reserved |
+| `ItemToggle` | `checked — $bindable(false)`; `controlSize: 'sm'\|'md'\|'lg' — 'md'` (the Toggle footprint; the field's density owns `size` and the native number-typed `size` attr is reserved away); all non-reserved Toggle props | `label` + field-reserved + native `size` |
 | `ItemCheckbox` | `checked — $bindable(false)`; `indeterminate — false`; non-reserved Checkbox props | `label`, `error`, `labelSide` + field-reserved |
-| `ItemRadio` | `checked — $bindable(false)`; `name`, `value`, `required` + non-reserved Radio props | Radio's duplicate label/error props + field-reserved |
+| `ItemRadio` | `group — $bindable()` (the two-way selected VALUE — Svelte's radio law is `bind:group`; `checked` cannot bind on radios and stays an uncontrolled rest attr; `name`/`value` keep native form participation) + non-reserved Radio props | Radio's duplicate label/error props + field-reserved + native `size` |
 | `ItemSelect` | `value — $bindable()`; `children: Snippet` (options) forwarded through the control snippet; non-reserved NativeSelect props | `label`, `error` + field-reserved |
 | `ItemInput` | `type — 'text'`; `value — $bindable()`; non-reserved Input props | Input's duplicate label/error props + field-reserved |
 
@@ -248,9 +254,18 @@ exactly once.
 ## 8. Svelte-5 implementation law
 
 Typed Symbol-key context with exported `ItemGroupPolicy`; stable
-object identity, `$state` fields (§2 time model). One shared
-attribute object, two tiny root branches (anchor/div); component
-stamps after the rest spread. No `on:` forwarding, no `asChild`, no
-`any`. Item class composition stays reactive (no captured initial
-`className` — fixes the stale-prop warning). IDs via `$props.id()`
-only; deterministic suffixes per ItemFieldContext.
+identity, GETTER-backed reactive fields (§2 time model — the
+`$state`-holder alternative was considered and rejected as
+sync-drift boilerplate). One shared attribute object, two tiny root
+branches (anchor/div); component stamps after the rest spread. No
+`on:` forwarding, no `asChild`, no `any`. Item class composition
+stays reactive (no captured initial `className`). IDs via
+`$props.id()` only; deterministic suffixes per ItemFieldContext.
+Round-1 review amendments: `ItemDivider` is group-only by contract
+(it IS an `<li>`); `ItemField` carries no `disabled` prop — adapters
+own forwarding disabled to their controls; `ItemChevron`'s wrapper
+span carries `aria-hidden` itself; `ItemMedia` variant="image"
+without `src` renders the empty square; the `<ul>` duplicates
+`data-size` (the rhythm key for its gap law); `Item` rest-attrs
+extend `HTMLAnchorAttributes` (anchor superset, native-select
+precedent — div-only attrs not provided on purpose).

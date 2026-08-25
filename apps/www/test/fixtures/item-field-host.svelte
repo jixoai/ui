@@ -16,14 +16,15 @@
   let toggleOn = $state(false);
   let boxOn = $state(true);
   let pick = $state('md');
+  let channel = $state('stable');
   let name = $state('');
 </script>
 
 <div>
   <ItemToggle id="t1" label="Fast builds" description="skip typechecking" bind:checked={toggleOn} />
   <ItemCheckbox id="c1" label="Beta channel" error="requires a flag" bind:checked={boxOn} />
-  <ItemRadio id="r1" name="channel" value="stable" label="Stable" />
-  <ItemRadio id="r2" name="channel" value="beta" label="Beta" />
+  <ItemRadio id="r1" name="channel" value="stable" label="Stable" bind:group={channel} />
+  <ItemRadio id="r2" name="channel" value="beta" label="Beta" bind:group={channel} />
   <ItemSelect id="s1" label="Density" bind:value={pick}>
     <option value="sm">sm</option>
     <option value="md">md</option>

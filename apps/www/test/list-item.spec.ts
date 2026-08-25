@@ -54,6 +54,11 @@ describe('Item family — structure the matrix keys off', () => {
     expect(a.getAttribute('data-variant')).toBe('outline');
     expect(a.getAttribute('data-item-chrome')).toBe('outline');
     expect(a.getAttribute('data-size')).toBe('sm');
+    // the stamp union is CLOSED: explicit default normalizes to none
+    const { container: c3 } = render(Item, { props: { variant: 'default', children } });
+    const d = c3.querySelector('[data-slot="item"]')!;
+    expect(d.getAttribute('data-variant')).toBe('default');
+    expect(d.getAttribute('data-item-chrome')).toBe('none');
   });
 
   it('media stamps its variant; image renders the img (src/alt stay public)', () => {
@@ -107,11 +112,14 @@ describe('Item family — structure the matrix keys off', () => {
     expect(chevron.querySelector('svg')!.hasAttribute('data-jx-icon')).toBe(true);
     // decorative: the shared inline icon bakes aria-hidden
     expect(chevron.querySelector('svg')!.getAttribute('aria-hidden')).toBe('true');
+    // the decorative contract lives on the exported leaf too
+    expect(chevron.getAttribute('aria-hidden')).toBe('true');
   });
 
-  it('ItemDivider is the childless presentational boundary', () => {
+  it('ItemDivider is the childless presentational li boundary', () => {
     const { container } = render(ItemDivider);
     const divider = container.querySelector('[data-slot="item-divider"]')!;
+    expect(divider.tagName).toBe('LI');
     expect(divider.getAttribute('role')).toBe('presentation');
     expect(divider.children.length).toBe(0);
   });
@@ -168,5 +176,48 @@ describe('Item family — the CSS contract (source guard)', () => {
     expect(wideBlock.match(/grid-template-areas/g)!.length).toBe(16);
     expect(wideBlock.match(/grid-template-columns/g)!.length).toBe(16);
     expect(css.match(/grid-template-areas/g)!.length).toBe(24); // 16 wide + 8 narrow
+  });
+});
+
+describe('Item family — the reactive policy law (impl-review r1-7)', () => {
+  it('stamps re-resolve on group prop changes; nested groups shadow', async () => {
+    const Host = (await import('./fixtures/item-policy-host.svelte')).default;
+    const { rerender, container } = render(Host, {
+      props: { mode: 'default', size: 'default' },
+    });
+    const outer = container.querySelector('[data-probe="outer"]')!;
+    const outerList = outer.querySelector(':scope > [data-slot="item-list"]')!;
+    // default mode, dividers omitted → auto; frame carries mode
+    expect(outer.getAttribute('data-mode')).toBe('default');
+    expect(outerList.getAttribute('data-dividers')).toBe('auto');
+    // nested group shadows: inner rows are sm despite outer default
+    const innerRow = outer.querySelector('[data-probe="inner"] [data-slot="item"]');
+    expect(innerRow!.getAttribute('data-size')).toBe('sm');
+
+    // muted forces none even when 'auto' is supplied explicitly
+    await rerender({ mode: 'muted', dividers: 'auto', size: 'default' });
+    expect(outer.getAttribute('data-mode')).toBe('muted');
+    expect(outer.querySelector(':scope > [data-slot="item-list"]')!.getAttribute('data-dividers')).toBe('none');
+
+    // plain + explicit none → none; rerender merges props, so the
+    // omission cases get their own fresh renders below
+    await rerender({ mode: 'plain', dividers: 'none', size: 'sm' });
+    expect(outer.querySelector(':scope > [data-slot="item-list"]')!.getAttribute('data-dividers')).toBe('none');
+    expect(outer.getAttribute('data-size')).toBe('sm');
+    expect(innerRow!.getAttribute('data-size')).toBe('sm');
+    await rerender({ mode: 'plain', dividers: 'auto', size: 'default' });
+    expect(outer.querySelector(':scope > [data-slot="item-list"]')!.getAttribute('data-dividers')).toBe('auto');
+    // grouped rows re-resolved size through the whole rerender chain
+    const groupedRow = outer.querySelector(':scope > [data-slot="item-list"] > [data-slot="item-row"] [data-slot="item"]');
+    expect(groupedRow!.getAttribute('data-size')).toBe('default');
+    expect(groupedRow!.getAttribute('data-item-chrome')).toBe('none');
+
+    // the omission matrix on fresh trees: plain omitted → none,
+    // default omitted → auto (already the first render above)
+    const plain = render(Host, { props: { mode: 'plain', size: 'default' } });
+    expect(
+      plain.container.querySelector('[data-probe="outer"] > [data-slot="item-list"]')!.getAttribute('data-dividers'),
+    ).toBe('none');
+    plain.unmount();
   });
 });

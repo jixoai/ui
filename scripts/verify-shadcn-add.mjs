@@ -38,6 +38,7 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const scratch = join(root, '.agents/fixtures/2026-08-24-tw4-p0-consumer');
 const registryDir = join(scratch, 'registry', 'r');
 const consumerDir = join(scratch, 'consumer');
+const isolatedDir = join(scratch, 'isolated-list-item');
 const PORT = 5399;
 const BASE = `http://127.0.0.1:${PORT}/r`;
 
@@ -308,6 +309,139 @@ try {
   check('consumer vite build passes', true);
 } catch {
   check('consumer vite build passes', false);
+}
+
+// ── 6. ISOLATED list-item closure (impl-review blocker 6) ─────────
+// a second, clean consumer installs ONLY @jixoai/list-item: no other
+// fixture can satisfy a dependency, and every canonical target must
+// appear EXACTLY ONCE tree-wide
+rmSync(isolatedDir, { recursive: true, force: true });
+mkdirSync(join(isolatedDir, 'src/lib/ui'), { recursive: true });
+mkdirSync(join(isolatedDir, 'src/routes'), { recursive: true });
+mkdirSync(join(isolatedDir, 'public'), { recursive: true });
+const writeIso = (p, c) => writeFileSync(join(isolatedDir, p), c);
+writeIso('package.json', JSON.stringify({
+  name: 'isolated-list-item-consumer',
+  private: true, type: 'module',
+  scripts: { build: 'vite build' },
+  devDependencies: {
+    svelte: versions.svelte,
+    '@sveltejs/vite-plugin-svelte': versions['@sveltejs/vite-plugin-svelte'],
+    vite: versions.vite, typescript: versions.typescript,
+    '@tailwindcss/vite': versions['@tailwindcss/vite'],
+    tailwindcss: versions.tailwindcss, shadcn: '^4.18.0',
+  },
+}, null, 2));
+writeIso('components.json', JSON.stringify({
+  $schema: 'https://ui.shadcn.com/schema.json',
+  style: 'new-york', rsc: false, tsx: true,
+  tailwind: { config: '', css: 'src/app.css', baseColor: 'neutral', cssVariables: true, prefix: '' },
+  iconLibrary: 'lucide',
+  aliases: { components: 'src/lib', utils: 'src/lib/utils', ui: 'src/lib/ui', lib: 'src/lib', hooks: 'src/lib/hooks' },
+  registries: { '@jixoai': `${BASE}/{name}.json` },
+}, null, 2));
+writeIso('vite.config.ts', `import { defineConfig } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+import tailwindcss from '@tailwindcss/vite';
+import { fileURLToPath } from 'node:url';
+
+export default defineConfig({
+  plugins: [svelte(), tailwindcss()],
+  resolve: { alias: { $lib: fileURLToPath(new URL('./src/lib', import.meta.url)) } },
+  build: { target: 'esnext' },
+});
+`);
+writeIso('tsconfig.json', JSON.stringify({
+  compilerOptions: {
+    target: 'esnext', module: 'esnext', moduleResolution: 'bundler',
+    verbatimModuleSyntax: true, strict: true, noEmit: true,
+    paths: { '$lib': ['./src/lib'], '$lib/*': ['./src/lib/*'] },
+    types: ['svelte', 'vite/client'],
+  },
+  include: ['src/**/*.ts', 'src/**/*.svelte', 'vite.config.ts'],
+}, null, 2));
+writeIso('svelte.config.js', `import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+export default { preprocess: vitePreprocess() };
+`);
+writeIso('src/app.css', `@import 'tailwindcss';
+`);
+writeIso('index.html', `<!doctype html>
+<html><head><meta charset="utf-8" /><title>isolated list-item</title></head>
+<body><div id="app"></div><script type="module" src="/src/main.ts"></script></body></html>
+`);
+writeIso('src/main.ts', `import './app.css';
+import { mount } from 'svelte';
+import App from './App.svelte';
+mount(App, { target: document.getElementById('app')! });
+`);
+writeIso('src/App.svelte', `<script lang="ts">
+  import { Item, ItemGroup, ItemContent, ItemTitle, ItemEnd, ItemChevron, ItemDivider, ItemAfter, ItemToggle, ItemCheckbox, ItemRadio, ItemSelect, ItemInput } from '$lib/ui/list-item';
+  let channel = $state('stable');
+  let on = $state(false);
+  let density = $state('default');
+  let name = $state('');
+</script>
+
+<ItemGroup label="isolated">
+  <Item href="#x">
+    <ItemContent><ItemTitle>row</ItemTitle></ItemContent>
+    <ItemEnd><ItemAfter>2</ItemAfter></ItemEnd>
+  </Item>
+  <ItemDivider />
+  <ItemToggle label="Fast builds" bind:checked={on} />
+  <ItemCheckbox label="Telemetry" />
+  <ItemRadio name="channel" value="stable" label="Stable" bind:group={channel} />
+  <ItemSelect label="Density" bind:value={density}><option value="default">default</option></ItemSelect>
+  <ItemInput label="Project name" bind:value={name} />
+</ItemGroup>
+`);
+
+const runIso = (cmd, args, opts = {}) => {
+  const r = spawnSync(cmd, args, { cwd: isolatedDir, encoding: 'utf8', stdio: 'pipe', ...opts });
+  if (r.status !== 0) {
+    console.error(`command failed: ${cmd} ${args.join(' ')}\n${r.stdout}\n${r.stderr}`);
+    process.exit(1);
+  }
+  return r;
+};
+console.log('isolated consumer: npm install…');
+runIso('npm', ['install', '--no-audit', '--no-fund', '--loglevel=error']);
+console.log('isolated consumer: shadcn add @jixoai/list-item (ONLY)…');
+runIso('npx', ['shadcn', 'add', '@jixoai/list-item', '--yes', '--overwrite'], {
+  env: { ...process.env, REGISTRY_URL: BASE, NO_PROXY: 'localhost,127.0.0.1', no_proxy: 'localhost,127.0.0.1' },
+});
+const existsIso = (p) => existsSync(join(isolatedDir, p));
+const countTree = (dir, basename) => {
+  let hits = 0;
+  for (const entry of readdirSafe(dir)) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) hits += countTree(full, basename);
+    else if (entry.name === basename) hits += 1;
+  }
+  return hits;
+};
+check('isolated: family complete (21 files)', listItemFiles.every((f) => existsIso(`src/lib/ui/list-item/${f}`)));
+check('isolated: no item-separator', !existsIso('src/lib/ui/list-item/item-separator.svelte'));
+const exactOnce = [
+  ['src/lib/ui/toggle/toggle.svelte', 'toggle.svelte'],
+  ['src/lib/ui/checkbox/checkbox.svelte', 'checkbox.svelte'],
+  ['src/lib/ui/radio/radio.svelte', 'radio.svelte'],
+  ['src/lib/ui/native-select/native-select.svelte', 'native-select.svelte'],
+  ['src/lib/ui/input/input.svelte', 'input.svelte'],
+];
+for (const [target, basename] of exactOnce) {
+  check(`isolated: ${basename} present exactly once tree-wide`, existsIso(target) && countTree(join(isolatedDir, 'src'), basename) === 1);
+}
+check('isolated: icons.ts exactly once', existsIso('src/lib/icons.ts') && countTree(join(isolatedDir, 'src'), 'icons.ts') === 1);
+check('isolated: jx-pure.css exactly once', existsIso('src/lib/jx-pure.css') && countTree(join(isolatedDir, 'src'), 'jx-pure.css') === 1);
+check('isolated: theme jixoai.css exactly once', existsIso('src/lib/jixoai.css') && countTree(join(isolatedDir, 'src'), 'jixoai.css') === 1);
+check('isolated: utils.ts exactly once', existsIso('src/lib/utils.ts') && countTree(join(isolatedDir, 'src'), 'utils.ts') === 1);
+console.log('isolated consumer: vite build…');
+try {
+  runIso('npx', ['vite', 'build']);
+  check('isolated: consumer vite build passes', true);
+} catch {
+  check('isolated: consumer vite build passes', false);
 }
 
 server.kill();

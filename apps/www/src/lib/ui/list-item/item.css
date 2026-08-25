@@ -44,83 +44,83 @@
 
   /* ── the presence matrix (16 exhaustive self-contained combos) ────
      media × end × header × footer; each combo owns columns+areas. */
-  .jx-item {
+  :where(.jx-item) {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr) minmax(0, max-content);
     grid-template-areas: 'header header header'
       'media content end'
       'footer footer footer';
   }
-  .jx-item:not(:has(> [data-slot='item-footer'])) {
+  :where(.jx-item:not(:has(> [data-slot='item-footer']))) {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr) minmax(0, max-content);
     grid-template-areas: 'header header header'
       'media content end';
   }
-  .jx-item:not(:has(> [data-slot='item-header'])) {
+  :where(.jx-item:not(:has(> [data-slot='item-header']))) {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr) minmax(0, max-content);
     grid-template-areas: 'media content end'
       'footer footer footer';
   }
-  .jx-item:not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
+  :where(.jx-item:not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer']))) {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr) minmax(0, max-content);
     grid-template-areas: 'media content end';
   }
-  .jx-item:not(:has(> [data-slot='item-end'])) {
+  :where(.jx-item:not(:has(> [data-slot='item-end']))) {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
     grid-template-areas: 'header header'
       'media content'
       'footer footer';
   }
-  .jx-item:not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-footer'])) {
+  :where(.jx-item:not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-footer']))) {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
     grid-template-areas: 'header header'
       'media content';
   }
-  .jx-item:not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-header'])) {
+  :where(.jx-item:not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-header']))) {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
     grid-template-areas: 'media content'
       'footer footer';
   }
-  .jx-item:not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
+  :where(.jx-item:not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer']))) {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
     grid-template-areas: 'media content';
   }
-  .jx-item:not(:has(> [data-slot='item-media'])) {
+  :where(.jx-item:not(:has(> [data-slot='item-media']))) {
     grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
     grid-template-areas: 'header header'
       'content end'
       'footer footer';
   }
-  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-footer'])) {
+  :where(.jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-footer']))) {
     grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
     grid-template-areas: 'header header'
       'content end';
   }
-  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])) {
+  :where(.jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header']))) {
     grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
     grid-template-areas: 'content end'
       'footer footer';
   }
-  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
+  :where(.jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer']))) {
     grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
     grid-template-areas: 'content end';
   }
-  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-end'])) {
+  :where(.jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-end']))) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: 'header'
       'content'
       'footer';
   }
-  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-footer'])) {
+  :where(.jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-footer']))) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: 'header'
       'content';
   }
-  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-header'])) {
+  :where(.jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-header']))) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: 'content'
       'footer';
   }
-  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
+  :where(.jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer']))) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: 'content';
   }
@@ -422,31 +422,31 @@
      end-present combos only, wrap="never" opts out of the template
      switch (the lane simply never splits) */
   @container jx-items (max-width: 30rem) {
-    .jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])) {
+    :where(.jx-item:has(> [data-slot='item-end']:not([data-wrap='never']))) {
       grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
       grid-template-areas: 'header header'
         'media content'
         'end end'
         'footer footer';
     }
-    .jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-footer'])) {
+    :where(.jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-footer']))) {
       grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
       grid-template-areas: 'header header'
         'media content'
         'end end';
     }
-    .jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-header'])) {
+    :where(.jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-header']))) {
       grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
       grid-template-areas: 'media content'
         'end end'
         'footer footer';
     }
-    .jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
+    :where(.jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer']))) {
       grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
       grid-template-areas: 'media content'
         'end end';
     }
-    .jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-media'])) {
+    :where(.jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-media']))) {
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas: 'header'
         'content'

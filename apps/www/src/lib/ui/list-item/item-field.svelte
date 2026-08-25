@@ -45,8 +45,6 @@
     /** field density: omitted = nearest group's, then 'default' */
     size?: ItemSize;
     layout?: ItemLayout;
-    /** forwarded to the control alongside the field's own visuals */
-    disabled?: boolean;
     class?: string;
     control: Snippet<[ItemFieldContext]>;
   }
@@ -63,7 +61,6 @@
     variant = 'auto',
     size,
     layout = 'auto',
-    disabled = false,
     class: className = '',
     control,
   }: Props = $props();

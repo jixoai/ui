@@ -63,7 +63,7 @@ const selectedRow = row(
   { media: false, end: true, header: false, footer: false },
   ' data-selected="true"',
 );
-const linkRow = `<a class="jx-item" data-size="default" data-combo="linkfocus" href="#" data-item-chrome="none">${slot('item-content')}${slot('item-end')}</a>`;
+const linkRow = `<a class="jx-item" data-slot="item" data-size="default" data-combo="linkfocus" href="#" data-item-chrome="none">${slot('item-content')}${slot('item-end')}</a>`;
 
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>
 :root { --border: rgb(0,0,0); --primary: rgb(200,0,100); --terminal: rgb(250,250,250);
@@ -131,12 +131,22 @@ for (const c of combos) {
 const narrow = await page.evaluate(() =>
   [...document.querySelectorAll('[data-narrow-combo]')].map((el) => ({
     id: el.getAttribute('data-narrow-combo'),
+    cols: getComputedStyle(el).gridTemplateColumns.split(' ').length,
     areas: getComputedStyle(el).gridTemplateAreas,
   })),
 );
 check('fixture carries all 8 narrow end-present combos', narrow.length === 8, `got ${narrow.length}`);
-for (const g of narrow) {
-  check(`narrow ${g.id}: end lane on its own row`, g.areas.includes('"end end"') || g.areas.includes('"end"'), g.areas);
+// narrow expected columns: 2 with media, 1 without (impl-review B5:
+// BOTH computed properties, every combo — the no-implicit-track law)
+const narrowById = new Map(narrow.map((g) => [g.id, g]));
+for (const c of narrowCombos) {
+  const g = narrowById.get(c.id);
+  const wantCols = c.media ? 2 : 1;
+  check(
+    `narrow ${c.id}: ${wantCols} tracks + end lane on its own row`,
+    !!g && g.cols === wantCols && (g.areas.includes('"end end"') || g.areas.includes('"end"')),
+    g ? `cols=${g.cols} areas=${g.areas}` : 'missing',
+  );
 }
 const neverAreas = await page.evaluate(() => getComputedStyle(document.querySelector('[data-never]')).gridTemplateAreas);
 check('wrap=never keeps the main row', !neverAreas.includes('"end end"') && neverAreas.includes('media') && neverAreas.includes('end'), neverAreas);
@@ -148,11 +158,23 @@ const dividerProbe = await page.evaluate(() => {
   const rows = [...document.querySelectorAll('#divider-list > [data-slot="item-row"]')];
   const divider = document.querySelector('#divider-list > [data-slot="item-divider"]');
   const probe = (el) => { const cs = getComputedStyle(el); return { w: cs.borderTopWidth, c: cs.borderTopColor }; };
-  return { afterDivider: probe(rows[0]), beforeLast: probe(rows[2]), explicit: probe(divider) };
+  // rows[0] precedes the divider, rows[1] follows it, rows[2] is a
+  // plain adjacent pair — BOTH divider-adjacent edges stay clean
+  return { beforeDivider: probe(rows[0]), afterDivider: probe(rows[1]), beforeLast: probe(rows[2]), explicit: probe(divider) };
 });
 check('explicit divider paints a full-strength edge', dividerProbe.explicit.w === '1px' && dividerProbe.explicit.c === 'rgb(0, 0, 0)', JSON.stringify(dividerProbe.explicit));
 check('auto hairline is the 38% mix (not full strength)', dividerProbe.beforeLast.w === '1px' && dividerProbe.beforeLast.c !== 'rgb(0, 0, 0)', JSON.stringify(dividerProbe.beforeLast));
-check('row adjacent to divider paints NO auto edge', dividerProbe.afterDivider.w === '0px', JSON.stringify(dividerProbe.afterDivider));
+check('row BEFORE divider paints NO auto edge', dividerProbe.beforeDivider.w === '0px', JSON.stringify(dividerProbe.beforeDivider));
+check('row AFTER divider paints NO auto edge', dividerProbe.afterDivider.w === '0px', JSON.stringify(dividerProbe.afterDivider));
+
+// ── focus-visible: keyboard into the link row, the inset ring paints ──
+await page.keyboard.press('Tab');
+const focusRing = await page.evaluate(() => {
+  const a = document.querySelector('a[data-slot="item"]');
+  const cs = getComputedStyle(a);
+  return { style: cs.outlineStyle, width: cs.outlineWidth, color: cs.outlineColor, tag: document.activeElement?.tagName };
+});
+check('focus-visible paints the inset 1px ring', focusRing.style !== 'none' && focusRing.width === '1px' && focusRing.tag === 'A', JSON.stringify(focusRing));
 
 await browser.close();
 server.close();

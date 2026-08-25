@@ -57,7 +57,6 @@
   {variant}
   {size}
   {layout}
-  {disabled}
   class={className}
 >
   {#snippet control(field: ItemFieldContext)}

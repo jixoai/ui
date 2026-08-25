@@ -52,7 +52,11 @@
 
   const policy = getContext<ItemGroupPolicy | undefined>(ITEM_GROUP_KEY);
 
-  const chrome = $derived(variant === 'auto' ? (policy ? 'none' : 'surface') : variant);
+  // explicit 'default' normalizes to chrome 'none' (the transparent
+  // escape hatch) — data-item-chrome never leaves its closed union
+  const chrome = $derived(
+    variant === 'auto' ? (policy ? 'none' : 'surface') : variant === 'default' ? 'none' : variant,
+  );
   const resolvedSize: ItemSize = $derived(size ?? policy?.size ?? 'default');
   const resolvedLayout = $derived(layout === 'auto' ? (policy?.layout ?? 'standard') : layout);
   const klass = $derived(cn('jx-item', className));
