@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-25T15:41:58.148Z",
+  "generatedAt": "2026-08-25T15:55:33.264Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -437,8 +437,8 @@
           "source": "registry/files/ui/toc/toc.svelte",
           "mirror": "apps/www/src/lib/ui/toc/toc.svelte",
           "target": "@ui/toc/toc.svelte",
-          "sourceSha": "4f47402583db74224e9fa051956419a014deb2176ce3c2afb6b298c848660496",
-          "mirrorSha": "4f47402583db74224e9fa051956419a014deb2176ce3c2afb6b298c848660496"
+          "sourceSha": "71ba406ecbb75de6821d1bf72db5f38bcfcc10aa98c2b9aa93edd3cdeab5843b",
+          "mirrorSha": "71ba406ecbb75de6821d1bf72db5f38bcfcc10aa98c2b9aa93edd3cdeab5843b"
         }
       ]
     },
@@ -1969,8 +1969,8 @@
           "source": "registry/files/ui/command/command-input.svelte",
           "mirror": "apps/www/src/lib/ui/command/command-input.svelte",
           "target": "@ui/command/command-input.svelte",
-          "sourceSha": "f26e63e43b46e7c6440157890c6d2f45208c984a9af632a0506b8ebfa948a574",
-          "mirrorSha": "f26e63e43b46e7c6440157890c6d2f45208c984a9af632a0506b8ebfa948a574"
+          "sourceSha": "62ef6246b34704a4935128492aa3f868e3b3e5ac2ec5d8dd57b6043ea50d3a90",
+          "mirrorSha": "62ef6246b34704a4935128492aa3f868e3b3e5ac2ec5d8dd57b6043ea50d3a90"
         },
         {
           "source": "registry/files/ui/command/command-item.svelte",
@@ -2046,8 +2046,8 @@
           "source": "registry/files/ui/navigation-menu/navigation-menu-trigger.svelte",
           "mirror": "apps/www/src/lib/ui/navigation-menu/navigation-menu-trigger.svelte",
           "target": "@ui/navigation-menu/navigation-menu-trigger.svelte",
-          "sourceSha": "1e983fd56a17bef70dd2cf5d30aac32f645687ccca830b9675bebf00c170c84c",
-          "mirrorSha": "1e983fd56a17bef70dd2cf5d30aac32f645687ccca830b9675bebf00c170c84c"
+          "sourceSha": "edb8e211d268643906c2b3f2ee0a2bebc5351c2f8f644a53ad39d672cf30c574",
+          "mirrorSha": "edb8e211d268643906c2b3f2ee0a2bebc5351c2f8f644a53ad39d672cf30c574"
         },
         {
           "source": "registry/files/ui/navigation-menu/navigation-menu.svelte",
@@ -2095,8 +2095,8 @@
           "source": "registry/files/ui/menubar/menubar-trigger.svelte",
           "mirror": "apps/www/src/lib/ui/menubar/menubar-trigger.svelte",
           "target": "@ui/menubar/menubar-trigger.svelte",
-          "sourceSha": "7cc3cf646cacb2d2ac8a07c070bbd592ab25385d014e22229004449d3edc9d2b",
-          "mirrorSha": "7cc3cf646cacb2d2ac8a07c070bbd592ab25385d014e22229004449d3edc9d2b"
+          "sourceSha": "646a669dcf7e340ff81ff98998bfaa8bc7dd9b39137b1a1d332c6b2b5d495c69",
+          "mirrorSha": "646a669dcf7e340ff81ff98998bfaa8bc7dd9b39137b1a1d332c6b2b5d495c69"
         },
         {
           "source": "registry/files/ui/menubar/menubar.css",
