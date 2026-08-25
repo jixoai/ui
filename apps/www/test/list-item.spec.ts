@@ -47,7 +47,7 @@ describe('Item family — structure the matrix keys off', () => {
     expect(div.getAttribute('data-layout')).toBe('standard');
 
     const { container: c2 } = render(Item, {
-      props: { href: '/x', variant: 'outline', size: 'xs', children },
+      props: { href: '/x', variant: 'outline', density: 'xs', children },
     });
     const a = c2.querySelector('[data-slot="item"]')!;
     expect(a.tagName).toBe('A');
@@ -201,7 +201,7 @@ describe('Item family — the reactive policy law (impl-review r1-7)', () => {
   it('stamps re-resolve on group prop changes; nested groups shadow', async () => {
     const Host = (await import('./fixtures/item-policy-host.svelte')).default;
     const { rerender, container } = render(Host, {
-      props: { mode: 'default', size: 'default', layout: 'standard' },
+      props: { mode: 'default', density: 'default', layout: 'standard' },
     });
     const outer = container.querySelector('[data-probe="outer"]')!;
     const outerList = outer.querySelector(':scope > [data-slot="item-list"]')!;
@@ -213,20 +213,20 @@ describe('Item family — the reactive policy law (impl-review r1-7)', () => {
     expect(innerRow!.getAttribute('data-density')).toBe('sm');
 
     // muted forces none even when 'auto' is supplied explicitly
-    await rerender({ mode: 'muted', dividers: 'auto', size: 'default' });
+    await rerender({ mode: 'muted', dividers: 'auto', density: 'default' });
     expect(outer.getAttribute('data-mode')).toBe('muted');
     expect(outer.querySelector(':scope > [data-slot="item-list"]')!.getAttribute('data-dividers')).toBe('none');
 
     // plain + explicit none → none; rerender merges props, so the
     // omission cases get their own fresh renders below
-    await rerender({ mode: 'plain', dividers: 'none', size: 'sm' });
+    await rerender({ mode: 'plain', dividers: 'none', density: 'sm' });
     expect(outer.querySelector(':scope > [data-slot="item-list"]')!.getAttribute('data-dividers')).toBe('none');
     expect(outer.getAttribute('data-density')).toBe('sm');
     expect(innerRow!.getAttribute('data-density')).toBe('sm');
-    await rerender({ mode: 'plain', dividers: 'auto', size: 'default' });
+    await rerender({ mode: 'plain', dividers: 'auto', density: 'default' });
     expect(outer.querySelector(':scope > [data-slot="item-list"]')!.getAttribute('data-dividers')).toBe('auto');
     // layout re-resolves too: the frame stamps it, auto rows inherit it
-    await rerender({ mode: 'plain', dividers: 'auto', size: 'default', layout: 'media' });
+    await rerender({ mode: 'plain', dividers: 'auto', density: 'default', layout: 'media' });
     expect(outer.getAttribute('data-layout')).toBe('media');
     expect(outer.querySelector(':scope > [data-slot="item-list"] > [data-slot="item-row"] [data-slot="item"]')!.getAttribute('data-layout')).toBe('media');
     // grouped rows re-resolved size through the whole rerender chain
@@ -236,7 +236,7 @@ describe('Item family — the reactive policy law (impl-review r1-7)', () => {
 
     // the omission matrix on fresh trees: plain omitted → none,
     // default omitted → auto (already the first render above)
-    const plain = render(Host, { props: { mode: 'plain', size: 'default', layout: 'standard' } });
+    const plain = render(Host, { props: { mode: 'plain', density: 'default', layout: 'standard' } });
     expect(
       plain.container.querySelector('[data-probe="outer"] > [data-slot="item-list"]')!.getAttribute('data-dividers'),
     ).toBe('none');

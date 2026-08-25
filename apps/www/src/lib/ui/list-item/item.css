@@ -246,6 +246,11 @@
     display: inline-flex;
     color: var(--muted-foreground);
   }
+  /* the optical correction is CONSUMED (K0 §7.1): solid media glyphs
+     shift by the bounded token; default 0px = no shift */
+  :where([data-slot='item-media'][data-variant='icon'] svg) {
+    translate: clamp(var(--jx-d-icon-optical-inline, 0px), calc(var(--jx-ruler-unit) / -2), calc(var(--jx-ruler-unit) / 2)) 0;
+  }
   :where([data-slot='item-chevron'] svg) {
     width: var(--jx-d-media-icon);
     height: var(--jx-d-media-icon);

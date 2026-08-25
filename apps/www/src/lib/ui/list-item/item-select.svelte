@@ -14,7 +14,7 @@
 
   type ControlProps = Omit<
     ComponentProps<typeof NativeSelect>,
-    'label' | 'error' | 'id' | 'aria-labelledby' | 'aria-describedby' | 'class' | 'children' | 'size' | 'value'
+    'label' | 'error' | 'id' | 'aria-labelledby' | 'aria-describedby' | 'class' | 'children' | 'density' | 'value'
   >;
 
   interface Props extends Omit<ControlProps, 'disabled'> {
@@ -24,7 +24,7 @@
     id?: string;
     labelMode?: 'for' | 'text';
     variant?: ItemVariant;
-    size?: Density;
+    density?: Density;
     layout?: ItemLayout;
     disabled?: boolean;
     class?: string;
@@ -40,7 +40,7 @@
     id,
     labelMode = 'for',
     variant = 'auto',
-    size,
+    density,
     layout = 'auto',
     disabled = false,
     class: className = '',
@@ -57,7 +57,7 @@
   {id}
   {labelMode}
   {variant}
-  {size}
+  {density}
   {layout}
   class={className}
 >

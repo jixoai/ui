@@ -24,8 +24,12 @@ export const DENSITY_KEY = Symbol('jx-density');
 export function resolveDensity(
   explicit: Density | undefined,
   inherited: DensityContext | undefined,
+  fallback: Density = DEFAULT_DENSITY,
 ): Density {
-  return explicit ?? inherited?.density ?? DEFAULT_DENSITY;
+  // explicit -> inherited -> LOCAL fallback. The fallback never
+  // shadows inherited context (design-language: a Table defaults sm
+  // only when NO parent provider exists)
+  return explicit ?? inherited?.density ?? fallback;
 }
 
 export function getDensityContext(): DensityContext | undefined {

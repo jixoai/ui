@@ -29,7 +29,7 @@
     /** visual variant (geometry-neutral): auto | default | outline | muted */
     variant?: 'auto' | 'default' | 'outline' | 'muted';
     /** DENSITY override: omitted = nearest provider, then 'default' */
-    size?: Density;
+    density?: Density;
     /** row layout: 'auto' inherits the group's, else standard */
     layout?: ItemLayout;
     /** visual selection state ONLY — never emits aria-selected */
@@ -42,7 +42,7 @@
 
   let {
     variant = 'auto',
-    size,
+    density,
     'data-density': _callerDensity,
     layout = 'auto',
     selected = false,
@@ -60,7 +60,7 @@
   const chrome = $derived(
     variant === 'auto' ? (policy ? 'none' : 'surface') : variant === 'default' ? 'none' : variant,
   );
-  const resolvedSize: Density = $derived(resolveDensity(size, outerDensity));
+  const resolvedDensity: Density = $derived(resolveDensity(density, outerDensity));
   const resolvedLayout = $derived(layout === 'auto' ? (policy?.layout ?? 'standard') : layout);
   const klass = $derived(cn('jx-item', className));
 </script>
@@ -73,7 +73,7 @@
     data-slot="item"
     data-variant={variant}
     data-item-chrome={chrome}
-    data-density={resolvedSize}
+    data-density={resolvedDensity}
     data-layout={resolvedLayout}
     data-selected={selected ? 'true' : undefined}
     class={klass}

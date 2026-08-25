@@ -45,7 +45,7 @@
       <ItemEnd><ItemAfter>12:04</ItemAfter></ItemEnd>
     </Item>
   </ItemGroup>
-  <ItemGroup label="settings" mode="plain" dividers="auto" size="sm" class="max-w-[26rem]">
+  <ItemGroup label="settings" mode="plain" dividers="auto" density="sm" class="max-w-[26rem]">
     <ItemToggle label="Fast builds" description="skip typechecking" bind:checked={fast} />
   </ItemGroup>
 </div>

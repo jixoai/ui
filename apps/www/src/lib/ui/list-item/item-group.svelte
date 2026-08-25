@@ -18,7 +18,7 @@
   export type ItemRuler = 'content-end' | 'media-content-end';
 
   export interface ItemGroupPolicy extends DensityContext {
-    readonly size: Density;
+    readonly density: Density;
     readonly layout: ItemGroupLayout;
     readonly ruler: ItemRuler;
   }
@@ -38,7 +38,7 @@
     /** fixed 0.75rem inline margins — boolean only */
     inset?: boolean;
     /** DENSITY: default for auto rows + the list rhythm (explicit ?? inherited ?? default) */
-    size?: Density;
+    density?: Density;
     layout?: ItemGroupLayout;
     /** the shared ruler: content-end (media-less, default) | media-content-end */
     ruler?: ItemRuler;
@@ -58,7 +58,7 @@
   let {
     mode = 'default',
     inset = false,
-    size,
+    density,
     layout = 'standard',
     ruler = 'content-end',
     dividers,
@@ -74,7 +74,7 @@
   }: Props = $props();
 
   const outerDensity = getDensityContext();
-  const resolved = $derived(resolveDensity(size, outerDensity) ?? DEFAULT_DENSITY);
+  const resolved = $derived(resolveDensity(density, outerDensity) ?? DEFAULT_DENSITY);
   provideDensity(() => resolved);
 
   const labelId = $derived(`${id ?? autoId}-label`);
@@ -83,14 +83,11 @@
   );
 
   setContext(ITEM_GROUP_KEY, {
-    get size() {
+    get density() {
       return resolved;
     },
     get layout() {
       return layout;
-    },
-    get density() {
-      return resolved;
     },
     get ruler() {
       return ruler;

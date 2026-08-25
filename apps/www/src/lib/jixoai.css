@@ -846,6 +846,19 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-d-secondary-text: var(--jx-density-secondary-text-default);
   --jx-d-secondary-leading: var(--jx-density-secondary-leading);
   --jx-d-secondary-line: var(--jx-density-secondary-line-default);
+  --jx-d-ctl-text: var(--jx-d-text);
+  --jx-d-ctl-line: var(--jx-d-line);
+  --jx-d-ctl-pad: var(--jx-d-inline-inset);
+  --jx-d-ctl-gap: var(--jx-d-inline-gap);
+  --jx-d-ctl-row: var(--jx-d-row-min);
+  --jx-d-ctl-hit: var(--jx-d-hit-min);
+  --jx-d-ctl-icon: var(--jx-d-media-icon);
+  --jx-d-ctl-toggle-h: var(--jx-d-line);
+  --jx-d-ctl-toggle-w: calc(var(--jx-d-ctl-toggle-h) * 2);
+  --jx-d-ctl-toggle-knob: calc(var(--jx-d-ctl-toggle-h) - var(--jx-ruler-unit));
+  --jx-d-ctl-range-track: max(var(--jx-ruler-unit), calc(var(--jx-d-ctl-line) / 2));
+  --jx-d-ctl-textarea-min: max(var(--jx-d-ctl-hit), calc(var(--jx-d-ctl-line) * 3 + var(--jx-d-stack-gap) * 2 + 2px));
+  --jx-d-ctl-color-lane: max(var(--jx-d-ctl-hit), calc(var(--jx-d-ctl-icon) + var(--jx-d-ctl-pad) * 2 + 2px));
 }
 
 :where([data-density='xs']) {
@@ -865,6 +878,19 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-d-secondary-text: var(--jx-density-secondary-text-xs);
   --jx-d-secondary-leading: var(--jx-density-secondary-leading);
   --jx-d-secondary-line: var(--jx-density-secondary-line-xs);
+  --jx-d-ctl-text: var(--jx-d-text);
+  --jx-d-ctl-line: var(--jx-d-line);
+  --jx-d-ctl-pad: var(--jx-d-inline-inset);
+  --jx-d-ctl-gap: var(--jx-d-inline-gap);
+  --jx-d-ctl-row: var(--jx-d-row-min);
+  --jx-d-ctl-hit: var(--jx-d-hit-min);
+  --jx-d-ctl-icon: var(--jx-d-media-icon);
+  --jx-d-ctl-toggle-h: var(--jx-d-line);
+  --jx-d-ctl-toggle-w: calc(var(--jx-d-ctl-toggle-h) * 2);
+  --jx-d-ctl-toggle-knob: calc(var(--jx-d-ctl-toggle-h) - var(--jx-ruler-unit));
+  --jx-d-ctl-range-track: max(var(--jx-ruler-unit), calc(var(--jx-d-ctl-line) / 2));
+  --jx-d-ctl-textarea-min: max(var(--jx-d-ctl-hit), calc(var(--jx-d-ctl-line) * 3 + var(--jx-d-stack-gap) * 2 + 2px));
+  --jx-d-ctl-color-lane: max(var(--jx-d-ctl-hit), calc(var(--jx-d-ctl-icon) + var(--jx-d-ctl-pad) * 2 + 2px));
 }
 
 :where([data-density='sm']) {
@@ -884,6 +910,19 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-d-secondary-text: var(--jx-density-secondary-text-sm);
   --jx-d-secondary-leading: var(--jx-density-secondary-leading);
   --jx-d-secondary-line: var(--jx-density-secondary-line-sm);
+  --jx-d-ctl-text: var(--jx-d-text);
+  --jx-d-ctl-line: var(--jx-d-line);
+  --jx-d-ctl-pad: var(--jx-d-inline-inset);
+  --jx-d-ctl-gap: var(--jx-d-inline-gap);
+  --jx-d-ctl-row: var(--jx-d-row-min);
+  --jx-d-ctl-hit: var(--jx-d-hit-min);
+  --jx-d-ctl-icon: var(--jx-d-media-icon);
+  --jx-d-ctl-toggle-h: var(--jx-d-line);
+  --jx-d-ctl-toggle-w: calc(var(--jx-d-ctl-toggle-h) * 2);
+  --jx-d-ctl-toggle-knob: calc(var(--jx-d-ctl-toggle-h) - var(--jx-ruler-unit));
+  --jx-d-ctl-range-track: max(var(--jx-ruler-unit), calc(var(--jx-d-ctl-line) / 2));
+  --jx-d-ctl-textarea-min: max(var(--jx-d-ctl-hit), calc(var(--jx-d-ctl-line) * 3 + var(--jx-d-stack-gap) * 2 + 2px));
+  --jx-d-ctl-color-lane: max(var(--jx-d-ctl-hit), calc(var(--jx-d-ctl-icon) + var(--jx-d-ctl-pad) * 2 + 2px));
 }
 
 :where([data-density='lg']) {
@@ -903,4 +942,17 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-d-secondary-text: var(--jx-density-secondary-text-lg);
   --jx-d-secondary-leading: var(--jx-density-secondary-leading);
   --jx-d-secondary-line: var(--jx-density-secondary-line-lg);
+  --jx-d-ctl-text: var(--jx-d-text);
+  --jx-d-ctl-line: var(--jx-d-line);
+  --jx-d-ctl-pad: var(--jx-d-inline-inset);
+  --jx-d-ctl-gap: var(--jx-d-inline-gap);
+  --jx-d-ctl-row: var(--jx-d-row-min);
+  --jx-d-ctl-hit: var(--jx-d-hit-min);
+  --jx-d-ctl-icon: var(--jx-d-media-icon);
+  --jx-d-ctl-toggle-h: var(--jx-d-line);
+  --jx-d-ctl-toggle-w: calc(var(--jx-d-ctl-toggle-h) * 2);
+  --jx-d-ctl-toggle-knob: calc(var(--jx-d-ctl-toggle-h) - var(--jx-ruler-unit));
+  --jx-d-ctl-range-track: max(var(--jx-ruler-unit), calc(var(--jx-d-ctl-line) / 2));
+  --jx-d-ctl-textarea-min: max(var(--jx-d-ctl-hit), calc(var(--jx-d-ctl-line) * 3 + var(--jx-d-stack-gap) * 2 + 2px));
+  --jx-d-ctl-color-lane: max(var(--jx-d-ctl-hit), calc(var(--jx-d-ctl-icon) + var(--jx-d-ctl-pad) * 2 + 2px));
 }

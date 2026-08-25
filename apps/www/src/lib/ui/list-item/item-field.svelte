@@ -45,7 +45,7 @@
     labelMode?: 'for' | 'text';
     variant?: ItemVariant;
     /** DENSITY override: omitted = nearest provider, then 'default' */
-    size?: Density;
+    density?: Density;
     layout?: ItemLayout;
     class?: string;
     control: Snippet<[ItemFieldContext]>;
@@ -61,7 +61,7 @@
     id,
     labelMode = 'for',
     variant = 'auto',
-    size,
+    density,
     layout = 'auto',
     class: className = '',
     control,
@@ -83,7 +83,7 @@
   });
 </script>
 
-<Item {variant} {size} {layout} class={cn('jx-item-field', className)} data-item-field={labelMode}>
+<Item {variant} {density} {layout} class={cn('jx-item-field', className)} data-item-field={labelMode}>
   <ItemContent>
     {#if labelMode === 'for'}
       <label class="jx-item-field-label" id={labelId} for={controlId}>{label}</label>

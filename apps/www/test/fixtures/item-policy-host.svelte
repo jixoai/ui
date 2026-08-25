@@ -7,24 +7,24 @@
   let {
     mode,
     dividers,
-    size,
+    density,
     layout,
   }: {
     mode: 'default' | 'muted' | 'plain';
     dividers?: 'auto' | 'none';
-    size: 'default' | 'sm';
+    density: 'default' | 'sm';
     layout: 'standard' | 'media';
   } = $props();
 </script>
 
-<ItemGroup {mode} {dividers} {size} {layout} data-probe="outer">
+<ItemGroup {mode} {dividers} {density} {layout} data-probe="outer">
   <Item>
     <ItemContent><ItemTitle>outer row</ItemTitle></ItemContent>
   </Item>
   <Item>
     <ItemContent>
       <ItemTitle>hosts the nested group</ItemTitle>
-      <ItemGroup data-probe="inner" size="sm">
+      <ItemGroup data-probe="inner" density="sm">
         <Item>
           <ItemContent><ItemTitle>inner row</ItemTitle></ItemContent>
         </Item>

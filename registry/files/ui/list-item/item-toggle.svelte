@@ -16,10 +16,10 @@
 
   type ControlProps = Omit<
     ComponentProps<typeof Toggle>,
-    'label' | 'id' | 'aria-labelledby' | 'aria-describedby' | 'class' | 'children'
+    'label' | 'id' | 'aria-labelledby' | 'aria-describedby' | 'class' | 'children' | 'size'
   >;
 
-  interface Props extends Omit<ControlProps, 'checked' | 'disabled' | 'size'> {
+  interface Props extends Omit<ControlProps, 'checked' | 'disabled' | 'size' | 'density'> {
     label: string;
     description?: string;
     error?: string;
@@ -27,11 +27,9 @@
     labelMode?: 'for' | 'text';
     variant?: ItemVariant;
     /** DENSITY override: omitted = nearest provider, then 'default' */
-    size?: Density;
+    density?: Density;
     layout?: ItemLayout;
     disabled?: boolean;
-    /** the Toggle's own footprint (sm/md/lg) — the field's density is `size` */
-    controlSize?: 'sm' | 'md' | 'lg';
     class?: string;
     checked?: boolean;
   }
@@ -43,10 +41,9 @@
     id,
     labelMode = 'for',
     variant = 'auto',
-    size,
+    density,
     layout = 'auto',
     disabled = false,
-    controlSize = 'md',
     class: className = '',
     checked = $bindable(false),
     ...controlProps
@@ -60,7 +57,7 @@
   {id}
   {labelMode}
   {variant}
-  {size}
+  {density}
   {layout}
   class={className}
 >
@@ -69,7 +66,6 @@
       {...controlProps}
       bind:checked
       {disabled}
-      size={controlSize}
       id={field.controlId}
       aria-invalid={error ? 'true' : undefined}
       aria-describedby={field.describedBy}

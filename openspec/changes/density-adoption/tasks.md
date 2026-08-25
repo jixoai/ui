@@ -8,7 +8,7 @@
   492/492 · kernel 61/61 · ruler 18/18 · matrix 37/37 · pure 65/65 ·
   manifest 297 pairs) without touching unrelated dirty files; capture
   the pre-K0 visual baselines (geometry JSON + screenshots, design §8).
-- [ ] 2. **K0 contract/substrate** — fallback-aware resolver + tests;
+- [x] 2. **K0 contract/substrate** — fallback-aware resolver + tests;
   list-item `size`→`density` rename with ALL compatibility paths
   removed (`ItemSize`/`controlSize`/`data-size`/policy `size`);
   `--jx-d-ctl-*` aliases in the canonical theme pair; the three §7

@@ -9,7 +9,7 @@
     U = 4px · T = 13px · rows 28/32/40/48
   </div>
   {#each ['xs', 'sm', 'default', 'lg'] as const as d (d)}
-    <ItemGroup mode="plain" size={d} class="max-w-[20rem]">
+    <ItemGroup mode="plain" density={d} class="max-w-[20rem]">
       <Item>
         <ItemContent>
           <ItemTitle>{d} · the derived row</ItemTitle>

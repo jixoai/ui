@@ -14,7 +14,7 @@
 
   type ControlProps = Omit<
     ComponentProps<typeof Input>,
-    'label' | 'error' | 'id' | 'aria-labelledby' | 'aria-describedby' | 'class' | 'children' | 'size' | 'value' | 'type'
+    'label' | 'error' | 'id' | 'aria-labelledby' | 'aria-describedby' | 'class' | 'children' | 'density' | 'value' | 'type'
   >;
 
   interface Props extends Omit<ControlProps, 'disabled'> {
@@ -24,7 +24,7 @@
     id?: string;
     labelMode?: 'for' | 'text';
     variant?: ItemVariant;
-    size?: Density;
+    density?: Density;
     layout?: ItemLayout;
     disabled?: boolean;
     class?: string;
@@ -39,7 +39,7 @@
     id,
     labelMode = 'for',
     variant = 'auto',
-    size,
+    density,
     layout = 'auto',
     disabled = false,
     class: className = '',
@@ -56,7 +56,7 @@
   {id}
   {labelMode}
   {variant}
-  {size}
+  {density}
   {layout}
   class={className}
 >

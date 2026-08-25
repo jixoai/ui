@@ -202,7 +202,7 @@ ${close}
           <div class="flex flex-col gap-2">
             <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">density</span>
             {#each ['default', 'sm', 'xs'] as const as s (s)}
-              <Item size={s}>
+              <Item density={s}>
                 <ItemContent>
                   <ItemTitle>size="{s}"</ItemTitle>
                   <ItemDescription>padding, gaps and type scale — never geometry</ItemDescription>
@@ -438,7 +438,7 @@ ${close}
           {#each [['lg', 'the lg row · 15px text · 24px line · 48px'], ['default', 'the default row · 13px · 20px · 40px'], ['sm', 'the sm row · 12px · 18px · 32px'], ['xs', 'the xs row · 11px · 16px · 28px']] as const as [d, note] (d)}
             <div>
               <span class="text-muted-foreground mb-1 block text-[11px] uppercase tracking-[0.14em]">{d}</span>
-              <ItemGroup mode="plain" dividers="auto" size={d}>
+              <ItemGroup mode="plain" dividers="auto" density={d}>
                 <Item>
                   <ItemContent>
                     <ItemTitle>{note}</ItemTitle>
