@@ -16,7 +16,13 @@ import { CATALOG, CATALOG_GROUPS, catalogByGroup, type CatalogEntry } from './ca
       real content exists — design D4) ─────────────────────────────── */
 
 export interface DocsPage {
-  label: string;
+  /** the nav line 1 — short title (Owner ruling 2026-08-25: the rail is
+   *  too narrow for long single lines; qualifiers move to a subtitle) */
+  title: string;
+  /** the nav line 2 — muted qualifier (e.g. 'where wrapping stops') */
+  subtitle?: string;
+  /** inventory metadata: a trailing count on the title line */
+  count?: number;
   href: string;
 }
 export interface DocsSection {
@@ -42,18 +48,19 @@ export const docsSections: DocsSection[] = [
     id: 'sections',
     label: 'Sections',
     pages: [
-      { label: 'theming & tokens', href: '/tokens.html' },
-      { label: 'where wrapping stops · recipes', href: '/docs/recipes.html' },
-      { label: 'jx-pure · the componentless face', href: '/docs/jx-pure.html' },
+      { title: 'theming & tokens', href: '/tokens.html' },
+      { title: 'recipes', subtitle: 'where wrapping stops', href: '/docs/recipes.html' },
+      { title: 'jx-pure', subtitle: 'the componentless face', href: '/docs/jx-pure.html' },
     ],
   },
   {
     id: 'components',
     label: 'Components',
     pages: [
-      { label: `all components · ${uiCount}`, href: '/docs/components.html' },
+      { title: 'all components', count: uiCount, href: '/docs/components.html' },
       ...docsComponentGroups.map(({ group, entries }) => ({
-        label: `${group.label} ${group.zh} · ${entries.length}`,
+        title: group.label,
+        count: entries.length,
         href: `/docs/components.html#${group.id}`,
       })),
     ],
@@ -64,9 +71,9 @@ export const docsSections: DocsSection[] = [
     id: 'registry',
     label: 'Registry',
     pages: [
-      { label: 'registry overview', href: '/docs/registry.html' },
-      { label: 'registry.json', href: '/r/registry.json' },
-      { label: 'llms-txt', href: '/docs/llms-txt.html' },
+      { title: 'registry overview', href: '/docs/registry.html' },
+      { title: 'registry.json', href: '/r/registry.json' },
+      { title: 'llms-txt', href: '/docs/llms-txt.html' },
     ],
   },
 ];

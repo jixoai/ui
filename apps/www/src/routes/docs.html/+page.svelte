@@ -50,12 +50,20 @@
             <h2 class="font-nav text-[1.05rem] tracking-tight">{section.label}</h2>
           </div>
           <ul class="flex flex-col gap-1.5" role="list">
-            {#each section.pages as pg (pg.label)}
+            {#each section.pages as pg (pg.title)}
               <li class="flex items-baseline gap-2 text-[13px]">
                 <span class="text-primary font-mono text-xs" aria-hidden="true">&gt;</span>
                 <a class="text-muted-foreground transition-colors hover:text-foreground" href={pg.href}>
-                  {pg.label}
+                  {pg.title}
+                  {#if pg.count !== undefined}
+                    <span class="font-mono text-[11px] opacity-60">· {pg.count}</span>
+                  {/if}
                 </a>
+                {#if pg.subtitle}
+                  <span class="text-muted-foreground/60 font-nav text-[10px] uppercase tracking-[0.08em]">
+                    {pg.subtitle}
+                  </span>
+                {/if}
               </li>
             {/each}
           </ul>

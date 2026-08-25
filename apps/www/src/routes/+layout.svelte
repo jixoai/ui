@@ -277,7 +277,8 @@
         label: section.label,
         items: section.pages.map((pg) => ({
           href: pg.href,
-          label: pg.label,
+          label: pg.title,
+          description: pg.subtitle ?? (pg.count !== undefined ? `${pg.count} modules` : ''),
           external: pg.href === '/r/registry.json',
         })),
       })),

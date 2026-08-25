@@ -31,7 +31,7 @@
   const currentLabel = $derived(
     docsSections
       .flatMap((section) => section.pages)
-      .find((pg) => isCurrent(pg.href))?.label ?? 'docs',
+      .find((pg) => isCurrent(pg.href))?.title ?? 'docs',
   );
 
   /** which section holds the current page (open it when expanding) */
@@ -54,15 +54,24 @@
             {section.label}
           </summary>
           <ul class="jx-dsn-list" role="list">
-            {#each section.pages as pg (pg.label)}
+            {#each section.pages as pg (pg.title)}
               <li>
                 <a
                   class="jx-dsn-link"
                   class:jx-dsn-current={isCurrent(pg.href)}
                   href={pg.href}
                   aria-current={isCurrent(pg.href) ? 'page' : undefined}
-                  >{pg.label}</a
                 >
+                  <span class="jx-dsn-link-row">
+                    <span class="jx-dsn-link-title">{pg.title}</span>
+                    {#if pg.count !== undefined}
+                      <span class="jx-dsn-count">{pg.count}</span>
+                    {/if}
+                  </span>
+                  {#if pg.subtitle}
+                    <span class="jx-dsn-sub">{pg.subtitle}</span>
+                  {/if}
+                </a>
               </li>
             {/each}
           </ul>
@@ -97,7 +106,7 @@
             {section.label}
           </summary>
           <ul class="jx-dsn-list" role="list">
-            {#each section.pages as pg (pg.label)}
+            {#each section.pages as pg (pg.title)}
               <li>
                 <a
                   class="jx-dsn-link"
@@ -105,8 +114,17 @@
                   href={pg.href}
                   aria-current={isCurrent(pg.href) ? 'page' : undefined}
                   onclick={close}
-                  >{pg.label}</a
                 >
+                  <span class="jx-dsn-link-row">
+                    <span class="jx-dsn-link-title">{pg.title}</span>
+                    {#if pg.count !== undefined}
+                      <span class="jx-dsn-count">{pg.count}</span>
+                    {/if}
+                  </span>
+                  {#if pg.subtitle}
+                    <span class="jx-dsn-sub">{pg.subtitle}</span>
+                  {/if}
+                </a>
               </li>
             {/each}
           </ul>
@@ -207,14 +225,42 @@
     gap: 1px;
   }
   .jx-dsn-link {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
     padding: 0.1875rem 0.5rem;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
     color: var(--muted-foreground);
     text-decoration: none;
     border-left: 1px solid transparent;
     transition: color 100ms ease-out, border-color 100ms ease-out;
+  }
+  .jx-dsn-link-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4375rem;
+    min-width: 0;
+  }
+  .jx-dsn-link-title {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .jx-dsn-count {
+    margin-left: auto;
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    opacity: 0.5;
+  }
+  .jx-dsn-sub {
+    font-family: var(--font-nav);
+    font-size: 0.5625rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    opacity: 0.75;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
