@@ -1,13 +1,50 @@
 @layer theme, base, components, utilities;
 
 @layer components {
-/* jixoai command palette — D1-exempt residue (tw4, 2026-08-24): the
- * ::backdrop scrim is a pseudo-element (not authorable as a utility).
- * Scrim law: --scrim — semi-transparent black (light) / white (dark),
- * never a brand tint; the fade itself rides the motion kernel's
- * --jx-p timeline (jixoai.css law, r29), so ONLY the color lives
- * here. All other paint is token utilities in the markup. */
+/* jixoai command palette css (composition-first-apis, Batch E,
+ * 2026-08-25). Three residents, all beyond utilities:
+ *
+ * 1. the ::backdrop scrim — D1-exempt residue (tw4, a pseudo-element):
+ *    --scrim law — semi-transparent black (light) / white (dark),
+ *    never a brand tint; the fade itself rides the motion kernel's
+ *    --jx-p timeline (jixoai.css law, r29), so ONLY the color lives
+ *    here. All other paint is token utilities in the markup.
+ *
+ * 2. the :has laws (family context contract, clause 4) — group
+ *    self-hide + empty reveal are pure DOM state, zero JS order
+ *    logic. :where() keeps them at zero specificity so consumer
+ *    utilities win by the standing layer law. The rules live inside
+ *    @supports selector(:has(*)): :has-less engines keep groups and
+ *    the empty state VISIBLE — the documented degraded fallback
+ *    (legal, recorded, not engineered around); the hidden-attribute
+ *    filtering itself still works there. */
 .jx-command::backdrop {
   background: var(--scrim);
 }
+
+@supports selector(:has(*)) {
+  /* an emptied group self-hides (all its options carry hidden) */
+  :where([data-jx-command-group]:not(:has([role=option]:not([hidden])))) {
+    display: none;
+  }
+  /* the empty state: default-hidden, revealed only by the list's own
+     :has inverse — no walkable option left anywhere in the list */
+  :where([data-jx-command-list] [data-jx-command-empty]) {
+    display: none;
+  }
+  :where([data-jx-command-list]:not(:has([role=option]:not([hidden])))) :where([data-jx-command-empty]) {
+    display: block;
+  }
+}
+}
+
+/* The hidden-attribute restore — UNLAYERED ON PURPOSE (the one thing
+ * utilities cannot express from the components layer): the option's
+ * own display utilities (flex) sit in the utilities layer, ABOVE both
+ * the UA sheet and @layer components, and would silently defeat the
+ * hidden ATTRIBUTE — the visibility channel of the whole family.
+ * Unlayered author css outranks every layer; :where() keeps
+ * specificity at zero so an unlayered consumer rule still wins. */
+:where([data-jx-command-item][hidden]) {
+  display: none;
 }

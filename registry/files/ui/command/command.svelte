@@ -1,6 +1,24 @@
 <!--
-  jixoai command palette (registry/files/ui/command.svelte).
-  The ⌘K surface, per the batch-4 design ruling:
+  jixoai command palette — the ROOT (registry/files/ui/command/command.svelte).
+  Composition-first rebuild (composition-first-apis, Batch E, 2026-08-25):
+  a cmdk-style composed family with SELF-MATCHING items —
+
+    <Command bind:open>                ← the dialog shell; query state +
+                                          the match predicate ride context
+      <CommandInput placeholder="…" />  ← role=combobox; IME-safe keys
+      <CommandList>                     ← role=listbox
+        <CommandEmpty>nothing</CommandEmpty>
+        <CommandGroup heading="git">    ← self-hides via CSS :has
+          <CommandItem label="git status" keywords="gs"
+                       onselect={…} disabled={false}>
+            git status                  ← children = rendered content;
+                                          label = REQUIRED match text +
+                                          accessible name (aria-label)
+            {#snippet hint()}<Kbd>⌘S</Kbd>{/snippet}
+          </CommandItem>
+        </CommandGroup>
+      </CommandList>
+    </Command>
 
   Surface: native <dialog> + showModal() — a palette is a MODAL task:
   focus trap, background inertness, Escape and the top layer are the
@@ -8,171 +26,262 @@
   restores focus to whatever had it before. Width min(560px, 100vw -
   2rem), height capped with the list scrolling independently.
 
-  Filter: deterministic ranking, no fuzzy —
-    exact > label startsWith > token startsWith > label includes >
-    keywords includes > original order
-  Case-insensitive, whitespace-collapsed, IME-composition-safe (keys
-  are ignored while composing). `filter` is a pure function prop —
-  swap in your own ranking, never a cmdk compatibility layer.
+  Filter: each item computes its OWN visibility against the context
+  predicate (family context contract, clause 4) — no central registry,
+  no order dependence, SSR renders every item visible. `match` is the
+  frozen pure inclusion contract: (item, query) => boolean; it may only
+  answer visible/hidden, NEVER reorder. Default = the disjunction of
+  text relations (label equals · label startsWith · any label token
+  startsWith · label includes · keywords includes), case-insensitive,
+  whitespace-collapsed query. The old rank-and-reorder died with the
+  closed items[] API — filtering HIDES, the authored tree order IS the
+  walk order (byte-stable under any predicate).
 
   Keyboard/ARIA: combobox + listbox with aria-activedescendant — the
-  input HOLDS focus (screen readers announce the active item); ↑/↓
-  walk wrapped and cross-group, Home/End jump, Enter selects. The
-  no-matches line is role=status (polite) — it is a state, not an
-  option. Disabled items render but never activate.
+  input HOLDS focus (screen readers announce the active item); ↑/↓ walk
+  wrapped and cross-group over the DOM selector
+  [role=option]:not([hidden]):not([aria-disabled='true']), Home/End
+  jump, Enter activates. Disabled items render but never walk, never
+  become activedescendant, never fire onselect (the three locks). The
+  no-matches line is role=status (polite) — a state, not an option —
+  revealed by the list's CSS :has() inverse when nothing is visible.
 
-  API: one execution path — open ($bindable) + onopenchange +
-  onselect(item). onselect fires once, then the palette closes
-  (closeOnSelect={false} keeps it open for batch actions). ⌘K/Ctrl+K
-  is bound by the component on window; hotkey={false} opts out and
-  the app owns the trigger.
+  API: bind:open + onopenchange on the shell; per-item onselect (cmdk
+  law) fires once, then the palette closes (closeOnSelect={false} keeps
+  it open for batch actions). ⌘K/Ctrl+K is bound on window when
+  hotkey={true} (opt-in: multiple instances would otherwise all
+  respond).
 
   tw4 (2026-08-24): paint as token utilities in the markup (active/
-  disabled option states are JS-known → conditional strings); ONLY
-  the ::backdrop scrim (a pseudo-element) remains in command.css —
-  D1-exempt residue.
+  disabled option states are JS-known → conditional strings); ONLY the
+  ::backdrop scrim (a pseudo-element) and the :has laws live in
+  command.css.
 -->
 <script lang="ts" module>
-export interface CommandItem {
-  id: string;
-  label: string;
-  /** extra match text (descriptions, aliases); never displayed */
-  keywords?: string;
-  /** items group under a heading when set; input order preserved */
-  group?: string;
-  /** right-aligned hint — pass a kbd label like '⌘P' */
-  hint?: string;
-  disabled?: boolean;
-}
+  /** the match payload: label is REQUIRED — match text + accessible name */
+  export interface CommandMatchItem {
+    label: string;
+    /** extra match text (descriptions, aliases); never displayed */
+    keywords?: string;
+  }
 
+  /** the frozen match contract (composition-first-apis): a pure
+   *  inclusion predicate — it may only answer visible/hidden, never
+   *  reorder. Authored tree order is the walk order. */
+  export type CommandMatch = (item: CommandMatchItem, query: string) => boolean;
 
-/** deterministic ranking (see header); pure, swappable */
-export function rankCommandItems(items: CommandItem[], query: string): CommandItem[] {
-  const q = query.trim().toLowerCase().split(/\s+/).join(' ');
-  if (q === '') return items;
-  const scored: { item: CommandItem; score: number; order: number }[] = [];
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i]!;
+  /** default match — the old ranking's boolean projection: the
+   *  disjunction of text relations over the case-insensitive,
+   *  whitespace-collapsed query (see header). Pure, swappable. */
+  export function defaultCommandMatch(item: CommandMatchItem, query: string): boolean {
+    const q = query.trim().toLowerCase().split(/\s+/).join(' ');
+    if (q === '') return true;
     const label = item.label.toLowerCase();
     const keywords = (item.keywords ?? '').toLowerCase();
-    let score: number | null = null;
-    if (label === q) score = 0;
-    else if (label.startsWith(q)) score = 1;
-    else if (label.split(/\s+/).some((token) => token.startsWith(q))) score = 2;
-    else if (label.includes(q)) score = 3;
-    else if (keywords.includes(q)) score = 4;
-    if (score !== null) scored.push({ item, score, order: i });
+    return (
+      label === q ||
+      label.startsWith(q) ||
+      label.split(/\s+/).some((token) => token.startsWith(q)) ||
+      label.includes(q) ||
+      keywords.includes(q)
+    );
   }
-  return scored.sort((a, b) => a.score - b.score || a.order - b.order).map((s) => s.item);
-}
 
+  /** the walk/anchor selector (design law, frozen): only walkable
+   *  options ever match — hidden and disabled are excluded from the
+   *  activation path entirely (the three locks). */
+  export const COMMAND_WALK_SELECTOR = "[role=option]:not([hidden]):not([aria-disabled='true'])";
+
+  /** context surface the family shares — STATE + BEHAVIOR, never
+   *  membership order (the family context contract) */
+  export interface CommandApi {
+    readonly label: string;
+    readonly placeholder: string;
+    /** the listbox id — the input's aria-controls target */
+    readonly listId: string;
+    /** the live query (input writes, items read) */
+    readonly query: string;
+    /** the active option's id ('' = none); the input's
+     *  aria-activedescendant mirror */
+    readonly activeId: string;
+    readonly closeOnSelect: boolean;
+    /** self-match: the predicate bound to the current query */
+    matches(item: CommandMatchItem): boolean;
+    setQuery(next: string): void;
+    setActive(id: string): void;
+    /** the combobox registers its element for the open-path focus */
+    setInput(el: HTMLInputElement | null): void;
+    /** the keyboard law: ↑/↓ wrap, Home/End jump, Enter activates */
+    navigate(event: KeyboardEvent): void;
+    /** the selection close path (closeOnSelect) */
+    close(): void;
+  }
+
+  /** context key — registered on the global symbol registry so the
+   *  family files stay independent registry items */
+  export const COMMAND_KEY = Symbol.for('jx-command');
 </script>
 
 <script lang="ts">
-  import { onDestroy, untrack } from 'svelte';
+  import { onDestroy, setContext, untrack } from 'svelte';
   import type { Snippet } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './command.css';
 
   interface Props {
-    items: CommandItem[];
     /** bindable open state — same lifecycle contract as dialog */
     open?: boolean;
     onopenchange?: (open: boolean) => void;
-    /** fires ONCE per selection (disabled items never fire) */
-    onselect?: (item: CommandItem) => void;
-    /** keep the palette open after a select (batch actions) */
-    closeOnSelect?: boolean;
-    /** placeholder for the search input */
-    placeholder?: string;
-    /** dialog label — required a11y name */
-    label?: string;
     /** bind ⌘K/Ctrl+K on window (OPT-IN: multiple instances would
      *  otherwise all respond; the app usually owns exactly one) */
     hotkey?: boolean;
-    /** replace the ranking (pure function, default rankCommandItems) */
-    filter?: (items: CommandItem[], query: string) => CommandItem[];
+    /** placeholder for the search input (CommandInput renders it) */
+    placeholder?: string;
+    /** dialog label — required a11y name */
+    label?: string;
+    /** replace the default inclusion predicate (pure function; the
+     *  answer is visibility only — reordering is impossible by
+     *  contract, authored order always stands) */
+    match?: CommandMatch;
+    /** keep the palette open after a select (batch actions) */
+    closeOnSelect?: boolean;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
     variant?: 'solid' | 'acrylic' | 'auto';
     class?: string;
+    children: Snippet;
   }
 
+  // $props.id() must live in its own top-level initializer (compiler law)
+  const uid = $props.id();
+
   let {
-    items,
     open = $bindable(false),
     onopenchange,
-    onselect,
-    closeOnSelect = true,
+    hotkey = false,
     placeholder = 'type a command…',
     label = 'command palette',
-    hotkey = false,
-    filter = rankCommandItems,
+    match,
+    closeOnSelect = true,
     variant = 'auto',
     class: className = '',
+    children,
   }: Props = $props();
 
   let dialog = $state<HTMLDialogElement | null>(null);
+  let inputEl = $state<HTMLInputElement | null>(null);
+  let query = $state('');
+  let activeId = $state('');
 
   // the shared declarative motion kernel (r29) — same law as popover
   const motion = createSurfaceMotion(() => dialog);
 
   onDestroy(() => motion.destroy());
 
-  const activate = (index: number): void => {
-    const item = results[index];
-    if (!item || item.disabled) return;
-    setOpen(false);
-    onselect?.(item);
-  };
+  const matcher = $derived(match ?? defaultCommandMatch);
 
-  const moveActive = (delta: number): void => {
-    const enabled = results.filter((r) => !r.disabled);
-    if (!enabled.length) return;
-    const current = enabled.indexOf(results[activeIndex]);
-    const next = enabled[(current + delta + enabled.length) % enabled.length];
-    activeIndex = results.indexOf(next);
-  };
+  /** the walkable options — DOM-DELEGATED (family context contract,
+   *  clause 3): the frozen selector over THIS dialog's listbox-scoped
+   *  options. Hidden and disabled items never enter the walk; nested
+   *  foreign listboxes are excluded by the closest() scope. */
+  function ownOptions(): HTMLElement[] {
+    if (!dialog) return [];
+    return [...dialog.querySelectorAll<HTMLElement>(COMMAND_WALK_SELECTOR)].filter(
+      (option) => {
+        const box = option.closest('[role="listbox"]');
+        return box !== null && dialog!.contains(box);
+      },
+    );
+  }
 
-  function handleKeydown(event: KeyboardEvent): void {
-    if (composing) return;
-    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      event.preventDefault();
-      moveActive(event.key === 'ArrowDown' ? 1 : -1);
-    } else if (event.key === 'Home') {
-      event.preventDefault();
-      activeIndex = 0;
-    } else if (event.key === 'End') {
-      event.preventDefault();
-      activeIndex = results.length - 1;
-    } else if (event.key === 'Enter') {
-      event.preventDefault();
-      activate(activeIndex);
+  /** keep the active option walkable: keep it if it survived the last
+   *  filter change, else anchor to the first (Enter always has a live
+   *  target whenever one exists) */
+  function syncActive(): void {
+    const options = ownOptions();
+    if (!options.some((option) => option.id === activeId)) {
+      activeId = options[0]?.id ?? '';
     }
   }
 
-  let input = $state<HTMLInputElement | null>(null);
-  let query = $state('');
-  let activeIndex = $state(0);
-  let composing = false;
+  function moveActive(delta: number): void {
+    const options = ownOptions();
+    if (!options.length) return;
+    const current = options.findIndex((option) => option.id === activeId);
+    // from nothing: down enters at the top, up at the bottom
+    const next =
+      current === -1
+        ? delta > 0
+          ? options[0]!
+          : options.at(-1)!
+        : options[(current + delta + options.length) % options.length]!;
+    activeId = next.id;
+  }
 
-  const results = $derived(filter(items, query));
-  const groups = $derived.by(() => {
-    const runs: { group: string | null; items: CommandItem[] }[] = [];
-    for (const item of results) {
-      const last = runs.at(-1);
-      if (last && last.group === (item.group ?? null)) last.items.push(item);
-      else runs.push({ group: item.group ?? null, items: [item] });
+  function activateActive(): void {
+    const active = ownOptions().find((option) => option.id === activeId);
+    // DOM delegation: Enter IS the option's own click path — the item
+    // owns onselect + the close law. Disabled/hidden options never hold
+    // activeId, so they never activate (the three locks).
+    active?.click();
+  }
+
+  function navigate(event: KeyboardEvent): void {
+    const key = event.key;
+    if (
+      key !== 'ArrowDown' &&
+      key !== 'ArrowUp' &&
+      key !== 'Home' &&
+      key !== 'End' &&
+      key !== 'Enter'
+    ) {
+      return;
     }
-    return runs;
-  });
+    event.preventDefault();
+    if (key === 'ArrowDown') moveActive(1);
+    else if (key === 'ArrowUp') moveActive(-1);
+    else if (key === 'Home') activeId = ownOptions()[0]?.id ?? '';
+    else if (key === 'End') activeId = ownOptions().at(-1)?.id ?? '';
+    else activateActive();
+  }
 
-  // unique surface ids per instance (multiple palettes must not collide)
-  const uid = $props.id();
-  const listId = `${uid}-list`;
-  const optionId = (id: string): string => `${uid}-opt-${id}`;
-  const activeId = $derived(results[activeIndex] ? optionId(results[activeIndex]!.id) : '');
+  setContext<CommandApi>(COMMAND_KEY, {
+    get label() {
+      return label;
+    },
+    get placeholder() {
+      return placeholder;
+    },
+    get listId() {
+      return `${uid}-list`;
+    },
+    get query() {
+      return query;
+    },
+    get activeId() {
+      return activeId;
+    },
+    get closeOnSelect() {
+      return closeOnSelect;
+    },
+    matches(item) {
+      return matcher(item, query);
+    },
+    setQuery(next) {
+      query = next;
+    },
+    setActive(id) {
+      activeId = id;
+    },
+    setInput(el) {
+      inputEl = el;
+    },
+    navigate,
+    close() {
+      setOpen(false);
+    },
+  });
 
   function setOpen(next: boolean): void {
     if (next === open) return;
@@ -184,15 +293,25 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
     if (open) {
       if (dialog && !dialog.open) dialog.showModal();
       query = '';
-      activeIndex = 0;
+      activeId = '';
       motion.play(1);
       motion.startTracking();
       requestAnimationFrame(() => {
-        if (dialog?.open) input?.focus();
+        if (!dialog?.open) return;
+        inputEl?.focus();
+        syncActive();
       });
     } else {
       untrack(() => shut());
     }
+  });
+
+  // filter changes re-anchor the active option (query is the only
+  // dependency; the DOM read + write ride untrack to stay acyclic)
+  $effect(() => {
+    void query;
+    if (!untrack(() => dialog?.open)) return;
+    untrack(() => syncActive());
   });
 
   // the hotkey: window-level, only while enabled
@@ -224,7 +343,6 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
     motion.play(0);
     dialog.close();
   };
-
 </script>
 
 <dialog
@@ -241,83 +359,6 @@ export function rankCommandItems(items: CommandItem[], query: string): CommandIt
 >
   <div data-jx-command-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
   <div data-jx-command-frame="" class="jx-surface-body flex flex-col [max-height:inherit]">
-    <!-- svelte-ignore a11y_autofocus -- the palette's whole contract is
-         type-to-search: focus must land in the input on open -->
-    <input
-      bind:this={input}
-      data-jx-command-input=""
-      class="box-border w-full border-b border-border bg-transparent px-4 py-[0.875rem] font-mono text-[0.9375rem] text-foreground placeholder:text-muted-foreground focus:outline-none"
-      type="text"
-      role="combobox"
-      aria-label={label}
-      aria-expanded="true"
-      aria-controls={listId}
-      aria-activedescendant={activeId || undefined}
-      aria-autocomplete="list"
-      {placeholder}
-      bind:value={query}
-      onkeydown={handleKeydown}
-      oncompositionstart={() => (composing = true)}
-      oncompositionend={() => (composing = false)}
-    />
-    <div
-      data-jx-command-list=""
-      class="overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-[0.375rem] [padding-inline:max(0.375rem-var(--jx-scrollbar-thin,0px),0px)]"
-      id={listId}
-      role="listbox"
-      aria-label={label}
-      tabindex="-1"
-    >
-      {#each groups as run ((run.group ?? 'root') + run.items[0]!.id)}
-        {#if run.group}
-          <p
-            data-jx-command-group=""
-            class="mt-2 mb-1 px-2 font-nav text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground"
-            aria-hidden="true"
-          >
-            {run.group}
-          </p>
-        {/if}
-        {#each run.items as item (item.id)}
-          {@const index = results.indexOf(item)}
-<!-- svelte-ignore a11y_interaction_supports_focus, a11y_no_noninteractive_element_interactions -- the
-     listbox option pattern here is activedescendant-driven: the INPUT
-     holds focus and keys; the option's click is a pointer shortcut -->
-          <div
-            id={optionId(item.id)}
-            role="option"
-            aria-selected={index === activeIndex}
-            aria-disabled={item.disabled || undefined}
-            data-jx-command-item=""
-            data-jx-command-item-disabled={item.disabled ? '' : undefined}
-            data-jx-command-item-active={!item.disabled && index === activeIndex ? '' : undefined}
-            class={cn(
-              'flex items-center justify-between gap-3 px-[0.625rem] py-2 text-[0.8125rem] text-foreground',
-              item.disabled
-                ? 'cursor-not-allowed opacity-45'
-                : index === activeIndex
-                  ? 'cursor-pointer bg-muted shadow-[inset_2px_0_0_var(--primary)]'
-                  : 'cursor-pointer',
-            )}
-            onclick={() => activate(index)}
-            onpointerenter={() => !item.disabled && (activeIndex = index)}
-          >
-            <span data-jx-command-label="" class="min-w-0 truncate">{item.label}</span>
-            {#if item.hint}
-              <span
-                data-jx-command-hint=""
-                class="flex-none border border-border px-[0.375rem] font-nav text-[0.6875rem] tracking-[0.1em] text-muted-foreground"
-              >
-                {item.hint}
-              </span>
-            {/if}
-          </div>
-        {/each}
-      {:else}
-        <div data-jx-command-empty="" class="px-[0.625rem] py-5 text-center text-[0.8125rem] text-muted-foreground" role="status">
-          no matches — {query.trim() || '…'}
-        </div>
-      {/each}
-    </div>
+    {@render children()}
   </div>
 </dialog>
