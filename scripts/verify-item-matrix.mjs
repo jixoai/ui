@@ -25,7 +25,8 @@ const CHROME =
   homedir() +
   '/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing';
 
-const css = readFileSync(resolve('apps/www/src/lib/ui/list-item/item.css'), 'utf8');
+const css = readFileSync(resolve('apps/www/src/lib/jixoai.css'), 'utf8')
+  + readFileSync(resolve('apps/www/src/lib/ui/list-item/item.css'), 'utf8');
 
 // the 16 combos: bits (media, end, header, footer) → expected wide template
 const combos = [];
@@ -155,6 +156,18 @@ check('wrap=never keeps the main row', !neverAreas.includes('"end end"') && neve
 const selectedShadow = await page.evaluate(() => getComputedStyle(document.querySelector('[data-selected]')).boxShadow);
 const noDataSize = await page.evaluate(() => !document.querySelector('[data-size]'));
 check('fixture carries no data-size authority (the migration law)', noDataSize);
+// the base row law: EVERY topology keeps the derived edge breathing
+// (impl-review post-archive defect: standalone rows were glued to
+// edges when the law lived only inside @supports)
+const baseLaw = await page.evaluate(() => {
+  const standalone = document.querySelector('#divider-list [data-slot="item-row"] .jx-item') || document.querySelector('.jx-item');
+  const cs = getComputedStyle(standalone);
+  return { pis: cs.paddingInlineStart, pbs: cs.paddingBlockStart, mh: cs.minHeight };
+});
+check('base row law: standalone inset = the derived B', baseLaw.pis === '12px', JSON.stringify(baseLaw));
+check('base row law: block breathing = the derived S', baseLaw.pbs === '8px');
+check('base row law: row floor = the derived row-min', baseLaw.mh === '40px');
+
 check('selected paints the inset primary edge', selectedShadow.includes('inset'), selectedShadow);
 const dividerProbe = await page.evaluate(() => {
   const rows = [...document.querySelectorAll('#divider-list > [data-slot="item-row"]')];
@@ -162,10 +175,12 @@ const dividerProbe = await page.evaluate(() => {
   const probe = (el) => { const cs = getComputedStyle(el); return { w: cs.borderTopWidth, c: cs.borderTopColor }; };
   // rows[0] precedes the divider, rows[1] follows it, rows[2] is a
   // plain adjacent pair — BOTH divider-adjacent edges stay clean
-  return { beforeDivider: probe(rows[0]), afterDivider: probe(rows[1]), beforeLast: probe(rows[2]), explicit: probe(divider) };
+  const borderColor = getComputedStyle(divider).borderTopColor; // resolves var(--border) from the REAL theme
+  const same = (probe) => probe.c === borderColor;
+  return { beforeDivider: probe(rows[0]), afterDivider: probe(rows[1]), beforeLast: probe(rows[2]), explicit: probe(divider), borderColor, same: { beforeDivider: same(probe(rows[0])), afterDivider: same(probe(rows[1])), beforeLast: same(probe(rows[2])), explicit: same(probe(divider)) } };
 });
-check('explicit divider paints a full-strength edge', dividerProbe.explicit.w === '1px' && dividerProbe.explicit.c === 'rgb(0, 0, 0)', JSON.stringify(dividerProbe.explicit));
-check('auto hairline is the 38% mix (not full strength)', dividerProbe.beforeLast.w === '1px' && dividerProbe.beforeLast.c !== 'rgb(0, 0, 0)', JSON.stringify(dividerProbe.beforeLast));
+check('explicit divider paints a full-strength edge', dividerProbe.explicit.w === '1px' && dividerProbe.same.explicit, JSON.stringify(dividerProbe.explicit));
+check('auto hairline is the 38% mix (not full strength)', dividerProbe.beforeLast.w === '1px' && dividerProbe.beforeLast.c !== dividerProbe.borderColor, JSON.stringify(dividerProbe.beforeLast));
 check('row BEFORE divider paints NO auto edge', dividerProbe.beforeDivider.w === '0px', JSON.stringify(dividerProbe.beforeDivider));
 check('row AFTER divider paints NO auto edge', dividerProbe.afterDivider.w === '0px', JSON.stringify(dividerProbe.afterDivider));
 

@@ -35,6 +35,15 @@
     display: grid;
     width: 100%;
     min-width: 0;
+    /* the density row law (design §1/appendix B) — BASE level so
+       standalone rows and the no-subgrid fallback keep it; the
+       subgrid block below only adds grouped geometry. 尺规: B is the
+       row's ONE sanctioned padding (edge breathing belongs to the
+       row box); everything BETWEEN elements is ruler gaps */
+    min-block-size: var(--jx-d-row-min);
+    padding-block: var(--jx-d-stack-gap);
+    padding-inline: var(--jx-d-inline-inset);
+    row-gap: var(--jx-d-stack-gap);
     column-gap: var(--jx-item-column-gap);
     row-gap: var(--jx-item-row-gap);
     transition:
@@ -519,11 +528,7 @@
 
   :where([data-slot='item-list'] [data-slot='item-row'] > .jx-item) {
     box-sizing: border-box;
-    min-block-size: var(--jx-d-row-min);
     min-width: 0;
-    padding-block: var(--jx-d-stack-gap);
-    padding-inline: var(--jx-d-inline-inset);
-    row-gap: var(--jx-d-stack-gap);
   }
 
   :where([data-slot='item-header']),
