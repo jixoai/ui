@@ -11,9 +11,11 @@
 - [x] 2. **K0 contract/substrate** — fallback-aware resolver + tests;
   list-item `size`→`density` rename with ALL compatibility paths
   removed (`ItemSize`/`controlSize`/`data-size`/policy `size`);
-  `--jx-d-ctl-*` aliases in the canonical theme pair; the three §7
-  residuals (optical consumed, grouped layout=media measurable, inset
-  prose); adoption registry + verifier (used-value normalization).
+  `--jx-d-ctl-*` aliases in the canonical theme pair; the §7
+  residuals (optical consumed, inset prose; grouped layout=media
+  measurable rides F's media probes); adoption registry + verifier
+  COMPLETE (K0 rows full, public/-serving fallback, used-value
+  normalization) — `--packet K0` 4/4.
   *Gate: K0 focused tests + kernel 61 + ruler 18 + matrix 37 + the
   FULL apps/www suite green + exact source/mirror checks; no
   manifest/registry-index edits. A–E dispatch is BLOCKED until this
