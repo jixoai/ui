@@ -42,7 +42,16 @@
        (desktop/mobile, three sections, chains, pill panels, redirects)
 - [x] 15. Codex review rounds (r2 7.2 → r3 8.3; blockers fixed each
        round) → verification.md → archive
-- [ ] 16. DEBT (r3 P2, non-blocking): svelte.config entries still a
-       hand list (the exact-set lock catches drift; the single-source
-       generator from the route model is future work); dist/md locks
-       cover existence, not content parity
+- [x] 16. DEBT (r3 P2, non-blocking): carried EXPLICITLY as debt —
+       svelte.config entries remain a hand list (the exact-set lock in
+       test/docs-structure.spec.ts catches drift; the single-source
+       generator from docs-route-model is future work under a new
+       change); dist/md locks cover existence, not content parity.
+       Final handover closeout (2026-08-25): the four css-less hooks
+       the new docs surfaces introduced (jx-dsn-groups/-gcount,
+       jx-count-btn, jx-inv-type) converted to data-jx-* per the live
+       component-authoring law; docs-nav-filter test selector updated;
+       mirror manifest classifies the new site-only files
+       (docs-route-model, docs-pager+css, docs-sections-nav); gates:
+       hook-law --post exit 0, vitest 347/347, mirror GREEN,
+       build:site GREEN (83 pages / 86 payloads).

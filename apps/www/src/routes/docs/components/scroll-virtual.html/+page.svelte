@@ -123,8 +123,8 @@ ${close}
               {#each COUNTS as c (c)}
                 <button
                   type="button"
-                  class="jx-count-btn"
-                  class:active={rowCount === c}
+                  data-jx-count-btn
+                  data-jx-count-active={rowCount === c ? '' : undefined}
                   onclick={() => (rowCount = c)}
                 >
                   {c.toLocaleString()}
@@ -142,7 +142,7 @@ ${close}
               />
               <button
                 type="button"
-                class="jx-count-btn"
+                data-jx-count-btn
                 onclick={() => virtualInstance?.scrollToIndex(Math.min(Math.max(jumpIndex, 0), rowCount - 1), { align: 'start' })}
               >
                 jump

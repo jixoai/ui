@@ -121,7 +121,7 @@
         <button type="button" class="jx-dsn-clear" aria-label="Clear the filter" onclick={() => (filter = '')}>×</button>
       {/if}
     </div>
-    <div class="jx-dsn-groups">
+    <div data-jx-dsn-groups>
       {#if needle && visibleSections.length === 0}
         <p class="jx-dsn-empty">no matches for “{filter}”</p>
       {/if}
@@ -130,7 +130,7 @@
           <summary class="jx-dsn-group-label">
             {section.label}
             {#if section.count !== undefined}
-              <span class="jx-dsn-gcount">{section.count}</span>
+              <span data-jx-dsn-gcount>{section.count}</span>
             {/if}
           </summary>
           <ul class="jx-dsn-list" role="list">
@@ -201,7 +201,7 @@
           <summary class="jx-dsn-group-label">
             {section.label}
             {#if section.count !== undefined}
-              <span class="jx-dsn-gcount">{section.count}</span>
+              <span data-jx-dsn-gcount>{section.count}</span>
             {/if}
           </summary>
           <ul class="jx-dsn-list" role="list">

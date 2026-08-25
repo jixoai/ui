@@ -87,7 +87,7 @@ describe('docs sections nav — components-tree mode', () => {
     // taxonomy groups with counts
     const groups = [...document.querySelectorAll('.jx-dsn-rail .jx-dsn-group-label')].map((n) => n.textContent);
     expect(groups.join(' ')).toContain('General');
-    expect(document.querySelectorAll('.jx-dsn-rail .jx-dsn-gcount').length).toBe(7);
+    expect(document.querySelectorAll('.jx-dsn-rail [data-jx-dsn-gcount]').length).toBe(7);
     // the current module is marked
     const current = document.querySelector('.jx-dsn-rail a[aria-current="page"]');
     expect(current?.textContent?.trim()).toBe('press-button');

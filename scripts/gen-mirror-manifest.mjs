@@ -25,6 +25,10 @@ const SITE_ONLY = [
   { path: 'apps/www/src/lib/copy-command.svelte', note: 'site docs copy affordance' },
   { path: 'apps/www/src/lib/copy-icon-button.svelte', note: 'site docs copy affordance' },
   { path: 'apps/www/src/lib/overview-card.svelte', note: 'site docs overview card' },
+  { path: 'apps/www/src/lib/docs-route-model.ts', note: 'docs-restructure: the docs tree nav model (site-only)' },
+  { path: 'apps/www/src/lib/ui/docs-pager.svelte', note: 'docs-restructure: per-page prev/next pager (site-only, rendered by layout)' },
+  { path: 'apps/www/src/lib/ui/docs-pager.css', note: 'docs-restructure: pager styles (site-only)' },
+  { path: 'apps/www/src/lib/ui/docs-sections-nav.svelte', note: 'docs-restructure: sections rail (site-only)' },
 ];
 const REGISTRY_ONLY = [
   // registry files with NO mirror and no item reference — resolved by P1

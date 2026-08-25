@@ -49,7 +49,7 @@
       </h2>
       <a class="jx-invrow" href="/docs/components.html">
         <span class="jx-inv-name">all ui modules</span>
-        <span class="jx-inv-type">registry:ui</span>
+        <span data-jx-inv-type>registry:ui</span>
         <span class="jx-inv-docs">the Components listing →</span>
         <span class="jx-inv-cmd">npx jixoai-ui add &lt;name&gt;</span>
       </a>
@@ -71,7 +71,7 @@
         {#each installTargets as item (item.name)}
           <a class="jx-invrow" role="row" href={item.href}>
             <span class="jx-inv-name" role="cell">{item.name}</span>
-            <span class="jx-inv-type" role="cell">{item.type.replace('registry:', '')}</span>
+            <span data-jx-inv-type role="cell">{item.type.replace('registry:', '')}</span>
             <span class="jx-inv-docs" role="cell">{item.href}</span>
             <span class="jx-inv-cmd" role="cell">npx jixoai-ui add {item.name}</span>
           </a>

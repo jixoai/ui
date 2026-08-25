@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-24T21:37:47.677Z",
+  "generatedAt": "2026-08-25T08:29:04.124Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "section-card": "registry/files/ui/section-card/section-card.svelte",
@@ -2201,8 +2201,8 @@
   ],
   "siteOnly": [
     {
-      "path": "apps/www/src/lib/ui/component-tree-nav.svelte",
-      "note": "site secondary-nav chrome"
+      "path": "apps/www/src/lib/ui/docs-sections-nav.svelte",
+      "note": "site docs sections rail (docs-restructure D2)"
     },
     {
       "path": "apps/www/src/lib/catalog.ts",
@@ -2231,6 +2231,22 @@
     {
       "path": "apps/www/src/lib/overview-card.svelte",
       "note": "site docs overview card"
+    },
+    {
+      "path": "apps/www/src/lib/docs-route-model.ts",
+      "note": "docs-restructure: the docs tree nav model (site-only)"
+    },
+    {
+      "path": "apps/www/src/lib/ui/docs-pager.svelte",
+      "note": "docs-restructure: per-page prev/next pager (site-only, rendered by layout)"
+    },
+    {
+      "path": "apps/www/src/lib/ui/docs-pager.css",
+      "note": "docs-restructure: pager styles (site-only)"
+    },
+    {
+      "path": "apps/www/src/lib/ui/docs-sections-nav.svelte",
+      "note": "docs-restructure: sections rail (site-only)"
     }
   ],
   "registryOnly": [],
