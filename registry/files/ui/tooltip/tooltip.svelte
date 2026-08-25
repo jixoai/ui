@@ -11,14 +11,38 @@
                      immediately; a hover-intent delay is opt-in through
                      openDelay for sweep-heavy surfaces)
     pointerleave → close after closeDelay (100ms)   lets the pointer
-                     cross the gap onto the tooltip itself (the panel's
-                     own pointerenter cancels the pending close)
+                     cross the gap onto the tooltip itself
     focusin     → open NOW                           keyboard/screen
                      readers never wait for hover timers
     focusout    → close NOW
     Escape      → close NOW (manual popovers skip the native Esc path)
     toggle      → the notch mask + the slide vector are authored once, at
                   open, and the WAAPI motion kernel plays (Arrow law)
+
+  Close seam, dual-surface + geometric verdict (2026-08-25 r1→r3, Owner
+  report "the tip dies the moment you hover"): the tip occupies TWO hit
+  surfaces — the anchor wrapper and the panel — and the close is legal
+  only when the pointer holds NEITHER. r1 assumed a UI-Events
+  enter(new)-before-leave(old) order race; Codex r2 disproved that —
+  Chromium/WebKit switch siblings as out(old)→leave(old)→over(new)→
+  enter(new). The CAPTURED killer (r3, lifecycle logs on the docs page)
+  is colder: on the FIRST open, Chromium briefly lays the freshly
+  promoted popover out at a stale, pre-anchor-resolution position —
+  under the cursor — flipping the hit target wrapper→panel and back
+  when the slide settles; whenever the compensating enter is late or
+  suppressed (an ANIMATED element sliding away from a resting cursor
+  does not reliably get boundary events), the leave's close timer fires
+  with the cursor still parked on the trigger complex. Three locks, one
+  per failure mode:
+    lock 1  open() sets pointer-events:none BEFORE showPopover — the
+            stale box can never steal the hit; aimPin restores it once
+            the anchor has settled (rects read = layout resolved)
+    lock 2  presence FLAGS on both surfaces + a re-check at timer fire
+            (covers engines/interleavings where coords never arrive)
+    lock 3  the fire-time verdict is GEOMETRIC when pointer coords are
+            known: keep open while the point sits inside either
+            surface's live rect inflated by a halo that covers the 6px
+            rest gap; a kept tip re-arms, so walking away still closes
 
   a11y: the wrapper carries aria-describedby → the panel id permanently;
   hidden popover content is display:none, so assistive tech only reads
@@ -68,6 +92,20 @@
   exceptions being the exit tail's forwards fill (holds opacity 0 until
   display:none) and the exit's body/shadow opaque holds through B'
   (popover parity — they die with the panel's display:none).
+
+  CHANNEL OWNERSHIP (2026-08-25 r5, the Owner's 10× slow-mo catch):
+  this kernel animates opacity/filter/translate DIRECTLY — it never
+  drives --jx-p like the popover-family kernel does — yet the panel
+  carries .jx-waapi, whose cascade formulas compute blur(100px) and
+  opacity 0 at --jx-p=0. Every channel the kernel touches must
+  therefore be pinned INLINE at each rest point (A→B seam, rest pose,
+  reduced-motion rest): opacity and translate always were; filter was
+  NOT, so the frame phase A's fill dropped, the formula snapped the
+  tip to an invisible blur(100px) smear for its whole resting life —
+  the tip "showed, then vanished the instant the entry finished".
+  Where the blur is zero the pin is filter:none (the r30 law — a
+  residual blur(0px) keeps a filter layer alive and disturbs the
+  backdrop compositing).
 
   Anchoring, flip fallbacks and anchors-visible scroll hiding follow the
   popover.svelte laws; engines without anchor positioning fall back to
@@ -200,6 +238,11 @@
     CSS.supports('anchor-name: --jx-tip-fallback');
 
   function aimPin(): void {
+    // lock 1's exit: hit testing returns the moment the anchor has
+    // settled — aimPin READS the panel's rect, which forces the
+    // anchored layout, so the stale-box window (open → here, ~10ms) is
+    // closed by construction. Runs before every early return.
+    if (panel) panel.style.pointerEvents = '';
     if (!panel || !body || !anchorEl || !anchored()) return;
     const r = body.getBoundingClientRect();
     const a = anchorEl.getBoundingClientRect();
@@ -313,10 +356,32 @@
     p.style.opacity = '';
     p.style.filter = '';
     p.style.translate = '';
+    p.style.pointerEvents = ''; // a prior run's transparency must not leak
+    p.style.removeProperty('--jx-p'); // the previous run's timeline pin
     sh.style.translate = '';
     b.style.backgroundColor = '';
     sh.style.backgroundColor = '';
-    if (prefersReducedMotion()) return;
+    // CHANNEL OWNERSHIP, materials half (Codex r5 blocker + r6): park
+    // --jx-p at 1 INLINE from the entry's start — the WAAPI fills own
+    // every VISIBLE frame of the arc, and the cascade formulas own
+    // every gap (seams, rest, reduced motion), computing the p=1 REST
+    // materials: body alpha .72 glass, shadow alpha .32 veil. Reading
+    // the computed colors at p=0 (the pre-r6 way, both the phase-B
+    // targets and the reduced pins) captured the OPAQUE p=0 pose and
+    // pinned the resting tip as a solid block — formula-driven beats
+    // read-and-pin because the formulas ARE the rest pose definition
+    p.style.setProperty('--jx-p', '1');
+    // reduced motion rests HERE on the same formulas: pin only what the
+    // formulas cannot say — filter MUST be none (they compute
+    // blur(0px), and a residual blur(0px) keeps a filter layer alive,
+    // r30) and the shadow's separation rides the aimPin vector
+    if (prefersReducedMotion()) {
+      p.style.opacity = '1';
+      p.style.translate = '0px 0px';
+      p.style.filter = 'none';
+      sh.style.translate = SHADOW();
+      return;
+    }
     glassBg = getComputedStyle(b).backgroundColor;
     veilBg = getComputedStyle(sh).backgroundColor;
     // re-resolve the theme-dependent opaque values EVERY open — a cached
@@ -340,8 +405,15 @@
     panelA.finished
       .then(() => {
         if (!alive() || !p.matches(':popover-open')) return;
-        // pin opacity 1 INLINE for phase B: the kernel cascade rests at 0
-        p.style.opacity = '1';
+        // PIN THE FILTER CHANNEL (the 2026-08-25 r5 fix, Owner's 10×
+        // slow-mo catch): phase A's cancel drops its fill, and the
+        // jx-waapi formula computes blur from --jx-p — only the r30
+        // exception needs saying here, because the formula's rest is
+        // blur(0px) and a residual blur(0px) keeps a filter layer
+        // alive and disturbs the backdrop compositing. Opacity and
+        // translate need NO pins: --jx-p is parked at 1, so the
+        // formulas compute the exact seam values (1 / SHADOW())
+        p.style.filter = 'none';
         bodyA.cancel();
         shadowA.cancel();
         panelA.cancel(); // phase B starts exactly where A ended
@@ -357,12 +429,21 @@
         panelB.finished
           .then(() => {
             if (!alive() || !p.matches(':popover-open')) return;
-            // pin the REST POSE INLINE, then release every fill (Law 2)
-            p.style.translate = '0px 0px';
-            p.style.opacity = '1';
-            b.style.backgroundColor = glassBg;
+            // REST, formula-owned (r6+r7): release every fill and every
+            // material pin — --jx-p parked at 1 makes the cascade
+            // formulas compute the rest pose themselves (opacity 1,
+            // translate 0, body glass, shadow veil), so a theme/variant/
+            // token change while the tip rests flows straight through.
+            // The ONLY pins are the two the formulas cannot say:
+            // filter:none (they compute blur(0px) — the r30 residue law)
+            // and the shadow's separation vector (the formula's axis is
+            // the generic --jx-dx/--jx-m2, not aimPin's measured vector)
+            p.style.opacity = '';
+            p.style.translate = '';
+            p.style.filter = 'none';
+            b.style.backgroundColor = '';
+            sh.style.backgroundColor = '';
             sh.style.translate = SHADOW();
-            sh.style.backgroundColor = veilBg;
             bodyB.cancel();
             shadowB.cancel();
             panelB.cancel();
@@ -391,6 +472,7 @@
     p.style.opacity = curOp;
     p.style.filter = curFilter;
     p.style.translate = curT;
+    p.style.pointerEvents = 'none'; // the dying panel must not hold hits
     sh.style.translate = curShT;
     b.style.backgroundColor = curBg;
     sh.style.backgroundColor = curShBg;
@@ -435,9 +517,55 @@
     clearTimeout(closeTimer);
   }
 
+  // pointer presence, per surface — the close seam's truth (see header)
+  let onAnchor = false;
+  let onPanel = false;
+  // last pointer position (viewport px); NaN until the first move — the
+  // geometric verdict falls back to the flags until coords exist
+  let px = NaN;
+  let py = NaN;
+  // halo around each surface's live rect: covers the 6px rest gap and
+  // edge jitter — "on the trigger complex" reads as on
+  const HALO = 8;
+
   function open(): void {
     clearTimers();
-    if (popoverApi(panel) && !panel!.matches(':popover-open')) panel!.showPopover();
+    if (!popoverApi(panel) || panel!.matches(':popover-open')) return;
+    // lock 1: transparent BEFORE promotion — the stale, pre-anchor box
+    // can never steal the hit. aimPin restores hit testing once the
+    // anchor has settled (rect read = layout resolved). An already-open
+    // panel is left to the entry that owns it.
+    panel!.style.pointerEvents = 'none';
+    panel!.showPopover();
+  }
+  /** lock 3: the geometric verdict — the point against both surfaces'
+      live rects (+halo). Events may be lost or reordered on an
+      animated top-layer element; rects cannot lie. A zero-area rect
+      (unrendered: position-visibility, pre-layout) reads as NOT near —
+      an empty box plus the halo would fake a presence pocket at the
+      viewport origin */
+  function pointerOnComplex(): boolean {
+    if (Number.isNaN(px) || Number.isNaN(py)) return onAnchor || onPanel;
+    const near = (el: HTMLElement | null): boolean => {
+      if (!el) return false;
+      const r = el.getBoundingClientRect();
+      if (r.width <= 0 || r.height <= 0) return false;
+      return px >= r.left - HALO && px <= r.right + HALO && py >= r.top - HALO && py <= r.bottom + HALO;
+    };
+    return near(anchorEl) || near(panel);
+  }
+  /** close after the grace window — the verdict runs at FIRE time and
+      re-arms while the pointer still holds the complex (lock 2+3) */
+  function scheduleClose(): void {
+    clearTimeout(openTimer);
+    clearTimeout(closeTimer);
+    closeTimer = setTimeout(() => {
+      if (pointerOnComplex()) {
+        scheduleClose(); // re-arm: walking away still closes on a later fire
+        return;
+      }
+      close();
+    }, closeDelay);
   }
   function close(): void {
     clearTimers();
@@ -445,6 +573,7 @@
   }
 
   function onEnter(): void {
+    onAnchor = true;
     clearTimeout(closeTimer);
     // 0 (the default) opens synchronously — a setTimeout(…, 0) would
     // still defer to the next macrotask and read as a lag
@@ -453,10 +582,6 @@
       return;
     }
     openTimer = setTimeout(open, openDelay);
-  }
-  function onLeave(): void {
-    clearTimeout(openTimer);
-    closeTimer = setTimeout(close, closeDelay);
   }
 
   // run/destroy token (Codex r2): a phase continuation queued as a
@@ -476,19 +601,36 @@
   // :popover-open at fire time — ToggleEvent state fields are never
   // trusted. Open authors the notch + slide vector (pre-recalc) and
   // plays the entry; close plays the exit (the jx-waapi law holds
-  // display+overlay through the run).
+  // display+overlay through the run). A closed panel is display:none —
+  // the pointer CANNOT hold it, so the panel flag resets here (an
+  // engine that skips the removal-boundary events would leave it
+  // stuck true and the next close would never fire).
   function onTipToggle(): void {
     if (!panel) return;
     if (panel.matches(':popover-open')) {
       aimPin();
       playEntry();
     } else {
+      onPanel = false;
       playExit();
     }
   }
 </script>
 
-<svelte:window onkeydown={(e) => e.key === 'Escape' && close()} />
+<svelte:window
+  onkeydown={(e) => e.key === 'Escape' && close()}
+  onpointermove={(e) => {
+    // HOVER-state pointers only (Codex r3+r4): a touch contact also
+    // fires pointermove, and its LAST coordinate would sit in the
+    // anchor halo forever after liftoff — the re-arm loop would keep
+    // the tip open with no hover to anchor it. Mouse counts outright;
+    // a pen counts only while actually hovering (buttons 0 — a pen
+    // contact is a touch-equivalent, not every pen hardware hovers)
+    if (e.pointerType !== 'mouse' && !(e.pointerType === 'pen' && e.buttons === 0)) return;
+    px = e.clientX;
+    py = e.clientY;
+  }}
+/>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -- the wrapper is
      not an interactive control; hover/focus intent is decoration riding
@@ -500,7 +642,10 @@
   aria-describedby={id}
   bind:this={anchorEl}
   onpointerenter={onEnter}
-  onpointerleave={onLeave}
+  onpointerleave={() => {
+    onAnchor = false;
+    scheduleClose();
+  }}
   onfocusin={open}
   onfocusout={(e) => {
     // focus moving BETWEEN the wrapper's own children must not flicker
@@ -522,8 +667,15 @@
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
   ontoggle={onTipToggle}
-  onpointerenter={() => clearTimeout(closeTimer)}
-  onpointerleave={onLeave}
+  onpointerenter={() => {
+    onPanel = true;
+    clearTimeout(openTimer);
+    clearTimeout(closeTimer);
+  }}
+  onpointerleave={() => {
+    onPanel = false;
+    scheduleClose();
+  }}
 >
   <!-- the REAL shadow layer: a DOM child because pseudo-elements are
        unreachable from WAAPI — the kernel animates it in lockstep

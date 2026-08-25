@@ -14,7 +14,8 @@ import { describe, expect, it, vi } from 'vitest';
 
 import DropdownMenu from '../src/lib/ui/dropdown-menu/dropdown-menu.svelte';
 import DropdownMenuItem from '../src/lib/ui/dropdown-menu/dropdown-menu-item.svelte';
-import Pagination, { pageWindow } from '../src/lib/ui/pagination/pagination.svelte';
+import PaginationHost from './fixtures/pagination-host.svelte';
+import { pageRange } from '../src/lib/ui/pagination/pagination-range';
 import Progress from '../src/lib/ui/progress/progress.svelte';
 import TooltipHost from './fixtures/tooltip-host.svelte';
 import TooltipArrowHost from './fixtures/tooltip-arrow-host.svelte';
@@ -97,6 +98,32 @@ describe('Tooltip', () => {
     await fireEvent(anchor, new PointerEvent('pointerenter', { bubbles: true }));
     expect(panel.matches(':popover-open')).toBe(true);
 
+    // dual-surface close seam (2026-08-25 r1→r4): the close is legal
+    // only when the pointer holds NEITHER the anchor NOR the panel.
+    // Chromium/WebKit switch siblings as out(old)→leave(old)→over(new)
+    //→enter(new) (Codex r2's minimal repro) — the block below drives
+    // EXACTLY that four-event order. The geometric verdict, the
+    // stale-box transient and touch handling need real layout/pointers
+    // — covered by the headed browser batteries, not jsdom (no coords
+    // ever arrive here, so the flags fallback is what runs)
+    vi.useFakeTimers();
+    try {
+      await fireEvent(anchor, new PointerEvent('pointerout', { bubbles: true }));
+      await fireEvent(anchor, new PointerEvent('pointerleave', { bubbles: true }));
+      await fireEvent(panel, new PointerEvent('pointerover', { bubbles: true }));
+      await fireEvent(panel, new PointerEvent('pointerenter', { bubbles: true }));
+      await vi.advanceTimersByTimeAsync(300);
+      expect(panel.matches(':popover-open')).toBe(true); // panel holds the pointer
+
+      // leaving BOTH surfaces closes after the grace window
+      await fireEvent(panel, new PointerEvent('pointerout', { bubbles: true }));
+      await fireEvent(panel, new PointerEvent('pointerleave', { bubbles: true }));
+      await vi.advanceTimersByTimeAsync(300);
+      expect(panel.matches(':popover-open')).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+
     // opt-in delay: still closed right after enter, open after the window
     const delayed = render(TooltipHost, { props: { openDelay: 150 } });
     const dAnchor = delayed.container.querySelector('[data-jx-tip-anchor]') as HTMLElement;
@@ -107,6 +134,29 @@ describe('Tooltip', () => {
       expect(dPanel.matches(':popover-open')).toBe(false); // still waiting
       await vi.advanceTimersByTimeAsync(200);
       expect(dPanel.matches(':popover-open')).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('touch pointers never feed the geometric keep (no stuck-open after liftoff)', async () => {
+    // Codex r3: a touch contact fires pointermove too — recording its
+    // last coordinate would park the verdict inside the anchor halo
+    // forever and the re-arm loop would never close. Only hover-capable
+    // pointers (mouse/pen) may feed px/py, so a touch hover closes on
+    // leave exactly like the no-coords fallback
+    const { anchor, panel } = setup();
+    await fireEvent(anchor, new PointerEvent('pointerenter', { bubbles: true, pointerType: 'touch' }));
+    expect(panel.matches(':popover-open')).toBe(true);
+    await fireEvent(
+      window,
+      new PointerEvent('pointermove', { bubbles: true, pointerType: 'touch', clientX: 0, clientY: 0 }),
+    );
+    vi.useFakeTimers();
+    try {
+      await fireEvent(anchor, new PointerEvent('pointerleave', { bubbles: true, pointerType: 'touch' }));
+      await vi.advanceTimersByTimeAsync(300);
+      expect(panel.matches(':popover-open')).toBe(false);
     } finally {
       vi.useRealTimers();
     }
@@ -173,47 +223,53 @@ describe('Tooltip', () => {
 // ---------------------------------------------------------------------------
 // Pagination — the window algorithm + the nav of real links
 // ---------------------------------------------------------------------------
-describe('pageWindow', () => {
+describe('pageRange (window algorithm, token law)', () => {
+  // composition-first-apis: '…' became the typed tokens
+  // 'ellipsis-start' | 'ellipsis-end'; deeper parity is locked by the
+  // 3,125-case grid in composition-b.spec.ts.
   it('keeps the edges sticky and collapses the middle', () => {
-    expect(pageWindow(5, 20)).toEqual([1, '…', 4, 5, 6, '…', 20]);
-    expect(pageWindow(1, 20)).toEqual([1, 2, '…', 20]);
-    expect(pageWindow(20, 20)).toEqual([1, '…', 19, 20]);
+    expect(pageRange({ current: 5, total: 20 })).toEqual([1, 'ellipsis-start', 4, 5, 6, 'ellipsis-end', 20]);
+    expect(pageRange({ current: 1, total: 20 })).toEqual([1, 2, 'ellipsis-end', 20]);
+    expect(pageRange({ current: 20, total: 20 })).toEqual([1, 'ellipsis-start', 19, 20]);
   });
 
   it('never grows ellipses for tiny page counts', () => {
-    expect(pageWindow(1, 1)).toEqual([1]);
-    expect(pageWindow(1, 2)).toEqual([1, 2]);
-    expect(pageWindow(1, 3)).toEqual([1, 2, 3]);
-    expect(pageWindow(2, 4)).toEqual([1, 2, 3, 4]);
+    expect(pageRange({ current: 1, total: 1 })).toEqual([1]);
+    expect(pageRange({ current: 1, total: 2 })).toEqual([1, 2]);
+    expect(pageRange({ current: 1, total: 3 })).toEqual([1, 2, 3]);
+    expect(pageRange({ current: 2, total: 4 })).toEqual([1, 2, 3, 4]);
   });
 
   it('siblings=0 collapses the neighbor run entirely', () => {
-    expect(pageWindow(5, 20, 0)).toEqual([1, '…', 5, '…', 20]);
-    expect(pageWindow(1, 20, 0)).toEqual([1, '…', 20]);
-    expect(pageWindow(2, 20, 0)).toEqual([1, 2, '…', 20]);
+    expect(pageRange({ current: 5, total: 20, siblings: 0 })).toEqual([1, 'ellipsis-start', 5, 'ellipsis-end', 20]);
+    expect(pageRange({ current: 1, total: 20, siblings: 0 })).toEqual([1, 'ellipsis-end', 20]);
+    expect(pageRange({ current: 2, total: 20, siblings: 0 })).toEqual([1, 2, 'ellipsis-end', 20]);
   });
 });
 
 describe('Pagination', () => {
-  function setup(page: number, pageCount: number) {
-    const rendered = render(Pagination, {
-      props: { page, pageCount, href: (p: number) => `/items?page=${p}` },
-    });
-    const nav = rendered.container.querySelector('nav[aria-label="Pagination"]')!;
+  // composition-first-apis: the closed compute-and-render component is
+  // dead — the host composes the parts over pageRange (structure with
+  // the consumer). Deeper locks (child() escape, onclick-only button)
+  // live in composition-b.spec.ts.
+  function setup(at: string) {
+    const rendered = render(PaginationHost);
+    const root = rendered.container.querySelector(`[data-testid="${at}"]`)!;
+    const nav = root.querySelector('nav[aria-label="pagination"]')!;
     const links = [...nav.querySelectorAll('a')] as HTMLAnchorElement[];
     return { nav, links };
   }
 
   it('marks the current page with aria-current and real hrefs', () => {
-    const { links } = setup(5, 20);
+    const { links } = setup('at-middle');
     const current = links.find((a) => a.getAttribute('aria-current') === 'page')!;
     expect(current.textContent).toBe('5');
     expect(current.getAttribute('href')).toBe('/items?page=5');
   });
 
-  it('prev/next walk; at the bounds they become honest disabled spans', () => {
-    const { nav, links } = setup(1, 20);
-    const prev = nav.querySelector('[data-jx-page-edge]')!;
+  it('prev at the bound becomes an honest disabled span; next walks', () => {
+    const { nav, links } = setup('at-first');
+    const prev = nav.querySelector('[data-jx-page-edge-off]')!;
     expect(prev.tagName).toBe('SPAN'); // no dead link at page 1
     expect(prev.getAttribute('aria-disabled')).toBe('true');
     const next = links.find((a) => a.textContent === 'next ›')!;
@@ -221,8 +277,10 @@ describe('Pagination', () => {
   });
 
   it('ellipses are decoration only (aria-hidden)', () => {
-    const { nav } = setup(10, 30);
-    for (const gap of nav.querySelectorAll('[data-jx-page-gap]')) {
+    const { nav } = setup('at-middle');
+    const gaps = nav.querySelectorAll('[data-jx-page-gap]');
+    expect(gaps.length).toBeGreaterThan(0);
+    for (const gap of gaps) {
       expect(gap.getAttribute('aria-hidden')).toBe('true');
     }
   });
