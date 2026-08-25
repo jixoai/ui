@@ -83,7 +83,7 @@
       "name": "list-item",
       "type": "registry:ui",
       "title": "List item",
-      "description": "The slot-composition list row (shadcn Item philosophy) on GRID: a :has()-driven presence matrix rewrites the template by which slots exist — media / content / actions in the main row, header / footer as optional full rows, actions dropping to its own row inside narrow groups. ItemContent is the required slot; variants (default/outline/muted × default/sm/xs) are geometry-neutral visual matrices. The root is <a> when href is given, <div> otherwise — no asChild; interactive behavior belongs in ItemActions. ItemGroup is the vertical role=list stack AND the container items query for the narrow wrap; ItemSeparator hairlines belong to the group, not the item.",
+      "description": "The list row as a system (F7 coverage, shadcn composition): AUTO-VARIANT chrome — standalone rows carry their own terminal surface, ItemGroup owns the frame (native section+ul, default/muted/plain modes, optional label, divider policy: 38% auto hairlines structurally exclusive with full-strength ItemDivider). The ItemEnd lane hosts after/actions/chevron; the grid presence matrix stays four bits (:has()-driven, no implicit tracks). ItemField wires settings rows (label[for], describedby chains) and five thin adapters — ItemToggle/ItemCheckbox/ItemRadio/ItemSelect/ItemInput — compose the existing controls without reimplementing them. layout=media rides custom properties; narrow groups wrap the end lane at 30rem via container query.",
       "files": [
         {
           "path": "registry/files/ui/list-item/item.svelte",

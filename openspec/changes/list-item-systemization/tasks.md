@@ -72,7 +72,7 @@
   Paint gates: selected edge, focus ring, no double divider,
   terminal-token fills.
   *Gate: focused + full vitest green + the matrix fixture green.*
-- [ ] 7. **Registry + release sync** — registry.json file list +
+- [x] 7. **Registry + release sync** — registry.json file list +
   exact dependency set (design §7), catalog text, mirror-manifest
   regen, hashes. **Install-closure proof: extend
   `scripts/verify-shadcn-add.mjs` — publish the actual list-item

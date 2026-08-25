@@ -13,6 +13,13 @@
 //     toast-viewport.svelte is the canonical main (folder ui/toast/),
 //     toast-store.ts lands EXACTLY once at its canonical `@lib` root.
 //
+//   fixture C — list-item (openspec list-item-systemization task 7):
+//     the 21-file family (19 components + css + barrel) installs with
+//     its FULL control dependency closure (toggle/checkbox/radio/
+//     native-select/input/icons/jx-pure/utils/theme), item-separator
+//     is gone, and the barrel + an ItemToggle adapter compile in the
+//     consumer's vite build.
+//
 // Staged input (r6 ruling): a TEMP folder-shaped registry generated
 // here — the current flat public/r payloads are NOT the input. The
 // temp payloads embed the exact registry/files sources + generated
@@ -71,7 +78,7 @@ const payload = (item) =>
 // missing per-item css files proved in P3-r1)
 const registryItems = JSON.parse(source('registry.json')).items ?? JSON.parse(source('registry.json'));
 const byName = new Map(registryItems.map((i) => [i.name, i]));
-for (const name of ['accordion', 'toast', 'code-card', 'shiki', 'jixoai-theme', 'utils', 'progressive-blur']) {
+for (const name of ['accordion', 'toast', 'code-card', 'shiki', 'jixoai-theme', 'utils', 'progressive-blur', 'list-item', 'toggle', 'checkbox', 'radio', 'native-select', 'input', 'icons', 'jx-pure']) {
   const item = byName.get(name);
   if (!item) die(`registry.json has no item ${name}`);
   writeFileSync(
@@ -194,6 +201,7 @@ write(
   import ToastViewport from '$lib/ui/toast';
   import CodeCard from '$lib/ui/code-card';
   import ProgressiveBlur from '$lib/ui/progressive-blur';
+  import { Item, ItemGroup, ItemContent, ItemTitle, ItemEnd, ItemChevron, ItemToggle } from '$lib/ui/list-item';
 </script>
 
 <Accordion>
@@ -204,6 +212,13 @@ write(
   <ProgressiveBlur position="top" reveal="scroll" height="3rem" />
   <p>scrolling content</p>
 </div>
+<ItemGroup label="consumer probe">
+  <Item href="#x">
+    <ItemContent><ItemTitle>row</ItemTitle></ItemContent>
+    <ItemEnd><ItemChevron /></ItemEnd>
+  </Item>
+  <ItemToggle label="Fast builds" />
+</ItemGroup>
 `,
 );
 
@@ -225,7 +240,7 @@ console.log('shadcn add @jixoai/accordion @jixoai/toast …');
 // registry — colors/neutral.json is served from the cache above, so
 // nothing needs ui.shadcn.com. The local base stays OFF any proxy
 // (the machine proxy black-holes localhost — the earlier curl 502).
-run('npx', ['shadcn', 'add', '@jixoai/accordion', '@jixoai/toast', '@jixoai/code-card', '@jixoai/progressive-blur', '--yes', '--overwrite'], {
+run('npx', ['shadcn', 'add', '@jixoai/accordion', '@jixoai/toast', '@jixoai/code-card', '@jixoai/progressive-blur', '@jixoai/list-item', '--yes', '--overwrite'], {
   env: { ...process.env, REGISTRY_URL: BASE, NO_PROXY: 'localhost,127.0.0.1', no_proxy: 'localhost,127.0.0.1' },
 });
 
@@ -261,6 +276,25 @@ check('code-card chain: jixoai.css (theme) arrived', exists('src/lib/jixoai.css'
 const chainPkg = JSON.parse(readFileSync(join(consumerDir, 'package.json'), 'utf8'));
 const chainDeps = { ...chainPkg.dependencies, ...chainPkg.devDependencies };
 check('code-card chain: npm shiki installed', !!chainDeps.shiki);
+
+// list-item closure (list-item-systemization task 7): all 21 family
+// files at canonical targets, ItemSeparator gone, and the control
+// dependency chain resolved (each dependency folder/file arrived)
+const listItemFiles = [
+  'item.svelte', 'item-group.svelte', 'item-end.svelte', 'item-after.svelte', 'item-chevron.svelte',
+  'item-divider.svelte', 'item-media.svelte', 'item-content.svelte', 'item-title.svelte',
+  'item-description.svelte', 'item-actions.svelte', 'item-header.svelte', 'item-footer.svelte',
+  'item-field.svelte', 'item-toggle.svelte', 'item-checkbox.svelte', 'item-radio.svelte',
+  'item-select.svelte', 'item-input.svelte', 'item.css', 'index.ts',
+];
+const missingListItem = listItemFiles.filter((f) => !exists(`src/lib/ui/list-item/${f}`));
+check('list-item: all 21 files at canonical targets', missingListItem.length === 0, missingListItem.join(', ') || 'complete');
+check('list-item: item-separator.svelte absent', !exists('src/lib/ui/list-item/item-separator.svelte'));
+for (const dep of ['toggle', 'checkbox', 'radio', 'native-select', 'input']) {
+  check(`list-item chain: ${dep} control arrived`, exists(`src/lib/ui/${dep}/${dep}.svelte`));
+}
+check('list-item chain: icons lib arrived', exists('src/lib/icons.ts'));
+check('list-item chain: jx-pure sheet arrived', exists('src/lib/jx-pure.css'));
 
 // progressive-blur chain (Codex r2 blocking #1): the item imports
 // $lib/utils, so a closed install MUST carry utils.ts; the folder
