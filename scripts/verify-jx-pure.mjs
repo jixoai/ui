@@ -175,7 +175,7 @@ const facts = await page.evaluate(() => {
       // what the var resolves TO on a probe element
       badRangeVar: (() => {
         const el = document.createElement('span');
-        el.style.color = getComputedStyle(badRange).getPropertyValue('--jx-range-fill-color').trim();
+        el.style.color = getComputedStyle(badRange).getPropertyValue('--jx-slider-fill-color').trim();
         document.body.appendChild(el);
         const c = getComputedStyle(el).color;
         el.remove();
@@ -183,6 +183,14 @@ const facts = await page.evaluate(() => {
       })(),
       okBorderResolved: cs(okLane, 'border-color'),
       badBorderResolved: cs(badLane, 'border-color'),
+      errorUsed: (() => {
+        const el = document.createElement('span');
+        el.style.color = 'var(--error)';
+        document.body.appendChild(el);
+        const c = getComputedStyle(el).color;
+        el.remove();
+        return c;
+      })(),
     },
     inColor: { size: cs(inColor, 'width'), appearance: cs(inColor, 'appearance').trim() },
     selDefault: {
@@ -230,7 +238,7 @@ const facts = await page.evaluate(() => {
     skipIsland: { btnMinHeight: cs(skipBtn, 'min-height'), btnShadow: cs(skipBtn, 'box-shadow'), btnCursor: cs(skipBtn, 'cursor') },
     skipPartA: (() => {
       // R4-2: the hatch must beat Part A's UNLAYERED classes too
-      const el = document.querySelector('.no-jx-pure .jx-input');
+      const el = document.querySelector('.no-jx-pure .jx-control');
       return el ? { minH: cs(el, 'min-height'), pad: cs(el, 'padding') } : { missing: true };
     })(),
     shadowDom: shadowBtn
@@ -253,7 +261,7 @@ const checks = [
   ['text lane: 40px box + mono font', facts.inInput.minHeight === '40px' && facts.inInput.fontMono],
   ['text lane: inherits scope color-scheme', facts.inInput.colorScheme === 'light'],
   ['checkbox: repaint (appearance none, 16px)', facts.inCheck.appearance === 'none' && facts.inCheck.size === '16px'],
-  ['range: repaint (appearance none, the 24px daisyUI pill)', facts.inRange.appearance === 'none' && facts.inRange.height === '24px'],
+  ['range: repaint (appearance none, the DERIVED density pill)', facts.inRange.appearance === 'none' && facts.inRange.height === '20px'],
   ['color: locked 40px square', facts.inColor.size === '40px'],
   ['D2 · select: the jx chevron is the DEFAULT', facts.selDefault.appearance === 'none' && facts.selDefault.chevron],
   ['D2 · no-jx-pure island: fully native select', facts.selNative.appearance !== 'none' && facts.selNative.chevron === 'none'],
@@ -337,7 +345,7 @@ const island = await page.evaluate(() => {
   host.innerHTML = `<div class="no-jx-pure">
     <button id="isl-btn">x</button>
     <div id="isl-div" style="display: flex; color: rgb(1,2,3)">y</div>
-    <input class="jx-input" id="isl-cls" type="text" /></div>`;
+    <input class="jx-control" id="isl-cls" type="text" /></div>`;
   document.body.appendChild(host);
   const g = (id) => getComputedStyle(host.querySelector(id));
   const out = {
@@ -350,7 +358,7 @@ const island = await page.evaluate(() => {
 });
 contrastChecks.push(['not() · island: the FACE steps aside (button is UA)', island.btn.minH !== '40px' && island.btn.display === 'inline-block']);
 contrastChecks.push(['not() · island: HOST inline styles SURVIVE', island.divHost.display === 'flex' && island.divHost.color === 'rgb(1, 2, 3)']);
-contrastChecks.push(['not() · island: Part A opt-in classes still work', island.partA.minH === '40px' && island.partA.border === '1px']);
+contrastChecks.push(['not() · island: Part A opt-in classes still work', island.partA.minH === '44px' && island.partA.border === '1px']);
 // r9-final blocker 1: a checkbox label with a span NEVER matches the
 // group — the control keeps its own paint (no chromeless bleed)
 const cbLabel = await page.evaluate(() => {
@@ -523,7 +531,7 @@ const upChecks = [
   ['range fill: the pill fill before the thumb (value 40)', isFilled(fillL)],
   ['range fill: the 10%-groove past the thumb', dist(fillR, fillL) > 120],
   ['range machinery: container-type + overflow clip', facts.inRange.containerType === 'inline-size' && facts.inRange.overflow === 'hidden'],
-  ['daisyUI · the pill paint box (thumb-sized)', facts.inRange.height === '24px'],
+  ['daisyUI · the pill paint box (the ctl-icon glyph)', facts.inRange.height === '20px'],
   ['D4 · switch: 32×20 sm PILL, role=switch opt-in', facts.switch.w === '32px' && facts.switch.h === '20px' && parseFloat(facts.switch.radius) > 1000],
   ['D4 · switch knob VISIBLE (the B5 glyph-leak reset)', facts.switch.knobOpacity === '1' && facts.switch.knobClip === 'none'],
   ['D6 · the STRUCTURAL group (label:has(control):has(span)) takes the shell', facts.group.border === '1px' && facts.group.display === 'flex'],
@@ -531,7 +539,7 @@ const upChecks = [
   ['D5 · valid lane leans --success', facts.validation.okGlyph && facts.validation.okBorderResolved !== facts.validation.badBorderResolved],
   ['validation: invalid checkbox fill flips', facts.validation.badCheckBg !== 'rgba(0, 0, 0, 0)'],
   ['D5 · invalid radio DOT flips to error-foreground', facts.validation.badRadioDot === facts.validation.errorResolved.errorFg],
-  ['D5 · invalid range fill flips to error (mirror)', facts.validation.badRangeVar === facts.validation.errorResolved.error],
+  ['D5 · invalid range fill flips to error (mirror)', facts.validation.badRangeVar === facts.validation.errorUsed],
 ];
 // (b) form.html: the pipette glyph + the Tier-1 class fill
 await page.goto(`http://localhost:${port}/docs/components/input.html`, { waitUntil: 'domcontentloaded' });
@@ -539,10 +547,10 @@ await page.waitForTimeout(2000);
 // the pipette is a thin diagonal glyph — single-point sampling misses
 // it; count zone pixels that differ from the lane reference instead.
 // reveal sections paint transparent until scrolled into view — scroll first
-await page.locator('.jx-color-field').first().scrollIntoViewIfNeeded();
+await page.locator('.jx-color-shell').first().scrollIntoViewIfNeeded();
 await page.waitForTimeout(600);
 const fieldDark = await (async () => {
-  const buf = await page.locator('.jx-color-field').first().screenshot();
+  const buf = await page.locator('.jx-color-shell').first().screenshot();
   return await page.evaluate(async (b64) => {
     const img = new Image();
     img.src = 'data:image/png;base64,' + b64;
@@ -567,20 +575,20 @@ const fieldDark = await (async () => {
 })();
 const glyphZone = { differPixels: fieldDark };
 upChecks.push(['pipette glyph paints (zone pixels differ from lane)', fieldDark > 40]);
-await page.locator('.jx-range').first().scrollIntoViewIfNeeded();
+await page.locator('.jx-slider').first().scrollIntoViewIfNeeded();
 await page.waitForTimeout(400);
-const tier1Shot = await page.locator('.jx-range').first().screenshot();
+const tier1Shot = await page.locator('.jx-slider').first().screenshot();
 const tier1Dims = await page.evaluate(async (b64) => {
   const img = new Image();
   img.src = 'data:image/png;base64,' + b64;
   await img.decode();
   return { w: img.width, h: img.height };
 }, tier1Shot.toString('base64'));
-const tier1Samples = await samplePixels(page.locator('.jx-range').first(), [
+const tier1Samples = await samplePixels(page.locator('.jx-slider').first(), [
   [tier1Dims.w * 0.15, tier1Dims.h / 2],
   [tier1Dims.w * 0.9, tier1Dims.h / 2],
 ]);
-upChecks.push(['Tier-1 .jx-range fill (value 40)', isFilled(tier1Samples.px[0]) && dist(tier1Samples.px[1], tier1Samples.px[0]) > 120]);
+upChecks.push(['Tier-1 .jx-slider fill (value 40)', isFilled(tier1Samples.px[0]) && dist(tier1Samples.px[1], tier1Samples.px[0]) > 120]);
 for (const [name, ok] of upChecks) {
   console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}`);
   if (!ok) failed++;

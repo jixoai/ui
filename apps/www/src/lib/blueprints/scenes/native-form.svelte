@@ -20,15 +20,15 @@
 <div class="flex h-full w-full flex-col justify-center gap-8 p-10">
   <div class="jx-field">
     <label class="jx-label" for="bp-native-form-text">Registry name</label>
-    <input id="bp-native-form-text" class="jx-input" bind:this={textEl} placeholder="name" />
+    <input id="bp-native-form-text" class="jx-control" bind:this={textEl} placeholder="name" />
   </div>
   <div class="flex items-end gap-6">
-    <label class="jx-color-field" for="bp-native-form-color">
-      <input id="bp-native-form-color" class="jx-color" type="color" bind:this={colorEl} />
+    <label class="jx-color-shell" for="bp-native-form-color">
+      <input id="bp-native-form-color" class="jx-color-swatch" type="color" bind:this={colorEl} />
     </label>
     <input
       id="bp-native-form-range"
-      class="jx-range"
+      class="jx-slider"
       type="range"
       bind:this={rangeEl}
       aria-label="coverage"

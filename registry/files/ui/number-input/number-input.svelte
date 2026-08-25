@@ -12,7 +12,7 @@
   element attributes.
 
   2026-08-23 · Tier rebase: the inner input carries the Tier-1
-  .jx-input-lane class (jx-pure sheet) — chromeless typography,
+  .jx-control-lane class (jx-pure sheet) — chromeless typography,
   placeholder distinction and the spinner law (hidden; engines reject
   custom paint on spin pseudos, see the sheet's decision record) live
   there, shared with bare markup.
@@ -53,7 +53,7 @@
 
   tw4 (2026-08-24): the composite's static paint (shell row, steppers,
   centered number cell) is token/arbitrary utilities in the markup —
-  deliberately NOT the sheet's .jx-field-shell (its disabled law here is
+  deliberately NOT the sheet's .jx-control-shell (its disabled law here is
   readonly-not-disabled); the .jx-field/.jx-label/.jx-error scaffolding
   is consumed from jx-pure Part A. Only the hover/focus/press state
   machines and the reduced-motion kill remain in number-input.css
@@ -196,7 +196,7 @@
     <!-- disabled ⇒ READONLY, not disabled: the value stays focusable and
          selectable (AT can still read it) while typing and native ↑/↓ are
          blocked by the platform; buttons + stepBy guards cover the rest.
-         jx-input-lane (Tier-1 jx-pure sheet) owns the chromeless
+         jx-control-lane (Tier-1 jx-pure sheet) owns the chromeless
          typography + placeholder distinction + spinner law; the utilities
          here only center the text and flex the cell (appearance:textfield
          pins the spinner OFF — this composite owns its own [- +] pair) -->
@@ -204,7 +204,7 @@
       {...rest}
       {id}
       type="number"
-      class={'jx-input-lane ' + cn('jx-num-input flex-1 min-w-0 text-center [appearance:textfield]', disabled && 'cursor-not-allowed')}
+      class={'jx-control-lane ' + cn('jx-num-input flex-1 min-w-0 text-center [appearance:textfield]', disabled && 'cursor-not-allowed')}
       {min}
       {max}
       {step}

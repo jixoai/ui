@@ -15,10 +15,10 @@
       renders the plain native passthrough in the text shell — route
       them to the dedicated components.
     range
-      the Tier-1 pure-CSS slider (.jx-range in the jx-pure sheet):
+      the Tier-1 pure-CSS slider (.jx-slider in the jx-pure sheet):
       bordered thin track, square primary thumb, hover lift / press.
     color
-      the Tier-1 color field (.jx-color-field wrapper + .jx-color
+      the Tier-1 color field (.jx-color-shell wrapper + .jx-color-swatch
       swatch): locked square swatch + pipette glyph.
     hidden
       bare passthrough, no chrome, no slots.
@@ -179,7 +179,7 @@
         {...rest}
         value={controlled ? value : undefined}
         oninput={syncValue}
-        class={'jx-range ' + className}
+        class={'jx-slider ' + className}
         aria-invalid={invalidAttr}
         aria-describedby={describedBy}
       />
@@ -187,16 +187,16 @@
       <!-- Tier-1 color field: the label wrapper opens the picker from the
            glyph zone too; the input is the locked square swatch lane.
            className lands on the WRAPPER (the shell-law owner, same as
-           the text lane's .jx-field-shell) — pass jx-color-stretch for
+           the text lane's .jx-control-shell) — pass jx-color-expand for
            the full-row field (default is the compact 5rem swatch). -->
-      <label class={'jx-color-field ' + className}>
+      <label class={'jx-color-shell ' + className}>
         <input
           {id}
           {type}
           {...rest}
           value={controlled ? value : undefined}
           oninput={syncValue}
-          class="jx-color"
+          class="jx-color-swatch"
           aria-invalid={invalidAttr}
           aria-describedby={describedBy}
         />
@@ -204,7 +204,7 @@
     {:else}
       <!-- the shell owns the box law; the input inside is chromeless -->
       <div
-        class={'jx-field-shell ' + className}
+        class={'jx-control-shell ' + className}
         class:jx-slotted={slotted}
         class:jx-invalid={invalid}
         class:jx-clearable={clearable}
@@ -219,7 +219,7 @@
           {...rest}
           value={controlled ? value : undefined}
           oninput={syncValue}
-          class="jx-input-lane"
+          class="jx-control-lane"
           aria-invalid={invalidAttr}
           aria-describedby={describedBy}
         />

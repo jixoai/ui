@@ -8,12 +8,12 @@
 
   Orthogonal intents:
   1. geometry — the shared slider law (2026-08-23 Tier rebase, same
-     geometry as the Tier-1 .jx-range lane in the jx-pure sheet):
+     geometry as the Tier-1 .jx-slider lane in the jx-pure sheet):
      the daisyUI round language (2026-08-24 rebuild) — a pill groove at
      half-thumb height, a light disc thumb on a thick primary ring, the
      primary fill as a full-strip-height pill from the inline-start edge,
      and the optional tick ruler under the track (one 4px mark per step).
-     The root stem is .jx-slider so the Tier-1 sheet owns the .jx-range
+     The root stem is .jx-slider so the Tier-1 sheet owns the .jx-slider
      vocabulary for the native control.
   2. interaction — pointerdown/move/up with pointer capture (touch-safe,
      touch-action none), pointerdown jumps to the point, dblclick re-jumps

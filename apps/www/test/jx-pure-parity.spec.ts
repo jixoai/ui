@@ -85,7 +85,7 @@ describe('native-form ↔ icons.ts geometry parity', () => {
   it('layer structure: Part A classes stay UNLAYERED, B element rules live in @layer components', () => {
     // Part A must never enter a layer — the Tier-2 contract relies on
     // unlayered rules beating layered utilities (jixoai.css law)
-    const aRules = ['.jx-input {', '.jx-range {', '.jx-field-shell {'];
+    const aRules = ['.jx-control {', '.jx-slider {', '.jx-control-shell {'];
     // the header comment MENTIONS "@layer components" — anchor on the
     // real block, not the prose
     const layerStart = sheet.indexOf('\n@layer components {');

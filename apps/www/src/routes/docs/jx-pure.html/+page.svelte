@@ -624,7 +624,7 @@ document.body.classList.add('jx-pure');</code></pre>
               <button type="button">the law</button>
               <span class="no-jx-pure" style="display: inline-flex; align-items: center; gap: 0.75rem">
                 <button type="button">skipped button</button>
-                <input class="jx-input" type="text" placeholder="explicit .jx-input still works" style="width: 14rem" aria-label="skipped jx-input" />
+                <input class="jx-control" type="text" placeholder="explicit .jx-control still works" style="width: 14rem" aria-label="skipped jx-control" />
               </span>
             </div>
             <h3 class="text-[15px] font-bold tracking-tight">The type allowlist</h3>

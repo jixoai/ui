@@ -20,7 +20,7 @@
   FULL apps/www suite green + exact source/mirror checks; no
   manifest/registry-index edits. A–E dispatch is BLOCKED until this
   checklist and F's are both green.*
-- [ ] 3. **F jx-pure v2** — rebuild on the control aliases; Tier-2
+- [x] 3. **F jx-pure v2** — rebuild on the control aliases; Tier-2
   renames (no aliases); range size classes die; docs/blueprint within
   F ownership; parity tests + canonical fixture.
   *Gate: complete 65/65 pure gate + F-focused tests + the FULL

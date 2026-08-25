@@ -84,21 +84,21 @@
      @import './lib/jx-pure.css'; -->
 
 <label class="jx-label" for="deploy">deploy</label>
-<input class="jx-input" id="deploy" type="datetime-local" />
+<input class="jx-control" id="deploy" type="datetime-local" />
 
 <!-- range: pure-CSS slider — zero-JS fill to the thumb, thick strip + 8px groove, square thumb -->
-<input class="jx-range" type="range" min="0" max="100" value="40" />
+<input class="jx-slider" type="range" min="0" max="100" value="40" />
 
 <!-- color: the wrapper label opens the picker from the pipette glyph;
-     compact 5rem field by default — add jx-color-stretch for the row -->
-<label class="jx-color-field">
-  <input class="jx-color" type="color" value="#007924" />
+     compact 5rem field by default — add jx-color-expand for the row -->
+<label class="jx-color-shell">
+  <input class="jx-color-swatch" type="color" value="#007924" />
 </label>
 
 <!-- companions? the shell wrapper owns the box, the input is chromeless -->
-<label class="jx-field-shell jx-slotted">
+<label class="jx-control-shell jx-slotted">
   <span>https://</span>
-  <input class="jx-input-lane" placeholder="api.jixoai.com" />
+  <input class="jx-control-lane" placeholder="api.jixoai.com" />
 </label>`;
 
   // ---- canvas playground state ---------------------------------------------
@@ -296,26 +296,26 @@
         <div class="mt-4 grid gap-5 min-[760px]:grid-cols-2">
           <div class="flex flex-col gap-3">
             <label class="jx-label" for="tier1-text">bare text</label>
-            <input id="tier1-text" class="jx-input" type="text" placeholder="placeholder reads lighter" />
-            <input class="jx-input" type="date" aria-label="bare date" />
-            <input class="jx-input" type="number" aria-label="bare number" placeholder="↑/↓ steps" min="0" />
+            <input id="tier1-text" class="jx-control" type="text" placeholder="placeholder reads lighter" />
+            <input class="jx-control" type="date" aria-label="bare date" />
+            <input class="jx-control" type="number" aria-label="bare number" placeholder="↑/↓ steps" min="0" />
           </div>
           <div class="flex flex-col gap-3">
             <label class="jx-label" for="tier1-range">bare range</label>
-            <input id="tier1-range" class="jx-range" type="range" min="0" max="100" value="40" />
+            <input id="tier1-range" class="jx-slider" type="range" min="0" max="100" value="40" />
             <div class="flex items-center gap-3">
               <!-- default: compact 5rem field (swatch + pipette zone) -->
-              <label class="jx-color-field">
-                <input type="color" class="jx-color" value="#007924" aria-label="bare color" />
+              <label class="jx-color-shell">
+                <input type="color" class="jx-color-swatch" value="#007924" aria-label="bare color" />
               </label>
               <!-- opt-in: the full-row field -->
-              <label class="jx-color-field jx-color-stretch flex-1">
-                <input type="color" class="jx-color" value="#d61f69" aria-label="bare color stretched" />
+              <label class="jx-color-shell jx-color-expand flex-1">
+                <input type="color" class="jx-color-swatch" value="#d61f69" aria-label="bare color stretched" />
               </label>
             </div>
             <span class="text-muted-foreground text-[12px]">
-              .jx-input · .jx-range · .jx-color-field + .jx-color — compact by default (5rem),
-              .jx-color-stretch reclaims the full row; the wrapper label opens the picker from
+              .jx-control · .jx-slider · .jx-color-shell + .jx-color-swatch — compact by default (5rem),
+              .jx-color-expand reclaims the full row; the wrapper label opens the picker from
               the pipette zone too
             </span>
           </div>

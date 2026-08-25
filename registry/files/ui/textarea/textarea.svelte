@@ -34,7 +34,7 @@
   way.
 
   tw4 (2026-08-24): PURE utility migration, zero css residue — the
-  shell/lane laws (.jx-field-shell row+hover+focus+disabled+invalid+
+  shell/lane laws (.jx-control-shell row+hover+focus+disabled+invalid+
   slotted, .jx-field/.jx-label/.jx-error) are CONSUMED from the jx-pure
   sheet's Part A (Tier-2 consume-only law; the shell only adds the
   column direction as a utility), and every component-owned pixel
@@ -119,7 +119,7 @@
        Part A's shell law carries the box/hover/focus/disabled/invalid
        paint — the only component-owned geometry is the column direction -->
   <div
-    class={'jx-field-shell flex-col ' + className}
+    class={'jx-control-shell flex-col ' + className}
     class:jx-slotted={slotted}
     class:jx-invalid={invalid}
   >
