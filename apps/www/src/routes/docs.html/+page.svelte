@@ -14,6 +14,8 @@
   const normalized = $derived(
     page.url.pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/',
   );
+  const hrefNormalized = (href: string): string =>
+    href.replace(/\.html$/, '').split('#')[0].replace(/\/+$/, '') || '/';
   const installTargets = CATALOG.filter((e) => e.type !== 'registry:ui');
 </script>
 
@@ -55,12 +57,11 @@
           </div>
           <ul class="flex flex-col gap-2" role="list">
             {#each section.pages as pg (pg.title)}
-              {#const current = normalized === pg.href.replace(/\.html$/, '').split('#')[0].replace(/\/+$/, '') || '/'}
               <li>
                 <a
                   class="grid grid-cols-[auto_1fr] items-baseline gap-x-2 gap-y-0.5 text-muted-foreground transition-colors hover:text-foreground"
                   href={pg.href}
-                  aria-current={current ? 'page' : undefined}
+                  aria-current={hrefNormalized(pg.href) === normalized ? 'page' : undefined}
                 >
                   <span class="text-primary col-start-1 row-start-1 font-mono text-xs" aria-hidden="true">&gt;</span>
                   <span class="col-start-2 row-start-1 flex items-baseline gap-2">
