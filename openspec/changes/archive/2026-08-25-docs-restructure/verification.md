@@ -94,3 +94,14 @@
   （entries 单一来源生成器、dist/md 内容级 parity）记为显性债务
   （tasks #16）
 - 终态门禁：338/338、build:site 7/7（自检 0 失败）、锁 18 项全绿
+
+## Owner acceptance round (2026-08-25, post-merge)
+
+The tree has been live-reviewed through a long polish session — every
+finding landed as its own commit: mega-panel orphan group + English-only
+surfaces (b968d92), nav title/subtitle split (12724c6), the two-line
+anatomy on the docs home (ce7e51d), the active-marker precedence bug
+(b174ff0), the sections-rail search filter (14c56d7), dual-mode rail
+(components tree shows the catalog, 7945420), icon sweep (bc29b49 +
+83cf115 + b0ad985), related chips (33eb8f5), subtitle case (c97b33f).
+Accepted by the Owner through continued use; archived.
