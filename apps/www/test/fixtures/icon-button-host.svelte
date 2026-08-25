@@ -14,6 +14,7 @@
     variant = undefined,
     iconOnly = false,
     placement = undefined,
+    arrow = undefined,
     effect = undefined,
     href = '',
     class: className = undefined,
@@ -29,6 +30,7 @@
       | 'copied';
     iconOnly?: boolean;
     placement?: 'top' | 'bottom' | 'top-start' | 'bottom-start' | 'top-end' | 'bottom-end';
+    arrow?: boolean;
     effect?: PressEffect;
     href?: string;
     class?: string;
@@ -36,11 +38,11 @@
 </script>
 
 {#if href}
-  <IconButton {variant} {iconOnly} {placement} {effect} {href} class={className} {text}>
+  <IconButton {variant} {iconOnly} {placement} {arrow} {effect} {href} class={className} {text}>
     {#snippet icon()}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z" /></svg>{/snippet}
   </IconButton>
 {:else}
-  <IconButton {variant} {iconOnly} {placement} {effect} class={className} {text}>
+  <IconButton {variant} {iconOnly} {placement} {arrow} {effect} class={className} {text}>
     {#snippet icon()}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z" /></svg>{/snippet}
   </IconButton>
 {/if}

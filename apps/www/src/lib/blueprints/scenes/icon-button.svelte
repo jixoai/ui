@@ -25,7 +25,7 @@
         </svg>
       {/snippet}
     </IconButton>
-    <IconButton variant="icon-only" text="copy command" placement="bottom">
+    <IconButton iconOnly text="copy command" placement="bottom">
       {#snippet icon()}
         <svg
           viewBox="0 0 24 24"
@@ -42,7 +42,7 @@
         </svg>
       {/snippet}
     </IconButton>
-    <IconButton variant="icon-only" text="open github" placement="bottom">
+    <IconButton iconOnly text="open github" placement="bottom">
       {#snippet icon()}
         <svg
           viewBox="0 0 24 24"

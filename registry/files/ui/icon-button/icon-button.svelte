@@ -6,30 +6,51 @@
           aria-hidden; bring your own svg/glyph snippet)
     text  the ONE label — a single string, single-sourced
 
-  Two variants:
-    normal     icon + text side by side (press-button outline surface)
-    icon-only  a square button; text does not disappear — it moves to
-               the tooltip AND stays the accessible name (aria-label).
-               An icon-only button must say itself.
+  Two postures:
+    text      icon + text side by side — the default
+    iconOnly  a square button; text does not disappear — it moves to
+              the tooltip AND stays the accessible name (aria-label).
+              An icon-only button must say itself.
 
-  Press law verbatim (theme .jx-press): hover grows the shadow only —
-  the body never moves; active presses +1px on an anchored shadow.
-  href renders an anchor instead; hrefs outside "/" open a new tab
-  with noreferrer automatically.
+  Inheritance by composition (2026-08-25, Owner ruling): the button
+  IS a press-button — this component wraps it and owns only the
+  two-part contract + the icon-only posture. Every press-button
+  capability passes through verbatim: the paint variants (primary …
+  copied), the effect loops (shimmer/pulse/rainbow/ripple), href/
+  external anchoring, type, class. Press law and shadow tokens are
+  therefore identical to a text button BY CONSTRUCTION (the square
+  rides the same 42px band, not a smaller silhouette); the
+  pre-composition copy had drifted its own markup and geometry.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import PressButton, { type PressEffect } from '$lib/ui/press-button/press-button.svelte';
   import Tooltip from '$lib/ui/tooltip/tooltip.svelte';
 
   interface Props {
     /** the glyph — always decorative; an svg or character snippet */
     icon: Snippet;
-    /** the ONE label: visible text in normal, tooltip + accessible name in icon-only */
+    /** the ONE label: visible text by default, tooltip + accessible name in iconOnly */
     text: string;
-    /** normal = icon + text; icon-only = square button, text becomes the tooltip */
-    variant?: 'normal' | 'icon-only';
-    /** icon-only: which side the tooltip leans */
+    /** paint — the press-button variant union, verbatim */
+    variant?:
+      | 'primary'
+      | 'secondary'
+      | 'outline'
+      | 'ghost'
+      | 'destructive'
+      | 'link'
+      | 'copied';
+    /** collapse to the square: text moves to the tooltip + aria-label */
+    iconOnly?: boolean;
+    /** iconOnly: which side the tooltip leans */
     placement?: 'top' | 'bottom' | 'top-start' | 'bottom-start' | 'top-end' | 'bottom-end';
+    /** iconOnly: the tip's pointer notch, aimed at the anchor point the
+     *  placement names (on by default — a square trigger reads best with
+     *  the pin; opt out for plain bubbles) */
+    arrow?: boolean;
+    /** the one opt-in effect loop — shimmer()/pulse()/rainbow()/ripple() */
+    effect?: PressEffect;
     href?: string;
     /** Opens non-internal hrefs (not starting with "/") in a new tab. */
     external?: boolean;
@@ -41,48 +62,39 @@
   let {
     icon,
     text,
-    variant = 'normal',
+    variant = 'outline',
+    iconOnly = false,
     placement,
+    arrow = true,
+    effect = undefined,
     href,
     external = undefined,
     onclick,
     type = 'button',
     class: className = '',
   }: Props = $props();
-
-  const iconOnly = $derived(variant === 'icon-only');
-
-  const base =
-    'jx-press inline-flex items-center justify-center border border-border bg-background hover:bg-muted text-sm font-medium';
-  // same height as a text press-button in normal; a lone square in icon-only
-  const shape = $derived(iconOnly ? 'size-9' : 'gap-2.5 px-3.5 py-2.5');
-  const classes = $derived(`${base} ${shape} ${className}`);
-  const isExternal = $derived(external ?? (href !== undefined && !href.startsWith('/')));
 </script>
 
 {#snippet control()}
-  {#if href}
-    <a
-      {href}
-      target={isExternal ? '_blank' : undefined}
-      rel={isExternal ? 'noreferrer' : undefined}
-      aria-label={iconOnly ? text : undefined}
-      class={classes}
-    >
-      <span class="shrink-0" aria-hidden="true">{@render icon()}</span>
-      {#if !iconOnly}<span>{text}</span>{/if}
-    </a>
-  {:else}
-    <button {type} {onclick} aria-label={iconOnly ? text : undefined} class={classes}>
-      <span class="shrink-0" aria-hidden="true">{@render icon()}</span>
-      {#if !iconOnly}<span>{text}</span>{/if}
-    </button>
-  {/if}
+  <PressButton
+    {variant}
+    square={iconOnly}
+    {effect}
+    {href}
+    {external}
+    {onclick}
+    {type}
+    ariaLabel={iconOnly ? text : undefined}
+    class={className}
+  >
+    <span class="shrink-0" aria-hidden="true">{@render icon()}</span>
+    {#if !iconOnly}<span>{text}</span>{/if}
+  </PressButton>
 {/snippet}
 
 <!-- one control, two shells — the tooltip wraps it only in icon-only -->
 {#if iconOnly}
-  <Tooltip {text} placement={placement ?? 'top'}>
+  <Tooltip {text} placement={placement ?? 'top'} {arrow}>
     {@render control()}
   </Tooltip>
 {:else}

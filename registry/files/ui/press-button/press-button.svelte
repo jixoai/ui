@@ -164,6 +164,14 @@
     onclick?: () => void;
     type?: 'button' | 'submit';
     ariaLabel?: string;
+    /** square pose: a size-10.5 (42px) frame with no padding — the
+     *  icon/toolbar idiom, level with the text button's own band;
+     *  press law and every variant ride unchanged */
+    square?: boolean;
+    /** appended to the composed classes (same-family overrides need
+     *  the consumer's `!` — same-property utility order is not
+     *  consumer-guaranteed) */
+    class?: string;
     children: Snippet;
   }
 
@@ -175,10 +183,19 @@
     onclick,
     type = 'button',
     ariaLabel,
+    square = false,
+    class: className = '',
     children,
   }: Props = $props();
 
-  const base = 'inline-flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-medium';
+  // the square swaps ONLY geometry: one band (42px, the text button's
+  // own height) with the glyph centered — paint, physics and effects
+  // are identical to the text pose
+  const base = $derived(
+    square
+      ? 'inline-flex items-center justify-center size-10.5 text-sm font-medium'
+      : 'inline-flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-medium',
+  );
   // the bordered, shadow-bearing body (link opts out entirely)
   const frame = 'jx-press border border-border';
   const variants = {
@@ -270,7 +287,7 @@
   };
 
   const classes = $derived(
-    `${base} ${variants[variant]}${effectClass ? ` ${effectClass}` : ''}`
+    `${base} ${variants[variant]}${effectClass ? ` ${effectClass}` : ''}${className ? ` ${className}` : ''}`
   );
   const isExternal = $derived(external ?? (href !== undefined && !href.startsWith('/')));
 </script>
