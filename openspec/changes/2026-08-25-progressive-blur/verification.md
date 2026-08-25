@@ -56,3 +56,34 @@ commits.
 - The `%` height form of the Magic UI original is intentionally
   unsupported (definite lengths only) — the sticky h-0 root cannot
   resolve percentage heights.
+
+## Visual pass (vision subagent, 2026-08-25) — PASS
+
+Headless Chromium against the live dev server, screenshots read by a
+vision analyzer and cross-checked against DOM geometry
+(artifacts: /tmp/zcode-vision-review/):
+
+- progressive-blur demo: LEFT card (top, reveal='scroll') shows NO
+  blur band at rest; RIGHT card (bottom, static) shows a smooth
+  progressive ramp — heavily diffused at the edge, clear upward; no
+  hard rectangular cut, no band bleed, no z-fighting.
+- The real docs rail: crisp title/filter at rest (layers opacity 0);
+  scrolled to 300 — the top-edge progressive fade appears, strongest
+  at the very edge, mid-ramp captured at opacity 0.79, confined to
+  the rail bounds.
+- navigation-menu: Enter on the demo trigger OPENED the panel on the
+  real engine (aria-expanded true; 228×129 panel with three links on
+  the dark terminal surface, thin border + hard offset shadow). The
+  panel sat flush ABOVE the trigger — the primitive's position-try
+  flip engaging correctly (the demo trigger row sits near the canvas
+  bottom). No clipping, no overlay errors.
+- Layout sanity: all three pages render clean; no error overlays.
+
+Environment notes: the IAB browser bridge is not injected into
+subagent sessions (`Browser is not available in subagent`), so the
+subagent drove the repo's own playwright-core as the fallback; in that
+clean instance none of the main-session IAB input quirks reproduced
+(click/evaluate/scroll all behaved) — the earlier failures were the
+IAB session's input synthesis, not the components. The main-session
+proxy (127.0.0.1:17890) also explains the localhost 502s seen via
+curl (bypass: --noproxy / [::1]).
