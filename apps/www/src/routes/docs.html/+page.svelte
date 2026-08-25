@@ -5,11 +5,15 @@
   answers "where do I start".
 -->
 <script lang="ts">
+  import { page } from '$app/state';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import { docsSections, flatComponents } from '$lib/docs-route-model';
   import { CATALOG } from '$lib/catalog';
 
   const sections = docsSections;
+  const normalized = $derived(
+    page.url.pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/',
+  );
   const installTargets = CATALOG.filter((e) => e.type !== 'registry:ui');
 </script>
 
@@ -49,21 +53,28 @@
           <div class="flex items-baseline justify-between gap-3">
             <h2 class="font-nav text-[1.05rem] tracking-tight">{section.label}</h2>
           </div>
-          <ul class="flex flex-col gap-1.5" role="list">
+          <ul class="flex flex-col gap-2" role="list">
             {#each section.pages as pg (pg.title)}
-              <li class="flex items-baseline gap-2 text-[13px]">
-                <span class="text-primary font-mono text-xs" aria-hidden="true">&gt;</span>
-                <a class="text-muted-foreground transition-colors hover:text-foreground" href={pg.href}>
-                  {pg.title}
-                  {#if pg.count !== undefined}
-                    <span class="font-mono text-[11px] opacity-60">· {pg.count}</span>
+              {#const current = normalized === pg.href.replace(/\.html$/, '').split('#')[0].replace(/\/+$/, '') || '/'}
+              <li>
+                <a
+                  class="grid grid-cols-[auto_1fr] items-baseline gap-x-2 gap-y-0.5 text-muted-foreground transition-colors hover:text-foreground"
+                  href={pg.href}
+                  aria-current={current ? 'page' : undefined}
+                >
+                  <span class="text-primary col-start-1 row-start-1 font-mono text-xs" aria-hidden="true">&gt;</span>
+                  <span class="col-start-2 row-start-1 flex items-baseline gap-2">
+                    <span class="font-mono text-xs">{pg.title}</span>
+                    {#if pg.count !== undefined}
+                      <span class="font-mono text-[10px] opacity-50">{pg.count}</span>
+                    {/if}
+                  </span>
+                  {#if pg.subtitle}
+                    <span class="text-muted-foreground/70 col-start-2 row-start-2 font-nav text-[9px] uppercase tracking-[0.06em]">
+                      {pg.subtitle}
+                    </span>
                   {/if}
                 </a>
-                {#if pg.subtitle}
-                  <span class="text-muted-foreground/60 font-nav text-[10px] uppercase tracking-[0.08em]">
-                    {pg.subtitle}
-                  </span>
-                {/if}
               </li>
             {/each}
           </ul>
