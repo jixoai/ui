@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-25T14:07:57.501Z",
+  "generatedAt": "2026-08-25T14:24:23.546Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -115,8 +115,8 @@
           "source": "registry/files/ui/press-button/press-button.svelte",
           "mirror": "apps/www/src/lib/ui/press-button/press-button.svelte",
           "target": "@ui/press-button/press-button.svelte",
-          "sourceSha": "a40ee8078e12c0c7a4cd675e14217655c4b72a87b4467a20f17a7c681bb8b0f2",
-          "mirrorSha": "a40ee8078e12c0c7a4cd675e14217655c4b72a87b4467a20f17a7c681bb8b0f2"
+          "sourceSha": "7d64925fa30fa3b475d7ba4c0f31d5e94e569dcd26d325fe4c3c0fa2c5aaca85",
+          "mirrorSha": "7d64925fa30fa3b475d7ba4c0f31d5e94e569dcd26d325fe4c3c0fa2c5aaca85"
         },
         {
           "source": "registry/files/ui/press-button/index.ts",
@@ -1465,8 +1465,8 @@
           "source": "registry/files/ui/tooltip/tooltip.svelte",
           "mirror": "apps/www/src/lib/ui/tooltip/tooltip.svelte",
           "target": "@ui/tooltip/tooltip.svelte",
-          "sourceSha": "bdc601d1da43b7daf1b018d05dbf7a62853cd3ee0a13d8ecc74c997b23cd0a39",
-          "mirrorSha": "bdc601d1da43b7daf1b018d05dbf7a62853cd3ee0a13d8ecc74c997b23cd0a39"
+          "sourceSha": "54b49670646e93e083b9c985bd18d6d558a72d1073a672859ba4d59ddd8b63fa",
+          "mirrorSha": "54b49670646e93e083b9c985bd18d6d558a72d1073a672859ba4d59ddd8b63fa"
         },
         {
           "source": "registry/files/ui/tooltip/index.ts",
@@ -2680,8 +2680,8 @@
           "source": "registry/files/ui/icon-button/icon-button.svelte",
           "mirror": "apps/www/src/lib/ui/icon-button/icon-button.svelte",
           "target": "@ui/icon-button/icon-button.svelte",
-          "sourceSha": "35335f97b1afcf6d6fb966c27f876870dd4e80697ea0e47b370f1fd0645cd215",
-          "mirrorSha": "35335f97b1afcf6d6fb966c27f876870dd4e80697ea0e47b370f1fd0645cd215"
+          "sourceSha": "9fe4db2577bee8ed1b4c392ec5fa3fd688e425e9e79a34b4617b89003de60d8e",
+          "mirrorSha": "9fe4db2577bee8ed1b4c392ec5fa3fd688e425e9e79a34b4617b89003de60d8e"
         },
         {
           "source": "registry/files/ui/icon-button/index.ts",
