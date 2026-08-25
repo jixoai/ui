@@ -60,7 +60,7 @@
   drawer shows the new barrel.
   *Gate: SSR + browser walkthrough at wide/narrow widths; no
   interactive descendants inside link rows.*
-- [ ] 6. **Test suite rewrite** — list-item.spec: resolution/stamping,
+- [x] 6. **Test suite rewrite** — list-item.spec: resolution/stamping,
   nested groups, labeled groups, divider edge law, ItemField IDs,
   adapter forwarding, ItemMedia image variant renders `<img src alt>`
   (src/alt stay public), css source guard refresh. **Exhaustive matrix

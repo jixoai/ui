@@ -162,5 +162,11 @@ describe('Item family — the CSS contract (source guard)', () => {
     expect(css).toContain('[data-slot=\'item-divider\']');
     // ItemSeparator's contract is gone
     expect(css).not.toContain('.jx-item-separator');
+    // exhaustive-matrix complement (the browser gate is scripts/verify-item-matrix.mjs):
+    // 16 wide + 8 narrow end-present combos, each declaring BOTH tracks and areas
+    const wideBlock = css.slice(0, css.indexOf('/* ── slot geometry'));
+    expect(wideBlock.match(/grid-template-areas/g)!.length).toBe(16);
+    expect(wideBlock.match(/grid-template-columns/g)!.length).toBe(16);
+    expect(css.match(/grid-template-areas/g)!.length).toBe(24); // 16 wide + 8 narrow
   });
 });
