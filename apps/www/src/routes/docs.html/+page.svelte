@@ -71,7 +71,7 @@
                     {/if}
                   </span>
                   {#if pg.subtitle}
-                    <span class="text-muted-foreground/70 col-start-2 row-start-2 font-nav text-[9px] uppercase tracking-[0.06em]">
+                    <span class="text-muted-foreground/70 col-start-2 row-start-2 font-nav text-[10px] tracking-[0.02em]">
                       {pg.subtitle}
                     </span>
                   {/if}

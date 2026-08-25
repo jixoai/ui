@@ -382,9 +382,8 @@
   }
   .jx-dsn-sub {
     font-family: var(--font-nav);
-    font-size: 0.5625rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-size: 0.625rem;
+    letter-spacing: 0.02em;
     color: var(--muted-foreground);
     opacity: 0.75;
     overflow: hidden;
