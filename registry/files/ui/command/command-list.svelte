@@ -30,7 +30,10 @@
 
   let el = $state<HTMLDivElement | null>(null);
 
-  // the own-list registration: init-time mount, onDestroy release
+  // the own-list registration: the DOM POINTER binds when the
+  // element mounts ($effect — the hydrate-time exception for element
+  // handles; the field itself is imperative state, never reactive
+  // order); onDestroy releases it identity-guarded
   $effect(() => {
     cmd.listEl = el;
   });

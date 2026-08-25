@@ -21,7 +21,7 @@
       popconfirm
 - [x] 7. Batch E: command family (self-match, :has states, kb nav)
 - [x] 8. Batch F: terminal-header decomposition + docs-site chrome
-- [x] 9. Integrator: registry.json (16 family entries +104 files,
+- [x] 9. Integrator: registry.json (17 family entries +104 files,
       descriptions), manifest regen (+ terminal-header hash patch;
       batch2 spec left for the tooltip session's landing), the toc
       page-data seam, 3 scenes, 6 old suites migrated — per-batch
