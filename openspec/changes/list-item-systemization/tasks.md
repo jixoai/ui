@@ -52,7 +52,7 @@
   regenerated at execution time; counts drift under parallel work).
   *Gate: every playground route compiles + migrated rows' labelledby
   targets exist.*
-- [ ] 5. **Docs + blueprint rebuild** — 8 demo sections per design
+- [x] 5. **Docs + blueprint rebuild** — 8 demo sections per design
   (standalone ladder, group modes, slot topology, media+narrow,
   settings section with adapters, ItemField escape hatch,
   selection/links, accordion + checkbox-group recipes); blueprint

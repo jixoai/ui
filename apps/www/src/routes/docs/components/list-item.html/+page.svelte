@@ -1,13 +1,13 @@
 <!--
-  Docs page for the list-item family (2026-08-25).
+  Docs page for the list-item family (openspec
+  list-item-systemization task 5 — the eight-section proof surface).
   Intents:
-  1. Hero summary comes from the registry catalog (CATALOG lookup,
-     fail-loud on miss — never hand-write registry copy).
-  2. One ComponentCanvas: the required-slot composition (ItemContent +
-     ItemActions on an outline Item).
-  3. Section demos: media forms, group + separators + link rows
-     (incl. the narrow-container actions wrap), header/footer full
-     rows, the variant × size ladder.
+  1. Hero summary from the registry catalog (CATALOG lookup, fail-loud).
+  2. One ComponentCanvas: the base composition (the end lane).
+  3. Proof sections: standalone ladder (auto-variant), group modes,
+     slot topology, media layout + the narrow container law, the
+     settings section (five adapters), the ItemField escape hatch,
+     selection & links, recipes (accordion + checkbox group).
   4. Usage CodeBlock: the copyable composition sample (the canvas
      drawer shares the same string).
   Constraint: docs only — the component family itself is untouchable.
@@ -22,6 +22,8 @@
   import { icons } from '$lib/icons';
   import Avatar from '$lib/ui/avatar/avatar.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
+  import Accordion from '$lib/ui/accordion/accordion.svelte';
+  import AccordionItem from '$lib/ui/accordion/accordion-item.svelte';
   import {
     Item,
     ItemGroup,
@@ -36,6 +38,12 @@
     ItemActions,
     ItemHeader,
     ItemFooter,
+    ItemField,
+    ItemToggle,
+    ItemCheckbox,
+    ItemRadio,
+    ItemSelect,
+    ItemInput,
   } from '$lib/ui/list-item/index';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -48,18 +56,6 @@
   if (!entry) {
     throw new Error('catalog miss: "list-item" has no registry meta — fix registry.json');
   }
-
-  // ladder data (typed unions — the family ships no exported prop types)
-  const variantLadder: { id: 'default' | 'outline' | 'muted'; label: string }[] = [
-    { id: 'default', label: 'default' },
-    { id: 'outline', label: 'outline' },
-    { id: 'muted', label: 'muted' },
-  ];
-  const sizeLadder: { id: 'default' | 'sm' | 'xs'; label: string }[] = [
-    { id: 'default', label: 'default' },
-    { id: 'sm', label: 'sm' },
-    { id: 'xs', label: 'xs' },
-  ];
 
   const close = '</' + 'script>';
 
@@ -77,7 +73,7 @@
   import { icons } from '@lib/icons';
 ${close}
 
-<!-- ItemContent is the required slot; media/actions/header/footer are
+<!-- ItemContent is the required slot; media/end/header/footer are
      presence-optional — their existence rewrites the grid template. -->
 <Item variant="outline">
   <ItemContent>
@@ -99,6 +95,12 @@ ${close}
     { name: 'src/lib/ui/list-item-usage.svelte', content: usage, kind: 'usage' },
   ];
 
+  // settings-section state (the adapters prove binding/disabled/error live)
+  let autoplay = $state(true);
+  let telemetry = $state(false);
+  let density = $state('default');
+  let projectName = $state('');
+
   // ToC outline: pairs with +page.ts, in page order.
 </script>
 
@@ -106,7 +108,7 @@ ${close}
   <title>List item · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai list-item family: a GRID row with a :has()-driven presence matrix — media / content / actions in the main row, header / footer as optional full rows, actions dropping to their own row inside narrow groups. ItemContent is the required slot; the root is <a> when href is given."
+    content="The jixoai list-item family: a GRID row with a :has()-driven presence matrix and AUTO-VARIANT chrome — standalone rows carry their own terminal surface, groups own the frame. Native ul/li groups, the ItemEnd trailing lane (after · actions · chevron), ItemField + five settings-row adapters, divider policy, media layout and the 30rem container wrap."
   />
 </svelte:head>
 
@@ -117,14 +119,15 @@ ${close}
         headingLevel={1}
         tone="hero"
         eyebrow="registry:ui · Layout"
-        title="list-item — slots compose the row"
+        title="list-item — the row, as a system"
         summary={entry.summary}
       >
         <div class="flex flex-wrap gap-3">
+          <span class="pill">auto-variant chrome</span>
+          <span class="pill">native ul/li groups</span>
+          <span class="pill">ItemEnd trailing lane</span>
+          <span class="pill">ItemField + 5 adapters</span>
           <span class="pill">grid + :has() presence matrix</span>
-          <span class="pill">ItemContent required</span>
-          <span class="pill">href → &lt;a&gt;</span>
-          <span class="pill">default / outline / muted × sm / xs</span>
         </div>
       </SectionCard>
     </div>
@@ -168,13 +171,142 @@ ${close}
       </ComponentCanvas>
     </div>
 
-    <div id="media-forms" data-reveal="">
+    <!-- 1 ─ standalone ladder -->
+    <div id="standalone-ladder" data-reveal="">
       <SectionCard
-        family="media-forms"
-        headerRegion="media-forms"
-        eyebrow="demo"
-        title="Media: icon, avatar, image"
-        summary="ItemMedia is the leading slot in three forms: variant=icon pins any inline svg to 16px (the $lib/icons set fits as-is); the default variant is an avatar host — drop the registry Avatar in, its own size geometry applies; variant=image renders the img for you from src at a fixed square (2.5rem, 2rem under sm/xs items). A description self-starts the media — the optical alignment rule."
+        family="standalone-ladder"
+        headerRegion="standalone-ladder"
+        eyebrow="proof"
+        title="Standalone ladder"
+        summary="variant=auto (the default) resolves FROM CONTEXT: outside any group the row carries its own surface — 1px border + terminal-muted fill + the 2xs hard shadow + bevel. Explicit variants stay escape hatches: default paints nothing, outline frames, muted fills. data-item-chrome on the root always tells you what resolved — inspect it."
+      >
+        <div class="grid w-full gap-6 md:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">auto · surface</span>
+            <Item>
+              <ItemContent>
+                <ItemTitle>the auto row</ItemTitle>
+                <ItemDescription>data-item-chrome="surface"</ItemDescription>
+              </ItemContent>
+              <ItemEnd><ItemAfter>own frame</ItemAfter></ItemEnd>
+            </Item>
+            {#each ['default', 'outline', 'muted'] as const as v (v)}
+              <Item variant={v}>
+                <ItemContent>
+                  <ItemTitle>variant="{v}"</ItemTitle>
+                  <ItemDescription>explicit — always wins over context</ItemDescription>
+                </ItemContent>
+              </Item>
+            {/each}
+          </div>
+          <div class="flex flex-col gap-2">
+            <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">density</span>
+            {#each ['default', 'sm', 'xs'] as const as s (s)}
+              <Item size={s}>
+                <ItemContent>
+                  <ItemTitle>size="{s}"</ItemTitle>
+                  <ItemDescription>padding, gaps and type scale — never geometry</ItemDescription>
+                </ItemContent>
+              </Item>
+            {/each}
+          </div>
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- 2 ─ group modes -->
+    <div id="group-modes" data-reveal="">
+      <SectionCard
+        family="group-modes"
+        headerRegion="group-modes"
+        eyebrow="proof"
+        title="Group modes"
+        summary="The group owns the surface: mode=default frames the list (1px border + xs shadow) with auto hairlines between adjacent rows (38% mix — a long stack never becomes a wall of full-black bars); mode=muted is one terminal-muted slab (dividers forced off); mode=plain paints nothing — the host surface owns it — and opts into hairlines explicitly. inset adds fixed 0.75rem inline margins. label renders a real section + aria-labelledby. Inside, auto rows yield their chrome — explicit variant rows remain the documented escape hatch, not the default."
+      >
+        <div class="grid w-full gap-6 lg:grid-cols-2">
+          <div class="flex flex-col gap-4">
+            <ItemGroup label="registry" class="max-w-lg">
+              <Item href="#group-modes">
+                <ItemMedia variant="icon">{@html icons.folder}</ItemMedia>
+                <ItemContent>
+                  <ItemTitle>press-button</ItemTitle>
+                  <ItemDescription>default mode · labeled section · auto hairlines</ItemDescription>
+                </ItemContent>
+                <ItemEnd><ItemChevron /></ItemEnd>
+              </Item>
+              <ItemDivider />
+              <Item>
+                <ItemContent>
+                  <ItemTitle>with an explicit divider</ItemTitle>
+                  <ItemDescription>full-strength — one source per edge, structurally exclusive</ItemDescription>
+                </ItemContent>
+                <ItemEnd><ItemAfter>12:04</ItemAfter></ItemEnd>
+              </Item>
+              <Item href="#group-modes">
+                <ItemContent>
+                  <ItemTitle>code-card</ItemTitle>
+                  <ItemDescription>registry:ui · highlight + copy workbench</ItemDescription>
+                </ItemContent>
+                <ItemEnd><ItemChevron /></ItemEnd>
+              </Item>
+            </ItemGroup>
+            <ItemGroup mode="muted" label="strong relations" class="max-w-lg">
+              <Item>
+                <ItemContent>
+                  <ItemTitle>muted slab</ItemTitle>
+                  <ItemDescription>terminal-muted fill · no frame · no dividers, ever</ItemDescription>
+                </ItemContent>
+              </Item>
+              <Item>
+                <ItemContent>
+                  <ItemTitle>rows read as one surface</ItemTitle>
+                </ItemContent>
+                <ItemEnd><ItemAfter>2</ItemAfter></ItemEnd>
+              </Item>
+            </ItemGroup>
+          </div>
+          <div class="flex flex-col gap-4">
+            <ItemGroup mode="plain" dividers="auto" label="host-owned (plain)" class="max-w-lg">
+              <Item>
+                <ItemContent>
+                  <ItemTitle>plain group</ItemTitle>
+                  <ItemDescription>nothing painted — this page is the surface; hairlines opted in</ItemDescription>
+                </ItemContent>
+              </Item>
+              <Item>
+                <ItemContent>
+                  <ItemTitle>for menus, panels, terminals</ItemTitle>
+                </ItemContent>
+                <ItemEnd><ItemChevron /></ItemEnd>
+              </Item>
+            </ItemGroup>
+            <ItemGroup mode="default" inset label="inset" class="max-w-lg">
+              <Item>
+                <ItemContent>
+                  <ItemTitle>inset group</ItemTitle>
+                  <ItemDescription>fixed 0.75rem inline margins — boolean, no responsive enum</ItemDescription>
+                </ItemContent>
+              </Item>
+              <Item>
+                <ItemContent>
+                  <ItemTitle>same paint as default</ItemTitle>
+                </ItemContent>
+                <ItemEnd><ItemAfter>fixed geometry</ItemAfter></ItemEnd>
+              </Item>
+            </ItemGroup>
+          </div>
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- 3 ─ slot topology -->
+    <div id="slot-topology" data-reveal="">
+      <SectionCard
+        family="slot-topology"
+        headerRegion="slot-topology"
+        eyebrow="proof"
+        title="Slot topology"
+        summary="Four top-level presence bits — media · end · header · footer — rewrite the template; everything trailing lives INSIDE ItemEnd: ItemAfter (non-interactive metadata) flows before ItemActions (controls) before ItemChevron (the decorative glyph). ItemMedia is icon / avatar-host / image (src+alt render the img). Header and footer are optional full rows. Link rows never contain interactive descendants — the last row shows where actions belong."
       >
         <div class="flex w-full max-w-lg flex-col gap-2">
           <Item variant="outline">
@@ -183,6 +315,10 @@ ${close}
               <ItemTitle>registry folder</ItemTitle>
               <ItemDescription>12 components · updated today</ItemDescription>
             </ItemContent>
+            <ItemEnd>
+              <ItemAfter tone="default">3 open</ItemAfter>
+              <ItemActions><span class="text-[10px] opacity-60">edit</span></ItemActions>
+            </ItemEnd>
           </Item>
           <Item variant="outline">
             <ItemMedia>
@@ -192,6 +328,7 @@ ${close}
               <ItemTitle>Ada Lovelace</ItemTitle>
               <ItemDescription>maintainer · 3 commits today</ItemDescription>
             </ItemContent>
+            <ItemEnd><ItemAfter>12:04</ItemAfter></ItemEnd>
           </Item>
           <Item variant="outline">
             <ItemMedia variant="image" src="/blueprints/press-button.svg" alt="press-button blueprint" />
@@ -199,88 +336,8 @@ ${close}
               <ItemTitle>press-button</ItemTitle>
               <ItemDescription>the physical press law · blueprint</ItemDescription>
             </ItemContent>
+            <ItemEnd><ItemChevron /></ItemEnd>
           </Item>
-        </div>
-      </SectionCard>
-    </div>
-
-    <div id="group-list" data-reveal="">
-      <SectionCard
-        family="group-list"
-        headerRegion="group-list"
-        eyebrow="demo"
-        title="Group, separators & link rows"
-        summary="ItemGroup owns the surface: a native frame around a <ul> list, with mode (default · muted · plain), optional label, and the divider policy — auto hairlines between adjacent rows, full-strength ItemDivider for explicit boundaries. data-dividers lives on the list itself, the adjacency owner. Items with href render an anchor that carries its own hover law; chevrons are the explicit ItemChevron leaf."
-      >
-        <div class="flex w-full flex-col gap-6">
-          <div class="max-w-lg">
-            <ItemGroup>
-              <Item href="/docs/components/press-button.html">
-                <ItemMedia variant="icon">{@html icons.palette}</ItemMedia>
-                <ItemContent>
-                  <ItemTitle>press-button</ItemTitle>
-                  <ItemDescription>registry:ui · the physical press law</ItemDescription>
-                </ItemContent>
-                <ItemEnd><ItemChevron /></ItemEnd>
-              </Item>
-              <ItemDivider />
-              <Item href="/docs/components/avatar.html">
-                <ItemMedia>
-                  <Avatar name="Ada Lovelace" size="sm" tooltip={false} />
-                </ItemMedia>
-                <ItemContent>
-                  <ItemTitle>avatar</ItemTitle>
-                  <ItemDescription>registry:ui · native img with initials fallback</ItemDescription>
-                </ItemContent>
-                <ItemEnd><ItemChevron /></ItemEnd>
-              </Item>
-              <ItemDivider />
-              <Item>
-                <ItemMedia variant="icon">{@html icons.fileCode}</ItemMedia>
-                <ItemContent>
-                  <ItemTitle>code-card</ItemTitle>
-                  <ItemDescription>registry:ui · highlight + copy workbench</ItemDescription>
-                </ItemContent>
-                <ItemEnd>
-                  <ItemActions>
-                    <IconButton iconOnly text="Copy source" class="size-7!">
-                      {#snippet icon()}{@html icons.check}{/snippet}
-                    </IconButton>
-                  </ItemActions>
-                </ItemEnd>
-              </Item>
-            </ItemGroup>
-          </div>
-          <div class="flex max-w-lg flex-col gap-1.5">
-            <span class="text-muted-foreground text-[11px]">
-              narrow group (container ≤ 30rem): actions drop to their own row
-            </span>
-            <div class="max-w-[19rem]">
-              <ItemGroup mode="plain" dividers="auto">
-                <Item href="/docs/components/separator.html">
-                  <ItemMedia variant="icon">{@html icons.fileText}</ItemMedia>
-                  <ItemContent>
-                    <ItemTitle>separator</ItemTitle>
-                    <ItemDescription>registry:ui · the hr, W3C-first</ItemDescription>
-                  </ItemContent>
-                  <ItemEnd><ItemChevron /></ItemEnd>
-                </Item>
-              </ItemGroup>
-            </div>
-          </div>
-        </div>
-      </SectionCard>
-    </div>
-
-    <div id="header-footer" data-reveal="">
-      <SectionCard
-        family="header-footer"
-        headerRegion="header-footer"
-        eyebrow="demo"
-        title="Header & footer full rows"
-        summary="ItemHeader and ItemFooter are optional full-row slots above and below the main row — labels, meta strips, check runs. Their presence rewrites the grid template exactly like the main-row slots do; both render as space-between flex strips, so paired spans land on the row's edges."
-      >
-        <div class="flex w-full max-w-lg flex-col gap-2">
           <Item variant="outline">
             <ItemHeader>
               <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">
@@ -304,45 +361,226 @@ ${close}
               <span class="text-muted-foreground text-[11px]">updated 14 minutes ago</span>
             </ItemFooter>
           </Item>
-          <Item variant="outline">
-            <ItemHeader>
-              <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">
-                label row
-              </span>
-            </ItemHeader>
-            <ItemContent>
-              <ItemTitle>header-only form</ItemTitle>
-              <ItemDescription>the footer track simply never mints</ItemDescription>
-            </ItemContent>
-          </Item>
         </div>
       </SectionCard>
     </div>
 
-    <div id="variant-size-matrix" data-reveal="">
+    <!-- 4 ─ media layout & narrow law -->
+    <div id="media-narrow" data-reveal="">
       <SectionCard
-        family="variant-size-matrix"
-        headerRegion="variant-size-matrix"
-        eyebrow="demo"
-        title="Variant × size matrix"
-        summary="Paint × density, geometry-neutral by construction: variant changes only surface (auto resolves from the group — standalone it carries its own frame; default stays transparent; outline frames; muted fills), size changes only padding, gaps and type scale. Bevel rides --radius and no combination ever touches the template."
+        family="media-narrow"
+        headerRegion="media-narrow"
+        eyebrow="proof"
+        title="Media layout & the narrow law"
+        summary="layout=media (inherited from the group) switches custom properties only — a larger media square (3rem), wider gutters, top-aligned media; never a new presence bit. The narrow law: the group's ul IS the container; at ≤30rem the end lane drops to its own full row — a container query, not a viewport breakpoint. ItemEnd wrap=never keeps the lane on the main row."
       >
-        <div class="grid w-full gap-6 md:grid-cols-3">
-          {#each variantLadder as variant (variant.id)}
-            <div class="flex flex-col gap-2">
-              <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">
-                {variant.label}
-              </span>
-              {#each sizeLadder as size (size.id)}
-                <Item variant={variant.id} size={size.id}>
+        <div class="flex w-full flex-col gap-6">
+          <ItemGroup layout="media" mode="plain" dividers="auto" class="max-w-lg">
+            <Item>
+              <ItemMedia>
+                <Avatar name="Grace Hopper" size="sm" tooltip={false} />
+              </ItemMedia>
+              <ItemContent>
+                <ItemTitle>media layout rows</ItemTitle>
+                <ItemDescription>media self-starts, content gap loosens — the custom-property switch</ItemDescription>
+              </ItemContent>
+              <ItemEnd><ItemAfter>compiler</ItemAfter></ItemEnd>
+            </Item>
+            <Item>
+              <ItemMedia>
+                <Avatar name="Alan Kay" size="sm" tooltip={false} />
+              </ItemMedia>
+              <ItemContent>
+                <ItemTitle>works for feeds and threads</ItemTitle>
+                <ItemDescription>the same four presence bits, a calmer rhythm</ItemDescription>
+              </ItemContent>
+              <ItemEnd><ItemAfter>dynabook</ItemAfter></ItemEnd>
+            </Item>
+          </ItemGroup>
+          <div class="flex max-w-lg flex-col gap-1.5">
+            <span class="text-muted-foreground text-[11px]">
+              narrow group (container ≤ 30rem): the end lane takes its own row
+            </span>
+            <div class="max-w-[19rem]">
+              <ItemGroup mode="plain" dividers="auto">
+                <Item href="#media-narrow">
+                  <ItemMedia variant="icon">{@html icons.fileText}</ItemMedia>
                   <ItemContent>
-                    <ItemTitle>{variant.label} · {size.label}</ItemTitle>
-                    <ItemDescription>density {size.label}</ItemDescription>
+                    <ItemTitle>separator</ItemTitle>
+                    <ItemDescription>registry:ui · the hr, W3C-first</ItemDescription>
                   </ItemContent>
+                  <ItemEnd><ItemChevron /></ItemEnd>
                 </Item>
-              {/each}
+                <Item>
+                  <ItemContent>
+                    <ItemTitle>wrap=never row</ItemTitle>
+                    <ItemDescription>the lane refuses to split</ItemDescription>
+                  </ItemContent>
+                  <ItemEnd wrap="never"><ItemAfter>12:04:33</ItemAfter></ItemEnd>
+                </Item>
+              </ItemGroup>
             </div>
-          {/each}
+          </div>
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- 5 ─ settings section (adapters) -->
+    <div id="settings-section" data-reveal="">
+      <SectionCard
+        family="settings-section"
+        headerRegion="settings-section"
+        eyebrow="proof"
+        title="Settings section (adapters)"
+        summary="The five thin adapters are the settings page as one-liners: ItemToggle, ItemCheckbox, ItemRadio, ItemSelect, ItemInput. Each is ItemField + the existing control — the control keeps every native behavior (keyboard, form participation, bindable state); the adapter only wires ids and suppresses the control's duplicate label plumbing. label[for] makes click-row-to-activate free; description and error chain into aria-describedby; error flips aria-invalid. The live state below is bound — flip anything."
+      >
+        <div class="max-w-lg">
+          <ItemGroup label="workspace">
+            <ItemToggle
+              label="Fast builds"
+              description="skip typechecking during watch"
+              bind:checked={autoplay}
+            />
+            <ItemCheckbox label="Telemetry" error="requires the beta flag" bind:checked={telemetry} />
+            <ItemRadio name="channel" value="stable" label="Stable channel" description="tagged releases" checked />
+            <ItemRadio name="channel" value="canary" label="Canary channel" disabled />
+            <ItemSelect label="Density" bind:value={density}>
+              <option value="default">default</option>
+              <option value="sm">sm</option>
+              <option value="xs">xs</option>
+            </ItemSelect>
+            <ItemInput label="Project name" description="lowercase, dashes" bind:value={projectName} />
+          </ItemGroup>
+          <p class="text-muted-foreground mt-3 text-[11px] uppercase tracking-[0.14em]">
+            bound: {autoplay ? 'fast on' : 'fast off'} · {telemetry ? 'telemetry on' : 'telemetry off'} ·
+            {density} · "{projectName}"
+          </p>
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- 6 ─ ItemField escape hatch -->
+    <div id="item-field-escape" data-reveal="">
+      <SectionCard
+        family="item-field-escape"
+        headerRegion="item-field-escape"
+        eyebrow="proof"
+        title="ItemField escape hatch"
+        summary="Any control the adapters don't cover composes through ItemField's typed control snippet: it receives the full wiring context (controlId, labelId, descriptionId, errorId, describedBy). labelMode=for (default) associates a labelable element natively — click-to-activate, zero row handlers; labelMode=text is for non-labelable controls — the span label plus aria-labelledby is the naming source. The row is never a synthetic button and never nests a second label element."
+      >
+        <div class="max-w-lg">
+          <ItemGroup mode="plain" dividers="auto">
+            <ItemField id="xf-labelable" label="Custom slider" description="for-mode on a labelable input">
+              {#snippet control(f)}
+                <input type="range" id={f.controlId} aria-describedby={f.describedBy} />
+              {/snippet}
+            </ItemField>
+            <ItemField
+              id="xf-custom"
+              label="Non-labelable control"
+              description="text-mode: aria-labelledby names it"
+              labelMode="text"
+            >
+              {#snippet control(f)}
+                <div
+                  class="inline-flex items-center gap-2 border border-border px-2 py-1 text-[0.75rem]"
+                  role="status"
+                  aria-labelledby={f.labelId}
+                >
+                  custom
+                </div>
+              {/snippet}
+            </ItemField>
+          </ItemGroup>
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- 7 ─ selection & links -->
+    <div id="selection-links" data-reveal="">
+      <SectionCard
+        family="selection-links"
+        headerRegion="selection-links"
+        eyebrow="proof"
+        title="Selection & links"
+        summary="selected is VISUAL ONLY — terminal-hover fill plus the inset 2px primary edge (menu-family keeps its own bezel law; the divergence is documented, not accidental). No aria-selected is ever emitted: navigation adds aria-current itself through attribute forwarding; composite widgets own their selection semantics. Link rows are anchors with native keyboard behavior; rows with actions are NOT links."
+      >
+        <div class="max-w-lg">
+          <ItemGroup label="navigation">
+            <Item href="#selection-links" aria-current="page" selected>
+              <ItemContent>
+                <ItemTitle>current page</ItemTitle>
+                <ItemDescription>selected + consumer-authored aria-current="page"</ItemDescription>
+              </ItemContent>
+              <ItemEnd><ItemAfter>/docs/components/list-item</ItemAfter></ItemEnd>
+            </Item>
+            <Item href="#selection-links">
+              <ItemContent>
+                <ItemTitle>sibling route</ItemTitle>
+                <ItemDescription>hover paints terminal-hover — color only, the press law</ItemDescription>
+              </ItemContent>
+              <ItemEnd><ItemChevron /></ItemEnd>
+            </Item>
+            <Item>
+              <ItemContent>
+                <ItemTitle>actions row (not a link)</ItemTitle>
+                <ItemDescription>interactive descendants belong outside anchors</ItemDescription>
+              </ItemContent>
+              <ItemEnd>
+                <ItemActions>
+                  <IconButton iconOnly text="Retry" class="size-7!">
+                    {#snippet icon()}{@html icons.rotateCcw}{/snippet}
+                  </IconButton>
+                </ItemActions>
+              </ItemEnd>
+            </Item>
+          </ItemGroup>
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- 8 ─ recipes -->
+    <div id="recipes" data-reveal="">
+      <SectionCard
+        family="recipes"
+        headerRegion="recipes"
+        eyebrow="proof"
+        title="Recipes"
+        summary="Two compositions the family deliberately does NOT own: the accordion row composes the W3C-first Accordion (<details>/<summary> — native toggle, native SSR state, keyboard owned by the platform); the checkbox group is ItemGroup + ItemCheckbox with one shared form name. Swipeout, sortable, virtual lists, smart select stay out of v1 by design — scroll-virtual already exists for the data-engine side."
+      >
+        <div class="grid w-full gap-6 lg:grid-cols-2">
+          <div class="max-w-lg">
+            <Accordion>
+              <AccordionItem>
+                {#snippet summary()}
+                  <span class="flex min-w-0 flex-1 items-center justify-between gap-2">
+                    <span>expandable row (accordion recipe)</span>
+                    <span class="text-[10px] opacity-60">details/summary</span>
+                  </span>
+                {/snippet}
+                <p>
+                  The accordion family owns disclosure; the row inside is a plain Item
+                  composition. Open state survives SSR — no JS hydration required.
+                </p>
+              </AccordionItem>
+              <AccordionItem>
+                {#snippet summary()}
+                  <span>a second row</span>
+                {/snippet}
+                <p>Each summary is its own details element — the group only adds the visual law.</p>
+              </AccordionItem>
+            </Accordion>
+          </div>
+          <div class="max-w-lg">
+            <ItemGroup mode="plain" dividers="auto" label="checkbox group (one form name)">
+              {#each ['build', 'lint', 'test'] as const as step (step)}
+                <ItemCheckbox name="pipeline" value={step} label={step} />
+              {/each}
+            </ItemGroup>
+            <p class="text-muted-foreground mt-3 text-[11px] uppercase tracking-[0.14em]">
+              native same-form participation
+            </p>
+          </div>
         </div>
       </SectionCard>
     </div>
@@ -353,7 +591,7 @@ ${close}
         headerRegion="usage"
         eyebrow="law"
         title="Usage"
-        summary="The composition contract in one sample: import the family from the registry barrel (@ui/list-item/index — per-part targets exist per file), render ItemContent always, add the optional slots your row needs. Interactive behavior never lives on the row itself — link it with href or push controls into ItemActions."
+        summary="The composition contract in one sample: import the family from the registry barrel (@ui/list-item/index — per-part targets exist per file), render ItemContent always, add the optional slots your row needs. Interactive behavior never lives on the row itself — link it with href or push controls into ItemEnd; settings rows take the adapters."
       >
         <CodeBlock code={usage} lang="svelte" meta="usage" />
       </SectionCard>

@@ -4,10 +4,14 @@
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
-  { id: 'media-forms', label: 'Media: icon, avatar, image' },
-  { id: 'group-list', label: 'Group, separators & link rows' },
-  { id: 'header-footer', label: 'Header & footer full rows' },
-  { id: 'variant-size-matrix', label: 'Variant × size matrix' },
+  { id: 'standalone-ladder', label: 'Standalone ladder' },
+  { id: 'group-modes', label: 'Group modes' },
+  { id: 'slot-topology', label: 'Slot topology' },
+  { id: 'media-narrow', label: 'Media layout & the narrow law' },
+  { id: 'settings-section', label: 'Settings section (adapters)' },
+  { id: 'item-field-escape', label: 'ItemField escape hatch' },
+  { id: 'selection-links', label: 'Selection & links' },
+  { id: 'recipes', label: 'Recipes' },
   { id: 'usage', label: 'Usage' },
 ];
 
