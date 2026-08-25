@@ -8,6 +8,7 @@ const toc: TocSection[] = [
   { id: 'group-modes', label: 'Group modes' },
   { id: 'slot-topology', label: 'Slot topology' },
   { id: 'media-narrow', label: 'Media layout & the narrow law' },
+  { id: 'density-ladder', label: 'The density ladder' },
   { id: 'settings-section', label: 'Settings section (adapters)' },
   { id: 'item-field-escape', label: 'ItemField escape hatch' },
   { id: 'selection-links', label: 'Selection & links' },

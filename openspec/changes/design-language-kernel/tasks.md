@@ -32,10 +32,10 @@
   the ruler, and the field lane.
   *Gate: verify-item-ruler ALL GREEN + existing 33/33 matrix gate +
   focused vitest + §7 grep pass.*
-- [ ] 6. **P5b final Chromium acceptance** — both verify scripts rerun
+- [x] 6. **P5b final Chromium acceptance** — both verify scripts rerun
   green post-migration (incl. the checkbox-group fixture and the
   no-subgrid 33/33 fallback).
-- [ ] 7. **P6 blueprint/docs** — four densities + mixed rulers + the
+- [x] 7. **P6 blueprint/docs** — four densities + mixed rulers + the
   two defect scenes; screenshots for the Owner.
   *Gate: build:site self-checks + SSR/wide/narrow walkthrough + OWNER
   VISUAL ACCEPTANCE.*

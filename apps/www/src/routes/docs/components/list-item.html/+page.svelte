@@ -225,7 +225,7 @@ ${close}
       >
         <div class="grid w-full gap-6 lg:grid-cols-2">
           <div class="flex flex-col gap-4">
-            <ItemGroup label="registry" class="max-w-lg">
+            <ItemGroup label="registry" ruler="media-content-end" class="max-w-lg">
               <Item href="#group-modes">
                 <ItemMedia variant="icon">{@html icons.folder}</ItemMedia>
                 <ItemContent>
@@ -375,7 +375,7 @@ ${close}
         summary="layout=media (inherited from the group) switches custom properties only — a larger media square (3rem), wider gutters, top-aligned media; never a new presence bit. The narrow law: the group's ul IS the container; at ≤30rem the end lane drops to its own full row — a container query, not a viewport breakpoint. ItemEnd wrap=never keeps the lane on the main row."
       >
         <div class="flex w-full flex-col gap-6">
-          <ItemGroup layout="media" mode="plain" dividers="auto" class="max-w-lg">
+          <ItemGroup layout="media" ruler="media-content-end" mode="plain" dividers="auto" class="max-w-lg">
             <Item>
               <ItemMedia>
                 <Avatar name="Grace Hopper" size="sm" tooltip={false} />
@@ -421,6 +421,33 @@ ${close}
               </ItemGroup>
             </div>
           </div>
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- 4b ─ the density ladder (the 尺规 scale) -->
+    <div id="density-ladder" data-reveal="">
+      <SectionCard
+        family="density-ladder"
+        headerRegion="density-ladder"
+        eyebrow="proof"
+        title="The density ladder"
+        summary="Four densities, every number an equation from the 4px ruler: text 11/12/13/15px on lines 16/18/20/24px, rows 28/32/40/48px, media = one line (icon) or two (image), the outer inset ALWAYS equals the media seam (B=G). Density resolves from context: the group provides, rows inherit, an explicit size overrides — and the whole cascade is one data-density stamp plus inherited --jx-d-* variables, zero per-size branches in component css."
+      >
+        <div class="flex w-full max-w-lg flex-col gap-4">
+          {#each [['lg', 'the lg row · 15px text · 24px line · 48px'], ['default', 'the default row · 13px · 20px · 40px'], ['sm', 'the sm row · 12px · 18px · 32px'], ['xs', 'the xs row · 11px · 16px · 28px']] as const as [d, note] (d)}
+            <div>
+              <span class="text-muted-foreground mb-1 block text-[11px] uppercase tracking-[0.14em]">{d}</span>
+              <ItemGroup mode="plain" dividers="auto" size={d}>
+                <Item>
+                  <ItemContent>
+                    <ItemTitle>{note}</ItemTitle>
+                  </ItemContent>
+                  <ItemEnd><ItemAfter>hit 44px</ItemAfter></ItemEnd>
+                </Item>
+              </ItemGroup>
+            </div>
+          {/each}
         </div>
       </SectionCard>
     </div>
