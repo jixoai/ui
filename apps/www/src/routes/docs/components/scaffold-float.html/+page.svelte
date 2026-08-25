@@ -4,6 +4,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // ToC outline: the closing law (the canvas above holds the adoption
   // walkthrough).
@@ -79,6 +80,7 @@ ${close}
         description="The float portal: render anything into the website scaffold's top layer from anywhere in the page. Nodes keep full Svelte ownership at their authoring position; a context provider adopts the live node into .jx-float-slot on mount, and teardown hands it back. Static chrome (toc rails, nav trees) belongs in the scaffold's chrome snippet instead — this is the DYNAMIC path."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/scaffold-float.svelte"
         {files}
+        stage="fill"
       >
         {#snippet children()}
           <!-- No LIVE instance here on purpose: the only provider in this
@@ -114,18 +116,16 @@ ${close}
           </SectionCard>
         {/snippet}
         {#snippet playground()}
-          <div class="jx-play-fields">
-            <div class="jx-play-field">
-              <PressButton href="/docs/components.html">see it live — overview ToC</PressButton>
-            </div>
-            <p class="jx-play-help">
+          <PlayFields>
+            <PressButton href="/docs/components.html">see it live — overview ToC</PressButton>
+            <PlayHelp>
               The live example is one click away: every component page's Combo ToC rail now rides
               the top layer — on desktop it floats over the right column, on mobile it is the
               glass bar under the header, and it slides with the header on immersive scroll. The
-              rail adopts itself through the same <code class="text-accent">jx-top-layer</code>
+              rail adopts itself through the same <code>jx-top-layer</code>
               context this portal exposes.
-            </p>
-          </div>
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>

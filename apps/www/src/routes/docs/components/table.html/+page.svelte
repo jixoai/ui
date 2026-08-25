@@ -1,10 +1,8 @@
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import Input from '$lib/ui/input/input.svelte';
-  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
-  import Range from '$lib/ui/range/range.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import Table from '$lib/ui/table/table.svelte';
+  import { PlayFields, PlayRow, PlayRange, PlayToggle, PlaySegmented, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import tableSource from '$lib/ui/table/table.svelte?raw';
@@ -48,11 +46,22 @@
   // Frame-width playground: the slider drags the demo wrapper across the
   // 30rem container-query line — scroll law (sticky pins + native scroll)
   // on the wide side, the CodePen card law on the narrow side.
-  const canvasInitial = { frameWidth: 560, dense: false, stack: true, hoverTone: 'brand' };
+  type HoverTone = 'brand' | 'neutral' | 'signal';
+  const canvasInitial: { frameWidth: number; dense: boolean; stack: boolean; hoverTone: HoverTone } = {
+    frameWidth: 560,
+    dense: false,
+    stack: true,
+    hoverTone: 'brand',
+  };
   let frameWidth = $state(canvasInitial.frameWidth);
   let dense = $state(canvasInitial.dense);
   let stack = $state(canvasInitial.stack);
   let hoverTone = $state(canvasInitial.hoverTone);
+  const hoverToneOptions: { value: HoverTone; label: string }[] = [
+    { value: 'brand', label: 'brand' },
+    { value: 'neutral', label: 'neutral' },
+    { value: 'signal', label: 'signal' },
+  ];
   function resetCanvas(): void {
     frameWidth = canvasInitial.frameWidth;
     dense = canvasInitial.dense;
@@ -168,43 +177,25 @@
         </Table>
       </div>
       {#snippet playground()}
-        <Range label="frame width" min={240} max={680} step={8} bind:value={frameWidth} />
-        <div class="grid grid-cols-1 gap-2">
-          <Input
-            type="checkbox"
-            label="stack below 30rem"
-            labelSide="right"
-            checked={stack}
-            onchange={(event) => {
-              stack = event.currentTarget.checked;
-            }}
-          />
-          <Input
-            type="checkbox"
-            label="dense rows"
-            labelSide="right"
-            checked={dense}
-            onchange={(event) => {
-              dense = event.currentTarget.checked;
-            }}
-          />
-        </div>
-        <NativeSelect
-          label="hover tone (--jx-table-hover)"
-          value={hoverTone}
-          onchange={(event) => {
-            hoverTone = event.currentTarget.value;
-          }}
-        >
-          <option value="brand">brand — --primary 7%</option>
-          <option value="neutral">neutral — --muted 55%</option>
-          <option value="signal">signal — --secondary 12%</option>
-        </NativeSelect>
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          The frame is the container: cross 30rem and the scroll law (data-sticky pins) flips into
-          the card law (data-label rows). brand hover follows --brand-hue — the site hue runtime
-          recolors it live; consumers override one var per instance.
-        </p>
+        <PlayFields>
+          <PlayRow label="frame width">
+            <PlayRange bind:value={frameWidth} min={240} max={680} step={8} />
+          </PlayRow>
+          <PlayRow label="stack" hint="below 30rem">
+            <PlayToggle bind:value={stack} />
+          </PlayRow>
+          <PlayRow label="dense rows">
+            <PlayToggle bind:value={dense} />
+          </PlayRow>
+          <PlayRow label="hover tone" hint="--jx-table-hover">
+            <PlaySegmented bind:value={hoverTone} options={hoverToneOptions} />
+          </PlayRow>
+          <PlayHelp>
+            The frame is the container: cross 30rem and the scroll law (data-sticky pins) flips
+            into the card law (data-label rows). brand hover follows --brand-hue — the site hue
+            runtime recolors it live; consumers override one var per instance.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

@@ -8,11 +8,11 @@
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TagsInput, { type Tag } from '$lib/ui/tags-input/tags-input.svelte';
   import { CATALOG } from '$lib/catalog';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayRow, PlaySegmented, PlayHelp } from '$lib/playground';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
   const heroSummary = CATALOG.find((entry) => entry.name === 'tags-input')?.summary;
@@ -74,10 +74,16 @@ const stackSuggestions: Tag[] = [
   };
   let canvasStack = $state(canvasInitial.stack);
   let canvasMaxTags = $state(canvasInitial.maxTags);
+  // the segmented control speaks strings; the page state stays number|undefined
+  let maxTagsKey = $state(canvasMaxTags === undefined ? '' : String(canvasMaxTags));
+  $effect(() => {
+    canvasMaxTags = maxTagsKey === '' ? undefined : Number(maxTagsKey);
+  });
 
   function resetTagsCanvas(): void {
     canvasStack = canvasInitial.stack;
     canvasMaxTags = canvasInitial.maxTags;
+    maxTagsKey = canvasInitial.maxTags === undefined ? '' : String(canvasInitial.maxTags);
   }
 
   const tagsUsageLive = $derived(`<TagsInput
@@ -133,6 +139,7 @@ const stackSuggestions: Tag[] = [
   <div data-reveal="">
     <ComponentCanvas
       title="tags-input"
+      stage="center"
       description="Input × multiselect: Enter / comma / Tab commits chips, Backspace on empty deletes the last, duplicates flash the existing chip, maxTags swaps the input for an “N/N tags” readout."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/tags-input.svelte"
       files={tagsInputFiles}
@@ -152,26 +159,22 @@ const stackSuggestions: Tag[] = [
         />
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <div class="jx-play-field">
-            <NativeSelect
-              label="maxTags"
-              value={canvasMaxTags === undefined ? '' : String(canvasMaxTags)}
-              onchange={(event) => {
-                const raw = event.currentTarget.value;
-                canvasMaxTags = raw === '' ? undefined : Number(raw);
-              }}
-            >
-              <option value="">no cap</option>
-              <option value="3">3</option>
-              <option value="5">5</option>
-            </NativeSelect>
-          </div>
-          <p class="jx-play-help">
+        <PlayFields>
+          <PlayRow label="maxTags">
+            <PlaySegmented
+              bind:value={maxTagsKey}
+              options={[
+                { value: '', label: 'no cap' },
+                { value: '3', label: '3' },
+                { value: '5', label: '5' },
+              ]}
+            />
+          </PlayRow>
+          <PlayHelp>
             at the cap the input hides — remove a chip to type again. Suggestions pop while typing
-            (↑/↓ + Enter); pasting <code class="text-accent">rust, ffi</code> splits into two.
-          </p>
-        </div>
+            (↑/↓ + Enter); pasting <code>rust, ffi</code> splits into two.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

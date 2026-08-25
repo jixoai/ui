@@ -5,6 +5,7 @@
   import DropdownMenu from '$lib/ui/dropdown-menu/dropdown-menu.svelte';
   import DropdownMenuItem from '$lib/ui/dropdown-menu/dropdown-menu-item.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -93,6 +94,7 @@ ${close}
       description="Open it, then walk with arrows or type a letter ('d' jumps to Duplicate). Selecting runs the action, closes the menu, and hands focus back to the trigger."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/dropdown-menu.svelte"
       files={canvasFiles}
+      stage="center"
       onreset={resetCanvas}
       output={[{ label: 'last action', value: lastAction || '—' }]}
       resolveFileContent={resolveUsage}
@@ -107,11 +109,13 @@ ${close}
         </DropdownMenu>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          keyboard: ↓/↑ walk and wrap, Home/End jump the ends, <code class="text-accent">d</code>
-          typeahead-jumps to Duplicate, Enter selects, Escape closes and focus lands back on the
-          trigger. Clicking elsewhere light-dismisses — and focus stays where you clicked.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            keyboard: ↓/↑ walk and wrap, Home/End jump the ends, <code>d</code>
+            typeahead-jumps to Duplicate, Enter selects, Escape closes and focus lands back on the
+            trigger. Clicking elsewhere light-dismisses — and focus stays where you clicked.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

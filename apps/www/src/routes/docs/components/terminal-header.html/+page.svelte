@@ -4,6 +4,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import terminalHeaderSource from '$lib/ui/terminal-header/terminal-header.svelte?raw';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // ToC outline: the integration law (the canvas above holds the
   // architecture).
@@ -125,6 +126,7 @@ the three tiers
     <div data-reveal="">
       <ComponentCanvas
         title="terminal-header"
+        stage="fill"
         description="A header cannot nest inside a header — this page already wears the component at its top edge. The stage holds the architecture instead; the full source and the integration usage live in the code drawer."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/terminal-header.svelte"
         {files}
@@ -145,15 +147,15 @@ the three tiers
           <CodeBlock code={architecture} lang="txt" meta="architecture" />
         </div>
         {#snippet playground()}
-          <div class="jx-play-fields">
-            <p class="jx-play-help">
+          <PlayFields>
+            <PlayHelp>
               the LIVE demo is the bar this page already wears: click the <em>Components</em> pill
               above for the mega panel (click-again, outside click, Escape and the top layer are
               the browser's), or narrow the viewport to watch the hamburger disclosure fold the
               same items. Tab order: brand, pills, switcher — the panel contents join only while
               open.
-            </p>
-          </div>
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>

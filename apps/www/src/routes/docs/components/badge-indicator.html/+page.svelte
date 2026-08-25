@@ -4,6 +4,7 @@
   import BadgeIndicator from '$lib/ui/badge-indicator/badge-indicator.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import badgeindicatorSource from '$lib/ui/badge-indicator/badge-indicator.svelte?raw';
@@ -61,6 +62,7 @@
         description="Three postures: the dot (presence, no number), a capped count, and the standalone chip. The demo children are plain spans — anything with a corner carries the badge."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/badge-indicator.svelte"
         files={canvasFiles}
+        stage="center"
       >
         <div class="flex flex-wrap items-center gap-8">
           <BadgeIndicator dot label="2 unread">
@@ -72,9 +74,12 @@
           <BadgeIndicator count={250} />
         </div>
         {#snippet playground()}
-          <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-            the dot paints brand; counts paint destructive and cap at overflow. Standalone (no child) is an inline chip. count=0 renders NOTHING — zero unread is no badge.
-          </p>
+          <PlayFields>
+            <PlayHelp>
+              the dot paints brand; counts paint destructive and cap at overflow. Standalone (no
+              child) is an inline chip. count=0 renders NOTHING — zero unread is no badge.
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>

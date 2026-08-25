@@ -95,6 +95,7 @@ ${close}
         description="TanStack Virtual through a thin DOM-wiring layer: this demo renders up to 100,000 rows — only the visible window plus overscan exists in the DOM. Row heights measure automatically (the component calls measureElement on its own wrappers)."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/scroll-virtual.svelte"
         files={canvasFiles}
+        stage="fill"
         output={[
           { label: 'count', value: rowCount.toLocaleString() },
           { label: 'dom window', value: `${windowSize} rows` },

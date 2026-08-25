@@ -3,6 +3,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import Timeline from '$lib/ui/timeline/timeline.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -56,6 +57,7 @@
       description="timeline — the activity spine"
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/timeline.svelte"
       files={canvasFiles}
+      stage="fill"
     >
       <div class="w-full max-w-md">
         <Timeline {items}>
@@ -67,9 +69,12 @@
         </Timeline>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          time renders as a machine-readable time element when datetime is given; the body snippet composes per-entry detail lines.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            time renders as a machine-readable time element when datetime is given; the body
+            snippet composes per-entry detail lines.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

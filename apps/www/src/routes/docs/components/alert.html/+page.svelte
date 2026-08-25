@@ -4,6 +4,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import alertSource from '$lib/ui/alert/alert.svelte?raw';
@@ -69,6 +70,7 @@ ${close}
       description="Three tones and both live-region roles. The icon snippet composes inline-start of the title — bring your own glyph."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/alert.svelte"
       files={canvasFiles}
+      stage="fill"
     >
       <div class="flex w-full max-w-xl flex-col gap-4">
         <Alert title="Deployed">Build 4f2a shipped to production — 0 checks failed.</Alert>
@@ -80,11 +82,13 @@ ${close}
         </Alert>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          <code class="text-accent">assertive</code> swaps role=status for role=alert — pair it with
-          the destructive tone for errors, where the announcement should be immediate. The body is
-          optional; title-only notices are first-class.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            <code>assertive</code> swaps role=status for role=alert — pair it with
+            the destructive tone for errors, where the announcement should be immediate. The body is
+            optional; title-only notices are first-class.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

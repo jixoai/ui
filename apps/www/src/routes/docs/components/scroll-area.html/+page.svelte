@@ -198,6 +198,7 @@ const sections = tocOutlineToSections(entries);
   <div id="toc-metadata" data-reveal="">
     <ComponentCanvas
       title="toc metadata export"
+      stage="fill"
       description="The scrollable area exports what the ToC needs: the viewport element (scrollRoot), and the outline its content derives — heading-to-heading extents, no data-region markup. The page rail on the right already runs in outline mode; this demo pairs an inner scroller with the engine directly."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/lib/toc-outline.ts"
       files={metaCanvasFiles}

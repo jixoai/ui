@@ -4,6 +4,7 @@
   import Kbd from '$lib/ui/kbd/kbd.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // ToC outline: the composition demo + the native base, in page order.
 
@@ -51,9 +52,10 @@
     </div>
 
     <div data-reveal="">
-      <ComponentCanvas
-        title="kbd"
-        description="Shortcut rows in prose, tables, menus — the glyph reads at body size (0.75em, inherits the context)."
+    <ComponentCanvas
+      title="kbd"
+      stage="center"
+      description="Shortcut rows in prose, tables, menus — the glyph reads at body size (0.75em, inherits the context)."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/kbd.svelte"
         files={canvasFiles}
       >
@@ -65,13 +67,13 @@
           </p>
         </div>
         {#snippet playground()}
-          <div class="jx-play-fields">
-            <p class="jx-play-help">
+          <PlayFields>
+            <PlayHelp>
               any kbd attribute passes through (title, data-*); the chip inherits font-size from
               context — it shrinks in table cells and grows in heroes. Static glyph, so the
               playground stays a reading pane.
-            </p>
-          </div>
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>

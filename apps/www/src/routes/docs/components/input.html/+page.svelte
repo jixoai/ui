@@ -8,11 +8,10 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
-  import Checkbox from '$lib/ui/checkbox/checkbox.svelte';
   import Input from '$lib/ui/input/input.svelte';
-  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import { CATALOG } from '$lib/catalog';
+  import { PlayFields, PlayRow, PlaySelect, PlayToggle, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
@@ -116,6 +115,14 @@
   let canvasInputType = $state(canvasInitial.inputType);
   let canvasInputClearable = $state(canvasInitial.inputClearable);
 
+  // kit option map: the enum control speaks the typed union directly
+  const typeOptions: { value: 'text' | 'email' | 'password' | 'search'; label: string }[] = [
+    { value: 'text', label: 'text' },
+    { value: 'email', label: 'email' },
+    { value: 'password', label: 'password' },
+    { value: 'search', label: 'search' },
+  ];
+
   function resetInputCanvas(): void {
     canvasEmail = canvasInitial.email;
     canvasInputType = canvasInitial.inputType;
@@ -189,12 +196,9 @@
       description="The text-shell base of the NativeHTML family: every native type passes through untouched — the component owns only label/error wiring, four slot seams, and the bordered shell."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/input.svelte"
       files={inputFiles}
+      stage="center"
       onreset={resetInputCanvas}
-      output={[
-        { label: 'type', value: canvasInputType },
-        { label: 'value', value: canvasEmail || '—' },
-        { label: 'clearable', value: canvasInputClearable },
-      ]}
+      output={[{ label: 'value', value: canvasEmail || '—' }]}
       resolveFileContent={resolveInputUsage}
     >
       <div class="flex w-full max-w-xs flex-col items-start gap-3">
@@ -207,34 +211,18 @@
         />
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <div class="jx-play-field">
-            <NativeSelect
-              label="type"
-              onchange={(event) => {
-                canvasInputType = event.currentTarget.value as typeof canvasInputType;
-              }}
-            >
-              <option value="text">text</option>
-              <option value="email">email</option>
-              <option value="password">password</option>
-              <option value="search">search</option>
-            </NativeSelect>
-          </div>
-          <div class="jx-play-field">
-            <Checkbox
-              label="clearable"
-              checked={canvasInputClearable}
-              onchange={(event) => {
-                canvasInputClearable = event.currentTarget.checked;
-              }}
-            />
-          </div>
-          <p class="jx-play-help">
-            <code class="text-accent">type</code> lands on the element verbatim — switch it and the
+        <PlayFields>
+          <PlayRow label="type">
+            <PlaySelect bind:value={canvasInputType} options={typeOptions} />
+          </PlayRow>
+          <PlayRow label="clearable">
+            <PlayToggle bind:value={canvasInputClearable} />
+          </PlayRow>
+          <PlayHelp>
+            <code>type</code> lands on the element verbatim — switch it and the
             platform control swaps under the same shell.
-          </p>
-        </div>
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

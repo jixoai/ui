@@ -1,11 +1,11 @@
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import Input from '$lib/ui/input/input.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import terminalCardSource from '$lib/ui/terminal-card/terminal-card.svelte?raw';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayRow, PlayRange, PlayHelp } from '$lib/playground';
 
   const usage = `<!-- command is a plain string prop; outputs surface line by
      line after the typing completes. One-shot entrance, never looping. -->
@@ -77,6 +77,7 @@
       description="The typing demo: the command types character by character with jittered cadence, then the outputs surface one line at a time. Replay re-mounts the card and restarts the story from the first character."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/terminal-card.svelte"
       {files}
+      stage="center"
       onreset={resetCanvas}
       output={[{ label: 'speed', value: `${speed}×` }]}
     >
@@ -96,22 +97,19 @@
         <PressButton onclick={() => (replay += 1)}>Replay ↻</PressButton>
       </div>
       {#snippet playground()}
-        <Input
-          type="range"
-          label="speed"
-          min="0.25"
-          max="3"
-          step="0.25"
-          value={speed}
-          oninput={(event) => {
-            speed = Number(event.currentTarget.value);
-          }}
-          onchange={() => (replay += 1)}
-        />
-        <p class="text-muted-foreground text-pretty text-[12.5px] leading-5">
-          release the slider and the card replays at the new pace — pacing is read on mount, so a
-          live change re-mounts through <code class="text-accent">{'{#key}'}</code>.
-        </p>
+        <PlayFields>
+          <PlayRow label="speed">
+            <!-- change bubbles out of the wrapped range: release → replay
+                 (pacing is read on mount, so a live change re-mounts) -->
+            <div onchange={() => (replay += 1)}>
+              <PlayRange bind:value={speed} min={0.25} max={3} step={0.25} />
+            </div>
+          </PlayRow>
+          <PlayHelp>
+            release the slider and the card replays at the new pace — pacing is read on mount, so a
+            live change re-mounts through <code>{'{#key}'}</code>.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

@@ -5,7 +5,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
-  import Toggle from '$lib/ui/toggle/toggle.svelte';
+  import { PlayFields, PlayRow, PlayToggle, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -92,11 +92,8 @@ ${close}
       description="A three-item FAQ. Flip the exclusive toggle in the playground — opening one item then closes its siblings, through one capture-phase listener; the third item also demonstrates bind:open surviving the guard."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/accordion.svelte"
       files={canvasFiles}
+      stage="fill"
       onreset={resetCanvas}
-      output={[
-        { label: 'exclusive', value: exclusive ? 'on' : 'off' },
-        { label: 'ghost', value: ghost ? 'on' : 'off' },
-      ]}
     >
       <div class="w-full max-w-xl">
         <Accordion {exclusive} {ghost}>
@@ -118,14 +115,22 @@ ${close}
         </Accordion>
       </div>
       {#snippet playground()}
-        <Toggle bind:checked={exclusive} label="exclusive" />
-        <Toggle bind:checked={ghost} label="ghost (antd Collapse)" />
-        <Toggle bind:checked={thirdOpen} label="warranty item open (bind)" />
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          exclusive mode is one capture-phase <code class="text-accent">toggle</code> listener on
-          the group — it governs even raw <code class="text-accent">&lt;details&gt;</code> you drop
-          in, no registration handshake. The summary is a snippet: badges and glyphs compose.
-        </p>
+        <PlayFields>
+          <PlayRow label="exclusive">
+            <PlayToggle bind:value={exclusive} />
+          </PlayRow>
+          <PlayRow label="ghost (antd Collapse)">
+            <PlayToggle bind:value={ghost} />
+          </PlayRow>
+          <PlayRow label="warranty item open (bind)">
+            <PlayToggle bind:value={thirdOpen} />
+          </PlayRow>
+          <PlayHelp>
+            exclusive mode is one capture-phase <code>toggle</code> listener on the group — it
+            governs even raw <code>&lt;details&gt;</code> you drop in, no registration handshake.
+            The summary is a snippet: badges and glyphs compose.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

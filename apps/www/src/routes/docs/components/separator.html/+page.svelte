@@ -4,6 +4,7 @@
   import Separator from '$lib/ui/separator/separator.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // ToC outline: the length demo + the native base, in page order.
 
@@ -61,6 +62,7 @@
         description="Horizontal renders the native hr; vertical renders the ARIA div and stretches its container's cross axis."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/separator.svelte"
         files={canvasFiles}
+        stage="center"
       >
         <div class="flex w-full max-w-md flex-col gap-4">
           <p class="text-[13px] leading-6">A paragraph of ordinary copy above the rule.</p>
@@ -75,13 +77,13 @@
           <p class="text-[13px] leading-6">And copy below it — the thematic break reads natively.</p>
         </div>
         {#snippet playground()}
-          <div class="jx-play-fields">
-            <p class="jx-play-help">
-              one prop, <code class="text-accent">orientation</code> — everything else is the
+          <PlayFields>
+            <PlayHelp>
+              one prop, <code>orientation</code> — everything else is the
               element's own semantics. Width/height come from the class prop or the parent layout;
               the component ships no length API on purpose.
-            </p>
-          </div>
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>

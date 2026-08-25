@@ -18,6 +18,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { CATALOG } from '$lib/catalog';
+  import { PlayFields, PlayHelp } from '$lib/playground';
   import { icons } from '$lib/icons';
   import Avatar from '$lib/ui/avatar/avatar.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
@@ -147,14 +148,14 @@ ${close}
           </Item>
         </div>
         {#snippet playground()}
-          <div class="jx-play-fields">
-            <p class="jx-play-help">
+          <PlayFields>
+            <PlayHelp>
               zero layout props on purpose: <code class="text-accent">variant</code> and
               <code class="text-accent">size</code> are geometry-neutral paint, structure comes
               from which slots you render, and the narrow-group wrap is a container query —
               never a breakpoint prop.
-            </p>
-          </div>
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>

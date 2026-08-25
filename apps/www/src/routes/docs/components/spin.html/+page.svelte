@@ -4,6 +4,7 @@
   import Spin from '$lib/ui/spin/spin.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import spinSource from '$lib/ui/spin/spin.svelte?raw';
@@ -47,6 +48,7 @@
       description="spin — the terminal cursor"
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/spin.svelte"
       files={canvasFiles}
+      stage="center"
     >
       <div class="flex flex-col gap-6">
         <Spin label="loading checks" />
@@ -60,9 +62,13 @@
         </div>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          bare = the inline glyph; wrapping = aria-busy content with the scrim intercepting pointers (loading is not disabled — the state says busy, the interactions stop anyway). reduced-motion freezes on the first frame.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            bare = the inline glyph; wrapping = aria-busy content with the scrim intercepting
+            pointers (loading is not disabled — the state says busy, the interactions stop anyway).
+            reduced-motion freezes on the first frame.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

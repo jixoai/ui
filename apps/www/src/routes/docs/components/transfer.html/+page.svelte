@@ -3,6 +3,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import Transfer from '$lib/ui/transfer/transfer.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -85,6 +86,7 @@ const options = [
       description="Check rows on either side, then fire the middle mover — every checked row crosses at once and the selection clears. The echo footer shows the target list."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/transfer.svelte"
       files={canvasFiles}
+      stage="fill"
       onreset={resetCanvas}
       output={[{ label: 'target', value: value.length ? value.join(', ') : '—' }]}
       resolveFileContent={resolveUsage}
@@ -93,13 +95,13 @@ const options = [
         <Transfer {options} bind:value />
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <p class="jx-play-help">
+        <PlayFields>
+          <PlayHelp>
             checking rows on either side arms the middle mover; a move crosses EVERY checked row at
             once and clears the selection. Search filters per panel; disabled rows render but never
             move.
-          </p>
-        </div>
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

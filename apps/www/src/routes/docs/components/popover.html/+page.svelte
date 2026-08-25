@@ -7,6 +7,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { onMount } from 'svelte';
+  import { PlayFields, PlayRow, PlaySegmented, PlayHelp } from '$lib/playground';
 
   // the nine @position-try candidates are injected at RUNTIME: every
   // CSS processor on the path (Svelte scoped styles AND the Vite/
@@ -95,6 +96,11 @@ ${close}
   let canvasTriggerLabel = $state(canvasInitial.triggerLabel);
   let canvasChoice = $state<string | null>(canvasInitial.choice);
   let canvasVariant = $state<'solid' | 'acrylic' | 'auto'>('auto');
+  const variantOptions: { value: 'solid' | 'acrylic' | 'auto'; label: string }[] = [
+    { value: 'auto', label: 'auto' },
+    { value: 'acrylic', label: 'acrylic' },
+    { value: 'solid', label: 'solid' },
+  ];
 
   // nine-grid position-try: each cell toggles one custom @position-try
   // candidate (see the @position-try rules in the page styles); the
@@ -229,6 +235,7 @@ ${close}
       description="popover=&quot;auto&quot; + popovertarget: light dismiss, Escape, aria-expanded, and top-layer rendering are the browser's — the panel anchors to the trigger through CSS Anchor Positioning. Relabel the trigger from the Playground."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/popover.svelte"
       files={canvasFiles}
+      stage="center"
       onreset={resetPopoverCanvas}
       output={[
         { label: 'trigger', value: canvasTriggerLabel || '—' },
@@ -256,53 +263,47 @@ ${close}
         </Popover>
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <div class="jx-play-field">
-            <Input label="triggerLabel" placeholder="Actions" bind:value={canvasTriggerLabel} />
-          </div>
-          <div class="jx-play-field">
-            <fieldset class="jx-play-variant">
-              <legend>variant</legend>
-              <div class="jx-play-variant-row" role="radiogroup" aria-label="variant">
-                {#each ['auto', 'acrylic', 'solid'] as v (v)}
-                  <label>
-                    <input type="radio" name="jx-pop-variant" value={v} bind:group={canvasVariant} />
-                    <span>{v}</span>
-                  </label>
-                {/each}
-              </div>
-            </fieldset>
-          </div>
-          <div class="jx-play-field">
-            <fieldset data-jx-play-try>
-              <legend>position-try</legend>
-              <div class="jx-try-grid" role="group" aria-label="position-try candidates">
-                {#each TRY_CELLS as cell (cell.id)}
-                  <button
-                    type="button"
-                    class="jx-try-cell"
-                    class:jx-try-on={canvasTries.includes(cell.id)}
-                    aria-pressed={canvasTries.includes(cell.id)}
-                    title={cell.id}
-                    onclick={() => toggleTry(cell.id)}
-                  >{cell.label}</button>
-                {/each}
-              </div>
-              <p class="jx-play-help">
-                the MOST RECENTLY lit cell is the panel's initial position; the rest are the
-                <code class="text-accent">@position-try</code> fallback chain, tried in order
-                when the initial overflows. the center cell is the master switch
-                (all ⇄ none); a live panel reopens itself on toggle.
-              </p>
-            </fieldset>
-          </div>
-          <p class="jx-play-help">
-            the playground edits the <code class="text-accent">triggerLabel</code>,
-            <code class="text-accent">variant</code>, and position-try set live — open the panel
+        <PlayFields>
+          <!-- free-text prop: the kit has no text control, so the registry
+               Input rides the standard row (PlayRow owns the label) -->
+          <PlayRow label="triggerLabel">
+            <Input
+              placeholder="Actions"
+              aria-label="triggerLabel"
+              class="w-36 text-[12.5px]"
+              bind:value={canvasTriggerLabel}
+            />
+          </PlayRow>
+          <PlayRow label="variant">
+            <PlaySegmented bind:value={canvasVariant} options={variantOptions} />
+          </PlayRow>
+          <PlayRow label="position-try">
+            <div class="jx-try-grid" role="group" aria-label="position-try candidates">
+              {#each TRY_CELLS as cell (cell.id)}
+                <button
+                  type="button"
+                  class="jx-try-cell"
+                  class:jx-try-on={canvasTries.includes(cell.id)}
+                  aria-pressed={canvasTries.includes(cell.id)}
+                  title={cell.id}
+                  onclick={() => toggleTry(cell.id)}
+                >{cell.label}</button>
+              {/each}
+            </div>
+          </PlayRow>
+          <PlayHelp>
+            the MOST RECENTLY lit cell is the panel's initial position; the rest are the
+            <code>@position-try</code> fallback chain, tried in order
+            when the initial overflows. the center cell is the master switch
+            (all ⇄ none); a live panel reopens itself on toggle.
+          </PlayHelp>
+          <PlayHelp>
+            the playground edits the <code>triggerLabel</code>,
+            <code>variant</code>, and position-try set live — open the panel
             and click outside, press Escape, or pick a row: three native exits, zero JS on the
             close path. auto = acrylic unless the environment asks for reduced transparency.
-          </p>
-        </div>
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>
@@ -456,52 +457,6 @@ ${close}
   .pop-row-destructive:hover {
     color: var(--destructive-foreground);
     background: var(--destructive);
-  }
-  .jx-play-variant {
-    margin: 0;
-    border: none;
-    padding: 0;
-  }
-  .jx-play-variant legend {
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    margin-bottom: 6px;
-  }
-  .jx-play-variant-row {
-    display: inline-flex;
-    border: 1px solid var(--border);
-  }
-  .jx-play-variant-row label {
-    position: relative;
-    display: inline-flex;
-  }
-  .jx-play-variant-row label + label {
-    border-left: 1px solid var(--border);
-  }
-  .jx-play-variant-row input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-  }
-  .jx-play-variant-row span {
-    padding: 5px 12px;
-    font-size: 12px;
-    cursor: pointer;
-    color: var(--muted-foreground);
-    transition: background-color 120ms ease-out, color 120ms ease-out;
-  }
-  .jx-play-variant-row label:hover span {
-    background: color-mix(in oklab, currentColor 8%, transparent);
-  }
-  .jx-play-variant-row input:checked + span {
-    background: var(--foreground);
-    color: var(--background);
-  }
-  .jx-play-variant-row input:focus-visible + span {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
   }
 
   /* nine-grid: one toggle per candidate */

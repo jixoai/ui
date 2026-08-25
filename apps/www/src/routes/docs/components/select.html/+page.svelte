@@ -13,6 +13,7 @@
   import Select, { type SelectOption } from '$lib/ui/select/select.svelte';
   import { CATALOG } from '$lib/catalog';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
   const heroSummary = CATALOG.find((entry) => entry.name === 'select')?.summary;
@@ -128,6 +129,7 @@
   <div data-reveal="">
     <ComponentCanvas
       title="select"
+      stage="center"
       description="The popover-listbox select: per-option descriptions, ↑/↓/Home/End/Enter roving highlight with focus restitution — for when the native popup can't say what you need."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/select.svelte"
       files={selectFiles}
@@ -147,16 +149,13 @@
         />
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <div class="jx-play-field">
-            <Input label="placeholder" placeholder="pick a runtime…" bind:value={canvasPlaceholder} />
-          </div>
-          <p class="jx-play-help">
-            the panel is <code class="text-accent">popover="auto"</code> wired with
-            <code class="text-accent">popovertarget</code> — light dismiss, Escape, and top-layer
-            rendering are the browser's.
-          </p>
-        </div>
+        <PlayFields>
+          <Input label="placeholder" placeholder="pick a runtime…" bind:value={canvasPlaceholder} />
+          <PlayHelp>
+            the panel is <code>popover="auto"</code> wired with <code>popovertarget</code> —
+            light dismiss, Escape, and top-layer rendering are the browser's.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

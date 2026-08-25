@@ -3,6 +3,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -62,6 +63,7 @@ ${close}
       description="All four tones. The chip composes anywhere a span does — headings, table cells, terminal cards."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/badge.svelte"
       files={canvasFiles}
+      stage="center"
     >
       <div class="flex flex-wrap items-center gap-3">
         <Badge>v1.2.0</Badge>
@@ -70,10 +72,12 @@ ${close}
         <Badge tone="destructive">failed</Badge>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          badges are stateless display atoms — no playground state to drive. The tone prop is the
-          whole API; everything else is span attributes landing verbatim.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            badges are stateless display atoms — no playground state to drive. The tone prop is the
+            whole API; everything else is span attributes landing verbatim.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

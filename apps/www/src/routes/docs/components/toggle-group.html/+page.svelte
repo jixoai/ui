@@ -3,6 +3,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import ToggleGroup from '$lib/ui/toggle-group/toggle-group.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -95,6 +96,7 @@ ${close}
       description="Single swaps; multiple stacks — the bound values surface in the echo footer, one row per mode."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/toggle-group.svelte"
       files={canvasFiles}
+      stage="center"
       onreset={resetCanvas}
       output={[
         { label: 'single', value: single || '—' },
@@ -107,12 +109,12 @@ ${close}
         <ToggleGroup name="demo-style" type="multiple" label="text style" options={style} bind:value={many} />
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <p class="jx-play-help">
+        <PlayFields>
+          <PlayHelp>
             buttons carry Space/Enter natively and Tab walks the row; per-button content composes
             through the item snippet. disabled on an option dims only that button.
-          </p>
-        </div>
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

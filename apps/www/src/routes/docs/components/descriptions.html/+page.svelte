@@ -4,6 +4,7 @@
   import Descriptions from '$lib/ui/descriptions/descriptions.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import descriptionsSource from '$lib/ui/descriptions/descriptions.svelte?raw';
@@ -63,9 +64,12 @@
         <Descriptions columns={2} bordered {items} />
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          columns=2 pairs per row (responsive down to 1 via container query); bordered adds the hairline frame on the SAME dl. Missing values render the em dash, never blank cells.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            columns=2 pairs per row (responsive down to 1 via container query); bordered adds the
+            hairline frame on the SAME dl. Missing values render the em dash, never blank cells.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

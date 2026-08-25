@@ -5,6 +5,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import resultSource from '$lib/ui/result/result.svelte?raw';
@@ -49,6 +50,7 @@
       description="result — the thin outcome surface"
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/result.svelte"
       files={canvasFiles}
+      stage="fill"
     >
       <div class="grid gap-6 min-[720px]:grid-cols-2">
         <div class="border border-border bg-card">
@@ -63,9 +65,12 @@
         </div>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          success paints through the brand voice (no green in this language); error destructive; warning/info stay neutral. empty is the sibling state, not a variant.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            success paints through the brand voice (no green in this language); error destructive;
+            warning/info stay neutral. empty is the sibling state, not a variant.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

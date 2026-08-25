@@ -3,6 +3,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import FloatButton from '$lib/ui/float-button/float-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // ToC outline: the menu-idiom demo + the closing law, in page order.
@@ -121,6 +122,7 @@ ${close}
         description="float-button — the fixed corner action: scroll this box (or the page), then press the corner button to ride back to the top."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/float-button.svelte"
         files={canvasFiles}
+        stage="fill"
       >
         <div class="jx-fab-stage">
           <p class="text-muted-foreground text-[12.5px] leading-6">
@@ -135,13 +137,13 @@ ${close}
           </FloatButton>
         </div>
         {#snippet playground()}
-          <div class="jx-play-fields">
-            <p class="jx-play-help">
+          <PlayFields>
+            <PlayHelp>
               the button is fixed bottom-right of the viewport — no wrapper, no portal:
-              <code class="text-accent">corner</code> picks the fixed point and your layout is
+              <code>corner</code> picks the fixed point and your layout is
               never touched. label is REQUIRED: an icon-only button must say itself.
-            </p>
-          </div>
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>

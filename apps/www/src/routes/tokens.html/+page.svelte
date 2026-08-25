@@ -1,6 +1,7 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -204,8 +205,8 @@ playing.subscribe((v) => (isPlaying = v));
         </div>
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <div class="jx-play-field">
+        <PlayFields>
+          <div class="flex flex-col gap-2">
             <div class="flex flex-wrap items-baseline justify-between gap-3">
               <label class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground" for="hue-slider">
                 --brand-hue
@@ -235,12 +236,12 @@ playing.subscribe((v) => (isPlaying = v));
               oninput={(event) => setHueManually(event.currentTarget.valueAsNumber)}
             />
           </div>
-          <p class="jx-play-help">
+          <PlayHelp>
             0 = jixoai red · 27 = openspecui · 165 = unipty 幽绿 · this site: time-of-day → 24h
             wall-clock (4min/deg). Any manual write pauses the cycle; reset hands control back to
             the wall clock (2s cubic-out resume, instant under prefers-reduced-motion).
-          </p>
-        </div>
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

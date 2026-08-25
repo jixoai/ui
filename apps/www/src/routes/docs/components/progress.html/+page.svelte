@@ -4,6 +4,7 @@
   import Progress from '$lib/ui/progress/progress.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayRow, PlayRange, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import progressSource from '$lib/ui/progress/progress.svelte?raw';
@@ -67,6 +68,7 @@ ${close}
   <div data-reveal="">
     <ComponentCanvas
       title="progress"
+      stage="center"
       description="A determinate bar driven live from the playground, and an indeterminate one below — same element, no value attribute."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/progress.svelte"
       files={canvasFiles}
@@ -78,20 +80,16 @@ ${close}
         <Progress label="connecting" />
       </div>
       {#snippet playground()}
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.01"
-          bind:value
-          aria-label="progress value"
-          class="accent-[var(--primary)] w-full"
-        />
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          omit <code class="text-accent">value</code> for the indeterminate bar — the honest state
-          when you know something is happening but not how much. The % readout is
-          <code class="text-accent">role=status</code>: polite, announced when the reader is idle.
-        </p>
+        <PlayFields>
+          <PlayRow label="value">
+            <PlayRange bind:value min={0} max={1} step={0.01} />
+          </PlayRow>
+          <PlayHelp>
+            omit <code>value</code> for the indeterminate bar — the honest state when you know
+            something is happening but not how much. The % readout is <code>role=status</code>:
+            polite, announced when the reader is idle.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

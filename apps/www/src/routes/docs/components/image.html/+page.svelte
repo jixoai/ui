@@ -4,6 +4,7 @@
   import Image from '$lib/ui/image/image.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import imageSource from '$lib/ui/image/image.svelte?raw';
@@ -43,9 +44,10 @@
     </div>
 
     <div data-reveal="">
-      <ComponentCanvas
-        title="image"
-        description="Left: a real load. Right: a broken source exercising the fallback — the dashed frame plus glyph; a later src change re-arms the load."
+    <ComponentCanvas
+      title="image"
+      stage="center"
+      description="Left: a real load. Right: a broken source exercising the fallback — the dashed frame plus glyph; a later src change re-arms the load."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/image.svelte"
         files={canvasFiles}
       >
@@ -53,11 +55,15 @@
           <Image src="/icon.svg" alt="the jixoai mark" width={96} height={96} />
           <Image src="/definitely-missing.png" alt="broken demo" width={96} height={96} />
         </div>
-        {#snippet playground()}
-          <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-            the broken demo exercises the fallback (dashed frame plus glyph). alt empty-string opts into decorative; width and height are REQUIRED — the no-CLS contract is not optional.
-          </p>
-        {/snippet}
+      {#snippet playground()}
+        <PlayFields>
+          <PlayHelp>
+            the broken demo exercises the fallback (dashed frame plus glyph). alt empty-string
+            opts into decorative; width and height are REQUIRED — the no-CLS contract is not
+            optional.
+          </PlayHelp>
+        </PlayFields>
+      {/snippet}
       </ComponentCanvas>
     </div>
 

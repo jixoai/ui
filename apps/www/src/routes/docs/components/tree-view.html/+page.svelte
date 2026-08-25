@@ -21,12 +21,12 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas, { type TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
-  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TreeView, { type TreeItemCtx, type TreeNode } from '$lib/ui/tree-view/tree-view.svelte';
   import TreeViewMulti from '$lib/ui/tree-view/tree-view-multiselect.svelte';
   import Avatar from '$lib/ui/avatar/avatar.svelte';
   import { icons } from '$lib/icons';
+  import { PlayFields, PlayRow, PlaySelect, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import treeViewSource from '$lib/ui/tree-view/tree-view.svelte?raw';
@@ -430,19 +430,18 @@ ${close}
           />
         </div>
         {#snippet playground()}
-          <NativeSelect
-            label="selected leaf"
-            value={basicSelected}
-            onchange={(event) => (basicSelected = event.currentTarget.value)}
-          >
-            {#each crmLeaves as path (path)}
-              <option value={path}>{path}</option>
-            {/each}
-          </NativeSelect>
-          <p class="jx-play-help">
-            Tree clicks and the Select share one state. Directory rows toggle collapse; ↑ ↓ ← → walk
-            the tree when a row has focus, Home / End jump the ends.
-          </p>
+          <PlayFields>
+            <PlayRow label="selected leaf">
+              <PlaySelect
+                bind:value={basicSelected}
+                options={crmLeaves.map((path) => ({ value: path, label: path }))}
+              />
+            </PlayRow>
+            <PlayHelp>
+              Tree clicks and the Select share one state. Directory rows toggle collapse;
+              ↑ ↓ ← → walk the tree when a row has focus, Home / End jump the ends.
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
 
@@ -567,11 +566,13 @@ ${close}
           <TreeViewMulti nodes={permissions} defaultExpanded={permOpen} bind:checked={permChecked} />
         </div>
         {#snippet playground()}
-          <p class="jx-play-help">
-            Checking a folder cascades over its enabled descendants; a mixed folder shows the dash.
-            Row click and Space / Enter flow through the same onactivate seam — the extension never
-            forks the core.
-          </p>
+          <PlayFields>
+            <PlayHelp>
+              Checking a folder cascades over its enabled descendants; a mixed folder shows the
+              dash. Row click and Space / Enter flow through the same onactivate seam — the
+              extension never forks the core.
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
       </div>
@@ -596,11 +597,13 @@ ${close}
         />
       </div>
       {#snippet playground()}
-        <p class="jx-play-help">
-          Hover or Tab into a folder row — the actions appear. Clicks on buttons never toggle the
-          row: the core skips interactive descendants. The <code>archive</code> subtree is disabled
-          (50% paint, aria-disabled, no toggle).
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            Hover or Tab into a folder row — the actions appear. Clicks on buttons never toggle
+            the row: the core skips interactive descendants. The <code>archive</code> subtree is
+            disabled (50% paint, aria-disabled, no toggle).
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

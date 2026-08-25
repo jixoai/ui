@@ -17,7 +17,10 @@ ${close}
 <!-- an EARLY child of the scroll container — the sticky h-0 root
      pins to the scrollport edge through the whole scroll range -->
 <div class="relative h-72 overflow-auto">
-  <ProgressiveBlur position="top" reveal="scroll" height="4.5rem" />
+  <ProgressiveBlur position="top" reveal="scroll" class="z-[5]" />
+  <!-- the sticky head pins ABOVE the band (z-10); the list scrolls
+       under both through the progressive fade -->
+  <div class="sticky top-0 z-10">…title + filter…</div>
   <!-- …the scrolling list… -->
 </div>`;
 
@@ -47,8 +50,8 @@ ${close}
       headingLevel={1}
       tone="hero"
       eyebrow="registry:ui · NativeHTML"
-      title="progressive blur — the edge content scrolls UNDER diffuses"
-      summary="The same-layer-sticky practice made literal: when a list scrolls under its OWN container edge, a hard slice reads as a bug — content should diffuse. Stacked backdrop-filter bands, each masked to its own gradient rung, ramp blur from ~clear at the inner edge to the full stack at the scrollport edge. Zero JS: the pin is a sticky h-0 root (absolutely positioned overlays scroll away — probed), and the reveal rides the CSS scroll timeline, so nothing blurs while the list rests at the top."
+      title="progressive blur — content scrolls UNDER a pinned head and diffuses"
+      summary="The same-layer-sticky practice made literal: a list scrolling inside its own container gets a pinned head, and whatever passes beneath it diffuses instead of slicing. Stacked backdrop-filter bands, each masked to its own gradient rung, ramp blur from ~clear at the inner edge to the full stack at the scrollport edge. Zero JS: the pin is a sticky h-0 root (absolutely positioned overlays scroll away — probed), and the reveal rides the CSS scroll timeline, so nothing blurs while the list rests at the top."
     >
       <div class="flex flex-wrap gap-3">
         <span class="pill">zero JS</span>
@@ -61,18 +64,31 @@ ${close}
   <div id="pblur-demo" data-region="pblur-demo" data-family="pblur-demo" data-reveal="">
     <ComponentCanvas
       title="progressive blur"
-      description="Scroll the left card — the top edge diffuses in as content passes under it (reveal='scroll': nothing blurs at rest). The right card wears the static always-painted band at its bottom edge, the Magic UI default posture."
+      description="THE docs-rail composition (left): the head pins at the edge, the list scrolls UNDER it through the progressive band — scroll the card and watch the entries diffuse beneath the pinned title/filter. Right: the always-painted static band at the bottom edge, the Magic UI default posture."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/progressive-blur/progressive-blur.svelte"
       files={canvasFiles}
     >
       <div class="flex w-full flex-col gap-6 sm:flex-row sm:gap-8">
         <div class="w-full sm:flex-1">
           <p class="text-muted-foreground font-nav mb-2 text-[10px] uppercase tracking-[0.18em]">
-            position top · reveal scroll
+            sticky head · reveal scroll — the rail law
           </p>
           <div class="border-border bg-background relative h-64 overflow-auto border">
-            <ProgressiveBlur position="top" reveal="scroll" height="4.5rem" />
-            <ul class="flex flex-col gap-1 p-3" role="list">
+            <ProgressiveBlur position="top" reveal="scroll" height="7.5rem" class="z-[5]" />
+            <div class="sticky top-0 z-10 pt-4">
+              <p class="text-muted-foreground font-nav mb-2 ps-3 text-[10px] uppercase tracking-[0.24em]">
+                components
+              </p>
+              <div class="px-3 pb-2">
+                <input
+                  class="border-border bg-background/55 text-foreground border w-full px-2 py-1.5 font-mono text-[11px]"
+                  type="search"
+                  placeholder="filter…"
+                  aria-label="Demo filter"
+                />
+              </div>
+            </div>
+            <ul class="flex flex-col gap-1 p-3 pt-1" role="list">
               {#each rows as row (row)}
                 <li class="border-border/50 bg-muted/30 border px-2 py-2 font-mono text-[11px]">
                   {row}
@@ -99,9 +115,9 @@ ${close}
       </div>
       {#snippet playground()}
         <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          the docs rail you are browsing wears the left card's exact law — top edge,
-          reveal='scroll', 4.5rem band. Engines without scroll timelines keep the resting
-          clean state (the reveal degrades to no effect, never a wrongly-painted band).
+          the docs rail you are browsing wears the left card's exact law — pinned head, band
+          z-under it, reveal='scroll'. Engines without scroll timelines keep the resting clean
+          state (the reveal degrades to no effect, never a wrongly-painted band).
         </p>
       {/snippet}
     </ComponentCanvas>

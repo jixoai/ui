@@ -7,6 +7,7 @@
   import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // ToC outline: the composition law (the canvas above is the workbench).
 
@@ -80,6 +81,7 @@ ${close}
     <div data-reveal="">
       <ComponentCanvas
         title="hero-section"
+        stage="fill"
         description="A complete hero, rendered live — press the CTA to copy the command (watch the copied surface), or narrow the viewport past 1100px and watch the terminal card drop below the lead."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/hero-section.svelte"
         {files}
@@ -108,14 +110,14 @@ ${close}
           </HeroSection>
         </div>
         {#snippet playground()}
-          <div class="jx-play-fields">
-            <p class="jx-play-help">
+          <PlayFields>
+            <PlayHelp>
               press the PRIMARY CTA — the command hits the clipboard and the button flips to its
-              <code class="text-accent">copied</code> surface for 1.4s (a press-button underneath).
-              Then narrow the viewport past 1100px: the terminal card drops below the lead, the
-              staggered entrance choreography stays intact.
-            </p>
-          </div>
+              <code>copied</code> surface for 1.4s (a press-button underneath). Then narrow the
+              viewport past 1100px: the terminal card drops below the lead, the staggered entrance
+              choreography stays intact.
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>

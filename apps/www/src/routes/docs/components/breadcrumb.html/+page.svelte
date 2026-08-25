@@ -4,6 +4,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import breadcrumbSource from '$lib/ui/breadcrumb/breadcrumb.svelte?raw';
@@ -77,6 +78,7 @@ ${close}
   <div id="breadcrumb-demo" data-region="breadcrumb-demo" data-family="breadcrumb-demo" data-reveal="">
     <ComponentCanvas
       title="breadcrumb"
+      stage="fill"
       description="A three-crumb trail, and an eight-page trail with collapse=4 — the middle folds into an ellipsis that links to the first hidden page (never a dead span)."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/breadcrumb.svelte"
       files={canvasFiles}
@@ -86,10 +88,12 @@ ${close}
         <Breadcrumb crumbs={longCrumbs} collapse={4} />
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          the current page stays a real link — deep links and reloads remain honest. Hover the
-          ellipsis: it points at the first collapsed page, one click restores the path.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            the current page stays a real link — deep links and reloads remain honest. Hover the
+            ellipsis: it points at the first collapsed page, one click restores the path.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

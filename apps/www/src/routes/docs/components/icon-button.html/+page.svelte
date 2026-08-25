@@ -4,7 +4,7 @@
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import iconButtonSource from '$lib/ui/icon-button/icon-button.svelte?raw';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
-  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
+  import { PlayFields, PlayRow, PlaySegmented, PlaySelect, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // ToC outline: the icon-only demo + the closing law, in page order. The
@@ -57,7 +57,8 @@ ${drivenNormal}${usageTail}`;
   ];
 
   // playground protocol (P1): the page owns the state; the canvas only
-  // calls back — snapshot + reset + echo projection + live usage
+  // calls back — snapshot + reset + live usage (the controls carry their
+  // own readout, so no echo rows)
   type Variant = 'normal' | 'icon-only';
   type Placement = 'top' | 'bottom' | 'top-start' | 'bottom-start' | 'top-end' | 'bottom-end';
   const canvasInitial = { variant: 'icon-only' as Variant, placement: 'bottom' as Placement };
@@ -67,6 +68,19 @@ ${drivenNormal}${usageTail}`;
     variant = canvasInitial.variant;
     placement = canvasInitial.placement;
   }
+  // kit option maps: the enum controls speak the typed unions directly
+  const variantOptions: { value: Variant; label: string }[] = [
+    { value: 'normal', label: 'normal' },
+    { value: 'icon-only', label: 'icon-only' },
+  ];
+  const placementOptions: { value: Placement; label: string }[] = [
+    { value: 'top', label: 'top' },
+    { value: 'bottom', label: 'bottom' },
+    { value: 'top-start', label: 'top-start' },
+    { value: 'top-end', label: 'top-end' },
+    { value: 'bottom-start', label: 'bottom-start' },
+    { value: 'bottom-end', label: 'bottom-end' },
+  ];
   // free text must become a legal string literal (q() = JSON.stringify)
   const q = (value: string): string => JSON.stringify(value);
   // placement only exists in icon-only — the live sample carries it only then
@@ -116,14 +130,11 @@ ${drivenNormal}${usageTail}`;
     <div data-reveal="">
       <ComponentCanvas
         title="icon-button"
-        description="The icon+text button: normal renders icon and text together; icon-only renders the square and tips the text. The playground drives the lower instance; the echo line tracks variant and placement."
+        description="The icon+text button: normal renders icon and text together; icon-only renders the square and tips the text. The playground drives the lower instance."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/icon-button.svelte"
         {files}
+        stage="center"
         onreset={resetCanvas}
-        output={[
-          { label: 'variant', value: variant },
-          { label: 'placement', value: variant === 'icon-only' ? placement : '—' },
-        ]}
         resolveFileContent={resolveUsage}
       >
         <div class="flex flex-col items-center gap-6">
@@ -162,42 +173,20 @@ ${drivenNormal}${usageTail}`;
           </div>
         </div>
         {#snippet playground()}
-          <div class="jx-play-fields">
-            <div class="jx-play-field">
-              <NativeSelect
-                label="variant"
-                value={variant}
-                onchange={(event) => {
-                  variant = event.currentTarget.value as Variant;
-                }}
-              >
-                <option value="normal">normal</option>
-                <option value="icon-only">icon-only</option>
-              </NativeSelect>
-            </div>
-            <div class="jx-play-field">
-              <NativeSelect
-                label="placement (icon-only)"
-                value={placement}
-                onchange={(event) => {
-                  placement = event.currentTarget.value as Placement;
-                }}
-              >
-                <option value="top">top</option>
-                <option value="bottom">bottom</option>
-                <option value="top-start">top-start</option>
-                <option value="top-end">top-end</option>
-                <option value="bottom-start">bottom-start</option>
-                <option value="bottom-end">bottom-end</option>
-              </NativeSelect>
-            </div>
-            <p class="jx-play-help">
+          <PlayFields>
+            <PlayRow label="variant">
+              <PlaySegmented bind:value={variant} options={variantOptions} />
+            </PlayRow>
+            <PlayRow label="placement (icon-only)">
+              <PlaySelect bind:value={placement} options={placementOptions} />
+            </PlayRow>
+            <PlayHelp>
               hover an icon-only button ~400ms (hover intent) and the text arrives as a tooltip;
-              keyboard focus opens it instantly and <code class="text-accent">Escape</code> closes
-              it. <code class="text-accent">variant</code> never changes the physics — every
+              keyboard focus opens it instantly and <code>Escape</code> closes
+              it. <code>variant</code> never changes the physics — every
               surface lifts on hover and presses on active the press-button way.
-            </p>
-          </div>
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>

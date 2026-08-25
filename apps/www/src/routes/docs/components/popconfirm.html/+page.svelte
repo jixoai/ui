@@ -5,6 +5,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import popconfirmSource from '$lib/ui/popconfirm/popconfirm.svelte?raw';
@@ -74,6 +75,7 @@ ${close}
   <div data-reveal="">
     <ComponentCanvas
       title="popconfirm"
+      stage="center"
       description="Open it — focus lands on Cancel. Confirm runs the action; clicking outside or pressing Escape runs the cancel path instead. Either way the outcome surfaces below."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/popconfirm.svelte"
       files={canvasFiles}
@@ -92,11 +94,13 @@ ${close}
         </Popconfirm>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          the wrapper auto-wires the first button inside as the declarative popovertarget trigger
-          and mirrors aria-expanded/aria-controls. confirmTone='primary' flips the loud path for
-          positive confirmations. A throwing onconfirm still closes (try/finally).
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            the wrapper auto-wires the first button inside as the declarative popovertarget
+            trigger and mirrors aria-expanded/aria-controls. confirmTone='primary' flips the loud
+            path for positive confirmations. A throwing onconfirm still closes (try/finally).
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

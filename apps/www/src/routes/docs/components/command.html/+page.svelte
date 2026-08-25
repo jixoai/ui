@@ -6,6 +6,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import commandSource from '$lib/ui/command/command.svelte?raw';
@@ -83,6 +84,7 @@ ${close}
   <div data-reveal="">
     <ComponentCanvas
       title="command"
+      stage="center"
       description="Press ⌘K (or the button). Type 'open', walk with arrows, Enter to run — the last action surfaces below. The disabled audit item renders but never activates."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/command.svelte"
       files={canvasFiles}
@@ -96,11 +98,14 @@ ${close}
         </span>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          keyboard: type to filter, ↑/↓ walk with wrap (skipping disabled), Home/End jump, Enter
-          runs and closes, Escape closes with focus restored natively. closeOnSelect={false} keeps
-          it open for batch actions; filter prop swaps the whole ranking (pure function).
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            keyboard: type to filter, ↑/↓ walk with wrap (skipping disabled), Home/End jump,
+            Enter runs and closes, Escape closes with focus restored natively.
+            closeOnSelect={false} keeps it open for batch actions; filter prop swaps the whole
+            ranking (pure function).
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

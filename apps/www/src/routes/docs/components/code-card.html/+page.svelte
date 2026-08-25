@@ -2,8 +2,8 @@
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
-  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayRow, PlaySelect, PlayHelp } from '$lib/playground';
 
   // Same-source law: the code drawer shows the exact registry copies this
   // site runs. `?raw` keeps them byte-identical — embedding component
@@ -168,6 +168,28 @@ const card = { lang: 'ts', theme: 'jixoai' };
   let theme = $state<DemoTheme>('jixoai');
   const sample = $derived(samples[lang]);
 
+  // the playground selects speak the same closed unions — no string casting
+  const langOptions: { value: DemoLang; label: string }[] = [
+    { value: 'ts', label: 'ts' },
+    { value: 'tsx', label: 'tsx' },
+    { value: 'js', label: 'js' },
+    { value: 'svelte', label: 'svelte' },
+    { value: 'html', label: 'html' },
+    { value: 'json', label: 'json' },
+    { value: 'bash', label: 'bash' },
+    { value: 'css', label: 'css' },
+    { value: 'markdown', label: 'markdown' },
+  ];
+  const themeOptions: { value: DemoTheme; label: string }[] = [
+    { value: 'jixoai', label: 'jixoai (tokens)' },
+    { value: 'github-dark', label: 'github-dark' },
+    { value: 'github-light', label: 'github-light' },
+    { value: 'vitesse-dark', label: 'vitesse-dark' },
+    { value: 'vitesse-light', label: 'vitesse-light' },
+    { value: 'min-dark', label: 'min-dark' },
+    { value: 'min-light', label: 'min-light' },
+  ];
+
   // playground state (P1): the page owns the snapshot
   const canvasInitial = { lang: 'ts' as DemoLang, theme: 'jixoai' as DemoTheme };
   function resetCanvas(): void {
@@ -281,51 +303,21 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
         {/snippet}
       </CodeCard>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <div class="jx-play-field">
-            <NativeSelect
-              label="lang"
-              value={lang}
-              onchange={(event) => {
-                lang = event.currentTarget.value as DemoLang;
-              }}
-            >
-              <option value="ts">ts</option>
-              <option value="tsx">tsx</option>
-              <option value="js">js</option>
-              <option value="svelte">svelte</option>
-              <option value="html">html</option>
-              <option value="json">json</option>
-              <option value="bash">bash</option>
-              <option value="css">css</option>
-              <option value="markdown">markdown</option>
-            </NativeSelect>
-          </div>
-          <div class="jx-play-field">
-            <NativeSelect
-              label="theme"
-              value={theme}
-              onchange={(event) => {
-                theme = event.currentTarget.value as DemoTheme;
-              }}
-            >
-              <option value="jixoai">jixoai (tokens)</option>
-              <option value="github-dark">github-dark</option>
-              <option value="github-light">github-light</option>
-              <option value="vitesse-dark">vitesse-dark</option>
-              <option value="vitesse-light">vitesse-light</option>
-              <option value="min-dark">min-dark</option>
-              <option value="min-light">min-light</option>
-            </NativeSelect>
-          </div>
-          <p class="jx-play-help">
-            Every pick loads on demand: picking <code class="text-accent">markdown</code> also
+        <PlayFields>
+          <PlayRow label="lang">
+            <PlaySelect bind:value={lang} options={langOptions} />
+          </PlayRow>
+          <PlayRow label="theme">
+            <PlaySelect bind:value={theme} options={themeOptions} />
+          </PlayRow>
+          <PlayHelp>
+            Every pick loads on demand: picking <code>markdown</code> also
             pulls the grammars its fences hint at, and a named theme paints its own editor colors
             on the pre. The jixoai theme downloads nothing — token colors resolve to the
-            <code class="text-accent">--tok-*</code> palette at paint time. The usage file in the
+            <code>--tok-*</code> palette at paint time. The usage file in the
             drawer tracks both picks live.
-          </p>
-        </div>
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

@@ -6,6 +6,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayRow, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import dialogSource from '$lib/ui/dialog/dialog.svelte?raw';
@@ -122,6 +123,7 @@ ${close}
       description="One native <dialog> driven by showModal(): the browser owns the focus trap, Escape, and the top layer — the component adds bindable open state and a 120ms close fade. Retitle it from the Playground."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/dialog.svelte"
       files={canvasFiles}
+      stage="center"
       onreset={resetCanvas}
       output={[
         { label: 'open', value: canvasOpen ? 'true' : 'false' },
@@ -140,11 +142,22 @@ ${close}
         {/snippet}
       </Dialog>
       {#snippet playground()}
-        <Input label="title" placeholder="Deploy queued" bind:value={canvasTitle} />
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          the playground edits the <code class="text-accent">title</code> prop live — reopen the
-          dialog to read the new heading in the header bar.
-        </p>
+        <PlayFields>
+          <!-- free-text prop: the kit has no text control, so the registry
+               Input rides the standard row (PlayRow owns the label) -->
+          <PlayRow label="title">
+            <Input
+              placeholder="Deploy queued"
+              aria-label="title"
+              class="w-40 text-[12.5px]"
+              bind:value={canvasTitle}
+            />
+          </PlayRow>
+          <PlayHelp>
+            the playground edits the <code>title</code> prop live — reopen the
+            dialog to read the new heading in the header bar.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

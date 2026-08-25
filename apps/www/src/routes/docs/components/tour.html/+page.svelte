@@ -4,6 +4,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import Tour from '$lib/ui/tour/tour.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import tourSource from '$lib/ui/tour/tour.svelte?raw';
@@ -59,6 +60,7 @@
       description="Start it: the first demo card takes the lease (inspect its style), the hole+tint frame it. Next advances (←/→ also work), the last step's button reads Finish, Escape or Skip ends with focus back on the opener."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/tour.svelte"
       files={canvasFiles}
+      stage="start"
       onreset={resetCanvas}
       output={[{ label: 'finished at step', value: finishedAt ?? '—' }]}
     >
@@ -78,11 +80,14 @@
         </div>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          the tour is non-modal: the page stays scrollable and the tint never intercepts pointers
-          (a modal/guided mode would be a separate surface by contract). Missing/hidden targets are
-          skipped forward deterministically; if every step is unavailable the tour ends at once.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            the tour is non-modal: the page stays scrollable and the tint never intercepts pointers
+            (a modal/guided mode would be a separate surface by contract). Missing/hidden targets
+            are skipped forward deterministically; if every step is unavailable the tour ends at
+            once.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

@@ -3,6 +3,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -70,6 +71,7 @@ ${close}
       description="Drag/scroll the track (or focus it and use arrow keys), page with the dots or arrows — the active dot follows the nearest snap slide."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/carousel.svelte"
       files={canvasFiles}
+      stage="fill"
     >
       <div class="w-full max-w-xl">
         <Carousel>
@@ -82,11 +84,13 @@ ${close}
         </Carousel>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          slideWidth='100%' pages one-at-a-time; '60%' peeks the neighbors. slides are ANY elements
-          — figures, cards, sections. The track is the keyboard surface; dots and arrows page
-          explicitly.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            slideWidth='100%' pages one-at-a-time; '60%' peeks the neighbors. slides are ANY elements
+            — figures, cards, sections. The track is the keyboard surface; dots and arrows page
+            explicitly.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

@@ -3,6 +3,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import Pagination, { pageWindow } from '$lib/ui/pagination/pagination.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import { PlayFields, PlayRow, PlayRange, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -26,8 +27,8 @@ ${close}
     { name: 'src/lib/ui/pagination-usage.svelte', content: canvasUsage },
   ];
 
-  // Playground protocol: page owns the snapshot + reset; echo projects the
-  // current page; the drawer's usage file tracks it live.
+  // Playground protocol: page owns the snapshot + reset; the range readout
+  // carries the current page; the drawer's usage file tracks it live.
   const canvasInitial = { page: 12 };
   let page = $state(canvasInitial.page);
   function resetCanvas(): void {
@@ -90,33 +91,25 @@ ${close}
       description="The href template decides where page N lives — this demo routes back to the page itself. Watch the window slide and the ellipses collapse near the edges."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/pagination.svelte"
       files={canvasFiles}
+      stage="fill"
       onreset={resetCanvas}
-      output={[{ label: 'page', value: page }]}
       resolveFileContent={resolveUsage}
     >
       <div class="w-full max-w-xl">
         <Pagination {page} pageCount={30} {href} />
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <div class="jx-play-field">
-            <input
-              type="range"
-              min="1"
-              max="30"
-              step="1"
-              bind:value={page}
-              aria-label="current page"
-              class="accent-[var(--primary)] w-full"
-            />
-          </div>
-          <p class="jx-play-help">
+        <PlayFields>
+          <PlayRow label="current page">
+            <PlayRange bind:value={page} min={1} max={30} step={1} />
+          </PlayRow>
+          <PlayHelp>
             links carry real hrefs — the demo simply routes to itself. The window shows one sibling
-            each side by default; <code class="text-accent">siblings</code> widens it. Ellipses are
+            each side by default; <code>siblings</code> widens it. Ellipses are
             aria-hidden decoration: screen readers hear the nav label, numbered links and
             aria-current, not the gaps.
-          </p>
-        </div>
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

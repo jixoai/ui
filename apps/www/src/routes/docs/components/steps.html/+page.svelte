@@ -4,6 +4,7 @@
   import Steps from '$lib/ui/steps/steps.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import stepsSource from '$lib/ui/steps/steps.svelte?raw';
@@ -75,6 +76,7 @@ ${close}
   <div id="steps-demo" data-region="steps-demo" data-family="steps-demo" data-reveal="">
     <ComponentCanvas
       title="steps"
+      stage="center"
       description="Walk the wizard: click a completed step's check-marker to go back, or reset and climb again — the current step is the one the marker sits on."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/steps.svelte"
       files={canvasFiles}
@@ -86,12 +88,12 @@ ${close}
         <Steps {steps} current={current} onstepclick={(i) => (current = i)} />
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <p class="jx-play-help">
-            click the check-marker of a COMPLETED step to go back (it only renders as a button when
-            onstepclick exists — no dead affordances); future steps stay inert spans.
-          </p>
-        </div>
+        <PlayFields>
+          <PlayHelp>
+            click the check-marker of a COMPLETED step to go back (it only renders as a button
+            when onstepclick exists — no dead affordances); future steps stay inert spans.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

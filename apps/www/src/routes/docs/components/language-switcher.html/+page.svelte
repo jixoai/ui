@@ -3,8 +3,8 @@
   import LanguageSwitcher from '$lib/ui/language-switcher/language-switcher.svelte';
   import languageSwitcherSource from '$lib/ui/language-switcher/language-switcher.svelte?raw';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
-  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayRow, PlaySegmented, PlayHelp } from '$lib/playground';
 
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.
@@ -62,6 +62,10 @@ ${close}
   function resetCanvas(): void {
     variant = canvasInitial.variant;
   }
+  const variantOptions: { value: Variant; label: string }[] = [
+    { value: 'pair', label: 'pair' },
+    { value: 'menu', label: 'menu' },
+  ];
   const q = (value: string): string => JSON.stringify(value);
   const usageLive = $derived(`<LanguageSwitcher
   variant=${q(variant)}
@@ -110,6 +114,7 @@ ${close}
       description="Locale switching in two variants, shown on the terminal bezel surface they were born on — open the menu: the list drops with a hard offset shadow and the current locale in brand hue."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/language-switcher.svelte"
       {files}
+      stage="fill"
       onreset={resetCanvas}
       output={[{ label: 'variant', value: variant }]}
       resolveFileContent={resolveUsage}
@@ -144,23 +149,15 @@ ${close}
         </div>
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <div class="jx-play-field">
-            <NativeSelect
-              label="variant"
-              onchange={(event) => {
-                variant = event.currentTarget.value as Variant;
-              }}
-            >
-              <option value="pair">pair</option>
-              <option value="menu">menu</option>
-            </NativeSelect>
-          </div>
-          <p class="jx-play-help">
+        <PlayFields>
+          <PlayRow label="variant">
+            <PlaySegmented bind:value={variant} options={variantOptions} />
+          </PlayRow>
+          <PlayHelp>
             the switcher never mutates locale state — the anchors navigate. pair caps itself at two
             entries; menu handles three or more.
-          </p>
-        </div>
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

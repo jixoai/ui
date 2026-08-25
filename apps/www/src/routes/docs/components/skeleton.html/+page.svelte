@@ -5,6 +5,7 @@
   import Separator from '$lib/ui/separator/separator.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import skeletonSource from '$lib/ui/skeleton/skeleton.svelte?raw';
@@ -61,6 +62,7 @@
   <div data-reveal="">
     <ComponentCanvas
       title="skeleton"
+      stage="center"
       description="A loading card in the common shape — avatar block, two text lanes. The pulse is a brightness oscillation, not a shimmer sweep."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/skeleton.svelte"
       files={canvasFiles}
@@ -81,10 +83,12 @@
         </div>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          the stage carries <code class="text-accent">aria-busy="true"</code> — that is the
-          contract's home. prefers-reduced-motion freezes the pulse into a static block.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            the stage carries <code>aria-busy="true"</code> — that is the contract's home.
+            prefers-reduced-motion freezes the pulse into a static block.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

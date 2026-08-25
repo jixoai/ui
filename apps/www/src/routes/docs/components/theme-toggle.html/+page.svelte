@@ -4,8 +4,8 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import ThemeToggle from '$lib/ui/theme-toggle/theme-toggle.svelte';
   import themeToggleSource from '$lib/ui/theme-toggle/theme-toggle.svelte?raw';
-  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayRow, PlaySegmented, PlayHelp } from '$lib/playground';
 
   // ToC outline: the no-flash bootstrap demo + the closing contract law.
 
@@ -45,6 +45,12 @@ ${close}
   function resetCanvas(): void {
     variant = canvasInitial.variant;
   }
+  const variantOptions: { value: Variant; label: string }[] = [
+    { value: 'full', label: 'full' },
+    { value: 'compact', label: 'compact' },
+    { value: 'icon', label: 'icon' },
+    { value: 'text', label: 'text' },
+  ];
   const q = (value: string): string => JSON.stringify(value);
   const usageLive = $derived(`${usageHead}
 <ThemeToggle variant=${q(variant)} />${usageTail}`);
@@ -90,6 +96,7 @@ ${close}
         description="light / dark / system in four variants. All of them below control the same live theme — click any one and the whole site re-themes. The playground drives the lower instance."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/theme-toggle.svelte"
         {files}
+        stage="center"
         onreset={resetCanvas}
         output={[{ label: 'variant', value: variant }]}
         resolveFileContent={resolveUsage}
@@ -121,28 +128,18 @@ ${close}
           </div>
         </div>
         {#snippet playground()}
-          <div class="jx-play-fields">
-            <div class="jx-play-field">
-              <NativeSelect
-                label="variant"
-                onchange={(event) => {
-                  variant = event.currentTarget.value as Variant;
-                }}
-              >
-                <option value="full">full</option>
-                <option value="compact">compact</option>
-                <option value="icon">icon</option>
-                <option value="text">text</option>
-              </NativeSelect>
-            </div>
-            <p class="jx-play-help">
+          <PlayFields>
+            <PlayRow label="variant">
+              <PlaySegmented bind:value={variant} options={variantOptions} />
+            </PlayRow>
+            <PlayHelp>
               every instance above writes the same storage key — the site re-themes live. full
               <em>sets</em> a mode directly; compact, icon, and text
               <em>cycle</em> light → dark → system. Each carries its mode in
-              <code class="text-accent">aria-label</code> or
-              <code class="text-accent">aria-pressed</code>.
-            </p>
-          </div>
+              <code>aria-label</code> or
+              <code>aria-pressed</code>.
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>

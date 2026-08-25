@@ -104,8 +104,8 @@
     /** LIVE demo area — the consumer renders the component instance. */
     children: Snippet;
     /**
-     * Stage posture: fill (children span the width) | center (intrinsic
-     * specimens shrink + center) | start (intrinsic, left-aligned).
+     * Stage posture: fill (DEFAULT — children span the width) | center
+     * (intrinsic specimens shrink + center) | start (intrinsic, left).
      */
     stage?: 'fill' | 'center' | 'start';
     /** PlayCanvas controls pane — consumer-authored interactive controls. */
@@ -127,7 +127,7 @@
     sourceUrl,
     files,
     children,
-    stage = 'center',
+    stage = 'fill',
     playground,
     onreset,
     output,

@@ -2,10 +2,9 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas, { type TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import FileInput from '$lib/ui/file-input/file-input.svelte';
-  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
-  import Toggle from '$lib/ui/toggle/toggle.svelte';
+  import { PlayFields, PlayRow, PlaySegmented, PlayToggle, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import fileInputSource from '$lib/ui/file-input/file-input.svelte?raw';
@@ -64,6 +63,12 @@
     canvasDisabled = canvasInitial.disabled;
     demoFiles = [];
   }
+
+  // the segmented control speaks the same closed union — no string casting
+  const variantOptions: { value: typeof canvasVariant; label: string }[] = [
+    { value: 'drop', label: 'drop' },
+    { value: 'button', label: 'button' },
+  ];
 
   const usageLive = $derived(`<FileInput
   label="demo"
@@ -142,6 +147,7 @@ ${close}
       description="The full control, live: pick through the zone, drag files onto it, remove rows. The playground swaps the trigger posture (drop / button), multiple, and disabled — the usage file in the drawer tracks every toggle."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/file-input.svelte"
       files={canvasFiles}
+      stage="fill"
       onreset={resetCanvas}
       output={[
         { label: 'variant', value: canvasVariant },
@@ -160,35 +166,21 @@ ${close}
         />
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <div class="jx-play-field">
-            <NativeSelect
-              label="variant"
-              onchange={(event) => {
-                canvasVariant = event.currentTarget.value as typeof canvasVariant;
-              }}
-            >
-              <option value="drop">drop</option>
-              <option value="button">button</option>
-            </NativeSelect>
-          </div>
-          <div class="jx-play-field">
-            <Toggle
-              label="multiple"
-              bind:checked={canvasMultiple}
-            />
-          </div>
-          <div class="jx-play-field">
-            <Toggle
-              label="disabled"
-              bind:checked={canvasDisabled}
-            />
-          </div>
-          <p class="jx-play-help">
+        <PlayFields>
+          <PlayRow label="variant">
+            <PlaySegmented bind:value={canvasVariant} options={variantOptions} />
+          </PlayRow>
+          <PlayRow label="multiple">
+            <PlayToggle bind:value={canvasMultiple} />
+          </PlayRow>
+          <PlayRow label="disabled">
+            <PlayToggle bind:value={canvasDisabled} />
+          </PlayRow>
+          <PlayHelp>
             drag any file onto the trigger — the dashed border turns primary and the surface
             lifts while the drag hovers. Disabled freezes the trigger, drops and removal.
-          </p>
-        </div>
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

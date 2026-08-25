@@ -3,8 +3,8 @@
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
-  import Input from '$lib/ui/input/input.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import { PlayFields, PlayRow, PlayRange, PlayToggle, PlayHelp } from '$lib/playground';
 
   // ToC outline: the closing law (the canvas above is the workbench).
 
@@ -105,6 +105,7 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
         description="Grid + subgrid equalizer: cards span the grid's two shared rows (header / body), so every header aligns to the tallest header and every body fills to the tallest body — no ragged tops, no unequal bottoms. The slider drives the collapse width; the checkbox opts card 03 out."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/card-grid.svelte"
         {files}
+        stage="fill"
         onreset={resetCanvas}
         output={[
           { label: 'min', value: `${minPx}px` },
@@ -163,37 +164,20 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
           </CardGrid>
         {/snippet}
         {#snippet playground()}
-          <div class="jx-play-fields">
-            <div class="jx-play-field">
-              <Input
-                type="range"
-                label="min — column collapse width"
-                min="180"
-                max="480"
-                step="20"
-                value={minPx}
-                oninput={(event) => {
-                  minPx = Number((event.currentTarget as HTMLInputElement).value);
-                }}
-              />
-            </div>
-            <div class="jx-play-field">
-              <Input
-                type="checkbox"
-                label="opt card 03 out — data-no-subgrid"
-                checked={optOut}
-                onchange={(event) => {
-                  optOut = (event.currentTarget as HTMLInputElement).checked;
-                }}
-              />
-            </div>
-            <p class="jx-play-help">
-              columns are <code class="text-accent">auto-fit, minmax(min(100%, min), 1fr)</code> —
+          <PlayFields>
+            <PlayRow label="min" hint="column collapse width">
+              <PlayRange bind:value={minPx} min={180} max={480} step={20} />
+            </PlayRow>
+            <PlayRow label="opt card 03 out" hint="data-no-subgrid">
+              <PlayToggle bind:value={optOut} />
+            </PlayRow>
+            <PlayHelp>
+              columns are <code>auto-fit, minmax(min(100%, min), 1fr)</code> —
               raising the collapse width drops columns; the shared-row alignment holds at every
-              count. The checkbox wraps card 03 in <code class="text-accent">data-no-subgrid</code>
+              count. The toggle wraps card 03 in <code>data-no-subgrid</code>
               so it leaves the shared rows while keeping its cell.
-            </p>
-          </div>
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>

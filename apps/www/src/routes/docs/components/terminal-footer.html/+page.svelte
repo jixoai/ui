@@ -5,6 +5,7 @@
   import terminalFooterSource from '$lib/ui/terminal-footer/terminal-footer.svelte?raw';
   import CodeBlock from '$lib/code-block.svelte';
   import { GITHUB_URL } from '$lib/site';
+  import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // ToC outline: the closing recipe law (the canvas above is the workbench).
@@ -71,6 +72,7 @@ ${close}
         description="A real footer renders here — the live instance below is the same component closing this very page, staged inline at the canvas width. The ghost scales with the viewport (11vw with clamps), so narrow the window and watch the wordmark breathe."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/terminal-footer.svelte"
         {files}
+        stage="fill"
       >
         <div class="w-full">
           <p class="text-muted-foreground mb-4 text-center text-[12.5px]">
@@ -86,13 +88,13 @@ ${close}
           />
         </div>
         {#snippet playground()}
-          <div class="jx-play-fields">
-            <p class="jx-play-help">
+          <PlayFields>
+            <PlayHelp>
               hover a link in the meta row — it warms from muted to the brand hue. Narrow the
-              viewport: the ghost word scales by <code class="text-accent">11vw</code> between
+              viewport: the ghost word scales by <code>11vw</code> between
               clamps, so it breathes with the window instead of overflowing.
-            </p>
-          </div>
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>

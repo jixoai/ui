@@ -4,7 +4,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import Input from '$lib/ui/input/input.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
-  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
+  import { PlayFields, PlayRow, PlaySegmented, PlayToggle, PlayHelp } from '$lib/playground';
 
   // ToC outline: the closing law (the canvas above is the workbench).
 
@@ -42,7 +42,8 @@ ${close}
   ];
 
   // playground protocol (P1): the page owns the state; the canvas only
-  // calls back — snapshot + reset + echo projection + live usage.
+  // calls back — snapshot + reset + live usage (the controls carry their
+  // own readout, so no echo rows).
   // headingLevel stays 2 on the live instance: hero tone pairs with
   // headingLevel={1} for an inner page head, and this page already owns
   // its single h1 (S4.1 unique-h1 law).
@@ -54,6 +55,11 @@ ${close}
   let demoTone = $state(canvasInitial.tone);
   let demoEyebrow = $state(canvasInitial.eyebrow);
   let showSummary = $state(canvasInitial.summary);
+  // kit option map: the enum control speaks the typed union directly
+  const toneOptions: { value: 'default' | 'hero'; label: string }[] = [
+    { value: 'default', label: 'default' },
+    { value: 'hero', label: 'hero' },
+  ];
   function resetCanvas(): void {
     demoTone = canvasInitial.tone;
     demoEyebrow = canvasInitial.eyebrow;
@@ -118,12 +124,8 @@ ${close}
         description="The content atom of the site grammar: a bordered card, header block (optional eyebrow in brand hue + font-nav title + optional summary), and the body snippet slot. Every page on this site is built from it — and this very canvas page wears two instances right now."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/section-card.svelte"
         {files}
+        stage="fill"
         onreset={resetCanvas}
-        output={[
-          { label: 'tone', value: demoTone },
-          { label: 'eyebrow', value: demoEyebrow || '—' },
-          { label: 'summary', value: showSummary },
-        ]}
         resolveFileContent={resolveUsage}
       >
         {#snippet children()}
@@ -147,46 +149,26 @@ ${close}
           </SectionCard>
         {/snippet}
         {#snippet playground()}
-          <div class="jx-play-fields">
-            <div class="jx-play-field">
-              <NativeSelect
-                label="tone"
-                value={demoTone}
-                onchange={(event) => {
-                  demoTone = (event.currentTarget as HTMLSelectElement).value as typeof demoTone;
-                }}
-              >
-                <option value="default">default</option>
-                <option value="hero">hero</option>
-              </NativeSelect>
-            </div>
-            <div class="jx-play-field">
-              <Input
-                type="text"
-                label="eyebrow"
-                placeholder="empty — the row disappears"
-                value={demoEyebrow}
-                oninput={(event) => {
-                  demoEyebrow = (event.currentTarget as HTMLInputElement).value;
-                }}
-              />
-            </div>
-            <div class="jx-play-field">
-              <Input
-                type="checkbox"
-                label="summary"
-                checked={showSummary}
-                onchange={(event) => {
-                  showSummary = (event.currentTarget as HTMLInputElement).checked;
-                }}
-              />
-            </div>
-            <p class="jx-play-help">
+          <PlayFields>
+            <PlayRow label="tone">
+              <PlaySegmented bind:value={demoTone} options={toneOptions} />
+            </PlayRow>
+            <PlayRow label="summary">
+              <PlayToggle bind:value={showSummary} />
+            </PlayRow>
+            <!-- free text has no kit control: the registry Input keeps its own label -->
+            <Input
+              type="text"
+              label="eyebrow"
+              placeholder="empty — the row disappears"
+              bind:value={demoEyebrow}
+            />
+            <PlayHelp>
               Clear the eyebrow to see the optional row collapse. Hero tone pairs with
-              <code class="text-accent">headingLevel={1}</code> on a real inner-page head — the
+              <code>headingLevel={1}</code> on a real inner-page head — the
               live instance here stays h2 so this page keeps exactly one h1.
-            </p>
-          </div>
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>

@@ -8,10 +8,10 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import NumberInput from '$lib/ui/number-input/number-input.svelte';
-  import Range from '$lib/ui/range/range.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import { CATALOG } from '$lib/catalog';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayRow, PlayRange, PlayHelp } from '$lib/playground';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
   const heroSummary = CATALOG.find((entry) => entry.name === 'number-input')?.summary;
@@ -109,6 +109,7 @@
       description="The [- NUM +] stepper: click steps once and clamps into [min, max], hold accelerates 300ms → 100ms/step, typing commits on change."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/number-input.svelte"
       files={numberInputFiles}
+      stage="center"
       onreset={resetNumberCanvas}
       output={[
         { label: 'value', value: canvasWorkers },
@@ -120,15 +121,15 @@
         <NumberInput label="workers" bind:value={canvasWorkers} min={1} max={16} />
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <div class="jx-play-field">
-            <Range label="drive the value" bind:value={canvasWorkers} min={1} max={16} />
-          </div>
-          <p class="jx-play-help">
+        <PlayFields>
+          <PlayRow label="drive the value">
+            <PlayRange bind:value={canvasWorkers} min={1} max={16} />
+          </PlayRow>
+          <PlayHelp>
             the slider and the stepper share one binding — drag one, watch the other; Tab into the
             input and ↑/↓ step natively.
-          </p>
-        </div>
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

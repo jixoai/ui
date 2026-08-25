@@ -3,6 +3,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import Menubar from '$lib/ui/menubar/menubar.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -73,6 +74,7 @@ ${close}
       description="Tab to File, ↓ to open and walk items, → with the panel open glides to Edit, Escape returns to the bar."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/menubar.svelte"
       files={canvasFiles}
+      stage="center"
     >
       <Menubar
         label="demo app"
@@ -93,11 +95,13 @@ ${close}
         {/snippet}
       </Menubar>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          the panel walk (↓/↑/Home/End, wrapping) is the menu contract shared with
-          dropdown-menu — duplicated deliberately so registry items stay independent. Content is
-          yours: bring role=menuitem buttons or links.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            the panel walk (↓/↑/Home/End, wrapping) is the menu contract shared with
+            dropdown-menu — duplicated deliberately so registry items stay independent. Content is
+            yours: bring role=menuitem buttons or links.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

@@ -5,6 +5,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import Tooltip from '$lib/ui/tooltip/tooltip.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import tooltipSource from '$lib/ui/tooltip/tooltip.svelte?raw';
@@ -73,6 +74,7 @@ ${close}
   <div data-reveal="">
     <ComponentCanvas
       title="tooltip"
+      stage="center"
       description="Hover the button — the tip shows immediately (a hover-intent delay is opt-in through openDelay), then focus it with the keyboard — two intent paths, one tip. Escape dismisses; moving the pointer onto the tip keeps it open."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/tooltip.svelte"
       files={canvasFiles}
@@ -95,12 +97,14 @@ ${close}
         </Tooltip>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          the tip is non-interactive by contract — actionable content belongs in a popover, where
-          light dismiss and real focus behavior apply. <code class="text-accent">text</code> is
-          plain string; hidden popover content is display:none, so the permanent
-          <code class="text-accent">aria-describedby</code> pairing only reads while shown.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            the tip is non-interactive by contract — actionable content belongs in a popover,
+            where light dismiss and real focus behavior apply. <code>text</code> is plain string;
+            hidden popover content is display:none, so the permanent <code>aria-describedby</code>
+            pairing only reads while shown.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

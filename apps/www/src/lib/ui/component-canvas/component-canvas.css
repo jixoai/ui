@@ -18,25 +18,6 @@
  * components so consumer utilities still win. */
 
 @layer components {
-  /* legacy snippet layout contract (removed with the kit migration) */
-  .jx-canvas-playground-body .jx-play-fields {
-    display: grid;
-    gap: 0.75rem;
-    min-inline-size: 0;
-  }
-  .jx-canvas-playground-body .jx-play-field {
-    min-inline-size: 0;
-  }
-  .jx-canvas-playground-body .jx-play-help {
-    border-top: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
-    color: var(--muted-foreground);
-    font-size: 11.5px;
-    line-height: 1.55;
-    margin: 0.25rem 0 0;
-    padding-top: 0.7rem;
-    text-wrap: pretty;
-  }
-
   /* narrow host form: the header text takes the full first row so the
      source anchor folds UNDER the title */
   @container jx-canvas-host (max-width: 48rem) {

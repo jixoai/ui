@@ -4,6 +4,7 @@
   import HoverCard from '$lib/ui/hover-card/hover-card.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import hoverCardSource from '$lib/ui/hover-card/hover-card.svelte?raw';
@@ -72,6 +73,7 @@ ${close}
       description="Hover the handle, then MOVE ONTO the card — it stays. Click the link inside it. Tab to the trigger: the card opens instantly and stays while focus crosses into it."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/hover-card.svelte"
       files={canvasFiles}
+      stage="center"
     >
       <p class="text-[13.5px] leading-7">
         shipped by
@@ -87,10 +89,12 @@ ${close}
         under MIT.
       </p>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          text-only hints are tooltip.svelte's job; this surface is for cards you can read AND
-          click. Delays are hover-card paced: 300ms in, 200ms grace.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            text-only hints are tooltip.svelte's job; this surface is for cards you can read AND
+            click. Delays are hover-card paced: 300ms in, 200ms grace.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

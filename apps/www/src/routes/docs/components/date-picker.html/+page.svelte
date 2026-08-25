@@ -9,9 +9,9 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DatePicker, { type DatePickerRange } from '$lib/ui/date-picker/date-picker.svelte';
-  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import { CATALOG } from '$lib/catalog';
+  import { PlayFields, PlayRow, PlaySegmented, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
@@ -122,34 +122,30 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
       description="A zero-dependency calendar popover over hand-rolled Date math — popover='auto' gives light dismiss and the top layer; single mode commits ISO 'YYYY-MM-DD'."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/date-picker.svelte"
       files={datePickerFiles}
+      stage="center"
       onreset={resetDateCanvas}
-      output={[
-        { label: 'format', value: canvasDateFormat },
-        { label: 'value', value: canvasDate },
-      ]}
+      output={[{ label: 'value', value: canvasDate }]}
       resolveFileContent={resolveDateUsage}
     >
       <div class="flex w-full max-w-xs flex-col items-start gap-3">
         <DatePicker label="deploy date" bind:value={canvasDate} format={canvasDateFormat} />
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <div class="jx-play-field">
-            <NativeSelect
-              label="format"
-              onchange={(event) => {
-                canvasDateFormat = event.currentTarget.value as typeof canvasDateFormat;
-              }}
-            >
-              <option value="iso">iso</option>
-              <option value="locale">locale</option>
-            </NativeSelect>
-          </div>
-          <p class="jx-play-help">
+        <PlayFields>
+          <PlayRow label="format">
+            <PlaySegmented
+              bind:value={canvasDateFormat}
+              options={[
+                { value: 'iso', label: 'iso' },
+                { value: 'locale', label: 'locale' },
+              ]}
+            />
+          </PlayRow>
+          <PlayHelp>
             format is display-only — the committed value stays ISO forever. The grid is one focus
             stop: ↑↓←→ walk months, Enter commits, Escape is native.
-          </p>
-        </div>
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

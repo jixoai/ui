@@ -4,6 +4,7 @@
   import NavigationMenu from '$lib/ui/navigation-menu/navigation-menu.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import navigationMenuSource from '$lib/ui/navigation-menu/navigation-menu.svelte?raw';
@@ -70,6 +71,7 @@ ${close}
   <div id="navmenu-demo" data-region="navmenu-demo" data-family="navmenu-demo" data-reveal="">
     <ComponentCanvas
       title="navigation menu"
+      stage="fill"
       description="Tab to the bar (components is the tab stop — it's the current section), walk with arrows, click a trigger to open its panel, Escape closes."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/navigation-menu.svelte"
       files={canvasFiles}
@@ -91,12 +93,14 @@ ${close}
         {/snippet}
       </NavigationMenu>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          plain items (href, no panel) render as ordinary links with aria-current — the bar mixes
-          panel triggers and links freely; the panel's entry/exit runs on the popover primitive's
-          motion kernel (the floating-surface timeline), and open state mirrors the native
-          toggle seam only.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            plain items (href, no panel) render as ordinary links with aria-current — the bar
+            mixes panel triggers and links freely; the panel's entry/exit runs on the popover
+            primitive's motion kernel (the floating-surface timeline), and open state mirrors the
+            native toggle seam only.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

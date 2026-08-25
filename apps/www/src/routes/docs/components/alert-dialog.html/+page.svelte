@@ -5,6 +5,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import alertDialogSource from '$lib/ui/alert-dialog/alert-dialog.svelte?raw';
@@ -76,6 +77,7 @@ ${close}
   <div data-reveal="">
     <ComponentCanvas
       title="alert dialog"
+      stage="center"
       description="Open it: focus lands on Cancel (Tab straight to Delete). Escape cancels through the native path; the × shares it. Confirm runs your callback, then closes through the same fade."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/alert-dialog.svelte"
       files={canvasFiles}
@@ -86,11 +88,13 @@ ${close}
         <PressButton onclick={() => (open = true)}>Delete pipeline…</PressButton>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          title and description are REQUIRED props — the ARIA wiring is the component's job, the
-          words are yours. confirmTone='primary' flips the loud path off for positive
-          confirmations (e.g. 'Save changes').
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            title and description are REQUIRED props — the ARIA wiring is the component's job, the
+            words are yours. confirmTone='primary' flips the loud path off for positive
+            confirmations (e.g. 'Save changes').
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

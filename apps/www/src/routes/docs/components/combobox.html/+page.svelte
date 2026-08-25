@@ -10,8 +10,8 @@
   import Combobox, { type ComboboxOption } from '$lib/ui/combobox/combobox.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
-  import Toggle from '$lib/ui/toggle/toggle.svelte';
   import { CATALOG } from '$lib/catalog';
+  import { PlayFields, PlayRow, PlayToggle, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
@@ -128,11 +128,9 @@
       description="The searchable select: the trigger IS the input — typing filters the panel live, ↑/↓ + Enter commits, Escape reverts, and allowCustom offers the “Use “xxx”” row."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/combobox.svelte"
       files={comboboxFiles}
+      stage="center"
       onreset={resetComboboxCanvas}
-      output={[
-        { label: 'value', value: canvasBackend ?? 'undefined' },
-        { label: 'allowCustom', value: canvasAllowCustom },
-      ]}
+      output={[{ label: 'value', value: canvasBackend ?? 'undefined' }]}
       resolveFileContent={resolveComboboxUsage}
     >
       <div class="flex w-full max-w-xs flex-col items-start gap-3">
@@ -145,15 +143,15 @@
         />
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <div class="jx-play-field">
-            <Toggle label="allowCustom" bind:checked={canvasAllowCustom} />
-          </div>
-          <p class="jx-play-help">
-            type <code class="text-accent">wasi</code> — allowCustom on shows the “Use “wasi”” row in
+        <PlayFields>
+          <PlayRow label="allowCustom">
+            <PlayToggle bind:value={canvasAllowCustom} />
+          </PlayRow>
+          <PlayHelp>
+            type <code>wasi</code> — allowCustom on shows the “Use “wasi”” row in
             primary; off reverts stray text on blur.
-          </p>
-        </div>
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

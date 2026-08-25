@@ -5,6 +5,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // ToC outline: the live workbench + every recipe card, in page order.
   // Ids pair with the wrapper ids / SectionCard families below.
@@ -151,6 +152,7 @@ const watermarkRecipe =
   <div id="watermark-live" data-region="watermark-live" data-reveal="">
     <ComponentCanvas
       title="recipe: watermark"
+      stage="fill"
       description="The recipe runs live: the stage is a watermarked surface — try to select or click through it (the layer is pointer-events:none), then type in the Playground and watch the tile re-render. The recipe card below and this drawer share one source."
       files={files}
       onreset={resetCanvas}
@@ -174,17 +176,14 @@ const watermarkRecipe =
         <div class="jx-wm-layer" aria-hidden="true" style:background-image={wmTile}></div>
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <div class="jx-play-field">
-            <Input label="watermark text" placeholder="jixoai" bind:value={wmText} />
-          </div>
-          <p class="jx-play-help">
-            free text goes through <code class="text-accent">q()</code> in the sample and
-            <code class="text-accent">encodeURIComponent</code> in the tile — type quotes, an
-            apostrophe, or 中文: nothing breaks, in the sample or on the stage. The watermark deters
-            and marks provenance; it is not DRM.
-          </p>
-        </div>
+        <PlayFields>
+          <Input label="watermark text" placeholder="jixoai" bind:value={wmText} />
+          <PlayHelp>
+            free text goes through <code>q()</code> in the sample and <code>encodeURIComponent</code>
+            in the tile — type quotes, an apostrophe, or 中文: nothing breaks, in the sample or on
+            the stage. The watermark deters and marks provenance; it is not DRM.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

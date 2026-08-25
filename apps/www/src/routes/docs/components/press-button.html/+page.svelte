@@ -4,7 +4,7 @@
   import PressButton, { pulse, rainbow, ripple, shimmer } from '$lib/ui/press-button/press-button.svelte';
   import pressButtonSource from '$lib/ui/press-button/press-button.svelte?raw';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
-  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
+  import { PlayFields, PlayRow, PlaySelect, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // ToC outline: the anchors demo + the closing law, in page order. The
@@ -48,8 +48,9 @@ ${close}
   ];
 
   // playground protocol (P1): the page owns the state; the canvas only
-  // calls back — snapshot + reset + echo projection + live usage. The
-  // select speaks effect NAMES; the builders run in the map below.
+  // calls back — snapshot + reset + live usage (the selects carry their
+  // own readout, so no echo rows). The select speaks effect NAMES; the
+  // builders run in the map below.
   type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link' | 'copied';
   type EffectName = 'none' | 'shimmer' | 'pulse' | 'rainbow' | 'ripple';
   const effectBuilders = {
@@ -66,6 +67,23 @@ ${close}
     variant = canvasInitial.variant;
     effect = canvasInitial.effect;
   }
+  // kit option maps: the enum controls speak the typed unions directly
+  const variantOptions: { value: Variant; label: string }[] = [
+    { value: 'primary', label: 'primary' },
+    { value: 'secondary', label: 'secondary' },
+    { value: 'outline', label: 'outline' },
+    { value: 'ghost', label: 'ghost' },
+    { value: 'destructive', label: 'destructive' },
+    { value: 'link', label: 'link' },
+    { value: 'copied', label: 'copied' },
+  ];
+  const effectOptions: { value: EffectName; label: string }[] = [
+    { value: 'none', label: 'none' },
+    { value: 'shimmer', label: 'shimmer' },
+    { value: 'pulse', label: 'pulse' },
+    { value: 'rainbow', label: 'rainbow' },
+    { value: 'ripple', label: 'ripple' },
+  ];
   // free text must become a legal string literal (q() = JSON.stringify)
   const q = (value: string): string => JSON.stringify(value);
   const usageLive = $derived(`${usageHead}
@@ -110,14 +128,11 @@ ${close}
     <div data-reveal="">
       <ComponentCanvas
         title="press-button"
-        description="The press-law button: hover grows the shadow only (xs → sm, the body never moves); active presses the body +1px into the page while the shadow layer stays anchored. The playground drives the lower instance; the echo line tracks the variant."
+        description="The press-law button: hover grows the shadow only (xs → sm, the body never moves); active presses the body +1px into the page while the shadow layer stays anchored. The playground drives the lower instance."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/press-button.svelte"
         {files}
+        stage="center"
         onreset={resetCanvas}
-        output={[
-          { label: 'variant', value: variant },
-          { label: 'effect', value: effect },
-        ]}
         resolveFileContent={resolveUsage}
       >
         <div class="flex flex-col items-center gap-6">
@@ -183,49 +198,25 @@ ${close}
           </div>
         </div>
         {#snippet playground()}
-          <div class="jx-play-fields">
-            <div class="jx-play-field">
-              <NativeSelect
-                label="variant"
-                onchange={(event) => {
-                  variant = event.currentTarget.value as Variant;
-                }}
-              >
-                <option value="primary">primary</option>
-                <option value="secondary">secondary</option>
-                <option value="outline">outline</option>
-                <option value="ghost">ghost</option>
-                <option value="destructive">destructive</option>
-                <option value="link">link</option>
-                <option value="copied">copied</option>
-              </NativeSelect>
-            </div>
-            <div class="jx-play-field">
-              <NativeSelect
-                label="effect"
-                onchange={(event) => {
-                  effect = event.currentTarget.value as EffectName;
-                }}
-              >
-                <option value="none">none</option>
-                <option value="shimmer">shimmer</option>
-                <option value="pulse">pulse</option>
-                <option value="rainbow">rainbow</option>
-                <option value="ripple">ripple</option>
-              </NativeSelect>
-            </div>
-            <p class="jx-play-help">
-              every surface shares one physics — <code class="text-accent">variant</code> changes
+          <PlayFields>
+            <PlayRow label="variant">
+              <PlaySelect bind:value={variant} options={variantOptions} />
+            </PlayRow>
+            <PlayRow label="effect">
+              <PlaySelect bind:value={effect} options={effectOptions} />
+            </PlayRow>
+            <PlayHelp>
+              every surface shares one physics — <code>variant</code> changes
               only the paint. Hover one: the shadow grows, the body never moves. Press one: the
               body slides +1px,+1px into the page while its box-shadow counter-shrinks 1px (the
-              theme's <code class="text-accent">.jx-press</code> law swaps to the
-              <code class="text-accent">*-press</code> pose — the shadow paint stays put).
-              <code class="text-accent">effect</code> adds ONE attention loop — a perimeter spark
+              theme's <code>.jx-press</code> law swaps to the
+              <code>*-press</code> pose — the shadow paint stays put).
+              <code>effect</code> adds ONE attention loop — a perimeter spark
               (shimmer), sonar rings (pulse), a border gradient flow (rainbow), or press-point ink
               (ripple) — built by typed constructors from the component's module script, and
               reduced motion freezes them all.
-            </p>
-          </div>
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>

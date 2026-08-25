@@ -6,6 +6,7 @@
   import ToastViewport from '$lib/ui/toast/toast-viewport.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { createToastStore } from '$lib/toast-store';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import toastViewportSource from '$lib/ui/toast/toast-viewport.svelte?raw';
@@ -81,6 +82,7 @@ ${close}
   <div data-reveal="">
     <ComponentCanvas
       title="toast"
+      stage="center"
       description="Push a polite toast, a sticky assertive one, or a burst — hover a toast to freeze its countdown; the × dismisses. Older toasts queue past the visible four."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/toast-viewport.svelte"
       files={canvasFiles}
@@ -104,10 +106,12 @@ ${close}
         </PressButton>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          the store is deliberately DOM-free — anything (a worker, a server event bridge) can push
-          through the api handle. The viewport is the only DOM half, mounted once.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            the store is deliberately DOM-free — anything (a worker, a server event bridge) can
+            push through the api handle. The viewport is the only DOM half, mounted once.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

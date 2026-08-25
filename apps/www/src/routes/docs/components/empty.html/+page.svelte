@@ -5,6 +5,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import emptySource from '$lib/ui/empty/empty.svelte?raw';
@@ -46,6 +47,7 @@
   <div data-reveal="">
     <ComponentCanvas
       title="empty"
+      stage="center"
       description="empty — the no-data state, nothing more"
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/empty.svelte"
       files={canvasFiles}
@@ -58,9 +60,13 @@
         </Empty>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          the illustration slot replaces the terminal default — bring any glyph; it stays decorative (aria-hidden). empty never guesses how to FIX the emptiness: the actions snippet owns that.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            the illustration slot replaces the terminal default — bring any glyph; it stays
+            decorative (aria-hidden). empty never guesses how to FIX the emptiness: the actions
+            snippet owns that.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

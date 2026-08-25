@@ -1,9 +1,9 @@
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import Checkbox from '$lib/ui/checkbox/checkbox.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayRow, PlayToggle, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import componentCanvasSource from '$lib/ui/component-canvas/component-canvas.svelte?raw';
@@ -29,7 +29,7 @@
   const usageLive = $derived(`<script lang="ts">
   import ComponentCanvas from '@ui/component-canvas.svelte';
   import PressButton from '@ui/press-button.svelte';
-  import NativeSelect from '@ui/native-select.svelte';
+  import { PlayFields, PlayRow, PlaySelect } from '$lib/playground';
 ${close}
 
 <!-- files: flat TreeFile list; paths split on "/" build the tree levels -->
@@ -41,10 +41,11 @@ ${close}
 >
   <PressButton variant="primary">deploy</PressButton>${innerPlayground ? `
   {#snippet playground()}
-    <NativeSelect label="variant">
-      <option value="primary">primary</option>
-      <option value="outline">outline</option>
-    </NativeSelect>
+    <PlayFields>
+      <PlayRow label="variant">
+        <PlaySelect bind:value={variant} options={variantOptions} />
+      </PlayRow>
+    </PlayFields>
   {/snippet}` : ''}
 </ComponentCanvas>`);
 
@@ -107,6 +108,7 @@ ${close}
       description="The canvas rendering a canvas: the LIVE stage below embeds a simplified second instance. The Playground checkbox toggles the inner pane — and the usage file in this drawer tracks it."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/component-canvas.svelte"
       {files}
+      stage="fill"
       onreset={resetCanvas}
       output={[{ label: 'inner playground', value: innerPlayground }]}
       resolveFileContent={resolveUsage}
@@ -122,36 +124,32 @@ ${close}
           description="The inner canvas — a simplified instance living in the outer LIVE stage."
           sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/press-button.svelte"
           files={innerFiles}
+          stage="center"
         >
           <PressButton variant="primary">deploy</PressButton>
           {#if innerPlayground}
             {#snippet playground()}
-              <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-                The optional Playground pane — absent by default, present only when the consumer
-                authors it. Toggled from the outer canvas controls.
-              </p>
+              <PlayFields>
+                <PlayHelp>
+                  The optional Playground pane — absent by default, present only when the consumer
+                  authors it. Toggled from the outer canvas controls.
+                </PlayHelp>
+              </PlayFields>
             {/snippet}
           {/if}
         </ComponentCanvas>
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <div class="jx-play-field">
-            <Checkbox
-              label="inner playground pane"
-              labelSide="right"
-              checked={innerPlayground}
-              onchange={(event) => {
-                innerPlayground = event.currentTarget.checked;
-              }}
-            />
-          </div>
-          <p class="jx-play-help">
+        <PlayFields>
+          <PlayRow label="inner playground pane">
+            <PlayToggle bind:value={innerPlayground} />
+          </PlayRow>
+          <PlayHelp>
             The pane is a passed snippet: absent when unauthored, so the stage takes the full width
             — exactly the toggle this control flips inside the second-level canvas. The usage file
             in the drawer follows the same truth.
-          </p>
-        </div>
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

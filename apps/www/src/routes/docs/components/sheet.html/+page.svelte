@@ -4,7 +4,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import Sheet from '$lib/ui/sheet/sheet.svelte';
-  import Toggle from '$lib/ui/toggle/toggle.svelte';
+  import { PlayFields, PlayRow, PlaySegmented, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -16,6 +16,13 @@
   const canvasInitial = { side: 'right' as 'left' | 'right' | 'top' | 'bottom' };
   let open = $state(false);
   let side = $state<'left' | 'right' | 'top' | 'bottom'>(canvasInitial.side);
+  // kit option map: the enum control speaks the typed union directly
+  const sideOptions: { value: 'left' | 'right' | 'top' | 'bottom'; label: string }[] = [
+    { value: 'right', label: 'right' },
+    { value: 'left', label: 'left' },
+    { value: 'top', label: 'top' },
+    { value: 'bottom', label: 'bottom' },
+  ];
   function resetCanvas(): void {
     side = canvasInitial.side;
   }
@@ -79,22 +86,22 @@ ${close}
       description="Pick a side in the playground, then open: the panel slides from that edge. Escape or the × closes through the shared fade."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/sheet.svelte"
       files={canvasFiles}
+      stage="center"
       onreset={resetCanvas}
-      output={[{ label: 'side', value: side }]}
     >
       <div class="flex flex-wrap items-center gap-4">
         <PressButton onclick={() => (open = true)}>Open sheet</PressButton>
       </div>
       {#snippet playground()}
-        <div class="flex flex-col gap-2">
-          {#each ['right', 'left', 'top', 'bottom'] as s (s)}
-            <Toggle checked={side === s} label={s} onchange={(e) => { side = s; }} />
-          {/each}
-        </div>
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          size sets the panel's extent along its docked axis (CSS length; 24rem default). Footer
-          and header are snippet slots; the body scrolls with overscroll containment.
-        </p>
+        <PlayFields>
+          <PlayRow label="side">
+            <PlaySegmented bind:value={side} options={sideOptions} />
+          </PlayRow>
+          <PlayHelp>
+            size sets the panel's extent along its docked axis (CSS length; 24rem default). Footer
+            and header are snippet slots; the body scrolls with overscroll containment.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

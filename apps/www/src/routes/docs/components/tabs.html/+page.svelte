@@ -7,6 +7,7 @@
   import TabsContent from '$lib/ui/tabs/tabs-content.svelte';
   import TabsList from '$lib/ui/tabs/tabs-list.svelte';
   import TabsTrigger from '$lib/ui/tabs/tabs-trigger.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -111,6 +112,7 @@ ${close}
       description="Tab across the strip: arrows walk and select, Home/End jump the ends, and the disabled trigger is skipped. The echo footer surfaces the bound value and the last change — onchange fires either way."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/tabs.svelte"
       files={canvasFiles}
+      stage="fill"
       onreset={resetCanvas}
       output={[
         { label: 'value', value: tab },
@@ -141,19 +143,21 @@ ${close}
         </Tabs>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          keyboard: ←/→ walk and select, Home/End jump the ends (RTL flips the axis reading). The
-          selected tab is the only tabbable one (roving tabindex); Tab itself leaves the strip —
-          focus is never trapped. For panels that fetch or render expensively, pass
-          <code class="text-accent">activation="manual"</code> on the root: arrows move focus only,
-          Enter/Space commit. Background panels are <code class="text-accent">hidden</code> — inert,
-          not just invisible.
-        </p>
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          empty value ('' = nothing selected) is a deliberate progressive-enhancement compromise:
-          the SSR HTML renders every trigger tabbable so JS-off users can still reach the tabs, and
-          hydration trims the tab stops to exactly the first enabled one.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            keyboard: ←/→ walk and select, Home/End jump the ends (RTL flips the axis reading). The
+            selected tab is the only tabbable one (roving tabindex); Tab itself leaves the strip —
+            focus is never trapped. For panels that fetch or render expensively, pass
+            <code>activation="manual"</code> on the root: arrows move focus only,
+            Enter/Space commit. Background panels are <code>hidden</code> — inert,
+            not just invisible.
+          </PlayHelp>
+          <PlayHelp>
+            empty value ('' = nothing selected) is a deliberate progressive-enhancement compromise:
+            the SSR HTML renders every trigger tabbable so JS-off users can still reach the tabs, and
+            hydration trims the tab stops to exactly the first enabled one.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

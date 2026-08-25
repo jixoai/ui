@@ -1,12 +1,11 @@
 <script lang="ts">
   import Avatar from '$lib/ui/avatar/avatar.svelte';
-  import Checkbox from '$lib/ui/checkbox/checkbox.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import Input from '$lib/ui/input/input.svelte';
-  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayRow, PlaySelect, PlayToggle, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import avatarSource from '$lib/ui/avatar/avatar.svelte?raw';
@@ -101,6 +100,7 @@ ${close}
   <div data-reveal="">
     <ComponentCanvas
       title="avatar"
+      stage="center"
       description="The left avatar loads a real image; the right one has no source and shows the initials fallback derived live from the playground's name field. Every instance re-corners with the silhouette pick — and at sm the fallback halves to one code point. Hover (or focus) an avatar: the full name rides the default tooltip."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/avatar.svelte"
       files={canvasFiles}
@@ -120,18 +120,27 @@ ${close}
         </div>
       </div>
       {#snippet playground()}
-        <Input label="name" placeholder="Ada Lovelace" bind:value={name} />
-        <NativeSelect label="variant" bind:value={variant}>
-          <option value="bevel">bevel — the radius law</option>
-          <option value="rounded">rounded — circle</option>
-          <option value="squircle">squircle — superellipse</option>
-        </NativeSelect>
-        <Checkbox label="tooltip (full name on hover)" bind:checked={tooltip} />
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          the initials algorithm: one word → its first two code points (CJK-safe); several words →
-          first letters of the first and last; sm keeps only the first. alt defaults to the name —
-          pass <code class="text-accent">alt=""</code> for decorative avatars beside a visible name.
-        </p>
+        <PlayFields>
+          <Input label="name" placeholder="Ada Lovelace" bind:value={name} />
+          <PlayRow label="variant">
+            <PlaySelect
+              bind:value={variant}
+              options={[
+                { value: 'bevel', label: 'bevel — the radius law' },
+                { value: 'rounded', label: 'rounded — circle' },
+                { value: 'squircle', label: 'squircle — superellipse' },
+              ]}
+            />
+          </PlayRow>
+          <PlayRow label="tooltip" hint="full name on hover">
+            <PlayToggle bind:value={tooltip} />
+          </PlayRow>
+          <PlayHelp>
+            the initials algorithm: one word → its first two code points (CJK-safe); several words
+            → first letters of the first and last; sm keeps only the first. alt defaults to the
+            name — pass <code>alt=""</code> for decorative avatars beside a visible name.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

@@ -4,6 +4,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import Toc, { type TocSection } from '$lib/ui/toc/toc.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import tocSource from '$lib/ui/toc/toc.svelte?raw';
@@ -165,14 +166,14 @@ ${close}
         </section>
       </article>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <p class="jx-play-help">
+        <PlayFields>
+          <PlayHelp>
             the rail has no controls to wire — it reads the page. Desktop: the spine fills nodes by
             IoM weight and bolds the line pick; below 900px it becomes the glass single-row bar
             pinned under the header (expand it for the full list). Click any entry: the anchor
             lands the heading exactly on the pick line.
-          </p>
-        </div>
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

@@ -3,6 +3,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -79,6 +80,7 @@ ${close}
           description="Scroll the band below — the anchor rail (right on desktop, above on mobile) marks the section containing the viewport-top line, and the page ToC tracks the same fragments."
           sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/anchor.svelte"
           files={canvasFiles}
+          stage="fill"
         >
           <section id="anchor-what" data-region="anchor-what" class="flex flex-col gap-3">
             <h3 class="font-nav text-[1.05rem] tracking-tight sm:text-[1.15rem]">what it does</h3>
@@ -109,16 +111,16 @@ ${close}
               </p>
             {/each}
           </section>
-          {#snippet playground()}
-            <div class="jx-play-fields">
-              <p class="jx-play-help">
-                the anchor is read-only — no controls to wire. Scroll and watch the in-workbench
-                rail mark the section crossing the viewport-top line; the page ToC on the right
-                tracks the same fragments with the full engine. <code class="text-accent">offset</code>
-                (default 96px) moves the pick line below sticky headers.
-              </p>
-            </div>
-          {/snippet}
+        {#snippet playground()}
+          <PlayFields>
+            <PlayHelp>
+              the anchor is read-only — no controls to wire. Scroll and watch the in-workbench
+              rail mark the section crossing the viewport-top line; the page ToC on the right
+              tracks the same fragments with the full engine. <code>offset</code>
+              (default 96px) moves the pick line below sticky headers.
+            </PlayHelp>
+          </PlayFields>
+        {/snippet}
         </ComponentCanvas>
       </div>
       <aside class="jx-anchor-demo-aside">

@@ -4,6 +4,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import { PlayFields, PlayRow, PlayHelp } from '$lib/playground';
 
   // ToC outline: the closing law (the canvas above holds the architecture).
 
@@ -97,6 +98,7 @@ ${close}
         description="The grid shell: .jx-shell-host is the named container (the ONE responsive truth source); both layers span the same grid and subgrid its named columns — header, children, optional footer, skip link, and the per-zone immersive law."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/website-scaffold.svelte"
         {files}
+        stage="fill"
       >
         {#snippet children()}
           <!-- A scaffold cannot nest inside itself: the shell owns the
@@ -138,18 +140,18 @@ ${close}
           </SectionCard>
         {/snippet}
         {#snippet playground()}
-          <div class="jx-play-fields">
-            <div class="jx-play-field">
+          <PlayFields>
+            <PlayRow label="scroll body">
               <div class="flex flex-col gap-2">
                 <PressButton onclick={() => scrollBodyBy(360)}>scroll body ↓ 360px</PressButton>
                 <PressButton onclick={() => scrollBodyBy(-360)}>scroll body ↑ 360px</PressButton>
               </div>
-            </div>
-            <p class="jx-play-help">
-              These buttons scroll <code class="text-accent">.jx-shell-body</code> — the real scroll
+            </PlayRow>
+            <PlayHelp>
+              These buttons scroll <code>.jx-shell-body</code> — the real scroll
               plane of this page. Watch the zones split: chrome leaves, the toc rail compacts.
-            </p>
-          </div>
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>

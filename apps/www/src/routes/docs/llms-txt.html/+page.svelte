@@ -2,8 +2,8 @@
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
-  import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import { PlayFields, PlayRow, PlaySegmented, PlayToggle, PlayHelp } from '$lib/playground';
 
 
   const viteUsage = `// vite.config.ts — plain vite build sites (one plugin line)
@@ -47,6 +47,11 @@ console.log('llms-txt:', report.pages, 'pages,', report.files.length, 'files');`
   // looks like for a two-page site (sample, not the live run).
   let linkStyle = $state<'absolute' | 'root-relative'>('absolute');
   let perPageMarkdown = $state(true);
+  // kit option map: the enum control speaks the typed union directly
+  const linkStyleOptions: { value: 'absolute' | 'root-relative'; label: string }[] = [
+    { value: 'absolute', label: 'absolute' },
+    { value: 'root-relative', label: 'root-relative' },
+  ];
 
   const samplePages = [
     { title: 'Home', url: '/' },
@@ -108,6 +113,7 @@ console.log('llms-txt:', report.pages, 'pages,', report.files.length, 'files');`
         description="One deterministic pass over the final dist: extract each page's main content, whitelist-convert it to Markdown, mirror it beside the HTML, and compose the index (plus the single-file llms-full.txt)."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/llms-txt/llms-txt.mjs"
         {files}
+        stage="fill"
       >
         {#snippet children()}
           <SectionCard
@@ -137,23 +143,20 @@ console.log('llms-txt:', report.pages, 'pages,', report.files.length, 'files');`
           </SectionCard>
         {/snippet}
         {#snippet playground()}
-          <div class="jx-play-fields">
-            <div class="jx-play-field">
-              <div class="flex flex-wrap gap-2">
-                <PressButton onclick={() => (linkStyle = 'absolute')}>linkStyle: absolute</PressButton>
-                <PressButton onclick={() => (linkStyle = 'root-relative')}>root-relative</PressButton>
-                <PressButton onclick={() => (perPageMarkdown = !perPageMarkdown)}>
-                  page .md mirrors: {perPageMarkdown ? 'on' : 'off'}
-                </PressButton>
-              </div>
-            </div>
+          <PlayFields>
+            <PlayRow label="linkStyle">
+              <PlaySegmented bind:value={linkStyle} options={linkStyleOptions} />
+            </PlayRow>
+            <PlayRow label="page .md mirrors">
+              <PlayToggle bind:value={perPageMarkdown} />
+            </PlayRow>
             <pre class="jx-sample-index" aria-label="sample llms.txt">{sampleIndex}</pre>
-            <p class="jx-play-help">
+            <PlayHelp>
               The index shape the generator composes (sample for a two-page site). Absolute URLs are
               the ecosystem default — relative paths are the most common llms.txt defect because the
               file is read detached from any page.
-            </p>
-          </div>
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>

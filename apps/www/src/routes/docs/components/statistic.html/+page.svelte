@@ -3,6 +3,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import Statistic from '$lib/ui/statistic/statistic.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -46,6 +47,7 @@
       description="statistic — the metric readout"
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/statistic.svelte"
       files={canvasFiles}
+      stage="fill"
     >
       <div class="grid gap-6 min-[560px]:grid-cols-3">
         <Statistic title="deploys / week" value="42" trend="up" />
@@ -53,9 +55,13 @@
         <Statistic title="registry items" value="69" />
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
-          up paints the up-triangle through the brand voice, down the down-triangle destructive — if down is GOOD for your metric (cost, latency), compose your own glyphs through the snippets.
-        </p>
+        <PlayFields>
+          <PlayHelp>
+            up paints the up-triangle through the brand voice, down the down-triangle destructive —
+            if down is GOOD for your metric (cost, latency), compose your own glyphs through the
+            snippets.
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

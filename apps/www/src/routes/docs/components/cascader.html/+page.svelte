@@ -4,6 +4,7 @@
   import Cascader from '$lib/ui/cascader/cascader.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import cascaderSource from '$lib/ui/cascader/cascader.svelte?raw';
@@ -97,6 +98,7 @@ const options = [
   <div id="cascader-demo" data-region="cascader-demo" data-family="cascader-demo" data-reveal="">
     <ComponentCanvas
       title="cascader"
+      stage="center"
       description="Pick Asia, then Japan — the chain grows one select at a time; re-picking an earlier level truncates the deeper ones. The echo footer shows the joined path."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/cascader.svelte"
       files={canvasFiles}
@@ -108,12 +110,12 @@ const options = [
         <Cascader {options} label="region" bind:value />
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <p class="jx-play-help">
+        <PlayFields>
+          <PlayHelp>
             picking a parent grows the chain by one select; re-picking an earlier level truncates
             everything deeper. The complete leaf path is the form value.
-          </p>
-        </div>
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>

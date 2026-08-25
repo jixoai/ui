@@ -13,15 +13,18 @@
     max = 100,
     step = 1,
     showValue = true,
+    onchange,
   }: {
     value?: number;
     min?: number;
     max?: number;
     step?: number;
     showValue?: boolean;
+    /** change passthrough (release-replay style consumers) */
+    onchange?: (event: Event) => void;
   } = $props();
 
   const row = getContext<{ rowId: string; label: string }>('jx-play-row');
 </script>
 
-<Range bind:value {min} {max} {step} class="jx-play-range" showValue={showValue} label={row?.label ?? 'value'} srLabel />
+<Range bind:value {min} {max} {step} class="jx-play-range" showValue={showValue} label={row?.label ?? 'value'} srLabel {onchange} />

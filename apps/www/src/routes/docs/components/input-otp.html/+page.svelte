@@ -4,6 +4,7 @@
   import InputOtp from '$lib/ui/input-otp/input-otp.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import inputOtpSource from '$lib/ui/input-otp/input-otp.svelte?raw';
@@ -76,6 +77,7 @@ ${close}
       description="Type, or paste a whole code into the first slot — it distributes. The joined value surfaces in the echo footer; the frame only turns brand-colored when COMPLETE."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/input-otp.svelte"
       files={canvasFiles}
+      stage="center"
       onreset={resetCanvas}
       output={[{ label: 'value', value: code || '—' }]}
       resolveFileContent={resolveUsage}
@@ -84,13 +86,13 @@ ${close}
         <InputOtp name="demo-otp" length={6} label="one-time code" bind:value={code} />
       </div>
       {#snippet playground()}
-        <div class="jx-play-fields">
-          <p class="jx-play-help">
+        <PlayFields>
+          <PlayHelp>
             numeric=true (default) filters non-digits; numeric={false} accepts letters for alpha
             codes. The slot/value sync is untracked on the slots side — typing can never be
             "re-synced" against a stale value.
-          </p>
-        </div>
+          </PlayHelp>
+        </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>
