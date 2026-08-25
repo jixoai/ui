@@ -41,14 +41,59 @@
 
   let open = $state(false);
   const close = () => (open = false);
+
+  // search filter (Owner request, 2026-08-25): typing filters pages by
+  // title OR subtitle across every section; empty sections hide. The
+  // rail is the primary surface; the mobile bar carries the same input
+  // at the top of its expansion.
+  let filter = $state('');
+  const needle = $derived(filter.trim().toLowerCase());
+  const visibleSections = $derived(
+    !needle
+      ? docsSections
+      : docsSections
+          .map((section) => ({
+            ...section,
+            pages: section.pages.filter(
+              (pg) =>
+                pg.title.toLowerCase().includes(needle) ||
+                (pg.subtitle?.toLowerCase().includes(needle) ?? false),
+            ),
+          }))
+          .filter((section) => section.pages.length > 0),
+  );
+  const onFilterKeydown = (event: KeyboardEvent) => {
+    // Escape clears and yields focus — and must not leak upward (the
+    // page binds Escape for popover/disclosure closing)
+    if (event.key === 'Escape' && filter) {
+      event.stopPropagation();
+      filter = '';
+    }
+  };
 </script>
 
 <nav class="jx-dsn" data-area="tree" aria-label="docs sections">
   <!-- rail surface (wide form): the spine, always expanded -->
   <div class="jx-dsn-rail">
     <p class="jx-dsn-title">docs</p>
+    <div class="jx-dsn-search">
+      <input
+        class="jx-dsn-input"
+        type="search"
+        placeholder="filter…"
+        aria-label="Filter the docs navigation"
+        bind:value={filter}
+        onkeydown={onFilterKeydown}
+      />
+      {#if filter}
+        <button type="button" class="jx-dsn-clear" aria-label="Clear the filter" onclick={() => (filter = '')}>×</button>
+      {/if}
+    </div>
     <div class="jx-dsn-groups">
-      {#each docsSections as section (section.id)}
+      {#if needle && visibleSections.length === 0}
+        <p class="jx-dsn-empty">no matches for “{filter}”</p>
+      {/if}
+      {#each visibleSections as section (section.id)}
         <details class="jx-dsn-group" open>
           <summary class="jx-dsn-group-label">
             {section.label}
@@ -100,8 +145,24 @@
       </button>
     </div>
     <div class="jx-dsn-expand">
-      {#each docsSections as section (section.id)}
-        <details class="jx-dsn-group" open={section.id === activeSectionId}>
+      <div class="jx-dsn-search jx-dsn-bar-search">
+        <input
+          class="jx-dsn-input"
+          type="search"
+          placeholder="filter…"
+          aria-label="Filter the docs navigation"
+          bind:value={filter}
+          onkeydown={onFilterKeydown}
+        />
+        {#if filter}
+          <button type="button" class="jx-dsn-clear" aria-label="Clear the filter" onclick={() => (filter = '')}>×</button>
+        {/if}
+      </div>
+      {#if needle && visibleSections.length === 0}
+        <p class="jx-dsn-empty">no matches for “{filter}”</p>
+      {/if}
+      {#each visibleSections as section (section.id)}
+        <details class="jx-dsn-group" open={section.id === activeSectionId || !!needle}>
           <summary class="jx-dsn-group-label">
             {section.label}
           </summary>
@@ -171,6 +232,71 @@
     color: var(--muted-foreground);
   }
 
+  .jx-dsn-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin: 0 0 0.625rem;
+  }
+  .jx-dsn-input {
+    width: 100%;
+    border: 1px solid color-mix(in oklab, var(--border) 90%, transparent);
+    background: color-mix(in oklab, var(--background) 55%, transparent);
+    color: var(--foreground);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    padding: 0.3125rem 1.5rem 0.3125rem 0.5rem;
+  }
+  .jx-dsn-input::placeholder {
+    color: var(--muted-foreground);
+    opacity: 0.7;
+  }
+  .jx-dsn-input:focus-visible {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+  }
+  /* the platform search ornament is chrome we don't take */
+  .jx-dsn-input::-webkit-search-cancel-button {
+    display: none;
+  }
+  .jx-dsn-input[type='search']::-webkit-search-decoration {
+    display: none;
+  }
+  .jx-dsn-clear {
+    position: absolute;
+    right: 0.25rem;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    border: 0;
+    background: none;
+    color: var(--muted-foreground);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .jx-dsn-clear:hover {
+    color: var(--foreground);
+  }
+  .jx-dsn-clear:focus-visible {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+  }
+  .jx-dsn-empty {
+    margin: 0;
+    padding: 0.375rem 0.5rem 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--muted-foreground);
+  }
+  .jx-dsn-bar .jx-dsn-bar-search {
+    padding-inline: 1rem 0.5rem;
+    margin: 0 0 0.5rem;
+  }
   .jx-dsn-group {
     border-bottom: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
     padding: 0.25rem 0;

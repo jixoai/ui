@@ -30,6 +30,9 @@ export default defineConfig({
     conditions: ['browser'],
     alias: {
       $lib: fileURLToPath(new URL('./src/lib', import.meta.url)),
+      // components reading the SvelteKit page state get a static URL —
+      // the filter behavior under test does not navigate
+      '$app/state': fileURLToPath(new URL('./test/mocks/app-state.ts', import.meta.url)),
     },
   },
   test: {
