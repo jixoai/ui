@@ -43,6 +43,7 @@ const UNREFERENCED_LIB = [
 // name-identical (B11/B9 ruling: manifest is the single machine source)
 const CANONICAL_MAIN_OVERRIDES = {
   toast: 'registry/files/ui/toast/toast-viewport.svelte',
+  'list-item': 'registry/files/ui/list-item/item.svelte',
 };
 // mirror-path overrides for files whose mirror does not follow the
 // default rule (pre-migration item css living at src/lib root)
@@ -119,6 +120,7 @@ const SITE_ONLY_PREFIXES = [
   'apps/www/src/lib/blueprints/', // blueprint scene stage (site-only)
   'apps/www/src/lib/components/', // site-composed components
   'apps/www/src/lib/site/', // site-only surface modules (tw4 P2.2 placement law)
+  'apps/www/src/lib/playground/', // component-canvas demo controls (site-only, canvas redesign 2026-08-25)
   'apps/www/src/lib/__probe__/', // P0 scratch (removed when the probe retires)
 ];
 
