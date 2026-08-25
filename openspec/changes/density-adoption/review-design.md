@@ -389,3 +389,35 @@ substantially delegable. Do not start K0/F until the hit-lane requirement is
 restored, the two policy scenarios are renamed, and the used-value/media
 posture clauses are explicit in their owning deltas; then update the stale
 spec-delta outline and re-run this review.
+
+## Round 4
+
+Review target: `468610c` after `8cdd3df`. `openspec validate
+density-adoption --strict` and `git diff --check 8cdd3df..HEAD` both pass.
+
+1. **Resolved:** the component delta restores the `hit-lane contract` and
+   physical-wrapper scenario (`specs/component-authoring/spec.md:305-317`);
+   the density-context scenario now correctly triggers on `density`
+   (`:136-141`); the CSS derived-scale requirement restores the normative
+   used-value/serialization sentence (`specs/css-architecture/spec.md:137-
+   155`); and the grouped-media scenario now requires the
+   `--jx-d-media-image` track, line-derived lane, and asserted posture
+   (`:223-230`).
+2. **Not resolved — P0:** the Item-family policy scenario still states
+   `mode/size/layout/dividers` (`specs/component-authoring/spec.md:239-247`),
+   despite its same block declaring that policy was renamed to `density`
+   (`:302-303`) and the density contract prohibiting policy `size` (`:125-
+   127`). Replace the scenario input with `mode/density/layout/dividers`.
+   The user-stated grep result is not reproducible in the current checkout.
+3. **Outstanding P1:** `design.md:618` still labels the jx-pure and
+   design-tokens operations `MODIFIED`, although their deltas are `ADDED`.
+   Correct the spec-delta outline before archive so the Apply instruction
+   matches the actual operations.
+
+### Decision
+
+**Score: 8.4/10. BLOCK K0 and F implementation.**
+
+The last P0 is a one-word repair, but it is normative scenario text and can
+cause a packet agent to restore the prohibited public `size` policy. Fix it,
+correct the P1 outline, then this contract is ready for K0/F.

@@ -239,7 +239,7 @@ stamps replace rather than merge.
 #### Scenario: policy changes after mount
 
 - GIVEN a grouped Item rendered under a group with `mode="default"`
-- WHEN the group's `mode`/`size`/`layout`/`dividers` prop changes
+- WHEN the group's `mode`/`density`/`layout`/`dividers` prop changes
 - THEN the Item's stamped resolution updates in the same render
   (resolution is a pure function of current props, never a mount-time
   snapshot)
