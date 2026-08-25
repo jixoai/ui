@@ -45,11 +45,10 @@ the in-script `ALLOWLIST` mirroring the declared exceptions
 (select/combobox/cascader/tags-input/transfer/language-switcher
 option domains, tour steps, tree-view nodes, terminal-card outputs,
 code-card code, component-canvas files/output, scroll-virtual,
-toast store). Probe status TODAY (synced to actual output):
-15 violations = 13 structural props + 2 config-tree doubles
-(terminal-header items, toc sections) — exactly the pre-redesign
-kill list; the gate goes green when the change lands and stays green
-after (CI gate at integrator close). Self-test (`node scripts/verify-composition-law.mjs --self-test`, executable, anti-regression):
+toast store). Probe status AFTER the change (impl-r3 baseline): 0 violations
+across registry/files/ui — the pre-redesign kill list (15 = 13
+structural + 2 config-tree) is fully cleared; the gate stays green
+in CI. Pre-change fixtures verified: Self-test (`node scripts/verify-composition-law.mjs --self-test`, executable, anti-regression):
 union `A[] | B[]` (B recursive), `interface Props extends Base`,
 readonly/ReadonlyArray wrappers, `interface Props extends Base` heritage, argument-less alias arrays (`type Items = A[] | B[]`), intersection Props (`Base & Local`), and recursive alias children (`type ChildList = Node[]`) all caught — all FOUR adversarial fixtures, run via the gate's `--self-test` line.
 

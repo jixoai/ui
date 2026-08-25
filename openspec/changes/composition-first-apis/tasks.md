@@ -26,7 +26,7 @@
       batch2 spec left for the tooltip session's landing), the toc
       page-data seam, 3 scenes, 6 old suites migrated — per-batch
       commits 78c6310…a0b662b
-- [x] 10. Gates GREEN: build + vitest 471/471 (36 files) + hook-law
+- [x] 10. Gates GREEN: build + vitest (479/479, 37 files) + hook-law
        + composition-law 0 violations + self-test 4/4 + site build
        85 pages prerendered + openspec validate --strict
 - [x] 11. Walkthrough 17/17 (built-in browser webview unavailable ×2

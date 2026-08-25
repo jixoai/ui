@@ -53,12 +53,8 @@
 <button
   type="button"
   data-jx-navmenu-trigger=""
-  popovertarget={panelId}
   aria-haspopup="true"
-  aria-expanded={bar.openPanelId === panelId}
-  aria-controls={panelId}
   aria-current={current ? 'true' : undefined}
-  tabindex={bar.tabStop === '' || bar.tabStop === triggerId ? 0 : -1}
   class={cn(
     'inline-flex cursor-pointer items-center px-[0.875rem] py-2 font-nav text-xs uppercase tracking-[0.12em] no-underline transition-colors duration-150 ease-out focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
     bar.openPanelId === panelId
@@ -71,6 +67,10 @@
   onfocus={() => bar.setTabStop(triggerId)}
   {...rest}
   id={triggerId}
+  popovertarget={panelId}
+  aria-expanded={bar.openPanelId === panelId}
+  aria-controls={panelId}
+  tabindex={bar.tabStop === '' || bar.tabStop === triggerId ? 0 : -1}
 >
   {@render children()}
 </button>

@@ -43,9 +43,6 @@
   data-jx-menubar-trigger=""
   role="menuitem"
   aria-haspopup="menu"
-  aria-expanded={bar.openPanelId === panelId}
-  aria-controls={panelId}
-  tabindex={bar.tabStop === '' || bar.tabStop === triggerId ? 0 : -1}
   class={cn(
     'cursor-pointer border-r border-border bg-transparent px-[0.875rem] py-[0.4375rem] font-nav text-xs uppercase tracking-[0.1em] text-muted-foreground transition-[color,background-color] duration-150 ease-out hover:bg-muted hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
     bar.openPanelId === panelId ? 'bg-muted text-foreground' : '',
@@ -56,6 +53,9 @@
     bar.openPanelId === panelId ? bar.closePanel(panelId) : bar.openPanel(panelId, false)}
   {...rest}
   id={triggerId}
+  aria-expanded={bar.openPanelId === panelId}
+  aria-controls={panelId}
+  tabindex={bar.tabStop === '' || bar.tabStop === triggerId ? 0 : -1}
 >
   {@render children()}
 </button>

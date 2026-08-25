@@ -229,6 +229,8 @@
         for (const li of rootEl.querySelectorAll<HTMLElement>('.jx-toc-desktop li')) {
           const link = li.querySelector(':scope > a[data-jx-toc-link]');
           if (!link) continue;
+          // own-rail law: skip nested rails' links (their root differs)
+          if (link.closest('[data-jx-toc-root]') !== rootEl) continue;
           const id = fragmentOf(link);
           li.style.setProperty('--w', (weights.get(id) ?? 0).toFixed(3));
           const current = id === pick || id === parent;
@@ -236,7 +238,7 @@
           if (current) link.setAttribute('aria-current', 'true');
           else link.removeAttribute('aria-current');
         }
-        for (const a of rootEl.querySelectorAll<HTMLElement>('.jx-viewport a[data-jx-toc-link]')) {
+        for (const a of ownLinks('.jx-viewport')) {
           const id = fragmentOf(a);
           a.style.setProperty('--w', (weights.get(id) ?? 0).toFixed(3));
           const isPick = id === pick;
@@ -312,7 +314,9 @@
   // mobile link taps collapse the expanded rail (delegated — the composed
   // tree is re-queried, conditional links need no wiring of their own)
   const handleViewportClick = (event: MouseEvent) => {
-    if ((event.target as Element | null)?.closest?.('a[data-jx-toc-link]')) close();
+    const link = (event.target as Element | null)?.closest?.('a[data-jx-toc-link]');
+    // own-rail law: a nested rail's tap collapses ITS rail, not ours
+    if (link && link.closest('[data-jx-toc-root]') === rootEl) close();
   };
 </script>
 
@@ -339,7 +343,7 @@
   {/if}
 {/snippet}
 
-<div class={cn('jx-toc', className)} data-area="toc" data-jx-toc-root="" bind:this={rootEl} {...rest}>
+<div class={cn('jx-toc', className)} data-area="toc" bind:this={rootEl} {...rest} data-jx-toc-root="">
   <nav class="jx-toc-desktop" aria-label="Table of contents">
     <span class="jx-spine"><span class="jx-spine-fill" bind:this={spineFill}></span></span>
     <p class="jx-toc-title">{title}</p>

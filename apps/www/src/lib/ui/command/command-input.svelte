@@ -47,15 +47,15 @@
   type="text"
   role="combobox"
   aria-label={cmd.label}
-  aria-expanded="true"
-  aria-controls={cmd.listId}
-  aria-activedescendant={cmd.activeId || undefined}
-  aria-autocomplete="list"
-  placeholder={cmd.placeholder}
   value={cmd.query}
   oninput={(event) => cmd.setQuery(event.currentTarget.value)}
   onkeydown={handleKeydown}
   oncompositionstart={() => (composing = true)}
   oncompositionend={() => (composing = false)}
   {...rest}
+  aria-expanded="true"
+  aria-controls={cmd.listId}
+  aria-activedescendant={cmd.activeId || undefined}
+  aria-autocomplete="list"
+  placeholder={cmd.placeholder}
 />
