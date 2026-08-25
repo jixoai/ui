@@ -20,9 +20,18 @@
   static the same way — the scoped descendant rule is gone); ONLY the
   MENU panel law (anchor geometry + ::backdrop) remains in
   float-button.css — D1-exempt residue.
+
+  Motion kernel (2026-08-25): the menu panel adopts the shared surface
+  motion kernel (lib/surface-motion.ts, popover wiring verbatim) —
+  the toggle seam drives play/startTracking/stopTracking against the
+  fixed stack anchor, .jx-waapi opts into the jixoai.css formulas,
+  and the real shadow rides a DOM child (data-jx-fab-menu-shadow) the
+  kernel animates in lockstep.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { onDestroy } from 'svelte';
+  import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './float-button.css';
 
@@ -57,7 +66,19 @@
   const autoId = $props.id();
   const anchorName = $derived(`--jx-fab-${autoId.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
   let open = $state(false);
+  // the menu popover panel (`btn`) and the fixed stack wrapper carrying
+  // anchor-name — the kernel measures the slide axis panel↔anchor, live
   let btn = $state<HTMLButtonElement | null>(null);
+  let anchorEl = $state<HTMLElement | null>(null);
+
+  // ── MOTION KERNEL — the shared declarative half (r29): see
+  // lib/surface-motion.ts. WAAPI animates ONE @property number
+  // (--jx-p); every visible property is a CSS formula of it (the
+  // declarative motion law in jixoai.css). The kernel here only wires
+  // the menu's toggle seam and the live stack anchor
+  const motion = createSurfaceMotion(() => btn, { anchor: () => anchorEl });
+
+  onDestroy(() => motion.destroy());
 
   // corner → fixed point (top corners clear the sticky bar: 5.5rem)
   const corners = {
@@ -78,19 +99,34 @@
     data-jx-fab={corner}
     class={cn('fixed z-[80] flex flex-col items-center gap-2', corners[corner], className)}
     style="anchor-name: {anchorName}"
+    bind:this={anchorEl}
   >
     <div
       id={autoId}
       popover="auto"
       role="menu"
-      class="jx-fab-menu jx-surface"
+      class={cn('jx-fab-menu jx-surface', motion.supported && 'jx-waapi')}
       data-variant={variant}
       bind:this={btn}
       style="position-anchor: {anchorName}; inset-area: top span-right; position-area: top span-right;"
-      ontoggle={(e: Event) => (open = (e.currentTarget as HTMLElement).matches(':popover-open'))}
+      ontoggle={(e: Event) => {
+        const el = e.currentTarget as HTMLElement;
+        open = el.matches(':popover-open');
+        if (open) {
+          motion.play(1);
+          motion.startTracking();
+        } else {
+          el.classList.remove('jx-rest');
+          motion.play(0);
+          motion.stopTracking();
+        }
+      }}
     >
       <!-- surface body (fill + ::after shadow); the popover element
            paints nothing (floating-surface law arch r3) -->
+      <div data-jx-fab-menu-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
+      <!-- the REAL shadow layer: a DOM child because pseudo-elements are
+           unreachable from WAAPI — the kernel animates it in lockstep -->
       <div data-jx-fab-menu-body="" class="jx-surface-body p-1">
         {@render actions()}
       </div>

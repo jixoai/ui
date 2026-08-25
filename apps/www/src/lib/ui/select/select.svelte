@@ -49,6 +49,12 @@
   (static residue with its @supports fallback + ::backdrop), the
   hover/focus/disabled state machines and the reduced-motion kill remain
   in select.css (D1-exempt residue under the layer law).
+
+  Surface motion kernel (2026-08-25): popover.svelte law adopted — the
+  toggle seam drives the shared WAAPI kernel (lib/surface-motion.ts)
+  against the live wrap anchor; the panel carries jx-waapi behind
+  motion.supported plus the REAL .jx-surface-shadow child; jixoai.css
+  owns every visible formula.
 -->
 <script module lang="ts">
   /** One row of the Select listbox. */
@@ -68,7 +74,9 @@
   // side-effect import: registers the faceless <jx-form-field> element
   // (client-only, idempotent) that carries this field's form association
   import '$lib/form-field';
+  import { onDestroy } from 'svelte';
   import type { HTMLButtonAttributes } from 'svelte/elements';
+  import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './select.css';
 
@@ -140,6 +148,9 @@
   let triggerEl = $state<HTMLButtonElement | null>(null);
   let panelEl = $state<HTMLDivElement | null>(null);
   let listEl = $state<HTMLUListElement | null>(null);
+  // the wrap span carrying anchor-name — the motion kernel measures the
+  // slide axis panel↔anchor against it, live
+  let anchorEl = $state<HTMLElement | null>(null);
 
   // v1: `multiple` is a reserved extension direction — say so loudly
   // instead of silently ignoring a prop the caller believes in.
@@ -181,9 +192,14 @@
 
   // THE orchestration seam: one native event covers every open/close path
   // (popovertarget click, light dismiss, Escape, our own hide/show calls).
-  function onPanelToggle(event: ToggleEvent): void {
-    open = event.newState === 'open';
+  // Open is read LIVE from :popover-open (popover.svelte law — ToggleEvent
+  // state fields are never trusted); the motion calls bracket the
+  // unchanged orchestration inside each branch.
+  function onPanelToggle(): void {
+    open = panelEl?.matches(':popover-open') ?? false;
     if (open) {
+      motion.play(1);
+      motion.startTracking();
       // continue from context, like the native select: highlight the
       // selected row, else the first enabled one
       const selectedIndex = options.findIndex((option) => option.value === value);
@@ -192,11 +208,21 @@
       // already in the top layer when toggle fires
       listEl?.focus();
     } else {
+      panelEl?.classList.remove('jx-rest');
+      motion.play(0);
+      motion.stopTracking();
       // focus restitution on EVERY close path — light dismiss and Escape
       // are free from popover="auto"; this line covers the focus part
       triggerEl?.focus();
     }
   }
+
+  // ── MOTION KERNEL — the shared declarative half (popover.svelte law,
+  // lib/surface-motion.ts): WAAPI animates ONE @property number (--jx-p);
+  // every visible property is a CSS formula of it (jixoai.css). Here it
+  // wires only this panel's toggle seam and live wrap anchor
+  const motion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
+  onDestroy(() => motion.destroy());
 
   function onListKeydown(event: KeyboardEvent): void {
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -253,7 +279,7 @@
     onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
   ></jx-form-field>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span data-jx-sel-wrap class="relative block w-full max-w-full" style="anchor-name: {anchorName}">
+  <span data-jx-sel-wrap class="relative block w-full max-w-full" style="anchor-name: {anchorName}" bind:this={anchorEl}>
     <!-- aria-invalid rides the trigger although the checker's per-role
          list doesn't include it: it IS a WAI-ARIA global state, and the
          family law wires invalid state on the control itself -->
@@ -308,7 +334,7 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class="jx-sel-panel jx-surface"
+    class={cn('jx-sel-panel jx-surface', motion.supported && 'jx-waapi')}
     data-variant={variant}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
@@ -317,6 +343,10 @@
          (floating-surface law arch r3: the platform element paints
          nothing; the bezel fill resolves through the panel's fill
          props cascading into the body) -->
+    <div data-jx-sel-panel-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
+    <!-- the REAL shadow layer: a DOM child because pseudo-elements are
+         unreachable from WAAPI — the kernel animates it in lockstep
+         (Owner ruling r18) -->
     <div data-jx-sel-panel-body class="jx-surface-body">
     <div data-jx-sel-scroll class="max-h-[60vh] overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-1 px-[max(4px_-_var(--jx-scrollbar-thin,0px),0px)]">
     <ul

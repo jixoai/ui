@@ -40,12 +40,23 @@
   ::backdrop), the SV pad's overlay pseudos (color-space constants, not
   themeable), the trigger/pick hover/focus machines and the reduced-motion
   kill remain in color-picker.css (D1-exempt residue under the layer law).
+
+  Motion kernel (2026-08-25): the panel rides the shared surface motion
+  kernel (lib/surface-motion.ts; popover.svelte wiring law) — WAAPI
+  animates the single --jx-p progress number, jixoai.css formulas paint
+  every visible property; the toggle seam plays 1/0 with
+  start/stopTracking, reading open state LIVE from :popover-open
+  (ToggleEvent state fields never trusted). The real shadow layer is a
+  DOM child (data-jx-color-picker-shadow) because WAAPI cannot animate
+  pseudo-elements. Drags never animate (markers track the pointer
+  directly) — the kernel only owns the panel's enter/exit.
 -->
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import Input from '$lib/ui/input/input.svelte';
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './color-picker.css';
   import {
@@ -147,11 +158,35 @@
   let open = $state(false);
   let triggerEl = $state<HTMLButtonElement | null>(null);
   let panelEl = $state<HTMLDivElement | null>(null);
+  // the anchor wrapper — the enter kernel measures the slide direction
+  // against it at every open
+  let anchorEl = $state<HTMLElement | null>(null);
 
-  function onPanelToggle(event: ToggleEvent): void {
-    open = event.newState === 'open';
-    if (!open) triggerEl?.focus(); // focus restitution on every close path
+  // THE orchestration seam: one native event covers every open/close path
+  // (popovertarget click, light dismiss, Escape). Open state is read LIVE
+  // from :popover-open at fire time — ToggleEvent state fields are never
+  // trusted (popover.svelte law).
+  function onPanelToggle(): void {
+    open = panelEl?.matches(':popover-open') ?? false;
+    if (open) {
+      motion.play(1);
+      motion.startTracking();
+    } else {
+      panelEl?.classList.remove('jx-rest');
+      motion.play(0);
+      motion.stopTracking();
+      triggerEl?.focus(); // focus restitution on every close path
+    }
   }
+
+  // ── MOTION KERNEL — the shared declarative half (r29): see
+  // lib/surface-motion.ts. WAAPI animates ONE @property number
+  // (--jx-p); every visible property is a CSS formula of it (the
+  // declarative motion law in jixoai.css). The kernel here only wires
+  // the panel's toggle seam and live anchor
+  const motion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
+
+  onDestroy(() => motion.destroy());
 
   // ---- SV pad + hue bar: pointer capture drags ---------------------------
   let svEl = $state<HTMLDivElement | null>(null);
@@ -243,7 +278,7 @@
 <div class={'jx-field ' + className}>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
 
-  <span data-jx-color-picker-wrap class="relative block w-full" style="anchor-name: {anchorName}">
+  <span data-jx-color-picker-wrap class="relative block w-full" style="anchor-name: {anchorName}" bind:this={anchorEl}>
     <button
       bind:this={triggerEl}
       type="button"
@@ -280,13 +315,17 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class="jx-color-picker-panel jx-surface"
+    class={cn('jx-color-picker-panel jx-surface', motion.supported && 'jx-waapi')}
     data-variant={variant}
     role="group"
     aria-label="color picker"
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
   >
+    <!-- the REAL shadow layer: a DOM child because pseudo-elements are
+         unreachable from WAAPI — the kernel animates it in lockstep
+         (Owner ruling r18) -->
+    <div data-jx-color-picker-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
     <!-- surface body (bezel paint + ::after shadow + the flex column);
          the popover element paints nothing (floating-surface law arch
          r3) -->

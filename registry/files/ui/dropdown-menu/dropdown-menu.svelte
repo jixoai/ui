@@ -29,10 +29,17 @@
   focus-visible state machines (aria-current is set imperatively by
   this root on ANY [role=menuitem], including raw consumer items), the
   anchored panel law (@supports fallback), and ::backdrop.
+
+  Motion kernel (2026-08-25): the panel adopts the shared surface
+  motion kernel (lib/surface-motion.ts, popover wiring verbatim) —
+  the toggle seam drives play/startTracking/stopTracking, .jx-waapi
+  opts into the jixoai.css formulas, and the real shadow rides a DOM
+  child (data-jx-menu-shadow) the kernel animates in lockstep.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { onDestroy, setContext } from 'svelte';
+  import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './dropdown-menu.css';
 
@@ -166,6 +173,7 @@
   // rAF is a browser global — onDestroy also fires during SSR destroys
   onDestroy(() => {
     if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(focusFrame);
+    motion.destroy();
   });
 
   function onPanelToggle(): void {
@@ -173,6 +181,8 @@
     triggerEl?.setAttribute('aria-expanded', String(open));
     onToggle?.(open);
     if (open) {
+      motion.play(1);
+      motion.startTracking();
       cancelAnimationFrame(focusFrame);
       focusFrame = requestAnimationFrame(() => {
         // the panel may already be closing again (fast Escape) — never
@@ -182,11 +192,21 @@
         if (items[0]) focusItem(items, items[0]);
       });
     } else {
+      panel?.classList.remove('jx-rest');
+      motion.play(0);
+      motion.stopTracking();
       cancelAnimationFrame(focusFrame);
       if (restoreFocus) triggerEl?.focus();
       restoreFocus = false;
     }
   }
+
+  // ── MOTION KERNEL — the shared declarative half (r29): see
+  // lib/surface-motion.ts. WAAPI animates ONE @property number
+  // (--jx-p); every visible property is a CSS formula of it (the
+  // declarative motion law in jixoai.css). The kernel here only wires
+  // the menu's toggle seam and the live anchor wrapper
+  const motion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
 </script>
 
 <span bind:this={anchorEl} class="jx-menu-anchor inline-flex" style="anchor-name: {anchorName}">
@@ -223,7 +243,7 @@
   popover="auto"
   role="menu"
   tabindex="-1"
-  class={cn('jx-menu jx-surface', panelClass)}
+  class={cn('jx-menu jx-surface', motion.supported && 'jx-waapi', panelClass)}
   data-variant={variant}
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
@@ -233,6 +253,9 @@
   <!-- surface body (fill + acrylic blur + the ::after shadow layer) +
        scroll ring (floating-surface law arch r3: the platform element
        paints nothing) -->
+  <div data-jx-menu-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
+  <!-- the REAL shadow layer: a DOM child because pseudo-elements are
+       unreachable from WAAPI — the kernel animates it in lockstep -->
   <div data-jx-menu-body="" class="jx-surface-body">
     <div
       data-jx-menu-scroll=""

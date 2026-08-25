@@ -41,9 +41,18 @@
   hole (its @supports form re-sets inset/background, so no inset or
   background utility may ride the hole), the panel's anchor() placement
   (+ @supports fallback), and ::backdrop.
+
+  Motion kernel (2026-08-25): adopts the shared WAAPI surface-motion
+  kernel (lib/surface-motion.ts) — the open $effect drives the --jx-p
+  timeline at showPopover/hidePopover (tour start/end only; step moves
+  ride the live axis, anchored to the leased target); a REAL shadow
+  child (not the ::after pseudo) rides under jx-waapi (jixoai.css law).
+  The KNOWN GAP above still applies to the exit: the {#if} unmount can
+  race the 460ms window.
 -->
 <script lang="ts">
-  import { untrack } from 'svelte';
+  import { onDestroy, untrack } from 'svelte';
+  import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './tour.css';
 
@@ -99,16 +108,27 @@
   let panelEl = $state<HTMLElement | null>(null);
   let nextEl = $state<HTMLButtonElement | null>(null);
 
+  // the shared declarative motion kernel (r29) — anchored to the
+  // CURRENT step's resolved target (the lease holder); the live axis
+  // re-measures per step with zero extra wiring
+  const motion = createSurfaceMotion(() => panelEl, { anchor: () => targetEl });
+
+  onDestroy(() => motion.destroy());
+
   // the manual popover needs its explicit show — the panel is in the
   // top layer while the tour renders, hidden on removal. Open/step
   // change moves the focus onto NEXT (the contract's landing spot;
-  // non-modal — no trap, the user may Tab away)
+  // non-modal — no trap, the user may Tab away). The kernel plays ONLY
+  // where the popover actually shows/hides: step-to-step re-runs pass
+  // through both guards synchronously (lastP stays 1 — a no-op)
   $effect(() => {
     // index is a dep: EVERY step change re-lands the focus on Next
     // (the same panel persists across steps — open alone won't re-run)
     if (!(open && panelEl) || index < 0) return;
     if (typeof panelEl.showPopover === 'function' && !panelEl.matches(':popover-open')) {
       panelEl.showPopover();
+      motion.play(1);
+      motion.startTracking();
     }
     requestAnimationFrame(() => {
       if (typeof requestAnimationFrame === 'function' && panelEl?.matches(':popover-open')) {
@@ -117,6 +137,9 @@
     });
     return () => {
       if (panelEl && typeof panelEl.hidePopover === 'function' && panelEl.matches(':popover-open')) {
+        panelEl.classList.remove('jx-rest');
+        motion.play(0);
+        motion.stopTracking();
         panelEl.hidePopover();
       }
     };
@@ -279,12 +302,15 @@
     tabindex="-1"
     aria-modal="false"
     aria-label={step.title}
-    class={cn('jx-tour jx-surface', className)}
+    class={cn('jx-tour jx-surface', motion.supported && 'jx-waapi', className)}
     data-variant={variant}
     style="position-anchor: {leaseName}"
     bind:this={panelEl}
     onkeydown={handleKeydown}
   >
+    <!-- the REAL shadow layer: a DOM child because pseudo-elements are
+         unreachable from WAAPI — the kernel animates it in lockstep -->
+    <div data-jx-tour-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
     <!-- surface body (fill + ::after shadow); the popover element paints
          nothing (floating-surface law arch r3) -->
     <div data-jx-tour-surface="" class="jx-surface-body flex flex-col gap-2 px-4 py-[0.875rem]">

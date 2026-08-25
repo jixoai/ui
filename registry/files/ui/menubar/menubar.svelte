@@ -27,9 +27,21 @@
   ONLY the anchored panel law (position-try geometry, the @supports
   viewport-center fallback, ::backdrop) remains in menubar.css —
   D1-exempt residue.
+
+  Motion kernel (2026-08-25): the panels adopt the shared surface
+  motion kernel (lib/surface-motion.ts) — ONE kernel PER PANEL,
+  lazily created (a single shared instance has one animation slot:
+  gliding between slots would cancel the outgoing exit and ghost it
+  at rest through the allow-discrete window). The slot-wrapper map
+  feeds each kernel's live anchor axis, .jx-waapi (behind the
+  exported engine probe — no instance exists at render time) opts
+  into the jixoai.css formulas, and the real shadow rides a DOM
+  child (data-jx-bar-shadow) each kernel animates in lockstep.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { onDestroy } from 'svelte';
+  import { createSurfaceMotion, surfaceMotionSupported, type SurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './menubar.css';
 
@@ -66,6 +78,34 @@
 
   const anchorOf = (id: string): string =>
     `--jx-bar-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+
+  // ── MOTION KERNEL — the shared declarative half (r29): see
+  // lib/surface-motion.ts. ONE kernel PER PANEL, lazily created: a
+  // single shared instance holds ONE animation slot, so gliding
+  // between slots (close A, open B in the same breath) would cancel
+  // A's exit mid-run — A's inline --jx-p pin then holds it at the
+  // rest pose through the whole allow-discrete window (a ~460ms
+  // ghost panel beside B). Per-panel slots keep every run isolated,
+  // the same mental model as N independent popover instances: A
+  // exits while B enters. bind:this writes the slot-wrapper entry
+  // as a property and nulls it on unmount — the ?? null keeps the
+  // kernel's anchor contract either way
+  const slotEls: Record<string, HTMLElement | null> = {};
+  const kernels = new Map<string, SurfaceMotion>();
+  const kernelOf = (id: string): SurfaceMotion => {
+    let kernel = kernels.get(id);
+    if (!kernel) {
+      kernel = createSurfaceMotion(() => document.getElementById(`jx-bar-panel-${id}`), {
+        anchor: () => slotEls[id] ?? null,
+      });
+      kernels.set(id, kernel);
+    }
+    return kernel;
+  };
+
+  onDestroy(() => {
+    for (const kernel of kernels.values()) kernel.destroy();
+  });
 
   function triggers(): HTMLButtonElement[] {
     return [
@@ -199,7 +239,12 @@
   onkeydown={handleBarKeydown}
 >
   {#each items as item, index (item.id)}
-    <span data-jx-menubar-slot="" class="inline-flex" style="anchor-name: {anchorOf(item.id)}">
+    <span
+      data-jx-menubar-slot=""
+      class="inline-flex"
+      style="anchor-name: {anchorOf(item.id)}"
+      bind:this={slotEls[item.id]}
+    >
       <button
         type="button"
         id="jx-bar-trigger-{item.id}"
@@ -229,18 +274,30 @@
     popover="manual"
     role="menu"
     tabindex="-1"
-    class="jx-menubar-panel jx-surface"
+    class={cn('jx-menubar-panel jx-surface', surfaceMotionSupported && 'jx-waapi')}
     data-variant={variant}
     style="position-anchor: {anchorOf(item.id)}; inset-area: bottom span-left; position-area: bottom span-left;"
     onkeydown={(e) => handlePanelKeydown(e, item.id)}
     ontoggle={(e: Event) => {
       const el = e.currentTarget as HTMLElement;
-      if (el.matches(':popover-open')) openId = item.id;
-      else if (openId === item.id) openId = '';
+      if (el.matches(':popover-open')) {
+        openId = item.id;
+        const kernel = kernelOf(item.id);
+        kernel.play(1);
+        kernel.startTracking();
+      } else {
+        el.classList.remove('jx-rest');
+        kernelOf(item.id).play(0);
+        kernelOf(item.id).stopTracking();
+        if (openId === item.id) openId = '';
+      }
     }}
   >
     <!-- surface body (fill + ::after shadow); the popover element paints
          nothing (floating-surface law arch r3) -->
+    <div data-jx-bar-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
+    <!-- the REAL shadow layer: a DOM child because pseudo-elements are
+         unreachable from WAAPI — the kernel animates it in lockstep -->
     <div data-jx-bar-surface="" class="jx-surface-body p-1">
       {@render panel(item)}
     </div>

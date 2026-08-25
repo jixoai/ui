@@ -63,6 +63,12 @@
   fallback + ::backdrop), the shell's :has() hover/focus/disabled
   machines, the toggle/row hover states and the reduced-motion kill
   remain in combobox.css (D1-exempt residue under the layer law).
+
+  Surface motion kernel (2026-08-25): popover.svelte law adopted — the
+  toggle seam drives the shared WAAPI kernel (lib/surface-motion.ts)
+  against the live wrap anchor; the panel carries jx-waapi behind
+  motion.supported plus the REAL .jx-surface-shadow child; jixoai.css
+  owns every visible formula.
 -->
 <script module lang="ts">
   /** One row of the Combobox listbox. */
@@ -82,7 +88,9 @@
   // side-effect import: registers the faceless <jx-form-field> element
   // (client-only, idempotent) that carries this field's form association
   import '$lib/form-field';
+  import { onDestroy } from 'svelte';
   import type { HTMLInputAttributes } from 'svelte/elements';
+  import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './combobox.css';
 
@@ -159,6 +167,9 @@
   let focused = $state(false);
   let inputEl = $state<HTMLInputElement | null>(null);
   let panelEl = $state<HTMLDivElement | null>(null);
+  // the wrap span carrying anchor-name — the motion kernel measures the
+  // slide axis panel↔anchor against it, live
+  let anchorEl = $state<HTMLElement | null>(null);
 
   /** a panel row: a filtered option, or the appended "Use “xxx”" affordance */
   type Row = { kind: 'option'; option: ComboboxOption } | { kind: 'custom'; text: string };
@@ -215,7 +226,9 @@
   // ---- popover plumbing ----------------------------------------------------
   // The native toggle event is the ONE open/close seam (typing-show,
   // chevron popovertarget, light dismiss, Escape close request, our hides).
-  // It only syncs the `open` flag: focus never enters the panel, so there
+  // It syncs the `open` flag — read LIVE from :popover-open (ToggleEvent
+  // fields are never trusted, the popover.svelte law) — and drives the
+  // shared surface-motion kernel: focus never enters the panel, so there
   // is no focus-in/restitution to orchestrate, and query/active are set by
   // the call site that knows the intent (typing vs fresh open).
   // 2026-08-23 race law: the DOM popover state flips synchronously inside
@@ -228,9 +241,24 @@
     return panelEl != null && panelEl.isConnected && panelEl.matches(':popover-open');
   }
 
-  function onPanelToggle(event: ToggleEvent): void {
-    open = event.newState === 'open';
+  function onPanelToggle(): void {
+    open = panelEl?.matches(':popover-open') ?? false;
+    if (open) {
+      motion.play(1);
+      motion.startTracking();
+    } else {
+      panelEl?.classList.remove('jx-rest');
+      motion.play(0);
+      motion.stopTracking();
+    }
   }
+
+  // ── MOTION KERNEL — the shared declarative half (popover.svelte law,
+  // lib/surface-motion.ts): WAAPI animates ONE @property number (--jx-p);
+  // every visible property is a CSS formula of it (jixoai.css). Here it
+  // wires only this panel's toggle seam and live wrap anchor
+  const motion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
+  onDestroy(() => motion.destroy());
 
   function showPanel(): void {
     if (panelEl?.isConnected && !panelEl.matches(':popover-open')) {
@@ -375,7 +403,7 @@
     onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
   ></jx-form-field>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span data-jx-combobox-wrap class="relative block w-full max-w-full" style="anchor-name: {anchorName}">
+  <span data-jx-combobox-wrap class="relative block w-full max-w-full" style="anchor-name: {anchorName}" bind:this={anchorEl}>
     <div
       data-jx-combobox-invalid={invalid ? '' : undefined}
       class={cn(
@@ -447,13 +475,17 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class="jx-combobox-panel jx-surface"
+    class={cn('jx-combobox-panel jx-surface', motion.supported && 'jx-waapi')}
     data-variant={variant}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
   >
     <!-- surface body (bezel paint + ::after shadow) + scroll ring
          (floating-surface law arch r3) -->
+    <div data-jx-combobox-panel-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
+    <!-- the REAL shadow layer: a DOM child because pseudo-elements are
+         unreachable from WAAPI — the kernel animates it in lockstep
+         (Owner ruling r18) -->
     <div data-jx-combobox-panel-body class="jx-surface-body">
     <div data-jx-combobox-scroll class="max-h-[60vh] overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-1 px-[max(4px_-_var(--jx-scrollbar-thin,0px),0px)]">
     {#if rows.length > 0}

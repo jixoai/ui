@@ -63,6 +63,12 @@
   shell's :has() hover/focus/disabled machines, the hover states and the
   reduced-motion kills remain in tags-input.css (D1-exempt residue under
   the layer law).
+
+  Surface motion kernel (2026-08-25): popover.svelte law adopted — the
+  toggle seam drives the shared WAAPI kernel (lib/surface-motion.ts)
+  against the live wrap anchor; the panel carries jx-waapi behind
+  motion.supported plus the REAL .jx-surface-shadow child; jixoai.css
+  owns every visible formula.
 -->
 <script module lang="ts">
   /** One chip of the tags input; suggestions reuse the same shape. */
@@ -80,8 +86,9 @@
   // side-effect import: registers the faceless <jx-form-field> element
   // (client-only, idempotent) that carries this field's form association
   import '$lib/form-field';
-  import { tick } from 'svelte';
+  import { onDestroy, tick } from 'svelte';
   import { icons } from '$lib/icons';
+  import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import type { HTMLInputAttributes } from 'svelte/elements';
   import './tags-input.css';
@@ -165,6 +172,9 @@
   let flashTimer: ReturnType<typeof setTimeout> | undefined;
   let inputEl = $state<HTMLInputElement | null>(null);
   let panelEl = $state<HTMLDivElement | null>(null);
+  // the wrap span carrying anchor-name — the motion kernel measures the
+  // slide axis panel↔anchor against it, live
+  let anchorEl = $state<HTMLElement | null>(null);
 
   const full = $derived(maxTags != null && tags.length >= maxTags);
 
@@ -181,13 +191,31 @@
   const activeId = $derived(open && active >= 0 ? suggestionId(active) : undefined);
 
   // ---- popover plumbing ----------------------------------------------------
-  // The native toggle event is the ONE open/close seam; it only syncs the
-  // `open` flag — focus never enters the panel, so there is nothing to
-  // restitute. Panel visibility follows the filter: matches → show, none →
-  // hide (no empty state; the chips themselves are the current state).
-  function onPanelToggle(event: ToggleEvent): void {
-    open = event.newState === 'open';
+  // The native toggle event is the ONE open/close seam; it syncs the
+  // `open` flag (read LIVE from :popover-open — ToggleEvent fields are
+  // never trusted, the popover.svelte law) and drives the shared
+  // surface-motion kernel. Focus never enters the panel, so there is
+  // nothing to restitute. Panel visibility follows the filter: matches →
+  // show, none → hide (no empty state; the chips themselves are the
+  // current state).
+  function onPanelToggle(): void {
+    open = panelEl?.matches(':popover-open') ?? false;
+    if (open) {
+      motion.play(1);
+      motion.startTracking();
+    } else {
+      panelEl?.classList.remove('jx-rest');
+      motion.play(0);
+      motion.stopTracking();
+    }
   }
+
+  // ── MOTION KERNEL — the shared declarative half (popover.svelte law,
+  // lib/surface-motion.ts): WAAPI animates ONE @property number (--jx-p);
+  // every visible property is a CSS formula of it (jixoai.css). Here it
+  // wires only this panel's toggle seam and live wrap anchor
+  const motion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
+  onDestroy(() => motion.destroy());
 
   function syncPanel(): void {
     if (filtered.length > 0) {
@@ -348,7 +376,7 @@
     onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
   ></jx-form-field>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span data-jx-tags-wrap class="relative block w-full max-w-full" style="anchor-name: {anchorName}">
+  <span data-jx-tags-wrap class="relative block w-full max-w-full" style="anchor-name: {anchorName}" bind:this={anchorEl}>
     <div
       data-jx-tags-invalid={invalid ? '' : undefined}
       class={cn(
@@ -421,13 +449,17 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class="jx-tags-panel jx-surface"
+    class={cn('jx-tags-panel jx-surface', motion.supported && 'jx-waapi')}
     data-variant={variant}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
   >
     <!-- surface body (bezel paint + ::after shadow) + scroll ring
          (floating-surface law arch r3) -->
+    <div data-jx-tags-panel-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
+    <!-- the REAL shadow layer: a DOM child because pseudo-elements are
+         unreachable from WAAPI — the kernel animates it in lockstep
+         (Owner ruling r18) -->
     <div data-jx-tags-panel-body class="jx-surface-body">
     <div data-jx-tags-scroll class="max-h-[60vh] overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-1 px-[max(4px_-_var(--jx-scrollbar-thin,0px),0px)]">
     {#if filtered.length > 0}

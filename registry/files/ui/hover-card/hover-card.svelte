@@ -23,10 +23,17 @@
   hover-card.css keeps ONLY the D1-exempt panel law — anchor geometry
   (the gap margin must stay: the @supports viewport-center fallback
   re-sets it to auto in the same layer), and the transparent ::backdrop.
+
+  Motion kernel (2026-08-25): adopts the shared WAAPI surface-motion
+  kernel (lib/surface-motion.ts) — open()/close() drive the --jx-p
+  timeline at the show/hide call sites and the live panel↔anchor
+  axis; a REAL shadow child (not the ::after pseudo) rides under
+  jx-waapi (jixoai.css law).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { onDestroy } from 'svelte';
+  import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './hover-card.css';
 
@@ -78,6 +85,10 @@
   ): el is HTMLElement & { showPopover(): void; hidePopover(): void } =>
     !!el && typeof el.showPopover === 'function';
 
+  // the shared declarative motion kernel (r29) — same law as popover;
+  // the live axis measures panel↔anchor (the trigger wrapper)
+  const motion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
+
   function clearTimers(): void {
     clearTimeout(openTimer);
     clearTimeout(closeTimer);
@@ -85,11 +96,20 @@
 
   function open(): void {
     clearTimers();
-    if (popoverApi(panel) && !panel!.matches(':popover-open')) panel!.showPopover();
+    if (popoverApi(panel) && !panel!.matches(':popover-open')) {
+      panel!.showPopover();
+      motion.play(1);
+      motion.startTracking();
+    }
   }
   function close(): void {
     clearTimers();
-    if (popoverApi(panel) && panel!.matches(':popover-open')) panel!.hidePopover();
+    if (popoverApi(panel) && panel!.matches(':popover-open')) {
+      panel!.classList.remove('jx-rest');
+      motion.play(0);
+      motion.stopTracking();
+      panel!.hidePopover();
+    }
   }
 
   /** inside = trigger wrapper OR the card panel — exits of one that
@@ -103,7 +123,10 @@
     closeTimer = setTimeout(close, closeDelay);
   }
 
-  onDestroy(clearTimers);
+  onDestroy(() => {
+    clearTimers();
+    motion.destroy();
+  });
 </script>
 
 <svelte:window onkeydown={(e) => e.key === 'Escape' && close()} />
@@ -135,7 +158,10 @@
 <div
   {id}
   popover="manual"
-  class="jx-hover-card jx-surface fixed w-fit max-w-[min(88vw,20rem)] text-[0.8125rem] leading-[1.55] text-popover-foreground"
+  class={cn(
+    'jx-hover-card jx-surface fixed w-fit max-w-[min(88vw,20rem)] text-[0.8125rem] leading-[1.55] text-popover-foreground',
+    motion.supported && 'jx-waapi',
+  )}
   data-variant={variant}
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
@@ -146,6 +172,9 @@
     if (!inside(e.relatedTarget)) scheduleClose();
   }}
 >
+  <!-- the REAL shadow layer: a DOM child because pseudo-elements are
+       unreachable from WAAPI — the kernel animates it in lockstep -->
+  <div data-jx-hover-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
   <!-- surface body (fill + ::after shadow); the popover element paints
        nothing (floating-surface law arch r3) -->
   <div data-jx-hover-body="" class="jx-surface-body px-4 py-[0.875rem]">

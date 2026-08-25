@@ -34,6 +34,15 @@
   @supports fallback + ::backdrop), the hover/focus/disabled state
   machines (incl. the nav glyph svg sizing) and the reduced-motion kill
   remain in date-picker.css (D1-exempt residue under the layer law).
+
+  Motion kernel (2026-08-25): the panel rides the shared surface motion
+  kernel (lib/surface-motion.ts; popover.svelte wiring law) — WAAPI
+  animates the single --jx-p progress number, jixoai.css formulas paint
+  every visible property; the toggle seam plays 1/0 with
+  start/stopTracking, reading open state LIVE from :popover-open
+  (ToggleEvent state fields never trusted). The real shadow layer is a
+  DOM child (data-jx-date-shadow) because WAAPI cannot animate
+  pseudo-elements.
 -->
 <script module lang="ts">
   /** Range mode's committed pair (ISO "YYYY-MM-DD" strings). */
@@ -44,6 +53,8 @@
 </script>
 
 <script lang="ts">
+  import { onDestroy } from 'svelte';
+  import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './date-picker.css';
 
@@ -180,6 +191,9 @@
   let open = $state(false);
   let triggerEl = $state<HTMLButtonElement | null>(null);
   let panelEl = $state<HTMLDivElement | null>(null);
+  // the anchor wrapper — the enter kernel measures the slide direction
+  // against it at every open
+  let anchorEl = $state<HTMLElement | null>(null);
   let gridEl = $state<HTMLDivElement | null>(null);
 
   interface DayCell {
@@ -297,9 +311,13 @@
 
   // THE orchestration seam: one native event covers every open/close path
   // (popovertarget click, light dismiss, Escape, our own hide/show calls).
-  function onPanelToggle(event: ToggleEvent): void {
-    open = event.newState === 'open';
+  // Open state is read LIVE from :popover-open at fire time — ToggleEvent
+  // state fields are never trusted (popover.svelte law).
+  function onPanelToggle(): void {
+    open = panelEl?.matches(':popover-open') ?? false;
     if (open) {
+      motion.play(1);
+      motion.startTracking();
       // continue from context: the committed value, else today
       const anchor = mode === 'range' ? (startIso ?? todayIso) : (selectedIso ?? todayIso);
       const p = parseIso(anchor)!; // anchor is validated-or-todayIso
@@ -308,10 +326,22 @@
       activeIso = anchor;
       gridEl?.focus();
     } else {
+      panelEl?.classList.remove('jx-rest');
+      motion.play(0);
+      motion.stopTracking();
       // focus restitution on EVERY close path
       triggerEl?.focus();
     }
   }
+
+  // ── MOTION KERNEL — the shared declarative half (r29): see
+  // lib/surface-motion.ts. WAAPI animates ONE @property number
+  // (--jx-p); every visible property is a CSS formula of it (the
+  // declarative motion law in jixoai.css). The kernel here only wires
+  // the panel's toggle seam and live anchor
+  const motion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
+
+  onDestroy(() => motion.destroy());
 
   function onGridKeydown(event: KeyboardEvent): void {
     if (activeIso == null) return;
@@ -348,7 +378,7 @@
 
 <div data-jx-date-field class="flex flex-col items-stretch gap-2 w-full">
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span data-jx-date-wrap class="relative block w-full" style="anchor-name: {anchorName}">
+  <span data-jx-date-wrap class="relative block w-full" style="anchor-name: {anchorName}" bind:this={anchorEl}>
     <button
       bind:this={triggerEl}
       type="button"
@@ -395,11 +425,15 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class="jx-date-panel jx-surface"
+    class={cn('jx-date-panel jx-surface', motion.supported && 'jx-waapi')}
     data-variant={variant}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
   >
+    <!-- the REAL shadow layer: a DOM child because pseudo-elements are
+         unreachable from WAAPI — the kernel animates it in lockstep
+         (Owner ruling r18) -->
+    <div data-jx-date-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
     <!-- surface body (bezel paint + ::after shadow); the popover element
          paints nothing (floating-surface law arch r3) -->
     <div data-jx-date-surface class="jx-surface-body px-3.5 py-3">

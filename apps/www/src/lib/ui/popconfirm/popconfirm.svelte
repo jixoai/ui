@@ -25,9 +25,16 @@
   intact). NO display utility ever lands on the panel itself — a base
   display override would defeat the UA sheet's closed-popover
   display:none (Codex r1, color-picker.svelte law).
+
+  Motion kernel (2026-08-25): adopts the shared WAAPI surface-motion
+  kernel (lib/surface-motion.ts) — the toggle seam drives the --jx-p
+  timeline and the live panel↔anchor axis; a REAL shadow child (not
+  the ::after pseudo) rides under jx-waapi (jixoai.css law).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { onDestroy } from 'svelte';
+  import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './popconfirm.css';
 
@@ -122,15 +129,27 @@
     isOpen = open;
     if (open) {
       confirmed = false;
+      motion.play(1);
+      motion.startTracking();
       requestAnimationFrame(() => {
         if (typeof requestAnimationFrame === 'function' && panel?.matches(':popover-open')) {
           cancelEl?.focus();
         }
       });
-    } else if (!confirmed) {
-      oncancel?.();
+    } else {
+      panel?.classList.remove('jx-rest');
+      motion.play(0);
+      motion.stopTracking();
+      if (!confirmed) oncancel?.();
     }
   }
+
+  // ── MOTION KERNEL — the shared declarative half (r29): see
+  // lib/surface-motion.ts. Wired at the toggle seam above; the live
+  // axis measures panel↔anchor (the trigger wrapper)
+  const motion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
+
+  onDestroy(() => motion.destroy());
 </script>
 
 <span bind:this={anchorEl} data-jx-pc-anchor="" class={cn('inline-flex', className)} style="anchor-name: {anchorName}">
@@ -143,12 +162,18 @@
   role="dialog"
   aria-labelledby={titleId}
   aria-describedby={description ? descId : undefined}
-  class="jx-pc jx-surface fixed m-[var(--jx-pc-gap,8px)] [position-try-fallbacks:flip-block,flip-inline] [position-try:flip-block,flip-inline] [position-visibility:anchors-visible] w-fit max-w-[min(88vw,18rem)] text-popover-foreground"
+  class={cn(
+    'jx-pc jx-surface fixed m-[var(--jx-pc-gap,8px)] [position-try-fallbacks:flip-block,flip-inline] [position-try:flip-block,flip-inline] [position-visibility:anchors-visible] w-fit max-w-[min(88vw,18rem)] text-popover-foreground',
+    motion.supported && 'jx-waapi',
+  )}
   data-variant={variant}
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
   ontoggle={handleToggle}
 >
+  <!-- the REAL shadow layer: a DOM child because pseudo-elements are
+       unreachable from WAAPI — the kernel animates it in lockstep -->
+  <div data-jx-pc-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
   <!-- surface body (fill + ::after shadow); the popover element paints
        nothing (floating-surface law arch r3) -->
   <div data-jx-pc-surface="" class="jx-surface-body flex flex-col gap-2 px-3.5 py-3">
