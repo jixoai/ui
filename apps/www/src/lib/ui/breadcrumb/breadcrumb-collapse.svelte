@@ -20,13 +20,15 @@
   follows it (DOM delegation; snippets cannot be introspected, so the
   bare-server render shows a placeholder link that hydrates into the
   live one — the documented trade of the composed form).
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLLIElement> {
     /** where the ellipsis points — the first collapsed page. Optional:
      *  derived from the wrapped items' first link on hydrate. */
     href?: string;
@@ -34,7 +36,7 @@
     children: Snippet;
   }
 
-  let { href, class: className = '', children }: Props = $props();
+  let { href, class: className = '', children, ...rest }: Props = $props();
 
   // wrapped items render hidden + carry the fold hook (breadcrumb-item
   // reads this context). The ellipsis li below is authored DIRECTLY —
@@ -63,7 +65,7 @@
   const target = $derived(href ?? derivedHref);
 </script>
 
-<li>
+<li {...rest} class={className}>
   <a
     bind:this={ellipsisEl}
     data-jx-breadcrumb-collapse=""

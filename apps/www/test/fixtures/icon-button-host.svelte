@@ -1,0 +1,46 @@
+<!--
+  Icon-button contract-test harness (test/fixtures/icon-button-host.svelte).
+  The icon prop must be a real Svelte 5 snippet, so the fixed consumer
+  markup lives here. Props mirror the IconButton API; the effect prop
+  takes the builders exported from press-button's module script, exactly
+  as a consumer would use them.
+-->
+<script lang="ts">
+  import type { PressEffect } from '../../src/lib/ui/press-button/press-button.svelte';
+  import IconButton from '../../src/lib/ui/icon-button/icon-button.svelte';
+
+  let {
+    text = 'deploy',
+    variant = undefined,
+    iconOnly = false,
+    placement = undefined,
+    effect = undefined,
+    href = '',
+    class: className = undefined,
+  }: {
+    text?: string;
+    variant?:
+      | 'primary'
+      | 'secondary'
+      | 'outline'
+      | 'ghost'
+      | 'destructive'
+      | 'link'
+      | 'copied';
+    iconOnly?: boolean;
+    placement?: 'top' | 'bottom' | 'top-start' | 'bottom-start' | 'top-end' | 'bottom-end';
+    effect?: PressEffect;
+    href?: string;
+    class?: string;
+  } = $props();
+</script>
+
+{#if href}
+  <IconButton {variant} {iconOnly} {placement} {effect} {href} class={className} {text}>
+    {#snippet icon()}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z" /></svg>{/snippet}
+  </IconButton>
+{:else}
+  <IconButton {variant} {iconOnly} {placement} {effect} class={className} {text}>
+    {#snippet icon()}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z" /></svg>{/snippet}
+  </IconButton>
+{/if}

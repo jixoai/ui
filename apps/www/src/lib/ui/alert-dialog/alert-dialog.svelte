@@ -33,6 +33,7 @@
   alertdialog): focus lands on the CANCEL action on open — the safe
   exit is one Tab-less keypress away; Escape cancels through the native
   path; Tab is the modal's (the platform's focus trap).
+  (props-discipline sweep, 2026-08-25): no ...rest — the root renders no element (context-only fragment: {@render children()}); consumer attributes have no landing element, so the standing contract is carried by the family's real parts (Trigger/Content/Title/…).
 -->
 <script lang="ts" module>
   /** context surface the family shares (import type where needed) */

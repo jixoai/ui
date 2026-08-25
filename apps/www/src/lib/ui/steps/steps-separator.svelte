@@ -10,15 +10,17 @@
     - inside the LAST item: display:none — the self-hide chrome
       exception (REAL DOM hooks — component names never appear in the
       DOM, per the default-parts law).
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
+  import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLSpanElement> {
     class?: string;
   }
 
-  let { class: className = '' }: Props = $props();
+  let { class: className = '', ...rest }: Props = $props();
 </script>
 
-<span data-jx-step-separator="" aria-hidden="true" class={cn('pointer-events-none absolute inset-0', className)}></span>
+<span data-jx-step-separator="" class={cn('pointer-events-none absolute inset-0', className)} {...rest} aria-hidden="true"></span>

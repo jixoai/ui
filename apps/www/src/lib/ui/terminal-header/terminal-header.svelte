@@ -39,14 +39,16 @@
     ≥sm   one row: brand LEFT; pill group + switcher RIGHT
     <sm   row 1: logo + brand LEFT; switcher + hamburger RIGHT; the
           drawer opens as a stacked disclosure below the bar
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import './terminal-header.css';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLElement> {
     /** the wordmark line of the brand block */
     brand: string;
     /** second brand line (the domain) */
@@ -83,6 +85,7 @@
     open = $bindable(false),
     class: className = '',
     children,
+    ...rest
   }: Props = $props();
 
   // scoped token class: dark (default lock) or jx-light (css-defined)
@@ -218,6 +221,7 @@
     scope === 'dark' ? 'dark [color-scheme:dark]' : 'jx-light [color-scheme:light]',
     className,
   )}
+  {...rest}
 >
   <div class="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between gap-4 py-3">

@@ -6,19 +6,22 @@
   it primary and hollows it when the owning item carries
   data-jx-tl-pending — so this part stays stateless (geometry and
   border are static token utilities).
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
+  import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLSpanElement> {
     class?: string;
   }
 
-  let { class: className = '' }: Props = $props();
+  let { class: className = '', ...rest }: Props = $props();
 </script>
 
 <span
   data-jx-tl-dot=""
-  aria-hidden="true"
   class={cn('absolute left-0 top-[0.3125rem] w-2.5 h-2.5 box-border border border-primary', className)}
+  {...rest}
+  aria-hidden="true"
 ></span>

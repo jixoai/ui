@@ -40,9 +40,11 @@
   the toc is authored in the scaffold's `chrome` snippet — SSR-rendered
   in its final grid cell (data-area='toc'), never moved by hydration.
   Standalone consumers keep the classic in-flow behavior.
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { createTocEngine, type TocExtent } from '$lib/toc-engine';
   import {
     deriveTocOutline,
@@ -51,6 +53,7 @@
     type TocOutlineSection,
   } from '$lib/toc-outline';
   import { icons } from '$lib/icons';
+  import { cn } from '$lib/utils';
   import TocList from './toc-list.svelte';
   import TocItem from './toc-item.svelte';
   import TocLink from './toc-link.svelte';
@@ -74,7 +77,7 @@
     levels?: readonly number[];
   }
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLDivElement> {
     /** AUTO mode: derive the outline from a content root's headings */
     outline?: TocOutlineConfig;
     /** the desktop rail label */
@@ -84,6 +87,7 @@
     scrollRoot?: string | HTMLElement | null;
     /** MANUAL mode: the composed TocList tree */
     children?: Snippet;
+    class?: string;
   }
 
   let {
@@ -91,6 +95,8 @@
     title = 'reading progress',
     scrollRoot = null,
     children,
+    class: className = '',
+    ...rest
   }: Props = $props();
 
   // outline mode: sections + extents derived on the client, refreshed by a
@@ -322,7 +328,7 @@
   {/if}
 {/snippet}
 
-<div class="jx-toc" data-area="toc" bind:this={rootEl}>
+<div class={cn('jx-toc', className)} data-area="toc" {...rest} bind:this={rootEl}>
   <nav class="jx-toc-desktop" aria-label="Table of contents">
     <span class="jx-spine"><span class="jx-spine-fill" bind:this={spineFill}></span></span>
     <p class="jx-toc-title">{title}</p>

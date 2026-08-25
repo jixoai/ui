@@ -18,6 +18,7 @@
   The id is IMMUTABLE after mount (changing it is caller error —
   dev-mode console warn; the protocol's stability is what aria-controls
   and the anchor name are built on).
+  (props-discipline sweep, 2026-08-25)
 -->
 <script module lang="ts">
   /** the item's context surface: the ONE id + its derived anchor */
@@ -35,10 +36,11 @@
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLLIElement> {
     /** the ONE id: Trigger/Panel derive theirs from it. Mount-stable. */
     id?: string;
     class?: string;
@@ -48,7 +50,7 @@
   // $props.id() must live in its own top-level initializer (compiler law)
   const autoId = $props.id();
 
-  let { id = autoId, class: className = '', children }: Props = $props();
+  let { id = autoId, class: className = '', children, ...rest }: Props = $props();
 
   const dev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
 
@@ -81,7 +83,7 @@
   });
 </script>
 
-<li role="none" data-jx-menubar-item="" class={className}>
+<li data-jx-menubar-item="" class={cn(className)} {...rest} role="none">
   <span
     data-jx-menubar-slot=""
     class="inline-flex"

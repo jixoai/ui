@@ -13,15 +13,16 @@
 
   State paint (border/background/token colors) is JS-known through the
   item context, so it rides conditional token utilities (tw4 law).
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import type { HTMLButtonAttributes } from 'svelte/elements';
+  import type { HTMLAttributes, HTMLButtonAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
   import { cn } from '$lib/utils';
   import { STEPS_ITEM_KEY, type StepsItemApi } from './steps-item.svelte';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLElement> {
     /** replaces the default glyph content (✓ when done, the number
      *  otherwise) */
     children?: Snippet;
@@ -34,7 +35,7 @@
     class?: string;
   }
 
-  let { children, child, class: className = '' }: Props = $props();
+  let { children, child, class: className = '', ...rest }: Props = $props();
 
   const item = getContext<StepsItemApi>(STEPS_ITEM_KEY);
 
@@ -53,7 +54,10 @@
 </script>
 
 {#if interactive}
+  // rest spreads FIRST so the authored wiring (type, aria-label,
+  // onclick) wins any name collision — consumer attributes land verbatim
   {@const props = {
+    ...rest,
     type: 'button',
     'data-jx-step-indicator': '',
     'aria-label': backLabel,
@@ -79,6 +83,7 @@
       markerPaint[item.state],
       className,
     )}
+    {...rest}
     aria-hidden="true"
   >
     <span data-jx-step-index="">{#if children}{@render children()}{:else}{item.step + 1}{/if}</span>

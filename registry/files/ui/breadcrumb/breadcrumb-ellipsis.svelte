@@ -5,19 +5,22 @@
   decoration (aria-hidden; screen readers hear the nav label and the
   links, not the gaps). For the live fold (ellipsis that links to the
   first hidden page) use BreadcrumbCollapse instead.
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
+  import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLSpanElement> {
     class?: string;
   }
 
-  let { class: className = '' }: Props = $props();
+  let { class: className = '', ...rest }: Props = $props();
 </script>
 
 <span
   data-jx-breadcrumb-ellipsis=""
   class={cn('text-muted-foreground tracking-normal select-none', className)}
+  {...rest}
   aria-hidden="true"
 >…</span>

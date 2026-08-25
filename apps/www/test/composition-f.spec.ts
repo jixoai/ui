@@ -36,8 +36,10 @@ beforeAll(() => {
 const headerSource = readFileSync('src/lib/ui/terminal-header/terminal-header.svelte', 'utf8');
 const headerCss = readFileSync('src/lib/ui/terminal-header/terminal-header.css', 'utf8');
 // the Props interface is the probe's target — assert on IT (the header
-// comment cites the dead API names as documentation)
-const propsBlock = headerSource.match(/interface Props \{[\s\S]*?\n  \}/)![0];
+// comment cites the dead API names as documentation). The declaration
+// line may carry the standing-contract extends (props-discipline sweep,
+// 2026-08-25) — the probe targets the interface BODY either way
+const propsBlock = headerSource.match(/interface Props[^\n]*\{[\s\S]*?\n  \}/)![0];
 
 const raf = () => new Promise(requestAnimationFrame);
 

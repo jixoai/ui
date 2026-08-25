@@ -21,13 +21,15 @@
   without -webkit-text-stroke stays in terminal-footer.css — D1-exempt
   residue on the unlayered carve-out (it must override the
   text-transparent utility paint when it fires).
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import './terminal-footer.css';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLElement> {
     /** the ghost wordmark (decorative, aria-hidden) */
     ghost: string;
     /** the © row text (defaults to the live year) */
@@ -36,13 +38,14 @@
     children: Snippet;
   }
 
-  let { ghost, copyright, class: className = '', children }: Props = $props();
+  let { ghost, copyright, class: className = '', children, ...rest }: Props = $props();
   const year = new Date().getFullYear();
 </script>
 
 <footer
   data-jx-terminal-footer=""
   class={cn('mx-auto w-full max-w-[90rem] px-4 pb-10 pt-8 sm:px-6 lg:px-8', className)}
+  {...rest}
 >
   <p
     class={cn(

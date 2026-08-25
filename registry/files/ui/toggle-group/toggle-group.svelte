@@ -31,6 +31,7 @@
   utilities on the Item part; ONLY the focus-visible ring stays in
   toggle-group.css — D1-exempt residue on the unlayered :where()
   carve-out (the toggle/Part A precedent).
+  (props-discipline sweep, 2026-08-25)
 -->
 <script module lang="ts">
   /** the group's context surface: the value law, nothing else */
@@ -48,12 +49,13 @@
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
   import '$lib/form-field';
   import './toggle-group.css';
 
-  interface Props {
+  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'onchange'> {
     /** form field name — the pressed value(s) submit under this name */
     name?: string;
     /** one value (single) or many (multiple) */
@@ -77,6 +79,7 @@
     class: className = '',
     onchange,
     children,
+    ...rest
   }: Props = $props();
 
   /** form/fieldset disable propagation (the bridge's jx-disabled) */
@@ -142,6 +145,7 @@
     'inline-flex w-fit flex-wrap rounded-(--radius) border border-border bg-card shadow-2xs',
     className,
   )}
+  {...rest}
   role="group"
   aria-label={label}
 >

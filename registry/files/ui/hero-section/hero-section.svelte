@@ -32,13 +32,16 @@
   title-em accent rule — caller-authored content, so a :where()
   components-layer descendant rule is the only route (consumer
   utilities still win by the layer law).
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
+  import { cn } from '$lib/utils';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import './hero-section.css';
 
-  interface Props {
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
     eyebrow: string;
     summary: string;
     /** the clipboard payload — the default CTA's label AND copy target */
@@ -53,6 +56,7 @@
     copy?: Snippet;
     terminal: Snippet;
     secondary?: Snippet;
+    class?: string;
   }
 
   let {
@@ -65,6 +69,8 @@
     copy,
     terminal,
     secondary,
+    class: className = '',
+    ...rest
   }: Props = $props();
 
   let copied = $state(false);
@@ -92,7 +98,10 @@
   };
 </script>
 
-<section class="mx-auto w-full max-w-[90rem] px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:px-8">
+<section
+  class={cn('mx-auto w-full max-w-[90rem] px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:px-8', className)}
+  {...rest}
+>
   <div
     class="grid min-[1100px]:grid-cols-[minmax(0,1fr)_minmax(25rem,31rem)] min-[1100px]:items-end gap-10 min-[1100px]:gap-14"
   >

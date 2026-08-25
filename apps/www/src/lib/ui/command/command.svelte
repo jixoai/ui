@@ -56,6 +56,7 @@
   disabled option states are JS-known → conditional strings); ONLY the
   ::backdrop scrim (a pseudo-element) and the :has laws live in
   command.css.
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts" module>
   /** the match payload: label is REQUIRED — match text + accessible name */
@@ -126,10 +127,11 @@
   import { onDestroy, setContext, untrack } from 'svelte';
   import type { Snippet } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import './command.css';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLDialogElement> {
     /** bindable open state — same lifecycle contract as dialog */
     open?: boolean;
     onopenchange?: (open: boolean) => void;
@@ -167,6 +169,7 @@
     variant = 'auto',
     class: className = '',
     children,
+    ...rest
   }: Props = $props();
 
   let dialog = $state<HTMLDialogElement | null>(null);
@@ -353,6 +356,7 @@
     className,
   )}
   data-variant={variant}
+  {...rest}
   aria-label={label}
   oncancel={handleCancel}
   onclose={handleClose}

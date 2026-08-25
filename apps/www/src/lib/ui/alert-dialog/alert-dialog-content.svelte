@@ -27,17 +27,19 @@
   jx-surface-body owns fill + border + blur, the shadow layer the
   shadow). ONLY the ::backdrop scrim stays in alert-dialog.css
   (D1-exempt residue — the kernel animates its opacity via --jx-p).
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
   import { onDestroy, untrack } from 'svelte';
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import { ALERT_DIALOG_KEY, type AlertDialogApi } from './alert-dialog.svelte';
   import './alert-dialog.css';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLDialogElement> {
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
     variant?: 'solid' | 'acrylic' | 'auto';
@@ -45,7 +47,7 @@
     class?: string;
   }
 
-  let { variant = 'auto', children, class: className = '' }: Props = $props();
+  let { variant = 'auto', children, class: className = '', ...rest }: Props = $props();
 
   const api = getContext<AlertDialogApi>(ALERT_DIALOG_KEY);
 
@@ -109,6 +111,7 @@
   )}
   data-variant={variant}
   data-jx-adlg=""
+  {...rest}
   role="alertdialog"
   aria-labelledby="{api.uid}-title"
   aria-describedby="{api.uid}-desc"

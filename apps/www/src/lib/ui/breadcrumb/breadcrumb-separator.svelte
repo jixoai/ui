@@ -5,15 +5,17 @@
   construction). The glyph itself is a pseudo-element build in
   breadcrumb.css (D1-exempt residue: a rotated border square cannot be
   expressed as utilities), keyed on this part's data hook.
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
+  import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLSpanElement> {
     class?: string;
   }
 
-  let { class: className = '' }: Props = $props();
+  let { class: className = '', ...rest }: Props = $props();
 </script>
 
-<span data-jx-breadcrumb-separator="" class={cn(className)} aria-hidden="true"></span>
+<span data-jx-breadcrumb-separator="" class={cn(className)} {...rest} aria-hidden="true"></span>

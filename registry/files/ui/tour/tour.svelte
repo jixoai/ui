@@ -58,11 +58,13 @@
   included; the label props died with the closed card). The default
   rendering (the current card) remains when absent; with a custom card
   the panel itself takes the landing focus (no Next button exists).
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
   import { onDestroy, untrack } from 'svelte';
   import type { Snippet } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import './tour.css';
 
@@ -93,7 +95,7 @@
     skip(): void;
   }
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLElement> {
     steps: TourStep[];
     /** bindable open state — the tour runs while true */
     open?: boolean;
@@ -126,6 +128,7 @@
     card,
     variant = 'auto',
     class: className = '',
+    ...rest
   }: Props = $props();
 
   let index = $state(0);
@@ -324,7 +327,10 @@
     aria-hidden="true"
   ></div>
 
+  <!-- rest spreads FIRST so the tour wiring (id, popover, role,
+       focus + keyboard) wins any name collision -->
   <div
+    {...rest}
     {autoId}
     popover="manual"
     role="dialog"

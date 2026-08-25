@@ -39,15 +39,17 @@
   confirmLabel/cancelLabel survive as default strings only — a content
   override owns the semantics (aria-labelledby follows: the override
   wires its own ids).
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { onDestroy } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './popconfirm.css';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLSpanElement> {
     id?: string;
     /** the question — one line, past-tense verb ("Delete this row?");
      *  DEFAULT rendering only (a content snippet replaces it) */
@@ -94,6 +96,7 @@
     actions,
     children,
     class: className = '',
+    ...rest
   }: Props = $props();
 
   const anchorName = $derived(`--jx-pc-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
@@ -170,7 +173,13 @@
   onDestroy(() => motion.destroy());
 </script>
 
-<span bind:this={anchorEl} data-jx-pc-anchor="" class={cn('inline-flex', className)} style="anchor-name: {anchorName}">
+<span
+  bind:this={anchorEl}
+  data-jx-pc-anchor=""
+  class={cn('inline-flex', className)}
+  {...rest}
+  style="anchor-name: {anchorName}"
+>
   {#if children}{@render children()}{/if}
 </span>
 

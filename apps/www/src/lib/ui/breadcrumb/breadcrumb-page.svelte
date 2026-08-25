@@ -6,10 +6,11 @@
   and reloads stay honest); without one it renders the span form of the
   same semantics. Either way the trail's leaf tells assistive tech
   "you are here".
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import type { HTMLAnchorAttributes } from 'svelte/elements';
+  import type { HTMLAnchorAttributes, HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
 
   interface Props extends Omit<HTMLAnchorAttributes, 'aria-current'> {
@@ -19,7 +20,7 @@
     children: Snippet;
   }
 
-  let { href, class: className = '', children }: Props = $props();
+  let { href, class: className = '', children, ...rest }: Props = $props();
 </script>
 
 {#if href}
@@ -27,12 +28,20 @@
     data-jx-breadcrumb-current=""
     class={cn('text-foreground no-underline', className)}
     {href}
+    {...rest}
     aria-current="page"
   >
     {@render children()}
   </a>
 {:else}
-  <span data-jx-breadcrumb-current="" class={cn('text-foreground no-underline', className)} aria-current="page">
+  <!-- the span form: same standing contract, retyped for the span element
+       (anchor-only attrs cannot appear — href is destructured out) -->
+  <span
+    data-jx-breadcrumb-current=""
+    class={cn('text-foreground no-underline', className)}
+    {...(rest as HTMLAttributes<HTMLSpanElement>)}
+    aria-current="page"
+  >
     {@render children()}
   </span>
 {/if}

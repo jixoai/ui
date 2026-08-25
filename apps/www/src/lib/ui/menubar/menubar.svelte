@@ -39,6 +39,7 @@
   anchored panel law (position-try geometry, the @supports
   viewport-center fallback, ::backdrop) remains in menubar.css —
   D1-exempt residue.
+  (props-discipline sweep, 2026-08-25)
 -->
 <script module lang="ts">
   /** imperative panel surface — registered at INIT under the PANEL id */
@@ -75,11 +76,12 @@
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
   import './menubar.css';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLUListElement> {
     /** menubar landmark label — announced to assistive tech */
     label?: string;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
@@ -94,6 +96,7 @@
     variant = 'auto',
     class: className = '',
     children,
+    ...rest
   }: Props = $props();
 
   const dev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
@@ -275,6 +278,7 @@
     'flex w-fit list-none flex-wrap items-stretch border border-border bg-card p-0 m-0 shadow-2xs',
     className,
   )}
+  {...rest}
   role="menubar"
   aria-label={label}
   onkeydown={handleBarKeydown}

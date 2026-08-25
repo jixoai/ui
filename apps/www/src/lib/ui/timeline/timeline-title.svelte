@@ -5,19 +5,21 @@
   is attribute paint — timeline.css paints it foreground and mutes it
   when the owning item carries data-jx-tl-pending — so the part stays
   stateless.
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLParagraphElement> {
     class?: string;
     children: Snippet;
   }
 
-  let { class: className = '', children }: Props = $props();
+  let { class: className = '', children, ...rest }: Props = $props();
 </script>
 
-<p data-jx-tl-title="" class={cn('m-0 font-nav text-xs tracking-[0.08em] uppercase', className)}>
+<p data-jx-tl-title="" class={cn('m-0 font-nav text-xs tracking-[0.08em] uppercase', className)} {...rest}>
   {@render children()}
 </p>

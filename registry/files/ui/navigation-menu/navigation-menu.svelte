@@ -37,6 +37,7 @@
   → panel through its aria-controls, the same derived id the panel's
   handles register under (first registration wins; a conditionally
   removed panel leaves no ghost handle).
+  (props-discipline sweep, 2026-08-25)
 -->
 <script module lang="ts">
   /** imperative panel surface — registered at INIT under the PANEL id */
@@ -69,10 +70,11 @@
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLElement> {
     /** nav landmark label */
     label?: string;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
@@ -82,7 +84,7 @@
     children: Snippet;
   }
 
-  let { label = 'site', variant = 'auto', class: className = '', children }: Props = $props();
+  let { label = 'site', variant = 'auto', class: className = '', children, ...rest }: Props = $props();
 
   const dev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
 
@@ -194,6 +196,7 @@
   bind:this={navEl}
   data-jx-navmenu=""
   class={cn('flex flex-wrap items-stretch gap-1', className)}
+  {...rest}
   aria-label={label}
   onkeydown={handleKeydown}
 >

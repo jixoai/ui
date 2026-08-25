@@ -20,20 +20,23 @@
   Long trails opt into the fold by wrapping the middle items in
   <BreadcrumbCollapse> (no width magic here, no collapse prop — the
   nesting IS the decision).
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
+  import { cn } from '$lib/utils';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLElement> {
     /** nav landmark label (announced before the trail) */
     label?: string;
     class?: string;
     children: Snippet;
   }
 
-  let { label = 'Breadcrumb', class: className = '', children }: Props = $props();
+  let { label = 'Breadcrumb', class: className = '', children, ...rest }: Props = $props();
 </script>
 
-<nav data-jx-breadcrumb="" class={className} aria-label={label}>
+<nav data-jx-breadcrumb="" class={cn(className)} {...rest} aria-label={label}>
   {@render children()}
 </nav>

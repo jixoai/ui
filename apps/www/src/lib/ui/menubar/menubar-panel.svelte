@@ -26,6 +26,7 @@
 
   Children = panel content: MenubarMenuItem parts, separators (plain
   <hr>), any markup.
+  (props-discipline sweep, 2026-08-25): no ...rest — the panel's popover/id/role/ontoggle wiring is load-bearing family law; a consumer attribute spread could clobber the popover surface, the derived panel id or the toggle seam (the declared exception class in the sweep instruction).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
