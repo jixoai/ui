@@ -10,15 +10,15 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import { flushSync } from 'svelte';
 
-import Descriptions from '../src/lib/ui/descriptions/descriptions.svelte';
+import DescriptionsHost from './fixtures/descriptions-host.svelte';
 import Empty from '../src/lib/ui/empty/empty.svelte';
 import Popconfirm from '../src/lib/ui/popconfirm/popconfirm.svelte';
 import PopconfirmHost from './fixtures/popconfirm-host.svelte';
 import Result from '../src/lib/ui/result/result.svelte';
 import Spin from '../src/lib/ui/spin/spin.svelte';
 import Statistic from '../src/lib/ui/statistic/statistic.svelte';
-import Steps from '../src/lib/ui/steps/steps.svelte';
-import Timeline from '../src/lib/ui/timeline/timeline.svelte';
+import StepsHost from './fixtures/steps-host.svelte';
+import TimelineHost from './fixtures/timeline-host.svelte';
 
 // ---------------------------------------------------------------------------
 // Popconfirm — light confirm bubble (NOT an alertdialog)
@@ -95,18 +95,14 @@ describe('Popconfirm', () => {
     expect(() => fireEvent.click(confirm)).toBeTruthy();
   });
 
-  it('steps without onstepclick render NO buttons (no dead affordances)', () => {
-    const { container } = render(Steps, {
-      props: { steps: [{ title: 'a' }, { title: 'b' }, { title: 'c' }], current: 1 },
-    });
+  it('steps without onclick render NO buttons (no dead affordances)', () => {
+    const { container } = render(StepsHost, { props: { interactive: false } });
     expect(container.querySelectorAll('button').length).toBe(0);
-    expect(container.querySelectorAll('[data-jx-step-marker]').length).toBe(3); // inert markers stay
+    expect(container.querySelectorAll('[data-jx-step-indicator]').length).toBe(3); // inert markers stay
   });
 
   it('timeline renders <time datetime> when the instant is given', () => {
-    const { container } = render(Timeline, {
-      props: { items: [{ title: 'pushed', time: '07:02', datetime: '2026-08-22T07:02:00Z' }] },
-    });
+    const { container } = render(TimelineHost, {});
     const time = container.querySelector('time')!;
     expect(time.getAttribute('datetime')).toBe('2026-08-22T07:02:00Z');
     expect(time.textContent).toBe('07:02');
@@ -139,33 +135,29 @@ describe('Empty', () => {
 // Descriptions — a dl, never a table
 // ---------------------------------------------------------------------------
 describe('Descriptions', () => {
-  const items = [
-    { term: 'build', value: '4f2a' },
-    { term: 'checks', value: '12' },
-    { term: 'owner', value: '@gaubee' },
-  ];
-
+  // composition-first-apis: the family API composes DescriptionsItem
+  // children — deeper locks (rich cells, bordered context) live in
+  // composition-a.spec.ts.
   it('renders dt/dd pairs inside a dl (no table in sight)', () => {
-    const { container } = render(Descriptions, { props: { items } });
-    expect(container.querySelector('dl.jx-desc')).toBeTruthy();
+    const { container } = render(DescriptionsHost, {});
+    expect(container.querySelector('dl')).toBeTruthy();
     expect(container.querySelector('table')).toBeNull();
     const terms = [...container.querySelectorAll('dt')].map((dt) => dt.textContent);
-    expect(terms).toEqual(['build', 'checks', 'owner']);
+    expect(terms).toEqual(['build', 'notes']);
     expect(container.querySelectorAll('dd')[0]!.textContent).toBe('4f2a');
   });
 
   it('columns drives the grid; bordered adds the hairline frame', () => {
-    const { container } = render(Descriptions, { props: { items, columns: 2, bordered: true } });
+    const { container } = render(DescriptionsHost, { props: { columns: 2, bordered: true } });
     const dl = container.querySelector('dl')!;
     expect(dl.hasAttribute('data-jx-desc-bordered')).toBe(true);
     expect(dl.getAttribute('style')).toContain('--jx-desc-cols: 2');
   });
 
   it('missing values render the em dash, not blank cells', () => {
-    const { container } = render(Descriptions, {
-      props: { items: [{ term: 'notes' }] },
-    });
-    expect(container.querySelector('dd')!.textContent).toBe('—');
+    const { container } = render(DescriptionsHost, {});
+    const dds = [...container.querySelectorAll('dd')].map((dd) => dd.textContent);
+    expect(dds).toContain('—');
   });
 });
 
@@ -173,27 +165,24 @@ describe('Descriptions', () => {
 // Steps — ol order, aria-current, completed = links back
 // ---------------------------------------------------------------------------
 describe('Steps', () => {
-  const steps = [
-    { title: 'connect' },
-    { title: 'audit' },
-    { title: 'ship' },
-  ];
-
+  // composition-first-apis: explicit ordinals + composed parts — the
+  // ordinal semantics table and child() locks live in composition-a.spec.ts.
   it('marks the current step; completed steps are clickable, future steps are inert', async () => {
     const clicked: number[] = [];
-    const { container } = render(Steps, {
-      props: { steps, current: 1, onstepclick: (i) => clicked.push(i) },
+    const { container } = render(StepsHost, {
+      props: { interactive: true, current: 1, onclick: (i) => clicked.push(i) },
     });
     const items = [...container.querySelectorAll('li')];
     expect(items[1]!.getAttribute('aria-current')).toBe('step');
-    // completed = button (a link back)
-    expect(items[0]!.querySelector('button[data-jx-step-marker]')).toBeTruthy();
+    // completed = button (a link back) carrying the check glyph
+    expect(items[0]!.querySelector('button[data-jx-step-indicator]')).toBeTruthy();
+    expect(items[0]!.querySelector('[data-jx-step-index]')!.textContent).toBe('✓');
     await fireEvent.click(items[0]!.querySelector('button')!);
     expect(clicked).toEqual([0]);
+    // the host navigates (bind:current) — the re-entered step is current
     // future = inert span, never aria-disabled
     expect(items[2]!.querySelector('button')).toBeNull();
     expect(items[2]!.getAttribute('aria-disabled')).toBeNull();
-    expect(items[0]!.querySelector('[data-jx-step-index]')!.textContent).toBe('✓');
   });
 });
 
@@ -235,15 +224,10 @@ describe('Statistic', () => {
 // Timeline — ol chronology with spine decoration
 // ---------------------------------------------------------------------------
 describe('Timeline', () => {
+  // composition-first-apis: Dice anatomy parts composed — deeper locks
+  // (connector self-hide, spine css) live in composition-a.spec.ts.
   it('renders ordered entries; pending renders the hollow dot', () => {
-    const { container } = render(Timeline, {
-      props: {
-        items: [
-          { title: 'pushed', time: '07:02' },
-          { title: 'auditing', pending: true },
-        ],
-      },
-    });
+    const { container } = render(TimelineHost, { props: { pending: true } });
     const items = [...container.querySelectorAll('li')];
     expect(items.length).toBe(2);
     expect(items[0]!.querySelector('[data-jx-tl-time]')!.textContent).toBe('07:02');

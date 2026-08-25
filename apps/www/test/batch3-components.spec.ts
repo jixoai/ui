@@ -11,7 +11,7 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 
 import AlertDialogHost from './fixtures/overlay-host.svelte';
-import Breadcrumb from '../src/lib/ui/breadcrumb/breadcrumb.svelte';
+import BreadcrumbHost from './fixtures/breadcrumb-host.svelte';
 import HoverCardHost from './fixtures/hover-host.svelte';
 import Kbd from '../src/lib/ui/kbd/kbd.svelte';
 import OverlayHost from './fixtures/overlay-host.svelte';
@@ -21,32 +21,34 @@ import { createToastStore } from '../src/lib/toast-store';
 // Breadcrumb — nav landmark of real links
 // ---------------------------------------------------------------------------
 describe('Breadcrumb', () => {
-  const crumbs = [
-    { label: 'registry', href: '/' },
-    { label: 'components', href: '/docs/components' },
-    { label: 'table', href: '/docs/components/table.html' },
-  ];
+  // composition-first-apis: the trail composes List/Item/Link/Page/
+  // Separator parts; the opt-in Collapse wraps the middle. Deeper
+  // locks (child() escape, manual gap) live in composition-b.spec.ts.
+  function setup(at: string) {
+    const rendered = render(BreadcrumbHost);
+    const root = rendered.container.querySelector(`[data-testid="${at}"]`)!;
+    const nav = root.querySelector('nav')!;
+    return { nav, links: [...nav.querySelectorAll('a')] as HTMLAnchorElement[] };
+  }
 
   it('is a labeled nav over an ordered list of real links', () => {
-    const { container } = render(Breadcrumb, { props: { crumbs } });
-    const nav = container.querySelector('nav[aria-label="Breadcrumb"]')!;
+    const { nav, links } = setup('plain');
+    expect(nav.getAttribute('aria-label')).toBeTruthy();
     expect(nav.querySelector('ol')).toBeTruthy();
-    const links = [...nav.querySelectorAll('a')] as HTMLAnchorElement[];
-    expect(links.map((a) => a.getAttribute('href'))).toEqual(crumbs.map((c) => c.href));
+    expect(links.map((a) => a.getAttribute('href'))).toEqual(['/', '/leaf']);
   });
 
   it('marks the last crumb as the current page', () => {
-    const { container } = render(Breadcrumb, { props: { crumbs } });
-    const current = container.querySelector('a[aria-current="page"]')!;
-    expect(current.textContent).toBe('table');
+    const { links } = setup('plain');
+    const current = links.find((a) => a.getAttribute('aria-current') === 'page')!;
+    expect(current.textContent).toBe('leaf');
   });
 
   it('collapses the middle into a live ellipsis link (never a dead span)', () => {
-    const long = Array.from({ length: 8 }, (_, i) => ({ label: `p${i + 1}`, href: `/${i + 1}` }));
-    const { container } = render(Breadcrumb, { props: { crumbs: long, collapse: 4 } });
-    const labels = [...container.querySelectorAll('a')].map((a) => a.textContent);
+    const { links } = setup('folded');
+    const labels = links.map((a) => a.textContent);
     expect(labels).toContain('…');
-    const gap = container.querySelectorAll('a')[1];
+    const gap = links[1];
     expect(gap.getAttribute('href')).toBe('/2'); // first hidden page, one click away
     // first and last survive the collapse
     expect(labels[0]).toBe('p1');
@@ -160,8 +162,10 @@ describe('AlertDialog', () => {
     await fireEvent.click(rendered.container.querySelector('button')!);
     const dlg = rendered.container.querySelector('dialog[role="alertdialog"]') as HTMLDialogElement;
     expect(dlg.open).toBe(true);
-    expect(dlg.getAttribute('aria-labelledby')).toBe('jx-adlg-title');
-    expect(dlg.getAttribute('aria-describedby')).toBe('jx-adlg-desc');
+    expect(dlg.getAttribute('aria-labelledby')).toBe(`${dlg.querySelector('[data-jx-adlg-title]')!.id}`);
+    expect(dlg.getAttribute('aria-describedby')).toBe(
+      `${dlg.querySelector('[data-jx-adlg-desc]')!.id}`,
+    );
   });
 
   it('focus lands on CANCEL (the safe action), confirm runs then closes', async () => {
@@ -171,8 +175,8 @@ describe('AlertDialog', () => {
     const cancel = rendered.container.querySelector('[data-jx-adlg-cancel]') as HTMLButtonElement;
     expect(document.activeElement).toBe(cancel);
 
-    const confirm = rendered.container.querySelector('[data-jx-adlg-confirm]') as HTMLButtonElement;
-    expect(confirm.getAttribute('data-jx-adlg-confirm')).toBe('destructive');
+    const confirm = rendered.container.querySelector('[data-jx-adlg-action]') as HTMLButtonElement;
+    expect(confirm.getAttribute('data-tone')).toBe('destructive');
     await fireEvent.click(confirm);
     expect(rendered.container.querySelector('[data-deleted]')?.getAttribute('data-deleted')).toBe(
       'true',

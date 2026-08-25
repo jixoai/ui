@@ -5,6 +5,15 @@
 -->
 <script lang="ts">
   import AlertDialog from '../../src/lib/ui/alert-dialog/alert-dialog.svelte';
+  import {
+    AlertDialogTrigger,
+    AlertDialogContent,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogActions,
+    AlertDialogAction,
+    AlertDialogCancel,
+  } from '../../src/lib/ui/alert-dialog/index';
   import Sheet from '../../src/lib/ui/sheet/sheet.svelte';
   import ToastViewport from '../../src/lib/ui/toast/toast-viewport.svelte';
   import { createToastStore } from '../../src/lib/toast-store';
@@ -16,14 +25,19 @@
 </script>
 
 <div data-deleted={deleted}>
-  <button type="button" data-open-alert onclick={() => (alertOpen = true)}>delete</button>
-  <AlertDialog
-    bind:open={alertOpen}
-    title="Delete the pipeline?"
-    description="This removes 12 checks and their history. There is no undo."
-    confirmLabel="Delete pipeline"
-    onconfirm={() => (deleted = true)}
-  />
+  <AlertDialog bind:open={alertOpen} onconfirm={() => (deleted = true)}>
+    <AlertDialogTrigger>delete</AlertDialogTrigger>
+    <AlertDialogContent>
+      <AlertDialogTitle>Delete the pipeline?</AlertDialogTitle>
+      <AlertDialogDescription>
+        This removes 12 checks and their history. There is no undo.
+      </AlertDialogDescription>
+      <AlertDialogActions>
+        <AlertDialogCancel>cancel</AlertDialogCancel>
+        <AlertDialogAction tone="destructive">Delete pipeline</AlertDialogAction>
+      </AlertDialogActions>
+    </AlertDialogContent>
+  </AlertDialog>
 </div>
 
 <div>

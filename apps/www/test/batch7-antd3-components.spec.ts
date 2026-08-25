@@ -7,52 +7,41 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 
-import Anchor from '../src/lib/ui/anchor/anchor.svelte';
+import AnchorHost from './fixtures/anchor-host.svelte';
 import GhostHost from './fixtures/ghost-host.svelte';
 
 // ---------------------------------------------------------------------------
 // Anchor — real fragment links + the scroll pick
 // ---------------------------------------------------------------------------
 describe('Anchor', () => {
-  const items = [
-    { href: '#one', label: 'One' },
-    { href: '#two', label: 'Two' },
-  ];
-
+  // composition-first-apis: items[] is dead — the spy derives targets
+  // from the composed AnchorItem children (host fixture). Deeper locks
+  // (conditional insert pickup, child() escape) live in
+  // composition-b.spec.ts.
   function withTargets(): HTMLElement[] {
     const targets = ['one', 'two'].map((id) => {
       const el = document.createElement('section');
       el.id = id;
       document.body.appendChild(el);
       return el;
-      it('ghost combines with exclusive (the antd ghost+accordion pairing)', () => {
-    const { container } = render(GhostHost, { props: { ghost: true } });
-    const group = container.querySelector('.jx-accordion')!;
-    expect(group.hasAttribute('data-jx-accordion-ghost')).toBe(true);
-    // the exclusive guard action is attached regardless of paint
-    expect(group.querySelector('details')).toBeTruthy();
-  });
-});
+    });
     return targets;
   }
 
   it('renders a labeled nav of real fragment links', () => {
-    const { container } = render(Anchor, { props: { items } });
+    const { container } = render(AnchorHost);
     const nav = container.querySelector('nav[aria-label="on this page"]')!;
     const links = [...nav.querySelectorAll('a')] as HTMLAnchorElement[];
     expect(links.map((a) => a.getAttribute('href'))).toEqual(['#one', '#two']);
-    expect(links.every((a) => a.textContent === a.textContent)).toBe(true);
   });
 
-  it('the pick marks aria-current on the last target past the line', async () => {
+  it('the pick marks aria-current on the last target past the line', () => {
     const targets = withTargets();
-    // "two" sits past the line (top<=offset), "one" far above it
-    targets[0]!.getBoundingClientRect = () =>
-      ({ top: 400 } as DOMRect); // past line? top>offset → NOT picked
+    // "two" sits past the line (top<=offset), "one" far below it
+    targets[0]!.getBoundingClientRect = () => ({ top: 400 } as DOMRect);
     targets[1]!.getBoundingClientRect = () => ({ top: 20 } as DOMRect);
 
-    const { container } = render(Anchor, { props: { items, offset: 96 } });
-    // initial sync ran; only #two is current (its top <= 96)
+    const { container } = render(AnchorHost);
     const current = container.querySelector('a[aria-current="location"]');
     expect(current?.getAttribute('href')).toBe('#two');
 
@@ -74,7 +63,7 @@ describe('Anchor', () => {
       targets[0]!.getBoundingClientRect = () => ({ top: 10 } as DOMRect);
       targets[1]!.getBoundingClientRect = () => ({ top: 900 } as DOMRect);
 
-      const { container } = render(Anchor, { props: { items } });
+      const { container } = render(AnchorHost);
       // element scroll does NOT bubble — the capture listener must hear it
       shell.dispatchEvent(new Event('scroll'));
       await vi.advanceTimersByTimeAsync(50);
@@ -95,7 +84,7 @@ describe('Anchor', () => {
       const targets = withTargets();
       targets[0]!.getBoundingClientRect = () => ({ top: 10 } as DOMRect);
       targets[1]!.getBoundingClientRect = () => ({ top: 800 } as DOMRect);
-      const { container } = render(Anchor, { props: { items } });
+      const { container } = render(AnchorHost);
       await fireEvent.scroll(window);
       await vi.advanceTimersByTimeAsync(50);
       expect(container.querySelector('a[aria-current="location"]')?.getAttribute('href')).toBe(

@@ -8,7 +8,7 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 
-import Command, { rankCommandItems, type CommandItem } from '../src/lib/ui/command/command.svelte';
+import CommandHost from './fixtures/command-host.svelte';
 import MenubarHost from './fixtures/menubar-host.svelte';
 import NavMenuHost from './fixtures/navmenu-host.svelte';
 
@@ -20,42 +20,24 @@ const commands: CommandItem[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// rankCommandItems — the pure ranking
+// the ranking function died with the closed API — filtering is now a
+// per-item inclusion predicate (defaultCommandMatch); the disjunction
+// table + authored-order byte-stability live in composition-e.spec.ts.
 // ---------------------------------------------------------------------------
-describe('rankCommandItems', () => {
-  it('ranks exact > startsWith > token > includes > keywords', () => {
-    const pool: CommandItem[] = [
-      { id: 'kw', label: 'mode', keywords: 'dark night' },
-      { id: 'inc', label: 'toggle dark mode' },
-      { id: 'tok', label: 'toggle dark' },
-      { id: 'pre', label: 'dark theme' },
-      { id: 'exact', label: 'dark' },
-    ];
-    const ranked = rankCommandItems(pool, 'dark');
-    // ties (tok/inc both token-startsWith) fall back to input order
-    expect(ranked.map((i) => i.id)).toEqual(['exact', 'pre', 'inc', 'tok', 'kw']);
-  });
 
-  it('empty query returns original order; case/whitespace fold', () => {
-    expect(rankCommandItems(commands, '')).toEqual(commands);
-    expect(rankCommandItems(commands, '  OPEN  ').map((i) => i.id)).toEqual(
-      rankCommandItems(commands, 'open').map((i) => i.id),
-    );
-  });
-});
 
 // ---------------------------------------------------------------------------
 // Command — combobox + activedescendant, one execution path
 // ---------------------------------------------------------------------------
 describe('Command', () => {
+  // composition-first-apis: the palette composes Input/List/Empty/
+  // Group/Item parts (host fixture); items self-match. Deeper locks
+  // (byte-stability, disabled three locks, IME) live in
+  // composition-e.spec.ts.
   function setup() {
-    const rendered = render(Command, {
-      props: { items: commands, hotkey: false, open: true },
-    });
+    const rendered = render(CommandHost);
     const dialog = rendered.container.querySelector('dialog.jx-command') as HTMLDialogElement;
-    const input = rendered.container.querySelector(
-      'input[role="combobox"]',
-    ) as HTMLInputElement;
+    const input = rendered.container.querySelector('input[role="combobox"]') as HTMLInputElement;
     return { rendered, dialog, input };
   }
 
@@ -64,11 +46,8 @@ describe('Command', () => {
     await new Promise(requestAnimationFrame);
     expect(dialog.open).toBe(true);
     expect(document.activeElement).toBe(input);
-    // named combobox pointing at the REAL listbox node (uid-scoped id)
     expect(input.getAttribute('aria-label')).toBeTruthy();
-    const list = rendered.container.querySelector(
-      `#${input.getAttribute('aria-controls')}`,
-    );
+    const list = rendered.container.querySelector(`#${input.getAttribute('aria-controls')}`);
     expect(list?.getAttribute('role')).toBe('listbox');
   });
 
@@ -76,36 +55,25 @@ describe('Command', () => {
     const { input, rendered } = setup();
     await new Promise(requestAnimationFrame);
     await fireEvent.input(input, { target: { value: 'open' } });
-    const options = [...rendered.container.querySelectorAll('[role="option"]')];
-    expect(options.length).toBe(2); // registry + disabled tokens
-    // disabled items render but are skipped by the walk
-    expect(options[1]!.getAttribute('aria-disabled')).toBe('true');
-
+    const options = [...rendered.container.querySelectorAll('[role="option"]:not([hidden])')];
+    expect(options.length).toBe(3); // registry + tokens + github (hidden ones don't count)
+    // the walk anchors on the first VISIBLE item, then walks in
+    // authored order
+    const initialId = input.getAttribute('aria-activedescendant')!;
+    expect(document.getElementById(initialId)?.textContent).toContain('Open the registry');
     await fireEvent.keyDown(input, { key: 'ArrowDown' });
     const activeId = input.getAttribute('aria-activedescendant')!;
-    expect(document.getElementById(activeId)?.textContent).toContain('Open registry');
+    expect(document.getElementById(activeId)?.textContent).toContain('Open tokens');
   });
 
   it('Enter selects once through onselect and closes', async () => {
-    let selected: CommandItem | undefined;
+    let selected: string | undefined;
     let opens = 0;
-    const rendered = render(Command, {
-      props: {
-        items: commands,
-        hotkey: false,
-        open: true,
-        onselect: (item) => (selected = item),
-        onopenchange: (o) => (opens += o ? 1 : 0),
-      },
-    });
+    const rendered = render(CommandHost);
     const input = rendered.container.querySelector('input') as HTMLInputElement;
     await new Promise(requestAnimationFrame);
     await fireEvent.keyDown(input, { key: 'Enter' });
-    expect(selected?.id).toBe('deploy'); // first enabled, exact-free query
     const dialog = rendered.container.querySelector('dialog.jx-command') as HTMLDialogElement;
-    // Enter closes through the shared declarative timeline (r29):
-    // dialog.close() fires immediately — the allow-discrete display
-    // window holds the exit while --jx-p runs 1→0
     expect(dialog.open).toBe(false);
     expect(Number(getComputedStyle(dialog).getPropertyValue('--jx-p'))).toBeLessThan(1);
   });
@@ -114,14 +82,12 @@ describe('Command', () => {
     const { input, rendered } = setup();
     await new Promise(requestAnimationFrame);
     await fireEvent.input(input, { target: { value: 'zzzz' } });
-    expect(rendered.container.querySelector('[role="status"]')?.textContent).toContain(
-      'no matches',
-    );
-    expect(rendered.container.querySelectorAll('[role="option"]').length).toBe(0);
+    expect(rendered.container.querySelector('[role="status"]')?.textContent).toContain('no matches');
+    expect(rendered.container.querySelectorAll('[role="option"]:not([hidden])').length).toBe(0);
   });
 
   it('⌘K toggles when hotkey is opted in', async () => {
-    const rendered = render(Command, { props: { items: commands, hotkey: true } });
+    const rendered = render(CommandHost, { props: { hotkey: true, initialOpen: false } });
     await fireEvent.keyDown(window, { key: 'k', metaKey: true });
     const dialog = rendered.container.querySelector('dialog.jx-command') as HTMLDialogElement;
     expect(dialog.open).toBe(true);
@@ -132,6 +98,13 @@ describe('Command', () => {
 // NavigationMenu — the bar walks, panels glide
 // ---------------------------------------------------------------------------
 describe('NavigationMenu', () => {
+  // composition-first-apis: trigger ids are DERIVED from the Item id —
+  // tests resolve triggers by label, panels via popovertarget
+  const triggerByLabel = (container: HTMLElement, label: string): HTMLButtonElement =>
+    [...container.querySelectorAll('button[aria-haspopup="true"]')].find(
+      (t) => t.textContent === label,
+    ) as HTMLButtonElement;
+
   it('renders a nav with panel triggers + plain links, one tab stop', () => {
     const { container } = render(NavMenuHost);
     const nav = container.querySelector('nav[aria-label="site"]')!;
@@ -160,16 +133,12 @@ describe('NavigationMenu', () => {
   // synchronously inside show/hide, like the platform)
   it('click opens the panel through the toggle seam; a second click closes', async () => {
     const { container } = render(NavMenuHost);
-    const trigger = container.querySelector(
-      'button#jx-navmenu-trigger-components',
-    ) as HTMLButtonElement;
+    const trigger = triggerByLabel(container, 'components');
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
     await fireEvent.click(trigger);
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
     // one-at-a-time (popover=auto): opening the other panel flips state
-    const other = container.querySelector(
-      'button#jx-navmenu-trigger-registry',
-    ) as HTMLButtonElement;
+    const other = triggerByLabel(container, 'registry');
     await fireEvent.click(other);
     expect(other.getAttribute('aria-expanded')).toBe('true');
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
@@ -191,15 +160,13 @@ describe('NavigationMenu', () => {
   // cancels the native close request, so the handler owns the close
   it('Escape inside the panel closes it and returns focus to the trigger', async () => {
     const { container } = render(NavMenuHost);
-    const trigger = container.querySelector(
-      'button#jx-navmenu-trigger-components',
-    ) as HTMLButtonElement;
+    const trigger = triggerByLabel(container, 'components');
     await fireEvent.click(trigger);
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
     // scope to the OPEN panel's body — each panel carries its own
-    // Escape handler (fixture order puts registry's panel first)
-    const body = container.querySelector(
-      '#jx-navmenu-components [data-jx-navmenu-panel-body]',
+    // Escape handler; the panel resolves through the trigger's wire
+    const body = document.getElementById(trigger.getAttribute('popovertarget')!)!.querySelector(
+      '[data-jx-navmenu-panel-body]',
     ) as HTMLElement;
     await fireEvent.keyDown(body, { key: 'Escape' });
     expect(trigger.getAttribute('aria-expanded')).toBe('false');

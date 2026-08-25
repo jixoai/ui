@@ -217,21 +217,26 @@
       "name": "terminal-footer",
       "type": "registry:ui",
       "title": "Terminal footer",
-      "description": "Ghost wordmark footer: huge hollow brand word (text-stroke recipe with @supports fallback), muted meta row with links that transition to brand hue.",
+      "description": "The site footer as composed chrome: TerminalFooter owns the © row + ghost fallback; TerminalFooterColumn (title + free link children) composes the columns.",
       "files": [
-        {
-          "path": "registry/files/ui/terminal-footer/terminal-footer.svelte",
-          "target": "@ui/terminal-footer/terminal-footer.svelte",
-          "type": "registry:file"
-        },
         {
           "path": "registry/files/ui/terminal-footer/index.ts",
           "target": "@ui/terminal-footer/index.ts",
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/terminal-footer/terminal-footer-column.svelte",
+          "target": "@ui/terminal-footer/terminal-footer-column.svelte",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/terminal-footer/terminal-footer.css",
           "target": "@ui/terminal-footer/terminal-footer.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/terminal-footer/terminal-footer.svelte",
+          "target": "@ui/terminal-footer/terminal-footer.svelte",
           "type": "registry:file"
         }
       ],
@@ -277,7 +282,7 @@
       "name": "toc",
       "type": "registry:ui",
       "title": "Combo ToC",
-      "description": "The jixoai Combo table of contents: desktop Rule Tracker (scroll-progress spine, weight-driven nodes on level-1, weight-driven text on flat level-2, pick + parent markers) and mobile Terminal Rail (glass single-row viewport with the 76px line law, expand changes ONLY height, scroll-snap list, tap = instant pick). DOM order: the aside precedes main content; desktop grid places it right, mobile sticky height:0 overlay. NEW (scroll-area family, 2026-08-22): outline mode — pass outline: { root } instead of sections; outline + extents derive from the heading tree (toc-outline lib), zero handwritten ids. NEW (2026-08-23): automatic top-layer mount — when the website-scaffold jx-top-layer context exists the rail adopts itself into .jx-top-layer (topLayer={false} opts out; no context = classic in-flow behavior).",
+      "description": "The reading rail as a composed family: manual mode composes TocList/TocItem/TocLink(child) — a legal list tree (anchors never nest); AUTO mode (outline: TocOutlineConfig) derives from headings at runtime — the DECLARED SSR exception (rail shell first, links on hydrate). Scrollspy is Root behavior, DOM-delegated.",
       "registryDependencies": [
         "@jixoai/toc-engine",
         "@jixoai/jixoai-theme",
@@ -285,8 +290,23 @@
       ],
       "files": [
         {
-          "path": "registry/files/ui/toc/toc.svelte",
-          "target": "@ui/toc/toc.svelte",
+          "path": "registry/files/ui/toc/index.ts",
+          "target": "@ui/toc/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/toc/toc-item.svelte",
+          "target": "@ui/toc/toc-item.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/toc/toc-link.svelte",
+          "target": "@ui/toc/toc-link.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/toc/toc-list.svelte",
+          "target": "@ui/toc/toc-list.svelte",
           "type": "registry:file"
         },
         {
@@ -295,8 +315,8 @@
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/toc/index.ts",
-          "target": "@ui/toc/index.ts",
+          "path": "registry/files/ui/toc/toc.svelte",
+          "target": "@ui/toc/toc.svelte",
           "type": "registry:file"
         }
       ],
@@ -374,12 +394,17 @@
       "name": "hero-section",
       "type": "registry:ui",
       "title": "Hero section",
-      "description": "The Broadside hero, composed after the openspecui reference: clamp-scaled bold lead type with a primary accent tail, badge row, a copy-command PRIMARY CTA (icon + command, copied feedback) plus a secondary snippet slot, and the terminal card in a bottom-aligned second column at min-1100px (stacked below otherwise). Static data-reveal entrances per the motion law.",
+      "description": "The landing hero with opened content: title/badges/terminal/secondary/copy are snippets (the caller composes Badge children; the default copy CTA rides the copyCommand payload; the em accent paint lives in family css).",
       "registryDependencies": [
         "@jixoai/reveal",
         "@jixoai/jixoai-theme"
       ],
       "files": [
+        {
+          "path": "registry/files/ui/hero-section/hero-section.css",
+          "target": "@ui/hero-section/hero-section.css",
+          "type": "registry:file"
+        },
         {
           "path": "registry/files/ui/hero-section/hero-section.svelte",
           "target": "@ui/hero-section/hero-section.svelte",
@@ -388,11 +413,6 @@
         {
           "path": "registry/files/ui/hero-section/index.ts",
           "target": "@ui/hero-section/index.ts",
-          "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/hero-section/hero-section.css",
-          "target": "@ui/hero-section/hero-section.css",
           "type": "registry:file"
         }
       ],
@@ -1584,16 +1604,51 @@
       "name": "pagination",
       "type": "registry:ui",
       "title": "Pagination",
-      "description": "W3C-first: pagination is a nav landmark of ordinary links — real hrefs (server-friendly, JS-off friendly), aria-current=page on the active one. The pageWindow algorithm keeps first/last reachable and shows siblings around the current page with aria-hidden ellipses. At the bounds prev/next become honest disabled spans, not dead links.",
+      "description": "The pager as composed shadcn parts (Content/Item/Link(child)/Previous/Next/Ellipsis) over the exported pure pageRange helper (token law: number | ellipsis-start | ellipsis-end). The window math is headless; the links are the consumer tree. At the bounds Previous/Next become honest disabled spans.",
       "files": [
-        {
-          "path": "registry/files/ui/pagination/pagination.svelte",
-          "target": "@ui/pagination/pagination.svelte",
-          "type": "registry:file"
-        },
         {
           "path": "registry/files/ui/pagination/index.ts",
           "target": "@ui/pagination/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pagination/pagination-content.svelte",
+          "target": "@ui/pagination/pagination-content.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pagination/pagination-ellipsis.svelte",
+          "target": "@ui/pagination/pagination-ellipsis.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pagination/pagination-item.svelte",
+          "target": "@ui/pagination/pagination-item.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pagination/pagination-link.svelte",
+          "target": "@ui/pagination/pagination-link.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pagination/pagination-next.svelte",
+          "target": "@ui/pagination/pagination-next.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pagination/pagination-previous.svelte",
+          "target": "@ui/pagination/pagination-previous.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pagination/pagination-range.ts",
+          "target": "@ui/pagination/pagination-range.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pagination/pagination.svelte",
+          "target": "@ui/pagination/pagination.svelte",
           "type": "registry:file"
         }
       ],
@@ -1650,8 +1705,48 @@
       "name": "breadcrumb",
       "type": "registry:ui",
       "title": "Breadcrumb",
-      "description": "W3C-first: a breadcrumb trail is nav[aria-label] over an ordered list of real links — the ol's order IS the hierarchy, aria-current marks the last crumb. A CSS-drawn chevron separates items (decoration); optional collapse folds the middle into a single ellipsis LINK to the first hidden page, never a dead span.",
+      "description": "The breadcrumb as composed shadcn anatomy: List/Item/Link(child)/Page/Separator/Ellipsis parts. Collapse is an OPT-IN part (BreadcrumbCollapse wraps the middle items; its ellipsis links to the first hidden page). No width magic in Root.",
       "files": [
+        {
+          "path": "registry/files/ui/breadcrumb/breadcrumb-collapse.svelte",
+          "target": "@ui/breadcrumb/breadcrumb-collapse.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/breadcrumb/breadcrumb-ellipsis.svelte",
+          "target": "@ui/breadcrumb/breadcrumb-ellipsis.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/breadcrumb/breadcrumb-item.svelte",
+          "target": "@ui/breadcrumb/breadcrumb-item.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/breadcrumb/breadcrumb-link.svelte",
+          "target": "@ui/breadcrumb/breadcrumb-link.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/breadcrumb/breadcrumb-list.svelte",
+          "target": "@ui/breadcrumb/breadcrumb-list.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/breadcrumb/breadcrumb-page.svelte",
+          "target": "@ui/breadcrumb/breadcrumb-page.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/breadcrumb/breadcrumb-separator.svelte",
+          "target": "@ui/breadcrumb/breadcrumb-separator.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/breadcrumb/breadcrumb.css",
+          "target": "@ui/breadcrumb/breadcrumb.css",
+          "type": "registry:file"
+        },
         {
           "path": "registry/files/ui/breadcrumb/breadcrumb.svelte",
           "target": "@ui/breadcrumb/breadcrumb.svelte",
@@ -1660,11 +1755,6 @@
         {
           "path": "registry/files/ui/breadcrumb/index.ts",
           "target": "@ui/breadcrumb/index.ts",
-          "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/breadcrumb/breadcrumb.css",
-          "target": "@ui/breadcrumb/breadcrumb.css",
           "type": "registry:file"
         }
       ],
@@ -1749,8 +1839,48 @@
       "name": "alert-dialog",
       "type": "registry:ui",
       "title": "Alert dialog",
-      "description": "The destructive-decision surface on the dialog laws: native <dialog> showModal() + generation-token close path, role=alertdialog with required title/description, cancel-focused safe landing. Floating-surface law: ::after shadow layer, @starting-style entry, variant solid|acrylic|auto, --scrim backdrop.",
+      "description": "The confirmation dialog as a composed family (shadcn-shaped on the native <dialog>): Root (bind:open/onconfirm) + Trigger/Content/Title/Description/Actions/Action(tone)/Cancel — focus lands on Cancel (the safe default), Escape cancels, confirm runs then closes. No Overlay/Portal parts (the dialog element IS the overlay) — recorded divergence.",
       "files": [
+        {
+          "path": "registry/files/ui/alert-dialog/alert-dialog-action.svelte",
+          "target": "@ui/alert-dialog/alert-dialog-action.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/alert-dialog/alert-dialog-actions.svelte",
+          "target": "@ui/alert-dialog/alert-dialog-actions.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/alert-dialog/alert-dialog-cancel.svelte",
+          "target": "@ui/alert-dialog/alert-dialog-cancel.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/alert-dialog/alert-dialog-content.svelte",
+          "target": "@ui/alert-dialog/alert-dialog-content.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/alert-dialog/alert-dialog-description.svelte",
+          "target": "@ui/alert-dialog/alert-dialog-description.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/alert-dialog/alert-dialog-title.svelte",
+          "target": "@ui/alert-dialog/alert-dialog-title.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/alert-dialog/alert-dialog-trigger.svelte",
+          "target": "@ui/alert-dialog/alert-dialog-trigger.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/alert-dialog/alert-dialog.css",
+          "target": "@ui/alert-dialog/alert-dialog.css",
+          "type": "registry:file"
+        },
         {
           "path": "registry/files/ui/alert-dialog/alert-dialog.svelte",
           "target": "@ui/alert-dialog/alert-dialog.svelte",
@@ -1759,11 +1889,6 @@
         {
           "path": "registry/files/ui/alert-dialog/index.ts",
           "target": "@ui/alert-dialog/index.ts",
-          "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/alert-dialog/alert-dialog.css",
-          "target": "@ui/alert-dialog/alert-dialog.css",
           "type": "registry:file"
         }
       ],
@@ -1882,21 +2007,26 @@
       "name": "toggle-group",
       "type": "registry:ui",
       "title": "Toggle group",
-      "description": "The joined-button set submitting as one form field: type=single presses one button ('' when none), type=multiple presses several — the bridge's multivalue mode submits one FormData entry per active value (checkbox-set semantics), not a CSV. role=group + aria-pressed buttons for both modes; arrow-walking is tabs' job, not a toggle set's.",
+      "description": "The segmented control as a composed family: ToggleGroup (bind:value, single/multiple) + ToggleGroupItem(value) parts — shadcn parity; value law single swaps / multiple joins into a multivalue FormData payload.",
       "files": [
-        {
-          "path": "registry/files/ui/toggle-group/toggle-group.svelte",
-          "target": "@ui/toggle-group/toggle-group.svelte",
-          "type": "registry:file"
-        },
         {
           "path": "registry/files/ui/toggle-group/index.ts",
           "target": "@ui/toggle-group/index.ts",
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/toggle-group/toggle-group-item.svelte",
+          "target": "@ui/toggle-group/toggle-group-item.svelte",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/toggle-group/toggle-group.css",
           "target": "@ui/toggle-group/toggle-group.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/toggle-group/toggle-group.svelte",
+          "target": "@ui/toggle-group/toggle-group.svelte",
           "type": "registry:file"
         }
       ],
@@ -1949,8 +2079,38 @@
       "name": "command",
       "type": "registry:ui",
       "title": "Command palette",
-      "description": "The ⌘K palette on the dialog laws: native dialog showModal (modal task), input-focused roving aria-activedescendant list, pure-function ranking. Floating-surface law: ::after shadow layer, @starting-style pull-apart entry, 120ms close fade, variant solid|acrylic|auto, --scrim backdrop.",
+      "description": "The command palette as a composed cmdk-style family: Input/List/Empty/Group/Item parts; items SELF-MATCH ({label, keywords} vs query through the match inclusion predicate — filtering hides, NEVER reorders; authored tree order is the walk order). hint is a snippet (kbd glyph content); disabled items render but never enter the walk, never become activedescendant, never fire on Enter. Groups self-hide and the empty state reveals via CSS :has.",
       "files": [
+        {
+          "path": "registry/files/ui/command/command-empty.svelte",
+          "target": "@ui/command/command-empty.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/command/command-group.svelte",
+          "target": "@ui/command/command-group.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/command/command-input.svelte",
+          "target": "@ui/command/command-input.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/command/command-item.svelte",
+          "target": "@ui/command/command-item.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/command/command-list.svelte",
+          "target": "@ui/command/command-list.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/command/command.css",
+          "target": "@ui/command/command.css",
+          "type": "registry:file"
+        },
         {
           "path": "registry/files/ui/command/command.svelte",
           "target": "@ui/command/command.svelte",
@@ -1959,11 +2119,6 @@
         {
           "path": "registry/files/ui/command/index.ts",
           "target": "@ui/command/index.ts",
-          "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/command/command.css",
-          "target": "@ui/command/command.css",
           "type": "registry:file"
         }
       ],
@@ -1982,16 +2137,36 @@
       "name": "navigation-menu",
       "type": "registry:ui",
       "title": "Navigation menu",
-      "description": "The site-nav bar as an independent thin coordinator (not raw popovers): top-level ←/→ walking with roving tabindex, one tab stop on the current section's trigger; Enter/Space/click opens; Escape closes + focus returns; while open, walking glides panels (no close bounce). CLICK OPEN ONLY (Owner ruling 2026-08-25, realigned after a drift round): the hover path, its intent timer and its grace corridor are retired. Panels are the registry Popover primitive — native popover=auto light dismiss + one-at-a-time, CSS anchor positioning, and the WAAPI surface-motion entry/exit — and they carry REAL LINKS (navigation-menu moves you through a site; actions belong to dropdown-menu). variant='solid' | 'acrylic' | 'auto'.",
+      "description": "The site-nav bar as a composed family riding the Popover primitive: declarative popovertarget wire, light dismiss, one-at-a-time; Item/Trigger/Panel/Link parts; the mega-grid is authored INSIDE the panel by the consumer. Viewport/Indicator are recorded divergences (per-panel CSS anchoring replaces the Radix shared viewport).",
       "files": [
-        {
-          "path": "registry/files/ui/navigation-menu/navigation-menu.svelte",
-          "target": "@ui/navigation-menu/navigation-menu.svelte",
-          "type": "registry:file"
-        },
         {
           "path": "registry/files/ui/navigation-menu/index.ts",
           "target": "@ui/navigation-menu/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/navigation-menu/navigation-menu-item.svelte",
+          "target": "@ui/navigation-menu/navigation-menu-item.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/navigation-menu/navigation-menu-link.svelte",
+          "target": "@ui/navigation-menu/navigation-menu-link.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/navigation-menu/navigation-menu-panel.svelte",
+          "target": "@ui/navigation-menu/navigation-menu-panel.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/navigation-menu/navigation-menu-trigger.svelte",
+          "target": "@ui/navigation-menu/navigation-menu-trigger.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/navigation-menu/navigation-menu.svelte",
+          "target": "@ui/navigation-menu/navigation-menu.svelte",
           "type": "registry:file"
         }
       ],
@@ -2011,21 +2186,41 @@
       "name": "menubar",
       "type": "registry:ui",
       "title": "Menubar",
-      "description": "The application menu bar with its OWN walker (the top-level contract differs from stacked dropdowns): ←/→ move between triggers with panels gliding after an open bar; ↓/↑/Enter opens and focuses the first item; Home/End jump; Escape returns to the trigger. Panels are popover=auto role=menu; items inside walk with wrap (the menu contract, deliberately duplicated — registry items stay independent). Floating-surface law: ::after shadow layer (semi-transparent black/white) + @starting-style entry; variant='solid' | 'acrylic' | 'auto' (acrylic falls back to solid under prefers-reduced-transparency).",
+      "description": "The application menu bar as a composed family (Radix Menubar shape): Item owns the id + anchor (Trigger/Panel derive their ids — the ID derivation protocol), Panel is a popover=manual role=menu registering handles at init; ←/→ glide, ↓/↑/Enter open, per-panel motion kernels, DOM-scoped panel walks (nested menus never leak); MenubarMenuItem closes-and-restores on select.",
       "files": [
-        {
-          "path": "registry/files/ui/menubar/menubar.svelte",
-          "target": "@ui/menubar/menubar.svelte",
-          "type": "registry:file"
-        },
         {
           "path": "registry/files/ui/menubar/index.ts",
           "target": "@ui/menubar/index.ts",
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/menubar/menubar-item.svelte",
+          "target": "@ui/menubar/menubar-item.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/menubar/menubar-menu-item.svelte",
+          "target": "@ui/menubar/menubar-menu-item.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/menubar/menubar-panel.svelte",
+          "target": "@ui/menubar/menubar-panel.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/menubar/menubar-trigger.svelte",
+          "target": "@ui/menubar/menubar-trigger.svelte",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/menubar/menubar.css",
           "target": "@ui/menubar/menubar.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/menubar/menubar.svelte",
+          "target": "@ui/menubar/menubar.svelte",
           "type": "registry:file"
         }
       ],
@@ -2044,13 +2239,8 @@
       "name": "popconfirm",
       "type": "registry:ui",
       "title": "Popconfirm",
-      "description": "The optimistic-action confirm bubble on the popover laws (popover=auto, NOT an alertdialog): title/description + explicit confirm/cancel, cancel takes focus. Floating-surface law: ::after shadow layer + @starting-style entry; variant solid|acrylic|auto.",
+      "description": "The light confirm bubble (NOT an alertdialog): trigger = children; panel content/actions open via content/actions snippets with the current rendering as defaults. Light dismiss = cancel.",
       "files": [
-        {
-          "path": "registry/files/ui/popconfirm/popconfirm.svelte",
-          "target": "@ui/popconfirm/popconfirm.svelte",
-          "type": "registry:file"
-        },
         {
           "path": "registry/files/ui/popconfirm/index.ts",
           "target": "@ui/popconfirm/index.ts",
@@ -2059,6 +2249,11 @@
         {
           "path": "registry/files/ui/popconfirm/popconfirm.css",
           "target": "@ui/popconfirm/popconfirm.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/popconfirm/popconfirm.svelte",
+          "target": "@ui/popconfirm/popconfirm.svelte",
           "type": "registry:file"
         }
       ],
@@ -2105,8 +2300,18 @@
       "name": "descriptions",
       "type": "registry:ui",
       "title": "Descriptions",
-      "description": "The enterprise detail view, W3C-first: a dl IS a description list — dt/dd pairs in a grid of term/value cells. Never disguises as a table; the bordered look is CSS on the same dl. columns=N pairs per row, container-query responsive down to 1.",
+      "description": "The enterprise detail view as a composed dl: Descriptions (columns/bordered HOW-props) + DescriptionsItem (term → dt, children → dd — rich cells are just children; childless items render the em dash).",
       "files": [
+        {
+          "path": "registry/files/ui/descriptions/descriptions-item.svelte",
+          "target": "@ui/descriptions/descriptions-item.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/descriptions/descriptions.css",
+          "target": "@ui/descriptions/descriptions.css",
+          "type": "registry:file"
+        },
         {
           "path": "registry/files/ui/descriptions/descriptions.svelte",
           "target": "@ui/descriptions/descriptions.svelte",
@@ -2115,11 +2320,6 @@
         {
           "path": "registry/files/ui/descriptions/index.ts",
           "target": "@ui/descriptions/index.ts",
-          "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/descriptions/descriptions.css",
-          "target": "@ui/descriptions/descriptions.css",
           "type": "registry:file"
         }
       ],
@@ -2138,21 +2338,46 @@
       "name": "steps",
       "type": "registry:ui",
       "title": "Steps",
-      "description": "The wizard progress: an ol where order is the semantics. COMPLETED steps are links back (buttons the user already owns), the current step is aria-current=step, FUTURE steps are inert spans — never aria-disabled (they are not disabled controls, just not yet reachable). CSS connector line; check glyph on done.",
+      "description": "The wizard progress as a composed family (shadcn-vue Stepper anatomy): bind:current (0-based) plus REQUIRED explicit step ordinals — state is pure comparison, never registration. The done Indicator becomes the button (a link back) when onclick is given; the current step is aria-current=step; future steps are inert spans — never aria-disabled. CSS connector; check glyph on done; the Separator self-hides on the last item.",
       "files": [
-        {
-          "path": "registry/files/ui/steps/steps.svelte",
-          "target": "@ui/steps/steps.svelte",
-          "type": "registry:file"
-        },
         {
           "path": "registry/files/ui/steps/index.ts",
           "target": "@ui/steps/index.ts",
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/steps/steps-description.svelte",
+          "target": "@ui/steps/steps-description.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/steps/steps-indicator.svelte",
+          "target": "@ui/steps/steps-indicator.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/steps/steps-item.svelte",
+          "target": "@ui/steps/steps-item.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/steps/steps-separator.svelte",
+          "target": "@ui/steps/steps-separator.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/steps/steps-title.svelte",
+          "target": "@ui/steps/steps-title.svelte",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/steps/steps.css",
           "target": "@ui/steps/steps.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/steps/steps.svelte",
+          "target": "@ui/steps/steps.svelte",
           "type": "registry:file"
         }
       ],
@@ -2232,21 +2457,51 @@
       "name": "timeline",
       "type": "registry:ui",
       "title": "Timeline",
-      "description": "The activity stream: an ol of timestamped entries with a CSS spine and dot markers — order is the chronology, the spine is decoration. pending renders the hollow dot for in-flight entries. Pure composition, zero JS.",
+      "description": "The activity stream as a composed family (Dice UI anatomy): TimelineItem + authored Dot/Connector/Content/Time(datetime)/Title parts; body is free children. The in-flight semantic is the item-level pending flag (attribute paint: hollow dot + muted title); the spine and the last-item connector self-hide ride family css.",
       "files": [
-        {
-          "path": "registry/files/ui/timeline/timeline.svelte",
-          "target": "@ui/timeline/timeline.svelte",
-          "type": "registry:file"
-        },
         {
           "path": "registry/files/ui/timeline/index.ts",
           "target": "@ui/timeline/index.ts",
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/timeline/timeline-connector.svelte",
+          "target": "@ui/timeline/timeline-connector.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/timeline/timeline-content.svelte",
+          "target": "@ui/timeline/timeline-content.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/timeline/timeline-dot.svelte",
+          "target": "@ui/timeline/timeline-dot.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/timeline/timeline-item.svelte",
+          "target": "@ui/timeline/timeline-item.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/timeline/timeline-time.svelte",
+          "target": "@ui/timeline/timeline-time.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/timeline/timeline-title.svelte",
+          "target": "@ui/timeline/timeline-title.svelte",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/timeline/timeline.css",
           "target": "@ui/timeline/timeline.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/timeline/timeline.svelte",
+          "target": "@ui/timeline/timeline.svelte",
           "type": "registry:file"
         }
       ],
@@ -2450,8 +2705,13 @@
       "name": "anchor",
       "type": "registry:ui",
       "title": "Anchor",
-      "description": "The heading-anchor link list (antd's Anchor) — the LIGHT sibling of toc.svelte: nav > ol of REAL fragment links (native navigation, native smooth scrolling via the theme's scroll-behavior), with JS only READING the scroll position (rAF-throttled) to mark aria-current=location. The pick follows the last target at/past the viewport-top line (the toc engine's downward-resolution rule, simplified). Where the ToC measures IoM weights and draws the rule tracker, anchor answers the simpler which-section question.",
+      "description": "The in-page rail as a composed family: AnchorItem children are the targets (DOM-delegated scrollspy — no registration); the pick paints aria-current=location; offset drives the sticky-header pick line; capture-phase scroll listening covers inner scrollers.",
       "files": [
+        {
+          "path": "registry/files/ui/anchor/anchor-item.svelte",
+          "target": "@ui/anchor/anchor-item.svelte",
+          "type": "registry:file"
+        },
         {
           "path": "registry/files/ui/anchor/anchor.svelte",
           "target": "@ui/anchor/anchor.svelte",
@@ -2479,13 +2739,8 @@
       "name": "tour",
       "type": "registry:ui",
       "title": "Tour",
-      "description": "The guided walkthrough, implemented against the recorded design contract: anchor-name as a REVERSIBLE LEASE on each step's target (set on enter, restored on advance/close/unmount — capability wiring, not style authoring); the highlight is a target-sized transparent hole + one huge box-shadow tint sized by CSS anchor-size() (zero geometry JS; engines without anchoring degrade to a plain tint); popover=manual + role=dialog + aria-modal=false — NON-MODAL (no trap, page scrolls, scrim pointer-events:none); targets re-resolved every step with deterministic forward skip past unavailable ones; Escape/Skip finishes and restores the invoker focus. SSR renders nothing until open. Floating-surface law: ::after shadow layer (semi-transparent black/white) + @starting-style entry; variant='solid' | 'acrylic' | 'auto' (acrylic falls back to solid under prefers-reduced-transparency).",
+      "description": "The spotlight tour: steps carry targets (behavior domain, driver.js precedent); the card opens via the card(api) snippet ({index, total, step, next, prev, skip}) with the zero-config default card when absent. Spotlight, focus and step lifecycle unchanged.",
       "files": [
-        {
-          "path": "registry/files/ui/tour/tour.svelte",
-          "target": "@ui/tour/tour.svelte",
-          "type": "registry:file"
-        },
         {
           "path": "registry/files/ui/tour/index.ts",
           "target": "@ui/tour/index.ts",
@@ -2494,6 +2749,11 @@
         {
           "path": "registry/files/ui/tour/tour.css",
           "target": "@ui/tour/tour.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/tour/tour.svelte",
+          "target": "@ui/tour/tour.svelte",
           "type": "registry:file"
         }
       ],

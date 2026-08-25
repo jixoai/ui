@@ -3,6 +3,9 @@
   import DocsSectionsNav from '$lib/ui/docs-sections-nav.svelte';
   import DocsPager from '$lib/ui/docs-pager.svelte';
   import Toc, { type TocSection } from '$lib/ui/toc/toc.svelte';
+  import TocList from '$lib/ui/toc/toc-list.svelte';
+  import TocItem from '$lib/ui/toc/toc-item.svelte';
+  import TocLink from '$lib/ui/toc/toc-link.svelte';
   import '../app.css';
   // site-only docs surfaces (tw4 P2.2): tables + pill serve several routes
   import '$lib/site/docs-tables.css';
@@ -15,6 +18,7 @@
   import type { Snippet } from 'svelte';
   import WebsiteScaffold from '$lib/ui/website-scaffold/website-scaffold.svelte';
   import TerminalFooter from '$lib/ui/terminal-footer/terminal-footer.svelte';
+  import TerminalFooterColumn from '$lib/ui/terminal-footer/terminal-footer-column.svelte';
   import TerminalHeader from '$lib/ui/terminal-header/terminal-header.svelte';
   import HuePopover from '$lib/components/hue-popover.svelte';
   import { startHueRuntime, stopHueRuntime } from '$lib/hue-runtime';
@@ -320,11 +324,30 @@
       <DocsSectionsNav />
     {/if}
     {#if pageToc}
-      <Toc
-        {...(Array.isArray(pageToc) ? { sections: pageToc } : { outline: { root: '#main' } })}
-        title="on this page"
-        scrollRoot=".jx-shell-body"
-      />
+      <!-- composition-first-apis seam: the registry API takes NO data —
+           the layout maps the route's serializable page data onto the
+           composed parts in its own tree (structure lives here, data
+           stays devalue-safe across the load() boundary) -->
+      {#if Array.isArray(pageToc)}
+        <Toc title="on this page" scrollRoot=".jx-shell-body">
+          <TocList>
+            {#each pageToc as section (section.id)}
+              <TocItem>
+                <TocLink href={'#' + section.id}>{section.label}</TocLink>
+                {#if section.children?.length}
+                  <TocList>
+                    {#each section.children as child (child.id)}
+                      <TocItem><TocLink href={'#' + child.id}>{child.label}</TocLink></TocItem>
+                    {/each}
+                  </TocList>
+                {/if}
+              </TocItem>
+            {/each}
+          </TocList>
+        </Toc>
+      {:else}
+        <Toc outline={{ root: '#main' }} title="on this page" scrollRoot=".jx-shell-body" />
+      {/if}
     {/if}
   {/snippet}
   {#snippet header()}
@@ -384,15 +407,17 @@
   {/if}
 
   {#snippet footer()}
-    <TerminalFooter
-      ghost="JIXOAI-UI"
-      links={[
-        { label: 'GitHub', href: GITHUB_URL },
-        { label: 'Registry JSON', href: '/r/registry.json' },
-        { label: 'shadcn registry docs', href: 'https://ui.shadcn.com/docs/registry' },
-      ]}
-      copyright="© 2026 jixoai · MIT"
-    />
+    <TerminalFooter ghost="JIXOAI-UI" copyright="© 2026 jixoai · MIT">
+      <TerminalFooterColumn title="project">
+        <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a>
+        <a href="/r/registry.json">Registry JSON</a>
+      </TerminalFooterColumn>
+      <TerminalFooterColumn title="reference">
+        <a href="https://ui.shadcn.com/docs/registry" target="_blank" rel="noreferrer">
+          shadcn registry docs
+        </a>
+      </TerminalFooterColumn>
+    </TerminalFooter>
   {/snippet}
 </WebsiteScaffold>
 
