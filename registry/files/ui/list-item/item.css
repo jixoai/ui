@@ -396,6 +396,28 @@
     width: 100%;
   }
 
+  /* ── the field scaffold (ItemField + adapters) ───────────────────── */
+  :where(.jx-item-field-label) {
+    font-family: var(--font-nav);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--foreground);
+  }
+  :where(label.jx-item-field-label) {
+    cursor: pointer;
+  }
+  :where([data-item-field] .jx-item-field-description) {
+    font-size: 0.6875rem;
+    line-height: 1.45;
+    color: var(--muted-foreground);
+  }
+  :where([data-item-field] .jx-item-field-error) {
+    font-size: 0.6875rem;
+    line-height: 1.45;
+    color: var(--error);
+  }
+
   /* ── the narrow law: the end lane takes its own full row ──────────
      end-present combos only, wrap="never" opts out of the template
      switch (the lane simply never splits) */

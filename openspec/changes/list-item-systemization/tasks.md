@@ -30,7 +30,7 @@
   none even when `auto` supplied, plain omitted→none vs plain+explicit
   `auto`→on (raw prop optional, no language-level default), explicit
   ItemDivider always available.*
-- [ ] 3. **ItemField + five adapters** — ItemField (controlId/
+- [x] 3. **ItemField + five adapters** — ItemField (controlId/
   labelId/descriptionId/errorId/describedBy, labelMode for|text) and
   ItemToggle/ItemCheckbox/ItemRadio/ItemSelect/ItemInput; prop types
   via `ComponentProps<typeof Control>` + compile-time `Omit` reserved

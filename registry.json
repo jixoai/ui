@@ -159,6 +159,36 @@
           "path": "registry/files/ui/list-item/item-divider.svelte",
           "target": "@ui/list-item/item-divider.svelte",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item-field.svelte",
+          "target": "@ui/list-item/item-field.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item-toggle.svelte",
+          "target": "@ui/list-item/item-toggle.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item-checkbox.svelte",
+          "target": "@ui/list-item/item-checkbox.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item-radio.svelte",
+          "target": "@ui/list-item/item-radio.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item-select.svelte",
+          "target": "@ui/list-item/item-select.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item-input.svelte",
+          "target": "@ui/list-item/item-input.svelte",
+          "type": "registry:file"
         }
       ],
       "registryDependencies": [
