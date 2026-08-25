@@ -12,26 +12,26 @@
       the kill list: 13 structural + 2 config-tree)
 - [x] 2c. Codex design rounds r1–r9 (Herdr): 4.5→8.3, APPROVE-FOR-
       IMPLEMENTATION (review-design-r1.md 全轨迹归档)
-- [ ] 3. Batch A (subagent): steps + timeline + descriptions families
-      — registry + mirror + demo pages + tests + SSR/ordinal fixtures
-- [ ] 4. Batch B (subagent): breadcrumb + pagination (+ range helper
-      tests) + anchor + terminal-footer
-- [ ] 5. Batch C (subagent): menubar + navigation-menu + toggle-group
-      + dropdown-menu nested-walker scoping drive-by
-- [ ] 6. Batch D (subagent): toc + hero-section + tour + alert-dialog
-      + popconfirm
-- [ ] 7. Batch E (subagent): command family (self-match items, CSS
-      :has group/empty, kb nav preserved)
-- [ ] 8. Batch F (subagent): terminal-header decomposition + docs-site
-      chrome migration (last — rides on C's machinery)
-- [ ] 9. ZCode integrator: registry.json entries per family (preserving
-      sibling-session hunks), cross-batch fixes, per-batch commits
-- [ ] 10. Gates: pnpm build + verify:mirror + vitest + hook-law +
-       verify-composition-law --self-test (4 fixtures green) +
-       verify-composition-law (0 violations) + openspec validate
-       --strict
-- [ ] 11. Browser walkthrough: 17 demo pages (built-in browser;
-       ego-browser only on anomalies)
+- [x] 3. Batch A: steps + timeline + descriptions families
+- [x] 4. Batch B: breadcrumb + pagination (+ range helper) + anchor
+      + terminal-footer
+- [x] 5. Batch C: menubar + navigation-menu + toggle-group +
+      dropdown-menu scoping drive-by
+- [x] 6. Batch D: toc + hero-section + tour + alert-dialog +
+      popconfirm
+- [x] 7. Batch E: command family (self-match, :has states, kb nav)
+- [x] 8. Batch F: terminal-header decomposition + docs-site chrome
+- [x] 9. Integrator: registry.json (16 family entries +104 files,
+      descriptions), manifest regen (+ terminal-header hash patch;
+      batch2 spec left for the tooltip session's landing), the toc
+      page-data seam, 3 scenes, 6 old suites migrated — per-batch
+      commits 78c6310…a0b662b
+- [x] 10. Gates GREEN: build + vitest 471/471 (36 files) + hook-law
+       + composition-law 0 violations + self-test 4/4 + site build
+       85 pages prerendered + openspec validate --strict
+- [x] 11. Walkthrough 17/17 (built-in browser webview unavailable ×2
+       → ego-browser per owner instruction; every behavioral lock
+       verified live incl. the composed header mega panels)
 - [ ] 12. Codex implementation review round (Herdr, async) + iterate
        to green
 - [ ] 13. Archive change; spec delta merged; exceptions table carried

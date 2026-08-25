@@ -237,7 +237,7 @@
       "name": "terminal-header",
       "type": "registry:ui",
       "title": "Terminal header",
-      "description": "The site nav bar with a clear two-wing layout — LEFT: brand (logo snippet slot + wordmark + domain/subtitle), RIGHT: nav pills + switcher. Theme-locked CRT bezel: dark by default (inner components render dark via scoped tokens), theme='light'|'system' unlocks. Responsive: desktop one full row, tablet compact row (subtitle hidden), mobile brand row + full-width scrollable nav row.",
+      "description": "The site header as composed chrome: the bar shell, brand block, pill box with its sliding indicator, and the mobile drawer — the NAVIGATION is composed NavigationMenuItem/Trigger/Panel parts (consumer-authored mega grids) with bare NavigationMenuLinks; the three-level TerminalNavItem config tree is dead. closeAll() hides every open popover under the header; open is bindable for the drawer.",
       "files": [
         {
           "path": "registry/files/ui/terminal-header/terminal-header.svelte",
@@ -256,8 +256,9 @@
         }
       ],
       "registryDependencies": [
-        "@jixoai/icons",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/utils",
+        "@jixoai/navigation-menu"
       ],
       "meta": {
         "group": "layout",

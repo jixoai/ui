@@ -2805,7 +2805,7 @@
     },
     {
       "path": "registry/files/ui/tree-view/tree-view-multiselect.svelte",
-      "note": "folded into the tree-view folder (P1); still unreferenced by items — future change either ships it or removes it"
+      "note": "folded into the tree-view folder (P1); still unreferenced by items \u2014 future change either ships it or removes it"
     }
   ]
 }
