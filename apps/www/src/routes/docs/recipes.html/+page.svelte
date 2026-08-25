@@ -154,7 +154,7 @@ const watermarkRecipe =
       description="The recipe runs live: the stage is a watermarked surface — try to select or click through it (the layer is pointer-events:none), then type in the Playground and watch the tile re-render. The recipe card below and this drawer share one source."
       files={files}
       onreset={resetCanvas}
-      echo={[{ label: 'text', value: wmText || '—' }]}
+      output={[{ label: 'text', value: wmText || '—' }]}
       resolveFileContent={resolveUsage}
     >
       <div class="jx-wm-stage w-full max-w-[38rem]">

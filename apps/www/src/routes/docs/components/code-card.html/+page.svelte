@@ -256,9 +256,9 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
       description="The complete card: filename tab (head left), header snippet (head right, replacing the default lang label), footer snippet (foot left), and the copy control (foot right). The Playground swaps the Shiki language and the theme — each first pick fetches exactly that grammar/theme chunk."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/code-card.svelte"
       {files}
-      stage="stretch"
+      stage="fill"
       onreset={resetCanvas}
-      echo={[
+      output={[
         { label: 'lang', value: lang },
         { label: 'theme', value: theme },
       ]}
@@ -337,7 +337,7 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
       description="The pre is the single scrollport: long lines scroll horizontally (Tab characters stay tabs, never wrapped), maxHeight caps the body into vertical scrolling, scrollbars are thin currentColor lanes with overscroll containment, and the region is keyboard-focusable."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/code-card.svelte"
       files={[{ name: 'scroll-demo.ts', content: scrollSample }]}
-      stage="stretch"
+      stage="fill"
     >
       <CodeCard
         filename="manifest.ts"

@@ -137,7 +137,7 @@ const stackSuggestions: Tag[] = [
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/tags-input.svelte"
       files={tagsInputFiles}
       onreset={resetTagsCanvas}
-      echo={[
+      output={[
         { label: 'tags', value: canvasStack.map((t) => t.value).join(', ') || '—' },
         { label: 'maxTags', value: canvasMaxTags ?? 'none' },
       ]}

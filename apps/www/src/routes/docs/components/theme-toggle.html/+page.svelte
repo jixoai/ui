@@ -91,7 +91,7 @@ ${close}
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/theme-toggle.svelte"
         {files}
         onreset={resetCanvas}
-        echo={[{ label: 'variant', value: variant }]}
+        output={[{ label: 'variant', value: variant }]}
         resolveFileContent={resolveUsage}
       >
         <div class="flex flex-col items-center gap-6">

@@ -108,7 +108,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/component-canvas.svelte"
       {files}
       onreset={resetCanvas}
-      echo={[{ label: 'inner playground', value: innerPlayground }]}
+      output={[{ label: 'inner playground', value: innerPlayground }]}
       resolveFileContent={resolveUsage}
     >
       <!-- Recursion demo, capped at depth 2: the inner canvas is simplified —

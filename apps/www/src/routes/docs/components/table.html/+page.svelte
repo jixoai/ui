@@ -120,7 +120,7 @@
       {files}
       stage="start"
       onreset={resetCanvas}
-      echo={[
+      output={[
         { label: 'frame', value: `${frameWidth}px` },
         { label: 'stack', value: stack ? 'on' : 'off' },
         { label: 'hover', value: hoverTone },
@@ -216,7 +216,7 @@
       description="The untouched native baseline — caption, thead/tbody/tfoot authored by hand, numeric right-align through consumer classes. The same table now also carries data-label on every cell, so the narrow-frame card law needs zero extra markup."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/table.svelte"
       files={[{ name: 'registry/files/ui/table.svelte', content: tableSource }]}
-      stage="stretch"
+      stage="fill"
     >
       <Table caption="jixoai components — environment support (2026-08)" class="w-full max-w-[40rem]">
         <thead>

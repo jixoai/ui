@@ -13,7 +13,7 @@ import { describe, expect, it } from 'vitest';
 
 import CanvasHost from './fixtures/canvas-host.svelte';
 import CanvasPlainHost from './fixtures/canvas-plain-host.svelte';
-import CanvasEchoDupesHost from './fixtures/canvas-echo-dupes-host.svelte';
+import CanvasEchoDupesHost from './fixtures/canvas-output-dupes-host.svelte';
 
 describe('ComponentCanvas semantics', () => {
   it('derives stable aria ids from the title (h2/h3 labelling + drawer controls)', () => {
@@ -28,15 +28,15 @@ describe('ComponentCanvas semantics', () => {
     expect(drawer.id).toBe('jx-canvas-host-widget-drawer');
   });
 
-  it('labels the playground pane with its own h3 via aria-labelledby', () => {
+  it('labels the playground pane: aria-label names the controls, the h3 stays visible', () => {
     // no playground snippet → no pane at all
     const { container: plain } = render(CanvasPlainHost);
     expect(plain.querySelector('.jx-canvas-playground')).toBeNull();
 
     const { container } = render(CanvasHost);
     const pane = container.querySelector<HTMLElement>('.jx-canvas-playground')!;
+    expect(pane.getAttribute('aria-label')).toBe('Controls for host widget');
     const heading = pane.querySelector('h3')!;
-    expect(pane.getAttribute('aria-labelledby')).toBe(heading.id);
     expect(heading.textContent?.toLowerCase()).toContain('playground');
   });
 });
@@ -62,19 +62,19 @@ describe('ComponentCanvas playground protocol', () => {
 
   it('echo renders a read-only dl; undefined falls back to the em dash', () => {
     const { container } = render(CanvasHost);
-    const rows = container.querySelectorAll('[data-jx-canvas-echo-row]');
+    const rows = container.querySelectorAll('[data-jx-canvas-output-row]');
     expect(rows.length).toBe(3);
     expect(rows[0].querySelector('dt')!.textContent).toBe('label');
     expect(rows[0].querySelector('dd')!.textContent).toBe('Actions');
     expect(rows[2].querySelector('dd')!.textContent).toBe('—');
     // deliberately NOT a live region: fast control churn must not announce
-    const echo = container.querySelector('.jx-canvas-echo')!;
+    const echo = container.querySelector('.jx-canvas-output')!;
     expect(echo.getAttribute('aria-live')).toBeNull();
   });
 
   it('survives duplicate echo labels (composite each key, no each_key_duplicate)', () => {
     const { container } = render(CanvasEchoDupesHost);
-    const rows = container.querySelectorAll('[data-jx-canvas-echo-row]');
+    const rows = container.querySelectorAll('[data-jx-canvas-output-row]');
     expect(rows.length).toBe(2);
     expect(rows[0].querySelector('dd')!.textContent).toBe('a');
     expect(rows[1].querySelector('dd')!.textContent).toBe('b');

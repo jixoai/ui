@@ -111,7 +111,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/language-switcher.svelte"
       {files}
       onreset={resetCanvas}
-      echo={[{ label: 'variant', value: variant }]}
+      output={[{ label: 'variant', value: variant }]}
       resolveFileContent={resolveUsage}
     >
       <!-- the component speaks currentColor + terminal tokens; the dark

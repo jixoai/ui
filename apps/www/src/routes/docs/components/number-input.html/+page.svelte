@@ -110,7 +110,7 @@
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/number-input.svelte"
       files={numberInputFiles}
       onreset={resetNumberCanvas}
-      echo={[
+      output={[
         { label: 'value', value: canvasWorkers },
         { label: 'range', value: '1…16' },
       ]}

@@ -57,7 +57,7 @@
       description="descriptions — a dl, never a table"
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/descriptions.svelte"
       files={canvasFiles}
-      stage="stretch"
+      stage="fill"
     >
       <div class="w-full max-w-2xl">
         <Descriptions columns={2} bordered {items} />

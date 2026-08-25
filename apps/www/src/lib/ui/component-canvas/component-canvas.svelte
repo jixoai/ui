@@ -1,61 +1,49 @@
 <!--
   jixoai component canvas (registry/files/ui/component-canvas.svelte).
   The component documentation workbench: one bordered surface holding the
-  LIVE demo area (children snippet, muted stage, centered), an optional
+  LIVE demo area (children snippet on a muted stage), an optional
   Playground controls pane (playground snippet — consumer-authored with
-  the jixoai form base), and a collapsible code drawer combining tree-view
-  (file tree from a flat `files` list) with code-card (highlight + copy).
+  the jxoai form base), and a collapsible code drawer combining tree-view
+  with code-card (highlight + copy).
 
-  Playground protocol (P1): the pane offers three optional seams the page
-  wires up — `onreset` (title-row reset button; the page owns the state
-  snapshot, the canvas never reflects consumer state), `echo` (a read-only
-  terminal key/value footer replacing hand-written "bound value" captions;
-  deliberately NOT a live region; rides the playground pane, so it needs
-  the snippet present), and `resolveFileContent` (code-drawer content
-  resolver so usage files can track live playground state without making
-  TreeFile.content a function). The playground snippet itself stays
-  a free Snippet: layout contract classes — .jx-play-fields, .jx-play-field,
-  .jx-play-help — are styled through the residue sheet because in-markup
-  utilities never reach snippet children.
+  Redesign (2026-08-25, Codex design round D1–D6):
+  - THREE LAYERS: the section is the named layout container
+    (@container/jx-canvas-host — the ≥48rem sidebar tier); inside it the
+    SCROLL LAYER is the demo's named container (@container/jx-canvas on
+    the scrollport itself, so demo container queries see the width the
+    scrollbar actually leaves) with a default max-block-size and native
+    auto-scroll; the STAGE keeps the tint, padding and posture only.
+  - stage: 'fill' (children span the available width) | 'center'
+    (intrinsic specimens, shrink+center) | 'start' (intrinsic, left).
+    The default is 'center' during the migration window; the fill
+    default lands with the consumer sweep.
+  - header controls are icon-only with real semantics (Source →
+    external-link anchor; playground reset → rotate-ccw button — both
+    press-physics, jx-press law); the code bar is a single DISCLOSURE:
+    chevron + "Code" + the file count adjacent, copy-usage icon-only
+    right; aria-expanded/controls + region + inert kept.
+  - `output` (was `echo`): the read-only state projection, deliberately
+    NOT a live region — renders as item-rhythm rows under the controls.
 
-  Layout law: header (font-nav h2 title + description + Source press button,
-  hairline under — the button folds under the title in the narrow container
-  form instead of crushing the description beside it) → demo row (stage
-  flexes, playground takes clamp(18rem, 26cqi, 22rem) right at ≥48rem,
-  below it otherwise; in the side-by-side form the pane's controls body
-  scrolls inside a capped max-block-size so tall control stacks never
-  stretch the canvas — on the stacked mobile form containment is dropped
-  and the page scrolls naturally) → code bar (`</> Code` toggle +
-  aria-controls wiring) → code drawer (grid-rows 0fr→1fr, the Combo ToC
-  collapse law; inert while closed). The drawer is a bounded LAYOUT, not
-  a scroll area (2026-08-22, user): every panel scrolls inside itself —
-  the tree in its own capped window, the code through CodeCard's fill
-  mode (head/foot pinned, the <pre> is the single code scrollport).
+  Playground protocol (P1, kept): `onreset`, `output`,
+  `resolveFileContent` seams; the snippet itself stays free — layout
+  contract classes (.jx-play-fields …) live in the residue sheet until
+  the kit migration removes them.
+
   The stage keeps the readonly-code tint (color-mix muted 42%) in BOTH
-  themes — the surface contrast is the point: components must read on a
-  differently-tinted ground, not only on pure background. The playground
-  pane answers with a much lighter tint (muted 12%) — a layer between
-  stage and background, never a second stage.
-
-  tw4 (2026-08-24): every element this file authors carries its paint as
-  token utilities (deterministic branches for stage posture, drawer open
-  and toggle pressed states); component-canvas.css keeps ONLY the
-  D1-exempt residue — the two 48rem container tiers (cqi clamp math),
-  the snippet-children layout contracts, the tree's scrollbar-gutter
-  recipe, the code-card frame strip, focus-visible rings and the
-  reduced-motion kill. The canvas chrome is every docs page's frame:
-  when in doubt, it stays residue.
+  themes; the playground pane answers with the lighter muted-12% layer.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
   import TreeView, { type TreeNode } from '$lib/ui/tree-view/tree-view.svelte';
+  import { icons } from '$lib/icons';
   import { cn } from '$lib/utils';
   import './component-canvas.css';
 
   /** Read-only playground state projection; never a live region. */
-  export interface PlayEcho {
+  export interface PlayOutput {
     label: string;
     value: string | number | boolean | null | undefined | readonly unknown[];
   }
@@ -109,20 +97,23 @@
     title: string;
     /** One-line description under the title. */
     description?: string;
-    /** GitHub source link (header right, outline external press button). */
+    /** GitHub source link (header right, icon-only external anchor). */
     sourceUrl?: string;
     /** Demo code files; flat list, names may carry paths ("src/lib/x.svelte"). */
     files: TreeFile[];
     /** LIVE demo area — the consumer renders the component instance. */
     children: Snippet;
-    /** Stage layout: center (default) | start (left-align) | stretch (full-width) */
-    stage?: 'center' | 'start' | 'stretch';
+    /**
+     * Stage posture: fill (children span the width) | center (intrinsic
+     * specimens shrink + center) | start (intrinsic, left-aligned).
+     */
+    stage?: 'fill' | 'center' | 'start';
     /** PlayCanvas controls pane — consumer-authored interactive controls. */
     playground?: Snippet;
-    /** Page-owned reset: shows the title-row reset button and calls back. */
+    /** Page-owned reset: shows the pane's reset button and calls back. */
     onreset?: () => void;
-    /** Terminal-style read-only state footer for the playground pane. */
-    echo?: readonly PlayEcho[];
+    /** Read-only state projection rows under the controls. */
+    output?: readonly PlayOutput[];
     /** Code-drawer content override — lets usage files track live state. */
     resolveFileContent?: (file: TreeFile) => string;
     /** Explicit id override when two canvases on one page would slug-collide. */
@@ -139,7 +130,7 @@
     stage = 'center',
     playground,
     onreset,
-    echo,
+    output,
     resolveFileContent,
     id,
     class: className = '',
@@ -156,7 +147,6 @@
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
   const titleId = `jx-canvas-${canvasId}-title`;
-  const playgroundId = `jx-canvas-${canvasId}-playground`;
   const drawerId = `jx-canvas-${canvasId}-drawer`;
 
   // flat files → nested tree: split on "/", intermediate segments are
@@ -224,7 +214,7 @@
   const usageFile = $derived(
     files.find((f) => f.kind === 'usage') ?? files.find((f) => f.name.endsWith('usage.svelte')),
   );
-  function formatEcho(value: PlayEcho['value']): string {
+  function formatOutput(value: PlayOutput['value']): string {
     if (value === null || value === undefined) return '—';
     if (Array.isArray(value)) {
       const text = value.map(String).join(', ');
@@ -242,18 +232,12 @@
     copiedUsage = true;
     setTimeout(() => (copiedUsage = false), 1600);
   }
-
-  // stage posture: one deterministic branch per prop value (the
-  // css-defined .jx-stage-stretch kernel class rides the template cn
-  // below, where the inventory's class-usage scan sees it)
-  const stageUtilities = {
-    center: '',
-    start: 'items-start justify-start',
-    stretch: 'items-stretch [justify-content:stretch]',
-  } as const;
 </script>
 
-<section data-jx-canvas class={cn('@container bg-background border border-border rounded-none min-w-0', className)}>
+<section
+  data-jx-canvas
+  class={cn('@container/jx-canvas-host bg-background border border-border rounded-none min-w-0', className)}
+>
   <header data-jx-canvas-head class="flex flex-wrap items-start justify-between gap-4 px-4 py-[0.8rem] border-b border-border">
     <div class="jx-canvas-head-text min-w-0">
       <h2 data-jx-canvas-title class="m-0 text-foreground font-nav text-[15px] font-normal tracking-[0.01em] leading-[1.3]" id={titleId}>{title}</h2>
@@ -262,63 +246,80 @@
       {/if}
     </div>
     {#if sourceUrl}
-      <PressButton variant="outline" href={sourceUrl} external ariaLabel={`${title} source on GitHub`}>
-        <svg
-          data-jx-canvas-source-icon
-          class="h-[13px] w-[13px]"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M7 17 17 7" />
-          <path d="M7 7h10v10" />
-        </svg>
-        <span>Source</span>
-      </PressButton>
+      <!-- icon-only source anchor: press physics, the label lives in the
+           accessible name (D6 — the full button crowded the header) -->
+      <a
+        data-jx-canvas-source
+        class="jx-press inline-flex size-7 flex-none items-center justify-center border border-border bg-background text-foreground/70 hover:text-foreground [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]"
+        href={sourceUrl}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Open source on GitHub"
+        title="Open source on GitHub"
+      >
+        <span class="[&_svg]:h-[13px] [&_svg]:w-[13px]" aria-hidden="true">{@html icons.externalLink}</span>
+      </a>
     {/if}
   </header>
 
   <div class="jx-canvas-stage-row flex flex-col">
+    <!-- the scroll layer (D5): default bounded height + native auto-scroll;
+         the NAMED demo container sits on the scrollport so demo container
+         queries see the width the scrollbar actually leaves -->
     <div
-      data-jx-canvas-stage
-      data-jx-stage-start={stage === 'start' ? '' : undefined}
-      class={cn(
-        'flex flex-1 flex-wrap items-center justify-center gap-4 min-h-[200px] min-w-0 p-6 bg-[color-mix(in_oklab,var(--muted)_42%,var(--background))]',
-        stage === 'stretch' && 'jx-stage-stretch',
-        stageUtilities[stage],
-      )}
-      aria-label={`${title} demo`}
+      data-jx-canvas-scroll
+      class="jx-canvas-scroll @container/jx-canvas flex-1 min-h-0 min-w-0"
     >
-      {@render children()}
+      <div
+        data-jx-canvas-stage
+        data-stage={stage}
+        class={cn(
+          'jx-canvas-stage flex min-h-[200px] min-w-0 gap-4 p-6 bg-[color-mix(in_oklab,var(--muted)_42%,var(--background))]',
+          stage === 'center' && 'flex-wrap items-center justify-center',
+          stage === 'start' && 'flex-wrap items-start justify-start',
+          stage === 'fill' && 'flex-wrap items-stretch [justify-content:stretch]',
+        )}
+        aria-label={`${title} demo`}
+      >
+        {@render children()}
+      </div>
     </div>
     {#if playground}
-      <aside class="jx-canvas-playground flex flex-col min-w-0 pt-[0.85rem] px-4 pb-4 bg-[color-mix(in_oklab,var(--muted)_12%,var(--background))] border-t border-border" aria-labelledby={playgroundId}>
-        <div data-jx-canvas-playground-head class="flex items-baseline justify-between gap-3">
-          <h3 data-jx-canvas-playground-title class="m-0 mb-[0.65rem] text-muted-foreground font-nav text-[10px] tracking-[0.24em] uppercase" id={playgroundId}>Playground</h3>
+      <aside
+        class="jx-canvas-playground flex flex-col min-w-0 pt-[0.85rem] px-4 pb-4 bg-[color-mix(in_oklab,var(--muted)_12%,var(--background))] border-t border-border"
+        aria-label={`Controls for ${title}`}
+      >
+        <div data-jx-canvas-playground-head class="flex items-center justify-between gap-3">
+          <h3 data-jx-canvas-playground-title class="jx-canvas-pane-title m-0 mb-[0.65rem] text-muted-foreground font-nav text-[10px] tracking-[0.24em] uppercase">Playground</h3>
           {#if onreset}
+            <!-- icon-only reset (D6): press physics — a state mutation must
+                 never be a feedback-free bare glyph -->
             <button
               type="button"
-              class="jx-canvas-reset bg-transparent border-transparent text-muted-foreground hover:text-foreground cursor-pointer font-nav text-[10px] tracking-[0.18em] mb-[0.65rem] p-0 underline [text-underline-offset:3px] uppercase"
-              ariaLabel={`Reset ${title} playground`}
+              data-jx-canvas-reset
+              class="jx-press jx-canvas-reset mb-[0.45rem] inline-flex size-6 items-center justify-center border border-border bg-background text-muted-foreground hover:text-foreground cursor-pointer [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
+              aria-label="Reset playground"
+              title="Reset playground"
               onclick={() => onreset?.()}
             >
-              reset
+              <span class="[&_svg]:h-3 [&_svg]:w-3" aria-hidden="true">{@html icons.rotateCcw}</span>
             </button>
           {/if}
         </div>
         <div class="jx-canvas-playground-body flex flex-col gap-[0.85rem] min-h-0 min-w-0">
           {@render playground()}
         </div>
-        {#if echo?.length}
-          <dl class="jx-canvas-echo grid gap-[0.3rem] m-0 mt-[0.85rem] pt-[0.7rem] border-t border-border">
-            {#each echo as item, index (`${item.label}-${index}`)}
-              <div data-jx-canvas-echo-row class="grid items-baseline gap-[0.6rem] grid-cols-[minmax(5.5rem,auto)_minmax(0,1fr)]">
+        {#if output?.length}
+          <!-- the output projection (D4): read-only rows in the item rhythm;
+               dl semantics kept, never a live region -->
+          <dl class="jx-canvas-output m-0 mt-[0.85rem] flex flex-col gap-[0.25rem]">
+            {#each output as item, index (`${item.label}-${index}`)}
+              <div
+                data-jx-canvas-output-row
+                class="grid items-baseline gap-[0.6rem] grid-cols-[minmax(5.5rem,auto)_minmax(0,1fr)] bg-[color-mix(in_oklab,var(--muted)_30%,transparent)] border border-[color-mix(in_oklab,var(--border)_60%,transparent)] px-[0.5rem] py-[0.28rem]"
+              >
                 <dt class="text-muted-foreground font-nav text-[10px] tracking-[0.14em] uppercase">{item.label}</dt>
-                <dd class="text-[color:var(--accent-foreground,var(--foreground))] font-mono text-[11.5px] m-0 min-w-0 [overflow-wrap:anywhere]">{formatEcho(item.value)}</dd>
+                <dd class="text-[color:var(--accent-foreground,var(--foreground))] font-mono text-[11.5px] m-0 min-w-0 [overflow-wrap:anywhere]">{formatOutput(item.value)}</dd>
               </div>
             {/each}
           </dl>
@@ -328,6 +329,8 @@
   </div>
 
   <div data-jx-canvas-code-bar class="flex items-center justify-between gap-3 border-t border-border pt-[0.35rem] pe-2 pb-[0.35rem] ps-[0.6rem]">
+    <!-- one disclosure (D6): chevron + Code + the count adjacent; the
+         chevron rotates with aria-expanded -->
     <button
       type="button"
       class={cn(
@@ -339,16 +342,28 @@
       aria-controls={drawerId}
       onclick={() => (codeOpen = !codeOpen)}
     >
-      <span aria-hidden="true">{'</>'}</span>
+      <span
+        class="jx-canvas-chevron inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px] transition-transform duration-150 ease-out"
+        class:rotate-180={codeOpen}
+        aria-hidden="true"
+      >
+        {@html icons.chevronDown}
+      </span>
       <span>Code</span>
+      <span class="text-muted-foreground font-mono text-[10px]">· {files.length}</span>
     </button>
     <div data-jx-canvas-code-actions class="flex items-center gap-3">
       {#if usageFile}
-        <button type="button" class="jx-canvas-copy-usage bg-transparent border-transparent text-muted-foreground hover:text-primary cursor-pointer font-nav text-[10px] tracking-[0.14em] p-0 underline [text-underline-offset:3px] uppercase" ariaLabel="copy the usage snippet" onclick={() => copyUsage()}>
-          {copiedUsage ? 'copied ✓' : 'copy usage'}
+        <button
+          type="button"
+          class="jx-press jx-canvas-copy-usage inline-flex size-6 items-center justify-center border border-border bg-background text-muted-foreground hover:text-primary cursor-pointer [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
+          aria-label={copiedUsage ? 'Usage copied' : 'Copy the usage snippet'}
+          title={copiedUsage ? 'copied' : 'copy usage'}
+          onclick={() => copyUsage()}
+        >
+          <span class="[&_svg]:h-3 [&_svg]:w-3" aria-hidden="true">{@html (copiedUsage ? icons.check : icons.copy)}</span>
         </button>
       {/if}
-      <span data-jx-canvas-code-count class="text-muted-foreground text-[10.5px] tracking-[0.08em] uppercase">{files.length} {files.length === 1 ? 'file' : 'files'}</span>
     </div>
   </div>
 
@@ -358,6 +373,8 @@
       codeOpen && 'grid-rows-[1fr]',
     )}
     id={drawerId}
+    role="region"
+    aria-labelledby={titleId}
     data-open={codeOpen || undefined}
     inert={!codeOpen || undefined}
   >

@@ -169,7 +169,7 @@ playing.subscribe((v) => (isPlaying = v));
       files={hueFiles}
       stage="start"
       onreset={resetHueLab}
-      echo={[
+      output={[
         { label: '--brand-hue', value: `${Math.round(hue)}°` },
         { label: 'cycle', value: isPlaying ? 'auto · wall-clock' : 'paused · manual' },
       ]}

@@ -80,7 +80,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/sheet.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[{ label: 'side', value: side }]}
+      output={[{ label: 'side', value: side }]}
     >
       <div class="flex flex-wrap items-center gap-4">
         <PressButton onclick={() => (open = true)}>Open sheet</PressButton>

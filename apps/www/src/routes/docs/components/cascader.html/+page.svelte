@@ -101,7 +101,7 @@ const options = [
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/cascader.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[{ label: 'path', value: value.length ? value.join(' / ') : '—' }]}
+      output={[{ label: 'path', value: value.length ? value.join(' / ') : '—' }]}
       resolveFileContent={resolveUsage}
     >
       <div class="w-full max-w-md">

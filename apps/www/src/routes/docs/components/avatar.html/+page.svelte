@@ -105,7 +105,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/avatar.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[
+      output={[
         { label: 'name', value: name || '—' },
         { label: 'variant', value: variant },
       ]}

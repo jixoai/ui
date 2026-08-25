@@ -129,7 +129,7 @@
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/combobox.svelte"
       files={comboboxFiles}
       onreset={resetComboboxCanvas}
-      echo={[
+      output={[
         { label: 'value', value: canvasBackend ?? 'undefined' },
         { label: 'allowCustom', value: canvasAllowCustom },
       ]}

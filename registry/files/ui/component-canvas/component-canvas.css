@@ -1,29 +1,24 @@
 @layer theme, base, components, utilities;
 
-/* jixoai component-canvas — D1-exempt residue (tw4, 2026-08-24). Every
- * element the component authors carries its paint as token utilities in
- * the markup. What remains here:
- *   - the two 48rem container tiers — container queries on the shell's
- *     own width, with the cqi clamp the side-by-side pane runs on;
- *   - the snippet-children layout contracts (.jx-play-*) and the
- *     stretch-stage child law — markup utilities never reach snippet
- *     children;
- *   - the tree pane's scrollbar-gutter compensation recipe;
- *   - the frame strip on the embedded code-card (cross-component
- *     override of code-card's own utility paint);
- *   - focus-visible rings and the reduced-motion kill.
+/* jixoai component-canvas — residue (tw4; redesign 2026-08-25, Codex
+ * D5 layering). Every element the component authors carries its paint
+ * as token utilities in the markup. What remains here:
+ *   - the HOST container tiers (@container/jx-canvas-host, ≥48rem
+ *     sidebar grid with the cqi clamp);
+ *   - the SCROLL layer's bounded auto-scroll + scrollbar law (the
+ *     named demo container @container/jx-canvas rides the scrollport
+ *     utility in the markup — queries there see scrollbar-eaten width);
+ *   - the fill-stage child law (snippet children, utilities can't reach);
+ *   - the legacy snippet contracts (.jx-play-*) until the kit migration;
+ *   - the tree pane's scrollbar-gutter recipe + the code-card strip;
+ *   - focus rings and the reduced-motion kill.
  *
- * Rules that override the component's OWN utility paint (the wide tier's
- * grid stage row, the pane's border swap, the tree pane's wide form, the
- * code-card strip) ride the UNLAYERED :where() carve-out — the toggle/
- * Part A precedent; the static snippet contracts sit in @layer
- * components so consumer utilities still win there. */
+ * Rules that override the component's OWN utility paint ride the
+ * UNLAYERED :where() carve-out; static contracts sit in @layer
+ * components so consumer utilities still win. */
 
 @layer components {
-  /* snippet layout contract: documented classes pinned under this pane —
-     .jx-play-fields (control stack), .jx-play-field (one control row),
-     .jx-play-help (separated prose zone that must not carry form-field
-     visual weight) */
+  /* legacy snippet layout contract (removed with the kit migration) */
   .jx-canvas-playground-body .jx-play-fields {
     display: grid;
     gap: 0.75rem;
@@ -42,23 +37,36 @@
     text-wrap: pretty;
   }
 
-  /* narrow container form: the header text takes the full first row so
-     the Source button folds UNDER the title */
-  @container (max-width: 48rem) {
+  /* narrow host form: the header text takes the full first row so the
+     source anchor folds UNDER the title */
+  @container jx-canvas-host (max-width: 48rem) {
     .jx-canvas-head-text {
       flex: 1 1 100%;
     }
   }
 }
 
-/* stretch posture: consumer children fill the stage row */
-:where(.jx-stage-stretch > *) {
-  flex: 1 1 100%;
-  max-width: 100%;
+/* the scroll layer (D5): bounded by default, native auto-scroll, the
+   scrollbar law. The stage keeps its own min-height; the scroll layer
+   only grows past the cap when the demo genuinely needs it. */
+:where(.jx-canvas-scroll) {
+  overflow: auto;
+  max-block-size: min(32rem, 60vh);
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
 }
 
-/* ── the wide tier (container ≥ 48rem) ── */
-@container (min-width: 48rem) {
+/* fill posture (D2): consumer children span the stage row — snippet
+   children, markup utilities can't reach them */
+:where([data-jx-canvas-stage][data-stage='fill'] > *) {
+  flex: 1 1 100%;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+}
+
+/* ── the wide tier (host ≥ 48rem) ── */
+@container jx-canvas-host (min-width: 48rem) {
   /* stage row becomes the two-column grid; the pane takes a container-
      relative clamp (18rem floor, 22rem ceiling) right of the stage */
   :where(.jx-canvas-stage-row) {
@@ -70,7 +78,7 @@
     border-left: 1px solid var(--border);
     /* side-by-side containment: the controls body scrolls inside a capped
        block size so tall stacks never stretch the canvas or push the code
-       bar away; the title row and echo footer stay pinned */
+       bar away; the title row and output footer stay pinned */
     max-block-size: min(36rem, 70vh);
   }
   :where(.jx-canvas-playground-body) {
@@ -85,7 +93,7 @@
   :where(.jx-canvas-playground-body > *) {
     flex-shrink: 0;
   }
-  :where(.jx-canvas-echo) {
+  :where(.jx-canvas-output) {
     flex: none;
   }
   /* the drawer window goes side-by-side: tree column + code view */
@@ -123,13 +131,15 @@
 /* focus rings: the site's contained-ring law at canvas scale */
 :where(.jx-canvas-reset:focus-visible),
 :where(.jx-canvas-copy-usage:focus-visible),
-:where(.jx-canvas-code-toggle:focus-visible) {
+:where(.jx-canvas-code-toggle:focus-visible),
+:where(.jx-canvas-source:focus-visible) {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :where(.jx-canvas-code-drawer) {
+  :where(.jx-canvas-code-drawer),
+  :where(.jx-canvas-chevron) {
     transition: none;
   }
 }

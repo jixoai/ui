@@ -119,7 +119,7 @@ ${close}
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/section-card.svelte"
         {files}
         onreset={resetCanvas}
-        echo={[
+        output={[
           { label: 'tone', value: demoTone },
           { label: 'eyebrow', value: demoEyebrow || '—' },
           { label: 'summary', value: showSummary },

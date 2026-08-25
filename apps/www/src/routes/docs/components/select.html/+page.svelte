@@ -132,7 +132,7 @@
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/select.svelte"
       files={selectFiles}
       onreset={resetSelectCanvas}
-      echo={[
+      output={[
         { label: 'value', value: canvasRuntime },
         { label: 'placeholder', value: canvasPlaceholder || '—' },
       ]}

@@ -35,7 +35,7 @@
   id="explicit"
   files={files}
   onreset={reset}
-  echo={[
+  output={[
     { label: 'label', value: label },
     { label: 'toggled', value: toggled },
     { label: 'unset', value: undefined },

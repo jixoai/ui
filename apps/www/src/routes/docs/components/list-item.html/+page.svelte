@@ -128,7 +128,7 @@ ${close}
         description="The base composition: ItemContent (title + description) and ItemActions on an outline Item. Every other slot is optional — the grid template rewrites itself around what exists."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/list-item/item.svelte"
         files={canvasFiles}
-        stage="stretch"
+        stage="fill"
       >
         <div class="w-full max-w-lg">
           <Item variant="outline">

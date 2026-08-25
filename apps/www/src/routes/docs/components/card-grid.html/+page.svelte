@@ -106,7 +106,7 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/card-grid.svelte"
         {files}
         onreset={resetCanvas}
-        echo={[
+        output={[
           { label: 'min', value: `${minPx}px` },
           { label: 'card 03', value: optOut ? 'data-no-subgrid' : 'shared rows' },
         ]}

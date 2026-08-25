@@ -261,13 +261,18 @@
   @container jx-shell (min-width: 1200px) {
     .jx-dsn-rail {
       display: block;
+      /* the rail's top inset lives on the CONTENT, never the scroller:
+         Blink pins sticky top:0 at the content-box top while scrolled
+         content clips at the padding-box edge — scroller padding would
+         leave an un-blurred gap above the progressive-blur band (the
+         same-layer-sticky law, probed 2026-08-25) */
+      padding-block-start: 1.25rem;
     }
     .jx-dsn-bar {
       display: none;
     }
     .jx-dsn {
-      padding-block-start: 1.25rem;
-      max-height: calc(100% - 1.25rem);
+      max-height: 100%;
       overflow: hidden auto;
       scrollbar-width: thin;
       scrollbar-gutter: stable both-edges;

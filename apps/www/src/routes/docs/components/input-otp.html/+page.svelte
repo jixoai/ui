@@ -77,7 +77,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/input-otp.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[{ label: 'value', value: code || '—' }]}
+      output={[{ label: 'value', value: code || '—' }]}
       resolveFileContent={resolveUsage}
     >
       <div class="flex flex-col items-start gap-4">

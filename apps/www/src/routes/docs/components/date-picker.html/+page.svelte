@@ -123,7 +123,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/date-picker.svelte"
       files={datePickerFiles}
       onreset={resetDateCanvas}
-      echo={[
+      output={[
         { label: 'format', value: canvasDateFormat },
         { label: 'value', value: canvasDate },
       ]}

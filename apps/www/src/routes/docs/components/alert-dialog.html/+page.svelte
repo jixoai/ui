@@ -80,7 +80,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/alert-dialog.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[{ label: 'deleted', value: deleted ? 'yes' : 'no' }]}
+      output={[{ label: 'deleted', value: deleted ? 'yes' : 'no' }]}
     >
       <div class="flex flex-wrap items-center gap-4">
         <PressButton onclick={() => (open = true)}>Delete pipeline…</PressButton>

@@ -78,7 +78,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/popconfirm.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[{ label: 'outcome', value: outcome || '—' }]}
+      output={[{ label: 'outcome', value: outcome || '—' }]}
     >
       <div class="flex flex-wrap items-center gap-4">
         <Popconfirm

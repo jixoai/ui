@@ -87,7 +87,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/command.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[{ label: 'last action', value: lastAction || '—' }]}
+      output={[{ label: 'last action', value: lastAction || '—' }]}
     >
       <div class="flex flex-wrap items-center gap-4">
         <PressButton onclick={() => (open = true)}>open palette</PressButton>

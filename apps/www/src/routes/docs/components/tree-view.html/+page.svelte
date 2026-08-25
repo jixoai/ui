@@ -418,7 +418,7 @@ ${close}
         files={coreFiles}
         stage="start"
         onreset={() => (basicSelected = 'Leads/New Lead')}
-        echo={[{ label: 'selected', value: basicSelected }]}
+        output={[{ label: 'selected', value: basicSelected }]}
       >
         <div class="jx-tree-pane">
           <TreeView
@@ -561,7 +561,7 @@ ${close}
         files={multiFiles}
         stage="start"
         onreset={() => (permChecked = [...permInitial])}
-        echo={[{ label: 'checked', value: permChecked }]}
+        output={[{ label: 'checked', value: permChecked }]}
       >
         <div class="jx-tree-pane">
           <TreeViewMulti nodes={permissions} defaultExpanded={permOpen} bind:checked={permChecked} />
@@ -586,7 +586,7 @@ ${close}
       files={usageFile(actionsUsage)}
       stage="start"
       onreset={() => (lastAction = null)}
-      echo={[{ label: 'last action', value: lastAction }]}
+      output={[{ label: 'last action', value: lastAction }]}
     >
       <div class="jx-tree-pane">
         <TreeView

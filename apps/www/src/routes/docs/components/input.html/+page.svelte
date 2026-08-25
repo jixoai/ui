@@ -190,7 +190,7 @@
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/input.svelte"
       files={inputFiles}
       onreset={resetInputCanvas}
-      echo={[
+      output={[
         { label: 'type', value: canvasInputType },
         { label: 'value', value: canvasEmail || '—' },
         { label: 'clearable', value: canvasInputClearable },

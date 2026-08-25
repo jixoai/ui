@@ -94,7 +94,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/dropdown-menu.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[{ label: 'last action', value: lastAction || '—' }]}
+      output={[{ label: 'last action', value: lastAction || '—' }]}
       resolveFileContent={resolveUsage}
     >
       <div class="flex flex-wrap items-center gap-4">

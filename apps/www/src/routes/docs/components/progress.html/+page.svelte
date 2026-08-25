@@ -71,7 +71,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/progress.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[{ label: 'value', value: `${Math.round(value * 100)}%` }]}
+      output={[{ label: 'value', value: `${Math.round(value * 100)}%` }]}
     >
       <div class="flex w-full max-w-md flex-col gap-6">
         <Progress {value} label="deploy" />

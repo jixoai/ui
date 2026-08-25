@@ -114,7 +114,7 @@ ${close}
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/press-button.svelte"
         {files}
         onreset={resetCanvas}
-        echo={[
+        output={[
           { label: 'variant', value: variant },
           { label: 'effect', value: effect },
         ]}

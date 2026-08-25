@@ -96,7 +96,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/toggle-group.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[
+      output={[
         { label: 'single', value: single || '—' },
         { label: 'multiple', value: many.length ? many.join(', ') : '—' },
       ]}

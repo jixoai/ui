@@ -123,7 +123,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/dialog.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[
+      output={[
         { label: 'open', value: canvasOpen ? 'true' : 'false' },
         { label: 'title', value: canvasTitle || '—' },
       ]}

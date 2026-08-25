@@ -17,7 +17,7 @@
 <ComponentCanvas
   title="echo dupes"
   files={files}
-  echo={[
+  output={[
     { label: 'value', value: 'a' },
     { label: 'value', value: 'b' },
   ]}

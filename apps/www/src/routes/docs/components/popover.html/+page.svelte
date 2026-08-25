@@ -230,7 +230,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/popover.svelte"
       files={canvasFiles}
       onreset={resetPopoverCanvas}
-      echo={[
+      output={[
         { label: 'trigger', value: canvasTriggerLabel || '—' },
         { label: 'last action', value: canvasChoice ?? '—' },
       ]}

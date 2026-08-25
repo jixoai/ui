@@ -79,7 +79,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/steps.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[{ label: 'current', value: current }]}
+      output={[{ label: 'current', value: current }]}
       resolveFileContent={resolveUsage}
     >
       <div class="w-full max-w-2xl">

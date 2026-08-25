@@ -120,7 +120,7 @@ ${drivenNormal}${usageTail}`;
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/icon-button.svelte"
         {files}
         onreset={resetCanvas}
-        echo={[
+        output={[
           { label: 'variant', value: variant },
           { label: 'placement', value: variant === 'icon-only' ? placement : '—' },
         ]}

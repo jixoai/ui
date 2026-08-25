@@ -91,7 +91,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/pagination.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[{ label: 'page', value: page }]}
+      output={[{ label: 'page', value: page }]}
       resolveFileContent={resolveUsage}
     >
       <div class="w-full max-w-xl">

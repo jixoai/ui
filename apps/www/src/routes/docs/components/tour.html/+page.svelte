@@ -60,7 +60,7 @@
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/tour.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[{ label: 'finished at step', value: finishedAt ?? '—' }]}
+      output={[{ label: 'finished at step', value: finishedAt ?? '—' }]}
     >
       <div class="flex flex-col items-start gap-6">
         <div class="flex flex-wrap items-center gap-4">

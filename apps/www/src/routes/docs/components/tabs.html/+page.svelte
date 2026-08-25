@@ -112,7 +112,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/tabs.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[
+      output={[
         { label: 'value', value: tab },
         { label: 'last change', value: lastChange || '—' },
       ]}

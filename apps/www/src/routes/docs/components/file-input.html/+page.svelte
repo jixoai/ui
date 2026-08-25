@@ -143,7 +143,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/file-input.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[
+      output={[
         { label: 'variant', value: canvasVariant },
         { label: 'multiple', value: canvasMultiple },
         { label: 'files', value: demoFiles.length },

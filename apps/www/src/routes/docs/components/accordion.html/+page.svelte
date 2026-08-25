@@ -93,7 +93,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/accordion.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[
+      output={[
         { label: 'exclusive', value: exclusive ? 'on' : 'off' },
         { label: 'ghost', value: ghost ? 'on' : 'off' },
       ]}

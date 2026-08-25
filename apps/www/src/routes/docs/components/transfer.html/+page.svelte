@@ -86,7 +86,7 @@ const options = [
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/transfer.svelte"
       files={canvasFiles}
       onreset={resetCanvas}
-      echo={[{ label: 'target', value: value.length ? value.join(', ') : '—' }]}
+      output={[{ label: 'target', value: value.length ? value.join(', ') : '—' }]}
       resolveFileContent={resolveUsage}
     >
       <div class="w-full max-w-2xl">

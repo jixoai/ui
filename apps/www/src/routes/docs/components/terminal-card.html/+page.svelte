@@ -78,7 +78,7 @@
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/terminal-card.svelte"
       {files}
       onreset={resetCanvas}
-      echo={[{ label: 'speed', value: `${speed}×` }]}
+      output={[{ label: 'speed', value: `${speed}×` }]}
     >
       <div class="flex w-full max-w-[38rem] flex-col items-center gap-5">
         {#key replay}
