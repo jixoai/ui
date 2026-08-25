@@ -32,7 +32,10 @@
 - [x] 11. Walkthrough 17/17 (built-in browser webview unavailable ×2
        → ego-browser per owner instruction; every behavioral lock
        verified live incl. the composed header mega panels)
-- [ ] 12. Codex implementation review round (Herdr, async) + iterate
-       to green
-- [ ] 13. Archive change; spec delta merged; exceptions table carried
-       into component-authoring as the audit checklist
+- [x] 12. Codex implementation review: r1 7.1 → r2 7.0 → r3 7.8 →
+       r4 APPROVE-FOR-IMPLEMENTATION 8.2/10 (P1 修复五组 + 回归锁
+       3c12a20；轨迹归档 review-design-r1.md)
+- [x] 13. Archived; spec delta merged into component-authoring (the
+       composition-first API surface, the family context contract,
+       the child snippet contract); the exceptions table IS the
+       probe's in-script allowlist (scripts/verify-composition-law.mjs)
