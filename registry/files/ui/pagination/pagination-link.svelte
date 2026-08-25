@@ -6,18 +6,21 @@
   is a lie to every input mode). `isActive` paints the current chip
   and sets aria-current="page".
 
-  child({ props }) contract (design.md): the consumer may replace the
-  element; props carry the cn()-merged class, href/onclick and the
-  state attributes. The current page rides the law's press without
-  its shadow — hover/active poses re-point to none (verbatim from the
-  closed component).
+  child({ props }) contract (design.md): ANCHOR-form only — the
+  escape renders exclusively on the href branch (single concrete
+  element-kind law, Codex impl-r1 P1-4). The onclick-only button is
+  not replaceable (a link that goes nowhere is a lie to every input
+  mode). The current page rides the law's press without its shadow —
+  hover/active poses re-point to none (verbatim from the closed
+  component).
+  (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAnchorAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
 
-  interface Props {
+  interface Props extends Omit<HTMLAnchorAttributes, 'aria-current'> {
     /** which page this link is (its default label) */
     page: number;
     /** the current page — active chip paint + aria-current */
@@ -26,7 +29,7 @@
     href?: string;
     /** click-only control (renders a button, not a dead link) */
     onclick?: (event: MouseEvent) => void;
-    /** replacement-element escape: receives the merged link props */
+    /** replacement-element escape (ANCHOR form: requires href) */
     child?: Snippet<[{ props: HTMLAnchorAttributes & { class: string } }]>;
     children?: Snippet;
     class?: string;
@@ -40,6 +43,7 @@
     child,
     children,
     class: className = '',
+    ...rest
   }: Props = $props();
 
   // chip geometry + press poses (the closed component's law: the
@@ -66,10 +70,11 @@
     'aria-current': isActive ? ('page' as const) : undefined,
     href,
     onclick,
+    ...rest,
   });
 </script>
 
-{#if child}
+{#if child && href !== undefined}
   {@render child({ props })}
 {:else if href !== undefined}
   <a {...props} href={href}>{#if children}{@render children()}{:else}{page}{/if}</a>

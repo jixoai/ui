@@ -19,6 +19,7 @@
   Escape is EXPLICIT: preventDefault on the keydown cancels the native
   close request, so without the imperative hide focus would return
   over a still-open panel (Codex r1 blocking #1, browser-reproduced).
+  (props-discipline sweep, 2026-08-25): no ...rest — the panel's popover/id/role/ontoggle wiring is load-bearing family law; a consumer attribute spread could clobber the popover surface, the derived panel id or the toggle seam (the declared exception class in the sweep instruction).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';

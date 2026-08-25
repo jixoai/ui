@@ -123,14 +123,19 @@ normal · `[0,2]` with current=1 → done/inert(no current) ·
   changing it is caller error (dev-mode console warn). This is the
   default for EVERY family Item, NavigationMenuItem included
   (explicit id optional, generated id otherwise).
-- ONE key space (r6 ruling): the PANEL is the only registrant — it
-  registers under the DERIVED panel id `${item.id}-panel`, with:
+- ONE key space (r6 ruling, impl-r1 P1-5 signature): the PANEL is
+  the only registrant — under the DERIVED panel id
+  `${item.id}-panel`:
 
 ```ts
 interface PanelHandles { show(source?: HTMLElement): void; hide(): void }
 interface FamilyContext {
-  register(panelId: string, handles: PanelHandles): void;
-  unregister(panelId: string): void;
+  // anchorName rides the call so sanitized-name collision detection
+  // happens exactly where registration happens; unregister carries
+  // the handles for identity-guarded removal — a losing duplicate's
+  // unmount can never delete the winner's entry
+  register(panelId: string, anchorName: string, handles: PanelHandles): void;
+  unregister(panelId: string, handles: PanelHandles): void;
   // state getters per family (openId, tabStop, …)
 }
 ```

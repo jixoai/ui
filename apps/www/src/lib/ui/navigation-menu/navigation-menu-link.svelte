@@ -43,6 +43,10 @@
     ...rest,
     href,
     'aria-current': current ? 'page' : undefined,
+    // the marker rides childProps too — the TerminalHeader indicator
+    // queries [data-jx-navmenu-link]; a child() replacement must stay
+    // trackable (Codex impl-r1 P1-3)
+    'data-jx-navmenu-link': '',
     class: paint,
   });
 </script>
