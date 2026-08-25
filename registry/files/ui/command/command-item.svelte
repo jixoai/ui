@@ -68,8 +68,10 @@
 
   function fire(): void {
     if (disabled) return;
-    if (cmd.closeOnSelect) cmd.close();
+    // callback first, then the close — the consumer's handler runs
+    // against the still-open palette (Codex impl-r2 P1-2)
     onselect?.();
+    if (cmd.closeOnSelect) cmd.close();
   }
 </script>
 

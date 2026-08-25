@@ -52,7 +52,6 @@
 
 <button
   type="button"
-  id={triggerId}
   data-jx-navmenu-trigger=""
   popovertarget={panelId}
   aria-haspopup="true"
@@ -71,6 +70,7 @@
   )}
   onfocus={() => bar.setTabStop(triggerId)}
   {...rest}
+  id={triggerId}
 >
   {@render children()}
 </button>

@@ -106,6 +106,10 @@
      *  aria-activedescendant mirror */
     readonly activeId: string;
     readonly closeOnSelect: boolean;
+    /** the OWN listbox element — registered by CommandList at mount;
+     *  the walk accepts only options whose closest listbox IS this
+     *  one (nested palettes never leak — Codex impl-r2 P1-1) */
+    listEl: HTMLElement | null;
     /** self-match: the predicate bound to the current query */
     matches(item: CommandMatchItem): boolean;
     setQuery(next: string): void;
@@ -185,16 +189,15 @@
   const matcher = $derived(match ?? defaultCommandMatch);
 
   /** the walkable options — DOM-DELEGATED (family context contract,
-   *  clause 3): the frozen selector over THIS dialog's listbox-scoped
-   *  options. Hidden and disabled items never enter the walk; nested
-   *  foreign listboxes are excluded by the closest() scope. */
+   *  clause 3): the frozen selector over THIS palette's OWN listbox
+   *  (CommandList registers its element on the context at mount).
+   *  Hidden and disabled items never enter the walk; a NESTED
+   *  palette's options — whose closest listbox is the inner one —
+   *  never leak into this walk (Codex impl-r2 P1-1). */
   function ownOptions(): HTMLElement[] {
-    if (!dialog) return [];
+    if (!dialog || !ctx.listEl) return [];
     return [...dialog.querySelectorAll<HTMLElement>(COMMAND_WALK_SELECTOR)].filter(
-      (option) => {
-        const box = option.closest('[role="listbox"]');
-        return box !== null && dialog!.contains(box);
-      },
+      (option) => option.closest('[role="listbox"]') === ctx.listEl,
     );
   }
 
@@ -249,7 +252,7 @@
     else activateActive();
   }
 
-  setContext<CommandApi>(COMMAND_KEY, {
+  const ctx: CommandApi = {
     get label() {
       return label;
     },
@@ -268,6 +271,7 @@
     get closeOnSelect() {
       return closeOnSelect;
     },
+    listEl: null,
     matches(item) {
       return matcher(item, query);
     },
@@ -284,7 +288,9 @@
     close() {
       setOpen(false);
     },
-  });
+  };
+
+  setContext(COMMAND_KEY, ctx);
 
   function setOpen(next: boolean): void {
     if (next === open) return;
@@ -331,7 +337,9 @@
   });
 
   const handleClose = (): void => {
-    open = false;
+    // native close (Escape/backdrop) rides the same public seam as
+    // programmatic closes — onopenchange fires for every path
+    setOpen(false);
   };
 
   const handleCancel = (event: Event): void => {

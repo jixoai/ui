@@ -56,7 +56,10 @@
   <span
     data-jx-page-edge=""
     data-jx-page-edge-off=""
-    class="inline-flex h-[1.875rem] min-w-[1.875rem] items-center justify-center box-border border border-border bg-card px-2 font-nav text-xs uppercase tracking-[0.08em] text-foreground opacity-45 shadow-none cursor-not-allowed"
+    class={cn(
+      'inline-flex h-[1.875rem] min-w-[1.875rem] items-center justify-center box-border border border-border bg-card px-2 font-nav text-xs uppercase tracking-[0.08em] text-foreground opacity-45 shadow-none cursor-not-allowed',
+      className,
+    )}
     {...rest}
     aria-disabled="true"
   >

@@ -40,7 +40,6 @@
 
 <button
   type="button"
-  id={triggerId}
   data-jx-menubar-trigger=""
   role="menuitem"
   aria-haspopup="menu"
@@ -56,6 +55,7 @@
   onclick={() =>
     bar.openPanelId === panelId ? bar.closePanel(panelId) : bar.openPanel(panelId, false)}
   {...rest}
+  id={triggerId}
 >
   {@render children()}
 </button>

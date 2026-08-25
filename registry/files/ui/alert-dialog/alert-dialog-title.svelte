@@ -22,10 +22,10 @@
 </script>
 
 <h2
-  id="{api.uid}-title"
   data-jx-adlg-title=""
   class={cn('font-nav text-[0.9375rem] tracking-[0.08em] uppercase text-foreground', className)}
   {...rest}
+  id="{api.uid}-title"
 >
   {@render children()}
 </h2>

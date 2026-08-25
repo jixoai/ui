@@ -24,7 +24,7 @@
   /** the item's context surface: the ONE id + its derived anchor */
   export interface MenubarItemApi {
     readonly id: string;
-    /** `--jx-menubar-<sanitized-id>` (chars outside [a-z0-9-] collapse) */
+    /** `--jx-menubar-<sanitized-id>` (chars outside [a-zA-Z0-9-] collapse — case-preserving, CSS idents are case-sensitive) */
     readonly anchorName: string;
     /** the anchor slot span — the kernel's live anchor axis */
     readonly slotEl: HTMLElement | null;
@@ -56,7 +56,7 @@
 
   // $derived keeps the anchor name truthful if the id ever flips —
   // though the id is mount-stable by contract (warned below)
-  const anchorName = $derived(`--jx-menubar-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+  const anchorName = $derived(`--jx-menubar-${id.replace(/[^a-zA-Z0-9-]+/g, '-')}`);
 
   let lastId: string | undefined;
   $effect(() => {

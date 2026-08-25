@@ -22,10 +22,10 @@
 </script>
 
 <p
-  id="{api.uid}-desc"
   data-jx-adlg-desc=""
   class={cn('text-[0.8125rem] leading-[1.6] text-muted-foreground', className)}
   {...rest}
+  id="{api.uid}-desc"
 >
   {@render children()}
 </p>

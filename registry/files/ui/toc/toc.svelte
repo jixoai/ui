@@ -111,6 +111,17 @@
   let currentPick = $state<string | null>(null);
   let rootEl = $state<HTMLElement | null>(null);
 
+  /** the own-rail law (Codex impl-r2 P1-1): a link belongs to THIS
+   *  rail when its closest rail root is rootEl — a nested Toc's links
+   *  (own root element) never leak into this rail's spy or paint. */
+  function ownLinks(scope: string): HTMLElement[] {
+    if (!rootEl) return [];
+    return [...rootEl.querySelectorAll<HTMLElement>(`${scope} a[data-jx-toc-link]`)].filter(
+      (a) => a.closest('[data-jx-toc-root]') === rootEl,
+    );
+  }
+
+
   // Live line: WHERE pinned chrome ends. Inside the grid shell this reads
   // the body's resolved scroll-padding — the shell owns the single truth
   // (--jx-toc-line derives from the measured header height + the toc bar
@@ -179,7 +190,7 @@
    *  outline lib's derivation — the composed tree IS the region list).
    *  Re-read per compute, so a changed tree goes live without a restart. */
   const treeExtents = (): readonly TocExtent[] => {
-    const links = [...(rootEl?.querySelectorAll('.jx-toc-desktop a[data-jx-toc-link]') ?? [])];
+    const links = ownLinks('.jx-toc-desktop');
     const targets = links
       .map((link) => document.getElementById(fragmentOf(link)))
       .filter((el): el is HTMLElement => el !== null);
@@ -199,7 +210,7 @@
    *  registry. */
   const parentIdOf = (id: string): string | null => {
     if (!rootEl) return null;
-    const link = [...rootEl.querySelectorAll('.jx-toc-desktop a[data-jx-toc-link]')].find(
+    const link = ownLinks('.jx-toc-desktop').find(
       (a) => fragmentOf(a) === id,
     );
     const outerItem = link?.closest('li')?.parentElement?.closest('li');
@@ -241,7 +252,7 @@
         // no snap semantics to disagree with. The 44px row shows exactly
         // the picked li, every time.
         const picked = [
-          ...rootEl.querySelectorAll('.jx-viewport a[data-jx-toc-link]'),
+          ...ownLinks('.jx-viewport'),
         ].find((a) => fragmentOf(a) === pick);
         const li = picked?.closest('li');
         if (viewport && li) {
@@ -276,7 +287,7 @@
 
   const syncRow = () => {
     if (!rootEl || !currentPick) return;
-    const picked = [...rootEl.querySelectorAll('.jx-viewport a[data-jx-toc-link]')].find(
+    const picked = ownLinks('.jx-viewport').find(
       (a) => fragmentOf(a) === currentPick,
     );
     const li = picked?.closest('li');
@@ -328,7 +339,7 @@
   {/if}
 {/snippet}
 
-<div class={cn('jx-toc', className)} data-area="toc" {...rest} bind:this={rootEl}>
+<div class={cn('jx-toc', className)} data-area="toc" data-jx-toc-root="" bind:this={rootEl} {...rest}>
   <nav class="jx-toc-desktop" aria-label="Table of contents">
     <span class="jx-spine"><span class="jx-spine-fill" bind:this={spineFill}></span></span>
     <p class="jx-toc-title">{title}</p>
