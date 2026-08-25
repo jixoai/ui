@@ -72,7 +72,6 @@ ${close}
     {
       id: 'all-types',
       title: 'Native lanes & full customs',
-      zh: '原生通道与全定制',
       guide:
         'The native control is the contract: input passes every native type through untouched (only the shell repaints), number-input adds the [- NUM +] stepper, and the controls the platform cannot paint our way are full customs — range (the pointer-events slider), color-picker (the oklch-hub popover), date-picker (the zero-dep calendar), combobox and tags-input (the searchable pair), and file-input (the professional file picker).',
       members: [
@@ -89,7 +88,6 @@ ${close}
     {
       id: 'select-textarea',
       title: 'The select family & the multiline shell',
-      zh: '选择器家族与多行外壳',
       guide:
         'The select family splits in two: native-select keeps the platform popup (a real name/value pair in FormData, the OS overlay picker on touch) while select builds a popover listbox with per-option descriptions and roving ↑/↓/Enter highlight — reach for the rich one only when the native popup can\u2019t say what you need. textarea is the same text-shell law as input, taller, resize locked to the vertical axis.',
       members: ['native-select', 'select', 'textarea'],
@@ -97,7 +95,6 @@ ${close}
     {
       id: 'example-form',
       title: 'The pure-CSS selectors',
-      zh: '纯 CSS 选择器',
       guide:
         'Three controls where the paint deserved its own drawing code: checkbox, radio, and toggle strip appearance and draw their glyphs with pseudo-elements — a clip-path check, a scaled dot, a sliding knob — while the native input keeps form participation, keyboard toggling, and :checked/:indeterminate state. Zero icon fonts, zero SVG; compose them into forms with the family\u2019s uncontrolled FormData flow (the old example-form story lives on each child page).',
       members: ['checkbox', 'radio', 'toggle'],
@@ -163,7 +160,6 @@ ${close}
         data-reveal=""
       >
         {group.title}
-        <span class="text-muted-foreground text-[0.8em] tracking-[0.2em]">{group.zh}</span>
         <span class="bg-border h-px flex-1" aria-hidden="true"></span>
       </h2>
       <p class="text-muted-foreground mt-3 max-w-[80ch] text-pretty text-[13px] leading-6" data-reveal="">
@@ -194,13 +190,13 @@ ${close}
       family="native-base"
       headerRegion="native-base"
       eyebrow="law"
-      title="NativeHTML 基座"
+      title="the NativeHTML base"
       summary="Why the family is named after the elements: the component adds semantics and paint, never a second control. Three rules carry the whole base."
     >
       <div class="flex flex-col gap-5">
         <ol class="flex flex-col gap-3">
           <li class="flex flex-col gap-1">
-            <p class="text-[13.5px] font-semibold">1 · 原生类型透传 — the type prop IS the native type</p>
+            <p class="text-[13.5px] font-semibold">1 · native type passthrough — the type prop IS the native type</p>
             <p class="text-muted-foreground text-pretty text-[13px] leading-6">
               No <code class="text-accent">TextField</code>/<code class="text-accent">NumberField</code>
               forks: <code class="text-accent">type</code> lands on the element verbatim
@@ -211,7 +207,7 @@ ${close}
             </p>
           </li>
           <li class="flex flex-col gap-1">
-            <p class="text-[13.5px] font-semibold">2 · 重绘策略 — keep the input, redraw the paint</p>
+            <p class="text-[13.5px] font-semibold">2 · repaint strategy — keep the input, redraw the paint</p>
             <p class="text-muted-foreground text-pretty text-[13px] leading-6">
               The split happens at the paint, never the control. checkbox / radio / toggle set
               <code class="text-accent">appearance: none</code> and draw their own glyphs with
@@ -227,7 +223,7 @@ ${close}
             </p>
           </li>
           <li class="flex flex-col gap-1">
-            <p class="text-[13.5px] font-semibold">3 · label / error 关联 — label[for] + aria-describedby</p>
+            <p class="text-[13.5px] font-semibold">3 · label / error wiring — label[for] + aria-describedby</p>
             <p class="text-muted-foreground text-pretty text-[13px] leading-6">
               The <code class="text-accent">label</code> prop renders
               <code class="text-accent">label[for]</code> against an auto-generated id

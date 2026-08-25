@@ -52,7 +52,6 @@
         data-reveal=""
       >
         {group.group.label}
-        <span class="text-muted-foreground text-[0.8em] tracking-[0.2em]">{group.group.zh}</span>
         <span class="bg-border h-px flex-1" aria-hidden="true"></span>
       </h2>
 

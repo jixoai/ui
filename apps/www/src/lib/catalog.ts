@@ -43,8 +43,6 @@ export interface CatalogGroup {
   id: CatalogGroupId;
   /** english label (antd taxonomy naming) */
   label: string;
-  /** chinese label */
-  zh: string;
   /** one-line scope */
   description: string;
 }
@@ -61,15 +59,15 @@ export interface CatalogEntry {
 }
 
 export const CATALOG_GROUPS: CatalogGroup[] = [
-  { id: 'general', label: 'General', zh: '通用', description: 'The base atoms every surface rides on' },
-  { id: 'layout', label: 'Layout', zh: '布局', description: 'Page structure, shells, and separators' },
-  { id: 'navigation', label: 'Navigation', zh: '导航', description: 'Moving through a site or a wizard' },
-  { id: 'layer', label: 'Layer', zh: '浮层', description: 'Floating surfaces: modal, anchored, docked, spotlight' },
-  { id: 'data-entry', label: 'Data Entry', zh: '数据录入', description: 'Forms, picks, and the ElementInternals bridge' },
-  { id: 'data-display', label: 'Data Display', zh: '数据展示', description: 'Reading data: tables, cards, streams, states' },
-  { id: 'feedback', label: 'Feedback', zh: '反馈', description: 'Inline notices, loading, and operation outcomes' },
-  { id: 'engines', label: 'Engines & Theme', zh: '引擎与主题', description: 'Framework-free libs and the token sheet' },
-  { id: 'docs', label: 'Docs Tooling', zh: '文档工具', description: 'The documentation workbench itself' },
+  { id: 'general', label: 'General', description: 'The base atoms every surface rides on' },
+  { id: 'layout', label: 'Layout', description: 'Page structure, shells, and separators' },
+  { id: 'navigation', label: 'Navigation', description: 'Moving through a site or a wizard' },
+  { id: 'layer', label: 'Layer', description: 'Floating surfaces: modal, anchored, docked, spotlight' },
+  { id: 'data-entry', label: 'Data Entry', description: 'Forms, picks, and the ElementInternals bridge' },
+  { id: 'data-display', label: 'Data Display', description: 'Reading data: tables, cards, streams, states' },
+  { id: 'feedback', label: 'Feedback', description: 'Inline notices, loading, and operation outcomes' },
+  { id: 'engines', label: 'Engines & Theme', description: 'Framework-free libs and the token sheet' },
+  { id: 'docs', label: 'Docs Tooling', description: 'The documentation workbench itself' },
 ];
 
 /** the registry fields the catalog projects (kept minimal + typed) */

@@ -63,6 +63,18 @@ describe('docs-route-model — the section spine', () => {
     expect(new Set(navHrefs).size, 'canonical page per ui item is unique').toBe(navHrefs.length);
   });
 
+  it('taxonomy snapshot: group ids + ui member counts are deliberate (r4)', () => {
+    // frozen 2026-08-25 after the orphan-group fix (component-canvas
+    // → data-display): a single-member column in the mega panel was a
+    // visual break — any taxonomy change must update this snapshot
+    const shape = docsComponentGroups.map(({ group, entries }) => `${group.id}:${entries.length}`);
+    expect(shape).toEqual([
+      'general:5', 'layout:9', 'navigation:10', 'layer:10',
+      'data-entry:18', 'data-display:16', 'feedback:5',
+    ]);
+    expect(shape.every((x) => !x.endsWith(':1')), 'no single-member groups').toBe(true);
+  });
+
   it('layer group sits between navigation and data-entry (design D3)', () => {
     const ids = docsComponentGroups.map(({ group }) => group.id);
     expect(ids.indexOf('layer')).toBe(ids.indexOf('navigation') + 1);

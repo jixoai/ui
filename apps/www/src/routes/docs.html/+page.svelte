@@ -48,9 +48,6 @@
         >
           <div class="flex items-baseline justify-between gap-3">
             <h2 class="font-nav text-[1.05rem] tracking-tight">{section.label}</h2>
-            <span class="text-muted-foreground font-nav text-[11px] uppercase tracking-[0.18em]">
-              {section.zh}
-            </span>
           </div>
           <ul class="flex flex-col gap-1.5" role="list">
             {#each section.pages as pg (pg.label)}

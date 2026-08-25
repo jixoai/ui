@@ -9,7 +9,7 @@ const toc: TocSection[] = [
   { id: 'all-types', label: 'Native lanes & full customs' },
   { id: 'select-textarea', label: 'Select family & textarea' },
   { id: 'example-form', label: 'The pure-CSS selectors' },
-  { id: 'native-base', label: 'NativeHTML 基座' },
+  { id: 'native-base', label: 'the NativeHTML base' },
 ];
 
 export const load = () => ({ toc });

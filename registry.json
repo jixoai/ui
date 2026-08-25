@@ -819,7 +819,7 @@
       ],
       "docs": "Props: title, description?, sourceUrl?, files: TreeFile[]; snippets children (live demo), playground? (interactive controls).",
       "meta": {
-        "group": "docs",
+        "group": "data-display",
         "href": "/docs/components/component-canvas.html"
       }
     },

@@ -22,7 +22,6 @@ export interface DocsPage {
 export interface DocsSection {
   id: string;
   label: string;
-  zh: string;
   pages: DocsPage[];
 }
 
@@ -42,7 +41,6 @@ export const docsSections: DocsSection[] = [
     // face — design D2/D5 (Owner directions 2026-08-25)
     id: 'sections',
     label: 'Sections',
-    zh: '章节',
     pages: [
       { label: 'theming & tokens', href: '/tokens.html' },
       { label: 'where wrapping stops · recipes', href: '/docs/recipes.html' },
@@ -52,7 +50,6 @@ export const docsSections: DocsSection[] = [
   {
     id: 'components',
     label: 'Components',
-    zh: '组件',
     pages: [
       { label: `all components · ${uiCount}`, href: '/docs/components.html' },
       ...docsComponentGroups.map(({ group, entries }) => ({
@@ -66,7 +63,6 @@ export const docsSections: DocsSection[] = [
     // lives on the overview page
     id: 'registry',
     label: 'Registry',
-    zh: '生态',
     pages: [
       { label: 'registry overview', href: '/docs/registry.html' },
       { label: 'registry.json', href: '/r/registry.json' },

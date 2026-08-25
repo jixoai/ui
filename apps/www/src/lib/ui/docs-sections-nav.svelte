@@ -52,7 +52,6 @@
         <details class="jx-dsn-group" open>
           <summary class="jx-dsn-group-label">
             {section.label}
-            <span class="jx-dsn-group-zh">{section.zh}</span>
           </summary>
           <ul class="jx-dsn-list" role="list">
             {#each section.pages as pg (pg.label)}
@@ -96,7 +95,6 @@
         <details class="jx-dsn-group" open={section.id === activeSectionId}>
           <summary class="jx-dsn-group-label">
             {section.label}
-            <span class="jx-dsn-group-zh">{section.zh}</span>
           </summary>
           <ul class="jx-dsn-list" role="list">
             {#each section.pages as pg (pg.label)}
@@ -198,10 +196,6 @@
   }
   .jx-dsn-group-label:hover {
     color: var(--foreground);
-  }
-  .jx-dsn-group-zh {
-    font-size: 0.625rem;
-    opacity: 0.7;
   }
 
   .jx-dsn-list {
