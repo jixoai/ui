@@ -20,8 +20,8 @@
  */
 
 @layer components {
+  /* the base grid (the exhaustive combos below own every real shape) */
   :where(.jx-item) {
-    /* the base matrix: media + content + actions */
     display: grid;
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr) minmax(0, max-content);
     grid-template-areas: 'media content actions';
@@ -33,82 +33,91 @@
       border-color 120ms ease-out;
   }
 
-  /* ── the presence matrix ──────────────────────────────────────────
-     column collapse (media / actions absent) rewrites BOTH the track
-     list and the area names; header/footer prepend/append full rows. */
-
-  :where(.jx-item:not(:has(> [data-slot='item-media']))):not(:has(> [data-slot='item-actions'])) {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: 'content';
+  /* ── the presence matrix (r3, Codex P1-1) ─────────────────────────
+     EXHAUSTIVE SELF-CONTAINED combos: every media/actions × header/
+     footer combination declares BOTH columns AND areas — no chained
+     overrides, no order dependence, no implicit tracks. r2's cascade
+     (areas without matching columns) minted ghost columns in the real
+     browser. */
+  .jx-item {
+    grid-template-columns: minmax(0, max-content) minmax(0, 1fr) minmax(0, max-content);
+    grid-template-areas: 'header header header'
+        'media content actions'
+        'footer footer footer';
   }
-  :where(.jx-item:not(:has(> [data-slot='item-media']))):where(:has(> [data-slot='item-actions'])) {
-    grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
-    grid-template-areas: 'content actions';
+  .jx-item:not(:has(> [data-slot='item-footer'])) {
+    grid-template-columns: minmax(0, max-content) minmax(0, 1fr) minmax(0, max-content);
+    grid-template-areas: 'header header header'
+        'media content actions';
   }
-  :where(.jx-item):where(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-actions'])) {
+  .jx-item:not(:has(> [data-slot='item-header'])) {
+    grid-template-columns: minmax(0, max-content) minmax(0, 1fr) minmax(0, max-content);
+    grid-template-areas: 'media content actions'
+        'footer footer footer';
+  }
+  .jx-item:not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
+    grid-template-columns: minmax(0, max-content) minmax(0, 1fr) minmax(0, max-content);
+    grid-template-areas: 'media content actions';
+  }
+  .jx-item:not(:has(> [data-slot='item-actions'])) {
+    grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+    grid-template-areas: 'header header'
+        'media content'
+        'footer footer';
+  }
+  .jx-item:not(:has(> [data-slot='item-actions'])):not(:has(> [data-slot='item-footer'])) {
+    grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+    grid-template-areas: 'header header'
+        'media content';
+  }
+  .jx-item:not(:has(> [data-slot='item-actions'])):not(:has(> [data-slot='item-header'])) {
+    grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+    grid-template-areas: 'media content'
+        'footer footer';
+  }
+  .jx-item:not(:has(> [data-slot='item-actions'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
     grid-template-areas: 'media content';
   }
-
-  :where(.jx-item:has(> [data-slot='item-header'])) {
-    grid-template-areas:
-      'header header header'
-      'media content actions';
+  .jx-item:not(:has(> [data-slot='item-media'])) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
+    grid-template-areas: 'header header'
+        'content actions'
+        'footer footer';
   }
-  :where(.jx-item:has(> [data-slot='item-footer'])) {
-    grid-template-areas:
-      'media content actions'
-      'footer footer footer';
+  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-footer'])) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
+    grid-template-areas: 'header header'
+        'content actions';
   }
-  :where(.jx-item:has(> [data-slot='item-header'])):where(:has(> [data-slot='item-footer'])) {
-    grid-template-areas:
-      'header header header'
-      'media content actions'
-      'footer footer footer';
+  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
+    grid-template-areas: 'content actions'
+        'footer footer';
   }
-  /* header/footer rows for the collapsed column matrices (2-col) */
-  :where(.jx-item:has(> [data-slot='item-header'])):where(
-      :not(:has(> [data-slot='item-media']))
-    ):where(:has(> [data-slot='item-actions'])) {
-    grid-template-areas:
-      'header header'
-      'content actions';
+  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
+    grid-template-areas: 'content actions';
   }
-  :where(.jx-item:has(> [data-slot='item-header'])):where(
-      :has(> [data-slot='item-media'])
-    ):where(:not(:has(> [data-slot='item-actions']))) {
-    grid-template-areas:
-      'header header'
-      'media content';
+  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-actions'])) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'header'
+        'content'
+        'footer';
   }
-  :where(.jx-item:has(> [data-slot='item-footer'])):where(
-      :not(:has(> [data-slot='item-media']))
-    ):where(:has(> [data-slot='item-actions'])) {
-    grid-template-areas:
-      'content actions'
-      'footer footer';
+  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-actions'])):not(:has(> [data-slot='item-footer'])) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'header'
+        'content';
   }
-  :where(.jx-item:has(> [data-slot='item-footer'])):where(
-      :has(> [data-slot='item-media'])
-    ):where(:not(:has(> [data-slot='item-actions']))) {
-    grid-template-areas:
-      'media content'
-      'footer footer';
+  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-actions'])):not(:has(> [data-slot='item-header'])) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'content'
+        'footer';
   }
-  /* 1-col (content only) + header/footer */
-  :where(.jx-item:has(> [data-slot='item-header'])):where(
-      :not(:has(> [data-slot='item-media']))
-    ):where(:not(:has(> [data-slot='item-actions']))) {
-    grid-template-areas:
-      'header'
-      'content';
-  }
-  :where(.jx-item:has(> [data-slot='item-footer'])):where(
-      :not(:has(> [data-slot='item-media']))
-    ):where(:not(:has(> [data-slot='item-actions']))) {
-    grid-template-areas:
-      'content'
-      'footer';
+  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-actions'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'content';
   }
 
   /* ── slots ─────────────────────────────────────────────────────── */
@@ -271,67 +280,58 @@
 
   /* narrow groups: actions drops to its own full row (D1) */
   @container jx-items (max-width: 30rem) {
-    :where(.jx-item:has(> [data-slot='item-actions'])) {
+    /* narrow wrap (actions to its own row) — the same exhaustive
+       self-contained law, actions-present combos only */
+    .jx-item {
       grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
-      grid-template-areas:
+      grid-template-areas: 'header header'
+        'media content'
+        'actions actions'
+        'footer footer';
+    }
+    .jx-item:not(:has(> [data-slot='item-footer'])) {
+      grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+      grid-template-areas: 'header header'
         'media content'
         'actions actions';
     }
-    :where(.jx-item:not(:has(> [data-slot='item-media'])):has(> [data-slot='item-actions'])) {
+    .jx-item:not(:has(> [data-slot='item-header'])) {
+      grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+      grid-template-areas: 'media content'
+        'actions actions'
+        'footer footer';
+    }
+    .jx-item:not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
+      grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+      grid-template-areas: 'media content'
+        'actions actions';
+    }
+    .jx-item:not(:has(> [data-slot='item-media'])) {
       grid-template-columns: minmax(0, 1fr);
-      grid-template-areas:
-        'content'
-        'actions actions';
-    }
-    :where(.jx-item:has(> [data-slot='item-actions'])) [data-slot='item-actions'] {
-      justify-content: flex-start;
-    }
-    /* header/footer rows under the narrow 2-col matrix (area names must
-       match the track count — mismatched names mint implicit tracks) */
-    :where(.jx-item:has(> [data-slot='item-header']):has(> [data-slot='item-actions'])) {
-      grid-template-areas:
-        'header header'
-        'media content'
-        'actions actions';
-    }
-    :where(
-      .jx-item:has(> [data-slot='item-footer']):has(> [data-slot='item-actions'])
-    ) {
-      grid-template-areas:
-        'media content'
-        'actions actions'
-        'footer footer';
-    }
-    :where(
-      .jx-item:has(> [data-slot='item-header']):has(> [data-slot='item-footer']):has(
-          > [data-slot='item-actions']
-        )
-    ) {
-      grid-template-areas:
-        'header header'
-        'media content'
-        'actions actions'
-        'footer footer';
-    }
-    :where(
-      .jx-item:not(:has(> [data-slot='item-media'])):has(> [data-slot='item-header']):has(
-          > [data-slot='item-actions']
-        )
-    ) {
-      grid-template-areas:
-        'header'
-        'content'
-        'actions actions';
-    }
-    :where(
-      .jx-item:not(:has(> [data-slot='item-media'])):has(> [data-slot='item-footer']):has(
-          > [data-slot='item-actions']
-        )
-    ) {
-      grid-template-areas:
+      grid-template-areas: 'header'
         'content'
         'actions actions'
         'footer';
+    }
+    .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-footer'])) {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: 'header'
+        'content'
+        'actions actions';
+    }
+    .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])) {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: 'content'
+        'actions actions'
+        'footer';
+    }
+    .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: 'content'
+        'actions actions';
+    }
+    :where([data-slot='item-actions']) {
+      justify-content: flex-start;
     }
   }
 }

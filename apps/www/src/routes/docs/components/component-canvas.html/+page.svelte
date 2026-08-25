@@ -110,7 +110,7 @@ ${close}
       {files}
       stage="fill"
       onreset={resetCanvas}
-      output={[{ label: 'inner playground', value: innerPlayground }]}
+      output={[{ label: 'inner pane', value: innerPlayground }]}
       resolveFileContent={resolveUsage}
     >
       <!-- Recursion demo, capped at depth 2: the inner canvas is simplified —
@@ -141,7 +141,7 @@ ${close}
       </div>
       {#snippet playground()}
         <PlayFields>
-          <PlayRow label="inner playground pane">
+          <PlayRow label="inner pane disclosure">
             <PlayToggle bind:value={innerPlayground} />
           </PlayRow>
           <PlayHelp>

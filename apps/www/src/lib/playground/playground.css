@@ -71,3 +71,10 @@
   font-family: var(--font-mono);
   font-size: 11px;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-play-seg button),
+  :where(.jx-item) {
+    transition: none;
+  }
+}
