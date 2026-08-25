@@ -16,11 +16,19 @@
 -->
 <script lang="ts">
   import { page } from '$app/state';
-  import { docsSections } from '$lib/docs-route-model';
+  import { docsComponentGroups, docsSections } from '$lib/docs-route-model';
 
   const normalized = $derived(
     page.url.pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/',
   );
+
+  /**
+   * Two rail modes (Owner ruling, 2026-08-25): the sections spine on
+   * docs/registry pages; the COMPONENT CATALOG on the components tree
+   * — inside /docs/components* the rail IS the inventory (grouped by
+   * taxonomy, current module highlighted), not the section list.
+   */
+  const inComponentsTree = $derived(normalized.startsWith('/docs/components'));
 
   /** does this page's href point at the current page (path part)? */
   function isCurrent(href: string): boolean {
@@ -28,15 +36,39 @@
     return target === normalized;
   }
 
-  const currentLabel = $derived(
-    docsSections
-      .flatMap((section) => section.pages)
-      .find((pg) => isCurrent(pg.href))?.title ?? 'docs',
+  interface RailGroup {
+    id: string;
+    label: string;
+    count?: number;
+    pages: { title: string; subtitle?: string; href: string }[];
+  }
+
+  const railTitle = $derived(inComponentsTree ? 'components' : 'docs');
+
+  const railGroups = $derived<RailGroup[]>(
+    inComponentsTree
+      ? docsComponentGroups.map(({ group, entries }) => ({
+          id: group.id,
+          label: group.label,
+          count: entries.length,
+          pages: entries.map((entry) => ({ title: entry.name, href: entry.href })),
+        }))
+      : docsSections.map((section) => ({
+          id: section.id,
+          label: section.label,
+          pages: section.pages,
+        })),
   );
 
-  /** which section holds the current page (open it when expanding) */
+  const currentLabel = $derived(
+    railGroups
+      .flatMap((group) => group.pages)
+      .find((pg) => isCurrent(pg.href))?.title ?? railTitle,
+  );
+
+  /** which group holds the current page (open it when expanding) */
   const activeSectionId = $derived(
-    docsSections.find((section) => section.pages.some((pg) => isCurrent(pg.href)))?.id ?? 'sections',
+    railGroups.find((group) => group.pages.some((pg) => isCurrent(pg.href)))?.id ?? railGroups[0]?.id ?? 'sections',
   );
 
   let open = $state(false);
@@ -50,8 +82,8 @@
   const needle = $derived(filter.trim().toLowerCase());
   const visibleSections = $derived(
     !needle
-      ? docsSections
-      : docsSections
+      ? railGroups
+      : railGroups
           .map((section) => ({
             ...section,
             pages: section.pages.filter(
@@ -75,7 +107,7 @@
 <nav class="jx-dsn" data-area="tree" aria-label="docs sections">
   <!-- rail surface (wide form): the spine, always expanded -->
   <div class="jx-dsn-rail">
-    <p class="jx-dsn-title">docs</p>
+    <p class="jx-dsn-title">{railTitle}</p>
     <div class="jx-dsn-search">
       <input
         class="jx-dsn-input"
@@ -97,6 +129,9 @@
         <details class="jx-dsn-group" open>
           <summary class="jx-dsn-group-label">
             {section.label}
+            {#if section.count !== undefined}
+              <span class="jx-dsn-gcount">{section.count}</span>
+            {/if}
           </summary>
           <ul class="jx-dsn-list" role="list">
             {#each section.pages as pg (pg.title)}
@@ -165,6 +200,9 @@
         <details class="jx-dsn-group" open={section.id === activeSectionId || !!needle}>
           <summary class="jx-dsn-group-label">
             {section.label}
+            {#if section.count !== undefined}
+              <span class="jx-dsn-gcount">{section.count}</span>
+            {/if}
           </summary>
           <ul class="jx-dsn-list" role="list">
             {#each section.pages as pg (pg.title)}
