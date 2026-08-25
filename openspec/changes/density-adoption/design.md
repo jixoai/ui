@@ -1,10 +1,12 @@
 # design — density-adoption
 
 > AUTHORITATIVE contract, transcribed from the converged Codex r2
-> spec (`.agents/documents/2026-08-26-density-adoption/
-> codex-r2-response.md`, 9.2/10) which this file makes
-> self-contained. One public seam: ONE policy prop (`density`), ONE
-> resolver, ONE inherited alias interface (`--jx-d-ctl-*`).
+> spec (9.2/10). SELF-CONTAINED together with its sibling
+> **packet-manifest.md** — the single exact ownership source for
+> every packet (full relative paths, no ellipses, no external
+> pointers); the orchestrator's path check reads ONLY that file. One
+> public seam: ONE policy prop (`density`), ONE resolver, ONE
+> inherited alias interface (`--jx-d-ctl-*`).
 
 ## 1. Resolver and provider map
 
@@ -112,12 +114,14 @@ hard-coded 40px); `.jx-pure` sets scoped `font-size: var(--jx-d-text)`
 headings, color-map dimensions, icon alpha geometry, borders/outlines,
 degradation rules: explicit registry exceptions.
 
-## 4. Exact packet ownership
+## 4. Packet ownership
 
-`P(ui/foo/{a,b})` = exactly the listed files under BOTH
-`registry/files/ui/foo` and `apps/www/src/lib/ui/foo` (byte-identical
-pairs). Family agents own ONLY their docs page's canvas/demo sections;
-shared layout/ToC is orchestrator-owned.
+THE exact per-packet file lists live in **packet-manifest.md** (same
+directory) — verbatim, full paths, mechanically checkable; the
+orchestrator's path check reads ONLY that file. This section
+summarizes roles. `P(ui/foo/{a,b})` = the listed files under BOTH
+trees (byte-identical pairs). Family agents own ONLY their docs
+page's canvas/demo sections; shared layout/ToC is orchestrator-owned.
 
 **K0** (single owner, before concurrency): `P(theme/jixoai.css)` ·
 `P(lib/density.svelte.ts)` · `P(ui/list-item/{index,item.css,item,
@@ -205,19 +209,47 @@ family registers them as density-owned. **Custom-property assertions
 compare USED values — raw text is serialization-fragile** (the
 `oklch(60% .2 25)` lesson, `17ef509`).
 
+The adoption verifier CLI contract (every packet gate uses it):
+
+    node scripts/verify-density-adoption.mjs --packet <A|B|C|D|E|all> [port]
+
+- selects the exact registry rows owned by the packet; `--packet all`
+  is the post-merge/orchestrator form;
+- STATIC phase first (registry scan, no browser): exit 1 with
+  `family / selector / property → value` failure lines naming the
+  owning row;
+- BROWSER phase: starts its own fixture server unless `[port]` names a
+  running one; mounts the docs fixtures, nests the four scopes,
+  samples USED values, checks stamps, measures/clicks physical lanes,
+  runs resize assertions; failures print the same row-addressed
+  format, phase-prefixed;
+- used-value normalization everywhere (no raw custom-property text);
+- K0 ships the registry with COMPLETE rows for every A-E family —
+  placeholder rows are forbidden.
+
 Wave gates: (1) `verify-density-kernel.mjs` (ruler + all aliases +
 ctl aliases + nested inheritance + K0 residuals); (2)
-`verify-density-adoption.mjs` (registry static + physical probes);
-(3) `verify-jx-pure.mjs` (v2 face + shadow root + layers +
-degradation + density continuity, used-value comparisons). Ruler
-18/18 + matrix 37/37 remain mandatory baselines.
+`verify-density-adoption.mjs` per the CLI above; (3)
+`verify-jx-pure.mjs` (v2 face + shadow root + layers + degradation +
+density continuity, used values). Ruler 18/18 + matrix 37/37 remain
+mandatory baselines.
+
+**The closed token-consumption rule**: control-footprint geometry
+consumes `--jx-d-ctl-*`; semantic roles consume the CLOSED kernel
+ruler-role allowlist (`--jx-d-secondary-*`, `--jx-d-media-*`,
+`--jx-d-inline-inset/gap`, `--jx-d-stack-gap`, `--jx-d-row-min`,
+`--jx-d-hit-min`, `--jx-d-text/line/leading`,
+`--jx-d-icon-optical-inline`) — established by the kernel change,
+legal for the roles it already owns. Any OTHER `--jx-d-*` consumption
+in family css fails the registry scan as a second-scale attempt.
 
 ## 6. Sequence and merge protocol
 
 ```
 clean baseline (17ef509 proven)
   → K0 (resolver/theme/list-item/registry) → 61+18+37 green
-  → F jx-pure v2 → 65/65 green
+    + the FULL apps/www suite green (the concurrency substrate)
+  → F jx-pure v2 → 65/65 green + the FULL suite green
   → A B C D E in PARALLEL (subagents, never commit, report diffs)
   → orchestrator: exact-list merge (overlap = merge stop) → parity
     → payload/manifest regenerated ONCE → build site+blueprints

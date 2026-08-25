@@ -1,37 +1,111 @@
 # jx-pure — delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
-### Requirement: Part A — class vocabulary
+> The living spec is narrative ("Current contract, 2026-08-24"); this
+> delta converts it into explicit requirements WITH the v2 changes —
+> Parts A–D and the boundaries are preserved in full, restated as
+> normative requirements, with the sanctioned breaking vocabulary.
 
-The Tier-2 vocabulary SHALL be the v2 set: `.jx-field`, `.jx-label`,
-`.jx-error` (kept) and the breaking renames `.jx-control` (was
-.jx-input), `.jx-control-shell` (was .jx-field-shell),
-`.jx-control-lane` (was .jx-input-lane), `.jx-slider` (was .jx-range),
-`.jx-color-shell` (was .jx-color-field), `.jx-color-swatch` (was
-.jx-color), `.jx-color-expand` (was .jx-color-stretch). No deprecated
-aliases SHALL exist; range size classes are removed. Tier-1 consumers
-migrate in their family packets; the sheet stays zero-JS and
-canonical/mirror byte-identical.
+### Requirement: Part A — the v2 class vocabulary (unlayered Tier-2 contract)
+
+The Tier-2 class vocabulary SHALL be the v2 set — kept: `.jx-field`,
+`.jx-label`, `.jx-error`, `.jx-slotted` (structural state stamp), the
+icon custom properties; renamed with NO deprecated aliases:
+`.jx-control` (was .jx-input), `.jx-control-shell` (was
+.jx-field-shell), `.jx-control-lane` (was .jx-input-lane),
+`.jx-slider` (was .jx-range), `.jx-color-shell` (was .jx-color-field),
+`.jx-color-swatch` (was .jx-color), `.jx-color-expand` (was
+.jx-color-stretch). Range size classes are REMOVED. Part A stays the
+intentionally unlayered cascade exception (it beats layered utilities
+by design); the sheet stays zero-JS and canonical/mirror
+byte-identical.
 
 #### Scenario: a consumer writes an old class name
 
 - GIVEN the rebuilt sheet
 - WHEN markup uses .jx-input or .jx-range
-- THEN no rule matches — old names are gone by contract, and the
+- THEN no rule matches — old names are gone by contract and the
   parity test asserts the v2-only vocabulary
 
-### Requirement: Part B — element defaults
+#### Scenario: the unlayered cascade exception survives the rename
 
-Control typography, padding, rows, hit lanes, slider, and color shell
-SHALL derive from `--jx-d-ctl-*` aliases; `.jx-pure` scopes
-`font-size: var(--jx-d-text)` and `line-height: var(--jx-d-leading)`
-while `body` remains untouched. Structural and degradation exceptions
-(display headings, color-map dimensions, icon alpha geometry,
-borders/outlines) are named registry exceptions, not density-owned.
+- GIVEN a .jx-control-shell painted against a consumer utility
+- THEN the Tier-2 unlayered rule still wins by design (the layer
+  law's documented exception), unchanged from the frozen era
+
+### Requirement: Part B — element defaults on the density interface
+
+Part B SHALL remain `@layer components`, `:where(.jx-pure)` scoped: typography, links,
+buttons (the press variable contract — default interactive lanes
+DERIVED from `--jx-d-ctl-*`, never a hard-coded 40px), type-allowlist
+text lanes, checkbox/radio repaints, the slider law (pill fill via
+cqw shadow + ringed disc thumb; rail = ctl-range-track, thumb =
+ctl-icon), the switch (pill + round knob, [role=switch]; track =
+ctl-toggle-w × ctl-toggle-h), color repaints (select = jx chevron by
+default; Firefox keeps its platform arrow), number keeps the PLATFORM
+stepper, fieldset/legend, details/summary, nav/ol/ul/dl, tables,
+progress/meter/output, figure/figcaption + media, the aria-invalid
+matrix on the SEMANTIC palette (success/error), the zero-class
+STRUCTURAL input group (label:has(> text-like control) :has(> span),
+child rules share the allowlist), and the reverse scope: every face
+rule carries :not(.no-jx-pure, .no-jx-pure *) — the face steps aside
+inside no-jx-pure subtrees while the HOST's own styles survive and
+the Part A opt-in classes keep working. `.jx-pure` sets scoped
+`font-size: var(--jx-d-text)` + `line-height: var(--jx-d-leading)`;
+`body` remains untouched. `.jx-field`'s stack gap = the
+density stack-gap; label/error ride the secondary voice aliases.
 
 #### Scenario: the static face follows density
 
 - GIVEN a .jx-pure root with data-density="sm"
-- THEN controls compute sm-row/hit/pad/text from the aliases with no
+- THEN controls compute sm rows/hit/pad/text from the aliases with no
   JS, and used-value probes confirm the derived numbers
+
+#### Scenario: the reverse scope survives the rebuild
+
+- GIVEN a .no-jx-pure subtree inside a .jx-pure host
+- THEN face rules step aside, host styles survive, and Part A classes
+  keep working
+
+### Requirement: Part C — degradation laws
+
+Full-stillness reduced-motion (per engine surface) and forced-colors
+reversion to native paint SHALL be preserved verbatim through the v2
+rebuild.
+
+#### Scenario: forced-colors reverts the v2 face
+
+- GIVEN the rebuilt sheet under forced-colors
+- THEN controls revert to native paint — degradation is unaffected by
+  the vocabulary change
+
+### Requirement: Part D — auto-dark (generated, parity-locked)
+
+`.jx-auto-dark` gates prefers-color-scheme:dark with .dark priority
+and .jx-light exclusions; the block is GENERATED by
+scripts/gen-jx-auto-dark.mjs from jixoai.css's .dark block (single
+source, parity-locked). The v2 rebuild MUST NOT hand-edit generated
+blocks.
+
+#### Scenario: the generator stays the single source
+
+- GIVEN the rebuilt sheet
+- WHEN the generator runs
+- THEN the auto-dark block regenerates identically from the theme —
+  no hand-authored drift
+
+### Requirement: boundaries
+
+Floating surfaces SHALL stay Tier-2 (dialog/popover/tooltip) stay Tier-2; document CSS
+never crosses shadow roots (CustomElements adopt the sheets
+themselves); registry `native-form` remains a same-source deprecated
+alias; the density scope contract adds `data-density` as the static
+policy channel with no JS.
+
+#### Scenario: a shadow root adopts the sheets
+
+- GIVEN a CustomElement shadow root
+- WHEN it adopts the sheets itself
+- THEN the v2 face applies inside — document CSS never crosses the
+  boundary

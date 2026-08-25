@@ -90,3 +90,80 @@ rather than kept.
 - WHEN probed at xs/default/lg
 - THEN the registered deltas (track width, block-start alignment,
   stack gap) are observable — inert vocabulary is removed instead
+
+## MODIFIED Requirements (2nd wave)
+
+### Requirement: the placement law
+
+Styling SHALL live in exactly one place per kind:
+
+1. Paint expressible as Tailwind v4 utilities → utilities composed in
+   component markup (no CSS file).
+2. CSS utilities cannot express (pseudo-element geometry,
+   `@container`/`@keyframes`/scroll-driven/view-transition at-rules,
+   press-physics custom properties) → colocated
+   `ui/<item>/<item>.css` loaded by a relative side-effect import from
+   the component file, containing ONLY standard CSS (token custom
+   properties, `@layer components` scoped with `:where()`, the
+   at-rules above). `@utility` MUST NOT appear in folder css; custom
+   utilities, if ever needed, MUST live in the single Tailwind
+   entry/theme item with their own compiled-output probe. Every
+   folder sheet MUST open with the canonical layer statement.
+3. Tokens + element-default sheets → `registry/files/theme/`
+   (jixoai.css, jx-pure.css). During the density-adoption change the
+   K0 and F packets ARE the sanctioned owners of those two sheets
+   (the ctl aliases and the v2 rebuild); outside that ownership the
+   sheets return to consume-only. One-placement and import-order laws
+   are unchanged.
+
+#### Scenario: a family packet edits the theme sheet
+
+- GIVEN packet A running after K0/F
+- WHEN it needs a new token
+- THEN it reports the desired delta; the orchestrator (K0 ownership)
+  applies it — packets never edit the canonical theme directly
+
+### Requirement: utilities win over Tier-1-owned css; three documented exceptions
+
+All Tier-1-owned STATIC authored css MUST sit in `@layer components`
+behind `:where()` so consumer utilities win. Three exceptions exist, all
+deliberate and bounded:
+
+1. The v2 Tier-2 vocabulary (jx-pure Part A — the renamed
+   `.jx-control/.jx-control-shell/.jx-control-lane/.jx-slider/
+   .jx-color-shell/.jx-color-swatch/.jx-color-expand` + kept
+   `.jx-field/.jx-label/.jx-error`) is the intentionally unlayered
+   cascade exception — by design it beats layered utilities.
+2. The STATE-MACHINE CARVE-OUT: residue rules that must override the
+   component's OWN utility paint ride unlayered behind `:where(...)`.
+3. The SURFACE-KERNEL OVERRIDE: enumerated rules overriding another
+   component's unlayered surface law ride unlayered with NATURAL
+   specificity, each enumerated in the sheet header with a
+   consumer-override probe.
+
+jx-pure Parts B–D are rebuilt by the density-adoption F packet
+against the living jx-pure spec (that spec's delta governs the
+vocabulary); components consume Part A/B/C/D and MUST NOT copy, move,
+redefine, or re-wrap them. Changing the Part A cascade still REQUIRES
+a change against the jx-pure living spec.
+
+#### Scenario: specificity probe (Tier-1)
+
+- GIVEN component paint `.jx-foo` in the folder css
+- WHEN a consumer adds `class="jx-foo text-primary"` (or any utility)
+- THEN the utility's declaration wins over the folder css declaration
+
+#### Scenario: Tier-2 exception intact
+
+- GIVEN `.jx-control` defined by jx-pure Part A (unlayered)
+- WHEN a consumer utility attempts to override one of its declarations
+- THEN Part A wins — by design — and this change leaves that untouched
+
+#### Scenario: state-machine carve-out (component-own override)
+
+- GIVEN a migrated component whose `:checked` residue must repaint its
+  own `bg-muted` utility paint
+- WHEN the state activates
+- THEN the unlayered `:where(...:checked...)` rule wins over the
+  utilities layer
+- AND the component's STATIC paint stays consumer-overridable
