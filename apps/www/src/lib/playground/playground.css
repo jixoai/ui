@@ -1,0 +1,73 @@
+/*
+ * playground kit styles (site-level $lib/playground/, 2026-08-25).
+ * The kit composes the registry Item family — these rules only add the
+ * playground's own density and control geometry; the Item presence
+ * matrix carries the row layout (Codex D3: one-way dependency, the kit
+ * never re-implements row layout).
+ */
+
+/* fields: single-column grid by default; multi-column is explicit */
+.jx-play-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.25rem;
+}
+.jx-play-fields[data-cols='2'] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* rows ride Item outline variant at sm density, but tighter */
+:where(.jx-play-row) {
+  padding-block: 0.3125rem;
+}
+
+/* segmented: terminal button row, one active */
+:where(.jx-play-seg) {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  border: 1px solid var(--border);
+  background: var(--border);
+}
+:where(.jx-play-seg button) {
+  border: 0;
+  background: var(--background);
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  padding: 0.1875rem 0.5rem;
+  cursor: pointer;
+  transition: color 100ms ease-out, background-color 100ms ease-out;
+}
+:where(.jx-play-seg button:hover) {
+  color: var(--foreground);
+}
+:where(.jx-play-seg button[aria-pressed='true']) {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+:where(.jx-play-seg button:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+/* range rows: the track spans the actions area */
+:where(.jx-play-range) {
+  min-inline-size: 8rem;
+}
+
+/* help: the prose primitive, full-span footer of the fields grid */
+:where(.jx-play-help) {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+  color: var(--muted-foreground);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+:where(.jx-play-help code) {
+  color: var(--accent, var(--primary));
+  font-family: var(--font-mono);
+  font-size: 11px;
+}

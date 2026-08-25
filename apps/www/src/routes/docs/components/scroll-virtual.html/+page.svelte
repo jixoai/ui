@@ -11,6 +11,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { CATALOG } from '$lib/catalog';
+  import { PlayFields, PlayRow, PlaySegmented, PlayNumber, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import scrollVirtualSource from '$lib/ui/scroll-virtual/scroll-virtual.svelte?raw';
@@ -23,6 +24,12 @@
   // ---- virtual demo state (page-owned, canvas playground protocol) ----
   const COUNTS = [1_000, 10_000, 100_000];
   let rowCount = $state(10_000);
+  // the segmented control speaks strings; the page state stays numeric
+  let rowCountKey = $state(String(rowCount));
+  $effect(() => {
+    const n = Number(rowCountKey);
+    if (Number.isFinite(n) && n !== rowCount) rowCount = n;
+  });
   let windowSize = $state(0);
   let jumpIndex = $state(4_999);
   let virtualInstance = $state<{
@@ -117,46 +124,32 @@ ${close}
           {/snippet}
         </ScrollVirtual>
         {#snippet playground()}
-          <div class="jx-play-fields">
-            <div class="jx-play-field flex flex-wrap items-center gap-2">
-              <span class="text-[11px] uppercase tracking-wider text-muted-foreground">count</span>
-              {#each COUNTS as c (c)}
-                <button
-                  type="button"
-                  data-jx-count-btn
-                  data-jx-count-active={rowCount === c ? '' : undefined}
-                  onclick={() => (rowCount = c)}
-                >
-                  {c.toLocaleString()}
-                </button>
-              {/each}
-            </div>
-            <div class="jx-play-field flex flex-wrap items-center gap-2">
-              <span class="text-[11px] uppercase tracking-wider text-muted-foreground">scrollToIndex</span>
-              <input
-                class="w-24 border border-border bg-background px-2 py-1 text-[12.5px]"
-                type="number"
-                min="0"
-                max={rowCount - 1}
-                bind:value={jumpIndex}
+          <PlayFields>
+            <PlayRow label="count">
+              <PlaySegmented
+                bind:value={rowCountKey}
+                options={COUNTS.map((c) => ({ value: String(c), label: c.toLocaleString() }))}
               />
+            </PlayRow>
+            <PlayRow label="scroll to index">
+              <PlayNumber bind:value={jumpIndex} min={0} max={rowCount - 1} />
               <button
                 type="button"
-                data-jx-count-btn
+                class="jx-press inline-flex items-center border border-border bg-background px-2 py-[0.2rem] font-mono text-[12px] text-muted-foreground hover:text-foreground cursor-pointer [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
                 onclick={() => virtualInstance?.scrollToIndex(Math.min(Math.max(jumpIndex, 0), rowCount - 1), { align: 'start' })}
               >
                 jump
               </button>
-            </div>
-            <p class="jx-play-help">
-              semantics are TanStack's — <code class="text-accent">estimateSize</code>,
-              <code class="text-accent">overscan</code>, and everything in
-              <code class="text-accent">virtualOptions</code> speak VirtualizerOptions; read the
+            </PlayRow>
+            <PlayHelp>
+              semantics are TanStack's — <code>estimateSize</code>,
+              <code>overscan</code>, and everything in
+              <code>virtualOptions</code> speak VirtualizerOptions; read the
               TanStack Virtual docs directly. The instance passthroughs
-              (<code class="text-accent">scrollToIndex / scrollToOffset / measure / getVirtualizer</code>)
+              (<code>scrollToIndex / scrollToOffset / measure / getVirtualizer</code>)
               are the escape hatch.
-            </p>
-          </div>
+            </PlayHelp>
+          </PlayFields>
         {/snippet}
       </ComponentCanvas>
     </div>
