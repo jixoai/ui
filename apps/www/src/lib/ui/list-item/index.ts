@@ -1,7 +1,6 @@
 export type ItemVariant = 'auto' | 'default' | 'outline' | 'muted';
 /** the RESOLVED chrome stamped as data-item-chrome (never 'auto' in DOM) */
 export type ItemChrome = 'surface' | 'none' | 'outline' | 'muted';
-export type ItemSize = import('$lib/density.svelte').Density; // legacy alias — Density is the law
 export type ItemLayout = 'auto' | 'standard' | 'media';
 export type ItemGroupMode = 'default' | 'muted' | 'plain';
 export type ItemDividers = 'auto' | 'none';

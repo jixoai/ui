@@ -8,7 +8,7 @@
   <div class="font-nav text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
     U = 4px · T = 13px · rows 28/32/40/48
   </div>
-  {#each ['xs', 'sm', 'default', 'lg'] as d (d)}
+  {#each ['xs', 'sm', 'default', 'lg'] as const as d (d)}
     <ItemGroup mode="plain" size={d} class="max-w-[20rem]">
       <Item>
         <ItemContent>

@@ -47,7 +47,7 @@ for (const media of [true, false])
 const slot = (name, extra = '') =>
   `<div data-slot="${name}"${extra ? ` ${extra}` : ''}>x</div>`;
 const row = (c, extraAttrs = '') =>
-  `<div class="jx-item" data-size="default" data-layout="standard"${extraAttrs}>${c.header ? slot('item-header') : ''}${c.media ? slot('item-media') : ''}${slot('item-content')}${c.end ? slot('item-end') : ''}${c.footer ? slot('item-footer') : ''}</div>`;
+  `<div class="jx-item" data-density="default" data-layout="standard"${extraAttrs}>${c.header ? slot('item-header') : ''}${c.media ? slot('item-media') : ''}${slot('item-content')}${c.end ? slot('item-end') : ''}${c.footer ? slot('item-footer') : ''}</div>`;
 
 const wideRows = combos.map((c) => row(c, `data-combo="${c.id}"`)).join('\n');
 // narrow probes: end-present combos inside a 19rem list container
@@ -63,7 +63,7 @@ const selectedRow = row(
   { media: false, end: true, header: false, footer: false },
   ' data-selected="true"',
 );
-const linkRow = `<a class="jx-item" data-slot="item" data-size="default" data-combo="linkfocus" href="#" data-item-chrome="none">${slot('item-content')}${slot('item-end')}</a>`;
+const linkRow = `<a class="jx-item" data-slot="item" data-density="default" data-combo="linkfocus" href="#" data-item-chrome="none">${slot('item-content')}${slot('item-end')}</a>`;
 
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>
 :root { --border: rgb(0,0,0); --primary: rgb(200,0,100); --terminal: rgb(250,250,250);
@@ -74,15 +74,15 @@ ${css}
 body { font: 12px monospace; margin: 16px; }
 .wide-list, .plain-wrap { display: block; }
 </style></head><body>
-<ul class="nothing" data-slot="item-list" data-dividers="auto" data-size="default" style="list-style:none;margin:0;padding:0;container:jx-items / inline-size">
+<ul class="nothing" data-slot="item-list" data-dividers="auto" data-density="default" style="list-style:none;margin:0;padding:0;container:jx-items / inline-size">
   <li data-slot="item-row" style="list-style:none">${selectedRow}${linkRow}${wideRows}</li>
 </ul>
 <div style="width:19rem">
-  <ul data-slot="item-list" data-dividers="auto" data-size="default" style="list-style:none;margin:0;padding:0">
+  <ul data-slot="item-list" data-dividers="auto" data-density="default" style="list-style:none;margin:0;padding:0">
     <li data-slot="item-row" style="list-style:none">${narrowRows}${neverRow}</li>
   </ul>
 </div>
-<ul id="divider-list" data-slot="item-list" data-dividers="auto" data-size="default" style="list-style:none;margin:0;padding:0">
+<ul id="divider-list" data-slot="item-list" data-dividers="auto" data-density="default" style="list-style:none;margin:0;padding:0">
   <li data-slot="item-row" style="list-style:none">${row({ media: false, end: false, header: false, footer: false })}</li>
   <li data-slot="item-divider" role="presentation"></li>
   <li data-slot="item-row" style="list-style:none">${row({ media: false, end: false, header: false, footer: false })}</li>
@@ -153,6 +153,8 @@ check('wrap=never keeps the main row', !neverAreas.includes('"end end"') && neve
 
 // ── paint: selected edge, divider strengths, single source ──
 const selectedShadow = await page.evaluate(() => getComputedStyle(document.querySelector('[data-selected]')).boxShadow);
+const noDataSize = await page.evaluate(() => !document.querySelector('[data-size]'));
+check('fixture carries no data-size authority (the migration law)', noDataSize);
 check('selected paints the inset primary edge', selectedShadow.includes('inset'), selectedShadow);
 const dividerProbe = await page.evaluate(() => {
   const rows = [...document.querySelectorAll('#divider-list > [data-slot="item-row"]')];

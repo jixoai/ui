@@ -194,7 +194,21 @@
     justify-content: flex-end;
     gap: var(--jx-item-end-gap);
     flex-wrap: wrap;
+    min-width: 0;
+    /* the inherited floor lives in the BASE lane — standalone rows and
+       the no-subgrid fallback keep it (impl-review r1-1) */
+    min-block-size: var(--jx-d-hit-min);
   }
+  :where([data-slot='item-content']) {
+    min-width: 0;
+  }
+  :where([data-slot='item-content'][data-content-wrap='truncate'] > *) {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   :where([data-slot='item-end'][data-align='start']) {
     align-items: flex-start;
   }

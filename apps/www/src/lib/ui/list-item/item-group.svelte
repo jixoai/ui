@@ -29,7 +29,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
-  import { provideDensity, resolveDensity, getDensityContext, DEFAULT_DENSITY, type Density } from '$lib/density.svelte';
+  import { provideDensity, resolveDensity, getDensityContext, DEFAULT_DENSITY } from '$lib/density.svelte';
   import './item.css';
 
   interface Props extends HTMLAttributes<HTMLElement> {

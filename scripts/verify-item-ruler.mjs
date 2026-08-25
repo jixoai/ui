@@ -104,6 +104,13 @@ const geom = await page.evaluate(() => {
   const wideListRect = wideList.getBoundingClientRect();
   const firstRow = wideList.querySelector('[data-slot="item-row"]').getBoundingClientRect();
   const wideCols = getComputedStyle(wideList).gridTemplateColumns.split(' ').length;
+  const narrowListEl = document.querySelector('[data-ruler="content-end"]');
+  const narrowCols = getComputedStyle(narrowListEl).gridTemplateColumns.split(' ').length;
+  const wideRowLi = wideList.querySelector('[data-slot="item-row"]');
+  const wideRowItem = wideList.querySelector('.jx-item');
+  const gapZero = ['list', 'li', 'item'].every((k) =>
+    getComputedStyle(k === 'list' ? wideList : k === 'li' ? wideRowLi : wideRowItem).columnGap === '0px');
+  const mediaUnderContentEnd = narrowListEl.querySelector('[data-slot="item-media"]') !== null;
 
   const narrowList = document.querySelector('[data-ruler="content-end"]');
   const autoEnd = [...narrowList.querySelectorAll('[data-slot="item-end"]')][0].getBoundingClientRect();
@@ -117,6 +124,9 @@ const geom = await page.evaluate(() => {
 
   return {
     wideCols,
+    narrowCols,
+    gapZero,
+    mediaUnderContentEnd,
     mediaAligns: mediaRows[0] && mediaRows[1] && Math.abs(mediaRows[0].left - mediaRows[1].left) < 0.01,
     mediaWidth: mediaRows[0]?.width,
     contentAligned: Math.abs(contentAll[0].left - contentAll[2].left) < 0.01,
@@ -133,6 +143,9 @@ const geom = await page.evaluate(() => {
 
 if (process.env.DEBUG_RULER) { console.log(JSON.stringify(geom, null, 1)); const dbg = page.evaluate ? null : null; }
 check('media ruler = 5 explicit tracks', geom.wideCols === 5, `got ${geom.wideCols}`);
+check('content-end ruler = 3 explicit tracks', geom.narrowCols === 3, `got ${geom.narrowCols}`);
+check('column-gap is 0 on list, li, and row', geom.gapZero === true);
+check('negative law: no media child under content-end', geom.mediaUnderContentEnd === false);
 check('media column aligns across rows', geom.mediaAligns === true);
 check('media box = the derived image token (40px at default)', Math.abs(geom.mediaWidth - 40) < 0.01, `got ${geom.mediaWidth}`);
 check('no-media row keeps the shared track (content x aligned)', geom.contentAligned === true);

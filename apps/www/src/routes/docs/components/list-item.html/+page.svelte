@@ -402,7 +402,7 @@ ${close}
               narrow group (container ≤ 30rem): the end lane takes its own row
             </span>
             <div class="max-w-[19rem]">
-              <ItemGroup mode="plain" dividers="auto">
+              <ItemGroup mode="plain" dividers="auto" ruler="media-content-end">
                 <Item href="#media-narrow">
                   <ItemMedia variant="icon">{@html icons.fileText}</ItemMedia>
                   <ItemContent>

@@ -21,12 +21,16 @@ const css = readFileSync(resolve('apps/www/src/lib/jixoai.css'), 'utf8');
 // the four-row contract (design §1) — text/line/inline-gap/stack-gap/
 // inset/row-min/hit-min/icon/image, in px at the 16px root
 const TABLE = {
-  xs: [11, 16, 8, 4, 8, 28, 44, 16, 32],
-  sm: [12, 18, 8, 4, 8, 32, 44, 18, 36],
-  default: [13, 20, 12, 8, 12, 40, 44, 20, 40],
-  lg: [15, 24, 16, 8, 16, 48, 48, 24, 48],
+  // text line inline stack inset rowmin hit icon image cGap secText secLine
+  xs: [11, 16, 8, 4, 8, 28, 44, 16, 32, 2, 10, 15],
+  sm: [12, 18, 8, 4, 8, 32, 44, 18, 36, 2, 11, 16.5],
+  default: [13, 20, 12, 8, 12, 40, 44, 20, 40, 4, 12, 18],
+  lg: [15, 24, 16, 8, 16, 48, 48, 24, 48, 4, 14, 21],
 };
-const KEYS = ['text', 'line', 'inline-gap', 'stack-gap', 'inline-inset', 'row-min', 'hit-min', 'media-icon', 'media-image'];
+const KEYS = [
+  'text', 'line', 'inline-gap', 'stack-gap', 'inline-inset', 'row-min', 'hit-min',
+  'media-icon', 'media-image', 'content-gap', 'secondary-text', 'secondary-line',
+];
 
 const probe = (density) => `<div data-density="${density}">
   <span class="p-text"></span>
@@ -38,6 +42,9 @@ const probe = (density) => `<div data-density="${density}">
   <div class="p-hitmin"></div>
   <div class="p-micon"></div>
   <div class="p-mimage"></div>
+  <div class="p-cgap"></div>
+  <span class="p-stext"></span>
+  <span class="p-sline"></span>
 </div>`;
 const probeCss = `
 .p-text { font-size: var(--jx-d-text); }
@@ -49,6 +56,9 @@ const probeCss = `
 .p-hitmin { min-height: var(--jx-d-hit-min); }
 .p-micon { width: var(--jx-d-media-icon); }
 .p-mimage { width: var(--jx-d-media-image); }
+.p-cgap { display: flex; row-gap: var(--jx-d-content-gap); }
+.p-stext { font-size: var(--jx-d-secondary-text); }
+.p-sline { line-height: var(--jx-d-secondary-line); font-size: var(--jx-d-secondary-text); }
 `;
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>${css}${probeCss}</style></head><body>
 ${Object.keys(TABLE).map(probe).join('\n')}
@@ -89,6 +99,9 @@ const read = await page.evaluate(() => {
       'hit-min': px(readOne(scope, 'p-hitmin').mh),
       'media-icon': px(readOne(scope, 'p-micon').w),
       'media-image': px(readOne(scope, 'p-mimage').w),
+      'content-gap': px(readOne(scope, 'p-cgap').rg),
+      'secondary-text': px(readOne(scope, 'p-stext').fs),
+      'secondary-line': px(readOne(scope, 'p-sline').lh),
     };
   }
   out.nested = px(getComputedStyle(document.getElementById('nested-text')).fontSize);
