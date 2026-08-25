@@ -6,4 +6,4 @@
 - [x] 4. Playground kit + scroll-virtual dogfood
 - [x] 5. Sweeps: 68 pages (stage evaluation + kit migration, 3 subagents)
 - [x] 6. Legacy .jx-play-* contract removal + default flip to fill
-- [ ] 7. Gates + Codex implementation review round
+- [x] 7. Gates + Codex implementation review round (r2 5.5 → r3 6.5, residuals fixed)

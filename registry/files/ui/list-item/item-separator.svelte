@@ -12,8 +12,8 @@
 </script>
 
 {#if inGroup}
-  <li role="presentation" data-slot="item-separator" class="jx-item-separator list-none">
-    <Separator />
+  <li role="presentation" data-slot="item-separator" class="list-none m-0 p-0">
+    <Separator class="jx-item-separator" />
   </li>
 {:else}
   <Separator data-slot="item-separator" class="jx-item-separator" />

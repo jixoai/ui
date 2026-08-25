@@ -394,10 +394,14 @@
         </aside>
         <div class="jx-canvas-code-view flex flex-1 flex-col min-h-0 min-w-0">
           {#if current}
+            <!-- copyable=false: the code bar's inline-end copy button owns
+                 copying — a footer bar with one duplicate button is noise
+                 (Owner ruling, 2026-08-25) -->
             <CodeCard
               filename={leafName(current.name)}
               lang={current.lang ?? inferTreeLang(current.name)}
               code={currentCode}
+              copyable={false}
               fill
               minHeight="16rem"
             />

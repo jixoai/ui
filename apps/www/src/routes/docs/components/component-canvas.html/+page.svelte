@@ -110,7 +110,6 @@ ${close}
       {files}
       stage="fill"
       onreset={resetCanvas}
-      output={[{ label: 'inner pane', value: innerPlayground }]}
       resolveFileContent={resolveUsage}
     >
       <!-- Recursion demo, capped at depth 2: the inner canvas is simplified —

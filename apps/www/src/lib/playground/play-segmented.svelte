@@ -19,10 +19,14 @@
   // roving keyboard nav (r3, Codex P2-3): arrows/Home/End move focus
   // within the segmented group — the standard segmented-control contract
   let groupEl = $state<HTMLDivElement | null>(null);
+  // roving tabindex (r3): the focused button joins the tab order; the
+  // others leave it — arrows move focus inside the group
+  let focusIdx = $state(0);
   const focusAt = (index: number): void => {
     const buttons = groupEl?.querySelectorAll<HTMLButtonElement>('button');
     if (!buttons || buttons.length === 0) return;
-    buttons[Math.max(0, Math.min(buttons.length - 1, index))].focus();
+    focusIdx = Math.max(0, Math.min(buttons.length - 1, index));
+    buttons[focusIdx].focus();
   };
   const onKeydown = (event: KeyboardEvent): void => {
     const buttons = groupEl ? [...groupEl.querySelectorAll<HTMLButtonElement>('button')] : [];
@@ -42,10 +46,11 @@
 </script>
 
 <div class="jx-play-seg" role="group" aria-labelledby={row?.rowId} bind:this={groupEl} onkeydown={onKeydown}>
-  {#each options as opt (opt.value)}
+  {#each options as opt, index (opt.value)}
     <button
       type="button"
       aria-pressed={value === opt.value}
+      tabindex={value === opt.value || focusIdx === index ? 0 : -1}
       onclick={() => (value = opt.value)}
     >
       {opt.label}

@@ -274,8 +274,8 @@
   :where(.jx-item-separator) {
     border: 0;
     border-top: 1px solid var(--border);
-    margin: 0.125rem 0;
-    align-self: stretch;
+    margin: 0;
+    width: 100%;
   }
 
   /* narrow groups: actions drops to its own full row (D1) */
@@ -310,25 +310,25 @@
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas: 'header'
         'content'
-        'actions actions'
+        'actions'
         'footer';
     }
     .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-footer'])) {
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas: 'header'
         'content'
-        'actions actions';
+        'actions';
     }
     .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])) {
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas: 'content'
-        'actions actions'
+        'actions'
         'footer';
     }
     .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas: 'content'
-        'actions actions';
+        'actions';
     }
     :where([data-slot='item-actions']) {
       justify-content: flex-start;
