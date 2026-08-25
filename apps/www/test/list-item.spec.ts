@@ -11,7 +11,16 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
-import { Item, ItemGroup, ItemSeparator, ItemMedia, ItemTitle, ItemDescription } from '../src/lib/ui/list-item';
+import {
+  Item,
+  ItemGroup,
+  ItemSeparator,
+  ItemMedia,
+  ItemContent,
+  ItemTitle,
+  ItemDescription,
+  ItemActions,
+} from '../src/lib/ui/list-item';
 
 const specDir = resolve(fileURLToPath(import.meta.url), '..');
 const css = readFileSync(resolve(specDir, '../src/lib/ui/list-item/item.css'), 'utf8');
@@ -63,6 +72,23 @@ describe('Item family — structure the presence matrix keys off', () => {
     expect(ct.firstElementChild!.tagName).toBe('DT');
     const { container: cd } = render(ItemDescription, { props: { as: 'dd', children } });
     expect(cd.firstElementChild!.tagName).toBe('DD');
+  });
+
+  it('slot leaves forward rest attributes — id reaches the title node (the prelude bug)', () => {
+    // PlayRow points aria-labelledby at ItemTitle's id; before the
+    // prelude fix the leaf destructured only as/class/children and
+    // silently dropped it everywhere (openspec list-item-systemization
+    // task 1)
+    const { container: ct } = render(ItemTitle, { props: { id: 'row-label', children } });
+    expect(ct.querySelector('#row-label')!.getAttribute('data-slot')).toBe('item-title');
+    const { container: cd } = render(ItemDescription, {
+      props: { id: 'row-desc', 'aria-hidden': 'true', children },
+    });
+    expect(cd.querySelector('#row-desc')!.getAttribute('aria-hidden')).toBe('true');
+    const { container: cc } = render(ItemContent, { props: { id: 'row-content', children } });
+    expect(cc.querySelector('#row-content')).toBeTruthy();
+    const { container: ca } = render(ItemActions, { props: { id: 'row-actions', children } });
+    expect(ca.querySelector('#row-actions')).toBeTruthy();
   });
 
   it('ItemSeparator renders the separator hairline', () => {

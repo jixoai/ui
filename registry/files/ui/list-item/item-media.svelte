@@ -6,9 +6,10 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLSpanElement> {
     variant?: 'default' | 'icon' | 'image';
     /** for image variants: the img src (renders the img for you) */
     src?: string;
@@ -17,10 +18,10 @@
     children?: Snippet;
   }
 
-  let { variant = 'default', src, alt = '', class: className = '', children }: Props = $props();
+  let { variant = 'default', src, alt = '', class: className = '', children, ...rest }: Props = $props();
 </script>
 
-<span data-slot="item-media" data-variant={variant} class={cn(className)}>
+<span {...rest} data-slot="item-media" data-variant={variant} class={cn(className)}>
   {#if variant === 'image' && src}
     <img {src} {alt} />
   {/if}

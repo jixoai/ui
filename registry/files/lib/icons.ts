@@ -26,6 +26,7 @@ export const arrowLeft = svg('<path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>');
 export const rotateCcw = svg('<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>');
 export const copy = svg('<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>');
 export const chevronDown = svg('<path d="m6 9 6 6 6-6"/>');
+export const chevronRight = svg('<path d="m9 18 6-6-6-6"/>');
 export const x = svg('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>');
 export const externalLink = svg(
   '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>'
@@ -80,6 +81,7 @@ export const icons = {
   rotateCcw,
   copy,
   chevronDown,
+  chevronRight,
   x,
   externalLink,
   check,

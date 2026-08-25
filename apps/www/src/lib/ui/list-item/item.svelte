@@ -37,7 +37,9 @@
   // inside an ItemGroup the row IS a listitem (role=list requires
   // listitem children); standalone items stay unroled
   const inGroup = getContext('jx-item-group') === true;
-  const klass = cn('jx-item', className);
+  // $derived, not const: class must stay reactive (the stale-prop
+  // warning Codex flagged — a captured initial class silently rots)
+  const klass = $derived(cn('jx-item', className));
 </script>
 
 {#if href}

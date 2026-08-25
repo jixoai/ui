@@ -4,9 +4,15 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
 
-  let { class: className = '', children }: { class?: string; children: Snippet } = $props();
+  interface Props extends HTMLAttributes<HTMLDivElement> {
+    class?: string;
+    children: Snippet;
+  }
+
+  let { class: className = '', children, ...rest }: Props = $props();
 </script>
 
-<div data-slot="item-footer" class={cn(className)}>{@render children()}</div>
+<div {...rest} data-slot="item-footer" class={cn(className)}>{@render children()}</div>

@@ -4,7 +4,7 @@
 > exact registry dependency set and install-closure proof live in
 > design §7; the reactive time model in design §2.
 
-- [ ] 1. **Prelude bugfixes** — rest-forward HTML/ARIA on
+- [x] 1. **Prelude bugfixes** — rest-forward HTML/ARIA on
   ItemTitle/ItemDescription (id bug: PlayRow's aria-labelledby points
   at no node today) and the other slot leaves; make Item class
   composition reactive (stale-initial warning); add
