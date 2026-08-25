@@ -1,17 +1,26 @@
 # verification — surface-kernel-adoption
 
-## Gates (2026-08-25, integration round)
+## Gates (2026-08-25, integration round — ROUND-1 BASELINE; the final
+## state after the Codex rounds is in the round records below:
+## vitest 356/356, probe matrix 34/34)
 
-| gate | result |
+| gate | result (as run in this round) |
 | --- | --- |
 | svelte compile, 11 components | 0 new warnings (date-picker 2 / color-picker 3 a11y warnings byte-identical to HEAD) |
 | `pnpm build` (shadcn payload regen) | GREEN |
 | `node scripts/gen-mirror-manifest.mjs --check` | GREEN (87 items, 235 pairs) |
-| apps/www vitest | 355/355 mine green; 1 failure (batch4b navigation-menu Escape) belongs to the PARALLEL session's in-flight fix — landed + resolved in their dab4c55 |
+| apps/www vitest | 355/355 of this change green; the 1 failure (batch4b navigation-menu Escape) belonged to the PARALLEL session's in-flight fix — landed + resolved in their dab4c55; Codex round 2 re-ran the full suite AFTER `pnpm build`: 356/356 |
+
+Gate-order note (Codex r2): after touching registry sources, run
+`pnpm build` BEFORE vitest — the parity suite compares against the
+generated `public/r/*.json` payloads, and stale payloads fail it
+independently of any source regression.
 
 ## Browser walkthrough (dedicated dev server :5211, Chromium)
 
-`scripts/verify-kernel-adoption.mjs` — **14/14 GREEN**:
+`scripts/verify-kernel-adoption.mjs` — round 1 covered 4 adopters
+(14/14); the FINAL full matrix is 11/11 adopters, **34/34 GREEN**
+(see the Codex round-1 record below):
 
 - dropdown-menu: jx-waapi + real shadow child while open; entry --jx-p
   0→1 (460ms); exit 1→0; allow-discrete holds the panel rendered
@@ -85,3 +94,12 @@ findings, all processed this round:
    HTMLButtonElement (pre-existing, now kernel-load-bearing) →
    renamed `panel: HTMLDivElement | null`, mirrors synced
 
+## Codex review round 2 (confirmation round)
+
+Verdict: **9.5/10, zero blocking** — independently re-ran the probe
+(34/34 twice) and the full vitest after `pnpm build` (356/356).
+Remaining findings were documentation-level, processed in the closing
+commit: this file's round-1 gate table relabeled as the historical
+baseline (final state: 356/356 + 34/34), the gate-order note above,
+and the EOF whitespace. A third model round adds no signal over the
+mechanically verifiable `git diff --check` for these.
