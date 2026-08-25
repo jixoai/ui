@@ -1,9 +1,18 @@
-export type ItemVariant = 'default' | 'outline' | 'muted';
+export type ItemVariant = 'auto' | 'default' | 'outline' | 'muted';
+/** the RESOLVED chrome stamped as data-item-chrome (never 'auto' in DOM) */
+export type ItemChrome = 'surface' | 'none' | 'outline' | 'muted';
 export type ItemSize = 'default' | 'sm' | 'xs';
+export type ItemLayout = 'auto' | 'standard' | 'media';
+export type ItemGroupMode = 'default' | 'muted' | 'plain';
+export type ItemDividers = 'auto' | 'none';
+export type ItemLabelMode = 'for' | 'text';
 export type ItemMediaVariant = 'default' | 'icon' | 'image';
 export { default as Item } from './item.svelte';
 export { default as ItemGroup } from './item-group.svelte';
-export { default as ItemSeparator } from './item-separator.svelte';
+export { default as ItemEnd } from './item-end.svelte';
+export { default as ItemAfter } from './item-after.svelte';
+export { default as ItemChevron } from './item-chevron.svelte';
+export { default as ItemDivider } from './item-divider.svelte';
 export { default as ItemMedia } from './item-media.svelte';
 export { default as ItemContent } from './item-content.svelte';
 export { default as ItemTitle } from './item-title.svelte';

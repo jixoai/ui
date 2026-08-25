@@ -7,7 +7,7 @@
 <script lang="ts">
   import { getContext, setContext } from 'svelte';
   import type { Snippet } from 'svelte';
-  import { Item, ItemContent, ItemTitle, ItemDescription, ItemActions } from '$lib/ui/list-item';
+  import { Item, ItemContent, ItemTitle, ItemDescription, ItemEnd, ItemActions } from '$lib/ui/list-item';
 
   let {
     label,
@@ -34,7 +34,9 @@
       <ItemDescription>{hint}</ItemDescription>
     {/if}
   </ItemContent>
-  <ItemActions>
-    {@render children()}
-  </ItemActions>
+  <ItemEnd>
+    <ItemActions>
+      {@render children()}
+    </ItemActions>
+  </ItemEnd>
 </Item>

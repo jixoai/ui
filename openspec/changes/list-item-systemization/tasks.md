@@ -11,7 +11,7 @@
   `icons.chevronRight` to both icon files.
   *Gate: focused Item vitest green + fixture proves `id` reaches the
   title node + stale-class warning gone.*
-- [ ] 2. **Family core rewrite** — typed Symbol-key policy context
+- [x] 2. **Family core rewrite** — typed Symbol-key policy context
   (`$state` fields, stable identity — the §2 reactive time model) +
   stamped resolution attributes; `ItemEnd` / `ItemAfter` /
   `ItemChevron` / `ItemDivider` (childless decorative) modules;

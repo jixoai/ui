@@ -25,7 +25,10 @@
   import {
     Item,
     ItemGroup,
-    ItemSeparator,
+    ItemDivider,
+    ItemEnd,
+    ItemAfter,
+    ItemChevron,
     ItemMedia,
     ItemContent,
     ItemTitle,
@@ -67,6 +70,7 @@
     ItemContent,
     ItemTitle,
     ItemDescription,
+    ItemEnd,
     ItemActions,
   } from '@ui/list-item/index';
   import IconButton from '@ui/icon-button/icon-button.svelte';
@@ -80,11 +84,13 @@ ${close}
     <ItemTitle>Deploy #482</ItemTitle>
     <ItemDescription>main · 4f2a1c · 2 minutes ago</ItemDescription>
   </ItemContent>
-  <ItemActions>
-    <IconButton variant="icon-only" text="Rerun deploy">
-      {#snippet icon()}{@html icons.check}{/snippet}
-    </IconButton>
-  </ItemActions>
+  <ItemEnd>
+    <ItemActions>
+      <IconButton iconOnly text="Rerun deploy">
+        {#snippet icon()}{@html icons.check}{/snippet}
+      </IconButton>
+    </ItemActions>
+  </ItemEnd>
 </Item>`;
 
   const canvasFiles: TreeFile[] = [
@@ -126,7 +132,7 @@ ${close}
     <div data-reveal="">
       <ComponentCanvas
         title="list-item"
-        description="The base composition: ItemContent (title + description) and ItemActions on an outline Item. Every other slot is optional — the grid template rewrites itself around what exists."
+        description="The base composition: ItemContent (title + description) and the ItemEnd lane on an outline Item. Every other slot is optional — the grid template rewrites itself around what exists."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/list-item/item.svelte"
         files={canvasFiles}
         stage="fill"
@@ -137,14 +143,16 @@ ${close}
               <ItemTitle>Deploy #482</ItemTitle>
               <ItemDescription>main · 4f2a1c · 2 minutes ago</ItemDescription>
             </ItemContent>
-            <ItemActions>
-              <IconButton variant="icon-only" text="Rerun deploy" class="size-7">
-                {#snippet icon()}{@html icons.check}{/snippet}
-              </IconButton>
-              <IconButton variant="icon-only" text="More actions" class="size-7">
-                {#snippet icon()}{@html icons.ellipsis}{/snippet}
-              </IconButton>
-            </ItemActions>
+            <ItemEnd>
+              <ItemActions>
+                <IconButton iconOnly text="Rerun deploy" class="size-7!">
+                  {#snippet icon()}{@html icons.check}{/snippet}
+                </IconButton>
+                <IconButton iconOnly text="More actions" class="size-7!">
+                  {#snippet icon()}{@html icons.ellipsis}{/snippet}
+                </IconButton>
+              </ItemActions>
+            </ItemEnd>
           </Item>
         </div>
         {#snippet playground()}
@@ -202,7 +210,7 @@ ${close}
         headerRegion="group-list"
         eyebrow="demo"
         title="Group, separators & link rows"
-        summary="ItemGroup is the role=list stack AND the @container items query for the narrow wrap. Separators are the GROUP's direct children — the hairline belongs to the list, never to an item's decoration. Items with href render an anchor root that carries its own hover law; non-link rows stay inert, with interactivity delegated to ItemActions."
+        summary="ItemGroup owns the surface: a native frame around a <ul> list, with mode (default · muted · plain), optional label, and the divider policy — auto hairlines between adjacent rows, full-strength ItemDivider for explicit boundaries. data-dividers lives on the list itself, the adjacency owner. Items with href render an anchor that carries its own hover law; chevrons are the explicit ItemChevron leaf."
       >
         <div class="flex w-full flex-col gap-6">
           <div class="max-w-lg">
@@ -213,9 +221,9 @@ ${close}
                   <ItemTitle>press-button</ItemTitle>
                   <ItemDescription>registry:ui · the physical press law</ItemDescription>
                 </ItemContent>
-                <ItemActions>{@html icons.arrowRight}</ItemActions>
+                <ItemEnd><ItemChevron /></ItemEnd>
               </Item>
-              <ItemSeparator />
+              <ItemDivider />
               <Item href="/docs/components/avatar.html">
                 <ItemMedia>
                   <Avatar name="Ada Lovelace" size="sm" tooltip={false} />
@@ -224,20 +232,22 @@ ${close}
                   <ItemTitle>avatar</ItemTitle>
                   <ItemDescription>registry:ui · native img with initials fallback</ItemDescription>
                 </ItemContent>
-                <ItemActions>{@html icons.arrowRight}</ItemActions>
+                <ItemEnd><ItemChevron /></ItemEnd>
               </Item>
-              <ItemSeparator />
+              <ItemDivider />
               <Item>
                 <ItemMedia variant="icon">{@html icons.fileCode}</ItemMedia>
                 <ItemContent>
                   <ItemTitle>code-card</ItemTitle>
                   <ItemDescription>registry:ui · highlight + copy workbench</ItemDescription>
                 </ItemContent>
-                <ItemActions>
-                  <IconButton variant="icon-only" text="Copy source" class="size-7">
-                    {#snippet icon()}{@html icons.check}{/snippet}
-                  </IconButton>
-                </ItemActions>
+                <ItemEnd>
+                  <ItemActions>
+                    <IconButton iconOnly text="Copy source" class="size-7!">
+                      {#snippet icon()}{@html icons.check}{/snippet}
+                    </IconButton>
+                  </ItemActions>
+                </ItemEnd>
               </Item>
             </ItemGroup>
           </div>
@@ -246,14 +256,14 @@ ${close}
               narrow group (container ≤ 30rem): actions drop to their own row
             </span>
             <div class="max-w-[19rem]">
-              <ItemGroup>
-                <Item variant="muted" href="/docs/components/separator.html">
+              <ItemGroup mode="plain" dividers="auto">
+                <Item href="/docs/components/separator.html">
                   <ItemMedia variant="icon">{@html icons.fileText}</ItemMedia>
                   <ItemContent>
                     <ItemTitle>separator</ItemTitle>
                     <ItemDescription>registry:ui · the hr, W3C-first</ItemDescription>
                   </ItemContent>
-                  <ItemActions>{@html icons.chevronDown}</ItemActions>
+                  <ItemEnd><ItemChevron /></ItemEnd>
                 </Item>
               </ItemGroup>
             </div>
@@ -282,11 +292,13 @@ ${close}
               <ItemTitle>feat: the presence matrix</ItemTitle>
               <ItemDescription>@gaubee wants to merge 3 commits into main</ItemDescription>
             </ItemContent>
-            <ItemActions>
-              <IconButton variant="icon-only" text="Close pull request" class="size-7">
-                {#snippet icon()}{@html icons.x}{/snippet}
-              </IconButton>
-            </ItemActions>
+            <ItemEnd>
+              <ItemActions>
+                <IconButton iconOnly text="Close pull request" class="size-7!">
+                  {#snippet icon()}{@html icons.x}{/snippet}
+                </IconButton>
+              </ItemActions>
+            </ItemEnd>
             <ItemFooter>
               <span class="text-muted-foreground text-[11px]">3 checks passed · 2 files changed</span>
               <span class="text-muted-foreground text-[11px]">updated 14 minutes ago</span>
@@ -313,7 +325,7 @@ ${close}
         headerRegion="variant-size-matrix"
         eyebrow="demo"
         title="Variant × size matrix"
-        summary="Three paint variants × three densities, geometry-neutral by construction: variant changes only surface (transparent / border+card / muted fill), size changes only padding, gaps and type scale. The radius stays 0 — the terminal law — and no combination ever touches the template."
+        summary="Paint × density, geometry-neutral by construction: variant changes only surface (auto resolves from the group — standalone it carries its own frame; default stays transparent; outline frames; muted fills), size changes only padding, gaps and type scale. Bevel rides --radius and no combination ever touches the template."
       >
         <div class="grid w-full gap-6 md:grid-cols-3">
           {#each variantLadder as variant (variant.id)}

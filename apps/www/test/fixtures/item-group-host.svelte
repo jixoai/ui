@@ -1,27 +1,29 @@
-<!-- list-item spec fixture: a group with two rows (one linked) + a
-     separator, plus one standalone row outside the group -->
+<!-- list-item spec fixture: a labeled group with two rows (one
+     linked) + an explicit divider, plus one standalone row outside
+     the group (openspec list-item-systemization task 2 fixture) -->
 <script lang="ts">
   import {
     Item,
     ItemGroup,
-    ItemSeparator,
+    ItemDivider,
     ItemContent,
     ItemTitle,
     ItemDescription,
+    ItemEnd,
     ItemActions,
   } from '../../src/lib/ui/list-item';
 </script>
 
-<ItemGroup>
-  <Item variant="outline" href="/one">
+<ItemGroup label="rows">
+  <Item href="/one">
     <ItemContent>
       <ItemTitle>one</ItemTitle>
       <ItemDescription>linked row</ItemDescription>
     </ItemContent>
-    <ItemActions><span>go</span></ItemActions>
+    <ItemEnd><ItemActions><span>go</span></ItemActions></ItemEnd>
   </Item>
-  <ItemSeparator />
-  <Item variant="outline">
+  <ItemDivider />
+  <Item>
     <ItemContent>
       <ItemTitle>two</ItemTitle>
     </ItemContent>

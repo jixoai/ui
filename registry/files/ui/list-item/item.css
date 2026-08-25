@@ -1,136 +1,140 @@
 @layer theme, base, components, utilities;
 
 /*
- * jixoai Item family (registry/files/ui/list-item/item.css, 2026-08-25).
+ * jixoai Item family css (registry/files/ui/list-item/item.css,
+ * openspec list-item-systemization design §4–§5, 2026-08-25).
  *
- * Slot-composition over variants (the shadcn Item philosophy, owner
- * ruling), but on GRID instead of flex-wrap (Codex D1 ruling): the
- * template switches by SLOT PRESENCE via :has() — the presence matrix
- * — because empty grid tracks keep their row-gap and missing
- * media/actions would leave ghost columns under a static template.
+ * STAMPED-ATTRIBUTE PAINTING: css paints what the components
+ * resolved and stamped (data-item-chrome/data-layout/data-size/
+ * data-selected on rows; data-mode/data-inset/… on the group frame;
+ * data-dividers on the ul). It NEVER infers chrome from descendant
+ * context; group rules are direct-child only.
  *
- *   columns:  media = minmax(0,max-content)   content = minmax(0,1fr)
- *             actions = minmax(0,max-content)
- *   rows:     header (full row, optional) / media·content·actions /
- *             footer (full row, optional)
- *   narrow (inside an ItemGroup ≤30rem): actions drops to its own row
+ * The presence matrix keys off FOUR top-level bits (media · end ·
+ * header · footer). ItemAfter/ItemActions/ItemChevron live INSIDE
+ * the end lane — they are never bits. Every combination declares
+ * BOTH columns AND areas (the ghost-track law): no cascade path may
+ * mint implicit tracks.
  *
- * Variant/size data attributes carry the 3×3 visual matrix; geometry
- * never varies with them. Radius stays 0 (the terminal law).
+ * Paint is terminal-lawful: --card is BANNED here (source-guarded);
+ * hover/selected ride --terminal-hover; focus is the inset ring;
+ * radius/bevel come from --radius + the consumer base law.
  */
 
 @layer components {
-  /* the base grid (the exhaustive combos below own every real shape) */
+  /* ── custom properties + the base grid ─────────────────────────── */
   :where(.jx-item) {
+    --jx-item-column-gap: 0.625rem;
+    --jx-item-row-gap: 0.375rem;
+    --jx-item-media-gutter: 0.625rem;
+    --jx-item-media-size: 2.5rem;
+    --jx-item-content-gap: 0.125rem;
+    --jx-item-end-gap: 0.375rem;
+
     display: grid;
-    grid-template-columns: minmax(0, max-content) minmax(0, 1fr) minmax(0, max-content);
-    grid-template-areas: 'media content actions';
-    column-gap: 0.625rem;
-    row-gap: 0.375rem;
     width: 100%;
     min-width: 0;
-    transition: background-color 120ms ease-out, color 120ms ease-out,
+    column-gap: var(--jx-item-column-gap);
+    row-gap: var(--jx-item-row-gap);
+    transition:
+      background-color 120ms ease-out,
+      color 120ms ease-out,
       border-color 120ms ease-out;
   }
 
-  /* ── the presence matrix (r3, Codex P1-1) ─────────────────────────
-     EXHAUSTIVE SELF-CONTAINED combos: every media/actions × header/
-     footer combination declares BOTH columns AND areas — no chained
-     overrides, no order dependence, no implicit tracks. r2's cascade
-     (areas without matching columns) minted ghost columns in the real
-     browser. */
+  /* ── the presence matrix (16 exhaustive self-contained combos) ────
+     media × end × header × footer; each combo owns columns+areas. */
   .jx-item {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr) minmax(0, max-content);
     grid-template-areas: 'header header header'
-        'media content actions'
-        'footer footer footer';
+      'media content end'
+      'footer footer footer';
   }
   .jx-item:not(:has(> [data-slot='item-footer'])) {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr) minmax(0, max-content);
     grid-template-areas: 'header header header'
-        'media content actions';
+      'media content end';
   }
   .jx-item:not(:has(> [data-slot='item-header'])) {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr) minmax(0, max-content);
-    grid-template-areas: 'media content actions'
-        'footer footer footer';
+    grid-template-areas: 'media content end'
+      'footer footer footer';
   }
   .jx-item:not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr) minmax(0, max-content);
-    grid-template-areas: 'media content actions';
+    grid-template-areas: 'media content end';
   }
-  .jx-item:not(:has(> [data-slot='item-actions'])) {
+  .jx-item:not(:has(> [data-slot='item-end'])) {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
     grid-template-areas: 'header header'
-        'media content'
-        'footer footer';
+      'media content'
+      'footer footer';
   }
-  .jx-item:not(:has(> [data-slot='item-actions'])):not(:has(> [data-slot='item-footer'])) {
+  .jx-item:not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-footer'])) {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
     grid-template-areas: 'header header'
-        'media content';
+      'media content';
   }
-  .jx-item:not(:has(> [data-slot='item-actions'])):not(:has(> [data-slot='item-header'])) {
+  .jx-item:not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-header'])) {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
     grid-template-areas: 'media content'
-        'footer footer';
+      'footer footer';
   }
-  .jx-item:not(:has(> [data-slot='item-actions'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
+  .jx-item:not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
     grid-template-areas: 'media content';
   }
   .jx-item:not(:has(> [data-slot='item-media'])) {
     grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
     grid-template-areas: 'header header'
-        'content actions'
-        'footer footer';
+      'content end'
+      'footer footer';
   }
   .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-footer'])) {
     grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
     grid-template-areas: 'header header'
-        'content actions';
+      'content end';
   }
   .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])) {
     grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
-    grid-template-areas: 'content actions'
-        'footer footer';
+    grid-template-areas: 'content end'
+      'footer footer';
   }
   .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
     grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
-    grid-template-areas: 'content actions';
+    grid-template-areas: 'content end';
   }
-  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-actions'])) {
+  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-end'])) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: 'header'
-        'content'
-        'footer';
+      'content'
+      'footer';
   }
-  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-actions'])):not(:has(> [data-slot='item-footer'])) {
+  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-footer'])) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: 'header'
-        'content';
+      'content';
   }
-  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-actions'])):not(:has(> [data-slot='item-header'])) {
+  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-header'])) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: 'content'
-        'footer';
+      'footer';
   }
-  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-actions'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
+  .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-end'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: 'content';
   }
 
-  /* ── slots ─────────────────────────────────────────────────────── */
-
+  /* ── slot geometry ──────────────────────────────────────────────── */
   :where([data-slot='item-media']),
-  :where([data-slot='item-actions']),
+  :where([data-slot='item-end']),
   :where([data-slot='item-content']),
   :where([data-slot='item-header']),
   :where([data-slot='item-footer']) {
     min-width: 0;
   }
   :where([data-slot='item-media']),
-  :where([data-slot='item-actions']) {
+  :where([data-slot='item-end']) {
     align-self: center;
   }
   /* a description makes media self-start (optical alignment, the
@@ -142,7 +146,7 @@
     grid-area: content;
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
+    gap: var(--jx-item-content-gap);
   }
   :where([data-slot='item-media']) {
     grid-area: media;
@@ -150,14 +154,7 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-  }
-  :where([data-slot='item-actions']) {
-    grid-area: actions;
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    flex-wrap: wrap;
-    justify-content: flex-end;
+    gap: var(--jx-item-media-gutter);
   }
   :where([data-slot='item-header']),
   :where([data-slot='item-footer']) {
@@ -187,14 +184,57 @@
     margin: 0;
   }
 
+  /* the END lane: the one trailing GRID slot; after/actions/chevron
+     flow inside it (metadata → controls → glyph) */
+  :where([data-slot='item-end']) {
+    grid-area: end;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--jx-item-end-gap);
+    flex-wrap: wrap;
+  }
+  :where([data-slot='item-end'][data-align='start']) {
+    align-items: flex-start;
+  }
+  :where([data-slot='item-end'][data-wrap='never']) {
+    flex-wrap: nowrap;
+  }
+  :where([data-slot='item-actions']) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    flex-wrap: wrap;
+  }
+  :where([data-slot='item-after']) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--muted-foreground);
+    white-space: nowrap;
+  }
+  :where([data-slot='item-after'][data-tone='default']) {
+    color: inherit;
+  }
+  :where([data-slot='item-chevron']) {
+    display: inline-flex;
+    color: var(--muted-foreground);
+  }
+  :where([data-slot='item-chevron'] svg) {
+    width: 1rem;
+    height: 1rem;
+  }
+
   /* media variants */
   :where([data-slot='item-media'][data-variant='icon']) svg {
     width: 1rem;
     height: 1rem;
   }
   :where([data-slot='item-media'][data-variant='image']) {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: var(--jx-item-media-size);
+    height: var(--jx-item-media-size);
     overflow: hidden;
   }
   :where([data-slot='item-media'][data-variant='image']) img {
@@ -209,25 +249,46 @@
     height: 2rem;
   }
 
-  /* ── the 3×3 visual matrix (geometry-neutral) ──────────────────── */
+  /* layout="media": custom properties only — never a new presence bit */
+  :where(.jx-item[data-layout='media']) {
+    --jx-item-column-gap: 0.75rem;
+    --jx-item-media-gutter: 0.75rem;
+    --jx-item-media-size: 3rem;
+    --jx-item-content-gap: 0.25rem;
+  }
+  :where(.jx-item[data-layout='media'] > [data-slot='item-media']) {
+    align-self: start;
+  }
 
-  :where(.jx-item[data-variant='outline']) {
+  /* ── resolved row paint (stamped chrome) ────────────────────────── */
+  :where(.jx-item[data-item-chrome='surface']) {
     border: 1px solid var(--border);
-    background: var(--card);
+    background: var(--terminal-muted);
+    box-shadow: var(--shadow-2xs);
+    border-radius: var(--radius);
   }
-  :where(.jx-item[data-variant='muted']) {
-    background: color-mix(in oklab, var(--muted) 42%, transparent);
+  :where(.jx-item[data-item-chrome='outline']) {
+    border: 1px solid var(--border);
+    background: var(--terminal-muted);
+    border-radius: var(--radius);
   }
+  :where(.jx-item[data-item-chrome='muted']) {
+    background: var(--terminal-muted);
+    border-radius: var(--radius);
+  }
+  /* chrome="none" (grouped auto) and chrome="default" (explicit
+     transparent escape hatch) paint nothing — the group owns the
+     surface */
+
+  /* sizes: the density rhythm */
   :where(.jx-item[data-size='default']) {
     padding: 0.5rem 0.75rem;
   }
   :where(.jx-item[data-size='sm']) {
     padding: 0.375rem 0.625rem;
-    column-gap: 0.5rem;
   }
   :where(.jx-item[data-size='xs']) {
     padding: 0.25rem 0.5rem;
-    column-gap: 0.375rem;
     row-gap: 0.25rem;
   }
   :where(.jx-item[data-size='sm'] [data-slot='item-title']) {
@@ -237,100 +298,157 @@
     font-size: 0.6875rem;
   }
 
-  /* link items carry their own engagement (color only — press law) */
+  /* link rows carry their own engagement (color only — press law) */
   :where(a.jx-item) {
     text-decoration: none;
     color: inherit;
   }
   :where(a.jx-item:hover) {
-    background: color-mix(in oklab, var(--muted) 55%, transparent);
+    background: var(--terminal-hover);
   }
-  :where(a.jx-item[data-variant='outline']:hover) {
-    border-color: color-mix(in oklab, var(--primary) 45%, transparent);
+  :where(.jx-item[data-selected='true']) {
+    background: var(--terminal-hover);
+    box-shadow: inset 2px 0 0 var(--primary);
   }
   :where(.jx-item:focus-visible) {
     outline: 1px solid var(--ring);
     outline-offset: -1px;
   }
 
-  /* ── group: the vertical stack + the wrap container ────────────── */
-
+  /* ── the group: frame + native list + dividers ──────────────────── */
   :where(.jx-item-group) {
-    display: flex;
     width: 100%;
+    min-width: 0;
+  }
+  :where(.jx-item-group[data-mode='default']) {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-xs);
+  }
+  :where(.jx-item-group[data-mode='muted']) {
+    background: var(--terminal-muted);
+    border-radius: var(--radius);
+  }
+  /* plain: the host owns the surface — nothing painted here */
+  :where(.jx-item-group[data-inset='true']) {
+    margin-inline: 0.75rem;
+    width: auto;
+  }
+  :where(.jx-item-group-label) {
+    font-family: var(--font-nav);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    padding: 0.5rem 0.75rem 0.375rem;
+  }
+
+  :where([data-slot='item-list']) {
+    display: flex;
     flex-direction: column;
-    gap: 0.375rem;
-    /* the group is the CONTAINER: items query it for the narrow
-       actions-wrap; standalone items keep the base matrix */
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    /* the LIST is the container: rows query it for the narrow
+       end-lane wrap */
     container: jx-items / inline-size;
   }
-  :where(.jx-item-group[data-size='sm']),
-  :where(.jx-item-group[data-size='xs']) {
-    gap: 0.25rem;
+  /* hairlines separate rows → no gap; no hairlines → the list keeps
+     a rhythm of its own */
+  :where([data-slot='item-list'][data-dividers='auto']) {
+    row-gap: 0;
+  }
+  :where([data-slot='item-list'][data-dividers='none']) {
+    row-gap: 0.5rem;
+  }
+  :where([data-slot='item-list'][data-size='sm'][data-dividers='none']),
+  :where([data-slot='item-list'][data-size='xs'][data-dividers='none']) {
+    row-gap: 0.375rem;
+  }
+  :where(.jx-item-group[data-mode='muted'] [data-slot='item-list'][data-dividers='none']) {
+    row-gap: 0;
   }
 
-  /* separators belong to the GROUP (Codex D1): hairlines between
-     stacked items, never an item's internal decoration */
-  :where(.jx-item-separator) {
+  :where([data-slot='item-row']) {
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* the automatic divider: adjacent direct rows only, 38% mix — one
+     source per edge, structurally exclusive with ItemDivider */
+  :where([data-slot='item-list'][data-dividers='auto'] > [data-slot='item-row'] + [data-slot='item-row']) {
+    border-top: 1px solid color-mix(in oklab, var(--border) 38%, transparent);
+  }
+  /* explicit edge resets — no-op guards today (adjacency already
+     breaks at a divider), kept readable and future-proof per the
+     design §5 law */
+  :where([data-slot='item-list'][data-dividers='auto'] > [data-slot='item-row']:has(+ [data-slot='item-divider'])),
+  :where([data-slot='item-list'][data-dividers='auto'] > [data-slot='item-divider'] + [data-slot='item-row']) {
+    border-top: 0;
+  }
+  /* the explicit divider: full strength, childless, presentational */
+  :where([data-slot='item-divider']) {
     border: 0;
     border-top: 1px solid var(--border);
     margin: 0;
     width: 100%;
   }
 
-  /* narrow groups: actions drops to its own full row (D1) */
+  /* ── the narrow law: the end lane takes its own full row ──────────
+     end-present combos only, wrap="never" opts out of the template
+     switch (the lane simply never splits) */
   @container jx-items (max-width: 30rem) {
-    /* narrow wrap (actions to its own row) — the same exhaustive
-       self-contained law, actions-present combos only */
-    .jx-item {
+    .jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])) {
       grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
       grid-template-areas: 'header header'
         'media content'
-        'actions actions'
+        'end end'
         'footer footer';
     }
-    .jx-item:not(:has(> [data-slot='item-footer'])) {
+    .jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-footer'])) {
       grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
       grid-template-areas: 'header header'
         'media content'
-        'actions actions';
+        'end end';
     }
-    .jx-item:not(:has(> [data-slot='item-header'])) {
+    .jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-header'])) {
       grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
       grid-template-areas: 'media content'
-        'actions actions'
+        'end end'
         'footer footer';
     }
-    .jx-item:not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
+    .jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
       grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
       grid-template-areas: 'media content'
-        'actions actions';
+        'end end';
     }
-    .jx-item:not(:has(> [data-slot='item-media'])) {
+    .jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-media'])) {
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas: 'header'
         'content'
-        'actions'
+        'end'
         'footer';
     }
-    .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-footer'])) {
+    .jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-footer'])) {
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas: 'header'
         'content'
-        'actions';
+        'end';
     }
-    .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])) {
+    .jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])) {
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas: 'content'
-        'actions'
+        'end'
         'footer';
     }
-    .jx-item:not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
+    .jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas: 'content'
-        'actions';
+        'end';
     }
-    :where([data-slot='item-actions']) {
+    :where([data-slot='item-end']) {
       justify-content: flex-start;
     }
   }
