@@ -21,13 +21,12 @@
   <nav class="jx-docs-pager-wrap" aria-label="pager">
     {#if ctx.related.length}
       <div class="jx-docs-pager-related">
-        <p class="jx-docs-pager-title">related · {ctx.groupLabel.toLowerCase()}</p>
+        <p class="jx-docs-pager-title">
+          related <span class="jx-dp-qual">· {ctx.groupLabel.toLowerCase()}</span>
+        </p>
         <ul role="list">
           {#each ctx.related as rel (rel.entry.name)}
-            <li>
-              <span class="jx-dp-ico text-primary" aria-hidden="true">{@html icons.arrowRight}</span>
-              <a href={rel.entry.href}>{rel.entry.name}</a>
-            </li>
+            <li><a class="jx-dp-chip" href={rel.entry.href}>{rel.entry.name}</a></li>
           {/each}
         </ul>
       </div>
