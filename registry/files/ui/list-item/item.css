@@ -453,19 +453,19 @@
         'end'
         'footer';
     }
-    .jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-footer'])) {
+    :where(.jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-footer']))) {
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas: 'header'
         'content'
         'end';
     }
-    .jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])) {
+    :where(.jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header']))) {
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas: 'content'
         'end'
         'footer';
     }
-    .jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer'])) {
+    :where(.jx-item:has(> [data-slot='item-end']:not([data-wrap='never'])):not(:has(> [data-slot='item-media'])):not(:has(> [data-slot='item-header'])):not(:has(> [data-slot='item-footer']))) {
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas: 'content'
         'end';

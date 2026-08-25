@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
+import type { Snippet } from 'svelte';
 import {
   Item,
   ItemGroup,
@@ -31,7 +32,7 @@ const cssPath = resolve(specDir, '../src/lib/ui/list-item/item.css');
 const css = readFileSync(cssPath, 'utf8');
 
 /** the empty-snippet children every slot-bearing component accepts */
-const children = (() => {}) as unknown as { render: () => {} };
+const children = (() => {}) as unknown as Snippet;
 
 describe('Item family — structure the matrix keys off', () => {
   it('root is a div by default, an anchor with href; stamps the resolved chrome', () => {
@@ -99,13 +100,9 @@ describe('Item family — structure the matrix keys off', () => {
   });
 
   it('ItemEnd hosts the trailing lane: after metadata, actions, chevron glyph', () => {
-    const { container } = render(ItemEnd, {
-      props: { children: (() => {}) as unknown as { render: () => {} } },
-    });
+    const { container } = render(ItemEnd, { props: { children } });
     expect(container.querySelector('[data-slot="item-end"]')!.getAttribute('data-wrap')).toBe('auto');
-    const { container: ca } = render(ItemAfter, {
-      props: { children: (() => {}) as unknown as { render: () => {} } },
-    });
+    const { container: ca } = render(ItemAfter, { props: { children } });
     expect(ca.querySelector('[data-slot="item-after"]')!.getAttribute('data-tone')).toBe('muted');
     const { container: cc } = render(ItemChevron);
     const chevron = cc.querySelector('[data-slot="item-chevron"]')!;
@@ -114,6 +111,13 @@ describe('Item family — structure the matrix keys off', () => {
     expect(chevron.querySelector('svg')!.getAttribute('aria-hidden')).toBe('true');
     // the decorative contract lives on the exported leaf too
     expect(chevron.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('a caller-supplied data-dividers never lands on the frame (component-owned)', () => {
+    const { container } = render(ItemGroup, { props: { 'data-dividers': 'none', children } });
+    const frame = container.querySelector('[data-slot="item-group"]')!;
+    expect(frame.getAttribute('data-dividers')).toBeNull();
+    expect(frame.querySelector('[data-slot="item-list"]')!.getAttribute('data-dividers')).toBe('auto');
   });
 
   it('ItemDivider is the childless presentational li boundary', () => {
@@ -176,6 +180,9 @@ describe('Item family — the CSS contract (source guard)', () => {
     expect(wideBlock.match(/grid-template-areas/g)!.length).toBe(16);
     expect(wideBlock.match(/grid-template-columns/g)!.length).toBe(16);
     expect(css.match(/grid-template-areas/g)!.length).toBe(24); // 16 wide + 8 narrow
+    // the cascade law: every matrix selector is :where()-wrapped — no
+    // bare .jx-item rule may exist (impl-review r2-10)
+    expect(css).not.toMatch(/^\s*\.jx-item[\s,{]/m);
   });
 });
 
@@ -183,7 +190,7 @@ describe('Item family — the reactive policy law (impl-review r1-7)', () => {
   it('stamps re-resolve on group prop changes; nested groups shadow', async () => {
     const Host = (await import('./fixtures/item-policy-host.svelte')).default;
     const { rerender, container } = render(Host, {
-      props: { mode: 'default', size: 'default' },
+      props: { mode: 'default', size: 'default', layout: 'standard' },
     });
     const outer = container.querySelector('[data-probe="outer"]')!;
     const outerList = outer.querySelector(':scope > [data-slot="item-list"]')!;
@@ -207,6 +214,10 @@ describe('Item family — the reactive policy law (impl-review r1-7)', () => {
     expect(innerRow!.getAttribute('data-size')).toBe('sm');
     await rerender({ mode: 'plain', dividers: 'auto', size: 'default' });
     expect(outer.querySelector(':scope > [data-slot="item-list"]')!.getAttribute('data-dividers')).toBe('auto');
+    // layout re-resolves too: the frame stamps it, auto rows inherit it
+    await rerender({ mode: 'plain', dividers: 'auto', size: 'default', layout: 'media' });
+    expect(outer.getAttribute('data-layout')).toBe('media');
+    expect(outer.querySelector(':scope > [data-slot="item-list"] > [data-slot="item-row"] [data-slot="item"]')!.getAttribute('data-layout')).toBe('media');
     // grouped rows re-resolved size through the whole rerender chain
     const groupedRow = outer.querySelector(':scope > [data-slot="item-list"] > [data-slot="item-row"] [data-slot="item"]');
     expect(groupedRow!.getAttribute('data-size')).toBe('default');
@@ -214,7 +225,7 @@ describe('Item family — the reactive policy law (impl-review r1-7)', () => {
 
     // the omission matrix on fresh trees: plain omitted → none,
     // default omitted → auto (already the first render above)
-    const plain = render(Host, { props: { mode: 'plain', size: 'default' } });
+    const plain = render(Host, { props: { mode: 'plain', size: 'default', layout: 'standard' } });
     expect(
       plain.container.querySelector('[data-probe="outer"] > [data-slot="item-list"]')!.getAttribute('data-dividers'),
     ).toBe('none');

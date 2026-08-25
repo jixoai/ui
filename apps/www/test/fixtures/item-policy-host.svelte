@@ -8,14 +8,16 @@
     mode,
     dividers,
     size,
+    layout,
   }: {
     mode: 'default' | 'muted' | 'plain';
     dividers?: 'auto' | 'none';
     size: 'default' | 'sm';
+    layout: 'standard' | 'media';
   } = $props();
 </script>
 
-<ItemGroup {mode} {dividers} {size} data-probe="outer">
+<ItemGroup {mode} {dividers} {size} {layout} data-probe="outer">
   <Item>
     <ItemContent><ItemTitle>outer row</ItemTitle></ItemContent>
   </Item>

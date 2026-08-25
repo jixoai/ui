@@ -36,6 +36,13 @@ describe('ItemField — the settings-row wiring', () => {
     const { container } = render(Host);
     expect(container.querySelector('#t1')!.getAttribute('aria-describedby')).toBe('t1-description');
     expect(container.querySelector('#c1')!.getAttribute('aria-describedby')).toBe('c1-error');
+    // ItemInput keeps the computed relations on the NATIVE input (the
+    // Input merge law — its own error wiring must not clobber them)
+    const nativeInput = container.querySelector('#i1')!;
+    expect(nativeInput.getAttribute('aria-invalid')).toBe('true');
+    const inputChain = nativeInput.getAttribute('aria-describedby')!;
+    expect(inputChain).toBe('i1-description i1-error');
+    for (const id of inputChain.split(' ')) expect(container.querySelector(`[id="${id}"]`)).toBeTruthy();
     expect(container.querySelector('#c1')!.getAttribute('aria-invalid')).toBe('true');
     expect(container.querySelector('#t1')!.getAttribute('aria-invalid')).toBeNull();
     // the ids the chain references exist
@@ -53,6 +60,8 @@ describe('ItemField — the settings-row wiring', () => {
     await new Promise((r) => setTimeout(r));
     expect(r2.checked).toBe(true);
     expect(r1.checked).toBe(false);
+    // the parent's bound group value followed the click (bind:group law)
+    expect(container.querySelector('[data-channel]')!.textContent).toBe('beta');
   });
 
   it('field rows stamp the Item contract (auto chrome, group inheritance)', () => {

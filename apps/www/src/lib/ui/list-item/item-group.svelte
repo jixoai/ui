@@ -67,6 +67,9 @@
     id,
     class: className = '',
     children,
+    // component-owned stamp: the ul carries data-dividers — a caller
+    // key here would double-stamp the frame (impl-review r2-9)
+    'data-dividers': _callerDividers,
     ...rest
   }: Props = $props();
 

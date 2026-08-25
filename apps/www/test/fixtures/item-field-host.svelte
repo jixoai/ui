@@ -21,6 +21,7 @@
 </script>
 
 <div>
+  <p data-channel>{channel}</p>
   <ItemToggle id="t1" label="Fast builds" description="skip typechecking" bind:checked={toggleOn} />
   <ItemCheckbox id="c1" label="Beta channel" error="requires a flag" bind:checked={boxOn} />
   <ItemRadio id="r1" name="channel" value="stable" label="Stable" bind:group={channel} />
@@ -29,7 +30,7 @@
     <option value="sm">sm</option>
     <option value="md">md</option>
   </ItemSelect>
-  <ItemInput id="i1" label="Project name" description="lowercase" bind:value={name} />
+  <ItemInput id="i1" label="Project name" description="lowercase" error="name taken" bind:value={name} />
   <ItemField id="f1" label="Custom control" labelMode="text">
     {#snippet control(f)}
       <button type="button" aria-labelledby={f.labelId}>act</button>

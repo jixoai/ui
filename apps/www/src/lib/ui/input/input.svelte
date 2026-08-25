@@ -98,6 +98,11 @@
     outerBlockEnd?: Snippet;
     /** $bindable; bound ⇒ controlled, absent ⇒ purely uncontrolled */
     value?: string | number;
+    /** caller-supplied validation relations — used only when the
+        control's own error wiring is absent (the ItemField adapters
+        own the error text; their computed chains must survive) */
+    'aria-invalid'?: 'true' | 'false' | undefined;
+    'aria-describedby'?: string | undefined;
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -115,13 +120,15 @@
     outerBlockEnd,
     value = $bindable(),
     class: className = '',
+    'aria-invalid': ariaInvalid,
+    'aria-describedby': ariaDescribedBy,
     ...rest
   }: Props = $props();
 
   const errorId = $derived(`${id}-error`);
   const invalid = $derived(error != null && error !== '');
-  const describedBy = $derived(invalid ? errorId : undefined);
-  const invalidAttr = $derived(invalid ? 'true' : undefined);
+  const describedBy = $derived(invalid ? errorId : ariaDescribedBy);
+  const invalidAttr = $derived(invalid ? 'true' : ariaInvalid);
 
   const isHidden = $derived(type === 'hidden');
   const isRange = $derived(type === 'range');

@@ -129,7 +129,6 @@ type ItemLabelMode = 'for' | 'text';
 | `id` | `string — $props.id()` (becomes `controlId`) |
 | `labelMode` | `ItemLabelMode — 'for'` |
 | `variant` / `size` / `layout` | Item passthrough (`'auto'` / inherited / `'auto'`) |
-| `disabled` | `boolean — false` |
 | `class` | `string — ''` |
 | `control` | `Snippet<[ItemFieldContext]>` — required |
 
@@ -165,16 +164,16 @@ the full ItemField prop set above, plus:
 | adapter | additional public/bindable props | control-reserved (Omit) sets |
 |---|---|---|
 | `ItemToggle` | `checked — $bindable(false)`; `controlSize: 'sm'\|'md'\|'lg' — 'md'` (the Toggle footprint; the field's density owns `size` and the native number-typed `size` attr is reserved away); all non-reserved Toggle props | `label` + field-reserved + native `size` |
-| `ItemCheckbox` | `checked — $bindable(false)`; `indeterminate — false`; non-reserved Checkbox props | `label`, `error`, `labelSide` + field-reserved |
+| `ItemCheckbox` | `checked — $bindable(false)`; `indeterminate — false`; non-reserved Checkbox props | `label`, `error`, `labelSide` + field-reserved + native `size` |
 | `ItemRadio` | `group — $bindable()` (the two-way selected VALUE — Svelte's radio law is `bind:group`; `checked` cannot bind on radios and stays an uncontrolled rest attr; `name`/`value` keep native form participation) + non-reserved Radio props | Radio's duplicate label/error props + field-reserved + native `size` |
-| `ItemSelect` | `value — $bindable()`; `children: Snippet` (options) forwarded through the control snippet; non-reserved NativeSelect props | `label`, `error` + field-reserved |
-| `ItemInput` | `type — 'text'`; `value — $bindable()`; non-reserved Input props | Input's duplicate label/error props + field-reserved |
+| `ItemSelect` | `value — $bindable()`; `children: Snippet` (options) forwarded through the control snippet; non-reserved NativeSelect props | `label`, `error` + field-reserved + native `size` |
+| `ItemInput` | `type — 'text'`; `value — $bindable()`; non-reserved Input props | Input's duplicate label/error props + field-reserved + native `size` |
 
 **Field-reserved (centralized in every adapter):** `id`,
 `aria-labelledby`, `aria-describedby` — the adapter passes computed
 values; callers who need custom relations use raw `ItemField`.
-Adapters forward `disabled` to both field and control; value props
-stay `$bindable`; native semantics, keyboard, and form participation
+Adapters forward `disabled` to their controls (the field itself
+carries no disabled prop); value props stay `$bindable`; native semantics, keyboard, and form participation
 remain 100% the control's (verified preflight: Toggle/Checkbox/
 NativeSelect derive `$props.id()` and forward `id` to the native
 element — Radio/Input get the same check at implementation time).

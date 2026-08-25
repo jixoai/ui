@@ -12,7 +12,7 @@
   *Gate: focused Item vitest green + fixture proves `id` reaches the
   title node + stale-class warning gone.*
 - [x] 2. **Family core rewrite** — typed Symbol-key policy context
-  (`$state` fields, stable identity — the §2 reactive time model) +
+  (stable identity, getter-backed reactive fields — the §2 time model) +
   stamped resolution attributes; `ItemEnd` / `ItemAfter` /
   `ItemChevron` / `ItemDivider` (childless decorative) modules;
   end-based presence matrix (16 wide + narrow, self-contained combos);
@@ -36,7 +36,7 @@
   via `ComponentProps<typeof Control>` + compile-time `Omit` reserved
   sets (design §3 table — `id`/`aria-labelledby`/`aria-describedby`
   centralized; per-control duplicate label/error/labelSide reserved);
-  `$bindable` values; disabled forwarded to field AND control.
+  `$bindable` values; disabled forwarded to the control (the field carries no disabled prop).
   *Gate: vitest per adapter asserts the generated id lands on the
   NATIVE element, deterministic suffix IDs, description-then-error
   `aria-describedby` order, error → `aria-invalid="true"`,

@@ -18,7 +18,7 @@
   'left' | 'right', default right), error string → aria-invalid +
   aria-describedby + "! message" line + dashed border. Everything else
   (name, value, checked, disabled, required…) flows through restProps.
-  Uncontrolled by design — read submitted values with FormData.
+  Uncontrolled when `group` is unbound — read submitted values with FormData; bind:group for the two-way selected value.
 
   tw4 (2026-08-24): static paint is token utilities in the markup; the
   .jx-field/.jx-label/.jx-error scaffolding is CONSUMED from the jx-pure
