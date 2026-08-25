@@ -1,8 +1,23 @@
+<!--
+  Docs page for the decomposed terminal-header (composition-first-apis,
+  Batch F, 2026-08-25).
+  Intents:
+  1. Hero summary: the header is CHROME ONLY — bar shell, brand block,
+     pill box + sliding indicator, mobile drawer shell — a thin
+     composition surface over the navigation-menu family.
+  2. One ComponentCanvas: the architecture (a header cannot nest inside
+     a header — this page already wears the real bar; the LIVE demo is
+     the site layout itself).
+  3. Usage CodeBlock: the copyable composition sample (composed
+     NavigationMenu parts + authored mega grid + drawer snippet).
+  Constraint: docs only — the header itself is untouchable.
+-->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import terminalHeaderSource from '$lib/ui/terminal-header/terminal-header.svelte?raw';
+  import terminalHeaderCss from '$lib/ui/terminal-header/terminal-header.css?raw';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
 
@@ -16,77 +31,77 @@
   // single usage sample: the drawer file and the body CodeBlock share it
   const usage = `<script lang="ts">
   import TerminalHeader from '@ui/terminal-header.svelte';
-  import ThemeToggle from '@ui/theme-toggle.svelte';
+  import {
+    NavigationMenu,
+    NavigationMenuItem,
+    NavigationMenuTrigger,
+    NavigationMenuPanel,
+    NavigationMenuLink,
+  } from '@ui/navigation-menu/index';
 ${close}
 
-<TerminalHeader
-  brand="jixoai-ui"
-  domain="ui.jixoai.com"
-  subtitle="the jixoai design language"
-  navColumns="auto"
-  items={[
-    { href: '/', label: 'Overview', active: true },
-    {
-      href: '/docs',
-      label: 'Docs',
-      // flat SubItem[] → one unnamed group, the narrow dropdown
-      children: [
-        { href: '/docs/tokens', label: 'tokens', description: 'the token sheet' },
-      ],
-    },
-    {
-      href: '/docs/components',
-      label: 'Components',
-      // TerminalNavGroup[] → mega panel: multi-column grid areas
-      children: [
-        {
-          label: 'Layout',
-          items: [
-            { href: '/docs/components/card', label: 'card', description: 'the content atom' },
-            { href: '/docs/components/grid', label: 'grid', description: 'subgrid equalizer' },
-          ],
-        },
-        {
-          label: 'Overlay',
-          items: [
-            { href: '/docs/components/dialog', label: 'dialog', description: 'native dialog base' },
-          ],
-        },
-      ],
-    },
-    { href: 'https://github.com/jixoai/ui', label: 'GitHub', external: true },
-  ]}
->
-  {#snippet switcher()}
-    <ThemeToggle />
+<TerminalHeader brand="jixoai-ui" domain="ui.jixoai.com" subtitle="the jixoai design language">
+  <!-- the nav slot: composed family parts — panels carry YOUR markup -->
+  <NavigationMenu label="primary">
+    <NavigationMenuLink href="/" current>Overview</NavigationMenuLink>
+    <NavigationMenuItem>
+      <NavigationMenuTrigger current>Components</NavigationMenuTrigger>
+      <NavigationMenuPanel class="jx-subpanel jx-subpanel-mega">
+        <!-- the mega grid is authored INSIDE the panel -->
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(13.5rem,1fr))]">
+          <div class="jx-group …">
+            <a class="jx-sub-link" href="/docs/components/card">card</a>
+          </div>
+        </div>
+      </NavigationMenuPanel>
+    </NavigationMenuItem>
+    <NavigationMenuLink href="https://github.com/jixoai/ui">GitHub</NavigationMenuLink>
+  </NavigationMenu>
+
+  {#snippet switcher()}<ThemeToggle />{/snippet}
+
+  <!-- the mobile drawer's contents — the stacked tier's nav, yours -->
+  {#snippet drawer()}
+    <nav aria-label="primary">
+      <a href="/">Overview</a>
+      …disclosure rows authored in your tree…
+    </nav>
   {/snippet}
 </TerminalHeader>`;
 
   // the architecture, as an ASCII diagram (a header cannot nest a header)
-  const architecture = `the two wings (desktop, >=lg) — they never mix
+  const architecture = `the two wings (desktop, >=sm) — they never mix
 +---------------------------------------------------------------+
 | []  jixoai-ui                                 [ Overview       |
-|     ui.jixo.com                                 Components v   |
+|     ui.jixoai.com                              Components v   |
 |     the design language                         Tokens GitHub ]|
-|     <-- brand identity -->              <-- routes + switcher->|
+|     <-- brand identity (chrome) -->   <- composed nav + slot ->|
 +---------------------------------------------------------------+
 
-second level — the shape of item.children decides the panel
-  TerminalNavSubItem[]   one unnamed group -> narrow dropdown
-  TerminalNavGroup[]     2+ groups -> mega panel: definite width,
-                         auto-fill minmax(14rem, 1fr) grid areas,
-                         cqw container rules, hairline dividers
-  both ride popover="auto": top layer, light dismiss, Escape
-  JS owns only the click toggle and placement
+composition (composition-first-apis, 2026-08-25) — the header owns
+CHROME ONLY; the nav is the navigation-menu family, composed in
+  <TerminalHeader>                      the bar shell, theme lock
+    <NavigationMenu>                    the pill box hosts the bar
+      <NavigationMenuLink>              links-only entries, bare
+      <NavigationMenuItem>              the pairing unit (one id)
+        <NavigationMenuTrigger>         button; popovertarget wire
+        <NavigationMenuPanel>           popover=auto; YOUR mega grid
+      </NavigationMenuPanel></NavigationMenuItem>
+    </NavigationMenu>
+    {#snippet drawer()}…{/snippet}    the mobile tier's nav, yours
+  </TerminalHeader>
+the chrome keeps: pill box + sliding indicator (vt-nav-active), the
+hamburger fold + drawer collapse + Escape, closeAll() navigation
+cleanup. TerminalNavItem / panelAction / navColumns are GONE.
 
-the three tiers
-  >=lg     full brand stack + complete pill group + switcher
-  sm-lg    domain stays, subtitle drops, compact pills
-  <sm      hamburger -> grid-rows 0fr-to-1fr disclosure, children
-           nest the same collapse, "all ->" keeps the parent href`;
+two tiers
+  >=sm     full brand stack + pill group + switcher
+  <sm      hamburger -> grid-rows 0fr-to-1fr disclosure holding the
+           drawer snippet, bounded by the in-bar scroller`;
 
   const files: TreeFile[] = [
-    { name: 'registry/files/ui/terminal-header.svelte', content: terminalHeaderSource },
+    { name: 'registry/files/ui/terminal-header/terminal-header.svelte', content: terminalHeaderSource },
+    { name: 'registry/files/ui/terminal-header/terminal-header.css', content: terminalHeaderCss },
     { name: 'src/lib/ui/terminal-header-usage.svelte', content: usage },
   ];
 </script>
@@ -95,7 +110,7 @@ the three tiers
   <title>Terminal header · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai terminal-header component: the site nav bar — a strict two-wing layout on an always-dark CRT bezel, nav pills with popover-based second-level panels (flat dropdowns or grouped mega panels), and a three-tier responsive collapse."
+    content="The jixoai terminal-header component, decomposed (composition-first-apis): the site nav bar keeps its chrome — the two-wing CRT bezel, the brand block, the bordered pill group with the sliding active indicator, and the mobile drawer shell — while the navigation itself composes from the navigation-menu family: Item/Trigger/Panel parts with consumer-authored mega grids inside the panels and bare links in-bar."
   />
 </svelte:head>
 
@@ -111,14 +126,14 @@ the three tiers
         headingLevel={1}
         tone="hero"
         eyebrow="registry:ui · Layout"
-        title="terminal-header — the two-wing bezel"
-        summary="The site nav bar: LEFT carries the brand (logo slot, wordmark, domain, subtitle — the page's identity), RIGHT carries the navigation as one bordered pill group plus the switcher slot — the page's routes. The wings never mix. The bar is a CRT bezel locked dark by default, so its contents read identically under any brand hue; theme=&quot;light&quot; or &quot;system&quot; unlocks the shell."
+        title="terminal-header — the two-wing bezel, chrome only"
+        summary="The site nav bar: LEFT carries the brand (logo slot, wordmark, domain, subtitle — the page's identity), RIGHT carries the navigation pill group plus the switcher slot — the wings never mix, and the bar is a CRT bezel locked dark by default (theme=&quot;light&quot; or &quot;system&quot; unlocks). The header owns CHROME ONLY: the nav slot hosts composed navigation-menu parts — triggers with panels whose mega grids you author inside, links-only entries as bare links — and the mobile drawer holds your drawer snippet behind the hamburger fold. The three-level item config tree is gone: what renders is your tree."
       >
         <div class="flex flex-wrap gap-3">
           <span class="pill">two wings, never mixed</span>
-          <span class="pill">popover second level</span>
-          <span class="pill">mega panels · grid areas</span>
-          <span class="pill">3 responsive tiers</span>
+          <span class="pill">composed nav · family parts</span>
+          <span class="pill">authored mega grids</span>
+          <span class="pill">drawer snippet · 2 tiers</span>
         </div>
       </SectionCard>
     </div>
@@ -127,21 +142,22 @@ the three tiers
       <ComponentCanvas
         title="terminal-header"
         stage="fill"
-        description="A header cannot nest inside a header — this page already wears the component at its top edge. The stage holds the architecture instead; the full source and the integration usage live in the code drawer."
-        sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/terminal-header.svelte"
+        description="A header cannot nest inside a header — this page already wears the component at its top edge. The stage holds the architecture instead; the full source and the composed usage live in the code drawer."
+        sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/terminal-header/terminal-header.svelte"
         {files}
       >
         <div class="flex w-full flex-col gap-5">
           <SectionCard
             eyebrow="live stage, replaced"
             title="You are already wearing the demo"
-            summary="The bar above this page — brand left, pills right, hue switcher in the switcher slot — is the component, rendered exactly once by the site layout. Rendering a second instance here would nest one banner landmark inside the page and duplicate the primary navigation, so the stage shows the structure instead."
+            summary="The bar above this page — brand left, pills right, hue switcher in the switcher slot — is the component, rendered exactly once by the site layout with the nav composed from the navigation-menu family. Rendering a second instance here would nest one banner landmark inside the page and duplicate the primary navigation, so the stage shows the structure instead."
           >
             <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-              Open the code drawer below for the verbatim source (803 lines, the whole popover and
-              mega-panel law), then click the <em>Components</em> pill in the real header
-              above — the grouped panel that drops is the data shape from the usage file, running
-              live. On a narrow viewport the same items collapse into the hamburger disclosure.
+              Open the code drawer below for the verbatim source (the chrome + the three css
+              bands), then click the <em>Components</em> pill in the real header above — the
+              mega panel that drops is the docs tree mapped onto NavigationMenuItem/Trigger/Panel
+              in the layout, running live. On a narrow viewport the same routes fold into the
+              hamburger drawer.
             </p>
           </SectionCard>
           <CodeBlock code={architecture} lang="txt" meta="architecture" />
@@ -150,10 +166,10 @@ the three tiers
           <PlayFields>
             <PlayHelp>
               the LIVE demo is the bar this page already wears: click the <em>Components</em> pill
-              above for the mega panel (click-again, outside click, Escape and the top layer are
-              the browser's), or narrow the viewport to watch the hamburger disclosure fold the
-              same items. Tab order: brand, pills, switcher — the panel contents join only while
-              open.
+              above — the panel opens on the browser's popover laws (light dismiss, Escape, top
+              layer) and its grid is authored in the site layout; narrow the viewport to watch the
+              hamburger fold the drawer snippet open. Tab order: brand, the family's roving pill
+              walk, switcher.
             </PlayHelp>
           </PlayFields>
         {/snippet}
@@ -166,24 +182,28 @@ the three tiers
         headerRegion="integration"
         eyebrow="composition"
         title="How it attaches"
-        summary="The header renders once per site, inside the shell's header slot (app-shell, or a plain layout wrapper). Everything dynamic arrives as data: items is a literal array, so route tables stay static; the switcher slot takes any bezel-aware control."
+        summary="The header renders once per site, inside the shell's header slot. It takes no nav data: the navigation is composed from the navigation-menu family into the default slot (the pill box), and the mobile drawer's contents arrive as the drawer snippet — structure lives in your tree, the bezel comes from the header."
       >
         <div class="flex flex-col gap-5">
           <ul class="flex flex-col gap-2 text-[13px] leading-6">
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>items carry <code class="text-accent">active</code> — the pill earns
-              <code class="text-accent">aria-current="page"</code> and the sliding indicator</span></li>
+              <span>the pill box + the sliding indicator (<code class="text-accent">vt-nav-active</code>)
+              are chrome — the header repaints the indicator from the DOM
+              (<code class="text-accent">aria-current</code> flips), because it never sees your nav
+              data</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>second level is data too: <code class="text-accent">SubItem[]</code> narrows,
-              <code class="text-accent">TerminalNavGroup[]</code> goes mega —
-              <code class="text-accent">navColumns</code> pins or derives the column count</span></li>
+              <span>opt panels into the bezel surface with <code class="text-accent">jx-subpanel</code>
+              (<code class="text-accent">jx-subpanel-mega</code> for the wide multi-column ceiling);
+              the column count is your grid — <code class="text-accent">navColumns</code> died with
+              the config tree</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>panels are native <code class="text-accent">popover="auto"</code>: light dismiss,
-              Escape and the top layer belong to the browser; the component adds only click
-              toggling and placement</span></li>
+              <span>panels stay the browser's — <code class="text-accent">popover="auto"</code> light
+              dismiss, Escape, one-at-a-time, CSS anchoring; the header adds only
+              <code class="text-accent">closeAll()</code> navigation cleanup</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>the panel repeats the header's scope class, so its tokens survive the top-layer
-              promotion untouched</span></li>
+              <span>the drawer is a shell: hamburger fold, bounded scroller, Escape; your snippet
+              holds the rows, and <code class="text-accent">bind:open</code> is your reset signal
+              for disclosure state</span></li>
           </ul>
           <CodeBlock code={usage} lang="svelte" meta="usage" />
         </div>

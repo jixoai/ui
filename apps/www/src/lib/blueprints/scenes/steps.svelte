@@ -3,8 +3,7 @@
      the future is inert. composition-first-apis: explicit ordinals, the
      parts authored in the tree. -->
 <script lang="ts">
-  import {
-    Steps,
+  import Steps, {
     StepsItem,
     StepsIndicator,
     StepsTitle,

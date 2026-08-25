@@ -1,133 +1,92 @@
 <!--
-  jixoai terminal header (registry/files/ui/terminal-header.svelte).
+  jixoai terminal header
+  (registry/files/ui/terminal-header/terminal-header.svelte).
   The site nav bar: a strict two-wing layout — LEFT carries the brand
   (logo slot + wordmark + domain/subtitle, the page's identity), RIGHT
-  carries the navigation as one bordered pill group (the page's routes)
-  plus the switcher slot. The wings never mix.
+  carries the navigation pill group plus the switcher slot. The wings
+  never mix.
 
   Theme lock: the bar is a CRT bezel locked DARK by default; components
   inside render with dark tokens because the wrapper carries the scoped
   token class (dark). Declare theme="light" or "system" to unlock.
 
-  Responsive — three deliberate tiers:
-    desktop (≥lg)   one row: logo + full brand stack LEFT; complete nav
-                    pill group + switcher RIGHT
-    tablet (sm–lg)  one row: logo + brand + domain LEFT (no subtitle);
-                    compact nav group + switcher RIGHT
-    mobile (<sm)    row 1: logo + brand LEFT; switcher + hamburger RIGHT;
-                    the nav opens as a stacked disclosure panel below,
-                    items with children expanding as nested grid-rows
-                    0fr→1fr groups (the parent row toggles; an "all →"
-                    link keeps the parent href reachable)
+  Composition-first (2026-08-25, composition-first-apis — BREAKING): the
+  header owns CHROME ONLY and is a thin composition surface OVER the
+  NavigationMenu family. The nav slot hosts consumer-composed parts —
+  NavigationMenuItem/Trigger/Panel with the mega grids authored INSIDE
+  the panels, links-only entries as NavigationMenuLink or bare anchors.
+  The three-level TerminalNavItem config tree, panelAction and
+  navColumns are DEAD: what renders is the consumer's tree; the header
+  wraps it in the bezel. What survives here, verbatim in behavior:
 
-  Second level nav (2026-08-20, request: submenus on the native Popover
-  API; nested disclosures on mobile; 2026-08-25, Owner ruling: CLICK
-  open only — the hover path, its grace timers and its corridor are
-  retired): items may carry `children`. Desktop pills with children
-  consume the registry Popover primitive (2026-08-22, Owner dogfooding
-  directive + Codex ruling): the component owns anchoring (CSS Anchor
-  Positioning + try-fallbacks), lifecycle and placement natively;
-  header JS owns only the click toggle and navigation cleanup — never
-  geometry. Click opens; click again, outside click (native light
-  dismiss) and Escape close. Engines without the Popover API or anchor
-  positioning degrade to a plain navigable link.
+    - the pill-group box + the sliding active indicator (vt-nav-active)
+      over the composed entries — the header owns no nav data, so the
+      repaint triggers are DOM-delegated (aria-current MutationObserver
+      + ResizeObserver + late font loads; panel links never steal the
+      indicator — entries inside a [popover] are excluded)
+    - the mobile drawer SHELL: the hamburger fold, the grid-rows
+      0fr→1fr collapse, the bounded scroll viewport, Escape→close with
+      focus returned to the hamburger, and the tier-cross reset; the
+      drawer CONTENTS are the `drawer` snippet, and bind:open is the
+      consumer's reset signal for its own drawer state
+    - closeAll(): navigation cleanup — hides every open [popover] panel
+      under the header (composed NavigationMenu panels included, found
+      by DOM query — the header never tracked them) and resets the
+      drawer; consumers call it from their router hook (the registry
+      component stays app-agnostic)
 
-  Grouped multi-column panels (2026-08-20, same day follow-up): children
-  may be TerminalNavGroup[] — each group renders as one grid area with a
-  Share Tech Mono label, separated by hairline rules. Two or more groups
-  switch the panel into "mega" mode: a definite width (never content
-  sized) drives an auto-fill minmax(14rem, 1fr) grid, the panel itself
-  becomes the container (container-type: inline-size; cqw units resolve),
-  and a @container rule switches the divider law to stacked border-top
-  when only one column fits. Group dividers are drawn on every group and
-  clipped at the content edge (graph-paper law). A plain SubItem[] stays
-  one unnamed group and keeps the narrow fit-content dropdown.
-  navColumns="auto" (default) derives columns from the panel width; a
-  number pins repeat(N, 1fr). This extends the file's 5th orthogonal
-  intent — still at the cap; do not add more here.
-
-  Mobile disclosure (2026-08-22): the in-flow stacked disclosure keeps
-  the terminal language (it pushes content down, it is not an overlay)
-  and gains a bounded scroll viewport — max-height in dvh minus the bar,
-  overscroll contained — so every link stays reachable when all groups
-  expand. Escape closes it while open.
+  Responsive — two deliberate tiers:
+    ≥sm   one row: brand LEFT; pill group + switcher RIGHT
+    <sm   row 1: logo + brand LEFT; switcher + hamburger RIGHT; the
+          drawer opens as a stacked disclosure below the bar
 -->
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { Snippet } from 'svelte';
-  import Popover from '$lib/ui/popover/popover.svelte';
-  import { icons } from '$lib/icons';
+  import { cn } from '$lib/utils';
   import './terminal-header.css';
 
-  interface PopoverHandle {
-    show(): void;
-    hide(): void;
-    toggle(): void;
-  }
-
-  export interface TerminalNavSubItem {
-    label: string;
-    href: string;
-    external?: boolean;
-    /** Optional one-line muted description under the label (clamped to 2 lines). */
-    description?: string;
-    /** Marks the current page inside the dropdown / disclosure list. */
-    active?: boolean;
-    /** Optional 16px icon snippet rendered in a muted left column. */
-    icon?: Snippet;
-  }
-
-  export interface TerminalNavGroup {
-    /** Optional group heading; absent means the group renders unheaded. */
-    label?: string;
-    items: TerminalNavSubItem[];
-  }
-
-  export interface TerminalNavItem {
-    label: string;
-    href: string;
-    active?: boolean;
-    external?: boolean;
-    /** Panel header action: rendered at the panel head's inline-end
-        (e.g. 'all →' linking the section index, 2026-08-23). Mobile
-        already renders the parent row's adjacent all-link itself. */
-    panelAction?: { href: string; label: string; active?: boolean };
-    /** Second level: SubItem[] renders one unnamed group (a narrow
-        dropdown); TerminalNavGroup[] renders a grouped multi-column
-        panel when there are two or more groups. */
-    children?: TerminalNavSubItem[] | TerminalNavGroup[];
-  }
-
   interface Props {
+    /** the wordmark line of the brand block */
     brand: string;
-    items: TerminalNavItem[];
-    logo?: Snippet;
+    /** second brand line (the domain) */
     domain?: string;
+    /** third brand line — desktop tier only */
     subtitle?: string;
-    switcher?: Snippet;
-    theme?: 'dark' | 'light' | 'system';
+    /** the brand block's link target */
     homeHref?: string;
-    /** Panel column mode for grouped second-level panels: 'auto' derives
-        the column count from the panel width (auto-fill minmax(14rem,1fr));
-        a number pins repeat(N, 1fr). Ignored by single-group panels. */
-    navColumns?: number | 'auto';
+    /** bezel theme lock: dark (default) | light | system */
+    theme?: 'dark' | 'light' | 'system';
+    /** the brand mark (logo slot) */
+    logo?: Snippet;
+    /** the right-wing control slot (theme pair toggle, hue switcher…) */
+    switcher?: Snippet;
+    /** the desktop nav slot — compose NavigationMenu parts here */
+    children?: Snippet;
+    /** the mobile drawer contents (the stacked tier's nav) */
+    drawer?: Snippet;
+    /** the mobile drawer's open state (bind:open) — the consumer's
+        reset signal: closing clears its own drawer state */
+    open?: boolean;
+    class?: string;
   }
 
   let {
     brand,
-    items,
-    logo,
     domain,
     subtitle,
-    switcher,
-    theme = 'dark',
     homeHref = '/',
-    navColumns = 'auto',
+    theme = 'dark',
+    logo,
+    switcher,
+    drawer,
+    open = $bindable(false),
+    class: className = '',
+    children,
   }: Props = $props();
 
   // scoped token class: dark (default lock) or jx-light (css-defined)
   let scope = $state<'dark' | 'light'>(theme === 'light' ? 'light' : 'dark');
-  let open = $state(false);
 
   $effect(() => {
     if (theme !== 'system') {
@@ -141,63 +100,29 @@
     return () => media.removeEventListener('change', apply);
   });
 
-  /* -----------------------------------------------------------------
-   * Second-level nav data: children normalize to groups. A plain
-   * SubItem[] (the 2026-08-20 morning shape) is one unnamed group so
-   * every existing consumer keeps its narrow dropdown.
-   * --------------------------------------------------------------- */
-  const asGroups = (children?: TerminalNavItem['children']): TerminalNavGroup[] => {
-    if (!children?.length) return [];
-    const first = children[0];
-    if (first && 'items' in first && Array.isArray(first.items)) {
-      return children as TerminalNavGroup[];
-    }
-    return [{ items: children as TerminalNavSubItem[] }];
-  };
+  let headerEl = $state<HTMLElement | null>(null);
 
   /* -----------------------------------------------------------------
-   * Second-level nav orchestration (click-only, 2026-08-25). openKey
-   * mirrors the panels' native toggle events — outside click (light
-   * dismiss), Escape and one-at-a-time run without our handlers, so
-   * the events are the single source of truth and aria-expanded never
-   * lies. The click toggle is race-free on the native engine: light
-   * dismiss runs AFTER click handlers (engine-probed on Chromium,
-   * 2026-08-25), so the handler always reads the live open state.
-   * Placement is NOT ours: the Popover primitive anchors and flips
-   * through the engine (no coordinates, no clamping, no resize
-   * listeners).
+   * Navigation cleanup (consumers call this from their router hook —
+   * SvelteKit onNavigate; the registry component stays app-agnostic).
+   * Panels are no longer tracked by the header: whatever [popover]
+   * surfaces the composed nav opened under this header get hidden by
+   * DOM query, and the drawer resets. The bound open state flows to
+   * the consumer synchronously, so its drawer-state reset effect runs
+   * without lag.
    * --------------------------------------------------------------- */
-  let openKey = $state<string | null>(null);
-  const handles: Record<string, PopoverHandle | null> = {};
-
-  const hidePanel = (key: string) => handles[key]?.hide();
-  const showPanel = (key: string, source?: EventTarget | null) => {
-    handles[key]?.show(source instanceof HTMLElement ? source : undefined);
-  };
-  const onPanelToggle = (key: string, open: boolean) => {
-    if (open) {
-      openKey = key;
-    } else if (openKey === key) {
-      // only the tracked panel's close resets the key — popover=auto
-      // closes panel A while opening B, and A's late close event must
-      // never clear B's state
-      openKey = null;
-    }
-  };
-  // navigation cleanup (Codex ruling): hides every panel and resets the
-  // mobile disclosure; consumers call this from their router hook
-  // (SvelteKit onNavigate) — the registry component stays app-agnostic.
-  // openKey clears synchronously here so a pill's aria-expanded never
-  // lags the panel behind an async native toggle event
   export function closeAll(): void {
-    openKey = null;
-    for (const key of Object.keys(handles)) handles[key]?.hide();
     open = false;
-    expanded = {};
+    if (!headerEl) return;
+    for (const panel of headerEl.querySelectorAll<HTMLElement>('[popover]')) {
+      if (typeof panel.hidePopover === 'function' && panel.matches(':popover-open')) {
+        panel.hidePopover();
+      }
+    }
   }
 
   // crossing the sm breakpoint (rotate, resize) never carries nav state
-  // across tiers — desktop panels hide, the disclosure resets (Codex r2)
+  // across tiers — composed panels hide, the disclosure resets
   onMount(() => {
     const mobile = matchMedia('(max-width: 639.98px)');
     const onCross = () => closeAll();
@@ -205,33 +130,15 @@
     return () => mobile.removeEventListener('change', onCross);
   });
 
-  // engine gate: hover/click interception only when the Popover API AND
-  // the full anchoring pair exist — a partial engine must degrade to
-  // plain navigable links (never a stranded preventDefault, never a
-  // detached centered mega panel)
-  let engineOk = $state(true);
-  onMount(() => {
-    const anchorOk =
-      CSS.supports('anchor-name: --probe') &&
-      (CSS.supports('position-area: bottom') || CSS.supports('inset-area: bottom'));
-    engineOk = 'popover' in HTMLElement.prototype && anchorOk;
-  });
-
-  // mobile: expanded disclosure groups, keyed by the parent href as well
-  let expanded = $state<Record<string, boolean>>({});
+  // mobile drawer: Escape closes it while open and returns focus to the
+  // hamburger (the fold itself rides the button's aria-expanded state)
   let burgerEl = $state<HTMLElement | null>(null);
 
-  // closing the disclosure clears the expanded groups (Codex ruling:
-  // consistent reopen state) — Escape also returns focus to the hamburger
-  const close = () => {
-    open = false;
-    expanded = {};
-  };
   $effect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        close();
+        open = false;
         burgerEl?.focus();
       }
     };
@@ -239,23 +146,33 @@
     return () => removeEventListener('keydown', onKey);
   });
 
-  // Sliding indicator (Owner, 2026-08-21): a dedicated element acts as the
-  // active background and slides between nav items (measured translateX +
-  // width). It carries the vt-nav-active name, so cross-page navigations
-  // morph it via the view transition; same-page/no-VT swaps fall back to
-  // its own CSS transition.
-  let navEl = $state<HTMLElement | null>(null);
+  /* -----------------------------------------------------------------
+   * Sliding indicator (Owner, 2026-08-21): a dedicated element acts as
+   * the active background and slides between nav entries (measured
+   * translateX + width). It carries the vt-nav-active name, so
+   * cross-page navigations morph it via the view transition; same-page
+   * swaps fall back to its own CSS transition.
+   * The header owns no nav data anymore, so the measure triggers are
+   * DOM-delegated: the first paint measures instantly, then aria-
+   * current flips (route swaps), box resizes and late font loads
+   * re-measure. Direct pills only — entries inside a [popover] panel
+   * (the composed mega links) carry their own aria-current and must
+   * never steal the indicator; offsetLeft/offsetWidth measure against
+   * the pill box (the nearest positioned ancestor).
+   * --------------------------------------------------------------- */
+  let navSlotEl = $state<HTMLElement | null>(null);
   let indicatorEl = $state<HTMLElement | null>(null);
 
+  const pillEntries = (): HTMLElement[] =>
+    [
+      ...(navSlotEl?.querySelectorAll<HTMLElement>(
+        '[data-jx-navmenu-link][aria-current="page"], [data-jx-navmenu-trigger][aria-current="true"]',
+      ) ?? []),
+    ].filter((el) => el.closest('[popover]') === null);
+
   const positionIndicator = (instant = false) => {
-    if (!navEl || !indicatorEl) return;
-    // direct pill anchors only — dropdown child links carry their own
-    // aria-current and must never steal the indicator. Popover-wrapped
-    // pills match the span branch; offsetLeft/offsetWidth still measure
-    // against this nav (the nearest positioned ancestor)
-    const active = navEl.querySelector(
-      ':scope > a[aria-current="page"], :scope > span a[aria-current="page"]',
-    );
+    if (!navSlotEl || !indicatorEl) return;
+    const active = pillEntries()[0];
     if (!(active instanceof HTMLElement)) {
       indicatorEl.style.opacity = '0';
       return;
@@ -271,72 +188,36 @@
 
   let measured = false;
   $effect(() => {
-    // runs on mount and whenever items/active change: the first measure is
-    // instant (no slide from 0); every later move animates via the CSS
-    // transition — the VT morph covers the visual when a transition runs
-    void items;
+    // the first measure is instant (no slide from 0); every later move
+    // animates via the CSS transition — the VT morph covers the visual
+    // when a transition runs
     positionIndicator(!measured);
     measured = true;
   });
 
   onMount(() => {
     const reposition = () => positionIndicator(false);
+    const slot = navSlotEl;
+    if (!slot) return;
+    const mo = new MutationObserver(reposition);
+    mo.observe(slot, { subtree: true, attributeFilter: ['aria-current'] });
     const ro = new ResizeObserver(reposition);
-    if (navEl) ro.observe(navEl);
+    ro.observe(slot);
     document.fonts?.ready.then(reposition).catch(() => {});
-    return () => ro.disconnect();
+    return () => {
+      mo.disconnect();
+      ro.disconnect();
+    };
   });
 </script>
 
-{#snippet caret()}
-  <svg
-    class="jx-caret w-2.5 h-2.5 flex-none transition-transform duration-150 ease-out"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2.5"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    aria-hidden="true"
-  >
-    <path d="m6 9 6 6 6-6" />
-  </svg>
-{/snippet}
-
-<!-- one second-level row: icon column (reserved per group so labels
-     align whether or not an item carries an icon) + label/description -->
-{#snippet subLink(child: TerminalNavSubItem, reserveIcon: boolean, closeKey: string)}
-  <a
-    href={child.href}
-    aria-current={child.active ? 'page' : undefined}
-    target={child.external ? '_blank' : undefined}
-    rel={child.external ? 'noreferrer' : undefined}
-    data-jx-with-icon={reserveIcon ? '' : undefined}
-    class="jx-sub-link grid items-start py-[0.4375rem] px-[0.625rem] transition-[background-color] duration-[120ms] ease-out {reserveIcon
-      ? 'grid-cols-[auto_1fr] column-gap-[0.625rem]'
-      : 'grid-cols-1'}"
-    onclick={() => hidePanel(closeKey)}
-  >
-    {#if reserveIcon}
-      <span
-        data-jx-sub-icon
-        class="w-4 h-4 flex-none flex items-center justify-center mt-px opacity-55 [&_svg]:w-full [&_svg]:h-full"
-        aria-hidden="true"
-      >
-        {#if child.icon}{@render child.icon()}{/if}
-      </span>
-    {/if}
-    <span data-jx-sub-text class="flex flex-col gap-0.5">
-      <span class="text-[13px] font-medium leading-snug">{child.label}{#if child.external}<span data-jx-ext class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}</span>
-      {#if child.description}
-        <span class="text-[11px] leading-snug opacity-60 line-clamp-2">{child.description}</span>
-      {/if}
-    </span>
-  </a>
-{/snippet}
-
 <header
-  class="jx-nav bg-terminal text-terminal-foreground border-b border-border {scope === 'dark' ? 'dark [color-scheme:dark]' : 'jx-light [color-scheme:light]'}"
+  bind:this={headerEl}
+  class={cn(
+    'jx-nav bg-terminal text-terminal-foreground border-b border-border',
+    scope === 'dark' ? 'dark [color-scheme:dark]' : 'jx-light [color-scheme:light]',
+    className,
+  )}
 >
   <div class="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between gap-4 py-3">
@@ -362,126 +243,17 @@
         </span>
       </a>
 
-      <!-- RIGHT WING · the navigation -->
+      <!-- RIGHT WING · the nav pill slot + controls -->
       <div class="flex flex-none items-center gap-3">
-        <nav
+        <!-- the pill box: chrome the composed nav lands in (the nav
+             landmark itself is the consumer's NavigationMenu root) -->
+        <div
           class="relative hidden items-center border border-terminal-foreground/25 p-0.5 text-xs sm:flex"
-          aria-label="Primary"
-          bind:this={navEl}
+          bind:this={navSlotEl}
         >
           <span class="jx-indicator" bind:this={indicatorEl} aria-hidden="true"></span>
-          {#each items as item, i (item.href)}
-            {#if item.children?.length && engineOk}
-              {@const groups = asGroups(item.children)}
-              {@const mega = groups.length > 1}
-              <!-- the second-level panel: the registry Popover primitive —
-                   native anchoring, try-fallbacks, light dismiss, one-at-a-
-                   time; header JS owns only hover grace + link-vs-toggle -->
-              <Popover
-                id="jx-nav-sub-{i}"
-                placement="bottom-end"
-                panelClass={`jx-subpanel ${mega ? 'jx-subpanel-mega' : ''} ${typeof navColumns === 'number' ? `jx-nav-cols-${navColumns}` : ''} ${scope === 'dark' ? 'dark' : 'jx-light'}`.replace(/\s+/g, ' ').trim()}
-                bind:this={handles[item.href]}
-                onToggle={(open) => onPanelToggle(item.href, open)}
-              >
-                {#snippet trigger()}
-                  <a
-                    href={item.href}
-                    aria-current={item.active ? 'page' : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={openKey === item.href ? 'true' : 'false'}
-                    target={item.external ? '_blank' : undefined}
-                    rel={item.external ? 'noreferrer' : undefined}
-                    class={[
-                      'inline-flex items-center gap-1 px-2.5 py-1 transition-colors lg:px-3',
-                      item.active
-                        ? 'text-terminal-foreground'
-                        : 'text-terminal-foreground/70 hover:text-terminal-foreground',
-                    ].join(' ')}
-                    onclick={(event) => {
-                      const handle = handles[item.href];
-                      if (!handle) return; // no popover engine: navigate
-                      // modified clicks keep the link's native behavior
-                      // (new tab / window) — never a toggle
-                      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-                      event.preventDefault();
-                      if (openKey === item.href) hidePanel(item.href);
-                      else showPanel(item.href, event.currentTarget);
-                    }}
-                  >
-                    {item.label}{#if item.external}<span data-jx-ext class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}
-                    {@render caret()}
-                  </a>
-                {/snippet}
-                {#if item.panelAction}
-                  <!-- the panel head: item label inline-start, the
-                       section-index action inline-end (2026-08-23) -->
-                  <div
-                    class="jx-subpanel-head flex items-baseline justify-between gap-4 pt-2 pe-[0.875rem] pb-[0.375rem] font-nav text-[11px] tracking-[0.08em] lowercase"
-                  >
-                    <span data-jx-subpanel-title class="text-[color:color-mix(in_oklab,var(--terminal-foreground)_45%,transparent)]">{item.label}</span>
-                    <a
-                      href={item.panelAction.href}
-                      aria-current={item.panelAction.active ? 'page' : undefined}
-                      class="jx-subpanel-action inline-flex items-center gap-[0.375rem] text-[color:color-mix(in_oklab,var(--terminal-foreground)_70%,transparent)] transition-colors duration-150"
-                    >
-                      {item.panelAction.label}
-                      <span data-jx-ext class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.arrowRight}</span>
-                    </a>
-                  </div>
-                {/if}
-                <!-- the clip box keeps the hairline shave law; keyboard
-                     users open via the pill's native activation -->
-                <div class="jx-subclip overflow-hidden">
-                  <div
-                    data-jx-single={mega ? undefined : ''}
-                    class="jx-subgroups {mega
-                      ? 'grid -m-px'
-                      : 'block m-0'}{mega && typeof navColumns !== 'number'
-                      ? ' grid-cols-[repeat(auto-fill,minmax(13.5rem,1fr))]'
-                      : ''}"
-                    style={mega && typeof navColumns === 'number'
-                      ? `grid-template-columns: repeat(${navColumns}, 1fr)`
-                      : ''}
-                  >
-                    {#each groups as group (group.label ?? group.items[0]?.href ?? '')}
-                      {@const reserveIcon = group.items.some((child) => child.icon)}
-                      <div
-                        class="jx-group {mega
-                          ? 'min-w-0 py-2 px-3 pb-[0.625rem] border-t border-l border-[color-mix(in_oklab,var(--terminal-foreground)_15%,transparent)]'
-                          : 'min-w-0'}"
-                      >
-                        {#if group.label}
-                          <div data-jx-group-label class="font-nav text-[10px] leading-[1.2] uppercase tracking-[0.18em] opacity-55 p-0 pe-[0.625rem] mb-2">{group.label}</div>
-                        {/if}
-                        <div data-jx-group-list>
-                          {#each group.items as child (child.label)}
-                            {@render subLink(child, reserveIcon, item.href)}
-                          {/each}
-                        </div>
-                      </div>
-                    {/each}
-                  </div>
-                </div>
-              </Popover>
-            {:else}
-              <a
-                href={item.href}
-                aria-current={item.active ? 'page' : undefined}
-                target={item.external ? '_blank' : undefined}
-                rel={item.external ? 'noreferrer' : undefined}
-                class={[
-                  'px-2.5 py-1 transition-colors lg:px-3',
-                  item.active
-                    ? 'text-terminal-foreground'
-                    : 'text-terminal-foreground/70 hover:text-terminal-foreground',
-                ].join(' ')}
-              >
-                {item.label}{#if item.external}<span data-jx-ext class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}
-              </a>
-            {/if}
-          {/each}
-        </nav>
+          {@render children?.()}
+        </div>
         {#if switcher}
           {@render switcher()}
         {/if}
@@ -491,7 +263,7 @@
           aria-expanded={open}
           aria-label="Toggle navigation"
           bind:this={burgerEl}
-          onclick={() => (open ? close() : (open = true))}
+          onclick={() => (open = !open)}
         >
           <span class="jx-bar block h-[1.5px] w-4 bg-terminal-foreground transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"></span>
           <span class="block h-[1.5px] w-4 bg-terminal-foreground"></span>
@@ -500,9 +272,9 @@
       </div>
     </div>
 
-    <!-- mobile disclosure: the same nav, stacked below the bar; the inner
-         scroller bounds it to the viewport so every group stays reachable
-         when all of them expand -->
+    <!-- mobile drawer: the consumer's drawer snippet stacked below the
+         bar; the inner scroller bounds it to the viewport so every link
+         stays reachable -->
     <div
       class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 sm:hidden"
       class:grid-rows-[1fr]={open}
@@ -512,90 +284,7 @@
           data-jx-mobile-scroll
           class="max-h-[calc(100dvh-4.75rem)] overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges] [-webkit-overflow-scrolling:touch]"
         >
-          <nav class="flex flex-col border-t border-terminal-foreground/10 py-2 text-xs" aria-label="Primary">
-          {#each items as item (item.href)}
-            {#if item.children?.length}
-              <!-- parent row: full-width disclosure toggle; the parent
-                   href survives as the adjacent "all →" link -->
-              <div class="flex items-stretch">
-                <button
-                  type="button"
-                  class={[
-                    'flex flex-1 items-center gap-1 px-1 py-2 text-left transition-colors',
-                    item.active
-                      ? 'text-terminal-foreground'
-                      : 'text-terminal-foreground/70 hover:text-terminal-foreground',
-                  ].join(' ')}
-                  aria-expanded={expanded[item.href] ? 'true' : 'false'}
-                  onclick={() => (expanded[item.href] = !expanded[item.href])}
-                >
-                  {item.label}
-                  {@render caret()}
-                </button>
-                <a
-                  href={item.href}
-                  onclick={close}
-                  aria-label="all {item.label}"
-                  class="flex items-center px-2 text-terminal-foreground/60 transition-colors hover:text-terminal-foreground"
-                >
-                  all <span data-jx-ext class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.arrowRight}</span>
-                </a>
-              </div>
-              <!-- nested group: the same height-only collapse as the
-                   panel itself (grid-rows 0fr → 1fr) -->
-              <div
-                class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-200"
-                class:grid-rows-[1fr]={expanded[item.href]}
-              >
-                <div class="overflow-hidden">
-                  <div class="flex flex-col border-l border-terminal-foreground/15 pl-3">
-                    {#each asGroups(item.children) as group, gi (gi)}
-                      {#if group.label}
-                        <div data-jx-m-group-label class="font-nav text-[10px] uppercase tracking-[0.18em] opacity-55 pt-[0.625rem] pb-1 ps-1">{group.label}</div>
-                      {/if}
-                      {#each group.items as child (child.label)}
-                        <a
-                          href={child.href}
-                          onclick={close}
-                          aria-current={child.active ? 'page' : undefined}
-                          target={child.external ? '_blank' : undefined}
-                          rel={child.external ? 'noreferrer' : undefined}
-                          class={[
-                            'flex flex-col gap-0.5 py-1.5 pl-2 transition-colors',
-                            child.active
-                              ? 'bg-terminal-hover text-terminal-foreground'
-                              : 'text-terminal-foreground/70 hover:text-terminal-foreground',
-                          ].join(' ')}
-                        >
-                          <span>{child.label}{#if child.external}<span data-jx-ext class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}</span>
-                          {#if child.description}
-                            <span class="text-[10px] leading-tight opacity-60">{child.description}</span>
-                          {/if}
-                        </a>
-                      {/each}
-                    {/each}
-                  </div>
-                </div>
-              </div>
-            {:else}
-              <a
-                href={item.href}
-                onclick={close}
-                aria-current={item.active ? 'page' : undefined}
-                target={item.external ? '_blank' : undefined}
-                rel={item.external ? 'noreferrer' : undefined}
-                class={[
-                  'px-1 py-2 transition-colors',
-                  item.active
-                    ? 'bg-terminal-hover text-terminal-foreground'
-                    : 'text-terminal-foreground/70 hover:text-terminal-foreground',
-                ].join(' ')}
-              >
-                {item.label}{#if item.external}<span data-jx-ext class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full" aria-hidden="true">{@html icons.externalLink}</span>{/if}
-              </a>
-            {/if}
-          {/each}
-          </nav>
+          {@render drawer?.()}
         </div>
       </div>
     </div>

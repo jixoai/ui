@@ -3,8 +3,7 @@
      (hollow dot). composition-first-apis: Dice anatomy parts authored in
      the tree. -->
 <script lang="ts">
-  import {
-    Timeline,
+  import Timeline, {
     TimelineItem,
     TimelineDot,
     TimelineConnector,

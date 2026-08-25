@@ -22,12 +22,22 @@
   import '@ui/website-scaffold/website-scaffold.css';
   import TerminalFooter from '@ui/terminal-footer.svelte';
   import TerminalHeader from '@ui/terminal-header.svelte';
+  import { NavigationMenu, NavigationMenuLink } from '@ui/navigation-menu/index';
 ${close}
 
 <!-- the layout root: one named container, two subgrid layers -->
 <WebsiteScaffold>
   {#snippet header()}
-    <TerminalHeader brand="my-app" items={[...]} />
+    <!-- chrome-only header: the nav is composed from the family -->
+    <TerminalHeader brand="my-app">
+      <NavigationMenu label="primary">
+        <NavigationMenuLink href="/">home</NavigationMenuLink>
+        <NavigationMenuLink href="/docs" current>docs</NavigationMenuLink>
+      </NavigationMenu>
+      {#snippet drawer()}
+        <!-- the mobile tier's nav, authored in your tree -->
+      {/snippet}
+    </TerminalHeader>
   {/snippet}
 
   <!-- STATIC chrome (SSR-stable): toc rails / nav trees authored in

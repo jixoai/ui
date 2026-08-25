@@ -20,12 +20,19 @@
   import TerminalFooter from '$lib/ui/terminal-footer/terminal-footer.svelte';
   import TerminalFooterColumn from '$lib/ui/terminal-footer/terminal-footer-column.svelte';
   import TerminalHeader from '$lib/ui/terminal-header/terminal-header.svelte';
+  import NavigationMenu from '$lib/ui/navigation-menu/navigation-menu.svelte';
+  import NavigationMenuItem from '$lib/ui/navigation-menu/navigation-menu-item.svelte';
+  import NavigationMenuTrigger from '$lib/ui/navigation-menu/navigation-menu-trigger.svelte';
+  import NavigationMenuPanel from '$lib/ui/navigation-menu/navigation-menu-panel.svelte';
+  import NavigationMenuLink from '$lib/ui/navigation-menu/navigation-menu-link.svelte';
   import HuePopover from '$lib/components/hue-popover.svelte';
   import { startHueRuntime, stopHueRuntime } from '$lib/hue-runtime';
   import { onMount } from 'svelte';
   import { GITHUB_URL } from '$lib/site';
-  // the docs tree's single route model feeds BOTH header pills (D8's
-  // single-active law lives in the items derivation below)
+  import { icons } from '$lib/icons';
+  import { cn } from '$lib/utils';
+  // the docs tree's single route model feeds the composed header pills
+  // (D8's single-active law lives in the current derivations below)
   import { docsComponentGroups, docsSections } from '$lib/docs-route-model';
 
   let { children }: { children: Snippet } = $props();
@@ -270,48 +277,215 @@
   // D8 single-active law: the Components pill owns /docs/components*;
   // every other docs route (sections/registry) lights the Docs pill
   const isComponentsTree = $derived(normalized.startsWith('/docs/components'));
-  const items = $derived([
-    { href: '/', label: 'Overview', active: normalized === '/' },
-    {
-      href: '/docs.html',
-      label: 'Docs',
-      active: normalized.startsWith('/docs') && !isComponentsTree,
-      panelAction: { href: '/docs.html', label: 'docs home', active: normalized === '/docs' },
-      children: docsSections.map((section) => ({
-        label: section.label,
-        items: section.pages.map((pg) => ({
-          href: pg.href,
-          label: pg.title,
-          description: pg.subtitle ?? (pg.count !== undefined ? `${pg.count} modules` : ''),
-          external: pg.href === '/r/registry.json',
-          // the current-page marker (the 2px primary inset bar) rides on
-          // aria-current like the Components panel — anchor links are
-          // intra-page jumps and never claim the page
-          active: pg.href.includes('#')
-            ? false
-            : normalized === (pg.href.replace(/\.html$/, '').replace(/\/+$/, '') || '/'),
-        })),
+
+  // composition-first-apis seam (Batch F): the header takes NO nav
+  // data — the layout maps the docs tree's single route model onto the
+  // composed NavigationMenu parts in its own tree (the same
+  // data-to-parts mapping law the toc seam uses). docsSections feeds
+  // the Docs mega panel, docsComponentGroups the Components panel.
+  interface NavLink {
+    href: string;
+    label: string;
+    description: string;
+    active: boolean;
+    external: boolean;
+  }
+  interface PanelGroup {
+    label?: string;
+    links: NavLink[];
+  }
+  const norm = (href: string): string => href.replace(/\.html$/, '').replace(/\/+$/, '') || '/';
+  const docsCurrent = $derived(normalized.startsWith('/docs') && !isComponentsTree);
+  const docsPanelGroups = $derived<PanelGroup[]>(
+    docsSections.map((section) => ({
+      label: section.label,
+      links: section.pages.map((pg) => ({
+        href: pg.href,
+        label: pg.title,
+        description: pg.subtitle ?? (pg.count !== undefined ? `${pg.count} modules` : ''),
+        // the current-page marker (the 2px primary inset bar) rides on
+        // aria-current like the Components panel — anchor links are
+        // intra-page jumps and never claim the page
+        active: !pg.href.includes('#') && normalized === norm(pg.href),
+        external: pg.href === '/r/registry.json',
       })),
-    },
-    {
-      href: '/docs/components.html',
-      label: 'Components',
-      active: isComponentsTree,
-      panelAction: { href: '/docs/components.html', label: 'all', active: normalized === '/docs/components' },
-      children: docsComponentGroups.map(({ group, entries }) => ({
-        label: group.label,
-        items: entries.map((entry) => ({
-          href: entry.href,
-          label: entry.name,
-          description: entry.type === 'registry:ui' ? '' : entry.type.replace('registry:', ''),
-          active: normalized === (entry.href.replace(/\.html$/, '').split('#')[0].replace(/\/+$/, '') || '/'),
-        })),
+    })),
+  );
+  const compPanelGroups = $derived<PanelGroup[]>(
+    docsComponentGroups.map(({ group, entries }) => ({
+      label: group.label,
+      links: entries.map((entry) => ({
+        href: entry.href,
+        label: entry.name,
+        description: entry.type === 'registry:ui' ? '' : entry.type.replace('registry:', ''),
+        active:
+          normalized === (entry.href.replace(/\.html$/, '').split('#')[0].replace(/\/+$/, '') || '/'),
+        external: false,
       })),
-    },
-    { href: '/tokens.html', label: 'Tokens', active: normalized === '/tokens.html' },
-    { href: GITHUB_URL, label: 'GitHub', external: true },
-  ]);
+    })),
+  );
+
+  // the pill paint: the bezel's language over the navigation-menu
+  // family's base (padding + color utilities merge through cn(); the
+  // typography resets live in terminal-header.css band 2)
+  const pill = (current: boolean): string =>
+    cn(
+      'px-2.5 py-1 lg:px-3',
+      current ? 'text-terminal-foreground' : 'text-terminal-foreground/70 hover:text-terminal-foreground',
+    );
+  const pillTrigger = (current: boolean): string => cn('gap-1', pill(current));
+  const drawerLink = (active: boolean): string =>
+    cn(
+      'px-1 py-2 transition-colors',
+      active ? 'bg-terminal-hover text-terminal-foreground' : 'text-terminal-foreground/70 hover:text-terminal-foreground',
+    );
+
+  // the mobile drawer's own disclosure state; closing the drawer
+  // (hamburger, Escape, navigation, tier cross — all through the bound
+  // open state) resets it (consistent reopen state, Codex ruling)
+  let drawerOpen = $state(false);
+  let drawerExpanded = $state<Record<string, boolean>>({});
+  $effect(() => {
+    if (!drawerOpen) drawerExpanded = {};
+  });
 </script>
+
+<!-- layout-local content snippets: the composed header's shared glyphs
+     and the two panel/drawer grids (authored structure — the header
+     component owns only the chrome) -->
+{#snippet caret()}
+  <svg
+    class="jx-caret w-2.5 h-2.5 flex-none transition-transform duration-150 ease-out"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="m6 9 6 6 6-6" />
+  </svg>
+{/snippet}
+{#snippet ext()}
+  <span
+    data-jx-ext
+    class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full"
+    aria-hidden="true"
+  >{@html icons.externalLink}</span>
+{/snippet}
+{#snippet megaGrid(groups: PanelGroup[])}
+  <!-- the consumer-authored mega panel: the clip box keeps the hairline
+       shave law (the -m-px grid bleeds into it); a second 14rem track
+       never fits below 28rem and the container rule stacks the groups
+       (terminal-header.css) -->
+  <div class="overflow-hidden">
+    <div class="grid -m-px grid-cols-[repeat(auto-fill,minmax(13.5rem,1fr))]">
+      {#each groups as group (group.label)}
+        <div
+          class="jx-group min-w-0 py-2 px-3 pb-[0.625rem] border-t border-l border-[color:color-mix(in_oklab,var(--terminal-foreground)_15%,transparent)]"
+        >
+          {#if group.label}
+            <div
+              data-jx-group-label
+              class="font-nav text-[10px] leading-[1.2] uppercase tracking-[0.18em] opacity-55 p-0 pe-[0.625rem] mb-2"
+            >{group.label}</div>
+          {/if}
+          <div data-jx-group-list>
+            {#each group.links as link (link.label)}
+              <a
+                href={link.href}
+                aria-current={link.active ? 'page' : undefined}
+                target={link.external ? '_blank' : undefined}
+                rel={link.external ? 'noreferrer' : undefined}
+                class="jx-sub-link grid grid-cols-1 items-start py-[0.4375rem] px-[0.625rem] transition-[background-color] duration-[120ms] ease-out"
+                onclick={() => headerRef?.closeAll()}
+              >
+                <span data-jx-sub-text class="flex flex-col gap-0.5">
+                  <span class="text-[13px] font-medium leading-snug">
+                    {link.label}{#if link.external}{@render ext()}{/if}
+                  </span>
+                  {#if link.description}
+                    <span class="text-[11px] leading-snug opacity-60 line-clamp-2">{link.description}</span>
+                  {/if}
+                </span>
+              </a>
+            {/each}
+          </div>
+        </div>
+      {/each}
+    </div>
+  </div>
+{/snippet}
+{#snippet drawerSection(key: string, label: string, href: string, current: boolean, groups: PanelGroup[])}
+  <!-- parent row: full-width disclosure toggle; the parent href survives
+       as the adjacent "all →" link -->
+  <div class="flex items-stretch">
+    <button
+      type="button"
+      class={cn(
+        'flex flex-1 items-center gap-1 px-1 py-2 text-left transition-colors',
+        current ? 'text-terminal-foreground' : 'text-terminal-foreground/70 hover:text-terminal-foreground',
+      )}
+      aria-expanded={drawerExpanded[key] ? 'true' : 'false'}
+      onclick={() => (drawerExpanded[key] = !drawerExpanded[key])}
+    >
+      {label}
+      {@render caret()}
+    </button>
+    <a
+      href={href}
+      onclick={() => (drawerOpen = false)}
+      aria-label="all {label}"
+      class="flex items-center px-2 text-terminal-foreground/60 transition-colors hover:text-terminal-foreground"
+    >
+      all <span
+        data-jx-ext
+        class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full"
+        aria-hidden="true"
+      >{@html icons.arrowRight}</span>
+    </a>
+  </div>
+  <!-- nested group: the same height-only collapse as the drawer itself
+       (grid-rows 0fr → 1fr) -->
+  <div
+    class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-200"
+    class:grid-rows-[1fr]={drawerExpanded[key]}
+  >
+    <div class="overflow-hidden">
+      <div class="flex flex-col border-l border-terminal-foreground/15 pl-3">
+        {#each groups as group (group.label)}
+          {#if group.label}
+            <div
+              data-jx-m-group-label
+              class="font-nav text-[10px] uppercase tracking-[0.18em] opacity-55 pt-[0.625rem] pb-1 ps-1"
+            >{group.label}</div>
+          {/if}
+          {#each group.links as link (link.label)}
+            <a
+              href={link.href}
+              onclick={() => (drawerOpen = false)}
+              aria-current={link.active ? 'page' : undefined}
+              target={link.external ? '_blank' : undefined}
+              rel={link.external ? 'noreferrer' : undefined}
+              class={cn(
+                'flex flex-col gap-0.5 py-1.5 pl-2 transition-colors',
+                link.active
+                  ? 'bg-terminal-hover text-terminal-foreground'
+                  : 'text-terminal-foreground/70 hover:text-terminal-foreground',
+              )}
+            >
+              <span>{link.label}{#if link.external}{@render ext()}{/if}</span>
+              {#if link.description}
+                <span class="text-[10px] leading-tight opacity-60">{link.description}</span>
+              {/if}
+            </a>
+          {/each}
+        {/each}
+      </div>
+    </div>
+  </div>
+{/snippet}
 
 <WebsiteScaffold>
   {#snippet chrome()}
@@ -351,13 +525,57 @@
     {/if}
   {/snippet}
   {#snippet header()}
+    <!-- composition-first-apis seam (Batch F): the header is chrome —
+         the nav is composed HERE from the navigation-menu family (the
+         docs tree data mapped onto Item/Trigger/Panel + authored mega
+         grids, links as bare NavigationMenuLinks), the drawer contents
+         authored in the layout tree. bind:open is the layout's reset
+         signal for its own drawer state. -->
     <TerminalHeader
       bind:this={headerRef}
+      bind:open={drawerOpen}
       brand="jixoai-ui"
       domain="ui.jixoai.com"
       subtitle="the jixoai design language"
-      {items}
     >
+      <NavigationMenu label="Primary" class="flex-nowrap items-center gap-0">
+        <NavigationMenuLink
+          href="/"
+          current={normalized === '/'}
+          class={pill(normalized === '/')}
+        >
+          Overview
+        </NavigationMenuLink>
+        <NavigationMenuItem id="docs">
+          <NavigationMenuTrigger current={docsCurrent} class={pillTrigger(docsCurrent)}>
+            Docs
+            {@render caret()}
+          </NavigationMenuTrigger>
+          <NavigationMenuPanel class="jx-subpanel jx-subpanel-mega">
+            {@render megaGrid(docsPanelGroups)}
+          </NavigationMenuPanel>
+        </NavigationMenuItem>
+        <NavigationMenuItem id="components">
+          <NavigationMenuTrigger current={isComponentsTree} class={pillTrigger(isComponentsTree)}>
+            Components
+            {@render caret()}
+          </NavigationMenuTrigger>
+          <NavigationMenuPanel class="jx-subpanel jx-subpanel-mega">
+            {@render megaGrid(compPanelGroups)}
+          </NavigationMenuPanel>
+        </NavigationMenuItem>
+        <NavigationMenuLink
+          href="/tokens.html"
+          current={normalized === '/tokens.html'}
+          class={pill(normalized === '/tokens.html')}
+        >
+          Tokens
+        </NavigationMenuLink>
+        <NavigationMenuLink href={GITHUB_URL} class={pill(false)}>
+          GitHub
+          {@render ext()}
+        </NavigationMenuLink>
+      </NavigationMenu>
       {#snippet logo()}
         <!-- rainbow swatch fan = the primary formula swept across six
              equidistant hues (each square IS a system primary: dark profile
@@ -394,6 +612,31 @@
       {/snippet}
       {#snippet switcher()}
         <HuePopover />
+      {/snippet}
+      {#snippet drawer()}
+        <nav class="flex flex-col border-t border-terminal-foreground/10 py-2 text-xs" aria-label="Primary">
+          <a
+            href="/"
+            onclick={() => (drawerOpen = false)}
+            aria-current={normalized === '/' ? 'page' : undefined}
+            class={drawerLink(normalized === '/')}
+          >Overview</a>
+          {@render drawerSection('docs', 'Docs', '/docs.html', docsCurrent, docsPanelGroups)}
+          {@render drawerSection('components', 'Components', '/docs/components.html', isComponentsTree, compPanelGroups)}
+          <a
+            href="/tokens.html"
+            onclick={() => (drawerOpen = false)}
+            aria-current={normalized === '/tokens.html' ? 'page' : undefined}
+            class={drawerLink(normalized === '/tokens.html')}
+          >Tokens</a>
+          <a
+            href={GITHUB_URL}
+            onclick={() => (drawerOpen = false)}
+            target="_blank"
+            rel="noreferrer"
+            class={drawerLink(false)}
+          >GitHub {@render ext()}</a>
+        </nav>
       {/snippet}
     </TerminalHeader>
   {/snippet}
