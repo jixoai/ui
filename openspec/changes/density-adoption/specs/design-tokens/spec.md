@@ -43,7 +43,7 @@ second-scale attempt.
 
 ### Requirement: the exception registry as a token-sheet law
 
-Density-owned declarations SHALL be scanned are scanned by selector/property
+Density-owned declarations SHALL be scanned by selector/property
 ownership via the adoption registry; registered structural
 exceptions (selector + property + reason) are explicit and
 reviewable. Unregistered literals fail with the owning family row.

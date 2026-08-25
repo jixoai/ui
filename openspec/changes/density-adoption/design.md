@@ -85,7 +85,8 @@ while rhythm follows density.
 DIE (no aliases): `controlSize`, policy-bearing `size`, `ItemSize`,
 `data-size`, `--jx-toggle-w/h`, independent `--jx-file-*` geometry,
 `jx-range-sm/lg`, density-owned literal dimensions. A family private
-property is legal only as a one-line alias to `--jx-d-ctl-*`.
+property is legal only as a one-line alias to `--jx-d-ctl-*` or a
+NAMED kernel ruler role (the closed rule in §5).
 
 ## 3. jx-pure v2 vocabulary (breaking, sanctioned)
 
@@ -151,7 +152,7 @@ Tier-1 consume-only proofs; the complete 65-check browser run.
 
 **A form-text**: `P(ui/{input,textarea,select,native-select,
 number-input,tags-input,input-otp,file-input}/…)` (each family's
-component+index+css as listed in the r2 §4) ·
+component+index+css as listed in the packet-manifest.md) ·
 `apps/www/test/density-adoption-form-text.spec.ts` (new) · the eight
 families' docs route pairs · their blueprint scenes (+form-field).
 Gates: inheritance/stamps per root; shell/OTP/chip/stepper hit

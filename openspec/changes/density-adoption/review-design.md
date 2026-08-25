@@ -184,3 +184,120 @@ post-change normative truth. Then repair blockers 4-6 so the barrier gates and
 registry cannot be implemented by interpretation. Re-run strict validation
 afterward, but treat it as a structural check only; this review must be updated
 to ACCEPT before concurrent A-E work begins.
+
+## Round 2
+
+Review target: remediation commit `1461920` after `2464922`, against the
+converged R2 contract and the four living specifications. `openspec validate
+density-adoption --strict` passes. That proves delta structure, not that a
+`MODIFIED` block retains every normative sentence and scenario it replaces.
+
+### Former-blocker verdicts
+
+1. **Resolved — exact packet ownership.** `packet-manifest.md:1-166` is now
+   local to the change, gives the R2 packet surface with closed `P(...)`
+   expansion, and calls itself the sole orchestrator input. `design.md:3-7,
+   117-124` and `tasks.md:3-5` reference it. This is adequate for isolated
+   packet work and mechanical overlap rejection.
+
+2. **Partial — valid delta targets and jx-pure contract.** The design-tokens
+   laws correctly became `ADDED`; the jx-pure delta correctly recovers the
+   Part A unlayered cascade, Part B allowlist/reverse scope, degradation,
+   generated auto-dark, and boundaries. However, it never expressly tells the
+   Apply author to replace the living `## Current contract`, which still lists
+   the old frozen names (`openspec/specs/jx-pure/spec.md:8-38`). The final
+   living spec would otherwise contain competing old narrative and v2
+   requirements. Add an explicit Apply instruction that replaces that narrative
+   with these v2 requirements. Also fix the duplicated "stay Tier-2" at delta
+   line 100 and "SHALL be scanned are scanned" in the token delta line 46.
+
+3. **Not resolved — MODIFIED blocks still erase living requirements and
+   scenarios. This is a P0 blocker.**
+
+   - The css placement delta (`specs/css-architecture/spec.md:96-124`) drops
+     living placement item 4: site-only-surface placement and the indivisible
+     `app.css` Tailwind/import context (`openspec/specs/css-architecture/
+     spec.md:31-38`). It also drops the living `component paint IS
+     utility-able` and `css loads exactly once` scenarios (`:51-61`). Restore
+     items 1-4 and all three original scenarios verbatim, changing only item
+     3 for the sanctioned K0/F ownership; append the new packet-theme scenario
+     instead of replacing scenarios.
+   - The css derived-scale delta (`specs/css-architecture/spec.md:5-35`)
+     drops inherited `--jx-d-*` consumption, the asserted four-density table
+     content, the `mediaImage == 2 x line`/`hitMin >= 44px` proof, named
+     structural exceptions, and the balance invariant `inset == seam` from
+     living `css-architecture/spec.md:179-201`. The stamped-attribute delta
+     (`:37-92`) also loses the explicit shared three/five-track and gap-track
+     topology, missing-slot retention, allowed group-paint targets, and the
+     grouped-path assertion from the living requirement (`:127-176`). Restore
+     those laws verbatim, then add the ctl and effective-media additions.
+   - The props delta (`specs/component-authoring/spec.md:80-99`) loses the
+     living guarantee that controlled/uncontrolled value handling leaves
+     `FormData/form.reset` untouched (`openspec/specs/component-authoring/
+     spec.md:48-54`). Restore that clause.
+   - The styling-posture delta (`specs/component-authoring/spec.md:101-137`)
+     drops the documented canonical-entry install prerequisite, transition
+     behavior for unmigrated Tier-1 components, the scoped-style boundary
+     migration requirement, and both `consumer restyles a migrated component`
+     and `unmigrated component (transitional)` scenarios (living `:63-120`).
+     A twenty-family packet sweep is not proof that every Tier-1 component is
+     migrated. Carry all of this content forward, updating only the v2 class
+     references. The css layer-law rewrite similarly drops its bounded
+     state-machine examples/rationale and the surface-kernel guardrails
+     (foreign-law declaration, no whole-sheet unlayering, current enumerated
+     uses; living `css-architecture:71-93`). Preserve them.
+   - The living Item-family system still makes `size` a group policy and stamp
+     state (`component-authoring/spec.md:157-203`), while `design.md:25` and
+     `tasks.md:11-16` require that breaking removal. The delta does not modify
+     that requirement or the related living density/shared-ruler obligations
+     (`component-authoring/spec.md:389-437`) for inherited aliases, balance,
+     media, and the optical token. Add complete `MODIFIED` Item-family,
+     density-contract, and shared-ruler blocks: replace policy `size` with
+     `density`, retain visual identity-size where permitted, and carry the
+     R2/design section 7 residual dispositions into the living contract.
+
+4. **Resolved — K0/F barriers and G authority.** `design.md:248-256` and
+   `tasks.md:17-25` require the full `apps/www` suite at both barriers and
+   block A-E dispatch until both pass. `tasks.md:50-53` correctly makes G
+   verify residual proofs rather than absorb packet repairs.
+
+5. **Resolved — verifier execution contract.** `design.md:212-228` supplies
+   the packet CLI, static-before-browser phases, row-addressed failures,
+   server behavior, used-value normalization, and complete A-E K0 rows. This
+   is sufficient to assign packet gates independently.
+
+6. **Not resolved — the closed token rule is contradictory. This is a P0
+   blocker.** `design.md:237-244`, the design-token delta `:25-36`, and the
+   styling-posture delta `:111-113` correctly allow named kernel ruler roles
+   for their established semantic/media/optical purposes. But `design.md:
+   85-88`, the css derived-scale delta `:10-15,30-35`, and the component
+   density scenario `:34-40` still require ctl aliases only for every
+   density-owned declaration/private alias. K0's required optical correction,
+   media track, and secondary voice can therefore be either mandatory or
+   rejected by the scanner. Replace every broad ctl-only rule with one closed
+   formulation: `--jx-d-ctl-*` is mandatory for control-footprint geometry;
+   direct consumption (and clearly defined private aliasing) of the named
+   kernel roles is legal only for their established semantic purposes; every
+   other `--jx-d-*` use fails. Make the static scanner enforce precisely that
+   direct-versus-private-alias rule.
+
+### New findings and cleanup
+
+1. `design.md:152-154` still points to "r2 §4", and `tasks.md:26,30,35,38,42`
+   call the authoritative input a "design-§4 list". Replace each with
+   `packet-manifest.md`; the actual authority is correct but the prose should
+   not reintroduce the external/transcribed source.
+2. The remediation commit has two documentation-only `git diff --check`
+   warnings: a trailing whitespace line in this review's existing Date header
+   and a final blank line in `packet-manifest.md`. They do not change the
+   execution contract, but should be removed with the remediation.
+
+### Decision
+
+**Score: 5.8/10. BLOCK K0 and F implementation.**
+
+The manifest, gates, and verifier now make the wave operationally delegable.
+Do not start K0/F while the delta application can silently erase living laws
+and the scanner's token rule remains self-contradictory. Restore the omitted
+normative material, unify the closed rule, explicitly supersede the jx-pure
+narrative, then re-run strict validation and this review.

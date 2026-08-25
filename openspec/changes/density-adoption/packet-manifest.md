@@ -163,4 +163,3 @@ Files:
 
 G owns final build, manifest/payload parity, all tests and gates, and the Owner
 walkthrough. It does not absorb family docs or repair packet overlap.
-

@@ -23,7 +23,7 @@
   F ownership; parity tests + canonical fixture.
   *Gate: complete 65/65 pure gate + F-focused tests + the FULL
   apps/www suite green + mirror equality.*
-- [ ] 4. **A form-text** (subagent) — exact design-§4 A list; aliases
+- [ ] 4. **A form-text** (subagent) — exact packet-manifest A list; aliases
   replace footprint literals; density-stamped roots.
   *Gate: shell/OTP/chip/stepper hit rectangles at xs/default/lg +
   packet tests + `verify-density-adoption.mjs --packet A` green + mirror equality.*
