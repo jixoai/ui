@@ -30,6 +30,12 @@ export interface SurfaceMotionOptions {
   anchor?: () => HTMLElement | null;
 }
 
+/** engine capability probe, exported for multi-panel consumers that
+ *  need the .jx-waapi gate BEFORE any panel's kernel exists (menubar:
+ *  one lazily-created kernel per panel — no instance at render time) */
+export const surfaceMotionSupported: boolean =
+  typeof CSS !== 'undefined' && typeof CSS.registerProperty === 'function' && typeof window !== 'undefined';
+
 export interface SurfaceMotion {
   /** drive the timeline: 1 = entry, 0 = exit */
   play(to: number): void;
@@ -67,8 +73,7 @@ export function createSurfaceMotion(
   panel: () => HTMLElement | null,
   opts: SurfaceMotionOptions = {},
 ): SurfaceMotion {
-  const supported =
-    typeof CSS !== 'undefined' && typeof CSS.registerProperty === 'function' && typeof window !== 'undefined';
+  const supported = surfaceMotionSupported;
 
   let progressAnim: Animation | null = null;
   let trackFrame = 0;

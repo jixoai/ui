@@ -185,6 +185,26 @@ describe('NavigationMenu', () => {
     await new Promise((resolve) => setTimeout(resolve, 250));
     expect(triggers.every((t) => t.getAttribute('aria-expanded') === 'false')).toBe(true);
   });
+
+  // Codex r1 blocking #1: Escape must CLOSE the panel (the explicit
+  // hide), not just return focus — preventDefault on the keydown
+  // cancels the native close request, so the handler owns the close
+  it('Escape inside the panel closes it and returns focus to the trigger', async () => {
+    const { container } = render(NavMenuHost);
+    const trigger = container.querySelector(
+      'button#jx-navmenu-trigger-components',
+    ) as HTMLButtonElement;
+    await fireEvent.click(trigger);
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    // scope to the OPEN panel's body — each panel carries its own
+    // Escape handler (fixture order puts registry's panel first)
+    const body = container.querySelector(
+      '#jx-navmenu-components [data-jx-navmenu-panel-body]',
+    ) as HTMLElement;
+    await fireEvent.keyDown(body, { key: 'Escape' });
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(trigger);
+  });
 });
 
 // ---------------------------------------------------------------------------

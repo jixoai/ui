@@ -14,11 +14,15 @@
   Authored in the scaffold's `chrome` snippet with data-area="tree":
   SSR-rendered in its final grid cell, immersive hide laws inherited.
 
-  Scroll-edge blur (2026-08-25): both scroll surfaces (the wide rail
-  cell and the mobile expansion viewport) wear the progressive-blur
-  atom at their top edge, reveal='scroll' — the same-layer-sticky
-  practice (sticky surfaces blur what passes under them) expressed for
-  a list scrolling under its OWN edge.
+  Scroll-edge blur (2026-08-25 r2, Owner feedback): the wide rail is a
+  STICKY-HEAD list — title + filter pin at the scrollport edge while
+  the sections scroll UNDER them through the progressive-blur band
+  (band z-[5] under the head's z-10, reveal riding the scroller so
+  nothing blurs at rest). The mobile expansion viewport wears the same
+  law (sticky filter + band). Two probed Blink laws shape the css: the
+  scroller carries NO top padding (sticky pins at the content-box top,
+  content clips at the padding-box edge — the inset lives inside the
+  sticky head), and the sticky offsets are load-bearing.
 -->
 <script lang="ts">
   import { page } from '$app/state';
@@ -113,26 +117,30 @@
 </script>
 
 <nav class="jx-dsn" data-area="tree" aria-label="docs sections">
-  <!-- scroll-edge blur (2026-08-25): the rail is a same-layer sticky
-       list — the rail cell itself scrolls — so the top edge takes the
-       progressive-blur atom, reveal riding the scroller (nothing
-       blurs while the list rests at the top) -->
-  <ProgressiveBlur position="top" reveal="scroll" height="4.5rem" />
+  <!-- sticky head + progressive blur (2026-08-25 r2, Owner feedback):
+       the title/filter PIN at the scrollport edge; the list scrolls
+       under them through the progressive-blur band (z-under the head,
+       reveal riding the scroller — nothing blurs while the list rests
+       at the top). The band hangs from the TRUE clip edge; the head's
+       own 1.25rem top inset lives inside the sticky box -->
+  <ProgressiveBlur position="top" reveal="scroll" height="7.5rem" class="z-[5]" />
   <!-- rail surface (wide form): the spine, always expanded -->
   <div class="jx-dsn-rail">
-    <p class="jx-dsn-title">{railTitle}</p>
-    <div class="jx-dsn-search">
-      <input
-        class="jx-dsn-input"
-        type="search"
-        placeholder="filter…"
-        aria-label="Filter the docs navigation"
-        bind:value={filter}
-        onkeydown={onFilterKeydown}
-      />
-      {#if filter}
-        <button type="button" class="jx-dsn-clear" aria-label="Clear the filter" onclick={() => (filter = '')}>{@html icons.x}</button>
-      {/if}
+    <div class="jx-dsn-head">
+      <p class="jx-dsn-title">{railTitle}</p>
+      <div class="jx-dsn-search">
+        <input
+          class="jx-dsn-input"
+          type="search"
+          placeholder="filter…"
+          aria-label="Filter the docs navigation"
+          bind:value={filter}
+          onkeydown={onFilterKeydown}
+        />
+        {#if filter}
+          <button type="button" class="jx-dsn-clear" aria-label="Clear the filter" onclick={() => (filter = '')}>{@html icons.x}</button>
+        {/if}
+      </div>
     </div>
     <div data-jx-dsn-groups>
       {#if needle && visibleSections.length === 0}
@@ -193,9 +201,11 @@
       </button>
     </div>
     <div class="jx-dsn-expand">
-      <!-- the same scroll-edge law on the mobile expansion viewport -->
-      <ProgressiveBlur position="top" reveal="scroll" height="4rem" />
-      <div class="jx-dsn-search jx-dsn-bar-search">
+      <!-- the same sticky-head + scroll-edge law on the mobile
+           expansion viewport: the filter pins, the groups scroll
+           under it through the band -->
+      <ProgressiveBlur position="top" reveal="scroll" height="4.5rem" class="z-[5]" />
+      <div class="jx-dsn-search jx-dsn-bar-search jx-dsn-expand-head">
         <input
           class="jx-dsn-input"
           type="search"
@@ -261,12 +271,6 @@
   @container jx-shell (min-width: 1200px) {
     .jx-dsn-rail {
       display: block;
-      /* the rail's top inset lives on the CONTENT, never the scroller:
-         Blink pins sticky top:0 at the content-box top while scrolled
-         content clips at the padding-box edge — scroller padding would
-         leave an un-blurred gap above the progressive-blur band (the
-         same-layer-sticky law, probed 2026-08-25) */
-      padding-block-start: 1.25rem;
     }
     .jx-dsn-bar {
       display: none;
@@ -278,6 +282,21 @@
       scrollbar-gutter: stable both-edges;
       padding-left: max(1.25rem - var(--jx-scrollbar-thin, 0px), 0px);
       padding-right: max(0.5rem - var(--jx-scrollbar-thin, 0px), 0px);
+    }
+    /* THE STICKY HEAD (r2): title + filter pin at the scrollport
+       edge; the list scrolls under them through the blur band. Two
+       probed laws ride along: (1) the rail's 1.25rem top inset lives
+       INSIDE the sticky head, never as scroller padding — Blink pins
+       sticky at the content-box top while content clips at the
+       padding-box edge, so scroller padding would gap the band from
+       the clip edge; (2) the head out-z-indexes the band (z-10 over
+       the overlay's z-[5]) so the pinned text stays crisp ABOVE the
+       blurred content streaming beneath it */
+    .jx-dsn-head {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding-block-start: 1.25rem;
     }
   }
 
@@ -353,6 +372,14 @@
   .jx-dsn-bar .jx-dsn-bar-search {
     padding-inline: 1rem 0.5rem;
     margin: 0 0 0.5rem;
+  }
+  /* the expansion viewport's sticky head (r2): the filter pins at the
+     expand top; groups scroll under it through the band (which hangs
+     from the same edge at z-[5]) */
+  .jx-dsn-expand-head {
+    position: sticky;
+    top: 0;
+    z-index: 10;
   }
   .jx-dsn-group {
     border-bottom: 1px solid color-mix(in oklab, var(--border) 60%, transparent);

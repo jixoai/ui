@@ -36,7 +36,6 @@ const REGISTRY_ONLY = [
 const UNREFERENCED_LIB = [
   // same-source pairs not referenced by any item (site-consumed)
   { path: 'registry/files/lib/color-utils.ts', note: 'site-consumed, unreferenced by items' },
-  { path: 'registry/files/lib/surface-motion.ts', note: 'site-consumed, unreferenced by items' },
   { path: 'registry/files/ui/tree-view/tree-view-multiselect.svelte', note: 'folded into the tree-view folder (P1); still unreferenced by items — future change either ships it or removes it' },
 ];
 // canonical main overrides for registry:ui items whose main file is not

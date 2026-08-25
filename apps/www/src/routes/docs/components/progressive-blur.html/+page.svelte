@@ -11,7 +11,7 @@
   const close = '</' + 'script>';
 
   const usage = `<script lang="ts">
-  import ProgressiveBlur from '@ui/progressive-blur.svelte';
+  import ProgressiveBlur from '@ui/progressive-blur';
 ${close}
 
 <!-- an EARLY child of the scroll container — the sticky h-0 root
@@ -25,8 +25,8 @@ ${close}
 </div>`;
 
   const canvasFiles: TreeFile[] = [
-    { name: 'registry/files/ui/progressive-blur.svelte', content: progressiveBlurSource },
-    { name: 'src/lib/ui/progressive-blur-usage.svelte', content: usage },
+    { name: 'registry/files/ui/progressive-blur/progressive-blur.svelte', content: progressiveBlurSource },
+    { name: 'src/lib/ui/progressive-blur/usage.svelte', content: usage },
   ];
 
   // the demo list: enough rows to make both scrollers truly scroll

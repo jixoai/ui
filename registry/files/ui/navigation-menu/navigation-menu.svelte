@@ -157,6 +157,7 @@
             popovertarget="jx-navmenu-{item.id}"
             aria-haspopup="true"
             aria-expanded={openId === item.id}
+            aria-controls="jx-navmenu-{item.id}"
             aria-current={item.current ? 'true' : undefined}
             tabindex={tabStopId === item.id ? 0 : -1}
             class={cn(
@@ -172,14 +173,19 @@
             {item.label}
           </button>
         {/snippet}
-        <!-- Escape hands focus back to the trigger (the close itself is
-             the native close request — platform and polyfill alike) -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -- Escape
+             handling only; the panel's links are the interactive
+             elements. The hide() is EXPLICIT: preventDefault on the
+             keydown cancels the native close request, so without it
+             focus would return over a still-open panel (Codex r1
+             blocking #1, browser-reproduced) -->
         <div
           class="flex flex-col"
           data-jx-navmenu-panel-body=""
           onkeydown={(e: KeyboardEvent) => {
             if (e.key === 'Escape') {
               e.preventDefault();
+              handles[item.id]?.hide();
               document.getElementById(`jx-navmenu-trigger-${item.id}`)?.focus();
             }
           }}

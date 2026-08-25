@@ -682,9 +682,14 @@
           "path": "registry/files/ui/popover/popover.css",
           "target": "@ui/popover/popover.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/surface-motion.ts",
+          "target": "@lib/surface-motion.ts",
+          "type": "registry:file"
         }
       ],
-      "docs": "Props: id (required, links popovertarget), triggerLabel; snippet children. Inside a popover, a second popovertarget button closes it declaratively — still zero JS.",
+      "docs": "Props: id (required, links popovertarget), triggerLabel; snippet children. Inside a popover, a second popovertarget button closes it declaratively — still zero JS. Ships the WAAPI surface-motion kernel (lib/surface-motion.ts → @lib) — the panel's entry/exit timeline; clean consumers resolve $lib/surface-motion (Codex r1 blocking #2: the kernel was site-consumed only, breaking the install chain for every popover-dependent item).",
       "meta": {
         "group": "layer",
         "href": "/docs/components/popover.html"

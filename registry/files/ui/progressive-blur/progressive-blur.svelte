@@ -56,13 +56,18 @@
 
   const edges = $derived(position === 'both' ? (['top', 'bottom'] as const) : ([position] as const));
 
+  // ladder normalization: fewer than 2 levels cannot express a ramp
+  // (step = 100/0, or one full-band rung) — fall back to the default
+  // ladder rather than render a degenerate band
+  const levels = $derived(blurLevels.length >= 2 ? blurLevels : [0.5, 1, 2, 4, 8, 16, 32, 64]);
+
   const pct = (v: number): string => `${Math.round(v * 100) / 100}%`;
 
   /** layer i's paint: cumulative backdrop blur + its mask band */
   const layerStyle = (edge: 'top' | 'bottom', i: number): string => {
-    const step = 100 / blurLevels.length;
+    const step = 100 / levels.length;
     const mask = `linear-gradient(to ${edge}, rgba(0, 0, 0, 0) ${pct(i * step)}, rgba(0, 0, 0, 1) ${pct((i + 1) * step)}, rgba(0, 0, 0, 1) ${pct((i + 2) * step)}, rgba(0, 0, 0, 0) ${pct((i + 3) * step)})`;
-    const blur = `blur(${blurLevels[i]}px)`;
+    const blur = `blur(${levels[i]}px)`;
     return [
       `-webkit-backdrop-filter: ${blur}`,
       `backdrop-filter: ${blur}`,
@@ -75,19 +80,22 @@
 {#each edges as edge (edge)}
   <!-- scenery: the band is decoration over the scroller's content. The
        sticky offset (top-0/bottom-0) is LOAD-BEARING: position:sticky
-       without an offset is inert -->
+       without an offset is inert. data-VARIANT (not data-reveal): the
+       docs site's entrance system owns the bare [data-reveal]
+       selector — the collision pinned the band ~10px off the edge
+       through a view()-timeline transform (vision r2 finding) -->
   <div
     class={cn('jx-pblur pointer-events-none sticky z-10 h-0', edge === 'top' ? 'top-0' : 'bottom-0', className)}
     data-jx-pblur=""
     data-position={edge}
-    data-reveal={reveal}
+    data-variant={reveal}
     aria-hidden="true"
   >
     <div
       class="absolute inset-x-0 {edge === 'top' ? 'top-0' : 'bottom-0'}"
       style="height: {height}"
     >
-      {#each blurLevels as _, i (i)}
+      {#each levels as _, i (i)}
         <div class="jx-pblur-layer absolute inset-0" style={layerStyle(edge, i)}></div>
       {/each}
     </div>
