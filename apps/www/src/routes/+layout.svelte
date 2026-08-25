@@ -280,6 +280,12 @@
           label: pg.title,
           description: pg.subtitle ?? (pg.count !== undefined ? `${pg.count} modules` : ''),
           external: pg.href === '/r/registry.json',
+          // the current-page marker (the 2px primary inset bar) rides on
+          // aria-current like the Components panel — anchor links are
+          // intra-page jumps and never claim the page
+          active: pg.href.includes('#')
+            ? false
+            : normalized === (pg.href.replace(/\.html$/, '').replace(/\/+$/, '') || '/'),
         })),
       })),
     },
@@ -294,7 +300,7 @@
           href: entry.href,
           label: entry.name,
           description: entry.type === 'registry:ui' ? '' : entry.type.replace('registry:', ''),
-          active: normalized === entry.href.replace(/\.html$/, '').split('#')[0].replace(/\/+$/, '') || '/',
+          active: normalized === (entry.href.replace(/\.html$/, '').split('#')[0].replace(/\/+$/, '') || '/'),
         })),
       })),
     },
