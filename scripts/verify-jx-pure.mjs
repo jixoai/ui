@@ -25,6 +25,8 @@ const port = process.argv[2] ?? '5199';
 const browser = await chromium.launch({
   headless: true,
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  // the machine proxy black-holes localhost — probes must bypass it
+  args: ['--no-proxy-server'],
 });
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 // docs-restructure: the jx-pure special page now lives at /docs/jx-pure.html
@@ -168,7 +170,17 @@ const facts = await page.evaluate(() => {
       okBorder: cs(okLane, 'border-color'),
       badCheckBg: getComputedStyle(badCheck).backgroundColor,
       badRadioDot: getComputedStyle(document.querySelector('#validation input[type="radio"][aria-invalid="true"]:checked'), '::after').backgroundColor,
-      badRangeVar: cs(badRange, '--jx-range-fill-color').trim(),
+      // used-value normalization (sync, in-page): raw custom-property
+      // TEXT serializes differently from resolved colors — compare
+      // what the var resolves TO on a probe element
+      badRangeVar: (() => {
+        const el = document.createElement('span');
+        el.style.color = getComputedStyle(badRange).getPropertyValue('--jx-range-fill-color').trim();
+        document.body.appendChild(el);
+        const c = getComputedStyle(el).color;
+        el.remove();
+        return c;
+      })(),
       okBorderResolved: cs(okLane, 'border-color'),
       badBorderResolved: cs(badLane, 'border-color'),
     },
@@ -522,7 +534,7 @@ const upChecks = [
   ['D5 · invalid range fill flips to error (mirror)', facts.validation.badRangeVar === facts.validation.errorResolved.error],
 ];
 // (b) form.html: the pipette glyph + the Tier-1 class fill
-await page.goto(`http://localhost:${port}/docs/components/form.html`, { waitUntil: 'domcontentloaded' });
+await page.goto(`http://localhost:${port}/docs/components/input.html`, { waitUntil: 'domcontentloaded' });
 await page.waitForTimeout(2000);
 // the pipette is a thin diagonal glyph — single-point sampling misses
 // it; count zone pixels that differ from the lane reference instead.

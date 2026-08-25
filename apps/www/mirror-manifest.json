@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-25T21:01:00.870Z",
+  "generatedAt": "2026-08-25T22:25:00.724Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -206,8 +206,8 @@
           "source": "registry/files/ui/list-item/item.css",
           "mirror": "apps/www/src/lib/ui/list-item/item.css",
           "target": "@ui/list-item/item.css",
-          "sourceSha": "a8ca47f715a9e5b81acc888e73e55f05beb303ff39bf45e971425e22df2b8505",
-          "mirrorSha": "a8ca47f715a9e5b81acc888e73e55f05beb303ff39bf45e971425e22df2b8505"
+          "sourceSha": "fb011e22231b2aadb4a3a7ab5ba1a0b5affc5e6ff0f7ff0baef4eaa3522a7817",
+          "mirrorSha": "fb011e22231b2aadb4a3a7ab5ba1a0b5affc5e6ff0f7ff0baef4eaa3522a7817"
         },
         {
           "source": "registry/files/ui/list-item/index.ts",
@@ -919,8 +919,8 @@
           "source": "registry/files/ui/checkbox/checkbox.svelte",
           "mirror": "apps/www/src/lib/ui/checkbox/checkbox.svelte",
           "target": "@ui/checkbox/checkbox.svelte",
-          "sourceSha": "a7839738f16f645ab9dbf13e1d6c56e60b0e9c31ae59b9807cf74e3d783092eb",
-          "mirrorSha": "a7839738f16f645ab9dbf13e1d6c56e60b0e9c31ae59b9807cf74e3d783092eb"
+          "sourceSha": "274ca44e6dc88dd09cb4a40861dbbf8e3732155e61ec699786ba7ab9bb3524d2",
+          "mirrorSha": "274ca44e6dc88dd09cb4a40861dbbf8e3732155e61ec699786ba7ab9bb3524d2"
         },
         {
           "source": "registry/files/ui/checkbox/index.ts",
@@ -947,8 +947,8 @@
           "source": "registry/files/ui/radio/radio.svelte",
           "mirror": "apps/www/src/lib/ui/radio/radio.svelte",
           "target": "@ui/radio/radio.svelte",
-          "sourceSha": "1db34fe80346f7c4b95348964701d666573999de5545731f29ea6cc22f926fbd",
-          "mirrorSha": "1db34fe80346f7c4b95348964701d666573999de5545731f29ea6cc22f926fbd"
+          "sourceSha": "918f0534a1cce7219cf3659fedb12087942f367240ac20417db9a341f5b5266c",
+          "mirrorSha": "918f0534a1cce7219cf3659fedb12087942f367240ac20417db9a341f5b5266c"
         },
         {
           "source": "registry/files/ui/radio/index.ts",
@@ -1297,8 +1297,8 @@
           "source": "registry/files/ui/avatar/avatar.svelte",
           "mirror": "apps/www/src/lib/ui/avatar/avatar.svelte",
           "target": "@ui/avatar/avatar.svelte",
-          "sourceSha": "8f701d534d1a9934d608d232229de94aeb920b55ec26a64f60664ec50d2e45ec",
-          "mirrorSha": "8f701d534d1a9934d608d232229de94aeb920b55ec26a64f60664ec50d2e45ec"
+          "sourceSha": "33c16e61b5cbeabd06f9000c902d436b0fab275960595ffb6c07155b69640079",
+          "mirrorSha": "33c16e61b5cbeabd06f9000c902d436b0fab275960595ffb6c07155b69640079"
         },
         {
           "source": "registry/files/ui/avatar/index.ts",
