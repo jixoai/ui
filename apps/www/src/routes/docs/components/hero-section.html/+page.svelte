@@ -11,12 +11,16 @@
   Constraint: docs only — the component family itself is untouchable.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import HeroSection from '$lib/ui/hero-section/hero-section.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
@@ -184,4 +188,17 @@ ${close}
       </SectionCard>
     </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="One hero shape, two authoring lanes: default copy CTA or your own copy snippet.">
+    <div class="grid gap-4 min-[760px]:grid-cols-2">
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">default CTA</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">copyCommand supplies the default press-button's label AND clipboard payload; it flips to the copied surface for 1.4s.</p></div>
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">copy override</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">A copy snippet replaces the default CTA wholesale — the command string stays yours to render however.</p></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Snippets own content; strings stay payload. The em inside the title snippet carries the accent paint."><CodeBlock code={usage} lang="svelte" meta="HeroSection usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The hero is landmark chrome: one h1, a real button for the copy CTA, decorative SVGs hidden."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the copy CTA and secondary CTAs in reading order' }, { key: 'Enter / Space', action: 'Activates the copy CTA — command hits the clipboard, surface flips to copied' }]} aria={[{ name: 'aria-label', value: 'copyLabel', description: 'Accessible name for the default copy CTA ("copy" / localized)' }, { name: 'aria-hidden', value: 'true', description: 'On decorative copy-check SVGs' }, { name: 'heading structure', value: 'h1', description: 'The title snippet renders inside the page h1 — keep it one per page' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Display chrome, not a density-scaled control: the hero sizes from the page type ramp and owns one motion token — the staggered reveal delay."><div class="flex flex-col gap-6"><DensityDemo><HeroSection eyebrow="your-app" summary="A compact density sample." copyCommand="npx jixoai-ui init">{#snippet terminal()}<span class="text-muted-foreground text-[12px]">terminal snippet</span>{/snippet}</HeroSection></DensityDemo><TokenTable tokens={[{ name: '--jx-hero-delay', default: 'stagger step', source: 'component', description: 'Per-child delay of the entrance stagger' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the HeroSection Props interface — required payload as strings, authored content as snippets."><PropsTable props={[{ name: 'eyebrow', type: 'string', default: '—', description: 'Mono uppercase strip above the title.', required: true }, { name: 'summary', type: 'string', default: '—', description: 'Lead paragraph (max-62ch measure).', required: true }, { name: 'copyCommand', type: 'string', default: '—', description: 'Clipboard payload — the default CTA label AND copy target.', required: true }, { name: 'copyLabel', type: 'string', default: "'copy'", description: 'aria affordance for the default copy CTA.' }, { name: 'title', type: 'Snippet', default: '—', description: 'The h1 content; <em> inside carries the accent paint.' }, { name: 'badges', type: 'Snippet', default: '—', description: 'The badge row — compose Badge children.' }, { name: 'copy', type: 'Snippet', default: '—', description: 'Replaces the default copy CTA.' }, { name: 'terminal', type: 'Snippet', default: '—', description: 'The second-column terminal (usually terminal-card); hero owns column + bottom alignment.', required: true }, { name: 'secondary', type: 'Snippet', default: '—', description: 'Outline CTAs after the copy button.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to the root.' }]} /></SectionCard></div>
 </div>

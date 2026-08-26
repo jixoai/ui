@@ -5,6 +5,10 @@
   import Input from '$lib/ui/input/input.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayRow, PlayHelp } from '$lib/playground';
 
@@ -288,3 +292,26 @@ ${close}
     </PressButton>
   {/snippet}
 </Dialog>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Dialog variants" summary="Title and footer are the two compositional axes; variant paints the surface.">
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="border border-border p-4">
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">titled</p>
+        <p class="text-[13px] leading-6">The header bar renders when <code class="text-accent">title</code> is given — heading left, × close right.</p>
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">chrome-less / footer</p>
+        <p class="text-[13px] leading-6">Omit title for a bare body; the <code class="text-accent">footer</code> snippet adds the bordered Cancel/Confirm row.</p>
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">variant</p>
+        <p class="text-[13px] leading-6"><code class="text-accent">solid | acrylic | auto</code> (default) — acrylic is a dual-layer backdrop-filter, auto defers to the environment's transparency preference.</p>
+      </div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Flip bind:open from anywhere — every exit (×, Escape, code) runs the same 120ms fade."><CodeBlock code={basicUsage} lang="svelte" meta="Dialog usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native dialog element carries the modal contract — role, focus trap, and Escape are the platform's."><A11yTable keys={[{ key: 'Tab', action: 'Cycles inside the dialog — the showModal() focus trap; the page behind is inert' }, { key: 'Escape', action: 'Cancel event, intercepted only to share the animated close' }, { key: 'Enter / Space', action: 'Activate the focused control (× button, footer buttons, form method="dialog" submits)' }]} aria={[{ name: 'aria-label', value: 'title', description: 'On the dialog element — the header heading when given.' }, { name: 'role', value: 'dialog (native)', description: 'The platform element; no ARIA roles to maintain.' }, { name: 'aria-label', value: '"Close"', description: 'On the × button.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The surface rides the shared motion kernel — one animated custom property drives entry, exit, and the scrim."><div class="flex flex-col gap-5"><DensityDemo><div class="flex flex-col gap-3"><PressButton onclick={() => (basicOpen = true)}>open dialog</PressButton><span class="text-[12.5px] text-muted-foreground">the trigger inherits scope; the surface inherits through the DOM tree.</span></div></DensityDemo><TokenTable tokens={[{ name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Surface-motion progress: blurIn/slide/materials/shadow + backdrop opacity.' }, { name: '--scrim', default: 'black 14% / white 14%', source: 'color', description: '::backdrop — semi-transparent black (light) / white (dark), never a brand tint.' }, { name: '--jx-surface-in-x/y', default: '0px / 6px', source: 'component', description: 'Entry translate offset.' }, { name: 'surface width', default: 'min(92vw, 26rem)', source: 'structural' }, { name: 'close fade', default: '120ms (skipped under reduced motion)', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Five props — the browser owns every behavior; the component owns state binding and one motion."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'Heading in the header bar; omit for a chrome-less body.' }, { name: 'open', type: 'boolean', default: 'false', description: 'Bindable open state: true → showModal(), false → animated close.', bindable: true }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface paint; auto defers to the environment’s transparency preference.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Dialog body.', required: true }, { name: 'footer', type: 'Snippet', default: '—', description: 'Action area (top-border slot) — Cancel / Confirm row.' }]} /></SectionCard></div>
+</div>

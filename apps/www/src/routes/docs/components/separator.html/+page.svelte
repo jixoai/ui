@@ -1,8 +1,12 @@
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import Separator from '$lib/ui/separator/separator.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
 
@@ -130,4 +134,17 @@
       </SectionCard>
     </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two postures: the native hr for thematic breaks, the ARIA div for inline peer splits.">
+    <div class="flex flex-wrap items-start gap-6">
+      <div class="flex min-w-56 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">horizontal (default)</span><Separator /><span class="text-muted-foreground text-[12.5px]">the native hr — thematic break between blocks</span></div>
+      <div class="flex min-w-56 flex-col items-center gap-3 border border-border p-4"><span class="font-nav text-primary self-start text-[11px] uppercase tracking-[0.24em]">vertical</span><div class="flex h-10 items-stretch gap-4 text-[13px]"><span>first</span><Separator orientation="vertical" /><span>second</span></div><span class="text-muted-foreground self-start text-[12.5px]">role=separator div — splits inline peers, stretches the cross axis</span></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="One prop, no length API on purpose — length is your layout's job."><CodeBlock code={usage} lang="svelte" meta="Separator usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Horizontal needs no ARIA at all — the browser announces hr natively; vertical carries the WAI-ARIA separator pattern."><A11yTable keys={[]} aria={[{ name: 'hr', value: 'native', description: 'Announced as a separator/thematic break by the platform — zero wiring owed' }, { name: 'role', value: 'separator', description: 'On the vertical path only (component-owned, not overridable)' }, { name: 'aria-orientation', value: '"vertical"', description: 'Set with the role on the vertical path' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="One color decision and no density footprint: the 1px line is var(--border), length comes from layout."><div class="flex flex-col gap-6"><DensityDemo><div class="flex h-8 items-stretch gap-4 text-[13px]"><span>a</span><Separator orientation="vertical" /><span>b</span></div></DensityDemo><TokenTable tokens={[{ name: '--border', default: '1px line', source: 'color', description: 'The only paint decision the component makes' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the Separator Props interface — everything else rides through as native hr attributes."><PropsTable props={[{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'horizontal renders the native hr; vertical renders the role=separator div.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough — width/height/margin live here, by design.' }, { name: '...rest', type: 'HTMLAttributes<HTMLHRElement>', default: 'spread', description: 'Every other attribute lands on the element (vertical spreads onto the div).' }]} /></SectionCard></div>
 </div>

@@ -1,9 +1,13 @@
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import Input from '$lib/ui/input/input.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayRow, PlaySegmented, PlayToggle, PlayHelp } from '$lib/playground';
 
   // ToC outline: the closing law (the canvas above is the workbench).
@@ -200,4 +204,17 @@ ${close}
       </SectionCard>
     </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two tones: the everyday bordered section and the inner-page hero head.">
+    <div class="flex flex-wrap items-start gap-6">
+      <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">tone default · h2</span><SectionCard eyebrow="quick start" title="Acquire a Backend." summary="The everyday content atom: eyebrow row, muted summary, body slot."><p class="text-[13px]">body snippet slot</p></SectionCard><p class="text-muted-foreground text-[12.5px]">every section on a page</p></div>
+      <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">tone hero · h1</span><SectionCard tone="hero" eyebrow="registry:ui" title="The hero head." summary="Clamp-scaled title, foreground summary — one per route."><div class="flex flex-wrap gap-3"><span class="pill">hero body</span></div></SectionCard><p class="text-muted-foreground text-[12.5px]">the inner-page head (S4.1 unique-h1 law)</p></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Pages never hand-roll heading markup — the card renders h1/h2 itself so levels never skip."><CodeBlock code={usage} lang="svelte" meta="SectionCard usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The card owns the heading tree: one h1 per route, h2 sections beneath, no skipped levels."><A11yTable keys={[]} aria={[{ name: 'heading structure', value: 'h1 | h2', description: 'headingLevel picks the level; the card is the only heading author on a page' }, { name: 'data-family / data-region', value: 'toc extents', description: 'Machine-readable section extents — not user-facing, but keep the pairing consistent for the rail' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Site chrome, not a density-scaled control: the card sizes from the page type ramp and theme tokens only."><div class="flex flex-col gap-6"><DensityDemo><SectionCard eyebrow="quick start" title="Acquire a Backend." summary="One paragraph of context."><p class="text-[13px]">Body slot at this density.</p></SectionCard></DensityDemo><TokenTable tokens={[{ name: 'eyebrow', default: '--primary · 0.24em tracking', source: 'color' }, { name: 'border', default: 'border-border hairline', source: 'color' }, { name: 'tone hero', default: 'clamp-scaled title', source: 'component', description: 'text-balance title, foreground summary at 78%' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the SectionCard Props interface — four content slots plus the ToC wiring attributes."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'The font-nav heading (h1 or h2 by headingLevel).', required: true }, { name: 'eyebrow', type: 'string', default: '—', description: 'Optional eyebrow row in brand hue, tracked 0.24em.' }, { name: 'summary', type: 'string', default: '—', description: 'Optional muted text-pretty lead.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The body slot below the hairline.', required: true }, { name: 'headingLevel', type: '1 | 2', default: '2', description: 'The heading level the card renders.' }, { name: 'tone', type: "'default' | 'hero'", default: "'default'", description: 'Everyday bordered section or inner-page hero head.' }, { name: 'family', type: 'string', default: '—', description: 'data-family on the section root (toc-engine parent extent).' }, { name: 'region', type: 'string', default: '—', description: 'data-region on the section root (toc-engine leaf) when the body carries NO child regions.' }, { name: 'headerRegion', type: 'string', default: '—', description: 'data-region on the header block only — the section leaf when the body carries child regions.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to the root.' }]} /></SectionCard></div>
 </div>

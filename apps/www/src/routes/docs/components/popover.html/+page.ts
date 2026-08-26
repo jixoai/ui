@@ -7,6 +7,11 @@ const toc: TocSection[] = [
   { id: 'popover-menu', label: 'menu type' },
   { id: 'popover-card', label: 'card type' },
   { id: 'popover-base', label: 'NativeHTML base' },
+  { id: 'types', label: 'Types' },
+  { id: 'usage', label: 'Usage' },
+  { id: 'accessibility', label: 'Accessibility' },
+  { id: 'theming', label: 'Theming' },
+  { id: 'api', label: 'API' },
 ];
 
 export const load = () => ({ toc });

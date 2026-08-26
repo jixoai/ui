@@ -10,9 +10,14 @@
   Constraint: docs only — the component family itself is untouchable.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import Tour from '$lib/ui/tour/index';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
@@ -66,6 +71,9 @@ ${close}
     { name: 'registry/files/ui/tour/tour.svelte', content: tourSource },
     { name: 'src/lib/ui/tour-usage.svelte', content: usage, kind: 'usage' },
   ];
+
+  // Material3 usage section — the card(api) composition, verbatim.
+  const usageCode = usage;
 </script>
 
 <svelte:head>
@@ -206,6 +214,19 @@ ${close}
     {/snippet}
   </Tour>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Tour variants" summary="Two card types over the same lifecycle: the default card renders the steps' title/description metadata; the card(api) snippet authors the whole interior.">
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="border border-border p-4"><PressButton onclick={() => (open = true)}>default card tour</PressButton></div>
+      <div class="border border-border p-4"><PressButton onclick={() => (cardOpen = true)}>card(api) tour</PressButton></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Steps stay data (targets are behavior-domain, driver.js precedent); the card snippet receives TourApi — index, total, step, next/prev/skip."><CodeBlock code={usageCode} lang="svelte" meta="Tour usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Non-modal by contract — no focus trap, the page stays scrollable, and finishing restores the invoker's focus."><A11yTable keys={[{ key: '→', action: 'Advance to the next enterable step' }, { key: '←', action: 'Go back one step' }, { key: 'Enter', action: 'Next (the focused button’s default path)' }, { key: 'Escape', action: 'End the tour — focus returns to the opener' }]} aria={[{ name: 'role', value: 'dialog', description: 'The card panel; landing focus sits on Next (or the panel with a custom card).' }, { name: 'aria-modal', value: 'false', description: 'Non-modal: no trap, no inert, the page scrolls.' }, { name: 'popover', value: 'manual', description: 'Top-layer card + tint; the scrim is pointer-events:none.' }, { name: 'aria-label', value: 'step.title', description: 'The dialog is named by the current step.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The hole is sized by anchor-size() with zero geometry JS; the panel rides the shared surface-motion kernel."><div class="flex flex-col gap-5"><DensityDemo><PressButton onclick={() => (open = true)}>start</PressButton></DensityDemo><TokenTable tokens={[{ name: '--jx-tour-{id}', default: 'anchor-name lease', source: 'component', description: 'Per-instance lease set on the current target; restored on advance/close/unmount.' }, { name: '--jx-tour-gap', default: '12px', source: 'component', description: 'Panel offset below the leased target.' }, { name: 'tint', default: 'background 55%', source: 'color', description: 'The hole tint: color-mix(in oklab, var(--background) 55%, transparent).' }, { name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Shared surface-motion kernel driving open/close.' }, { name: 'hole border', default: '1px solid var(--primary)', source: 'structural', description: 'The anchored hole outlines the leased target.' }, { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density', description: 'Trigger target through the composed control.' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="TourApi = &#123; index, total, step: TourStep, next(), prev(), skip() &#125; — the card snippet's whole surface."><div class="flex flex-col gap-8"><PropsTable props={[{ name: 'steps', type: 'TourStep[]', default: '—', description: 'Targets + title/description metadata (behavior-domain data).', required: true }, { name: 'open', type: 'boolean', default: 'false', description: 'Bindable open state — the tour runs while true.', bindable: true }, { name: 'startAt', type: 'number', default: '0', description: 'Zero-based first step; skipped-forward past unavailable ones.' }, { name: 'onfinish', type: '(index: number) => void', default: '—', description: 'Fires when the tour finishes (end reached, skipped, or all steps unavailable).' }, { name: 'onstep', type: '(index: number) => void', default: '—', description: 'Step change notification (analytics/progress).' }, { name: 'card', type: 'Snippet<[TourApi]>', default: '—', description: 'Replaces the default card interior; receives TourApi.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface variant for the card.' }, { name: 'class', type: 'string', default: "''", description: 'Extra classes on the card panel.' }]} /><PropsTable title="TourStep" props={[{ name: 'target', type: 'string | () => HTMLElement | null', default: '—', description: 'CSS selector for the step’s target, or a resolver; invalid selectors read as unavailable.', required: true }, { name: 'title', type: 'string', default: '—', description: 'Metadata for the default card (a custom card renders or ignores it).' }, { name: 'description', type: 'string', default: '—', description: 'Metadata for the default card.' }]} /></div></SectionCard></div>
 </div>
 
 <style>

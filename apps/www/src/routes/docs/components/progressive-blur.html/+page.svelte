@@ -1,8 +1,12 @@
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import ProgressiveBlur from '$lib/ui/progressive-blur/progressive-blur.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -163,4 +167,18 @@ backdrop-filter: blur(levels[i]px);`}
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="The band hangs from any scrollport edge; reveal chooses resting paint or scroll-in fade.">
+    <div class="grid gap-4 min-[760px]:grid-cols-3">
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">position top / bottom</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">The band hangs into the viewport from that edge via a sticky h-0 root.</p></div>
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">position both</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">Two pinned roots — keeps both edges progressive instead of one uniform-blur element.</p></div>
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">reveal static / scroll</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">static paints always (Magic UI parity); scroll fades the ladder in with the nearest scroller.</p></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Mount the band as an EARLY child of the scroll container, before the sticky head it sits under."><CodeBlock code={usage} lang="svelte" meta="ProgressiveBlur usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Pure scenery: the band is aria-hidden, pointer-events-none decoration over the scroller's real content."><A11yTable keys={[]} aria={[{ name: 'aria-hidden', value: 'true', description: 'The band is decoration; screen readers skip it entirely' }, { name: 'pointer-events', value: 'none', description: 'The band never intercepts pointer input over the scrolling content' }, { name: 'scroll()', value: '@supports-gated', description: 'Engines without scroll timelines keep the resting clean state — never a wrongly-painted band' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No density footprint — the band is dimensionless chrome; its one token tunes the scroll-in ramp distance."><div class="flex flex-col gap-6"><DensityDemo><div class="relative h-40 overflow-auto border border-border"><ProgressiveBlur position="top" reveal="scroll" height="4rem" class="z-[5]" /><div class="sticky top-0 z-10 bg-background/60 p-2 text-[11px]">pinned head</div><ul class="flex flex-col gap-1 p-3" role="list">{#each rows.slice(0, 8) as row (row)}<li class="border border-border/50 bg-muted/30 px-2 py-2 font-mono text-[11px]">{row}</li>{/each}</ul></div></DensityDemo><TokenTable tokens={[{ name: '--jx-pblur-ramp', default: '72px', source: 'component', description: 'Scroll distance of the reveal fade-in (scroll timeline range)' }, { name: 'height', default: "'6rem'", source: 'component', description: 'Band height — any definite CSS length; % unsupported' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ProgressiveBlurProps interface; the component ships no script at all."><PropsTable props={[{ name: 'position', type: "'top' | 'bottom' | 'both'", default: "'bottom'", description: 'Which scrollport edge(s) the band hangs from.' }, { name: 'height', type: 'string', default: "'6rem'", description: 'Band height — any definite CSS length (px/rem); % unsupported.' }, { name: 'blurLevels', type: 'number[]', default: '[0.5, 1, 2, 4, 8, 16, 32, 64]', description: 'Per-layer blur px, inner-edge first; at least 2 levels (fewer falls back to the default ladder).' }, { name: 'reveal', type: "'static' | 'scroll'", default: "'static'", description: 'static = always painted; scroll = fades in with the nearest scroller (@supports-gated).' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to each pinned root.' }]} /></SectionCard></div>
 </div>

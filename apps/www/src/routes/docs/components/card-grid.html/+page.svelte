@@ -4,6 +4,10 @@
   import CodeBlock from '$lib/code-block.svelte';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayRow, PlayRange, PlayToggle, PlayHelp } from '$lib/playground';
 
   // ToC outline: the closing law (the canvas above is the workbench).
@@ -209,6 +213,29 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
       </SectionCard>
     </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Card grid variants" summary="One layout, three postures: the shared-row grid, the opted-out cell, and the lone-child cap.">
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="border border-border p-4">
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">shared rows (default)</p>
+        <p class="text-[13px] leading-6">Every child spans <code class="text-accent">auto 1fr</code> and subgrids — headers align, bodies fill.</p>
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">data-no-subgrid opt-out</p>
+        <p class="text-[13px] leading-6">A wrapper attribute keeps the cell but restores the child's own rows — not a prop.</p>
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">lone child</p>
+        <p class="text-[13px] leading-6">auto-fit would stretch a lone card into a banner; it is capped at an editorial measure.</p>
+      </div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Feed it any two-block cards; the grid never asks what a child is — section-card qualifies unchanged."><CodeBlock code={usage} lang="svelte" meta="CardGrid usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Pure layout — no semantics added or removed; the entrance stagger respects reduced motion."><A11yTable keys={[{ key: '—', action: 'Not interactive — a layout container; children keep their own semantics' }]} aria={[{ name: '(none)', value: '—', description: 'The grid adds no roles or labels; DOM order is the reading order.' }, { name: 'prefers-reduced-motion', value: 'reduce', description: 'The internal entrance cascade is skipped — cards render fully visible.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Column geometry rides the inline --jx-grid-min token; the entrance stagger is a per-index delay."><div class="flex flex-col gap-5"><DensityDemo><CardGrid min="220px" class="w-full"><SectionCard eyebrow="card 01" title="Shared header" summary="Header row shared across the grid."><p class="text-[13px] leading-6">Body fills to the tallest row.</p></SectionCard><SectionCard eyebrow="card 02" title="Another header" summary="Second card in the density demo."><p class="text-[13px] leading-6">The gap and rows are fixed; density does not rescale the grid.</p></SectionCard></CardGrid></DensityDemo><TokenTable tokens={[{ name: '--jx-grid-min', default: '320px (min prop)', source: 'component', description: 'Column collapse width — auto-fit minmax floor.' }, { name: '--jx-card-i', default: '0–7', source: 'component', description: 'Per-child stagger index driving the entrance delay.' }, { name: 'stagger step', default: '70ms (capped at 8th child)', source: 'structural' }, { name: 'gap', default: '20px (gap-5)', source: 'structural' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Three props — the grid is layout only; everything else is the children's own contract."><PropsTable props={[{ name: 'min', type: 'string', default: "'320px'", description: 'Minimum column width before the grid collapses a column (any CSS length).' }, { name: 'children', type: 'Snippet', default: '—', description: 'The cards; each child spans the two shared rows.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the grid container.' }]} /></SectionCard></div>
 </div>
 
 <style>

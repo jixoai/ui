@@ -6,6 +6,11 @@ import type { TocSection } from '$lib/ui/toc/toc.svelte';
 const toc: TocSection[] = [
   { id: 'length-layout', label: 'Length is layout' },
   { id: 'separator-base', label: 'NativeHTML 基座' },
+  { id: 'types', label: 'Types' },
+  { id: 'usage', label: 'Usage' },
+  { id: 'accessibility', label: 'Accessibility' },
+  { id: 'theming', label: 'Theming' },
+  { id: 'api', label: 'API' },
 ];
 
 export const load = () => ({ toc });

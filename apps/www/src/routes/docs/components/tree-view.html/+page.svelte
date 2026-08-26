@@ -19,9 +19,13 @@
     exercises onSuffixSlotRender (folders only) + disabled subtrees.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas, { type TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import TreeView, { type TreeItemCtx, type TreeNode } from '$lib/ui/tree-view/tree-view.svelte';
   import TreeViewMulti from '$lib/ui/tree-view/tree-view-multiselect.svelte';
   import Avatar from '$lib/ui/avatar/avatar.svelte';
@@ -325,6 +329,18 @@ ${close}
     { name: 'usage.svelte', content: source, kind: 'usage' },
   ];
 
+  // Material3 usage section — the basic-tree pattern, verbatim.
+  const usageCode = basicUsage;
+
+  // Material3 types/theming sections: a compact dataset for the variant grid.
+  const miniTree: TreeNode[] = [
+    { name: 'src', children: [leaf('icons.ts'), leaf('site.ts')] },
+    { name: 'docs', children: [leaf('tokens.html')] },
+    leaf('package.json'),
+  ];
+  let miniSelected = $state('src/icons.ts');
+  let miniChecked = $state<string[]>(['docs/tokens.html']);
+
   // ToC outline: pairs with the region ids below, in page order.
 </script>
 
@@ -621,6 +637,20 @@ ${close}
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Tree-view variants" summary="The built-ins stop where they must — toggler glyph, guide lines, indent — and the shipped multiselect extension adds tri-state cascade.">
+    <div class="grid items-start gap-4 min-[900px]:grid-cols-3">
+      <div class="border border-border p-3"><TreeView nodes={miniTree} defaultExpanded={['src']} selected={miniSelected} fileIcons onselect={(ctx) => (miniSelected = ctx.id)} /></div>
+      <div class="border border-border p-3"><TreeView nodes={miniTree} defaultExpanded={['src', 'docs']} toggle="plus" lines indent={24} /></div>
+      <div class="border border-border p-3"><TreeViewMulti nodes={miniTree} defaultExpanded={['src', 'docs']} bind:checked={miniChecked} /></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Nodes are plain data (name/children/disabled/meta); selection stays consumer-owned through the controlled selected prop."><CodeBlock code={usageCode} lang="svelte" meta="Tree-view usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="A native-ARIA tree: nested tree/group/treeitem roles, roving tabindex, and the full APG arrow contract."><A11yTable keys={[{ key: '↑ / ↓', action: 'Move focus between visible items (roving tabindex)' }, { key: '→', action: 'Expand a collapsed folder, or jump into its first child' }, { key: '←', action: 'Collapse an expanded folder, or return to the parent' }, { key: 'Home / End', action: 'Jump to the first / last visible item' }, { key: 'Enter / Space', action: 'Activate the item — folders toggle, leaves select; extensions may preventDefault' }]} aria={[{ name: 'role', value: 'tree / group / treeitem', description: 'Nested native-ARIA tree roles; one tab stop by roving tabindex.' }, { name: 'aria-expanded', value: 'folders only', description: 'Reports the folder’s collapsed state.' }, { name: 'aria-selected', value: 'leaves only', description: 'Mirrors the controlled selected path id.' }, { name: 'aria-disabled', value: 'disabled nodes', description: 'Focusable for screen readers, never activatable (APG disabled treeitem).' }, { name: 'aria-label', value: 'ariaLabel prop', description: 'Names the tree (default "tree").' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Row paint rides fixed utilities; --jx-indent is the one geometry lever — it drives group padding and the lines guide rails together."><div class="flex flex-col gap-5"><DensityDemo><TreeView nodes={miniTree} defaultExpanded={['src']} lines /></DensityDemo><TokenTable tokens={[{ name: '--jx-indent', default: '16px (indent prop)', source: 'component', description: 'px per depth level — group padding and the lines rails derive from it.' }, { name: 'guide rails', default: '1px var(--border)', source: 'color', description: 'One rail per indent level in the lines variant, only as tall as the group.' }, { name: 'focus ring', default: '2px var(--ring)', source: 'color', description: 'The row repaints when its treeitem owns focus-visible.' }, { name: 'multiselect box', default: 'var(--primary) fill', source: 'color', description: ':checked / [data-mixed] repaint; the glyph paints --primary-foreground.' }, { name: 'type icons', default: 'accent 60% mix', source: 'color', description: 'fileIcons glyphs lean toward the foreground through the accent tint when engaged.' }, { name: 'suffix reveal', default: 'hover / focus-within', source: 'structural', description: 'The actions column is opacity-gated until the row is engaged.' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Slots and resolvers receive TreeItemCtx (node, id, depth, isFolder, expanded, selected, disabled, preventDefault); the multiselect extension reuses the same seams."><div class="flex flex-col gap-8"><PropsTable props={[{ name: 'nodes', type: 'TreeNode<T>[]', default: '—', description: 'The tree data — name, children, disabled, consumer meta.', required: true }, { name: 'defaultExpanded', type: 'string[]', default: '[]', description: 'Folder ids expanded on mount; uncontrolled afterwards.' }, { name: 'selected', type: 'string', default: '—', description: 'Single-selection path id (consumer-owned; leaves select).' }, { name: 'prefix', type: 'Snippet<[TreeItemCtx<T>]>', default: '—', description: 'Prefix column rendered for every node with the item ctx.' }, { name: 'suffix', type: 'Snippet<[TreeItemCtx<T>]>', default: '—', description: 'Suffix column, hidden until row hover/focus-within (actions law).' }, { name: 'onPrefixSlotRender', type: 'TreeSlotRender<T>', default: '—', description: 'Dynamic prefix: pick a snippet per node; wins over prefix.' }, { name: 'onSuffixSlotRender', type: 'TreeSlotRender<T>', default: '—', description: 'Dynamic suffix: pick a snippet per node; wins over suffix.' }, { name: 'label', type: 'Snippet<[TreeItemCtx<T>]>', default: 'node.name', description: 'Label override.' }, { name: 'onactivate', type: '(ctx: TreeItemCtx<T>) => void', default: '—', description: 'Click / Enter / Space — runs first; ctx.preventDefault() cancels default.' }, { name: 'ontoggle', type: '(ctx: TreeItemCtx<T>) => void', default: '—', description: 'Folder expand/collapse; ctx.expanded is the NEW state.' }, { name: 'onselect', type: '(ctx: TreeItemCtx<T>) => void', default: '—', description: 'Leaf selection; the controlled selected prop stays the source of truth.' }, { name: 'toggle', type: "'chevron' | 'plus'", default: "'chevron'", description: 'Toggler glyph variant (built-in).' }, { name: 'fileIcons', type: 'boolean', default: 'false', description: 'Built-in file-tree icons in the prefix column; consumer snippets win per node.' }, { name: 'lines', type: 'boolean', default: 'false', description: 'Vertical guide rails per indent level (built-in).' }, { name: 'indent', type: 'number', default: '16', description: 'px per level; feeds --jx-indent.' }, { name: 'ariaLabel', type: 'string', default: "'tree'", description: 'Names the tree.' }, { name: 'class', type: 'string', default: "''", description: 'Extra classes on the root.' }]} /><PropsTable title="TreeNode" props={[{ name: 'name', type: 'string', default: '—', description: 'Row label source and path segment.', required: true }, { name: 'children', type: 'TreeNode<T>[]', default: '—', description: 'Presence makes the node a folder.' }, { name: 'disabled', type: 'boolean', default: '—', description: 'Focusable but not activatable; freezes the subtree.' }, { name: 'meta', type: 'T', default: '—', description: 'Consumer payload — flows untouched into ctx.node.meta.' }]} /><PropsTable title="TreeViewMulti — extension additions" props={[{ name: 'checked', type: 'string[]', default: '[...defaultChecked]', description: 'Checked path ids (folders included when fully on).', bindable: true }, { name: 'defaultChecked', type: 'string[]', default: '[]', description: 'Initial ids when the consumer does not bind checked.' }, { name: 'oncheck', type: '(ids: string[], ctx: TreeItemCtx<T>) => void', default: '—', description: 'After every commit; ctx is the row that caused it.' }] } /></div></SectionCard></div>
 </div>
 
 <style>

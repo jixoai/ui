@@ -7,6 +7,11 @@ const toc: TocSection[] = [
   { id: 'code-card-workbench', label: 'workbench' },
   { id: 'code-card-scroll-law', label: 'scroll law' },
   { id: 'code-card-law', label: 'the Shiki contract' },
+  { id: 'types', label: 'Types' },
+  { id: 'usage', label: 'Usage' },
+  { id: 'accessibility', label: 'Accessibility' },
+  { id: 'theming', label: 'Theming' },
+  { id: 'api', label: 'API' },
 ];
 
 export const load = () => ({ toc });

@@ -5,6 +5,10 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Popover from '$lib/ui/popover/popover.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { onMount } from 'svelte';
   import { PlayFields, PlayRow, PlayRange, PlaySegmented, PlayHelp } from '$lib/playground';
@@ -14,7 +18,7 @@
   // Tailwind pipeline) strips @position-try rule bodies — it treats
   // inset-area as an unknown property and drops the declarations.
   // overview-card's wing candidates have silently suffered the same
-  // fate (masked by its flip-inline fallback). A plain <style> node
+  // fate (masked by its flip-inline fallback). A plain style node
   // in the head bypasses all processors.
   onMount(() => {
     const style = document.createElement('style');
@@ -472,6 +476,29 @@ ${close}
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Popover variants" summary="Panel content is free; the variant axes are surface paint, placement, and the trigger.">
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="border border-border p-4">
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">variant</p>
+        <p class="text-[13px] leading-6"><code class="text-accent">solid | acrylic | auto</code> (default) — acrylic is a dual-layer backdrop-filter; auto defers to the environment's transparency preference.</p>
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">placement — nine positions</p>
+        <p class="text-[13px] leading-6">The six classic sides plus <code class="text-accent">left | right | center</code>; default <code class="text-accent">bottom-end</code> — under the trigger, right edges aligned.</p>
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">trigger</p>
+        <p class="text-[13px] leading-6">The default button carries popovertarget; a custom <code class="text-accent">trigger</code> snippet renders your own control (drive it via the imperative handle).</p>
+      </div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Menu rows repeat popovertarget to close on select — still zero JavaScript on the close path."><CodeBlock code={menuUsage} lang="svelte" meta="Popover usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Light dismiss, Escape, and top-layer focus order are the browser's; one native toggle seam mirrors aria-expanded."><A11yTable keys={[{ key: 'Enter / Space', action: 'Toggle the panel from the popovertarget trigger (native button)' }, { key: 'Escape', action: 'Close the panel; focus returns to the trigger' }, { key: 'Tab', action: 'Moves through the panel body content while open' }]} aria={[{ name: 'aria-expanded', value: 'true/false', description: 'On the default trigger — mirrored live from :popover-open by the toggle seam.' }, { name: 'popover', value: '"auto"', description: 'Light dismiss (outside click / focus loss) and one-at-a-time are native.' }, { name: 'position-visibility', value: 'anchors-visible', description: 'A panel whose anchor scrolled away hides instead of floating stale.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The anchored panel rides the shared motion kernel; the scroll ring's padding is token-overridable."><div class="flex flex-col gap-5"><DensityDemo><Popover id="density-pop" triggerLabel="density"><p class="w-52 text-[12.5px] leading-6">The trigger rhythm follows the scope; the panel pad rides --jx-pop-pad tokens.</p></Popover></DensityDemo><TokenTable tokens={[{ name: '--jx-pop-{id}', default: 'anchor-name', source: 'component', description: 'Per-instance CSS anchor the panel positions against.' }, { name: '--jx-pop-gap', default: '0px (gap prop)', source: 'component', description: 'Anchor gap with margin semantics; 0 = the flush law.' }, { name: '--jx-pop-pad / -inline', default: '12px 14px / 14px', source: 'component', description: 'The scroll ring’s padding; consumer-overridable.' }, { name: '--jx-surface-in-x/y · -ox/-oy', default: 'direction vectors', source: 'component', description: 'Slide-in and shadow offsets, measured live against the anchor.' }, { name: '--jx-scrollbar-thin', default: 'thin lane', source: 'component', description: 'Stable-gutter scrollbar compensation in the scroll ring.' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Ten props plus the bind:this imperative handle — no controlled state model."><PropsTable props={[{ name: 'id', type: 'string', default: '—', description: 'Popover id: popovertarget association + the CSS anchor name.', required: true }, { name: 'triggerLabel', type: 'string', default: "''", description: 'Default trigger button label; ignored when a trigger snippet is given.' }, { name: 'placement', type: "'bottom' | 'bottom-end' | 'bottom-start' | 'top' | 'top-end' | 'top-start' | 'left' | 'right' | 'center'", default: "'bottom-end'", description: 'The INITIAL anchored position; chosen once at open, never re-evaluated while open.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface paint.' }, { name: 'tryFallbacks', type: 'string', default: "''", description: 'Raw position-try value — custom @position-try idents replace the default flip series.' }, { name: 'gap', type: 'number | string', default: 'undefined', description: 'Anchor gap, margin semantics — number = uniform px; shorthand gaps only the facing side. Invalid input is ignored.' }, { name: 'trigger', type: 'Snippet', default: '—', description: 'Custom trigger control; anchoring stays component-owned.' }, { name: 'panelClass', type: 'string', default: "''", description: 'Appended to the panel (width, grid, tokens — never anchoring).' }, { name: 'onToggle', type: '(open: boolean) => void', default: '—', description: 'Mirrors the native toggle event; the only open-state source of truth.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The whole panel body.', required: true }, { name: 'bind:this', type: '{ show, hide, toggle }', default: '—', description: 'Imperative handle — thin native passthroughs for exceptional triggers.' }]} /></SectionCard></div>
 </div>
 
 <style>

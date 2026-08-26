@@ -1,10 +1,14 @@
 <script lang="ts">
   import Accordion from '$lib/ui/accordion/accordion.svelte';
   import AccordionItem from '$lib/ui/accordion/accordion-item.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayRow, PlayToggle, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
@@ -175,4 +179,44 @@ ${close}
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Accordion variants" summary="The group frame, the ghost paint, and the bare one-off disclosure — all the same native details/summary underneath.">
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="border border-border p-4">
+        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">default — framed</p>
+        <Accordion>
+          <AccordionItem>
+            {#snippet summary()}framed{/snippet}
+            One collapsed 1px border around the set.
+          </AccordionItem>
+          <AccordionItem>
+            {#snippet summary()}seams{/snippet}
+            1px seams between items, not double borders.
+          </AccordionItem>
+        </Accordion>
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">ghost</p>
+        <Accordion ghost>
+          <AccordionItem>
+            {#snippet summary()}ghost{/snippet}
+            antd Collapse ghost mapping — frameless, hairline separators only.
+          </AccordionItem>
+        </Accordion>
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">bare item</p>
+        <AccordionItem>
+          {#snippet summary()}one-off disclosure{/snippet}
+          Without the group: a single styled details/summary.
+        </AccordionItem>
+      </div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Wrap items in the group for the collapsed frame and opt-in exclusive mode; use a bare item for a one-off disclosure."><CodeBlock code={usage} lang="svelte" meta="Accordion usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The component adds zero ARIA of its own — the browser maps details/summary to the disclosure pattern, including open state."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus to the summary line' }, { key: 'Enter / Space', action: 'Toggles the focused item open/closed (native summary behavior)' }]} aria={[{ name: 'details / summary', value: 'native semantics', description: 'The platform exposes name, role, and open state; no ARIA attributes are added or needed.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The accordion is utility-authored: the frame, seam, and 13px summary rhythm are fixed literals, so the scopes below leave it unchanged."><div class="flex flex-col gap-5"><DensityDemo><Accordion><AccordionItem>{#snippet summary()}density sample{/snippet}The summary rhythm, chevron, and seam are fixed across xs/sm/default/lg.</AccordionItem></Accordion></DensityDemo><TokenTable tokens={[{ name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-stack', default: '4 / 4 / 8 / 8px', source: 'density' }, { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' }, { name: 'border (frame + seam)', default: '1px', source: 'structural' }, { name: 'summary rhythm', default: '13px, fixed utility', source: 'structural' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Two halves: the group owns the frame and the exclusive guard; the item is a styled details/summary with a snippet summary."><div class="flex flex-col gap-6"><PropsTable title="Accordion (group)" props={[{ name: 'exclusive', type: 'boolean', default: 'false', description: 'Radio behavior: opening one direct child closes its siblings via a capture-phase toggle listener.' }, { name: 'ghost', type: 'boolean', default: 'false', description: "antd Collapse ghost paint — frameless, hairline separators only." }, { name: 'children', type: 'Snippet', default: '—', description: 'AccordionItem (or raw details) children.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the group container.' }]} /><PropsTable title="AccordionItem" props={[{ name: 'open', type: 'boolean', default: 'false', description: 'Disclosure state; bindable (bind:open) for controlled use.', bindable: true }, { name: 'summary', type: 'Snippet', default: '—', description: 'The summary line — plain text or a composed snippet (no interactive elements).' }, { name: 'children', type: 'Snippet', default: '—', description: 'The expanded body.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the details element.' }]} /></div></SectionCard></div>
 </div>

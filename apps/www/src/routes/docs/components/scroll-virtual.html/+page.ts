@@ -1,11 +1,11 @@
 // Route-level toc policy (firstpaint era, 2026-08-24): the sections
 // ship as PAGE DATA — the layout owns the toc in the scaffold's chrome
 // snippet, SSR-rendered in its final grid cell.
+// Material3 sections (2026-08-26): this page previously shipped no toc;
+// the rail lists the standard section set.
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
-  { id: 'language-switcher-demo', label: 'live demo' },
-  { id: 'language-switcher-law', label: 'why href, not onclick' },
   { id: 'types', label: 'Types' },
   { id: 'usage', label: 'Usage' },
   { id: 'accessibility', label: 'Accessibility' },

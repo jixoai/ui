@@ -1,8 +1,12 @@
 <script lang="ts">
   import Alert from '$lib/ui/alert/alert.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
 
@@ -105,4 +109,19 @@ ${close}
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Alert variants" summary="Three tones and two live-region roles; title and body are each optional.">
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="border border-border p-4"><Alert title="default — polite">role=status, border-border. The plain notice.</Alert></div>
+      <div class="border border-border p-4"><Alert tone="primary" title="primary — the brand voice">Emphasis inside the one-brand-hue law; there is no blue "info".</Alert></div>
+      <div class="border border-border p-4"><Alert tone="destructive" assertive={true} title="destructive — assertive">role=alert, immediate announcement; pair with errors.</Alert></div>
+      <div class="border border-border p-4"><Alert>Body-only and title-only notices are first-class — no heading required.</Alert></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Choose the role deliberately: status for expected news, alert for errors; the icon snippet composes inline-start of the title."><CodeBlock code={usage} lang="svelte" meta="Alert usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The banner is itself the live region — screen readers announce it when it appears; no focus is taken."><A11yTable keys={[{ key: '—', action: 'Not focusable — an inline live region, not a control' }]} aria={[{ name: 'role', value: 'status | alert', description: 'status announces politely (default); alert interrupts immediately (assertive).' }, { name: 'data-jx-alert', value: 'tone', description: 'Hook attribute carrying the tone for styling.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Utility-authored paint — the banner rhythm is fixed literals, so density scopes leave it unchanged."><div class="flex flex-col gap-5"><DensityDemo><Alert title="density sample">The 1px border, shadow-2xs, and 13px rhythm are fixed across scopes.</Alert></DensityDemo><TokenTable tokens={[{ name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-stack', default: '4 / 4 / 8 / 8px', source: 'density' }, { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' }, { name: 'border', default: '1px', source: 'structural' }, { name: 'shadow', default: 'shadow-2xs (hard offset)', source: 'structural' }, { name: 'title rhythm', default: '13px, fixed utility', source: 'structural' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Six props; tone drives border and title color, assertive swaps the live-region role."><PropsTable props={[{ name: 'tone', type: "'default' | 'primary' | 'destructive'", default: "'default'", description: 'Drives border and title color; stays inside the one-brand-hue law.' }, { name: 'assertive', type: 'boolean', default: 'false', description: 'true → role=alert (immediate); false → role=status (polite).' }, { name: 'title', type: 'string', default: '—', description: 'One-line heading; omitted renders a bare body block.' }, { name: 'icon', type: 'Snippet', default: '—', description: 'Rendered inline-start of the title — bring your own glyph.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Body copy; omit for a title-only notice.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the banner element.' }]} /></SectionCard></div>
 </div>

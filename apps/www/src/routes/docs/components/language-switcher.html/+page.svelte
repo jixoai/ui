@@ -1,8 +1,13 @@
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import LanguageSwitcher from '$lib/ui/language-switcher/language-switcher.svelte';
   import languageSwitcherSource from '$lib/ui/language-switcher/language-switcher.svelte?raw';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayRow, PlaySegmented, PlayHelp } from '$lib/playground';
 
@@ -189,4 +194,17 @@ ${close}
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two variants split by locale count: pair for the bilingual case, menu for three or more.">
+    <div class="flex flex-wrap items-start gap-6">
+      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">pair</span><LanguageSwitcher variant="pair" current="en" locales={pairLocales} /><span class="text-muted-foreground text-[12.5px]">segmented group — caps at two entries by design</span></div>
+      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">menu</span><LanguageSwitcher variant="menu" current="en" ariaLabel="Language" locales={menuLocales} /><span class="text-muted-foreground text-[12.5px]">dropdown listbox — three or more locales</span></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="locales is data — every entry carries the localized href of the current page."><CodeBlock code={usage} lang="svelte" meta="LanguageSwitcher usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="pair is a group of links; menu is a listbox disclosure with real anchors inside."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the locale anchors (pair) or the trigger then the open list (menu)' }, { key: 'Enter', action: 'Follows the focused locale anchor — navigation, not state' }, { key: 'Escape', action: 'Closes the menu; outside click closes it too' }]} aria={[{ name: 'aria-label', value: 'ariaLabel ("Language")', description: 'Accessible name for the menu trigger and pair group' }, { name: 'aria-haspopup', value: '"listbox"', description: 'On the menu trigger' }, { name: 'role', value: 'group / listbox / option', description: 'pair group; menu list with role=option + aria-selected on the current locale' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Bezel-born: the switcher speaks currentColor and terminal surface tokens, so it inherits the surrounding chrome — no jx density tokens of its own."><div class="flex flex-col gap-6"><DensityDemo><LanguageSwitcher variant="pair" current="en" locales={pairLocales} /></DensityDemo><TokenTable tokens={[{ name: 'currentColor', default: 'inherited', source: 'color', description: 'All strokes and fills track the surrounding text color' }, { name: 'terminal tokens', default: 'bg-terminal / text-terminal-foreground', source: 'color', description: 'Native habitat; drops onto any themed surface unchanged' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the LanguageSwitcher Props interface; SwitcherLocale is the data contract."><PropsTable props={[{ name: 'variant', type: "'pair' | 'menu'", default: "'pair'", description: 'Segmented bilingual pair or dropdown menu.' }, { name: 'locales', type: 'readonly SwitcherLocale[]', default: '—', description: '{ code, label, href } entries; pair renders the first two, menu renders all.', required: true }, { name: 'current', type: 'string', default: '—', description: 'Active locale code; matched against entry codes.', required: true }, { name: 'ariaLabel', type: 'string', default: "'Language'", description: 'Accessible name for the trigger / group.' }]} /></SectionCard></div>
 </div>

@@ -1,9 +1,13 @@
 <script lang="ts">
   import Avatar from '$lib/ui/avatar/avatar.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import Input from '$lib/ui/input/input.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayRow, PlaySelect, PlayToggle, PlayHelp } from '$lib/playground';
 
@@ -179,4 +183,46 @@ ${close}
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Avatar variants" summary="Three silhouettes on one geometry, three fixed sizes, and a deterministic initials fallback.">
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="border border-border p-4">
+        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">silhouettes</p>
+        <div class="flex items-center gap-3">
+          <Avatar name="张伟" variant="bevel" alt="" />
+          <Avatar name="JX AoI" variant="rounded" alt="" />
+          <Avatar name="JX AoI" variant="squircle" alt="" />
+        </div>
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">sizes — sm 24 · md 32 · lg 40</p>
+        <div class="flex items-center gap-3">
+          <Avatar name="JX AoI" size="sm" alt="" />
+          <Avatar name="JX AoI" size="md" alt="" />
+          <Avatar name="JX AoI" size="lg" alt="" />
+        </div>
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">initials fallback</p>
+        <div class="flex items-center gap-3">
+          <Avatar name="Ada Lovelace" alt="" />
+          <Avatar name="Gaubee" alt="" />
+          <Avatar name="张伟" size="sm" alt="" />
+        </div>
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">image + tooltip</p>
+        <div class="flex items-center gap-3">
+          <Avatar src="/favicon.png" name="JX AoI" size="lg" />
+          <span class="text-[12.5px] text-muted-foreground">hover or focus — the full name rides the default tooltip</span>
+        </div>
+      </div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Give it a name; the image is optional — the fallback covers failed or missing sources."><CodeBlock code={usage} lang="svelte" meta="Avatar usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The avatar is content: alt defaults to the name, and the fallback block keeps the same label with role=img."><A11yTable keys={[{ key: '—', action: 'Not interactive — an image; the name tooltip also opens on focus' }]} aria={[{ name: 'alt', value: 'name (default)', description: 'The avatar is content; pass alt="" for decorative avatars beside a visible name.' }, { name: 'role', value: 'img', description: 'On the initials fallback block (omitted when decorative).' }, { name: 'aria-label', value: 'name', description: 'On the fallback block, keeping the label identical to the img path.' }, { name: 'aria-hidden', value: 'true', description: 'On the fallback block when alt="" marks it decorative.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Sizes are fixed geometry (24/32/40), not density-driven; the bevel radius rides the theme --radius scale."><div class="flex flex-col gap-5"><DensityDemo><div class="flex items-center gap-3"><Avatar name="JX AoI" size="sm" alt="" /><Avatar name="JX AoI" alt="" /><Avatar name="JX AoI" size="lg" alt="" /></div></DensityDemo><TokenTable tokens={[{ name: '--jx-avatar-md', default: '2rem (32px)', source: 'component', description: 'Context-owned md box — a list-item media host can inject its derived square.' }, { name: '--radius', default: '8px baseline', source: 'structural', description: 'Bevel cut at md; sm/lg ride 0.75×/1.25× of it (6/8/10px).' }, { name: 'size', default: '24 / 32 / 40px', source: 'structural' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend the native img attributes (except alt, which defaults to name)."><PropsTable props={[{ name: 'src', type: 'string', default: '—', description: 'Image URL; empty or failed loads swap to the initials fallback.' }, { name: 'name', type: 'string', default: '—', description: 'The person — fuels alt text, the initials fallback, and the tooltip.', required: true }, { name: 'alt', type: 'string', default: 'name', description: 'Pass "" explicitly for a decorative avatar.' }, { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'sm 24px · md 32px · lg 40px.' }, { name: 'variant', type: "'bevel' | 'rounded' | 'squircle'", default: "'bevel'", description: 'The silhouette: the radius law, a true circle, or the superellipse.' }, { name: 'tooltip', type: 'boolean', default: 'true', description: 'The full name rides a tooltip (hover + focus); false opts out.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the img / fallback block.' }]} /></SectionCard></div>
 </div>

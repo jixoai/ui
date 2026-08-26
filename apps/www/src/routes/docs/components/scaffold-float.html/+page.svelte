@@ -1,9 +1,13 @@
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
 
   // ToC outline: the closing law (the canvas above holds the adoption
@@ -156,6 +160,20 @@ ${close}
       </SectionCard>
     </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="One portal shape; the area role decides which top-layer cell the shell grid resolves for the adopted node.">
+    <div class="grid gap-4 min-[760px]:grid-cols-3">
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">area="float"</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">Default — the dynamic float slot inside .jx-top-layer; your custom floats.</p></div>
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">area="toc" / "tree"</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">The static chrome cells — the shell grid resolves each cell; static chrome usually lives in the scaffold's chrome snippet instead.</p></div>
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">multi-node plane</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">adopt() appends in adoption order — multiple custom floats coexist in the slot.</p></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Author the float anywhere in the page; the provider adopts the live node on mount."><CodeBlock code={usage} lang="svelte" meta="ScaffoldFloat usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The portal is a DOM move, not a visual layer change: reading order and focus follow the authored semantics."><A11yTable keys={[{ key: 'Tab', action: 'Focus order is unaffected — the moved node keeps its listeners, focus, and scroll state' }]} aria={[{ name: 'aria-label', value: 'yours', description: 'Label the floated content yourself (e.g. aside aria-label="On this page")' }, { name: 'role', value: 'inherited', description: 'The portal adds no roles; the adopted subtree keeps its authored semantics' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No density footprint and no tokens of its own — the portal moves your node; the paint is entirely the floated content's."><div class="flex flex-col gap-6"><DensityDemo><div class="border border-border bg-muted/40 px-3 py-2 font-mono text-[11px]">● deploy passing — main #142</div></DensityDemo><TokenTable tokens={[{ name: 'jx-top-layer', default: 'context key', source: 'structural', description: 'The adopt/release contract consumed from the website-scaffold provider' }, { name: '.jx-float-slot', default: 'adoption order', source: 'structural', description: 'Destination cell inside the top layer; children order = adoption order' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ScaffoldFloat Props interface — a children snippet plus one semantic role."><PropsTable props={[{ name: 'children', type: 'Snippet', default: '—', description: 'The floated content; the live DOM node is adopted into the top layer on mount.', required: true }, { name: 'area', type: "TopLayerArea: 'toc' | 'tree' | 'float'", default: "'float'", description: 'Semantic placement role; the shell grid resolves the cell.' }]} /></SectionCard></div>
 </div>
 
 <style>

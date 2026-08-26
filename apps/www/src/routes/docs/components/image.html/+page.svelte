@@ -3,6 +3,10 @@
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import Image from '$lib/ui/image/image.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
 
@@ -79,4 +83,35 @@
       </SectionCard>
     </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Image variants" summary="Content or decorative, with the composed or default failure posture.">
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="border border-border p-4">
+        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">content picture</p>
+        <Image src="/icon.svg" alt="the jixoai mark" width={64} height={64} />
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">decorative — alt=""</p>
+        <Image src="/icon.svg" alt="" width={64} height={64} />
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">default fallback</p>
+        <Image src="/definitely-missing.png" alt="broken demo" width={64} height={64} />
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">composed fallback slot</p>
+        <Image src="/definitely-missing.png" alt="broken demo" width={64} height={64}>
+          {#snippet fallback()}
+            <span class="inline-flex items-center justify-center border border-dashed border-border bg-muted text-muted-foreground" style="width: 64px; height: 64px;">retry later</span>
+          {/snippet}
+        </Image>
+      </div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="width and height are REQUIRED — the no-CLS contract is not optional."><CodeBlock code={usage} lang="svelte" meta="Image usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="A native img with real alt semantics; the fallback keeps the name and stays decorative when alt is empty."><A11yTable keys={[{ key: '—', action: 'Not interactive — a picture with alt semantics' }]} aria={[{ name: 'alt', value: 'string (required)', description: 'The picture’s meaning; "" marks it decorative.' }, { name: 'role / aria-label', value: 'img / "image unavailable"', description: 'On the default fallback frame — only when alt is non-empty.' }, { name: 'aria-hidden', value: 'true', description: 'On the fallback when alt="" keeps the picture decorative through failure.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Utility-authored, zero css residue — the box is your intrinsic dims; density does not rescale it."><div class="flex flex-col gap-5"><DensityDemo><Image src="/icon.svg" alt="density sample" width={48} height={48} /></DensityDemo><TokenTable tokens={[{ name: 'intrinsic box', default: 'width/height (required)', source: 'structural', description: 'The no-CLS contract — the rendered img stays max-w-full h-auto.' }, { name: 'fallback frame', default: 'dashed border, muted fill', source: 'structural' }, { name: 'fallback glyph', default: '32px svg', source: 'structural' }, { name: '--jx-image', default: '32 / 36 / 40 / 48px', source: 'density', description: 'The density media-image alias (consumers may adopt it for boxes).' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend the native img attributes; alt, width, height are required."><PropsTable props={[{ name: 'alt', type: 'string', default: '—', description: 'The picture’s meaning; "" marks it decorative.', required: true }, { name: 'width', type: 'number | string', default: '—', description: 'REQUIRED intrinsic width — the no-CLS contract.', required: true }, { name: 'height', type: 'number | string', default: '—', description: 'REQUIRED intrinsic height — the no-CLS contract.', required: true }, { name: 'src', type: 'string', default: '—', description: 'Via native img attributes; a changed src re-arms the load after failure.' }, { name: 'fallback', type: 'Snippet', default: 'default frame', description: 'Composed failure state — keep the intrinsic dims in your slot markup.' }, { name: 'class', type: 'string', default: "''", description: 'Rendered width/height classes when different from intrinsic.' }]} /></SectionCard></div>
 </div>

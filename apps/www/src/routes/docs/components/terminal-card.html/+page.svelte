@@ -1,8 +1,13 @@
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import terminalCardSource from '$lib/ui/terminal-card/terminal-card.svelte?raw';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayRow, PlayRange, PlayHelp } from '$lib/playground';
@@ -143,4 +148,17 @@
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two bezel shells: the dark lock by default, the light CRT shell by opt-in.">
+    <div class="flex flex-wrap items-start gap-6">
+      <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">theme dark (default)</span><TerminalCard barTitle="quick-start — zsh" command="npx jixoai-ui add terminal-card" outputs={['terminal-card.svelte → src/lib/ui/']} /><span class="text-muted-foreground text-[12.5px]">the dark-locked bezel</span></div>
+      <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">theme light</span><TerminalCard theme="light" barTitle="quick-start — zsh" command="npx jixoai-ui add terminal-card" outputs={['light CRT shell — scoped token class']} /><span class="text-muted-foreground text-[12.5px]">'light' | 'system' opts into the light shell</span></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="command as a plain string; outputs surface line by line after the typing completes — replay by re-mounting."><CodeBlock code={usage} lang="svelte" meta="TerminalCard usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The settled terminal is real text in the markup; the entrance is decoration hidden from readers."><A11yTable keys={[]} aria={[{ name: 'aria-hidden', value: 'true', description: 'On the traffic-light dots and the static block cursor — pure scenery' }, { name: 'prerendered output', value: 'settled', description: 'typed = command in markup: the full command + outputs are real text before any JS' }, { name: 'prefers-reduced-motion', value: 'instant', description: 'Returns before the first timer — the card renders fully settled' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No density footprint: the bezel is fixed chrome. The scoped token class swaps dark for the light CRT shell; one rhythm divides by speed."><div class="flex flex-col gap-6"><DensityDemo><TerminalCard barTitle="quick-start — zsh" command="npx jixoai-ui add terminal-card" outputs={['one-shot typing · static cursor']} /></DensityDemo><TokenTable tokens={[{ name: 'jx-light', default: 'scoped token class', source: 'component', description: 'theme="light" swaps the dark lock for the light CRT shell' }, { name: 'type rhythm', default: '42ms + 0-40ms jitter / 110ms outputs', source: 'component', description: 'Every delay divides by the speed multiplier (default 1, clamped ≥ 0.25)' }, { name: 'shadow', default: '6px hard offset', source: 'component' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the TerminalCard Props interface — title, command, outputs, theme, pace."><PropsTable props={[{ name: 'barTitle', type: 'string', default: '—', description: 'Title-bar text (e.g. "quick-start — zsh").', required: true }, { name: 'command', type: 'string', default: '—', description: 'The one large typed command.', required: true }, { name: 'outputs', type: 'readonly string[]', default: '—', description: 'Lines surfacing one by one after the typing completes.', required: true }, { name: 'theme', type: "'dark' | 'light' | 'system'", default: "'dark'", description: 'Bezel shell; dark-locked by default, light/system opt into the CRT shell.' }, { name: 'speed', type: 'number', default: '1', description: 'Divides every delay; clamped ≥ 0.25 — read on mount, re-mount to apply.' }]} /></SectionCard></div>
 </div>

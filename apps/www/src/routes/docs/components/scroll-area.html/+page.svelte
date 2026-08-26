@@ -1,8 +1,12 @@
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import ScrollArea from '$lib/ui/scroll-area/scroll-area.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import Toc from '$lib/ui/toc/toc.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { createTocEngine } from '$lib/toc-engine';
@@ -256,6 +260,19 @@ const sections = tocOutlineToSections(entries);
       </div>
     </SectionCard>
   </div>
+
+  <!-- Material3 sections (2026-08-26): inside #sa-content so the
+       outline-mode rail derives their entries from the h2 tree. -->
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two scrollbar presentations over the same native scrollport; three orientation axes.">
+    <div class="grid gap-4 min-[760px]:grid-cols-2">
+      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">native (default)</span><ScrollArea class="h-40" label="native sample" pad="0.75rem"><ol class="flex flex-col gap-2">{#each Array(12) as _, i (i)}<li class="border border-border/40 bg-muted/40 px-3 py-1.5 text-[12.5px]">item {i + 1}</li>{/each}</ol></ScrollArea></div>
+      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">overlay</span><ScrollArea scrollbar="overlay" class="h-40" label="overlay sample"><div class="jx-log">{#each Array(16) as _, i (i)}<p class="jx-log-line"><span class="text-muted-foreground">[{(i * 137) % 1000}</span> ms] overlay thumb, desktop fine-pointer only</p>{/each}</div></ScrollArea></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Give it a height, a label, and pad for the gutter compensation; the rest is a native scroll container."><CodeBlock code={nativeUsage} lang="svelte" meta="ScrollArea usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The WAI scrollable-region pattern: role=region + name + tabindex makes the scrollport itself keyboard-focusable."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the scrollable area' }, { key: '↑ ↓ ← → / Home / End / PgUp / PgDn', action: 'Native scrollport scrolling once the region is focused' }, { key: 'pointer drag', action: 'The overlay thumb drags with pointer capture; keyboard never needs it' }]} aria={[{ name: 'aria-label', value: 'label prop', description: 'Accessible name for the region (default "scrollable content")' }, { name: 'role', value: 'region', description: 'Plus tabindex=0 — the WAI scrollable-region pattern' }, { name: 'aria-hidden', value: 'true', description: 'On the decorative overlay thumbs' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The scrollbar law is token-driven: thin themed thumbs, transparent tracks, gutter compensation via pad."><div class="flex flex-col gap-6"><DensityDemo><ScrollArea class="h-36" label="density sample" pad="0.75rem"><ol class="flex flex-col gap-2">{#each Array(10) as _, i (i)}<li class="border border-border/40 bg-muted/40 px-3 py-1.5 text-[12.5px]">item {i + 1}</li>{/each}</ol></ScrollArea></DensityDemo><TokenTable tokens={[{ name: '--jx-scrollbar-thin', default: 'thin thumb width', source: 'component' }, { name: '--jx-scroll-thumb-w', default: 'overlay thumb width', source: 'component' }, { name: '--jx-scroll-pad', default: 'pad prop', source: 'component', description: 'The ring padding the gutter compensation recipe hands back' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ScrollArea Props interface; getViewport()/scrollTo() are the imperative exports."><PropsTable props={[{ name: 'orientation', type: "'vertical' | 'horizontal' | 'both'", default: "'vertical'", description: 'Which axes scroll: overflow-y/x mapping.' }, { name: 'scrollbar', type: "'native' | 'overlay'", default: "'native'", description: 'Theme scrollbar law or the custom overlay thumb (fine-pointer only).' }, { name: 'label', type: 'string', default: "'scrollable content'", description: 'a11y name for the region.' }, { name: 'pad', type: 'string', default: '0', description: 'Ring padding (CSS length), inline-axis — feeds the gutter compensation recipe.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough.' }, { name: 'style', type: 'string', default: '—', description: 'Style passthrough.' }, { name: 'onscroll', type: '(event: ViewportScrollEvent) => void', default: '—', description: 'Scroll callback from the viewport.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The scrolling content.', required: true }, { name: 'getViewport()', type: '() => HTMLDivElement | null', default: 'export', description: 'The scrollport element — Toc scrollRoot / engine-direct linkage.' }]} /></SectionCard></div>
   </div>
 </div>
 

@@ -1,8 +1,12 @@
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import ThemeToggle from '$lib/ui/theme-toggle/theme-toggle.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import themeToggleSource from '$lib/ui/theme-toggle/theme-toggle.svelte?raw';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayRow, PlaySegmented, PlayHelp } from '$lib/playground';
@@ -180,8 +184,23 @@ ${close}
             <span>full exposes <code class="text-accent">hideLabels</code> for an icons-only segmented
               row; every variant carries its mode in <code class="text-accent">aria-label</code> or
               <code class="text-accent">aria-pressed</code></span></li>
-        </ul>
-      </SectionCard>
-    </div>
+      </ul>
+    </SectionCard>
   </div>
+  </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Four variants, two behaviors: full sets a mode directly; the rest cycle light → dark → system.">
+    <div class="flex flex-wrap items-start gap-6">
+      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">full · sets</span><ThemeToggle variant="full" /><span class="text-muted-foreground text-[12.5px]">segmented group — one click, one mode</span></div>
+      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">compact · cycles</span><ThemeToggle variant="compact" /><span class="text-muted-foreground text-[12.5px]">the default cycling button</span></div>
+      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">icon · cycles</span><ThemeToggle variant="icon" /><span class="text-muted-foreground text-[12.5px]">icon only — aria-label carries the mode</span></div>
+      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">text · cycles</span><ThemeToggle variant="text" /><span class="text-muted-foreground text-[12.5px]">the word alone</span></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Pair with the no-flash inline bootstrap in app.html — both write the same storage key."><CodeBlock code={usage} lang="svelte" meta="ThemeToggle usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="full is a labeled group with pressed state per option; the cycling buttons name their current mode."><A11yTable keys={[{ key: 'Tab', action: 'Reaches the toggle (one stop: the group or the cycling button)' }, { key: 'Enter / Space', action: 'Sets the focused mode (full) or advances light → dark → system (cycling)' }]} aria={[{ name: 'role', value: 'group', description: 'The full variant group, aria-label "Color theme"' }, { name: 'aria-pressed', value: 'boolean', description: 'On each full-variant option — the current mode reads pressed' }, { name: 'aria-label', value: '"theme: {mode}"', description: 'On the cycling variants; icon-only relies on it entirely' }, { name: 'aria-hidden', value: 'true', description: 'On the decorative inline SVG icons' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The toggle re-themes the page rather than being themed: chrome speaks currentColor, zero tokens of its own."><div class="flex flex-col gap-6"><DensityDemo><ThemeToggle variant="compact" /></DensityDemo><TokenTable tokens={[{ name: 'currentColor', default: 'inherited', source: 'color', description: 'Icons and chrome track the surrounding text color' }, { name: 'storage key', default: '"theme": light | dark | system', source: 'structural', description: '.dark class + colorScheme on the root, applied by one shared function' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ThemeToggle Props interface — a variant and one full-only modifier."><PropsTable props={[{ name: 'variant', type: "'full' | 'compact' | 'icon' | 'text'", default: "'compact'", description: 'full sets a mode directly; the others cycle light → dark → system.' }, { name: 'hideLabels', type: 'boolean', default: 'false', description: 'full variant only: hide the text labels, show icons alone.' }]} /></SectionCard></div>
 </div>

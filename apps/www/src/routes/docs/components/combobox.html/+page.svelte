@@ -10,6 +10,10 @@
   import Combobox, { type ComboboxOption } from '$lib/ui/combobox/combobox.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
   import { PlayFields, PlayRow, PlayToggle, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -255,4 +259,31 @@
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Combobox variants" summary="The commit rules are the variants: free custom values by default, strict reverting on blur, plus the error shell.">
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="border border-border p-4">
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">allowCustom (default)</p>
+        <p class="text-[13px] leading-6">No match → the “Use “xxx”” row in primary; Enter/Tab commits the typed text as the value.</p>
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">strict — allowCustom={'{false}'}</p>
+        <p class="text-[13px] leading-6">Stray text reverts on blur; only a listed option (or empty) can be committed.</p>
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">disabled option rows</p>
+        <p class="text-[13px] leading-6">Options may disable themselves — skipped by keyboard navigation and click.</p>
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">error wiring</p>
+        <p class="text-[13px] leading-6"><code class="text-accent">error</code> → aria-invalid + aria-describedby + the dashed shell.</p>
+      </div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The filter text is input state, never committed state — value only changes through an explicit commit."><CodeBlock code={comboboxUsage} lang="svelte" meta="Combobox usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Focus never enters the panel — the roving highlight rides aria-activedescendant off the input itself."><A11yTable keys={[{ key: '↑ / ↓', action: 'Move the roving highlight through the filtered rows' }, { key: 'Enter', action: 'Commit the highlighted row (or the raw text with allowCustom)' }, { key: 'Escape', action: 'Revert to the committed display and close the panel' }, { key: 'Tab', action: 'Keep the typed text: resolve to an option, custom value, or revert' }]} aria={[{ name: 'role', value: 'combobox', description: 'On the trigger input, with aria-haspopup="listbox".' }, { name: 'aria-activedescendant', value: '{id}-opt-n', description: 'The keyboard/aria cursor; focus stays in the input the whole time.' }, { name: 'aria-controls / aria-owns', value: '{id}-listbox', description: 'The top-layer promoted listbox is a DOM sibling of the input.' }, { name: 'aria-expanded', value: 'true/false', description: 'On the input; mirrors panel state.' }, { name: 'aria-invalid / aria-describedby', value: 'true / {id}-error', description: 'Error wiring — dashed shell plus the validation message.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The shell consumes the .jx-field scaffold; the panel is the popover=auto terminal bezel with the 2px primary selected edge."><div class="flex flex-col gap-5"><DensityDemo><Combobox label="density" options={backendOptions} /></DensityDemo><TokenTable tokens={[{ name: '--jx-cbx-{id}', default: 'anchor-name', source: 'component', description: 'Per-instance CSS anchor the panel positions against.' }, { name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'The surface-motion kernel driving the panel open/close.' }, { name: '--jx-scrollbar-thin', default: 'thin lane', source: 'component', description: 'Stable-gutter scrollbar compensation in the panel.' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend the native input attributes (except value); the name prop rides the faceless form-field bridge."><PropsTable props={[{ name: 'options', type: 'ComboboxOption[]', default: '—', description: 'The full option list (order = panel order): { value, label, description?, disabled? }.', required: true }, { name: 'value', type: 'string', default: '—', description: 'Committed value (bind:value) — a listed option’s value or a custom string.', bindable: true }, { name: 'placeholder', type: 'string', default: "'Search or type...'", description: 'Input placeholder while nothing is committed.' }, { name: 'label', type: 'string', default: '—', description: 'Renders label[for] above the control.' }, { name: 'name', type: 'string', default: '—', description: 'Form field name — intercepted off the input; the bridge submits the VALUE, never the display text.' }, { name: 'error', type: 'string', default: '—', description: 'Adds aria-invalid + aria-describedby + the dashed border.' }, { name: 'id', type: 'string', default: 'auto', description: 'Wired into label[for] / error[id]; auto-generated when omitted.' }, { name: 'allowCustom', type: 'boolean', default: 'true', description: 'Accept typed text that matches no option as the committed value.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Disable the input and the chevron together.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface paint of the panel.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the shell.' }]} /></SectionCard></div>
 </div>

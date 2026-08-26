@@ -5,11 +5,15 @@
   form.html route remains as the family hub.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DatePicker, { type DatePickerRange } from '$lib/ui/date-picker/date-picker.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
   import { PlayFields, PlayRow, PlaySegmented, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -212,4 +216,17 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Single commits one ISO day; range binds a start/end pair with anchor/swap semantics.">
+    <div class="grid gap-4 min-[760px]:grid-cols-2">
+      <div class="flex flex-col gap-3 border border-border p-4"><DatePicker label="single (ISO value)" id="types-single" /></div>
+      <div class="flex flex-col gap-3 border border-border p-4"><DatePicker label="range (start/end)" id="types-range" mode="range" /></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Bind value (single) or range (range); format is display-only, bounds are inclusive ISO days."><CodeBlock code={dateUsage} lang="svelte" meta="DatePicker usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The grid is one focus stop: arrows walk the cursor across month boundaries, Enter commits, Escape and light dismiss are the platform's."><A11yTable keys={[{ key: '↑ ↓ ← →', action: 'On the trigger: open the panel; in the grid: walk the cursor across month boundaries (the view follows)' }, { key: 'Enter / Space', action: 'Commit the focused day; open the panel from the trigger' }, { key: 'Escape', action: 'Native popover dismiss — focus restitutes to the trigger on every close path' }]} aria={[{ name: 'aria-invalid', value: 'true', description: 'Set on the trigger when error is present' }, { name: 'aria-describedby', value: '{id}-error', description: 'References the validation message' }, { name: 'role: grid', value: 'one focus stop', description: 'The calendar grid is a single tab stop with a roving day cursor' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The trigger inherits the family's density rhythm; the panel anchors via a generated --jx-date-* anchor name and opens through the shared --jx-p motion number."><div class="flex flex-col gap-6"><DensityDemo><DatePicker label="deploy date" id="density-date" /></DensityDemo><TokenTable tokens={[{ name: '--jx-date-{id}', default: 'anchor-name', source: 'component' }, { name: '--jx-p', default: '0 → 1', source: 'component', description: 'WAAPI-animated @property progress every panel formula derives from' }, { name: 'variant', default: "'solid' | 'acrylic' | 'auto'", source: 'component', description: 'Floating-surface fill; auto defers to reduced-transparency' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the DatePicker Props interface; value and range are bindable commit seams."><PropsTable props={[{ name: 'value', type: 'string', default: '—', description: 'ISO "YYYY-MM-DD"; single mode committed value.', bindable: true }, { name: 'range', type: 'DatePickerRange', default: '—', description: '{ start?, end? }; range mode committed value.', bindable: true }, { name: 'mode', type: "'single' | 'range'", default: "'single'", description: 'Commit mode for the calendar.' }, { name: 'label', type: 'string', default: '—', description: 'Field label; renders label[for] above the trigger.' }, { name: 'error', type: 'string', default: '—', description: 'Error text → aria-invalid + describedby + dashed trigger.' }, { name: 'placeholder', type: 'string', default: "'Select date...'", description: 'Trigger text when nothing is committed.' }, { name: 'min', type: 'string', default: '—', description: 'ISO date; earlier days render disabled.' }, { name: 'max', type: 'string', default: '—', description: 'ISO date; later days render disabled.' }, { name: 'format', type: "'iso' | 'locale'", default: "'iso'", description: 'Display format — the committed value stays ISO regardless.' }, { name: 'id', type: 'string', default: 'auto', description: 'Wired into label[for] / error[id]; auto-generated when omitted.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface variant for the panel fill.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough.' }]} /></SectionCard></div>
 </div>

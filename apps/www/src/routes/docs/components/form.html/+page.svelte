@@ -9,10 +9,14 @@
   no prev/next, no inventory membership.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import OverviewCard from '$lib/overview-card.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG, type CatalogEntry } from '$lib/catalog';
   import Input from '$lib/ui/input/input.svelte';
 
@@ -262,4 +266,18 @@ ${close}
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="The family splits by how far the paint strays from the platform: passthrough lanes, the select fork, and the pure-CSS selectors.">
+    <div class="grid gap-4 min-[760px]:grid-cols-3">
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">native lanes & full customs</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">input (every native type), number-input (stepper), range, date-picker, color-picker, combobox, tags-input, file-input.</p></div>
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">select family & textarea</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">native-select keeps the platform popup; select builds a popover listbox; textarea is the taller text shell.</p></div>
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">pure-CSS selectors</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">checkbox, radio, toggle — appearance: none + pseudo-element glyphs, native state kept.</p></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose uncontrolled fields into a form; read FormData once at submit — no per-field state owed."><CodeBlock code={installUsage} lang="svelte" meta="form family usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Every member keeps the native control's semantics; the family contract wires labels and validation text once."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus field to field in DOM order — native elements, native order' }, { key: 'native keys', action: 'Each member keeps its control keys: Space toggles selectors, ↑/↓ steppers and listboxes, Enter submits' }]} aria={[{ name: 'label[for]', value: '{id}', description: 'The label prop renders a programmatic label against the auto-generated id' }, { name: 'aria-invalid', value: 'true', description: 'Set by the error prop on every member' }, { name: 'aria-describedby', value: '{id}-error', description: 'Links the "! message" line so readers announce it on focus' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="One density rhythm across every field shell: hit target, text size, and leading scale together (see the density-ladder section above)."><div class="flex flex-col gap-6"><DensityDemo><Input label="field" placeholder="density sample" /></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: 'field height, scope-scaled', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-leading', default: 'line-height, scope-scaled', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The hub documents the shared field contract (Input's shell, the canonical member); each child page carries its full interface."><PropsTable props={[{ name: 'type', type: 'string', default: "'text'", description: 'Any native input type — lands on the element verbatim.' }, { name: 'density', type: 'Density', default: 'inherited', description: 'Explicit, inherited, then default density scope.' }, { name: 'label', type: 'string', default: '—', description: 'Field label; renders label[for] above the control.' }, { name: 'id', type: 'string', default: 'auto', description: 'Wired into label[for] / error[id]; auto-generated when omitted.' }, { name: 'error', type: 'string', default: '—', description: 'Error text → aria-invalid + aria-describedby + dashed border.' }, { name: 'clearable', type: 'boolean', default: 'false', description: 'Text-like only: × button in the inner-inline-end area.' }, { name: 'innerInlineStart', type: 'Snippet', default: '—', description: 'Inside the shell, left of the input (prefix icon / unit).' }, { name: 'innerInlineEnd', type: 'Snippet', default: '—', description: 'Inside the shell, right of the input (suffix / unit / action).' }, { name: 'outerBlockStart', type: 'Snippet', default: '—', description: 'Outside the shell, above — replaces the label prop when given.' }, { name: 'outerBlockEnd', type: 'Snippet', default: '—', description: 'Outside the shell, below — renders below the error line.' }, { name: 'value', type: 'string | number', default: '—', description: 'Bound ⇒ controlled, absent ⇒ purely uncontrolled.', bindable: true }]} /></SectionCard></div>
 </div>

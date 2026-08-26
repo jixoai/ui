@@ -1,8 +1,12 @@
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import Progress from '$lib/ui/progress/progress.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayRow, PlayRange, PlayHelp } from '$lib/playground';
 
@@ -106,4 +110,17 @@ ${close}
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two states, one element: determinate maps a 0..max scale; omitted value means indeterminate.">
+    <div class="flex flex-wrap items-start gap-6">
+      <div class="flex min-w-56 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">determinate</span><Progress value={0.42} label="sync" /><span class="text-muted-foreground text-[12.5px]">value present — a real 0..max position with a % readout</span></div>
+      <div class="flex min-w-56 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">indeterminate</span><Progress label="connecting" /><span class="text-muted-foreground text-[12.5px]">value omitted — activity, not progress (terminal stripe sweep)</span></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Pass a 0..max value, or omit it for the honest 'something is happening' state."><CodeBlock code={usage} lang="svelte" meta="Progress usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native element already exposes value semantics; the component adds only a polite % readout."><A11yTable keys={[]} aria={[{ name: 'aria-valuenow / min / max', value: 'native', description: 'Exposed by the <progress> element itself; indeterminate simply omits valuenow' }, { name: 'aria-label', value: 'label ?? "progress"', description: 'Names the bar when no visible label is given' }, { name: 'role: status', value: 'on the % readout', description: 'Polite live region — announced when the reader is idle' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The paint resets both engines' ::-progress pseudo-elements and draws from theme colors — no jx density tokens of its own."><div class="flex flex-col gap-6"><DensityDemo><Progress value={0.42} label="sync" /></DensityDemo><TokenTable tokens={[{ name: 'brand fill', default: '--primary', source: 'color', description: 'The determinate bar fill' }, { name: '1px frame', default: 'border-border', source: 'color' }, { name: 'stripe sweep', default: 'indeterminate run', source: 'component', description: 'Terminal stripe animation when value is omitted' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the Progress Props interface — the rest of the element's attributes ride through natively."><PropsTable props={[{ name: 'value', type: 'number', default: '—', description: '0..max; omitted ⇒ indeterminate ("activity", not "progress").' }, { name: 'max', type: 'number', default: '1', description: "The element's own spec default." }, { name: 'label', type: 'string', default: '—', description: 'Visible label above the bar (also names the element).' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to the root.' }]} /></SectionCard></div>
 </div>

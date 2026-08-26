@@ -13,9 +13,13 @@
   Constraint: docs only — the header itself is untouchable.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import terminalHeaderSource from '$lib/ui/terminal-header/terminal-header.svelte?raw';
   import terminalHeaderCss from '$lib/ui/terminal-header/terminal-header.css?raw';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -210,4 +214,18 @@ two tiers
       </SectionCard>
     </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="One bar shell, two tiers, three bezel locks — the nav itself is always composed family parts.">
+    <div class="grid gap-4 min-[760px]:grid-cols-3">
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">desktop tier (≥sm)</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">Full brand stack + pill group with the sliding indicator + switcher slot.</p></div>
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">mobile tier (&lt;sm)</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">Hamburger folds the drawer snippet into a grid-rows 0fr→1fr disclosure, bounded by the in-bar scroller.</p></div>
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">bezel lock</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">theme dark (default) | light | system — the CRT shell swap, same as terminal-card.</p></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Render once per site in the shell's header slot; compose the nav from the navigation-menu family."><CodeBlock code={usage} lang="svelte" meta="TerminalHeader usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="A banner landmark whose panels stay the browser's popovers; the drawer is a disclosure with Escape."><A11yTable keys={[{ key: 'Tab', action: 'Brand, the family roving pill walk, switcher — in wing order' }, { key: 'Escape', action: 'Closes the drawer and any open panel (popover=auto native behavior)' }]} aria={[{ name: 'aria-current', value: 'page', description: 'The indicator repaints from the DOM — the header never sees your nav data' }, { name: 'banner', value: 'landmark', description: 'The bar renders once per site; a second instance would duplicate the primary navigation' }, { name: 'popover', value: 'auto', description: 'Panels get light dismiss + top layer from the platform; the header adds only closeAll() cleanup' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Fixed chrome, no density scaling: the bezel speaks the surface tokens; the pill pads and panel pads are the css-band variables."><div class="flex flex-col gap-6"><DensityDemo><div class="flex items-center justify-between border border-border bg-muted/40 px-3 py-2"><span class="font-nav text-[11px] uppercase tracking-[0.2em]">brand wing</span><span class="font-mono text-[11px]">pill wing</span></div></DensityDemo><TokenTable tokens={[{ name: '--jx-pop-pad', default: 'panel block pad', source: 'component' }, { name: '--jx-pop-pad-inline', default: 'panel inline pad', source: 'component' }, { name: '--jx-panel-pad', default: 'subpanel pad', source: 'component' }, { name: '--jx-surface-solid-fill', default: 'solid bezel fill', source: 'color' }, { name: '--jx-surface-acrylic-fill', default: 'acrylic bezel fill', source: 'color' }, { name: '--jx-surface-border-color', default: 'bezel border', source: 'color' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the TerminalHeader Props interface — brand strings, bezel lock, and four snippet seams."><PropsTable props={[{ name: 'brand', type: 'string', default: '—', description: 'The wordmark line of the brand block.', required: true }, { name: 'domain', type: 'string', default: '—', description: 'Second brand line (the domain).' }, { name: 'subtitle', type: 'string', default: '—', description: 'Third brand line — desktop tier only.' }, { name: 'homeHref', type: 'string', default: '—', description: "The brand block's link target." }, { name: 'theme', type: "'dark' | 'light' | 'system'", default: "'dark'", description: 'Bezel theme lock.' }, { name: 'logo', type: 'Snippet', default: '—', description: 'The brand mark (logo slot).' }, { name: 'switcher', type: 'Snippet', default: '—', description: 'Right-wing control slot (theme toggle, hue switcher…).' }, { name: 'children', type: 'Snippet', default: '—', description: 'The desktop nav slot — compose NavigationMenu parts here.' }, { name: 'drawer', type: 'Snippet', default: '—', description: "The mobile drawer's contents (the stacked tier's nav)." }, { name: 'open', type: 'boolean', default: '—', description: "The drawer's open state; bind:open is your reset signal.", bindable: true }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to the bar root.' }]} /></SectionCard></div>
 </div>

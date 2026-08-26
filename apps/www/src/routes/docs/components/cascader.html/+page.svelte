@@ -3,6 +3,10 @@
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import Cascader from '$lib/ui/cascader/cascader.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
 
@@ -131,4 +135,27 @@ const options = [
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Cascader variants" summary="One mode — the chain of native selects; the honest-value rules are the variants that matter.">
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="border border-border p-4">
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">complete path</p>
+        <p class="text-[13px] leading-6">Every level picked, last pick a leaf — the joined path (default <code class="text-accent">'asia/japan'</code>) submits under name.</p>
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">partial path</p>
+        <p class="text-[13px] leading-6">A half-picked chain submits <code class="text-accent">''</code> — never a half-truth in FormData (the input-otp law).</p>
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">disabled / option.disabled</p>
+        <p class="text-[13px] leading-6"><code class="text-accent">disabled</code> blocks the whole chain; an option may disable itself at any level.</p>
+      </div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Feed the tree; bind the path; picking a parent grows the chain, re-picking truncates deeper levels."><CodeBlock code={usage} lang="svelte" meta="Cascader usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Every level is a real native select — the platform's keyboard and mobile pickers come free."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the chain, level by level' }, { key: '↑ / ↓', action: 'Move within the focused select’s options (native)' }, { key: 'Enter / Space', action: 'Open the focused select and commit a pick (native)' }]} aria={[{ name: 'role', value: 'group', description: 'On the root; aria-label defaults to the label prop (“cascade” if omitted).' }, { name: 'aria-label', value: 'level n', description: 'Per select — each level is independently named.' }, { name: 'aria-labelledby', value: '{id}-label', description: 'The chain is labelled by the visible label when present.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The select shells are fixed utility paint; the corner rides the theme radius."><div class="flex flex-col gap-5"><DensityDemo><Cascader {options} label="density" /></DensityDemo><TokenTable tokens={[{ name: '--radius', default: 'theme radius', source: 'structural', description: 'Select shell corner (rounded-(--radius)).' }, { name: 'select rhythm', default: '13px text, fixed padding', source: 'structural' }, { name: 'chain gap', default: '6px (gap-1.5)', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Nine props; the value is the picked path, the submission is the joined string."><PropsTable props={[{ name: 'options', type: 'CascaderOption[]', default: '—', description: 'The tree: { value, label, disabled?, children? }.', required: true }, { name: 'name', type: 'string', default: '—', description: 'Form field name — the joined path submits under it through the bridge.' }, { name: 'value', type: 'string[]', default: '[]', description: 'The selected path (bind:value) — e.g. [\'asia\', \'japan\'].', bindable: true }, { name: 'separator', type: 'string', default: "'/'", description: 'Path join for the submitted string.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Blocks the whole chain (form disable propagates too).' }, { name: 'label', type: 'string', default: '—', description: 'Reads above the chain; names the group.' }, { name: 'placeholder', type: 'string', default: "'select…'", description: 'Placeholder for the first select.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the root.' }]} /></SectionCard></div>
 </div>

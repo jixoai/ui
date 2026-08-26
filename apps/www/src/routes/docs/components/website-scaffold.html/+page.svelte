@@ -1,9 +1,13 @@
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayRow, PlayHelp } from '$lib/playground';
 
   // ToC outline: the closing law (the canvas above holds the architecture).
@@ -194,6 +198,20 @@ ${close}
       </SectionCard>
     </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="One shell, four snippet seams, three container-query forms — the same grid re-grids per width.">
+    <div class="grid gap-4 min-[760px]:grid-cols-3">
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">snippet seams</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">header (required) + chrome (static rails) + children (main#main) + footer.</p></div>
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">container forms</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">Cols [rail][content][toc] re-grid by container query on .jx-shell-host — embedded scaffolds show the right form at any width.</p></div>
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">float adoption</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">The jx-top-layer context adopts dynamic floats into .jx-float-slot by [data-area] — static chrome never mixes in.</p></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The layout root: one named container, header/chrome/children/footer snippets in their final cells."><CodeBlock code={usage} lang="svelte" meta="WebsiteScaffold usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Skip link to main#main, one landmark per zone, and chrome reservations that keep reflow honest."><A11yTable keys={[{ key: 'Tab', action: 'The hidden Skip to content link is the first stop; then header nav, then main' }, { key: 'Enter', action: 'Follows the skip link — focus lands on #main content' }]} aria={[{ name: 'skip link', value: '"Skip to content"', description: 'Keyboard-reachable target on #main, hidden until focused' }, { name: 'landmarks', value: 'header / main#main / footer', description: 'The shell renders one landmark per zone; adopted nodes keep their authored semantics' }, { name: 'view-transition-names', value: 'site-header / page-main', description: 'Persist across navigations so chrome never flashes' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No density tokens — the shell publishes structural measurements; everything else derives from them in CSS."><div class="flex flex-col gap-6"><DensityDemo><div class="border border-border bg-muted/40 px-3 py-2 font-mono text-[11px]">shell stand-in — a scaffold cannot nest</div></DensityDemo><TokenTable tokens={[{ name: '--jx-header-h', default: 'measured live', source: 'structural', description: 'The one measured value: body reservation, toc compaction, and the line all derive from it' }, { name: '--jx-rail-w', default: 'grid rail width', source: 'structural' }, { name: '--jx-toc-w', default: 'toc column width', source: 'structural' }, { name: '--jx-toc-line', default: '76px', source: 'structural', description: 'Shared with the toc family — the pick-line offset' }, { name: '--jx-chrome-bar', default: '44px', source: 'structural' }, { name: '--jx-chrome-top / --jx-chrome-bottom', default: 'zone insets', source: 'structural' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the WebsiteScaffold Props interface — four snippet seams, no data."><PropsTable props={[{ name: 'header', type: 'Snippet', default: '—', description: 'The nav band chrome (usually terminal-header with composed nav).', required: true }, { name: 'chrome', type: 'Snippet', default: '—', description: 'Static chrome, SSR-stable: the toc rail and catalog tree render here, never moved by hydration.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The default snippet → main#main in the content column.', required: true }, { name: 'footer', type: 'Snippet', default: '—', description: 'Optional footer in the content flow.' }]} /></SectionCard></div>
 </div>
 
 <style>

@@ -3,6 +3,13 @@
 // snippet, SSR-rendered in its final grid cell.
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
-const toc: TocSection[] = [{ id: 'alert-base', label: 'the live-region split' }];
+const toc: TocSection[] = [
+  { id: 'alert-base', label: 'the live-region split' },
+  { id: 'types', label: 'Types' },
+  { id: 'usage', label: 'Usage' },
+  { id: 'accessibility', label: 'Accessibility' },
+  { id: 'theming', label: 'Theming' },
+  { id: 'api', label: 'API' },
+];
 
 export const load = () => ({ toc });

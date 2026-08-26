@@ -1,7 +1,12 @@
 <script lang="ts">
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
+  import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayRow, PlaySelect, PlayHelp } from '$lib/playground';
 
@@ -224,6 +229,26 @@ ${close}
   const resolveUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? usageLive : file.content;
 
+  // static usage sample for the standard Usage section (the workbench
+  // drawer above tracks its own live copy)
+  const usageCode = `<script lang="ts">
+  import CodeCard from '@ui/code-card.svelte';
+${close}
+
+<!-- the sample is a runtime prop: Shiki escapes it, so a literal ${close}
+     inside it is inert data — nothing to escape at the template level -->
+<CodeCard filename="spawn.ts" lang="ts" theme="jixoai" code={source}>
+  {#snippet header()}
+    <span class="pill">node-pty route</span>
+  {/snippet}
+  {#snippet footer()}
+    <span>powered by Shiki</span>
+  {/snippet}
+</CodeCard>
+
+<!-- fill mode: the parent owes the height; the pre is the only scroller -->
+<CodeCard lang="svelte" code={sample} fill minHeight="12rem" />`;
+
   // ToC outline: pairs with the region ids below, in page order.
 
   // scroll law demo: a line wider than any column (horizontal) inside a
@@ -381,4 +406,34 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Code card variants" summary="Head and foot are compositional; fill turns the card into a pinned-chrome panel.">
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="border border-border p-4">
+        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">bare pre</p>
+        <CodeCard lang="ts" code={'const bare = true;'} copyable={false} class="w-full" />
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">filename tab + copy</p>
+        <CodeCard filename="hello.ts" lang="ts" code={'export const hello = "world";'} class="w-full" />
+      </div>
+      <div class="border border-border p-4">
+        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">header/footer snippets</p>
+        <CodeCard filename="install.sh" lang="bash" code={'npx jixoai-ui add code-card'} class="w-full">
+          {#snippet header()}
+            <span class="pill">registry</span>
+          {/snippet}
+          {#snippet footer()}
+            <span class="text-[11px] text-muted-foreground">terminal install</span>
+          {/snippet}
+        </CodeCard>
+      </div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Code is always a runtime prop — Shiki escapes it, so samples containing literal closing tags are inert data."><CodeBlock code={usageCode} lang="svelte" meta="CodeCard usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The pre is a labelled, keyboard-focusable scrollport; the copy control is a real button with state feedback."><A11yTable keys={[{ key: 'Tab', action: 'Reaches the scrollport (pre) and the copy control' }, { key: '← / → / ↑ / ↓', action: 'Scroll the focused pre — long lines horizontal, capped bodies vertical' }, { key: 'Enter / Space', action: 'Activate the copy button' }]} aria={[{ name: 'aria-label', value: '"{filename|lang} code sample"', description: 'On the pre — the scrollport is named whether or not a filename tab exists.' }, { name: 'aria-label', value: 'copy {filename|lang} sample', description: 'On the copy button; flips to "copied" for the 1.6s feedback window.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Token paint end to end — the jixoai theme resolves to the --tok-* palette at paint time; the shell rides the --readonly-code-* tints."><div class="flex flex-col gap-5"><DensityDemo><CodeCard filename="density.ts" lang="ts" code={'export const density = "fixed rhythm";'} class="w-full" copyable={false} /></DensityDemo><TokenTable tokens={[{ name: '--tok-token-keyword', default: 'var(--primary)', source: 'color', description: 'Shiki css-variables palette — one markup, both themes.' }, { name: '--tok-token-string', default: 'var(--accent)', source: 'color' }, { name: '--readonly-code-bg', default: 'muted 42% / background', source: 'color', description: 'Body ground tint.' }, { name: '--readonly-code-meta-bg / -fg', default: 'accent mixes', source: 'color', description: 'Head/foot chrome tints.' }, { name: 'body rhythm', default: '13px mono, fixed padding', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Ten props; code is the only required one — everything else is composition."><PropsTable props={[{ name: 'code', type: 'string', default: '—', description: 'The sample (runtime prop; Shiki escapes it into inert spans).', required: true }, { name: 'lang', type: 'string', default: "'ts'", description: 'Shiki language id; aliases (ts/sh/md/…) resolve in lib/shiki.' }, { name: 'theme', type: 'string', default: "'jixoai'", description: 'Shiki theme — the css-variables default, or any registered name.' }, { name: 'filename', type: 'string', default: "''", description: 'Filename tab on the head’s left; head renders when it or header exists.' }, { name: 'header', type: 'Snippet', default: '—', description: 'Head-right area; replaces the default lang label.' }, { name: 'footer', type: 'Snippet', default: '—', description: 'Footer-left content.' }, { name: 'copyable', type: 'boolean', default: 'true', description: 'Copy control on the footer bar’s right.' }, { name: 'maxHeight', type: 'string', default: "''", description: 'CSS length capping the body; turns on vertical scrolling.' }, { name: 'fill', type: 'boolean', default: 'false', description: 'Stretch to the container height; the pre becomes the only scroll area.' }, { name: 'minHeight', type: 'string', default: "''", description: 'Floors the card height; pairs with fill so short samples open readable.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the figure.' }]} /></SectionCard></div>
 </div>

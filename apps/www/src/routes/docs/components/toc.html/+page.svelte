@@ -10,9 +10,13 @@
   Constraint: docs only — the component family itself is untouchable.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import { CATALOG } from '$lib/catalog';
@@ -89,6 +93,11 @@ ${close}
         <TocItem><TocLink href="#toc-anatomy">two modes, one family</TocLink></TocItem>
         <TocItem><TocLink href="#toc-engine">the engine</TocLink></TocItem>
         <TocItem><TocLink href="#toc-usage">usage</TocLink></TocItem>
+        <TocItem><TocLink href="#types">Types</TocLink></TocItem>
+        <TocItem><TocLink href="#usage">Usage</TocLink></TocItem>
+        <TocItem><TocLink href="#accessibility">Accessibility</TocLink></TocItem>
+        <TocItem><TocLink href="#theming">Theming</TocLink></TocItem>
+        <TocItem><TocLink href="#api">API</TocLink></TocItem>
       </TocList>
     </Toc>
   </aside>
@@ -189,4 +198,17 @@ ${close}
     </ComponentCanvas>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two modes over one family of parts: AUTO derives the tree from headings; MANUAL is the composed list tree.">
+    <div class="grid gap-4 min-[760px]:grid-cols-2">
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">AUTO · outline mode</span><p class="text-muted-foreground mt-2 text-[13px] leading-6"><code class="text-accent">outline={'{ root }'}</code> derives the same tree from a content root's headings at runtime — zero handwritten ids; the declared SSR exception (rail shell paints, links arrive on hydrate).</p></div>
+      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">MANUAL · composed tree</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">TocList (ul) / TocItem (li) / TocLink (a) — SSR-complete; nesting is a TocList inside a TocItem, anchors never nest.</p></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Both modes in one copyable sample; the rail needs an aside shell and (overlay shells) the scrollRoot."><CodeBlock code={usage} lang="svelte" meta="Toc usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="A labeled nav of real anchors; scrollspy writes aria-current, never focus."><A11yTable keys={[{ key: 'Tab', action: 'Reaches the rail links in tree order; focus is never stolen by scrollspy' }, { key: 'Enter', action: 'Follows the anchor — the heading lands exactly on the pick line' }]} aria={[{ name: 'aria-label', value: '"Table of contents"', description: 'On the desktop nav landmark (plus your aside label)' }, { name: 'aria-current', value: '"true"', description: 'Written on the active link(s) by the engine each update' }, { name: 'aria-expanded', value: 'boolean', description: 'On the mobile bar disclosure toggle ("Expand table of contents")' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Chrome sizing and the scrollspy paint are token-driven custom properties the engine writes at runtime."><div class="flex flex-col gap-6"><DensityDemo><Toc title="density sample"><TocList><TocItem><TocLink href="#types">Types</TocLink></TocItem><TocItem><TocLink href="#api">API</TocLink></TocItem></TocList></Toc></DensityDemo><TokenTable tokens={[{ name: '--jx-toc-line', default: '76px', source: 'component', description: 'The line-pick offset — derives from the measured header height + toc bar' }, { name: '--jx-cur', default: '0 | 1', source: 'component', description: 'The pick marker flag the engine writes per link' }, { name: '--jx-progress', default: '0 → 1', source: 'component', description: 'Spine fill scale (IoM weights)' }, { name: '--jx-chrome-bar', default: '44px', source: 'component', description: 'Mobile glass bar height' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the Toc and TocList Props interfaces; TocItem/TocLink are the same shape passthrough."><PropsTable props={[{ name: 'outline', type: 'TocOutlineConfig', default: '—', description: 'AUTO mode: derive the outline from a content root headings ({ root, levels? }).' }, { name: 'title', type: 'string', default: "'reading progress'", description: 'The desktop rail label.' }, { name: 'scrollRoot', type: 'string | HTMLElement | null', default: 'document', description: 'Scroll root for overlay-shell layouts (selector or element).' }, { name: 'children', type: 'Snippet', default: '—', description: 'MANUAL mode: the composed TocList tree.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough (root / list).' }, { name: 'TocList: children', type: 'Snippet', default: '—', description: 'TocItem children; nesting is a TocList inside a TocItem.', required: true }, { name: '...rest', type: 'HTMLAttributes', default: 'spread', description: 'TocList spreads onto the ul; TocLink is a plain anchor with your href.' }]} /></SectionCard></div>
 </div>
