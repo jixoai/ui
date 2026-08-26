@@ -23,9 +23,9 @@ ${close}
 <Badge>v1.2.0</Badge>
 <Badge variant="fill">new</Badge>
 <Badge variant="outline">beta</Badge>
-<Badge class="[--jx-tonal:var(--muted-foreground)]">draft</Badge>
-<Badge class="[--jx-tonal:var(--error)]">failed</Badge>
-<Badge shape="pill" class="[--jx-tonal:var(--success)]">passing</Badge>`;
+<Badge class="jx-hue-neutral">draft</Badge>
+<Badge class="jx-hue-error">failed</Badge>
+<Badge shape="pill" class="jx-hue-success">passing</Badge>`;
 
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/badge/badge.svelte', content: badgeSource },
@@ -80,9 +80,9 @@ ${close}
           <Badge variant="outline">beta</Badge>
         </div>
         <div class="flex flex-wrap items-center gap-3">
-          <Badge class="[--jx-tonal:var(--muted-foreground)]">draft</Badge>
-          <Badge class="[--jx-tonal:var(--error)]">failed</Badge>
-          <Badge shape="pill" class="[--jx-tonal:var(--success)]">
+          <Badge class="jx-hue-neutral">draft</Badge>
+          <Badge class="jx-hue-error">failed</Badge>
+          <Badge shape="pill" class="jx-hue-success">
             {#snippet slotStart()}{@html icons.check}{/snippet}
             passing
           </Badge>
@@ -113,10 +113,10 @@ ${close}
             deploy pipeline <Badge class="ml-2">running</Badge>
           </p>
           <p class="font-nav text-[15px] tracking-tight">
-            release 4.7.0 <Badge class="ml-2 [--jx-tonal:var(--muted-foreground)]">stable</Badge>
+            release 4.7.0 <Badge class="ml-2 jx-hue-neutral">stable</Badge>
           </p>
           <p class="font-nav text-[15px] tracking-tight">
-            canary build <Badge class="ml-2 [--jx-tonal:var(--error)]">failed</Badge>
+            canary build <Badge class="ml-2 jx-hue-error">failed</Badge>
           </p>
         </div>
         <CodeBlock code={usage} lang="svelte" meta="usage" />
@@ -139,17 +139,17 @@ ${close}
           <Badge variant="outline">outline · structure</Badge>
         </div>
         <div class="flex flex-wrap items-center gap-3">
-          <Badge class="[--jx-tonal:var(--muted-foreground)]">neutral · metadata</Badge>
-          <Badge class="[--jx-tonal:var(--error)]">error · failure status</Badge>
-          <Badge class="[--jx-tonal:var(--success)]">success · passing status</Badge>
+          <Badge class="jx-hue-neutral">neutral · metadata</Badge>
+          <Badge class="jx-hue-error">error · failure status</Badge>
+          <Badge class="jx-hue-success">success · passing status</Badge>
         </div>
       </div>
     </SectionCard>
   </div>
-  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Badge variants and axes"><div class="flex flex-col items-start gap-3"><div class="flex flex-wrap items-center gap-3"><Badge>default</Badge><Badge variant="fill">fill</Badge><Badge variant="outline">outline</Badge></div><div class="flex flex-wrap items-center gap-3"><Badge class="[--jx-tonal:var(--muted-foreground)]">neutral</Badge><Badge class="[--jx-tonal:var(--error)]">error</Badge><Badge class="[--jx-tonal:var(--success)]">success</Badge></div><div class="flex flex-wrap items-center gap-3"><Badge shape="square">square</Badge><Badge shape="pill">pill</Badge><Badge shape="pill" variant="outline">outline pill</Badge></div></div></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Badge variants and axes"><div class="flex flex-col items-start gap-3"><div class="flex flex-wrap items-center gap-3"><Badge>default</Badge><Badge variant="fill">fill</Badge><Badge variant="outline">outline</Badge></div><div class="flex flex-wrap items-center gap-3"><Badge class="jx-hue-neutral">neutral</Badge><Badge class="jx-hue-error">error</Badge><Badge class="jx-hue-success">success</Badge></div><div class="flex flex-wrap items-center gap-3"><Badge shape="square">square</Badge><Badge shape="pill">pill</Badge><Badge shape="pill" variant="outline">outline pill</Badge></div></div></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'span', value: 'inline status', description: 'Use visible text; do not rely on color alone. Under forced colors the chip degrades to Canvas/CanvasText with the 1px border intact.' }, { name: 'aria-label', value: 'consumer supplied', description: 'Add context when the visible label is abbreviated.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Badge>status</Badge></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-fill', default: 'var(--primary)', source: 'color', description: 'Fill ground + same-hue border.' }, { name: '--jx-fill-ink', default: 'var(--primary-foreground)', source: 'color', description: 'Ink on fill — always injected with --jx-fill.' }, { name: '--jx-tonal', default: 'var(--primary)', source: 'color', description: 'Tonal ground/border/text hue source — the status injection seam.' }, { name: '--jx-outline', default: 'var(--border)', source: 'color', description: 'Outline border source.' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Badge props"><PropsTable props={[{ name: 'variant', type: "'fill' | 'tonal' | 'outline'", default: "'tonal'", description: 'Prominence ladder. Hue comes from the global tokens — never a local override.' }, { name: 'shape', type: "'square' | 'pill'", default: "'square'", description: 'Corner law: --radius (square) or fully round (pill).' }, { name: 'slotStart', type: 'Snippet', description: 'Icon lane before the label; svg sized to the secondary text, inline padding adapts.' }, { name: 'slotEnd', type: 'Snippet', description: 'Icon lane after the label; same adaptive law.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }, { name: 'class', type: 'string', description: 'Consumer classes — also the hue-injection seam, e.g. [--jx-tonal:var(--error)].' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Badge>status</Badge></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-fill', default: 'var(--primary)', source: 'color', description: 'Fill ground + same-hue border.' }, { name: '--jx-fill-ink', default: 'var(--primary-foreground)', source: 'color', description: 'Ink on fill — always injected with --jx-fill.' }, { name: '--jx-tonal', default: 'var(--primary)', source: 'color', description: 'Tonal ground/border/text hue source — the status injection seam: jx-hue-* intent utilities, arbitrary form only outside the closed set.' }, { name: '--jx-outline', default: 'var(--border)', source: 'color', description: 'Outline border source.' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Badge props"><PropsTable props={[{ name: 'variant', type: "'fill' | 'tonal' | 'outline'", default: "'tonal'", description: 'Prominence ladder. Hue comes from the global tokens — never a local override.' }, { name: 'shape', type: "'square' | 'pill'", default: "'square'", description: 'Corner law: --radius (square) or fully round (pill).' }, { name: 'slotStart', type: 'Snippet', description: 'Icon lane before the label; svg sized to the secondary text, inline padding adapts.' }, { name: 'slotEnd', type: 'Snippet', description: 'Icon lane after the label; same adaptive law.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }, { name: 'class', type: 'string', description: 'Consumer classes — also the hue-injection seam, e.g. jx-hue-error (arbitrary form for values outside the closed set).' }]} /></SectionCard></div>
   </div>
 </div>

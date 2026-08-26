@@ -218,7 +218,7 @@ describe('alert-dialog family (composition-first)', () => {
     const action = container.querySelector('[data-jx-adlg-action]') as HTMLButtonElement;
     // loud by default: fill + the destructive pair as the part's default injection
     expect(action.getAttribute('data-jx-alert-dialog-action')).toBe('fill');
-    expect(action.className).toContain('[--jx-fill:var(--destructive)]');
+    expect(action.className).toContain('jx-pair-destructive');
     await fireEvent.click(action);
     expect(container.querySelector('[data-host="alert-dialog"]')!.getAttribute('data-deleted')).toBe('true');
     expect(dialog.open).toBe(false);

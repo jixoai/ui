@@ -20,7 +20,7 @@
  * variant 'outline' (default, the plain notice) | 'tonal' (tinted
  * emphasis) — and semantic hue rides the SAME class-utility injection
  * seam as markup: push({ variant: 'tonal', class:
- * '[--jx-tonal:var(--error)]' }) for a failed status (error, never
+ * 'jx-hue-error') for a failed status (error, never
  * the destructive action hue — design §3). The optional class lands
  * on the toast card through the viewport's cn() merge.
  */
@@ -32,7 +32,7 @@ export interface ToastInit {
   description?: string;
   /** ladder prominence: outline (plain notice, default) | tonal (tinted emphasis) */
   variant?: ToastVariant;
-  /** consumer classes — the hue-injection seam, e.g. '[--jx-tonal:var(--error)]' */
+  /** consumer classes — the hue-injection seam, e.g. 'jx-hue-error' */
   class?: string;
   /** ms until auto-dismiss; 0 = sticky. Default 5000 */
   duration?: number;

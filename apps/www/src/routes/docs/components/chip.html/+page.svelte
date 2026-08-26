@@ -42,8 +42,8 @@ ${close}
 <Chip variant="ghost">dismiss</Chip>
 
 <!-- hue is injected into the global slots, never named as a variant -->
-<Chip variant="tonal" class="[--jx-tonal:var(--success)]">passing</Chip>
-<Chip variant="fill" class="[--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)]">clear</Chip>
+<Chip variant="tonal" class="jx-hue-success">passing</Chip>
+<Chip variant="fill" class="jx-pair-destructive">clear</Chip>
 
 <!-- one opt-in effect loop per chip — null disables the default ripple -->
 <Chip variant="fill" effect={shimmer()}>upgrade</Chip>
@@ -142,7 +142,7 @@ ${close}
         tone="hero"
         eyebrow="registry:ui · General"
         title="chip — the grammar's compact activation"
-        summary="The chip is what a filter, a toggle, or an inline nav target looks like in this language: the badge's font-nav uppercase micro-label voice, but control-scale — the root box sits on the hit lane (min-block-size var(--jx-hit), ~44px at default density), so every chip is a real finger target, not a 20px badge. The paint is the frozen variant ladder consumed as global tokens — fill for the one active filter, tonal for the resting set, outline for structure, ghost for the quiet seats — and semantic hue is always injected ([--jx-tonal:var(--success)]), never named. Press physics are the theme's shared .jx-press law, and the press-button effect loops pass through with ripple as the default: press a chip and ink expands from your pointer."
+        summary="The chip is what a filter, a toggle, or an inline nav target looks like in this language: the badge's font-nav uppercase micro-label voice, but control-scale — the root box sits on the hit lane (min-block-size var(--jx-hit), ~44px at default density), so every chip is a real finger target, not a 20px badge. The paint is the frozen variant ladder consumed as global tokens — fill for the one active filter, tonal for the resting set, outline for structure, ghost for the quiet seats — and semantic hue is always injected (jx-hue-success), never named. Press physics are the theme's shared .jx-press law, and the press-button effect loops pass through with ripple as the default: press a chip and ink expands from your pointer."
       >
         <div class="flex flex-wrap gap-3">
           <span class="pill">hit lane · var(--jx-hit)</span>
@@ -427,12 +427,12 @@ ${close}
           <Chip variant="tonal">filter</Chip>
         </DensityDemo>
         <div class="flex flex-wrap items-center gap-3">
-          <Chip class="[--jx-tonal:var(--success)]">passing</Chip>
-          <Chip class="[--jx-tonal:var(--warning)]">degraded</Chip>
-          <Chip class="[--jx-tonal:var(--muted-foreground)]">metadata</Chip>
+          <Chip class="jx-hue-success">passing</Chip>
+          <Chip class="jx-hue-warning">degraded</Chip>
+          <Chip class="jx-hue-neutral">metadata</Chip>
           <Chip
             variant="fill"
-            class="[--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)]"
+            class="jx-pair-destructive"
           >
             clear
           </Chip>
@@ -445,7 +445,7 @@ ${close}
           { name: '--jx-line-secondary', default: 'density scale', source: 'density', description: 'Micro-label line height.' },
           { name: '--jx-fill', default: 'var(--primary)', source: 'color', description: 'Fill ground + same-hue border (fill variant).' },
           { name: '--jx-fill-ink', default: 'var(--primary-foreground)', source: 'color', description: 'Ink on fill — always injected together with --jx-fill.' },
-          { name: '--jx-tonal', default: 'var(--primary)', source: 'color', description: 'Tonal ground/border/text hue; ghost hover derives from it.' },
+          { name: '--jx-tonal', default: 'var(--primary)', source: 'color', description: 'Tonal ground/border/text hue; ghost hover derives from it — inject through the jx-hue-* intent utilities (arbitrary form only outside the closed set).' },
           { name: '--jx-outline', default: 'var(--border)', source: 'color', description: 'Outline border source.' },
         ]} />
       </div>
@@ -464,7 +464,7 @@ ${close}
         { name: 'onclick', type: '() => void', default: 'undefined', description: 'Runs for button activation (and through the ripple runtime when ink is on).' },
         { name: 'type', type: "'button' | 'submit'", default: "'button'", description: 'Native button type.' },
         { name: 'ariaLabel', type: 'string', default: 'undefined', description: 'Accessible name override for icon-only use.' },
-        { name: 'class', type: 'string', default: "''", description: 'Appended to the composed classes; hue injection rides here ([--jx-tonal:var(--error)]).' },
+        { name: 'class', type: 'string', default: "''", description: 'Appended to the composed classes; hue injection rides here (jx-hue-error; arbitrary form for values outside the closed set).' },
         { name: 'slotStart', type: 'Snippet', default: 'undefined', description: 'Leading lane — svg pinned to var(--jx-text-secondary).' },
         { name: 'slotEnd', type: 'Snippet', default: 'undefined', description: 'Trailing lane — svg pinned to var(--jx-text-secondary).' },
         { name: 'children', type: 'Snippet', required: true, description: 'Chip label content.' },

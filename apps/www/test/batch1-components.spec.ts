@@ -175,7 +175,7 @@ describe('Alert', () => {
     const { container } = render(Alert, {
       props: {
         variant: 'tonal',
-        class: '[--jx-tonal:var(--error)]',
+        class: 'jx-hue-error',
         assertive: true,
         title: 'Build failed',
         children: null,
@@ -185,7 +185,7 @@ describe('Alert', () => {
     expect(alert.getAttribute('data-jx-alert')).toBe('tonal');
     // design.md §1 tonal recipe + the §3 STATUS injection riding class
     expect(alert.className).toContain('bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)]');
-    expect(alert.className).toContain('[--jx-tonal:var(--error)]');
+    expect(alert.className).toContain('jx-hue-error');
     const title = alert.querySelector('[data-jx-alert-title]')!;
     expect(title.className).toContain('[color:var(--jx-tonal)]');
   });

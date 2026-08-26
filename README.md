@@ -71,7 +71,7 @@ el.classList.contains('jx-foo')     el.hasAttribute('data-jx-foo')
 Variant families collapse into ONE valued attribute
 (`data-jx-badge={variant}` — the ladder: `fill | tonal | outline`,
 never a semantic hue name; error status = `variant="tonal"` +
-`[--jx-tonal:var(--error)]` injection) — when a bare base hook
+`jx-hue-error` injection) — when a bare base hook
 coexists with the family (`jx-alert jx-alert-${variant}`) they MERGE
 into that single valued attribute (`[data-jx-alert]` still matches by
 presence); part anchors stay boolean (`data-jx-badge-title`). The repo's own auditors:

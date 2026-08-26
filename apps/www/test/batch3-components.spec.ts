@@ -178,8 +178,10 @@ describe('AlertDialog', () => {
     const confirm = rendered.container.querySelector('[data-jx-adlg-action]') as HTMLButtonElement;
     // variant grammar: fill by default, destructive pair injected (loud opt-out)
     expect(confirm.getAttribute('data-jx-alert-dialog-action')).toBe('fill');
-    expect(confirm.className).toContain('[--jx-fill:var(--destructive)]');
-    expect(confirm.className).toContain('[--jx-fill-ink:var(--destructive-foreground)]');
+    expect(confirm.className).toContain('jx-pair-destructive');
+    // the pair utility replaced the component's local arbitrary pair
+    expect(confirm.className).not.toContain('[--jx-fill:var(--destructive)]');
+    expect(confirm.className).not.toContain('[--jx-fill-ink:var(--destructive-foreground)]');
     await fireEvent.click(confirm);
     expect(rendered.container.querySelector('[data-deleted]')?.getAttribute('data-deleted')).toBe(
       'true',

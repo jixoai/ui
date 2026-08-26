@@ -2,7 +2,7 @@
   Copy-command: a registry PressButton that copies the command to the
   clipboard and flips to the success-tonal feedback for 1.6s. Dogfoods
   the variant grammar's status injection (copied = tonal +
-  --jx-tonal:var(--success), the grammar's successor of the retired
+  jx-hue-success, the intent utility that succeeded the retired
   `copied` pseudo-variant) instead of inventing a new button.
 -->
 <script lang="ts">
@@ -32,7 +32,7 @@
 
 <PressButton
   variant={copied ? 'tonal' : 'outline'}
-  class={copied ? '[--jx-tonal:var(--success)]' : undefined}
+  class={copied ? 'jx-hue-success' : undefined}
   onclick={copy}
   ariaLabel={`copy ${command}`}
 >

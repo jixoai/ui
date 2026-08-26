@@ -4,7 +4,7 @@
  * The chip promises: a native <code> whose first paint is the plain
  * children text (no async dependency — the SSR contract), the variant
  * grammar's tonal/outline utilities with the local neutral injection
- * (a consumer's [--jx-tonal:…] replaces it through cn()'s dedupe),
+ * (a consumer's jx-hue-* replaces it through cn()'s dedupe),
  * Shiki tokens as a strictly async enhancement over the SAME
  * characters (zero layout shift, --tok-* colors), honest degradation
  * for unknown languages, and the zero-download fingerprint heuristic
@@ -38,7 +38,8 @@ describe('InlineCode', () => {
     const tonal = render(InlineCodeHost, { props: { text: 'x', lang: 'text' } });
     const tonalEl = tonal.container.querySelector('code')!;
     expect(tonalEl.getAttribute('data-jx-inline-code')).toBe('tonal');
-    expect(tonalEl.className).toContain('[--jx-tonal:var(--muted-foreground)]');
+    expect(tonalEl.className).toContain('jx-hue-neutral');
+    expect(tonalEl.className).not.toContain('[--jx-tonal:');
     expect(tonalEl.className).toContain('bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)]');
     expect(tonalEl.className).toContain(
       'border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)]',
@@ -55,13 +56,14 @@ describe('InlineCode', () => {
     expect(outlineEl.className).not.toContain('[--jx-tonal:');
   });
 
-  it("lets a consumer's [--jx-tonal:…] injection replace the neutral default", () => {
+  it("lets a consumer's jx-hue-* injection replace the neutral default", () => {
     const { container } = render(InlineCodeHost, {
-      props: { text: 'x', lang: 'text', consumerClass: '[--jx-tonal:var(--error)]' },
+      props: { text: 'x', lang: 'text', consumerClass: 'jx-hue-error' },
     });
     const code = container.querySelector('code')!;
-    expect(code.className).toContain('[--jx-tonal:var(--error)]');
-    expect(code.className).not.toContain('[--jx-tonal:var(--muted-foreground)]');
+    expect(code.className).toContain('jx-hue-error');
+    expect(code.className).not.toContain('jx-hue-neutral');
+    expect(code.className).not.toContain('[--jx-tonal:');
   });
 
   it('upgrades the same text with --tok-* token spans after hydration (zero CLS)', async () => {

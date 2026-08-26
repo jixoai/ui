@@ -19,8 +19,9 @@
     tonal              12% tinted ground + 45% border + title
                        [color:var(--jx-tonal)] — emphasis; brand tint
                        by default, injected per intent through class
-                       utilities: [--jx-tonal:var(--error)] for failed
-                       STATUSES, [--jx-tonal:var(--success)] for passing.
+                       utilities: jx-hue-error for failed STATUSES, jx-hue-success
+                       for passing (the arbitrary-property class remains
+                       the escape hatch for unlisted hues).
   Action vs status is the caller's call (design §3): destructive is
   an ACTION hue (delete/cancel — PressButton's fill pair); Alert is
   a status surface, so failures inject --error, never --destructive.

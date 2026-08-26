@@ -138,7 +138,7 @@
         {:else}
           <PressButton
             variant={copied ? 'tonal' : 'fill'}
-            class={copied ? '[--jx-tonal:var(--success)]' : undefined}
+            class={copied ? 'jx-hue-success' : undefined}
             onclick={copyCommandToClipboard}
             ariaLabel={`${copied ? 'copied' : copyLabel} ${copyCommand}`}
           >

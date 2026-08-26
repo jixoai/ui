@@ -15,13 +15,13 @@
   </div>
   <div class="flex flex-wrap items-center gap-3">
     <Badge>v0.1.0</Badge>
-    <Badge class="[--jx-tonal:var(--muted-foreground)]">draft</Badge>
-    <Badge class="[--jx-tonal:var(--success)]">passing</Badge>
-    <Badge class="[--jx-tonal:var(--error)]">failing</Badge>
+    <Badge class="jx-hue-neutral">draft</Badge>
+    <Badge class="jx-hue-success">passing</Badge>
+    <Badge class="jx-hue-error">failing</Badge>
   </div>
   <div class="flex flex-wrap items-center gap-3">
     <Badge shape="pill">pill shape</Badge>
-    <Badge shape="pill" class="[--jx-tonal:var(--success)]">
+    <Badge shape="pill" class="jx-hue-success">
       {#snippet slotStart()}{@html icons.check}{/snippet}
       checks passing
     </Badge>

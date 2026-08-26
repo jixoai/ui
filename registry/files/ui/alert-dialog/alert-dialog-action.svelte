@@ -15,12 +15,14 @@
                                 foreground ink + tonal 8% hover overlay
   The loud path stays opt-OUT, not opt-in (the closed component's
   confirmTone law, carried into the grammar): fill ships with the
-  DESTRUCTIVE PAIR as the component's default injection utilities
-  ([--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)])
-  — bare <AlertDialogAction> reads destructive, exactly as before.
-  Positive confirmations flip the injection (a consumer class wins
-  by the cn() dedupe law — arbitrary-property utilities with the
-  same property conflict, last one stands):
+  DESTRUCTIVE PAIR as the component's default injection utility
+  (jx-pair-destructive — the theme's @Utility intent layer,
+  hue-injection-utilities 2026-08-27) — bare <AlertDialogAction>
+  reads destructive, exactly as before.
+  Positive confirmations flip the injection with the arbitrary pair
+  (the escape hatch for hues outside the closed set — and it still
+  wins: jx-pair-destructive sorts BEFORE arbitrary-property
+  utilities in the TW utilities layer on 4.2.1, probed):
     variant="fill" class="[--jx-fill:var(--primary)] [--jx-fill-ink:var(--primary-foreground)]"
     variant="tonal"    (brand tint, no injection needed)
 -->
@@ -41,13 +43,14 @@
 
   const api = getContext<AlertDialogApi>(ALERT_DIALOG_KEY);
 
-  // design.md §1 recipes; the destructive pair rides fill as the
-  // component's local token default — consumer injections override it.
+  // design.md §1 recipes; jx-pair-destructive rides fill as the
+  // component's local token default — consumer pair injections
+  // override it (layer order, see the header).
   // Each rung carries its design §6 forced-colors degradation (r2
   // blocker fix — the destructive/tinted paints do not drop on their
   // own under forced colors)
   const variants = {
-    fill: 'bg-[color:var(--jx-fill)] border-[color:var(--jx-fill)] text-[color:var(--jx-fill-ink)] [--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)] forced-colors:bg-[ButtonFace] forced-colors:border-[ButtonText] forced-colors:text-[ButtonText]',
+    fill: 'bg-[color:var(--jx-fill)] border-[color:var(--jx-fill)] text-[color:var(--jx-fill-ink)] jx-pair-destructive forced-colors:bg-[ButtonFace] forced-colors:border-[ButtonText] forced-colors:text-[ButtonText]',
     tonal:
       'bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] text-[color:var(--jx-tonal)] forced-colors:bg-[Canvas] forced-colors:border-[CanvasText] forced-colors:text-[CanvasText]',
     outline:

@@ -9,10 +9,15 @@
   uppercase, no tracking, no font-nav).
 
   Default tonal parity with jx-pure's bare <code> law (design §4): the
-  component base carries the local neutral injection
-  [--jx-tonal:var(--muted-foreground)] — consumer injection still wins
-  (cn()'s tailwind-merge dedupes the [--jx-tonal:…] arbitrary-property
-  group; class="[--jx-tonal:var(--error)]" retunes the whole chip).
+  component base carries the local neutral injection jx-hue-neutral
+  (the theme's @Utility intent layer, hue-injection-utilities
+  2026-08-27) — a consumer's same-form intent class retunes the whole
+  chip (cn()'s tailwind-merge dedupes the jx-hue-* group;
+  class="jx-hue-error"). One form per slot: cross-form mixing
+  (jx-hue-* + [--jx-tonal:…]) is neither deduped nor overridable here
+  — jx-hue-* sorts AFTER the arbitrary property in the utilities
+  layer (probed TW 4.2.1), so the arbitrary form is only for values
+  outside the closed set, never to retune this default.
   Overriding the recipe's own properties with same-family utilities
   may need the consumer's `!` — same-property utility order is not
   consumer-guaranteed (the press-button precedent).
@@ -205,12 +210,12 @@
    * arbitrary forms (bg-[color-mix(…)], border-[color:var(…)]) which
    * emit @supports fallbacks to plain var(--jx-tonal) in engines
    * without color-mix. The tonal base carries the local neutral
-   * injection — parity with jx-pure's bare <code> law; a consumer's
-   * [--jx-tonal:…] replaces it through cn().
+   * injection (jx-hue-neutral) — parity with jx-pure's bare <code>
+   * law; a consumer's jx-hue-* replaces it through cn().
    */
   const variantUtilities = {
     tonal:
-      '[--jx-tonal:var(--muted-foreground)] bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] text-[color:var(--jx-tonal)] forced-colors:bg-[color:Canvas] forced-colors:border-[color:CanvasText] forced-colors:text-[color:CanvasText]',
+      'jx-hue-neutral bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] text-[color:var(--jx-tonal)] forced-colors:bg-[color:Canvas] forced-colors:border-[color:CanvasText] forced-colors:text-[color:CanvasText]',
     outline:
       'bg-transparent border-[color:var(--jx-outline)] text-foreground forced-colors:bg-[color:Canvas] forced-colors:border-[color:CanvasText] forced-colors:text-[color:CanvasText]',
   } as const;

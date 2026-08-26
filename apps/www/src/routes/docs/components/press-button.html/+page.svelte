@@ -27,14 +27,14 @@ ${close}
 
 <!-- one physics for every variant: hover grows the shadow, active presses -->`;
   const usageTail = `
-<PressButton variant="tonal" class="[--jx-tonal:var(--muted-foreground)]">invite</PressButton>
+<PressButton variant="tonal" class="jx-hue-neutral">invite</PressButton>
 <PressButton variant="outline">cancel</PressButton>
 <PressButton variant="ghost">dismiss</PressButton>
 <!-- destructive ACTION = fill + the destructive pair (statuses use --jx-error instead) -->
-<PressButton variant="fill" class="[--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)]">delete</PressButton>
+<PressButton variant="fill" class="jx-pair-destructive">delete</PressButton>
 <PressButton variant="link">details</PressButton>
 <!-- copied is not a variant: the transient success state is tonal + injection -->
-<PressButton variant="tonal" class="[--jx-tonal:var(--success)]">copied</PressButton>
+<PressButton variant="tonal" class="jx-hue-success">copied</PressButton>
 
 <!-- one opt-in effect loop per button — typed builders from the module script -->
 <PressButton variant="fill" effect={shimmer()}>deploy</PressButton>
@@ -163,18 +163,18 @@ ${close}
               <span>destructive action</span>
               <PressButton
                 variant="fill"
-                class="[--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)]"
+                class="jx-pair-destructive"
               >
                 delete
               </PressButton>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>neutral tonal</span>
-              <PressButton variant="tonal" class="[--jx-tonal:var(--muted-foreground)]">invite</PressButton>
+              <PressButton variant="tonal" class="jx-hue-neutral">invite</PressButton>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>success — copied</span>
-              <PressButton variant="tonal" class="[--jx-tonal:var(--success)]">copied</PressButton>
+              <PressButton variant="tonal" class="jx-hue-success">copied</PressButton>
             </label>
           </div>
           <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5 border-t border-border pt-5">
@@ -267,7 +267,7 @@ ${close}
             </div>
             <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>button → no navigation</span>
-              <PressButton variant="tonal" class="[--jx-tonal:var(--success)]">copied</PressButton>
+              <PressButton variant="tonal" class="jx-hue-success">copied</PressButton>
             </div>
           </div>
           <CodeBlock code={usage} lang="svelte" meta="usage" />
@@ -296,12 +296,11 @@ ${close}
           <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
             <span>semantic color is hue injection, never a variant: destructive actions carry
               <code class="text-accent">fill</code> +
-              <code class="text-accent">[--jx-fill:var(--destructive)]</code>
-              <code class="text-accent">[--jx-fill-ink:var(--destructive-foreground)]</code>,
-              metadata softens through
-              <code class="text-accent">[--jx-tonal:var(--muted-foreground)]</code>, and the
+              <code class="text-accent">jx-pair-destructive</code>
+              (the pair utility — fill and ink in one class), metadata softens through
+              <code class="text-accent">jx-hue-neutral</code>, and the
               copied transient is <code class="text-accent">tonal</code> +
-              <code class="text-accent">[--jx-tonal:var(--success)]</code></span></li>
+              <code class="text-accent">jx-hue-success</code></span></li>
           <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
             <span>the shadow is the body's own <code class="text-accent">box-shadow</code>: hover
               grows it (xs → sm) and nothing else; active slides the body +1px while the shadow's
@@ -360,18 +359,18 @@ ${close}
           <div class="border border-border/60 p-3">
             <PressButton
               variant="fill"
-              class="[--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)]"
+              class="jx-pair-destructive"
             >
               delete
             </PressButton>
             <p class="mt-2 text-xs text-muted-foreground">destructive ACTION<br />fill + the destructive pair</p>
           </div>
           <div class="border border-border/60 p-3">
-            <PressButton variant="tonal" class="[--jx-tonal:var(--muted-foreground)]">invite</PressButton>
+            <PressButton variant="tonal" class="jx-hue-neutral">invite</PressButton>
             <p class="mt-2 text-xs text-muted-foreground">neutral / meta<br />tonal + muted-foreground</p>
           </div>
           <div class="border border-border/60 p-3">
-            <PressButton variant="tonal" class="[--jx-tonal:var(--success)]">copied</PressButton>
+            <PressButton variant="tonal" class="jx-hue-success">copied</PressButton>
             <p class="mt-2 text-xs text-muted-foreground">success status<br />tonal + success</p>
           </div>
           <div class="border border-border/60 p-3">

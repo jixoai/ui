@@ -58,7 +58,7 @@
     type="button"
     data-toast-sticky
     onclick={() =>
-      toast.api.push({ title: 'Build failed', variant: 'tonal', class: '[--jx-tonal:var(--error)]', assertive: true, duration: 0 })}>
+      toast.api.push({ title: 'Build failed', variant: 'tonal', class: 'jx-hue-error', assertive: true, duration: 0 })}>
     sticky toast
   </button>
   <ToastViewport store={toast} />

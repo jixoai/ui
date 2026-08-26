@@ -16,9 +16,9 @@
     <Chip variant="ghost">ghost</Chip>
   </div>
   <div class="flex flex-wrap items-center gap-3">
-    <Chip class="[--jx-tonal:var(--muted-foreground)]">filter: all</Chip>
-    <Chip class="[--jx-tonal:var(--success)]">deployed</Chip>
-    <Chip class="[--jx-tonal:var(--error)]">failed</Chip>
+    <Chip class="jx-hue-neutral">filter: all</Chip>
+    <Chip class="jx-hue-success">deployed</Chip>
+    <Chip class="jx-hue-error">failed</Chip>
   </div>
   <div class="flex flex-wrap items-center gap-3">
     <Chip shape="pill" onclick={() => {}}>pill</Chip>

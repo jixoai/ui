@@ -138,7 +138,7 @@ ${close}
           <Badge>item button</Badge>
           <Badge variant="outline">separator = plain hr</Badge>
           <Badge variant="outline">label = plain markup</Badge>
-          <Badge variant="tonal" class="[--jx-tonal:var(--error)]">destructive = paint, same semantics</Badge>
+          <Badge variant="tonal" class="jx-hue-error">destructive = paint, same semantics</Badge>
         </div>
         <CodeBlock code={usage} lang="svelte" meta="usage" />
       </div>

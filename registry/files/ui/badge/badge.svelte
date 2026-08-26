@@ -8,9 +8,10 @@
   fill | tonal | outline (default tonal, NO local hue override — a bare
   Badge is the primary tint); semantic color is hue injection through
   the four global tokens (--jx-fill / --jx-fill-ink / --jx-tonal /
-  --jx-outline): neutral metadata class="[--jx-tonal:var(--muted-foreground)]",
-  error status class="[--jx-tonal:var(--error)]", success
-  class="[--jx-tonal:var(--success)]" (see openspec/changes/variant-grammar).
+  --jx-outline): neutral metadata class="jx-hue-neutral", error
+  status class="jx-hue-error", success class="jx-hue-success"
+  (see openspec/changes/variant-grammar; the arbitrary-property
+  class remains the escape hatch for unlisted hues).
   Alert rides the same ladder (variant, outline-default) — the shared tone law is retired there too.
 
   Geometry is the kbd law: height from --jx-line-secondary, inline

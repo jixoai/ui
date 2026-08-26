@@ -13,7 +13,7 @@
   border + 8% hover overlay, border unchanged), ghost (transparent
   rest, tonal hover, geometry preserved via the transparent border).
   Semantic hue is INJECTED into --jx-fill/--jx-fill-ink/--jx-tonal/
-  --jx-outline from the outside (class="[--jx-tonal:var(--error)]"),
+  --jx-outline from the outside (class="jx-hue-error"),
   never named as a variant.
 
   Hit-lane law (component-authoring spec): the ROOT carries

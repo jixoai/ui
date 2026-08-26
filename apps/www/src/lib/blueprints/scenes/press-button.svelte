@@ -7,13 +7,10 @@
 <div class="flex h-full w-full flex-col justify-center gap-6 p-10">
   <div class="flex flex-wrap items-center gap-4">
     <PressButton variant="fill" effect={shimmer()}>Deploy</PressButton>
-    <PressButton variant="tonal" class="[--jx-tonal:var(--muted-foreground)]">Invite</PressButton>
+    <PressButton variant="tonal" class="jx-hue-neutral">Invite</PressButton>
     <PressButton variant="outline" effect={rainbow()}>Cancel</PressButton>
     <PressButton variant="ghost">Dismiss</PressButton>
-    <PressButton
-      variant="fill"
-      class="[--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)]"
-    >
+    <PressButton variant="fill" class="jx-pair-destructive">
       Delete
     </PressButton>
   </div>

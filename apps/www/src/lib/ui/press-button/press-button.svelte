@@ -13,7 +13,7 @@
   classes at the call site (destructive action = fill +
   [--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-
   foreground)]; the copied transient is tonal +
-  [--jx-tonal:var(--success)] — copied left the union with the
+  jx-hue-success — copied left the union with the
   semantic names).
 
   One opt-in effect loop per button, modeled on the animation-svelte
