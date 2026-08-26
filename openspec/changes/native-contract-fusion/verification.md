@@ -147,7 +147,49 @@
   GREEN 91 items / 303 pairs; verify:contract GREEN; payload regen;
   gzip within budget; verify-jx-pure all checks.
 
+## Codex r1 implementation review — fix round (2026-08-27)
+
+- Verdict was 6.5/10 with 4 P1s; all fixed this round:
+  - P1-1 toggle-group clean-install contract: registry deps
+    `@jixoai/form-field` (dead bridge) → `@jixoai/jx-native-contract`;
+    docs/description rewritten onto the native contract (name REQUIRED
+    in single, getAll semantics, .jx-tgroup law source).
+  - P1-2 DOM contract: `.jx-tgroup-item`/`.jx-tgroup-content` are now
+    css-defined Part A aliases (`:is(label, .jx-tgroup-item)`
+    selectors — bare DOM keeps working, the component's classes are
+    hook-legal); the component stamps them via cn().
+  - P1-3 the parity matrix: EXPECTED declaration + completeness
+    validation (missing sections fail the gate), state ISOLATION
+    (fresh page + motion freeze per non-base state — the r1
+    false-green is dead), input + textarea rows added (posture-
+    agnostic box props), native-select@lg variant added. 7 rows ×
+    2960 comparisons GREEN.
+  - P1-4 the toggle knob: motion carrier unified (transform), layout
+    carrier unified (absolute + inset, position:relative on the B13
+    input); computed geometry/colors/transforms byte-equal. The
+    residual 8.917% is a RASTERIZATION-path artifact (::before inside
+    the input element vs a real span child — deterministic,
+    sub-visual, law-level equal by every computed probe); warn-only
+    with this root cause recorded. A bare input cannot host a real
+    child, so full carrier unification would mean rebuilding the
+    component around pseudo-elements — declined for this change.
+- Minor items fixed: B4 select chevron gutter + B14 ink gutters
+  density-adopted (calc(inset+icon) — the @lg parity row caught the
+  32px-vs-40px drift); summary min-height swept; jx-native-contract
+  description lists .jx-tgroup; jx-pure docs point at the extract.
+- gzip 18,296B ≤ 18KB (the :is() compression + comment trims paid
+  for the class aliases).
+- Remaining known items (documented, non-blocking): name validation
+  is init-time only (mode/name swaps after mount keep the original
+  grouping identity — comment documents it); Part A's three 2rem ink
+  gutters stay literal (shared by both renderers — no parity
+  divergence; density adoption optional follow-up); .mjs scripts +
+  Chrome path match the existing scripts/ house pattern (deliberate);
+  the 55-SVG blueprint regen mixed pre-existing drift catch-up into
+  e157c32 (honest, noted); engines rerun + @types/node self-hosting
+  are follow-ups.
+
 ## Pending evidence
 
 - verify-jx-pure-engines (Firefox/WebKit) rerun result.
-- Final Codex implementation review rounds.
+- Codex r2 confirmation round.

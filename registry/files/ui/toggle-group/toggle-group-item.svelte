@@ -53,7 +53,7 @@
   const active = $derived(group.isActive(value));
 </script>
 
-<label class={className}>
+<label class={cn('jx-tgroup-item', className)}>
   <input
     {...rest}
     type={group.type === 'single' ? 'radio' : 'checkbox'}
@@ -64,7 +64,7 @@
     required={group.required || undefined}
     data-jx-tgroup={active ? 'on' : undefined}
   />
-  <span>
+  <span class="jx-tgroup-content">
     {#if slotStart}{@render slotStart()}{/if}
     {@render children()}
     {#if slotEnd}{@render slotEnd()}{/if}

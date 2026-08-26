@@ -689,14 +689,9 @@
 
 /* =====================================================================
    6 · Toggle-group — the joined native radio/checkbox segment row.
-   Native-html law (native-contract-fusion, 2026-08-27): single mode
-   rides label>input[type=radio] (name-scoped grouping, arrow-walk,
-   one tab stop), multiple rides label>input[type=checkbox] (native
-   FormData repeated entries). The input is visually hidden (the
-   sr-only build) but stays focusable/clickable; the label IS the
-   segment face; :has() paints the native states. Zero JS on the
-   Tier-0 side; the registry toggle-group component consumes THIS
-   law for the identical DOM contract.
+   label>input (radio single / checkbox multiple), input sr-hidden,
+   :has() paints the states. Zero JS; the registry component consumes
+   this law for the identical DOM contract.
    ===================================================================== */
 .jx-tgroup {
   display: inline-flex;
@@ -707,8 +702,9 @@
   background: var(--card);
   box-shadow: var(--shadow-2xs);
 }
-/* the segment: joined edges, density-derived geometry, nav voice */
-.jx-tgroup > label {
+/* the segment: bare labels carry the law; .jx-tgroup-item is the
+   component-side alias (hook law: the class is css-defined) */
+.jx-tgroup > :is(label, .jx-tgroup-item) {
   display: inline-flex;
   align-items: center;
   min-block-size: var(--jx-hit, 2.5rem);
@@ -726,12 +722,11 @@
   user-select: none;
   transition: color 150ms ease-out, background-color 150ms ease-out;
 }
-.jx-tgroup > label:last-child {
+.jx-tgroup > :is(label, .jx-tgroup-item):last-child {
   border-inline-end: 0;
 }
-/* the driver: visually hidden, never display:none (focus + label
-   activation ride on it) */
-.jx-tgroup > label > input {
+/* the driver: sr-hidden, never display:none */
+.jx-tgroup > :is(label, .jx-tgroup-item) > input {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -742,22 +737,27 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+/* the content cell: shrink-safe (component-stamped) */
+.jx-tgroup-content {
+  min-width: 0;
+}
+
 /* the state machines — all native, all :has() */
-.jx-tgroup > label:not(:has(input:disabled)):hover {
+.jx-tgroup > :is(label, .jx-tgroup-item):not(:has(input:disabled)):hover {
   color: var(--foreground);
 }
-.jx-tgroup > label:has(input:checked) {
+.jx-tgroup > :is(label, .jx-tgroup-item):has(input:checked) {
   background-color: var(--primary);
   color: var(--primary-foreground);
 }
-.jx-tgroup > label:has(input:checked):not(:has(input:disabled)):hover {
+.jx-tgroup > :is(label, .jx-tgroup-item):has(input:checked):not(:has(input:disabled)):hover {
   color: var(--primary-foreground);
 }
-.jx-tgroup > label:has(input:focus-visible) {
+.jx-tgroup > :is(label, .jx-tgroup-item):has(input:focus-visible) {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
 }
-.jx-tgroup > label:has(input:disabled) {
+.jx-tgroup > :is(label, .jx-tgroup-item):has(input:disabled) {
   cursor: not-allowed;
   opacity: 0.45;
 }
@@ -770,7 +770,7 @@
   .jx-control,
   .jx-control-shell,
   .jx-color-shell,
-  .jx-tgroup > label {
+  .jx-tgroup > :is(label, .jx-tgroup-item) {
     transition: none;
   }
 }

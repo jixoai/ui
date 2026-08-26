@@ -751,14 +751,9 @@
 
 /* =====================================================================
    6 · Toggle-group — the joined native radio/checkbox segment row.
-   Native-html law (native-contract-fusion, 2026-08-27): single mode
-   rides label>input[type=radio] (name-scoped grouping, arrow-walk,
-   one tab stop), multiple rides label>input[type=checkbox] (native
-   FormData repeated entries). The input is visually hidden (the
-   sr-only build) but stays focusable/clickable; the label IS the
-   segment face; :has() paints the native states. Zero JS on the
-   Tier-0 side; the registry toggle-group component consumes THIS
-   law for the identical DOM contract.
+   label>input (radio single / checkbox multiple), input sr-hidden,
+   :has() paints the states. Zero JS; the registry component consumes
+   this law for the identical DOM contract.
    ===================================================================== */
 .jx-tgroup {
   display: inline-flex;
@@ -769,8 +764,9 @@
   background: var(--card);
   box-shadow: var(--shadow-2xs);
 }
-/* the segment: joined edges, density-derived geometry, nav voice */
-.jx-tgroup > label {
+/* the segment: bare labels carry the law; .jx-tgroup-item is the
+   component-side alias (hook law: the class is css-defined) */
+.jx-tgroup > :is(label, .jx-tgroup-item) {
   display: inline-flex;
   align-items: center;
   min-block-size: var(--jx-hit, 2.5rem);
@@ -788,12 +784,11 @@
   user-select: none;
   transition: color 150ms ease-out, background-color 150ms ease-out;
 }
-.jx-tgroup > label:last-child {
+.jx-tgroup > :is(label, .jx-tgroup-item):last-child {
   border-inline-end: 0;
 }
-/* the driver: visually hidden, never display:none (focus + label
-   activation ride on it) */
-.jx-tgroup > label > input {
+/* the driver: sr-hidden, never display:none */
+.jx-tgroup > :is(label, .jx-tgroup-item) > input {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -804,22 +799,27 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+/* the content cell: shrink-safe (component-stamped) */
+.jx-tgroup-content {
+  min-width: 0;
+}
+
 /* the state machines — all native, all :has() */
-.jx-tgroup > label:not(:has(input:disabled)):hover {
+.jx-tgroup > :is(label, .jx-tgroup-item):not(:has(input:disabled)):hover {
   color: var(--foreground);
 }
-.jx-tgroup > label:has(input:checked) {
+.jx-tgroup > :is(label, .jx-tgroup-item):has(input:checked) {
   background-color: var(--primary);
   color: var(--primary-foreground);
 }
-.jx-tgroup > label:has(input:checked):not(:has(input:disabled)):hover {
+.jx-tgroup > :is(label, .jx-tgroup-item):has(input:checked):not(:has(input:disabled)):hover {
   color: var(--primary-foreground);
 }
-.jx-tgroup > label:has(input:focus-visible) {
+.jx-tgroup > :is(label, .jx-tgroup-item):has(input:focus-visible) {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
 }
-.jx-tgroup > label:has(input:disabled) {
+.jx-tgroup > :is(label, .jx-tgroup-item):has(input:disabled) {
   cursor: not-allowed;
   opacity: 0.45;
 }
@@ -832,7 +832,7 @@
   .jx-control,
   .jx-control-shell,
   .jx-color-shell,
-  .jx-tgroup > label {
+  .jx-tgroup > :is(label, .jx-tgroup-item) {
     transition: none;
   }
 }
@@ -1198,7 +1198,7 @@
      theme); multiple/size lists keep the listbox posture. Native
      paint returns via the .no-jx-pure subtree hatch (B12). */
   :where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *) {
-    padding-inline-end: 2rem;
+padding-inline-end: calc(var(--jx-inset, 0.75rem) + var(--jx-icon, 1.25rem));
   }
   /* FF does not paint author background-images on select (cross-engine
      finding, 2026-08-24, verified) — the same degradation law as the
@@ -1486,7 +1486,7 @@
     display: flex;
     align-items: center;
     gap: 0.625rem;
-    min-height: 2.5rem;
+    min-height: var(--jx-hit, 2.5rem);
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--border);
     border-radius: 0;
@@ -1741,8 +1741,7 @@
      role=switch on a checkbox, zero classes, native semantics intact.
      ===================================================================== */
   :where(.jx-pure) input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *) {
-    /* density adoption (Phase 5/6): the switch rides the density
-       toggle aliases — the toggle component's geometry IS the law
+    /* density adoption: the toggle component's geometry IS the law
        (fallbacks = the pre-sweep literals) */
     --jx-switch-w: var(--jx-toggle-width, 2.5rem);
     --jx-switch-h: var(--jx-toggle-track, 1.5rem);
@@ -1751,13 +1750,13 @@
     appearance: none;
     -webkit-appearance: none;
     box-sizing: border-box;
+    position: relative; /* the absolute knob's containing block */
     width: var(--jx-switch-w);
     height: var(--jx-switch-h);
     margin: 0;
     flex: none;
     padding: calc((var(--jx-switch-h) - var(--jx-switch-knob)) / 2);
-    border: 0; /* the 1px edge is an INSET ring (not a border) so the
-       knob keeps the full padding inset — the toggle twin's law */
+    border: 0; /* 1px edge = INSET ring; the knob keeps the full inset */
     box-shadow: 0 0 0 1px var(--border) inset;
     border-radius: calc(infinity * 1px); /* the pill */
     background: var(--muted); /* the off track */
@@ -1770,16 +1769,19 @@
     /* reset the B5 checkbox glyph law (opacity/clip-path/rotate) */
     opacity: 1;
     clip-path: none;
-    transform: none;
     content: '';
-    display: block;
-    box-sizing: border-box;
-    width: var(--jx-switch-knob);
-    height: var(--jx-switch-knob);
+    /* the knob carrier: ABSOLUTE + inset (the toggle twin's build —
+       one positioning model across renderers, pixel parity holds) */
+    position: absolute;
+    inset-block: calc((var(--jx-switch-h) - var(--jx-switch-knob)) / 2);
+    inline-size: var(--jx-switch-knob);
+    block-size: var(--jx-switch-knob);
+    inset-inline-start: calc((var(--jx-switch-h) - var(--jx-switch-knob)) / 2);
     border-radius: calc(infinity * 1px); /* the round knob */
     background: var(--background); /* the off knob */
+    transform: translateX(0);
     transition:
-      margin-inline-start 200ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
       background-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   :where(.jx-pure) input[type='checkbox'][role='switch']:hover:not(:checked):not(:disabled):not(.no-jx-pure, .no-jx-pure *) {
@@ -1791,7 +1793,8 @@
   :where(.jx-pure) input[type='checkbox'][role='switch']:checked:not(.no-jx-pure, .no-jx-pure *)::before {
     clip-path: none;
     opacity: 1;
-    margin-inline-start: var(--jx-switch-travel);
+    /* transform carrier — the toggle twin's build (pixel parity) */
+    transform: translateX(var(--jx-switch-travel));
     background: var(--primary-foreground);
   }
   :where(.jx-pure) input[type='checkbox'][role='switch']:focus-visible:not(.no-jx-pure, .no-jx-pure *) {
@@ -1872,7 +1875,7 @@
       [type='number']
     )[aria-invalid='true']:not(select):not(.no-jx-pure, .no-jx-pure *),
       :where(.jx-pure) textarea[aria-invalid='true']:not(.no-jx-pure, .no-jx-pure *) {
-    padding-inline-end: 2rem;
+padding-inline-end: calc(var(--jx-inset, 0.75rem) + var(--jx-icon, 1.25rem));
     background-image: var(--jx-icon-invalid-ink);
     background-position: right 0.625rem center;
     background-size: 0.75rem 0.75rem;

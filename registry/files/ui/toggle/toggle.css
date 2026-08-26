@@ -44,7 +44,10 @@
       box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   :where(.jx-toggle-knob) {
-    @apply block rounded-full;
+    @apply rounded-full;
+    position: absolute; /* the B13 twin's carrier: absolute + inset */
+    inset-block: calc((var(--jx-toggle-track) - var(--jx-toggle-knob)) / 2);
+    inset-inline-start: calc((var(--jx-toggle-track) - var(--jx-toggle-knob)) / 2);
     background: var(--muted-foreground);
     width: var(--jx-toggle-knob);
     height: var(--jx-toggle-knob);

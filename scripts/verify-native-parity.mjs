@@ -26,6 +26,35 @@ const port = process.argv[2] ?? '5199';
 //   BOTH renderer roots (`.click` is relative to each root).
 const ROWS = [
   {
+    row: 'input',
+    probes: [
+      // Part A's single-box posture ⇄ the component's shell (box owner)
+      ['input[data-probe="box"]', '[data-renderer=tier1] .jx-control-shell'],
+    ],
+    // posture-agnostic box props only: the single-box posture carries
+    // padding on the control itself, the shell posture on its lane —
+    // padding and display are STRUCTURE, not box law, across postures
+    properties: [
+      'min-height', 'border-top-width', 'border-top-color',
+      'background-color', 'border-radius',
+    ],
+    states: [{ name: 'base' }, { name: 'focused', focus: 'input, input' }],
+  },
+  {
+    row: 'textarea',
+    probes: [
+      // B4's bare textarea ⇄ the component's shell (the box owner)
+      ['textarea[data-probe="box"]', '[data-renderer=tier1] .jx-control-shell'],
+    ],
+    // min-height excluded: the bare posture owns a 5rem lane, the
+    // shell posture sizes from rows — box PAINT is the shared law
+    properties: [
+      'border-top-width', 'border-top-color',
+      'background-color', 'border-radius',
+    ],
+    states: [{ name: 'base' }],
+  },
+  {
     row: 'checkbox',
     probes: [
       // the checked glyph box
@@ -131,6 +160,27 @@ const nearColor = (a, b) => {
 };
 const equal = (prop, a, b) => (a === b || nearColor(a, b));
 
+// ── the EXPECTED matrix ────────────────────────────────────────────
+// The spec's acceptance shape, declared machine-readably and VALIDATED
+// against the fixture before any comparison runs (a missing combination
+// fails the gate — no silent under-coverage). `range` is EXCLUDED by
+// the design §4 scope ruling (custom pointer-driven slider, not a
+// native wrapper).
+const EXPECTED = {
+  rows: ['toggle-group', 'native-select', 'input', 'textarea', 'checkbox', 'radio', 'toggle'],
+  variants: {
+    checkbox: ['@xs', '@dark'],
+    'native-select': ['@lg'],
+  },
+  states: ['base'],
+  extraStates: {
+    'toggle-group': ['second-checked'],
+    'native-select': ['focused'],
+    input: ['focused'],
+  },
+  excluded: ['range (design §4: custom slider, not a native wrapper)'],
+};
+
 const browser = await chromium.launch({
   headless: true,
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
@@ -146,8 +196,36 @@ await page.addStyleTag({ content: '* { transition: none !important; animation: n
 await page.waitForTimeout(50);
 
 let failures = 0;
-const comparisons = await page.evaluate(
-  ({ rows }) => {
+
+// completeness: every declared row/variant section must exist on the
+// fixture — under-coverage fails the gate instead of silently passing
+{
+  const present = await page.evaluate(() => ({
+    sections: [...document.querySelectorAll('[data-parity]')].map((s) => s.dataset.parity),
+  }));
+  const have = new Set(present.sections);
+  const missing = [];
+  for (const row of EXPECTED.rows) {
+    if (!have.has(row)) missing.push(row);
+    for (const v of EXPECTED.variants[row] ?? []) {
+      if (!have.has(row + v)) missing.push(row + v);
+    }
+  }
+  if (missing.length) {
+    console.error(`✗ [matrix] fixture sections missing: ${missing.join(', ')}`);
+    process.exit(1);
+  }
+  console.log(
+    `[matrix] ${have.size} fixture sections cover the declared matrix (excluded: ${EXPECTED.excluded.join('; ')})`,
+  );
+}
+
+// states are ISOLATED: every non-base state re-loads the fixture so no
+// click/focus leaks into a later probe's base (the r1 false-green)
+async function runComparisons(activeRow, activeState) {
+  const rows = ROWS.map((r) => (r.row === activeRow ? { ...r, states: r.states.filter((s) => s.name === activeState) } : { ...r, states: [] }));
+  return await page.evaluate(
+    ({ rows }) => {
     const run = [];
     for (const spec of rows) {
       // matrix variants render the same spec under @xs/@dark sections
@@ -217,7 +295,30 @@ const comparisons = await page.evaluate(
     return run;
   },
   { rows: ROWS },
-);
+  );
+}
+const comparisonsPerState = [];
+for (const row of ROWS) {
+  const states = row.states;
+  for (const state of states) {
+    if (state.name !== 'base') {
+      // fresh page per non-base state — isolation by construction
+      await page.goto(`http://localhost:${port}/parity.html`, { waitUntil: 'domcontentloaded' });
+      await page.waitForTimeout(300);
+      // re-apply the motion freeze after every reload (mid-transition
+      // color sampling is non-deterministic)
+      await page.addStyleTag({ content: '* { transition: none !important; animation: none !important; }' });
+      await page.waitForTimeout(50);
+    }
+    comparisonsPerState.push(
+      await runComparisons(row.row, state.name).catch((e) => {
+        console.error(`✗ [gate] state run failed (${row.row}/${state.name}): ${e.message}`);
+        process.exit(1);
+      }),
+    );
+  }
+}
+const comparisons = comparisonsPerState.flat();
 
 const pendingRows = new Set(ROWS.filter((r) => r.pending).map((r) => r.row));
 for (const row of pendingRows) {

@@ -13,6 +13,8 @@
   import Checkbox from '$lib/ui/checkbox/checkbox.svelte';
   import Radio from '$lib/ui/radio/radio.svelte';
   import Toggle from '$lib/ui/toggle/toggle.svelte';
+  import Input from '$lib/ui/input/input.svelte';
+  import Textarea from '$lib/ui/textarea/textarea.svelte';
 
   // the radio state channel is bind:group (the radio component's law)
   let radioGroup = $state('a');
@@ -113,6 +115,46 @@
   <!-- matrix variants: same laws under xs density and dark theme —
        row ids carry an @variant suffix; the gate maps them to the
        base row's probe spec -->
+  <!-- row: input — tier0 is Part A's single-box posture (.jx-control on
+       the bare input); tier1 is the component's shell+lane (the wrapper
+       posture). The box law must compute identically on both owners. -->
+  <section data-parity="input" class="flex flex-wrap items-start gap-10">
+    <div data-renderer="tier0" data-density="default">
+      <input class="jx-control" data-probe="box" value="static.html" />
+    </div>
+    <div data-renderer="tier1" data-density="default" class="w-40">
+      <Input label="page" value="static.html" />
+    </div>
+  </section>
+
+  <!-- row: textarea — tier0 is the bare textarea under the face (B4);
+       tier1 the component's shell (the box owner) -->
+  <section data-parity="textarea" class="flex flex-wrap items-start gap-10">
+    <div data-renderer="tier0" data-density="default">
+      <div class="jx-pure">
+        <textarea data-probe="box" rows="3">alpha</textarea>
+      </div>
+    </div>
+    <div data-renderer="tier1" data-density="default" class="w-40">
+      <Textarea label="notes" rows={3} value="alpha" />
+    </div>
+  </section>
+
+  <section data-parity="native-select@lg" class="flex flex-wrap items-start gap-10">
+    <div data-renderer="tier0" data-density="lg">
+      <div class="jx-pure">
+        <select data-probe="select">
+          <option value="a">alpha</option>
+        </select>
+      </div>
+    </div>
+    <div data-renderer="tier1" data-density="lg">
+      <NativeSelect name="parity-select-lg" density="lg">
+        <option value="a">alpha</option>
+      </NativeSelect>
+    </div>
+  </section>
+
   <section data-parity="checkbox@xs" class="flex flex-wrap items-start gap-10">
     <div data-renderer="tier0" data-density="xs">
       <div class="jx-pure flex items-center gap-2">

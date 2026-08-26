@@ -555,7 +555,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Import once from the site css, AFTER the token sheet: @import './lib/jixoai.css'; @import './lib/jx-pure.css'; — then mount the class: <main class=\"jx-pure\">…bare HTML…</main>. Static no-JS pages: theme with <html class=\"dark\"> (or any ancestor); OS-follow dark is ALSO zero JS via the generated .jx-auto-dark class — <html class=\"jx-pure jx-auto-dark\"> (never inside .jx-light; an explicit .dark always wins; a host bootstrap remains the explicit-toggle JS alternative). Glyph data-URIs mirror icons.ts (calendar/clock/pipette) — edit both or neither. Reverse scope: mount no-jx-pure — the face steps aside (per-rule :not()), host styles survive.",
+      "docs": "Import once from the site css, AFTER the token sheet: @import './lib/jixoai.css'; @import './lib/jx-pure.css'; — then mount the class: <main class=\"jx-pure\">…bare HTML…</main>. Static no-JS pages: theme with <html class=\"dark\"> (or any ancestor); OS-follow dark is ALSO zero JS via the generated .jx-auto-dark class — <html class=\"jx-pure jx-auto-dark\"> (never inside .jx-light; an explicit .dark always wins; a host bootstrap remains the explicit-toggle JS alternative). The Part A region ships byte-exact as @jixoai/jx-native-contract (component installs depend on the extract, not this full face). Glyph data-URIs mirror icons.ts (calendar/clock/pipette) — edit both or neither. Reverse scope: mount no-jx-pure — the face steps aside (per-rule :not()), host styles survive.",
       "meta": {
         "group": "engines",
         "href": "/docs/jx-pure.html"
@@ -569,7 +569,7 @@
       "name": "jx-native-contract",
       "type": "registry:lib",
       "title": "jx-native-contract — the shared Part A class vocabulary (Tier-2 contract)",
-      "description": "GENERATED extract (scripts/gen-jx-native-contract.mjs; single source jx-pure.css — never hand-edit): the unlayered v2 class vocabulary the native-family components consume — .jx-field/.jx-label/.jx-error/.jx-control/.jx-control-shell/.jx-control-lane/.jx-slider/.jx-color-shell/.jx-color-swatch + icon custom properties + the structural input-group law + reduced-motion prelude. Unlayered by design (the cascade exception beating layered utilities). Component installs depend on THIS instead of the full 2000-line face; the face (A+B+C+D) remains @jixoai/jx-pure for the componentless use case.",
+      "description": "GENERATED extract (scripts/gen-jx-native-contract.mjs; single source jx-pure.css — never hand-edit): the unlayered v2 class vocabulary the native-family components consume — .jx-field/.jx-label/.jx-error/.jx-control/.jx-control-shell/.jx-control-lane/.jx-slider/.jx-color-shell/.jx-color-swatch/.jx-tgroup (item/content classes) + icon custom properties + the structural input-group law + reduced-motion prelude. Unlayered by design (the cascade exception beating layered utilities). Component installs depend on THIS instead of the full 2000-line face; the face (A+B+C+D) remains @jixoai/jx-pure for the componentless use case.",
       "files": [
         {
           "path": "registry/files/theme/jx-native-contract.css",
@@ -2154,7 +2154,7 @@
       "name": "toggle-group",
       "type": "registry:ui",
       "title": "Toggle group",
-      "description": "The segmented control as a composed family: ToggleGroup (bind:value, single/multiple) + ToggleGroupItem(value) parts — shadcn parity; value law single swaps / multiple joins into a multivalue FormData payload.",
+      "description": "The joined segment row of NATIVE inputs: single = label>input[type=radio] under one name (native arrow-walk + one tab stop + exclusivity; re-press does NOT clear — an explicit none item is the pattern), multiple = checkboxes submitting one FormData entry per press (getAll on the server). DOM checked is the uncontrolled truth; value is the projection; form.reset() re-syncs. The paint law is the shared Part A .jx-tgroup class from @jixoai/jx-native-contract (never redefined here); the jx-form-field bridge is retired for this family.",
       "files": [
         {
           "path": "registry/files/ui/toggle-group/index.ts",
@@ -2172,9 +2172,9 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: name?, type?, options ({value,label,disabled?}[]), value ($bindable), label (required a11y name), item? (per-button snippet), onchange?. The form-field bridge gains a multivalue attribute — entries append to a FormData handed to setFormValue (one submit entry per press).",
+      "docs": "Props: name (REQUIRED for type=single — radio grouping and arrow-walking are name-scoped; optional for multiple), type ('single'|'multiple'), value ($bindable string|string[]), label (required a11y name), required (single mode only — forwards to every input), disabled, density, onValueChange ((value) => void; native event forwarding rides the spread alongside, never instead). NATIVE contract: single rides label>input[type=radio] (arrow-walk, ONE tab stop, no re-press clear — an explicit none item is the optional-empty pattern); multiple rides checkboxes — FormData carries one entry per active value in DOM order (server reads getAll); the jx-form-field bridge is GONE. DOM checked is the uncontrolled truth; form.reset() re-syncs the projection via the reset event. The paint law is the shared Part A .jx-tgroup class (@jixoai/jx-native-contract); segments compose as ToggleGroupItem parts (label.jx-tgroup-item > input + span.jx-tgroup-content, slotStart/slotEnd snippets, no interactive descendants inside the label).",
       "registryDependencies": [
-        "@jixoai/form-field",
+        "@jixoai/jx-native-contract",
         "@jixoai/utils",
         "@jixoai/jixoai-theme"
       ],
