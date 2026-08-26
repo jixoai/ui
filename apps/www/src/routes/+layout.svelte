@@ -227,8 +227,15 @@
     // prerendered links carry the .html suffix the PAGE_ORDER does not
     // — the raw pathname made every lookup -1 and silently killed the
     // carousel on ALL top-level pairs (walkthrough report, 2026-08-26)
-    const from = pageIndex(norm(page.url.pathname));
-    const to = pageIndex(norm(new URL(navigation.to.url, location.origin).pathname));
+    const fromPath = norm(page.url.pathname);
+    const toPath = norm(new URL(navigation.to.url, location.origin).pathname);
+    // the left rail's presence law (Owner walkthrough request): the
+    // tree rail exists iff the route is under /docs — in/out states
+    // gate its slide; presence-stable swaps keep the default pair
+    const railTo = toPath.startsWith('/docs');
+    const vtRail = railTo === fromPath.startsWith('/docs') ? (railTo ? 'swap' : 'none') : railTo ? 'in' : 'out';
+    const from = pageIndex(fromPath);
+    const to = pageIndex(toPath);
     if (from < 0 || to < 0) {
       // D8 honored as WRITTEN: outside the carousel set there is no
       // pairwise direction law, but the DEFAULT transition still runs
@@ -236,10 +243,14 @@
       // indicator rides vt-nav-active); returning with nothing was an
       // implementation drift from the comment's contract
       return new Promise((resolve) => {
-        document.startViewTransition(async () => {
+        const transition = document.startViewTransition(async () => {
           resolve();
           await navigation.complete;
         });
+        if (vtRail !== 'swap' && vtRail !== 'none') {
+          document.documentElement.dataset.vtRail = vtRail;
+          transition.finished.finally(() => delete document.documentElement.dataset.vtRail);
+        }
       });
     }
     if (from === to) return;
@@ -247,6 +258,7 @@
     const root = document.documentElement;
     root.dataset.vtKind = 'page-carousel';
     root.dataset.vtDirection = to > from ? 'forward' : 'backward';
+    if (vtRail !== 'swap' && vtRail !== 'none') root.dataset.vtRail = vtRail;
     root.dataset.vtNav = document.querySelector('.jx-nav')?.classList.contains('jx-light')
       ? 'light'
       : 'dark';
@@ -260,6 +272,7 @@
         delete root.dataset.vtKind;
         delete root.dataset.vtDirection;
         delete root.dataset.vtNav;
+        delete root.dataset.vtRail;
       });
     });
   });
