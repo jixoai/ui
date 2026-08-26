@@ -15,7 +15,7 @@
       <DescriptionsItem term="created">2026-08-01</DescriptionsItem>
       <DescriptionsItem term="replicas">3 (2 healthy)</DescriptionsItem>
       <DescriptionsItem term="status">
-        <Badge tone="primary">passing</Badge>
+        <Badge>passing</Badge>
       </DescriptionsItem>
     </Descriptions>
   </div>

@@ -55,7 +55,7 @@ ${close}
   {#snippet title()}Ship terminals anywhere. <em>One hue.</em>{/snippet}
   {#snippet badges()}
     <Badge>OKLCH tokens</Badge>
-    <Badge tone="primary">Svelte 5</Badge>
+    <Badge>Svelte 5</Badge>
   {/snippet}
   {#snippet secondary()}
     <PressButton variant="outline" href="/docs.html">Get started</PressButton>
@@ -118,8 +118,8 @@ ${close}
             {#snippet title()}Ship the registry into your repo. <em>Keep the source.</em>{/snippet}
             {#snippet badges()}
               <Badge>registry</Badge>
-              <Badge tone="primary">copy CTA</Badge>
-              <Badge tone="outline">terminal demo</Badge>
+              <Badge>copy CTA</Badge>
+              <Badge variant="outline">terminal demo</Badge>
             {/snippet}
             {#snippet secondary()}
               <PressButton variant="outline" href="/docs/components.html">

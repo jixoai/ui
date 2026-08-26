@@ -20,7 +20,7 @@ const html = await highlightCode(source, {
 <div class="flex h-full w-full flex-col items-center justify-center gap-4 p-10">
   <CodeCard class="w-full max-w-[520px]" filename="highlight.ts" lang="ts" code={sample} />
   <div class="flex flex-wrap gap-2">
-    <Badge tone="primary">on-demand grammars</Badge>
+    <Badge>on-demand grammars</Badge>
     <Badge>css-variables theme</Badge>
     <Badge>js engine · no wasm</Badge>
   </div>

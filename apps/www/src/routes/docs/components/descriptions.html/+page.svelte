@@ -43,7 +43,7 @@
   <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
   <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
   <DescriptionsItem term="status"><!-- rich cells are just children -->
-    <Badge tone="primary">passing</Badge>
+    <Badge>passing</Badge>
   </DescriptionsItem>
   <DescriptionsItem term="notes" /><!-- no children ⇒ the em dash -->
 </Descriptions>`;
@@ -130,7 +130,7 @@
             <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
             <DescriptionsItem term="region">iad1 · washington</DescriptionsItem>
             <DescriptionsItem term="status">
-              <Badge tone="primary">passing</Badge>
+              <Badge>passing</Badge>
             </DescriptionsItem>
             <DescriptionsItem term="notes" />
           </Descriptions>

@@ -136,9 +136,9 @@ ${close}
         <div class="flex flex-wrap items-center gap-3 text-[13px]">
           <span class="text-muted-foreground">composition:</span>
           <Badge>item button</Badge>
-          <Badge tone="outline">separator = plain hr</Badge>
-          <Badge tone="outline">label = plain markup</Badge>
-          <Badge tone="destructive">destructive = paint, same semantics</Badge>
+          <Badge variant="outline">separator = plain hr</Badge>
+          <Badge variant="outline">label = plain markup</Badge>
+          <Badge variant="tonal" class="[--jx-tonal:var(--error)]">destructive = paint, same semantics</Badge>
         </div>
         <CodeBlock code={usage} lang="svelte" meta="usage" />
       </div>
