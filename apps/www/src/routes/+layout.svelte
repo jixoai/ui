@@ -259,26 +259,19 @@
     // ABOVE the animating main content (the wrong layer for something
     // that must blur the content passing beneath it) AND lose its
     // progressive-blur band. So the bar stays out of the VT entirely
-    // (the 'none' gate above) and RISES after the main transition
-    // finishes, through the element's own animation: translateY only,
-    // no opacity — an opacity tween would break the blur compositing
-    // the same way a snapshot layer does.
-    const railEntering = toPath.startsWith('/docs') && !fromPath.startsWith('/docs');
-    const riseBottomBar = (): void => {
-      // own presence test: the width gate above collapses vtRail to
-      // 'none' in the narrow form, so the rise must NOT read it — it
-      // checks presence itself and fires only in the bottom-bar form
-      // (the side form rides the VT slide instead)
-      if (!railEntering || shellWidth >= 1200) return;
-      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      document.querySelector('.jx-dsn')?.animate(
-        [
-          { transform: 'translateY(calc(100% + 1rem))' },
-          { transform: 'translateY(0)' },
-        ],
-        { duration: 420, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
-      );
-    };
+    // (the 'none' gate above) and arrives in its EXITED pose instead:
+    // data-rail-away lands on the shell host BEFORE the transition (the
+    // arriving page's bar is captured already hidden), and the
+    // attribute drops on finished — the scaffold's OWN transform
+    // transition (the very one the scroll watcher drives through
+    // data-hidden) plays the entrance. ONE transform, ONE transition,
+    // ONE owner: a scroll interrupt mid-entrance retargets the same
+    // transition instead of fighting a second animation (Owner polish
+    // ruling — unified enter/exit management).
+    const railArrivesHidden = shellWidth < 1200
+      && toPath.startsWith('/docs') && !fromPath.startsWith('/docs');
+    const shellHost = (): HTMLElement | null => document.querySelector('.jx-shell-host');
+    const dropRailAway = (): void => shellHost()?.removeAttribute('data-rail-away');
     const from = pageIndex(fromPath);
     const to = pageIndex(toPath);
     const generation = ++vtGeneration;
@@ -298,6 +291,7 @@
       delete root.dataset.vtKind;
       delete root.dataset.vtDirection;
       delete root.dataset.vtNav;
+      if (railArrivesHidden) shellHost()?.setAttribute('data-rail-away', '');
       return new Promise((resolve) => {
         const transition = document.startViewTransition(async () => {
           resolve();
@@ -308,7 +302,7 @@
             delete root.dataset.vtRail;
             delete root.dataset.vtToc;
           }
-          riseBottomBar();
+          dropRailAway();
         });
       });
     }
@@ -333,6 +327,7 @@
     root.dataset.vtDirection = to > from ? 'forward' : 'backward';
     root.dataset.vtRail = vtRail;
     root.dataset.vtToc = vtToc;
+    if (railArrivesHidden) shellHost()?.setAttribute('data-rail-away', '');
     root.dataset.vtNav = document.querySelector('.jx-nav')?.classList.contains('jx-light')
       ? 'light'
       : 'dark';
@@ -350,7 +345,7 @@
           delete root.dataset.vtRail;
           delete root.dataset.vtToc;
         }
-        riseBottomBar();
+        dropRailAway();
       });
     });
   });

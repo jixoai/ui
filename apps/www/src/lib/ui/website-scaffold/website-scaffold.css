@@ -253,12 +253,31 @@
 :where(.jx-shell-host[data-hidden] .jx-top-layer [data-area='tree']){
   transform: translateY(100%);
 }
+/* the ARRIVAL pose (Owner polish ruling, 2026-08-26): a bottom bar
+   arriving with the page starts in its EXITED position — data-rail-away,
+   set by the site layout BEFORE the view transition (so the arriving
+   page never carries the bar through VT snapshots: top-layer, no
+   backdrop-filter) and dropped when the transition finishes. The SAME
+   transform + transition pair the scroll watcher drives through
+   data-hidden plays the entrance — one animation owner, so a scroll
+   interrupt mid-entrance retargets this transition instead of racing
+   a second animation. No opacity anywhere: an opacity tween would
+   break the bar's blur compositing like a snapshot layer does. */
+:where(.jx-shell-host[data-rail-away] .jx-top-layer [data-area='tree']){
+  transform: translateY(100%);
+}
 @container jx-shell (min-width: 1200px) {
   /* the rail form is a persistent navigation surface (Owner ruling,
      2026-08-24): it compacts under the departing header exactly like the
      toc — it never leaves the screen */
   :where(.jx-shell-host[data-hidden] .jx-top-layer [data-area='tree']){
     transform: translateY(calc(-1 * var(--jx-header-h, 64px)));
+  }
+  /* the side form rides the VT slide — the arrival pose never applies
+     (also the mid-transition resize guard: a shell crossing 1200px
+     mid-entrance simply shows the rail) */
+  :where(.jx-shell-host[data-rail-away] .jx-top-layer [data-area='tree']){
+    transform: none;
   }
 
 }
