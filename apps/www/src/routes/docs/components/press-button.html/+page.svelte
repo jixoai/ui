@@ -1,9 +1,13 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import PressButton, { pulse, rainbow, ripple, shimmer } from '$lib/ui/press-button/press-button.svelte';
   import pressButtonSource from '$lib/ui/press-button/press-button.svelte?raw';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayRow, PlaySelect, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
@@ -313,5 +317,78 @@ ${close}
         </ul>
       </SectionCard>
     </div>
+  </div>
+
+  <div id="types" data-reveal="">
+    <SectionCard eyebrow="types" title="Surface variants" summary="Choose the semantic surface first; every variant keeps the same hit target and press physics.">
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {#each [
+          ['primary', 'Primary action'],
+          ['secondary', 'Secondary action'],
+          ['outline', 'Neutral action'],
+          ['ghost', 'Quiet action'],
+          ['destructive', 'Danger action'],
+          ['link', 'Inline navigation'],
+          ['copied', 'Confirmation state'],
+        ] as item}
+          <div class="border border-border/60 p-3">
+            <PressButton variant={item[0] as 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link' | 'copied'}>{item[1]}</PressButton>
+            <p class="mt-2 text-xs text-muted-foreground">{item[0]}</p>
+          </div>
+        {/each}
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="usage" data-reveal="">
+    <SectionCard eyebrow="usage" title="Compose a button" summary="Use the semantic variant and add one typed effect only when the action needs extra attention.">
+      <CodeBlock code={usage} lang="svelte" meta="usage" />
+    </SectionCard>
+  </div>
+
+  <div id="accessibility" data-reveal="">
+    <SectionCard eyebrow="a11y" title="Keyboard and semantics" summary="Native buttons and anchors retain their platform behavior; labels and focus rings remain part of the contract.">
+      <A11yTable
+        keys={[{ key: 'Tab', action: 'Move focus to the button or link' }, { key: 'Enter / Space', action: 'Activate a button' }, { key: 'Enter', action: 'Follow an href rendered as an anchor' }]}
+        aria={[{ name: 'aria-label', value: 'optional', description: 'Names icon-only or otherwise unlabeled controls.' }, { name: 'href', value: 'optional', description: 'Switches the root from button to anchor semantics.' }, { name: 'prefers-reduced-motion', value: 'supported', description: 'Disables press transitions and effect loops.' }]}
+      />
+    </SectionCard>
+  </div>
+
+  <div id="theming" data-reveal="">
+    <SectionCard eyebrow="theming" title="Density and tokens" summary="The button reads its geometry from the inherited density scale, so one theme change updates every instance together.">
+      <div class="flex flex-col gap-5">
+        <DensityDemo scopes={['xs', 'sm', 'default', 'lg']}>
+          <PressButton variant="primary">deploy</PressButton>
+        </DensityDemo>
+        <TokenTable tokens={[
+          { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density', description: 'Minimum interactive height and width.' },
+          { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Inline button padding.' },
+          { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Spacing between composed label content.' },
+          { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density', description: 'Button label size.' },
+          { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density', description: 'Button label line height.' },
+          { name: '--jx-press-shadow', default: 'var(--shadow-xs)', source: 'component', description: 'Resting elevation for the press law.' },
+          { name: '--jx-press-shadow-hover', default: 'var(--shadow-sm)', source: 'component', description: 'Hover elevation.' },
+          { name: '--jx-press-shadow-active', default: 'var(--shadow-sm-press)', source: 'component', description: 'Anchored active pose.' },
+        ]} />
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal="">
+    <SectionCard eyebrow="api" title="Props" summary="The public contract is intentionally small: semantic paint, optional navigation, and one press effect builder.">
+      <PropsTable props={[
+        { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'inherited', description: 'Overrides the surrounding density scope.' },
+        { name: 'variant', type: "'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link' | 'copied'", default: "'outline'", description: 'Selects the semantic surface.' },
+        { name: 'effect', type: 'PressEffect', default: 'undefined', description: 'One shimmer, pulse, rainbow, or ripple builder.' },
+        { name: 'href', type: 'string', default: 'undefined', description: 'Renders an anchor and navigates to the target.' },
+        { name: 'external', type: 'boolean', default: 'auto', description: 'Opens non-internal hrefs in a new tab.' },
+        { name: 'onclick', type: '() => void', default: 'undefined', description: 'Runs for button activation.' },
+        { name: 'type', type: "'button' | 'submit'", default: "'button'", description: 'Native button type.' },
+        { name: 'ariaLabel', type: 'string', default: 'undefined', description: 'Accessible name override for icon-only use.' },
+        { name: 'square', type: 'boolean', default: 'false', description: 'Uses the square hit-target geometry.' },
+        { name: 'children', type: 'Snippet', required: true, description: 'Button label and optional inline icon content.' },
+      ]} />
+    </SectionCard>
   </div>
 </div>

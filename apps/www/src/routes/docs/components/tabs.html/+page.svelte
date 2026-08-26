@@ -1,12 +1,16 @@
 <script lang="ts">
   import Badge from '$lib/ui/badge/badge.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import Tabs from '$lib/ui/tabs/tabs.svelte';
   import TabsContent from '$lib/ui/tabs/tabs-content.svelte';
   import TabsList from '$lib/ui/tabs/tabs-list.svelte';
   import TabsTrigger from '$lib/ui/tabs/tabs-trigger.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
@@ -197,5 +201,10 @@ ${close}
       </div>
     </SectionCard>
   </div>
+  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Activation and orientation" summary="Tabs use automatic activation by default; vertical lists change the navigation axis."><div class="grid gap-4 md:grid-cols-2"><Tabs value="one"><TabsList><TabsTrigger value="one">automatic</TabsTrigger></TabsList><TabsContent value="one">Focus selects this panel.</TabsContent></Tabs></div></SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable keys={[{ key: 'Arrow keys', action: 'Move between enabled tabs.' }, { key: 'Home / End', action: 'Move to the first or last tab.' }, { key: 'Enter / Space', action: 'Select a focused tab in manual mode.' }]} aria={[{ name: 'role', value: 'tablist, tab, tabpanel', description: 'Exposes the APG tabs pattern.' }, { name: 'aria-selected', value: 'boolean', description: 'Marks the selected trigger.' }, { name: 'aria-controls', value: 'panel id', description: 'Pairs each trigger with its panel.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Tabs value="token"><TabsList><TabsTrigger value="token">tab</TabsTrigger></TabsList><TabsContent value="token">panel</TabsContent></Tabs></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Tabs props"><PropsTable props={[{ name: 'value', type: 'string', default: "''", description: 'Selected tab value.', bindable: true }, { name: 'activation', type: "'automatic' | 'manual'", default: "'automatic'", description: 'Selection behavior while moving focus.' }, { name: 'onchange', type: '(value: string) => void', description: 'Receives selection changes.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }]} /></SectionCard></div>
   </div>
 </div>

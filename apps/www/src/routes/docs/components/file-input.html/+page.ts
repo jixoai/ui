@@ -4,6 +4,11 @@
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
+  { id: 'types', label: 'Types' },
+  { id: 'usage', label: 'Usage' },
+  { id: 'accessibility', label: 'Accessibility' },
+  { id: 'theming', label: 'Theming' },
+  { id: 'api', label: 'API' },
   { id: 'fi-demo', label: 'live demo' },
   { id: 'fi-drop', label: 'The drop zone' },
   { id: 'fi-list', label: 'The file list' },

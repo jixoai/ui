@@ -13,9 +13,13 @@
   Constraint: docs only — the component family itself is untouchable.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { CATALOG } from '$lib/catalog';
   import { PlayFields, PlayHelp } from '$lib/playground';
@@ -623,5 +627,9 @@ ${close}
         <CodeBlock code={usage} lang="svelte" meta="usage" />
       </SectionCard>
     </div>
+    <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Row variants" summary="Variant controls paint only; slot presence owns list-item geometry. Use auto for context-sensitive chrome, or choose an explicit surface."><div class="grid gap-3 sm:grid-cols-2"><Item variant="default"><ItemContent><ItemTitle>default</ItemTitle><ItemDescription>host surface</ItemDescription></ItemContent></Item><Item variant="outline"><ItemContent><ItemTitle>outline</ItemTitle><ItemDescription>framed row</ItemDescription></ItemContent></Item><Item variant="muted"><ItemContent><ItemTitle>muted</ItemTitle><ItemDescription>quiet slab</ItemDescription></ItemContent></Item><Item><ItemContent><ItemTitle>auto</ItemTitle><ItemDescription>resolved from context</ItemDescription></ItemContent></Item></div></SectionCard></div>
+    <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'a', value: 'href rows', description: 'Use href for navigable rows.' }, { name: 'selected', value: 'visual only', description: 'Does not emit aria-selected; add selection semantics to the owning pattern.' }]} /></SectionCard></div>
+    <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Item variant="outline"><ItemContent><ItemTitle>density row</ItemTitle><ItemDescription>scoped</ItemDescription></ItemContent></Item></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-row-min', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-gap-content', default: 'density scale', source: 'density' }, { name: '--jx-gap-end', default: 'density scale', source: 'density' }, { name: '--jx-media-gutter', default: 'density scale', source: 'density' }, { name: '--jx-image', default: 'density scale', source: 'density' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }, { name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-icon-optical', default: '0px', source: 'component' }, { name: '--jx-unit', default: 'density scale', source: 'density' }, { name: '--jx-avatar-md', default: 'image scale', source: 'component' }, { name: '--jx-item-column-gap', default: 'gap', source: 'component' }, { name: '--jx-item-row-gap', default: 'stack', source: 'component' }, { name: '--jx-item-media-size', default: 'image', source: 'component' }, { name: '--jx-item-media-gutter', default: 'media gutter', source: 'component' }, { name: '--jx-item-content-gap', default: 'gap-content', source: 'component' }, { name: '--jx-item-end-gap', default: 'gap-end', source: 'component' }]} /></div></SectionCard></div>
+    <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Item props"><PropsTable props={[{ name: 'variant', type: "'auto' | 'default' | 'outline' | 'muted'", default: "'auto'", description: 'Controls visual chrome.' }, { name: 'layout', type: 'ItemLayout', default: "'auto'", description: 'Selects row layout mode.' }, { name: 'selected', type: 'boolean', default: 'false', description: 'Visual selection state only.' }, { name: 'href', type: 'string', description: 'Renders the root as an anchor.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }]} /></SectionCard></div>
   </div>
 </div>

@@ -13,9 +13,13 @@
      drawer shares the same string, live-tracked).
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { CATALOG } from '$lib/catalog';
   import { PlayFields, PlayRow, PlaySegmented, PlayHelp } from '$lib/playground';
@@ -196,5 +200,10 @@ let current = \$state(1);
         <CodeBlock code={usage} lang="svelte" meta="usage" />
       </SectionCard>
     </div>
+    <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Step states" summary="Each item compares its explicit ordinal with current: completed, current and future are projections of one number."><div class="w-full max-w-2xl"><Steps current={1}><StepsItem step={0}><StepsIndicator /><StepsTitle>done</StepsTitle><StepsSeparator /></StepsItem><StepsItem step={1}><StepsIndicator /><StepsTitle>current</StepsTitle><StepsSeparator /></StepsItem><StepsItem step={2}><StepsIndicator /><StepsTitle>future</StepsTitle></StepsItem></Steps></div></SectionCard></div>
+    <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
+    <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'aria-current', value: 'step', description: 'Marks the current step.' }, { name: 'button', value: 'completed indicator', description: 'Makes completed steps keyboard actionable only when onclick is supplied.' }]} /></SectionCard></div>
+    <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Steps current={0}><StepsItem step={0}><StepsIndicator /><StepsTitle>step</StepsTitle></StepsItem></Steps></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+    <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Steps props"><PropsTable props={[{ name: 'current', type: 'number', default: '0', description: '0-based current ordinal.', bindable: true }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }, { name: 'class', type: 'string', description: 'Adds consumer classes.' }]} /></SectionCard></div>
   </div>
 </div>

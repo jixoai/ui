@@ -4,8 +4,11 @@
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
-  { id: 'shortcut-rows', label: 'Shortcut rows' },
-  { id: 'kbd-base', label: 'NativeHTML 基座' },
+  { id: 'types', label: 'types' },
+  { id: 'usage', label: 'usage' },
+  { id: 'accessibility', label: 'accessibility' },
+  { id: 'theming', label: 'theming' },
+  { id: 'api', label: 'api' },
 ];
 
 export const load = () => ({ toc });

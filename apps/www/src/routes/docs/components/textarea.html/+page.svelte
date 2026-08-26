@@ -6,9 +6,13 @@
   as the family hub.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import Textarea from '$lib/ui/textarea/textarea.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
@@ -165,5 +169,107 @@
       </div>
     </SectionCard>
   </div>
+  </div>
+</div>
+
+<!-- Material3 standard sections (2026-08-26): types / usage / a11y /
+     theming / api appended after the demo sections, same wrapper law as
+     checkbox.html. -->
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal="">
+    <SectionCard
+      family="types"
+      headerRegion="types"
+      eyebrow="types"
+      title="Textarea variants"
+      summary="The plain shell, the toolbar + count posture, the error state, and the disabled field."
+    >
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="border border-border p-4"><Textarea label="plain" name="types-plain" rows={3} placeholder="multiline…" /></div>
+        <div class="border border-border p-4"><Textarea label="count" name="types-count" rows={3} maxlength={280} count placeholder="N / maxLength readout…" /></div>
+        <div class="border border-border p-4"><Textarea label="error" name="types-error" rows={2} error="bio is required"></Textarea></div>
+        <div class="border border-border p-4"><Textarea label="disabled" name="types-disabled" rows={2} placeholder="not allowed" disabled /></div>
+      </div>
+    </SectionCard>
+  </div>
+  <div id="usage" data-reveal="">
+    <SectionCard
+      family="usage"
+      headerRegion="usage"
+      eyebrow="usage"
+      title="Usage"
+      summary="rows and every other native attribute pass through; the component adds the label/error contract, the hairline slot rows, and the count readout."
+    >
+      <CodeBlock code={usage} lang="svelte" meta="Textarea usage" />
+    </SectionCard>
+  </div>
+  <div id="accessibility" data-reveal="">
+    <SectionCard
+      family="accessibility"
+      headerRegion="accessibility"
+      eyebrow="a11y"
+      title="Accessibility"
+      summary="The native textarea keeps platform semantics; the component wires the label and the validation message to the control."
+    >
+      <A11yTable
+        keys={[
+          { key: 'Tab', action: 'Moves focus to the textarea' },
+          { key: 'any text', action: 'Types into the field' },
+          { key: 'drag', action: 'Resize handle, locked to the vertical axis' },
+        ]}
+        aria={[
+          { name: 'aria-invalid', value: "'true'", description: 'Set on the native textarea when the error prop is provided' },
+          { name: 'aria-describedby', value: '{id}-error', description: 'Points at the "! message" validation line' },
+        ]}
+      />
+    </SectionCard>
+  </div>
+  <div id="theming" data-reveal="">
+    <SectionCard
+      family="theming"
+      headerRegion="theming"
+      eyebrow="theming"
+      title="Density and tokens"
+      summary="The shell, lane padding, and label/error rhythm are pure density-scope tokens; resize the scope and the whole field stack follows."
+    >
+      <div class="flex flex-col gap-6">
+        <DensityDemo>
+          <Textarea label="density sample" name="density-textarea" rows={3} placeholder="Type here..." />
+        </DensityDemo>
+        <TokenTable
+          tokens={[
+            { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' },
+            { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' },
+            { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' },
+            { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' },
+            { name: '--jx-stack', default: '4 / 4 / 8 / 8px', source: 'density' },
+          ]}
+        />
+      </div>
+    </SectionCard>
+  </div>
+  <div id="api" data-reveal="">
+    <SectionCard
+      family="api"
+      headerRegion="api"
+      eyebrow="api"
+      title="API"
+      summary="Props extend the native HTML textarea attributes; the entries below are the component-owned additions. Everything else (placeholder, maxlength, disabled, name, required…) rides through restProps."
+    >
+      <PropsTable
+        props={[
+          { name: 'label', type: 'string', default: '—', description: 'Field label rendered as label[for] above the control.' },
+          { name: 'error', type: 'string', default: '—', description: 'Error text: sets aria-invalid, wires aria-describedby, dashes the shell.' },
+          { name: 'count', type: 'boolean', default: 'false', description: 'Appends an "N / maxLength" readout to the inner-block-end row.' },
+          { name: 'rows', type: 'number', default: '4', description: 'Native rows attribute, passed through verbatim.' },
+          { name: 'value', type: 'string | number', default: '—', description: 'Bindable; bound ⇒ controlled, absent ⇒ purely uncontrolled.', bindable: true },
+          { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'inherited', description: 'Overrides the inherited density scope.' },
+          { name: 'innerBlockStart', type: 'Snippet', default: '—', description: 'Inside the shell, above the textarea (toolbar row, behind a hairline).' },
+          { name: 'innerBlockEnd', type: 'Snippet', default: '—', description: 'Inside the shell, below the textarea (status row).' },
+          { name: 'outerBlockStart', type: 'Snippet', default: '—', description: 'Outside the shell, above — replaces the label row when given.' },
+          { name: 'outerBlockEnd', type: 'Snippet', default: '—', description: 'Outside the shell, below — renders below the error line.' },
+        ]}
+      />
+    </SectionCard>
   </div>
 </div>

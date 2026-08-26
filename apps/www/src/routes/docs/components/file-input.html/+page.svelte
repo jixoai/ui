@@ -1,9 +1,13 @@
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas, { type TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import FileInput from '$lib/ui/file-input/file-input.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayRow, PlaySegmented, PlayToggle, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -327,5 +331,133 @@ ${close}
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
   </div>
+  </div>
+</div>
+
+<!-- Material3 standard sections (2026-08-26): types / usage / a11y /
+     theming / api appended after the demo sections, same wrapper law as
+     checkbox.html. -->
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal="">
+    <SectionCard
+      family="types"
+      headerRegion="types"
+      eyebrow="types"
+      title="FileInput variants"
+      summary="The default drop zone, the compact button trigger, the accept-gated field, and the error state."
+    >
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="flex flex-col gap-3 border border-border p-4">
+          <FileInput label="drop zone (default)" multiple />
+          <span class="text-muted-foreground text-[12px]">dashed zone · hint composed from the props</span>
+        </div>
+        <div class="flex flex-col gap-3 border border-border p-4">
+          <FileInput label="button trigger" variant="button" multiple />
+          <span class="text-muted-foreground text-[12px]">compact inline posture · drop support included</span>
+        </div>
+        <div class="flex flex-col gap-3 border border-border p-4">
+          <FileInput label="accept gate" accept="image/*" multiple />
+          <span class="text-muted-foreground text-[12px]">dropped non-images are rejected, never bound</span>
+        </div>
+        <div class="flex flex-col gap-3 border border-border p-4">
+          <FileInput label="error" multiple error="a screenshot is required" />
+          <span class="text-muted-foreground text-[12px]">dashed destructive surfaces + the “! message” line</span>
+        </div>
+      </div>
+    </SectionCard>
+  </div>
+  <div id="usage" data-reveal="">
+    <SectionCard
+      family="usage"
+      headerRegion="usage"
+      eyebrow="usage"
+      title="Usage"
+      summary="Bind the File[] value; accept, maxFiles, and hint shape the zone's composed contract line."
+    >
+      <CodeBlock code={usage} lang="svelte" meta="FileInput usage" />
+    </SectionCard>
+  </div>
+  <div id="accessibility" data-reveal="">
+    <SectionCard
+      family="accessibility"
+      headerRegion="accessibility"
+      eyebrow="a11y"
+      title="Accessibility"
+      summary="ONE accessible control: the visible trigger is the picker for tabs and assistive tech — the clipped native input drops out of the tab order and the a11y tree."
+    >
+      <A11yTable
+        keys={[
+          { key: 'Tab', action: 'Moves focus to the visible trigger button (the native input is aria-hidden, tabindex -1)' },
+          { key: 'Enter / Space', action: 'Opens the platform file picker' },
+          { key: 'drag files', action: 'Both variants are real drop targets; accept violations are gate-rejected' },
+          { key: '×', action: 'Removes one selected file; “remove all” clears a multi-file list' },
+        ]}
+        aria={[
+          { name: 'aria-label', value: 'label / "choose file(s)"', description: 'On the trigger button — label[for] points at it too' },
+          { name: 'aria-describedby', value: '{id}-error', description: 'The error line: prop error, maxFiles overflow, or drop rejection' },
+          { name: 'aria-label (×)', value: '"remove NAME"', description: 'On every list row remove button (type="button")' },
+          { name: 'aria-label (list)', value: '"selected files"', description: 'On the selected-file list box' },
+        ]}
+      />
+    </SectionCard>
+  </div>
+  <div id="theming" data-reveal="">
+    <SectionCard
+      family="theming"
+      headerRegion="theming"
+      eyebrow="theming"
+      title="Density and tokens"
+      summary="Family-local size knobs alias the closed density contract; resize the scope and the zone, rows, and thumbs follow."
+    >
+      <div class="flex flex-col gap-6">
+        <DensityDemo>
+          <FileInput label="density sample" />
+        </DensityDemo>
+        <TokenTable
+          tokens={[
+            { name: '--jx-file-h', default: 'var(--jx-hit)', source: 'component' },
+            { name: '--jx-file-thumb', default: 'var(--jx-icon)', source: 'component' },
+            { name: '--jx-file-text', default: 'var(--jx-text)', source: 'component' },
+            { name: '--jx-file-zone-pad', default: 'var(--jx-inset)', source: 'component' },
+            { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' },
+            { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' },
+            { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' },
+          ]}
+        />
+      </div>
+    </SectionCard>
+  </div>
+  <div id="api" data-reveal="">
+    <SectionCard
+      family="api"
+      headerRegion="api"
+      eyebrow="api"
+      title="API"
+      summary="Props spread onto the visually hidden native input; the File[] value is the $bindable contract and FileItem adds component-managed identity + previews."
+    >
+      <PropsTable
+        props={[
+          { name: 'files', type: 'File[]', default: '[]', description: 'Selected files; bound ⇒ controlled — removal and drops write back.', bindable: true },
+          { name: 'variant', type: "'drop' | 'button'", default: "'drop'", description: 'Dashed drop zone or compact inline trigger; both are buttons AND drop targets.' },
+          { name: 'accept', type: 'string', default: '—', description: 'Native accept attribute; dropped files violating it are gate-rejected.' },
+          { name: 'multiple', type: 'boolean', default: 'false', description: 'Allow several files; the collection appends instead of replacing.' },
+          { name: 'maxFiles', type: 'number', default: '—', description: 'Overflow limit — renders an error, never truncates the array.' },
+          { name: 'hint', type: 'string', default: 'composed', description: 'Secondary zone hint; defaults to a composed "accept: … · max: N" line.' },
+          { name: 'label', type: 'string', default: '—', description: 'Field label rendered as label[for] above the trigger.' },
+          { name: 'error', type: 'string', default: '—', description: 'Error text: dashed destructive surfaces + the describedby line.' },
+          { name: 'disabled', type: 'boolean', default: 'false', description: 'Freezes the trigger, drops, and per-row removal.' },
+          { name: 'onreject', type: '(rejected: File[]) => void', default: '—', description: 'Fires with files a DROP brought in that violated accept.' },
+          { name: 'zone', type: 'Snippet', default: '—', description: 'Replaces the drop zone\u2019s glyph + title + hint content.' },
+        ]}
+      />
+      <PropsTable
+        title="FileItem"
+        props={[
+          { name: 'file', type: 'File', default: '—', description: 'The native File object, exactly as the platform handed it over.', required: true },
+          { name: 'id', type: 'string', default: '—', description: 'Internal management id — stable across re-renders per File identity.', required: true },
+          { name: 'previewUrl', type: 'string', default: '—', description: 'Image preview object URL; revoked on remove / unmount.' },
+        ]}
+      />
+    </SectionCard>
   </div>
 </div>

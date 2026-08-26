@@ -1,8 +1,12 @@
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import Statistic from '$lib/ui/statistic/statistic.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
@@ -71,5 +75,10 @@
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
   </div>
+  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Metric states" summary="The readout supports neutral metrics, directional trends and composed affixes."><div class="grid gap-4 sm:grid-cols-3"><Statistic title="neutral" value="69" /><Statistic title="up" value="42" trend="up" /><Statistic title="down" value="3" trend="down" /></div></SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'title', value: 'visible label', description: 'Names the metric for every reader.' }, { name: 'value', value: 'text content', description: 'Keeps formatted values readable and copyable.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Statistic title="deploys" value="42" trend="up" /></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Statistic props"><PropsTable props={[{ name: 'title', type: 'string', description: 'Metric label.', required: true }, { name: 'value', type: 'string | number', description: 'Displayed metric value.', required: true }, { name: 'trend', type: "'up' | 'down'", description: 'Optional directional glyph.' }, { name: 'prefix', type: 'Snippet', description: 'Content before the value.' }, { name: 'suffix', type: 'Snippet', description: 'Content after the value.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }]} /></SectionCard></div>
   </div>
 </div>

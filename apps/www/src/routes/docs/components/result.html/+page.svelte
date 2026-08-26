@@ -1,9 +1,13 @@
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import Result from '$lib/ui/result/result.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
 
@@ -80,5 +84,10 @@
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
   </div>
+  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Outcome states" summary="Result distinguishes success, error, warning and info without taking over routing or recovery logic."><div class="grid gap-4 md:grid-cols-2"><Result status="success" title="Deployed" /><Result status="error" title="Build failed" /></div></SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'status', value: 'visible glyph and title', description: 'Status is communicated with text, not color alone.' }, { name: 'actions', value: 'native controls', description: 'Keep recovery actions keyboard reachable.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Result status="info" title="No changes" /></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Result props"><PropsTable props={[{ name: 'title', type: 'string', description: 'Outcome heading.', required: true }, { name: 'status', type: "'success' | 'error' | 'warning' | 'info'", default: "'info'", description: 'Outcome tone and glyph.' }, { name: 'description', type: 'string', description: 'Optional supporting copy.' }, { name: 'icon', type: 'Snippet', description: 'Replaces the default glyph.' }, { name: 'actions', type: 'Snippet', description: 'Renders next steps.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }]} /></SectionCard></div>
   </div>
 </div>

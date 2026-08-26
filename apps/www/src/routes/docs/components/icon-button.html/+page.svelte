@@ -1,9 +1,13 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import iconButtonSource from '$lib/ui/icon-button/icon-button.svelte?raw';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayRow, PlaySegmented, PlaySelect, PlayHelp } from '$lib/playground';
   import { shimmer } from '$lib/ui/press-button/press-button.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -283,5 +287,71 @@ ${drivenNormal}${usageTail}`;
         </ul>
       </SectionCard>
     </div>
+  </div>
+
+  <div id="types" data-reveal="">
+    <SectionCard eyebrow="types" title="Text and icon-only postures" summary="The component has two visual postures; both preserve the same press-button behavior and semantic label.">
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="border border-border/60 p-3">
+          <IconButton text="deploy" variant="primary">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
+          <p class="mt-2 text-xs text-muted-foreground">text: glyph and visible label</p>
+        </div>
+        <div class="border border-border/60 p-3">
+          <IconButton iconOnly text="deploy" variant="primary">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
+          <p class="mt-2 text-xs text-muted-foreground">icon-only: tooltip and aria-label</p>
+        </div>
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="usage" data-reveal="">
+    <SectionCard eyebrow="usage" title="Name the action once" summary="Provide an icon snippet and a text label; icon-only mode promotes the same text into the tooltip and accessible name.">
+      <CodeBlock code={usage} lang="svelte" meta="usage" />
+    </SectionCard>
+  </div>
+
+  <div id="accessibility" data-reveal="">
+    <SectionCard eyebrow="a11y" title="Keyboard and label contract" summary="The glyph is always decorative. The text prop remains the single source of meaning across both postures.">
+      <A11yTable
+        keys={[{ key: 'Tab', action: 'Focus the native press-button control' }, { key: 'Enter / Space', action: 'Activate the button' }, { key: 'Escape', action: 'Close an icon-only tooltip' }]}
+        aria={[{ name: 'aria-label', value: 'text when iconOnly', description: 'Names an icon-only action from the text prop.' }, { name: 'aria-hidden', value: 'true on icon', description: 'Prevents the decorative glyph from becoming the name.' }, { name: 'role', value: 'button or link', description: 'Inherited from press-button according to href.' }]}
+      />
+    </SectionCard>
+  </div>
+
+  <div id="theming" data-reveal="">
+    <SectionCard eyebrow="theming" title="Inherited density" summary="Icon-button forwards density to press-button, keeping its square and text postures aligned with the surrounding controls.">
+      <div class="flex flex-col gap-5">
+        <DensityDemo>
+          <IconButton iconOnly text="deploy">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
+        </DensityDemo>
+        <TokenTable tokens={[
+          { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density', description: 'Square icon-only target and text-button band.' },
+          { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density', description: 'Visible text label size.' },
+          { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density', description: 'Control line height.' },
+          { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Glyph-to-label spacing.' },
+          { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Press-button inline padding.' },
+        ]} />
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal="">
+    <SectionCard eyebrow="api" title="Props" summary="IconButton composes the press-button contract with an explicit label and decorative icon.">
+      <PropsTable props={[
+        { name: 'icon', type: 'Snippet', required: true, description: 'Decorative glyph content.' },
+        { name: 'text', type: 'string', required: true, description: 'Visible label, tooltip content, and accessible name.' },
+        { name: 'density', type: 'Density', default: 'inherited', description: 'Forwards to press-button.' },
+        { name: 'variant', type: 'PressButtonVariant', default: "'outline'", description: 'Press-button surface variant.' },
+        { name: 'iconOnly', type: 'boolean', default: 'false', description: 'Collapses into a square tooltip trigger.' },
+        { name: 'placement', type: 'TooltipPlacement', default: "'top'", description: 'Icon-only tooltip placement.' },
+        { name: 'arrow', type: 'boolean', default: 'true', description: 'Shows the tooltip pointer notch.' },
+        { name: 'effect', type: 'PressEffect', default: 'undefined', description: 'Optional inherited press effect.' },
+        { name: 'href', type: 'string', default: 'undefined', description: 'Renders a link instead of a button.' },
+        { name: 'external', type: 'boolean', default: 'auto', description: 'Controls external-link behavior.' },
+        { name: 'onclick', type: '() => void', default: 'undefined', description: 'Button activation handler.' },
+        { name: 'type', type: "'button' | 'submit'", default: "'button'", description: 'Native button type.' },
+      ]} />
+    </SectionCard>
   </div>
 </div>

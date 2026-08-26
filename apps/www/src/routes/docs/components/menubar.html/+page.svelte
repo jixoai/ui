@@ -10,9 +10,13 @@
   Constraint: docs only — the component family itself is untouchable.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import Menubar from '$lib/ui/menubar/menubar.svelte';
@@ -156,4 +160,14 @@ ${close}
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Menubar variants" summary="Compose top-level menus with linked triggers and panels, choosing the surface variant at the root.">
+    <div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><Menubar label="automatic"><MenubarItem id="types-file"><MenubarTrigger>File</MenubarTrigger><MenubarPanel><MenubarMenuItem>Open</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></div><div class="border border-border p-4"><Menubar label="solid" variant="solid"><MenubarItem id="types-edit"><MenubarTrigger>Edit</MenubarTrigger><MenubarPanel><MenubarMenuItem>Undo</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></div></div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="MenubarItem owns the stable id; Trigger and Panel derive their paired ids from it."><CodeBlock code={usage} lang="svelte" meta="Menubar usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The application menu follows menubar and menu keyboard patterns with a roving top-level tab stop."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move across top-level menus or within an open panel.' }, { key: 'Home / End', action: 'Jump to the first or last menu.' }, { key: 'Escape', action: 'Close the panel and return focus to its trigger.' }]} aria={[{ name: 'role', value: 'menubar / menuitem / menu', description: 'Exposes the application menu hierarchy.' }, { name: 'aria-controls', value: 'panel id', description: 'Pairs each trigger with its panel.' }, { name: 'aria-haspopup', value: 'menu', description: 'Identifies triggers that open a menu.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The bar and its menu items consume the shared density rhythm plus a bar gap."><div class="flex flex-col gap-5"><DensityDemo scopes={['xs', 'default', 'lg']}><Menubar label="density"><MenubarItem id="density-file"><MenubarTrigger>File</MenubarTrigger><MenubarPanel><MenubarMenuItem>Open</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></DensityDemo><TokenTable tokens={[{ name: '--jx-bar-gap', default: '8px', source: 'component' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The family is intentionally split into root, item, trigger, panel, and leaf props."><PropsTable title="Menubar" props={[{ name: 'label', type: 'string', default: "'menu bar'", description: 'Accessible menubar landmark label.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating panel surface treatment.' }]} /><div class="mt-5"><PropsTable title="MenubarItem / MenubarMenuItem" props={[{ name: 'id', type: 'string', description: 'Stable id owned by MenubarItem.' }, { name: 'href', type: 'string', description: 'Renders a navigating menu item when provided.' }, { name: 'onselect', type: '(event: MouseEvent) => void', description: 'Runs an action before the panel closes.' }]} /></div></SectionCard></div>
 </div>

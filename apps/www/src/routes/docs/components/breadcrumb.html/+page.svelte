@@ -6,9 +6,13 @@
   from here.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import Breadcrumb from '$lib/ui/breadcrumb/breadcrumb.svelte';
@@ -170,4 +174,12 @@ ${close}
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Breadcrumb variants" summary="Use a complete trail for short paths, or wrap the middle items for an opt-in fold."><div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div><div class="border border-border p-4"><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbCollapse href="/docs"><BreadcrumbItem><BreadcrumbLink href="/docs">docs</BreadcrumbLink></BreadcrumbItem></BreadcrumbCollapse><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div></div></SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Author the ordered list directly; the ol order is the hierarchy and the current page remains a real page part."><CodeBlock code={usage} lang="svelte" meta="Breadcrumb usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Native navigation landmark, ordered list, links, and aria-current carry the full semantics."><A11yTable aria={[{ name: 'aria-label', value: 'Breadcrumb', description: 'Names the navigation landmark.' }, { name: 'aria-current', value: 'page', description: 'Marks the current trail destination.' }, { name: 'aria-hidden', value: 'true', description: 'Hides decorative separators and manual ellipses.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Breadcrumb has no component-specific --jx tokens; parts inherit the shared density context."><div class="flex flex-col gap-5"><DensityDemo scopes={['xs', 'default', 'lg']}><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></DensityDemo><TokenTable tokens={[]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The root and composition parts keep the trail structure explicit."><PropsTable title="Breadcrumb" props={[{ name: 'label', type: 'string', default: "'Breadcrumb'", description: 'Accessible navigation landmark label.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }]} /><div class="mt-5"><PropsTable title="BreadcrumbLink / Page / Collapse" props={[{ name: 'href', type: 'string', description: 'Destination for a link or collapse target.' }, { name: 'aria-current', type: '"page"', default: 'Page only', description: 'BreadcrumbPage marks the current destination.' }, { name: 'children', type: 'Snippet', required: true, description: 'Composed trail content.' }]} /></div></SectionCard></div>
 </div>

@@ -6,11 +6,15 @@
 -->
 <script lang="ts">
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import Checkbox from '$lib/ui/checkbox/checkbox.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
@@ -164,4 +168,18 @@
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Checkbox variants" summary="Use the native checkbox for binary, tri-state, and validation states.">
+    <div class="grid gap-4 sm:grid-cols-3">
+      <div class="border border-border p-4"><Checkbox label="unchecked" name="types-unchecked" /></div>
+      <div class="border border-border p-4"><Checkbox label="checked" name="types-checked" checked /></div>
+      <div class="border border-border p-4"><Checkbox label="indeterminate" name="types-indeterminate" indeterminate /></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Keep the input native so labels, keyboard toggling, and FormData participation remain platform behavior."><CodeBlock code={usage} lang="svelte" meta="Checkbox usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The component preserves native checkbox semantics and wires validation text to the input."><A11yTable keys={[{ key: 'Space', action: 'Toggle the focused checkbox' }]} aria={[{ name: 'aria-invalid', value: 'true', description: 'Set when error is present' }, { name: 'aria-describedby', value: '{id}-error', description: 'References the validation message' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Density scopes resize the hit target, glyph, and label rhythm together."><div class="flex flex-col gap-5"><DensityDemo><Checkbox label="density sample" name="density-checkbox" /></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend the native HTML input attributes; the entries below are checkbox-specific additions."><PropsTable props={[{ name: 'label', type: 'string', default: '—', description: 'Same-row label rendered with label[for].' }, { name: 'labelSide', type: "'left' | 'right'", default: "'right'", description: 'Places the label before or after the control.' }, { name: 'indeterminate', type: 'boolean', default: 'false', description: 'Sets the native indeterminate IDL state.' }, { name: 'error', type: 'string', default: '—', description: 'Adds invalid state and an associated message.' }, { name: 'density', type: "Density", default: 'inherited', description: 'Overrides the inherited density scope.' }, { name: 'checked', type: 'boolean', default: '—', description: 'Bindable controlled checked state.', bindable: true }]} /></SectionCard></div>
 </div>

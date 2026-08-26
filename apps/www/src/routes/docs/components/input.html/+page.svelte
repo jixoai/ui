@@ -5,11 +5,15 @@
   the error law. The form.html route remains as the family hub.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import Input from '$lib/ui/input/input.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
   import { PlayFields, PlayRow, PlaySelect, PlayToggle, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -388,5 +392,108 @@
       </div>
     </SectionCard>
   </div>
+  </div>
+</div>
+
+<!-- Material3 standard sections (2026-08-26): types / usage / a11y /
+     theming / api appended after the demo sections, same wrapper law as
+     checkbox.html. -->
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal="">
+    <SectionCard
+      family="types"
+      headerRegion="types"
+      eyebrow="types"
+      title="Input variants"
+      summary="One component, four rendering lanes: the text-like shell, the clearable search field, the error state, and the disabled field."
+    >
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="border border-border p-4"><Input type="text" label="text" name="types-text" placeholder="plain text" /></div>
+        <div class="border border-border p-4"><Input type="search" label="search" name="types-search" placeholder="grep…" clearable /></div>
+        <div class="border border-border p-4"><Input type="email" label="error" name="types-error" value="not-an-email" error="email is required" /></div>
+        <div class="border border-border p-4"><Input type="text" label="disabled" name="types-disabled" placeholder="not allowed" disabled /></div>
+      </div>
+    </SectionCard>
+  </div>
+  <div id="usage" data-reveal="">
+    <SectionCard
+      family="usage"
+      headerRegion="usage"
+      eyebrow="usage"
+      title="Usage"
+      summary="Every native type and attribute passes through untouched; the component only adds label/error wiring, the four slot seams, and the optional clear button."
+    >
+      <CodeBlock code={inputUsage} lang="svelte" meta="Input usage" />
+    </SectionCard>
+  </div>
+  <div id="accessibility" data-reveal="">
+    <SectionCard
+      family="accessibility"
+      headerRegion="accessibility"
+      eyebrow="a11y"
+      title="Accessibility"
+      summary="The native input keeps platform semantics; the component wires the label and the validation message to the control."
+    >
+      <A11yTable
+        keys={[
+          { key: 'Tab', action: 'Moves focus to the input' },
+          { key: 'any text', action: 'Types into the field; platform behavior per type (spinners, pickers)' },
+          { key: 'Esc', action: 'Browser-native search-field reset on type="search" when not cleared' },
+        ]}
+        aria={[
+          { name: 'aria-invalid', value: "'true'", description: 'Set on the native input when the error prop is provided' },
+          { name: 'aria-describedby', value: '{id}-error', description: 'Points at the "! message" validation line' },
+          { name: 'aria-label', value: '"clear value"', description: 'On the clearable × button (type="button")' },
+        ]}
+      />
+    </SectionCard>
+  </div>
+  <div id="theming" data-reveal="">
+    <SectionCard
+      family="theming"
+      headerRegion="theming"
+      eyebrow="theming"
+      title="Density and tokens"
+      summary="The shell, label, and error rhythm are pure density-scope tokens; resize the scope and the whole field stack follows."
+    >
+      <div class="flex flex-col gap-6">
+        <DensityDemo>
+          <Input label="density sample" name="density-input" placeholder="Type here..." />
+        </DensityDemo>
+        <TokenTable
+          tokens={[
+            { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' },
+            { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' },
+            { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' },
+            { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' },
+            { name: '--jx-stack', default: '4 / 4 / 8 / 8px', source: 'density' },
+          ]}
+        />
+      </div>
+    </SectionCard>
+  </div>
+  <div id="api" data-reveal="">
+    <SectionCard
+      family="api"
+      headerRegion="api"
+      eyebrow="api"
+      title="API"
+      summary="Props extend the native HTML input attributes; the entries below are the component-owned additions. Everything else (placeholder, name, min/max, accept…) rides through restProps."
+    >
+      <PropsTable
+        props={[
+          { name: 'type', type: 'string', default: "'text'", description: 'Any native input type; range/color/hidden switch to their own lanes.' },
+          { name: 'label', type: 'string', default: '—', description: 'Field label rendered as label[for] above the control.' },
+          { name: 'error', type: 'string', default: '—', description: 'Error text: sets aria-invalid, wires aria-describedby, dashes the shell.' },
+          { name: 'clearable', type: 'boolean', default: 'false', description: 'Text-like only: adds the × button in the inner-inline-end seam.' },
+          { name: 'value', type: 'string | number', default: '—', description: 'Bindable; bound ⇒ controlled, absent ⇒ purely uncontrolled.', bindable: true },
+          { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'inherited', description: 'Overrides the inherited density scope.' },
+          { name: 'innerInlineStart', type: 'Snippet', default: '—', description: 'Inside the shell, left of the lane (prefix icon / unit).' },
+          { name: 'innerInlineEnd', type: 'Snippet', default: '—', description: 'Inside the shell, right of the lane (suffix / unit / action).' },
+          { name: 'outerBlockStart', type: 'Snippet', default: '—', description: 'Outside the shell, above — replaces the label row when given.' },
+          { name: 'outerBlockEnd', type: 'Snippet', default: '—', description: 'Outside the shell, below — renders below the error line.' },
+        ]}
+      />
+    </SectionCard>
   </div>
 </div>

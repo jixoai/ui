@@ -4,16 +4,11 @@
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
-  { id: 'standalone-ladder', label: 'Standalone ladder' },
-  { id: 'group-modes', label: 'Group modes' },
-  { id: 'slot-topology', label: 'Slot topology' },
-  { id: 'media-narrow', label: 'Media layout & the narrow law' },
-  { id: 'density-ladder', label: 'The density ladder' },
-  { id: 'settings-section', label: 'Settings section (adapters)' },
-  { id: 'item-field-escape', label: 'ItemField escape hatch' },
-  { id: 'selection-links', label: 'Selection & links' },
-  { id: 'recipes', label: 'Recipes' },
-  { id: 'usage', label: 'Usage' },
+  { id: 'types', label: 'types' },
+  { id: 'usage', label: 'usage' },
+  { id: 'accessibility', label: 'accessibility' },
+  { id: 'theming', label: 'theming' },
+  { id: 'api', label: 'api' },
 ];
 
 export const load = () => ({ toc });

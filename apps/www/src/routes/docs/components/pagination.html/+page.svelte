@@ -9,6 +9,8 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import Pagination from '$lib/ui/pagination/pagination.svelte';
   import PaginationContent from '$lib/ui/pagination/pagination-content.svelte';
   import PaginationItem from '$lib/ui/pagination/pagination-item.svelte';
@@ -18,6 +20,8 @@
   import PaginationEllipsis from '$lib/ui/pagination/pagination-ellipsis.svelte';
   import { pageRange } from '$lib/ui/pagination/pagination-range';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayRow, PlayRange, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
@@ -179,6 +183,81 @@ ${close}
           <dt class="text-muted-foreground">page 2 / 4</dt><dd>{windows[4]}</dd>
         </dl>
         <CodeBlock code={usage} lang="svelte" meta="usage" />
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="types" data-reveal="">
+    <SectionCard eyebrow="types" title="Composable pagination parts" summary="The nav root provides the landmark; small parts keep list structure, links, edges, and gaps semantically explicit.">
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {#each [
+          ['Pagination', 'nav landmark and density root'],
+          ['PaginationContent', 'ul list container'],
+          ['PaginationItem', 'li list item'],
+          ['PaginationLink', 'numbered page link or button'],
+          ['PaginationPrevious / Next', 'edge controls or disabled spans'],
+          ['PaginationEllipsis', 'decorative collapsed range'],
+        ] as item}
+          <div class="border border-border/60 p-3"><p class="font-nav text-sm">{item[0]}</p><p class="mt-1 text-xs text-muted-foreground">{item[1]}</p></div>
+        {/each}
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="usage" data-reveal="">
+    <SectionCard eyebrow="usage" title="Render a page window" summary="Use pageRange for the pure window calculation, then map its page numbers and ellipsis tokens to composed pagination parts.">
+      <CodeBlock code={usage} lang="svelte" meta="usage" />
+    </SectionCard>
+  </div>
+
+  <div id="accessibility" data-reveal="">
+    <SectionCard eyebrow="a11y" title="Honest pagination controls" summary="Every destination stays a real link, the active page is announced, and unavailable edges render as disabled text rather than dead links.">
+      <A11yTable
+        keys={[{ key: 'Tab', action: 'Move through page and edge controls' }, { key: 'Enter', action: 'Follow a numbered or edge link' }, { key: 'Space', action: 'Activate an onclick-only page button' }]}
+        aria={[{ name: 'aria-label', value: "'Pagination' by default", description: 'Names the navigation landmark.' }, { name: 'aria-current', value: "'page' on active link", description: 'Announces the current page.' }, { name: 'aria-disabled', value: 'true at bounds', description: 'Marks unavailable Previous and Next controls.' }, { name: 'aria-hidden', value: 'true on ellipsis', description: 'Keeps collapsed-range decoration out of the reading order.' }]}
+      />
+    </SectionCard>
+  </div>
+
+  <div id="theming" data-reveal="">
+    <SectionCard eyebrow="theming" title="Density-aligned page chips" summary="List gaps, link targets, and chip labels all consume the shared density scale; press tokens give interactive pages their elevation pose.">
+      <div class="flex flex-col gap-5">
+        <DensityDemo>
+          <Pagination label="Example pagination"><PaginationContent><PaginationItem><PaginationLink page={1} isActive href="#usage" /></PaginationItem><PaginationItem><PaginationLink page={2} href="#api" /></PaginationItem></PaginationContent></Pagination>
+        </DensityDemo>
+        <TokenTable tokens={[
+          { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density', description: 'PaginationContent item spacing.' },
+          { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density', description: 'Minimum page-chip target.' },
+          { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Chip and ellipsis inline padding.' },
+          { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density', description: 'Page-chip label size.' },
+          { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density', description: 'Page-chip label line height.' },
+          { name: '--jx-press-shadow-hover', default: 'var(--shadow-xs)', source: 'component', description: 'Non-current page hover elevation.' },
+          { name: '--jx-press-shadow-active', default: 'var(--shadow-xs-press)', source: 'component', description: 'Non-current page active pose.' },
+        ]} />
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal="">
+    <SectionCard eyebrow="api" title="Props" summary="The root and links carry the core public contract; composition supplies list structure and page-window policy.">
+      <div class="flex flex-col gap-6">
+        <PropsTable title="Pagination" props={[
+          { name: 'density', type: 'Density', default: 'inherited', description: 'Overrides the surrounding density scale.' },
+          { name: 'label', type: 'string', default: "'Pagination'", description: 'Accessible nav landmark name.' },
+          { name: 'children', type: 'Snippet', required: true, description: 'Composed pagination parts.' },
+        ]} />
+        <PropsTable title="PaginationLink" props={[
+          { name: 'page', type: 'number', required: true, description: 'Page number and default visible label.' },
+          { name: 'isActive', type: 'boolean', default: 'false', description: 'Applies active paint and aria-current=page.' },
+          { name: 'href', type: 'string', default: 'undefined', description: 'Destination; omit only for an onclick-only button.' },
+          { name: 'onclick', type: '(event: MouseEvent) => void', default: 'undefined', description: 'Click-only page action.' },
+          { name: 'child', type: 'Snippet', default: 'undefined', description: 'Optional replacement anchor element.' },
+        ]} />
+        <PropsTable title="PaginationPrevious and PaginationNext" props={[
+          { name: 'href', type: 'string', default: 'undefined', description: 'Destination; omission renders an honest disabled span.' },
+          { name: 'onclick', type: '(event: MouseEvent) => void', default: 'undefined', description: 'Click-only edge action.' },
+          { name: 'children', type: 'Snippet', default: 'default label', description: 'Replacement edge label.' },
+        ]} />
       </div>
     </SectionCard>
   </div>

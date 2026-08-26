@@ -5,11 +5,15 @@
   RTL geometry demo. The form.html route remains as the family hub.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TagsInput, { type Tag } from '$lib/ui/tags-input/tags-input.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayRow, PlaySegmented, PlayHelp } from '$lib/playground';
@@ -265,5 +269,130 @@ const stackSuggestions: Tag[] = [
       </div>
     </SectionCard>
   </div>
+  </div>
+</div>
+
+<!-- Material3 standard sections (2026-08-26): types / usage / a11y /
+     theming / api appended after the demo sections, same wrapper law as
+     checkbox.html. -->
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal="">
+    <SectionCard
+      family="types"
+      headerRegion="types"
+      eyebrow="types"
+      title="TagsInput variants"
+      summary="The suggestion-backed host, the maxTags-capped field, a pinned (non-removable) chip, and the error state."
+    >
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="border border-border p-4">
+          <TagsInput label="with suggestions" tags={[{ value: 'svelte' }]} suggestions={tagSuggestions} />
+        </div>
+        <div class="border border-border p-4">
+          <TagsInput label="maxTags 2 (capped)" tags={[{ value: 'node' }, { value: 'bun' }]} maxTags={2} />
+        </div>
+        <div class="border border-border p-4">
+          <TagsInput label="pinned chip" tags={[{ value: 'owner', removable: false }, { value: 'release' }]} />
+        </div>
+        <div class="border border-border p-4">
+          <TagsInput label="error" tags={[]} error="at least one label is required" />
+        </div>
+      </div>
+    </SectionCard>
+  </div>
+  <div id="usage" data-reveal="">
+    <SectionCard
+      family="usage"
+      headerRegion="usage"
+      eyebrow="usage"
+      title="Usage"
+      summary="Bind the Tag[] set; suggestions, the cap, and duplicate policy are plain props."
+    >
+      <CodeBlock code={tagsUsage} lang="svelte" meta="TagsInput usage" />
+    </SectionCard>
+  </div>
+  <div id="accessibility" data-reveal="">
+    <SectionCard
+      family="accessibility"
+      headerRegion="accessibility"
+      eyebrow="a11y"
+      title="Accessibility"
+      summary="The typing input is a combobox over a horizontal listbox of chips; the suggestion popover rides aria-activedescendant with focus never leaving the field."
+    >
+      <A11yTable
+        keys={[
+          { key: 'Tab', action: 'Moves focus into the typing input; leaving commits the pending text' },
+          { key: 'Enter', action: 'Commits the highlighted suggestion or the typed text — never submits the form' },
+          { key: 'comma', action: 'Commits a chip; a pasted "a,b,c" splits into one commit per part' },
+          { key: 'Backspace', action: 'On an empty input, deletes the last removable chip' },
+          { key: '↑ / ↓', action: 'Roving highlight through the filtered suggestions (no wrap)' },
+          { key: 'Esc', action: 'Closes the suggestion popover (native popover close)' },
+        ]}
+        aria={[
+          { name: 'role', value: 'combobox', description: 'On the typing input, with aria-expanded synced live' },
+          { name: 'aria-activedescendant', value: '{id}-sug-{index}', description: 'Roving highlight ID into the suggestion listbox' },
+          { name: 'aria-autocomplete', value: '"list"', description: 'The input is backed by the suggestion list' },
+          { name: 'role (shell)', value: 'listbox', description: 'The chip host is a horizontal listbox; each chip is role="option" aria-selected="true"' },
+          { name: 'aria-label', value: '"remove {label}"', description: 'On every chip × button (type="button")' },
+          { name: 'aria-invalid', value: "'true'", description: 'On the input when the error prop is provided' },
+        ]}
+      />
+    </SectionCard>
+  </div>
+  <div id="theming" data-reveal="">
+    <SectionCard
+      family="theming"
+      headerRegion="theming"
+      eyebrow="theming"
+      title="Density and tokens"
+      summary="The shell, chips, and suggestion rows share the density-scope rhythm; resize the scope and the whole field follows."
+    >
+      <div class="flex flex-col gap-6">
+        <DensityDemo>
+          <TagsInput label="density sample" tags={[{ value: 'svelte' }, { value: 'node' }]} placeholder="Add tag..." />
+        </DensityDemo>
+        <TokenTable
+          tokens={[
+            { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' },
+            { name: '--jx-row-min', default: '28 / 32 / 40 / 48px', source: 'density' },
+            { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' },
+            { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' },
+            { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' },
+          ]}
+        />
+      </div>
+    </SectionCard>
+  </div>
+  <div id="api" data-reveal="">
+    <SectionCard
+      family="api"
+      headerRegion="api"
+      eyebrow="api"
+      title="API"
+      summary="Props extend the native HTML input attributes on the typing input; chips reach FormData through the faceless jx-form-field bridge as one JSON array of values."
+    >
+      <PropsTable
+        props={[
+          { name: 'tags', type: 'Tag[]', default: '[]', description: 'The committed tag set; bind:tags is the two-way contract.', bindable: true },
+          { name: 'suggestions', type: 'Tag[]', default: '[]', description: 'Filtered into the popover while typing (label-or-value contains, case-insensitive).' },
+          { name: 'name', type: 'string', default: '—', description: 'Form field name — the bridge submits the tag values as one JSON array string.' },
+          { name: 'placeholder', type: 'string', default: "'Add tag...'", description: 'Input placeholder while empty.' },
+          { name: 'label', type: 'string', default: '—', description: 'Field label rendered as label[for] above the control.' },
+          { name: 'error', type: 'string', default: '—', description: 'Error text: sets aria-invalid, wires aria-describedby, dashes the shell.' },
+          { name: 'maxTags', type: 'number', default: '—', description: 'Cap on the tag count; at the cap the input hides ("N/N tags").' },
+          { name: 'allowDuplicates', type: 'boolean', default: 'false', description: 'Allow the same value twice; false flashes the existing chip instead.' },
+          { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the input and every chip × (entry guards back the buttons).' },
+          { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface fill of the suggestion panel.' },
+        ]}
+      />
+      <PropsTable
+        title="Tag"
+        props={[
+          { name: 'value', type: 'string', default: '—', description: 'The committed tag identity — duplicates compare on this.', required: true },
+          { name: 'label', type: 'string', default: 'value', description: 'Display text.' },
+          { name: 'removable', type: 'boolean', default: 'true', description: 'Hides the × button; Backspace skips it too.' },
+        ]}
+      />
+    </SectionCard>
   </div>
 </div>

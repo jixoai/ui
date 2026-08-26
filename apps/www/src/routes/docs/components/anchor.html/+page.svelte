@@ -10,7 +10,11 @@
   import AnchorItem from '$lib/ui/anchor/anchor-item.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
@@ -144,6 +148,65 @@ ${close}
       title="Usage"
     >
       <CodeBlock code={usage} lang="svelte" meta="usage" />
+    </SectionCard>
+  </div>
+
+  <div id="types" data-reveal="">
+    <SectionCard eyebrow="types" title="Composed navigation family" summary="Anchor owns the navigation landmark and read-only scroll spy; AnchorItem owns each real fragment link.">
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="border border-border/60 p-3"><p class="font-nav text-sm">Anchor</p><p class="mt-1 text-xs text-muted-foreground">Landmark, density scope, label, and viewport pick line.</p></div>
+        <div class="border border-border/60 p-3"><p class="font-nav text-sm">AnchorItem</p><p class="mt-1 text-xs text-muted-foreground">Fragment link with active location styling.</p></div>
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="usage" data-reveal="">
+    <SectionCard eyebrow="usage" title="Compose fragment links" summary="Place AnchorItem elements in Anchor and point each href at an existing page fragment.">
+      <CodeBlock code={usage} lang="svelte" meta="usage" />
+    </SectionCard>
+  </div>
+
+  <div id="accessibility" data-reveal="">
+    <SectionCard eyebrow="a11y" title="Navigation landmarks" summary="Anchor uses native links and keeps the active section visible to assistive technology without replacing browser navigation.">
+      <A11yTable
+        keys={[{ key: 'Tab', action: 'Move through the fragment links' }, { key: 'Enter', action: 'Navigate to the target fragment' }]}
+        aria={[{ name: 'aria-label', value: "'on this page' by default", description: 'Names the navigation landmark.' }, { name: 'aria-current', value: "'location' on active item", description: 'Announces the section selected by the scroll spy.' }, { name: 'href', value: '#fragment', description: 'Preserves native fragment navigation.' }]}
+      />
+    </SectionCard>
+  </div>
+
+  <div id="theming" data-reveal="">
+    <SectionCard eyebrow="theming" title="Density-aware rail" summary="Both root spacing and link geometry consume inherited density tokens, preserving the pick rail across scopes.">
+      <div class="flex flex-col gap-5">
+        <DensityDemo>
+          <div class="border-l border-border"><a class="flex min-h-[var(--jx-hit)] items-center border-l-2 border-l-primary px-[var(--jx-inset)] font-nav text-[length:var(--jx-text)] leading-[var(--jx-line)]" href="#types">types</a></div>
+        </DensityDemo>
+        <TokenTable tokens={[
+          { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density', description: 'Minimum fragment-link target height.' },
+          { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density', description: 'AnchorItem inline padding.' },
+          { name: '--jx-stack', default: '4 / 4 / 8 / 8px', source: 'density', description: 'Vertical rail spacing.' },
+          { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density', description: 'AnchorItem label size.' },
+          { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density', description: 'AnchorItem label line height.' },
+        ]} />
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal="">
+    <SectionCard eyebrow="api" title="Props" summary="The root carries landmark and pick-line configuration; each item is an ordinary composable anchor.">
+      <div class="flex flex-col gap-6">
+        <PropsTable title="Anchor" props={[
+          { name: 'density', type: 'Density', default: 'inherited', description: 'Overrides the surrounding density scope.' },
+          { name: 'label', type: 'string', default: "'on this page'", description: 'Accessible navigation landmark name.' },
+          { name: 'offset', type: 'number', default: '96', description: 'Viewport-top pick line in pixels.' },
+          { name: 'children', type: 'Snippet', required: true, description: 'AnchorItem content.' },
+        ]} />
+        <PropsTable title="AnchorItem" props={[
+          { name: 'href', type: 'string', required: true, description: 'Target fragment such as #section-id.' },
+          { name: 'child', type: 'Snippet', default: 'undefined', description: 'Optional replacement anchor element.' },
+          { name: 'children', type: 'Snippet', default: 'undefined', description: 'Visible link label.' },
+        ]} />
+      </div>
     </SectionCard>
   </div>
   </div>

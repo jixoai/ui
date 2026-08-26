@@ -10,11 +10,15 @@
   Constraint: docs only — the component family itself is untouchable.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import Popconfirm from '$lib/ui/popconfirm/popconfirm.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import { CATALOG } from '$lib/catalog';
@@ -181,4 +185,12 @@ ${close}
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Confirmation variants" summary="Use destructive confirmation by default, or switch the confirm tone for positive actions."><div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><Popconfirm title="Delete this row?"><PressButton>destructive</PressButton></Popconfirm></div><div class="border border-border p-4"><Popconfirm title="Merge this branch?" confirmTone="primary"><PressButton>primary</PressButton></Popconfirm></div></div></SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The trigger stays in children; content and actions snippets are optional overrides."><CodeBlock code={usage} lang="svelte" meta="Popconfirm usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="A compact dialog-like popover puts the safe cancel action first and treats every light dismissal as cancel."><A11yTable keys={[{ key: 'Tab', action: 'Move between Cancel and Confirm.' }, { key: 'Escape', action: 'Cancel and close the popover.' }]} aria={[{ name: 'role', value: 'dialog', description: 'Exposes the confirmation surface.' }, { name: 'aria-labelledby', value: '{id}-title', description: 'Names the default title content.' }, { name: 'aria-describedby', value: '{id}-desc', description: 'References the optional description.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Confirmation controls use the shared density rhythm plus a small panel gap."><div class="flex flex-col gap-5"><DensityDemo scopes={['xs', 'default', 'lg']}><Popconfirm title="Confirm?" onconfirm={() => {}}><PressButton>action</PressButton></Popconfirm></DensityDemo><TokenTable tokens={[{ name: '--jx-pc-gap', default: '8px', source: 'component' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Popconfirm props separate the trigger, default copy, callbacks, placement, and snippet escape hatches."><PropsTable props={[{ name: 'title', type: 'string', required: true, description: 'Question shown by the default content.' }, { name: 'description', type: 'string', description: 'Supporting line in the default content.' }, { name: 'onconfirm', type: '() => void', description: 'Runs on confirm before close.' }, { name: 'oncancel', type: '() => void', description: 'Runs on any non-confirm dismissal.' }, { name: 'confirmTone', type: "'destructive' | 'primary'", default: "'destructive'", description: 'Confirm button paint.' }, { name: 'placement', type: "'top' | 'bottom' | 'left' | 'right'", default: "'top'", description: 'Panel anchor placement.' }, { name: 'content', type: 'Snippet', description: 'Replaces the title and description area.' }, { name: 'actions', type: 'Snippet', description: 'Replaces the confirm and cancel row.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }]} /></SectionCard></div>
 </div>

@@ -1,7 +1,12 @@
 <script lang="ts">
+  import CodeBlock from '$lib/code-block.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import Table from '$lib/ui/table/table.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayRow, PlayRange, PlayToggle, PlaySegmented, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -231,6 +236,16 @@
     </ComponentCanvas>
   </div>
   </div>
+
+  <div id="types" data-reveal="">
+    <SectionCard eyebrow="types" title="Responsive modes" summary="Keep the native table markup; dense reduces row height and stack selects the narrow-frame card law.">
+      <div class="grid gap-4 md:grid-cols-2"><Table caption="default"><tbody><tr><td>regular rows</td></tr></tbody></Table><Table dense stack={false} caption="dense scroll"><tbody><tr><td>compact, always scrollable</td></tr></tbody></Table></div>
+    </SectionCard>
+  </div>
+  <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'caption', value: 'native table caption', description: 'Names the table for assistive technology.' }, { name: 'scope', value: 'col | row', description: 'Associates headers with their cells.' }, { name: 'data-label', value: 'string', description: 'Labels values in the narrow card layout.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Table caption="density"><tbody><tr><td>row</td></tr></tbody></Table></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-table-surface', default: 'var(--background)', source: 'component' }, { name: '--jx-table-head', default: 'var(--muted)', source: 'component' }, { name: '--jx-table-hover', default: 'primary 7% mix', source: 'color' }, { name: '--jx-table-hairline', default: 'border 12% mix', source: 'color' }, { name: '--jx-table-rule', default: 'border 18% mix', source: 'color' }, { name: '--jx-table-edge', default: 'border 34% mix', source: 'color' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Table props"><PropsTable props={[{ name: 'caption', type: 'string', default: "''", description: 'Native table caption.' }, { name: 'dense', type: 'boolean', default: 'false', description: 'Uses compact row padding.' }, { name: 'stack', type: 'boolean', default: 'true', description: 'Enables narrow-frame card rows.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }, { name: 'style', type: 'string', default: "''", description: 'Overrides local table tokens.' }]} /></SectionCard></div>
 </div>
 
 <style>

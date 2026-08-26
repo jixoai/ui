@@ -5,12 +5,16 @@
   the RTL geometry demo. The form.html route remains as the family hub.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import Input from '$lib/ui/input/input.svelte';
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import Select, { type SelectOption } from '$lib/ui/select/select.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
@@ -275,5 +279,127 @@
       </div>
     </SectionCard>
   </div>
+  </div>
+</div>
+
+<!-- Material3 standard sections (2026-08-26): types / usage / a11y /
+     theming / api appended after the demo sections, same wrapper law as
+     checkbox.html. -->
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal="">
+    <SectionCard
+      family="types"
+      headerRegion="types"
+      eyebrow="types"
+      title="Select variants"
+      summary="The popover listbox with plain rows, rows carrying descriptions, a disabled row, and the error state."
+    >
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="border border-border p-4">
+          <Select
+            label="descriptions"
+            options={runtimeOptions}
+            placeholder="open for second lines…"
+          />
+        </div>
+        <div class="border border-border p-4">
+          <Select
+            label="error"
+            options={[
+              { value: '', label: '— choose —' },
+              { value: 'free', label: 'free' },
+              { value: 'pro', label: 'pro' },
+            ]}
+            error="plan is required"
+          />
+        </div>
+      </div>
+    </SectionCard>
+  </div>
+  <div id="usage" data-reveal="">
+    <SectionCard
+      family="usage"
+      headerRegion="usage"
+      eyebrow="usage"
+      title="Usage"
+      summary="Bind the committed value; rows with descriptions and disabled entries are plain data on the options array."
+    >
+      <CodeBlock code={selectUsage} lang="svelte" meta="Select usage" />
+    </SectionCard>
+  </div>
+  <div id="accessibility" data-reveal="">
+    <SectionCard
+      family="accessibility"
+      headerRegion="accessibility"
+      eyebrow="a11y"
+      title="Accessibility"
+      summary="A real listbox contract on top of the native popover: roving highlight via aria-activedescendant, focus restitution to the trigger on every close path."
+    >
+      <A11yTable
+        keys={[
+          { key: 'Tab', action: 'Moves focus to the trigger button' },
+          { key: '↑ / ↓ (closed)', action: 'Opens the panel, like the native select' },
+          { key: '↑ / ↓ (open)', action: 'Moves the highlight, skipping disabled rows; no wrap' },
+          { key: 'Home / End', action: 'Jumps to the first / last enabled row' },
+          { key: 'Enter / Space', action: 'Chooses the highlighted row and closes the panel' },
+          { key: 'Esc / outside click', action: 'Light dismiss from popover="auto"; focus returns to the trigger' },
+        ]}
+        aria={[
+          { name: 'aria-haspopup', value: '"listbox"', description: 'On the trigger button, with aria-expanded synced live' },
+          { name: 'aria-activedescendant', value: '{id}-opt-{index}', description: 'Roving highlight ID on the focusable list' },
+          { name: 'aria-selected', value: "'true' / 'false'", description: 'On each role="option" row' },
+          { name: 'aria-invalid', value: "'true'", description: 'On the trigger when the error prop is provided' },
+          { name: 'aria-describedby', value: '{id}-error', description: 'Points at the "! message" validation line' },
+        ]}
+      />
+    </SectionCard>
+  </div>
+  <div id="theming" data-reveal="">
+    <SectionCard
+      family="theming"
+      headerRegion="theming"
+      eyebrow="theming"
+      title="Density and tokens"
+      summary="Trigger and panel rows share the density-scope rhythm; resize the scope and the trigger, rows, and label stack resize together."
+    >
+      <div class="flex flex-col gap-6">
+        <DensityDemo>
+          <Select label="density sample" options={runtimeOptions} placeholder="pick a runtime…" />
+        </DensityDemo>
+        <TokenTable
+          tokens={[
+            { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' },
+            { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' },
+            { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' },
+            { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' },
+            { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' },
+          ]}
+        />
+      </div>
+    </SectionCard>
+  </div>
+  <div id="api" data-reveal="">
+    <SectionCard
+      family="api"
+      headerRegion="api"
+      eyebrow="api"
+      title="API"
+      summary="Props extend native button attributes on the trigger; form submission rides the faceless jx-form-field bridge (the committed value, never the label, reaches FormData)."
+    >
+      <PropsTable
+        props={[
+          { name: 'options', type: 'SelectOption[]', default: '—', description: 'The full option list; order = panel order.', required: true },
+          { name: 'value', type: 'string', default: '—', description: 'Committed value; undefined shows the placeholder.', bindable: true },
+          { name: 'placeholder', type: 'string', default: "'Select...'", description: 'Trigger text when nothing is selected.' },
+          { name: 'label', type: 'string', default: '—', description: 'Field label rendered as label[for] above the trigger.' },
+          { name: 'name', type: 'string', default: '—', description: 'Form field name — the bridge submits the committed value under it.' },
+          { name: 'error', type: 'string', default: '—', description: 'Error text: sets aria-invalid, wires aria-describedby, dashes the shell.' },
+          { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the trigger and the form-bridge field.' },
+          { name: 'multiple', type: 'boolean', default: 'false', description: 'Reserved extension direction — not implemented in v1 (warns).' },
+          { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface fill of the panel.' },
+          { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'inherited', description: 'Overrides the inherited density scope.' },
+        ]}
+      />
+    </SectionCard>
   </div>
 </div>

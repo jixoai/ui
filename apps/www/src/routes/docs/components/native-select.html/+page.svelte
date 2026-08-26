@@ -6,12 +6,16 @@
   as the family hub.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
@@ -222,5 +226,128 @@
       </div>
     </SectionCard>
   </div>
+  </div>
+</div>
+
+<!-- Material3 standard sections (2026-08-26): types / usage / a11y /
+     theming / api appended after the demo sections, same wrapper law as
+     checkbox.html. -->
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal="">
+    <SectionCard
+      family="types"
+      headerRegion="types"
+      eyebrow="types"
+      title="NativeSelect variants"
+      summary="The single popup select, the multiple list-box posture, the error state, and the disabled field."
+    >
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="border border-border p-4">
+          <NativeSelect label="single" name="types-single">
+            <option value="node">node</option>
+            <option value="bun">bun</option>
+            <option value="deno">deno</option>
+          </NativeSelect>
+        </div>
+        <div class="border border-border p-4">
+          <NativeSelect label="multiple (list box)" name="types-multiple" multiple>
+            <option value="linux">linux</option>
+            <option value="macos">macos</option>
+            <option value="windows">windows</option>
+          </NativeSelect>
+        </div>
+        <div class="border border-border p-4">
+          <NativeSelect label="error" name="types-error" error="plan is required">
+            <option value="">— choose —</option>
+            <option value="free">free</option>
+          </NativeSelect>
+        </div>
+        <div class="border border-border p-4">
+          <NativeSelect label="disabled" name="types-disabled" disabled>
+            <option>frozen</option>
+          </NativeSelect>
+        </div>
+      </div>
+    </SectionCard>
+  </div>
+  <div id="usage" data-reveal="">
+    <SectionCard
+      family="usage"
+      headerRegion="usage"
+      eyebrow="usage"
+      title="Usage"
+      summary="Options arrive as <option>/<optgroup> children; the popup, keyboard navigation, and type-ahead stay the platform's."
+    >
+      <CodeBlock code={usage} lang="svelte" meta="NativeSelect usage" />
+    </SectionCard>
+  </div>
+  <div id="accessibility" data-reveal="">
+    <SectionCard
+      family="accessibility"
+      headerRegion="accessibility"
+      eyebrow="a11y"
+      title="Accessibility"
+      summary="The native select keeps every platform behavior; the component wires the label and the validation message to the control."
+    >
+      <A11yTable
+        keys={[
+          { key: 'Tab', action: 'Moves focus to the select' },
+          { key: '↑ / ↓', action: 'Steps through options in the platform popup' },
+          { key: 'type-ahead', action: 'Jumps to the option starting with the typed text' },
+          { key: 'Ctrl / Cmd', action: 'Multi-selects rows in the multiple list-box mode' },
+        ]}
+        aria={[
+          { name: 'aria-invalid', value: "'true'", description: 'Set on the native select when the error prop is provided' },
+          { name: 'aria-describedby', value: '{id}-error', description: 'Points at the "! message" validation line' },
+        ]}
+      />
+    </SectionCard>
+  </div>
+  <div id="theming" data-reveal="">
+    <SectionCard
+      family="theming"
+      headerRegion="theming"
+      eyebrow="theming"
+      title="Density and tokens"
+      summary="The closed-control shell, chevron, and label rhythm are density-scope tokens; resize the scope and the whole field follows (the popup stays the platform's)."
+    >
+      <div class="flex flex-col gap-6">
+        <DensityDemo>
+          <NativeSelect label="density sample" name="density-native-select">
+            <option value="node">node</option>
+            <option value="bun">bun</option>
+            <option value="deno">deno</option>
+          </NativeSelect>
+        </DensityDemo>
+        <TokenTable
+          tokens={[
+            { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' },
+            { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' },
+            { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' },
+            { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' },
+            { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' },
+          ]}
+        />
+      </div>
+    </SectionCard>
+  </div>
+  <div id="api" data-reveal="">
+    <SectionCard
+      family="api"
+      headerRegion="api"
+      eyebrow="api"
+      title="API"
+      summary="Props extend the native HTML select attributes; the entries below are the component-owned additions. Everything else (name, disabled, required, multiple, size…) rides through restProps."
+    >
+      <PropsTable
+        props={[
+          { name: 'children', type: 'Snippet', default: '—', description: 'The <option> / <optgroup> list, authored by the caller.', required: true },
+          { name: 'label', type: 'string', default: '—', description: 'Field label rendered as label[for] above the control.' },
+          { name: 'error', type: 'string', default: '—', description: 'Error text: sets aria-invalid, wires aria-describedby, dashes the shell.' },
+          { name: 'value', type: 'string | string[]', default: '—', description: 'Bindable; bound ⇒ controlled two-way, absent ⇒ uncontrolled native select.', bindable: true },
+          { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'inherited', description: 'Overrides the inherited density scope.' },
+        ]}
+      />
+    </SectionCard>
   </div>
 </div>

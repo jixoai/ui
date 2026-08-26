@@ -1,8 +1,12 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import FloatButton from '$lib/ui/float-button/float-button.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
@@ -221,5 +225,60 @@ ${close}
         </ul>
       </SectionCard>
     </div>
+  </div>
+
+  <div id="types" data-reveal="">
+    <SectionCard eyebrow="types" title="Plain action or action menu" summary="A FloatButton remains one corner-anchored control; passing actions changes it into a native popover menu trigger.">
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="border border-border/60 p-3"><p class="font-nav text-sm">Plain</p><p class="mt-1 text-xs text-muted-foreground">A single fixed command via onclick.</p></div>
+        <div class="border border-border/60 p-3"><p class="font-nav text-sm">Menu</p><p class="mt-1 text-xs text-muted-foreground">An actions snippet opens an anchored popover menu.</p></div>
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="usage" data-reveal="">
+    <SectionCard eyebrow="usage" title="Float an action" summary="Set the accessible label, choose the viewport corner, then supply either a direct action or an actions snippet.">
+      <CodeBlock code={usage} lang="svelte" meta="usage" />
+    </SectionCard>
+  </div>
+
+  <div id="accessibility" data-reveal="">
+    <SectionCard eyebrow="a11y" title="Menu semantics" summary="The visible glyph is decorative; label names the trigger. Native popover behavior provides the expected dismissal path.">
+      <A11yTable
+        keys={[{ key: 'Tab', action: 'Focus the floating action or an open menu item' }, { key: 'Enter / Space', action: 'Activate the plain action or toggle the menu' }, { key: 'Escape', action: 'Dismiss the popover menu' }]}
+        aria={[{ name: 'aria-label', value: 'label', description: 'Names the icon-only floating action.' }, { name: 'aria-haspopup', value: 'menu when actions exist', description: 'Announces the menu trigger.' }, { name: 'aria-expanded', value: 'open state', description: 'Reports whether the menu is visible.' }]}
+      />
+    </SectionCard>
+  </div>
+
+  <div id="theming" data-reveal="">
+    <SectionCard eyebrow="theming" title="Corner geometry and density" summary="The fixed control consumes the shared density scale and locally repoints the press-shadow poses for its elevated surface.">
+      <div class="flex flex-col gap-5">
+        <DensityDemo>
+          <button type="button" class="jx-press inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] items-center justify-center border border-border bg-popover text-popover-foreground [--jx-press-shadow:var(--shadow)] [--jx-press-shadow-hover:var(--shadow-md)] [--jx-press-shadow-active:var(--shadow-md-press)]" aria-label="example floating action">+</button>
+        </DensityDemo>
+        <TokenTable tokens={[
+          { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density', description: 'Minimum floating action target.' },
+          { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Offset between fixed button and menu stack.' },
+          { name: '--jx-press-shadow', default: 'var(--shadow)', source: 'component', description: 'Resting float elevation.' },
+          { name: '--jx-press-shadow-hover', default: 'var(--shadow-md)', source: 'component', description: 'Hover elevation.' },
+          { name: '--jx-press-shadow-active', default: 'var(--shadow-md-press)', source: 'component', description: 'Pressed elevation pose.' },
+        ]} />
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal="">
+    <SectionCard eyebrow="api" title="Props" summary="FloatButton owns position and popover wiring while leaving command content to the caller.">
+      <PropsTable props={[
+        { name: 'label', type: 'string', required: true, description: 'Accessible name for the icon-only control.' },
+        { name: 'density', type: 'Density', default: 'inherited', description: 'Overrides the surrounding density scale.' },
+        { name: 'corner', type: "'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'", default: "'bottom-right'", description: 'Viewport corner for the fixed control.' },
+        { name: 'onclick', type: '() => void', default: 'undefined', description: 'Plain-action handler.' },
+        { name: 'actions', type: 'Snippet', default: 'undefined', description: 'Turns the control into a popover menu trigger.' },
+        { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Menu panel surface treatment.' },
+        { name: 'children', type: 'Snippet', required: true, description: 'Decorative icon or glyph.' },
+      ]} />
+    </SectionCard>
   </div>
 </div>

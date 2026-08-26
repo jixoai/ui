@@ -5,9 +5,13 @@
   remains as the family hub.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import Range from '$lib/ui/range/range.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
@@ -139,4 +143,12 @@
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Range variants" summary="Use a plain slider for continuous input, or add steps and ticks when values are discrete."><div class="grid gap-4 sm:grid-cols-3"><div class="border border-border p-4"><Range label="continuous" value={40} /></div><div class="border border-border p-4"><Range label="stepped" value={4} min={0} max={10} step={1} /></div><div class="border border-border p-4"><Range label="with ticks" value={50} ticks /></div></div></SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Bind the numeric value; min, max, step, ticks, and RTL all remain explicit props."><CodeBlock code={rangeUsage} lang="svelte" meta="Range usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The custom track implements the complete aria-slider keyboard contract on its focusable root."><A11yTable keys={[{ key: 'Arrow keys', action: 'Change by step' }, { key: 'Home / End', action: 'Jump to min / max' }, { key: 'Page Up / Down', action: 'Change by a larger step when supported' }]} aria={[{ name: 'role', value: 'slider', description: 'Exposes the custom control as a slider' }, { name: 'aria-valuemin/max/now', value: 'numbers', description: 'Reports bounds and current value' }, { name: 'aria-labelledby', value: '{id}-label', description: 'Connects the visible label' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The slider hit area, groove, thumb, and readout consume shared density and slider tokens."><div class="flex flex-col gap-5"><DensityDemo><Range label="density sample" value={50} /></DensityDemo><TokenTable tokens={[{ name: '--jx-slider-track', default: 'max(var(--jx-unit), calc(var(--jx-line) / 2))', source: 'component' }, { name: '--jx-tick-step', default: 'runtime step percentage', source: 'component' }, { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props define the numeric model, naming, visual options, and form lifecycle."><PropsTable props={[{ name: 'value', type: 'number', default: '0', description: 'Bindable committed value snapped to the step.', bindable: true }, { name: 'min', type: 'number', default: '0', description: 'Lower bound.' }, { name: 'max', type: 'number', default: '100', description: 'Upper bound.' }, { name: 'step', type: 'number', default: '1', description: 'Increment used by pointer and keyboard input.' }, { name: 'ticks', type: 'boolean', default: 'false', description: 'Draws one mark per step.' }, { name: 'showValue', type: 'boolean', default: 'true', description: 'Shows the current value readout.' }, { name: 'error', type: 'string', default: '—', description: 'Adds invalid state and message.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Blocks pointer and keyboard interaction.' }]} /></SectionCard></div>
 </div>

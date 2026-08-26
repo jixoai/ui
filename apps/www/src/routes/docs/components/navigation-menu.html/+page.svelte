@@ -11,9 +11,13 @@
   Constraint: docs only — the component family itself is untouchable.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import NavigationMenu from '$lib/ui/navigation-menu/navigation-menu.svelte';
@@ -169,3 +173,11 @@ ${close}
     outline-offset: -1px;
   }
 </style>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Navigation variants" summary="Use trigger panels for grouped links and bare links for direct navigation."><div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><NavigationMenu label="grouped"><NavigationMenuItem><NavigationMenuTrigger>Product</NavigationMenuTrigger><NavigationMenuPanel><NavigationMenuLink href="/docs">Overview</NavigationMenuLink></NavigationMenuPanel></NavigationMenuItem></NavigationMenu></div><div class="border border-border p-4"><NavigationMenu label="direct"><NavigationMenuLink href="/docs" current>Docs</NavigationMenuLink></NavigationMenu></div></div></SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Keep navigation links in panels; actions belong in dropdown-menu."><CodeBlock code={usage} lang="svelte" meta="NavigationMenu usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The bar exposes one roving tab stop and keeps every destination a real link."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move between top-level triggers and wrap.' }, { key: 'Enter / Space', action: 'Open the focused trigger panel.' }, { key: 'Escape', action: 'Close the panel and restore focus to its trigger.' }]} aria={[{ name: 'aria-current', value: 'page / true', description: 'Marks the current destination.' }, { name: 'aria-controls', value: 'panel id', description: 'Pairs a trigger with its panel.' }, { name: 'aria-expanded', value: 'boolean', description: 'Mirrors the native popover toggle state.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Navigation links and panels inherit shared density tokens; the panel adds popover padding tokens."><div class="flex flex-col gap-5"><DensityDemo scopes={['xs', 'default', 'lg']}><NavigationMenu label="density"><NavigationMenuLink href="/docs">docs</NavigationMenuLink></NavigationMenu></DensityDemo><TokenTable tokens={[{ name: '--jx-pop-pad', default: '12px 14px', source: 'component' }, { name: '--jx-pop-pad-inline', default: '14px', source: 'component' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Root, item, trigger, panel, and link parts keep navigation composition explicit."><PropsTable title="NavigationMenu" props={[{ name: 'label', type: 'string', default: "'site'", description: 'Accessible navigation landmark label.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating panel surface treatment.' }]} /><div class="mt-5"><PropsTable title="NavigationMenuTrigger / Link" props={[{ name: 'current', type: 'boolean', default: 'false', description: 'Paints the current section and sets aria-current.' }, { name: 'href', type: 'string', description: 'Destination for a navigation link.' }, { name: 'id', type: 'string', description: 'Stable item id used to pair trigger and panel.' }]} /></div></SectionCard></div>
+</div>

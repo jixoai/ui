@@ -1,10 +1,14 @@
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import DropdownMenu from '$lib/ui/dropdown-menu/dropdown-menu.svelte';
   import DropdownMenuItem from '$lib/ui/dropdown-menu/dropdown-menu-item.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
@@ -141,4 +145,18 @@ ${close}
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Menu variants" summary="Choose the placement and surface treatment that fit the action cluster.">
+    <div class="grid gap-4 sm:grid-cols-3">
+      <div class="border border-border p-4"><DropdownMenu id="types-default" triggerLabel="default"><DropdownMenuItem>Open</DropdownMenuItem></DropdownMenu></div>
+      <div class="border border-border p-4"><DropdownMenu id="types-start" triggerLabel="start" placement="bottom-start"><DropdownMenuItem>Open</DropdownMenuItem></DropdownMenu></div>
+      <div class="border border-border p-4"><DropdownMenu id="types-solid" triggerLabel="solid" variant="solid"><DropdownMenuItem>Open</DropdownMenuItem></DropdownMenu></div>
+    </div>
+  </SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose a trigger with menu items; separators remain native hr elements."><CodeBlock code={usage} lang="svelte" meta="DropdownMenu usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The menu follows the ARIA menu keyboard contract while keeping light dismiss native."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move between menu items and wrap at the ends.' }, { key: 'Home / End', action: 'Jump to the first or last enabled item.' }, { key: 'Enter / Space', action: 'Activate the focused item and close the menu.' }, { key: 'Escape', action: 'Close and restore focus to the trigger.' }]} aria={[{ name: 'role', value: 'menu / menuitem', description: 'Exposes the menu and its actionable items.' }, { name: 'aria-current', value: 'true', description: 'Marks the item currently walked by the keyboard.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Density scopes keep menu hit targets and type rhythm aligned."><div class="flex flex-col gap-5"><DensityDemo scopes={['xs', 'default', 'lg']}><DropdownMenu id="density-menu" triggerLabel="actions"><DropdownMenuItem>Rename</DropdownMenuItem></DropdownMenu></DensityDemo><TokenTable tokens={[{ name: '--jx-menu-gap', default: '8px', source: 'component' }, { name: '--jx-menu-pad', default: '4px', source: 'component' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-scrollbar-thin', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Root and item props define the menu surface and its selection behavior."><PropsTable title="DropdownMenu" props={[{ name: 'id', type: 'string', required: true, description: 'Stable id used to wire the trigger and popover panel.' }, { name: 'triggerLabel', type: 'string', default: "''", description: 'Label for the default trigger.' }, { name: 'placement', type: "'bottom' | 'bottom-end' | 'bottom-start' | 'top' | 'top-end' | 'top-start'", default: "'bottom-end'", description: 'Anchor placement for the panel.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating surface treatment.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }, { name: 'onToggle', type: '(open: boolean) => void', description: 'Receives native open-state changes.' }]} /><div class="mt-5"><PropsTable title="DropdownMenuItem" props={[{ name: 'destructive', type: 'boolean', default: 'false', description: 'Uses destructive paint while preserving menuitem semantics.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }]} /></div></SectionCard></div>
 </div>

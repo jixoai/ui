@@ -12,11 +12,15 @@
   Constraint: docs only — the component family itself is untouchable.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import Kbd from '$lib/ui/kbd/kbd.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import Command, {
@@ -192,4 +196,12 @@ ${close}
       </SectionCard>
     </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Command variants" summary="Use the palette for keyboard-first actions, optional hotkeys, and batch selection."><div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><Command><CommandInput placeholder="search actions" /><CommandList><CommandGroup heading="actions"><CommandItem label="Open">Open</CommandItem></CommandGroup></CommandList></Command></div><div class="border border-border p-4"><Command closeOnSelect={false}><CommandInput placeholder="batch actions" /><CommandList><CommandGroup heading="batch"><CommandItem label="Queue">Queue</CommandItem></CommandGroup></CommandList></Command></div></div></SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose the dialog root from its input, list, groups, empty state, and items."><CodeBlock code={usage} lang="svelte" meta="Command usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The input owns focus while the active option is announced through aria-activedescendant."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move through visible, enabled options.' }, { key: 'Home / End', action: 'Jump to the first or last option.' }, { key: 'Enter', action: 'Run the active option and close by default.' }, { key: 'Escape', action: 'Close the dialog and restore focus.' }]} aria={[{ name: 'role', value: 'combobox / listbox / option', description: 'Exposes the command palette interaction model.' }, { name: 'aria-activedescendant', value: 'option id', description: 'Announces the active option while input retains focus.' }, { name: 'aria-expanded', value: 'true', description: 'Indicates the open listbox state.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The palette uses shared density tokens for its input, options, and empty state."><div class="flex flex-col gap-5"><DensityDemo scopes={['xs', 'default', 'lg']}><Command><CommandInput placeholder="find" /><CommandList><CommandItem label="Open">Open</CommandItem></CommandList></Command></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Root props control lifecycle and matching; item props provide the searchable command contract."><PropsTable title="Command" props={[{ name: 'open', type: 'boolean', default: 'false', description: 'Bindable dialog open state.', bindable: true }, { name: 'hotkey', type: 'boolean', default: 'false', description: 'Opt into ⌘K / Ctrl+K handling.' }, { name: 'match', type: 'CommandMatch', description: 'Visibility-only matching predicate.' }, { name: 'closeOnSelect', type: 'boolean', default: 'true', description: 'Close after a successful item selection.' }, { name: 'label', type: 'string', default: "'command palette'", description: 'Accessible dialog and combobox label.' }]} /><div class="mt-5"><PropsTable title="CommandItem" props={[{ name: 'label', type: 'string', required: true, description: 'Match text and accessible name.' }, { name: 'keywords', type: 'string', description: 'Additional match text.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Renders but never walks or activates.' }, { name: 'onselect', type: '() => void', description: 'Runs once when selected.' }]} /></div></SectionCard></div>
 </div>

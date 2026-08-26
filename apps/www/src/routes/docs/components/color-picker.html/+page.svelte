@@ -5,9 +5,13 @@
   route remains as the family hub.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ColorPicker from '$lib/ui/color-picker/color-picker.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
@@ -128,4 +132,12 @@
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Color picker variants" summary="The trigger can show the swatch, the formatted value, or both; the value model supports three notations."><div class="grid gap-4 sm:grid-cols-3"><div class="border border-border p-4"><ColorPicker label="hex" value="#007924" format="hex" /></div><div class="border border-border p-4"><ColorPicker label="hsl" value="hsl(145 100% 24%)" format="hsl" /></div><div class="border border-border p-4"><ColorPicker label="oklch" value="oklch(0.6489 0.237 145)" format="oklch" showValue={false} /></div></div></SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Bind a string value and choose the notation emitted by the picker."><CodeBlock code={colorUsage} lang="svelte" meta="ColorPicker usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The trigger is a labelled button; the native popover supplies Escape and light-dismiss behavior."><A11yTable keys={[{ key: 'Enter / Space', action: 'Open the color picker popover' }, { key: 'Escape', action: 'Close the popover and restore trigger focus' }, { key: 'Tab', action: 'Move through the picker fields' }]} aria={[{ name: 'aria-expanded', value: 'true | false', description: 'Reflects popover visibility' }, { name: 'aria-controls', value: '{id}-panel', description: 'Connects trigger to its panel' }, { name: 'aria-invalid', value: 'true', description: 'Set when error is present' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Trigger lane geometry follows density; the picker panel keeps its color-space dimensions stable."><div class="flex flex-col gap-5"><DensityDemo><ColorPicker label="density sample" value="#007924" /></DensityDemo><TokenTable tokens={[{ name: '--jx-color-lane', default: 'max(var(--jx-hit), calc(var(--jx-icon) + ...))', source: 'component' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-color-picker-hue', default: 'runtime hue angle', source: 'component' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props control notation, trigger content, surface treatment, and validation."><PropsTable props={[{ name: 'value', type: 'string', default: "'#000000'", description: 'Bindable color string emitted in format.', bindable: true }, { name: 'format', type: "'hex' | 'hsl' | 'oklch'", default: "'hex'", description: 'Input and output notation.' }, { name: 'showSwatch', type: 'boolean', default: 'true', description: 'Shows the 16px color swatch.' }, { name: 'showValue', type: 'boolean', default: 'true', description: 'Shows formatted value text.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Popover surface treatment.' }, { name: 'error', type: 'string', default: '—', description: 'Adds invalid state and message.' }, { name: 'density', type: 'Density', default: 'inherited', description: 'Overrides the inherited density scope.' }]} /></SectionCard></div>
 </div>

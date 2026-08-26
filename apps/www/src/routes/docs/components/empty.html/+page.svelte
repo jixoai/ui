@@ -1,9 +1,13 @@
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import Empty from '$lib/ui/empty/empty.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
 
@@ -76,5 +80,10 @@
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
   </div>
+  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Empty composition" summary="Empty has one required title and optional description, illustration and actions slots."><div class="grid gap-4 md:grid-cols-2"><Empty title="no artifacts" /><Empty title="no checks" description="Add the first check.">{#snippet actions()}<PressButton>add check</PressButton>{/snippet}</Empty></div></SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'figure', value: 'empty root', description: 'Groups the no-data message.' }, { name: 'figcaption', value: 'title + description', description: 'Keeps the message discoverable.' }, { name: 'aria-hidden', value: 'illustration', description: 'Prevents decorative art from interrupting the message.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Empty title="no results" /></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Empty props"><PropsTable props={[{ name: 'title', type: 'string', description: 'No-data heading.', required: true }, { name: 'description', type: 'string', description: 'Optional supporting copy.' }, { name: 'illustration', type: 'Snippet', description: 'Replaces the default illustration.' }, { name: 'actions', type: 'Snippet', description: 'Renders recovery actions.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }]} /></SectionCard></div>
   </div>
 </div>

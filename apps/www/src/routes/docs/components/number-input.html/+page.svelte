@@ -5,10 +5,14 @@
   form.html route remains as the family hub.
 -->
 <script lang="ts">
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import NumberInput from '$lib/ui/number-input/number-input.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayRow, PlayRange, PlayHelp } from '$lib/playground';
@@ -193,5 +197,106 @@
       </div>
     </SectionCard>
   </div>
+  </div>
+</div>
+
+<!-- Material3 standard sections (2026-08-26): types / usage / a11y /
+     theming / api appended after the demo sections, same wrapper law as
+     checkbox.html. -->
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal="">
+    <SectionCard
+      family="types"
+      headerRegion="types"
+      eyebrow="types"
+      title="NumberInput variants"
+      summary="The integer stepper, the decimal-step stepper, the error state, and the disabled field."
+    >
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="border border-border p-4"><NumberInput label="workers" value={4} min={1} max={16} /></div>
+        <div class="border border-border p-4"><NumberInput label="timeout (s)" value={1.5} min={0.5} max={5} step={0.5} /></div>
+        <div class="border border-border p-4"><NumberInput label="error" value={7} min={1} max={4} error="max 4 workers per pod" /></div>
+        <div class="border border-border p-4"><NumberInput label="disabled" value={3} min={1} max={8} disabled /></div>
+      </div>
+    </SectionCard>
+  </div>
+  <div id="usage" data-reveal="">
+    <SectionCard
+      family="usage"
+      headerRegion="usage"
+      eyebrow="usage"
+      title="Usage"
+      summary="Bind the numeric value; min/max/step drive both the buttons and the native input's own stepping."
+    >
+      <CodeBlock code={numberUsage} lang="svelte" meta="NumberInput usage" />
+    </SectionCard>
+  </div>
+  <div id="accessibility" data-reveal="">
+    <SectionCard
+      family="accessibility"
+      headerRegion="accessibility"
+      eyebrow="a11y"
+      title="Accessibility"
+      summary="The inner control is a real type=number input; the stepper buttons carry labels, and disabled keeps the value readable for assistive tech."
+    >
+      <A11yTable
+        keys={[
+          { key: 'Tab', action: 'Moves focus to the centered number input' },
+          { key: '↑ / ↓', action: 'Steps by the step increment, clamped into [min, max] — native input behavior' },
+          { key: 'Enter / blur', action: 'Commits typed text; empty reverts to undefined, values clamp into range' },
+          { key: 'hold − / +', action: 'Steps once, accelerates after 300ms to one step every 100ms' },
+        ]}
+        aria={[
+          { name: 'aria-label', value: '"decrease" / "increase"', description: 'On the two stepper buttons (type="button")' },
+          { name: 'aria-invalid', value: "'true'", description: 'On the input when the error prop is provided' },
+          { name: 'aria-describedby', value: '{id}-error', description: 'Points at the "! message" validation line' },
+          { name: 'readonly (disabled)', value: 'attribute', description: 'Disabled turns the input readonly, not disabled — the value stays focusable and readable' },
+        ]}
+      />
+    </SectionCard>
+  </div>
+  <div id="theming" data-reveal="">
+    <SectionCard
+      family="theming"
+      headerRegion="theming"
+      eyebrow="theming"
+      title="Density and tokens"
+      summary="The shell row and the stepper buttons share the density hit token; resize the scope and the whole stepper follows."
+    >
+      <div class="flex flex-col gap-6">
+        <DensityDemo>
+          <NumberInput label="density sample" value={4} min={1} max={16} />
+        </DensityDemo>
+        <TokenTable
+          tokens={[
+            { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' },
+            { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' },
+            { name: '--jx-stack', default: '4 / 4 / 8 / 8px', source: 'density' },
+          ]}
+        />
+      </div>
+    </SectionCard>
+  </div>
+  <div id="api" data-reveal="">
+    <SectionCard
+      family="api"
+      headerRegion="api"
+      eyebrow="api"
+      title="API"
+      summary="Props extend the native HTML input attributes; the entries below are the component-owned additions. Everything else (name, placeholder, autocomplete…) rides through restProps."
+    >
+      <PropsTable
+        props={[
+          { name: 'value', type: 'number', default: '—', description: 'Committed quantity; undefined renders empty.', bindable: true },
+          { name: 'min', type: 'number', default: '—', description: 'Lower bound; stepping and the change-commit clamp into it.' },
+          { name: 'max', type: 'number', default: '—', description: 'Upper bound; stepping and the change-commit clamp into it.' },
+          { name: 'step', type: 'number', default: '1', description: 'Step increment; also the native input\u2019s step attribute.' },
+          { name: 'label', type: 'string', default: '—', description: 'Field label rendered as label[for] above the control.' },
+          { name: 'error', type: 'string', default: '—', description: 'Error text: sets aria-invalid, wires aria-describedby, dashes the shell.' },
+          { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the buttons in lockstep; the input turns readonly (still readable).' },
+          { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'inherited', description: 'Overrides the inherited density scope.' },
+        ]}
+      />
+    </SectionCard>
   </div>
 </div>

@@ -10,8 +10,12 @@
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import ToggleGroup from '$lib/ui/toggle-group/toggle-group.svelte';
@@ -175,4 +179,12 @@ ${close}
     </SectionCard>
   </div>
   </div>
+</div>
+
+<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Toggle group variants" summary="Single replaces the active value; multiple keeps an ordered set of pressed values."><div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><ToggleGroup name="types-single" type="single" label="alignment"><ToggleGroupItem value="left">left</ToggleGroupItem><ToggleGroupItem value="center">center</ToggleGroupItem></ToggleGroup></div><div class="border border-border p-4"><ToggleGroup name="types-multiple" type="multiple" label="style"><ToggleGroupItem value="bold">bold</ToggleGroupItem><ToggleGroupItem value="italic">italic</ToggleGroupItem></ToggleGroup></div></div></SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose a group from ToggleGroupItem parts; item values become the form payload identity."><CodeBlock code={usage} lang="svelte" meta="Toggle group usage" /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The group is a labelled landmark and each real button exposes its pressed state natively."><A11yTable keys={[{ key: 'Tab', action: 'Move through group buttons' }, { key: 'Space / Enter', action: 'Toggle the focused item' }]} aria={[{ name: 'role', value: 'group', description: 'Names the set as one landmark' }, { name: 'aria-label', value: 'label', description: 'Provides the group accessible name' }, { name: 'aria-pressed', value: 'true | false', description: 'Exposes each item state' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Group buttons use the shared hit target, inset, and typography tokens."><div class="flex flex-col gap-5"><DensityDemo><ToggleGroup name="density-group" type="single" label="density"><ToggleGroupItem value="one">one</ToggleGroupItem><ToggleGroupItem value="two">two</ToggleGroupItem></ToggleGroup></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The root owns value semantics; item parts contribute their string identities."><PropsTable props={[{ name: 'name', type: 'string', default: '—', description: 'Form field name for submitted values.' }, { name: 'type', type: "'single' | 'multiple'", default: "'single'", description: 'Select one value or a set.' }, { name: 'value', type: 'string | string[]', default: '[]', description: 'Active value(s), bindable.', bindable: true }, { name: 'label', type: 'string', default: 'required', description: 'Accessible group label.', required: true }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the whole group.' }, { name: 'onchange', type: '(value) => void', default: '—', description: 'Called after the active value changes.' }, { name: 'children', type: 'Snippet', default: 'required', description: 'ToggleGroupItem parts.', required: true }]} /></SectionCard></div>
 </div>
