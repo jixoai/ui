@@ -218,7 +218,7 @@ ${close}
     <SectionCard
       family="dialog-base"
       headerRegion="dialog-base"
-      eyebrow="NativeHTML 基座"
+      eyebrow="W3C foundation"
       title="What the platform gives, what we add"
       summary="The design rule for this component: every behavior the browser ships is consumed as-is; the component only owns state binding and one motion. Anything beyond that is a named extension direction, not hidden magic."
     >

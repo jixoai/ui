@@ -36,7 +36,7 @@
 
   <div class="flex min-w-0 flex-col gap-8">
     <div data-reveal="">
-      <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · antd 裁决" title="statistic — the metric readout" summary="Micro-label over a big tabular-nums value with prefix/suffix snippets and text-glyph trends. The component never guesses what good means for your metric — you compose it.">
+      <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · General" title="statistic — the metric readout" summary="Micro-label over a big tabular-nums value with prefix/suffix snippets and text-glyph trends. The component never guesses what good means for your metric — you compose it.">
         <div class="flex flex-wrap gap-3">
           <span class="pill">tabular-nums value</span>
           <span class="pill">prefix/suffix snippets</span>

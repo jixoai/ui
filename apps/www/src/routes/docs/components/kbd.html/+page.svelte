@@ -139,7 +139,7 @@
       <SectionCard
         family="kbd-base"
         headerRegion="kbd-base"
-        eyebrow="NativeHTML 基座"
+        eyebrow="W3C foundation"
         title="Usage"
         summary="The platform gives the semantics: <kbd> means keyboard input to assistive tech with zero ARIA. We add only the chip paint — 1px border, shadow-2xs, mono — and nothing else."
       >

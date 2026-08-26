@@ -48,7 +48,7 @@
       <SectionCard
         headingLevel={1}
         tone="hero"
-        eyebrow="registry:ui · antd 裁决"
+        eyebrow="registry:ui · General"
         title="badge-indicator — the live count/dot overlay"
         summary="antd Badge's live half, split from the static chip (badge.svelte): the count/dot rides a corner of its child. dot is presence without a number — label carries the accessible name; count caps at 99+ and zero hides honestly unless showZero. Standalone (no child) is an inline chip."
       >

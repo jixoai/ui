@@ -38,7 +38,7 @@
 
   <div class="flex min-w-0 flex-col gap-8">
     <div data-reveal="">
-      <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · antd 裁决" title="image — the no-CLS native picture" summary="The general-purpose picture: lazy, async-decoded, REQUIRED intrinsic width and height (layout never shifts), alt semantics, failure fallback with src-change recovery. Lightbox is a dialog recipe, not built in.">
+      <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · General" title="image — the no-CLS native picture" summary="The general-purpose picture: lazy, async-decoded, REQUIRED intrinsic width and height (layout never shifts), alt semantics, failure fallback with src-change recovery. Lightbox is a dialog recipe, not built in.">
         <div class="flex flex-wrap gap-3">
           <span class="pill">no-CLS width/height</span>
           <span class="pill">lazy + async decode</span>

@@ -92,7 +92,7 @@ ${close}
     <SectionCard
       headingLevel={1}
       tone="hero"
-      eyebrow="registry:ui · 契约兑现"
+      eyebrow="registry:ui · contract"
       title="tour — targets stay data, the card opens"
       summary={entry.summary}
     >

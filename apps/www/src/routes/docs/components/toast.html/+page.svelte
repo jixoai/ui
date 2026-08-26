@@ -127,7 +127,7 @@ ${close}
   <ToastViewport store={toast} />
 
   <div id="toast-base" data-reveal="">
-    <SectionCard family="toast-base" headerRegion="toast-base" eyebrow="两缝架构" title="Usage">
+    <SectionCard family="toast-base" headerRegion="toast-base" eyebrow="two-seam architecture" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
   </div>

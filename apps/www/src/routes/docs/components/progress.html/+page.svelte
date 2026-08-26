@@ -102,7 +102,7 @@ ${close}
     <SectionCard
       family="progress-base"
       headerRegion="progress-base"
-      eyebrow="NativeHTML 基座"
+      eyebrow="W3C foundation"
       title="What the platform gives"
       summary="The element exposes aria-valuenow/min/max natively (indeterminate simply omits valuenow), renders fallback content for ancient engines, and needs no ARIA wiring from us. The paint resets both engines' ::-progress pseudo-elements so WebKit and Gecko draw the same bar."
     >

@@ -167,7 +167,7 @@ ${close}
     <SectionCard
       family="breadcrumb-base"
       headerRegion="breadcrumb-base"
-      eyebrow="NativeHTML 基座"
+      eyebrow="W3C foundation"
       title="Usage"
     >
       <CodeBlock code={usage} lang="svelte" meta="usage" />

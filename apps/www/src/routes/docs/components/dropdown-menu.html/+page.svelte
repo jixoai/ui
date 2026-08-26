@@ -128,7 +128,7 @@ ${close}
     <SectionCard
       family="dropdown-menu-base"
       headerRegion="dropdown-menu-base"
-      eyebrow="NativeHTML 基座"
+      eyebrow="W3C foundation"
       title="Platform / component split"
       summary="The platform owns the surface behavior (light dismiss, Escape, top layer, anchoring); the component owns the menu contract (item focus, walk, typeahead, focus restore). Items are real buttons — any [role=menuitem] joins the walk through DOM delegation, no registration."
     >

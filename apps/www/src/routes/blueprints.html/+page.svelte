@@ -37,7 +37,7 @@
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
   <h1 class="font-nav text-lg uppercase tracking-[0.3em]">
     Blueprint gallery
-    <span class="text-muted-foreground text-[0.8em] tracking-[0.2em]">蓝图渲染场</span>
+    <span class="text-muted-foreground text-[0.8em] tracking-[0.2em]">blueprint rendering</span>
   </h1>
 
   <div class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6">

@@ -429,7 +429,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <!-- 4b ─ the density ladder (the 尺规 scale) -->
+    <!-- 4b ─ the density ladder (the ruler-compass scale) -->
     <div id="density-ladder" data-reveal="">
       <SectionCard
         family="density-ladder"

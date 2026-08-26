@@ -86,7 +86,7 @@ const options = [
     <SectionCard
       headingLevel={1}
       tone="hero"
-      eyebrow="registry:ui · antd 裁决"
+      eyebrow="registry:ui · General"
       title="cascader — a chain of selects, natively"
       summary="The cascade selector the ruled way: N plain select elements, each listing the children of the previous pick — native keyboard, native mobile pickers, zero custom panels to keep honest. Picking a parent grows the chain by one select; re-picking an earlier level truncates everything deeper. The joined leaf path submits through the bridge; a partial path submits empty — never a half-truth in FormData."
     >

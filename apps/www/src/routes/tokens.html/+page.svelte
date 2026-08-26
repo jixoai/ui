@@ -244,7 +244,7 @@ playing.subscribe((v) => (isPlaying = v));
             />
           </div>
           <PlayHelp>
-            0 = jixoai red · 27 = openspecui · 165 = unipty 幽绿 · this site: time-of-day → 24h
+            0 = jixoai red · 27 = openspecui · 165 = unipty jade green · this site: time-of-day → 24h
             wall-clock (4min/deg). Any manual write pauses the cycle; reset hands control back to
             the wall clock (2s cubic-out resume, instant under prefers-reduced-motion).
           </PlayHelp>

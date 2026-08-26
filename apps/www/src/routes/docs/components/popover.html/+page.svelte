@@ -436,7 +436,7 @@ ${close}
     <SectionCard
       family="popover-base"
       headerRegion="popover-base"
-      eyebrow="NativeHTML 基座"
+      eyebrow="W3C foundation"
       title="What the platform gives, what we add"
       summary="The component is styling and structure over two native attributes. Everything behavioral is the browser's; the one design decision we own is the placement strategy, and anchoring is left as a named extension direction."
     >

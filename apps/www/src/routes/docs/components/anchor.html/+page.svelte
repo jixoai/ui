@@ -66,7 +66,7 @@ ${close}
     <SectionCard
       headingLevel={1}
       tone="hero"
-      eyebrow="registry:ui · antd 裁决"
+      eyebrow="registry:ui · General"
       title="anchor — real links, read-only spy"
       summary="The heading-anchor rail (antd's Anchor) as a composed family: a nav of REAL fragment links (AnchorItem parts), native navigation, native smooth scrolling through the theme's scroll-behavior — with JS only READING the scroll position (rAF-throttled) to mark aria-current=location. The spy is DOM-delegated: targets derive from the root's own child a[href^='#'] on every read, so keyed reorders and conditional items cannot corrupt it. This page is the live demo twice over: the page rail on the right is a toc, while the anchor beside the workbench tracks the very sections you are reading."
     >

@@ -118,7 +118,7 @@ ${close}
   </Sheet>
 
   <div id="sheet-base" data-reveal="">
-    <SectionCard family="sheet-base" headerRegion="sheet-base" eyebrow="NativeHTML 基座" title="Usage">
+    <SectionCard family="sheet-base" headerRegion="sheet-base" eyebrow="W3C foundation" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
   </div>

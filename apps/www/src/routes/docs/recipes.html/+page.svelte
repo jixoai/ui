@@ -134,7 +134,7 @@ const watermarkRecipe =
     <SectionCard
       headingLevel={1}
       tone="hero"
-      eyebrow="设计裁决 · recipes"
+      eyebrow="design ruling · recipes"
       title="where wrapping stops"
       summary="Four shadcn items are deliberately NOT components here — each ruling from the batch-4 design review: the platform already owns it (aspect-ratio), composition IS the product (data-table, sidebar), or the honest surface is a semantic table (chart until an SVG-primitive lib earns its place). The recipes below are the contract, and they are runnable — the watermark one runs live in the workbench."
     >
@@ -239,7 +239,7 @@ const watermarkRecipe =
     <SectionCard
       family="recipe-watermark"
       headerRegion="recipe-watermark"
-      eyebrow="antd 映射 · recipe"
+      eyebrow="antd mapping · recipe"
       title="watermark — the pointer-events:none overlay"
       summary="The anti-exfiltration overlay as a CSS recipe: a repeated rotated-text SVG data-URI tile (encodeURIComponent — zero libraries, no canvas) on an absolutely-positioned layer with pointer-events:none. The watermark deters and marks provenance — it is not DRM (a DOM layer is removable by a determined user). This sample is LIVE: it tracks the workbench input above."
     >
@@ -251,7 +251,7 @@ const watermarkRecipe =
     <SectionCard
       family="recipe-image-preview"
       headerRegion="recipe-image-preview"
-      eyebrow="antd 映射 · recipe"
+      eyebrow="antd mapping · recipe"
       title="image preview — dialog, not a lightbox framework"
       summary="The ruling: zoom/preview is a dialog composition, not a component feature. The recipe: a thumbnail button opens a dialog holding the same src at full width; no galleries, thumbnail navigation, or gesture zoom in v1."
     >
@@ -272,7 +272,7 @@ const watermarkRecipe =
     <SectionCard
       family="recipe-flexgrid"
       headerRegion="recipe-flexgrid"
-      eyebrow="antd 映射 · recipe"
+      eyebrow="antd mapping · recipe"
       title="flex / grid — Tailwind is the API"
       summary="antd's Row/Col/Flex map to native CSS through Tailwind — no component, no props taxonomy. gutter→gap, span/offset→grid fractions, justify/align→the utilities of the same names; responsive via sm:/lg: instead of xs/md props."
     >
@@ -292,7 +292,7 @@ const watermarkRecipe =
     <SectionCard
       family="recipe-segmented"
       headerRegion="recipe-segmented"
-      eyebrow="antd 映射 · cross-link"
+      eyebrow="antd mapping · cross-link"
       title="segmented → toggle-group type=single"
       summary="antd's Segmented maps to toggle-group's single mode — the full semantic mapping lives on the toggle-group page (semantic mapping, not 1:1 paint: no sliding indicator imitation). This entry keeps every antd concept mapping reachable from one place."
     >
@@ -304,7 +304,7 @@ const watermarkRecipe =
     <SectionCard
       family="recipe-list"
       headerRegion="recipe-list"
-      eyebrow="antd 映射 · recipe"
+      eyebrow="antd mapping · recipe"
       title="list — ul/ol + the state atoms"
       summary="antd's List is a layout opinion plus state management. The recipe composes the states we already own: the list element is yours (ul/ol by semantics), empty is Empty, loading is Spin, rows are rows — pagination/selection/virtualization are separate concerns that never belong inside a list skin."
     >
@@ -333,7 +333,7 @@ const watermarkRecipe =
     <SectionCard
       family="recipe-autocomplete"
       headerRegion="recipe-autocomplete"
-      eyebrow="antd 映射 · recipe"
+      eyebrow="antd mapping · recipe"
       title="autoComplete → combobox"
       summary="antd's AutoComplete maps to the combobox with four honest notes: free input corresponds to the allowCustom posture; strict options correspond to the committed mode; combobox's search filtering is NOT mentions/token editing (see the mentions boundary below); and the native autocomplete attribute is a browser concept — never conflate it with antd's component of the same name."
     >
@@ -350,7 +350,7 @@ const watermarkRecipe =
     <SectionCard
       family="recipe-typography"
       headerRegion="recipe-typography"
-      eyebrow="antd 映射 · recipe"
+      eyebrow="antd mapping · recipe"
       title="typography — HTML elements + tokens, not a component family"
       summary="Title maps to real h1–h6; Text/Paragraph map to real span/p with the token classes; Ellipsis is CSS (text-overflow / line-clamp) with the rule that visual truncation NEVER removes the accessible full text; Highlight is the native <mark>. No Typography component family — semantics belong to the elements."
     >
@@ -374,7 +374,7 @@ Search hits render as <mark>match</mark> — native emphasis semantics.`}
     <SectionCard
       family="recipe-mentions"
       headerRegion="recipe-mentions"
-      eyebrow="antd 边界"
+      eyebrow="antd boundary"
       title="mentions — not covered, by ruling"
       summary="Mentions (caret tracking, trigger characters, token insertion/deletion, IME coordination) is a different state machine from a whole-field combobox. The combobox is an adjacent foundation, NOT a mentions replacement — recorded as an honest boundary, no fake 1:1 recipe."
     >
@@ -388,7 +388,7 @@ Search hits render as <mark>match</mark> — native emphasis semantics.`}
     <SectionCard
       family="recipe-tour"
       headerRegion="recipe-tour"
-      eyebrow="设计契约 · deferred"
+      eyebrow="design contract · deferred"
       title="tour — deferred with its design contract on record"
       summary="Deferred to its own deep-design batch (the ruling). The contract when it lands: anchor-name injection as a reversible per-instance LEASE on the target (set on open/step, restored on close/unmount — the same class of wiring as popovertarget, not style-writing); the highlight is CSS-anchor + a target-sized transparent hole + one huge box-shadow (no geometry JS, no four-block mask); popover=manual + role=dialog + aria-modal=false — non-modal, page scrollable, default scrim pointer-events:none; per-step target re-resolution with deterministic skip when unavailable; Escape/Skip ends and restores the invoker focus."
     >

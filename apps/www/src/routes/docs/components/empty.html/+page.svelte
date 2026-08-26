@@ -39,7 +39,7 @@
 
   <div class="flex min-w-0 flex-col gap-8">
     <div data-reveal="">
-      <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · antd 裁决" title="empty — the no-data state, nothing more" summary="The eight-state machine's no-data member (error/loading/404 are alert/result surfaces — ruled separate). Terminal illustration slot, title, description, actions. Zero JS.">
+      <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · General" title="empty — the no-data state, nothing more" summary="The eight-state machine's no-data member (error/loading/404 are alert/result surfaces — ruled separate). Terminal illustration slot, title, description, actions. Zero JS.">
       <div class="flex flex-wrap gap-3">
         <span class="pill">zero JS</span>
         <span class="pill">illustration slot</span>

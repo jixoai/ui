@@ -39,7 +39,7 @@
 
   <div class="flex min-w-0 flex-col gap-8">
     <div data-reveal="">
-      <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · antd 裁决" title="result — the thin outcome surface" summary="Status glyph + title + description + actions — no routing logic, no illustration system. empty is not result: no-data vs operation-outcome stay different components.">
+      <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · General" title="result — the thin outcome surface" summary="Status glyph + title + description + actions — no routing logic, no illustration system. empty is not result: no-data vs operation-outcome stay different components.">
         <div class="flex flex-wrap gap-3">
           <span class="pill">success · error · warning · info</span>
           <span class="pill">actions snippet</span>

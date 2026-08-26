@@ -120,7 +120,7 @@ ${close}
     <SectionCard
       family="tooltip-base"
       headerRegion="tooltip-base"
-      eyebrow="NativeHTML 基座"
+      eyebrow="W3C foundation"
       title="What the platform gives, what intent adds"
       summary="The Popover API gives the top layer, Escape plumbing and manual semantics; CSS Anchor Positioning gives placement with zero JS geometry. The intent model — hover delay, close grace, focus immediacy — is the component's entire reason to exist."
     >

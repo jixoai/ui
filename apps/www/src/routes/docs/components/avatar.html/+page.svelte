@@ -175,7 +175,7 @@ ${close}
     <SectionCard
       family="avatar-base"
       headerRegion="avatar-base"
-      eyebrow="NativeHTML 基座"
+      eyebrow="W3C foundation"
       title="What the platform gives, what we add"
       summary="The img element carries loading, decoding, intrinsic sizing, and alt semantics. The one thing it lacks is a failure posture — that is the whole component: an onerror swap to an initials block, and nothing else."
     >

@@ -126,7 +126,7 @@
       <SectionCard
         family="separator-base"
         headerRegion="separator-base"
-        eyebrow="NativeHTML 基座"
+        eyebrow="W3C foundation"
         title="What the platform gives"
         summary="No ARIA to maintain on the horizontal path — the browser announces <hr> as a separator to assistive tech. The vertical path is the WAI-ARIA separator pattern, aria-orientation included."
       >

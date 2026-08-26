@@ -143,7 +143,7 @@ ${close}
     <SectionCard
       family="accordion-base"
       headerRegion="accordion-base"
-      eyebrow="NativeHTML 基座"
+      eyebrow="W3C foundation"
       title="What the platform gives, what we add"
       summary="Everything behavioral is the browser's — toggle, keyboard, disclosure semantics, SSR state. The component owns only the frame, the seam, the chevron, the exclusive opt-in, and a progressive height:auto animation (interpolate-size + ::details-content) that degrades to a native snap everywhere else."
     >

@@ -96,7 +96,7 @@ ${close}
     <SectionCard
       headingLevel={1}
       tone="hero"
-      eyebrow="registry:ui · antd 裁决"
+      eyebrow="registry:ui · General"
       title="popconfirm — the light sure-bubble"
       summary={entry.summary}
     >

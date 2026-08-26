@@ -94,7 +94,7 @@ ${close}
                concept card stands in. -->
           <SectionCard
             class="w-full max-w-3xl"
-            eyebrow="portal 概念 · no LIVE instance"
+            eyebrow="portal concept · no LIVE instance"
             title="Authored in the page, adopted by the top layer"
             summary="A float must dock to a website-scaffold provider — and the only one reachable from this page is the site's own shell. So this card explains the adoption instead; every component page's ToC rail rides the real float plane every day (it adopts itself)."
           >

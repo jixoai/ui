@@ -101,7 +101,7 @@
     <SectionCard
       family="skeleton-base"
       headerRegion="skeleton-base"
-      eyebrow="NativeHTML 基座"
+      eyebrow="W3C foundation"
       title="The a11y split"
       summary="Placeholder blocks are decoration (aria-hidden); the loading STATE is semantics (aria-busy on the container, announced politely once). Mixing the two — live regions per skeleton — is how placeholder UIs end up spamming screen readers."
     >

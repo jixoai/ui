@@ -37,7 +37,7 @@
 
   <div class="flex min-w-0 flex-col gap-8">
     <div data-reveal="">
-      <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · antd 裁决" title="spin — the terminal cursor" summary="The bracket cursor cycling frames under role=status. Wrapping posture: an aria-busy container whose scrim OWNS pointer events — never a visual mask over live hit areas.">
+      <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · General" title="spin — the terminal cursor" summary="The bracket cursor cycling frames under role=status. Wrapping posture: an aria-busy container whose scrim OWNS pointer events — never a visual mask over live hit areas.">
         <div class="flex flex-wrap gap-3">
           <span class="pill">role=status frames</span>
           <span class="pill">aria-busy wrap posture</span>

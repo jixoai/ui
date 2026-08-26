@@ -104,7 +104,7 @@ ${close}
   </div>
 
   <div id="hover-card-base" data-reveal="">
-    <SectionCard family="hover-card-base" headerRegion="hover-card-base" eyebrow="NativeHTML 基座" title="Usage">
+    <SectionCard family="hover-card-base" headerRegion="hover-card-base" eyebrow="W3C foundation" title="Usage">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
   </div>

@@ -121,7 +121,7 @@ ${close}
                the card below documents the layers instead. -->
           <SectionCard
             class="w-full max-w-3xl"
-            eyebrow="架构 · no nested LIVE instance"
+            eyebrow="architecture · no nested LIVE instance"
             title="This page is already the demo"
             summary="You are reading main#main inside .jx-shell-body right now — the nav band above is .jx-top-layer. A second scaffold cannot nest here without trapping the page in two competing scroll planes, so the LIVE area holds the architecture; use the Playground buttons to drive the real top layer."
           >

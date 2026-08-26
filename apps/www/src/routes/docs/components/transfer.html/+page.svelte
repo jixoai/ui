@@ -88,7 +88,7 @@ const options = [
     <SectionCard
       headingLevel={1}
       tone="hero"
-      eyebrow="registry:ui · antd 裁决"
+      eyebrow="registry:ui · General"
       title="transfer — two fieldsets and a batch mover"
       summary="The two-panel selector the ruled way: each side is a real fieldset of real checkbox rows — grouping, labeling and toggling all native. The middle buttons batch-move every checked row at once, then the selection clears (checked is a transient moving state, never the value). Per-panel search filters its own list; disabled rows render but never move. value is the TARGET list — what sits on the right is the answer."
     >
