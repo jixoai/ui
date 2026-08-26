@@ -1,7 +1,9 @@
 <!--
   Copy-command: a registry PressButton that copies the command to the
-  clipboard and flips to the `copied` variant for feedback. Dogfoods the
-  press-button feedback state instead of inventing a new button.
+  clipboard and flips to the success-tonal feedback for 1.6s. Dogfoods
+  the variant grammar's status injection (copied = tonal +
+  --jx-tonal:var(--success), the grammar's successor of the retired
+  `copied` pseudo-variant) instead of inventing a new button.
 -->
 <script lang="ts">
   import { Check, Copy } from 'lucide-svelte';
@@ -28,7 +30,12 @@
   };
 </script>
 
-<PressButton variant={copied ? 'copied' : 'outline'} onclick={copy} ariaLabel={`copy ${command}`}>
+<PressButton
+  variant={copied ? 'tonal' : 'outline'}
+  class={copied ? '[--jx-tonal:var(--success)]' : undefined}
+  onclick={copy}
+  ariaLabel={`copy ${command}`}
+>
   {#if copied}
     <Check size={13} strokeWidth={2.25} aria-hidden="true" />
     <span>copied</span>

@@ -15,8 +15,9 @@
   Inheritance by composition (2026-08-25, Owner ruling): the button
   IS a press-button — this component wraps it and owns only the
   two-part contract + the icon-only posture. Every press-button
-  capability passes through verbatim: the paint variants (primary …
-  copied), the effect loops (shimmer/pulse/rainbow/ripple), href/
+  capability passes through verbatim: the paint variants (fill …
+  link — the variant-grammar ladder, imported not re-declared), the
+  effect loops (shimmer/pulse/rainbow/ripple), href/
   external anchoring, type, class. Press law and shadow tokens are
   therefore identical to a text button BY CONSTRUCTION (the square
   rides the same 42px band, not a smaller silhouette); the
@@ -25,7 +26,10 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { Density } from '$lib/density.svelte';
-  import PressButton, { type PressEffect } from '$lib/ui/press-button/press-button.svelte';
+  import PressButton, {
+    type PressButtonVariant,
+    type PressEffect,
+  } from '$lib/ui/press-button/press-button.svelte';
   import Tooltip from '$lib/ui/tooltip/tooltip.svelte';
 
   interface Props {
@@ -35,15 +39,8 @@
     icon: Snippet;
     /** the ONE label: visible text by default, tooltip + accessible name in iconOnly */
     text: string;
-    /** paint — the press-button variant union, verbatim */
-    variant?:
-      | 'primary'
-      | 'secondary'
-      | 'outline'
-      | 'ghost'
-      | 'destructive'
-      | 'link'
-      | 'copied';
+    /** paint — the press-button variant union, imported (not re-declared) */
+    variant?: PressButtonVariant;
     /** collapse to the square: text moves to the tooltip + aria-label */
     iconOnly?: boolean;
     /** iconOnly: which side the tooltip leans */

@@ -1,28 +1,46 @@
 <!--
   jixoai alert (registry/files/ui/alert.svelte).
-  The inline notice block: 1px border, hard offset shadow-xs, tone accent
-  on the border + title. Not the modal one (that is alert-dialog, a later
-  registry item) — this is the in-flow banner for loaded/failed states.
+  The inline notice block: 1px border, hard offset shadow, and the
+  variant ladder as its surface. Not the modal one (that is
+  alert-dialog, a later registry item) — this is the in-flow banner
+  for loaded/failed states.
 
   Live-region semantics are a prop, not a guess:
     assertive={false} (default) → role="status"  polite announcements
-    assertive={true}            → role="alert"   immediate (errors,
-                                                 destructive tone pairs
-                                                 with this)
-  Tones stay inside the one-brand-hue law:
-    default      border + foreground — plain notice
-    primary      brand border/title — the site's emphasis voice (there
-                  is no blue "info" in this language)
-    destructive  destructive border/title — error/loss only
+    assertive={true}            → role="alert"   immediate (errors —
+                                  pair with the error-status injection)
+
+  Variant grammar (2026-08-26, variant-grammar change): the old
+  tone law (default/primary/destructive) is superseded; the
+  one-brand-hue idea survives as the TOKEN defaults. Prominence is
+  the ladder, hue is injection through the global tokens:
+    outline (default)  transparent ground, [border-color:var(--jx-outline)],
+                       title foreground — the plain notice
+    tonal              12% tinted ground + 45% border + title
+                       [color:var(--jx-tonal)] — emphasis; brand tint
+                       by default, injected per intent through class
+                       utilities: [--jx-tonal:var(--error)] for failed
+                       STATUSES, [--jx-tonal:var(--success)] for passing.
+  Action vs status is the caller's call (design §3): destructive is
+  an ACTION hue (delete/cancel — PressButton's fill pair); Alert is
+  a status surface, so failures inject --error, never --destructive.
+
+  Surface ruling: the banner IS its variant surface — the old bg-card
+  ground is gone, the ladder paint replaces it. The 1px border and
+  the hard offset shadow-2xs STAY: every sibling static surface on
+  the site (kbd, menubar, toggle-group, transfer panels, empty's art
+  block) pairs border + shadow-2xs — the hard offset is the site's
+  terminal material law, not a card-specific trait.
 
   Composition: optional `icon` snippet lands inline-start of the title
   (bring your own — lucide, svg, text glyph); children is the body copy.
 
   tw4 (2026-08-24): utility-authored — the banner paint composes from
-  token utilities (layer law: consumer utilities always win); tone maps
-  to border/title color utilities per prop. ONLY the passed-through
-  icon-glyph normalization (a descendant boundary) stays in alert.css;
-  `jx-alert*` classes are semantic hooks, css defines them not.
+  token utilities (layer law: consumer utilities always win); variant
+  maps to ground/border/title color utilities per prop. ONLY the
+  passed-through icon-glyph normalization (a descendant boundary)
+  stays in alert.css; `jx-alert*` classes are semantic hooks, css
+  defines them not.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -30,8 +48,8 @@
   import './alert.css';
 
   interface Props {
-    /** tone drives border + title color */
-    tone?: 'default' | 'primary' | 'destructive';
+    /** ladder prominence: outline (plain notice) | tonal (tinted emphasis) */
+    variant?: 'outline' | 'tonal';
     /** true → role=alert (assertive); false → role=status (polite) */
     assertive?: boolean;
     /** one-line heading; omitted renders a bare body block */
@@ -43,32 +61,34 @@
     class?: string;
   }
 
-  let { tone = 'default', assertive = false, title, icon, children, class: className = '' }: Props =
+  let { variant = 'outline', assertive = false, title, icon, children, class: className = '' }: Props =
     $props();
 
-  const toneBorder = {
-    default: 'border-border',
-    primary: 'border-primary',
-    destructive: 'border-destructive',
+  // variant grounds (design.md §1 recipes, verbatim) — the ladder
+  // surface REPLACES the card ground; the border + hard offset shadow
+  // are the terminal material law and stay
+  const surface = {
+    outline: 'bg-transparent [border-color:var(--jx-outline)]',
+    tonal: 'bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)]',
   } as const;
+  // the title consumes the variant ink; body copy stays muted
   const titleColor = {
-    default: 'text-foreground',
-    primary: 'text-primary',
-    destructive: 'text-destructive',
+    outline: 'text-foreground',
+    tonal: '[color:var(--jx-tonal)]',
   } as const;
 </script>
 
 <div
   class={cn(
-    `flex flex-col gap-1.5 box-border border bg-card px-3.5 py-3 shadow-2xs rounded`,
-    toneBorder[tone],
+    `flex flex-col gap-1.5 box-border border px-3.5 py-3 shadow-2xs rounded`,
+    surface[variant],
     className,
   )}
-  data-jx-alert={tone}
+  data-jx-alert={variant}
   role={assertive ? 'alert' : 'status'}
 >
   {#if title}
-    <p data-jx-alert-title="" class={cn('flex items-center gap-2 font-nav text-[0.8125rem] tracking-[0.08em] uppercase', titleColor[tone])}>
+    <p data-jx-alert-title="" class={cn('flex items-center gap-2 font-nav text-[0.8125rem] tracking-[0.08em] uppercase', titleColor[variant])}>
       {#if icon}<span class="jx-alert-icon inline-flex">{@render icon()}</span>{/if}{title}
     </p>
   {/if}

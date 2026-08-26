@@ -4,8 +4,17 @@
   never moves; active presses the body +1px into the page while the
   box-shadow's offsets counter-shrink 1px (the theme's *-press poses)
   — the shadow paint stays anchored, no pseudo layer. Variants change
-  paint, never physics: primary / secondary / outline / ghost /
-  destructive / link / copied.
+  paint, never physics: fill / tonal / outline / ghost are the
+  prominence ladder of the variant grammar (openspec/changes/
+  variant-grammar); link is the grammar's one interaction exception —
+  no frame, no press shadow, primary text, hover underline. Semantic
+  color is hue injection, never a variant: --jx-fill + --jx-fill-ink
+  (always together), --jx-tonal, --jx-outline ride arbitrary-property
+  classes at the call site (destructive action = fill +
+  [--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-
+  foreground)]; the copied transient is tonal +
+  [--jx-tonal:var(--success)] — copied left the union with the
+  semantic names).
 
   One opt-in effect loop per button, modeled on the animation-svelte
   reference (github.com/SikandarJODD/animations, 2026-08-23 user
@@ -18,9 +27,14 @@
 
     import PressButton, { shimmer, pulse, rainbow, ripple }
       from '@ui/press-button.svelte';
-    <PressButton variant="primary" effect={shimmer({ speed: 4000 })}>
+    <PressButton variant="fill" effect={shimmer({ speed: 4000 })}>
       deploy
     </PressButton>
+
+  The ripple RUNTIME (spawn geometry, WAAPI lifecycle, reduced-motion
+  gate) lives in ./ripple.svelte.ts — extracted verbatim (2026-08-26)
+  when Chip needed the same loop; its visual halves stay in this
+  folder's press-button.css.
 
   tw4 (2026-08-24): the button body was already utility-authored
   (variants + the --jx-press* pose wiring ride utilities — the press
@@ -32,6 +46,11 @@
   (relative z-0) became utilities.
 -->
 <script module lang="ts">
+  /** the prominence ladder + the one interaction exception (link) —
+   *  the variant grammar's whole button union; pass-through consumers
+   *  (icon-button) import this instead of re-declaring it */
+  export type PressButtonVariant = 'fill' | 'tonal' | 'outline' | 'ghost' | 'link';
+
   /** the one opt-in effect loop — builders keep options typed and discoverable */
   export type PressEffect = ShimmerEffect | PulseEffect | RainbowEffect | RippleEffect;
 
@@ -146,19 +165,16 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import { createRipple } from './ripple.svelte';
   import './press-button.css';
 
   interface Props {
     /** DENSITY override: explicit ?? inherited ?? default */
     density?: Density;
-    variant?:
-      | 'primary'
-      | 'secondary'
-      | 'outline'
-      | 'ghost'
-      | 'destructive'
-      | 'link'
-      | 'copied';
+    /** the ladder rung; semantic hue is injected through the grammar
+     *  tokens (--jx-fill/--jx-fill-ink, --jx-tonal, --jx-outline) at
+     *  the call site, never a variant */
+    variant?: PressButtonVariant;
     /** built by shimmer() / pulse() / rainbow() / ripple() — one loop per button */
     effect?: PressEffect;
     href?: string;
@@ -203,17 +219,22 @@
       ? 'inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] items-center justify-center text-[length:var(--jx-text)] leading-[var(--jx-line)] font-medium'
       : 'inline-flex min-h-[var(--jx-hit)] items-center gap-[var(--jx-gap)] px-[var(--jx-inset)] text-[length:var(--jx-text)] leading-[var(--jx-line)] font-medium',
   );
-  // the bordered, shadow-bearing body (link opts out entirely)
-  const frame = 'jx-press border border-border';
+  // the bordered, shadow-bearing body (link opts out entirely). The
+  // frame contributes width + physics ONLY: every rung below supplies
+  // all three paint channels itself, so no two same-property utilities
+  // ever meet in one class list — named border-color utilities sort
+  // AFTER arbitrary ones in the sheet, and same-family utility order
+  // is not consumer-guaranteed; the map stays collision-free by
+  // construction (variant grammar, openspec/changes/variant-grammar)
+  const frame = 'jx-press border';
   const variants = {
-    primary: `${frame} bg-primary text-primary-foreground`,
-    secondary: `${frame} bg-secondary text-secondary-foreground`,
-    outline: `${frame} bg-background hover:bg-muted`,
+    fill: `${frame} [background:var(--jx-fill)] [border-color:var(--jx-fill)] text-[color:var(--jx-fill-ink)]`,
+    tonal: `${frame} bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] text-[color:var(--jx-tonal)]`,
+    outline: `${frame} bg-transparent [border-color:var(--jx-outline)] text-foreground hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)]`,
     // ghost keeps the box geometry (transparent border) but presses without a shadow
-    ghost: `jx-press border-transparent bg-transparent hover:bg-muted [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]`,
-    destructive: `${frame} bg-destructive text-destructive-foreground`,
+    ghost: `jx-press border-transparent bg-transparent hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)] hover:text-[color:var(--jx-tonal)] [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]`,
+    // link: the interaction exception — no frame, no press shadow, primary text
     link: 'text-primary underline-offset-4 hover:underline',
-    copied: `${frame} bg-secondary text-secondary-foreground`,
   } as const;
 
   // effect host class (the stacking pose rides utilities: relative z-0
@@ -248,50 +269,11 @@
     }
   });
 
-  // ripple: ink circles from the activation point; keyboard activation
-  // (click with detail 0) ripples from the center. Reduced motion skips
-  // the ink — the anchored press already answers the pointer.
-  let ripples = $state<{ x: number; y: number; size: number; key: number }[]>([]);
-  let rippleSeq = 0;
-  const spawnRipple = (
-    host: HTMLElement,
-    clientX: number,
-    clientY: number,
-    fromPointer: boolean
-  ): void => {
-    if (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches)
-      return;
-    const rect = host.getBoundingClientRect();
-    const size = Math.max(rect.width, rect.height);
-    const px = fromPointer ? clientX : rect.left + rect.width / 2;
-    const py = fromPointer ? clientY : rect.top + rect.height / 2;
-    const key = ++rippleSeq;
-    ripples = [...ripples, { x: px - rect.left - size / 2, y: py - rect.top - size / 2, size, key }];
-  };
-  // WAAPI owns the ink lifecycle: the dot expands by script and leaves
-  // the DOM when the animation finishes — no timer racing the paint
-  const ink = (dot: HTMLElement, params: { key: number; duration: number }) => {
-    const anim = dot.animate(
-      [
-        { transform: 'scale(0)', opacity: 1 },
-        { transform: 'scale(2)', opacity: 0 },
-      ],
-      { duration: params.duration, easing: 'ease-out', fill: 'both' }
-    );
-    const clear = () => {
-      ripples = ripples.filter((r) => r.key !== params.key);
-    };
-    anim.finished.then(clear, clear);
-    return {
-      destroy() {
-        anim.cancel();
-      },
-    };
-  };
-  const onRippleClick = (event: MouseEvent & { currentTarget: HTMLElement }): void => {
-    spawnRipple(event.currentTarget, event.clientX, event.clientY, event.detail > 0);
-    onclick?.();
-  };
+  // ripple: the shared runtime (./ripple.svelte.ts) — ink circles from
+  // the activation point; keyboard activation (click with detail 0)
+  // ripples from the center. Reduced motion skips the ink inside the
+  // factory — the anchored press already answers the pointer.
+  const rippleRuntime = createRipple(() => onclick?.());
 
   const classes = $derived(
     `${base} ${variants[variant]}${effectClass ? ` ${effectClass}` : ''}${className ? ` ${className}` : ''}`
@@ -300,7 +282,19 @@
 </script>
 
 {#snippet layers()}
-  {#if effect?.type === 'shimmer'}
+  {#if effect?.type === 'ripple'}
+    <span class="jx-ripple-layer" aria-hidden="true">
+      {#each rippleRuntime.ripples as r (r.key)}
+        <span
+          class="jx-ripple-dot{effect.shape === 'bevel' && !bevelInk ? ' jx-ripple-flat' : ''}"
+          data-shape={effect.shape}
+          style="width:{r.size}px; height:{r.size}px; top:{r.y}px; left:{r.x}px;
+            --ripple-color:{effect.color}"
+          use:rippleRuntime.ink={{ key: r.key, duration: effect.duration }}
+        ></span>
+      {/each}
+    </span>
+  {:else if effect?.type === 'shimmer'}
     <span class="jx-shimmer-box" aria-hidden="true">
       <span class="jx-shimmer-slide"><span class="jx-shimmer-spark"></span></span>
     </span>
@@ -323,54 +317,30 @@
     rel={isExternal ? 'noreferrer' : undefined}
     aria-label={ariaLabel}
     data-density={resolvedDensity}
+    data-jx-press-button={variant}
     data-jx-shimmer-host={effect?.type === 'shimmer' ? '' : undefined}
     data-jx-pulse-host={effect?.type === 'pulse' ? '' : undefined}
     data-jx-ripple-host={effect?.type === 'ripple' ? '' : undefined}
     class={classes}
     style={effectStyle || undefined}
-    onclick={effect?.type === 'ripple' ? onRippleClick : undefined}
+    onclick={effect?.type === 'ripple' ? rippleRuntime.onclick : undefined}
   >
-    {#if effect?.type === 'ripple'}
-      <span class="jx-ripple-layer" aria-hidden="true">
-        {#each ripples as r (r.key)}
-          <span
-            class="jx-ripple-dot{effect.shape === 'bevel' && !bevelInk ? ' jx-ripple-flat' : ''}"
-            data-shape={effect.shape}
-            style="width:{r.size}px; height:{r.size}px; top:{r.y}px; left:{r.x}px;
-              --ripple-color:{effect.color}"
-            use:ink={{ key: r.key, duration: effect.duration }}
-          ></span>
-        {/each}
-      </span>
-    {/if}
     {@render layers()}
     {@render children()}
   </a>
 {:else}
   <button
     {type}
-    onclick={effect?.type === 'ripple' ? onRippleClick : onclick}
+    onclick={effect?.type === 'ripple' ? rippleRuntime.onclick : onclick}
     aria-label={ariaLabel}
     data-density={resolvedDensity}
+    data-jx-press-button={variant}
     data-jx-shimmer-host={effect?.type === 'shimmer' ? '' : undefined}
     data-jx-pulse-host={effect?.type === 'pulse' ? '' : undefined}
     data-jx-ripple-host={effect?.type === 'ripple' ? '' : undefined}
     class={classes}
     style={effectStyle || undefined}
   >
-    {#if effect?.type === 'ripple'}
-      <span class="jx-ripple-layer" aria-hidden="true">
-        {#each ripples as r (r.key)}
-          <span
-            class="jx-ripple-dot{effect.shape === 'bevel' && !bevelInk ? ' jx-ripple-flat' : ''}"
-            data-shape={effect.shape}
-            style="width:{r.size}px; height:{r.size}px; top:{r.y}px; left:{r.x}px;
-              --ripple-color:{effect.color}"
-            use:ink={{ key: r.key, duration: effect.duration }}
-          ></span>
-        {/each}
-      </span>
-    {/if}
     {@render layers()}
     {@render children()}
   </button>

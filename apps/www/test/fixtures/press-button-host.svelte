@@ -6,7 +6,10 @@
   script, exactly as a consumer would use them.
 -->
 <script lang="ts">
-  import PressButton, { type PressEffect } from '../../src/lib/ui/press-button/press-button.svelte';
+  import PressButton, {
+    type PressButtonVariant,
+    type PressEffect,
+  } from '../../src/lib/ui/press-button/press-button.svelte';
 
   let {
     variant = undefined,
@@ -14,14 +17,7 @@
     href = '',
     type = 'button',
   }: {
-    variant?:
-      | 'primary'
-      | 'secondary'
-      | 'outline'
-      | 'ghost'
-      | 'destructive'
-      | 'link'
-      | 'copied';
+    variant?: PressButtonVariant;
     effect?: PressEffect;
     href?: string;
     type?: 'button' | 'submit';

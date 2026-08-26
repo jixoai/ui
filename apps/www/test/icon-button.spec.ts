@@ -49,11 +49,13 @@ describe('IconButton', () => {
     expect(tip.hasAttribute('data-arrow')).toBe(false);
   });
 
-  it('inherits the paint variants verbatim (primary bg + the press law)', () => {
-    const { container } = render(IconButtonHost, { props: { variant: 'primary' } });
+  it('inherits the paint variants verbatim (fill token paint + the press law)', () => {
+    const { container } = render(IconButtonHost, { props: { variant: 'fill' } });
     const btn = container.querySelector('button')!;
-    expect(btn.className).toContain('bg-primary');
+    expect(btn.className).toContain('[background:var(--jx-fill)]');
     expect(btn.className).toContain('jx-press');
+    // the variant rides the valued hook through the composition
+    expect(btn.getAttribute('data-jx-press-button')).toBe('fill');
   });
 
   it('inherits the effect loops (shimmer host attr + spark layer)', async () => {

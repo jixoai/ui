@@ -36,7 +36,9 @@ const check = (name, pass, detail) => {
   console.log(`${pass ? 'PASS' : 'FAIL'}  ${name}${detail ? ` — ${detail}` : ''}`);
 };
 
-const PRIMARY = 'button.bg-primary';
+// variant-grammar (2026-08-26): the demo page's ladder rung replaces the
+// old bg-primary class — the valued hook is the paint-stable selector
+const PRIMARY = "button[data-jx-press-button='fill']";
 
 // ---- press law: hover → active on the primary demo button ----
 await page.hover(PRIMARY);
@@ -206,7 +208,7 @@ check(
 // chromatic fill with a contrasting foreground (r1 painted the fill in
 // --background and the white primary-foreground vanished on it)
 const rainbowPrimary = await page.evaluate(() => {
-  const host = document.querySelector('button.bg-primary.jx-rainbow-host');
+  const host = document.querySelector("button.jx-rainbow-host[data-jx-press-button='fill']");
   const cs = getComputedStyle(host);
   const chromaOf = (raw) => {
     const lab = (raw ?? '').match(/oklab\(([\d.]+) ([\d.e+-]+) ([\d.e+-]+)/);
@@ -319,10 +321,14 @@ const matrixFailures = [];
 const setSelect = async (name, value) => {
   await page.evaluate(
     ({ name, value }) => {
-      const label = [...document.querySelectorAll('label')].find(
-        (l) => l.textContent.trim() === name,
+      // variant-grammar era: PlayRow renders labelMode="text" (a span
+      // + aria-labelledby), not a <label for> — resolve the native
+      // select through its accessible name
+      const sel = [...document.querySelectorAll('select')].find((s) =>
+        (s.getAttribute('aria-labelledby') ?? '')
+          .split(/\s+/)
+          .some((id) => document.getElementById(id)?.textContent?.trim() === name),
       );
-      const sel = document.getElementById(label.getAttribute('for'));
       sel.value = value;
       sel.dispatchEvent(new Event('change', { bubbles: true }));
     },
@@ -352,7 +358,7 @@ const readDriven = () =>
     };
   }, frozenHue);
 
-const matrixVariants = ['primary', 'secondary', 'outline', 'ghost', 'destructive', 'copied', 'link'];
+const matrixVariants = ['fill', 'tonal', 'outline', 'ghost', 'link'];
 const matrixEffects = ['shimmer', 'pulse', 'rainbow', 'ripple'];
 for (const variant of matrixVariants) {
   await setSelect('effect', 'none');

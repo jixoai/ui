@@ -34,7 +34,7 @@
       </AlertDialogDescription>
       <AlertDialogActions>
         <AlertDialogCancel>cancel</AlertDialogCancel>
-        <AlertDialogAction tone="destructive">Delete pipeline</AlertDialogAction>
+        <AlertDialogAction>Delete pipeline</AlertDialogAction>
       </AlertDialogActions>
     </AlertDialogContent>
   </AlertDialog>

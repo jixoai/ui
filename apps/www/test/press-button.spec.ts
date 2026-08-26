@@ -22,15 +22,17 @@ import PressButtonHost from './fixtures/press-button-host.svelte';
 import { pulse, rainbow, ripple, shimmer } from '../src/lib/ui/press-button/press-button.svelte';
 
 // ---------------------------------------------------------------------------
-// Variant paint — one physics, seven surfaces
+// Variant paint — one physics, the five-rung ladder
 // ---------------------------------------------------------------------------
 describe('press-button variants', () => {
-  it('defaults to the outline surface on the shared press law class', () => {
+  it('defaults to the outline rung on the shared press law class', () => {
     const { container } = render(PressButtonHost);
     const btn = container.querySelector('button')!;
     expect(btn.className).toContain('jx-press');
-    expect(btn.className).toContain('bg-background');
-    expect(btn.className).toContain('border-border');
+    expect(btn.className).toContain('bg-transparent');
+    expect(btn.className).toContain('[border-color:var(--jx-outline)]');
+    // the valued hook: variant grammar reads back through data-jx-press-button
+    expect(btn.getAttribute('data-jx-press-button')).toBe('outline');
     // no effect loop without opting in
     // no effect loop without opting in — migrated hosts are attributes;
     // jx-rainbow-host is css-OWNED and stays a class
@@ -48,6 +50,9 @@ describe('press-button variants', () => {
     expect(btn.className).toContain('[--jx-press-shadow:none]');
     expect(btn.className).toContain('[--jx-press-shadow-hover:none]');
     expect(btn.className).toContain('[--jx-press-shadow-active:none]');
+    // ghost's hover tint derives from --jx-tonal, not a named surface
+    expect(btn.className).toContain('hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)]');
+    expect(btn.getAttribute('data-jx-press-button')).toBe('ghost');
   });
 
   it('link is the frame-less surface: no press law, no border', () => {
@@ -61,13 +66,25 @@ describe('press-button variants', () => {
     expect(btn.classList.contains('jx-rainbow-host')).toBe(false);
     expect(btn.className).not.toContain('border-border');
     expect(btn.className).toContain('hover:underline');
+    expect(btn.getAttribute('data-jx-press-button')).toBe('link');
   });
 
-  it('destructive carries the inverted mono pair', () => {
-    const { container } = render(PressButtonHost, { props: { variant: 'destructive' } });
+  it('fill paints through the grammar tokens: ground + same-hue border + ink', () => {
+    const { container } = render(PressButtonHost, { props: { variant: 'fill' } });
     const btn = container.querySelector('button')!;
-    expect(btn.className).toContain('bg-destructive');
-    expect(btn.className).toContain('text-destructive-foreground');
+    expect(btn.className).toContain('[background:var(--jx-fill)]');
+    expect(btn.className).toContain('[border-color:var(--jx-fill)]');
+    expect(btn.className).toContain('text-[color:var(--jx-fill-ink)]');
+    expect(btn.getAttribute('data-jx-press-button')).toBe('fill');
+  });
+
+  it('tonal paints the 12%/45% color-mix pair with the hue itself as ink', () => {
+    const { container } = render(PressButtonHost, { props: { variant: 'tonal' } });
+    const btn = container.querySelector('button')!;
+    expect(btn.className).toContain('bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)]');
+    expect(btn.className).toContain('border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)]');
+    expect(btn.className).toContain('text-[color:var(--jx-tonal)]');
+    expect(btn.getAttribute('data-jx-press-button')).toBe('tonal');
   });
 });
 

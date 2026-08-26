@@ -163,7 +163,10 @@
     jx-rainbow-p4 var(--rainbow-t4, 17s) ease-in-out infinite alternate;
   pointer-events: none;
 }
-:where(.jx-rainbow-host.bg-primary)::after {
+/* the solid rung keeps its luminosity under the aurora: blend-mode
+   screen (variant-grammar re-key: fill no longer carries bg-primary,
+   so the valued hook is the selector — 2026-08-26) */
+:where(.jx-rainbow-host[data-jx-press-button='fill'])::after {
   mix-blend-mode: screen;
 }
 

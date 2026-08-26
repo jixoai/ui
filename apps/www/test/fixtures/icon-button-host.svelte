@@ -6,7 +6,7 @@
   as a consumer would use them.
 -->
 <script lang="ts">
-  import type { PressEffect } from '../../src/lib/ui/press-button/press-button.svelte';
+  import type { PressButtonVariant, PressEffect } from '../../src/lib/ui/press-button/press-button.svelte';
   import IconButton from '../../src/lib/ui/icon-button/icon-button.svelte';
 
   let {
@@ -20,14 +20,7 @@
     class: className = undefined,
   }: {
     text?: string;
-    variant?:
-      | 'primary'
-      | 'secondary'
-      | 'outline'
-      | 'ghost'
-      | 'destructive'
-      | 'link'
-      | 'copied';
+    variant?: PressButtonVariant;
     iconOnly?: boolean;
     placement?: 'top' | 'bottom' | 'top-start' | 'bottom-start' | 'top-end' | 'bottom-end';
     arrow?: boolean;

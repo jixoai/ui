@@ -30,20 +30,28 @@ import TabsHost from './fixtures/tabs-host.svelte';
 // Badge — the inline status chip
 // ---------------------------------------------------------------------------
 describe('Badge', () => {
-  it('renders a span chip with the default tone and passes content through', () => {
+  it('renders a span chip with the default variant and passes content through', () => {
     const { container } = render(Badge, { props: { children: undefined } });
     // children snippet omitted: still a valid empty chip
     const chip = container.querySelector('span[data-jx-badge]')!;
-    expect(chip.getAttribute('data-jx-badge')).toBe('default');
+    expect(chip.getAttribute('data-jx-badge')).toBe('tonal');
   });
 
-  it('carries the destructive tone and restProps land verbatim', async () => {
+  it('carries a variant, the shape axis, and restProps land verbatim', () => {
     const { container } = render(Badge, {
-      props: { tone: 'destructive', title: 'build failed', 'data-testid': 'chip' },
+      props: { variant: 'outline', shape: 'pill', title: 'build failed', 'data-testid': 'chip' },
     });
     const chip = container.querySelector('[data-testid="chip"]')!;
-    expect(chip.getAttribute('data-jx-badge')).toBe('destructive');
+    expect(chip.getAttribute('data-jx-badge')).toBe('outline');
     expect(chip.getAttribute('title')).toBe('build failed');
+  });
+
+  it('renders slotStart/slotEnd as icon lanes (variant-grammar)', () => {
+    const { container } = render(Badge, {
+      props: { slotStart: (() => {}) as never, slotEnd: (() => {}) as never },
+    });
+    expect(container.querySelector('[data-icon="inline-start"]')).toBeTruthy();
+    expect(container.querySelector('[data-icon="inline-end"]')).toBeTruthy();
   });
 });
 
@@ -151,21 +159,35 @@ describe('Avatar', () => {
 // Alert — inline notice with live-region semantics as a prop
 // ---------------------------------------------------------------------------
 describe('Alert', () => {
-  it('defaults to the polite status role with a title and body', () => {
+  it('defaults to the polite status role with the outline variant surface', () => {
     const { container } = render(Alert, {
       props: { title: 'Deployed', children: null },
     });
     const alert = container.querySelector('[role="status"]')!;
-    expect(alert.getAttribute('data-jx-alert')).toBe('default');
+    expect(alert.getAttribute('data-jx-alert')).toBe('outline');
+    // ladder surface: transparent ground + --jx-outline border (no card bg)
+    expect(alert.className).toContain('bg-transparent');
+    expect(alert.className).toContain('[border-color:var(--jx-outline)]');
     expect(alert.querySelector('[data-jx-alert-title]')?.textContent).toContain('Deployed');
   });
 
-  it('takes the assertive alert role and the destructive tone', () => {
+  it('takes the assertive alert role with the error-status tonal injection', () => {
     const { container } = render(Alert, {
-      props: { tone: 'destructive', assertive: true, title: 'Build failed', children: null },
+      props: {
+        variant: 'tonal',
+        class: '[--jx-tonal:var(--error)]',
+        assertive: true,
+        title: 'Build failed',
+        children: null,
+      },
     });
     const alert = container.querySelector('[role="alert"]')!;
-    expect(alert.getAttribute('data-jx-alert')).toBe('destructive');
+    expect(alert.getAttribute('data-jx-alert')).toBe('tonal');
+    // design.md §1 tonal recipe + the §3 STATUS injection riding class
+    expect(alert.className).toContain('bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)]');
+    expect(alert.className).toContain('[--jx-tonal:var(--error)]');
+    const title = alert.querySelector('[data-jx-alert-title]')!;
+    expect(title.className).toContain('[color:var(--jx-tonal)]');
   });
 });
 
