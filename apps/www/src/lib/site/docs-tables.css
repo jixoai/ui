@@ -90,6 +90,11 @@ html[data-vt-toc='in'] :where(.jx-toc),
 html[data-vt-toc='out'] :where(.jx-toc) {
   view-transition-name: vt-rail-toc;
 }
+/* Curve law: the left rail's confirmed assignment, mirrored — enter
+   STANDARD (clears the shared region mid-flight), exit DECELERATE
+   (fast start vacates, long tail eases away). Do NOT flip: the
+   reversed pairing glides the arriving rail over still-present old
+   content — view overlap. See docs-sections-nav.css for the ruling. */
 html[data-vt-toc='in']::view-transition-new(vt-rail-toc) {
   animation: jx-toc-rail-in 330ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }

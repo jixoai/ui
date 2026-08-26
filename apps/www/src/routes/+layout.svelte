@@ -252,6 +252,33 @@
       !wide ? 'none' : from === to ? (to ? 'swap' : 'none') : to ? 'in' : 'out';
     const vtRail = presence(fromPath.startsWith('/docs'), toPath.startsWith('/docs'), shellWidth >= 1200);
     const vtToc = presence(tocRoute(fromPath), tocRoute(toPath), shellWidth >= 900);
+
+    // The narrow form's BOTTOM bar cannot ride the VT (Owner ruling,
+    // 2026-08-26): view-transition snapshots render in the TOP layer
+    // and cannot carry backdrop-filter — a VT'd bottom bar would sit
+    // ABOVE the animating main content (the wrong layer for something
+    // that must blur the content passing beneath it) AND lose its
+    // progressive-blur band. So the bar stays out of the VT entirely
+    // (the 'none' gate above) and RISES after the main transition
+    // finishes, through the element's own animation: translateY only,
+    // no opacity — an opacity tween would break the blur compositing
+    // the same way a snapshot layer does.
+    const railEntering = toPath.startsWith('/docs') && !fromPath.startsWith('/docs');
+    const riseBottomBar = (): void => {
+      // own presence test: the width gate above collapses vtRail to
+      // 'none' in the narrow form, so the rise must NOT read it — it
+      // checks presence itself and fires only in the bottom-bar form
+      // (the side form rides the VT slide instead)
+      if (!railEntering || shellWidth >= 1200) return;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      document.querySelector('.jx-dsn')?.animate(
+        [
+          { transform: 'translateY(calc(100% + 1rem))' },
+          { transform: 'translateY(0)' },
+        ],
+        { duration: 420, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+      );
+    };
     const from = pageIndex(fromPath);
     const to = pageIndex(toPath);
     const generation = ++vtGeneration;
@@ -281,6 +308,7 @@
             delete root.dataset.vtRail;
             delete root.dataset.vtToc;
           }
+          riseBottomBar();
         });
       });
     }
@@ -315,12 +343,14 @@
         await navigation.complete;
       });
       transition.finished.finally(() => {
-        if (generation !== vtGeneration) return;
-        delete root.dataset.vtKind;
-        delete root.dataset.vtDirection;
-        delete root.dataset.vtNav;
-        delete root.dataset.vtRail;
-        delete root.dataset.vtToc;
+        if (generation === vtGeneration) {
+          delete root.dataset.vtKind;
+          delete root.dataset.vtDirection;
+          delete root.dataset.vtNav;
+          delete root.dataset.vtRail;
+          delete root.dataset.vtToc;
+        }
+        riseBottomBar();
       });
     });
   });

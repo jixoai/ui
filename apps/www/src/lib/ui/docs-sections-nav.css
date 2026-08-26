@@ -28,11 +28,17 @@ html[data-vt-rail='in'] :where(.jx-dsn),
 html[data-vt-rail='out'] :where(.jx-dsn) {
   view-transition-name: vt-rail-tree;
 }
-/* Curve law (Owner polish round): the rails ride the page-main
-   carousel's own two-phase phrase — the ENTER matches the page's new
-   snapshot (420ms decelerate), the EXIT matches its old snapshot
-   (330ms standard ease). An earlier 450ms-decelerate exit drifted
-   from the body's phrase. */
+/* Curve law (Owner A/B confirmed, 2026-08-26 — DO NOT FLIP): the
+   ASSIGNMENT of curves matters more than the durations. The entering
+   rail rides the STANDARD curve (330ms, cubic-bezier(0.4,0,0.2,1)) —
+   it is mid-flight and gone from the shared viewport region while the
+   old page is still settling. The exiting rail rides the DECELERATE
+   curve (420ms, cubic-bezier(0.22,1,0.36,1)) — fast start clears the
+   content column immediately, the long tail eases out of existence.
+   The flipped pairing (enter decelerate) makes the arriving rail
+   GLIDE over still-present old content — visible VIEW OVERLAP, the
+   defect the Owner rejected; durations may be tuned, the curve
+   assignment may not. */
 html[data-vt-rail='in']::view-transition-new(vt-rail-tree) {
   animation: jx-rail-tree-in 330ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
