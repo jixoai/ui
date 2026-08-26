@@ -11,7 +11,7 @@
 
 <div class="flex h-full w-full flex-col items-start justify-center gap-6 p-10">
   <div class="flex flex-col gap-2">
-    <ToggleGroup label="alignment" type="single" bind:value={align}>
+    <ToggleGroup name="bp-tgroup-align" label="alignment" type="single" bind:value={align}>
       <ToggleGroupItem value="left">left</ToggleGroupItem>
       <ToggleGroupItem value="center">center</ToggleGroupItem>
       <ToggleGroupItem value="right">right</ToggleGroupItem>

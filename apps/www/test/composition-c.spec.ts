@@ -210,57 +210,56 @@ describe('composition-c: no ghost handles', () => {
 // Toggle-group value laws
 // ---------------------------------------------------------------------------
 describe('composition-c: toggle-group value laws', () => {
-  it('single: pressing swaps the value; pressing the active one deselects to empty', async () => {
-    const onchange = vi.fn();
-    const { container } = render(ToggleHost, { props: { onchange } });
-    const buttons = [...container.querySelectorAll('button[aria-pressed]')] as HTMLButtonElement[];
-    expect(buttons.length).toBe(3);
+  it('single: pressing swaps the value; re-pressing the active one KEEPS it (native radio)', async () => {
+    const onvalue = vi.fn();
+    const { container } = render(ToggleHost, { props: { onvalue } });
+    const inputs = [...container.querySelectorAll('label > input')] as HTMLInputElement[];
+    expect(inputs.length).toBe(3);
+    expect(inputs.every((i) => i.type === 'radio' && i.name === 'style')).toBe(true);
 
-    await fireEvent.click(buttons[0]);
-    expect(buttons[0].getAttribute('aria-pressed')).toBe('true');
-    expect(buttons[1].getAttribute('aria-pressed')).toBe('false');
-    expect(onchange).toHaveBeenLastCalledWith('bold');
+    await fireEvent.click(inputs[0]);
+    expect(inputs[0].checked).toBe(true);
+    expect(inputs[1].checked).toBe(false);
+    expect(onvalue).toHaveBeenLastCalledWith('bold');
 
-    await fireEvent.click(buttons[1]);
-    expect(buttons[0].getAttribute('aria-pressed')).toBe('false');
-    expect(buttons[1].getAttribute('aria-pressed')).toBe('true');
-    expect(onchange).toHaveBeenLastCalledWith('italic');
+    await fireEvent.click(inputs[1]);
+    expect(inputs[0].checked).toBe(false);
+    expect(inputs[1].checked).toBe(true);
+    expect(onvalue).toHaveBeenLastCalledWith('italic');
 
-    await fireEvent.click(buttons[1]);
-    expect(buttons[1].getAttribute('aria-pressed')).toBe('false');
-    expect(onchange).toHaveBeenLastCalledWith('');
+    // native radio semantics: no re-press clear — an explicit none
+    // item is the pattern for optional-empty
+    await fireEvent.click(inputs[1]);
+    expect(inputs[1].checked).toBe(true);
   });
 
   it('multiple: presses stack and un-press removes only its own value', async () => {
-    const onchange = vi.fn();
-    const { container } = render(ToggleHost, { props: { multiple: true, onchange } });
-    const buttons = [...container.querySelectorAll('button[aria-pressed]')] as HTMLButtonElement[];
+    const onvalue = vi.fn();
+    const { container } = render(ToggleHost, { props: { multiple: true, onvalue } });
+    const inputs = [...container.querySelectorAll('label > input')] as HTMLInputElement[];
+    expect(inputs.every((i) => i.type === 'checkbox')).toBe(true);
 
-    await fireEvent.click(buttons[0]);
-    await fireEvent.click(buttons[2]);
-    expect(onchange).toHaveBeenLastCalledWith(['bold', 'underline']);
-    expect(
-      buttons.map((b) => b.getAttribute('aria-pressed') === 'true'),
-    ).toEqual([true, false, true]);
+    await fireEvent.click(inputs[0]);
+    await fireEvent.click(inputs[2]);
+    expect(onvalue).toHaveBeenLastCalledWith(['bold', 'underline']);
+    expect(inputs.map((i) => i.checked)).toEqual([true, false, true]);
 
-    await fireEvent.click(buttons[0]);
-    expect(onchange).toHaveBeenLastCalledWith(['underline']);
-    expect(buttons[0].getAttribute('aria-pressed')).toBe('false');
+    await fireEvent.click(inputs[0]);
+    expect(onvalue).toHaveBeenLastCalledWith(['underline']);
+    expect(inputs[0].checked).toBe(false);
   });
 
-  it('the group landmark and the multivalue bridge payload', async () => {
+  it('the group landmark and the native form payload (no bridge)', async () => {
     const single = render(ToggleHost);
-    const group = single.container.querySelector('[role="group"]')!;
+    const group = single.container.querySelector('[role="radiogroup"]')!;
     expect(group.getAttribute('aria-label')).toBe('text style');
-    const bridge = single.container.querySelector('jx-form-field')!;
-    expect(bridge.hasAttribute('multivalue')).toBe(false);
+    expect(single.container.querySelector('jx-form-field')).toBeNull(); // the bridge is gone
 
     const multi = render(ToggleHost, { props: { multiple: true } });
-    const mBridge = multi.container.querySelector('jx-form-field')!;
-    expect(mBridge.hasAttribute('multivalue')).toBe(true);
-    const buttons = [...multi.container.querySelectorAll('button[aria-pressed]')] as HTMLButtonElement[];
-    await fireEvent.click(buttons[0]);
-    await fireEvent.click(buttons[2]);
-    expect(mBridge.getAttribute('value')).toBe('bold\nunderline');
+    const inputs = [...multi.container.querySelectorAll('label > input')] as HTMLInputElement[];
+    await fireEvent.click(inputs[0]);
+    await fireEvent.click(inputs[2]);
+    const data = new FormData(multi.container.querySelector('form')!);
+    expect(data.getAll('style')).toEqual(['bold', 'underline']); // one native entry per press
   });
 });

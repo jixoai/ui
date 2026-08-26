@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-27T05:07:11.140Z",
+  "generatedAt": "2026-08-27T05:07:43.945Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -592,8 +592,8 @@
           "source": "registry/files/theme/jx-pure.css",
           "mirror": "apps/www/src/lib/jx-pure.css",
           "target": "@lib/jx-pure.css",
-          "sourceSha": "9b4fb589f5f186591551dfcee9143a7b55eaac6b9db1d35ce5e6593a3eeae292",
-          "mirrorSha": "9b4fb589f5f186591551dfcee9143a7b55eaac6b9db1d35ce5e6593a3eeae292"
+          "sourceSha": "8895727f7329608e927455ff379a72a223b0e2277cf1cd7a71aa81dcff7e41f5",
+          "mirrorSha": "8895727f7329608e927455ff379a72a223b0e2277cf1cd7a71aa81dcff7e41f5"
         }
       ]
     },
@@ -605,8 +605,8 @@
           "source": "registry/files/theme/jx-native-contract.css",
           "mirror": "apps/www/src/lib/jx-native-contract.css",
           "target": "@lib/jx-native-contract.css",
-          "sourceSha": "adacee17a6e24ea24b01e3b227c26bb835bae6bf74dfd268d9a7ba59ddf918f7",
-          "mirrorSha": "adacee17a6e24ea24b01e3b227c26bb835bae6bf74dfd268d9a7ba59ddf918f7"
+          "sourceSha": "1772769c8c594d2e3f8fdaa147822000012b96ea4afb1755ee8c0b2a6a023e53",
+          "mirrorSha": "1772769c8c594d2e3f8fdaa147822000012b96ea4afb1755ee8c0b2a6a023e53"
         }
       ]
     },
@@ -1963,22 +1963,15 @@
           "source": "registry/files/ui/toggle-group/toggle-group-item.svelte",
           "mirror": "apps/www/src/lib/ui/toggle-group/toggle-group-item.svelte",
           "target": "@ui/toggle-group/toggle-group-item.svelte",
-          "sourceSha": "207a144b23b874d6bc5dda2d502d6be29b2e57040b45a9ed0176e75f626e4c0d",
-          "mirrorSha": "207a144b23b874d6bc5dda2d502d6be29b2e57040b45a9ed0176e75f626e4c0d"
-        },
-        {
-          "source": "registry/files/ui/toggle-group/toggle-group.css",
-          "mirror": "apps/www/src/lib/ui/toggle-group/toggle-group.css",
-          "target": "@ui/toggle-group/toggle-group.css",
-          "sourceSha": "61b4fbe6c15594e1241f15bbd400d1e3566a89c2df363dc5cf8c9066578b473e",
-          "mirrorSha": "61b4fbe6c15594e1241f15bbd400d1e3566a89c2df363dc5cf8c9066578b473e"
+          "sourceSha": "08ce27430d7b7da18c6c0a23f86bb68b6fedbd99c6da751f6e60c0555059d481",
+          "mirrorSha": "08ce27430d7b7da18c6c0a23f86bb68b6fedbd99c6da751f6e60c0555059d481"
         },
         {
           "source": "registry/files/ui/toggle-group/toggle-group.svelte",
           "mirror": "apps/www/src/lib/ui/toggle-group/toggle-group.svelte",
           "target": "@ui/toggle-group/toggle-group.svelte",
-          "sourceSha": "33574f936d36cf580ab8f46fa68666471c8f0bb6b6a00f2489a2b5cd549986cd",
-          "mirrorSha": "33574f936d36cf580ab8f46fa68666471c8f0bb6b6a00f2489a2b5cd549986cd"
+          "sourceSha": "476ff4d408759d09573c3e5c23efc47f7b65892e1244d9d944e1ce14bf38b1ef",
+          "mirrorSha": "476ff4d408759d09573c3e5c23efc47f7b65892e1244d9d944e1ce14bf38b1ef"
         }
       ]
     },

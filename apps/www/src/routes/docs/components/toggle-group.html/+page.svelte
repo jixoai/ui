@@ -81,7 +81,7 @@ ${close}
   <title>Toggle group · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai toggle-group family: joined buttons submitting as one form field — single picks a value, multiple submits one FormData entry per press through the bridge's multivalue mode; buttons compose as ToggleGroupItem parts carrying their own value."
+    content="The jixoai toggle-group family: a joined segment row of NATIVE radios (single) or checkboxes (multiple) submitting as one form field — single picks a value under one name, multiple submits one FormData entry per press natively; segments compose as ToggleGroupItem parts carrying their own value."
   />
 </svelte:head>
 
@@ -96,14 +96,14 @@ ${close}
     <SectionCard
       headingLevel={1}
       tone="hero"
-      eyebrow="registry:ui · ElementInternals"
-      title="toggle-group — pressed states, one field"
-      summary="A row of press-state buttons that submits as ONE form field. single presses one button ('' when none); multiple presses several — the bridge's multivalue mode submits one FormData entry per active value, the checkbox-set contract, never a CSV. The family composes: ToggleGroup owns the value law (bind:value, single|multiple), ToggleGroupItem parts carry their own value — the caller's values ARE the identity, no items[] data and no per-button snippets. role=group + aria-pressed for both modes; arrow-walking is tabs' job, not a toggle set's."
+      eyebrow="registry:ui · native radio/checkbox"
+      title="toggle-group — native segments, one field"
+      summary="A joined segment row of NATIVE inputs that submits as ONE form field. single rides label>input[type=radio] under one name — native arrow-walk, one tab stop, native exclusivity (re-press does NOT clear; an explicit none item is the optional-empty pattern). multiple rides checkboxes — every active value submits as its own FormData entry in DOM order (getAll on the server), never a CSV. DOM checked is the uncontrolled truth; bind:value is the projection (change → value, external writes → DOM, form.reset() re-syncs). The jx-form-field bridge is gone — name participates natively (REQUIRED for single: radio grouping is name-scoped). The paint law is the shared Part A .jx-tgroup class (jx-pure.css / @jixoai/jx-native-contract) — the component owns only the Svelte law."
     >
       <div class="flex flex-wrap gap-3">
-        <span class="pill">aria-pressed</span>
-        <span class="pill">multivalue bridge</span>
+        <span class="pill">native radio/checkbox</span>
         <span class="pill">FormData multi-entry</span>
+        <span class="pill">.jx-tgroup · Part A</span>
       </div>
     </SectionCard>
   </div>
@@ -184,7 +184,7 @@ ${close}
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Toggle group variants" summary="Single replaces the active value; multiple keeps an ordered set of pressed values."><div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><ToggleGroup name="types-single" type="single" label="alignment"><ToggleGroupItem value="left">left</ToggleGroupItem><ToggleGroupItem value="center">center</ToggleGroupItem></ToggleGroup></div><div class="border border-border p-4"><ToggleGroup name="types-multiple" type="multiple" label="style"><ToggleGroupItem value="bold">bold</ToggleGroupItem><ToggleGroupItem value="italic">italic</ToggleGroupItem></ToggleGroup></div></div></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose a group from ToggleGroupItem parts; item values become the form payload identity."><CodeBlock code={usage} lang="svelte" meta="Toggle group usage" /></SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The group is a labelled landmark and each real button exposes its pressed state natively."><A11yTable keys={[{ key: 'Tab', action: 'Move through group buttons' }, { key: 'Space / Enter', action: 'Toggle the focused item' }]} aria={[{ name: 'role', value: 'group', description: 'Names the set as one landmark' }, { name: 'aria-label', value: 'label', description: 'Provides the group accessible name' }, { name: 'aria-pressed', value: 'true | false', description: 'Exposes each item state' }]} /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The group is a labelled landmark over real native inputs — the radio semantics (arrow-walk, one tab stop, checked state) come from the platform, not ARIA re-creation."><A11yTable keys={[{ key: 'Tab', action: 'Enter the group once (single) / walk items (multiple)' }, { key: 'Arrow ← → ↑ ↓', action: 'Walk single-mode segments (native radio)' }, { key: 'Space', action: 'Toggle the focused segment' }]} aria={[{ name: 'role', value: 'radiogroup | group', description: 'Names the set as one landmark (single | multiple)' }, { name: 'aria-label', value: 'label', description: 'Provides the group accessible name' }, { name: 'input checked', value: 'native', description: 'The real radio/checkbox state IS the item state' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Group buttons use the shared hit target, inset, and typography tokens."><div class="flex flex-col gap-5"><DensityDemo><ToggleGroup name="density-group" type="single" label="density"><ToggleGroupItem value="one">one</ToggleGroupItem><ToggleGroupItem value="two">two</ToggleGroupItem></ToggleGroup></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The root owns value semantics; item parts contribute their string identities."><PropsTable props={[{ name: 'name', type: 'string', default: '—', description: 'Form field name for submitted values.' }, { name: 'type', type: "'single' | 'multiple'", default: "'single'", description: 'Select one value or a set.' }, { name: 'value', type: 'string | string[]', default: '[]', description: 'Active value(s), bindable.', bindable: true }, { name: 'label', type: 'string', default: 'required', description: 'Accessible group label.', required: true }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the whole group.' }, { name: 'onchange', type: '(value) => void', default: '—', description: 'Called after the active value changes.' }, { name: 'children', type: 'Snippet', default: 'required', description: 'ToggleGroupItem parts.', required: true }]} /></SectionCard></div>
 </div>

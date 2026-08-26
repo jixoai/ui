@@ -12,11 +12,15 @@
       `jx-native-contract` item + the 12 UI items switched deps +
       jx-pure description vocabulary fix; mirror manifest 91/303;
       payload regen (28,263B extract byte-identical)
-- [ ] Phase 3: toggle-group native rewrite — Part A `.jx-tgroup` law
-      (mirror pair); toggle-group.svelte/-item.svelte rewritten
-      (radio/checkbox, bind:group, reset sync, onValueChange split,
-      rest-before-internal binding); toggle-group.css mirror sheet;
-      batch4 tests rewritten to the new contract; docs page updated
+- [x] Phase 3: toggle-group native rewrite — Part A `.jx-tgroup` law
+      (mirror pair, contract extract regenerated; gzip 17,918B ≤ 18KB);
+      toggle-group.svelte/-item.svelte rewritten (radio/checkbox,
+      bind-law projection, reset sync, onValueChange/onchange split,
+      rest-before-internal binding, name REQUIRED in single);
+      toggle-group.css DELETED (the law is Part A); batch4 +
+      composition-c/-props tests rewritten; blueprint scene + SVG;
+      docs page copy; full suite 549/549, svelte-check 253/61/19
+      (== main baseline)
 - [ ] Phase 4: pilots on the mirror law — native-select → input →
       textarea → checkbox → radio → toggle (each: mirror sheet +
       markup cleanup + parity fixture); subagent batches per Owner

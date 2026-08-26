@@ -81,64 +81,100 @@ describe('InputOtp', () => {
 });
 
 // ---------------------------------------------------------------------------
-// ToggleGroup — press semantics + single/multiple bridge payloads
+// ToggleGroup — native radio/checkbox contract (no bridge)
 // ---------------------------------------------------------------------------
 describe('ToggleGroup', () => {
-  it('single: one active button; pressing another swaps the payload', async () => {
-    const rendered = render(ToggleGroupHost);
-    const buttons = [...rendered.container.querySelectorAll('button.jx-tgroup-btn')] as HTMLButtonElement[];
-    await fireEvent.click(buttons[0]!);
-    expect(buttons[0]!.getAttribute('aria-pressed')).toBe('true');
-    const bridge = rendered.container.querySelector('jx-form-field')!;
-    flushSync();
-    expect(bridge.getAttribute('value')).toBe('bold');
+  it('single: label>radio pairs under one name; clicking swaps the checked member', async () => {
+    const onvalue = vi.fn();
+    const rendered = render(ToggleGroupHost, { props: { onvalue } });
+    const group = rendered.container.querySelector('[data-jx-tgroup]')!;
+    expect(group.getAttribute('role')).toBe('radiogroup');
+    const inputs = [...rendered.container.querySelectorAll('label > input')] as HTMLInputElement[];
+    expect(inputs).toHaveLength(3);
+    for (const input of inputs) {
+      expect(input.type).toBe('radio');
+      expect(input.name).toBe('style');
+    }
+    // NO bridge element ships with the native contract
+    expect(rendered.container.querySelector('jx-form-field')).toBeNull();
 
-    await fireEvent.click(buttons[1]!);
-    expect(buttons[0]!.getAttribute('aria-pressed')).toBe('false');
-    expect(buttons[1]!.getAttribute('aria-pressed')).toBe('true');
+    await fireEvent.click(inputs[0]!);
+    expect(inputs[0]!.checked).toBe(true);
+    expect(inputs[1]!.checked).toBe(false);
     flushSync();
-    expect(bridge.getAttribute('value')).toBe('italic');
+    expect(onvalue).toHaveBeenLastCalledWith('bold');
+
+    await fireEvent.click(inputs[1]!);
+    expect(inputs[0]!.checked).toBe(false); // native exclusivity
+    expect(inputs[1]!.checked).toBe(true);
+    flushSync();
+    expect(onvalue).toHaveBeenLastCalledWith('italic');
+
+    // re-press does NOT clear (native radio semantics — the explicit
+    // none-item is the pattern, not a second press)
+    await fireEvent.click(inputs[1]!);
+    expect(inputs[1]!.checked).toBe(true);
   });
 
-  it('multiple: independent presses join into a multivalue payload', async () => {
-    const rendered = render(ToggleGroupHost, { props: { multiple: true } });
-    const buttons = [...rendered.container.querySelectorAll('button.jx-tgroup-btn')] as HTMLButtonElement[];
-    const bridge = rendered.container.querySelector('jx-form-field')!;
-    expect(bridge.hasAttribute('multivalue')).toBe(true);
+  it('single submits natively through the real form (FormData)', async () => {
+    const rendered = render(ToggleGroupHost);
+    const inputs = [...rendered.container.querySelectorAll('label > input')] as HTMLInputElement[];
+    await fireEvent.click(inputs[2]!);
+    const form = rendered.container.querySelector('form')!;
+    const data = new FormData(form);
+    expect(data.get('style')).toBe('underline');
+    expect(data.getAll('style')).toEqual(['underline']);
+  });
 
-    await fireEvent.click(buttons[0]!);
-    await fireEvent.click(buttons[2]!);
+  it('multiple: independent checkboxes submit repeated entries in DOM order', async () => {
+    const onvalue = vi.fn();
+    const rendered = render(ToggleGroupHost, { props: { multiple: true, onvalue } });
+    const group = rendered.container.querySelector('[data-jx-tgroup]')!;
+    expect(group.getAttribute('role')).toBe('group');
+    const inputs = [...rendered.container.querySelectorAll('label > input')] as HTMLInputElement[];
+    for (const input of inputs) expect(input.type).toBe('checkbox');
+
+    await fireEvent.click(inputs[0]!);
+    await fireEvent.click(inputs[2]!);
     flushSync();
-    expect(bridge.getAttribute('value')).toBe('bold\nunderline');
+    expect(onvalue).toHaveBeenLastCalledWith(['bold', 'underline']);
+
+    const data = new FormData(rendered.container.querySelector('form')!);
+    expect(data.getAll('style')).toEqual(['bold', 'underline']); // DOM order, one entry per press
 
     // un-press removes only its own value
-    await fireEvent.click(buttons[0]!);
+    await fireEvent.click(inputs[0]!);
     flushSync();
-    expect(bridge.getAttribute('value')).toBe('underline');
+    expect(onvalue).toHaveBeenLastCalledWith(['underline']);
+    expect(new FormData(rendered.container.querySelector('form')!).getAll('style')).toEqual(['underline']);
   });
 
-  it('multiple mode submits one FormData entry per press (real FormData)', async () => {
-    const rendered = render(ToggleGroupHost, { props: { multiple: true } });
-    const buttons = [...rendered.container.querySelectorAll('button.jx-tgroup-btn')] as HTMLButtonElement[];
-    await fireEvent.click(buttons[0]!);
-    await fireEvent.click(buttons[2]!);
+  it('form.reset() restores initial checked and re-syncs the projection', async () => {
+    const onvalue = vi.fn();
+    const rendered = render(ToggleGroupHost, { props: { onvalue } });
+    const form = rendered.container.querySelector('form')!;
+    const inputs = [...rendered.container.querySelectorAll('label > input')] as HTMLInputElement[];
+    await fireEvent.click(inputs[0]!);
+    flushSync();
+    expect(onvalue).toHaveBeenLastCalledWith('bold');
 
-    const bridge = rendered.container.querySelector('jx-form-field') as HTMLElement & {
-      formResetCallback?: () => void;
-    };
-    const form = document.createElement('form');
-    const anchor = { parent: bridge.parentNode as Node, next: bridge.nextSibling };
-    form.appendChild(bridge);
-    const data = new FormData(form);
-    anchor.parent.insertBefore(bridge, anchor.next);
-
-    expect(data.getAll('style')).toEqual(['bold', 'underline']);
+    form.reset();
+    expect(inputs[0]!.checked).toBe(false); // native restore
+    await vi.waitFor(() => expect(onvalue).toHaveBeenLastCalledWith('')); // microtask re-sync
   });
 
-  it('the group carries a label and button-only members', () => {
-    const { container } = render(ToggleGroupHost);
-    expect(container.querySelector('[role="group"]')!.getAttribute('aria-label')).toBeTruthy();
-    expect(container.querySelectorAll('[role="group"] > button[aria-pressed]').length).toBe(3);
+  it('the group carries a label; active segments stamp data-jx-tgroup=on; spread native handlers ride alongside', async () => {
+    const rendered = render(ToggleGroupHost, {
+      props: { onchange: () => {} }, // a consumer-spread native handler rides alongside
+    });
+    const group = rendered.container.querySelector('[data-jx-tgroup]')!;
+    expect(group.getAttribute('aria-label')).toBe('text style');
+    const inputs = [...rendered.container.querySelectorAll('label > input')] as HTMLInputElement[];
+
+    await fireEvent.click(inputs[0]!);
+    flushSync();
+    expect(inputs[0]!.getAttribute('data-jx-tgroup')).toBe('on');
+    expect(inputs[1]!.getAttribute('data-jx-tgroup')).toBeNull();
   });
 });
 

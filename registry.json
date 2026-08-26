@@ -2162,11 +2162,6 @@
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/toggle-group/toggle-group.css",
-          "target": "@ui/toggle-group/toggle-group.css",
-          "type": "registry:file"
-        },
-        {
           "path": "registry/files/ui/toggle-group/toggle-group.svelte",
           "target": "@ui/toggle-group/toggle-group.svelte",
           "type": "registry:file"

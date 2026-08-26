@@ -1,6 +1,7 @@
 <!--
   composition-c fixture: the toggle-group family, single or multiple,
-  with the onchange seam exposed for value-law assertions.
+  with the value-callback seam (onValueChange) exposed for value-law
+  assertions.
 -->
 <script lang="ts">
   import ToggleGroup from '../../src/lib/ui/toggle-group/toggle-group.svelte';
@@ -8,20 +9,22 @@
 
   let {
     multiple = false,
-    onchange,
+    onvalue,
   }: {
     multiple?: boolean;
-    onchange?: (value: string | string[]) => void;
+    onvalue?: (value: string | string[]) => void;
   } = $props();
 </script>
 
-<ToggleGroup
+<form>
+  <ToggleGroup
   name="style"
   label="text style"
   type={multiple ? 'multiple' : 'single'}
-  {onchange}
+  onValueChange={onvalue}
 >
   <ToggleGroupItem value="bold">bold</ToggleGroupItem>
   <ToggleGroupItem value="italic">italic</ToggleGroupItem>
   <ToggleGroupItem value="underline">underline</ToggleGroupItem>
-</ToggleGroup>
+  </ToggleGroup>
+</form>

@@ -41,7 +41,7 @@
   </BreadcrumbItem>
 </BreadcrumbList>
 
-<ToggleGroup label="probe">
+<ToggleGroup name="probe" label="probe">
   <ToggleGroupItem
     value="a"
     id="probe-toggle-item"

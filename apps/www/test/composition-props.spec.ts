@@ -9,7 +9,7 @@
  * Five representative parts, one per redesigned family shape:
  *   steps-item          — plain part (li) whose id rides ...rest
  *   breadcrumb-link     — child({ props }) escape part (anchor)
- *   toggle-group-item   — context-reading button part
+ *   toggle-group-item   — context-reading label>input part
  *   alert-dialog-title  — derived-id part (id authored by the family)
  *   command-item        — the declared exception: id is load-bearing
  *                         $props.id(); authored id is ordered AFTER the
@@ -44,15 +44,16 @@ describe('props discipline — consumer attributes flow to the part root', () =>
     expect(a.className).toContain('text-muted-foreground');
   });
 
-  it('toggle-group-item: id/data-*/class land on the button', () => {
+  it('toggle-group-item: id/data-* land on the input, class on the label root', () => {
     const { container } = render(CompositionPropsHost);
-    const btn = container.querySelector('[data-testid="toggle-item-probe"]') as HTMLButtonElement;
-    expect(btn.tagName).toBe('BUTTON');
-    expect(btn.id).toBe('probe-toggle-item');
-    expect(btn.dataset.probeKind).toBe('toggle');
-    expect(btn.className).toContain('probe-extra');
-    // the family's own paint survives the merge
-    expect(btn.className).toContain('jx-tgroup-btn');
+    const input = container.querySelector('[data-testid="toggle-item-probe"]') as HTMLInputElement;
+    expect(input.tagName).toBe('INPUT'); // rest lands on the real form control
+    expect(input.id).toBe('probe-toggle-item');
+    expect(input.dataset.probeKind).toBe('toggle');
+    const label = input.closest('label')!;
+    expect(label.className).toContain('probe-extra'); // class merges into the part root
+    // the family paint rides the shared Part A class on the group
+    expect(container.querySelector('[data-jx-tgroup]')!.className).toContain('jx-tgroup');
   });
 
   it('alert-dialog-title: data-*/class land; the derived id stays the family wire', () => {

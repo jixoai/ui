@@ -1,35 +1,49 @@
 <!--
-  jixoai toggle group item
+  jixoai toggle group item — native-html edition
   (registry/files/ui/toggle-group/toggle-group-item.svelte).
-  The leaf of the family: a real <button aria-pressed> reading the
-  group's context — the caller's `value` IS the identity (no ordinal,
-  no registration; keyed reorders are inert). Space/Enter toggle
-  natively through the group's value law (single swaps, multiple
-  stacks); per-item `disabled` dims only this button on top of any
-  group-level disable.
 
-  tw4 (2026-08-24): static paint + hover/disabled states as token
-  utilities (deterministic per-state strings — the pressed repaint is
-  a full branch, never two colliding utilities); the focus-visible
-  ring stays in toggle-group.css (D1-exempt residue).
+  The leaf of the family: a label>input+span pair reading the
+  group's context — the caller's `value` IS the identity (no
+  ordinal, no registration; keyed reorders are inert). The input is
+  the real form control (radio in single mode, checkbox in
+  multiple), visually hidden by the shared Part A `.jx-tgroup` law;
+  the label IS the segment face; `:has()` paints every state.
+
+  Spread contract: {...rest} lands on the INPUT FIRST — the
+  part's own type/name/value/checked/disabled bindings follow and
+  win, so a consumer spread can never sever the value law; consumer
+  attributes (title/data-*/aria-*) still flow verbatim. Interactive
+  descendants are banned inside the content (a label owns exactly
+  one labelable — the input). Duplicate values inside one group are
+  a contract violation (breaks radio identity and the projection).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import type { HTMLButtonAttributes } from 'svelte/elements';
+  import type { HTMLInputAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
   import { cn } from '$lib/utils';
   import { TOGGLE_GROUP_KEY, type ToggleGroupApi } from './toggle-group.svelte';
-  import './toggle-group.css';
 
-  interface Props extends HTMLButtonAttributes {
-    /** the button's identity — the value that joins the form payload */
+  interface Props extends HTMLInputAttributes {
+    /** the segment's identity — the value that joins the form payload */
     value: string;
     disabled?: boolean;
     class?: string;
+    /** optional content snippets inside the segment's span */
+    slotStart?: Snippet;
+    slotEnd?: Snippet;
     children: Snippet;
   }
 
-  let { value, disabled = false, class: className = '', children, ...rest }: Props = $props();
+  let {
+    value,
+    disabled = false,
+    class: className = '',
+    slotStart,
+    slotEnd,
+    children,
+    ...rest
+  }: Props = $props();
 
   const group = getContext<ToggleGroupApi>(TOGGLE_GROUP_KEY);
   if (!group) {
@@ -39,21 +53,20 @@
   const active = $derived(group.isActive(value));
 </script>
 
-<button
-  type="button"
-  data-jx-tgroup={active ? 'on' : undefined}
-  class={cn(
-    'jx-tgroup-btn appearance-none cursor-pointer border-r border-border font-nav uppercase tracking-[0.1em] last:border-r-0 transition-[color,background-color] duration-150 ease-out',
-    active
-      ? 'bg-primary text-primary-foreground hover:not-disabled:text-primary-foreground'
-      : 'bg-transparent text-muted-foreground hover:not-disabled:text-foreground',
-    'disabled:cursor-not-allowed disabled:opacity-45',
-    className,
-  )}
-  aria-pressed={active}
-  disabled={group.disabled || disabled}
-  onclick={() => group.toggle(value)}
-  {...rest}
->
-  {@render children()}
-</button>
+<label class={className}>
+  <input
+    {...rest}
+    type={group.type === 'single' ? 'radio' : 'checkbox'}
+    name={group.name}
+    value={value}
+    checked={active}
+    disabled={group.disabled || disabled}
+    required={group.required || undefined}
+    data-jx-tgroup={active ? 'on' : undefined}
+  />
+  <span>
+    {#if slotStart}{@render slotStart()}{/if}
+    {@render children()}
+    {#if slotEnd}{@render slotEnd()}{/if}
+  </span>
+</label>
