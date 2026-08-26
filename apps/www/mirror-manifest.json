@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-26T20:44:38.514Z",
+  "generatedAt": "2026-08-26T20:45:07.864Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -327,8 +327,8 @@
           "source": "registry/files/ui/terminal-header/terminal-header.svelte",
           "mirror": "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
           "target": "@ui/terminal-header/terminal-header.svelte",
-          "sourceSha": "006abe1cad129271ab81fed4ecd791333012e0afa3b7924fd7fbf8a640090557",
-          "mirrorSha": "006abe1cad129271ab81fed4ecd791333012e0afa3b7924fd7fbf8a640090557"
+          "sourceSha": "7ef7d008ebe2a5febabf60ef76c27ab3ee9d12cb73efe92c3a625a525b22ab35",
+          "mirrorSha": "7ef7d008ebe2a5febabf60ef76c27ab3ee9d12cb73efe92c3a625a525b22ab35"
         },
         {
           "source": "registry/files/ui/terminal-header/index.ts",
@@ -2859,6 +2859,10 @@
     {
       "path": "apps/www/src/lib/ui/docs-sections-nav.svelte",
       "note": "docs-restructure: sections rail (site-only)"
+    },
+    {
+      "path": "apps/www/src/lib/ui/docs-sections-nav.css",
+      "note": "sections rail companion sheet — the VT presence law (site-only)"
     },
     {
       "path": "apps/www/src/lib/ui/a11y-table/a11y-table.svelte",

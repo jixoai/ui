@@ -270,7 +270,20 @@
         });
       });
     }
-    if (from === to) return;
+    if (from === to) {
+      // same-carousel-page navigation (query/hash-only): no VT — but it
+      // STILL supersedes any running transition's dataset ownership (the
+      // predecessor's gen-guarded cleanup would no-op against the bump
+      // below), so this branch takes the attributes itself: full inert
+      // set, nothing left mounted (Codex r4 residual)
+      const root = document.documentElement;
+      ++vtGeneration;
+      root.dataset.vtRail = vtRail;
+      delete root.dataset.vtKind;
+      delete root.dataset.vtDirection;
+      delete root.dataset.vtNav;
+      return;
+    }
 
     const root = document.documentElement;
     root.dataset.vtKind = 'page-carousel';

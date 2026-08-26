@@ -1,3 +1,5 @@
+@layer theme, base, components, utilities;
+
 /*
   The left rail's view-transition presence law (Owner walkthrough
   request, 2026-08-26; r4: moved home from app.css per the

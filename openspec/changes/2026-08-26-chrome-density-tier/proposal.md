@@ -68,7 +68,10 @@
 
 ## Impact
 
-No props API change; one observable DOM contract change (density
+One props API addition from the walkthrough round — TerminalHeader's
+`switcherFrame` (default ON; the bezel frame law, opt-out for
+consumers whose control carries its own frame); one observable DOM
+contract change (density
 attributes are opinion-gated on the navigation-menu family — absent
 without an opinion); no control-row geometry change (44px floor
 intact outside chrome; panels and drawer re-scope/ride the density
