@@ -54,7 +54,7 @@ ${close}
   <p>Minting a new key revokes the current one after 24 hours.</p>
   {#snippet footer()}
     <PressButton onclick={() => (open = false)}>Cancel</PressButton>
-    <PressButton variant="primary" onclick={confirm}>Rotate key</PressButton>
+    <PressButton variant="fill" onclick={confirm}>Rotate key</PressButton>
   {/snippet}
 </Dialog>`;
 
@@ -282,7 +282,7 @@ ${close}
   {#snippet footer()}
     <PressButton onclick={() => (formOpen = false)}>Cancel</PressButton>
     <PressButton
-      variant="primary"
+      variant="fill"
       onclick={() => {
         lastAction = 'key rotated';
         formOpen = false;

@@ -24,6 +24,6 @@
   </div>
   {#snippet footer()}
     <PressButton variant="outline">Cancel</PressButton>
-    <PressButton variant="primary">Save changes</PressButton>
+    <PressButton variant="fill">Save changes</PressButton>
   {/snippet}
 </Sheet>

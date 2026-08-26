@@ -13,7 +13,7 @@
     {
       name: 'src/lib/ui/usage.svelte',
       lang: 'svelte',
-      content: `<PressButton variant="primary">deploy</PressButton>
+      content: `<PressButton variant="fill">deploy</PressButton>
 <PressButton variant="outline">cancel</PressButton>`,
     },
     {
@@ -27,9 +27,9 @@
 <div class="flex h-full w-full items-center justify-center p-8">
   <ComponentCanvas title="press-button" files={files}>
     <div class="flex items-center gap-3">
-      <PressButton variant="primary">deploy</PressButton>
+      <PressButton variant="fill">deploy</PressButton>
       <PressButton variant="outline">cancel</PressButton>
-      <Badge tone="primary">live demo</Badge>
+      <Badge>live demo</Badge>
     </div>
   </ComponentCanvas>
 </div>

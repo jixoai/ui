@@ -66,10 +66,12 @@ describe('docs-route-model — the section spine', () => {
   it('taxonomy snapshot: group ids + ui member counts are deliberate (r4)', () => {
     // frozen 2026-08-25 after the orphan-group fix (component-canvas
     // → data-display): a single-member column in the mega panel was a
-    // visual break — any taxonomy change must update this snapshot
+    // visual break — any taxonomy change must update this snapshot.
+    // Re-frozen 2026-08-26 (variant-grammar): chip + inline-code join
+    // general (6→8, 73→75 ui items).
     const shape = docsComponentGroups.map(({ group, entries }) => `${group.id}:${entries.length}`);
     expect(shape).toEqual([
-      'general:6', 'layout:10', 'navigation:10', 'layer:10',
+      'general:8', 'layout:10', 'navigation:10', 'layer:10',
       'data-entry:18', 'data-display:16', 'feedback:5',
     ]);
     expect(shape.every((x) => !x.endsWith(':1')), 'no single-member groups').toBe(true);

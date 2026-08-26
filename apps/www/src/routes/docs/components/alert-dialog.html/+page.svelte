@@ -72,6 +72,24 @@ ${close}
       <AlertDialogAction>delete pipeline</AlertDialogAction>
     </AlertDialogActions>
   </AlertDialogContent>
+</AlertDialog>
+
+<!-- positive confirmation: the tonal action reads brand-tinted;
+     a solid one injects the brand pair on fill instead:
+     <AlertDialogAction variant="fill"
+       class="[--jx-fill:var(--primary)] [--jx-fill-ink:var(--primary-foreground)]"> -->
+<AlertDialog>
+  <AlertDialogTrigger>rename pipeline…</AlertDialogTrigger>
+  <AlertDialogContent>
+    <AlertDialogTitle>Rename the pipeline?</AlertDialogTitle>
+    <AlertDialogDescription>
+      The new slug applies to every check's history.
+    </AlertDialogDescription>
+    <AlertDialogActions>
+      <AlertDialogCancel>cancel</AlertDialogCancel>
+      <AlertDialogAction variant="tonal">save changes</AlertDialogAction>
+    </AlertDialogActions>
+  </AlertDialogContent>
 </AlertDialog>`;
 
   const canvasFiles: TreeFile[] = [
@@ -137,14 +155,30 @@ ${close}
             </AlertDialogActions>
           </AlertDialogContent>
         </AlertDialog>
+        <AlertDialog>
+          <AlertDialogTrigger class="jx-press appearance-none px-4 py-2 border border-border bg-background text-foreground font-nav text-xs tracking-[0.1em] uppercase cursor-pointer [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]">
+            rename pipeline…
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogTitle>Rename the pipeline?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The new slug applies to every check's history — references update with it.
+            </AlertDialogDescription>
+            <AlertDialogActions>
+              <AlertDialogCancel>cancel</AlertDialogCancel>
+              <AlertDialogAction variant="tonal">save changes</AlertDialogAction>
+            </AlertDialogActions>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
       {#snippet playground()}
         <PlayFields>
           <PlayHelp>
             title and description are PARTS now — the ARIA wiring is Content's job (deterministic
-            derived ids), the words are yours where they render. Action's
-            <code class="text-accent">tone="primary"</code> flips the loud path off for positive
-            confirmations (e.g. 'save changes').
+            derived ids), the words are yours where they render. Action paints through the variant
+            grammar: bare is <code class="text-accent">fill</code> with the destructive pair injected
+            (the loud path is opt-out); <code class="text-accent">variant="tonal"</code> reads as a
+            brand-tinted positive confirm, or inject the brand pair on fill for a solid one.
           </PlayHelp>
         </PlayFields>
       {/snippet}
@@ -187,8 +221,8 @@ ${close}
         <p class="text-[13px] leading-6"><code class="text-accent">variant="auto"</code> (default) picks acrylic unless the environment asks for reduced transparency; <code class="text-accent">"solid"</code> and <code class="text-accent">"acrylic"</code> force one.</p>
       </div>
       <div class="border border-border p-4">
-        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">Action tone</p>
-        <p class="text-[13px] leading-6"><code class="text-accent">tone="destructive"</code> is the default — the loud path is opt-OUT; <code class="text-accent">tone="primary"</code> flips it for positive confirmations ("save changes").</p>
+        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">Action variant</p>
+        <p class="text-[13px] leading-6"><code class="text-accent">variant="fill"</code> (default) ships with the destructive pair injected — the loud path is opt-OUT; <code class="text-accent">variant="tonal"</code> is the brand-tinted positive confirm, or inject the brand pair (<code class="text-accent">[--jx-fill:var(--primary)] [--jx-fill-ink:var(--primary-foreground)]</code>) on fill for a solid one; <code class="text-accent">variant="outline"</code> stays quiet.</p>
       </div>
       <div class="border border-border p-4">
         <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">Composed family</p>
@@ -199,5 +233,5 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Root owns bind:open + the onconfirm seam; Title and Description are parts — an alert without words is not an alert."><CodeBlock code={usage} lang="svelte" meta="AlertDialog usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="APG alertdialog law on the native dialog: focus lands on Cancel on open, Escape cancels, Tab is the platform's own focus trap."><A11yTable keys={[{ key: 'Tab', action: 'Cycles focus inside the modal (the platform focus trap — nothing to leak)' }, { key: 'Escape', action: 'Cancels: the native cancel request is prevented and re-routed through the animated close' }, { key: 'Enter / Space', action: 'Activates the focused button — Cancel (focused on open) or Action' }]} aria={[{ name: 'role', value: 'alertdialog', description: 'On Content (the native dialog element).' }, { name: 'aria-labelledby', value: '{uid}-title', description: 'Points at the deterministic id Title renders; derived from the root uid.' }, { name: 'aria-describedby', value: '{uid}-desc', description: 'Points at the deterministic id Description renders.' }, { name: 'aria-haspopup', value: 'dialog', description: 'On the Trigger button.' }, { name: 'aria-expanded', value: 'true/false', description: 'On the Trigger; mirrors the open state.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The surface inherits density through the DOM tree; motion runs on one animated custom property."><div class="flex flex-col gap-5"><DensityDemo><AlertDialog><AlertDialogTrigger class="jx-press appearance-none px-4 py-2 border border-border bg-background text-foreground font-nav text-xs tracking-[0.1em] uppercase cursor-pointer [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]">delete pipeline…</AlertDialogTrigger><AlertDialogContent><AlertDialogTitle>delete the pipeline?</AlertDialogTitle><AlertDialogDescription>density scopes resize the trigger rhythm; the surface inherits scope from its DOM position.</AlertDialogDescription><AlertDialogActions><AlertDialogCancel>cancel</AlertDialogCancel><AlertDialogAction>delete pipeline</AlertDialogAction></AlertDialogActions></AlertDialogContent></AlertDialog></DensityDemo><TokenTable tokens={[{ name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'The surface-motion progress driving open/close.' }, { name: '--scrim', default: 'semi-transparent black/white', source: 'color', description: '::backdrop scrim — never a brand tint.' }, { name: '--jx-surface-in-x/y', default: '0px / 6px', source: 'component', description: 'Surface entry offset (translate-in).' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' }, { name: 'surface width', default: 'min(28rem, 100vw − 2rem)', source: 'structural' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The family's parts, each with its own props; all button/element parts forward their native HTML attributes."><div class="flex flex-col gap-6"><PropsTable title="AlertDialog (root)" props={[{ name: 'open', type: 'boolean', default: 'false', description: 'Controlled open state (bind:open); the root renders no element.', bindable: true }, { name: 'onconfirm', type: '() => void', default: '—', description: 'The confirm seam: runs on AlertDialogAction, then the dialog closes.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The family parts.' }]} /><PropsTable title="AlertDialogTrigger" props={[{ name: 'child', type: 'Snippet<[{ props }]>', default: '—', description: 'Replacement-element escape: spread {...props} on your own button.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Trigger label; spreads HTMLButtonAttributes.' }]} /><PropsTable title="AlertDialogContent" props={[{ name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface paint; auto falls back to solid under reduced transparency.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Title, Description, free body, and the Actions row; spreads HTMLDialogAttributes.' }]} /><PropsTable title="AlertDialogAction / Cancel / Title / Description / Actions" props={[{ name: 'tone', type: "'destructive' | 'primary'", default: "'destructive'", description: 'Action only: the confirm paint — destructive is the opt-out default.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Shared by all five parts; each spreads its native element attributes.' }, { name: 'id (Title/Description)', type: 'string', default: '{uid}-title / -desc', description: 'Deterministic derived ids Content’s aria wiring points at.' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The family's parts, each with its own props; all button/element parts forward their native HTML attributes."><div class="flex flex-col gap-6"><PropsTable title="AlertDialog (root)" props={[{ name: 'open', type: 'boolean', default: 'false', description: 'Controlled open state (bind:open); the root renders no element.', bindable: true }, { name: 'onconfirm', type: '() => void', default: '—', description: 'The confirm seam: runs on AlertDialogAction, then the dialog closes.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The family parts.' }]} /><PropsTable title="AlertDialogTrigger" props={[{ name: 'child', type: 'Snippet<[{ props }]>', default: '—', description: 'Replacement-element escape: spread {...props} on your own button.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Trigger label; spreads HTMLButtonAttributes.' }]} /><PropsTable title="AlertDialogContent" props={[{ name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface paint; auto falls back to solid under reduced transparency.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Title, Description, free body, and the Actions row; spreads HTMLDialogAttributes.' }]} /><PropsTable title="AlertDialogAction / Cancel / Title / Description / Actions" props={[{ name: 'variant', type: "'fill' | 'tonal' | 'outline'", default: "'fill'", description: 'Action only: the confirm paint on the ladder — fill ships with the destructive pair injected (the opt-out loud path); flip the injection to the brand pair or switch to tonal for positive confirmations.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Shared by all five parts; each spreads its native element attributes.' }, { name: 'id (Title/Description)', type: 'string', default: '{uid}-title / -desc', description: 'Deterministic derived ids Content’s aria wiring points at.' }]} /></div></SectionCard></div>
 </div>

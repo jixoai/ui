@@ -44,7 +44,7 @@ ${close}
 <!-- full press-button inheritance: paint variants + effect loops -->
 <IconButton
   iconOnly
-  variant="primary"
+  variant="fill"
   effect={shimmer({ speed: 4000 })}
   text="open github"
   href="https://github.com/jixoai/ui"
@@ -67,7 +67,7 @@ ${drivenNormal}${usageTail}`;
   // playground protocol (P1): the page owns the state; the canvas only
   // calls back — snapshot + reset + live usage (the controls carry their
   // own readout, so no echo rows)
-  type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive';
+  type Variant = 'fill' | 'tonal' | 'outline' | 'ghost' | 'link';
   type Posture = 'text' | 'icon-only';
   type Placement = 'top' | 'bottom' | 'top-start' | 'bottom-start' | 'top-end' | 'bottom-end';
   const canvasInitial = {
@@ -85,7 +85,7 @@ ${drivenNormal}${usageTail}`;
   }
   // kit option maps: the enum controls speak the typed unions directly
   const variantOptions: { value: Variant; label: string }[] = (
-    ['primary', 'secondary', 'outline', 'ghost', 'destructive'] as const
+    ['fill', 'tonal', 'outline', 'ghost', 'link'] as const
   ).map((value) => ({ value, label: value }));
   const postureOptions: { value: Posture; label: string }[] = [
     { value: 'text', label: 'text' },
@@ -186,7 +186,7 @@ ${drivenNormal}${usageTail}`;
               <span>inherited effect</span>
               <IconButton
                 iconOnly
-                variant="primary"
+                variant="fill"
                 effect={shimmer({ speed: 4000 })}
                 text="deploy"
               >
@@ -293,11 +293,11 @@ ${drivenNormal}${usageTail}`;
     <SectionCard eyebrow="types" title="Text and icon-only postures" summary="The component has two visual postures; both preserve the same press-button behavior and semantic label.">
       <div class="grid gap-3 sm:grid-cols-2">
         <div class="border border-border/60 p-3">
-          <IconButton text="deploy" variant="primary">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
+          <IconButton text="deploy" variant="fill">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
           <p class="mt-2 text-xs text-muted-foreground">text: glyph and visible label</p>
         </div>
         <div class="border border-border/60 p-3">
-          <IconButton iconOnly text="deploy" variant="primary">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
+          <IconButton iconOnly text="deploy" variant="fill">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
           <p class="mt-2 text-xs text-muted-foreground">icon-only: tooltip and aria-label</p>
         </div>
       </div>

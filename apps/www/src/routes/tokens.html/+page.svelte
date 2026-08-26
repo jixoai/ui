@@ -200,7 +200,7 @@ playing.subscribe((v) => (isPlaying = v));
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
-          <PressButton variant="primary">primary button</PressButton>
+          <PressButton variant="fill">fill button</PressButton>
           <PressButton variant="outline">outline button</PressButton>
           <span class="text-muted-foreground text-[12.5px]">
             press physics follow the hue automatically — no second variable

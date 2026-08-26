@@ -7,7 +7,7 @@
 <div class="flex h-full w-full items-center justify-center p-10">
   <Empty density="lg" title="No components yet" description="Add the first one from the registry.">
     {#snippet actions()}
-      <PressButton variant="primary">Add component</PressButton>
+      <PressButton variant="fill">Add component</PressButton>
     {/snippet}
   </Empty>
 </div>

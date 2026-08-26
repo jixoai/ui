@@ -15,7 +15,7 @@
   <form class="border-border bg-muted/30 flex w-full max-w-[400px] flex-col gap-5 border p-6">
     <div class="flex items-center justify-between">
       <span class="font-nav text-[11px] uppercase tracking-[0.24em]">deploy form</span>
-      <Badge tone="primary">FormData</Badge>
+      <Badge>FormData</Badge>
     </div>
     <Input label="project" name="project" value="jixoai-www" />
     <Select
@@ -31,7 +31,7 @@
       <span class="font-nav text-muted-foreground text-[10px]"
         >&lt;jx-form-field&gt; · display: contents</span
       >
-      <PressButton variant="primary" type="submit">submit</PressButton>
+      <PressButton variant="fill" type="submit">submit</PressButton>
     </div>
   </form>
 </div>

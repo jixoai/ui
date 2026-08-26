@@ -14,7 +14,7 @@
     >
       {#snippet actions()}
         <PressButton variant="outline">view release</PressButton>
-        <PressButton variant="primary">share</PressButton>
+        <PressButton variant="fill">share</PressButton>
       {/snippet}
     </Result>
   </div>

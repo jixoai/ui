@@ -19,6 +19,6 @@
   </p>
   {#snippet footer()}
     <PressButton variant="outline">Cancel</PressButton>
-    <PressButton variant="primary">Delete</PressButton>
+    <PressButton variant="fill">Delete</PressButton>
   {/snippet}
 </Dialog>

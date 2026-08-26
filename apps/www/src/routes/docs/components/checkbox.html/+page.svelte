@@ -142,7 +142,7 @@
           <Checkbox label="I agree to the terminal printing my answers" name="consent" value="yes" required />
           <Checkbox label="join the newsletter" name="news" value="yes" />
           <div class="flex flex-wrap items-center gap-3 pt-1">
-            <PressButton type="submit" variant="primary">sign up</PressButton>
+            <PressButton type="submit" variant="fill">sign up</PressButton>
             <span class="text-muted-foreground text-[12.5px]">
               required fields use native validation — try submitting empty
             </span>

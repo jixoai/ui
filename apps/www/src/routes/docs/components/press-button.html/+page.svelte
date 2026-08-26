@@ -27,23 +27,25 @@ ${close}
 
 <!-- one physics for every variant: hover grows the shadow, active presses -->`;
   const usageTail = `
-<PressButton variant="secondary">invite</PressButton>
+<PressButton variant="tonal" class="[--jx-tonal:var(--muted-foreground)]">invite</PressButton>
 <PressButton variant="outline">cancel</PressButton>
 <PressButton variant="ghost">dismiss</PressButton>
-<PressButton variant="destructive">delete</PressButton>
+<!-- destructive ACTION = fill + the destructive pair (statuses use --jx-error instead) -->
+<PressButton variant="fill" class="[--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)]">delete</PressButton>
 <PressButton variant="link">details</PressButton>
-<PressButton variant="copied">copied</PressButton>
+<!-- copied is not a variant: the transient success state is tonal + injection -->
+<PressButton variant="tonal" class="[--jx-tonal:var(--success)]">copied</PressButton>
 
 <!-- one opt-in effect loop per button — typed builders from the module script -->
-<PressButton variant="primary" effect={shimmer()}>deploy</PressButton>
-<PressButton variant="primary" effect={pulse({ variant: 'ring' })}>deploy</PressButton>
+<PressButton variant="fill" effect={shimmer()}>deploy</PressButton>
+<PressButton variant="fill" effect={pulse({ variant: 'ring' })}>deploy</PressButton>
 <PressButton variant="outline" effect={rainbow()}>upgrade</PressButton>
-<PressButton variant="primary" effect={ripple({ duration: 800 })}>deploy</PressButton>
+<PressButton variant="fill" effect={ripple({ duration: 800 })}>deploy</PressButton>
 
 <!-- href renders an anchor instead; hrefs outside "/" open a new tab -->
-<PressButton variant="primary" href="/docs.html">read the docs</PressButton>`;
+<PressButton variant="fill" href="/docs.html">read the docs</PressButton>`;
   const usage = `${usageHead}
-<PressButton variant="primary">deploy</PressButton>${usageTail}`;
+<PressButton variant="fill">deploy</PressButton>${usageTail}`;
 
   // the exact same-source copy this site consumes, embedded verbatim
   const files: TreeFile[] = [
@@ -55,7 +57,7 @@ ${close}
   // calls back — snapshot + reset + live usage (the selects carry their
   // own readout, so no echo rows). The select speaks effect NAMES; the
   // builders run in the map below.
-  type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link' | 'copied';
+  type Variant = 'fill' | 'tonal' | 'outline' | 'ghost' | 'link';
   type EffectName = 'none' | 'shimmer' | 'pulse' | 'rainbow' | 'ripple';
   const effectBuilders = {
     none: undefined,
@@ -64,7 +66,7 @@ ${close}
     rainbow: () => rainbow(),
     ripple: () => ripple(),
   } as const;
-  const canvasInitial = { variant: 'primary' as Variant, effect: 'none' as EffectName };
+  const canvasInitial = { variant: 'fill' as Variant, effect: 'none' as EffectName };
   let variant = $state(canvasInitial.variant);
   let effect = $state(canvasInitial.effect);
   function resetCanvas(): void {
@@ -73,13 +75,11 @@ ${close}
   }
   // kit option maps: the enum controls speak the typed unions directly
   const variantOptions: { value: Variant; label: string }[] = [
-    { value: 'primary', label: 'primary' },
-    { value: 'secondary', label: 'secondary' },
+    { value: 'fill', label: 'fill' },
+    { value: 'tonal', label: 'tonal' },
     { value: 'outline', label: 'outline' },
     { value: 'ghost', label: 'ghost' },
-    { value: 'destructive', label: 'destructive' },
     { value: 'link', label: 'link' },
-    { value: 'copied', label: 'copied' },
   ];
   const effectOptions: { value: EffectName; label: string }[] = [
     { value: 'none', label: 'none' },
@@ -100,7 +100,7 @@ ${close}
   <title>Press button · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai press-button component: restrained press law — hover grows the shadow only (the body never moves), active presses the body 1px into the page while the shadow layer stays anchored — in seven surfaces plus four opt-in paint-only effect loops: shimmer, pulse, rainbow, ripple."
+    content="The jixoai press-button component: restrained press law — hover grows the shadow only (the body never moves), active presses the body 1px into the page while the shadow layer stays anchored — in five surfaces (the fill/tonal/outline/ghost ladder plus the link exception) with semantic color injected through tokens, plus four opt-in paint-only effect loops: shimmer, pulse, rainbow, ripple."
   />
 </svelte:head>
 
@@ -117,8 +117,8 @@ ${close}
         headingLevel={1}
         tone="hero"
         eyebrow="registry:ui · General"
-        title="press-button — one physics, seven surfaces, four effects"
-        summary="The only button in the grammar, and the animation is deliberately quiet: hover never moves the body — the hard shadow alone grows from xs to sm; active presses the body one pixel into the page while the shadow stays exactly where it was. Variants change the surface, never the physics — primary for the one action that matters, secondary when primary is taken, outline for the rest, ghost and link for the quiet seats, destructive to warn, copied as the 1.6s feedback state. One opt-in effect loop adds attention without breaking the restraint: shimmer (a spark walks the perimeter), pulse (sonar rings breathe outward), rainbow (a gradient flows around the border), ripple (ink expands from the press point) — typed builders with options, all frozen under reduced motion."
+        title="press-button — one physics, the ladder, four effects"
+        summary="The only button in the grammar, and the animation is deliberately quiet: hover never moves the body — the hard shadow alone grows from xs to sm; active presses the body one pixel into the page while the shadow stays exactly where it was. Variants are a prominence ladder, never a color decision: fill for the one action that matters, tonal for the supporting seat, outline for the rest (the default), ghost and link for the quiet seats — link is the grammar's one interaction exception. Semantic color is hue injection through the global tokens: destructive actions fill with the destructive pair, metadata tones down through --jx-tonal, the copied transient is tonal + success. One opt-in effect loop adds attention without breaking the restraint: shimmer (a spark walks the perimeter), pulse (sonar rings breathe outward), rainbow (a gradient flows around the border), ripple (ink expands from the press point) — typed builders with options, all frozen under reduced motion."
       >
         <div class="flex flex-wrap gap-3">
           <span class="pill">hover: shadow only</span>
@@ -142,12 +142,12 @@ ${close}
         <div class="flex flex-col items-center gap-6">
           <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
-              <span>primary</span>
-              <PressButton variant="primary">deploy</PressButton>
+              <span>fill</span>
+              <PressButton variant="fill">deploy</PressButton>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
-              <span>secondary</span>
-              <PressButton variant="secondary">invite</PressButton>
+              <span>tonal</span>
+              <PressButton variant="tonal">invite</PressButton>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>outline</span>
@@ -158,38 +158,49 @@ ${close}
               <PressButton variant="ghost">dismiss</PressButton>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
-              <span>destructive</span>
-              <PressButton variant="destructive">delete</PressButton>
-            </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>link</span>
               <PressButton variant="link">details</PressButton>
             </label>
+          </div>
+          <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5 border-t border-border pt-5">
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
-              <span>copied</span>
-              <PressButton variant="copied">copied</PressButton>
+              <span>destructive action</span>
+              <PressButton
+                variant="fill"
+                class="[--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)]"
+              >
+                delete
+              </PressButton>
+            </label>
+            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+              <span>neutral tonal</span>
+              <PressButton variant="tonal" class="[--jx-tonal:var(--muted-foreground)]">invite</PressButton>
+            </label>
+            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+              <span>success — copied</span>
+              <PressButton variant="tonal" class="[--jx-tonal:var(--success)]">copied</PressButton>
             </label>
           </div>
           <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5 border-t border-border pt-5">
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>shimmer</span>
-              <PressButton variant="primary" effect={shimmer()}>deploy</PressButton>
+              <PressButton variant="fill" effect={shimmer()}>deploy</PressButton>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>pulse · ring</span>
-              <PressButton variant="primary" effect={pulse({ variant: 'ring' })}>deploy</PressButton>
+              <PressButton variant="fill" effect={pulse({ variant: 'ring' })}>deploy</PressButton>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>rainbow</span>
               <PressButton variant="outline" effect={rainbow()}>upgrade</PressButton>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
-              <span>rainbow · primary</span>
-              <PressButton variant="primary" effect={rainbow()}>deploy</PressButton>
+              <span>rainbow · fill</span>
+              <PressButton variant="fill" effect={rainbow()}>deploy</PressButton>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>ripple — press me</span>
-              <PressButton variant="primary" effect={ripple({ duration: 800 })}>deploy</PressButton>
+              <PressButton variant="fill" effect={ripple({ duration: 800 })}>deploy</PressButton>
             </label>
           </div>
           <div class="flex flex-col items-center gap-2.5 border-t border-border pt-5">
@@ -237,7 +248,7 @@ ${close}
           <div class="flex flex-wrap items-center gap-x-8 gap-y-5">
             <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>internal → same tab</span>
-              <PressButton variant="primary" href="/docs/components.html">overview</PressButton>
+              <PressButton variant="fill" href="/docs/components.html">overview</PressButton>
             </div>
             <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>external → new tab</span>
@@ -260,7 +271,7 @@ ${close}
             </div>
             <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>button → no navigation</span>
-              <PressButton variant="copied">copied</PressButton>
+              <PressButton variant="tonal" class="[--jx-tonal:var(--success)]">copied</PressButton>
             </div>
           </div>
           <CodeBlock code={usage} lang="svelte" meta="usage" />
@@ -278,13 +289,23 @@ ${close}
       >
         <ul class="flex flex-col gap-2 text-[13px] leading-6">
           <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span><code class="text-accent">variant</code> selects only the surface pair
-              (background + foreground): <code class="text-accent">primary</code>,
-              <code class="text-accent">secondary</code>, <code class="text-accent">outline</code>,
-              <code class="text-accent">ghost</code>, <code class="text-accent">destructive</code>,
-              <code class="text-accent">link</code>, <code class="text-accent">copied</code> — the
+            <span><code class="text-accent">variant</code> selects only the ladder rung —
+              <code class="text-accent">fill</code>,
+              <code class="text-accent">tonal</code>,
+              <code class="text-accent">outline</code>,
+              <code class="text-accent">ghost</code>, plus
+              <code class="text-accent">link</code>, the one interaction exception — the
               press law is the theme's shared <code class="text-accent">.jx-press</code> class, one
               source for every button in the grammar</span></li>
+          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+            <span>semantic color is hue injection, never a variant: destructive actions carry
+              <code class="text-accent">fill</code> +
+              <code class="text-accent">[--jx-fill:var(--destructive)]</code>
+              <code class="text-accent">[--jx-fill-ink:var(--destructive-foreground)]</code>,
+              metadata softens through
+              <code class="text-accent">[--jx-tonal:var(--muted-foreground)]</code>, and the
+              copied transient is <code class="text-accent">tonal</code> +
+              <code class="text-accent">[--jx-tonal:var(--success)]</code></span></li>
           <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
             <span>the shadow is the body's own <code class="text-accent">box-shadow</code>: hover
               grows it (xs → sm) and nothing else; active slides the body +1px while the shadow's
@@ -320,22 +341,48 @@ ${close}
   </div>
 
   <div id="types" data-reveal="">
-    <SectionCard eyebrow="types" title="Surface variants" summary="Choose the semantic surface first; every variant keeps the same hit target and press physics.">
-      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <SectionCard eyebrow="types" title="The variant ladder" summary="Choose the prominence rung first; semantic hue is injected separately through the grammar tokens. Every rung keeps the same hit target and press physics.">
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {#each [
-          ['primary', 'Primary action'],
-          ['secondary', 'Secondary action'],
-          ['outline', 'Neutral action'],
-          ['ghost', 'Quiet action'],
-          ['destructive', 'Danger action'],
+          ['fill', 'The one action'],
+          ['tonal', 'Supporting seat'],
+          ['outline', 'The rest (default)'],
+          ['ghost', 'Quiet seat'],
           ['link', 'Inline navigation'],
-          ['copied', 'Confirmation state'],
         ] as item}
           <div class="border border-border/60 p-3">
-            <PressButton variant={item[0] as 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link' | 'copied'}>{item[1]}</PressButton>
+            <PressButton variant={item[0] as 'fill' | 'tonal' | 'outline' | 'ghost' | 'link'}>{item[1]}</PressButton>
             <p class="mt-2 text-xs text-muted-foreground">{item[0]}</p>
           </div>
         {/each}
+      </div>
+      <div class="mt-6">
+        <p class="font-nav mb-4 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+          semantic injection recipes — hue, not a rung
+        </p>
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="border border-border/60 p-3">
+            <PressButton
+              variant="fill"
+              class="[--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)]"
+            >
+              delete
+            </PressButton>
+            <p class="mt-2 text-xs text-muted-foreground">destructive ACTION<br />fill + the destructive pair</p>
+          </div>
+          <div class="border border-border/60 p-3">
+            <PressButton variant="tonal" class="[--jx-tonal:var(--muted-foreground)]">invite</PressButton>
+            <p class="mt-2 text-xs text-muted-foreground">neutral / meta<br />tonal + muted-foreground</p>
+          </div>
+          <div class="border border-border/60 p-3">
+            <PressButton variant="tonal" class="[--jx-tonal:var(--success)]">copied</PressButton>
+            <p class="mt-2 text-xs text-muted-foreground">success status<br />tonal + success</p>
+          </div>
+          <div class="border border-border/60 p-3">
+            <PressButton variant="fill">deploy</PressButton>
+            <p class="mt-2 text-xs text-muted-foreground">brand (default hue)<br />fill, no injection</p>
+          </div>
+        </div>
       </div>
     </SectionCard>
   </div>
@@ -359,7 +406,7 @@ ${close}
     <SectionCard eyebrow="theming" title="Density and tokens" summary="The button reads its geometry from the inherited density scale, so one theme change updates every instance together.">
       <div class="flex flex-col gap-5">
         <DensityDemo scopes={['xs', 'sm', 'default', 'lg']}>
-          <PressButton variant="primary">deploy</PressButton>
+          <PressButton variant="fill">deploy</PressButton>
         </DensityDemo>
         <TokenTable tokens={[
           { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density', description: 'Minimum interactive height and width.' },
@@ -379,7 +426,7 @@ ${close}
     <SectionCard eyebrow="api" title="Props" summary="The public contract is intentionally small: semantic paint, optional navigation, and one press effect builder.">
       <PropsTable props={[
         { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'inherited', description: 'Overrides the surrounding density scope.' },
-        { name: 'variant', type: "'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link' | 'copied'", default: "'outline'", description: 'Selects the semantic surface.' },
+        { name: 'variant', type: "'fill' | 'tonal' | 'outline' | 'ghost' | 'link'", default: "'outline'", description: 'Selects the ladder rung; link is the interaction exception. Semantic hue injects through --jx-fill/--jx-fill-ink, --jx-tonal, --jx-outline classes at the call site.' },
         { name: 'effect', type: 'PressEffect', default: 'undefined', description: 'One shimmer, pulse, rainbow, or ripple builder.' },
         { name: 'href', type: 'string', default: 'undefined', description: 'Renders an anchor and navigates to the target.' },
         { name: 'external', type: 'boolean', default: 'auto', description: 'Opens non-internal hrefs in a new tab.' },

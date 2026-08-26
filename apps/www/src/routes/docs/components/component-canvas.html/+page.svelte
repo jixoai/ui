@@ -44,7 +44,7 @@ ${close}
   sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/press-button.svelte"
   files={[{ name: 'src/lib/ui/press-button-usage.svelte', content: usage }]}
 >
-  <PressButton variant="primary">deploy</PressButton>${innerPlayground ? `
+  <PressButton variant="fill">deploy</PressButton>${innerPlayground ? `
   {#snippet playground()}
     <PlayFields>
       <PlayRow label="variant">
@@ -68,7 +68,7 @@ ${close}
 ${close}
 
 <!-- one physics for every variant: hover grows the shadow, active presses -->
-<PressButton variant="primary">deploy</PressButton>`;
+<PressButton variant="fill">deploy</PressButton>`;
 
   const innerFiles = [{ name: 'src/lib/ui/press-button-usage.svelte', content: innerUsage }];
 
@@ -84,7 +84,7 @@ ${close}
   sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/press-button.svelte"
   files={[{ name: 'src/lib/ui/press-button-usage.svelte', content: usage }]}
 >
-  <PressButton variant="primary">deploy</PressButton>
+  <PressButton variant="fill">deploy</PressButton>
 </ComponentCanvas>`;
 </script>
 
@@ -145,7 +145,7 @@ ${close}
           files={innerFiles}
           stage="center"
         >
-          <PressButton variant="primary">deploy</PressButton>
+          <PressButton variant="fill">deploy</PressButton>
           {#if innerPlayground}
             {#snippet playground()}
               <PlayFields>
@@ -221,6 +221,6 @@ ${close}
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Children are the LIVE stage; files feed the drawer; the playground snippet is optional."><CodeBlock code={usageCode} lang="svelte" meta="ComponentCanvas usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The drawer is a disclosure: aria-expanded/controls plus inert keeps collapsed content out of the tab order."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through header, playground controls, then the open drawer' }, { key: 'Enter / Space', action: 'Toggles the code drawer disclosure; triggers copy and reset buttons' }]} aria={[{ name: 'aria-expanded', value: 'boolean', description: 'On the drawer toggle; tracks the 0fr/1fr grid collapse' }, { name: 'aria-controls', value: '{id}-drawer', description: 'Pairs the toggle with the drawer region' }, { name: 'inert', value: 'when collapsed', description: 'Removes collapsed drawer content from tab and screen-reader order' }, { name: 'aria-label', value: 'string', description: 'On the source link, stage ("{title} demo"), controls, and copy button' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The canvas is chrome, not a density-scaled control: it sizes from its own type ramp and container queries, and carries the press shadow tokens for its buttons."><div class="flex flex-col gap-6"><DensityDemo><ComponentCanvas title="canvas" description="density sample" files={innerFiles} stage="center"><PressButton variant="primary">deploy</PressButton></ComponentCanvas></DensityDemo><TokenTable tokens={[{ name: '--jx-press-shadow', default: '0 1px 2px rgb(0 0 0 / 0.08)', source: 'component' }, { name: '--jx-press-shadow-hover', default: 'grown shadow', source: 'component' }, { name: '--jx-press-shadow-active', default: 'anchored press', source: 'component' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The canvas is chrome, not a density-scaled control: it sizes from its own type ramp and container queries, and carries the press shadow tokens for its buttons."><div class="flex flex-col gap-6"><DensityDemo><ComponentCanvas title="canvas" description="density sample" files={innerFiles} stage="center"><PressButton variant="fill">deploy</PressButton></ComponentCanvas></DensityDemo><TokenTable tokens={[{ name: '--jx-press-shadow', default: '0 1px 2px rgb(0 0 0 / 0.08)', source: 'component' }, { name: '--jx-press-shadow-hover', default: 'grown shadow', source: 'component' }, { name: '--jx-press-shadow-active', default: 'anchored press', source: 'component' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the canvas Props interface; snippets are render seams, callbacks keep state page-owned."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'Component name shown in the header.', required: true }, { name: 'description', type: 'string', default: '—', description: 'One-line description under the title.' }, { name: 'sourceUrl', type: 'string', default: '—', description: 'GitHub source link (header right, icon-only external anchor).' }, { name: 'files', type: 'TreeFile[]', default: '—', description: 'Demo code files; flat list, names may carry paths.', required: true }, { name: 'children', type: 'Snippet', default: '—', description: 'LIVE demo area — the consumer renders the component instance.', required: true }, { name: 'stage', type: "'fill' | 'center' | 'start'", default: "'fill'", description: 'Stage posture: fill, center (intrinsic, centered), or start (intrinsic, left).' }, { name: 'playground', type: 'Snippet', default: '—', description: 'Consumer-authored controls pane; absent pane yields a full-width stage.' }, { name: 'onreset', type: '() => void', default: '—', description: 'Page-owned reset: shows the pane reset button and calls back.' }, { name: 'output', type: 'readonly PlayOutput[]', default: '—', description: 'Read-only state projection rows under the controls.' }, { name: 'resolveFileContent', type: '(file: TreeFile) => string', default: '—', description: 'Code-drawer content override — lets usage files track live state.' }, { name: 'id', type: 'string', default: 'slug(title)', description: 'Explicit id override when two canvases would slug-collide.' }, { name: 'class', type: 'string', default: '—', description: 'Class passthrough to the root element.' }]} /></SectionCard></div>
 </div>

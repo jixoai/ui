@@ -106,10 +106,13 @@ export const REGISTRY = [
       'registry/files/ui/float-button/', 'apps/www/src/lib/ui/float-button/',
       'registry/files/ui/anchor/', 'apps/www/src/lib/ui/anchor/',
       'registry/files/ui/pagination/', 'apps/www/src/lib/ui/pagination/',
+      // variant-grammar (2026-08-26): chip is the press family's compact
+      // rung — same law, control-scale hit lane, effect pass-through
+      'registry/files/ui/chip/', 'apps/www/src/lib/ui/chip/',
     ],
     docsRoute: '/docs/components/press-button.html',
     probeRoot: '.jx-press',
-    lanes: ['.jx-press'],
+    lanes: ['.jx-press', '[data-jx-chip]'],
     visualOnly: ['svg[data-jx-icon]'],
     // utility-styled family (press-button is pure utility paint)
     densityOwned: [],
@@ -148,6 +151,8 @@ export const REGISTRY = [
       'registry/files/ui/statistic/', 'apps/www/src/lib/ui/statistic/',
       'registry/files/ui/badge/', 'apps/www/src/lib/ui/badge/',
       'registry/files/ui/kbd/', 'apps/www/src/lib/ui/kbd/',
+      // variant-grammar (2026-08-26): inline-code rides the badge frame
+      'registry/files/ui/inline-code/', 'apps/www/src/lib/ui/inline-code/',
       'registry/files/ui/empty/', 'apps/www/src/lib/ui/empty/',
       'registry/files/ui/result/', 'apps/www/src/lib/ui/result/',
       'registry/files/ui/timeline/', 'apps/www/src/lib/ui/timeline/',

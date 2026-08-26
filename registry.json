@@ -52,7 +52,7 @@
       "name": "press-button",
       "type": "registry:ui",
       "title": "Press button",
-      "description": "The press-law button (theme .jx-press): hover grows the shadow only (xs → sm, the body never moves); active presses the body +1px into the page while the box-shadow offsets counter-shrink 1px (the *-press token poses) — the shadow paint stays anchored, no pseudo layer. Variants: primary / secondary / outline / ghost / destructive / link / copied. One opt-in effect loop per button via typed builders exported from the module script — shimmer() additive perimeter spark (plus-lighter, box-owned clip), pulse() sonar rings (slow/ring/ripple), rainbow() blended aurora wash (conic, three prime timelines, screen on primary / color elsewhere), ripple() press-point ink driven by WAAPI and removed on animation.finished, with a round/bevel-diamond shape option — modeled on the animation-svelte reference, options on every loop, frozen under reduced motion.",
+      "description": "The press-law button (theme .jx-press): hover grows the shadow only (xs → sm, the body never moves); active presses the body +1px into the page while the box-shadow offsets counter-shrink 1px (the *-press token poses) — the shadow paint stays anchored, no pseudo layer. Variant ladder: fill / tonal / outline (default) / ghost + link (an interaction-affordance exception, not a surface rung); hue is injection through --jx-fill/--jx-fill-ink/--jx-tonal/--jx-outline (destructive ACTIONS inject the destructive pair, copied-style feedback = tonal + success). One opt-in effect loop per button via typed builders exported from the module script — shimmer() additive perimeter spark (plus-lighter, box-owned clip), pulse() sonar rings (slow/ring/ripple), rainbow() blended aurora wash (conic, three prime timelines, screen on fill / color elsewhere), ripple() press-point ink driven by WAAPI and removed on animation.finished (runtime extracted to ripple.svelte.ts, shared with Chip), with a round/bevel-diamond shape option — modeled on the animation-svelte reference, options on every loop, frozen under reduced motion.",
       "files": [
         {
           "path": "registry/files/ui/press-button/press-button.svelte",
@@ -67,6 +67,11 @@
         {
           "path": "registry/files/ui/press-button/press-button.css",
           "target": "@ui/press-button/press-button.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/press-button/ripple.svelte.ts",
+          "target": "@ui/press-button/ripple.svelte.ts",
           "type": "registry:file"
         }
       ],
@@ -1351,7 +1356,7 @@
       "name": "badge",
       "type": "registry:ui",
       "title": "Badge",
-      "description": "The inline status chip of the site grammar: Share Tech Mono uppercase micro-label, 1px border, radius 0. Semantic tones: default (muted) / primary (solid brand) / destructive — plus outline, a fill variant of default that draws less on tinted surfaces.",
+      "description": "The inline status chip of the site grammar: Share Tech Mono uppercase micro-label, 1px border, kbd-law geometry (height from the secondary line, no block padding). Variant grammar: fill | tonal | outline (default tonal — the bare Badge is the brand primary tint, no local hue override); status hues inject --jx-tonal through a class utility (neutral / error / success).",
       "files": [
         {
           "path": "registry/files/ui/badge/badge.svelte",
@@ -1364,7 +1369,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: tone? ('default'|'primary'|'outline'|'destructive'), plus every <span> attribute passthrough.",
+      "docs": "Props: variant? ('fill'|'tonal'|'outline', default 'tonal'), shape? ('square'|'pill', default 'square'), slotStart?/slotEnd? (Snippet icon lanes with adaptive padding), density? (Density), plus every <span> attribute passthrough. Hue seam: class=\"[--jx-tonal:var(--error)]\".",
       "meta": {
         "group": "data-display",
         "href": "/docs/components/badge.html"
@@ -1468,7 +1473,7 @@
       "name": "alert",
       "type": "registry:ui",
       "title": "Alert",
-      "description": "The inline notice block (not the modal alert-dialog): 1px border, hard offset shadow-xs, tone accent on border + title. Live-region semantics are a prop — assertive=false → role=status (polite, default), assertive=true → role=alert. Tones: default / primary (the brand hue's emphasis voice — there is no blue in this language) / destructive.",
+      "description": "The inline notice block (not the modal alert-dialog): 1px border, hard offset shadow-2xs, variant ladder as the surface (outline transparent ground + --jx-outline border; tonal 12% tinted ground + 45% border + tonal title ink). Live-region semantics are a prop — assertive=false → role=status (polite, default), assertive=true → role=alert. Hue is injection: --jx-tonal defaults to the brand hue; failed statuses inject --error (a status, never the destructive action hue).",
       "files": [
         {
           "path": "registry/files/ui/alert/alert.svelte",
@@ -1486,7 +1491,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: tone?, assertive?, title?, icon? (snippet), children? (body; omit for title-only).",
+      "docs": "Props: variant? ('outline' default | 'tonal'), assertive?, title?, icon? (snippet), children? (body; omit for title-only). Hue seam: class=\"[--jx-tonal:var(--error)]\".",
       "meta": {
         "group": "feedback",
         "href": "/docs/components/alert.html"
@@ -1852,6 +1857,67 @@
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "inline-code",
+      "type": "registry:ui",
+      "title": "Inline code",
+      "description": "The inline source-code chip: a native <code> in the variant grammar's tonal/outline ladder (neutral tonal default, consumer [--jx-tonal:…] injection wins), kbd-law geometry, mono with untouched case. Shiki tokens as an async enhancement — SSR paints plain children, hydration swaps in --tok-* token spans over the same characters (zero CLS); lang='auto' runs a zero-download fingerprint heuristic (INLINE_LANGS/detectInlineLang exported); unknown languages degrade to the plain chip.",
+      "dependencies": [
+        "shiki"
+      ],
+      "registryDependencies": [
+        "@jixoai/jixoai-theme",
+        "@jixoai/shiki",
+        "@jixoai/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/inline-code/inline-code.svelte",
+          "target": "@ui/inline-code/inline-code.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/inline-code/index.ts",
+          "target": "@ui/inline-code/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: variant='tonal', lang='auto', density?, class?; rest flow to the native <code>. Module exports INLINE_LANGS + detectInlineLang.",
+      "meta": {
+        "group": "general",
+        "href": "/docs/components/inline-code.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "chip",
+      "type": "registry:ui",
+      "title": "Chip",
+      "description": "The variant grammar's compact activation: the badge's font-nav uppercase micro-label voice on the control-scale hit lane — the ROOT carries min-block-size var(--jx-hit) (~44px at default density), not a 20px badge. Four ladder rungs consumed as global tokens: fill (solid ground + same-hue border), tonal (12%/45% tint recipe, default), outline (structural border + 8% hover overlay), ghost (transparent rest, tonal hover, shadowless press); semantic hue is injected ([--jx-tonal:var(--error)]), never named. Button/anchor duality (external hrefs open a new tab with noreferrer), slotStart/slotEnd data-icon lanes, square/pill silhouette, press-button's effect builders passed through with ripple() as the default ink (null disables); explicit forced-colors degradation (ButtonFace/ButtonText, Canvas/CanvasText, ghost transparent/ButtonFace hover, 2px Highlight focus never removed).",
+      "files": [
+        {
+          "path": "registry/files/ui/chip/chip.svelte",
+          "target": "@ui/chip/chip.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/chip/index.ts",
+          "target": "@ui/chip/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: density?, variant? ('fill'|'tonal'|'outline'|'ghost', default 'tonal'), shape? ('square'|'pill'), effect? (PressEffect | null — default ripple(), null disables), href?, external?, onclick?, type?, ariaLabel?, class?, slotStart?/slotEnd? (Snippet), children (required). Imports the effect builders, ripple runtime and effect-layer css from @ui/press-button.",
+      "meta": {
+        "group": "general",
+        "href": "/docs/components/chip.html"
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme",
+        "press-button"
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "toast",
       "type": "registry:ui",
       "title": "Toast",
@@ -1893,7 +1959,7 @@
       "name": "alert-dialog",
       "type": "registry:ui",
       "title": "Alert dialog",
-      "description": "The confirmation dialog as a composed family (shadcn-shaped on the native <dialog>): Root (bind:open/onconfirm) + Trigger/Content/Title/Description/Actions/Action(tone)/Cancel — focus lands on Cancel (the safe default), Escape cancels, confirm runs then closes. No Overlay/Portal parts (the dialog element IS the overlay) — recorded divergence.",
+      "description": "The confirmation dialog as a composed family (shadcn-shaped on the native <dialog>): Root (bind:open/onconfirm) + Trigger/Content/Title/Description/Actions/Action(variant: fill with the destructive pair injected by default | tonal | outline)/Cancel — focus lands on Cancel (the safe default), Escape cancels, confirm runs then closes. No Overlay/Portal parts (the dialog element IS the overlay) — recorded divergence.",
       "files": [
         {
           "path": "registry/files/ui/alert-dialog/alert-dialog-action.svelte",

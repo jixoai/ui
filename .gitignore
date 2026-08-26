@@ -2,6 +2,7 @@
 !.agents/skills/
 public/
 node_modules/
+.worktree/
 
 # apps/www (ui.jixoai.com) build state
 apps/www/node_modules/
