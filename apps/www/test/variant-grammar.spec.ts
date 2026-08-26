@@ -36,6 +36,7 @@ describe('variant-grammar source guards', () => {
       'routes/docs/components/press-button.html',
       'routes/docs/components/chip.html',
       'routes/docs/components/inline-code.html',
+      'routes/docs/components/toast.html',
     ];
     const repoRoot = resolve(process.cwd(), '../..');
     for (const page of pages) {

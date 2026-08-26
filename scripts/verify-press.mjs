@@ -41,6 +41,12 @@ const check = (name, pass, detail) => {
 const PRIMARY = "button[data-jx-press-button='fill']";
 
 // ---- press law: hover → active on the primary demo button ----
+// the site scrolls in .jx-shell-body (the overlay shell), not the
+// viewport — page.hover does not scroll custom roots, so bring the
+// target into the root first (r3 harness fix; the button otherwise
+// stays off-screen and :hover/:active never engage)
+await page.locator(PRIMARY).first().scrollIntoViewIfNeeded();
+await page.waitForTimeout(300);
 await page.hover(PRIMARY);
 await page.waitForTimeout(300);
 const hoverState = await page.evaluate((sel) => {
@@ -231,6 +237,8 @@ check(
 
 // a REAL pointer click (detail 1, trusted coordinates) — Element.click()
 // would be detail 0 and legitimately ripple from the center (keyboard path)
+await page.locator('[data-jx-ripple-host]').first().scrollIntoViewIfNeeded();
+await page.waitForTimeout(200);
 await page.click('[data-jx-ripple-host]');
 const ripple = await page.evaluate(() => {
   const host = document.querySelector('[data-jx-ripple-host]');

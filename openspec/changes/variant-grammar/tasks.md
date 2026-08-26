@@ -18,9 +18,14 @@
       (chip→C, inline-code→E), mirror manifest (90/302), blueprint
       scenes + SVGs, payload regen
 - [x] New docs pages: inline-code.html, chip.html
-- [x] Contract tests + all gates green (vitest 542/542, svelte-check
-      253/19 == pre-wave baseline, kernel 61/61, density-adoption
-      66/66, mirror check GREEN, verify-press 12/12)
-- [ ] Milestone Codex review loop with scoring; resource recycling
+- [x] Contract tests + all gates green (vitest 544/544 incl. the two
+      variant-grammar source guards, svelte-check 253/19 == pre-wave
+      baseline, kernel 61/61, density-adoption 66/66, mirror check
+      GREEN, verify-press 12/12 — scroll-aware harness, r3 fix)
+- [x] Milestone Codex review loop: r1 design 6/10 → r2 impl 7.5/10
+      (7 blockers fixed) → r3 impl 8.5/10 (3 delivery blockers fixed:
+      toast source path + guard coverage, scroll-aware verify-press,
+      evidence counts)
+- [ ] Codex r4 confirmation of the r3 blockers' fixes
 - [ ] Owner browser review: Badge anatomy/height, secondary softening,
       Alert surface change, Chip control-scale silhouette (design §7)

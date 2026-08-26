@@ -49,7 +49,7 @@ ${close}
 
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/lib/toast-store.ts', content: toastStoreSource },
-    { name: 'registry/files/ui/toast-viewport.svelte', content: toastViewportSource },
+    { name: 'registry/files/ui/toast/toast-viewport.svelte', content: toastViewportSource },
     { name: 'src/lib/ui/toast-usage.svelte', content: canvasUsage },
   ];
 
@@ -91,7 +91,7 @@ ${close}
       title="toast"
       stage="center"
       description="Push a polite toast, a sticky assertive one, or a burst — hover a toast to freeze its countdown; the × dismisses. Older toasts queue past the visible four."
-      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/toast-viewport.svelte"
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/toast/toast-viewport.svelte"
       files={canvasFiles}
     >
       <div class="flex flex-wrap gap-3">
