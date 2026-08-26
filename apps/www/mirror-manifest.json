@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-27T05:07:43.945Z",
+  "generatedAt": "2026-08-27T05:07:54.953Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1025,8 +1025,8 @@
           "source": "registry/files/ui/native-select/native-select.svelte",
           "mirror": "apps/www/src/lib/ui/native-select/native-select.svelte",
           "target": "@ui/native-select/native-select.svelte",
-          "sourceSha": "ad944a08c68ed7172bc8f5459f61ca3e588f7ffc37cbeca0ec683f609fbd6b07",
-          "mirrorSha": "ad944a08c68ed7172bc8f5459f61ca3e588f7ffc37cbeca0ec683f609fbd6b07"
+          "sourceSha": "be18de4cda942af31a33210de3d1ec2fe97f232dc2cd48c48048770f93dec52b",
+          "mirrorSha": "be18de4cda942af31a33210de3d1ec2fe97f232dc2cd48c48048770f93dec52b"
         },
         {
           "source": "registry/files/ui/native-select/index.ts",
@@ -1039,8 +1039,8 @@
           "source": "registry/files/ui/native-select/native-select.css",
           "mirror": "apps/www/src/lib/ui/native-select/native-select.css",
           "target": "@ui/native-select/native-select.css",
-          "sourceSha": "05145d5f9c6ceac46cf61af0959c8654e60639447e24476b2f64c06b9fa7be3e",
-          "mirrorSha": "05145d5f9c6ceac46cf61af0959c8654e60639447e24476b2f64c06b9fa7be3e"
+          "sourceSha": "97a7e2d25593fcf31c7a62fdd7ec7eb742eb8cbfccbb3a4ee78b2c976fb4b499",
+          "mirrorSha": "97a7e2d25593fcf31c7a62fdd7ec7eb742eb8cbfccbb3a4ee78b2c976fb4b499"
         }
       ]
     },

@@ -28,12 +28,17 @@
   <NativeSelect multiple size={n}> to control exactly how many rows the
   platform shows.
 
-  tw4 (2026-08-24): static paint (closed-control shell, chevron) is
-  token utilities in the markup; the .jx-field/.jx-label/.jx-error
-  scaffolding is CONSUMED from the jx-pure sheet's Part A. Only the
-  state machine (hover lift, focus ring, disabled, invalid dash, the
-  :has(select[multiple]) listbox posture, reduced-motion kill) remains
-  in native-select.css (D1-exempt residue under the layer law).
+  tw4 (2026-08-24; mirror law 2026-08-27): static paint (closed-control
+  shell, chevron) mirrors jx-pure.css Part B B4's select law from
+  native-select.css (@layer components :where() mirror rules); the
+  .jx-field/.jx-label/.jx-error scaffolding is CONSUMED from the
+  jx-pure sheet's Part A. The state machine (hover lift, focus ring,
+  disabled, invalid dash, the :has(select[multiple]) listbox posture,
+  reduced-motion kill) stays unlayered :where() bare CSS. Markup keeps
+  only the css hooks, the dark-strategy-dependent color-scheme pair
+  (scheme-light dark:scheme-dark — a variant-bearing paint whose dark
+  discriminator belongs to the consumer's context, not this sheet) and
+  the consumer class merge point.
 -->
 <script lang="ts">
   import type { HTMLSelectAttributes } from 'svelte/elements';
@@ -87,7 +92,7 @@
       {id}
       bind:value
       class={cn(
-        'jx-select w-full min-h-[var(--jx-hit)] py-[var(--jx-gap)] ps-[var(--jx-inset)] pe-[calc(var(--jx-inset)+var(--jx-icon))] appearance-none border border-border rounded-none bg-background text-foreground text-[length:var(--jx-text)] leading-[var(--jx-leading)] scheme-light dark:scheme-dark cursor-pointer transition-[box-shadow] duration-150 ease-out',
+        'jx-select scheme-light dark:scheme-dark',
         className,
       )}
       aria-invalid={invalidAttr}
@@ -97,7 +102,7 @@
       {@render children()}
     </select>
     <svg
-      class="jx-select-chevron absolute end-[var(--jx-inset)] top-1/2 -translate-y-1/2 w-[var(--jx-icon)] h-[var(--jx-icon)] pointer-events-none text-muted-foreground"
+      class="jx-select-chevron"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
