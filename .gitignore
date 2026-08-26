@@ -13,3 +13,6 @@ apps/www/.svelte-kit/
 scripts/blueprints/.cache.json
 .zcode/
 pnpm-lock.yaml
+
+# tw-context-probe fixture (generated at test time)
+apps/www/.tw-probe-fixture/

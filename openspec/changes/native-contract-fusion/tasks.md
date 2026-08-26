@@ -1,10 +1,11 @@
 # tasks — native-contract-fusion
 
-- [ ] Phase 0: OpenSpec authoring (proposal/design/spec deltas/tasks
+- [x] Phase 0: OpenSpec authoring (proposal/design/spec deltas/tasks
       — this file set); design frozen on Codex r1 verdict
-- [ ] Phase 1: tw-context probe — `scripts/probe-tw-context.mjs` (or
-      vitest): clean-consumer compile of named-theme vs arbitrary vs
-      core @apply; named FAILS, others pass; CI gate
+- [x] Phase 1: tw-context probe — `apps/www/test/tw-context-probe.spec.ts`
+      + child-process runner: named-theme @apply FAILS, arbitrary/core/
+      variant compile (4/4 green; vitest-in-worktree needed a one-time
+      `svelte-kit sync` — .svelte-kit/tsconfig.json is generated)
 - [ ] Phase 2: Part A contract layer — BEGIN/END markers in
       jx-pure.css; `scripts/gen-jx-native-contract.mjs`;
       registry.json: `jx-native-contract` item + the 12 UI items
