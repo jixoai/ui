@@ -1,7 +1,15 @@
 @layer theme, base, components, utilities;
 
+/* jixoai toggle — @apply mirror sheet (native-contract-fusion Phase 4b,
+ * 2026-08-27): the static paint (lane posture, the sr-hidden driver,
+ * rail + knob builds, the disabled dim) mirrors B13's switch law from
+ * here; geometry rides the density --jx-toggle-* aliases. Token-bound
+ * paint is plain CSS; @apply carries only context-free core
+ * utilities. The input carries role=switch — the B13 discriminator. */
+
 @layer components {
   :where(.jx-switch-track) {
+    @apply inline-flex items-center justify-end w-fit cursor-pointer select-none;
     min-block-size: var(--jx-hit);
     gap: var(--jx-gap);
   }
@@ -9,31 +17,58 @@
     font-size: var(--jx-text);
     line-height: var(--jx-line);
   }
+  /* the driver: visually hidden, never display:none (focus + label
+     activation ride on it) — the sr-only build */
+  :where(.jx-toggle-native) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  /* the rail: rounded, muted, the 1px edge as an INSET ring (not a
+     border) so the knob keeps the full inset */
   :where(.jx-toggle-native + .jx-toggle-track) {
+    @apply relative flex-none box-border rounded-full;
+    background: var(--muted);
+    box-shadow: 0 0 0 1px var(--border) inset;
     width: var(--jx-toggle-width);
     height: var(--jx-toggle-track);
     padding: calc((var(--jx-toggle-track) - var(--jx-toggle-knob)) / 2);
+    transition: background-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   :where(.jx-toggle-knob) {
+    @apply block rounded-full;
+    background: var(--muted-foreground);
     width: var(--jx-toggle-knob);
     height: var(--jx-toggle-knob);
+    transition:
+      transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+  /* the group-level disable dim (the markup stamps the class) */
+  :where(.jx-toggle-disabled) {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 
-/* jixoai toggle — D1-exempt residue (tw4, 2026-08-24): ONLY the state
- * machine utilities cannot express — sibling-combinator :checked
- * repainting, the :has() hover lean, focus-visible's sibling ring and
- * the reduced-motion kill. The static paint lives as token utilities
- * in the markup; geometry custom properties ride arbitrary-property
- * utilities per size.
+/* jixoai toggle — D1-exempt residue: ONLY the state machine utilities
+ * cannot express — sibling-combinator :checked repainting, the :has()
+ * hover lean, focus-visible's sibling ring and the reduced-motion
+ * kill.
  *
  * CASCADE CARVE-OUT (P3 finding, 2026-08-24 — the Part A precedent):
- * state-machine rules that must override the component's OWN utility
- * paint cannot live under @layer components (utilities layer always
- * wins there). They ride UNLAYERED behind :where() — zero specificity,
- * so consumer css still ties-wins within the unlayered level, and the
- * component's static utility paint stays consumer-overridable. Same
- * rationale as jx-pure Part A's deliberate unlayering. */
+ * state-machine rules that must override the component's OWN paint
+ * cannot live under @layer components (utilities layer always wins
+ * there). They ride UNLAYERED behind :where() — zero specificity, so
+ * consumer css still ties-wins within the unlayered level, and the
+ * component's static paint stays consumer-overridable. */
 
 :where(.jx-toggle-native:checked + .jx-toggle-track) {
   background: var(--primary);

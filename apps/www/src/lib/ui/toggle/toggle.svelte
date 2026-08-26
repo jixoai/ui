@@ -30,11 +30,12 @@
   value, required, onchange…) flows through restProps onto the hidden
   input — a named toggle participates in FormData like any checkbox.
 
-  tw4 (2026-08-24): static paint is token utilities in the markup
-  (sizes ride arbitrary-property utilities); ONLY the state machine
-  (sibling :checked repaint, :has() hover lean, focus-visible ring,
-  reduced-motion) remains in toggle.css — D1-exempt residue under the
-  layer law.
+  tw4 (2026-08-24; mirror law 2026-08-27): the static paint (lane
+  posture, sr-hidden driver, rail + knob builds, disabled dim) mirrors
+  B13's switch law from toggle.css (@layer components :where(); the
+  input carries role=switch — the B13 discriminator); the state
+  machine (sibling :checked repaint, :has() hover lean, focus-visible
+  ring, reduced-motion) rides the unlayered carve-out.
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
@@ -76,18 +77,9 @@
 <label
   for={id}
   data-density={resolvedDensity}
-  class={cn(
-    'jx-switch-track inline-flex items-center justify-end w-fit cursor-pointer select-none',
-    disabled && 'jx-toggle-disabled opacity-50 cursor-not-allowed',
-    className,
-  )}
+  class={cn('jx-switch-track', disabled && 'jx-toggle-disabled', className)}
 >
   {#if label}<span data-jx-toggle-label class="text-foreground">{label}</span>{/if}
-  <input {id} type="checkbox" class="jx-toggle-native sr-only" bind:checked {disabled} {...rest} />
-  <span
-    class="jx-toggle-track relative flex-none box-border rounded-full bg-muted shadow-[inset_0_0_0_1px_var(--border)] transition-[background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"
-    aria-hidden="true"
-    ><span
-      class="jx-toggle-knob block rounded-full bg-muted-foreground transition-[transform,background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
-    ></span></span>
+  <input {id} type="checkbox" role="switch" class="jx-toggle-native" bind:checked {disabled} {...rest} />
+  <span class="jx-toggle-track" aria-hidden="true"><span class="jx-toggle-knob"></span></span>
 </label>
