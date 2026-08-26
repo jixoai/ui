@@ -30,7 +30,7 @@
       delivery fixes verified clean (nested toast path + six-page
       guard, scroll-aware verify-press 12/12, evidence counts); toast
       header-comment hygiene fixed post-r4
-- [ ] Owner browser review (the honest gaps, design §7): Badge
+- [x] Owner browser review PASSED (2026-08-27, Owner ruling "验收通过，可以合并"): Badge
       anatomy/height, secondary softening, Alert surface change, Chip
       control-scale silhouette; light/dark semantic contrast probe for
       every shipped injection; independent svelte-check reproduction

@@ -181,18 +181,19 @@ inner list, and direct-child row wrappers only.
 - GIVEN family rules written as `:where()` inside `@layer components`
 - WHEN a consumer applies a utility class to a row or group
 - THEN the utility overrides the family paint per the layer law
+
 ### Requirement: the derived-scale law (尺规思维)
 
 Geometry and type tokens SHALL be derived from the ruler by written
-equations in the canonical theme sheet (calc chains from
---jx-ruler-unit and the text base), never hand-picked per component.
-Density scopes ([data-density]) exist ONLY in that sheet and its byte-identical generated mirror; components
-consume the inherited --jx-* aliases. The four-density computed
-table (text/line/gaps/inset/row-min/hit-min/media) is asserted by a
-real-browser gate; a greppable source guard enforces the
-no-literal-branch law (density-owned declarations must reference the
-aliases; named structural-paint exceptions aside). The balance law is
-an equation (inset == seam), not a convention.
+equations in the canonical theme sheet (calc chains from `--jx-unit`
+and the text base), never hand-picked per component. Density scopes
+([data-density]) exist ONLY in that sheet and its byte-identical
+generated mirror; components consume the inherited `--jx-*` aliases.
+The four-density computed table (text/line/gaps/inset/row-min/
+hit-min/media) is asserted by a real-browser gate; a greppable source
+guard enforces the same law statically. (The ruler token was renamed
+`--jx-ruler-unit` → `--jx-unit` by c31fe6a; this delta corrects the
+spec's spelling — the law itself is unchanged.)
 
 #### Scenario: the scale computes
 

@@ -2,7 +2,10 @@
 
 ## MODIFIED Requirements
 
-### Requirement: the control alias interface (--jx-*)
+### Requirement: the control alias interface (--jx-d-ctl-*)
+
+(the header keeps its historical name; the interface it SHALLs is
+the post-rename `--jx-*` spelling below)
 
 The canonical theme sheet (and its byte-identical mirror) SHALL carry
 the exact `--jx-*` alias equations as adopted — aliases ONLY, never a
@@ -21,6 +24,9 @@ text is serialization-fragile: the `oklch(60% .2 25)` vs
 - THEN the gate fails naming the alias and scope
 
 ### Requirement: the kernel ruler-role allowlist
+
+(the header keeps its historical name; the closed allowlist below
+is the post-rename `--jx-*` vocabulary)
 
 Control-footprint geometry SHALL consume the inherited `--jx-*`
 aliases. The CLOSED kernel-only allowlist of established ruler roles

@@ -53,7 +53,6 @@ the element face; site transitions neutralized site-side).
 - WHEN the OS requests reduced motion
 - THEN entrances render in their final state with transitions removed
 
-
 > The derived-scale law lives in css-architecture (added by the
 > archived kernel change); these requirements ADD the token-sheet
 > obligations that belong to THIS capability: the ctl alias interface
@@ -61,35 +60,44 @@ the element face; site transitions neutralized site-side).
 
 ### Requirement: the control alias interface (--jx-d-ctl-*)
 
+(the header keeps its historical name; the interface it SHALLs is
+the post-rename `--jx-*` spelling below)
+
 The canonical theme sheet (and its byte-identical mirror) SHALL carry
-the exact `--jx-d-ctl-*` alias equations as adopted — aliases ONLY,
-never a second scale: every ctl value derives from existing ruler
-aliases by written calc. Browser assertions SHALL compare USED values
-(raw custom-property text is serialization-fragile: the
-`oklch(60% .2 25)` vs `oklch(0.6 0.2 25)` lesson).
+the exact `--jx-*` alias equations as adopted — aliases ONLY, never a
+second scale: every control value derives from existing ruler aliases
+by written calc (the c31fe6a rename retired the `--jx-d-*` /
+`--jx-d-ctl-*` spellings; component supplements live under their
+component's own `--jx-<component>-*` names, e.g. `--jx-toggle-track`).
+Browser assertions SHALL compare USED values (raw custom-property
+text is serialization-fragile: the `oklch(60% .2 25)` vs
+`oklch(0.6 0.2 25)` lesson).
 
 #### Scenario: a control alias drifts from its derivation
 
-- GIVEN the kernel gate resolving every ctl alias at four scopes
+- GIVEN the kernel gate resolving every alias at four scopes
 - WHEN an alias stops matching its ruler derivation
 - THEN the gate fails naming the alias and scope
 
 ### Requirement: the kernel ruler-role allowlist
 
-Control-footprint geometry SHALL consume `--jx-d-ctl-*`. The
-CLOSED kernel-only allowlist of established ruler roles —
-`--jx-d-secondary-text/line`, `--jx-d-media-icon/image/gutter`,
-`--jx-d-inline-inset/gap`, `--jx-d-stack-gap`, `--jx-d-row-min`,
-`--jx-d-hit-min`, `--jx-d-text/line/leading`, and
-`--jx-d-icon-optical-inline` — remains legal for the semantic roles
-it already owns (secondary voice, media boxes, balance/inset,
+(the header keeps its historical name; the closed allowlist below
+is the post-rename `--jx-*` vocabulary)
+
+Control-footprint geometry SHALL consume the inherited `--jx-*`
+aliases. The CLOSED kernel-only allowlist of established ruler roles
+— `--jx-text-secondary`/`--jx-line-secondary`, `--jx-icon`,
+`--jx-image`, `--jx-media-gutter`, `--jx-inset`, `--jx-gap`,
+`--jx-stack`, `--jx-row-min`, `--jx-hit`, `--jx-text`, `--jx-line`,
+`--jx-leading`, `--jx-icon-optical` — remains legal for the semantic
+roles it already owns (secondary voice, media boxes, balance/inset,
 optical correction); the verifier enforces this closed set and
-rejects any OTHER `--jx-d-*` consumption in family css as a
-second-scale attempt.
+rejects any OTHER ad-hoc density-token consumption in family css as
+a second-scale attempt.
 
 #### Scenario: a family reaches past the allowlist
 
-- GIVEN family css consuming an unlisted --jx-d-* token directly
+- GIVEN family css consuming an unlisted density token directly
 - WHEN the registry static phase scans it
 - THEN it fails — the closed allowlist is the rule, not a suggestion
 

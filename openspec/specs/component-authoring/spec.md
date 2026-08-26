@@ -36,9 +36,14 @@ The Svelte 5 component contracts: the Tier system, native-element-first law, pro
 ### Requirement: the hit-lane contract
 
 Every interactive control SHALL expose a PHYSICAL activation
-rectangle at `min-block-size: var(--jx-d-ctl-hit)`; visual glyph
-dimensions (ctl-icon and friends) are separate declarations. Probes
-measure the clickable rectangle, not an ancestor min-height.
+rectangle at `min-block-size: var(--jx-hit)` (the canonical alias —
+the previous text's `--jx-d-ctl-hit` predated the Tailwind-aligned
+token rename and is retired); visual glyph dimensions (icon and
+friends) are separate declarations. Probes measure the clickable
+rectangle on the actual interactive root, not an ancestor min-height
+and not a pseudo-element expansion. Paint variants never alter the
+lane: a Chip is control-scale (root ≥ `--jx-hit`) with badge-nature
+paint, not a badge-sized control.
 
 #### Scenario: a checkbox lane is clicked at the corner
 
@@ -46,6 +51,14 @@ measure the clickable rectangle, not an ancestor min-height.
 - WHEN the probe clicks the wrapper's physical corner
 - THEN the input toggles — the lane, not just the 16px square, is the
   target
+
+#### Scenario: a compact-looking chip is probed
+
+- GIVEN a Chip rendering at default density
+- WHEN the probe measures the root element's activation rectangle
+- THEN the root's min-block-size resolves to `var(--jx-hit)` — the
+  tinted micro-label paint does not shrink the physical lane
+
 ### Requirement: native-element-first, W3C-first
 
 The platform element IS the component where possible (accordion =
@@ -406,10 +419,10 @@ opt-in (no forced app root). The CSS channel injects values: providers
 and density-aware components stamp `data-density`, and ONLY the
 canonical theme sheet AND its byte-identical generated mirror carry
 density scopes, mapping the derived `--jx-density-*` vocabulary to
-inherited `--jx-d-*` aliases — never component css.
+inherited `--jx-*` aliases — never component css.
 Components consume the aliases and MUST NOT branch on density values
 in their own css; `data-size` authority is removed (no alias). Every
-scale value is DERIVED from the ruler (`--jx-ruler-unit`, text base)
+scale value is DERIVED from the ruler (`--jx-unit`, text base)
 by written equations; the computed four-row table is gate-asserted.
 The balance invariant holds at every density: row inline-start inset
 == the media/content seam (one ruler mark); media boxes derive from
@@ -428,7 +441,7 @@ the object); optical correction is ONE bounded token (±U/2).
 - GIVEN list-item component css after the migration
 - WHEN the source guard scans it
 - THEN no [data-density]/[data-size] selector exists and every
-  density-owned declaration references --jx-d-* (or a family var
+  density-owned declaration references --jx-* (or a family var
   derived from one) — literals fail with file/selector/property/value
 
 ### Requirement: the shared ruler (grouped list geometry)
@@ -461,3 +474,50 @@ min-block-size is the INHERITED density hit-min (never a literal
 - WHEN rendered at or below the 30rem container
 - THEN the control stays BESIDE its label (overlapping y-ranges) — it
   is never relocated below the content lane
+
+### Requirement: the variant grammar (prominence ladder + hue injection)
+
+Surface paint variants SHALL come from the one ladder — `fill` /
+`tonal` / `outline` / `ghost` — plus PressButton's `link` interaction
+exception. Semantic color is NEVER a variant name: intent is expressed
+by injecting values into the four global hue slots (`--jx-fill`,
+`--jx-fill-ink`, `--jx-tonal`, `--jx-outline`; theme-owned,
+inheritable). The action/status split is mandatory: destructive
+ACTIONS inject `--destructive` (the fill pair), error STATUSES inject
+`--error` into the tonal slot. Variant paint rides token utilities in
+the markup (tw4 utility-authored law); press physics (`.jx-press`)
+never change with paint. Availability is per-component (see the
+frozen table in openspec/changes/variant-grammar/design.md §4):
+Badge fill/tonal/outline (default tonal, brand hue); InlineCode
+tonal/outline (default tonal, locally neutral); Chip all four
+(default tonal); PressButton fill/tonal/outline/ghost/link (default
+outline); Alert outline/tonal (default outline — no fill/ghost:
+banner readability). Valued `data-jx-*` hooks carry the variant
+(`data-jx-badge`, `data-jx-alert`, `data-jx-press-button`,
+`data-jx-chip`).
+
+The injection seam is TWO-LAYERED (hue-injection-utilities,
+2026-08-27): the CANONICAL form for the curated semantic set is the
+theme's TW4 `@utility` intent layer — `jx-hue-primary | neutral |
+error | success | warning | info` (tonal slot) and
+`jx-pair-destructive` (fill + fill-ink together, making the
+always-inject-both law structural; there is no `jx-hue-destructive`
+— the action/status split holds by construction). The
+arbitrary-property class (`[--jx-tonal:var(--error)]`) remains the
+escape hatch for values outside the closed set; ONE form per slot in
+a class list (cross-form mixing is not dedupable). `cn()` registers
+the closed set as tailwind-merge dedupe groups.
+
+#### Scenario: a failed status chip is authored
+
+- WHEN a badge must read as failed
+- THEN it is `<Badge variant="tonal" class="jx-hue-error">` (or the
+  arbitrary equivalent) — never `tone="destructive"` and never the
+  destructive ACTION hue
+
+#### Scenario: a variant utility set is audited
+
+- GIVEN any component's variant map after this change
+- WHEN the source guard scans its markup
+- THEN every variant's paint consumes the four global slots and no
+  variant name encodes a semantic hue

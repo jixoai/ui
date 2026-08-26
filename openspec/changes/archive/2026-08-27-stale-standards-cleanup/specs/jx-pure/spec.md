@@ -25,3 +25,18 @@ styles survive and the Part A opt-in classes keep working.
 var(--jx-leading)`; `body` remains untouched. `.jx-field`'s stack
 gap = the density stack gap; label/error ride the secondary voice
 aliases (`--jx-text-secondary` / `--jx-line-secondary`).
+
+#### Scenario: the static face follows density
+
+- GIVEN a `.jx-pure` subtree at any data-density scope
+- WHEN the scope changes
+- THEN Part B geometry and type re-resolve through the inherited
+  `--jx-*` aliases (never hard-coded px) and the face repaints
+
+#### Scenario: the reverse scope survives the rebuild
+
+- GIVEN a host with its own styles inside `.no-jx-pure`
+- WHEN the Part B rules apply
+- THEN every face rule's :not(.no-jx-pure, .no-jx-pure *) guard steps
+  aside while the HOST's own styles and the Part A opt-in classes
+  keep working
