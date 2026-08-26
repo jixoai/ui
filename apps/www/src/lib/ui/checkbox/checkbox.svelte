@@ -24,11 +24,16 @@
   value, checked, disabled, required…) flows through restProps.
   Uncontrolled by design — read submitted values with FormData.
 
-  tw4 (2026-08-24): static paint is token utilities in the markup; the
-  .jx-field/.jx-label/.jx-error scaffolding is CONSUMED from the jx-pure
-  sheet's Part A (Tier-2 consume-only law); only the glyph build and the
-  :checked/:indeterminate/:hover state machine remain in checkbox.css
-  (D1-exempt residue under the layer law).
+  tw4 (2026-08-24; mirror law 2026-08-27): static paint (the box, the
+  lane, the label voice) mirrors jx-pure.css Part B B5's checkbox law
+  from checkbox.css (@layer components :where() mirror rules; sizes
+  from --jx-icon); the .jx-field/.jx-label/.jx-error scaffolding is
+  CONSUMED from the jx-pure sheet's Part A (Tier-2 consume-only law).
+  The glyph build and the :checked/:indeterminate/:hover state machine
+  remain in checkbox.css's carve-out layers (D1-exempt residue under
+  the layer law); the labelSide='left' posture rides the
+  data-jx-check-left hook as a mirror modifier. Markup keeps only the
+  css hooks and the consumer class merge point.
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
@@ -93,25 +98,19 @@
   <span
     data-jx-check
     data-jx-check-left={labelSide === 'left' ? '' : undefined}
-    class={cn(
-      'jx-check-lane inline-flex items-center w-fit',
-      labelSide === 'left' && 'flex-row-reverse',
-    )}
+    class="jx-check-lane"
   >
     <input
       bind:this={el}
       {id}
       type="checkbox"
       bind:checked
-      class={cn(
-        'jx-checkbox appearance-none relative box-border m-0 flex-none border border-border rounded-none bg-background cursor-pointer transition-[background-color,border-color] duration-150 ease-out',
-        className,
-      )}
+      class={cn('jx-checkbox', className)}
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}
       {...rest}
     />
-    {#if label}<label data-jx-check-label class="text-foreground cursor-pointer" for={id}>{label}</label>{/if}
+    {#if label}<label data-jx-check-label for={id}>{label}</label>{/if}
   </span>
   {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}
 </div>

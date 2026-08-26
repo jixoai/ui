@@ -1,27 +1,49 @@
 @layer theme, base, components, utilities;
 
-/* jixoai radio — D1-exempt residue (tw4, 2026-08-24): the dot ::after
- * build (pseudo-element paint, utilities cannot express) and the state
- * machine (:checked repaint, hover lean, focus-visible ring, disabled,
- * invalid). Static paint lives as token utilities in the markup; the
- * .jx-field/.jx-label/.jx-error scaffold is consumed from jx-pure
- * Part A.
- *
- * CASCADE CARVE-OUT (the Part A precedent): state rules that override
- * the element's own utility paint ride UNLAYERED behind :where() —
- * zero specificity, still beats layered utilities. The static dot build
- * stays in @layer components (nothing competes with it). */
+/* jixoai radio — @apply mirror sheet (native-contract-fusion
+ * Phase 4b, 2026-08-27): the ring paint, the activation lane and the
+ * label voice live here as mirror rules of jx-pure.css Part B B5's
+ * radio law — declaration-for-declaration (the appearance strip, the
+ * relative dot host, the 1px border, the background shell, the
+ * border-only transition), with the density aliases
+ * (--jx-icon/--jx-hit/--jx-gap/--jx-text/--jx-line) standing in for
+ * the literals and border-radius 50% kept as Tier-0's one sanctioned
+ * circle. Token-bound paint is plain CSS (named theme utilities are
+ * banned in a standalone sheet); @apply carries only context-free core
+ * utilities. The .jx-field/.jx-label/.jx-error scaffold is consumed
+ * from jx-pure Part A. The dot ::after build stays in
+ * @layer components and the state machines (:checked repaint, hover
+ * lean, focus-visible ring, disabled, invalid) stay unlayered
+ * :where() bare CSS — the carve-out law, unchanged. */
 
 @layer components {
+  /* the activation lane — the physical hit row (density lane height +
+     gap); the labelSide='left' posture rides the data-jx-check-left
+     hook as a mirror modifier */
   :where(.jx-check-lane) {
+    @apply inline-flex items-center w-fit;
     min-block-size: var(--jx-hit);
     gap: var(--jx-gap);
   }
+  :where(.jx-check-lane[data-jx-check-left]) {
+    @apply flex-row-reverse;
+  }
+  /* the ring — mirrors B5's radio law: sizes from --jx-icon (the
+     density glyph), the border law, the dot-law circle, the
+     border-only transition, exactly as Tier-0 declares them */
   :where(.jx-radio) {
+    @apply appearance-none relative box-border flex-none cursor-pointer;
     width: var(--jx-icon);
     height: var(--jx-icon);
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: 50%; /* the one sanctioned circle (dot law) */
+    background: var(--background);
+    transition: border-color 150ms ease-out;
   }
   :where([data-jx-check-label]) {
+    @apply cursor-pointer;
+    color: var(--foreground);
     font-size: var(--jx-text);
     line-height: var(--jx-line);
   }
