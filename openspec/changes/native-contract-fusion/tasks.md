@@ -27,10 +27,13 @@
       (custom pointer-driven slider, not a native wrapper — design
       §4 scope ruling); full suite 549/549, svelte-check == baseline,
       parity gate GREEN
-- [ ] Phase 5: Part B density adoption — jx-pure.css Part B
-      hard-codes → alias interface; B0 scoped font-size/line-height;
-      verify-jx-pure(-engines) assert derived numbers; gzip budget
-      re-checked (≤18KB)
+- [x] Phase 5: Part B density adoption — 7 regions swept (B3 buttons,
+      B4 text-like box law, textarea min, date/time indicator icon,
+      checkbox + radio icon scale; B0 scoped text/leading); fallbacks =
+      the old literals (Part A precedent); verify-jx-pure.mjs asserts
+      DERIVED values via var() probe elements (never 40px/16px again);
+      all face checks pass; native-select parity row FLIPPED GREEN
+      (166 comparisons); gzip 18,060B ≤ 18KB
 - [ ] Phase 6: `verify-native-parity.mjs` — shared fixtures, both
       renderers, state matrix × density × light/dark, normalized
       values; screenshot oracle for pseudo builds; npm script + CI

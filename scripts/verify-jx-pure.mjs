@@ -41,6 +41,20 @@ await page
 const facts = await page.evaluate(() => {
   const cs = (el, prop) => getComputedStyle(el).getPropertyValue(prop);
   const scope = document.querySelector('#forms .jx-pure');
+  // density adoption (Phase 5): the family row/glyph assertions ride
+  // DERIVED values — probe what --jx-hit/--jx-icon resolve to under
+  // the page's density scope, never hard-code 40px/16px again
+  const probeVar = (expr) => {
+    const el = document.createElement('div');
+    el.style.minHeight = expr;
+    el.style.position = 'absolute';
+    scope.appendChild(el);
+    const px = getComputedStyle(el).minHeight;
+    el.remove();
+    return px;
+  };
+  const hitPx = probeVar('var(--jx-hit)');
+  const iconPx = probeVar('var(--jx-icon)');
   const inBtn = scope.querySelector('button');
   const inInput = scope.querySelector('input[type="text"]');
   const inCheck = scope.querySelector('input[type="checkbox"]');
@@ -119,6 +133,8 @@ const facts = await page.evaluate(() => {
     }
   }
   return {
+    hitPx,
+    iconPx,
     scopeColorScheme: cs(scope, 'color-scheme').trim(),
     inBtn: {
       shadow: cs(inBtn, 'box-shadow'),
@@ -256,11 +272,11 @@ const facts = await page.evaluate(() => {
 const checks = [
   ['scope carries color-scheme light', facts.scopeColorScheme === 'light'],
   ['button: press shadow at rest', facts.inBtn.shadow !== 'none'],
-  ['button: 40px family row', facts.inBtn.minHeight === '40px'],
+  ['button: the DERIVED density hit lane', facts.inBtn.minHeight === facts.hitPx],
   ['button: radius 0 (brutalist)', facts.inBtn.radius === '0px'],
-  ['text lane: 40px box + mono font', facts.inInput.minHeight === '40px' && facts.inInput.fontMono],
+  ['text lane: DERIVED hit box + mono font', facts.inInput.minHeight === facts.hitPx && facts.inInput.fontMono],
   ['text lane: inherits scope color-scheme', facts.inInput.colorScheme === 'light'],
-  ['checkbox: repaint (appearance none, 16px)', facts.inCheck.appearance === 'none' && facts.inCheck.size === '16px'],
+  ['checkbox: repaint (appearance none, DERIVED icon size)', facts.inCheck.appearance === 'none' && facts.inCheck.size === facts.iconPx],
   ['range: repaint (appearance none, the DERIVED density pill)', facts.inRange.appearance === 'none' && facts.inRange.height === '20px'],
   ['color: locked 40px square', facts.inColor.size === '40px'],
   ['D2 · select: the jx chevron is the DEFAULT', facts.selDefault.appearance === 'none' && facts.selDefault.chevron],
@@ -282,8 +298,8 @@ const checks = [
   ['meter: same track family', facts.meterBox.appearance === 'none' && facts.meterBox.height === '8px'],
   ['output: mono result lane', facts.outputFont.includes('JetBrains')],
   ['figcaption: nav-font small caps voice', facts.figcapVoice.font.includes('Share Tech') && facts.figcapVoice.transform === 'uppercase'],
-  ['escape hatch: skip island reverts to UA paint', facts.skipIsland.btnMinHeight !== '40px' && facts.skipIsland.btnShadow === 'none'],
-  ['CustomElement: shadow root carries both style nodes + law paints inside', facts.shadowDom !== null && facts.shadowDom.styleNodes === 2 && facts.shadowDom.btnShadow !== 'none' && facts.shadowDom.btnMinHeight === '40px' && facts.shadowDom.inputMinHeight === '40px'],
+  ['escape hatch: skip island reverts to UA paint', facts.skipIsland.btnMinHeight !== facts.hitPx && facts.skipIsland.btnShadow === 'none'],
+  ['CustomElement: shadow root carries both style nodes + law paints inside', facts.shadowDom !== null && facts.shadowDom.styleNodes === 2 && facts.shadowDom.btnShadow !== 'none' && facts.shadowDom.btnMinHeight === facts.hitPx && facts.shadowDom.inputMinHeight === facts.hitPx],
   ['B rules served inside @layer components', facts.layered],
 ];
 

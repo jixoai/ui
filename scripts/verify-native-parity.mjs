@@ -50,13 +50,6 @@ const ROWS = [
   },
   {
     row: 'native-select',
-    // PENDING Phase 5 (Part B density adoption): the gate quantified
-    // the known spec/file drift — B4 hard-codes 2.5rem rows / 0.5rem
-    // block padding / 0.875rem text while the density interface
-    // carries --jx-hit 44px / --jx-gap 12px / --jx-text 13px. The
-    // spec already mandates the token interface; Phase 5 moves B4
-    // onto it and this row flips green.
-    pending: 'phase-5-b-density-adoption',
     probes: [
       // the closed control (B4 select box law ⇄ the .jx-select mirror)
       ['select[data-probe]', '[data-renderer=tier1] select'],

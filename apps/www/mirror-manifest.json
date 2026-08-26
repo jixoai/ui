@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-27T05:07:56.903Z",
+  "generatedAt": "2026-08-27T05:08:00.264Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -592,8 +592,8 @@
           "source": "registry/files/theme/jx-pure.css",
           "mirror": "apps/www/src/lib/jx-pure.css",
           "target": "@lib/jx-pure.css",
-          "sourceSha": "8895727f7329608e927455ff379a72a223b0e2277cf1cd7a71aa81dcff7e41f5",
-          "mirrorSha": "8895727f7329608e927455ff379a72a223b0e2277cf1cd7a71aa81dcff7e41f5"
+          "sourceSha": "7479993a74314318e08032004789eea08d0b067be72a289aa7cf59b5153d21cd",
+          "mirrorSha": "7479993a74314318e08032004789eea08d0b067be72a289aa7cf59b5153d21cd"
         }
       ]
     },
@@ -948,8 +948,8 @@
           "source": "registry/files/ui/checkbox/checkbox.svelte",
           "mirror": "apps/www/src/lib/ui/checkbox/checkbox.svelte",
           "target": "@ui/checkbox/checkbox.svelte",
-          "sourceSha": "4caf02a3ac7888a21616dff6395fb2697dd79fde317100c6d1160fda540c10b0",
-          "mirrorSha": "4caf02a3ac7888a21616dff6395fb2697dd79fde317100c6d1160fda540c10b0"
+          "sourceSha": "0b26185dbe4374ea52601bafa4f313b4f7c7d802dea27c61405cd09daa052ce8",
+          "mirrorSha": "0b26185dbe4374ea52601bafa4f313b4f7c7d802dea27c61405cd09daa052ce8"
         },
         {
           "source": "registry/files/ui/checkbox/index.ts",
@@ -962,8 +962,8 @@
           "source": "registry/files/ui/checkbox/checkbox.css",
           "mirror": "apps/www/src/lib/ui/checkbox/checkbox.css",
           "target": "@ui/checkbox/checkbox.css",
-          "sourceSha": "951e989cb0fb00799a18430d59067e95b7c5e586b9280250b6a53b0dcb3e5d16",
-          "mirrorSha": "951e989cb0fb00799a18430d59067e95b7c5e586b9280250b6a53b0dcb3e5d16"
+          "sourceSha": "db50051fcdbd99b9e44daa1c830028af19ef67c9dacbadc986a39103ebd1b48a",
+          "mirrorSha": "db50051fcdbd99b9e44daa1c830028af19ef67c9dacbadc986a39103ebd1b48a"
         }
       ]
     },
@@ -976,8 +976,8 @@
           "source": "registry/files/ui/radio/radio.svelte",
           "mirror": "apps/www/src/lib/ui/radio/radio.svelte",
           "target": "@ui/radio/radio.svelte",
-          "sourceSha": "2d83ce99ffb5d0f06c42d3ee4093768efe0f0dc3cb4187c1e030870413f62369",
-          "mirrorSha": "2d83ce99ffb5d0f06c42d3ee4093768efe0f0dc3cb4187c1e030870413f62369"
+          "sourceSha": "8cee8f6ea9622f04388a71367c6d9e81068f8bab30d1f60407520078d0249ed4",
+          "mirrorSha": "8cee8f6ea9622f04388a71367c6d9e81068f8bab30d1f60407520078d0249ed4"
         },
         {
           "source": "registry/files/ui/radio/index.ts",
@@ -990,8 +990,8 @@
           "source": "registry/files/ui/radio/radio.css",
           "mirror": "apps/www/src/lib/ui/radio/radio.css",
           "target": "@ui/radio/radio.css",
-          "sourceSha": "9aa5f642f8376221124a1ce2f03841123365e2139c8c034f2c372dfec9b77eda",
-          "mirrorSha": "9aa5f642f8376221124a1ce2f03841123365e2139c8c034f2c372dfec9b77eda"
+          "sourceSha": "7a4b799b081fbcd86893dbe368dee27ac8d9ea22abbb1854c2c02c398b395230",
+          "mirrorSha": "7a4b799b081fbcd86893dbe368dee27ac8d9ea22abbb1854c2c02c398b395230"
         }
       ]
     },
@@ -1004,8 +1004,8 @@
           "source": "registry/files/ui/toggle/toggle.svelte",
           "mirror": "apps/www/src/lib/ui/toggle/toggle.svelte",
           "target": "@ui/toggle/toggle.svelte",
-          "sourceSha": "a25ba1dabd37ca785d590147e9d1714465e7bc6a247e9bdd8f8f8819c00ea2b3",
-          "mirrorSha": "a25ba1dabd37ca785d590147e9d1714465e7bc6a247e9bdd8f8f8819c00ea2b3"
+          "sourceSha": "66e4692971ebf99579b0800e2b5905d71a3ef2bfefd19773fcdba7132ba25a29",
+          "mirrorSha": "66e4692971ebf99579b0800e2b5905d71a3ef2bfefd19773fcdba7132ba25a29"
         },
         {
           "source": "registry/files/ui/toggle/index.ts",
@@ -1018,8 +1018,8 @@
           "source": "registry/files/ui/toggle/toggle.css",
           "mirror": "apps/www/src/lib/ui/toggle/toggle.css",
           "target": "@ui/toggle/toggle.css",
-          "sourceSha": "7939cb42d03f6d37d3e057fec27db9e425df0ac274de2556f0e65d2d7ce085f5",
-          "mirrorSha": "7939cb42d03f6d37d3e057fec27db9e425df0ac274de2556f0e65d2d7ce085f5"
+          "sourceSha": "ede9b8bd7db5922b6e39fe33da19269b8adcfa744e601e5d76e41680724cf878",
+          "mirrorSha": "ede9b8bd7db5922b6e39fe33da19269b8adcfa744e601e5d76e41680724cf878"
         }
       ]
     },
