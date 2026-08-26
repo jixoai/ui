@@ -33,17 +33,19 @@
   form.reset() keep native behavior); the count mirrors the DOM either
   way.
 
-  tw4 (2026-08-24): PURE utility migration, zero css residue — the
-  shell/lane laws (.jx-control-shell row+hover+focus+disabled+invalid+
-  slotted, .jx-field/.jx-label/.jx-error) are CONSUMED from the jx-pure
-  sheet's Part A (Tier-2 consume-only law; the shell only adds the
-  column direction as a utility), and every component-owned pixel
-  (chromeless lane, hairline rows, count readout, outer slots) is token
-  utilities in the markup.
+  tw4 (2026-08-24; mirror law 2026-08-27): the shell/lane laws
+  (.jx-control-shell row+hover+focus+disabled+invalid+slotted,
+  .jx-field/.jx-label/.jx-error) are CONSUMED from the jx-pure sheet's
+  Part A (consume-only law; the shell only adds the column direction as
+  an inline utility). The chromeless lane mirrors from textarea.css
+  (.jx-textarea, @layer components :where() — the placeholder rides
+  Part A's --jx-placeholder mix); the hairline rows, count readout and
+  outer slots stay inline (one-off wrappers).
 -->
 <script lang="ts">
   import type { HTMLTextareaAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import './textarea.css';
   import type { Snippet } from 'svelte';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
 
@@ -140,10 +142,7 @@
       value={controlled ? value : undefined}
       oninput={syncValue}
       data-jx-textarea
-      class={cn(
-        'w-full flex-[1_1_auto] px-[var(--jx-inset)] py-[var(--jx-gap)] border-0 outline-none bg-transparent text-foreground text-[length:var(--jx-text)] leading-[var(--jx-leading)] resize-y placeholder:text-muted-foreground placeholder:opacity-100 disabled:cursor-not-allowed',
-        slotted && 'px-0',
-      )}
+      class="jx-textarea"
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}
     ></textarea>

@@ -64,10 +64,12 @@
   (Svelte skips undefined writes, so FormData and form.reset() keep
   native behavior).
 
-  tw4 (2026-08-24): the component-owned paint (slot rows, clear button,
-  outer spacing) is token utilities in the markup; ONLY the clear
-  glyph's svg descendant sizing, the search-cancel pseudo kill and the
-  clear hover/focus states remain in input.css (D1-exempt residue).
+  tw4 (2026-08-24; mirror law 2026-08-27): the component-owned paint
+  (the clear button's hit-lane geometry) mirrors from input.css
+  (@layer components :where()); the slot rows stay inline (one-off
+  wrappers). ONLY the clear glyph's svg descendant sizing, the
+  search-cancel pseudo kill and the clear hover/focus states remain
+  as the D1-exempt residue.
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
@@ -236,7 +238,7 @@
         {#if showClear}
           <button
             type="button"
-            class="jx-clear flex-none inline-flex items-center justify-center min-w-[var(--jx-hit)] min-h-[var(--jx-hit)] p-0 border-0 bg-transparent text-[length:var(--jx-text)] leading-[var(--jx-leading)] cursor-pointer"
+            class="jx-clear"
             aria-label="clear value"
             onclick={clearValue}
           >

@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-27T05:07:54.953Z",
+  "generatedAt": "2026-08-27T05:07:56.903Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -629,8 +629,8 @@
           "source": "registry/files/ui/input/input.svelte",
           "mirror": "apps/www/src/lib/ui/input/input.svelte",
           "target": "@ui/input/input.svelte",
-          "sourceSha": "656a0177c46a2a7cee126a05af4b8ede887ecf70d8b5f612a0af94685020ef40",
-          "mirrorSha": "656a0177c46a2a7cee126a05af4b8ede887ecf70d8b5f612a0af94685020ef40"
+          "sourceSha": "b2465978535be215492237cede7e610e9051d73358a51cd66f190dc71667a9ad",
+          "mirrorSha": "b2465978535be215492237cede7e610e9051d73358a51cd66f190dc71667a9ad"
         },
         {
           "source": "registry/files/ui/input/index.ts",
@@ -643,8 +643,8 @@
           "source": "registry/files/ui/input/input.css",
           "mirror": "apps/www/src/lib/ui/input/input.css",
           "target": "@ui/input/input.css",
-          "sourceSha": "35348e9a588f3ccb338103d404c74d797921cab8dfee6bc11d5248343f364200",
-          "mirrorSha": "35348e9a588f3ccb338103d404c74d797921cab8dfee6bc11d5248343f364200"
+          "sourceSha": "defece6dfff5dc9114d510e98e94a05779dea14e64ba68742b440b44896ab10e",
+          "mirrorSha": "defece6dfff5dc9114d510e98e94a05779dea14e64ba68742b440b44896ab10e"
         }
       ]
     },
@@ -685,8 +685,15 @@
           "source": "registry/files/ui/textarea/textarea.svelte",
           "mirror": "apps/www/src/lib/ui/textarea/textarea.svelte",
           "target": "@ui/textarea/textarea.svelte",
-          "sourceSha": "272138d0a405cde086168f2b01efacd227e6f8bf5f4fa0ce9f50c7eb7d37a91a",
-          "mirrorSha": "272138d0a405cde086168f2b01efacd227e6f8bf5f4fa0ce9f50c7eb7d37a91a"
+          "sourceSha": "bf7a77608421365ace6b42c3a02a575cbe56f1b253de00cb99197ec2a5891ce7",
+          "mirrorSha": "bf7a77608421365ace6b42c3a02a575cbe56f1b253de00cb99197ec2a5891ce7"
+        },
+        {
+          "source": "registry/files/ui/textarea/textarea.css",
+          "mirror": "apps/www/src/lib/ui/textarea/textarea.css",
+          "target": "@ui/textarea/textarea.css",
+          "sourceSha": "9d048e8f520988dc5ce08ed57b302bab1c5405fa33cbfb66c11b2cd1fc3e9887",
+          "mirrorSha": "9d048e8f520988dc5ce08ed57b302bab1c5405fa33cbfb66c11b2cd1fc3e9887"
         },
         {
           "source": "registry/files/ui/textarea/index.ts",

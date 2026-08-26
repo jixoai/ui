@@ -1,0 +1,37 @@
+@layer theme, base, components, utilities;
+
+/* jixoai textarea — @apply mirror sheet (native-contract-fusion
+ * Phase 4b, 2026-08-27): the chromeless lane inside the Part A
+ * shell (.jx-control-shell consumed, never redefined — the column
+ * direction utility stays inline as the one-off component posture).
+ * The lane law mirrors the .jx-control-lane posture in column form:
+ * density padding, the placeholder rides Part A's --jx-placeholder
+ * mix (NOT the muted token — a drift fix toward Tier-0), the
+ * slotted posture zeroes the inline padding exactly like Part A's
+ * .jx-slotted lane law. Token-bound paint is plain CSS; @apply
+ * carries only context-free core utilities. */
+
+@layer components {
+  :where(.jx-textarea) {
+    @apply w-full flex-[1_1_auto] border-0 outline-none bg-transparent resize-y;
+    padding-inline: var(--jx-inset);
+    padding-block: var(--jx-gap);
+    color: var(--foreground);
+    font-size: var(--jx-text);
+    line-height: var(--jx-leading);
+  }
+  :where(.jx-textarea)::placeholder {
+    color: var(--jx-placeholder);
+    opacity: 1;
+  }
+  /* the slotted shell's hairline rows own the inline padding — the
+     lane gives it up (Part A's .jx-slotted lane law, column form) */
+  :where(.jx-control-shell.jx-slotted) > .jx-textarea {
+    padding-inline: 0;
+  }
+}
+
+/* the disabled cursor — a state machine, unlayered carve-out */
+:where(.jx-textarea:disabled) {
+  cursor: not-allowed;
+}

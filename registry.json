@@ -688,6 +688,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/textarea/textarea.css",
+          "target": "@ui/textarea/textarea.css",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/textarea/index.ts",
           "target": "@ui/textarea/index.ts",
           "type": "registry:file"
