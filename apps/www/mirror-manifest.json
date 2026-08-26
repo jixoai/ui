@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-26T20:55:19.021Z",
+  "generatedAt": "2026-08-27T05:07:11.140Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -592,8 +592,21 @@
           "source": "registry/files/theme/jx-pure.css",
           "mirror": "apps/www/src/lib/jx-pure.css",
           "target": "@lib/jx-pure.css",
-          "sourceSha": "28e64abb31d27306b9f5fd32cd48ec961eea1b99a59b2ede86c7bfb66a5461d6",
-          "mirrorSha": "28e64abb31d27306b9f5fd32cd48ec961eea1b99a59b2ede86c7bfb66a5461d6"
+          "sourceSha": "9b4fb589f5f186591551dfcee9143a7b55eaac6b9db1d35ce5e6593a3eeae292",
+          "mirrorSha": "9b4fb589f5f186591551dfcee9143a7b55eaac6b9db1d35ce5e6593a3eeae292"
+        }
+      ]
+    },
+    {
+      "itemName": "jx-native-contract",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/theme/jx-native-contract.css",
+          "mirror": "apps/www/src/lib/jx-native-contract.css",
+          "target": "@lib/jx-native-contract.css",
+          "sourceSha": "adacee17a6e24ea24b01e3b227c26bb835bae6bf74dfd268d9a7ba59ddf918f7",
+          "mirrorSha": "adacee17a6e24ea24b01e3b227c26bb835bae6bf74dfd268d9a7ba59ddf918f7"
         }
       ]
     },

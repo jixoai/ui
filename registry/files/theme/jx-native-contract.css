@@ -1,0 +1,700 @@
+/**
+ * jx-native-contract — the shared Part A class vocabulary
+ * (registry/files/theme/jx-native-contract.css).
+ *
+ * GENERATED FILE — never hand-edit. This sheet is the byte-exact
+ * Part A region of registry/files/theme/jx-pure.css, sliced by
+ * scripts/gen-jx-native-contract.mjs (single source: the face; the
+ * drift gate fails when the two diverge).
+ *
+ * Registry item @jixoai/jx-native-contract (registryDependencies:
+ * @jixoai/jixoai-theme): the Tier-1 native-family components consume
+ * these unlayered classes (.jx-field/.jx-label/.jx-error/.jx-control/
+ * .jx-control-shell/.jx-control-lane/.jx-slider/.jx-color-shell/
+ * .jx-color-swatch + icon custom properties + the structural
+ * input-group law) without shipping the full 2000-line face. The
+ * jixoai token sheet (tokens + density aliases) is a prerequisite.
+ * Unlayered BY DESIGN — the cascade exception that beats layered
+ * utilities (openspec: native-contract / jx-pure specs).
+ */
+
+/* =====================================================================
+   1 · Icon vocabulary — the mask/currentColor law
+   One alpha-only URI per glyph; consumers paint
+   `background-color: currentColor` behind `mask: var(--jx-icon-*)`.
+   The encoded stroke %23000 is an ALPHA SOURCE ONLY — it never renders,
+   so the no-hardcoded-colors law is not violated.
+   ===================================================================== */
+:root {
+  --jx-icon-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
+  --jx-icon-clock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E");
+  --jx-icon-pipette: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m2 22 1-1h3l9-9'/%3E%3Cpath d='M3 21v-3l9-9'/%3E%3Cpath d='m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z'/%3E%3C/svg%3E");
+
+  /* placeholder-vs-value distinction (user complaint 2026-08-23: too
+     close to tell apart). A foreground/background mix at 40% reads as
+     clearly-lighter-than-the-value in BOTH modes (light: dark value on
+     white vs mid-gray hint; dark: white value on black vs mid-gray
+     hint) while staying legible. */
+  --jx-placeholder: color-mix(in oklab, var(--foreground) 40%, var(--background));
+
+  /* INK variants (decision-record path (c), activated 2026-08-24):
+     engines reject author MASK paint on the calendar-picker pseudo
+     (same family as the spinner law), so the indicator falls back to
+     a literal-stroke URI. Two inks per glyph — light lanes get black
+     stroke, .dark gets white; geometry mirrors the alpha URIs above
+     (and icons.ts) — edit all three or none. The hover lean to
+     primary is de-scoped here (a third ink per glyph buys little). */
+  --jx-icon-calendar-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
+  --jx-icon-clock-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E");
+  /* validation-state inks (B14): '✓' valid / '!' invalid —
+     the same 000 law as the calendar ink above */
+  --jx-icon-valid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+  --jx-icon-invalid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 16.5h.01'/%3E%3C/svg%3E");
+}
+.dark {
+  --jx-icon-calendar-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
+  --jx-icon-clock-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E");
+  /* validation-state inks (B14): '✓' valid / '!' invalid —
+     the same fff law as the calendar ink above */
+  --jx-icon-valid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+  --jx-icon-invalid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 16.5h.01'/%3E%3C/svg%3E");
+}
+/* forced-light islands under a dark root take the light ink back */
+.jx-light {
+  --jx-icon-calendar-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
+  --jx-icon-clock-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E");
+  /* validation-state inks (B14): '✓' valid / '!' invalid —
+     the same 000 law as the calendar ink above */
+  --jx-icon-valid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+  --jx-icon-invalid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 16.5h.01'/%3E%3C/svg%3E");
+}
+
+/* =====================================================================
+   2 · Field scaffolding — the label / control / error stack.
+   The same law input.svelte / range.svelte / number-input.svelte
+   carried as scoped duplicates; the Tier-2 components now consume these
+   global rules (their scoped copies can be deleted when rebase lands).
+   ===================================================================== */
+.jx-field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--jx-stack, 0.5rem);
+  width: 100%;
+  min-width: 0; /* shrink inside grid/flex hosts (InputGroup hardening) */
+}
+.jx-label {
+  width: fit-content;
+  font-family: var(--font-nav);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+.jx-error {
+  display: flex;
+  gap: 0.5em;
+  margin: 0;
+  font-family: var(--font-nav);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+.jx-error-mark {
+  font-weight: 700;
+  color: var(--destructive);
+}
+
+/* =====================================================================
+   3 · Text lane — .jx-control is the daisyui-style bare box (put it
+   directly on the native element); .jx-control-shell is the same box as a
+   WRAPPER posture for companions (prefix/suffix slots), and the native
+   control inside takes .jx-control-lane (chromeless — the shell owns the
+   box law). Svelte components use the wrapper classes; bare markup uses
+   .jx-control alone.
+   ===================================================================== */
+.jx-control {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-height: var(--jx-hit, 2.5rem); /* the DERIVED family row */
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color-scheme: light; /* the platform's date/time pickers follow the lane */
+  transition: box-shadow 150ms ease-out;
+}
+.dark .jx-control {
+  color-scheme: dark;
+}
+.jx-control:hover:not(:disabled):not(:focus-visible) {
+  box-shadow: var(--shadow-2xs); /* the one-pixel hover lift */
+}
+.jx-control:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+.jx-control:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.jx-control[aria-invalid='true'] {
+  border-style: dashed; /* the invalid signal */
+  border-color: var(--error);
+  padding-inline-end: 2rem; /* room for the '!' ink */
+  background-image: var(--jx-icon-invalid-ink);
+  background-position: right 0.625rem center;
+  background-size: 0.75rem 0.75rem;
+  background-repeat: no-repeat;
+}
+.jx-control[aria-invalid='false'] {
+  border-color: var(--primary);
+  padding-inline-end: 2rem; /* room for the '✓' ink */
+  background-image: var(--jx-icon-valid-ink);
+  background-position: right 0.625rem center;
+  background-size: 0.75rem 0.75rem;
+  background-repeat: no-repeat;
+}
+
+/* the wrapper posture: the shell owns border/fill/hover/focus, the
+   native control inside is chromeless and flexes */
+.jx-control-shell {
+  display: flex;
+  align-items: center;
+  gap: var(--jx-gap, 0.5rem);
+  width: 100%;
+  max-width: 100%;
+  min-height: var(--jx-hit, 2.5rem);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color-scheme: light;
+  transition: box-shadow 150ms ease-out;
+}
+.dark .jx-control-shell {
+  color-scheme: dark;
+}
+.jx-control-shell:not(:has(:disabled)):hover:not(:has(:focus-visible)) {
+  box-shadow: var(--shadow-2xs);
+}
+/* the site focus law: an inset 1px outline on the ring token — the
+   shell carries it for the control AND slot controls alike */
+.jx-control-shell:has(:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+.jx-control-shell:has(:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.jx-control-shell.jx-invalid,
+.jx-control-shell:has([aria-invalid='true']) {
+  border-style: dashed;
+}
+/* companions present → the shell carries the horizontal padding and
+   the lane runs edge-to-edge between the gap seams */
+.jx-control-shell.jx-slotted {
+  padding-inline: 0.75rem;
+}
+
+/* ---- the label-based input group (openspec D6, amended by the
+   Owner 2026-08-24: NO class — the STRUCTURE is the opt-in, this is
+   the jx-pure face's own syntax). Inside .jx-pure, a <label> that has
+   a DIRECT-CHILD text-like control AND a direct-child span composes
+   into the group shell: the label takes the box law, the spans ride
+   as prefix/suffix, the control goes chromeless. A plain
+   <label>text <input></label> (no span child) stays untouched, and
+   checkbox/radio/range/color/file labels never match the allowlist. */
+:where(.jx-pure) label:has(> input:where(
+    :not([type]),
+    [type='text'],
+    [type='password'],
+    [type='email'],
+    [type='url'],
+    [type='tel'],
+    [type='search'],
+    [type='number'],
+    [type='date'],
+    [type='time'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='week']
+  )):has(> span):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> textarea):has(> span):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> select):has(> span):not(.no-jx-pure, .no-jx-pure *) {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 100%;
+  min-height: 2.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color-scheme: light;
+  transition: box-shadow 150ms ease-out;
+  cursor: text; /* the whole shell targets the control */
+}
+.dark :where(.jx-pure) label:has(> input:where(
+    :not([type]),
+    [type='text'],
+    [type='password'],
+    [type='email'],
+    [type='url'],
+    [type='tel'],
+    [type='search'],
+    [type='number'],
+    [type='date'],
+    [type='time'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='week']
+  )):has(> span):not(.no-jx-pure, .no-jx-pure *),
+    .dark :where(.jx-pure) label:has(> textarea):has(> span):not(.no-jx-pure, .no-jx-pure *),
+    .dark :where(.jx-pure) label:has(> select):has(> span):not(.no-jx-pure, .no-jx-pure *) {
+  color-scheme: dark;
+}
+:where(.jx-pure) label:has(> input:where(
+    :not([type]),
+    [type='text'],
+    [type='password'],
+    [type='email'],
+    [type='url'],
+    [type='tel'],
+    [type='search'],
+    [type='number'],
+    [type='date'],
+    [type='time'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='week']
+  )):has(> span):not(:has(:disabled)):hover:not(:has(:focus-visible)):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> textarea):has(> span):not(:has(:disabled)):hover:not(:has(:focus-visible)):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> select):has(> span):not(:has(:disabled)):hover:not(:has(:focus-visible)):not(.no-jx-pure, .no-jx-pure *) {
+  box-shadow: var(--shadow-2xs);
+}
+:where(.jx-pure) label:has(> input:where(
+    :not([type]),
+    [type='text'],
+    [type='password'],
+    [type='email'],
+    [type='url'],
+    [type='tel'],
+    [type='search'],
+    [type='number'],
+    [type='date'],
+    [type='time'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='week']
+  )):has(> span):has(:focus-visible):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> textarea):has(> span):has(:focus-visible):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> select):has(> span):has(:focus-visible):not(.no-jx-pure, .no-jx-pure *) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+:where(.jx-pure) label:has(> input:where(
+    :not([type]),
+    [type='text'],
+    [type='password'],
+    [type='email'],
+    [type='url'],
+    [type='tel'],
+    [type='search'],
+    [type='number'],
+    [type='date'],
+    [type='time'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='week']
+  )):has(> span):has(:disabled):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> textarea):has(> span):has(:disabled):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> select):has(> span):has(:disabled):not(.no-jx-pure, .no-jx-pure *) {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+:where(.jx-pure) label:has(> input:where(
+    :not([type]),
+    [type='text'],
+    [type='password'],
+    [type='email'],
+    [type='url'],
+    [type='tel'],
+    [type='search'],
+    [type='number'],
+    [type='date'],
+    [type='time'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='week']
+  )):has(> span):has([aria-invalid='true']):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> textarea):has(> span):has([aria-invalid='true']):not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> select):has(> span):has([aria-invalid='true']):not(.no-jx-pure, .no-jx-pure *) {
+  border-style: dashed;
+  border-color: var(--error);
+}
+/* the spans ride as prefix/suffix; the control goes chromeless.
+   The CHILD-control selector repeats the shell's text-like allowlist
+   — a bare `> input` here would chromeless checkbox/radio/range/
+   color/file controls inside labels that never got the shell
+   (r9 final blocker 1) */
+:where(.jx-pure) label:has(> input:where(
+    :not([type]),
+    [type='text'],
+    [type='password'],
+    [type='email'],
+    [type='url'],
+    [type='tel'],
+    [type='search'],
+    [type='number'],
+    [type='date'],
+    [type='time'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='week']
+  )):has(> span) > span:not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> textarea):has(> span) > span:not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> select):has(> span) > span:not(.no-jx-pure, .no-jx-pure *) {
+  flex: none;
+  padding-inline: 0.75rem;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  user-select: none;
+}
+:where(.jx-pure) label:has(> input:where(
+    :not([type]),
+    [type='text'],
+    [type='password'],
+    [type='email'],
+    [type='url'],
+    [type='tel'],
+    [type='search'],
+    [type='number'],
+    [type='date'],
+    [type='time'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='week']
+  )):has(> span) > input:not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> textarea):has(> span) > textarea:not(.no-jx-pure, .no-jx-pure *),
+    :where(.jx-pure) label:has(> select):has(> span) > select:not(.no-jx-pure, .no-jx-pure *) {
+  flex: 1 1 0%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0.5rem 0.75rem;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+:where(.jx-pure) label:has(> select):has(> span) > select:not(.no-jx-pure, .no-jx-pure *) {
+  padding-inline-end: 2rem; /* chevron room inside the shell */
+}
+
+/* the chromeless lane (inside .jx-control-shell, or standalone inside any
+   composite shell that owns its own box) */
+.jx-control-lane {
+  min-height: calc(2.5rem - 2px);
+  padding: 0.5rem 0.75rem;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+.jx-control-shell .jx-control-lane {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+.jx-control-shell.jx-slotted .jx-control-lane {
+  padding-inline: 0;
+}
+
+/* placeholder-vs-value — one law for both lane classes */
+.jx-control::placeholder,
+.jx-control-lane::placeholder {
+  color: var(--jx-placeholder);
+  opacity: 1; /* kill the UA fade (Firefox dims to .54) */
+}
+
+/* ---- date/time indicator (Chromium) ---------------------------------
+   appearance:none frees the indicator's paint box WITHOUT removing the
+   element — display:none would kill the click; this keeps the native
+   picker opening. mask + background-color: currentColor theme it with
+   the lane (light AND dark follow color-scheme automatically — that is
+   the whole point). Firefox has no such pseudo and degrades to its own
+   indicator; nothing to do there. */
+/* the ink fallback (path (c)): the indicator is a UA-shadow pseudo —
+   author MASK paint is rejected there (verified 2026-08-24: the
+   alpha-uri mask never rendered), so the glyph paints as a literal
+   background-image whose stroke ink flips with .dark */
+.jx-control::-webkit-calendar-picker-indicator,
+.jx-control-lane::-webkit-calendar-picker-indicator {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  margin-inline-start: 0.5rem;
+  cursor: pointer;
+  background-image: var(--jx-icon-calendar-ink);
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.jx-control[type='time']::-webkit-calendar-picker-indicator,
+.jx-control-lane[type='time']::-webkit-calendar-picker-indicator {
+  background-image: var(--jx-icon-clock-ink);
+}
+
+/* ---- number spinners -------------------------------------------------
+   The engine's spin buttons reject ALL custom paint (see the decision
+   record in the file header) — the jixoai lane hides them and keeps
+   native ↑/↓ + wheel stepping; Tier-2 number-input supplies visible
+   [- +] steppers. Firefox norms: appearance: textfield. */
+/* number lane: spin pseudos stay PLATFORM-painted (openspec D3) —
+   hiding them removed the only zero-JS stepper. Composite steppers
+   (hold-to-accelerate) remain the Tier-2 number-input component. */
+
+/* =====================================================================
+   4 · Range — the daisyUI law, tokens included (Owner ruling
+   2026-08-24: "重新参考 daisyui 进行重构绘制" — two square-language
+   attempts missed; this control now rides the ROUND language, aligned
+   with the Tier-2 toggle's pill posture; the radio-dot circle
+   precedent extends here). Geometry straight from daisyUI: the input
+   IS the thumb-sized pill (overflow:hidden + border-radius clips the
+   fill into the pill), the groove = half-thumb rounded, the thumb =
+   a full circle on a thick primary ring. Fill = the cqw shadow
+   technique (thumb's last shadow layer, zero JS, both engines).
+   The thumb derives from --jx-icon (the density glyph); the old
+   lg 1.75rem. Invalid flips fill + ring to var(--error).
+   ===================================================================== */
+.jx-slider {
+  /* thumb derives from the density interface (K0 ctl): the visual glyph */
+  --jx-slider-thumb: var(--jx-icon, 1.5rem);
+  --jx-slider-fill-color: var(--primary);
+  --jx-slider-dir: 1;
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  width: 100%;
+  height: var(--jx-slider-thumb); /* the pill — and the fill's clip box */
+  margin: 0;
+  border: none;
+  border-radius: calc(infinity * 1px); /* the pill */
+  background: transparent;
+  cursor: pointer;
+  container-type: inline-size;
+  overflow: hidden;
+}
+:where([dir='rtl']) .jx-slider,
+.jx-slider[dir='rtl'] {
+  --jx-slider-dir: -1;
+}
+.jx-slider:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.jx-slider:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.jx-slider::-webkit-slider-runnable-track {
+  height: calc(var(--jx-slider-thumb) / 2); /* the half-thumb groove */
+  border-radius: calc(infinity * 1px);
+  background: color-mix(in oklab, var(--foreground) 10%, transparent);
+}
+.jx-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  width: var(--jx-slider-thumb);
+  height: var(--jx-slider-thumb);
+  /* daisyUI thumb: light disc on a thick primary ring */
+  border: 0.25rem solid var(--primary);
+  border-radius: calc(infinity * 1px);
+  background: var(--background);
+  /* keep the disc webkit-centered on the groove */
+  margin-top: calc(var(--jx-slider-thumb) / -4);
+  /* THE FILL: spread shadow shoved to the start side, clipped by the
+     input's overflow:hidden pill into "everything before the thumb" */
+  box-shadow: calc(var(--jx-slider-dir) * (-100cqw - var(--jx-slider-thumb) / 2)) 0 0 100cqw
+    var(--jx-slider-fill-color);
+}
+/* firefox: native pseudos — progress fill + the same ringed disc */
+.jx-slider::-moz-range-track {
+  height: calc(var(--jx-slider-thumb) / 2);
+  border-radius: calc(infinity * 1px);
+  background: color-mix(in oklab, var(--foreground) 10%, transparent);
+}
+.jx-slider::-moz-range-progress {
+  height: calc(var(--jx-slider-thumb) / 2);
+  border-radius: calc(infinity * 1px);
+  background: var(--jx-slider-fill-color);
+}
+.jx-slider::-moz-range-thumb {
+  box-sizing: border-box;
+  width: var(--jx-slider-thumb);
+  height: var(--jx-slider-thumb);
+  border: 0.25rem solid var(--primary);
+  border-radius: calc(infinity * 1px);
+  background: var(--background);
+}
+
+/* =====================================================================
+   5 · Color field — recognizability without JS.
+   input[type=color] is a replaced element: no ::before/::after on it,
+   so the glyph lives on a WRAPPER (.jx-color-shell, a <label> in the
+   recommended markup so the glyph zone also opens the picker). The
+   input itself (.jx-color-swatch) is the locked ~2.5rem square swatch — the
+   ::-webkit-color-swatch(-wrapper) / ::-moz-color-swatch pseudos make
+   the swatch fill the box cleanly. Inside the wrapper the box law moves
+   to the wrapper and the swatch becomes its inline-start cell.
+   ===================================================================== */
+.jx-color-swatch {
+  display: block;
+  width: 2.5rem; /* locked square */
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color-scheme: light;
+  cursor: pointer;
+}
+.dark .jx-color-swatch {
+  color-scheme: dark;
+}
+.jx-color-swatch::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.jx-color-swatch::-webkit-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+.jx-color-swatch::-moz-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+.jx-color-swatch:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+.jx-color-swatch:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* the wrapper: shell box + recognition glyph. Recommended markup:
+   <label class="jx-color-shell"><input type="color" class="jx-color-swatch"></label>
+   — the label makes the whole row (glyph zone included) open the
+   picker. Default width is COMPACT and fixed (2026-08-23, user ruling:
+   a color field is a swatch control, not a text row) — swatch cell
+   (2.5rem) + glyph zone (0.75rem pad + 1rem glyph + 0.75rem pad) =
+   5rem; add .jx-color-expand to reclaim the old full-row field. */
+.jx-color-shell {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  width: 5rem;
+  max-width: 100%;
+  min-height: 2.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color-scheme: light;
+  cursor: pointer;
+  transition: box-shadow 150ms ease-out;
+}
+/* opt-in full row (the pre-2026-08-23 default) */
+.jx-color-shell.jx-color-expand {
+  width: 100%;
+}
+.dark .jx-color-shell {
+  color-scheme: dark;
+}
+.jx-color-shell:not(:has(input:disabled)):hover:not(:has(:focus-visible)) {
+  box-shadow: var(--shadow-2xs);
+}
+.jx-color-shell:has(:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+.jx-color-shell:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.jx-color-shell.jx-invalid,
+.jx-color-shell:has([aria-invalid='true']) {
+  border-style: dashed;
+}
+/* inside the wrapper: the swatch is the inline-start cell behind a 1px
+   divider; the wrapper owns border/fill/focus */
+.jx-color-shell .jx-color-swatch {
+  position: relative; /* the stacking pair's lower half (see ::after) */
+  z-index: 1;
+  flex: none;
+  width: calc(2.5rem - 2px);
+  height: auto;
+  align-self: stretch;
+  border: 0;
+  border-inline-end: 1px solid var(--border);
+}
+.jx-color-shell .jx-color-swatch:focus-visible {
+  outline: none; /* the wrapper carries the focus law */
+}
+/* the pipette glyph — mask + currentColor, pointer-transparent so the
+   label click beneath it still opens the picker */
+.jx-color-shell::after {
+  content: '';
+  position: absolute;
+  /* ABOVE the native color widget: Chromium paints the control's UA
+     swatch over plain positioned content — without the stacking pair
+     (this z-index + the input's below) the glyph never shows
+     (2026-08-24 fix, latent since the sheet's birth) */
+  z-index: 2;
+  inset-inline-end: 0.75rem;
+  top: 50%;
+  width: 1rem;
+  height: 1rem;
+  translate: 0 -50%;
+  color: var(--muted-foreground);
+  background-color: currentColor;
+  -webkit-mask: var(--jx-icon-pipette) center / contain no-repeat;
+  mask: var(--jx-icon-pipette) center / contain no-repeat;
+  pointer-events: none;
+}
+.jx-color-shell:hover::after {
+  color: var(--foreground);
+}
+
+/* =====================================================================
+   Reduced-motion law: the sheet's transitions are the only motion it
+   owns — neutralize them all.
+   ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .jx-control,
+  .jx-control-shell,
+  .jx-color-shell {
+    transition: none;
+  }
+}

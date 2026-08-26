@@ -6,11 +6,12 @@
       + child-process runner: named-theme @apply FAILS, arbitrary/core/
       variant compile (4/4 green; vitest-in-worktree needed a one-time
       `svelte-kit sync` — .svelte-kit/tsconfig.json is generated)
-- [ ] Phase 2: Part A contract layer — BEGIN/END markers in
-      jx-pure.css; `scripts/gen-jx-native-contract.mjs`;
-      registry.json: `jx-native-contract` item + the 12 UI items
-      switch deps + jx-pure description vocabulary fix; mirror
-      manifest + payload regen; drift gate folded into verify:mirror
+- [x] Phase 2: Part A contract layer — BEGIN/END markers in
+      jx-pure.css (mirror pair synced); scripts/gen-jx-native-contract.mjs
+      (+ --check, npm run verify:contract); registry.json:
+      `jx-native-contract` item + the 12 UI items switched deps +
+      jx-pure description vocabulary fix; mirror manifest 91/303;
+      payload regen (28,263B extract byte-identical)
 - [ ] Phase 3: toggle-group native rewrite — Part A `.jx-tgroup` law
       (mirror pair); toggle-group.svelte/-item.svelte rewritten
       (radio/checkbox, bind:group, reset sync, onValueChange split,

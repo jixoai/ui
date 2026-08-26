@@ -25,7 +25,11 @@
  *   content), the calendar/clock indicator INK fallback (UA-shadow
  *   pseudos reject author mask paint; decision-record path (c)), and
  *   the range zero-JS fill upgrade (daisyUI's cqw shadow technique).
- *   jx-pure-parity.spec.ts locks the structure.
+ *   jx-pure-parity.spec.ts locks the structure. The region between
+ *   the BEGIN/END jx-native-contract markers below is sliced
+ *   byte-exact into registry/files/theme/jx-native-contract.css (the
+ *   shared contract item) by scripts/gen-jx-native-contract.mjs —
+ *   edit the canonical here, never the extract.
  *
  * B · element defaults (@layer components, :where(.jx-pure) scoped) —
  *   Pico-style classless paint for a mounted subtree: typography,
@@ -71,6 +75,10 @@
  * componentless face (one registry item = one css file = one import).
  */
 
+/* ==[ BEGIN jx-native-contract region — sliced byte-exact by
+   scripts/gen-jx-native-contract.mjs into
+   registry/files/theme/jx-native-contract.css (the shared Part A
+   contract item). Hand-edit the canonical here, never the extract. ]== */
 /* =====================================================================
    1 · Icon vocabulary — the mask/currentColor law
    One alpha-only URI per glyph; consumers paint
@@ -751,6 +759,7 @@
     transition: none;
   }
 }
+/* ==[ END jx-native-contract region ]== */
 
 /* =====================================================================
    B · ELEMENT DEFAULTS — the .jx-pure subtree face.

@@ -111,12 +111,16 @@ surfaces — they are renderer-1-only law, no Tier-0 twin.
 | select chevron/listbox law | `native-select` | the worst drift offender today — first pilot |
 | checkbox repaint + indeterminate | `checkbox` | |
 | radio repaint | `radio` | |
+| slider law (`.jx-slider`, Part A) | `range` | consumes the Part A class; its own css mirrors the B5-adjacent geometry |
 | switch (`[role=switch]`, B13) | `toggle` | |
 | toggle-group (NEW `.jx-tgroup` Part A law) | `toggle-group` | name kept; no native- alias |
 | table/details/progress/figure/fieldset laws | — (Tier-0 only) | no component mirror; the face serves them |
 
-Range/color do not get separate components (they are input types;
-their laws are Part A classes the input component already consumes).
+Color does not get a separate component (the `input` color branch
+consumes `.jx-color-shell`; `color-picker` is a composite).
+`number-input`, `select`, `date-picker`, `combobox`, `tags-input` are
+composites — they keep their `@jixoai/jx-native-contract` dependency
+for internal lanes but are out of the mirror-pilot scope.
 
 ## 5. toggle-group native contract
 

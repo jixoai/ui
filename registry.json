@@ -547,7 +547,7 @@
       "name": "jx-pure",
       "type": "registry:lib",
       "title": "jx-pure — the componentless face (Tier 0)",
-      "description": "One stylesheet, the whole jixoai face, zero JS: mount class jx-pure on any DOM and the subtree's BARE native elements get the law — Pico-style element defaults in @layer components (:where-scoped, so utilities always win) for typography, links, buttons (press physics), text-like inputs (TYPE ALLOWLIST), checkbox/radio repaints, the zero-JS range fill (cqw shadow technique, daisyUI-inspired), color repaints, fieldset/legend, details/summary, nav/ol/ul/dl, tables — PLUS the migrated native-form class vocabulary verbatim (.jx-field/.jx-input/.jx-field-shell/.jx-input-lane/.jx-range/.jx-color-field/.jx-color, the Tier-2 frozen contract). Dark mode rides the token sheet's .dark/.jx-light (color-scheme inherits from the scope root). select keeps its platform arrow by default; .jx-select opts into the gradient chevron repaint (single-select only). progress/meter ride the 8px track family with token-mapped semantic fills (primary/secondary/destructive), output is the mono result lane, figure/figcaption carry the caption law; no-jx-pure (per-rule :not() exclusion) reverts a whole subtree to UA paint (the escape hatch); Part D (generated from the token sheet by scripts/gen-jx-auto-dark.mjs) gives zero-JS static pages OS-following dark via the .jx-auto-dark class. Floating surfaces (dialog/popover/tooltip) stay Tier-2 by boundary.",
+      "description": "One stylesheet, the whole jixoai face, zero JS: mount class jx-pure on any DOM and the subtree's BARE native elements get the law — Pico-style element defaults in @layer components (:where-scoped, so utilities always win) for typography, links, buttons (press physics), text-like inputs (TYPE ALLOWLIST), checkbox/radio repaints, the zero-JS range fill (cqw shadow technique, daisyUI-inspired), color repaints, fieldset/legend, details/summary, nav/ol/ul/dl, tables — PLUS the migrated native-form class vocabulary verbatim (.jx-field/.jx-label/.jx-error/.jx-control/.jx-control-shell/.jx-control-lane/.jx-slider/.jx-color-shell/.jx-color-swatch/.jx-color-expand, the Tier-2 frozen contract — the Part A region is also sliced byte-exact into the generated @jixoai/jx-native-contract item for component installs). Dark mode rides the token sheet's .dark/.jx-light (color-scheme inherits from the scope root). select keeps its platform arrow by default; .jx-select opts into the gradient chevron repaint (single-select only). progress/meter ride the 8px track family with token-mapped semantic fills (primary/secondary/destructive), output is the mono result lane, figure/figcaption carry the caption law; no-jx-pure (per-rule :not() exclusion) reverts a whole subtree to UA paint (the escape hatch); Part D (generated from the token sheet by scripts/gen-jx-auto-dark.mjs) gives zero-JS static pages OS-following dark via the .jx-auto-dark class. Floating surfaces (dialog/popover/tooltip) stay Tier-2 by boundary.",
       "files": [
         {
           "path": "registry/files/theme/jx-pure.css",
@@ -556,6 +556,28 @@
         }
       ],
       "docs": "Import once from the site css, AFTER the token sheet: @import './lib/jixoai.css'; @import './lib/jx-pure.css'; — then mount the class: <main class=\"jx-pure\">…bare HTML…</main>. Static no-JS pages: theme with <html class=\"dark\"> (or any ancestor); OS-follow dark is ALSO zero JS via the generated .jx-auto-dark class — <html class=\"jx-pure jx-auto-dark\"> (never inside .jx-light; an explicit .dark always wins; a host bootstrap remains the explicit-toggle JS alternative). Glyph data-URIs mirror icons.ts (calendar/clock/pipette) — edit both or neither. Reverse scope: mount no-jx-pure — the face steps aside (per-rule :not()), host styles survive.",
+      "meta": {
+        "group": "engines",
+        "href": "/docs/jx-pure.html"
+      },
+      "registryDependencies": [
+        "@jixoai/jixoai-theme"
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "jx-native-contract",
+      "type": "registry:lib",
+      "title": "jx-native-contract — the shared Part A class vocabulary (Tier-2 contract)",
+      "description": "GENERATED extract (scripts/gen-jx-native-contract.mjs; single source jx-pure.css — never hand-edit): the unlayered v2 class vocabulary the native-family components consume — .jx-field/.jx-label/.jx-error/.jx-control/.jx-control-shell/.jx-control-lane/.jx-slider/.jx-color-shell/.jx-color-swatch + icon custom properties + the structural input-group law + reduced-motion prelude. Unlayered by design (the cascade exception beating layered utilities). Component installs depend on THIS instead of the full 2000-line face; the face (A+B+C+D) remains @jixoai/jx-pure for the componentless use case.",
+      "files": [
+        {
+          "path": "registry/files/theme/jx-native-contract.css",
+          "target": "@lib/jx-native-contract.css",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Import once from the site css, AFTER the token sheet: @import './lib/jixoai.css'; @import './lib/jx-native-contract.css'; — components consuming .jx-control/.jx-control-shell/.jx-slider & friends resolve from here. Superset alternative: import jx-pure.css instead (adds the bare-element face).",
       "meta": {
         "group": "engines",
         "href": "/docs/jx-pure.html"
@@ -610,7 +632,7 @@
       "docs": "Props: type, label?, error?, clearable?, innerInlineStart/innerInlineEnd/outerBlockStart/outerBlockEnd snippets, id? (auto), class, value ($bindable), ...restProps passed to the native input.",
       "registryDependencies": [
         "@jixoai/icons",
-        "@jixoai/jx-pure",
+        "@jixoai/jx-native-contract",
         "@jixoai/utils",
         "@jixoai/jixoai-theme"
       ],
@@ -645,7 +667,7 @@
       "registryDependencies": [
         "@jixoai/form-field",
         "@jixoai/utils",
-        "@jixoai/jx-pure",
+        "@jixoai/jx-native-contract",
         "@jixoai/jixoai-theme"
       ],
       "meta": {
@@ -677,7 +699,7 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jx-pure",
+        "@jixoai/jx-native-contract",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -1011,7 +1033,7 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jx-pure",
+        "@jixoai/jx-native-contract",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -1044,7 +1066,7 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jx-pure",
+        "@jixoai/jx-native-contract",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -1109,7 +1131,7 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jx-pure",
+        "@jixoai/jx-native-contract",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -1137,7 +1159,7 @@
         }
       ],
       "registryDependencies": [
-        "@jixoai/jx-pure",
+        "@jixoai/jx-native-contract",
         "@jixoai/utils",
         "@jixoai/jixoai-theme"
       ],
@@ -1172,7 +1194,7 @@
       "docs": "Props: label?, error?, showValue?, min/max/step, name?, value ($bindable). role=slider contract; aria-labelledby wiring per the family law.",
       "registryDependencies": [
         "@jixoai/form-field",
-        "@jixoai/jx-pure",
+        "@jixoai/jx-native-contract",
         "@jixoai/utils",
         "@jixoai/jixoai-theme"
       ],
@@ -1208,7 +1230,7 @@
       "registryDependencies": [
         "@jixoai/popover",
         "@jixoai/utils",
-        "@jixoai/jx-pure",
+        "@jixoai/jx-native-contract",
         "@jixoai/jixoai-theme"
       ],
       "meta": {
@@ -1278,7 +1300,7 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jx-pure",
+        "@jixoai/jx-native-contract",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -1308,7 +1330,7 @@
       "registryDependencies": [
         "@jixoai/form-field",
         "@jixoai/utils",
-        "@jixoai/jx-pure",
+        "@jixoai/jx-native-contract",
         "@jixoai/jixoai-theme"
       ],
       "meta": {
@@ -1343,7 +1365,7 @@
         "@jixoai/form-field",
         "@jixoai/icons",
         "@jixoai/utils",
-        "@jixoai/jx-pure",
+        "@jixoai/jx-native-contract",
         "@jixoai/jixoai-theme"
       ],
       "meta": {

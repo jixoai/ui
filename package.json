@@ -13,7 +13,8 @@
     "verify:trygrid": "node scripts/verify-trygrid.mjs",
     "verify:press": "node scripts/verify-press.mjs",
     "verify:mirror": "node scripts/gen-mirror-manifest.mjs --check",
-    "shots": "node scripts/capture-baseline.mjs"
+    "shots": "node scripts/capture-baseline.mjs",
+    "verify:contract": "node scripts/gen-jx-native-contract.mjs --check"
   },
   "devDependencies": {
     "@fontsource/jetbrains-mono": "^5.3.0",
