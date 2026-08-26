@@ -37,6 +37,7 @@ import type {
   CodeToHastOptionsCommon,
   HighlighterCore,
   LanguageInput,
+  ThemedToken,
   ThemeInput,
   ThemeRegistration,
 } from 'shiki/core';
@@ -274,4 +275,54 @@ export async function highlightCode(code: string, options: HighlightOptions): Pr
         ? { ...rest, lang, themes }
         : { ...rest, lang, theme: DEFAULT_THEME };
   return highlighter.codeToHtml(code, resolved);
+}
+
+/**
+ * Options for highlightTokens: the token-level counterpart of
+ * HighlightOptions, minus everything that only makes sense for HTML
+ * output (transformers, decorations, dual themes). `lang` is required —
+ * an inline surface always knows its language or asks the detector.
+ */
+export interface HighlightTokensOptions {
+  /** Shiki language id or alias (ts, svelte, sh, …). */
+  lang: string;
+  /** Registered theme name; omitted = the jixoai css-variables default. */
+  theme?: string;
+}
+
+/**
+ * Token-level highlighting for inline code surfaces (InlineCode, 2026-08-26):
+ * the same on-demand machinery as highlightCode — ensureLanguage for the
+ * grammar (aliases + embedded-language hints), the jixoai css-variables
+ * theme by default — but Shiki's codeToTokens instead of codeToHtml, so
+ * the caller paints its own spans instead of mounting Shiki's DOM.
+ *
+ * Under the default theme every token's color field carries a
+ * `var(--tok-*)` string (the css-variables recipe), so callers paint
+ * spans directly: `<span style={token.color}>{token.content}</span>`
+ * resolves against the consumer's --tok-* palette at paint time — light/
+ * dark adaptation is pure CSS, exactly like code-card.
+ *
+ * Shiki tokenizes by line; this flattens the lines into ONE stream and
+ * re-inserts the line breaks as uncolored `'\n'` tokens, so multi-line
+ * sources survive inline and concatenating `token.content` reproduces
+ * the source.
+ */
+export async function highlightTokens(
+  code: string,
+  options: HighlightTokensOptions,
+): Promise<ThemedToken[]> {
+  const { theme, lang } = options;
+  const resolvedLang = await ensureLanguage(lang, code);
+  if (theme !== undefined && typeof theme === 'string') await ensureTheme(theme);
+  const highlighter = await getHighlighter();
+  const { tokens } = await highlighter.codeToTokens(code, {
+    lang: resolvedLang,
+    theme: theme ?? DEFAULT_THEME,
+  });
+  return tokens.flatMap((line, index) =>
+    // the synthetic separators carry offset -1 (not a source position) and
+    // no color — consumers paint content only
+    index === 0 ? line : [{ content: '\n', offset: -1 }, ...line],
+  );
 }
