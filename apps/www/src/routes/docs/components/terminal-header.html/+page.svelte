@@ -44,7 +44,7 @@
   } from '@ui/navigation-menu/index';
 ${close}
 
-<!-- switcherFrame={false}: this example's full-variant ThemeToggle carries its own bezel frame -->
+<!-- switcherFrame={false}: this example's ThemeToggle (compact default) carries its own bezel frame -->
 <TerminalHeader brand="jixoai-ui" domain="ui.jixoai.com" subtitle="the jixoai design language" switcherFrame={false}>
   <!-- the nav slot: composed family parts — panels carry YOUR markup -->
   <NavigationMenu label="primary">
