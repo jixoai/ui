@@ -122,6 +122,15 @@ consumes `.jx-color-shell`; `color-picker` is a composite).
 composites — they keep their `@jixoai/jx-native-contract` dependency
 for internal lanes but are out of the mirror-pilot scope.
 
+SCOPE RULING (Phase 4b, 2026-08-27): `range` is a fully custom
+slider (div + Pointer Events, deliberately NOT input[type=range],
+form participation via the bridge) — it is NOT a native wrapper and
+stays out of the @apply mirror migration. Its `.jx-slider` stem
+class remains the shared-vocabulary link to Tier-0; whether a
+native-range wrapper beside it is warranted is a future change's
+question (input.svelte's range branch already renders the native
+control).
+
 ## 5. toggle-group native contract
 
 DOM (identical contract both renderers):

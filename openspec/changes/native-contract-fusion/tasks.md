@@ -21,10 +21,12 @@
       composition-c/-props tests rewritten; blueprint scene + SVG;
       docs page copy; full suite 549/549, svelte-check 253/61/19
       (== main baseline)
-- [ ] Phase 4: pilots on the mirror law — native-select → input →
-      textarea → checkbox → radio → toggle (each: mirror sheet +
-      markup cleanup + parity fixture); subagent batches per Owner
-      orchestration; shared files ZCode-only
+- [x] Phase 4: pilots on the mirror law — native-select (pilot,
+      af1037d) → input+textarea (423020f) → checkbox+radio (405a12e,
+      subagent batch) → toggle (cf17648); RANGE ruled out of scope
+      (custom pointer-driven slider, not a native wrapper — design
+      §4 scope ruling); full suite 549/549, svelte-check == baseline,
+      parity gate GREEN
 - [ ] Phase 5: Part B density adoption — jx-pure.css Part B
       hard-codes → alias interface; B0 scoped font-size/line-height;
       verify-jx-pure(-engines) assert derived numbers; gzip budget
