@@ -5,17 +5,22 @@
 - [x] Ripple runtime extraction: press-button/ripple.svelte.ts (mirror pair,
       PressButton zero-behavior refactor)
 - [x] component-authoring spec delta (hit-lane alias fix + grammar clause)
-- [ ] Badge redesign: kbd-law sizing, slotStart/slotEnd, shape axis,
+- [x] Badge redesign: kbd-law sizing, slotStart/slotEnd, shape axis,
       variant grammar (mirror pair)
-- [ ] InlineCode component + shiki.ts highlightTokens (mirror pair)
-- [ ] Chip component (mirror pair): press physics + default ripple +
-      hit-lane expansion
-- [ ] PressButton variant migration (45 call sites) + docs page rework
-- [ ] Alert tone migration (33 call sites) + docs page rework
-- [ ] Badge tone= migration (~16 call sites) + badge.html rework
-- [ ] Shared registry work (ZCode-owned): registry.json entries, catalog,
-      docs-route-model, density-adoption-registry rows, mirror manifest
-- [ ] New docs pages: inline-code.html, chip.html
-- [ ] Contract tests + all gates green (svelte-check / vitest /
-      verify-density-kernel / verify-density-adoption / build:site)
+- [x] InlineCode component + shiki.ts highlightTokens (mirror pair)
+- [x] Chip component (mirror pair): press physics + default ripple +
+      hit-lane on the real root
+- [x] PressButton variant migration (46 sites) + docs page rework
+- [x] Alert tone migration + AlertDialogAction grammar adoption + pages
+- [x] Badge tone= migration + badge.html rework
+- [x] Shared registry work (ZCode-owned): registry.json (90 items),
+      svelte.config routes, docs-structure snapshot, density rows
+      (chip→C, inline-code→E), mirror manifest (90/302), blueprint
+      scenes + SVGs, payload regen
+- [x] New docs pages: inline-code.html, chip.html
+- [x] Contract tests + all gates green (vitest 542/542, svelte-check
+      253/19 == pre-wave baseline, kernel 61/61, density-adoption
+      66/66, mirror check GREEN, verify-press 12/12)
 - [ ] Milestone Codex review loop with scoring; resource recycling
+- [ ] Owner browser review: Badge anatomy/height, secondary softening,
+      Alert surface change, Chip control-scale silhouette (design §7)
