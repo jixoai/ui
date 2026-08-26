@@ -1,5 +1,5 @@
 <!--
-  jixoai textarea (registry/files/ui/textarea.svelte).
+  jixoai textarea (registry/files/ui/textarea/textarea.svelte).
   NativeHTML base textarea: the same text-shell law as input.svelte —
   1px var(--border), var(--background) fill, radius 0, hover lifts one
   pixel (shadow-2xs), focus-visible takes the site's inset 1px outline

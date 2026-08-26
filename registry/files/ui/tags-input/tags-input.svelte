@@ -1,5 +1,5 @@
 <!--
-  jixoai tags-input (registry/files/ui/tags-input.svelte).
+  jixoai tags-input (registry/files/ui/tags-input/tags-input.svelte).
   Original request (2026-08-20): “开发 Combobox 和 TagsInput 两个高级 Form
   组件” — input × multiselect: the input.svelte shell becomes a flex-wrap
   host for tag chips plus one borderless input. Orthogonal intents:

@@ -1,6 +1,6 @@
 <!--
   jixoai tree multiselect — the built-in tree-view extension
-  (registry/files/ui/tree-view-multiselect.svelte).
+  (registry/files/ui/tree-view/tree-view-multiselect.svelte).
 
   Original request (2026-08-22): multi-select must ship natively WITH
   keyboard + mouse support, built ON the tree-view extension surface

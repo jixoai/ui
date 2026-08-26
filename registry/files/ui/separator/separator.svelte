@@ -1,5 +1,5 @@
 <!--
-  jixoai separator (registry/files/ui/separator.svelte).
+  jixoai separator (registry/files/ui/separator/separator.svelte).
   W3C-first: the horizontal separator IS <hr> — native semantics, native
   styling, zero ARIA. Only the vertical posture has no native element, so
   it takes the ARIA route: <div role="separator" aria-orientation>.

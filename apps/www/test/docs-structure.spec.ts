@@ -68,7 +68,8 @@ describe('docs-route-model — the section spine', () => {
     // → data-display): a single-member column in the mega panel was a
     // visual break — any taxonomy change must update this snapshot.
     // Re-frozen 2026-08-26 (variant-grammar): chip + inline-code join
-    // general (6→8, 73→75 ui items).
+    // general (6→8, 77 ui items — the running total's source of truth is
+    // this snapshot itself).
     const shape = docsComponentGroups.map(({ group, entries }) => `${group.id}:${entries.length}`);
     expect(shape).toEqual([
       'general:8', 'layout:10', 'navigation:10', 'layer:10',

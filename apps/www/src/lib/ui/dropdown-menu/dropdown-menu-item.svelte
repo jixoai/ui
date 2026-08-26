@@ -1,5 +1,5 @@
 <!--
-  jixoai dropdown menu item (registry/files/ui/dropdown-menu-item.svelte).
+  jixoai dropdown menu item (registry/files/ui/dropdown-menu/dropdown-menu-item.svelte).
   The leaf half of the dropdown-menu pair: a real <button role=menuitem>.
   Activation is the native click (mouse, Enter, Space all arrive here);
   selection runs the caller's onclick FIRST, then closes the menu with

@@ -1,5 +1,5 @@
 <!--
-  jixoai card grid (registry/files/ui/card-grid.svelte).
+  jixoai card grid (registry/files/ui/card-grid/card-grid.svelte).
   Ships its OWN IO-driven stagger (Owner ruling, 2026-08-24, rev.2):
   an internal IntersectionObserver arms the entrance when the grid
   enters the viewport; cards then animate on the TIME axis with

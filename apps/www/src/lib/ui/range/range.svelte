@@ -1,5 +1,5 @@
 <!--
-  jixoai range (registry/files/ui/range.svelte).
+  jixoai range (registry/files/ui/range/range.svelte).
 
   2026-08-20 · Form wave 2 (original request: "Range 滑杆完全自绘（不用
   原生 range 控件）"). Fully custom slider: a div + Pointer Events, never

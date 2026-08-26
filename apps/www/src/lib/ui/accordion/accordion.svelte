@@ -1,5 +1,5 @@
 <!--
-  jixoai accordion (registry/files/ui/accordion.svelte).
+  jixoai accordion (registry/files/ui/accordion/accordion.svelte).
   W3C-first: the accordion IS <details>/<summary>. Native toggle
   semantics, native keyboard support, native SSR state (the open item
   ships open in the HTML) — no ARIA roles to maintain, nothing to

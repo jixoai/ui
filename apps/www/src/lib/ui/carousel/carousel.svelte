@@ -1,5 +1,5 @@
 <!--
-  jixoai carousel (registry/files/ui/carousel.svelte).
+  jixoai carousel (registry/files/ui/carousel/carousel.svelte).
   W3C-first: a carousel IS a horizontally scrolled region — CSS
   scroll-snap does the paging, the platform's native scrolling does the
   motion (momentum, rubber-band, keyboard when focused), and JS only

@@ -1,5 +1,5 @@
 <!--
-  jixoai popconfirm (registry/files/ui/popconfirm.svelte).
+  jixoai popconfirm (registry/files/ui/popconfirm/popconfirm.svelte).
   The LIGHT confirm bubble for risky-but-reversible actions (antd's
   highest-frequency unique gift), per the antd batch-1 ruling: a
   popover=auto panel on the popover laws — NOT an alertdialog. The

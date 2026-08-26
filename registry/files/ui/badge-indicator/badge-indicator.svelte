@@ -1,5 +1,5 @@
 <!--
-  jixoai badge indicator (registry/files/ui/badge-indicator.svelte).
+  jixoai badge indicator (registry/files/ui/badge-indicator/badge-indicator.svelte).
   antd Badge's other half — the COUNT/DOT overlay chip.badge is
   the static status chip; this is the live indicator riding on a
   corner of its child (an avatar, an icon, a tab):

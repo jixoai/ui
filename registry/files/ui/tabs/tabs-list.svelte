@@ -1,5 +1,5 @@
 <!--
-  jixoai tabs list (registry/files/ui/tabs-list.svelte).
+  jixoai tabs list (registry/files/ui/tabs/tabs-list.svelte).
   The tablist half of the tabs family: role=tablist strip carrying the
   APG keyboard contract — Arrow keys walk the triggers of the list's
   orientation axis (horizontal: ←/→, vertical: ↑/↓, RTL-aware), Home/End

@@ -1,5 +1,5 @@
 <!--
-  jixoai accordion item (registry/files/ui/accordion-item.svelte).
+  jixoai accordion item (registry/files/ui/accordion/accordion-item.svelte).
   The leaf half of the accordion pair: a styled <details>/<summary> with
   nothing added semantically — the browser already exposes the toggle,
   the disclosure state, and the keyboard contract. Drop it inside

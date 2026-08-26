@@ -1,5 +1,5 @@
 <!--
-  jixoai tree view, generic core (registry/files/ui/tree-view.svelte).
+  jixoai tree view, generic core (registry/files/ui/tree-view/tree-view.svelte).
 
   Original request (2026-08-22): the old file-tree view was over-styled and
   closed. Rebuild it as a GENERIC ARIA tree with an extension surface:

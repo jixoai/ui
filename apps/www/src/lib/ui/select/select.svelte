@@ -1,5 +1,5 @@
 <!--
-  jixoai select (registry/files/ui/select.svelte).
+  jixoai select (registry/files/ui/select/select.svelte).
   The RICH sibling of native-select.svelte: a custom listbox for when the
   native popup can't say what you need — per-option descriptions, a fully
   painted panel, presentation that must match the site, not the UA. For

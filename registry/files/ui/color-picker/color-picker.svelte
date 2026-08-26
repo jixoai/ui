@@ -1,5 +1,5 @@
 <!--
-  jixoai color picker (registry/files/ui/color-picker.svelte).
+  jixoai color picker (registry/files/ui/color-picker/color-picker.svelte).
 
   2026-08-20 · Form wave 2 (original request: "Color 选择器" with SV pad,
   hue bar, format switch, direct value input and Eye Dropper). The native

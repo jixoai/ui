@@ -1,5 +1,5 @@
 <!--
-  jixoai file input (registry/files/ui/file-input.svelte).
+  jixoai file input (registry/files/ui/file-input/file-input.svelte).
 
   Original request (2026-08-20): “开发 File 选择器 和 Date 选择器两个
   Form 组件”. Redesign request (2026-08-23): “辨识度太低，和 button

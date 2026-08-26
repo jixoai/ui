@@ -1,5 +1,5 @@
 <!--
-  jixoai dropdown menu — the ROOT half (registry/files/ui/dropdown-menu.svelte).
+  jixoai dropdown menu — the ROOT half (registry/files/ui/dropdown-menu/dropdown-menu.svelte).
   The ARIA menu pattern on the popover.svelte laws: a native popover="auto"
   panel (light dismiss, Escape, one-at-a-time, top layer — all browser),
   CSS Anchor Positioning for placement (zero JS geometry), plus the menu

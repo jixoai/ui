@@ -1,5 +1,5 @@
 <!--
-  jixoai website scaffold (registry/files/ui/website-scaffold.svelte).
+  jixoai website scaffold (registry/files/ui/website-scaffold/website-scaffold.svelte).
   Grid architecture (Owner + Codex review, 2026-08-23 — supersedes the
   2026-08-21 overlay plane):
 

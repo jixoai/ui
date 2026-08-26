@@ -1,5 +1,5 @@
 <!--
-  jixoai input OTP (registry/files/ui/input-otp.svelte).
+  jixoai input OTP (registry/files/ui/input-otp/input-otp.svelte).
   The one-time-code field: N single-character inputs (inputmode +
   autocomplete="one-time-code" where it makes sense) with the mechanics
   a raw stack of inputs lacks — auto-advance on type, backstep on

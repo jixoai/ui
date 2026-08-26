@@ -1,5 +1,5 @@
 <!--
-  jixoai avatar (registry/files/ui/avatar.svelte).
+  jixoai avatar (registry/files/ui/avatar/avatar.svelte).
   NativeHTML first: it IS an <img> — lazy, async-decoded, intrinsic
   width/height so layout never shifts.
 

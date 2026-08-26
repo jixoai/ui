@@ -1,5 +1,5 @@
 <!--
-  jixoai code card (registry/files/ui/code-card.svelte).
+  jixoai code card (registry/files/ui/code-card/code-card.svelte).
   Readonly code surface — highlighting IS Shiki (lib/shiki.ts): a stock
   `shiki/core` highlighter with on-demand grammars and themes, the JavaScript
   regex engine (no WASM), and the default zero-download `jixoai` theme built

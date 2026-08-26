@@ -1,5 +1,5 @@
 <!--
-  jixoai popover (registry/files/ui/popover.svelte).
+  jixoai popover (registry/files/ui/popover/popover.svelte).
 
   NativeHTML base (2026-08-20): the Popover API — `popover="auto"` on the
   panel plus a trigger button wired declaratively through `popovertarget`.

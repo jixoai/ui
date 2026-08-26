@@ -1,5 +1,5 @@
 <!--
-  jixoai terminal card (registry/files/ui/terminal-card.svelte).
+  jixoai terminal card (registry/files/ui/terminal-card/terminal-card.svelte).
   The Broadside hero terminal, composed after the openspecui reference:
   traffic-light title bar, one large typed command line, outputs that
   surface line by line, 6px hard offset shadow. Commands type in

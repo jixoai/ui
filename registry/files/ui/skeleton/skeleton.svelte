@@ -1,5 +1,5 @@
 <!--
-  jixoai skeleton (registry/files/ui/skeleton.svelte).
+  jixoai skeleton (registry/files/ui/skeleton/skeleton.svelte).
   The loading placeholder block: muted surface with a terminal-style
   brightness pulse. aria-hidden is set here — the real accessibility
   contract for loading regions belongs to the consumer (aria-busy on the

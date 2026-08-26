@@ -1,5 +1,5 @@
 <!--
-  jixoai badge (registry/files/ui/badge.svelte).
+  jixoai badge (registry/files/ui/badge/badge.svelte).
   The inline status chip of the site grammar: Share Tech Mono uppercase
   micro-label, 1px border, radius 0 — the eyebrow's inline cousin.
 
@@ -11,7 +11,7 @@
   --jx-outline): neutral metadata class="[--jx-tonal:var(--muted-foreground)]",
   error status class="[--jx-tonal:var(--error)]", success
   class="[--jx-tonal:var(--success)]" (see openspec/changes/variant-grammar).
-  Alert keeps its own tone law.
+  Alert rides the same ladder (variant, outline-default) — the shared tone law is retired there too.
 
   Geometry is the kbd law: height from --jx-line-secondary, inline
   insets only, never block padding. slotStart/slotEnd render icon lanes

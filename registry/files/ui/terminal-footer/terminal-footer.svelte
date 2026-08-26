@@ -1,5 +1,5 @@
 <!--
-  jixoai TerminalFooter root (registry/files/ui/terminal-footer.svelte,
+  jixoai TerminalFooter root (registry/files/ui/terminal-footer/terminal-footer.svelte,
   composition-first, 2026-08-25).
   The ghost wordmark closes the narrative: huge hollow brand word
   (text-stroke recipe, @supports fallback), meta row and © line. The

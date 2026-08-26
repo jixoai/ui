@@ -1,5 +1,5 @@
 <!--
-  jixoai tour (registry/files/ui/tour.svelte).
+  jixoai tour (registry/files/ui/tour/tour.svelte).
   The guided walkthrough, implemented EXACTLY against the design
   contract recorded on the recipes page (batch-3 ruling, batch-4
   closure):

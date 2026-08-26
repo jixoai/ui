@@ -1,5 +1,5 @@
 <!--
-  jixoai sheet (registry/files/ui/sheet.svelte).
+  jixoai sheet (registry/files/ui/sheet/sheet.svelte).
   The side drawer on the dialog.svelte laws — a POSITIONING/ANIMATION
   variant of the native <dialog>, not a second state machine: showModal()
   (focus trap, Escape, top layer, backdrop), the same generation-token

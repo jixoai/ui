@@ -1,5 +1,5 @@
 <!--
-  jixoai descriptions — the ROOT half (registry/files/ui/descriptions.svelte,
+  jixoai descriptions — the ROOT half (registry/files/ui/descriptions/descriptions.svelte,
   composition-first-apis, 2026-08-25).
   The enterprise detail view (antd's staple), W3C-first and now
   composed: a dl IS a description list — dt/dd pairs in source order,

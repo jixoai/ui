@@ -1,5 +1,5 @@
 <!--
-  jixoai statistic (registry/files/ui/statistic.svelte).
+  jixoai statistic (registry/files/ui/statistic/statistic.svelte).
   The metric readout: a micro-label (font-nav) over a big tabular-num
   value, with optional prefix/suffix snippets and a text-glyph trend
   (▲/▼ — no icon dependency). tone carries the trend's voice through

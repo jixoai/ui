@@ -94,29 +94,42 @@
 
 ---
 
-## 2. 模板骨架（可直接复制）
+## 2. 模板骨架（可直接复制 · firstpaint 形态）
+
+> ToC 由**根 layout 在 scaffold chrome 里统一渲染**（firstpaint，2026-08-24）：
+> 页面经 `+page.ts` 出 sections 数据，页面主体保持单列卡片栈 ——
+> **不要**在页面里写 aside / 双列网格 / scrollRoot（§1 的废止注适用于全文）。
+
+页面同目录的 `+page.ts`（ToC 数据，页面唯一职责）：
+
+```ts
+// Route-level toc policy (firstpaint era, 2026-08-24): the sections
+// ship as PAGE DATA — the layout owns the toc in the scaffold's chrome.
+import type { TocSection } from '$lib/ui/toc/toc.svelte';
+
+const toc: TocSection[] = [
+  { id: '<slug>', label: '<人类可读标题>' },
+];
+
+export const load = () => ({ toc });
+```
+
+页面 `+page.svelte`（单列卡片栈主体）：
 
 ```svelte
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import ComponentCanvas from '$lib/ui/component-canvas.svelte';
-  import SectionCard from '$lib/ui/section-card.svelte';
-  import Toc from '$lib/ui/toc.svelte';
-  import Thing from '$lib/ui/thing.svelte';
-  import type { TreeFile } from '$lib/ui/tree-view.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import Thing from '$lib/ui/thing/thing.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { reveal } from '$lib/reveal';
 
   // ---- 同源法则：drawer 展示本站正在运行的同一份 registry 源码 ----
-  import thingSource from '$lib/ui/thing.svelte?raw';
+  import thingSource from '$lib/ui/thing/thing.svelte?raw';
 
   // 模板字符串里的字面 </script> 会终止本组件自身的 script 扫描 —— 拼接它
   const close = '</' + 'script>';
-
-  // ---- ToC 大纲：与正文 id 一一对应，按页面顺序 ----
-  const tocSections = [
-    { id: '<slug>', label: '<人类可读标题>' },
-    // ...
-  ];
 
   // ---- usage 片段：页面只维护这一份 const（多处引用，禁止复制粘贴）----
   const usage = `<script lang="ts">
@@ -126,7 +139,7 @@ ${close}
 <Thing prop="value" />`;
 
   const files: TreeFile[] = [
-    { name: 'registry/files/ui/thing.svelte', content: thingSource },
+    { name: 'registry/files/ui/thing/thing.svelte', content: thingSource },
     { name: 'src/lib/ui/thing-usage/thing-usage.svelte', content: usage },
   ];
 
@@ -149,14 +162,10 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
 >
-  <!-- ToC rail：DOM 先于正文；桌面 sticky 右列，移动端玻璃条（height:0，见 toc.css） -->
-  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
-    <Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
-  <div class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
+  <div class="flex min-w-0 flex-col gap-8">
     <!-- ① hero -->
     <div data-reveal="" use:reveal>
       <SectionCard
@@ -179,7 +188,7 @@ ${close}
       <ComponentCanvas
         title="thing"
         description="<一行：演示什么、评审者该操作什么>"
-        sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/thing.svelte"
+        sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/thing/thing.svelte"
         {files}
         onreset={resetCanvas}
         echo={[{ label: 'prop', value: canvasProp || '—' }]}
@@ -249,26 +258,19 @@ data-family="<id>"     ↔    { id }（父级）    家族：覆盖整个父区�
 - **三位同名**：外层 `<div id="<slug>">`（锚点着陆）= `family="<slug>"` = `headerRegion="<slug>"` = `sections[i].id`。命名一律 kebab-case，与 section 标题对应。
 - 线算法（margin-downward law）：落在两块之间 margin 的线属于下方块；越到最后一个 region 后，最后 region 保持标记。锚点 `scroll-margin-top` 由 ToC 发布的 `--jx-toc-line` 对齐 —— 页面不要另写 scroll-margin。
 
-### 3.3 scrollRoot 场景（overlay shell）
+### 3.3 scrollRoot 场景（overlay shell）— ⚠ 已上收根 layout（firstpaint）
 
-本站是 `.jx-shell-body` 内滚（不是 window 滚动）的 overlay 架构，**必须**：
+本站是 `.jx-shell-body` 内滚（不是 window 滚动）的 overlay 架构。scrollRoot
+**由根 layout 传给唯一的 chrome Toc**（`+layout.svelte` 自行处理 shell body
+滚动监听）—— 页面**不再传** scrollRoot，也不挂自己的 `<Toc>`。历史上漏传
+scrollRoot 的症状（脊线不动、pick 停第一项）如今只可能是 layout 层回归。
 
-```svelte
-<Toc sections={tocSections} title="on this page" scrollRoot=".jx-shell-body" />
-```
+### 3.4 布局强制项 — ⚠ 已上收根 layout（firstpaint）
 
-漏传 scrollRoot 的症状：进度脊线不动、pick 永远停第一项（引擎监听 window scroll 而实际滚动发生在 shell body）。
-
-### 3.4 布局强制项
-
-| 项 | 值 | 原因 |
-|---|---|---|
-| aside 位置 | DOM 先于正文，`class="jx-toc-aside lg:order-2"` | 移动端玻璃条需在内容前渲染；桌面 order 归位右列 |
-| 页面网格 | `lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10` | rail 15rem 定宽列 |
-| 内容列补偿 | `max-lg:pt-[68px]` | 移动端 header 下 44px 玻璃条 + 间距；漏掉则首屏内容被 rail 盖住 |
-| aside aria | `aria-label="On this page"` | 组件内已有 nav label，aside 层补语境 |
-
-⚠️ 已知耦合：`max-lg:pt-[68px]` 与 `toc.css` 的 44px 行高 + scaffold header 几何联动，是魔数。改 header/rail 高度时须全局搜 `pt-[68px]` 同步。
+aside 位置/网格/移动端补偿（`jx-toc-aside`、15rem 右列、`max-lg:pt-[68px]`、
+aria）全部是**根 layout 的职责**，页面主体保持单列卡片栈。魔数耦合提醒仍然
+有效但对象变了：改 header/rail 高度时，须同步 layout 与 `toc.css` 的联动
+（原 `pt-[68px]` 系列现在只存在于 layout 一处）。
 
 ---
 
@@ -344,7 +346,7 @@ const resolve = (f: TreeFile) =>                    // ⑥ 命名 resolver：惰
 |---|---|---|
 | S1.1 | hero 为 `SectionCard headingLevel={1} tone="hero"`，含 eyebrow（`registry:ui · <Category>`）+ title + 3-6 句 summary | 4 |
 | S1.2 | hero children 内 pills 行（3-5 个 `<span class="pill">`） | 2 |
-| S1.3 | **ToC 存在**：`Toc` 挂 `aside.jx-toc-aside`（DOM 先于正文）+ `scrollRoot=".jx-shell-body"` + 内容列 `max-lg:pt-[68px]` + 15rem 右列网格 | 6 |
+| S1.3 | **ToC 数据存在**：同目录 `+page.ts` 出 `toc: TocSection[]`，与正文 id 一一对应（rail 由根 layout 渲染，页面零 markup） | 6 |
 | S1.4 | `sections` 与正文 `id`/`data-region(headerRegion)`/`data-family` 一一对应且顺序一致，叶子非重叠，三位同名 | 4 |
 | S1.5 | ≥1 个 `ComponentCanvas`（复合组件页：每个核心控件一个） | 4 |
 | S1.6 | `svelte:head` 含 `<title>` 与 meta description（描述含组件关键词） | 2 |
@@ -384,9 +386,9 @@ const resolve = (f: TreeFile) =>                    // ⑥ 命名 resolver：惰
 
 | # | 检查项 | 分 |
 |---|---|---|
-| S5.1 | ToC 双形态可用：桌面 rail 不溢出、移动玻璃条不盖内容（3.4 布局强制项全对） | 4 |
+| S5.1 | ToC 数据驱动正确：layout rail 双形态正常（桌面不溢出、移动不盖内容）——页面责任是数据齐且准，布局归 layout | 4 |
 | S5.2 | demo 内容自适应：`flex-wrap` / `min-[760px]:grid-cols-*` / 容器查询思维，不写死像素宽 | 4 |
-| S5.3 | 页面容器标准：`max-w-[90rem]` + `px-4 sm:px-6 lg:px-8`；ToC 页网格列参数与模板一致 | 4 |
+| S5.3 | 页面容器标准：`max-w-[90rem]` + `px-4 sm:px-6 lg:px-8` 的**单列卡片栈**（无页面级网格/rail markup） | 4 |
 
 ### S6 一致性（12 分）
 
@@ -407,7 +409,7 @@ C  60-74   需改进   —— 限期补齐 ToC/canvas/同源硬项后再评
 D  <60     必须重写 —— 按模板骨架重建
 ```
 
-一票否决（直接 C 封顶）：缺 ToC rail（S1.3 零得）、stage 非真实实例、组件源码为手抄副本。
+一票否决（直接 C 封顶）：缺 `+page.ts` toc 数据（S1.3 零得；rail 由 layout 渲染，页面写 rail 反而违规）、stage 非真实实例、组件源码为手抄副本。
 
 ---
 
@@ -415,8 +417,8 @@ D  <60     必须重写 —— 按模板骨架重建
 
 | 反模式 | 实测 | 正解 |
 |---|---|---|
-| **缺 ToC** | 59 页中仅 form/toc 有页面级 rail（scaffold-float 为 demo 内嵌、anchor 仅文案提及）；即用户反馈的 55/58 缺失 —— 本标准的直接起因 | 模板骨架 §2 ① 区整块引入 |
-| 漏 `scrollRoot=".jx-shell-body"` | 最易漏的 ToC 参数 | §3.3；症状是 pick 不动 |
+| **缺 ToC** | 历史实测：55/58 页无 ToC（本标准 8/22 的直接起因）；8/24 起由根 layout 统一渲染 | 同目录 `+page.ts` 出 `toc` 数据（§3.1 契约）；**不要**在页面写 aside/网格 |
+| 页面自挂 `<Toc scrollRoot>` | firstpaint 后的违规残留（rail 归 layout） | 删除页面侧 Toc，数据走 `+page.ts`（§3.3） |
 | 手写 "value: …/last action: …" 说明行 | press-button / tabs 的 stage 内 | 换 `echo` 投影（S2.4） |
 | usage 快照不随 playground | 无 `resolveFileContent` 的页面 drawer 显示初始值 | §4.3 五步协议 |
 | 免费文本直拼模板串 | `O'Reilly`/引号即产出非法源码 | 一律 `q()` = `JSON.stringify` |
@@ -425,7 +427,7 @@ D  <60     必须重写 —— 按模板骨架重建
 | 同一 usage 复制多份 | 早期页面曾复制 | 单 const 多引用（S3.3） |
 | `</script>` 字面量写进模板串 | 会终止组件自身 script 扫描 | `const close = '</' + 'script>';` |
 | canvas slug 撞车 | 同页同 title 两 canvas → aria id 冲突 | 显式 `id` prop |
-| 移动端内容被 ToC 玻璃条遮盖 | 漏 `max-lg:pt-[68px]` | §3.4 表格 |
+| 移动端内容被 ToC 玻璃条遮盖 | 历史页面级 rail 的耦合残留；firstpaint 后归 layout | layout 层修正（§3.4） |
 | 菜单与页面脱节 | 历史问题，已修复 | 挂 `catalogByGroup()` 单信源（+layout.svelte），页面只需存在于 catalog |
 
 ---
@@ -433,7 +435,7 @@ D  <60     必须重写 —— 按模板骨架重建
 ## 7. 评审流程（30 秒/页速查）
 
 ```
-1. grep ToC        → S1.3 有无 rail + scrollRoot
+1. grep `+page.ts` → S1.3 toc 数据齐不齐（rail 由 layout 渲染，页面 grep 不到 Toc 才对）
 2. grep ComponentCanvas / ?raw → S1.5 / S3.1
 3. 看 hero 块      → S1.1/S1.2/S6.1
 4. 数 <h1>         → S4.1

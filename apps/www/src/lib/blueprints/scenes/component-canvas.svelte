@@ -17,7 +17,7 @@
 <PressButton variant="outline">cancel</PressButton>`,
     },
     {
-      name: 'registry/files/ui/press-button.svelte',
+      name: 'registry/files/ui/press-button/press-button.svelte',
       lang: 'svelte',
       content: `<!-- the brutalist press-physics button: lifts on hover, presses back on active -->`,
     },

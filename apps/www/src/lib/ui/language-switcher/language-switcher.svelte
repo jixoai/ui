@@ -1,5 +1,5 @@
 <!--
-  jixoai language switcher (registry/files/ui/language-switcher.svelte).
+  jixoai language switcher (registry/files/ui/language-switcher/language-switcher.svelte).
   Two variants, composed after the openspecui bilingual reference:
 
     pair — icon + segmented two-locale group (EN / 中文 style): the active

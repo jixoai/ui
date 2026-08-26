@@ -1,5 +1,5 @@
 <!--
-  jixoai hover card (registry/files/ui/hover-card.svelte).
+  jixoai hover card (registry/files/ui/hover-card/hover-card.svelte).
   The rich cousin of tooltip.svelte: same intent model (hover delay in,
   cancellable close grace, focus opens instantly, Escape closes) on a
   popover=manual panel with CSS Anchor Positioning — but the panel is

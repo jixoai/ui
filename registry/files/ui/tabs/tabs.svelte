@@ -1,5 +1,5 @@
 <!--
-  jixoai tabs — the ROOT half (registry/files/ui/tabs.svelte).
+  jixoai tabs — the ROOT half (registry/files/ui/tabs/tabs.svelte).
   WAI-ARIA APG tabs pattern, composition-first: this component owns ONLY
   the shared state (the selected value) and hands it to the family
   through context — the tablist, triggers and panels can be laid out

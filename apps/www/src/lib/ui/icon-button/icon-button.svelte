@@ -1,5 +1,5 @@
 <!--
-  jixoai icon button (registry/files/ui/icon-button.svelte).
+  jixoai icon button (registry/files/ui/icon-button/icon-button.svelte).
   The icon+text button with an explicit two-part contract:
 
     icon  the glyph — ALWAYS decorative (the component wraps it

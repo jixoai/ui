@@ -1,5 +1,5 @@
 <!--
-  jixoai component canvas (registry/files/ui/component-canvas.svelte).
+  jixoai component canvas (registry/files/ui/component-canvas/component-canvas.svelte).
   The component documentation workbench: one bordered surface holding the
   LIVE demo area (children snippet on a muted stage), an optional
   Playground controls pane (playground snippet — consumer-authored with

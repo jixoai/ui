@@ -1,5 +1,5 @@
 <!--
-  jixoai radio (registry/files/ui/radio.svelte).
+  jixoai radio (registry/files/ui/radio/radio.svelte).
   Pure-CSS redraw of the native radio, daisyUI-style: the native
   <input type="radio"> keeps every behavior (same-name grouping, arrow-key
   walking, form participation) but appearance:none strips its paint, and a

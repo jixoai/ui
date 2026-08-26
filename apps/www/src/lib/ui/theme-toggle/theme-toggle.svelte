@@ -1,5 +1,5 @@
 <!--
-  jixoai theme toggle (registry/files/ui/theme-toggle.svelte).
+  jixoai theme toggle (registry/files/ui/theme-toggle/theme-toggle.svelte).
   light / dark / system with four variants:
     full    — segmented selector: icon + label per mode, click to SET
     compact — cycling button: icon + current mode label

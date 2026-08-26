@@ -1,5 +1,5 @@
 <!--
-  jixoai cascader (registry/files/ui/cascader.svelte).
+  jixoai cascader (registry/files/ui/cascader/cascader.svelte).
   The cascade selector, chain-of-selects route (the batch-2 ruling's
   default): N plain <select> elements, each listing the children of the
   previous pick. W3C-first — native option semantics, native keyboard,

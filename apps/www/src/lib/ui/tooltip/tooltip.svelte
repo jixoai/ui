@@ -1,5 +1,5 @@
 <!--
-  jixoai tooltip (registry/files/ui/tooltip.svelte).
+  jixoai tooltip (registry/files/ui/tooltip/tooltip.svelte).
   The hover-intent hint, built the same way as popover.svelte: a native
   Popover API panel (popover="manual" — no light dismiss; the tooltip
   owns its own exit) anchored to the trigger through CSS Anchor

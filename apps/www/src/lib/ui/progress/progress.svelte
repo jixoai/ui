@@ -1,5 +1,5 @@
 <!--
-  jixoai progress (registry/files/ui/progress.svelte).
+  jixoai progress (registry/files/ui/progress/progress.svelte).
   W3C-first: progress IS the native <progress> element — role, value
   semantics, min/max mapping and the indeterminate state are the
   browser's. Passing no value renders the indeterminate bar natively

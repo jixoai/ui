@@ -1,5 +1,5 @@
 <!--
-  jixoai transfer (registry/files/ui/transfer.svelte).
+  jixoai transfer (registry/files/ui/transfer/transfer.svelte).
   The two-panel selector (antd's Transfer): options live SOURCE or
   TARGET; checkboxes pick, the middle buttons move. W3C-first — each
   panel is a real fieldset of real checkboxes (native multi-select

@@ -1,5 +1,5 @@
 <!--
-  jixoai scroll-virtual (registry/files/ui/scroll-virtual.svelte).
+  jixoai scroll-virtual (registry/files/ui/scroll-virtual/scroll-virtual.svelte).
 
   2026-08-22 · Scroll-area family, request 2 (Owner): 原生支持虚拟滚动，
   使用 tanstack 那套封装。STRONG association, THIN coupling —— 本组件只是

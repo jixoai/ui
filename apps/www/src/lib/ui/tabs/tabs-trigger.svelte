@@ -1,5 +1,5 @@
 <!--
-  jixoai tabs trigger (registry/files/ui/tabs-trigger.svelte).
+  jixoai tabs trigger (registry/files/ui/tabs/tabs-trigger.svelte).
   The tab half of the tabs family: a real <button role=tab> wired to
   the root's context — aria-selected, aria-controls and the roving
   tabindex (selected ⇒ tabbable, otherwise −1; the arrows in

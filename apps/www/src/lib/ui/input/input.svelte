@@ -1,5 +1,5 @@
 <!--
-  jixoai input (registry/files/ui/input.svelte).
+  jixoai input (registry/files/ui/input/input.svelte).
   NativeHTML base field: the native <input> IS the contract — every type
   passes through untouched, no per-type wrappers. Rendering lanes by type:
 

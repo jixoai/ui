@@ -1,5 +1,5 @@
 <!--
-  jixoai checkbox (registry/files/ui/checkbox.svelte).
+  jixoai checkbox (registry/files/ui/checkbox/checkbox.svelte).
   Pure-CSS redraw of the native checkbox, daisyUI-style: the native
   <input type="checkbox"> keeps every behavior (form participation,
   keyboard toggling, :checked/:indeterminate state) but appearance:none

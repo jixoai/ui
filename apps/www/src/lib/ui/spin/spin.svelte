@@ -1,5 +1,5 @@
 <!--
-  jixoai spin (registry/files/ui/spin.svelte).
+  jixoai spin (registry/files/ui/spin/spin.svelte).
   The loading indicator, terminal voice: a bracket cursor cycling
   [ ─ \ | / ] — the platform's oldest spinner, drawn in text.
   role=status + aria-label (polite by construction; loading is never

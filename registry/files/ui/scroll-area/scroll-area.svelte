@@ -1,5 +1,5 @@
 <!--
-  jixoai scroll-area (registry/files/ui/scroll-area.svelte).
+  jixoai scroll-area (registry/files/ui/scroll-area/scroll-area.svelte).
 
   2026-08-22 · Scroll-area family, request 1 (Owner): 参考 shadcnui 封装专
   门的可滚动区域组件，但立场是 W3C-first nativeHTML —— 组件 IS 一个原生滚

@@ -1,5 +1,5 @@
 <!--
-  jixoai table (registry/files/ui/table.svelte).
+  jixoai table (registry/files/ui/table/table.svelte).
 
   2026-08-22 · responsive deepening (original request: 参考
   codepen.io/viki-code/pen/JjxGgmm 改进 table 组件；配色上需要有一定的

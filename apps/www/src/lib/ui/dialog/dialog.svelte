@@ -1,5 +1,5 @@
 <!--
-  jixoai dialog (registry/files/ui/dialog.svelte).
+  jixoai dialog (registry/files/ui/dialog/dialog.svelte).
 
   NativeHTML base (2026-08-20): the native <dialog> element driven by
   showModal()/close(). The platform supplies the focus trap, the Escape

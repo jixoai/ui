@@ -1,5 +1,5 @@
 <!--
-  jixoai empty (registry/files/ui/empty.svelte).
+  jixoai empty (registry/files/ui/empty/empty.svelte).
   The no-data state of the eight-state machine — NOTHING more (the
   antd ruling: empty does not absorb error/loading/404; those are
   alert/result surfaces). A figure: terminal-box illustration slot

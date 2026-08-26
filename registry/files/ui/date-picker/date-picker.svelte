@@ -1,5 +1,5 @@
 <!--
-  jixoai date picker (registry/files/ui/date-picker.svelte).
+  jixoai date picker (registry/files/ui/date-picker/date-picker.svelte).
 
   Original request (2026-08-20): “开发 File 选择器 和 Date 选择器两个
   Form 组件” — a calendar popover over native Date math, deliberately NOT

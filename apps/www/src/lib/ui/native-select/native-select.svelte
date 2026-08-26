@@ -1,5 +1,5 @@
 <!--
-  jixoai native-select (registry/files/ui/native-select.svelte).
+  jixoai native-select (registry/files/ui/native-select/native-select.svelte).
   The SIMPLE-SCENARIO recommendation of the form family: form submission
   (a real name/value pair rides into FormData) and mobile (the platform's
   overlay picker beats any custom panel on touch). The native <select>

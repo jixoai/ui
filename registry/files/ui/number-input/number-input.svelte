@@ -1,5 +1,5 @@
 <!--
-  jixoai number-input (registry/files/ui/number-input.svelte).
+  jixoai number-input (registry/files/ui/number-input/number-input.svelte).
   A stepper, not a text field fork: the [- NUM +] segmented control for
   bounded quantities. The shell is one bordered row — 1px var(--border),
   radius 0, var(--background) fill, min-height 2.5rem (the 40px family

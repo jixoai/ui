@@ -1,5 +1,5 @@
 <!--
-  jixoai progressive blur (registry/files/ui/progressive-blur.svelte).
+  jixoai progressive blur (registry/files/ui/progressive-blur/progressive-blur.svelte).
   The scroll-edge blur atom: content scrolling under its OWN container's
   edge diffuses progressively instead of slicing. Magic UI port
   (2026-08-25) with two deliberate upgrades, both probed on Chromium:

@@ -1,5 +1,5 @@
 <!--
-  jixoai image (registry/files/ui/image.svelte).
+  jixoai image (registry/files/ui/image/image.svelte).
   The general-purpose picture on avatar's proven laws: a native <img>,
   lazy, async-decoded, with REQUIRED intrinsic width/height (layout
   never shifts — the ruling made this explicit), alt semantics (text

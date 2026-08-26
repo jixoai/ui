@@ -5,10 +5,10 @@
  * the catalog index, the per-page prev/next pager and the related
  * links — derives from here, on top of the ONE catalog. Locked by
  * test/docs-structure.spec.ts:
- *   - Components = registry:ui ONLY (73, one canonical page each)
+ *   - Components = registry:ui ONLY (one canonical page each; the count derives from CATALOG — see docs-structure's frozen snapshot)
  *   - non-UI items never appear in the Components nav (install targets,
  *     documented on host pages; the registry overview carries them)
- *   - the reading chain covers all 73; related is nearest-first
+ *   - the reading chain covers every ui item; related is nearest-first
  */
 import { CATALOG, CATALOG_GROUPS, catalogByGroup, type CatalogEntry } from './catalog';
 

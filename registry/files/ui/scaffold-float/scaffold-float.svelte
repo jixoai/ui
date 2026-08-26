@@ -1,5 +1,5 @@
 <!--
-  jixoai scaffold float portal (registry/files/ui/scaffold-float.svelte).
+  jixoai scaffold float portal (registry/files/ui/scaffold-float/scaffold-float.svelte).
   The consumer-side half of the float provider: renders its children into
   the website scaffold's top layer (.jx-top-layer) through a real portal — the
   child nodes are created here (full Svelte ownership) and adopted into

@@ -1,5 +1,5 @@
 <!--
-  jixoai float button (registry/files/ui/float-button.svelte).
+  jixoai float button (registry/files/ui/float-button/float-button.svelte).
   The floating action button (antd's FloatButton + the back-top
   convention): a fixed corner button, optionally opening a small
   popover menu of related actions. Two idioms ship in the same

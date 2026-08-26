@@ -1,5 +1,5 @@
 <!--
-  jixoai press button (registry/files/ui/press-button.svelte).
+  jixoai press button (registry/files/ui/press-button/press-button.svelte).
   Press law (theme .jx-press): hover grows the shadow only — the body
   never moves; active presses the body +1px into the page while the
   box-shadow's offsets counter-shrink 1px (the theme's *-press poses)

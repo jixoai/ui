@@ -1,5 +1,5 @@
 <!--
-  jixoai timeline — the ROOT half (registry/files/ui/timeline.svelte,
+  jixoai timeline — the ROOT half (registry/files/ui/timeline/timeline.svelte,
   composition-first-apis, 2026-08-25).
   The activity stream as a composed family (full Dice UI anatomy): the
   root is just the chronology ol — NO context, NO state, zero JS. A

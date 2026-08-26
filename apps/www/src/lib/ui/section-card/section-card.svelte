@@ -1,5 +1,5 @@
 <!--
-  jixoai section card (registry/files/ui/section-card.svelte).
+  jixoai section card (registry/files/ui/section-card/section-card.svelte).
   The content atom of the site grammar: bordered card, header block with
   eyebrow (brand hue, font-nav, tracked 0.24em), font-nav title, text-pretty
   summary, body snippet slot. tone="hero" is for inner-page heads.

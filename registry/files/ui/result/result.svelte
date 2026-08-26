@@ -1,11 +1,11 @@
 <!--
-  jixoai result (registry/files/ui/result.svelte).
+  jixoai result (registry/files/ui/result/result.svelte).
   The page-level outcome of an operation: status glyph + title +
   description + actions. Deliberately THIN (the ruling): no 403/404
   routing logic, no illustration system — bring your own through the
-  icon snippet. Status paints through the tone law (success = the
+  icon snippet. Status paints by semantic hue (success = the
   brand's emphasis voice — there is no green in this language;
-  error = destructive; the others stay neutral).
+  error = the destructive hue; the others stay neutral).
 
   empty ≠ result: empty says "no data"; result says "an operation
   reached an outcome". They are different states and stay different

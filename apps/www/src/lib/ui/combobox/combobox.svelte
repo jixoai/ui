@@ -1,5 +1,5 @@
 <!--
-  jixoai combobox (registry/files/ui/combobox.svelte).
+  jixoai combobox (registry/files/ui/combobox/combobox.svelte).
   Original request (2026-08-20): “开发 Combobox 和 TagsInput 两个高级 Form
   组件” — the searchable sibling of select.svelte: the trigger IS an <input>,
   so the popup is no longer a jump but a conversation. Orthogonal intents:
