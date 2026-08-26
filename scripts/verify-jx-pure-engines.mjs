@@ -147,6 +147,7 @@ async function runEngine(name, launch) {
 }
 
 const total = [];
+const ran = [];
 // the cache carries slightly older builds than this playwright-core
 // expects — point executablePath at what exists (protocol-compatible)
 // ENGINES=firefox / ENGINES=webkit filters the run (a hung engine can
@@ -160,23 +161,43 @@ for (const [name, launch] of [
   ['webkit', () => webkit.launch({ executablePath: process.env.WEBKIT_PATH ?? `${process.env.HOME}/Library/Caches/ms-playwright/webkit-2311/pw_run.sh`, env: { ...process.env, no_proxy: 'localhost,127.0.0.1', NO_PROXY: 'localhost,127.0.0.1' } })],
 ]) {
   if (!wanted.includes(name)) continue;
+  let browser = null;
   try {
     // a mismatched cached build can hang at the protocol handshake —
-    // race the LAUNCH with a timeout and skip cleanly on hang
+    // race the LAUNCH with a timeout and skip cleanly on hang. A hung
+    // launch never yields a handle (the child leaks until the host
+    // reaps it — the ENGINES filter exists so reruns skip the bad one)
     const withTimeout = (ms, label) => {
       let t;
       const guard = new Promise((_, rej) => { t = setTimeout(() => rej(new Error(label + ' launch hang')), ms); });
       return (promise) => Promise.race([promise, guard]).finally(() => clearTimeout(t));
     };
-    const browser = await withTimeout(45000, name)(launch());
-    total.push(...(await runEngine(name, () => Promise.resolve(browser))));
+    browser = await withTimeout(45000, name)(launch());
   } catch (e) {
     console.log(`SKIP  [${name}] engine unavailable: ${e.message.split('\n')[0]}`);
+    continue;
+  }
+  // runEngine failures are FAILURES, not skips (r4: the old catch
+  // conflated them and let zero-engine runs report success)
+  try {
+    total.push(...(await runEngine(name, () => Promise.resolve(browser))));
+    ran.push(name);
+  } catch (e) {
+    console.log(`FAIL  [${name}] engine run aborted: ${e.message.split('\n')[0]}`);
+    total.push(`[${name}] engine run aborted`);
+  } finally {
+    await browser.close().catch(() => {});
   }
 }
 console.log(`screenshots: ${OUT}/`);
+if (ran.length === 0) {
+  // r4 ruling: a run with ZERO engines that executed is not a pass —
+  // fail loudly (release mode requires at least one engine's evidence)
+  console.error('no engine ran (all skipped/failed) — zero-engine runs are failures');
+  process.exit(1);
+}
 if (total.length) {
   console.error(`${total.length} cross-engine check(s) failed`);
   process.exit(1);
 }
-console.log('cross-engine checks passed (engines that ran)');
+console.log(`cross-engine checks passed (engines that ran: ${ran.join(', ')})`);

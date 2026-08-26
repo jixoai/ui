@@ -348,7 +348,7 @@ async function runComparisons(activeRow, activeState) {
     }
     return run;
   },
-  { rows: ROWS },
+  { rows },
   );
 }
 const comparisonsPerState = [];

@@ -138,7 +138,7 @@
   and the dot render pixel-identical across renderers.
 - KNOWN GAP (warn-only): the toggle's knob RASTERIZATION PATHS differ
   (::before inside the input element vs a real span child —
-  deterministic per-session, hue-phase dependent 8.9–9.9% of the
+  deterministic per-session, hue-phase dependent 8.9–11.6% of the
   track box; carriers unified: absolute+inset+transform asserted
   equal by the pseudo probe). Bare inputs cannot host real children;
   full carrier unification would rebuild the component around
