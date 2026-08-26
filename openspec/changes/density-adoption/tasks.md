@@ -25,27 +25,27 @@
   F ownership; parity tests + canonical fixture.
   *Gate: complete 65/65 pure gate + F-focused tests + the FULL
   apps/www suite green + mirror equality.*
-- [ ] 4. **A form-text** (subagent) — exact packet-manifest A list; aliases
+- [x] 4. **A form-text** (subagent) — exact packet-manifest A list; aliases
   replace footprint literals; density-stamped roots.
   *Gate: shell/OTP/chip/stepper hit rectangles at xs/default/lg +
   packet tests + `verify-density-adoption.mjs --packet A` green + mirror equality.*
-- [ ] 5. **B form-boolean** (subagent) — exact B list; physical hit
+- [x] 5. **B form-boolean** (subagent) — exact B list; physical hit
   lanes separated from glyph paint; toggle/range/color geometry
   derived; color-map structure allowlisted.
   *Gate: wrapper activation ≥ ctl-hit with squares = ctl-icon +
   toggle equations + packet tests + `verify-density-adoption.mjs --packet B` green + mirror.*
-- [ ] 6. **C buttons/navigation** (subagent) — exact C list; ctl-hit
+- [x] 6. **C buttons/navigation** (subagent) — exact C list; ctl-hit
   bodies with press/bevel/focus/link/pagination laws preserved.
   *Gate: packet tests + `verify-density-adoption.mjs --packet C` green + mirror equality.*
-- [ ] 7. **D menus** (subagent) — exact D list; trigger/frame/panel
+- [x] 7. **D menus** (subagent) — exact D list; trigger/frame/panel
   stamps; row hit floors; roving/dismiss/motion/alignment green.
   *Gate: four scopes + root-default + inherited-parent probes +
   packet tests + `verify-density-adoption.mjs --packet D` green + mirror.*
-- [ ] 8. **E data/status** (subagent) — exact E list; Table fallback
+- [x] 8. **E data/status** (subagent) — exact E list; Table fallback
   sm without shadowing inherited lg; structural exceptions
   registered.
   *Gate: packet tests + `verify-density-adoption.mjs --packet E` green + mirror equality.*
-- [ ] 9. **Orchestrator merge** — per-packet `git diff --name-only`
+- [x] 9. **Orchestrator merge** — per-packet `git diff --name-only`
   vs the exact P(...) lists (overlap = stop); full Vitest + all three
   wave gates + ruler + matrix + parity; payload/manifest regenerated
   ONCE with reviewed diffs; build site + blueprints.
