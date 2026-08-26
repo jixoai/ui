@@ -74,6 +74,11 @@
   // pages take the default transition (no 73-page pairwise semantics)
   const PAGE_ORDER = ['/', '/docs', '/docs/components', '/tokens'];
   const pageIndex = (pathname: string) => PAGE_ORDER.indexOf(pathname);
+  // the side rails' presence heuristics (route → does the rail stand in
+  // its side column?): the tree lives under /docs*, the toc on the
+  // component pages + tokens — the +page.ts toc providers' shape
+  const tocRoute = (p: string): boolean =>
+    p === '/tokens' || p.startsWith('/docs/components');
 
   // nav lifecycle (2026-08-22): every client-side navigation closes any
   // open desktop subnav panel and resets the mobile disclosure — back/
@@ -237,11 +242,16 @@
     // carousel on ALL top-level pairs (walkthrough report, 2026-08-26)
     const fromPath = norm(page.url.pathname);
     const toPath = norm(new URL(navigation.to.url, location.origin).pathname);
-    // the left rail's presence law (Owner walkthrough request): the
-    // tree rail exists iff the route is under /docs — in/out states
-    // gate its slide; presence-stable swaps keep the default pair
-    const railTo = toPath.startsWith('/docs');
-    const vtRail = railTo === fromPath.startsWith('/docs') ? (railTo ? 'swap' : 'none') : railTo ? 'in' : 'out';
+    // the side rails' presence law (Owner walkthrough request + polish
+    // round): a rail owns its vt ONLY while it stands in its SIDE
+    // column — the shell's container queries re-form the tree as a
+    // bottom bar below 1200px and the toc as a top bar below 900px, and
+    // in those forms the vt (name included) is disabled entirely
+    const shellWidth = document.querySelector('.jx-shell')?.clientWidth ?? Infinity;
+    const presence = (from: boolean, to: boolean, wide: boolean): string =>
+      !wide ? 'none' : from === to ? (to ? 'swap' : 'none') : to ? 'in' : 'out';
+    const vtRail = presence(fromPath.startsWith('/docs'), toPath.startsWith('/docs'), shellWidth >= 1200);
+    const vtToc = presence(tocRoute(fromPath), tocRoute(toPath), shellWidth >= 900);
     const from = pageIndex(fromPath);
     const to = pageIndex(toPath);
     const generation = ++vtGeneration;
@@ -257,6 +267,7 @@
       // still-running predecessor may have left
       const root = document.documentElement;
       root.dataset.vtRail = vtRail;
+      root.dataset.vtToc = vtToc;
       delete root.dataset.vtKind;
       delete root.dataset.vtDirection;
       delete root.dataset.vtNav;
@@ -266,7 +277,10 @@
           await navigation.complete;
         });
         transition.finished.finally(() => {
-          if (generation === vtGeneration) delete root.dataset.vtRail;
+          if (generation === vtGeneration) {
+            delete root.dataset.vtRail;
+            delete root.dataset.vtToc;
+          }
         });
       });
     }
@@ -279,6 +293,7 @@
       const root = document.documentElement;
       ++vtGeneration;
       root.dataset.vtRail = vtRail;
+      root.dataset.vtToc = vtToc;
       delete root.dataset.vtKind;
       delete root.dataset.vtDirection;
       delete root.dataset.vtNav;
@@ -289,6 +304,7 @@
     root.dataset.vtKind = 'page-carousel';
     root.dataset.vtDirection = to > from ? 'forward' : 'backward';
     root.dataset.vtRail = vtRail;
+    root.dataset.vtToc = vtToc;
     root.dataset.vtNav = document.querySelector('.jx-nav')?.classList.contains('jx-light')
       ? 'light'
       : 'dark';
@@ -304,6 +320,7 @@
         delete root.dataset.vtDirection;
         delete root.dataset.vtNav;
         delete root.dataset.vtRail;
+        delete root.dataset.vtToc;
       });
     });
   });
