@@ -26,4 +26,5 @@
 
 ## Review
 
-- [ ] Codex review round (score + blockers addressed)
+- [x] Codex review loop — r1 6.5 (scope width, manufactured context, logo) → r2 8.0 (reactive context P1) → r3 7.5 (registry mirror miss) → r4 **9.0, no remaining blockers**; every round's findings fixed and re-gated
+- [x] r4 bonus: the manifest complete-drift law restored (4 site-only surfaces classified; 88 items / 297 pairs; --check GREEN for the first time since the density-adoption merge)
