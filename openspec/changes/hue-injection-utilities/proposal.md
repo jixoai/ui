@@ -15,9 +15,11 @@ names over mechanical slot×value aliases.
 - **TW4-native, no JS plugin**: the utilities are `@utility` rules
   authored INSIDE the theme sheet (jixoai.css, both roots) —
   installing the theme IS installing the plugin; registry consumers
-  need zero JS setup. Emission probed byte-equal to the
-  arbitrary-property form on TW 4.2.1 (`@tailwindcss/node`
-  candidatesToCss); the set is closed (a typo emits nothing —
+  need zero JS setup. Emission probed declaration-equivalent to the
+  arbitrary-property form on the resolved Tailwind 4.3.3
+  (`@tailwindcss/node` candidatesToCss — identical declarations,
+  different selectors; the r1-era 4.2.1 byte-equality probe is
+  historical); the set is closed (a typo emits nothing —
   compile-time miss, not silent dead CSS).
 - **The closed set (action/status split by construction)**:
   `jx-hue-primary | neutral | error | success | warning | info`

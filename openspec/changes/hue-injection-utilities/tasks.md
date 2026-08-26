@@ -13,6 +13,7 @@
       frozen contract; the utility form would outrank consumer injections)
 - [x] The article: /docs/variant-grammar.html + route registration
       (probe claims honestly scoped: shipped vs contract-pending)
-- [ ] Gates green; commits; Codex review round (r1 BLOCKED 5.5/10 —
-      3 P1 fixed: InlineCode early slot, registry/press-button consumer
-      docs, article probe honesty; r2 pending)
+- [x] Codex review loop: r1 BLOCKED 5.5 (3 P1 fixed) → r2 7.8
+      (pair prose + version evidence fixed) → r3 no P1/no regression,
+      one P2 doc line fixed with assertion → r4 confirmation
+- [ ] Gates green at final close (r4)
