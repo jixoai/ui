@@ -844,6 +844,28 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-outline: var(--border);
 }
 
+/* ── hue-injection utilities (openspec/changes/hue-injection-utilities,
+   2026-08-27) ──────────────────────────────────────────────────────
+   The grammar's intent layer, authored as TW4-native @utility rules
+   (probed byte-equal to the arbitrary-property form on 4.2.1):
+   installing this theme sheet IS installing the plugin — no JS, no
+   consumer setup. Canonical for the curated semantic set; the
+   arbitrary-property class remains the escape hatch for anything
+   else. Action/status split holds BY CONSTRUCTION: there is no
+   jx-hue-destructive (destructive is an ACTION — the pair below),
+   and the pair emits --jx-fill WITH --jx-fill-ink in one class, so
+   the always-inject-both law is structural, not documentation. */
+@utility jx-hue-primary { --jx-tonal: var(--primary); }
+@utility jx-hue-neutral { --jx-tonal: var(--muted-foreground); }
+@utility jx-hue-error { --jx-tonal: var(--error); }
+@utility jx-hue-success { --jx-tonal: var(--success); }
+@utility jx-hue-warning { --jx-tonal: var(--warning); }
+@utility jx-hue-info { --jx-tonal: var(--info); }
+@utility jx-pair-destructive {
+  --jx-fill: var(--destructive);
+  --jx-fill-ink: var(--destructive-foreground);
+}
+
 :where(:root:not([data-density]), [data-density='default']) {
   --jx-text: var(--jx-density-text-default);
   --jx-leading: var(--jx-density-leading-default);
