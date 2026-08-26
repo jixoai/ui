@@ -1741,9 +1741,12 @@
      role=switch on a checkbox, zero classes, native semantics intact.
      ===================================================================== */
   :where(.jx-pure) input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *) {
-    --jx-switch-w: 2.5rem;
-    --jx-switch-h: 1.5rem;
-    --jx-switch-knob: calc(var(--jx-switch-h) - 6px);
+    /* density adoption (Phase 5/6): the switch rides the density
+       toggle aliases — the toggle component's geometry IS the law
+       (fallbacks = the pre-sweep literals) */
+    --jx-switch-w: var(--jx-toggle-width, 2.5rem);
+    --jx-switch-h: var(--jx-toggle-track, 1.5rem);
+    --jx-switch-knob: var(--jx-toggle-knob, calc(var(--jx-switch-h) - 6px));
     --jx-switch-travel: calc(var(--jx-switch-w) - var(--jx-switch-h));
     appearance: none;
     -webkit-appearance: none;
@@ -1752,14 +1755,16 @@
     height: var(--jx-switch-h);
     margin: 0;
     flex: none;
-    padding: 2px;
-    border: 1px solid var(--border);
+    padding: calc((var(--jx-switch-h) - var(--jx-switch-knob)) / 2);
+    border: 0; /* the 1px edge is an INSET ring (not a border) so the
+       knob keeps the full padding inset — the toggle twin's law */
+    box-shadow: 0 0 0 1px var(--border) inset;
     border-radius: calc(infinity * 1px); /* the pill */
     background: var(--muted); /* the off track */
     cursor: pointer;
     transition:
-      background-color 150ms ease-out,
-      border-color 150ms ease-out;
+      background-color 200ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   :where(.jx-pure) input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *)::before {
     /* reset the B5 checkbox glyph law (opacity/clip-path/rotate) */
@@ -1774,15 +1779,14 @@
     border-radius: calc(infinity * 1px); /* the round knob */
     background: var(--background); /* the off knob */
     transition:
-      margin-inline-start 150ms cubic-bezier(0.22, 1, 0.36, 1),
-      background-color 150ms ease-out;
+      margin-inline-start 200ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  :where(.jx-pure) input[type='checkbox'][role='switch']:hover:not(:disabled):not(.no-jx-pure, .no-jx-pure *) {
-    border-color: var(--primary); /* the off-track lean */
+  :where(.jx-pure) input[type='checkbox'][role='switch']:hover:not(:checked):not(:disabled):not(.no-jx-pure, .no-jx-pure *) {
+    box-shadow: 0 0 0 1px var(--primary) inset; /* the off-track lean */
   }
   :where(.jx-pure) input[type='checkbox'][role='switch']:checked:not(.no-jx-pure, .no-jx-pure *) {
     background: var(--primary);
-    border-color: var(--primary);
   }
   :where(.jx-pure) input[type='checkbox'][role='switch']:checked:not(.no-jx-pure, .no-jx-pure *)::before {
     clip-path: none;

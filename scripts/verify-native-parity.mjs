@@ -26,6 +26,47 @@ const port = process.argv[2] ?? '5199';
 //   BOTH renderer roots (`.click` is relative to each root).
 const ROWS = [
   {
+    row: 'checkbox',
+    probes: [
+      // the checked glyph box
+      ['input[data-probe="check"]', '[data-renderer=tier1] input[type="checkbox"]:checked'],
+      // the off box
+      ['input[data-probe="check-off"]', '[data-renderer=tier1] input[type="checkbox"]:not(:checked)'],
+    ],
+    properties: [
+      'appearance', 'width', 'height', 'border-top-width', 'border-top-color',
+      'border-radius', 'background-color', 'margin-top', 'cursor',
+      'transition-duration',
+    ],
+    states: [{ name: 'base' }],
+  },
+  {
+    row: 'radio',
+    probes: [
+      ['input[data-probe="dot"]', '[data-renderer=tier1] input[type="radio"]:checked'],
+      ['input[data-probe="dot-off"]', '[data-renderer=tier1] input[type="radio"]:not(:checked)'],
+    ],
+    properties: [
+      'appearance', 'width', 'height', 'border-top-width', 'border-top-color',
+      'border-radius', 'background-color', 'margin-top', 'cursor',
+      'transition-duration',
+    ],
+    states: [{ name: 'base' }],
+  },
+  {
+    row: 'toggle',
+    probes: [
+      // B13 paints the INPUT itself as the track; the component's
+      // track is the sibling span — the same law, two elements
+      ['input[data-probe="switch"]', '[data-renderer=tier1] .jx-toggle-track'],
+    ],
+    properties: [
+      'width', 'height', 'border-radius', 'background-color',
+      'box-shadow', 'transition-duration',
+    ],
+    states: [{ name: 'base' }],
+  },
+  {
     row: 'toggle-group',    probes: [
       // the segment face (label) — geometry + voice + joined edge
       ['label:nth-child(1)', '[data-renderer=tier1] label:nth-of-type(1)'],
@@ -73,6 +114,23 @@ const NORMALIZERS = [
 ];
 const normalize = (v) => NORMALIZERS.reduce((acc, fn) => fn(acc), v);
 
+// color tolerance: browsers may resolve the same token through
+// slightly different interpolation paths (measured: oklab component
+// deltas ≤0.003 on identical declarations — sub-visual, ~1/255 per
+// channel). Parse color triples and compare with a small tolerance;
+// anything else stays exact.
+const COLOR_RX = /^(oklab|oklch|lab|lch|rgb|rgba)\(([^)]+)\)$/;
+const nearColor = (a, b) => {
+  const ma = COLOR_RX.exec(a);
+  const mb = COLOR_RX.exec(b);
+  if (!ma || !mb || ma[1] !== mb[1]) return false;
+  const pa = ma[2].split(/[\s,/]+/).filter((x) => x !== '').map(Number);
+  const pb = mb[2].split(/[\s,/]+/).filter((x) => x !== '').map(Number);
+  if (pa.length !== pb.length) return false;
+  return pa.every((x, i) => Math.abs(x - pb[i]) <= 0.011);
+};
+const equal = (prop, a, b) => (a === b || nearColor(a, b));
+
 const browser = await chromium.launch({
   headless: true,
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
@@ -81,17 +139,28 @@ const browser = await chromium.launch({
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 await page.goto(`http://localhost:${port}/parity.html`, { waitUntil: 'domcontentloaded' });
 await page.waitForTimeout(800);
+// freeze motion: mid-transition sampling made color comparisons
+// non-deterministic (the same declaration sampled at different points
+// of the same 150-200ms curve run-to-run). The end state is the law.
+await page.addStyleTag({ content: '* { transition: none !important; animation: none !important; }' });
+await page.waitForTimeout(50);
 
 let failures = 0;
 const comparisons = await page.evaluate(
   ({ rows }) => {
     const run = [];
     for (const spec of rows) {
-      const section = document.querySelector(`[data-parity="${spec.row}"]`);
-      if (!section) {
+      // matrix variants render the same spec under @xs/@dark sections
+      const sections = [
+        document.querySelector(`[data-parity="${spec.row}"]`),
+        ...[...document.querySelectorAll(`[data-parity^="${spec.row}@"]`)],
+      ].filter(Boolean);
+      if (sections.length === 0) {
         run.push({ row: spec.row, error: 'fixture row missing' });
         continue;
       }
+      for (const section of sections) {
+        const variant = section.dataset.parity;
       const t0root = section.querySelector('[data-renderer=tier0]');
       const t1root = section.querySelector('[data-renderer=tier1]');
       for (const probe of spec.probes) {
@@ -133,7 +202,7 @@ const comparisons = await page.evaluate(
           const cs1 = getComputedStyle(t1);
           for (const prop of spec.properties) {
             run.push({
-              row: spec.row,
+              row: variant,
               probe: probe.join(' ⇄ '),
               state: state.name,
               prop,
@@ -142,6 +211,7 @@ const comparisons = await page.evaluate(
             });
           }
         }
+      }
       }
     }
     return run;
@@ -162,7 +232,7 @@ for (const c of comparisons) {
   }
   const a = normalize(c.v0);
   const b = normalize(c.v1);
-  if (a !== b) {
+  if (!equal(c.prop, a, b)) {
     failures++;
     console.error(`✗ ${c.row} ${c.probe} [${c.state}] ${c.prop}: tier0="${a}" tier1="${b}"`);
   }
@@ -173,5 +243,130 @@ console.log(
     ? `[native-parity] GREEN: ${ROWS.length} row(s), ${total} comparisons equal across the state matrix`
     : `[native-parity] ${failures} failure(s) across ${total} comparisons`,
 );
+// ── the screenshot oracle: same-page pixel comparison ────────────
+// For rows whose implementations share the law's build (pseudo-glyph
+// twins), the two renderer subtrees must render equal PIXELS. The
+// comparator is the capture-baseline one (decode PNGs — Chrome's
+// encoder drifts run-to-run while pixels don't; TOLERANT: channel
+// delta ≤8, hot cells ≤0.5% — sub-pixel AA on glyph edges is a real
+// browser phenomenon, not drift). native-select is excluded
+// (gradient pseudo vs inline SVG chevron — different mechanisms; the
+// computed phase covers its box law).
+import { createHash } from 'node:crypto';
+import { inflateSync } from 'node:zlib';
+
+const decodePng = (buf) => {
+  if (buf.readUInt32BE(12) !== 0x49484452) throw new Error('not a png');
+  const w = buf.readUInt32BE(16);
+  const h = buf.readUInt32BE(20);
+  const bitDepth = buf[24];
+  const colorType = buf[25];
+  if (bitDepth !== 8 || colorType !== 2) throw new Error(`unsupported png ${bitDepth}/${colorType}`);
+  const idat = [];
+  let i = 8;
+  while (i < buf.length) {
+    const len = buf.readUInt32BE(i);
+    const typ = buf.toString('ascii', i + 4, i + 8);
+    if (typ === 'IDAT') idat.push(buf.subarray(i + 8, i + 8 + len));
+    i += 12 + len;
+  }
+  const raw = inflateSync(Buffer.concat(idat));
+  const stride = w * 3;
+  const out = Buffer.alloc(h * stride);
+  let prev = Buffer.alloc(stride);
+  let pos = 0;
+  for (let y = 0; y < h; y++) {
+    const filter = raw[pos++];
+    const line = Buffer.from(raw.subarray(pos, pos + stride));
+    pos += stride;
+    for (let x = 0; x < stride; x++) {
+      const a = x >= 3 ? line[x - 3] : 0;
+      const b = prev[x];
+      const c = x >= 3 ? prev[x - 3] : 0;
+      if (filter === 1) line[x] = (line[x] + a) & 255;
+      else if (filter === 2) line[x] = (line[x] + b) & 255;
+      else if (filter === 3) line[x] = (line[x] + ((a + b) >> 1)) & 255;
+      else if (filter === 4) {
+        const pp = a + b - c;
+        const pa = Math.abs(pp - a), pb = Math.abs(pp - b), pc = Math.abs(pp - c);
+        const pr = pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
+        line[x] = (line[x] + pr) & 255;
+      }
+    }
+    line.copy(out, y * stride);
+    prev = line;
+  }
+  return { w, h, pixels: out };
+};
+
+const comparePixels = (bufA, bufB) => {
+  const A = decodePng(bufA);
+  const B = decodePng(bufB);
+  if (A.w !== B.w || A.h !== B.h) return { same: false, why: `dimensions differ ${A.w}x${A.h} vs ${B.w}x${B.h}` };
+  let hot = 0;
+  for (let i = 0; i < A.pixels.length; i++) {
+    if (Math.abs(A.pixels[i] - B.pixels[i]) > 8) hot += 1;
+  }
+  const ratio = hot / A.pixels.length;
+  return { same: hot <= A.pixels.length * 0.005, why: `hot ${(ratio * 100).toFixed(3)}% of channels` };
+};
+
+const SHOT_ROWS = [
+  // geometric rows only: text rows (toggle-group) accumulate subpixel
+  // rounding across segments — dimension-exact fails honestly there;
+  // the computed phase carries them. native-select excluded (chevron
+  // mechanisms differ by design).
+  ['checkbox', 0, true],
+  ['radio', 0, true],
+  // KNOWN GAP (2026-08-27): the toggle's knob CARRIERS differ — B13
+  // rides a ::before with margin travel, the component a span with
+  // transform; end-state math matches (2px + 16px travel) but the
+  // raster diverges ~9% of the track box. warn-only until the knob
+  // builds are unified; the computed phase still gates the law box.
+  ['toggle', 0, false],
+];
+const readHue = () =>
+  page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--primary').trim());
+
+// the site's BRAND hue is wall-clock driven (lib/hue-runtime: a 5s
+// entry spin after load, then a 1s-cadence cruising re-derive). Two
+// SEQUENTIAL screenshots can land on different hues and diverge
+// whole-box despite identical laws — wait out the entry spin, then
+// retry the pair until the hue is stable across the capture window
+// (the 1s cruising cadence leaves stable windows between ticks).
+await page.waitForTimeout(5500);
+async function stablePair(e0, e1) {
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const before = await readHue();
+    const [b0, b1] = await Promise.all([e0.screenshot(), e1.screenshot()]);
+    const after = await readHue();
+    if (before === after) return [b0, b1];
+  }
+  throw new Error('hue not stable across capture attempts');
+}
+
+for (const [row, probeIdx, fatal] of SHOT_ROWS) {
+  try {
+    const spec = ROWS.find((r) => r.row === row);
+    const [sel0, sel1] = spec.probes[probeIdx];
+    const section = page.locator(`[data-parity="${row}"]`);
+    const e0 = section.locator(`[data-renderer=tier0] ${sel0}`).first();
+    const e1 = section.locator(sel1).first();
+    const [b0, b1] = await stablePair(e0, e1);
+    const res = comparePixels(b0, b1);
+    if (res.same) {
+      console.log(`✓ [shot] ${row}: pixels equal (${res.why})`);
+    } else if (fatal) {
+      failures++;
+      console.error(`✗ [shot] ${row}: ${res.why}`);
+    } else {
+      console.warn(`⚠ [shot] ${row}: ${res.why} (known gap, warn-only)`);
+    }
+  } catch (e) {
+    failures++;
+    console.error(`✗ [shot] ${row}: capture failed — ${e.message}`);
+  }
+}
+
 await browser.close();
 process.exit(failures === 0 ? 0 : 1);

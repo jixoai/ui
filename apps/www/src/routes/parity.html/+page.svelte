@@ -10,6 +10,12 @@
   import ToggleGroup from '$lib/ui/toggle-group/toggle-group.svelte';
   import ToggleGroupItem from '$lib/ui/toggle-group/toggle-group-item.svelte';
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
+  import Checkbox from '$lib/ui/checkbox/checkbox.svelte';
+  import Radio from '$lib/ui/radio/radio.svelte';
+  import Toggle from '$lib/ui/toggle/toggle.svelte';
+
+  // the radio state channel is bind:group (the radio component's law)
+  let radioGroup = $state('a');
 </script>
 
 <svelte:head>
@@ -56,6 +62,80 @@
         <option value="a">alpha</option>
         <option value="b">beta</option>
       </NativeSelect>
+    </div>
+  </section>
+
+  <!-- row: checkbox — tier0 is the bare input under the face (B5's
+       checkbox law); tier1 is the component's .jx-checkbox mirror.
+       Pseudo-glyph builds are screenshot-oracle territory. -->
+  <section data-parity="checkbox" class="flex flex-wrap items-start gap-10">
+    <div data-renderer="tier0" data-density="default">
+      <div class="jx-pure flex items-center gap-2">
+        <input type="checkbox" data-probe="check" checked />
+        <input type="checkbox" data-probe="check-off" />
+        <input type="checkbox" data-probe="check-disabled" disabled checked />
+      </div>
+    </div>
+    <div data-renderer="tier1" data-density="default" class="flex items-center gap-2">
+      <Checkbox checked />
+      <Checkbox />
+      <Checkbox checked disabled />
+    </div>
+  </section>
+
+  <!-- row: radio — B5's radio law ⇄ the .jx-radio mirror -->
+  <section data-parity="radio" class="flex flex-wrap items-start gap-10">
+    <div data-renderer="tier0" data-density="default">
+      <div class="jx-pure flex items-center gap-2">
+        <input type="radio" name="parity-radio-0" data-probe="dot" checked />
+        <input type="radio" name="parity-radio-0" data-probe="dot-off" />
+      </div>
+    </div>
+    <div data-renderer="tier1" data-density="default" class="flex items-center gap-2">
+      <Radio label="a" name="parity-radio-1" value="a" bind:group={radioGroup} />
+      <Radio label="b" name="parity-radio-1" value="b" bind:group={radioGroup} />
+    </div>
+  </section>
+
+  <!-- row: toggle — B13's switch law (input[role=switch] under the
+       face) ⇄ the component's sr-hidden driver + track mirror -->
+  <section data-parity="toggle" class="flex flex-wrap items-start gap-10">
+    <div data-renderer="tier0" data-density="default">
+      <div class="jx-pure">
+        <input type="checkbox" role="switch" data-probe="switch" checked />
+      </div>
+    </div>
+    <div data-renderer="tier1" data-density="default">
+      <Toggle checked />
+    </div>
+  </section>
+
+  <!-- matrix variants: same laws under xs density and dark theme —
+       row ids carry an @variant suffix; the gate maps them to the
+       base row's probe spec -->
+  <section data-parity="checkbox@xs" class="flex flex-wrap items-start gap-10">
+    <div data-renderer="tier0" data-density="xs">
+      <div class="jx-pure flex items-center gap-2">
+        <input type="checkbox" data-probe="check" checked />
+        <input type="checkbox" data-probe="check-off" />
+      </div>
+    </div>
+    <div data-renderer="tier1" data-density="xs" class="flex items-center gap-2">
+      <Checkbox checked density="xs" />
+      <Checkbox density="xs" />
+    </div>
+  </section>
+
+  <section data-parity="checkbox@dark" class="dark flex flex-wrap items-start gap-10">
+    <div data-renderer="tier0" data-density="default">
+      <div class="jx-pure flex items-center gap-2">
+        <input type="checkbox" data-probe="check" checked />
+        <input type="checkbox" data-probe="check-off" />
+      </div>
+    </div>
+    <div data-renderer="tier1" data-density="default" class="flex items-center gap-2">
+      <Checkbox checked />
+      <Checkbox />
     </div>
   </section>
 </main>

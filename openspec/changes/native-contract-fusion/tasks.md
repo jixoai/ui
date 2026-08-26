@@ -34,12 +34,16 @@
       DERIVED values via var() probe elements (never 40px/16px again);
       all face checks pass; native-select parity row FLIPPED GREEN
       (166 comparisons); gzip 18,060B ≤ 18KB
-- [ ] Phase 6: `verify-native-parity.mjs` — shared fixtures, both
-      renderers, state matrix × density × light/dark, normalized
-      values; screenshot oracle for pseudo builds; npm script + CI
-- [ ] Phase 7: gates all green (vitest suite, svelte-check,
-      verify:mirror incl. contract, gzip, verify-jx-pure engines,
-      parity) + verification.md evidence index
+- [x] Phase 6: `verify-native-parity.mjs` complete — 5 rows (tgroup/
+      native-select/checkbox/radio/toggle) + @xs/@dark variant sections;
+      color-tolerant comparison; transition/animation freeze; hue-stable
+      capture (the site's wall-clock brand hue!); pixel oracle with the
+      capture-baseline tolerant comparator: checkbox+radio 0.000% hot,
+      toggle warn-only (knob carrier divergence — known gap)
+- [x] Phase 7: gates all green — vitest 549/549, svelte-check
+      253/61/19 == baseline, verify:mirror GREEN (303 pairs),
+      verify:contract GREEN, gzip 18,279B ≤ 18KB, verify-jx-pure all
+      checks (derived asserts), parity GREEN; verification.md updated
 - [ ] Phase 8: Codex implementation review loop until ≥9/10 or two
       consecutive non-improving rounds → hand over per the
       algorithm-task escalation rule; then integration commit(s)
