@@ -26,8 +26,7 @@ const port = process.argv[2] ?? '5199';
 //   BOTH renderer roots (`.click` is relative to each root).
 const ROWS = [
   {
-    row: 'toggle-group',
-    probes: [
+    row: 'toggle-group',    probes: [
       // the segment face (label) — geometry + voice + joined edge
       ['label:nth-child(1)', '[data-renderer=tier1] label:nth-of-type(1)'],
       // the second segment (becomes the active one in the checked state)
@@ -47,6 +46,30 @@ const ROWS = [
     states: [
       { name: 'base' },
       { name: 'second-checked', click: 'label:nth-of-type(2) input, label:nth-child(2) input' },
+    ],
+  },
+  {
+    row: 'native-select',
+    // PENDING Phase 5 (Part B density adoption): the gate quantified
+    // the known spec/file drift — B4 hard-codes 2.5rem rows / 0.5rem
+    // block padding / 0.875rem text while the density interface
+    // carries --jx-hit 44px / --jx-gap 12px / --jx-text 13px. The
+    // spec already mandates the token interface; Phase 5 moves B4
+    // onto it and this row flips green.
+    pending: 'phase-5-b-density-adoption',
+    probes: [
+      // the closed control (B4 select box law ⇄ the .jx-select mirror)
+      ['select[data-probe]', '[data-renderer=tier1] select'],
+    ],
+    properties: [
+      'appearance', '-webkit-appearance', 'min-height', 'padding-block-start',
+      'padding-inline-start', 'padding-inline-end', 'border-top-width',
+      'border-top-color', 'background-color', 'color', 'font-size',
+      'line-height', 'cursor', 'box-shadow', 'opacity',
+    ],
+    states: [
+      { name: 'base' },
+      { name: 'focused', focus: 'select' },
     ],
   },
 ];
@@ -99,6 +122,16 @@ const comparisons = await page.evaluate(
               target.click();
             }
           }
+          if (state.focus) {
+            for (const root of [t0root, t1root]) {
+              const target = root.querySelector(state.focus);
+              if (!target) {
+                stateError = `focus target missing under ${root.dataset.renderer}: ${state.focus}`;
+                break;
+              }
+              target.focus();
+            }
+          }
           if (stateError) {
             run.push({ row: spec.row, probe: probe.join(' ⇄ '), state: state.name, error: stateError });
             continue;
@@ -123,7 +156,12 @@ const comparisons = await page.evaluate(
   { rows: ROWS },
 );
 
+const pendingRows = new Set(ROWS.filter((r) => r.pending).map((r) => r.row));
+for (const row of pendingRows) {
+  console.log(`- ${row}: SKIPPED (pending ${ROWS.find((r) => r.row === row).pending})`);
+}
 for (const c of comparisons) {
+  if (pendingRows.has(c.row)) continue;
   if (c.error) {
     failures++;
     console.error(`✗ ${c.row} ${c.probe ?? ''} ${c.state ?? ''}: ${c.error}`);
@@ -136,7 +174,7 @@ for (const c of comparisons) {
     console.error(`✗ ${c.row} ${c.probe} [${c.state}] ${c.prop}: tier0="${a}" tier1="${b}"`);
   }
 }
-const total = comparisons.filter((c) => !c.error).length;
+const total = comparisons.filter((c) => !c.error && !pendingRows.has(c.row)).length;
 console.log(
   failures === 0
     ? `[native-parity] GREEN: ${ROWS.length} row(s), ${total} comparisons equal across the state matrix`

@@ -9,6 +9,7 @@
 <script lang="ts">
   import ToggleGroup from '$lib/ui/toggle-group/toggle-group.svelte';
   import ToggleGroupItem from '$lib/ui/toggle-group/toggle-group-item.svelte';
+  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
 </script>
 
 <svelte:head>
@@ -33,6 +34,28 @@
         <ToggleGroupItem value="b">b</ToggleGroupItem>
         <ToggleGroupItem value="c" disabled>c</ToggleGroupItem>
       </ToggleGroup>
+    </div>
+  </section>
+
+  <!-- row: native-select — tier0 is the BARE select under the .jx-pure
+       face (B4's select law); tier1 is the component's @apply mirror
+       sheet OUTSIDE the face (isolated mirror paint). The chevron
+       (token-gradient pseudo vs inline SVG) is a visual-oracle matter,
+       not computed parity. -->
+  <section data-parity="native-select" class="flex flex-wrap items-start gap-10">
+    <div data-renderer="tier0" data-density="default">
+      <div class="jx-pure">
+        <select data-probe="select">
+          <option value="a">alpha</option>
+          <option value="b">beta</option>
+        </select>
+      </div>
+    </div>
+    <div data-renderer="tier1" data-density="default">
+      <NativeSelect name="parity-select">
+        <option value="a">alpha</option>
+        <option value="b">beta</option>
+      </NativeSelect>
     </div>
   </section>
 </main>
