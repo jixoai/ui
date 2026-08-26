@@ -27,6 +27,8 @@ export const KERNEL_ALLOWLIST = [
   '--jx-d-stack-gap', '--jx-d-row-min', '--jx-d-hit-min',
   '--jx-d-text', '--jx-d-line', '--jx-d-leading',
   '--jx-d-icon-optical-inline',
+  '--jx-d-end-gap', '--jx-d-content-gap', '--jx-d-secondary-leading',
+  '--jx-d-inline-inset', '--jx-d-stack-gap', '--jx-d-row-min', '--jx-d-hit-min',
 ];
 
 export const REGISTRY = [

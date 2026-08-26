@@ -37,6 +37,8 @@ const check = (phase, name, ok, detail = '') => {
 
 // ── STATIC ─────────────────────────────────────────────────────────
 const CTL = /^--jx-d-ctl-/;
+// family-local aliases (one-line to kernel tokens per the design law)
+const FAMILY_ALIAS = /^--jx-[a-z]+-[a-z-]+$/;
 const structuralOK = (prop, value) =>
   /^(1px|-1px|0|0px|100%|auto|inherit|initial|none|0%)$/.test(value.trim()) ||
   (prop.includes('shadow') && /inset 2px 0 0/.test(value)) ||
@@ -46,35 +48,38 @@ const structuralOK = (prop, value) =>
 /** Extract declaration blocks by brace matching; matches the selector
  *  text after stripping :where()/[data-slot=] wrappers. */
 const extractBlocks = (css, rawSelector) => {
-  // canonical key: the bare class name without wrappers
-  const key = rawSelector.replace(/^\./, '').replace(/:where\(|\)/g, '')
-    .replace(/\[data-slot=['"]?([\w-]+)['"]?\]/g, '.$1').split(' ').pop().replace(/^\./, '');
-  const blocks = [];
-  const lines = css.split('\n');
-  let capture = false, depth = 0, content = '', selBuf = '';
-  for (const line of lines) {
-    if (!capture) {
-      selBuf += line + ' ';
-      if (line.includes('{')) {
-        const selPart = selBuf.substring(0, selBuf.indexOf('{'));
-        const cleanSel = selPart.replace(/:where\(|\)/g, '').replace(/\[data-slot=['"]?([\w-]+)['"]?\]/g, '.$1');
-        if (cleanSel.includes(key)) {
-          capture = true;
-          depth = 1;
-          content = '';
-        }
-        selBuf = '';
+  // extract the bare key: strip ALL wrappers, dots, brackets, parens
+  const key = rawSelector
+    .replace(/:where|:not|:has/g, '')
+    .replace(/\[data-slot=['"]?([\w-]+)['"]?\]/g, '$1')
+    .replace(/[.()[\]'">~+]/g, '')
+    .replace(/\s+/g, ' ').trim().split(' ').pop();
+
+  // find every selector-at-brace in the css, check if it contains our key
+  const results = [];
+  const re = /([^{}]+)\{/g;
+  let m;
+  while ((m = re.exec(css)) !== null) {
+    const selText = m[1].replace(/:where|:not|:has/g, '')
+      .replace(/\[data-slot=['"]?([\w-]+)['"]?\]/g, '$1')
+      .replace(/[.()[\]'">~+]/g, '')
+      .replace(/\s+/g, ' ').trim();
+    if (selText.includes(key)) {
+      // brace-count from the opening { to find the matching }
+      const openIdx = m.index + m[0].length - 1;
+      let depth = 1;
+      let i = openIdx + 1;
+      while (i < css.length && depth > 0) {
+        if (css[i] === '{') depth++;
+        else if (css[i] === '}') depth--;
+        i++;
       }
-    } else {
-      for (const ch of line) {
-        if (ch === '{') depth++;
-        else if (ch === '}') { depth--; if (depth === 0) { blocks.push(content); capture = false; } }
-        else content += ch;
-      }
-      content += '\n';
+      results.push(css.substring(openIdx + 1, i - 1));
+      // advance the regex past this block
+      re.lastIndex = i;
     }
   }
-  return blocks;
+  return results;
 };
 
 for (const row of rows) {
@@ -82,27 +87,54 @@ for (const row of rows) {
   if (!rowIsComplete(row)) continue;
   for (const root of row.roots) {
     const dir = resolve(root);
-    if (!existsSync(dir)) continue;
+    if (!existsSync(dir)) { check('static', `${row.family}: root exists`, false, dir); continue; }
     let cssText = '';
     for (const ent of readdirSync(dir)) {
       if (ent.endsWith('.css') || ent.endsWith('.svelte')) cssText += readFileSync(resolve(dir, ent), 'utf8');
     }
     const stripped = cssText.replace(/\/\*[\s\S]*?\*\//g, '');
     if (/\[data-size=/.test(stripped)) check('static', `${row.family}: no data-size`, false, 'legacy selector');
-    const isException = (sel) =>
-      row.exceptions.some((e) => sel.includes(e.selector.replace(/^\./, '')) || e.selector.includes(sel.replace(/^\./, '')));
+    const isException = (sel, prop) =>
+      row.exceptions.some((e) => {
+        const key = e.selector.replace(/^\./, '');
+        const selMatch = sel.includes(key) || key.includes(sel.replace(/^\./, ''));
+        const propMatch = !e.property || e.property.includes('/') || e.property === prop;
+        return selMatch && propMatch;
+      });
     for (const owned of row.densityOwned) {
-      if (isException(owned.selector)) continue;
+      if (owned.properties.some((pr) => isException(owned.selector, pr))) continue;
       const blocks = extractBlocks(stripped, owned.selector);
+      if (blocks.length === 0) {
+        // Utility-styled family: check the .svelte markup for the expected
+        // token pattern (Tailwind arbitrary values) instead of CSS blocks
+        const propToUtil = {
+          'min-height': 'min-h-[var(--jx-d-ctl-hit)]',
+          'min-block-size': 'min-h-[var(--jx-d-ctl-hit)]',
+          'min-width': 'min-w-[var(--jx-d-ctl-hit)]',
+          'padding-inline': 'px-[var(--jx-d-ctl-pad)]',
+          'padding-block': 'py-[var(--jx-d-ctl-pad)]',
+          'font-size': 'text-[length:var(--jx-d-ctl-text)]',
+          'line-height': 'leading-[var(--jx-d-ctl-line)]',
+          'width': 'w-[var(--jx-d-ctl-icon)]',
+          'height': 'h-[var(--jx-d-ctl-icon)]',
+          'gap': 'gap-[var(--jx-d-ctl-gap)]',
+        };
+        const utilPat = owned.properties.map((pr) => propToUtil[pr]).filter(Boolean)[0];
+        const markupHit = utilPat && stripped.includes(utilPat);
+        check('static', `${row.family}/${owned.selector}: utility or CSS`,
+          markupHit === true,
+          markupHit ? 'utility pattern found' : 'neither CSS block nor utility pattern found');
+        continue;
+      }
       for (const block of blocks) {
         for (const prop of owned.properties) {
           const decl = new RegExp(prop + '\\s*:\\s*([^;\\n]+)', 'm').exec(block);
           if (!decl) continue;
           const value = decl[1].trim();
           if (structuralOK(prop, value)) continue;
-          if (value.startsWith('var(')) {
+          if (value.includes('var(')) {
             const bad = [...value.matchAll(/--jx-[a-z-]+/g)].map((x) => x[0])
-              .filter((t) => !CTL.test(t) && !KERNEL_ALLOWLIST.includes(t));
+              .filter((t) => !CTL.test(t) && !KERNEL_ALLOWLIST.includes(t) && !FAMILY_ALIAS.test(t));
             check('static', `${row.family}/${owned.selector}/${prop}`, bad.length === 0,
               bad.length ? `non-closed: ${bad.join(',')}` : value);
           } else if (/\d+(\.\d+)?(px|rem)/.test(value)) {
