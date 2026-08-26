@@ -242,15 +242,16 @@
       // (root cross-fade + the shared-element morphs — the nav
       // indicator rides vt-nav-active); returning with nothing was an
       // implementation drift from the comment's contract
+      // the gate lands BEFORE the call — the old snapshot's capture and
+      // the pseudo-tree's animation resolution must already see it
+      const root = document.documentElement;
+      if (vtRail !== 'swap' && vtRail !== 'none') root.dataset.vtRail = vtRail;
       return new Promise((resolve) => {
         const transition = document.startViewTransition(async () => {
           resolve();
           await navigation.complete;
         });
-        if (vtRail !== 'swap' && vtRail !== 'none') {
-          document.documentElement.dataset.vtRail = vtRail;
-          transition.finished.finally(() => delete document.documentElement.dataset.vtRail);
-        }
+        transition.finished.finally(() => delete root.dataset.vtRail);
       });
     }
     if (from === to) return;
