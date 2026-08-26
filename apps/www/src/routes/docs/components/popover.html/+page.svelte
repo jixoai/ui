@@ -110,7 +110,8 @@ ${close}
   // candidate (see the @position-try rules in the page styles); the
   // panel tries the ENABLED cells, in grid order, when the initial
   // placement overflows
-  const TRY_CELLS: { id: string; label: string }[] = [
+  type TryId = 'top-start' | 'top' | 'top-end' | 'left' | 'center' | 'right' | 'bottom-start' | 'bottom' | 'bottom-end';
+  const TRY_CELLS: { id: TryId; label: string }[] = [
     { id: 'top-start', label: '◤' },
     { id: 'top', label: '▲' },
     { id: 'top-end', label: '◥' },
@@ -121,10 +122,10 @@ ${close}
     { id: 'bottom', label: '▼' },
     { id: 'bottom-end', label: '◢' },
   ];
-  const ALL_TRIES = TRY_CELLS.map((c) => c.id);
+  const ALL_TRIES: TryId[] = TRY_CELLS.map((c) => c.id);
   // default order puts bottom-end FIRST — the classic initial position
   // while all nine stay lit (recently lit cells unshift ahead of it)
-  let canvasTries = $state<string[]>(['bottom-end', ...ALL_TRIES.filter((t) => t !== 'bottom-end')]);
+  let canvasTries = $state<TryId[]>(['bottom-end', ...ALL_TRIES.filter((t) => t !== 'bottom-end')]);
   const tryFallbacks = $derived(
     canvasTries.length ? canvasTries.map((id) => `--jx-try-${id}`).join(', ') : undefined,
   );
@@ -133,7 +134,7 @@ ${close}
   // remaining cells are the overflow fallback chain. All-on (the
   // default) keeps the classic bottom-end start; an empty grid falls
   // back to bottom-end too (no candidates either way)
-  const canvasPlacement = $derived(canvasTries[0] ?? 'bottom-end');
+  const canvasPlacement = $derived<TryId>(canvasTries[0] ?? 'bottom-end');
 
   // anchor gap playground (2026-08-26): 'side' puts the value on the
   // edge FACING the initial cell (flush inline alignment — the default
@@ -158,7 +159,7 @@ ${close}
     canvasGap === 0 ? undefined : canvasGapMode === 'uniform' ? canvasGap : sideGap,
   );
 
-  function toggleTry(id: string): void {
+  function toggleTry(id: TryId): void {
     if (id === 'center') {
       // the center cell is the master switch: all-on ⇄ all-off
       canvasTries = canvasTries.length === ALL_TRIES.length
