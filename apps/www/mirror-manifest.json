@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-26T00:49:44.018Z",
+  "generatedAt": "2026-08-26T01:41:57.001Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1521,8 +1521,8 @@
           "source": "registry/files/ui/pagination/pagination-link.svelte",
           "mirror": "apps/www/src/lib/ui/pagination/pagination-link.svelte",
           "target": "@ui/pagination/pagination-link.svelte",
-          "sourceSha": "f92506ef73ca38c77ae9588ac0109a67e9c4a499662572dcad386e4110edfffb",
-          "mirrorSha": "f92506ef73ca38c77ae9588ac0109a67e9c4a499662572dcad386e4110edfffb"
+          "sourceSha": "6ea8176f44bfcfccaeffeef77ddbe36cce2ec831c69187cf6177d76fe87c4ca1",
+          "mirrorSha": "6ea8176f44bfcfccaeffeef77ddbe36cce2ec831c69187cf6177d76fe87c4ca1"
         },
         {
           "source": "registry/files/ui/pagination/pagination-next.svelte",
@@ -2536,8 +2536,8 @@
           "source": "registry/files/ui/anchor/anchor-item.svelte",
           "mirror": "apps/www/src/lib/ui/anchor/anchor-item.svelte",
           "target": "@ui/anchor/anchor-item.svelte",
-          "sourceSha": "a8aaa4fb35b29bae5a10f947f19cd7630168336ee3ec8e6a8f10d9a43bb828ce",
-          "mirrorSha": "a8aaa4fb35b29bae5a10f947f19cd7630168336ee3ec8e6a8f10d9a43bb828ce"
+          "sourceSha": "701fb04c03db378a811a5f86b160eb21d1a2a4267a13dae9e7c4a23d5a00ef6b",
+          "mirrorSha": "701fb04c03db378a811a5f86b160eb21d1a2a4267a13dae9e7c4a23d5a00ef6b"
         },
         {
           "source": "registry/files/ui/anchor/anchor.svelte",

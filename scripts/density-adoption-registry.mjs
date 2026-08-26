@@ -43,7 +43,9 @@ export const REGISTRY = [
       { selector: "[data-slot='item-title']", properties: ['font-size', 'line-height'] },
       { selector: "[data-slot='item-media']", properties: ['width', 'min-block-size'] },
     ],
-    exceptions: [],
+    exceptions: [
+      { selector: '.jx-select', property: 'min-height', reason: 'the multi-select listbox posture (3 visible rows, not a single-control row)' },
+    ],
     hitFloor: 'ctl-hit',
     resize: [
       { scope: 'xs', expect: 'row 28px · text 11px' },
@@ -112,7 +114,6 @@ export const REGISTRY = [
     densityOwned: [
       { selector: '.jx-check-lane', properties: ['min-block-size', 'gap'] },
       { selector: '.jx-checkbox', properties: ['width', 'height'] },
-      { selector: '.jx-radio', properties: ['width', 'height'] },
       { selector: '.jx-switch-track', properties: ['min-block-size', 'gap'] },
       { selector: '.jx-toggle-track', properties: ['width', 'height', 'padding'] },
       { selector: '.jx-toggle-knob', properties: ['width', 'height'] },

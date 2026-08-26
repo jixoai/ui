@@ -18,13 +18,13 @@
   import { cn } from '$lib/utils';
   import { ANCHOR_KEY, type AnchorApi } from './anchor.svelte';
 
-  type Props = Omit<HTMLAnchorAttributes, 'aria-current'> & {
+  interface Props extends Omit<HTMLAnchorAttributes, 'aria-current'> {
     /** in-page fragment, '#section-id' */
     href: string;
     /** replacement-element escape: receives the merged anchor props */
     child?: Snippet<[{ props: HTMLAnchorAttributes & { class: string } }]>;
     children?: Snippet;
-  };
+  }
 
   let { href, child, children, class: className = '', ...rest }: Props = $props();
 

@@ -20,7 +20,7 @@
   import type { HTMLAnchorAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
 
-  type Props = Omit<HTMLAnchorAttributes, 'aria-current'> & {
+  interface Props extends Omit<HTMLAnchorAttributes, 'aria-current'> {
     /** which page this link is (its default label) */
     page: number;
     /** the current page — active chip paint + aria-current */
@@ -33,7 +33,7 @@
     child?: Snippet<[{ props: HTMLAnchorAttributes & { class: string } }]>;
     children?: Snippet;
     class?: string;
-  };
+  }
 
   let {
     page,

@@ -38,7 +38,7 @@
     <button
       type="button"
       popovertarget="hue-popover"
-      class="jx-press jx-hue-trigger"
+      class="jx-press jx-hue-trigger min-h-[var(--jx-d-ctl-hit)] px-[var(--jx-d-ctl-pad)] text-[length:var(--jx-d-ctl-text)] gap-[var(--jx-d-ctl-gap)]"
       aria-label={isOpen ? 'Close brand hue & theme' : 'Brand hue & theme'}
       aria-expanded={isOpen}
     >
@@ -60,7 +60,7 @@
   {/snippet}
 
   <div bind:this={popEl} class="jx-hue-content">
-    <div class="flex flex-col gap-4 p-3.5">
+    <div class="flex flex-col gap-[var(--jx-d-ctl-gap)] p-[var(--jx-d-ctl-pad)]">
       <!-- theme: the registry ThemeToggle, full variant, icons only -->
       <div class="flex flex-col gap-2">
         <p class="jx-hue-label">Theme</p>
