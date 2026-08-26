@@ -14,7 +14,8 @@
     "verify:press": "node scripts/verify-press.mjs",
     "verify:mirror": "node scripts/gen-mirror-manifest.mjs --check",
     "shots": "node scripts/capture-baseline.mjs",
-    "verify:contract": "node scripts/gen-jx-native-contract.mjs --check"
+    "verify:contract": "node scripts/gen-jx-native-contract.mjs --check",
+    "verify:parity": "node scripts/verify-native-parity.mjs"
   },
   "devDependencies": {
     "@fontsource/jetbrains-mono": "^5.3.0",
