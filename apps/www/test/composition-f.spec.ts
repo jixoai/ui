@@ -85,6 +85,32 @@ describe('terminal-header — chrome + composed nav', () => {
 });
 
 // ---------------------------------------------------------------------------
+// lock 1b — the chrome band boundary (chrome-density-tier, 2026-08-26)
+// ---------------------------------------------------------------------------
+describe('terminal-header — the chrome band boundary', () => {
+  it('the ROW carries data-jx-chrome (not the header root); the nav root rides ambient unstamped; the composed panel re-scopes to the density axis', () => {
+    const { header, rendered } = setup();
+    // the band lives on the bar row only — the drawer below the row and
+    // the composed panel surfaces stay on the density axis (control law)
+    const row = header().querySelector('div[data-jx-chrome]') as HTMLElement;
+    expect(row).toBeTruthy();
+    expect(header().hasAttribute('data-jx-chrome')).toBe(false);
+    // no opinion → no stamp: the nav subtree rides the ambient css scope
+    const nav = rendered.container.querySelector('nav[data-jx-navmenu]') as HTMLElement;
+    expect(nav.hasAttribute('data-density')).toBe(false);
+    // panels are CONTROL SURFACES: they stamp the resolved density at
+    // their root, so the 44px touch floor holds for everything composed
+    // inside them even though they hang DOM-wise inside the band
+    const panel = rendered.container.querySelector('.f-panel') as HTMLElement;
+    expect(panel.getAttribute('data-density')).toBe('default');
+    expect(panel.closest('div[data-jx-chrome]')).toBe(row);
+    // the drawer sits OUTSIDE the band entirely (a sibling below the row)
+    const drawer = rendered.container.querySelector('.f-drawer') as HTMLElement;
+    expect(drawer.closest('div[data-jx-chrome]')).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
 // lock 2 — the family wire laws hold under the header
 // ---------------------------------------------------------------------------
 describe('terminal-header — the composed panel wires through the family ID protocol', () => {

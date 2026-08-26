@@ -100,11 +100,16 @@
   // with no opinion the nav rides the AMBIENT css scope (the root default
   // density, or a chrome band like the TerminalHeader bezel's
   // data-jx-chrome) instead of re-scoping its subtree and cutting ambient
-  // inheritance off. The Svelte context still exposes the resolved
-  // 'default' to descendants that ask.
+  // inheritance off. The context channel mirrors the law: no opinion →
+  // nothing provided, so nested consumers never see a manufactured
+  // inheritance.
   const inheritedDensity = getDensityContext();
   const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
-  provideDensity(() => resolvedDensity);
+  // context is an OPINION channel too: providing the local fallback
+  // would let nested density-aware consumers treat 'default' as an
+  // inherited opinion and re-stamp inside a chrome band (Codex r1 P1)
+  const densityOpinion = $derived(density ?? inheritedDensity?.density);
+  if (densityOpinion !== undefined) provideDensity(() => resolvedDensity);
 
   const dev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
 
@@ -130,7 +135,7 @@
       return resolvedDensity;
     },
     get densityOpinion() {
-      return density ?? inheritedDensity?.density;
+      return densityOpinion;
     },
     register(panelId, anchorName, handles) {
       if (panels.has(panelId) || anchors.has(anchorName)) {
@@ -223,7 +228,7 @@
   data-jx-navmenu=""
   class={cn('flex flex-wrap items-stretch gap-1', className)}
   {...rest}
-  data-density={density ?? inheritedDensity?.density}
+  data-density={densityOpinion}
   aria-label={label}
   onkeydown={handleKeydown}
 >

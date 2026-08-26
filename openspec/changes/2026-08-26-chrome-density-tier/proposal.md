@@ -23,19 +23,32 @@
    pins its alias set absolutely; unpinned aliases fall through to
    the ambient density scope by inheritance. Control rows OUTSIDE
    chrome keep the 44px touch floor untouched.
-2. **TerminalHeader** (registry + mirror): stamps `data-jx-chrome` on
-   the header root — the bezel DECLARES its modality; the hamburger
-   and its bars migrate from `h-8 w-8`/`w-4` literals to
-   `min-h/min-w-[var(--jx-hit)]`/`w-[var(--jx-icon)]`; the pill box
-   drops its `text-xs` (the composed entries own typography through
-   the token; no second authority).
-3. **HuePopover trigger** (site-local consumer): the square law from
+2. **TerminalHeader** (registry + mirror): stamps `data-jx-chrome`
+   on the bar ROW (Codex r1: the header ROOT would swallow the drawer
+   and the composed panels into the band — the row keeps the band to
+   the bar's controls); the hamburger and its bars migrate from
+   `h-8 w-8`/`w-4` literals to `min-h/min-w-[var(--jx-hit)]`/
+   `w-[var(--jx-icon)]`; the logo slot rides `h/w-[var(--jx-hit)]`;
+   the pill box drops its `text-xs` (the composed entries own
+   typography through the token; no second authority).
+3. **NavigationMenu stamping law** (registry + mirror, discovered in
+   implementation + Codex r1): the CSS scope channel stamps ONLY a
+   density OPINION — root and triggers stamp when the consumer passed
+   `density` or a Svelte-context provider resolved one; with no
+   opinion nothing stamps and nothing is PROVIDED as inherited
+   context (a manufactured fallback must not re-scope nested
+   consumers inside a chrome band). Panels are control surfaces and
+   keep stamping their RESOLVED density (the portaled-panel law), so
+   the 44px touch floor holds inside the bezel. Observable DOM
+   contract change (attribute absence with no opinion); props API
+   unchanged.
+4. **HuePopover trigger** (site-local consumer): the square law from
    press-button's iconOnly pose — `min-h/min-w-[var(--jx-hit)]`, NO
    inset padding (icon-only), icons `h/w-[var(--jx-icon)]`; the local
    css `height:32px; width:32px` is DELETED (single geometry
    authority: the tokens). Inside the bezel this renders the 32×32
    square with a centered 16px icon.
-4. **Tailwind var-type sweep** (silent-adoption defect family):
+5. **Tailwind var-type sweep** (silent-adoption defect family):
    `text-[var(--jx-text)]` is ambiguous — Tailwind emits it as
    `color`, so the font-size adoption silently no-ops (computed pill
    text stayed 12px inherited, not the ruler's 13px). Every
@@ -43,7 +56,7 @@
    navigation-menu-link/trigger, popconfirm (×2), command-input/
    -empty/-item, command-group (`--jx-text-secondary`). Both www and
    registry mirrors.
-5. **Kernel gate** (`verify-density-kernel.mjs`): a `probe-chrome`
+6. **Kernel gate** (`verify-density-kernel.mjs`): a `probe-chrome`
    row with its OWN invariant set (`hit == 2×icon`, `image == hit`,
    pinned values) — deliberately NOT in the density TABLE, whose
    `icon == line` / `image == 2×line` laws describe density rows, not
@@ -51,8 +64,11 @@
 
 ## Impact
 
-No public API change; no control-row geometry change (44px floor
-intact outside chrome). The site bar renders one 32px band again:
+No props API change; one observable DOM contract change (density
+attributes are opinion-gated on the navigation-menu family — absent
+without an opinion); no control-row geometry change (44px floor
+intact outside chrome; panels and drawer re-scope/ride the density
+axis even inside the bezel). The site bar renders one 32px band again:
 pills 32px (box 38px), hamburger 32, trigger 32×32 with a 16px icon,
 header ≈63px (was 75 broken / 57 pre-density). The untyped-var sweep
 changes rendered font sizes ONLY where inheritance differed from the

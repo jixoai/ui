@@ -10,12 +10,13 @@
   inside render with dark tokens because the wrapper carries the scoped
   token class (dark). Declare theme="light" or "system" to unlock.
 
-  Chrome scope (chrome-density-tier, 2026-08-26): the bezel stamps
-  data-jx-chrome on its root — the pointer-modality band (hit 32px,
-  icon 16px, sm-tier text/gaps). Every control composed into the bar
-  (pills, switcher, hamburger) follows the ONE band; control rows
-  outside a chrome subtree keep the density system's 44px touch
-  floor untouched.
+  Chrome scope (chrome-density-tier, 2026-08-26): the ROW stamps
+  data-jx-chrome — the pointer-modality band (hit 32px, icon 16px,
+  sm-tier text/gaps). Controls composed into the bar (pills,
+  switcher, hamburger, logo slot) follow the ONE band; the drawer
+  below the row and the composed panels' surfaces stay on the density
+  axis — panels re-scope at their root, so their control law (44px
+  touch floor) survives inside the bezel.
 
   Composition-first (2026-08-25, composition-first-apis — BREAKING): the
   header owns CHROME ONLY and is a thin composition surface OVER the
@@ -223,7 +224,6 @@
 
 <header
   bind:this={headerEl}
-  data-jx-chrome=""
   class={cn(
     'jx-nav bg-terminal text-terminal-foreground border-b border-border',
     scope === 'dark' ? 'dark [color-scheme:dark]' : 'jx-light [color-scheme:light]',
@@ -232,11 +232,15 @@
   {...rest}
 >
   <div class="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between gap-4 py-3">
+    <!-- the chrome band rides the ROW, not the header root: the
+         drawer below and the composed panels' surfaces stay on the
+         density axis (control law), only the bar's controls follow
+         the pointer-modality band -->
+    <div data-jx-chrome="" class="flex items-center justify-between gap-4 py-3">
       <!-- LEFT WING · the brand -->
       <a href={homeHref} class="flex min-w-0 flex-1 items-center gap-3">
         {#if logo}
-          <span class="flex h-8 w-8 flex-none items-center justify-center">
+          <span class="flex h-[var(--jx-hit)] w-[var(--jx-hit)] flex-none items-center justify-center">
             {@render logo()}
           </span>
         {/if}

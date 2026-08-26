@@ -11,7 +11,7 @@ import { resolveDensity } from '../src/lib/density.svelte';
 const empty = (() => {}) as never;
 
 describe('density adoption: menu roots', () => {
-  it('stamps root defaults and explicit policy overrides', () => {
+  it('roots stamp an opinion; NavigationMenu without one rides ambient (chrome-density-tier law)', () => {
     const defaults = [
       render(DropdownMenu, { props: { id: 'default-menu', children: empty } }),
       render(Menubar, { props: { children: empty } }),
