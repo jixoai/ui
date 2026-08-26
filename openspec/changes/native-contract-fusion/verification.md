@@ -245,7 +245,23 @@
 - engines script hardening committed: ENGINES env filter, 30s goto
   timeout, WEBKIT_PATH override, proxy bypass for both engines.
 
+## Codex r4 — gate-integrity round (2026-08-27)
+
+- Verdict 8.1/10: the three r3 fixes verified landed, but two NEW P1s
+  in the gates themselves (both real, both mine):
+  - P1 state isolation was ILLUSORY: runComparisons filtered rows but
+    passed { rows: ROWS } across the evaluate boundary — every state
+    action re-ran the full matrix (3050 ≈ 305 × 10). Fixed (a829deb):
+    the filtered rows cross the boundary; the isolated matrix is
+    305 comparisons, 3/3 stable GREEN.
+  - P1 zero-engine false success: ENGINES=none reported "passed".
+    Fixed: run failures are FAILURES (not skips), zero engines that
+    ran exits 1 loudly (verified: none→1, firefox→0 with the
+    engines-that-ran list), browsers closed per engine.
+  - P2 pixel band drift: recorded 8.9–9.9% → the reproducible band is
+    8.9–11.6% (hue-phase dependent) — updated.
+- Firefox single-engine gate PASS re-verified post-fix (exit 0).
+
 ## Pending
 
-- Codex r4 confirmation with the engines story above (firefox PASS ×2,
-  webkit SKIP-environment).
+- Codex r5 with the isolated-matrix + engines-gate fixes.
