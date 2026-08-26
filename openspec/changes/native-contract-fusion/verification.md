@@ -86,12 +86,68 @@
 - Rows pending: native-select, input, textarea, checkbox, radio,
   toggle, range (added with their Phase-4 pilots).
 
+## Phase 4 — the @apply mirror pilots
+
+- Pilot `af1037d` (native-select, subagent + orchestrator
+  cross-check): B4 select law mirrored declaration-for-declaration;
+  three state-machine drifts fixed toward Tier-0 (hover :not(:disabled),
+  disabled box-shadow:none, [size]-as-listbox). Subagent report
+  cross-checked against the actual diff — accurate; its judgment calls
+  (scheme-light/dark:scheme-dark stays inline; chevron moves into the
+  css as the law twin) adopted and codified in subagent-briefs.md's
+  "Pilot resolutions".
+- Batches `423020f` (input+textarea — clear-button hit lane; chromeless
+  textarea lane with the placeholder drift FIXED toward Part A's
+  --jx-placeholder mix; textarea.css registered), `405a12e`
+  (checkbox+radio via the surviving subagent batch — radio
+  rounded-full→50% drift fix; labelSide branch on the existing
+  data-jx-check-left hook), `cf17648` (toggle — sr-only folded,
+  role=switch adopted, disabled dim rule). Two sibling subagents died
+  to API timeouts; their batches were completed by the orchestrator.
+- RANGE scope ruling (design §4, `46c8f76`): the custom pointer-driven
+  slider is not a native wrapper — out of the mirror migration.
+- Gates after each batch: targeted suites green, svelte-check
+  253/61/19 == baseline throughout.
+
+## Phase 5 — Part B density adoption
+
+- Commit `689a319`. 7 regions swept onto the --jx-* interface with
+  old-literal fallbacks (B3 buttons, B4 text-like box law, textarea
+  min, date/time indicator, checkbox + radio icon scale, B0 scoped
+  text/leading). The face's controls now ride --jx-hit 44px (the a11y
+  floor) / --jx-gap / --jx-inset / --jx-text / --jx-leading.
+- verify-jx-pure.mjs: literal asserts (40px/16px) replaced by
+  DERIVED probes (var() resolver elements) — "all checks passed".
+- The parity gate QUANTIFIED the pre-sweep drift before fixing it
+  (40px/8px/14px literals vs 44px/12px/13px interface — commit
+  451c74d's evidence), then flipped the native-select row green.
+- gzip 18,279B ≤ 18,432B budget (post-sweep).
+
+## Phase 6 — the parity gate, complete
+
+- Commit `82ae86d`. Rows: toggle-group, native-select, checkbox,
+  radio, toggle (+ checkbox@xs and checkbox@dark variant sections);
+  252 computed comparisons GREEN across the state matrix.
+- Hardening found by the gate itself: (1) mid-transition color
+  sampling → motion freeze; (2) the site's wall-clock BRAND HUE
+  animates --primary (5s entry spin + 1s cruising) → hue-stable
+  capture retry; (3) color-notation tolerance (oklab component
+  deltas ≤0.011 — sub-visual interpolation variance, not drift).
+- Pixel oracle (capture-baseline's tolerant comparator: channel ≤8,
+  hot ≤0.5%): checkbox + radio **0.000% hot** — the clip-path glyph
+  and the dot render pixel-identical across renderers.
+- KNOWN GAP (warn-only): toggle knob CARRIERS differ (B13 ::before +
+  margin travel vs component span + transform; end-state math equal,
+  raster diverges 8.9% of the track box) — unifying the knob builds
+  is follow-up work; the computed phase still gates the law box.
+
+## Phase 7 — full gates
+
+- vitest 549/549; svelte-check 253/61/19 == main baseline; mirror
+  GREEN 91 items / 303 pairs; verify:contract GREEN; payload regen;
+  gzip within budget; verify-jx-pure all checks.
+
 ## Pending evidence
 
-- Phase 4 pilots (subagent batches + orchestrator cross-check).
-- Phase 5 Part B density sweep (verify-jx-pure.mjs derived-number
-  asserts, gzip budget re-check).
-- Density × light/dark matrix extension of the parity gate.
-- Screenshot oracle for pseudo builds (checkbox glyph, radio dot,
-  slider fill).
+- verify-jx-pure-engines (Firefox/WebKit) rerun result.
 - Final Codex implementation review rounds.
