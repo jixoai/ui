@@ -34,10 +34,10 @@ html[data-vt-rail='out'] :where(.jx-dsn) {
    (330ms standard ease). An earlier 450ms-decelerate exit drifted
    from the body's phrase. */
 html[data-vt-rail='in']::view-transition-new(vt-rail-tree) {
-  animation: jx-rail-tree-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: jx-rail-tree-in 330ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 html[data-vt-rail='out']::view-transition-old(vt-rail-tree) {
-  animation: jx-rail-tree-out 330ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: jx-rail-tree-out 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @keyframes jx-rail-tree-in {
   from {

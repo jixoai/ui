@@ -91,10 +91,10 @@ html[data-vt-toc='out'] :where(.jx-toc) {
   view-transition-name: vt-rail-toc;
 }
 html[data-vt-toc='in']::view-transition-new(vt-rail-toc) {
-  animation: jx-toc-rail-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: jx-toc-rail-in 330ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 html[data-vt-toc='out']::view-transition-old(vt-rail-toc) {
-  animation: jx-toc-rail-out 330ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: jx-toc-rail-out 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @keyframes jx-toc-rail-in {
   from {
