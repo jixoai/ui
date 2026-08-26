@@ -229,7 +229,7 @@
       type="button"
       data-jx-pc-btn=""
       data-jx-pc-cancel=""
-      class="jx-pc-btn min-h-[var(--jx-hit)] appearance-none border border-border bg-background px-[var(--jx-inset)] text-[var(--jx-text)] leading-[var(--jx-line)] text-foreground font-nav tracking-[0.1em] uppercase cursor-pointer shadow-2xs focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      class="jx-pc-btn min-h-[var(--jx-hit)] appearance-none border border-border bg-background px-[var(--jx-inset)] text-[length:var(--jx-text)] leading-[var(--jx-line)] text-foreground font-nav tracking-[0.1em] uppercase cursor-pointer shadow-2xs focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
       bind:this={cancelEl}
       onclick={hide}
     >
@@ -242,7 +242,7 @@
       data-jx-pc-confirm-destructive={confirmTone === 'destructive' ? '' : undefined}
       data-jx-pc-confirm-primary={confirmTone !== 'destructive' ? '' : undefined}
       class={cn(
-        'jx-pc-btn min-h-[var(--jx-hit)] appearance-none border border-border bg-background px-[var(--jx-inset)] text-[var(--jx-text)] leading-[var(--jx-line)] text-foreground font-nav tracking-[0.1em] uppercase cursor-pointer shadow-2xs focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
+        'jx-pc-btn min-h-[var(--jx-hit)] appearance-none border border-border bg-background px-[var(--jx-inset)] text-[length:var(--jx-text)] leading-[var(--jx-line)] text-foreground font-nav tracking-[0.1em] uppercase cursor-pointer shadow-2xs focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
         confirmTone === 'destructive'
           ? 'border-destructive bg-destructive text-destructive-foreground'
           : 'border-primary text-primary',

@@ -10,6 +10,13 @@
   inside render with dark tokens because the wrapper carries the scoped
   token class (dark). Declare theme="light" or "system" to unlock.
 
+  Chrome scope (chrome-density-tier, 2026-08-26): the bezel stamps
+  data-jx-chrome on its root — the pointer-modality band (hit 32px,
+  icon 16px, sm-tier text/gaps). Every control composed into the bar
+  (pills, switcher, hamburger) follows the ONE band; control rows
+  outside a chrome subtree keep the density system's 44px touch
+  floor untouched.
+
   Composition-first (2026-08-25, composition-first-apis — BREAKING): the
   header owns CHROME ONLY and is a thin composition surface OVER the
   NavigationMenu family. The nav slot hosts consumer-composed parts —
@@ -216,6 +223,7 @@
 
 <header
   bind:this={headerEl}
+  data-jx-chrome=""
   class={cn(
     'jx-nav bg-terminal text-terminal-foreground border-b border-border',
     scope === 'dark' ? 'dark [color-scheme:dark]' : 'jx-light [color-scheme:light]',
@@ -252,7 +260,7 @@
         <!-- the pill box: chrome the composed nav lands in (the nav
              landmark itself is the consumer's NavigationMenu root) -->
         <div
-          class="relative hidden items-center border border-terminal-foreground/25 p-0.5 text-xs sm:flex"
+          class="relative hidden items-center border border-terminal-foreground/25 p-0.5 sm:flex"
           bind:this={navSlotEl}
         >
           <span class="jx-indicator" bind:this={indicatorEl} aria-hidden="true"></span>
@@ -263,15 +271,15 @@
         {/if}
         <button
           type="button"
-          class="flex h-8 w-8 flex-col items-center justify-center gap-[3px] border border-terminal-foreground/25 sm:hidden"
+          class="flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] flex-col items-center justify-center gap-[3px] border border-terminal-foreground/25 sm:hidden"
           aria-expanded={open}
           aria-label="Toggle navigation"
           bind:this={burgerEl}
           onclick={() => (open = !open)}
         >
-          <span class="jx-bar block h-[1.5px] w-4 bg-terminal-foreground transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"></span>
-          <span class="block h-[1.5px] w-4 bg-terminal-foreground"></span>
-          <span class="jx-bar block h-[1.5px] w-4 bg-terminal-foreground transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"></span>
+          <span class="jx-bar block h-[1.5px] w-[var(--jx-icon)] bg-terminal-foreground transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"></span>
+          <span class="block h-[1.5px] w-[var(--jx-icon)] bg-terminal-foreground"></span>
+          <span class="jx-bar block h-[1.5px] w-[var(--jx-icon)] bg-terminal-foreground transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"></span>
         </button>
       </div>
     </div>

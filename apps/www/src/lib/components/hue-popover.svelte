@@ -38,17 +38,17 @@
     <button
       type="button"
       popovertarget="hue-popover"
-      class="jx-press jx-hue-trigger min-h-[var(--jx-hit)] px-[var(--jx-inset)] text-[length:var(--jx-text)] gap-[var(--jx-gap)]"
+      class="jx-press jx-hue-trigger min-h-[var(--jx-hit)] min-w-[var(--jx-hit)]"
       aria-label={isOpen ? 'Close brand hue & theme' : 'Brand hue & theme'}
       aria-expanded={isOpen}
     >
       {#if isOpen}
-        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+        <svg class="h-[var(--jx-icon)] w-[var(--jx-icon)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
           <path d="M18 6 6 18" />
           <path d="m6 6 12 12" />
         </svg>
       {:else}
-        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <svg class="h-[var(--jx-icon)] w-[var(--jx-icon)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M12 22a10 10 0 1 1 10-10c0 1.7-1.3 3-3 3h-2.4a2 2 0 0 0-1.4 3.4c.4.5.6 1.1.6 1.6a2 2 0 0 1-2 2Z" />
           <circle cx="7.5" cy="11.5" r="1" fill="currentColor" stroke="none" />
           <circle cx="10.5" cy="7.5" r="1" fill="currentColor" stroke="none" />
@@ -114,14 +114,16 @@
 </Popover>
 
 <style>
-  /* ── trigger: press law on a 32×32 icon button (shadow only appears on
-     hover; active presses on the anchored layer) ── */
+  /* ── trigger: press law on a square icon button — the box is
+     min-h/min-w var(--jx-hit) and the glyph var(--jx-icon) (geometry
+     authority lives on the element's token pair, NOT here; inside the
+     bezel's data-jx-chrome band that is 32×32 with a 16px glyph).
+     Shadow only appears on hover; active presses on the anchored
+     layer ── */
   .jx-hue-trigger {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 32px;
-    width: 32px;
     color: inherit;
     border: 1px solid color-mix(in oklab, currentColor 30%, transparent);
     background: transparent;

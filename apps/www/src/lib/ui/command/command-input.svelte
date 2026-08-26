@@ -44,7 +44,7 @@
   data-jx-command-input=""
   data-density={resolvedDensity}
   class={cn(
-    'box-border min-h-[var(--jx-hit)] w-full border-b border-border bg-transparent px-[var(--jx-inset)] font-mono text-[var(--jx-text)] leading-[var(--jx-line)] text-foreground placeholder:text-muted-foreground focus:outline-none',
+    'box-border min-h-[var(--jx-hit)] w-full border-b border-border bg-transparent px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] leading-[var(--jx-line)] text-foreground placeholder:text-muted-foreground focus:outline-none',
     className,
   )}
   type="text"

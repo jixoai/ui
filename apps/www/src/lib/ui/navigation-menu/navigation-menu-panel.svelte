@@ -132,7 +132,7 @@
     className,
   )}
   data-variant={bar.variant}
-  data-density={bar.density}
+  data-density={bar.densityOpinion}
   bind:this={panelEl}
   style="position-anchor: {item.anchorName}; --jx-surface-in-x: 0px; --jx-surface-in-y: 6px; --jx-surface-ox: 6px; --jx-surface-oy: 6px; inset-area: bottom span-left; position-area: bottom span-left;"
   ontoggle={handleToggle}

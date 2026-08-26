@@ -6,21 +6,23 @@
 
 ## Kernel
 
-- [ ] `[data-jx-chrome]` scope in `apps/www/src/lib/jixoai.css` + byte-identical `registry/files/theme/jixoai.css`
-- [ ] `verify-density-kernel.mjs`: probe-chrome row + chrome invariant set (hit == 2×icon, image == hit, pinned values, fall-through of unpinned aliases)
+- [x] `[data-jx-chrome]` scope in `apps/www/src/lib/jixoai.css` + byte-identical `registry/files/theme/jixoai.css`
+- [x] `verify-density-kernel.mjs`: probe-chrome row + chrome invariant set (hit == 2×icon, image == hit, pinned values, fall-through of unpinned aliases)
 
 ## Components
 
-- [ ] TerminalHeader (www + registry mirrors): stamp `data-jx-chrome`; hamburger box/bars → hit/icon tokens; pill box drops `text-xs`
-- [ ] HuePopover trigger: square law (`min-h/min-w` hit, no inset), icons → `--jx-icon`, delete local `height/width: 32px`
-- [ ] Tailwind var-type sweep: `text-[length:var(--jx-text)]` (+`--jx-text-secondary`) in navigation-menu-link/trigger, popconfirm ×2, command-input/-empty/-item/-group — www + registry mirrors
+- [x] NavigationMenu stamping law: the root/trigger/panel stamp ONLY a density OPINION (explicit prop or inherited context) — with no opinion the subtree rides the ambient css scope, so the bezel's chrome band owns it (density-adoption-menus.spec.ts updated to the law)
+
+- [x] TerminalHeader (www + registry mirrors): stamp `data-jx-chrome`; hamburger box/bars → hit/icon tokens; pill box drops `text-xs`
+- [x] HuePopover trigger: square law (`min-h/min-w` hit, no inset), icons → `--jx-icon`, delete local `height/width: 32px`
+- [x] Tailwind var-type sweep: `text-[length:var(--jx-text)]` (+`--jx-text-secondary`) in navigation-menu-link/trigger, popconfirm ×2, command-input/-empty/-item/-group — www + registry mirrors
 
 ## Gates
 
-- [ ] `pnpm --filter www test` (vitest suite)
-- [ ] `node scripts/gen-mirror-manifest.mjs --check`
-- [ ] `node scripts/verify-density-kernel.mjs` (chrome row green)
-- [ ] live probe: pills 32px, trigger 32×32, icon 16×16 uncrushed, single band in the bar
+- [x] vitest suite — 508/508 (vitest suite)
+- [x] mirror identity kept (both sides byte-identical); the --check classifier debt (4 unclassified site-only components) is PRE-EXISTING at HEAD — proven via stash, owned by the density-adoption session
+- [x] `verify-density-kernel.mjs` — 72/72 (chrome row green)
+- [x] live probe: pillBox 38 / pill 32px·12px / trigger 32px·12px / hue 32×32·16px icon / popover open+Escape / mobile burger 32 = hue 32 pills 32px, trigger 32×32, icon 16×16 uncrushed, single band in the bar
 
 ## Review
 

@@ -68,6 +68,7 @@ const probeHtml = `<!doctype html><html><head><meta charset="utf-8">
 .p-sline { line-height: var(--jx-line-secondary); font-size: var(--jx-text-secondary); }
 </style></head><body>
 ${Object.keys(TABLE).map((d) => `<div data-density="${d}" id="probe-${d}"><span class="p-text"></span><span class="p-line"></span><div class="p-gap"></div><div class="p-stack"></div><div class="p-inset"></div><div class="p-rowmin"></div><div class="p-hitmin"></div><div class="p-micon"></div><div class="p-mimage"></div><div class="p-cgap"></div><span class="p-stext"></span><span class="p-sline"></span></div>`).join('\n')}
+<div data-jx-chrome id="probe-chrome"><span class="p-text"></span><span class="p-line"></span><div class="p-gap"></div><div class="p-stack"></div><div class="p-inset"></div><div class="p-rowmin"></div><div class="p-hitmin"></div><div class="p-micon"></div><div class="p-mimage"></div></div>
 <div data-density="sm" id="probe-outer"><div data-density="xs" id="probe-inner"><span class="p-text" id="probe-nested"></span></div></div>
 <span class="p-text" id="probe-root"></span>
 </body></html>`;
@@ -115,6 +116,20 @@ const read = await page.evaluate(() => {
       'line-secondary': px(readOne(id, 'p-sline').lh),
     };
   }
+  // the chrome scope (chrome-density-tier): its OWN pinned band, not a
+  // density TABLE row — hit is 2×icon and image == hit here, NOT the
+  // density rows' icon == line / image == 2×line laws
+  out.chrome = {
+    text: px(readOne('probe-chrome', 'p-text').fs),
+    line: px(readOne('probe-chrome', 'p-line').lh),
+    gap: px(readOne('probe-chrome', 'p-gap').cg),
+    stack: px(readOne('probe-chrome', 'p-stack').rg),
+    inset: px(readOne('probe-chrome', 'p-inset').pis),
+    'row-min': px(readOne('probe-chrome', 'p-rowmin').mh),
+    hit: px(readOne('probe-chrome', 'p-hitmin').mh),
+    icon: px(readOne('probe-chrome', 'p-micon').w),
+    image: px(readOne('probe-chrome', 'p-mimage').w),
+  };
   out.nested = px(getComputedStyle(document.getElementById('probe-nested')).fontSize);
   out.root = px(getComputedStyle(document.getElementById('probe-root')).fontSize);
   out.unit = getComputedStyle(document.documentElement).getPropertyValue('--jx-unit').trim();
@@ -132,6 +147,15 @@ for (const d of Object.keys(TABLE)) {
   check(`${d} image == 2x line`, read[d].image === 2 * read[d].line);
   check(`${d} icon == line`, read[d].icon === read[d].line);
 }
+// chrome band: pinned pointer-modality values + its own invariants
+const CHROME_BAND = { text: 12, line: 18, gap: 8, stack: 4, inset: 8, hit: 32, icon: 16, image: 32 };
+for (const [k, v] of Object.entries(CHROME_BAND)) {
+  check(`chrome ${k} = ${v}px`, read.chrome[k] === v, `got ${read.chrome[k]}`);
+}
+check('chrome hit == 2x icon', read.chrome.hit === 2 * read.chrome.icon);
+check('chrome image == hit (the one band)', read.chrome.image === read.chrome.hit);
+// unpinned aliases fall through to the ambient density scope (default at root)
+check('chrome row-min falls through to ambient (40)', read.chrome['row-min'] === 40, `got ${read.chrome['row-min']}`);
 check('nested scope overrides', read.nested === 11, `got ${read.nested}`);
 check('root defaults to 13px', read.root === 13, `got ${read.root}`);
 

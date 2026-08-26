@@ -53,11 +53,11 @@
 <button
   type="button"
   data-jx-navmenu-trigger=""
-  data-density={bar.density}
+  data-density={bar.densityOpinion}
   aria-haspopup="true"
   aria-current={current ? 'true' : undefined}
   class={cn(
-    'jx-navmenu-trigger inline-flex min-h-[var(--jx-hit)] cursor-pointer items-center gap-[var(--jx-gap)] px-[var(--jx-inset)] font-nav text-[var(--jx-text)] leading-[var(--jx-line)] uppercase tracking-[0.12em] no-underline transition-colors duration-150 ease-out focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+    'jx-navmenu-trigger inline-flex min-h-[var(--jx-hit)] cursor-pointer items-center gap-[var(--jx-gap)] px-[var(--jx-inset)] font-nav text-[length:var(--jx-text)] leading-[var(--jx-line)] uppercase tracking-[0.12em] no-underline transition-colors duration-150 ease-out focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
     bar.openPanelId === panelId
       ? 'text-foreground'
       : current

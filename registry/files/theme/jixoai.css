@@ -187,6 +187,31 @@
   --surface-shadow: hsl(0 0% 100% / 0.32);
 }
 
+:where([data-density='lg']) {
+  --jx-text: var(--jx-density-text-lg);
+  --jx-leading: var(--jx-density-leading-lg);
+  --jx-line: var(--jx-density-line-lg);
+  --jx-gap: var(--jx-density-inline-gap-lg);
+  --jx-media-gutter: var(--jx-density-media-gutter-lg);
+  --jx-gap-end: var(--jx-density-end-gap-lg);
+  --jx-stack: var(--jx-density-stack-gap-lg);
+  --jx-inset: var(--jx-density-inline-inset-lg);
+  --jx-gap-content: var(--jx-density-content-gap-lg);
+  --jx-row-min: var(--jx-density-row-min-lg);
+  --jx-hit: var(--jx-density-hit-min-lg);
+  --jx-icon: var(--jx-density-media-icon-lg);
+  --jx-image: var(--jx-density-media-image-lg);
+  --jx-text-secondary: var(--jx-density-secondary-text-lg);
+  --jx-leading-secondary: var(--jx-density-secondary-leading);
+  --jx-line-secondary: var(--jx-density-secondary-line-lg);
+  --jx-toggle-track: var(--jx-line);
+  --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
+  --jx-toggle-knob: calc(var(--jx-toggle-track) - var(--jx-unit));
+  --jx-slider-track: max(var(--jx-unit), calc(var(--jx-line) / 2));
+  --jx-textarea-min: max(var(--jx-hit), calc(var(--jx-line) * 3 + var(--jx-stack) * 2 + 2px));
+  --jx-color-lane: max(var(--jx-hit), calc(var(--jx-icon) + var(--jx-inset) * 2 + 2px));
+}
+
 /* ============================================================
    Scrollbar law — application layer (Owner, 2026-08-22)
 
@@ -943,27 +968,28 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-color-lane: max(var(--jx-hit), calc(var(--jx-icon) + var(--jx-inset) * 2 + 2px));
 }
 
-:where([data-density='lg']) {
-  --jx-text: var(--jx-density-text-lg);
-  --jx-leading: var(--jx-density-leading-lg);
-  --jx-line: var(--jx-density-line-lg);
-  --jx-gap: var(--jx-density-inline-gap-lg);
-  --jx-media-gutter: var(--jx-density-media-gutter-lg);
-  --jx-gap-end: var(--jx-density-end-gap-lg);
-  --jx-stack: var(--jx-density-stack-gap-lg);
-  --jx-inset: var(--jx-density-inline-inset-lg);
-  --jx-gap-content: var(--jx-density-content-gap-lg);
-  --jx-row-min: var(--jx-density-row-min-lg);
-  --jx-hit: var(--jx-density-hit-min-lg);
-  --jx-icon: var(--jx-density-media-icon-lg);
-  --jx-image: var(--jx-density-media-image-lg);
-  --jx-text-secondary: var(--jx-density-secondary-text-lg);
-  --jx-leading-secondary: var(--jx-density-secondary-leading);
-  --jx-line-secondary: var(--jx-density-secondary-line-lg);
-  --jx-toggle-track: var(--jx-line);
-  --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
-  --jx-toggle-knob: calc(var(--jx-toggle-track) - var(--jx-unit));
-  --jx-slider-track: max(var(--jx-unit), calc(var(--jx-line) / 2));
-  --jx-textarea-min: max(var(--jx-hit), calc(var(--jx-line) * 3 + var(--jx-stack) * 2 + 2px));
-  --jx-color-lane: max(var(--jx-hit), calc(var(--jx-icon) + var(--jx-inset) * 2 + 2px));
+/* ============================================================
+   The chrome scope (chrome-density-tier, 2026-08-26) — the
+   POINTER-MODALITY contract for bar/shell chrome, pinned AFTER the
+   density scopes (source order wins at :where()'s zero specificity).
+   Density is the CONTENT scale axis; chrome is the modality axis:
+   bezel chrome is pointer-first, high-frequency, dense — one 32px
+   band (hit = U×8), 16px action glyphs (icon = U×4), sm-tier text
+   and gaps. Pinning is ABSOLUTE (density-independent); aliases NOT
+   pinned here (row-min, secondary, toggle/slider lanes…) fall
+   through to the ambient density scope by inheritance — chrome
+   means a band, not a second scale. Control rows OUTSIDE a chrome
+   subtree keep the 44px touch floor untouched. Stamp data-jx-chrome
+   on chrome roots (the TerminalHeader bezel is the first stamper).
+   ============================================================ */
+:where([data-jx-chrome]) {
+  --jx-text: var(--jx-density-text-sm);
+  --jx-leading: var(--jx-density-leading-sm);
+  --jx-line: var(--jx-density-line-sm);
+  --jx-gap: var(--jx-density-inline-gap-sm);
+  --jx-stack: var(--jx-density-stack-gap-sm);
+  --jx-inset: var(--jx-density-inline-inset-sm);
+  --jx-hit: calc(var(--jx-unit) * 8);
+  --jx-icon: calc(var(--jx-unit) * 4);
+  --jx-image: calc(var(--jx-unit) * 8);
 }

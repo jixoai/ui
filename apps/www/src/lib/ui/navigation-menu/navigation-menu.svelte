@@ -49,6 +49,11 @@
   /** the bar's context surface: state + behavior, never membership order */
   export interface NavigationMenuApi {
     readonly density: import('$lib/density.svelte').Density;
+  /** the OPINION behind the resolution — undefined when the bar fell
+      back to 'default' (triggers/panels stamp ONLY this, so a bar with
+      no density opinion rides the ambient css scope — e.g. a chrome
+      band — instead of re-scoping its subtree) */
+  readonly densityOpinion: import('$lib/density.svelte').Density | undefined;
     /** first-wins registry for the arrow-walk glide; key = `${itemId}-panel` */
     register(panelId: string, anchorName: string, handles: NavigationMenuPanelHandles): void;
     /** identity-guarded: only the winning registrant can remove itself */
@@ -89,6 +94,14 @@
 
   let { label = 'site', density, variant = 'auto', class: className = '', children, ...rest }: Props = $props();
 
+  // Density stamping law (chrome-density-tier, 2026-08-26): the CSS
+  // scope channel stamps ONLY an OPINION — the attribute lands when the
+  // consumer passed `density` or a Svelte-context provider resolved one;
+  // with no opinion the nav rides the AMBIENT css scope (the root default
+  // density, or a chrome band like the TerminalHeader bezel's
+  // data-jx-chrome) instead of re-scoping its subtree and cutting ambient
+  // inheritance off. The Svelte context still exposes the resolved
+  // 'default' to descendants that ask.
   const inheritedDensity = getDensityContext();
   const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
   provideDensity(() => resolvedDensity);
@@ -115,6 +128,9 @@
   setContext<NavigationMenuApi>(NAVIGATION_MENU_KEY, {
     get density() {
       return resolvedDensity;
+    },
+    get densityOpinion() {
+      return density ?? inheritedDensity?.density;
     },
     register(panelId, anchorName, handles) {
       if (panels.has(panelId) || anchors.has(anchorName)) {
@@ -207,7 +223,7 @@
   data-jx-navmenu=""
   class={cn('flex flex-wrap items-stretch gap-1', className)}
   {...rest}
-  data-density={resolvedDensity}
+  data-density={density ?? inheritedDensity?.density}
   aria-label={label}
   onkeydown={handleKeydown}
 >
