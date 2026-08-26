@@ -16,4 +16,6 @@
 - [x] Codex review loop: r1 BLOCKED 5.5 (3 P1 fixed) → r2 7.8
       (pair prose + version evidence fixed) → r3 no P1/no regression,
       one P2 doc line fixed with assertion → r4 confirmation
-- [ ] Gates green at final close (r4)
+- [x] Gates green at final close — r4 CLEAN, final score 9.2/10
+      (5.5 BLOCKED → 7.8 → 9.2; artifacts:
+      .agents/documents/2026-08-26-variant-grammar/codex-hue-review.md)
