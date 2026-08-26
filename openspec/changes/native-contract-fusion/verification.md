@@ -138,7 +138,7 @@
   and the dot render pixel-identical across renderers.
 - KNOWN GAP (warn-only): the toggle's knob RASTERIZATION PATHS differ
   (::before inside the input element vs a real span child —
-  deterministic per-session, hue-phase dependent 8.9–11.6% of the
+  deterministic per-session, hue-phase dependent 8.9–11.8% of the
   track box; carriers unified: absolute+inset+transform asserted
   equal by the pseudo probe). Bare inputs cannot host real children;
   full carrier unification would rebuild the component around
@@ -262,6 +262,29 @@
     8.9–11.6% (hue-phase dependent) — updated.
 - Firefox single-engine gate PASS re-verified post-fix (exit 0).
 
-## Pending
+## Codex r5 — CLOSED (2026-08-27)
 
-- Codex r5 with the isolated-matrix + engines-gate fixes.
+- **Verdict 8.8/10 (+0.7 vs r4). No release blockers; the review loop
+  is CLOSED by Codex's explicit ruling.** Both r4 P1s verified with
+  positive AND negative cases by Codex itself (invalid port →
+  FAIL + exit 1; ENGINES=none → exit 1; firefox → PASS exit 0 with
+  the ran-list; parity 305 comparisons × 2 GREEN, the 3050 duplicate
+  count gone; Vitest 549/549; node --check ×2; git diff --check;
+  worktree clean).
+- Score trajectory: design 6 → corrected design 8.5 → r1 6.5 →
+  r2 8.0 → r3 8.3 → r4 8.1 (gate-integrity finds) → **r5 8.8 CLOSED**.
+- Non-blocking follow-ups recorded (future changes):
+  1. verify-jx-pure-engines.mjs has a duplicate browser.close()
+     (runEngine internal + the outer finally) — unify lifecycle
+     ownership.
+  2. The toggle pixel band drifts with hue phase; latest observation
+     11.75% — unify the "track box / channel" denominator when the
+     warn is ever promoted to fatal, and re-record the band.
+  3. WebKit evidence closes when this machine carries a usable
+     playwright webkit build (both cached ones hang at the protocol
+     handshake; ENGINES/WITH-path tooling is in place).
+  4. @types/node self-hosting for apps/www (the main checkout borrows
+     an ancestor's copy — an environmental accident).
+  5. Range (custom slider) and composites remain out of the mirror
+     scope by design ruling; the full parity cross-product is the
+     declared growth path.
