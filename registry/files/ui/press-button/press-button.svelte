@@ -12,11 +12,10 @@
   (always together, one class: jx-pair-destructive), --jx-tonal
   (jx-hue-* intent utilities), --jx-outline ride class utilities at
   the call site (arbitrary properties remain the escape hatch;
-  destructive action = fill +
-  [--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-
-  foreground)]; the copied transient is tonal +
-  jx-hue-success — copied left the union with the
-  semantic names).
+  destructive action = fill + jx-pair-destructive — the pair
+  utility injects --jx-fill WITH --jx-fill-ink in one class; the
+  copied transient is tonal + jx-hue-success — copied left the union
+  with the semantic names).
 
   One opt-in effect loop per button, modeled on the animation-svelte
   reference (github.com/SikandarJODD/animations, 2026-08-23 user

@@ -22,7 +22,8 @@
   Positive confirmations flip the injection with the arbitrary pair
   (the escape hatch for hues outside the closed set — and it still
   wins: jx-pair-destructive sorts BEFORE arbitrary-property
-  utilities in the TW utilities layer on 4.2.1, probed):
+  utilities in the TW utilities layer, verified in the
+  built sheet on the resolved Tailwind 4.3.3):
     variant="fill" class="[--jx-fill:var(--primary)] [--jx-fill-ink:var(--primary-foreground)]"
     variant="tonal"    (brand tint, no injection needed)
 -->

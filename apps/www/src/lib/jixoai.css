@@ -847,7 +847,9 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 /* ── hue-injection utilities (openspec/changes/hue-injection-utilities,
    2026-08-27) ──────────────────────────────────────────────────────
    The grammar's intent layer, authored as TW4-native @utility rules
-   (probed byte-equal to the arbitrary-property form on 4.2.1):
+   (declaration-equivalent to the arbitrary-property form — probed
+   via @tailwindcss/node candidatesToCss; orderings verified in the
+   built sheet on the resolved Tailwind 4.3.3):
    installing this theme sheet IS installing the plugin — no JS, no
    consumer setup. Canonical for the curated semantic set; the
    arbitrary-property class remains the escape hatch for anything

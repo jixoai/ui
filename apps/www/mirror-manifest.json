@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-26T18:29:45.620Z",
+  "generatedAt": "2026-08-26T18:49:24.467Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -90,8 +90,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "2a81ca6ee4a8d521251b678b6a24277172ceb1bddd96f54f820c8051e1ab46a9",
-          "mirrorSha": "2a81ca6ee4a8d521251b678b6a24277172ceb1bddd96f54f820c8051e1ab46a9"
+          "sourceSha": "0bd74e9f23aa12badbd12d1bc598eada8e620a08f22023d2d86c59980735fa05",
+          "mirrorSha": "0bd74e9f23aa12badbd12d1bc598eada8e620a08f22023d2d86c59980735fa05"
         }
       ]
     },
@@ -117,8 +117,8 @@
           "source": "registry/files/ui/press-button/press-button.svelte",
           "mirror": "apps/www/src/lib/ui/press-button/press-button.svelte",
           "target": "@ui/press-button/press-button.svelte",
-          "sourceSha": "1c4eca0362759288a15873b2d6a6b3ff75280e7c1efc35111b9493074148ad68",
-          "mirrorSha": "1c4eca0362759288a15873b2d6a6b3ff75280e7c1efc35111b9493074148ad68"
+          "sourceSha": "a78e7294ebf8f5c37e27876ab9c0fccb5ffd474b612ced4b060d1b35112f84c9",
+          "mirrorSha": "a78e7294ebf8f5c37e27876ab9c0fccb5ffd474b612ced4b060d1b35112f84c9"
         },
         {
           "source": "registry/files/ui/press-button/index.ts",
@@ -1782,8 +1782,8 @@
           "source": "registry/files/ui/alert-dialog/alert-dialog-action.svelte",
           "mirror": "apps/www/src/lib/ui/alert-dialog/alert-dialog-action.svelte",
           "target": "@ui/alert-dialog/alert-dialog-action.svelte",
-          "sourceSha": "a2b62ec7fc29db8bec125d6d462463eed6bf69bb844ef796e4c9503c84808e5a",
-          "mirrorSha": "a2b62ec7fc29db8bec125d6d462463eed6bf69bb844ef796e4c9503c84808e5a"
+          "sourceSha": "691a021d156e771baeb2b92303afe26fc8d0929665342e055d6a213296f84b9b",
+          "mirrorSha": "691a021d156e771baeb2b92303afe26fc8d0929665342e055d6a213296f84b9b"
         },
         {
           "source": "registry/files/ui/alert-dialog/alert-dialog-actions.svelte",

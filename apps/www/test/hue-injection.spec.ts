@@ -1,7 +1,7 @@
 // hue-injection utilities guards (hue-injection-utilities change):
 // the intent layer is authored as @utility rules INSIDE the theme
 // sheet — these locks keep the closed set honest against drift.
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { cn } from '../src/lib/utils';
@@ -103,6 +103,30 @@ describe('hue-injection migration (in-repo call sites)', () => {
     // the r2 blocker fix: the utility form here would outrank every
     // consumer's arbitrary injection — the early slot is the contract
     expect(src).not.toContain("'jx-hue-neutral bg-[color-mix");
+  });
+
+  it('component sources teach the pair UTILITY, not the arbitrary destructive pair', () => {
+    // r2 blocker: shipped headers presenting the retired arbitrary
+    // pair would miss the structural pair law — the article's
+    // deliberate escape-hatch demos are the only sanctioned spots
+    const sources = [
+      'src/lib/ui',
+      '../../registry/files/ui',
+      'src/lib/blueprints/scenes',
+      'src/routes/docs/components',
+    ].flatMap((dir) =>
+      readdirSync(resolve(process.cwd(), dir), { recursive: true })
+        .filter((f) => String(f).endsWith('.svelte') || String(f).endsWith('.ts'))
+        .map((f) => resolve(process.cwd(), dir, String(f))),
+    );
+    const offenders = sources.filter(
+      (f) =>
+        !f.includes('variant-grammar.html') && // the article's escape-hatch demos
+        /\[--jx-fill:var\(--destructive\)\]\s*\[--jx-fill-ink:var\(--destructive-foreground\)\]/.test(
+          readFileSync(f, 'utf8'),
+        ),
+    );
+    expect(offenders.map((f) => f.split('src/').pop() ?? f)).toEqual([]);
   });
 
   it('the feedback transients ride jx-hue-success', () => {

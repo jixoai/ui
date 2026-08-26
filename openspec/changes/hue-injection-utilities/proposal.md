@@ -51,5 +51,6 @@ names over mechanical slot×value aliases.
 
 ## Verification highlights
 
-Compiler probe (byte-equality), guard suite 4/4, full gates at the
+Compiler probe (declaration-equivalence on the resolved version),
+guard suite 12, full gates at the
 wave's close (vitest / svelte-check baseline / manifest / payloads).

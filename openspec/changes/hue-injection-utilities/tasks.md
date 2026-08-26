@@ -1,7 +1,9 @@
 # tasks — hue-injection-utilities
 
 - [x] Theme sheet @utility intent layer (6 hues + destructive pair, both roots)
-- [x] Compiler probe: byte-equal emission vs arbitrary form (TW 4.2.1)
+- [x] Compiler probe: declaration-equivalent emission vs arbitrary
+      form (resolved TW 4.3.3; orderings verified in the built sheet —
+      the r1-era 4.2.1 byte-equality result is historical)
 - [x] cn() tailwind-merge classGroups for the closed set (both roots)
 - [x] Guard suite (closed set verbatim, token existence, no hue-destructive, dedupe)
 - [x] Spec delta: component-authoring injection-seam amendment
