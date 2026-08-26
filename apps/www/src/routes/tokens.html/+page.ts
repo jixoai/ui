@@ -8,7 +8,6 @@ const toc: TocSection[] = [
   { id: 'density-kernel', label: 'density kernel' },
   { id: 'palette', label: 'palette' },
   { id: 'semantics', label: 'semantics' },
-  { id: 'primary-contrast', label: 'primary contrast' },
 ];
 
 export const load = () => ({ toc });

@@ -464,33 +464,5 @@ playing.subscribe((v) => (isPlaying = v));
     </SectionCard>
   </div>
 
-  <!-- Owner decision pending: primary contrast (recorded 2026-08-22,
-       four decision requests unanswered; this note states MEASURED
-       FACTS + the three options — it is not itself a decision) -->
-  <div id="primary-contrast" data-reveal="">
-    <SectionCard
-      family="primary-contrast"
-      headerRegion="primary-contrast"
-      eyebrow="Owner 决策待定"
-      title="primary contrast — measured, decision pending"
-      summary="MEASURED: the primary button's white foreground reads 2.4–3.5:1 across the hue rotation (3.11:1 at gold) and .text-primary links on the light surface read 2.55:1 — both below WCAG AA 4.5:1. Structural cause: --primary L≈0.65 under a pure-white --primary-foreground. The Owner has been asked to choose; until then the current values stand unchanged."
-    >
-      <div class="flex flex-col gap-3 text-[13px] leading-6">
-        <div class="border border-border bg-muted/40 px-4 py-3">
-          <p><strong>A · foreground to near-black</strong> (recommended): <code>--primary-foreground: oklch(0.15 0 0)</code> — ≈8:1 at every hue, one token, brutalist-consistent.</p>
-        </div>
-        <div class="border border-border bg-muted/40 px-4 py-3">
-          <p><strong>B · raise the base lightness</strong>: <code>--primary: oklch(0.78 0.16 var(--brand-hue))</code> — white text reaches 4.5:1, brand color lightens.</p>
-        </div>
-        <div class="border border-border bg-muted/40 px-4 py-3">
-          <p><strong>C · keep as-is</strong>: accept the terminal white-on-hue voice as a deliberate trade-off (below AA) — this note then becomes the recorded decision.</p>
-        </div>
-        <p class="text-muted-foreground text-[12.5px]">
-          Whichever is chosen, the change lands in registry/files/theme/jixoai.css and takes effect
-          site-wide; regression = 205-test suite + both builds + a contrast re-measure.
-        </p>
-      </div>
-    </SectionCard>
-  </div>
   </div>
 </div>
