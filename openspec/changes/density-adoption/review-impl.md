@@ -123,3 +123,30 @@ npm run build:site                             GREEN
 
 **Score: 3.5/10**
 **Archive: BLOCK**
+
+## Round 2
+
+日期：2026-08-26
+
+### Blocker verdicts
+
+- **1.1 Adoption verifier：BLOCK，未完成。** `extractBlocks()` 的 brace matching 在单独 CSS 上确实能找到 `:where()` 包装的声明（例如 `native-select.css` 的 `.jx-select`、list-item 的 `[data-slot='item-title']`），所以 r1 的正则盲点已修复；但 `REGISTRY` 仍没有 C row（`rowsForPacket('C')` 为 0），`--packet C` 实跑仍是 server-only `1/1`。现有行虽然进入了 browser loop，但 proof coverage 仍不足，见 NEW findings。
+- **1.2 jx-pure geometry：BLOCK，未完成。** `476167d` 没有修改任一 `jx-pure.css`；当前两份 sheet 的 `.jx-control`、`.jx-control-shell`、`.jx-control-lane`、text face、summary 和 `.jx-color-shell` 仍保留 r1 列出的硬编码（颜色 shell 仍 `width: 5rem; min-height: 2.5rem`，没有 `--jx-d-ctl-color-lane`）。现有 pure gate 通过不能覆盖这些未纳入的 density USED probes。
+- **1.3 HuePopover rename：BLOCK，未完成。** `apps/www/src/lib/components/hue-popover.svelte:76-80` 仍渲染 `.jx-range`，而 v2 sheet 只定义 `.jx-slider`；本提交只 tokenizes trigger/panel，未修复这个真实 consumer。
+- **1.4 C types：ACCEPT（非本轮 blocker）。** canonical/mirror 的 anchor-item 与 pagination-link 已恢复 `interface extends`，提交 diff 未显示运行时回归；Owner 提供的 stash-baseline 说明 sibling-import 的 15 条 svelte-check circularity 在前后相同，因此按 pre-existing language-server limitation 处理。当前工作区没有 `svelte-check` binary，未独立重跑该工具；Vitest 未受影响。
+
+### NEW findings
+
+1. **Browser gate 仍可空通过（P0）。** `verify-density-adoption.mjs:141-172` 统计全页 `[data-density]`，对首个通用 probe 采样 `16px/24px/min auto`，不校验 family element 或 aliases；lane 缺失/无 rect 直接 `continue`，只测首个匹配元素的硬编码 `height >= 28`，不使用 `hitFloor`、不 click、也不测 `visualOnly`。built routes 实际只暴露 A `1/8`、B `1/5`、D `2/6`、E `0/2` lane selectors，却分别通过 `6/6`、`...`、`7/7`、`5/5`。
+2. **Resize 不是注册契约（P1）。** 只改变首个通用 probe，并以 `xs/default/lg` 三个字符串存在差异为通过条件；遗漏必需的 `sm`，不检查 `resize[].expect`、组件 geometry、nested/root-default/inherited-parent。
+3. **Static coverage 仍不可信（P1）。** `extractBlocks()` 返回零块或 declaration 缺失时没有失败；不存在的 root 静默跳过。实际把 `.svelte` 和 `.css` 拼接后，D 的 `.jx-menu-item` 等直接 CSS 块无法被发现，packet D 静态阶段只有 row-complete。并且只在值以 `var(` 开头时执行 closed-token 检查，`calc(var(--jx-d-...))` 可绕过。
+4. **Exception allowlist 不是 selector+property（P1）。** `isException()` 忽略 `exception.property`，并做双向 substring 匹配；A 的 multi-select `.jx-select` 例外会跳过该 selector 的全部 density-owned properties。`rowIsComplete()` 也不验证 lanes、visualOnly、exceptions、hitFloor、resize。
+
+### Gate ledger
+
+重建 `public/` 后实跑：Vitest **508/508**；kernel **61/61**；ruler **18/18**；matrix **37/37**；jx-pure **65/65**；mirror manifest **GREEN**；adoption `--packet all` **94/94**。这些绿灯不能抵消 C 空行和上述 vacuous checks。
+
+### Final call
+
+**Score: 2.5/10**
+**Archive: BLOCK**
