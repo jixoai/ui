@@ -196,8 +196,6 @@
 ## Pending evidence
 
 - verify-jx-pure-engines (Firefox/WebKit) rerun result.
-- Codex r2 confirmation round.
-
 ## Codex r2 — evidence round (2026-08-27)
 
 - Verdict 8.0/10 (+1.5 vs r1). Both residual P1s were EVIDENCE gaps,
@@ -214,3 +212,40 @@
     matrix contract (declared==validated; full cross-product named
     as the growth path); summary padding swept; two indent
     degradations restored.
+
+## Codex r3 — carrier-evidence round (2026-08-27)
+
+- Verdict 8.3/10 (confidence 0.86; no behavioral P1s; Codex re-ran
+  the full gate battery independently — all green at a0d3da4).
+- Fixes landed (8d1c72b): the knob probe asserts the FULL carrier
+  contract via per-probe whitelists (position, logical inset
+  longhands, transform, dimensions — the anchored-longhand model; the
+  AUTO-resolved end insets excluded as a measured serialization
+  artifact between pseudos and real elements); bind:group hydration
+  waits (the intermittent element-missing flake is dead — 3/3 stable
+  GREEN, 3050 comparisons); design §7 and the spec delta now carry
+  ONE matrix contract (declared==validated; cross-product = growth
+  path); the toggle pixel range updated to the reproducible
+  8.9–9.9% (hue-phase dependent).
+
+## Cross-engine evidence (final)
+
+- Firefox: ALL CHECKS PASS — two independent runs (including the
+  derived daisyUI pill box at --jx-icon 20px, the density-adopted
+  switch geometry, forced-colors reversion). Required a script fix:
+  the machine proxy black-holes localhost (firefoxUserPrefs
+  network.proxy.type=0), plus the stale 24px literal replaced by a
+  derived probe.
+- WebKit: SKIP — environment limitation, not implementation: BOTH
+  cached builds (webkit-2311, webkit-2248) hang at the protocol
+  handshake with this playwright-core (launch never settles; the
+  script's ENGINES filter + goto timeout + WEBKIT_PATH override were
+  added while diagnosing — a usable webkit build on this machine is
+  the precondition for closing this row).
+- engines script hardening committed: ENGINES env filter, 30s goto
+  timeout, WEBKIT_PATH override, proxy bypass for both engines.
+
+## Pending
+
+- Codex r4 confirmation with the engines story above (firefox PASS ×2,
+  webkit SKIP-environment).

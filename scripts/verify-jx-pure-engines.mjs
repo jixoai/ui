@@ -43,7 +43,7 @@ async function runEngine(name, launch) {
   const ok = (n, c) => { console.log(`${c ? 'PASS' : 'FAIL'}  [${name}] ${n}`); if (!c) failed.push(n); };
 
   // docs-restructure: the jx-pure page now lives at /docs/jx-pure.html
-  await page.goto(`http://localhost:${port}/docs/jx-pure.html`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`http://localhost:${port}/docs/jx-pure.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForTimeout(2500);
 
   // ---- D1: thin rail + fill + (engine-specific) thumb visibility ----
@@ -149,13 +149,17 @@ async function runEngine(name, launch) {
 const total = [];
 // the cache carries slightly older builds than this playwright-core
 // expects — point executablePath at what exists (protocol-compatible)
+// ENGINES=firefox / ENGINES=webkit filters the run (a hung engine can
+// be rerun standalone instead of re-walking the healthy one)
+const wanted = (process.env.ENGINES ?? 'firefox,webkit').split(',');
 for (const [name, launch] of [
   // the machine proxy black-holes localhost (verify-jx-pure's Chrome
   // lesson): firefox must go DIRECT (proxy.type 0) or every goto dies
   // with NS_ERROR_NET_ERROR_RESPONSE; webkit's soup stack honors no_proxy
   ['firefox', () => firefox.launch({ executablePath: `${process.env.HOME}/Library/Caches/ms-playwright/firefox-1532/firefox/Nightly.app/Contents/MacOS/firefox`, firefoxUserPrefs: { 'network.proxy.type': 0 } })],
-  ['webkit', () => webkit.launch({ executablePath: `${process.env.HOME}/Library/Caches/ms-playwright/webkit-2311/pw_run.sh`, env: { ...process.env, no_proxy: 'localhost,127.0.0.1', NO_PROXY: 'localhost,127.0.0.1' } })],
+  ['webkit', () => webkit.launch({ executablePath: process.env.WEBKIT_PATH ?? `${process.env.HOME}/Library/Caches/ms-playwright/webkit-2311/pw_run.sh`, env: { ...process.env, no_proxy: 'localhost,127.0.0.1', NO_PROXY: 'localhost,127.0.0.1' } })],
 ]) {
+  if (!wanted.includes(name)) continue;
   try {
     // a mismatched cached build can hang at the protocol handshake —
     // race the LAUNCH with a timeout and skip cleanly on hang
