@@ -73,35 +73,47 @@
 }
 
 /* ── the left rail's view-transition presence law (Owner walkthrough
-   request, 2026-08-26). The docs tree rail (.jx-dsn, the chrome slot's
-   data-area="tree" cell) carries vt-rail-tree; +layout.svelte's
-   onNavigate writes html[data-vt-rail] = in | out for the transition's
-   lifetime when the rail's PRESENCE flips across the navigation — the
-   entering snapshot slides in from (the exiting one slides out to) the
-   left screen edge. Presence-stable swaps ('swap') and absent-on-both
-   ('none') write nothing: the default old/new pair cross-fade applies,
-   exactly the D8 "no pairwise semantics for detail pages" ruling. ── */
-:where(.jx-dsn) {
+   request, 2026-08-26; r3 hardening). The docs tree rail is the
+   DocsSectionsNav root (.jx-dsn — the COMPONENT'S OWN class, authored
+   with its styles in docs-sections-nav.svelte; jx-* classes carry
+   component law while tailwind handles layout utilities — this sheet
+   only GATES it).
+
+   MOUNTING IS DYNAMIC (Owner r2 ruling): an always-on
+   view-transition-name isolates the element into its own snapshot
+   layer and kills backdrop-filter inside it (the sticky head's
+   progressive-blur band) — the same class of breakage as opacity.
+   The name exists ONLY while html[data-vt-rail] is set, i.e. for the
+   transition's lifetime: +layout.svelte's onNavigate writes in | out
+   BEFORE calling startViewTransition and deletes it on finished.
+   Consequence: presence-stable swaps never mount the name — the rail
+   rides the page's default transition (exactly the Owner's 'default
+   old-new' ruling) AND its blur stays live between navigations.
+
+   TRAVEL: calc(-100% - 3rem) — the rail's own width plus the page
+   gutter, just enough to leave the screen (the first draft's -110vw
+   crossed ~7 rail-widths in 450ms and read as an instant vanish). ── */
+html[data-vt-rail='in'] :where(.jx-dsn),
+html[data-vt-rail='out'] :where(.jx-dsn) {
   view-transition-name: vt-rail-tree;
 }
 html[data-vt-rail='in']::view-transition-new(vt-rail-tree) {
   animation: jx-rail-tree-in 340ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 html[data-vt-rail='out']::view-transition-old(vt-rail-tree) {
-  /* 450ms — the carousel's own duration: an exit shorter than the page
-     slide beside it is perceptually swallowed (motion masking, Owner
-     walkthrough r2); the shared curve keeps the two motions in one
-     visual phrase */
+  /* 450ms — the carousel's own duration: the rail and the page leave
+     as one visual phrase (a shorter exit under the page slide was
+     perceptually swallowed) */
   animation: jx-rail-tree-out 450ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @keyframes jx-rail-tree-in {
   from {
-    transform: translateX(-110vw);
+    transform: translateX(calc(-100% - 3rem));
   }
 }
 @keyframes jx-rail-tree-out {
   to {
-    transform: translateX(-110vw);
+    transform: translateX(calc(-100% - 3rem));
   }
 }
 @media (prefers-reduced-motion: reduce) {
