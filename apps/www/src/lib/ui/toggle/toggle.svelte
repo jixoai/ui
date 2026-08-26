@@ -38,6 +38,7 @@
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
   import './toggle.css';
 
@@ -49,8 +50,9 @@
     /** lands on the hidden input; auto-generated when omitted */
     id?: string;
     disabled?: boolean;
-    /** sm 28×16 · md 36×20 (default) · lg 44×24 */
-    size?: 'sm' | 'md' | 'lg';
+    /** density policy: explicit override, then inherited provider */
+    density?: Density;
+    'data-density'?: string;
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -61,34 +63,31 @@
     label,
     id = autoId,
     disabled = false,
-    size = 'md',
+    density,
+    'data-density': _callerDensity,
     class: className = '',
     ...rest
   }: Props = $props();
 
-  const sizeUtilities = {
-    sm: '[--jx-toggle-w:32px] [--jx-toggle-h:20px]',
-    md: '[--jx-toggle-w:36px] [--jx-toggle-h:20px]',
-    lg: '[--jx-toggle-w:44px] [--jx-toggle-h:24px]',
-  } as const;
+  const inheritedDensity = getDensityContext();
+  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
 </script>
 
 <label
   for={id}
-  data-jx-toggle={size}
+  data-density={resolvedDensity}
   class={cn(
-    'jx-switch-track inline-flex items-center justify-end gap-[0.6rem] w-fit cursor-pointer select-none',
-    sizeUtilities[size],
+    'jx-switch-track inline-flex items-center justify-end w-fit cursor-pointer select-none',
     disabled && 'jx-toggle-disabled opacity-50 cursor-not-allowed',
     className,
   )}
 >
-  {#if label}<span data-jx-toggle-label class="text-[0.8125rem] text-foreground">{label}</span>{/if}
+  {#if label}<span data-jx-toggle-label class="text-foreground">{label}</span>{/if}
   <input {id} type="checkbox" class="jx-toggle-native sr-only" bind:checked {disabled} {...rest} />
   <span
-    class="jx-toggle-track relative flex-none box-border p-[2px] rounded-full bg-muted w-(--jx-toggle-w) h-(--jx-toggle-h) shadow-[inset_0_0_0_1px_var(--border)] transition-[background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"
+    class="jx-toggle-track relative flex-none box-border rounded-full bg-muted shadow-[inset_0_0_0_1px_var(--border)] transition-[background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"
     aria-hidden="true"
     ><span
-      class="jx-toggle-knob block rounded-full bg-muted-foreground w-[calc(var(--jx-toggle-h)-4px)] h-[calc(var(--jx-toggle-h)-4px)] transition-[transform,background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
+      class="jx-toggle-knob block rounded-full bg-muted-foreground transition-[transform,background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
     ></span></span>
 </label>

@@ -28,10 +28,13 @@
   import { cn } from '$lib/utils';
   import '$lib/form-field';
   import './input-otp.css';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
 
   interface Props extends Omit<HTMLInputAttributes, 'value' | 'type' | 'maxlength'> {
     /** form field name — the joined code submits under this name */
     name?: string;
+    /** density policy: explicit, inherited, then default */
+    density?: Density;
     /** slot count; default 6 */
     length?: number;
     /** the joined code; bindable (bind:value) for controlled use */
@@ -50,6 +53,8 @@
 
   let {
     name,
+    density,
+    'data-density': _callerDensity,
     length = 6,
     value = $bindable(''),
     numeric = true,
@@ -63,6 +68,8 @@
   }: Props = $props();
 
   const slots = $derived(Math.max(1, Math.min(12, Math.trunc(length))));
+  const outerDensity = getDensityContext();
+  const resolvedDensity: Density = $derived(resolveDensity(density, outerDensity));
   /** per-slot chars, source of truth; value derives from the join */
   // eager from props so SSR paints all slots (no blank first frame)
   let chars = $state<string[]>(
@@ -152,7 +159,9 @@
   /** focus ENTERING the set from outside lands on the first empty
    * slot; moves between slots (arrows, typing) are left alone */
   function handleFocusIn(event: FocusEvent): void {
-    if (event.currentTarget.contains(event.relatedTarget)) return;
+    const container = event.currentTarget;
+    const prior = event.relatedTarget;
+    if (container instanceof HTMLElement && prior instanceof Node && container.contains(prior)) return;
     const target = Math.max(0, chars.findIndex((ch) => ch === ''));
     slotEls[target]?.focus();
     slotEls[target]?.select();
@@ -169,11 +178,11 @@
   onjx-disabled={(e: CustomEvent<boolean>) => (formDisabled = e.detail)}
 ></jx-form-field>
 
-<div data-jx-otp class={cn('flex flex-col gap-1.5 w-fit', className)} role="group" aria-label={label ?? 'one-time code'}>
+<div data-jx-otp data-density={resolvedDensity} class={cn('flex flex-col gap-[var(--jx-d-ctl-gap)] w-fit', className)} role="group" aria-label={label ?? 'one-time code'}>
     {#if label}
-      <label data-jx-otp-label class="font-nav text-xs tracking-[0.1em] uppercase text-muted-foreground" for="{id}-0">{label}</label>
+      <label data-jx-otp-label class="font-nav text-[length:var(--jx-d-secondary-text)] tracking-[0.1em] uppercase text-muted-foreground" for="{id}-0">{label}</label>
     {/if}
-    <div data-jx-otp-slots class="flex gap-1.5" onfocusin={handleFocusIn}>
+    <div data-jx-otp-slots class="flex gap-[var(--jx-d-ctl-gap)]" onfocusin={handleFocusIn}>
       {#each chars as ch, index (index)}
         <input
           id="{id}-{index}"
@@ -184,7 +193,7 @@
           data-jx-otp-filled={ch !== '' ? '' : undefined}
           data-jx-otp-invalid={!!error ? '' : undefined}
           class={cn(
-            'jx-otp-slot box-border w-[2.375rem] h-[2.75rem] p-0 border border-border bg-background text-foreground font-mono text-lg text-center rounded-(--radius) caret-primary disabled:opacity-50 disabled:cursor-not-allowed',
+            'jx-otp-slot box-border min-w-[max(var(--jx-d-ctl-hit),calc(var(--jx-d-ctl-line)*2))] min-h-[max(var(--jx-d-ctl-hit),calc(var(--jx-d-ctl-line)*2))] p-0 border border-border bg-background text-foreground font-mono text-[length:var(--jx-d-ctl-text)] text-center rounded-(--radius) caret-primary disabled:opacity-50 disabled:cursor-not-allowed',
             ch !== '' && 'border-foreground',
             complete && 'jx-otp-complete border-primary',
             !!error && 'border-destructive border-dashed',

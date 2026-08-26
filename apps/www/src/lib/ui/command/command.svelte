@@ -96,6 +96,7 @@
   /** context surface the family shares — STATE + BEHAVIOR, never
    *  membership order (the family context contract) */
   export interface CommandApi {
+    readonly density: import('$lib/density.svelte').Density;
     readonly label: string;
     readonly placeholder: string;
     /** the listbox id — the input's aria-controls target */
@@ -129,6 +130,7 @@
 
 <script lang="ts">
   import { onDestroy, setContext, untrack } from 'svelte';
+  import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
   import type { Snippet } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import type { HTMLAttributes } from 'svelte/elements';
@@ -136,6 +138,7 @@
   import './command.css';
 
   interface Props extends HTMLAttributes<HTMLDialogElement> {
+    density?: Density;
     /** bindable open state — same lifecycle contract as dialog */
     open?: boolean;
     onopenchange?: (open: boolean) => void;
@@ -168,6 +171,7 @@
     hotkey = false,
     placeholder = 'type a command…',
     label = 'command palette',
+    density,
     match,
     closeOnSelect = true,
     variant = 'auto',
@@ -175,6 +179,10 @@
     children,
     ...rest
   }: Props = $props();
+
+  const inheritedDensity = getDensityContext();
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  provideDensity(() => resolvedDensity);
 
   let dialog = $state<HTMLDialogElement | null>(null);
   let inputEl = $state<HTMLInputElement | null>(null);
@@ -253,6 +261,9 @@
   }
 
   const ctx: CommandApi = {
+    get density() {
+      return resolvedDensity;
+    },
     get label() {
       return label;
     },
@@ -365,6 +376,7 @@
   )}
   data-variant={variant}
   {...rest}
+  data-density={resolvedDensity}
   aria-label={label}
   oncancel={handleCancel}
   onclose={handleClose}

@@ -41,10 +41,11 @@
 <button
   type="button"
   data-jx-menubar-trigger=""
+  data-density={bar.density}
   role="menuitem"
   aria-haspopup="menu"
   class={cn(
-    'cursor-pointer border-r border-border bg-transparent px-[0.875rem] py-[0.4375rem] font-nav text-xs uppercase tracking-[0.1em] text-muted-foreground transition-[color,background-color] duration-150 ease-out hover:bg-muted hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+    'jx-menubar-trigger cursor-pointer border-r border-border bg-transparent font-nav uppercase tracking-[0.1em] text-muted-foreground transition-[color,background-color] duration-150 ease-out hover:bg-muted hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
     bar.openPanelId === panelId ? 'bg-muted text-foreground' : '',
     className,
   )}

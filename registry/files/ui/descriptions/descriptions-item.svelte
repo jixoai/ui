@@ -35,11 +35,11 @@
   <dt
     data-jx-desc-term=""
     class={cn(
-      'truncate px-3 py-2 font-nav text-[0.6875rem] tracking-[0.12em] uppercase text-muted-foreground',
+      'truncate [padding:var(--jx-d-ctl-gap)_var(--jx-d-ctl-pad)] font-nav [font-size:var(--jx-d-secondary-text)] [line-height:var(--jx-d-secondary-line)] tracking-[0.12em] uppercase text-muted-foreground',
       descriptions.bordered && 'bg-muted border-r border-border',
     )}
   >{term}</dt>
-  <dd data-jx-desc-value="" class="m-0 px-3 py-2 text-[0.8125rem] leading-[1.5] text-foreground min-w-0 [overflow-wrap:anywhere]">
+  <dd data-jx-desc-value="" class="m-0 [padding:var(--jx-d-ctl-gap)_var(--jx-d-ctl-pad)] [font-size:var(--jx-d-ctl-text)] [line-height:var(--jx-d-ctl-line)] text-foreground min-w-0 [overflow-wrap:anywhere]">
     {#if children}{@render children()}{:else}—{/if}
   </dd>
 </div>

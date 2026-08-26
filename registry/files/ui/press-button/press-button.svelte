@@ -145,9 +145,12 @@
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import './press-button.css';
 
   interface Props {
+    /** DENSITY override: explicit ?? inherited ?? default */
+    density?: Density;
     variant?:
       | 'primary'
       | 'secondary'
@@ -176,6 +179,7 @@
   }
 
   let {
+    density,
     variant = 'outline',
     effect = undefined,
     href,
@@ -188,13 +192,16 @@
     children,
   }: Props = $props();
 
+  const inheritedDensity = getDensityContext();
+  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
+
   // the square swaps ONLY geometry: one band (42px, the text button's
   // own height) with the glyph centered — paint, physics and effects
   // are identical to the text pose
   const base = $derived(
     square
-      ? 'inline-flex items-center justify-center size-10.5 text-sm font-medium'
-      : 'inline-flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-medium',
+      ? 'inline-flex min-h-[var(--jx-d-ctl-hit)] min-w-[var(--jx-d-ctl-hit)] items-center justify-center text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] font-medium'
+      : 'inline-flex min-h-[var(--jx-d-ctl-hit)] items-center gap-[var(--jx-d-ctl-gap)] px-[var(--jx-d-ctl-pad)] text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] font-medium',
   );
   // the bordered, shadow-bearing body (link opts out entirely)
   const frame = 'jx-press border border-border';
@@ -315,6 +322,7 @@
     target={isExternal ? '_blank' : undefined}
     rel={isExternal ? 'noreferrer' : undefined}
     aria-label={ariaLabel}
+    data-density={resolvedDensity}
     data-jx-shimmer-host={effect?.type === 'shimmer' ? '' : undefined}
     data-jx-pulse-host={effect?.type === 'pulse' ? '' : undefined}
     data-jx-ripple-host={effect?.type === 'ripple' ? '' : undefined}
@@ -343,6 +351,7 @@
     {type}
     onclick={effect?.type === 'ripple' ? onRippleClick : onclick}
     aria-label={ariaLabel}
+    data-density={resolvedDensity}
     data-jx-shimmer-host={effect?.type === 'shimmer' ? '' : undefined}
     data-jx-pulse-host={effect?.type === 'pulse' ? '' : undefined}
     data-jx-ripple-host={effect?.type === 'ripple' ? '' : undefined}

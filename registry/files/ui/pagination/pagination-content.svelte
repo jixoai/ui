@@ -19,7 +19,7 @@
 
 <ul
   data-jx-pagination-list=""
-  class={cn('m-0 flex list-none flex-wrap items-center gap-1 p-0', className)}
+  class={cn('m-0 flex list-none flex-wrap items-center gap-[var(--jx-d-ctl-gap)] p-0', className)}
   role="list"
   {...rest}
 >

@@ -20,7 +20,7 @@
 
 <span
   data-jx-step-description=""
-  class={cn('text-xs leading-[1.45] text-muted-foreground opacity-80', className)}
+  class={cn('[font-size:var(--jx-d-secondary-text)] [line-height:var(--jx-d-secondary-line)] text-muted-foreground opacity-80', className)}
   {...rest}
 >
   {@render children()}

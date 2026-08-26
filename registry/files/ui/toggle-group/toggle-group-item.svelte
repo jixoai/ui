@@ -43,7 +43,7 @@
   type="button"
   data-jx-tgroup={active ? 'on' : undefined}
   class={cn(
-    'jx-tgroup-btn appearance-none cursor-pointer border-r border-border px-[0.875rem] py-[0.4375rem] font-nav text-xs uppercase tracking-[0.1em] last:border-r-0 transition-[color,background-color] duration-150 ease-out',
+    'jx-tgroup-btn appearance-none cursor-pointer border-r border-border font-nav uppercase tracking-[0.1em] last:border-r-0 transition-[color,background-color] duration-150 ease-out',
     active
       ? 'bg-primary text-primary-foreground hover:not-disabled:text-primary-foreground'
       : 'bg-transparent text-muted-foreground hover:not-disabled:text-foreground',

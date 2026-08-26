@@ -73,12 +73,15 @@
   import type { HTMLInputAttributes } from 'svelte/elements';
   import { icons } from '$lib/icons';
   import { cn } from '$lib/utils';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import type { Snippet } from 'svelte';
   import './input.css';
 
   interface Props extends HTMLInputAttributes {
     /** any native input type (default 'text') */
     type?: string;
+    /** density policy: explicit, inherited, then default */
+    density?: Density;
     /** field label; renders label[for] above the control.
         skipped when outerBlockStart takes the slot over */
     label?: string;
@@ -110,6 +113,8 @@
 
   let {
     type = 'text',
+    density,
+    'data-density': _callerDensity,
     label,
     id = autoId,
     error,
@@ -126,6 +131,8 @@
   }: Props = $props();
 
   const errorId = $derived(`${id}-error`);
+  const outerDensity = getDensityContext();
+  const resolvedDensity: Density = $derived(resolveDensity(density, outerDensity));
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : ariaDescribedBy);
   const invalidAttr = $derived(invalid ? 'true' : ariaInvalid);
@@ -166,9 +173,9 @@
 
 {#if isHidden}
   <!-- hidden: bare native passthrough (value rides as a plain attribute) -->
-  <input {id} {type} {value} {...rest} />
+  <input {id} {type} {value} {...rest} data-density={resolvedDensity} />
 {:else}
-  <div class="jx-field">
+  <div class="jx-field" data-density={resolvedDensity}>
     {#if outerBlockStart}
       <div data-jx-outer data-jx-outer-start class="text-muted-foreground text-xs -mb-1">{@render outerBlockStart()}</div>
     {:else if label}<label class="jx-label" for={id}>{label}</label>{/if}
@@ -229,7 +236,7 @@
         {#if showClear}
           <button
             type="button"
-            class="jx-clear flex-none inline-flex items-center justify-center w-[1.125rem] h-[1.125rem] p-0 border-0 bg-transparent text-muted-foreground text-base leading-none cursor-pointer"
+            class="jx-clear flex-none inline-flex items-center justify-center min-w-[var(--jx-d-ctl-hit)] min-h-[var(--jx-d-ctl-hit)] p-0 border-0 bg-transparent text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-leading)] cursor-pointer"
             aria-label="clear value"
             onclick={clearValue}
           >

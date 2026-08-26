@@ -5,7 +5,7 @@
 
 <div class="flex h-full w-full flex-col items-start justify-center gap-5 p-10">
   <div class="flex items-center gap-2 text-sm">
-    <Kbd>⌘</Kbd><Kbd>K</Kbd>
+    <Kbd density="lg">⌘</Kbd><Kbd density="lg">K</Kbd>
     <span class="text-muted-foreground">open the command surface</span>
   </div>
   <div class="flex items-center gap-2 text-sm">

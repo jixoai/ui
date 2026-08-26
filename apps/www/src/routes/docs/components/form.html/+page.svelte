@@ -14,6 +14,7 @@
   import OverviewCard from '$lib/overview-card.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import { CATALOG, type CatalogEntry } from '$lib/catalog';
+  import Input from '$lib/ui/input/input.svelte';
 
   // ToC outline: the three anchor groups + the law, in page order. The
   // ids ARE the legacy anchors of the old single page.
@@ -63,7 +64,6 @@ ${close}
   interface HubGroup {
     id: string;
     title: string;
-    zh: string;
     guide: string;
     members: string[];
   }
@@ -183,6 +183,27 @@ ${close}
       </CardGrid>
     </section>
   {/each}
+
+  <!-- NativeHTML base explainer -->
+  <div id="density-ladder" data-reveal="">
+    <SectionCard
+      family="density-ladder"
+      headerRegion="density-ladder"
+      eyebrow="density"
+      title="form controls across the density ladder"
+      summary="The same native control keeps its semantics while the inherited density scope changes its footprint. Each row is a real clickable control for physical hit-target probes."
+    >
+      <div class="grid gap-4 min-[760px]:grid-cols-4" data-density-ladder>
+        {#each ['xs', 'sm', 'default', 'lg'] as density}
+          <div data-density={density} data-density-scope={density} class="flex min-w-0 flex-col gap-[var(--jx-d-ctl-gap)]">
+            <span class="font-nav text-[length:var(--jx-d-secondary-text)] uppercase tracking-[0.14em]">{density}</span>
+            <Input label={`${density} input`} placeholder="click target" />
+            <button type="button" data-density-click-target class="min-h-[var(--jx-d-ctl-hit)] border border-border px-[var(--jx-d-ctl-pad)] text-[length:var(--jx-d-ctl-text)]">probe</button>
+          </div>
+        {/each}
+      </div>
+    </SectionCard>
+  </div>
 
   <!-- NativeHTML base explainer -->
   <div id="native-base" data-reveal="">

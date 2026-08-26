@@ -10,16 +10,19 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
     class?: string;
   }
 
   let { class: className = '', ...rest }: Props = $props();
+  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
 </script>
 
 <span
   data-jx-breadcrumb-ellipsis=""
+  data-density={resolvedDensity}
   class={cn('text-muted-foreground tracking-normal select-none', className)}
   {...rest}
   aria-hidden="true"

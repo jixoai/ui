@@ -24,10 +24,13 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { Density } from '$lib/density.svelte';
   import PressButton, { type PressEffect } from '$lib/ui/press-button/press-button.svelte';
   import Tooltip from '$lib/ui/tooltip/tooltip.svelte';
 
   interface Props {
+    /** DENSITY override forwarded to the press-button control root */
+    density?: Density;
     /** the glyph — always decorative; an svg or character snippet */
     icon: Snippet;
     /** the ONE label: visible text by default, tooltip + accessible name in iconOnly */
@@ -60,6 +63,7 @@
   }
 
   let {
+    density,
     icon,
     text,
     variant = 'outline',
@@ -77,6 +81,7 @@
 
 {#snippet control()}
   <PressButton
+    {density}
     {variant}
     square={iconOnly}
     {effect}

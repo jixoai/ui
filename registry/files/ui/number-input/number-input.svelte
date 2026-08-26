@@ -62,11 +62,14 @@
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import './number-input.css';
 
   interface Props extends HTMLInputAttributes {
     /** committed quantity; bind:value — undefined renders empty */
     value?: number;
+    /** density policy: explicit, inherited, then default */
+    density?: Density;
     /** lower bound; stepping and the change-commit clamp into it */
     min?: number;
     /** upper bound; stepping and the change-commit clamp into it */
@@ -86,6 +89,8 @@
 
   let {
     value = $bindable(),
+    density,
+    'data-density': _callerDensity,
     min,
     max,
     step = 1,
@@ -98,6 +103,8 @@
   }: Props = $props();
 
   const errorId = $derived(`${id}-error`);
+  const outerDensity = getDensityContext();
+  const resolvedDensity: Density = $derived(resolveDensity(density, outerDensity));
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : undefined);
   const invalidAttr = $derived(invalid ? 'true' : undefined);
@@ -174,11 +181,11 @@
   }
 </script>
 
-<div class="jx-field">
+<div class="jx-field" data-density={resolvedDensity}>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <div
     class={cn(
-      'jx-num flex items-stretch w-full max-w-full min-h-10 border border-border rounded-none bg-background text-foreground transition-[box-shadow] duration-150 ease-out',
+      'jx-num flex items-stretch w-full max-w-full min-h-[var(--jx-d-ctl-hit)] border border-border rounded-none bg-background text-foreground transition-[box-shadow] duration-150 ease-out',
       invalid && 'border-dashed',
       disabled && 'jx-num-off opacity-50 cursor-not-allowed',
       className,
@@ -188,7 +195,7 @@
     <button
       type="button"
       data-jx-num-minus
-      class="jx-num-btn flex-none w-7 -ms-px inline-flex items-center justify-center p-0 border border-border rounded-none bg-background text-foreground font-nav font-bold text-sm leading-none cursor-pointer touch-manipulation transition-[background-color,transform] duration-150 ease-out disabled:cursor-not-allowed"
+      class="jx-num-btn flex-none min-w-[var(--jx-d-ctl-hit)] min-h-[var(--jx-d-ctl-hit)] -ms-px inline-flex items-center justify-center p-0 border border-border rounded-none bg-background text-foreground font-nav font-bold text-[length:var(--jx-d-ctl-text)] leading-none cursor-pointer touch-manipulation transition-[background-color,transform] duration-150 ease-out disabled:cursor-not-allowed"
       aria-label="decrease"
       {disabled}
       onpointerdown={beginHold.bind(null, -1)}
@@ -217,7 +224,7 @@
     <button
       type="button"
       data-jx-num-plus
-      class="jx-num-btn flex-none w-7 -me-px inline-flex items-center justify-center p-0 border border-border rounded-none bg-background text-foreground font-nav font-bold text-sm leading-none cursor-pointer touch-manipulation transition-[background-color,transform] duration-150 ease-out disabled:cursor-not-allowed"
+      class="jx-num-btn flex-none min-w-[var(--jx-d-ctl-hit)] min-h-[var(--jx-d-ctl-hit)] -me-px inline-flex items-center justify-center p-0 border border-border rounded-none bg-background text-foreground font-nav font-bold text-[length:var(--jx-d-ctl-text)] leading-none cursor-pointer touch-manipulation transition-[background-color,transform] duration-150 ease-out disabled:cursor-not-allowed"
       aria-label="increase"
       {disabled}
       onpointerdown={beginHold.bind(null, 1)}

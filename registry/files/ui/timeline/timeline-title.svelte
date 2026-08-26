@@ -20,6 +20,6 @@
   let { class: className = '', children, ...rest }: Props = $props();
 </script>
 
-<p data-jx-tl-title="" class={cn('m-0 font-nav text-xs tracking-[0.08em] uppercase', className)} {...rest}>
+<p data-jx-tl-title="" class={cn('m-0 font-nav [font-size:var(--jx-d-ctl-text)] [line-height:var(--jx-d-ctl-line)] tracking-[0.08em] uppercase', className)} {...rest}>
   {@render children()}
 </p>

@@ -7,7 +7,7 @@
  * the native search-cancel pseudo kill (a UA pseudo-element build),
  * and the clear button's hover/focus state machine (unlayered carve-out
  * — it must beat the button's own utility paint). The box/lane laws
- * (.jx-field-shell / .jx-input-lane / .jx-range / .jx-color-field) are
+ * (.jx-control-shell / .jx-control-lane / .jx-slider / .jx-color-shell) are
  * consumed from jx-pure Part A, never redefined here. */
 
 @layer components {
@@ -17,7 +17,7 @@
     height: 10px;
   }
   /* the native search decoration bows out when our own × is on duty */
-  :where(.jx-field-shell.jx-clearable) :where(.jx-input-lane)::-webkit-search-cancel-button {
+  :where(.jx-control-shell.jx-clearable) :where(.jx-control-lane)::-webkit-search-cancel-button {
     display: none;
   }
 }

@@ -20,7 +20,7 @@
   import type { HTMLAnchorAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
 
-  interface Props extends Omit<HTMLAnchorAttributes, 'aria-current'> {
+  type Props = Omit<HTMLAnchorAttributes, 'aria-current'> & {
     /** which page this link is (its default label) */
     page: number;
     /** the current page — active chip paint + aria-current */
@@ -33,7 +33,7 @@
     child?: Snippet<[{ props: HTMLAnchorAttributes & { class: string } }]>;
     children?: Snippet;
     class?: string;
-  }
+  };
 
   let {
     page,
@@ -46,6 +46,8 @@
     ...rest
   }: Props = $props();
 
+
+
   // chip geometry + press poses (the closed component's law: the
   // current page rides the press, never its shadow)
   const chipPose =
@@ -53,7 +55,7 @@
   const chipPoseCurrent =
     '[--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]';
   const chipBase =
-    'inline-flex h-[1.875rem] min-w-[1.875rem] items-center justify-center box-border border px-2 font-nav text-xs no-underline tracking-[0.08em] cursor-pointer focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
+    'inline-flex min-h-[var(--jx-d-ctl-hit)] min-w-[var(--jx-d-ctl-hit)] items-center justify-center box-border border px-[var(--jx-d-ctl-pad)] font-nav text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] no-underline tracking-[0.08em] cursor-pointer focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
 
   const props = $derived({
     'data-jx-page': '',

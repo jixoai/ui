@@ -78,11 +78,14 @@
   import type { HTMLButtonAttributes } from 'svelte/elements';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import './select.css';
 
   interface Props extends HTMLButtonAttributes {
     /** the full option list (order = panel order) */
     options: SelectOption[];
+    /** density policy: explicit, inherited, then default */
+    density?: Density;
     /** committed value; bind:value — undefined shows the placeholder */
     value?: string;
     /** trigger text when nothing is selected */
@@ -110,6 +113,8 @@
 
   let {
     options,
+    density,
+    'data-density': _callerDensity,
     value = $bindable(),
     placeholder = 'Select...',
     label,
@@ -125,6 +130,8 @@
 
   // form lifecycle: what jx-reset restores, and the form-disable mirror
   const initialValue = value;
+  const outerDensity = getDensityContext();
+  const resolvedDensity: Density = $derived(resolveDensity(density, outerDensity));
   let formDisabled = $state(false);
   const isDisabled = $derived(disabled || formDisabled);
 
@@ -260,7 +267,7 @@
   });
 </script>
 
-<div class="jx-field">
+<div class="jx-field" data-density={resolvedDensity}>
   <!-- faceless form bridge (form-field.ts law): the committed value rides
        ElementInternals into FormData; jx-reset / jx-disabled bubble the
        form lifecycle back into this component. Owns no box, no content —
@@ -289,7 +296,7 @@
       type="button"
       id={id}
       class={cn(
-        'jx-sel-trigger flex items-center gap-3 w-full min-h-10 py-2 px-3 border border-border rounded-none bg-background text-foreground text-sm leading-[1.45] text-start cursor-pointer transition-[box-shadow] duration-150 ease-out',
+        'jx-sel-trigger flex items-center gap-[var(--jx-d-ctl-gap)] w-full min-h-[var(--jx-d-ctl-hit)] py-[var(--jx-d-ctl-gap)] px-[var(--jx-d-ctl-pad)] border border-border rounded-none bg-background text-foreground text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-leading)] text-start cursor-pointer transition-[box-shadow] duration-150 ease-out',
         className,
       )}
       popovertarget={panelId}
@@ -336,6 +343,7 @@
     popover="auto"
     class={cn('jx-sel-panel jx-surface', motion.supported && 'jx-waapi')}
     data-variant={variant}
+    data-density={resolvedDensity}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
   >
@@ -373,7 +381,7 @@
           data-jx-sel-selected={option.value === value ? '' : undefined}
           data-jx-sel-disabled={option.disabled ? '' : undefined}
           class={cn(
-            'jx-sel-option flex flex-col gap-0.5 px-[10px] py-[6px] text-[13px] leading-[1.45] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
+            'jx-sel-option flex flex-col gap-[var(--jx-d-ctl-gap)] px-[var(--jx-d-ctl-pad)] py-[var(--jx-d-ctl-gap)] min-h-[var(--jx-d-ctl-hit)] text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-leading)] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
             index === active && 'bg-terminal-hover text-terminal-foreground',
             option.value === value && 'bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
             option.disabled && 'opacity-50 pointer-events-none',

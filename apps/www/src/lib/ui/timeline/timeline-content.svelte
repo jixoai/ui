@@ -18,6 +18,6 @@
   let { class: className = '', children, ...rest }: Props = $props();
 </script>
 
-<div data-jx-tl-content="" class={cn('flex flex-col gap-1 min-w-0', className)} {...rest}>
+<div data-jx-tl-content="" class={cn('flex flex-col [gap:var(--jx-d-stack-gap)] min-w-0', className)} {...rest}>
   {@render children()}
 </div>

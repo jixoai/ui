@@ -40,12 +40,14 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { onDestroy, setContext } from 'svelte';
+  import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './dropdown-menu.css';
 
   interface Props {
     id: string;
+    density?: Density;
     /** trigger button label (ignored when `trigger` snippet given) */
     triggerLabel?: string;
     placement?: 'bottom' | 'bottom-end' | 'bottom-start' | 'top' | 'top-end' | 'top-start';
@@ -60,6 +62,7 @@
 
   let {
     id,
+    density,
     triggerLabel = '',
     placement = 'bottom-end',
     variant = 'auto',
@@ -68,6 +71,10 @@
     onToggle,
     children,
   }: Props = $props();
+
+  const inheritedDensity = getDensityContext();
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  provideDensity(() => resolvedDensity);
 
   // id is mount-stable by contract (popover ids + CSS anchors are wired
   // once); $derived keeps the anchor name truthful if it ever flips
@@ -216,14 +223,14 @@
   const motion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
 </script>
 
-<span bind:this={anchorEl} class="jx-menu-anchor inline-flex" style="anchor-name: {anchorName}">
+<span bind:this={anchorEl} data-density={resolvedDensity} class="jx-menu-anchor inline-flex" style="anchor-name: {anchorName}">
   {#if trigger}
     {@render trigger()}
   {:else}
     <button
       type="button"
       data-jx-menu-trigger=""
-      class="jx-press inline-flex cursor-pointer items-center gap-2.5 border border-border bg-background px-3.5 py-2.5 font-sans text-sm font-medium text-foreground [--jx-press-shadow:var(--shadow-xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-muted"
+      class="jx-menu-trigger jx-press inline-flex cursor-pointer items-center border border-border bg-background font-sans font-medium text-foreground [--jx-press-shadow:var(--shadow-xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-muted"
       popovertarget={id}
       bind:this={triggerEl}
       aria-haspopup="menu"
@@ -252,6 +259,7 @@
   tabindex="-1"
   class={cn('jx-menu jx-surface', motion.supported && 'jx-waapi', panelClass)}
   data-variant={variant}
+  data-density={resolvedDensity}
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
   ontoggle={onPanelToggle}

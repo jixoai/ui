@@ -71,7 +71,7 @@
    *  Home/End to the ends; wraps; skips disabled triggers */
   function handleKeydown(event: KeyboardEvent) {
     const rtl =
-      orientation === 'horizontal' && (listEl?.closest('[dir]')?.dir ?? 'ltr') === 'rtl';
+      orientation === 'horizontal' && ((listEl?.closest('[dir]') as HTMLElement | null)?.dir ?? 'ltr') === 'rtl';
     const forward = orientation === 'horizontal' ? (rtl ? 'ArrowLeft' : 'ArrowRight') : 'ArrowDown';
     const back = orientation === 'horizontal' ? (rtl ? 'ArrowRight' : 'ArrowLeft') : 'ArrowUp';
     if (event.key !== forward && event.key !== back && event.key !== 'Home' && event.key !== 'End') {
@@ -92,6 +92,7 @@
     // focus rides the roving tabindex: the trigger's onfocus moves the
     // tab stop; automatic activation ALSO selects on the focus move,
     // manual waits for Enter/Space — the trigger's native click path
+    if (!next) return;
     next.focus();
     if (tabs.activation === 'automatic') next.click();
   }
@@ -101,7 +102,7 @@
   bind:this={listEl}
   data-jx-tabs-list=""
   class={cn(
-    `jx-tabs-${orientation} flex items-stretch gap-0.5 box-border`,
+    `jx-tabs-${orientation} flex items-stretch [gap:var(--jx-d-ctl-gap)] box-border`,
     orientation === 'vertical' ? 'flex-col border-r border-border' : 'border-b border-border',
     className,
   )}

@@ -27,6 +27,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
+  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
 
   interface Props extends HTMLAttributes<HTMLLIElement> {
     /** where the ellipsis points — the first collapsed page. Optional:
@@ -37,6 +38,7 @@
   }
 
   let { href, class: className = '', children, ...rest }: Props = $props();
+  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
 
   // wrapped items render hidden + carry the fold hook (breadcrumb-item
   // reads this context). The ellipsis li below is authored DIRECTLY —
@@ -65,10 +67,11 @@
   const target = $derived(href ?? derivedHref);
 </script>
 
-<li {...rest} class={className}>
+<li data-density={resolvedDensity} {...rest} class={className}>
   <a
     bind:this={ellipsisEl}
     data-jx-breadcrumb-collapse=""
+    data-density={resolvedDensity}
     class={cn(
       'text-muted-foreground tracking-normal no-underline transition-colors duration-150 ease-out hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-2',
       className,

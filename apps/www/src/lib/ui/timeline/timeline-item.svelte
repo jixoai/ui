@@ -26,7 +26,7 @@
 <li
   data-jx-tl-item=""
   data-jx-tl-pending={pending ? '' : undefined}
-  class={cn('relative flex gap-[0.875rem] pb-5 pl-5', className)}
+  class={cn('relative flex [gap:var(--jx-d-ctl-gap)] [padding-block-end:var(--jx-d-stack-gap)] [padding-inline-start:var(--jx-d-ctl-pad)]', className)}
   {...rest}
 >
   {@render children()}

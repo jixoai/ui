@@ -18,13 +18,13 @@
   import { cn } from '$lib/utils';
   import { ANCHOR_KEY, type AnchorApi } from './anchor.svelte';
 
-  interface Props extends Omit<HTMLAnchorAttributes, 'aria-current'> {
+  type Props = Omit<HTMLAnchorAttributes, 'aria-current'> & {
     /** in-page fragment, '#section-id' */
     href: string;
     /** replacement-element escape: receives the merged anchor props */
     child?: Snippet<[{ props: HTMLAnchorAttributes & { class: string } }]>;
     children?: Snippet;
-  }
+  };
 
   let { href, child, children, class: className = '', ...rest }: Props = $props();
 
@@ -36,7 +36,7 @@
     'data-jx-anchor-link': '',
     'data-jx-anchor-active': active ? '' : undefined,
     class: cn(
-      '-ml-px block border-l-2 py-[0.3125rem] px-3 font-nav text-xs uppercase tracking-[0.08em] no-underline transition-[color,border-color] duration-150 ease-out hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+      '-ml-px flex min-h-[var(--jx-d-ctl-hit)] items-center border-l-2 px-[var(--jx-d-ctl-pad)] font-nav text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] uppercase tracking-[0.08em] no-underline transition-[color,border-color] duration-150 ease-out hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
       active ? 'border-l-primary text-foreground' : 'border-l-transparent text-muted-foreground',
       className,
     ),

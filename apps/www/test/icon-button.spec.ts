@@ -30,7 +30,7 @@ describe('IconButton', () => {
     await tick();
     const btn = container.querySelector('button')!;
     expect(btn.getAttribute('aria-label')).toBe('copy command');
-    expect(btn.className).toContain('size-10.5'); // the 42px press-button band
+    expect(btn.className).toContain('min-h-[var(--jx-d-ctl-hit)]'); // the 42px press-button band
     expect(btn.textContent).not.toContain('copy command'); // label never doubles
     const tip = container.querySelector('[role="tooltip"]')!;
     expect(tip.textContent).toContain('copy command');

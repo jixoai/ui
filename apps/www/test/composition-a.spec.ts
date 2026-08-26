@@ -151,7 +151,8 @@ describe('Steps family — marker button only when onclick + done', () => {
     expect(replaced).toBeTruthy();
     // the child-built element keeps the part's props: class carried, type kept
     expect(replaced.getAttribute('type')).toBe('button');
-    expect(replaced.className).toContain('size-6');
+    // the indicator's glyph box now derives from the ctl icon alias
+    expect(replaced.className).toContain('[width:var(--jx-d-ctl-icon)]');
     // consumer utilities appended after props.class win the merge
     expect(replaced.className).toContain('ring-1');
   });

@@ -1,5 +1,15 @@
 @layer theme, base, components, utilities;
 
+@layer components {
+  :where(.jx-tgroup-btn) {
+    min-block-size: var(--jx-d-ctl-hit);
+    padding-block: calc((var(--jx-d-ctl-hit) - var(--jx-d-ctl-line)) / 2);
+    padding-inline: var(--jx-d-ctl-pad);
+    font-size: var(--jx-d-ctl-text);
+    line-height: var(--jx-d-ctl-line);
+  }
+}
+
 /* jixoai toggle-group — D1-exempt residue (tw4, 2026-08-24): ONLY the
  * focus-visible ring — the state machine utilities cannot express (a
  * :focus-visible rule behind :where(), unlayered per the toggle/Part A

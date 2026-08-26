@@ -5,7 +5,7 @@
 </script>
 
 <div class="flex h-full w-full items-center justify-center gap-10 p-10">
-  <Statistic title="weekly deploys" value="128" trend="up" />
+  <Statistic density="lg" title="weekly deploys" value="128" trend="up" />
   <div class="bg-border h-14 w-px"></div>
   {#snippet ms()}ms{/snippet}
   <Statistic title="p95 latency" value="412" suffix={ms} />

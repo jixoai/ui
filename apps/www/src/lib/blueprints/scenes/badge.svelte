@@ -5,7 +5,7 @@
 
 <div class="flex h-full w-full flex-col items-start justify-center gap-4 p-10">
   <div class="flex flex-wrap items-center gap-3">
-    <Badge>default</Badge>
+    <Badge density="lg">default</Badge>
     <Badge tone="primary">primary</Badge>
     <Badge tone="outline">outline</Badge>
     <Badge tone="destructive">destructive</Badge>

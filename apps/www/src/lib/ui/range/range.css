@@ -15,6 +15,25 @@
  *  - the invalid→thumb repaint (parent-state descendant, unlayered). */
 
 @layer components {
+  :where(.jx-slider) {
+    min-block-size: var(--jx-d-ctl-hit);
+  }
+  :where(.jx-slider-track) {
+    height: var(--jx-d-ctl-range-track);
+  }
+  :where(.jx-slider-fill) {
+    height: var(--jx-d-ctl-range-track);
+    inset-block: calc(var(--jx-d-ctl-range-track) / -2);
+  }
+  :where(.jx-slider-thumb) {
+    width: var(--jx-d-ctl-icon);
+    height: var(--jx-d-ctl-icon);
+  }
+  :where(.jx-slider-value) {
+    font-size: var(--jx-d-ctl-text);
+    line-height: var(--jx-d-ctl-line);
+  }
+
   /* tick ruler: one 4px mark per step, drawn as a repeating gradient
      (a mark every --jx-tick-step %; mirrors under :dir(rtl)) */
   :where(.jx-slider-ticks) {

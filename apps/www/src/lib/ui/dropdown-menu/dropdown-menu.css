@@ -20,6 +20,15 @@
   font-size: 13px;
   color: var(--popover-foreground);
 }
+.jx-menu-trigger,
+.jx-menu-item {
+  min-block-size: var(--jx-d-ctl-hit);
+  gap: var(--jx-d-ctl-gap);
+  padding-inline: var(--jx-d-ctl-pad);
+  padding-block: var(--jx-d-ctl-pad);
+  font-size: var(--jx-d-ctl-text);
+  line-height: var(--jx-d-ctl-line);
+}
 @supports not (anchor-name: --jx-menu-fallback) {
   .jx-menu {
     position-anchor: auto !important;

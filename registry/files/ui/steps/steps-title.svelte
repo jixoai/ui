@@ -26,7 +26,7 @@
 <span
   data-jx-step-title=""
   class={cn(
-    'font-nav text-xs tracking-[0.08em] uppercase',
+    'font-nav [font-size:var(--jx-d-ctl-text)] [line-height:var(--jx-d-ctl-line)] tracking-[0.08em] uppercase',
     item.state === 'current' ? 'text-foreground' : 'text-muted-foreground',
     className,
   )}

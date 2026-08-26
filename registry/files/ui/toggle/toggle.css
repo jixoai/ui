@@ -1,5 +1,25 @@
 @layer theme, base, components, utilities;
 
+@layer components {
+  :where(.jx-switch-track) {
+    min-block-size: var(--jx-d-ctl-hit);
+    gap: var(--jx-d-ctl-gap);
+  }
+  :where([data-jx-toggle-label]) {
+    font-size: var(--jx-d-ctl-text);
+    line-height: var(--jx-d-ctl-line);
+  }
+  :where(.jx-toggle-native + .jx-toggle-track) {
+    width: var(--jx-d-ctl-toggle-w);
+    height: var(--jx-d-ctl-toggle-h);
+    padding: calc((var(--jx-d-ctl-toggle-h) - var(--jx-d-ctl-toggle-knob)) / 2);
+  }
+  :where(.jx-toggle-knob) {
+    width: var(--jx-d-ctl-toggle-knob);
+    height: var(--jx-d-ctl-toggle-knob);
+  }
+}
+
 /* jixoai toggle — D1-exempt residue (tw4, 2026-08-24): ONLY the state
  * machine utilities cannot express — sibling-combinator :checked
  * repainting, the :has() hover lean, focus-visible's sibling ring and
@@ -20,7 +40,7 @@
 }
 :where(.jx-toggle-native:checked + .jx-toggle-track .jx-toggle-knob) {
   background: var(--primary-foreground);
-  transform: translateX(calc(var(--jx-toggle-w) - var(--jx-toggle-h)));
+  transform: translateX(calc(var(--jx-d-ctl-toggle-w) - var(--jx-d-ctl-toggle-h)));
 }
 
 /* hover leans the unchecked rail's ring toward primary */

@@ -48,6 +48,7 @@
 
   /** the bar's context surface: state + behavior, never membership order */
   export interface NavigationMenuApi {
+    readonly density: import('$lib/density.svelte').Density;
     /** first-wins registry for the arrow-walk glide; key = `${itemId}-panel` */
     register(panelId: string, anchorName: string, handles: NavigationMenuPanelHandles): void;
     /** identity-guarded: only the winning registrant can remove itself */
@@ -72,9 +73,11 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
+  import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
 
   interface Props extends HTMLAttributes<HTMLElement> {
+    density?: Density;
     /** nav landmark label */
     label?: string;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
@@ -84,7 +87,11 @@
     children: Snippet;
   }
 
-  let { label = 'site', variant = 'auto', class: className = '', children, ...rest }: Props = $props();
+  let { label = 'site', density, variant = 'auto', class: className = '', children, ...rest }: Props = $props();
+
+  const inheritedDensity = getDensityContext();
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  provideDensity(() => resolvedDensity);
 
   const dev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
 
@@ -106,6 +113,9 @@
   const anchors = new Map<string, string>();
 
   setContext<NavigationMenuApi>(NAVIGATION_MENU_KEY, {
+    get density() {
+      return resolvedDensity;
+    },
     register(panelId, anchorName, handles) {
       if (panels.has(panelId) || anchors.has(anchorName)) {
         if (dev) {
@@ -197,6 +207,7 @@
   data-jx-navmenu=""
   class={cn('flex flex-wrap items-stretch gap-1', className)}
   {...rest}
+  data-density={resolvedDensity}
   aria-label={label}
   onkeydown={handleKeydown}
 >

@@ -56,13 +56,13 @@
 {#if interactive}
   // rest spreads FIRST so the authored wiring (type, aria-label,
   // onclick) wins any name collision — consumer attributes land verbatim
-  {@const props = {
+  {@const props: HTMLButtonAttributes & { class: string } = {
     ...rest,
-    type: 'button',
+    type: 'button' as const,
     'data-jx-step-indicator': '',
     'aria-label': backLabel,
     class: cn(
-      'flex-none inline-flex items-center justify-center size-6 border font-nav text-[0.6875rem] cursor-pointer hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
+      'flex-none inline-flex items-center justify-center [width:var(--jx-d-ctl-icon)] [height:var(--jx-d-ctl-icon)] border font-nav [font-size:var(--jx-d-secondary-text)] cursor-pointer hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
       markerPaint[item.state],
       className,
     ),
@@ -79,7 +79,7 @@
   <span
     data-jx-step-indicator=""
     class={cn(
-      'flex-none inline-flex items-center justify-center size-6 border font-nav text-[0.6875rem]',
+      'flex-none inline-flex items-center justify-center [width:var(--jx-d-ctl-icon)] [height:var(--jx-d-ctl-icon)] border font-nav [font-size:var(--jx-d-secondary-text)]',
       markerPaint[item.state],
       className,
     )}

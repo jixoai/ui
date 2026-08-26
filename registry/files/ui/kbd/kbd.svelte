@@ -19,16 +19,19 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
 
-  interface Props extends HTMLAttributes<HTMLElement> {}
+  interface Props extends HTMLAttributes<HTMLElement> { density?: Density; }
 
-  let { class: className = '', children, ...rest }: Props = $props();
+  let { density, class: className = '', children, ...rest }: Props = $props();
+  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
 </script>
 
 <kbd
   data-jx-kbd
+  data-density={resolvedDensity}
   class={cn(
-    'inline-block px-1.5 border border-border rounded-none bg-muted shadow-2xs font-mono text-[0.75em] leading-[1.6] text-foreground whitespace-nowrap',
+    'inline-block [padding-inline:var(--jx-d-ctl-gap)] border border-border rounded-none bg-muted shadow-2xs font-mono [font-size:var(--jx-d-secondary-text)] [line-height:var(--jx-d-secondary-line)] text-foreground whitespace-nowrap',
     className,
   )}
   {...rest}

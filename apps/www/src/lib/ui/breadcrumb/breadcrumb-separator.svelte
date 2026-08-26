@@ -10,12 +10,14 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
     class?: string;
   }
 
   let { class: className = '', ...rest }: Props = $props();
+  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
 </script>
 
-<span data-jx-breadcrumb-separator="" class={cn(className)} {...rest} aria-hidden="true"></span>
+<span data-jx-breadcrumb-separator="" data-density={resolvedDensity} class={cn(className)} {...rest} aria-hidden="true"></span>

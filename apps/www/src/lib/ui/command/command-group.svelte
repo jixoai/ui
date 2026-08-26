@@ -11,6 +11,7 @@
 -->
 <script lang="ts">
   import { setContext } from 'svelte';
+  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
@@ -23,15 +24,16 @@
   }
 
   let { heading, class: className = '', children, ...rest }: Props = $props();
+  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
 
   setContext('jx-command-group', true);
 </script>
 
-<div data-jx-command-group="" class={cn(className)} {...rest}>
+<div data-jx-command-group="" data-density={resolvedDensity} class={cn(className)} {...rest}>
   {#if heading}
     <p
       data-jx-command-group-heading=""
-      class="mt-2 mb-1 px-2 font-nav text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground"
+      class="mt-[var(--jx-d-stack-gap)] mb-[var(--jx-d-stack-gap)] px-[var(--jx-d-ctl-pad)] font-nav text-[var(--jx-d-secondary-text)] uppercase tracking-[0.14em] text-muted-foreground"
       aria-hidden="true"
     >
       {heading}

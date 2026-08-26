@@ -75,7 +75,7 @@ const stackSuggestions: Tag[] = [
   let canvasStack = $state(canvasInitial.stack);
   let canvasMaxTags = $state(canvasInitial.maxTags);
   // the segmented control speaks strings; the page state stays number|undefined
-  let maxTagsKey = $state(canvasMaxTags === undefined ? '' : String(canvasMaxTags));
+  let maxTagsKey = $state('');
   $effect(() => {
     canvasMaxTags = maxTagsKey === '' ? undefined : Number(maxTagsKey);
   });
@@ -83,6 +83,7 @@ const stackSuggestions: Tag[] = [
   function resetTagsCanvas(): void {
     canvasStack = canvasInitial.stack;
     canvasMaxTags = canvasInitial.maxTags;
+    maxTagsKey = '';
     maxTagsKey = canvasInitial.maxTags === undefined ? '' : String(canvasInitial.maxTags);
   }
 

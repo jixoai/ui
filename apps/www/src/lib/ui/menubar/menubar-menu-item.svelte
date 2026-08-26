@@ -58,7 +58,7 @@
 
   const paint = $derived(
     cn(
-      'flex w-full box-border cursor-pointer items-center gap-2 border-0 bg-transparent px-[0.625rem] py-[0.4375rem] text-left font-sans text-[13px] text-inherit no-underline transition-[background-color,color] duration-100 ease-out hover:bg-muted focus-visible:bg-muted focus-visible:outline-none',
+      'jx-menubar-menu-item flex w-full box-border cursor-pointer items-center border-0 bg-transparent text-left font-sans text-inherit no-underline transition-[background-color,color] duration-100 ease-out hover:bg-muted focus-visible:bg-muted focus-visible:outline-none',
       className,
     ),
   );

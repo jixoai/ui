@@ -12,6 +12,6 @@
   <div class="flex w-full max-w-[360px] flex-col gap-5">
     <Toggle label="notifications" bind:checked={notifications} />
     <Toggle label="weekly digest" bind:checked={digest} />
-    <Toggle label="telemetry" size="sm" bind:checked={telemetry} />
+    <Toggle label="telemetry" density="sm" bind:checked={telemetry} />
   </div>
 </div>

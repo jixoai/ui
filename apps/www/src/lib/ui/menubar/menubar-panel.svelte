@@ -139,6 +139,7 @@
   tabindex="-1"
   class={cn('jx-menubar-panel jx-surface', surfaceMotionSupported && 'jx-waapi', className)}
   data-variant={bar.variant}
+  data-density={bar.density}
   bind:this={panelEl}
   style="position-anchor: {item.anchorName}; inset-area: bottom span-left; position-area: bottom span-left;"
   onkeydown={handleKeydown}

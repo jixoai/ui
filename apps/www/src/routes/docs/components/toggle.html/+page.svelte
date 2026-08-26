@@ -24,9 +24,9 @@
   const usage = `<!-- label reads on the LEFT of the control; checked is $bindable -->
 <Toggle label="notifications" bind:checked />
 
-<!-- sizes keep the rail proportional: sm 28×16 · md 36×20 (default) · lg 44×24 -->
-<Toggle label="compact" size="sm" />
-<Toggle label="roomy" size="lg" />`;
+<!-- density controls the rail through the shared control aliases -->
+<Toggle label="compact" density="sm" />
+<Toggle label="roomy" density="lg" />`;
 
   // ---- demo state ------------------------------------------------------------
   let notifications = $state(true);
@@ -104,13 +104,13 @@
         </p>
         <CardGrid min="220px">
           <div class="demo-cell flex items-center gap-3" data-no-subgrid>
-            <Toggle label="sm" name="demo_tg" size="sm" />
+            <Toggle label="xs" name="demo_tg" density="xs" />
           </div>
           <div class="demo-cell flex items-center gap-3" data-no-subgrid>
-            <Toggle label="md (default)" name="demo_tg" />
+            <Toggle label="default" name="demo_tg" />
           </div>
           <div class="demo-cell flex items-center gap-3" data-no-subgrid>
-            <Toggle label="lg" name="demo_tg" size="lg" checked />
+            <Toggle label="lg" name="demo_tg" density="lg" checked />
           </div>
           <div class="demo-cell flex items-center gap-3" data-no-subgrid>
             <Toggle label="disabled" name="demo_tg2" disabled />

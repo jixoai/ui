@@ -31,17 +31,24 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
 
   interface Props extends HTMLAttributes<HTMLElement> {
+    /** DENSITY override: explicit ?? inherited ?? default */
+    density?: Density;
+    'data-density'?: string;
     /** nav landmark label (announced before the links) */
     label?: string;
     children: Snippet;
   }
 
-  let { label = 'Pagination', class: className = '', children, ...rest }: Props = $props();
+  let { density, 'data-density': _callerDensity, label = 'Pagination', class: className = '', children, ...rest }: Props = $props();
+
+  const inheritedDensity = getDensityContext();
+  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
 </script>
 
-<nav data-jx-pagination="" class={cn('block', className)} aria-label={label} {...rest}>
+<nav data-jx-pagination="" data-density={resolvedDensity} class={cn('block', className)} aria-label={label} {...rest}>
   {@render children()}
 </nav>

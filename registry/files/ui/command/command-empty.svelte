@@ -11,6 +11,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
+  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -19,11 +20,13 @@
   }
 
   let { class: className = '', children, ...rest }: Props = $props();
+  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
 </script>
 
 <div
   data-jx-command-empty=""
-  class={cn('px-[0.625rem] py-5 text-center text-[0.8125rem] text-muted-foreground', className)}
+  data-density={resolvedDensity}
+  class={cn('[min-block-size:var(--jx-d-ctl-hit)] px-[var(--jx-d-ctl-pad)] py-[var(--jx-d-stack-gap)] text-center text-[var(--jx-d-ctl-text)] text-muted-foreground', className)}
   role="status"
   {...rest}
 >

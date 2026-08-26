@@ -17,6 +17,19 @@
  *    (unlayered carve-out per the Part A precedent). */
 
 @layer components {
+  :where(.jx-color-picker-trigger) {
+    min-block-size: var(--jx-d-ctl-color-lane);
+    gap: var(--jx-d-ctl-gap);
+    padding-block: calc((var(--jx-d-ctl-color-lane) - var(--jx-d-ctl-line)) / 2);
+    padding-inline: var(--jx-d-ctl-pad);
+    font-size: var(--jx-d-ctl-text);
+    line-height: var(--jx-d-ctl-line);
+  }
+  :where([data-jx-color-picker-swatch]) {
+    width: var(--jx-d-ctl-icon);
+    height: var(--jx-d-ctl-icon);
+  }
+
   /* ---- panel: terminal bezel popover (select.svelte law) ---------------
      bezel surface on the jx-surface law (arch r3): the panel is the
      PLATFORM element (no paint); the surface body carries the bezel

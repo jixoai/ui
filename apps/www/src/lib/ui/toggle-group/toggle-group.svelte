@@ -50,6 +50,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
   import '$lib/form-field';
@@ -63,6 +64,8 @@
     /** active value(s); bindable (bind:value) for controlled use */
     value?: string | string[];
     disabled?: boolean;
+    density?: Density;
+    'data-density'?: string;
     /** group landmark label — announced to assistive tech */
     label: string;
     class?: string;
@@ -75,12 +78,17 @@
     type = 'single',
     value = $bindable<string | string[]>([]),
     disabled = false,
+    density,
+    'data-density': _callerDensity,
     label,
     class: className = '',
     onchange,
     children,
     ...rest
   }: Props = $props();
+
+  const inheritedDensity = getDensityContext();
+  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
 
   /** form/fieldset disable propagation (the bridge's jx-disabled) */
   let formDisabled = $state(false);
@@ -141,6 +149,7 @@
 
 <div
   data-jx-tgroup
+  data-density={resolvedDensity}
   class={cn(
     'inline-flex w-fit flex-wrap rounded-(--radius) border border-border bg-card shadow-2xs',
     className,

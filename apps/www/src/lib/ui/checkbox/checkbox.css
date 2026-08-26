@@ -13,6 +13,19 @@
  * build stays in @layer components (nothing competes with it). */
 
 @layer components {
+  :where(.jx-check-lane) {
+    min-block-size: var(--jx-d-ctl-hit);
+    gap: var(--jx-d-ctl-gap);
+  }
+  :where(.jx-checkbox) {
+    width: var(--jx-d-ctl-icon);
+    height: var(--jx-d-ctl-icon);
+  }
+  :where([data-jx-check-label]) {
+    font-size: var(--jx-d-ctl-text);
+    line-height: var(--jx-d-ctl-line);
+  }
+
   /* ---- the glyph: one ::before, clip-path + rotate ------------------
      a 10×10 box (inset 2px inside the 14px padding box) rotated 45°,
      clipped to a 6-vertex polygon. unchecked = collapsed sliver +

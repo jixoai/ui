@@ -60,6 +60,7 @@
   // side-effect import: registers the faceless <jx-form-field> element
   // (client-only, idempotent) that carries this field's form association
   import '$lib/form-field';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
   import './range.css';
 
@@ -87,6 +88,8 @@
     /** wired into aria-labelledby / error[id]; auto-generated when omitted */
     id?: string;
     class?: string;
+    density?: Density;
+    'data-density'?: string;
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -106,7 +109,12 @@
     disabled = false,
     id = autoId,
     class: className = '',
+    density,
+    'data-density': _callerDensity,
   }: Props = $props();
+
+  const inheritedDensity = getDensityContext();
+  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
 
   // form lifecycle: what jx-reset restores, and the form-disable mirror
   const initialValue = value;
@@ -226,7 +234,7 @@
   }
 </script>
 
-<div class={'jx-field ' + className}>
+<div data-density={resolvedDensity} class={'jx-field ' + className}>
   <!-- faceless form bridge (form-field.ts law): the numeric string of the
        committed value rides ElementInternals into FormData; jx-reset /
        jx-disabled bubble the form lifecycle back into this component.
@@ -247,7 +255,7 @@
   {#if label || showValue}
     <div data-jx-slider-head class="flex items-baseline justify-between gap-3">
       {#if label}<span class={"jx-label" + (srLabel ? " sr-only" : "")} id={labelId}>{label}</span>{/if}
-      {#if showValue}<span data-jx-slider-value class={cn('font-mono text-xs text-foreground tabular-nums', invalid && 'text-destructive')} class:jx-invalid={invalid}>{display}</span>{/if}
+      {#if showValue}<span data-jx-slider-value class={cn('jx-slider-value font-mono text-foreground tabular-nums', invalid && 'text-destructive')} class:jx-invalid={invalid}>{display}</span>{/if}
     </div>
   {/if}
 
@@ -265,8 +273,8 @@
     aria-invalid={invalidAttr}
     aria-describedby={describedBy}
     aria-disabled={isDisabled ? 'true' : undefined}
-    class={cn(
-      'jx-slider relative block w-full h-7 m-0 cursor-pointer touch-none select-none',
+      class={cn(
+      'jx-slider relative block w-full m-0 cursor-pointer touch-none select-none',
       isDisabled && 'opacity-50 cursor-not-allowed',
     )}
     data-jx-disabled={isDisabled ? '' : undefined}
@@ -281,16 +289,16 @@
   >
     <div
       data-jx-slider-track
-      class="absolute inset-x-0 top-1/2 h-[calc(var(--jx-slider-thumb,1.5rem)/2)] -translate-y-1/2 bg-[color-mix(in_oklab,var(--foreground)_10%,transparent)] rounded-[calc(infinity*1px)]"
+      class="jx-slider-track absolute inset-x-0 top-1/2 -translate-y-1/2 bg-[color-mix(in_oklab,var(--foreground)_10%,transparent)] rounded-[calc(infinity*1px)]"
     ></div>
     <div
       data-jx-slider-fill
-      class="absolute start-0 h-[var(--jx-slider-thumb,1.5rem)] bg-primary rounded-[calc(infinity*1px)] [inset-block:calc(var(--jx-slider-thumb,1.5rem)/-4)]"
+      class="jx-slider-fill absolute start-0 bg-primary rounded-[calc(infinity*1px)]"
       style:width="{fraction * 100}%"
     ></div>
     <div
-      class="jx-slider-thumb absolute top-1/2 -translate-y-1/2 w-[var(--jx-slider-thumb,1.5rem)] h-[var(--jx-slider-thumb,1.5rem)] bg-background border-4 border-primary rounded-[calc(infinity*1px)] shadow-none pointer-events-none"
-      style="inset-inline-start: calc({fraction * 100}% - 10px)"
+      class="jx-slider-thumb absolute top-1/2 -translate-y-1/2 bg-background border-4 border-primary rounded-[calc(infinity*1px)] shadow-none pointer-events-none"
+      style="inset-inline-start: calc({fraction * 100}% - var(--jx-d-ctl-icon) / 2)"
     ></div>
     {#if ticks && tickCount > 0}
       <div class="jx-slider-ticks absolute inset-x-0 top-[calc(50%_+_10px)] h-1 pointer-events-none" style="--jx-tick-step: {tickStepPct}%"></div>

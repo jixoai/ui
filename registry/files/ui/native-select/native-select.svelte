@@ -39,11 +39,14 @@
   import type { HTMLSelectAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import type { Snippet } from 'svelte';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import './native-select.css';
 
   interface Props extends HTMLSelectAttributes {
     /** field label; renders label[for] above the control */
     label?: string;
+    /** density policy: explicit, inherited, then default */
+    density?: Density;
     /** wired into label[for] / error[id]; auto-generated when omitted */
     id?: string;
     /** error text → aria-invalid + aria-describedby + dashed border */
@@ -59,6 +62,8 @@
 
   let {
     label,
+    density,
+    'data-density': _callerDensity,
     id = autoId,
     error,
     value = $bindable(),
@@ -68,19 +73,21 @@
   }: Props = $props();
 
   const errorId = $derived(`${id}-error`);
+  const outerDensity = getDensityContext();
+  const resolvedDensity: Density = $derived(resolveDensity(density, outerDensity));
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : undefined);
   const invalidAttr = $derived(invalid ? 'true' : undefined);
 </script>
 
-<div class="jx-field">
+<div class="jx-field" data-density={resolvedDensity}>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <span class="jx-select-wrap relative block w-full max-w-full">
     <select
       {id}
       bind:value
       class={cn(
-        'jx-select w-full min-h-10 py-2 pl-3 pr-8 appearance-none border border-border rounded-none bg-background text-foreground text-sm leading-[1.45] scheme-light dark:scheme-dark cursor-pointer transition-[box-shadow] duration-150 ease-out',
+        'jx-select w-full min-h-[var(--jx-d-ctl-hit)] py-[var(--jx-d-ctl-gap)] ps-[var(--jx-d-ctl-pad)] pe-[calc(var(--jx-d-ctl-pad)+var(--jx-d-ctl-icon))] appearance-none border border-border rounded-none bg-background text-foreground text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-leading)] scheme-light dark:scheme-dark cursor-pointer transition-[box-shadow] duration-150 ease-out',
         className,
       )}
       aria-invalid={invalidAttr}
@@ -90,7 +97,7 @@
       {@render children()}
     </select>
     <svg
-      class="jx-select-chevron absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none text-muted-foreground"
+      class="jx-select-chevron absolute end-[var(--jx-d-ctl-pad)] top-1/2 -translate-y-1/2 w-[var(--jx-d-ctl-icon)] h-[var(--jx-d-ctl-icon)] pointer-events-none text-muted-foreground"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"

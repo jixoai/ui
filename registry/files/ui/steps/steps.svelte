@@ -42,8 +42,10 @@
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
   import './steps.css';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
 
   interface Props extends HTMLAttributes<HTMLOListElement> {
+    density?: Density;
     /** 0-based ordinal of the current step; bindable (bind:current) */
     current?: number;
     class?: string;
@@ -51,11 +53,13 @@
   }
 
   let {
+    density,
     current = $bindable(0),
     class: className = '',
     children,
     ...rest
   }: Props = $props();
+  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
 
   setContext<StepsApi>(STEPS_KEY, {
     get current() {
@@ -64,6 +68,6 @@
   });
 </script>
 
-<ol data-jx-steps="" class={cn('flex flex-wrap', className)} {...rest} role="list">
+<ol data-jx-steps="" data-density={resolvedDensity} class={cn('flex flex-wrap', className)} {...rest} role="list">
   {@render children()}
 </ol>

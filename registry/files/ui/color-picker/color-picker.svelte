@@ -58,6 +58,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import './color-picker.css';
   import {
     colorFormats,
@@ -89,6 +90,8 @@
     /** wired into label[for] / error[id]; auto-generated when omitted */
     id?: string;
     class?: string;
+    density?: Density;
+    'data-density'?: string;
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -104,7 +107,12 @@
     id = autoId,
     variant = 'auto',
     class: className = '',
+    density,
+    'data-density': _callerDensity,
   }: Props = $props();
+
+  const inheritedDensity = getDensityContext();
+  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
 
   const panelId = $derived(`${id}-panel`);
   // CSS custom-ident-safe anchor name (select.svelte law)
@@ -275,7 +283,7 @@
   }
 </script>
 
-<div class={'jx-field ' + className}>
+<div data-density={resolvedDensity} class={'jx-field ' + className}>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
 
   <span data-jx-color-picker-wrap class="relative block w-full" style="anchor-name: {anchorName}" bind:this={anchorEl}>
@@ -283,7 +291,7 @@
       bind:this={triggerEl}
       type="button"
       id={id}
-      class="jx-color-picker-trigger flex items-center gap-2.5 w-full min-h-10 py-2 px-3 border border-border rounded-none bg-background text-foreground text-sm leading-[normal] cursor-pointer transition-[box-shadow] duration-150 ease-out"
+      class="jx-color-picker-trigger flex items-center w-full border border-border rounded-none bg-background text-foreground cursor-pointer transition-[box-shadow] duration-150 ease-out"
       popovertarget={panelId}
       aria-haspopup="dialog"
       aria-expanded={open}
@@ -291,7 +299,7 @@
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}
     >
-      {#if showSwatch}<span data-jx-color-picker-swatch class="flex-none w-4 h-4 border border-border bg-muted" style:background={swatch}></span>{/if}
+      {#if showSwatch}<span data-jx-color-picker-swatch class="flex-none border border-border bg-muted" style:background={swatch}></span>{/if}
       {#if showValue}<span data-jx-color-picker-value class="flex-[1_1_auto] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-start font-mono text-xs">{value}</span>{/if}
       <svg
         class={cn(

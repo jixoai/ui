@@ -45,11 +45,14 @@
   import type { HTMLTextareaAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import type { Snippet } from 'svelte';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
 
   interface Props extends HTMLTextareaAttributes {
     /** field label; renders label[for] above the control.
         skipped when outerBlockStart takes the slot over */
     label?: string;
+    /** density policy: explicit, inherited, then default */
+    density?: Density;
     /** wired into label[for] / error[id]; auto-generated when omitted */
     id?: string;
     /** error text → aria-invalid + aria-describedby + dashed border */
@@ -73,6 +76,8 @@
 
   let {
     label,
+    density,
+    'data-density': _callerDensity,
     id = autoId,
     error,
     count = false,
@@ -87,6 +92,8 @@
   }: Props = $props();
 
   const errorId = $derived(`${id}-error`);
+  const outerDensity = getDensityContext();
+  const resolvedDensity: Density = $derived(resolveDensity(density, outerDensity));
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : undefined);
   const invalidAttr = $derived(invalid ? 'true' : undefined);
@@ -111,7 +118,7 @@
   }
 </script>
 
-<div class="jx-field">
+<div class="jx-field" data-density={resolvedDensity}>
   {#if outerBlockStart}
     <div data-jx-outer data-jx-outer-start class="text-muted-foreground text-xs -mb-1">{@render outerBlockStart()}</div>
   {:else if label}<label class="jx-label" for={id}>{label}</label>{/if}
@@ -134,7 +141,7 @@
       oninput={syncValue}
       data-jx-textarea
       class={cn(
-        'w-full flex-[1_1_auto] px-3 py-2 border-0 outline-none bg-transparent text-foreground text-sm leading-[1.5] resize-y placeholder:text-muted-foreground placeholder:opacity-100 disabled:cursor-not-allowed',
+        'w-full flex-[1_1_auto] px-[var(--jx-d-ctl-pad)] py-[var(--jx-d-ctl-gap)] border-0 outline-none bg-transparent text-foreground text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-leading)] resize-y placeholder:text-muted-foreground placeholder:opacity-100 disabled:cursor-not-allowed',
         slotted && 'px-0',
       )}
       aria-invalid={invalidAttr}

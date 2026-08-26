@@ -25,18 +25,23 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
+  import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
 
   interface Props extends HTMLAttributes<HTMLElement> {
+    density?: Density;
     /** nav landmark label (announced before the trail) */
     label?: string;
     class?: string;
     children: Snippet;
   }
 
-  let { label = 'Breadcrumb', class: className = '', children, ...rest }: Props = $props();
+  let { label = 'Breadcrumb', density, class: className = '', children, ...rest }: Props = $props();
+  const inheritedDensity = getDensityContext();
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  provideDensity(() => resolvedDensity);
 </script>
 
-<nav data-jx-breadcrumb="" class={cn(className)} {...rest} aria-label={label}>
+<nav data-jx-breadcrumb="" class={cn(className)} {...rest} data-density={resolvedDensity} aria-label={label}>
   {@render children()}
 </nav>

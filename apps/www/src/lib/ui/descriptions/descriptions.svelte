@@ -35,9 +35,11 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import './descriptions.css';
 
   interface Props extends HTMLAttributes<HTMLDListElement> {
+    density?: Density;
     /** term/value pairs per row (default 1; responsive clamp to 1) */
     columns?: number;
     /** hairline cell borders (the "bordered" antd look, CSS not table) */
@@ -46,9 +48,10 @@
     children: Snippet;
   }
 
-  let { columns = 1, bordered = false, class: className = '', children, ...rest }: Props = $props();
+  let { density, columns = 1, bordered = false, class: className = '', children, ...rest }: Props = $props();
 
   const cols = $derived(Math.max(1, Math.min(4, Math.trunc(columns))));
+  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
 
   setContext<DescriptionsApi>(DESCRIPTIONS_KEY, {
     get bordered() {
@@ -59,6 +62,7 @@
 
 <dl
   data-jx-desc-bordered={bordered ? '' : undefined}
+  data-density={resolvedDensity}
   class={cn(
     'jx-desc grid grid-cols-[repeat(var(--jx-desc-cols),minmax(0,1fr))] gap-0 m-0 @container',
     bordered && 'border border-border bg-card',

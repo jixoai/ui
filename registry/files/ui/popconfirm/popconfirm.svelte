@@ -45,11 +45,13 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { onDestroy } from 'svelte';
+  import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './popconfirm.css';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
+    density?: Density;
     id?: string;
     /** the question — one line, past-tense verb ("Delete this row?");
      *  DEFAULT rendering only (a content snippet replaces it) */
@@ -83,6 +85,7 @@
 
   let {
     id = autoId,
+    density,
     title,
     description,
     onconfirm,
@@ -98,6 +101,10 @@
     class: className = '',
     ...rest
   }: Props = $props();
+
+  const inheritedDensity = getDensityContext();
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  provideDensity(() => resolvedDensity);
 
   const anchorName = $derived(`--jx-pc-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
   const area = $derived(
@@ -178,6 +185,7 @@
   data-jx-pc-anchor=""
   class={cn('inline-flex', className)}
   {...rest}
+  data-density={resolvedDensity}
   style="anchor-name: {anchorName}"
 >
   {#if children}{@render children()}{/if}
@@ -194,6 +202,7 @@
     motion.supported && 'jx-waapi',
   )}
   data-variant={variant}
+  data-density={resolvedDensity}
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
   ontoggle={handleToggle}
@@ -203,7 +212,7 @@
   <div data-jx-pc-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
   <!-- surface body (fill + ::after shadow); the popover element paints
        nothing (floating-surface law arch r3) -->
-  <div data-jx-pc-surface="" class="jx-surface-body flex flex-col gap-2 px-3.5 py-3">
+  <div data-jx-pc-surface="" class="jx-surface-body flex flex-col gap-[var(--jx-d-ctl-gap)] px-[var(--jx-d-ctl-pad)] py-[var(--jx-d-stack-gap)]">
   {#if content}
     {@render content()}
   {:else}
@@ -220,7 +229,7 @@
       type="button"
       data-jx-pc-btn=""
       data-jx-pc-cancel=""
-      class="appearance-none px-3 py-[5px] border border-border bg-background text-foreground font-nav text-[0.6875rem] tracking-[0.1em] uppercase cursor-pointer shadow-2xs focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      class="jx-pc-btn min-h-[var(--jx-d-ctl-hit)] appearance-none border border-border bg-background px-[var(--jx-d-ctl-pad)] text-[var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] text-foreground font-nav tracking-[0.1em] uppercase cursor-pointer shadow-2xs focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
       bind:this={cancelEl}
       onclick={hide}
     >
@@ -233,7 +242,7 @@
       data-jx-pc-confirm-destructive={confirmTone === 'destructive' ? '' : undefined}
       data-jx-pc-confirm-primary={confirmTone !== 'destructive' ? '' : undefined}
       class={cn(
-        'appearance-none px-3 py-[5px] border border-border bg-background text-foreground font-nav text-[0.6875rem] tracking-[0.1em] uppercase cursor-pointer shadow-2xs focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
+        'jx-pc-btn min-h-[var(--jx-d-ctl-hit)] appearance-none border border-border bg-background px-[var(--jx-d-ctl-pad)] text-[var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] text-foreground font-nav tracking-[0.1em] uppercase cursor-pointer shadow-2xs focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
         confirmTone === 'destructive'
           ? 'border-destructive bg-destructive text-destructive-foreground'
           : 'border-primary text-primary',

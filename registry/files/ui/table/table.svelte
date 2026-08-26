@@ -46,9 +46,12 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
+  import { getDensityContext, provideDensity, resolveDensity, type Density } from '$lib/density.svelte';
   import './table.css';
 
   interface Props {
+    /** Density policy root: explicit ?? inherited ?? sm. */
+    density?: Density;
     /** Native caption element — renders as the table title. */
     caption?: string;
     /** Compact row height (0.4rem vertical padding instead of 0.75rem). */
@@ -69,6 +72,7 @@
   }
 
   let {
+    density,
     caption = '',
     dense = false,
     stack = true,
@@ -76,6 +80,10 @@
     class: className = '',
     style: styleAttribute = '',
   }: Props = $props();
+
+  const inheritedDensity = getDensityContext();
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity, 'sm'));
+  provideDensity(() => resolvedDensity);
 </script>
 
 <figure
@@ -90,13 +98,15 @@
     className,
   )}
   style={styleAttribute}
+  data-density={resolvedDensity}
 >
   <table
-    class={cn('w-full min-w-fit border-separate border-spacing-0 text-[12.5px] leading-[1.5]', dense && 'dense')}
+    data-density={resolvedDensity}
+    class={cn('w-full min-w-fit border-separate border-spacing-0 [font-size:var(--jx-d-ctl-text)] [line-height:var(--jx-d-ctl-line)]', dense && 'dense')}
     data-stack={stack ? undefined : 'off'}
   >
     {#if caption}
-      <caption class="caption-top pb-2 text-start text-xs text-muted-foreground">{caption}</caption>
+      <caption class="caption-top [padding-block-end:var(--jx-d-stack-gap)] text-start [font-size:var(--jx-d-secondary-text)] [line-height:var(--jx-d-secondary-line)] text-muted-foreground">{caption}</caption>
     {/if}
     {@render children()}
   </table>

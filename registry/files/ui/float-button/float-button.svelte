@@ -30,12 +30,15 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import { onDestroy } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './float-button.css';
 
   interface Props {
+    /** DENSITY override: explicit ?? inherited ?? default */
+    density?: Density;
     /** accessible name — required (an icon-only button must say itself) */
     label: string;
     /** which corner to float in */
@@ -54,6 +57,7 @@
   }
 
   let {
+    density,
     label,
     corner = 'bottom-right',
     onclick,
@@ -62,6 +66,9 @@
     children,
     class: className = '',
   }: Props = $props();
+
+  const inheritedDensity = getDensityContext();
+  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
 
   const autoId = $props.id();
   const anchorName = $derived(`--jx-fab-${autoId.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
@@ -92,12 +99,13 @@
 
   // press law at float scale: rest on --shadow, hover grows to --shadow-md
   const fabPaint =
-    'jx-press inline-flex h-11 w-11 appearance-none items-center justify-center rounded border border-border bg-popover text-popover-foreground cursor-pointer [--jx-press-shadow:var(--shadow)] [--jx-press-shadow-hover:var(--shadow-md)] [--jx-press-shadow-active:var(--shadow-md-press)] hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
+    'jx-press inline-flex min-h-[var(--jx-d-ctl-hit)] min-w-[var(--jx-d-ctl-hit)] appearance-none items-center justify-center rounded border border-border bg-popover text-popover-foreground cursor-pointer [--jx-press-shadow:var(--shadow)] [--jx-press-shadow-hover:var(--shadow-md)] [--jx-press-shadow-active:var(--shadow-md-press)] hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
 </script>
 
 {#if actions}
   <div
     data-jx-fab-stack=""
+    data-density={resolvedDensity}
     data-jx-fab={corner}
     class={cn('fixed z-[80] flex flex-col items-center gap-2', corners[corner], className)}
     style="anchor-name: {anchorName}"
@@ -136,6 +144,7 @@
     <button
       type="button"
       class={cn(fabPaint, 'static z-[80]', className)}
+      data-density={resolvedDensity}
       aria-label={label}
       aria-expanded={open}
       aria-haspopup={actions ? 'menu' : undefined}
@@ -149,6 +158,7 @@
   <button
     type="button"
     data-jx-fab={corner}
+    data-density={resolvedDensity}
     class={cn(fabPaint, 'fixed z-[80]', corners[corner], className)}
     aria-label={label}
     {onclick}

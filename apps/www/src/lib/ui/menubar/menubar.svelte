@@ -50,6 +50,7 @@
 
   /** the bar's context surface: state + behavior, never membership order */
   export interface MenubarApi {
+    readonly density: import('$lib/density.svelte').Density;
     /** first-wins registry for the glide/toggle; key = `${itemId}-panel` */
     register(panelId: string, anchorName: string, handles: MenubarPanelHandles): void;
     /** identity-guarded: only the winning registrant can remove itself */
@@ -78,10 +79,12 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
+  import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
   import './menubar.css';
 
   interface Props extends HTMLAttributes<HTMLUListElement> {
+    density?: Density;
     /** menubar landmark label — announced to assistive tech */
     label?: string;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
@@ -93,11 +96,16 @@
 
   let {
     label = 'menu bar',
+    density,
     variant = 'auto',
     class: className = '',
     children,
     ...rest
   }: Props = $props();
+
+  const inheritedDensity = getDensityContext();
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  provideDensity(() => resolvedDensity);
 
   const dev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
 
@@ -118,6 +126,9 @@
   const anchors = new Map<string, string>();
 
   setContext<MenubarApi>(MENUBAR_KEY, {
+    get density() {
+      return resolvedDensity;
+    },
     register(panelId, anchorName, handles) {
       if (panels.has(panelId) || anchors.has(anchorName)) {
         if (dev) {
@@ -279,6 +290,7 @@
     className,
   )}
   {...rest}
+  data-density={resolvedDensity}
   role="menubar"
   aria-label={label}
   onkeydown={handleBarKeydown}

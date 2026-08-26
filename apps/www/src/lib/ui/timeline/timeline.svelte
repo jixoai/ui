@@ -27,16 +27,19 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import './timeline.css';
 
   interface Props extends HTMLAttributes<HTMLOListElement> {
+    density?: Density;
     class?: string;
     children: Snippet;
   }
 
-  let { class: className = '', children, ...rest }: Props = $props();
+  let { density, class: className = '', children, ...rest }: Props = $props();
+  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
 </script>
 
-<ol data-jx-timeline="" class={cn('m-0 p-0 list-none', className)} {...rest} role="list">
+<ol data-jx-timeline="" data-density={resolvedDensity} class={cn('m-0 p-0 list-none', className)} {...rest} role="list">
   {@render children()}
 </ol>

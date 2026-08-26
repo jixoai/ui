@@ -15,7 +15,7 @@
 </script>
 
 <div class="flex h-full w-full flex-col justify-center p-10">
-  <Steps bind:current>
+  <Steps density="lg" bind:current>
     <StepsItem step={0} label="connect" onclick={() => (current = 0)}>
       <StepsIndicator />
       <StepsTitle>connect</StepsTitle>

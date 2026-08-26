@@ -19,8 +19,10 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
 
   interface Props {
+    density?: Density;
     title: string;
     description?: string;
     /** custom illustration — defaults to the terminal empty-listing */
@@ -29,11 +31,12 @@
     class?: string;
   }
 
-  let { title, description, illustration, actions, class: className = '' }: Props = $props();
+  let { density, title, description, illustration, actions, class: className = '' }: Props = $props();
+  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
 </script>
 
-<figure data-jx-empty="" class={cn('flex flex-col items-center gap-4 border border-dashed border-border bg-muted px-6 py-10', className)}>
-  <div data-jx-empty-art="" class="flex flex-col gap-1 border border-border bg-card px-4 py-3 shadow-2xs font-mono text-xs" aria-hidden="true">
+<figure data-jx-empty="" data-density={resolvedDensity} class={cn('flex flex-col items-center [gap:var(--jx-d-stack-gap)] border border-dashed border-border bg-muted [padding:calc(var(--jx-d-ctl-pad)*2)]', className)}>
+  <div data-jx-empty-art="" class="flex flex-col [gap:var(--jx-d-stack-gap)] border border-border bg-card [padding:var(--jx-d-ctl-pad)] shadow-2xs font-mono [font-size:var(--jx-d-ctl-text)]" aria-hidden="true">
     {#if illustration}
       {@render illustration()}
     {:else}
@@ -41,13 +44,13 @@
       <span data-jx-empty-zero="" class="text-primary">0 items</span>
     {/if}
   </div>
-  <figcaption data-jx-empty-caption="" class="flex flex-col items-center gap-1.5 text-center">
-    <p data-jx-empty-title="" class="font-nav text-[0.8125rem] tracking-[0.12em] uppercase text-foreground">{title}</p>
+  <figcaption data-jx-empty-caption="" class="flex flex-col items-center [gap:var(--jx-d-stack-gap)] text-center">
+    <p data-jx-empty-title="" class="font-nav [font-size:var(--jx-d-ctl-text)] [line-height:var(--jx-d-ctl-line)] tracking-[0.12em] uppercase text-foreground">{title}</p>
     {#if description}
-      <p data-jx-empty-desc="" class="max-w-[36ch] text-[0.8125rem] leading-[1.55] text-muted-foreground">{description}</p>
+      <p data-jx-empty-desc="" class="max-w-[36ch] [font-size:var(--jx-d-ctl-text)] [line-height:var(--jx-d-ctl-line)] text-muted-foreground">{description}</p>
     {/if}
     {#if actions}
-      <div data-jx-empty-actions="" class="mt-1.5 flex flex-wrap justify-center gap-2.5">
+      <div data-jx-empty-actions="" class="[margin-block-start:var(--jx-d-stack-gap)] flex flex-wrap justify-center [gap:var(--jx-d-ctl-gap)]">
         {@render actions()}
       </div>
     {/if}

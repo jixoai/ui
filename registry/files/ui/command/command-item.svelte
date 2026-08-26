@@ -21,6 +21,7 @@
 -->
 <script lang="ts">
   import { getContext } from 'svelte';
+  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
@@ -58,6 +59,7 @@
   }: Props = $props();
 
   const cmd = getContext<CommandApi>(COMMAND_KEY);
+  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
 
   // SELF-MATCH: the predicate answers inclusion only — filtering
   // hides, never reorders; the authored tree order is the walk order
@@ -86,11 +88,12 @@
   aria-disabled={disabled || undefined}
   aria-label={children ? label : undefined}
   data-jx-command-item=""
+  data-density={resolvedDensity}
   data-jx-command-item-disabled={disabled ? '' : undefined}
   data-jx-command-item-active={active ? '' : undefined}
   hidden={!visible}
   class={cn(
-    'flex items-center justify-between gap-3 px-[0.625rem] py-2 text-[0.8125rem] text-foreground',
+    'flex min-h-[var(--jx-d-ctl-hit)] items-center justify-between gap-[var(--jx-d-ctl-gap)] px-[var(--jx-d-ctl-pad)] text-[var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] text-foreground',
     disabled
       ? 'cursor-not-allowed opacity-45'
       : active

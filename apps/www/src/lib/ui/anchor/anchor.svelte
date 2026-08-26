@@ -39,10 +39,14 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
   import { createScrollSpy } from '$lib/scroll-spy';
 
   interface Props extends HTMLAttributes<HTMLElement> {
+    /** DENSITY override: explicit ?? inherited ?? default */
+    density?: Density;
+    'data-density'?: string;
     /** nav landmark label */
     label?: string;
     /** offset of the pick line from the viewport top (sticky headers) */
@@ -51,7 +55,10 @@
     children: Snippet;
   }
 
-  let { label = 'on this page', offset = 96, class: className = '', children, ...rest }: Props = $props();
+  let { density, 'data-density': _callerDensity, label = 'on this page', offset = 96, class: className = '', children, ...rest }: Props = $props();
+
+  const inheritedDensity = getDensityContext();
+  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
 
   let navEl = $state<HTMLElement | undefined>();
   let activeId = $state('');
@@ -137,7 +144,8 @@
 <nav
   bind:this={navEl}
   data-jx-anchor=""
-  class={cn('flex flex-col gap-0.5 border-l border-border', className)}
+  data-density={resolvedDensity}
+  class={cn('flex flex-col gap-[var(--jx-d-stack-gap)] border-l border-border', className)}
   aria-label={label}
   onclick={handleClick}
   {...rest}

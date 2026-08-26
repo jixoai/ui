@@ -14,8 +14,10 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
 
   interface Props {
+    density?: Density;
     /** the metric's name — the micro-label above the value */
     title: string;
     /** the number itself; formatting is yours (Intl.NumberFormat) */
@@ -27,25 +29,26 @@
     class?: string;
   }
 
-  let { title, value, prefix, suffix, trend, class: className = '' }: Props = $props();
+  let { density, title, value, prefix, suffix, trend, class: className = '' }: Props = $props();
+  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
 
   const trendColor = { up: 'text-primary', down: 'text-destructive' } as const;
 </script>
 
-<div data-jx-stat="" class={cn('flex flex-col gap-1', className)}>
-  <p data-jx-stat-title="" class="font-nav text-[0.6875rem] tracking-[0.14em] uppercase text-muted-foreground">{title}</p>
-  <p data-jx-stat-value="" class="flex items-baseline gap-1.5 text-foreground">
-    {#if prefix}<span data-jx-stat-affix="" class="text-[0.8125rem] text-muted-foreground">{@render prefix()}</span>{/if}
-    <span data-jx-stat-num="" class="font-mono text-[1.75rem] leading-[1.1] tabular-nums tracking-[-0.02em]">{value}</span>
+<div data-jx-stat="" data-density={resolvedDensity} class={cn('flex flex-col [gap:var(--jx-d-stack-gap)]', className)}>
+  <p data-jx-stat-title="" class="font-nav [font-size:var(--jx-d-secondary-text)] [line-height:var(--jx-d-secondary-line)] tracking-[0.14em] uppercase text-muted-foreground">{title}</p>
+  <p data-jx-stat-value="" class="flex items-baseline [gap:var(--jx-d-ctl-gap)] text-foreground">
+    {#if prefix}<span data-jx-stat-affix="" class="[font-size:var(--jx-d-ctl-text)] text-muted-foreground">{@render prefix()}</span>{/if}
+    <span data-jx-stat-num="" class="font-mono [font-size:calc(var(--jx-d-ctl-line)*1.5)] [line-height:var(--jx-d-ctl-line)] tabular-nums tracking-[-0.02em]">{value}</span>
     {#if trend}
       <span
         data-jx-stat-trend={trend}
-        class={cn('text-xs', trendColor[trend])}
+        class={cn('[font-size:var(--jx-d-ctl-text)]', trendColor[trend])}
         aria-label="trend {trend}"
       >
         {trend === 'up' ? '▲' : '▼'}
       </span>
     {/if}
-    {#if suffix}<span data-jx-stat-affix="" class="text-[0.8125rem] text-muted-foreground">{@render suffix()}</span>{/if}
+    {#if suffix}<span data-jx-stat-affix="" class="[font-size:var(--jx-d-ctl-text)] text-muted-foreground">{@render suffix()}</span>{/if}
   </p>
 </div>

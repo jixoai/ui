@@ -4,7 +4,7 @@
 </script>
 
 <div class="flex h-full w-full flex-col justify-center p-10">
-  <Table caption="Registry items" dense>
+  <Table density="lg" caption="Registry items" dense>
     <thead>
       <tr><th>name</th><th>type</th><th>files</th></tr>
     </thead>

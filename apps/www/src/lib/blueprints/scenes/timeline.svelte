@@ -14,7 +14,7 @@
 </script>
 
 <div class="flex h-full w-full flex-col justify-center p-10">
-  <Timeline>
+  <Timeline density="lg">
     <TimelineItem>
       <TimelineDot />
       <TimelineConnector />

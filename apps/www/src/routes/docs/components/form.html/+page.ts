@@ -6,6 +6,7 @@
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
+  { id: 'density-ladder', label: 'Density ladder' },
   { id: 'all-types', label: 'Native lanes & full customs' },
   { id: 'select-textarea', label: 'Select family & textarea' },
   { id: 'example-form', label: 'The pure-CSS selectors' },

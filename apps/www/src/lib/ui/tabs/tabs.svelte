@@ -41,8 +41,10 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { setContext } from 'svelte';
+  import { getDensityContext, provideDensity, resolveDensity, type Density } from '$lib/density.svelte';
 
   interface Props {
+    density?: Density;
     /** the active tab value; bindable (bind:value) — '' = none selected.
      *  The bound value is the authority: pointing it at a disabled or
      *  absent tab keeps that value verbatim (caller's decision). */
@@ -59,6 +61,7 @@
   const autoId = $props.id();
 
   let {
+    density,
     value = $bindable(''),
     onchange,
     activation = 'automatic',
@@ -67,6 +70,12 @@
 
   // '' = "nothing focused yet" → the selected trigger is the tab stop
   let focused = $state('');
+  // capture inherited BEFORE the derived (packet-D lesson): reading the
+  // context inside the same derived that provideDensity exposes makes
+  // the getter reference itself
+  const inheritedDensity = getDensityContext();
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  provideDensity(() => resolvedDensity);
 
   setContext<TabsApi>(TABS_KEY, {
     uid: autoId,
@@ -89,4 +98,4 @@
   });
 </script>
 
-{@render children()}
+<div data-jx-tabs="" data-density={resolvedDensity} class="contents">{@render children()}</div>

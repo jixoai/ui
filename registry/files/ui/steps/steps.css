@@ -20,9 +20,9 @@
   :where([data-jx-step-separator])::after {
     content: '';
     position: absolute;
-    top: 0.75rem;
-    left: calc(1.5rem + 0.625rem);
-    right: 0.5rem;
+    top: calc(var(--jx-d-ctl-icon) / 2);
+    left: calc(var(--jx-d-ctl-icon) + var(--jx-d-ctl-gap));
+    right: var(--jx-d-ctl-gap);
     height: 1px;
     background: var(--border);
   }

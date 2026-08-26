@@ -22,17 +22,20 @@
   import type { Snippet } from 'svelte';
   import type { HTMLButtonAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
+  import { resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
   import './dropdown-menu.css';
 
   interface Props extends HTMLButtonAttributes {
     /** destructive paint: red text, destructive hover fill */
     destructive?: boolean;
+    density?: Density;
     children: Snippet;
     class?: string;
   }
 
-  let { destructive = false, class: className = '', onclick, children, ...rest }: Props = $props();
+  let { destructive = false, density, class: className = '', onclick, children, ...rest }: Props = $props();
+  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
 
   /** context surface from dropdown-menu.svelte; raw consumer items
       (not this component) manage their own close path */
@@ -47,8 +50,9 @@
 <button
   type="button"
   role="menuitem"
+  data-density={resolvedDensity}
   class={cn(
-    'jx-menu-item flex w-full box-border items-center gap-2 border-0 px-2.5 py-1.5 text-left font-sans text-[13px] transition-[background-color,color] duration-100 ease-out',
+    'jx-menu-item flex w-full box-border items-center text-left font-sans transition-[background-color,color] duration-100 ease-out',
     destructive ? 'jx-menu-item-destructive text-destructive' : 'bg-transparent text-inherit',
     className,
   )}

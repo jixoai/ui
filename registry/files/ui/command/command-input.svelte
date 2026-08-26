@@ -10,6 +10,7 @@
 -->
 <script lang="ts">
   import { getContext } from 'svelte';
+  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import { COMMAND_KEY, type CommandApi } from './command.svelte';
@@ -21,6 +22,7 @@
   let { class: className = '', ...rest }: Props = $props();
 
   const cmd = getContext<CommandApi>(COMMAND_KEY);
+  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
 
   let el = $state<HTMLInputElement | null>(null);
   let composing = false;
@@ -40,8 +42,9 @@
 <input
   bind:this={el}
   data-jx-command-input=""
+  data-density={resolvedDensity}
   class={cn(
-    'box-border w-full border-b border-border bg-transparent px-4 py-[0.875rem] font-mono text-[0.9375rem] text-foreground placeholder:text-muted-foreground focus:outline-none',
+    'box-border min-h-[var(--jx-d-ctl-hit)] w-full border-b border-border bg-transparent px-[var(--jx-d-ctl-pad)] font-mono text-[var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] text-foreground placeholder:text-muted-foreground focus:outline-none',
     className,
   )}
   type="text"

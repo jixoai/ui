@@ -10,19 +10,22 @@
   import type { Snippet } from 'svelte';
   import { getContext } from 'svelte';
   import { TABS_KEY, type TabsApi } from './tabs.svelte';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
 
   interface Props {
+    density?: Density;
     /** pairs with the same value on a TabsTrigger */
     value: string;
     children: Snippet;
     class?: string;
   }
 
-  let { value, children, class: className = '' }: Props = $props();
+  let { density, value, children, class: className = '' }: Props = $props();
 
   const tabs = getContext<TabsApi>(TABS_KEY);
 
   const active = $derived(tabs.selected === value);
+  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
 </script>
 
 <div
@@ -31,6 +34,7 @@
   aria-labelledby="{tabs.uid}-tab-{value}"
   tabindex="0"
   data-jx-tab-panel=""
+  data-density={resolvedDensity}
   class={className}
   hidden={!active}
 >

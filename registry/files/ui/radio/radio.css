@@ -13,6 +13,19 @@
  * stays in @layer components (nothing competes with it). */
 
 @layer components {
+  :where(.jx-check-lane) {
+    min-block-size: var(--jx-d-ctl-hit);
+    gap: var(--jx-d-ctl-gap);
+  }
+  :where(.jx-radio) {
+    width: var(--jx-d-ctl-icon);
+    height: var(--jx-d-ctl-icon);
+  }
+  :where([data-jx-check-label]) {
+    font-size: var(--jx-d-ctl-text);
+    line-height: var(--jx-d-ctl-line);
+  }
+
   /* ---- the dot: 8px primary circle, scale 0 → 1 -------------------- */
   :where(.jx-radio)::after {
     content: '';

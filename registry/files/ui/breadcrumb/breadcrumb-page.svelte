@@ -12,6 +12,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAnchorAttributes, HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
 
   interface Props extends Omit<HTMLAnchorAttributes, 'aria-current'> {
     /** keep the leaf a real link when the page has a URL of its own */
@@ -21,11 +22,13 @@
   }
 
   let { href, class: className = '', children, ...rest }: Props = $props();
+  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
 </script>
 
 {#if href}
   <a
     data-jx-breadcrumb-current=""
+    data-density={resolvedDensity}
     class={cn('text-foreground no-underline', className)}
     {href}
     {...rest}
@@ -38,6 +41,7 @@
        (anchor-only attrs cannot appear — href is destructured out) -->
   <span
     data-jx-breadcrumb-current=""
+    data-density={resolvedDensity}
     class={cn('text-foreground no-underline', className)}
     {...(rest as HTMLAttributes<HTMLSpanElement>)}
     aria-current="page"

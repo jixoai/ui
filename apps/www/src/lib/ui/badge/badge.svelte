@@ -23,12 +23,15 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
+    density?: Density;
     tone?: 'default' | 'primary' | 'outline' | 'destructive';
   }
 
-  let { tone = 'default', class: className = '', children, ...rest }: Props = $props();
+  let { density, tone = 'default', class: className = '', children, ...rest }: Props = $props();
+  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
 
   const toneUtilities = {
     default: 'bg-muted text-foreground',
@@ -40,8 +43,9 @@
 
 <span
   data-jx-badge={tone}
+  data-density={resolvedDensity}
   class={cn(
-    `inline-flex items-center gap-1.5 box-border max-w-full px-[0.4375rem] py-[0.0625rem] border border-border font-nav text-[11px] leading-[1.5] tracking-[0.14em] uppercase whitespace-nowrap rounded-(--radius)`,
+    `inline-flex items-center [gap:var(--jx-d-ctl-gap)] box-border max-w-full [padding:calc(var(--jx-d-ctl-gap)/2)_var(--jx-d-ctl-pad)] border border-border font-nav [font-size:var(--jx-d-secondary-text)] [line-height:var(--jx-d-secondary-line)] tracking-[0.14em] uppercase whitespace-nowrap rounded-(--radius)`,
     toneUtilities[tone],
     className,
   )}

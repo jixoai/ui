@@ -14,6 +14,7 @@
 -->
 <script lang="ts">
   import { getContext, onDestroy } from 'svelte';
+  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
@@ -27,6 +28,7 @@
   let { class: className = '', children, ...rest }: Props = $props();
 
   const cmd = getContext<CommandApi>(COMMAND_KEY);
+  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
 
   let el = $state<HTMLDivElement | null>(null);
 
@@ -45,6 +47,7 @@
 <div
   bind:this={el}
   data-jx-command-list=""
+  data-density={resolvedDensity}
   class={cn(
     'overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-[0.375rem] [padding-inline:max(0.375rem-var(--jx-scrollbar-thin,0px),0px)]',
     className,

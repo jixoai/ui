@@ -14,6 +14,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAnchorAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
 
   interface Props extends HTMLAnchorAttributes {
     href: string;
@@ -29,6 +30,7 @@
     class: className = '',
     ...rest
   }: Props = $props();
+  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
 
   const props = $derived({
     class: cn(
@@ -43,5 +45,5 @@
 {#if child}
   {@render child({ props })}
 {:else}
-  <a data-jx-breadcrumb-link="" {...props}>{@render children?.()}</a>
+  <a data-jx-breadcrumb-link="" data-density={resolvedDensity} {...props}>{@render children?.()}</a>
 {/if}

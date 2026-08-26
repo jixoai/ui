@@ -10,6 +10,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
+  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
 
   interface Props extends HTMLAttributes<HTMLOListElement> {
@@ -18,10 +19,12 @@
   }
 
   let { class: className = '', children, ...rest }: Props = $props();
+  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
 </script>
 
 <ol
   data-jx-breadcrumb-list=""
+  data-density={resolvedDensity}
   class={cn(
     'm-0 flex list-none flex-wrap items-center gap-1.5 font-nav text-xs uppercase tracking-[0.08em]',
     className,

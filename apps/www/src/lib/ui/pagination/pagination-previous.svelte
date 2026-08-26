@@ -18,7 +18,7 @@
   import type { HTMLAttributes, HTMLAnchorAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
 
-  interface Props extends HTMLAttributes<HTMLElement> {
+  type Props = HTMLAttributes<HTMLElement> & {
     /** the previous page's URL; omit at the first page */
     href?: string;
     /** click-only control (renders a button) */
@@ -27,14 +27,16 @@
     child?: Snippet<[{ props: HTMLAnchorAttributes & { class: string } }]>;
     children?: Snippet;
     class?: string;
-  }
+  };
 
   let { href, onclick, child, children, class: className = '', ...rest }: Props = $props();
+
+
 
   const chipPose =
     '[--jx-press-shadow:none] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]';
   const chipBase =
-    'inline-flex h-[1.875rem] min-w-[1.875rem] items-center justify-center box-border border px-2 font-nav text-xs no-underline tracking-[0.08em] cursor-pointer focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
+    'inline-flex min-h-[var(--jx-d-ctl-hit)] min-w-[var(--jx-d-ctl-hit)] items-center justify-center box-border border px-[var(--jx-d-ctl-pad)] font-nav text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] no-underline tracking-[0.08em] cursor-pointer focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
   const edgeChip = cn(
     'jx-press',
     chipBase,
@@ -58,7 +60,7 @@
     data-jx-page-edge=""
     data-jx-page-edge-off=""
     class={cn(
-      'inline-flex h-[1.875rem] min-w-[1.875rem] items-center justify-center box-border border border-border bg-card px-2 font-nav text-xs uppercase tracking-[0.08em] text-foreground opacity-45 shadow-none cursor-not-allowed',
+      'inline-flex min-h-[var(--jx-d-ctl-hit)] min-w-[var(--jx-d-ctl-hit)] items-center justify-center box-border border border-border bg-card px-[var(--jx-d-ctl-pad)] font-nav text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] uppercase tracking-[0.08em] text-foreground opacity-45 shadow-none cursor-not-allowed',
       className,
     )}
     {...rest}

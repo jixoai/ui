@@ -11,6 +11,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
+  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
 
   interface Props extends HTMLAttributes<HTMLLIElement> {
@@ -19,6 +20,7 @@
   }
 
   let { class: className = '', children, ...rest }: Props = $props();
+  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
 
   // set by breadcrumb-collapse.svelte — hidden items carry the fold
   // hook so the ellipsis can derive its destination from the DOM
@@ -27,6 +29,7 @@
 
 <li
   data-jx-breadcrumb-collapsed={collapsed ? '' : undefined}
+  data-density={resolvedDensity}
   hidden={collapsed ? true : undefined}
   class={cn(className)}
   {...rest}

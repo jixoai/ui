@@ -252,9 +252,9 @@ ${close}
           </span>
         </div>
         <div class="grid gap-5 min-[760px]:grid-cols-3">
-          <FileInput label="sm rows" size="sm" multiple bind:files={multiFiles} />
-          <FileInput label="md rows (default)" multiple bind:files={multiFiles} />
-          <FileInput label="lg rows" size="lg" multiple bind:files={multiFiles} />
+          <FileInput label="xs rows" density="xs" multiple bind:files={multiFiles} />
+          <FileInput label="default rows" density="default" multiple bind:files={multiFiles} />
+          <FileInput label="lg rows" density="lg" multiple bind:files={multiFiles} />
         </div>
         <p class="text-muted-foreground text-pretty text-[13px] leading-6">
           Every row is keyboard-operable: the × carries
