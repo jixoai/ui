@@ -66,15 +66,26 @@
 
   // variant grounds (design.md §1 recipes, verbatim) — the ladder
   // surface REPLACES the card ground; the border + hard offset shadow
-  // are the terminal material law and stay
+  // are the terminal material law and stay. Each rung carries its
+  // design §6 forced-colors degradation: the color-mix tints do NOT
+  // drop on their own under forced colors (probed, r2) — Canvas +
+  // CanvasText with the 1px border surviving is the lawful result.
   const surface = {
-    outline: 'bg-transparent [border-color:var(--jx-outline)]',
-    tonal: 'bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)]',
+    outline:
+      'bg-transparent [border-color:var(--jx-outline)] forced-colors:bg-[Canvas] forced-colors:border-[CanvasText]',
+    tonal: 'bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] forced-colors:bg-[Canvas] forced-colors:border-[CanvasText]',
   } as const;
-  // the title consumes the variant ink; body copy stays muted
+  // the title consumes the variant ink; the BODY consumes it too on
+  // the tonal rung (r2 blocker fix: an error banner no longer paints
+  // a red title over gray body copy) — outline keeps the muted body,
+  // the neutral rung's own ink ramp for long copy
   const titleColor = {
-    outline: 'text-foreground',
-    tonal: '[color:var(--jx-tonal)]',
+    outline: 'text-foreground forced-colors:text-[CanvasText]',
+    tonal: '[color:var(--jx-tonal)] forced-colors:text-[CanvasText]',
+  } as const;
+  const bodyColor = {
+    outline: 'text-muted-foreground forced-colors:text-[CanvasText]',
+    tonal: 'text-[color:var(--jx-tonal)] forced-colors:text-[CanvasText]',
   } as const;
 </script>
 
@@ -93,7 +104,7 @@
     </p>
   {/if}
   {#if children}
-    <div data-jx-alert-body="" class="text-[0.8125rem] leading-[1.55] text-muted-foreground">
+    <div data-jx-alert-body="" class={cn('text-[0.8125rem] leading-[1.55]', bodyColor[variant])}>
       {@render children()}
     </div>
   {/if}

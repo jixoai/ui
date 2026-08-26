@@ -62,7 +62,7 @@ native rest attributes — not in this change.
 | InlineCode | `tonal \| outline` | `tonal` + local `[--jx-tonal:var(--muted-foreground)]` (parity with jx-pure's bare `code` law; consumer injection still wins) | native `<code>`, mono, normal case; Shiki tokens as ASYNC enhancement — frame + SSR output never depend on detection; inside `<pre>` the pre/code reset strips the frame |
 | Chip | all four | `tonal` | root carries `min-block-size: var(--jx-hit)` (hit-lane law; Codex rejected pseudo-element expansion — badge NATURE lives in paint/typography, not sub-lane height; OWNER NOTE: chips are control-scale, ~44px at default density, not 20px badges), `data-jx-chip={variant}`, default effect `ripple()`, button/a duality, slotStart/slotEnd, press law |
 | PressButton | `fill \| tonal \| outline \| ghost \| link` | `outline` (unchanged) | `data-jx-press-button={variant}` new valued hook; copied→tonal+success |
-| Alert | `outline \| tonal` | `outline` | ladder surface replaces card bg (visual change → Owner browser review); title/body consume variant tokens; `role`/`assertive` axis untouched; `data-jx-alert={variant}` |
+| Alert | `outline \| tonal` | `outline` | ladder surface replaces card bg (visual change → Owner browser review); title AND body consume the variant ink on tonal (r2 ruling: an error banner must not paint a red title over gray body); outline keeps the muted body (the neutral rung's own ink ramp); `role`/`assertive` axis untouched; `data-jx-alert={variant}` |
 | AlertDialogAction | migrates INTO the grammar | — | its `tone: destructive \| primary` prop is replaced by the variant+injection interface (Codex scope ruling: include, do not defer) |
 
 ## 5. Migration mappings (authoritative; see migration-inventory.md for sites)

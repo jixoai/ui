@@ -14,15 +14,26 @@
  *  1. push/dismiss/subscribe — the whole surface, ~100 lines
  *  2. per-toast expiry with hover/focus pause (arm/pause/resume)
  *  3. duration: 0 = sticky (only the dismiss button clears it)
+ *
+ * Variant grammar (2026-08-26, variant-grammar change): the retired
+ * tone law (default/primary/destructive) becomes the ladder —
+ * variant 'outline' (default, the plain notice) | 'tonal' (tinted
+ * emphasis) — and semantic hue rides the SAME class-utility injection
+ * seam as markup: push({ variant: 'tonal', class:
+ * '[--jx-tonal:var(--error)]' }) for a failed status (error, never
+ * the destructive action hue — design §3). The optional class lands
+ * on the toast card through the viewport's cn() merge.
  */
 
-export type ToastTone = 'default' | 'primary' | 'destructive';
+export type ToastVariant = 'outline' | 'tonal';
 
 export interface ToastInit {
   title: string;
   description?: string;
-  /** default / primary (brand) / destructive — the shared tone law */
-  tone?: ToastTone;
+  /** ladder prominence: outline (plain notice, default) | tonal (tinted emphasis) */
+  variant?: ToastVariant;
+  /** consumer classes — the hue-injection seam, e.g. '[--jx-tonal:var(--error)]' */
+  class?: string;
   /** ms until auto-dismiss; 0 = sticky. Default 5000 */
   duration?: number;
   /** true → the viewport announces this one assertively (role=alert) */

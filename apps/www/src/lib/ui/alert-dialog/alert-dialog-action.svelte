@@ -42,13 +42,16 @@
   const api = getContext<AlertDialogApi>(ALERT_DIALOG_KEY);
 
   // design.md §1 recipes; the destructive pair rides fill as the
-  // component's local token default — consumer injections override it
+  // component's local token default — consumer injections override it.
+  // Each rung carries its design §6 forced-colors degradation (r2
+  // blocker fix — the destructive/tinted paints do not drop on their
+  // own under forced colors)
   const variants = {
-    fill: 'bg-[color:var(--jx-fill)] border-[color:var(--jx-fill)] text-[color:var(--jx-fill-ink)] [--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)]',
+    fill: 'bg-[color:var(--jx-fill)] border-[color:var(--jx-fill)] text-[color:var(--jx-fill-ink)] [--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)] forced-colors:bg-[ButtonFace] forced-colors:border-[ButtonText] forced-colors:text-[ButtonText]',
     tonal:
-      'bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] text-[color:var(--jx-tonal)]',
+      'bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] text-[color:var(--jx-tonal)] forced-colors:bg-[Canvas] forced-colors:border-[CanvasText] forced-colors:text-[CanvasText]',
     outline:
-      'bg-transparent [border-color:var(--jx-outline)] text-foreground hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)]',
+      'bg-transparent [border-color:var(--jx-outline)] text-foreground hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)] forced-colors:bg-[Canvas] forced-colors:border-[CanvasText] forced-colors:text-[CanvasText]',
   } as const;
 </script>
 
@@ -57,7 +60,7 @@
   data-jx-adlg-action=""
   data-jx-alert-dialog-action={variant}
   class={cn(
-    'jx-press appearance-none px-4 py-2 border font-nav text-xs tracking-[0.1em] uppercase cursor-pointer [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
+    'jx-press appearance-none px-4 py-2 border font-nav text-xs tracking-[0.1em] uppercase cursor-pointer [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px] forced-colors:outline-2 forced-colors:outline-offset-2 forced-colors:[outline-color:Highlight]',
     variants[variant],
     className,
   )}

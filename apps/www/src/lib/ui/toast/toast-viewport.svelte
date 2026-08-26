@@ -80,27 +80,41 @@
   const visible = $derived(items.slice(-maxVisible));
   const renders = $derived([...visible.filter((v) => !leavingItems.some((l) => l.id === v.id)), ...leavingItems]);
 
-  const toneBorder = {
-    default: 'border-border',
-    primary: 'border-primary',
-    destructive: 'border-destructive',
+  // variant grammar (variant-grammar change): the ladder drives border
+  // + ink over the FLOATING surface law (bg-popover stays — toasts
+  // float over content like their popover siblings; the §1 recipes'
+  // transparent ground is the in-flow surface law). Tonal tints its
+  // 12% OVER the popover ground (color-mix base swap), and title +
+  // description consume the variant ink (the alert r2 ruling: an
+  // error toast must not paint a red title over gray body). Each rung
+  // carries its §6 forced-colors degradation.
+  const variantPaint = {
+    outline:
+      'bg-popover border-[color:var(--jx-outline)] forced-colors:bg-[Canvas] forced-colors:border-[CanvasText]',
+    tonal: 'bg-[color-mix(in_oklab,var(--jx-tonal)_12%,var(--popover))] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] forced-colors:bg-[Canvas] forced-colors:border-[CanvasText]',
   } as const;
-  const titleColor = {
-    default: 'text-foreground',
-    primary: 'text-primary',
-    destructive: 'text-destructive',
+  const titleInk = {
+    outline: 'text-foreground forced-colors:text-[CanvasText]',
+    tonal: 'text-[color:var(--jx-tonal)] forced-colors:text-[CanvasText]',
   } as const;
+  const descInk = {
+    outline: 'text-muted-foreground forced-colors:text-[CanvasText]',
+    tonal: 'text-[color:var(--jx-tonal)] forced-colors:text-[CanvasText]',
+  } as const;
+  const itemVariant = (item: ToastItem) => item.variant ?? 'outline';
 </script>
 
 <div data-jx-toasts="" class={cn('fixed right-4 bottom-4 z-[90] flex flex-col gap-2 w-[min(22rem,calc(100vw-2rem))] pointer-events-none', className)} aria-label="notifications">
   {#each renders as item (item.id)}
     {@const leaving = leavingItems.some((l) => l.id === item.id)}
+    {@const variant = itemVariant(item)}
     <div
-      data-jx-toast={item.tone ?? 'default'}
+      data-jx-toast={variant}
       class={cn(
-        `jx-toast flex items-start gap-2.5 box-border px-3.5 py-3 border bg-popover text-popover-foreground shadow rounded pointer-events-auto animate-[jx-toast-in_200ms_cubic-bezier(0.22,1,0.36,1)]`,
-        toneBorder[item.tone ?? 'default'],
+        `jx-toast flex items-start gap-2.5 box-border px-3.5 py-3 border text-popover-foreground shadow rounded pointer-events-auto animate-[jx-toast-in_200ms_cubic-bezier(0.22,1,0.36,1)]`,
+        variantPaint[variant],
         leaving && 'jx-toast-leaving animate-[jx-toast-out_180ms_ease-in_forwards]',
+        item.class,
       )}
       role={item.assertive ? 'alert' : 'status'}
       onpointerenter={() => store.pause(item.id)}
@@ -112,15 +126,15 @@
       }}
     >
       <div data-jx-toast-body="" class="flex flex-1 flex-col gap-1 min-w-0">
-        <p data-jx-toast-title="" class={cn('font-nav text-xs tracking-[0.1em] uppercase', titleColor[item.tone ?? 'default'])}>{item.title}</p>
+        <p data-jx-toast-title="" class={cn('font-nav text-xs tracking-[0.1em] uppercase', titleInk[variant])}>{item.title}</p>
         {#if item.description}
-          <p data-jx-toast-desc="" class="text-[0.8125rem] leading-[1.5] text-muted-foreground">{item.description}</p>
+          <p data-jx-toast-desc="" class={cn('text-[0.8125rem] leading-[1.5]', descInk[variant])}>{item.description}</p>
         {/if}
       </div>
       <button
         type="button"
         data-jx-toast-dismiss=""
-        class="flex-none appearance-none inline-flex items-center justify-center size-5 -mt-0.5 -mr-1 border-0 bg-transparent text-muted-foreground text-base leading-none cursor-pointer hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+        class="flex-none appearance-none inline-flex items-center justify-center size-5 -mt-0.5 -mr-1 border-0 bg-transparent text-muted-foreground text-base leading-none cursor-pointer hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px] forced-colors:outline-2 forced-colors:outline-offset-2 forced-colors:[outline-color:Highlight] forced-colors:text-[ButtonText]"
         aria-label="dismiss notification"
         onclick={() => store.api.dismiss(item.id)}
       >

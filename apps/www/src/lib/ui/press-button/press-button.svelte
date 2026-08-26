@@ -213,11 +213,14 @@
 
   // the square swaps ONLY geometry: one band (42px, the text button's
   // own height) with the glyph centered — paint, physics and effects
-  // are identical to the text pose
+  // are identical to the text pose. The forced-colors trio pins the
+  // focus law for every rung: 2px Highlight, offset 2, never removed
+  // (design §6 — the site ring var does not survive forced colors).
+  const focusForced = 'forced-colors:outline-2 forced-colors:outline-offset-2 forced-colors:[outline-color:Highlight]';
   const base = $derived(
     square
-      ? 'inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] items-center justify-center text-[length:var(--jx-text)] leading-[var(--jx-line)] font-medium'
-      : 'inline-flex min-h-[var(--jx-hit)] items-center gap-[var(--jx-gap)] px-[var(--jx-inset)] text-[length:var(--jx-text)] leading-[var(--jx-line)] font-medium',
+      ? `inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] items-center justify-center text-[length:var(--jx-text)] leading-[var(--jx-line)] font-medium ${focusForced}`
+      : `inline-flex min-h-[var(--jx-hit)] items-center gap-[var(--jx-gap)] px-[var(--jx-inset)] text-[length:var(--jx-text)] leading-[var(--jx-line)] font-medium ${focusForced}`,
   );
   // the bordered, shadow-bearing body (link opts out entirely). The
   // frame contributes width + physics ONLY: every rung below supplies
@@ -225,16 +228,22 @@
   // ever meet in one class list — named border-color utilities sort
   // AFTER arbitrary ones in the sheet, and same-family utility order
   // is not consumer-guaranteed; the map stays collision-free by
-  // construction (variant grammar, openspec/changes/variant-grammar)
+  // construction (variant grammar, openspec/changes/variant-grammar).
+  // Each rung also carries its design §6 forced-colors degradation:
+  // fill → ButtonFace/ButtonText, tonal/outline → Canvas/CanvasText
+  // (the color-mix tints do NOT drop on their own — probed), ghost →
+  // transparent rest, ButtonFace/ButtonText hover.
   const frame = 'jx-press border';
   const variants = {
-    fill: `${frame} [background:var(--jx-fill)] [border-color:var(--jx-fill)] text-[color:var(--jx-fill-ink)]`,
-    tonal: `${frame} bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] text-[color:var(--jx-tonal)]`,
-    outline: `${frame} bg-transparent [border-color:var(--jx-outline)] text-foreground hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)]`,
-    // ghost keeps the box geometry (transparent border) but presses without a shadow
-    ghost: `jx-press border-transparent bg-transparent hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)] hover:text-[color:var(--jx-tonal)] [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]`,
+    fill: `${frame} [background:var(--jx-fill)] [border-color:var(--jx-fill)] text-[color:var(--jx-fill-ink)] forced-colors:bg-[ButtonFace] forced-colors:border-[ButtonText] forced-colors:text-[ButtonText]`,
+    tonal: `${frame} bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] text-[color:var(--jx-tonal)] forced-colors:bg-[Canvas] forced-colors:border-[CanvasText] forced-colors:text-[CanvasText]`,
+    outline: `${frame} bg-transparent [border-color:var(--jx-outline)] text-foreground hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)] forced-colors:bg-[Canvas] forced-colors:border-[CanvasText] forced-colors:text-[CanvasText]`,
+    // ghost keeps the box geometry (width-only border + transparent
+    // color) but presses without a shadow — r2 blocker fix: the width
+    // class is load-bearing, border-transparent alone computes to 0px
+    ghost: `jx-press border border-transparent bg-transparent hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)] hover:text-[color:var(--jx-tonal)] [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none] forced-colors:bg-transparent forced-colors:border-transparent forced-colors:text-[CanvasText] forced-colors:hover:bg-[ButtonFace] forced-colors:hover:text-[ButtonText]`,
     // link: the interaction exception — no frame, no press shadow, primary text
-    link: 'text-primary underline-offset-4 hover:underline',
+    link: 'text-primary underline-offset-4 hover:underline forced-colors:text-[LinkText]',
   } as const;
 
   // effect host class (the stacking pose rides utilities: relative z-0

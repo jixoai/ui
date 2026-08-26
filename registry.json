@@ -1921,7 +1921,7 @@
       "name": "toast",
       "type": "registry:ui",
       "title": "Toast",
-      "description": "Two seams, per the design ruling: createToastStore() (framework-free state + lifecycle — push/dismiss/subscribe, per-toast expiry with hover/focus pause, duration 0 = sticky, no module singleton so SSR stays clean) and ToastViewport (mount once in the root layout: fixed corner stack, max visible with older queued, per-item live regions — role=status polite / role=alert assertive, dismiss buttons, entry/exit frames).",
+      "description": "Two seams, per the design ruling: createToastStore() (framework-free state + lifecycle — push/dismiss/subscribe, per-toast expiry with hover/focus pause, duration 0 = sticky, no module singleton so SSR stays clean; variant grammar: variant 'outline'|'tonal' + the class-utility hue-injection seam, e.g. [--jx-tonal:var(--error)] for failed statuses) and ToastViewport (mount once in the root layout: fixed corner stack, max visible with older queued, per-item live regions — role=status polite / role=alert assertive, dismiss buttons, entry/exit frames; the ladder paints over the floating popover ground with explicit forced-colors degradation).",
       "files": [
         {
           "path": "registry/files/lib/toast-store.ts",

@@ -8,7 +8,8 @@
 | svelte-check | **253 errors / 19 warnings** | exactly the pre-wave baseline (measured via stash before the wave); zero new errors/warnings attributed to wave files (chip.html effectExpr warning fixed to $derived) |
 | verify-density-kernel | **61/61** | token block addition is density-free; kernel untouched |
 | verify-density-adoption | **66/66** | chip row C (lane [data-jx-chip]) + inline-code row E; browser phase included |
-| verify-hook-law | **OK** | data-jx-badge/-alert/-press-button/-chip valued hooks |
+| verify-hook-law (default) | **OK** | data-jx-badge/-alert/-press-button/-chip valued hooks |
+| verify-hook-law `--post` (strict) | **RED — pre-existing, not this wave's** | 3 failure classes (9 css-less jx-* hooks in component-canvas/navigation-menu/popconfirm/range; 20 hand-review ambiguities in breadcrumb/command/playground; 4 data-jx name shadows). All live in components untouched by variant-grammar — they are the data-jx-hooks remediation's own committed intermediate state (07a0512, "failing gate + consumer contract"); that change owns closing them |
 | mirror manifest | **GREEN 90 items / 302 pairs** | byte-identity; new chip + inline-code pairs; docs-upgrade site-only quartet classified (pre-existing debt) |
 | verify-press (real Chromium) | **12/12** | press law, effects, rainbow-on-fill screen blend (re-keyed selector), bevel ink, and the five-rung × four-effect matrix (paint preserved, text readable, loops armed) |
 | registry payload parity | **green after root build** | `npm run build` + `build:site` regenerated public payloads (91 files incl. chip/inline-code) |

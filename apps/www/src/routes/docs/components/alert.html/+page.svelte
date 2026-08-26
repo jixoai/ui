@@ -7,6 +7,7 @@
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
+  import Toc from '$lib/ui/toc/toc.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
 
@@ -32,7 +33,7 @@ ${close}
 </Alert>`;
 
   const canvasFiles: TreeFile[] = [
-    { name: 'registry/files/ui/alert.svelte', content: alertSource },
+    { name: 'registry/files/ui/alert/alert.svelte', content: alertSource },
     { name: 'src/lib/ui/alert-usage.svelte', content: usage },
   ];
 
@@ -48,10 +49,15 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
 >
+  <!-- PAGE_STANDARDS §1/§3 rail (outline mode): the sections below are
+       SectionCard h2s — the rail derives itself on hydration -->
+  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
+    <Toc outline={{ root: '#alert-content', levels: [2] }} title="on this page" scrollRoot=".jx-shell-body" />
+  </aside>
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div id="alert-content" class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -72,7 +78,7 @@ ${close}
     <ComponentCanvas
       title="alert"
       description="The variant pair with both live-region roles: outline neutral, tonal in the brand tint, tonal with the error-status injection. The icon snippet composes inline-start of the title — bring your own glyph."
-      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/alert.svelte"
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/alert/alert.svelte"
       files={canvasFiles}
       stage="fill"
     >
@@ -109,10 +115,7 @@ ${close}
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
   </div>
-  </div>
-</div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Alert variants" summary="Two ladder variants and two live-region roles; title and body are each optional. Hue is injected, never a variant name.">
     <div class="grid gap-4 sm:grid-cols-2">
       <div class="border border-border p-4"><Alert title="outline — polite">role=status, transparent ground, --jx-outline border. The plain notice.</Alert></div>
@@ -125,4 +128,5 @@ ${close}
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The banner is itself the live region — screen readers announce it when it appears; no focus is taken."><A11yTable keys={[{ key: '—', action: 'Not focusable — an inline live region, not a control' }]} aria={[{ name: 'role', value: 'status | alert', description: 'status announces politely (default); alert interrupts immediately (assertive).' }, { name: 'data-jx-alert', value: 'variant', description: 'Hook attribute carrying the ladder variant (outline | tonal) for styling.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Utility-authored paint — the banner rhythm is fixed literals, so density scopes leave it unchanged; the grammar tokens are the hue seam."><div class="flex flex-col gap-5"><DensityDemo><Alert title="density sample">The 1px border, shadow-2xs, and 13px rhythm are fixed across scopes.</Alert></DensityDemo><TokenTable tokens={[{ name: '--jx-tonal', default: 'var(--primary)', source: 'color', description: 'Tonal ground/border/title hue source — inject per intent (error, success…).' }, { name: '--jx-outline', default: 'var(--border)', source: 'color', description: 'Outline border source.' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-stack', default: '4 / 4 / 8 / 8px', source: 'density' }, { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' }, { name: 'border', default: '1px', source: 'structural' }, { name: 'shadow', default: 'shadow-2xs (hard offset)', source: 'structural' }, { name: 'title rhythm', default: '13px, fixed utility', source: 'structural' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Six props; variant sets the ladder surface (ground, border, title ink), assertive swaps the live-region role."><PropsTable props={[{ name: 'variant', type: "'outline' | 'tonal'", default: "'outline'", description: 'Ladder prominence: outline paints a transparent ground with the --jx-outline border; tonal paints the 12% tinted ground with the tonal title ink. Hue comes from token injection, not variant names.' }, { name: 'assertive', type: 'boolean', default: 'false', description: 'true → role=alert (immediate); false → role=status (polite).' }, { name: 'title', type: 'string', default: '—', description: 'One-line heading; omitted renders a bare body block.' }, { name: 'icon', type: 'Snippet', default: '—', description: 'Rendered inline-start of the title — bring your own glyph.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Body copy; omit for a title-only notice.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the banner element; token injections like [--jx-tonal:var(--error)] land here.' }]} /></SectionCard></div>
+</div>
 </div>
