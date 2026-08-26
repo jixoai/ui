@@ -71,6 +71,12 @@
     logo?: Snippet;
     /** the right-wing control slot (theme pair toggle, hue switcher…) */
     switcher?: Snippet;
+    /** wrap the switcher slot in the bezel frame (border + p-0.5, the
+        38px outer band shared with the pill box). DEFAULT ON — the
+        frame law; opt OUT for consumers whose control carries its own
+        frame/padding (e.g. the blueprint's compact ThemeToggle — a
+        framed-in-frame control double-borders and breaks the band) */
+    switcherFrame?: boolean;
     /** the desktop nav slot — compose NavigationMenu parts here */
     children?: Snippet;
     /** the mobile drawer contents (the stacked tier's nav) */
@@ -89,6 +95,7 @@
     theme = 'dark',
     logo,
     switcher,
+    switcherFrame = true,
     drawer,
     open = $bindable(false),
     class: className = '',
@@ -276,9 +283,13 @@
              so the pill group, the switcher and the hamburger read as
              one aligned row -->
         {#if switcher}
-          <span class="flex border border-terminal-foreground/25 p-0.5">
+          {#if switcherFrame}
+            <div class="flex border border-terminal-foreground/25 p-0.5">
+              {@render switcher()}
+            </div>
+          {:else}
             {@render switcher()}
-          </span>
+          {/if}
         {/if}
         <span class="flex border border-terminal-foreground/25 p-0.5 sm:hidden">
         <button

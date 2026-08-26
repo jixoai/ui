@@ -27,6 +27,7 @@
     brand="jixoai-ui"
     domain="ui.jixoai.com"
     subtitle="the jixoai design language"
+    switcherFrame={false}
   >
     <NavigationMenu label="Primary" class="flex-nowrap items-center gap-0">
       <NavigationMenuLink href="/" current class={pill(true)}>Overview</NavigationMenuLink>
@@ -41,6 +42,9 @@
         >{@html icons.externalLink}</span>
       </NavigationMenuLink>
     </NavigationMenu>
+    <!-- the compact toggle carries its own bezel frame — the header's
+         switcherFrame is opted out above (a framed-in-frame control
+         double-borders and breaks the 38px band) -->
     {#snippet switcher()}
       <ThemeToggle variant="compact" />
     {/snippet}

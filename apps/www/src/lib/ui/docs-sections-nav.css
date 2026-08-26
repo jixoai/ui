@@ -1,0 +1,50 @@
+/*
+  The left rail's view-transition presence law (Owner walkthrough
+  request, 2026-08-26; r4: moved home from app.css per the
+  css-architecture spec — component-owned law, sibling css like
+  docs-pager). The rail is this component's root (.jx-dsn — jx-*
+  carries component law while tailwind handles layout utilities).
+
+  MOUNTING IS DYNAMIC (Owner r2 ruling): an always-on
+  view-transition-name isolates the element into its own snapshot
+  layer and kills backdrop-filter inside it (the sticky head's
+  progressive-blur band) — the same class of breakage as opacity.
+  The name exists ONLY while html[data-vt-rail] is 'in' | 'out':
+  +layout.svelte's onNavigate writes the dataset BEFORE calling
+  startViewTransition (generation-scoped) and deletes it on finished.
+  Presence-stable swaps ('swap') never mount the name — the rail rides
+  the page's default transition (the Owner's own ruling) and its blur
+  stays live between navigations.
+
+  TRAVEL: calc(-100% - 3rem) — the rail's own width plus the page
+  gutter, just enough to leave the screen (an early draft's -110vw
+  crossed ~7 rail-widths in 450ms and read as an instant vanish).
+  The exit rides 450ms — the carousel's own duration — so the rail
+  and the page leave as one visual phrase.
+*/
+html[data-vt-rail='in'] :where(.jx-dsn),
+html[data-vt-rail='out'] :where(.jx-dsn) {
+  view-transition-name: vt-rail-tree;
+}
+html[data-vt-rail='in']::view-transition-new(vt-rail-tree) {
+  animation: jx-rail-tree-in 340ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+html[data-vt-rail='out']::view-transition-old(vt-rail-tree) {
+  animation: jx-rail-tree-out 450ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes jx-rail-tree-in {
+  from {
+    transform: translateX(calc(-100% - 3rem));
+  }
+}
+@keyframes jx-rail-tree-out {
+  to {
+    transform: translateX(calc(-100% - 3rem));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-vt-rail='in']::view-transition-new(vt-rail-tree),
+  html[data-vt-rail='out']::view-transition-old(vt-rail-tree) {
+    animation: none;
+  }
+}

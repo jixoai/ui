@@ -80,6 +80,14 @@
   // forward and programmatic navigation included (Codex review fix)
   let headerRef: { closeAll(): void } | null = $state(null);
 
+  // VT dataset GENERATION (Codex walkthrough-r2 P1): SvelteKit may start
+  // the next navigation while the previous transition's ~450ms window
+  // still runs — only the LATEST generation owns the html[data-vt-*]
+  // attributes. Every navigation writes its full set (explicit inert
+  // values clear any stale ones); a superseded transition's cleanup
+  // must not delete its successor's values.
+  let vtGeneration = 0;
+
   // Inner-scroller scroll memory (2026-08-22, user report: returning to
   // the overview page always landed at the top). The shell's
   // .jx-shell-body is the REAL scroller — the document never scrolls
@@ -236,6 +244,7 @@
     const vtRail = railTo === fromPath.startsWith('/docs') ? (railTo ? 'swap' : 'none') : railTo ? 'in' : 'out';
     const from = pageIndex(fromPath);
     const to = pageIndex(toPath);
+    const generation = ++vtGeneration;
     if (from < 0 || to < 0) {
       // D8 honored as WRITTEN: outside the carousel set there is no
       // pairwise direction law, but the DEFAULT transition still runs
@@ -243,15 +252,22 @@
       // indicator rides vt-nav-active); returning with nothing was an
       // implementation drift from the comment's contract
       // the gate lands BEFORE the call — the old snapshot's capture and
-      // the pseudo-tree's animation resolution must already see it
+      // the pseudo-tree's animation resolution must already see it; the
+      // inert values deterministically clear any stale carousel set a
+      // still-running predecessor may have left
       const root = document.documentElement;
-      if (vtRail !== 'swap' && vtRail !== 'none') root.dataset.vtRail = vtRail;
+      root.dataset.vtRail = vtRail;
+      delete root.dataset.vtKind;
+      delete root.dataset.vtDirection;
+      delete root.dataset.vtNav;
       return new Promise((resolve) => {
         const transition = document.startViewTransition(async () => {
           resolve();
           await navigation.complete;
         });
-        transition.finished.finally(() => delete root.dataset.vtRail);
+        transition.finished.finally(() => {
+          if (generation === vtGeneration) delete root.dataset.vtRail;
+        });
       });
     }
     if (from === to) return;
@@ -259,7 +275,7 @@
     const root = document.documentElement;
     root.dataset.vtKind = 'page-carousel';
     root.dataset.vtDirection = to > from ? 'forward' : 'backward';
-    if (vtRail !== 'swap' && vtRail !== 'none') root.dataset.vtRail = vtRail;
+    root.dataset.vtRail = vtRail;
     root.dataset.vtNav = document.querySelector('.jx-nav')?.classList.contains('jx-light')
       ? 'light'
       : 'dark';
@@ -270,6 +286,7 @@
         await navigation.complete;
       });
       transition.finished.finally(() => {
+        if (generation !== vtGeneration) return;
         delete root.dataset.vtKind;
         delete root.dataset.vtDirection;
         delete root.dataset.vtNav;

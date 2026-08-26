@@ -25,6 +25,7 @@
   sticky head), and the sticky offsets are load-bearing.
 -->
 <script lang="ts">
+  import './docs-sections-nav.css';
   import { page } from '$app/state';
   import { docsComponentGroups, docsSections } from '$lib/docs-route-model';
   import { icons } from '$lib/icons';

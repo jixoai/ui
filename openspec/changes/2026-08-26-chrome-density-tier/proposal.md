@@ -89,6 +89,21 @@ drawer content restyle; no screenshot-baseline recapture (Owner
 visual authority); no variant-grammar interference (parallel change,
 color-only).
 
+## Walkthrough-round scope extension (Owner-authorized, recorded r4)
+
+The Owner's live walkthrough added, round by round: the bezel FRAME
+LAW (every bar control cluster wears the same border + p-0.5 outer
+frame; `switcherFrame` opt-out prop for consumers whose control
+carries its own frame); two VT bug fixes (the .html PAGE_ORDER lookup
+that silently killed the carousel on every prerendered pair, and the
+D8 drift that left out-of-carousel pairs with NO default transition);
+the Tokens pill's .html-literal comparison family; and the left rail's
+presence law (dynamic vt-name mounting gated by a generation-scoped
+html[data-vt-rail] — slide in/out on presence flips, default pair on
+swaps, blur stays live at rest). Follow-up (Codex r2 smell, NOT in
+this change): onNavigate has accumulated scroll/drawer/carousel/rail
+concerns — a navigation-effects extraction when it next grows.
+
 ## Verification
 
 Kernel gate chrome row · vitest suite · mirror manifest check ·
