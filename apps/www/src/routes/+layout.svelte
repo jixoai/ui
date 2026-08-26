@@ -582,8 +582,8 @@
         </NavigationMenuItem>
         <NavigationMenuLink
           href="/tokens.html"
-          current={normalized === '/tokens.html'}
-          class={pill(normalized === '/tokens.html')}
+          current={normalized === '/tokens'}
+          class={pill(normalized === '/tokens')}
         >
           Tokens
         </NavigationMenuLink>
@@ -642,8 +642,8 @@
           <a
             href="/tokens.html"
             onclick={() => (drawerOpen = false)}
-            aria-current={normalized === '/tokens.html' ? 'page' : undefined}
-            class={drawerLink(normalized === '/tokens.html')}
+            aria-current={normalized === '/tokens' ? 'page' : undefined}
+            class={drawerLink(normalized === '/tokens')}
           >Tokens</a>
           <a
             href={GITHUB_URL}
