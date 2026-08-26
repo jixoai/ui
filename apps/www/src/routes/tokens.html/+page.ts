@@ -5,6 +5,7 @@ import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
   { id: 'hue-lab', label: 'hue lab' },
+  { id: 'density-kernel', label: 'density kernel' },
   { id: 'palette', label: 'palette' },
   { id: 'semantics', label: 'semantics' },
   { id: 'primary-contrast', label: 'primary contrast' },

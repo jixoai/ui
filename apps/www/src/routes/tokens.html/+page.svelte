@@ -8,6 +8,13 @@
   import { currentHue, playing, resumeHue, setHueManually, toggleHuePlay } from '$lib/hue-runtime';
   // site-only token-lab surfaces (tw4 P2.2): swatches + scope panels + hue slider
   import '$lib/site/token-lab.css';
+  import { TokenTable } from '$lib/ui/token-table';
+  import { DensityDemo } from '$lib/ui/density-demo';
+  import Item from '$lib/ui/list-item/item.svelte';
+  import ItemContent from '$lib/ui/list-item/item-content.svelte';
+  import ItemTitle from '$lib/ui/list-item/item-title.svelte';
+  import ItemEnd from '$lib/ui/list-item/item-end.svelte';
+  import ItemAfter from '$lib/ui/list-item/item-after.svelte';
 
   /* ---------------------------------------------------------------------
    * Hue lab: the runtime drives --brand-hue (time-of-day seed, 24h wall-clock cycle);
@@ -244,6 +251,105 @@ playing.subscribe((v) => (isPlaying = v));
         </PlayFields>
       {/snippet}
     </ComponentCanvas>
+  </div>
+
+
+  <!-- Density kernel: the design scale. -->
+  <div id="density-kernel" data-reveal="">
+    <SectionCard
+      family="density-kernel"
+      headerRegion="density-kernel"
+      eyebrow="Design Scale"
+      title="The density kernel"
+      summary="One ruler, four densities. Every dimension is an equation from --jx-unit (4px) and --jx-text-base (13px) — no hand-picked values. Components consume the inherited --jx-* tokens; [data-density] scopes switch all values simultaneously. Context injection (Kotlin Compose-inspired): providers set the scope, every child inherits."
+    >
+      <div class="flex flex-col gap-8">
+        <div class="flex flex-col gap-3">
+          <h3 class="text-[15px] font-bold tracking-tight">Four densities, live</h3>
+          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+            The same component at every density — text, spacing, hit targets, and media all scale
+            from the ruler. No per-size branches in component CSS.
+          </p>
+          <DensityDemo>
+            <Item>
+              <ItemContent>
+                <ItemTitle>The density row</ItemTitle>
+              </ItemContent>
+              <ItemEnd><ItemAfter>12:04</ItemAfter></ItemEnd>
+            </Item>
+          </DensityDemo>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h3 class="text-[15px] font-bold tracking-tight">The four-row table</h3>
+          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+            All dimensions computed at the 16px root. These are the RESOLVED values the kernel
+            gate asserts in real Chromium.
+          </p>
+          <TokenTable
+            tokens={[
+              { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' },
+              { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' },
+              { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' },
+              { name: '--jx-stack', default: '4 / 4 / 8 / 8px', source: 'density' },
+              { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' },
+              { name: '--jx-row-min', default: '28 / 32 / 40 / 48px', source: 'density' },
+              { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' },
+              { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' },
+              { name: '--jx-image', default: '32 / 36 / 40 / 48px', source: 'density' },
+              { name: '--jx-text-secondary', default: '10 / 11 / 12 / 14px', source: 'density' },
+              { name: '--jx-unit', default: '0.25rem (4px)', source: 'structural' },
+              { name: '--jx-text-base', default: '0.8125rem (13px)', source: 'structural' },
+            ]}
+          />
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h3 class="text-[15px] font-bold tracking-tight">Component supplement tokens</h3>
+          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+            Components ADD tokens the global set doesn't cover — toggle geometry, slider rails,
+            textarea heights. These are owned by their component and documented on each
+            component's page.
+          </p>
+          <TokenTable
+            tokens={[
+              { name: '--jx-toggle-track', default: 'var(--jx-line)', source: 'component' },
+              { name: '--jx-toggle-width', default: 'calc(var(--jx-toggle-track) * 2)', source: 'component' },
+              { name: '--jx-toggle-knob', default: 'calc(var(--jx-toggle-track) - var(--jx-unit))', source: 'component' },
+              { name: '--jx-slider-track', default: 'max(var(--jx-unit), calc(var(--jx-line) / 2))', source: 'component' },
+              { name: '--jx-textarea-min', default: 'max(var(--jx-hit), calc(var(--jx-line) * 3 + ...))', source: 'component' },
+              { name: '--jx-color-lane', default: 'max(var(--jx-hit), calc(var(--jx-icon) + ...))', source: 'component' },
+            ]}
+          />
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h3 class="text-[15px] font-bold tracking-tight">Usage</h3>
+          <CodeBlock
+            code={`<!-- Scope switch: one attribute, every child inherits -->
+<div data-density="sm">
+  <MyComponent />  <!-- resolves to sm values -->
+</div>
+
+<!-- Svelte context: the provider pattern -->
+<ItemGroup density="sm">
+  <Item><!-- inherits sm from the group --></Item>
+</ItemGroup>
+
+<!-- Component supplement: override what the global doesn't cover -->
+<style>
+  .my-widget {
+    min-height: var(--jx-hit);
+    padding: var(--jx-stack) var(--jx-inset);
+    font-size: var(--jx-text);
+  }
+</style>`}
+            lang="svelte"
+            meta="density usage"
+          />
+        </div>
+      </div>
+    </SectionCard>
   </div>
 
   <!-- Full palette in the current theme. -->
