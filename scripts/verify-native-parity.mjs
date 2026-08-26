@@ -88,6 +88,9 @@ const ROWS = [
       // B13 paints the INPUT itself as the track; the component's
       // track is the sibling span — the same law, two elements
       ['input[data-probe="switch"]', '[data-renderer=tier1] .jx-toggle-track'],
+      // the knob carriers: B13's ::before ⇄ the component's real span
+      // (absolute + inset + transform — the unified carrier, asserted)
+      ['input[data-probe="switch"]::before', '[data-renderer=tier1] .jx-toggle-knob'],
     ],
     properties: [
       'width', 'height', 'border-radius', 'background-color',
@@ -192,7 +195,7 @@ await page.waitForTimeout(800);
 // freeze motion: mid-transition sampling made color comparisons
 // non-deterministic (the same declaration sampled at different points
 // of the same 150-200ms curve run-to-run). The end state is the law.
-await page.addStyleTag({ content: '* { transition: none !important; animation: none !important; }' });
+await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; animation: none !important; }' });
 await page.waitForTimeout(50);
 
 let failures = 0;
@@ -202,21 +205,46 @@ let failures = 0;
 {
   const present = await page.evaluate(() => ({
     sections: [...document.querySelectorAll('[data-parity]')].map((s) => s.dataset.parity),
+    sectionMarkers: Object.fromEntries(
+      [...document.querySelectorAll('[data-parity]')].map((s) => [
+        s.dataset.parity,
+        {
+          density: s.querySelector('[data-renderer=tier0]')?.dataset.density ?? null,
+          dark: s.classList.contains('dark'),
+        },
+      ]),
+    ),
   }));
   const have = new Set(present.sections);
+  const markers = present.sectionMarkers;
   const missing = [];
+  const malformed = [];
   for (const row of EXPECTED.rows) {
     if (!have.has(row)) missing.push(row);
     for (const v of EXPECTED.variants[row] ?? []) {
-      if (!have.has(row + v)) missing.push(row + v);
+      const id = row + v;
+      if (!have.has(id)) { missing.push(id); continue; }
+      // the variant's section must carry its environment marker
+      if (v === '@xs' || v === '@lg') {
+        if (markers[id]?.density !== v.slice(1)) malformed.push(`${id}: tier0 data-density=${markers[id]?.density} ≠ ${v.slice(1)}`);
+      } else if (v === '@dark') {
+        if (!markers[id]?.dark) malformed.push(`${id}: section missing the .dark class`);
+      }
+    }
+    // every declared state must be an action the row's spec RUNS
+    const spec = ROWS.find((r) => r.row === row);
+    const runs = new Set(spec.states.map((s) => s.name));
+    for (const s of [EXPECTED.states, EXPECTED.extraStates[row] ?? []].flat()) {
+      if (!runs.has(s)) malformed.push(`${row}: declared state "${s}" has no action in the row spec`);
     }
   }
-  if (missing.length) {
-    console.error(`✗ [matrix] fixture sections missing: ${missing.join(', ')}`);
+  if (missing.length || malformed.length) {
+    console.error(`✗ [matrix] incomplete: ${[...missing.map((m) => `missing ${m}`), ...malformed].join('; ')}`);
     process.exit(1);
   }
+  const stateCount = EXPECTED.rows.reduce((n, row) => n + (EXPECTED.extraStates[row]?.length ?? 0), EXPECTED.rows.length);
   console.log(
-    `[matrix] ${have.size} fixture sections cover the declared matrix (excluded: ${EXPECTED.excluded.join('; ')})`,
+    `[matrix] ${have.size} sections / ${stateCount} state actions validated against the declared matrix (excluded: ${EXPECTED.excluded.join('; ')})`,
   );
 }
 
@@ -242,12 +270,16 @@ async function runComparisons(activeRow, activeState) {
       const t0root = section.querySelector('[data-renderer=tier0]');
       const t1root = section.querySelector('[data-renderer=tier1]');
       for (const probe of spec.probes) {
-        const t0 = t0root.querySelector(probe[0]);
+        // a '::before' suffix probes the PSEUDO (the B13 knob carrier)
+        const pseudo0 = probe[0].endsWith('::before') ? '::before' : null;
+        const el0Sel = pseudo0 ? probe[0].slice(0, -8) : probe[0];
+        const el0 = t0root.querySelector(el0Sel);
         const t1 = section.querySelector(probe[1]); // tier1 selectors are section-relative
-        if (!t0 || !t1) {
-          run.push({ row: spec.row, probe: probe.join(' ⇄ '), error: `element missing (t0:${!!t0} t1:${!!t1})` });
+        if (!el0 || !t1) {
+          run.push({ row: spec.row, probe: probe.join(' ⇄ '), error: `element missing (t0:${!!el0} t1:${!!t1})` });
           continue;
         }
+        const t0 = pseudo0 ? { pseudo: true, el: el0 } : el0;
         for (const state of spec.states) {
           let stateError = null;
           if (state.click) {
@@ -276,7 +308,7 @@ async function runComparisons(activeRow, activeState) {
             run.push({ row: spec.row, probe: probe.join(' ⇄ '), state: state.name, error: stateError });
             continue;
           }
-          const cs0 = getComputedStyle(t0);
+          const cs0 = pseudo0 ? getComputedStyle(el0, pseudo0) : getComputedStyle(el0);
           const cs1 = getComputedStyle(t1);
           for (const prop of spec.properties) {
             run.push({
@@ -307,7 +339,7 @@ for (const row of ROWS) {
       await page.waitForTimeout(300);
       // re-apply the motion freeze after every reload (mid-transition
       // color sampling is non-deterministic)
-      await page.addStyleTag({ content: '* { transition: none !important; animation: none !important; }' });
+      await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; animation: none !important; }' });
       await page.waitForTimeout(50);
     }
     comparisonsPerState.push(

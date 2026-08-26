@@ -1198,7 +1198,7 @@
      theme); multiple/size lists keep the listbox posture. Native
      paint returns via the .no-jx-pure subtree hatch (B12). */
   :where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *) {
-padding-inline-end: calc(var(--jx-inset, 0.75rem) + var(--jx-icon, 1.25rem));
+    padding-inline-end: calc(var(--jx-inset, 0.75rem) + var(--jx-icon, 1.25rem));
   }
   /* FF does not paint author background-images on select (cross-engine
      finding, 2026-08-24, verified) — the same degradation law as the
@@ -1487,7 +1487,8 @@ padding-inline-end: calc(var(--jx-inset, 0.75rem) + var(--jx-icon, 1.25rem));
     align-items: center;
     gap: 0.625rem;
     min-height: var(--jx-hit, 2.5rem);
-    padding: 0.5rem 0.75rem;
+    padding-block: var(--jx-gap, 0.5rem);
+    padding-inline: var(--jx-inset, 0.75rem);
     border: 1px solid var(--border);
     border-radius: 0;
     background: var(--background);
@@ -1875,7 +1876,7 @@ padding-inline-end: calc(var(--jx-inset, 0.75rem) + var(--jx-icon, 1.25rem));
       [type='number']
     )[aria-invalid='true']:not(select):not(.no-jx-pure, .no-jx-pure *),
       :where(.jx-pure) textarea[aria-invalid='true']:not(.no-jx-pure, .no-jx-pure *) {
-padding-inline-end: calc(var(--jx-inset, 0.75rem) + var(--jx-icon, 1.25rem));
+    padding-inline-end: calc(var(--jx-inset, 0.75rem) + var(--jx-icon, 1.25rem));
     background-image: var(--jx-icon-invalid-ink);
     background-position: right 0.625rem center;
     background-size: 0.75rem 0.75rem;

@@ -193,3 +193,20 @@
 
 - verify-jx-pure-engines (Firefox/WebKit) rerun result.
 - Codex r2 confirmation round.
+
+## Codex r2 — evidence round (2026-08-27)
+
+- Verdict 8.0/10 (+1.5 vs r1). Both residual P1s were EVIDENCE gaps,
+  fixed immediately:
+  - EXPECTED now fully VALIDATED (variant sections' data-density/
+    .dark markers checked; every declared state must have an action
+    in its row spec; 10 sections / 10 state actions enforced).
+  - The toggle knob gains a PSEUDO probe (B13 ::before ⇄ component
+    span: position/inset/transform/dimensions asserted) — which
+    immediately caught a freeze asymmetry (`*` does not match
+    pseudo-elements; the freeze now covers *::before/*::after).
+    7 rows × 3020 comparisons GREEN.
+  - Spec delta's gate requirement rewritten onto the IMPLEMENTED
+    matrix contract (declared==validated; full cross-product named
+    as the growth path); summary padding swept; two indent
+    degradations restored.

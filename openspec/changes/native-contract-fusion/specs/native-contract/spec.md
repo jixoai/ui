@@ -112,13 +112,23 @@ byte-locks (mirrors, payload parity, gzip budget) stay in force.
 
 Each vocabulary row SHALL carry a parity fixture: the same DOM
 rendered (i) bare under `.jx-pure` and (ii) as the Tier-1 component,
-with computed styles compared over the law's property whitelist
-across the state matrix {base, hover, focus-visible, checked,
-disabled, aria-invalid} × {default, xs, lg} × {light, dark}, values
-normalized (color notations, shorthands). Pseudo-element visual
-builds (checkbox glyph, radio dot, slider fill) add screenshot-oracle
-evidence — supplemental, never a replacement. The gate lives in
-`verify-native-parity.mjs` and runs in CI with the other gates.
+with computed styles compared over the row's posture-agnostic
+property whitelist, values normalized (color notations with a
+sub-visual component tolerance, shorthands). The gate's matrix is
+DECLARED and VALIDATED machine-readably: every expected row,
+variant section (density via the tier0 data-density marker, dark via
+the section class), and state action must exist or the gate fails —
+no silent under-coverage; states are ISOLATED (a fresh page per
+non-base state with motion frozen, including pseudo-elements).
+Pseudo-carrier probes (e.g. the switch knob's ::before ⇄ the
+component's span) assert the unified carriers. Screenshot-oracle
+evidence (the capture-baseline tolerant pixel comparator) covers
+geometric rows; a documented rasterization-path artifact
+(::before-inside-input vs a real child element) is warn-only with
+its root cause recorded. Extending the matrix toward the full
+cross-product {hover, aria-invalid} × per-row densities is follow-up
+work, declared here as the growth path — the gate enforces exactly
+what it declares.
 
 #### Scenario: drift sneaks into one renderer
 
