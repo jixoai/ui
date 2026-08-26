@@ -125,17 +125,12 @@
     align-items: center;
     justify-content: center;
     color: inherit;
-    border: 1px solid color-mix(in oklab, currentColor 30%, transparent);
     background: transparent;
     --jx-press-shadow: none;
     --jx-press-shadow-hover: var(--shadow-xs);
     --jx-press-shadow-active: var(--shadow-xs-press);
     cursor: pointer;
   }
-  .jx-hue-trigger:hover {
-    border-color: color-mix(in oklab, currentColor 70%, transparent);
-  }
-
   /* ── panel: token-driven, from the registry popover's panel law ── */
 
   /* ── section labels ── */

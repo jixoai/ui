@@ -224,9 +224,25 @@
     ) {
       return;
     }
-    const from = pageIndex(page.url.pathname);
-    const to = pageIndex(new URL(navigation.to.url, location.origin).pathname);
-    if (from < 0 || to < 0 || from === to) return;
+    // prerendered links carry the .html suffix the PAGE_ORDER does not
+    // — the raw pathname made every lookup -1 and silently killed the
+    // carousel on ALL top-level pairs (walkthrough report, 2026-08-26)
+    const from = pageIndex(norm(page.url.pathname));
+    const to = pageIndex(norm(new URL(navigation.to.url, location.origin).pathname));
+    if (from < 0 || to < 0) {
+      // D8 honored as WRITTEN: outside the carousel set there is no
+      // pairwise direction law, but the DEFAULT transition still runs
+      // (root cross-fade + the shared-element morphs — the nav
+      // indicator rides vt-nav-active); returning with nothing was an
+      // implementation drift from the comment's contract
+      return new Promise((resolve) => {
+        document.startViewTransition(async () => {
+          resolve();
+          await navigation.complete;
+        });
+      });
+    }
+    if (from === to) return;
 
     const root = document.documentElement;
     root.dataset.vtKind = 'page-carousel';

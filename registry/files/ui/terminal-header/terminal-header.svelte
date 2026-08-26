@@ -270,12 +270,20 @@
           <span class="jx-indicator" bind:this={indicatorEl} aria-hidden="true"></span>
           {@render children?.()}
         </div>
+        <!-- frame law (walkthrough report, 2026-08-26): every bezel
+             control cluster wears the SAME outer frame as the pill box
+             (border + p-0.5 around the 32px chrome band = 38px outer),
+             so the pill group, the switcher and the hamburger read as
+             one aligned row -->
         {#if switcher}
-          {@render switcher()}
+          <span class="flex border border-terminal-foreground/25 p-0.5">
+            {@render switcher()}
+          </span>
         {/if}
+        <span class="flex border border-terminal-foreground/25 p-0.5 sm:hidden">
         <button
           type="button"
-          class="flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] flex-col items-center justify-center gap-[3px] border border-terminal-foreground/25 sm:hidden"
+          class="flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] flex-col items-center justify-center gap-[3px]"
           aria-expanded={open}
           aria-label="Toggle navigation"
           bind:this={burgerEl}
@@ -285,6 +293,7 @@
           <span class="block h-[1.5px] w-[var(--jx-icon)] bg-terminal-foreground"></span>
           <span class="jx-bar block h-[1.5px] w-[var(--jx-icon)] bg-terminal-foreground transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"></span>
         </button>
+        </span>
       </div>
     </div>
 
