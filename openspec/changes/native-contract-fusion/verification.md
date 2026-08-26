@@ -136,10 +136,14 @@
 - Pixel oracle (capture-baseline's tolerant comparator: channel ≤8,
   hot ≤0.5%): checkbox + radio **0.000% hot** — the clip-path glyph
   and the dot render pixel-identical across renderers.
-- KNOWN GAP (warn-only): toggle knob CARRIERS differ (B13 ::before +
-  margin travel vs component span + transform; end-state math equal,
-  raster diverges 8.9% of the track box) — unifying the knob builds
-  is follow-up work; the computed phase still gates the law box.
+- KNOWN GAP (warn-only): the toggle's knob RASTERIZATION PATHS differ
+  (::before inside the input element vs a real span child —
+  deterministic per-session, hue-phase dependent 8.9–9.9% of the
+  track box; carriers unified: absolute+inset+transform asserted
+  equal by the pseudo probe). Bare inputs cannot host real children;
+  full carrier unification would rebuild the component around
+  pseudo-elements — declined this change, follow-up if the pixel bar
+  hardens.
 
 ## Phase 7 — full gates
 

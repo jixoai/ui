@@ -52,7 +52,18 @@ async function runEngine(name, launch) {
     const cs = getComputedStyle(r);
     return { h: cs.height, container: cs.containerType, overflow: cs.overflow };
   });
-  ok('range: the 24px daisyUI pill paint box', range.h === '24px');
+  const iconPx = await page.evaluate(() => {
+    const scope = document.querySelector('#forms .jx-pure');
+    const el = document.createElement('div');
+    el.style.minHeight = 'var(--jx-icon)';
+    el.style.position = 'absolute';
+    scope.appendChild(el);
+    const px = getComputedStyle(el).minHeight;
+    el.remove();
+    return px;
+  });
+  // density adoption: the pill rides --jx-icon (was a hard 24px)
+  ok(`range: the DERIVED daisyUI pill paint box (${iconPx})`, range.h === iconPx);
   ok('range: container-type + overflow clip machinery', range.container === 'inline-size' && range.overflow === 'hidden');
 
   await page.locator('#forms .jx-pure input[type="range"]').scrollIntoViewIfNeeded();
@@ -139,8 +150,11 @@ const total = [];
 // the cache carries slightly older builds than this playwright-core
 // expects — point executablePath at what exists (protocol-compatible)
 for (const [name, launch] of [
-  ['firefox', () => firefox.launch({ executablePath: `${process.env.HOME}/Library/Caches/ms-playwright/firefox-1532/firefox/Nightly.app/Contents/MacOS/firefox` })],
-  ['webkit', () => webkit.launch({ executablePath: `${process.env.HOME}/Library/Caches/ms-playwright/webkit-2311/pw_run.sh` })],
+  // the machine proxy black-holes localhost (verify-jx-pure's Chrome
+  // lesson): firefox must go DIRECT (proxy.type 0) or every goto dies
+  // with NS_ERROR_NET_ERROR_RESPONSE; webkit's soup stack honors no_proxy
+  ['firefox', () => firefox.launch({ executablePath: `${process.env.HOME}/Library/Caches/ms-playwright/firefox-1532/firefox/Nightly.app/Contents/MacOS/firefox`, firefoxUserPrefs: { 'network.proxy.type': 0 } })],
+  ['webkit', () => webkit.launch({ executablePath: `${process.env.HOME}/Library/Caches/ms-playwright/webkit-2311/pw_run.sh`, env: { ...process.env, no_proxy: 'localhost,127.0.0.1', NO_PROXY: 'localhost,127.0.0.1' } })],
 ]) {
   try {
     // a mismatched cached build can hang at the protocol handshake —

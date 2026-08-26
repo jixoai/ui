@@ -236,13 +236,17 @@ Codex's landing order, binding:
    toggle (worst-drift first, then by blast radius).
 6. `verify-native-parity.mjs`: for each vocabulary row, one shared
    DOM fixture rendered (i) bare under `.jx-pure` and (ii) as the
-   component; computed styles compared over the law's property
-   whitelist (never UA-derived noise), across the state matrix
-   {base, hover, focus, checked, disabled, aria-invalid} × {default,
-   xs, lg density} × {light, dark}; values normalized (rgb/oklch/
-   shorthand). Screenshot oracle supplements pseudo builds
-   (checkbox glyph, radio dot, slider fill) — supplements, never
-   replaces computed-style assertions.
+   component; computed styles compared over each probe's
+   posture-agnostic property whitelist, across the DECLARED matrix —
+   and the declaration is VALIDATED (sections, environment markers,
+   state actions; no silent under-coverage), states isolated per
+   fresh page. The full {hover, aria-invalid} × per-row-density
+   cross-product is the declared GROWTH PATH, not this change's
+   claim (r3 ruling: spec and design carry one matrix contract).
+   Values normalized (color-component tolerance). Screenshot oracle
+   (tolerant pixel comparator) supplements pseudo builds — never
+   replaces computed-style assertions; the documented
+   rasterization-path artifact stays warn-only.
 7. verify:mirror (now covering the contract extract), gzip budget,
    jx-pure parity spec, svelte-check, vitest suite — green at every
    batch commit.

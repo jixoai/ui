@@ -88,9 +88,19 @@ const ROWS = [
       // B13 paints the INPUT itself as the track; the component's
       // track is the sibling span — the same law, two elements
       ['input[data-probe="switch"]', '[data-renderer=tier1] .jx-toggle-track'],
-      // the knob carriers: B13's ::before ⇄ the component's real span
-      // (absolute + inset + transform — the unified carrier, asserted)
-      ['input[data-probe="switch"]::before', '[data-renderer=tier1] .jx-toggle-knob'],
+      // the knob carriers: B13's ::before ⇄ the component's real
+      // span — the unified carrier asserted IN FULL: positioning,
+      // logical inset longhands, transform, dimensions, paint
+      ['input[data-probe="switch"]::before', '[data-renderer=tier1] .jx-toggle-knob', [
+        // anchored-longhand model: start insets + size + transform
+        // fully determine the box. The AUTO-resolved end insets
+        // serialize differently for pseudos vs real elements
+        // (measured: 2px vs 22px used-value resolution) — excluded
+        // as a serialization artifact, not a law difference.
+        'position', 'inset-block-start', 'inset-inline-start',
+        'transform', 'width', 'height', 'border-radius',
+        'background-color', 'transition-duration',
+      ]],
     ],
     properties: [
       'width', 'height', 'border-radius', 'background-color',
@@ -191,7 +201,15 @@ const browser = await chromium.launch({
 });
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 await page.goto(`http://localhost:${port}/parity.html`, { waitUntil: 'domcontentloaded' });
-await page.waitForTimeout(800);
+await page.waitForTimeout(300);
+// hydration readiness: the bind:group radios flip checked at mount —
+// a fixed wait raced them (intermittent element-missing flakes)
+await page
+  .waitForFunction(
+    () => document.querySelector('[data-parity="radio"] [data-renderer=tier1] input[type="radio"]')?.checked === true,
+    { timeout: 5000 },
+  )
+  .catch(() => {});
 // freeze motion: mid-transition sampling made color comparisons
 // non-deterministic (the same declaration sampled at different points
 // of the same 150-200ms curve run-to-run). The end state is the law.
@@ -270,6 +288,10 @@ async function runComparisons(activeRow, activeState) {
       const t0root = section.querySelector('[data-renderer=tier0]');
       const t1root = section.querySelector('[data-renderer=tier1]');
       for (const probe of spec.probes) {
+        // a probe entry may be [sel0, sel1] or [sel0, sel1, props[]]
+        // — a per-probe whitelist overrides the row's list (the knob
+        // carrier asserts positioning longhands the track does not own)
+        const probeProps = probe[2] ?? spec.properties;
         // a '::before' suffix probes the PSEUDO (the B13 knob carrier)
         const pseudo0 = probe[0].endsWith('::before') ? '::before' : null;
         const el0Sel = pseudo0 ? probe[0].slice(0, -8) : probe[0];
@@ -310,7 +332,7 @@ async function runComparisons(activeRow, activeState) {
           }
           const cs0 = pseudo0 ? getComputedStyle(el0, pseudo0) : getComputedStyle(el0);
           const cs1 = getComputedStyle(t1);
-          for (const prop of spec.properties) {
+          for (const prop of probeProps) {
             run.push({
               row: variant,
               probe: probe.join(' ⇄ '),
@@ -337,6 +359,12 @@ for (const row of ROWS) {
       // fresh page per non-base state — isolation by construction
       await page.goto(`http://localhost:${port}/parity.html`, { waitUntil: 'domcontentloaded' });
       await page.waitForTimeout(300);
+      await page
+        .waitForFunction(
+          () => document.querySelector('[data-parity="radio"] [data-renderer=tier1] input[type="radio"]')?.checked === true,
+          { timeout: 5000 },
+        )
+        .catch(() => {});
       // re-apply the motion freeze after every reload (mid-transition
       // color sampling is non-deterministic)
       await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; animation: none !important; }' });
