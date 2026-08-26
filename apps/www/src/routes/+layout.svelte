@@ -74,11 +74,15 @@
   // pages take the default transition (no 73-page pairwise semantics)
   const PAGE_ORDER = ['/', '/docs', '/docs/components', '/tokens'];
   const pageIndex = (pathname: string) => PAGE_ORDER.indexOf(pathname);
-  // the side rails' presence heuristics (route → does the rail stand in
-  // its side column?): the tree lives under /docs*, the toc on the
-  // component pages + tokens — the +page.ts toc providers' shape
-  const tocRoute = (p: string): boolean =>
-    p === '/tokens' || p.startsWith('/docs/components');
+  // the side rails' presence heuristic (route → rail predicted in its
+  // side column). DELIBERATELY OVER-APPROXIMATE: both rails predict on
+  // /docs* + /tokens, though only ~81/102 docs subroutes ship toc data —
+  // predicting a rail that does not render is HARMLESS (its named
+  // snapshot never exists, nothing animates), while UNDER-predicting
+  // would silently skip a real entrance. One predicate for both rails;
+  // new pages inherit correct behavior without touching this map.
+  const railRoute = (p: string): boolean =>
+    p === '/tokens' || p.startsWith('/docs');
 
   // nav lifecycle (2026-08-22): every client-side navigation closes any
   // open desktop subnav panel and resets the mobile disclosure — back/
@@ -251,7 +255,7 @@
     const presence = (from: boolean, to: boolean, wide: boolean): string =>
       !wide ? 'none' : from === to ? (to ? 'swap' : 'none') : to ? 'in' : 'out';
     const vtRail = presence(fromPath.startsWith('/docs'), toPath.startsWith('/docs'), shellWidth >= 1200);
-    const vtToc = presence(tocRoute(fromPath), tocRoute(toPath), shellWidth >= 900);
+    const vtToc = presence(railRoute(fromPath), railRoute(toPath), shellWidth >= 900);
 
     // The narrow form's BOTTOM bar cannot ride the VT (Owner ruling,
     // 2026-08-26): view-transition snapshots render in the TOP layer
