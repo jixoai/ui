@@ -26,6 +26,11 @@
       (7 blockers fixed) → r3 impl 8.5/10 (3 delivery blockers fixed:
       toast source path + guard coverage, scroll-aware verify-press,
       evidence counts)
-- [ ] Codex r4 confirmation of the r3 blockers' fixes
-- [ ] Owner browser review: Badge anatomy/height, secondary softening,
-      Alert surface change, Chip control-scale silhouette (design §7)
+- [x] Codex r4 confirmation: 9.0/10, zero blockers — the three r3
+      delivery fixes verified clean (nested toast path + six-page
+      guard, scroll-aware verify-press 12/12, evidence counts); toast
+      header-comment hygiene fixed post-r4
+- [ ] Owner browser review (the honest gaps, design §7): Badge
+      anatomy/height, secondary softening, Alert surface change, Chip
+      control-scale silhouette; light/dark semantic contrast probe for
+      every shipped injection; independent svelte-check reproduction

@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-26T14:41:46.010Z",
+  "generatedAt": "2026-08-26T15:31:31.656Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1754,8 +1754,8 @@
           "source": "registry/files/ui/toast/toast-viewport.svelte",
           "mirror": "apps/www/src/lib/ui/toast/toast-viewport.svelte",
           "target": "@ui/toast/toast-viewport.svelte",
-          "sourceSha": "084467aafbe65b9ce87c2caf9a3f826e2958227b43eb5501e65c4998702f7350",
-          "mirrorSha": "084467aafbe65b9ce87c2caf9a3f826e2958227b43eb5501e65c4998702f7350"
+          "sourceSha": "43aaca77558b6060a2927dda6940193ffefe293eb018ba376cf82abdd3ccbf68",
+          "mirrorSha": "43aaca77558b6060a2927dda6940193ffefe293eb018ba376cf82abdd3ccbf68"
         },
         {
           "source": "registry/files/ui/toast/index.ts",

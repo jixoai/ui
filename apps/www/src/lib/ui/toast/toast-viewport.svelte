@@ -1,5 +1,5 @@
 <!--
-  jixoai toast viewport (registry/files/ui/toast-viewport.svelte).
+  jixoai toast viewport (registry/files/ui/toast/toast-viewport.svelte).
   The presentation half of the toast pair: mount ONCE in the root
   layout with the store your app created —
 
