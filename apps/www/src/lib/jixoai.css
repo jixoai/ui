@@ -829,6 +829,21 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-icon-optical: 0px;
 }
 
+/* ── variant grammar (openspec/changes/variant-grammar, frozen r1) ─
+   The paint ladder's four global hue slots: fill (solid ground +
+   same-hue border), tonal (12%/45% tint recipe), outline (structural
+   border). Semantic color is INJECTED into these slots (action =
+   destructive, status = error/success/warning/info), never expressed
+   as variant names. Inheritable: a subtree or instance override
+   retunes every ladder consumer inside. Ghost has no slot — it
+   derives its hover tint from --jx-tonal. Density-free: color only. */
+:root {
+  --jx-fill: var(--primary);
+  --jx-fill-ink: var(--primary-foreground);
+  --jx-tonal: var(--primary);
+  --jx-outline: var(--border);
+}
+
 :where(:root:not([data-density]), [data-density='default']) {
   --jx-text: var(--jx-density-text-default);
   --jx-leading: var(--jx-density-leading-default);

@@ -29,6 +29,14 @@ const SITE_ONLY = [
   { path: 'apps/www/src/lib/ui/docs-pager.svelte', note: 'docs-restructure: per-page prev/next pager (site-only, rendered by layout)' },
   { path: 'apps/www/src/lib/ui/docs-pager.css', note: 'docs-restructure: pager styles (site-only)' },
   { path: 'apps/www/src/lib/ui/docs-sections-nav.svelte', note: 'docs-restructure: sections rail (site-only)' },
+  { path: 'apps/www/src/lib/ui/a11y-table/a11y-table.svelte', note: 'docs-upgrade: Material3-style a11y reference table (site-only docs infra)' },
+  { path: 'apps/www/src/lib/ui/a11y-table/index.ts', note: 'docs-upgrade: a11y-table barrel (site-only)' },
+  { path: 'apps/www/src/lib/ui/density-demo/density-demo.svelte', note: 'docs-upgrade: all-scopes density wrapper (site-only docs infra)' },
+  { path: 'apps/www/src/lib/ui/density-demo/index.ts', note: 'docs-upgrade: density-demo barrel (site-only)' },
+  { path: 'apps/www/src/lib/ui/props-table/props-table.svelte', note: 'docs-upgrade: API reference table (site-only docs infra)' },
+  { path: 'apps/www/src/lib/ui/props-table/index.ts', note: 'docs-upgrade: props-table barrel (site-only)' },
+  { path: 'apps/www/src/lib/ui/token-table/token-table.svelte', note: 'docs-upgrade: token reference table (site-only docs infra)' },
+  { path: 'apps/www/src/lib/ui/token-table/index.ts', note: 'docs-upgrade: token-table barrel (site-only)' },
 ];
 const REGISTRY_ONLY = [
   // registry files with NO mirror and no item reference — resolved by P1
