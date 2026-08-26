@@ -62,7 +62,7 @@
     'data-jx-step-indicator': '',
     'aria-label': backLabel,
     class: cn(
-      'flex-none inline-flex items-center justify-center [width:var(--jx-d-ctl-icon)] [height:var(--jx-d-ctl-icon)] border font-nav [font-size:var(--jx-d-secondary-text)] cursor-pointer hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
+      'flex-none inline-flex items-center justify-center [width:var(--jx-icon)] [height:var(--jx-icon)] border font-nav [font-size:var(--jx-text-secondary)] cursor-pointer hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
       markerPaint[item.state],
       className,
     ),
@@ -79,7 +79,7 @@
   <span
     data-jx-step-indicator=""
     class={cn(
-      'flex-none inline-flex items-center justify-center [width:var(--jx-d-ctl-icon)] [height:var(--jx-d-ctl-icon)] border font-nav [font-size:var(--jx-d-secondary-text)]',
+      'flex-none inline-flex items-center justify-center [width:var(--jx-icon)] [height:var(--jx-icon)] border font-nav [font-size:var(--jx-text-secondary)]',
       markerPaint[item.state],
       className,
     )}

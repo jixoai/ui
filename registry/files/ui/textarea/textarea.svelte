@@ -141,7 +141,7 @@
       oninput={syncValue}
       data-jx-textarea
       class={cn(
-        'w-full flex-[1_1_auto] px-[var(--jx-d-ctl-pad)] py-[var(--jx-d-ctl-gap)] border-0 outline-none bg-transparent text-foreground text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-leading)] resize-y placeholder:text-muted-foreground placeholder:opacity-100 disabled:cursor-not-allowed',
+        'w-full flex-[1_1_auto] px-[var(--jx-inset)] py-[var(--jx-gap)] border-0 outline-none bg-transparent text-foreground text-[length:var(--jx-text)] leading-[var(--jx-leading)] resize-y placeholder:text-muted-foreground placeholder:opacity-100 disabled:cursor-not-allowed',
         slotted && 'px-0',
       )}
       aria-invalid={invalidAttr}

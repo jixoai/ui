@@ -296,7 +296,7 @@
       type="button"
       id={id}
       class={cn(
-        'jx-sel-trigger flex items-center gap-[var(--jx-d-ctl-gap)] w-full min-h-[var(--jx-d-ctl-hit)] py-[var(--jx-d-ctl-gap)] px-[var(--jx-d-ctl-pad)] border border-border rounded-none bg-background text-foreground text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-leading)] text-start cursor-pointer transition-[box-shadow] duration-150 ease-out',
+        'jx-sel-trigger flex items-center gap-[var(--jx-gap)] w-full min-h-[var(--jx-hit)] py-[var(--jx-gap)] px-[var(--jx-inset)] border border-border rounded-none bg-background text-foreground text-[length:var(--jx-text)] leading-[var(--jx-leading)] text-start cursor-pointer transition-[box-shadow] duration-150 ease-out',
         className,
       )}
       popovertarget={panelId}
@@ -381,7 +381,7 @@
           data-jx-sel-selected={option.value === value ? '' : undefined}
           data-jx-sel-disabled={option.disabled ? '' : undefined}
           class={cn(
-            'jx-sel-option flex flex-col gap-[var(--jx-d-ctl-gap)] px-[var(--jx-d-ctl-pad)] py-[var(--jx-d-ctl-gap)] min-h-[var(--jx-d-ctl-hit)] text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-leading)] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
+            'jx-sel-option flex flex-col gap-[var(--jx-gap)] px-[var(--jx-inset)] py-[var(--jx-gap)] min-h-[var(--jx-hit)] text-[length:var(--jx-text)] leading-[var(--jx-leading)] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
             index === active && 'bg-terminal-hover text-terminal-foreground',
             option.value === value && 'bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
             option.disabled && 'opacity-50 pointer-events-none',

@@ -108,16 +108,16 @@ for (const row of rows) {
         // Utility-styled family: check the .svelte markup for the expected
         // token pattern (Tailwind arbitrary values) instead of CSS blocks
         const propToUtil = {
-          'min-height': 'min-h-[var(--jx-d-ctl-hit)]',
-          'min-block-size': 'min-h-[var(--jx-d-ctl-hit)]',
-          'min-width': 'min-w-[var(--jx-d-ctl-hit)]',
-          'padding-inline': 'px-[var(--jx-d-ctl-pad)]',
-          'padding-block': 'py-[var(--jx-d-ctl-pad)]',
-          'font-size': 'text-[length:var(--jx-d-ctl-text)]',
-          'line-height': 'leading-[var(--jx-d-ctl-line)]',
-          'width': 'w-[var(--jx-d-ctl-icon)]',
-          'height': 'h-[var(--jx-d-ctl-icon)]',
-          'gap': 'gap-[var(--jx-d-ctl-gap)]',
+          'min-height': 'min-h-[var(--jx-hit)]',
+          'min-block-size': 'min-h-[var(--jx-hit)]',
+          'min-width': 'min-w-[var(--jx-hit)]',
+          'padding-inline': 'px-[var(--jx-inset)]',
+          'padding-block': 'py-[var(--jx-inset)]',
+          'font-size': 'text-[length:var(--jx-text)]',
+          'line-height': 'leading-[var(--jx-line)]',
+          'width': 'w-[var(--jx-icon)]',
+          'height': 'h-[var(--jx-icon)]',
+          'gap': 'gap-[var(--jx-gap)]',
         };
         const utilPat = owned.properties.map((pr) => propToUtil[pr]).filter(Boolean)[0];
         const markupHit = utilPat && stripped.includes(utilPat);
@@ -193,7 +193,7 @@ for (const row of rows) {
     for (const d of ['xs', 'default', 'lg']) {
       probe.setAttribute('data-density', d);
       const el = document.createElement('span');
-      el.style.fontSize = 'var(--jx-d-text)';
+      el.style.fontSize = 'var(--jx-text)';
       probe.appendChild(el);
       out[d] = getComputedStyle(el).fontSize;
       el.remove();
@@ -201,7 +201,7 @@ for (const row of rows) {
     probe.removeAttribute('data-density');
     return out;
   }, row.probeRoot).catch(() => null);
-  if (resize) check('browser', `${row.family}: resize --jx-d-text`, new Set(Object.values(resize)).size >= 2, JSON.stringify(resize));
+  if (resize) check('browser', `${row.family}: resize --jx-text`, new Set(Object.values(resize)).size >= 2, JSON.stringify(resize));
 }
 
 await browser.close();

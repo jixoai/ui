@@ -187,7 +187,7 @@ Geometry and type tokens SHALL be derived from the ruler by written
 equations in the canonical theme sheet (calc chains from
 --jx-ruler-unit and the text base), never hand-picked per component.
 Density scopes ([data-density]) exist ONLY in that sheet and its byte-identical generated mirror; components
-consume the inherited --jx-d-* aliases. The four-density computed
+consume the inherited --jx-* aliases. The four-density computed
 table (text/line/gaps/inset/row-min/hit-min/media) is asserted by a
 real-browser gate; a greppable source guard enforces the
 no-literal-branch law (density-owned declarations must reference the

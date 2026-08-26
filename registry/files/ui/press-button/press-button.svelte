@@ -200,8 +200,8 @@
   // are identical to the text pose
   const base = $derived(
     square
-      ? 'inline-flex min-h-[var(--jx-d-ctl-hit)] min-w-[var(--jx-d-ctl-hit)] items-center justify-center text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] font-medium'
-      : 'inline-flex min-h-[var(--jx-d-ctl-hit)] items-center gap-[var(--jx-d-ctl-gap)] px-[var(--jx-d-ctl-pad)] text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] font-medium',
+      ? 'inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] items-center justify-center text-[length:var(--jx-text)] leading-[var(--jx-line)] font-medium'
+      : 'inline-flex min-h-[var(--jx-hit)] items-center gap-[var(--jx-gap)] px-[var(--jx-inset)] text-[length:var(--jx-text)] leading-[var(--jx-line)] font-medium',
   );
   // the bordered, shadow-bearing body (link opts out entirely)
   const frame = 'jx-press border border-border';

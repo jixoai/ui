@@ -25,12 +25,12 @@
   /* ── custom properties + the base grid ─────────────────────────── */
   :where(.jx-item) {
     /* family vars DERIVED from the density aliases (§7) */
-    --jx-item-column-gap: var(--jx-d-inline-gap);
-    --jx-item-row-gap: var(--jx-d-stack-gap);
-    --jx-item-media-gutter: var(--jx-d-media-gutter);
-    --jx-item-media-size: var(--jx-d-media-image);
-    --jx-item-content-gap: var(--jx-d-content-gap);
-    --jx-item-end-gap: var(--jx-d-end-gap);
+    --jx-item-column-gap: var(--jx-gap);
+    --jx-item-row-gap: var(--jx-stack);
+    --jx-item-media-gutter: var(--jx-media-gutter);
+    --jx-item-media-size: var(--jx-image);
+    --jx-item-content-gap: var(--jx-gap-content);
+    --jx-item-end-gap: var(--jx-gap-end);
 
     display: grid;
     width: 100%;
@@ -40,10 +40,10 @@
        subgrid block below only adds grouped geometry. 尺规: B is the
        row's ONE sanctioned padding (edge breathing belongs to the
        row box); everything BETWEEN elements is ruler gaps */
-    min-block-size: var(--jx-d-row-min);
-    padding-block: var(--jx-d-stack-gap);
-    padding-inline: var(--jx-d-inline-inset);
-    row-gap: var(--jx-d-stack-gap);
+    min-block-size: var(--jx-row-min);
+    padding-block: var(--jx-stack);
+    padding-inline: var(--jx-inset);
+    row-gap: var(--jx-stack);
     column-gap: var(--jx-item-column-gap);
     row-gap: var(--jx-item-row-gap);
     transition:
@@ -171,7 +171,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--jx-d-inline-gap);
+    gap: var(--jx-gap);
   }
   :where([data-slot='item-header']) {
     grid-area: header;
@@ -181,15 +181,15 @@
   }
 
   :where([data-slot='item-title']) {
-    font-size: var(--jx-d-text);
-    line-height: var(--jx-d-line);
+    font-size: var(--jx-text);
+    line-height: var(--jx-line);
     font-weight: 500;
     color: inherit;
     margin: 0;
   }
   :where([data-slot='item-description']) {
-    font-size: var(--jx-d-secondary-text);
-    line-height: var(--jx-d-secondary-line);
+    font-size: var(--jx-text-secondary);
+    line-height: var(--jx-line-secondary);
     color: var(--muted-foreground);
     margin: 0;
   }
@@ -206,7 +206,7 @@
     min-width: 0;
     /* the inherited floor lives in the BASE lane — standalone rows and
        the no-subgrid fallback keep it (impl-review r1-1) */
-    min-block-size: var(--jx-d-hit-min);
+    min-block-size: var(--jx-hit);
   }
   :where([data-slot='item-content']) {
     min-width: 0;
@@ -234,8 +234,8 @@
     display: inline-flex;
     align-items: center;
     gap: var(--jx-item-end-gap);
-    font-size: var(--jx-d-secondary-text);
-    line-height: var(--jx-d-secondary-line);
+    font-size: var(--jx-text-secondary);
+    line-height: var(--jx-line-secondary);
     color: var(--muted-foreground);
     white-space: nowrap;
   }
@@ -249,11 +249,11 @@
   /* the optical correction is CONSUMED (K0 §7.1): solid media glyphs
      shift by the bounded token; default 0px = no shift */
   :where([data-slot='item-media'][data-variant='icon'] svg) {
-    translate: clamp(var(--jx-d-icon-optical-inline, 0px), calc(var(--jx-ruler-unit) / -2), calc(var(--jx-ruler-unit) / 2)) 0;
+    translate: clamp(var(--jx-icon-optical, 0px), calc(var(--jx-unit) / -2), calc(var(--jx-unit) / 2)) 0;
   }
   :where([data-slot='item-chevron'] svg) {
-    width: var(--jx-d-media-icon);
-    height: var(--jx-d-media-icon);
+    width: var(--jx-icon);
+    height: var(--jx-icon);
   }
 
   /* the media coordination law: the BOX is the size authority.
@@ -262,7 +262,7 @@
      (three-edge proportional relation) with no layer-law fight;
      explicit smaller squares keep their size and anchor start. */
   :where([data-slot='item-media']) {
-    --jx-avatar-md: var(--jx-d-media-image);
+    --jx-avatar-md: var(--jx-image);
   }
   :where([data-slot='item-media'][data-variant='default']),
   :where([data-slot='item-media'][data-variant='image']) {
@@ -272,13 +272,13 @@
 
   /* media variants */
   :where([data-slot='item-media'][data-variant='icon']) svg {
-    width: var(--jx-d-media-icon);
-    height: var(--jx-d-media-icon);
+    width: var(--jx-icon);
+    height: var(--jx-icon);
   }
   :where([data-slot='item-media'][data-variant='default']),
   :where([data-slot='item-media'][data-variant='image']) {
-    width: var(--jx-d-media-image);
-    height: var(--jx-d-media-image);
+    width: var(--jx-image);
+    height: var(--jx-image);
     overflow: hidden;
   }
   :where([data-slot='item-media'][data-variant='image']) img {
@@ -289,8 +289,8 @@
 
   /* layout="media": custom properties only — never a new presence bit */
   :where(.jx-item[data-layout='media']) {
-    --jx-item-media-size: var(--jx-d-media-image);
-    --jx-item-content-gap: var(--jx-d-stack-gap);
+    --jx-item-media-size: var(--jx-image);
+    --jx-item-content-gap: var(--jx-stack);
   }
   :where(.jx-item[data-layout='media'] > [data-slot='item-media']) {
     align-self: start;
@@ -350,16 +350,16 @@
   }
   /* plain: the host owns the surface — nothing painted here */
   :where(.jx-item-group[data-inset='true']) {
-    margin-inline: calc(3 * var(--jx-d-inline-gap));
+    margin-inline: calc(3 * var(--jx-gap));
     width: auto;
   }
   :where(.jx-item-group-label) {
     font-family: var(--font-nav);
-    font-size: var(--jx-d-secondary-text);
+    font-size: var(--jx-text-secondary);
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--muted-foreground);
-    padding: var(--jx-d-stack-gap) var(--jx-d-inline-inset);
+    padding: var(--jx-stack) var(--jx-inset);
   }
 
   :where([data-slot='item-list']) {
@@ -378,7 +378,7 @@
     row-gap: 0;
   }
   :where([data-slot='item-list'][data-dividers='none']) {
-    row-gap: var(--jx-d-stack-gap);
+    row-gap: var(--jx-stack);
   }
   :where(.jx-item-group[data-mode='muted'] [data-slot='item-list'][data-dividers='none']) {
     row-gap: 0;
@@ -414,7 +414,7 @@
   /* ── the field scaffold (ItemField + adapters) ───────────────────── */
   :where(.jx-item-field-label) {
     font-family: var(--font-nav);
-    font-size: var(--jx-d-secondary-text);
+    font-size: var(--jx-text-secondary);
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--foreground);
@@ -423,13 +423,13 @@
     cursor: pointer;
   }
   :where([data-item-field] .jx-item-field-description) {
-    font-size: var(--jx-d-secondary-text);
-    line-height: var(--jx-d-secondary-line);
+    font-size: var(--jx-text-secondary);
+    line-height: var(--jx-line-secondary);
     color: var(--muted-foreground);
   }
   :where([data-item-field] .jx-item-field-error) {
-    font-size: var(--jx-d-secondary-text);
-    line-height: var(--jx-d-secondary-line);
+    font-size: var(--jx-text-secondary);
+    line-height: var(--jx-line-secondary);
     color: var(--error);
   }
 
@@ -502,15 +502,15 @@
 
   /* content-end: media is not a legal child of this ruler. */
   :where([data-slot='item-list'][data-ruler='content-end']) {
-    grid-template-columns: minmax(0, 1fr) var(--jx-d-inline-gap) max-content;
+    grid-template-columns: minmax(0, 1fr) var(--jx-gap) max-content;
   }
 
   :where([data-slot='item-list'][data-ruler='media-content-end']) {
     grid-template-columns:
-      var(--jx-d-media-image)
-      var(--jx-d-inline-gap)
+      var(--jx-image)
+      var(--jx-gap)
       minmax(0, 1fr)
-      var(--jx-d-inline-gap)
+      var(--jx-gap)
       max-content;
   }
 
@@ -554,13 +554,13 @@
   :where([data-slot='item-header']),
   :where([data-slot='item-footer']) {
     grid-column: 1 / -1;
-    gap: var(--jx-d-inline-gap);
+    gap: var(--jx-gap);
   }
   :where([data-slot='item-content']) {
     grid-area: content;
     display: flex;
     flex-direction: column;
-    gap: var(--jx-d-content-gap);
+    gap: var(--jx-gap-content);
     min-width: 0;
   }
   :where([data-slot='item-media']) {
@@ -568,40 +568,40 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--jx-d-media-gutter);
+    gap: var(--jx-media-gutter);
     min-width: 0;
   }
   :where([data-slot='item-media'][data-variant='icon']) {
-    width: var(--jx-d-media-icon);
-    min-block-size: var(--jx-d-media-icon);
+    width: var(--jx-icon);
+    min-block-size: var(--jx-icon);
   }
   :where([data-slot='item-media'][data-variant='default']),
   :where([data-slot='item-media'][data-variant='image']) {
-    width: var(--jx-d-media-image);
-    min-block-size: var(--jx-d-media-image);
+    width: var(--jx-image);
+    min-block-size: var(--jx-image);
   }
   :where([data-slot='item-end']) {
     grid-area: end;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: var(--jx-d-end-gap);
+    gap: var(--jx-gap-end);
     flex-wrap: wrap;
     min-width: 0;
-    min-block-size: var(--jx-d-hit-min);
+    min-block-size: var(--jx-hit);
   }
   :where([data-slot='item-end'][data-wrap='never']) {
     flex-wrap: nowrap;
   }
   :where([data-slot='item-title']) {
-    font-size: var(--jx-d-text);
-    line-height: var(--jx-d-line);
+    font-size: var(--jx-text);
+    line-height: var(--jx-line);
   }
   :where([data-slot='item-description']),
   :where([data-slot='item-after']),
   :where(.jx-item-field-label) {
-    font-size: var(--jx-d-secondary-text);
-    line-height: var(--jx-d-secondary-line);
+    font-size: var(--jx-text-secondary);
+    line-height: var(--jx-line-secondary);
   }
   :where([data-slot='item-divider']) {
     grid-column: 1 / -1;

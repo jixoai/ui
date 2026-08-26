@@ -432,7 +432,7 @@ ${close}
         headerRegion="density-ladder"
         eyebrow="proof"
         title="The density ladder"
-        summary="Four densities, every number an equation from the 4px ruler: text 11/12/13/15px on lines 16/18/20/24px, rows 28/32/40/48px, media = one line (icon) or two (image), the outer inset ALWAYS equals the media seam (B=G). Density resolves from context: the group provides, rows inherit, an explicit size overrides — and the whole cascade is one data-density stamp plus inherited --jx-d-* variables, zero per-size branches in component css."
+        summary="Four densities, every number an equation from the 4px ruler: text 11/12/13/15px on lines 16/18/20/24px, rows 28/32/40/48px, media = one line (icon) or two (image), the outer inset ALWAYS equals the media seam (B=G). Density resolves from context: the group provides, rows inherit, an explicit size overrides — and the whole cascade is one data-density stamp plus inherited --jx-* variables, zero per-size branches in component css."
       >
         <div class="flex w-full max-w-lg flex-col gap-4">
           {#each [['lg', 'the lg row · 15px text · 24px line · 48px'], ['default', 'the default row · 13px · 20px · 40px'], ['sm', 'the sm row · 12px · 18px · 32px'], ['xs', 'the xs row · 11px · 16px · 28px']] as const as [d, note] (d)}

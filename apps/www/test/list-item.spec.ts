@@ -172,7 +172,7 @@ describe('Item family — the CSS contract (source guard)', () => {
     // the kernel laws: subgrid ruler + density aliases + no data-size
     expect(css).toContain('grid-template-columns: subgrid');
     expect(css).toContain("[data-ruler='media-content-end']");
-    expect(css).toMatch(/var\(--jx-d-(text|inline-gap|row-min|hit-min)/);
+    expect(css).toMatch(/var\(--jx-(text|gap|row-min|hit)/);
     expect(css).not.toMatch(/\[data-size=/);
     expect(css).toContain("[data-wrap='never']");
     expect(css).toMatch(/\[data-slot='item-list'\]\[data-dividers='auto'\] > \[data-slot='item-row'\] \+ \[data-slot='item-row'\]/);

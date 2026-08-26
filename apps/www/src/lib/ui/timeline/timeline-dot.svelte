@@ -21,7 +21,7 @@
 
 <span
   data-jx-tl-dot=""
-  class={cn('absolute left-0 [top:var(--jx-d-stack-gap)] [width:var(--jx-d-ctl-icon)] [height:var(--jx-d-ctl-icon)] box-border border border-primary', className)}
+  class={cn('absolute left-0 [top:var(--jx-stack)] [width:var(--jx-icon)] [height:var(--jx-icon)] box-border border border-primary', className)}
   {...rest}
   aria-hidden="true"
 ></span>

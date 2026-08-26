@@ -52,11 +52,11 @@
   } as const;
 </script>
 
-<div data-jx-result={status} data-density={resolvedDensity} class={cn('flex flex-col items-center [gap:var(--jx-d-stack-gap)] [padding-inline:calc(var(--jx-d-ctl-pad)*2)] [padding-block:calc(var(--jx-d-ctl-pad)*4)] text-center', className)}>
+<div data-jx-result={status} data-density={resolvedDensity} class={cn('flex flex-col items-center [gap:var(--jx-stack)] [padding-inline:calc(var(--jx-inset)*2)] [padding-block:calc(var(--jx-inset)*4)] text-center', className)}>
   <div
     data-jx-result-icon=""
     class={cn(
-      'inline-flex items-center justify-center [width:calc(var(--jx-d-ctl-icon)*2)] [height:calc(var(--jx-d-ctl-icon)*2)] border border-border bg-card shadow-xs',
+      'inline-flex items-center justify-center [width:calc(var(--jx-icon)*2)] [height:calc(var(--jx-icon)*2)] border border-border bg-card shadow-xs',
       iconBorder[status],
     )}
     aria-hidden="true"
@@ -64,15 +64,15 @@
     {#if icon}
       {@render icon()}
     {:else}
-      <span data-jx-result-glyph="" class={cn('font-mono [font-size:calc(var(--jx-d-ctl-icon)*1.25)] leading-none', glyphColor[status])}>{glyph}</span>
+      <span data-jx-result-glyph="" class={cn('font-mono [font-size:calc(var(--jx-icon)*1.25)] leading-none', glyphColor[status])}>{glyph}</span>
     {/if}
   </div>
-  <h2 data-jx-result-title="" class="font-nav [font-size:var(--jx-d-ctl-text)] [line-height:var(--jx-d-ctl-line)] tracking-[0.06em] uppercase text-foreground">{title}</h2>
+  <h2 data-jx-result-title="" class="font-nav [font-size:var(--jx-text)] [line-height:var(--jx-line)] tracking-[0.06em] uppercase text-foreground">{title}</h2>
   {#if description}
-    <p data-jx-result-desc="" class="max-w-[44ch] [font-size:var(--jx-d-ctl-text)] [line-height:var(--jx-d-ctl-line)] text-muted-foreground">{description}</p>
+    <p data-jx-result-desc="" class="max-w-[44ch] [font-size:var(--jx-text)] [line-height:var(--jx-line)] text-muted-foreground">{description}</p>
   {/if}
   {#if actions}
-    <div data-jx-result-actions="" class="[margin-block-start:var(--jx-d-stack-gap)] flex flex-wrap justify-center [gap:var(--jx-d-ctl-gap)]">
+    <div data-jx-result-actions="" class="[margin-block-start:var(--jx-stack)] flex flex-wrap justify-center [gap:var(--jx-gap)]">
       {@render actions()}
     </div>
   {/if}

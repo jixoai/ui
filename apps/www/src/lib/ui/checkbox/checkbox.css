@@ -14,16 +14,16 @@
 
 @layer components {
   :where(.jx-check-lane) {
-    min-block-size: var(--jx-d-ctl-hit);
-    gap: var(--jx-d-ctl-gap);
+    min-block-size: var(--jx-hit);
+    gap: var(--jx-gap);
   }
   :where(.jx-checkbox) {
-    width: var(--jx-d-ctl-icon);
-    height: var(--jx-d-ctl-icon);
+    width: var(--jx-icon);
+    height: var(--jx-icon);
   }
   :where([data-jx-check-label]) {
-    font-size: var(--jx-d-ctl-text);
-    line-height: var(--jx-d-ctl-line);
+    font-size: var(--jx-text);
+    line-height: var(--jx-line);
   }
 
   /* ---- the glyph: one ::before, clip-path + rotate ------------------

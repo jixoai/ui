@@ -132,7 +132,7 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: var(--jx-d-stack-gap, 0.5rem);
+  gap: var(--jx-stack, 0.5rem);
   width: 100%;
   min-width: 0; /* shrink inside grid/flex hosts (InputGroup hardening) */
 }
@@ -172,7 +172,7 @@
   display: block;
   width: 100%;
   max-width: 100%;
-  min-height: var(--jx-d-ctl-hit, 2.5rem); /* the DERIVED family row */
+  min-height: var(--jx-hit, 2.5rem); /* the DERIVED family row */
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--border);
   border-radius: 0;
@@ -223,10 +223,10 @@
 .jx-control-shell {
   display: flex;
   align-items: center;
-  gap: var(--jx-d-ctl-gap, 0.5rem);
+  gap: var(--jx-gap, 0.5rem);
   width: 100%;
   max-width: 100%;
-  min-height: var(--jx-d-ctl-hit, 2.5rem);
+  min-height: var(--jx-hit, 2.5rem);
   border: 1px solid var(--border);
   border-radius: 0;
   background: var(--background);
@@ -536,12 +536,12 @@
    fill into the pill), the groove = half-thumb rounded, the thumb =
    a full circle on a thick primary ring. Fill = the cqw shadow
    technique (thumb's last shadow layer, zero JS, both engines).
-   The thumb derives from --jx-d-ctl-icon (the density glyph); the old
+   The thumb derives from --jx-icon (the density glyph); the old
    lg 1.75rem. Invalid flips fill + ring to var(--error).
    ===================================================================== */
 .jx-slider {
   /* thumb derives from the density interface (K0 ctl): the visual glyph */
-  --jx-slider-thumb: var(--jx-d-ctl-icon, 1.5rem);
+  --jx-slider-thumb: var(--jx-icon, 1.5rem);
   --jx-slider-fill-color: var(--primary);
   --jx-slider-dir: 1;
   appearance: none;
@@ -1253,7 +1253,7 @@
      Part A size classes upgrade it inside a .jx-pure subtree too */
   :where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *) {
     /* thumb derives from the density interface (K0 ctl): the visual glyph */
-  --jx-slider-thumb: var(--jx-d-ctl-icon, 1.5rem);
+  --jx-slider-thumb: var(--jx-icon, 1.5rem);
     --jx-slider-fill-color: var(--primary);
     --jx-slider-dir: 1;
     appearance: none;

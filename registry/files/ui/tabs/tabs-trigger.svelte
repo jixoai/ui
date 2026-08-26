@@ -52,7 +52,7 @@
   tabindex={isTabStop ? 0 : -1}
   data-jx-tab=""
   class={cn(
-    'relative inline-flex appearance-none items-center [gap:var(--jx-d-ctl-gap)] border-0 bg-transparent [padding-inline:var(--jx-d-ctl-pad)] [min-block-size:var(--jx-d-ctl-hit)] font-nav [font-size:var(--jx-d-ctl-text)] [line-height:var(--jx-d-ctl-line)] uppercase tracking-[0.12em] cursor-pointer transition-colors duration-150 ease-out hover:[&:not(:disabled)]:text-foreground disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+    'relative inline-flex appearance-none items-center [gap:var(--jx-gap)] border-0 bg-transparent [padding-inline:var(--jx-inset)] [min-block-size:var(--jx-hit)] font-nav [font-size:var(--jx-text)] [line-height:var(--jx-line)] uppercase tracking-[0.12em] cursor-pointer transition-colors duration-150 ease-out hover:[&:not(:disabled)]:text-foreground disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
     selected ? 'jx-tab-selected text-foreground' : 'text-muted-foreground',
     className,
   )}

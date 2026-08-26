@@ -36,7 +36,7 @@
     'data-jx-anchor-link': '',
     'data-jx-anchor-active': active ? '' : undefined,
     class: cn(
-      '-ml-px flex min-h-[var(--jx-d-ctl-hit)] items-center border-l-2 px-[var(--jx-d-ctl-pad)] font-nav text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] uppercase tracking-[0.08em] no-underline transition-[color,border-color] duration-150 ease-out hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+      '-ml-px flex min-h-[var(--jx-hit)] items-center border-l-2 px-[var(--jx-inset)] font-nav text-[length:var(--jx-text)] leading-[var(--jx-line)] uppercase tracking-[0.08em] no-underline transition-[color,border-color] duration-150 ease-out hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
       active ? 'border-l-primary text-foreground' : 'border-l-transparent text-muted-foreground',
       className,
     ),

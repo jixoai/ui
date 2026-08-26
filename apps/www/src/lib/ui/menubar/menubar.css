@@ -22,12 +22,12 @@
 }
 .jx-menubar-trigger,
 .jx-menubar-menu-item {
-  min-block-size: var(--jx-d-ctl-hit);
-  gap: var(--jx-d-ctl-gap);
-  padding-inline: var(--jx-d-ctl-pad);
-  padding-block: var(--jx-d-ctl-pad);
-  font-size: var(--jx-d-ctl-text);
-  line-height: var(--jx-d-ctl-line);
+  min-block-size: var(--jx-hit);
+  gap: var(--jx-gap);
+  padding-inline: var(--jx-inset);
+  padding-block: var(--jx-inset);
+  font-size: var(--jx-text);
+  line-height: var(--jx-line);
 }
 @supports not (anchor-name: --jx-menubar-fallback) {
   .jx-menubar-panel {

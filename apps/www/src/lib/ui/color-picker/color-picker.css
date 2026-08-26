@@ -18,16 +18,16 @@
 
 @layer components {
   :where(.jx-color-picker-trigger) {
-    min-block-size: var(--jx-d-ctl-color-lane);
-    gap: var(--jx-d-ctl-gap);
-    padding-block: calc((var(--jx-d-ctl-color-lane) - var(--jx-d-ctl-line)) / 2);
-    padding-inline: var(--jx-d-ctl-pad);
-    font-size: var(--jx-d-ctl-text);
-    line-height: var(--jx-d-ctl-line);
+    min-block-size: var(--jx-color-lane);
+    gap: var(--jx-gap);
+    padding-block: calc((var(--jx-color-lane) - var(--jx-line)) / 2);
+    padding-inline: var(--jx-inset);
+    font-size: var(--jx-text);
+    line-height: var(--jx-line);
   }
   :where([data-jx-color-picker-swatch]) {
-    width: var(--jx-d-ctl-icon);
-    height: var(--jx-d-ctl-icon);
+    width: var(--jx-icon);
+    height: var(--jx-icon);
   }
 
   /* ---- panel: terminal bezel popover (select.svelte law) ---------------

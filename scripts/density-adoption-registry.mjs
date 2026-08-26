@@ -16,14 +16,14 @@
  */
 
 export const KERNEL_ALLOWLIST = [
-  '--jx-d-secondary-text', '--jx-d-secondary-line',
-  '--jx-d-secondary-leading',
-  '--jx-d-media-icon', '--jx-d-media-image', '--jx-d-media-gutter',
-  '--jx-d-inline-inset', '--jx-d-inline-gap',
-  '--jx-d-stack-gap', '--jx-d-row-min', '--jx-d-hit-min',
-  '--jx-d-text', '--jx-d-line', '--jx-d-leading',
-  '--jx-d-icon-optical-inline',
-  '--jx-d-end-gap', '--jx-d-content-gap',
+  '--jx-text-secondary', '--jx-line-secondary',
+  '--jx-leading-secondary',
+  '--jx-icon', '--jx-image', '--jx-media-gutter',
+  '--jx-inset', '--jx-gap',
+  '--jx-stack', '--jx-row-min', '--jx-hit',
+  '--jx-text', '--jx-line', '--jx-leading',
+  '--jx-icon-optical',
+  '--jx-gap-end', '--jx-gap-content',
 ];
 
 export const REGISTRY = [
@@ -70,7 +70,7 @@ export const REGISTRY = [
     densityOwned: [],
     exceptions: [],
     hitFloor: 'ctl-hit',
-    resize: [{ scope: 'default', expect: '--jx-d-text 13px' }],
+    resize: [{ scope: 'default', expect: '--jx-text 13px' }],
     testFile: 'apps/www/test/density-adoption-form-text.spec.ts',
   },
   {
@@ -95,7 +95,7 @@ export const REGISTRY = [
     densityOwned: [],
     exceptions: [],
     hitFloor: 'ctl-hit',
-    resize: [{ scope: 'default', expect: '--jx-d-text 13px' }],
+    resize: [{ scope: 'default', expect: '--jx-text 13px' }],
     testFile: 'apps/www/test/density-adoption-form-boolean.spec.ts',
   },
   {
@@ -115,7 +115,7 @@ export const REGISTRY = [
     densityOwned: [],
     exceptions: [],
     hitFloor: 'ctl-hit',
-    resize: [{ scope: 'default', expect: '--jx-d-text 13px' }],
+    resize: [{ scope: 'default', expect: '--jx-text 13px' }],
     testFile: 'apps/www/test/density-adoption-buttons.spec.ts',
   },
   {
@@ -136,7 +136,7 @@ export const REGISTRY = [
     densityOwned: [],
     exceptions: [],
     hitFloor: 'ctl-hit',
-    resize: [{ scope: 'default', expect: '--jx-d-text 13px' }],
+    resize: [{ scope: 'default', expect: '--jx-text 13px' }],
     testFile: 'apps/www/test/density-adoption-menus.spec.ts',
   },
   {
@@ -161,7 +161,7 @@ export const REGISTRY = [
     densityOwned: [],
     exceptions: [],
     hitFloor: 'ctl-hit',
-    resize: [{ scope: 'default', expect: '--jx-d-text 13px' }],
+    resize: [{ scope: 'default', expect: '--jx-text 13px' }],
     testFile: 'apps/www/test/density-adoption-data.spec.ts',
   },
 ];

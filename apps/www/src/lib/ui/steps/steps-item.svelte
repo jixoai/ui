@@ -87,7 +87,7 @@
 <li
   data-jx-step-item=""
   data-jx-step={state}
-  class={cn('relative flex flex-1 items-start [gap:var(--jx-d-ctl-gap)] min-w-[9rem] [padding-inline-end:var(--jx-d-ctl-pad)]', className)}
+  class={cn('relative flex flex-1 items-start [gap:var(--jx-gap)] min-w-[9rem] [padding-inline-end:var(--jx-inset)]', className)}
   {...rest}
   aria-current={state === 'current' ? 'step' : undefined}
 >

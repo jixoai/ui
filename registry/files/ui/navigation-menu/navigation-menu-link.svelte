@@ -33,7 +33,7 @@
   // hover beats current on triggers, current wins at rest on links)
   const paint = $derived(
     cn(
-      'jx-navmenu-link inline-flex min-h-[var(--jx-d-ctl-hit)] items-center gap-[var(--jx-d-ctl-gap)] px-[var(--jx-d-ctl-pad)] font-nav text-[var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] uppercase tracking-[0.12em] no-underline transition-colors duration-150 ease-out focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+      'jx-navmenu-link inline-flex min-h-[var(--jx-hit)] items-center gap-[var(--jx-gap)] px-[var(--jx-inset)] font-nav text-[var(--jx-text)] leading-[var(--jx-line)] uppercase tracking-[0.12em] no-underline transition-colors duration-150 ease-out focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
       current ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
       className,
     ),

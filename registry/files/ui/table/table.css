@@ -23,7 +23,7 @@
   .jx-table td {
     background: var(--jx-table-surface); /* opaque: masks scrolled rows */
     border-bottom: 1px solid var(--jx-table-hairline);
-    padding: var(--jx-d-ctl-pad);
+    padding: var(--jx-inset);
     text-align: start;
     vertical-align: top;
   }
@@ -33,8 +33,8 @@
     border-bottom: 1px solid var(--jx-table-rule);
     color: var(--muted-foreground);
     font-family: var(--font-nav);
-    font-size: var(--jx-d-secondary-text);
-    line-height: var(--jx-d-secondary-line);
+    font-size: var(--jx-text-secondary);
+    line-height: var(--jx-line-secondary);
     font-weight: 400;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -60,7 +60,7 @@
 
   .jx-table table.dense th,
   .jx-table table.dense td {
-    padding: var(--jx-d-ctl-gap) var(--jx-d-ctl-pad);
+    padding: var(--jx-gap) var(--jx-inset);
   }
 }
 
@@ -124,7 +124,7 @@
     align-items: baseline;
     border-bottom: none;
     display: flex;
-    gap: var(--jx-d-ctl-gap);
+    gap: var(--jx-gap);
     justify-content: space-between;
   }
   /* label:value row — only cells that carry data-label get one */
@@ -133,8 +133,8 @@
     content: attr(data-label);
     flex: none;
     font-family: var(--font-nav);
-    font-size: var(--jx-d-secondary-text);
-    line-height: var(--jx-d-secondary-line);
+    font-size: var(--jx-text-secondary);
+    line-height: var(--jx-line-secondary);
     letter-spacing: 0.12em;
     text-align: start;
     text-transform: uppercase;
@@ -165,9 +165,9 @@
   :where(table:not([data-stack='off']) tfoot td) {
     border-top: none;
     display: flex;
-    gap: var(--jx-d-ctl-gap);
+    gap: var(--jx-gap);
     justify-content: space-between;
-    padding: var(--jx-d-ctl-gap) var(--jx-d-ctl-pad);
+    padding: var(--jx-gap) var(--jx-inset);
   }
 }
 

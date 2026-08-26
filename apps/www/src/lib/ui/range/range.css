@@ -16,22 +16,22 @@
 
 @layer components {
   :where(.jx-slider) {
-    min-block-size: var(--jx-d-ctl-hit);
+    min-block-size: var(--jx-hit);
   }
   :where(.jx-slider-track) {
-    height: var(--jx-d-ctl-range-track);
+    height: var(--jx-slider-track);
   }
   :where(.jx-slider-fill) {
-    height: var(--jx-d-ctl-range-track);
-    inset-block: calc(var(--jx-d-ctl-range-track) / -2);
+    height: var(--jx-slider-track);
+    inset-block: calc(var(--jx-slider-track) / -2);
   }
   :where(.jx-slider-thumb) {
-    width: var(--jx-d-ctl-icon);
-    height: var(--jx-d-ctl-icon);
+    width: var(--jx-icon);
+    height: var(--jx-icon);
   }
   :where(.jx-slider-value) {
-    font-size: var(--jx-d-ctl-text);
-    line-height: var(--jx-d-ctl-line);
+    font-size: var(--jx-text);
+    line-height: var(--jx-line);
   }
 
   /* tick ruler: one 4px mark per step, drawn as a repeating gradient

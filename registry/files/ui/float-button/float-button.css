@@ -9,7 +9,7 @@
  * utilities in the markup. */
 .jx-fab-menu {
   position: fixed;
-  margin: var(--jx-d-ctl-gap);
+  margin: var(--jx-gap);
   position-try-fallbacks: flip-block, flip-inline;
   position-try: flip-block, flip-inline;
   position-visibility: anchors-visible;

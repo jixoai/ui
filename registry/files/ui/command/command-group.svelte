@@ -33,7 +33,7 @@
   {#if heading}
     <p
       data-jx-command-group-heading=""
-      class="mt-[var(--jx-d-stack-gap)] mb-[var(--jx-d-stack-gap)] px-[var(--jx-d-ctl-pad)] font-nav text-[var(--jx-d-secondary-text)] uppercase tracking-[0.14em] text-muted-foreground"
+      class="mt-[var(--jx-stack)] mb-[var(--jx-stack)] px-[var(--jx-inset)] font-nav text-[var(--jx-text-secondary)] uppercase tracking-[0.14em] text-muted-foreground"
       aria-hidden="true"
     >
       {heading}

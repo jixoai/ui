@@ -45,7 +45,7 @@
   data-jx-badge={tone}
   data-density={resolvedDensity}
   class={cn(
-    `inline-flex items-center [gap:var(--jx-d-ctl-gap)] box-border max-w-full [padding:calc(var(--jx-d-ctl-gap)/2)_var(--jx-d-ctl-pad)] border border-border font-nav [font-size:var(--jx-d-secondary-text)] [line-height:var(--jx-d-secondary-line)] tracking-[0.14em] uppercase whitespace-nowrap rounded-(--radius)`,
+    `inline-flex items-center [gap:var(--jx-gap)] box-border max-w-full [padding:calc(var(--jx-gap)/2)_var(--jx-inset)] border border-border font-nav [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] tracking-[0.14em] uppercase whitespace-nowrap rounded-(--radius)`,
     toneUtilities[tone],
     className,
   )}

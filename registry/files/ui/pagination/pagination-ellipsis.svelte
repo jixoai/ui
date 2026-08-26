@@ -20,7 +20,7 @@
 
 <span
   data-jx-page-gap=""
-  class={cn('inline-flex items-center px-[var(--jx-d-ctl-pad)] text-muted-foreground select-none', className)}
+  class={cn('inline-flex items-center px-[var(--jx-inset)] text-muted-foreground select-none', className)}
   {...rest}
   aria-hidden="true"
 >…</span>

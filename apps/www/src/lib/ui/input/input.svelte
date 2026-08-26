@@ -236,7 +236,7 @@
         {#if showClear}
           <button
             type="button"
-            class="jx-clear flex-none inline-flex items-center justify-center min-w-[var(--jx-d-ctl-hit)] min-h-[var(--jx-d-ctl-hit)] p-0 border-0 bg-transparent text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-leading)] cursor-pointer"
+            class="jx-clear flex-none inline-flex items-center justify-center min-w-[var(--jx-hit)] min-h-[var(--jx-hit)] p-0 border-0 bg-transparent text-[length:var(--jx-text)] leading-[var(--jx-leading)] cursor-pointer"
             aria-label="clear value"
             onclick={clearValue}
           >

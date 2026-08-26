@@ -87,7 +87,7 @@
       {id}
       bind:value
       class={cn(
-        'jx-select w-full min-h-[var(--jx-d-ctl-hit)] py-[var(--jx-d-ctl-gap)] ps-[var(--jx-d-ctl-pad)] pe-[calc(var(--jx-d-ctl-pad)+var(--jx-d-ctl-icon))] appearance-none border border-border rounded-none bg-background text-foreground text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-leading)] scheme-light dark:scheme-dark cursor-pointer transition-[box-shadow] duration-150 ease-out',
+        'jx-select w-full min-h-[var(--jx-hit)] py-[var(--jx-gap)] ps-[var(--jx-inset)] pe-[calc(var(--jx-inset)+var(--jx-icon))] appearance-none border border-border rounded-none bg-background text-foreground text-[length:var(--jx-text)] leading-[var(--jx-leading)] scheme-light dark:scheme-dark cursor-pointer transition-[box-shadow] duration-150 ease-out',
         className,
       )}
       aria-invalid={invalidAttr}
@@ -97,7 +97,7 @@
       {@render children()}
     </select>
     <svg
-      class="jx-select-chevron absolute end-[var(--jx-d-ctl-pad)] top-1/2 -translate-y-1/2 w-[var(--jx-d-ctl-icon)] h-[var(--jx-d-ctl-icon)] pointer-events-none text-muted-foreground"
+      class="jx-select-chevron absolute end-[var(--jx-inset)] top-1/2 -translate-y-1/2 w-[var(--jx-icon)] h-[var(--jx-icon)] pointer-events-none text-muted-foreground"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"

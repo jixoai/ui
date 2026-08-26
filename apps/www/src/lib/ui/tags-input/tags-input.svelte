@@ -387,7 +387,7 @@
     <div
       data-jx-tags-invalid={invalid ? '' : undefined}
       class={cn(
-        'jx-tags-shell flex flex-wrap items-center gap-[var(--jx-d-ctl-gap)] w-full max-w-full min-h-[var(--jx-d-ctl-hit)] px-[var(--jx-d-ctl-pad)] py-[var(--jx-d-ctl-gap)] border border-border rounded-none bg-background scheme-light dark:scheme-dark transition-[box-shadow] duration-150 ease-out',
+        'jx-tags-shell flex flex-wrap items-center gap-[var(--jx-gap)] w-full max-w-full min-h-[var(--jx-hit)] px-[var(--jx-inset)] py-[var(--jx-gap)] border border-border rounded-none bg-background scheme-light dark:scheme-dark transition-[box-shadow] duration-150 ease-out',
         invalid && 'border-dashed',
         className,
       )}
@@ -400,7 +400,7 @@
           role="option"
           aria-selected="true"
           class={cn(
-            'jx-tags-tag inline-flex items-center gap-[var(--jx-d-ctl-gap)] min-h-[var(--jx-d-ctl-row)] ps-[var(--jx-d-ctl-pad)] border border-border bg-muted text-foreground text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-leading)] transition-[border-color] duration-100 ease-out',
+            'jx-tags-tag inline-flex items-center gap-[var(--jx-gap)] min-h-[var(--jx-row-min)] ps-[var(--jx-inset)] border border-border bg-muted text-foreground text-[length:var(--jx-text)] leading-[var(--jx-leading)] transition-[border-color] duration-100 ease-out',
             tag.removable === false && 'pe-2',
             tag.value === flashValue && 'jx-tags-flash border-primary animate-[jx-tags-shake_150ms_ease-in-out]',
           )}
@@ -409,7 +409,7 @@
           {#if tag.removable !== false}
             <button
               type="button"
-              class="jx-tags-remove inline-flex items-center justify-center self-stretch min-w-[var(--jx-d-ctl-hit)] p-0 border-0 bg-transparent text-[length:var(--jx-d-ctl-text)] leading-none cursor-pointer transition-[color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+              class="jx-tags-remove inline-flex items-center justify-center self-stretch min-w-[var(--jx-hit)] p-0 border-0 bg-transparent text-[length:var(--jx-text)] leading-none cursor-pointer transition-[color,transform] duration-100 ease-out disabled:cursor-not-allowed"
               aria-label={`remove ${tag.label ?? tag.value}`}
               disabled={isDisabled}
               onclick={() => removeAt(index)}
@@ -421,7 +421,7 @@
         </span>
       {/each}
       {#if full}
-          <span data-jx-tags-full class="text-muted-foreground text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-row)]">{tags.length}/{maxTags} tags</span>
+          <span data-jx-tags-full class="text-muted-foreground text-[length:var(--jx-text)] leading-[var(--jx-row-min)]">{tags.length}/{maxTags} tags</span>
       {:else}
         <input
           bind:this={inputEl}
@@ -441,7 +441,7 @@
           autocapitalize="off"
           spellcheck="false"
           data-jx-tags-input
-          class="flex-[1_1_0%] min-w-0 min-h-[var(--jx-d-ctl-row)] p-0 border-0 outline-none bg-transparent text-foreground text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-leading)] placeholder:text-muted-foreground placeholder:opacity-100"
+          class="flex-[1_1_0%] min-w-0 min-h-[var(--jx-row-min)] p-0 border-0 outline-none bg-transparent text-foreground text-[length:var(--jx-text)] leading-[var(--jx-leading)] placeholder:text-muted-foreground placeholder:opacity-100"
           {placeholder}
           disabled={isDisabled}
           oninput={onInput}
@@ -492,7 +492,7 @@
             aria-selected={tags.some((tag) => tag.value === suggestion.value) ? 'true' : 'false'}
             data-jx-tags-suggestion-active={index === active ? '' : undefined}
             class={cn(
-              'jx-tags-suggestion px-[var(--jx-d-ctl-pad)] py-[var(--jx-d-ctl-gap)] min-h-[var(--jx-d-ctl-hit)] text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-leading)] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
+              'jx-tags-suggestion px-[var(--jx-inset)] py-[var(--jx-gap)] min-h-[var(--jx-hit)] text-[length:var(--jx-text)] leading-[var(--jx-leading)] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
               index === active && 'bg-terminal-hover text-terminal-foreground',
               tags.some((tag) => tag.value === suggestion.value) && 'bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
             )}

@@ -195,10 +195,10 @@ ${close}
     >
       <div class="grid gap-4 min-[760px]:grid-cols-4" data-density-ladder>
         {#each ['xs', 'sm', 'default', 'lg'] as density}
-          <div data-density={density} data-density-scope={density} class="flex min-w-0 flex-col gap-[var(--jx-d-ctl-gap)]">
-            <span class="font-nav text-[length:var(--jx-d-secondary-text)] uppercase tracking-[0.14em]">{density}</span>
+          <div data-density={density} data-density-scope={density} class="flex min-w-0 flex-col gap-[var(--jx-gap)]">
+            <span class="font-nav text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">{density}</span>
             <Input label={`${density} input`} placeholder="click target" />
-            <button type="button" data-density-click-target class="min-h-[var(--jx-d-ctl-hit)] border border-border px-[var(--jx-d-ctl-pad)] text-[length:var(--jx-d-ctl-text)]">probe</button>
+            <button type="button" data-density-click-target class="min-h-[var(--jx-hit)] border border-border px-[var(--jx-inset)] text-[length:var(--jx-text)]">probe</button>
           </div>
         {/each}
       </div>

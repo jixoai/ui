@@ -720,20 +720,20 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 /* ============================================================
    The density scale (design-language-kernel appendix A, 2026-08-26)
    — 尺规思维: every dimension is an EQUATION from the ruler.
-   U = --jx-ruler-unit (4px), T = --jx-ruler-text-base (13px).
+   U = --jx-unit (4px), T = --jx-text-base (13px).
    Four densities (xs/sm/default/lg) with REAL differentiation:
    text 11/12/13/15px, lines 16/18/20/24px, rows 28/32/40/48px.
    Scopes exist ONLY here (and the byte-identical mirror) — never in
-   component css; components consume the inherited --jx-d-* aliases.
+   component css; components consume the inherited --jx-* aliases.
    ============================================================ */
 :root {
-  --jx-ruler-unit: 0.25rem;        /* U = 4px at the 16px root */
-  --jx-ruler-text-base: 0.8125rem; /* T_base = 13px */
+  --jx-unit: 0.25rem;        /* U = 4px at the 16px root */
+  --jx-text-base: 0.8125rem; /* T_base = 13px */
 
-  --jx-density-text-xs: calc(var(--jx-ruler-text-base) - calc(var(--jx-ruler-unit) / 2));
-  --jx-density-text-sm: calc(var(--jx-ruler-text-base) - calc(var(--jx-ruler-unit) / 4));
-  --jx-density-text-default: var(--jx-ruler-text-base);
-  --jx-density-text-lg: calc(var(--jx-ruler-text-base) + calc(var(--jx-ruler-unit) / 2));
+  --jx-density-text-xs: calc(var(--jx-text-base) - calc(var(--jx-unit) / 2));
+  --jx-density-text-sm: calc(var(--jx-text-base) - calc(var(--jx-unit) / 4));
+  --jx-density-text-default: var(--jx-text-base);
+  --jx-density-text-lg: calc(var(--jx-text-base) + calc(var(--jx-unit) / 2));
 
   --jx-density-leading-xs: calc(16 / 11);
   --jx-density-leading-sm: 1.5;
@@ -758,10 +758,10 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-density-line-default: calc(var(--jx-density-text-default) * var(--jx-density-leading-default));
   --jx-density-line-lg: calc(var(--jx-density-text-lg) * var(--jx-density-leading-lg));
 
-  --jx-density-inline-gap-xs: calc(var(--jx-ruler-unit) * var(--jx-density-inline-factor-xs));
-  --jx-density-inline-gap-sm: calc(var(--jx-ruler-unit) * var(--jx-density-inline-factor-sm));
-  --jx-density-inline-gap-default: calc(var(--jx-ruler-unit) * var(--jx-density-inline-factor-default));
-  --jx-density-inline-gap-lg: calc(var(--jx-ruler-unit) * var(--jx-density-inline-factor-lg));
+  --jx-density-inline-gap-xs: calc(var(--jx-unit) * var(--jx-density-inline-factor-xs));
+  --jx-density-inline-gap-sm: calc(var(--jx-unit) * var(--jx-density-inline-factor-sm));
+  --jx-density-inline-gap-default: calc(var(--jx-unit) * var(--jx-density-inline-factor-default));
+  --jx-density-inline-gap-lg: calc(var(--jx-unit) * var(--jx-density-inline-factor-lg));
   --jx-density-media-gutter-xs: var(--jx-density-inline-gap-xs);
   --jx-density-media-gutter-sm: var(--jx-density-inline-gap-sm);
   --jx-density-media-gutter-default: var(--jx-density-inline-gap-default);
@@ -770,42 +770,42 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-density-end-gap-sm: var(--jx-density-inline-gap-sm);
   --jx-density-end-gap-default: var(--jx-density-inline-gap-default);
   --jx-density-end-gap-lg: var(--jx-density-inline-gap-lg);
-  --jx-density-stack-gap-xs: calc(var(--jx-ruler-unit) * var(--jx-density-stack-factor-xs));
-  --jx-density-stack-gap-sm: calc(var(--jx-ruler-unit) * var(--jx-density-stack-factor-sm));
-  --jx-density-stack-gap-default: calc(var(--jx-ruler-unit) * var(--jx-density-stack-factor-default));
-  --jx-density-stack-gap-lg: calc(var(--jx-ruler-unit) * var(--jx-density-stack-factor-lg));
+  --jx-density-stack-gap-xs: calc(var(--jx-unit) * var(--jx-density-stack-factor-xs));
+  --jx-density-stack-gap-sm: calc(var(--jx-unit) * var(--jx-density-stack-factor-sm));
+  --jx-density-stack-gap-default: calc(var(--jx-unit) * var(--jx-density-stack-factor-default));
+  --jx-density-stack-gap-lg: calc(var(--jx-unit) * var(--jx-density-stack-factor-lg));
 
   --jx-density-inline-inset-xs: var(--jx-density-inline-gap-xs);
   --jx-density-inline-inset-sm: var(--jx-density-inline-gap-sm);
   --jx-density-inline-inset-default: var(--jx-density-inline-gap-default);
   --jx-density-inline-inset-lg: var(--jx-density-inline-gap-lg);
 
-  --jx-density-content-gap-xs: max(calc(var(--jx-ruler-unit) / 2), calc(var(--jx-density-stack-gap-xs) / 2));
-  --jx-density-content-gap-sm: max(calc(var(--jx-ruler-unit) / 2), calc(var(--jx-density-stack-gap-sm) / 2));
-  --jx-density-content-gap-default: max(calc(var(--jx-ruler-unit) / 2), calc(var(--jx-density-stack-gap-default) / 2));
-  --jx-density-content-gap-lg: max(calc(var(--jx-ruler-unit) / 2), calc(var(--jx-density-stack-gap-lg) / 2));
+  --jx-density-content-gap-xs: max(calc(var(--jx-unit) / 2), calc(var(--jx-density-stack-gap-xs) / 2));
+  --jx-density-content-gap-sm: max(calc(var(--jx-unit) / 2), calc(var(--jx-density-stack-gap-sm) / 2));
+  --jx-density-content-gap-default: max(calc(var(--jx-unit) / 2), calc(var(--jx-density-stack-gap-default) / 2));
+  --jx-density-content-gap-lg: max(calc(var(--jx-unit) / 2), calc(var(--jx-density-stack-gap-lg) / 2));
 
   --jx-density-row-min-xs: max(
     calc(var(--jx-density-line-xs) + var(--jx-density-stack-gap-xs) + var(--jx-density-stack-gap-xs)),
-    calc(var(--jx-ruler-unit) * var(--jx-density-row-floor-xs))
+    calc(var(--jx-unit) * var(--jx-density-row-floor-xs))
   );
   --jx-density-row-min-sm: max(
     calc(var(--jx-density-line-sm) + var(--jx-density-stack-gap-sm) + var(--jx-density-stack-gap-sm)),
-    calc(var(--jx-ruler-unit) * var(--jx-density-row-floor-sm))
+    calc(var(--jx-unit) * var(--jx-density-row-floor-sm))
   );
   --jx-density-row-min-default: max(
     calc(var(--jx-density-line-default) + var(--jx-density-stack-gap-default) + var(--jx-density-stack-gap-default)),
-    calc(var(--jx-ruler-unit) * var(--jx-density-row-floor-default))
+    calc(var(--jx-unit) * var(--jx-density-row-floor-default))
   );
   --jx-density-row-min-lg: max(
     calc(var(--jx-density-line-lg) + var(--jx-density-stack-gap-lg) + var(--jx-density-stack-gap-lg)),
-    calc(var(--jx-ruler-unit) * var(--jx-density-row-floor-lg))
+    calc(var(--jx-unit) * var(--jx-density-row-floor-lg))
   );
 
-  --jx-density-hit-min-xs: max(var(--jx-density-row-min-xs), calc(var(--jx-ruler-unit) * 11));
-  --jx-density-hit-min-sm: max(var(--jx-density-row-min-sm), calc(var(--jx-ruler-unit) * 11));
-  --jx-density-hit-min-default: max(var(--jx-density-row-min-default), calc(var(--jx-ruler-unit) * 11));
-  --jx-density-hit-min-lg: max(var(--jx-density-row-min-lg), calc(var(--jx-ruler-unit) * 11));
+  --jx-density-hit-min-xs: max(var(--jx-density-row-min-xs), calc(var(--jx-unit) * 11));
+  --jx-density-hit-min-sm: max(var(--jx-density-row-min-sm), calc(var(--jx-unit) * 11));
+  --jx-density-hit-min-default: max(var(--jx-density-row-min-default), calc(var(--jx-unit) * 11));
+  --jx-density-hit-min-lg: max(var(--jx-density-row-min-lg), calc(var(--jx-unit) * 11));
 
   --jx-density-media-icon-xs: var(--jx-density-line-xs);
   --jx-density-media-icon-sm: var(--jx-density-line-sm);
@@ -817,142 +817,114 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-density-media-image-lg: calc(var(--jx-density-line-lg) * 2);
 
   /* Secondary text stays a role, not a component literal. */
-  --jx-density-secondary-text-xs: max(0.625rem, calc(var(--jx-density-text-xs) - calc(var(--jx-ruler-unit) / 4)));
-  --jx-density-secondary-text-sm: max(0.625rem, calc(var(--jx-density-text-sm) - calc(var(--jx-ruler-unit) / 4)));
-  --jx-density-secondary-text-default: max(0.625rem, calc(var(--jx-density-text-default) - calc(var(--jx-ruler-unit) / 4)));
-  --jx-density-secondary-text-lg: max(0.625rem, calc(var(--jx-density-text-lg) - calc(var(--jx-ruler-unit) / 4)));
+  --jx-density-secondary-text-xs: max(0.625rem, calc(var(--jx-density-text-xs) - calc(var(--jx-unit) / 4)));
+  --jx-density-secondary-text-sm: max(0.625rem, calc(var(--jx-density-text-sm) - calc(var(--jx-unit) / 4)));
+  --jx-density-secondary-text-default: max(0.625rem, calc(var(--jx-density-text-default) - calc(var(--jx-unit) / 4)));
+  --jx-density-secondary-text-lg: max(0.625rem, calc(var(--jx-density-text-lg) - calc(var(--jx-unit) / 4)));
   --jx-density-secondary-leading: 1.5;
   --jx-density-secondary-line-xs: calc(var(--jx-density-secondary-text-xs) * var(--jx-density-secondary-leading));
   --jx-density-secondary-line-sm: calc(var(--jx-density-secondary-text-sm) * var(--jx-density-secondary-leading));
   --jx-density-secondary-line-default: calc(var(--jx-density-secondary-text-default) * var(--jx-density-secondary-leading));
   --jx-density-secondary-line-lg: calc(var(--jx-density-secondary-text-lg) * var(--jx-density-secondary-leading));
-  --jx-d-icon-optical-inline: 0px;
+  --jx-icon-optical: 0px;
 }
 
 :where(:root:not([data-density]), [data-density='default']) {
-  --jx-d-text: var(--jx-density-text-default);
-  --jx-d-leading: var(--jx-density-leading-default);
-  --jx-d-line: var(--jx-density-line-default);
-  --jx-d-inline-gap: var(--jx-density-inline-gap-default);
-  --jx-d-media-gutter: var(--jx-density-media-gutter-default);
-  --jx-d-end-gap: var(--jx-density-end-gap-default);
-  --jx-d-stack-gap: var(--jx-density-stack-gap-default);
-  --jx-d-inline-inset: var(--jx-density-inline-inset-default);
-  --jx-d-content-gap: var(--jx-density-content-gap-default);
-  --jx-d-row-min: var(--jx-density-row-min-default);
-  --jx-d-hit-min: var(--jx-density-hit-min-default);
-  --jx-d-media-icon: var(--jx-density-media-icon-default);
-  --jx-d-media-image: var(--jx-density-media-image-default);
-  --jx-d-secondary-text: var(--jx-density-secondary-text-default);
-  --jx-d-secondary-leading: var(--jx-density-secondary-leading);
-  --jx-d-secondary-line: var(--jx-density-secondary-line-default);
-  --jx-d-ctl-text: var(--jx-d-text);
-  --jx-d-ctl-line: var(--jx-d-line);
-  --jx-d-ctl-pad: var(--jx-d-inline-inset);
-  --jx-d-ctl-gap: var(--jx-d-inline-gap);
-  --jx-d-ctl-row: var(--jx-d-row-min);
-  --jx-d-ctl-hit: var(--jx-d-hit-min);
-  --jx-d-ctl-icon: var(--jx-d-media-icon);
-  --jx-d-ctl-toggle-h: var(--jx-d-line);
-  --jx-d-ctl-toggle-w: calc(var(--jx-d-ctl-toggle-h) * 2);
-  --jx-d-ctl-toggle-knob: calc(var(--jx-d-ctl-toggle-h) - var(--jx-ruler-unit));
-  --jx-d-ctl-range-track: max(var(--jx-ruler-unit), calc(var(--jx-d-ctl-line) / 2));
-  --jx-d-ctl-textarea-min: max(var(--jx-d-ctl-hit), calc(var(--jx-d-ctl-line) * 3 + var(--jx-d-stack-gap) * 2 + 2px));
-  --jx-d-ctl-color-lane: max(var(--jx-d-ctl-hit), calc(var(--jx-d-ctl-icon) + var(--jx-d-ctl-pad) * 2 + 2px));
+  --jx-text: var(--jx-density-text-default);
+  --jx-leading: var(--jx-density-leading-default);
+  --jx-line: var(--jx-density-line-default);
+  --jx-gap: var(--jx-density-inline-gap-default);
+  --jx-media-gutter: var(--jx-density-media-gutter-default);
+  --jx-gap-end: var(--jx-density-end-gap-default);
+  --jx-stack: var(--jx-density-stack-gap-default);
+  --jx-inset: var(--jx-density-inline-inset-default);
+  --jx-gap-content: var(--jx-density-content-gap-default);
+  --jx-row-min: var(--jx-density-row-min-default);
+  --jx-hit: var(--jx-density-hit-min-default);
+  --jx-icon: var(--jx-density-media-icon-default);
+  --jx-image: var(--jx-density-media-image-default);
+  --jx-text-secondary: var(--jx-density-secondary-text-default);
+  --jx-leading-secondary: var(--jx-density-secondary-leading);
+  --jx-line-secondary: var(--jx-density-secondary-line-default);
+  --jx-toggle-track: var(--jx-line);
+  --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
+  --jx-toggle-knob: calc(var(--jx-toggle-track) - var(--jx-unit));
+  --jx-slider-track: max(var(--jx-unit), calc(var(--jx-line) / 2));
+  --jx-textarea-min: max(var(--jx-hit), calc(var(--jx-line) * 3 + var(--jx-stack) * 2 + 2px));
+  --jx-color-lane: max(var(--jx-hit), calc(var(--jx-icon) + var(--jx-inset) * 2 + 2px));
 }
 
 :where([data-density='xs']) {
-  --jx-d-text: var(--jx-density-text-xs);
-  --jx-d-leading: var(--jx-density-leading-xs);
-  --jx-d-line: var(--jx-density-line-xs);
-  --jx-d-inline-gap: var(--jx-density-inline-gap-xs);
-  --jx-d-media-gutter: var(--jx-density-media-gutter-xs);
-  --jx-d-end-gap: var(--jx-density-end-gap-xs);
-  --jx-d-stack-gap: var(--jx-density-stack-gap-xs);
-  --jx-d-inline-inset: var(--jx-density-inline-inset-xs);
-  --jx-d-content-gap: var(--jx-density-content-gap-xs);
-  --jx-d-row-min: var(--jx-density-row-min-xs);
-  --jx-d-hit-min: var(--jx-density-hit-min-xs);
-  --jx-d-media-icon: var(--jx-density-media-icon-xs);
-  --jx-d-media-image: var(--jx-density-media-image-xs);
-  --jx-d-secondary-text: var(--jx-density-secondary-text-xs);
-  --jx-d-secondary-leading: var(--jx-density-secondary-leading);
-  --jx-d-secondary-line: var(--jx-density-secondary-line-xs);
-  --jx-d-ctl-text: var(--jx-d-text);
-  --jx-d-ctl-line: var(--jx-d-line);
-  --jx-d-ctl-pad: var(--jx-d-inline-inset);
-  --jx-d-ctl-gap: var(--jx-d-inline-gap);
-  --jx-d-ctl-row: var(--jx-d-row-min);
-  --jx-d-ctl-hit: var(--jx-d-hit-min);
-  --jx-d-ctl-icon: var(--jx-d-media-icon);
-  --jx-d-ctl-toggle-h: var(--jx-d-line);
-  --jx-d-ctl-toggle-w: calc(var(--jx-d-ctl-toggle-h) * 2);
-  --jx-d-ctl-toggle-knob: calc(var(--jx-d-ctl-toggle-h) - var(--jx-ruler-unit));
-  --jx-d-ctl-range-track: max(var(--jx-ruler-unit), calc(var(--jx-d-ctl-line) / 2));
-  --jx-d-ctl-textarea-min: max(var(--jx-d-ctl-hit), calc(var(--jx-d-ctl-line) * 3 + var(--jx-d-stack-gap) * 2 + 2px));
-  --jx-d-ctl-color-lane: max(var(--jx-d-ctl-hit), calc(var(--jx-d-ctl-icon) + var(--jx-d-ctl-pad) * 2 + 2px));
+  --jx-text: var(--jx-density-text-xs);
+  --jx-leading: var(--jx-density-leading-xs);
+  --jx-line: var(--jx-density-line-xs);
+  --jx-gap: var(--jx-density-inline-gap-xs);
+  --jx-media-gutter: var(--jx-density-media-gutter-xs);
+  --jx-gap-end: var(--jx-density-end-gap-xs);
+  --jx-stack: var(--jx-density-stack-gap-xs);
+  --jx-inset: var(--jx-density-inline-inset-xs);
+  --jx-gap-content: var(--jx-density-content-gap-xs);
+  --jx-row-min: var(--jx-density-row-min-xs);
+  --jx-hit: var(--jx-density-hit-min-xs);
+  --jx-icon: var(--jx-density-media-icon-xs);
+  --jx-image: var(--jx-density-media-image-xs);
+  --jx-text-secondary: var(--jx-density-secondary-text-xs);
+  --jx-leading-secondary: var(--jx-density-secondary-leading);
+  --jx-line-secondary: var(--jx-density-secondary-line-xs);
+  --jx-toggle-track: var(--jx-line);
+  --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
+  --jx-toggle-knob: calc(var(--jx-toggle-track) - var(--jx-unit));
+  --jx-slider-track: max(var(--jx-unit), calc(var(--jx-line) / 2));
+  --jx-textarea-min: max(var(--jx-hit), calc(var(--jx-line) * 3 + var(--jx-stack) * 2 + 2px));
+  --jx-color-lane: max(var(--jx-hit), calc(var(--jx-icon) + var(--jx-inset) * 2 + 2px));
 }
 
 :where([data-density='sm']) {
-  --jx-d-text: var(--jx-density-text-sm);
-  --jx-d-leading: var(--jx-density-leading-sm);
-  --jx-d-line: var(--jx-density-line-sm);
-  --jx-d-inline-gap: var(--jx-density-inline-gap-sm);
-  --jx-d-media-gutter: var(--jx-density-media-gutter-sm);
-  --jx-d-end-gap: var(--jx-density-end-gap-sm);
-  --jx-d-stack-gap: var(--jx-density-stack-gap-sm);
-  --jx-d-inline-inset: var(--jx-density-inline-inset-sm);
-  --jx-d-content-gap: var(--jx-density-content-gap-sm);
-  --jx-d-row-min: var(--jx-density-row-min-sm);
-  --jx-d-hit-min: var(--jx-density-hit-min-sm);
-  --jx-d-media-icon: var(--jx-density-media-icon-sm);
-  --jx-d-media-image: var(--jx-density-media-image-sm);
-  --jx-d-secondary-text: var(--jx-density-secondary-text-sm);
-  --jx-d-secondary-leading: var(--jx-density-secondary-leading);
-  --jx-d-secondary-line: var(--jx-density-secondary-line-sm);
-  --jx-d-ctl-text: var(--jx-d-text);
-  --jx-d-ctl-line: var(--jx-d-line);
-  --jx-d-ctl-pad: var(--jx-d-inline-inset);
-  --jx-d-ctl-gap: var(--jx-d-inline-gap);
-  --jx-d-ctl-row: var(--jx-d-row-min);
-  --jx-d-ctl-hit: var(--jx-d-hit-min);
-  --jx-d-ctl-icon: var(--jx-d-media-icon);
-  --jx-d-ctl-toggle-h: var(--jx-d-line);
-  --jx-d-ctl-toggle-w: calc(var(--jx-d-ctl-toggle-h) * 2);
-  --jx-d-ctl-toggle-knob: calc(var(--jx-d-ctl-toggle-h) - var(--jx-ruler-unit));
-  --jx-d-ctl-range-track: max(var(--jx-ruler-unit), calc(var(--jx-d-ctl-line) / 2));
-  --jx-d-ctl-textarea-min: max(var(--jx-d-ctl-hit), calc(var(--jx-d-ctl-line) * 3 + var(--jx-d-stack-gap) * 2 + 2px));
-  --jx-d-ctl-color-lane: max(var(--jx-d-ctl-hit), calc(var(--jx-d-ctl-icon) + var(--jx-d-ctl-pad) * 2 + 2px));
+  --jx-text: var(--jx-density-text-sm);
+  --jx-leading: var(--jx-density-leading-sm);
+  --jx-line: var(--jx-density-line-sm);
+  --jx-gap: var(--jx-density-inline-gap-sm);
+  --jx-media-gutter: var(--jx-density-media-gutter-sm);
+  --jx-gap-end: var(--jx-density-end-gap-sm);
+  --jx-stack: var(--jx-density-stack-gap-sm);
+  --jx-inset: var(--jx-density-inline-inset-sm);
+  --jx-gap-content: var(--jx-density-content-gap-sm);
+  --jx-row-min: var(--jx-density-row-min-sm);
+  --jx-hit: var(--jx-density-hit-min-sm);
+  --jx-icon: var(--jx-density-media-icon-sm);
+  --jx-image: var(--jx-density-media-image-sm);
+  --jx-text-secondary: var(--jx-density-secondary-text-sm);
+  --jx-leading-secondary: var(--jx-density-secondary-leading);
+  --jx-line-secondary: var(--jx-density-secondary-line-sm);
+  --jx-toggle-track: var(--jx-line);
+  --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
+  --jx-toggle-knob: calc(var(--jx-toggle-track) - var(--jx-unit));
+  --jx-slider-track: max(var(--jx-unit), calc(var(--jx-line) / 2));
+  --jx-textarea-min: max(var(--jx-hit), calc(var(--jx-line) * 3 + var(--jx-stack) * 2 + 2px));
+  --jx-color-lane: max(var(--jx-hit), calc(var(--jx-icon) + var(--jx-inset) * 2 + 2px));
 }
 
 :where([data-density='lg']) {
-  --jx-d-text: var(--jx-density-text-lg);
-  --jx-d-leading: var(--jx-density-leading-lg);
-  --jx-d-line: var(--jx-density-line-lg);
-  --jx-d-inline-gap: var(--jx-density-inline-gap-lg);
-  --jx-d-media-gutter: var(--jx-density-media-gutter-lg);
-  --jx-d-end-gap: var(--jx-density-end-gap-lg);
-  --jx-d-stack-gap: var(--jx-density-stack-gap-lg);
-  --jx-d-inline-inset: var(--jx-density-inline-inset-lg);
-  --jx-d-content-gap: var(--jx-density-content-gap-lg);
-  --jx-d-row-min: var(--jx-density-row-min-lg);
-  --jx-d-hit-min: var(--jx-density-hit-min-lg);
-  --jx-d-media-icon: var(--jx-density-media-icon-lg);
-  --jx-d-media-image: var(--jx-density-media-image-lg);
-  --jx-d-secondary-text: var(--jx-density-secondary-text-lg);
-  --jx-d-secondary-leading: var(--jx-density-secondary-leading);
-  --jx-d-secondary-line: var(--jx-density-secondary-line-lg);
-  --jx-d-ctl-text: var(--jx-d-text);
-  --jx-d-ctl-line: var(--jx-d-line);
-  --jx-d-ctl-pad: var(--jx-d-inline-inset);
-  --jx-d-ctl-gap: var(--jx-d-inline-gap);
-  --jx-d-ctl-row: var(--jx-d-row-min);
-  --jx-d-ctl-hit: var(--jx-d-hit-min);
-  --jx-d-ctl-icon: var(--jx-d-media-icon);
-  --jx-d-ctl-toggle-h: var(--jx-d-line);
-  --jx-d-ctl-toggle-w: calc(var(--jx-d-ctl-toggle-h) * 2);
-  --jx-d-ctl-toggle-knob: calc(var(--jx-d-ctl-toggle-h) - var(--jx-ruler-unit));
-  --jx-d-ctl-range-track: max(var(--jx-ruler-unit), calc(var(--jx-d-ctl-line) / 2));
-  --jx-d-ctl-textarea-min: max(var(--jx-d-ctl-hit), calc(var(--jx-d-ctl-line) * 3 + var(--jx-d-stack-gap) * 2 + 2px));
-  --jx-d-ctl-color-lane: max(var(--jx-d-ctl-hit), calc(var(--jx-d-ctl-icon) + var(--jx-d-ctl-pad) * 2 + 2px));
+  --jx-text: var(--jx-density-text-lg);
+  --jx-leading: var(--jx-density-leading-lg);
+  --jx-line: var(--jx-density-line-lg);
+  --jx-gap: var(--jx-density-inline-gap-lg);
+  --jx-media-gutter: var(--jx-density-media-gutter-lg);
+  --jx-gap-end: var(--jx-density-end-gap-lg);
+  --jx-stack: var(--jx-density-stack-gap-lg);
+  --jx-inset: var(--jx-density-inline-inset-lg);
+  --jx-gap-content: var(--jx-density-content-gap-lg);
+  --jx-row-min: var(--jx-density-row-min-lg);
+  --jx-hit: var(--jx-density-hit-min-lg);
+  --jx-icon: var(--jx-density-media-icon-lg);
+  --jx-image: var(--jx-density-media-image-lg);
+  --jx-text-secondary: var(--jx-density-secondary-text-lg);
+  --jx-leading-secondary: var(--jx-density-secondary-leading);
+  --jx-line-secondary: var(--jx-density-secondary-line-lg);
+  --jx-toggle-track: var(--jx-line);
+  --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
+  --jx-toggle-knob: calc(var(--jx-toggle-track) - var(--jx-unit));
+  --jx-slider-track: max(var(--jx-unit), calc(var(--jx-line) / 2));
+  --jx-textarea-min: max(var(--jx-hit), calc(var(--jx-line) * 3 + var(--jx-stack) * 2 + 2px));
+  --jx-color-lane: max(var(--jx-hit), calc(var(--jx-icon) + var(--jx-inset) * 2 + 2px));
 }

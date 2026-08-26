@@ -102,11 +102,11 @@
 >
   <table
     data-density={resolvedDensity}
-    class={cn('w-full min-w-fit border-separate border-spacing-0 [font-size:var(--jx-d-ctl-text)] [line-height:var(--jx-d-ctl-line)]', dense && 'dense')}
+    class={cn('w-full min-w-fit border-separate border-spacing-0 [font-size:var(--jx-text)] [line-height:var(--jx-line)]', dense && 'dense')}
     data-stack={stack ? undefined : 'off'}
   >
     {#if caption}
-      <caption class="caption-top [padding-block-end:var(--jx-d-stack-gap)] text-start [font-size:var(--jx-d-secondary-text)] [line-height:var(--jx-d-secondary-line)] text-muted-foreground">{caption}</caption>
+      <caption class="caption-top [padding-block-end:var(--jx-stack)] text-start [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] text-muted-foreground">{caption}</caption>
     {/if}
     {@render children()}
   </table>

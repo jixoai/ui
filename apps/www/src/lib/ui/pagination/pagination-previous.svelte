@@ -36,7 +36,7 @@
   const chipPose =
     '[--jx-press-shadow:none] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]';
   const chipBase =
-    'inline-flex min-h-[var(--jx-d-ctl-hit)] min-w-[var(--jx-d-ctl-hit)] items-center justify-center box-border border px-[var(--jx-d-ctl-pad)] font-nav text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] no-underline tracking-[0.08em] cursor-pointer focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
+    'inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] items-center justify-center box-border border px-[var(--jx-inset)] font-nav text-[length:var(--jx-text)] leading-[var(--jx-line)] no-underline tracking-[0.08em] cursor-pointer focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
   const edgeChip = cn(
     'jx-press',
     chipBase,
@@ -60,7 +60,7 @@
     data-jx-page-edge=""
     data-jx-page-edge-off=""
     class={cn(
-      'inline-flex min-h-[var(--jx-d-ctl-hit)] min-w-[var(--jx-d-ctl-hit)] items-center justify-center box-border border border-border bg-card px-[var(--jx-d-ctl-pad)] font-nav text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] uppercase tracking-[0.08em] text-foreground opacity-45 shadow-none cursor-not-allowed',
+      'inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] items-center justify-center box-border border border-border bg-card px-[var(--jx-inset)] font-nav text-[length:var(--jx-text)] leading-[var(--jx-line)] uppercase tracking-[0.08em] text-foreground opacity-45 shadow-none cursor-not-allowed',
       className,
     )}
     {...rest}

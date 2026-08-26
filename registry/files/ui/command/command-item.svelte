@@ -93,7 +93,7 @@
   data-jx-command-item-active={active ? '' : undefined}
   hidden={!visible}
   class={cn(
-    'flex min-h-[var(--jx-d-ctl-hit)] items-center justify-between gap-[var(--jx-d-ctl-gap)] px-[var(--jx-d-ctl-pad)] text-[var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] text-foreground',
+    'flex min-h-[var(--jx-hit)] items-center justify-between gap-[var(--jx-gap)] px-[var(--jx-inset)] text-[var(--jx-text)] leading-[var(--jx-line)] text-foreground',
     disabled
       ? 'cursor-not-allowed opacity-45'
       : active

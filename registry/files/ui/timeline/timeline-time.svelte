@@ -21,6 +21,6 @@
   let { datetime, class: className = '', children, ...rest }: Props = $props();
 </script>
 
-<p data-jx-tl-time="" class={cn('m-0 font-mono [font-size:var(--jx-d-secondary-text)] [line-height:var(--jx-d-secondary-line)] text-muted-foreground', className)} {...rest}>
+<p data-jx-tl-time="" class={cn('m-0 font-mono [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] text-muted-foreground', className)} {...rest}>
   <time datetime={datetime || undefined}>{@render children()}</time>
 </p>

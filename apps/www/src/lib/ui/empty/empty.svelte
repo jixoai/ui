@@ -35,8 +35,8 @@
   const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
 </script>
 
-<figure data-jx-empty="" data-density={resolvedDensity} class={cn('flex flex-col items-center [gap:var(--jx-d-stack-gap)] border border-dashed border-border bg-muted [padding:calc(var(--jx-d-ctl-pad)*2)]', className)}>
-  <div data-jx-empty-art="" class="flex flex-col [gap:var(--jx-d-stack-gap)] border border-border bg-card [padding:var(--jx-d-ctl-pad)] shadow-2xs font-mono [font-size:var(--jx-d-ctl-text)]" aria-hidden="true">
+<figure data-jx-empty="" data-density={resolvedDensity} class={cn('flex flex-col items-center [gap:var(--jx-stack)] border border-dashed border-border bg-muted [padding:calc(var(--jx-inset)*2)]', className)}>
+  <div data-jx-empty-art="" class="flex flex-col [gap:var(--jx-stack)] border border-border bg-card [padding:var(--jx-inset)] shadow-2xs font-mono [font-size:var(--jx-text)]" aria-hidden="true">
     {#if illustration}
       {@render illustration()}
     {:else}
@@ -44,13 +44,13 @@
       <span data-jx-empty-zero="" class="text-primary">0 items</span>
     {/if}
   </div>
-  <figcaption data-jx-empty-caption="" class="flex flex-col items-center [gap:var(--jx-d-stack-gap)] text-center">
-    <p data-jx-empty-title="" class="font-nav [font-size:var(--jx-d-ctl-text)] [line-height:var(--jx-d-ctl-line)] tracking-[0.12em] uppercase text-foreground">{title}</p>
+  <figcaption data-jx-empty-caption="" class="flex flex-col items-center [gap:var(--jx-stack)] text-center">
+    <p data-jx-empty-title="" class="font-nav [font-size:var(--jx-text)] [line-height:var(--jx-line)] tracking-[0.12em] uppercase text-foreground">{title}</p>
     {#if description}
-      <p data-jx-empty-desc="" class="max-w-[36ch] [font-size:var(--jx-d-ctl-text)] [line-height:var(--jx-d-ctl-line)] text-muted-foreground">{description}</p>
+      <p data-jx-empty-desc="" class="max-w-[36ch] [font-size:var(--jx-text)] [line-height:var(--jx-line)] text-muted-foreground">{description}</p>
     {/if}
     {#if actions}
-      <div data-jx-empty-actions="" class="[margin-block-start:var(--jx-d-stack-gap)] flex flex-wrap justify-center [gap:var(--jx-d-ctl-gap)]">
+      <div data-jx-empty-actions="" class="[margin-block-start:var(--jx-stack)] flex flex-wrap justify-center [gap:var(--jx-gap)]">
         {@render actions()}
       </div>
     {/if}

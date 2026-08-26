@@ -178,11 +178,11 @@
   onjx-disabled={(e: CustomEvent<boolean>) => (formDisabled = e.detail)}
 ></jx-form-field>
 
-<div data-jx-otp data-density={resolvedDensity} class={cn('flex flex-col gap-[var(--jx-d-ctl-gap)] w-fit', className)} role="group" aria-label={label ?? 'one-time code'}>
+<div data-jx-otp data-density={resolvedDensity} class={cn('flex flex-col gap-[var(--jx-gap)] w-fit', className)} role="group" aria-label={label ?? 'one-time code'}>
     {#if label}
-      <label data-jx-otp-label class="font-nav text-[length:var(--jx-d-secondary-text)] tracking-[0.1em] uppercase text-muted-foreground" for="{id}-0">{label}</label>
+      <label data-jx-otp-label class="font-nav text-[length:var(--jx-text-secondary)] tracking-[0.1em] uppercase text-muted-foreground" for="{id}-0">{label}</label>
     {/if}
-    <div data-jx-otp-slots class="flex gap-[var(--jx-d-ctl-gap)]" onfocusin={handleFocusIn}>
+    <div data-jx-otp-slots class="flex gap-[var(--jx-gap)]" onfocusin={handleFocusIn}>
       {#each chars as ch, index (index)}
         <input
           id="{id}-{index}"
@@ -193,7 +193,7 @@
           data-jx-otp-filled={ch !== '' ? '' : undefined}
           data-jx-otp-invalid={!!error ? '' : undefined}
           class={cn(
-            'jx-otp-slot box-border min-w-[max(var(--jx-d-ctl-hit),calc(var(--jx-d-ctl-line)*2))] min-h-[max(var(--jx-d-ctl-hit),calc(var(--jx-d-ctl-line)*2))] p-0 border border-border bg-background text-foreground font-mono text-[length:var(--jx-d-ctl-text)] text-center rounded-(--radius) caret-primary disabled:opacity-50 disabled:cursor-not-allowed',
+            'jx-otp-slot box-border min-w-[max(var(--jx-hit),calc(var(--jx-line)*2))] min-h-[max(var(--jx-hit),calc(var(--jx-line)*2))] p-0 border border-border bg-background text-foreground font-mono text-[length:var(--jx-text)] text-center rounded-(--radius) caret-primary disabled:opacity-50 disabled:cursor-not-allowed',
             ch !== '' && 'border-foreground',
             complete && 'jx-otp-complete border-primary',
             !!error && 'border-destructive border-dashed',

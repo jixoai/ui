@@ -127,7 +127,7 @@
   }: Props = $props();
 
   // Family-local geometry names are one-line aliases to the closed control contract.
-  const densityUtilities = '[--jx-file-h:var(--jx-d-ctl-hit)] [--jx-file-thumb:var(--jx-d-ctl-icon)] [--jx-file-icon:var(--jx-d-ctl-icon)] [--jx-file-text:var(--jx-d-ctl-text)] [--jx-file-zone-pad:var(--jx-d-ctl-pad)] [--jx-file-zone-glyph:var(--jx-d-ctl-icon)]';
+  const densityUtilities = '[--jx-file-h:var(--jx-hit)] [--jx-file-thumb:var(--jx-icon)] [--jx-file-icon:var(--jx-icon)] [--jx-file-text:var(--jx-text)] [--jx-file-zone-pad:var(--jx-inset)] [--jx-file-zone-glyph:var(--jx-icon)]';
   const outerDensity = getDensityContext();
   const resolvedDensity: Density = $derived(resolveDensity(density, outerDensity));
 
@@ -368,7 +368,7 @@
       id={triggerId}
       data-jx-file={invalid ? 'invalid' : undefined}
       class={cn(
-        'jx-press jx-file-zone flex flex-col items-center justify-center gap-[var(--jx-d-ctl-gap)] w-full min-w-0 max-w-full min-h-[calc(var(--jx-file-h)*2.25)] p-(--jx-file-zone-pad) border border-dashed border-border rounded-none bg-background text-foreground [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]',
+        'jx-press jx-file-zone flex flex-col items-center justify-center gap-[var(--jx-gap)] w-full min-w-0 max-w-full min-h-[calc(var(--jx-file-h)*2.25)] p-(--jx-file-zone-pad) border border-dashed border-border rounded-none bg-background text-foreground [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]',
         invalid && 'border-destructive',
       )}
       class:jx-file-over={dragging}
@@ -419,7 +419,7 @@
       id={triggerId}
       data-jx-file={invalid ? 'invalid' : undefined}
       class={cn(
-        'jx-press jx-file-trigger inline-flex items-center gap-[var(--jx-d-ctl-gap)] w-fit max-w-full min-h-(--jx-file-h) px-[var(--jx-d-ctl-pad)] py-[var(--jx-d-ctl-gap)] border border-border rounded-none bg-background text-foreground text-(length:--jx-file-text) font-medium [--jx-press-shadow:var(--shadow-xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)]',
+        'jx-press jx-file-trigger inline-flex items-center gap-[var(--jx-gap)] w-fit max-w-full min-h-(--jx-file-h) px-[var(--jx-inset)] py-[var(--jx-gap)] border border-border rounded-none bg-background text-foreground text-(length:--jx-file-text) font-medium [--jx-press-shadow:var(--shadow-xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)]',
         invalid && 'border-dashed border-destructive',
       )}
       class:jx-file-over={dragging}
@@ -455,7 +455,7 @@
   {/if}
 {/snippet}
 
-<div data-jx-file={disabled ? 'disabled' : undefined} data-density={resolvedDensity} class={cn('jx-file flex flex-col items-stretch gap-[var(--jx-d-ctl-gap)] w-full min-w-0 max-w-full', densityUtilities, disabled && 'opacity-50', className)}>
+<div data-jx-file={disabled ? 'disabled' : undefined} data-density={resolvedDensity} class={cn('jx-file flex flex-col items-stretch gap-[var(--jx-gap)] w-full min-w-0 max-w-full', densityUtilities, disabled && 'opacity-50', className)}>
   {#if label}<label class="jx-label max-w-full overflow-hidden text-ellipsis whitespace-nowrap" for={id}>{label}</label>{/if}
 
   {@render triggerShell(id)}
@@ -495,7 +495,7 @@
       aria-label="selected files"
     >
       {#each items as item (item.id)}
-        <li class="jx-file-row flex items-center gap-[var(--jx-d-ctl-gap)] min-w-0 min-h-(--jx-file-h) px-[var(--jx-d-ctl-pad)]">
+        <li class="jx-file-row flex items-center gap-[var(--jx-gap)] min-w-0 min-h-(--jx-file-h) px-[var(--jx-inset)]">
           <span data-jx-file-thumb class="flex-none inline-flex items-center justify-center w-[calc(var(--jx-file-thumb)+2px)] h-[calc(var(--jx-file-thumb)+2px)] border border-border bg-muted overflow-hidden" aria-hidden="true">
             {#if item.previewUrl}
               <img data-jx-file-thumb-img class="block w-(--jx-file-thumb) h-(--jx-file-thumb) object-cover" src={item.previewUrl} alt="" loading="lazy" />
@@ -509,7 +509,7 @@
           <span data-jx-file-size class="flex-none text-(length:--jx-file-text) tabular-nums text-muted-foreground">{formatSize(item.file.size)}</span>
           <button
             type="button"
-            class="jx-file-remove flex-none inline-flex items-center justify-center min-w-[var(--jx-d-ctl-hit)] min-h-[var(--jx-d-ctl-hit)] p-0 border-0 bg-transparent text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-leading)] cursor-pointer transition-[color,transform] duration-150 ease-out disabled:cursor-not-allowed"
+            class="jx-file-remove flex-none inline-flex items-center justify-center min-w-[var(--jx-hit)] min-h-[var(--jx-hit)] p-0 border-0 bg-transparent text-[length:var(--jx-text)] leading-[var(--jx-leading)] cursor-pointer transition-[color,transform] duration-150 ease-out disabled:cursor-not-allowed"
             aria-label="remove {item.file.name}"
             disabled={disabled}
             onclick={() => removeItem(item)}

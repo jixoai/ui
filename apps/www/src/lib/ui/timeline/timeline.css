@@ -23,9 +23,9 @@
   :where([data-jx-tl-connector])::before {
     content: '';
     position: absolute;
-    left: calc(var(--jx-d-ctl-icon) / 2);
-    top: var(--jx-d-ctl-icon);
-    bottom: calc(var(--jx-d-stack-gap) * -1);
+    left: calc(var(--jx-icon) / 2);
+    top: var(--jx-icon);
+    bottom: calc(var(--jx-stack) * -1);
     width: 1px;
     background: var(--border);
   }

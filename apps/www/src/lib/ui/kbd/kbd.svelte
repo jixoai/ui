@@ -31,7 +31,7 @@
   data-jx-kbd
   data-density={resolvedDensity}
   class={cn(
-    'inline-block [padding-inline:var(--jx-d-ctl-gap)] border border-border rounded-none bg-muted shadow-2xs font-mono [font-size:var(--jx-d-secondary-text)] [line-height:var(--jx-d-secondary-line)] text-foreground whitespace-nowrap',
+    'inline-block [padding-inline:var(--jx-gap)] border border-border rounded-none bg-muted shadow-2xs font-mono [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] text-foreground whitespace-nowrap',
     className,
   )}
   {...rest}

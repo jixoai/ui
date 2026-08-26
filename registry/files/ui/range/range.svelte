@@ -298,7 +298,7 @@
     ></div>
     <div
       class="jx-slider-thumb absolute top-1/2 -translate-y-1/2 bg-background border-4 border-primary rounded-[calc(infinity*1px)] shadow-none pointer-events-none"
-      style="inset-inline-start: calc({fraction * 100}% - var(--jx-d-ctl-icon) / 2)"
+      style="inset-inline-start: calc({fraction * 100}% - var(--jx-icon) / 2)"
     ></div>
     {#if ticks && tickCount > 0}
       <div class="jx-slider-ticks absolute inset-x-0 top-[calc(50%_+_10px)] h-1 pointer-events-none" style="--jx-tick-step: {tickStepPct}%"></div>

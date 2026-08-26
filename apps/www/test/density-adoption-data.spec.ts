@@ -27,7 +27,7 @@ describe('density adoption packet E', () => {
       const source = resolve(process.cwd(), `../../registry/files/ui/${family}`);
       const files = readdirSync(source).filter((file) => file.endsWith('.svelte') || file.endsWith('.css')).map((file) => resolve(source, file));
       const text = files.map((file) => readFileSync(file, 'utf8')).join('\n');
-      expect(text).toMatch(/--jx-d-(ctl|secondary|media|inline|stack|text|line|leading)/);
+      expect(text).toMatch(/--jx-(text|gap|inset|stack|hit|icon|image|line|leading|row|media|secondary)/);
     }
   });
 });

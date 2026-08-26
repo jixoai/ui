@@ -26,7 +26,7 @@
 <div
   data-jx-command-empty=""
   data-density={resolvedDensity}
-  class={cn('[min-block-size:var(--jx-d-ctl-hit)] px-[var(--jx-d-ctl-pad)] py-[var(--jx-d-stack-gap)] text-center text-[var(--jx-d-ctl-text)] text-muted-foreground', className)}
+  class={cn('[min-block-size:var(--jx-hit)] px-[var(--jx-inset)] py-[var(--jx-stack)] text-center text-[var(--jx-text)] text-muted-foreground', className)}
   role="status"
   {...rest}
 >

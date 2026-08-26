@@ -145,7 +145,7 @@
   bind:this={navEl}
   data-jx-anchor=""
   data-density={resolvedDensity}
-  class={cn('flex flex-col gap-[var(--jx-d-stack-gap)] border-l border-border', className)}
+  class={cn('flex flex-col gap-[var(--jx-stack)] border-l border-border', className)}
   aria-label={label}
   onclick={handleClick}
   {...rest}

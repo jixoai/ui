@@ -55,7 +55,7 @@
   const chipPoseCurrent =
     '[--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]';
   const chipBase =
-    'inline-flex min-h-[var(--jx-d-ctl-hit)] min-w-[var(--jx-d-ctl-hit)] items-center justify-center box-border border px-[var(--jx-d-ctl-pad)] font-nav text-[length:var(--jx-d-ctl-text)] leading-[var(--jx-d-ctl-line)] no-underline tracking-[0.08em] cursor-pointer focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
+    'inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] items-center justify-center box-border border px-[var(--jx-inset)] font-nav text-[length:var(--jx-text)] leading-[var(--jx-line)] no-underline tracking-[0.08em] cursor-pointer focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
 
   const props = $derived({
     'data-jx-page': '',

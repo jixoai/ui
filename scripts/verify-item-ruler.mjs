@@ -90,7 +90,7 @@ const check = (name, ok, detail = '') => {
 
 // source preconditions (P4 must have landed the ruler css)
 check('item.css carries the subgrid ruler block', itemCss.includes("grid-template-columns: subgrid") && itemCss.includes("[data-ruler='media-content-end']"));
-check('item.css carries data-density alias consumption', /var\(--jx-d-(text|inline-gap|row-min)/.test(itemCss));
+check('item.css carries data-density alias consumption', /var\(--jx-(text|gap|row-min)/.test(itemCss));
 check('no data-size selectors remain', !/\[data-size=/.test(itemCss.replace(/\/\*[\s\S]*?\*\//g, '')));
 
 const geom = await page.evaluate(() => {
