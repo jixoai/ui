@@ -268,7 +268,7 @@ split — two utilities; both properties land:
           />
           <div class="grid gap-5 min-[760px]:grid-cols-2">
             <div class="flex flex-col gap-3 text-[13px] leading-6">
-              <h3 class="text-[15px] font-bold tracking-tight">The color-mix math</h3>
+              <h3 class="text-[15px] font-bold">The color-mix math</h3>
               <p class="text-muted-foreground">
                 tonal grounds at 12% of the hue over transparent, borders at 45%, and sets text to
                 the hue at 100% — one hue, three weights, no derived ink token needed. outline's
@@ -279,7 +279,7 @@ split — two utilities; both properties land:
                 and the utilities emit <code class="text-accent">@supports</code> fallbacks to the
                 plain var() for engines without color-mix.
               </p>
-              <h3 class="text-[15px] font-bold tracking-tight">The .pill lineage</h3>
+              <h3 class="text-[15px] font-bold">The .pill lineage</h3>
               <p class="text-muted-foreground">
                 The recipe has a fossil in this very site: the item-name pill in the docs tables
                 hardcodes the 12%/45%/primary triple. The tonal rung is that pill with its hue
@@ -415,7 +415,7 @@ split — two utilities; both properties land:
         headerRegion="plugin"
         eyebrow="plugin · @utility"
         title="The intent layer — a Tailwind v4 plugin with zero JS"
-        summary="The arbitrary-property seam (class with bracketed custom properties) works everywhere, but it is verbose, typo-fragile — a misspelled token still emits a well-formed rule that silently dead-styles — and its pair invariant was enforced only by prose. The fix is not a JavaScript plugin: the intent names are authored as TW4-native @utility rules INSIDE the theme sheet. Installing the theme IS installing the plugin; registry consumers need zero JS setup. The set is closed, so a typo matches nothing and emits nothing — a compile-time miss instead of silent dead CSS. And the emission is not an approximation: on TW 4.2.1 the @utility output was probed byte-equal to the arbitrary-property form via @tailwindcss/node's candidatesToCss."
+        summary="The arbitrary-property seam (class with bracketed custom properties) works everywhere, but it is verbose, typo-fragile — a misspelled token still emits a well-formed rule that silently dead-styles — and its pair invariant was enforced only by prose. The fix is not a JavaScript plugin: the intent names are authored as TW4-native @utility rules INSIDE the theme sheet. Installing the theme IS installing the plugin; registry consumers need zero JS setup. The set is closed, so a typo matches nothing and emits nothing — a compile-time miss instead of silent dead CSS. And the emission is not an approximation: on the resolved Tailwind 4.3.3, @tailwindcss/node's candidatesToCss probes the @utility output as declaration-equivalent to the arbitrary-property form — identical declarations, predictably different selectors."
       >
         <div class="flex flex-col gap-5">
           <CodeBlock code={utilityBlock} lang="css" meta="jixoai.css — live extract" />
@@ -527,7 +527,7 @@ split — two utilities; both properties land:
             </div>
           </div>
           <div class="border-border border-t pt-4">
-            <h3 class="text-[15px] font-bold tracking-tight">One form per slot — the mixing law</h3>
+            <h3 class="text-[15px] font-bold">One form per slot — the mixing law</h3>
             <p class="text-muted-foreground mt-2 text-pretty text-[13px] leading-6">
               Intent utilities are canonical for the curated set; the arbitrary-property class is
               the escape hatch. They are not composable: cross-form mixing is not dedupable — cn()
@@ -552,7 +552,7 @@ split — two utilities; both properties land:
       >
         <div class="grid gap-5 min-[760px]:grid-cols-2">
           <div class="flex flex-col gap-3 text-[13px] leading-6">
-            <h3 class="text-[15px] font-bold tracking-tight">Sole border-color source per rung</h3>
+            <h3 class="text-[15px] font-bold">Sole border-color source per rung</h3>
             <p class="text-muted-foreground">
               The war story: an early map gave the shared frame a named border-color utility
               (<code class="text-accent">border-something</code>) and let rungs override it with
@@ -566,7 +566,7 @@ split — two utilities; both properties land:
               one class list. Collision-free by construction, in Badge, Chip, PressButton, Alert
               and InlineCode alike.
             </p>
-            <h3 class="text-[15px] font-bold tracking-tight">The glued-pair trap</h3>
+            <h3 class="text-[15px] font-bold">The glued-pair trap</h3>
             <p class="text-muted-foreground">
               Two arbitrary properties typed without the space glue into ONE class token —
               Tailwind emits only the first property and the pair silently half-applies (fill
@@ -580,7 +580,7 @@ split — two utilities; both properties land:
             </div>
           </div>
           <div class="flex flex-col gap-3 text-[13px] leading-6">
-            <h3 class="text-[15px] font-bold tracking-tight">kbd-law geometry; the hit lane belongs to controls</h3>
+            <h3 class="text-[15px] font-bold">kbd-law geometry; the hit lane belongs to controls</h3>
             <p class="text-muted-foreground">
               A Badge is display: its height comes from
               <code class="text-accent">--jx-line-secondary</code> with inline insets only — it
@@ -591,7 +591,7 @@ split — two utilities; both properties land:
               was rejected in design review. Paint and lane are separate axes; the ladder touches
               only the first.
             </p>
-            <h3 class="text-[15px] font-bold tracking-tight">Press physics never change with paint</h3>
+            <h3 class="text-[15px] font-bold">Press physics never change with paint</h3>
             <p class="text-muted-foreground">
               One press law for every rung: hover grows the shadow only — the body never moves;
               active presses +1px into the page while the shadow's offsets counter-shrink, so the
@@ -602,7 +602,7 @@ split — two utilities; both properties land:
               (<code class="text-accent">--jx-press-shadow*</code> set to none), while link opts
               out of the frame entirely.
             </p>
-            <h3 class="text-[15px] font-bold tracking-tight">Valued hooks, not class probes</h3>
+            <h3 class="text-[15px] font-bold">Valued hooks, not class probes</h3>
             <p class="text-muted-foreground">
               Each module publishes its rung on a valued data attribute —
               <code class="text-accent">data-jx-badge</code>,
@@ -621,8 +621,8 @@ split — two utilities; both properties land:
         family="forced-colors"
         headerRegion="forced-colors"
         eyebrow="law"
-        title="Forced colors — explicit degradation, probed"
-        summary="Under forced-colors the color-mix tints do NOT drop on their own — a probed fact, not an assumption — so every rung carries its own degradation utilities instead of trusting the engine. The system palette gets the message across; the 1px border survives; nothing informational is lost."
+        title="Forced colors — explicit degradation"
+        summary="Under forced-colors the color-mix tints do not drop on their own — the r2 review's Chromium probe measured exactly that — so every rung carries its own degradation utilities instead of trusting the engine. A full forced-colors browser probe for all five modules is a pending gate of the variant-grammar contract (see its verification.md honest-gaps list). The system palette gets the message across; the 1px border survives; nothing informational is lost."
       >
         <div class="flex flex-col gap-5">
           <div class="table-scroll">
@@ -819,11 +819,11 @@ split — two utilities; both properties land:
         headerRegion="guards"
         eyebrow="verification"
         title="Guards & a11y — what the suite locks"
-        summary="A grammar this small only survives if drift fails loudly. Two spec files lock the source; browser probes lock the rendered truth."
+        summary="A grammar this small only survives if drift fails loudly. Spec files and guards lock the source today; the contrast and forced-colors browser probes are the contract's pending gates."
       >
         <div class="grid gap-6 min-[760px]:grid-cols-2">
           <div class="flex flex-col gap-3 text-[13px] leading-6">
-            <h3 class="text-[15px] font-bold tracking-tight">test/hue-injection.spec.ts — the intent layer</h3>
+            <h3 class="text-[15px] font-bold">test/hue-injection.spec.ts — the intent layer</h3>
             <p class="text-muted-foreground">
               Four locks: the theme sheet carries every @utility of the closed set VERBATIM (the
               regexes match the exact emission, not a fuzzy contains); every injected var()
@@ -832,21 +832,24 @@ split — two utilities; both properties land:
               action/status split holds by construction, not convention; and cn() dedupes the
               closed set last-wins, matching the arbitrary form's semantics.
             </p>
-            <h3 class="text-[15px] font-bold tracking-tight">test/variant-grammar.spec.ts — the seam</h3>
+            <h3 class="text-[15px] font-bold">test/variant-grammar.spec.ts — the seam</h3>
             <p class="text-muted-foreground">
               No glued arbitrary-property utilities anywhere under src (the one-dead-token trap
               from the laws section), and every docs source drawer names REAL registry paths —
               the same-source law, mechanically enforced.
             </p>
-            <h3 class="text-[15px] font-bold tracking-tight">The browser probes</h3>
+            <h3 class="text-[15px] font-bold">The browser probes</h3>
             <p class="text-muted-foreground">
-              A contrast probe walks every shipped semantic injection's used fg/bg pairs, light
-              and dark, representative hues — it REPORTS failures and never recomputes
-              --primary. A forced-colors probe covers all five modules against the degradation
-              table. A physical hit probe asserts the Chip root's rectangle clears
-              <code class="text-accent">var(--jx-hit)</code>. The hook-law checks pin the valued
-              data-jx-* attributes to the variant unions, and the registry mirror regenerates
-              against byte identity.
+              The contract's PLAN (pending gates, honestly listed in the variant-grammar
+              change's verification.md): a contrast probe walking every shipped semantic
+              injection's used fg/bg pairs, light and dark, representative hues — REPORTING
+              failures, never recomputing --primary; a forced-colors probe covering all five
+              modules against the degradation table. SHIPPED today: the physical hit probe
+              asserts the Chip root's rectangle clears
+              <code class="text-accent">var(--jx-hit)</code>, verify-press drives the
+              five-rung × four-effect paint matrix in real Chromium, the hook-law checks pin
+              the valued data-jx-* attributes to the variant unions, and the registry mirror
+              regenerates against byte identity.
             </p>
           </div>
           <div class="flex flex-col gap-4">

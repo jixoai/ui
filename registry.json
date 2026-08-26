@@ -1369,7 +1369,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: variant? ('fill'|'tonal'|'outline', default 'tonal'), shape? ('square'|'pill', default 'square'), slotStart?/slotEnd? (Snippet icon lanes with adaptive padding), density? (Density), plus every <span> attribute passthrough. Hue seam: class=\"[--jx-tonal:var(--error)]\".",
+      "docs": "Props: variant? ('fill'|'tonal'|'outline', default 'tonal'), shape? ('square'|'pill', default 'square'), slotStart?/slotEnd? (Snippet icon lanes with adaptive padding), density? (Density), plus every <span> attribute passthrough. Hue seam: class=\"jx-hue-error\" (intent utilities; arbitrary form for unlisted hues).",
       "meta": {
         "group": "data-display",
         "href": "/docs/components/badge.html"
@@ -1491,7 +1491,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: variant? ('outline' default | 'tonal'), assertive?, title?, icon? (snippet), children? (body; omit for title-only). Hue seam: class=\"[--jx-tonal:var(--error)]\".",
+      "docs": "Props: variant? ('outline' default | 'tonal'), assertive?, title?, icon? (snippet), children? (body; omit for title-only). Hue seam: class=\"jx-hue-error\" (intent utilities; arbitrary form for unlisted hues).",
       "meta": {
         "group": "feedback",
         "href": "/docs/components/alert.html"
@@ -1860,7 +1860,7 @@
       "name": "inline-code",
       "type": "registry:ui",
       "title": "Inline code",
-      "description": "The inline source-code chip: a native <code> in the variant grammar's tonal/outline ladder (neutral tonal default, consumer [--jx-tonal:…] injection wins), kbd-law geometry, mono with untouched case. Shiki tokens as an async enhancement — SSR paints plain children, hydration swaps in --tok-* token spans over the same characters (zero CLS); lang='auto' runs a zero-download fingerprint heuristic (INLINE_LANGS/detectInlineLang exported); unknown languages degrade to the plain chip.",
+      "description": "The inline source-code chip: a native <code> in the variant grammar's tonal/outline ladder (neutral tonal default, consumer jx-hue-* / [--jx-tonal:…] injection wins), kbd-law geometry, mono with untouched case. Shiki tokens as an async enhancement — SSR paints plain children, hydration swaps in --tok-* token spans over the same characters (zero CLS); lang='auto' runs a zero-download fingerprint heuristic (INLINE_LANGS/detectInlineLang exported); unknown languages degrade to the plain chip.",
       "dependencies": [
         "shiki"
       ],
@@ -1892,7 +1892,7 @@
       "name": "chip",
       "type": "registry:ui",
       "title": "Chip",
-      "description": "The variant grammar's compact activation: the badge's font-nav uppercase micro-label voice on the control-scale hit lane — the ROOT carries min-block-size var(--jx-hit) (~44px at default density), not a 20px badge. Four ladder rungs consumed as global tokens: fill (solid ground + same-hue border), tonal (12%/45% tint recipe, default), outline (structural border + 8% hover overlay), ghost (transparent rest, tonal hover, shadowless press); semantic hue is injected ([--jx-tonal:var(--error)]), never named. Button/anchor duality (external hrefs open a new tab with noreferrer), slotStart/slotEnd data-icon lanes, square/pill silhouette, press-button's effect builders passed through with ripple() as the default ink (null disables); explicit forced-colors degradation (ButtonFace/ButtonText, Canvas/CanvasText, ghost transparent/ButtonFace hover, 2px Highlight focus never removed).",
+      "description": "The variant grammar's compact activation: the badge's font-nav uppercase micro-label voice on the control-scale hit lane — the ROOT carries min-block-size var(--jx-hit) (~44px at default density), not a 20px badge. Four ladder rungs consumed as global tokens: fill (solid ground + same-hue border), tonal (12%/45% tint recipe, default), outline (structural border + 8% hover overlay), ghost (transparent rest, tonal hover, shadowless press); semantic hue is injected (jx-hue-error — the @utility intent layer), never named. Button/anchor duality (external hrefs open a new tab with noreferrer), slotStart/slotEnd data-icon lanes, square/pill silhouette, press-button's effect builders passed through with ripple() as the default ink (null disables); explicit forced-colors degradation (ButtonFace/ButtonText, Canvas/CanvasText, ghost transparent/ButtonFace hover, 2px Highlight focus never removed).",
       "files": [
         {
           "path": "registry/files/ui/chip/chip.svelte",
@@ -1921,7 +1921,7 @@
       "name": "toast",
       "type": "registry:ui",
       "title": "Toast",
-      "description": "Two seams, per the design ruling: createToastStore() (framework-free state + lifecycle — push/dismiss/subscribe, per-toast expiry with hover/focus pause, duration 0 = sticky, no module singleton so SSR stays clean; variant grammar: variant 'outline'|'tonal' + the class-utility hue-injection seam, e.g. [--jx-tonal:var(--error)] for failed statuses) and ToastViewport (mount once in the root layout: fixed corner stack, max visible with older queued, per-item live regions — role=status polite / role=alert assertive, dismiss buttons, entry/exit frames; the ladder paints over the floating popover ground with explicit forced-colors degradation).",
+      "description": "Two seams, per the design ruling: createToastStore() (framework-free state + lifecycle — push/dismiss/subscribe, per-toast expiry with hover/focus pause, duration 0 = sticky, no module singleton so SSR stays clean; variant grammar: variant 'outline'|'tonal' + the hue-injection seam, e.g. class 'jx-hue-error' for failed statuses (the @utility intent layer)) and ToastViewport (mount once in the root layout: fixed corner stack, max visible with older queued, per-item live regions — role=status polite / role=alert assertive, dismiss buttons, entry/exit frames; the ladder paints over the floating popover ground with explicit forced-colors degradation).",
       "files": [
         {
           "path": "registry/files/lib/toast-store.ts",

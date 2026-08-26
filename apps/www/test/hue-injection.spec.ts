@@ -45,6 +45,29 @@ describe('hue-injection utilities', () => {
     expect(sheet).not.toContain('@utility jx-hue-destructive');
   });
 
+  it('the @utility jx-* set is EXACTLY the closed set (no unlisted additions)', () => {
+    const declared = [...sheet.matchAll(/@utility (jx-[a-z-]+(?:-[a-z-]+)*)/g)].map((m) => m[1]);
+    expect(declared.sort()).toEqual(
+      [
+        'jx-hue-primary',
+        'jx-hue-neutral',
+        'jx-hue-error',
+        'jx-hue-success',
+        'jx-hue-warning',
+        'jx-hue-info',
+        'jx-pair-destructive',
+      ].sort(),
+    );
+  });
+
+  it('cn() dedupes the pair group too (jx-pair vs jx-pair)', () => {
+    expect(cn('jx-pair-destructive', 'text-xs', 'jx-hue-error')).toBe(
+      'jx-pair-destructive text-xs jx-hue-error',
+    );
+    // same-class duplicates collapse
+    expect(cn('jx-pair-destructive', 'jx-pair-destructive')).toBe('jx-pair-destructive');
+  });
+
   it('cn() dedupes the intent layer (last-wins, like arbitrary properties)', () => {
     expect(cn('jx-hue-error', 'jx-hue-success')).toBe('jx-hue-success');
     expect(cn('jx-hue-error', 'jx-hue-error')).toBe('jx-hue-error');
@@ -72,10 +95,14 @@ describe('hue-injection migration (in-repo call sites)', () => {
   it.each([
     'src/lib/ui/inline-code/inline-code.svelte',
     '../../registry/files/ui/inline-code/inline-code.svelte',
-  ])('%s ships the local neutral default as jx-hue-neutral', (p) => {
+  ])('%s ships the local neutral default as the ARBITRARY early slot (consumer-wins)', (p) => {
     const src = read(p);
-    expect(src).toContain("'jx-hue-neutral bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)]");
-    expect(src).not.toContain("'[--jx-tonal:var(--muted-foreground)]");
+    expect(src).toContain(
+      "'[--jx-tonal:var(--muted-foreground)] bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)]",
+    );
+    // the r2 blocker fix: the utility form here would outrank every
+    // consumer's arbitrary injection — the early slot is the contract
+    expect(src).not.toContain("'jx-hue-neutral bg-[color-mix");
   });
 
   it('the feedback transients ride jx-hue-success', () => {

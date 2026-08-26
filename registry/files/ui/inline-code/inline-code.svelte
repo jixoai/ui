@@ -8,16 +8,16 @@
   code is not a label, so none of the eyebrow voice applies (no
   uppercase, no tracking, no font-nav).
 
-  Default tonal parity with jx-pure's bare <code> law (design §4): the
-  component base carries the local neutral injection jx-hue-neutral
-  (the theme's @Utility intent layer, hue-injection-utilities
-  2026-08-27) — a consumer's same-form intent class retunes the whole
-  chip (cn()'s tailwind-merge dedupes the jx-hue-* group;
-  class="jx-hue-error"). One form per slot: cross-form mixing
-  (jx-hue-* + [--jx-tonal:…]) is neither deduped nor overridable here
-  — jx-hue-* sorts AFTER the arbitrary property in the utilities
-  layer (probed TW 4.2.1), so the arbitrary form is only for values
-  outside the closed set, never to retune this default.
+  Default tonal parity with jx-pure's bare <code> law (design §4):
+  the base carries the local neutral injection as the ARBITRARY form
+  ([--jx-tonal:var(--muted-foreground)]) — the EARLY slot — so BOTH
+  consumer layers override it (hue-injection-utilities, 2026-08-27;
+  the r2 blocker fix): a consumer's arbitrary class dedupes against
+  it through cn() (same-form last-wins), and a consumer's jx-hue-*
+  intent utility outranks it (utilities sort AFTER arbitrary
+  properties in the sheet — probed on Tailwind 4.3.3). Component
+  token defaults ride the early slot; consumers win from either
+  layer. That is the frozen consumer-wins contract (design §4).
   Overriding the recipe's own properties with same-family utilities
   may need the consumer's `!` — same-property utility order is not
   consumer-guaranteed (the press-button precedent).
@@ -210,12 +210,12 @@
    * arbitrary forms (bg-[color-mix(…)], border-[color:var(…)]) which
    * emit @supports fallbacks to plain var(--jx-tonal) in engines
    * without color-mix. The tonal base carries the local neutral
-   * injection (jx-hue-neutral) — parity with jx-pure's bare <code>
+   * injection ([--jx-tonal:var(--muted-foreground)]) — parity with jx-pure's bare <code>
    * law; a consumer's jx-hue-* replaces it through cn().
    */
   const variantUtilities = {
     tonal:
-      'jx-hue-neutral bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] text-[color:var(--jx-tonal)] forced-colors:bg-[color:Canvas] forced-colors:border-[color:CanvasText] forced-colors:text-[color:CanvasText]',
+      '[--jx-tonal:var(--muted-foreground)] bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] text-[color:var(--jx-tonal)] forced-colors:bg-[color:Canvas] forced-colors:border-[color:CanvasText] forced-colors:text-[color:CanvasText]',
     outline:
       'bg-transparent border-[color:var(--jx-outline)] text-foreground forced-colors:bg-[color:Canvas] forced-colors:border-[color:CanvasText] forced-colors:text-[color:CanvasText]',
   } as const;

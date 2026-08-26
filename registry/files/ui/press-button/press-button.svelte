@@ -9,8 +9,10 @@
   variant-grammar); link is the grammar's one interaction exception —
   no frame, no press shadow, primary text, hover underline. Semantic
   color is hue injection, never a variant: --jx-fill + --jx-fill-ink
-  (always together), --jx-tonal, --jx-outline ride arbitrary-property
-  classes at the call site (destructive action = fill +
+  (always together, one class: jx-pair-destructive), --jx-tonal
+  (jx-hue-* intent utilities), --jx-outline ride class utilities at
+  the call site (arbitrary properties remain the escape hatch;
+  destructive action = fill +
   [--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-
   foreground)]; the copied transient is tonal +
   jx-hue-success — copied left the union with the

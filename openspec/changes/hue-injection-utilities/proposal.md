@@ -34,9 +34,12 @@ names over mechanical slot×value aliases.
   extendTailwindMerge classGroups register the closed set as dedupe
   groups — `cn('jx-hue-error', 'jx-hue-success')` → `jx-hue-success`,
   matching the arbitrary form's last-wins semantics.
-- **Guards** (test/hue-injection.spec.ts): the sheet carries every
-  @utility of the closed set verbatim; every var() target exists as a
-  theme token; no jx-hue-destructive ever appears; cn() dedupes.
+- **Guards** (test/hue-injection.spec.ts, 12 tests): the @utility
+  jx-* set is EXACTLY the closed set; every var() target exists as a
+  theme token; no jx-hue-destructive ever appears; cn() dedupes hue
+  and pair groups; the InlineCode early-slot law (arbitrary local
+  default — consumers win from EITHER layer) is migration-locked on
+  both roots.
 - **Migration**: in-repo intent call sites adopt the utilities
   (alert-dialog-action's local default pair, copy-command /
   hero-section success feedback, docs pages' error/neutral/success

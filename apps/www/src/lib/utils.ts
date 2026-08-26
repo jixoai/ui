@@ -16,12 +16,11 @@
 import { clsx, type ClassValue } from 'clsx';
 import { extendTailwindMerge } from 'tailwind-merge';
 
-const twMerge = extendTailwindMerge({
+// the AdditionalClassGroupIds generic (tailwind-merge >= 3.6) keeps
+// the closed set type-checked — a future drift in these ids fails
+// compilation instead of hiding behind a cast
+const twMerge = extendTailwindMerge<'jx-hue' | 'jx-pair'>({
   extend: {
-    // tailwind-merge v3 types extend.classGroups to the DEFAULT group
-    // ids only; adding new ids is legal at runtime (dedupe verified
-    // by test/hue-injection.spec.ts) — the cast bridges the typing
-    // gap until upstream widens the extension surface.
     classGroups: {
       'jx-hue': [
         'jx-hue-primary',
@@ -32,7 +31,7 @@ const twMerge = extendTailwindMerge({
         'jx-hue-info',
       ],
       'jx-pair': ['jx-pair-destructive'],
-    } as never,
+    },
   },
 });
 
