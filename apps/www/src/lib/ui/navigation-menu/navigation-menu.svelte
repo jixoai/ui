@@ -106,9 +106,10 @@
   const inheritedDensity = getDensityContext();
   const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
   // context is an OPINION channel too: the provider is ALWAYS on and
-  // carries the honest opinion (undefined = none flows down) — a
-  // conditional init-time provide would not survive density prop
-  // rerenders in either direction (Codex r2 P1)
+  // carries the honest opinion (undefined = none flows down — consumed
+  // exactly like a missing context) — a conditional init-time provide
+  // would not survive density prop rerenders in either direction
+  // (Codex r2 P1)
   const densityOpinion = $derived(density ?? inheritedDensity?.density);
   provideDensity(() => densityOpinion);
 
