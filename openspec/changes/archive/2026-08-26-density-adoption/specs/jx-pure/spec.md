@@ -1,10 +1,14 @@
-# jx-pure — the componentless face
+# jx-pure — delta
 
-## Purpose
+## ADDED Requirements
 
-The componentless face: one stylesheet, zero JS — mount `jx-pure` on any DOM and the subtree's bare native elements carry the jixoai law, now density-aware.
-
-## Requirements
+> The living spec is narrative ("Current contract, 2026-08-24"); this
+> delta converts it into explicit requirements WITH the v2 changes —
+> Parts A–D and the boundaries are preserved in full, restated as
+> normative requirements, with the sanctioned breaking vocabulary.
+> APPLY NOTE: on archive, the living spec's `## Current contract`
+> narrative section is REPLACED by these requirements (the old
+> frozen-name narrative must not survive beside the v2 contract).
 
 ### Requirement: Part A — the v2 class vocabulary (unlayered Tier-2 contract)
 
