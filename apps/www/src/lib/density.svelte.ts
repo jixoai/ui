@@ -16,7 +16,12 @@ export type Density = 'lg' | 'default' | 'sm' | 'xs';
 export const DEFAULT_DENSITY: Density = 'default';
 
 export interface DensityContext {
-  readonly density: Density;
+  /** the inherited OPINION — undefined means this provider passes NO
+      opinion down (chrome-density-tier r3, Codex r2 P1): consumers'
+      resolveDensity chains treat it exactly like a missing context,
+      so a chrome-composed bar never manufactures an inherited
+      opinion; the getter keeps the pair reactive under rerenders */
+  readonly density: Density | undefined;
 }
 
 export const DENSITY_KEY = Symbol('jx-density');
@@ -36,7 +41,7 @@ export function getDensityContext(): DensityContext | undefined {
   return getContext<DensityContext | undefined>(DENSITY_KEY);
 }
 
-export function provideDensity(density: () => Density): DensityContext {
+export function provideDensity(density: () => Density | undefined): DensityContext {
   const context: DensityContext = {
     get density() {
       return density();

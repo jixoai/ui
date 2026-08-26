@@ -35,9 +35,13 @@
    implementation + Codex r1): the CSS scope channel stamps ONLY a
    density OPINION — root and triggers stamp when the consumer passed
    `density` or a Svelte-context provider resolved one; with no
-   opinion nothing stamps and nothing is PROVIDED as inherited
-   context (a manufactured fallback must not re-scope nested
-   consumers inside a chrome band). Panels are control surfaces and
+   opinion nothing stamps. The context channel itself is widened
+   (r3, Codex r2 P1): `DensityContext.density` becomes
+   `Density | undefined` — the nav ALWAYS provides one reactive
+   getter-backed context carrying the honest opinion (undefined = none
+   flows down, consumed exactly like a missing context), so an
+   opinion established or withdrawn by a rerender reaches nested
+   consumers in both directions. Panels are control surfaces and
    keep stamping their RESOLVED density (the portaled-panel law), so
    the 44px touch floor holds inside the bezel. Observable DOM
    contract change (attribute absence with no opinion); props API

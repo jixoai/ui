@@ -6,6 +6,7 @@ import NavigationMenu from '../src/lib/ui/navigation-menu/navigation-menu.svelte
 import Command from '../src/lib/ui/command/command.svelte';
 import Popconfirm from '../src/lib/ui/popconfirm/popconfirm.svelte';
 import Breadcrumb from '../src/lib/ui/breadcrumb/breadcrumb.svelte';
+import NavOpinionHost from './fixtures/nav-density-opinion-host.svelte';
 import { resolveDensity } from '../src/lib/density.svelte';
 
 const empty = (() => {}) as never;
@@ -48,5 +49,21 @@ describe('density adoption: menu roots', () => {
       .toEqual(['xs', 'sm', 'default', 'lg']);
     expect(resolveDensity(undefined, inherited)).toBe('lg');
     expect(resolveDensity(undefined, undefined)).toBe('default');
+  });
+});
+
+describe('density adoption: the honest-opinion provider (chrome-density-tier r3)', () => {
+  it('the context is reactive in BOTH directions — established and withdrawn opinions reach the nested consumer', async () => {
+    const { container, rerender } = render(NavOpinionHost, { props: {} });
+    const stamps = () =>
+      [...container.querySelectorAll('nav[data-jx-navmenu]')].map((n) => n.getAttribute('data-density'));
+    // no opinion: neither the host bar nor the nested consumer stamps
+    expect(stamps()).toEqual([null, null]);
+    // established: BOTH stamp — the nested bar resolves the inherited opinion
+    await rerender({ props: { density: 'sm' } });
+    expect(stamps()).toEqual(['sm', 'sm']);
+    // withdrawn: BOTH un-stamp — a stale provider must not survive
+    await rerender({ props: { density: undefined } });
+    expect(stamps()).toEqual([null, null]);
   });
 });

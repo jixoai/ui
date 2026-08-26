@@ -105,11 +105,12 @@
   // inheritance.
   const inheritedDensity = getDensityContext();
   const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
-  // context is an OPINION channel too: providing the local fallback
-  // would let nested density-aware consumers treat 'default' as an
-  // inherited opinion and re-stamp inside a chrome band (Codex r1 P1)
+  // context is an OPINION channel too: the provider is ALWAYS on and
+  // carries the honest opinion (undefined = none flows down) — a
+  // conditional init-time provide would not survive density prop
+  // rerenders in either direction (Codex r2 P1)
   const densityOpinion = $derived(density ?? inheritedDensity?.density);
-  if (densityOpinion !== undefined) provideDensity(() => resolvedDensity);
+  provideDensity(() => densityOpinion);
 
   const dev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
 

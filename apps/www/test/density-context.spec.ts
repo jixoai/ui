@@ -25,6 +25,12 @@ describe('density context — the policy channel', () => {
     expect(resolveDensity(undefined, undefined)).toBe(DEFAULT_DENSITY);
   });
 
+  it('an undefined opinion flows through exactly like no context (chrome-density-tier r3)', () => {
+    const noOpinion = { density: undefined } as const;
+    expect(resolveDensity(undefined, noOpinion)).toBe(DEFAULT_DENSITY);
+    expect(resolveDensity('lg', noOpinion)).toBe('lg');
+  });
+
   it('providers stamp data-density; nested providers shadow; explicit wins', () => {
     const { container } = render(Host);
     const scopes = [...container.querySelectorAll('[data-density]')];
