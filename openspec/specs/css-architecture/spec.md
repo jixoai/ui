@@ -5,8 +5,6 @@ TBD - created by archiving change tw4-css-modularization. Update Purpose after a
 
 ## Requirements
 
-
-
 ### Requirement: the placement law
 
 Styling SHALL live in exactly one place per kind:
@@ -71,167 +69,6 @@ orthogonal intents (with timestamps) per the repo law.
 - THEN it reports the desired delta; the orchestrator (K0 ownership)
   applies it — packets never edit the canonical theme directly
 
-
-### Requirement: utilities win over Tier-1-owned css; three documented exceptions
-
-All Tier-1-owned STATIC authored css MUST sit in `@layer components`
-behind `:where()` so consumer utilities win. Three exceptions exist, all
-deliberate and bounded:
-
-1. The v2 Tier-2 vocabulary (jx-pure Part A — renamed
-   `.jx-control/.jx-control-shell/.jx-control-lane/.jx-slider/
-   .jx-color-shell/.jx-color-swatch/.jx-color-expand` + kept
-   `.jx-field/.jx-label/.jx-error`) is the intentionally unlayered
-   cascade exception — by design it beats layered utilities.
-2. The STATE-MACHINE CARVE-OUT (P3 finding, 2026-08-24 — the Part A
-   precedent applied to components): residue rules that must override
-   the component's OWN utility paint (sibling `:checked`/`:has()`/
-   `:focus-visible` repaints, reduced-motion kills of `animate-*`
-   utilities) ride unlayered behind `:where(...)`. Layered placement
-   would make them permanently lose to the utilities layer; unlayered
-   zero-specificity keeps consumer css tie-winning at the unlayered
-   level while the component's STATIC utility paint stays
-   consumer-overridable.
-3. The SURFACE-KERNEL OVERRIDE (P3-r1 finding, Codex ruling
-   2026-08-24): enumerated rules that override ANOTHER component's
-   unlayered surface law (the floating-surface kernel) ride unlayered
-   with NATURAL specificity — `:where()` would zero the specificity
-   the override needs and a components-layer copy always loses to the
-   unlayered kernel. The exception is BOUNDED: each use MUST enumerate
-   its selectors in the sheet header, state the foreign law it
-   overrides, and carry a consumer-override probe; it SHALL NOT
-   justify unlayering a whole sheet (terminal-header's statics moved
-   back into `@layer components` `:where()` under this ruling).
-   Current enumerated uses: terminal-header `.jx-nav .jx-pop.jx-subpanel*`
-   (over the Popover primitive's panel law), tooltip/popover
-   `.jx-tip.jx-surface::after` + notch-mask family (over the
-   jx-surface law's pseudo-shadow ownership).
-
-jx-pure Parts B–D are rebuilt by the density-adoption F packet under
-the jx-pure living spec's own delta (which governs the vocabulary and
-carries Parts A–D forward); components consume Part A/B/C/D and MUST
-NOT copy, move, redefine, or re-wrap them. Changing the Part A
-cascade still REQUIRES a change against the jx-pure living spec.
-
-#### Scenario: specificity probe (Tier-1)
-
-- GIVEN component paint `.jx-foo` in the folder css
-- WHEN a consumer adds `class="jx-foo text-primary"` (or any utility)
-- THEN the utility's declaration wins over the folder css declaration
-
-#### Scenario: Tier-2 exception intact
-
-- GIVEN `.jx-control` defined by jx-pure Part A (unlayered)
-- WHEN a consumer utility attempts to override one of its declarations
-- THEN Part A wins — by design — and this change leaves that untouched
-
-#### Scenario: state-machine carve-out (component-own override)
-
-- GIVEN a migrated component whose `:checked` residue must repaint its
-  own `bg-muted` utility paint
-- WHEN the state activates
-- THEN the unlayered `:where(...:checked...)` rule wins over the
-  utilities layer (verified: toggle flips rail/knob/travel)
-- AND the component's STATIC paint stays consumer-overridable (a
-  consumer utility still beats the unchecked `bg-muted`)
-
-
-
-
-### Requirement: the derived-scale law (尺规思维)
-
-Geometry and type tokens SHALL be derived from the ruler by written
-equations in the canonical theme sheet (calc chains from
---jx-ruler-unit and the text base), never hand-picked per component.
-Browser assertions SHALL compare USED values — raw custom-property text is serialization-fragile. Density scopes ([data-density]) exist ONLY in that sheet and its byte-identical generated mirror; components
-consume the inherited --jx-d-* aliases. The four-density computed
-table (text/line/gaps/inset/row-min/hit-min/media) is asserted by a
-real-browser gate; the adoption registry enforces the no-literal
-law. The CLOSED token rule: `--jx-d-ctl-*` is mandatory for
-control-footprint geometry; direct consumption (and clearly defined
-one-line private aliasing) of the NAMED kernel ruler roles
-(`--jx-d-secondary-*`, `--jx-d-media-*`, `--jx-d-inline-inset/gap`,
-`--jx-d-stack-gap`, `--jx-d-row-min`, `--jx-d-hit-min`,
-`--jx-d-text/line/leading`, `--jx-d-icon-optical-inline`) is legal
-only for their established semantic purposes; every other
-`--jx-d-*` use fails the scanner. Named structural-paint exceptions
-aside (borders/outlines, registered family structure). The balance law is
-an equation (inset == seam), not a convention.
-
-#### Scenario: the scale computes
-
-- GIVEN the token sheet at a 16px root
-- WHEN a real browser resolves each [data-density] scope
-- THEN every value in the four-row table computes exactly (e.g.
-  mediaImage == 2 × line, seam excluded; hitMin >= 44px)
-
-#### Scenario: a hand-picked dimension sneaks in
-
-- GIVEN component css with padding: 0.625rem
-- WHEN the source guard scans density-owned declarations
-- THEN it fails and names the file, selector, property, and value
-
-### Requirement: stamped-attribute painting (presence-matrix families)
-
-Component families whose geometry or chrome depends on slot presence
-or group policy SHALL resolve that state in the component and stamp
-it as data attributes; family css paints stamps only and MUST NOT
-infer from arbitrary descendant context. Presence-driven GRID
-templates: STANDALONE rows (and the no-subgrid fallback) keep the
-exhaustive self-contained combinations — every media/end/header/
-footer combo declares BOTH columns AND areas (no implicit tracks).
-GROUPED rows under @supports(subgrid) SHALL instead rent an EXPLICIT
-shared ruler (three or five tracks with explicit gap tracks,
-column-gap 0) through two subgrid levels, with one fixed area
-template per ruler per wrap mode; missing slots retain shared tracks
-(deliberate alignment) and the narrow law changes areas ONLY — never
-the shared tracks. Group-owned paint targets the group frame, the
-inner list, and direct-child row wrappers only.
-
-#### Scenario: the topology split holds in one tree
-
-- GIVEN the migrated list-item css
-- THEN grouped-subgrid rows carry no per-row presence matrix while
-  standalone rows keep all 16 wide + 8 narrow self-contained
-  combinations, and neither path ever mints an implicit track
-
-#### Scenario: the narrow law never rewrites the ruler
-
-- GIVEN a media-content-end group at or below the 30rem container
-  WHEN one row wraps auto and its sibling keeps wrap="never"
-- THEN the auto row's end occupies a full-width area row while the
-  never row's end stays on the shared fifth track — the ul's tracks
-  are unchanged
-
-#### Scenario: chrome is inspectable without a computed style
-
-- GIVEN a grouped Item resolved as chrome-less
-- THEN `data-item-chrome` on the row root reads `"none"` in the SSR
-  HTML, and the browser paints exactly that resolution
-
-#### Scenario: no implicit tracks at any presence combination
-
-- GIVEN a browser fixture rendering all sixteen wide media × end ×
-  header × footer combinations (standalone/fallback path)
-- WHEN each row's computed grid is read
-- THEN both `grid-template-columns` and `grid-template-areas` match
-  the authored template exactly — zero implicit tracks, no ghost
-  columns; grouped-subgrid rows assert three/five explicit tracks
-
-#### Scenario: consumer overrides still win
-
-- GIVEN family rules written as `:where()` inside `@layer components`
-- WHEN a consumer applies a utility class to a row or group
-- THEN the utility overrides the family paint per the layer law
-
-#### Scenario: grouped media posture is observable
-
-- GIVEN a media-content-end group at standard vs layout=media
-- WHEN probed at xs/default/lg
-- THEN the media track width comes from --jx-d-media-image, the row
-  media lane is line-derived (min-block-size equals the derived
-  object size), block-start alignment and stack gap are asserted —
-  inert vocabulary is removed instead of kept
 ### Requirement: utilities win over Tier-1-owned css; three documented exceptions
 
 All Tier-1-owned STATIC authored css MUST sit in `@layer components`
@@ -291,8 +128,6 @@ separate change against the jx-pure living spec.
   utilities layer (verified: toggle flips rail/knob/travel)
 - AND the component's STATIC paint stays consumer-overridable (a
   consumer utility still beats the unchecked `bg-muted`)
-
-
 
 ### Requirement: stamped-attribute painting (presence-matrix families)
 
