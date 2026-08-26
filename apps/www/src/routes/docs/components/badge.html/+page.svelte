@@ -7,7 +7,6 @@
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
-  import Toc from '$lib/ui/toc/toc.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import { icons } from '$lib/icons';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -45,15 +44,10 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-10 lg:px-8"
+  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
 >
-  <!-- PAGE_STANDARDS §1/§3 rail (outline mode): the sections below are
-       SectionCard h2s — the rail derives itself on hydration -->
-  <aside class="jx-toc-aside lg:order-2" aria-label="On this page">
-    <Toc outline={{ root: '#badge-content', levels: [2] }} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
 
-  <div id="badge-content" class="flex min-w-0 flex-col gap-8 max-lg:pt-[68px] lg:order-1">
+  <div class="flex min-w-0 flex-col gap-8">
   <div data-reveal="">
     <SectionCard
       headingLevel={1}

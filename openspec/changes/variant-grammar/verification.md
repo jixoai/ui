@@ -12,6 +12,17 @@
 | verify-hook-law `--post` (strict) | **RED — pre-existing, not this wave's** | 3 failure classes (9 css-less jx-* hooks in component-canvas/navigation-menu/popconfirm/range; 20 hand-review ambiguities in breadcrumb/command/playground; 4 data-jx name shadows). All live in components untouched by variant-grammar — they are the data-jx-hooks remediation's own committed intermediate state (07a0512, "failing gate + consumer contract"); that change owns closing them |
 | mirror manifest | **GREEN 90 items / 302 pairs** | byte-identity; new chip + inline-code pairs; docs-upgrade site-only quartet classified (pre-existing debt) |
 | verify-press (real Chromium) | **12/12** | press law (scroll-aware: the shell's custom `.jx-shell-body` root needs scrollIntoViewIfNeeded — r3 harness fix), effects, rainbow-on-fill screen blend (re-keyed selector), bevel ink, and the five-rung × four-effect matrix (paint preserved, text readable, loops armed) |
+
+### Correction (2026-08-27, Owner report)
+
+The r2 "PAGE_STANDARDS ToC skeleton" fix applied the SUPERSEDED
+2026-08-22 per-page aside/grid skeleton — the firstpaint era
+(2026-08-24) had already moved the toc into the root layout's chrome
+(pages ship `toc` as page data via +page.ts; all five wave pages
+already did). The retrofit double-railed those pages and squeezed the
+body into two columns; reverted to the single-column card stack
+(Owner ruling), and PAGE_STANDARDS §1 now records the supersession so
+reviews stop citing the stale skeleton.
 | registry payload parity | **green after root build** | `npm run build` + `build:site` regenerated public payloads (91 files incl. chip/inline-code) |
 | blueprint pipeline | **green** | scenes auto-globbed (chip, inline-code added), SVGs regenerated + committed |
 

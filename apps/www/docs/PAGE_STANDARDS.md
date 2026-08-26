@@ -30,7 +30,17 @@
          │  │   flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">      │
          │  └────────────────────────────────────────────────────┘
          │
-         └─ ┌─ 标准形态（ToC 必选）──────────────────────────────────┐
+         │  ⚠ SUPERSEDED (2026-08-27, Owner ruling): the per-page
+         │  aside/grid skeleton below was the 2026-08-22 plan; the
+         │  firstpaint era (2026-08-24) replaced it — pages ship their
+         │  sections as PAGE DATA (+page.ts load → { toc }), the ROOT
+         │  LAYOUT owns ONE toc in the scaffold chrome, and the page
+         │  body stays the SINGLE-COLUMN card stack (the "无 ToC 页"
+         │  container shape above IS the correct page-body form; the
+         │  toc arrives through the layout, not page markup). Do not
+         │  retrofit per-page asides. This section stays for history.
+         │
+         └─ ┌─ 标准形态（ToC 必选）— 已废止的 8/22 方案，存档 ──────┐
             │ <div class="mx-auto w-full max-w-[90rem] px-4 py-10   │
             │   sm:px-6 lg:grid                                      │
             │   lg:grid-cols-[minmax(0,1fr)_15rem]  ← 桌面右列 rail  │
