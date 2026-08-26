@@ -226,7 +226,7 @@ describe('docs-route-model — install targets & the legacy map', () => {
     const expected = new Set([
       '/', '/probe-folder-css', '/docs.html', '/docs/components.html',
       '/docs/components/form.html', '/docs/registry.html', '/docs/recipes.html',
-      '/docs/jx-pure.html', '/docs/llms-txt.html', '/tokens.html', '/blueprints.html',
+      '/docs/jx-pure.html', '/docs/variant-grammar.html', '/docs/llms-txt.html', '/tokens.html', '/blueprints.html',
       ...canonical,
     ]);
     const missing = [...expected].filter((e) => !entries.has(e));
@@ -252,7 +252,7 @@ describe('docs-route-model — install targets & the legacy map', () => {
       expect(existsSync(resolve(dist, path.slice(1))), `dist page ${path}`).toBe(true);
     }
     // the family hub + the moved sections pages are real routes too
-    for (const extra of ['/docs/components/form.html', '/docs/registry.html', '/docs/recipes.html', '/docs/jx-pure.html', '/docs/llms-txt.html']) {
+    for (const extra of ['/docs/components/form.html', '/docs/registry.html', '/docs/recipes.html', '/docs/jx-pure.html', '/docs/variant-grammar.html', '/docs/llms-txt.html']) {
       expect(existsSync(resolve(dist, extra.slice(1))), `dist page ${extra}`).toBe(true);
     }
   });
