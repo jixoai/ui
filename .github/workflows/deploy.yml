@@ -36,6 +36,25 @@ jobs:
       - name: Install site deps (apps/www)
         run: npm install --no-fund --no-audit
         working-directory: apps/www
+      # Ghostty wasm supply chain (ghostty-term design D2): pre-seed the
+      # vite-plugin resolver cache — the repo-root cwd default cache spot
+      # node_modules/.cache/jixoai-ghostty — from GitHub's cache service,
+      # so the site build serves the pinned wasm without a fresh download.
+      # The key hashes the pin manifest itself: a merged pin-update PR
+      # rotates it, and the restore-keys prefix falls back to the newest
+      # stale entry. Cache hits are still sha256-verified by the resolver;
+      # a miss (first run, eviction, new pin) is NOT a failure — the
+      # build-time resolver downloads over the hardened path (https only,
+      # per-hop host allowlist, streaming 4MiB cap). Absolute zero-network
+      # is explicitly not promised; airgap builds use
+      # JIXOAI_GHOSTTY_WASM_PATH to point at a local file instead.
+      - name: Restore pinned ghostty wasm cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.cache/jixoai-ghostty
+          key: ghostty-wasm-${{ hashFiles('packages/vite-plugin/ghostty.pin.json') }}
+          restore-keys: |
+            ghostty-wasm-
       - name: Build site + registry into public/
         run: node scripts/build-site.mjs
       - uses: actions/upload-pages-artifact@v3

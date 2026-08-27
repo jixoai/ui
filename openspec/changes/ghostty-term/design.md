@@ -159,6 +159,12 @@ HEAD 请求跟随重定向后 200 且最终 host 在 allowlist、Content-Length
 tracked wasm 为零；`--offline` 跳过网络断言。workflow 侧：
 `concurrency: group=ghostty-pin`、permissions 最小化
 （contents: write + pull-requests: write 仅在该 job）。
+**校验深度边界（Batch C 摩擦反馈的裁决，2026-08-28）**：verify 的
+在线态是轻量哨兵（形状 + 可达性 + 头部约束），**不**做全量下载
+哈希——全量字节校验由两处承担：sync workflow 的 probe（下载 +
+sha256 计算 + ABI 冒烟，drift 在 pin 更新 PR 里显形）与 resolver
+的流式校验（消费路径逐字节把关）。良形状错 sha 在 verify 在线态
+放行是设计内行为，不是漏洞；ad-hoc 深审直接跑 resolver 或 probe。
 
 **deploy 低网络依赖**：deploy.yml 增加 `actions/cache`
 （key = pin 各变体 sha256 拼接）把 wasm 预填进插件 cacheDir；cache

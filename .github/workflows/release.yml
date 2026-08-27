@@ -1,8 +1,11 @@
 name: Release
 
-# Publishes the jixoai-ui CLI to npm via Trusted Publishing (OIDC). The
-# package's npm trusted publisher is bound to this repository + this
-# workflow file (release.yml) + the `npm-publish` environment.
+# Publishes the jixoai-ui CLI and the @jixoai/vite-plugin package to npm
+# via Trusted Publishing (OIDC). Each package's npm trusted publisher is
+# bound to this repository + this workflow file (release.yml) + the
+# `npm-publish` environment. The two publish jobs are independent and
+# parallel on purpose: neither blocks the other, so a plugin-only
+# regression cannot hold the CLI release hostage (and vice versa).
 
 on:
   push:
@@ -46,4 +49,53 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: cli/jixoai-ui-*.tgz
+          generate_release_notes: true
+
+  # Owner TODO (publishing prerequisite): configure the npm trusted
+  # publisher for @jixoai/vite-plugin on npmjs.com, bound to this
+  # repository + this workflow file (release.yml) + the `npm-publish`
+  # environment. Until that binding exists this job fails at the publish
+  # step; in-repo development is unaffected (apps/www resolves the plugin
+  # via file:../../packages/vite-plugin, published or not).
+  #
+  # The plugin is a self-contained npm project (own package-lock.json +
+  # devDependencies), so `npm ci` never touches the root install. The
+  # scoped package's tarball name drops the scope: npm pack yields
+  # jixoai-vite-plugin-<version>.tgz (no @jixoai/ prefix).
+  publish-vite-plugin:
+    name: Publish @jixoai/vite-plugin to npm
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    permissions:
+      contents: write
+      id-token: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: https://registry.npmjs.org
+      - name: Ensure an npm CLI with Trusted Publishing support (>= 11.5)
+        run: npm install -g npm@11
+      - name: Build and pack the plugin
+        run: npm ci && npm run build && npm pack
+        working-directory: packages/vite-plugin
+      - name: Publish via npm Trusted Publishing
+        run: |
+          set -euo pipefail
+          name="@jixoai/vite-plugin"
+          version="$(node -p "require('./package.json').version")"
+          tarball="jixoai-vite-plugin-${version}.tgz"
+          if npm view "${name}@${version}" version >/dev/null 2>&1; then
+            echo "skipping ${name}@${version} (already published)"
+          else
+            echo "publishing ${tarball}"
+            npm publish "${tarball}" --access public --provenance
+          fi
+        working-directory: packages/vite-plugin
+      - name: Attach the tarball to the tagged release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: packages/vite-plugin/jixoai-vite-plugin-*.tgz
           generate_release_notes: true
