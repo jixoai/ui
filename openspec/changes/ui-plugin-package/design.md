@@ -61,6 +61,17 @@ function serializeIcon(asset: SvgAsset, mode: SerializeMode = 'css-var'): string
 }
 ```
 
+**DOM safety contract** (for the 'dom-string' mode used by the clear slot):
+- The safety checker runs BEFORE serialization in BOTH modes — no
+  unvalidated SVG ever reaches output
+- In 'error' mode: a failed check blocks the build
+- In 'warn' mode (default): a failed check logs a warning AND the
+  SVG is **rejected** (not silently passed through) — the inline
+  lucide fallback serves instead. Warning mode means "don't crash the
+  build", NOT "let unvalidated content through"
+- Without the plugin: the standard layer's inline lucide SVGs serve
+  (they are pre-validated, baked into the source)
+
 **CSS wrapping**: the vite plugin generates the virtual CSS module with:
 ```css
 @layer theme {
@@ -186,16 +197,28 @@ fontIconProvider({
 ```
 
 **Pipeline** (build-time, in the vite plugin):
-1. The vite plugin reads the font file bytes (the provider never touches the filesystem — Codex frozen principle #4)
-2. opentype.js parses the font → `font.glyphs.get(codepoint)`
-3. `glyph.getPath(0, 0, fontSize)` → SVG path commands
-4. Scale/normalize from font units (unitsPerEm) to the target viewBox
-5. Wrap: `<svg viewBox="0 0 W H"><path d="{pathData}" fill="currentColor"/></svg>`
-6. Return as SvgAsset with `nature: 'fill'`
+1. The vite plugin reads the font file bytes (providers never touch the filesystem)
+2. **WOFF2 decompression**: the plugin decompresses WOFF2 to TTF bytes
+   using `wawoff2` (a WASM Brotli decompressor) BEFORE parsing —
+   opentype.js does NOT handle WOFF2 internally. For TTF/OTF: pass
+   bytes directly.
+3. opentype.js parses the decompressed font → `font.charToGlyph(char)`
+   for the Unicode codepoint (NOT glyph index — the charToGlyph API
+   does the cmap lookup)
+4. `glyph.getPath(0, 0, fontSize)` → SVG path commands
+5. Scale/normalize from font units (unitsPerEm) to the target viewBox
+6. Wrap: `<svg viewBox="0 0 W H"><path d="{pathData}" fill="currentColor"/></svg>`
+7. Return as SvgAsset with `nature: 'fill'`
 
-**WOFF2 contract**: opentype.js decompresses woff2 internally; the
-plugin has no decompression logic. Glyph positioning uses the font's
-own advance width + bounding box, normalized to the viewBox.
+**Font format contract**:
+- TTF/OTF: `opentype.parse(buffer)` directly
+- WOFF2: `wawoff2.decompress(buffer)` → TTF bytes → `opentype.parse(ttfBuffer)`
+- The decompressor is a plugin-level optional dependency (`wawoff2`),
+  NOT in the provider — providers receive already-decompressed bytes
+  via SourceDescriptor.data (mimeType: 'font/ttf' after decompression)
+- Unicode cmap lookup: `font.charToGlyph(String.fromCodePoint(codepoint))`
+- Glyph positioning: the font's own advance width + bounding box,
+  normalized to the viewBox
 
 ## 7. The vite plugin
 
@@ -303,6 +326,23 @@ author mask paint — the path-(c) ink fallback with .dark/.jx-light
 flips). They are NOT part of the slot registry and are NOT
 overridable by the plugin. If a future need arises, they join the
 registry via a versioned addition.
+
+## 10b. Override priority (face variables vs plugin virtual CSS)
+
+The face (jx-pure.css) currently declares icon custom properties on
+unlayered `:root`. The plugin generates `@layer theme { :root { ... } }`.
+Unlayered declarations ALWAYS beat layered ones — the plugin's vars
+would be silently overridden.
+
+**Integration requirement**: during P4.2 (standard layer integration),
+the face's icon custom properties MUST move into `@layer theme` so the
+cascade ordering is: `@layer theme` (face defaults) → `@layer theme`
+(plugin virtual CSS, later in import order wins at equal specificity)
+→ consumer `:root` overrides (unlayered, always win).
+
+This is a P4 task, not a P2/P3 blocker — the plugin and providers
+work correctly in isolation; the override takes effect once the face
+variables are layered during integration.
 
 ## 11. Frozen principles (Codex r0-r2, binding)
 

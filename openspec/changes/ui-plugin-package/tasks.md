@@ -33,8 +33,8 @@
 ## Phase P3: Infrastructure (P3.1/P3.2 parallel after P1.2; P3.3 after P3.1+P3.2)
 
 - [ ] P3.1: `src/serializer.ts` — serializeIcon() (SvgAsset → data
-       URI CSS value OR DOM-safe SVG string) + SLOT_REGISTRY constant +
-       tests
+       URI CSS value OR DOM-safe SVG string) + tests
+       (SLOT_REGISTRY lives in P1.2 types.ts — serializer CONSUMES it, never defines it)
 - [ ] P3.2: `src/safety.ts` — createSafetyChecker() (configurable,
        default warn mode, structured SafetyIssue result type) + tests
 - [ ] P3.3: `src/vite-plugin.ts` — jxUI() (virtual CSS module with
