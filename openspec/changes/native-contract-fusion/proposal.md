@@ -1,4 +1,14 @@
-# native-contract-fusion — one law, two renderers, gate-locked
+# native-contract-fusion — V2: the .jx-html standard layer
+
+> **r1 HISTORY**: the sections below describe the r1 architecture
+> (dual expression + Part A extract + mirror sheets), closed at
+> Codex 8.8/10 — kept as historical scope/evidence. The OPERATIVE
+> change is the V2 pivot (Owner ruling 2026-08-27 r2): single
+> declaration source (.jx-html-* @utility in the theme), two
+> applications (registry markup classes / the face's @apply chain),
+> DOM isomorphism first-class — see design §10–§11 and the native-
+> contract spec delta. The r1 extract/mirror deliverables are
+> superseded; their gates retire per the deletion matrix.
 
 ## Why
 

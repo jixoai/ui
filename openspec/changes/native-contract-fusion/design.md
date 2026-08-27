@@ -294,7 +294,7 @@ gate runs, parity matrices, Codex review rounds).
 ```
             THE STANDARD LAYER (single source, @utility in the theme)
    @utility jx-html-input  { …static…; &:hover{…}; &:focus-visible{…} }
-   @utility jx-html-switch { …; &::before{…}; &:checked &::before{…} }
+   @utility jx-html-switch { …; &::before{…}; &:checked::before{…} }
    @utility jx-html-tgroup { …; &>label{…}; &>label:has(:checked){…} }
             (installing the theme IS installing the plugin)
                  │                                    │
@@ -311,7 +311,7 @@ gate runs, parity matrices, Codex review rounds).
 
 - Probe evidence: apps/www/test/tw-standard-layer-probe.spec.ts —
   P1 markup-class consumption ✓, P2 cross-@import @apply ✓, P3
-  variant transfer ✓ (3/3).
+  variant transfer ✓ (probe suite: context 4/4 + standard-layer 5/5).
 - BREAKING (Owner ruling A): jx-pure.css drops its zero-tailwind
   promise — it becomes pipeline-bound like daisyUI (its @apply rules
   compile when installed behind the consumer's entry). A compiled
@@ -391,8 +391,14 @@ shape (tag[attrs] / children order / cardinality):
 
 GATE RULE: element tags, attribute sets (id/data-*/aria-*/name/value
 excluded from comparison when caller-specific), child ORDER and
-cardinality. The gate reads a machine-readable schema (this table's
-twin in code) — see V4.
+cardinality. The class ATTRIBUTE is compared scoped: standard-layer
+classes (jx-html-*) are IGNORED (the face's bare DOM carries none —
+their presence on the registry side is the consumption mechanism,
+not divergence); NON-standard classes must match on both sides or
+the gate names them. Postures are DISTINCT FIXTURES (posture-1 bare
+and posture-2 slotted are separate schema entries with their own
+rows — never a runtime choice inside one fixture). The gate reads a
+machine-readable schema (this table's twin in code) — see V4.
 
 ### 11.3 Selector grammar + serialization laws (P0-2 residue)
 

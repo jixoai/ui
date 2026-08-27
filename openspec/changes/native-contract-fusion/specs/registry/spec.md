@@ -24,8 +24,7 @@ remains `@jixoai/jx-pure` (pipeline-bound). Component (`registry:ui`) items carr
 documented install prerequisite: Tailwind v4 PLUS the jixoai token
 sheet wired into the consumer's single CSS entry — the canonical
 consumer entry setup order is `@import 'tailwindcss'` → jixoai theme
-import → jx-native-contract import (or the jx-pure face import,
-superset); utility-authored UI items SHALL declare
+import → (optional) the jx-pure face import — the standard layer rides the theme itself; the extract import is RETIRED; utility-authored UI items SHALL declare
 `@jixoai/jixoai-theme` in `registryDependencies` uniformly; the
 setup doc + `scripts/check-tw4-prereq.mjs` detection enforce the
 entry wiring. The `jx-pure` item's index description SHALL carry the

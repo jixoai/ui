@@ -1,5 +1,9 @@
 # verification — native-contract-fusion evidence index
 
+> **r1 sections below are HISTORICAL** (the dual-expression
+> architecture's evidence — valid as history, not as the current
+> acceptance bar). V2 rounds are appended at the END.
+
 > Updated per batch; each entry names the gate, the run, and the
 > evidence. All runs in the worktree
 > (feat/jx-pure-register-fusion) unless noted.
@@ -319,3 +323,18 @@
 - Gates post-rebase: vitest 566/566 (was 549 — main brought 17 more),
   parity 7 rows / 305 GREEN, density-kernel 72/72, contract + mirror
   GREEN, firefox engines PASS, hook law OK.
+
+## V2 plan-review rounds (2026-08-27)
+
+- Codex r0 (plan): direction endorsed 9.1/10; V1 BLOCKED — 3×P0
+  (spec self-contradiction incl. strict-validation failures;
+  vacuous P3 probe + the `&:checked &::before` descendant trap;
+  DOM schema unfrozen) + 3×P1 (selector map, budgets, deletion
+  matrix). All fixed in aab1cae..324eec6 (probes 5/5, strict
+  GREEN, §11 tables).
+- Codex r1 (freeze review): r0 items CLOSED; V1 still held on five
+  spec revisions (jx-pure delta not yet V2; registry entry order
+  still importing the retired extract; §10 wrong example selector
+  + stale 3/3; DOM schema class-attribute rule + posture fixtures;
+  tasks/proposal/verification r1 marking) — all fixed in this
+  commit; awaiting r2 verdict for V1 entry.

@@ -1,5 +1,9 @@
 # tasks — native-contract-fusion
 
+> r1 phases below are HISTORICAL (closed at 8.8/10 under the r1
+> architecture). The operative work is the V2 phases at the END of
+> this file.
+
 - [x] Phase 0: OpenSpec authoring (proposal/design/spec deltas/tasks
       — this file set); design frozen on Codex r1 verdict
 - [x] Phase 1: tw-context probe — `apps/www/test/tw-context-probe.spec.ts`
@@ -49,3 +53,22 @@
       The ≥9/10 bar was not literally reached — recorded honestly;
       merge/ship is the Owner's ruling. Trajectory 6.5→8.0→8.3→8.1→8.8.
       Non-blocking follow-ups indexed in verification.md
+
+## V2 phases (operative — the .jx-html standard layer)
+
+- [x] V0 probes: standard-layer preconditions 5/5 + context 4/4
+      (incl. anti-shape lock, serialization grammar)
+- [x] V0.5 freeze: design §11 tables + deltas rewritten to V2,
+      strict validation GREEN (Codex r0 + r1 plan-review rounds)
+- [ ] V1: the .jx-html-* family authored into jixoai.css from the
+      current jx-pure law texts (the reference); three budget
+      baselines recorded (B-source/B-face/B-consumer)
+- [ ] V2: jx-pure.css re-based — bare-element + opt-in class rules
+      become @apply applications; the extract retires per the
+      deletion matrix; docs-page raw-CSS injection fixed
+- [ ] V3: registry components carry the standard classes; DOM
+      isomorphism rework (toggle → single input[role=switch]; select
+      svg chevron retires); folder css shrinks to extras
+- [ ] V4: gates retooled — DOM-AST isomorphism assertions (distinct
+      posture fixtures), parity re-targeted, budgets live
+- [ ] V5: Codex code-review loop to closure
