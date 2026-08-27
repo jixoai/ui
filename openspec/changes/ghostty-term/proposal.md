@@ -1,7 +1,6 @@
 # ghostty-term — the live terminal surface, powered by libghostty-vt wasm
 
 ## Why
-
 jixoai 的理念：我们能做到的，就别让用户自己去组装 (Owner directive,
 2026-08-28)。今天一个 SvelteKit 站点想要"真正的终端面"（文档演示、web
 shell、日志流），只能自己在 xterm.js + canvas + 字体 + pty 管线里组装。
@@ -13,18 +12,22 @@ key/mouse 编码器 + 快照，~981KB，`ghostty-vt-small.wasm` ~711KB）。我�
 
 Owner 提出的两个直接问题，本 change 给出答案：
 
-1. **vite@8 会自动识别 wasm 并迁移到 dist 吗？** — 只在 wasm 位于模块图
-   内时（`import x from './x.wasm'` / `?url` / `?init`；vite 8 还把
-   `?init` 扩到了 SSR）。CI/构建期从 release 抓下来的文件**不在模块图
-   里**，vite 不会搬运；SSR 构建默认也不 emit 客户端资产。所以必须有
-   插件：dev 中间件 + build `emitFile` + 把 URL 交给代码的虚拟模块。
-   这正是 `packages/vite-plugin` 的存在意义（design.md D1/D3）。
+1. **vite@8 会自动识别 wasm 并迁移到 dist 吗？** — wasm 不在
+   vite@8 的默认资产类型表（`KNOWN_ASSET_TYPES` 无 wasm，8.2.2 源码
+   核验）；它由专用 `vite:wasm-helper` 处理：裸 `import './x.wasm'`
+   生成**自动实例化 glue**（ghostty-vt 的 `env.log` import 会解析
+   失败，实际不可用）、`?init` 给 init 函数（vite 8 起支持 Node
+   runtime 的 SSR）、`?url` 显式给 URL——三者都会把文件 emit 进
+   dist；但**模块图外的文件**（CI 抓取、运行时拼 URL）一概不搬运，
+   SSR 构建默认也不 emit 客户端资产。所以必须有插件：dev 中间件 +
+   build `emitFile` + 把 URL 交给代码的虚拟模块。这正是
+   `packages/vite-plugin` 的存在意义（design.md D1/D3）。
 2. **components 分组方式** — 新设 `terminal` 分组（品牌原生面），
    `ghostty-term` 入驻，并把散落的 `terminal-card`（data-display）、
    `terminal-header` / `terminal-footer`（layout）迁入，导航与目录由
-   CATALOG 自动派生（design.md D6）。
+   CATALOG 自动派生（design.md D6，含冻结的迁移计数与全部触及面）。
 
-## What
+## What Changes
 
 - **`packages/vite-plugin`（新 npm 包 `@jixoai/vite-plugin`）** —
   `jixoaiGhostty()` vite 插件：解析 wasm 来源（env 覆盖 → sha256 校验

@@ -7,10 +7,12 @@
 `packages/vite-plugin` SHALL publish as `@jixoai/vite-plugin` (the
 cli/ package precedent: a separate npm-publishable package, not a
 registry item) with ZERO runtime dependencies and peerDependency
-`vite ^6 || ^7 || ^8`. Its plugins are build-time only: they never
-transpile or instantiate wasm; their contract surface is
-source-resolution (verify + cache), dev serving, build emission, and
-handing data URLs to code via virtual modules.
+`vite ^6 || ^7 || ^8`, built by tsdown into `dist/index.js` +
+`dist/probe.js` and carrying the `jixoai-ghostty-probe` bin. Its
+plugins are build-time only: they never transpile or instantiate
+wasm; their contract surface is source-resolution (verify + cache),
+dev serving, build emission, and handing data URLs to code via
+virtual modules.
 
 #### Scenario: consumer wires the ghostty plugin
 
@@ -19,32 +21,53 @@ handing data URLs to code via virtual modules.
 - WHEN the dev server starts or a build runs
 - THEN the pinned `ghostty-vt.wasm` resolves (env override →
   sha256-keyed cache → pinned download, verified), is served in dev
-  at a stable path with `application/wasm`, and is emitted into
-  `dist/` in build with a content-addressed (sha256-derived) hashed
-  filename — no manual file placement anywhere
+  at a sha-prefixed path with `application/wasm` + immutable caching,
+  and is emitted into `dist/` in build with the content-addressed
+  filename `assets/ghostty-vt-<sha256-16>.wasm` (our hash, not the
+  bundler's) — no manual file placement anywhere
 
 #### Scenario: virtual module carries provenance, not behavior
 
 - WHEN code imports `virtual:jixoai-ghostty`
 - THEN it receives a pure-data module
-  `{ url, sha256, variant, version }`; the module does not touch
+  `{ url, sha256, variant, buildInfo }`; the module does not touch
   fetch or WebAssembly at evaluation time, so SSR and node test
-  environments import it safely
+  environments import it safely, and a server-consumer build emits no
+  duplicate asset
+
+#### Scenario: emission timing follows rollup semantics
+
+- GIVEN the virtual module is loaded during a build
+- WHEN its code is generated
+- THEN the wasm asset was emitted in the same `load` hook (before
+  rendering) and the URL is produced from
+  `import.meta.ROLLUP_FILE_URL_<ref>`; a vite `build()` integration
+  test asserts the real dist filename (the sentinel for vite/rollup
+  major upgrades)
 
 ### Requirement: ghostty wasm supply chain is pin-verified
 
 The repo SHALL carry a text pin manifest
-(`packages/vite-plugin/ghostty.pin.json`: url, version, buildInfo,
-sha256, size, variants) as the ONLY committed artifact of the wasm;
-binaries stay out of git. The version identity SHALL come from the
+(`packages/vite-plugin/ghostty.pin.json`) as the ONLY committed
+artifact of the wasm; binaries stay out of git. The manifest schema
+is frozen: top-level `{ pinnedAt, source{repo,tag,releaseUrl},
+variants }` with EACH variant (`full`, `small`) independently
+carrying `{ url, sha256, size, buildInfo }` — never a mixed
+top-level/variant split. The version identity SHALL come from the
 wasm's own `ghostty_build_info` (extracted by the probe), NOT from
 release metadata — the tip release object's dates are static while
-its assets rotate nightly. The `ghostty-wasm-sync` workflow SHALL
-update the pin only after `WebAssembly.validate` plus an ABI smoke
-probe (terminal create → vt_write → render-state iteration) pass,
-and SHALL open a PR (never push to main directly). Every consumer
-build path (dev, CI deploy, package consumers) resolves against the
-pin and verifies sha256 before use.
+its assets rotate nightly. The pin has exactly ONE runtime writer:
+the `ghostty-wasm-sync` workflow, which updates it only through a PR
+and only after the probe passes (`WebAssembly.validate`, required
+export/import surface assertions, instantiation + ABI smoke: terminal
+create → vt_write → render-state iteration → Enter encodes to CR);
+the initial pin is committed once with the same probe run locally.
+Every consumer build path (dev, CI deploy, package consumers)
+resolves against the pin and verifies sha256 before use. Threat
+model, stated: sha256 pinning gives integrity, not publisher
+authenticity — authenticity rests on the pinned github.com/
+ghostty-org origin plus human review of pin PRs; minisig is a
+non-goal.
 
 #### Scenario: broken nightly is not pinned
 
@@ -60,3 +83,20 @@ pin and verifies sha256 before use.
 - WHEN the plugin resolves the wasm
 - THEN the local file is used, its sha256 still verified against the
   pin, and no network is touched
+
+### Requirement: package release rides the trusted-publishing flow
+
+`@jixoai/vite-plugin` SHALL be published by the same release
+workflow pattern as the `jixoai-ui` CLI (npm Trusted Publishing /
+OIDC, idempotent skip when the version exists, tarball attached to
+the tagged release); configuring the npm-side trusted publisher for
+the new package name is an Owner TODO that blocks publishing day,
+not development (in-repo consumers use the `file:` dependency).
+
+#### Scenario: tagging a release publishes both packages
+
+- GIVEN a `v*` tag pushed with an unchanged cli version but a bumped
+  `packages/vite-plugin` version
+- WHEN release.yml runs
+- THEN the CLI publish step skips (already published) and the
+  vite-plugin job builds, packs, and publishes only the new version

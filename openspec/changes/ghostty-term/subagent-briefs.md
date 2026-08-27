@@ -12,40 +12,50 @@
 > 5. 法则信源：openspec/specs/**（尤其 component-authoring /
 >    css-architecture / registry / mirror-sync）+ 本 change 的
 >    proposal.md / design.md。违反法则的实现不算完成。
+> 6. 法则读法提示：openspec/changes/ghostty-term/design.md 是冻结
+>    接口与规格的唯一出处；与本 brief 冲突时以 design.md 为准并上报。
 
 ## Batch A — vite-plugin 包
 
 - 子代理类型：general-purpose
 - 文件集（独占）：packages/vite-plugin/**（新增）
-- 交付：design.md D1/D3 全量；测试绿；README 消费者向。
-- 关键接口冻结（Batch D/E 依赖）：
-  `import { jixoaiGhostty } from '@jixoai/vite-plugin'`；
-  虚拟模块 `virtual:jixoai-ghostty` 导出
-  `{ url: string, sha256: string, variant: 'full'|'small', version: string }`。
+- 交付：design.md D1/D2/D3 全量；测试绿；README 消费者向。
+- pin 写入纪律：初始 pin 由你用 probe 验证后写
+  ghostty.pin.json（本批次唯一例外授权）；此后 pin 唯一写入者
+  是 sync workflow（Batch C），你不得再改。
+- 关键接口冻结（Batch C/D/E 依赖）：
+  - `import { jixoaiGhostty } from '@jixoai/vite-plugin'`
+  - 虚拟模块 `virtual:jixoai-ghostty` 导出
+    `{ url: string, sha256: string, variant: 'full'|'small', buildInfo: string }`
+  - bin `jixoai-ghostty-probe --wasm <path> --variant full|small --json`
+    → stdout pin 片段 `{variant, sha256, size, buildInfo}`
+  - 构建：tsdown 产 dist/index.js + dist/probe.js（ESM）
 
 ## Batch B — ghostty-vt 绑定层
 
 - 子代理类型：general-purpose
 - 文件集（独占）：registry/files/lib/ghostty-vt.ts（新增）、
-  apps/www/test/ghostty-vt.spec.ts（node 测试，可先行；镜像目录
-  apps/www/src/lib/ghostty-vt.ts 由 Batch E 复制，B 不动 www）。
+  apps/www/test/ghostty-vt.spec.ts（node 测试；镜像复制属 Batch E）。
 - 交付：design.md D4 全量；上游参考 = ghostty 官方
   example/wasm-vt/index.html 的编组模式（type_json 驱动，零硬编码
-  offset）；wasm 资产用 pin url 下载到本地 .cache 测试（测试 setup
-  缓存，勿提交二进制）。
+  offset）；wasm 测试资产从 pin url 下载进 .cache（不提交二进制；
+  本机已验证直载可行）。
 - 关键接口冻结（Batch D 依赖）：
   `loadGhosttyVT({ url?, bytes?, variant? }): Promise<GhosttyVT>`；
-  `GhosttyVT` 面见 design.md D4 图。
+  `GhosttyVT` 面见 design.md D4 图（snapshotEncode 有、decode 无）。
 
-## Batch C — 供给链 workflow
+## Batch C — 供给链 workflow + 发布
 
 - 子代理类型：general-purpose
+- 前置：Batch A 的 probe bin 接口（未就绪时先写 workflow 骨架，
+  probe 调用命令按冻结接口写死）。
 - 文件集（独占）：.github/workflows/ghostty-wasm-sync.yml（新增）、
   .github/workflows/deploy.yml（追加 cache 步）、
+  .github/workflows/release.yml（追加 publish-vite-plugin job）、
   scripts/verify-ghostty-pin.mjs（新增）。
-- 交付：design.md D2；probe 复用 packages/vite-plugin 的
-  probeGhosttyWasm（workflow 里 node --import tsx 或预编译入口，
-  由 A 提供 bin 入口 `jixoai-ghostty-probe`，A/B 协调点在冻结接口）。
+  根 package.json 的 verify:ghostty-pin script 行 → 报告由 ZCode 落盘。
+- 交付：design.md D2 供给链 + D3 发布节；pin 更新只经 PR；
+  probe 失败绝不更新 pin。
 
 ## Batch D — ghostty-term 组件
 
@@ -54,25 +64,40 @@
   待接口就绪）。
 - 文件集（独占）：registry/files/ui/ghostty-term/**（新增）、
   apps/www/test/ghostty-term.spec.ts。
-- 交付：design.md D5 全量；jsdom 逻辑测试；报告列出
-  registry.json/catalog.ts 所需条目变更（不自己落盘）。
+- 交付：design.md D5.1 法则清单逐条落实（$props/rest/class 合并/
+  tabindex/aria-label/hit-lane css/density 登记/data-state/错误
+  降级）+ D5.2 渲染与输入；jsdom 逻辑测试；报告列出
+  registry.json/catalog.ts/density-adoption 所需变更（不自己落盘）。
 
 ## Batch E — www 集成
 
 - 子代理类型：general-purpose
-- 前置：Batch A（插件可装）+ Batch D（组件源就绪）。
-- 文件集（独占）：apps/www/vite.config.ts、apps/www/package.json（+
-  package-lock.json）、apps/www/src/routes/docs/components/ghostty-term.html、
-  apps/www/src/lib/ui/ghostty-term/**（镜像复制）、
-  apps/www/src/lib/ghostty-vt.ts（镜像复制）、
-  apps/www/test/docs-structure.spec.ts（快照更新）。
-- 交付：design.md D5 demo/docs + D6 www 侧；报告列出 catalog.ts 与
-  mirror-manifest 所需变更（不自己落盘）。
+- 前置：Batch A（插件可装）+ Batch B/D（源就绪）。
+- 文件集（独占）：
+  - apps/www/package.json（+ package-lock.json，file: 依赖）
+  - apps/www/vite.config.ts（挂插件）
+  - apps/www/src/lib/ghostty-vt.ts、apps/www/src/lib/ui/ghostty-term/**
+    （same-source 镜像复制，byte-identical）
+  - apps/www/src/routes/docs/components/ghostty-term.html/
+    （+page.svelte + +page.ts，目录路由不是单文件）
+  - apps/www/src/lib/blueprints/scenes/ghostty-term.svelte
+  - apps/www/static/blueprints/ghostty-term.svg（npm run
+    build:blueprints 生成后提交）
+  - apps/www/svelte.config.js（entries 增路由）
+  - apps/www/test/docs-structure.spec.ts、catalog.spec.ts（快照更新，
+    冻结计数见 design.md D6）
+- 交付：design.md D5.3 demo/docs + D6 www 侧；报告列出 catalog.ts
+  与 mirror-manifest 所需变更（不自己落盘）。
 
 ## 冲突面审计（ZCode 落盘清单）
 
 - registry.json：B（ghostty-vt 条目）、D（ghostty-term 条目 + 三项
   迁组）→ ZCode 一次落盘。
-- apps/www/src/lib/catalog.ts：D 组迁移 → ZCode 落盘。
+- apps/www/src/lib/catalog.ts：CatalogGroupId + CATALOG_GROUPS →
+  ZCode 落盘（D6 冻结计数）。
+- 根 package.json scripts：verify:ghostty-pin → ZCode 落盘。
 - apps/www/package-lock.json：E 独占（A 的 file: 依赖由 E 装）。
+- apps/www/mirror-manifest.json + density-adoption：ZCode 落盘。
 - openspec/changes/ghostty-term/**：ZCode 独占。
+- packages/vite-plugin/ghostty.pin.json：A 初始写入（probe 验证后）；
+  之后唯一写入者 = sync workflow（C 的 PR）。

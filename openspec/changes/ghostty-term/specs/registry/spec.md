@@ -50,7 +50,14 @@ payload; the item documents the `@jixoai/vite-plugin` wiring as an
 install prerequisite of equal rank to the tw4 law (per the
 build-plugins spec), and the asset URL reaches the component through
 that plugin's virtual module (`virtual:jixoai-ghostty`), never
-through a hand-placed file. The `jxoai-theme` item's own npm
+through a hand-placed file. The install chain of a wasm-consuming
+item is frozen the same way as every dependency edge: `ghostty-term`
+declares `registryDependencies = ["@jixoai/ghostty-vt",
+"@jixoai/jixoai-theme"]`, and the `ghostty-vt` lib item declares
+zero npm `dependencies` (the binding uses only the global
+WebAssembly API); a real `shadcn add` probe asserts the chain lands
+both dependencies with no binary payload. The `jixoai-theme` item's
+own npm
 dependency closure MUST be declared: its css imports
 `@fontsource-variable/jetbrains-mono` + `@fontsource/share-tech-mono`,
 so both MUST be in the item's `dependencies` (clean consumers resolve
@@ -69,12 +76,13 @@ inferred from `shadcn build` output.
 #### Scenario: consumer installs an item needing a wasm asset
 
 - GIVEN a consumer with the `@jixoai` namespace and
-  `jixoaiGhostty()` wired in vite
+  `jxoaiGhostty()` wired in vite
 - WHEN `npx shadcn add @jixoai/ghostty-term` runs
 - THEN the component folder and the shared `@lib/ghostty-vt.ts` land
-  at their canonical targets with NO binary payload in the registry
-  JSON, and the component resolves the wasm at runtime through the
-  plugin's virtual module
+  at their canonical targets (the `@jixoai/ghostty-vt` and
+  `@jixoai/jixoai-theme` registryDependencies arrive with it) with NO
+  binary payload in the registry JSON, and the component resolves
+  the wasm at runtime through the plugin's virtual module
 
 #### Scenario: wasm prerequisite missing is named, not mysterious
 
