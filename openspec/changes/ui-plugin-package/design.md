@@ -89,7 +89,7 @@ type IconSlot =
 /** per-consumer capability (a slot may have multiple consumers with different techniques) */
 interface ConsumerCapability {
   readonly consumer: string;        // e.g. 'jx-html-input ::-webkit-calendar-picker-indicator'
-  readonly technique: 'background-image' | 'mask' | 'inline-svg' | 'font-content';
+  readonly technique: 'background-image' | 'mask' | 'inline-svg';
   readonly browsers: 'chromium' | 'firefox' | 'webkit' | 'all';
   readonly notes?: string;
 }

@@ -91,3 +91,31 @@ added via versioned additions, never by breaking existing ones.
 - WHEN a 'search' slot is added in a future version
 - THEN existing providers continue to work (they return null for 'search')
 - AND the standard layer's fallback for 'search' serves until a provider covers it
+
+#### Scenario: SourceDescriptor boundary — providers never touch the filesystem
+
+- GIVEN a fontIconProvider initialized with a SourceDescriptor
+- WHEN the provider extracts glyphs
+- THEN it only uses the data bytes from the descriptor — no fs.read,
+  no path resolution, no file watching (all vite plugin territory)
+
+#### Scenario: SLOT_REGISTRY is iterable at build time
+
+- GIVEN the SLOT_REGISTRY constant exported from the package
+- WHEN the vite plugin iterates `SLOT_NAMES`
+- THEN every registered slot receives a custom property attempt from
+  the active provider
+
+#### Scenario: DOM serializer mode is safe for inline injection
+
+- GIVEN a SvgAsset serialized in 'dom-string' mode
+- WHEN the string is injected via {@html}
+- THEN the safety checker has validated the SVG (no script, no
+  foreignObject, no external references, no event attributes)
+
+#### Scenario: HMR invalidates when a source file changes
+
+- GIVEN a fontIconProvider watching a woff2 file
+- WHEN the file changes on disk
+- THEN the virtual CSS module regenerates with the new glyphs
+  (source registration → invalidation → re-extraction)
