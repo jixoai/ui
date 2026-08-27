@@ -25,18 +25,32 @@
 //      never enter git; the pin manifest is the only supply-chain
 //      artifact.
 //
-// Usage: node scripts/verify-ghostty-pin.mjs [--offline]
+// Usage: node scripts/verify-ghostty-pin.mjs [--offline] [--pin <path>]
+//        node scripts/verify-ghostty-pin.mjs --self-test
 // Exit 0 = pin verified; exit 1 with one named fix per problem.
+// --pin verifies an arbitrary manifest path (self-test/tooling only —
+// CI always runs against the shipped manifest). --self-test proves the
+// tag-traversal guard end to end (see the self-test section below).
 
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = dirname(dirname(fileURLToPath(import.meta.url)));
-const PIN_PATH = join(repoRoot, 'packages', 'vite-plugin', 'ghostty.pin.json');
+const SHIPPED_PIN_PATH = join(repoRoot, 'packages', 'vite-plugin', 'ghostty.pin.json');
 const CACHE_DIR = join(repoRoot, 'node_modules', '.cache', 'jixoai-ghostty');
+
+const argv = process.argv.slice(2);
+const offline = argv.includes('--offline');
+const pinFlagAt = argv.indexOf('--pin');
+const PIN_PATH = pinFlagAt !== -1 ? argv[pinFlagAt + 1] : SHIPPED_PIN_PATH;
+if (pinFlagAt !== -1 && typeof PIN_PATH !== 'string') {
+  console.error('[verify-ghostty-pin] --pin needs a manifest path argument');
+  process.exit(1);
+}
 
 // Frozen supply-chain constants — mirror packages/vite-plugin/src/resolve.ts.
 const PINNED_REPO = 'ghostty-org/ghostty';
@@ -50,16 +64,59 @@ const MAX_REDIRECTS = 5;
 const MAX_BYTES = 4 * 1024 * 1024;
 const REQUEST_TIMEOUT_MS = 30_000;
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
-const SAFE_TAG = /^[A-Za-z0-9._-]+$/;
+// A tag must be a safe single path segment: the character class allows
+// dots (v1.2.3-style tags), but the lookahead explicitly rejects the
+// bare "." and ".." segments — URL resolution would fold them away into
+// a traversal. Mirrors packages/vite-plugin/src/pin.ts (kept in sync
+// deliberately: the gate is an independent second guardrail, not shared
+// code).
+const SAFE_TAG = /^(?!\.{1,2}$)[A-Za-z0-9._-]+$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 
-const offline = process.argv.includes('--offline');
 const problems = [];
 const notes = [];
 const fail = (fix) => problems.push(fix);
 const note = (line) => notes.push(line);
 const isObj = (v) => typeof v === 'object' && v !== null && !Array.isArray(v);
 const sha256Hex = (bytes) => createHash('sha256').update(bytes).digest('hex');
+
+// --- self-test: the tag-traversal guard, end to end ----------------------
+//
+// Constructs temp pins whose ONLY defect is source.tag = "." / ".." and
+// re-invokes this script against them, expecting a red exit that names
+// the tag fix (temp files removed afterwards — nothing persists).
+
+if (argv.includes('--self-test')) {
+  let failed = 0;
+  const scriptPath = fileURLToPath(import.meta.url);
+  const tempDir = mkdtempSync(join(tmpdir(), 'verify-ghostty-pin-selftest-'));
+  try {
+    const base = JSON.parse(readFileSync(SHIPPED_PIN_PATH, 'utf8'));
+    for (const badTag of ['.', '..']) {
+      const badPin = { ...base, source: { ...base.source, tag: badTag } };
+      const badPinPath = join(tempDir, `bad-tag-${badTag.length}.json`);
+      writeFileSync(badPinPath, `${JSON.stringify(badPin, null, 2)}\n`);
+      const run = spawnSync(process.execPath, [scriptPath, '--offline', '--pin', badPinPath], {
+        encoding: 'utf8',
+      });
+      const output = `${run.stdout ?? ''}\n${run.stderr ?? ''}`;
+      const namedTheTag = output.includes('source.tag must be a safe single path segment');
+      const ok = run.status === 1 && namedTheTag;
+      console.log(
+        `${ok ? 'PASS' : 'FAIL'}  self-test: tag ${JSON.stringify(badTag)} rejected (exit ${run.status}${namedTheTag ? ', named fix present' : ', NAMED FIX MISSING'})`,
+      );
+      if (!ok) failed += 1;
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+  if (failed > 0) {
+    console.error(`[verify-ghostty-pin] SELF-TEST FAILED — ${failed} case(s) did not reject the traversal tag`);
+    process.exit(1);
+  }
+  console.log('[verify-ghostty-pin] SELF-TEST OK — traversal tags "." and ".." are rejected with a named fix');
+  process.exit(0);
+}
 
 // --- 1 + 2: schema and cross-field -------------------------------------
 
@@ -91,7 +148,7 @@ if (pin !== null) {
     const tag = typeof source.tag === 'string' ? source.tag : undefined;
     if (tag === undefined) fail('source.tag must be a string');
     else if (!SAFE_TAG.test(tag))
-      fail(`source.tag must be a safe single path segment ${SAFE_TAG} — traversal/slashes rejected (found ${JSON.stringify(tag)})`);
+      fail(`source.tag must be a safe single path segment ${SAFE_TAG} — traversal/slashes/dot-segments ("." and "..") rejected (found ${JSON.stringify(tag)})`);
   }
 
   const variants = isObj(pin.variants) ? pin.variants : null;

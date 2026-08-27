@@ -58,18 +58,37 @@ jobs:
         run: npm ci && npm run build
         working-directory: packages/vite-plugin
 
-      - name: Download both pinned variants and run the ABI probe
+      - name: Download both pinned variants (hardened resolver) and run the ABI probe
         working-directory: packages/vite-plugin
         env:
           RUNNER_TMP: ${{ runner.temp }}
         run: |
           set -euo pipefail
-          url_full="$(node -p "require('./ghostty.pin.json').variants.full.url")"
-          url_small="$(node -p "require('./ghostty.pin.json').variants.small.url")"
-          echo "full  <- ${url_full}"
-          echo "small <- ${url_small}"
-          curl -fsSL --retry 3 --connect-timeout 30 -o "$RUNNER_TMP/ghostty-vt.wasm" "$url_full"
-          curl -fsSL --retry 3 --connect-timeout 30 -o "$RUNNER_TMP/ghostty-vt-small.wasm" "$url_small"
+          # Same hardened download path every consumer build uses (design
+          # D2): https-only, canonical download-URL structure checked
+          # against pin.source.tag, per-hop host allowlist, 5-hop redirect
+          # budget, 30s timeout, streaming 4MiB cap. NOT
+          # resolveGhosttyWasm(): that entry point verifies bytes against
+          # the CURRENT pin, which would turn the nightly drift this
+          # workflow exists to detect into a hard failure — download
+          # integrity here is the probe's sha256 (the bytes it hands to
+          # the pin candidate are hashed by the probe below).
+          node --input-type=module <<'EOF'
+          import { writeFile } from 'node:fs/promises';
+
+          const { readPin } = await import('./dist/pin.js');
+          const { downloadPinnedAsset } = await import('./dist/resolve.js');
+
+          const tmp = process.env.RUNNER_TMP;
+          const pin = await readPin();
+          const assets = { full: 'ghostty-vt.wasm', small: 'ghostty-vt-small.wasm' };
+          for (const variant of ['full', 'small']) {
+            console.log(`${variant} <- ${pin.variants[variant].url}`);
+            const bytes = await downloadPinnedAsset(pin.variants[variant].url, pin, variant);
+            await writeFile(`${tmp}/${assets[variant]}`, bytes);
+            console.log(`${variant}: ${bytes.byteLength} bytes via the hardened resolver`);
+          }
+          EOF
           # Probe gate: any failure here fails the job and the pin stays
           # untouched. stdout per variant = {variant, sha256, size, buildInfo}.
           node dist/probe.js --wasm "$RUNNER_TMP/ghostty-vt.wasm" --variant full --json > "$RUNNER_TMP/probe-full.json"
@@ -143,6 +162,14 @@ jobs:
 
           console.log(changed ? 'pin drift detected — candidate pin written' : 'no drift — committed pin is current');
           EOF
+
+      # Offline self-check AFTER candidate assembly: this workflow is the
+      # pin's only writer, so it cannot gate on the committed manifest
+      # before mutating it — but whatever it proposes (or leaves intact)
+      # must pass the same offline sentinel every other workflow enforces:
+      # valid schema, canonical URLs, zero tracked wasm.
+      - name: Offline pin self-check (committed or candidate manifest)
+        run: node scripts/verify-ghostty-pin.mjs --offline
 
       - name: No pin drift (quiet no-op)
         if: steps.candidate.outputs.changed != 'true'

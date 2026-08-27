@@ -20,6 +20,26 @@
 //     is gone, and the barrel + an ItemToggle adapter compile in the
 //     consumer's vite build.
 //
+//   fixture D — ghostty-term clean consumer (ghostty-term impl-review
+//     blocker 6a / design D7 install-chain row): `shadcn add
+//     @jixoai/ghostty-term` on a CLEAN consumer delivers the component
+//     folder (4 files), $lib/ghostty-vt.ts, and the full frozen
+//     dependency closure (jixoai-theme/utils/color-utils/density —
+//     impl-r1 ruling #5) with ZERO wasm payloads — binaries ride the
+//     vite-plugin supply chain (pin manifest + resolver), never the
+//     registry. The consumer's vite build stubs the
+//     virtual:jixoai-ghostty data module (pure-data contract, no
+//     bytes) to prove the install compiles without touching wasm.
+//
+//   fixture E — color-picker pre-seeded consumer (ghostty-term
+//     impl-review blocker 6b / design D7 regression lock): a consumer
+//     that already carries color-picker's UNDECLARED imports
+//     (input/native-select/press-button + the surface-motion/density
+//     kernels they lean on — the standing registry debt, mirrors the
+//     www tree) installs @jixoai/color-picker and MUST receive
+//     $lib/color-utils.ts — the dependency this repo added after the
+//     latent clean-install break; the lock keeps it from regressing.
+//
 // Staged input (r6 ruling): a TEMP folder-shaped registry generated
 // here — the current flat public/r payloads are NOT the input. The
 // temp payloads embed the exact registry/files sources + generated
@@ -39,6 +59,8 @@ const scratch = join(root, '.agents/fixtures/2026-08-24-tw4-p0-consumer');
 const registryDir = join(scratch, 'registry', 'r');
 const consumerDir = join(scratch, 'consumer');
 const isolatedDir = join(scratch, 'isolated-list-item');
+const ghosttyDir = join(scratch, 'ghostty-term-consumer');
+const pickerDir = join(scratch, 'color-picker-consumer');
 const PORT = 5399;
 const BASE = `http://127.0.0.1:${PORT}/r`;
 
@@ -79,7 +101,11 @@ const payload = (item) =>
 // missing per-item css files proved in P3-r1)
 const registryItems = JSON.parse(source('registry.json')).items ?? JSON.parse(source('registry.json'));
 const byName = new Map(registryItems.map((i) => [i.name, i]));
-for (const name of ['accordion', 'toast', 'code-card', 'shiki', 'jixoai-theme', 'utils', 'progressive-blur', 'list-item', 'toggle', 'checkbox', 'radio', 'native-select', 'input', 'icons', 'jx-pure']) {
+// ghostty-term fixture chain: the item + its frozen dependency closure
+// (ghostty-vt, jixoai-theme, utils, color-utils, density); color-picker
+// fixture chain: the item + its declared closure (utils, jx-pure,
+// jixoai-theme, color-utils).
+for (const name of ['accordion', 'toast', 'code-card', 'shiki', 'jixoai-theme', 'utils', 'progressive-blur', 'list-item', 'toggle', 'checkbox', 'radio', 'native-select', 'input', 'icons', 'jx-pure', 'ghostty-term', 'ghostty-vt', 'color-utils', 'density', 'color-picker']) {
   const item = byName.get(name);
   if (!item) die(`registry.json has no item ${name}`);
   writeFileSync(
@@ -444,9 +470,280 @@ try {
   check('isolated: consumer vite build passes', false);
 }
 
+// ── 7. ghostty-term CLEAN consumer (ghostty-term impl-review 6a) ──
+// design D7 install-chain row, direction 1: a clean consumer adds
+// @jixoai/ghostty-term and must receive the component folder (4
+// files), $lib/ghostty-vt.ts, and the full frozen dependency closure
+// (jixoai-theme/utils/color-utils/density — impl-r1 ruling #5) with
+// ZERO wasm payloads: binaries ride the vite-plugin supply chain (pin
+// manifest + resolver), never the registry.
+rmSync(ghosttyDir, { recursive: true, force: true });
+mkdirSync(join(ghosttyDir, 'src/lib/ui'), { recursive: true });
+mkdirSync(join(ghosttyDir, 'src/routes'), { recursive: true });
+mkdirSync(join(ghosttyDir, 'public'), { recursive: true });
+const writeGhost = (p, c) => writeFileSync(join(ghosttyDir, p), c);
+writeGhost('package.json', JSON.stringify({
+  name: 'ghostty-term-consumer',
+  private: true, type: 'module',
+  scripts: { build: 'vite build' },
+  devDependencies: {
+    svelte: versions.svelte,
+    '@sveltejs/vite-plugin-svelte': versions['@sveltejs/vite-plugin-svelte'],
+    vite: versions.vite, typescript: versions.typescript,
+    '@tailwindcss/vite': versions['@tailwindcss/vite'],
+    tailwindcss: versions.tailwindcss, shadcn: '^4.18.0',
+  },
+}, null, 2));
+writeGhost('components.json', JSON.stringify({
+  $schema: 'https://ui.shadcn.com/schema.json',
+  style: 'new-york', rsc: false, tsx: true,
+  tailwind: { config: '', css: 'src/app.css', baseColor: 'neutral', cssVariables: true, prefix: '' },
+  iconLibrary: 'lucide',
+  aliases: { components: 'src/lib', utils: 'src/lib/utils', ui: 'src/lib/ui', lib: 'src/lib', hooks: 'src/lib/hooks' },
+  registries: { '@jixoai': `${BASE}/{name}.json` },
+}, null, 2));
+// The real plugin resolves wasm bytes at build time — the wrong tool
+// for an INSTALL fixture. This stub keeps only the plugin's public
+// data contract (pure-data virtual module, design D3): the consumer
+// compiles against the same module shape www does, while the tree
+// stays wasm-free (asserted below).
+writeGhost('vite.config.ts', `import { defineConfig } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+import tailwindcss from '@tailwindcss/vite';
+import { fileURLToPath } from 'node:url';
+
+const ghosttyVirtualStub = {
+  name: 'fixture-ghostty-virtual-stub',
+  resolveId(id) { return id === 'virtual:jixoai-ghostty' ? '\\0virtual:jixoai-ghostty' : null; },
+  load(id) {
+    if (id !== '\\0virtual:jixoai-ghostty') return null;
+    return [
+      "export const url = '/fixture/ghostty-vt.wasm';",
+      "export const sha256 = '${'0'.repeat(64)}';",
+      "export const variant = 'full';",
+      "export const buildInfo = 'fixture-stub';",
+      'export default { url, sha256, variant, buildInfo };',
+    ].join('\\n');
+  },
+};
+
+export default defineConfig({
+  plugins: [ghosttyVirtualStub, svelte(), tailwindcss()],
+  resolve: { alias: { $lib: fileURLToPath(new URL('./src/lib', import.meta.url)) } },
+  build: { target: 'esnext' },
+});
+`);
+writeGhost('tsconfig.json', JSON.stringify({
+  compilerOptions: {
+    target: 'esnext', module: 'esnext', moduleResolution: 'bundler',
+    verbatimModuleSyntax: true, strict: true, noEmit: true,
+    paths: { '$lib': ['./src/lib'], '$lib/*': ['./src/lib/*'] },
+    types: ['svelte', 'vite/client'],
+  },
+  include: ['src/**/*.ts', 'src/**/*.svelte', 'vite.config.ts'],
+}, null, 2));
+writeGhost('svelte.config.js', `import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+export default { preprocess: vitePreprocess() };
+`);
+writeGhost('src/app.css', `@import 'tailwindcss';
+`);
+writeGhost('index.html', `<!doctype html>
+<html><head><meta charset="utf-8" /><title>ghostty-term consumer</title></head>
+<body><div id="app"></div><script type="module" src="/src/main.ts"></script></body></html>
+`);
+writeGhost('src/main.ts', `import './app.css';
+import { mount } from 'svelte';
+import App from './App.svelte';
+mount(App, { target: document.getElementById('app')! });
+`);
+writeGhost('src/App.svelte', `<script lang="ts">
+  import GhosttyTerm from '$lib/ui/ghostty-term';
+</script>
+
+<GhosttyTerm />
+`);
+
+const runGhost = (cmd, args, opts = {}) => {
+  const r = spawnSync(cmd, args, { cwd: ghosttyDir, encoding: 'utf8', stdio: 'pipe', ...opts });
+  if (r.status !== 0) {
+    console.error(`command failed: ${cmd} ${args.join(' ')}\n${r.stdout}\n${r.stderr}`);
+    process.exit(1);
+  }
+  return r;
+};
+console.log('ghostty-term consumer: npm install…');
+runGhost('npm', ['install', '--no-audit', '--no-fund', '--loglevel=error']);
+console.log('ghostty-term consumer: shadcn add @jixoai/ghostty-term (ONLY)…');
+runGhost('npx', ['shadcn', 'add', '@jixoai/ghostty-term', '--yes', '--overwrite'], {
+  env: { ...process.env, REGISTRY_URL: BASE, NO_PROXY: 'localhost,127.0.0.1', no_proxy: 'localhost,127.0.0.1' },
+});
+const existsGhost = (p) => existsSync(join(ghosttyDir, p));
+const missingGhosttyTerm = ['ghostty-term.svelte', 'index.ts', 'ghostty-term.css', 'vt-deps.ts']
+  .filter((f) => !existsGhost(`src/lib/ui/ghostty-term/${f}`));
+check('ghostty-term: component folder complete (4 files)', missingGhosttyTerm.length === 0, missingGhosttyTerm.join(', ') || 'complete');
+check('ghostty-term: $lib/ghostty-vt.ts arrived', existsGhost('src/lib/ghostty-vt.ts'));
+check('ghostty-term: theme jixoai.css arrived', existsGhost('src/lib/jixoai.css'));
+check('ghostty-term: utils.ts arrived', existsGhost('src/lib/utils.ts'));
+check('ghostty-term: color-utils.ts arrived', existsGhost('src/lib/color-utils.ts'));
+check('ghostty-term: density.svelte.ts arrived', existsGhost('src/lib/density.svelte.ts'));
+// zero wasm payloads in the installed tree — the registry never carries
+// binaries; the plugin supply chain (pin + resolver) owns them
+const wasmHits = [];
+const walkWasm = (dir) => {
+  for (const entry of readdirSafe(dir)) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) walkWasm(full);
+    else if (entry.name.endsWith('.wasm')) wasmHits.push(full);
+  }
+};
+walkWasm(join(ghosttyDir, 'src'));
+check('ghostty-term: zero wasm payloads in src/', wasmHits.length === 0, wasmHits.map((p) => p.slice(ghosttyDir.length)).join(', ') || 'none');
+console.log('ghostty-term consumer: vite build…');
+const ghostBuild = spawnSync('npx', ['vite', 'build'], { cwd: ghosttyDir, encoding: 'utf8', stdio: 'pipe' });
+if (ghostBuild.status !== 0) console.error(`${ghostBuild.stdout}\n${ghostBuild.stderr}`);
+check('ghostty-term: consumer vite build passes', ghostBuild.status === 0);
+
+// ── 8. color-picker PRE-SEEDED consumer (ghostty-term impl-review 6b) ──
+// design D7 install-chain row, direction 2 (regression lock): a
+// consumer already carrying color-picker's UNDECLARED imports — the
+// standing registry debt (input/native-select/press-button folders
+// plus the surface-motion/density/icons kernels they lean on,
+// mirroring the www tree) — adds @jixoai/color-picker and MUST
+// receive $lib/color-utils.ts, the dependency this repo added after
+// the latent clean-install break; the lock keeps it from regressing.
+rmSync(pickerDir, { recursive: true, force: true });
+mkdirSync(join(pickerDir, 'src/lib/ui'), { recursive: true });
+mkdirSync(join(pickerDir, 'src/routes'), { recursive: true });
+mkdirSync(join(pickerDir, 'public'), { recursive: true });
+const writePicker = (p, c) => writeFileSync(join(pickerDir, p), c);
+writePicker('package.json', JSON.stringify({
+  name: 'color-picker-consumer',
+  private: true, type: 'module',
+  scripts: { build: 'vite build' },
+  devDependencies: {
+    svelte: versions.svelte,
+    '@sveltejs/vite-plugin-svelte': versions['@sveltejs/vite-plugin-svelte'],
+    vite: versions.vite, typescript: versions.typescript,
+    '@tailwindcss/vite': versions['@tailwindcss/vite'],
+    tailwindcss: versions.tailwindcss, shadcn: '^4.18.0',
+  },
+}, null, 2));
+writePicker('components.json', JSON.stringify({
+  $schema: 'https://ui.shadcn.com/schema.json',
+  style: 'new-york', rsc: false, tsx: true,
+  tailwind: { config: '', css: 'src/app.css', baseColor: 'neutral', cssVariables: true, prefix: '' },
+  iconLibrary: 'lucide',
+  aliases: { components: 'src/lib', utils: 'src/lib/utils', ui: 'src/lib/ui', lib: 'src/lib', hooks: 'src/lib/hooks' },
+  registries: { '@jixoai': `${BASE}/{name}.json` },
+}, null, 2));
+writePicker('vite.config.ts', `import { defineConfig } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+import tailwindcss from '@tailwindcss/vite';
+import { fileURLToPath } from 'node:url';
+
+export default defineConfig({
+  plugins: [svelte(), tailwindcss()],
+  resolve: { alias: { $lib: fileURLToPath(new URL('./src/lib', import.meta.url)) } },
+  build: { target: 'esnext' },
+});
+`);
+writePicker('tsconfig.json', JSON.stringify({
+  compilerOptions: {
+    target: 'esnext', module: 'esnext', moduleResolution: 'bundler',
+    verbatimModuleSyntax: true, strict: true, noEmit: true,
+    paths: { '$lib': ['./src/lib'], '$lib/*': ['./src/lib/*'] },
+    types: ['svelte', 'vite/client'],
+  },
+  include: ['src/**/*.ts', 'src/**/*.svelte', 'vite.config.ts'],
+}, null, 2));
+writePicker('svelte.config.js', `import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+export default { preprocess: vitePreprocess() };
+`);
+writePicker('src/app.css', `@import 'tailwindcss';
+`);
+writePicker('index.html', `<!doctype html>
+<html><head><meta charset="utf-8" /><title>color-picker consumer</title></head>
+<body><div id="app"></div><script type="module" src="/src/main.ts"></script></body></html>
+`);
+writePicker('src/main.ts', `import './app.css';
+import { mount } from 'svelte';
+import App from './App.svelte';
+mount(App, { target: document.getElementById('app')! });
+`);
+// Pre-seed at canonical targets from the registry sources — exactly
+// what an older jixoai-ui install (or the www tree) carries: the
+// folders color-picker imports but does not declare, plus the kernels
+// those imports lean on (surface-motion rides popover-family payloads,
+// density rides the terminal family, icons rides input's declaration).
+const preseeded = [
+  ['registry/files/ui/input/input.svelte', 'src/lib/ui/input/input.svelte'],
+  ['registry/files/ui/input/index.ts', 'src/lib/ui/input/index.ts'],
+  ['registry/files/ui/input/input.css', 'src/lib/ui/input/input.css'],
+  ['registry/files/ui/native-select/native-select.svelte', 'src/lib/ui/native-select/native-select.svelte'],
+  ['registry/files/ui/native-select/index.ts', 'src/lib/ui/native-select/index.ts'],
+  ['registry/files/ui/native-select/native-select.css', 'src/lib/ui/native-select/native-select.css'],
+  ['registry/files/ui/press-button/press-button.svelte', 'src/lib/ui/press-button/press-button.svelte'],
+  ['registry/files/ui/press-button/index.ts', 'src/lib/ui/press-button/index.ts'],
+  ['registry/files/ui/press-button/press-button.css', 'src/lib/ui/press-button/press-button.css'],
+  ['registry/files/ui/press-button/ripple.svelte.ts', 'src/lib/ui/press-button/ripple.svelte.ts'],
+  ['registry/files/lib/surface-motion.ts', 'src/lib/surface-motion.ts'],
+  ['registry/files/lib/density.svelte.ts', 'src/lib/density.svelte.ts'],
+  ['registry/files/lib/icons.ts', 'src/lib/icons.ts'],
+];
+for (const [src, dest] of preseeded) {
+  mkdirSync(dirname(join(pickerDir, dest)), { recursive: true });
+  writeFileSync(join(pickerDir, dest), source(src));
+}
+writePicker('src/App.svelte', `<script lang="ts">
+  import ColorPicker from '$lib/ui/color-picker';
+</script>
+
+<ColorPicker />
+`);
+
+const runPicker = (cmd, args, opts = {}) => {
+  const r = spawnSync(cmd, args, { cwd: pickerDir, encoding: 'utf8', stdio: 'pipe', ...opts });
+  if (r.status !== 0) {
+    console.error(`command failed: ${cmd} ${args.join(' ')}\n${r.stdout}\n${r.stderr}`);
+    process.exit(1);
+  }
+  return r;
+};
+console.log('color-picker consumer: npm install…');
+runPicker('npm', ['install', '--no-audit', '--no-fund', '--loglevel=error']);
+console.log('color-picker consumer: shadcn add @jixoai/color-picker …');
+runPicker('npx', ['shadcn', 'add', '@jixoai/color-picker', '--yes', '--overwrite'], {
+  env: { ...process.env, REGISTRY_URL: BASE, NO_PROXY: 'localhost,127.0.0.1', no_proxy: 'localhost,127.0.0.1' },
+});
+const existsPicker = (p) => existsSync(join(pickerDir, p));
+check('color-picker: $lib/color-utils.ts arrived (regression lock)', existsPicker('src/lib/color-utils.ts'));
+const missingPicker = ['color-picker.svelte', 'index.ts', 'color-picker.css']
+  .filter((f) => !existsPicker(`src/lib/ui/color-picker/${f}`));
+check('color-picker: component folder complete (3 files)', missingPicker.length === 0, missingPicker.join(', ') || 'complete');
+check(
+  'color-picker: declared deps arrived (utils/jixoai-theme/jx-pure)',
+  existsPicker('src/lib/utils.ts') && existsPicker('src/lib/jixoai.css') && existsPicker('src/lib/jx-pure.css'),
+);
+// the pre-seeded debt files survive the add exactly once — nothing
+// re-delivers or clobbers what the consumer already had
+const preseedTargets = [
+  ['input', 'src/lib/ui/input/input.svelte'],
+  ['native-select', 'src/lib/ui/native-select/native-select.svelte'],
+  ['press-button', 'src/lib/ui/press-button/press-button.svelte'],
+];
+for (const [label, target] of preseedTargets) {
+  const base = target.split('/').at(-1);
+  check(`color-picker: pre-seeded ${label} untouched (exactly once)`, existsPicker(target) && countTree(join(pickerDir, 'src'), base) === 1);
+}
+check('color-picker: pre-seeded kernels exactly once (surface-motion/density)', countTree(join(pickerDir, 'src'), 'surface-motion.ts') === 1 && countTree(join(pickerDir, 'src'), 'density.svelte.ts') === 1);
+console.log('color-picker consumer: vite build…');
+const pickerBuild = spawnSync('npx', ['vite', 'build'], { cwd: pickerDir, encoding: 'utf8', stdio: 'pipe' });
+if (pickerBuild.status !== 0) console.error(`${pickerBuild.stdout}\n${pickerBuild.stderr}`);
+check('color-picker: consumer vite build passes', pickerBuild.status === 0);
+
 server.kill();
 
 // keep the scratch tree for inspection; next run wipes it
 const failed = results.filter((r) => !r.ok);
-console.log(failed.length === 0 ? '\nP0.2 shadcn-add fixtures: ALL GREEN' : `\nP0.2 shadcn-add fixtures: ${failed.length} FAILURE(S)`);
+console.log(failed.length === 0 ? '\nshadcn-add fixtures (P0.2 + ghostty-term impl-review): ALL GREEN' : `\nshadcn-add fixtures (P0.2 + ghostty-term impl-review): ${failed.length} FAILURE(S)`);
 process.exit(failed.length === 0 ? 0 : 1);

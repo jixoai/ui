@@ -36,14 +36,34 @@ jobs:
       - name: Install site deps (apps/www)
         run: npm install --no-fund --no-audit
         working-directory: apps/www
+      # apps/www depends on @jixoai/vite-plugin via file:../../packages/
+      # vite-plugin and imports it in vite.config.ts, but the package's
+      # dist/ is gitignored — a clean checkout has no build output, so the
+      # site build fails before any page compiles. CI builds the plugin
+      # in this explicit, auditable step (scripts/build-site.mjs carries
+      # the same check as a local-dev fallback only).
+      - name: Build @jixoai/vite-plugin
+        run: npm ci && npm run build
+        working-directory: packages/vite-plugin
+      # Tracked-wasm + pin-schema sentinel (ghostty-term design D2's
+      # double guardrail, offline side): no network assertions, no cache
+      # requirement — this gates the supply-chain SHAPE (valid pin
+      # manifest, zero `git ls-files '*.wasm'`) before anything consumes
+      # the pin.
+      - name: Verify ghostty pin (offline sentinel)
+        run: node scripts/verify-ghostty-pin.mjs --offline
       # Ghostty wasm supply chain (ghostty-term design D2): pre-seed the
-      # vite-plugin resolver cache — the repo-root cwd default cache spot
-      # node_modules/.cache/jixoai-ghostty — from GitHub's cache service,
-      # so the site build serves the pinned wasm without a fresh download.
-      # The key hashes the pin manifest itself: a merged pin-update PR
-      # rotates it, and the restore-keys prefix falls back to the newest
-      # stale entry. Cache hits are still sha256-verified by the resolver;
-      # a miss (first run, eviction, new pin) is NOT a failure — the
+      # vite-plugin resolver cache — apps/www/node_modules/.cache/
+      # jixoai-ghostty, the resolver's default for the site build's cwd
+      # (apps/www; vite runs there, and defaultCacheDir() is
+      # <cwd>/node_modules/.cache/jixoai-ghostty) — from GitHub's cache
+      # service, so the site build serves the pinned wasm without a fresh
+      # download. The key hashes the pin manifest itself — the manifest
+      # IS the canonical carrier of both variant sha256s, so hashing it
+      # is hashing the cache identity: a merged pin-update PR rotates the
+      # key, and the restore-keys prefix falls back to the newest stale
+      # entry. Cache hits are still sha256-verified by the resolver; a
+      # miss (first run, eviction, new pin) is NOT a failure — the
       # build-time resolver downloads over the hardened path (https only,
       # per-hop host allowlist, streaming 4MiB cap). Absolute zero-network
       # is explicitly not promised; airgap builds use
@@ -51,7 +71,7 @@ jobs:
       - name: Restore pinned ghostty wasm cache
         uses: actions/cache@v4
         with:
-          path: node_modules/.cache/jixoai-ghostty
+          path: apps/www/node_modules/.cache/jixoai-ghostty
           key: ghostty-wasm-${{ hashFiles('packages/vite-plugin/ghostty.pin.json') }}
           restore-keys: |
             ghostty-wasm-

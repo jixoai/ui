@@ -3,9 +3,14 @@ name: Release
 # Publishes the jixoai-ui CLI and the @jixoai/vite-plugin package to npm
 # via Trusted Publishing (OIDC). Each package's npm trusted publisher is
 # bound to this repository + this workflow file (release.yml) + the
-# `npm-publish` environment. The two publish jobs are independent and
-# parallel on purpose: neither blocks the other, so a plugin-only
-# regression cannot hold the CLI release hostage (and vice versa).
+# `npm-publish` environment. The two publish jobs run SERIALIZED
+# (publish-vite-plugin needs publish): both attach tarballs to the SAME
+# tagged release through action-gh-release, and concurrent release-asset
+# updates race each other. Tradeoff accepted: with plain `needs`
+# semantics a failed CLI publish SKIPS the plugin publish — recovering
+# means re-running the workflow after fixing the CLI (an `if: always()`
+# override would resurrect the asset race AND publish a plugin against a
+# release whose CLI attach state is unknown; ruled out).
 
 on:
   push:
@@ -64,6 +69,7 @@ jobs:
   # jixoai-vite-plugin-<version>.tgz (no @jixoai/ prefix).
   publish-vite-plugin:
     name: Publish @jixoai/vite-plugin to npm
+    needs: publish
     runs-on: ubuntu-latest
     environment: npm-publish
     permissions:
@@ -78,8 +84,53 @@ jobs:
           registry-url: https://registry.npmjs.org
       - name: Ensure an npm CLI with Trusted Publishing support (>= 11.5)
         run: npm install -g npm@11
-      - name: Build and pack the plugin
-        run: npm ci && npm run build && npm pack
+      # Tracked-wasm + pin-schema sentinel (ghostty-term design D2 double
+      # guardrail, offline side) — the plugin tarball ships ghostty.pin.json,
+      # so the manifest it carries must be valid and the repo wasm-free
+      # before anything is packed.
+      - name: Verify ghostty pin (offline sentinel)
+        run: node scripts/verify-ghostty-pin.mjs --offline
+      - name: Build the plugin
+        run: npm ci && npm run build
+        working-directory: packages/vite-plugin
+      # Artifact gate (ghostty-term design D3 / build-plugins spec: "a
+      # types-less publish is a gate failure"): exports['.'] and
+      # exports['./client'] both resolve to d.ts files, so all four dist
+      # artifacts must exist on disk AND appear in the packed file list
+      # (plus ghostty.pin.json — the supply-chain manifest).
+      - name: Assert dist artifacts and pack file list
+        working-directory: packages/vite-plugin
+        run: |
+          set -euo pipefail
+          test -f dist/index.js
+          test -f dist/probe.js
+          test -f dist/index.d.ts
+          test -f dist/client.d.ts
+          # --ignore-scripts: the build already ran one step up; skipping
+          # prepack keeps stdout pure JSON (script logs would pollute it).
+          npm pack --dry-run --json --ignore-scripts > /tmp/pack.json
+          node --input-type=module <<'EOF'
+          import { readFileSync } from 'node:fs';
+
+          const packed = JSON.parse(readFileSync('/tmp/pack.json', 'utf8'));
+          const entries = Array.isArray(packed) ? packed : [packed];
+          const files = entries.flatMap((entry) => entry.files ?? []).map((file) => file.path);
+          const required = [
+            'dist/index.js',
+            'dist/probe.js',
+            'dist/index.d.ts',
+            'dist/client.d.ts',
+            'ghostty.pin.json',
+          ];
+          const missing = required.filter((path) => !files.includes(path));
+          if (missing.length > 0) {
+            console.error(`npm pack file list is missing: ${missing.join(', ')}\npacked: ${files.join(', ')}`);
+            process.exit(1);
+          }
+          console.log(`pack gate ok: ${required.join(', ')} all present (${files.length} files packed)`);
+          EOF
+      - name: Pack the plugin
+        run: npm pack
         working-directory: packages/vite-plugin
       - name: Publish via npm Trusted Publishing
         run: |
