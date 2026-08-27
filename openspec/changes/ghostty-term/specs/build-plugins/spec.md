@@ -13,7 +13,12 @@ registry item) with ZERO runtime dependencies and peerDependency
 `jixoaiGhostty()` (the plugin), `resolveGhosttyWasm(opts)` (the
 node-usable resolver: variant/cacheDir/offline →
 `{ bytes, path, sha256, variant, buildInfo }`, cache filename
-`<sha256>.wasm`), and the `./client` sub-export
+`<sha256>.wasm`, default cache dir
+`<cwd>/node_modules/.cache/jixoai-ghostty/`, and a frozen behavior
+matrix: an env-override file is verified against the pin and its own
+path returned without copying; offline resolves cache-only with a
+named error on miss; the online path fills the cache atomically),
+and the `./client` sub-export
 (`dist/client.d.ts`, ambient `declare module
 'virtual:jixoai-ghostty'` with NAMED exports only). The
 package is a SELF-CONTAINED npm project: its own committed
@@ -26,6 +31,15 @@ svelte-check stays green). Its plugins
 are build-time only: they never transpile or instantiate wasm; their
 contract surface is source-resolution (verify + cache), dev serving,
 build emission, and handing data URLs to code via virtual modules.
+
+#### Scenario: package build emits the type contracts
+
+- GIVEN the package built by `npm ci && npm run build`
+- WHEN `npm pack --dry-run` inspects the tarball
+- THEN `dist/index.js`, `dist/probe.js`, `dist/index.d.ts`, and
+  `dist/client.d.ts` are all present in the published files (CI
+  asserts this — a types-less publish is a gate failure, since
+  exports['.'] and exports['./client'] both point at d.ts files)
 
 #### Scenario: consumer wires the ghostty plugin
 
@@ -84,8 +98,9 @@ plus the GitHub asset CDN hosts objects.githubusercontent.com /
 release-assets.githubusercontent.com), per-hop redirect validation,
 and a streaming 4MB hard cap on the response body that holds even
 when Content-Length is missing or lies. The binary-stays-out-of-git
-rule has TWO guardrails: the fixed cache dir
-(`packages/vite-plugin/.cache/`) is gitignored, and
+rule has TWO guardrails: the default cache dir lives under
+`node_modules/.cache/` (covered by the existing node_modules ignore
+rules everywhere — no special-case ignore entry), and
 `verify:ghostty-pin` plus CI assert `git ls-files '*.wasm'` is empty.
 Threat model, stated: sha256 pinning gives integrity, not publisher
 authenticity — authenticity rests on the pinned github.com/

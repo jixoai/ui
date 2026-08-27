@@ -134,12 +134,21 @@ URL 结构校验：路径必须匹配
 安全决策在响应流上；缓存写入原子化
 （tmp 文件 + rename，避免半写文件被后续读取）。
 
-**二进制不进 git 的双护栏（Codex r1 阻塞#6 采纳）**：缓存目录固定
-`packages/vite-plugin/.cache/`（B 批测试与 C 批 workflow 共用；由
-ZCode 落盘进根 `.gitignore`）；`verify:ghostty-pin` 与 CI 断言
-`git ls-files '*.wasm'` 为空——tracked wasm 即 gate 红。缓存写入的
-唯一通道是插件的 resolver API（内容寻址，tmp+rename）；B/C 批与
-测试对缓存只读。
+**二进制不进 git 的双护栏（Codex r1 阻塞#6 采纳）**：默认缓存目录
+= `<cwd>/node_modules/.cache/jixoai-ghostty/`（npm 生态标准约定位，
+天然被既有 node_modules ignore 规则覆盖，npm consumer 与本仓库
+统一无特例；本仓库各脚本以各自 cwd 自然落位）。缓存唯一写入通道
+是插件的 resolver API（内容寻址，tmp+rename）；B/C 批与测试对缓存
+只读。`verify:ghostty-pin` 与 CI 断言 `git ls-files '*.wasm'` 为
+空——tracked wasm 即 gate 红。
+
+**resolver 行为矩阵（冻结；resolver tests 逐行覆盖）**：
+
+| 场景 | 行为 |
+| --- | --- |
+| `JIXOAI_GHOSTTY_WASM_PATH` 已设 | 读该文件 + sha256 对 pin 校验；`path` 返回**源文件绝对路径**（不复制进缓存、不写缓存）；offline 标志无关（env 是显式本地意图） |
+| 无 env，`offline: true` | 仅读缓存；miss 即报错（错误信息点名 env 覆盖用法） |
+| 无 env，`offline: false` | 缓存命中（校验）→ `path` = 缓存路径；miss → 按下载安全规则下载校验 → 原子写缓存 → `path` = 缓存路径 |
 
 **verify:ghostty-pin 硬化（Codex 建议，采纳）**：校验 pin json 合法
 （schema）、每变体 url 为固定 origin（github.com/ghostty-org）、
@@ -174,6 +183,9 @@ packages/vite-plugin/
 ├─ src/pin.ts        pin schema 读取 + 校验（schema test 锁定）
 ├─ ghostty.pin.json  pin 清单（唯一写入者 = sync workflow）
 ├─ tsdown.config.ts  构建 dist/index.js + dist/probe.js（ESM）
+│                    + dts：dist/index.d.ts + dist/client.d.ts
+│                    （tsdown dts 生成；npm pack --dry-run 与 CI
+│                    断言两个 dts 均在 files 产物内）
 └─ test/*.test.ts    vitest（见 D7 矩阵）
 ```
 
@@ -223,7 +235,7 @@ environment）。
 import { resolveGhosttyWasm } from '@jixoai/vite-plugin';
 resolveGhosttyWasm(opts?: {
   variant?: 'full' | 'small';   // default 'full'
-  cacheDir?: string;            // default <pkg>/.cache
+  cacheDir?: string;            // default <cwd>/node_modules/.cache/jixoai-ghostty
   offline?: boolean;            // true = 仅缓存，miss 即抛错
 }): Promise<{
   bytes: Uint8Array;
@@ -233,8 +245,9 @@ resolveGhosttyWasm(opts?: {
 ```
 
 缓存文件名 = `<sha256>.wasm`（内容寻址）；唯一写入通道、tmp+rename
-原子写。B 批测试用它取 bytes（offline:false 首跑下载、后续命中），
-C 批 workflow 用 probe bin，互不越界。
+原子写；env/缓存/下载三路行为见上方 resolver 行为矩阵。B 批测试用
+它取 bytes（offline:false 首跑下载、后续命中），C 批 workflow 用
+probe bin，互不越界。
 
 **client 类型子导出的物理形状（冻结）**：
 

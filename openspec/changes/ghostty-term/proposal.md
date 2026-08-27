@@ -73,7 +73,8 @@ Owner 提出的两个直接问题，本 change 给出答案：
 - **分组迁移** — `terminal` 组：`ghostty-term`（新）+ `terminal-card`
   + `terminal-header` + `terminal-footer`（迁入）；registry.json
   `meta.group` + www `CATALOG_GROUPS` 各一行级改动，href 不变。
-- **www 集成** — apps/www 装插件（npm `file:` 依赖，CI 零网络）、
+- **www 集成** — apps/www 装插件（npm `file:` 依赖——插件本身 CI 零网络；wasm 缓存
+miss 时经受控网络路径重下载，见 design.md D2）、
   same-source 镜像新文件、mirror manifest 再生、新文档页 + 回环
   demo pty（页面内 canned VT 场景 + 输入回显，无网络依赖）。
 

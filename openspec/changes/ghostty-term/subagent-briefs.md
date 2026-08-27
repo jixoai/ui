@@ -34,8 +34,10 @@
   - bin `jixoai-ghostty-probe --wasm <path> --variant full|small --json`
     → stdout pin 片段 `{variant, sha256, size, buildInfo}`
   - 构建：tsdown 产 dist/index.js + dist/probe.js（ESM）
-  - 缓存目录固定：packages/vite-plugin/.cache/；**缓存唯一写入通道
-    = resolver API**（tmp+rename 原子写）；B/C 批与测试只读
+  - 缓存目录默认：<cwd>/node_modules/.cache/jixoai-ghostty/；
+    **缓存唯一写入通道 = resolver API**（tmp+rename 原子写；
+    env/offline/cache-miss 行为矩阵见 design.md D2）；B/C 批与测试
+    只读
   - wasm 事实基线（fixture/probe 断言锁死）：两变体 imports=[]、
     181 exports、0 global exports；实例化传 {}
 
@@ -111,7 +113,6 @@
 - apps/www/src/lib/catalog.ts：CatalogGroupId + CATALOG_GROUPS →
   ZCode 落盘（D6 冻结计数）。
 - 根 package.json scripts：verify:ghostty-pin → ZCode 落盘。
-- 根 .gitignore：packages/vite-plugin/.cache/ → ZCode 落盘。
 - apps/www/package-lock.json：E 独占（A 的 file: 依赖由 E 装）。
 - apps/www/mirror-manifest.json + density-adoption：ZCode 落盘。
 - openspec/changes/ghostty-term/**：ZCode 独占。

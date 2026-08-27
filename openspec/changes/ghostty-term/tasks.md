@@ -14,7 +14,12 @@
 - [x] Codex r2 review（7.5/10）→ r3 修订（color-utils item +
       color-picker 存量断裂修复、虚拟模块类型契约、包独立 lockfile、
       批次拓扑 A→B∥C、vite publicDir 事实）
-- [ ] Codex r3 复审 → 达标冻结（review-r*.md 归档）
+- [x] Codex r3 review（7.8/10）→ r4 修订（proposal/D7 同步、
+      resolver API 冻结、client.d.ts 形状、peer 收窄 ^8、URL 路径
+      白名单、探针场景改前置依赖 fixture）
+- [x] Codex r4 review（7.9/10）→ r5 修订（探针契约拆分、dts 构建
+      断言、resolver 行为矩阵 + 默认缓存路径定则）
+- [ ] Codex r5 复审 → 达标冻结（review-r*.md 归档）
 
 ## Phase 1 — 地基（A bootstrap 先行，随后 B ∥ C 并行）
 
@@ -22,7 +27,8 @@
 
 - [ ] 包骨架（package.json/exports/bin/tsdown/vitest + 独立
       package-lock.json + devDeps：tsdown/vitest/typescript）零运行时
-      依赖；npm ci && npm run build 可复现
+      依赖；npm ci && npm run build 可复现；dts 断言（dist/index.d.ts
+      + dist/client.d.ts 存在且在 npm pack 产物内）
 - [ ] ghostty.pin.json 首版（用 probe 本地验证后提交；两变体，
       schema 冻结于 design D2）
 - [ ] pin.ts：pin schema 读取 + schema test
@@ -42,8 +48,10 @@
       真实文件名）
 - [ ] README（消费者向：一步 wire + client 类型引用 + 前置契约 +
       环境变量）
-- [ ] 测试资产纪律：单测读 packages/vite-plugin/.cache/ 内缓存
-      bytes，不隐式依赖网络（setup 一次性经 resolver 下载）
+- [ ] 测试资产纪律：单测读默认缓存（<cwd>/node_modules/.cache/
+      jixoai-ghostty/）内 bytes，不隐式依赖网络（setup 一次性经
+      resolver 下载）；resolver 行为矩阵三场景逐行测试
+      （env/offline/cache-miss）
 
 ### Batch B：ghostty-vt 绑定层（子代理B，前置：A bootstrap 完成）
 
@@ -69,8 +77,6 @@
 - [ ] scripts/verify-ghostty-pin.mjs + package.json verify:ghostty-pin
       （schema/origin/allowlist/HEAD 200/Content-Length 上限/流式上限/
       cache 一致/tracked wasm 为零/offline 模式）
-- [ ] 根 .gitignore 增加 packages/vite-plugin/.cache/（共享文件 →
-      报告由 ZCode 落盘）
 
 ## Phase 2 — 组件与站点（并行两批，依赖 Phase 1 冻结接口）
 
@@ -115,9 +121,11 @@
 - [ ] 真实浏览器验收（ZCode 内置浏览器：demo 页像素采样、resize、
       键盘回环、暗色 token、focus/hit-lane/density、错误降级路径、
       无 role 根节点的可访问语义复核）
-- [ ] shadcn add 干净消费者探针双向：ghostty-term（ghostty-vt +
-      theme + utils + color-utils 连带、无二进制 payload）与
-      color-picker（color-utils 连带——存量断裂修复回归锁）
+- [ ] shadcn add 探针（两种 fixture 分离）：ghostty-term 用 clean
+      consumer（ghostty-vt + jixoai-theme + utils + color-utils 连带、
+      无二进制 payload）；color-picker 用前置依赖预置 fixture
+      （input/native-select/press-button/surface-motion/density 已
+      就位——存量欠账范围外），仅回归 color-utils 连带
 
 ## Phase 4 — Codex 实现复核闭环
 
