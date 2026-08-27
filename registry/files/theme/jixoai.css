@@ -1179,7 +1179,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   /* the geometry chain: one set of tokens, every dimension derives */
   --jx-range-thumb: var(--jx-icon, 1.5rem);
   --jx-range-track: var(--jx-slider-track, var(--jx-range-thumb, 1.5rem) / 2.5);
-  --jx-range-ring: calc(var(--jx-range-thumb, 1.5rem) / 6);
+  --jx-range-ring: calc(var(--jx-range-thumb, 1.5rem) / 8);
   --jx-slider-fill-color: var(--primary);
   &::-webkit-slider-runnable-track {
     height: var(--jx-range-track);
@@ -1198,7 +1198,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
     border-radius: 50%;
     border: var(--jx-range-ring) solid var(--primary);
     background: var(--background);
-    box-shadow: calc(-100cqw - var(--jx-range-ring)) 0 0 100cqw var(--jx-slider-fill-color);
+    box-shadow: calc(-100cqw - var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color);
   }
   &::-moz-range-track {
     height: var(--jx-range-track);
@@ -1239,17 +1239,19 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   height: auto;
   align-self: stretch;
   flex: none;
-  padding: 2px;
+  padding: calc(var(--jx-hit, 2.5rem) / 6);
   border: 1px solid var(--border);
-  border-radius: 0;
-  background: var(--background);
+  border-radius: 50%;
+  corner-shape: round;
+  background: conic-gradient(from 0deg, #ff0000 0deg, #ffff00 60deg, #00ff00 120deg, #00ffff 180deg, #0000ff 240deg, #ff00ff 300deg, #ff0000 360deg);
   cursor: pointer;
   &::-webkit-color-swatch-wrapper {
     padding: 0;
   }
   &::-webkit-color-swatch {
-    border: 0;
-    border-radius: 0;
+    border: 2px solid #FFF;
+    border-radius: 50%;
+    corner-shape: round;
   }
   &::-moz-color-swatch {
     border: 0;
