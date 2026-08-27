@@ -29,7 +29,8 @@ const sheet = readFileSync(resolve(here, '../src/lib/jx-pure.css'), 'utf8');
 function sheetIcon(name: 'calendar' | 'clock' | 'pipette'): string {
     // V2: pipette lives in jixoai.css (jx-html-color); calendar/clock in jx-pure.css
   const m = sheet.match(new RegExp(`--jx-icon-${name}:\\s*url\\("([^"]+)"\\)`))
-      ?? themeSheet.match(new RegExp(`--jx-icon-${name}[,:].*?url\\("([^"]+)"\\)`));
+      ?? themeSheet.match(new RegExp(`--jx-icon-${name}[,:].*?url\\("([^"]+)"\\)`))
+      ?? sheet.match(new RegExp(`--jx-icon-${name}[,:].*?url\\("([^"]+)"\\)`));
   if (!m) throw new Error(`--jx-icon-${name} missing from jx-pure.css`);
   return decodeURIComponent(m[1]!);
 }

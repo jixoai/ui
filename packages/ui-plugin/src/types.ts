@@ -74,7 +74,7 @@ export const SLOT_REGISTRY: Readonly<Record<IconSlot, SlotDefinition>> = {
     slot: 'pipette',
     consumers: [
       {
-        consumer: 'jx-html-color ::after',
+        consumer: '.jx-color-shell::after (wrapper — input is replaced element)',
         technique: 'mask',
         browsers: 'all',
       },
@@ -85,9 +85,9 @@ export const SLOT_REGISTRY: Readonly<Record<IconSlot, SlotDefinition>> = {
     consumers: [
       {
         consumer: 'input component × button',
-        technique: 'inline-svg',
+        technique: 'mask',
         browsers: 'all',
-        notes: 'DOM injection via {@html}; serializer has a dom-string mode',
+        notes: 'CSS mask on .jx-clear-glyph reading --jx-icon-clear',
       },
     ],
   },

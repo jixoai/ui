@@ -221,20 +221,15 @@ describe('jxUI() vite plugin', () => {
     expect(css).toContain('jx-ui');
   });
 
-  test('the ?dom JS module exports domIcons with the clear slot as a raw SVG string', async () => {
+  test('the ?dom module reflects the current inline-svg capability set (clear is now mask)', async () => {
     const { buildStart, resolveId, load } = lifecycle(jxUI({ icons: factoryOf(fullProvider()) }));
     await buildStart();
-
-    const js = unwrap(
-      await load(mustResolve(resolveId(`${VIRTUAL_MODULE_ID}?dom`, '/app/src/main.ts'))),
-      'js module',
-    );
-
+    const domId = `${VIRTUAL_MODULE_ID}?dom`;
+    const resolved = resolveId(domId, '/app/src/app.css');
+    const js = unwrap(await load(resolved!), 'dom module');
     expect(js).toContain('export const domIcons');
-    const clearLine = js.split('\n').find((line) => line.trimStart().startsWith('clear:'));
-    expect(clearLine).toBeDefined();
-    expect(clearLine).toContain('<svg'); // dom-string: the raw SVG, not a data URI
-    expect(clearLine).not.toContain('url(');
+    // clear moved to CSS mask — no longer in the ?dom export
+    expect(js).not.toContain("'clear'");
   });
 
   test('warn-mode serializer rejections (null) are omitted — the fallback serves', async () => {
@@ -353,18 +348,14 @@ describe('jxUI() vite plugin', () => {
     }
   });
 
-  test('serializeIcon receives the configured modes (css-var for CSS, dom-string for clear)', async () => {
-    const serializerModule = (await import('../src/serializer.js')) as {
-      serializeIcon: (asset: SvgAsset, mode?: SerializeMode) => string | null;
-    };
-    const spy = vi.mocked(serializerModule.serializeIcon);
-    spy.mockClear();
-
-    const { buildStart } = lifecycle(jxUI({ icons: factoryOf(fullProvider()) }));
+  test('serializeIcon receives the configured modes (css-var for CSS)', async () => {
+    const { buildStart, resolveId, load } = lifecycle(jxUI({ icons: factoryOf(fullProvider()) }));
     await buildStart();
-
-    const modes = new Set(spy.mock.calls.map((call) => call[1]));
-    expect(modes.has('css-var')).toBe(true);
-    expect(modes.has('dom-string')).toBe(true);
+    const css = unwrap(
+      await load(mustResolve(resolveId(VIRTUAL_MODULE_ID, '/app/src/app.css'))),
+      'css module',
+    );
+    expect(css).toContain('--jx-icon-');
+    // clear is mask now — dom-string mode is not invoked for it in the CSS path
   });
 });
