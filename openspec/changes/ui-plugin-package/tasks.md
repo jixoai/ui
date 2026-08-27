@@ -3,7 +3,13 @@
 > Sub-agent dispatchable. Parallel batches marked with ⏸ (can run
 > concurrently). Sequential dependencies marked with →.
 
-## Phase P1: Foundation (sequential)
+## Phase P0: Workspace (sequential, before P1)
+
+- [ ] P0.1: Root pnpm-workspace.yaml (or npm workspaces field) —
+       add `packages/*` to the workspace; verify the root build
+       still passes with the new member
+
+## Phase P1: Foundation (sequential after P0)
 
 - [ ] P1.1: Package scaffolding — `packages/ui-plugin/` with
        package.json (peer deps: vite, opentype.js as optional),
@@ -22,14 +28,17 @@
 - [ ] P2.4: `src/providers/mixin.ts` — mixinIconProvider (base +
        per-slot overrides, null fallthrough) + tests
 
-## Phase P3: Infrastructure (parallel after P1.2) ⏸
+## Phase P3: Infrastructure (P3.1/P3.2 parallel after P1.2; P3.3 after P3.1+P3.2)
 
 - [ ] P3.1: `src/serializer.ts` — serializeIcon() (SvgAsset → data
-       URI CSS value) + tests
+       URI CSS value OR DOM-safe SVG string) + SLOT_REGISTRY constant +
+       tests
 - [ ] P3.2: `src/safety.ts` — createSafetyChecker() (configurable,
-       default warn mode) + tests (positive + negative)
-- [ ] P3.3: `src/vite-plugin.ts` — jxUI() (virtual CSS module,
-       file I/O, HMR, provider lifecycle) + integration test
+       default warn mode, structured SafetyIssue result type) + tests
+- [ ] P3.3: `src/vite-plugin.ts` — jxUI() (virtual CSS module with
+       @layer theme {:root{}} wrapper, SourceDescriptor loading,
+       HMR, provider lifecycle) + integration test
+       → depends on P3.1 (serializer) + P3.2 (safety) contracts
 
 ## Phase P4: Integration (sequential after P2 + P3)
 
@@ -46,3 +55,5 @@
 - [ ] P5.2: Site build + parity gates green
 - [ ] P5.3: Documentation (README for the package)
 - [ ] P5.4: Codex review round
+- [ ] P5.5: Negative tests: WOFF2 decompression edge cases, malicious
+       SVG rejection, HMR invalidation, CSP data: URI compatibility

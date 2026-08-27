@@ -49,13 +49,31 @@ interface IconProvider {
 ## 3. The serializer (single CSS generation point)
 
 ```typescript
-/** the ONLY function that turns SvgAsset → CSS custom property value */
-function serializeIcon(asset: SvgAsset): string {
-  // validates the SVG against the safety checker's config
-  // encodes as data URI
-  // returns: url("data:image/svg+xml,...")
+/** serializer output modes */
+type SerializeMode = 'css-var' | 'dom-string';
+
+/** the ONLY function that turns SvgAsset → consumable output */
+function serializeIcon(asset: SvgAsset, mode: SerializeMode = 'css-var'): string {
+  // validates the SVG against the safety checker
+  // mode 'css-var': encodes as data URI → url("data:image/svg+xml,...")
+  // mode 'dom-string': returns the sanitized SVG string for {@html} injection
+  //   (the clear slot's × button uses this mode — DOM injection, not CSS)
 }
 ```
+
+**CSS wrapping**: the vite plugin generates the virtual CSS module with:
+```css
+@layer theme {
+  :root {
+    --jx-icon-calendar: url("data:image/svg+xml,...");
+    --jx-icon-clock: url("data:image/svg+xml,...");
+    ...
+  }
+}
+```
+The `@layer theme` + `:root` wrapper ensures the custom properties
+participate in the cascade correctly (they can be overridden by
+consumer :root rules at equal or later specificity).
 
 ## 4. The slot registry (extensible, versioned)
 
@@ -68,16 +86,43 @@ type IconSlot =
   | 'clear'       // input clear button (×)
   ;
 
-/** slot metadata for the capability matrix */
-interface SlotDefinition {
-  readonly slot: IconSlot;
-  /** where the icon is consumed in the standard layer */
-  readonly consumers: readonly string[];
-  /** which CSS technique the consumer uses */
-  readonly technique: 'background-image' | 'mask' | 'inline-svg';
-  /** browser support notes */
+/** per-consumer capability (a slot may have multiple consumers with different techniques) */
+interface ConsumerCapability {
+  readonly consumer: string;        // e.g. 'jx-html-input ::-webkit-calendar-picker-indicator'
+  readonly technique: 'background-image' | 'mask' | 'inline-svg' | 'font-content';
+  readonly browsers: 'chromium' | 'firefox' | 'webkit' | 'all';
   readonly notes?: string;
 }
+
+interface SlotDefinition {
+  readonly slot: IconSlot;
+  readonly consumers: readonly ConsumerCapability[];
+}
+
+/** the CONCRETE registry — iterable at build time (the vite plugin walks this) */
+const SLOT_REGISTRY: Readonly<Record<IconSlot, SlotDefinition>> = {
+  calendar: { slot: 'calendar', consumers: [
+    { consumer: 'jx-html-input ::-webkit-calendar-picker-indicator', technique: 'background-image', browsers: 'chromium', notes: 'Firefox/WebKit fall back to native indicator' },
+  ]},
+  clock: { slot: 'clock', consumers: [
+    { consumer: 'jx-html-input[type=time] ::-webkit-calendar-picker-indicator', technique: 'background-image', browsers: 'chromium', notes: 'same as calendar' },
+  ]},
+  chevron: { slot: 'chevron', consumers: [
+    { consumer: 'jx-html-select (native select)', technique: 'background-image', browsers: 'all', notes: 'replaces CSS gradients (alignment fix)' },
+    // composite components (select.svelte, date-picker, combobox) render their own
+    // inline SVG chevrons — out of scope for the FIRST plugin release; they join
+    // via future slot consumers once their DOM contracts are isomorphism-gated
+  ]},
+  pipette: { slot: 'pipette', consumers: [
+    { consumer: 'jx-html-color ::after', technique: 'mask', browsers: 'all' },
+  ]},
+  clear: { slot: 'clear', consumers: [
+    { consumer: 'input component × button', technique: 'inline-svg', browsers: 'all', notes: 'the component injects via {@html}; the provider exports a raw SVG string for DOM injection (NOT a data URI — the serializer has a DOM-safe mode)' },
+  ]},
+} as const;
+
+/** all registered slot names (for iteration) */
+const SLOT_NAMES = Object.keys(SLOT_REGISTRY) as IconSlot[];
 ```
 
 ### The capability matrix
@@ -118,11 +163,23 @@ build-pipeline files are trusted by default.
 
 ## 6. The fontIconProvider (font-to-SVG extraction)
 
+**SourceDescriptor** — the vite plugin's contract with providers (the
+plugin reads files; providers only receive loaded data):
+
 ```typescript
+/** what the vite plugin passes to a provider factory */
+interface SourceDescriptor {
+  /** raw file bytes (already loaded by the plugin — providers never do I/O) */
+  readonly data: Uint8Array;
+  /** the resolved file path (for metadata/logging, NOT for reading) */
+  readonly path: string;
+  /** the mime type (image/svg+xml, font/woff2, etc.) */
+  readonly mimeType: string;
+}
+
 fontIconProvider({
-  /** the font file's raw bytes (loaded by the vite plugin, not the provider) */
-  fontData: Buffer | Uint8Array;
-  family: string;               // for metadata/logging only
+  /** received from the vite plugin at build start */
+  source: SourceDescriptor;
   symbols: { [slot in IconSlot]?: number };  // slot → unicode codepoint
   viewBox: { width: number; height: number }; // normalize to this (default 24×24)
 })
@@ -236,6 +293,16 @@ The jx-html utilities reference icon slots with inline lucide fallbacks:
 
 Without the plugin: fallbacks serve (lucide defaults).
 With the plugin: custom properties override the fallbacks.
+
+## 10a. Ink variants (face-only, declared)
+
+The `--jx-icon-calendar-ink` / `--jx-icon-clock-ink` /
+`--jx-icon-valid-ink` / `--jx-icon-invalid-ink` variables in
+jx-pure.css are FACE-ONLY (they serve UA-shadow pseudos that reject
+author mask paint — the path-(c) ink fallback with .dark/.jx-light
+flips). They are NOT part of the slot registry and are NOT
+overridable by the plugin. If a future need arises, they join the
+registry via a versioned addition.
 
 ## 11. Frozen principles (Codex r0-r2, binding)
 
