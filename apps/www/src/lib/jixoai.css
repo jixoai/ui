@@ -1156,7 +1156,11 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 }
 
 /* the range slider: the input IS the thumb-sized pill — cqw shadow
-   fill + the ringed disc thumb (the .jx-slider law) */
+   fill + the ringed disc thumb (the .jx-slider law).
+   GEOMETRY TOKEN CHAIN (Codex r1 ruling): thumb + track + centering
+   all derive from the density aliases — never a literal 0.5rem.
+   --jx-slider-track is the density rail (8/9/10/12px per scope);
+   --jx-icon is the thumb (= the input's own height). */
 @utility jx-html-range {
   appearance: none;
   -webkit-appearance: none;
@@ -1172,9 +1176,13 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   container-type: inline-size;
   overflow: hidden;
   cursor: pointer;
+  /* the geometry chain: one set of tokens, every dimension derives */
+  --jx-range-thumb: var(--jx-icon, 1.5rem);
+  --jx-range-track: var(--jx-slider-track, var(--jx-range-thumb, 1.5rem) / 2.5);
+  --jx-range-ring: calc(var(--jx-range-thumb, 1.5rem) / 6);
   --jx-slider-fill-color: var(--primary);
   &::-webkit-slider-runnable-track {
-    height: 0.5rem;
+    height: var(--jx-range-track);
     border-radius: calc(infinity * 1px);
     background: var(--muted);
   }
@@ -1183,33 +1191,32 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
     appearance: none;
     box-sizing: border-box;
     corner-shape: var(--corner-shape, bevel);
-    /* thumb derives from the same variable as the input height —
-       the margin centers it on the 0.5rem track */
-    width: var(--jx-icon, 1.5rem);
-    height: var(--jx-icon, 1.5rem);
-    margin-top: calc((0.5rem - var(--jx-icon, 1.5rem)) / 2);
+    /* thumb = the icon token; centering = (track − thumb) / 2 */
+    width: var(--jx-range-thumb);
+    height: var(--jx-range-thumb);
+    margin-top: calc((var(--jx-range-track) - var(--jx-range-thumb)) / 2);
     border-radius: 50%;
-    border: 0.25rem solid var(--primary);
+    border: var(--jx-range-ring) solid var(--primary);
     background: var(--background);
-    box-shadow: calc(-100cqw - 0.75rem) 0 0 100cqw var(--jx-slider-fill-color);
+    box-shadow: calc(-100cqw - var(--jx-range-ring)) 0 0 100cqw var(--jx-slider-fill-color);
   }
   &::-moz-range-track {
-    height: 0.5rem;
+    height: var(--jx-range-track);
     border-radius: calc(infinity * 1px);
     background: var(--muted);
   }
   &::-moz-range-progress {
-    height: 0.5rem;
+    height: var(--jx-range-track);
     border-radius: calc(infinity * 1px);
     background: var(--jx-slider-fill-color);
   }
   &::-moz-range-thumb {
     box-sizing: border-box;
     corner-shape: var(--corner-shape, bevel);
-    width: var(--jx-icon, 1.5rem);
-    height: var(--jx-icon, 1.5rem);
+    width: var(--jx-range-thumb);
+    height: var(--jx-range-thumb);
     border-radius: 50%;
-    border: 0.25rem solid var(--primary);
+    border: var(--jx-range-ring) solid var(--primary);
     background: var(--background);
   }
   &:focus-visible {
