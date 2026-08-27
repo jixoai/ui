@@ -48,9 +48,9 @@
 - [ ] P4.1: `src/index.ts` — public API barrel
 - [ ] P4.2: Standard layer integration — update jx-html-input/select
        icon slots in jixoai.css to use var(--jx-icon-*, fallback)
-- [ ] P4.3: pipette slot moves from face to standard layer
-       (jx-html-color ::after)
-- [ ] P4.4: clear slot — the × button's SVG becomes a slot consumer
+- [x] P4.3: pipette slot — wrapper carrier (.jx-color-shell::after, face-side;
+       input[type=color] is a replaced element, ::after unreliable)
+- [x] P4.4: clear slot — jx-html-clear utility + .jx-clear-glyph CSS mask
 
 ## Phase P5: Quality gates (sequential after P4)
 

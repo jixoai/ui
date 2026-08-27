@@ -125,7 +125,7 @@ const SLOT_REGISTRY: Readonly<Record<IconSlot, SlotDefinition>> = {
     // via future slot consumers once their DOM contracts are isomorphism-gated
   ]},
   pipette: { slot: 'pipette', consumers: [
-    { consumer: 'jx-html-color ::after', technique: 'mask', browsers: 'all' },
+    { consumer: '.jx-color-shell::after (wrapper — input is replaced element)', technique: 'mask', browsers: 'all' },
   ]},
   clear: { slot: 'clear', consumers: [
     { consumer: 'input component × button', technique: 'inline-svg', browsers: 'all', notes: 'the component injects via {@html}; the provider exports a raw SVG string for DOM injection (NOT a data URI — the serializer has a DOM-safe mode)' },
@@ -143,8 +143,8 @@ const SLOT_NAMES = Object.keys(SLOT_REGISTRY) as IconSlot[];
 | calendar | jx-html-input ::-webkit-calendar-picker-indicator | background-image | ✓ | native fallback | native fallback | FF has no equivalent pseudo |
 | clock | jx-html-input[type=time] indicator | background-image | ✓ | native fallback | native fallback | same |
 | chevron | jx-html-select background-image | background-image | ✓ | ✓ | ✓ | replaces CSS gradients (fixes alignment) |
-| pipette | jx-html-color ::after | mask | ✓ | ✓ | ✓ | currently face-side; moves to standard layer |
-| clear | component-side (× button) | inline-svg | ✓ | ✓ | ✓ | component uses {@html icons.x}; slot provides the SVG string |
+| pipette | .jx-color-shell::after (wrapper) | mask | ✓ | ✓ | ✓ | input[type=color] is replaced — wrapper carrier |
+| clear | jx-html-clear .jx-clear-glyph | mask | ✓ | ✓ | ✓ | CSS mask reading --jx-icon-clear |
 
 ## 5. The safety checker (configurable, default warn)
 
