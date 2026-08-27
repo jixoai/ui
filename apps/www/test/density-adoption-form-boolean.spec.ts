@@ -24,10 +24,10 @@ describe('density adoption packet B', () => {
   it('uses physical activation lanes around visual boolean glyphs', () => {
     const checkbox = render(Checkbox, { props: { label: 'ready' } });
     expect(checkbox.container.querySelector('[data-jx-check]')).not.toBeNull();
-    expect(checkbox.container.querySelector('.jx-checkbox')).not.toBeNull();
+    expect(checkbox.container.querySelector('.jx-html-checkbox')).not.toBeNull();
     const radio = render(Radio, { props: { label: 'ready', name: 'state' } });
     expect(radio.container.querySelector('[data-jx-check]')).not.toBeNull();
-    expect(radio.container.querySelector('.jx-radio')).not.toBeNull();
+    expect(radio.container.querySelector('.jx-html-radio')).not.toBeNull();
   });
 
   it('keeps range interaction and color trigger roots present', () => {

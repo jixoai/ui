@@ -45,7 +45,6 @@
 <script lang="ts">
   import type { HTMLTextareaAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
-  import './textarea.css';
   import type { Snippet } from 'svelte';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
 

@@ -600,11 +600,6 @@
           "path": "registry/files/ui/input/index.ts",
           "target": "@ui/input/index.ts",
           "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/input/input.css",
-          "target": "@ui/input/input.css",
-          "type": "registry:file"
         }
       ],
       "docs": "Props: type, label?, error?, clearable?, innerInlineStart/innerInlineEnd/outerBlockStart/outerBlockEnd snippets, id? (auto), class, value ($bindable), ...restProps passed to the native input.",
@@ -661,11 +656,6 @@
         {
           "path": "registry/files/ui/textarea/textarea.svelte",
           "target": "@ui/textarea/textarea.svelte",
-          "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/textarea/textarea.css",
-          "target": "@ui/textarea/textarea.css",
           "type": "registry:file"
         },
         {
@@ -1000,11 +990,6 @@
           "path": "registry/files/ui/checkbox/index.ts",
           "target": "@ui/checkbox/index.ts",
           "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/checkbox/checkbox.css",
-          "target": "@ui/checkbox/checkbox.css",
-          "type": "registry:file"
         }
       ],
       "meta": {
@@ -1031,11 +1016,6 @@
         {
           "path": "registry/files/ui/radio/index.ts",
           "target": "@ui/radio/index.ts",
-          "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/radio/radio.css",
-          "target": "@ui/radio/radio.css",
           "type": "registry:file"
         }
       ],
@@ -1064,11 +1044,6 @@
           "path": "registry/files/ui/toggle/index.ts",
           "target": "@ui/toggle/index.ts",
           "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/toggle/toggle.css",
-          "target": "@ui/toggle/toggle.css",
-          "type": "registry:file"
         }
       ],
       "meta": {
@@ -1095,11 +1070,6 @@
         {
           "path": "registry/files/ui/native-select/index.ts",
           "target": "@ui/native-select/index.ts",
-          "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/native-select/native-select.css",
-          "target": "@ui/native-select/native-select.css",
           "type": "registry:file"
         }
       ],

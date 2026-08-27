@@ -39,7 +39,6 @@
   import type { HTMLInputAttributes } from 'svelte/elements';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
-  import './checkbox.css';
 
   interface Props extends HTMLInputAttributes {
     /** same-row label; renders label[for] */
@@ -105,7 +104,7 @@
       {id}
       type="checkbox"
       bind:checked
-      class={cn('jx-checkbox', className)}
+      class={cn('jx-html-checkbox', className)}
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}
       {...rest}

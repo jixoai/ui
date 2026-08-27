@@ -35,7 +35,6 @@
   import type { HTMLInputAttributes } from 'svelte/elements';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
-  import './radio.css';
 
   interface Props extends HTMLInputAttributes {
     /** same-row label; renders label[for] */
@@ -91,7 +90,7 @@
       {id}
       type="radio"
       bind:group
-      class={cn('jx-radio', className)}
+      class={cn('jx-html-radio', className)}
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}
       {...rest}

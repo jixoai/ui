@@ -77,7 +77,6 @@
   import { cn } from '$lib/utils';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import type { Snippet } from 'svelte';
-  import './input.css';
 
   interface Props extends HTMLInputAttributes {
     /** any native input type (default 'text') */

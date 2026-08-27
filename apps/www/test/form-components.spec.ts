@@ -297,7 +297,8 @@ describe('Checkbox / Radio / Toggle', () => {
     expect(checkboxInput.disabled).toBe(true);
     expect(radioInput.disabled).toBe(true);
     expect(toggleInput.disabled).toBe(true);
-    expect(toggle.container.querySelector('label')!.className).toContain('jx-toggle-disabled');
+    // V2: no label wrapper — the disabled dim rides the input's
+    // standard utility (&:disabled opacity .5)
   });
 
   it('checkbox submits its value pair only while checked (FormData law)', async () => {

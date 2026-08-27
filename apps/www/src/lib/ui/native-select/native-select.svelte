@@ -45,7 +45,6 @@
   import { cn } from '$lib/utils';
   import type { Snippet } from 'svelte';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
-  import './native-select.css';
 
   interface Props extends HTMLSelectAttributes {
     /** field label; renders label[for] above the control */
@@ -101,18 +100,7 @@
     >
       {@render children()}
     </select>
-    <svg
-      class="jx-select-chevron"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
-      <path d="m6 9 6 6 6-6" />
-    </svg>
+    
   </span>
   {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}
 </div>

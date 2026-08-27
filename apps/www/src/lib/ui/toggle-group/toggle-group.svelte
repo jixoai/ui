@@ -182,7 +182,7 @@
   bind:this={root}
   data-jx-tgroup
   data-density={resolvedDensity}
-  class={cn('jx-tgroup', className)}
+  class={cn('jx-html-tgroup', className)}
   {...rest}
   role={type === 'single' ? 'radiogroup' : 'group'}
   aria-label={label}

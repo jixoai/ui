@@ -53,7 +53,7 @@ describe('props discipline — consumer attributes flow to the part root', () =>
     const label = input.closest('label')!;
     expect(label.className).toContain('probe-extra'); // class merges into the part root
     // the family paint rides the shared Part A class on the group
-    expect(container.querySelector('[data-jx-tgroup]')!.className).toContain('jx-tgroup');
+    expect(container.querySelector('[data-jx-tgroup]')!.className).toContain('jx-html-tgroup');
   });
 
   it('alert-dialog-title: data-*/class land; the derived id stays the family wire', () => {
