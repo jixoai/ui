@@ -43,7 +43,17 @@ Owner 提出的两个直接问题，本 change 给出答案：
   tip release 的两个变体 → `WebAssembly.validate` + node ABI 冒烟
   探针（terminal_new / vt_write / render_state 迭代）→ 通过才更新
   pin 并开 PR。deploy 构建 `actions/cache` 按 sha256 键缓存 wasm，
-  网络只走一次且永远校验。
+  命中即零下载且仍校验；miss/驱逐时经受控且校验的网络路径重下载。
+- **存量修复：`color-utils` item + color-picker 断裂** —
+  `registry/files/lib/color-utils.ts` 现为 unreferencedLib 且
+  `color-picker` 源码 import 它却无人承载（干净安装缺文件）。本
+  change 建 `color-utils`（registry:lib）item，`color-picker` 与
+  `ghostty-term` 都声明依赖，shadcn add 探针回归锁定。
+  （color-picker 源码还 import 了 input/native-select/
+  press-button/surface-motion/density 等未声明项——**存量欠账，
+  本 change 不扩权处理**，列为后续 registry 依赖审计 change 的
+  输入；探针场景按「其余前置依赖已就位，仅回归 color-utils」
+  冻结。）
 - **`ghostty-vt`（registry:lib，framework-free）** — wasm ABI 绑定层：
   运行时解析 `ghostty_type_json()` 类型布局（零硬编码 offset，抗 ABI
   漂移），封装 terminal 生命周期 / vt_write / resize /
@@ -75,17 +85,25 @@ cell 绘制）。留待后续 change，避免首期失焦。
 
 ## Verification highlights
 
-- 插件：vitest —— build emit 断言（vite `build()` 编程调用）、dev
-  中间件 fetch 断言、sha256 不匹配报错、env 覆盖。
+- 插件：vitest —— build emit 断言（vite `build()` 编程调用，dist
+  真实文件名）、dev 中间件 fetch 断言、sha256 不匹配报错、env
+  覆盖、vite native 行为 fixture（裸/`?url`/`?init`/publicDir）、
+  虚拟模块 client 类型契约（www vite-env.d.ts fixture +
+  svelte-check 绿）。
 - 绑定层：node 直载 bytes —— plain-text formatter 黄金输出、脏行迭代
   形状、Enter 键编码黄金值、type_json 解析。
 - 组件：jsdom 逻辑级（网格度量、resize 映射）+ 站点构建后
   playwright/computed 探针 + ZCode 内置浏览器真实渲染验收（像素级
   文本呈现、暗色 token、resize 行为）。
+- 安装链：shadcn add 探针双向 —— ghostty-term（ghostty-vt +
+  jixoai-theme + utils + color-utils 连带、无二进制 payload）与
+  color-picker（其余前置依赖就位时 color-utils 连带回归）。
+- 供给链：workflow probe（validate + 空导入表 + 导出族 + ABI 冒烟）
+  通过才更新 pin；verify:ghostty-pin（schema/origin/allowlist/
+  流式上限/tracked wasm 为零）。
 - 既有门禁全绿：svelte-check / vitest / verify:surface /
   verify:mirror / verify:hook-law / build:site / docs-structure
   快照更新。
-- Codex 里程碑复核闭环（change 文档冻结 → 实现 → 复核评分迭代）。
 
 ## Codex
 

@@ -94,14 +94,16 @@ inferred from `shadcn build` output.
 
 #### Scenario: the color-utils item repairs color-picker's install
 
-- GIVEN `color-picker` whose registry source imports
-  `$lib/color-utils` while no item shipped that file (the
-  unreferencedLib wart)
+- GIVEN a consumer fixture with color-picker's OTHER runtime
+  prerequisites already present (its under-declared import graph —
+  input, native-select, press-button, surface-motion, density — is a
+  PRE-EXISTING condition, out of this change's scope and flagged as
+  input for a follow-up registry dependency-audit change)
 - WHEN `npx shadcn add @jixoai/color-picker` runs after this change
 - THEN `@jixoai/color-utils` arrives via its new registryDependencies
-  entry and the installed component resolves its import — the
-  pre-existing clean-install break is repaired and locked by the
-  shadcn add probe
+  entry and the installed component resolves that import — the
+  color-utils half of the clean-install break is repaired and locked
+  by the shadcn add probe
 
 #### Scenario: wasm prerequisite missing is named, not mysterious
 

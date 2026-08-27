@@ -7,16 +7,22 @@
 `packages/vite-plugin` SHALL publish as `@jixoai/vite-plugin` (the
 cli/ package precedent: a separate npm-publishable package, not a
 registry item) with ZERO runtime dependencies and peerDependency
-`vite ^6 || ^7 || ^8`, built by tsdown into `dist/index.js` +
-`dist/probe.js` and carrying the `jixoai-ghostty-probe` bin. The
+`vite ^8.0.0` (the only tested surface), built by tsdown into
+`dist/index.js` + `dist/probe.js` and carrying the
+`jixoai-ghostty-probe` bin. The package's public API is frozen:
+`jixoaiGhostty()` (the plugin), `resolveGhosttyWasm(opts)` (the
+node-usable resolver: variant/cacheDir/offline →
+`{ bytes, path, sha256, variant, buildInfo }`, cache filename
+`<sha256>.wasm`), and the `./client` sub-export
+(`dist/client.d.ts`, ambient `declare module
+'virtual:jixoai-ghostty'` with NAMED exports only). The
 package is a SELF-CONTAINED npm project: its own committed
 package-lock.json and devDependencies so `npm ci && npm run build`
 reproduces without any root install (the repo root is not a
-workspace). The virtual module's TypeScript contract ships as the
-`@jixoai/vite-plugin/client` sub-export (an ambient
-`declare module 'virtual:jixoai-ghostty'`); consumers add ONE
-reference line to their d.ts environment (the apps/www
-vite-env.d.ts fixture proves svelte-check stays green). Its plugins
+workspace). Consumers add ONE
+`/// <reference types="@jixoai/vite-plugin/client" />` line to their
+d.ts environment (the apps/www vite-env.d.ts fixture proves
+svelte-check stays green). Its plugins
 are build-time only: they never transpile or instantiate wasm; their
 contract surface is source-resolution (verify + cache), dev serving,
 build emission, and handing data URLs to code via virtual modules.

@@ -128,7 +128,10 @@ ghostty-org 仓库 + pin 变更必经 PR 评审（人的把关点）。minisig �
 release-assets.githubusercontent.com}`，逐跳校验重定向（每跳 host
 必须在 allowlist 内，最多 5 跳）；请求超时 30s；下载**流式累计
 4MB 硬上限**（不依赖 Content-Length——缺失或超限立即失败并断流）；
-HEAD 仅作预检，真正的安全决策在响应流上；缓存写入原子化
+URL 结构校验：路径必须匹配
+`/ghostty-org/ghostty/releases/download/tip/<variant 资产名>`（仓库
+路径与资产名白名单，防 URL 内跳转绕过）；HEAD 仅作预检，真正的
+安全决策在响应流上；缓存写入原子化
 （tmp 文件 + rename，避免半写文件被后续读取）。
 
 **二进制不进 git 的双护栏（Codex r1 阻塞#6 采纳）**：缓存目录固定
@@ -163,7 +166,7 @@ sha256）。
 ```
 packages/vite-plugin/
 ├─ package.json      name @jixoai/vite-plugin, type module, node>=20
-│                    peerDeps: vite ^6||^7||^8；零 dependencies
+│                    peerDeps: vite ^8.0.0；零 dependencies
 │                    bin: jixoai-ghostty-probe；files: dist/ + pin
 ├─ src/index.ts      export jixoaiGhostty(): Plugin[]
 ├─ src/resolve.ts    来源解析（env → cache → fetch+verify，纯函数可测）
@@ -213,13 +216,46 @@ job，沿用 cli 的 npm Trusted Publishing（OIDC）模式：pack
 配置 trusted publisher（绑定本仓库 + release.yml + npm-publish
 environment）。
 
-**虚拟模块的 TypeScript 契约（Codex r2 阻塞#2）**：包提供
-`@jixoai/vite-plugin/client` 子导出，内含
-`declare module 'virtual:jixoai-ghostty'` 的 ambient 声明（含全部
-字段类型）；消费者在自己项目的 d.ts 环境文件加一行
+**resolver 公共 API（冻结——Batch B 的可执行入口）**：
+
+```ts
+// packages/vite-plugin，node 侧同样可用（零运行时依赖）
+import { resolveGhosttyWasm } from '@jixoai/vite-plugin';
+resolveGhosttyWasm(opts?: {
+  variant?: 'full' | 'small';   // default 'full'
+  cacheDir?: string;            // default <pkg>/.cache
+  offline?: boolean;            // true = 仅缓存，miss 即抛错
+}): Promise<{
+  bytes: Uint8Array;
+  path: string;                 // 缓存绝对路径（<cacheDir>/<sha256>.wasm）
+  sha256: string; variant: 'full' | 'small'; buildInfo: string;
+}>
+```
+
+缓存文件名 = `<sha256>.wasm`（内容寻址）；唯一写入通道、tmp+rename
+原子写。B 批测试用它取 bytes（offline:false 首跑下载、后续命中），
+C 批 workflow 用 probe bin，互不越界。
+
+**client 类型子导出的物理形状（冻结）**：
+
+```
+packages/vite-plugin/src/client.d.ts        // 源
+packages/vite-plugin/dist/client.d.ts       // tsdown 产出（copy 或 emit）
+package.json exports:
+  ".":        { "types": "./dist/index.d.ts", "import": "./dist/index.js" }
+  "./client": { "types": "./dist/client.d.ts" }
+```
+
+`src/client.d.ts` 内容 = ambient
+`declare module 'virtual:jixoai-ghostty' { export const url: string;
+export const sha256: string; export const variant: 'full'|'small';
+export const buildInfo: string }`（**named exports，无 default**，
+与插件运行时生成的模块形状一致）。peerDependency 收窄为
+`vite ^8.0.0`（8 是唯一实测面；更旧版本不承诺，README 明示）。
+消费者接入：在自己项目的 d.ts 环境文件加一行
 `/// <reference types="@jixoai/vite-plugin/client" />` 即获得类型
 （apps/www fixture：`src/vite-env.d.ts` 加该行，svelte-check 必须
-绿——引用即断言）。apps/www 用 `file:../../packages/vite-plugin`
+绿——引用即断言）；apps/www 用 `file:../../packages/vite-plugin`
 本地解析（发布与否不影响仓库内开发）。
 
 ## D4. `ghostty-vt`（registry:lib）— ABI 绑定层
@@ -405,7 +441,7 @@ item href 与 payload 名不变（组迁移 = meta 字段编辑 + 镜像行）�
 | 绑定层 | vitest node + bytes 直载 | type_json 解析；formatter plain 黄金输出；脏行迭代形状；Enter→`\r`；resize 存活 |
 | 组件逻辑 | vitest jsdom（canvas mock 度量） | 网格度量换算；auto→cols/rows 映射；onData 桥；…rest/class 合并 |
 | 组件渲染 | build:site 后 playwright 探针 + ZCode 浏览器验收 | 文本像素采样非空；暗色 token；resize 重排；键盘回环；focus/hit-lane/density 断言（D5.1） |
-| 安装链 | verify-shadcn-add 先例扩展 | `shadcn add @jixoai/ghostty-term` → ghostty-vt + theme 连带、无二进制 payload |
+| 安装链 | verify-shadcn-add 先例扩展 | 双向：`shadcn add @jixoai/ghostty-term` → ghostty-vt + jixoai-theme + utils + color-utils 连带、无二进制 payload；`shadcn add @jixoai/color-picker`（其余前置依赖就位的 fixture）→ color-utils 连带回归 |
 | blueprint | scenes + build:blueprints | scenes/ghostty-term.svelte + 提交 SVG + blueprints.spec.ts 覆盖锁 |
 | 供给链 | workflow 内 probe | validate + ABI 冒烟通过才更新 pin |
 | 既有门禁 | 全量 | svelte-check / vitest / verify:surface / verify:mirror / verify:hook-law / verify:ghostty-pin / build:site / docs-structure / catalog |

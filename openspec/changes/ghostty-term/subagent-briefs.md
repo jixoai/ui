@@ -47,8 +47,9 @@
 - 交付：design.md D4 全量；上游参考 = ghostty 官方
   example/wasm-vt/index.html 的编组模式（type_json 驱动，零硬编码
   offset）。
-- wasm 测试资产：经 A 的 resolver API（node 侧导入
-  @jixoai/vite-plugin 的 resolve 导出或其 CLI）下载进共享 .cache，
+- wasm 测试资产：经 A 的 resolver API（node 侧
+  `import { resolveGhosttyWasm } from '@jixoai/vite-plugin'`——签名
+  冻结于 design.md D3）下载进共享 .cache，
   只读使用；不提交二进制、不自建下载逻辑。
 - 关键接口冻结（Batch D 依赖）：
   `loadGhosttyVT({ url?, bytes?, variant? }): Promise<GhosttyVT>`；
