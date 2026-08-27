@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-27T09:42:02.885Z",
+  "generatedAt": "2026-08-27T09:58:30.386Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -616,8 +616,8 @@
           "source": "registry/files/ui/input/input.svelte",
           "mirror": "apps/www/src/lib/ui/input/input.svelte",
           "target": "@ui/input/input.svelte",
-          "sourceSha": "b2465978535be215492237cede7e610e9051d73358a51cd66f190dc71667a9ad",
-          "mirrorSha": "b2465978535be215492237cede7e610e9051d73358a51cd66f190dc71667a9ad"
+          "sourceSha": "3129d8f40b9054f28c8b84b3c056d7743b8fba12b7ec09b74ec48f71b6331fe3",
+          "mirrorSha": "3129d8f40b9054f28c8b84b3c056d7743b8fba12b7ec09b74ec48f71b6331fe3"
         },
         {
           "source": "registry/files/ui/input/index.ts",
@@ -665,8 +665,8 @@
           "source": "registry/files/ui/textarea/textarea.svelte",
           "mirror": "apps/www/src/lib/ui/textarea/textarea.svelte",
           "target": "@ui/textarea/textarea.svelte",
-          "sourceSha": "bf7a77608421365ace6b42c3a02a575cbe56f1b253de00cb99197ec2a5891ce7",
-          "mirrorSha": "bf7a77608421365ace6b42c3a02a575cbe56f1b253de00cb99197ec2a5891ce7"
+          "sourceSha": "e3b9d1505d277eb3a0f5d1b82d4da870d0adc4a2f0f4de9c5430838e9a02978a",
+          "mirrorSha": "e3b9d1505d277eb3a0f5d1b82d4da870d0adc4a2f0f4de9c5430838e9a02978a"
         },
         {
           "source": "registry/files/ui/textarea/index.ts",
@@ -921,8 +921,8 @@
           "source": "registry/files/ui/checkbox/checkbox.svelte",
           "mirror": "apps/www/src/lib/ui/checkbox/checkbox.svelte",
           "target": "@ui/checkbox/checkbox.svelte",
-          "sourceSha": "0290ef18b4d9129880c5388dde7b7843bb73b480eb32454246816695f996d12d",
-          "mirrorSha": "0290ef18b4d9129880c5388dde7b7843bb73b480eb32454246816695f996d12d"
+          "sourceSha": "8bc3fafc621d96182f437b99b9baa50d9a656b4ef91b599ad8452b105a017100",
+          "mirrorSha": "8bc3fafc621d96182f437b99b9baa50d9a656b4ef91b599ad8452b105a017100"
         },
         {
           "source": "registry/files/ui/checkbox/index.ts",
@@ -942,8 +942,8 @@
           "source": "registry/files/ui/radio/radio.svelte",
           "mirror": "apps/www/src/lib/ui/radio/radio.svelte",
           "target": "@ui/radio/radio.svelte",
-          "sourceSha": "74b1a79bd1a01ead8fef43f8a0d67b2b121e0cbb0bbb3e0c7288d0d6e4a0a719",
-          "mirrorSha": "74b1a79bd1a01ead8fef43f8a0d67b2b121e0cbb0bbb3e0c7288d0d6e4a0a719"
+          "sourceSha": "0a8403b45eb923069838a545aecc2f163f2cd0e9178b51b8c0a36b2886921957",
+          "mirrorSha": "0a8403b45eb923069838a545aecc2f163f2cd0e9178b51b8c0a36b2886921957"
         },
         {
           "source": "registry/files/ui/radio/index.ts",
@@ -984,8 +984,8 @@
           "source": "registry/files/ui/native-select/native-select.svelte",
           "mirror": "apps/www/src/lib/ui/native-select/native-select.svelte",
           "target": "@ui/native-select/native-select.svelte",
-          "sourceSha": "a63cee7b5a4cee2b2caad8a7ed02ad7704d38f630a9f1bc5d1b63acceee1e272",
-          "mirrorSha": "a63cee7b5a4cee2b2caad8a7ed02ad7704d38f630a9f1bc5d1b63acceee1e272"
+          "sourceSha": "8a9e0928fe36d9eaf274fadf5d9a7ccf0907a03853be23198081fdd872895131",
+          "mirrorSha": "8a9e0928fe36d9eaf274fadf5d9a7ccf0907a03853be23198081fdd872895131"
         },
         {
           "source": "registry/files/ui/native-select/index.ts",

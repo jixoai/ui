@@ -30,7 +30,7 @@
        overrides ever creeping in -->
   <section data-parity="toggle-group" class="flex flex-wrap items-start gap-10">
     <div data-renderer="tier0" data-density="default">
-      <div class="jx-tgroup" role="radiogroup" aria-label="parity tgroup">
+      <div class="jx-html-tgroup" role="radiogroup" aria-label="parity tgroup">
         <label><input type="radio" name="parity-tg-0" value="a" checked /><span>a</span></label>
         <label><input type="radio" name="parity-tg-0" value="b" /><span>b</span></label>
         <label><input type="radio" name="parity-tg-0" value="c" disabled /><span>c</span></label>
@@ -108,7 +108,7 @@
       </div>
     </div>
     <div data-renderer="tier1" data-density="default">
-      <Toggle checked />
+      <Toggle checked label="on" />
     </div>
   </section>
 

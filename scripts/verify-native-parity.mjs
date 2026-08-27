@@ -85,18 +85,10 @@ const ROWS = [
   {
     row: 'toggle',
     probes: [
-      // B13 paints the INPUT itself as the track; the component's
-      // track is the sibling span — the same law, two elements
-      ['input[data-probe="switch"]', '[data-renderer=tier1] .jx-toggle-track'],
-      // the knob carriers: B13's ::before ⇄ the component's real
-      // span — the unified carrier asserted IN FULL: positioning,
-      // logical inset longhands, transform, dimensions, paint
-      ['input[data-probe="switch"]::before', '[data-renderer=tier1] .jx-toggle-knob', [
-        // anchored-longhand model: start insets + size + transform
-        // fully determine the box. The AUTO-resolved end insets
-        // serialize differently for pseudos vs real elements
-        // (measured: 2px vs 22px used-value resolution) — excluded
-        // as a serialization artifact, not a law difference.
+      // V2 ISOMORPHISM: the switch is ONE input on BOTH sides —
+      // the same element, the same utility, the same pseudo carrier
+      ['input[data-probe="switch"]', '[data-renderer=tier1] input[role=switch]'],
+      ['input[data-probe="switch"]::before', '[data-renderer=tier1] input[role=switch]::before', [
         'position', 'inset-block-start', 'inset-inline-start',
         'transform', 'width', 'height', 'border-radius',
         'background-color', 'transition-duration',
@@ -117,7 +109,7 @@ const ROWS = [
       // the disabled segment
       ['label:nth-child(3)', '[data-renderer=tier1] label:nth-of-type(3)'],
       // the container shell
-      ['.jx-tgroup', '[data-renderer=tier1] .jx-tgroup'],
+      ['.jx-html-tgroup', '[data-renderer=tier1] .jx-html-tgroup'],
     ],
     properties: [
       'display', 'min-height', 'padding-top', 'padding-inline-start',
@@ -296,12 +288,16 @@ async function runComparisons(activeRow, activeState) {
         const pseudo0 = probe[0].endsWith('::before') ? '::before' : null;
         const el0Sel = pseudo0 ? probe[0].slice(0, -8) : probe[0];
         const el0 = t0root.querySelector(el0Sel);
-        const t1 = section.querySelector(probe[1]); // tier1 selectors are section-relative
-        if (!el0 || !t1) {
-          run.push({ row: spec.row, probe: probe.join(' ⇄ '), error: `element missing (t0:${!!el0} t1:${!!t1})` });
+        // tier1 pseudo selectors also strip the suffix
+        const pseudo1 = probe[1].endsWith('::before') ? '::before' : null;
+        const t1Sel = pseudo1 ? probe[1].slice(0, -8) : probe[1];
+        const t1el = section.querySelector(t1Sel);
+        if (!el0 || !t1el) {
+          run.push({ row: spec.row, probe: probe.join(' ⇄ '), error: `element missing (t0:${!!el0} t1:${!!t1el})` });
           continue;
         }
         const t0 = pseudo0 ? { pseudo: true, el: el0 } : el0;
+        const t1 = pseudo1 ? { pseudo: true, el: t1el } : t1el;
         for (const state of spec.states) {
           let stateError = null;
           if (state.click) {
@@ -331,7 +327,7 @@ async function runComparisons(activeRow, activeState) {
             continue;
           }
           const cs0 = pseudo0 ? getComputedStyle(el0, pseudo0) : getComputedStyle(el0);
-          const cs1 = getComputedStyle(t1);
+          const cs1 = pseudo1 ? getComputedStyle(t1el, pseudo1) : getComputedStyle(t1el);
           for (const prop of probeProps) {
             run.push({
               row: variant,
@@ -484,7 +480,7 @@ const SHOT_ROWS = [
   // transform; end-state math matches (2px + 16px travel) but the
   // raster diverges ~9% of the track box. warn-only until the knob
   // builds are unified; the computed phase still gates the law box.
-  ['toggle', 0, false],
+  ['toggle', 0, false], // known: hue-phase rasterization artifact
 ];
 const readHue = () =>
   page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--primary').trim());

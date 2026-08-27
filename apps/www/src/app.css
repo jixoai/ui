@@ -24,6 +24,15 @@
 @import './lib/jixoai.css';
 @import './lib/jx-pure.css';
 
+/* jx-html standard-layer candidates: TW4's auto-detection can miss
+   new @utility names in svelte cn() calls during dev; this comment
+   block guarantees the scanner sees them (the built css always
+   includes them via the @import chain + content detection) */
+/* jx-html-input jx-html-textarea jx-html-select jx-html-checkbox
+   jx-html-radio jx-html-switch jx-html-range jx-html-color
+   jx-html-tgroup jx-html-control jx-html-control-shell
+   jx-html-control-lane */
+
 /* Tailwind mapping supplements — kill the default rounded scale (radius law:
  * 0 with bevel upgrade only); the registry sheet maps everything else. */
 @theme inline {

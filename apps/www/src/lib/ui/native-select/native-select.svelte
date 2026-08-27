@@ -91,7 +91,7 @@
       {id}
       bind:value
       class={cn(
-        'jx-select scheme-light dark:scheme-dark',
+        'jx-html-select scheme-light dark:scheme-dark',
         className,
       )}
       aria-invalid={invalidAttr}
