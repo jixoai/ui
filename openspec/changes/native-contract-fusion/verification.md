@@ -288,3 +288,34 @@
   5. Range (custom slider) and composites remain out of the mirror
      scope by design ruling; the full parity cross-product is the
      declared growth path.
+
+## Rebase onto main (2026-08-27, Owner-directed alignment round)
+
+- main advanced 29 commits (chrome-density-tier / hue-injection-
+  utilities / variant-grammar archive / rails+walkthrough site work).
+  Rebase replayed all 19 commits; the ONLY conflicts were the
+  generated mirror-manifest (regenerated per commit).
+- Law-upgrade audit vs our change:
+  - DensityContext.density is now `Density | undefined` (providers
+    may pass no opinion) — our components consume the context through
+    resolveDensity only; compile + 566/566 + density-kernel 72/72
+    confirm alignment with no code change.
+  - The theme now ships a TW4-native `@utility` intent layer
+    (jx-hue-* / jx-pair-*) — installing the theme IS installing the
+    plugin. Folder css still has no Tailwind context, so our @apply
+    boundary law and probe are unaffected (tw-context 4/4); the
+    native family paints from Part A, so no hue-utility adoption is
+    in scope.
+  - Living-spec merges folded into our deltas (three-way, main as
+    base): jx-pure Part B (main's --jx-slider-track rail, structural
+    group allowlist wording, reverse-scope full sentence, secondary
+    voice aliases) and registry's folder-per-item scenario wording.
+    component-authoring and css-architecture deltas were verified
+    UNTOUCHED by main (their bases stand).
+- Build bookkeeping: parity fixture page registered in svelte.config
+  prerender entries (+page.ts prerender flag) and the docs-structure
+  expected set (the internal gate-surfaces class alongside
+  /probe-folder-css); payloads + site rebuilt (92 registry files).
+- Gates post-rebase: vitest 566/566 (was 549 — main brought 17 more),
+  parity 7 rows / 305 GREEN, density-kernel 72/72, contract + mirror
+  GREEN, firefox engines PASS, hook law OK.

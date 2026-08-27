@@ -39,8 +39,10 @@ is retired).
 #### Scenario: adding a component
 
 - GIVEN a new component `foo`
-- WHEN it is authored under `registry/files/ui/foo/` and declared as
-  an item in `registry.json`
+- WHEN it is authored under `registry/files/ui/foo/foo.svelte` (the
+  folder-per-item law — one directory per item under
+  `registry/files/ui/<name>/`; the flat pre-tw4 path is retired) and
+  declared as an item in `registry.json`
 - THEN `shadcn build` emits `public/r/foo.json` without manual steps
 - AND `apps/www` installs the same-source copy (see the mirror-sync
   spec)
