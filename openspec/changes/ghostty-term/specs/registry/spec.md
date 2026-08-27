@@ -53,11 +53,18 @@ that plugin's virtual module (`virtual:jixoai-ghostty`), never
 through a hand-placed file. The install chain of a wasm-consuming
 item is frozen the same way as every dependency edge: `ghostty-term`
 declares `registryDependencies = ["@jixoai/ghostty-vt",
-"@jixoai/jixoai-theme"]`, and the `ghostty-vt` lib item declares
-zero npm `dependencies` (the binding uses only the global
-WebAssembly API); a real `shadcn add` probe asserts the chain lands
-both dependencies with no binary payload. The `jixoai-theme` item's
-own npm
+"@jixoai/jixoai-theme", "@jixoai/utils", "@jixoai/color-utils"]`,
+and the `ghostty-vt` and `color-utils` lib items declare zero npm
+`dependencies` (the bindings use only global web platform APIs); a
+real `shadcn add` probe asserts the chain lands all dependencies with
+no binary payload. A new `color-utils` lib item (engines group,
+canonical `@lib/color-utils.ts`) gives the previously unreferenced
+`registry/files/lib/color-utils.ts` an owning item AND repairs the
+pre-existing break where `color-picker`'s registry source imports
+`$lib/color-utils` that no item shipped — `color-picker` gains
+`@jixoai/color-utils` in its `registryDependencies`, and the shadcn
+add probe covers BOTH `ghostty-term` and `color-picker` installs.
+The `jixoai-theme` item's own npm
 dependency closure MUST be declared: its css imports
 `@fontsource-variable/jetbrains-mono` + `@fontsource/share-tech-mono`,
 so both MUST be in the item's `dependencies` (clean consumers resolve
@@ -79,10 +86,22 @@ inferred from `shadcn build` output.
   `jixoaiGhostty()` wired in vite
 - WHEN `npx shadcn add @jixoai/ghostty-term` runs
 - THEN the component folder and the shared `@lib/ghostty-vt.ts` land
-  at their canonical targets (the `@jixoai/ghostty-vt` and
-  `@jixoai/jixoai-theme` registryDependencies arrive with it) with NO
-  binary payload in the registry JSON, and the component resolves
-  the wasm at runtime through the plugin's virtual module
+  at their canonical targets (the `@jixoai/ghostty-vt`,
+  `@jixoai/jixoai-theme`, `@jixoai/utils`, and `@jixoai/color-utils`
+  registryDependencies arrive with it) with NO binary payload in the
+  registry JSON, and the component resolves the wasm at runtime
+  through the plugin's virtual module
+
+#### Scenario: the color-utils item repairs color-picker's install
+
+- GIVEN `color-picker` whose registry source imports
+  `$lib/color-utils` while no item shipped that file (the
+  unreferencedLib wart)
+- WHEN `npx shadcn add @jixoai/color-picker` runs after this change
+- THEN `@jixoai/color-utils` arrives via its new registryDependencies
+  entry and the installed component resolves its import — the
+  pre-existing clean-install break is repaired and locked by the
+  shadcn add probe
 
 #### Scenario: wasm prerequisite missing is named, not mysterious
 

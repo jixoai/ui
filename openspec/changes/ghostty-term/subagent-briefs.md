@@ -15,44 +15,51 @@
 > 6. 法则读法提示：openspec/changes/ghostty-term/design.md 是冻结
 >    接口与规格的唯一出处；与本 brief 冲突时以 design.md 为准并上报。
 
-## Batch A — vite-plugin 包
+## Batch A — vite-plugin 包（bootstrap 批：先于 B/C 完成）
 
 - 子代理类型：general-purpose
 - 文件集（独占）：packages/vite-plugin/**（新增）
 - 交付：design.md D1/D2/D3 全量；测试绿；README 消费者向。
+- 工程自包含：独立 package-lock.json + devDeps（tsdown/vitest/
+  typescript），npm ci && npm run build 可复现（CI 不依赖根安装）。
 - pin 写入纪律：初始 pin 由你用 probe 验证后写
   ghostty.pin.json（本批次唯一例外授权）；此后 pin 唯一写入者
   是 sync workflow（Batch C），你不得再改。
-- 关键接口冻结（Batch C/D/E 依赖）：
+- 关键接口冻结（Batch B/C/D/E 依赖）：
   - `import { jixoaiGhostty } from '@jixoai/vite-plugin'`
   - 虚拟模块 `virtual:jixoai-ghostty` 导出
     `{ url: string, sha256: string, variant: 'full'|'small', buildInfo: string }`
+  - `@jixoai/vite-plugin/client` 子导出：ambient 类型声明
+    （消费者 vite-env.d.ts 一行 reference 引用）
   - bin `jixoai-ghostty-probe --wasm <path> --variant full|small --json`
     → stdout pin 片段 `{variant, sha256, size, buildInfo}`
   - 构建：tsdown 产 dist/index.js + dist/probe.js（ESM）
-  - 缓存目录固定：packages/vite-plugin/.cache/（B/C 批与 www 测试
-    共用；.gitignore 由 ZCode 落盘）
+  - 缓存目录固定：packages/vite-plugin/.cache/；**缓存唯一写入通道
+    = resolver API**（tmp+rename 原子写）；B/C 批与测试只读
   - wasm 事实基线（fixture/probe 断言锁死）：两变体 imports=[]、
     181 exports、0 global exports；实例化传 {}
 
-## Batch B — ghostty-vt 绑定层
+## Batch B — ghostty-vt 绑定层（前置：A bootstrap 完成）
 
 - 子代理类型：general-purpose
 - 文件集（独占）：registry/files/lib/ghostty-vt.ts（新增）、
   apps/www/test/ghostty-vt.spec.ts（node 测试；镜像复制属 Batch E）。
 - 交付：design.md D4 全量；上游参考 = ghostty 官方
   example/wasm-vt/index.html 的编组模式（type_json 驱动，零硬编码
-  offset）；wasm 测试资产从 pin url 下载进 .cache（不提交二进制；
-  本机已验证直载可行）。
+  offset）。
+- wasm 测试资产：经 A 的 resolver API（node 侧导入
+  @jixoai/vite-plugin 的 resolve 导出或其 CLI）下载进共享 .cache，
+  只读使用；不提交二进制、不自建下载逻辑。
 - 关键接口冻结（Batch D 依赖）：
   `loadGhosttyVT({ url?, bytes?, variant? }): Promise<GhosttyVT>`；
   `GhosttyVT` 面见 design.md D4 图（snapshotEncode 有、decode 无）。
 
-## Batch C — 供给链 workflow + 发布
+## Batch C — 供给链 workflow + 发布（前置：A bootstrap 完成）
 
 - 子代理类型：general-purpose
-- 前置：Batch A 的 probe bin 接口（未就绪时先写 workflow 骨架，
-  probe 调用命令按冻结接口写死）。
+- 前置：Batch A 的 probe bin 与包构建（packages/vite-plugin 的
+  npm ci && npm run build 产 dist/probe.js——workflow 内执行，
+  接口按冻结契约写死）。
 - 文件集（独占）：.github/workflows/ghostty-wasm-sync.yml（新增）、
   .github/workflows/deploy.yml（追加 cache 步）、
   .github/workflows/release.yml（追加 publish-vite-plugin job）、
@@ -80,6 +87,8 @@
 - 文件集（独占）：
   - apps/www/package.json（+ package-lock.json，file: 依赖）
   - apps/www/vite.config.ts（挂插件）
+  - apps/www/src/vite-env.d.ts（加
+    /// <reference types="@jixoai/vite-plugin/client" />）
   - apps/www/src/lib/ghostty-vt.ts、apps/www/src/lib/ui/ghostty-term/**
     （same-source 镜像复制，byte-identical）
   - apps/www/src/routes/docs/components/ghostty-term.html/
@@ -96,7 +105,8 @@
 ## 冲突面审计（ZCode 落盘清单）
 
 - registry.json：B（ghostty-vt 条目）、D（ghostty-term 条目 + 三项
-  迁组）→ ZCode 一次落盘。
+  迁组）、ZCode 自持（color-utils 新 item + color-picker 补依赖）
+  → ZCode 一次落盘。
 - apps/www/src/lib/catalog.ts：CatalogGroupId + CATALOG_GROUPS →
   ZCode 落盘（D6 冻结计数）。
 - 根 package.json scripts：verify:ghostty-pin → ZCode 落盘。

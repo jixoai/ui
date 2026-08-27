@@ -24,8 +24,14 @@ import './x.wasm?init'           export default opts => init(opts, url)
 import './x.wasm?url'            显式 URL 导入（asset plugin 处理；
                                 wasm-helper 只管裸 import 与 ?init）
                                 → URL 字符串 + 文件 emit 进 dist
-模块图外（CI 抓取、运行时拼      ❌ 不搬运、不校验；SSR 构建默认不
-URL、public/ 硬拷贝）             emit 客户端资产（除非 ssrEmitAssets）
+模块图外、非 publicDir 的运行    ❌ 不搬运、不校验（引用不到即 404）
+时文件（CI 抓取、运行时拼 URL）
+publicDir/ 内的文件              client build 原样复制到 outDir
+                                （无 hash、无校验；能搬但绕过内容
+                                寻址缓存与 pin 校验，且要求手动放
+                                文件）
+SSR 构建 import 的资产           默认不 emit 客户端资产
+                                （build.ssrEmitAssets 规则另立）
 ```
 
 结论：三种模块图内形态都会把 wasm emit 进 dist，但**没有任何一种
@@ -35,10 +41,10 @@ URL、public/ 硬拷贝）             emit 客户端资产（除非 ssrEmitAsse
 build `emitFile` + 虚拟模块交 URL。这就是 `packages/vite-plugin` 的
 全部职责边界：不转译 wasm、不做实例化（那是 lib 层的事），只负责
 「来源解析 → 校验 → 伺服/落盘 → 交 URL」。Batch A 附一个 vite
-native 行为 fixture 测试（裸/`?url`/`?init` 矩阵 + 以 pin 真实
-二进制断言 import/export 表——当前期望 imports=[]、导出含必需族；
-上游漂移时该 fixture 与 probe 双哨兵失败），防止文档结论随 vite
-或 ghostty 升级漂移。
+native 行为 fixture 测试（裸/`?url`/`?init`/publicDir 复制矩阵 +
+以 pin 真实二进制断言 import/export 表——当前期望 imports=[]、导出
+含必需族；上游漂移时该 fixture 与 probe 双哨兵失败），防止文档结论
+随 vite 或 ghostty 升级漂移。
 
 ## D2. 供给链：pin 清单 + GitHub Actions，二进制不进 git
 
@@ -117,17 +123,20 @@ ghostty-org 仓库 + pin 变更必经 PR 评审（人的把关点）。minisig �
 列为 non-goal；若上游未来提供签名公钥的官方分发，再升级。
 
 **下载安全（Codex r1 阻塞#5 采纳）**：解析器与 verify:ghostty-pin 的
-网络路径统一硬化——最终 host allowlist
+网络路径统一硬化——仅允许 `https:`；最终 host allowlist
 `{github.com, objects.githubusercontent.com,
 release-assets.githubusercontent.com}`，逐跳校验重定向（每跳 host
-必须在 allowlist 内）；下载**流式累计 4MB 硬上限**（不依赖
-Content-Length——缺失或超限立即失败并断流）；HEAD 仅作预检，真正的
-安全决策在响应流上。
+必须在 allowlist 内，最多 5 跳）；请求超时 30s；下载**流式累计
+4MB 硬上限**（不依赖 Content-Length——缺失或超限立即失败并断流）；
+HEAD 仅作预检，真正的安全决策在响应流上；缓存写入原子化
+（tmp 文件 + rename，避免半写文件被后续读取）。
 
 **二进制不进 git 的双护栏（Codex r1 阻塞#6 采纳）**：缓存目录固定
 `packages/vite-plugin/.cache/`（B 批测试与 C 批 workflow 共用；由
 ZCode 落盘进根 `.gitignore`）；`verify:ghostty-pin` 与 CI 断言
-`git ls-files '*.wasm'` 为空——tracked wasm 即 gate 红。
+`git ls-files '*.wasm'` 为空——tracked wasm 即 gate 红。缓存写入的
+唯一通道是插件的 resolver API（内容寻址，tmp+rename）；B/C 批与
+测试对缓存只读。
 
 **verify:ghostty-pin 硬化（Codex 建议，采纳）**：校验 pin json 合法
 （schema）、每变体 url 为固定 origin（github.com/ghostty-org）、
@@ -137,10 +146,12 @@ tracked wasm 为零；`--offline` 跳过网络断言。workflow 侧：
 `concurrency: group=ghostty-pin`、permissions 最小化
 （contents: write + pull-requests: write 仅在该 job）。
 
-**deploy 零网络化**：deploy.yml 增加 `actions/cache`
-（key = pin 各变体 sha256 拼接）把 wasm 预填进插件 cacheDir；
-首次后所有构建零下载、仍然校验。airgap/CI artifact 场景用
-`JIXOAI_GHOSTTY_WASM_PATH` 直指本地文件（同样校验 sha256）。
+**deploy 低网络依赖**：deploy.yml 增加 `actions/cache`
+（key = pin 各变体 sha256 拼接）把 wasm 预填进插件 cacheDir；cache
+命中即零下载且仍校验，miss/eviction 时允许经 resolver 重新下载
+（不承诺绝对零网络——网络路径本身是受控且校验的）。airgap/CI
+artifact 场景用 `JIXOAI_GHOSTTY_WASM_PATH` 直指本地文件（同样校验
+sha256）。
 
 裁决理由（不变）：不提交二进制（nightly 滚动 + git 历史膨胀）；
 不依赖 coder/ghostty-web npm 包（Owner 指定 ghostty 官方 releases；
@@ -193,11 +204,23 @@ packages/vite-plugin/
 **npm 发布（Codex 阻塞#12）**：release.yml 增加 `publish-vite-plugin`
 job，沿用 cli 的 npm Trusted Publishing（OIDC）模式：pack
 `packages/vite-plugin`（先 `npm ci && npm run build`）→ 幂等 publish
-（已发布版本跳过）→ tarball 附到 tag release。Owner TODO（发布前置，
-不阻塞开发）：在 npmjs.com 为 `@jixoai/vite-plugin` 配置 trusted
-publisher（绑定本仓库 + release.yml + npm-publish environment）。
-apps/www 用 `file:../../packages/vite-plugin` 本地解析（发布与否
-不影响仓库内开发）。
+（已发布版本跳过）→ tarball 附到 tag release。**包工程自包含**
+（Codex r2 阻塞#3）：`packages/vite-plugin` 是独立 npm 工程——自带
+`package-lock.json`（Batch A 生成并维护）与 devDependencies
+（tsdown/vitest/typescript），CI 内 `npm ci` 可复现构建，不依赖根
+安装（根不是 workspace，www 的 file: 依赖照常工作）。Owner TODO
+（发布前置，不阻塞开发）：在 npmjs.com 为 `@jixoai/vite-plugin`
+配置 trusted publisher（绑定本仓库 + release.yml + npm-publish
+environment）。
+
+**虚拟模块的 TypeScript 契约（Codex r2 阻塞#2）**：包提供
+`@jixoai/vite-plugin/client` 子导出，内含
+`declare module 'virtual:jixoai-ghostty'` 的 ambient 声明（含全部
+字段类型）；消费者在自己项目的 d.ts 环境文件加一行
+`/// <reference types="@jixoai/vite-plugin/client" />` 即获得类型
+（apps/www fixture：`src/vite-env.d.ts` 加该行，svelte-check 必须
+绿——引用即断言）。apps/www 用 `file:../../packages/vite-plugin`
+本地解析（发布与否不影响仓库内开发）。
 
 ## D4. `ghostty-vt`（registry:lib）— ABI 绑定层
 
@@ -235,17 +258,29 @@ GhosttyVT
 - **url/bytes 显式注入**：lib 不 import 虚拟模块（框架无关 + node 可
   测：测试直接 `bytes: readFileSync(...)`）。虚拟模块交接发生在 ui
   组件层（D5），wasm 前置契约因此挂在组件 item 上（registry delta）。
-- 安装链冻结（Codex 阻塞#7）：`ghostty-term` 的
-  `registryDependencies = ["@jixoai/ghostty-vt", "@jixoai/jixoai-theme"]`；
-  `ghostty-vt` lib item 零 npm `dependencies`（只用全局 WebAssembly）；
-  mirror-manifest：ghostty-term 的 `canonicalMain =
+- 安装链冻结（Codex r0#7 + r2#1）：`ghostty-term` 声明
+  `registryDependencies = ["@jixoai/ghostty-vt", "@jixoai/jixoai-theme",
+  "@jixoai/utils", "@jixoai/color-utils"]`（utils = clsx+twMerge class
+  合并；color-utils = OKLCH→sRGB 画布换算）；`ghostty-vt` 与
+  `color-utils` 两个 lib item 均零 npm `dependencies`。
+- **新 item：`color-utils`（registry:lib，engines 组）**——现状是
+  `registry/files/lib/color-utils.ts` 躺在 mirror manifest 的
+  `unreferencedLib`（site-consumed），且 `color-picker` 的 registry
+  源码 import `$lib/color-utils` 却无人承载（**存量潜在断裂**：干净
+  `shadcn add @jixoai/color-picker` 会缺文件）。本 change 为其建立
+  item（canonical `@lib/color-utils.ts`），`color-picker` 的
+  registryDependencies 补 `@jixoai/color-utils`（修复存量断裂，
+  shadcn add 探针双向覆盖 color-picker 与 ghostty-term），
+  `color-utils` 退出 unreferencedLib。
+- mirror-manifest：ghostty-term 的 `canonicalMain =
   ghostty-term.svelte`（字段名以 apps/www/mirror-manifest.schema.json
   与 gen-mirror-manifest.mjs 为准——现行 registry spec 文本中的
   `canonicalMainSource` 是陈旧表述，本 change delta 顺手校正），
   `lib/ghostty-vt.ts` 以 sharedClaimOf 归属 ghostty-vt item。Phase 3
-  用 `verify-shadcn-add.mjs` 先例加真实
-  `shadcn add @jixoai/ghostty-term` 探针（断言 ghostty-vt + theme
-  连带安装、无二进制 payload）。
+  用 `verify-shadcn-add.mjs` 先例加真实 shadcn add 探针，双向断言：
+  `@jixoai/ghostty-term`（ghostty-vt + theme + utils + color-utils
+  连带、无二进制 payload）与 `@jixoai/color-picker`（color-utils
+  连带——存量断裂修复的回归锁）。
 
 ## D5. `ghostty-term`（registry:ui）— 组件架构
 
@@ -283,8 +318,9 @@ consumer (pty: websocket / ssh / loopback demo)
 - **density**：行高与 cell 度量吃 `--jx-line-*` 内核 token，
   density-adoption 表登记 family；`data-state={loading|ready|error}`
   为 stamped-attribute 面。`fontSize` prop 是数值覆盖（px）：默认值
-  由 density token 派生，显式传入即文档化逃生口（终端需要精确
-  px 控制绘制网格），不进 token allowlist、不承诺 token 对齐。
+  由 density token 派生；显式传入必须为有限正数（校验拒绝
+  NaN/≤0/Infinity），在 density exception registry 留档（受限逃生口，
+  不进 token allowlist、不承诺 token 对齐）。
 - **错误降级**：wasm 加载/编译失败（含 simd128 缺失）→
   `data-state="error"` + 可插槽的降级 UI（默认一段终端风格错误
   文案），不白屏。
@@ -350,6 +386,9 @@ data-entry:18, data-display:15, feedback:5`（UI 项合计 77→78）。
 | reading chain（prev/next/related） | 由 docs-route-model 自动派生——测试锁全链覆盖，不需手改 |
 
 item href 与 payload 名不变（组迁移 = meta 字段编辑 + 镜像行）。
+迁移后的 reading-chain 顺序（prev/next/related）由 docs-route-model
+自动派生，docs-structure.spec.ts 的全链覆盖断言即顺序快照——组迁移
+后测试更新时同步冻结新链顺序。
 **拒绝拆分**（Codex 非阻塞建议）：terminal 迁移不拆独立 change——
 迁移本身无独立交付价值（没有 ghostty-term 的 terminal 组是空壳），
 批次 D 已按「独立可验收批次」管理，且上述触及面全部冻结在案。
@@ -388,5 +427,7 @@ item href 与 payload 名不变（组迁移 = meta 字段编辑 + 镜像行）�
   demo 长跑观察，V1 不做内存仪表。
 - **npm 发布依赖 Owner 配置 trusted publisher**：不阻塞开发
   （file: 依赖），发布日 TODO 已列。
-- **apps/www 是 npm 而根是 pnpm 混锁**：www 侧继续 npm file: 依赖，
-  不动根工作区模型（既有事实，单独 change 再议）。
+- **仓库锁文件事实**：根仓库跟踪的是 `package-lock.json`
+  （npm）；`pnpm-lock.yaml` 在 .gitignore 中被忽略。apps/www 独立
+  npm 安装；`packages/vite-plugin` 亦为自带 lockfile 的独立 npm
+  工程（见 D3）。不改动该格局（单独 change 再议）。

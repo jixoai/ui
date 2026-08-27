@@ -8,11 +8,18 @@
 cli/ package precedent: a separate npm-publishable package, not a
 registry item) with ZERO runtime dependencies and peerDependency
 `vite ^6 || ^7 || ^8`, built by tsdown into `dist/index.js` +
-`dist/probe.js` and carrying the `jixoai-ghostty-probe` bin. Its
-plugins are build-time only: they never transpile or instantiate
-wasm; their contract surface is source-resolution (verify + cache),
-dev serving, build emission, and handing data URLs to code via
-virtual modules.
+`dist/probe.js` and carrying the `jixoai-ghostty-probe` bin. The
+package is a SELF-CONTAINED npm project: its own committed
+package-lock.json and devDependencies so `npm ci && npm run build`
+reproduces without any root install (the repo root is not a
+workspace). The virtual module's TypeScript contract ships as the
+`@jixoai/vite-plugin/client` sub-export (an ambient
+`declare module 'virtual:jixoai-ghostty'`); consumers add ONE
+reference line to their d.ts environment (the apps/www
+vite-env.d.ts fixture proves svelte-check stays green). Its plugins
+are build-time only: they never transpile or instantiate wasm; their
+contract surface is source-resolution (verify + cache), dev serving,
+build emission, and handing data URLs to code via virtual modules.
 
 #### Scenario: consumer wires the ghostty plugin
 
