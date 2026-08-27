@@ -155,7 +155,16 @@ export class PinError extends Error {
 
 /** Default pin path: <package root>/ghostty.pin.json (adjacent to dist/). */
 export function defaultPinPath(): string {
-  return fileURLToPath(new URL('../ghostty.pin.json', import.meta.url));
+  const url = new URL('../ghostty.pin.json', import.meta.url);
+  if (url.protocol !== 'file:') {
+    // jsdom/browser vitest conditions rewrite import.meta.url to http:// —
+    // point at an explicit path instead of dying in fileURLToPath (batch-B friction).
+    throw new PinError(
+      `defaultPinPath() needs a file: module URL, got ${url.protocol}// — you are likely under a jsdom/browser vitest condition. ` +
+        `Pass an explicit path: readPin('<abs>/packages/vite-plugin/ghostty.pin.json') or resolveWasmFromPin(pin, opts).`,
+    );
+  }
+  return fileURLToPath(url);
 }
 
 /** Read and validate a pin manifest; throws PinError with a named fix. */
