@@ -96,7 +96,8 @@
       注释 + 时间戳——css-architecture 法则）
 - [ ] jsdom 逻辑测试（度量/映射/onData/rest 合并）
 - [ ] 报告：registry.json ui item 条目（registryDependencies 冻结
-      值：ghostty-vt/jixoai-theme/utils/color-utils）+ terminal 分组
+      值：ghostty-vt/jixoai-theme/utils/color-utils/density
+      ——impl-r1#5 修订）+ terminal 分组
       迁移 4 项 + catalog.ts CATALOG_GROUPS 行 + density-adoption
       登记（含 fontSize 逃生口 exception 记录）（ZCode 落盘）
 

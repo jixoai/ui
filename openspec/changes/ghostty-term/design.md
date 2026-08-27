@@ -316,11 +316,14 @@ GhosttyVT
 - **url/bytes 显式注入**：lib 不 import 虚拟模块（框架无关 + node 可
   测：测试直接 `bytes: readFileSync(...)`）。虚拟模块交接发生在 ui
   组件层（D5），wasm 前置契约因此挂在组件 item 上（registry delta）。
-- 安装链冻结（Codex r0#7 + r2#1）：`ghostty-term` 声明
+- 安装链冻结（Codex r0#7 + r2#1；impl-r1#5 修订：density 入约）：
+  `ghostty-term` 声明
   `registryDependencies = ["@jixoai/ghostty-vt", "@jixoai/jixoai-theme",
-  "@jixoai/utils", "@jixoai/color-utils"]`（utils = clsx+twMerge class
-  合并；color-utils = OKLCH→sRGB 画布换算）；`ghostty-vt` 与
-  `color-utils` 两个 lib item 均零 npm `dependencies`。
+  "@jixoai/utils", "@jixoai/color-utils", "@jixoai/density"]`
+  （utils = clsx+twMerge class 合并；color-utils = OKLCH→sRGB 画布
+  换算；density = `--jx-text/--jx-line` 内核探针 + resolveDensity——
+  组件 import `$lib/density.svelte`，list-item 先例同款依赖边）；
+  `ghostty-vt` 与 `color-utils` 两个 lib item 均零 npm `dependencies`。
 - **新 item：`color-utils`（registry:lib，engines 组）**——现状是
   `registry/files/lib/color-utils.ts` 躺在 mirror manifest 的
   `unreferencedLib`（site-consumed），且 `color-picker` 的 registry

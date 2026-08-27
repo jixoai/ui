@@ -53,7 +53,10 @@ that plugin's virtual module (`virtual:jixoai-ghostty`), never
 through a hand-placed file. The install chain of a wasm-consuming
 item is frozen the same way as every dependency edge: `ghostty-term`
 declares `registryDependencies = ["@jixoai/ghostty-vt",
-"@jixoai/jixoai-theme", "@jixoai/utils", "@jixoai/color-utils"]`,
+"@jixoai/jixoai-theme", "@jixoai/utils", "@jixoai/color-utils",
+"@jixoai/density"]` (density joined the frozen set in the impl
+review: the component imports `$lib/density.svelte` for
+resolveDensity/stamps, the list-item precedent),
 and the `ghostty-vt` and `color-utils` lib items declare zero npm
 `dependencies` (the bindings use only global web platform APIs); a
 real `shadcn add` probe asserts the chain lands all dependencies with

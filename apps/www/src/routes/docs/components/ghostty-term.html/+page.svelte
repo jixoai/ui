@@ -39,9 +39,9 @@ ${close}
 keys/paste ─▶ keyEncode + paste gate ─▶ onData(bytes) ─▶ your pty`;
 
   const files: TreeFile[] = [
-    { name: 'registry/files/ui/ghosty-term/ghostty-term.svelte', content: ghosttyTermSource },
-    { name: 'registry/files/ui/ghosty-term/vt-deps.ts', content: vtDepsSource },
-    { name: 'src/lib/ui/ghosty-term-usage/ghostty-term-usage.svelte', content: usage },
+    { name: 'registry/files/ui/ghostty-term/ghostty-term.svelte', content: ghosttyTermSource },
+    { name: 'registry/files/ui/ghostty-term/vt-deps.ts', content: vtDepsSource },
+    { name: 'src/lib/ui/ghostty-term-usage/ghostty-term-usage.svelte', content: usage },
   ];
 
   const initCode = `# 1 — the jixoai base on a tailwind v4 + vite project
