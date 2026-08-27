@@ -893,6 +893,498 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-fill-ink: var(--destructive-foreground);
 }
 
+/* ── jx-html standard layer (native-contract-fusion V2, 2026-08-27) ─
+   The native form-control laws, SINGLE-SOURCED here. Two applications:
+   registry markup consumes these classes; the jx-pure face applies
+   them through the entry @import chain (@apply — context flows
+   through @import; variant/@media/@supports blocks transfer with the
+   apply, probe-locked 7/7 in tw-standard-layer-probe.spec.ts).
+   Pseudo spellings are COMPOUND (&:checked::before); the descendant
+   spelling is the locked-out anti-shape. DOM isomorphism (design
+   §11.2) rides on top: the switch is ONE input[role=switch] on both
+   sides; the select chevron is the CSS gradient glyph (no svg twin);
+   the tgroup is a subtree law over bare labels. ─────────────────── */
+
+/* the text-like control box law (B4's 13-type allowlist payload;
+   the number lane keeps the PLATFORM stepper by sharing this law) */
+@utility jx-html-input {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-height: var(--jx-hit, 2.5rem);
+  padding-block: var(--jx-gap, 0.5rem);
+  padding-inline: var(--jx-inset, 0.75rem);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--jx-text, 0.875rem);
+  line-height: var(--jx-leading, 1.45);
+  transition: box-shadow 150ms ease-out;
+  &:hover:not(:disabled) {
+    box-shadow: var(--shadow-2xs);
+  }
+  &:focus-visible {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+    box-shadow: none;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  &[aria-invalid='true'] {
+    border-style: dashed;
+  }
+  &::placeholder {
+    color: var(--jx-placeholder, color-mix(in oklab, var(--foreground) 40%, var(--background)));
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/* the multiline lane: the input law + the textarea min + vertical
+   resize (B4's textarea clause) */
+@utility jx-html-textarea {
+  @apply jx-html-input;
+  min-height: var(--jx-textarea-min, 5rem);
+  height: auto;
+  resize: vertical;
+}
+
+/* the closed control: the input law + the pointer cursor + the CSS
+   gradient chevron (the @supports gate keeps Firefox on its platform
+   arrow) + the listbox posture for [multiple]/[size] (B4's select) */
+@utility jx-html-select {
+  @apply jx-html-input;
+  cursor: pointer;
+  padding-inline-end: calc(var(--jx-inset, 0.75rem) + var(--jx-icon, 1.25rem));
+  @supports not selector(::-moz-range-progress) {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+      linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+    background-position:
+      calc(100% - 1.1875rem) calc(50% - 0.1875rem),
+      calc(100% - 0.8125rem) calc(50% - 0.1875rem);
+    background-size: 0.375rem 0.375rem;
+    background-repeat: no-repeat;
+    &:hover:not(:disabled) {
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--primary) 50%),
+        linear-gradient(135deg, var(--primary) 50%, transparent 50%);
+    }
+  }
+  &:where([multiple], [size]) {
+    min-height: 5.75rem;
+    padding-block: 0.375rem 0.5rem;
+    cursor: default;
+    background-image: none;
+  }
+}
+
+/* the checkbox: icon-sized box, the ::before clip-path glyph with
+   the checked/indeterminate morphs (B5) */
+@utility jx-html-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  box-sizing: border-box;
+  width: var(--jx-icon, 1.25rem);
+  height: var(--jx-icon, 1.25rem);
+  margin: 0;
+  flex: none;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  cursor: pointer;
+  transition:
+    background-color 150ms ease-out,
+    border-color 150ms ease-out;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    display: block;
+    background: var(--primary-foreground);
+    opacity: 0;
+    transform: rotate(45deg);
+    clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 80%, 70% 80%, 70% 100%);
+    transition:
+      clip-path 150ms ease-out,
+      opacity 150ms ease-out,
+      transform 150ms ease-out;
+  }
+  &:hover:not(:checked):not(:disabled) {
+    border-color: var(--primary);
+  }
+  &:checked,
+  &:indeterminate {
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+  &:checked::before {
+    opacity: 1;
+    clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%);
+  }
+  &:indeterminate::before {
+    opacity: 1;
+    transform: rotate(0deg);
+    clip-path: polygon(10% 40%, 10% 60%, 45% 60%, 55% 60%, 90% 60%, 90% 40%);
+  }
+  &:focus-visible {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  &[aria-invalid='true'] {
+    border-style: dashed;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    &::before {
+      transition: none;
+    }
+  }
+}
+
+/* the radio: icon-sized circle, the ::after scale dot (B5) */
+@utility jx-html-radio {
+  @apply jx-html-checkbox;
+  border-radius: 50%;
+  transition: border-color 150ms ease-out;
+  &::before {
+    content: none;
+  }
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    display: block;
+    border-radius: 50%;
+    background: var(--primary);
+    transform: scale(0);
+    transition: transform 150ms ease-out;
+  }
+  &:checked {
+    background: var(--background);
+  }
+  &:checked::after {
+    transform: scale(1);
+  }
+}
+
+/* the switch: ONE input[role=switch] — the pill track with the
+   ::before knob riding absolute + inset + transform travel (B13,
+   density aliases; the inset ring keeps the knob's full padding) */
+@utility jx-html-switch {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  position: relative;
+  width: var(--jx-toggle-width, 2.5rem);
+  height: var(--jx-toggle-track, 1.5rem);
+  margin: 0;
+  flex: none;
+  padding: calc((var(--jx-toggle-track, 1.5rem) - var(--jx-toggle-knob, 1rem)) / 2);
+  border: 0;
+  box-shadow: 0 0 0 1px var(--border) inset;
+  border-radius: calc(infinity * 1px);
+  background: var(--muted);
+  cursor: pointer;
+  transition:
+    background-color 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  &::before {
+    content: '';
+    position: absolute;
+    inset-block: calc((var(--jx-toggle-track, 1.5rem) - var(--jx-toggle-knob, 1rem)) / 2);
+    inset-inline-start: calc((var(--jx-toggle-track, 1.5rem) - var(--jx-toggle-knob, 1rem)) / 2);
+    inline-size: var(--jx-toggle-knob, 1rem);
+    block-size: var(--jx-toggle-knob, 1rem);
+    border-radius: calc(infinity * 1px);
+    background: var(--background);
+    transform: translateX(0);
+    transition:
+      transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  &:hover:not(:checked):not(:disabled) {
+    box-shadow: 0 0 0 1px var(--primary) inset;
+  }
+  &:checked {
+    background: var(--primary);
+  }
+  &:checked::before {
+    transform: translateX(calc(var(--jx-toggle-width, 2.5rem) - var(--jx-toggle-track, 1.5rem)));
+    background: var(--primary-foreground);
+  }
+  &:focus-visible {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    &::before {
+      transition: none;
+    }
+  }
+}
+
+/* the range slider: the input IS the thumb-sized pill — cqw shadow
+   fill + the ringed disc thumb (the .jx-slider law) */
+@utility jx-html-range {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: var(--jx-icon, 1.5rem);
+  margin: 0;
+  border: 0;
+  border-radius: calc(infinity * 1px);
+  background: transparent;
+  container-type: inline-size;
+  overflow: hidden;
+  cursor: pointer;
+  --jx-slider-fill-color: var(--primary);
+  &::-webkit-slider-runnable-track {
+    height: 0.5rem;
+    border-radius: calc(infinity * 1px);
+    background: var(--muted);
+  }
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-top: -0.5rem;
+    border-radius: 50%;
+    border: 0.25rem solid var(--primary);
+    background: var(--background);
+    box-shadow: calc(-100cqw - 0.75rem) 0 0 100cqw var(--jx-slider-fill-color);
+  }
+  &::-moz-range-track {
+    height: 0.5rem;
+    border-radius: calc(infinity * 1px);
+    background: var(--muted);
+  }
+  &::-moz-range-progress {
+    height: 0.5rem;
+    border-radius: calc(infinity * 1px);
+    background: var(--jx-slider-fill-color);
+  }
+  &::-moz-range-thumb {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    border: 0.25rem solid var(--primary);
+    background: var(--background);
+  }
+  &:focus-visible {
+    outline: 1px solid var(--ring);
+    outline-offset: 2px;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+/* the color swatch: the locked square + flattened UA pseudos (the
+   .jx-color-swatch law) */
+@utility jx-html-color {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  width: calc(var(--jx-hit, 2.5rem) - 2px);
+  height: auto;
+  align-self: stretch;
+  flex: none;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  cursor: pointer;
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  &::-webkit-color-swatch {
+    border: 0;
+    border-radius: 0;
+  }
+  &::-moz-color-swatch {
+    border: 0;
+    border-radius: 0;
+  }
+}
+
+/* the toggle-group: a SUBTREE law — the joined segment row over
+   bare label>input+span children (the .jx-tgroup law) */
+@utility jx-html-tgroup {
+  display: inline-flex;
+  width: fit-content;
+  flex-wrap: wrap;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: var(--shadow-2xs);
+  & > label {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--jx-hit, 2.5rem);
+    padding-block: calc((var(--jx-hit, 2.5rem) - var(--jx-line, 1.25rem)) / 2);
+    padding-inline: var(--jx-inset, 0.75rem);
+    font-family: var(--font-nav);
+    font-size: var(--jx-text, 0.8125rem);
+    line-height: var(--jx-line, 1.25rem);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted-foreground);
+    background-color: transparent;
+    border-inline-end: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    transition: color 150ms ease-out, background-color 150ms ease-out;
+    &:last-child {
+      border-inline-end: 0;
+    }
+    & > input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      border: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    &:not(:has(input:disabled)):hover {
+      color: var(--foreground);
+    }
+    &:has(input:checked) {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+    }
+    &:has(input:checked):not(:has(input:disabled)):hover {
+      color: var(--primary-foreground);
+    }
+    &:has(input:focus-visible) {
+      outline: 1px solid var(--ring);
+      outline-offset: -1px;
+    }
+    &:has(input:disabled) {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    & > label {
+      transition: none;
+    }
+  }
+}
+
+/* the two postures (Part A's opt-in vocabulary, standard-sourced):
+   the single-box control, and the wrapper+lane pair for slots */
+@utility jx-html-control {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-height: var(--jx-hit, 2.5rem);
+  padding: var(--jx-gap, 0.5rem) var(--jx-inset, 0.75rem);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-size: var(--jx-text, 0.875rem);
+  color-scheme: light;
+  transition: box-shadow 150ms ease-out;
+  &:hover {
+    box-shadow: var(--shadow-2xs);
+  }
+  &:focus-visible {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  &[aria-invalid='true'] {
+    border-style: dashed;
+    border-color: var(--error);
+    color: var(--error);
+  }
+  &[aria-invalid='false'] {
+    border-color: var(--primary);
+  }
+  &::placeholder {
+    color: var(--jx-placeholder, color-mix(in oklab, var(--foreground) 40%, var(--background)));
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+@utility jx-html-control-shell {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  min-height: var(--jx-hit, 2.5rem);
+  gap: var(--jx-gap, 0.5rem);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  transition: box-shadow 150ms ease-out;
+  &:hover {
+    box-shadow: var(--shadow-2xs);
+  }
+  &:has(:focus-visible) {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+  }
+  &:has([aria-invalid='true']),
+  &.jx-invalid {
+    border-style: dashed;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+@utility jx-html-control-lane {
+  flex: 1 1 auto;
+  min-height: calc(var(--jx-hit, 2.5rem) - 2px);
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--jx-text, 0.875rem);
+  &::placeholder {
+    color: var(--jx-placeholder, color-mix(in oklab, var(--foreground) 40%, var(--background)));
+    opacity: 1;
+  }
+}
+
+
 :where(:root:not([data-density]), [data-density='default']) {
   --jx-text: var(--jx-density-text-default);
   --jx-leading: var(--jx-density-leading-default);
