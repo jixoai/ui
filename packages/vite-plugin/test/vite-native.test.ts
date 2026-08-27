@@ -17,7 +17,7 @@ import { join } from 'node:path';
 import { beforeAll, beforeEach, afterAll, describe, expect, it } from 'vitest';
 import { build } from 'vite';
 
-import { loadWasmBytes } from './helpers.ts';
+import { loadWasmBytes } from './helpers';
 
 // (module (type (func)) (func) (export "foo" (func 0)) (code))
 const MINIMAL_WASM = new Uint8Array([

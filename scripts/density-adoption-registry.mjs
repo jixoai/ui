@@ -169,6 +169,32 @@ export const REGISTRY = [
     resize: [{ scope: 'default', expect: '--jx-text 13px' }],
     testFile: 'apps/www/test/density-adoption-data.spec.ts',
   },
+  {
+    // ghostty-term (2026-08-28): the live terminal surface. Cell geometry is
+    // canvas-painted (fontSize default probes --jx-text; row height --jx-line/
+    // --jx-leading used-values), so the static css scan only sees the hit-lane;
+    // the browser phase owns stamps/lanes/resize like every utility family.
+    family: 'terminal',
+    roots: [
+      'registry/files/ui/ghostty-term/',
+      'apps/www/src/lib/ui/ghostty-term/',
+    ],
+    docsRoute: '/docs/components/ghostty-term.html',
+    probeRoot: '[data-jx-ghostty-term]',
+    lanes: ['[data-jx-ghostty-term]'],
+    visualOnly: ['[data-jx-ghostty-term] canvas'],
+    densityOwned: [
+      { selector: '[data-jx-ghostty-term]', properties: ['min-block-size'] },
+    ],
+    exceptions: [
+      // fontSize prop: px-numeric override of the --jx-text-derived default
+      // (design D5.1 sanctioned escape hatch — JS-level, not a css selector,
+      // outside the token allowlist, no token alignment promised)
+    ],
+    hitFloor: 'hit',
+    resize: [{ scope: 'default', expect: 'canvas row 20px · text 13px' }],
+    testFile: 'apps/www/test/ghostty-term.spec.ts',
+  },
 ];
 
 // a row is complete when its structural fields exist; densityOwned may be

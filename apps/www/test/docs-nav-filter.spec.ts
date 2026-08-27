@@ -85,10 +85,10 @@ describe('docs sections nav — components-tree mode', () => {
     expect(titles).toContain('press-button');
     expect(titles).toContain('dialog');
     expect(titles).toContain('scroll-virtual');
-    // taxonomy groups with counts
+    // taxonomy groups with counts (8 since the terminal group, 2026-08-28)
     const groups = [...document.querySelectorAll('.jx-dsn-rail .jx-dsn-group-label')].map((n) => n.textContent);
     expect(groups.join(' ')).toContain('General');
-    expect(document.querySelectorAll('.jx-dsn-rail [data-jx-dsn-gcount]').length).toBe(7);
+    expect(document.querySelectorAll('.jx-dsn-rail [data-jx-dsn-gcount]').length).toBe(8);
     // the current module is marked
     const current = document.querySelector('.jx-dsn-rail a[aria-current="page"]');
     expect(current?.textContent?.trim()).toBe('press-button');

@@ -26,7 +26,7 @@ import { build, createServer } from 'vite';
 
 import { jixoaiGhostty } from '../src/index.ts';
 import { readPin } from '../src/pin.ts';
-import { loadWasmBytes } from './helpers.ts';
+import { loadWasmBytes } from './helpers';
 
 let bytes: Uint8Array | undefined;
 let pinSha: string;

@@ -32,7 +32,7 @@ import type {
   GhosttyVT,
   LoadGhosttyVTOpts,
   RowSnapshot,
-} from '../../../registry/files/lib/ghostty-vt.ts';
+} from '../../../registry/files/lib/ghostty-vt';
 import GhosttyTerm from '../../../registry/files/ui/ghostty-term/ghostty-term.svelte';
 
 // ---------------------------------------------------------------------------
@@ -49,7 +49,7 @@ vi.mock('../../../registry/files/ui/ghostty-term/vt-deps.ts', async () => {
   // logic tests override loader.impl with scripted fakes. The virtual url
   // stays a fixed marker — the jsdom config has no vite plugin, so the
   // real virtual module is Batch A/plugin + browser-probe territory.
-  const real = await import('../../../registry/files/lib/ghostty-vt.ts');
+  const real = await import('../../../registry/files/lib/ghostty-vt');
   return {
     virtualWasmUrl: () => Promise.resolve('mock://ghostty-vt.wasm'),
     loadVt: (opts: LoadGhosttyVTOpts): Promise<GhosttyVT> =>
@@ -674,7 +674,7 @@ const acquireWasmBytes = async (): Promise<Uint8Array> => {
   if (envPath !== undefined) return new Uint8Array(readFileSync(envPath));
   if (existsSync(DEFAULT_LOCAL_WASM)) return new Uint8Array(readFileSync(DEFAULT_LOCAL_WASM));
   const { readPin, resolveWasmFromPin } = await import(
-    '../../../packages/vite-plugin/src/resolve.ts'
+    '../../../packages/vite-plugin/src/resolve'
   );
   const pinPath = join(process.cwd(), '../../packages/vite-plugin/ghostty.pin.json');
   const pin = await readPin(pinPath);

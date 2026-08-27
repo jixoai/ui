@@ -18,8 +18,8 @@
 
 import type { Plugin } from 'vite';
 
-import { readPin } from './pin.ts';
-import { resolveGhosttyWasm, type ResolvedGhosttyWasm, type ResolveGhosttyWasmOptions } from './resolve.ts';
+import { readPin } from './pin';
+import { resolveGhosttyWasm, type ResolvedGhosttyWasm, type ResolveGhosttyWasmOptions } from './resolve';
 
 export { readPin, resolveGhosttyWasm };
 export type { ResolvedGhosttyWasm, ResolveGhosttyWasmOptions };

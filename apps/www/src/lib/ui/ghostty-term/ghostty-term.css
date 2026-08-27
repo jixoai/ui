@@ -1,0 +1,24 @@
+@layer theme, base, components, utilities;
+
+/* jixoai ghostty-term — colocated residue (registry/files/ui/ghostty-term/
+ * ghostty-term.css, 2026-08-28).
+ *
+ * Orthogonal intents (1): the root's PHYSICAL layout lane only —
+ *   - display flow for the canvas grid host,
+ *   - the hit-lane contract (min-block-size: var(--jx-hit); the root is
+ *     the keyboard activation surface, D5.1).
+ * Everything else is utilities in the markup (focus ring included — the
+ * outline utilities express it, placement-law channel 1) or canvas grid
+ * geometry painted imperatively by the component (never css). No jx-*
+ * class is minted here: the semantic anchor is the data-jx-ghostty-term
+ * attribute (the hook law's css-less-anchor form).
+ *
+ * Owner original demand: 2026-08-28 "ghostty-term / Batch D (design.md D5)".
+ */
+
+@layer components {
+  :where([data-jx-ghostty-term]) {
+    display: block;
+    min-block-size: var(--jx-hit);
+  }
+}

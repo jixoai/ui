@@ -70,10 +70,14 @@ describe('docs-route-model — the section spine', () => {
     // Re-frozen 2026-08-26 (variant-grammar): chip + inline-code join
     // general (6→8, 77 ui items — the running total's source of truth is
     // this snapshot itself).
+    // Re-frozen 2026-08-28 (ghostty-term): the terminal group is carved
+    // out second — terminal-card/-footer leave layout (10→8),
+    // terminal-header leaves data-display (16→15), ghostty-term lands
+    // with them (terminal:4, 78 ui items).
     const shape = docsComponentGroups.map(({ group, entries }) => `${group.id}:${entries.length}`);
     expect(shape).toEqual([
-      'general:8', 'layout:10', 'navigation:10', 'layer:10',
-      'data-entry:18', 'data-display:16', 'feedback:5',
+      'general:8', 'terminal:4', 'layout:8', 'navigation:10', 'layer:10',
+      'data-entry:18', 'data-display:15', 'feedback:5',
     ]);
     expect(shape.every((x) => !x.endsWith(':1')), 'no single-member groups').toBe(true);
   });

@@ -24,7 +24,7 @@ import {
   loadGhosttyVT,
   type GhosttyVT,
   type RowSnapshot,
-} from '../../../registry/files/lib/ghostty-vt.ts';
+} from '../../../registry/files/lib/ghostty-vt';
 
 const DEFAULT_LOCAL_WASM = '/tmp/ghostty-research/ghostty-vt.wasm';
 
@@ -45,7 +45,7 @@ async function acquireWasmBytes(): Promise<Uint8Array> {
   // resolveWasmFromPin(pin, opts) are the exported for-tests seams; all
   // download/cache/verify behavior stays Batch A's code.
   const { readPin, resolveWasmFromPin } = await import(
-    '../../../packages/vite-plugin/src/resolve.ts'
+    '../../../packages/vite-plugin/src/resolve'
   );
   const pinPath = join(process.cwd(), '../../packages/vite-plugin/ghostty.pin.json');
   const pin = await readPin(pinPath);
