@@ -14,14 +14,15 @@ Owner 提出的两个直接问题，本 change 给出答案：
 
 1. **vite@8 会自动识别 wasm 并迁移到 dist 吗？** — wasm 不在
    vite@8 的默认资产类型表（`KNOWN_ASSET_TYPES` 无 wasm，8.2.2 源码
-   核验）；它由专用 `vite:wasm-helper` 处理：裸 `import './x.wasm'`
-   生成**自动实例化 glue**（ghostty-vt 的 `env.log` import 会解析
-   失败，实际不可用）、`?init` 给 init 函数（vite 8 起支持 Node
-   runtime 的 SSR）、`?url` 显式给 URL——三者都会把文件 emit 进
-   dist；但**模块图外的文件**（CI 抓取、运行时拼 URL）一概不搬运，
-   SSR 构建默认也不 emit 客户端资产。所以必须有插件：dev 中间件 +
-   build `emitFile` + 把 URL 交给代码的虚拟模块。这正是
-   `packages/vite-plugin` 的存在意义（design.md D1/D3）。
+   核验）；裸 `import './x.wasm'` 由专用 `vite:wasm-helper` 生成
+   **自动实例化 glue**（实测两变体 import 表为空，裸 import 可用
+   ——但文件必须在模块图内、失去 URL 与加载时机控制）、`?init` 给
+   init 函数（vite 8 起支持 Node runtime 的 SSR）、`?url` 显式给
+   URL——三者都会把文件 emit 进 dist；但**模块图外的文件**（CI 抓
+   取、运行时拼 URL）一概不搬运，SSR 构建默认也不 emit 客户端资产。
+   所以必须有插件：dev 中间件 + build `emitFile` + 把 URL 交给代码
+   的虚拟模块。这正是 `packages/vite-plugin` 的存在意义（design.md
+   D1/D3）。
 2. **components 分组方式** — 新设 `terminal` 分组（品牌原生面），
    `ghostty-term` 入驻，并把散落的 `terminal-card`（data-display）、
    `terminal-header` / `terminal-footer`（layout）迁入，导航与目录由
@@ -33,14 +34,16 @@ Owner 提出的两个直接问题，本 change 给出答案：
   `jixoaiGhostty()` vite 插件：解析 wasm 来源（env 覆盖 → sha256 校验
   缓存 → 按 pin 下载并校验），dev 以中间件伺服，build 以 `emitFile`
   落进 dist（hash 即 sha256 前缀，天然长缓存），并向组件暴露虚拟模块
-  `virtual:jixoai-ghostty`（`{ url, sha256, variant, version }`，
+  `virtual:jixoai-ghostty`（`{ url, sha256, variant, buildInfo }`，
   纯数据、SSR 安全）。零运行时依赖。
 - **ghostty wasm 供给链（GitHub Actions）** — 仓库提交 **pin 清单**
-  （url/version/sha256/size），二进制不进 git。新 workflow
-  `ghostty-wasm-sync.yml`（定时 + 手动）：下载 tip release 的两个变体
-  → `WebAssembly.validate` + node ABI 冒烟探针（terminal_new / vt_write
-  / render_state 迭代）→ 通过才更新 pin 并开 PR。deploy 构建
-  `actions/cache` 按 sha256 键缓存 wasm，网络只走一次且永远校验。
+  （schema 冻结于 design.md D2：每变体独立携带
+  url/sha256/size/buildInfo），二进制不进 git（.gitignore + CI 双
+  护栏）。新 workflow `ghostty-wasm-sync.yml`（定时 + 手动）：下载
+  tip release 的两个变体 → `WebAssembly.validate` + node ABI 冒烟
+  探针（terminal_new / vt_write / render_state 迭代）→ 通过才更新
+  pin 并开 PR。deploy 构建 `actions/cache` 按 sha256 键缓存 wasm，
+  网络只走一次且永远校验。
 - **`ghostty-vt`（registry:lib，framework-free）** — wasm ABI 绑定层：
   运行时解析 `ghostty_type_json()` 类型布局（零硬编码 offset，抗 ABI
   漂移），封装 terminal 生命周期 / vt_write / resize /

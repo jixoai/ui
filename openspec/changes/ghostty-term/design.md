@@ -13,29 +13,32 @@ wasm 引用形态                    vite 8 (rolldown, 8.2.2 实测源码)
                                 KNOWN_ASSET_TYPES 不含 wasm：
                                 wasm 不是通用静态资产类型，
                                 由专用 vite:wasm-helper 插件处理
-import './x.wasm'（裸）          parseWasm → 无导出 global 时生成自动
-                                实例化 glue；有导出 global 时生成 ESM
-                                包装 glue。ghostty-vt 的 import 是
-                                env.log —— glue 会尝试从名为 env 的 JS
-                                模块解析 → 实际不可用
+import './x.wasm'（裸）          parseWasm → 自动实例化 glue。实测
+                                tip 两变体 import 表为空、导出无
+                                global，故裸 import「能跑」——但文件
+                                必须已在模块图内，且实例化时机与
+                                URL 完全不受控
 import './x.wasm?init'           export default opts => init(opts, url)
                                 （vite 8 起支持 Node runtime 的 SSR，
                                 走文件路径实例化）
-import './x.wasm?url'            显式 URL 导入：任意文件可用 →
-                                URL 字符串 + 文件 emit 进 dist
+import './x.wasm?url'            显式 URL 导入（asset plugin 处理；
+                                wasm-helper 只管裸 import 与 ?init）
+                                → URL 字符串 + 文件 emit 进 dist
 模块图外（CI 抓取、运行时拼      ❌ 不搬运、不校验；SSR 构建默认不
 URL、public/ 硬拷贝）             emit 客户端资产（除非 ssrEmitAssets）
 ```
 
 结论：三种模块图内形态都会把 wasm emit 进 dist，但**没有任何一种
-适合我们的场景**——裸 import 因 `env.log` 失败、`?init`/`?url` 都要求
-wasm 文件已经在模块图里（即消费者项目内），而我们的 wasm 来自
-release 下载。依赖 releases 下载的 wasm 必须由插件接管：dev 中间件 +
+适合我们的场景**——三者都要求 wasm 文件已经在消费者项目的模块图里，
+而我们的 wasm 来自 release 下载；裸 import 还额外失去加载时机与 URL
+控制。依赖 releases 下载的 wasm 必须由插件接管：dev 中间件 +
 build `emitFile` + 虚拟模块交 URL。这就是 `packages/vite-plugin` 的
 全部职责边界：不转译 wasm、不做实例化（那是 lib 层的事），只负责
 「来源解析 → 校验 → 伺服/落盘 → 交 URL」。Batch A 附一个 vite
-native 行为 fixture 测试（裸/`?url`/`?init` 矩阵），防止文档结论
-随 vite 升级漂移。
+native 行为 fixture 测试（裸/`?url`/`?init` 矩阵 + 以 pin 真实
+二进制断言 import/export 表——当前期望 imports=[]、导出含必需族；
+上游漂移时该 fixture 与 probe 双哨兵失败），防止文档结论随 vite
+或 ghostty 升级漂移。
 
 ## D2. 供给链：pin 清单 + GitHub Actions，二进制不进 git
 
@@ -100,8 +103,9 @@ ghostty-org/ghostty release "tip"（滚动，唯一带 wasm 的 release）
   失败时非零退出 + stderr 点名原因。
 - 检查面（Codex 建议，采纳加强）：(1) `WebAssembly.validate`；
   (2) 导出清单 superset 断言（terminal/render_state/key_encoder/
-  paste/build_info/type_json/wasm_alloc 必需族）；(3) import 面断言
-  （仅 `env.log`，多余 import 视为 ABI 变更预警）；(4) 实例化 +
+  paste/build_info/type_json/wasm_alloc 必需族）；(3) import 面
+  断言（**实测两变体 imports=[]**；出现任何 import 即 ABI 变更，
+  失败并点名——绑定层的实例化以空 imports 为契约）；(4) 实例化 +
   ABI 冒烟：type_json 解析 → terminal_new → vt_write(着色文本) →
   render_state 脏行迭代出非空 cell → Enter 键编码 = `\r`；
   (5) simd128 探测（wasm 编译期报错即失败）。
@@ -112,11 +116,25 @@ ghostty-org 仓库 + pin 变更必经 PR 评审（人的把关点）。minisig �
 验证可提供发布者真实性，但公钥分发与轮换的复杂度超出本 change 收益，
 列为 non-goal；若上游未来提供签名公钥的官方分发，再升级。
 
+**下载安全（Codex r1 阻塞#5 采纳）**：解析器与 verify:ghostty-pin 的
+网络路径统一硬化——最终 host allowlist
+`{github.com, objects.githubusercontent.com,
+release-assets.githubusercontent.com}`，逐跳校验重定向（每跳 host
+必须在 allowlist 内）；下载**流式累计 4MB 硬上限**（不依赖
+Content-Length——缺失或超限立即失败并断流）；HEAD 仅作预检，真正的
+安全决策在响应流上。
+
+**二进制不进 git 的双护栏（Codex r1 阻塞#6 采纳）**：缓存目录固定
+`packages/vite-plugin/.cache/`（B 批测试与 C 批 workflow 共用；由
+ZCode 落盘进根 `.gitignore`）；`verify:ghostty-pin` 与 CI 断言
+`git ls-files '*.wasm'` 为空——tracked wasm 即 gate 红。
+
 **verify:ghostty-pin 硬化（Codex 建议，采纳）**：校验 pin json 合法
 （schema）、每变体 url 为固定 origin（github.com/ghostty-org）、
-HEAD 请求跟随重定向后 200、Content-Length ≤ 4MB 上限、本地 cache
-若存在则逐字节 sha256 一致；`--offline` 跳过网络断言。workflow
-侧：`concurrency: group=ghostty-pin`、permissions 最小化
+HEAD 请求跟随重定向后 200 且最终 host 在 allowlist、Content-Length
+存在时 ≤ 4MB 上限、本地 cache 若存在则逐字节 sha256 一致、
+tracked wasm 为零；`--offline` 跳过网络断言。workflow 侧：
+`concurrency: group=ghostty-pin`、permissions 最小化
 （contents: write + pull-requests: write 仅在该 job）。
 
 **deploy 零网络化**：deploy.yml 增加 `actions/cache`
@@ -208,9 +226,10 @@ GhosttyVT
 └─ free()（wasm 线性内存不由 GC 管，组件 onDestroy 接）
 ```
 
-- 实例化：`WebAssembly.instantiateStreaming`，import 只需 `env.log`；
-  不支持 streaming / wasm 编译失败（含 simd128 缺失）→ 抛带
-  `cause` 的类型化错误，组件层转 `data-state="error"`（Codex 建议采纳）。
+- 实例化：`WebAssembly.instantiateStreaming`，imports 传 `{}`（实测
+  两变体 import 表为空——契约由 probe 断言锁死）；不支持 streaming /
+  wasm 编译失败（含 simd128 缺失）→ 抛带 `cause` 的类型化错误，
+  组件层转 `data-state="error"`（Codex 建议采纳）。
 - 编组助手（setField/getField 按 typeLayout 的 offset/类型）与官方
   example 同源，泛化为表驱动。
 - **url/bytes 显式注入**：lib 不 import 虚拟模块（框架无关 + node 可
@@ -219,9 +238,12 @@ GhosttyVT
 - 安装链冻结（Codex 阻塞#7）：`ghostty-term` 的
   `registryDependencies = ["@jixoai/ghostty-vt", "@jixoai/jixoai-theme"]`；
   `ghostty-vt` lib item 零 npm `dependencies`（只用全局 WebAssembly）；
-  mirror-manifest：ghostty-term 的 `canonicalMainSource =
-  ghostty-term.svelte`，`lib/ghostty-vt.ts` 以 sharedClaimOf 归属
-  ghostty-vt item。Phase 3 用 `verify-shadcn-add.mjs` 先例加真实
+  mirror-manifest：ghostty-term 的 `canonicalMain =
+  ghostty-term.svelte`（字段名以 apps/www/mirror-manifest.schema.json
+  与 gen-mirror-manifest.mjs 为准——现行 registry spec 文本中的
+  `canonicalMainSource` 是陈旧表述，本 change delta 顺手校正），
+  `lib/ghostty-vt.ts` 以 sharedClaimOf 归属 ghostty-vt item。Phase 3
+  用 `verify-shadcn-add.mjs` 先例加真实
   `shadcn add @jixoai/ghostty-term` 探针（断言 ghostty-vt + theme
   连带安装、无二进制 payload）。
 
@@ -260,7 +282,9 @@ consumer (pty: websocket / ssh / loopback demo)
   folder css law）；浏览器断言覆盖。
 - **density**：行高与 cell 度量吃 `--jx-line-*` 内核 token，
   density-adoption 表登记 family；`data-state={loading|ready|error}`
-  为 stamped-attribute 面。
+  为 stamped-attribute 面。`fontSize` prop 是数值覆盖（px）：默认值
+  由 density token 派生，显式传入即文档化逃生口（终端需要精确
+  px 控制绘制网格），不进 token allowlist、不承诺 token 对齐。
 - **错误降级**：wasm 加载/编译失败（含 simd128 缺失）→
   `data-state="error"` + 可插槽的降级 UI（默认一段终端风格错误
   文案），不白屏。
@@ -288,8 +312,10 @@ consumer (pty: websocket / ssh / loopback demo)
 
 ### D5.3 demo / docs 页
 
-`/docs/components/ghostty-term`：live demo = 页内回环 pty（canned VT
-场景：prompt、色彩矩阵、进度条动画）+ 键盘回显（echo + 行编辑），
+`/docs/components/ghostty-term.html`（路由带 `.html`——SvelteKit
+目录路由 `ghostty-term.html/+page.svelte`，与 catalog href 及既有
+全部组件页一致）：live demo = 页内回环 pty（canned VT 场景：
+prompt、色彩矩阵、进度条动画）+ 键盘回显（echo + 行编辑），
 零网络零后端。文档覆盖：安装前置（tw4 + vite 插件两步）、
 onData/write 契约、尺寸模式、主题覆盖边界、错误降级。
 

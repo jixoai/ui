@@ -59,12 +59,22 @@ release metadata — the tip release object's dates are static while
 its assets rotate nightly. The pin has exactly ONE runtime writer:
 the `ghostty-wasm-sync` workflow, which updates it only through a PR
 and only after the probe passes (`WebAssembly.validate`, required
-export/import surface assertions, instantiation + ABI smoke: terminal
-create → vt_write → render-state iteration → Enter encodes to CR);
+export-family assertions, an EMPTY import table assertion — the
+shipped binaries import nothing and the binding instantiates with
+`{}` — plus instantiation + ABI smoke: terminal create → vt_write →
+render-state iteration → Enter encodes to CR);
 the initial pin is committed once with the same probe run locally.
 Every consumer build path (dev, CI deploy, package consumers)
-resolves against the pin and verifies sha256 before use. Threat
-model, stated: sha256 pinning gives integrity, not publisher
+resolves against the pin and verifies sha256 before use. Network
+paths SHALL be hardened uniformly: a final-host allowlist (github.com
+plus the GitHub asset CDN hosts objects.githubusercontent.com /
+release-assets.githubusercontent.com), per-hop redirect validation,
+and a streaming 4MB hard cap on the response body that holds even
+when Content-Length is missing or lies. The binary-stays-out-of-git
+rule has TWO guardrails: the fixed cache dir
+(`packages/vite-plugin/.cache/`) is gitignored, and
+`verify:ghostty-pin` plus CI assert `git ls-files '*.wasm'` is empty.
+Threat model, stated: sha256 pinning gives integrity, not publisher
 authenticity — authenticity rests on the pinned github.com/
 ghostty-org origin plus human review of pin PRs; minisig is a
 non-goal.

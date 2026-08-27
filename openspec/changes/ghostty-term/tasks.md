@@ -27,9 +27,13 @@
 - [ ] jixoaiGhostty()：dev 中间件（sha 前缀路径 + immutable）+
       build emitFile（load 期 emit + ROLLUP_FILE_URL、显式
       内容寻址 fileName、server consumer 不 emit）+ 虚拟模块
-- [ ] vitest：vite native 行为 fixture（裸/?url/?init 矩阵）+
-      resolve 单测 + build()/dev 集成测试（断言 dist 真实文件名）
+- [ ] vitest：vite native 行为 fixture（裸/?url/?init 矩阵 + pin
+      真实二进制 import/export 断言：imports=[]、必需导出族）+
+      resolve 单测（host allowlist/逐跳重定向/流式 4MB 上限）+
+      build()/dev 集成测试（断言 dist 真实文件名）
 - [ ] README（消费者向：一步 wire + 前置契约 + 环境变量）
+- [ ] 测试资产纪律：单测读 packages/vite-plugin/.cache/ 内缓存
+      bytes，不隐式依赖网络（setup 一次性经 resolver 下载）
 
 ### Batch B：ghostty-vt 绑定层（子代理B）
 
@@ -52,7 +56,10 @@
 - [ ] release.yml：publish-vite-plugin job（Trusted Publishing 幂等
       发布 + tarball 附 release；Owner TODO 注记 npm 侧绑定）
 - [ ] scripts/verify-ghostty-pin.mjs + package.json verify:ghostty-pin
-      （schema/origin/HEAD 200/Content-Length 上限/cache 一致/offline 模式）
+      （schema/origin/allowlist/HEAD 200/Content-Length 上限/流式上限/
+      cache 一致/tracked wasm 为零/offline 模式）
+- [ ] 根 .gitignore 增加 packages/vite-plugin/.cache/（共享文件 →
+      报告由 ZCode 落盘）
 
 ## Phase 2 — 组件与站点（并行两批，依赖 Phase 1 冻结接口）
 
@@ -62,7 +69,8 @@
       合并/tabindex/aria-label/hit-lane css/density/data-state/
       错误降级）+ D5.2 渲染与输入 + 生命周期释放
 - [ ] index.ts 纯桶；ghostty-term.css（:where() + layer 序言，
-      focus ring + min-block-size: var(--jx-hit)）
+      focus ring + min-block-size: var(--jx-hit)；文件顶部正交意图
+      注释 + 时间戳——css-architecture 法则）
 - [ ] jsdom 逻辑测试（度量/映射/onData/rest 合并）
 - [ ] 报告：registry.json ui item 条目（registryDependencies 冻结
       值）+ terminal 分组迁移 4 项 + catalog.ts CATALOG_GROUPS 行 +
@@ -88,7 +96,8 @@
       verify:hook-law / verify:ghostty-pin / verify:shadcn-add 扩展 /
       build:blueprints / build:site / docs-structure / catalog
 - [ ] 真实浏览器验收（ZCode 内置浏览器：demo 页像素采样、resize、
-      键盘回环、暗色 token、focus/hit-lane/density、错误降级路径）
+      键盘回环、暗色 token、focus/hit-lane/density、错误降级路径、
+      无 role 根节点的可访问语义复核）
 - [ ] shadcn add 干净消费者探针（ghostty-term → ghostty-vt + theme
       连带安装、无二进制 payload）
 

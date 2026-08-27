@@ -18,7 +18,7 @@ imports stay folder-relative and are never promoted to public API),
 and the item's colocated css when the css-architecture law requires
 one. The canonical main is machine-resolved by ONE normative source:
 the committed `apps/www/mirror-manifest.json` carries, per
-`registry:ui` item, exactly one `canonicalMainSource` (+ its consumer
+`registry:ui` item, exactly one `canonicalMain` (+ its consumer
 target) — same-name `.svelte` entries are script-derivable defaults,
 non-identical ones (toast → `toast-viewport.svelte`) MUST be
 explicit; the manifest check FAILS on missing, duplicate,
@@ -76,7 +76,7 @@ inferred from `shadcn build` output.
 #### Scenario: consumer installs an item needing a wasm asset
 
 - GIVEN a consumer with the `@jixoai` namespace and
-  `jxoaiGhostty()` wired in vite
+  `jixoaiGhostty()` wired in vite
 - WHEN `npx shadcn add @jixoai/ghostty-term` runs
 - THEN the component folder and the shared `@lib/ghostty-vt.ts` land
   at their canonical targets (the `@jixoai/ghostty-vt` and
@@ -114,7 +114,7 @@ inferred from `shadcn build` output.
   `@lib/toast-store.ts`)
 - WHEN `shadcn add @jixoai/toast` runs
 - THEN the UI folder lands under `$lib/ui/toast/**` with the index
-  default export pointing at the manifest's `canonicalMainSource`
+  default export pointing at the manifest's `canonicalMain`
   (`toast-viewport.svelte`), AND the shared file lands at its
   canonical `@lib` target, without duplication or clobbering (proven
   by the second P0.2 fixture)
