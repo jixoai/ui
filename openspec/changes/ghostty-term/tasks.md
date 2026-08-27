@@ -19,7 +19,11 @@
       白名单、探针场景改前置依赖 fixture）
 - [x] Codex r4 review（7.9/10）→ r5 修订（探针契约拆分、dts 构建
       断言、resolver 行为矩阵 + 默认缓存路径定则）
-- [ ] Codex r5 复审 → 达标冻结（review-r*.md 归档）
+- [x] Codex r5 review（7.9/10）→ r6 修订（resolver path 注释对齐
+      行为矩阵、URL 白名单 source.tag 参数化）
+- [x] Codex r6 review（**8.4/10，冻结通过**）；review-r0..r6.md 归档；
+      跨字段 schema 断言建议采纳进 Batch A（source.tag ↔ releaseUrl
+      ↔ variant URL tag 一致 + tag 为安全单路径段）
 
 ## Phase 1 — 地基（A bootstrap 先行，随后 B ∥ C 并行）
 
@@ -31,7 +35,9 @@
       + dist/client.d.ts 存在且在 npm pack 产物内）
 - [ ] ghostty.pin.json 首版（用 probe 本地验证后提交；两变体，
       schema 冻结于 design D2）
-- [ ] pin.ts：pin schema 读取 + schema test
+- [ ] pin.ts：pin schema 读取 + schema test（含跨字段断言：
+      source.tag ↔ releaseUrl ↔ 各 variant URL 的 tag 一致；tag
+      必须是安全单路径段）
 - [ ] resolve.ts：env → cache → fetch+verify 纯函数（https-only/
       host allowlist/≤5 跳重定向/30s 超时/流式 4MB 上限/
       tmp+rename 原子写缓存——缓存唯一写入通道）
