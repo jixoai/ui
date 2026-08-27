@@ -32,7 +32,7 @@ No @font-face, no font-family/content CSS, no runtime font loading.
 #### Scenario: a woff2 font provides the calendar icon
 
 - GIVEN a woff2 file with a calendar glyph at codepoint 0xe901
-- WHEN fontIconProvider({ fontData, symbols: { calendar: 0xe901 } })
+- WHEN fontIconProvider({ source, symbols: { calendar: 0xe901 } })
 - THEN the calendar slot receives a fill-based SvgAsset in the target viewBox
 
 #### Scenario: any font format works uniformly

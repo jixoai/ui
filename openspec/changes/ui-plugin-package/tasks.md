@@ -15,7 +15,9 @@
        package.json (peer deps: vite, opentype.js as optional),
        tsconfig.json, build config (tsdown)
 - [ ] P1.2: Core types — `src/types.ts`: IconSlot, SvgAsset,
-       IconProvider, SlotDefinition, SafetyCheckerConfig
+       IconProvider, SlotDefinition, ConsumerCapability,
+       SourceDescriptor, SerializeMode, SafetyCheckerConfig,
+       SafetyIssue/Result, SLOT_REGISTRY constant, SLOT_NAMES
 
 ## Phase P2: Providers (parallel after P1.2) ⏸
 
@@ -37,7 +39,8 @@
        default warn mode, structured SafetyIssue result type) + tests
 - [ ] P3.3: `src/vite-plugin.ts` — jxUI() (virtual CSS module with
        @layer theme {:root{}} wrapper, SourceDescriptor loading,
-       HMR, provider lifecycle) + integration test
+       HMR with source registration/invalidation API, provider
+       lifecycle) + integration test
        → depends on P3.1 (serializer) + P3.2 (safety) contracts
 
 ## Phase P4: Integration (sequential after P2 + P3)
