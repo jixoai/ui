@@ -908,6 +908,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 /* the text-like control box law (B4's 13-type allowlist payload;
    the number lane keeps the PLATFORM stepper by sharing this law) */
 @utility jx-html-input {
+  corner-shape: var(--corner-shape, bevel);
   box-sizing: border-box;
   display: block;
   width: 100%;
@@ -951,6 +952,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 /* the multiline lane: the input law + the textarea min + vertical
    resize (B4's textarea clause) */
 @utility jx-html-textarea {
+  corner-shape: var(--corner-shape, bevel);
   @apply jx-html-input;
   min-height: var(--jx-textarea-min, 5rem);
   height: auto;
@@ -961,6 +963,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
    gradient chevron (the @supports gate keeps Firefox on its platform
    arrow) + the listbox posture for [multiple]/[size] (B4's select) */
 @utility jx-html-select {
+  corner-shape: var(--corner-shape, bevel);
   @apply jx-html-input;
   cursor: pointer;
   padding-inline-end: calc(var(--jx-inset, 0.75rem) + var(--jx-icon, 1.25rem));
@@ -996,6 +999,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   -webkit-appearance: none;
   position: relative;
   box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
   width: var(--jx-icon, 1.25rem);
   height: var(--jx-icon, 1.25rem);
   margin: 0;
@@ -1012,6 +1016,8 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
     position: absolute;
     inset: 2px;
     display: block;
+    box-sizing: border-box;
+    corner-shape: var(--corner-shape, bevel);
     background: var(--primary-foreground);
     opacity: 0;
     transform: rotate(45deg);
@@ -1070,6 +1076,8 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
     position: absolute;
     inset: 2px;
     display: block;
+    box-sizing: border-box;
+    corner-shape: var(--corner-shape, bevel);
     border-radius: 50%;
     background: var(--primary);
     transform: scale(0);
@@ -1090,6 +1098,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
   position: relative;
   width: var(--jx-toggle-width, 2.5rem);
   height: var(--jx-toggle-track, 1.5rem);
@@ -1107,6 +1116,8 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   &::before {
     content: '';
     position: absolute;
+    box-sizing: border-box;
+    corner-shape: var(--corner-shape, bevel);
     inset-block: calc((var(--jx-toggle-track, 1.5rem) - var(--jx-toggle-knob, 1rem)) / 2);
     inset-inline-start: calc((var(--jx-toggle-track, 1.5rem) - var(--jx-toggle-knob, 1rem)) / 2);
     inline-size: var(--jx-toggle-knob, 1rem);
@@ -1150,6 +1161,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
   display: block;
   width: 100%;
   height: var(--jx-icon, 1.5rem);
@@ -1169,9 +1181,13 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 1.5rem;
-    height: 1.5rem;
-    margin-top: -0.5rem;
+    box-sizing: border-box;
+    corner-shape: var(--corner-shape, bevel);
+    /* thumb derives from the same variable as the input height —
+       the margin centers it on the 0.5rem track */
+    width: var(--jx-icon, 1.5rem);
+    height: var(--jx-icon, 1.5rem);
+    margin-top: calc((0.5rem - var(--jx-icon, 1.5rem)) / 2);
     border-radius: 50%;
     border: 0.25rem solid var(--primary);
     background: var(--background);
@@ -1188,8 +1204,10 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
     background: var(--jx-slider-fill-color);
   }
   &::-moz-range-thumb {
-    width: 1rem;
-    height: 1rem;
+    box-sizing: border-box;
+    corner-shape: var(--corner-shape, bevel);
+    width: var(--jx-icon, 1.5rem);
+    height: var(--jx-icon, 1.5rem);
     border-radius: 50%;
     border: 0.25rem solid var(--primary);
     background: var(--background);
@@ -1235,6 +1253,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 /* the toggle-group: a SUBTREE law — the joined segment row over
    bare label>input+span children (the .jx-tgroup law) */
 @utility jx-html-tgroup {
+  corner-shape: var(--corner-shape, bevel);
   display: inline-flex;
   width: fit-content;
   flex-wrap: wrap;
