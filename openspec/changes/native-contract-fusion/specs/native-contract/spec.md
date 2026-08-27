@@ -1,189 +1,114 @@
-# native-contract — delta (NEW spec)
+# native-contract — delta (V2: the .jx-html standard layer)
 
 ## ADDED Requirements
 
-### Requirement: one law, two renderers, gate-locked
+### Requirement: the standard layer is the single declaration source
 
-The native form-control laws SHALL have exactly one law source —
-this spec's vocabulary table plus the jixoai token sheet — and two
-renderers: jx-pure.css (Tier-0: pure CSS, zero JS, zero tailwind
-dependency, hand-written canonical) and the registry native-family
-components (Tier-1: Svelte + slots, Part A classes consumed from the
-shared contract, component-extra paint as @apply mirror sheets).
-Value-layer duplication is forbidden (both renderers consume the
-jixoai.css tokens + density aliases); rule-layer duplication is
-either byte-shared (Part A via the contract extract) or
-parity-gated (mirror rules). `@apply` is an implementation syntax of
-renderer-1 and never a law source; jx-pure.css MUST NOT contain
-`@apply`, `@utility`, or any tailwind dependency.
+The native form-control laws SHALL be declared exactly once, as the
+`.jx-html-*` utility family authored with TW4 `@utility` inside the
+theme sheet (jixoai.css — installing the theme IS installing the
+plugin, the hue-injection precedent). Each utility carries its whole
+law — static geometry, token paint, and the state machines as nested
+variant blocks (`&:hover`, `&:focus-visible`, `&:checked::before`,
+`& > label` subtree rules, `:has()` states). Pseudo spellings SHALL
+use the compound form (`&:checked::before`); the descendant spelling
+is locked out by probe. No component, folder sheet, or face rule
+MAY re-declare a standard-layer law.
 
 #### Scenario: a law change lands
 
-- GIVEN a visual change to a native law
-- WHEN the change lands
-- THEN jx-pure.css and the component mirror sheet change in the same
-  commit and the parity gate proves computed-style equivalence —
-  a one-sided change fails CI
+- WHEN a visual change to a native law is made
+- THEN the `.jx-html-*` utility is the only edited declaration site
+  and both applications (registry markup classes, the face's bare
+  element rules) pick it up through the same build
 
-#### Scenario: the face stays standalone
+#### Scenario: the boundary stays probed
 
-- GIVEN a consumer with no tailwind at all
-- WHEN they mount jx-pure.css on arbitrary DOM
-- THEN the full face applies — the sheet never grew a tailwind
-  dependency through this spec
+- GIVEN the tw probes (context/probe + standard-layer probe)
+- THEN named-theme @apply in standalone folder css fails, cross-@import
+  @apply compiles, markup-class consumption works, variant blocks
+  transfer, and the anti-shape stays un-emitted — 5/5 + 4/4 green
 
-### Requirement: the native vocabulary (1:1 granularity)
+### Requirement: two applications, one chain
 
-The vocabulary SHALL map each Tier-0 law to exactly one Tier-1
-component: text-like input lanes (13-type allowlist, `.jx-control`
-family) → `input`; textarea lane → `textarea`; select
-chevron/listbox → `native-select`; checkbox repaint (+indeterminate)
-→ `checkbox`; radio repaint → `radio`; switch (`[role=switch]`) →
-`toggle`; toggle-group (`.jx-tgroup`) → `toggle-group`. Range and
-color are input types (their laws are Part A classes the `input`
-component consumes — no separate components). Non-form element laws
-(table/details/progress/figure/fieldset) are Tier-0 only. A new
-native-family registry component without a Tier-0 law — or a Tier-0
-form-control law without its component — is a vocabulary violation.
+The standard layer SHALL have exactly two applications. (1) The
+registry: component markup carries the standard classes
+(`class="jx-html-switch"`); folder css holds ONLY component extras
+(slots, one-offs) — zero law copies. (2) The face: jx-pure.css's
+bare-element rules APPLY the utilities through the entry @import
+chain (`:where(.jx-pure) input:where(<13-type allowlist>) {
+@apply jx-html-input }`); the allowlist rides the application
+selector so checkbox/radio/range/color/hidden branches are never
+captured by the text-lane law. jx-pure.css is pipeline-bound (the
+zero-tailwind promise is retired by Owner ruling; a compiled literal
+artifact may follow if a zero-build use case returns).
 
-#### Scenario: a new native component is proposed
+#### Scenario: the face applies the law
 
-- WHEN a form-control component enters the registry
-- THEN the proposal names its Tier-0 law twin (existing or landing
-  in the same change) or is rejected as out-of-vocabulary
+- GIVEN a .jx-pure scope with a bare text input
+- THEN its computed paint equals the jx-html-input utility's
+  declarations — one chain, no divergence possible
 
-### Requirement: the @apply mirror boundary
+#### Scenario: the allowlist holds
 
-Renderer-1 folder css MAY use `@apply` ONLY with context-free core
-utilities (flex, box-border, appearance-none, …) and arbitrary-value
-utilities (`min-h-[var(--jx-hit)]`, `text-[length:var(--jx-text)]`).
-`@apply` of NAMED theme utilities (`bg-background`, `border-border`)
-in folder css is FORBIDDEN — a standalone sheet has no Tailwind
-context (empirically locked by the tw-context probe). Token-bound
-paint is expressed as plain CSS declarations or arbitrary utilities.
-State machines (`:checked`/`:has()`/`:focus-visible`/`:focus-within`
-repaints), UA pseudos, `@keyframes`/`@property`/`@supports`,
-forced-colors blocks are bare CSS; state machines ride the unlayered
-`:where()` carve-out. Static mirror rules sit in `@layer components`
-behind `:where()` so consumer utilities keep winning.
+- GIVEN a .jx-pure scope containing checkbox/radio/range/color inputs
+- THEN each receives ITS utility's law (jx-html-checkbox/radio/
+  range/color), never the text-lane law
 
-#### Scenario: the boundary is probed
+### Requirement: DOM isomorphism is first-class
 
-- GIVEN the tw-context probe fixture
-- WHEN it compiles named-theme, arbitrary, and core @apply forms
-  against a clean consumer entry
-- THEN the named form fails and the other two compile — the probe is
-  the standing evidence and a CI gate
+Per vocabulary row, the registry component and the face's bare DOM
+SHALL render isomorphic trees: element tags, attribute sets (minus
+caller-specific values), child order, and cardinality. The canonical
+schema (design §11.2) is normative — notably the switch is ONE
+`input[role=switch]` on BOTH sides (pseudo carriers are CSS-OM, not
+DOM-AST, and are the one sanctioned exception); the select's chevron
+is the CSS glyph on both sides (the inline-svg twin retires); the
+tgroup subtree is bare `label` children. The parity gate SHALL
+assert DOM-AST isomorphism BEFORE computed-style comparison.
 
-#### Scenario: a consumer overrides mirror paint
+#### Scenario: a component grows a wrapper
 
-- GIVEN a component whose static paint is a mirror rule in
-  `@layer components`
-- WHEN the consumer passes any token utility on `class`
-- THEN the consumer utility wins (layer law, unchanged posture)
+- GIVEN a vocabulary row whose registry render adds an element the
+  canonical schema does not sanction
+- WHEN the isomorphism gate runs
+- THEN it fails naming the row, the extra node, and the schema clause
 
-### Requirement: the Part A contract extract
+### Requirement: three budget objects
 
-`registry/files/theme/jx-native-contract.css` SHALL be a generated
-byte-exact extract of jx-pure.css Part A, sliced between planted
-BEGIN/END markers by `scripts/gen-jx-native-contract.mjs`; it is
-never hand-edited and a drift gate fails when either side changes
-without the other. It ships as the `@jixoai/jx-native-contract`
-registry:lib item (dependent on `@jixoai/jixoai-theme`); native
-family items depend on it instead of the full jx-pure face.
-jx-pure.css remains the hand-written canonical and its existing
-byte-locks (mirrors, payload parity, gzip budget) stay in force.
+The size law SHALL be gated on three named objects — B-source (gzip
+of the theme + face sources), B-face (gzip of the compiled face
+rules in the canonical pipeline), B-consumer (gzip delta of a full
+consumer bundle for one component) — each with baseline, threshold
+(baseline +5%), tool version, and command recorded at V1 landing.
 
-#### Scenario: Part A edits flow one way
+#### Scenario: the compiled face grows past its baseline
 
-- GIVEN an edit to Part A in jx-pure.css
-- WHEN the generator + gates run
-- THEN the extract regenerates byte-identically to the region and a
-  hand-edit to the extract alone fails the drift gate
+- GIVEN B-face baseline recorded at V1
+- WHEN the compiled face gzip exceeds baseline +5%
+- THEN the budget gate fails naming the object and the delta
 
-#### Scenario: a consumer installs a native component
+### Requirement: the toggle-group native contract (unchanged from r1)
 
-- GIVEN `shadcn add input` on a clean consumer
-- THEN the payload carries jx-native-contract.css (not the 2006-line
-  face) plus the theme dependency, and the component renders the
-  contract classes from it
-
-### Requirement: computed-style parity gates
-
-Each vocabulary row SHALL carry a parity fixture: the same DOM
-rendered (i) bare under `.jx-pure` and (ii) as the Tier-1 component,
-with computed styles compared over the row's posture-agnostic
-property whitelist, values normalized (color notations with a
-sub-visual component tolerance, shorthands). The gate's matrix is
-DECLARED and VALIDATED machine-readably: every expected row,
-variant section (density via the tier0 data-density marker, dark via
-the section class), and state action must exist or the gate fails —
-no silent under-coverage; states are ISOLATED (a fresh page per
-non-base state with motion frozen, including pseudo-elements).
-Pseudo-carrier probes (e.g. the switch knob's ::before ⇄ the
-component's span) assert the unified carriers. Screenshot-oracle
-evidence (the capture-baseline tolerant pixel comparator) covers
-geometric rows; a documented rasterization-path artifact
-(::before-inside-input vs a real child element) is warn-only with
-its root cause recorded. Extending the matrix toward the full
-cross-product {hover, aria-invalid} × per-row densities is follow-up
-work, declared here as the growth path — the gate enforces exactly
-what it declares.
-
-#### Scenario: drift sneaks into one renderer
-
-- GIVEN a one-sided declaration change (jx-pure.css OR a mirror
-  sheet)
-- WHEN the parity gate runs
-- THEN it fails naming the fixture, state, and property that
-  diverged
-
-#### Scenario: the double-paint coexistence stays safe
-
-- GIVEN renderer-1 DOM inside a `.jx-pure` subtree
-- THEN both rule sets may paint the same element and the computed
-  result is unchanged — identical-by-parity declarations make the
-  winner irrelevant; the gate is what makes them identical
-
-### Requirement: toggle-group is a native radio/checkbox group
-
-The toggle-group SHALL render label+input pairs — `input[type=radio]`
-(single) or `input[type=checkbox]` (multiple), visually hidden but
-focusable — with content in a `.jx-tgroup-content` span. `name` is
-REQUIRED for single (radio grouping is name-scoped), optional for
-multiple. DOM `checked` is the uncontrolled truth; `value` is a
-$bindable projection (DOM change → value; external value → DOM) with
-no blind two-way loops. FormData is native (multiple submits
-repeated entries in DOM order; the jx-form-field bridge is deleted
-from this component). single mode does NOT support re-press clear
-(an explicit none item is the pattern); keyboard is native (radio
-arrow-walk + one tab stop). `form.reset()` re-syncs `value` via the
-reset event (microtask). `required` forwards to inputs in single
-mode; at-least-one-of-many is explicitly out of scope. Duplicate
-item values are a contract violation. The event API separates native
-event forwarding from `onValueChange`; internal handlers bind AFTER
-`{...rest}` so consumer spreads cannot sever the value law.
-Interactive descendants are banned inside label content. The CSS
-discriminator is the `.jx-tgroup` Part A opt-in class; `data-jx-tgroup`
-remains the semantic hook; roles never serve as css discriminators.
+The toggle-group SHALL render label+input pairs — radio (single,
+name REQUIRED) or checkbox (multiple) — DOM-checked as the
+uncontrolled truth, native FormData (repeated entries, getAll), no
+re-press clear, reset re-sync via the reset event, onValueChange
+separate from native forwarding with internal handlers bound after
+`{...rest}`, required forwarding in single mode, no interactive
+descendants in label content. The paint law rides
+`jx-html-tgroup` (the subtree utility).
 
 #### Scenario: single mode submits natively
 
-- GIVEN a single toggle-group inside a form with `name="density"`
+- GIVEN a single toggle-group inside a form with a name
 - WHEN the user arrow-walks and presses a value, then submits
-- THEN FormData carries exactly `density=<value>` with no bridge
-  element in the DOM
+- THEN FormData carries exactly one entry and no bridge element
+  exists in the DOM
 
 #### Scenario: form reset restores state
 
 - GIVEN a group whose value changed after mount
-- WHEN `form.reset()` fires
-- THEN inputs restore initial checked AND `value` re-syncs to the
-  restored set in the same task (browser-verified)
-
-#### Scenario: consumer spread cannot break the value law
-
-- GIVEN `<ToggleGroupItem {...{ onchange: fn }}>` spread
-- WHEN the input changes
-- THEN the internal value-sync still fires (bound after rest) and
-  `fn` observes via onValueChange, not by severing the law
+- WHEN form.reset() fires
+- THEN inputs restore initial checked AND value re-syncs in the same
+  task

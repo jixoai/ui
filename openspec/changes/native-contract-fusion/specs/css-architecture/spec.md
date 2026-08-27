@@ -7,18 +7,15 @@
 Styling SHALL live in exactly one place per kind:
 
 1. Paint expressible as Tailwind v4 utilities → utilities composed in
-   component markup (no CSS file) — EXCEPT native-family components,
-   whose law-mirroring static paint lives in the folder's @apply
-   mirror sheet (kind 1b below).
-1b. Native-family mirror paint → `ui/<item>/<item>.css` rules whose
-   declarations mirror the Tier-0 twin law: bounded `@apply`
-   (context-free core utilities + arbitrary-value utilities ONLY —
-   named-theme `@apply` fails without a Tailwind context and is
-   banned, the same rationale as the `@utility` ban), plain-CSS
-   token declarations, `@layer components` `:where()` for statics,
-   unlayered `:where()` state machines per the carve-out. The
-   mirror sheet is parity-gated against the Tier-0 law
-   (native-contract spec).
+   component markup (no CSS file).
+5. Native-control LAWS → the standard layer: the `.jx-html-*`
+   @utility family in the theme sheet (the single declaration
+   source). Registry markup consumes the classes; the face
+   (jx-pure.css) applies them through the entry @import chain
+   (`@apply jx-html-input` inside its bare-element rules — context
+   flows through @import, probe-locked). Folder css NEVER
+   re-declares a standard-layer law; component extras follow kinds
+   1–2 above.
 2. CSS utilities cannot express (pseudo-element geometry,
    `@container`/`@keyframes`/scroll-driven/view-transition at-rules,
    press-physics custom properties, UA pseudos) → colocated
@@ -32,11 +29,10 @@ Styling SHALL live in exactly one place per kind:
    with the canonical layer statement `@layer theme, base,
    components, utilities;` so sheet injection order can never
    reorder the cascade.
-3. Tokens + element-default sheets → `registry/files/theme/`
-   (jixoai.css, jx-pure.css, and the generated
-   jx-native-contract.css extract) — consume-only; Part A edits
-   happen in jx-pure.css and flow through the generator (the
-   extract is never hand-edited).
+3. Tokens + standard layer + the face → `registry/files/theme/`
+   (jixoai.css carries tokens AND the .jx-html utilities;
+   jx-pure.css is the face — pipeline-bound @apply applications of
+   the standard layer).
 4. Site-only surfaces → colocated with the route/module they serve.
    `app.css` keeps the site's global Tailwind context INTACT (the
    sole `@import 'tailwindcss'`, the theme imports, ALL global
@@ -46,12 +42,26 @@ Styling SHALL live in exactly one place per kind:
 Every authored-CSS file MUST carry a top comment listing its
 orthogonal intents (with timestamps) per the repo law.
 
-#### Scenario: a native component mirrors its law
+#### Scenario: a new component needs a pseudo-element build
 
-- WHEN a native-family component paints beyond the Part A classes
-- THEN the mirror rules land in its folder css under `@layer
-  components` `:where()` with bounded @apply, and the parity gate
-  proves equivalence to the Tier-0 twin
+- WHEN the paint cannot be a utility
+- THEN it lands in `ui/<item>/<item>.css` under `@layer components`
+  with `:where()`, imported relatively by the component
+- AND a consumer utility overrides it (Tier-1-owned css loses to
+  utilities)
+
+#### Scenario: component paint IS utility-able
+
+- WHEN a surface is boxes/borders/spacing/typography on the token
+  sheet
+- THEN it is composed as utilities in markup and NO css file is
+  created
+
+#### Scenario: a native law changes
+
+- WHEN a .jx-html-* utility is edited in the theme
+- THEN the registry (markup classes) and the face (@apply chain)
+  both pick it up in one build — no second declaration site exists
 
 #### Scenario: named-theme @apply is attempted in a folder sheet
 
@@ -60,13 +70,6 @@ orthogonal intents (with timestamps) per the repo law.
 - THEN it fails — named utilities require a context standalone
   sheets do not have; token paint uses plain declarations or
   arbitrary utilities
-
-#### Scenario: component paint IS utility-able (non-native family)
-
-- WHEN a composite's surface is boxes/borders/spacing/typography on
-  the token sheet
-- THEN it is composed as utilities in markup and NO css file is
-  created
 
 #### Scenario: css loads exactly once
 

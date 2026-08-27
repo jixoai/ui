@@ -4,68 +4,54 @@
 
 ### Requirement: the Tier system
 
-- **Tier-0** — `jx-pure`: element defaults for BARE native elements
-  (see the jx-pure spec; one stylesheet, zero JS).
+- **Tier-0** — `jx-pure`: the face — bare native elements under
+  `.jx-pure`, painted by APPLYING the standard layer utilities
+  (`:where(.jx-pure) input:where(<allowlist>) { @apply jx-html-input }`);
+  pipeline-bound (zero-tailwind retired by Owner ruling).
 - **Tier-1** — registered components: Svelte files that wrap/enhance a
-  native element (e.g. `input.svelte` wraps every native input type).
-- **Tier-2** — the v2 class vocabulary (kept `.jx-field/.jx-label/
-  .jx-error`; renamed `.jx-control/.jx-control-shell/.jx-control-lane/
-  .jx-slider/.jx-color-shell/.jx-color-swatch/.jx-color-expand` + icon
-  custom properties + the `.jx-tgroup` toggle-group law), authored
-  ONLY in jx-pure.css Part A and distributed both inside the
-  jx-pure face and as the generated `@jixoai/jx-native-contract`
-  extract — consumed by Tier-1 components as a cross-file contract
-  that MUST NOT drift (byte gate; see the native-contract spec).
-  The v2 rename is complete: old names have no aliases.
+  native element; their markup carries the standard `.jx-html-*`
+  classes; folder css holds ONLY component extras.
+- **Tier-2** — the standard layer: the `.jx-html-*` utility family in
+  the theme sheet — the SINGLE declaration source for the native laws
+  (see the native-contract spec). The r1 v2-class vocabulary
+  (.jx-control family, .jx-tgroup) survives only as standard-layer
+  postures/utilities or retires per the deletion matrix.
 
 Tier-1 native-family components (input, textarea, native-select,
-checkbox, radio, toggle, toggle-group) hold a 1:1 vocabulary duty:
-each mirrors exactly one Tier-0 law (see the native-contract spec's
-vocabulary table) and its component-extra static paint is authored
-as @apply mirror sheets per the mirror-boundary law — not as
-hand-re-derived utility strings (the native-select drift defect
-class is retired). Composites (select, combobox, date-picker, …)
-compose the native family and keep utility-in-markup for their own
-surfaces.
+checkbox, radio, toggle, toggle-group) hold a 1:1 vocabulary duty
+with DOM-isomorphic trees (the native-contract spec's canonical DOM
+schema); range is a custom pointer-driven slider by scope ruling.
 
 #### Scenario: a component needs a form lane
 
 - GIVEN `input.svelte` renders the text-like shell
-- WHEN it applies the Tier-2 `.jx-control-lane` class
-- THEN the paint comes from the contract (single definition), not
-  from a component-local duplicate
+- WHEN it applies the standard classes (jx-html-control-shell/lane
+  postures or jx-html-input)
+- THEN the paint comes from the standard layer — no component-local
+  law copy exists
 
 #### Scenario: a native component's own paint is authored
 
-- GIVEN checkbox's glyph/box paint beyond the Part A classes
-- THEN it lands in checkbox.css as mirror rules (bounded @apply +
-  bare-CSS state machines) whose declarations the parity gate proves
-  equivalent to the Tier-0 twin law
-
+- GIVEN a component extra beyond the standard classes (slots, a
+  clear button)
+- THEN it lands in the folder css as bounded @apply/plain css and
+  the isomorphism gate proves the DOM stays canonical
 ## MODIFIED Requirements
 
 ### Requirement: styling posture
 
-Tier-1 components are utility-first: paint is composed as Tailwind v4
-utilities in markup against the jixoai token-sheet `@theme` mappings —
-which resolve for consumers ONLY under the canonical entry setup
-(tailwind entry → jixoai theme import → contract/face import; see the
-registry spec), declared as the documented install prerequisite of
-utility-authored items. WHEN a Tier-1 component is migrated to
-utility-authored paint, its affected public class slots SHALL merge
-through `cn()` for class-string hygiene — `cn()` is NOT a cascade
-mechanism; override behavior comes from the layer law
-(css-architecture spec). CSS that utilities cannot express SHALL live
-in the component folder as `<item>.css` (`@layer components` +
-`:where()`, `jx-`-prefixed). For the native family, the folder sheet
-IS the @apply mirror sheet (static paint mirroring the Tier-0 law;
-the native-contract spec's boundary applies — named-theme @apply
-banned, state machines unlayered, markup keeps Part A classes +
-hooks + slot one-offs). The frozen Tier-2 vocabulary (Part A) and
-the element-default laws (Parts A–D) MUST be consumed only — never
-copied, moved, redefined, or re-wrapped; Tier-2 classes MUST NOT
-route through `cn()` as a redefinition entry. Scoped-style migration
-MUST explicitly re-express selector boundaries rather than
+Tier-1 components consume the standard layer as MARKUP CLASSES —
+the native laws are never re-authored in component markup or folder
+css. Component-extras paint is Tailwind v4 utilities/arbitrary
+values in markup (the canonical entry setup is the documented
+install prerequisite), merging through `cn()` for class-string
+hygiene — `cn()` is NOT a cascade mechanism; override behavior comes
+from the layer law (css-architecture spec). CSS that utilities
+cannot express SHALL live in the component folder as `<item>.css`
+(`@layer components` + `:where()`, bounded @apply of context-free
+and arbitrary utilities ONLY — named-theme @apply fails in a
+standalone sheet, probe-locked). Scoped-style migration MUST
+explicitly re-express selector boundaries rather than
 pattern-copying.
 
 #### Scenario: consumer restyles an installed component
@@ -73,6 +59,19 @@ pattern-copying.
 - GIVEN a utility-authored component with paint in `@layer components`
 - WHEN the consumer passes any token utility on `class`
 - THEN the consumer's utility wins by the layer/specificity law
+
+#### Scenario: consumer restyles a migrated component
+
+- GIVEN a utility-authored component with paint in `@layer components`
+- WHEN the consumer passes any token utility on `class`
+- THEN the consumer's utility wins by the layer/specificity law —
+  the pre-refactor silent-loss defect is gone
+
+#### Scenario: unmigrated component (transitional)
+
+- GIVEN a Tier-1 component still on scoped `<style>` (pre-P3)
+- THEN it carries no cn() obligation and its legacy string-concat
+  class merge stands until its migration lands
 
 #### Scenario: component needs non-utility css
 
@@ -82,8 +81,8 @@ pattern-copying.
 
 #### Scenario: Tier-2 consume-only
 
-- GIVEN a component using `.jx-control-lane` (Part A)
+- GIVEN a component using a standard-layer utility (jx-html-*)
 - WHEN the component is refactored
-- THEN the class is consumed as-is; no component-side copy, re-wrap,
-  or cascade-altering redefinition exists, and it never routes
-  through `cn()`
+- THEN the utility is consumed as-is; no component-side copy,
+  re-wrap, or cascade-altering redefinition exists, and it never
+  routes through `cn()`

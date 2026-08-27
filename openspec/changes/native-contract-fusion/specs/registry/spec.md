@@ -10,21 +10,17 @@ components.json). The folder law applies to `registry:ui` items'
 COMPONENT-LOCAL files only: one directory per item under
 `registry/files/ui/<name>/` containing the item's canonical main
 component file, its sub-components, a pure-barrel `index.ts`, and
-the item's colocated css when the css-architecture law requires one
-(mirror sheets for the native family included). The canonical main
-is machine-resolved by the committed
+the item's colocated css for component EXTRAS only (the native laws
+ride the theme's .jx-html standard layer — never a component file).
+The canonical main is machine-resolved by the committed
 `apps/www/mirror-manifest.json`'s `canonicalMainSource`.
 `registry:lib`, `registry:theme`, and `registry:file` items KEEP
-their canonical roots and targets (`registry/files/lib/**` →
-`@lib/...`, `registry/files/theme/**` → `@lib/...`) — including the
-NEW generated `jx-native-contract.css` → `@lib/jx-native-contract.css`
-(item `jx-native-contract`, type `registry:lib`,
-registryDependencies `@jixoai/jixoai-theme`; the file is generator-
-owned, mirroring the jx-pure same-claim precedent for shared-source
-items). Inter-item dependencies use `registryDependencies`; native
-family UI items SHALL declare `@jixoai/jx-native-contract` (not the
-full jx-pure face); items needing the full componentless face
-declare `@jixoai/jx-pure`. Component (`registry:ui`) items carry the
+their canonical roots and targets. The standard layer lives IN the
+jixoai-theme item (its css already ships with every component —
+installing the theme installs the laws); the r1 jx-native-contract
+extract item RETIRES per the deletion matrix. Native family UI
+items declare `@jixoai/jixoai-theme`; the full componentless face
+remains `@jixoai/jx-pure` (pipeline-bound). Component (`registry:ui`) items carry the
 documented install prerequisite: Tailwind v4 PLUS the jixoai token
 sheet wired into the consumer's single CSS entry — the canonical
 consumer entry setup order is `@import 'tailwindcss'` → jixoai theme
@@ -50,13 +46,40 @@ is retired).
 #### Scenario: a native component's dependency closure
 
 - GIVEN the `checkbox` item
-- THEN its registryDependencies include `@jixoai/jx-native-contract`
-  and `@jixoai/jixoai-theme` and NOT `@jixoai/jx-pure` — clean
-  consumers receive the contract, not the 2006-line face
+- THEN its registryDependencies include `@jixoai/jixoai-theme` (the
+  standard layer arrives with the theme) and NOT a law-carrying css
+  item — clean consumers receive theme + component files only
 
-#### Scenario: the contract item regenerates
+#### Scenario: consumer installs a multi-file item
 
-- GIVEN Part A edited in jx-pure.css
-- WHEN the generator runs and `shadcn build` follows
-- THEN `public/r/jx-native-contract.json` embeds the regenerated
-  bytes and the mirror/payload parity gates stay green
+- GIVEN a multi-file registry:ui item (e.g. accordion)
+- WHEN a clean consumer installs it
+- THEN every file lands at its target and the component renders from
+  the standard classes without extra css dependencies
+
+#### Scenario: consumer installs a folder-shaped item
+
+- GIVEN a folder-shaped item with sub-components
+- THEN the install preserves the folder shape and the barrel resolves
+
+#### Scenario: consumer installs an item with a shared lib file
+
+- GIVEN an item referencing a shared @lib file
+- THEN the shared file installs at its canonical @lib target
+
+#### Scenario: consumer entry setup resolves utilities
+
+- GIVEN the documented entry order (tailwind → jixoai theme → jx-pure)
+- WHEN the consumer builds
+- THEN the .jx-html utilities and the face's @apply chain compile
+
+#### Scenario: payload stability, layout breakage honesty
+
+- GIVEN the registry payload parity gate
+- THEN every public/r payload embeds its current source and stale
+  payloads fail the gate
+
+#### Scenario: npm dependency needed by an item
+
+- GIVEN an item whose css imports npm packages (fonts)
+- THEN the item's dependencies field declares them
