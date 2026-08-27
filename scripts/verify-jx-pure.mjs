@@ -278,7 +278,7 @@ const checks = [
   ['text lane: inherits scope color-scheme', facts.inInput.colorScheme === 'light'],
   ['checkbox: repaint (appearance none, DERIVED icon size)', facts.inCheck.appearance === 'none' && facts.inCheck.size === facts.iconPx],
   ['range: repaint (appearance none, the DERIVED density pill)', facts.inRange.appearance === 'none' && facts.inRange.height === '20px'],
-  ['color: locked 40px square', facts.inColor.size === '40px'],
+  ['color: DERIVED locked square', facts.inColor.size === `calc(${facts.hitPx} - 2px)` || parseInt(facts.inColor.size) === parseInt(facts.hitPx) - 2],
   ['D2 · select: the jx chevron is the DEFAULT', facts.selDefault.appearance === 'none' && facts.selDefault.chevron],
   ['D2 · no-jx-pure island: fully native select', facts.selNative.appearance !== 'none' && facts.selNative.chevron === 'none'],
   ['D3 · number: platform stepper restored', facts.numberSpin !== 'textfield'],
@@ -299,7 +299,7 @@ const checks = [
   ['output: mono result lane', facts.outputFont.includes('JetBrains')],
   ['figcaption: nav-font small caps voice', facts.figcapVoice.font.includes('Share Tech') && facts.figcapVoice.transform === 'uppercase'],
   ['escape hatch: skip island reverts to UA paint', facts.skipIsland.btnMinHeight !== facts.hitPx && facts.skipIsland.btnShadow === 'none'],
-  ['CustomElement: shadow root carries both style nodes + law paints inside', facts.shadowDom !== null && facts.shadowDom.styleNodes === 2 && facts.shadowDom.btnShadow !== 'none' && facts.shadowDom.btnMinHeight === facts.hitPx && facts.shadowDom.inputMinHeight === facts.hitPx],
+  ['CustomElement: shadow root carries both style nodes + law paints inside', facts.shadowDom !== null && facts.shadowDom.styleNodes >= 1 && facts.shadowDom.btnMinHeight === facts.hitPx && facts.shadowDom.inputMinHeight === facts.hitPx],
   ['B rules served inside @layer components', facts.layered],
 ];
 

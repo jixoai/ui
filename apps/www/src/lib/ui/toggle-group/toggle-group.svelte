@@ -7,8 +7,8 @@
   (name-scoped grouping: arrow-walk + ONE tab stop + native
   exclusivity), multiple rides label>input[type=checkbox] (native
   FormData repeated entries, DOM order). The paint law is the shared
-  Part A `.jx-tgroup` class (jx-pure.css — sliced byte-exact into
-  @jixoai/jx-native-contract); this file owns ONLY the Svelte law.
+  standard-layer `jx-html-tgroup` subtree utility (single-sourced
+  in jixoai.css); this file owns ONLY the Svelte law.
 
   State: DOM `checked` is the uncontrolled truth; `value` (bindable)
   is a projection — DOM change updates it, external writes sync back,

@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-27T09:14:44.061Z",
+  "generatedAt": "2026-08-27T09:36:39.277Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -592,21 +592,8 @@
           "source": "registry/files/theme/jx-pure.css",
           "mirror": "apps/www/src/lib/jx-pure.css",
           "target": "@lib/jx-pure.css",
-          "sourceSha": "7e93426e21491e4a011199f1d04b9c6ae4b62fca3fe2b607c4f0712d1ff74157",
-          "mirrorSha": "7e93426e21491e4a011199f1d04b9c6ae4b62fca3fe2b607c4f0712d1ff74157"
-        }
-      ]
-    },
-    {
-      "itemName": "jx-native-contract",
-      "type": "registry:lib",
-      "files": [
-        {
-          "source": "registry/files/theme/jx-native-contract.css",
-          "mirror": "apps/www/src/lib/jx-native-contract.css",
-          "target": "@lib/jx-native-contract.css",
-          "sourceSha": "8301742a4aaaf2921521299036a1981d0a5c4087135311c21cb881aba376bcc5",
-          "mirrorSha": "8301742a4aaaf2921521299036a1981d0a5c4087135311c21cb881aba376bcc5"
+          "sourceSha": "90770d7d6c0615d3bb814fa01f475a24286488ae6e31b304f9e9e423d29404a1",
+          "mirrorSha": "90770d7d6c0615d3bb814fa01f475a24286488ae6e31b304f9e9e423d29404a1"
         }
       ]
     },
@@ -1977,8 +1964,8 @@
           "source": "registry/files/ui/toggle-group/toggle-group.svelte",
           "mirror": "apps/www/src/lib/ui/toggle-group/toggle-group.svelte",
           "target": "@ui/toggle-group/toggle-group.svelte",
-          "sourceSha": "476ff4d408759d09573c3e5c23efc47f7b65892e1244d9d944e1ce14bf38b1ef",
-          "mirrorSha": "476ff4d408759d09573c3e5c23efc47f7b65892e1244d9d944e1ce14bf38b1ef"
+          "sourceSha": "aca6935953daaa669d70e7344dee4a7de67cbf82aeeae1d5327aa193f9855b5d",
+          "mirrorSha": "aca6935953daaa669d70e7344dee4a7de67cbf82aeeae1d5327aa193f9855b5d"
         }
       ]
     },

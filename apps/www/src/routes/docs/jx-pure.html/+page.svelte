@@ -8,8 +8,10 @@
 
   // the REAL registry copies this site runs, inlined as text (?raw —
   // the same-source law; no fetch, identical dev/build behavior)
-  import tokenCssRaw from '$lib/jixoai.css?raw';
-  import pureCssRaw from '$lib/jx-pure.css?raw';
+  // V2: the face is pipeline-bound (@apply needs the Tailwind entry);
+  // the island demo copies the document's COMPILED styles — the raw
+  // source no longer carries literal declarations for @apply rules
+  import { onDestroy } from 'svelte';
 
   const install = `# the componentless face — one css, zero js
 npx jixoai-ui add jx-pure`;
@@ -85,11 +87,17 @@ this.shadowRoot.append(style);
           // anyway), then inject as <style> nodes — tolerant of the
           // token sheet's build-time at-rules, unlike constructable
           // sheets whose replaceSync would throw on them
-          const stripped = tokenCssRaw.replace(/^@import.*$/gm, '');
-          for (const text of [stripped, pureCssRaw]) {
-            const style = document.createElement('style');
-            style.textContent = text;
-            root.append(style);
+          // V2 pipeline-bound: copy the document's compiled style
+          // rules (the @apply rules are already resolved in the site's
+          // built css — the raw source cannot serve a shadow root)
+          for (const sheet of document.styleSheets) {
+            try {
+              const style = document.createElement('style');
+              for (const rule of sheet.cssRules) {
+                style.textContent += rule.cssText + '\n';
+              }
+              if (style.textContent) root.append(style);
+            } catch { /* cross-origin sheets are skipped */ }
           }
         }
       },
