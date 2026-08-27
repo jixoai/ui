@@ -395,6 +395,35 @@ describe('ghostty-term load seam and state machine', () => {
     mounted.pop()!.unmount();
     expect(calls.frees).toBe(1);
   });
+
+  it('flushes pre-ready writes once the wasm becomes ready (no data loss)', async () => {
+    // the race: write() lands while the wasm bootstrap is still pending;
+    // the rAF that fires in between sees vt === null and used to return
+    // without rescheduling — the queued chunk was silently dropped
+    const { vt, calls } = makeFakeVt();
+    let release: ((value: GhosttyVT) => void) | undefined;
+    loader.impl = () =>
+      new Promise((resolve) => {
+        release = resolve;
+      });
+    const term = renderTerm({ cols: 8, rows: 2 });
+    // let the boot microtasks reach the (pending) loader
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    term.component.write(enc('Hi')); // pre-ready write
+    await settle(2); // rAF fires while vt === null — chunk must survive
+    expect(term.root.getAttribute('data-state')).toBe('loading');
+    expect(calls.writes.length).toBe(0);
+
+    release!(vt);
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+    expect(calls.writes.length).toBe(1);
+    expect(dec(calls.writes[0]!)).toBe('Hi');
+    const texts = fillTexts(lastCtx()).map((op) => op.text);
+    expect(texts).toContain('H');
+    expect(texts).toContain('i');
+  });
 });
 
 describe('ghostty-term root contract', () => {

@@ -27,6 +27,15 @@ export type { ResolvedGhosttyWasm, ResolveGhosttyWasmOptions };
 export const VIRTUAL_MODULE_ID = 'virtual:jixoai-ghostty';
 const RESOLVED_VIRTUAL_ID = `\0${VIRTUAL_MODULE_ID}`;
 
+/**
+ * Cheap shape gate for the dev middleware route. The exact path can only
+ * be known after the wasm resolves (it is content-addressed by the pin
+ * sha), but unrelated requests must never pay for — or be failed by —
+ * that resolution, so the shape is checked first. Keep the
+ * `/@jixoai/ghostty-vt-<16 hex>.wasm` spelling in sync with devServePath.
+ */
+const WASM_ROUTE_SHAPE = /^\/@jixoai\/ghostty-vt-[0-9a-f]{16}\.wasm$/;
+
 export interface JixoaiGhosttyOptions extends ResolveGhosttyWasmOptions {}
 
 /** dev middleware path (content-addressed so immutable caching is sound) */
@@ -103,19 +112,26 @@ export function jixoaiGhostty(options: JixoaiGhosttyOptions = {}): Plugin[] {
         }
 
         // Pure data module: nothing here touches fetch or WebAssembly.
+        // Named exports only (client.d.ts freezes that surface — no
+        // default export).
         return [
           `export const url = ${urlExpression};`,
           `export const sha256 = ${JSON.stringify(wasm.sha256)};`,
           `export const variant = ${JSON.stringify(wasm.variant)};`,
           `export const buildInfo = ${JSON.stringify(wasm.buildInfo)};`,
-          `export default { url, sha256, variant, buildInfo };`,
         ].join('\n');
       },
 
       configureServer(server) {
         server.middlewares.use((req, res, next) => {
+          const pathname = (req.url ?? '').split('?')[0]!;
+          // Shape gate BEFORE resolving: unrelated routes must fall through
+          // synchronously — never awaiting (or failing on) the wasm supply.
+          if (!WASM_ROUTE_SHAPE.test(pathname)) {
+            next();
+            return;
+          }
           void (async () => {
-            const pathname = (req.url ?? '').split('?')[0]!;
             let wasm: ResolvedGhosttyWasm;
             try {
               wasm = await resolveOnce();

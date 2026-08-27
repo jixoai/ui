@@ -2,11 +2,13 @@
 // every validatePin branch is exercised against mutations of the real
 // shipped pin.
 
-import { readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { readPin, validatePin, type GhosttyPin } from '../src/pin.ts';
+import { PinError, readPin, validatePin, type GhosttyPin } from '../src/pin.ts';
 
 const pinPath = fileURLToPath(new URL('../ghostty.pin.json', import.meta.url));
 
@@ -18,6 +20,44 @@ function mutate(pin: GhosttyPin, fn: (p: GhosttyPin) => void): unknown {
   const clone = structuredClone(pin);
   fn(clone);
   return clone;
+}
+
+let tmpRoot: string;
+
+beforeEach(async () => {
+  tmpRoot = await mkdtemp(join(tmpdir(), 'jixoai-pin-'));
+});
+
+afterEach(async () => {
+  await rm(tmpRoot, { recursive: true, force: true });
+});
+
+/** A complete, valid pin pinned to a stable tag (every URL agrees with it). */
+function stableTagPin(): GhosttyPin {
+  const download = (asset: string): string =>
+    `https://github.com/ghostty-org/ghostty/releases/download/stable/${asset}`;
+  return {
+    pinnedAt: '2026-08-28T00:00:00Z',
+    source: {
+      repo: 'ghostty-org/ghostty',
+      tag: 'stable',
+      releaseUrl: 'https://github.com/ghostty-org/ghostty/releases/tag/stable',
+    },
+    variants: {
+      full: {
+        url: download('ghostty-vt.wasm'),
+        sha256: 'a'.repeat(64),
+        size: 123,
+        buildInfo: 'stable-build-info',
+      },
+      small: {
+        url: download('ghostty-vt-small.wasm'),
+        sha256: 'b'.repeat(64),
+        size: 45,
+        buildInfo: 'stable-build-info',
+      },
+    },
+  };
 }
 
 describe('ghostty.pin.json (shipped manifest)', () => {
@@ -51,6 +91,30 @@ describe('validatePin cross-field assertions', () => {
       p.source.tag = 'a/b';
     });
     expect(validatePin(doc).some((x) => x.includes('source.tag must match'))).toBe(true);
+  });
+
+  it('rejects the dot-segment tags "." and ".." (URL traversal)', async () => {
+    const pin = await readRealPin();
+    for (const tag of ['.', '..', 'a/../b']) {
+      const doc = mutate(pin, (p) => {
+        p.source.tag = tag;
+      });
+      const problems = validatePin(doc);
+      expect(
+        problems.some((x) => x.includes('source.tag must match')),
+        `tag ${JSON.stringify(tag)} must be rejected`,
+      ).toBe(true);
+    }
+  });
+
+  it('readPin throws PinError for a manifest whose tag is a dot segment', async () => {
+    const doc = mutate(await readRealPin(), (p) => {
+      p.source.tag = '..';
+    });
+    const badPath = join(tmpRoot, 'evil.pin.json');
+    await writeFile(badPath, JSON.stringify(doc));
+    await expect(readPin(badPath)).rejects.toThrow(PinError);
+    await expect(readPin(badPath)).rejects.toThrow(/source\.tag must match/);
   });
 
   it('rejects releaseUrl that disagrees with source.tag', async () => {
@@ -135,5 +199,35 @@ describe('validatePin cross-field assertions', () => {
       p.pinnedAt = 'not-a-date';
     });
     expect(validatePin(doc).some((x) => x.includes('pinnedAt must be ISO 8601'))).toBe(true);
+  });
+});
+
+describe('stable tag pins (positive fixture)', () => {
+  it('accepts a complete valid pin whose source.tag is "stable"', () => {
+    expect(validatePin(stableTagPin())).toEqual([]);
+  });
+
+  it('keeps rejecting a stable-tag pin when any URL disagrees with the tag', () => {
+    const doc = mutate(stableTagPin(), (p) => {
+      p.source.releaseUrl = 'https://github.com/ghostty-org/ghostty/releases/tag/tip';
+    });
+    expect(validatePin(doc).some((x) => x.includes('releaseUrl must be'))).toBe(true);
+
+    const doc2 = mutate(stableTagPin(), (p) => {
+      p.variants.small.url =
+        'https://github.com/ghostty-org/ghostty/releases/download/tip/ghostty-vt-small.wasm';
+    });
+    expect(validatePin(doc2).some((x) => x.includes('variants.small.url must be'))).toBe(true);
+  });
+
+  it('readPin returns a stable-tag manifest unchanged', async () => {
+    const stablePath = join(tmpRoot, 'stable.pin.json');
+    const pin = stableTagPin();
+    await writeFile(stablePath, JSON.stringify(pin));
+    const loaded = await readPin(stablePath);
+    expect(loaded.source.tag).toBe('stable');
+    expect(loaded.variants.full.url).toBe(
+      'https://github.com/ghostty-org/ghostty/releases/download/stable/ghostty-vt.wasm',
+    );
   });
 });

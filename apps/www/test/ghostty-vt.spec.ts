@@ -17,7 +17,7 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import {
   GhosttyVTError,
@@ -180,5 +180,46 @@ describe('ghostty-vt failure discipline', () => {
   it('rejects loads with neither bytes nor url, and garbage bytes, with typed errors', async () => {
     await expect(loadGhosttyVT({})).rejects.toThrow(GhosttyVTError);
     await expect(loadGhosttyVT({ bytes: new Uint8Array([1, 2, 3]) })).rejects.toThrow(GhosttyVTError);
+  });
+});
+
+describe('ghostty-vt url fallback discipline (instantiateStreaming)', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('falls back to buffered instantiation when the content type is not application/wasm', async () => {
+    // wrong MIME: instantiateStreaming refuses up front; the buffered
+    // fallback must still load the REAL bytes and build the core
+    const bytes = await acquireWasmBytes();
+    const response = new Response(bytes, {
+      headers: { 'content-type': 'application/octet-stream' },
+    });
+    vi.stubGlobal('fetch', vi.fn(async () => response));
+
+    const loaded = await loadGhosttyVT({ url: 'https://example.test/ghostty-vt.wasm' });
+    expect(loaded.buildInfo.length).toBeGreaterThan(0);
+    loaded.free();
+  });
+
+  it('reads a pristine clone after a streaming failure consumed the body', async () => {
+    // application/wasm + garbage: the streaming compile consumes the body
+    // and then fails. The fallback must compile a CLONE taken before any
+    // consumption — re-reading the disturbed response (the pre-fix code)
+    // died as a wrapped "could not be loaded" TypeError instead of the
+    // honest instantiation error.
+    const garbage = new Uint8Array([0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0xff, 0xff]);
+    const response = new Response(garbage, {
+      headers: { 'content-type': 'application/wasm' },
+    });
+    const cloneSpy = vi.spyOn(response, 'clone');
+    vi.stubGlobal('fetch', vi.fn(async () => response));
+
+    const promise = loadGhosttyVT({ url: 'https://example.test/broken.wasm' });
+    await expect(promise).rejects.toThrow(/instantiation failed/);
+    await expect(promise).rejects.not.toThrow(/could not be loaded/);
+    // the clone was the fallback's source, not the consumed original
+    expect(cloneSpy).toHaveBeenCalledTimes(1);
+    expect(response.bodyUsed).toBe(true);
   });
 });

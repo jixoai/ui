@@ -204,6 +204,47 @@ describe('download hardening', () => {
     await expect(resolveWasmFromPin(pin, { cacheDir })).rejects.toThrow(/REJECTED URL/);
   });
 
+  it('malicious dot-segment tags never produce an out-of-bounds URL', async () => {
+    // defense in depth behind validatePin: even an injected pin whose tag
+    // is "." / ".." / "a/../b" must be rejected at the URL gate before
+    // any fetch — the URL parser normalizes dot segments away, so the
+    // literal expectedPath can never match
+    for (const tag of ['.', '..', 'a/../b']) {
+      const pin = syntheticPin(PAYLOAD, {
+        url: `https://github.com/ghostty-org/ghostty/releases/download/${tag}/ghostty-vt.wasm`,
+      });
+      pin.source.tag = tag;
+      const fetchMock = vi.fn(async () => {
+        throw new Error('fetch must never run for a malicious tag');
+      });
+      vi.stubGlobal('fetch', fetchMock);
+      await expect(resolveWasmFromPin(pin, { cacheDir })).rejects.toThrow(/REJECTED URL/);
+      expect(fetchMock).not.toHaveBeenCalled();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('downloads a stable-tag pin fixture through its canonical URL (mock fetch, no network)', async () => {
+    const pin = syntheticPin(PAYLOAD, {
+      url: 'https://github.com/ghostty-org/ghostty/releases/download/stable/ghostty-vt.wasm',
+    });
+    pin.source.tag = 'stable';
+    pin.source.releaseUrl = 'https://github.com/ghostty-org/ghostty/releases/tag/stable';
+    pin.variants.small.url =
+      'https://github.com/ghostty-org/ghostty/releases/download/stable/ghostty-vt-small.wasm';
+
+    const fetchMock = vi.fn(async (_input: string | URL | Request) => new Response(PAYLOAD));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await resolveWasmFromPin(pin, { cacheDir });
+    expect(result.bytes).toEqual(PAYLOAD);
+    expect(result.path).toBe(join(cacheDir, `${pin.variants.full.sha256}.wasm`));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(String(fetchMock.mock.calls[0]![0])).toBe(
+      'https://github.com/ghostty-org/ghostty/releases/download/stable/ghostty-vt.wasm',
+    );
+  });
+
   it('rejects after the 5-hop redirect budget', async () => {
     const pin = syntheticPin(PAYLOAD);
     let hops = 0;

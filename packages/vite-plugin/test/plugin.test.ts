@@ -21,7 +21,7 @@ import { mkdir, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { build, createServer } from 'vite';
 
 import { jixoaiGhostty } from '../src/index.ts';
@@ -105,12 +105,15 @@ describe('jixoaiGhostty() build', () => {
       sha256: string;
       variant: string;
       buildInfo: string;
+      /** named-exports-only contract: the generated module must not carry one */
+      default?: unknown;
     };
     expect(mod.url.endsWith(`assets/ghostty-vt-${pinSha16}.wasm`)).toBe(true);
     expect(new URL(mod.url).protocol).toBe('file:');
     expect(mod.sha256).toBe(pinSha);
     expect(mod.variant).toBe('full');
     expect(mod.buildInfo).toBe(pinBuildInfo);
+    expect(mod.default).toBeUndefined();
   });
 
   it('browser JS input: emitted entry references the frozen asset name', async (ctx) => {
@@ -206,11 +209,14 @@ describe('jixoaiGhostty() dev middleware', () => {
         sha256: string;
         variant: string;
         buildInfo: string;
+        /** named-exports-only contract: the generated module must not carry one */
+        default?: unknown;
       };
       expect(mod.url).toBe(`assets/ghostty-vt-${pinSha16}.wasm`);
       expect(mod.sha256).toBe(pinSha);
       expect(mod.variant).toBe('full');
       expect(mod.buildInfo).toBe(pinBuildInfo);
+      expect(mod.default).toBeUndefined();
 
       // client consumer (dev transform over HTTP): the virtual module
       // code carries the middleware path + the same pure data
@@ -226,8 +232,89 @@ describe('jixoaiGhostty() dev middleware', () => {
       expect(virtCode).toContain(`export const sha256 = ${JSON.stringify(pinSha)}`);
       expect(virtCode).toContain(`export const variant = "full"`);
       expect(virtCode).toContain(`export const buildInfo = ${JSON.stringify(pinBuildInfo)}`);
+      expect(virtCode).not.toContain('export default');
     } finally {
       await server.close();
+    }
+  });
+});
+
+describe('jixoaiGhostty() dev middleware shape gate', () => {
+  // Unit-level middleware contract (no vite server): the request path is
+  // checked BEFORE the wasm resolves, so unrelated routes fall through
+  // synchronously even when the supply is broken, while a shaped path
+  // surfaces the named 500.
+  interface FakeState {
+    next: boolean;
+    statusCode: number;
+    body: Uint8Array | string;
+    headers: Map<string, string>;
+  }
+
+  const installMiddleware = (cacheDir: string): Array<(url: string) => FakeState> => {
+    const plugin = jixoaiGhostty({ cacheDir, offline: true })[0]!;
+    const hook = plugin.configureServer;
+    const configure = typeof hook === 'function' ? hook : hook?.handler;
+    if (typeof configure !== 'function') {
+      throw new Error('jixoaiGhostty() must register a callable configureServer hook');
+    }
+    // the hook closes over the plugin instance (resolveOnce) and never
+    // touches its vite `this` — call it detached through a this-free view
+    const configureDetached = configure as (server: unknown) => void;
+    const handlers: Array<
+      (req: { url: string }, res: unknown, next: () => void) => void
+    > = [];
+    configureDetached({
+      middlewares: { use: (h: (req: { url: string }, res: unknown, next: () => void) => void) => handlers.push(h) },
+    });
+    return handlers.map((handler) => (url: string): FakeState => {
+      const state: FakeState = { next: false, statusCode: 0, body: '', headers: new Map() };
+      const res = {
+        setHeader: (k: string, v: string) => state.headers.set(k, v),
+        end: (b?: Uint8Array | string) => {
+          state.body = b ?? '';
+        },
+        get statusCode() {
+          return state.statusCode;
+        },
+        set statusCode(v: number) {
+          state.statusCode = v;
+        },
+      };
+      handler({ url }, res, () => {
+        state.next = true;
+      });
+      return state;
+    });
+  };
+
+  it('passes unrelated routes through synchronously without resolving the wasm', async () => {
+    const savedEnv = process.env.JIXOAI_GHOSTTY_WASM_PATH;
+    delete process.env.JIXOAI_GHOSTTY_WASM_PATH;
+    try {
+      // broken supply: an empty cache dir + offline must make any resolve fail
+      const request = installMiddleware(join(outRoot, 'nope-cache'))[0]!;
+
+      for (const url of [
+        '/src/entry.js',
+        '/@jixoai/other-thing',
+        '/@jixoai/ghostty-vt-ZZZZZZZZZZZZZZZZ.wasm', // malformed sha16
+      ]) {
+        const state = request(url);
+        // synchronous fall-through: next() in the same tick, response untouched
+        expect(state.next, url).toBe(true);
+        expect(state.statusCode, url).toBe(0);
+        expect(state.body, url).toBe('');
+      }
+
+      // a shaped path DOES resolve (and here: fails loudly with the named 500)
+      const shaped = request('/@jixoai/ghostty-vt-deadbeefdeadbeef.wasm');
+      expect(shaped.next).toBe(false); // async work pending, not passed through yet
+      await vi.waitFor(() => expect(shaped.statusCode).toBe(500));
+      expect(String(shaped.body)).toMatch(/WASM RESOLVE FAILED/);
+    } finally {
+      if (savedEnv === undefined) delete process.env.JIXOAI_GHOSTTY_WASM_PATH;
+      else process.env.JIXOAI_GHOSTTY_WASM_PATH = savedEnv;
     }
   });
 });

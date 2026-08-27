@@ -35,6 +35,33 @@ export class GhosttyProbeError extends Error {
   }
 }
 
+/** C-string scan cap: the type manifest and build info are far below this;
+ * a missing NUL must fail loudly, not walk off the linear memory. */
+export const MAX_C_STR_BYTES = 1 << 20; // 1 MiB
+
+/**
+ * Read a NUL-terminated string out of a memory view, bounded by both the
+ * view length and MAX_C_STR_BYTES. Throws GhosttyProbeError when the
+ * string is unterminated within those bounds (prevents the unbounded
+ * scan-forever loop of `while (mem[end] !== 0)` past the buffer).
+ */
+export function readCString(mem: Uint8Array, ptr: number, decoder: TextDecoder): string {
+  if (!Number.isInteger(ptr) || ptr < 0 || ptr >= mem.length) {
+    throw new GhosttyProbeError(
+      `[jixoai-ghostty-probe] UNTERMINATED C STRING — ptr ${ptr} is outside linear memory [0, ${mem.length})`,
+    );
+  }
+  const hardEnd = Math.min(mem.length, ptr + MAX_C_STR_BYTES);
+  let end = ptr;
+  while (end < hardEnd && mem[end] !== 0) end += 1;
+  if (end === hardEnd) {
+    throw new GhosttyProbeError(
+      `[jixoai-ghostty-probe] UNTERMINATED C STRING — no NUL byte within ${MAX_C_STR_BYTES} bytes (or before the end of linear memory) from ptr ${ptr}`,
+    );
+  }
+  return decoder.decode(mem.subarray(ptr, end));
+}
+
 /**
  * Required export families (superset assertion). Everything the binding
  * layer and the smoke below touch; upstream dropping any of these is an
@@ -175,10 +202,7 @@ class Wasm {
   }
 
   readCStr(ptr: number): string {
-    const mem = this.u8();
-    let end = ptr;
-    while (mem[end] !== 0) end += 1;
-    return this.text.decode(mem.subarray(ptr, end));
+    return readCString(this.u8(), ptr, this.text);
   }
 
   readUsize(ptr: number, usizeSize: number): number {

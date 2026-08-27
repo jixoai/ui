@@ -47,8 +47,12 @@ export interface GhosttyPin {
   variants: Record<PinVariantName, PinVariant>;
 }
 
-/** A tag must be a safe single path segment (no traversal, no slashes). */
-const SAFE_TAG = /^[A-Za-z0-9._-]+$/;
+/**
+ * A tag must be a safe single path segment: no slashes (traversal), and
+ * the dot-segments `.` / `..` are rejected outright — they normalize away
+ * (or climb) in every URL builder that interpolates the tag.
+ */
+const SAFE_TAG = /^(?!\.{1,2}$)[A-Za-z0-9._-]+$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 
 export function releaseTagUrl(source: PinSource): string {

@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { GhosttyProbeError, probeGhosttyWasm, runProbeCli } from '../src/probe.ts';
+import { GhosttyProbeError, MAX_C_STR_BYTES, probeGhosttyWasm, readCString, runProbeCli } from '../src/probe.ts';
 import { loadWasmBytes } from './helpers';
 
 // (module (type (func)) (import "e" "f" (func 0)))
@@ -84,6 +84,50 @@ describe('probeGhosttyWasm failure modes (hand-built modules)', () => {
 
   it('rejects a module missing the required export families', () => {
     expect(() => probeGhosttyWasm(WASM_WITHOUT_GHOSTTY_EXPORTS)).toThrow(/MISSING EXPORTS/);
+  });
+});
+
+describe('readCString (bounded C-string scan)', () => {
+  const decoder = new TextDecoder();
+
+  it('reads a NUL-terminated string and stops at the terminator', () => {
+    const mem = new TextEncoder().encode('0.1.0-dev\0trailing garbage');
+    expect(readCString(mem, 0, decoder)).toBe('0.1.0-dev');
+  });
+
+  it('accepts a terminator at the very last byte of memory', () => {
+    const mem = new TextEncoder().encode('ab\0');
+    expect(readCString(mem, 0, decoder)).toBe('ab');
+  });
+
+  it('throws on an unterminated string running to the end of memory', () => {
+    const mem = new TextEncoder().encode('no terminator');
+    expect(() => readCString(mem, 0, decoder)).toThrow(GhosttyProbeError);
+    expect(() => readCString(mem, 0, decoder)).toThrow(/UNTERMINATED C STRING/);
+  });
+
+  it('throws when the cap is reached before a NUL (no scan-forever loop)', () => {
+    // non-zero fill just past the cap — must fail at MAX_C_STR_BYTES,
+    // never walk off the view
+    const mem = new Uint8Array(MAX_C_STR_BYTES + 64).fill(0x61);
+    expect(() => readCString(mem, 0, decoder)).toThrow(/UNTERMINATED C STRING/);
+    // the scan window is [ptr, ptr + MAX): MAX-1 payload bytes + NUL at
+    // index MAX-1 is the longest legal read; a NUL one byte further out
+    // is past the cap and still fails loudly
+    const bounded = new Uint8Array(MAX_C_STR_BYTES + 1).fill(0x62);
+    bounded[MAX_C_STR_BYTES - 1] = 0;
+    expect(() => readCString(bounded, 0, decoder)).not.toThrow();
+    bounded[MAX_C_STR_BYTES - 1] = 0x62;
+    bounded[MAX_C_STR_BYTES] = 0;
+    expect(() => readCString(bounded, 0, decoder)).toThrow(/UNTERMINATED C STRING/);
+  });
+
+  it('rejects pointers outside the memory view (negative / past-the-end)', () => {
+    const mem = new TextEncoder().encode('x\0');
+    expect(() => readCString(mem, -1, decoder)).toThrow(/outside linear memory/);
+    expect(() => readCString(mem, mem.length, decoder)).toThrow(/outside linear memory/);
+    expect(() => readCString(mem, mem.length + 5, decoder)).toThrow(/outside linear memory/);
+    expect(() => readCString(mem, 1.5, decoder)).toThrow(/outside linear memory/);
   });
 });
 

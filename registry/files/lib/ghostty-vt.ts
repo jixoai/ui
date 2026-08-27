@@ -944,17 +944,22 @@ export async function loadGhosttyVT(opts: LoadGhosttyVTOpts = {}): Promise<Ghost
   let bytes: Uint8Array;
   try {
     // streaming first (double-compile avoided); any mismatch (e.g. a
-    // non-application/wasm content type) falls back to the buffered path
+    // non-application/wasm content type) falls back to the buffered path.
+    // The clone is taken BEFORE any body consumption: instantiateStreaming
+    // may reject only after disturbing the stream, and re-reading the
+    // consumed response would throw "body already read" — the pristine
+    // clone is what the fallback compiles.
     const response = await fetch(opts.url);
     if (!response.ok) {
       throw new GhosttyVTError(`fetch ${opts.url} -> HTTP ${response.status}`);
     }
+    const buffered = response.clone();
     try {
       const imports: WebAssembly.Imports = {};
       const { instance } = await WebAssembly.instantiateStreaming(response, imports);
       return new GhosttyVTCore(instance, variant);
     } catch {
-      bytes = new Uint8Array(await response.arrayBuffer());
+      bytes = new Uint8Array(await buffered.arrayBuffer());
     }
   } catch (cause) {
     throw new GhosttyVTError(`ghostty-vt wasm could not be loaded from ${opts.url}`, { cause });
