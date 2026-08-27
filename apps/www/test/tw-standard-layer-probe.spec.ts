@@ -73,6 +73,38 @@ beforeAll(() => {
     background: var(--primary);
   }
 }
+/* the tgroup shape: a SUBTREE law inside one @utility */
+@utility jx-probe-tgroup {
+  display: inline-flex;
+  & > label {
+    min-block-size: var(--jx-hit);
+    &:has(input:checked) {
+      background: var(--primary);
+    }
+  }
+}
+/* the switch shape: pseudo carriers. The DESCENDANT spelling
+   (&:checked &::before) desugars to a self-descendant selector that
+   never matches — the compound spelling is the law. */
+@utility jx-probe-switch {
+  appearance: none;
+  &::before {
+    content: '';
+    display: block;
+    background: var(--background);
+  }
+  &:checked::before {
+    background: var(--primary-foreground);
+  }
+}
+@utility jx-probe-switch-bad {
+  &::before {
+    content: '';
+  }
+  &:checked &::before {
+    background: var(--primary-foreground);
+  }
+}
 `,
   );
 
@@ -85,6 +117,15 @@ beforeAll(() => {
 }
 .probe-face-states {
   @apply jx-probe-states;
+}
+.probe-face-tgroup {
+  @apply jx-probe-tgroup;
+}
+.probe-face-switch {
+  @apply jx-probe-switch;
+}
+.probe-face-switch-bad {
+  @apply jx-probe-switch-bad;
 }
 `,
   );
@@ -120,16 +161,45 @@ describe('the .jx-html-* standard layer preconditions', () => {
     expect(rule).toContain('min-height:var(--jx-hit)');
   }, 120_000);
 
-  it('P3: variant blocks nested in the @utility transfer through @apply', () => {
+  it('P3: variant blocks nested in the @utility transfer through @apply (NON-vacuous)', () => {
     const r = runBuild();
     expect(r.ok, r.error).toBe(true);
     // the base declarations must land on the applying selector…
     const base = r.css.match(/\.probe-face-states\{[^}]*\}/)?.[0] ?? '';
     expect(base).toContain('background:var(--muted)');
-    // …and the :hover block must follow it (single-source states) —
-    // OR the design accepts per-side state authoring (assert which)
-    const hover = /\.probe-face-states:hover\{[^}]*\}/.exec(r.css)?.[0] ?? '';
-    console.log(`[probe P3] hover transfer: ${hover ? 'YES — single-source states hold' : 'NO — states must be authored per side'}`);
-    expect(typeof hover).toBe('string');
+    // …and the :hover block MUST follow (single-source states) —
+    // r0 review: the old `typeof === 'string'` assert was vacuous
+    const hover = r.css.match(/\.probe-face-states:hover\{[^}]*\}/)?.[0] ?? '';
+    expect(hover, 'the :hover block must transfer through @apply').toContain('background:var(--primary)');
+  }, 120_000);
+
+  it('P4: subtree laws (&>label, :has()) and pseudo carriers (::before) transfer with correct selector shapes', () => {
+    const r = runBuild();
+    expect(r.ok, r.error).toBe(true);
+    // the tgroup subtree: the child rule lands as a descendant of the
+    // applying selector, :has() intact
+    const seg = r.css.match(/\.probe-face-tgroup>label\{[^}]*\}/)?.[0] ?? '';
+    expect(seg).toContain('min-block-size:var(--jx-hit)');
+    const active = r.css.match(/\.probe-face-tgroup>label:has\(input:checked\)\{[^}]*\}/)?.[0] ?? '';
+    expect(active, 'the :has() active law must transfer').toContain('background:var(--primary)');
+    // the switch pseudo carrier: compound pseudo after the pseudo-class.
+    // SERIALIZATION NOTE (grammar law): lightningcss emits single-colon
+    // :before and double-quoted content:"" — assertions match both
+    // spellings; the canonical grammar records the emitted form.
+    const knob = r.css.match(/\.probe-face-switch:{1,2}before\{[^}]*\}/)?.[0] ?? '';
+    expect(knob).toMatch(/content:("|'){2}/);
+    const knobOn = r.css.match(/\.probe-face-switch:checked:{1,2}before\{[^}]*\}/)?.[0] ?? '';
+    expect(knobOn, 'the COMPOUND spelling &:checked::before is the law').toContain('background:var(--primary-foreground)');
+  }, 120_000);
+
+  it('P5: the DESCENDANT spelling (&:checked &::before) is wrong — locked as the anti-shape', () => {
+    const r = runBuild();
+    expect(r.ok, r.error).toBe(true);
+    // the bad spelling desugars to a self-descendant selector that can
+    // never match an input — it must NOT produce the compound form
+    const bad = r.css.match(/\.probe-face-switch-bad:checked[^{]*::before\{[^}]*\}/)?.[0] ?? '';
+    expect(bad).not.toContain('background:var(--primary-foreground)');
+    const compound = r.css.match(/\.probe-face-switch-bad:checked::before\{/);
+    expect(compound, 'the descendant spelling must not emit the compound selector').toBeNull();
   }, 120_000);
 });

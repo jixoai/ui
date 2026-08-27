@@ -1,4 +1,11 @@
-# design — native-contract-fusion (frozen r1, Codex verdict integrated)
+# design — native-contract-fusion
+
+> **§1–§9 are r1 HISTORY** (the dual-expression architecture, closed
+> at 8.8/10 — its evidence and review rounds remain valid history in
+> verification.md). The OPERATIVE architecture is §10+ (V2, the
+> .jx-html standard layer, Owner ruling 2026-08-27 r2; Codex plan
+> review r0: direction endorsed at 9.1/10 confidence, V1 gated on
+> this freeze).
 
 > Law sources: this file + the native-contract spec delta.
 > Codex design round: 2026-08-27, `codex-jx-pure-fusion`
@@ -335,3 +342,105 @@ gate runs, parity matrices, Codex review rounds).
 - V4 gates: DOM-isomorphism assertions + parity + probes + suite;
   gzip budget re-checked (the face shrinks — laws move to the theme).
 - V5 Codex review loop (plan review gates V1; code review gates V3+).
+
+## 11. V0.5 FREEZE — the four normative tables (Codex r0 blockers)
+
+### 11.1 The utility vocabulary + application map (P1-4)
+
+| standard utility | carries (from the current jx-pure law text) | bare-element application in the face |
+|---|---|---|
+| `jx-html-input` | B4's 13-type allowlist box law (hit/gap/inset/text/leading + border/fill/hover/focus/invalid states) | `:where(.jx-pure) input:where(:not([type]),[type=text],[type=password],[type=email],[type=url],[type=tel],[type=search],[type=date],[type=time],[type=datetime-local],[type=month],[type=week]) { @apply jx-html-input }` — THE ALLOWLIST RIDES THE APPLICATION SELECTOR (never a bare `input{}`: it would capture checkbox/radio/range/color/hidden branches) |
+| `jx-html-number` | input + the platform-stepper notes (D3) | the allowlist above `[type=number]` (own row: spinners stay platform) |
+| `jx-html-textarea` | B4 textarea (min via `--jx-textarea-min`, resize vertical) | `:where(.jx-pure) textarea { @apply jx-html-textarea }` |
+| `jx-html-select` | B4 select box + chevron gutter + listbox posture ([multiple],[size]) | `:where(.jx-pure) select { @apply jx-html-select }` |
+| `jx-html-checkbox` | B5 checkbox (icon size, border law, ::before glyph + morphs, states) | `:where(.jx-pure) input[type=checkbox]:not([role=switch]) { @apply jx-html-checkbox }` |
+| `jx-html-radio` | B5 radio (dot carrier, states) | `:where(.jx-pure) input[type=radio] { @apply jx-html-radio }` |
+| `jx-html-switch` | B13 (pill track, ::before knob — COMPOUND pseudo spellings `&:checked::before`, transform travel, density aliases, inset ring) | `:where(.jx-pure) input[type=checkbox][role=switch] { @apply jx-html-switch }` |
+| `jx-html-range` | the .jx-slider law (cqw fill, disc thumb) | `:where(.jx-pure) input[type=range] { @apply jx-html-range }` |
+| `jx-html-color` | the swatch law | `:where(.jx-pure) input[type=color] { @apply jx-html-color }` |
+| `jx-html-tgroup` | the joined segment row as a SUBTREE law (`& > label`…, `:has()` states — probe P4 shape) | opt-in class application (same as today: the class, not a bare element) |
+| `jx-html-control` / `-shell` / `-lane` | Part A's two postures (single-box; wrapper+chromeless lane) | opt-in classes (the Part A postures survive as standard utilities) |
+
+REGISTER CONSUMPTION: the same utilities as markup classes; folder
+css keeps ONLY component extras (slots, one-offs) — zero law copies.
+
+### 11.2 The canonical DOM schema (P0-3)
+
+Per vocabulary row BOTH sides MUST render the same tree. Normative
+shape (tag[attrs] / children order / cardinality):
+
+- `input`: `<input>` alone (posture 1) or
+  `<div shell><span|slot>*</span><input lane><span|slot>*</span></div>`
+  (posture 2, ONLY when slots are provided — the shell posture is
+  the slotted form; jx-pure carries both postures as opt-in classes).
+- `textarea`: `<textarea>` alone; slotted = shell posture as above.
+- `select`: `<select><option>*</option></select>` — the chevron is
+  the CSS glyph (B4's background-image mechanism) on BOTH sides; no
+  inline-svg twin (the registry svg chevron RETIRES).
+- `checkbox`/`radio`: `<label><input> text</label>` (the structural
+  group shape) or bare `<input>` — identical both sides.
+- `switch`: **ONE `<input type=checkbox role=switch>` — no label
+  wrapper, no track/knob spans** (the registry toggle is rebuilt;
+  its visible label, when requested, renders OUTSIDE the input as a
+  sibling `<label for>`). Pseudo carriers (::before) are the ONE
+  sanctioned structural exception: they exist in the CSS OM, not the
+  DOM AST, and the isomorphism gate compares the DOM AST only.
+- `tgroup`: `<div.jx-html-tgroup><label><input><span>text</span></label>*</div>`
+  — bare `label` children (the `.jx-tgroup-item/.jx-tgroup-content`
+  r1 classes retire; the subtree law keys on `& > label`).
+
+GATE RULE: element tags, attribute sets (id/data-*/aria-*/name/value
+excluded from comparison when caller-specific), child ORDER and
+cardinality. The gate reads a machine-readable schema (this table's
+twin in code) — see V4.
+
+### 11.3 Selector grammar + serialization laws (P0-2 residue)
+
+- Nested compound pseudo: `&:checked::before` (probe P5 locks the
+  descendant spelling OUT).
+- Emitted serialization (lightningcss): single-colon `:before`,
+  double-quoted `content:""` — regex gates match `:{1,2}` and both
+  quote forms; the canonical grammar records the emitted form.
+- Folder css CANNOT @apply named/theme utilities (r1 probe stands);
+  the standard layer lives in the THEME (entry context), components
+  consume it as MARKUP CLASSES, the face @applies it through the
+  @import chain (probe P1/P2).
+
+### 11.4 Budget objects (P1-5) — THREE gates replace the one
+
+1. `B-source`: gzip of jixoai.css + jx-pure.css SOURCES (raw files).
+2. `B-face`: gzip of the COMPILED face in the canonical pipeline
+   (apps/www built css, jx-pure rules subset — measured by the
+   parity/build harness).
+3. `B-consumer`: gzip delta of a full consumer bundle (theme +
+   one component's files) — the registry payload cost.
+Baselines recorded at V1 landing; thresholds = baseline +5%; every
+gate names its object, tool version (TW 4.3.3), and gzip command.
+
+### 11.5 The deletion matrix (P1-6)
+
+Retire when V2/V3 land: jx-native-contract item + generator +
+markers + verify:contract; Part A's r1 mirror classes on components;
+`.jx-tgroup-item/-content`; the registry select's svg chevron; the
+toggle's track/knob spans. Update: registry.json descriptions
+(native-form/input/number-input legacy class mentions), deps (the
+extract item out of every registryDependencies), app.css install
+order docs (theme → standard layer → face), **the jx-pure docs page
+— its raw-CSS `<style>` injection DIES with @apply: the page must
+ship the COMPILED css (build artifact) or ride the site pipeline**;
+verify-shadcn-add closure expectations; CustomElement/shadow-root
+docs (adopters now import through an entry).
+
+### 11.6 Gate disposition (Codex r0 list)
+
+KEEP (re-targeted): vitest suite, svelte-check baseline, FormData/
+reset/event behavior tests, density/dark/reduced-motion/forced-colors
+probes, parity computed-style + isolation + color tolerance, engine
+gates (firefox; webkit env-SKIP stands), mirror/payload consistency
+(re-defined against the new file set).
+RETOOL: verify-native-parity (DOM-AST isomorphism FIRST, then
+computed); tw probes (done — 5/5 incl. anti-shape); jx-pure-parity
+spec (standard-layer source/application structure); verify-jx-pure*
+(canonical pipeline).
+RETIRE: verify:contract, the extract byte-lock, the zero-tailwind/
+standalone assertions, r1 mirror-law parity assertions.
