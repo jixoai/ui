@@ -29,6 +29,7 @@ import registryJson from '../../../../registry.json';
 
 export type CatalogGroupId =
   | 'general'
+  | 'terminal'
   | 'layout'
   | 'navigation'
   | 'layer'
@@ -60,6 +61,7 @@ export interface CatalogEntry {
 
 export const CATALOG_GROUPS: CatalogGroup[] = [
   { id: 'general', label: 'General', description: 'The base atoms every surface rides on' },
+  { id: 'terminal', label: 'Terminal', description: "The brand's native surface: live and static terminal faces" },
   { id: 'layout', label: 'Layout', description: 'Page structure, shells, and separators' },
   { id: 'navigation', label: 'Navigation', description: 'Moving through a site or a wizard' },
   { id: 'layer', label: 'Layer', description: 'Floating surfaces: modal, anchored, docked, spotlight' },
