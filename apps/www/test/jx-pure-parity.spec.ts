@@ -23,10 +23,13 @@ import { calendar, clock, pipette } from '../src/lib/icons';
 const here = resolve(fileURLToPath(import.meta.url), '..');
 const repoRoot = resolve(here, '../../..');
 const sheet = readFileSync(resolve(here, '../src/lib/jx-pure.css'), 'utf8');
+  const themeSheet = readFileSync(resolve(here, '../src/lib/jixoai.css'), 'utf8');
 
 /** the sheet's data-URI for one icon name, decoded to an SVG string */
 function sheetIcon(name: 'calendar' | 'clock' | 'pipette'): string {
-  const m = sheet.match(new RegExp(`--jx-icon-${name}:\\s*url\\("([^"]+)"\\)`));
+    // V2: pipette lives in jixoai.css (jx-html-color); calendar/clock in jx-pure.css
+  const m = sheet.match(new RegExp(`--jx-icon-${name}:\\s*url\\("([^"]+)"\\)`))
+      ?? themeSheet.match(new RegExp(`--jx-icon-${name}[,:].*?url\\("([^"]+)"\\)`));
   if (!m) throw new Error(`--jx-icon-${name} missing from jx-pure.css`);
   return decodeURIComponent(m[1]!);
 }
@@ -56,7 +59,7 @@ describe('native-form ↔ icons.ts geometry parity', () => {
 
   it('the sheet still declares all three icon custom properties', () => {
     for (const name of ['calendar', 'clock', 'pipette'] as const) {
-      expect(sheet, `--jx-icon-${name}`).toMatch(new RegExp(`--jx-icon-${name}:`));
+      expect(sheet + themeSheet, `--jx-icon-${name}`).toMatch(new RegExp(`--jx-icon-${name}[:,]`));
     }
   });
 

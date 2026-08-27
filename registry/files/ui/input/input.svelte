@@ -241,8 +241,10 @@
             aria-label="clear value"
             onclick={clearValue}
           >
-            <!-- the shared inline icon set — 10px inside the 1.125rem hit area -->
-            {@html icons.x}
+            <!-- the clear glyph = an ICON SLOT: the CSS mask reads
+                 --jx-icon-clear (overridable via the plugin); the inline
+                 lucide SVG fallback serves without the plugin -->
+            <span class="jx-clear-glyph" aria-hidden="true"></span>
           </button>
         {/if}
       </div>
