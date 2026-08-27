@@ -32,8 +32,10 @@ No @font-face, no font-family/content CSS, no runtime font loading.
 #### Scenario: a woff2 font provides the calendar icon
 
 - GIVEN a woff2 file with a calendar glyph at codepoint 0xe901
-- WHEN fontIconProvider({ source, symbols: { calendar: 0xe901 } })
-- THEN the calendar slot receives a fill-based SvgAsset in the target viewBox
+- WHEN the vite plugin awaits fontIconProvider({ fontPath, symbols: { calendar: 0xe901 } })(ctx)
+- THEN ctx.loadSource(fontPath) auto-decompresses the WOFF2 to TTF
+- AND the factory returns an IconProvider whose getIcon('calendar')
+  yields a fill-based SvgAsset in the target viewBox
 
 #### Scenario: any font format works uniformly
 

@@ -7,9 +7,9 @@
 
 ```
 IconProvider (always returns SvgAsset — structured, not raw CSS)
-├── svgIconProvider      ← reads .svg files from a directory
-├── lucideIconProvider   ← embeds lucide SVG paths (defaults)
-├── fontIconProvider     ← extracts glyphs from ANY font as SVG
+├── svgIconProvider      ← factory: requests .svg files via ctx.loadSource
+├── lucideIconProvider   ← factory: embeds lucide SVG paths (defaults, zero I/O)
+├── fontIconProvider     ← factory: extracts glyphs from ANY font as SVG
 │   ├── .woff2 / .ttf / .otf  ← opentype.js parses (build-time)
 │   └── symbols: { slot → codepoint } mapping
 └── mixinIconProvider    ← composes: base + per-slot overrides
