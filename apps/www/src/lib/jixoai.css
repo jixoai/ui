@@ -944,6 +944,32 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
     color: var(--jx-placeholder, color-mix(in oklab, var(--foreground) 40%, var(--background)));
     opacity: 1;
   }
+  /* date/time/month/week picker indicator (Chromium only — Firefox
+     degrades to its own indicator; nothing to do there). appearance:
+     none frees the paint box; the ink URIs flip with .dark (the UA
+     pseudo rejects author mask paint — the path-(c) ink fallback) */
+  &::-webkit-calendar-picker-indicator {
+    -webkit-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    corner-shape: var(--corner-shape, bevel);
+    width: var(--jx-icon, 1.25rem);
+    height: var(--jx-icon, 1.25rem);
+    margin-inline-start: var(--jx-gap, 0.5rem);
+    cursor: pointer;
+    background-image: var(
+      --jx-icon-calendar,
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E")
+    );
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+  &[type='time']::-webkit-calendar-picker-indicator {
+    background-image: var(
+      --jx-icon-clock,
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E")
+    );
+  }
   @media (prefers-reduced-motion: reduce) {
     transition: none;
   }
@@ -967,21 +993,21 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   @apply jx-html-input;
   cursor: pointer;
   padding-inline-end: calc(var(--jx-inset, 0.75rem) + var(--jx-icon, 1.25rem));
+  /* the chevron = an ICON SLOT (not CSS gradients — those misaligned);
+     the SVG chevron-down paints as a mask (currentColor themes) */
+  --jx-icon-chevron-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   @supports not selector(::-moz-range-progress) {
     appearance: none;
     -webkit-appearance: none;
-    background-image:
-      linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
-      linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
-    background-position:
-      calc(100% - 1.1875rem) calc(50% - 0.1875rem),
-      calc(100% - 0.8125rem) calc(50% - 0.1875rem);
-    background-size: 0.375rem 0.375rem;
+    background-image: var(--jx-icon-chevron, var(--jx-icon-chevron-svg));
+    background-position: right var(--jx-inset, 0.75rem) center;
+    background-size: var(--jx-icon, 1.25rem);
     background-repeat: no-repeat;
     &:hover:not(:disabled) {
-      background-image:
-        linear-gradient(45deg, transparent 50%, var(--primary) 50%),
-        linear-gradient(135deg, var(--primary) 50%, transparent 50%);
+      /* the hover lean: a CSS filter on the background (the mask
+         technique keeps currentColor theming impossible on bg-image,
+         so the hover paints a primary-tinted duplicate) */
+      filter: none;
     }
   }
   &:where([multiple], [size]) {
