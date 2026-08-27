@@ -126,9 +126,22 @@ export interface SourceDescriptor {
   readonly mimeType: string;
 }
 
+// ── Provider lifecycle ─────────────────────────────────────────────
+
+/** what the vite plugin passes to a provider factory — the ONLY path to file I/O */
+export interface ProviderContext {
+  /** load a file by path → SourceDescriptor (the plugin's I/O) */
+  loadSource(path: string): Promise<SourceDescriptor>;
+  /** register a file for HMR watching */
+  watchFile(path: string, onChange: () => void): void;
+}
+
+/** a provider factory — async (font parsing is async); the vite plugin calls it at build start */
+export type IconProviderFactory = (context: ProviderContext) => Promise<IconProvider>;
+
 // ── IconProvider ───────────────────────────────────────────────────
 
-/** the unified provider interface — all providers return SvgAsset */
+/** the unified provider interface — all providers return SvgAsset (sync after factory init) */
 export interface IconProvider {
   /** slot → structured SVG asset (or null = "not my slot") */
   getIcon(slot: IconSlot): SvgAsset | null;

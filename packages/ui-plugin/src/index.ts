@@ -3,6 +3,8 @@
  */
 export type {
   IconSlot,
+  ProviderContext,
+  IconProviderFactory,
   ConsumerCapability,
   SlotDefinition,
   SvgAsset,
