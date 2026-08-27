@@ -210,12 +210,18 @@ fontIconProvider({
 6. Wrap: `<svg viewBox="0 0 W H"><path d="{pathData}" fill="currentColor"/></svg>`
 7. Return as SvgAsset with `nature: 'fill'`
 
-**Font format contract**:
-- TTF/OTF: `opentype.parse(buffer)` directly
-- WOFF2: `wawoff2.decompress(buffer)` → TTF bytes → `opentype.parse(ttfBuffer)`
-- The decompressor is a plugin-level optional dependency (`wawoff2`),
-  NOT in the provider — providers receive already-decompressed bytes
-  via SourceDescriptor.data (mimeType: 'font/ttf' after decompression)
+**Font format contract** (the frozen boundary):
+- `ctx.loadSource(path)` AUTO-DETECTS the font format from the magic bytes:
+  - TTF/OTF: returns SourceDescriptor with raw bytes (mimeType: 'font/ttf')
+  - WOFF2: runs `wawoff2.decompress(buffer)` → returns SourceDescriptor
+    with DECOMPRESSED TTF bytes (mimeType: 'font/ttf', path unchanged
+    for metadata, the decompression is transparent to the provider)
+- Providers ALWAYS receive parseable TTF/OTF bytes in
+  `SourceDescriptor.data` — they call `opentype.parse(data)` directly,
+  with ZERO format-detection or decompression logic
+- The decompressor (`wawoff2`) is a plugin-level optional dependency;
+  if absent and a WOFF2 file is loaded, loadSource throws with a clear
+  error ("install wawoff2 or convert to TTF")
 - Unicode cmap lookup: `font.charToGlyph(String.fromCodePoint(codepoint))`
 - Glyph positioning: the font's own advance width + bounding box,
   normalized to the viewBox
@@ -248,12 +254,13 @@ export default {
 ## 8. The mixinIconProvider
 
 ```typescript
+// mixinIconProvider composes FACTORIES (all async, like the providers they create):
 mixinIconProvider(
-  lucideIconProvider(),  // base
+  lucideIconProvider(),  // base: IconProviderFactory
   {
-    chevron: svgIconProvider({ dir: './my-chevrons/' }),  // override for one slot
+    chevron: svgIconProvider({ dir: './my-chevrons/' }),  // override factory for one slot
   },
-)
+)  // → IconProviderFactory (the vite plugin awaits it)
 ```
 
 For each slot: the override provider's `getIcon(slot)` is called first;
