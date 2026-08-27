@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-27T09:58:30.386Z",
+  "generatedAt": "2026-08-27T20:10:08.378Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -90,8 +90,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "430ca70903fe2e8c274bd623c16734fb0228a5c0676ff25f0ae0ea60a2efa02c",
-          "mirrorSha": "430ca70903fe2e8c274bd623c16734fb0228a5c0676ff25f0ae0ea60a2efa02c"
+          "sourceSha": "12301b1c9901c7aa52ccddecc02893ebac1b160123b6179d00581fa609a4f9b5",
+          "mirrorSha": "12301b1c9901c7aa52ccddecc02893ebac1b160123b6179d00581fa609a4f9b5"
         }
       ]
     },
@@ -592,8 +592,8 @@
           "source": "registry/files/theme/jx-pure.css",
           "mirror": "apps/www/src/lib/jx-pure.css",
           "target": "@lib/jx-pure.css",
-          "sourceSha": "90770d7d6c0615d3bb814fa01f475a24286488ae6e31b304f9e9e423d29404a1",
-          "mirrorSha": "90770d7d6c0615d3bb814fa01f475a24286488ae6e31b304f9e9e423d29404a1"
+          "sourceSha": "5651f89319d490fcab90bbe9beced9ea94c66a83b43bff2b05c691411788ce0c",
+          "mirrorSha": "5651f89319d490fcab90bbe9beced9ea94c66a83b43bff2b05c691411788ce0c"
         }
       ]
     },
@@ -616,8 +616,8 @@
           "source": "registry/files/ui/input/input.svelte",
           "mirror": "apps/www/src/lib/ui/input/input.svelte",
           "target": "@ui/input/input.svelte",
-          "sourceSha": "3129d8f40b9054f28c8b84b3c056d7743b8fba12b7ec09b74ec48f71b6331fe3",
-          "mirrorSha": "3129d8f40b9054f28c8b84b3c056d7743b8fba12b7ec09b74ec48f71b6331fe3"
+          "sourceSha": "fb6ef77a2ace8574ce575deb21ea0d10f31c490db682b269d644f564daf59b45",
+          "mirrorSha": "fb6ef77a2ace8574ce575deb21ea0d10f31c490db682b269d644f564daf59b45"
         },
         {
           "source": "registry/files/ui/input/index.ts",

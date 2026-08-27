@@ -70,6 +70,7 @@ describe('hue-injection utilities', () => {
         'jx-html-control',
         'jx-html-control-shell',
         'jx-html-control-lane',
+        'jx-html-clear',
       ].sort(),
     );
   });

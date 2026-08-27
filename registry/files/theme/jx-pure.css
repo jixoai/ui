@@ -107,8 +107,27 @@
 .jx-color-shell .jx-color-swatch:focus-visible {
   outline: none;
 }
-/* pipette: MOVED to the standard layer (jx-html-color::after);
- * the face's .jx-color-shell consumes jx-html-color which carries it */
+/* the pipette glyph — an ICON SLOT on the WRAPPER (input[type=color]
+ * is a replaced element whose ::after is unreliable across engines;
+ * the label wrapper is non-replaced and paints reliably) */
+.jx-color-shell::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  inset-inline-end: 0.75rem;
+  top: 50%;
+  width: 1rem;
+  height: 1rem;
+  translate: 0 -50%;
+  color: var(--muted-foreground);
+  background-color: currentColor;
+  -webkit-mask: var(--jx-icon-pipette, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m2 22 1-1h3l9-9'/%3E%3Cpath d='M3 21v-3l9-9'/%3E%3Cpath d='m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z'/%3E%3C/svg%3E")) center / contain no-repeat;
+  mask: var(--jx-icon-pipette, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m2 22 1-1h3l9-9'/%3E%3Cpath d='M3 21v-3l9-9'/%3E%3Cpath d='m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z'/%3E%3C/svg%3E")) center / contain no-repeat;
+  pointer-events: none;
+}
+.jx-color-shell:hover::after {
+  color: var(--foreground);
+}
 .jx-tgroup {
   @apply jx-html-tgroup;
 }

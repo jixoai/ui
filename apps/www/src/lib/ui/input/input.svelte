@@ -73,8 +73,7 @@
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
-  import { icons } from '$lib/icons';
-  import { cn } from '$lib/utils';
+    import { cn } from '$lib/utils';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import type { Snippet } from 'svelte';
 
@@ -237,7 +236,7 @@
         {#if showClear}
           <button
             type="button"
-            class="jx-clear"
+            class="jx-html-clear"
             aria-label="clear value"
             onclick={clearValue}
           >

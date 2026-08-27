@@ -32,6 +32,7 @@
 import { readFile } from 'node:fs/promises';
 import { extname, resolve as resolvePath } from 'node:path';
 import type { Plugin, ViteDevServer } from 'vite';
+import { createSafetyChecker } from './safety.js';
 import { serializeIcon } from './serializer.js';
 import { SLOT_NAMES, SLOT_REGISTRY } from './types.js';
 import type {
@@ -205,6 +206,8 @@ function errorMessage(error: unknown): string {
 }
 
 /** serialize every provided slot into the virtual CSS + JS module contents */
+const defaultChecker = createSafetyChecker({ mode: 'warn' });
+
 function generateModules(provider: IconProvider): { readonly css: string; readonly js: string } {
   const declarations: string[] = [];
   const domEntries: string[] = [];
@@ -214,11 +217,11 @@ function generateModules(provider: IconProvider): { readonly css: string; readon
     if (asset === null) continue; // not this provider's slot — standard layer fallback serves
     // serializeIcon returns null when a warn-mode safety check rejects the
     // asset — the slot is omitted and the standard layer fallback serves
-    const value = serializeIcon(asset, 'css-var');
+    const value = serializeIcon(asset, 'css-var', defaultChecker);
     if (value === null) continue;
     declarations.push(`    --jx-icon-${slot}: ${value};`);
     if (usesDomInjection(slot)) {
-      const domString = serializeIcon(asset, 'dom-string');
+      const domString = serializeIcon(asset, 'dom-string', defaultChecker);
       if (domString !== null) {
         domEntries.push(`  ${slot}: ${JSON.stringify(domString)},`);
       }
