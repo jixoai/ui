@@ -122,7 +122,8 @@ export interface SourceDescriptor {
   readonly data: Uint8Array;
   /** the resolved file path (for metadata/logging, NOT for reading) */
   readonly path: string;
-  /** the mime type (image/svg+xml, font/woff2, etc.) */
+  /** the mime type AFTER normalization (image/svg+xml, font/ttf;
+   * WOFF2 is transparently decompressed by loadSource — never font/woff2) */
   readonly mimeType: string;
 }
 

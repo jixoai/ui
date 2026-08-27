@@ -184,16 +184,26 @@ interface SourceDescriptor {
   readonly data: Uint8Array;
   /** the resolved file path (for metadata/logging, NOT for reading) */
   readonly path: string;
-  /** the mime type (image/svg+xml, font/woff2, etc.) */
+  /** the mime type AFTER normalization (image/svg+xml, font/ttf —
+   * WOFF2 is transparently decompressed by loadSource, so providers
+   * NEVER see font/woff2 in this field) */
   readonly mimeType: string;
 }
 
-fontIconProvider({
-  /** received from the vite plugin at build start */
-  source: SourceDescriptor;
-  symbols: { [slot in IconSlot]?: number };  // slot → unicode codepoint
-  viewBox: { width: number; height: number }; // normalize to this (default 24×24)
-})
+// the FACTORY — async: font parsing + WOFF2 decompression are async
+const fontIconProvider = (options: {
+  fontPath: string;
+  symbols: { [slot in IconSlot]?: number };
+  viewBox?: { width: number; height: number };
+}): IconProviderFactory => {
+  return async (ctx: ProviderContext) => {
+    // loadSource auto-detects + decompresses WOFF2 → TTF transparently
+    const source = await ctx.loadSource(options.fontPath);
+    ctx.watchFile(options.fontPath, () => { /* HMR */ });
+    // opentype.parse(source.data) → charToGlyph per codepoint → cache
+    return { getIcon(slot) { /* from cache */ } };
+  };
+};
 ```
 
 **Pipeline** (build-time, in the vite plugin):
@@ -229,14 +239,15 @@ fontIconProvider({
 ## 7. The vite plugin
 
 ```typescript
-// consumer's vite.config.ts
+// consumer's vite.config.ts — icons receives an IconProviderFactory;
+// jxUI() AWAITS the factory at build start (font/svg loading is async)
 import { jxUI, lucideIconProvider } from '@jixoai/ui-plugin';
 
 export default {
   plugins: [
     sveltekit(),
     tailwindcss(),
-    jxUI({ icons: lucideIconProvider() }),
+    jxUI({ icons: lucideIconProvider() }),  // ← IconProviderFactory
   ],
 };
 ```
