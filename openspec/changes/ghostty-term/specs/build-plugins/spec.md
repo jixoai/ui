@@ -96,6 +96,11 @@ resolves against the pin and verifies sha256 before use. Network
 paths SHALL be hardened uniformly: a final-host allowlist (github.com
 plus the GitHub asset CDN hosts objects.githubusercontent.com /
 release-assets.githubusercontent.com), per-hop redirect validation,
+a URL structure check parametrized by the pin's own `source.tag`
+(the expected path is
+`/ghostty-org/ghostty/releases/download/<source.tag>/<variant asset
+name>` — tip today, a future stable tag without code changes; tests
+cover both tag forms),
 and a streaming 4MB hard cap on the response body that holds even
 when Content-Length is missing or lies. The binary-stays-out-of-git
 rule has TWO guardrails: the default cache dir lives under

@@ -129,8 +129,10 @@ release-assets.githubusercontent.com}`，逐跳校验重定向（每跳 host
 必须在 allowlist 内，最多 5 跳）；请求超时 30s；下载**流式累计
 4MB 硬上限**（不依赖 Content-Length——缺失或超限立即失败并断流）；
 URL 结构校验：路径必须匹配
-`/ghostty-org/ghostty/releases/download/tip/<variant 资产名>`（仓库
-路径与资产名白名单，防 URL 内跳转绕过）；HEAD 仅作预检，真正的
+`/ghostty-org/ghostty/releases/download/${pin.source.tag}/<variant
+资产名>`（由 pin 的 source.tag 参数化生成——tip 与未来 stable tag
+同规则；仓库路径与资产名白名单，防 URL 内跳转绕过；verify/probe
+测试覆盖 tip 与非 tip tag 两种形态）；HEAD 仅作预检，真正的
 安全决策在响应流上；缓存写入原子化
 （tmp 文件 + rename，避免半写文件被后续读取）。
 
@@ -239,7 +241,8 @@ resolveGhosttyWasm(opts?: {
   offline?: boolean;            // true = 仅缓存，miss 即抛错
 }): Promise<{
   bytes: Uint8Array;
-  path: string;                 // 缓存绝对路径（<cacheDir>/<sha256>.wasm）
+  path: string;                 // env 覆盖时 = 源文件绝对路径；
+                                // 否则 = 缓存路径（<cacheDir>/<sha256>.wasm）
   sha256: string; variant: 'full' | 'small'; buildInfo: string;
 }>
 ```
