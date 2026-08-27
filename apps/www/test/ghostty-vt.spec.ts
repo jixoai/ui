@@ -192,7 +192,7 @@ describe('ghostty-vt url fallback discipline (instantiateStreaming)', () => {
     // wrong MIME: instantiateStreaming refuses up front; the buffered
     // fallback must still load the REAL bytes and build the core
     const bytes = await acquireWasmBytes();
-    const response = new Response(bytes, {
+    const response = new Response(bytes.slice().buffer, {
       headers: { 'content-type': 'application/octet-stream' },
     });
     vi.stubGlobal('fetch', vi.fn(async () => response));

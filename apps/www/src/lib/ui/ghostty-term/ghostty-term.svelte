@@ -533,6 +533,11 @@
         phase = 'ready';
         // metrics + grid derive in the sizing effect off phase === 'ready'
 
+        // pre-ready writes must not be lost: any rAF that fired while
+        // vt was still null returned early and left the queue pending
+        // with no frame scheduled — flush it now that vt exists
+        if (pendingChunks.length > 0) scheduleFrame();
+
         // font timing (D5.2): first frames may ride the fallback mono;
         // once the real mono lands, re-measure and repaint the grid
         if (typeof document !== 'undefined' && document.fonts) {
