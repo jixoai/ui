@@ -277,3 +277,61 @@ Codex's landing order, binding:
 
 Maintained in `verification.md` as batches land (probe output,
 gate runs, parity matrices, Codex review rounds).
+
+## 10. V2 PIVOT — the .jx-html standard layer (Owner ruling, 2026-08-27 r2)
+
+> The r1 architecture (dual expression + parity locks) is SUPERSEDED.
+> Owner correction: the unification is DOM-isomorphic AND
+> single-source — one declaration chain, two applications.
+
+```
+            THE STANDARD LAYER (single source, @utility in the theme)
+   @utility jx-html-input  { …static…; &:hover{…}; &:focus-visible{…} }
+   @utility jx-html-switch { …; &::before{…}; &:checked &::before{…} }
+   @utility jx-html-tgroup { …; &>label{…}; &>label:has(:checked){…} }
+            (installing the theme IS installing the plugin)
+                 │                                    │
+     APPLICATION 1 (registry)               APPLICATION 2 (jx-pure face)
+   markup: class="jx-html-switch"          :where(.jx-pure) input {
+   folder css: only component-extras         @apply jx-html-input }
+   (slots, one-offs) — no law copies       (context flows through the
+                                             entry @import chain —
+                                             PROBED; variant blocks
+                                             transfer through @apply —
+                                             PROBED, states stay
+                                             single-source)
+```
+
+- Probe evidence: apps/www/test/tw-standard-layer-probe.spec.ts —
+  P1 markup-class consumption ✓, P2 cross-@import @apply ✓, P3
+  variant transfer ✓ (3/3).
+- BREAKING (Owner ruling A): jx-pure.css drops its zero-tailwind
+  promise — it becomes pipeline-bound like daisyUI (its @apply rules
+  compile when installed behind the consumer's entry). A compiled
+  literal CDN artifact is a future add if a zero-build use case
+  returns.
+- Part A's opt-in classes (.jx-control family, .jx-tgroup…) become
+  @apply applications of the standard classes (or retire per the
+  vocabulary table); the jx-native-contract EXTRACT item retires
+  (generator, markers, gate) — the standard layer replaces it.
+- DOM isomorphism is a FIRST-CLASS gate: per vocabulary row the two
+  sides' element trees must match (toggle = ONE input, both sides).
+- The parity gate's computed role remains (it now guards the
+  application mapping + registry extras), with DOM-isomorphism
+  assertions added ahead of it.
+
+### V2 phases
+
+- V0 probes (done — this section's evidence).
+- V1 standard layer lands in jixoai.css: the .jx-html-* vocabulary
+  (input/textarea/select/checkbox/radio/switch/toggle-group + the
+  control/control-shell/control-lane postures), authored from the
+  CURRENT jx-pure laws (they are the reference text).
+- V2 jx-pure.css re-based: bare-element rules become @apply
+  applications; Part A classes follow; mirrors/extract retired.
+- V3 registry components: markup carries the standard classes; DOM
+  isomorphism rework (toggle → single input[role=switch]); folder css
+  shrinks to component-extras; tests/docs updated.
+- V4 gates: DOM-isomorphism assertions + parity + probes + suite;
+  gzip budget re-checked (the face shrinks — laws move to the theme).
+- V5 Codex review loop (plan review gates V1; code review gates V3+).
