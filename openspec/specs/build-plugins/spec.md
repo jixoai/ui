@@ -20,7 +20,11 @@ registry item) with ZERO runtime dependencies and peerDependency
 `vite ^8.0.0` (the only tested surface), built by tsdown into
 `dist/index.js` + `dist/probe.js` and carrying the
 `jixoai-ghostty-probe` bin. The package's public API is frozen:
-`jixoaiGhostty()` (the plugin), `resolveGhosttyWasm(opts)` (the
+`jixoai(opts)` (THE umbrella entry — one call wires every jixoai
+build-time feature; `ghostty` is the first, default-on feature, taking
+`boolean | options` under `jixoai({ ghostty })`; the unpublished
+`jixoaiGhostty()` name never shipped, the umbrella landed in its
+place), `resolveGhosttyWasm(opts)` (the
 node-usable resolver: variant/cacheDir/offline →
 `{ bytes, path, sha256, variant, buildInfo }`, cache filename
 `<sha256>.wasm`, default cache dir
@@ -54,7 +58,7 @@ build emission, and handing data URLs to code via virtual modules.
 #### Scenario: consumer wires the ghostty plugin
 
 - GIVEN a vite consumer with `@jixoai/vite-plugin` installed and
-  `jixoaiGhostty()` in `plugins`
+  `jixoai()` in `plugins`
 - WHEN the dev server starts or a build runs
 - THEN the pinned `ghostty-vt.wasm` resolves (env override →
   sha256-keyed cache → pinned download, verified), is served in dev

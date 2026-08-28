@@ -24,7 +24,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { build, createServer } from 'vite';
 
-import { jixoaiGhostty } from '../src/index.ts';
+import { jixoai } from '../src/index.ts';
 import { readPin } from '../src/pin.ts';
 import { loadWasmBytes } from './helpers';
 
@@ -70,7 +70,7 @@ async function walk(dir: string, base: string): Promise<string[]> {
   return out;
 }
 
-describe('jixoaiGhostty() build', () => {
+describe('jixoai() build', () => {
   it('lib mode: emits the content-addressed asset and a node-importable module', async (ctx) => {
     if (bytes === undefined) return ctx.skip('wasm unavailable offline');
     await writeFixture(
@@ -84,7 +84,7 @@ describe('jixoaiGhostty() build', () => {
     await build({
       root: fixtureRoot,
       logLevel: 'silent',
-      plugins: jixoaiGhostty({ cacheDir, offline: true }),
+      plugins: jixoai({ ghostty: { cacheDir, offline: true } }),
       build: {
         outDir,
         emptyOutDir: true,
@@ -129,7 +129,7 @@ describe('jixoaiGhostty() build', () => {
     await build({
       root: fixtureRoot,
       logLevel: 'silent',
-      plugins: jixoaiGhostty({ cacheDir, offline: true }),
+      plugins: jixoai({ ghostty: { cacheDir, offline: true } }),
       build: {
         outDir,
         emptyOutDir: true,
@@ -157,7 +157,7 @@ describe('jixoaiGhostty() build', () => {
     await build({
       root: fixtureRoot,
       logLevel: 'silent',
-      plugins: jixoaiGhostty({ cacheDir, offline: true }),
+      plugins: jixoai({ ghostty: { cacheDir, offline: true } }),
       build: {
         outDir,
         emptyOutDir: true,
@@ -184,7 +184,7 @@ describe('jixoaiGhostty() dev middleware', () => {
     const server = await createServer({
       root: fixtureRoot,
       logLevel: 'silent',
-      plugins: jixoaiGhostty({ cacheDir, offline: true }),
+      plugins: jixoai({ ghostty: { cacheDir, offline: true } }),
     });
     try {
       await server.listen();
@@ -252,7 +252,7 @@ describe('jixoaiGhostty() dev middleware shape gate', () => {
   }
 
   const installMiddleware = (cacheDir: string): Array<(url: string) => FakeState> => {
-    const plugin = jixoaiGhostty({ cacheDir, offline: true })[0]!;
+    const plugin = jixoai({ ghostty: { cacheDir, offline: true } })[0]!;
     const hook = plugin.configureServer;
     const configure = typeof hook === 'function' ? hook : hook?.handler;
     if (typeof configure !== 'function') {

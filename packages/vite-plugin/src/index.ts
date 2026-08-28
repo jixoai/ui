@@ -1,7 +1,12 @@
 // @jixoai/vite-plugin — the ghostty-vt wasm supply plugin for vite 8.
 //
 // Intents (orthogonal count: 3):
-//   1. `jixoaiGhostty(options)` — one plugin handling the three serving
+//   1. `jixoai()` — THE umbrella entry wiring every
+//      jixoai build-time feature; `ghostty` (the wasm supply) is the
+//      first, default-on feature (owner request 2026-08-28: the consumer
+//      remembers ONE name, features arrive as options under it). The
+//      ghostty plugin itself stays an internal single-element Plugin[]
+//      handling the three serving
 //      faces frozen in design.md D3: dev middleware at
 //      /@jixoai/ghostty-vt-<sha16>.wasm (application/wasm + immutable),
 //      build-time emitFile with the content-addressed fileName
@@ -53,7 +58,7 @@ export function assetFileName(sha256: string): string {
  * (kept as an array so future middleware siblings ship without a
  * breaking re-export).
  */
-export function jixoaiGhostty(options: JixoaiGhosttyOptions = {}): Plugin[] {
+function ghosttyPlugin(options: JixoaiGhosttyOptions): Plugin[] {
   let resolved: ResolvedGhosttyWasm | undefined;
   // emitFile with an explicit duplicate fileName is a hard rollup error;
   // the referenceId is memoized per environment graph (SvelteKit builds
@@ -152,4 +157,34 @@ export function jixoaiGhostty(options: JixoaiGhosttyOptions = {}): Plugin[] {
       },
     },
   ];
+}
+
+/**
+ * `jixoai()` — THE umbrella entry. One call wires every jixoai build-time
+ * feature; each feature is an option on this object (default-on where it
+ * has no cost for projects that don't touch it — opting out is explicit):
+ *
+ *   plugins: [sveltekit(), tailwindcss(), ...jixoai()]
+ *   plugins: [sveltekit(), tailwindcss(), ...jixoai({ ghostty: { variant: 'small' } })]
+ *   plugins: [sveltekit(), tailwindcss(), ...jixoai({ ghostty: false })]
+ *
+ * The package is unpublished — `jixoaiGhostty()` never shipped, so the
+ * unified surface lands without a compat shim (house law: bold breaks).
+ */
+export interface JixoaiOptions {
+  /**
+   * The ghostty-vt wasm supply feature (dev serving + build emission +
+   * the virtual:jixoai-ghostty module). Default: on. `false` opts out;
+   * an object passes JxoaiGhosttyOptions through.
+   */
+  ghostty?: boolean | JxoaiGhosttyOptions;
+}
+
+export function jixoai(options: JixoaiOptions = {}): Plugin[] {
+  const plugins: Plugin[] = [];
+  const ghostty = options.ghostty ?? true;
+  if (ghostty !== false) {
+    plugins.push(...ghosttyPlugin(ghostty === true ? {} : ghostty));
+  }
+  return plugins;
 }

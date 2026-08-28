@@ -26,10 +26,10 @@ npm i -D @jixoai/vite-plugin
 Wire it in `vite.config.ts`:
 
 ```ts
-import { jixoaiGhostty } from '@jixoai/vite-plugin';
+import { jixoai } from '@jixoai/vite-plugin';
 
 export default {
-  plugins: [jixoaiGhostty()],
+  plugins: [...jixoai()],
 };
 ```
 
@@ -56,7 +56,7 @@ import { url, sha256, variant, buildInfo } from 'virtual:jixoai-ghostty';
 Options (all optional):
 
 ```ts
-jixoaiGhostty({
+jixoai({ ghostty: {
   variant: 'full',   // 'small' = trimmed build (~711KB vs ~981KB)
   cacheDir: '…',     // default <cwd>/node_modules/.cache/jixoai-ghostty
   offline: false,    // true = cache only; a miss is an error
