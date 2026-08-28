@@ -226,7 +226,7 @@
           {...rest}
           value={controlled ? value : undefined}
           oninput={syncValue}
-          class="jx-control-lane"
+          class="jx-html-control-lane"
           aria-invalid={invalidAttr}
           aria-describedby={describedBy}
         />

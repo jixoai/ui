@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-28T10:41:17.054Z",
+  "generatedAt": "2026-08-28T10:57:22.012Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -90,8 +90,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "48bbda1b10553dc6f85c2dc8dc432183537ec6cf7cb26af7a35e529b577417ab",
-          "mirrorSha": "48bbda1b10553dc6f85c2dc8dc432183537ec6cf7cb26af7a35e529b577417ab"
+          "sourceSha": "21b6ae6669f0a19591f398b3ba48549e0148074be9538d4ad3e2b564fc669f55",
+          "mirrorSha": "21b6ae6669f0a19591f398b3ba48549e0148074be9538d4ad3e2b564fc669f55"
         }
       ]
     },
@@ -616,8 +616,8 @@
           "source": "registry/files/ui/input/input.svelte",
           "mirror": "apps/www/src/lib/ui/input/input.svelte",
           "target": "@ui/input/input.svelte",
-          "sourceSha": "28845617cc088d3887cb1b4fe359a3880c83b4b88972fd84c46ab71b4ec0f8cb",
-          "mirrorSha": "28845617cc088d3887cb1b4fe359a3880c83b4b88972fd84c46ab71b4ec0f8cb"
+          "sourceSha": "1b367c4a67c66bf600902252b74f5945622dccc4bdde84c9e91b80d0a328435f",
+          "mirrorSha": "1b367c4a67c66bf600902252b74f5945622dccc4bdde84c9e91b80d0a328435f"
         },
         {
           "source": "registry/files/ui/input/index.ts",
