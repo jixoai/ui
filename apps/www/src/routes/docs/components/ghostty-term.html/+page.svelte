@@ -113,28 +113,115 @@ export default {
     return `fg ${fg}\r\nbg ${bg}\r\n${styles}`;
   };
 
-  const WELCOME =
-    '\u001b[1mghostty-term\u001b[0m — this canvas is painted by the real libghostty-vt wasm\r\n' +
-    '\u001b[38;5;244mthe shell is a page-local loopback — no network pty. try \u001b[0m' +
-    '\u001b[38;5;153mhelp\u001b[0m\u001b[38;5;244m · \u001b[0m\u001b[38;5;153mcolor\u001b[0m\u001b[38;5;244m · \u001b[0m' +
-    '\u001b[38;5;153mclear\u001b[0m\u001b[38;5;244m · ↑ history · Ctrl+C cancels\u001b[0m\r\n' +
-    `\r\n${colorMatrix()}\r\n`;
-
   const HELP =
-    '\u001b[38;5;153mhelp\u001b[0m    this list\r\n' +
-    '\u001b[38;5;153mcolor\u001b[0m   repaint the color matrix\r\n' +
-    '\u001b[38;5;153mclear\u001b[0m   erase the screen (Ctrl+L too)\r\n' +
+    '\u001b[38;5;153mhelp\u001b[0m      this list\r\n' +
+    '\u001b[38;5;153mcolor\u001b[0m     repaint the color matrix\r\n' +
+    '\u001b[38;5;153mclear\u001b[0m    erase the screen (Ctrl+L too)\r\n' +
+    '\u001b[38;5;153mshowcase\u001b[0m  replay the boot showcase\r\n' +
     '\u001b[38;5;244m↑/↓ recall history · Backspace edits · Ctrl+C cancels\u001b[0m\r\n';
 
   const emit = (text: string): void => {
     term?.write(enc.encode(text));
   };
 
+  // ---- the xtermjs-style auto showcase (owner request 2026-08-28) ------
+  // typed banner + staged supply output + spinner + progress bar, then
+  // the interactive shell takes over. Ctrl+C cancels mid-show; the
+  // `showcase` command and the title-bar replay button rerun it.
+  // reduced-motion collapses every delay to zero.
+  const cx = {
+    dim: (t: string) => `\u001b[38;5;244m${t}\u001b[0m`,
+    blue: (t: string) => `\u001b[38;5;153m${t}\u001b[0m`,
+    purple: (t: string) => `\u001b[1;38;5;141m${t}\u001b[0m`,
+    cyan: (t: string) => `\u001b[38;5;81m${t}\u001b[0m`,
+    green: (t: string) => `\u001b[38;5;114m${t}\u001b[0m`,
+  };
+  const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+  const reducedMotion = (): boolean =>
+    typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const beat = (): number => (reducedMotion() ? 0 : 1);
+
+  /** bumps to cancel: any in-flight showcase dies at its next await. */
+  let showcaseRun = 0;
+  /** while true, onData only admits Ctrl+C (the cancel key). */
+  let showcasing = false;
+
+  const typeOut = async (text: string, run: number): Promise<void> => {
+    if (reducedMotion()) {
+      emit(text);
+      return;
+    }
+    for (const ch of text) {
+      if (run !== showcaseRun) return;
+      emit(ch);
+      await sleep(14 + Math.random() * 42);
+    }
+  };
+
+  const runShowcase = async (): Promise<void> => {
+    const run = ++showcaseRun;
+    showcasing = true;
+    const live = (): boolean => run === showcaseRun;
+    const finish = (): void => {
+      showcasing = false;
+      emit(PROMPT);
+    };
+
+    emit(`${cx.purple('ghostty-term')} — the live terminal surface\r\n`);
+    emit(`${cx.dim('real libghostty-vt wasm · rAF dirty-row canvas · zero DOM rows')}\r\n\r\n`);
+    await sleep(350 * beat());
+    if (!live()) return;
+
+    emit(PROMPT);
+    await typeOut('jixoai-ui add ghostty-term', run);
+    if (!live()) return;
+    emit('\r\n');
+    await sleep(220 * beat());
+
+    const stages = [
+      ['pin', 'resolve ghostty.pin.json → tip'],
+      ['hash', 'verify sha256 517821d6… · 981 KB'],
+      ['emit', 'assets/ghostty-vt-517821d6.wasm'],
+      ['vt', 'ghostty_type_json → 181 exports'],
+    ] as const;
+    for (const [tag, line] of stages) {
+      if (!live()) return;
+      emit(`  ${cx.dim('supply')} ${cx.cyan(tag.padEnd(5))}${cx.dim('·')} ${line}\r\n`);
+      await sleep(150 * beat());
+    }
+
+    if (beat()) {
+      const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+      for (let i = 0; i < 14 && live(); i++) {
+        emit(`\r  ${cx.cyan(frames[i % frames.length]!)} ${cx.dim('streaming ghostty-vt.wasm…')}`);
+        await sleep(75);
+      }
+      if (!live()) return;
+      emit('\r\u001b[2K');
+
+      const width = 26;
+      for (let pct = 0; pct <= 100 && live(); pct += 4) {
+        const filled = Math.round((pct / 100) * width);
+        emit(`\r  ${cx.cyan(`[${'█'.repeat(filled)}${'░'.repeat(width - filled)}]`)} ${String(pct).padStart(3)}%`);
+        await sleep(55);
+      }
+      if (!live()) return;
+      emit('\r\u001b[2K');
+    }
+
+    emit(`  ${cx.green('✓')} ghostty-term ready — ${cx.dim('pin + sha256 supply · wasm never in git')}\r\n\r\n`);
+    emit(`${colorMatrix()}\r\n`);
+    emit(
+      `${cx.dim('the shell is yours now — ')}${cx.blue('help')}${cx.dim(' · ')}${cx.blue('color')}${cx.dim(' · ')}${cx.blue('showcase')}${cx.dim(' replays this sequence · Ctrl+C cancels')}\r\n\r\n`,
+    );
+    finish();
+  };
+
   const onResize = (detail: { cols: number; rows: number }): void => {
     grid = detail;
     if (booted) return;
     booted = true;
-    emit(WELCOME + PROMPT);
+    void runShowcase();
   };
 
   const recall = (dir: 1 | -1): void => {
@@ -160,6 +247,10 @@ export default {
     if (command === 'help') emit(HELP + PROMPT);
     else if (command === 'color') emit(`${colorMatrix()}\r\n${PROMPT}`);
     else if (command === 'clear') emit(`\u001b[2J\u001b[H${PROMPT}`);
+    else if (command === 'showcase') {
+      emit('\u001b[2J\u001b[H');
+      void runShowcase();
+    }
     else
       emit(
         `\u001b[38;5;203mcommand not found:\u001b[0m ${command} — try \u001b[38;5;153mhelp\u001b[0m\r\n${PROMPT}`,
@@ -170,6 +261,17 @@ export default {
     let i = 0;
     while (i < bytes.length) {
       const b = bytes[i]!;
+      if (showcasing) {
+        // mid-showcase the keyboard belongs to the show: Ctrl+C cancels,
+        // everything else waits for the interactive shell at the end
+        if (b === 0x03) {
+          showcaseRun += 1;
+          showcasing = false;
+          emit(`^C\r\n${PROMPT}`);
+        }
+        i += 1;
+        continue;
+      }
       if (b === 0x1b && i + 2 < bytes.length && (bytes[i + 1] === 0x5b || bytes[i + 1] === 0x4f)) {
         const key = bytes[i + 2]!;
         if (key === 0x41) recall(1);
@@ -273,10 +375,36 @@ export default {
           { label: 'history', value: String(history.length) },
         ]}
       >
-        <div class="h-[380px] w-full">
-          {#key replay}
-            <GhosttyTerm bind:this={term} {onData} {onResize} />
-          {/key}
+        <!-- xtermjs-style window chrome: traffic bar (terminal-card paint
+             law) + the terminal filling the remaining height (auto mode's
+             fill-host contract) + a replay affordance in the bar -->
+        <div
+          class="border-border bg-terminal text-terminal-foreground flex h-[380px] w-full flex-col overflow-hidden border [box-shadow:6px_6px_0_0_var(--shadow)]"
+        >
+          <div
+            class="text-terminal-foreground/55 flex items-center gap-1.5 border-b px-3.5 py-2 font-nav text-xs tracking-[0.1em]"
+          >
+            <span class="h-2 w-2 flex-none border border-current bg-[oklch(0.7_0.18_25)]" aria-hidden="true"></span>
+            <span class="h-2 w-2 flex-none border border-current bg-[oklch(0.85_0.17_95)]" aria-hidden="true"></span>
+            <span class="h-2 w-2 flex-none border border-current bg-[oklch(0.75_0.17_150)]" aria-hidden="true"></span>
+            <span class="ml-2 truncate">
+              jixoai — ghostty-term{grid.cols > 0 ? ` — ${grid.cols}×${grid.rows}` : ''}
+            </span>
+            <button
+              type="button"
+              class="ml-auto flex items-center transition-colors hover:text-terminal-foreground"
+              onclick={resetCanvas}
+              aria-label="replay the showcase"
+              title="replay the showcase"
+            >
+              ↻
+            </button>
+          </div>
+          <div class="relative min-h-0 flex-1">
+            {#key replay}
+              <GhosttyTerm bind:this={term} {onData} {onResize} />
+            {/key}
+          </div>
         </div>
         {#snippet playground()}
           <PlayFields>
@@ -284,7 +412,7 @@ export default {
               click the terminal to focus it, then type — the canvas owns the keyboard surface
               (<code>Tab</code> reaches it like any control). Enter runs, Backspace edits,
               <code>↑</code> recalls, Ctrl+C cancels. reset re-mounts the wasm terminal and replays
-              the welcome screen.
+              the boot showcase.
             </PlayHelp>
           </PlayFields>
         {/snippet}
