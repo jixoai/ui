@@ -24,8 +24,8 @@ ghostty-term 已过冻结验收与多轮 owner 迭代（光标/选区/xterm 门�
 - **IME 组合输入**（组件）：隐藏 textarea 伴生元素（xterm 方案）
   承接 `compositionstart/update/end`。
   V1 语义：组合中本地缓冲（不进 pty），`compositionend` 提交串经
-  **净化门**入 pty（与 pasteText 同路）；组合期间在光标处绘制
-  preedit 下划串（canvas 自绘，占位 cell 数按 ghostty 宽度判定）。
+  **净化门**入 pty（与 pasteText 同路）；组合期间在光标右侧绘制
+  preedit 下划串（canvas 自绘、超网格截断、不引入宽度判定源）。
   raw 层一致性：`onKeyDown` 消费仍最高优先。
 - **鼠标上报**（绑定 + 组件）：
   - 绑定：mouse encoder 面（PRESS/RELEASE/MOTION × 按钮 × 坐标；
@@ -45,7 +45,7 @@ ghostty-term 已过冻结验收与多轮 owner 迭代（光标/选区/xterm 门�
   - 组件：`clipboardWrite?: boolean | { maxSize?: number }`（默认开，
     上限取 wasm 的 CLIPBOARD_WRITE_MAX_BYTES 与配置的较小值）；
     set → `navigator.clipboard.writeText`；query 默认**禁用**（安全，
-    显式 `clipboardReadFrom?: true` 才放行并只回文本）。跨设备安全
+    显式 `clipboardReadFrom?: boolean`（默认 false）才放行并只回文本）。跨设备安全
     模型照 xterm：写放行、读默认拒。
 - **spec**：新能力 `terminal-input`（输入面法则：raw 层优先级链、
   净化门不可绕过、Shift 旁通、OSC 52 安全模型、IME 提交语义）。
@@ -66,7 +66,8 @@ WebGL 渲染（P1/P2 盘点在案，另行 change）。
   翻转时 wheel 路由切换、clipboardWrite 上限拒绝、onKeyDown 仍最高。
 - 浏览器实测：docs playground + unipty demo（vim 点击定位、滚轮翻
   历史、OSC 52 写剪贴板、中文输入法提交）。
-- 既有门禁全绿（增量 0 基线不变）。
+- 既有门禁：基线存量失败不变（surface 46/47、hook-law 3 处为
+  origin/main 既有欠账），本 change 只承诺「不新增失败」（增量 0）。
 
 ## Codex
 

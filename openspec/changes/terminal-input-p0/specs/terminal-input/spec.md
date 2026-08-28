@@ -32,9 +32,9 @@ reply there would be re-ingested and never reach the program.
 Every DOM input entering the component SHALL pass the chain in order:
 raw layer (`onKeyDown` returning true consumes) → parameterized default
 layers (clipboard hotkeys, mouse reporting) → wasm encoders (keyEncode
-/ mouseEncode) → `onData`. No input path may reach the pty except
-through the sanitized paste gate (IME commits, clipboard reads,
-programmatic pasteText all share it).
+/ mouseEncode) → `onData`. TEXT-commit paths (IME commits, clipboard
+reads, programmatic pasteText) MUST ride the sanitized paste gate;
+encoder bytes are not text and take the gate-free encode path.
 
 #### Scenario: IME composition commits through the gate
 

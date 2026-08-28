@@ -35,11 +35,10 @@ DOM 事件进入组件
   ——root div 方案在真浏览器会哑火）：root 内挂
   `<textarea aria-hidden class="sr-only">`，composition 三事件挂它，
   预聚焦跟随 root focus；root 上的 keydown 语义不变。
-- `compositionupdate`：串存 `preedit` state（不进 pty）；绘制层在
-  光标 cell 起画下划 preedit 串（宽度按 ghostty 判定：`vtWrite` 一段
-  零宽探测？否——直接以**预排宽度 = 每 grapheme 的 wcwidth 估算**会
-  引入第二事实源。V1 简化：preedit 只画在光标位置右侧、超网格截断，
-  不参与 cell 语义（不推进光标、不改 pty），ESC 取消清空。）
+- `compositionupdate`：串存 `preedit` state（不进 pty）；绘制 =
+  光标右侧下划串、**超网格截断、不引入任何宽度判定源**（无 wcwidth/
+  ghostty 探测——唯一 V1 语义，proposal 同步；不推进光标、不改 pty，
+  ESC 取消清空。codex r0#6 统一裁决）。
 - `compositionend`：`vt.pasteText(data)`（净化门路径）。
 - composition 期间 keydown 忽略（除 raw 层返回 true 的场景）。
 
