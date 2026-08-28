@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-28T20:26:04.054Z",
+  "generatedAt": "2026-08-28T20:31:03.605Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -90,8 +90,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "8fcda514a75299cb7006a4c33c715eea2451967c41fe56625298089b319c467b",
-          "mirrorSha": "8fcda514a75299cb7006a4c33c715eea2451967c41fe56625298089b319c467b"
+          "sourceSha": "d63e47d8e5db0522af8044583ff32b74ff19d0543707def85ff3f9b24ab51eae",
+          "mirrorSha": "d63e47d8e5db0522af8044583ff32b74ff19d0543707def85ff3f9b24ab51eae"
         }
       ]
     },
@@ -592,8 +592,8 @@
           "source": "registry/files/theme/jx-pure.css",
           "mirror": "apps/www/src/lib/jx-pure.css",
           "target": "@lib/jx-pure.css",
-          "sourceSha": "1b77538ea9529e9704bf609c4ee3b5de9f6c713266ad36d1edfac427c903cdcf",
-          "mirrorSha": "1b77538ea9529e9704bf609c4ee3b5de9f6c713266ad36d1edfac427c903cdcf"
+          "sourceSha": "a10e1b07afdd54dc92231190147895c72672967709ddf4cc609751c8704266fd",
+          "mirrorSha": "a10e1b07afdd54dc92231190147895c72672967709ddf4cc609751c8704266fd"
         }
       ]
     },

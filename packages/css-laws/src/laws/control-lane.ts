@@ -47,8 +47,12 @@ export const controlLaneLaw: ComponentLaw = {
         appearance: 'none',
         width: '1.4em',
         height: '1.4em',
+        /* the indicator's END inset is the INPUT's own padding-inline-end
+         * (ownership symmetry with the prefix law): no margin-inline-end
+         * here — it would stack 0.6em + gap = 19.8px against the 7.8px
+         * text start. margin-inline-start stays: it is the value↔icon
+         * separation, the icon's own geometry, not a box inset */
         'margin-inline-start': 'var(--jx-gap, 0.5rem)',
-        'margin-inline-end': 'var(--jx-gap, 0.5rem)',
         cursor: 'pointer',
         'background-image':
           "var(--jx-icon-calendar, url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E\"))",
