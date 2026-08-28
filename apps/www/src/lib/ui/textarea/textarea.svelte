@@ -127,7 +127,7 @@
        Part A's shell law carries the box/hover/focus/disabled/invalid
        paint — the only component-owned geometry is the column direction -->
   <div
-    class={'jx-control-shell flex-col ' + className}
+    class={'jx-html-control-shell flex-col ' + className}
     class:jx-slotted={slotted}
     class:jx-invalid={invalid}
   >

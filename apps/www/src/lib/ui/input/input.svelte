@@ -211,7 +211,7 @@
     {:else}
       <!-- the shell owns the box law; the input inside is chromeless -->
       <div
-        class={'jx-control-shell ' + className}
+        class={'jx-html-control-shell ' + className}
         class:jx-slotted={slotted}
         class:jx-invalid={invalid}
         class:jx-clearable={clearable}
