@@ -2,7 +2,7 @@
 
 ## A. Architecture completion (priority: high)
 
-- [ ] A1: DOM-AST isomorphism gate — the parity gate gains element
+- [x] A1: DOM-AST isomorphism gate — the parity gate gains element
        tag/attribute/order/cardinality assertions BEFORE computed-style
        comparison (per vocabulary row, posture-scoped, class-attribute
        scoped: jx-html-* ignored, non-standard must match)
@@ -20,11 +20,11 @@
 
 ## B. Component migration (priority: medium)
 
-- [ ] B1: Composite select — internal input/lane adopts jx-html-input;
+- [x] B1: Composite select — internal input/lane adopts jx-html-input;
        dropdown chevron connects to --jx-icon-chevron slot
-- [ ] B2: Combobox — internal input adopts jx-html-input; trigger
+- [x] B2: Combobox — internal input adopts jx-html-input; trigger
        chevron connects to --jx-icon-chevron slot
-- [ ] B3: Date-picker — calendar trigger connects to --jx-icon-calendar;
+- [x] B3: Date-picker — calendar trigger connects to --jx-icon-calendar;
        internal input adopts jx-html-input
 - [x] B4: Color-picker — VERIFIED: no input[type=color] in the composite
        (fully custom widget); pipette already on wrapper; the real color
@@ -45,7 +45,7 @@
 - [x] C3: WOFF2 real round-trip test — current tests pass TTF bytes
        named .woff2; add a test with a real WOFF2 font file through
        the full decompress→parse→extract pipeline
-- [ ] C4: Geometry consistency gate — lucide SVG paths exist in
+- [x] C4: Geometry consistency gate — lucide SVG paths exist in
        providers/lucide.ts, lib/icons.ts, and CSS data URIs (three
        copies); add a test that verifies they haven't diverged
 - [x] C5: Safety checker consumer config — JxUIPluginOptions gains
