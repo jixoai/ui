@@ -93,6 +93,11 @@ interface CtxRecorder {
   textBaseline: string;
   ops: RecordedOp[];
   measureText(text: string): { width: number };
+  save(): void;
+  restore(): void;
+  beginPath(): void;
+  rect(...args: number[]): void;
+  clip(): void;
   setTransform(...args: number[]): void;
   fillRect(...args: number[]): void;
   fillText(text: string, x: number, y: number): void;
@@ -1224,7 +1229,7 @@ describe('ghostty-term mouse reporting', () => {
 // ---------------------------------------------------------------------------
 
 describe('ghostty-term OSC 52 clipboard model', () => {
-  const withClipboard = (methods: { writeText?: vi.Mock; readText?: vi.Mock }): void => {
+  const withClipboard = (methods: { writeText?: ReturnType<typeof vi.fn>; readText?: ReturnType<typeof vi.fn> }): void => {
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: methods });
   };
 

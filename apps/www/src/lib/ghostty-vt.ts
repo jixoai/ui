@@ -10,14 +10,21 @@
 //      ABI-drift armor; the only compile-time constants that remain are the
 //      GhosttyMods bit positions (SHIFT/CTRL/ALT/SUPER), which are C
 //      #defines not present in the type manifest (documented below).
-//   2. The frozen GhosttyVT surface (design.md D4): terminal lifecycle
+//   2. The frozen GhosttyVT surface (design.md D3/D4): terminal lifecycle
 //      (new/free/reset/resize/scrollViewport), vtWrite as the pty-output
 //      entry point (write + render-state update in one transaction),
 //      dirtyRows() iteration producing fully JS-materialized RowSnapshots
 //      (strings copied out before any further wasm call can detach the
 //      memory buffer), keyEncode with a KeyboardEvent-shape adapter, the
-//      paste safety/encode pair, and base64 snapshotEncode (V1 encodes
-//      only; decode stays out of the surface).
+//      paste safety/encode pair, base64 snapshotEncode (V1 encodes only),
+//      and the input-p0 additions: mouse reporting (readMouseTracking +
+//      pixel-position mouseEncode over the wasm mouse encoder), the title
+//      read/change surface, and the OSC 52 observer. The observer is a
+//      host-side boundary scanner over the vtWrite byte stream (probe
+//      verdict 2026-08-28: the wasm OPT callbacks are unreachable from JS
+//      — no imports, no type reflection — and the standalone OSC parser
+//      classifies CLIPBOARD_CONTENTS but exposes no payload data channel;
+//      see test/osc-probe.spec.ts for the locked evidence).
 //   3. Typed failure discipline: instantiation problems (missing simd128,
 //      streaming unsupported, compile/link errors) and use-after-free both
 //      surface as GhosttyVTError with `cause` — the component layer maps
@@ -193,6 +200,53 @@ export interface GhosttyCursor {
   color?: string;
 }
 
+/**
+ * Mouse input for mouseEncode (design.md D3). x/y are PIXEL coordinates in
+ * terminal-surface space (the ABI's GhosttyMouseEvent.position is f32 px —
+ * there is no cell-coordinate entry point). cellSize feeds the encoder SIZE
+ * option: REQUIRED for every format (probed 2026-08-28) — without it the
+ * screen dims default to 0x0, every position counts as out-of-viewport,
+ * presses/motions drop and releases encode garbage cells 1;1. Cell formats
+ * (X10/UTF8/SGR/URXVT) additionally divide by the cell dims; SGR_PIXELS
+ * reports the raw pixels.
+ */
+export interface GhosttyMouseEncodeEvent {
+  action: 'press' | 'release' | 'motion';
+  /** buttons 6..11 are reserved for P2 (frozen surface). */
+  button?: 'left' | 'right' | 'middle' | 'four' | 'five';
+  /** pixel coordinates (terminal-surface space). */
+  x: number;
+  y: number;
+  mods?: { shift?: boolean; ctrl?: boolean; alt?: boolean; meta?: boolean };
+  /**
+   * A button is held during this motion (ABI: ANY_BUTTON_PRESSED). The
+   * upstream encoder consults it when a motion leaves the viewport —
+   * without it out-of-viewport drags are silently dropped.
+   */
+  motionBetween?: boolean;
+}
+
+/** Cell pixel metrics for the encoder SIZE option (design.md D3). */
+export interface GhosttyCellSize {
+  w: number;
+  h: number;
+}
+
+/**
+ * Observed OSC 52 request (design.md D4). kind='query' carries no payload
+ * (the "?" form); kind='set' always carries the still-encoded base64. The
+ * binding emits the raw request only — cap quartet ①③④ (encoded cap,
+ * decoded cap, query response cap) and the base64 decoding belong to the
+ * component layer.
+ */
+export interface GhosttyOsc52Request {
+  kind: 'set' | 'query';
+  /** clipboard selector; the binding only surfaces 'c' and '' (system). */
+  selector: string;
+  /** base64 payload, present iff kind='set'. */
+  payloadBase64?: string;
+}
+
 export interface GhosttyVT {
   readonly buildInfo: string;
   readonly typeLayout: GhosttyTypeLayout;
@@ -243,6 +297,46 @@ export interface GhosttyVT {
 
   /** Text selection: gesture events + active-selection reads/clears. */
   selection: GhosttySelectionFace;
+
+  /**
+   * Whether ANY mouse tracking mode is active (X10/normal/button/any —
+   * terminal_get MOUSE_TRACKING bool). The encoder's
+   * setopt_from_terminal absorbs the specific mode differences; the host
+   * only routes active/inactive.
+   */
+  readMouseTracking(): boolean;
+
+  /**
+   * Encode a mouse event into the pty bytes the program expects (may be
+   * empty — e.g. releases under X10 tracking, or presses while the
+   * position is out of the viewport). Encoder options re-sync from the
+   * terminal's live modes on every call (setopt_from_terminal).
+   */
+  mouseEncode(e: GhosttyMouseEncodeEvent, cellSize?: GhosttyCellSize): Uint8Array;
+
+  /**
+   * Mouse-tracking flip notifications, detected after vtWrite/reset
+   * (DECSET/DECRST ?9/?1000-1003). new()/free() clear the registry.
+   */
+  onMouseTrackingChange(handler: (active: boolean) => void): IDisposable;
+
+  /** Terminal title (terminal_get TITLE; borrowed string copied out). Empty when unset. */
+  readTitle(): string;
+
+  /**
+   * Title change notifications (OSC 0/2), detected by diffing after
+   * vtWrite/reset. new()/free() clear the registry.
+   */
+  onTitleChange(handler: (title: string) => void): IDisposable;
+
+  /**
+   * OSC 52 observer (design.md D4; probe verdict: host-side scan — see
+   * the file header). Fires synchronously from vtWrite for every
+   * completed OSC 52 sequence, split feeds included. Sequences whose raw
+   * accumulation exceeds the binding-layer buffer cap are dropped. The
+   * registry is cleared by new()/free(); callbacks never fire after free.
+   */
+  onOsc52(handler: (req: GhosttyOsc52Request) => void): IDisposable;
 
   /** Encode a key event into the bytes a pty expects (may be empty, e.g. bare modifiers). */
   keyEncode(event: GhosttyKeyEventLike): Uint8Array;
@@ -307,6 +401,18 @@ interface GhosttyWasmExports {
   ghostty_key_encoder_free(encoder: number): void;
   ghostty_key_encoder_setopt_from_terminal(encoder: number, terminal: number): void;
   ghostty_key_encoder_encode(encoder: number, event: number, buf: number, bufSize: number, outLen: number): number;
+  ghostty_mouse_event_new(allocator: number, out: number): number;
+  ghostty_mouse_event_free(event: number): void;
+  ghostty_mouse_event_set_action(event: number, action: number): void;
+  ghostty_mouse_event_set_button(event: number, button: number): void;
+  ghostty_mouse_event_clear_button(event: number): void;
+  ghostty_mouse_event_set_mods(event: number, mods: number): void;
+  ghostty_mouse_event_set_position(event: number, posPtr: number): void;
+  ghostty_mouse_encoder_new(allocator: number, out: number): number;
+  ghostty_mouse_encoder_free(encoder: number): void;
+  ghostty_mouse_encoder_setopt(encoder: number, option: number, valuePtr: number): void;
+  ghostty_mouse_encoder_setopt_from_terminal(encoder: number, terminal: number): void;
+  ghostty_mouse_encoder_encode(encoder: number, event: number, buf: number, bufSize: number, outLen: number): number;
   ghostty_key_event_new(allocator: number, out: number): number;
   ghostty_key_event_free(event: number): void;
   ghostty_key_event_set_action(event: number, action: number): void;
@@ -352,6 +458,12 @@ const REQUIRED_EXPORTS = [
   'ghostty_render_state_row_cells_next', 'ghostty_render_state_row_cells_get',
   'ghostty_key_encoder_new', 'ghostty_key_encoder_free',
   'ghostty_key_encoder_setopt_from_terminal', 'ghostty_key_encoder_encode',
+  'ghostty_mouse_event_new', 'ghostty_mouse_event_free',
+  'ghostty_mouse_event_set_action', 'ghostty_mouse_event_set_button',
+  'ghostty_mouse_event_clear_button', 'ghostty_mouse_event_set_mods',
+  'ghostty_mouse_event_set_position', 'ghostty_mouse_encoder_new',
+  'ghostty_mouse_encoder_free', 'ghostty_mouse_encoder_setopt',
+  'ghostty_mouse_encoder_setopt_from_terminal', 'ghostty_mouse_encoder_encode',
   'ghostty_key_event_new', 'ghostty_key_event_free', 'ghostty_key_event_set_action',
   'ghostty_key_event_set_key', 'ghostty_key_event_set_mods',
   'ghostty_key_event_set_utf8', 'ghostty_paste_is_safe', 'ghostty_paste_encode',
@@ -370,6 +482,17 @@ const MODS_SHIFT = 1 << 0;
 const MODS_CTRL = 1 << 1;
 const MODS_ALT = 1 << 2;
 const MODS_SUPER = 1 << 3;
+
+// design.md D4 executable cap ② — the OBSERVER BUFFER cap, the one of the
+// four caps that lives in the binding layer. It bounds the raw bytes
+// accumulated for a single in-flight OSC 52 sequence across vtWrite feeds:
+// the component default maxSize is 1 MiB decoded → encoded cap
+// ceil(2^20/3)*4 ≈ 1398102 chars, so 4 MiB raw covers that plus the
+// selector/terminator/overhead margin while still bounding cross-chunk
+// growth. Exceeding it drops the whole sequence (resync at its terminator).
+// Caps ① encoded-before-decode, ③ decoded double-check, ④ query response
+// belong to the component/facade layer (the binding emits raw requests).
+const OSC52_OBSERVER_RAW_CAP = 4 * 1024 * 1024;
 
 // ---------------------------------------------------------------------------
 // implementation
@@ -390,6 +513,8 @@ class GhosttyVTCore implements GhosttyVT {
   private rowCells = 0;
   private keyEncoder = 0;
   private keyEvent = 0;
+  private mouseEncoder = 0;
+  private mouseEvent = 0;
   private selGesture = 0;
   private selPressEvent = 0;
   private selDragEvent = 0;
@@ -399,6 +524,20 @@ class GhosttyVTCore implements GhosttyVT {
   /** synthesized monotonic clock (ns) driving the upstream click counter */
   private selClockNs = 0n;
   private selLastClick = 0;
+
+  // input-p0 event registries (design freeze: new()/free() clear them;
+  // callbacks never fire after free — vtWrite is the only emitter)
+  private readonly osc52Handlers = new Set<(req: GhosttyOsc52Request) => void>();
+  private readonly titleHandlers = new Set<(title: string) => void>();
+  private readonly mouseTrackingHandlers = new Set<(active: boolean) => void>();
+  /** last-seen observer state (post-write diff source; refreshed in new()) */
+  private lastTitle = '';
+  private lastTracking = false;
+
+  // OSC 52 boundary scanner (route-3 winner; see file header). State
+  // machine over the vtWrite byte stream, persisting across feeds.
+  private oscState: 'ground' | 'esc' | 'osc' | 'oscEsc' | 'skip' | 'skipEsc' = 'ground';
+  private oscBuf: number[] = [];
 
   // one reusable opaque out-slot (wasm.h: a single slot serves every constructor)
   private readonly slot: number;
@@ -423,6 +562,11 @@ class GhosttyVTCore implements GhosttyVT {
   private readonly behaviorsPtr: number;
   private readonly fmtOptsPtr: number;
   private readonly rowSelPtr: number;
+  private readonly titleStrPtr: number;
+  private readonly trackPtr: number;
+  private readonly mousePosPtr: number;
+  private readonly mouseSizePtr: number;
+  private readonly mouseBoolPtr: number;
 
   private alive = true;
 
@@ -469,6 +613,11 @@ class GhosttyVTCore implements GhosttyVT {
     this.behaviorsPtr = this.checkedAlloc(size('GhosttySelectionGestureBehaviors'));
     this.fmtOptsPtr = this.checkedAlloc(size('GhosttyTerminalSelectionFormatOptions'));
     this.rowSelPtr = this.checkedAlloc(size('GhosttyRenderStateRowSelection'));
+    this.titleStrPtr = this.checkedAlloc(size('GhosttyString'));
+    this.trackPtr = this.checkedAlloc(1);
+    this.mousePosPtr = this.checkedAlloc(size('GhosttyMousePosition'));
+    this.mouseSizePtr = this.checkedAlloc(size('GhosttyMouseEncoderSize'));
+    this.mouseBoolPtr = this.checkedAlloc(1);
 
     this.new(80, 24);
   }
@@ -510,6 +659,10 @@ class GhosttyVTCore implements GhosttyVT {
     this.keyEncoder = wasm.ghostty_wasm_take_opaque(this.slot);
     this.check(wasm.ghostty_key_event_new(0, this.slot), 'ghostty_key_event_new');
     this.keyEvent = wasm.ghostty_wasm_take_opaque(this.slot);
+    this.check(wasm.ghostty_mouse_encoder_new(0, this.slot), 'ghostty_mouse_encoder_new');
+    this.mouseEncoder = wasm.ghostty_wasm_take_opaque(this.slot);
+    this.check(wasm.ghostty_mouse_event_new(0, this.slot), 'ghostty_mouse_event_new');
+    this.mouseEvent = wasm.ghostty_wasm_take_opaque(this.slot);
     this.check(wasm.ghostty_selection_gesture_new(0, this.slot), 'ghostty_selection_gesture_new');
     this.selGesture = wasm.ghostty_wasm_take_opaque(this.slot);
     const eventType = (name: string): number =>
@@ -535,10 +688,22 @@ class GhosttyVTCore implements GhosttyVT {
     this.selLastClick = 0;
     this.dims = { cols, rows };
     this.refreshRenderState();
+    // fresh terminal, fresh registries (design freeze: new() clears
+    // handlers) and fresh observer state — caches seed WITHOUT emitting
+    this.osc52Handlers.clear();
+    this.titleHandlers.clear();
+    this.mouseTrackingHandlers.clear();
+    this.resetOscScanner();
+    this.lastTitle = this.readTitleInternal();
+    this.lastTracking = this.readTrackingInternal();
   }
 
   free(): void {
     if (!this.alive) return;
+    // design freeze: freed instances never fire callbacks again
+    this.osc52Handlers.clear();
+    this.titleHandlers.clear();
+    this.mouseTrackingHandlers.clear();
     this.teardownTerminal();
     const { wasm } = this;
     wasm.ghostty_wasm_free(this.stylePtr, this.structSize('GhosttyStyle'));
@@ -560,6 +725,11 @@ class GhosttyVTCore implements GhosttyVT {
     wasm.ghostty_wasm_free(this.behaviorsPtr, this.structSize('GhosttySelectionGestureBehaviors'));
     wasm.ghostty_wasm_free(this.fmtOptsPtr, this.structSize('GhosttyTerminalSelectionFormatOptions'));
     wasm.ghostty_wasm_free(this.rowSelPtr, this.structSize('GhosttyRenderStateRowSelection'));
+    wasm.ghostty_wasm_free(this.titleStrPtr, this.structSize('GhosttyString'));
+    wasm.ghostty_wasm_free(this.trackPtr, 1);
+    wasm.ghostty_wasm_free(this.mousePosPtr, this.structSize('GhosttyMousePosition'));
+    wasm.ghostty_wasm_free(this.mouseSizePtr, this.structSize('GhosttyMouseEncoderSize'));
+    wasm.ghostty_wasm_free(this.mouseBoolPtr, 1);
     wasm.ghostty_wasm_free_opaque(this.slot);
     this.alive = false;
   }
@@ -574,6 +744,8 @@ class GhosttyVTCore implements GhosttyVT {
     if (this.selGesture !== 0) { wasm.ghostty_selection_gesture_free(this.selGesture, this.term); this.selGesture = 0; }
     if (this.keyEvent !== 0) { wasm.ghostty_key_event_free(this.keyEvent); this.keyEvent = 0; }
     if (this.keyEncoder !== 0) { wasm.ghostty_key_encoder_free(this.keyEncoder); this.keyEncoder = 0; }
+    if (this.mouseEvent !== 0) { wasm.ghostty_mouse_event_free(this.mouseEvent); this.mouseEvent = 0; }
+    if (this.mouseEncoder !== 0) { wasm.ghostty_mouse_encoder_free(this.mouseEncoder); this.mouseEncoder = 0; }
     if (this.rowCells !== 0) { wasm.ghostty_render_state_row_cells_free(this.rowCells); this.rowCells = 0; }
     if (this.rowIter !== 0) { wasm.ghostty_render_state_row_iterator_free(this.rowIter); this.rowIter = 0; }
     if (this.renderState !== 0) { wasm.ghostty_render_state_free(this.renderState); this.renderState = 0; }
@@ -588,6 +760,11 @@ class GhosttyVTCore implements GhosttyVT {
     this.selLastClick = 0;
     this.wasm.ghostty_terminal_reset(this.term);
     this.refreshRenderState();
+    // RIS grounds the parser (a pending OSC fragment is dead) and clears
+    // the title + mouse-tracking modes (probed 2026-08-28) — observers see
+    // those flips just like vtWrite-driven ones
+    this.resetOscScanner();
+    this.emitObserverDiff();
   }
 
   resize(cols: number, rows: number): void {
@@ -640,6 +817,10 @@ class GhosttyVTCore implements GhosttyVT {
       this.wasm.ghostty_wasm_free(ptr, bytes.length);
     }
     this.refreshRenderState();
+    // design D1: the OSC 52 observer rides vtWrite as a read-only bypass
+    // over the exact bytes fed in; title/mouse-tracking flips diff after
+    this.scanOsc52(bytes);
+    this.emitObserverDiff();
   }
 
   private refreshRenderState(): void {
@@ -947,6 +1128,281 @@ class GhosttyVTCore implements GhosttyVT {
       throw new GhosttyVTError(`key encode failed: ${r}`);
     }
     return out;
+  }
+
+  // ---- mouse reporting + OSC/title observers (design.md D3/D4) --------------
+  // Probed ABI facts this marshaling relies on (see test/mouse-probe.spec.ts
+  // and test/osc-probe.spec.ts for the locked evidence):
+  //   * GhosttyMouseAction/Button/Format and GhosttyMouseEncoderOption live in
+  //     the type manifest (GhosttyMouseEncoderSize is a sized struct).
+  //   * set_position takes a GhosttyMousePosition* {f32 x, f32 y} in
+  //     SURFACE-space pixels; the encoder needs the SIZE option (screen+cell
+  //     dims) for EVERY format — without it screen is 0x0, every position
+  //     counts as out-of-viewport, presses/motions drop and releases encode
+  //     garbage cells (SGR_PIXELS keeps raw px but still needs the bound).
+  //   * ANY_BUTTON_PRESSED is consulted for out-of-viewport MOTION only
+  //     (drag past the surface edge while a button is held).
+  //   * terminal_get(TITLE) fills a borrowed GhosttyString — decode before
+  //     any further wasm call. terminal_get(MOUSE_TRACKING) fills a bool.
+
+  private static readonly MOUSE_BUTTON_NAMES: Record<
+    NonNullable<GhosttyMouseEncodeEvent['button']>,
+    string
+  > = { left: 'LEFT', right: 'RIGHT', middle: 'MIDDLE', four: 'FOUR', five: 'FIVE' };
+
+  mouseEncode(e: GhosttyMouseEncodeEvent, cellSize?: GhosttyCellSize): Uint8Array {
+    this.assertAlive();
+    const { wasm } = this;
+    const SUCCESS = this.enumValue('GhosttyResult', 'SUCCESS');
+    const OUT_OF_SPACE = this.enumValue('GhosttyResult', 'OUT_OF_SPACE');
+
+    const actions = { press: 'PRESS', release: 'RELEASE', motion: 'MOTION' } as const;
+    wasm.ghostty_mouse_event_set_action(
+      this.mouseEvent,
+      this.enumValue('GhosttyMouseAction', actions[e.action]),
+    );
+    if (e.button === undefined) {
+      wasm.ghostty_mouse_event_clear_button(this.mouseEvent);
+    } else {
+      wasm.ghostty_mouse_event_set_button(
+        this.mouseEvent,
+        this.enumValue('GhosttyMouseButton', GhosttyVTCore.MOUSE_BUTTON_NAMES[e.button]),
+      );
+    }
+    let mods = 0;
+    if (e.mods?.shift) mods |= MODS_SHIFT;
+    if (e.mods?.ctrl) mods |= MODS_CTRL;
+    if (e.mods?.alt) mods |= MODS_ALT;
+    if (e.mods?.meta) mods |= MODS_SUPER;
+    wasm.ghostty_mouse_event_set_mods(this.mouseEvent, mods);
+    const posSize = this.structSize('GhosttyMousePosition');
+    const posDv = this.dvAt(this.mousePosPtr, posSize);
+    posDv.setFloat32(this.fieldOffset('GhosttyMousePosition', 'x'), e.x, true);
+    posDv.setFloat32(this.fieldOffset('GhosttyMousePosition', 'y'), e.y, true);
+    wasm.ghostty_mouse_event_set_position(this.mouseEvent, this.mousePosPtr);
+
+    // live-mode sync first; SIZE / ANY_BUTTON_PRESSED are host-owned context
+    // (setopt_from_terminal leaves them alone — probed)
+    wasm.ghostty_mouse_encoder_setopt_from_terminal(this.mouseEncoder, this.term);
+    if (cellSize !== undefined) {
+      const size = this.structSize('GhosttyMouseEncoderSize');
+      this.zeroScratch(this.mouseSizePtr, size);
+      const dv = this.dvAt(this.mouseSizePtr, size);
+      const off = (f: string): number => this.fieldOffset('GhosttyMouseEncoderSize', f);
+      dv.setUint32(off('size'), size, true); // sized-struct ABI
+      // screen dims derive from the live grid times the passed cell metrics
+      // (paddings stay 0: the component's pixel space IS the terminal surface)
+      dv.setUint32(off('screen_width'), Math.max(1, Math.round(this.dims.cols * cellSize.w)), true);
+      dv.setUint32(off('screen_height'), Math.max(1, Math.round(this.dims.rows * cellSize.h)), true);
+      dv.setUint32(off('cell_width'), Math.max(1, Math.round(cellSize.w)), true);
+      dv.setUint32(off('cell_height'), Math.max(1, Math.round(cellSize.h)), true);
+      wasm.ghostty_mouse_encoder_setopt(
+        this.mouseEncoder,
+        this.enumValue('GhosttyMouseEncoderOption', 'SIZE'),
+        this.mouseSizePtr,
+      );
+    }
+    // ANY_BUTTON_PRESSED is the frozen motionBetween mapping (design D3) —
+    // the upstream encoder consults it ONLY for out-of-viewport motion
+    // (drag past the surface edge): with it such drags still report,
+    // without it they drop. Presses never set it: an out-of-viewport
+    // press is dropped rather than clamped into a phantom cell (probed).
+    this.dv().setUint8(this.mouseBoolPtr, e.motionBetween === true ? 1 : 0);
+    wasm.ghostty_mouse_encoder_setopt(
+      this.mouseEncoder,
+      this.enumValue('GhosttyMouseEncoderOption', 'ANY_BUTTON_PRESSED'),
+      this.mouseBoolPtr,
+    );
+
+    const probe = wasm.ghostty_mouse_encoder_encode(this.mouseEncoder, this.mouseEvent, 0, 0, this.lenPtr);
+    const len = this.dv().getUint32(this.lenPtr, true);
+    if (len === 0) return new Uint8Array(0);
+    if (probe !== SUCCESS && probe !== OUT_OF_SPACE) {
+      throw new GhosttyVTError(`mouse encode probe failed: ${probe}`);
+    }
+    const ptr = this.checkedAlloc(len);
+    const r = wasm.ghostty_mouse_encoder_encode(this.mouseEncoder, this.mouseEvent, ptr, len, this.lenPtr);
+    const written = this.dv().getUint32(this.lenPtr, true);
+    const out = new Uint8Array(this.dv().buffer.slice(ptr, ptr + written));
+    wasm.ghostty_wasm_free(ptr, len);
+    if (r !== SUCCESS) {
+      throw new GhosttyVTError(`mouse encode failed: ${r}`);
+    }
+    return out;
+  }
+
+  readMouseTracking(): boolean {
+    this.assertAlive();
+    return this.readTrackingInternal();
+  }
+
+  readTitle(): string {
+    this.assertAlive();
+    return this.readTitleInternal();
+  }
+
+  onMouseTrackingChange(handler: (active: boolean) => void): IDisposable {
+    this.assertAlive();
+    this.mouseTrackingHandlers.add(handler);
+    return { dispose: () => this.mouseTrackingHandlers.delete(handler) };
+  }
+
+  onTitleChange(handler: (title: string) => void): IDisposable {
+    this.assertAlive();
+    this.titleHandlers.add(handler);
+    return { dispose: () => this.titleHandlers.delete(handler) };
+  }
+
+  onOsc52(handler: (req: GhosttyOsc52Request) => void): IDisposable {
+    this.assertAlive();
+    this.osc52Handlers.add(handler);
+    return { dispose: () => this.osc52Handlers.delete(handler) };
+  }
+
+  private readTrackingInternal(): boolean {
+    this.zeroScratch(this.trackPtr, 1);
+    const r = this.wasm.ghostty_terminal_get(
+      this.term,
+      this.enumValue('GhosttyTerminalData', 'MOUSE_TRACKING'),
+      this.trackPtr,
+    );
+    if (r !== this.enumValue('GhosttyResult', 'SUCCESS')) {
+      throw new GhosttyVTError(`terminal MOUSE_TRACKING query failed: ${r}`);
+    }
+    return this.dv().getUint8(this.trackPtr) !== 0;
+  }
+
+  /** borrowed-string read: decode before any further wasm call */
+  private readTitleInternal(): string {
+    const size = this.structSize('GhosttyString');
+    this.zeroScratch(this.titleStrPtr, size);
+    const r = this.wasm.ghostty_terminal_get(
+      this.term,
+      this.enumValue('GhosttyTerminalData', 'TITLE'),
+      this.titleStrPtr,
+    );
+    if (r !== this.enumValue('GhosttyResult', 'SUCCESS')) {
+      throw new GhosttyVTError(`terminal TITLE query failed: ${r}`);
+    }
+    const dv = this.dvAt(this.titleStrPtr, size);
+    const ptr = dv.getUint32(this.fieldOffset('GhosttyString', 'ptr'), true);
+    const len = dv.getUint32(this.fieldOffset('GhosttyString', 'len'), true);
+    return ptr === 0 || len === 0 ? '' : this.decodeBytes(ptr, len);
+  }
+
+  /** post-write diff: emit title / mouse-tracking flips (design freeze) */
+  private emitObserverDiff(): void {
+    const title = this.readTitleInternal();
+    if (title !== this.lastTitle) {
+      this.lastTitle = title;
+      for (const handler of [...this.titleHandlers]) handler(title);
+    }
+    const tracking = this.readTrackingInternal();
+    if (tracking !== this.lastTracking) {
+      this.lastTracking = tracking;
+      for (const handler of [...this.mouseTrackingHandlers]) handler(tracking);
+    }
+  }
+
+  private resetOscScanner(): void {
+    this.oscState = 'ground';
+    this.oscBuf = [];
+  }
+
+  /**
+   * OSC 52 boundary scanner — the route-3 winner (design D4). Byte-level
+   * state machine over the vtWrite stream: ESC ] starts a sequence, BEL or
+   * ST (ESC \\) completes it, any other C0 control aborts. Only bodies
+   * matching the `52;` prefix are buffered (everything else skips straight
+   * to its terminator, so giant OSC 8 hyperlinks never accumulate);
+   * accumulation is bounded by OSC52_OBSERVER_RAW_CAP. Scanner state
+   * persists across vtWrite feeds (the split-chunk golden case).
+   */
+  private scanOsc52(bytes: Uint8Array): void {
+    for (let i = 0; i < bytes.length; i++) {
+      const byte = bytes[i]!;
+      switch (this.oscState) {
+        case 'ground':
+          if (byte === 0x1b) this.oscState = 'esc';
+          break;
+        case 'esc':
+          if (byte === 0x5d) {
+            this.oscState = 'osc';
+            this.oscBuf = [];
+          } else if (byte !== 0x1b) {
+            this.oscState = 'ground';
+          }
+          break;
+        case 'osc':
+          if (byte === 0x07) this.completeOsc52();
+          else if (byte === 0x1b) this.oscState = 'oscEsc';
+          else if (byte < 0x20) this.dropOsc();
+          else this.pushOscByte(byte);
+          break;
+        case 'oscEsc':
+          if (byte === 0x5c) this.completeOsc52();
+          else if (byte === 0x5d) {
+            this.oscState = 'osc'; // abort + an immediately following OSC
+            this.oscBuf = [];
+          } else if (byte !== 0x1b) {
+            this.dropOsc();
+          }
+          break;
+        case 'skip':
+          if (byte === 0x07) this.oscState = 'ground';
+          else if (byte === 0x1b) this.oscState = 'skipEsc';
+          break;
+        case 'skipEsc':
+          if (byte === 0x5c) this.oscState = 'ground';
+          else if (byte === 0x5d) {
+            this.oscState = 'osc'; // ESC ] after an aborted sequence: resync
+            this.oscBuf = [];
+          } else if (byte !== 0x1b) {
+            this.oscState = 'skip';
+          }
+          break;
+      }
+    }
+  }
+
+  private pushOscByte(byte: number): void {
+    if (this.oscBuf.length >= OSC52_OBSERVER_RAW_CAP) {
+      this.dropOsc(); // cap ② exceeded: abandon the sequence
+      return;
+    }
+    if (this.oscBuf.length >= 3) {
+      this.oscBuf.push(byte); // '52;' already matched
+      return;
+    }
+    const candidate = `${String.fromCharCode(...this.oscBuf)}${String.fromCharCode(byte)}`;
+    if ('52;'.startsWith(candidate)) this.oscBuf.push(byte);
+    else this.dropOsc();
+  }
+
+  private dropOsc(): void {
+    this.oscState = 'skip';
+    this.oscBuf = [];
+  }
+
+  private completeOsc52(): void {
+    const buf = this.oscBuf;
+    this.oscState = 'ground';
+    this.oscBuf = [];
+    let text = '';
+    for (const b of buf) text += String.fromCharCode(b);
+    // body shape: '52;' <selector> ';' <payload> — pushOscByte guarantees
+    // the '52;' prefix, so the rest starts at the selector
+    const rest = text.slice(3);
+    const semi = rest.indexOf(';');
+    if (semi < 0) return;
+    const selector = rest.slice(0, semi);
+    if (selector !== 'c' && selector !== '') return; // 只认 c/空
+    const payload = rest.slice(semi + 1);
+    let req: GhosttyOsc52Request;
+    if (payload === '?') req = { kind: 'query', selector };
+    else if (payload.length === 0) return; // clear-clipboard: V1 explicitly not surfaced
+    else req = { kind: 'set', selector, payloadBase64: payload };
+    for (const handler of [...this.osc52Handlers]) handler(req);
   }
 
   // ---- text selection (owner request 2026-08-28) ---------------------------
@@ -1537,6 +1993,11 @@ export class Terminal {
   private rows_: number;
   private readonly dataHandlers = new Set<TerminalEventHandler<string>>();
   private readonly resizeHandlers = new Set<TerminalEventHandler<{ cols: number; rows: number }>>();
+  private readonly mouseTrackingHandlers = new Set<TerminalEventHandler<boolean>>();
+  private readonly titleHandlers = new Set<TerminalEventHandler<string>>();
+  private readonly osc52Handlers = new Set<TerminalEventHandler<GhosttyOsc52Request>>();
+  /** lazily-established core subscriptions behind the three event faces */
+  private coreSubs: IDisposable[] = [];
   private disposed = false;
 
   constructor(options: ITerminalOptions = {}) {
@@ -1664,6 +2125,70 @@ export class Terminal {
     return bytes;
   }
 
+  /**
+   * Mouse INPUT out — the handleKey mirror: returns the encoded bytes AND
+   * replays them as a latin1 string to the onData subscribers (the latin1
+   * channel is byte-safe for mouse sequences). Empty encodes (X10
+   * releases, out-of-viewport presses) reach no subscriber. cellSize is
+   * REQUIRED for cell formats (see core.mouseEncode).
+   */
+  mouseEncode(e: GhosttyMouseEncodeEvent, cellSize?: GhosttyCellSize): Uint8Array {
+    this.assertLive('mouseEncode');
+    const bytes = this.core.mouseEncode(e, cellSize);
+    if (bytes.length > 0) this.emitData(bytesToLatin1(bytes));
+    return bytes;
+  }
+
+  /** Mouse-tracking flip notifications (DECSET ?9/?1000-?1003 via writes). */
+  onMouseTrackingChange(handler: TerminalEventHandler<boolean>): IDisposable {
+    this.assertLive('onMouseTrackingChange');
+    if (this.mouseTrackingHandlers.size === 0) {
+      this.trackCoreSub(
+        this.core.onMouseTrackingChange((active) => {
+          for (const h of [...this.mouseTrackingHandlers]) h(active);
+        }),
+      );
+    }
+    this.mouseTrackingHandlers.add(handler);
+    return { dispose: () => this.mouseTrackingHandlers.delete(handler) };
+  }
+
+  /** Title change notifications (OSC 0/2 via writes). */
+  onTitleChange(handler: TerminalEventHandler<string>): IDisposable {
+    this.assertLive('onTitleChange');
+    if (this.titleHandlers.size === 0) {
+      this.trackCoreSub(
+        this.core.onTitleChange((title) => {
+          for (const h of [...this.titleHandlers]) h(title);
+        }),
+      );
+    }
+    this.titleHandlers.add(handler);
+    return { dispose: () => this.titleHandlers.delete(handler) };
+  }
+
+  /**
+   * OSC 52 clipboard requests observed on the pty output (set/query). The
+   * core already filters to OSC 52 for the c/'' selectors; the security
+   * model (write gating, query response) is the consumer's call.
+   */
+  onOsc52(handler: TerminalEventHandler<GhosttyOsc52Request>): IDisposable {
+    this.assertLive('onOsc52');
+    if (this.osc52Handlers.size === 0) {
+      this.trackCoreSub(
+        this.core.onOsc52((req) => {
+          for (const h of [...this.osc52Handlers]) h(req);
+        }),
+      );
+    }
+    this.osc52Handlers.add(handler);
+    return { dispose: () => this.osc52Handlers.delete(handler) };
+  }
+
+  private trackCoreSub(sub: IDisposable): void {
+    this.coreSubs.push(sub);
+  }
+
   /** Active selection text, PLAIN + unwrapped + trimmed (xterm's getSelection). */
   getSelection(): string | undefined {
     this.assertLive('getSelection');
@@ -1703,6 +2228,11 @@ export class Terminal {
     this.disposed = true;
     this.dataHandlers.clear();
     this.resizeHandlers.clear();
+    this.mouseTrackingHandlers.clear();
+    this.titleHandlers.clear();
+    this.osc52Handlers.clear();
+    for (const sub of this.coreSubs) sub.dispose();
+    this.coreSubs = [];
   }
 
   private emitData(value: string): void {
