@@ -17,6 +17,14 @@
   custom paint on spin pseudos, see the sheet's decision record) live
   there, shared with bare markup.
 
+  Standard-layer adoption (2026-08-28, ui-plugin-followup B6): the
+  inner input rides jx-html-control-lane DIRECTLY (jixoai.css standard
+  layer) instead of the face's .jx-control-lane — identical
+  declarations (the face class is an @apply of the same utility), so
+  the lane carries zero face dependency. Steppers stay
+  component-specific (platform stepper law: appearance:textfield pins
+  the native spinners off, the [- +] pair owns stepping).
+
   Buttons are text glyphs — font-nav bold "-" / "+", no icon dependency.
   DOM order is minus, input, plus; the row is plain flex, so under
   dir="rtl" it flips by itself (minus lands on the inline-end, plus on
@@ -203,15 +211,17 @@
     <!-- disabled ⇒ READONLY, not disabled: the value stays focusable and
          selectable (AT can still read it) while typing and native ↑/↓ are
          blocked by the platform; buttons + stepBy guards cover the rest.
-         jx-control-lane (Tier-1 jx-pure sheet) owns the chromeless
-         typography + placeholder distinction + spinner law; the utilities
-         here only center the text and flex the cell (appearance:textfield
-         pins the spinner OFF — this composite owns its own [- +] pair) -->
+         jx-html-control-lane (the STANDARD layer's lane law, B6
+         2026-08-28 — previously the face's .jx-control-lane, an @apply
+         of the same utility) owns the chromeless typography + placeholder
+         distinction; the utilities here only center the text and flex the
+         cell (appearance:textfield pins the spinner OFF — this composite
+         owns its own [- +] pair, the platform stepper law) -->
     <input
       {...rest}
       {id}
       type="number"
-      class={'jx-control-lane ' + cn('jx-num-input flex-1 min-w-0 text-center [appearance:textfield]', disabled && 'cursor-not-allowed')}
+      class={'jx-html-control-lane ' + cn('jx-num-input flex-1 min-w-0 text-center [appearance:textfield]', disabled && 'cursor-not-allowed')}
       {min}
       {max}
       {step}

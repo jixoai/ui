@@ -1,11 +1,14 @@
 #!/usr/bin/env node
-// verify-native-parity — the two-renderer computed-style gate
-// (native-contract-fusion Phase 6, 2026-08-27).
+// verify-native-parity — the two-renderer structural + computed-style gate
+// (native-contract-fusion Phase 6, 2026-08-27; DOM-AST phase 2026-08-28).
 //
 // The native vocabulary is one law with two renderers: tier0 (bare
 // DOM painted by the jx-pure law) and tier1 (the registry
 // component). This gate renders both sides of each fixture row on
-// /parity.html and compares computed styles over each row's
+// /parity.html and, per vocabulary row, FIRST asserts DOM-AST
+// isomorphism (element tags, attribute sets minus caller-specific
+// values, child order, cardinality — design §11.2's schema twin,
+// fail-fast), THEN compares computed styles over each row's
 // property whitelist across the state matrix. A one-sided law
 // change fails here — the "gate-locked" half of the management
 // design.
@@ -142,6 +145,41 @@ const ROWS = [
   },
 ];
 
+// ── the DOM-AST schema — design §11.2's twin in code ────────────────
+// Per vocabulary row, the LAW SUBTREE both renderers are parsed from
+// (t0 relative to the [data-renderer=tier0] root, t1 relative to the
+// row section — same convention as the probe registry). Postures are
+// DISTINCT FIXTURES (§11.2): rows whose tier1 rides the shell posture
+// (input/textarea) or a structural group (checkbox/radio lane spans)
+// anchor at the NATIVE CONTROL the vocabulary law keys on;
+// toggle-group anchors at the segment container (the subtree law).
+// `multi` pairs every law element in document order — the fixture's
+// law-element cardinality is itself an assertion.
+const AST_SPEC = {
+  'toggle-group': { t0: '.jx-html-tgroup', t1: '[data-renderer=tier1] .jx-html-tgroup' },
+  // §11.2: the switch is ONE input on both sides; its visible label
+  // renders OUTSIDE as a sibling <label for> — sanctioned, hence the
+  // input anchor, not the renderer root
+  toggle: { t0: 'input[role=switch]', t1: '[data-renderer=tier1] input[role=switch]' },
+  checkbox: { t0: 'input[type=checkbox]', t1: '[data-renderer=tier1] input.jx-html-checkbox', multi: true },
+  radio: { t0: 'input[type=radio]', t1: '[data-renderer=tier1] input.jx-html-radio', multi: true },
+  'native-select': { t0: 'select', t1: '[data-renderer=tier1] select' },
+  input: { t0: 'input', t1: '[data-renderer=tier1] input' },
+  textarea: { t0: 'textarea', t1: '[data-renderer=tier1] textarea' },
+};
+
+// KNOWN tier1-only consumption classes OUTSIDE the standard layer —
+// tracked debt of the register fusion (each standardizes onto the
+// jx-html-* vocabulary or retires; DELETE entries as they migrate, at
+// which point the strict scoped-class comparison enforces itself).
+// Anything not jx-html-* and not listed here still FAILS the gate.
+const AST_LEGACY_CARRIERS = [
+  'jx-control', 'jx-control-lane', // Part A postures → jx-html-control/-lane
+  'jx-textarea', // → jx-html-textarea
+  'jx-tgroup-item', 'jx-tgroup-content', // retire (§11.2: bare label/span)
+  'scheme-light', 'dark:scheme-dark', // the select's color-scheme pair
+];
+
 const NORMALIZERS = [
   (v) => String(v).trim(),
   (v) => (/^rgba?\(0, 0, 0, 0\)$/.test(String(v).trim()) ? 'transparent' : v),
@@ -247,6 +285,9 @@ let failures = 0;
     for (const s of [EXPECTED.states, EXPECTED.extraStates[row] ?? []].flat()) {
       if (!runs.has(s)) malformed.push(`${row}: declared state "${s}" has no action in the row spec`);
     }
+    // every declared row must also carry a DOM-AST anchor — the
+    // isomorphism phase may not silently skip a row
+    if (!AST_SPEC[row]) malformed.push(`${row}: no DOM-AST anchor in AST_SPEC`);
   }
   if (missing.length || malformed.length) {
     console.error(`✗ [matrix] incomplete: ${[...missing.map((m) => `missing ${m}`), ...malformed].join('; ')}`);
@@ -263,7 +304,68 @@ let failures = 0;
 async function runComparisons(activeRow, activeState) {
   const rows = ROWS.map((r) => (r.row === activeRow ? { ...r, states: r.states.filter((s) => s.name === activeState) } : { ...r, states: [] }));
   return await page.evaluate(
-    ({ rows }) => {
+    ({ rows, ast, legacy }) => {
+    // ── the DOM-AST comparators (design §11.2's gate rule) ──────────
+    const legacyClasses = new Set(legacy);
+    // the class attribute is compared SCOPED: standard-layer classes
+    // (jx-html-*) are the consumption mechanism, not divergence;
+    // AST_LEGACY_CARRIERS are the named, tracked pre-fusion residue
+    const scopeClass = (v) =>
+      v.split(/\s+/).filter((c) => c && !c.startsWith('jx-html') && !legacyClasses.has(c)).sort().join(' ');
+    // caller-specific attributes are EXCLUDED per §11.2 (id/data-*/
+    // name/value/style). checked/disabled/type are excluded as
+    // ATTRIBUTES but compared as PROPERTIES below — hydration flips
+    // state (bind:group) without touching the serialization.
+    const excludedAttr = (n) =>
+      n === 'id' || n === 'style' || n === 'name' || n === 'value' ||
+      n.startsWith('data-') || n === 'checked' || n === 'disabled' || n === 'type';
+    const parseAST = (root) => {
+      const node = {
+        tag: root.tagName,
+        attrs: Object.fromEntries(
+          [...root.attributes]
+            .filter(a => !a.name.startsWith('jx-html'))
+            .filter(a => !excludedAttr(a.name))
+            .map(a => [a.name, a.name === 'class' ? scopeClass(a.value) : a.value])
+            // a class attribute that scopes to nothing (absent on the
+            // bare side, fully standard-layer on the registry side) is
+            // comparison-neutral: drop the key so absent ≡ scoped-empty
+            .filter(([k, v]) => k !== 'class' || v !== ''),
+        ),
+        children: [...root.children].map(parseAST),
+      };
+      // form-control STATE from the live DOM (the law is the state,
+      // not its serialization)
+      if (root.tagName === 'INPUT') {
+        node.attrs.type = root.type;
+        node.attrs.checked = String(root.checked);
+        node.attrs.disabled = String(root.disabled);
+      } else if (root.tagName === 'TEXTAREA' || root.tagName === 'SELECT') {
+        node.attrs.type = root.type;
+        node.attrs.disabled = String(root.disabled);
+      }
+      return node;
+    };
+    const countAST = (n) => 1 + n.children.reduce((acc, c) => acc + countAST(c), 0);
+    // deep equality with a descriptive first difference
+    const diffAST = (a, b, path) => {
+      if (a.tag !== b.tag) return `tier0 has <${a.tag.toLowerCase()}> where tier1 has <${b.tag.toLowerCase()}> at path ${path}`;
+      const keys = [...new Set([...Object.keys(a.attrs), ...Object.keys(b.attrs)])].sort();
+      for (const k of keys) {
+        if (a.attrs[k] !== b.attrs[k]) {
+          return `tier0 ${k}="${a.attrs[k] ?? '(absent)'}" where tier1 ${k}="${b.attrs[k] ?? '(absent)'}" at path ${path}`;
+        }
+      }
+      if (a.children.length !== b.children.length) {
+        return `tier0 has ${a.children.length} children where tier1 has ${b.children.length} at path ${path}`;
+      }
+      for (let i = 0; i < a.children.length; i++) {
+        const d = diffAST(a.children[i], b.children[i], `${path}>${a.children[i].tag.toLowerCase()}`);
+        if (d) return d;
+      }
+      return null;
+    };
+
     const run = [];
     for (const spec of rows) {
       // matrix variants render the same spec under @xs/@dark sections
@@ -279,6 +381,39 @@ async function runComparisons(activeRow, activeState) {
         const variant = section.dataset.parity;
       const t0root = section.querySelector('[data-renderer=tier0]');
       const t1root = section.querySelector('[data-renderer=tier1]');
+
+      // ── phase 1: DOM-AST isomorphism — BEFORE any computed read ──
+      // (§11.2: tags, attribute sets minus caller-specific values,
+      // child order, cardinality; a structural divergence skips the
+      // section's paint probes — fail fast on structure)
+      const anchor = ast[spec.row];
+      let astFailed = false;
+      if (anchor && spec.states.length > 0) {
+        const label = `${anchor.t0} ⇄ ${anchor.t1}`;
+        const e0s = [...t0root.querySelectorAll(anchor.t0)];
+        const e1s = [...section.querySelectorAll(anchor.t1)];
+        const cardinalityBad =
+          e0s.length === 0 || e1s.length === 0 || e0s.length !== e1s.length ||
+          (!anchor.multi && (e0s.length > 1 || e1s.length > 1));
+        if (cardinalityBad) {
+          run.push({ row: variant, ast: label, state: spec.states[0].name, error: `DOM isomorphism failure: law-element cardinality tier0=${e0s.length} tier1=${e1s.length}${anchor.multi ? '' : ' (anchor must be unique per renderer)'}` });
+          astFailed = true;
+        } else {
+          const pairs = anchor.multi ? e0s.map((e, i) => [e, e1s[i]]) : [[e0s[0], e1s[0]]];
+          for (const [e0, e1] of pairs) {
+            const a0 = parseAST(e0);
+            const d = diffAST(a0, parseAST(e1), 'root');
+            if (d) {
+              run.push({ row: variant, ast: label, state: spec.states[0].name, error: `DOM isomorphism failure: ${d}` });
+              astFailed = true;
+            } else {
+              run.push({ row: variant, ast: label, state: spec.states[0].name, ok: true, nodes: countAST(a0) });
+            }
+          }
+        }
+      }
+      if (astFailed) continue;
+
       for (const probe of spec.probes) {
         // a probe entry may be [sel0, sel1] or [sel0, sel1, props[]]
         // — a per-probe whitelist overrides the row's list (the knob
@@ -344,7 +479,7 @@ async function runComparisons(activeRow, activeState) {
     }
     return run;
   },
-  { rows },
+  { rows, ast: AST_SPEC, legacy: AST_LEGACY_CARRIERS },
   );
 }
 const comparisonsPerState = [];
@@ -384,9 +519,11 @@ for (const c of comparisons) {
   if (pendingRows.has(c.row)) continue;
   if (c.error) {
     failures++;
-    console.error(`✗ ${c.row} ${c.probe ?? ''} ${c.state ?? ''}: ${c.error}`);
+    console.error(`✗ ${c.row} ${c.ast ?? c.probe ?? ''} ${c.state ?? ''}: ${c.error}`);
     continue;
   }
+  // AST-ok records are structural assertions — no prop/v0/v1 payload
+  if (c.ast) continue;
   const a = normalize(c.v0);
   const b = normalize(c.v1);
   if (!equal(c.prop, a, b)) {
@@ -394,11 +531,17 @@ for (const c of comparisons) {
     console.error(`✗ ${c.row} ${c.probe} [${c.state}] ${c.prop}: tier0="${a}" tier1="${b}"`);
   }
 }
-const total = comparisons.filter((c) => !c.error && !pendingRows.has(c.row)).length;
+const astTotal = comparisons.filter((c) => c.ast && !pendingRows.has(c.row)).length;
+const astOk = comparisons.filter((c) => c.ast && c.ok && !pendingRows.has(c.row)).length;
+const astNodes = comparisons.filter((c) => c.ast && c.ok && !pendingRows.has(c.row)).reduce((n, c) => n + c.nodes, 0);
+const total = comparisons.filter((c) => !c.error && !c.ast && !pendingRows.has(c.row)).length;
+if (astTotal > 0) {
+  console.log(`[ast] ${astOk}/${astTotal} DOM-AST assertions isomorphic (${astNodes} nodes: tags, scoped attrs, child order, cardinality)`);
+}
 console.log(
   failures === 0
-    ? `[native-parity] GREEN: ${ROWS.length} row(s), ${total} comparisons equal across the state matrix`
-    : `[native-parity] ${failures} failure(s) across ${total} comparisons`,
+    ? `[native-parity] GREEN: ${ROWS.length} row(s), ${total} comparisons + ${astTotal} DOM-AST assertions equal across the state matrix`
+    : `[native-parity] ${failures} failure(s) across ${total} comparisons + ${astTotal} DOM-AST assertions`,
 );
 // ── the screenshot oracle: same-page pixel comparison ────────────
 // For rows whose implementations share the law's build (pseudo-glyph

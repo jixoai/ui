@@ -379,12 +379,21 @@
 <div data-jx-date-field class="flex flex-col items-stretch gap-2 w-full">
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <span data-jx-date-wrap class="relative block w-full" style="anchor-name: {anchorName}" bind:this={anchorEl}>
+    <!-- jx-html-input (B3, ui-plugin-followup): the trigger's form-lane
+         law is the standard layer's text-like control box — border, hit,
+         inset, text/leading, hover/focus/disabled/invalid states all
+         single-sourced there (this retires the hand-rolled min-h-10/
+         py-2 px-3/text-sm literals in favor of the density aliases the
+         select family already rides); markup keeps only layout (flex
+         row) and the closed-control cursor. Core utilities sort AFTER
+         the custom @utility in the built sheet, so `flex` reliably
+         overrides the law's display:block (probe-verified). -->
     <button
       bind:this={triggerEl}
       type="button"
       id={id}
       class={cn(
-        'jx-date-trigger flex items-center gap-3 w-full min-h-10 py-2 px-3 border border-border rounded-none bg-background text-foreground text-sm leading-[1.45] text-start cursor-pointer transition-[box-shadow] duration-150 ease-out',
+        'jx-date-trigger jx-html-input flex items-center gap-3 text-start cursor-pointer',
         className,
       )}
       popovertarget={panelId}
@@ -403,21 +412,20 @@
           !hasValue && 'text-muted-foreground',
         )}
       >{triggerText}</span>
-      <svg
+      <!-- the calendar trigger = an ICON SLOT (B3): the glyph span paints
+           currentColor through a mask on --jx-icon-calendar (the icon
+           vocabulary variable the face publishes at :root and the
+           standard layer's ::-webkit-calendar-picker-indicator reads), so
+           a face/plugin override re-skins every calendar glyph together.
+           The inline lucide SVG fallback default keeps the glyph without
+           the sheet; the .jx-date-chevron class stays the css hook. -->
+      <span
         class={cn(
           'jx-date-chevron flex-none w-3 h-3 pointer-events-none text-muted-foreground transition-transform duration-150 ease-out',
           open && 'rotate-180',
         )}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
         aria-hidden="true"
-      >
-        <path d="m6 9 6 6 6-6"></path>
-      </svg>
+      ></span>
     </button>
   </span>
 

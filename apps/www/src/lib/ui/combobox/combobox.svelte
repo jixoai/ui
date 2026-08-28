@@ -412,6 +412,13 @@
         className,
       )}
     >
+      <!-- jx-html-control-lane (B2, ui-plugin-followup): the input is a
+           LANE inside the shell (the shell owns the box law), so the
+           standard layer's lane utility is the appropriate form-lane
+           adoption — flex/min-width/min-height/border-0/outline/
+           transparent/foreground/font-size/placeholder all
+           single-sourced there. p-0 stays: the UA input padding reset
+           the Part A shell-pair rule normally carries. -->
       <input
         bind:this={inputEl}
         {...rest}
@@ -430,7 +437,7 @@
         autocapitalize="off"
         spellcheck="false"
         data-jx-combobox-input
-        class="flex-1 min-w-0 min-h-[calc(2.5rem_-_2px)] p-0 border-0 outline-none bg-transparent text-foreground text-sm leading-[1.45] placeholder:text-muted-foreground placeholder:opacity-100"
+        class="jx-html-control-lane p-0"
         {placeholder}
         disabled={isDisabled}
         oninput={onInput}
@@ -452,21 +459,19 @@
         onmousedown={(event) => event.preventDefault()}
         disabled={isDisabled}
       >
-        <svg
+        <!-- the chevron = an ICON SLOT (B2): the span paints currentColor
+             through the mask on --jx-icon-chevron (the same slot
+             jx-html-select reads), so a face/plugin override re-skins the
+             composite and the native control with one variable. The
+             inline lucide SVG fallback default keeps the glyph without
+             the sheet. -->
+        <span
           class={cn(
             'jx-combobox-chevron w-3 h-3 pointer-events-none transition-transform duration-150 ease-out',
             open && 'rotate-180',
           )}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
           aria-hidden="true"
-        >
-          <path d="m6 9 6 6 6-6" />
-        </svg>
+        ></span>
       </button>
     </div>
   </span>

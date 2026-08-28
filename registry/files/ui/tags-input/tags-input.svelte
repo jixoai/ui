@@ -69,6 +69,14 @@
   against the live wrap anchor; the panel carries jx-waapi behind
   motion.supported plus the REAL .jx-surface-shadow child; jixoai.css
   owns every visible formula.
+
+  Standard-layer adoption (2026-08-28, ui-plugin-followup B5): the
+  typing input mounts jx-html-control-lane — the standard layer's
+  chromeless lane law — as its baseline contract; the component's own
+  metrics (row-min height, --jx-leading, flex-basis 0%, muted
+  placeholder) stay as markup utilities layered over it (generated
+  utilities emit after the custom @utility, so the component law wins
+  every overlap). Chips/pills remain component-specific UI.
 -->
 <script module lang="ts">
   /** One chip of the tags input; suggestions reuse the same shape. */
@@ -441,7 +449,7 @@
           autocapitalize="off"
           spellcheck="false"
           data-jx-tags-input
-          class="flex-[1_1_0%] min-w-0 min-h-[var(--jx-row-min)] p-0 border-0 outline-none bg-transparent text-foreground text-[length:var(--jx-text)] leading-[var(--jx-leading)] placeholder:text-muted-foreground placeholder:opacity-100"
+          class="jx-html-control-lane flex-[1_1_0%] min-w-0 min-h-[var(--jx-row-min)] p-0 border-0 outline-none bg-transparent text-foreground text-[length:var(--jx-text)] leading-[var(--jx-leading)] placeholder:text-muted-foreground placeholder:opacity-100"
           {placeholder}
           disabled={isDisabled}
           oninput={onInput}

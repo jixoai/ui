@@ -291,12 +291,19 @@
          list doesn't include it: it IS a WAI-ARIA global state, and the
          family law wires invalid state on the control itself -->
     <!-- svelte-ignore a11y_role_supports_aria_props_implicit -->
+    <!-- jx-html-input (B1, ui-plugin-followup): the trigger's form-lane
+         law is the standard layer's text-like control box — border, hit,
+         inset, text/leading, hover/focus/disabled/invalid states all
+         single-sourced there; markup keeps only layout (flex row) and
+         the closed-control cursor. Core utilities sort AFTER the custom
+         @utility in the built sheet, so `flex` reliably overrides the
+         law's display:block (probe-verified). -->
     <button
       bind:this={triggerEl}
       type="button"
       id={id}
       class={cn(
-        'jx-sel-trigger flex items-center gap-[var(--jx-gap)] w-full min-h-[var(--jx-hit)] py-[var(--jx-gap)] px-[var(--jx-inset)] border border-border rounded-none bg-background text-foreground text-[length:var(--jx-text)] leading-[var(--jx-leading)] text-start cursor-pointer transition-[box-shadow] duration-150 ease-out',
+        'jx-sel-trigger jx-html-input flex items-center gap-[var(--jx-gap)] text-start cursor-pointer',
         className,
       )}
       popovertarget={panelId}
@@ -319,21 +326,18 @@
       >
         {selected?.label ?? placeholder}
       </span>
-      <svg
+      <!-- the chevron = an ICON SLOT (B1): the span paints currentColor
+           through the mask on --jx-icon-chevron (the same slot
+           jx-html-select reads), so a face/plugin override re-skins the
+           composite and the native control with one variable. The inline
+           lucide SVG fallback default keeps the glyph without the sheet. -->
+      <span
         class={cn(
           'jx-sel-chevron flex-none w-3 h-3 pointer-events-none text-muted-foreground transition-transform duration-150 ease-out',
           open && 'rotate-180',
         )}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
         aria-hidden="true"
-      >
-        <path d="m6 9 6 6 6-6" />
-      </svg>
+      ></span>
     </button>
   </span>
 

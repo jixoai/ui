@@ -348,6 +348,62 @@ describe('jxUI() vite plugin', () => {
     }
   });
 
+  test('HMR refreshes do not accumulate provider watch callbacks (C2 cleanup)', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'jx-ui-'));
+    try {
+      const svgPath = join(dir, 'chevron.svg');
+      await writeFile(svgPath, '<svg viewBox="0 0 24 24"><path d="M0"/></svg>', 'utf8');
+
+      let generation = 0;
+      let callbackRuns = 0;
+      const factory: IconProviderFactory = async (ctx) => {
+        generation += 1;
+        const marker = `GEN${generation}`;
+        // each factory generation registers a FRESH closure — the exact
+        // shape that used to accumulate in the watches Map on refresh
+        ctx.watchFile(svgPath, () => {
+          callbackRuns += 1;
+        });
+        return { getIcon: () => svgAsset(marker) };
+      };
+
+      const plugin = jxUI({ icons: factory });
+      const server = createMockServer();
+      const { configureServer, buildStart, resolveId, load } = lifecycle(plugin);
+      configureServer(server as unknown as ViteDevServer);
+      await buildStart();
+
+      const resolved = mustResolve(resolveId(VIRTUAL_MODULE_ID, '/app/src/app.css'));
+      const cssAt = async (): Promise<string> => unwrap(await load(resolved), 'css module');
+      expect(await cssAt()).toContain('GEN1');
+
+      // three change events → three refresh generations; with cleanup
+      // each event fires exactly ONE callback (the live generation's).
+      // without cleanup the counts would be 1+2+3 = 6.
+      const fullReloads = (): number =>
+        server.sentMessages.filter(
+          (message) => (message as { type?: string }).type === 'full-reload',
+        ).length;
+      for (let expectedReloads = 1; expectedReloads <= 3; expectedReloads++) {
+        server.fire('change', resolve(svgPath));
+        // the full-reload is pushed AFTER the stale-callback cleanup, so
+        // this barrier proves the old callbacks were already dropped
+        // before the next change event fires
+        const target = expectedReloads;
+        await vi.waitFor(() => {
+          expect(fullReloads()).toBeGreaterThanOrEqual(target);
+        });
+      }
+
+      expect(callbackRuns).toBe(3);
+      const cssAfter = await cssAt();
+      expect(cssAfter).toContain('GEN4');
+      expect(cssAfter).not.toContain('GEN3');
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
   test('serializeIcon receives the configured modes (css-var for CSS)', async () => {
     const { buildStart, resolveId, load } = lifecycle(jxUI({ icons: factoryOf(fullProvider()) }));
     await buildStart();

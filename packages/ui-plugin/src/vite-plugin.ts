@@ -38,6 +38,8 @@ import { SLOT_NAMES, SLOT_REGISTRY } from './types.js';
 import type {
   IconProvider,
   IconProviderFactory,
+  SafetyChecker,
+  SafetyCheckerConfig,
   SourceDescriptor,
 } from './types.js';
 
@@ -78,6 +80,13 @@ function classifyVirtualId(id: string): VirtualKind | null {
 export interface JxUIPluginOptions {
   /** the icon provider factory — awaited at build start with a ProviderContext */
   readonly icons: IconProviderFactory;
+  /**
+   * safety checker configuration (follow-up C5). defaults to
+   * `{ mode: 'warn' }` — rejected icons serve the standard layer's
+   * inline fallback. pass `{ mode: 'error', … }` (and/or tighter
+   * limits) to fail the build instead, e.g. for HTTP-sourced icons.
+   */
+  readonly safety?: SafetyCheckerConfig;
 }
 
 // ── byte sniffing / normalization ──────────────────────────────────
@@ -206,9 +215,10 @@ function errorMessage(error: unknown): string {
 }
 
 /** serialize every provided slot into the virtual CSS + JS module contents */
-const defaultChecker = createSafetyChecker({ mode: 'warn' });
-
-function generateModules(provider: IconProvider): { readonly css: string; readonly js: string } {
+function generateModules(
+  provider: IconProvider,
+  checker: SafetyChecker,
+): { readonly css: string; readonly js: string } {
   const declarations: string[] = [];
   const domEntries: string[] = [];
 
@@ -217,11 +227,12 @@ function generateModules(provider: IconProvider): { readonly css: string; readon
     if (asset === null) continue; // not this provider's slot — standard layer fallback serves
     // serializeIcon returns null when a warn-mode safety check rejects the
     // asset — the slot is omitted and the standard layer fallback serves
-    const value = serializeIcon(asset, 'css-var', defaultChecker);
+    // (an error-mode check throws and fails the build)
+    const value = serializeIcon(asset, 'css-var', checker);
     if (value === null) continue;
     declarations.push(`    --jx-icon-${slot}: ${value};`);
     if (usesDomInjection(slot)) {
-      const domString = serializeIcon(asset, 'dom-string', defaultChecker);
+      const domString = serializeIcon(asset, 'dom-string', checker);
       if (domString !== null) {
         domEntries.push(`  ${slot}: ${JSON.stringify(domString)},`);
       }
@@ -252,6 +263,10 @@ function generateModules(provider: IconProvider): { readonly css: string; readon
  * ```
  */
 export function jxUI(options: JxUIPluginOptions): Plugin {
+  // follow-up C5: consumers can replace the default warn-mode checker;
+  // the checker is per-plugin-instance (never a module-level singleton)
+  const checker = createSafetyChecker(options.safety ?? { mode: 'warn' });
+
   let provider: IconProvider | null = null;
   let cssCode = '';
   let jsCode = '';
@@ -294,7 +309,7 @@ export function jxUI(options: JxUIPluginOptions): Plugin {
 
   const start = async (): Promise<void> => {
     provider = await options.icons(createContext());
-    const generated = generateModules(provider);
+    const generated = generateModules(provider, checker);
     cssCode = generated.css;
     jsCode = generated.js;
   };
@@ -317,10 +332,23 @@ export function jxUI(options: JxUIPluginOptions): Plugin {
    * re-run the factory (fresh loadSource bytes), regenerate the virtual
    * modules and invalidate them. failures keep the previous icons and
    * log — a transient bad edit must not nuke a working dev session.
+   *
+   * follow-up C2 (HMR cleanup): every factory generation registers its
+   * own watch callbacks; callbacks owned by earlier generations are
+   * dropped once the new provider lands, so re-creations don't
+   * accumulate listeners. a FAILED re-run keeps them — the next change
+   * event must still be able to retry the refresh.
    */
   const refresh = async (): Promise<void> => {
+    const stale = new Set(
+      Array.from(watches.values(), (callbacks) => Array.from(callbacks)).flat(),
+    );
     try {
       await start();
+      for (const [file, callbacks] of watches) {
+        for (const onChange of stale) callbacks.delete(onChange);
+        if (callbacks.size === 0) watches.delete(file);
+      }
       invalidateVirtualModules();
     } catch (error) {
       logError(`icon refresh failed — keeping previous icons: ${errorMessage(error)}`);
