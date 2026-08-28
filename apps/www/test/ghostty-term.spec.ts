@@ -190,12 +190,19 @@ interface FakeCalls {
   resets: number;
   frees: number;
   keyEvents: unknown[];
+  presses: Array<[number, number, number]>;
+  drags: Array<[number, number]>;
+  releases: Array<[number, number]>;
+  clears: number;
 }
 
 const makeFakeVt = (
   onWrite?: (text: string) => RowSnapshot[] | undefined,
 ): { vt: GhosttyVT; calls: FakeCalls } => {
-  const calls: FakeCalls = { writes: [], resizes: [], scrolls: [], resets: 0, frees: 0, keyEvents: [] };
+  const calls: FakeCalls = {
+    writes: [], resizes: [], scrolls: [], resets: 0, frees: 0, keyEvents: [],
+    presses: [], drags: [], releases: [], clears: 0,
+  };
   let dims = [80, 24];
   // the pristine terminal is fully dirty (mirrors the real wasm's first
   // pass — the component samples its default ink/paper sentinels there)
@@ -232,8 +239,11 @@ const makeFakeVt = (
     },
     resize(cols: number, rows: number): void {
       calls.resizes.push([cols, rows]);
+      // faithful to the probed wasm contract: only a DIMENSION change marks
+      // rows dirty — a same-dims re-apply reports zero dirty rows
+      const changed = cols !== dims[0] || rows !== dims[1];
       dims = [cols, rows];
-      dirty = blankRows(cols, rows);
+      if (changed) dirty = blankRows(cols, rows);
     },
     scrollViewport(lines: number): void {
       calls.scrolls.push(lines);
@@ -260,6 +270,26 @@ const makeFakeVt = (
       encode: (text: string): Uint8Array => enc(text),
     },
     snapshotEncode: (): string => 'ZmFrZS1zbmFwc2hvdA==', // base64 "fake-snapshot"
+    selection: {
+      events: {
+        press(x: number, y: number, clickCount: number): void {
+          calls.presses.push([x, y, clickCount]);
+        },
+        drag(x: number, y: number): void {
+          calls.drags.push([x, y]);
+          // a scripted drag marks a dirty row carrying a selection span —
+          // the component paints it inverted (the paint evidence test)
+          dirty = [{ y: 0, cells: [...'ABC'].map((ch) => cellOf(ch)), selection: { startX: 1, endX: 2 } }];
+        },
+        release(x: number, y: number): void {
+          calls.releases.push([x, y]);
+        },
+      },
+      text: (): string | null => (calls.drags.length > 0 ? 'selected-text' : null),
+      clear(): void {
+        calls.clears++;
+      },
+    },
     free(): void {
       calls.frees++;
     },
@@ -707,6 +737,146 @@ describe('ghostty-term handle API', () => {
 
     term.component.reset();
     expect(calls.resets).toBe(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// text selection (owner request 2026-08-28)
+// ---------------------------------------------------------------------------
+
+const mouse = (root: HTMLDivElement, type: string, x: number, y: number, init: MouseEventInit = {}): MouseEvent => {
+  const event = new MouseEvent(type, { bubbles: true, cancelable: true, button: 0, ...init });
+  Object.defineProperty(event, 'offsetX', { value: x });
+  Object.defineProperty(event, 'offsetY', { value: y });
+  root.dispatchEvent(event);
+  return event;
+};
+
+describe('ghostty-term text selection', () => {
+  it('translates mousedown/mousemove/mouseup into press/drag/release cell sequences', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const term = renderTerm({ cols: 8, rows: 2 });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+
+    const down = mouse(term.root, 'mousedown', 12, 21); // cell 1, row 1
+    expect(down.defaultPrevented).toBe(true);
+    // mousemove lands on the CANVAS and bubbles; clamped to the grid
+    mouse(term.canvas, 'mousemove', 55, 5); // cell 5, row 0
+    mouse(term.root, 'mouseup', 55, 5);
+
+    expect(calls.presses).toEqual([[1, 1, 1]]);
+    expect(calls.drags).toEqual([[5, 0]]);
+    expect(calls.releases).toEqual([[5, 0]]);
+  });
+
+  it('accumulates the multi-click tier within 250ms on the same cell', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const term = renderTerm({ cols: 8, rows: 2 });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+
+    mouse(term.root, 'mousedown', 10, 0);
+    mouse(term.root, 'mouseup', 10, 0);
+    mouse(term.root, 'mousedown', 10, 0); // immediate repeat → tier 2
+    mouse(term.root, 'mouseup', 10, 0);
+    expect(calls.presses.map((p) => p[2])).toEqual([1, 2]);
+
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    mouse(term.root, 'mousedown', 10, 0); // past the window → tier resets
+    expect(calls.presses[2]![2]).toBe(1);
+  });
+
+  it('paints selected cells inverted (ink/paper swap evidence)', async () => {
+    const { vt } = makeFakeVt();
+    loader.impl = async () => vt;
+    const term = renderTerm({ cols: 8, rows: 2 });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+
+    mouse(term.root, 'mousedown', 0, 0);
+    mouse(term.root, 'mousemove', 30, 0); // scripted drag → row with selection [1,2]
+    await settle();
+    const texts = fillTexts(lastCtx());
+    // the trailing 'A' is the focused block cursor's glyph redraw at (0,0)
+    expect(texts.map((op) => op.text)).toEqual(['A', 'B', 'C', 'A']);
+    // wasm defaults map to the shell fallbacks (fg white / bg black in jsdom):
+    // unselected 'A' paints the shell ink; selected B/C paint the shell PAPER
+    expect(texts[0]!.fillStyle).toBe('rgb(255, 255, 255)');
+    expect(texts[1]!.fillStyle).toBe('rgb(0, 0, 0)');
+    expect(texts[2]!.fillStyle).toBe('rgb(0, 0, 0)');
+    // the selected cells also paint an inverted background rect (shell ink)
+    const invertedCellBg = lastCtx().ops.filter(
+      (op) => op.op === 'fillRect' && op.args[2] === 10 && op.args[3] === 20 && op.args[0] >= 10,
+    );
+    expect(invertedCellBg.map((op) => op.args[0])).toEqual([10, 20]); // cells B and C
+  });
+
+  it('copies the selection to the clipboard on mouseup and on Cmd/Ctrl+C', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    });
+    const onData = vi.fn();
+    const term = renderTerm({ cols: 8, rows: 2, onData });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+
+    // drag → mouseup copies the scripted selection text
+    mouse(term.root, 'mousedown', 0, 0);
+    mouse(term.root, 'mousemove', 30, 0);
+    mouse(term.root, 'mouseup', 30, 0);
+    await settle();
+    expect(writeText).toHaveBeenCalledWith('selected-text');
+
+    // Cmd+C with an active selection is intercepted (never reaches the pty)
+    const copy = keyDown(term.root, { key: 'c', code: 'KeyC', metaKey: true });
+    expect(copy.defaultPrevented).toBe(true);
+    expect(writeText).toHaveBeenCalledTimes(2);
+    expect(onData).not.toHaveBeenCalled();
+    expect(calls.keyEvents.length).toBe(0);
+  });
+
+  it('keeps ^C flowing to the pty when there is no selection', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const onData = vi.fn();
+    const term = renderTerm({ cols: 8, rows: 2, onData });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    // no drag → text() is null → Ctrl+C falls through to keyEncode
+    calls.keyEvents.length = 0;
+    const ctrlC = keyDown(term.root, { key: 'c', code: 'KeyC', ctrlKey: true });
+    expect(ctrlC.defaultPrevented).toBe(false);
+    expect(calls.keyEvents.length).toBe(1);
+  });
+
+  it('selection=false binds nothing and drops select-none', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const term = renderTerm({ cols: 8, rows: 2, selection: false });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+    expect(term.root.className).not.toContain('select-none');
+    const down = mouse(term.root, 'mousedown', 10, 0);
+    expect(down.defaultPrevented).toBe(false);
+    mouse(term.root, 'mousemove', 30, 0);
+    mouse(term.root, 'mouseup', 30, 0);
+    expect(calls.presses).toEqual([]);
+    expect(calls.drags).toEqual([]);
+    expect(calls.releases).toEqual([]);
+  });
+
+  it('defaults to select-none while selection is on', async () => {
+    const { vt } = makeFakeVt();
+    loader.impl = async () => vt;
+    const term = renderTerm({ cols: 8, rows: 2 });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    expect(term.root.className).toContain('select-none');
   });
 });
 

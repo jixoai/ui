@@ -26,11 +26,12 @@
   field-probed facts, not assumptions.
 
   Known V1 bounds (design non-goals or binding-surface limits, reported
-  to the orchestrator): no cursor/selection paint (the frozen vt face
-  exposes no cursor read), no hyperlink activation, viewport-only
+  to the orchestrator): no hyperlink activation, viewport-only
   scroll, and a clamped shift heuristic on wheel-scroll because the
   upstream render state under-reports dirty rows on scroll-down
   (probed: scrollViewport(+3) after a clean pass yields 0 dirty rows).
+  Cursor (2026-08-28) and text selection (2026-08-28, gesture-driven)
+  have since landed in the binding face.
 -->
 <script lang="ts">
   import { onDestroy, onMount, untrack } from 'svelte';
@@ -98,6 +99,15 @@
    */
   cursor?: boolean | { blink?: boolean; style?: 'bar' | 'block' | 'underline' };
 
+    /**
+   * Text selection (owner request 2026-08-28). Default: on — mouse
+   * drag/double/triple click drive the wasm gesture state machine,
+   * selected cells paint inverted, mouseup/Cmd-C copy the text, and
+   * the root gains select-none. `false` disables the whole surface
+   * (mouse events fall through untouched).
+   */
+  selection?: boolean;
+
   /** Fires when the auto-mode grid derivation changes. */
     onResize?: (detail: GhosttyTermResizeDetail) => void;
     density?: Density;
@@ -119,6 +129,7 @@
     onResize,
     density,
     cursor = true,
+    selection = true,
     class: className = '',
     children,
     ...rest
@@ -374,6 +385,7 @@
 
     let x = 0;
     const maxCols = Math.min(row.cells.length, grid.cols);
+    const sel = row.selection; // startX/endX both inclusive (binding contract)
     for (let i = 0; i < maxCols; i++) {
       const cellView = row.cells[i]!;
       const style = cellView.style;
@@ -384,8 +396,14 @@
         rawFg = rawBg;
         rawBg = swap;
       }
-      const ink = rawFg === wasmDefaultFg ? shell.fg : rawFg;
-      const paper = rawBg === wasmDefaultBg ? shell.bg : rawBg;
+      let ink = rawFg === wasmDefaultFg ? shell.fg : rawFg;
+      let paper = rawBg === wasmDefaultBg ? shell.bg : rawBg;
+      // selection inverts the resolved colors (the style.reverse path again)
+      if (sel !== undefined && i >= sel.startX && i <= sel.endX) {
+        const swap = ink;
+        ink = paper;
+        paper = swap;
+      }
 
       if (paper !== shell.bg) {
         ctx.fillStyle = paper;
@@ -522,8 +540,81 @@
 
   // ---- input bridge -------------------------------------------------------
 
+  // selection mouse bridge (owner request 2026-08-28): the wasm gesture
+  // state machine owns the semantics; this side only translates pixels to
+  // clamped cell coordinates and tracks the multi-click cadence.
+  let selPressed = false;
+  let selTier = 1;
+  let selLastClickAt = 0;
+  let selLastCell = { x: -1, y: -1 };
+
+  const cellFromEvent = (event: MouseEvent): { x: number; y: number } => ({
+    x: Math.max(0, Math.min(grid.cols - 1, Math.floor((event.offsetX || 0) / cell.w))),
+    y: Math.max(0, Math.min(grid.rows - 1, Math.floor((event.offsetY || 0) / cell.h))),
+  });
+
+  /** clipboard best-effort: insecure contexts / headless tests stay silent */
+  const copyText = (text: string): void => {
+    try {
+      navigator.clipboard?.writeText(text)?.catch(() => {});
+    } catch {
+      /* no clipboard — selection still paints */
+    }
+  };
+
+  const handleMouseDown = (event: MouseEvent): void => {
+    if (!selection || vt === null || phase !== 'ready' || event.button !== 0) return;
+    // keep native selection AND the focus loss preventDefault would cause
+    event.preventDefault();
+    rootEl?.focus();
+    const c = cellFromEvent(event);
+    const now = Date.now();
+    const repeat = now - selLastClickAt <= 250 && c.x === selLastCell.x && c.y === selLastCell.y;
+    selLastCell = c;
+    selLastClickAt = now;
+    selTier = repeat ? (selTier % 3) + 1 : 1; // 1=cell 2=word 3=line, cycling
+    selPressed = true;
+    vt.selection.events.press(c.x, c.y, selTier);
+    scheduleFrame();
+  };
+
+  const handleMouseMove = (event: MouseEvent): void => {
+    if (!selection || !selPressed || vt === null) return;
+    event.preventDefault(); // no native text selection while dragging
+    const c = cellFromEvent(event);
+    vt.selection.events.drag(c.x, c.y);
+    scheduleFrame();
+  };
+
+  const handleMouseUp = (event: MouseEvent): void => {
+    if (!selPressed || vt === null) return;
+    selPressed = false;
+    const c = cellFromEvent(event);
+    vt.selection.events.release(c.x, c.y);
+    const text = vt.selection.text();
+    if (text !== null && text !== '') copyText(text);
+    scheduleFrame();
+  };
+
+  const handleMouseLeave = (): void => {
+    if (!selPressed || vt === null) return;
+    selPressed = false;
+    vt.selection.events.release(selLastCell.x, selLastCell.y);
+  };
+
   const handleKeydown = (event: KeyboardEvent): void => {
     if (vt === null || phase !== 'ready') return;
+    // Cmd/Ctrl+C copies the active selection when one exists; without a
+    // selection the key falls through to the pty (^C / SIGINT) as before
+    if (selection && (event.metaKey || event.ctrlKey) && !event.shiftKey && !event.altKey
+      && (event.key === 'c' || event.key === 'C')) {
+      const text = vt.selection.text();
+      if (text !== null && text !== '') {
+        event.preventDefault();
+        copyText(text);
+        return;
+      }
+    }
     if (MODIFIER_KEYS.has(event.key)) return;
     const bytes = vt.keyEncode({
       key: event.key,
@@ -718,11 +809,17 @@
     // host's definite height is ignored, owner acceptance 2026-08-28).
     // explicit cols/rows (or auto=false) keeps the intrinsic grid size.
     !fixedGrid && 'h-full',
+    // selection owns the pointer — native text selection stays off
+    selection && 'select-none',
     className,
   )}
   tabindex="0"
   aria-label="terminal"
   onkeydown={handleKeydown}
+  onmousedown={handleMouseDown}
+  onmousemove={handleMouseMove}
+  onmouseup={handleMouseUp}
+  onmouseleave={handleMouseLeave}
   onpaste={handlePaste}
   onfocus={() => (focused = true)}
   onblur={() => (focused = false)}

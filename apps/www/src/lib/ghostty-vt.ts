@@ -117,6 +117,13 @@ export interface RowSnapshot {
   y: number;
   /** One cell per column (empty cells included with grapheme ''). */
   cells: CellView[];
+  /**
+   * Render-state selection span for this row (present only when the row is
+   * at least partially selected). startX/endX are viewport columns and are
+   * BOTH INCLUSIVE (probed: drag to (5,1) selects x 0..4 on that row and
+   * reports end_x=4; a row-spanning middle row reports end_x=cols-1).
+   */
+  selection?: { startX: number; endX: number };
 }
 
 /** KeyboardEvent-shaped input for keyEncode (either a real event or a plain object). */
@@ -127,6 +134,48 @@ export interface GhosttyKeyEventLike {
   shiftKey?: boolean;
   altKey?: boolean;
   metaKey?: boolean;
+}
+
+/** Behavior for one click tier of a selection gesture (CELL granularity default). */
+export type SelectionBehavior = 'cell' | 'word' | 'line' | 'output';
+
+/** Per-tier click behaviors; unset tiers fall back to the upstream default (cell/word/line). */
+export interface Behaviors {
+  singleClick?: SelectionBehavior;
+  doubleClick?: SelectionBehavior;
+  tripleClick?: SelectionBehavior;
+}
+
+/**
+ * Gesture-driven text selection (owner request 2026-08-28). Coordinates are
+ * viewport CELL coordinates (x = column, y = row). The binding marshals each
+ * call into the typed gesture events, applies them to the terminal, installs
+ * the resulting selection as the terminal's active selection, and refreshes
+ * the render state so dirtyRows() republishes selection spans.
+ */
+export interface GhosttySelectionGestureEvents {
+  /**
+   * Begin (or continue) a click sequence at a cell. clickCount is the
+   * multi-click tier (1=cell 2=word 3=line); the binding synthesizes the
+   * monotonic event times that drive the upstream click counter.
+   */
+  press(x: number, y: number, clickCount: number, opts?: { rectangle?: boolean; behaviors?: Behaviors }): void;
+  /** Extend the active selection to a cell (geometry tracks the live grid). */
+  drag(x: number, y: number): void;
+  /** End the gesture at a cell (the established selection stays active). */
+  release(x: number, y: number): void;
+}
+
+export interface GhosttySelectionFace {
+  /** Gesture event bridge (see GhosttySelectionGestureEvents). */
+  events: GhosttySelectionGestureEvents;
+  /**
+   * Active selection text (PLAIN, unwrap+trim — Ghostty's copy semantics).
+   * Returns null when there is no active selection.
+   */
+  text(): string | null;
+  /** Clear the active selection (marks the affected rows dirty). */
+  clear(): void;
 }
 
 export interface GhosttyCursor {
@@ -184,6 +233,9 @@ export interface GhosttyVT {
    * when the cursor is outside the viewport (viewport_has_value=false).
    */
   readCursor(): GhosttyCursor | null;
+
+  /** Text selection: gesture events + active-selection reads/clears. */
+  selection: GhosttySelectionFace;
 
   /** Encode a key event into the bytes a pty expects (may be empty, e.g. bare modifiers). */
   keyEncode(event: GhosttyKeyEventLike): Uint8Array;
@@ -257,6 +309,23 @@ interface GhosttyWasmExports {
   ghostty_paste_is_safe(ptr: number, len: number): number;
   ghostty_paste_encode(data: number, dataLen: number, bracketed: boolean, buf: number, bufLen: number, outWritten: number): number;
   ghostty_snapshot_encode_alloc(terminal: number, allocator: number, outPtr: number, outLen: number): number;
+  ghostty_selection_gesture_new(allocator: number, out: number): number;
+  /** terminal may be 0 once the terminal is gone (upstream free contract) */
+  ghostty_selection_gesture_free(gesture: number, terminal: number): void;
+  ghostty_selection_gesture_reset(gesture: number, terminal: number): void;
+  /** returns GhosttyResult; NO_VALUE when the event produces no selection */
+  ghostty_selection_gesture_event(gesture: number, terminal: number, event: number, outSelection: number): number;
+  ghostty_selection_gesture_event_new(allocator: number, out: number, type: number): number;
+  ghostty_selection_gesture_event_free(event: number): void;
+  ghostty_selection_gesture_event_set(event: number, option: number, valuePtr: number): number;
+  ghostty_terminal_set(terminal: number, option: number, valuePtr: number): number;
+  ghostty_terminal_selection_format_alloc(
+    terminal: number,
+    allocator: number,
+    optionsPtr: number,
+    outOpaque: number,
+    outLen: number,
+  ): number;
 }
 
 const REQUIRED_EXPORTS = [
@@ -279,6 +348,11 @@ const REQUIRED_EXPORTS = [
   'ghostty_key_event_set_key', 'ghostty_key_event_set_mods',
   'ghostty_key_event_set_utf8', 'ghostty_paste_is_safe', 'ghostty_paste_encode',
   'ghostty_snapshot_encode_alloc',
+  'ghostty_selection_gesture_new', 'ghostty_selection_gesture_free',
+  'ghostty_selection_gesture_reset',
+  'ghostty_selection_gesture_event', 'ghostty_selection_gesture_event_new',
+  'ghostty_selection_gesture_event_free', 'ghostty_selection_gesture_event_set',
+  'ghostty_terminal_set', 'ghostty_terminal_selection_format_alloc',
 ] as const;
 
 // GhosttyMods bit positions (event.h #defines — compile-time constants the
@@ -308,6 +382,15 @@ class GhosttyVTCore implements GhosttyVT {
   private rowCells = 0;
   private keyEncoder = 0;
   private keyEvent = 0;
+  private selGesture = 0;
+  private selPressEvent = 0;
+  private selDragEvent = 0;
+  private selReleaseEvent = 0;
+  /** live grid dims — the gesture drag geometry source */
+  private dims = { cols: 0, rows: 0 };
+  /** synthesized monotonic clock (ns) driving the upstream click counter */
+  private selClockNs = 0n;
+  private selLastClick = 0;
 
   // one reusable opaque out-slot (wasm.h: a single slot serves every constructor)
   private readonly slot: number;
@@ -324,6 +407,13 @@ class GhosttyVTCore implements GhosttyVT {
   private readonly refPtr: number;
   private readonly viewPtr: number;
   private readonly scrollPtr: number;
+  private readonly selPtr: number;
+  private readonly geoPtr: number;
+  private readonly u64Ptr: number;
+  private readonly boolPtr: number;
+  private readonly behaviorsPtr: number;
+  private readonly fmtOptsPtr: number;
+  private readonly rowSelPtr: number;
 
   private alive = true;
 
@@ -362,6 +452,13 @@ class GhosttyVTCore implements GhosttyVT {
     this.refPtr = this.checkedAlloc(size('GhosttyGridRef'));
     this.viewPtr = this.checkedAlloc(size('GhosttyCellsView'));
     this.scrollPtr = this.checkedAlloc(size('GhosttyTerminalScrollViewport'));
+    this.selPtr = this.checkedAlloc(size('GhosttySelection'));
+    this.geoPtr = this.checkedAlloc(size('GhosttySelectionGestureGeometry'));
+    this.u64Ptr = this.checkedAlloc(8);
+    this.boolPtr = this.checkedAlloc(1);
+    this.behaviorsPtr = this.checkedAlloc(size('GhosttySelectionGestureBehaviors'));
+    this.fmtOptsPtr = this.checkedAlloc(size('GhosttyTerminalSelectionFormatOptions'));
+    this.rowSelPtr = this.checkedAlloc(size('GhosttyRenderStateRowSelection'));
 
     this.new(80, 24);
   }
@@ -403,6 +500,30 @@ class GhosttyVTCore implements GhosttyVT {
     this.keyEncoder = wasm.ghostty_wasm_take_opaque(this.slot);
     this.check(wasm.ghostty_key_event_new(0, this.slot), 'ghostty_key_event_new');
     this.keyEvent = wasm.ghostty_wasm_take_opaque(this.slot);
+    this.check(wasm.ghostty_selection_gesture_new(0, this.slot), 'ghostty_selection_gesture_new');
+    this.selGesture = wasm.ghostty_wasm_take_opaque(this.slot);
+    const eventType = (name: string): number =>
+      this.enumValue('GhosttySelectionGestureEventType', name);
+    this.check(wasm.ghostty_selection_gesture_event_new(0, this.slot, eventType('PRESS')), 'selection press event new');
+    this.selPressEvent = wasm.ghostty_wasm_take_opaque(this.slot);
+    this.check(wasm.ghostty_selection_gesture_event_new(0, this.slot, eventType('DRAG')), 'selection drag event new');
+    this.selDragEvent = wasm.ghostty_wasm_take_opaque(this.slot);
+    this.check(wasm.ghostty_selection_gesture_event_new(0, this.slot, eventType('RELEASE')), 'selection release event new');
+    this.selReleaseEvent = wasm.ghostty_wasm_take_opaque(this.slot);
+    // the multi-click window rides on the reusable press event (250ms — the
+    // classic terminal triple-click cadence)
+    this.dv().setBigUint64(this.u64Ptr, 250_000_000n, true);
+    this.check(
+      wasm.ghostty_selection_gesture_event_set(
+        this.selPressEvent,
+        this.enumValue('GhosttySelectionGestureEventOption', 'REPEAT_INTERVAL_NS'),
+        this.u64Ptr,
+      ),
+      'REPEAT_INTERVAL_NS set',
+    );
+    this.selClockNs = 0n;
+    this.selLastClick = 0;
+    this.dims = { cols, rows };
     this.refreshRenderState();
   }
 
@@ -421,12 +542,25 @@ class GhosttyVTCore implements GhosttyVT {
     wasm.ghostty_wasm_free(this.refPtr, this.structSize('GhosttyGridRef'));
     wasm.ghostty_wasm_free(this.viewPtr, this.structSize('GhosttyCellsView'));
     wasm.ghostty_wasm_free(this.scrollPtr, this.structSize('GhosttyTerminalScrollViewport'));
+    wasm.ghostty_wasm_free(this.selPtr, this.structSize('GhosttySelection'));
+    wasm.ghostty_wasm_free(this.geoPtr, this.structSize('GhosttySelectionGestureGeometry'));
+    wasm.ghostty_wasm_free(this.u64Ptr, 8);
+    wasm.ghostty_wasm_free(this.boolPtr, 1);
+    wasm.ghostty_wasm_free(this.behaviorsPtr, this.structSize('GhosttySelectionGestureBehaviors'));
+    wasm.ghostty_wasm_free(this.fmtOptsPtr, this.structSize('GhosttyTerminalSelectionFormatOptions'));
+    wasm.ghostty_wasm_free(this.rowSelPtr, this.structSize('GhosttyRenderStateRowSelection'));
     wasm.ghostty_wasm_free_opaque(this.slot);
     this.alive = false;
   }
 
   private teardownTerminal(): void {
     const { wasm } = this;
+    if (this.selReleaseEvent !== 0) { wasm.ghostty_selection_gesture_event_free(this.selReleaseEvent); this.selReleaseEvent = 0; }
+    if (this.selDragEvent !== 0) { wasm.ghostty_selection_gesture_event_free(this.selDragEvent); this.selDragEvent = 0; }
+    if (this.selPressEvent !== 0) { wasm.ghostty_selection_gesture_event_free(this.selPressEvent); this.selPressEvent = 0; }
+    // gesture first while the terminal is still alive (tracked-ref release),
+    // per the upstream free contract
+    if (this.selGesture !== 0) { wasm.ghostty_selection_gesture_free(this.selGesture, this.term); this.selGesture = 0; }
     if (this.keyEvent !== 0) { wasm.ghostty_key_event_free(this.keyEvent); this.keyEvent = 0; }
     if (this.keyEncoder !== 0) { wasm.ghostty_key_encoder_free(this.keyEncoder); this.keyEncoder = 0; }
     if (this.rowCells !== 0) { wasm.ghostty_render_state_row_cells_free(this.rowCells); this.rowCells = 0; }
@@ -437,6 +571,10 @@ class GhosttyVTCore implements GhosttyVT {
 
   reset(): void {
     this.assertAlive();
+    // the gesture's tracked refs do not survive a full terminal reset
+    if (this.selGesture !== 0) this.wasm.ghostty_selection_gesture_reset(this.selGesture, this.term);
+    this.selClockNs = 0n;
+    this.selLastClick = 0;
     this.wasm.ghostty_terminal_reset(this.term);
     this.refreshRenderState();
   }
@@ -444,6 +582,7 @@ class GhosttyVTCore implements GhosttyVT {
   resize(cols: number, rows: number): void {
     this.assertAlive();
     this.check(this.wasm.ghostty_terminal_resize(this.term, cols, rows, 0, 0), 'ghostty_terminal_resize');
+    this.dims = { cols, rows };
     this.refreshRenderState();
   }
 
@@ -484,6 +623,11 @@ class GhosttyVTCore implements GhosttyVT {
     const defaults = this.readDefaultColors();
     const rowEnum = this.enumValue('GhosttyRenderStateRowData', 'CELLS');
     const rawEnum = this.enumValue('GhosttyRenderStateRowData', 'CELLS_RAW');
+    const selRowEnum = this.enumValue('GhosttyRenderStateRowData', 'SELECTION');
+    const NO_VALUE = this.enumValue('GhosttyResult', 'NO_VALUE');
+    const rowSelSize = this.structSize('GhosttyRenderStateRowSelection');
+    const selStartOff = this.fieldOffset('GhosttyRenderStateRowSelection', 'start_x');
+    const selEndOff = this.fieldOffset('GhosttyRenderStateRowSelection', 'end_x');
     const iterEnum = this.enumValue('GhosttyRenderStateData', 'ROW_ITERATOR');
     const linkBit = this.cellBit('hyperlink');
     const cellSize = this.structSize('GhosttyCell');
@@ -520,7 +664,21 @@ class GhosttyVTCore implements GhosttyVT {
         }
         cells.push(cell);
       }
-      yield { y, cells };
+
+      // selection span for this row (sized struct; NO_VALUE = unselected)
+      let selection: RowSnapshot['selection'];
+      this.sizedInit(this.rowSelPtr, 'GhosttyRenderStateRowSelection');
+      const selOk = wasm.ghostty_render_state_row_get(this.rowIter, selRowEnum, this.rowSelPtr);
+      if (selOk === this.enumValue('GhosttyResult', 'SUCCESS')) {
+        const sdv = this.dvAt(this.rowSelPtr, rowSelSize);
+        selection = {
+          startX: sdv.getUint16(selStartOff, true),
+          endX: sdv.getUint16(selEndOff, true),
+        };
+      } else if (selOk !== NO_VALUE) {
+        throw new GhosttyVTError(`row SELECTION query failed: ${selOk}`);
+      }
+      yield selection === undefined ? { y, cells } : { y, cells, selection };
     }
 
     // completed pass: mark every dirty layer consumed
@@ -761,6 +919,215 @@ class GhosttyVTCore implements GhosttyVT {
     }
     return out;
   }
+
+  // ---- text selection (owner request 2026-08-28) ---------------------------
+  // Field-probed ABI facts this marshaling relies on (see selection-probe):
+  //   * ghostty_selection_gesture_event applies an event and RETURNS a
+  //     selection snapshot that is NOT installed — we install it through
+  //     ghostty_terminal_set(GHOSTTY_TERMINAL_OPT_SELECTION) so the render
+  //     state republishes per-row spans and format reads the active selection.
+  //   * PRESS yields NO_VALUE for a bare cell anchor (the old selection is
+  //     cleared instead) and SUCCESS for word/line behaviors.
+  //   * RELEASE always yields NO_VALUE (state update only).
+  //   * The upstream click counter is driven by TIME_NS deltas against
+  //     REPEAT_INTERVAL_NS, so press() synthesizes a monotonic clock.
+
+  /** rectangle stickiness: a press's rectangle mode carries into its drags */
+  private selRectangle = false;
+
+  /** Write a viewport-cell grid ref into refPtr; false when the cell is invalid. */
+  private writeViewportRef(x: number, y: number): boolean {
+    // GhosttyPoint { tag: VIEWPORT, value.coordinate { x: u16, y: u32 } } — the
+    // wasm build passes this by-pointer even though the C header says by-value.
+    const pointSize = this.structSize('GhosttyPoint');
+    this.zeroScratch(this.pointPtr, pointSize);
+    const pointDv = this.dvAt(this.pointPtr, pointSize);
+    const valueOff = this.fieldOffset('GhosttyPoint', 'value');
+    pointDv.setInt32(this.fieldOffset('GhosttyPoint', 'tag'), this.enumValue('GhosttyPointTag', 'VIEWPORT'), true);
+    pointDv.setUint16(valueOff + this.fieldOffset('GhosttyPointCoordinate', 'x'), x, true);
+    pointDv.setUint32(valueOff + this.fieldOffset('GhosttyPointCoordinate', 'y'), y, true);
+    this.sizedInit(this.refPtr, 'GhosttyGridRef');
+    return this.wasm.ghostty_terminal_grid_ref(this.term, this.pointPtr, this.refPtr)
+      === this.enumValue('GhosttyResult', 'SUCCESS');
+  }
+
+  /** apply a gesture event; on SUCCESS install the snapshot as the active selection */
+  private applySelectionEvent(event: number): number {
+    const SUCCESS = this.enumValue('GhosttyResult', 'SUCCESS');
+    const NO_VALUE = this.enumValue('GhosttyResult', 'NO_VALUE');
+    this.sizedInit(this.selPtr, 'GhosttySelection');
+    const r = this.wasm.ghostty_selection_gesture_event(this.selGesture, this.term, event, this.selPtr);
+    if (r === SUCCESS) {
+      this.check(
+        this.wasm.ghostty_terminal_set(this.term, this.enumValue('GhosttyTerminalOption', 'SELECTION'), this.selPtr),
+        'terminal_set SELECTION',
+      );
+      this.refreshRenderState();
+    } else if (r !== NO_VALUE) {
+      throw new GhosttyVTError(`selection gesture event failed: ${r}`);
+    }
+    return r;
+  }
+
+  private setEventU64(event: number, option: string, value: bigint): void {
+    this.dv().setBigUint64(this.u64Ptr, value, true);
+    this.check(
+      this.wasm.ghostty_selection_gesture_event_set(
+        event,
+        this.enumValue('GhosttySelectionGestureEventOption', option),
+        this.u64Ptr,
+      ),
+      `selection event set ${option}`,
+    );
+  }
+
+  private setEventBool(event: number, option: string, value: boolean): void {
+    this.dv().setUint8(this.boolPtr, value ? 1 : 0);
+    this.check(
+      this.wasm.ghostty_selection_gesture_event_set(
+        event,
+        this.enumValue('GhosttySelectionGestureEventOption', option),
+        this.boolPtr,
+      ),
+      `selection event set ${option}`,
+    );
+  }
+
+  private writeDragGeometry(): void {
+    const dv = this.dvAt(this.geoPtr, this.structSize('GhosttySelectionGestureGeometry'));
+    const off = (f: string): number => this.fieldOffset('GhosttySelectionGestureGeometry', f);
+    dv.setUint32(off('columns'), Math.max(1, this.dims.cols), true);
+    // cell_width=1 / padding_left=0: the component feeds CELL coordinates, so
+    // the geometry only needs a non-degenerate 1px grid (all-u32, must be non-zero)
+    dv.setUint32(off('cell_width'), 1, true);
+    dv.setUint32(off('padding_left'), 0, true);
+    dv.setUint32(off('screen_height'), Math.max(1, this.dims.rows), true);
+    this.check(
+      this.wasm.ghostty_selection_gesture_event_set(
+        this.selDragEvent,
+        this.enumValue('GhosttySelectionGestureEventOption', 'GEOMETRY'),
+        this.geoPtr,
+      ),
+      'selection event set GEOMETRY',
+    );
+  }
+
+  selection: GhosttySelectionFace = {
+    events: {
+      press: (x, y, clickCount, opts): void => {
+        this.assertAlive();
+        if (!this.writeViewportRef(x, y)) return;
+        const { wasm } = this;
+        const REF = this.enumValue('GhosttySelectionGestureEventOption', 'REF');
+        wasm.ghostty_selection_gesture_event_set(this.selPressEvent, REF, this.refPtr);
+        wasm.ghostty_selection_gesture_event_set(this.selDragEvent, REF, this.refPtr);
+
+        // synthesize the monotonic clock the upstream counter consumes: a
+        // same-sequence click lands 100ms after the previous one (< the 250ms
+        // interval); any sequence break jumps a full second past it
+        const tier = Math.max(1, Math.min(3, Math.round(clickCount)));
+        this.selClockNs += tier === this.selLastClick + 1 && tier > 1 ? 100_000_000n : 1_000_000_000n;
+        this.selLastClick = tier;
+        this.setEventU64(this.selPressEvent, 'TIME_NS', this.selClockNs);
+
+        // RECTANGLE is a drag/tick-only option (header); press just remembers
+        this.selRectangle = opts?.rectangle === true;
+        this.setEventBool(this.selDragEvent, 'RECTANGLE', this.selRectangle);
+
+        const behaviors = opts?.behaviors;
+        if (behaviors !== undefined) {
+          const dv = this.dvAt(this.behaviorsPtr, this.structSize('GhosttySelectionGestureBehaviors'));
+          const off = (f: string): number => this.fieldOffset('GhosttySelectionGestureBehaviors', f);
+          const map = { cell: 'CELL', word: 'WORD', line: 'LINE', output: 'OUTPUT' } as const;
+          dv.setInt32(off('single_click'), this.enumValue('GhosttySelectionGestureBehavior', map[behaviors.singleClick ?? 'cell']), true);
+          dv.setInt32(off('double_click'), this.enumValue('GhosttySelectionGestureBehavior', map[behaviors.doubleClick ?? 'word']), true);
+          dv.setInt32(off('triple_click'), this.enumValue('GhosttySelectionGestureBehavior', map[behaviors.tripleClick ?? 'line']), true);
+          this.check(
+            wasm.ghostty_selection_gesture_event_set(
+              this.selPressEvent,
+              this.enumValue('GhosttySelectionGestureEventOption', 'BEHAVIORS'),
+              this.behaviorsPtr,
+            ),
+            'selection event set BEHAVIORS',
+          );
+        }
+
+        const r = this.applySelectionEvent(this.selPressEvent);
+        if (r === this.enumValue('GhosttyResult', 'NO_VALUE')) {
+          // bare cell anchor: a fresh press always retires the old highlight
+          this.check(
+            wasm.ghostty_terminal_set(this.term, this.enumValue('GhosttyTerminalOption', 'SELECTION'), 0),
+            'terminal_set SELECTION clear',
+          );
+          this.refreshRenderState();
+        }
+      },
+
+      drag: (x, y): void => {
+        this.assertAlive();
+        if (!this.writeViewportRef(x, y)) return;
+        const { wasm } = this;
+        wasm.ghostty_selection_gesture_event_set(
+          this.selDragEvent,
+          this.enumValue('GhosttySelectionGestureEventOption', 'REF'),
+          this.refPtr,
+        );
+        this.writeDragGeometry();
+        this.applySelectionEvent(this.selDragEvent);
+      },
+
+      release: (x, y): void => {
+        this.assertAlive();
+        if (!this.writeViewportRef(x, y)) return;
+        const { wasm } = this;
+        wasm.ghostty_selection_gesture_event_set(
+          this.selReleaseEvent,
+          this.enumValue('GhosttySelectionGestureEventOption', 'REF'),
+          this.refPtr,
+        );
+        // RELEASE never yields a selection (NO_VALUE); the established one stays
+        const r = wasm.ghostty_selection_gesture_event(this.selGesture, this.term, this.selReleaseEvent, 0);
+        if (r !== this.enumValue('GhosttyResult', 'NO_VALUE') && r !== this.enumValue('GhosttyResult', 'SUCCESS')) {
+          throw new GhosttyVTError(`selection release failed: ${r}`);
+        }
+      },
+    },
+
+    text: (): string | null => {
+      this.assertAlive();
+      const { wasm } = this;
+      const SUCCESS = this.enumValue('GhosttyResult', 'SUCCESS');
+      const NO_VALUE = this.enumValue('GhosttyResult', 'NO_VALUE');
+      const optsSize = this.structSize('GhosttyTerminalSelectionFormatOptions');
+      this.sizedInit(this.fmtOptsPtr, 'GhosttyTerminalSelectionFormatOptions');
+      const dv = this.dvAt(this.fmtOptsPtr, optsSize);
+      const off = (f: string): number => this.fieldOffset('GhosttyTerminalSelectionFormatOptions', f);
+      dv.setInt32(off('emit'), this.enumValue('GhosttyFormatterFormat', 'PLAIN'), true);
+      dv.setUint8(off('unwrap'), 1);
+      dv.setUint8(off('trim'), 1);
+      dv.setUint32(off('selection'), 0, true); // null = the ACTIVE selection
+      const r = wasm.ghostty_terminal_selection_format_alloc(this.term, 0, this.fmtOptsPtr, this.slot, this.lenPtr);
+      if (r === NO_VALUE) return null;
+      if (r !== SUCCESS) {
+        throw new GhosttyVTError(`selection format failed: ${r}`);
+      }
+      const ptr = wasm.ghostty_wasm_take_opaque(this.slot);
+      const len = this.dv().getUint32(this.lenPtr, true);
+      if (ptr === 0 || len === 0) return null;
+      const text = this.decodeBytes(ptr, len);
+      wasm.ghostty_free(0, ptr, len);
+      return text;
+    },
+
+    clear: (): void => {
+      this.assertAlive();
+      this.check(
+        this.wasm.ghostty_terminal_set(this.term, this.enumValue('GhosttyTerminalOption', 'SELECTION'), 0),
+        'terminal_set SELECTION clear',
+      );
+      this.refreshRenderState();
+    },
+  };
 
   paste = {
     isSafe: (text: string): boolean => {
