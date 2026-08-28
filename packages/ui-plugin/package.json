@@ -16,7 +16,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsdown src/index.ts --format esm --dts",
+    "build": "tsdown src/index.ts --format esm --dts --external opentype.js --external wawoff2",
     "test": "vitest run",
     "test:watch": "vitest"
   },
