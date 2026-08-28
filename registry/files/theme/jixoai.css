@@ -1466,9 +1466,16 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   min-height: var(--jx-hit, 2.5rem);
   gap: var(--jx-gap, 0.5rem);
   /* inline inset — em-based (proportional to font-size → density);
-   * ALWAYS present (slotted or not) so text never touches the border */
+   * ALWAYS present (slotted or not) so text never touches the border.
+   * SUFFIX EXCEPTION: when the last child is NOT the lane (icon,
+   * clear button, suffix slot), that element's own width + the flex
+   * gap already form the end inset — drop end padding to avoid
+   * double-spacing */
   font-size: var(--jx-text, 0.875rem);
   padding-inline: 0.6em;
+  &:has(> :not(.jx-html-control-lane):last-child) {
+    padding-inline-end: 0;
+  }
   border: 1px solid var(--border);
   border-radius: 0;
   background: var(--background);
