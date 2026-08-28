@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-28T11:55:24.768Z",
+  "generatedAt": "2026-08-28T13:11:32.989Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -90,8 +90,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "dbb0594a3deff376ed4dad7e8e1e0d6fe0cfb7e9d4a9295f013ab8d0a0adf1d2",
-          "mirrorSha": "dbb0594a3deff376ed4dad7e8e1e0d6fe0cfb7e9d4a9295f013ab8d0a0adf1d2"
+          "sourceSha": "23cd10cf93449b89a444fdebc5bcd46403dd6d2d568f2b49cd7c5e04ad69b07d",
+          "mirrorSha": "23cd10cf93449b89a444fdebc5bcd46403dd6d2d568f2b49cd7c5e04ad69b07d"
         }
       ]
     },
@@ -616,8 +616,8 @@
           "source": "registry/files/ui/input/input.svelte",
           "mirror": "apps/www/src/lib/ui/input/input.svelte",
           "target": "@ui/input/input.svelte",
-          "sourceSha": "1b367c4a67c66bf600902252b74f5945622dccc4bdde84c9e91b80d0a328435f",
-          "mirrorSha": "1b367c4a67c66bf600902252b74f5945622dccc4bdde84c9e91b80d0a328435f"
+          "sourceSha": "523741423411e3fc0480e00b3efc0af092519d499120f717b07d51d8016ccbd9",
+          "mirrorSha": "523741423411e3fc0480e00b3efc0af092519d499120f717b07d51d8016ccbd9"
         },
         {
           "source": "registry/files/ui/input/index.ts",
@@ -665,8 +665,8 @@
           "source": "registry/files/ui/textarea/textarea.svelte",
           "mirror": "apps/www/src/lib/ui/textarea/textarea.svelte",
           "target": "@ui/textarea/textarea.svelte",
-          "sourceSha": "e57abfe709e1333d0941b07a54e6e95080d41ba4de1bac6f17738c80546d6bf5",
-          "mirrorSha": "e57abfe709e1333d0941b07a54e6e95080d41ba4de1bac6f17738c80546d6bf5"
+          "sourceSha": "44a202d573736370503b080f518cb0a187e34e21009e664aa56757f06ba3b600",
+          "mirrorSha": "44a202d573736370503b080f518cb0a187e34e21009e664aa56757f06ba3b600"
         },
         {
           "source": "registry/files/ui/textarea/index.ts",
