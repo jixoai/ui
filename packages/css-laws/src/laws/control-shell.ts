@@ -32,12 +32,14 @@ export const controlShellLaw: ComponentLaw = {
     transition: 'box-shadow 150ms ease-out',
   },
   states: [
-    /* SUFFIX EXCEPTION: when the last child is NOT the lane (icon, clear
-     * button, suffix slot), that element's own width + the flex gap
-     * already form the end inset — drop end padding to avoid
-     * double-spacing */
+    /* END-INSET OWNERSHIP: the shell's 0.6em end padding is the inset
+     * for EVERY slim last child (the lane, suffix spans) — measured
+     * regression: suffix text sat 1px off the border under the old
+     * "not the lane" drop. The ONLY self-insetting last child is the
+     * clear button (.jx-html-clear carries the full --jx-hit lane);
+     * for it alone the end padding drops to avoid double-spacing */
     {
-      selector: ':has(> :not(.jx-html-control-lane):last-child)',
+      selector: ':has(> .jx-html-clear:last-child)',
       declarations: { 'padding-inline-end': '0' },
     },
     {
