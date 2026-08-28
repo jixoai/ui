@@ -466,7 +466,7 @@ item href 与 payload 名不变（组迁移 = meta 字段编辑 + 镜像行）�
 | 绑定层 | vitest node + bytes 直载 | type_json 解析；formatter plain 黄金输出；脏行迭代形状；Enter→`\r`；resize 存活 |
 | 组件逻辑 | vitest jsdom（canvas mock 度量） | 网格度量换算；auto→cols/rows 映射；onData 桥；…rest/class 合并 |
 | 组件渲染 | build:site 后 playwright 探针 + ZCode 浏览器验收 | 文本像素采样非空；暗色 token；resize 重排；键盘回环；focus/hit-lane/density 断言（D5.1） |
-| 安装链 | verify-shadcn-add 先例扩展 | 双向：`shadcn add @jixoai/ghostty-term` → ghostty-vt + jixoai-theme + utils + color-utils 连带、无二进制 payload；`shadcn add @jixoai/color-picker`（其余前置依赖就位的 fixture）→ color-utils 连带回归 |
+| 安装链 | verify-shadcn-add 先例扩展 | 双向：`shadcn add @jixoai/ghostty-term` → ghostty-vt + jixoai-theme + utils + color-utils + density 连带、无二进制 payload；`shadcn add @jixoai/color-picker`（其余前置依赖就位的 fixture）→ color-utils 连带回归 |
 | blueprint | scenes + build:blueprints | scenes/ghostty-term.svelte + 提交 SVG + blueprints.spec.ts 覆盖锁 |
 | 供给链 | workflow 内 probe | validate + ABI 冒烟通过才更新 pin |
 | 既有门禁 | 全量 | svelte-check / vitest / verify:surface / verify:mirror / verify:hook-law / verify:ghostty-pin / build:site / docs-structure / catalog |
