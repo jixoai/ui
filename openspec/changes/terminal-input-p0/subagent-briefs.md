@@ -16,8 +16,11 @@
 - 文件集：registry/files/lib/ghostty-vt.ts、
   apps/www/test/ghostty-vt.spec.ts、新 apps/www/test/mouse-probe.spec.ts、
   新 apps/www/test/osc-probe.spec.ts。
-- 交付：design D3/D4 冻结面全量；探针先行（OSC 52 载荷、SGR 字节、
-  MOUSE_TRACKING 翻转、SIZE 换算），偏差如实报告。
+- 交付：design D3/D4 冻结面全量；探针先行——OSC 52 三路线
+  （OPT 26/38 回调注册优先 → parser 边界 → 宿主扫描）、SGR 字节、
+  MOUSE_TRACKING bool 翻转（DECSET）、SIZE 换算、OSC parser 流语义
+  （混合流 / 跨 vtWrite chunk 切分 / reset-end 生命周期 / 未完结
+  序列缓冲），偏差如实报告。
 - 关键接口冻结（B 批依赖）：见 design D3/D4 代码块。
 
 ## Batch B — 组件（前置：A 完成）

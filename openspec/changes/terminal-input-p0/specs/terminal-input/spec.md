@@ -106,11 +106,11 @@ title changes surface as an `onTitleChange` event.
 #### Scenario: title changes surface as events
 
 - GIVEN a pty that emits an OSC 0/2 window title change
-- WHEN the sideband parser observes it
+- WHEN the title change is read from terminal state (DATA_TITLE)
 - THEN onTitleChange fires with the new title (and the demo chrome
   reflects it live)
 
-#### Scenario: mouse disabled or tracking NONE keeps local behavior
+#### Scenario: mouse disabled or tracking inactive keeps local behavior
 
 - GIVEN `mouse` set to false, or an application that never enabled
   tracking

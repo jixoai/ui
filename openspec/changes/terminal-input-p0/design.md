@@ -17,7 +17,7 @@ DOM 事件进入组件
   compositionstart/update ─▶ 本地 preedit 缓冲(不进 pty)
   compositionend          ─▶ 提交串 → paste gate → onData   ← 新
   mousedown/move/up/wheel ─▶ Shift 按住? ─▶ 本地选区/滚动
-                           └─ tracking ≠ NONE 且 mouse 开?
+                           └─ tracking active 且 mouse 开?
                                 └─▶ mouseEncode → onData    ← 新
   pty 输出 vtWrite
     ├─▶ render state（绘制，既有）
@@ -81,7 +81,7 @@ onMouseTrackingChange（disposable）。
 组件路由（冻结）：
 - `mouse?: boolean`（默认 true；false = 强制本地行为，等同今日）。
 - 事件序：mousedown/mousemove(按下态)/mouseup/wheel → 若
-  `!mouse || shiftKey || tracking==='none'` → 本地（选区/滚动，现状）
+  `!mouse || shiftKey || !readMouseTracking()` → 本地（选区/滚动，现状）
   否则 → mouseEncode → onData。
 - X10 特例（无 RELEASE 上报）：仅 PRESS 编码。
 - 编码前每事件 `setopt_from_terminal`（格式跟随 pty）。

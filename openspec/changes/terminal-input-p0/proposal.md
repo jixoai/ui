@@ -31,18 +31,19 @@ ghostty-term 已过冻结验收与多轮 owner 迭代（光标/选区/xterm 门�
 - **鼠标上报**（绑定 + 组件）：
   - 绑定：mouse encoder 面（PRESS/RELEASE/MOTION × 按钮 × 坐标；
     FORMAT/ANY_BUTTON/TRACK_LAST_CELL options）+ `readMouseTracking()`
-    （TerminalData.MOUSE_TRACKING → NONE/X10/NORMAL/BUTTON/ANY）。
-  - 组件：tracking ≠ NONE 时——click/drag/wheel 经 encoder → onData
+    （TerminalData.MOUSE_TRACKING 为 bool：任一 tracking 已启用）。
+  - 组件：tracking active 时——click/drag/wheel 经 encoder → onData
     （pty 侧接管），本地选区/滚动让位；**Shift 按住 = 旁通上报**，
-    强制走本地选区（行业惯例，vim 里也能选词复制）。tracking = NONE
-    时行为与今日完全一致。`mouse?: boolean` prop 可整体关闭上报。
+    强制走本地选区（行业惯例，vim 里也能选词复制）。tracking
+    inactive 时行为与今日完全一致。`mouse?: boolean` prop 可整体
+    关闭上报。
   - 门面：`Terminal.onMouseTrackingChange` 事件（disposable）+
     `mouseEncode(event)`。
 - **OSC 52**（绑定 + 组件）：
-  - 绑定：vtWrite 后并行喂 OSC parser；命令枚举面至少
-    `CLIPBOARD_CONTENTS`（含 query 与 set 两型）+
-    `CHANGE_WINDOW_TITLE`（顺手接：`onTitleChange` 事件，demo 标题栏
-    实时显示 vim/tmux 改的标题）。
+  - 绑定：OSC 52 载荷三路线探针定案（OPT 26/38 宿主回调优先 →
+    parser 边界+宿主解码 → 宿主扫描），对外冻结 `onOsc52` 事件形状；
+    title 走 `DATA_TITLE` 直读 → `onTitleChange`（demo 标题栏实时
+    显示 vim/tmux 改的标题）。
   - 组件：`clipboardWrite?: boolean | { maxSize?: number }`（默认开，
     上限为本仓自定 1 MiB 默认、可配——与 wasm 的 Kitty 5522 限额
     无关）；
