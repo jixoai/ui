@@ -11,10 +11,10 @@
   import { TokenTable } from '$lib/ui/token-table';
   import { DensityDemo } from '$lib/ui/density-demo';
   import Item from '$lib/ui/list-item/item.svelte';
+  import ItemMedia from '$lib/ui/list-item/item-media.svelte';
   import ItemContent from '$lib/ui/list-item/item-content.svelte';
   import ItemTitle from '$lib/ui/list-item/item-title.svelte';
-  import ItemEnd from '$lib/ui/list-item/item-end.svelte';
-  import ItemAfter from '$lib/ui/list-item/item-after.svelte';
+  import ItemDescription from '$lib/ui/list-item/item-description.svelte';
 
   /* ---------------------------------------------------------------------
    * Hue lab: the runtime drives --brand-hue (time-of-day seed, 24h wall-clock cycle);
@@ -272,10 +272,15 @@ playing.subscribe((v) => (isPlaying = v));
           </p>
           <DensityDemo>
             <Item>
+              <ItemMedia variant="icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <path d="M12 2v20M2 12h20" />
+                </svg>
+              </ItemMedia>
               <ItemContent>
                 <ItemTitle>The density row</ItemTitle>
+                <ItemDescription>text · line · media scale from the ruler</ItemDescription>
               </ItemContent>
-              <ItemEnd><ItemAfter>12:04</ItemAfter></ItemEnd>
             </Item>
           </DensityDemo>
         </div>
