@@ -1217,18 +1217,19 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   border: 0;
   border-radius: calc(infinity * 1px);
   background: transparent;
-  /* SIZE CONTAINER: the thumb derives from the input's own height
-   * via cqh — proportional to the control's visual size (density,
-   * consumer resize, any context). inline-size→size because the
-   * input has definite height (var(--jx-icon)) */
-  container-type: size;
+  /* INLINE-SIZE CONTAINER (NOT size — size containment on <input>
+   * locks the height and prevents consumer overrides). The cqw fill
+   * technique works with inline-size; the thumb derives from
+   * --jx-icon directly (NOT cqh, which needs size containment) */
+  container-type: inline-size;
   overflow: hidden;
   cursor: pointer;
-  /* the geometry chain: thumb = 100% of the container's own height;
-   * track and ring derive from the thumb via proportional division */
-  --jx-range-thumb: 100cqh;
-  --jx-range-track: calc(100cqh / 2.5);
-  --jx-range-ring: calc(100cqh / 8);
+  /* the geometry chain: every dimension derives from --jx-icon —
+   * the same token the input's own height rides. Consumer overrides
+   * --jx-icon on the element → everything scales together */
+  --jx-range-thumb: var(--jx-icon, 1.5rem);
+  --jx-range-track: calc(var(--jx-range-thumb, 1.5rem) / 2.5);
+  --jx-range-ring: calc(var(--jx-range-thumb, 1.5rem) / 8);
   --jx-slider-fill-color: var(--primary);
   &::-webkit-slider-runnable-track {
     height: var(--jx-range-track);
