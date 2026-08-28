@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-28T05:48:20.181Z",
+  "generatedAt": "2026-08-28T06:59:16.473Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -592,8 +592,8 @@
           "source": "registry/files/theme/jx-pure.css",
           "mirror": "apps/www/src/lib/jx-pure.css",
           "target": "@lib/jx-pure.css",
-          "sourceSha": "fcd4da36c29358b2e9c969bac7b93e515d88a681c143c78501c2675c0795df5e",
-          "mirrorSha": "fcd4da36c29358b2e9c969bac7b93e515d88a681c143c78501c2675c0795df5e"
+          "sourceSha": "2b0c7eff6c62fbb80942571037447de73e140070428b07c074ea2a0a18166a6c",
+          "mirrorSha": "2b0c7eff6c62fbb80942571037447de73e140070428b07c074ea2a0a18166a6c"
         }
       ]
     },
@@ -1117,8 +1117,8 @@
           "source": "registry/files/ui/color-picker/color-picker.svelte",
           "mirror": "apps/www/src/lib/ui/color-picker/color-picker.svelte",
           "target": "@ui/color-picker/color-picker.svelte",
-          "sourceSha": "84b3949a8baad5e2d05e81c57ff54bd5ce5c9f6ce84c66cf575ee75a87c78f56",
-          "mirrorSha": "84b3949a8baad5e2d05e81c57ff54bd5ce5c9f6ce84c66cf575ee75a87c78f56"
+          "sourceSha": "aab4c1e324ea6f6290b16c4d8d7877afdc7dd399c26449b56bc4db4b60420be5",
+          "mirrorSha": "aab4c1e324ea6f6290b16c4d8d7877afdc7dd399c26449b56bc4db4b60420be5"
         },
         {
           "source": "registry/files/ui/color-picker/index.ts",

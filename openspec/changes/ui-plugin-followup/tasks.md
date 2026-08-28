@@ -14,7 +14,7 @@
        gzip), B-face (compiled face rules in canonical pipeline),
        B-consumer (full consumer bundle delta for one component);
        thresholds = baseline +5%; gates wired into CI
-- [ ] A4: native-contract-fusion Codex closure — the V2 fusion change
+- [x] A4: native-contract-fusion Codex closure — the V2 fusion change
        gets its own formal Codex review round (the r0-r5 closure was
        for ui-plugin-package; the fusion needs its own sign-off)
 

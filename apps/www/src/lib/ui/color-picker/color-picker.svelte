@@ -301,21 +301,13 @@
     >
       {#if showSwatch}<span data-jx-color-picker-swatch class="flex-none border border-border bg-muted" style:background={swatch}></span>{/if}
       {#if showValue}<span data-jx-color-picker-value class="flex-[1_1_auto] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-start font-mono text-xs">{value}</span>{/if}
-      <svg
+      <span
         class={cn(
           'jx-color-picker-chevron flex-none w-3 h-3 pointer-events-none text-muted-foreground transition-transform duration-150 ease-out',
           open && 'rotate-180',
         )}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
         aria-hidden="true"
-      >
-        <path d="m6 9 6 6 6-6" />
-      </svg>
+      ></span>
     </button>
   </span>
 

@@ -56,7 +56,7 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const BASELINES = {
   'B-source': 26927, // jixoai.css 16825 + jx-pure.css 10102
   'B-face': 7433, // 300 rules extracted from the apps/www vite build
-  'B-consumer': 10044, // packages/ui-plugin dist/index.js
+  'B-consumer (plugin dist gzip)': 10044, // packages/ui-plugin dist/index.js
 };
 const THRESHOLD_FACTOR = 1.05;
 const COLLAPSE_FACTOR = 0.6;
@@ -200,7 +200,7 @@ const face = measureFace();
 const measured = {
   'B-source': measureSource(),
   'B-face': face.bytes,
-  'B-consumer': gzipOfFile(pluginDistEntry),
+  'B-consumer (plugin dist gzip)': gzipOfFile(pluginDistEntry),
 };
 
 if (flags.has('--update')) {
