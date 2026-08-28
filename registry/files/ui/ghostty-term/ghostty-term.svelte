@@ -55,11 +55,25 @@
   /** Shell overrides ONLY (D5.1 color boundary): the canvas paper/ink for
    * cells that carry the wasm DEFAULT colors. ANSI/256/truecolor content
    * colors are never themed through this prop. */
+  /**
+   * Shell theme — every knob is an extension point; the jixoai token
+   * defaults are just the preset we ship (owner architecture ruling
+   * 2026-08-28: defaults ride the extension layer, never hardcode).
+   * ANSI/256/truecolor CONTENT colors are never themed here (D5.1).
+   */
   export interface GhosttyTermTheme {
-    /** CSS color for the default cell background (default: var(--terminal)). */
+    /** default cell paper (default: var(--terminal)) */
     background?: string;
-    /** CSS color for the default cell ink (default: var(--terminal-foreground)). */
+    /** default cell ink (default: var(--terminal-foreground)) */
     foreground?: string;
+    /** cursor paint; overrides the app's OSC 12 when set (default: app color, else foreground) */
+    cursor?: string;
+    /** ink for the glyph under a filled block cursor (default: background) */
+    cursorAccent?: string;
+    /** selected-cell paper; when unset selection paints as classic inverse */
+    selectionBackground?: string;
+    /** selected-cell ink; pairs with selectionBackground (default: background) */
+    selectionForeground?: string;
   }
 
   export interface GhosttyTermResizeDetail {
@@ -71,6 +85,10 @@
   export interface GhosttyTermHandle {
     write(bytes: Uint8Array): void;
     reset(): void;
+    /** programmatic key input (virtual keyboard / IME surface) */
+    sendKey(event: import('$lib/ghostty-vt').GhosttyKeyEventLike): void;
+    /** programmatic sanitized paste (gate-protected) */
+    pasteText(text: string): void;
     resizeTo(cols: number, rows: number): void;
     /** Base64 terminal snapshot (V1: encode only, no decode). */
     snapshot(): string;
@@ -103,6 +121,25 @@
    * JetBrains Mono stack.
    */
   fontFamily?: string;
+
+  /**
+   * RAW key-event layer (owner architecture ruling 2026-08-28): runs
+   * FIRST on every keydown. Return true to consume the event (the
+   * default chain — clipboard layer, keyEncode — never sees it). This is
+   * the base for custom keymaps (vim modes), conflict avoidance, IME
+   * composition handling, and virtual keyboards (which can instead call
+   * the sendKey/pasteText handle methods directly — no DOM events needed).
+   */
+  onKeyDown?: (event: KeyboardEvent) => boolean | void;
+
+  /**
+   * The DEFAULT clipboard layer, implemented ON the key architecture as
+   * overridable defaults (not hardcoded): copy = Cmd/Ctrl(+Shift)+C with
+   * a selection, paste = Cmd/Ctrl(+Shift)+V through the sanitized gate.
+   * `false` disables both; fine-grained via the object form. Set false
+   * and consume via onKeyDown for fully custom bindings.
+   */
+  clipboard?: boolean | { copy?: boolean; paste?: boolean };
 
   /**
    * Cursor rendering (owner request 2026-08-28). Default: on, style and
@@ -144,6 +181,8 @@
     cursor = true,
     selection = true,
     fontFamily,
+    onKeyDown,
+    clipboard = true,
     class: className = '',
     children,
     ...rest
@@ -229,7 +268,14 @@
   let wasmDefaultFg = '';
   let wasmDefaultBg = '';
   /** Resolved shell colors (rgb() strings ready for canvas). */
-  let shell = { bg: '#000000', fg: '#ffffff' };
+  let shell: {
+    bg: string;
+    fg: string;
+    selectionBg?: string;
+    selectionFg?: string;
+    cursor?: string;
+    cursorAccent?: string;
+  } = { bg: '#000000', fg: '#ffffff' };
 
   const fontString = (italic: boolean, bold: boolean, sizePx: number): string =>
     `${italic ? 'italic ' : ''}${bold ? 700 : 400} ${sizePx}px ${fontStack}`;
@@ -282,6 +328,10 @@
     shell = {
       bg: toCanvasColor(theme?.background ?? token('--terminal'), 'rgb(0, 0, 0)'),
       fg: toCanvasColor(theme?.foreground ?? token('--terminal-foreground'), 'rgb(255, 255, 255)'),
+      selectionBg: theme?.selectionBackground !== undefined ? toCanvasColor(theme.selectionBackground, 'rgb(255, 255, 255)') : undefined,
+      selectionFg: theme?.selectionForeground !== undefined ? toCanvasColor(theme.selectionForeground, 'rgb(0, 0, 0)') : undefined,
+      cursor: theme?.cursor !== undefined ? toCanvasColor(theme.cursor, 'rgb(255, 255, 255)') : undefined,
+      cursorAccent: theme?.cursorAccent !== undefined ? toCanvasColor(theme.cursorAccent, 'rgb(0, 0, 0)') : undefined,
     };
   };
 
@@ -316,7 +366,9 @@
     const x = c.x * cell.w;
     const y = c.y * cell.h;
     const w = (c.wideTail ? 2 : 1) * cell.w;
-    const ink = c.color ?? shell.fg;
+    // theme.cursor OVERRIDES the app's OSC 12 (xterm setOption semantics);
+    // fallback chain: theme → OSC 12 → shell foreground
+    const ink = shell.cursor ?? c.color ?? shell.fg;
     ctx.fillStyle = ink;
     if (style === 'bar') {
       ctx.fillRect(x, y, Math.max(2, cell.w / 6), cell.h);
@@ -327,7 +379,7 @@
       ctx.fillRect(x, y, w, cell.h);
       const under = screen[c.y]?.cells[c.x];
       if (under && under.grapheme !== '' && !under.style.invisible) {
-        ctx.fillStyle = shell.bg;
+        ctx.fillStyle = shell.cursorAccent ?? shell.bg;
         ctx.font = fontString(under.style.italic, under.style.bold, resolvedFontSize);
         ctx.textBaseline = 'middle';
         ctx.fillText(under.grapheme, x, y + cell.h / 2);
@@ -427,11 +479,18 @@
       }
       let ink = rawFg === wasmDefaultFg ? shell.fg : rawFg;
       let paper = rawBg === wasmDefaultBg ? shell.bg : rawBg;
-      // selection inverts the resolved colors (the style.reverse path again)
+      // selection: themed papers when provided (selectionBackground /
+      // selectionForeground are extension points), classic inverse
+      // otherwise — the default RIDES the same swap path
       if (selected(i)) {
-        const swap = ink;
-        ink = paper;
-        paper = swap;
+        if (shell.selectionBg !== undefined || shell.selectionFg !== undefined) {
+          paper = shell.selectionBg ?? paper;
+          ink = shell.selectionFg ?? shell.bg;
+        } else {
+          const swap = ink;
+          ink = paper;
+          paper = swap;
+        }
       }
       if (paper !== shell.bg) {
         ctx.fillStyle = paper;
@@ -569,6 +628,10 @@
   $effect(() => {
     void theme?.background;
     void theme?.foreground;
+    void theme?.selectionBackground;
+    void theme?.selectionForeground;
+    void theme?.cursor;
+    void theme?.cursorAccent;
     if (phase !== 'ready' || ctx === null) return;
     resolveShellColors();
     repaintAll();
@@ -638,8 +701,22 @@
     vt.core.selection.events.release(selLastCell.x, selLastCell.y);
   };
 
+  const clipboardLayer = $derived(
+    clipboard === false
+      ? { copy: false, paste: false }
+      : clipboard === true
+        ? { copy: true, paste: true }
+        : { copy: clipboard.copy ?? true, paste: clipboard.paste ?? true },
+  );
+
   const handleKeydown = (event: KeyboardEvent): void => {
     if (vt === null || phase !== 'ready') return;
+    // the RAW layer owns the event first — returning true consumes it and
+    // the default chain never runs (custom keymaps / IME / conflicts)
+    if (onKeyDown?.(event) === true) {
+      event.preventDefault();
+      return;
+    }
     const plain = !event.shiftKey && !event.altKey;
     // copy: Cmd/Ctrl+C (mac/win) and Ctrl+Shift+C (linux convention) —
     // copies the active selection when one exists; without a selection
@@ -648,7 +725,7 @@
       (event.metaKey || event.ctrlKey) && !event.altKey
       && (event.key === 'c' || event.key === 'C')
       && (plain || (event.shiftKey && event.ctrlKey && !event.metaKey));
-    if (selection && isCopy) {
+    if (selection && clipboardLayer.copy && isCopy) {
       const text = vt.getSelection();
       if (text !== undefined && text !== '') {
         event.preventDefault();
@@ -664,7 +741,7 @@
       (event.metaKey || event.ctrlKey) && !event.altKey
       && (event.key === 'v' || event.key === 'V')
       && (plain || (event.shiftKey && event.ctrlKey && !event.metaKey));
-    if (isPaste) {
+    if (clipboardLayer.paste && isPaste) {
       event.preventDefault();
       void navigator.clipboard
         ?.readText()
@@ -869,6 +946,26 @@
    * it again on the next derivation). */
   export function resizeTo(nextCols: number, nextRows: number): void {
     applyGrid(Math.max(1, Math.round(nextCols)), Math.max(1, Math.round(nextRows)));
+  }
+
+  /**
+   * Programmatic key input (virtual keyboards, IME, tests): encode the
+   * key-shape via the wasm encoder and emit it on onData — the exact
+   * path a physical keydown takes, minus the DOM event. This plus
+   * pasteText is the full input surface for keyboard-less hosts.
+   */
+  export function sendKey(event: import('$lib/ghostty-vt').GhosttyKeyEventLike): void {
+    if (vt === null) return;
+    vt.handleKey(event);
+  }
+
+  /**
+   * Programmatic sanitized paste (virtual keyboards, IME composition
+   * commit): rides the paste gate, never raw bytes into the pty.
+   */
+  export function pasteText(text: string): void {
+    if (vt === null || text === '') return;
+    vt.paste(text);
   }
 
   /** Base64 snapshot of the terminal (diagnostics/tests; V1 encode only). */

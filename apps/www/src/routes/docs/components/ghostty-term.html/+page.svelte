@@ -98,6 +98,50 @@ export default {
   // fontFamily playground: `default` rides the jxoai stack (JetBrains
   // Mono); the rest are @fontsource-loaded community faces
   let fontFamily = $state('default');
+
+  // theme presets (owner request 2026-08-28: 2 dark + 2 light) + the
+  // custom color knobs — every preset is JUST a param pack for the same
+  // extension points; `jixoai` rides the token defaults (theme=undefined)
+  let themePreset = $state('jixoai');
+  let customBg = $state('');
+  let customSel = $state('');
+  const themePresets: Record<string, Record<string, string> | undefined> = {
+    jixoai: undefined,
+    snazzy: {
+      background: '#282a36',
+      foreground: '#eff0eb',
+      cursor: '#ff79c6',
+      selectionBackground: '#44475a',
+      selectionForeground: '#f8f8f2',
+    },
+    paper: {
+      background: '#ffffff',
+      foreground: '#1f2328',
+      cursor: '#0969da',
+      selectionBackground: '#add6ff',
+      selectionForeground: '#1f2328',
+    },
+    solarized: {
+      background: '#fdf6e3',
+      foreground: '#586e75',
+      cursor: '#cb4b16',
+      selectionBackground: '#eee8d5',
+      selectionForeground: '#073642',
+    },
+  };
+  const themeOptions = [
+    { label: 'jxoai dark', value: 'jixoai' },
+    { label: 'snazzy dark', value: 'snazzy' },
+    { label: 'paper light', value: 'paper' },
+    { label: 'solarized light', value: 'solarized' },
+  ];
+  const themeProp = $derived.by(() => {
+    const base = themePresets[themePreset] ?? {};
+    const merged = { ...base };
+    if (customBg !== '') merged.background = customBg;
+    if (customSel !== '') merged.selectionBackground = customSel;
+    return Object.keys(merged).length === 0 ? undefined : merged;
+  });
   const fontFamilyOptions = [
     { label: 'default', value: 'default' },
     { label: 'Fira Code', value: 'Fira Code' },
@@ -471,6 +515,7 @@ export default {
                 cursor={cursorProp}
                 selection={selectionProp}
                 fontFamily={fontFamily === 'default' ? undefined : fontFamily}
+                theme={themeProp}
               />
             {/key}
           </div>
@@ -491,6 +536,27 @@ export default {
             </PlayRow>
             <PlayRow label="font">
               <PlaySelect bind:value={fontFamily} options={fontFamilyOptions} />
+            </PlayRow>
+            <PlayRow label="theme">
+              <PlaySegmented bind:value={themePreset} options={themeOptions} />
+            </PlayRow>
+            <PlayRow label="custom background">
+              <input
+                type="color"
+                class="h-6 w-10 cursor-pointer border border-border bg-transparent"
+                value={customBg === '' ? '#0d1117' : customBg}
+                oninput={(e) => (customBg = e.currentTarget.value)}
+                aria-label="custom background color"
+              />
+            </PlayRow>
+            <PlayRow label="custom selection">
+              <input
+                type="color"
+                class="h-6 w-10 cursor-pointer border border-border bg-transparent"
+                value={customSel === '' ? '#44475a' : customSel}
+                oninput={(e) => (customSel = e.currentTarget.value)}
+                aria-label="custom selection color"
+              />
             </PlayRow>
             <PlayHelp>
               click the terminal to focus it, then type — the canvas owns the keyboard surface

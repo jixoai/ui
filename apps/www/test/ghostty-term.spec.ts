@@ -238,6 +238,9 @@ const makeFakeVt = (
     new(cols: number, rows: number): void {
       dims = [cols, rows];
     },
+    readScrollbar(): { total: number; offset: number; len: number } {
+      return { total: 240, offset: 230, len: 10 };
+    },
     readCursor(): ReturnType<GhosttyVT['readCursor']> {
       // a steady block cursor parked at the write position of the fake
       return { x: 0, y: 0, style: 'block', visible: true, blinking: false, passwordInput: false, wideTail: false };
