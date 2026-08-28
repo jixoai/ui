@@ -16,9 +16,9 @@ Terminal direction words SHALL hold everywhere in this repo: `write`
 feeds pty OUTPUT into the VT (host → terminal); `onData` carries
 terminal INPUT out to the application (terminal → pty). Replies TO an
 application (mouse encodes, key encodes, OSC 52 query responses) MUST
-ride onData; bytes fed to `write`/`vtWrite` are output the VT parses
-(and the sideband OSC parser observes) — injecting an application
-reply there would be re-ingested and never reach the program.
+ride onData; bytes fed to `write`/`vtWrite` are output the VT parses (and the
+OSC 52 observer observes — route frozen by the probes) — injecting an
+application reply there would be re-ingested and never reach the program.
 
 #### Scenario: an application reply never rides write
 
