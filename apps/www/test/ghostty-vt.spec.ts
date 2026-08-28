@@ -385,3 +385,81 @@ describe('ghostty-vt Terminal facade (xterm conventions)', () => {
     core.free();
   });
 });
+
+// ---------------------------------------------------------------------------
+// input-p0 facade passthrough (design.md D3/D4 — mouse / title / OSC 52)
+// ---------------------------------------------------------------------------
+
+describe('ghostty-vt Terminal facade (input-p0: mouse + OSC 52 + title)', () => {
+  const CELL = { w: 8, h: 16 };
+
+  it('mouseEncode returns the bytes AND replays them on onData (handleKey mirror)', async () => {
+    const term = new Terminal({ core: await loadGhosttyVT({ bytes: wasmBytes }), cols: 80, rows: 24 });
+    const received: string[] = [];
+    term.onData((s) => received.push(s));
+    term.write('\x1b[?1002h\x1b[?1006h'); // button-event tracking + SGR
+    drainDirty(term);
+
+    const bytes = term.mouseEncode({ action: 'press', button: 'left', x: 396, y: 132 }, CELL);
+    expect(dec(bytes)).toBe('\x1b[<0;50;9M');
+    expect(received).toEqual(['\x1b[<0;50;9M']);
+    // the latin1 channel round-trips mouse bytes byte-safely
+    expect(Array.from(Uint8Array.from(received[0]!, (c) => c.charCodeAt(0) & 0xff))).toEqual(Array.from(bytes));
+
+    // empty encodes (X10 releases) reach no subscriber
+    term.write('\x1b[?1002l\x1b[?1006l\x1b[?9h');
+    received.length = 0;
+    expect(term.mouseEncode({ action: 'release', button: 'left', x: 396, y: 132 }, CELL)).toHaveLength(0);
+    expect(received).toEqual([]);
+    term.core.free();
+  });
+
+  it('onMouseTrackingChange passes DECSET flips through, per-subscription dispose', async () => {
+    const term = new Terminal({ core: await loadGhosttyVT({ bytes: wasmBytes }), cols: 80, rows: 24 });
+    const seen: boolean[] = [];
+    const a = term.onMouseTrackingChange((active) => seen.push(active));
+    term.onMouseTrackingChange((active) => seen.push(active));
+    term.write('\x1b[?1000h');
+    expect(seen).toEqual([true, true]);
+    a.dispose();
+    term.write('\x1b[?1000l');
+    expect(seen).toEqual([true, true, false]);
+    term.core.free();
+  });
+
+  it('onTitleChange and readTitle pass OSC 0/2 changes through', async () => {
+    const term = new Terminal({ core: await loadGhosttyVT({ bytes: wasmBytes }), cols: 80, rows: 24 });
+    const titles: string[] = [];
+    term.onTitleChange((title) => titles.push(title));
+    term.write('plain');
+    expect(titles).toEqual([]);
+    term.write('\x1b]0;my window\x07');
+    expect(titles).toEqual(['my window']);
+    expect(term.core.readTitle()).toBe('my window');
+    term.core.free();
+  });
+
+  it('onOsc52 surfaces set and query requests from writes (OSC 52 only)', async () => {
+    const term = new Terminal({ core: await loadGhosttyVT({ bytes: wasmBytes }), cols: 80, rows: 24 });
+    const seen: string[] = [];
+    term.onOsc52((req) => seen.push(`${req.kind}:${req.selector}:${req.payloadBase64 ?? ''}`));
+    term.write('\x1b]0;title\x07'); // non-52 OSC: not surfaced
+    term.write('\x1b]52;c;aGVsbG8=\x07');
+    term.write('\x1b]52;c;?\x07');
+    expect(seen).toEqual(['set:c:aGVsbG8=', 'query:c:']);
+    term.core.free();
+  });
+
+  it('dispose unbinds the three observer faces from the core', async () => {
+    const core = await loadGhosttyVT({ bytes: wasmBytes });
+    const term = new Terminal({ core, cols: 80, rows: 24 });
+    const seen: string[] = [];
+    term.onOsc52(() => seen.push('osc'));
+    term.onTitleChange(() => seen.push('title'));
+    term.onMouseTrackingChange(() => seen.push('track'));
+    term.dispose();
+    core.vtWrite(enc('\x1b]52;c;QQ==\x07\x1b]0;t\x07\x1b[?1002h'));
+    expect(seen).toEqual([]); // core subscriptions were released, not leaked
+    core.free();
+  });
+});
