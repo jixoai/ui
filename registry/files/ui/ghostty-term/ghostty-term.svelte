@@ -31,13 +31,14 @@
 
   Known V1 bounds (design non-goals or binding-surface limits, reported
   to the orchestrator): no hyperlink activation, viewport-only
-  scroll, and a clamped shift heuristic on wheel-scroll because the
-  upstream render state under-reports dirty rows on scroll-down
-  (probed: scrollViewport(+3) after a clean pass yields 0 dirty rows).
+  scroll (exact offsets via readScrollbar; the cache-shift rides them),
+  reported drags are lock-paired (a leave emits the RELEASE — no
+  phantom buttons, no pointer capture in V1).
   Cursor (2026-08-28) and text selection (2026-08-28, gesture-driven)
   have since landed in the binding face. Input-p0 bounds: wheel reports
   carry no release (X10/SGR convention), a reported drag that leaves the
-  surface is dropped (no pointer capture), OSC 52 clear-clipboard is
+  surface emits the paired RELEASE (lock-paired; no pointer capture),
+  OSC 52 clear-clipboard is
   explicitly not implemented, and the preedit overlay carries no width
   judgment source (canvas clip is the only bound — the V1 law).
 -->
