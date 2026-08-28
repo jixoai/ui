@@ -43,7 +43,7 @@
   import { onMount } from 'svelte';
   import Input from '$lib/ui/input/input.svelte';
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
-  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import { cn } from '$lib/utils';
   import Swatches from './swatches.svelte';
   import './color-picker.css';
@@ -240,7 +240,7 @@
 >
   <div
     bind:this={svEl}
-    class="jx-color-picker-sv relative [direction:ltr] w-[200px] h-[150px] border border-border bg-[hsl(var(--jx-color-picker-hue)_100%_50%)] cursor-crosshair touch-none select-none"
+    class="jx-color-picker-sv relative [direction:ltr] w-full h-[150px] border border-border bg-[hsl(var(--jx-color-picker-hue)_100%_50%)] cursor-crosshair touch-none select-none"
     style="--jx-color-picker-hue: {hue}"
     onpointerdown={onSvDown}
     onpointermove={(event) => dragSV && svFromPointer(event)}
@@ -257,7 +257,7 @@
   <div
     bind:this={hueEl}
     data-jx-color-picker-hue
-    class="relative [direction:ltr] w-[200px] h-3 border border-border cursor-crosshair touch-none select-none bg-[linear-gradient(to_right,hsl(0_100%_50%),hsl(60_100%_50%),hsl(120_100%_50%),hsl(180_100%_50%),hsl(240_100%_50%),hsl(300_100%_50%),hsl(360_100%_50%))]"
+    class="relative [direction:ltr] w-full h-3 border border-border cursor-crosshair touch-none select-none bg-[linear-gradient(to_right,hsl(0_100%_50%),hsl(60_100%_50%),hsl(120_100%_50%),hsl(180_100%_50%),hsl(240_100%_50%),hsl(300_100%_50%),hsl(360_100%_50%))]"
     onpointerdown={onHueDown}
     onpointermove={(event) => dragHue && hueFromPointer(event)}
     onpointerup={(event) => (dragHue = endDrag(hueEl, event, dragHue) ? false : dragHue)}
@@ -266,32 +266,59 @@
     <span data-jx-color-picker-dot data-jx-color-picker-dot-hue class="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-transparent border border-white shadow-[0_0_0_1px_#000] pointer-events-none" style="inset-inline-start: calc({(hue / 360) * 100}% - 5px)"></span>
   </div>
 
-  <NativeSelect data-jx-color-picker-format class="text-xs" value={formatMode} onchange={setFormat} aria-label="color format">
+  <!-- LAYOUT LAW (final-check report): the VALUE ROW is the column's
+       width driver — the input lane is sized for the WORST-case
+       notation (26 mono chars "oklch(0.999 0.412 359.999)" + the
+       shell's own padding ⇒ min-w-[29ch]) and the Eye Dropper rides
+       its end as an icon-button. The pad and the hue bar span the
+       FULL column so every edge flushes — no ragged 200px/256px mix.
+       The format select takes its own compact row below. -->
+  <div class="flex items-center gap-1.5">
+    <Input
+      data-jx-color-picker-input
+      class="font-mono text-[13px] min-w-[29ch]"
+      bind:value={textDraft}
+      onchange={commitText}
+    />
+    {#if canPick}
+      <IconButton variant="outline" iconOnly text="Pick from screen" onclick={pickFromScreen}>
+        {#snippet icon()}
+          <!-- the pipette glyph (lucide pipette path, currentColor ink) -->
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m2 22 1-1h3l9-9" />
+            <path d="M3 21v-3l9-9" />
+            <path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z" />
+          </svg>
+        {/snippet}
+      </IconButton>
+    {/if}
+  </div>
+
+  <NativeSelect
+    data-jx-color-picker-format
+    class="text-xs"
+    value={formatMode}
+    onchange={setFormat}
+    aria-label="color format"
+  >
     <option value="hex">hex</option>
     <option value="hsl">hsl</option>
     <option value="oklch">oklch</option>
   </NativeSelect>
 
-  <!-- the value lane is sized for the WORST-case notation (26 mono
-       chars: "oklch(0.999 0.412 359.999)") + the shell's own padding — 13px mono ≈ 7.8px/char
-       ⇒ min 27ch never clips any format's canonical string -->
-  <Input
-    data-jx-color-picker-input
-    class="font-mono text-[13px] min-w-[29ch]"
-    bind:value={textDraft}
-    onchange={commitText}
-  />
-
   <!-- the shared preset palette (the embeddable half the Input picker
-       bridge also mounts); picking stays in the workshop — no close -->
-  <Swatches value={swatch} onpick={pickSwatch} />
-
-  {#if canPick}
-    <!-- PressButton takes no class prop — the wrapper owns the row width -->
-    <div class="jx-color-picker-pick flex justify-center w-full">
-      <PressButton variant="outline" onclick={pickFromScreen}>
-        Pick from screen
-      </PressButton>
-    </div>
-  {/if}
+       bridge also mounts); picking stays in the workshop — no close.
+       The grid is a fixed 8×22px track block — center it in the column -->
+  <div class="flex justify-center">
+    <Swatches value={swatch} onpick={pickSwatch} />
+  </div>
 </div>
