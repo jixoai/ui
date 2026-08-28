@@ -28,7 +28,7 @@ describe('lucideIconProvider', () => {
   it('serves every registered slot with a valid SvgAsset', async () => {
     const { ctx } = makeContext();
     const provider = await lucideIconProvider()(ctx);
-    expect(SLOT_NAMES.length).toBe(5);
+    expect(SLOT_NAMES.length).toBe(7);
     for (const slot of SLOT_NAMES) {
       const asset = provider.getIcon(slot);
       expect(asset, `slot "${slot}" must be served`).not.toBeNull();

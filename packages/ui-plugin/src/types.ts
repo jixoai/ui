@@ -16,6 +16,8 @@ export type IconSlot =
   | 'chevron'
   | 'pipette'
   | 'clear'
+  | 'mail'
+  | 'search'
   ;
 
 /** per-consumer capability — a slot may have multiple consumers with different techniques */
@@ -88,6 +90,28 @@ export const SLOT_REGISTRY: Readonly<Record<IconSlot, SlotDefinition>> = {
         technique: 'mask',
         browsers: 'all',
         notes: 'CSS mask on .jx-clear-glyph reading --jx-icon-clear',
+      },
+    ],
+  },
+  mail: {
+    slot: 'mail',
+    consumers: [
+      {
+        consumer: "jx-html-input[type=email] / jx-html-control-lane[type=email] background-image",
+        technique: 'background-image',
+        browsers: 'all',
+        notes: 'Envelope icon at inline-start',
+      },
+    ],
+  },
+  search: {
+    slot: 'search',
+    consumers: [
+      {
+        consumer: "jx-html-input[type=search] / jx-html-control-lane[type=search] background-image",
+        technique: 'background-image',
+        browsers: 'all',
+        notes: 'Magnifier icon at inline-start',
       },
     ],
   },

@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-28T11:51:10.503Z",
+  "generatedAt": "2026-08-28T11:55:24.768Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -90,8 +90,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "e6e3ac4ade164865d08ddd0e892e56d060299585259ca1fa40fdbd22fe2c29d4",
-          "mirrorSha": "e6e3ac4ade164865d08ddd0e892e56d060299585259ca1fa40fdbd22fe2c29d4"
+          "sourceSha": "dbb0594a3deff376ed4dad7e8e1e0d6fe0cfb7e9d4a9295f013ab8d0a0adf1d2",
+          "mirrorSha": "dbb0594a3deff376ed4dad7e8e1e0d6fe0cfb7e9d4a9295f013ab8d0a0adf1d2"
         }
       ]
     },

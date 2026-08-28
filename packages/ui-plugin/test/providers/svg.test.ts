@@ -71,7 +71,7 @@ describe('svgIconProvider', () => {
     const { ctx, loadSource } = makeContext(fullDir(dir));
     const provider: IconProvider = await svgIconProvider({ dir })(ctx);
 
-    expect(loadSource).toHaveBeenCalledTimes(5);
+    expect(loadSource).toHaveBeenCalledTimes(7);
     for (const slot of SLOT_NAMES) {
       expect(loadSource).toHaveBeenCalledWith(`${dir}/${slot}.svg`);
       expect(provider.getIcon(slot), `slot "${slot}"`).not.toBeNull();
@@ -83,7 +83,7 @@ describe('svgIconProvider', () => {
     const { ctx, watchFile } = makeContext(fullDir(dir));
     await svgIconProvider({ dir })(ctx);
 
-    expect(watchFile).toHaveBeenCalledTimes(5);
+    expect(watchFile).toHaveBeenCalledTimes(7);
     for (const slot of SLOT_NAMES) {
       expect(watchFile).toHaveBeenCalledWith(`${dir}/${slot}.svg`, expect.any(Function));
     }
@@ -105,7 +105,7 @@ describe('svgIconProvider', () => {
       './icons/chevron.svg': STROKE_SVG,
       './icons/calendar.svg': FILL_SVG,
     });
-    const provider = await svgIconProvider({ dir: './icons', slots: { chevron: 'chevron.svg', calendar: 'calendar.svg' } })(ctx);
+    const provider = await svgIconProvider({ dir: './icons', slots: { chevron: 'chevron.svg', calendar: 'calendar.svg', mail: 'mail.svg', search: 'search.svg' } })(ctx);
 
     expect(provider.getIcon('chevron')!.nature).toBe('stroke');
     expect(provider.getIcon('calendar')!.nature).toBe('fill');
@@ -131,7 +131,7 @@ describe('svgIconProvider', () => {
     for (const slot of ['calendar', 'clock', 'pipette', 'clear'] as const) {
       expect(provider.getIcon(slot), slot).toBeNull();
     }
-    expect(warnSpy).toHaveBeenCalledTimes(4);
+    expect(warnSpy).toHaveBeenCalledTimes(6);
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('./icons/calendar.svg'));
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('falls back to the next provider'));
   });

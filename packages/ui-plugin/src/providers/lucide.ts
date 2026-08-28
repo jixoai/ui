@@ -50,6 +50,14 @@ const LUCIDE_ICONS: Readonly<Record<IconSlot, string>> = {
   ),
   /** lucide `chevron-down` — the select dropdown arrow */
   chevron: lucideSvg('<path d="m6 9 6 6 6-6"/>'),
+  /** lucide `mail` — envelope for email inputs */
+  mail: lucideSvg(
+    '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+  ),
+  /** lucide `search` — magnifier for search inputs */
+  search: lucideSvg(
+    '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  ),
   /** lucide `pipette` — the color picker indicator */
   pipette: lucideSvg(
     '<path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/>',
