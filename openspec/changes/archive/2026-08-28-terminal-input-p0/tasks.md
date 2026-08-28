@@ -44,4 +44,4 @@
 
 ## Phase 5 — 收尾
 
-- [ ] rebase main 检查、verification.md、archive、push、清 worktree
+- [x] rebase main 检查（基线 d87207a 即 origin/main，法则无升级交集）、verification.md、archive、push、清 worktree（收尾动作自身）
