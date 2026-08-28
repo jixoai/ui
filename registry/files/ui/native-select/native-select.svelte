@@ -78,7 +78,7 @@
 
   const errorId = $derived(`${id}-error`);
   const outerDensity = getDensityContext();
-  const resolvedDensity: Density = $derived(resolveDensity(density, outerDensity));
+  const resolvedDensity = $derived(resolveDensity(density, outerDensity));
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : undefined);
   const invalidAttr = $derived(invalid ? 'true' : undefined);

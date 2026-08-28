@@ -131,7 +131,7 @@
   // form lifecycle: what jx-reset restores, and the form-disable mirror
   const initialValue = value;
   const outerDensity = getDensityContext();
-  const resolvedDensity: Density = $derived(resolveDensity(density, outerDensity));
+  const resolvedDensity = $derived(resolveDensity(density, outerDensity));
   let formDisabled = $state(false);
   const isDisabled = $derived(disabled || formDisabled);
 

@@ -12,7 +12,7 @@ import { resolveDensity } from '../src/lib/density.svelte';
 const empty = (() => {}) as never;
 
 describe('density adoption: menu roots', () => {
-  it('roots stamp an opinion; NavigationMenu without one rides ambient (chrome-density-tier law)', () => {
+  it('roots stamp an opinion; no opinion rides the ambient css scope (fleet law)', () => {
     const defaults = [
       render(DropdownMenu, { props: { id: 'default-menu', children: empty } }),
       render(Menubar, { props: { children: empty } }),
@@ -21,12 +21,14 @@ describe('density adoption: menu roots', () => {
       render(Popconfirm, { props: { title: 'Confirm', children: empty } }),
       render(Breadcrumb, { props: { children: empty } }),
     ];
-    // chrome-density-tier law (2026-08-26): NavigationMenu with NO
-    // density opinion stamps NOTHING — its subtree rides the ambient css
-    // scope (root default density, or a chrome band like the bezel's
-    // data-jx-chrome); the other roots still stamp their resolved default
+    // fleet law (2026-08-28, generalizing chrome-density-tier
+    // 2026-08-26): a root with NO density opinion stamps NOTHING —
+    // its subtree rides the ambient css scope (root default density,
+    // or a chrome band like the bezel's data-jx-chrome); a
+    // manufactured 'default' stamp would re-scope the element and
+    // cut ambient inheritance off
     expect(defaults.map(({ container }) => container.querySelector('[data-density]')?.getAttribute('data-density')))
-      .toEqual(['default', 'default', undefined, 'default', 'default', 'default']);
+      .toEqual([undefined, undefined, undefined, undefined, undefined, undefined]);
 
     const explicit = render(DropdownMenu, { props: { id: 'large-menu', density: 'lg', children: empty } });
     expect(explicit.container.querySelector('[data-density="lg"]')).toBeTruthy();
@@ -48,7 +50,8 @@ describe('density adoption: menu roots', () => {
     expect((['xs', 'sm', 'default', 'lg'] as const).map((density) => resolveDensity(density, inherited)))
       .toEqual(['xs', 'sm', 'default', 'lg']);
     expect(resolveDensity(undefined, inherited)).toBe('lg');
-    expect(resolveDensity(undefined, undefined)).toBe('default');
+    // no opinion anywhere → undefined (no stamp, ambient css scope)
+    expect(resolveDensity(undefined, undefined)).toBeUndefined();
   });
 });
 

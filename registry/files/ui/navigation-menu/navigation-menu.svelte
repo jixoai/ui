@@ -48,7 +48,7 @@
 
   /** the bar's context surface: state + behavior, never membership order */
   export interface NavigationMenuApi {
-    readonly density: import('$lib/density.svelte').Density;
+    readonly density: import('$lib/density.svelte').Density | undefined;
   /** the OPINION behind the resolution — undefined when the bar fell
       back to 'default' (triggers/panels stamp ONLY this, so a bar with
       no density opinion rides the ambient css scope — e.g. a chrome

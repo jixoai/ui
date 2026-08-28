@@ -114,7 +114,7 @@
   }: Props = $props();
 
   const inheritedDensity = getDensityContext();
-  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
 
   // form lifecycle: what jx-reset restores, and the form-disable mirror
   const initialValue = value;

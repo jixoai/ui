@@ -36,7 +36,8 @@ describe('chip root and variants', () => {
     expect(btn).toBeTruthy();
     expect(container.querySelector('a')).toBeNull();
     expect(btn.getAttribute('data-jx-chip')).toBe('tonal');
-    expect(btn.getAttribute('data-density')).toBe('default');
+    // no density opinion → no stamp (fleet law: rides ambient css scope)
+    expect(btn.getAttribute('data-density')).toBeNull();
     // geometry + micro-label voice ride the root
     expect(btn.className).toContain('inline-flex');
     expect(btn.className).toContain('font-nav');

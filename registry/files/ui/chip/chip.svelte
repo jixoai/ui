@@ -95,7 +95,7 @@
   }: Props = $props();
 
   const inheritedDensity = getDensityContext();
-  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
 
   // undefined resolves to the ripple() defaults — press-point ink is
   // the chip's resting attention; null opts out of every loop

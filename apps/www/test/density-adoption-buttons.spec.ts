@@ -8,16 +8,16 @@ import PaginationHost from './fixtures/pagination-host.svelte';
 describe('density adoption packet C', () => {
   it('stamps press and icon-button interactive roots with the resolved policy', () => {
     const press = render(PressButtonHost);
-    expect(press.container.querySelector('button')?.dataset.density).toBe('default');
+    expect(press.container.querySelector('button')?.dataset.density).toBeUndefined();
 
     const icon = render(IconButtonHost, { props: { iconOnly: true } });
-    expect(icon.container.querySelector('button')?.dataset.density).toBe('default');
+    expect(icon.container.querySelector('button')?.dataset.density).toBeUndefined();
   });
 
   it('keeps pagination link and edge semantics under the stamped root', () => {
     const { container } = render(PaginationHost);
     const nav = container.querySelector<HTMLElement>('nav[data-jx-pagination]');
-    expect(nav?.dataset.density).toBe('default');
+    expect(nav?.dataset.density).toBeUndefined();
     expect(container.querySelector('a[data-jx-page], button[data-jx-page]')).toBeTruthy();
     expect(container.querySelector('a[aria-current="page"]')).toBeTruthy();
     expect(container.querySelector('[data-jx-page-edge-off][aria-disabled="true"]')).toBeTruthy();

@@ -18,7 +18,6 @@
   export type ItemRuler = 'content-end' | 'media-content-end';
 
   export interface ItemGroupPolicy extends DensityContext {
-    readonly density: Density;
     readonly layout: ItemGroupLayout;
     readonly ruler: ItemRuler;
   }
@@ -29,7 +28,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
-  import { provideDensity, resolveDensity, getDensityContext, DEFAULT_DENSITY } from '$lib/density.svelte';
+  import { provideDensity, resolveDensity, getDensityContext } from '$lib/density.svelte';
   import './item.css';
 
   interface Props extends HTMLAttributes<HTMLElement> {
@@ -37,7 +36,7 @@
     mode?: ItemGroupMode;
     /** fixed 0.75rem inline margins — boolean only */
     inset?: boolean;
-    /** DENSITY: default for auto rows + the list rhythm (explicit ?? inherited ?? default) */
+    /** DENSITY opinion: omitted = ambient css scope, then 'default' */
     density?: Density;
     layout?: ItemGroupLayout;
     /** the shared ruler: content-end (media-less, default) | media-content-end */
@@ -74,7 +73,7 @@
   }: Props = $props();
 
   const outerDensity = getDensityContext();
-  const resolved = $derived(resolveDensity(density, outerDensity) ?? DEFAULT_DENSITY);
+  const resolved = $derived(resolveDensity(density, outerDensity));
   provideDensity(() => resolved);
 
   const labelId = $derived(`${id ?? autoId}-label`);

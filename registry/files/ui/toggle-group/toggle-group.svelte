@@ -107,7 +107,7 @@
   }
 
   const inheritedDensity = getDensityContext();
-  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
 
   const activeValues = $derived(
     type === 'single'

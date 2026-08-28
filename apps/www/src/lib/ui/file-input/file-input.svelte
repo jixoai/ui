@@ -129,7 +129,7 @@
   // Family-local geometry names are one-line aliases to the closed control contract.
   const densityUtilities = '[--jx-file-h:var(--jx-hit)] [--jx-file-thumb:var(--jx-icon)] [--jx-file-icon:var(--jx-icon)] [--jx-file-text:var(--jx-text)] [--jx-file-zone-pad:var(--jx-inset)] [--jx-file-zone-glyph:var(--jx-icon)]';
   const outerDensity = getDensityContext();
-  const resolvedDensity: Density = $derived(resolveDensity(density, outerDensity));
+  const resolvedDensity = $derived(resolveDensity(density, outerDensity));
 
   const errorId = $derived(`${id}-error`);
   const listId = $derived(`${id}-list`);

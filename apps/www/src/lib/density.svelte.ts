@@ -5,8 +5,14 @@
  * The Svelte channel of the two-channel density contract: policy
  * resolution ONLY — no pixels, no style writes, no cn(). Providers
  * wrap this once (getter-backed, one stable object); consumers
- * resolve `explicit ?? inherited ?? 'default'` and stamp
- * `data-density` (the css scope channel lives in the theme sheet).
+ * resolve their OPINION (`explicit ?? inherited ?? local fallback`)
+ * and stamp `data-density` ONLY when one exists — no opinion stamps
+ * NOTHING so the css scope channel (ambient [data-density]
+ * ancestors, the root default) keeps flowing through the subtree
+ * (fleet law 2026-08-28, generalizing the chrome-density-tier nav
+ * ruling: a manufactured 'default' stamp re-scopes the element and
+ * cuts off ambient inheritance). The css scope channel lives in the
+ * theme sheet.
  */
 
 import { getContext, setContext } from 'svelte';
@@ -29,11 +35,13 @@ export const DENSITY_KEY = Symbol('jx-density');
 export function resolveDensity(
   explicit: Density | undefined,
   inherited: DensityContext | undefined,
-  fallback: Density = DEFAULT_DENSITY,
-): Density {
-  // explicit -> inherited -> LOCAL fallback. The fallback never
-  // shadows inherited context (design-language: a Table defaults sm
-  // only when NO parent provider exists)
+  fallback?: Density,
+): Density | undefined {
+  // explicit -> inherited -> optional LOCAL fallback. No opinion
+  // resolves to undefined: the consumer stamps nothing and the
+  // ambient css scope channel flows through (a local fallback, when
+  // given, is a real opinion — e.g. Table defaults sm only when NO
+  // parent provider exists)
   return explicit ?? inherited?.density ?? fallback;
 }
 

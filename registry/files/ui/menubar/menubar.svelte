@@ -50,7 +50,7 @@
 
   /** the bar's context surface: state + behavior, never membership order */
   export interface MenubarApi {
-    readonly density: import('$lib/density.svelte').Density;
+    readonly density: import('$lib/density.svelte').Density | undefined;
     /** first-wins registry for the glide/toggle; key = `${itemId}-panel` */
     register(panelId: string, anchorName: string, handles: MenubarPanelHandles): void;
     /** identity-guarded: only the winning registrant can remove itself */

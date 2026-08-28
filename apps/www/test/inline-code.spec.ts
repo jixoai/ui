@@ -30,7 +30,7 @@ describe('InlineCode', () => {
     });
     const code = container.querySelector('code[data-jx-inline-code]');
     expect(code).not.toBeNull();
-    expect(code!.getAttribute('data-density')).toBe('default');
+    expect(code!.getAttribute('data-density')).toBeNull();
     expect(code!.textContent).toBe('--jx-tonal');
     // plain path: no grammar ever loads, no span ever mounts
     expect(code!.querySelector('span')).toBeNull();

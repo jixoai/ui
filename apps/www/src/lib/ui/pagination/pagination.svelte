@@ -46,7 +46,7 @@
   let { density, 'data-density': _callerDensity, label = 'Pagination', class: className = '', children, ...rest }: Props = $props();
 
   const inheritedDensity = getDensityContext();
-  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
 </script>
 
 <nav data-jx-pagination="" data-density={resolvedDensity} class={cn('block', className)} aria-label={label} {...rest}>

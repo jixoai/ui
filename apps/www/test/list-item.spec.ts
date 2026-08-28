@@ -42,8 +42,9 @@ describe('Item family — structure the matrix keys off', () => {
     // standalone auto → its own surface
     expect(div.getAttribute('data-variant')).toBe('auto');
     expect(div.getAttribute('data-item-chrome')).toBe('surface');
-    // density stamps (the kernel contract); data-size authority is gone
-    expect(div.getAttribute('data-density')).toBe('default');
+    // density stamps (opinion-only law): no density prop → no stamp,
+    // the row rides the ambient css scope; data-size authority is gone
+    expect(div.getAttribute('data-density')).toBeNull();
     expect(div.getAttribute('data-layout')).toBe('standard');
 
     const { container: c2 } = render(Item, {
@@ -86,9 +87,11 @@ describe('Item family — structure the matrix keys off', () => {
     // data-dividers lives ONLY on the ul (adjacency owner)
     expect(list.getAttribute('data-dividers')).toBe('auto');
     expect(section.getAttribute('data-dividers')).toBeNull();
-    // the group is the density provider + owns the explicit ruler
-    expect(section.getAttribute('data-density')).toBe('default');
-    expect(list.getAttribute('data-density')).toBe('default');
+    // the group is the density provider + owns the explicit ruler;
+    // with no density opinion it stamps NOTHING (fleet law) — rows
+    // and frame ride the ambient css scope together
+    expect(section.getAttribute('data-density')).toBeNull();
+    expect(list.getAttribute('data-density')).toBeNull();
     expect(list.getAttribute('data-ruler')).toBe('content-end');
     // rows are li wrappers keeping anchor semantics inside
     const rows = list.querySelectorAll(':scope > [data-slot="item-row"]');

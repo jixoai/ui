@@ -68,7 +68,7 @@
   }: Props = $props();
 
   const inheritedDensity = getDensityContext();
-  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
 
   const autoId = $props.id();
   const anchorName = $derived(`--jx-fab-${autoId.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);

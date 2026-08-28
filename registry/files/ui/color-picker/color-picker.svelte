@@ -112,7 +112,7 @@
   }: Props = $props();
 
   const inheritedDensity = getDensityContext();
-  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
 
   const panelId = $derived(`${id}-panel`);
   // CSS custom-ident-safe anchor name (select.svelte law)

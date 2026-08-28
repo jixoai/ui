@@ -98,11 +98,12 @@ describe('terminal-header — the chrome band boundary', () => {
     // no opinion → no stamp: the nav subtree rides the ambient css scope
     const nav = rendered.container.querySelector('nav[data-jx-navmenu]') as HTMLElement;
     expect(nav.hasAttribute('data-density')).toBe(false);
-    // panels are CONTROL SURFACES: they stamp the resolved density at
-    // their root, so the 44px touch floor holds for everything composed
-    // inside them even though they hang DOM-wise inside the band
+    // panels are CONTROL SURFACES but follow the same fleet law: with
+    // no opinion from the bar they stamp nothing and ride the ambient
+    // css scope (the band's, here) — the 44px touch floor holds via
+    // the ambient scope, not via a manufactured stamp
     const panel = rendered.container.querySelector('.f-panel') as HTMLElement;
-    expect(panel.getAttribute('data-density')).toBe('default');
+    expect(panel.getAttribute('data-density')).toBeNull();
     expect(panel.closest('div[data-jx-chrome]')).toBe(row);
     // the drawer sits OUTSIDE the band entirely (a sibling below the row)
     const drawer = rendered.container.querySelector('.f-drawer') as HTMLElement;

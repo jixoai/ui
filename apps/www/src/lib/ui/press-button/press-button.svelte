@@ -210,7 +210,7 @@
   }: Props = $props();
 
   const inheritedDensity = getDensityContext();
-  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
 
   // the square swaps ONLY geometry: one band (42px, the text button's
   // own height) with the glyph centered — paint, physics and effects

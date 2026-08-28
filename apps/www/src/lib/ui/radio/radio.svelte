@@ -69,7 +69,7 @@
   }: Props = $props();
 
   const inheritedDensity = getDensityContext();
-  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
 
   const errorId = $derived(`${id}-error`);
   const invalid = $derived(error != null && error !== '');

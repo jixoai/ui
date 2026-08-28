@@ -60,7 +60,7 @@
   const chrome = $derived(
     variant === 'auto' ? (policy ? 'none' : 'surface') : variant === 'default' ? 'none' : variant,
   );
-  const resolvedDensity: Density = $derived(resolveDensity(density, outerDensity));
+  const resolvedDensity = $derived(resolveDensity(density, outerDensity));
   const resolvedLayout = $derived(layout === 'auto' ? (policy?.layout ?? 'standard') : layout);
   const klass = $derived(cn('jx-item', className));
 </script>

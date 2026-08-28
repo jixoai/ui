@@ -58,7 +58,7 @@
   let { density, 'data-density': _callerDensity, label = 'on this page', offset = 96, class: className = '', children, ...rest }: Props = $props();
 
   const inheritedDensity = getDensityContext();
-  const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity));
+  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
 
   let navEl = $state<HTMLElement | undefined>();
   let activeId = $state('');

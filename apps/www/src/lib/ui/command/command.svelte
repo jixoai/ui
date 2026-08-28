@@ -96,7 +96,7 @@
   /** context surface the family shares — STATE + BEHAVIOR, never
    *  membership order (the family context contract) */
   export interface CommandApi {
-    readonly density: import('$lib/density.svelte').Density;
+    readonly density: import('$lib/density.svelte').Density | undefined;
     readonly label: string;
     readonly placeholder: string;
     /** the listbox id — the input's aria-controls target */

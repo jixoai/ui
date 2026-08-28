@@ -69,7 +69,7 @@
 
   const slots = $derived(Math.max(1, Math.min(12, Math.trunc(length))));
   const outerDensity = getDensityContext();
-  const resolvedDensity: Density = $derived(resolveDensity(density, outerDensity));
+  const resolvedDensity = $derived(resolveDensity(density, outerDensity));
   /** per-slot chars, source of truth; value derives from the join */
   // eager from props so SSR paints all slots (no blank first frame)
   let chars = $state<string[]>(

@@ -18,16 +18,22 @@ const specDir = resolve(fileURLToPath(import.meta.url), '..');
 const moduleSource = readFileSync(resolve(specDir, '../src/lib/density.svelte.ts'), 'utf8');
 
 describe('density context — the policy channel', () => {
-  it('resolution law: explicit ?? inherited ?? default', () => {
+  it('resolution law: explicit ?? inherited ?? optional local fallback; no opinion = undefined', () => {
     const inherited = { density: 'sm' as const };
     expect(resolveDensity('lg', inherited)).toBe('lg');
     expect(resolveDensity(undefined, inherited)).toBe('sm');
-    expect(resolveDensity(undefined, undefined)).toBe(DEFAULT_DENSITY);
+    // no opinion resolves to UNDEFINED — the consumer stamps nothing
+    // so the ambient css scope channel flows through (fleet law
+    // 2026-08-28, generalizing the chrome-density-tier nav ruling)
+    expect(resolveDensity(undefined, undefined)).toBeUndefined();
+    // a local fallback is a REAL opinion (Table defaults sm)
+    expect(resolveDensity(undefined, undefined, 'sm')).toBe('sm');
+    expect(resolveDensity(undefined, undefined)).not.toBe(DEFAULT_DENSITY);
   });
 
   it('an undefined opinion flows through exactly like no context (chrome-density-tier r3)', () => {
     const noOpinion = { density: undefined } as const;
-    expect(resolveDensity(undefined, noOpinion)).toBe(DEFAULT_DENSITY);
+    expect(resolveDensity(undefined, noOpinion)).toBeUndefined();
     expect(resolveDensity('lg', noOpinion)).toBe('lg');
   });
 
