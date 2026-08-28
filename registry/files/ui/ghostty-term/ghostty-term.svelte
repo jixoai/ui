@@ -17,8 +17,12 @@
        default paper/ink resolve from jixoai tokens via color-utils).
     3. geometry — density-derived metrics (--jx-text/--jx-line kernels),
        auto (ResizeObserver) vs explicit cols/rows, DPR-aware canvas.
-    4. input bridge — keydown/paste/wheel translated by the binding
-       (keyEncode / paste.isSafe+encode / scrollViewport) into onData.
+    4. input bridge — keydown/paste/wheel/IME/mouse translated by the
+       binding (keyEncode / paste gate / mouseEncode / scrollViewport)
+       into onData, plus the terminal-input-p0 surfaces riding the same
+       bridge: IME composition (hidden textarea, design D2), mouse-
+       reporting routing with the Shift bypass (design D3), and the
+       OSC 52 clipboard security model + onTitleChange (design D4).
     5. handle API — write/reset/resizeTo/snapshot exports.
 
   Owner original demand: 2026-08-28 "ghostty-term / Batch D (design.md
@@ -31,7 +35,11 @@
   upstream render state under-reports dirty rows on scroll-down
   (probed: scrollViewport(+3) after a clean pass yields 0 dirty rows).
   Cursor (2026-08-28) and text selection (2026-08-28, gesture-driven)
-  have since landed in the binding face.
+  have since landed in the binding face. Input-p0 bounds: wheel reports
+  carry no release (X10/SGR convention), a reported drag that leaves the
+  surface is dropped (no pointer capture), OSC 52 clear-clipboard is
+  explicitly not implemented, and the preedit overlay carries no width
+  judgment source (canvas clip is the only bound — the V1 law).
 -->
 <script lang="ts">
   import { onDestroy, onMount, untrack } from 'svelte';
@@ -39,7 +47,7 @@
   import { cn } from '$lib/utils';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   // type-only: erased at compile time.
-  import type { RowSnapshot } from '$lib/ghostty-vt';
+  import type { GhosttyOsc52Request, RowSnapshot } from '$lib/ghostty-vt';
   // VALUE import: the xterm-convention Terminal facade (owner directive
   // 2026-08-28). '$lib/ghostty-vt' is resolvable in mirrored contexts and
   // consumer installs (vt-deps itself imports it); only the WASM
@@ -142,6 +150,35 @@
   clipboard?: boolean | { copy?: boolean; paste?: boolean };
 
   /**
+   * OSC 52 clipboard-WRITE security model (terminal-input-p0 design
+   * D4). Default: on with a 1 MiB decoded cap — pty-driven set
+   * requests are base64-decoded and written to navigator.clipboard
+   * only under the executable cap pair ①③ (encoded-before-decode /
+   * decoded double-check; cap ② — the observer buffer — lives in the
+   * binding). `false` disables writes entirely; `{ maxSize }` tunes
+   * the cap. maxSize must be a finite positive number of bytes —
+   * anything else throws a developer error at instantiation (never a
+   * silent fallback).
+   */
+  clipboardWrite?: boolean | { maxSize?: number };
+
+  /**
+   * OSC 52 clipboard READ (query replies). Default: **false** — a pty
+   * asking for the clipboard gets no answer until the consumer opts
+   * in (the xterm security model: writes allowed, reads explicit).
+   * When true, queries read navigator.clipboard and reply through the
+   * onData INPUT channel (never write/vtWrite — design D4), capped ④:
+   * an oversized reply is answered with the empty sequence + warn.
+   */
+  clipboardReadFrom?: boolean;
+
+  /**
+   * Terminal title changes (OSC 0/2 observed on the pty stream) —
+   * hook the host window chrome here (vim/tmux renames land live).
+   */
+  onTitleChange?: (title: string) => void;
+
+  /**
    * Cursor rendering (owner request 2026-08-28). Default: on, style and
    * blink follow the APPLICATION's choices (DECSCUSR via the render
    * state — the fake shell and real ptys set it). Override pins style
@@ -157,6 +194,18 @@
    * (mouse events fall through untouched).
    */
   selection?: boolean;
+
+  /**
+   * Mouse-reporting routing (terminal-input-p0 design D3). Default:
+   * on — when the APPLICATION has enabled mouse tracking
+   * (DECSET ?9/?1000-?1003, observed live via the facade), mouse
+   * presses/motions/releases/wheel are encoded by the wasm encoder
+   * (mode + format follow the pty) and emitted on onData; holding
+   * Shift bypasses to the LOCAL behavior (selection/scroll — the
+   * xterm/ghostty arbitration). `false` forces local behavior even
+   * under active tracking: identical to the pre-p0 component.
+   */
+  mouse?: boolean;
 
   /** Fires when the auto-mode grid derivation changes. */
     onResize?: (detail: GhosttyTermResizeDetail) => void;
@@ -180,13 +229,33 @@
     density,
     cursor = true,
     selection = true,
+    mouse = true,
     fontFamily,
     onKeyDown,
     clipboard = true,
+    clipboardWrite = true,
+    clipboardReadFrom = false,
+    onTitleChange,
     class: className = '',
     children,
     ...rest
   }: Props = $props();
+
+  // ---- frozen-prop validation (design D4) ---------------------------------
+  // An invalid clipboardWrite.maxSize is a DEVELOPER error: validated
+  // once at instantiation (late prop mutations are not re-validated —
+  // fix the call site). Legal domain: finite positive byte counts.
+  // (state_referenced_locally is deliberate here: this IS the one-shot
+  // initial-value check.)
+  // svelte-ignore state_referenced_locally
+  if (typeof clipboardWrite === 'object' && clipboardWrite !== null) {
+    const declared = clipboardWrite.maxSize;
+    if (declared !== undefined && (!Number.isFinite(declared) || declared <= 0)) {
+      throw new Error(
+        `[ghostty-term] clipboardWrite.maxSize must be a finite positive number of bytes (e.g. 1048576); got ${String(declared)}`,
+      );
+    }
+  }
 
   // ---- constants ----------------------------------------------------------
 
@@ -209,6 +278,29 @@
     'Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'NumLock', 'ScrollLock',
     'AltGraph', 'Fn', 'FnLock', 'Hyper', 'Super', 'OS', 'Dead', 'Compose',
   ]);
+  /** OSC 52 decoded-byte default cap (design D4: decoupled from wasm's
+   * Kitty-5522 OPT limit — this repo's own law, 1 MiB). */
+  const OSC52_DEFAULT_MAX_BYTES = 1024 * 1024;
+  const B64_ALPHABET =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+  /** UTF-8 text → base64 (the OSC 52 query-reply payload; dependency-free
+   *  so the component never reaches into the binding's private helpers). */
+  const utf8ToBase64 = (text: string): string => {
+    const bytes = new TextEncoder().encode(text);
+    let out = '';
+    for (let i = 0; i < bytes.length; i += 3) {
+      const b0 = bytes[i]!;
+      const b1 = i + 1 < bytes.length ? bytes[i + 1]! : 0;
+      const b2 = i + 2 < bytes.length ? bytes[i + 2]! : 0;
+      const trip = (b0 << 16) | (b1 << 8) | b2;
+      out += B64_ALPHABET[(trip >> 18) & 63];
+      out += B64_ALPHABET[(trip >> 12) & 63];
+      out += i + 1 < bytes.length ? B64_ALPHABET[(trip >> 6) & 63] : '=';
+      out += i + 2 < bytes.length ? B64_ALPHABET[trip & 63] : '=';
+    }
+    return out;
+  };
 
   // ---- reactive state -----------------------------------------------------
 
@@ -252,6 +344,8 @@
   let vt: Terminal | null = null;
   /** facade onData subscription → props.onData (installed once at boot). */
   let dataSub: { dispose(): void } | null = null;
+  /** input-p0 observer subscriptions (tracking flips, OSC 52, title). */
+  let observerSubs: { dispose(): void }[] = [];
   let ctx: CanvasRenderingContext2D | null = null;
   let probeEl: HTMLDivElement | null = null;
   let cell = { w: 8, h: 20 };
@@ -396,6 +490,33 @@
     }
   };
 
+  /**
+   * Preedit overlay (design D2): the composition string draws to the
+   * RIGHT of the cursor as one underlined run, truncated at the grid
+   * edge by the canvas clip — the ONLY width bound (no wcwidth/ghostty
+   * probing: the V1 law). The cursor never advances; the pty never sees
+   * the intermediate string (compositionend commits it through the
+   * paste gate).
+   */
+  const paintPreedit = (): void => {
+    if (ctx === null || vt === null || preedit === '') return;
+    const c = vt.readCursor();
+    if (c === null) return;
+    const x = c.x * cell.w;
+    const y = c.y * cell.h;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 0, grid.cols * cell.w, grid.rows * cell.h);
+    ctx.clip();
+    ctx.font = fontString(false, false, resolvedFontSize);
+    ctx.fillStyle = shell.fg;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(preedit, x, y + cell.h / 2);
+    const advance = ctx.measureText(preedit).width;
+    ctx.fillRect(x, y + cell.h - 2, advance, 2); // underline style
+    ctx.restore();
+  };
+
   /** Blink loop: only while the surface is the keyboard surface, the app
    *  asked for blinking, motion is allowed, and the cursor is enabled. */
   $effect(() => {
@@ -424,6 +545,68 @@
     }, 530);
     return teardown;
   });
+
+  // ---- IME composition (terminal-input-p0 design D2) -----------------------
+  // Browsers only activate text composition on EDITABLE elements (the
+  // reason xterm/ace/monaco all keep a hidden textarea — a div surface
+  // goes mute in real browsers). The root docks focus into a sr-only
+  // textarea whose keydown still BUBBLES to the root handler, so the
+  // keyboard path is unchanged; only the composition trio is textarea-
+  // owned. Pointer events stay off the field so the mouse bridge never
+  // sees it as a target.
+
+  let imeEl = $state<HTMLTextAreaElement | null>(null);
+  /** composition in flight (compositionstart .. compositionend). */
+  let composing = false;
+  /** live preedit string — never touches the pty; end commits via the gate. */
+  let preedit = '';
+
+  /** root focus docks the IME surface (never mid-composition — ripping
+   *  focus would cancel the session the user is in). */
+  const dockIme = (): void => {
+    if (imeEl === null || composing) return;
+    if (document.activeElement === imeEl) return;
+    imeEl.focus();
+  };
+
+  const handleRootFocus = (): void => {
+    focused = true;
+    dockIme();
+  };
+
+  /** focus may be shuttling root ↔ the IME textarea — the surface only
+   *  reports blur when focus actually leaves the terminal. */
+  const handleFocusOut = (): void => {
+    if (rootEl === null || !rootEl.contains(document.activeElement)) focused = false;
+  };
+
+  const setPreedit = (text: string): void => {
+    if (preedit === text) return;
+    preedit = text;
+    scheduleFrame(); // the overlay repaints with the next cursor paint
+  };
+
+  const handleCompositionStart = (): void => {
+    composing = true;
+  };
+
+  const handleCompositionUpdate = (event: CompositionEvent): void => {
+    setPreedit(event.data ?? '');
+  };
+
+  const handleCompositionEnd = (event: CompositionEvent): void => {
+    composing = false;
+    setPreedit('');
+    if (imeEl !== null) imeEl.value = '';
+    const committed = event.data ?? '';
+    if (committed !== '' && vt !== null) vt.paste(committed); // paste gate
+  };
+
+  /** keys that land in the textarea outside composition (default actions
+   *  of un-consumed keydowns) never accumulate — the field stays pristine. */
+  const handleImeInput = (): void => {
+    if (!composing && imeEl !== null) imeEl.value = '';
+  };
 
   // ---- render pipeline ----------------------------------------------------
 
@@ -537,6 +720,7 @@
     if (vt === null) return;
     for (const row of vt.dirtyRows()) paintRow(row);
     paintCursor();
+    paintPreedit();
   };
 
   /** Full repaint from the row cache (theme change / font swap / reset). */
@@ -549,6 +733,7 @@
       if (cached !== undefined) paintRow(cached);
     }
     paintCursor();
+    paintPreedit();
   };
 
   // ---- geometry -----------------------------------------------------------
@@ -676,8 +861,73 @@
     }
   };
 
+  // ---- mouse-reporting routing (terminal-input-p0 design D3) ---------------
+  // Event order (frozen): mousedown / mousemove(pressed) / mouseup / wheel →
+  // !mouse || shiftKey || !trackingActive → LOCAL (selection/scroll, the
+  // pre-p0 behavior) — else mouseEncode → onData (the facade replays).
+
+  /** live tracking state (MOUSE_TRACKING bool; seeded after boot, then
+   *  flip-driven through the facade registry). */
+  let mouseTracking = false;
+  /** DOM button (0/1/2) of the in-flight REPORTED press; -1 = none. */
+  let mouseButton = -1;
+
+  const domButtonName = (domButton: number): 'left' | 'middle' | 'right' | undefined =>
+    domButton === 0 ? 'left' : domButton === 1 ? 'middle' : domButton === 2 ? 'right' : undefined;
+
+  /** true when the event routes to the pty encoder (the design D3 gate). */
+  const reportMouse = (event: MouseEvent): boolean =>
+    mouse && !event.shiftKey && mouseTracking;
+
+  /**
+   * Encode one mouse event — pixel coordinates (offsetX/Y are the
+   * terminal-surface px; the canvas is inset-0 in the root) plus the
+   * live cellSize, which the Batch A contract made REQUIRED for every
+   * format (without SIZE every position reads out-of-viewport). The
+   * facade replays non-empty bytes on onData (the handleKey mirror) —
+   * the component never double-sends.
+   */
+  const encodeMouse = (
+    action: 'press' | 'release' | 'motion',
+    event: MouseEvent,
+    domButton: number,
+    motionBetween = false,
+  ): void => {
+    if (vt === null) return;
+    const button = domButtonName(domButton);
+    vt.mouseEncode(
+      {
+        action,
+        x: event.offsetX || 0,
+        y: event.offsetY || 0,
+        mods: {
+          shift: event.shiftKey,
+          ctrl: event.ctrlKey,
+          alt: event.altKey,
+          meta: event.metaKey,
+        },
+        ...(button !== undefined ? { button } : {}),
+        ...(motionBetween ? { motionBetween: true } : {}),
+      },
+      { w: cell.w, h: cell.h },
+    );
+  };
+
   const handleMouseDown = (event: MouseEvent): void => {
-    if (!selection || vt === null || phase !== 'ready' || event.button !== 0) return;
+    if (vt === null || phase !== 'ready') return;
+    if (reportMouse(event) && event.button <= 2) {
+      // the APPLICATION owns the mouse: report the press, keep the
+      // keyboard surface focused, never seed a selection gesture
+      // (reporting and selection are mutually exclusive — Shift is the
+      // only bypass into the local path)
+      event.preventDefault();
+      rootEl?.focus();
+      mouseButton = event.button;
+      encodeMouse('press', event, event.button);
+      return;
+    }
+    mouseButton = -1;
+    if (!selection || event.button !== 0) return;
     // keep native selection AND the focus loss preventDefault would cause
     event.preventDefault();
     rootEl?.focus();
@@ -693,7 +943,24 @@
   };
 
   const handleMouseMove = (event: MouseEvent): void => {
-    if (!selection || !selPressed || vt === null) return;
+    if (vt === null || phase !== 'ready') return;
+    if (mouseButton >= 0) {
+      // reported drag: motion with the HELD button; motionBetween keeps
+      // out-of-viewport drags reporting (the strict ANY_BUTTON_PRESSED
+      // mapping — Batch A contract: it is never auto-set)
+      event.preventDefault();
+      encodeMouse('motion', event, mouseButton, true);
+      return;
+    }
+    if (reportMouse(event) && event.buttons === 0) {
+      // hover motion is offered to the encoder BUTTON-LESS (no
+      // motionBetween): ?1003 any-event tracking reports it, stricter
+      // modes drop it — mode differences stay absorbed inside the
+      // encoder (setopt_from_terminal), the host only routes
+      encodeMouse('motion', event, -1);
+      return;
+    }
+    if (!selection || !selPressed) return;
     event.preventDefault(); // no native text selection while dragging
     const c = cellFromEvent(event);
     vt.core.selection.events.drag(c.x, c.y);
@@ -701,6 +968,13 @@
   };
 
   const handleMouseUp = (event: MouseEvent): void => {
+    if (mouseButton >= 0 && vt !== null) {
+      const domButton = mouseButton;
+      mouseButton = -1;
+      encodeMouse('release', event, domButton);
+      return;
+    }
+    mouseButton = -1;
     if (!selPressed || vt === null) return;
     selPressed = false;
     const c = cellFromEvent(event);
@@ -711,6 +985,10 @@
   };
 
   const handleMouseLeave = (): void => {
+    // a reported drag that leaves the surface is dropped (V1 has no
+    // pointer capture); the app sees the motion stream stop. Local
+    // gestures end at the last tracked cell, as before.
+    mouseButton = -1;
     if (!selPressed || vt === null) return;
     selPressed = false;
     vt.core.selection.events.release(selLastCell.x, selLastCell.y);
@@ -730,6 +1008,14 @@
     // the default chain never runs (custom keymaps / IME / conflicts)
     if (onKeyDown?.(event) === true) {
       event.preventDefault();
+      return;
+    }
+    // IME composition owns the keyboard (design D1/D2): no clipboard
+    // layer, no keyEncode — only the raw layer above stays in the chain.
+    // Escape cancels the local preedit (the IME itself usually already
+    // did; the component only clears its state).
+    if (composing || event.isComposing === true) {
+      if (event.key === 'Escape') setPreedit('');
       return;
     }
     const plain = !event.shiftKey && !event.altKey;
@@ -796,6 +1082,102 @@
     vt.paste(text);
   };
 
+  // ---- OSC 52 clipboard security model (terminal-input-p0 design D4) -------
+  // The executable cap quartet: ① encoded-before-decode, ③ decoded
+  // double-check, ④ query-reply cap live HERE; ② (the observer buffer)
+  // lives in the binding. Every rejection is a named warn + drop, never
+  // a throw.
+
+  /**
+   * pty INPUT bytes out — the ONE bridge every input path shares.
+   * keyEncode/paste/mouseEncode bytes arrive as facade onData latin1
+   * strings and are rebuilt to bytes here; OSC 52 query replies join
+   * the same channel (they are pty INPUT, exactly like keyEncode bytes
+   * — the write-priority law forbids write/vtWrite with a vengeance:
+   * an injected reply would be re-ingested by the observer and never
+   * reach the program).
+   */
+  const emitPtyBytes = (bytes: Uint8Array): void => {
+    onData?.(bytes);
+  };
+
+  const clipboardCap = (): { write: boolean; maxSize: number } =>
+    clipboardWrite === false
+      ? { write: false, maxSize: OSC52_DEFAULT_MAX_BYTES }
+      : {
+          write: true,
+          maxSize:
+            typeof clipboardWrite === 'object' && clipboardWrite !== null
+              ? clipboardWrite.maxSize ?? OSC52_DEFAULT_MAX_BYTES
+              : OSC52_DEFAULT_MAX_BYTES,
+        };
+
+  const warnOsc52 = (reason: string): void => {
+    console.warn(`[ghostty-term] OSC 52 ${reason}`);
+  };
+
+  const handleOsc52 = (req: GhosttyOsc52Request): void => {
+    if (req.selector !== 'c' && req.selector !== '') return; // system clipboard only
+    const { write: writeOn, maxSize } = clipboardCap();
+    const encodedCap = Math.ceil(maxSize / 3) * 4; // cap ① threshold
+    if (req.kind === 'set') {
+      if (!writeOn) return;
+      const payload = req.payloadBase64 ?? '';
+      if (payload === '') return; // clear-clipboard: V1 explicitly not done
+      if (payload.length > encodedCap) {
+        warnOsc52(
+          `set payload of ${payload.length} chars exceeds the encoded cap of ${encodedCap} — dropped before decode`,
+        );
+        return;
+      }
+      let bin: string;
+      try {
+        bin = atob(payload);
+      } catch {
+        warnOsc52('set payload is not valid base64 — dropped');
+        return;
+      }
+      if (bin.length > maxSize) {
+        warnOsc52(`decoded payload of ${bin.length} bytes exceeds maxSize of ${maxSize} — dropped`);
+        return;
+      }
+      const text = new TextDecoder().decode(Uint8Array.from(bin, (ch) => ch.charCodeAt(0) & 0xff));
+      try {
+        navigator.clipboard?.writeText(text)?.catch(() => warnOsc52('clipboard write failed'));
+      } catch {
+        warnOsc52('clipboard unavailable');
+      }
+      return;
+    }
+    // query: silent by default — reads are opt-in (the xterm model)
+    if (!clipboardReadFrom) return;
+    let read: Promise<string> | undefined;
+    try {
+      read = navigator.clipboard?.readText();
+    } catch {
+      warnOsc52('clipboard unavailable — query not answered');
+      return;
+    }
+    if (read === undefined) {
+      warnOsc52('clipboard unavailable — query not answered');
+      return;
+    }
+    void read
+      .then((text) => {
+        const b64 = utf8ToBase64(text);
+        if (b64.length > encodedCap) {
+          // cap ④: refuse to ship an oversized reply, answer empty
+          warnOsc52(
+            `query reply of ${b64.length} chars exceeds the encoded cap of ${encodedCap} — replying with the empty sequence`,
+          );
+          emitPtyBytes(new TextEncoder().encode('\x1b]52;c;\x07'));
+          return;
+        }
+        emitPtyBytes(new TextEncoder().encode(`\x1b]52;c;${b64}\x07`));
+      })
+      .catch(() => warnOsc52('clipboard read failed — query not answered'));
+  };
+
   // wheel needs a non-passive listener (preventDefault keeps the page from
   // scrolling while the viewport scrolls) — Svelte's attribute listeners
   // cannot guarantee that, so it is attached imperatively.
@@ -805,6 +1187,35 @@
     const onWheel = (event: WheelEvent): void => {
       if (vt === null) return;
       event.preventDefault();
+      if (reportMouse(event)) {
+        // wheel reports as PRESS events on the four/five buttons (the
+        // X10/SGR convention: no wheel release); one sequence per line,
+        // deltaY < 0 → four (up). The magnitude cap mirrors the local
+        // path's trackpad-inertia bound.
+        const magnitude = Math.min(
+          Math.max(1, Math.round(Math.abs(event.deltaY) / cell.h)),
+          grid.rows * 3,
+        );
+        const button = event.deltaY < 0 ? 'four' : 'five';
+        for (let i = 0; i < magnitude; i++) {
+          vt.mouseEncode(
+            {
+              action: 'press',
+              button,
+              x: event.offsetX || 0,
+              y: event.offsetY || 0,
+              mods: {
+                shift: event.shiftKey,
+                ctrl: event.ctrlKey,
+                alt: event.altKey,
+                meta: event.metaKey,
+              },
+            },
+            { w: cell.w, h: cell.h },
+          );
+        }
+        return;
+      }
       // cap per-event magnitude: trackpad inertia can emit absurd deltas
       // that once desynced the heuristic tracker (owner report 2026-08-28:
       // fast flicks jumped the viewport to the top of scrollback)
@@ -868,8 +1279,21 @@
         // single bridge: the facade's onData carries pty bytes as a latin1
         // STRING; rebuild the exact bytes the consumer contract promises
         dataSub = vt.onData((str) => {
-          onData?.(Uint8Array.from(str, (ch) => ch.charCodeAt(0) & 0xff));
+          emitPtyBytes(Uint8Array.from(str, (ch) => ch.charCodeAt(0) & 0xff));
         });
+        // input-p0 observers (design D3/D4): seed the tracking state from
+        // the live terminal, then ride the flip registries; OSC 52 runs
+        // the cap quartet; title changes pass straight through
+        mouseTracking = vt.core.readMouseTracking();
+        observerSubs.push(
+          vt.onMouseTrackingChange((active) => {
+            mouseTracking = active;
+          }),
+          vt.onOsc52((req) => handleOsc52(req)),
+          vt.onTitleChange((title) => {
+            onTitleChange?.(title);
+          }),
+        );
         ctx = canvasEl?.getContext('2d') ?? null;
         probeEl = document.createElement('div');
         probeEl.setAttribute('aria-hidden', 'true');
@@ -932,6 +1356,12 @@
     probeEl = null;
     dataSub?.dispose();
     dataSub = null;
+    for (const sub of observerSubs) sub.dispose();
+    observerSubs = [];
+    composing = false;
+    preedit = '';
+    mouseButton = -1;
+    mouseTracking = false;
     if (vt !== null) {
       vt.dispose(); // unbinds the facade registries (never frees the core)
       vt.core.free(); // injected core: the component owns its lifetime
@@ -1001,6 +1431,11 @@
   class={cn(
     'relative block w-full overflow-hidden bg-terminal text-terminal-foreground',
     'outline-none focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+    // the IME textarea takes over focus from the root (composition needs
+    // an editable surface) — the keyboard ring survives the dock because
+    // the root matches on its FOCUSED DESCENDANT (focus-visible carries
+    // through programmatic focus after keyboard interaction)
+    'has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-ring has-[:focus-visible]:-outline-offset-1',
     // auto mode FILLS its host (block-size:100%) and the canvas is
     // absolutely inset — sizing must not feed back through content flow
     // (otherwise the intrinsic grid height drives root height and the
@@ -1019,8 +1454,8 @@
   onmouseup={handleMouseUp}
   onmouseleave={handleMouseLeave}
   onpaste={handlePaste}
-  onfocus={() => (focused = true)}
-  onblur={() => (focused = false)}
+  onfocus={handleRootFocus}
+  onblur={handleFocusOut}
   {...rest}
   data-density={resolvedDensity}
   data-state={phase}
@@ -1031,6 +1466,28 @@
     class={cn('block', !fixedGrid && 'absolute inset-0')}
     aria-hidden="true"
   ></canvas>
+
+  <!-- IME composition surface (design D2): browsers only compose on
+       editable elements, so root focus docks here. Keydown bubbles back
+       to the root handler (the keyboard path is unchanged); pointer
+       events are disabled so the mouse bridge never sees it as a
+       target; the ring stays on the root via has-[:focus-visible]. -->
+  <textarea
+    bind:this={imeEl}
+    class="sr-only"
+    style="pointer-events: none; outline: none;"
+    tabindex="-1"
+    aria-hidden="true"
+    spellcheck="false"
+    autocomplete="off"
+    autocapitalize="off"
+    onfocus={() => (focused = true)}
+    onblur={handleFocusOut}
+    oncompositionstart={handleCompositionStart}
+    oncompositionupdate={handleCompositionUpdate}
+    oncompositionend={handleCompositionEnd}
+    oninput={handleImeInput}
+  ></textarea>
 
   {#if children}
     <!-- consumer overlay (also the error-face owner when provided) -->

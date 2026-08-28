@@ -11,7 +11,11 @@
 //   that delegates to the REAL registry binding by default; logic tests
 //   swap in scripted fakes. Canvas 2d contexts come from a recording
 //   stub on HTMLCanvasElement.prototype.getContext (jsdom has no canvas
-//   rasterizer) and ResizeObserver/rAF are controllable stubs.
+//   rasterizer) and ResizeObserver/rAF are controllable stubs. The fake
+//   vt carries the full Batch A surface (mouseEncode frames, tracking
+//   flips, manual OSC 52/title observer triggers) so the component's
+//   input-p0 wiring — IME composition, mouse-reporting routing, the
+//   OSC 52 cap quartet, title passthrough — is exercised end to end.
 //
 //   integration level — the REAL pinned wasm (same acquisition chain as
 //   ghostty-vt.spec.ts) loaded through the real binding via a data: URL
@@ -19,7 +23,8 @@
 //   load→grid→write→dirty-paint→keyEncode pipeline. Skipped when fetch
 //   or the wasm bytes are unavailable.
 //
-// Owner original demand: 2026-08-28 "ghostty-term / Batch D (design.md D5)".
+// Owner original demand: 2026-08-28 "ghostty-term / Batch D (design.md
+// D5)" + terminal-input-p0 Batch B (design.md D1-D4, 2026-08-28).
 //
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -28,8 +33,12 @@ import { flushSync, mount, unmount, type ComponentProps } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type {
+  GhosttyCellSize,
   GhosttyKeyEventLike,
+  GhosttyMouseEncodeEvent,
+  GhosttyOsc52Request,
   GhosttyVT,
+  IDisposable,
   LoadGhosttyVTOpts,
   RowSnapshot,
 } from '../../../registry/files/lib/ghostty-vt';
@@ -71,7 +80,7 @@ vi.mock('$lib/ghostty-vt', async () =>
 // ---------------------------------------------------------------------------
 
 interface RecordedOp {
-  op: 'setTransform' | 'fillRect' | 'fillText';
+  op: 'setTransform' | 'fillRect' | 'fillText' | 'save' | 'restore' | 'beginPath' | 'rect' | 'clip';
   args: number[];
   text?: string;
   font?: string;
@@ -107,6 +116,22 @@ const makeCtxRecorder = (): CtxRecorder => {
     },
     fillText(text: string, x: number, y: number): void {
       ctx.ops.push({ op: 'fillText', args: [x, y], text, font: ctx.font, fillStyle: ctx.fillStyle });
+    },
+    // the preedit overlay's grid-clip path (design D2): recorded as no-ops
+    save(): void {
+      ctx.ops.push({ op: 'save', args: [] });
+    },
+    restore(): void {
+      ctx.ops.push({ op: 'restore', args: [] });
+    },
+    beginPath(): void {
+      ctx.ops.push({ op: 'beginPath', args: [] });
+    },
+    rect(...args: number[]): void {
+      ctx.ops.push({ op: 'rect', args });
+    },
+    clip(): void {
+      ctx.ops.push({ op: 'clip', args: [] });
     },
     measureText(text: string): { width: number } {
       return { width: text === 'W' ? measureW : Math.round(text.length * measureW * 0.8) };
@@ -203,6 +228,16 @@ interface FakeCalls {
   drags: Array<[number, number]>;
   releases: Array<[number, number]>;
   clears: number;
+  /** mouseEncode frames (Batch A surface): the exact event + cellSize the
+   * component marshaled, in order. */
+  mouseEncodes: Array<{ e: GhosttyMouseEncodeEvent; cellSize?: GhosttyCellSize }>;
+  /** flip the tracking state exactly like a DECSET write would (observer
+   * handlers fire — the component's routing gate follows). */
+  setTracking(active: boolean): void;
+  /** feed one OSC 52 request to the component's observer subscription. */
+  emitOsc52(req: GhosttyOsc52Request): void;
+  /** feed one title change to the component's observer subscription. */
+  emitTitle(title: string): void;
 }
 
 const makeFakeVt = (
@@ -211,11 +246,35 @@ const makeFakeVt = (
   const calls: FakeCalls = {
     writes: [], resizes: [], scrolls: [], resets: 0, frees: 0, keyEvents: [],
     presses: [], drags: [], releases: [], clears: 0,
+    mouseEncodes: [],
+    setTracking: () => {},
+    emitOsc52: () => {},
+    emitTitle: () => {},
   };
   let dims = [80, 24];
   // the pristine terminal is fully dirty (mirrors the real wasm's first
   // pass — the component samples its default ink/paper sentinels there)
   let dirty: RowSnapshot[] = blankRows(dims[0]!, dims[1]!);
+  // Batch A observer registries + live state (the facade subscribes its
+  // forwarders at boot; the triggers let tests drive flips manually)
+  let tracking = false;
+  let title = '';
+  const trackingHandlers = new Set<(active: boolean) => void>();
+  const titleHandlers = new Set<(title: string) => void>();
+  const osc52Handlers = new Set<(req: GhosttyOsc52Request) => void>();
+  calls.setTracking = (active: boolean): void => {
+    if (tracking === active) return;
+    tracking = active;
+    for (const handler of [...trackingHandlers]) handler(active);
+  };
+  calls.emitOsc52 = (req: GhosttyOsc52Request): void => {
+    for (const handler of [...osc52Handlers]) handler(req);
+  };
+  calls.emitTitle = (next: string): void => {
+    if (title === next) return;
+    title = next;
+    for (const handler of [...titleHandlers]) handler(next);
+  };
   const vt: GhosttyVT = {
     buildInfo: 'fake-ghostty 1.0',
     variant: 'full',
@@ -282,6 +341,32 @@ const makeFakeVt = (
       encode: (text: string): Uint8Array => enc(text),
     },
     snapshotEncode: (): string => 'ZmFrZS1zbmFwc2hvdA==', // base64 "fake-snapshot"
+    readMouseTracking(): boolean {
+      return tracking;
+    },
+    mouseEncode(e: GhosttyMouseEncodeEvent, cellSize?: GhosttyCellSize): Uint8Array {
+      calls.mouseEncodes.push({ e, cellSize });
+      // deterministic replay bytes so onData assertions can match frames
+      const label =
+        [e.action, e.button ?? 'none', `${e.x},${e.y}`].join(':')
+        + (e.motionBetween ? ':between' : '');
+      return enc(label);
+    },
+    onMouseTrackingChange(handler: (active: boolean) => void): IDisposable {
+      trackingHandlers.add(handler);
+      return { dispose: () => { trackingHandlers.delete(handler); } };
+    },
+    readTitle(): string {
+      return title;
+    },
+    onTitleChange(handler: (title: string) => void): IDisposable {
+      titleHandlers.add(handler);
+      return { dispose: () => { titleHandlers.delete(handler); } };
+    },
+    onOsc52(handler: (req: GhosttyOsc52Request) => void): IDisposable {
+      osc52Handlers.add(handler);
+      return { dispose: () => { osc52Handlers.delete(handler); } };
+    },
     selection: {
       events: {
         press(x: number, y: number, clickCount: number): void {
@@ -889,6 +974,424 @@ describe('ghostty-term text selection', () => {
     const term = renderTerm({ cols: 8, rows: 2 });
     await waitFor(() => term.root.getAttribute('data-state') === 'ready');
     expect(term.root.className).toContain('select-none');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// IME composition (terminal-input-p0 design D2)
+// ---------------------------------------------------------------------------
+
+const composition = (target: Element, type: string, data: string): CompositionEvent => {
+  const event = new CompositionEvent(type);
+  Object.defineProperty(event, 'data', { value: data });
+  target.dispatchEvent(event);
+  return event;
+};
+
+describe('ghostty-term IME composition', () => {
+  it('commits compositionend data through the paste gate and overlays the preedit underlined', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const onData = vi.fn();
+    const term = renderTerm({ cols: 8, rows: 2, onData });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+    const ime = term.root.querySelector('textarea')!;
+    expect(ime).not.toBeNull();
+    expect(ime.getAttribute('aria-hidden')).toBe('true');
+
+    composition(ime, 'compositionstart', '');
+    composition(ime, 'compositionupdate', '你好');
+    await settle();
+    // the preedit overlays right of the cursor as an underlined run —
+    // cursor is at (0,0), cell 10x20 → text at (0, 10), underline
+    // [0, 18, 16, 2] (measureText('你好') = 2 chars * 8)
+    const texts = fillTexts(lastCtx()).map((op) => op.text);
+    expect(texts).toContain('你好');
+    const preeditText = fillTexts(lastCtx()).find((op) => op.text === '你好')!;
+    expect(preeditText.args).toEqual([0, 10]);
+    // the preedit underline: [x, y+h-2, advance, 2] — the hollow cursor's
+    // own bottom bar is 10 wide, the preedit run's is 16 (2 chars * 8)
+    const underline = lastCtx().ops.find(
+      (op) => op.op === 'fillRect' && op.args.length === 4 && op.args[1] === 18 && op.args[2] === 16 && op.args[3] === 2,
+    );
+    expect(underline?.args).toEqual([0, 18, 16, 2]);
+    // the grid clip bounds the run (no width-judgment source — V1 law)
+    expect(lastCtx().ops.some((op) => op.op === 'clip')).toBe(true);
+    // the intermediate string never touches the pty
+    expect(calls.writes.length).toBe(0);
+    expect(onData).not.toHaveBeenCalled();
+
+    composition(ime, 'compositionend', '你好');
+    // committed through the sanitized paste gate → facade replay → onData
+    expect(onData).toHaveBeenCalledTimes(1);
+    expect(dec(onData.mock.calls[0]![0]!)).toBe('你好');
+    // the preedit is gone on the next full paint (reset repaints the
+    // grid; the recorder accumulates ops, so compare only NEW fillTexts)
+    const painted = lastCtx().ops.filter((op) => op.op === 'fillText').length;
+    term.component.reset();
+    await settle();
+    expect(fillTexts(lastCtx()).slice(painted).map((op) => op.text)).not.toContain('你好');
+  });
+
+  it('ignores keydown during composition (no clipboard layer, no keyEncode)', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const onData = vi.fn();
+    const term = renderTerm({ cols: 8, rows: 2, onData });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+    const ime = term.root.querySelector('textarea')!;
+
+    composition(ime, 'compositionstart', '');
+    composition(ime, 'compositionupdate', 'ni');
+    await settle(); // let the preedit paint first — Escape must clear it
+    expect(fillTexts(lastCtx()).map((op) => op.text)).toContain('ni');
+    keyDown(term.root, { key: 'a', code: 'KeyA' });
+    expect(onData).not.toHaveBeenCalled();
+    expect(calls.keyEvents.length).toBe(0);
+
+    // Escape cancels the local preedit state without encoding anything
+    keyDown(term.root, { key: 'Escape', code: 'Escape' });
+    expect(onData).not.toHaveBeenCalled();
+    expect(calls.keyEvents.length).toBe(0);
+    const painted = lastCtx().ops.filter((op) => op.op === 'fillText').length;
+    term.component.reset();
+    await settle();
+    expect(fillTexts(lastCtx()).slice(painted).map((op) => op.text)).not.toContain('ni');
+  });
+
+  it('keeps the raw onKeyDown layer first even while composing', async () => {
+    const { vt } = makeFakeVt();
+    loader.impl = async () => vt;
+    const seen: string[] = [];
+    const term = renderTerm({
+      cols: 8, rows: 2,
+      onKeyDown: (event: KeyboardEvent) => {
+        seen.push(event.key);
+        return true;
+      },
+    });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    const ime = term.root.querySelector('textarea')!;
+    composition(ime, 'compositionstart', '');
+    const consumed = keyDown(term.root, { key: 'F5', code: 'F5' });
+    expect(consumed.defaultPrevented).toBe(true);
+    expect(seen).toEqual(['F5']);
+  });
+
+  it('drops unsafe commits at the paste gate (compositionend with newline)', async () => {
+    const { vt } = makeFakeVt();
+    loader.impl = async () => vt;
+    const onData = vi.fn();
+    const term = renderTerm({ cols: 8, rows: 2, onData });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    const ime = term.root.querySelector('textarea')!;
+    composition(ime, 'compositionstart', '');
+    composition(ime, 'compositionend', 'line\nbreak');
+    expect(onData).not.toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// mouse reporting (terminal-input-p0 design D3)
+// ---------------------------------------------------------------------------
+
+describe('ghostty-term mouse reporting', () => {
+  it('routes press/motion/release to mouseEncode with pixels, mods and cellSize', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const onData = vi.fn();
+    const term = renderTerm({ cols: 8, rows: 2, onData });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+    calls.setTracking(true);
+
+    const down = mouse(term.root, 'mousedown', 30, 25);
+    expect(down.defaultPrevented).toBe(true);
+    // pixels verbatim + the live cellSize (Batch A contract: REQUIRED for
+    // every format) + the real modifier state
+    expect(calls.mouseEncodes[0]).toEqual({
+      e: {
+        action: 'press',
+        button: 'left',
+        x: 30,
+        y: 25,
+        mods: { shift: false, ctrl: false, alt: false, meta: false },
+      },
+      cellSize: { w: 10, h: 20 },
+    });
+    // the facade replays the bytes on onData — the component never
+    // double-sends (one call for one press)
+    expect(onData).toHaveBeenCalledTimes(1);
+    expect(dec(onData.mock.calls[0]![0]!)).toBe('press:left:30,25');
+    // reporting and selection are mutually exclusive: no gesture press
+    expect(calls.presses).toEqual([]);
+
+    mouse(term.root, 'mousemove', 44, 8);
+    expect(calls.mouseEncodes[1]).toEqual({
+      e: {
+        action: 'motion',
+        button: 'left',
+        x: 44,
+        y: 8,
+        mods: { shift: false, ctrl: false, alt: false, meta: false },
+        motionBetween: true,
+      },
+      cellSize: { w: 10, h: 20 },
+    });
+
+    mouse(term.root, 'mouseup', 44, 8);
+    expect(calls.mouseEncodes[2]!.e).toMatchObject({ action: 'release', button: 'left' });
+    expect(onData).toHaveBeenCalledTimes(3);
+  });
+
+  it('offers hover motion button-less (any-event tracking territory)', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const term = renderTerm({ cols: 8, rows: 2 });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+    calls.setTracking(true);
+    mouse(term.root, 'mousemove', 12, 12);
+    expect(calls.mouseEncodes).toHaveLength(1);
+    expect(calls.mouseEncodes[0]!.e).toMatchObject({ action: 'motion', x: 12, y: 12 });
+    expect(calls.mouseEncodes[0]!.e.button).toBeUndefined();
+    // strict motionBetween semantics: never set for hover moves
+    expect(calls.mouseEncodes[0]!.e.motionBetween).toBeUndefined();
+  });
+
+  it('Shift holds the local bypass — selection gestures keep working under tracking', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const term = renderTerm({ cols: 8, rows: 2 });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+    calls.setTracking(true);
+
+    mouse(term.root, 'mousedown', 12, 21, { shiftKey: true });
+    mouse(term.canvas, 'mousemove', 55, 5, { shiftKey: true });
+    mouse(term.root, 'mouseup', 55, 5, { shiftKey: true });
+    expect(calls.mouseEncodes).toEqual([]);
+    expect(calls.presses).toEqual([[1, 1, 1]]);
+    expect(calls.drags).toEqual([[5, 0]]);
+    expect(calls.releases).toEqual([[5, 0]]);
+  });
+
+  it('mouse=false forces local behavior even under active tracking', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const term = renderTerm({ cols: 8, rows: 2, mouse: false });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+    calls.setTracking(true);
+
+    mouse(term.root, 'mousedown', 12, 21);
+    expect(calls.mouseEncodes).toEqual([]);
+    expect(calls.presses).toEqual([[1, 1, 1]]);
+  });
+
+  it('wheel reports as four/five press sequences by line count, never scrolling locally', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const term = renderTerm({ cols: 8, rows: 2 });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+    calls.setTracking(true);
+
+    const wheel = (deltaY: number): WheelEvent => {
+      const event = new WheelEvent('wheel', { deltaY, cancelable: true, bubbles: true });
+      term.root.dispatchEvent(event);
+      return event;
+    };
+
+    const up = wheel(-40); // row height 20 → 2 lines up → button four × 2
+    expect(up.defaultPrevented).toBe(true);
+    expect(calls.mouseEncodes.filter((f) => f.e.button === 'four')).toHaveLength(2);
+    expect(calls.mouseEncodes.every((f) => f.e.action === 'press')).toBe(true); // no wheel release
+    expect(calls.scrolls).toEqual([]); // the local scroll path is bypassed
+
+    wheel(120); // 6 lines down → button five × 6
+    expect(calls.mouseEncodes.filter((f) => f.e.button === 'five')).toHaveLength(6);
+    expect(calls.scrolls).toEqual([]);
+    // every frame carried the cellSize
+    expect(calls.mouseEncodes.every((f) => f.cellSize !== undefined)).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// OSC 52 clipboard model + title passthrough (terminal-input-p0 design D4)
+// ---------------------------------------------------------------------------
+
+describe('ghostty-term OSC 52 clipboard model', () => {
+  const withClipboard = (methods: { writeText?: vi.Mock; readText?: vi.Mock }): void => {
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: methods });
+  };
+
+  it('decodes and writes well-formed set requests (selector c or empty)', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    withClipboard({ writeText });
+    renderTerm({ cols: 8, rows: 2 });
+    await waitFor(() => document.querySelector('[data-jx-ghostty-term]')?.getAttribute('data-state') === 'ready');
+
+    calls.emitOsc52({ kind: 'set', selector: 'c', payloadBase64: btoa('hello vt') });
+    expect(writeText).toHaveBeenCalledWith('hello vt');
+    calls.emitOsc52({ kind: 'set', selector: '', payloadBase64: btoa('X') });
+    expect(writeText).toHaveBeenCalledWith('X');
+  });
+
+  it('drops oversized payloads BEFORE decode (cap ① encoded)', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    withClipboard({ writeText });
+    renderTerm({ cols: 8, rows: 2, clipboardWrite: { maxSize: 6 } }); // cap 8 chars
+    await waitFor(() => document.querySelector('[data-jx-ghostty-term]')?.getAttribute('data-state') === 'ready');
+
+    calls.emitOsc52({ kind: 'set', selector: 'c', payloadBase64: btoa('ABCDEFG') }); // 12 chars
+    expect(writeText).not.toHaveBeenCalled();
+    expect(warn.mock.calls.some((c) => String(c[0]).includes('encoded cap'))).toBe(true);
+    warn.mockRestore();
+  });
+
+  it('drops invalid base64 with a warn, never a throw', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    withClipboard({ writeText });
+    renderTerm({ cols: 8, rows: 2 });
+    await waitFor(() => document.querySelector('[data-jx-ghostty-term]')?.getAttribute('data-state') === 'ready');
+
+    expect(() => calls.emitOsc52({ kind: 'set', selector: 'c', payloadBase64: '@@@@' })).not.toThrow();
+    expect(writeText).not.toHaveBeenCalled();
+    expect(warn.mock.calls.some((c) => String(c[0]).includes('base64'))).toBe(true);
+    warn.mockRestore();
+  });
+
+  it('double-checks the decoded byte size (cap ③)', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    withClipboard({ writeText });
+    // maxSize 1 → encoded cap 4: 'QUJD' (4 chars) passes ① but decodes to
+    // 'ABC' (3 bytes > 1) — ③ must catch it
+    renderTerm({ cols: 8, rows: 2, clipboardWrite: { maxSize: 1 } });
+    await waitFor(() => document.querySelector('[data-jx-ghostty-term]')?.getAttribute('data-state') === 'ready');
+
+    calls.emitOsc52({ kind: 'set', selector: 'c', payloadBase64: 'QUJD' });
+    expect(writeText).not.toHaveBeenCalled();
+    expect(warn.mock.calls.some((c) => String(c[0]).includes('maxSize'))).toBe(true);
+    warn.mockRestore();
+  });
+
+  it('ignores foreign selectors, empty payloads, and clipboardWrite=false', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    withClipboard({ writeText });
+    renderTerm({ cols: 8, rows: 2 });
+    await waitFor(() => document.querySelector('[data-jx-ghostty-term]')?.getAttribute('data-state') === 'ready');
+
+    calls.emitOsc52({ kind: 'set', selector: 's', payloadBase64: btoa('sel') }); // selection clipboard
+    calls.emitOsc52({ kind: 'set', selector: 'p', payloadBase64: btoa('prim') }); // primary
+    calls.emitOsc52({ kind: 'set', selector: 'c', payloadBase64: '' }); // clear-clipboard: V1 drop
+    expect(writeText).not.toHaveBeenCalled();
+  });
+
+  it('answers queries only when clipboardReadFrom is on, via the onData input channel', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const readText = vi.fn().mockResolvedValue('clip text');
+    withClipboard({ readText });
+
+    // default: query stays unanswered (the xterm security model)
+    const onData = vi.fn();
+    renderTerm({ cols: 8, rows: 2, onData });
+    await waitFor(() => document.querySelector('[data-jx-ghostty-term]')?.getAttribute('data-state') === 'ready');
+    calls.emitOsc52({ kind: 'query', selector: 'c' });
+    await settle(2);
+    expect(onData).not.toHaveBeenCalled();
+    mounted.pop()!.unmount();
+
+    // opted in: the reply rides onData as an OSC 52 set-shaped sequence
+    const onData2 = vi.fn();
+    renderTerm({ cols: 8, rows: 2, onData: onData2, clipboardReadFrom: true });
+    await waitFor(() => document.querySelector('[data-jx-ghostty-term]')?.getAttribute('data-state') === 'ready');
+    calls.emitOsc52({ kind: 'query', selector: 'c' });
+    await settle(2);
+    expect(onData2).toHaveBeenCalledTimes(1);
+    expect(dec(onData2.mock.calls[0]![0]!)).toBe(`\x1b]52;c;${btoa('clip text')}\x07`);
+  });
+
+  it('replies with the empty sequence when the response exceeds the cap (④) and warns', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const readText = vi.fn().mockResolvedValue('clip text');
+    withClipboard({ readText });
+    const onData = vi.fn();
+    // maxSize 1 → encoded cap 4: b64('clip text') is 12 chars — over
+    renderTerm({ cols: 8, rows: 2, onData, clipboardReadFrom: true, clipboardWrite: { maxSize: 1 } });
+    await waitFor(() => document.querySelector('[data-jx-ghostty-term]')?.getAttribute('data-state') === 'ready');
+    calls.emitOsc52({ kind: 'query', selector: 'c' });
+    await settle(2);
+    expect(onData).toHaveBeenCalledTimes(1);
+    expect(dec(onData.mock.calls[0]![0]!)).toBe('\x1b]52;c;\x07');
+    expect(warn.mock.calls.some((c) => String(c[0]).includes('encoded cap'))).toBe(true);
+    warn.mockRestore();
+  });
+
+  it('stays silent when the clipboard read fails', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const readText = vi.fn().mockRejectedValue(new Error('denied'));
+    withClipboard({ readText });
+    const onData = vi.fn();
+    renderTerm({ cols: 8, rows: 2, onData, clipboardReadFrom: true });
+    await waitFor(() => document.querySelector('[data-jx-ghostty-term]')?.getAttribute('data-state') === 'ready');
+    calls.emitOsc52({ kind: 'query', selector: 'c' });
+    await settle(2);
+    expect(onData).not.toHaveBeenCalled();
+    expect(warn.mock.calls.some((c) => String(c[0]).includes('clipboard read failed'))).toBe(true);
+    warn.mockRestore();
+  });
+
+  it('throws a developer error for an invalid clipboardWrite.maxSize at instantiation', async () => {
+    const { vt } = makeFakeVt();
+    loader.impl = async () => vt;
+    const target = document.createElement('div');
+    document.body.appendChild(target);
+    try {
+      expect(() =>
+        mount(GhosttyTerm, {
+          target,
+          props: { clipboardWrite: { maxSize: -1 } } as ComponentProps<typeof GhosttyTerm>,
+        }),
+      ).toThrow(/maxSize must be a finite positive/);
+    } finally {
+      target.remove();
+      loader.impl = null;
+    }
+  });
+});
+
+describe('ghostty-term title passthrough', () => {
+  it('forwards onTitleChange observer events verbatim', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const onTitleChange = vi.fn();
+    renderTerm({ cols: 8, rows: 2, onTitleChange });
+    await waitFor(() => document.querySelector('[data-jx-ghostty-term]')?.getAttribute('data-state') === 'ready');
+    calls.emitTitle('vim: index.ts');
+    expect(onTitleChange).toHaveBeenCalledWith('vim: index.ts');
+    calls.emitTitle('tmux: session');
+    expect(onTitleChange).toHaveBeenLastCalledWith('tmux: session');
   });
 });
 
