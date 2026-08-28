@@ -1,0 +1,155 @@
+/* AUTO-GENERATED from src/laws/*.ts — never hand-edit.
+ * Merge into jx-pure.css (the face). */
+
+:where(.jx-pure) input[type="checkbox"]:not([role="switch"]):not(.no-jx-pure, .no-jx-pure *) {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
+  width: var(--jx-icon, 1.25rem);
+  height: var(--jx-icon, 1.25rem);
+  margin: 0;
+  flex: none;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  cursor: pointer;
+  transition: background-color 150ms ease-out, border-color 150ms ease-out;
+}
+
+:where(.jx-pure) input[type="checkbox"]:not([role="switch"]):not(.no-jx-pure, .no-jx-pure *)::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  display: block;
+  box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
+  background: var(--primary-foreground);
+  opacity: 0;
+  transform: rotate(45deg);
+  clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 80%, 70% 80%, 70% 100%);
+  transition: clip-path 150ms ease-out, opacity 150ms ease-out, transform 150ms ease-out;
+}
+
+:where(.jx-pure) input[type="checkbox"]:not([role="switch"]):not(.no-jx-pure, .no-jx-pure *):checked::before {
+  opacity: 1;
+  clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%);
+}
+
+:where(.jx-pure) input[type="checkbox"]:not([role="switch"]):not(.no-jx-pure, .no-jx-pure *):indeterminate::before {
+  opacity: 1;
+  transform: rotate(0deg);
+  clip-path: polygon(10% 40%, 10% 60%, 45% 60%, 55% 60%, 90% 60%, 90% 40%);
+}
+
+:where(.jx-pure) input[type="checkbox"]:not([role="switch"]):not(.no-jx-pure, .no-jx-pure *):hover:not(:checked):not(:disabled) {
+  border-color: var(--primary);
+}
+
+:where(.jx-pure) input[type="checkbox"]:not([role="switch"]):not(.no-jx-pure, .no-jx-pure *):checked, :where(.jx-pure) input[type="checkbox"]:not([role="switch"]):not(.no-jx-pure, .no-jx-pure *):indeterminate {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+:where(.jx-pure) input[type="checkbox"]:not([role="switch"]):not(.no-jx-pure, .no-jx-pure *):focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+:where(.jx-pure) input[type="checkbox"]:not([role="switch"]):not(.no-jx-pure, .no-jx-pure *):disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+:where(.jx-pure) input[type="checkbox"]:not([role="switch"]):not(.no-jx-pure, .no-jx-pure *)[aria-invalid='true'] {
+  border-style: dashed;
+}
+
+  @media (prefers-reduced-motion: reduce) {
+    :where(.jx-pure) input[type="checkbox"]:not([role="switch"]):not(.no-jx-pure, .no-jx-pure *) {
+      transition: none;
+    }
+    :where(.jx-pure) input[type="checkbox"]:not([role="switch"]):not(.no-jx-pure, .no-jx-pure *)::before {
+      transition: none;
+    }
+  }
+
+:where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *) {
+  --jx-range-thumb: 100cqh;
+  --jx-range-track: calc(100cqh / 2.5);
+  --jx-range-ring: calc(100cqh / 8);
+  --jx-slider-fill-color: var(--primary);
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
+  display: block;
+  width: 100%;
+  height: var(--jx-icon, 1.5rem);
+  margin: 0;
+  border: 0;
+  border-radius: calc(infinity * 1px);
+  background: transparent;
+  container-type: size;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+:where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *):focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: 2px;
+}
+
+:where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *):disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+  @supports selector(::-webkit-slider-runnable-track) {
+    :where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *) {
+
+    }
+    :where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *)::-webkit-slider-runnable-track {
+      height: var(--jx-range-track);
+      border-radius: calc(infinity * 1px);
+      background: var(--muted);
+    }
+    :where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *)::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      box-sizing: border-box;
+      corner-shape: var(--corner-shape, bevel);
+      width: var(--jx-range-thumb);
+      height: var(--j-range-thumb);
+      margin-top: calc((var(--jx-range-track) - var(--jx-range-thumb)) / 2);
+      border-radius: 50%;
+      border: var(--jx-range-ring) solid var(--primary);
+      background: var(--background);
+      box-shadow: calc(-100cqw - var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color);
+    }
+  }
+  @supports selector(::-moz-range-progress) {
+    :where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *) {
+
+    }
+    :where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *)::-moz-range-track {
+      height: var(--jx-range-track);
+      border-radius: calc(infinity * 1px);
+      background: var(--muted);
+    }
+    :where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *)::-moz-range-progress {
+      height: var(--jx-range-track);
+      border-radius: calc(infinity * 1px);
+      background: var(--jx-slider-fill-color);
+    }
+    :where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *)::-moz-range-thumb {
+      box-sizing: border-box;
+      corner-shape: var(--corner-shape, bevel);
+      width: var(--jx-range-thumb);
+      height: var(--jx-range-thumb);
+      border-radius: 50%;
+      border: var(--jx-range-ring) solid var(--primary);
+      background: var(--background);
+    }
+  }
