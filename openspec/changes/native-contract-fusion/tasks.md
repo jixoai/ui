@@ -60,15 +60,15 @@
       (incl. anti-shape lock, serialization grammar)
 - [x] V0.5 freeze: design §11 tables + deltas rewritten to V2,
       strict validation GREEN (Codex r0 + r1 plan-review rounds)
-- [ ] V1: the .jx-html-* family authored into jixoai.css from the
+- [x] V1: the .jx-html-* family authored into jixoai.css from the
       current jx-pure law texts (the reference); three budget
       baselines recorded (B-source/B-face/B-consumer)
-- [ ] V2: jx-pure.css re-based — bare-element + opt-in class rules
+- [x] V2: jx-pure.css re-based — bare-element + opt-in class rules
       become @apply applications; the extract retires per the
       deletion matrix; docs-page raw-CSS injection fixed
-- [ ] V3: registry components carry the standard classes; DOM
+- [x] V3: registry components carry the standard classes; DOM
       isomorphism rework (toggle → single input[role=switch]; select
       svg chevron retires); folder css shrinks to extras
-- [ ] V4: gates retooled — DOM-AST isomorphism assertions (distinct
+- [x] V4: gates retooled — DOM-AST isomorphism assertions (distinct
       posture fixtures), parity re-targeted, budgets live
-- [ ] V5: Codex code-review loop to closure
+- [x] V5: Codex code-review loop to closure
