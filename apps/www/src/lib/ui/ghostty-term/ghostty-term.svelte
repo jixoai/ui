@@ -616,6 +616,12 @@
   class={cn(
     'relative block w-full overflow-hidden bg-terminal text-terminal-foreground',
     'outline-none focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+    // auto mode FILLS its host (block-size:100%) and the canvas is
+    // absolutely inset — sizing must not feed back through content flow
+    // (otherwise the intrinsic grid height drives root height and the
+    // host's definite height is ignored, owner acceptance 2026-08-28).
+    // explicit cols/rows (or auto=false) keeps the intrinsic grid size.
+    !fixedGrid && 'h-full',
     className,
   )}
   tabindex="0"
@@ -627,7 +633,11 @@
   data-state={phase}
   data-jx-ghostty-term
 >
-  <canvas bind:this={canvasEl} class="block" aria-hidden="true"></canvas>
+  <canvas
+    bind:this={canvasEl}
+    class={cn('block', !fixedGrid && 'absolute inset-0')}
+    aria-hidden="true"
+  ></canvas>
 
   {#if children}
     <!-- consumer overlay (also the error-face owner when provided) -->

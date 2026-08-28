@@ -452,6 +452,20 @@ describe('ghostty-term root contract', () => {
     expect(term.root.getAttribute('aria-label')).toBe('terminal');
     expect(term.root.getAttribute('data-density')).toBe('default');
   });
+
+  it('auto mode fills the host: root h-full + absolutely-inset canvas', async () => {
+    // owner acceptance 2026-08-28: auto sizing must derive rows from the
+    // HOST height — the canvas may never drive root height through flow
+    // (the 480px intrinsic-grid overflow regression)
+    const auto = renderTerm();
+    expect(auto.root.className).toContain('h-full');
+    expect(auto.canvas.className).toContain('absolute');
+    mounted.pop()!.unmount();
+
+    const fixed = renderTerm({ cols: 80, rows: 24 });
+    expect(fixed.root.className).not.toContain('h-full');
+    expect(fixed.canvas.className).not.toContain('absolute');
+  });
 });
 
 describe('ghostty-term geometry', () => {
