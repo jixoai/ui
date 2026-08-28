@@ -103,8 +103,18 @@ export default {
   // custom color knobs — every preset is JUST a param pack for the same
   // extension points; `jixoai` rides the token defaults (theme=undefined)
   let themePreset = $state('jixoai');
-  let customBg = $state('');
-  let customSel = $state('');
+  let customBg = $state('#161616');
+  let customSel = $state('#3a3f4b');
+  // switching presets RESEEDS the custom pickers with the preset's own
+  // bg/selection colors (owner request 2026-08-28: the pickers follow the
+  // theme, tweaking one then overrides just that knob). jixoai's bg is the
+  // --terminal token's sRGB (#161616); its selection default is classic
+  // inverse, so the picker seeds a matching muted paper.
+  $effect(() => {
+    const preset = themePresets[themePreset];
+    customBg = preset?.background ?? '#161616';
+    customSel = preset?.selectionBackground ?? '#3a3f4b';
+  });
   const themePresets: Record<string, Record<string, string> | undefined> = {
     jixoai: undefined,
     snazzy: {
@@ -133,11 +143,13 @@ export default {
     { label: 'solarized light', value: 'solarized' },
   ];
   const themeProp = $derived.by(() => {
-    const base = themePresets[themePreset] ?? {};
-    const merged = { ...base };
-    if (customBg !== '') merged.background = customBg;
-    if (customSel !== '') merged.selectionBackground = customSel;
-    return Object.keys(merged).length === 0 ? undefined : merged;
+    const preset = themePresets[themePreset] ?? {};
+    // customs are preset-seeded and user-tweaked — they ARE the bg/selection
+    return {
+      ...preset,
+      background: customBg,
+      selectionBackground: customSel,
+    };
   });
   const fontFamilyOptions = [
     { label: 'default', value: 'default' },
@@ -541,7 +553,7 @@ export default {
               <input
                 type="color"
                 class="h-6 w-10 cursor-pointer border border-border bg-transparent"
-                value={customBg === '' ? '#0d1117' : customBg}
+                value={customBg}
                 oninput={(e) => (customBg = e.currentTarget.value)}
                 aria-label="custom background color"
               />
@@ -550,7 +562,7 @@ export default {
               <input
                 type="color"
                 class="h-6 w-10 cursor-pointer border border-border bg-transparent"
-                value={customSel === '' ? '#44475a' : customSel}
+                value={customSel}
                 oninput={(e) => (customSel = e.currentTarget.value)}
                 aria-label="custom selection color"
               />
