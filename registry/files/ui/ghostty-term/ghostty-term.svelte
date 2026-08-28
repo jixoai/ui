@@ -96,6 +96,15 @@
     /** Terminal INPUT bridge: encoded key/paste bytes for the pty. */
     onData?: (bytes: Uint8Array) => void;
     /**
+   * Primary typeface override for the cell grid (owner request
+   * 2026-08-28: playground font switching). The consumer must ensure the
+   * face is loaded (@fontsource etc.); the CJK/mono fallback tail stays
+   * regardless so non-latin graphemes always resolve. Default: the
+   * JetBrains Mono stack.
+   */
+  fontFamily?: string;
+
+  /**
    * Cursor rendering (owner request 2026-08-28). Default: on, style and
    * blink follow the APPLICATION's choices (DECSCUSR via the render
    * state — the fake shell and real ptys set it). Override pins style
@@ -134,6 +143,7 @@
     density,
     cursor = true,
     selection = true,
+    fontFamily,
     class: className = '',
     children,
     ...rest
@@ -141,8 +151,13 @@
 
   // ---- constants ----------------------------------------------------------
 
-  const FONT_STACK =
-    "'JetBrains Mono Variable', 'JetBrains Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace";
+  // latin rides JetBrains Mono (or the fontFamily prop); CJK/emoji fall
+  // through to the system CJK faces (terminal cell math stays ghostty's —
+  // 2 cells per wide grapheme; the fallback only supplies the glyphs)
+  const DEFAULT_FONT_PRIMARY = "'JetBrains Mono Variable', 'JetBrains Mono'";
+  const FONT_FALLBACK_TAIL =
+    "SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans Mono CJK SC', 'Microsoft YaHei', monospace";
+  const fontStack = $derived(fontFamily ? `'${fontFamily.replaceAll("'", '')}', ${FONT_FALLBACK_TAIL}` : `${DEFAULT_FONT_PRIMARY}, ${FONT_FALLBACK_TAIL}`);
   /** Density-kernel fallbacks (the ruler equations at default density):
    * T = 13px, line = T * 20/13 = 20px. Used when the token sheet cannot
    * be probed (jsdom, unthemed embedding). */
@@ -217,7 +232,7 @@
   let shell = { bg: '#000000', fg: '#ffffff' };
 
   const fontString = (italic: boolean, bold: boolean, sizePx: number): string =>
-    `${italic ? 'italic ' : ''}${bold ? 700 : 400} ${sizePx}px ${FONT_STACK}`;
+    `${italic ? 'italic ' : ''}${bold ? 700 : 400} ${sizePx}px ${fontStack}`;
 
   /** Normalize any CSS color (token oklch() included) to a canvas rgb()
    * string via the shared color-utils bridge. */
@@ -388,16 +403,21 @@
     const rowY = row.y * cell.h;
     const width = grid.cols * cell.w;
 
-    // row paper: the shell background unless the cell carries content bg
+    // two-pass row paint (owner acceptance 2026-08-28): pass 1 lays EVERY
+    // background (row paper, content paper, selection inversion), pass 2
+    // draws EVERY glyph — a per-cell paint used to cut wide graphemes
+    // (CJK/emoji span 2 cells) in half when the tail cell's paper was
+    // filled after the head glyph.
     ctx.fillStyle = shell.bg;
     ctx.fillRect(0, rowY, width, cell.h);
 
-    let x = 0;
     const maxCols = Math.min(row.cells.length, grid.cols);
     const sel = row.selection; // startX/endX both inclusive (binding contract)
+    const selected = (i: number): boolean => sel !== undefined && i >= sel.startX && i <= sel.endX;
+
+    const inks: (string | undefined)[] = [];
     for (let i = 0; i < maxCols; i++) {
-      const cellView = row.cells[i]!;
-      const style = cellView.style;
+      const style = row.cells[i]!.style;
       let rawFg = style.fg ?? '';
       let rawBg = style.bg ?? '';
       if (style.reverse) {
@@ -408,27 +428,32 @@
       let ink = rawFg === wasmDefaultFg ? shell.fg : rawFg;
       let paper = rawBg === wasmDefaultBg ? shell.bg : rawBg;
       // selection inverts the resolved colors (the style.reverse path again)
-      if (sel !== undefined && i >= sel.startX && i <= sel.endX) {
+      if (selected(i)) {
         const swap = ink;
         ink = paper;
         paper = swap;
       }
-
       if (paper !== shell.bg) {
         ctx.fillStyle = paper;
-        ctx.fillRect(x, rowY, cell.w, cell.h);
+        ctx.fillRect(i * cell.w, rowY, cell.w, cell.h);
       }
-      if (cellView.grapheme !== '' && !style.invisible) {
-        if (style.bold || style.italic) ctx.font = fontString(style.italic, style.bold, size);
-        else if (ctx.font !== fontString(false, false, size)) ctx.font = fontString(false, false, size);
-        ctx.fillStyle = ink;
-        ctx.textBaseline = 'middle';
-        ctx.fillText(cellView.grapheme, x, rowY + cell.h / 2);
-        if (style.underline >= 1) {
-          ctx.fillRect(x, rowY + cell.h - 1, cell.w, 1);
-        }
+      inks.push(style.invisible ? undefined : ink);
+    }
+
+    for (let i = 0; i < maxCols; i++) {
+      const cellView = row.cells[i]!;
+      const style = cellView.style;
+      if (cellView.grapheme === '') continue;
+      const ink = inks[i];
+      if (ink === undefined) continue;
+      if (style.bold || style.italic) ctx.font = fontString(style.italic, style.bold, size);
+      else if (ctx.font !== fontString(false, false, size)) ctx.font = fontString(false, false, size);
+      ctx.fillStyle = ink;
+      ctx.textBaseline = 'middle';
+      ctx.fillText(cellView.grapheme, i * cell.w, rowY + cell.h / 2);
+      if (style.underline >= 1) {
+        ctx.fillRect(i * cell.w, rowY + cell.h - 1, cell.w, 1);
       }
-      x += cell.w;
     }
     screen[row.y] = row;
   };
@@ -496,6 +521,8 @@
     // canvas pixel size is grid x cell)
     void resolvedFontSize;
     void resolvedDensity;
+    // a typeface swap changes the cell metrics — full re-apply required
+    void fontStack;
     measureDensityTokens();
     measureCell();
 

@@ -9,7 +9,17 @@
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
-  import { PlayFields, PlayHelp, PlayRow, PlaySegmented, PlayToggle } from '$lib/playground';
+  import { PlayFields, PlayHelp, PlayRow, PlaySelect, PlaySegmented, PlayToggle } from '$lib/playground';
+  // community monospace faces for the playground switcher (latin subsets
+  // only load via unicode-range — the page pays for what it shows)
+  import '@fontsource/fira-code/400.css';
+  import '@fontsource/fira-code/700.css';
+  import '@fontsource/cascadia-code/400.css';
+  import '@fontsource/cascadia-code/700.css';
+  import '@fontsource/ibm-plex-mono/400.css';
+  import '@fontsource/ibm-plex-mono/700.css';
+  import '@fontsource/source-code-pro/400.css';
+  import '@fontsource/source-code-pro/700.css';
 
   // 模板字符串里的字面 script 闭合标签会终止本组件自身的 script 扫描 —— 拼接它
   const close = '</' + 'script>';
@@ -85,6 +95,16 @@ export default {
   let cursorStyle = $state('follow');
   let cursorBlink = $state(true);
   let selectionOn = $state(true);
+  // fontFamily playground: `default` rides the jxoai stack (JetBrains
+  // Mono); the rest are @fontsource-loaded community faces
+  let fontFamily = $state('default');
+  const fontFamilyOptions = [
+    { label: 'default', value: 'default' },
+    { label: 'Fira Code', value: 'Fira Code' },
+    { label: 'Cascadia Code', value: 'Cascadia Code' },
+    { label: 'IBM Plex Mono', value: 'IBM Plex Mono' },
+    { label: 'Source Code Pro', value: 'Source Code Pro' },
+  ];
   const cursorStyleOptions = [
     { label: 'follow', value: 'follow' },
     { label: 'block', value: 'block' },
@@ -450,6 +470,7 @@ export default {
                 {onResize}
                 cursor={cursorProp}
                 selection={selectionProp}
+                fontFamily={fontFamily === 'default' ? undefined : fontFamily}
               />
             {/key}
           </div>
@@ -467,6 +488,9 @@ export default {
             </PlayRow>
             <PlayRow label="selection">
               <PlayToggle bind:value={selectionOn} />
+            </PlayRow>
+            <PlayRow label="font">
+              <PlaySelect bind:value={fontFamily} options={fontFamilyOptions} />
             </PlayRow>
             <PlayHelp>
               click the terminal to focus it, then type — the canvas owns the keyboard surface
