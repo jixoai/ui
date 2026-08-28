@@ -13,7 +13,8 @@
       reset-end 生命周期 / 未完结序列缓冲——self-review B4）
 - [ ] readMouseTracking + onMouseTrackingChange
 - [ ] mouseEncode（事件编组 + setopt_from_terminal + 全格式测试）
-- [ ] OSC parser 旁路 + onOscCommand + clipboardWriteMaxBytes
+- [ ] title 直读（DATA_TITLE）+ onTitleChange；OSC 52 三路线探针
+      → onOsc52（OPT 26/38 回调 → parser 边界 → 宿主扫描）
 - [ ] 门面透传（mouseEncode/onMouseTrackingChange/onTitleChange）
 - [ ] 黄金测试全绿；报告 ABI 偏差
 

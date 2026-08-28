@@ -12,8 +12,9 @@ ghostty-term 已过冻结验收与多轮 owner 迭代（光标/选区/xterm 门�
    URXVT/SGR_PIXELS + tracking 模式可读）。vim/htop/less 的鼠标模式
    （点击定位、滚轮翻历史）完全不可用。
 3. **OSC 52**：程序侧剪贴板标准（vim/tmux/ssh 远程复制正道）未接。
-   上游 OSC parser 明确暴露 `CLIPBOARD_CONTENTS` 命令，且预留
-   `CLIPBOARD_WRITE_MAX_BYTES` 防护上限。
+   wasm 侧有完整回调面（OPT_CLIPBOARD_WRITE/READ）与 OSC parser，
+   载荷获取路线由探针定案（三路线：回调注册 / parser 边界 /
+   宿主扫描）。
 
 三项同属「wasm 有弹药、宿主接线」型工作，且共享同一条架构法则：
 **宿主集成骑在扩展点上，默认实现只是参数**（owner 架构裁决 2026-08-28，
@@ -43,7 +44,8 @@ ghostty-term 已过冻结验收与多轮 owner 迭代（光标/选区/xterm 门�
     `CHANGE_WINDOW_TITLE`（顺手接：`onTitleChange` 事件，demo 标题栏
     实时显示 vim/tmux 改的标题）。
   - 组件：`clipboardWrite?: boolean | { maxSize?: number }`（默认开，
-    上限取 wasm 的 CLIPBOARD_WRITE_MAX_BYTES 与配置的较小值）；
+    上限为本仓自定 1 MiB 默认、可配——与 wasm 的 Kitty 5522 限额
+    无关）；
     set → `navigator.clipboard.writeText`；query 默认**禁用**（安全，
     显式 `clipboardReadFrom?: boolean`（默认 false）才放行并只回文本）。跨设备安全
     模型照 xterm：写放行、读默认拒。

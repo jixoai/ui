@@ -24,9 +24,10 @@ DOM 事件进入组件
     └─▶ OSC parser（旁路观测，只读不改字节流）          ← 新
 ```
 
-法则：任何新输入面**不得**绕过净化门直进 pty（IME 提交、剪贴板、
-程序化 pasteText 同一 Gate）；任何默认行为必须有「关掉即全自定义」
-的参数（mouse / clipboardWrite / clipboardReadFrom）。
+法则：**文本提交路径**（IME 提交、剪贴板、程序化 pasteText）必须
+过净化门；encoder 字节（key/mouse）不是文本、走免 Gate 的编码路径
+（与 spec 措辞同步）。任何默认行为必须有「关掉即全自定义」的参数
+（mouse / clipboardWrite / clipboardReadFrom）。
 
 ## D2. IME 组合输入
 
@@ -53,12 +54,14 @@ ABI 实测（type_json）：
   SGR_PIXELS；encode(event, buf…)）。
 - `setopt_from_terminal(encoder, term)` 同 key encoder——格式与
   模式跟随 pty 实时协商。
-- `GhosttyTerminalData.MOUSE_TRACKING` → NONE/X10/NORMAL/BUTTON/ANY。
+- `GhosttyTerminalData.MOUSE_TRACKING` = **bool**（头文件实证：
+  「任一 tracking 已启用」，非五态；具体模式差异由编码器
+  setopt_from_terminal 吸收——宿主只路由 active/inactive）。
 
 绑定面（冻结）：
 ```ts
 GhosttyVT 增：
-  readMouseTracking(): 'none'|'x10'|'normal'|'button'|'any';
+  readMouseTracking(): boolean;
   mouseEncode(e: {
     action: 'press'|'release'|'motion';
     button?: 'left'|'right'|'middle'|'four'|'five';  // 6..11 留 P2
@@ -85,28 +88,46 @@ onMouseTrackingChange（disposable）。
 
 ## D4. OSC 观测 + OSC 52 + 标题
 
-ABI 实测：`GhosttyOscParser`（new/next/reset/end）+
-`GhosttyOscCommand`（opaque；command_type → 枚举含
-`CLIPBOARD_CONTENTS`/`CHANGE_WINDOW_TITLE`/…；command_data 按类型取
-载荷）。CLIPBOARD_CONTENTS 的载荷形态（query? / base64 set? 剪贴板
-选择器 c/p/…）**由实现批以真实 wasm 探针定案**（`printf
-'\e]52;c;base64\a'` 喂 parser 读回），报告偏差。
+ABI 事实（type-layout + 头文件双证）：`GhosttyOscParser`
+（new/next/reset/end）+ `GhosttyOscCommand`（opaque；command_type 枚举
+含 CLIPBOARD_CONTENTS）——但 `GhosttyOscCommandData` **仅有
+INVALID/CHANGE_WINDOW_TITLE_STR**：CLIPBOARD_CONTENTS 有 type 无 data
+通道，旁路 parser 单路线拿不到载荷。同时头文件揭示 wasm 有完整
+OSC 52 宿主回调面：`OPT_CLIPBOARD_WRITE=26`（OSC 52/1337/5522 写）与
+`OPT_CLIPBOARD_READ=38`（query 回读，默认 NULL=拒）。
 
-绑定面（冻结）：
+**title 直读**（不走 parser）：`GhosttyTerminalData.TITLE=12`
+（borrowed 串）——vtWrite 后比对即得变更。
+
+**OSC 52 三路线探针**（A 批按序，首通即冻结，报告调用签名/输入
+分片/输出/所有权证据）：
+1. terminal OPT 回调（26/38）——wasm 能否注册宿主函数（funcref/
+   table 机制）？若通，**整体替代旁路自解析**（读路径天然对齐
+   「默认 NULL=拒」安全模型）；
+2. 旁路 osc parser 只做边界（type+span），载荷宿主自行 base64 解码；
+3. 兜底：宿主侧 OSC 52 序列扫描（`ESC]52;` 起，BEL/ST 止）。
+
+绑定面（冻结——事件形状与内部路线解耦）：
 ```ts
 GhosttyVT 增：
-  onOscCommand(h: (cmd: { type: string; payload?: … }) => void): IDisposable;
-  // vtWrite 内部：写完 terminal 后同字节喂 osc parser，逐命令回调
-  clipboardWriteMaxBytes(): number;   // TerminalData.CLIPBOARD_WRITE_MAX_BYTES
-门面 Terminal 增：onTitleChange(h) —— 过滤 CHANGE_WINDOW_TITLE。
+  readTitle(): string;   // terminal_get(TITLE)，borrowed 即拷
+  onTitleChange(h: (title: string) => void): IDisposable;
+  onOsc52(h: (req: {
+    kind: 'set' | 'query';
+    selector: string;            // 'c' / ''（其余丢弃）
+    payloadBase64?: string;      // set 时必有
+  }) => void): IDisposable;
+  // vtWrite 内部按已冻结路线回调；无 payload 省略号——形状即契约
 ```
 
 组件/安全模型（冻结）：
-- `clipboardWrite?: boolean | { maxSize?: number }`（默认 true）：
-  OSC 52 set → **长度检查在解码之前**（防 oversized base64 解码
-  DoS）→ base64 解码（失败 → 丢弃 + 点名 warn，勿 throw）→ 选择器
-  只认 `c`/空 → `navigator.clipboard.writeText`；超限丢弃 + 点名
-  上限 warn。空载荷 = 清剪贴板（xterm 语义）V1 显式不做，丢弃。
+- **cap 与 wasm 常量脱钩**（头文件实证：CLIPBOARD_WRITE_MAX_BYTES
+  是 Kitty OSC 5522 的 OPT 限额，明文不适用 OSC 52）：本仓自定
+  OSC 52 decoded-byte 上限，默认 **1 MiB**，`clipboardWrite?: boolean
+  | { maxSize?: number }`（默认 true）可调。流程：**长度检查在
+  base64 解码之前**（防 oversized 解码 DoS）→ 解码（失败 → 丢弃 +
+  点名 warn，勿 throw）→ 选择器只认 `c`/空 → writeText；超限丢弃 +
+  点名上限 warn。空载荷 = 清剪贴板（xterm 语义）V1 显式不做，丢弃。
 - `clipboardReadFrom?: boolean`（默认 **false**）：query 默认不回——
   安全模型与 xterm 一致（写放行、读需显式开）。开启时 query → 回
   `ESC]52;c;base64\a`（仅文本剪贴板，**经 onData 输入通道回 pty——
@@ -120,7 +141,7 @@ GhosttyVT 增：
 
 | 批 | 文件集（独占） | 内容 |
 | --- | --- | --- |
-| A（绑定） | registry/files/lib/ghostty-vt.ts、apps/www/test/{mouse,osc}-probe.spec.ts（新）、ghostty-vt.spec.ts | mouseEncode/readMouseTracking/onMouseTrackingChange/OSC parser/onOscCommand/clipboardWriteMaxBytes + 真实 wasm 黄金测试（探针先行：OSC 52 载荷形态、SGR 字节序列） |
+| A（绑定） | registry/files/lib/ghostty-vt.ts、apps/www/test/{mouse,osc}-probe.spec.ts（新）、ghostty-vt.spec.ts | mouseEncode（像素+cellSize）/readMouseTracking(bool)/onMouseTrackingChange/readTitle+onTitleChange/onOsc52（三路线探针定案）+ 黄金测试（SGR 字节、DECSET 翻转、OSC 流语义/跨 chunk 拆包、title 变更） |
 | B（组件） | registry/files/ui/ghostty-term/ghostty-term.svelte、apps/www/test/ghostty-term.spec.ts | IME 三事件、鼠标路由（Shift 旁通）、OSC 52 安全模型、onTitleChange、preedit 绘制 |
 | C（页面/demo） | apps/www/src/routes/docs/components/ghostty-term.html、demo/pty-terminal/src/App.svelte | playground mouse 开关 + 标题栏接 onTitleChange + demo 复验脚本说明 |
 

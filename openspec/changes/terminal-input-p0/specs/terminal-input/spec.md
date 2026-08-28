@@ -51,12 +51,13 @@ encoder bytes are not text and take the gate-free encode path.
 
 ### Requirement: mouse reporting follows the pty's tracking mode
 
-The component SHALL read the terminal's mouse tracking mode (NONE/X10/
-NORMAL/BUTTON/ANY) and route mouse events to the wasm encoder (formats
-following live pty negotiation: X10/UTF8/SGR/URXVT/SGR_PIXELS) when
-tracking is active and the `mouse` prop is not disabled; Shift held
-bypasses reporting and forces local selection/scroll (the industry
-convention); tracking NONE behaves exactly as before.
+The component SHALL read the terminal's mouse tracking state (a
+boolean: any tracking mode enabled — the ABI exposes no 5-state enum)
+and route mouse events to the wasm encoder (formats following live pty
+negotiation: X10/UTF8/SGR/URXVT/SGR_PIXELS) when tracking is active and
+the `mouse` prop is not disabled; Shift held bypasses reporting and
+forces local selection/scroll (the industry convention); inactive
+tracking behaves exactly as before.
 
 #### Scenario: vim clicks land in the pty
 
@@ -73,10 +74,11 @@ convention); tracking NONE behaves exactly as before.
 
 ### Requirement: OSC 52 rides a write-open/read-denied security model
 
-The host SHALL observe OSC commands via a sideband parser (never
-mutating the vt byte stream). OSC 52 set (clipboard write) is allowed
-by default, capped at the smaller of the wasm's
-CLIPBOARD_WRITE_MAX_BYTES and the configured max; OSC 52 query (read)
+The host SHALL observe OSC 52 via whichever internal route the probes
+freeze (host callbacks / parser boundaries / host scan — never mutating
+the vt byte stream). OSC 52 set (clipboard write) is allowed by
+default, capped at the house default (1 MiB decoded) or the configured
+max — the wasm's Kitty-5522 limit does not apply; OSC 52 query (read)
 is DENIED unless `clipboardReadFrom` is explicitly enabled. Window
 title changes surface as an `onTitleChange` event.
 
