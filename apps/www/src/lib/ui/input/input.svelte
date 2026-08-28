@@ -186,7 +186,7 @@
         {...rest}
         value={controlled ? value : undefined}
         oninput={syncValue}
-        class={'jx-slider ' + className}
+        class={'jx-html-range ' + className}
         aria-invalid={invalidAttr}
         aria-describedby={describedBy}
       />
