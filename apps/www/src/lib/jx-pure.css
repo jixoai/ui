@@ -86,6 +86,16 @@
   cursor: pointer;
   position: relative;
   transition: box-shadow 150ms ease-out;
+  /* asymmetric corners: LEFT is a perfect semicircle (radius = half
+   * the hit lane), RIGHT is the standard bevel — the pill→bevel
+   * gesture reads as "color on the left, value on the right".
+   * Token-derived, no hardcoded pixel values */
+  corner-left-shape: round;
+  border-top-left-radius: calc(var(--jx-hit, 2.5rem) / 2);
+  border-bottom-left-radius: calc(var(--jx-hit, 2.5rem) / 2);
+  corner-right-shape: bevel;
+  border-top-right-radius: var(--radius, 8px);
+  border-bottom-right-radius: var(--radius, 8px);
 }
 .jx-color-expand {
   width: 100%;
