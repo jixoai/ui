@@ -51,11 +51,19 @@ import { gzipSync } from 'node:zlib';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 
-// ── baselines (recorded 2026-08-28; regenerate with --update) ──────
+// ── baselines (re-recorded 2026-08-28 for the css-laws V3 cutover;
+// regenerate with --update) ─────────────────────────────────────────
+// The +17% source / +23% face growth is the DELIBERATE cost of the
+// single-declaration-source architecture: law composition flattens
+// in TS (textarea/select/radio inline their base law's declarations
+// — the @apply chain is retired), and the Tier-2 alias classes carry
+// full generated rule-sets where they were 3-line @apply rules.
+// Rendering identity is proven by verify:parity (305 comparisons +
+// 19 DOM-AST assertions GREEN before and after the cutover).
 
 const BASELINES = {
-  'B-source': 26927, // jixoai.css 16825 + jx-pure.css 10102
-  'B-face': 7433, // 300 rules extracted from the apps/www vite build
+  'B-source': 31630, // jixoai.css + jx-pure.css (generated slots included)
+  'B-face': 9124, // 378 rules extracted from the apps/www vite build
   'B-consumer (plugin dist gzip)': 10044, // packages/ui-plugin dist/index.js
 };
 const THRESHOLD_FACTOR = 1.05;

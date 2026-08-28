@@ -32,7 +32,7 @@ const ROWS = [
     row: 'input',
     probes: [
       // Part A's single-box posture ⇄ the component's shell (box owner)
-      ['input[data-probe="box"]', '[data-renderer=tier1] .jx-control-shell'],
+      ['input[data-probe="box"]', '[data-renderer=tier1] .jx-html-control-shell'],
     ],
     // posture-agnostic box props only: the single-box posture carries
     // padding on the control itself, the shell posture on its lane —
@@ -47,7 +47,7 @@ const ROWS = [
     row: 'textarea',
     probes: [
       // B4's bare textarea ⇄ the component's shell (the box owner)
-      ['textarea[data-probe="box"]', '[data-renderer=tier1] .jx-control-shell'],
+      ['textarea[data-probe="box"]', '[data-renderer=tier1] .jx-html-control-shell'],
     ],
     // min-height excluded: the bare posture owns a 5rem lane, the
     // shell posture sizes from rows — box PAINT is the shared law

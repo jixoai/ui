@@ -56,21 +56,10 @@ describe('hue-injection utilities', () => {
         'jx-hue-warning',
         'jx-hue-info',
         'jx-pair-destructive',
-        // the jx-html standard layer (native-contract-fusion V2): the
-        // native form-control laws single-sourced in the theme
-        'jx-html-input',
-        'jx-html-textarea',
-        'jx-html-select',
-        'jx-html-checkbox',
-        'jx-html-radio',
-        'jx-html-switch',
-        'jx-html-range',
-        'jx-html-color',
-        'jx-html-tgroup',
-        'jx-html-control',
-        'jx-html-control-shell',
-        'jx-html-control-lane',
-        'jx-html-clear',
+        // (css-laws V3, 2026-08-28) the jx-html form-control family is
+        // no longer @utility — flat generated rules in @layer
+        // components between the css-laws markers. A guard for THAT
+        // family lives in the css-laws package's own suite.
       ].sort(),
     );
   });

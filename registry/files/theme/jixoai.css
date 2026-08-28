@@ -893,21 +893,24 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-fill-ink: var(--destructive-foreground);
 }
 
-/* ── jx-html standard layer (native-contract-fusion V2, 2026-08-27) ─
-   The native form-control laws, SINGLE-SOURCED here. Two applications:
-   registry markup consumes these classes; the jx-pure face applies
-   them through the entry @import chain (@apply — context flows
-   through @import; variant/@media/@supports blocks transfer with the
-   apply, probe-locked 7/7 in tw-standard-layer-probe.spec.ts).
-   Pseudo spellings are COMPOUND (&:checked::before); the descendant
-   spelling is the locked-out anti-shape. DOM isomorphism (design
-   §11.2) rides on top: the switch is ONE input[role=switch] on both
-   sides; the select chevron is the CSS gradient glyph (no svg twin);
-   the tgroup is a subtree law over bare labels. ─────────────────── */
+/* ── jx-html standard layer (native-contract-fusion V2 → css-laws V3,
+   2026-08-28) ──────────────────────────────────────────────────────
+   The native form-control laws are SINGLE-SOURCED as TS objects in
+   packages/css-laws/src/laws/*.ts. THREE projections are generated
+   between the markers below and in jx-pure.css:
+     utility — .jx-html-* classes here, @layer components (registry
+               markup consumes the classes; consumer utilities win
+               over law paint by layer order — the placement law)
+     face    — element-default rules in jx-pure.css Part B
+     alias   — Tier-2 opt-in classes in jx-pure.css Part A (unlayered)
+   Law composition happens in TS (composeLaw) — the @apply chain is
+   retired. DOM isomorphism (design §11.2) rides on top unchanged:
+   the switch is ONE input[role=switch] on both sides; the tgroup is
+   a subtree law over bare labels. ────────────────────────────── */
 
-/* the text-like control box law (B4's 13-type allowlist payload;
-   the number lane keeps the PLATFORM stepper by sharing this law) */
-@utility jx-html-input {
+/* @jixoai/css-laws:begin:jx-html-utility — GENERATED, do not edit (source: packages/css-laws/src/laws) */
+@layer components {
+.jx-html-input {
   corner-shape: var(--corner-shape, bevel);
   box-sizing: border-box;
   display: block;
@@ -924,121 +927,271 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   font-size: var(--jx-text, 0.875rem);
   line-height: var(--jx-leading, 1.45);
   transition: box-shadow 150ms ease-out;
-  &:hover:not(:disabled) {
-    box-shadow: var(--shadow-2xs);
-  }
-  &:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-    box-shadow: none;
-  }
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-  &[aria-invalid='true'] {
-    border-style: dashed;
-  }
-  &::placeholder {
-    color: var(--jx-placeholder, color-mix(in oklab, var(--foreground) 40%, var(--background)));
-    opacity: 1;
-  }
-  /* date/time/month/week picker indicator (Chromium only — Firefox
-     degrades to its own indicator). SIZE: proportional via em — the
-     input's font-size tracks density (--jx-text), so the icon scales
-     with the input's own visual size (TW4 @utility silently drops
-     container-type, so cqh is not available here) */
-  &::-webkit-calendar-picker-indicator {
-    -webkit-appearance: none;
-    appearance: none;
-    box-sizing: border-box;
-    corner-shape: var(--corner-shape, bevel);
-    /* ~1.4× the input's font-size — proportional to the control's own size */
-    width: 1.4em;
-    height: 1.4em;
-    margin-inline-start: var(--jx-gap, 0.5rem);
-    margin-inline-end: var(--jx-gap, 0.5rem);
-    cursor: pointer;
-    background-image: var(
-      --jx-icon-calendar,
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E")
-    );
-    background-size: contain;
-    background-repeat: no-repeat;
-  }
-  &[type='time']::-webkit-calendar-picker-indicator {
-    background-image: var(
-      --jx-icon-clock,
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E")
-    );
-  }
-  /* inline-start icons for email/search — same law as the lane */
-  &[type='email'] {
-    padding-inline: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em;
-    background-image: var(--jx-icon-mail, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='20' height='16' x='2' y='4' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E"));
-    background-position: left 0.6em center;
-    background-size: 1.4em;
-    background-repeat: no-repeat;
-  }
-  &[type='search'] {
-    padding-inline: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em;
-    background-image: var(--jx-icon-search, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E"));
-    background-position: left 0.6em center;
-    background-size: 1.4em;
-    background-repeat: no-repeat;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-  }
 }
 
-/* the multiline lane: the input law + the textarea min + vertical
-   resize (B4's textarea clause) */
-@utility jx-html-textarea {
+.jx-html-input::placeholder {
+  color: var(--jx-placeholder, color-mix(in oklab, var(--foreground) 40%, var(--background)));
+  opacity: 1;
+}
+
+.jx-html-input:hover:not(:disabled) {
+  box-shadow: var(--shadow-2xs);
+}
+
+.jx-html-input:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+
+.jx-html-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.jx-html-input[aria-invalid='true'] {
+  border-style: dashed;
+}
+
+.jx-html-input::-webkit-calendar-picker-indicator {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
   corner-shape: var(--corner-shape, bevel);
-  @apply jx-html-input;
+  width: 1.4em;
+  height: 1.4em;
+  margin-inline-start: var(--jx-gap, 0.5rem);
+  margin-inline-end: var(--jx-gap, 0.5rem);
+  cursor: pointer;
+  background-image: var(--jx-icon-calendar, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E"));
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.jx-html-input[type='time']::-webkit-calendar-picker-indicator {
+  background-image: var(--jx-icon-clock, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E"));
+}
+
+.jx-html-input[type='email'] {
+  padding-inline: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em;
+  background-image: var(--jx-icon-mail, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='20' height='16' x='2' y='4' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E"));
+  background-position: left 0.6em center;
+  background-size: 1.4em;
+  background-repeat: no-repeat;
+}
+
+.jx-html-input[type='search'] {
+  padding-inline: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em;
+  background-image: var(--jx-icon-search, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E"));
+  background-position: left 0.6em center;
+  background-size: 1.4em;
+  background-repeat: no-repeat;
+}
+
+  @media (prefers-reduced-motion: reduce) {
+    .jx-html-input {
+      transition: none;
+    }
+  }
+
+.jx-html-textarea {
+  corner-shape: var(--corner-shape, bevel);
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  max-width: 100%;
   min-height: var(--jx-textarea-min, 5rem);
+  padding-block: var(--jx-gap, 0.5rem);
+  padding-inline: 0.6em;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--jx-text, 0.875rem);
+  line-height: var(--jx-leading, 1.45);
+  transition: box-shadow 150ms ease-out;
   height: auto;
   resize: vertical;
 }
 
-/* the closed control: the input law + the pointer cursor + the CSS
-   gradient chevron (the @supports gate keeps Firefox on its platform
-   arrow) + the listbox posture for [multiple]/[size] (B4's select) */
-@utility jx-html-select {
+.jx-html-textarea::placeholder {
+  color: var(--jx-placeholder, color-mix(in oklab, var(--foreground) 40%, var(--background)));
+  opacity: 1;
+}
+
+.jx-html-textarea:hover:not(:disabled) {
+  box-shadow: var(--shadow-2xs);
+}
+
+.jx-html-textarea:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+
+.jx-html-textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.jx-html-textarea[aria-invalid='true'] {
+  border-style: dashed;
+}
+
+.jx-html-textarea::-webkit-calendar-picker-indicator {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
   corner-shape: var(--corner-shape, bevel);
-  @apply jx-html-input;
+  width: 1.4em;
+  height: 1.4em;
+  margin-inline-start: var(--jx-gap, 0.5rem);
+  margin-inline-end: var(--jx-gap, 0.5rem);
+  cursor: pointer;
+  background-image: var(--jx-icon-calendar, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E"));
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.jx-html-textarea[type='time']::-webkit-calendar-picker-indicator {
+  background-image: var(--jx-icon-clock, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E"));
+}
+
+.jx-html-textarea[type='email'] {
+  padding-inline: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em;
+  background-image: var(--jx-icon-mail, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='20' height='16' x='2' y='4' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E"));
+  background-position: left 0.6em center;
+  background-size: 1.4em;
+  background-repeat: no-repeat;
+}
+
+.jx-html-textarea[type='search'] {
+  padding-inline: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em;
+  background-image: var(--jx-icon-search, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E"));
+  background-position: left 0.6em center;
+  background-size: 1.4em;
+  background-repeat: no-repeat;
+}
+
+  @media (prefers-reduced-motion: reduce) {
+    .jx-html-textarea {
+      transition: none;
+    }
+  }
+
+.jx-html-select {
+  --jx-icon-chevron-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  corner-shape: var(--corner-shape, bevel);
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-height: var(--jx-hit, 2.5rem);
+  padding-block: var(--jx-gap, 0.5rem);
+  padding-inline: 0.6em;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--jx-text, 0.875rem);
+  line-height: var(--jx-leading, 1.45);
+  transition: box-shadow 150ms ease-out;
   cursor: pointer;
   padding-inline-end: calc(var(--jx-inset, 0.75rem) + var(--jx-icon, 1.25rem));
-  /* the chevron = an ICON SLOT (not CSS gradients — those misaligned);
-     the SVG chevron-down paints as a mask (currentColor themes) */
-  --jx-icon-chevron-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+.jx-html-select::placeholder {
+  color: var(--jx-placeholder, color-mix(in oklab, var(--foreground) 40%, var(--background)));
+  opacity: 1;
+}
+
+.jx-html-select:hover:not(:disabled) {
+  box-shadow: var(--shadow-2xs);
+}
+
+.jx-html-select:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+
+.jx-html-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.jx-html-select[aria-invalid='true'] {
+  border-style: dashed;
+}
+
+.jx-html-select::-webkit-calendar-picker-indicator {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
+  width: 1.4em;
+  height: 1.4em;
+  margin-inline-start: var(--jx-gap, 0.5rem);
+  margin-inline-end: var(--jx-gap, 0.5rem);
+  cursor: pointer;
+  background-image: var(--jx-icon-calendar, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E"));
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.jx-html-select[type='time']::-webkit-calendar-picker-indicator {
+  background-image: var(--jx-icon-clock, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E"));
+}
+
+.jx-html-select[type='email'] {
+  padding-inline: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em;
+  background-image: var(--jx-icon-mail, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='20' height='16' x='2' y='4' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E"));
+  background-position: left 0.6em center;
+  background-size: 1.4em;
+  background-repeat: no-repeat;
+}
+
+.jx-html-select[type='search'] {
+  padding-inline: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em;
+  background-image: var(--jx-icon-search, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E"));
+  background-position: left 0.6em center;
+  background-size: 1.4em;
+  background-repeat: no-repeat;
+}
+
+.jx-html-select:where([multiple], [size]) {
+  min-height: 5.75rem;
+  padding-block: 0.375rem 0.5rem;
+  cursor: default;
+  background-image: none;
+}
+
+  @media (prefers-reduced-motion: reduce) {
+    .jx-html-select {
+      transition: none;
+    }
+  }
+
   @supports not selector(::-moz-range-progress) {
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: var(--jx-icon-chevron, var(--jx-icon-chevron-svg));
-    background-position: right var(--jx-inset, 0.75rem) center;
-    background-size: var(--jx-icon, 1.25rem);
-    background-repeat: no-repeat;
-    &:hover:not(:disabled) {
-      /* the hover lean: a CSS filter on the background (the mask
-         technique keeps currentColor theming impossible on bg-image,
-         so the hover paints a primary-tinted duplicate) */
+    .jx-html-select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: var(--jx-icon-chevron, var(--jx-icon-chevron-svg));
+      background-position: right var(--jx-inset, 0.75rem) center;
+      background-size: var(--jx-icon, 1.25rem);
+      background-repeat: no-repeat;
+    }
+    .jx-html-select:hover:not(:disabled) {
       filter: none;
     }
   }
-  &:where([multiple], [size]) {
-    min-height: 5.75rem;
-    padding-block: 0.375rem 0.5rem;
-    cursor: default;
-    background-image: none;
-  }
-}
 
-/* the checkbox: icon-sized box, the ::before clip-path glyph with
-   the checked/indeterminate morphs (B5) */
-@utility jx-html-checkbox {
+.jx-html-checkbox {
   appearance: none;
   -webkit-appearance: none;
   position: relative;
@@ -1052,93 +1205,162 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   border-radius: 0;
   background: var(--background);
   cursor: pointer;
-  transition:
-    background-color 150ms ease-out,
-    border-color 150ms ease-out;
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 2px;
-    display: block;
-    box-sizing: border-box;
-    corner-shape: var(--corner-shape, bevel);
-    background: var(--primary-foreground);
-    opacity: 0;
-    transform: rotate(45deg);
-    clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 80%, 70% 80%, 70% 100%);
-    transition:
-      clip-path 150ms ease-out,
-      opacity 150ms ease-out,
-      transform 150ms ease-out;
-  }
-  &:hover:not(:checked):not(:disabled) {
-    border-color: var(--primary);
-  }
-  &:checked,
-  &:indeterminate {
-    background: var(--primary);
-    border-color: var(--primary);
-  }
-  &:checked::before {
-    opacity: 1;
-    clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%);
-  }
-  &:indeterminate::before {
-    opacity: 1;
-    transform: rotate(0deg);
-    clip-path: polygon(10% 40%, 10% 60%, 45% 60%, 55% 60%, 90% 60%, 90% 40%);
-  }
-  &:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  &[aria-invalid='true'] {
-    border-style: dashed;
-  }
+  transition: background-color 150ms ease-out, border-color 150ms ease-out;
+}
+
+.jx-html-checkbox::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  display: block;
+  box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
+  background: var(--primary-foreground);
+  opacity: 0;
+  transform: rotate(45deg);
+  clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 80%, 70% 80%, 70% 100%);
+  transition: clip-path 150ms ease-out, opacity 150ms ease-out, transform 150ms ease-out;
+}
+
+.jx-html-checkbox:checked::before {
+  opacity: 1;
+  clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%);
+}
+
+.jx-html-checkbox:indeterminate::before {
+  opacity: 1;
+  transform: rotate(0deg);
+  clip-path: polygon(10% 40%, 10% 60%, 45% 60%, 55% 60%, 90% 60%, 90% 40%);
+}
+
+.jx-html-checkbox:hover:not(:checked):not(:disabled) {
+  border-color: var(--primary);
+}
+
+.jx-html-checkbox:checked, .jx-html-checkbox:indeterminate {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.jx-html-checkbox:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+.jx-html-checkbox:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.jx-html-checkbox[aria-invalid='true'] {
+  border-style: dashed;
+}
+
   @media (prefers-reduced-motion: reduce) {
-    transition: none;
-    &::before {
+    .jx-html-checkbox {
+      transition: none;
+    }
+    .jx-html-checkbox::before {
       transition: none;
     }
   }
-}
 
-/* the radio: icon-sized circle, the ::after scale dot (B5) */
-@utility jx-html-radio {
-  @apply jx-html-checkbox;
+.jx-html-radio {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
+  width: var(--jx-icon, 1.25rem);
+  height: var(--jx-icon, 1.25rem);
+  margin: 0;
+  flex: none;
+  border: 1px solid var(--border);
   border-radius: 50%;
+  background: var(--background);
+  cursor: pointer;
   transition: border-color 150ms ease-out;
-  &::before {
-    content: none;
-  }
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 2px;
-    display: block;
-    box-sizing: border-box;
-    corner-shape: var(--corner-shape, bevel);
-    border-radius: 50%;
-    background: var(--primary);
-    transform: scale(0);
-    transition: transform 150ms ease-out;
-  }
-  &:checked {
-    background: var(--background);
-  }
-  &:checked::after {
-    transform: scale(1);
-  }
 }
 
-/* the switch: ONE input[role=switch] — the pill track with the
-   ::before knob riding absolute + inset + transform travel (B13,
-   density aliases; the inset ring keeps the knob's full padding) */
-@utility jx-html-switch {
+.jx-html-radio::before {
+  content: none;
+  position: absolute;
+  inset: 2px;
+  display: block;
+  box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
+  background: var(--primary-foreground);
+  opacity: 0;
+  transform: rotate(45deg);
+  clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 80%, 70% 80%, 70% 100%);
+  transition: clip-path 150ms ease-out, opacity 150ms ease-out, transform 150ms ease-out;
+}
+
+.jx-html-radio:checked::before {
+  opacity: 1;
+  clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%);
+}
+
+.jx-html-radio:indeterminate::before {
+  opacity: 1;
+  transform: rotate(0deg);
+  clip-path: polygon(10% 40%, 10% 60%, 45% 60%, 55% 60%, 90% 60%, 90% 40%);
+}
+
+.jx-html-radio::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  display: block;
+  box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
+  border-radius: 50%;
+  background: var(--primary);
+  transform: scale(0);
+  transition: transform 150ms ease-out;
+}
+
+.jx-html-radio:checked::after {
+  transform: scale(1);
+}
+
+.jx-html-radio:hover:not(:checked):not(:disabled) {
+  border-color: var(--primary);
+}
+
+.jx-html-radio:checked, .jx-html-radio:indeterminate {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.jx-html-radio:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+.jx-html-radio:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.jx-html-radio[aria-invalid='true'] {
+  border-style: dashed;
+}
+
+.jx-html-radio:checked {
+  background: var(--background);
+}
+
+  @media (prefers-reduced-motion: reduce) {
+    .jx-html-radio {
+      transition: none;
+    }
+    .jx-html-radio::before {
+      transition: none;
+    }
+  }
+
+.jx-html-switch {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
@@ -1154,58 +1376,61 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   border-radius: calc(infinity * 1px);
   background: var(--muted);
   cursor: pointer;
-  transition:
-    background-color 200ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  &::before {
-    content: '';
-    position: absolute;
-    box-sizing: border-box;
-    corner-shape: var(--corner-shape, bevel);
-    inset-block: calc((var(--jx-toggle-track, 1.5rem) - var(--jx-toggle-knob, 1rem)) / 2);
-    inset-inline-start: calc((var(--jx-toggle-track, 1.5rem) - var(--jx-toggle-knob, 1rem)) / 2);
-    inline-size: var(--jx-toggle-knob, 1rem);
-    block-size: var(--jx-toggle-knob, 1rem);
-    border-radius: calc(infinity * 1px);
-    background: var(--background);
-    transform: translateX(0);
-    transition:
-      transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
-      background-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  &:hover:not(:checked):not(:disabled) {
-    box-shadow: 0 0 0 1px var(--primary) inset;
-  }
-  &:checked {
-    background: var(--primary);
-  }
-  &:checked::before {
-    transform: translateX(calc(var(--jx-toggle-width, 2.5rem) - var(--jx-toggle-track, 1.5rem)));
-    background: var(--primary-foreground);
-  }
-  &:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  transition: background-color 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.jx-html-switch::before {
+  content: '';
+  position: absolute;
+  box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
+  inset-block: calc((var(--jx-toggle-track, 1.5rem) - var(--jx-toggle-knob, 1rem)) / 2);
+  inset-inline-start: calc((var(--jx-toggle-track, 1.5rem) - var(--jx-toggle-knob, 1rem)) / 2);
+  inline-size: var(--jx-toggle-knob, 1rem);
+  block-size: var(--jx-toggle-knob, 1rem);
+  border-radius: calc(infinity * 1px);
+  background: var(--background);
+  transform: translateX(0);
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), background-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.jx-html-switch:checked::before {
+  transform: translateX(calc(var(--jx-toggle-width, 2.5rem) - var(--jx-toggle-track, 1.5rem)));
+  background: var(--primary-foreground);
+}
+
+.jx-html-switch:hover:not(:checked):not(:disabled) {
+  box-shadow: 0 0 0 1px var(--primary) inset;
+}
+
+.jx-html-switch:checked {
+  background: var(--primary);
+}
+
+.jx-html-switch:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+.jx-html-switch:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
   @media (prefers-reduced-motion: reduce) {
-    transition: none;
-    &::before {
+    .jx-html-switch {
+      transition: none;
+    }
+    .jx-html-switch::before {
       transition: none;
     }
   }
-}
 
-/* the range slider: the input IS the thumb-sized pill — cqw shadow
-   fill + the ringed disc thumb (the .jx-slider law).
-   GEOMETRY TOKEN CHAIN (Codex r1 ruling): thumb + track + centering
-   all derive from the density aliases — never a literal 0.5rem.
-   --jx-slider-track is the density rail (8/9/10/12px per scope);
-   --jx-icon is the thumb (= the input's own height). */
-@utility jx-html-range {
+.jx-html-range {
+  --jx-range-thumb: 100cqh;
+  --jx-range-track: calc(100cqh / 2.5);
+  --jx-range-ring: calc(100cqh / 8);
+  --jx-slider-fill-color: var(--primary);
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
@@ -1217,76 +1442,67 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   border: 0;
   border-radius: calc(infinity * 1px);
   background: transparent;
-  /* SIZE CONTAINER — the thumb derives from the input's own height
-   * via cqh: thumb = 100% of the container's block size. Consumer
-   * overrides height (or --jx-icon) → thumb/track/ring all scale.
-   * The earlier "height locked" was the @apply not emitting, NOT
-   * the container-type — now the utility class is direct on the
-   * element, size containment works correctly */
   container-type: size;
   overflow: hidden;
   cursor: pointer;
-  /* the geometry chain: EVERYTHING derives from cqh — proportional
-   * to the input's actual rendered height (density, consumer resize) */
-  --jx-range-thumb: 100cqh;
-  --jx-range-track: calc(100cqh / 2.5);
-  --jx-range-ring: calc(100cqh / 8);
-  --jx-slider-fill-color: var(--primary);
-  &::-webkit-slider-runnable-track {
-    height: var(--jx-range-track);
-    border-radius: calc(infinity * 1px);
-    background: var(--muted);
-  }
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    box-sizing: border-box;
-    corner-shape: var(--corner-shape, bevel);
-    /* thumb = the icon token; centering = (track − thumb) / 2 */
-    width: var(--jx-range-thumb);
-    height: var(--jx-range-thumb);
-    margin-top: calc((var(--jx-range-track) - var(--jx-range-thumb)) / 2);
-    border-radius: 50%;
-    border: var(--jx-range-ring) solid var(--primary);
-    background: var(--background);
-    box-shadow: calc(-100cqw - var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color);
-  }
-  &::-moz-range-track {
-    height: var(--jx-range-track);
-    border-radius: calc(infinity * 1px);
-    background: var(--muted);
-  }
-  &::-moz-range-progress {
-    height: var(--jx-range-track);
-    border-radius: calc(infinity * 1px);
-    background: var(--jx-slider-fill-color);
-  }
-  &::-moz-range-thumb {
-    box-sizing: border-box;
-    corner-shape: var(--corner-shape, bevel);
-    width: var(--jx-range-thumb);
-    height: var(--jx-range-thumb);
-    border-radius: 50%;
-    border: var(--jx-range-ring) solid var(--primary);
-    background: var(--background);
-  }
-  &:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: 2px;
-  }
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
 }
 
-/* the color swatch: the locked square + flattened UA pseudos (the
-   .jx-color-swatch law) */
-@utility jx-html-color {
+.jx-html-range::-webkit-slider-runnable-track {
+  height: var(--jx-range-track);
+  border-radius: calc(infinity * 1px);
+  background: var(--muted);
+}
+
+.jx-html-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
+  width: var(--jx-range-thumb);
+  height: var(--jx-range-thumb);
+  margin-top: calc((var(--jx-range-track) - var(--jx-range-thumb)) / 2);
+  border-radius: 50%;
+  border: var(--jx-range-ring) solid var(--primary);
+  background: var(--background);
+  box-shadow: calc(-100cqw - var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color);
+}
+
+.jx-html-range::-moz-range-track {
+  height: var(--jx-range-track);
+  border-radius: calc(infinity * 1px);
+  background: var(--muted);
+}
+
+.jx-html-range::-moz-range-progress {
+  height: var(--jx-range-track);
+  border-radius: calc(infinity * 1px);
+  background: var(--jx-slider-fill-color);
+}
+
+.jx-html-range::-moz-range-thumb {
+  box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
+  width: var(--jx-range-thumb);
+  height: var(--jx-range-thumb);
+  border-radius: 50%;
+  border: var(--jx-range-ring) solid var(--primary);
+  background: var(--background);
+}
+
+.jx-html-range:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.jx-html-range:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.jx-html-color {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
-  corner-shape: var(--corner-shape, bevel);
   width: calc(var(--jx-hit, 2.5rem) - 2px);
   height: auto;
   align-self: stretch;
@@ -1297,95 +1513,100 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   corner-shape: round;
   background: conic-gradient(from 0deg, #ff0000 0deg, #ffff00 60deg, #00ff00 120deg, #00ffff 180deg, #0000ff 240deg, #ff00ff 300deg, #ff0000 360deg);
   cursor: pointer;
-  &::-webkit-color-swatch-wrapper {
-    padding: 0;
-  }
-  &::-webkit-color-swatch {
-    border: 2px solid #FFF;
-    border-radius: 50%;
-    corner-shape: round;
-  }
-  &::-moz-color-swatch {
-    border: 0;
-    border-radius: 0;
-  }
-  /* pipette: CARRIED BY THE WRAPPER (.jx-color-shell::after
-   * in the face) — input[type=color] is a replaced element,
-   * ::after is unreliable */
 }
 
-/* the toggle-group: a SUBTREE law — the joined segment row over
-   bare label>input+span children (the .jx-tgroup law) */
-@utility jx-html-tgroup {
+.jx-html-color::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.jx-html-color::-webkit-color-swatch {
+  border: 2px solid #FFF;
+  border-radius: 50%;
+  corner-shape: round;
+}
+
+.jx-html-color::-moz-color-swatch {
+  border: 0;
+  border-radius: 0;
+}
+
+.jx-html-tgroup {
   corner-shape: var(--corner-shape, bevel);
   display: inline-flex;
   width: fit-content;
   flex-wrap: wrap;
-  overflow: hidden; /* clip children to the container's radius — active segment bg bleeds otherwise */
+  overflow: hidden;
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background: var(--card);
   box-shadow: var(--shadow-2xs);
-  & > label {
-    display: inline-flex;
-    align-items: center;
-    min-block-size: var(--jx-hit, 2.5rem);
-    padding-block: calc((var(--jx-hit, 2.5rem) - var(--jx-line, 1.25rem)) / 2);
-    padding-inline: var(--jx-inset, 0.75rem);
-    font-family: var(--font-nav);
-    font-size: var(--jx-text, 0.8125rem);
-    line-height: var(--jx-line, 1.25rem);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--muted-foreground);
-    background-color: transparent;
-    border-inline-end: 1px solid var(--border);
-    cursor: pointer;
-    user-select: none;
-    transition: color 150ms ease-out, background-color 150ms ease-out;
-    &:last-child {
-      border-inline-end: 0;
-    }
-    & > input {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      margin: -1px;
-      padding: 0;
-      border: 0;
-      overflow: hidden;
-      clip-path: inset(50%);
-      white-space: nowrap;
-    }
-    &:not(:has(input:disabled)):hover {
-      color: var(--foreground);
-    }
-    &:has(input:checked) {
-      background-color: var(--primary);
-      color: var(--primary-foreground);
-    }
-    &:has(input:checked):not(:has(input:disabled)):hover {
-      color: var(--primary-foreground);
-    }
-    &:has(input:focus-visible) {
-      outline: 1px solid var(--ring);
-      outline-offset: -1px;
-    }
-    &:has(input:disabled) {
-      cursor: not-allowed;
-      opacity: 0.45;
-    }
-  }
+}
+
+.jx-html-tgroup> label {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--jx-hit, 2.5rem);
+  padding-block: calc((var(--jx-hit, 2.5rem) - var(--jx-line, 1.25rem)) / 2);
+  padding-inline: var(--jx-inset, 0.75rem);
+  font-family: var(--font-nav);
+  font-size: var(--jx-text, 0.8125rem);
+  line-height: var(--jx-line, 1.25rem);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted-foreground);
+  background-color: transparent;
+  border-inline-end: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+  transition: color 150ms ease-out, background-color 150ms ease-out;
+}
+
+.jx-html-tgroup> label:last-child {
+  border-inline-end: 0;
+}
+
+.jx-html-tgroup> label:not(:has(input:disabled)):hover {
+  color: var(--foreground);
+}
+
+.jx-html-tgroup> label:has(input:checked) {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.jx-html-tgroup> label:has(input:checked):not(:has(input:disabled)):hover {
+  color: var(--primary-foreground);
+}
+
+.jx-html-tgroup> label:has(input:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+.jx-html-tgroup> label:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.jx-html-tgroup> label > input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
   @media (prefers-reduced-motion: reduce) {
-    & > label {
+    .jx-html-tgroup> label {
       transition: none;
     }
   }
-}
 
-/* the clear button — component-level (the input's × glyph);
- * in the STANDARD LAYER so components don't need the full face */
-@utility jx-html-clear {
+.jx-html-clear {
   flex: none;
   display: inline-flex;
   align-items: center;
@@ -1398,27 +1619,27 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   font-size: var(--jx-text, 0.875rem);
   line-height: var(--jx-leading, 1.45);
   cursor: pointer;
-  &:hover {
-    color: var(--foreground);
-  }
-  &:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  /* the glyph — an ICON SLOT (mask, currentColor themes) */
-  & .jx-clear-glyph {
-    display: block;
-    width: 10px;
-    height: 10px;
-    background-color: currentColor;
-    -webkit-mask: var(--jx-icon-clear, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E")) center / contain no-repeat;
-    mask: var(--jx-icon-clear, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E")) center / contain no-repeat;
-  }
 }
 
-/* the two postures (Part A's opt-in vocabulary, standard-sourced):
-   the single-box control, and the wrapper+lane pair for slots */
-@utility jx-html-control {
+.jx-html-clear:hover {
+  color: var(--foreground);
+}
+
+.jx-html-clear:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+.jx-html-clear.jx-clear-glyph {
+  display: block;
+  width: 10px;
+  height: 10px;
+  background-color: currentColor;
+  -webkit-mask: var(--jx-icon-clear, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E")) center / contain no-repeat;
+  mask: var(--jx-icon-clear, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E")) center / contain no-repeat;
+}
+
+.jx-html-control {
   box-sizing: border-box;
   display: block;
   width: 100%;
@@ -1431,79 +1652,86 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   font-size: var(--jx-text, 0.875rem);
   color-scheme: light;
   transition: box-shadow 150ms ease-out;
-  &:hover {
-    box-shadow: var(--shadow-2xs);
-  }
-  &:focus-visible {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  &[aria-invalid='true'] {
-    border-style: dashed;
-    border-color: var(--error);
-    color: var(--error);
-  }
-  &[aria-invalid='false'] {
-    border-color: var(--primary);
-  }
-  &::placeholder {
-    color: var(--jx-placeholder, color-mix(in oklab, var(--foreground) 40%, var(--background)));
-    opacity: 1;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-  }
 }
 
-@utility jx-html-control-shell {
+.jx-html-control::placeholder {
+  color: var(--jx-placeholder, color-mix(in oklab, var(--foreground) 40%, var(--background)));
+  opacity: 1;
+}
+
+.jx-html-control:hover {
+  box-shadow: var(--shadow-2xs);
+}
+
+.jx-html-control:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+.jx-html-control:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.jx-html-control[aria-invalid='true'] {
+  border-style: dashed;
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.jx-html-control[aria-invalid='false'] {
+  border-color: var(--primary);
+}
+
+  @media (prefers-reduced-motion: reduce) {
+    .jx-html-control {
+      transition: none;
+    }
+  }
+
+.jx-html-control-shell {
   box-sizing: border-box;
   display: flex;
   width: 100%;
   min-height: var(--jx-hit, 2.5rem);
   gap: var(--jx-gap, 0.5rem);
-  /* inline inset — em-based (proportional to font-size → density);
-   * ALWAYS present (slotted or not) so text never touches the border.
-   * SUFFIX EXCEPTION: when the last child is NOT the lane (icon,
-   * clear button, suffix slot), that element's own width + the flex
-   * gap already form the end inset — drop end padding to avoid
-   * double-spacing */
   font-size: var(--jx-text, 0.875rem);
   padding-inline: 0.6em;
-  &:has(> :not(.jx-html-control-lane):last-child) {
-    padding-inline-end: 0;
-  }
   border: 1px solid var(--border);
   border-radius: 0;
   background: var(--background);
   transition: box-shadow 150ms ease-out;
-  &:hover {
-    box-shadow: var(--shadow-2xs);
-  }
-  &:has(:focus-visible) {
-    outline: 1px solid var(--ring);
-    outline-offset: -1px;
-  }
-  &:has([aria-invalid='true']),
-  &.jx-invalid {
-    border-style: dashed;
-  }
-  /* disabled: the shell's border dims so the disabled state is visible
-   * on the wrapper (the lane's own opacity is not enough when the
-   * border lives on the shell) */
-  &:has(:disabled) {
-    border-color: var(--muted);
-    cursor: not-allowed;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-  }
 }
 
-@utility jx-html-control-lane {
+.jx-html-control-shell:has(> :not(.jx-html-control-lane):last-child) {
+  padding-inline-end: 0;
+}
+
+.jx-html-control-shell:hover {
+  box-shadow: var(--shadow-2xs);
+}
+
+.jx-html-control-shell:has(:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+.jx-html-control-shell:has([aria-invalid='true']), .jx-html-control-shell.jx-invalid {
+  border-style: dashed;
+}
+
+.jx-html-control-shell:has(:disabled) {
+  border-color: var(--muted);
+  cursor: not-allowed;
+}
+
+  @media (prefers-reduced-motion: reduce) {
+    .jx-html-control-shell {
+      transition: none;
+    }
+  }
+
+.jx-html-control-lane {
   flex: 1 1 auto;
   min-height: calc(var(--jx-hit, 2.5rem) - 2px);
   min-width: 0;
@@ -1513,48 +1741,47 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   color: var(--foreground);
   font: inherit;
   font-size: var(--jx-text, 0.875rem);
-  &::placeholder {
-    color: var(--jx-placeholder, color-mix(in oklab, var(--foreground) 40%, var(--background)));
-    opacity: 1;
-  }
-  /* date/time indicator — same law as jx-html-input (the lane posture
-   * is what the component uses for date/time inputs; em-based sizing
-   * scales with the input's own font-size which tracks density) */
-  &::-webkit-calendar-picker-indicator {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 1.4em;
-    height: 1.4em;
-    margin-inline-start: var(--jx-gap, 0.5rem);
-    margin-inline-end: var(--jx-gap, 0.5rem);
-    cursor: pointer;
-    background-image: var(--jx-icon-calendar, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E"));
-    background-size: contain;
-    background-repeat: no-repeat;
-  }
-  &[type='time']::-webkit-calendar-picker-indicator {
-    background-image: var(--jx-icon-clock, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E"));
-  }
-  /* inline-start default icons: email = envelope, search = magnifier.
-   * background-image positioned at the start edge; padding-inline-start
-   * grows to make room (padding + icon + gap). Icon size and padding
-   * both ride em — density-tracking, proportional to the input */
-  &[type='email'] {
-    padding-inline-start: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem));
-    background-image: var(--jx-icon-mail, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='20' height='16' x='2' y='4' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E"));
-    background-position: left 0.6em center;
-    background-size: 1.4em;
-    background-repeat: no-repeat;
-  }
-  &[type='search'] {
-    padding-inline-start: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem));
-    background-image: var(--jx-icon-search, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E"));
-    background-position: left 0.6em center;
-    background-size: 1.4em;
-    background-repeat: no-repeat;
-  }
 }
 
+.jx-html-control-lane::placeholder {
+  color: var(--jx-placeholder, color-mix(in oklab, var(--foreground) 40%, var(--background)));
+  opacity: 1;
+}
+
+.jx-html-control-lane::-webkit-calendar-picker-indicator {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1.4em;
+  height: 1.4em;
+  margin-inline-start: var(--jx-gap, 0.5rem);
+  margin-inline-end: var(--jx-gap, 0.5rem);
+  cursor: pointer;
+  background-image: var(--jx-icon-calendar, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E"));
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.jx-html-control-lane[type='time']::-webkit-calendar-picker-indicator {
+  background-image: var(--jx-icon-clock, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E"));
+}
+
+.jx-html-control-lane[type='email'] {
+  padding-inline-start: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem));
+  background-image: var(--jx-icon-mail, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='20' height='16' x='2' y='4' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E"));
+  background-position: left 0.6em center;
+  background-size: 1.4em;
+  background-repeat: no-repeat;
+}
+
+.jx-html-control-lane[type='search'] {
+  padding-inline-start: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem));
+  background-image: var(--jx-icon-search, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E"));
+  background-position: left 0.6em center;
+  background-size: 1.4em;
+  background-repeat: no-repeat;
+}
+}
+/* @jixoai/css-laws:end:jx-html-utility */
 
 :where(:root:not([data-density]), [data-density='default']) {
   --jx-text: var(--jx-density-text-default);

@@ -30,7 +30,10 @@ function collect(dir: string): string[] {
 }
 
 describe('hover stability (press law)', () => {
-  it('no scoped :hover rule moves its body (transform/translate)', () => {
+  // whole-tree regex scan: the generated css-laws slots grew the
+  // sheets — 5s chokes under parallel vitest load (it passed at
+  // 4.2s before the cutover, 1.8s in isolation)
+  it('no scoped :hover rule moves its body (transform/translate)', { timeout: 30_000 }, () => {
     const offenders: string[] = [];
     for (const file of collect(ROOT)) {
       const src = readFileSync(file, 'utf8');

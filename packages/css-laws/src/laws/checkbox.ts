@@ -1,7 +1,7 @@
 /**
- * The checkbox law — the most complex form-control law.
- * Base geometry, ::before clip-path glyph with checked/indeterminate
- * morphs, state machine, degradation.
+ * The checkbox law — icon-sized box, the ::before clip-path glyph with
+ * the checked/indeterminate morphs (B5). Ported byte-faithful from
+ * jixoai.css @utility jx-html-checkbox.
  *
  * SINGLE DECLARATION SOURCE: this file. Never edit the generated CSS.
  */
@@ -11,7 +11,7 @@ export const checkboxLaw: ComponentLaw = {
   name: 'checkbox',
   application: {
     className: 'jx-html-checkbox',
-    elementSelector: 'input[type="checkbox"]:not([role="switch"]):not(.no-jx-pure, .no-jx-pure *)',
+    elementSelector: "input[type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *)",
     scoped: true,
   },
   base: {
@@ -28,8 +28,7 @@ export const checkboxLaw: ComponentLaw = {
     'border-radius': '0',
     background: 'var(--background)',
     cursor: 'pointer',
-    transition:
-      'background-color 150ms ease-out, border-color 150ms ease-out',
+    transition: 'background-color 150ms ease-out, border-color 150ms ease-out',
   },
   pseudos: {
     before: {
@@ -43,22 +42,18 @@ export const checkboxLaw: ComponentLaw = {
         background: 'var(--primary-foreground)',
         opacity: '0',
         transform: 'rotate(45deg)',
-        'clip-path':
-          'polygon(20% 100%, 20% 80%, 50% 80%, 50% 80%, 70% 80%, 70% 100%)',
-        transition:
-          'clip-path 150ms ease-out, opacity 150ms ease-out, transform 150ms ease-out',
+        'clip-path': 'polygon(20% 100%, 20% 80%, 50% 80%, 50% 80%, 70% 80%, 70% 100%)',
+        transition: 'clip-path 150ms ease-out, opacity 150ms ease-out, transform 150ms ease-out',
       },
       states: {
-        'checked': {
+        checked: {
           opacity: '1',
-          'clip-path':
-            'polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%)',
+          'clip-path': 'polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%)',
         },
-        'indeterminate': {
+        indeterminate: {
           opacity: '1',
           transform: 'rotate(0deg)',
-          'clip-path':
-            'polygon(10% 40%, 10% 60%, 45% 60%, 55% 60%, 90% 60%, 90% 40%)',
+          'clip-path': 'polygon(10% 40%, 10% 60%, 45% 60%, 55% 60%, 90% 60%, 90% 40%)',
         },
       },
     },
@@ -84,10 +79,7 @@ export const checkboxLaw: ComponentLaw = {
     },
     {
       selector: ':disabled',
-      declarations: {
-        opacity: '0.5',
-        cursor: 'not-allowed',
-      },
+      declarations: { opacity: '0.5', cursor: 'not-allowed' },
     },
     {
       selector: "[aria-invalid='true']",
@@ -98,14 +90,8 @@ export const checkboxLaw: ComponentLaw = {
     {
       query: '(prefers-reduced-motion: reduce)',
       rules: [
-        {
-          selector: '',
-          declarations: { transition: 'none' },
-        },
-        {
-          selector: '::before',
-          declarations: { transition: 'none' },
-        },
+        { selector: '', declarations: { transition: 'none' } },
+        { selector: '::before', declarations: { transition: 'none' } },
       ],
     },
   ],

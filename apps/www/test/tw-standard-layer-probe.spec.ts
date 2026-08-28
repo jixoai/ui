@@ -1,11 +1,17 @@
 /**
- * tw-standard-layer-probe — the .jx-html-* architecture, empirically
- * (native-contract-fusion V2 / jx-html standard layer, 2026-08-27).
+ * tw-standard-layer-probe — TW4's @apply/@utility CAPABILITY, empirically
+ * (native-contract-fusion V2, 2026-08-27; rescoped css-laws V3, 2026-08-28).
  *
- * The Owner-pinned architecture: ONE declaration source —
- * `.jx-html-*` standard classes authored as @apply/@utility — with
- * two applications: the registry consumes the classes, and jx-pure's
- * bare-element rules APPLY them (`input { @apply jx-html-input }`).
+ * HISTORY: these probes originally pinned the V2 architecture —
+ * `.jx-html-*` classes as @utility, bare-element face rules APPLYing
+ * them. The V3 cutover retired that chain: laws are TS objects in
+ * packages/css-laws, serialized to flat CSS into marker slots (no
+ * @apply anywhere — TW4 dev did not reliably emit complex utilities
+ * onto element selectors). The probes stay as CAPABILITY locks:
+ * they document what TW4 CAN transfer through @apply, on fixture-
+ * local utilities, in case a future architecture returns to it.
+ * The shipping architecture's own gates: packages/css-laws tests +
+ * verify-native-parity + the build --check freshness slot.
  *
  * Preconditions, all probed through the REAL pipeline (vite +
  * @tailwindcss/vite, child process — vitest's virtual runner breaks
