@@ -53,6 +53,12 @@ export class GhosttyVTError extends Error {
 // type_json manifest shapes (diagnostic + marshaling source of truth)
 // ---------------------------------------------------------------------------
 
+// P1 TODO pointers (owner closeout 2026-08-29; the consumer-facing
+// roadmap lives in the ghostty-term component header): the selection
+// gesture already accepts {rectangle:true} (column-select ammo); grid
+// refs accept GhosttyPoint HISTORY tags (search/read-backlog ammo);
+// CellView.hyperlinkUri is already populated (OSC 8 ammo).
+
 export interface GhosttyTypeField {
   offset: number;
   size: number;

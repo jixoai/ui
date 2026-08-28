@@ -1,5 +1,11 @@
 name: Release
 
+# TODO (owner closeout 2026-08-29): every workflow in this repo (the
+# ghostty-wasm-sync PR automation, the deploy wasm cache, this dual
+# publish) has passed LOCAL rehearsal only — none has run on real GitHub
+# Actions yet; expect small first-run frictions (permissions, branch
+# protection on the automation PR, cache paths).
+#
 # Publishes the jixoai-ui CLI and the @jixoai/vite-plugin package to npm
 # via Trusted Publishing (OIDC). Each package's npm trusted publisher is
 # bound to this repository + this workflow file (release.yml) + the

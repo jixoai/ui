@@ -29,6 +29,41 @@
   D5 — registry:ui component)". Binding ABI notes below are Batch B
   field-probed facts, not assumptions.
 
+  TODO roadmap (owner closeout review 2026-08-29 — P1/P2 backlog as
+  comments until their changes open; every P1 item is "wasm ammo ready,
+  host wiring pending"):
+    P1 1. scrollback UI — a scrollbar + history browsing surface; the
+          exact viewport state is already readable (vt.readScrollbar():
+          total/offset/len) and scrollViewport() accepts absolute ROW/TOP
+          tags beyond deltas.
+    P1 2. hyperlinks — cell.hyperlinkUri is already surfaced on every
+          CellView (OSC 8 read path); missing: hover underline styling
+          + click activation (open in new tab + security prompt).
+    P1 3. rectangle (column) selection — the binding gesture already
+          memoizes `rectangle` on press and applies it to drags
+          (selection.events.press(x, y, tier, {rectangle:true})); expose
+          the toggle (prop or Alt+drag convention).
+    P1 4. addon system (xterm loadAddon convention) — architecture-level
+          change; opens the ecosystem slots: WebGL renderer, fit, search.
+          Deserves its own change, not a rider.
+    P2 5. rendering perf — glyph atlas (offscreen prerendered glyph
+          bitmaps) then WebGL; current per-cell fillText is fine for
+          interactive use, chokes on bulk output (reference: coder/
+          ghostty-web's webgl addon).
+    P2 6. mobile — touch scroll, long-press context menu, virtual
+          keyboard shell; sendKey()/pasteText() handles already provide
+          the programmatic input surface (keyboard-less hosts).
+    P2 7. in-terminal search — the binding's grid refs accept HISTORY
+          points (GhosttyPoint tag); needs a row-read helper + match
+          highlight + jump-to (depends on scrollback UI for navigation).
+    UX 8. "shell starting" state — hosts with slow shells (heavy zshrc:
+          multi-second boot on the owner's machine) show an empty canvas
+          until the first byte; a first-write placeholder would mask it
+          (demo App.svelte level, or a prop here if generalized).
+  Known upstream limit: emoji VS16 (❤️) width — ghostty judges 1 cell,
+  color glyphs render wider; needs upstream collaboration, not a host
+  hack (xterm has the same behavior).
+
   Known V1 bounds (design non-goals or binding-surface limits, reported
   to the orchestrator): no hyperlink activation, viewport-only
   scroll (exact offsets via readScrollbar; the cache-shift rides them),
