@@ -389,28 +389,33 @@
         style="position-anchor: {pickerAnchor}; inset-area: bottom span-all; position-area: bottom span-all;"
         ontoggle={onPickerToggle}
       >
-        {#if picker}
-          {@render picker(pickerCtx)}
-        {:else if type === 'color'}
-          <Swatches
-            bind:this={swatchesRef}
-            value={/^#[0-9a-fA-F]{6}$/.test(String(shownValue ?? '')) ? String(shownValue) : undefined}
-            onpick={(hex) => {
-              commitFromPanel(hex);
-              closePicker();
-            }}
-          />
-        {:else}
-          <Calendar
-            bind:this={calendarRef}
-            anchors={datePart ? [datePart] : []}
-            min={(rest as { min?: string }).min}
-            max={(rest as { max?: string }).max}
-            initialView={datePart}
-            idPrefix="{id}-pcal"
-            onpick={commitDay}
-          />
-        {/if}
+        <!-- the floating-surface law (arch r3): the popover element is
+             the PLATFORM (paints nothing); the bezel fill + border live
+             on the surface-body child -->
+        <div class="jx-surface-body px-3.5 py-3">
+          {#if picker}
+            {@render picker(pickerCtx)}
+          {:else if type === 'color'}
+            <Swatches
+              bind:this={swatchesRef}
+              value={/^#[0-9a-fA-F]{6}$/.test(String(shownValue ?? '')) ? String(shownValue) : undefined}
+              onpick={(hex) => {
+                commitFromPanel(hex);
+                closePicker();
+              }}
+            />
+          {:else}
+            <Calendar
+              bind:this={calendarRef}
+              anchors={datePart ? [datePart] : []}
+              min={(rest as { min?: string }).min}
+              max={(rest as { max?: string }).max}
+              initialView={datePart}
+              idPrefix="{id}-pcal"
+              onpick={commitDay}
+            />
+          {/if}
+        </div>
       </div>
     {/if}
     {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}

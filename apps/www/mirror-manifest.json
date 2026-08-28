@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-28T21:08:53.341Z",
+  "generatedAt": "2026-08-28T21:19:36.825Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -616,15 +616,15 @@
           "source": "registry/files/ui/input/input.svelte",
           "mirror": "apps/www/src/lib/ui/input/input.svelte",
           "target": "@ui/input/input.svelte",
-          "sourceSha": "1ec1ee19120bdb923d0fb962b5adc40d082bcaff5dac5a17f774f40f43d46fca",
-          "mirrorSha": "1ec1ee19120bdb923d0fb962b5adc40d082bcaff5dac5a17f774f40f43d46fca"
+          "sourceSha": "aff481bc59991fd9e311a2244e5b3a894dab0235714e4f7fb81d4d2b51630410",
+          "mirrorSha": "aff481bc59991fd9e311a2244e5b3a894dab0235714e4f7fb81d4d2b51630410"
         },
         {
           "source": "registry/files/ui/input/input.css",
           "mirror": "apps/www/src/lib/ui/input/input.css",
           "target": "@ui/input/input.css",
-          "sourceSha": "568673cfe042d2d89041697b4844d399e7dcfde035b9d559ba49035ec59f922f",
-          "mirrorSha": "568673cfe042d2d89041697b4844d399e7dcfde035b9d559ba49035ec59f922f"
+          "sourceSha": "efa9469b856bc78dc7b73514b7757dc3ce0e5f5b462d29bd88659d9c69e37167",
+          "mirrorSha": "efa9469b856bc78dc7b73514b7757dc3ce0e5f5b462d29bd88659d9c69e37167"
         },
         {
           "source": "registry/files/ui/input/index.ts",
