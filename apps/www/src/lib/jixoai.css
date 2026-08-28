@@ -1217,19 +1217,20 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   border: 0;
   border-radius: calc(infinity * 1px);
   background: transparent;
-  /* INLINE-SIZE CONTAINER (NOT size — size containment on <input>
-   * locks the height and prevents consumer overrides). The cqw fill
-   * technique works with inline-size; the thumb derives from
-   * --jx-icon directly (NOT cqh, which needs size containment) */
-  container-type: inline-size;
+  /* SIZE CONTAINER — the thumb derives from the input's own height
+   * via cqh: thumb = 100% of the container's block size. Consumer
+   * overrides height (or --jx-icon) → thumb/track/ring all scale.
+   * The earlier "height locked" was the @apply not emitting, NOT
+   * the container-type — now the utility class is direct on the
+   * element, size containment works correctly */
+  container-type: size;
   overflow: hidden;
   cursor: pointer;
-  /* the geometry chain: every dimension derives from --jx-icon —
-   * the same token the input's own height rides. Consumer overrides
-   * --jx-icon on the element → everything scales together */
-  --jx-range-thumb: var(--jx-icon, 1.5rem);
-  --jx-range-track: calc(var(--jx-range-thumb, 1.5rem) / 2.5);
-  --jx-range-ring: calc(var(--jx-range-thumb, 1.5rem) / 8);
+  /* the geometry chain: EVERYTHING derives from cqh — proportional
+   * to the input's actual rendered height (density, consumer resize) */
+  --jx-range-thumb: 100cqh;
+  --jx-range-track: calc(100cqh / 2.5);
+  --jx-range-ring: calc(100cqh / 8);
   --jx-slider-fill-color: var(--primary);
   &::-webkit-slider-runnable-track {
     height: var(--jx-range-track);
