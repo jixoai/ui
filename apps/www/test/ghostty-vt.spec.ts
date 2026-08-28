@@ -21,6 +21,8 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import {
   GhosttyVTError,
+  Terminal,
+  init,
   loadGhosttyVT,
   type GhosttyVT,
   type RowSnapshot,
@@ -58,9 +60,11 @@ const dec = (bytes: Uint8Array): string => new TextDecoder().decode(bytes);
 const rowText = (row: RowSnapshot): string => row.cells.map((cell) => cell.grapheme).join('');
 
 let vt: GhosttyVT;
+let wasmBytes: Uint8Array;
 
 beforeAll(async () => {
-  vt = await loadGhosttyVT({ bytes: await acquireWasmBytes() });
+  wasmBytes = await acquireWasmBytes();
+  vt = await loadGhosttyVT({ bytes: wasmBytes });
 }, 60_000);
 
 describe('ghostty-vt type manifest', () => {
@@ -221,5 +225,163 @@ describe('ghostty-vt url fallback discipline (instantiateStreaming)', () => {
     // the clone was the fallback's source, not the consumed original
     expect(cloneSpy).toHaveBeenCalledTimes(1);
     expect(response.bodyUsed).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// xterm.js-convention facade (owner directive 2026-08-28)
+// ---------------------------------------------------------------------------
+
+const firstRowText = (rows: RowSnapshot[]): string[] => rows.map(rowText);
+const drainDirty = (term: Terminal): RowSnapshot[] => [...term.dirtyRows()];
+
+describe('ghostty-vt Terminal facade (xterm conventions)', () => {
+  it('throws a named init() error when no core is available', () => {
+    // module state: sharedCore is still null (this file never awaited init)
+    expect(() => new Terminal()).toThrow(/init/);
+    expect(() => new Terminal({ cols: 40, rows: 6 })).toThrow(GhosttyVTError);
+  });
+
+  it('init() seeds the shared core for core-less Terminals (idempotent)', async () => {
+    await init({ bytes: wasmBytes });
+    await init(); // second call reuses the settled shared core
+    const term = new Terminal();
+    expect(term.cols).toBe(80);
+    expect(term.rows).toBe(24);
+    term.write('shared');
+    expect(firstRowText(drainDirty(term))[0]).toContain('shared');
+    term.dispose();
+    // ownership: dispose never frees the shared core — a fresh Terminal works
+    const next = new Terminal({ cols: 20, rows: 4 });
+    expect([next.cols, next.rows]).toEqual([20, 4]);
+    next.dispose();
+  });
+
+  it('injected cores give full isolation between Terminals', async () => {
+    const a = new Terminal({ core: await loadGhosttyVT({ bytes: wasmBytes }), cols: 40, rows: 6 });
+    const b = new Terminal({ core: await loadGhosttyVT({ bytes: wasmBytes }), cols: 40, rows: 6 });
+    a.write('alpha');
+    b.write('beta');
+    expect(firstRowText(drainDirty(a))[0]).toContain('alpha');
+    expect(firstRowText(drainDirty(b))[0]).toContain('beta');
+    a.core.free();
+    b.core.free();
+  });
+
+  it('write/writeln render text and fire callbacks on a microtask', async () => {
+    const term = new Terminal({ core: await loadGhosttyVT({ bytes: wasmBytes }), cols: 40, rows: 6 });
+    let fired = 0;
+    term.write('Hi', () => fired++);
+    term.writeln('!', () => fired++);
+    expect(fired).toBe(0); // async acknowledgment, not synchronous
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(fired).toBe(2);
+    // 'Hi!' on row 0; writeln's line feed moved the cursor to row 1
+    const rows = drainDirty(term);
+    expect(rowText(rows[0]!)).toBe('Hi!');
+    term.core.free();
+  });
+
+  it('onData: multiple subscribers, per-subscription dispose, latin1 channel', async () => {
+    const term = new Terminal({ core: await loadGhosttyVT({ bytes: wasmBytes }), cols: 40, rows: 6 });
+    const seen: string[] = [];
+    const first = term.onData((s) => seen.push(`a:${s}`));
+    term.onData((s) => seen.push(`b:${s}`));
+    const bytes = term.handleKey({ key: 'Enter' });
+    expect(Array.from(bytes)).toEqual([13]);
+    expect(seen).toEqual(['a:\r', 'b:\r']);
+    first.dispose();
+    term.handleKey({ key: 'a', code: 'KeyA' });
+    expect(seen).toEqual(['a:\r', 'b:\r', 'b:a']);
+    // bare modifiers produce no bytes and reach no subscriber
+    term.handleKey({ key: 'Shift', code: 'ShiftLeft' });
+    expect(seen).toHaveLength(3);
+    term.core.free();
+  });
+
+  it('resize updates cols/rows and fires onResize with the detail', async () => {
+    const term = new Terminal({ core: await loadGhosttyVT({ bytes: wasmBytes }), cols: 40, rows: 6 });
+    const resizes: Array<{ cols: number; rows: number }> = [];
+    const sub = term.onResize((d) => resizes.push(d));
+    term.resize(100, 30);
+    expect(term.cols).toBe(100);
+    expect(term.rows).toBe(30);
+    expect(resizes).toEqual([{ cols: 100, rows: 30 }]);
+    // a same-dims resize is a no-op notification-wise
+    term.resize(100, 30);
+    expect(resizes).toHaveLength(1);
+    sub.dispose();
+    term.resize(50, 12);
+    expect(resizes).toHaveLength(1);
+    // the grid really moved: writing at a far row renders there
+    term.write('\x1b[10;1HX');
+    expect(drainDirty(term).some((row) => row.y === 9)).toBe(true);
+    term.core.free();
+  });
+
+  it('selection surface tracks the gesture state (get/has/clear)', async () => {
+    const term = new Terminal({ core: await loadGhosttyVT({ bytes: wasmBytes }), cols: 40, rows: 6 });
+    term.write('hello world');
+    drainDirty(term);
+    expect(term.hasSelection()).toBe(false);
+    expect(term.getSelection()).toBeUndefined();
+    term.core.selection.events.press(0, 0, 1);
+    term.core.selection.events.drag(4, 0);
+    term.core.selection.events.release(4, 0);
+    expect(term.hasSelection()).toBe(true);
+    expect(term.getSelection()).toMatch(/hell/);
+    term.clearSelection();
+    expect(term.hasSelection()).toBe(false);
+    term.core.free();
+  });
+
+  it('clear() erases the display and homes the cursor', async () => {
+    const term = new Terminal({ core: await loadGhosttyVT({ bytes: wasmBytes }), cols: 40, rows: 6 });
+    term.write('junk\r\nmore junk');
+    drainDirty(term);
+    term.clear();
+    const rows = drainDirty(term);
+    const row0 = rows.find((row) => row.y === 0);
+    expect(row0).toBeDefined();
+    expect(rowText(row0!)).toBe('');
+    const cursor = term.readCursor();
+    expect([cursor?.x, cursor?.y]).toEqual([0, 0]);
+    term.core.free();
+  });
+
+  it('paste() gates unsafe text and replays sanitized bytes on onData', async () => {
+    const term = new Terminal({ core: await loadGhosttyVT({ bytes: wasmBytes }), cols: 40, rows: 6 });
+    const received: string[] = [];
+    term.onData((s) => received.push(s));
+    term.paste('hi there');
+    term.paste('evil\x1bdanger'); // safe per upstream, ESC sanitized to space
+    term.paste('a\nb'); // unsafe (newline) — dropped
+    expect(received).toEqual(['hi there', 'evil danger']);
+    term.core.free();
+  });
+
+  it('scrollLines keeps the terminal alive; reset restores a pristine grid', async () => {
+    const term = new Terminal({ core: await loadGhosttyVT({ bytes: wasmBytes }), cols: 40, rows: 6 });
+    expect(() => term.scrollLines(-2)).not.toThrow();
+    expect(() => term.scrollLines(1)).not.toThrow();
+    term.write('still alive');
+    expect(firstRowText(drainDirty(term))[0]).toContain('still alive');
+    term.reset();
+    expect(firstRowText(drainDirty(term))[0]).not.toContain('still alive');
+    term.core.free();
+  });
+
+  it('dispose: unbinds everything but never frees an injected core', async () => {
+    const core = await loadGhosttyVT({ bytes: wasmBytes });
+    const term = new Terminal({ core });
+    let seen = 0;
+    term.onData(() => seen++);
+    term.dispose();
+    // the injected core survives (caller ownership)…
+    expect(() => core.vtWrite(enc('A'))).not.toThrow();
+    // …but the facade is dead and its subscriptions gone
+    expect(() => term.write('B')).toThrow(GhosttyVTError);
+    expect(seen).toBe(0);
+    core.free();
   });
 });

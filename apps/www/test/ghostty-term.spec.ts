@@ -57,6 +57,15 @@ vi.mock('../../../registry/files/ui/ghostty-term/vt-deps.ts', async () => {
   };
 });
 
+// The component VALUE-imports the Terminal facade from '$lib/ghostty-vt'
+// (owner directive 2026-08-28). Under the bare vitest config that alias
+// resolves to the src/lib MIRROR, which the mirror orchestrator syncs
+// separately — point the id at the canonical registry source instead so
+// these tests always exercise the same binding as ghostty-vt.spec.ts.
+vi.mock('$lib/ghostty-vt', async () =>
+  import('../../../registry/files/lib/ghostty-vt'),
+);
+
 // ---------------------------------------------------------------------------
 // platform stubs (canvas recorder, ResizeObserver, rAF)
 // ---------------------------------------------------------------------------
@@ -744,7 +753,7 @@ describe('ghostty-term handle API', () => {
 // text selection (owner request 2026-08-28)
 // ---------------------------------------------------------------------------
 
-const mouse = (root: HTMLDivElement, type: string, x: number, y: number, init: MouseEventInit = {}): MouseEvent => {
+const mouse = (root: HTMLElement, type: string, x: number, y: number, init: MouseEventInit = {}): MouseEvent => {
   const event = new MouseEvent(type, { bubbles: true, cancelable: true, button: 0, ...init });
   Object.defineProperty(event, 'offsetX', { value: x });
   Object.defineProperty(event, 'offsetY', { value: y });

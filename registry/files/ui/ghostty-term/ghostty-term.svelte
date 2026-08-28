@@ -38,10 +38,14 @@
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
-  // type-only: erased at compile time, so the runtime module graph never
-  // touches $lib/ghostty-vt directly — instantiation goes through the
-  // vt-deps seam (see the load seam note in the bootstrap below).
-  import type { GhosttyVT, RowSnapshot } from '$lib/ghostty-vt';
+  // type-only: erased at compile time.
+  import type { RowSnapshot } from '$lib/ghostty-vt';
+  // VALUE import: the xterm-convention Terminal facade (owner directive
+  // 2026-08-28). '$lib/ghostty-vt' is resolvable in mirrored contexts and
+  // consumer installs (vt-deps itself imports it); only the WASM
+  // INSTANTIATION stays behind the vt-deps seam — the facade wraps the
+  // core that loadVt produces and never loads anything itself.
+  import { Terminal } from '$lib/ghostty-vt';
   import { loadVt, virtualWasmUrl } from './vt-deps.js';
   import { parseColor, oklchToRgb } from '$lib/color-utils';
   import './ghostty-term.css';
@@ -188,7 +192,12 @@
 
   // ---- engine (non-reactive; canvas painting is imperative) ----------------
 
-  let vt: GhosttyVT | null = null;
+  // the xterm-convention facade over the loaded core (owner directive
+  // 2026-08-28); the raw GhosttyVT stays reachable as vt.core for the
+  // surfaces with no xterm counterpart (gesture events, snapshot).
+  let vt: Terminal | null = null;
+  /** facade onData subscription → props.onData (installed once at boot). */
+  let dataSub: { dispose(): void } | null = null;
   let ctx: CanvasRenderingContext2D | null = null;
   let probeEl: HTMLDivElement | null = null;
   let cell = { w: 8, h: 20 };
@@ -367,7 +376,7 @@
         offset += chunk.length;
       }
       pendingChunks = [];
-      vt.vtWrite(merged);
+      vt.write(merged);
     }
     paintFromDirty();
   };
@@ -574,7 +583,7 @@
     selLastClickAt = now;
     selTier = repeat ? (selTier % 3) + 1 : 1; // 1=cell 2=word 3=line, cycling
     selPressed = true;
-    vt.selection.events.press(c.x, c.y, selTier);
+    vt.core.selection.events.press(c.x, c.y, selTier);
     scheduleFrame();
   };
 
@@ -582,7 +591,7 @@
     if (!selection || !selPressed || vt === null) return;
     event.preventDefault(); // no native text selection while dragging
     const c = cellFromEvent(event);
-    vt.selection.events.drag(c.x, c.y);
+    vt.core.selection.events.drag(c.x, c.y);
     scheduleFrame();
   };
 
@@ -590,16 +599,16 @@
     if (!selPressed || vt === null) return;
     selPressed = false;
     const c = cellFromEvent(event);
-    vt.selection.events.release(c.x, c.y);
-    const text = vt.selection.text();
-    if (text !== null && text !== '') copyText(text);
+    vt.core.selection.events.release(c.x, c.y);
+    const text = vt.getSelection();
+    if (text !== undefined && text !== '') copyText(text);
     scheduleFrame();
   };
 
   const handleMouseLeave = (): void => {
     if (!selPressed || vt === null) return;
     selPressed = false;
-    vt.selection.events.release(selLastCell.x, selLastCell.y);
+    vt.core.selection.events.release(selLastCell.x, selLastCell.y);
   };
 
   const handleKeydown = (event: KeyboardEvent): void => {
@@ -608,15 +617,18 @@
     // selection the key falls through to the pty (^C / SIGINT) as before
     if (selection && (event.metaKey || event.ctrlKey) && !event.shiftKey && !event.altKey
       && (event.key === 'c' || event.key === 'C')) {
-      const text = vt.selection.text();
-      if (text !== null && text !== '') {
+      const text = vt.getSelection();
+      if (text !== undefined && text !== '') {
         event.preventDefault();
         copyText(text);
         return;
       }
     }
     if (MODIFIER_KEYS.has(event.key)) return;
-    const bytes = vt.keyEncode({
+    // facade path: handleKey encodes AND replays the bytes on the facade's
+    // onData channel, where the boot-time subscription hands them to
+    // props.onData as Uint8Array (the consumer contract is unchanged)
+    const bytes = vt.handleKey({
       key: event.key,
       code: event.code,
       ctrlKey: event.ctrlKey,
@@ -627,7 +639,6 @@
     if (bytes.length === 0) return;
     // the terminal consumed the key: keep it away from the page
     event.preventDefault();
-    onData?.(bytes);
   };
 
   const handlePaste = (event: ClipboardEvent): void => {
@@ -635,10 +646,10 @@
     const text = event.clipboardData?.getData('text/plain') ?? '';
     if (text === '') return;
     // always swallow the paste so the document never receives terminal
-    // input; unsafe text (newlines / bracketed-paste markers) is dropped
+    // input; the facade paste gate drops unsafe text (newlines /
+    // bracketed-paste markers) and replays sanitized bytes on onData
     event.preventDefault();
-    if (!vt.paste.isSafe(text)) return;
-    onData?.(vt.paste.encode(text));
+    vt.paste(text);
   };
 
   // wheel needs a non-passive listener (preventDefault keeps the page from
@@ -655,7 +666,7 @@
       // downward wheel (deltaY > 0) feeds positive lines
       const lines = event.deltaY > 0 ? magnitude : -magnitude;
       const before = scrollOffset;
-      vt.scrollViewport(lines);
+      vt.scrollLines(lines);
       // clamped offset tracking: the viewport cannot scroll past the tail
       scrollOffset = Math.max(0, before - lines);
       const shift = scrollOffset - before;
@@ -696,7 +707,14 @@
           loaded.free();
           return;
         }
-        vt = loaded;
+        // wrap the loaded core in the xterm-convention facade (injected
+        // core: the component keeps ownership and frees it on destroy)
+        vt = new Terminal({ core: loaded });
+        // single bridge: the facade's onData carries pty bytes as a latin1
+        // STRING; rebuild the exact bytes the consumer contract promises
+        dataSub = vt.onData((str) => {
+          onData?.(Uint8Array.from(str, (ch) => ch.charCodeAt(0) & 0xff));
+        });
         ctx = canvasEl?.getContext('2d') ?? null;
         probeEl = document.createElement('div');
         probeEl.setAttribute('aria-hidden', 'true');
@@ -757,8 +775,13 @@
     screen = [];
     probeEl?.remove();
     probeEl = null;
-    vt?.free();
-    vt = null;
+    dataSub?.dispose();
+    dataSub = null;
+    if (vt !== null) {
+      vt.dispose(); // unbinds the facade registries (never frees the core)
+      vt.core.free(); // injected core: the component owns its lifetime
+      vt = null;
+    }
   });
 
   // ---- handle API (bind:this) ----------------------------------------------
@@ -787,7 +810,7 @@
 
   /** Base64 snapshot of the terminal (diagnostics/tests; V1 encode only). */
   export function snapshot(): string {
-    return vt === null ? '' : vt.snapshotEncode();
+    return vt === null ? '' : vt.core.snapshotEncode();
   }
 </script>
 

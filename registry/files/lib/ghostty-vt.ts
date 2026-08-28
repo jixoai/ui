@@ -1407,3 +1407,277 @@ export async function loadGhosttyVT(opts: LoadGhosttyVTOpts = {}): Promise<Ghost
   }
   return new GhosttyVTCore(await instantiateBytes(bytes), variant);
 }
+
+// ---------------------------------------------------------------------------
+// xterm.js-convention facade (owner directive 2026-08-28)
+// ---------------------------------------------------------------------------
+// A thin `Terminal` shaped after xterm.js / coder's ghostty-web conventions,
+// layered ON TOP of the frozen GhosttyVT ABI surface above (the core and all
+// marshaling are untouched — this layer only orchestrates the core face):
+//
+//   xterm convention    | direction        | core face
+//   write/writeln       | pty OUTPUT in    | vtWrite
+//   onData / handleKey  | pty INPUT out    | keyEncode (+ latin1 replay)
+//   paste               | pty INPUT out    | paste.isSafe + paste.encode
+//   resize/reset/clear  | VT control       | resize / reset / vtWrite(ED)
+//   scrollLines         | viewport control | scrollViewport
+//   getSelection/...    | selection reads  | selection.text / clear
+//   dirtyRows/readCursor| renderer EXT (non-xterm, documented): the
+//                       | component's paint loop consumes these directly.
+//
+// The onData channel carries pty bytes as a latin1 STRING (xterm's onData
+// gives strings); the byte-preserving round trip is
+// Uint8Array.from(str, c => c.charCodeAt(0) & 0xff).
+//
+// Reserved (accepted, advisory, unused in V1): cursorBlink / cursorStyle
+// (consumers render blink; undefined = follow the app via DECSCUSR) and
+// scrollback (upstream owns the scrollback). onCursorMove is likewise
+// reserved — consumers poll readCursor() from their paint loop in V1.
+
+export interface IDisposable {
+  dispose(): void;
+}
+
+export type TerminalEventHandler<T> = (value: T) => void;
+
+export interface ITerminalOptions {
+  /** initial columns (default 80). */
+  cols?: number;
+  /** initial rows (default 24). */
+  rows?: number;
+  /** advisory: consumers render blink; undefined = follow the app (DECSCUSR). reserved V1. */
+  cursorBlink?: boolean;
+  /** advisory, same follow semantics as cursorBlink. reserved V1. */
+  cursorStyle?: 'block' | 'underline' | 'bar';
+  /** advisory V1 (upstream owns scrollback). reserved. */
+  scrollback?: number;
+  /**
+   * Bypass the module-level shared core (test isolation; ghostty-web's
+   * `ghostty` option precedent). The caller keeps ownership of an injected
+   * core — Terminal.dispose() never frees it.
+   */
+  core?: GhosttyVT;
+}
+
+/** module-level shared wasm instance (ghostty-web's init() pattern). */
+let sharedCore: GhosttyVT | null = null;
+let sharedInit: Promise<void> | null = null;
+
+/**
+ * Load (once) and cache the shared wasm core for `new Terminal()` without an
+ * explicit `core` option. The facade never imports a virtual module — pass
+ * the asset url (the component layer owns virtual-module resolution) or raw
+ * bytes. Idempotent while the shared core lives; a failed load clears the
+ * slot so a retry is possible.
+ */
+export function init(opts: LoadGhosttyVTOpts = {}): Promise<void> {
+  sharedInit ??= loadGhosttyVT(opts)
+    .then((core) => {
+      sharedCore = core;
+    })
+    .catch((cause: unknown) => {
+      sharedInit = null;
+      throw cause;
+    });
+  return sharedInit;
+}
+
+/** latin1 channel: bytes → string, one char code per byte (byte-preserving). */
+function bytesToLatin1(bytes: Uint8Array): string {
+  let out = '';
+  for (const byte of bytes) out += String.fromCharCode(byte);
+  return out;
+}
+
+export class Terminal {
+  /**
+   * Renderer-facing escape hatch to the frozen ABI surface (documented
+   * NON-xterm extension): selection gesture events, paste.isSafe, and
+   * snapshotEncode have no xterm.js counterpart, so consumers reach them
+   * through the underlying core instead of the facade duplicating them.
+   */
+  readonly core: GhosttyVT;
+  /** advisory only (reserved V1; follow-the-app is the default). */
+  readonly cursorBlink: boolean | undefined;
+  /** advisory only (reserved V1; follow-the-app is the default). */
+  readonly cursorStyle: ITerminalOptions['cursorStyle'];
+  /** advisory only (reserved V1; upstream owns scrollback). */
+  readonly scrollback: number | undefined;
+
+  private cols_: number;
+  private rows_: number;
+  private readonly dataHandlers = new Set<TerminalEventHandler<string>>();
+  private readonly resizeHandlers = new Set<TerminalEventHandler<{ cols: number; rows: number }>>();
+  private disposed = false;
+
+  constructor(options: ITerminalOptions = {}) {
+    const core = options.core ?? sharedCore;
+    if (core === null) {
+      throw new GhosttyVTError(
+        'Terminal: no wasm core — await init({ url | bytes }) first, or pass options.core (e.g. for test isolation)',
+      );
+    }
+    this.core = core;
+    this.cursorBlink = options.cursorBlink;
+    this.cursorStyle = options.cursorStyle;
+    this.scrollback = options.scrollback;
+    this.cols_ = Math.max(1, Math.round(options.cols ?? 80));
+    this.rows_ = Math.max(1, Math.round(options.rows ?? 24));
+    // establish the requested grid (recreates the terminal on an injected
+    // core — wrap a fresh core, not one with content worth keeping)
+    this.core.new(this.cols_, this.rows_);
+  }
+
+  get cols(): number {
+    return this.cols_;
+  }
+
+  get rows(): number {
+    return this.rows_;
+  }
+
+  /**
+   * Pty OUTPUT in (xterm convention: data from the host process). The
+   * callback fires on a microtask after the write — an approximation of
+   * xterm's async write acknowledgment, good enough for sequencing tests.
+   */
+  write(data: string | Uint8Array, callback?: () => void): void {
+    this.assertLive('write');
+    this.core.vtWrite(typeof data === 'string' ? new TextEncoder().encode(data) : data);
+    if (callback !== undefined) queueMicrotask(callback);
+  }
+
+  /** write(data + '\n') (xterm's writeln appends a line feed). */
+  writeln(data: string | Uint8Array, callback?: () => void): void {
+    if (typeof data === 'string') {
+      this.write(`${data}\n`, callback);
+      return;
+    }
+    const withNewline = new Uint8Array(data.length + 1);
+    withNewline.set(data);
+    withNewline[data.length] = 0x0a;
+    this.write(withNewline, callback);
+  }
+
+  /**
+   * Sanitized pty INPUT via the paste gate (xterm's paste triggers the data
+   * event): unsafe text — newlines / the bracketed-paste end marker — is
+   * dropped, safe text is sanitized and replayed to the onData subscribers.
+   * (Deviation: V1 emits the unbracketed bytes; bracketing belongs to the
+   * consumer that knows the pty's mode.)
+   */
+  paste(text: string): void {
+    this.assertLive('paste');
+    if (!this.core.paste.isSafe(text)) return;
+    this.emitData(bytesToLatin1(this.core.paste.encode(text)));
+  }
+
+  resize(cols: number, rows: number): void {
+    this.assertLive('resize');
+    const nextCols = Math.max(1, Math.round(cols));
+    const nextRows = Math.max(1, Math.round(rows));
+    const changed = nextCols !== this.cols_ || nextRows !== this.rows_;
+    this.cols_ = nextCols;
+    this.rows_ = nextRows;
+    this.core.resize(nextCols, nextRows);
+    if (changed) {
+      const detail = { cols: nextCols, rows: nextRows };
+      for (const handler of [...this.resizeHandlers]) handler(detail);
+    }
+  }
+
+  /** Full reset (RIS). */
+  reset(): void {
+    this.assertLive('reset');
+    this.core.reset();
+  }
+
+  /** Erase display + cursor home (\x1b[2J\x1b[H — xterm's clear()). */
+  clear(): void {
+    this.assertLive('clear');
+    this.core.vtWrite(new TextEncoder().encode('\x1b[2J\x1b[H'));
+  }
+
+  /** Scroll the viewport by `lines` (negative scrolls up, into scrollback). */
+  scrollLines(lines: number): void {
+    this.assertLive('scrollLines');
+    this.core.scrollViewport(lines);
+  }
+
+  /**
+   * Keyboard INPUT out (xterm onData: pty bytes as a latin1 string).
+   * Multiple subscribers; each subscription is independently disposable.
+   */
+  onData(handler: TerminalEventHandler<string>): IDisposable {
+    this.dataHandlers.add(handler);
+    return { dispose: () => this.dataHandlers.delete(handler) };
+  }
+
+  onResize(handler: TerminalEventHandler<{ cols: number; rows: number }>): IDisposable {
+    this.resizeHandlers.add(handler);
+    return { dispose: () => this.resizeHandlers.delete(handler) };
+  }
+
+  /**
+   * KeyboardEvent → pty bytes (returns them AND replays them as a latin1
+   * string to the onData subscribers — xterm's data event rides the key
+   * handler). Empty bytes (bare modifiers) reach no subscriber.
+   */
+  handleKey(event: GhosttyKeyEventLike): Uint8Array {
+    this.assertLive('handleKey');
+    const bytes = this.core.keyEncode(event);
+    if (bytes.length > 0) this.emitData(bytesToLatin1(bytes));
+    return bytes;
+  }
+
+  /** Active selection text, PLAIN + unwrapped + trimmed (xterm's getSelection). */
+  getSelection(): string | undefined {
+    this.assertLive('getSelection');
+    return this.core.selection.text() ?? undefined;
+  }
+
+  hasSelection(): boolean {
+    this.assertLive('hasSelection');
+    const text = this.core.selection.text();
+    return text !== null && text !== '';
+  }
+
+  clearSelection(): void {
+    this.assertLive('clearSelection');
+    this.core.selection.clear();
+  }
+
+  /** renderer-facing extension (non-xterm): the component's paint loop. */
+  dirtyRows(): IterableIterator<RowSnapshot> {
+    this.assertLive('dirtyRows');
+    return this.core.dirtyRows();
+  }
+
+  /** renderer-facing extension (non-xterm): the cursor overlay. */
+  readCursor(): GhosttyCursor | null {
+    this.assertLive('readCursor');
+    return this.core.readCursor();
+  }
+
+  /**
+   * Unbind the event registries. Ownership rule: the facade NEVER frees a
+   * core in V1 — an injected core belongs to the consumer, and the init()
+   * shared core may serve other Terminals. Releasing wasm memory stays with
+   * whoever created the core (component onDestroy / the test).
+   */
+  dispose(): void {
+    this.disposed = true;
+    this.dataHandlers.clear();
+    this.resizeHandlers.clear();
+  }
+
+  private emitData(value: string): void {
+    for (const handler of [...this.dataHandlers]) handler(value);
+  }
+
+  private assertLive(what: string): void {
+    if (this.disposed) {
+      throw new GhosttyVTError(`Terminal.${what} called after dispose`);
+    }
+  }
+}

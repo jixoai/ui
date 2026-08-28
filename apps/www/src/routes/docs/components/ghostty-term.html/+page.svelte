@@ -84,12 +84,14 @@ export default {
   let cursorOn = $state(true);
   let cursorStyle = $state('follow');
   let cursorBlink = $state(true);
+  let selectionOn = $state(true);
   const cursorStyleOptions = [
     { label: 'follow', value: 'follow' },
     { label: 'block', value: 'block' },
     { label: 'bar', value: 'bar' },
     { label: 'underline', value: 'underline' },
   ];
+  const selectionProp = $derived(selectionOn);
   const cursorProp = $derived(
     !cursorOn
       ? (false as const)
@@ -442,7 +444,13 @@ export default {
           </div>
           <div class="relative min-h-0 flex-1">
             {#key replay}
-              <GhosttyTerm bind:this={term} {onData} {onResize} cursor={cursorProp} />
+              <GhosttyTerm
+                bind:this={term}
+                {onData}
+                {onResize}
+                cursor={cursorProp}
+                selection={selectionProp}
+              />
             {/key}
           </div>
         </div>
@@ -456,6 +464,9 @@ export default {
             </PlayRow>
             <PlayRow label="cursor blink">
               <PlayToggle bind:value={cursorBlink} />
+            </PlayRow>
+            <PlayRow label="selection">
+              <PlayToggle bind:value={selectionOn} />
             </PlayRow>
             <PlayHelp>
               click the terminal to focus it, then type — the canvas owns the keyboard surface

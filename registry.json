@@ -2935,7 +2935,7 @@
       "name": "ghostty-vt",
       "type": "registry:lib",
       "title": "ghostty-vt wasm binding",
-      "description": "Framework-free WebAssembly ABI binding for libghostty-vt (browser + node). Every struct offset, enum value and cell bit is parsed at load time from ghostty_type_json() — zero hardcoded offsets, immune to nightly ABI drift. Surface: terminal lifecycle (new/free/reset/resize/scrollViewport), vtWrite (write + render-state update in one transaction), dirtyRows() yielding fully JS-materialized row/cell snapshots (grapheme, resolved rgb() style, hyperlink URIs), keyEncode with a KeyboardEvent adapter (encoder options follow live terminal modes), paste isSafe/encode, base64 snapshotEncode. Typed GhosttyVTError with cause for instantiation failure and use-after-free; url/bytes injection keeps it node-testable and virtual-module free.",
+      "description": "Framework-free WebAssembly binding for libghostty-vt with an xterm.js-convention Terminal facade: init() loads the shared wasm core, new Terminal({cols, rows, cursorBlink, cursorStyle}) speaks write/writeln/paste/resize/reset/clear/scrollLines, disposable onData/onResize, getSelection/hasSelection/clearSelection, and renderer-facing extensions (dirtyRows, readCursor, handleKey). Under the facade the raw ABI core stays first-class: every struct offset, enum value and cell bit parsed at load time from ghostty_type_json() — zero hardcoded offsets, immune to nightly ABI drift. Cursor (DECSCUSR + OSC 12 color), drag/word/line selection gestures, paste gate, base64 snapshots, typed GhosttyVTError.",
       "files": [
         {
           "path": "registry/files/lib/ghostty-vt.ts",
@@ -2943,7 +2943,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Load with loadGhosttyVT({ url }) from the virtual:jixoai-ghostty module (or { bytes } in node). Write pty output via vtWrite(Uint8Array); render from dirtyRows() (each completed pass auto-cleans dirty state); feed keys via keyEncode(KeyboardEvent-like) and pastes via paste.encode. Call free() in onDestroy. wasm asset comes from @jixoai/vite-plugin's supply chain; the lib itself never imports the virtual module.",
+      "docs": "await init({ url }) from the virtual:jixoai-ghostty module (or pass a core for test isolation). const term = new Terminal(); term.write(ptyBytes); term.onData(s => sendToPty(s)); paint from term.dirtyRows() + term.readCursor(); keys via term.handleKey(KeyboardEvent); selection via getSelection(). xterm.js users: the facade maps 1:1 to the API you know; dirtyRows/readCursor are the renderer extensions.",
       "meta": {
         "group": "engines",
         "href": "/docs/components/ghostty-term.html"
