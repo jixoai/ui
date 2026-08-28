@@ -600,6 +600,19 @@
     if (imeEl !== null) imeEl.value = '';
     const committed = event.data ?? '';
     if (committed !== '' && vt !== null) vt.paste(committed); // paste gate
+    // adverse-ordering re-dock (impl self-review B1): a mid-composition
+    // click can rip focus root-ward BEFORE compositionend fires — dockIme
+    // then skipped (composing was still true) and nothing re-docks after.
+    // If focus is inside the terminal but not on the IME surface, put it
+    // back so the next composition can start (D2 invariant). Chrome's
+    // compositionend-before-refocus ordering makes this a no-op there.
+    if (
+      rootEl !== null &&
+      document.activeElement !== imeEl &&
+      rootEl.contains(document.activeElement)
+    ) {
+      imeEl?.focus();
+    }
   };
 
   /** keys that land in the textarea outside composition (default actions

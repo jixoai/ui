@@ -993,6 +993,32 @@ const composition = (target: Element, type: string, data: string): CompositionEv
   return event;
 };
 
+describe('ghostty-term IME adverse-ordering re-dock (impl self-review B1)', () => {
+  it('restores the composition surface when a click ripped focus mid-composition', async () => {
+    const { vt } = makeFakeVt();
+    loader.impl = async () => vt;
+    const onData = vi.fn();
+    const term = renderTerm({ cols: 8, rows: 2, onData });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+    const ime = term.root.querySelector('textarea')!;
+
+    // mid-composition click: focus torn root-ward while composing=true —
+    // dockIme skipped (composition guard); only the end handler's
+    // defensive restore re-docks (Firefox/Safari ordering; Chrome no-op)
+    composition(ime, 'compositionstart', '');
+    term.root.focus();
+    expect(document.activeElement).toBe(term.root);
+
+    const calls = onData.mock.calls.length;
+    composition(ime, 'compositionend', '你好');
+    await settle();
+    expect(onData.mock.calls.length).toBe(calls + 1); // commit rode the gate
+    expect(document.activeElement).toBe(ime); // the surface is re-docked
+    mounted.pop()!.unmount();
+  });
+});
+
 describe('ghostty-term IME composition', () => {
   it('commits compositionend data through the paste gate and overlays the preedit underlined', async () => {
     const { vt, calls } = makeFakeVt();
@@ -1229,6 +1255,23 @@ describe('ghostty-term mouse reporting', () => {
 // ---------------------------------------------------------------------------
 
 describe('ghostty-term OSC 52 clipboard model', () => {
+
+  it('decodes non-ASCII payloads to the original text (latin1→UTF-8 chain)', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const writeText = vi.fn();
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+    const term = renderTerm({ clipboardWrite: { maxSize: 1024 } });
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+    const payload = btoa(String.fromCharCode(...new TextEncoder().encode('你好 terminal')));
+    calls.emitOsc52({ kind: 'set', selector: 'c', payloadBase64: payload });
+    await settle();
+    expect(writeText).toHaveBeenCalledWith('你好 terminal');
+    mounted.pop()!.unmount();
+  });
+
+
   const withClipboard = (methods: { writeText?: ReturnType<typeof vi.fn>; readText?: ReturnType<typeof vi.fn> }): void => {
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: methods });
   };

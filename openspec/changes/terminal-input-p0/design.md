@@ -130,8 +130,10 @@ GhosttyVT 增：
   不静默回退。**可执行限额四条**（各有拒绝测试）：
   ① encoded cap：base64 串长 ≤ `ceil(maxSize/3)*4`——解码前检查
     （解码 DoS 防线）；
-  ② observer 缓冲 cap：parser/宿主扫描对未完结 OSC 52 序列的累计
-    缓冲 ≤ encoded cap（超出即弃序列 + warn，防跨 chunk 无界累积）；
+  ② observer 缓冲 cap：宿主扫描对未完结 OSC 52 序列的累计缓冲
+    ≤ 绑定层固定 4 MiB raw 常量（分层：绑定层不知组件 maxSize；
+    超出即弃序列 + 点名 warn，防跨 chunk 无界累积）——
+    实现批勘误（errata 2026-08-28）；
   ③ decoded cap：解码后字节数 ≤ maxSize（双保险）；
   ④ query 回包 cap：clipboardReadFrom 开启时，读回文本 base64 编码
     后超 encoded cap → 拒绝回包（回空）+ warn；异步 clipboard 读

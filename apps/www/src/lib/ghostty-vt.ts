@@ -1367,7 +1367,10 @@ class GhosttyVTCore implements GhosttyVT {
 
   private pushOscByte(byte: number): void {
     if (this.oscBuf.length >= OSC52_OBSERVER_RAW_CAP) {
-      this.dropOsc(); // cap ② exceeded: abandon the sequence
+      console.warn(
+        `[ghostty-vt] OSC 52 sequence abandoned: observer buffer hit the ${OSC52_OBSERVER_RAW_CAP}-byte raw cap (cap ②)`,
+      );
+      this.dropOsc();
       return;
     }
     if (this.oscBuf.length >= 3) {
