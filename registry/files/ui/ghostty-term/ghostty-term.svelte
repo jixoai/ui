@@ -908,11 +908,14 @@
   ): void => {
     if (vt === null) return;
     const button = domButtonName(domButton);
+    const px = event.offsetX || 0;
+    const py = event.offsetY || 0;
+    lastReportedCell = { x: Math.floor(px / cell.w), y: Math.floor(py / cell.h) };
     vt.mouseEncode(
       {
         action,
-        x: event.offsetX || 0,
-        y: event.offsetY || 0,
+        x: px,
+        y: py,
         mods: {
           shift: event.shiftKey,
           ctrl: event.ctrlKey,
@@ -921,6 +924,30 @@
         },
         ...(button !== undefined ? { button } : {}),
         ...(motionBetween ? { motionBetween: true } : {}),
+      },
+      { w: cell.w, h: cell.h },
+    );
+  };
+
+  /** last cell a reported event landed on — the leave-release fallback
+   *  coordinate when no MouseEvent is available (codex impl-review). */
+  let lastReportedCell = { x: 0, y: 0 };
+
+  const encodeMouseAt = (
+    action: 'press' | 'release' | 'motion',
+    cellX: number,
+    cellY: number,
+    domButton: number,
+  ): void => {
+    if (vt === null) return;
+    const button = domButtonName(domButton);
+    lastReportedCell = { x: cellX, y: cellY };
+    vt.mouseEncode(
+      {
+        action,
+        x: cellX * cell.w,
+        y: cellY * cell.h,
+        ...(button !== undefined ? { button } : {}),
       },
       { w: cell.w, h: cell.h },
     );
@@ -960,7 +987,11 @@
     if (mouseButton >= 0) {
       // reported drag: motion with the HELD button; motionBetween keeps
       // out-of-viewport drags reporting (the strict ANY_BUTTON_PRESSED
-      // mapping — Batch A contract: it is never auto-set)
+      // mapping — Batch A contract: it is never auto-set).
+      // SESSION-LOCK (codex impl-review): the press captured the modality —
+      // mid-drag tracking-off / Shift / mouse-prop changes do NOT divert
+      // this stream (only the paired release ends it), so the app can
+      // never be stranded mid-gesture.
       event.preventDefault();
       encodeMouse('motion', event, mouseButton, true);
       return;
@@ -997,10 +1028,20 @@
     scheduleFrame();
   };
 
-  const handleMouseLeave = (): void => {
-    // a reported drag that leaves the surface is dropped (V1 has no
-    // pointer capture); the app sees the motion stream stop. Local
-    // gestures end at the last tracked cell, as before.
+  const handleMouseLeave = (event?: MouseEvent): void => {
+    // SESSION-LOCK pairing (codex impl-review): a reported press OWNS the
+    // drag session — motion/release keep reporting even if tracking turns
+    // off or Shift appears mid-drag (diverting would strand the app in a
+    // pressed state); and leaving the surface during a reported drag
+    // emits the RELEASE (V1 has no pointer capture — the app must never
+    // be left holding a phantom button).
+    if (mouseButton >= 0 && vt !== null) {
+      const domButton = mouseButton;
+      mouseButton = -1;
+      if (event !== undefined) encodeMouse('release', event, domButton);
+      else encodeMouseAt('release', lastReportedCell.x, lastReportedCell.y, domButton);
+      return;
+    }
     mouseButton = -1;
     if (!selPressed || vt === null) return;
     selPressed = false;
@@ -1175,8 +1216,13 @@
       warnOsc52('clipboard unavailable — query not answered');
       return;
     }
+    // capture the liveness token: an async clipboard read resolving after
+    // unmount must never emit into a dead component's onData (codex
+    // impl-review #3)
+    const token = alive;
     void read
       .then((text) => {
+        if (!token || !alive) return;
         const b64 = utf8ToBase64(text);
         if (b64.length > encodedCap) {
           // cap ④: refuse to ship an oversized reply, answer empty

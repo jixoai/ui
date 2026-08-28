@@ -75,6 +75,21 @@ const REQUIRED_EXPORTS: readonly string[] = [
   'ghostty_terminal_free',
   'ghostty_terminal_resize',
   'ghostty_terminal_vt_write',
+  // mouse family (terminal-input-p0: the binding made these REQUIRED at
+  // runtime — the pin gate must refuse a nightly that drops them)
+  'ghostty_mouse_event_new',
+  'ghostty_mouse_event_free',
+  'ghostty_mouse_event_set_action',
+  'ghostty_mouse_event_set_button',
+  'ghostty_mouse_event_clear_button',
+  'ghostty_mouse_event_set_mods',
+  'ghostty_mouse_event_set_position',
+  'ghostty_mouse_encoder_new',
+  'ghostty_mouse_encoder_free',
+  'ghostty_mouse_encoder_setopt',
+  'ghostty_mouse_encoder_setopt_from_terminal',
+  'ghostty_mouse_encoder_encode',
+  'ghostty_mouse_encoder_reset',
   // render_state family
   'ghostty_render_state_new',
   'ghostty_render_state_free',

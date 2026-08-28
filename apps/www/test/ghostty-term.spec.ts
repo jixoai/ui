@@ -1254,6 +1254,40 @@ describe('ghostty-term mouse reporting', () => {
 // OSC 52 clipboard model + title passthrough (terminal-input-p0 design D4)
 // ---------------------------------------------------------------------------
 
+describe('mouse session-lock pairing (codex impl-review)', () => {
+  it('emits the paired RELEASE when a reported drag leaves the surface', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const term = renderTerm();
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+    calls.setTracking(true);
+    mouse(term.root, 'mousedown', 12, 21); // reported press (left)
+    // leaving mid-drag: no pointer capture in V1 — the app must NOT be
+    // left holding a phantom button
+    const leave = new MouseEvent('mouseleave', { bubbles: false });
+    Object.defineProperty(leave, 'offsetX', { value: 12 });
+    Object.defineProperty(leave, 'offsetY', { value: 21 });
+    term.root.dispatchEvent(leave);
+    expect(calls.mouseEncodes.at(-1)!.e).toMatchObject({ action: 'release', button: 'left' });
+    mounted.pop()!.unmount();
+  });
+
+  it('locks the modality for the drag session — mid-drag tracking-off does not divert', async () => {
+    const { vt, calls } = makeFakeVt();
+    loader.impl = async () => vt;
+    const term = renderTerm();
+    await waitFor(() => term.root.getAttribute('data-state') === 'ready');
+    await settle();
+    calls.setTracking(true);
+    mouse(term.root, 'mousedown', 12, 21);
+    calls.setTracking(false); // app kills tracking mid-drag
+    mouse(term.root, 'mousemove', 30, 21); // still inside the session
+    expect(calls.mouseEncodes.at(-1)!.e).toMatchObject({ action: 'motion' }); // not diverted
+    mounted.pop()!.unmount();
+  });
+});
+
 describe('ghostty-term OSC 52 clipboard model', () => {
 
   it('decodes non-ASCII payloads to the original text (latin1→UTF-8 chain)', async () => {

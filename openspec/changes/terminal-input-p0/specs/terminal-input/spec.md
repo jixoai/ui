@@ -72,6 +72,14 @@ tracking behaves exactly as before.
 - WHEN the user shift-drags
 - THEN local selection runs and no mouse bytes reach the pty
 
+#### Scenario: the drag session is lock-paired
+
+- GIVEN a reported press (tracking active, no shift at press time)
+- WHEN the drag leaves the surface, or tracking turns off mid-drag
+- THEN the session stays in report mode and the paired RELEASE is
+  always emitted (an app can never be stranded holding a phantom
+  button; V1 has no pointer capture)
+
 ### Requirement: OSC 52 rides a write-open/read-denied security model
 
 The host SHALL observe OSC 52 via whichever internal route the probes

@@ -2000,7 +2000,7 @@ export class Terminal {
   private readonly titleHandlers = new Set<TerminalEventHandler<string>>();
   private readonly osc52Handlers = new Set<TerminalEventHandler<GhosttyOsc52Request>>();
   /** lazily-established core subscriptions behind the three event faces */
-  private coreSubs: IDisposable[] = [];
+  private coreSubs = new Map<'mouseTracking' | 'title' | 'osc52', IDisposable>();
   private disposed = false;
 
   constructor(options: ITerminalOptions = {}) {
@@ -2147,13 +2147,22 @@ export class Terminal {
     this.assertLive('onMouseTrackingChange');
     if (this.mouseTrackingHandlers.size === 0) {
       this.trackCoreSub(
+        'mouseTracking',
         this.core.onMouseTrackingChange((active) => {
           for (const h of [...this.mouseTrackingHandlers]) h(active);
         }),
       );
     }
     this.mouseTrackingHandlers.add(handler);
-    return { dispose: () => this.mouseTrackingHandlers.delete(handler) };
+    return {
+      dispose: () => {
+        this.mouseTrackingHandlers.delete(handler);
+        if (this.mouseTrackingHandlers.size === 0) {
+          this.coreSubs.get('mouseTracking')?.dispose();
+          this.coreSubs.delete('mouseTracking');
+        }
+      },
+    };
   }
 
   /** Title change notifications (OSC 0/2 via writes). */
@@ -2161,13 +2170,22 @@ export class Terminal {
     this.assertLive('onTitleChange');
     if (this.titleHandlers.size === 0) {
       this.trackCoreSub(
+        'title',
         this.core.onTitleChange((title) => {
           for (const h of [...this.titleHandlers]) h(title);
         }),
       );
     }
     this.titleHandlers.add(handler);
-    return { dispose: () => this.titleHandlers.delete(handler) };
+    return {
+      dispose: () => {
+        this.titleHandlers.delete(handler);
+        if (this.titleHandlers.size === 0) {
+          this.coreSubs.get('title')?.dispose();
+          this.coreSubs.delete('title');
+        }
+      },
+    };
   }
 
   /**
@@ -2179,17 +2197,26 @@ export class Terminal {
     this.assertLive('onOsc52');
     if (this.osc52Handlers.size === 0) {
       this.trackCoreSub(
+        'osc52',
         this.core.onOsc52((req) => {
           for (const h of [...this.osc52Handlers]) h(req);
         }),
       );
     }
     this.osc52Handlers.add(handler);
-    return { dispose: () => this.osc52Handlers.delete(handler) };
+    return {
+      dispose: () => {
+        this.osc52Handlers.delete(handler);
+        if (this.osc52Handlers.size === 0) {
+          this.coreSubs.get('osc52')?.dispose();
+          this.coreSubs.delete('osc52');
+        }
+      },
+    };
   }
 
-  private trackCoreSub(sub: IDisposable): void {
-    this.coreSubs.push(sub);
+  private trackCoreSub(key: 'mouseTracking' | 'title' | 'osc52', sub: IDisposable): void {
+    this.coreSubs.set(key, sub);
   }
 
   /** Active selection text, PLAIN + unwrapped + trimmed (xterm's getSelection). */
@@ -2234,8 +2261,8 @@ export class Terminal {
     this.mouseTrackingHandlers.clear();
     this.titleHandlers.clear();
     this.osc52Handlers.clear();
-    for (const sub of this.coreSubs) sub.dispose();
-    this.coreSubs = [];
+    for (const sub of this.coreSubs.values()) sub.dispose();
+    this.coreSubs = new Map();
   }
 
   private emitData(value: string): void {
