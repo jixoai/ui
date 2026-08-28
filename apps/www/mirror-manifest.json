@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-28T21:38:41.612Z",
+  "generatedAt": "2026-08-28T21:48:28.207Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1166,8 +1166,8 @@
           "source": "registry/files/ui/color-picker/editor.svelte",
           "mirror": "apps/www/src/lib/ui/color-picker/editor.svelte",
           "target": "@ui/color-picker/editor.svelte",
-          "sourceSha": "35f68f428a3593fe1075c3e7d9fb18edb6cdf336dc6fb6067ec30a79b1d93917",
-          "mirrorSha": "35f68f428a3593fe1075c3e7d9fb18edb6cdf336dc6fb6067ec30a79b1d93917"
+          "sourceSha": "4640e075220d6773a76358321959bf7b2ecdf5749aa87413cbf2e3683143fe4a",
+          "mirrorSha": "4640e075220d6773a76358321959bf7b2ecdf5749aa87413cbf2e3683143fe4a"
         }
       ]
     },

@@ -272,7 +272,15 @@
     <option value="oklch">oklch</option>
   </NativeSelect>
 
-  <Input data-jx-color-picker-input class="font-mono text-[13px]" bind:value={textDraft} onchange={commitText} />
+  <!-- the value lane is sized for the WORST-case notation (26 mono
+       chars: "oklch(0.999 0.412 359.999)") + the shell's own padding — 13px mono ≈ 7.8px/char
+       ⇒ min 27ch never clips any format's canonical string -->
+  <Input
+    data-jx-color-picker-input
+    class="font-mono text-[13px] min-w-[29ch]"
+    bind:value={textDraft}
+    onchange={commitText}
+  />
 
   <!-- the shared preset palette (the embeddable half the Input picker
        bridge also mounts); picking stays in the workshop — no close -->
