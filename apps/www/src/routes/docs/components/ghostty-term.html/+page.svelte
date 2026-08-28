@@ -95,6 +95,10 @@ export default {
   let cursorStyle = $state('follow');
   let cursorBlink = $state(true);
   let selectionOn = $state(true);
+  // mouse-reporting routing (terminal-input-p0 design D3): off forces the
+  // LOCAL behavior (selection/scroll) even under active tracking; on lets a
+  // tracking-enabled pty own the mouse — Shift always bypasses either way
+  let mouseOn = $state(true);
   // fontFamily playground: `default` rides the jxoai stack (JetBrains
   // Mono); the rest are @fontsource-loaded community faces
   let fontFamily = $state('default');
@@ -174,6 +178,9 @@ export default {
         },
   );
   let grid = $state({ cols: 0, rows: 0 });
+  // window-chrome title (terminal-input-p0 design D4): the fake pty sets it
+  // via OSC 0 right before its prompt; onTitleChange mirrors it into the bar
+  let termTitle = $state('');
   let input = $state('');
   let history = $state<string[]>([]);
   let histCursor = 0;
@@ -186,6 +193,7 @@ export default {
     histCursor = 0;
     booted = false;
     grid = { cols: 0, rows: 0 };
+    termTitle = '';
     replay += 1;
   }
 
@@ -214,6 +222,7 @@ export default {
     '\u001b[38;5;153mcolor\u001b[0m     repaint the color matrix\r\n' +
     '\u001b[38;5;153mclear\u001b[0m    erase the screen (Ctrl+L too)\r\n' +
     '\u001b[38;5;153mshowcase\u001b[0m  replay the boot showcase\r\n' +
+    '\u001b[38;5;244mthe shell titles the window (OSC 0) · Shift bypasses mouse reporting\u001b[0m\r\n' +
     '\u001b[38;5;244m↑/↓ recall history · Backspace edits · Ctrl+C cancels\u001b[0m\r\n';
 
   const emit = (text: string): void => {
@@ -260,6 +269,10 @@ export default {
     const live = (): boolean => run === showcaseRun;
     const finish = (): void => {
       showcasing = false;
+      // the fake pty names itself ONCE, right before handing over the
+      // prompt: the OSC 0 sequence rides the same write stream and
+      // onTitleChange mirrors it into the window chrome (design D4)
+      emit('\u001b]0;interactive shell\u0007');
       emit(PROMPT);
     };
 
@@ -451,7 +464,7 @@ export default {
   <title>ghostty-term · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai ghostty-term component: the live terminal surface — a DPR-aware canvas grid painted by the real libghostty-vt wasm with rAF-batched dirty-row painting, density-derived cell metrics, auto or explicit cols/rows, the onData input bridge (keyEncode, paste gate, wheel scroll), and typed error degradation through the @jixoai/vite-plugin wasm supply chain."
+    content="The jixoai ghostty-term component: the live terminal surface — a DPR-aware canvas grid painted by the real libghostty-vt wasm with rAF-batched dirty-row painting, density-derived cell metrics, auto or explicit cols/rows, the onData input bridge (keyEncode, paste gate, IME composition, mouse reporting, OSC 52 clipboard), and typed error degradation through the @jixoai/vite-plugin wasm supply chain."
   />
 </svelte:head>
 
@@ -503,7 +516,7 @@ export default {
             <span class="h-2 w-2 flex-none border border-current bg-[oklch(0.85_0.17_95)]" aria-hidden="true"></span>
             <span class="h-2 w-2 flex-none border border-current bg-[oklch(0.75_0.17_150)]" aria-hidden="true"></span>
             <span class="ml-2 truncate">
-              jixoai — ghostty-term{grid.cols > 0 ? ` — ${grid.cols}×${grid.rows}` : ''}
+              {termTitle || 'jixoai — ghostty-term'}{grid.cols > 0 ? ` — ${grid.cols}×${grid.rows}` : ''}
             </span>
             <button
               type="button"
@@ -523,6 +536,8 @@ export default {
                 {onResize}
                 cursor={cursorProp}
                 selection={selectionProp}
+                mouse={mouseOn}
+                onTitleChange={(t: string) => (termTitle = t)}
                 fontFamily={fontFamily === 'default' ? undefined : fontFamily}
                 theme={themeProp}
               />
@@ -542,6 +557,9 @@ export default {
             </PlayRow>
             <PlayRow label="selection">
               <PlayToggle bind:value={selectionOn} />
+            </PlayRow>
+            <PlayRow label="mouse reporting">
+              <PlayToggle bind:value={mouseOn} />
             </PlayRow>
             <PlayRow label="font">
               <PlaySelect bind:value={fontFamily} options={fontFamilyOptions} />
@@ -571,7 +589,9 @@ export default {
               click the terminal to focus it, then type — the canvas owns the keyboard surface
               (<code>Tab</code> reaches it like any control). Enter runs, Backspace edits,
               <code>↑</code> recalls, Ctrl+C cancels. reset re-mounts the wasm terminal and replays
-              the boot showcase.
+              the boot showcase. OSC 52 clipboard: a pty may <em>write</em> the clipboard (1 MiB
+              decoded cap by default) but <em>reads are denied</em> until clipboardReadFrom opts in
+              — the xterm security model.
             </PlayHelp>
           </PlayFields>
         {/snippet}
