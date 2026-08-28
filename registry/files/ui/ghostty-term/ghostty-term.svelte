@@ -90,7 +90,15 @@
     theme?: GhosttyTermTheme;
     /** Terminal INPUT bridge: encoded key/paste bytes for the pty. */
     onData?: (bytes: Uint8Array) => void;
-    /** Fires when the auto-mode grid derivation changes. */
+    /**
+   * Cursor rendering (owner request 2026-08-28). Default: on, style and
+   * blink follow the APPLICATION's choices (DECSCUSR via the render
+   * state — the fake shell and real ptys set it). Override pins style
+   * and/or blink; `false` hides the cursor entirely.
+   */
+  cursor?: boolean | { blink?: boolean; style?: 'bar' | 'block' | 'underline' };
+
+  /** Fires when the auto-mode grid derivation changes. */
     onResize?: (detail: GhosttyTermResizeDetail) => void;
     density?: Density;
     class?: string;
@@ -110,6 +118,7 @@
     onData,
     onResize,
     density,
+    cursor = true,
     class: className = '',
     children,
     ...rest
@@ -241,6 +250,91 @@
     };
   };
 
+  // ---- cursor overlay (owner request 2026-08-28) -------------------------
+  // Focus is tracked so the cursor goes HOLLOW when the terminal is not
+  // the keyboard surface (the xterm convention) and blinks only while
+  // focused; reduced-motion pins it steady.
+
+  let focused = $state(false);
+  let blinkOn = true;
+  let blinkTimer: ReturnType<typeof setInterval> | undefined;
+
+  const cursorConfig = $derived(
+    cursor === true
+      ? { on: true as const, blink: undefined, style: undefined }
+      : cursor === false
+        ? { on: false as const, blink: undefined, style: undefined }
+        : { on: true as const, blink: cursor.blink, style: cursor.style },
+  );
+
+  const reducedMotion = (): boolean =>
+    typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /** Paint the cursor AFTER rows (cursor movement dirties both the old
+   *  and the new row upstream, so overlay-after-paint is complete). */
+  const paintCursor = (): void => {
+    if (ctx === null || vt === null || !cursorConfig.on) return;
+    const c = vt.readCursor();
+    if (c === null || !c.visible) return;
+    if (!blinkOn && focused) return; // blink off-phase hides a filled cursor
+    const style = cursorConfig.style ?? c.style;
+    const x = c.x * cell.w;
+    const y = c.y * cell.h;
+    const w = (c.wideTail ? 2 : 1) * cell.w;
+    const ink = c.color ?? shell.fg;
+    ctx.fillStyle = ink;
+    if (style === 'bar') {
+      ctx.fillRect(x, y, Math.max(2, cell.w / 6), cell.h);
+    } else if (style === 'underline') {
+      ctx.fillRect(x, y + cell.h - 2, w, 2);
+    } else if (focused) {
+      // block: paper out the glyph, redraw it in the cursor ink
+      ctx.fillRect(x, y, w, cell.h);
+      const under = screen[c.y]?.cells[c.x];
+      if (under && under.grapheme !== '' && !under.style.invisible) {
+        ctx.fillStyle = shell.bg;
+        ctx.font = fontString(under.style.italic, under.style.bold, resolvedFontSize);
+        ctx.textBaseline = 'middle';
+        ctx.fillText(under.grapheme, x, y + cell.h / 2);
+      }
+    } else {
+      // unfocused: hollow block outline
+      ctx.fillRect(x, y, w, 2);
+      ctx.fillRect(x, y + cell.h - 2, w, 2);
+      ctx.fillRect(x, y, 2, cell.h);
+      ctx.fillRect(x + w - 2, y, 2, cell.h);
+    }
+  };
+
+  /** Blink loop: only while the surface is the keyboard surface, the app
+   *  asked for blinking, motion is allowed, and the cursor is enabled. */
+  $effect(() => {
+    if (blinkTimer !== undefined) clearInterval(blinkTimer);
+    blinkTimer = undefined;
+    blinkOn = true;
+    const teardown = (): void => {
+      if (blinkTimer !== undefined) clearInterval(blinkTimer);
+      blinkTimer = undefined;
+    };
+    if (!cursorConfig.on || !focused || reducedMotion()) return;
+    let appBlinks = true;
+    try {
+      appBlinks = vt?.readCursor()?.blinking ?? true;
+    } catch {
+      /* freed between checks — the next paint reports its own error */
+    }
+    const blinkWanted = cursorConfig.blink ?? appBlinks;
+    if (!blinkWanted) return;
+    blinkTimer = setInterval(() => {
+      blinkOn = !blinkOn;
+      if (alive && ctx !== null) {
+        // cheap repaint: the grid is cache-fed; blink flips one cell
+        repaintAll();
+      }
+    }, 530);
+    return teardown;
+  });
+
   // ---- render pipeline ----------------------------------------------------
 
   const scheduleFrame = (): void => {
@@ -315,6 +409,7 @@
   const paintFromDirty = (): void => {
     if (vt === null) return;
     for (const row of vt.dirtyRows()) paintRow(row);
+    paintCursor();
   };
 
   /** Full repaint from the row cache (theme change / font swap / reset). */
@@ -326,6 +421,7 @@
       const cached = screen[y];
       if (cached !== undefined) paintRow(cached);
     }
+    paintCursor();
   };
 
   // ---- geometry -----------------------------------------------------------
@@ -628,6 +724,8 @@
   aria-label="terminal"
   onkeydown={handleKeydown}
   onpaste={handlePaste}
+  onfocus={() => (focused = true)}
+  onblur={() => (focused = false)}
   {...rest}
   data-density={resolvedDensity}
   data-state={phase}

@@ -129,6 +129,21 @@ export interface GhosttyKeyEventLike {
   metaKey?: boolean;
 }
 
+export interface GhosttyCursor {
+  /** viewport column/row (already viewport-space; render-ready). */
+  x: number;
+  y: number;
+  /** DECSCUSR style the application selected (upstream visual_style). */
+  style: 'bar' | 'block' | 'underline' | 'block-hollow';
+  visible: boolean;
+  blinking: boolean;
+  passwordInput: boolean;
+  /** the grapheme under the cursor spans two cells */
+  wideTail: boolean;
+  /** OSC 12 app cursor color, when the app set one. */
+  color?: string;
+}
+
 export interface GhosttyVT {
   readonly buildInfo: string;
   readonly typeLayout: GhosttyTypeLayout;
@@ -161,6 +176,14 @@ export interface GhosttyVT {
    * are fully copied into JS before being yielded.
    */
   dirtyRows(): IterableIterator<RowSnapshot>;
+
+  /**
+   * Cursor view for the current render state: viewport coordinates, the
+   * app-selected visual style (DECSCUSR), blink/visibility flags, and the
+   * app-provided cursor color when one was set (OSC 12). Returns null
+   * when the cursor is outside the viewport (viewport_has_value=false).
+   */
+  readCursor(): GhosttyCursor | null;
 
   /** Encode a key event into the bytes a pty expects (may be empty, e.g. bare modifiers). */
   keyEncode(event: GhosttyKeyEventLike): Uint8Array;
@@ -294,6 +317,7 @@ class GhosttyVTCore implements GhosttyVT {
   private readonly bufPtr: number;
   private readonly rgbPtr: number;
   private readonly colorsPtr: number;
+  private readonly cursorPtr: number;
   private readonly lenPtr: number;
   private readonly outYPtr: number;
   private readonly pointPtr: number;
@@ -331,6 +355,7 @@ class GhosttyVTCore implements GhosttyVT {
     this.bufPtr = this.checkedAlloc(size('GhosttyBuffer'));
     this.rgbPtr = this.checkedAlloc(size('GhosttyColorRgb'));
     this.colorsPtr = this.checkedAlloc(size('GhosttyRenderStateColors'));
+    this.cursorPtr = this.checkedAlloc(size('GhosttyRenderStateCursor'));
     this.lenPtr = this.checkedAlloc(4);
     this.outYPtr = this.checkedAlloc(2);
     this.pointPtr = this.checkedAlloc(size('GhosttyPoint'));
@@ -389,6 +414,7 @@ class GhosttyVTCore implements GhosttyVT {
     wasm.ghostty_wasm_free(this.bufPtr, this.structSize('GhosttyBuffer'));
     wasm.ghostty_wasm_free(this.rgbPtr, this.structSize('GhosttyColorRgb'));
     wasm.ghostty_wasm_free(this.colorsPtr, this.structSize('GhosttyRenderStateColors'));
+    wasm.ghostty_wasm_free(this.cursorPtr, this.structSize('GhosttyRenderStateCursor'));
     wasm.ghostty_wasm_free(this.lenPtr, 4);
     wasm.ghostty_wasm_free(this.outYPtr, 2);
     wasm.ghostty_wasm_free(this.pointPtr, this.structSize('GhosttyPoint'));
@@ -499,6 +525,54 @@ class GhosttyVTCore implements GhosttyVT {
 
     // completed pass: mark every dirty layer consumed
     this.check(wasm.ghostty_render_state_clean(this.renderState), 'ghostty_render_state_clean');
+  }
+
+  readCursor(): GhosttyCursor | null {
+    this.assertAlive();
+    const cursorEnum = this.enumValue('GhosttyRenderStateData', 'CURSOR');
+    this.sizedInit(this.cursorPtr, 'GhosttyRenderStateCursor');
+    const size = this.structSize('GhosttyRenderStateCursor');
+    const r = this.wasm.ghostty_render_state_get(this.renderState, cursorEnum, this.cursorPtr);
+    if (r !== this.enumValue('GhosttyResult', 'SUCCESS')) {
+      throw new GhosttyVTError(`render-state CURSOR query failed: ${r}`);
+    }
+    const dv = this.dvAt(this.cursorPtr, size);
+    const off = (f: string): number => this.fieldOffset('GhosttyRenderStateCursor', f);
+    if (dv.getUint8(off('viewport_has_value')) === 0) return null;
+    const styleIdx = dv.getUint32(off('visual_style'), true);
+    const styles = ['BAR', 'BLOCK', 'UNDERLINE', 'BLOCK_HOLLOW'] as const;
+    let style: GhosttyCursor['style'] = 'block';
+    for (const name of styles) {
+      if (this.enumValue('GhosttyRenderStateCursorVisualStyle', name) === styleIdx) {
+        style = name === 'BLOCK_HOLLOW' ? 'block-hollow' : (name.toLowerCase() as GhosttyCursor['style']);
+        break;
+      }
+    }
+    // OSC 12 app cursor color piggybacks on the COLORS struct
+    let color: string | undefined;
+    this.sizedInit(this.colorsPtr, 'GhosttyRenderStateColors');
+    const cr = this.wasm.ghostty_render_state_get(
+      this.renderState,
+      this.enumValue('GhosttyRenderStateData', 'COLORS'),
+      this.colorsPtr,
+    );
+    if (cr === this.enumValue('GhosttyResult', 'SUCCESS')) {
+      const cdv = this.dvAt(this.colorsPtr, this.structSize('GhosttyRenderStateColors'));
+      if (cdv.getUint8(this.fieldOffset('GhosttyRenderStateColors', 'cursor_has_value')) !== 0) {
+        const c = this.fieldOffset('GhosttyRenderStateColors', 'cursor');
+        color = this.rgbString(cdv.getUint8(c), cdv.getUint8(c + 1), cdv.getUint8(c + 2));
+      }
+    }
+    return {
+      x: dv.getUint16(off('viewport_x'), true),
+      y: dv.getUint16(off('viewport_y'), true),
+      style,
+      visible: dv.getUint8(off('visible')) !== 0,
+      blinking: dv.getUint8(off('blinking')) !== 0,
+      passwordInput: dv.getUint8(off('password_input')) !== 0,
+      wideTail: dv.getUint8(off('wide_tail')) !== 0,
+      ...(color !== undefined ? { color } : {}),
+    };
   }
 
   /** default fg/bg strings for this frame (queried once per dirtyRows pass) */

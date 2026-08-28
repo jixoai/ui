@@ -222,6 +222,10 @@ const makeFakeVt = (
     new(cols: number, rows: number): void {
       dims = [cols, rows];
     },
+    readCursor(): ReturnType<GhosttyVT['readCursor']> {
+      // a steady block cursor parked at the write position of the fake
+      return { x: 0, y: 0, style: 'block', visible: true, blinking: false, passwordInput: false, wideTail: false };
+    },
     reset(): void {
       calls.resets++;
       dirty = blankRows(dims[0]!, dims[1]!);

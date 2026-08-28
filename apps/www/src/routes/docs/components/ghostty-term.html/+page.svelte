@@ -9,7 +9,7 @@
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
-  import { PlayFields, PlayHelp } from '$lib/playground';
+  import { PlayFields, PlayHelp, PlayRow, PlaySegmented, PlayToggle } from '$lib/playground';
 
   // 模板字符串里的字面 script 闭合标签会终止本组件自身的 script 扫描 —— 拼接它
   const close = '</' + 'script>';
@@ -77,6 +77,27 @@ export default {
   // batch E report); do not reorder without a full rebuild.
   const canvasInitial = { history: 0 };
   let replay = $state(0);
+
+  // cursor playground (owner request 2026-08-28): the toggle flips the
+  // prop off entirely; style `follow` defers to the application's DECSCUSR
+  // (the fake shell sets underline while you type); blink off pins steady.
+  let cursorOn = $state(true);
+  let cursorStyle = $state('follow');
+  let cursorBlink = $state(true);
+  const cursorStyleOptions = [
+    { label: 'follow', value: 'follow' },
+    { label: 'block', value: 'block' },
+    { label: 'bar', value: 'bar' },
+    { label: 'underline', value: 'underline' },
+  ];
+  const cursorProp = $derived(
+    !cursorOn
+      ? (false as const)
+      : {
+          ...(cursorStyle === 'follow' ? {} : { style: cursorStyle as 'block' | 'bar' | 'underline' }),
+          ...(cursorBlink ? {} : { blink: false }),
+        },
+  );
   let grid = $state({ cols: 0, rows: 0 });
   let input = $state('');
   let history = $state<string[]>([]);
@@ -210,9 +231,28 @@ export default {
     }
 
     emit(`  ${cx.green('✓')} ghostty-term ready — ${cx.dim('pin + sha256 supply · wasm never in git')}\r\n\r\n`);
+
+    // the xtermjs.org features-box homage — framed, keyword-colored
+    const edge = cx.dim('│');
+    emit(
+      [
+        ` ${cx.dim('┌ ── features ────────────────────────────────────────────┐')}`,
+        `${edge}                                                                          ${edge}`,
+        `${edge}  ${cx.green('\u001b[1mreal VT core\u001b[0m')}                        ${cx.cyan('\u001b[1mgrapheme-native\u001b[0m')}              ${edge}`,
+        `${edge}  the actual libghostty-vt wasm       CJK 誊 · emoji 🫡 ❤️ cluster-     ${edge}`,
+        `${edge}  parses every byte you write         broken by ghostty itself        ${edge}`,
+        `${edge}                                                                          ${edge}`,
+        `${edge}  ${cx.purple('\u001b[1mdensity kernel\u001b[0m')}                      ${cx.blue('\u001b[1mzero-dep supply\u001b[0m')}             ${edge}`,
+        `${edge}  cells derive from --jx-text/--jx-line  pin + sha256, wasm never        ${edge}`,
+        `${edge}                                         enters git or your bundle     ${edge}`,
+        `${edge}                                                                          ${edge}`,
+        ` ${cx.dim('└──────────────────────────────────────────────────────────────────┘')}`,
+        '',
+      ].join('\r\n'),
+    );
     emit(`${colorMatrix()}\r\n`);
     emit(
-      `${cx.dim('the shell is yours now — ')}${cx.blue('help')}${cx.dim(' · ')}${cx.blue('color')}${cx.dim(' · ')}${cx.blue('showcase')}${cx.dim(' replays this sequence · Ctrl+C cancels')}\r\n\r\n`,
+      `${cx.dim('the shell is yours — ')}${cx.blue('help')}${cx.dim(' · ')}${cx.blue('color')}${cx.dim(' · ')}${cx.blue('showcase')}${cx.dim(' · Ctrl+C cancels')}\r\n\r\n`,
     );
     finish();
   };
@@ -402,12 +442,21 @@ export default {
           </div>
           <div class="relative min-h-0 flex-1">
             {#key replay}
-              <GhosttyTerm bind:this={term} {onData} {onResize} />
+              <GhosttyTerm bind:this={term} {onData} {onResize} cursor={cursorProp} />
             {/key}
           </div>
         </div>
         {#snippet playground()}
           <PlayFields>
+            <PlayRow label="cursor">
+              <PlayToggle bind:value={cursorOn} />
+            </PlayRow>
+            <PlayRow label="cursor style">
+              <PlaySegmented bind:value={cursorStyle} options={cursorStyleOptions} />
+            </PlayRow>
+            <PlayRow label="cursor blink">
+              <PlayToggle bind:value={cursorBlink} />
+            </PlayRow>
             <PlayHelp>
               click the terminal to focus it, then type — the canvas owns the keyboard surface
               (<code>Tab</code> reaches it like any control). Enter runs, Backspace edits,
