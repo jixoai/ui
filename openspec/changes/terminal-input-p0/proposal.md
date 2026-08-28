@@ -21,7 +21,8 @@ ghostty-term 已过冻结验收与多轮 owner 迭代（光标/选区/xterm 门�
 
 ## What Changes
 
-- **IME 组合输入**（组件）：root 挂 `compositionstart/update/end`。
+- **IME 组合输入**（组件）：隐藏 textarea 伴生元素（xterm 方案）
+  承接 `compositionstart/update/end`。
   V1 语义：组合中本地缓冲（不进 pty），`compositionend` 提交串经
   **净化门**入 pty（与 pasteText 同路）；组合期间在光标处绘制
   preedit 下划串（canvas 自绘，占位 cell 数按 ghostty 宽度判定）。

@@ -10,6 +10,23 @@ defaults are always parameters, never hardcode.
 
 ## ADDED Requirements
 
+### Requirement: the write/onData vocabulary
+
+Terminal direction words SHALL hold everywhere in this repo: `write`
+feeds pty OUTPUT into the VT (host → terminal); `onData` carries
+terminal INPUT out to the application (terminal → pty). Replies TO an
+application (mouse encodes, key encodes, OSC 52 query responses) MUST
+ride onData; bytes fed to `write`/`vtWrite` are output the VT parses
+(and the sideband OSC parser observes) — injecting an application
+reply there would be re-ingested and never reach the program.
+
+#### Scenario: an application reply never rides write
+
+- GIVEN an OSC 52 query that clipboardReadFrom allows answering
+- WHEN the host composes the reply sequence
+- THEN it is emitted on the input channel (onData), and never passed
+  to write/vtWrite
+
 ### Requirement: the input priority chain
 
 Every DOM input entering the component SHALL pass the chain in order:
@@ -78,3 +95,23 @@ title changes surface as an `onTitleChange` event.
 
 - GIVEN a pty sending OSC 52 query without `clipboardReadFrom` enabled
 - THEN no clipboard contents are reported back
+
+#### Scenario: invalid base64 is dropped with a named reason
+
+- GIVEN an OSC 52 set whose payload fails base64 decoding
+- THEN nothing reaches the clipboard and the drop is logged naming why
+
+#### Scenario: title changes surface as events
+
+- GIVEN a pty that emits an OSC 0/2 window title change
+- WHEN the sideband parser observes it
+- THEN onTitleChange fires with the new title (and the demo chrome
+  reflects it live)
+
+#### Scenario: mouse disabled or tracking NONE keeps local behavior
+
+- GIVEN `mouse` set to false, or an application that never enabled
+  tracking
+- WHEN the user clicks, drags, or wheels
+- THEN behavior is exactly the local default (selection gesture,
+  viewport scroll) — no mouse bytes are emitted

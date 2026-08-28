@@ -3,6 +3,9 @@
 > Orthogonal intents: (1) IME 组合输入语义；(2) 鼠标上报路由；
 > (3) OSC 观测与剪贴板安全模型。Owner 盘点裁决 2026-08-28（P0）。
 > 架构总法则（沿按键层先例）：**宿主集成骑扩展点，默认实现是参数**。
+> ABI 事实出处惯例（self-review 反馈）：design 引用的 type_json 事实
+> 由 A 批以 mouse-probe/osc-probe spec 落盘（selection-probe 先例），
+> 冻结接口的每条 ABI 断言最终都有已提交的探针对应。
 
 ## D1. 输入事件优先级链（总纲，一次定死）
 
@@ -27,8 +30,11 @@ DOM 事件进入组件
 
 ## D2. IME 组合输入
 
-- 组件 root `compositionstart/update/end`（canvas 无原生可编辑体，
-  IME 面板挂在 tabindex=0 的 root 上是标准做法——xterm 同款）。
+- **隐藏 textarea 伴生元素**（self-review B3 修正：xterm/ace/monaco
+  的 IME 方案都是隐藏 textarea，非可编辑 div 上浏览器通常不激活组合
+  ——root div 方案在真浏览器会哑火）：root 内挂
+  `<textarea aria-hidden class="sr-only">`，composition 三事件挂它，
+  预聚焦跟随 root focus；root 上的 keydown 语义不变。
 - `compositionupdate`：串存 `preedit` state（不进 pty）；绘制层在
   光标 cell 起画下划 preedit 串（宽度按 ghostty 判定：`vtWrite` 一段
   零宽探测？否——直接以**预排宽度 = 每 grapheme 的 wcwidth 估算**会
@@ -56,14 +62,18 @@ GhosttyVT 增：
   readMouseTracking(): 'none'|'x10'|'normal'|'button'|'any';
   mouseEncode(e: {
     action: 'press'|'release'|'motion';
-    button?: 'left'|'right'|'middle'|'four'|'five';
-    x: number; y: number;        // cell 坐标（1-based，编码器内部换算）
-    pixel?: boolean;             // SGR_PIXELS 时传像素
+    button?: 'left'|'right'|'middle'|'four'|'five';  // 6..11 留 P2
+    x: number; y: number;        // 像素坐标（ABI 实测：GhosttyMouseEvent
+                                 // .position 为 f32 px，无 cell 入口）
     mods?: { shift? ctrl? alt? meta? };
     motionBetween?: boolean;     // MOTION 且 ANY_BUTTON_PRESSED
-  }): Uint8Array;
+  }, cellSize?: { w: number; h: number }): Uint8Array;
+  // cellSize 供 encoder SIZE option（换算归属 A 批探针定案；冻结的
+  // 只是签名形状——self-review B1：不存在「cell 入、内部换算」入口）
   onMouseTrackingChange(h): IDisposable;   // vtWrite 后检测翻转
-门面 Terminal 增：mouseEncode 透传 + onMouseTrackingChange。
+门面 Terminal 增：mouseEncode（**mirror handleKey 语义：返回字节
+并 replay 到 onData**，latin1 通道对 mouse 字节 byte-safe）+
+onMouseTrackingChange（disposable）。
 ```
 
 组件路由（冻结）：
@@ -94,12 +104,16 @@ GhosttyVT 增：
 
 组件/安全模型（冻结）：
 - `clipboardWrite?: boolean | { maxSize?: number }`（默认 true）：
-  OSC 52 set → 解 base64 → 长度 ≤ min(maxSize?, wasm 上限) →
-  `navigator.clipboard.writeText`；超限丢弃并 console.warn（点名
-  上限）。
+  OSC 52 set → **长度检查在解码之前**（防 oversized base64 解码
+  DoS）→ base64 解码（失败 → 丢弃 + 点名 warn，勿 throw）→ 选择器
+  只认 `c`/空 → `navigator.clipboard.writeText`；超限丢弃 + 点名
+  上限 warn。空载荷 = 清剪贴板（xterm 语义）V1 显式不做，丢弃。
 - `clipboardReadFrom?: boolean`（默认 **false**）：query 默认不回——
   安全模型与 xterm 一致（写放行、读需显式开）。开启时 query → 回
-  `ESC]52;<sel>;base64\a`（仅文本剪贴板 c，经 write 通道回 pty）。
+  `ESC]52;c;base64\a`（仅文本剪贴板，**经 onData 输入通道回 pty——
+  与 keyEncode/paste 同路；严禁注入 write/vtWrite**：响应本身是
+  OSC 52 set 形态，注入 write 会被自家旁路 parser 重新摄入、程序
+  永远收不到且剪贴板被无谓重写——self-review B2 近事故修正）。
 - `onTitleChange?: (title: string) => void` prop；docs demo 的窗口
   铬标题栏接它（vim/tmux 改名实时反映）。
 
@@ -118,8 +132,13 @@ design 冻结值为准。
 
 - OSC 52 载荷形态未实证（base64/选择器语义）——A 批探针先行，
   偏差报告后再定 B 批安全模型细节（上限/解码路径）。
-- SGR_PIXELS 需要像素坐标——组件传 cell×cellSize，编码器 SIZE
-  option 同步（探针确认换算归属）。
+- cell↔像素换算归属（编码器 SIZE vs 宿主乘法）A 批探针定案；组件
+  持有 cell 度量，绑定持有编码器入参——签名按「像素入 + 可选
+  cellSize」冻结，探针只决定内部用法。
+- OSC parser 流语义（self-review B4）：混合流容错、跨 vtWrite 的
+  序列切分（parser 状态跨 feed 保持与否、reset/end 生命周期）、
+  未完结序列缓冲——A 批探针定案，配「同一 OSC 52 拆两个 vtWrite」
+  黄金用例。
 - IME 面板定位（iOS/Android 悬浮）V1 不做——桌面组合输入为主，
   移动端虚拟键盘属 P2。
 - 鼠标上报与本地选区的事件竞争——Shift 旁通为唯一仲裁，行为

@@ -8,7 +8,9 @@
 ## Phase 1 — Batch A：绑定层（子代理，探针先行）
 
 - [ ] 探针：OSC 52 载荷形态（set/query/选择器）、SGR/X10/UTF8 编码
-      字节序列、MOUSE_TRACKING 随 DECSET 翻转、encoder SIZE 换算
+      字节序列、MOUSE_TRACKING 随 DECSET 翻转、encoder SIZE 换算、
+      OSC parser 流语义（混合流容错 / 跨 vtWrite chunk 切分 /
+      reset-end 生命周期 / 未完结序列缓冲——self-review B4）
 - [ ] readMouseTracking + onMouseTrackingChange
 - [ ] mouseEncode（事件编组 + setopt_from_terminal + 全格式测试）
 - [ ] OSC parser 旁路 + onOscCommand + clipboardWriteMaxBytes

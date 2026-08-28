@@ -9,6 +9,7 @@
 >    分支 feat/terminal-input-p0，只改本 brief 文件集）。
 > 5. 法则信源：openspec/specs/** + 本 change design.md（冻结接口唯一出处）。
 > 6. wasm 本地副本：/tmp/ghostty-research/ghostty-vt.wasm（sha 与 pin 一致）。
+> 7. 文件集一律精确到文件（目录只作导航；self-review 反馈 4）。
 
 ## Batch A — 绑定层（先行）
 
@@ -28,7 +29,7 @@
 
 ## Batch C — 页面与 demo（前置：B 完成）
 
-- 文件集：apps/www/src/routes/docs/components/ghostty-term.html、
+- 文件集：apps/www/src/routes/docs/components/ghostty-term.html/+page.svelte、
   demo/pty-terminal/src/App.svelte（demo 目录在 .git/info/exclude，
   改后本地构建即可，不进 git）。
 - 交付：playground mouse 开关、标题栏接 onTitleChange、demo 复验
