@@ -76,6 +76,9 @@
     import { cn } from '$lib/utils';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import type { Snippet } from 'svelte';
+  import Calendar from '../date-picker/calendar.svelte';
+  import Swatches from '../color-picker/swatches.svelte';
+  import './input.css';
 
   interface Props extends HTMLInputAttributes {
     /** any native input type (default 'text') */
@@ -106,6 +109,27 @@
         own the error text; their computed chains must survive) */
     'aria-invalid'?: 'true' | 'false' | undefined;
     'aria-describedby'?: string | undefined;
+    /** picker bridge: false → intercept the native popup and mount a
+        custom Popover-API panel. Embedded default panels exist for
+        date/datetime-local (the Calendar) and color (the Swatches);
+        month/week/time need the picker snippet. Default true — the
+        native popup, the most accessible default. */
+    nativePicker?: boolean;
+    /** fires when the custom picker commits a value */
+    onselect?: (value: string) => void;
+    /** fine-grained panel content — takes precedence over the embedded
+        default panel. Renders inside the popover; ctx = value/commit/close */
+    picker?: Snippet<[PickerCtx]>;
+  }
+
+  /** the picker snippet's bridge context */
+  export interface PickerCtx {
+    /** the input's current value */
+    value: string;
+    /** commit: writes the input (controlled/uncontrolled alike), fires onselect */
+    commit: (v: string) => void;
+    /** close the panel (light dismiss/Escape stay native) */
+    close: () => void;
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -127,6 +151,9 @@
     class: className = '',
     'aria-invalid': ariaInvalid,
     'aria-describedby': ariaDescribedBy,
+    nativePicker = true,
+    onselect,
+    picker,
     ...rest
   }: Props = $props();
 
@@ -169,6 +196,86 @@
     inputEl.dispatchEvent(new Event('input', { bubbles: true }));
     inputEl.dispatchEvent(new CustomEvent('clear', { bubbles: true }));
   }
+
+  // ---- the picker bridge (input.css carries the intent ledger) ------
+  // embedded default panels exist where a professional component
+  // exports one; everything else needs the picker snippet
+  const EMBEDDED_PICKER_TYPES = new Set(['date', 'datetime-local', 'color']);
+  const customPicker = $derived(
+    Boolean(picker) || (nativePicker === false && EMBEDDED_PICKER_TYPES.has(type)),
+  );
+  $effect(() => {
+    if (nativePicker === false && !picker && !EMBEDDED_PICKER_TYPES.has(type) && type !== 'text') {
+      console.warn(
+        `[Input] native-picker={false} has no embedded panel for type="${type}" — pass a {#snippet picker} or keep the native popup`,
+      );
+    }
+  });
+
+  let pickerPanelEl = $state<HTMLDivElement | null>(null);
+  let calendarRef = $state<{ focusGrid: () => void } | null>(null);
+  let swatchesRef = $state<{ focusFirst: () => void } | null>(null);
+  const pickerAnchor = $derived(`--jx-input-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+
+  /** the date part of the current value ("YYYY-MM-DD" or undefined) */
+  const datePart = $derived(/^\d{4}-\d{2}-\d{2}/.exec(String(shownValue ?? ''))?.[0]);
+
+  function openPicker(): void {
+    pickerPanelEl?.showPopover();
+  }
+  function closePicker(): void {
+    pickerPanelEl?.hidePopover();
+  }
+  function commitFromPanel(v: string): void {
+    if (!inputEl) return;
+    inputEl.value = v;
+    liveValue = v;
+    if (controlled) value = v;
+    inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+    onselect?.(v);
+  }
+  /** the embedded Calendar's commit: datetime-local preserves the
+      typed time part; date commits close the panel (snippet panels
+      decide themselves through ctx.close) */
+  function commitDay(iso: string): void {
+    const timePart = /T(\d{2}:\d{2})/.exec(String(shownValue ?? ''))?.[1];
+    commitFromPanel(type === 'datetime-local' ? `${iso}T${timePart ?? '00:00'}` : iso);
+    closePicker();
+  }
+  /** one native event covers every open/close path (popovertarget,
+      light dismiss, Escape, our own calls) — popover.svelte law */
+  function onPickerToggle(e: ToggleEvent): void {
+    if (e.newState === 'open') {
+      calendarRef?.focusGrid();
+      swatchesRef?.focusFirst();
+    } else {
+      inputEl?.focus();
+    }
+  }
+  /** the lane's indicator zone (≈ the last 2.5rem) opens OUR panel;
+      the text zone keeps native focus/typing */
+  function onLaneClick(e: MouseEvent): void {
+    // forward a caller-supplied click handler from the rest props
+    (rest as { onclick?: (event: MouseEvent) => void }).onclick?.(e);
+    if (!customPicker || type === 'color') return;
+    const r = (e.currentTarget as HTMLInputElement).getBoundingClientRect();
+    if (e.clientX > r.right - 40) {
+      e.preventDefault();
+      openPicker();
+    }
+  }
+  /** Alt+↓/↑ — the native picker-open gesture, rerouted to ours */
+  function onLaneKeyDown(e: KeyboardEvent): void {
+    if (customPicker && e.altKey && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+      e.preventDefault();
+      openPicker();
+    }
+  }
+  const pickerCtx = $derived<PickerCtx>({
+    value: String(shownValue ?? ''),
+    commit: commitFromPanel,
+    close: closePicker,
+  });
 </script>
 
 {#if isHidden}
@@ -196,7 +303,7 @@
            className lands on the WRAPPER (the shell-law owner, same as
            the text lane's .jx-control-shell) — pass jx-color-expand for
            the full-row field (default is the compact 5rem swatch). -->
-      <label class={'jx-color-shell ' + className}>
+      <label class={'jx-color-shell ' + className} style={customPicker ? `anchor-name: ${pickerAnchor}` : undefined}>
         <input
           {id}
           {type}
@@ -206,7 +313,21 @@
           class="jx-color-swatch"
           aria-invalid={invalidAttr}
           aria-describedby={describedBy}
+          data-jx-custom-picker={customPicker ? '' : undefined}
+          data-jx-picker-color={customPicker ? '' : undefined}
+          tabindex={customPicker ? -1 : undefined}
         />
+        {#if customPicker}
+          <!-- the swatch's UA activation cannot be cancelled — the overlay
+               button is the trigger; the input keeps the value/ARIA role -->
+          <button
+            type="button"
+            class="jx-picker-overlay"
+            aria-label="choose color"
+            onclick={openPicker}
+            onkeydown={(e) => e.key === 'ArrowDown' && e.altKey && openPicker()}
+          ></button>
+        {/if}
       </label>
     {:else}
       <!-- the shell owns the box law; the input inside is chromeless -->
@@ -215,10 +336,14 @@
         class:jx-slotted={slotted}
         class:jx-invalid={invalid}
         class:jx-clearable={clearable}
+        data-jx-custom-picker={customPicker ? '' : undefined}
+        style={customPicker ? `anchor-name: ${pickerAnchor}` : undefined}
       >
         {#if innerInlineStart}
           <span data-jx-slot class="flex-none inline-flex items-center gap-1.5 text-muted-foreground text-xs leading-none">{@render innerInlineStart()}</span>
         {/if}
+        <!-- the interception selector anchors on the INPUT: the
+             picker indicator pseudo belongs to it, not the shell -->
         <input
           bind:this={inputEl}
           {id}
@@ -226,9 +351,12 @@
           {...rest}
           value={controlled ? value : undefined}
           oninput={syncValue}
+          onclick={customPicker ? onLaneClick : undefined}
+          onkeydown={customPicker ? onLaneKeyDown : undefined}
           class="jx-html-control-lane"
           aria-invalid={invalidAttr}
           aria-describedby={describedBy}
+          data-jx-custom-picker={customPicker ? '' : undefined}
         />
         {#if innerInlineEnd}
           <span data-jx-slot class="flex-none inline-flex items-center gap-1.5 text-muted-foreground text-xs leading-none">{@render innerInlineEnd()}</span>
@@ -245,6 +373,43 @@
                  lucide SVG fallback serves without the plugin -->
             <span class="jx-clear-glyph" aria-hidden="true"></span>
           </button>
+        {/if}
+      </div>
+    {/if}
+    {#if customPicker}
+      <!-- the bridge panel: Popover API (light dismiss, Escape, top
+           layer are the browser's); anchor-positioned under the
+           control; the date-panel law paints it -->
+      <div
+        bind:this={pickerPanelEl}
+        id="{id}-picker-panel"
+        popover="auto"
+        class="jx-picker-panel jx-surface"
+        data-variant="auto"
+        style="position-anchor: {pickerAnchor}; inset-area: bottom span-all; position-area: bottom span-all;"
+        ontoggle={onPickerToggle}
+      >
+        {#if picker}
+          {@render picker(pickerCtx)}
+        {:else if type === 'color'}
+          <Swatches
+            bind:this={swatchesRef}
+            value={/^#[0-9a-fA-F]{6}$/.test(String(shownValue ?? '')) ? String(shownValue) : undefined}
+            onpick={(hex) => {
+              commitFromPanel(hex);
+              closePicker();
+            }}
+          />
+        {:else}
+          <Calendar
+            bind:this={calendarRef}
+            anchors={datePart ? [datePart] : []}
+            min={(rest as { min?: string }).min}
+            max={(rest as { max?: string }).max}
+            initialView={datePart}
+            idPrefix="{id}-pcal"
+            onpick={commitDay}
+          />
         {/if}
       </div>
     {/if}

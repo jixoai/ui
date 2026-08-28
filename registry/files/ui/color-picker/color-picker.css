@@ -108,3 +108,20 @@
     transition: none;
   }
 }
+
+/* ---- swatches palette cell states (2026-08-28 pure-register fusion):
+   the aria-selected cell wears an inset 2px ring frame (the ring token
+   reads on any fill); hover and focus-visible share the site's inset
+   1px outline law. Unlayered state-machine carve-out, trigger law. */
+:where(.jx-color-picker-swatches) :where([role='gridcell']:hover) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+:where(.jx-color-picker-swatches) :where([role='gridcell']:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+:where(.jx-color-picker-swatches) :where([role='gridcell'][aria-selected='true']) {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}

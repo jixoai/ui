@@ -116,6 +116,20 @@
     inputClearable: true,
   };
   let canvasEmail = $state(canvasInitial.email);
+  // picker-bridge demo state
+  let bridgeDate = $state('');
+  let bridgeDatePicked = $state('');
+  let bridgeColor = $state('#7c7c7c');
+  const pickerBridgeUsage = `<!-- one prop: the embedded default panel -->
+<Input type="date" bind:value native-picker={false} onselect={(v) => …} />
+<Input type="color" bind:value native-picker={false} />
+
+<!-- fine-grained: any panel content through the snippet -->
+<Input type="week" native-picker={false}>
+  {#snippet picker(ctx)}
+    <MyWeekGrid value={ctx.value} onpick={ctx.commit} />
+  {/snippet}
+</Input>`;
   let canvasInputType = $state(canvasInitial.inputType);
   let canvasInputClearable = $state(canvasInitial.inputClearable);
 
@@ -389,6 +403,39 @@
           <Input type="search" label="search" name="demo_err_search" placeholder="grep…" error="a query is required" clearable />
         </div>
         <CodeBlock code={errorUsage} lang="svelte" meta="error" />
+      </div>
+    </SectionCard>
+  </div>
+
+  <!-- picker bridge -->
+  <div id="picker-bridge" data-reveal="">
+    <SectionCard
+      family="picker-bridge"
+      headerRegion="picker-bridge"
+      eyebrow="bridge"
+      title="custom picker bridge"
+      summary="The native date/color popups cannot be styled — but they can be swapped. native-picker={false} intercepts the trigger and mounts a Popover-API panel (date/datetime-local ride the date-picker Calendar; color rides the color-picker Swatches). The input stays a real input: native typing, parsing, ARIA and FormData untouched. A picker snippet replaces the default panel for anything else — its ctx carries value, commit and close. The default keeps the native popup: the most accessible default."
+    >
+      <div class="flex flex-col gap-5">
+        <div class="grid gap-5 min-[760px]:grid-cols-2">
+          <Input
+            type="date"
+            label="date (custom picker)"
+            bind:value={bridgeDate}
+            nativePicker={false}
+            onselect={(v) => (bridgeDatePicked = v)}
+          />
+          <Input
+            type="color"
+            label="color (custom picker)"
+            bind:value={bridgeColor}
+            nativePicker={false}
+          />
+        </div>
+        <p class="font-mono text-xs text-muted-foreground">
+          committed: {bridgeDatePicked || '—'} · swatch: {bridgeColor}
+        </p>
+        <CodeBlock code={pickerBridgeUsage} lang="svelte" meta="picker-bridge" />
       </div>
     </SectionCard>
   </div>

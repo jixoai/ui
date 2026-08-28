@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-28T20:31:03.605Z",
+  "generatedAt": "2026-08-28T21:08:53.341Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -616,8 +616,15 @@
           "source": "registry/files/ui/input/input.svelte",
           "mirror": "apps/www/src/lib/ui/input/input.svelte",
           "target": "@ui/input/input.svelte",
-          "sourceSha": "523741423411e3fc0480e00b3efc0af092519d499120f717b07d51d8016ccbd9",
-          "mirrorSha": "523741423411e3fc0480e00b3efc0af092519d499120f717b07d51d8016ccbd9"
+          "sourceSha": "1ec1ee19120bdb923d0fb962b5adc40d082bcaff5dac5a17f774f40f43d46fca",
+          "mirrorSha": "1ec1ee19120bdb923d0fb962b5adc40d082bcaff5dac5a17f774f40f43d46fca"
+        },
+        {
+          "source": "registry/files/ui/input/input.css",
+          "mirror": "apps/www/src/lib/ui/input/input.css",
+          "target": "@ui/input/input.css",
+          "sourceSha": "568673cfe042d2d89041697b4844d399e7dcfde035b9d559ba49035ec59f922f",
+          "mirrorSha": "568673cfe042d2d89041697b4844d399e7dcfde035b9d559ba49035ec59f922f"
         },
         {
           "source": "registry/files/ui/input/index.ts",
@@ -1061,15 +1068,15 @@
           "source": "registry/files/ui/date-picker/date-picker.svelte",
           "mirror": "apps/www/src/lib/ui/date-picker/date-picker.svelte",
           "target": "@ui/date-picker/date-picker.svelte",
-          "sourceSha": "825119c09fc0d1aaa2e042e4c3957c288bf8ce8b97cbbe5e14e550e777a8cc63",
-          "mirrorSha": "825119c09fc0d1aaa2e042e4c3957c288bf8ce8b97cbbe5e14e550e777a8cc63"
+          "sourceSha": "9d758ed0f83b4614ec0264ffd22eeb002b92b818168d529d5efba4d1312b290c",
+          "mirrorSha": "9d758ed0f83b4614ec0264ffd22eeb002b92b818168d529d5efba4d1312b290c"
         },
         {
           "source": "registry/files/ui/date-picker/index.ts",
           "mirror": "apps/www/src/lib/ui/date-picker/index.ts",
           "target": "@ui/date-picker/index.ts",
-          "sourceSha": "3d670e2359efa402ec9df2daf4d0349fdfc8176ba1372a4eafee6a2a296d8ee6",
-          "mirrorSha": "3d670e2359efa402ec9df2daf4d0349fdfc8176ba1372a4eafee6a2a296d8ee6"
+          "sourceSha": "5a06292e98a3d6e27e7fe1200c72d8e328a13faa4f3b64b7a01640bfcdf997a2",
+          "mirrorSha": "5a06292e98a3d6e27e7fe1200c72d8e328a13faa4f3b64b7a01640bfcdf997a2"
         },
         {
           "source": "registry/files/ui/date-picker/date-picker.css",
@@ -1077,6 +1084,20 @@
           "target": "@ui/date-picker/date-picker.css",
           "sourceSha": "880f59a4e1d19142dd611a6eef4a6a3425b691231604b53fd9ce50da336ca406",
           "mirrorSha": "880f59a4e1d19142dd611a6eef4a6a3425b691231604b53fd9ce50da336ca406"
+        },
+        {
+          "source": "registry/files/ui/date-picker/calendar.svelte",
+          "mirror": "apps/www/src/lib/ui/date-picker/calendar.svelte",
+          "target": "@ui/date-picker/calendar.svelte",
+          "sourceSha": "d2281ea40cee2c1c9e754d20fb96f6a5080b8107b9fb8f212f30bcbc704988cc",
+          "mirrorSha": "d2281ea40cee2c1c9e754d20fb96f6a5080b8107b9fb8f212f30bcbc704988cc"
+        },
+        {
+          "source": "registry/files/ui/date-picker/calendar-math.ts",
+          "mirror": "apps/www/src/lib/ui/date-picker/calendar-math.ts",
+          "target": "@ui/date-picker/calendar-math.ts",
+          "sourceSha": "65fe8aacbe2d35cdf52197332aca3d495abc6b862219d2fb98af6699641a5c8f",
+          "mirrorSha": "65fe8aacbe2d35cdf52197332aca3d495abc6b862219d2fb98af6699641a5c8f"
         }
       ]
     },
@@ -1117,22 +1138,29 @@
           "source": "registry/files/ui/color-picker/color-picker.svelte",
           "mirror": "apps/www/src/lib/ui/color-picker/color-picker.svelte",
           "target": "@ui/color-picker/color-picker.svelte",
-          "sourceSha": "eea458130e9085abe76600dd431df5cdde5a3678e5413a192a577257e48db1ba",
-          "mirrorSha": "eea458130e9085abe76600dd431df5cdde5a3678e5413a192a577257e48db1ba"
+          "sourceSha": "7bc8b2ad7df70b534d0684f9d7f59d00d9cf38eeac260f915cdffdb2dfc08a20",
+          "mirrorSha": "7bc8b2ad7df70b534d0684f9d7f59d00d9cf38eeac260f915cdffdb2dfc08a20"
         },
         {
           "source": "registry/files/ui/color-picker/index.ts",
           "mirror": "apps/www/src/lib/ui/color-picker/index.ts",
           "target": "@ui/color-picker/index.ts",
-          "sourceSha": "78ee8a612cf9ceba8a88f3e0098819307f8999189494ca75d588b8640a949a71",
-          "mirrorSha": "78ee8a612cf9ceba8a88f3e0098819307f8999189494ca75d588b8640a949a71"
+          "sourceSha": "353a4038e6c60ed45251022f701fc4913e46f358fc227e5036400dd10d4f0d4c",
+          "mirrorSha": "353a4038e6c60ed45251022f701fc4913e46f358fc227e5036400dd10d4f0d4c"
         },
         {
           "source": "registry/files/ui/color-picker/color-picker.css",
           "mirror": "apps/www/src/lib/ui/color-picker/color-picker.css",
           "target": "@ui/color-picker/color-picker.css",
-          "sourceSha": "25e9fe4418a706aacf93701c1c85fe6b98e8869339d7693c7c354e84b6b7656c",
-          "mirrorSha": "25e9fe4418a706aacf93701c1c85fe6b98e8869339d7693c7c354e84b6b7656c"
+          "sourceSha": "52e20b6399c2ee8c40df94047d0c20622c37a66cba31fdb11b54f8cdcb2fabf8",
+          "mirrorSha": "52e20b6399c2ee8c40df94047d0c20622c37a66cba31fdb11b54f8cdcb2fabf8"
+        },
+        {
+          "source": "registry/files/ui/color-picker/swatches.svelte",
+          "mirror": "apps/www/src/lib/ui/color-picker/swatches.svelte",
+          "target": "@ui/color-picker/swatches.svelte",
+          "sourceSha": "0399022f5e543f5f286b73896db1965d61ac8bacf3f13a3f23d717c49dd37047",
+          "mirrorSha": "0399022f5e543f5f286b73896db1965d61ac8bacf3f13a3f23d717c49dd37047"
         }
       ]
     },

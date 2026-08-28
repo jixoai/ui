@@ -1,0 +1,84 @@
+/**
+ * input.css — the picker bridge (2026-08-28).
+ *
+ * The native date/color popups cannot be styled and their opening
+ * cannot be cancelled (UA shadow activation). The bridge intercepts
+ * the TRIGGER zones instead and mounts a Popover-API panel:
+ *
+ *   native-picker={false}  → the embedded default panel
+ *                            (date/datetime-local → Calendar,
+ *                             color → Swatches)
+ *   {#snippet picker(ctx)} → any custom panel content
+ *
+ * The input itself stays a REAL input (native typing, parsing, ARIA,
+ * FormData untouched) — only the popup layer is swapped.
+ *
+ * Intent ledger:
+ *  - trigger interception (indicator pointer-events, color overlay) — 2026-08-28
+ *  - the panel (date-panel law: bezel surface, anchor, try-fallbacks,
+ *    the no-anchor viewport-center fallback, transparent ::backdrop)
+ */
+@layer theme, base, components, utilities;
+
+@layer components {
+  /* ---- trigger interception ------------------------------------------
+     the indicator's clicks fall through to the lane, whose click
+     router (input.svelte) opens OUR panel for the end-zone clicks */
+  :where([data-jx-custom-picker]) {
+    cursor: pointer;
+  }
+  :where([data-jx-custom-picker])::-webkit-calendar-picker-indicator {
+    pointer-events: none;
+    cursor: pointer;
+  }
+  /* color: the swatch input's UA activation cannot be cancelled —
+     retire it from the pointer path entirely; the overlay button is
+     the trigger (the input keeps the value/ARIA carrier role) */
+  :where([data-jx-custom-picker][data-jx-picker-color]) {
+    pointer-events: none;
+  }
+  :where(button.jx-picker-overlay) {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+  }
+  :where(button.jx-picker-overlay):focus-visible {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+  }
+
+  /* ---- panel: the date-panel law (bezel surface on the jx-surface
+     law; the popover element is the PLATFORM element — no paint of
+     its own beyond the resets) -------------------------------------- */
+  :where(.jx-picker-panel) {
+    --jx-surface-acrylic-fill: color-mix(in oklab, var(--terminal) 72%, transparent);
+    --jx-surface-solid-fill: var(--terminal);
+    position: fixed;
+    margin: 0;
+    padding: 0.375rem;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    width: fit-content;
+    font-size: 13px;
+    color: var(--terminal-foreground);
+  }
+  /* Engines without CSS Anchor Positioning: authored viewport-center —
+     the popover.svelte fallback visual, never worse. */
+  @supports not (anchor-name: --jx-picker-fb) {
+    :where(.jx-picker-panel) {
+      position-anchor: auto !important;
+      inset-area: none !important;
+      inset: 0;
+      margin: auto;
+    }
+  }
+  /* Popovers get a ::backdrop too; light dismiss must never dim the page. */
+  :where(.jx-picker-panel)::backdrop {
+    background: transparent;
+  }
+}

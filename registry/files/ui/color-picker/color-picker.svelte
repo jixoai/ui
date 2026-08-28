@@ -50,6 +50,15 @@
   DOM child (data-jx-color-picker-shadow) because WAAPI cannot animate
   pseudo-elements. Drags never animate (markers track the pointer
   directly) — the kernel only owns the panel's enter/exit.
+
+  Pure-register fusion (2026-08-28): the panel gains the shared preset
+  palette — swatches.svelte, the embeddable half extracted for the
+  Input picker bridge (no popover/trigger/motion of its own). The host
+  mounts <Swatches value onpick/> below the value input; pickSwatch
+  commits through the same applyOklch → emit path as the Eye Dropper,
+  so a preset pick re-emits in the active format and the panel stays
+  open (the editor is a workshop; the bridge panel is the one that
+  closes on pick). Everything else about the host is untouched.
 -->
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
@@ -59,6 +68,7 @@
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import Swatches from './swatches.svelte';
   import './color-picker.css';
   import {
     colorFormats,
@@ -281,6 +291,16 @@
       // user dismissed the system picker — keep the current color
     }
   }
+
+  /** the embedded palette's discrete pick — the same commit path as the
+      Eye Dropper (applyOklch → emit re-formats into the active notation) */
+  function pickSwatch(hex: string): void {
+    const parsed = parseColor(hex);
+    if (parsed) {
+      applyOklch(parsed);
+      emit();
+    }
+  }
 </script>
 
 <div data-density={resolvedDensity} class={'jx-field ' + className}>
@@ -365,6 +385,10 @@
     </NativeSelect>
 
     <Input data-jx-color-picker-input class="font-mono text-[13px]" bind:value={textDraft} onchange={commitText} />
+
+    <!-- the shared preset palette (the embeddable half the Input picker
+         bridge also mounts); picking stays in the workshop — no close -->
+    <Swatches value={swatch} onpick={pickSwatch} />
 
     {#if canPick}
       <!-- PressButton takes no class prop — the wrapper owns the row width -->

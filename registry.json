@@ -597,6 +597,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/input/input.css",
+          "target": "@ui/input/input.css",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/input/index.ts",
           "target": "@ui/input/index.ts",
           "type": "registry:file"
@@ -606,7 +611,9 @@
       "registryDependencies": [
         "@jixoai/icons",
         "@jixoai/jixoai-theme",
-        "@jixoai/utils"
+        "@jixoai/utils",
+        "@jixoai/date-picker",
+        "@jixoai/color-picker"
       ],
       "meta": {
         "group": "data-entry",
@@ -1169,6 +1176,16 @@
           "path": "registry/files/ui/date-picker/date-picker.css",
           "target": "@ui/date-picker/date-picker.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/date-picker/calendar.svelte",
+          "target": "@ui/date-picker/calendar.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/date-picker/calendar-math.ts",
+          "target": "@ui/date-picker/calendar-math.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: label?, error?, mode 'single'|'range', value ($bindable ISO string or {start?,end?}). Never a native input[type=date].",
@@ -1235,6 +1252,11 @@
         {
           "path": "registry/files/ui/color-picker/color-picker.css",
           "target": "@ui/color-picker/color-picker.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/color-picker/swatches.svelte",
+          "target": "@ui/color-picker/swatches.svelte",
           "type": "registry:file"
         }
       ],
