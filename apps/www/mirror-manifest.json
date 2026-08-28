@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-28T08:36:53.187Z",
+  "generatedAt": "2026-08-28T10:53:20.223Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -489,8 +489,8 @@
           "source": "registry/files/ui/ghostty-term/ghostty-term.svelte",
           "mirror": "apps/www/src/lib/ui/ghostty-term/ghostty-term.svelte",
           "target": "@ui/ghostty-term/ghostty-term.svelte",
-          "sourceSha": "e6753113f07c52b22bd3db4ba9b22f3096bc9bad64c4deb244824d6a538a1268",
-          "mirrorSha": "e6753113f07c52b22bd3db4ba9b22f3096bc9bad64c4deb244824d6a538a1268"
+          "sourceSha": "16e9be2979ef44d81984f077e48a37c990088b6fbc7fec623c9debf489c055ff",
+          "mirrorSha": "16e9be2979ef44d81984f077e48a37c990088b6fbc7fec623c9debf489c055ff"
         },
         {
           "source": "registry/files/ui/ghostty-term/index.ts",

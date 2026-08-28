@@ -256,6 +256,9 @@
   let probeEl: HTMLDivElement | null = null;
   let cell = { w: 8, h: 20 };
   let grid = { cols: 0, rows: 0 };
+  /** device pixel ratio (fill-rect snapping + canvas raster scale). */
+  const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+
   /** Last painted row per viewport y — the full-repaint source. */
   let screen: (RowSnapshot | undefined)[] = [];
   /** Viewport offset in lines above the stream tail (>= 0) — clamps the
@@ -460,8 +463,17 @@
     // draws EVERY glyph — a per-cell paint used to cut wide graphemes
     // (CJK/emoji span 2 cells) in half when the tail cell's paper was
     // filled after the head glyph.
+    // Device-pixel snapping: fractional cell rects each antialias their
+    // own half-pixel edge, leaving hairline seams wherever neighbor
+    // papers differ (visible inside selections — owner report
+    // 2026-08-28). Every fill aligns to the device grid instead.
+    const dprPx = (v: number): number => Math.round(v * dpr) / dpr;
+    const cellLeft = (i: number): number => dprPx(i * cell.w);
+    const cellWidth = (i: number): number => dprPx((i + 1) * cell.w) - cellLeft(i);
+    const rowTop = dprPx(rowY);
+    const rowHeight = dprPx(rowY + cell.h) - rowTop;
     ctx.fillStyle = shell.bg;
-    ctx.fillRect(0, rowY, width, cell.h);
+    ctx.fillRect(0, rowTop, dprPx(width), rowHeight);
 
     const maxCols = Math.min(row.cells.length, grid.cols);
     const sel = row.selection; // startX/endX both inclusive (binding contract)
@@ -484,8 +496,12 @@
       // otherwise — the default RIDES the same swap path
       if (selected(i)) {
         if (shell.selectionBg !== undefined || shell.selectionFg !== undefined) {
+          // themed selection paper; ink keeps each cell's content color —
+          // mono ink happens ONLY when selectionForeground is set
+          // explicitly (owner report 2026-08-28: forced mono flattened
+          // ANSI colors; xterm preserves fg hues on selection bg)
           paper = shell.selectionBg ?? paper;
-          ink = shell.selectionFg ?? shell.bg;
+          ink = shell.selectionFg ?? ink;
         } else {
           const swap = ink;
           ink = paper;
@@ -494,7 +510,7 @@
       }
       if (paper !== shell.bg) {
         ctx.fillStyle = paper;
-        ctx.fillRect(i * cell.w, rowY, cell.w, cell.h);
+        ctx.fillRect(cellLeft(i), rowTop, cellWidth(i), rowHeight);
       }
       inks.push(style.invisible ? undefined : ink);
     }
@@ -511,7 +527,7 @@
       ctx.textBaseline = 'middle';
       ctx.fillText(cellView.grapheme, i * cell.w, rowY + cell.h / 2);
       if (style.underline >= 1) {
-        ctx.fillRect(i * cell.w, rowY + cell.h - 1, cell.w, 1);
+        ctx.fillRect(cellLeft(i), rowTop + rowHeight - dprPx(1), cellWidth(i), dprPx(1));
       }
     }
     screen[row.y] = row;
@@ -548,7 +564,6 @@
     grid = { cols: nextCols, rows: nextRows };
     const cssW = nextCols * cell.w;
     const cssH = nextRows * cell.h;
-    const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
     canvasEl.style.width = `${cssW}px`;
     canvasEl.style.height = `${cssH}px`;
     canvasEl.width = Math.max(1, Math.round(cssW * dpr));

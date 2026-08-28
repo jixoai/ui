@@ -112,21 +112,18 @@ export default {
       foreground: '#eff0eb',
       cursor: '#ff79c6',
       selectionBackground: '#44475a',
-      selectionForeground: '#f8f8f2',
     },
     paper: {
       background: '#ffffff',
       foreground: '#1f2328',
       cursor: '#0969da',
       selectionBackground: '#add6ff',
-      selectionForeground: '#1f2328',
     },
     solarized: {
       background: '#fdf6e3',
       foreground: '#586e75',
       cursor: '#cb4b16',
       selectionBackground: '#eee8d5',
-      selectionForeground: '#073642',
     },
   };
   const themeOptions = [
