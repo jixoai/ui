@@ -15,6 +15,8 @@ import { composeLaw } from '../src/types';
 import { inputLaw } from '../src/laws/input';
 import { checkboxLaw } from '../src/laws/checkbox';
 import { rangeLaw } from '../src/laws/range';
+import { selectLaw } from '../src/laws/select';
+import { radioLaw } from '../src/laws/radio';
 import { allLaws } from '../src/laws/all';
 import { parseCSS, fingerprintMultiset, selectorParts } from './parse-css';
 
@@ -47,12 +49,13 @@ describe('dual-projection semantic equality (independent parser)', () => {
 });
 
 describe('face scope integrity (Codex: comma parts must not escape)', () => {
-  it('every comma part of every scoped face selector carries the scope', () => {
+  it('every comma part of every scoped face selector carries the scope — INCLUDING inside @media/@supports', () => {
     for (const law of laws) {
       if (!law.application.scoped) continue;
       const face = serializeLaw(law, { format: 'face' }).css;
       for (const rule of parseCSS(face)) {
-        if (rule.preludes.length) continue; // only top-level selectors
+        // no preludes skip (Codex r2): inner selectors are built by
+        // the same buildSelector — they must carry the scope too
         for (const part of selectorParts(rule.selector)) {
           expect(part.startsWith(':where(.jx-pure) '), `${law.name}: "${part}" escaped the scope`).toBe(true);
         }
@@ -175,6 +178,43 @@ describe('byte stability (idempotent generation)', () => {
       const b = serializeLaw(law, { format: 'utility' }).css;
       expect(a).toBe(b);
     }
+  });
+});
+
+describe('cascade order (Codex r2 P0 — source order decides equal specificity)', () => {
+  it('select: the listbox override emits AFTER the @supports chevron gate', () => {
+    const css = serializeLaw(selectLaw, { format: 'utility' }).css;
+    const supportsIdx = css.indexOf('@supports not selector(::-moz-range-progress)');
+    const listboxIdx = css.indexOf('background-image: none');
+    expect(supportsIdx).toBeGreaterThan(-1);
+    expect(listboxIdx).toBeGreaterThan(-1);
+    expect(
+      listboxIdx,
+      'the listbox background-image: none must come after the @supports chevron block',
+    ).toBeGreaterThan(supportsIdx);
+  });
+
+  it('select: the same order holds in EVERY projection (face, alias path n/a — no alias)', () => {
+    for (const format of ['utility', 'face'] as const) {
+      const css = serializeLaw(selectLaw, { format }).css;
+      expect(
+        css.indexOf('background-image: none'),
+        `${format}: listbox override must trail the supports gate`,
+      ).toBeGreaterThan(css.indexOf('@supports not selector(::-moz-range-progress)'));
+    }
+  });
+
+  it('radio: the ::before kill survives the checkbox compose (content: none wins the base; the checked morph carries)', () => {
+    const css = serializeLaw(radioLaw, { format: 'utility' }).css;
+    // base ::before overridden to content:none by radio's delta
+    expect(css).toMatch(/\.jx-html-radio::before \{[^}]*content: none/s);
+    // the ::after dot + its checked scale carry intact
+    expect(css).toContain('.jx-html-radio:checked::after');
+    expect(css).toContain('transform: scale(1)');
+    // checkbox's ::before morphs carry (dead paint under content:none —
+    // exactly the V2 cascade; they must not silently disappear)
+    expect(css).toContain('.jx-html-radio:checked::before');
+    expect(css).toContain('.jx-html-radio:indeterminate::before');
   });
 });
 

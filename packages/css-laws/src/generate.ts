@@ -35,10 +35,17 @@ const end = (slot: string) => `/* @jixoai/css-laws:end:${slot} */`;
 function replaceSlot(css: string, slot: string, content: string): string {
   const b = begin(slot);
   const e = end(slot);
+  // structural validation (Codex r2 closeout): exactly one begin, one
+  // end, correctly paired — duplicated or orphaned markers are a
+  // corrupted sheet, not a regeneration target
+  const countOf = (needle: string) => css.split(needle).length - 1;
+  if (countOf(b) !== 1 || countOf(e) !== 1) {
+    throw new Error(`marker slot ${slot}: expected exactly one begin/end pair (found ${countOf(b)}/${countOf(e)})`);
+  }
   const bi = css.indexOf(b);
   const ei = css.indexOf(e);
-  if (bi === -1 || ei === -1 || ei < bi) {
-    throw new Error(`marker slot ${slot} missing or malformed — run the cutover first`);
+  if (ei < bi) {
+    throw new Error(`marker slot ${slot}: end precedes begin — corrupted sheet`);
   }
   const head = css.slice(0, bi);
   const tail = css.slice(ei + e.length);

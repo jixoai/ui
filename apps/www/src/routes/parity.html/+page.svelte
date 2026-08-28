@@ -67,6 +67,29 @@
     </div>
   </section>
 
+  <!-- row: select-multi — the LISTBOX posture regression lock (Codex
+       r2 P0): tier0 is the bare select[multiple] under the face;
+       tier1 is the utility class consumed directly (the component
+       posture, no face scope). In Chromium the @supports chevron
+       gate HOLDS, so the listbox override must still win:
+       background-image: none, cursor: default, min-height 5.75rem. -->
+  <section data-parity="select-multi" class="flex flex-wrap items-start gap-10">
+    <div data-renderer="tier0" data-density="default">
+      <div class="jx-pure">
+        <select data-probe="select-multi" multiple>
+          <option value="a">alpha</option>
+          <option value="b">beta</option>
+        </select>
+      </div>
+    </div>
+    <div data-renderer="tier1" data-density="default">
+      <select class="jx-html-select" multiple>
+        <option value="a">alpha</option>
+        <option value="b">beta</option>
+      </select>
+    </div>
+  </section>
+
   <!-- row: checkbox — tier0 is the bare input under the face (B5's
        checkbox law); tier1 is the component's .jx-checkbox mirror.
        Pseudo-glyph builds are screenshot-oracle territory. -->

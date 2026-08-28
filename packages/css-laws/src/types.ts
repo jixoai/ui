@@ -1,9 +1,21 @@
 /**
- * @jixoai/css-laws — the type-safe CSS law model.
+ * @jixoai/css-laws — a BOUNDED serializer for the 13 native
+ * form-control laws (Codex r2 positioning ruling).
  *
- * A "law" is a complete styling contract for one form-control concept:
- * its base geometry, its pseudo-element builds, its state machines,
- * its subtree rules, its degradation laws — all as typed TS objects.
+ * This is NOT a general typed CSS AST: declarations and selectors
+ * are strings; subtrees express relative paths but not recursive
+ * structure; at-rule interleaving is the numeric `order` model, not
+ * an authored rule tree. What it buys — ONE declaration source per
+ * law, three projections (utility class / bare-element face /
+ * Tier-2 alias), TS-level composition, and machine-checked
+ * cross-projection equality — is exactly what the jx-html closed
+ * set needs. General component paint stays in Tailwind utilities;
+ * do not grow this package into a CSS framework.
+ *
+ * A "law" is a complete styling contract for one form-control
+ * concept: its base geometry, its pseudo-element builds, its state
+ * machines, its subtree rules, its degradation laws — all as typed
+ * TS objects.
  *
  * One law → THREE CSS projections (single declaration source):
  *   utility — .{className} rules in @layer components (jixoai.css;
@@ -36,10 +48,20 @@ export interface PseudoBuild {
  * a state (':checked'), a compound state chain
  * (':hover:not(:checked):not(:disabled)'), or an engine pseudo
  * ('::-webkit-slider-thumb' — rides only inside @supports gates).
+ *
+ * ORDER (Codex r2 P0 fix): CSS source order is cascade-deciding at
+ * equal specificity. The serializer emits sections by numeric order:
+ * base 0 · pseudos 100 · subtrees 200 · states 300 · media 400 ·
+ * supports 500 — a rule that must land AFTER another section (the
+ * select listbox override must beat the @supports chevron) carries
+ * an explicit order above it. Stable sort keeps authored sequence
+ * inside the same number.
  */
 export interface StateRule {
   readonly selector: string;
   readonly declarations: Declarations;
+  /** emission order (default 300 — see the ORDER note above) */
+  readonly order?: number;
 }
 
 /**
@@ -182,8 +204,8 @@ export function composeLaw(base: ComponentLaw, delta: ComponentLaw): ComponentLa
 
 export interface LawCollection {
   readonly laws: readonly ComponentLaw[];
-  /** shared custom properties (tokens, not law-specific) */
-  readonly sharedProperties?: Declarations;
+  // (Codex r2: sharedProperties removed — declared but never
+  // serialized; the density tokens own that role in jixoai.css)
 }
 
 // ── serializer contract ─────────────────────────────────────────────

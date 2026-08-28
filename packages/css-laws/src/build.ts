@@ -20,9 +20,16 @@ if (checkMode) {
   const jixoai = readFileSync(resolve(repoRoot, 'registry/files/theme/jixoai.css'), 'utf8');
   const jxPure = readFileSync(resolve(repoRoot, 'registry/files/theme/jx-pure.css'), 'utf8');
   const slotOf = (css: string, slot: string) => {
-    const b = css.indexOf(`/* @jixoai/css-laws:begin:${slot}`);
-    const e = css.indexOf(`/* @jixoai/css-laws:end:${slot}`);
-    if (b === -1 || e === -1) throw new Error(`slot ${slot} missing — run: npx tsx src/build.ts`);
+    const bMarker = `/* @jixoai/css-laws:begin:${slot}`;
+    const eMarker = `/* @jixoai/css-laws:end:${slot}`;
+    const nB = css.split(bMarker).length - 1;
+    const nE = css.split(eMarker).length - 1;
+    if (nB !== 1 || nE !== 1) {
+      throw new Error(`slot ${slot}: expected exactly one begin/end pair (found ${nB}/${nE}) — run: npx tsx src/build.ts`);
+    }
+    const b = css.indexOf(bMarker);
+    const e = css.indexOf(eMarker);
+    if (e < b) throw new Error(`slot ${slot}: end precedes begin — corrupted sheet`);
     return css.slice(b, e);
   };
   const expectUtility = `/* @jixoai/css-laws:begin:jx-html-utility — GENERATED, do not edit (source: packages/css-laws/src/laws) */\n${utilitySheet}\n`;

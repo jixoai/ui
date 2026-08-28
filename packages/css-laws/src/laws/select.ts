@@ -55,10 +55,14 @@ export const selectLaw: ComponentLaw = composeLaw(inputLaw, {
       ],
     },
   ],
-  /* the listbox posture for [multiple]/[size] */
+  /* the listbox posture for [multiple]/[size] — MUST emit AFTER the
+   * @supports chevron gate (order 600 > supports 500): equal
+   * specificity, source order decides, and background-image: none
+   * has to win the listbox (Codex r2 P0 regression) */
   states: [
     {
       selector: ':where([multiple], [size])',
+      order: 600,
       declarations: {
         'min-height': '5.75rem',
         'padding-block': '0.375rem 0.5rem',

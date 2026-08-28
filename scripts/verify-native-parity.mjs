@@ -143,6 +143,20 @@ const ROWS = [
       { name: 'focused', focus: 'select' },
     ],
   },
+  {
+    // the LISTBOX posture regression lock (Codex r2 P0): under
+    // Chromium's holding @supports chevron gate, the listbox
+    // override must win on BOTH consumption paths
+    row: 'select-multi',
+    probes: [
+      ['select[data-probe="select-multi"]', '[data-renderer=tier1] select[multiple]'],
+    ],
+    properties: [
+      'background-image', 'cursor', 'min-height', 'padding-block-start',
+      'appearance', '-webkit-appearance',
+    ],
+    states: [{ name: 'base' }],
+  },
 ];
 
 // ── the DOM-AST schema — design §11.2's twin in code ────────────────
@@ -164,6 +178,9 @@ const AST_SPEC = {
   checkbox: { t0: 'input[type=checkbox]', t1: '[data-renderer=tier1] input.jx-html-checkbox', multi: true },
   radio: { t0: 'input[type=radio]', t1: '[data-renderer=tier1] input.jx-html-radio', multi: true },
   'native-select': { t0: 'select', t1: '[data-renderer=tier1] select' },
+  // the listbox posture lock: SAME element on both sides (bare face
+  // ⇄ direct utility class) — the regression is computed-style-only
+  'select-multi': { t0: 'select[multiple]', t1: '[data-renderer=tier1] select[multiple]' },
   input: { t0: 'input', t1: '[data-renderer=tier1] input' },
   textarea: { t0: 'textarea', t1: '[data-renderer=tier1] textarea' },
 };
@@ -210,7 +227,7 @@ const equal = (prop, a, b) => (a === b || nearColor(a, b));
 // the design §4 scope ruling (custom pointer-driven slider, not a
 // native wrapper).
 const EXPECTED = {
-  rows: ['toggle-group', 'native-select', 'input', 'textarea', 'checkbox', 'radio', 'toggle'],
+  rows: ['toggle-group', 'native-select', 'select-multi', 'input', 'textarea', 'checkbox', 'radio', 'toggle'],
   variants: {
     checkbox: ['@xs', '@dark'],
     'native-select': ['@lg'],
@@ -247,6 +264,36 @@ await page.addStyleTag({ content: '*, *::before, *::after { transition: none !im
 await page.waitForTimeout(50);
 
 let failures = 0;
+
+// ── ABSOLUTE posture locks (Codex r2 P0 follow-up) ─────────────────
+// Relative tier0⇄tier1 parity cannot catch a regression that hits
+// BOTH consumption paths together — the select listbox chevron
+// regression sailed through 311 green comparisons that way. These
+// assert the COMPUTED truth against the law, not against the twin.
+{
+  const abs = await page.evaluate(() => {
+    const el = document.querySelector('select[data-probe="select-multi"]');
+    const cs = getComputedStyle(el);
+    return {
+      bg: cs.backgroundImage,
+      cursor: cs.cursor,
+      minHeight: cs.minHeight,
+    };
+  });
+  const expect = { bg: 'none', cursor: 'default' };
+  for (const [k, v] of Object.entries(expect)) {
+    if (abs[k] !== v) {
+      failures++;
+      console.error(`✗ [absolute] select[multiple] ${k}: expected ${v}, computed ${abs[k]}`);
+    }
+  }
+  // min-height 5.75rem = 92px at the fixture's 16px root
+  if (abs.minHeight !== '92px') {
+    failures++;
+    console.error(`✗ [absolute] select[multiple] min-height: expected 92px (5.75rem), computed ${abs.minHeight}`);
+  }
+  if (!failures) console.log('✓ [absolute] select[multiple] listbox posture: no chevron, default cursor, 5.75rem lane');
+}
 
 // completeness: every declared row/variant section must exist on the
 // fixture — under-coverage fails the gate instead of silently passing

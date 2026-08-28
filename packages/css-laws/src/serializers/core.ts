@@ -158,13 +158,6 @@ function collectPseudoRules(law: ComponentLaw, opts: SerializeOptions): Rule[] {
   return rules;
 }
 
-function collectStateRules(law: ComponentLaw, opts: SerializeOptions): Rule[] {
-  return (law.states ?? []).filter((s) => hasDeclarations(s.declarations)).map((state) => ({
-    selector: buildSelector(law, opts, state.selector),
-    declarations: state.declarations,
-  }));
-}
-
 function collectSubtreeRules(law: ComponentLaw, opts: SerializeOptions): Rule[] {
   const rules: Rule[] = [];
   for (const sub of law.subtrees ?? []) {
@@ -252,25 +245,67 @@ function emitSupports(law: ComponentLaw, opts: SerializeOptions, indent: string)
 
 // ── the main serializer ──────────────────────────────────────────────
 
+/**
+ * section emission orders — see the ORDER note on StateRule. Source
+ * order decides equal-specificity cascades; an explicit rule order
+ * above 500 lands after the @supports gates (the select listbox
+ * override is the standing case).
+ */
+const ORDER = {
+  base: 0,
+  pseudo: 100,
+  subtree: 200,
+  state: 300,
+  media: 400,
+  supports: 500,
+} as const;
+
 export function serializeLaw(
   law: ComponentLaw,
   opts: SerializeOptions,
 ): SerializedCSS {
   const indent = opts.indent ?? '  ';
-  const rules = [
-    ...collectBaseRules(law, opts),
-    ...collectPseudoRules(law, opts),
-    ...collectStateRules(law, opts),
-    ...collectSubtreeRules(law, opts),
-  ].filter((r) => r.selector !== ''); // no anchors in this format (e.g. a law without aliases in 'alias' mode) → no rules
 
-  const ruleBlocks = rules.map((r) => `${r.selector} {\n${decl(r.declarations, indent)}\n}`);
-  const mediaBlock = emitMedia(law, opts, indent);
-  const supportsBlock = emitSupports(law, opts, indent);
+  const pseudoRules = collectPseudoRules(law, opts);
+  const subtreeRules = collectSubtreeRules(law, opts);
 
-  const css = [ruleBlocks.join('\n\n'), mediaBlock, supportsBlock].filter(Boolean).join('\n\n');
+  const blocks: { order: number; text: string }[] = [];
+  const push = (order: number, r: Rule) => {
+    if (r.selector === '') return; // no anchors in this format → no rule
+    blocks.push({ order, text: ruleText(r, indent) });
+  };
+
+  collectBaseRules(law, opts).forEach((r, i) => push(ORDER.base + i, r));
+  pseudoRules.forEach((r, i) => push(ORDER.pseudo + i, r));
+  subtreeRules.forEach((r, i) => push(ORDER.subtree + i, r));
+  (law.states ?? [])
+    .filter((s) => hasDeclarations(s.declarations))
+    .forEach((s) =>
+      push(s.order ?? ORDER.state, {
+        selector: buildSelector(law, opts, s.selector),
+        declarations: s.declarations,
+      }),
+    );
+  if (law.media?.length) {
+    const t = emitMedia(law, opts, indent);
+    if (t) blocks.push({ order: ORDER.media, text: t });
+  }
+  if (law.supports?.length) {
+    const t = emitSupports(law, opts, indent);
+    if (t) blocks.push({ order: ORDER.supports, text: t });
+  }
+
+  const css = blocks
+    .filter((b) => b.text)
+    .sort((a, b) => a.order - b.order) // Array.sort is stable
+    .map((b) => b.text)
+    .join('\n\n');
 
   return { css, lawName: law.name };
+}
+
+function ruleText(r: Rule, indent: string): string {
+  return `${r.selector} {\n${decl(r.declarations, indent)}\n}`;
 }
 
 // ── collection serializer ───────────────────────────────────────────
