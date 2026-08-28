@@ -3,7 +3,10 @@
 ## Phase 0 — 冻结（ZCode + Codex）
 
 - [x] proposal / design / tasks / briefs / specs delta（r0）
-- [ ] Codex change review → 修订 → ≥8 冻结
+- [x] 评审闭环（新流程：子代理 self-review 循环 + codex 终审）：
+      r0 自审 7.5 + codex 5.0 → r1/r2（含幽灵处置事故纠偏）→ r3
+      复核 5.0 抓 4 项幽灵 → r3/r4 真实落盘 → 终审 7.5 → r5 → r6 →
+      **8.4 冻结通过**
 
 ## Phase 1 — Batch A：绑定层（子代理，探针先行）
 
