@@ -210,6 +210,13 @@ export interface GhosttyVT {
   resize(cols: number, rows: number): void;
   /** Scroll the viewport by `lines` (negative scrolls up). */
   scrollViewport(lines: number): void;
+  /**
+   * Exact viewport state (owner scroll-bug fix 2026-08-28): total = all
+   * lines (history + viewport), offset = absolute top line of the
+   * viewport, len = viewport rows. The authoritative source for scroll
+   * bookkeeping — never track offsets heuristically.
+   */
+  readScrollbar(): { total: number; offset: number; len: number };
 
   /**
    * Pty-output entry point: writes bytes into the VT parser and refreshes
@@ -275,6 +282,7 @@ interface GhosttyWasmExports {
   ghostty_terminal_new(allocator: number, out: number, cols: number, rows: number): number;
   ghostty_terminal_free(terminal: number): void;
   ghostty_terminal_reset(terminal: number): void;
+  ghostty_terminal_get(terminal: number, data: number, out: number): number;
   ghostty_terminal_resize(terminal: number, cols: number, rows: number, cellWidthPx: number, cellHeightPx: number): number;
   ghostty_terminal_vt_write(terminal: number, ptr: number, len: number): void;
   ghostty_terminal_scroll_viewport(terminal: number, behaviorPtr: number): void;
@@ -401,6 +409,7 @@ class GhosttyVTCore implements GhosttyVT {
   private readonly rgbPtr: number;
   private readonly colorsPtr: number;
   private readonly cursorPtr: number;
+  private readonly scrollbarPtr: number;
   private readonly lenPtr: number;
   private readonly outYPtr: number;
   private readonly pointPtr: number;
@@ -446,6 +455,7 @@ class GhosttyVTCore implements GhosttyVT {
     this.rgbPtr = this.checkedAlloc(size('GhosttyColorRgb'));
     this.colorsPtr = this.checkedAlloc(size('GhosttyRenderStateColors'));
     this.cursorPtr = this.checkedAlloc(size('GhosttyRenderStateCursor'));
+    this.scrollbarPtr = this.checkedAlloc(size('GhosttyTerminalScrollbar'));
     this.lenPtr = this.checkedAlloc(4);
     this.outYPtr = this.checkedAlloc(2);
     this.pointPtr = this.checkedAlloc(size('GhosttyPoint'));
@@ -536,6 +546,7 @@ class GhosttyVTCore implements GhosttyVT {
     wasm.ghostty_wasm_free(this.rgbPtr, this.structSize('GhosttyColorRgb'));
     wasm.ghostty_wasm_free(this.colorsPtr, this.structSize('GhosttyRenderStateColors'));
     wasm.ghostty_wasm_free(this.cursorPtr, this.structSize('GhosttyRenderStateCursor'));
+    wasm.ghostty_wasm_free(this.scrollbarPtr, this.structSize('GhosttyTerminalScrollbar'));
     wasm.ghostty_wasm_free(this.lenPtr, 4);
     wasm.ghostty_wasm_free(this.outYPtr, 2);
     wasm.ghostty_wasm_free(this.pointPtr, this.structSize('GhosttyPoint'));
@@ -589,7 +600,11 @@ class GhosttyVTCore implements GhosttyVT {
   scrollViewport(lines: number): void {
     this.assertAlive();
     const tag = this.enumValue('GhosttyTerminalScrollViewportTag', 'DELTA');
-    const deltaOff = this.fieldOffset('GhosttyTerminalScrollViewport', 'tag')
+    // tagged union: the value arm starts at the struct's `value` field
+    // (offset 8), NOT at the tag — writing the delta at the tag position
+    // overwrote it (lines=3 literally set tag=ROW, scrolling to row 0:
+    // the owner-reported jump-to-top on every scroll, 2026-08-28)
+    const deltaOff = this.fieldOffset('GhosttyTerminalScrollViewport', 'value')
       + this.fieldOffset('GhosttyTerminalScrollViewportValue', 'delta');
     const size = this.structSize('GhosttyTerminalScrollViewport');
     this.zeroScratch(this.scrollPtr, size);
@@ -598,6 +613,20 @@ class GhosttyVTCore implements GhosttyVT {
     dv.setInt32(deltaOff, lines, true);
     this.wasm.ghostty_terminal_scroll_viewport(this.term, this.scrollPtr);
     this.refreshRenderState();
+  }
+
+  readScrollbar(): { total: number; offset: number; len: number } {
+    this.assertAlive();
+    const SCR = this.enumValue('GhosttyTerminalData', 'SCROLLBAR');
+    const size = this.structSize('GhosttyTerminalScrollbar');
+    this.sizedInit(this.scrollbarPtr, 'GhosttyTerminalScrollbar');
+    const r = this.wasm.ghostty_terminal_get(this.term, SCR, this.scrollbarPtr);
+    if (r !== this.enumValue('GhosttyResult', 'SUCCESS')) {
+      throw new GhosttyVTError(`terminal SCROLLBAR query failed: ${r}`);
+    }
+    const dv = this.dvAt(this.scrollbarPtr, size);
+    const read = (f: string): number => Number(dv.getBigUint64(this.fieldOffset('GhosttyTerminalScrollbar', f), true));
+    return { total: read('total'), offset: read('offset'), len: read('len') };
   }
 
   // ---- pty output + render reads ----
@@ -1602,6 +1631,11 @@ export class Terminal {
   scrollLines(lines: number): void {
     this.assertLive('scrollLines');
     this.core.scrollViewport(lines);
+  }
+
+  /** exact viewport state (renderer bookkeeping; see core.readScrollbar) */
+  readScrollbar(): { total: number; offset: number; len: number } {
+    return this.core.readScrollbar();
   }
 
   /**

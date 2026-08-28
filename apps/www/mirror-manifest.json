@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-28T08:02:29.852Z",
+  "generatedAt": "2026-08-28T08:15:55.696Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -489,8 +489,8 @@
           "source": "registry/files/ui/ghostty-term/ghostty-term.svelte",
           "mirror": "apps/www/src/lib/ui/ghostty-term/ghostty-term.svelte",
           "target": "@ui/ghostty-term/ghostty-term.svelte",
-          "sourceSha": "d82866f58cd0f752de761275e3bb347e05e278cf0bc83e2c0e8a2f2caa54acd3",
-          "mirrorSha": "d82866f58cd0f752de761275e3bb347e05e278cf0bc83e2c0e8a2f2caa54acd3"
+          "sourceSha": "4ca40c99f8e6d690b2469cdca3b132c9235c608aede1d825b0f01bc2d036b42c",
+          "mirrorSha": "4ca40c99f8e6d690b2469cdca3b132c9235c608aede1d825b0f01bc2d036b42c"
         },
         {
           "source": "registry/files/ui/ghostty-term/index.ts",
@@ -2678,8 +2678,8 @@
           "source": "registry/files/lib/ghostty-vt.ts",
           "mirror": "apps/www/src/lib/ghostty-vt.ts",
           "target": "@lib/ghostty-vt.ts",
-          "sourceSha": "5dfbe553b044412f587bfb41b3ceeeaff7c639163f2e755b49e029bb19259542",
-          "mirrorSha": "5dfbe553b044412f587bfb41b3ceeeaff7c639163f2e755b49e029bb19259542"
+          "sourceSha": "6fa1ed7f691ce54dc80e2c5649643f8a57a683c2c7357584c73612b9c4f5d68a",
+          "mirrorSha": "6fa1ed7f691ce54dc80e2c5649643f8a57a683c2c7357584c73612b9c4f5d68a"
         }
       ]
     },

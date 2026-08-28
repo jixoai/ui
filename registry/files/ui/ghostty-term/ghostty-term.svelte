@@ -640,16 +640,41 @@
 
   const handleKeydown = (event: KeyboardEvent): void => {
     if (vt === null || phase !== 'ready') return;
-    // Cmd/Ctrl+C copies the active selection when one exists; without a
-    // selection the key falls through to the pty (^C / SIGINT) as before
-    if (selection && (event.metaKey || event.ctrlKey) && !event.shiftKey && !event.altKey
-      && (event.key === 'c' || event.key === 'C')) {
+    const plain = !event.shiftKey && !event.altKey;
+    // copy: Cmd/Ctrl+C (mac/win) and Ctrl+Shift+C (linux convention) —
+    // copies the active selection when one exists; without a selection
+    // Cmd/Ctrl+C falls through to the pty (^C / SIGINT) as before
+    const isCopy =
+      (event.metaKey || event.ctrlKey) && !event.altKey
+      && (event.key === 'c' || event.key === 'C')
+      && (plain || (event.shiftKey && event.ctrlKey && !event.metaKey));
+    if (selection && isCopy) {
       const text = vt.getSelection();
       if (text !== undefined && text !== '') {
         event.preventDefault();
         copyText(text);
         return;
       }
+    }
+    // paste: Cmd/Ctrl+V and Ctrl+Shift+V (linux). A canvas host never
+    // receives the browser paste event (nothing editable is focused), so
+    // the shortcut IS the paste path — clipboard read is async; the bytes
+    // ride the sanitized paste gate, never raw into the pty
+    const isPaste =
+      (event.metaKey || event.ctrlKey) && !event.altKey
+      && (event.key === 'v' || event.key === 'V')
+      && (plain || (event.shiftKey && event.ctrlKey && !event.metaKey));
+    if (isPaste) {
+      event.preventDefault();
+      void navigator.clipboard
+        ?.readText()
+        .then((text) => {
+          if (text !== '' && vt !== null) vt.paste(text);
+        })
+        .catch(() => {
+          /* clipboard denied (permissions/unsupported context) — no-op */
+        });
+      return;
     }
     if (MODIFIER_KEYS.has(event.key)) return;
     // facade path: handleKey encodes AND replays the bytes on the facade's
@@ -688,14 +713,25 @@
     const onWheel = (event: WheelEvent): void => {
       if (vt === null) return;
       event.preventDefault();
-      const magnitude = Math.max(1, Math.round(Math.abs(event.deltaY) / cell.h));
+      // cap per-event magnitude: trackpad inertia can emit absurd deltas
+      // that once desynced the heuristic tracker (owner report 2026-08-28:
+      // fast flicks jumped the viewport to the top of scrollback)
+      const raw = Math.max(1, Math.round(Math.abs(event.deltaY) / cell.h));
+      const magnitude = Math.min(raw, grid.rows * 3);
       // binding contract: scrollViewport(lines) — negative scrolls UP, so a
       // downward wheel (deltaY > 0) feeds positive lines
       const lines = event.deltaY > 0 ? magnitude : -magnitude;
       const before = scrollOffset;
       vt.scrollLines(lines);
-      // clamped offset tracking: the viewport cannot scroll past the tail
-      scrollOffset = Math.max(0, before - lines);
+      // EXACT offset from the terminal (readScrollbar): the viewport top
+      // line in absolute coordinates. Cache shifts ride the real delta —
+      // the old heuristic (before − lines) drifted on clamped scrolls and
+      // fast flicks. viewportOffset = offset above the stream tail.
+      const bar = vt.readScrollbar();
+      const tailOffset = Math.max(0, bar.total - bar.len);
+      scrollOffset = Math.max(0, tailOffset - bar.offset);
+      // cache-shift convention below: next[y] = screen[y - shift], so
+      // shift = offset delta (down-scroll = negative shift = rows rise)
       const shift = scrollOffset - before;
       if (shift !== 0) {
         // shift the row cache by the actual offset delta (new[y] =
