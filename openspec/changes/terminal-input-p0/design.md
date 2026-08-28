@@ -21,7 +21,8 @@ DOM 事件进入组件
                                 └─▶ mouseEncode → onData    ← 新
   pty 输出 vtWrite
     ├─▶ render state（绘制，既有）
-    └─▶ OSC parser（旁路观测，只读不改字节流）          ← 新
+    └─▶ OSC 52 observer（旁路，只读不改字节流；路线由 A 批探针
+        三选一冻结：OPT 回调 / parser 边界 / 宿主扫描）   ← 新
 ```
 
 法则：**文本提交路径**（IME 提交、剪贴板、程序化 pasteText）必须
@@ -124,10 +125,19 @@ GhosttyVT 增：
 - **cap 与 wasm 常量脱钩**（头文件实证：CLIPBOARD_WRITE_MAX_BYTES
   是 Kitty OSC 5522 的 OPT 限额，明文不适用 OSC 52）：本仓自定
   OSC 52 decoded-byte 上限，默认 **1 MiB**，`clipboardWrite?: boolean
-  | { maxSize?: number }`（默认 true）可调。流程：**长度检查在
-  base64 解码之前**（防 oversized 解码 DoS）→ 解码（失败 → 丢弃 +
-  点名 warn，勿 throw）→ 选择器只认 `c`/空 → writeText；超限丢弃 +
-  点名上限 warn。空载荷 = 清剪贴板（xterm 语义）V1 显式不做，丢弃。
+  | { maxSize?: number }`（默认 true）可调；`maxSize` 非有限正数
+  （NaN/Infinity/≤0）视为无效配置：抛开发者错误（点名合法域），
+  不静默回退。**可执行限额四条**（各有拒绝测试）：
+  ① encoded cap：base64 串长 ≤ `ceil(maxSize/3)*4`——解码前检查
+    （解码 DoS 防线）；
+  ② observer 缓冲 cap：parser/宿主扫描对未完结 OSC 52 序列的累计
+    缓冲 ≤ encoded cap（超出即弃序列 + warn，防跨 chunk 无界累积）；
+  ③ decoded cap：解码后字节数 ≤ maxSize（双保险）；
+  ④ query 回包 cap：clipboardReadFrom 开启时，读回文本 base64 编码
+    后超 encoded cap → 拒绝回包（回空）+ warn；异步 clipboard 读
+    失败 → 静默不回包（可 warn）。
+  解码失败 → 丢弃 + 点名 warn（勿 throw）；选择器只认 `c`/空；
+  空载荷 = 清剪贴板（xterm 语义）V1 显式不做，丢弃。
 - `clipboardReadFrom?: boolean`（默认 **false**）：query 默认不回——
   安全模型与 xterm 一致（写放行、读需显式开）。开启时 query → 回
   `ESC]52;c;base64\a`（仅文本剪贴板，**经 onData 输入通道回 pty——
@@ -143,7 +153,7 @@ GhosttyVT 增：
 | --- | --- | --- |
 | A（绑定） | registry/files/lib/ghostty-vt.ts、apps/www/test/{mouse,osc}-probe.spec.ts（新）、ghostty-vt.spec.ts | mouseEncode（像素+cellSize）/readMouseTracking(bool)/onMouseTrackingChange/readTitle+onTitleChange/onOsc52（三路线探针定案）+ 黄金测试（SGR 字节、DECSET 翻转、OSC 流语义/跨 chunk 拆包、title 变更） |
 | B（组件） | registry/files/ui/ghostty-term/ghostty-term.svelte、apps/www/test/ghostty-term.spec.ts | IME 三事件、鼠标路由（Shift 旁通）、OSC 52 安全模型、onTitleChange、preedit 绘制 |
-| C（页面/demo） | apps/www/src/routes/docs/components/ghostty-term.html、demo/pty-terminal/src/App.svelte | playground mouse 开关 + 标题栏接 onTitleChange + demo 复验脚本说明 |
+| C（页面/demo） | apps/www/src/routes/docs/components/ghostty-term.html/+page.svelte 与 +page.ts、demo/pty-terminal/src/App.svelte | playground mouse 开关 + 标题栏接 onTitleChange + demo 复验脚本说明 |
 
 镜像同步/manifest/registry docs 由 ZCode 落盘；batch 间接口以本
 design 冻结值为准。

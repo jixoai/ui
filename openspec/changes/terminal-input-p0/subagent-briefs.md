@@ -32,9 +32,9 @@
 
 ## Batch C — 页面与 demo（前置：B 完成）
 
-- 文件集：apps/www/src/routes/docs/components/ghostty-term.html/+page.svelte、
-  demo/pty-terminal/src/App.svelte（demo 目录在 .git/info/exclude，
-  改后本地构建即可，不进 git）。
+- 文件集：apps/www/src/routes/docs/components/ghostty-term.html/+page.svelte
+  与同目录 +page.ts、demo/pty-terminal/src/App.svelte（demo 目录在
+  .git/info/exclude，改后本地构建即可，不进 git）。
 - 交付：playground mouse 开关、标题栏接 onTitleChange、demo 复验
   （报告附 vim 点击/OSC 52/IME 实测结果）。
 
