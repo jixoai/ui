@@ -218,6 +218,50 @@ describe('cascade order (Codex r2 P0 — source order decides equal specificity)
   });
 });
 
+describe('nested order (Codex r3b hardening — order works on subtree/media/supports nodes too)', () => {
+  it('media rules emit sorted by explicit order, not array position', () => {
+    const law = {
+      ...checkboxLaw,
+      media: [
+        {
+          query: '(prefers-reduced-motion: reduce)',
+          rules: [
+            { selector: '', order: 2, declarations: { transition: 'none' } },
+            { selector: '::before', order: 1, declarations: { transition: 'none' } },
+          ],
+        },
+      ],
+    } as typeof checkboxLaw;
+    const css = serializeLaw(law, { format: 'utility' }).css;
+    const inMedia = css.slice(css.indexOf('@media'));
+    // order 1 (::before) emits before order 2 (base) inside the block
+    expect(inMedia.indexOf('.jx-html-checkbox::before')).toBeGreaterThan(-1);
+    expect(inMedia.indexOf('.jx-html-checkbox::before')).toBeLessThan(inMedia.indexOf('.jx-html-checkbox {'));
+  });
+
+  it('supports states emit sorted by explicit order', () => {
+    const law = {
+      ...rangeLaw,
+      supports: [
+        {
+          condition: 'selector(::-webkit-slider-runnable-track)',
+          states: [
+            { selector: '::-webkit-slider-thumb', order: 1, declarations: { width: 'var(--jx-range-thumb)' } },
+            { selector: '::-webkit-slider-runnable-track', order: 2, declarations: { height: 'var(--jx-range-track)' } },
+          ],
+        },
+      ],
+    } as typeof rangeLaw;
+    const css = serializeLaw(law, { format: 'utility' }).css;
+    const gate = css.slice(css.indexOf('@supports'));
+    // match the RULE selectors — the @supports condition itself names
+    // the track pseudo, so bare pseudo search would hit the condition
+    expect(gate.indexOf('.jx-html-range::-webkit-slider-thumb')).toBeLessThan(
+      gate.indexOf('.jx-html-range::-webkit-slider-runnable-track'),
+    );
+  });
+});
+
 describe('anchorless projections (a law with no aliases emits NOTHING in alias mode)', () => {
   it('input (no aliases): alias output is empty — no orphan rules, no orphan @media', () => {
     const alias = serializeLaw(inputLaw, { format: 'alias' }).css;

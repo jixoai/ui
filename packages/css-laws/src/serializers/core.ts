@@ -183,13 +183,17 @@ function collectSubtreeRules(law: ComponentLaw, opts: SerializeOptions): Rule[] 
         });
       }
     }
-    for (const st of sub.states ?? []) {
-      if (!hasDeclarations(st.declarations)) continue;
-      rules.push({
-        selector: buildSubtreeSelector(law, opts, sub.selector, st.selector),
-        declarations: st.declarations,
+    // subtree states honor order among themselves (Codex r3 hardening:
+    // order was silently dropped on nested nodes)
+    ;[...(sub.states ?? [])]
+      .filter((st) => hasDeclarations(st.declarations))
+      .sort((a, b) => (a.order ?? 300) - (b.order ?? 300))
+      .forEach((st) => {
+        rules.push({
+          selector: buildSubtreeSelector(law, opts, sub.selector, st.selector),
+          declarations: st.declarations,
+        });
       });
-    }
   }
   return rules;
 }
@@ -199,8 +203,9 @@ function collectSubtreeRules(law: ComponentLaw, opts: SerializeOptions): Rule[] 
 function emitMedia(law: ComponentLaw, opts: SerializeOptions, indent: string): string {
   const blocks = (law.media ?? [])
     .map((m) => {
-      const innerRules = m.rules
+      const innerRules = [...m.rules]
         .filter((r) => hasDeclarations(r.declarations))
+        .sort((a, b) => (a.order ?? 300) - (b.order ?? 300))
         .map((r) => {
           const sel = buildSelector(law, opts, r.selector);
           if (!sel) return ''; // no anchors in this format → no rule
@@ -226,8 +231,9 @@ function emitSupports(law: ComponentLaw, opts: SerializeOptions, indent: string)
           );
         }
       }
-      const stateRules = (s.states ?? [])
+      const stateRules = [...(s.states ?? [])]
         .filter((r) => hasDeclarations(r.declarations))
+        .sort((a, b) => (a.order ?? 300) - (b.order ?? 300))
         .map((r) => {
           const sel = buildSelector(law, opts, r.selector);
           if (!sel) return ''; // no anchors in this format → no rule

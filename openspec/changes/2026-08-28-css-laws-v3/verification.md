@@ -45,8 +45,22 @@
     inside @media/@supports; radio ::before/checked cascade
     assertions added (content: none wins the base pseudo, the
     checkbox morphs carry — the V2 cascade exactly).
-- Codex r3: submitted with the r3 evidence (parity now 311
-  comparisons + 20 AST + absolute posture locks, all suites green).
+- Codex r3 (final verdict, after a stream-disconnect hang was
+  interrupted and the review resubmit-tightened): **GO — 8.2/10**
+  (r2 6.5 → +1.7), scoped to the bounded 13-law serializer, no new
+  release blockers. Independently re-verified: the P0 fix's negative
+  lock (cloned the law without `order`, reproduced the listbox
+  regression, confirmed the new unit test fails on it), the four r2
+  dispositions, and all gates. One registered non-blocking hardening
+  item — `order` was only read on top-level `law.states`, silently
+  dropped on SubtreeRule.states / MediaRule.rules /
+  SupportsRule.states — FIXED post-verdict: all three nested node
+  kinds now sort by explicit order within their blocks, with
+  regression tests (44/44). Remaining registered follow-ups: the
+  full old-vs-new CSS golden cascade diff (future gate), per-law
+  marker splitting (when merge conflicts demand it), and an r4
+  review covering the post-r2 additions (picker bridge, surface
+  motion, the professional color editor, the oklch lane width).
 
 ## Known honest gaps
 
