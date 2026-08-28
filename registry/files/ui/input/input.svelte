@@ -76,8 +76,11 @@
     import { cn } from '$lib/utils';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import type { Snippet } from 'svelte';
+  import { onDestroy } from 'svelte';
   import Calendar from '../date-picker/calendar.svelte';
-  import Swatches from '../color-picker/swatches.svelte';
+  import Editor from '../color-picker/editor.svelte';
+  import { parseColor, formatColor } from '$lib/color-utils';
+  import { createSurfaceMotion } from '$lib/surface-motion';
   import './input.css';
 
   interface Props extends HTMLInputAttributes {
@@ -213,8 +216,14 @@
   });
 
   let pickerPanelEl = $state<HTMLDivElement | null>(null);
+  let pickerAnchorEl = $state<HTMLElement | null>(null);
   let calendarRef = $state<{ focusGrid: () => void } | null>(null);
+  let editorRef = $state<{ focusFirst: () => void } | null>(null);
   let swatchesRef = $state<{ focusFirst: () => void } | null>(null);
+  // the shared surface motion kernel (popover.svelte wiring law):
+  // WAAPI drives --jx-p; the axis tracks the control↔panel vector
+  const motion = createSurfaceMotion(() => pickerPanelEl, { anchor: () => pickerAnchorEl });
+  onDestroy(() => motion.destroy());
   const pickerAnchor = $derived(`--jx-input-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
 
   /** the date part of the current value ("YYYY-MM-DD" or undefined) */
@@ -246,9 +255,13 @@
       light dismiss, Escape, our own calls) — popover.svelte law */
   function onPickerToggle(e: ToggleEvent): void {
     if (e.newState === 'open') {
+      motion.play(1);
+      motion.startTracking();
       calendarRef?.focusGrid();
-      swatchesRef?.focusFirst();
+      editorRef?.focusFirst();
     } else {
+      motion.play(0);
+      motion.stopTracking();
       inputEl?.focus();
     }
   }
@@ -303,7 +316,11 @@
            className lands on the WRAPPER (the shell-law owner, same as
            the text lane's .jx-control-shell) — pass jx-color-expand for
            the full-row field (default is the compact 5rem swatch). -->
-      <label class={'jx-color-shell ' + className} style={customPicker ? `anchor-name: ${pickerAnchor}` : undefined}>
+      <label
+        bind:this={pickerAnchorEl}
+        class={'jx-color-shell ' + className}
+        style={customPicker ? `anchor-name: ${pickerAnchor}` : undefined}
+      >
         <input
           {id}
           {type}
@@ -332,6 +349,7 @@
     {:else}
       <!-- the shell owns the box law; the input inside is chromeless -->
       <div
+        bind:this={pickerAnchorEl}
         class={'jx-html-control-shell ' + className}
         class:jx-slotted={slotted}
         class:jx-invalid={invalid}
@@ -384,11 +402,15 @@
         bind:this={pickerPanelEl}
         id="{id}-picker-panel"
         popover="auto"
-        class="jx-picker-panel jx-surface"
+        class={cn('jx-picker-panel jx-surface', motion.supported && 'jx-waapi')}
         data-variant="auto"
         style="position-anchor: {pickerAnchor}; inset-area: bottom span-all; position-area: bottom span-all;"
         ontoggle={onPickerToggle}
       >
+        <!-- the REAL shadow layer: a DOM child because pseudo-elements
+             are unreachable from WAAPI — the kernel animates it in
+             lockstep (Owner ruling r18) -->
+        <div data-jx-picker-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
         <!-- the floating-surface law (arch r3): the popover element is
              the PLATFORM (paints nothing); the bezel fill + border live
              on the surface-body child -->
@@ -396,12 +418,18 @@
           {#if picker}
             {@render picker(pickerCtx)}
           {:else if type === 'color'}
-            <Swatches
-              bind:this={swatchesRef}
+            <!-- the PROFESSIONAL editor (SV pad + hue bar + format
+                 switch + value input + Eye Dropper + presets) — editor
+                 semantics: continuous commits, the panel stays open.
+                 input[type=color] only accepts #hex — normalize for the
+                 element, forward the raw notation to onselect -->
+            <Editor
+              bind:this={editorRef}
               value={/^#[0-9a-fA-F]{6}$/.test(String(shownValue ?? '')) ? String(shownValue) : undefined}
-              onpick={(hex) => {
-                commitFromPanel(hex);
-                closePicker();
+              onpick={(color) => {
+                const parsed = parseColor(color);
+                if (parsed) commitFromPanel(formatColor(parsed, 'hex'));
+                onselect?.(color);
               }}
             />
           {:else}

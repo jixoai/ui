@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-28T21:19:36.825Z",
+  "generatedAt": "2026-08-28T21:38:41.612Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -616,8 +616,8 @@
           "source": "registry/files/ui/input/input.svelte",
           "mirror": "apps/www/src/lib/ui/input/input.svelte",
           "target": "@ui/input/input.svelte",
-          "sourceSha": "aff481bc59991fd9e311a2244e5b3a894dab0235714e4f7fb81d4d2b51630410",
-          "mirrorSha": "aff481bc59991fd9e311a2244e5b3a894dab0235714e4f7fb81d4d2b51630410"
+          "sourceSha": "e5545091e991e90cc22453762f702f1a2fddb9f52799c779feccfb6f2f517f72",
+          "mirrorSha": "e5545091e991e90cc22453762f702f1a2fddb9f52799c779feccfb6f2f517f72"
         },
         {
           "source": "registry/files/ui/input/input.css",
@@ -1138,15 +1138,15 @@
           "source": "registry/files/ui/color-picker/color-picker.svelte",
           "mirror": "apps/www/src/lib/ui/color-picker/color-picker.svelte",
           "target": "@ui/color-picker/color-picker.svelte",
-          "sourceSha": "7bc8b2ad7df70b534d0684f9d7f59d00d9cf38eeac260f915cdffdb2dfc08a20",
-          "mirrorSha": "7bc8b2ad7df70b534d0684f9d7f59d00d9cf38eeac260f915cdffdb2dfc08a20"
+          "sourceSha": "8e2d5a89d2b88092794b5411245fa7ade6fde33781022d0c5bf2de17591ca3f9",
+          "mirrorSha": "8e2d5a89d2b88092794b5411245fa7ade6fde33781022d0c5bf2de17591ca3f9"
         },
         {
           "source": "registry/files/ui/color-picker/index.ts",
           "mirror": "apps/www/src/lib/ui/color-picker/index.ts",
           "target": "@ui/color-picker/index.ts",
-          "sourceSha": "353a4038e6c60ed45251022f701fc4913e46f358fc227e5036400dd10d4f0d4c",
-          "mirrorSha": "353a4038e6c60ed45251022f701fc4913e46f358fc227e5036400dd10d4f0d4c"
+          "sourceSha": "6323edae34cf2deeafb91bc13ff1386f332ef8a846c859ac0645b98373db8bc8",
+          "mirrorSha": "6323edae34cf2deeafb91bc13ff1386f332ef8a846c859ac0645b98373db8bc8"
         },
         {
           "source": "registry/files/ui/color-picker/color-picker.css",
@@ -1161,6 +1161,13 @@
           "target": "@ui/color-picker/swatches.svelte",
           "sourceSha": "0399022f5e543f5f286b73896db1965d61ac8bacf3f13a3f23d717c49dd37047",
           "mirrorSha": "0399022f5e543f5f286b73896db1965d61ac8bacf3f13a3f23d717c49dd37047"
+        },
+        {
+          "source": "registry/files/ui/color-picker/editor.svelte",
+          "mirror": "apps/www/src/lib/ui/color-picker/editor.svelte",
+          "target": "@ui/color-picker/editor.svelte",
+          "sourceSha": "35f68f428a3593fe1075c3e7d9fb18edb6cdf336dc6fb6067ec30a79b1d93917",
+          "mirrorSha": "35f68f428a3593fe1075c3e7d9fb18edb6cdf336dc6fb6067ec30a79b1d93917"
         }
       ]
     },

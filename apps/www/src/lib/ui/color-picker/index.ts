@@ -2,5 +2,6 @@
 // the canonical main; sub-components as named defaults; export *
 // carries module-level named exports/types. No logic lives here.
 export { default } from './color-picker.svelte';
+export { default as Editor } from './editor.svelte';
 export { default as Swatches } from './swatches.svelte';
 export * from './color-picker.svelte';
