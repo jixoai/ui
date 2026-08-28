@@ -1,5 +1,16 @@
 # build-plugins — delta
 
+## Purpose
+
+How this repo ships vite build plugins as npm packages: the
+@jixoai/vite-plugin package (the ghostty wasm supply plugin — pin-verified
+asset resolution, dev serving, build emission, virtual-module handoff),
+its probe bin, its self-contained npm engineering, and the
+ghostty-wasm-sync supply-chain workflow that keeps the pin honest. The
+registry distributes components; this capability distributes what a
+consumer's BUILD needs before the component can run — the "we assemble
+it, not the user" law applied to the build pipeline itself.
+
 ## ADDED Requirements
 
 ### Requirement: the @jixoai/vite-plugin package

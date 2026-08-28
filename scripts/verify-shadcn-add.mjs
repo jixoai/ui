@@ -522,7 +522,8 @@ const ghosttyVirtualStub = {
       "export const sha256 = '${'0'.repeat(64)}';",
       "export const variant = 'full';",
       "export const buildInfo = 'fixture-stub';",
-      'export default { url, sha256, variant, buildInfo };',
+      // named exports only — mirrors the REAL plugin contract
+      // (impl-r2 #4): the stub must not ship a default export either.
     ].join('\\n');
   },
 };
@@ -602,6 +603,24 @@ console.log('ghostty-term consumer: vite build…');
 const ghostBuild = spawnSync('npx', ['vite', 'build'], { cwd: ghosttyDir, encoding: 'utf8', stdio: 'pipe' });
 if (ghostBuild.status !== 0) console.error(`${ghostBuild.stdout}\n${ghostBuild.stderr}`);
 check('ghostty-term: consumer vite build passes', ghostBuild.status === 0);
+// impl-r2 #4: the virtual-module contract is named-exports-only — the
+// bundled consumer output must carry the named url and no default face
+{
+  const walkJs = (dir) => {
+    const hits = [];
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) hits.push(...walkJs(full));
+      else if (entry.name.endsWith('.js')) hits.push(full);
+    }
+    return hits;
+  };
+  const bundled = walkJs(join(ghosttyDir, 'dist', 'assets')).map((f) => readFileSync(f, 'utf8')).join('\n');
+  check(
+    'ghostty-term: virtual module named-only (url present, no default face)',
+    bundled.includes('ghostty-vt.wasm') && !/export\s+default\s*\{\s*url/.test(bundled),
+  );
+}
 
 // ── 8. color-picker PRE-SEEDED consumer (ghostty-term impl-review 6b) ──
 // design D7 install-chain row, direction 2 (regression lock): a

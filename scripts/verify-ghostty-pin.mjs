@@ -292,6 +292,9 @@ async function inspectUrl(label, startUrl) {
   if (final.res.status === 405 || final.res.status === 501) {
     // Host rejects HEAD: redo the walk with GET, cancelling the body as
     // soon as the headers arrive (size policy rides on Content-Length).
+    // NOTE (impl-r2): the GET fallback is deliberately header-only — this
+    // script is the LIGHT sentinel; full-body hashing lives in the sync
+    // probe and the plugin resolver (design.md D2 depth-boundary ruling).
     final = await walkRedirects(label, startUrl, 'GET');
     if (final === null) return;
   }

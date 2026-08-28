@@ -115,8 +115,15 @@ function assertHopUrl(url: URL): void {
 }
 
 async function readBodyCapped(response: Response): Promise<Uint8Array> {
+  // No stream body (some runtimes/undici paths): enforce the same 4MiB
+  // cap on the buffered read — a missing stream must not bypass the limit
+  // (impl-r2 non-blocking, adopted).
   if (response.body === null) {
-    return new Uint8Array(await response.arrayBuffer());
+    const buf = await response.arrayBuffer();
+    if (buf.byteLength > MAX_DOWNLOAD_BYTES) {
+      throw new Error(`wasm body exceeds the ${MAX_DOWNLOAD_BYTES} byte cap (${buf.byteLength}) — refusing unbounded read`);
+    }
+    return new Uint8Array(buf);
   }
   const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];

@@ -29,58 +29,58 @@
 
 ### Batch A：packages/vite-plugin（子代理A，bootstrap 批）
 
-- [ ] 包骨架（package.json/exports/bin/tsdown/vitest + 独立
+- [x] 包骨架（package.json/exports/bin/tsdown/vitest + 独立
       package-lock.json + devDeps：tsdown/vitest/typescript）零运行时
       依赖；npm ci && npm run build 可复现；dts 断言（dist/index.d.ts
       + dist/client.d.ts 存在且在 npm pack 产物内）
-- [ ] ghostty.pin.json 首版（用 probe 本地验证后提交；两变体，
+- [x] ghostty.pin.json 首版（用 probe 本地验证后提交；两变体，
       schema 冻结于 design D2）
-- [ ] pin.ts：pin schema 读取 + schema test（含跨字段断言：
+- [x] pin.ts：pin schema 读取 + schema test（含跨字段断言：
       source.tag ↔ releaseUrl ↔ 各 variant URL 的 tag 一致；tag
       必须是安全单路径段）
-- [ ] resolve.ts：env → cache → fetch+verify 纯函数（https-only/
+- [x] resolve.ts：env → cache → fetch+verify 纯函数（https-only/
       host allowlist/≤5 跳重定向/30s 超时/流式 4MB 上限/
       tmp+rename 原子写缓存——缓存唯一写入通道）
-- [ ] probe.ts + bin jixoai-ghostty-probe（接口冻结于 design D2：
+- [x] probe.ts + bin jixoai-ghostty-probe（接口冻结于 design D2：
       --wasm/--variant/--json → pin 片段）
-- [ ] jixoaiGhostty()：dev 中间件（sha 前缀路径 + immutable）+
+- [x] jixoaiGhostty()：dev 中间件（sha 前缀路径 + immutable）+
       build emitFile（load 期 emit + ROLLUP_FILE_URL、显式
       内容寻址 fileName、server consumer 不 emit）+ 虚拟模块
-- [ ] `@jixoai/vite-plugin/client` 子导出：virtual:jixoai-ghostty
+- [x] `@jixoai/vite-plugin/client` 子导出：virtual:jixoai-ghostty
       ambient 类型声明
-- [ ] vitest：vite native 行为 fixture（裸/?url/?init/publicDir
+- [x] vitest：vite native 行为 fixture（裸/?url/?init/publicDir
       复制矩阵 + pin 真实二进制 import/export 断言：imports=[]、
       必需导出族）+ resolve 单测 + build()/dev 集成测试（断言 dist
       真实文件名）
-- [ ] README（消费者向：一步 wire + client 类型引用 + 前置契约 +
+- [x] README（消费者向：一步 wire + client 类型引用 + 前置契约 +
       环境变量）
-- [ ] 测试资产纪律：单测读默认缓存（<cwd>/node_modules/.cache/
+- [x] 测试资产纪律：单测读默认缓存（<cwd>/node_modules/.cache/
       jixoai-ghostty/）内 bytes，不隐式依赖网络（setup 一次性经
       resolver 下载）；resolver 行为矩阵三场景逐行测试
       （env/offline/cache-miss）
 
 ### Batch B：ghostty-vt 绑定层（子代理B，前置：A bootstrap 完成）
 
-- [ ] 实例化（instantiateStreaming + 回退 + 类型化错误含 simd128 路径）
+- [x] 实例化（instantiateStreaming + 回退 + 类型化错误含 simd128 路径）
       + typeLayout 解析
-- [ ] 表驱动编组助手（getField/setField/枚举）
-- [ ] terminal 生命周期 / vtWrite / resize / scrollViewport
-- [ ] renderState 脏行迭代 → RowSnapshot/CellView（style/grapheme）
-- [ ] keyEncode / paste 门 / buildInfo / snapshotEncode / free 语义
-- [ ] node vitest（bytes 直载：黄金输出 + 迭代形状 + Enter 编码）
-- [ ] wasm 测试资产：经 A 的 resolver API 下载进共享 .cache（只读
+- [x] 表驱动编组助手（getField/setField/枚举）
+- [x] terminal 生命周期 / vtWrite / resize / scrollViewport
+- [x] renderState 脏行迭代 → RowSnapshot/CellView（style/grapheme）
+- [x] keyEncode / paste 门 / buildInfo / snapshotEncode / free 语义
+- [x] node vitest（bytes 直载：黄金输出 + 迭代形状 + Enter 编码）
+- [x] wasm 测试资产：经 A 的 resolver API 下载进共享 .cache（只读
       使用，不自建下载；不提交二进制）
-- [ ] 报告：registry.json 的 ghostty-vt lib item 条目（ZCode 落盘）
+- [x] 报告：registry.json 的 ghostty-vt lib item 条目（ZCode 落盘）
 
 ### Batch C：GitHub Actions 供给链 + 发布（子代理C，前置：A bootstrap 完成）
 
-- [ ] ghostty-wasm-sync.yml：定时+手动；下载两变体 → 构建包并跑
+- [x] ghostty-wasm-sync.yml：定时+手动；下载两变体 → 构建包并跑
       jixoai-ghostty-probe → 组装 pin → 与现 pin 比对 → PR
       （concurrency + 最小 permissions + probe 失败不更新）
-- [ ] deploy.yml：actions/cache（key=两变体 sha256）预填 cacheDir
-- [ ] release.yml：publish-vite-plugin job（Trusted Publishing 幂等
+- [x] deploy.yml：actions/cache（key=两变体 sha256）预填 cacheDir
+- [x] release.yml：publish-vite-plugin job（Trusted Publishing 幂等
       发布 + tarball 附 release；Owner TODO 注记 npm 侧绑定）
-- [ ] scripts/verify-ghostty-pin.mjs + package.json verify:ghostty-pin
+- [x] scripts/verify-ghostty-pin.mjs + package.json verify:ghostty-pin
       （schema/origin/allowlist/HEAD 200/Content-Length 上限/流式上限/
       cache 一致/tracked wasm 为零/offline 模式）
 
@@ -88,14 +88,14 @@
 
 ### Batch D：ghostty-term 组件（子代理D）
 
-- [ ] ghostty-term.svelte：D5.1 法则清单全量（$props/rest/class
+- [x] ghostty-term.svelte：D5.1 法则清单全量（$props/rest/class
       合并/tabindex/aria-label/hit-lane css/density/data-state/
       错误降级）+ D5.2 渲染与输入 + 生命周期释放
-- [ ] index.ts 纯桶；ghostty-term.css（:where() + layer 序言，
+- [x] index.ts 纯桶；ghostty-term.css（:where() + layer 序言，
       focus ring + min-block-size: var(--jx-hit)；文件顶部正交意图
       注释 + 时间戳——css-architecture 法则）
-- [ ] jsdom 逻辑测试（度量/映射/onData/rest 合并）
-- [ ] 报告：registry.json ui item 条目（registryDependencies 冻结
+- [x] jsdom 逻辑测试（度量/映射/onData/rest 合并）
+- [x] 报告：registry.json ui item 条目（registryDependencies 冻结
       值：ghostty-vt/jixoai-theme/utils/color-utils/density
       ——impl-r1#5 修订）+ terminal 分组
       迁移 4 项 + catalog.ts CATALOG_GROUPS 行 + density-adoption
@@ -103,34 +103,34 @@
 
 ### Batch E：www 集成（子代理E）
 
-- [ ] package.json file: 依赖 + vite.config.ts 挂插件
-- [ ] src/vite-env.d.ts 加 /// <reference types=
+- [x] package.json file: 依赖 + vite.config.ts 挂插件
+- [x] src/vite-env.d.ts 加 /// <reference types=
       "@jixoai/vite-plugin/client" />（类型契约 fixture）
-- [ ] same-source 镜像（src/lib/ghostty-vt.ts + src/lib/ui/ghostty-term/**）
-- [ ] 路由目录：src/routes/docs/components/ghostty-term.html/
+- [x] same-source 镜像（src/lib/ghostty-vt.ts + src/lib/ui/ghostty-term/**）
+- [x] 路由目录：src/routes/docs/components/ghostty-term.html/
       +page.svelte + +page.ts（toc-data 契约）+ 回环 demo pty
-- [ ] blueprint：scenes/ghostty-term.svelte + npm run
+- [x] blueprint：scenes/ghostty-term.svelte + npm run
       build:blueprints 生成 static/blueprints/ghostty-term.svg（提交）
-- [ ] svelte.config.js entries 增路由
-- [ ] docs-structure.spec.ts / catalog.spec.ts 快照更新（冻结计数）
-- [ ] PAGE_STANDARDS 合规自检
+- [x] svelte.config.js entries 增路由
+- [x] docs-structure.spec.ts / catalog.spec.ts 快照更新（冻结计数）
+- [x] PAGE_STANDARDS 合规自检
 
 ## Phase 3 — 整合验收（ZCode）
 
-- [ ] registry.json（ghostty-vt/color-utils 新 item + ghostty-term
+- [x] registry.json（ghostty-vt/color-utils 新 item + ghostty-term
       条目 + terminal 迁组 4 项 + color-picker 补依赖）+ catalog.ts +
       density-adoption + 根 .gitignore 统一落盘
-- [ ] mirror manifest 再生 + verify:mirror（color-utils 移出
+- [x] mirror manifest 再生 + verify:mirror（color-utils 移出
       unreferencedLib）
-- [ ] 全门禁：svelte-check / vitest 全量 / verify:surface /
+- [x] 全门禁：svelte-check / vitest 全量 / verify:surface /
       verify:hook-law / verify:ghostty-pin / verify:shadcn-add 扩展 /
       build:blueprints / build:site / docs-structure / catalog
-- [ ] 真实浏览器验收（ZCode 内置浏览器：demo 页像素采样、resize、
+- [x] 真实浏览器验收（ZCode 内置浏览器：demo 页像素采样、resize、
       键盘回环、暗色 token、focus/hit-lane/density、错误降级路径、
       无 role 根节点的可访问语义复核）
-- [ ] shadcn add 探针（两种 fixture 分离）：ghostty-term 用 clean
-      consumer（ghostty-vt + jixoai-theme + utils + color-utils 连带、
-      无二进制 payload）；color-picker 用前置依赖预置 fixture
+- [x] shadcn add 探针（两种 fixture 分离）：ghostty-term 用 clean
+      consumer（ghostty-vt + jixoai-theme + utils + color-utils +
+      density 连带、无二进制 payload）；color-picker 用前置依赖预置 fixture
       （input/native-select/press-button/surface-motion/density 已
       就位——存量欠账范围外），仅回归 color-utils 连带
 

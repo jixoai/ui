@@ -89,11 +89,11 @@ inferred from `shadcn build` output.
   `jixoaiGhostty()` wired in vite
 - WHEN `npx shadcn add @jixoai/ghostty-term` runs
 - THEN the component folder and the shared `@lib/ghostty-vt.ts` land
-  at their canonical targets (the `@jixoai/ghostty-vt`,
-  `@jixoai/jixoai-theme`, `@jixoai/utils`, and `@jixoai/color-utils`
-  registryDependencies arrive with it) with NO binary payload in the
-  registry JSON, and the component resolves the wasm at runtime
-  through the plugin's virtual module
+  at their canonical targets (all five frozen registryDependencies —
+  `@jixoai/ghostty-vt`, `@jixoai/jixoai-theme`, `@jixoai/utils`,
+  `@jixoai/color-utils`, `@jixoai/density` — arrive with it) with NO
+  binary payload in the registry JSON, and the component resolves the
+  wasm at runtime through the plugin's virtual module
 
 #### Scenario: the color-utils item repairs color-picker's install
 
@@ -168,6 +168,8 @@ inferred from `shadcn build` output.
 - THEN they are listed in the item's npm `dependencies` field, and
   depending items reference `@jixoai/utils` via
   `registryDependencies`
+
+## ADDED Requirements
 
 ### Requirement: catalog groups are the display taxonomy
 

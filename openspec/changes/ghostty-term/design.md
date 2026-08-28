@@ -339,8 +339,8 @@ GhosttyVT
   `canonicalMainSource` 是陈旧表述，本 change delta 顺手校正），
   `lib/ghostty-vt.ts` 以 sharedClaimOf 归属 ghostty-vt item。Phase 3
   用 `verify-shadcn-add.mjs` 先例加真实 shadcn add 探针，双向断言：
-  `@jixoai/ghostty-term`（ghostty-vt + theme + utils + color-utils
-  连带、无二进制 payload）与 `@jixoai/color-picker`（color-utils
+  `@jixoai/ghostty-term`（ghostty-vt + theme + utils + color-utils +
+  density 连带、无二进制 payload）与 `@jixoai/color-picker`（color-utils
   连带——存量断裂修复的回归锁）。
 
 ## D5. `ghostty-term`（registry:ui）— 组件架构

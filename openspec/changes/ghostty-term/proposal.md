@@ -97,14 +97,17 @@ cell 绘制）。留待后续 change，避免首期失焦。
   playwright/computed 探针 + ZCode 内置浏览器真实渲染验收（像素级
   文本呈现、暗色 token、resize 行为）。
 - 安装链：shadcn add 探针双向 —— ghostty-term（ghostty-vt +
-  jixoai-theme + utils + color-utils 连带、无二进制 payload）与
+  jixoai-theme + utils + color-utils + density 连带、无二进制
+  payload）与
   color-picker（其余前置依赖就位时 color-utils 连带回归）。
 - 供给链：workflow probe（validate + 空导入表 + 导出族 + ABI 冒烟）
   通过才更新 pin；verify:ghostty-pin（schema/origin/allowlist/
   流式上限/tracked wasm 为零）。
-- 既有门禁全绿：svelte-check / vitest / verify:surface /
-  verify:mirror / verify:hook-law / build:site / docs-structure
-  快照更新。
+- 既有门禁：svelte-check（255 = main 基线，本 change 增量 0）/
+  vitest / verify:mirror / build:site / docs-structure 快照更新 全绿；
+  verify:surface 与 verify:hook-law 在 origin/main 即各有既有失败
+  （46/47 与 3 处，均为存量欠账、非本 change 引入——本 change 不以
+  「全绿」冒认，只承诺不新增失败，实测与基线一致）。
 
 ## Codex
 
