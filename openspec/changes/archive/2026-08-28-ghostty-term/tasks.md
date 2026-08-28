@@ -136,13 +136,12 @@
 
 ## Phase 4 — Codex 实现复核闭环
 
-- [ ] 实现复核 r1 → 修复 → r2 …评分收敛或达标（区别于文档评审轮，
+- [x] 实现复核 r1 → 修复 → r2 …评分收敛或达标（区别于文档评审轮，
       归档为 review-impl-rN.md）
-- [ ] 每轮结论实际处理并回归验证（不允许"复核已运行"当完成）
+- [x] 每轮结论实际处理并回归验证（不允许"复核已运行"当完成）
 
 ## Phase 5 — 收尾（ZCode）
 
-- [ ] rebase main（检查法则升级交集：surface-kernel / density /
-      variant-grammar 等若演进，做一轮对齐开发）
-- [ ] verification.md 落盘（门禁证据汇总）
-- [ ] archive change、清 herdr 资源、commit+push、移除 worktree
+- [x] rebase main：origin/main 未动（基线 4f37726 即 HEAD 起点，法则无升级交集）
+- [x] verification.md 落盘（门禁证据汇总）
+- [x] archive change、清 herdr 资源、commit+push、移除 worktree（本条即收尾动作自身，随归档提交完成）
