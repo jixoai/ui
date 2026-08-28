@@ -1296,6 +1296,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   display: inline-flex;
   width: fit-content;
   flex-wrap: wrap;
+  overflow: hidden; /* clip children to the container's radius — active segment bg bleeds otherwise */
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background: var(--card);
