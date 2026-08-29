@@ -4,7 +4,7 @@
  * Part A of the jx-pure componentless face).
  *
  * The Tier-1 sheet carries its icon glyphs as static data-URI SVGs inside
- * CSS custom properties (--jx-icon-calendar / clock / pipette), while the
+ * CSS custom properties (--jx-icon-calendar / clock / palette), while the
  * component layer prints the SAME glyphs from lib/icons.ts. Two copies of
  * one geometry WILL drift unless a check fails the suite — this is that
  * check: decode every sheet URI and compare shape-level fingerprints
@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
-import { calendar, clock, pipette } from '../src/lib/icons';
+import { calendar, clock, palette } from '../src/lib/icons';
 
 const here = resolve(fileURLToPath(import.meta.url), '..');
 const repoRoot = resolve(here, '../../..');
@@ -26,8 +26,10 @@ const sheet = readFileSync(resolve(here, '../src/lib/jx-pure.css'), 'utf8');
   const themeSheet = readFileSync(resolve(here, '../src/lib/jixoai.css'), 'utf8');
 
 /** the sheet's data-URI for one icon name, decoded to an SVG string */
-function sheetIcon(name: 'calendar' | 'clock' | 'pipette'): string {
-    // V2: pipette lives in jixoai.css (jx-html-color); calendar/clock in jx-pure.css
+function sheetIcon(name: 'calendar' | 'clock' | 'palette'): string {
+    // V2: pipette lived in jixoai.css (jx-html-color); calendar/clock in jx-pure.css.
+    // css-laws V3 final-check: the color shell's glyph is the PALETTE
+    // (opens a picker panel); the eyedropper lives in the panel itself
   const m = sheet.match(new RegExp(`--jx-icon-${name}:\\s*url\\("([^"]+)"\\)`))
       ?? themeSheet.match(new RegExp(`--jx-icon-${name}[,:].*?url\\("([^"]+)"\\)`))
       ?? sheet.match(new RegExp(`--jx-icon-${name}[,:].*?url\\("([^"]+)"\\)`));
@@ -43,7 +45,14 @@ function fingerprint(rawSvg: string): string {
   const shapes: string[] = [];
   for (const m of svg.matchAll(/<path\b[^>]*\bd="([^"]+)"/g)) shapes.push(`d:${m[1]}`);
   for (const m of svg.matchAll(/<(circle|rect|polyline|line|ellipse)\b([^>]*)>/g)) {
-    shapes.push(`${m[1]}:${m[2].replace(/\s+/g, ' ').trim()}`);
+    // ink attributes are NOT geometry: icons.ts inks with
+    // fill="currentColor", the sheet's alpha-source mask URIs with
+    // fill="%23000" (+ stroke="none" overrides) — strip both sides
+    const attrs = m[2]
+      .replace(/\s*(fill|stroke)="[^"]*"/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    shapes.push(`${m[1]}:${attrs}`);
   }
   if (shapes.length === 0) throw new Error('no drawable geometry found');
   return shapes.sort().join('§');
@@ -53,13 +62,13 @@ describe('native-form ↔ icons.ts geometry parity', () => {
   it.each([
     ['calendar', calendar],
     ['clock', clock],
-    ['pipette', pipette],
+    ['palette', palette],
   ] as const)('%s matches the icons.ts geometry', (name, icon) => {
     expect(fingerprint(sheetIcon(name))).toBe(fingerprint(icon));
   });
 
   it('the sheet still declares all three icon custom properties', () => {
-    for (const name of ['calendar', 'clock', 'pipette'] as const) {
+    for (const name of ['calendar', 'clock', 'palette'] as const) {
       expect(sheet + themeSheet, `--jx-icon-${name}`).toMatch(new RegExp(`--jx-icon-${name}[:,]`));
     }
   });
