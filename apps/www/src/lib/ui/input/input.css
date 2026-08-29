@@ -30,6 +30,13 @@
  *  - the clearable ✕ kill — the repainted UA search ornament would
  *    double the component's own clear button (2026-08-29)
  *  - the number shell (spin kill) + the stepper icon buttons — 2026-08-29
+ *  - the stepper pair's edge-zone ownership (:has() padding drop) +
+ *    the clear button's full --jx-hit edge-lane geometry (Owner
+ *    catches: the pair floated ~9px inside the borders, hugged the
+ *    top edge, and a compact 1.75rem square left the glyphs pushed
+ *    against the border instead of centered in their zones — the
+ *    self-insetting child law now applies to it like it already did
+ *    to the clear button) — 2026-08-29
  */
 @layer theme, base, components, utilities;
 
@@ -86,21 +93,43 @@
     -moz-appearance: textfield;
   }
 
+  /* ---- edge-zone ownership (the END-INSET OWNERSHIP law,
+     control-shell): the shell's inline padding is the inset for SLIM
+     children (text slots, the lane); a SELF-INSETTING edge child —
+     the stepper pair, like the clear button before it
+     (:has(> .jx-html-clear:last-child) in css-laws) — carries its own
+     square hit geometry and REPLACES that side's padding: the
+     centered glyph becomes the optical inset, the button hugs the
+     border instead of floating inside a double inset (measured:
+     8.8px dead zone before the law). :has() keyed to the component's
+     own classes + :first/:last-child — precise whatever the snippet
+     slots render (their slim spans KEEP the padding as their inset);
+     a sibling selector could not work here: the padding lives on the
+     shell (the parent), and slot content is arbitrary anyway */
+  :where(.jx-html-control-shell):has(> .jx-input-prefix-icon-button:first-child) {
+    padding-inline-start: 0;
+  }
+  :where(.jx-html-control-shell):has(> .jx-input-suffix-icon-button:last-child) {
+    padding-inline-end: 0;
+  }
+
   /* ---- the stepper icon buttons (prefix/suffix slot positions) -------
-     panel-internal stepper geometry, NOT the full --jx-hit lane: the
-     pair sits INSIDE the text shell where the spinner lived, so it
-     takes a compact ~1.75rem square while the shell's own border/pad
-     law carries the 40px family height. Same color/focus laws as the
-     clear button (muted → hover foreground; the site's inset 1px
-     focus-visible ring) */
+     The CLEAR BUTTON's geometry law, verbatim: a full var(--jx-hit)
+     edge lane flush with the border, glyph centered on BOTH axes
+     (measured Owner catch: the first cut was a compact 1.75rem square
+     — under the edge-zone :has() drop below the glyph hugged the
+     border at ~7px instead of centering in its zone, and the definite
+     height top-hugged under stretch). min-width/min-height stretch to
+     the shell like .jx-html-clear; same color/focus laws (muted →
+     hover foreground; the site's inset 1px focus-visible ring) */
   :where(button.jx-input-prefix-icon-button),
   :where(button.jx-input-suffix-icon-button) {
     flex: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1.75rem;
-    height: 1.75rem;
+    min-width: var(--jx-hit, 2.5rem);
+    min-height: var(--jx-hit, 2.5rem);
     padding: 0;
     border: 0;
     background: transparent;

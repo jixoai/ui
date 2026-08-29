@@ -33,6 +33,31 @@ week), datetime panel (Calendar + `− 00 + : − 01 +` row, day-20 anchor
 paint, today ring, no overlap/clipping), number shell (−/＋ icons,
 value centered).
 
+## Owner catch (2026-08-29, post-acceptance): stepper geometry
+
+Two rounds. The −/+ pair floated ~9px inside the shell borders and
+hugged the top edge; after the padding drop the compact 1.75rem
+squares still left the glyphs pushed against the border instead of
+centered in their zones. Final geometry: the clear button's law,
+verbatim. Probe (dev server, getBoundingClientRect):
+
+| metric | first cut | final |
+|---|---|---|
+| shell padding-inline | 7.8px / 7.8px | 0px / 0px |
+| button box | 28×28, top-hugging (−5px vs center) | 40×40 (--jx-hit), stretched |
+| glyph center vs border | 15px (floated 8.8px inset) / 7px after drop 1 | ~21px — centered in the edge lane |
+| glyph center vs shell center Y | −5px | 0.0 |
+
+Fix: `min-width/min-height: var(--jx-hit)` + stretch (the clear
+button's geometry law, `clear` in css-laws) + the END-INSET
+OWNERSHIP law extended via
+`:has(> .jx-input-prefix-icon-button:first-child)` /
+`:has(> .jx-input-suffix-icon-button:last-child)` in input.css —
+the self-insetting edge child replaces that side's shell padding
+(the clear button's precedent, css-laws control-shell). Scenario
+pinned in the spec delta; the `:has()` keys' DOM contract (− first
+child, + last child) is asserted in the stepper mount test.
+
 ## Layering invariants held
 
 - Tier-1 bare markup untouched — platform steppers/panels remain on

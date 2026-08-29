@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-29T14:29:51.889Z",
+  "generatedAt": "2026-08-29T15:19:49.156Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -659,8 +659,8 @@
           "source": "registry/files/ui/input/input.css",
           "mirror": "apps/www/src/lib/ui/input/input.css",
           "target": "@ui/input/input.css",
-          "sourceSha": "6a85100b0a795edcd25ab34e0f861043d77e2a5e43f6c8a1137d9b26078b08bf",
-          "mirrorSha": "6a85100b0a795edcd25ab34e0f861043d77e2a5e43f6c8a1137d9b26078b08bf"
+          "sourceSha": "45c707337d411b5ea92f4663c5d25c16acab71c43a096f366a64bf1859a50d18",
+          "mirrorSha": "45c707337d411b5ea92f4663c5d25c16acab71c43a096f366a64bf1859a50d18"
         },
         {
           "source": "registry/files/ui/input/index.ts",

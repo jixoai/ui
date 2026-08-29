@@ -19,6 +19,22 @@ snippet stays the highest-priority override.
 - THEN no stepper buttons render, no spin-pseudo hiding applies, and
   the platform spinner + ↑/↓ native stepping serve
 
+#### Scenario: the stepper pair owns its edge zones (Owner catch, 2026-08-29)
+
+- GIVEN `<Input type="number" />` (custom stepper mounted)
+- THEN the shell's `padding-inline` drops to 0 on each side a stepper
+  button occupies at the first/last child position (the END-INSET
+  OWNERSHIP law, `control-shell`: a self-insetting edge child — the
+  clear button's precedent — replaces that side's padding; a slim
+  text slot keeps it as its inset), and the buttons carry the clear
+  button's full `--jx-hit` edge-lane geometry — glyph centered on
+  BOTH axes in its zone, flush with the border
+- WHERE the drop rides `:has(> .jx-input-prefix-icon-button:first-child)`
+  / `:has(> .jx-input-suffix-icon-button:last-child)` in input.css —
+  keyed to component-owned classes, immune to whatever the snippet
+  slots render (a sibling selector cannot work: the padding lives on
+  the parent shell)
+
 #### Scenario: a week field commits an ISO week
 
 - GIVEN `<Input type="week" />` with the embedded panel open
