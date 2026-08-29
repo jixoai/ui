@@ -1039,6 +1039,11 @@
           "path": "registry/files/ui/checkbox/index.ts",
           "target": "@ui/checkbox/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/checkbox/checkbox.css",
+          "target": "@ui/checkbox/checkbox.css",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -1074,7 +1079,8 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/checkbox"
       ]
     },
     {

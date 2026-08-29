@@ -39,6 +39,7 @@
   import type { HTMLInputAttributes } from 'svelte/elements';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import './checkbox.css';
 
   interface Props extends HTMLInputAttributes {
     /** same-row label; renders label[for] */

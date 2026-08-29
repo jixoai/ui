@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-29T08:09:37.901Z",
+  "generatedAt": "2026-08-29T08:29:12.485Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -964,8 +964,8 @@
           "source": "registry/files/ui/checkbox/checkbox.svelte",
           "mirror": "apps/www/src/lib/ui/checkbox/checkbox.svelte",
           "target": "@ui/checkbox/checkbox.svelte",
-          "sourceSha": "8f71608340abb5bfc5d3b6a4504468362f43d87afc46b636b325a445fdf5707f",
-          "mirrorSha": "8f71608340abb5bfc5d3b6a4504468362f43d87afc46b636b325a445fdf5707f"
+          "sourceSha": "12fba075291c79bb80cd541cdf23f383cdb9cbd33103f74f0a380a802c549e06",
+          "mirrorSha": "12fba075291c79bb80cd541cdf23f383cdb9cbd33103f74f0a380a802c549e06"
         },
         {
           "source": "registry/files/ui/checkbox/index.ts",
@@ -973,6 +973,13 @@
           "target": "@ui/checkbox/index.ts",
           "sourceSha": "1c6140606bb19832b9e8654ac9b7fc834c2b69bc93e8d2ad19903b666c979a15",
           "mirrorSha": "1c6140606bb19832b9e8654ac9b7fc834c2b69bc93e8d2ad19903b666c979a15"
+        },
+        {
+          "source": "registry/files/ui/checkbox/checkbox.css",
+          "mirror": "apps/www/src/lib/ui/checkbox/checkbox.css",
+          "target": "@ui/checkbox/checkbox.css",
+          "sourceSha": "8c8f48882162ab3c9201a46faad46aec255a8da0072b6a143a59fa9b61d9edd7",
+          "mirrorSha": "8c8f48882162ab3c9201a46faad46aec255a8da0072b6a143a59fa9b61d9edd7"
         }
       ]
     },
@@ -985,8 +992,8 @@
           "source": "registry/files/ui/radio/radio.svelte",
           "mirror": "apps/www/src/lib/ui/radio/radio.svelte",
           "target": "@ui/radio/radio.svelte",
-          "sourceSha": "3b88ad76094b1f3c20770e0d441d4741a02e40f70e22af274c1f5d50278ed034",
-          "mirrorSha": "3b88ad76094b1f3c20770e0d441d4741a02e40f70e22af274c1f5d50278ed034"
+          "sourceSha": "55037a73eb538078dfd56149f312abd3cd02fbbb5684d1cf11112eb3b677967f",
+          "mirrorSha": "55037a73eb538078dfd56149f312abd3cd02fbbb5684d1cf11112eb3b677967f"
         },
         {
           "source": "registry/files/ui/radio/index.ts",
