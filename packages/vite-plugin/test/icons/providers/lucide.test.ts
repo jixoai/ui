@@ -6,9 +6,9 @@
  * in the provider (mirrored from registry/files/lib/icons.ts).
  */
 import { describe, expect, it, vi } from 'vitest';
-import { lucideIconProvider } from '../../src/providers/lucide.js';
-import type { IconSlot, ProviderContext } from '../../src/types.js';
-import { SLOT_NAMES } from '../../src/types.js';
+import { lucideIconProvider } from '../../../src/icons/providers/lucide.js';
+import type { IconSlot, ProviderContext } from '../../../src/icons/types.js';
+import { SLOT_NAMES } from '../../../src/icons/types.js';
 
 function makeContext(): { ctx: ProviderContext; loadSource: ReturnType<typeof vi.fn>; watchFile: ReturnType<typeof vi.fn> } {
   const loadSource = vi.fn();
@@ -66,6 +66,8 @@ describe('lucideIconProvider', () => {
       clock: /<circle cx="12" cy="12" r="10"\/><polyline points="12 6 12 12 16 14"\/>(?=<\/svg>$)/,
       chevron: /<path d="m6 9 6 6 6-6"\/>(?=<\/svg>$)/,
       pipette: /<path d="m2 22 1-1h3l9-9"\/><path d="M3 21v-3l9-9"\/>/,
+      mail: /<rect width="20" height="16" x="2" y="4" rx="2"\/><path d="m22 7-8\.97 5\.7a1\.94 1\.94 0 0 1-2\.06 0L2 7"\/>(?=<\/svg>$)/,
+      search: /<circle cx="11" cy="11" r="8"\/><path d="m21 21-4\.3-4\.3"\/>(?=<\/svg>$)/,
       clear: /<path d="M18 6 6 18"\/><path d="m6 6 12 12"\/>(?=<\/svg>$)/,
     };
     for (const slot of SLOT_NAMES) {

@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { serializeAllSlots, serializeIcon } from '../src/serializer.js';
-import { createSafetyChecker } from '../src/safety.js';
-import { SLOT_NAMES } from '../src/types.js';
-import type { IconSlot, SvgAsset } from '../src/types.js';
+import { serializeAllSlots, serializeIcon } from '../../src/icons/serializer.js';
+import { createSafetyChecker } from '../../src/icons/safety.js';
+import { SLOT_NAMES } from '../../src/icons/types.js';
+import type { IconSlot, SvgAsset } from '../../src/icons/types.js';
 
 const CALENDAR_SVG =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" ' +

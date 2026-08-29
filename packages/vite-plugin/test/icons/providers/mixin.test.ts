@@ -8,8 +8,8 @@
  */
 
 import { describe, expect, it, vi } from 'vitest';
-import { mixinIconProvider } from '../../src/providers/mixin.js';
-import type { IconProvider, IconProviderFactory, IconSlot, ProviderContext, SvgAsset } from '../../src/types.js';
+import { mixinIconProvider } from '../../../src/icons/providers/mixin.js';
+import type { IconProvider, IconProviderFactory, IconSlot, ProviderContext, SvgAsset } from '../../../src/icons/types.js';
 
 // ── mock helpers ───────────────────────────────────────────────────
 

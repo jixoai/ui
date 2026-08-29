@@ -12,8 +12,8 @@
 
 import type { Plugin } from 'vite';
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import type { IconProvider, SvgAsset } from '../src/types.js';
-import { jxUI, VIRTUAL_MODULE_ID } from '../src/vite-plugin.js';
+import type { IconProvider, SvgAsset } from '../../src/icons/types.js';
+import { createIconPlugin, VIRTUAL_MODULE_ID } from '../../src/icons/vite-plugin.js';
 
 // ── helpers ────────────────────────────────────────────────────────
 
@@ -54,22 +54,22 @@ afterEach(() => {
 
 // ── tests ──────────────────────────────────────────────────────────
 
-describe('jxUI() safety option (C5)', () => {
+describe('createIconPlugin() safety option (C5)', () => {
   test('default: no safety option keeps the warn-mode checker (icons pass)', async () => {
-    const css = await loadCss(jxUI({ icons: () => Promise.resolve(calendarOnly()) }));
+    const css = await loadCss(createIconPlugin({ icons: () => Promise.resolve(calendarOnly()) }));
     expect(css).toContain('--jx-icon-calendar: url("data:image/svg+xml,');
   });
 
   test("safety { mode:'warn', maxBytes } rejects oversized icons → fallback serves", async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const css = await loadCss(
-      jxUI({
+      createIconPlugin({
         icons: () => Promise.resolve(calendarOnly()),
         safety: { mode: 'warn', maxBytes: 32 },
       }),
     );
     expect(css).not.toContain('--jx-icon-');
-    expect(css).toContain('jx-ui'); // the comment-only module
+    expect(css).toContain('jixoai-icons'); // the comment-only module
     expect(warn).toHaveBeenCalledWith(
       expect.stringContaining('SVG safety check rejected'),
     );
@@ -77,7 +77,7 @@ describe('jxUI() safety option (C5)', () => {
 
   test("safety { mode:'error', maxBytes } fails the build (serializeIcon throws)", async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-    const plugin = jxUI({
+    const plugin = createIconPlugin({
       icons: () => Promise.resolve(calendarOnly()),
       safety: { mode: 'error', maxBytes: 32 },
     });
@@ -89,7 +89,7 @@ describe('jxUI() safety option (C5)', () => {
 
   test("safety { mode:'error' } with generous limits passes like warn-mode defaults", async () => {
     const css = await loadCss(
-      jxUI({
+      createIconPlugin({
         icons: () => Promise.resolve(calendarOnly()),
         safety: { mode: 'error' },
       }),

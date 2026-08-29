@@ -1,5 +1,11 @@
 /**
- * @jixoai/ui-plugin — public API barrel
+ * @jixoai/vite-plugin/icons — the icon-system sub-entry.
+ *
+ * The whole icon system (providers/serializer/safety + the vite plugin)
+ * lives behind the `./icons` export so the umbrella entry
+ * (`dist/index.js`) stays free of provider code: nothing here is
+ * evaluated unless the consumer opts in via `jixoai({ icons: … })` or
+ * imports this subpath directly (merge-alignment A1).
  */
 export type {
   IconSlot,
@@ -32,5 +38,5 @@ export { serializeIcon, serializeAllSlots } from './serializer.js';
 export { createSafetyChecker } from './safety.js';
 
 // vite plugin (optional peer — import fails gracefully without vite)
-export { jxUI } from './vite-plugin.js';
-export type { JxUIPluginOptions } from './vite-plugin.js';
+export { createIconPlugin, VIRTUAL_MODULE_ID } from './vite-plugin.js';
+export type { IconPluginOptions } from './vite-plugin.js';

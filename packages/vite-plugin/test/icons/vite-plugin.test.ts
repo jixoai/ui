@@ -1,7 +1,7 @@
 /**
  * vite-plugin.test.ts — P3.3 integration test (mocked vite lifecycle)
  *
- * Exercises jxUI() without a real vite dev server:
+ * Exercises createIconPlugin() without a real vite dev server:
  *   - the virtual module id resolves
  *   - the CSS output wraps --jx-icon-* custom properties in
  *     `@layer theme { :root { … } }`
@@ -12,7 +12,7 @@
  *   - watchFile registers with the dev-server watcher and changes
  *     invalidate + regenerate the virtual modules (HMR)
  *
- * '../src/serializer.js' is MOCKED: serializeIcon is P3.1's deliverable
+ * '../../src/icons/serializer.js' is MOCKED: serializeIcon is P3.1's deliverable
  * and this suite must stay decoupled from its implementation — it
  * verifies the PLUGIN, not the serializer.
  */
@@ -22,7 +22,7 @@ import { join, resolve } from 'node:path';
 import type { ViteDevServer } from 'vite';
 import { describe, expect, test, vi } from 'vitest';
 
-vi.mock('../src/serializer.js', () => ({
+vi.mock('../../src/icons/serializer.js', () => ({
   // mirrors the real P3.1 contract: null = warn-mode rejection
   serializeIcon: vi.fn(
     (asset: { readonly svg: string }, mode?: 'css-var' | 'dom-string'): string | null =>
@@ -34,9 +34,9 @@ vi.mock('../src/serializer.js', () => ({
   ),
 }));
 
-import { jxUI, VIRTUAL_MODULE_ID } from '../src/vite-plugin.js';
+import { createIconPlugin, VIRTUAL_MODULE_ID } from '../../src/icons/vite-plugin.js';
 import type { Plugin } from 'vite';
-import { SLOT_NAMES } from '../src/types.js';
+import { SLOT_NAMES } from '../../src/icons/types.js';
 import type {
   IconProvider,
   IconProviderFactory,
@@ -44,7 +44,7 @@ import type {
   SerializeMode,
   SourceDescriptor,
   SvgAsset,
-} from '../src/types.js';
+} from '../../src/icons/types.js';
 
 // ── helpers ────────────────────────────────────────────────────────
 
@@ -160,9 +160,9 @@ const createMockServer = (): MockServer => {
 
 // ── tests ──────────────────────────────────────────────────────────
 
-describe('jxUI() vite plugin', () => {
+describe('createIconPlugin() vite plugin', () => {
   test('resolves the virtual module id (and leaves foreign ids alone)', () => {
-    const { resolveId } = lifecycle(jxUI({ icons: factoryOf(fullProvider()) }));
+    const { resolveId } = lifecycle(createIconPlugin({ icons: factoryOf(fullProvider()) }));
 
     const cssResolved = resolveId(VIRTUAL_MODULE_ID, '/app/src/app.css');
     expect(cssResolved).toBeTruthy();
@@ -176,7 +176,7 @@ describe('jxUI() vite plugin', () => {
   });
 
   test('virtual CSS module wraps --jx-icon-* custom properties in @layer theme { :root { … } }', async () => {
-    const { buildStart, resolveId, load } = lifecycle(jxUI({ icons: factoryOf(fullProvider()) }));
+    const { buildStart, resolveId, load } = lifecycle(createIconPlugin({ icons: factoryOf(fullProvider()) }));
     await buildStart();
 
     const resolved = mustResolve(resolveId(VIRTUAL_MODULE_ID, '/app/src/app.css'));
@@ -194,7 +194,7 @@ describe('jxUI() vite plugin', () => {
     const chevronOnly: IconProvider = {
       getIcon: (slot) => (slot === 'chevron' ? svgAsset('chev') : null),
     };
-    const { buildStart, resolveId, load } = lifecycle(jxUI({ icons: factoryOf(chevronOnly) }));
+    const { buildStart, resolveId, load } = lifecycle(createIconPlugin({ icons: factoryOf(chevronOnly) }));
     await buildStart();
 
     const css = unwrap(
@@ -209,7 +209,7 @@ describe('jxUI() vite plugin', () => {
 
   test('a provider that fills nothing yields a comment-only module', async () => {
     const { buildStart, resolveId, load } = lifecycle(
-      jxUI({ icons: factoryOf({ getIcon: () => null }) }),
+      createIconPlugin({ icons: factoryOf({ getIcon: () => null }) }),
     );
     await buildStart();
 
@@ -218,11 +218,11 @@ describe('jxUI() vite plugin', () => {
       'css module',
     );
     expect(css).not.toContain('--jx-icon-');
-    expect(css).toContain('jx-ui');
+    expect(css).toContain('jixoai-icons');
   });
 
   test('the ?dom module reflects the current inline-svg capability set (clear is now mask)', async () => {
-    const { buildStart, resolveId, load } = lifecycle(jxUI({ icons: factoryOf(fullProvider()) }));
+    const { buildStart, resolveId, load } = lifecycle(createIconPlugin({ icons: factoryOf(fullProvider()) }));
     await buildStart();
     const domId = `${VIRTUAL_MODULE_ID}?dom`;
     const resolved = resolveId(domId, '/app/src/app.css');
@@ -234,7 +234,7 @@ describe('jxUI() vite plugin', () => {
 
   test('warn-mode serializer rejections (null) are omitted — the fallback serves', async () => {
     const rejected: IconProvider = { getIcon: () => svgAsset('REJECT') };
-    const { buildStart, resolveId, load } = lifecycle(jxUI({ icons: factoryOf(rejected) }));
+    const { buildStart, resolveId, load } = lifecycle(createIconPlugin({ icons: factoryOf(rejected) }));
     await buildStart();
 
     const css = unwrap(
@@ -242,11 +242,11 @@ describe('jxUI() vite plugin', () => {
       'css module',
     );
     expect(css).not.toContain('--jx-icon-');
-    expect(css).toContain('jx-ui'); // the comment-only module
+    expect(css).toContain('jixoai-icons'); // the comment-only module
   });
 
   test('the factory receives a ProviderContext whose loadSource does the file I/O (svg)', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'jx-ui-'));
+    const dir = await mkdtemp(join(tmpdir(), 'jixoai-icons-'));
     try {
       const svgPath = join(dir, 'chevron.svg');
       await writeFile(svgPath, '<svg viewBox="0 0 24 24"><path d="M1 1"/></svg>', 'utf8');
@@ -257,7 +257,7 @@ describe('jxUI() vite plugin', () => {
         box.received = await ctx.loadSource(svgPath);
         return fullProvider();
       };
-      await lifecycle(jxUI({ icons: factory })).buildStart();
+      await lifecycle(createIconPlugin({ icons: factory })).buildStart();
 
       const context = unwrap(box.context, 'ProviderContext');
       expect(typeof context.loadSource).toBe('function');
@@ -273,7 +273,7 @@ describe('jxUI() vite plugin', () => {
   });
 
   test('loadSource normalizes TTF magic bytes to font/ttf (no decompression)', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'jx-ui-'));
+    const dir = await mkdtemp(join(tmpdir(), 'jixoai-icons-'));
     try {
       const fontPath = join(dir, 'icons.ttf');
       await writeFile(fontPath, new Uint8Array([0x00, 0x01, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00]));
@@ -283,7 +283,7 @@ describe('jxUI() vite plugin', () => {
         box.received = await ctx.loadSource(fontPath);
         return fullProvider();
       };
-      await lifecycle(jxUI({ icons: factory })).buildStart();
+      await lifecycle(createIconPlugin({ icons: factory })).buildStart();
 
       const descriptor = unwrap(box.received, 'SourceDescriptor');
       expect(descriptor.mimeType).toBe('font/ttf');
@@ -294,7 +294,7 @@ describe('jxUI() vite plugin', () => {
   });
 
   test('watchFile registers with the dev-server watcher; changes invalidate + regenerate (HMR)', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'jx-ui-'));
+    const dir = await mkdtemp(join(tmpdir(), 'jixoai-icons-'));
     try {
       const svgPath = join(dir, 'chevron.svg');
       await writeFile(svgPath, '<svg viewBox="0 0 24 24"><path d="MOLD"/></svg>', 'utf8');
@@ -309,7 +309,7 @@ describe('jxUI() vite plugin', () => {
         return { getIcon: () => svgAsset(marker) };
       };
 
-      const plugin = jxUI({ icons: factory });
+      const plugin = createIconPlugin({ icons: factory });
       const server = createMockServer();
       const { configureServer, buildStart, resolveId, load } = lifecycle(plugin);
       configureServer(server as unknown as ViteDevServer);
@@ -349,7 +349,7 @@ describe('jxUI() vite plugin', () => {
   });
 
   test('HMR refreshes do not accumulate provider watch callbacks (C2 cleanup)', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'jx-ui-'));
+    const dir = await mkdtemp(join(tmpdir(), 'jixoai-icons-'));
     try {
       const svgPath = join(dir, 'chevron.svg');
       await writeFile(svgPath, '<svg viewBox="0 0 24 24"><path d="M0"/></svg>', 'utf8');
@@ -367,7 +367,7 @@ describe('jxUI() vite plugin', () => {
         return { getIcon: () => svgAsset(marker) };
       };
 
-      const plugin = jxUI({ icons: factory });
+      const plugin = createIconPlugin({ icons: factory });
       const server = createMockServer();
       const { configureServer, buildStart, resolveId, load } = lifecycle(plugin);
       configureServer(server as unknown as ViteDevServer);
@@ -405,7 +405,7 @@ describe('jxUI() vite plugin', () => {
   });
 
   test('serializeIcon receives the configured modes (css-var for CSS)', async () => {
-    const { buildStart, resolveId, load } = lifecycle(jxUI({ icons: factoryOf(fullProvider()) }));
+    const { buildStart, resolveId, load } = lifecycle(createIconPlugin({ icons: factoryOf(fullProvider()) }));
     await buildStart();
     const css = unwrap(
       await load(mustResolve(resolveId(VIRTUAL_MODULE_ID, '/app/src/app.css'))),

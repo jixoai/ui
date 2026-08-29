@@ -1,5 +1,5 @@
 /**
- * @jixoai/ui-plugin — core types (P1.2)
+ * @jixoai/vite-plugin (icons) — core types (P1.2)
  *
  * The unified icon architecture: providers return structured SvgAsset
  * objects; the serializer is the only code that generates CSS; the

@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { GhosttyProbeError, MAX_C_STR_BYTES, probeGhosttyWasm, readCString, runProbeCli } from '../src/probe.ts';
-import { loadWasmBytes } from './helpers';
+import { loadWasmBytes } from './helpers.js';
 
 // (module (type (func)) (import "e" "f" (func 0)))
 const WASM_WITH_IMPORT = new Uint8Array([

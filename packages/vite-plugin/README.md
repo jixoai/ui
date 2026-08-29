@@ -3,7 +3,9 @@
 Vite plugin that supplies the pinned [ghostty](https://ghostty.org)
 `ghostty-vt` wasm to your build: **resolve (env → cache → verified
 download) → serve in dev / emit in build → hand over the URL** through
-the `virtual:jixoai-ghostty` module.
+the `virtual:jixoai-ghostty` module. Also hosts the jixoai icon system
+(svg/lucide/font providers + serializer + safety checker) behind the
+`icons` feature option and the `./icons` subpath (merge-alignment A1).
 
 You need it because none of vite 8's native wasm forms fit a wasm that
 comes from a release download rather than your module graph — every
@@ -16,6 +18,9 @@ verifies them, and exposes a stable, content-addressed URL.
   tested surface; older majors are not promised).
 - Binaries never enter git or your bundle source; the only shipped
   artifact is the text manifest `ghostty.pin.json`.
+- The icons feature is default-OFF: no plugin is registered, no files
+  are read and no optional dependency (`opentype.js` / `wawoff2`) is
+  loaded unless `jixoai({ icons: … })` opts in.
 
 ## Install
 
@@ -60,8 +65,58 @@ jixoai({ ghostty: {
   variant: 'full',   // 'small' = trimmed build (~711KB vs ~981KB)
   cacheDir: '…',     // default <cwd>/node_modules/.cache/jixoai-ghostty
   offline: false,    // true = cache only; a miss is an error
-})
+}})
 ```
+
+## The icons feature (`icons`, default off)
+
+The unified SVG icon system (migrated from the never-published
+`@jixoai/ui-plugin` — one-shot move, no compat layer). Opting in wires
+the `jixoai-icons` plugin, which serves `virtual:jixoai-icons` as a
+virtual CSS module of `--jx-icon-{slot}` custom properties:
+
+```ts
+// vite.config.ts
+import { jixoai } from '@jixoai/vite-plugin';
+import { lucideIconProvider } from '@jixoai/vite-plugin/icons';
+
+export default {
+  plugins: [...jixoai({ icons: { provider: lucideIconProvider() } })],
+};
+```
+
+Then in your CSS entry (after the jixoai theme):
+
+```css
+@import 'virtual:jixoai-icons';  /* ← @layer theme { :root { --jx-icon-* } } */
+```
+
+The `safety` config nests inside the icons option (it scoped the icon
+serializer, so it rides the feature that owns it):
+
+```ts
+jixoai({ icons: {
+  provider: fontIconProvider({ fontPath: './icons.woff2', symbols: { calendar: 0xe901 } }),
+  safety: { mode: 'error', maxBytes: 5120 },  // default { mode: 'warn' }
+}})
+```
+
+Providers (all behind `@jixoai/vite-plugin/icons`, pure factories that
+never touch the filesystem — the plugin owns ALL file I/O):
+
+| provider | source | notes |
+| --- | --- | --- |
+| `lucideIconProvider()` | embedded lucide paths | zero I/O; mirrors the standard layer's fallback geometry |
+| `svgIconProvider({ dir, slots? })` | `{dir}/{slot}.svg` files | optional per-slot filename overrides |
+| `fontIconProvider({ fontPath, symbols, viewBox? })` | TTF/OTF/WOFF2 glyphs | needs the optional `opentype.js` (+ `wawoff2` for WOFF2) deps |
+| `mixinIconProvider(base, overrides)` | composition | override → base → null fallthrough |
+
+The serializer is the only code that emits CSS; every icon passes the
+safety checker (byte size / path command count / disallowed elements)
+before it reaches output. Slots the provider does not serve — or whose
+asset fails a warn-mode check — fall back to the standard layer's
+inline icons. Standalone use (icons feature only, without the umbrella)
+is `createIconPlugin({ icons: provider })` from the same subpath.
 
 ## Where the bytes come from
 

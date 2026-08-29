@@ -9,7 +9,7 @@
  * decompression — so the bytes handed to the plugin are a genuine
  * WOFF2 container with the "wOF2" magic.
  *
- * Pipeline under test (real jxUI lifecycle, NO serializer mock):
+ * Pipeline under test (real createIconPlugin lifecycle, NO serializer mock):
  *   WOFF2 bytes on disk → loadSource (magic sniff + decompress)
  *   → fontIconProvider (opentype.js parses the decompressed TTF)
  *   → SvgAsset → serializeIcon → the virtual CSS module.
@@ -21,18 +21,17 @@ import { join, resolve } from 'node:path';
 import type { Plugin } from 'vite';
 import * as opentype from 'opentype.js';
 import { describe, expect, test } from 'vitest';
-import { fontIconProvider } from '../src/providers/font.js';
+import { fontIconProvider } from '../../src/icons/providers/font.js';
 import type {
   IconProviderFactory,
   SourceDescriptor,
-} from '../src/types.js';
-import { jxUI, VIRTUAL_MODULE_ID } from '../src/vite-plugin.js';
+} from '../../src/icons/types.js';
+import { createIconPlugin, VIRTUAL_MODULE_ID } from '../../src/icons/vite-plugin.js';
 
-// wawoff2 ships no type declarations — the minimal surface this test uses
-declare module 'wawoff2' {
-  export function compress(buffer: Buffer): Promise<Uint8Array>;
-  export function decompress(buffer: Buffer): Promise<Uint8Array>;
-}
+// wawoff2 ships no type declarations — the minimal surface this test
+// uses lives in the sibling ambient wawoff2.d.ts (an inline
+// `declare module` cannot augment a module that resolves to a real,
+// untyped .js under this tsconfig)
 
 // ── fixture font builder (same geometry contract as providers/font.test.ts) ──
 
@@ -97,7 +96,7 @@ describe.skipIf(wawoff2 === null)('WOFF2 real round-trip (C3)', () => {
     const ttf = buildIconFont();
     const woff2 = new Uint8Array(await wawoff2!.compress(Buffer.from(ttf)));
 
-    const dir = await mkdtemp(join(tmpdir(), 'jx-ui-woff2-'));
+    const dir = await mkdtemp(join(tmpdir(), 'jixoai-icons-woff2-'));
     try {
       const fontPath = join(dir, 'icons.woff2');
       await writeFile(fontPath, woff2);
@@ -114,7 +113,7 @@ describe.skipIf(wawoff2 === null)('WOFF2 real round-trip (C3)', () => {
         return inner(ctx);
       };
 
-      const plugin = jxUI({ icons: factory });
+      const plugin = createIconPlugin({ icons: factory });
       const hooks = plugin as unknown as {
         buildStart(): Promise<void>;
         resolveId(id: string, importer?: string): string | null;
@@ -143,8 +142,9 @@ describe.skipIf(wawoff2 === null)('WOFF2 real round-trip (C3)', () => {
       expect(decoded).toContain('fill="currentColor"');
       const pathMatch = /<path d="([^"]*)"/.exec(decoded);
       expect(pathMatch).not.toBeNull();
+      expect(pathMatch?.[1]).toBeDefined();
       // the canonical square, contain-fitted: (0,24)(24,24)(24,0)(0,0)
-      expect(pathNumbers(pathMatch![1])).toEqual([0, 24, 24, 24, 24, 0, 0, 0]);
+      expect(pathNumbers(pathMatch?.[1] ?? '')).toEqual([0, 24, 24, 24, 24, 0, 0, 0]);
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

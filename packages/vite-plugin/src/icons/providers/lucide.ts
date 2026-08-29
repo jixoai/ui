@@ -1,5 +1,5 @@
 /**
- * @jixoai/ui-plugin — lucideIconProvider (P2.2)
+ * @jixoai/vite-plugin (icons) — lucideIconProvider (P2.2)
  *
  * The zero-I/O inline defaults. All five slot icons are embedded as
  * lucide stroke geometry — the SAME paths as the standard layer's
@@ -72,7 +72,7 @@ const LUCIDE_ICONS: Readonly<Record<IconSlot, string>> = {
  *
  * @example
  * ```ts
- * jxUI({ icons: lucideIconProvider() })
+ * jixoai({ icons: { provider: lucideIconProvider() } })
  * ```
  */
 export function lucideIconProvider(): IconProviderFactory {

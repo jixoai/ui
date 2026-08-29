@@ -25,9 +25,9 @@ import {
   readPin,
   type GhosttyPin,
   type PinVariantName,
-} from './pin';
+} from './pin.js';
 
-export type { GhosttyPin, PinVariantName } from './pin';
+export type { GhosttyPin, PinVariantName } from './pin.js';
 
 export const GHOSTTY_WASM_PATH_ENV = 'JIXOAI_GHOSTTY_WASM_PATH';
 

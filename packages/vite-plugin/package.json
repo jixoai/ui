@@ -1,7 +1,7 @@
 {
   "name": "@jixoai/vite-plugin",
   "version": "0.1.0",
-  "description": "Vite plugin supplying the pinned ghostty-vt wasm: resolve (env -> cache -> verified download) -> serve (dev middleware) -> emit (content-addressed asset) -> hand over the URL via the virtual:jixoai-ghostty module. Ships the jixoai-ghostty-probe ABI sentinel bin.",
+  "description": "Vite plugin supplying the pinned ghostty-vt wasm: resolve (env -> cache -> verified download) -> serve (dev middleware) -> emit (content-addressed asset) -> hand over the URL via the virtual:jixoai-ghostty module. Also ships the icon system (svg/lucide/font providers + serializer + safety) behind the ./icons subpath and the jixoai() icons feature option. Ships the jixoai-ghostty-probe ABI sentinel bin.",
   "license": "MIT",
   "type": "module",
   "engines": {
@@ -14,6 +14,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./icons": {
+      "types": "./dist/icons.d.ts",
+      "import": "./dist/icons.js"
     },
     "./client": {
       "types": "./dist/client.d.ts"
@@ -33,6 +37,10 @@
   "peerDependencies": {
     "vite": "^8.0.0"
   },
+  "optionalDependencies": {
+    "opentype.js": "^1.3.4",
+    "wawoff2": "^2.0.0"
+  },
   "devDependencies": {
     "@types/node": "^24.0.0",
     "tsdown": "^0.22.14",
@@ -47,7 +55,8 @@
     "vite-plugin",
     "ghostty",
     "wasm",
-    "terminal"
+    "terminal",
+    "icons"
   ],
   "repository": {
     "type": "git",

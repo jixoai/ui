@@ -1,5 +1,6 @@
 /**
- * Geometry consistency gate (C4, ui-plugin-followup).
+ * Geometry consistency gate (C4, ui-plugin-followup; migrated to
+ * vite-plugin/icons with merge-alignment A1).
  *
  * Verifies that the same lucide icon geometry hasn't diverged across
  * the plugin provider and the component lib (icons.ts).
@@ -10,8 +11,12 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = resolve(fileURLToPath(import.meta.url), '..');
-const repoRoot = resolve(here, '../../..');
-const pluginSrc = readFileSync(resolve(repoRoot, 'packages/ui-plugin/src/providers/lucide.ts'), 'utf8');
+// test/icons → four levels up is the repo root
+const repoRoot = resolve(here, '../../../..');
+const pluginSrc = readFileSync(
+  resolve(repoRoot, 'packages/vite-plugin/src/icons/providers/lucide.ts'),
+  'utf8',
+);
 const iconsSrc = readFileSync(resolve(repoRoot, 'registry/files/lib/icons.ts'), 'utf8');
 
 describe('geometry consistency gate (C4)', () => {

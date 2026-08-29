@@ -1,5 +1,5 @@
 /**
- * @jixoai/ui-plugin — svgIconProvider (P2.1)
+ * @jixoai/vite-plugin (icons) — svgIconProvider (P2.1)
  *
  * File-based SVG icons. The provider NEVER touches the filesystem —
  * every read goes through ctx.loadSource (the vite plugin owns ALL

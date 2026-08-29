@@ -1,13 +1,13 @@
 /**
- * @jixoai/ui-plugin — vite integration (P3.3)
+ * @jixoai/vite-plugin (icons) — vite integration (P3.3)
  *
- * jxUI() returns a Vite plugin that:
+ * createIconPlugin() returns a Vite plugin that:
  *   1. owns ALL file I/O — providers receive loaded bytes through a
  *      ProviderContext (loadSource/watchFile); they never touch the
  *      filesystem (frozen principle #4)
  *   2. awaits the IconProviderFactory at build start (font/svg loading
  *      is async)
- *   3. serves `virtual:@jixoai/ui-plugin/icons` as a virtual CSS module:
+ *   3. serves `virtual:jixoai-icons` as a virtual CSS module:
  *
  *        @layer theme {
  *          :root {
@@ -16,7 +16,7 @@
  *          }
  *        }
  *
- *      …for `@import 'virtual:@jixoai/ui-plugin/icons';` in the
+ *      …for `@import 'virtual:jixoai-icons';` in the
  *      consumer's CSS entry (the ONLY injection path — frozen
  *      principle #1). JS consumers (the clear slot's {@html} DOM
  *      injection) import the explicit `…icons?dom` form, which exports
@@ -45,8 +45,8 @@ import type {
 
 // ── virtual module ids ─────────────────────────────────────────────
 
-/** the public import id (CSS entries: @import 'virtual:@jixoai/ui-plugin/icons') */
-export const VIRTUAL_MODULE_ID = 'virtual:@jixoai/ui-plugin/icons';
+/** the public import id (CSS entries: @import 'virtual:jixoai-icons') */
+export const VIRTUAL_MODULE_ID = 'virtual:jixoai-icons';
 
 /**
  * resolved virtual ids. the `\0` prefix is the rollup/vite convention for
@@ -76,8 +76,8 @@ function classifyVirtualId(id: string): VirtualKind | null {
 
 // ── options ────────────────────────────────────────────────────────
 
-/** jxUI() plugin options */
-export interface JxUIPluginOptions {
+/** createIconPlugin() plugin options */
+export interface IconPluginOptions {
   /** the icon provider factory — awaited at build start with a ProviderContext */
   readonly icons: IconProviderFactory;
   /**
@@ -154,7 +154,7 @@ function detectMimeType(data: Uint8Array, path: string): string {
       return 'font/ttf';
     }
     if (isWoff1(data)) {
-      throw new Error(`jxUI: WOFF 1.0 is not supported (${path}) — convert to TTF or WOFF2`);
+      throw new Error(`createIconPlugin: WOFF 1.0 is not supported (${path}) — convert to TTF or WOFF2`);
     }
   }
   const head = Buffer.from(
@@ -166,8 +166,8 @@ function detectMimeType(data: Uint8Array, path: string): string {
   const ext = extname(path).toLowerCase();
   if (ext === '.svg') return 'image/svg+xml';
   if (ext === '.ttf' || ext === '.otf') return 'font/ttf';
-  if (ext === '.woff2') throw new Error(`jxUI: not a valid WOFF2 file (${path})`);
-  throw new Error(`jxUI: unrecognized icon source format (${path})`);
+  if (ext === '.woff2') throw new Error(`createIconPlugin: not a valid WOFF2 file (${path})`);
+  throw new Error(`createIconPlugin: unrecognized icon source format (${path})`);
 }
 
 // ── WOFF2 decompression (optional dependency) ──────────────────────
@@ -191,7 +191,7 @@ async function decompressWoff2(data: Uint8Array): Promise<Uint8Array> {
     wawoff2 = (await import(WAWOFF2_MODULE_ID)) as Wawoff2Module;
   } catch {
     throw new Error(
-      'jxUI: WOFF2 source encountered but the optional dependency "wawoff2" is not installed ' +
+      'createIconPlugin: WOFF2 source encountered but the optional dependency "wawoff2" is not installed ' +
         '(install wawoff2 or convert the font to TTF)',
     );
   }
@@ -242,7 +242,7 @@ function generateModules(
   const css =
     declarations.length > 0
       ? `@layer theme {\n  :root {\n${declarations.join('\n')}\n  }\n}\n`
-      : `/* jx-ui: no icons resolved — standard layer inline fallbacks serve */\n`;
+      : `/* jixoai-icons: no icons resolved — standard layer inline fallbacks serve */\n`;
 
   const js =
     `export const domIcons = {\n${domEntries.join('\n')}${domEntries.length > 0 ? '\n' : ''}};\n` +
@@ -254,15 +254,21 @@ function generateModules(
 // ── the plugin ─────────────────────────────────────────────────────
 
 /**
- * create the @jixoai/ui-plugin vite plugin.
+ * create the icon plugin standalone (canonical entry: the `icons` option
+ * of the `jixoai()` umbrella in `@jixoai/vite-plugin`).
  *
  * ```ts
- * // vite.config.ts
- * import { jxUI, lucideIconProvider } from '@jixoai/ui-plugin';
- * export default { plugins: [sveltekit(), tailwindcss(), jxUI({ icons: lucideIconProvider() })] };
+ * // vite.config.ts — umbrella (preferred)
+ * import { jixoai } from '@jixoai/vite-plugin';
+ * import { lucideIconProvider } from '@jixoai/vite-plugin/icons';
+ * export default { plugins: [sveltekit(), tailwindcss(), ...jixoai({ icons: { provider: lucideIconProvider() } })] };
+ *
+ * // standalone (icons feature only)
+ * import { createIconPlugin } from '@jixoai/vite-plugin/icons';
+ * export default { plugins: [createIconPlugin({ icons: lucideIconProvider() })] };
  * ```
  */
-export function jxUI(options: JxUIPluginOptions): Plugin {
+export function createIconPlugin(options: IconPluginOptions): Plugin {
   // follow-up C5: consumers can replace the default warn-mode checker;
   // the checker is per-plugin-instance (never a module-level singleton)
   const checker = createSafetyChecker(options.safety ?? { mode: 'warn' });
@@ -279,8 +285,8 @@ export function jxUI(options: JxUIPluginOptions): Plugin {
 
   const logError = (message: string): void => {
     const logger = server?.config.logger;
-    if (logger) logger.error(`[jx-ui] ${message}\n`, { timestamp: true });
-    else console.error(`[jx-ui] ${message}`);
+    if (logger) logger.error(`[jixoai-icons] ${message}\n`, { timestamp: true });
+    else console.error(`[jixoai-icons] ${message}`);
   };
 
   // -- ProviderContext: the ONLY path to file I/O for providers ------
@@ -371,7 +377,7 @@ export function jxUI(options: JxUIPluginOptions): Plugin {
   // -- hooks ----------------------------------------------------------
 
   const plugin: Plugin = {
-    name: 'jx-ui',
+    name: 'jixoai-icons',
     enforce: 'pre',
 
     /** await the provider factory; failures fail the build by design */

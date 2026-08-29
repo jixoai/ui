@@ -1,8 +1,8 @@
-// @jixoai/vite-plugin — the ghostty-vt wasm supply plugin for vite 8.
+// @jixoai/vite-plugin — the jixoai build-time features for vite 8.
 //
 // Intents (orthogonal count: 3):
 //   1. `jixoai()` — THE umbrella entry wiring every
-//      jixoai build-time feature; `ghostty` (the wasm supply) is the
+//      jixoai build-time feature. `ghostty` (the wasm supply) is the
 //      first, default-on feature (owner request 2026-08-28: the consumer
 //      remembers ONE name, features arrive as options under it). The
 //      ghostty plugin itself stays an internal single-element Plugin[]
@@ -13,6 +13,13 @@
 //      assets/ghostty-vt-<sha256[0..16]>.wasm from inside the virtual
 //      module load() (ROLLUP_FILE_URL_<ref> placeholder), and the
 //      server-consumer path that never emits.
+//      `icons` (merge-alignment A1, 2026-08-29) is the second feature:
+//      the unified SVG icon system migrated from @jixoai/ui-plugin,
+//      default-OFF — without an `icons` option the plugin is not
+//      registered, no files are read and no optional dependency is
+//      loaded. The icons plugin is imported from './icons/vite-plugin'
+//      (NOT the './icons' barrel) so provider code never enters this
+//      entry's module graph.
 //   2. The `virtual:jixoai-ghostty` module (resolveId claim + \0 internal
 //      id) exporting pure data {url, sha256, variant, buildInfo} — no
 //      fetch/WebAssembly at module evaluation time (SSR/vitest safe).
@@ -20,11 +27,14 @@
 //      failures tell the consumer exactly how to unblock.
 //
 // Owner original demand: 2026-08-28 "ghostty-term / packages/vite-plugin".
+// merge-alignment A1 (2026-08-29): icons fold in as a feature option.
 
 import type { Plugin } from 'vite';
 
-import { readPin } from './pin';
-import { resolveGhosttyWasm, type ResolvedGhosttyWasm, type ResolveGhosttyWasmOptions } from './resolve';
+import type { IconProviderFactory, SafetyCheckerConfig } from './icons/types.js';
+import { createIconPlugin } from './icons/vite-plugin.js';
+import { readPin } from './pin.js';
+import { resolveGhosttyWasm, type ResolvedGhosttyWasm, type ResolveGhosttyWasmOptions } from './resolve.js';
 
 export { readPin, resolveGhosttyWasm };
 export type { ResolvedGhosttyWasm, ResolveGhosttyWasmOptions };
@@ -160,24 +170,52 @@ function ghosttyPlugin(options: JixoaiGhosttyOptions): Plugin[] {
 }
 
 /**
+ * `icons` feature options (merge-alignment A1). The safety config nests
+ * here — it is no longer a top-level/global option (it scoped the icon
+ * serializer, so it rides the feature that owns it).
+ */
+export interface IconsPluginOptions {
+  /** the icon provider factory — awaited at build start (see @jixoai/vite-plugin/icons) */
+  readonly provider: IconProviderFactory;
+  /**
+   * safety checker configuration. defaults to `{ mode: 'warn' }` —
+   * rejected icons serve the standard layer's inline fallback. pass
+   * `{ mode: 'error', … }` (and/or tighter limits) to fail the build
+   * instead, e.g. for HTTP-sourced icons.
+   */
+  readonly safety?: SafetyCheckerConfig;
+}
+
+/**
  * `jixoai()` — THE umbrella entry. One call wires every jixoai build-time
  * feature; each feature is an option on this object (default-on where it
- * has no cost for projects that don't touch it — opting out is explicit):
+ * has no cost for projects that don't touch it — opting out is explicit;
+ * default-off where activating it has a cost — opting in is explicit):
  *
  *   plugins: [sveltekit(), tailwindcss(), ...jixoai()]
  *   plugins: [sveltekit(), tailwindcss(), ...jixoai({ ghostty: { variant: 'small' } })]
  *   plugins: [sveltekit(), tailwindcss(), ...jixoai({ ghostty: false })]
+ *   plugins: [sveltekit(), tailwindcss(), ...jixoai({ icons: { provider: lucideIconProvider() } })]
  *
- * The package is unpublished — `jixoaiGhostty()` never shipped, so the
- * unified surface lands without a compat shim (house law: bold breaks).
+ * The package is unpublished — `jixoaiGhostty()`/`jxUI()` never shipped,
+ * so the unified surface lands without a compat shim (house law: bold
+ * breaks).
  */
 export interface JixoaiOptions {
   /**
    * The ghostty-vt wasm supply feature (dev serving + build emission +
    * the virtual:jixoai-ghostty module). Default: on. `false` opts out;
-   * an object passes JxoaiGhosttyOptions through.
+   * an object passes JixoaiGhosttyOptions through.
    */
-  ghostty?: boolean | JxoaiGhosttyOptions;
+  ghostty?: boolean | JixoaiGhosttyOptions;
+  /**
+   * The icon system feature (merge-alignment A1): provider factories +
+   * serializer + safety checker behind the `virtual:jixoai-icons`
+   * module. Default: `false` — no plugin is registered, no files are
+   * read and no optional dependency (opentype.js / wawoff2) is loaded
+   * unless an option object opts in.
+   */
+  icons?: IconsPluginOptions | false;
 }
 
 export function jixoai(options: JixoaiOptions = {}): Plugin[] {
@@ -185,6 +223,16 @@ export function jixoai(options: JixoaiOptions = {}): Plugin[] {
   const ghostty = options.ghostty ?? true;
   if (ghostty !== false) {
     plugins.push(...ghosttyPlugin(ghostty === true ? {} : ghostty));
+  }
+  if (options.icons !== false && options.icons !== undefined) {
+    const icons = options.icons;
+    plugins.push(
+      createIconPlugin(
+        icons.safety === undefined
+          ? { icons: icons.provider }
+          : { icons: icons.provider, safety: icons.safety },
+      ),
+    );
   }
   return plugins;
 }

@@ -8,9 +8,9 @@
  * policy, watchFile HMR wiring, and source metadata.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { svgIconProvider } from '../../src/providers/svg.js';
-import type { IconProvider, ProviderContext, SourceDescriptor } from '../../src/types.js';
-import { SLOT_NAMES } from '../../src/types.js';
+import { svgIconProvider } from '../../../src/icons/providers/svg.js';
+import type { IconProvider, ProviderContext, SourceDescriptor } from '../../../src/icons/types.js';
+import { SLOT_NAMES } from '../../../src/icons/types.js';
 
 const encoder = new TextEncoder();
 

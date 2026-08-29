@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createSafetyChecker } from '../src/safety.js';
+import { createSafetyChecker } from '../../src/icons/safety.js';
 
 /** a clean, lucide-style icon — passes every default check */
 const CLEAN_SVG =

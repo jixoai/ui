@@ -21,7 +21,7 @@ import {
   type GhosttyPin,
 } from '../src/resolve.ts';
 import { PIN_VARIANT_NAMES, type PinVariant } from '../src/pin.ts';
-import { loadWasmBytes } from './helpers';
+import { loadWasmBytes } from './helpers.js';
 
 function syntheticPin(bytes: Uint8Array, overrides: Partial<PinVariant> = {}): GhosttyPin {
   const variant: PinVariant = {

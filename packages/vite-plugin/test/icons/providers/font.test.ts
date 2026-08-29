@@ -12,8 +12,8 @@
 
 import * as opentype from 'opentype.js';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { ProviderContext, SourceDescriptor } from '../../src/types.js';
-import { fontIconProvider } from '../../src/providers/font.js';
+import type { ProviderContext, SourceDescriptor } from '../../../src/icons/types.js';
+import { fontIconProvider } from '../../../src/icons/providers/font.js';
 
 // ── fixture font builder ───────────────────────────────────────────
 
@@ -37,9 +37,10 @@ function buildIconFont(glyphs: ReadonlyArray<FixtureGlyphSpec>): Uint8Array {
     ...glyphs.map((spec, i) => {
       const path = new opentype.Path();
       if (spec.polygon !== null) {
-        const [first, ...rest] = spec.polygon;
+        const first = spec.polygon[0];
+        if (first === undefined) throw new Error('fixture polygon must be non-empty');
         path.moveTo(first[0], first[1]);
-        for (const [x, y] of rest) path.lineTo(x, y);
+        for (const [x, y] of spec.polygon.slice(1)) path.lineTo(x, y);
         path.close();
       }
       return new opentype.Glyph({
@@ -125,14 +126,14 @@ function pathNumbers(d: string): number[] {
 
 function expectNumbersEqual(actual: number[], expected: number[]): void {
   expect(actual).toHaveLength(expected.length);
-  for (let i = 0; i < expected.length; i++) {
-    expect(actual[i]).toBeCloseTo(expected[i], 3);
+  for (const [i, exp] of expected.entries()) {
+    expect(actual[i]).toBeCloseTo(exp, 3);
   }
 }
 
 function pathD(svg: string): string {
   const match = /<path d="([^"]*)"/.exec(svg);
-  if (match === null) throw new Error(`no <path d> in: ${svg}`);
+  if (match === null || match[1] === undefined) throw new Error(`no <path d> in: ${svg}`);
   return match[1];
 }
 
@@ -308,7 +309,7 @@ describe('fontIconProvider without opentype.js installed', () => {
     vi.doMock('opentype.js', () => {
       throw new Error("Cannot find module 'opentype.js'");
     });
-    const { fontIconProvider: freshProvider } = await import('../../src/providers/font.js');
+    const { fontIconProvider: freshProvider } = await import('../../../src/icons/providers/font.js');
     const factory = freshProvider({
       fontPath: 'icons/jx.ttf',
       symbols: { calendar: 0xe901 },

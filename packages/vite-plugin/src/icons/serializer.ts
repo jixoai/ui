@@ -1,5 +1,5 @@
 /**
- * @jixoai/ui-plugin — the serializer (P3.1)
+ * @jixoai/vite-plugin (icons) — the serializer (P3.1)
  *
  * The ONLY code that turns an SvgAsset into consumable output:
  * - 'css-var'    → url("data:image/svg+xml,…") — a CSS custom property VALUE
@@ -24,7 +24,7 @@ import type {
 import { SLOT_NAMES } from './types.js';
 
 /** prefix for all serializer diagnostics */
-const LOG_PREFIX = '[jx-ui]';
+const LOG_PREFIX = '[jixoai-icons]';
 
 /** derive a human-readable label from the asset's source metadata */
 function describeSource(source: SvgAsset['source']): string {

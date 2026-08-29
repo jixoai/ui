@@ -1,5 +1,5 @@
 /**
- * @jixoai/ui-plugin — the safety checker (P3.2)
+ * @jixoai/vite-plugin (icons) — the safety checker (P3.2)
  *
  * The built-in SVG safety validator: byte size, path command count and
  * disallowed elements. Default mode is WARN (owner ruling, design.md §5):
@@ -100,32 +100,28 @@ export function createSafetyChecker(
       const severity: SafetyIssue['severity'] =
         mode === 'error' ? 'error' : 'warning';
       const issues: SafetyIssue[] = [];
+      // exactOptionalPropertyTypes: `source` on SafetyIssue may be absent,
+      // never explicitly undefined — build each issue through this helper
+      const issue = (message: string): SafetyIssue =>
+        source === undefined ? { severity, message } : { severity, message, source };
 
       const byteLength = encoder.encode(svg).length;
       if (byteLength > maxBytes) {
-        issues.push({
-          severity,
-          message: `SVG byte size ${byteLength} exceeds the limit of ${maxBytes} bytes`,
-          source,
-        });
+        issues.push(
+          issue(`SVG byte size ${byteLength} exceeds the limit of ${maxBytes} bytes`),
+        );
       }
 
       const commandCount = countPathCommands(svg);
       if (commandCount > maxPathCommands) {
-        issues.push({
-          severity,
-          message: `SVG path command count ${commandCount} exceeds the limit of ${maxPathCommands}`,
-          source,
-        });
+        issues.push(
+          issue(`SVG path command count ${commandCount} exceeds the limit of ${maxPathCommands}`),
+        );
       }
 
       for (const { name, pattern } of elementPatterns) {
         if (pattern.test(svg)) {
-          issues.push({
-            severity,
-            message: `disallowed element <${name}> found in SVG`,
-            source,
-          });
+          issues.push(issue(`disallowed element <${name}> found in SVG`));
         }
       }
 
