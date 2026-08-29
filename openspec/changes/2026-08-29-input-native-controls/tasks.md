@@ -32,8 +32,8 @@
 
 ## D. integration (ZCode)
 
-- [ ] D1: registry.json — input deps += @jixoai/icons; date-picker
+- [x] D1: registry.json — input deps += @jixoai/icons; date-picker
       item files += time-stepper/month-grid
-- [ ] D2: mirrors + manifest + shadcn build payload freshness
-- [ ] D3: full gates + dev-server walkthrough of the new panels
-- [ ] D4: commits per batch with task-state updates
+- [x] D2: mirrors + manifest + shadcn build payload freshness
+- [x] D3: full gates + dev-server walkthrough of the new panels
+- [x] D4: commits per batch with task-state updates

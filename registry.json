@@ -656,7 +656,8 @@
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
         "@jixoai/date-picker",
-        "@jixoai/color-picker"
+        "@jixoai/color-picker",
+        "@jixoai/icons"
       ],
       "meta": {
         "group": "data-entry",
@@ -1238,6 +1239,16 @@
         {
           "path": "registry/files/ui/date-picker/calendar-math.ts",
           "target": "@ui/date-picker/calendar-math.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/date-picker/time-stepper.svelte",
+          "target": "@ui/date-picker/time-stepper.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/date-picker/month-grid.svelte",
+          "target": "@ui/date-picker/month-grid.svelte",
           "type": "registry:file"
         }
       ],
