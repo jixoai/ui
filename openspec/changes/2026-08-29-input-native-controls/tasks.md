@@ -45,3 +45,6 @@
       conversions (>12 drops twelve on the way in, +12 climbs back
       with 12 PM kept at noon), the 1–12 stepping/typing ring, the
       stepper-geometry edge-zone law on the number shell
+- [x] E2: week hover preview — hovering a day highlights its whole
+      Monday-first week (all 7 days, out-month cells included); the
+      picked week paints all 7 too (exclusive next-Monday range end)

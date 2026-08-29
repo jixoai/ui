@@ -172,7 +172,7 @@ describe('Input · week coverage', () => {
     expect(panel.hasAttribute('open')).toBe(false);
   });
 
-  it('the picked week anchors its Monday and paints the whole week (range tint)', async () => {
+  it('the picked week anchors its Monday and paints the whole week (all 7 days)', async () => {
     const { container } = render(Input, {
       type: 'week',
       id: 'pb-week2',
@@ -182,14 +182,34 @@ describe('Input · week coverage', () => {
     expect(day).not.toBeNull();
     await fireEvent.click(day as Element);
     // anchors re-derive from "2026-W35" → Monday 2026-08-24 carries the
-    // anchor fill (aria-selected); Tue–Sat carry the range tint; Sunday
-    // is the rangeEnd EDGE — the Calendar's tint is strictly-inside
+    // anchor fill (aria-selected); the range ends at the EXCLUSIVE next
+    // Monday (input.svelte weekEndExclusive) so the strictly-inside tint
+    // covers Tue–Sun — all 7 days highlighted (Sunday was bare under
+    // the old Sunday rangeEnd edge)
     const monday = container.querySelector('#pb-week2-pcal-d-2026-08-24');
     expect(monday?.getAttribute('aria-selected')).toBe('true');
     const midweek = container.querySelector('#pb-week2-pcal-d-2026-08-26');
     expect(midweek?.hasAttribute('data-jx-date-in')).toBe(true);
     const sunday = container.querySelector('#pb-week2-pcal-d-2026-08-30');
-    expect(sunday?.hasAttribute('data-jx-date-in')).toBe(false);
+    expect(sunday?.hasAttribute('data-jx-date-in')).toBe(true);
+  });
+
+  it('hovering a day previews its whole week — 7 cells, out-month included', async () => {
+    const { container } = render(Input, { type: 'week', id: 'pb-week4', value: '2026-W35' });
+    const cal = container.querySelector('[data-jx-calendar]') as HTMLElement;
+    // 2026-08-31 (Monday) opens a week that runs into September: the
+    // August view renders Sep 1–6 as out cells — the preview must paint
+    // the full 7 regardless of month ownership
+    const monday = container.querySelector('#pb-week4-pcal-d-2026-08-31') as HTMLElement;
+    expect(monday).not.toBeNull();
+    expect(cal.querySelectorAll('[data-jx-date-week-hover]').length).toBe(0);
+    await fireEvent.pointerEnter(monday);
+    const lit = cal.querySelectorAll('[data-jx-date-week-hover]');
+    expect(lit.length).toBe(7);
+    expect(cal.querySelector('[data-jx-date-out][data-jx-date-week-hover=""]')).not.toBeNull();
+    // leaving the calendar drops the preview
+    await fireEvent.pointerLeave(cal);
+    expect(cal.querySelectorAll('[data-jx-date-week-hover]').length).toBe(0);
   });
 
   it('the lane end-zone click + Alt+↓ open the week panel (trigger interception covers week)', async () => {

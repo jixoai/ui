@@ -346,7 +346,11 @@
   /** the picked week's Monday ("YYYY-MM-DD" or undefined) — the week
       value ("YYYY-Www") parsed back for anchoring + range painting */
   const weekAnchor = $derived(mondayOfIsoWeek(String(shownValue ?? '')));
-  const weekEnd = $derived(weekAnchor ? addDays(weekAnchor, 6) : undefined);
+  /** the EXCLUSIVE next Monday: the Calendar's range tint is
+      strictly-inside, so ending at Sunday left the picked week's 7th
+      day bare — one day past the week paints Tue–Sun, Monday keeps
+      the anchor fill, all 7 days highlighted (Owner catch 2026-08-29) */
+  const weekEndExclusive = $derived(weekAnchor ? addDays(weekAnchor, 7) : undefined);
   /** the time part ("HH:MM" or undefined): leading for time, the
       after-T part for datetime-local */
   const timeValue = $derived(
@@ -624,14 +628,16 @@
             />
           {:else}
             <!-- date / week / datetime-local: the Calendar. The week
-                 flavor anchors the picked week's Monday and paints the
-                 whole week (range tint Mon..Sun, the Monday carries the
-                 anchor fill — the Calendar's strict-inside tint law) -->
+                 flavor anchors the picked week's Monday, paints the
+                 whole week (Tue–Sun tint via the exclusive next-Monday
+                 end, Monday the anchor fill) and previews the hovered
+                 week — all 7 days, out-month cells included -->
             <Calendar
               bind:this={calendarRef}
               anchors={type === 'week' ? (weekAnchor ? [weekAnchor] : []) : datePart ? [datePart] : []}
               rangeStart={type === 'week' ? weekAnchor : undefined}
-              rangeEnd={type === 'week' ? weekEnd : undefined}
+              rangeEnd={type === 'week' ? weekEndExclusive : undefined}
+              weekHover={type === 'week'}
               min={(rest as { min?: string }).min}
               max={(rest as { max?: string }).max}
               initialView={type === 'week' ? weekAnchor : datePart}

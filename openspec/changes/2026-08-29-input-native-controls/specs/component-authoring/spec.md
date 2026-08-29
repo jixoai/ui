@@ -42,6 +42,18 @@ snippet stays the highest-priority override.
 - THEN the value commits as `2026-W35` and reopening anchors that
   week's Monday with the week painted as the range tint
 
+#### Scenario: hovering a day previews its whole week (Owner follow-up, 2026-08-29)
+
+- GIVEN a week panel open (`weekHover`)
+- WHEN the pointer enters any day cell
+- THEN all 7 days of that day's Monday-first week highlight with the
+  range tint — inclusive of both ends and of out-month cells (the
+  week is 7 days whatever month the cells belong to; the anchor cell
+  keeps its fill); leaving the calendar drops the preview
+- AND the PICKED week paints all 7 days too: the range end is the
+  EXCLUSIVE next Monday (Tue–Sun tint strictly inside), Monday keeps
+  the anchor fill — Sunday was bare under the old Sunday edge
+
 ### Requirement: the time stepper owns the hour format (Owner follow-up, 2026-08-29)
 
 The TimeStepper SHALL end with one text-icon button cycling the hour

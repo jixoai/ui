@@ -58,6 +58,10 @@
     rangeStart?: string;
     /** range tint edge */
     rangeEnd?: string;
+    /** week mode: hovering any day highlights its whole Monday-first
+        week — all 7 days, out-month cells included; the preview of the
+        week a pick will commit (Owner request, 2026-08-29) */
+    weekHover?: boolean;
     /** inclusive ISO bound — earlier days render disabled */
     min?: string;
     /** inclusive ISO bound — later days render disabled */
@@ -81,6 +85,7 @@
     anchors = [],
     rangeStart,
     rangeEnd,
+    weekHover = false,
     min,
     max,
     initialView,
@@ -178,6 +183,25 @@
     return rStart != null && rEnd != null && iso > rStart && iso < rEnd;
   }
 
+  // ---- hover-to-week preview (weekHover): the hovered day's whole
+  // Monday-first week takes the same tint law as the picked range,
+  // INCLUSIVE of both ends and of out-month cells — the week is 7 days
+  // whatever month the cells belong to. Pointer-tracked only: the
+  // keyboard cursor (activeIso) is the a11y path and paints its own law.
+  let hoverIso = $state<string | undefined>(undefined);
+  const hoverWeek = $derived.by(() => {
+    const iso = validIso(hoverIso);
+    if (!weekHover || !iso) return undefined;
+    const p = parseIso(iso)!;
+    const dow = new Date(Date.UTC(p.year, p.month, p.day)).getUTCDay(); // 0=Sunday
+    const monday = addDays(iso, -((dow + 6) % 7));
+    return { start: monday, end: addDays(monday, 6) };
+  });
+
+  function inHoverWeek(iso: string): boolean {
+    return hoverWeek != null && iso >= hoverWeek.start && iso <= hoverWeek.end;
+  }
+
   function stepMonth(delta: 1 | -1): void {
     viewMonth += delta;
     if (viewMonth < 0) {
@@ -225,7 +249,7 @@
   }
 </script>
 
-<div data-jx-calendar class={className}>
+<div data-jx-calendar class={className} onpointerleave={() => (hoverIso = undefined)}>
   <!-- the nav→grid seam is a POSITIVE section gap (mb-1): the old
        -mb-2.5 pulled the weekday row 10px up INTO the nav band — the
        h-7 button boxes (28px) overlapped the h-6 header cells' tops,
@@ -275,7 +299,20 @@
       <div role="row" data-jx-date-weekrow class="grid grid-cols-[repeat(7,2rem)] gap-0.5">
         {#each week as cell (cell.iso)}
           {#if cell.out}
-            <div role="gridcell" data-jx-date-out class="jx-date-day inline-flex items-center justify-center w-8 h-8 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] tabular-nums leading-none cursor-default select-none opacity-35" aria-hidden="true">{cell.day}</div>
+            <!-- out cells join the hover-week preview (the week is 7
+                 days whatever month the cells belong to); they never
+                 take the picked-range tint — that law stays in-month -->
+            <div
+              role="gridcell"
+              data-jx-date-out
+              data-jx-date-week-hover={inHoverWeek(cell.iso) ? '' : undefined}
+              class={cn(
+                'jx-date-day inline-flex items-center justify-center w-8 h-8 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] tabular-nums leading-none cursor-default select-none opacity-35',
+                inHoverWeek(cell.iso) && 'bg-[color-mix(in_oklab,var(--primary)_14%,transparent)]',
+              )}
+              aria-hidden="true"
+              onpointerenter={weekHover ? () => (hoverIso = cell.iso) : undefined}
+            >{cell.day}</div>
           {:else}
             <!-- cells are click-only BY PATTERN (select.svelte law): the
                  keyboard path rides the focusable grid + the
@@ -286,16 +323,19 @@
               id={`${idPrefix}-d-${cell.iso}`}
               data-jx-date-today={cell.today ? '' : undefined}
               data-jx-date-in={inRange(cell.iso) ? '' : undefined}
+              data-jx-date-week-hover={inHoverWeek(cell.iso) ? '' : undefined}
               class={cn(
                 'jx-date-day inline-flex items-center justify-center w-8 h-8 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] tabular-nums leading-none cursor-pointer select-none transition-[background-color,color] duration-100 ease-out',
                 cell.today && 'border-primary',
                 anchorSet.has(cell.iso) && 'jx-date-fill bg-primary text-primary-foreground',
-                inRange(cell.iso) && 'bg-[color-mix(in_oklab,var(--primary)_14%,transparent)]',
+                inRange(cell.iso) && !anchorSet.has(cell.iso) && 'bg-[color-mix(in_oklab,var(--primary)_14%,transparent)]',
+                inHoverWeek(cell.iso) && !anchorSet.has(cell.iso) && 'bg-[color-mix(in_oklab,var(--primary)_14%,transparent)]',
                 cell.disabled && 'jx-date-off opacity-30 cursor-not-allowed',
                 cell.iso === activeIso && 'jx-date-active',
               )}
               aria-selected={anchorSet.has(cell.iso) ? 'true' : 'false'}
               aria-disabled={cell.disabled ? 'true' : undefined}
+              onpointerenter={weekHover ? () => (hoverIso = cell.iso) : undefined}
               onclick={() => pick(cell.iso)}
             >{cell.day}</div>
           {/if}

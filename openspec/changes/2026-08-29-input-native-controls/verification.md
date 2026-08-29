@@ -85,6 +85,20 @@ overlap. Fix: a positive `mb-1` section seam in calendar.svelte AND
 month-grid.svelte (same copied hack). Probe: seam −10px → +4px.
 758/758, payloads rebuilt.
 
+## Owner follow-up #4 (2026-08-29): the week hover preview
+
+Hovering a day in the week panel now highlights its whole
+Monday-first week: Calendar gains a `weekHover` prop (pointer-tracked
+`hoverIso` → inclusive 7-day tint, out-month cells included, anchor
+cells keep their fill, `pointerleave` on the root drops the preview).
+The PICKED week also paints all 7 now — the range end moved from
+Sunday (a strictly-inside edge, leaving Sunday bare) to the EXCLUSIVE
+next Monday, so Tue–Sun tint + Monday anchor fill. Tests: the Sunday
+assertion inverted, a new hover case pins 7 cells across the month
+seam (Aug 31 + Sep 1–6) and the leave-clear. Live probe: hover day 10
+→ days 10–16 all lit; screenshot confirms one uniform row.
+758/758 → 759/759 with the new case, verify:all GREEN.
+
 ## Layering invariants held
 
 - Tier-1 bare markup untouched — platform steppers/panels remain on
