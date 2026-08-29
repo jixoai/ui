@@ -447,8 +447,12 @@
   font-weight: bold;
 }
 /* the shell carries NO chrome itself (final-check ruling): the box
- * border lives on a ::before BAND whose height matches the
- * -webkit-color-swatch-wrapper (the actual color chip's lane).
+ * chrome — border AND fill — lives on a ::before BAND whose height
+ * matches the -webkit-color-swatch-wrapper (the actual color chip's
+ * lane). 2026-08-29: the fill moved OFF the shell — an element-painted
+ * background leaks a full-height rectangle that ears out above/below
+ * the band on any surface where ambient ≠ --background (cards,
+ * panels, dark); the band now fills itself.
  *
  * GEOMETRY LAW (final-check ruling 2, the checkbox/range precedent):
  * the chip is a LOCKED size-and-ratio block — height = the hit lane,
@@ -468,7 +472,6 @@
   height: var(--jx-hit, 2.5rem);
   aspect-ratio: 7 / 4;
   container-type: size;
-  background: var(--background);
   cursor: pointer;
   position: relative;
   transition: box-shadow 150ms ease-out;
@@ -479,6 +482,7 @@
   inset-inline: 0;
   inset-block: calc(100cqh / 6);
   border: 1px solid var(--border);
+  background: var(--background);
   pointer-events: none;
   corner-left-shape: round;
   /* band height = 100cqh − 2×(100cqh/6) = 100cqh × 2/3 — half of it
