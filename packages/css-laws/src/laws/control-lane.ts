@@ -22,6 +22,12 @@ export const controlLaneLaw: ComponentLaw = {
     'min-height': 'calc(var(--jx-hit, 2.5rem) - 2px)',
     'min-width': '0',
     border: '0',
+    /* the shell owns the box law — the lane must stay chromeless even
+     * under the .jx-pure face, where the bare-element defaults are
+     * live on the same <input> and would otherwise leak their
+     * padding-block onto the lane (a hidden floor above --jx-hit;
+     * 2026-08-29 Owner catch on the hit-floor prototype) */
+    padding: '0',
     outline: 'none',
     background: 'transparent',
     color: 'var(--foreground)',

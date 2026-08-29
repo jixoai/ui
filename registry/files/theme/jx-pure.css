@@ -357,6 +357,7 @@
   min-height: calc(var(--jx-hit, 2.5rem) - 2px);
   min-width: 0;
   border: 0;
+  padding: 0;
   outline: none;
   background: transparent;
   color: var(--foreground);
@@ -428,7 +429,9 @@
 }
 .jx-label {
   font-family: var(--font-nav);
-  font-size: 11px;
+  /* secondary-text is a density ROLE (density-adoption §3): the label
+   * tracks the ambient scope instead of a fixed 11px (2026-08-29) */
+  font-size: var(--jx-text-secondary, 11px);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--muted-foreground);
@@ -438,7 +441,7 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  font-size: 11px;
+  font-size: var(--jx-text-secondary, 11px);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--destructive);
