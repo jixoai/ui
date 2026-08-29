@@ -284,9 +284,13 @@
       <IconButton variant="outline" iconOnly text="Pick from screen" onclick={pickFromScreen}>
         {#snippet icon()}
           <!-- the pipette glyph (lucide pipette path, currentColor ink) -->
+          <!-- IconButton sizes nothing itself (bring-your-own-glyph
+               law) — an unsized svg collapses to 0 in the flex row -->
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
+            width="15"
+            height="15"
             fill="none"
             stroke="currentColor"
             stroke-width="2"
