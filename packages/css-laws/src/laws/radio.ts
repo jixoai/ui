@@ -11,7 +11,7 @@ export const radioLaw: ComponentLaw = composeLaw(checkboxLaw, {
   name: 'radio',
   application: {
     className: 'jx-html-radio',
-    elementSelector: "input[type='radio']:not(.no-jx-pure, .no-jx-pure *)",
+    elementSelector: "input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *))",
     scoped: true,
   },
   base: {

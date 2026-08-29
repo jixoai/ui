@@ -11,8 +11,15 @@ export const inputLaw: ComponentLaw = {
   name: 'input',
   application: {
     className: 'jx-html-input',
+    /* the :where(:not(...)) opt-out wrapper is LOAD-BEARING: a bare
+     * :not(.no-jx-pure, .no-jx-pure *) contributes its argument's
+     * specificity (0,1,0), pushing the element default to (0,1,1) —
+     * above every component class, so element paint (padding-block,
+     * border) leaked onto chromeless lanes under the .jx-pure face
+     * (the 36px hidden floor, 2026-08-29). Keep the element default
+     * at type specificity; component classes MUST outrank it. */
     elementSelector:
-      "input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):not(.no-jx-pure, .no-jx-pure *)",
+      "input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *))",
     scoped: true,
   },
   base: {

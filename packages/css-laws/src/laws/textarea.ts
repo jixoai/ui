@@ -11,7 +11,7 @@ export const textareaLaw: ComponentLaw = composeLaw(inputLaw, {
   name: 'textarea',
   application: {
     className: 'jx-html-textarea',
-    elementSelector: 'textarea:not(.no-jx-pure, .no-jx-pure *)',
+    elementSelector: 'textarea:where(:not(.no-jx-pure, .no-jx-pure *))',
     scoped: true,
   },
   /* corner-shape precedes the @apply in the source; composeLaw lets the

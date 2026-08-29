@@ -13,8 +13,8 @@ export const selectLaw: ComponentLaw = composeLaw(inputLaw, {
   application: {
     className: 'jx-html-select',
     elementSelector: [
-      'select:not(.no-jx-pure, .no-jx-pure *)',
-      'select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *)',
+      'select:where(:not(.no-jx-pure, .no-jx-pure *))',
+      'select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *))',
     ],
     scoped: true,
   },

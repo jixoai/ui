@@ -14,7 +14,7 @@ export const rangeLaw: ComponentLaw = {
   name: 'range',
   application: {
     className: 'jx-html-range',
-    elementSelector: "input[type='range']:not(.no-jx-pure, .no-jx-pure *)",
+    elementSelector: "input:where([type='range']:not(.no-jx-pure, .no-jx-pure *))",
     scoped: true,
     aliases: ['jx-slider'],
   },

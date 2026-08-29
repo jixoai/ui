@@ -23,7 +23,7 @@ export const colorLaw: ComponentLaw = {
   name: 'color',
   application: {
     className: 'jx-html-color',
-    elementSelector: "input[type='color']:not(.no-jx-pure, .no-jx-pure *)",
+    elementSelector: "input:where([type='color']:not(.no-jx-pure, .no-jx-pure *))",
     scoped: true,
     aliases: ['jx-color-swatch'],
   },

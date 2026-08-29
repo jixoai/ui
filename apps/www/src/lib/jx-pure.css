@@ -357,6 +357,7 @@
   min-height: calc(var(--jx-hit, 2.5rem) - 2px);
   min-width: 0;
   border: 0;
+  padding: 0;
   outline: none;
   background: transparent;
   color: var(--foreground);
@@ -428,7 +429,9 @@
 }
 .jx-label {
   font-family: var(--font-nav);
-  font-size: 11px;
+  /* secondary-text is a density ROLE (density-adoption §3): the label
+   * tracks the ambient scope instead of a fixed 11px (2026-08-29) */
+  font-size: var(--jx-text-secondary, 11px);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--muted-foreground);
@@ -438,7 +441,7 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  font-size: 11px;
+  font-size: var(--jx-text-secondary, 11px);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--destructive);
@@ -963,7 +966,7 @@
      defaults — same declaration source as the .jx-html-* classes,
      serialized as element-default rules under :where(.jx-pure) */
   /* @jixoai/css-laws:begin:jx-html-face — GENERATED, do not edit (source: packages/css-laws/src/laws) */
-:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):not(.no-jx-pure, .no-jx-pure *) {
+:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *)) {
   corner-shape: var(--corner-shape, bevel);
   box-sizing: border-box;
   display: block;
@@ -982,32 +985,32 @@
   transition: box-shadow 150ms ease-out;
 }
 
-:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):not(.no-jx-pure, .no-jx-pure *)::placeholder {
+:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *))::placeholder {
   color: var(--jx-placeholder, color-mix(in oklab, var(--foreground) 40%, var(--background)));
   opacity: 1;
 }
 
-:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):not(.no-jx-pure, .no-jx-pure *):hover:not(:disabled) {
+:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *)):hover:not(:disabled) {
   box-shadow: var(--shadow-2xs);
 }
 
-:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):not(.no-jx-pure, .no-jx-pure *):focus-visible {
+:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *)):focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
   box-shadow: none;
 }
 
-:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):not(.no-jx-pure, .no-jx-pure *):disabled {
+:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *)):disabled {
   opacity: 0.5;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):not(.no-jx-pure, .no-jx-pure *)[aria-invalid='true'] {
+:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *))[aria-invalid='true'] {
   border-style: dashed;
 }
 
-:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):not(.no-jx-pure, .no-jx-pure *)::-webkit-calendar-picker-indicator {
+:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *))::-webkit-calendar-picker-indicator {
   -webkit-appearance: none;
   appearance: none;
   box-sizing: border-box;
@@ -1021,11 +1024,11 @@
   background-repeat: no-repeat;
 }
 
-:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):not(.no-jx-pure, .no-jx-pure *)[type='time']::-webkit-calendar-picker-indicator {
+:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *))[type='time']::-webkit-calendar-picker-indicator {
   background-image: var(--jx-icon-clock, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E"));
 }
 
-:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):not(.no-jx-pure, .no-jx-pure *)[type='email'] {
+:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *))[type='email'] {
   padding-inline: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em;
   background-image: var(--jx-icon-mail, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='20' height='16' x='2' y='4' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E"));
   background-position: left 0.6em center;
@@ -1033,7 +1036,7 @@
   background-repeat: no-repeat;
 }
 
-:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):not(.no-jx-pure, .no-jx-pure *)[type='search'] {
+:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *))[type='search'] {
   padding-inline: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em;
   background-image: var(--jx-icon-search, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E"));
   background-position: left 0.6em center;
@@ -1041,7 +1044,7 @@
   background-repeat: no-repeat;
 }
 
-:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):not(.no-jx-pure, .no-jx-pure *)[type='search']::-webkit-search-cancel-button {
+:where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *))[type='search']::-webkit-search-cancel-button {
   -webkit-appearance: none;
   appearance: none;
   width: 1.4em;
@@ -1054,12 +1057,12 @@
 }
 
   @media (prefers-reduced-motion: reduce) {
-    :where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):not(.no-jx-pure, .no-jx-pure *) {
+    :where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *)) {
       transition: none;
     }
   }
 
-:where(.jx-pure) textarea:not(.no-jx-pure, .no-jx-pure *) {
+:where(.jx-pure) textarea:where(:not(.no-jx-pure, .no-jx-pure *)) {
   corner-shape: var(--corner-shape, bevel);
   box-sizing: border-box;
   display: block;
@@ -1080,32 +1083,32 @@
   resize: vertical;
 }
 
-:where(.jx-pure) textarea:not(.no-jx-pure, .no-jx-pure *)::placeholder {
+:where(.jx-pure) textarea:where(:not(.no-jx-pure, .no-jx-pure *))::placeholder {
   color: var(--jx-placeholder, color-mix(in oklab, var(--foreground) 40%, var(--background)));
   opacity: 1;
 }
 
-:where(.jx-pure) textarea:not(.no-jx-pure, .no-jx-pure *):hover:not(:disabled) {
+:where(.jx-pure) textarea:where(:not(.no-jx-pure, .no-jx-pure *)):hover:not(:disabled) {
   box-shadow: var(--shadow-2xs);
 }
 
-:where(.jx-pure) textarea:not(.no-jx-pure, .no-jx-pure *):focus-visible {
+:where(.jx-pure) textarea:where(:not(.no-jx-pure, .no-jx-pure *)):focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
   box-shadow: none;
 }
 
-:where(.jx-pure) textarea:not(.no-jx-pure, .no-jx-pure *):disabled {
+:where(.jx-pure) textarea:where(:not(.no-jx-pure, .no-jx-pure *)):disabled {
   opacity: 0.5;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-:where(.jx-pure) textarea:not(.no-jx-pure, .no-jx-pure *)[aria-invalid='true'] {
+:where(.jx-pure) textarea:where(:not(.no-jx-pure, .no-jx-pure *))[aria-invalid='true'] {
   border-style: dashed;
 }
 
-:where(.jx-pure) textarea:not(.no-jx-pure, .no-jx-pure *)::-webkit-calendar-picker-indicator {
+:where(.jx-pure) textarea:where(:not(.no-jx-pure, .no-jx-pure *))::-webkit-calendar-picker-indicator {
   -webkit-appearance: none;
   appearance: none;
   box-sizing: border-box;
@@ -1119,11 +1122,11 @@
   background-repeat: no-repeat;
 }
 
-:where(.jx-pure) textarea:not(.no-jx-pure, .no-jx-pure *)[type='time']::-webkit-calendar-picker-indicator {
+:where(.jx-pure) textarea:where(:not(.no-jx-pure, .no-jx-pure *))[type='time']::-webkit-calendar-picker-indicator {
   background-image: var(--jx-icon-clock, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E"));
 }
 
-:where(.jx-pure) textarea:not(.no-jx-pure, .no-jx-pure *)[type='email'] {
+:where(.jx-pure) textarea:where(:not(.no-jx-pure, .no-jx-pure *))[type='email'] {
   padding-inline: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em;
   background-image: var(--jx-icon-mail, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='20' height='16' x='2' y='4' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E"));
   background-position: left 0.6em center;
@@ -1131,7 +1134,7 @@
   background-repeat: no-repeat;
 }
 
-:where(.jx-pure) textarea:not(.no-jx-pure, .no-jx-pure *)[type='search'] {
+:where(.jx-pure) textarea:where(:not(.no-jx-pure, .no-jx-pure *))[type='search'] {
   padding-inline: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em;
   background-image: var(--jx-icon-search, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E"));
   background-position: left 0.6em center;
@@ -1139,7 +1142,7 @@
   background-repeat: no-repeat;
 }
 
-:where(.jx-pure) textarea:not(.no-jx-pure, .no-jx-pure *)[type='search']::-webkit-search-cancel-button {
+:where(.jx-pure) textarea:where(:not(.no-jx-pure, .no-jx-pure *))[type='search']::-webkit-search-cancel-button {
   -webkit-appearance: none;
   appearance: none;
   width: 1.4em;
@@ -1152,12 +1155,12 @@
 }
 
   @media (prefers-reduced-motion: reduce) {
-    :where(.jx-pure) textarea:not(.no-jx-pure, .no-jx-pure *) {
+    :where(.jx-pure) textarea:where(:not(.no-jx-pure, .no-jx-pure *)) {
       transition: none;
     }
   }
 
-:where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *), :where(.jx-pure) select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *) {
+:where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *)), :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *)) {
   --jx-icon-chevron-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   corner-shape: var(--corner-shape, bevel);
   box-sizing: border-box;
@@ -1179,32 +1182,32 @@
   padding-inline-end: calc(var(--jx-inset, 0.75rem) + var(--jx-icon, 1.25rem));
 }
 
-:where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *)::placeholder, :where(.jx-pure) select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *)::placeholder {
+:where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *))::placeholder, :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *))::placeholder {
   color: var(--jx-placeholder, color-mix(in oklab, var(--foreground) 40%, var(--background)));
   opacity: 1;
 }
 
-:where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *):hover:not(:disabled), :where(.jx-pure) select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *):hover:not(:disabled) {
+:where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *)):hover:not(:disabled), :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *)):hover:not(:disabled) {
   box-shadow: var(--shadow-2xs);
 }
 
-:where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *):focus-visible, :where(.jx-pure) select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *):focus-visible {
+:where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *)):focus-visible, :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *)):focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
   box-shadow: none;
 }
 
-:where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *):disabled, :where(.jx-pure) select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *):disabled {
+:where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *)):disabled, :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *)):disabled {
   opacity: 0.5;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-:where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *)[aria-invalid='true'], :where(.jx-pure) select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *)[aria-invalid='true'] {
+:where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *))[aria-invalid='true'], :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *))[aria-invalid='true'] {
   border-style: dashed;
 }
 
-:where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *)::-webkit-calendar-picker-indicator, :where(.jx-pure) select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *)::-webkit-calendar-picker-indicator {
+:where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *))::-webkit-calendar-picker-indicator, :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *))::-webkit-calendar-picker-indicator {
   -webkit-appearance: none;
   appearance: none;
   box-sizing: border-box;
@@ -1218,11 +1221,11 @@
   background-repeat: no-repeat;
 }
 
-:where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *)[type='time']::-webkit-calendar-picker-indicator, :where(.jx-pure) select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *)[type='time']::-webkit-calendar-picker-indicator {
+:where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *))[type='time']::-webkit-calendar-picker-indicator, :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *))[type='time']::-webkit-calendar-picker-indicator {
   background-image: var(--jx-icon-clock, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E"));
 }
 
-:where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *)[type='email'], :where(.jx-pure) select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *)[type='email'] {
+:where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *))[type='email'], :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *))[type='email'] {
   padding-inline: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em;
   background-image: var(--jx-icon-mail, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='20' height='16' x='2' y='4' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E"));
   background-position: left 0.6em center;
@@ -1230,7 +1233,7 @@
   background-repeat: no-repeat;
 }
 
-:where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *)[type='search'], :where(.jx-pure) select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *)[type='search'] {
+:where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *))[type='search'], :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *))[type='search'] {
   padding-inline: calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em;
   background-image: var(--jx-icon-search, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E"));
   background-position: left 0.6em center;
@@ -1238,7 +1241,7 @@
   background-repeat: no-repeat;
 }
 
-:where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *)[type='search']::-webkit-search-cancel-button, :where(.jx-pure) select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *)[type='search']::-webkit-search-cancel-button {
+:where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *))[type='search']::-webkit-search-cancel-button, :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *))[type='search']::-webkit-search-cancel-button {
   -webkit-appearance: none;
   appearance: none;
   width: 1.4em;
@@ -1251,13 +1254,13 @@
 }
 
   @media (prefers-reduced-motion: reduce) {
-    :where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *), :where(.jx-pure) select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *) {
+    :where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *)), :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *)) {
       transition: none;
     }
   }
 
   @supports not selector(::-moz-range-progress) {
-    :where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *), :where(.jx-pure) select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *) {
+    :where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *)), :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *)) {
       appearance: none;
       -webkit-appearance: none;
       background-image: var(--jx-icon-chevron, var(--jx-icon-chevron-svg));
@@ -1265,12 +1268,12 @@
       background-size: var(--jx-icon, 1.25rem);
       background-repeat: no-repeat;
     }
-    :where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *):hover:not(:disabled), :where(.jx-pure) select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *):hover:not(:disabled) {
+    :where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *)):hover:not(:disabled), :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *)):hover:not(:disabled) {
       filter: none;
     }
   }
 
-:where(.jx-pure) select:not(.no-jx-pure, .no-jx-pure *):where([multiple], [size]), :where(.jx-pure) select:where([multiple], [size]):not(.no-jx-pure, .no-jx-pure *):where([multiple], [size]) {
+:where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *)):where([multiple], [size]), :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *)):where([multiple], [size]) {
   min-height: 5.75rem;
   padding-block: 0.375rem 0.5rem;
   cursor: default;

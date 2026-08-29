@@ -748,12 +748,18 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
    U = --jx-unit (4px), T = --jx-text-base (13px).
    Four densities (xs/sm/default/lg) with REAL differentiation:
    text 11/12/13/15px, lines 16/18/20/24px, rows 28/32/40/48px.
+   Hit floor (Owner ruling, 2026-08-29 "彻底跟字"): the hit lane
+   tracks the type scale; the 11U (44px) touch-first clamp is
+   retired — the max() law survives as a guardrail at 7U (28px,
+   above the WCAG 2.5.8 AA 24px lane floor), which never binds at
+   the current row-min values (28/32/40/48).
    Scopes exist ONLY here (and the byte-identical mirror) — never in
    component css; components consume the inherited --jx-* aliases.
    ============================================================ */
 :root {
   --jx-unit: 0.25rem;        /* U = 4px at the 16px root */
   --jx-text-base: 0.8125rem; /* T_base = 13px */
+  --jx-hit-floor: calc(var(--jx-unit) * 7); /* 28px guardrail, not a clamp */
 
   --jx-density-text-xs: calc(var(--jx-text-base) - calc(var(--jx-unit) / 2));
   --jx-density-text-sm: calc(var(--jx-text-base) - calc(var(--jx-unit) / 4));
@@ -827,10 +833,10 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
     calc(var(--jx-unit) * var(--jx-density-row-floor-lg))
   );
 
-  --jx-density-hit-min-xs: max(var(--jx-density-row-min-xs), calc(var(--jx-unit) * 11));
-  --jx-density-hit-min-sm: max(var(--jx-density-row-min-sm), calc(var(--jx-unit) * 11));
-  --jx-density-hit-min-default: max(var(--jx-density-row-min-default), calc(var(--jx-unit) * 11));
-  --jx-density-hit-min-lg: max(var(--jx-density-row-min-lg), calc(var(--jx-unit) * 11));
+  --jx-density-hit-min-xs: max(var(--jx-density-row-min-xs), var(--jx-hit-floor));
+  --jx-density-hit-min-sm: max(var(--jx-density-row-min-sm), var(--jx-hit-floor));
+  --jx-density-hit-min-default: max(var(--jx-density-row-min-default), var(--jx-hit-floor));
+  --jx-density-hit-min-lg: max(var(--jx-density-row-min-lg), var(--jx-hit-floor));
 
   --jx-density-media-icon-xs: var(--jx-density-line-xs);
   --jx-density-media-icon-sm: var(--jx-density-line-sm);
@@ -1813,6 +1819,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   min-height: calc(var(--jx-hit, 2.5rem) - 2px);
   min-width: 0;
   border: 0;
+  padding: 0;
   outline: none;
   background: transparent;
   color: var(--foreground);

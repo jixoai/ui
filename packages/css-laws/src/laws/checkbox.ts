@@ -11,7 +11,7 @@ export const checkboxLaw: ComponentLaw = {
   name: 'checkbox',
   application: {
     className: 'jx-html-checkbox',
-    elementSelector: "input[type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *)",
+    elementSelector: "input:where([type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *))",
     scoped: true,
   },
   base: {

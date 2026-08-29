@@ -12,7 +12,7 @@ export const switchLaw: ComponentLaw = {
   name: 'switch',
   application: {
     className: 'jx-html-switch',
-    elementSelector: "input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *)",
+    elementSelector: "input:where([type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *))",
     scoped: true,
   },
   base: {
