@@ -1,0 +1,115 @@
+# ghostty-term — the live terminal surface, powered by libghostty-vt wasm
+
+## Why
+jixoai 的理念：我们能做到的，就别让用户自己去组装 (Owner directive,
+2026-08-28)。今天一个 SvelteKit 站点想要"真正的终端面"（文档演示、web
+shell、日志流），只能自己在 xterm.js + canvas + 字体 + pty 管线里组装。
+Ghostty 上游已经在 GitHub releases 发布 `ghostty-vt.wasm`
+（libghostty-vt 的 wasm 构建：VT 解析内核 + render-state 脏行迭代 +
+key/mouse 编码器 + 快照，~981KB，`ghostty-vt-small.wasm` ~711KB）。我们把
+它接进 jixoai 体系，交付一个 `ghostty-term` 组件：消费者 `shadcn add`
++ 装一个 vite 插件，即得到一块活的终端画布。
+
+Owner 提出的两个直接问题，本 change 给出答案：
+
+1. **vite@8 会自动识别 wasm 并迁移到 dist 吗？** — wasm 不在
+   vite@8 的默认资产类型表（`KNOWN_ASSET_TYPES` 无 wasm，8.2.2 源码
+   核验）；裸 `import './x.wasm'` 由专用 `vite:wasm-helper` 生成
+   **自动实例化 glue**（实测两变体 import 表为空，裸 import 可用
+   ——但文件必须在模块图内、失去 URL 与加载时机控制）、`?init` 给
+   init 函数（vite 8 起支持 Node runtime 的 SSR）、`?url` 显式给
+   URL——三者都会把文件 emit 进 dist；但**模块图外的文件**（CI 抓
+   取、运行时拼 URL）一概不搬运，SSR 构建默认也不 emit 客户端资产。
+   所以必须有插件：dev 中间件 + build `emitFile` + 把 URL 交给代码
+   的虚拟模块。这正是 `packages/vite-plugin` 的存在意义（design.md
+   D1/D3）。
+2. **components 分组方式** — 新设 `terminal` 分组（品牌原生面），
+   `ghostty-term` 入驻，并把散落的 `terminal-card`（data-display）、
+   `terminal-header` / `terminal-footer`（layout）迁入，导航与目录由
+   CATALOG 自动派生（design.md D6，含冻结的迁移计数与全部触及面）。
+
+## What Changes
+
+- **`packages/vite-plugin`（新 npm 包 `@jixoai/vite-plugin`）** —
+  `jixoaiGhostty()` vite 插件：解析 wasm 来源（env 覆盖 → sha256 校验
+  缓存 → 按 pin 下载并校验），dev 以中间件伺服，build 以 `emitFile`
+  落进 dist（hash 即 sha256 前缀，天然长缓存），并向组件暴露虚拟模块
+  `virtual:jixoai-ghostty`（`{ url, sha256, variant, buildInfo }`，
+  纯数据、SSR 安全）。零运行时依赖。
+- **ghostty wasm 供给链（GitHub Actions）** — 仓库提交 **pin 清单**
+  （schema 冻结于 design.md D2：每变体独立携带
+  url/sha256/size/buildInfo），二进制不进 git（.gitignore + CI 双
+  护栏）。新 workflow `ghostty-wasm-sync.yml`（定时 + 手动）：下载
+  tip release 的两个变体 → `WebAssembly.validate` + node ABI 冒烟
+  探针（terminal_new / vt_write / render_state 迭代）→ 通过才更新
+  pin 并开 PR。deploy 构建 `actions/cache` 按 sha256 键缓存 wasm，
+  命中即零下载且仍校验；miss/驱逐时经受控且校验的网络路径重下载。
+- **存量修复：`color-utils` item + color-picker 断裂** —
+  `registry/files/lib/color-utils.ts` 现为 unreferencedLib 且
+  `color-picker` 源码 import 它却无人承载（干净安装缺文件）。本
+  change 建 `color-utils`（registry:lib）item，`color-picker` 与
+  `ghostty-term` 都声明依赖，shadcn add 探针回归锁定。
+  （color-picker 源码还 import 了 input/native-select/
+  press-button/surface-motion/density 等未声明项——**存量欠账，
+  本 change 不扩权处理**，列为后续 registry 依赖审计 change 的
+  输入；探针场景按「其余前置依赖已就位，仅回归 color-utils」
+  冻结。）
+- **`ghostty-vt`（registry:lib，framework-free）** — wasm ABI 绑定层：
+  运行时解析 `ghostty_type_json()` 类型布局（零硬编码 offset，抗 ABI
+  漂移），封装 terminal 生命周期 / vt_write / resize /
+  render-state 脏行与单元格迭代（含 style/grapheme/hyperlink）/
+  key 编码 / paste 安全门 / build_info。`loadGhosttyVT({ url | bytes })`
+  显式注入来源——lib 本体不 import 虚拟模块，node 可测。
+- **`ghostty-term`（registry:ui，Svelte 5）** — canvas 2D 渲染器：
+  DPR 感知单元格网格、脏行重绘、SGR 基本面（bold/italic/underline/
+  reverse/fg/bg/调色板）、宽字符与 grapheme、JetBrains Mono
+  （theme 既有依赖）+ `document.fonts.ready` 后首测、OKLCH token →
+  canvas sRGB（复用 `lib/color-utils.ts`）、ResizeObserver →
+  cols/rows → `terminal_resize`、键盘 → key encoder → `onData` 字节
+  回调（pty 是消费者的线）、paste 走 `ghostty_paste_is_safe`、
+  viewport 滚动走 `terminal_scroll_viewport`。遵守既有法则：
+  native-element-first（canvas 即原生元素）、`data-jx-ghostty-term`
+  钩子、composition-first props、density 内核参与（design.md D5）。
+- **分组迁移** — `terminal` 组：`ghostty-term`（新）+ `terminal-card`
+  + `terminal-header` + `terminal-footer`（迁入）；registry.json
+  `meta.group` + www `CATALOG_GROUPS` 各一行级改动，href 不变。
+- **www 集成** — apps/www 装插件（npm `file:` 依赖——插件本身 CI 零网络；wasm 缓存
+miss 时经受控网络路径重下载，见 design.md D2）、
+  same-source 镜像新文件、mirror manifest 再生、新文档页 + 回环
+  demo pty（页面内 canned VT 场景 + 输入回显，无网络依赖）。
+
+## Non-goals（V1 明确不做）
+
+鼠标上报、OSC 52 / hyperlink 交互 UI、快照恢复 UI、scrollback 完整
+交互（V1 仅 viewport 滚动）、kitty 图片、搜索、ligature（mono 网格按
+cell 绘制）。留待后续 change，避免首期失焦。
+
+## Verification highlights
+
+- 插件：vitest —— build emit 断言（vite `build()` 编程调用，dist
+  真实文件名）、dev 中间件 fetch 断言、sha256 不匹配报错、env
+  覆盖、vite native 行为 fixture（裸/`?url`/`?init`/publicDir）、
+  虚拟模块 client 类型契约（www vite-env.d.ts fixture +
+  svelte-check 绿）。
+- 绑定层：node 直载 bytes —— plain-text formatter 黄金输出、脏行迭代
+  形状、Enter 键编码黄金值、type_json 解析。
+- 组件：jsdom 逻辑级（网格度量、resize 映射）+ 站点构建后
+  playwright/computed 探针 + ZCode 内置浏览器真实渲染验收（像素级
+  文本呈现、暗色 token、resize 行为）。
+- 安装链：shadcn add 探针双向 —— ghostty-term（ghostty-vt +
+  jixoai-theme + utils + color-utils + density 连带、无二进制
+  payload）与
+  color-picker（其余前置依赖就位时 color-utils 连带回归）。
+- 供给链：workflow probe（validate + 空导入表 + 导出族 + ABI 冒烟）
+  通过才更新 pin；verify:ghostty-pin（schema/origin/allowlist/
+  流式上限/tracked wasm 为零）。
+- 既有门禁：svelte-check（255 = main 基线，本 change 增量 0）/
+  vitest / verify:mirror / build:site / docs-structure 快照更新 全绿；
+  verify:surface 与 verify:hook-law 在 origin/main 即各有既有失败
+  （46/47 与 3 处，均为存量欠账、非本 change 引入——本 change 不以
+  「全绿」冒认，只承诺不新增失败，实测与基线一致）。
+
+## Codex
+
+Phase 0 change 文档冻结评审（本 change 的门），实现里程碑按标准闭环
+（review-rN.md 归档）。

@@ -47,7 +47,7 @@ imports stay folder-relative and are never promoted to public API),
 and the item's colocated css when the css-architecture law requires
 one. The canonical main is machine-resolved by ONE normative source:
 the committed `apps/www/mirror-manifest.json` carries, per
-`registry:ui` item, exactly one `canonicalMainSource` (+ its consumer
+`registry:ui` item, exactly one `canonicalMain` (+ its consumer
 target) — same-name `.svelte` entries are script-derivable defaults,
 non-identical ones (toast → `toast-viewport.svelte`) MUST be
 explicit; the manifest check FAILS on missing, duplicate,
@@ -57,33 +57,94 @@ index/target generator reads ONLY that field. `registry:lib`,
 and targets (`registry/files/lib/**` → `@lib/...`,
 `registry/files/theme/**` → `@lib/...`). A UI item referencing a
 SHARED lib file (e.g. `code-card` → `lib/shiki.ts`, `toast` →
-`lib/toast-store.ts`) keeps that file at its canonical `@lib` target —
-decided per-file by the P0.3 migration mapping table (canonical owner,
-consumer target, move-vs-dependency) — so shared-library install
-contracts do not silently change. Inter-item dependencies use
-`registryDependencies`; npm package dependencies use the item
-`dependencies` field (precedent: shiki, @tanstack/svelte-virtual).
-Component (`registry:ui`) items carry a documented install
-prerequisite: Tailwind v4 PLUS the jixoai token sheet wired into the
-consumer's single CSS entry — the canonical consumer entry setup order
-is `@import 'tailwindcss'` → jixoai theme import → (optional)
-jx-pure import; utility-authored UI items SHALL declare
-`@jixoai/jixoai-theme` in `registryDependencies` uniformly so the
-token sheet arrives with the component, and the setup doc +
+`lib/toast-store.ts`, `ghostty-term` → `lib/ghostty-vt.ts`) keeps
+that file at its canonical `@lib` target — decided per-file by the
+P0.3 migration mapping table (canonical owner, consumer target,
+move-vs-dependency) — so shared-library install contracts do not
+silently change. Inter-item dependencies use `registryDependencies`;
+npm package dependencies use the item `dependencies` field (precedent:
+shiki, @tanstack/svelte-virtual). Component (`registry:ui`) items
+carry a documented install prerequisite: Tailwind v4 PLUS the jixoai
+token sheet wired into the consumer's single CSS entry — the canonical
+consumer entry setup order is `@import 'tailwindcss'` → jixoai theme
+import → (optional) jx-pure import; utility-authored UI items SHALL
+declare `@jixoai/jixoai-theme` in `registryDependencies` uniformly so
+the token sheet arrives with the component, and the setup doc +
 `scripts/check-tw4-prereq.mjs` detection (scoped to `registry:ui`
 consumers, failure message names the missing requirement) enforce the
-entry wiring. The `jixoai-theme` item's own npm dependency closure
-MUST be declared: its css imports
+entry wiring. Items whose runtime needs a build-time-resolved binary
+asset (the wasm-asset prerequisite, 2026-08-28: `ghostty-term` →
+`ghostty-vt.wasm`) SHALL NOT ship the binary through the registry
+payload; the item documents the `@jixoai/vite-plugin` wiring as an
+install prerequisite of equal rank to the tw4 law (per the
+build-plugins spec), and the asset URL reaches the component through
+that plugin's virtual module (`virtual:jixoai-ghostty`), never
+through a hand-placed file. The install chain of a wasm-consuming
+item is frozen the same way as every dependency edge: `ghostty-term`
+declares `registryDependencies = ["@jixoai/ghostty-vt",
+"@jixoai/jixoai-theme", "@jixoai/utils", "@jixoai/color-utils",
+"@jixoai/density"]` (density joined the frozen set in the impl
+review: the component imports `$lib/density.svelte` for
+resolveDensity/stamps, the list-item precedent),
+and the `ghostty-vt` and `color-utils` lib items declare zero npm
+`dependencies` (the bindings use only global web platform APIs); a
+real `shadcn add` probe asserts the chain lands all dependencies with
+no binary payload. A new `color-utils` lib item (engines group,
+canonical `@lib/color-utils.ts`) gives the previously unreferenced
+`registry/files/lib/color-utils.ts` an owning item AND repairs the
+pre-existing break where `color-picker`'s registry source imports
+`$lib/color-utils` that no item shipped — `color-picker` gains
+`@jixoai/color-utils` in its `registryDependencies`, and the shadcn
+add probe covers BOTH `ghostty-term` and `color-picker` installs.
+The `jixoai-theme` item's own npm
+dependency closure MUST be declared: its css imports
 `@fontsource-variable/jetbrains-mono` + `@fontsource/share-tech-mono`,
 so both MUST be in the item's `dependencies` (clean consumers resolve
-the theme css; today the packages exist only in apps/www).
-Theme/lib/engine items stay framework-free. Consumer
-installability of the folder shape MUST be proven by real
-`shadcn add` probes before migration (P0.2: the multi-file accordion +
-toast — toast covers the non-identical-main AND item-shipped
-canonical `@lib` file paths; code-card's npm/registry dependency
-chain is asserted in the P0.3 mapping + P1 full gate), not inferred
-from `shadcn build` output.
+the theme css; today the packages exist only in apps/www). Theme/
+lib/engine items stay framework-free — a lib item that binds a wasm
+ABI (`ghostty-vt`) stays framework-free by taking its wasm source as
+an explicit `loadGhosttyVT({ url | bytes })` argument instead of
+importing the virtual module (the virtual-module contract belongs to
+the ui item layer). Consumer installability of the folder shape MUST
+be proven by real `shadcn add` probes before migration (P0.2: the
+multi-file accordion + toast — toast covers the non-identical-main
+AND item-shipped canonical `@lib` file paths; code-card's npm/registry
+dependency chain is asserted in the P0.3 mapping + P1 full gate), not
+inferred from `shadcn build` output.
+
+#### Scenario: consumer installs an item needing a wasm asset
+
+- GIVEN a consumer with the `@jixoai` namespace and
+  `jixoaiGhostty()` wired in vite
+- WHEN `npx shadcn add @jixoai/ghostty-term` runs
+- THEN the component folder and the shared `@lib/ghostty-vt.ts` land
+  at their canonical targets (all five frozen registryDependencies —
+  `@jixoai/ghostty-vt`, `@jixoai/jixoai-theme`, `@jixoai/utils`,
+  `@jixoai/color-utils`, `@jixoai/density` — arrive with it) with NO
+  binary payload in the registry JSON, and the component resolves the
+  wasm at runtime through the plugin's virtual module
+
+#### Scenario: the color-utils item repairs color-picker's install
+
+- GIVEN a consumer fixture with color-picker's OTHER runtime
+  prerequisites already present (its under-declared import graph —
+  input, native-select, press-button, surface-motion, density — is a
+  PRE-EXISTING condition, out of this change's scope and flagged as
+  input for a follow-up registry dependency-audit change)
+- WHEN `npx shadcn add @jixoai/color-picker` runs after this change
+- THEN `@jixoai/color-utils` arrives via its new registryDependencies
+  entry and the installed component resolves that import — the
+  color-utils half of the clean-install break is repaired and locked
+  by the shadcn add probe
+
+#### Scenario: wasm prerequisite missing is named, not mysterious
+
+- GIVEN a consumer who installed `ghostty-term` but did NOT wire the
+  vite plugin
+- WHEN their build runs
+- THEN the failure path is documented on the item's docs page (the
+  install-prerequisite section names `@jixoai/vite-plugin` and the
+  one-line fix), mirroring the tw4-prerequisite law
 
 #### Scenario: consumer installs a multi-file item
 
@@ -106,7 +167,7 @@ from `shadcn build` output.
   `@lib/toast-store.ts`)
 - WHEN `shadcn add @jixoai/toast` runs
 - THEN the UI folder lands under `$lib/ui/toast/**` with the index
-  default export pointing at the manifest's `canonicalMainSource`
+  default export pointing at the manifest's `canonicalMain`
   (`toast-viewport.svelte`), AND the shared file lands at its
   canonical `@lib` target, without duplication or clobbering (proven
   by the second P0.2 fixture)
@@ -169,3 +230,33 @@ Consumers register the namespace
 Svelte 5 is first-class (all jixoai sites are SvelteKit); the engine and
 theme items are framework-free so non-Svelte consumers can still install
 `jixoai-theme` / `toc-engine` / `jx-pure`.
+
+### Requirement: catalog groups are the display taxonomy
+
+registry.json `meta.group` values SHALL form the single display
+taxonomy mirrored by `apps/www` `CATALOG_GROUPS` (label + description
+per id, antd-style functional naming), and the docs navigation
+derives from it automatically. The `terminal` group (2026-08-28) is
+the brand's native-surface family: `ghostty-term` (live terminal
+canvas), plus `terminal-card`, `terminal-header`, `terminal-footer`
+migrated in from `data-display` / `layout`. Item hrefs and payload
+names do NOT change on group migration — a group move is a
+`meta.group` field edit plus the CATALOG_GROUPS mirror row, nothing
+else.
+
+#### Scenario: adding the terminal group
+
+- GIVEN ghostty-term authored under `registry/files/ui/ghostty-term/`
+- WHEN the item is declared with `meta.group: "terminal"` and
+  `CATALOG_GROUPS` gains the row after `general`
+- THEN the docs nav, the components index grouping, and per-group
+  counts regenerate without manual page edits, and the three
+  terminal-* items appear under the same group with unchanged hrefs
+
+#### Scenario: group snapshot stays truthful
+
+- GIVEN the frozen docs-structure test snapshot counts groups and
+  items
+- WHEN a group is added or items migrate groups
+- THEN the snapshot is updated in the same change and the
+  reading-chain coverage test still covers every ui item

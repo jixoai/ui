@@ -1,0 +1,2 @@
+# Build output (CI runs `npm ci && npm run build` before pack/publish).
+dist/

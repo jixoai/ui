@@ -1,0 +1,186 @@
+name: Ghostty wasm pin sync
+
+# Keeps packages/vite-plugin/ghostty.pin.json pinned to probe-verified
+# upstream ghostty-org/ghostty release assets (ghostty-term change,
+# design.md D2: pin manifest + GitHub Actions; binaries never enter git).
+#
+# Mechanism:
+# - Weekly (Monday 03:00 UTC) + manual dispatch. The pinned "tip" release
+#   is the only ghostty release carrying wasm and its assets are replaced
+#   nightly, so the pin tracks content hashes, not the release object
+#   (tip's publishedAt is frozen in 2022 and useless as a version).
+# - Gate order is load-bearing: BOTH variants are downloaded from the
+#   current pin URLs and must pass the jixoai-ghostty-probe ABI sentinel
+#   (WebAssembly.validate + required-export superset + empty import face
+#   + type_json instantiation smoke + simd128) BEFORE any pin mutation.
+#   Any probe failure fails the job with the committed pin untouched —
+#   a broken nightly never enters this repo.
+# - A candidate pin counts as changed only when source or variants
+#   differ (a fresh pinnedAt alone is never a change): no drift = quiet
+#   no-op; drift = pull request on automation/ghostty-pin-update,
+#   updated in place while one stays open (create-pull-request reuses
+#   the branch). No secrets: everything runs on the default GITHUB_TOKEN.
+# - The repo's only supply-chain artifact is the text pin manifest
+#   (reviewable, revertable, auditable). Merging the PR is the Owner's
+#   human review point: sha256 gives integrity, authenticity rides on
+#   the fixed ghostty-org release URLs plus this merge gate.
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ghostty-pin
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Probe upstream assets, propose pin update PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: packages/vite-plugin/package-lock.json
+
+      # Self-contained npm project (own lockfile + devDeps); builds
+      # dist/probe.js, the jixoai-ghostty-probe bin.
+      - name: Build the probe (packages/vite-plugin)
+        run: npm ci && npm run build
+        working-directory: packages/vite-plugin
+
+      - name: Download both pinned variants (hardened resolver) and run the ABI probe
+        working-directory: packages/vite-plugin
+        env:
+          RUNNER_TMP: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          # Same hardened download path every consumer build uses (design
+          # D2): https-only, canonical download-URL structure checked
+          # against pin.source.tag, per-hop host allowlist, 5-hop redirect
+          # budget, 30s timeout, streaming 4MiB cap. NOT
+          # resolveGhosttyWasm(): that entry point verifies bytes against
+          # the CURRENT pin, which would turn the nightly drift this
+          # workflow exists to detect into a hard failure — download
+          # integrity here is the probe's sha256 (the bytes it hands to
+          # the pin candidate are hashed by the probe below).
+          node --input-type=module <<'EOF'
+          import { writeFile } from 'node:fs/promises';
+
+          const { readPin } = await import('./dist/pin.js');
+          const { downloadPinnedAsset } = await import('./dist/resolve.js');
+
+          const tmp = process.env.RUNNER_TMP;
+          const pin = await readPin();
+          const assets = { full: 'ghostty-vt.wasm', small: 'ghostty-vt-small.wasm' };
+          for (const variant of ['full', 'small']) {
+            console.log(`${variant} <- ${pin.variants[variant].url}`);
+            const bytes = await downloadPinnedAsset(pin.variants[variant].url, pin, variant);
+            await writeFile(`${tmp}/${assets[variant]}`, bytes);
+            console.log(`${variant}: ${bytes.byteLength} bytes via the hardened resolver`);
+          }
+          EOF
+          # Probe gate: any failure here fails the job and the pin stays
+          # untouched. stdout per variant = {variant, sha256, size, buildInfo}.
+          node dist/probe.js --wasm "$RUNNER_TMP/ghostty-vt.wasm" --variant full --json > "$RUNNER_TMP/probe-full.json"
+          node dist/probe.js --wasm "$RUNNER_TMP/ghostty-vt-small.wasm" --variant small --json > "$RUNNER_TMP/probe-small.json"
+          cat "$RUNNER_TMP/probe-full.json" "$RUNNER_TMP/probe-small.json"
+
+      - name: Assemble the candidate pin (no-op when identical)
+        id: candidate
+        working-directory: packages/vite-plugin
+        env:
+          RUNNER_TMP: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'EOF'
+          import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
+
+          const tmp = process.env.RUNNER_TMP;
+          const outputs = process.env.GITHUB_OUTPUT;
+          const pinPath = 'ghostty.pin.json';
+          const current = JSON.parse(readFileSync(pinPath, 'utf8'));
+          const probed = (name) => JSON.parse(readFileSync(`${tmp}/probe-${name}.json`, 'utf8'));
+
+          const variant = (name) => ({
+            url: current.variants[name].url,
+            sha256: probed(name).sha256,
+            size: probed(name).size,
+            buildInfo: probed(name).buildInfo,
+          });
+          const next = {
+            pinnedAt: new Date().toISOString().replace(/\.\d+Z$/, 'Z'),
+            source: current.source,
+            variants: { full: variant('full'), small: variant('small') },
+          };
+
+          // pinnedAt alone is never a change: only source + variants decide.
+          const changed =
+            JSON.stringify(next.source) !== JSON.stringify(current.source) ||
+            JSON.stringify(next.variants) !== JSON.stringify(current.variants);
+
+          appendFileSync(outputs, `changed=${changed ? 'true' : 'false'}\n`);
+          appendFileSync(outputs, `full8=${next.variants.full.sha256.slice(0, 8)}\n`);
+          appendFileSync(outputs, `small8=${next.variants.small.sha256.slice(0, 8)}\n`);
+
+          if (changed) {
+            // Field order mirrors the committed manifest: pinnedAt,
+            // source{repo,tag,releaseUrl}, variants{full,small} each
+            // {url,sha256,size,buildInfo}; 2-space indent + trailing newline.
+            writeFileSync(pinPath, `${JSON.stringify(next, null, 2)}\n`);
+          }
+
+          const row = (name) => {
+            const from = current.variants[name].sha256.slice(0, 8);
+            const to = next.variants[name].sha256.slice(0, 8);
+            return `| ${name} | \`${from}\` -> \`${to}\` | ${next.variants[name].size} | \`${next.variants[name].buildInfo}\` |`;
+          };
+          const body = [
+            'Automated pin sync from the `ghostty-wasm-sync` workflow.',
+            '',
+            `Source release: ${current.source.releaseUrl} (tag \`${current.source.tag}\` — rolling release whose assets are replaced nightly).`,
+            '',
+            'Both variants were downloaded from the pinned URLs and passed the `jixoai-ghostty-probe` ABI sentinel (WebAssembly.validate, required-export superset, empty import face, type_json-driven instantiation smoke, simd128 compile probe).',
+            '',
+            '| variant | sha256 | size | buildInfo |',
+            '| --- | --- | --- | --- |',
+            row('full'),
+            row('small'),
+            '',
+            'Merging is the only way the pin changes; revert this PR to roll back to the previous assets.',
+          ].join('\n');
+          writeFileSync(`${tmp}/pr-body.md`, body);
+
+          console.log(changed ? 'pin drift detected — candidate pin written' : 'no drift — committed pin is current');
+          EOF
+
+      # Offline self-check AFTER candidate assembly: this workflow is the
+      # pin's only writer, so it cannot gate on the committed manifest
+      # before mutating it — but whatever it proposes (or leaves intact)
+      # must pass the same offline sentinel every other workflow enforces:
+      # valid schema, canonical URLs, zero tracked wasm.
+      - name: Offline pin self-check (committed or candidate manifest)
+        run: node scripts/verify-ghostty-pin.mjs --offline
+
+      - name: No pin drift (quiet no-op)
+        if: steps.candidate.outputs.changed != 'true'
+        run: echo "Pinned wasm assets are current; nothing to propose."
+
+      - name: Open (or update) the pin-update pull request
+        if: steps.candidate.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: automation/ghostty-pin-update
+          title: "chore(ghostty): sync pinned tip wasm (full ${{ steps.candidate.outputs.full8 }}, small ${{ steps.candidate.outputs.small8 }})"
+          body-path: ${{ runner.temp }}/pr-body.md
+          commit-message: "chore(ghostty): sync pinned tip wasm (probe-verified by ghostty-wasm-sync)"
+          delete-branch: true

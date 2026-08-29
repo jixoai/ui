@@ -267,7 +267,7 @@
         "@jixoai/navigation-menu"
       ],
       "meta": {
-        "group": "layout",
+        "group": "terminal",
         "href": "/docs/components/terminal-header.html"
       }
     },
@@ -305,7 +305,7 @@
         "@jixoai/jixoai-theme"
       ],
       "meta": {
-        "group": "layout",
+        "group": "terminal",
         "href": "/docs/components/terminal-footer.html"
       }
     },
@@ -417,6 +417,48 @@
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "ghostty-term",
+      "type": "registry:ui",
+      "title": "Ghostty term",
+      "description": "The brand's live terminal surface: a DPR-aware canvas grid rendered by the real libghostty-vt wasm with rAF-batched dirty-row painting, density-derived cell metrics (--jx-text/--jx-line), auto (ResizeObserver) or explicit cols/rows sizing, and the onData input bridge (keyEncode, paste-gated, wheel scroll). Shell paper/ink resolve from jixoai terminal tokens; ANSI/256/truecolor content colors pass through verbatim. wasm url comes from the virtual:jixoai-ghostty plugin module or the wasmUrl prop; load failure degrades to data-state=error with a terminal-styled fallback (children slot owns the face).",
+      "files": [
+        {
+          "path": "registry/files/ui/ghostty-term/ghostty-term.svelte",
+          "target": "@ui/ghostty-term/ghostty-term.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/ghostty-term/index.ts",
+          "target": "@ui/ghostty-term/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/ghostty-term/ghostty-term.css",
+          "target": "@ui/ghostty-term/ghostty-term.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/ghostty-term/vt-deps.ts",
+          "target": "@ui/ghostty-term/vt-deps.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: cols, rows, auto (default true; explicit cols/rows fixes the grid), fontSize (px, finite positive), wasmUrl, theme {background,foreground}, onData(bytes), onResize({cols,rows}), density, class, children (overlay + error-face owner), ...rest. bind:this: write(bytes) / reset() / resizeTo(cols,rows) / snapshot(). Install prerequisite: the jixoai vite plugin (virtual:jixoai-ghostty).",
+      "meta": {
+        "group": "terminal",
+        "href": "/docs/components/ghostty-term.html"
+      },
+      "registryDependencies": [
+        "@jixoai/ghostty-vt",
+        "@jixoai/jixoai-theme",
+        "@jixoai/utils",
+        "@jixoai/color-utils",
+        "@jixoai/density"
+      ],
+      "dependencies": []
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "terminal-card",
       "type": "registry:ui",
       "title": "Terminal card",
@@ -440,7 +482,7 @@
       ],
       "docs": "Props: barTitle, command, outputs: readonly string[].",
       "meta": {
-        "group": "data-display",
+        "group": "terminal",
         "href": "/docs/components/terminal-card.html"
       },
       "registryDependencies": [
@@ -1271,7 +1313,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/jx-pure",
+        "@jixoai/color-utils"
       ]
     },
     {
@@ -2870,6 +2914,48 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme"
       ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "ghostty-vt",
+      "type": "registry:lib",
+      "title": "ghostty-vt wasm binding",
+      "description": "Framework-free WebAssembly binding for libghostty-vt with an xterm.js-convention Terminal facade: init() loads the shared wasm core, new Terminal({cols, rows, cursorBlink, cursorStyle}) speaks write/writeln/paste/resize/reset/clear/scrollLines, disposable onData/onResize, getSelection/hasSelection/clearSelection, and renderer-facing extensions (dirtyRows, readCursor, handleKey). Under the facade the raw ABI core stays first-class: every struct offset, enum value and cell bit parsed at load time from ghostty_type_json() — zero hardcoded offsets, immune to nightly ABI drift. Cursor (DECSCUSR + OSC 12 color), drag/word/line selection gestures, paste gate, base64 snapshots, typed GhosttyVTError.",
+      "files": [
+        {
+          "path": "registry/files/lib/ghostty-vt.ts",
+          "target": "@lib/ghostty-vt.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "await init({ url }) from the virtual:jixoai-ghostty module (or pass a core for test isolation). const term = new Terminal(); term.write(ptyBytes); term.onData(s => sendToPty(s)); paint from term.dirtyRows() + term.readCursor(); keys via term.handleKey(KeyboardEvent); selection via getSelection(). xterm.js users: the facade maps 1:1 to the API you know; dirtyRows/readCursor are the renderer extensions.",
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components/ghostty-term.html"
+      },
+      "registryDependencies": [],
+      "dependencies": []
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "color-utils",
+      "type": "registry:lib",
+      "title": "OKLCH color utilities",
+      "description": "Framework-free color math for the jixoai token sheet: parseColor (hex/hsl/oklch), oklchToRgb / rgbToOklch round-trips, hsv bridges, formatColor for any output format, and the contrast/luminance helpers UI surfaces need when painting into non-CSS contexts (canvas, wasm bridges, satori).",
+      "files": [
+        {
+          "path": "registry/files/lib/color-utils.ts",
+          "target": "@lib/color-utils.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "import { parseColor, oklchToRgb, formatColor } from '$lib/color-utils'. Content colors stay verbatim; only shell/theme colors cross the OKLCH→sRGB bridge.",
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components/color-picker.html"
+      },
+      "registryDependencies": [],
+      "dependencies": []
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",

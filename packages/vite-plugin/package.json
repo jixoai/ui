@@ -1,0 +1,57 @@
+{
+  "name": "@jixoai/vite-plugin",
+  "version": "0.1.0",
+  "description": "Vite plugin supplying the pinned ghostty-vt wasm: resolve (env -> cache -> verified download) -> serve (dev middleware) -> emit (content-addressed asset) -> hand over the URL via the virtual:jixoai-ghostty module. Ships the jixoai-ghostty-probe ABI sentinel bin.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "jixoai-ghostty-probe": "./dist/probe.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "ghostty.pin.json",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "prepack": "npm run build"
+  },
+  "peerDependencies": {
+    "vite": "^8.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsdown": "^0.22.14",
+    "typescript": "^5.7.2",
+    "vite": "^8.2.2",
+    "vitest": "^4.1.11"
+  },
+  "sideEffects": false,
+  "keywords": [
+    "jixoai",
+    "vite",
+    "vite-plugin",
+    "ghostty",
+    "wasm",
+    "terminal"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jixoai/ui",
+    "directory": "packages/vite-plugin"
+  }
+}

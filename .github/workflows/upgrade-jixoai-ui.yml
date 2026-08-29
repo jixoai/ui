@@ -59,6 +59,14 @@ jobs:
       - name: Install site deps (apps/www)
         run: npm install --no-fund --no-audit
         working-directory: apps/www
+      # apps/www's file: dependency on @jixoai/vite-plugin resolves to a
+      # gitignored dist/ — the verification build below (build-site.mjs)
+      # imports the plugin from apps/www's vite.config.ts, so build it
+      # first, same explicit step as deploy.yml (the script's own prelude
+      # is only the local-dev fallback).
+      - name: Build @jixoai/vite-plugin
+        run: npm ci && npm run build
+        working-directory: packages/vite-plugin
 
       - name: Poll npm for the published jixoai-ui version
         id: poll

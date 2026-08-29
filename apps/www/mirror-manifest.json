@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-29T07:18:31.686Z",
+  "generatedAt": "2026-08-29T07:33:08.832Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -11,6 +11,7 @@
     "theme-toggle": "registry/files/ui/theme-toggle/theme-toggle.svelte",
     "toc": "registry/files/ui/toc/toc.svelte",
     "website-scaffold": "registry/files/ui/website-scaffold/website-scaffold.svelte",
+    "ghostty-term": "registry/files/ui/ghostty-term/ghostty-term.svelte",
     "terminal-card": "registry/files/ui/terminal-card/terminal-card.svelte",
     "hero-section": "registry/files/ui/hero-section/hero-section.svelte",
     "language-switcher": "registry/files/ui/language-switcher/language-switcher.svelte",
@@ -476,6 +477,41 @@
           "target": "@ui/website-scaffold/index.ts",
           "sourceSha": "c3491fc0e2b51aef88cb06669a56511d3ff7678cda18cefb17c398e85e577f27",
           "mirrorSha": "c3491fc0e2b51aef88cb06669a56511d3ff7678cda18cefb17c398e85e577f27"
+        }
+      ]
+    },
+    {
+      "itemName": "ghostty-term",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/ghostty-term/ghostty-term.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/ghostty-term/ghostty-term.svelte",
+          "mirror": "apps/www/src/lib/ui/ghostty-term/ghostty-term.svelte",
+          "target": "@ui/ghostty-term/ghostty-term.svelte",
+          "sourceSha": "f450f2d0a26a1fe51c8a4e32180fb5f5231bdb15b2b0a20023c181d4605c5c38",
+          "mirrorSha": "f450f2d0a26a1fe51c8a4e32180fb5f5231bdb15b2b0a20023c181d4605c5c38"
+        },
+        {
+          "source": "registry/files/ui/ghostty-term/index.ts",
+          "mirror": "apps/www/src/lib/ui/ghostty-term/index.ts",
+          "target": "@ui/ghostty-term/index.ts",
+          "sourceSha": "a97de80810fb01715acd26fa369b138cb67e8ffc1f745bc5c8095f82fafdb29f",
+          "mirrorSha": "a97de80810fb01715acd26fa369b138cb67e8ffc1f745bc5c8095f82fafdb29f"
+        },
+        {
+          "source": "registry/files/ui/ghostty-term/ghostty-term.css",
+          "mirror": "apps/www/src/lib/ui/ghostty-term/ghostty-term.css",
+          "target": "@ui/ghostty-term/ghostty-term.css",
+          "sourceSha": "0258c1c88e619194294d13618a19596bdfde60c8a5e4f8e84c0b5f9f3d9f13c4",
+          "mirrorSha": "0258c1c88e619194294d13618a19596bdfde60c8a5e4f8e84c0b5f9f3d9f13c4"
+        },
+        {
+          "source": "registry/files/ui/ghostty-term/vt-deps.ts",
+          "mirror": "apps/www/src/lib/ui/ghostty-term/vt-deps.ts",
+          "target": "@ui/ghostty-term/vt-deps.ts",
+          "sourceSha": "9e01fc70fa1996e6f4d1d1535d80a46079feae8b629d0e82127324499e55f2dc",
+          "mirrorSha": "9e01fc70fa1996e6f4d1d1535d80a46079feae8b629d0e82127324499e55f2dc"
         }
       ]
     },
@@ -2628,6 +2664,32 @@
       ]
     },
     {
+      "itemName": "ghostty-vt",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/ghostty-vt.ts",
+          "mirror": "apps/www/src/lib/ghostty-vt.ts",
+          "target": "@lib/ghostty-vt.ts",
+          "sourceSha": "df2a0f714a5bda50b515dbe43b76ff68cf58df577b189fb3e929b93b9ab5935f",
+          "mirrorSha": "df2a0f714a5bda50b515dbe43b76ff68cf58df577b189fb3e929b93b9ab5935f"
+        }
+      ]
+    },
+    {
+      "itemName": "color-utils",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/color-utils.ts",
+          "mirror": "apps/www/src/lib/color-utils.ts",
+          "target": "@lib/color-utils.ts",
+          "sourceSha": "14153dffeabc6084786d519a2d7ed845ef5f1b8cda887efb6aa769a7dfbbb457",
+          "mirrorSha": "14153dffeabc6084786d519a2d7ed845ef5f1b8cda887efb6aa769a7dfbbb457"
+        }
+      ]
+    },
+    {
       "itemName": "scroll-spy",
       "type": "registry:lib",
       "files": [
@@ -2892,10 +2954,6 @@
   ],
   "registryOnly": [],
   "unreferencedLib": [
-    {
-      "path": "registry/files/lib/color-utils.ts",
-      "note": "site-consumed, unreferenced by items"
-    },
     {
       "path": "registry/files/ui/tree-view/tree-view-multiselect.svelte",
       "note": "folded into the tree-view folder (P1); still unreferenced by items — future change either ships it or removes it"
