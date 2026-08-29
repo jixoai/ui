@@ -102,6 +102,24 @@ deterministic in any runtime timezone.
 - AND with no `locale` prop the page's `<html lang>` drives the same
   vocabulary; an explicit `locale` outranks it
 
+### Requirement: the time stepper cells are slider-grade (Owner follow-up, 2026-08-30)
+
+The TimeStepper's numbers SHALL show digits even when the value is
+unset (display-only 00:00; the commit stays undefined until the first
+interaction), and support pointer gestures: the wheel over a group
+steps its number (scroll up = +1), press-drag on a cell steps per
+10px of vertical travel (up increases; the run is
+pointer-captured so sliding off the cell never strands it), and the
+cells wear `cursor: ns-resize` (the vertical-moveable cue). Gestures
+ride the same wrap/mode-aware stepBy path as the buttons and keys.
+
+#### Scenario: dragging the hour cell
+
+- GIVEN a TimeStepper at `05:00`
+- WHEN the hour cell is pressed and dragged 10px up, then 10px more
+- THEN commits are `06:00`, `07:00`; sliding back below the start
+  walks the value back down
+
 ### Requirement: the datetime panel owns the time part
 
 The datetime-local panel SHALL carry a custom time stepper (HH/MM,

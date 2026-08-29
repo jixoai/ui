@@ -18,20 +18,28 @@
      1–2 digits validate (hour ≤ 23, minute ≤ 59) and commit on
      change/blur; invalid or empty input reverts to the committed value.
   5. the hour-format toggle (Owner request, 2026-08-29) — one text-icon
-     button after the MM group cycles 24h → AM → PM → 24h (default 24h;
+     button after the MM group cycles 24h → AM → PM (default 24h;
      the button's glyph IS the current mode). The mode is INPUT-SCALE
-     state: committed values stay 24h "HH:MM" always; AM/PM narrows the
-     hour cell's domain to 1–12 (wrap 12↔1) and rewrites the number on
+     state: committed values stay 24h "HH:MM" always; AM/PM narrows
+     the hour cell's domain to 1–12 (wrap 12↔1) and rewrites the number on
      the boundary crossings per the Owner's literal rules — 24h → AM/PM
      drops hours > 12 by twelve (0 and 12 pass through untouched);
      PM → 24h climbs back + twelve ((h % 12) + 12 maps 1–11 → 13–23 and
      keeps 12 PM at noon's 12). AM → PM flips the meridiem only.
+  6. pointer gestures (Owner request, 2026-08-30) — the numbers are
+     slider-grade. The wheel over a group steps its number (scroll up
+     = +1, down = −1); press-drag on a cell steps per DRAG_PX_PER_STEP
+     of vertical travel (up increases — the slider convention),
+     pointer-captured so a run sliding off the cell never strands;
+     the cells wear cursor:ns-resize (the vertical-moveable cue).
 
-  Conventions: an undefined value renders EMPTY cells (never "--:--"),
-  and the first step starts from 00:00 THEN steps — undefined + hour+
-  commits "01:00", undefined + minute− commits "00:59". disabled locks
-  buttons + cells in lockstep and guards every commit path. The fragment
-  renders NO shell of its own — the host panel bezel owns the chrome.
+  Conventions: an undefined value renders the 00:00 digits (display
+  only — the committed value stays undefined until the first
+  interaction), and the first step starts from 00:00 THEN steps —
+  undefined + hour+ commits "01:00", undefined + minute− commits
+  "00:59". disabled locks buttons + cells in lockstep and guards
+  every commit path. The fragment renders NO shell of its own — the
+  host panel bezel owns the chrome.
 
   Styles follow calendar.svelte exactly: markup token utilities + the
   shared date-picker.css sheet (imported below; the .jx-date-nav-btn
@@ -72,8 +80,11 @@
   }
 
   const time = $derived(parseTime(value));
-  const hourText = $derived(time ? pad2(time.h) : '');
-  const minuteText = $derived(time ? pad2(time.m) : '');
+  // display-only defaults: an undefined value still shows digits (the
+  // Owner's 2026-08-30 catch — empty cells read as broken); commits
+  // stay undefined until the first interaction
+  const hourText = $derived(pad2(time?.h ?? 0));
+  const minuteText = $derived(pad2(time?.m ?? 0));
 
   // ---- the hour-format mode: 24h ↔ AM/PM (see header #5) ---------------
   let mode = $state<'24h' | 'AM' | 'PM'>('24h');
@@ -155,6 +166,46 @@
   // release timers + listeners if the component unmounts mid-hold
   $effect(() => () => stopHold());
 
+  // ---- wheel: scroll up = +1, down = −1 (one step per event) --------
+  function onWheel(part: 'hour' | 'minute', event: WheelEvent): void {
+    if (disabled) return;
+    event.preventDefault(); // the number eats the scroll — the page must not pan
+    stepBy(part, event.deltaY < 0 ? 1 : -1);
+  }
+
+  // ---- press-drag: vertical slider on the cell (up increases) --------
+  const DRAG_PX_PER_STEP = 10;
+  let dragPart: 'hour' | 'minute' | null = null;
+  let dragStartY = 0;
+  let dragApplied = 0;
+
+  function onDragStart(part: 'hour' | 'minute', event: PointerEvent): void {
+    if (disabled || !event.isPrimary || event.button !== 0) return;
+    dragPart = part;
+    dragStartY = event.clientY;
+    dragApplied = 0;
+    // capture keeps the move stream on the cell even off its bounds;
+    // jsdom has no capture API — the guard keeps tests honest
+    (event.currentTarget as HTMLElement).setPointerCapture?.(event.pointerId);
+  }
+
+  function onDragMove(event: PointerEvent): void {
+    if (dragPart == null) return;
+    // up = positive steps (slider convention): travel is start − current
+    const steps = Math.trunc((dragStartY - event.clientY) / DRAG_PX_PER_STEP);
+    const diff = steps - dragApplied;
+    if (diff === 0) return;
+    const direction: 1 | -1 = diff > 0 ? 1 : -1;
+    for (let i = 0; i < Math.abs(diff); i++) stepBy(dragPart, direction);
+    dragApplied = steps;
+  }
+
+  function onDragEnd(event: PointerEvent): void {
+    if (dragPart == null) return;
+    (event.currentTarget as HTMLElement).releasePointerCapture?.(event.pointerId);
+    dragPart = null;
+  }
+
   // ---- direct typing: drafts live only between input and change/blur --
   let hourDraft = $state<string | null>(null);
   let minuteDraft = $state<string | null>(null);
@@ -205,7 +256,7 @@
 </script>
 
 <div data-jx-time class="inline-flex items-center gap-1">
-  <div role="group" aria-label="hour" class="inline-flex items-center">
+  <div role="group" aria-label="hour" class="inline-flex items-center" onwheel={onWheel.bind(null, 'hour')}>
     <button
       type="button"
       data-jx-time-hour-minus
@@ -221,10 +272,14 @@
       type="text"
       inputmode="numeric"
       maxlength="2"
-      class="w-8 h-7 box-border bg-transparent border border-transparent text-center tabular-nums leading-none outline-none text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1 disabled:cursor-not-allowed disabled:opacity-30"
+      class="w-8 h-7 box-border bg-transparent border border-transparent text-center tabular-nums leading-none outline-none cursor-ns-resize text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1 disabled:cursor-not-allowed disabled:opacity-30"
       aria-label="hour"
       {disabled}
       value={hourDraft ?? hourText}
+      onpointerdown={onDragStart.bind(null, 'hour')}
+      onpointermove={onDragMove}
+      onpointerup={onDragEnd}
+      onpointercancel={onDragEnd}
       oninput={onCellInput.bind(null, 'hour')}
       onchange={onCellCommit.bind(null, 'hour')}
       onblur={onCellCommit.bind(null, 'hour')}
@@ -240,7 +295,7 @@
     >{@html icons.plus}</button>
   </div>
   <span aria-hidden="true" class="font-nav text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]">:</span>
-  <div role="group" aria-label="minute" class="inline-flex items-center">
+  <div role="group" aria-label="minute" class="inline-flex items-center" onwheel={onWheel.bind(null, 'minute')}>
     <button
       type="button"
       data-jx-time-minute-minus
@@ -255,10 +310,14 @@
       type="text"
       inputmode="numeric"
       maxlength="2"
-      class="w-8 h-7 box-border bg-transparent border border-transparent text-center tabular-nums leading-none outline-none text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1 disabled:cursor-not-allowed disabled:opacity-30"
+      class="w-8 h-7 box-border bg-transparent border border-transparent text-center tabular-nums leading-none outline-none cursor-ns-resize text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1 disabled:cursor-not-allowed disabled:opacity-30"
       aria-label="minute"
       {disabled}
       value={minuteDraft ?? minuteText}
+      onpointerdown={onDragStart.bind(null, 'minute')}
+      onpointermove={onDragMove}
+      onpointerup={onDragEnd}
+      onpointercancel={onDragEnd}
       oninput={onCellInput.bind(null, 'minute')}
       onchange={onCellCommit.bind(null, 'minute')}
       onblur={onCellCommit.bind(null, 'minute')}

@@ -117,6 +117,20 @@ same law. Tests: 4 new cases (zh-CN calendar + month cells, ambient
 the locale props row. English ambient visual delta: weekday heads
 become the CLDR 3-letter form (Mon..Sun, was the hand-rolled Mo..Su).
 
+## Owner follow-up #6 (2026-08-30): slider-grade time cells
+
+The TimeStepper numbers now show digits by default (display-only
+00:00; empty cells read as broken — the commit stays undefined until
+the first touch), and take gestures: wheel over a group steps its
+number (scroll up = +1, the number eats the scroll), press-drag on a
+cell steps per 10px of vertical travel (up increases, pointer-
+captured so the run never strands; capture API guarded for jsdom),
+cells wear cursor:ns-resize. Gestures ride the same wrap/mode-aware
+stepBy as buttons/keys (the 1–12 ring and the format toggle compose).
+Tests: the empty-display case rewritten to the 00:00 law + 2 gesture
+cases (wheel both directions, drag up/up/back-down with the commit
+ledger). 763 → 765.
+
 ## Layering invariants held
 
 - Tier-1 bare markup untouched — platform steppers/panels remain on

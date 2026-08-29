@@ -111,10 +111,12 @@ describe('TimeStepper', () => {
     expect(minute().value).toBe('05');
   });
 
-  it('undefined renders EMPTY cells, and the first step starts from 00:00 then steps', async () => {
+  it('undefined renders the 00:00 digits (display-only), and the first step starts from 00:00 then steps', async () => {
     const { commits, hour, minute, btn } = setup();
-    expect(hour().value).toBe('');
-    expect(minute().value).toBe('');
+    // Owner catch 2026-08-30: empty cells read as broken — digits show
+    // while the committed value stays undefined until the first touch
+    expect(hour().value).toBe('00');
+    expect(minute().value).toBe('00');
 
     await fireEvent.pointerDown(btn('[data-jx-time-hour-plus]'));
     await fireEvent.pointerUp(window);
@@ -186,6 +188,34 @@ describe('TimeStepper', () => {
     expect(commits).toEqual(['01:00', '00:00', '23:00']); // wraps below zero
     await fireEvent.keyDown(minute(), { key: 'ArrowUp' });
     expect(commits.at(-1)).toBe('23:01');
+  });
+
+  // ---- pointer gestures (Owner request, 2026-08-30) ---------------------
+  it('the wheel over a group steps its number (scroll up = +1, down = −1)', async () => {
+    const { commits, container, hour, minute } = setup({ value: '05:10' });
+    const hourGroup = container.querySelector('[aria-label="hour"]')!;
+    const minuteGroup = container.querySelector('[aria-label="minute"]')!;
+    await fireEvent.wheel(hourGroup, { deltaY: -100 }); // scroll up
+    expect(commits).toEqual(['06:10']);
+    await fireEvent.wheel(hourGroup, { deltaY: 100 }); // scroll down
+    expect(commits).toEqual(['06:10', '05:10']);
+    await fireEvent.wheel(minuteGroup, { deltaY: -100 });
+    expect(commits.at(-1)).toBe('05:11');
+    expect(hour().value).toBe('05');
+    expect(minute().value).toBe('11');
+  });
+
+  it('press-drag on a cell steps per 10px of vertical travel (up increases)', async () => {
+    const { commits, hour } = setup({ value: '05:00' });
+    // drag semantics: travel trunc'd to 10px steps; the diff from the
+    // applied count commits (a slide back down walks the value back)
+    await fireEvent.pointerDown(hour(), { pointerId: 7, clientY: 300, button: 0, isPrimary: true });
+    await fireEvent.pointerMove(hour(), { pointerId: 7, clientY: 290 }); // +10px → 06
+    await fireEvent.pointerMove(hour(), { pointerId: 7, clientY: 280 }); // +20 → 07
+    await fireEvent.pointerMove(hour(), { pointerId: 7, clientY: 305 }); // net −0 steps → back to 05
+    await fireEvent.pointerUp(hour(), { pointerId: 7 });
+    expect(commits).toEqual(['06:00', '07:00', '06:00', '05:00']);
+    expect(hour().value).toBe('05');
   });
 
   it('focusFirst() focuses the hour cell (panel-open focus parity)', () => {

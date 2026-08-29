@@ -499,7 +499,10 @@
           The week panel picks a DAY on the Calendar and commits the ISO week
           (<code class="text-accent">YYYY-Www</code>, the picked week tinted); the month panel
           navigates years and commits <code class="text-accent">YYYY-MM</code> from a 12-month
-          grid; the time panel is the custom HH:MM stepper, committing live as the arrows run.
+          grid; the time panel is the custom HH:MM stepper, committing live as the arrows run —
+          the cells are slider-grade: the wheel over a group steps its number, press-drag moves
+          it vertically (up increases, the cells wear the ns-resize cursor), and an unset value
+          still shows the 00:00 digits.
           The datetime-local panel is the Calendar plus a time-stepper row — a day-pick keeps
           the panel open so the time can be adjusted before it closes, and the commit carries
           both halves. The panels' vocabulary — month label, weekday heads, month cells —

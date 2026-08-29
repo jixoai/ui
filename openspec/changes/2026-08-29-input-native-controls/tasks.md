@@ -52,3 +52,6 @@
       heads / month cells / locale display format render via
       Intl.DateTimeFormat; `locale` prop + `<html lang>` ambient,
       the English hand-rolled tables retire (2026-08-30)
+- [x] E4: TimeStepper slider-grade cells — default 00:00 digits,
+      wheel stepping, press-drag vertical slider (10px/step,
+      pointer-captured), ns-resize cursor (2026-08-30)
