@@ -11,16 +11,16 @@
 
 ## B. Input component (batch B)
 
-- [ ] B1: `nativePicker` → `nativeControls` rename (component + tests,
+- [x] B1: `nativePicker` → `nativeControls` rename (component + tests,
       no compat layer)
-- [ ] B2: `jx-number-shell` — spin hiding + the −/+ prefix/suffix
+- [x] B2: `jx-number-shell` — spin hiding + the −/+ prefix/suffix
       icon-button pair with number-input-grade stepper semantics
-- [ ] B3: picker coverage — week (ISO commit + week tint), month
+- [x] B3: picker coverage — week (ISO commit + week tint), month
       (MonthGrid), time (TimeStepper panel), datetime-local
       (Calendar + TimeStepper, panel stays open on day-pick)
-- [ ] B4: input.css — number-shell/stepper/time-stepper styles under
+- [x] B4: input.css — number-shell/stepper/time-stepper styles under
       the component-css layer law
-- [ ] B5: tests — picker-bridge suite rewritten for coverage; new
+- [x] B5: tests — picker-bridge suite rewritten for coverage; new
       stepper/week/month/time specs
 
 ## C. docs (batch C)

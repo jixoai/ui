@@ -1,18 +1,27 @@
 /**
- * input.css — the picker bridge (2026-08-28).
+ * input.css — the custom-control bridge (2026-08-28; full coverage
+ * 2026-08-29, OpenSpec 2026-08-29-input-native-controls).
  *
- * The native date/color popups cannot be styled and their opening
- * cannot be cancelled (UA shadow activation). The bridge intercepts
- * the TRIGGER zones instead and mounts a Popover-API panel:
+ * The platform's own controls — the number spinners, the date/time
+ * popup triggers — cannot be styled and their opening cannot be
+ * cancelled (UA shadow activation). The bridge intercepts the
+ * TRIGGER zones instead and mounts component-owned controls:
  *
- *   the DEFAULT mounts the embedded panel (2026-08-29 Owner ruling,
- *   the disabled-attribute philosophy): date/datetime-local → the
- *   Calendar, color → the Swatches editor. The bare boolean
- *   attribute opts back into the platform popup —
- *   <Input type="date" native-picker />. The input itself stays a
- *   REAL input either way (native typing, parsing, ARIA, FormData
- *   untouched) — only the popup layer differs.
- *   {#snippet picker(ctx)} → any custom panel content
+ *   number   the .jx-number-shell modifier hides the spin pseudos
+ *            (webkit display:none + appearance:textfield, shell-scoped
+ *            so bare markup keeps the Tier-1 D3 platform spinners) and
+ *            input.svelte renders the −/+ icon-button pair at the
+ *            prefix/suffix slot positions.
+ *   picker   the DEFAULT mounts the embedded Popover-API panel for
+ *            every covered type (disabled-attribute philosophy):
+ *            date/datetime-local/week → the Calendar (+ the TimeStepper
+ *            row for datetime-local), month → the MonthGrid, time → the
+ *            TimeStepper, color → the Swatches editor. The bare boolean
+ *            attribute opts back into the platform popup —
+ *            <Input type="date" native-controls />. The input itself
+ *            stays a REAL input either way (native typing, parsing,
+ *            ARIA, FormData untouched) — only the control layer differs.
+ *   {#snippet picker(ctx)} → any custom panel content (highest priority)
  *
  * Intent ledger:
  *  - trigger interception (indicator pointer-events, color overlay) — 2026-08-28
@@ -20,6 +29,7 @@
  *    the no-anchor viewport-center fallback, transparent ::backdrop)
  *  - the clearable ✕ kill — the repainted UA search ornament would
  *    double the component's own clear button (2026-08-29)
+ *  - the number shell (spin kill) + the stepper icon buttons — 2026-08-29
  */
 @layer theme, base, components, utilities;
 
@@ -62,6 +72,61 @@
   :where(button.jx-picker-overlay):focus-visible {
     outline: 1px solid var(--ring);
     outline-offset: -1px;
+  }
+
+  /* ---- the number shell: spin pseudos OFF (the −/+ pair owns
+     stepping; scoped to the component shell so Tier-1's D3 ruling —
+     bare markup keeps the platform spinners — stays untouched) ----- */
+  :where(.jx-number-shell) input::-webkit-inner-spin-button,
+  :where(.jx-number-shell) input::-webkit-outer-spin-button {
+    display: none;
+  }
+  :where(.jx-number-shell) input {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+
+  /* ---- the stepper icon buttons (prefix/suffix slot positions) -------
+     panel-internal stepper geometry, NOT the full --jx-hit lane: the
+     pair sits INSIDE the text shell where the spinner lived, so it
+     takes a compact ~1.75rem square while the shell's own border/pad
+     law carries the 40px family height. Same color/focus laws as the
+     clear button (muted → hover foreground; the site's inset 1px
+     focus-visible ring) */
+  :where(button.jx-input-prefix-icon-button),
+  :where(button.jx-input-suffix-icon-button) {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    transition: color 150ms ease-out;
+  }
+  :where(button.jx-input-prefix-icon-button):hover:not(:disabled),
+  :where(button.jx-input-suffix-icon-button):hover:not(:disabled) {
+    color: var(--foreground);
+  }
+  :where(button.jx-input-prefix-icon-button):focus-visible,
+  :where(button.jx-input-suffix-icon-button):focus-visible {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+  }
+  :where(button.jx-input-prefix-icon-button):disabled,
+  :where(button.jx-input-suffix-icon-button):disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :where(button.jx-input-prefix-icon-button),
+    :where(button.jx-input-suffix-icon-button) {
+      transition: none;
+    }
   }
 
   /* ---- panel: the date-panel law (bezel surface on the jx-surface

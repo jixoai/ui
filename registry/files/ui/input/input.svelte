@@ -34,6 +34,31 @@
   distinction) all lives in Tier-1 so bare markup gets the same paint
   with zero JS.
 
+  2026-08-29 · native-controls (original request: "the Input owns every
+  control type" — OpenSpec 2026-08-29-input-native-controls). The
+  custom-control story reaches full coverage and ONE prop governs it:
+
+    type=number        the jx-number-shell modifier (input.css) hides
+                       the platform spinners and a −/+ stepper pair
+                       rides the prefix/suffix slot positions —
+                       number-input-grade semantics (clamp/snap step
+                       precision, 300ms→100ms hold acceleration,
+                       disabled lockstep) but WITHOUT number-input's
+                       composite: the <input> stays the source of truth
+                       (stepping writes valueAsNumber-clamped values
+                       through the SAME plumbing as typing) and keeps
+                       native ↑/↓ + direct typing; only the visual
+                       spinners are replaced.
+    date/datetime-local/
+    week/month/time    embedded Popover-API panels (see below)
+    color              the Swatches editor
+
+  The bare `native-controls` boolean opts any covered type back into
+  the PLATFORM control — number → the spinner, picker types → the UA
+  popup (the disabled-attribute philosophy: presence = true, absence =
+  the library default; no compat alias for the retired native-picker
+  name).
+
   Semantics added on top: label[for] (auto id via $props.id() when not
   supplied), error string → aria-invalid + aria-describedby + "! message"
   line + dashed control border. Everything else (placeholder, disabled,
@@ -65,11 +90,11 @@
   native behavior).
 
   tw4 (2026-08-24; mirror law 2026-08-27): the component-owned paint
-  (the clear button's hit-lane geometry) mirrors from input.css
-  (@layer components :where()); the slot rows stay inline (one-off
-  wrappers). ONLY the clear glyph's svg descendant sizing, the
-  search-cancel pseudo kill and the clear hover/focus states remain
-  as the D1-exempt residue.
+  (the clear button's hit-lane geometry, the stepper pair's icon-button
+  law) mirrors from input.css (@layer components :where()); the slot
+  rows stay inline (one-off wrappers). ONLY the clear glyph's svg
+  descendant sizing, the search-cancel pseudo kill and the clear
+  hover/focus states remain as the D1-exempt residue.
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
@@ -77,7 +102,11 @@
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import type { Snippet } from 'svelte';
   import { onDestroy } from 'svelte';
+  import { icons } from '$lib/icons';
   import Calendar from '../date-picker/calendar.svelte';
+  import MonthGrid from '../date-picker/month-grid.svelte';
+  import TimeStepper from '../date-picker/time-stepper.svelte';
+  import { addDays, isoWeekOf, mondayOfIsoWeek, todayIso } from '../date-picker/calendar-math';
   import Editor from '../color-picker/editor.svelte';
   import { parseColor, formatColor } from '$lib/color-utils';
   import { createSurfaceMotion } from '$lib/surface-motion';
@@ -112,14 +141,15 @@
         own the error text; their computed chains must survive) */
     'aria-invalid'?: 'true' | 'false' | undefined;
     'aria-describedby'?: string | undefined;
-    /** picker bridge: the custom Popover-API panel is the DEFAULT for
-        the types that have one (date/datetime-local → the Calendar,
+    /** custom-control policy: the Input owns every covered control by
+        default — number → the −/+ stepper pair, picker types
+        (date/datetime-local/week/month/time → embedded panels,
         color → the Swatches editor). The bare boolean attribute opts
-        back into the platform popup — <Input type="date" native-picker />
-        (the disabled-attribute philosophy: presence = true, absence =
-        the library default). month/week/time keep the platform popup
-        until a picker snippet is given. */
-    nativePicker?: boolean;
+        back into the PLATFORM control — <Input type="number"
+        native-controls /> keeps the spinner, <Input type="date"
+        native-controls /> keeps the UA popup (presence = true,
+        absence = the library default) */
+    nativeControls?: boolean;
     /** fires when the custom picker commits a value */
     onselect?: (value: string) => void;
     /** fine-grained panel content — takes precedence over the embedded
@@ -156,7 +186,7 @@
     class: className = '',
     'aria-invalid': ariaInvalid,
     'aria-describedby': ariaDescribedBy,
-    nativePicker = false,
+    nativeControls = false,
     onselect,
     picker,
     ...rest
@@ -172,6 +202,9 @@
   const isHidden = $derived(type === 'hidden');
   const isRange = $derived(type === 'range');
   const isColor = $derived(type === 'color');
+  const isNumber = $derived(type === 'number');
+  // declared before `slotted` reads it (runes are declarations, not hoists)
+  const customStepper = $derived(isNumber && !nativeControls);
 
   // ---- controlled / clearable plumbing ---------------------------------
   // liveValue mirrors the DOM only after real user input — the one piece
@@ -181,7 +214,7 @@
   let inputEl: HTMLInputElement | undefined = $state();
 
   const shownValue = $derived(liveValue ?? (controlled ? String(value) : ''));
-  const slotted = $derived(Boolean(innerInlineStart || innerInlineEnd || clearable));
+  const slotted = $derived(Boolean(innerInlineStart || innerInlineEnd || clearable || customStepper));
   const showClear = $derived(clearable && rest.disabled !== true && shownValue !== '');
 
   function syncValue(event: Event) {
@@ -192,29 +225,114 @@
     (rest as { oninput?: (event: Event) => void }).oninput?.(event);
   }
 
+  /** push the DOM's current value through the typing plumbing —
+      liveValue sync + controlled write + a real input event, so
+      bindings and plain listeners both see it (shared by the clear
+      button and the number stepper) */
+  function commitDomValue() {
+    if (!inputEl) return;
+    liveValue = inputEl.value;
+    if (controlled) value = inputEl.value;
+    inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
   function clearValue() {
     if (!inputEl) return;
     inputEl.value = '';
-    liveValue = '';
-    if (controlled) value = '';
-    // let bindings and plain listeners both see the reset
-    inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+    commitDomValue();
     inputEl.dispatchEvent(new CustomEvent('clear', { bubbles: true }));
   }
 
+  // ---- the number stepper (jx-number-shell, input.css) -----------------
+  // type=number keeps its native semantics (typing, ↑/↓ stepping,
+  // min/max/step on the element); the pair only REPLACES the visual
+  // spinners. The <input> is the source of truth: stepping reads
+  // valueAsNumber, clamps/snaps, writes the DOM value back and rides
+  // the SAME plumbing as typing — this is not number-input's readonly
+  // composite, the lane stays editable when disabled flows through rest.
+
+  /** min/max/step ride the rest props (string|number tolerant — the
+      platform accepts both spellings in markup) */
+  const numAttr = (v: string | number | undefined): number | undefined => {
+    const n = Number(v);
+    return v != null && v !== '' && Number.isFinite(n) ? n : undefined;
+  };
+  const numMin = $derived(numAttr((rest as { min?: string | number }).min));
+  const numMax = $derived(numAttr((rest as { max?: string | number }).max));
+  const numStep = $derived(numAttr((rest as { step?: string | number }).step) ?? 1);
+  // float-step safety: snap arithmetic to the step's decimal precision
+  // (step 0.1 must land on 0.2, not 0.30000000000000004)
+  const stepDecimals = $derived(Math.max(0, (String(numStep).split('.')[1] ?? '').length));
+
+  function clampNum(n: number): number {
+    let out = n;
+    if (numMin != null && out < numMin) out = numMin;
+    if (numMax != null && out > numMax) out = numMax;
+    return out;
+  }
+
+  function snapNum(n: number): number {
+    return Number(n.toFixed(stepDecimals));
+  }
+
+  /** one step in direction, clamped into range; an unset lane starts
+      from min (else 0) so the first press is always meaningful.
+      THE disabled gate: every step path (press, hold repeat) funnels
+      through here, so one guard blocks them all */
+  function stepBy(direction: 1 | -1): void {
+    if (!inputEl || rest.disabled === true) return;
+    const base = Number.isFinite(inputEl.valueAsNumber)
+      ? inputEl.valueAsNumber
+      : (numMin ?? 0);
+    inputEl.value = String(clampNum(snapNum(base + direction * numStep)));
+    commitDomValue();
+  }
+
+  // ---- press-and-hold: immediate step, 300ms delay, then 100ms/step ---
+  const HOLD_DELAY_MS = 300;
+  const HOLD_REPEAT_MS = 100;
+  let holdDelay = 0;
+  let holdInterval = 0;
+
+  function beginHold(direction: 1 | -1): void {
+    if (rest.disabled === true) return; // never arm timers for a disabled field
+    stopHold();
+    stepBy(direction);
+    holdDelay = window.setTimeout(() => {
+      holdInterval = window.setInterval(() => stepBy(direction), HOLD_REPEAT_MS);
+    }, HOLD_DELAY_MS);
+    // window-level so pointerup ANYWHERE ends the run — sliding off the
+    // button can never strand a running interval
+    window.addEventListener('pointerup', stopHold);
+    window.addEventListener('pointercancel', stopHold);
+  }
+
+  function stopHold(): void {
+    if (holdDelay) window.clearTimeout(holdDelay);
+    if (holdInterval) window.clearInterval(holdInterval);
+    holdDelay = 0;
+    holdInterval = 0;
+    window.removeEventListener('pointerup', stopHold);
+    window.removeEventListener('pointercancel', stopHold);
+  }
+
+  // release timers + listeners if the component unmounts mid-hold
+  $effect(() => () => stopHold());
+
   // ---- the picker bridge (input.css carries the intent ledger) ------
-  // embedded default panels exist where a professional component
-  // exports one; everything else needs the picker snippet
-  const EMBEDDED_PICKER_TYPES = new Set(['date', 'datetime-local', 'color']);
+  // embedded default panels exist for every picker type the family
+  // exports a fragment for; everything else needs the picker snippet
+  const EMBEDDED_PICKER_TYPES = new Set(['date', 'datetime-local', 'color', 'week', 'month', 'time']);
   const customPicker = $derived(
-    Boolean(picker) || (nativePicker === false && EMBEDDED_PICKER_TYPES.has(type)),
+    Boolean(picker) || (nativeControls === false && EMBEDDED_PICKER_TYPES.has(type)),
   );
 
   let pickerPanelEl = $state<HTMLDivElement | null>(null);
   let pickerAnchorEl = $state<HTMLElement | null>(null);
   let calendarRef = $state<{ focusGrid: () => void } | null>(null);
   let editorRef = $state<{ focusFirst: () => void } | null>(null);
-  let swatchesRef = $state<{ focusFirst: () => void } | null>(null);
+  let monthGridRef = $state<{ focusGrid: () => void } | null>(null);
+  let timeStepperRef = $state<{ focusFirst: () => void } | null>(null);
   // the shared surface motion kernel (popover.svelte wiring law):
   // WAAPI drives --jx-p; the axis tracks the control↔panel vector
   const motion = createSurfaceMotion(() => pickerPanelEl, { anchor: () => pickerAnchorEl });
@@ -223,6 +341,19 @@
 
   /** the date part of the current value ("YYYY-MM-DD" or undefined) */
   const datePart = $derived(/^\d{4}-\d{2}-\d{2}/.exec(String(shownValue ?? ''))?.[0]);
+  /** the month anchor for the MonthGrid ("YYYY-MM" or undefined) */
+  const monthAnchor = $derived(/^\d{4}-\d{2}/.exec(String(shownValue ?? ''))?.[0]);
+  /** the picked week's Monday ("YYYY-MM-DD" or undefined) — the week
+      value ("YYYY-Www") parsed back for anchoring + range painting */
+  const weekAnchor = $derived(mondayOfIsoWeek(String(shownValue ?? '')));
+  const weekEnd = $derived(weekAnchor ? addDays(weekAnchor, 6) : undefined);
+  /** the time part ("HH:MM" or undefined): leading for time, the
+      after-T part for datetime-local */
+  const timeValue = $derived(
+    type === 'datetime-local'
+      ? /T(\d{2}:\d{2})/.exec(String(shownValue ?? ''))?.[1]
+      : /^\d{2}:\d{2}/.exec(String(shownValue ?? ''))?.[0],
+  );
 
   function openPicker(): void {
     pickerPanelEl?.showPopover();
@@ -238,12 +369,20 @@
     inputEl.dispatchEvent(new Event('input', { bubbles: true }));
     onselect?.(v);
   }
-  /** the embedded Calendar's commit: datetime-local preserves the
-      typed time part; date commits close the panel (snippet panels
-      decide themselves through ctx.close) */
+  /** the embedded Calendar's commit, routed by type: date/week commit
+      and close; datetime-local commits the date part (typed time
+      preserved) and STAYS OPEN — the time stepper adjusts next */
   function commitDay(iso: string): void {
-    const timePart = /T(\d{2}:\d{2})/.exec(String(shownValue ?? ''))?.[1];
-    commitFromPanel(type === 'datetime-local' ? `${iso}T${timePart ?? '00:00'}` : iso);
+    if (type === 'datetime-local') {
+      commitFromPanel(`${iso}T${timeValue ?? '00:00'}`);
+      return;
+    }
+    if (type === 'week') {
+      commitFromPanel(isoWeekOf(iso) ?? iso);
+      closePicker();
+      return;
+    }
+    commitFromPanel(iso);
     closePicker();
   }
   /** one native event covers every open/close path (popovertarget,
@@ -252,8 +391,12 @@
     if (e.newState === 'open') {
       motion.play(1);
       motion.startTracking();
+      // type-routed focus: exactly one fragment is mounted per panel,
+      // the others' refs stay null — the calls are inert no-ops
       calendarRef?.focusGrid();
       editorRef?.focusFirst();
+      monthGridRef?.focusGrid();
+      timeStepperRef?.focusFirst();
     } else {
       motion.play(0);
       motion.stopTracking();
@@ -261,7 +404,9 @@
     }
   }
   /** the lane's indicator zone (≈ the last 2.5rem) opens OUR panel;
-      the text zone keeps native focus/typing */
+      the text zone keeps native focus/typing. color is the exception:
+      its swatch activation cannot be cancelled — the overlay button
+      is the trigger there */
   function onLaneClick(e: MouseEvent): void {
     // forward a caller-supplied click handler from the rest props
     (rest as { onclick?: (event: MouseEvent) => void }).onclick?.(e);
@@ -342,16 +487,30 @@
         {/if}
       </label>
     {:else}
-      <!-- the shell owns the box law; the input inside is chromeless -->
+      <!-- the shell owns the box law; the input inside is chromeless.
+           Outermost positions: [−][prefix] lane [suffix][+][clear?] —
+           the stepper pair sits OUTSIDE the snippet slots so custom
+           prefix/suffix content never displaces the stepping controls -->
       <div
         bind:this={pickerAnchorEl}
         class={'jx-html-control-shell ' + className}
         class:jx-slotted={slotted}
         class:jx-invalid={invalid}
         class:jx-clearable={clearable}
+        class:jx-number-shell={customStepper}
         data-jx-custom-picker={customPicker ? '' : undefined}
         style={customPicker ? `anchor-name: ${pickerAnchor}` : undefined}
       >
+        {#if customStepper}
+          <button
+            type="button"
+            class="jx-input-prefix-icon-button"
+            data-jx-step-minus
+            aria-label="decrease"
+            disabled={rest.disabled}
+            onpointerdown={beginHold.bind(null, -1)}
+          >{@html icons.minus}</button>
+        {/if}
         {#if innerInlineStart}
           <span data-jx-slot class="flex-none inline-flex items-center gap-1.5 text-muted-foreground text-xs leading-none">{@render innerInlineStart()}</span>
         {/if}
@@ -373,6 +532,16 @@
         />
         {#if innerInlineEnd}
           <span data-jx-slot class="flex-none inline-flex items-center gap-1.5 text-muted-foreground text-xs leading-none">{@render innerInlineEnd()}</span>
+        {/if}
+        {#if customStepper}
+          <button
+            type="button"
+            class="jx-input-suffix-icon-button"
+            data-jx-step-plus
+            aria-label="increase"
+            disabled={rest.disabled}
+            onpointerdown={beginHold.bind(null, 1)}
+          >{@html icons.plus}</button>
         {/if}
         {#if showClear}
           <button
@@ -427,16 +596,61 @@
                 onselect?.(color);
               }}
             />
-          {:else}
-            <Calendar
-              bind:this={calendarRef}
-              anchors={datePart ? [datePart] : []}
+          {:else if type === 'month'}
+            <!-- the month panel: year nav + 12 cells; a pick commits
+                 "YYYY-MM" and closes (single-shot, unlike the color
+                 editor's continuous commits) -->
+            <MonthGrid
+              bind:this={monthGridRef}
+              anchor={monthAnchor}
               min={(rest as { min?: string }).min}
               max={(rest as { max?: string }).max}
-              initialView={datePart}
+              onpick={(v) => {
+                commitFromPanel(v);
+                closePicker();
+              }}
+              idPrefix="{id}-pmonth"
+            />
+          {:else if type === 'time'}
+            <!-- the time panel: the TimeStepper alone; commits are
+                 LIVE (stepping through hours/minutes is multi-step,
+                 the panel stays open until light dismiss/Escape) -->
+            <TimeStepper
+              bind:this={timeStepperRef}
+              value={timeValue}
+              oncommit={(v) => commitFromPanel(v)}
+              disabled={rest.disabled}
+              idPrefix="{id}-ptime"
+            />
+          {:else}
+            <!-- date / week / datetime-local: the Calendar. The week
+                 flavor anchors the picked week's Monday and paints the
+                 whole week (range tint Mon..Sun, the Monday carries the
+                 anchor fill — the Calendar's strict-inside tint law) -->
+            <Calendar
+              bind:this={calendarRef}
+              anchors={type === 'week' ? (weekAnchor ? [weekAnchor] : []) : datePart ? [datePart] : []}
+              rangeStart={type === 'week' ? weekAnchor : undefined}
+              rangeEnd={type === 'week' ? weekEnd : undefined}
+              min={(rest as { min?: string }).min}
+              max={(rest as { max?: string }).max}
+              initialView={type === 'week' ? weekAnchor : datePart}
               idPrefix="{id}-pcal"
               onpick={commitDay}
             />
+            {#if type === 'datetime-local'}
+              <!-- the time part gets a REAL control (Owner catch
+                   2026-08-29): the stepper commits the T part live; an
+                   absent date part defaults to today -->
+              <div class="-mx-3.5 my-3 border-t border-border" aria-hidden="true"></div>
+              <TimeStepper
+                bind:this={timeStepperRef}
+                value={timeValue}
+                oncommit={(v) => commitFromPanel(`${datePart ?? todayIso()}T${v}`)}
+                disabled={rest.disabled}
+                idPrefix="{id}-ptime"
+              />
+            {/if}
           {/if}
         </div>
       </div>
