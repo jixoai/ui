@@ -36,13 +36,13 @@
 
 ## D. integration (ZCode, shared files)
 
-- [ ] D1: registry.json — input/terminal-footer drop the unused
+- [x] D1: registry.json — input/terminal-footer drop the unused
       `@jixoai/icons` dep; component-canvas gains it; the migrated
       components gain it (no npm deps added anywhere)
-- [ ] D2: root package.json wiring — `gen:icons`/`verify:icons`
+- [x] D2: root package.json wiring — `gen:icons`/`verify:icons`
       scripts into verify:all
-- [ ] D3: mirrors — registry → www copies + mirror manifest regen
-- [ ] D4: full gate run — verify:icons/laws/mirror/standards,
+- [x] D3: mirrors — registry → www copies + mirror manifest regen
+- [x] D4: full gate run — verify:icons/laws/mirror/standards,
       plugin build+vitest, www build, verify:shadcn-add,
       verify:budgets (B-consumer-icons baseline), shots compare +
       re-baseline the two declared visual changes, verify:all

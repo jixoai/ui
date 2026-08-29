@@ -132,17 +132,19 @@ describe('chip hit lane', () => {
     );
   });
 
-  it('the theme floors --jx-hit at 44px for the default density (11 × the 4px ruler unit)', () => {
+  it('the theme floors --jx-hit at max(row-min, the hit-floor guardrail) for the default density', () => {
     // jsdom does not process Tailwind or resolve var() chains, so the
     // computed probe is asserted at the token SOURCE: --jx-hit aliases
-    // the density hit-min, itself max(row-min, unit × 11) with the
-    // ruler unit pinned at 0.25rem → 44px at the 16px root.
+    // the density hit-min, itself max(row-min, --jx-hit-floor) — the
+    // guardrail is unit × 7 (28px), the row floor rides the density
+    // ladder (density §3, hit-floor rework).
     // (a ?raw css import comes back EMPTY under vitest's css pipeline —
     // the sheet is read from the config-root-relative source instead)
     const sheet = readFileSync(resolve(process.cwd(), 'src/lib/jixoai.css'), 'utf8');
     expect(sheet).toContain('--jx-unit: 0.25rem');
+    expect(sheet).toContain('--jx-hit-floor: calc(var(--jx-unit) * 7);');
     expect(sheet).toContain(
-      '--jx-density-hit-min-default: max(var(--jx-density-row-min-default), calc(var(--jx-unit) * 11));',
+      '--jx-density-hit-min-default: max(var(--jx-density-row-min-default), var(--jx-hit-floor));',
     );
     expect(sheet).toContain('--jx-hit: var(--jx-density-hit-min-default);');
   });

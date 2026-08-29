@@ -17,6 +17,8 @@
     "verify:parity": "node scripts/verify-native-parity.mjs",
     "verify:budgets": "node scripts/verify-budgets.mjs",
     "verify:laws": "cd packages/css-laws && npx tsx src/build.ts --check",
+    "gen:icons": "node scripts/gen-icons.mjs",
+    "verify:icons": "node scripts/gen-icons.mjs --check",
     "verify:ghostty-pin": "node scripts/verify-ghostty-pin.mjs",
     "verify:shadcn-add": "node scripts/verify-shadcn-add.mjs",
     "verify:all": "node scripts/verify-all.mjs",
@@ -25,6 +27,7 @@
   "devDependencies": {
     "@fontsource/jetbrains-mono": "^5.3.0",
     "@fontsource/share-tech-mono": "^5.3.0",
+    "lucide": "^0.472.0",
     "playwright-core": "^1.62.1",
     "satori": "^0.33.3",
     "shadcn": "^4.18.0"
