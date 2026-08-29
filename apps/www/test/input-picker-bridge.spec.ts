@@ -421,4 +421,20 @@ describe('Input · picker locale', () => {
       document.documentElement.lang = prev;
     }
   });
+
+  it('a mid-flight <html lang> retarget re-renders the mounted panel (live ambient)', async () => {
+    const prev = document.documentElement.lang;
+    document.documentElement.lang = 'en';
+    try {
+      const { container } = render(Input, { type: 'date', id: 'pb-loc5', value: '2026-08-20' });
+      expect(container.querySelector('[data-jx-date-month]')?.textContent).toBe('August 2026');
+      // the Owner's DevTools test: swap the page language AFTER mount —
+      // the MutationObserver channel (lib/locale.svelte.ts) must follow
+      document.documentElement.lang = 'zh-CN';
+      await new Promise((r) => setTimeout(r, 0)); // observer delivery
+      expect(container.querySelector('[data-jx-date-month]')?.textContent).toBe('2026年8月');
+    } finally {
+      document.documentElement.lang = prev;
+    }
+  });
 });

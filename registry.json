@@ -1250,6 +1250,11 @@
           "path": "registry/files/ui/date-picker/month-grid.svelte",
           "target": "@ui/date-picker/month-grid.svelte",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/locale.svelte.ts",
+          "target": "@lib/locale.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: label?, error?, mode 'single'|'range', value ($bindable ISO string or {start?,end?}). Never a native input[type=date].",

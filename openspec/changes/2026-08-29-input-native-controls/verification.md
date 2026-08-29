@@ -131,6 +131,24 @@ Tests: the empty-display case rewritten to the 00:00 law + 2 gesture
 cases (wheel both directions, drag up/up/back-down with the commit
 ledger). 763 → 765.
 
+## Owner follow-up #7 (2026-08-30): the ambient locale goes LIVE
+
+Owner catch: removing <html lang> after mount changed nothing — the
+ambient read was one-shot per mount (DOM attributes are not reactive
+deps). Fix: lib/locale.svelte.ts — a module $state mirroring
+<html lang>, kept current by ONE MutationObserver (attributeFilter
+'lang'), read by ambientLocale() alongside a fresh DOM read (same-
+tick edits settle before the observer's async delivery). Mounted
+panels re-render the moment the page retargets its language;
+resolution chain unchanged (<html lang> → navigator.language → 'en';
+prop outranks all). Ships inside the date-picker item (the popover/
+surface-motion precedent — an internal module, not its own catalog
+entry, so no blueprint-scene obligations). Live probe on an OPEN
+panel: en "August 2026" → lang=zh-CN (no reload) "2026年8月" →
+attribute removed → navigator zh-CN "2026年8月" → restored "August
+2026". Tests: +1 mid-flight retarget case (766 total), verify:all
+GREEN, payloads rebuilt, manifest 311 pairs.
+
 ## Layering invariants held
 
 - Tier-1 bare markup untouched — platform steppers/panels remain on

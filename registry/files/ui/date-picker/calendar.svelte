@@ -39,7 +39,6 @@
   import { cn } from '$lib/utils';
   import {
     addDays,
-    ambientLocale,
     daysInMonth,
     isoOf,
     monthYearLabel,
@@ -48,6 +47,7 @@
     validIso,
     weekdayNames,
   } from './calendar-math';
+  import { ambientLocale } from '$lib/locale.svelte';
   import './date-picker.css';
 
   interface Props {
@@ -168,8 +168,10 @@
   });
 
   // ---- locale: the vocabulary renders through Intl (month label,
-  // weekday heads + their aria-labels); read once at mount — a page
-  // retargeting <html lang> mid-flight passes `locale` instead ------
+  // weekday heads + their aria-labels); LIVE — the ambient channel
+  // (lib/locale.svelte.ts) watches <html lang> with a MutationObserver
+  // so a page retarget re-renders mounted panels, and an explicit
+  // locale prop outranks it --------------------------------------------
   const loc = $derived(locale ?? ambientLocale());
   const monthLabel = $derived(monthYearLabel(loc, viewYear, viewMonth));
   const weekdayHeads = $derived(weekdayNames(loc, 'short'));

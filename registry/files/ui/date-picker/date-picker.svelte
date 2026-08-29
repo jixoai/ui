@@ -56,7 +56,8 @@
   import { onDestroy } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
-  import { ambientLocale, dayLabel, parseIso, todayIso, validIso } from './calendar-math';
+  import { dayLabel, parseIso, todayIso, validIso } from './calendar-math';
+  import { ambientLocale } from '$lib/locale.svelte';
   import Calendar from './calendar.svelte';
   import './date-picker.css';
 

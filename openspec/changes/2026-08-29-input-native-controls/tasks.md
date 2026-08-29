@@ -55,3 +55,7 @@
 - [x] E4: TimeStepper slider-grade cells — default 00:00 digits,
       wheel stepping, press-drag vertical slider (10px/step,
       pointer-captured), ns-resize cursor (2026-08-30)
+- [x] E5: LIVE ambient locale — lib/locale.svelte.ts ($state + one
+      MutationObserver on <html lang>); a mid-flight retarget
+      re-renders mounted panels, no remount (Owner DevTools catch,
+      2026-08-30)

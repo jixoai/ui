@@ -43,19 +43,8 @@ function cachedFmt(locale: string, opts: Intl.DateTimeFormatOptions): Intl.DateT
   return f;
 }
 
-/** the ambient locale: the page's declared <html lang> first (the
-    HTML-correct source), else the browser language, else English.
-    SSR-safe (no document → no crash); read once at mount — a page
-    that retargets its language mid-flight passes `locale` instead */
-export function ambientLocale(): string {
-  if (typeof document !== 'undefined' && document.documentElement.lang) {
-    return document.documentElement.lang;
-  }
-  if (typeof navigator !== 'undefined' && navigator.language) {
-    return navigator.language;
-  }
-  return 'en';
-}
+/** the ambient locale lives in lib/locale.svelte.ts — a LIVE $state
+    + MutationObserver channel (2026-08-30), not this pure module */
 
 /** Monday-first weekday names ("short" heads the grid, "long" rides
     the columnheader aria-labels) */

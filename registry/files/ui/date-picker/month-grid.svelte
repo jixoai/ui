@@ -31,7 +31,8 @@
 <script lang="ts">
   import { icons } from '$lib/icons';
   import { cn } from '$lib/utils';
-  import { ambientLocale, monthNames, pad2 } from './calendar-math';
+  import { monthNames, pad2 } from './calendar-math';
+  import { ambientLocale } from '$lib/locale.svelte';
   import './date-picker.css';
 
   interface Props {
