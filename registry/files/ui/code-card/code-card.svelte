@@ -35,6 +35,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { icons } from '$lib/icons';
   import { highlightCode } from '$lib/shiki';
   import { cn } from '$lib/utils';
   import './code-card.css';
@@ -230,35 +231,17 @@
           aria-label={copied ? 'copied' : `copy ${filename || lang} sample`}
         >
           {#if copied}
-            <svg
-              data-jx-code-card-icon
-              class="h-3 w-3"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M20 6 9 17l-5-5" />
-            </svg>
+            <!-- shared-module glyphs (full lucide copy geometry — the
+                 hand-simplified variant retired 2026-08-29); the copied
+                 check rides a strokier consuming utility -->
+            <span data-jx-code-card-icon class="inline-flex [&_svg]:h-3 [&_svg]:w-3 [&_svg]:stroke-[2.5]">
+              {@html icons.check}
+            </span>
             <span>copied</span>
           {:else}
-            <svg
-              data-jx-code-card-icon
-              class="h-3 w-3"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <rect x="9" y="9" width="12" height="12" rx="0" />
-              <path d="M5 15V4a1 1 0 0 1 1-1h10" />
-            </svg>
+            <span data-jx-code-card-icon class="inline-flex [&_svg]:h-3 [&_svg]:w-3">
+              {@html icons.copy}
+            </span>
             <span>copy</span>
           {/if}
         </button>

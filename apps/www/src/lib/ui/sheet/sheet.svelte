@@ -38,6 +38,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { untrack } from 'svelte';
+  import { icons } from '$lib/icons';
   import { cn } from '$lib/utils';
   import './sheet.css';
 
@@ -160,21 +161,14 @@
     {/if}
     <button
       type="button"
-      class="jx-sheet-x flex-none appearance-none inline-flex items-center justify-center size-7 border border-border bg-transparent text-muted-foreground cursor-pointer hover:text-foreground hover:border-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      class="jx-sheet-x flex-none appearance-none inline-flex items-center justify-center size-7 border border-border bg-transparent text-muted-foreground cursor-pointer [&_svg]:stroke-[2.5] hover:text-foreground hover:border-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
       onclick={shut}
       aria-label="Close"
     >
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        aria-hidden="true"
-      >
-        <path d="M18 6 6 18" />
-        <path d="m6 6 12 12" />
-      </svg>
+      <!-- glyph from the shared icons module; sheet.css owns its
+           0.875rem descendant scale, the strokier × rides a consuming
+           utility -->
+      {@html icons.x}
     </button>
   </div>
   <div

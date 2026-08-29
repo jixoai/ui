@@ -1,20 +1,26 @@
 /**
- * jixoai inline icon set (registry/files/lib/icons.ts, 2026-08-20).
+ * jixoai inline icon set — GENERATED, do not hand-edit
+ * (registry/files/lib/icons.ts).
  *
- * Original request: “把 → ▾ × ↗ ✓ 文本符号替换为内联 SVG 图标” — one
- * shared module so every component renders the SAME geometry instead of
- * private glyphs. SVG strings (not a component, not Snippets): consumers
- * print them with {@html icons.x} and own layout/sizing via CSS.
+ * Source of truth: the manifest in scripts/gen-icons.mjs serializing
+ * lucide@^0.472.0 IconNode geometry. Regenerate: npm run gen:icons
+ * (freshness gate: npm run verify:icons).
+ *
+ * Original request (2026-08-20): “把 → ▾ × ↗ ✓ 文本符号替换为内联 SVG
+ * 图标” — one shared module so every component renders the SAME geometry
+ * instead of private glyphs. SVG strings (not a component, not Snippets):
+ * consumers print them with {@html icons.x} and own layout/sizing via CSS.
  *
  * Law:
- * - 16px square, stroke currentColor, fill none, round caps/joins —
- *   the site's lucide-style stroke geometry (compare language-switcher
- *   and hero-section inline SVGs).
+ * - 24×24 viewBox, 16px baked, stroke currentColor, fill none, round
+ *   caps/joins — lucide's stroke geometry.
  * - aria-hidden="true" baked in: these are ALWAYS decorative; meaning
  *   lives in the surrounding text or the control's aria-label.
  * - data-jx-icon for consumer targeting (`.foo svg` also works).
- * - Sizing: consumers override width/height through CSS when a row is
- *   tighter than 16px (tags chip ×, tree caret) — never by editing here.
+ * - Sizing and stroke-width overrides are CONSUMER CSS (a class rule or
+ *   a Tailwind arbitrary variant like [&_svg]:stroke-[2.5] —
+ *   presentation attributes yield to the cascade); never fork manifest
+ *   variants for them.
  */
 
 /** shared opening tag — every icon below only differs in its paths */
@@ -22,7 +28,7 @@ const svg = (paths: string): string =>
   `<svg data-jx-icon viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
 
 export const arrowRight = svg('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>');
-export const arrowLeft = svg('<path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>');
+export const arrowLeft = svg('<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>');
 export const rotateCcw = svg('<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>');
 export const copy = svg('<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>');
 export const chevronDown = svg('<path d="m6 9 6 6 6-6"/>');
@@ -45,7 +51,7 @@ export const file = svg(
   '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/>'
 );
 export const fileCode = svg(
-  '<path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m5 12-3 3 3 3"/><path d="m9 18 3-3-3-3"/>'
+  '<path d="M10 12.5 8 15l2 2.5"/><path d="m14 12.5 2 2.5-2 2.5"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/>'
 );
 export const fileText = svg(
   '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>'
@@ -67,12 +73,40 @@ export const ellipsis = svg(
 // data below and the data-URIs in registry/files/theme/jx-pure.css (Part A)
 // are the SAME geometry — edit both or neither (single-source law).
 export const calendar = svg(
-  '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>'
+  '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>'
 );
 export const clock = svg('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>');
 export const pipette = svg(
   '<path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/>'
 );
+
+// component-migration set (2026-08-29, lucide 0.472 geometry): the
+// glyphs the registry components' hand inline SVGs retired in favor of
+// (theme-toggle sun/moon/monitor, language-switcher, image fallback,
+// file-input kinds + upload, date-picker nav).
+export const sun = svg(
+  '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>'
+);
+export const moon = svg('<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>');
+export const monitor = svg(
+  '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>'
+);
+export const languages = svg(
+  '<path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>'
+);
+export const image = svg(
+  '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>'
+);
+export const fileVideo = svg(
+  '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m10 11 5 3-5 3v-6Z"/>'
+);
+export const fileAudio = svg(
+  '<path d="M17.5 22h.5a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v3"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M2 19a2 2 0 1 1 4 0v1a2 2 0 1 1-4 0v-4a6 6 0 0 1 12 0v4a2 2 0 1 1-4 0v-1a2 2 0 1 1 4 0"/>'
+);
+export const upload = svg(
+  '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>'
+);
+export const chevronLeft = svg('<path d="m15 18-6-6 6-6"/>');
 
 /** named-access bag for {@html icons.<name>} consumption */
 export const icons = {
@@ -98,4 +132,13 @@ export const icons = {
   calendar,
   clock,
   pipette,
+  sun,
+  moon,
+  monitor,
+  languages,
+  image,
+  fileVideo,
+  fileAudio,
+  upload,
+  chevronLeft,
 };

@@ -35,6 +35,7 @@
   (D1-exempt residue law).
 -->
 <script lang="ts">
+  import { icons } from '$lib/icons';
   import { cn } from '$lib/utils';
   import {
     MONTHS,
@@ -226,28 +227,27 @@
 
 <div data-jx-calendar class={className}>
   <div data-jx-date-nav class="flex items-center justify-between gap-2 -mb-2.5">
+    <!-- nav glyphs from the shared icons module; date-picker.css sizes
+         any svg descendant to 13px, the strokier chevrons ride the
+         consuming utility -->
     <button
       type="button"
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed [&_svg]:stroke-[2.5]"
       aria-label="previous month"
       disabled={prevDisabled}
       onclick={() => stepMonth(-1)}
     >
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="m15 18-6-6 6-6"></path>
-      </svg>
+      {@html icons.chevronLeft}
     </button>
     <span data-jx-date-month class="font-nav text-[11px] tracking-[0.2em] uppercase">{monthLabel}</span>
     <button
       type="button"
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed [&_svg]:stroke-[2.5]"
       aria-label="next month"
       disabled={nextDisabled}
       onclick={() => stepMonth(1)}
     >
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="m9 18 6-6-6-6"></path>
-      </svg>
+      {@html icons.chevronRight}
     </button>
   </div>
 

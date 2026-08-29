@@ -41,6 +41,7 @@
 -->
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { icons } from '$lib/icons';
   import Input from '$lib/ui/input/input.svelte';
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
@@ -283,25 +284,11 @@
     {#if canPick}
       <IconButton variant="outline" iconOnly text="Pick from screen" onclick={pickFromScreen}>
         {#snippet icon()}
-          <!-- the pipette glyph (lucide pipette path, currentColor ink) -->
-          <!-- IconButton sizes nothing itself (bring-your-own-glyph
-               law) — an unsized svg collapses to 0 in the flex row -->
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            width="15"
-            height="15"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="m2 22 1-1h3l9-9" />
-            <path d="M3 21v-3l9-9" />
-            <path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z" />
-          </svg>
+          <!-- the pipette glyph from the shared icons module (currentColor
+               ink; sw 2 = the module default) -->
+          <!-- IconButton sizes nothing itself (bring-your-own-glyph law)
+               — the consuming wrapper owns the 15px box (module bakes 16) -->
+          <span class="inline-flex [&_svg]:h-[15px] [&_svg]:w-[15px]">{@html icons.pipette}</span>
         {/snippet}
       </IconButton>
     {/if}

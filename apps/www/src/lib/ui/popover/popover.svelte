@@ -69,6 +69,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { icons } from '$lib/icons';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './popover.css';
@@ -267,18 +268,13 @@
       aria-expanded={open}
     >
       {triggerLabel}
-      <svg
-        class="jx-pop-caret h-[13px] w-[13px] flex-none transition-transform duration-150 ease-out"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="m6 9 6 6 6-6" />
-      </svg>
+      <!-- jx-pop-caret rides the wrapper: popover.css flips it via :has()
+           + :popover-open (and kills its transition under reduced
+           motion); the glyph is the shared module svg, sized and
+           re-stroked through consuming-context CSS -->
+      <span class="jx-pop-caret flex-none inline-flex transition-transform duration-150 ease-out [&_svg]:h-[13px] [&_svg]:w-[13px] [&_svg]:stroke-[2.5]">
+        {@html icons.chevronDown}
+      </span>
     </button>
   {/if}
 </span>

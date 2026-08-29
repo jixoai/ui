@@ -29,6 +29,7 @@
 <script lang="ts">
   import { onDestroy, untrack } from 'svelte';
   import type { Snippet } from 'svelte';
+  import { icons } from '$lib/icons';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import './dialog.css';
 
@@ -117,21 +118,13 @@
       {/if}
       <button
         type="button"
-        class="jx-press jx-dialog-x inline-flex items-center justify-center flex-none size-[30px] p-0 border border-border bg-popover cursor-pointer [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-[color-mix(in_oklab,var(--popover-foreground)_6%,transparent)]"
+        class="jx-press jx-dialog-x inline-flex items-center justify-center flex-none size-[30px] p-0 border border-border bg-popover cursor-pointer [&_svg]:stroke-[2.5] [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-[color-mix(in_oklab,var(--popover-foreground)_6%,transparent)]"
         onclick={shut}
         aria-label="Close"
       >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          aria-hidden="true"
-        >
-          <path d="M18 6 6 18" />
-          <path d="m6 6 12 12" />
-        </svg>
+        <!-- glyph from the shared icons module; dialog.css owns its 14px
+             descendant scale, the strokier × rides a consuming utility -->
+        {@html icons.x}
       </button>
     </div>
     <div data-jx-dialog-body="" class="p-3.5 text-[13px] leading-[1.6] text-[color-mix(in_oklab,var(--popover-foreground)_80%,transparent)]">

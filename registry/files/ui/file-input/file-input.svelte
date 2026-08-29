@@ -59,6 +59,7 @@
 
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { icons } from '$lib/icons';
   import { cn } from '$lib/utils';
   import type { Snippet } from 'svelte';
   import type { HTMLInputAttributes } from 'svelte/elements';
@@ -322,42 +323,27 @@
 </script>
 
 {#snippet kindIcon(kind: FileKind)}
+  <!-- kind glyphs from the shared icons module (closest lucide match per
+       kind): file-input.css sizes any svg descendant to the 100% thumb
+       box; the lighter stroke rides the .jx-file-icon consuming context -->
   {#if kind === 'image'}
-    <!-- 山+太阳: the photo glyph -->
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true">
-      <rect x="2.5" y="4" width="19" height="16"></rect>
-      <circle cx="8.75" cy="9.75" r="1.75"></circle>
-      <path d="m2.5 16.75 5.75-5.75 4 4 3.25-3.25 6 6"></path>
-    </svg>
+    <!-- 山+太阳: the photo glyph (lucide image) -->
+    {@html icons.image}
   {:else if kind === 'video'}
-    <!-- 播放三角 in a frame -->
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true">
-      <rect x="2.5" y="4" width="19" height="16"></rect>
-      <path d="m10.25 9 5 3-5 3z" fill="currentColor"></path>
-    </svg>
+    <!-- 播放三角 (lucide file-video) -->
+    {@html icons.fileVideo}
   {:else if kind === 'audio'}
-    <!-- 音符: beam + two note heads -->
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M9 17.5V6l10-2.5V15"></path>
-      <circle cx="6.75" cy="17.75" r="2.25" fill="currentColor" stroke="none"></circle>
-      <circle cx="16.75" cy="15.25" r="2.25" fill="currentColor" stroke="none"></circle>
-    </svg>
+    <!-- 音符: beam + note heads (lucide file-audio) -->
+    {@html icons.fileAudio}
   {:else if kind === 'pdf'}
-    <!-- 文档图形 + text lines -->
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M6 2.5h8l4 4v15H6z"></path>
-      <path d="M14 2.5v4h4"></path>
-      <path d="M9 12h6M9 15.5h6"></path>
-    </svg>
+    <!-- 文档图形 + text lines (lucide file-text) -->
+    {@html icons.fileText}
   {:else if kind === 'code'}
     <!-- "</>" as a font-nav text glyph — no SVG needed -->
     <span data-jx-file-code-glyph class="font-nav font-bold text-[calc(var(--jx-file-icon)*0.72)] tracking-[-0.02em] leading-none">&lt;/&gt;</span>
   {:else}
-    <!-- 通用文档图形 -->
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M6 2.5h8l4 4v15H6z"></path>
-      <path d="M14 2.5v4h4"></path>
-    </svg>
+    <!-- 通用文档图形 (lucide file) -->
+    {@html icons.file}
   {/if}
 {/snippet}
 
@@ -386,23 +372,14 @@
       {:else}
         <span
           class={cn(
-            'jx-file-zone-glyph inline-flex items-center justify-center w-(--jx-file-zone-glyph) h-(--jx-file-zone-glyph) text-muted-foreground transition-colors duration-150 ease-out',
+            'jx-file-zone-glyph inline-flex items-center justify-center w-(--jx-file-zone-glyph) h-(--jx-file-zone-glyph) text-muted-foreground transition-colors duration-150 ease-out [&_svg]:stroke-[1.75]',
             dragging && 'text-primary',
           )}
           aria-hidden="true"
         >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.75"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M12 15V3.5"></path>
-            <path d="m7 8.5 5-5 5 5"></path>
-            <path d="M4 15.5v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path>
-          </svg>
+          <!-- lucide upload tray+arrow from the shared module; the css
+               100% descendant sizing still owns the box -->
+          {@html icons.upload}
         </span>
         <span
           class={cn(
@@ -432,24 +409,17 @@
       ondragleave={onDragLeave}
       ondrop={onDrop}
     >
-      <svg
+      <!-- lucide upload from the shared module (sw 2 = the baked module
+           default, no override); sizing rides the consuming utility -->
+      <span
         data-jx-file-trigger-glyph
         class={cn(
-          'w-[calc(var(--jx-file-icon)*0.9)] h-[calc(var(--jx-file-icon)*0.9)] flex-none text-muted-foreground',
+          'flex-none inline-flex text-muted-foreground [&_svg]:w-[calc(var(--jx-file-icon)*0.9)] [&_svg]:h-[calc(var(--jx-file-icon)*0.9)]',
           dragging && 'text-primary',
         )}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
       >
-        <path d="M12 15V3"></path>
-        <path d="m7 8 5-5 5 5"></path>
-        <path d="M4 21h16"></path>
-      </svg>
+        {@html icons.upload}
+      </span>
       {multiple ? 'choose files' : 'choose file'}
     </button>
   {/if}
@@ -500,7 +470,7 @@
             {#if item.previewUrl}
               <img data-jx-file-thumb-img class="block w-(--jx-file-thumb) h-(--jx-file-thumb) object-cover" src={item.previewUrl} alt="" loading="lazy" />
             {:else}
-              <span data-jx-file-icon={fileKind(item.file)} class="jx-file-icon inline-flex items-center justify-center w-(--jx-file-icon) h-(--jx-file-icon) text-muted-foreground">
+              <span data-jx-file-icon={fileKind(item.file)} class="jx-file-icon inline-flex items-center justify-center w-(--jx-file-icon) h-(--jx-file-icon) text-muted-foreground [&_svg]:stroke-[1.75]">
                 {@render kindIcon(fileKind(item.file))}
               </span>
             {/if}

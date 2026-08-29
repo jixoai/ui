@@ -41,6 +41,7 @@
   import type { Snippet } from 'svelte';
   import { onDestroy, setContext } from 'svelte';
   import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
+  import { icons } from '$lib/icons';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import './dropdown-menu.css';
@@ -236,18 +237,12 @@
       aria-haspopup="menu"
     >
       {triggerLabel}
-      <svg
-        class="jx-menu-caret h-[13px] w-[13px] flex-none transition-transform duration-150 ease-out"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="m6 9 6 6 6-6" />
-      </svg>
+      <!-- jx-menu-caret rides the wrapper: dropdown-menu.css flips it via
+           :has() + :popover-open; the glyph itself is the shared 16px/sw-2
+           module svg, sized and re-stroked through consuming-context CSS -->
+      <span class="jx-menu-caret flex-none inline-flex transition-transform duration-150 ease-out [&_svg]:h-[13px] [&_svg]:w-[13px] [&_svg]:stroke-[2.5]">
+        {@html icons.chevronDown}
+      </span>
     </button>
   {/if}
 </span>

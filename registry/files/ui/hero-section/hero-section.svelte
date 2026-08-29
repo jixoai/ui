@@ -37,6 +37,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
+  import { icons } from '$lib/icons';
   import { cn } from '$lib/utils';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import './hero-section.css';
@@ -143,14 +144,16 @@
             ariaLabel={`${copied ? 'copied' : copyLabel} ${copyCommand}`}
           >
             {#if copied}
-              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M20 6 9 17l-5-5" />
-              </svg>
+              <!-- shared-module glyphs (full lucide copy geometry — the
+                   hand-simplified variant retired 2026-08-29); the copied
+                   check rides a strokier consuming utility -->
+              <span class="inline-flex [&_svg]:h-4 [&_svg]:w-4 [&_svg]:stroke-[2.5]">
+                {@html icons.check}
+              </span>
             {:else}
-              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="9" y="9" width="12" height="12" rx="0" />
-                <path d="M5 15V4a1 1 0 0 1 1-1h10" />
-              </svg>
+              <span class="inline-flex [&_svg]:h-4 [&_svg]:w-4">
+                {@html icons.copy}
+              </span>
             {/if}
             <span>{copyCommand}</span>
           </PressButton>

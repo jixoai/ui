@@ -19,6 +19,7 @@
   carry them.
 -->
 <script lang="ts">
+  import { icons } from '$lib/icons';
   import { cn } from '$lib/utils';
 
   export interface SwitcherLocale {
@@ -42,23 +43,9 @@
 </script>
 
 <div data-jx-lang="" class="flex items-center gap-2" bind:this={root}>
-  <svg
-    class="h-3.5 w-3.5 opacity-70"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    aria-hidden="true"
-  >
-    <path d="m5 8 6 6" />
-    <path d="m4 14 6-6 2-3" />
-    <path d="M2 5h12" />
-    <path d="M7 2h1" />
-    <path d="m22 22-5-10-5 10" />
-    <path d="M14 18h6" />
-  </svg>
+  <!-- glyphs from the shared icons module; sizing/stroke overrides are
+       consuming-context CSS (the module bakes 16px / sw 2) -->
+  <span class="inline-flex opacity-70 [&_svg]:h-3.5 [&_svg]:w-3.5">{@html icons.languages}</span>
 
   {#if variant === 'pair'}
     <div
@@ -98,18 +85,9 @@
         onkeydown={(e) => e.key === 'Escape' && (open = false)}
       >
         {activeLabel}
-        <svg
-          class="h-3 w-3 transition-transform {open ? 'rotate-180' : ''}"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path d="m6 9 6 6 6-6" />
-        </svg>
+        <span class="inline-flex transition-transform {open ? 'rotate-180' : ''} [&_svg]:h-3 [&_svg]:w-3 [&_svg]:stroke-[2.5]">
+          {@html icons.chevronDown}
+        </span>
       </button>
       {#if open}
         <ul

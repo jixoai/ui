@@ -26,12 +26,12 @@
 
 ## C. generated icon module + registry (batch C)
 
-- [ ] C1: `scripts/gen-icons.mjs` — manifest-driven generator with
+- [x] C1: `scripts/gen-icons.mjs` — manifest-driven generator with
       `--check` freshness mode; emits byte-compatible icons.ts
-- [ ] C2: icons.ts set expansion — sun/moon/monitor/languages/image/
+- [x] C2: icons.ts set expansion — sun/moon/monitor/languages/image/
       file-video/file-audio/upload/chevron-left/chevron-right/copy
       (full) for the component migration
-- [ ] C3: the 13 component files' inline `<svg>` → `{@html icons.x}`
+- [x] C3: the 13 component files' inline `<svg>` → `{@html icons.x}`
       with scoped CSS stroke-width overrides where ≠ 2
 
 ## D. integration (ZCode, shared files)
