@@ -91,6 +91,13 @@ export const SLOT_REGISTRY: Readonly<Record<IconSlot, SlotDefinition>> = {
         browsers: 'all',
         notes: 'CSS mask on .jx-clear-glyph reading --jx-icon-clear',
       },
+      {
+        consumer:
+          "input/control/control-lane [type=search] ::-webkit-search-cancel-button",
+        technique: 'background-image',
+        browsers: 'chromium',
+        notes: 'the UA cancel ornament repaints as the suffix-icon standard (2026-08-29); Firefox renders no cancel ornament',
+      },
     ],
   },
   mail: {

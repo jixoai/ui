@@ -93,5 +93,23 @@ export const controlLaneLaw: ComponentLaw = {
         'background-repeat': 'no-repeat',
       },
     },
+    /* the UA cancel ornament repaints as the input-suffix-icon
+       standard (the clear glyph's lucide X through the icon slot);
+       the component's own clearable ✕ kills it (input.css residue) */
+    {
+      selector: "[type='search']::-webkit-search-cancel-button",
+      declarations: {
+        '-webkit-appearance': 'none',
+        appearance: 'none',
+        width: '1.4em',
+        height: '1.4em',
+        'margin-inline-start': 'var(--jx-gap, 0.5rem)',
+        cursor: 'pointer',
+        'background-image':
+          "var(--jx-icon-clear, url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E\"))",
+        'background-size': 'contain',
+        'background-repeat': 'no-repeat',
+      },
+    },
   ],
 };

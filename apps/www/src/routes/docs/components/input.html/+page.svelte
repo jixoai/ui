@@ -120,12 +120,16 @@
   let bridgeDate = $state('');
   let bridgeDatePicked = $state('');
   let bridgeColor = $state('#7c7c7c');
-  const pickerBridgeUsage = `<!-- one prop: the embedded default panel -->
-<Input type="date" bind:value native-picker={false} onselect={(v) => …} />
-<Input type="color" bind:value native-picker={false} />
+  const pickerBridgeUsage = `<!-- the custom panel is the DEFAULT (date → Calendar, color → Swatches) -->
+<Input type="date" bind:value onselect={(v) => …} />
+<Input type="color" bind:value />
+
+<!-- the bare attribute opts back into the platform popup
+     (the disabled-attribute philosophy: presence = true) -->
+<Input type="date" native-picker />
 
 <!-- fine-grained: any panel content through the snippet -->
-<Input type="week" native-picker={false}>
+<Input type="week">
   {#snippet picker(ctx)}
     <MyWeekGrid value={ctx.value} onpick={ctx.commit} />
   {/snippet}
@@ -291,8 +295,9 @@
       </CardGrid>
       <p class="text-muted-foreground mt-4 text-pretty text-[13px] leading-6">
         Tab through the grid: every control is keyboard-reachable with its platform behavior —
-        the color swatches, the range arrows, the platform pickers (the calendar indicator is
-        repainted through a mask, and clicking it still opens the native picker). checkbox and
+        the color swatches, the range arrows, the date/time pickers (the calendar indicator is
+        repainted through a mask, and clicking it opens the embedded Calendar — the custom
+        panel is the default; pass native-picker for the platform popup). checkbox and
         radio live in their own pure-CSS components, file picking and dates have their
         professional controls; everything else is painted by the Tier-1 class vocabulary —
         range tracks and thumbs, color swatches, date/time indicators, number spinners
@@ -415,22 +420,28 @@
       headerRegion="picker-bridge"
       eyebrow="bridge"
       title="custom picker bridge"
-      summary="The native date/color popups cannot be styled — but they can be swapped. native-picker={false} intercepts the trigger and mounts a Popover-API panel (date/datetime-local ride the date-picker Calendar; color rides the color-picker Swatches). The input stays a real input: native typing, parsing, ARIA and FormData untouched. A picker snippet replaces the default panel for anything else — its ctx carries value, commit and close. The default keeps the native popup: the most accessible default."
+      summary="The native date/color popups cannot be styled — so the swap is the default. Every date/datetime-local field rides the date-picker Calendar and every color field rides the color-picker Swatches through a Popover-API panel; the input stays a real input: native typing, parsing, ARIA and FormData untouched. The bare boolean attribute — native-picker, the disabled-attribute philosophy — opts back into the platform popup, and a picker snippet replaces the default panel for anything else (its ctx carries value, commit and close)."
     >
       <div class="flex flex-col gap-5">
         <div class="grid gap-5 min-[760px]:grid-cols-2">
           <Input
             type="date"
-            label="date (custom picker)"
+            label="date (custom picker — the default)"
             bind:value={bridgeDate}
-            nativePicker={false}
             onselect={(v) => (bridgeDatePicked = v)}
           />
           <Input
+            type="date"
+            label="date (native-picker opt-out)"
+            name="bridge_native_date"
+            nativePicker
+          />
+        </div>
+        <div class="grid gap-5 min-[760px]:grid-cols-2">
+          <Input
             type="color"
-            label="color (custom picker)"
+            label="color (custom picker — the default)"
             bind:value={bridgeColor}
-            nativePicker={false}
           />
         </div>
         <p class="font-mono text-xs text-muted-foreground">
@@ -534,6 +545,7 @@
           { name: 'label', type: 'string', default: '—', description: 'Field label rendered as label[for] above the control.' },
           { name: 'error', type: 'string', default: '—', description: 'Error text: sets aria-invalid, wires aria-describedby, dashes the shell.' },
           { name: 'clearable', type: 'boolean', default: 'false', description: 'Text-like only: adds the × button in the inner-inline-end seam.' },
+          { name: 'native-picker', type: 'boolean', default: 'false', description: 'The bare attribute opts back into the platform popup; the default mounts the embedded panel (date/datetime-local → Calendar, color → Swatches).' },
           { name: 'value', type: 'string | number', default: '—', description: 'Bindable; bound ⇒ controlled, absent ⇒ purely uncontrolled.', bindable: true },
           { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'inherited', description: 'Overrides the inherited density scope.' },
           { name: 'innerInlineStart', type: 'Snippet', default: '—', description: 'Inside the shell, left of the lane (prefix icon / unit).' },

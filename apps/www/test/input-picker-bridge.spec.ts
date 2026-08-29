@@ -1,12 +1,15 @@
 /**
- * input-picker-bridge.spec.ts — the custom picker bridge (2026-08-28).
+ * input-picker-bridge.spec.ts — the custom picker bridge (2026-08-28;
+ * default flipped 2026-08-29, the disabled-attribute philosophy).
  *
- * native-picker={false} (or a picker snippet) must: intercept the
- * native popup's trigger zones, mount the Popover-API panel with the
- * embedded default (Calendar for date/datetime-local, Swatches for
- * color), commit through the $bindable value + onselect, and keep the
- * input a real input. The default (nativePicker) must mount NOTHING;
- * month/week/time without a snippet stay native (no bridge).
+ * The custom panel is the DEFAULT for the types that have one (or
+ * whenever a picker snippet is given): the bridge intercepts the
+ * native popup's trigger zones, mounts the Popover-API panel with
+ * the embedded default (Calendar for date/datetime-local, Swatches
+ * for color), commits through the $bindable value + onselect, and
+ * keeps the input a real input. The bare `native-picker` attribute
+ * opts back into the platform popup (nothing mounted); month/week/
+ * time without a snippet stay native (no bridge).
  */
 import { describe, expect, it } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
@@ -14,16 +17,21 @@ import Input from '$lib/ui/input/input.svelte';
 import SnippetHost from './fixtures/input-picker-snippet-host.svelte';
 
 describe('Input · the picker bridge', () => {
-  it('default: no bridge panel is mounted, the native popup stays', () => {
+  it('default: the bridge panel is mounted (date) — the custom picker is the library default', () => {
     const { container } = render(Input, { type: 'date', label: 'd' });
+    expect(container.querySelector('.jx-picker-panel')).not.toBeNull();
+    expect(container.querySelector('[data-jx-custom-picker]')).not.toBeNull();
+  });
+
+  it('the bare native-picker attribute opts back into the platform popup (nothing mounted)', () => {
+    const { container } = render(Input, { type: 'date', label: 'd', nativePicker: true });
     expect(container.querySelector('.jx-picker-panel')).toBeNull();
     expect(container.querySelector('[data-jx-custom-picker]')).toBeNull();
   });
 
-  it('native-picker={false} (date): interception attrs + popover panel + embedded Calendar', () => {
+  it('(date): interception attrs + popover panel + embedded Calendar', () => {
     const { container } = render(Input, {
       type: 'date',
-      nativePicker: false,
       id: 'pb-date',
       value: '2026-08-28',
     });
@@ -39,7 +47,6 @@ describe('Input · the picker bridge', () => {
     let picked = '';
     const { container } = render(Input, {
       type: 'date',
-      nativePicker: false,
       id: 'pb-commit',
       value: '',
       onselect: (v: string) => (picked = v),
@@ -59,7 +66,6 @@ describe('Input · the picker bridge', () => {
   it('datetime-local commit preserves the typed time part', async () => {
     const { container } = render(Input, {
       type: 'datetime-local',
-      nativePicker: false,
       id: 'pb-dtl',
       value: '2026-08-01T14:30',
     });
@@ -69,10 +75,9 @@ describe('Input · the picker bridge', () => {
     expect(lane.value).toBe('2026-08-28T14:30');
   });
 
-  it('native-picker={false} (color): the overlay button is the trigger; the swatch retires from the pointer path', () => {
+  it('(color): the overlay button is the trigger; the swatch retires from the pointer path', () => {
     const { container } = render(Input, {
       type: 'color',
-      nativePicker: false,
       id: 'pb-color',
       value: '#7c7c7c',
     });
@@ -97,7 +102,7 @@ describe('Input · the picker bridge', () => {
   });
 
   it('month/week/time without a snippet: native stays (no bridge mounted)', () => {
-    const { container } = render(Input, { type: 'month', nativePicker: false, id: 'pb-month' });
+    const { container } = render(Input, { type: 'month', id: 'pb-month' });
     expect(container.querySelector('.jx-picker-panel')).toBeNull();
     expect(container.querySelector('[data-jx-custom-picker]')).toBeNull();
   });

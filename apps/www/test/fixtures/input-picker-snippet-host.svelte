@@ -9,7 +9,7 @@
   let picked = $state('');
 </script>
 
-<Input type="week" id="pb-week-host" bind:value nativePicker={false}>
+<Input type="week" id="pb-week-host" bind:value>
   {#snippet picker(ctx)}
     <button
       type="button"

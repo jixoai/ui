@@ -249,7 +249,7 @@
   >
     <span
       data-jx-color-picker-dot
-      class="absolute w-2.5 h-2.5 bg-transparent border border-white shadow-[0_0_0_1px_#000] pointer-events-none"
+      class="absolute w-2.5 h-2.5 rounded-full bg-transparent border border-white shadow-[0_0_0_1px_#000] pointer-events-none"
       style="inset-inline-start: calc({sat * 100}% - 5px); top: calc({(1 - val) * 100}% - 5px)"
     ></span>
   </div>
@@ -263,7 +263,7 @@
     onpointerup={(event) => (dragHue = endDrag(hueEl, event, dragHue) ? false : dragHue)}
     onpointercancel={(event) => (dragHue = endDrag(hueEl, event, dragHue) ? false : dragHue)}
   >
-    <span data-jx-color-picker-dot data-jx-color-picker-dot-hue class="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-transparent border border-white shadow-[0_0_0_1px_#000] pointer-events-none" style="inset-inline-start: calc({(hue / 360) * 100}% - 5px)"></span>
+    <span data-jx-color-picker-dot data-jx-color-picker-dot-hue class="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-transparent border border-white shadow-[0_0_0_1px_#000] pointer-events-none" style="inset-inline-start: calc({(hue / 360) * 100}% - 5px)"></span>
   </div>
 
   <!-- LAYOUT LAW (final-check report): the VALUE ROW is the column's

@@ -5,22 +5,33 @@
  * cannot be cancelled (UA shadow activation). The bridge intercepts
  * the TRIGGER zones instead and mounts a Popover-API panel:
  *
- *   native-picker={false}  → the embedded default panel
- *                            (date/datetime-local → Calendar,
- *                             color → Swatches)
+ *   the DEFAULT mounts the embedded panel (2026-08-29 Owner ruling,
+ *   the disabled-attribute philosophy): date/datetime-local → the
+ *   Calendar, color → the Swatches editor. The bare boolean
+ *   attribute opts back into the platform popup —
+ *   <Input type="date" native-picker />. The input itself stays a
+ *   REAL input either way (native typing, parsing, ARIA, FormData
+ *   untouched) — only the popup layer differs.
  *   {#snippet picker(ctx)} → any custom panel content
- *
- * The input itself stays a REAL input (native typing, parsing, ARIA,
- * FormData untouched) — only the popup layer is swapped.
  *
  * Intent ledger:
  *  - trigger interception (indicator pointer-events, color overlay) — 2026-08-28
  *  - the panel (date-panel law: bezel surface, anchor, try-fallbacks,
  *    the no-anchor viewport-center fallback, transparent ::backdrop)
+ *  - the clearable ✕ kill — the repainted UA search ornament would
+ *    double the component's own clear button (2026-08-29)
  */
 @layer theme, base, components, utilities;
 
 @layer components {
+  /* ---- the clearable ✕ owns the clear job --------------------------------
+     the UA search-cancel repaint (the suffix-icon standard, css-laws)
+     still fires on the component's lane — hide it whenever the
+     component renders its own × so the two never double */
+  :where(.jx-html-control-shell.jx-clearable) input::-webkit-search-cancel-button {
+    display: none;
+  }
+
   /* ---- trigger interception ------------------------------------------
      the indicator's clicks fall through to the lane, whose click
      router (input.svelte) opens OUR panel for the end-zone clicks */

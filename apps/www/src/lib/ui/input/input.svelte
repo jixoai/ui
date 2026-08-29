@@ -112,11 +112,13 @@
         own the error text; their computed chains must survive) */
     'aria-invalid'?: 'true' | 'false' | undefined;
     'aria-describedby'?: string | undefined;
-    /** picker bridge: false → intercept the native popup and mount a
-        custom Popover-API panel. Embedded default panels exist for
-        date/datetime-local (the Calendar) and color (the Swatches);
-        month/week/time need the picker snippet. Default true — the
-        native popup, the most accessible default. */
+    /** picker bridge: the custom Popover-API panel is the DEFAULT for
+        the types that have one (date/datetime-local → the Calendar,
+        color → the Swatches editor). The bare boolean attribute opts
+        back into the platform popup — <Input type="date" native-picker />
+        (the disabled-attribute philosophy: presence = true, absence =
+        the library default). month/week/time keep the platform popup
+        until a picker snippet is given. */
     nativePicker?: boolean;
     /** fires when the custom picker commits a value */
     onselect?: (value: string) => void;
@@ -154,7 +156,7 @@
     class: className = '',
     'aria-invalid': ariaInvalid,
     'aria-describedby': ariaDescribedBy,
-    nativePicker = true,
+    nativePicker = false,
     onselect,
     picker,
     ...rest
@@ -207,13 +209,6 @@
   const customPicker = $derived(
     Boolean(picker) || (nativePicker === false && EMBEDDED_PICKER_TYPES.has(type)),
   );
-  $effect(() => {
-    if (nativePicker === false && !picker && !EMBEDDED_PICKER_TYPES.has(type) && type !== 'text') {
-      console.warn(
-        `[Input] native-picker={false} has no embedded panel for type="${type}" — pass a {#snippet picker} or keep the native popup`,
-      );
-    }
-  });
 
   let pickerPanelEl = $state<HTMLDivElement | null>(null);
   let pickerAnchorEl = $state<HTMLElement | null>(null);
