@@ -43,7 +43,7 @@
   <title>Range · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai range component: the fully custom slider — div + Pointer Events over the shared slider law, primary fill, square thumb, optional ticks, the full aria slider keyboard contract (←→/↑↓ step, Home/End jump), RTL through logical properties only, and the family error law."
+    content="The jixoai range component: the fully custom slider — div + Pointer Events over the shared slider law, primary fill, ringed disc thumb, optional ticks, the full aria slider keyboard contract (←→/↑↓ step, Home/End jump), RTL through logical properties only, and the family error law."
   />
 </svelte:head>
 

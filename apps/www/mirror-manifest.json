@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-29T08:29:12.485Z",
+  "generatedAt": "2026-08-29T09:24:50.695Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -91,8 +91,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "d63e47d8e5db0522af8044583ff32b74ff19d0543707def85ff3f9b24ab51eae",
-          "mirrorSha": "d63e47d8e5db0522af8044583ff32b74ff19d0543707def85ff3f9b24ab51eae"
+          "sourceSha": "4de53134b397ed0c4469f60730552ad6ae244b9918d07d66f4bdbc041956fd76",
+          "mirrorSha": "4de53134b397ed0c4469f60730552ad6ae244b9918d07d66f4bdbc041956fd76"
         }
       ]
     },
@@ -628,8 +628,8 @@
           "source": "registry/files/theme/jx-pure.css",
           "mirror": "apps/www/src/lib/jx-pure.css",
           "target": "@lib/jx-pure.css",
-          "sourceSha": "ed86bc56c0e9409710e140d5e433ac1f7ddbb905c9d58a7e6627d62bf97b7007",
-          "mirrorSha": "ed86bc56c0e9409710e140d5e433ac1f7ddbb905c9d58a7e6627d62bf97b7007"
+          "sourceSha": "b8ee2e3c53bb9e74e50c0cfe6c91ee6cb5fe9e0b7c59abaab8d43f44e12ee035",
+          "mirrorSha": "b8ee2e3c53bb9e74e50c0cfe6c91ee6cb5fe9e0b7c59abaab8d43f44e12ee035"
         }
       ]
     },
@@ -1083,8 +1083,8 @@
           "source": "registry/files/ui/range/range.svelte",
           "mirror": "apps/www/src/lib/ui/range/range.svelte",
           "target": "@ui/range/range.svelte",
-          "sourceSha": "7654e5831c73b1b073d2fff3ad2d912bb9ea7e134cd7b398ccbb2c463367da16",
-          "mirrorSha": "7654e5831c73b1b073d2fff3ad2d912bb9ea7e134cd7b398ccbb2c463367da16"
+          "sourceSha": "f2b4de974e7ced4ff3f227eb51b562903ff695106c633b4745822a43e943ffb8",
+          "mirrorSha": "f2b4de974e7ced4ff3f227eb51b562903ff695106c633b4745822a43e943ffb8"
         },
         {
           "source": "registry/files/ui/range/index.ts",
@@ -1097,8 +1097,8 @@
           "source": "registry/files/ui/range/range.css",
           "mirror": "apps/www/src/lib/ui/range/range.css",
           "target": "@ui/range/range.css",
-          "sourceSha": "476c426c06793721ba7d202cff69f481cfe88fd8044d57463b5870555c27ca7b",
-          "mirrorSha": "476c426c06793721ba7d202cff69f481cfe88fd8044d57463b5870555c27ca7b"
+          "sourceSha": "ebd542642f93722b46f64691f9c5ed0f0d840dd9e9233de50f031abda1fbee77",
+          "mirrorSha": "ebd542642f93722b46f64691f9c5ed0f0d840dd9e9233de50f031abda1fbee77"
         }
       ]
     },

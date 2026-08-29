@@ -90,11 +90,11 @@
 <label class="jx-label" for="deploy">deploy</label>
 <input class="jx-control" id="deploy" type="datetime-local" />
 
-<!-- range: pure-CSS slider — zero-JS fill to the thumb, thick strip + 8px groove, square thumb -->
+<!-- range: pure-CSS slider — zero-JS fill to the thumb, thick strip + thin groove, ringed disc thumb -->
 <input class="jx-slider" type="range" min="0" max="100" value="40" />
 
 <!-- color: the wrapper label opens the picker from the pipette glyph;
-     compact 5rem field by default — add jx-color-expand for the row -->
+     compact 7:4 chip by default — add jx-color-expand for the row -->
 <label class="jx-color-shell">
   <input class="jx-color-swatch" type="color" value="#007924" />
 </label>
@@ -332,7 +332,7 @@
               </label>
             </div>
             <span class="text-muted-foreground text-[12px]">
-              .jx-control · .jx-slider · .jx-color-shell + .jx-color-swatch — compact by default (5rem),
+              .jx-control · .jx-slider · .jx-color-shell + .jx-color-swatch — compact 7:4 chip by default,
               .jx-color-expand reclaims the full row; the wrapper label opens the picker from
               the pipette zone too
             </span>

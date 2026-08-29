@@ -4,7 +4,7 @@
   2026-08-20 · Form wave 2 (original request: "Range 滑杆完全自绘（不用
   原生 range 控件）"). Fully custom slider: a div + Pointer Events, never
   input[type=range] — the native control paints differently per engine and
-  cannot give the brutalist square thumb or the filled progress law.
+  cannot give the ringed disc thumb or the filled progress law.
 
   Orthogonal intents:
   1. geometry — the shared slider law (2026-08-23 Tier rebase, same
@@ -274,7 +274,7 @@
     aria-describedby={describedBy}
     aria-disabled={isDisabled ? 'true' : undefined}
       class={cn(
-      'jx-slider relative block w-full m-0 cursor-pointer touch-none select-none',
+      'jx-slider relative block w-full min-h-[var(--jx-hit)] m-0 cursor-pointer touch-none select-none',
       isDisabled && 'opacity-50 cursor-not-allowed',
     )}
     data-jx-disabled={isDisabled ? '' : undefined}

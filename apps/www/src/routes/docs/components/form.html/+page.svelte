@@ -240,7 +240,7 @@ ${close}
               native input underneath still owns state, keyboard toggling, and FormData.
               The remaining platform widgets are repainted by the Tier-1 class vocabulary (jx-pure Part A):
               <code class="text-accent">range</code> becomes the pure-CSS slider (the zero-JS
-              cqw shadow fill, square thumb), color becomes the swatch-plus-pipette field, and
+              cqw shadow fill, ringed disc thumb), color becomes the swatch-plus-pipette field, and
               the date/time/number lanes restyle the platform's own picker indicator and
               spinners; file and dates have their own professional controls —
               file-input (drop zone, thumbnail rows, maxFiles) and date-picker (a zero-dep

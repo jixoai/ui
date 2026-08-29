@@ -1,4 +1,4 @@
-<!-- range blueprint: mid-commit sliders — the square thumb over the
+<!-- range blueprint: mid-commit sliders — the ringed disc thumb over the
      primary fill, the second one with the tick ruler. -->
 <script lang="ts">
   import Range from '$lib/ui/range/range.svelte';

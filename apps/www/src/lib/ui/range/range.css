@@ -2,8 +2,13 @@
 
 /* jixoai range — D1-exempt residue (tw4, 2026-08-24): the custom
  * slider's static geometry (groove, fill, disc thumb, tick ruler box)
- * lives as token/arbitrary utilities in the markup; the .jx-field /
- * .jx-label / .jx-error scaffolding is consumed from jx-pure Part A.
+ * lives as token/arbitrary utilities in the markup — including the
+ * root's hit lane (min-h-[var(--jx-hit)]): the .jx-slider stem is
+ * SHARED with the native input[type=range] alias in jx-pure Part A
+ * (height var(--jx-icon)), so a bare class rule here would hijack the
+ * native lane's cqh geometry (2026-08-29 Tier-1 blob bug). The
+ * .jx-field / .jx-label / .jx-error scaffolding is consumed from
+ * jx-pure Part A.
  * What remains here:
  *  - the tick ruler's repeating-gradient pair — the :dir(rtl) mirror
  *    keys on COMPUTED direction; a rtl: utility variant only matches a
@@ -15,9 +20,6 @@
  *  - the invalid→thumb repaint (parent-state descendant, unlayered). */
 
 @layer components {
-  :where(.jx-slider) {
-    min-block-size: var(--jx-hit);
-  }
   :where(.jx-slider-track) {
     height: var(--jx-slider-track);
   }
