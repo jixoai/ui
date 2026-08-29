@@ -7,7 +7,7 @@
 | packages/css-laws vitest | 42/42 (independent-parser dual-projection equality, scope integrity, empty-rule guard, `--j-` typo scan, fidelity spot-checks, composeLaw, byte stability, anchorless projections) |
 | apps/www vitest | 573/573 |
 | verify:parity | GREEN — 8 rows, 311 computed-style comparisons + 20 DOM-AST assertions + ABSOLUTE posture locks (select[multiple]: no chevron, default cursor, 92px lane); identical rendering pre- and post-cutover |
-| verify:budgets | 3/3 PASS (baselines re-recorded with justification: B-source 31630→measured 30047 after the anchorless fix, B-face 9124, B-consumer unchanged) |
+| verify:budgets | 3/3 PASS (branch-era baselines; the MERGE re-recorded B-face to 10393/400 rules on 2026-08-29 — the merged dist carries both streams' face laws, see the merge-alignment decision record) |
 | verify:mirror | GREEN |
 | `npx tsx packages/css-laws/src/build.ts --check` | GREEN (committed slots fresh from law sources) |
 | browser walkthrough (headless Chrome, section-by-section screenshots) | input/range/checkbox/radio/toggle/toggle-group/select/native-select/textarea — zero visual regression post-cutover |

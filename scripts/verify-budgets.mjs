@@ -63,8 +63,16 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 
 const BASELINES = {
   'B-source': 31630, // jixoai.css + jx-pure.css (generated slots included)
-  'B-face': 9124, // 378 rules extracted from the apps/www vite build
+  // merge-alignment re-record (2026-08-29, Codex D0): the merged dist
+  // carries BOTH streams' face laws — the terminal family (main) and
+  // the picker bridge + icon vocabulary (this branch). 400 rules /
+  // +13.9% vs the branch-only 378/9124 baseline. Justified growth:
+  // new face surface, not bloat; rendering identity is covered by
+  // parity (311) + the terminal suites (707/707 total).
+  'B-face': 10393,
   'B-consumer (plugin dist gzip)': 10044, // packages/ui-plugin dist/index.js
+  // (merge-alignment A1 will split this into B-consumer-icons +
+  // B-consumer-vite when the umbrella migration lands — Codex ruling)
 };
 const THRESHOLD_FACTOR = 1.05;
 const COLLAPSE_FACTOR = 0.6;

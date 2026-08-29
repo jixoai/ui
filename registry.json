@@ -1947,7 +1947,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "press-button"
+        "@jixoai/press-button"
       ]
     },
     {

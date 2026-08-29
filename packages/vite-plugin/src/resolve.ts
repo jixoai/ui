@@ -39,6 +39,8 @@ export const HOST_ALLOWLIST: ReadonlySet<string> = new Set([
 ]);
 
 export const MAX_REDIRECTS = 5;
+/** bounded network attempts for the pinned download (proxy truncation guard) */
+const DOWNLOAD_ATTEMPTS = 3;
 export const REQUEST_TIMEOUT_MS = 30_000;
 export const MAX_DOWNLOAD_BYTES = 4 * 1024 * 1024;
 
@@ -288,10 +290,26 @@ export async function resolveWasmFromPin(
     );
   }
 
-  const bytes = await downloadPinnedAsset(variant.url, pin, variantName);
-  if (bytes.byteLength !== variant.size) {
+  // bounded retry (merge-alignment C2, Codex ruling): a proxy or flaky
+  // edge can TRUNCATE a 200 response (observed: 59 bytes short through
+  // a local HTTP proxy); verification stays final — retry only re-runs
+  // the network read, never skips size/hash
+  let bytes: Uint8Array | null = null;
+  let lastDiag = '';
+  for (let attempt = 1; attempt <= DOWNLOAD_ATTEMPTS; attempt++) {
+    const got = await downloadPinnedAsset(variant.url, pin, variantName);
+    if (got.byteLength === variant.size) {
+      bytes = got;
+      break;
+    }
+    lastDiag = `attempt ${attempt}: received ${got.byteLength} bytes, pin expects ${variant.size} (received != expected ⇒ truncated transfer, NOT pin drift — a drifted asset changes the sha too)`;
+    if (attempt < DOWNLOAD_ATTEMPTS) {
+      console.warn(`[jixoai-ghostty] size mismatch, retrying — ${lastDiag}`);
+    }
+  }
+  if (bytes === null) {
     throw new GhosttyResolveError(
-      `[jixoai-ghostty] SIZE MISMATCH — downloaded ${bytes.byteLength} bytes but the pin expects ${variant.size}; ${pinDriftFix}`,
+      `[jixoai-ghostty] SIZE MISMATCH after ${DOWNLOAD_ATTEMPTS} attempts — ${lastDiag}; likely causes: a proxy truncating the transfer (check http_proxy/HTTP_PROXY), or upstream pin drift; to force a local file, set ${GHOSTTY_WASM_PATH_ENV} to a wasm you trust; ${pinDriftFix}`,
     );
   }
   const actual = sha256Hex(bytes);
