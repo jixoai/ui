@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Three-budget gate (ui-plugin-followup A3, 2026-08-28).
+ * Four-budget gate (ui-plugin-followup A3, 2026-08-28; consumer budget
+ * split into vite/icons entries by merge-alignment C3/A1, 2026-08-29).
  *
  *   B-source    gzip(registry/files/theme/jixoai.css)
  *             + gzip(registry/files/theme/jx-pure.css)
@@ -18,9 +19,16 @@
  *               vocabulary is attributed to the face) — fine for a
  *               regression gate, which only needs consistency.
  *
- *   B-consumer  gzip(packages/ui-plugin/dist/index.js) — the minimal
- *               consumer bundle: everything the ui-plugin package
- *               ships through its entry.
+ *   B-consumer-vite  gzip(packages/vite-plugin/dist/index.js) — the
+ *                    umbrella entry (ghostty feature + icons feature
+ *                    wiring; provider code stays in ./icons chunks).
+ *   B-consumer-icons gzip(packages/vite-plugin/dist/icons.js) — the
+ *                    icon-system sub-entry barrel.
+ *
+ *   (merge-alignment C3/A1, 2026-08-29: the single B-consumer budget
+ *   tracked the now-deleted @jixoai/ui-plugin dist. It is replaced by
+ *   the two @jixoai/vite-plugin entry budgets above; their aggregate is
+ *   printed for observation only — never gated.)
  *
  * Threshold = baseline × 1.05. A measurement collapsing to <60% of
  * baseline FAILS too — that means the gate broke (renamed vocabulary,
@@ -34,7 +42,7 @@
  *
  * Missing build outputs are built automatically (site: `vite build` in
  * apps/www — the canonical pipeline; package: `npm run build` in
- * packages/ui-plugin). Pass the --build-* flags to force a rebuild on
+ * packages/vite-plugin). Pass the --build-* flags to force a rebuild on
  * top of existing artifacts.
  */
 
@@ -70,9 +78,13 @@ const BASELINES = {
   // new face surface, not bloat; rendering identity is covered by
   // parity (311) + the terminal suites (707/707 total).
   'B-face': 10393,
-  'B-consumer (plugin dist gzip)': 10044, // packages/ui-plugin dist/index.js
-  // (merge-alignment A1 will split this into B-consumer-icons +
-  // B-consumer-vite when the umbrella migration lands — Codex ruling)
+  // merge-alignment C3/A1 re-record (2026-08-29): @jixoai/ui-plugin was
+  // folded into @jixoai/vite-plugin (jixoai() `icons` feature option +
+  // ./icons subpath). Dual entry budgets replace the old single
+  // B-consumer (ui-plugin dist/index.js, baseline 10044). The aggregate
+  // (vite + icons entries) is observational only.
+  'B-consumer-vite': 1695, // packages/vite-plugin dist/index.js
+  'B-consumer-icons': 253, // packages/vite-plugin dist/icons.js
 };
 const THRESHOLD_FACTOR = 1.05;
 const COLLAPSE_FACTOR = 0.6;
@@ -186,17 +198,19 @@ function measureFace() {
   };
 }
 
-// ── B-consumer ─────────────────────────────────────────────────────
+// ── B-consumer-vite / B-consumer-icons ─────────────────────────────
 
-const pluginDistEntry = join(root, 'packages/ui-plugin', 'dist', 'index.js');
+const vitePluginDir = join(root, 'packages/vite-plugin');
+const viteDistEntry = join(vitePluginDir, 'dist', 'index.js');
+const iconsDistEntry = join(vitePluginDir, 'dist', 'icons.js');
 
 function buildPackage() {
-  console.log('[budgets] building packages/ui-plugin (tsdown)…');
+  console.log('[budgets] building packages/vite-plugin (tsdown)…');
   const result = spawnSync('npm', ['run', 'build'], {
-    cwd: join(root, 'packages/ui-plugin'),
+    cwd: vitePluginDir,
     stdio: 'inherit',
   });
-  if (result.status !== 0) die('packages/ui-plugin build failed');
+  if (result.status !== 0) die('packages/vite-plugin build failed');
 }
 
 // ── gate ───────────────────────────────────────────────────────────
@@ -206,7 +220,7 @@ if (flags.has('--build-site')) buildSite();
 else if (collectBuiltCss().length === 0) buildSite();
 
 if (flags.has('--build-package')) buildPackage();
-else if (!existsSync(pluginDistEntry)) buildPackage();
+else if (!existsSync(viteDistEntry) || !existsSync(iconsDistEntry)) buildPackage();
 
 for (const path of THEME_SHEETS) {
   if (!existsSync(join(root, path))) die(`missing source sheet: ${path}`);
@@ -216,7 +230,8 @@ const face = measureFace();
 const measured = {
   'B-source': measureSource(),
   'B-face': face.bytes,
-  'B-consumer (plugin dist gzip)': gzipOfFile(pluginDistEntry),
+  'B-consumer-vite': gzipOfFile(viteDistEntry),
+  'B-consumer-icons': gzipOfFile(iconsDistEntry),
 };
 
 if (flags.has('--update')) {
@@ -244,15 +259,19 @@ for (const [name, baseline] of Object.entries(BASELINES)) {
   rows.push({ name, baseline, current, threshold, status });
 }
 
-console.log('budget           baseline   current  threshold(+5%)  status');
+console.log('budget               baseline   current  threshold(+5%)  status');
 for (const row of rows) {
   console.log(
-    `${row.name.padEnd(16)} ${String(row.baseline).padStart(8)} ${String(row.current).padStart(9)} ${String(row.threshold).padStart(14)}  ${row.status}`,
+    `${row.name.padEnd(20)} ${String(row.baseline).padStart(8)} ${String(row.current).padStart(9)} ${String(row.threshold).padStart(14)}  ${row.status}`,
   );
 }
 console.log(
   `[budgets] B-face extracted ${face.ruleCount} face rules from apps/www/dist`,
 );
+console.log(
+  `[budgets] aggregate (observational, NOT gated): B-consumer-vite + B-consumer-icons = ` +
+    `${measured['B-consumer-vite'] + measured['B-consumer-icons']}`,
+);
 
 if (failed) process.exit(1);
-console.log('[budgets] all three budgets within threshold');
+console.log('[budgets] all four budgets within threshold');
