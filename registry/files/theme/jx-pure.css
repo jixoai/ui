@@ -490,8 +490,12 @@
   border-top-left-radius: calc(100cqh / 3);
   border-bottom-left-radius: calc(100cqh / 3);
   corner-right-shape: bevel;
-  border-top-right-radius: var(--radius, 8px);
-  border-bottom-right-radius: var(--radius, 8px);
+  /* the right radius rides the SAME cq quantum as the band inset
+     (100cqh/6 ≈ 8px at the default hit — was var(--radius, 8px),
+     which froze while every other edge scaled with the container;
+     B4: no internal dimension outside cq units) */
+  border-top-right-radius: calc(100cqh / 6);
+  border-bottom-right-radius: calc(100cqh / 6);
 }
 .jx-color-expand {
   /* both dimensions definite → aspect-ratio yields; the chip keeps
