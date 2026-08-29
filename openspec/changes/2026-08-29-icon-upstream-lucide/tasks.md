@@ -14,14 +14,14 @@
 
 ## B. css-laws (batch B)
 
-- [ ] B1: `src/icon-uris.ts` serializer — IconNode → byte-compatible
+- [x] B1: `src/icon-uris.ts` serializer — IconNode → byte-compatible
       data URI (ink `%23000`/`%23fff`, sw param)
-- [ ] B2: the 5 law sources (input/control/control-lane/clear/select)
+- [x] B2: the 5 law sources (input/control/control-lane/clear/select)
       replace URI literals with `iconUri(...)` calls; regenerated
       sheets byte-identical outside the declared changes
-- [ ] B3: `jx-icon-vocab` 4th projection — the vocabulary block +
+- [x] B3: `jx-icon-vocab` 4th projection — the vocabulary block +
       palette/chevron masks move into a generated slot in jx-pure.css
-- [ ] B4: invalid-ink → lucide `circle-alert` sw 2.5; valid-ink →
+- [x] B4: invalid-ink → lucide `circle-alert` sw 2.5; valid-ink →
       lucide `check` sw 2.5 (no hand-drawn glyphs remain)
 
 ## C. generated icon module + registry (batch C)

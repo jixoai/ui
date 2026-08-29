@@ -7,6 +7,7 @@
  */
 import { composeLaw, type ComponentLaw } from '../types';
 import { inputLaw } from './input';
+import { jxIconSlots } from '../icon-uris';
 
 export const selectLaw: ComponentLaw = composeLaw(inputLaw, {
   name: 'select',
@@ -28,8 +29,7 @@ export const selectLaw: ComponentLaw = composeLaw(inputLaw, {
   /* the chevron = an ICON SLOT (not CSS gradients — those misaligned);
      the SVG chevron-down paints as a mask (currentColor themes) */
   customProperties: {
-    '--jx-icon-chevron-svg':
-      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
+    '--jx-icon-chevron-svg': jxIconSlots.chevron,
   },
   /* the engine gate — browsers without ::-moz-range-progress (WebKit,
      Chromium) flatten the appearance and paint the chevron */

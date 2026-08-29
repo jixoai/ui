@@ -6,6 +6,7 @@
  * cutover.
  */
 import type { ComponentLaw } from '../types';
+import { iconSlot } from '../icon-uris';
 
 export const clearLaw: ComponentLaw = {
   name: 'clear',
@@ -50,10 +51,8 @@ export const clearLaw: ComponentLaw = {
         width: '10px',
         height: '10px',
         'background-color': 'currentColor',
-        '-webkit-mask':
-          "var(--jx-icon-clear, url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E\")) center / contain no-repeat",
-        mask:
-          "var(--jx-icon-clear, url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E\")) center / contain no-repeat",
+        '-webkit-mask': `${iconSlot('clear')} center / contain no-repeat`,
+        mask: `${iconSlot('clear')} center / contain no-repeat`,
       },
     },
   ],

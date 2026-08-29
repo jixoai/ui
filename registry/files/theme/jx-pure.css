@@ -267,7 +267,7 @@
   height: 1.4em;
   margin-inline-start: var(--jx-gap, 0.5rem);
   cursor: pointer;
-  background-image: var(--jx-icon-calendar, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E"));
+  background-image: var(--jx-icon-calendar, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E"));
   background-size: contain;
   background-repeat: no-repeat;
 }
@@ -377,7 +377,7 @@
   height: 1.4em;
   margin-inline-start: var(--jx-gap, 0.5rem);
   cursor: pointer;
-  background-image: var(--jx-icon-calendar, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E"));
+  background-image: var(--jx-icon-calendar, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E"));
   background-size: contain;
   background-repeat: no-repeat;
 }
@@ -532,6 +532,8 @@
 .jx-color-shell .jx-color-swatch:focus-visible {
   outline: none;
 }
+/* clear button: SUPERSEDED by jx-html-clear in the standard layer */
+/* @jixoai/css-laws:begin:jx-icon-vocab — GENERATED, do not edit (source: packages/css-laws/src/icon-vocab) */
 /* the pipette glyph — an ICON SLOT on the WRAPPER (input[type=color]
  * is a replaced element whose ::after is unreliable across engines;
  * the label wrapper is non-replaced and paints reliably) */
@@ -556,8 +558,6 @@
   color: var(--foreground);
 }
 
-/* clear button: SUPERSEDED by jx-html-clear in the standard layer */
-
 /* the color-picker chevron — an ICON SLOT (mask, currentColor themes) */
 .jx-color-picker-chevron {
   display: block;
@@ -575,17 +575,17 @@
    ===================================================================== */
 @layer theme {
   :root {
-  --jx-icon-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
+  --jx-icon-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
   --jx-icon-clock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E");
   --jx-icon-mail: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='20' height='16' x='2' y='4' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E");
   --jx-icon-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
   --jx-icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   --jx-icon-clear: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E");
   --jx-placeholder: color-mix(in oklab, var(--foreground) 40%, var(--background));
-  --jx-icon-calendar-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
+  --jx-icon-calendar-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
   --jx-icon-clock-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E");
   --jx-icon-valid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
-  --jx-icon-invalid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 16.5h.01'/%3E%3C/svg%3E");
+  --jx-icon-invalid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' x2='12' y1='8' y2='12'/%3E%3Cline x1='12' x2='12.01' y1='16' y2='16'/%3E%3C/svg%3E");
 }
 }
 .dark {
@@ -594,27 +594,28 @@
      laws consume — black alpha URIs vanish on the dark token sheet) */
   --jx-icon-mail: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='20' height='16' x='2' y='4' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E");
   --jx-icon-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
-  --jx-icon-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
+  --jx-icon-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
   --jx-icon-clock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E");
   --jx-icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   --jx-icon-clear: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E");
-  --jx-icon-calendar-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
+  --jx-icon-calendar-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
   --jx-icon-clock-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E");
   --jx-icon-valid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
-  --jx-icon-invalid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 16.5h.01'/%3E%3C/svg%3E");
+  --jx-icon-invalid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' x2='12' y1='8' y2='12'/%3E%3Cline x1='12' x2='12.01' y1='16' y2='16'/%3E%3C/svg%3E");
 }
 .jx-light {
   --jx-icon-mail: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='20' height='16' x='2' y='4' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E");
   --jx-icon-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
-  --jx-icon-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
+  --jx-icon-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
   --jx-icon-clock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E");
   --jx-icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   --jx-icon-clear: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E");
-  --jx-icon-calendar-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
+  --jx-icon-calendar-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
   --jx-icon-clock-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E");
   --jx-icon-valid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
-  --jx-icon-invalid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 16.5h.01'/%3E%3C/svg%3E");
+  --jx-icon-invalid-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' x2='12' y1='8' y2='12'/%3E%3Cline x1='12' x2='12.01' y1='16' y2='16'/%3E%3C/svg%3E");
 }
+/* @jixoai/css-laws:end:jx-icon-vocab */
 
 /* =====================================================================
    The zero-class STRUCTURAL input group: a label wrapping a text-like
@@ -752,7 +753,7 @@
    Bare color input: the locked square standalone (without a .jx-color-
    shell wrapper)
    ===================================================================== */
-:where(.jx-pure) input[type='color']:not(.no-jx-pure, .no-jx-pure *) {
+:where(.jx-pure) input:where([type='color']:not(.no-jx-pure, .no-jx-pure *)) {
   width: calc(var(--jx-hit, 2.5rem) - 2px);
   height: calc(var(--jx-hit, 2.5rem) - 2px);
   padding: 2px;
@@ -1019,7 +1020,7 @@
   height: 1.4em;
   margin-inline-start: var(--jx-gap, 0.5rem);
   cursor: pointer;
-  background-image: var(--jx-icon-calendar, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E"));
+  background-image: var(--jx-icon-calendar, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E"));
   background-size: contain;
   background-repeat: no-repeat;
 }
@@ -1117,7 +1118,7 @@
   height: 1.4em;
   margin-inline-start: var(--jx-gap, 0.5rem);
   cursor: pointer;
-  background-image: var(--jx-icon-calendar, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E"));
+  background-image: var(--jx-icon-calendar, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E"));
   background-size: contain;
   background-repeat: no-repeat;
 }
@@ -1216,7 +1217,7 @@
   height: 1.4em;
   margin-inline-start: var(--jx-gap, 0.5rem);
   cursor: pointer;
-  background-image: var(--jx-icon-calendar, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E"));
+  background-image: var(--jx-icon-calendar, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E"));
   background-size: contain;
   background-repeat: no-repeat;
 }
@@ -1297,7 +1298,7 @@
   transition: background-color 150ms ease-out, border-color 150ms ease-out;
 }
 
-:where(.jx-pure) input[type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *)::before {
+:where(.jx-pure) input:where([type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *))::before {
   content: '';
   position: absolute;
   inset: 2px;
@@ -1311,50 +1312,50 @@
   transition: clip-path 150ms ease-out, opacity 150ms ease-out, transform 150ms ease-out;
 }
 
-:where(.jx-pure) input[type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *):checked::before {
+:where(.jx-pure) input:where([type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *)):checked::before {
   opacity: 1;
   clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%);
 }
 
-:where(.jx-pure) input[type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *):indeterminate::before {
+:where(.jx-pure) input:where([type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *)):indeterminate::before {
   opacity: 1;
   transform: rotate(0deg);
   clip-path: polygon(10% 40%, 10% 60%, 45% 60%, 55% 60%, 90% 60%, 90% 40%);
 }
 
-:where(.jx-pure) input[type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *):hover:not(:checked):not(:disabled) {
+:where(.jx-pure) input:where([type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *)):hover:not(:checked):not(:disabled) {
   border-color: var(--primary);
 }
 
-:where(.jx-pure) input[type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *):checked, :where(.jx-pure) input[type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *):indeterminate {
+:where(.jx-pure) input:where([type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *)):checked, :where(.jx-pure) input:where([type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *)):indeterminate {
   background: var(--primary);
   border-color: var(--primary);
 }
 
-:where(.jx-pure) input[type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *):focus-visible {
+:where(.jx-pure) input:where([type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *)):focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
 }
 
-:where(.jx-pure) input[type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *):disabled {
+:where(.jx-pure) input:where([type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *)):disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-:where(.jx-pure) input[type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *)[aria-invalid='true'] {
+:where(.jx-pure) input:where([type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *))[aria-invalid='true'] {
   border-style: dashed;
 }
 
   @media (prefers-reduced-motion: reduce) {
-    :where(.jx-pure) input[type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *) {
+    :where(.jx-pure) input:where([type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *)) {
       transition: none;
     }
-    :where(.jx-pure) input[type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *)::before {
+    :where(.jx-pure) input:where([type='checkbox']:not([role='switch']):not(.no-jx-pure, .no-jx-pure *))::before {
       transition: none;
     }
   }
 
-:where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *) {
+:where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *)) {
   appearance: none;
   -webkit-appearance: none;
   position: relative;
@@ -1371,7 +1372,7 @@
   transition: border-color 150ms ease-out;
 }
 
-:where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *)::before {
+:where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *))::before {
   content: none;
   position: absolute;
   inset: 2px;
@@ -1385,18 +1386,18 @@
   transition: clip-path 150ms ease-out, opacity 150ms ease-out, transform 150ms ease-out;
 }
 
-:where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *):checked::before {
+:where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *)):checked::before {
   opacity: 1;
   clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%);
 }
 
-:where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *):indeterminate::before {
+:where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *)):indeterminate::before {
   opacity: 1;
   transform: rotate(0deg);
   clip-path: polygon(10% 40%, 10% 60%, 45% 60%, 55% 60%, 90% 60%, 90% 40%);
 }
 
-:where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *)::after {
+:where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *))::after {
   content: '';
   position: absolute;
   inset: 2px;
@@ -1409,47 +1410,47 @@
   transition: transform 150ms ease-out;
 }
 
-:where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *):checked::after {
+:where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *)):checked::after {
   transform: scale(1);
 }
 
-:where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *):hover:not(:checked):not(:disabled) {
+:where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *)):hover:not(:checked):not(:disabled) {
   border-color: var(--primary);
 }
 
-:where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *):checked, :where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *):indeterminate {
+:where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *)):checked, :where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *)):indeterminate {
   background: var(--primary);
   border-color: var(--primary);
 }
 
-:where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *):focus-visible {
+:where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *)):focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
 }
 
-:where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *):disabled {
+:where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *)):disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-:where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *)[aria-invalid='true'] {
+:where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *))[aria-invalid='true'] {
   border-style: dashed;
 }
 
-:where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *):checked {
+:where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *)):checked {
   background: var(--background);
 }
 
   @media (prefers-reduced-motion: reduce) {
-    :where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *) {
+    :where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *)) {
       transition: none;
     }
-    :where(.jx-pure) input[type='radio']:not(.no-jx-pure, .no-jx-pure *)::before {
+    :where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *))::before {
       transition: none;
     }
   }
 
-:where(.jx-pure) input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *) {
+:where(.jx-pure) input:where([type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *)) {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
@@ -1468,7 +1469,7 @@
   transition: background-color 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-:where(.jx-pure) input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *)::before {
+:where(.jx-pure) input:where([type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *))::before {
   content: '';
   position: absolute;
   box-sizing: border-box;
@@ -1483,39 +1484,39 @@
   transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), background-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-:where(.jx-pure) input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *):checked::before {
+:where(.jx-pure) input:where([type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *)):checked::before {
   transform: translateX(calc(var(--jx-toggle-width, 2.5rem) - var(--jx-toggle-track, 1.5rem)));
   background: var(--primary-foreground);
 }
 
-:where(.jx-pure) input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *):hover:not(:checked):not(:disabled) {
+:where(.jx-pure) input:where([type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *)):hover:not(:checked):not(:disabled) {
   box-shadow: 0 0 0 1px var(--primary) inset;
 }
 
-:where(.jx-pure) input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *):checked {
+:where(.jx-pure) input:where([type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *)):checked {
   background: var(--primary);
 }
 
-:where(.jx-pure) input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *):focus-visible {
+:where(.jx-pure) input:where([type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *)):focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
 }
 
-:where(.jx-pure) input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *):disabled {
+:where(.jx-pure) input:where([type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *)):disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
   @media (prefers-reduced-motion: reduce) {
-    :where(.jx-pure) input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *) {
+    :where(.jx-pure) input:where([type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *)) {
       transition: none;
     }
-    :where(.jx-pure) input[type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *)::before {
+    :where(.jx-pure) input:where([type='checkbox'][role='switch']:not(.no-jx-pure, .no-jx-pure *))::before {
       transition: none;
     }
   }
 
-:where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *) {
+:where(.jx-pure) input:where([type='range']:not(.no-jx-pure, .no-jx-pure *)) {
   --jx-range-thumb: 100cqh;
   --jx-range-track: calc(100cqh / 2.5);
   --jx-range-ring: calc(100cqh / 8);
@@ -1536,13 +1537,13 @@
   cursor: pointer;
 }
 
-:where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *)::-webkit-slider-runnable-track {
+:where(.jx-pure) input:where([type='range']:not(.no-jx-pure, .no-jx-pure *))::-webkit-slider-runnable-track {
   height: var(--jx-range-track);
   border-radius: calc(infinity * 1px);
   background: var(--muted);
 }
 
-:where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *)::-webkit-slider-thumb {
+:where(.jx-pure) input:where([type='range']:not(.no-jx-pure, .no-jx-pure *))::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   box-sizing: border-box;
@@ -1556,19 +1557,19 @@
   box-shadow: calc(-100cqw - var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color);
 }
 
-:where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *)::-moz-range-track {
+:where(.jx-pure) input:where([type='range']:not(.no-jx-pure, .no-jx-pure *))::-moz-range-track {
   height: var(--jx-range-track);
   border-radius: calc(infinity * 1px);
   background: var(--muted);
 }
 
-:where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *)::-moz-range-progress {
+:where(.jx-pure) input:where([type='range']:not(.no-jx-pure, .no-jx-pure *))::-moz-range-progress {
   height: var(--jx-range-track);
   border-radius: calc(infinity * 1px);
   background: var(--jx-slider-fill-color);
 }
 
-:where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *)::-moz-range-thumb {
+:where(.jx-pure) input:where([type='range']:not(.no-jx-pure, .no-jx-pure *))::-moz-range-thumb {
   box-sizing: border-box;
   corner-shape: var(--corner-shape, bevel);
   width: var(--jx-range-thumb);
@@ -1578,17 +1579,17 @@
   background: var(--background);
 }
 
-:where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *):focus-visible {
+:where(.jx-pure) input:where([type='range']:not(.no-jx-pure, .no-jx-pure *)):focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: 2px;
 }
 
-:where(.jx-pure) input[type='range']:not(.no-jx-pure, .no-jx-pure *):disabled {
+:where(.jx-pure) input:where([type='range']:not(.no-jx-pure, .no-jx-pure *)):disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-:where(.jx-pure) input[type='color']:not(.no-jx-pure, .no-jx-pure *) {
+:where(.jx-pure) input:where([type='color']:not(.no-jx-pure, .no-jx-pure *)) {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
@@ -1604,17 +1605,17 @@
   cursor: pointer;
 }
 
-:where(.jx-pure) input[type='color']:not(.no-jx-pure, .no-jx-pure *)::-webkit-color-swatch-wrapper {
+:where(.jx-pure) input:where([type='color']:not(.no-jx-pure, .no-jx-pure *))::-webkit-color-swatch-wrapper {
   padding: 0;
 }
 
-:where(.jx-pure) input[type='color']:not(.no-jx-pure, .no-jx-pure *)::-webkit-color-swatch {
+:where(.jx-pure) input:where([type='color']:not(.no-jx-pure, .no-jx-pure *))::-webkit-color-swatch {
   border: 2px solid #FFF;
   border-radius: 50%;
   corner-shape: round;
 }
 
-:where(.jx-pure) input[type='color']:not(.no-jx-pure, .no-jx-pure *)::-moz-color-swatch {
+:where(.jx-pure) input:where([type='color']:not(.no-jx-pure, .no-jx-pure *))::-moz-color-swatch {
   border: 0;
   border-radius: 0;
 }

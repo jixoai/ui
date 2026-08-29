@@ -1,5 +1,5 @@
 /**
- * The generator — writes the three projections into the REAL theme
+ * The generator — writes the four projections into the REAL theme
  * sheets between marker slots, then mirror-syncs to apps/www.
  *
  *   utility → jixoai.css   @layer components slot  (replaces the retired
@@ -8,6 +8,9 @@
  *             @layer components block; bare elements under :where(.jx-pure))
  *   alias   → jx-pure.css  Part A slot (unlayered — the Tier-2
  *             opt-in vocabulary beats layered utilities by design)
+ *   vocab   → jx-pure.css  jx-icon-vocab slot (the icon vocabulary:
+ *             --jx-icon-* custom properties + the two mask rules;
+ *             URI geometry from lucide via icon-uris.ts)
  *
  * Marker law: content between begin/end markers is GENERATED — never
  * hand-edit. The generator errors if markers are missing (run the
@@ -21,6 +24,7 @@ import { fileURLToPath } from 'node:url';
 import { serializeCollection } from './serializers/core';
 import type { ComponentLaw } from './types';
 import { allLaws } from './laws/all';
+import { buildIconVocabSheet } from './icon-vocab';
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const repoRoot = resolve(here, '../../..');
@@ -28,12 +32,15 @@ export const repoRoot = resolve(here, '../../..');
 export const UTILITY_SLOT = 'jx-html-utility';
 export const FACE_SLOT = 'jx-html-face';
 export const ALIAS_SLOT = 'jx-html-alias';
+export const ICON_VOCAB_SLOT = 'jx-icon-vocab';
 
-const begin = (slot: string) => `/* @jixoai/css-laws:begin:${slot} — GENERATED, do not edit (source: packages/css-laws/src/laws) */`;
+const LAWS_SOURCE = 'packages/css-laws/src/laws';
+const begin = (slot: string, source: string = LAWS_SOURCE) =>
+  `/* @jixoai/css-laws:begin:${slot} — GENERATED, do not edit (source: ${source}) */`;
 const end = (slot: string) => `/* @jixoai/css-laws:end:${slot} */`;
 
-function replaceSlot(css: string, slot: string, content: string): string {
-  const b = begin(slot);
+function replaceSlot(css: string, slot: string, content: string, source: string = LAWS_SOURCE): string {
+  const b = begin(slot, source);
   const e = end(slot);
   // structural validation (Codex r2 closeout): exactly one begin, one
   // end, correctly paired — duplicated or orphaned markers are a
@@ -57,6 +64,7 @@ export function generateAll(laws: readonly ComponentLaw[]): {
   utilitySheet: string;
   faceSheet: string;
   aliasSheet: string;
+  iconVocabSheet: string;
 } {
   const collection = { laws };
   const utility = serializeCollection(collection, { format: 'utility' });
@@ -66,11 +74,11 @@ export function generateAll(laws: readonly ComponentLaw[]): {
   const utilitySheet = `@layer components {
 ${utility}
 }`;
-  return { utilitySheet, faceSheet: face, aliasSheet: alias };
+  return { utilitySheet, faceSheet: face, aliasSheet: alias, iconVocabSheet: buildIconVocabSheet() };
 }
 
 export function run(): void {
-  const { utilitySheet, faceSheet, aliasSheet } = generateAll(allLaws);
+  const { utilitySheet, faceSheet, aliasSheet, iconVocabSheet } = generateAll(allLaws);
 
   const jixoaiPath = resolve(repoRoot, 'registry/files/theme/jixoai.css');
   const jxPurePath = resolve(repoRoot, 'registry/files/theme/jx-pure.css');
@@ -82,11 +90,13 @@ export function run(): void {
   let jxPure = readFileSync(jxPurePath, 'utf8');
   jxPure = replaceSlot(jxPure, FACE_SLOT, faceSheet);
   jxPure = replaceSlot(jxPure, ALIAS_SLOT, aliasSheet);
+  jxPure = replaceSlot(jxPure, ICON_VOCAB_SLOT, iconVocabSheet, 'packages/css-laws/src/icon-vocab');
   writeFileSync(jxPurePath, jxPure);
 
   console.log(`✓ jixoai.css  [${UTILITY_SLOT}] ${utilitySheet.length} bytes`);
   console.log(`✓ jx-pure.css [${FACE_SLOT}] ${faceSheet.length} bytes`);
   console.log(`✓ jx-pure.css [${ALIAS_SLOT}] ${aliasSheet.length} bytes`);
+  console.log(`✓ jx-pure.css [${ICON_VOCAB_SLOT}] ${iconVocabSheet.length} bytes`);
 }
 
 // laws barrel keeps the law list in one place (laws/all.ts)

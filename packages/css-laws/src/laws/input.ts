@@ -6,6 +6,7 @@
  * single source now; the @utility is retired at cutover.
  */
 import type { ComponentLaw } from '../types';
+import { iconSlot } from '../icon-uris';
 
 export const inputLaw: ComponentLaw = {
   name: 'input',
@@ -92,8 +93,7 @@ export const inputLaw: ComponentLaw = {
          * separation, the icon's own geometry, not a box inset */
         'margin-inline-start': 'var(--jx-gap, 0.5rem)',
         cursor: 'pointer',
-        'background-image':
-          "var(--jx-icon-calendar, url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E\"))",
+        'background-image': iconSlot('calendar'),
         'background-size': 'contain',
         'background-repeat': 'no-repeat',
       },
@@ -101,8 +101,7 @@ export const inputLaw: ComponentLaw = {
     {
       selector: "[type='time']::-webkit-calendar-picker-indicator",
       declarations: {
-        'background-image':
-          "var(--jx-icon-clock, url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E\"))",
+        'background-image': iconSlot('clock'),
       },
     },
     /* inline-start icons for email/search — same law as the lane */
@@ -110,8 +109,7 @@ export const inputLaw: ComponentLaw = {
       selector: "[type='email']",
       declarations: {
         'padding-inline': 'calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em',
-        'background-image':
-          "var(--jx-icon-mail, url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='20' height='16' x='2' y='4' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E\"))",
+        'background-image': iconSlot('mail'),
         'background-position': 'left 0.6em center',
         'background-size': '1.4em',
         'background-repeat': 'no-repeat',
@@ -121,8 +119,7 @@ export const inputLaw: ComponentLaw = {
       selector: "[type='search']",
       declarations: {
         'padding-inline': 'calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em',
-        'background-image':
-          "var(--jx-icon-search, url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E\"))",
+        'background-image': iconSlot('search'),
         'background-position': 'left 0.6em center',
         'background-size': '1.4em',
         'background-repeat': 'no-repeat',
@@ -140,8 +137,7 @@ export const inputLaw: ComponentLaw = {
         height: '1.4em',
         'margin-inline-start': 'var(--jx-gap, 0.5rem)',
         cursor: 'pointer',
-        'background-image':
-          "var(--jx-icon-clear, url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E\"))",
+        'background-image': iconSlot('clear'),
         'background-size': 'contain',
         'background-repeat': 'no-repeat',
       },

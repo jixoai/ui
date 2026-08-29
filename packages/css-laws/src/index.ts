@@ -34,3 +34,7 @@ export { controlLaneLaw } from './laws/control-lane';
 
 export { allLaws } from './laws/all';
 export { generateAll, run as generateSheets } from './generate';
+
+export { iconUri, iconSvg, iconSlot, jxIconSlots, jxGlyphs } from './icon-uris';
+export type { IconInk, IconUriOptions, IconNode, IconChild, IconAttrs, JxIconSlotName } from './icon-uris';
+export { buildIconVocabSheet } from './icon-vocab';

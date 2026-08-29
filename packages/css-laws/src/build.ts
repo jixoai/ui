@@ -1,5 +1,5 @@
 /**
- * Build CLI — generate the three projections into the theme sheets,
+ * Build CLI — generate the four projections into the theme sheets,
  * mirror-sync to apps/www, and refresh the mirror manifest.
  *
  * Run: npx tsx src/build.ts          (generate + sync + manifest)
@@ -16,7 +16,7 @@ const checkMode = process.argv.includes('--check');
 if (checkMode) {
   // freshness: the committed sheet content between markers must equal
   // a fresh generation from the current law sources
-  const { utilitySheet, faceSheet, aliasSheet } = generateAll(allLaws);
+  const { utilitySheet, faceSheet, aliasSheet, iconVocabSheet } = generateAll(allLaws);
   const jixoai = readFileSync(resolve(repoRoot, 'registry/files/theme/jixoai.css'), 'utf8');
   const jxPure = readFileSync(resolve(repoRoot, 'registry/files/theme/jx-pure.css'), 'utf8');
   const slotOf = (css: string, slot: string) => {
@@ -45,6 +45,11 @@ if (checkMode) {
   }
   if (slotOf(jxPure, 'jx-html-alias').trim() !== expectAlias.trim()) {
     console.error('[css-laws] jx-pure.css alias slot is STALE — run: npx tsx src/build.ts');
+    process.exit(1);
+  }
+  const expectVocab = `/* @jixoai/css-laws:begin:jx-icon-vocab — GENERATED, do not edit (source: packages/css-laws/src/icon-vocab) */\n${iconVocabSheet}\n`;
+  if (slotOf(jxPure, 'jx-icon-vocab').trim() !== expectVocab.trim()) {
+    console.error('[css-laws] jx-pure.css icon-vocab slot is STALE — run: npx tsx src/build.ts');
     process.exit(1);
   }
   console.log('[css-laws] check GREEN: committed slots match the law sources');
