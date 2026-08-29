@@ -219,7 +219,7 @@ document.body.classList.add('jx-pure');</code></pre>
         headerRegion="forms"
         eyebrow="demo"
         title="Forms"
-        summary="The migrated native-form law, now element-scoped under a TYPE ALLOWLIST: text-like lanes take the bordered box; checkbox/radio/range/color are full pure-CSS repaints (native state, label and FormData keep working — appearance:none strips paint only). select is ALWAYS the jx chevron inside .jx-pure (gradient-drawn, single-select); number keeps its PLATFORM stepper (the only zero-JS stepper there is); time/date/month/week lanes carry the ink indicators. hidden/file are never touched."
+        summary="The migrated native-form law, now element-scoped under a TYPE ALLOWLIST: text-like lanes take the bordered box; checkbox/radio/range/color are full pure-CSS repaints (native state, label and FormData keep working — appearance:none strips paint only). select is ALWAYS the jx chevron inside .jx-pure (gradient-drawn, single-select); number keeps its PLATFORM stepper (the only zero-JS stepper there is); time/date/month/week lanes carry the ink indicators. hidden/file are never touched. Layering (D3): Tier 1 keeps the platform controls by law — the registry Input component builds on these same classes and layers the custom ones on top (the −/+ number stepper, the embedded Calendar/month/time panels); its bare native-controls attribute opts back into the platform behavior shown here."
       >
         <div class="jx-pure grid gap-5 min-[760px]:grid-cols-2" style="max-width: 60rem">
           <form onsubmit={(e) => e.preventDefault()}>

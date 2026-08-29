@@ -25,10 +25,10 @@
 
 ## C. docs (batch C)
 
-- [ ] C1: input.html — native-picker → native-controls everywhere;
+- [x] C1: input.html — native-picker → native-controls everywhere;
       new samples (number stepper + opt-out, week, month, time,
       datetime time row); props table
-- [ ] C2: jx-pure.html — the Tier-1/component-layer split prose
+- [x] C2: jx-pure.html — the Tier-1/component-layer split prose
 
 ## D. integration (ZCode)
 

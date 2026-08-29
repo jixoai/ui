@@ -120,15 +120,20 @@
   let bridgeDate = $state('');
   let bridgeDatePicked = $state('');
   let bridgeColor = $state('#7c7c7c');
-  const pickerBridgeUsage = `<!-- the custom panel is the DEFAULT (date → Calendar, color → Swatches) -->
+  let bridgeWeek = $state('');
+  const pickerBridgeUsage = `<!-- the custom controls are the DEFAULT (number → the −/+ stepper,
+     date/datetime-local/week/month/time → embedded Popover-API panels,
+     color → Swatches) -->
+<Input type="number" bind:value />
 <Input type="date" bind:value onselect={(v) => …} />
 <Input type="color" bind:value />
 
-<!-- the bare attribute opts back into the platform popup
+<!-- the bare attribute opts back into the platform controls
      (the disabled-attribute philosophy: presence = true) -->
-<Input type="date" native-picker />
+<Input type="date" native-controls />
 
-<!-- fine-grained: any panel content through the snippet -->
+<!-- override, not the only way: week already ships the embedded panel
+     (Calendar day-pick commits the ISO week) — a snippet REPLACES it -->
 <Input type="week">
   {#snippet picker(ctx)}
     <MyWeekGrid value={ctx.value} onpick={ctx.commit} />
@@ -256,7 +261,7 @@
       headerRegion="all-types"
       eyebrow="input"
       title="All native types"
-      summary="One component, every type the platform ships. Text-like types take the bordered shell; range and color get full Tier-1 native repaints (the pure-CSS slider and the swatch-plus-pipette color field); the date/time/number lanes restyle the platform's own picker indicator and spinners inside the same shell. checkbox and radio split into their own pure-CSS components, and file picking and dates have their professional homes in file-input and date-picker — those native types still pass through here as the bare controls."
+      summary="One component, every type the platform ships. Text-like types take the bordered shell; range and color get full Tier-1 native repaints (the pure-CSS slider and the swatch-plus-pipette color field); the date/datetime-local/week/month/time lanes open embedded Popover-API panels behind the repainted ink indicator, and number swaps its platform spinner for the custom −/+ stepper pair (↑/↓ stepping stays). checkbox and radio split into their own pure-CSS components, and file picking and dates have their professional homes in file-input and date-picker — those native types still pass through here as the bare controls."
     >
       <CardGrid min="230px">
         <div class="demo-cell" data-no-subgrid>
@@ -272,6 +277,9 @@
           <Input type="number" label="number" name="demo_number" placeholder="42" min="0" />
         </div>
         <div class="demo-cell" data-no-subgrid>
+          <Input type="number" label="number (native-controls)" name="demo_number_native" placeholder="42" min="0" nativeControls />
+        </div>
+        <div class="demo-cell" data-no-subgrid>
           <Input type="search" label="search" name="demo_search" placeholder="grep…" />
         </div>
         <div class="demo-cell" data-no-subgrid>
@@ -282,6 +290,12 @@
         </div>
         <div class="demo-cell" data-no-subgrid>
           <Input type="time" label="time" name="demo_time" />
+        </div>
+        <div class="demo-cell" data-no-subgrid>
+          <Input type="week" label="week" name="demo_week" />
+        </div>
+        <div class="demo-cell" data-no-subgrid>
+          <Input type="month" label="month" name="demo_month" />
         </div>
         <div class="demo-cell" data-no-subgrid>
           <Input type="range" label="range" name="demo_range" min="0" max="100" />
@@ -296,13 +310,17 @@
       <p class="text-muted-foreground mt-4 text-pretty text-[13px] leading-6">
         Tab through the grid: every control is keyboard-reachable with its platform behavior —
         the color swatches, the range arrows, the date/time pickers (the calendar indicator is
-        repainted through a mask, and clicking it opens the embedded Calendar — the custom
-        panel is the default; pass native-picker for the platform popup). checkbox and
+        repainted through a mask, and clicking it opens the embedded panel — the custom
+        controls are the default; pass native-controls for the platform ones). checkbox and
         radio live in their own pure-CSS components, file picking and dates have their
         professional controls; everything else is painted by the Tier-1 class vocabulary —
-        range tracks and thumbs, color swatches, date/time indicators, number spinners
-        (hidden: engines reject custom paint on them — ↑/↓ step natively) and the
-        placeholder-vs-value distinction.
+        range tracks and thumbs, color swatches, date/time indicators and the
+        placeholder-vs-value distinction. The number lane splits by layer: bare Tier-1 markup
+        keeps the platform spinner (engines reject custom paint on it, and it is the only
+        zero-JS stepper there is — the D3 ruling), while the component fields above take over
+        with the −/+ stepper pair (hold to accelerate; ↑/↓ stepping stays). week and month are
+        platform popups only on Chromium — Firefox ships no control for them at all (the lanes
+        degrade to plain text), so there the embedded panel is the only control on the engine.
       </p>
       <div class="border-border mt-5 border-t pt-5">
         <h3 class="text-[15px] font-bold tracking-tight">Tier 1 — the pure-CSS native layer</h3>
@@ -420,32 +438,67 @@
       headerRegion="picker-bridge"
       eyebrow="bridge"
       title="custom picker bridge"
-      summary="The native date/color popups cannot be styled — so the swap is the default. Every date/datetime-local field rides the date-picker Calendar and every color field rides the color-picker Swatches through a Popover-API panel; the input stays a real input: native typing, parsing, ARIA and FormData untouched. The bare boolean attribute — native-picker, the disabled-attribute philosophy — opts back into the platform popup, and a picker snippet replaces the default panel for anything else (its ctx carries value, commit and close)."
+      summary="The native popups cannot be styled — so the swap is the default. date/datetime-local ride the date-picker Calendar (datetime-local adds a time-stepper row, and a day-pick keeps the panel open for the time adjustment), week rides a Calendar day-pick that commits the ISO week, month rides a year-nav + 12-month grid, time rides the custom HH:MM stepper (live commits), and color rides the color-picker Swatches — all through a Popover-API panel; the input stays a real input: native typing, parsing, ARIA and FormData untouched. The bare boolean attribute — native-controls, the disabled-attribute philosophy — opts back into the platform controls (number's platform spinner included), and a picker snippet overrides the default panel for anything else (its ctx carries value, commit and close)."
     >
       <div class="flex flex-col gap-5">
         <div class="grid gap-5 min-[760px]:grid-cols-2">
           <Input
             type="date"
-            label="date (custom picker — the default)"
+            label="date (custom panel — the default)"
             bind:value={bridgeDate}
             onselect={(v) => (bridgeDatePicked = v)}
           />
           <Input
             type="date"
-            label="date (native-picker opt-out)"
+            label="date (native-controls opt-out)"
             name="bridge_native_date"
-            nativePicker
+            nativeControls
           />
         </div>
         <div class="grid gap-5 min-[760px]:grid-cols-2">
           <Input
             type="color"
-            label="color (custom picker — the default)"
+            label="color (custom panel — the default)"
             bind:value={bridgeColor}
+          />
+          <Input
+            type="week"
+            label="week (Calendar day-pick → ISO week)"
+            bind:value={bridgeWeek}
+          />
+        </div>
+        <div class="grid gap-5 min-[760px]:grid-cols-2">
+          <Input
+            type="month"
+            label="month (year-nav + 12-month grid)"
+            name="bridge_month"
+          />
+          <Input
+            type="time"
+            label="time (HH:MM stepper)"
+            name="bridge_time"
+          />
+        </div>
+        <div class="grid gap-5 min-[760px]:grid-cols-2">
+          <Input
+            type="datetime-local"
+            label="datetime-local (Calendar + time row)"
+            name="bridge_datetime"
           />
         </div>
         <p class="font-mono text-xs text-muted-foreground">
-          committed: {bridgeDatePicked || '—'} · swatch: {bridgeColor}
+          committed: {bridgeDatePicked || '—'} · swatch: {bridgeColor} · week: {bridgeWeek || '—'}
+        </p>
+        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+          The week panel picks a DAY on the Calendar and commits the ISO week
+          (<code class="text-accent">YYYY-Www</code>, the picked week tinted); the month panel
+          navigates years and commits <code class="text-accent">YYYY-MM</code> from a 12-month
+          grid; the time panel is the custom HH:MM stepper, committing live as the arrows run.
+          The datetime-local panel is the Calendar plus a time-stepper row — a day-pick keeps
+          the panel open so the time can be adjusted before it closes, and the commit carries
+          both halves. On Firefox week and month have no platform control at all (the lanes
+          degrade to plain text), so there the embedded panel is the only control on the
+          engine.
         </p>
         <CodeBlock code={pickerBridgeUsage} lang="svelte" meta="picker-bridge" />
       </div>
@@ -496,7 +549,7 @@
       <A11yTable
         keys={[
           { key: 'Tab', action: 'Moves focus to the input' },
-          { key: 'any text', action: 'Types into the field; platform behavior per type (spinners, pickers)' },
+          { key: 'any text', action: 'Types into the field; per-type controls — the −/+ stepper and the embedded panels by default, platform spinners/pickers under native-controls' },
           { key: 'Esc', action: 'Browser-native search-field reset on type="search" when not cleared' },
         ]}
         aria={[
@@ -545,7 +598,9 @@
           { name: 'label', type: 'string', default: '—', description: 'Field label rendered as label[for] above the control.' },
           { name: 'error', type: 'string', default: '—', description: 'Error text: sets aria-invalid, wires aria-describedby, dashes the shell.' },
           { name: 'clearable', type: 'boolean', default: 'false', description: 'Text-like only: adds the × button in the inner-inline-end seam.' },
-          { name: 'native-picker', type: 'boolean', default: 'false', description: 'The bare attribute opts back into the platform popup; the default mounts the embedded panel (date/datetime-local → Calendar, color → Swatches).' },
+          { name: 'native-controls', type: 'boolean', default: 'false', description: 'The bare attribute opts back into the platform controls: number gets its platform spinner back, and date/datetime-local/week/month/time/color open the platform popups instead of the embedded panels.' },
+          { name: 'picker', type: 'Snippet', default: '—', description: 'Replaces the default embedded panel for any picker type (number is not a panel type); its ctx carries value, commit and close.' },
+          { name: 'onselect', type: '(value: string) => void', default: '—', description: 'Fires when a custom panel commits a selection (date day-pick, color swatch…).' },
           { name: 'value', type: 'string | number', default: '—', description: 'Bindable; bound ⇒ controlled, absent ⇒ purely uncontrolled.', bindable: true },
           { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'inherited', description: 'Overrides the inherited density scope.' },
           { name: 'innerInlineStart', type: 'Snippet', default: '—', description: 'Inside the shell, left of the lane (prefix icon / unit).' },
