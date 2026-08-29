@@ -35,7 +35,13 @@
     "prepack": "npm run build"
   },
   "peerDependencies": {
+    "lucide": "^0.472.0",
     "vite": "^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "lucide": {
+      "optional": true
+    }
   },
   "optionalDependencies": {
     "opentype.js": "^1.3.4",
@@ -43,6 +49,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
+    "lucide": "^0.472.0",
     "tsdown": "^0.22.14",
     "typescript": "^5.7.2",
     "vite": "^8.2.2",

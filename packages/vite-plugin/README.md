@@ -106,7 +106,7 @@ never touch the filesystem — the plugin owns ALL file I/O):
 
 | provider | source | notes |
 | --- | --- | --- |
-| `lucideIconProvider()` | embedded lucide paths | zero I/O; mirrors the standard layer's fallback geometry |
+| `lucideIconProvider()` | `lucide` package IconNodes | zero I/O; serializes lucide's own geometry — needs `lucide` installed (optional peer dep) |
 | `svgIconProvider({ dir, slots? })` | `{dir}/{slot}.svg` files | optional per-slot filename overrides |
 | `fontIconProvider({ fontPath, symbols, viewBox? })` | TTF/OTF/WOFF2 glyphs | needs the optional `opentype.js` (+ `wawoff2` for WOFF2) deps |
 | `mixinIconProvider(base, overrides)` | composition | override → base → null fallthrough |

@@ -2,13 +2,13 @@
 
 ## A. vite-plugin (batch A)
 
-- [ ] A1: `providers/lucide.ts` — replace the 7 embedded literals
+- [x] A1: `providers/lucide.ts` — replace the 7 embedded literals
       with dynamic `import('lucide')` IconNode reads serialized
       through the existing `lucideSvg()` wrapper; missing-install
       failure carries the `npm i lucide` hint
-- [ ] A2: package.json — `lucide` optional peer (meta) + devDep for
+- [x] A2: package.json — `lucide` optional peer (meta) + devDep for
       types/tests (applied centrally with the install)
-- [ ] A3: tests — `lucide.test.ts` asserts output ≡ lucide data
+- [x] A3: tests — `lucide.test.ts` asserts output ≡ lucide data
       serialization (no hand literals); `geometry-consistency.test.ts`
       re-pinned to lucide IconNode + wrapper contract
 

@@ -1,17 +1,20 @@
 /**
  * @jixoai/vite-plugin (icons) — lucideIconProvider (P2.2)
  *
- * The zero-I/O inline defaults. All five slot icons are embedded as
- * lucide stroke geometry — the SAME paths as the standard layer's
- * fallbacks (registry/files/lib/icons.ts and the data URIs in
- * registry/files/theme/jx-pure.css share one geometry set; this module
- * is the plugin-side mirror of it — single-source law).
+ * The zero-I/O inline defaults, backed by the `lucide` npm package:
+ * slot artwork is serialized at factory time from lucide's own
+ * IconNode data — no hand-copied geometry lives in this module
+ * (single-source law with the standard layer's fallbacks in
+ * registry/files/lib/icons.ts and jx-pure.css).
  *
- * The factory is async purely to match IconProviderFactory (font
- * parsing is async elsewhere); it performs no I/O and resolves
- * immediately with a fully populated cache.
+ * - `lucide` is an optional peer dependency: the factory imports it
+ *   dynamically and REJECTS with an install hint when missing — no
+ *   silent fallback to different artwork.
+ * - Still zero plugin I/O: no ctx.loadSource / ctx.watchFile; the
+ *   factory resolves with a fully populated cache.
  */
 
+import type { IconNode, IconNodeChild } from 'lucide';
 import type {
   IconProvider,
   IconProviderFactory,
@@ -36,39 +39,45 @@ const lucideSvg = (paths: string): string =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
 
 /**
- * The embedded slot artwork (lucide geometry, verified against the
- * standard layer's icons.ts / jx-pure.css data URIs).
+ * Serialize IconNode children to the flat inner-SVG grammar: elements
+ * in IconNode order, attributes in IconNode insertion order,
+ * self-closing tags, no separators. Consumers pin these bytes.
  */
-const LUCIDE_ICONS: Readonly<Record<IconSlot, string>> = {
-  /** lucide `calendar` — rect + header ticks + week line */
-  calendar: lucideSvg(
-    '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>',
-  ),
-  /** lucide `clock` — circle + hands polyline */
-  clock: lucideSvg(
-    '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
-  ),
-  /** lucide `chevron-down` — the select dropdown arrow */
-  chevron: lucideSvg('<path d="m6 9 6 6 6-6"/>'),
-  /** lucide `mail` — envelope for email inputs */
-  mail: lucideSvg(
-    '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
-  ),
-  /** lucide `search` — magnifier for search inputs */
-  search: lucideSvg(
-    '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
-  ),
-  /** lucide `pipette` — the color picker indicator */
-  pipette: lucideSvg(
-    '<path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/>',
-  ),
-  /** lucide `x` — the input clear button (×) */
-  clear: lucideSvg('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'),
-};
+const serializeChildren = (children: readonly IconNodeChild[]): string =>
+  children
+    .map(([tag, attrs]) => {
+      const attributes = Object.entries(attrs)
+        .map(([name, value]) => ` ${name}="${value}"`)
+        .join('');
+      return `<${tag}${attributes}/>`;
+    })
+    .join('');
 
 /**
- * The default icon provider: every registered slot serves embedded
- * lucide artwork, source kind 'inline', nature 'stroke'.
+ * slot → lucide export name (checked against lucide's export surface
+ * at compile time; the geometry itself comes from the package at
+ * runtime).
+ */
+const SLOT_ICONS = {
+  /** lucide `calendar` — rect + header ticks + week line */
+  calendar: 'Calendar',
+  /** lucide `clock` — circle + hands polyline */
+  clock: 'Clock',
+  /** lucide `chevron-down` — the select dropdown arrow */
+  chevron: 'ChevronDown',
+  /** lucide `mail` — envelope for email inputs */
+  mail: 'Mail',
+  /** lucide `search` — magnifier for search inputs */
+  search: 'Search',
+  /** lucide `pipette` — the color picker indicator */
+  pipette: 'Pipette',
+  /** lucide `x` — the input clear button (×) */
+  clear: 'X',
+} as const satisfies Readonly<Record<IconSlot, keyof typeof import('lucide')>>;
+
+/**
+ * The default icon provider: every registered slot serves lucide's own
+ * artwork, source kind 'inline', nature 'stroke'.
  *
  * @example
  * ```ts
@@ -77,10 +86,25 @@ const LUCIDE_ICONS: Readonly<Record<IconSlot, string>> = {
  */
 export function lucideIconProvider(): IconProviderFactory {
   return async () => {
+    let lucide: typeof import('lucide');
+    try {
+      lucide = await import('lucide');
+    } catch (cause) {
+      throw new Error(
+        'lucideIconProvider: the `lucide` package is not installed. ' +
+          'It is an optional peer dependency of @jixoai/vite-plugin — ' +
+          'install it (npm i lucide) or pick another icons provider.',
+        { cause },
+      );
+    }
     const cache = new Map<IconSlot, SvgAsset>();
-    for (const [slot, svg] of Object.entries(LUCIDE_ICONS) as [IconSlot, string][]) {
+    for (const [slot, name] of Object.entries(SLOT_ICONS) as [
+      IconSlot,
+      (typeof SLOT_ICONS)[IconSlot],
+    ][]) {
+      const icon: IconNode = lucide[name];
       cache.set(slot, {
-        svg,
+        svg: lucideSvg(serializeChildren(icon[2] ?? [])),
         viewBox: LUCIDE_VIEWBOX,
         nature: 'stroke',
         source: { kind: 'inline' },

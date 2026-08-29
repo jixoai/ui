@@ -2,9 +2,13 @@
  * lucideIconProvider unit tests (P2.2)
  *
  * Verifies the zero-I/O contract (no ctx.loadSource / ctx.watchFile
- * calls), full slot coverage, and the lucide stroke geometry embedded
- * in the provider (mirrored from registry/files/lib/icons.ts).
+ * calls), full slot coverage, the wrapper's root-tag attributes — and
+ * that the provider's bytes ARE lucide's own data: expectations are
+ * DERIVED from `import { ... } from 'lucide'` via a local serializer
+ * over the IconNode children, never from hand-written geometry.
  */
+import { Calendar, ChevronDown, Clock, Mail, Pipette, Search, X } from 'lucide';
+import type { IconNode, IconNodeChild } from 'lucide';
 import { describe, expect, it, vi } from 'vitest';
 import { lucideIconProvider } from '../../../src/icons/providers/lucide.js';
 import type { IconSlot, ProviderContext } from '../../../src/icons/types.js';
@@ -14,6 +18,29 @@ function makeContext(): { ctx: ProviderContext; loadSource: ReturnType<typeof vi
   const loadSource = vi.fn();
   const watchFile = vi.fn();
   return { ctx: { loadSource, watchFile }, loadSource, watchFile };
+}
+
+/** slot → the lucide IconNode whose geometry the provider must serve */
+const SLOT_LUCIDE_ICONS: Readonly<Record<IconSlot, IconNode>> = {
+  calendar: Calendar,
+  clock: Clock,
+  chevron: ChevronDown,
+  mail: Mail,
+  search: Search,
+  pipette: Pipette,
+  clear: X,
+};
+
+/** the provider's inner-SVG grammar: attrs in insertion order, self-closing, no separators */
+function serializeChildren(children: readonly IconNodeChild[] | undefined): string {
+  return (children ?? [])
+    .map(([tag, attrs]) => {
+      const attributes = Object.entries(attrs)
+        .map(([name, value]) => ` ${name}="${value}"`)
+        .join('');
+      return `<${tag}${attributes}/>`;
+    })
+    .join('');
 }
 
 describe('lucideIconProvider', () => {
@@ -58,20 +85,30 @@ describe('lucideIconProvider', () => {
     }
   });
 
-  it('embeds the verified lucide path data (single-source law with icons.ts)', async () => {
+  it('serializes lucide\'s own IconNode data byte-for-byte (single-source law)', async () => {
     const { ctx } = makeContext();
     const provider = await lucideIconProvider()(ctx);
-    const geometry: Record<IconSlot, RegExp> = {
-      calendar: /<rect x="3" y="4" width="18" height="18" rx="2"\/><path d="M16 2v4"\/><path d="M8 2v4"\/><path d="M3 10h18"\/>(?=<\/svg>$)/,
-      clock: /<circle cx="12" cy="12" r="10"\/><polyline points="12 6 12 12 16 14"\/>(?=<\/svg>$)/,
-      chevron: /<path d="m6 9 6 6 6-6"\/>(?=<\/svg>$)/,
-      pipette: /<path d="m2 22 1-1h3l9-9"\/><path d="M3 21v-3l9-9"\/>/,
-      mail: /<rect width="20" height="16" x="2" y="4" rx="2"\/><path d="m22 7-8\.97 5\.7a1\.94 1\.94 0 0 1-2\.06 0L2 7"\/>(?=<\/svg>$)/,
-      search: /<circle cx="11" cy="11" r="8"\/><path d="m21 21-4\.3-4\.3"\/>(?=<\/svg>$)/,
-      clear: /<path d="M18 6 6 18"\/><path d="m6 6 12 12"\/>(?=<\/svg>$)/,
-    };
     for (const slot of SLOT_NAMES) {
-      expect(provider.getIcon(slot)!.svg, slot).toMatch(geometry[slot]);
+      const icon = SLOT_LUCIDE_ICONS[slot];
+      const expected =
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+        serializeChildren(icon[2]) +
+        '</svg>';
+      expect(provider.getIcon(slot)!.svg, slot).toBe(expected);
+    }
+  });
+
+  it('rejects with an install hint when the lucide package is missing', async () => {
+    vi.doMock('lucide', () => {
+      throw new Error('Cannot find module');
+    });
+    try {
+      await expect(lucideIconProvider()(makeContext().ctx)).rejects.toThrow(
+        /lucideIconProvider[\s\S]*npm i lucide/,
+      );
+    } finally {
+      vi.doUnmock('lucide');
+      vi.resetModules();
     }
   });
 });
