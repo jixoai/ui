@@ -467,8 +467,15 @@
 }
 .jx-color-expand {
   /* both dimensions definite → aspect-ratio yields; the chip keeps
-     its locked height across the full row */
+     its locked height across the full row.
+     FLEX PARTICIPATION is re-opened here on purpose: the base shell's
+     flex:none protects the COMPACT chip, but it also beats any layered
+     flex utility (this zone is unlayered) — so width:100% alone would
+     size against the WHOLE flex container and overflow any sibling
+     (the Tier-1 demo row, 2026-08-29: 77+12+329 > 329). grow reclaims
+     the full row, shrink shares it; block flow is untouched. */
   width: 100%;
+  flex: 1 1 auto;
 }
 .jx-color-shell:has([aria-invalid='true'])::before,
 .jx-color-shell.jx-invalid::before {

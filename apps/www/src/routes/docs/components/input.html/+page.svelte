@@ -326,8 +326,9 @@
               <label class="jx-color-shell">
                 <input type="color" class="jx-color-swatch" value="#007924" aria-label="bare color" />
               </label>
-              <!-- opt-in: the full-row field -->
-              <label class="jx-color-shell jx-color-expand flex-1">
+              <!-- opt-in: the full-row field (the class itself re-opens
+                   flex participation — no flex-1 utility needed) -->
+              <label class="jx-color-shell jx-color-expand">
                 <input type="color" class="jx-color-swatch" value="#d61f69" aria-label="bare color stretched" />
               </label>
             </div>
