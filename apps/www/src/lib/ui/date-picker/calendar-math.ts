@@ -4,7 +4,9 @@
 // Original request (2026-08-28): “从 date-picker 抽取可嵌入日历片段，供
 // Input 组件的 picker 桥消费” — the math moved out of date-picker.svelte so
 // the embeddable calendar.svelte (grid fragment) and the popover host share
-// one source. Orthogonal intents:
+// one source. Original request (2026-08-29): “为 Input 重写补齐
+// date-picker 家族片段” — the ISO week vocabulary joined for the week
+// picker fragment. Orthogonal intents:
 //
 // 1. English month/weekday vocabulary — month labels, locale-style
 //    display, Monday-first grid headers.
@@ -12,6 +14,10 @@
 //    and day arithmetic over UTC Date (zero date libraries); zero-padded
 //    ISO strings compare correctly as plain strings, which is why every
 //    bound/range edge in the family is a plain < / > comparison.
+// 3. strict ISO 8601 week math ("YYYY-Www") — Monday-first weeks where
+//    week 1 holds the year's first Thursday (Jan 4 is always in W01);
+//    edge days can belong to a NEIGHBOR ISO year. Pure Date.UTC
+//    arithmetic only — no locale tricks, no Date globals.
 //
 // Everything here is pure. todayIso() reads the clock on every call —
 // never a module-level snapshot (a long-lived host must not freeze
@@ -85,6 +91,53 @@ export function addDays(iso: string, delta: number): string {
   const p = parseIso(iso)!;
   const d = new Date(Date.UTC(p.year, p.month, p.day + delta));
   return isoOf(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+}
+
+// ---- ISO 8601 weeks ("YYYY-Www") ------------------------------------------
+// Rules (deterministic Date.UTC arithmetic, no locale): weeks run
+// Monday→Sunday; week 1 is the week holding the year's first Thursday,
+// which is why Jan 4 is ALWAYS inside W01; days at the year edges can
+// belong to the previous or next ISO year ("2027-01-01" → "2026-W53").
+const ISO_WEEK_RE = /^(\d{4})-W(\d{2})$/;
+const MS_PER_DAY = 86_400_000;
+
+/** Monday-first weekday index (Mon=0 … Sun=6) of a UTC y/m/d triple. */
+function weekdayIndex(year: number, month: number, day: number): number {
+  return (new Date(Date.UTC(year, month, day)).getUTCDay() + 6) % 7;
+}
+
+/** Monday of a year's week 1 — the Monday of the week holding Jan 4. */
+function week1MondayUtc(isoYear: number): number {
+  return Date.UTC(isoYear, 0, 4 - weekdayIndex(isoYear, 0, 4));
+}
+
+/** "2026-08-29" → "2026-W35" (the day's ISO week); undefined on invalid
+    iso. The ISO YEAR is fixed by the week's Thursday, so a day can map
+    into a neighbor year's numbering ("2027-01-01" → "2026-W53"). */
+export function isoWeekOf(iso: string): string | undefined {
+  const p = parseIso(iso);
+  if (!p) return undefined;
+  // Monday of iso's own week; the Thursday three days later pins the year
+  const monday = Date.UTC(p.year, p.month, p.day - weekdayIndex(p.year, p.month, p.day));
+  const isoYear = new Date(monday + 3 * MS_PER_DAY).getUTCFullYear();
+  // both endpoints are UTC-Midnight Mondays → the division is exact
+  const week = (monday - week1MondayUtc(isoYear)) / (7 * MS_PER_DAY) + 1;
+  return `${isoYear}-W${pad2(week)}`;
+}
+
+/** "2026-W35" → "2026-08-24" (that week's Monday); undefined on invalid
+    week strings. The Monday can land in the PREVIOUS calendar year
+    ("2026-W01" → "2025-12-29"), and W53 only exists for long ISO years —
+    a trust-but-verify round-trip rejects the years where it doesn't. */
+export function mondayOfIsoWeek(week: string): string | undefined {
+  const m = ISO_WEEK_RE.exec(week);
+  if (!m) return undefined;
+  const year = Number(m[1]);
+  const w = Number(m[2]);
+  if (w < 1 || w > 53) return undefined;
+  const monday = new Date(week1MondayUtc(year) + (w - 1) * 7 * MS_PER_DAY);
+  const iso = isoOf(monday.getUTCFullYear(), monday.getUTCMonth(), monday.getUTCDate());
+  return isoWeekOf(iso) === `${year}-W${pad2(w)}` ? iso : undefined;
 }
 
 /** today as ISO "YYYY-MM-DD" — fresh clock read on every call (the local

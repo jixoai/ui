@@ -2,11 +2,11 @@
 
 ## A. date-picker family fragments (batch A)
 
-- [ ] A1: `calendar-math.ts` — `isoWeekOf(iso)` + `mondayOfIsoWeek(week)`
+- [x] A1: `calendar-math.ts` — `isoWeekOf(iso)` + `mondayOfIsoWeek(week)`
       pure ISO-8601 week math
-- [ ] A2: `date-picker/time-stepper.svelte` — HH/MM stepper groups
+- [x] A2: `date-picker/time-stepper.svelte` — HH/MM stepper groups
       (−/+/↑↓/typing, hold acceleration, live commits)
-- [ ] A3: `date-picker/month-grid.svelte` — year nav + 12 month cells,
+- [x] A3: `date-picker/month-grid.svelte` — year nav + 12 month cells,
       Calendar-law keyboard/disabled semantics
 
 ## B. Input component (batch B)
