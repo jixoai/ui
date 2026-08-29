@@ -50,6 +50,13 @@ jobs:
       # requirement — this gates the supply-chain SHAPE (valid pin
       # manifest, zero `git ls-files '*.wasm'`) before anything consumes
       # the pin.
+      # merge-alignment A3: THE composite gate — dependency shape,
+      # laws freshness, mirror, budgets, ghostty-pin offline, and the
+      # real-consumer shadcn-add contract, before any build output
+      # ships. Runs after payloads/dist exist (the build steps below
+      # rebuild them anyway; this step is the auditable fail-point).
+      - name: Composite gate (verify:all)
+        run: node scripts/verify-all.mjs
       - name: Verify ghostty pin (offline sentinel)
         run: node scripts/verify-ghostty-pin.mjs --offline
       # Ghostty wasm supply chain (ghostty-term design D2): pre-seed the

@@ -1315,7 +1315,10 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/jx-pure",
-        "@jixoai/color-utils"
+        "@jixoai/color-utils",
+        "@jixoai/input",
+        "@jixoai/native-select",
+        "@jixoai/icon-button"
       ]
     },
     {

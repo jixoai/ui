@@ -105,9 +105,28 @@ const byName = new Map(registryItems.map((i) => [i.name, i]));
 // (ghostty-vt, jixoai-theme, utils, color-utils, density); color-picker
 // fixture chain: the item + its declared closure (utils, jx-pure,
 // jixoai-theme, color-utils).
-for (const name of ['accordion', 'toast', 'code-card', 'shiki', 'jixoai-theme', 'utils', 'progressive-blur', 'list-item', 'toggle', 'checkbox', 'radio', 'native-select', 'input', 'icons', 'jx-pure', 'ghostty-term', 'ghostty-vt', 'color-utils', 'density', 'color-picker']) {
+// merge-alignment A3: the fixture registry materializes the FULL
+// TRANSITIVE closure of the entry items (hand lists drift the moment
+// an item gains a new registryDependency — input's picker-bridge deps
+// broke the hardcoded list twice in a row)
+const ENTRY_ITEMS = ['accordion', 'toast', 'code-card', 'shiki', 'jixoai-theme', 'utils', 'progressive-blur', 'list-item', 'toggle', 'checkbox', 'radio', 'native-select', 'input', 'icons', 'jx-pure', 'ghostty-term', 'ghostty-vt', 'color-utils', 'density', 'color-picker'];
+const closure = [];
+const seen = new Set();
+const queue = [...ENTRY_ITEMS];
+while (queue.length) {
+  const name = queue.shift();
+  if (seen.has(name)) continue;
   const item = byName.get(name);
   if (!item) die(`registry.json has no item ${name}`);
+  seen.add(name);
+  closure.push(name);
+  for (const dep of item.registryDependencies ?? []) {
+    const depName = dep.replace(/^@jixoai\//, '');
+    if (byName.has(depName) && !seen.has(depName)) queue.push(depName);
+  }
+}
+for (const name of closure) {
+  const item = byName.get(name);
   writeFileSync(
     join(registryDir, `${name}.json`),
     payload({
@@ -700,7 +719,8 @@ const preseeded = [
   ['registry/files/ui/input/input.css', 'src/lib/ui/input/input.css'],
   ['registry/files/ui/native-select/native-select.svelte', 'src/lib/ui/native-select/native-select.svelte'],
   ['registry/files/ui/native-select/index.ts', 'src/lib/ui/native-select/index.ts'],
-  ['registry/files/ui/native-select/native-select.css', 'src/lib/ui/native-select/native-select.css'],
+  // native-select ships no css (the preseed list once assumed parity —
+  // merge-alignment A3 caught the phantom file)
   ['registry/files/ui/press-button/press-button.svelte', 'src/lib/ui/press-button/press-button.svelte'],
   ['registry/files/ui/press-button/index.ts', 'src/lib/ui/press-button/index.ts'],
   ['registry/files/ui/press-button/press-button.css', 'src/lib/ui/press-button/press-button.css'],

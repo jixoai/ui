@@ -18,7 +18,8 @@
     "verify:budgets": "node scripts/verify-budgets.mjs",
     "verify:laws": "cd packages/css-laws && npx tsx src/build.ts --check",
     "verify:ghostty-pin": "node scripts/verify-ghostty-pin.mjs",
-    "verify:shadcn-add": "node scripts/verify-shadcn-add.mjs"
+    "verify:shadcn-add": "node scripts/verify-shadcn-add.mjs",
+    "verify:all": "node scripts/verify-all.mjs"
   },
   "devDependencies": {
     "@fontsource/jetbrains-mono": "^5.3.0",
