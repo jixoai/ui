@@ -1,7 +1,10 @@
 # css-architecture Specification
 
 ## Purpose
-TBD - created by archiving change tw4-css-modularization. Update Purpose after archive.
+The css architecture contract: where every style may live (the placement
+law), what the generated css-laws slots own vs. hand sheet regions, and
+the shared laws (scales, carriers, surfaces) that keep the theme sheets
+one system instead of per-component forks.
 
 ## Requirements
 
@@ -278,3 +281,37 @@ element paints nothing; .jx-surface-body carries the bezel;
 --jx-p). No component-specific motion law may fork the kernel; the
 reduced-motion, no-JS, and exit-cancellation states stay locked for
 every specialization.
+
+#### Scenario: a panel family forks its own motion law
+
+- GIVEN a popover/dialog/panel component shipping its own enter/exit
+  animation instead of riding the surface WAAPI kernel
+- WHEN the css-architecture gate reviews the sheet
+- THEN the fork is rejected — every specialization rides .jx-surface /
+  .jx-surface-body / .jx-surface-shadow and the one --jx-p kernel,
+  with reduced-motion, no-JS and exit-cancellation locked alike
+
+### Requirement: icon geometry provenance (icon upstream, 2026-08-29)
+
+Every SVG glyph in the theme sheets — law-slot fallbacks, the
+`--jx-icon-*` vocabulary definitions, and the ink variants — SHALL
+derive its geometry from the `lucide` package's IconNode data at
+generation time (css-laws `src/icon-uris.ts`). Hand-written path
+data in law sources or the hand sheet regions is FORBIDDEN, with
+ZERO exemptions. The ink pair SHALL map to lucide `check` (valid)
+and lucide `circle-alert` (invalid) at sw 2.5.
+
+#### Scenario: a law source hand-writes a data URI
+
+- GIVEN any css-laws law source
+- WHEN a `url("data:image/svg` literal appears instead of an
+  `iconUri(...)` call
+- THEN code review rejects it and the byte-stability tests flag the
+  delta against the lucide-derived expectation
+
+#### Scenario: the vocabulary block drifts from lucide
+
+- GIVEN the generated `jx-icon-vocab` slot in jx-pure.css
+- WHEN a `--jx-icon-*` definition's URI is edited by hand
+- THEN the css-laws `--check` gate FAILS (slot not fresh from the
+  lucide-backed law sources)

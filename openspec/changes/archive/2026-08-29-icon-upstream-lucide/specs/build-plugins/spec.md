@@ -1,6 +1,11 @@
 # build-plugins — spec delta
 
-## MODIFIED Requirements
+<!-- 2026-08-30 re-declaration (Owner-approved): the lucide provider
+     law below was authored as MODIFIED but its header never existed
+     in the main spec — the icon migration INTRODUCED it. ADDED is
+     the truthful classification; archive now applies it cleanly. -->
+
+## ADDED Requirements
 
 ### Requirement: the lucide provider imports the library
 

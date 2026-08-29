@@ -1,6 +1,11 @@
 # registry — spec delta
 
-## MODIFIED Requirements
+<!-- 2026-08-30 re-declaration (Owner-approved): the icons item law
+     below was authored as MODIFIED but its header never existed in
+     the main spec — the icon migration INTRODUCED it. ADDED is the
+     truthful classification; archive now applies it cleanly. -->
+
+## ADDED Requirements
 
 ### Requirement: the icons lib item is generated from lucide
 
@@ -25,8 +30,6 @@ when the committed file is stale against the manifest + lucide.
 - WHEN the item lands in the consumer project
 - THEN it imports nothing beyond itself (zero npm deps) and every
   export renders identical geometry to lucide@0.472.0
-
-## ADDED Requirements
 
 ### Requirement: registryDependencies mirror actual imports
 
