@@ -392,16 +392,26 @@
 }
 /* the shell carries NO chrome itself (final-check ruling): the box
  * border lives on a ::before BAND whose height matches the
- * -webkit-color-swatch-wrapper (the actual color chip's lane) —
- * inset-block = the input's own padding (hit/6), so the band height
- * computes to hit × 2/3 exactly like the wrapper. Asymmetric corners
- * keep the pill→bevel gesture: LEFT semicircle (the hit/2 radius
- * clamps to half the band = a true pill), RIGHT the standard bevel.
- * Token-derived, no hardcoded pixel values */
+ * -webkit-color-swatch-wrapper (the actual color chip's lane).
+ *
+ * GEOMETRY LAW (final-check ruling 2, the checkbox/range precedent):
+ * the chip is a LOCKED size-and-ratio block — height = the hit lane,
+ * aspect 7:4 (≈4.8rem at the 2.75rem hit — visually balanced, NOT a
+ * literal width), and the shell is its own SIZE CONTAINER: every
+ * internal geometry derives from 100cqh, so a density change (or a
+ * consumer height override) scales the whole chip proportionally —
+ * the swatch circle, the band, the pill radius, the glyph. The hit
+ * token sets ONLY the height; nothing else reads it. */
 .jx-color-shell {
   display: flex;
-  width: 5rem;
-  min-height: var(--jx-hit, 2.5rem);
+  flex: none;
+  /* fit-content protects the ratio-derived width from stretch (grid
+     tracks, block flow) while aspect-ratio + the locked height keep
+     it the chip's intrinsic 7:4 */
+  width: fit-content;
+  height: var(--jx-hit, 2.5rem);
+  aspect-ratio: 7 / 4;
+  container-type: size;
   background: var(--background);
   cursor: pointer;
   position: relative;
@@ -411,17 +421,21 @@
   content: '';
   position: absolute;
   inset-inline: 0;
-  inset-block: calc(var(--jx-hit, 2.5rem) / 6);
+  inset-block: calc(100cqh / 6);
   border: 1px solid var(--border);
   pointer-events: none;
   corner-left-shape: round;
-  border-top-left-radius: calc(var(--jx-hit, 2.5rem) / 2);
-  border-bottom-left-radius: calc(var(--jx-hit, 2.5rem) / 2);
+  /* band height = 100cqh − 2×(100cqh/6) = 100cqh × 2/3 — half of it
+     is the true-semicircle pill radius (no clamp hack) */
+  border-top-left-radius: calc(100cqh / 3);
+  border-bottom-left-radius: calc(100cqh / 3);
   corner-right-shape: bevel;
   border-top-right-radius: var(--radius, 8px);
   border-bottom-right-radius: var(--radius, 8px);
 }
 .jx-color-expand {
+  /* both dimensions definite → aspect-ratio yields; the chip keeps
+     its locked height across the full row */
   width: 100%;
 }
 .jx-color-shell:has([aria-invalid='true'])::before,
@@ -432,11 +446,14 @@
   position: relative;
   z-index: 1;
   flex: none;
-  width: calc(var(--jx-hit, 2.5rem) - 2px);
+  /* the chip lane = the container's full height; the swatch circle
+     inside sizes from the input's own padding (also cqh-relative) */
+  width: 100cqh;
   height: auto;
   align-self: stretch;
   border: 0;
   border-inline-end: 1px solid var(--border);
+  padding: calc(100cqh / 6);
 }
 .jx-color-shell .jx-color-swatch:focus-visible {
   outline: none;
@@ -448,10 +465,12 @@
   content: '';
   position: absolute;
   z-index: 2;
-  inset-inline-end: 0.75rem;
+  /* proportional optics: glyph ≈ 36% of the lane, end inset ≈ 27% —
+     scale with the container, not with font size */
+  inset-inline-end: calc(100cqh * 0.27);
   top: 50%;
-  width: 1rem;
-  height: 1rem;
+  width: calc(100cqh * 0.36);
+  height: calc(100cqh * 0.36);
   translate: 0 -50%;
   color: var(--muted-foreground);
   background-color: currentColor;
