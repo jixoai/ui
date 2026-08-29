@@ -226,7 +226,12 @@
 </script>
 
 <div data-jx-calendar class={className}>
-  <div data-jx-date-nav class="flex items-center justify-between gap-2 -mb-2.5">
+  <!-- the nav→grid seam is a POSITIVE section gap (mb-1): the old
+       -mb-2.5 pulled the weekday row 10px up INTO the nav band — the
+       h-7 button boxes (28px) overlapped the h-6 header cells' tops,
+       and a hovered nav button painted behind the weekday glyphs
+       (Owner catch 2026-08-29: nav 与日期视图错位) -->
+  <div data-jx-date-nav class="flex items-center justify-between gap-2 mb-1">
     <!-- nav glyphs from the shared icons module; date-picker.css sizes
          any svg descendant to 13px, the strokier chevrons ride the
          consuming utility -->

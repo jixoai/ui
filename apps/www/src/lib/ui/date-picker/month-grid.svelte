@@ -163,7 +163,9 @@
 </script>
 
 <div data-jx-month-grid>
-  <div data-jx-month-nav class="flex items-center justify-between gap-2 -mb-2.5">
+  <!-- same seam law as calendar.svelte's date nav: a positive mb-1
+       section gap, not the old -mb-2.5 band overlap -->
+  <div data-jx-month-nav class="flex items-center justify-between gap-2 mb-1">
     <button
       type="button"
       class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed [&_svg]:stroke-[2.5]"

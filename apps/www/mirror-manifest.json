@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-29T15:33:18.441Z",
+  "generatedAt": "2026-08-29T15:51:36.037Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1132,8 +1132,8 @@
           "source": "registry/files/ui/date-picker/calendar.svelte",
           "mirror": "apps/www/src/lib/ui/date-picker/calendar.svelte",
           "target": "@ui/date-picker/calendar.svelte",
-          "sourceSha": "c868ff8841e229d513c936659c3a0f4240032ccf277c5db1d2fef26c0d30a05d",
-          "mirrorSha": "c868ff8841e229d513c936659c3a0f4240032ccf277c5db1d2fef26c0d30a05d"
+          "sourceSha": "925d7027a9a93df22015ef556b35dc3bfe48d9ee424315b1fad9607f6690ad55",
+          "mirrorSha": "925d7027a9a93df22015ef556b35dc3bfe48d9ee424315b1fad9607f6690ad55"
         },
         {
           "source": "registry/files/ui/date-picker/calendar-math.ts",
@@ -1153,8 +1153,8 @@
           "source": "registry/files/ui/date-picker/month-grid.svelte",
           "mirror": "apps/www/src/lib/ui/date-picker/month-grid.svelte",
           "target": "@ui/date-picker/month-grid.svelte",
-          "sourceSha": "15036505f13cf9970edef0df7e4a926212173015d89470a5507827c9c8c54547",
-          "mirrorSha": "15036505f13cf9970edef0df7e4a926212173015d89470a5507827c9c8c54547"
+          "sourceSha": "48ae77cb96b79bcabe682fac7586416e84272d8f35ea7808cc07168989d1e32c",
+          "mirrorSha": "48ae77cb96b79bcabe682fac7586416e84272d8f35ea7808cc07168989d1e32c"
         }
       ]
     },

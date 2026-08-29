@@ -72,6 +72,19 @@ value. Test-infra note: cells are queried by `data-jx-time-hour`
 — a test mounting two hosts duplicates the id and jsdom's selector
 engine mis-resolves `#id` lookups inside a container then.
 
+## Owner follow-up #3 (2026-08-29): the calendar nav↔grid seam
+
+`data-jx-date-nav` and the date view were misaligned: the nav's
+`-mb-2.5` pulled the grid 10px up INTO the nav band — the h-7 button
+boxes (28px) overlapped the h-6 weekday header cells' tops, and a
+hovered nav button painted behind the weekday glyphs (later DOM
+stacks above). Horizontal alignment was measured exact (nav/headrow/
+weekrow share x and width; column centers identical; the month label
+centered over the middle column) — the defect was the vertical band
+overlap. Fix: a positive `mb-1` section seam in calendar.svelte AND
+month-grid.svelte (same copied hack). Probe: seam −10px → +4px.
+758/758, payloads rebuilt.
+
 ## Layering invariants held
 
 - Tier-1 bare markup untouched — platform steppers/panels remain on
