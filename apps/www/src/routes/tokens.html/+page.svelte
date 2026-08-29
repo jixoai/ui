@@ -299,7 +299,7 @@ playing.subscribe((v) => (isPlaying = v));
               { name: '--jx-stack', default: '4 / 4 / 8 / 8px', source: 'density' },
               { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' },
               { name: '--jx-row-min', default: '28 / 32 / 40 / 48px', source: 'density' },
-              { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' },
+              { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' },
               { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' },
               { name: '--jx-image', default: '32 / 36 / 40 / 48px', source: 'density' },
               { name: '--jx-text-secondary', default: '10 / 11 / 12 / 14px', source: 'density' },

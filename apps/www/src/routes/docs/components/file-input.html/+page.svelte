@@ -419,7 +419,7 @@ ${close}
             { name: '--jx-file-thumb', default: 'var(--jx-icon)', source: 'component' },
             { name: '--jx-file-text', default: 'var(--jx-text)', source: 'component' },
             { name: '--jx-file-zone-pad', default: 'var(--jx-inset)', source: 'component' },
-            { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' },
+            { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' },
             { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' },
             { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' },
           ]}

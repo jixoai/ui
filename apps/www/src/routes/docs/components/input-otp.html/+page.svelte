@@ -198,7 +198,7 @@ ${close}
         <TokenTable
           tokens={[
             { name: 'slot size', default: 'max(var(--jx-hit), calc(var(--jx-line) * 2))', source: 'component' },
-            { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' },
+            { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' },
             { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' },
             { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' },
             { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' },

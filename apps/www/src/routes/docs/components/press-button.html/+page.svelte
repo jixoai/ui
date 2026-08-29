@@ -404,7 +404,7 @@ ${close}
           <PressButton variant="fill">deploy</PressButton>
         </DensityDemo>
         <TokenTable tokens={[
-          { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density', description: 'Minimum interactive height and width.' },
+          { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Minimum interactive height and width.' },
           { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Inline button padding.' },
           { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Spacing between composed label content.' },
           { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density', description: 'Button label size.' },

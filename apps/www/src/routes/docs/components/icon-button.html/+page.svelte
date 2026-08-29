@@ -326,7 +326,7 @@ ${drivenNormal}${usageTail}`;
           <IconButton iconOnly text="deploy">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
         </DensityDemo>
         <TokenTable tokens={[
-          { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density', description: 'Square icon-only target and text-button band.' },
+          { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Square icon-only target and text-button band.' },
           { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density', description: 'Visible text label size.' },
           { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density', description: 'Control line height.' },
           { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Glyph-to-label spacing.' },

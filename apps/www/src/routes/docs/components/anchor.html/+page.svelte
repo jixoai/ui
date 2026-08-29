@@ -182,7 +182,7 @@ ${close}
           <div class="border-l border-border"><a class="flex min-h-[var(--jx-hit)] items-center border-l-2 border-l-primary px-[var(--jx-inset)] font-nav text-[length:var(--jx-text)] leading-[var(--jx-line)]" href="#types">types</a></div>
         </DensityDemo>
         <TokenTable tokens={[
-          { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density', description: 'Minimum fragment-link target height.' },
+          { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Minimum fragment-link target height.' },
           { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density', description: 'AnchorItem inline padding.' },
           { name: '--jx-stack', default: '4 / 4 / 8 / 8px', source: 'density', description: 'Vertical rail spacing.' },
           { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density', description: 'AnchorItem label size.' },

@@ -17,8 +17,9 @@
   never named as a variant.
 
   Hit-lane law (component-authoring spec): the ROOT carries
-  min-block-size var(--jx-hit) — chips are control-scale (~44px at
-  default density), not 20px badges; pseudo-element lane expansion was
+  min-block-size var(--jx-hit) — chips are control-scale (~40px at
+  default density; hit tracks the type scale since the 2026-08-29
+  floor ruling), not 20px badges; pseudo-element lane expansion was
   rejected (Codex, design r1) — the real box is the target.
 
   Effect loops: press-button's typed builders pass through the effect

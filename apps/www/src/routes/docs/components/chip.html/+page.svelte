@@ -438,7 +438,7 @@ ${close}
           </Chip>
         </div>
         <TokenTable tokens={[
-          { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density', description: 'Minimum block size of the root — the physical activation rectangle.' },
+          { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Minimum block size of the root — the physical activation rectangle.' },
           { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Inline chip padding.' },
           { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Spacing base — lanes run at half-gap.' },
           { name: '--jx-text-secondary', default: 'density scale', source: 'density', description: 'Micro-label size; also the composed svg size.' },

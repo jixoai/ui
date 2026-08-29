@@ -227,7 +227,7 @@ ${close}
         </DensityDemo>
         <TokenTable tokens={[
           { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density', description: 'PaginationContent item spacing.' },
-          { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density', description: 'Minimum page-chip target.' },
+          { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Minimum page-chip target.' },
           { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Chip and ellipsis inline padding.' },
           { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density', description: 'Page-chip label size.' },
           { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density', description: 'Page-chip label line height.' },

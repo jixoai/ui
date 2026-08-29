@@ -321,7 +321,7 @@
         </DensityDemo>
         <TokenTable
           tokens={[
-            { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density' },
+            { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' },
             { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' },
             { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' },
             { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' },

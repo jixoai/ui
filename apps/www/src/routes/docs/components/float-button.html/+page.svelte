@@ -258,7 +258,7 @@ ${close}
           <button type="button" class="jx-press inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] items-center justify-center border border-border bg-popover text-popover-foreground [--jx-press-shadow:var(--shadow)] [--jx-press-shadow-hover:var(--shadow-md)] [--jx-press-shadow-active:var(--shadow-md-press)]" aria-label="example floating action">+</button>
         </DensityDemo>
         <TokenTable tokens={[
-          { name: '--jx-hit', default: '44 / 44 / 44 / 48px', source: 'density', description: 'Minimum floating action target.' },
+          { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Minimum floating action target.' },
           { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Offset between fixed button and menu stack.' },
           { name: '--jx-press-shadow', default: 'var(--shadow)', source: 'component', description: 'Resting float elevation.' },
           { name: '--jx-press-shadow-hover', default: 'var(--shadow-md)', source: 'component', description: 'Hover elevation.' },
