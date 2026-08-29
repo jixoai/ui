@@ -458,7 +458,7 @@ wrap=auto/never rows coexist in one list. Standalone rows (no ruler)
 keep the exhaustive :has() presence matrix; the no-subgrid path falls
 back to it. ItemField's end lane SHALL render wrap="never"; the lane's
 min-block-size is the INHERITED density hit-min (never a literal
-44px); truncation is an explicit opt-in stamp.
+dimension); truncation is an explicit opt-in stamp.
 
 #### Scenario: media rows align across the group
 

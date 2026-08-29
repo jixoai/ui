@@ -200,7 +200,10 @@ spec's spelling — the law itself is unchanged.)
 - GIVEN the token sheet at a 16px root
 - WHEN a real browser resolves each [data-density] scope
 - THEN every value in the four-row table computes exactly (e.g.
-  mediaImage == 2 × line, seam excluded; hitMin >= 44px)
+  mediaImage == 2 × line, seam excluded; hitMin >= the 7U hit-floor
+  — a guardrail at 28px (Owner ruling 2026-08-29 "彻底跟字"), never
+  binding at the current row-min values, retired from the 44px
+  touch-first clamp)
 
 #### Scenario: a hand-picked dimension sneaks in
 
