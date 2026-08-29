@@ -207,3 +207,71 @@ spec's spelling — the law itself is unchanged.)
 - GIVEN component css with padding: 0.625rem
 - WHEN the source guard scans density-owned declarations
 - THEN it fails and names the file, selector, property, and value
+
+### Requirement: the generated-law boundary (merge-alignment B1, 2026-08-29)
+
+The 13 native form-control laws (jx-html-* family) SHALL be authored
+ONLY as typed TS objects in packages/css-laws/src/laws and serialized
+into the theme sheets between `@jixoai/css-laws` marker slots.
+Hand-authored `@utility jx-html-*` or `@apply jx-html-*` outside the
+slots is FORBIDDEN (the retired chain must not creep back). The
+jx-hue-*/jx-pair-* intent utilities are a different, legal layer and
+are out of scope. Enforced by scripts/verify-standards.mjs (B1) in
+verify:all.
+
+#### Scenario: a hand-written law creeps back
+
+- GIVEN either theme sheet
+- WHEN a `@utility jx-html-*` or `@apply jx-html-*` appears outside
+  the css-laws markers
+- THEN verify:standards FAILS naming the sheet and the offender
+
+### Requirement: the icon carrier hierarchy (merge-alignment B2, 2026-08-29)
+
+Glyphs SHALL ride, in order of preference: (1) inline SVG with
+stroke="currentColor" in component contexts; (2) for CSS-only
+contexts, a dedicated mask carrier painted with
+mask + background-color: currentColor, with all box chrome (border/
+shadow/fill) on ancestors or siblings — never on the masked element;
+(3) for engine-constrained UA pseudos that reject author masks,
+background-image with the -ink variant pair flipped by .dark/.jx-light.
+Every data-URI glyph in the theme sheets MUST be a `--jx-icon-*`
+slot definition or a slotted `var(--jx-icon-*, fallback)` use — bare
+duplicate paints are forbidden (enforced by verify-standards B2).
+
+#### Scenario: a glyph bypasses the slot system
+
+- GIVEN a data-URI svg paint in either theme sheet
+- WHEN it is neither `--jx-icon-x: url(...)` nor
+  `var(--jx-icon-x, url(...))`
+- THEN verify:standards FAILS naming the line
+
+### Requirement: the container-query geometry law (merge-alignment B4, 2026-08-29)
+
+Fixed-posture controls (locked size and ratio: the range slider, the
+color chip) SHALL derive ALL internal geometry from their own size
+container: a definite containing block, `container-type: size`,
+height locked to the density lane, aspect-ratio (or width) locked,
+and every internal dimension expressed in cq units — never in
+density tokens (the ONE token read is the height). Fluid/editorial
+surfaces are exempt. Adoption requires used-value verification
+across the density matrix (a height change scales every internal
+proportionally).
+
+#### Scenario: a fixed-posture control hardcodes an internal size
+
+- GIVEN a control under this law
+- WHEN an internal dimension references a density token directly
+  (instead of cq units)
+- THEN the control no longer scales as one unit and the law is
+  violated
+
+### Requirement: one floating-surface law (merge-alignment B5, 2026-08-29)
+
+Every popover/dialog/panel family — including the terminal panels —
+SHALL specialize the shared surface law (.jx-surface platform
+element paints nothing; .jx-surface-body carries the bezel;
+.jx-surface-shadow the shadow layer; the one WAAPI kernel animates
+--jx-p). No component-specific motion law may fork the kernel; the
+reduced-motion, no-JS, and exit-cancellation states stay locked for
+every specialization.

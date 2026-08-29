@@ -44,6 +44,14 @@ step('registry dependency shape');
   console.log('✓ every inter-item dependency is @jixoai/-prefixed');
 }
 
+// ── 0.5. the frozen alignment laws (B1/B2) ───────────────────────────
+step('verify:standards');
+try {
+  execFileSync('node', ['scripts/verify-standards.mjs'], { cwd: root, stdio: 'inherit' });
+} catch {
+  die('standards');
+}
+
 // ── 1-3. the npm-script gates ────────────────────────────────────────
 for (const name of ['verify:laws', 'verify:mirror', 'verify:budgets']) {
   step(name);
