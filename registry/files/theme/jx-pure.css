@@ -390,19 +390,30 @@
 .jx-error-mark {
   font-weight: bold;
 }
+/* the shell carries NO chrome itself (final-check ruling): the box
+ * border lives on a ::before BAND whose height matches the
+ * -webkit-color-swatch-wrapper (the actual color chip's lane) —
+ * inset-block = the input's own padding (hit/6), so the band height
+ * computes to hit × 2/3 exactly like the wrapper. Asymmetric corners
+ * keep the pill→bevel gesture: LEFT semicircle (the hit/2 radius
+ * clamps to half the band = a true pill), RIGHT the standard bevel.
+ * Token-derived, no hardcoded pixel values */
 .jx-color-shell {
   display: flex;
   width: 5rem;
   min-height: var(--jx-hit, 2.5rem);
-  border: 1px solid var(--border);
   background: var(--background);
   cursor: pointer;
   position: relative;
   transition: box-shadow 150ms ease-out;
-  /* asymmetric corners: LEFT is a perfect semicircle (radius = half
-   * the hit lane), RIGHT is the standard bevel — the pill→bevel
-   * gesture reads as "color on the left, value on the right".
-   * Token-derived, no hardcoded pixel values */
+}
+.jx-color-shell::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block: calc(var(--jx-hit, 2.5rem) / 6);
+  border: 1px solid var(--border);
+  pointer-events: none;
   corner-left-shape: round;
   border-top-left-radius: calc(var(--jx-hit, 2.5rem) / 2);
   border-bottom-left-radius: calc(var(--jx-hit, 2.5rem) / 2);
@@ -413,8 +424,8 @@
 .jx-color-expand {
   width: 100%;
 }
-.jx-color-shell:has([aria-invalid='true']),
-.jx-color-shell.jx-invalid {
+.jx-color-shell:has([aria-invalid='true'])::before,
+.jx-color-shell.jx-invalid::before {
   border-style: dashed;
 }
 .jx-color-shell .jx-color-swatch {
