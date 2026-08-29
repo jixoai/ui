@@ -17,6 +17,15 @@
   4. direct typing — the cells are focusable text inputs (maxlength 2);
      1–2 digits validate (hour ≤ 23, minute ≤ 59) and commit on
      change/blur; invalid or empty input reverts to the committed value.
+  5. the hour-format toggle (Owner request, 2026-08-29) — one text-icon
+     button after the MM group cycles 24h → AM → PM → 24h (default 24h;
+     the button's glyph IS the current mode). The mode is INPUT-SCALE
+     state: committed values stay 24h "HH:MM" always; AM/PM narrows the
+     hour cell's domain to 1–12 (wrap 12↔1) and rewrites the number on
+     the boundary crossings per the Owner's literal rules — 24h → AM/PM
+     drops hours > 12 by twelve (0 and 12 pass through untouched);
+     PM → 24h climbs back + twelve ((h % 12) + 12 maps 1–11 → 13–23 and
+     keeps 12 PM at noon's 12). AM → PM flips the meridiem only.
 
   Conventions: an undefined value renders EMPTY cells (never "--:--"),
   and the first step starts from 00:00 THEN steps — undefined + hour+
@@ -66,6 +75,26 @@
   const hourText = $derived(time ? pad2(time.h) : '');
   const minuteText = $derived(time ? pad2(time.m) : '');
 
+  // ---- the hour-format mode: 24h ↔ AM/PM (see header #5) ---------------
+  let mode = $state<'24h' | 'AM' | 'PM'>('24h');
+  const hourMax = $derived(mode === '24h' ? 23 : 12);
+  const hourMin = $derived(mode === '24h' ? 0 : 1);
+
+  function cycleMode(): void {
+    if (disabled) return;
+    if (time) {
+      if (mode === '24h') {
+        const h = time.h > 12 ? time.h - 12 : time.h; // the literal drop
+        if (h !== time.h) commit({ h, m: time.m }); // no-op passes silently
+      } else if (mode === 'PM') {
+        const h = (time.h % 12) + 12; // +12 climb; 12 PM stays noon's 12
+        if (h !== time.h) commit({ h, m: time.m });
+      }
+      // AM → PM: the same 1–12 scale — only the meridiem flips
+    }
+    mode = mode === '24h' ? 'AM' : mode === 'AM' ? 'PM' : '24h';
+  }
+
   // ---- controlled commit: one exit for every mutation path ----------------
   function commit(next: { h: number; m: number }): void {
     hourDraft = null;
@@ -77,12 +106,22 @@
   }
 
   /** one WRAPPING step — THE disabled gate every step path funnels
-      through (button press, hold repeat, cell ↑/↓) */
+      through (button press, hold repeat, cell ↑/↓). The hour wraps on
+      the ACTIVE scale: mod 24, or the 1–12 meridiem ring (12→1, 1→12) */
   function stepBy(part: 'hour' | 'minute', direction: 1 | -1): void {
     if (disabled) return;
     const base = time ?? { h: 0, m: 0 }; // undefined starts from 00:00
-    if (part === 'hour') commit({ h: (base.h + direction + 24) % 24, m: base.m });
-    else commit({ h: base.h, m: (base.m + direction + 60) % 60 });
+    if (part === 'hour') {
+      const h =
+        mode === '24h'
+          ? (base.h + direction + 24) % 24
+          : wrap12(base.h + direction);
+      commit({ h, m: base.m });
+    } else commit({ h: base.h, m: (base.m + direction + 60) % 60 });
+  }
+
+  function wrap12(n: number): number {
+    return n > 12 ? 1 : n < 1 ? 12 : n;
   }
 
   // ---- press-and-hold: immediate step, 300ms delay, then 100ms/step ---
@@ -135,8 +174,12 @@
     hourDraft = null;
     minuteDraft = null;
     if (disabled || input.value === committed) return; // tab-through is not an edit
-    const limit = part === 'hour' ? 23 : 59;
-    const ok = /^\d{1,2}$/.test(input.value) && Number(input.value) <= limit;
+    // the hour validates on the ACTIVE scale (0–23 in 24h, 1–12 in AM/PM)
+    const n = Number(input.value);
+    const ok =
+      /^\d{1,2}$/.test(input.value) &&
+      n <= (part === 'hour' ? hourMax : 59) &&
+      n >= (part === 'hour' ? hourMin : 0);
     if (!ok) return; // invalid or empty → revert to the committed value
     const base = time ?? { h: 0, m: 0 };
     if (part === 'hour') commit({ h: Number(input.value), m: base.m });
@@ -230,4 +273,16 @@
       onpointerdown={beginHold.bind(null, 'minute', 1)}
     >{@html icons.plus}</button>
   </div>
+  <!-- the hour-format toggle — one text-icon button, the glyph IS the
+       current mode; rides the same jx-date-nav-btn state machine as the
+       −/+ pair (no hold-repeat: it's a toggle, not a stepper) -->
+  <button
+    type="button"
+    data-jx-time-mode
+    class="jx-date-nav-btn inline-flex items-center justify-center h-7 min-w-7 px-1 border border-transparent bg-transparent font-nav text-[10px] font-bold tracking-wide tabular-nums text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+    title="cycle hour format (24h → AM → PM)"
+    aria-label="hour format"
+    {disabled}
+    onclick={cycleMode}
+  >{mode}</button>
 </div>

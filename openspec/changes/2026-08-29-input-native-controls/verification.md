@@ -58,6 +58,20 @@ the self-insetting edge child replaces that side's shell padding
 pinned in the spec delta; the `:has()` keys' DOM contract (− first
 child, + last child) is asserted in the stepper mount test.
 
+## Owner follow-up #2 (2026-08-29): the hour-format toggle
+
+One text-icon button after the MM group cycles 24h → AM → PM
+(default 24h, glyph = the mode). Input-scale state only — commits
+stay 24h "HH:MM". Conversions per the Owner's literal rules, pinned
+by 6 new tests (fragments suite 21 → 27): 24h→AM drops hours > 12
+by twelve (0/9/12 pass through with NO commit); AM→PM flips the
+meridiem only; PM→24h climbs +12 with `(h % 12) + 12` keeping 12 PM
+at noon; AM/PM steps the hour on the 1–12 ring (12 → 1); disabled
+locks the toggle; an empty value flips modes without seeding a
+value. Test-infra note: cells are queried by `data-jx-time-hour`
+— a test mounting two hosts duplicates the id and jsdom's selector
+engine mis-resolves `#id` lookups inside a container then.
+
 ## Layering invariants held
 
 - Tier-1 bare markup untouched — platform steppers/panels remain on

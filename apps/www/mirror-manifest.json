@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-29T15:19:49.156Z",
+  "generatedAt": "2026-08-29T15:33:18.441Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1146,8 +1146,8 @@
           "source": "registry/files/ui/date-picker/time-stepper.svelte",
           "mirror": "apps/www/src/lib/ui/date-picker/time-stepper.svelte",
           "target": "@ui/date-picker/time-stepper.svelte",
-          "sourceSha": "f1edc7ac51557bb5c300bb04a01b9e8c54078a2ca81ea97c9a036bda62bedebe",
-          "mirrorSha": "f1edc7ac51557bb5c300bb04a01b9e8c54078a2ca81ea97c9a036bda62bedebe"
+          "sourceSha": "f212595dfa718a9ee8ee7846bb3d68e56ec2a3debe78178f7a8580326298d5c3",
+          "mirrorSha": "f212595dfa718a9ee8ee7846bb3d68e56ec2a3debe78178f7a8580326298d5c3"
         },
         {
           "source": "registry/files/ui/date-picker/month-grid.svelte",

@@ -37,3 +37,11 @@
 - [x] D2: mirrors + manifest + shadcn build payload freshness
 - [x] D3: full gates + dev-server walkthrough of the new panels
 - [x] D4: commits per batch with task-state updates
+
+## E. Owner follow-up (2026-08-29)
+
+- [x] E1: TimeStepper hour-format toggle — one text-icon button
+      cycling 24h → AM → PM (default 24h), the literal scale
+      conversions (>12 drops twelve on the way in, +12 climbs back
+      with 12 PM kept at noon), the 1–12 stepping/typing ring, the
+      stepper-geometry edge-zone law on the number shell

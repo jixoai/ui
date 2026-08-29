@@ -93,8 +93,13 @@ describe('TimeStepper', () => {
     const rendered = render(TimeStepperHost, {
       props: { ...props, oncommit: (v: string) => commits.push(v) },
     });
-    const hour = () => rendered.container.querySelector<HTMLInputElement>('#tsh-hour')!;
-    const minute = () => rendered.container.querySelector<HTMLInputElement>('#tsh-minute')!;
+    // cells are queried by data attribute: a test may mount two hosts at
+    // once and jsdom's selector engine (nwsapi) mis-resolves #id lookups
+    // inside a container when the id is duplicated document-wide
+    const hour = () =>
+      rendered.container.querySelector<HTMLInputElement>('[data-jx-time-hour]')!;
+    const minute = () =>
+      rendered.container.querySelector<HTMLInputElement>('[data-jx-time-minute]')!;
     const btn = (sel: string) =>
       rendered.container.querySelector<HTMLButtonElement>(sel)!;
     return { ...rendered, commits, hour, minute, btn };
@@ -214,6 +219,77 @@ describe('TimeStepper', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  // ---- the hour-format toggle (24h → AM → PM; Owner request) ----------
+  const modeBtn = (c: HTMLElement) =>
+    c.querySelector<HTMLButtonElement>('[data-jx-time-mode]')!;
+
+  it('the mode toggle mounts after the MM group; the glyph IS the mode (default 24h)', () => {
+    const { container } = setup({ value: '08:00' });
+    const mode = modeBtn(container);
+    expect(mode.textContent).toBe('24h');
+    expect(mode.nextElementSibling).toBeNull(); // the row's last control
+  });
+
+  it('24h → AM: hours > 12 drop by twelve; ≤ 12 passes through without a commit', async () => {
+    const drop = setup({ value: '14:05' });
+    await fireEvent.click(modeBtn(drop.container));
+    expect(drop.commits).toEqual(['02:05']);
+    expect(drop.hour().value).toBe('02');
+    expect(modeBtn(drop.container).textContent).toBe('AM');
+
+    const keep = setup({ value: '09:05' });
+    await fireEvent.click(modeBtn(keep.container));
+    expect(keep.commits).toEqual([]); // no number change — no commit
+    expect(keep.hour().value).toBe('09');
+  });
+
+  it('AM → PM flips the meridiem only (the 1–12 scale keeps its number)', async () => {
+    const { commits, container } = setup({ value: '14:05' });
+    await fireEvent.click(modeBtn(container)); // → AM (02:05)
+    await fireEvent.click(modeBtn(container)); // → PM
+    expect(commits).toEqual(['02:05']);
+    expect(modeBtn(container).textContent).toBe('PM');
+  });
+
+  it('PM → 24h climbs back +12; 12 PM stays noon (12 passes every scale silently)', async () => {
+    const climb = setup({ value: '02:05' });
+    await fireEvent.click(modeBtn(climb.container)); // AM
+    await fireEvent.click(modeBtn(climb.container)); // PM
+    await fireEvent.click(modeBtn(climb.container)); // 24h
+    expect(climb.commits).toEqual(['14:05']);
+    expect(climb.hour().value).toBe('14');
+
+    const noon = setup({ value: '12:00' });
+    await fireEvent.click(modeBtn(noon.container));
+    await fireEvent.click(modeBtn(noon.container));
+    await fireEvent.click(modeBtn(noon.container));
+    expect(noon.commits).toEqual([]); // 12 AM → 12 PM → 12:00, all no-ops
+    expect(noon.hour().value).toBe('12');
+  });
+
+  it('AM/PM mode steps the hour on the 1–12 ring (11 → 12 → 1)', async () => {
+    const { commits, container, btn } = setup({ value: '23:00' });
+    await fireEvent.click(modeBtn(container)); // → AM drops 23 → 11
+    await fireEvent.pointerDown(btn('[data-jx-time-hour-plus]'));
+    await fireEvent.pointerUp(window); // 11 → 12
+    await fireEvent.pointerDown(btn('[data-jx-time-hour-plus]'));
+    await fireEvent.pointerUp(window); // 12 → 1 (the meridiem wrap)
+    expect(commits).toEqual(['11:00', '12:00', '01:00']);
+  });
+
+  it('an EMPTY value mode-flips without committing; disabled locks the toggle', async () => {
+    const empty = setup();
+    await fireEvent.click(modeBtn(empty.container));
+    expect(empty.commits).toEqual([]); // nothing to convert
+    expect(modeBtn(empty.container).textContent).toBe('AM');
+
+    const locked = setup({ value: '14:00', disabled: true });
+    expect(modeBtn(locked.container).disabled).toBe(true);
+    await fireEvent.click(modeBtn(locked.container));
+    expect(locked.commits).toEqual([]);
+    expect(modeBtn(locked.container).textContent).toBe('24h');
   });
 });
 

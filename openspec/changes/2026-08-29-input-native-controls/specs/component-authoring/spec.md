@@ -42,6 +42,32 @@ snippet stays the highest-priority override.
 - THEN the value commits as `2026-W35` and reopening anchors that
   week's Monday with the week painted as the range tint
 
+### Requirement: the time stepper owns the hour format (Owner follow-up, 2026-08-29)
+
+The TimeStepper SHALL end with one text-icon button cycling the hour
+input scale 24h → AM → PM (default 24h; the glyph IS the current
+mode). The mode is input-scale state only — committed values stay
+24h "HH:MM" always. On 24h → AM/PM, hours > 12 drop by twelve (0 and
+12 pass through untouched); on PM → 24h the hour climbs back by
+twelve (`(h % 12) + 12` keeps 12 PM at noon's 12); AM → PM flips the
+meridiem only. In AM/PM the hour cell steps and validates on the
+1–12 ring (12 → 1). A mode crossing that changes no number commits
+nothing; an empty value flips the mode without seeding one.
+
+#### Scenario: 14:05 cycles the full ring
+
+- GIVEN a TimeStepper at `14:05` (24h mode)
+- WHEN the mode button is pressed three times (AM, PM, 24h)
+- THEN the commits are `["02:05", "14:05"]` — the >12 drop, the
+  meridiem flip (no number change, no commit), and the +12 climb
+  that round-trips the ring
+
+#### Scenario: noon passes every scale silently
+
+- GIVEN a TimeStepper at `12:00`
+- THEN every crossing (24h → AM → PM → 24h) commits nothing —
+  12 AM, 12 PM and 12:00 share the number 12
+
 ### Requirement: the datetime panel owns the time part
 
 The datetime-local panel SHALL carry a custom time stepper (HH/MM,
