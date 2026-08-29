@@ -23,25 +23,70 @@
 // never a module-level snapshot (a long-lived host must not freeze
 // "today" at bundle time).
 
-/** Full English month names, indexed by 0-based month (0 = January). */
-export const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-];
+// ---- locale vocabulary (Intl; Owner request 2026-08-30) ----------------
+// Month/weekday words render through Intl.DateTimeFormat — the
+// platform's own CLDR tables, zero dependencies, every locale the
+// engine knows. Formatters are cached per (locale, shape); the week
+// vocabulary reads a Monday-first anchor week (2024-01-01 IS a
+// Monday) and every date formats in UTC, so output is deterministic
+// in any runtime timezone. The legacy English constants retired here
+// were this section's 'en' row, hand-rolled.
 
-/** Abbreviated months for locale-style display ("Aug 20, 2026"). */
-export const MONTHS_SHORT = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-];
+const fmtCache = new Map<string, Intl.DateTimeFormat>();
+function cachedFmt(locale: string, opts: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+  const key = `${locale}|${JSON.stringify(opts)}`;
+  let f = fmtCache.get(key);
+  if (!f) {
+    f = new Intl.DateTimeFormat(locale, { timeZone: 'UTC', ...opts });
+    fmtCache.set(key, f);
+  }
+  return f;
+}
 
-/** Monday-first two-letter weekday headers (grid column order). */
-export const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+/** the ambient locale: the page's declared <html lang> first (the
+    HTML-correct source), else the browser language, else English.
+    SSR-safe (no document → no crash); read once at mount — a page
+    that retargets its language mid-flight passes `locale` instead */
+export function ambientLocale(): string {
+  if (typeof document !== 'undefined' && document.documentElement.lang) {
+    return document.documentElement.lang;
+  }
+  if (typeof navigator !== 'undefined' && navigator.language) {
+    return navigator.language;
+  }
+  return 'en';
+}
 
-/** Full weekday names for the columnheader aria-labels (Monday-first). */
-export const WEEKDAYS_FULL = [
-  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
-];
+/** Monday-first weekday names ("short" heads the grid, "long" rides
+    the columnheader aria-labels) */
+export function weekdayNames(locale: string, style: 'short' | 'long' = 'short'): string[] {
+  const f = cachedFmt(locale, { weekday: style });
+  return Array.from({ length: 7 }, (_, i) => f.format(new Date(Date.UTC(2024, 0, 1 + i))));
+}
+
+/** month names in 0-based index order */
+export function monthNames(locale: string, style: 'long' | 'short' = 'long'): string[] {
+  const f = cachedFmt(locale, { month: style });
+  return Array.from({ length: 12 }, (_, i) => f.format(new Date(Date.UTC(2024, i, 1))));
+}
+
+/** the nav label — ONE formatter so the LOCALE owns the field order
+    and spacing ("August 2026" / "2026年8月"), never concatenation */
+export function monthYearLabel(locale: string, year: number, month: number): string {
+  return cachedFmt(locale, { year: 'numeric', month: 'long' }).format(
+    new Date(Date.UTC(year, month, 1)),
+  );
+}
+
+/** a locale-formatted day for trigger lanes ("Aug 30, 2026" /
+    "2026年8月30日"); the VALUE stays ISO always */
+export function dayLabel(locale: string, iso: string): string {
+  const p = parseIso(iso);
+  if (!p) return iso;
+  return cachedFmt(locale, { year: 'numeric', month: 'short', day: 'numeric' }).format(
+    new Date(Date.UTC(p.year, p.month, p.day)),
+  );
+}
 
 const ISO_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
 const MONTH_LENGTHS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];

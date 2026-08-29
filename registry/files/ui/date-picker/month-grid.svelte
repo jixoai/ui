@@ -31,7 +31,7 @@
 <script lang="ts">
   import { icons } from '$lib/icons';
   import { cn } from '$lib/utils';
-  import { MONTHS_SHORT, pad2 } from './calendar-math';
+  import { ambientLocale, monthNames, pad2 } from './calendar-math';
   import './date-picker.css';
 
   interface Props {
@@ -43,6 +43,9 @@
     max?: string;
     /** picked a non-disabled month */
     onpick?: (v: string) => void;
+    /** BCP 47 locale for the month-cell vocabulary (Intl short
+        months); default = the page's <html lang> (2026-08-30) */
+    locale?: string;
     /** aria id prefix (cursor cell id = `${idPrefix}-m-YYYY-MM`, the grid is `${idPrefix}-grid`); default 'jx-month' */
     idPrefix?: string;
   }
@@ -52,6 +55,7 @@
     min,
     max,
     onpick,
+    locale,
     idPrefix = 'jx-month',
   }: Props = $props();
 
@@ -91,7 +95,10 @@
   }
 
   const rows = $derived.by(() => {
-    const cells: MonthCell[] = MONTHS_SHORT.map((label, index) => {
+    // the cell vocabulary renders through Intl (the page's <html lang>
+    // unless the host passes a locale — calendar.svelte's law)
+    const names = monthNames(locale ?? ambientLocale(), 'short');
+    const cells: MonthCell[] = names.map((label, index) => {
       const ym = `${viewYear}-${pad2(index + 1)}`;
       return {
         ym,

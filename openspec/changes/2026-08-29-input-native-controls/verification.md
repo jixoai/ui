@@ -99,6 +99,24 @@ seam (Aug 31 + Sep 1–6) and the leave-clear. Live probe: hover day 10
 → days 10–16 all lit; screenshot confirms one uniform row.
 758/758 → 759/759 with the new case, verify:all GREEN.
 
+## Owner follow-up #5 (2026-08-30): the picker vocabulary renders through Intl
+
+The panels' month/weekday words now come from Intl.DateTimeFormat —
+the platform's CLDR tables, zero deps. calendar-math gains cached
+formatters (ambientLocale / monthYearLabel / weekdayNames /
+monthNames / dayLabel; the week reads a Monday-first anchor week
+2024-01-01 in UTC — deterministic in any timezone) and the hand-
+rolled English constants retire. Every host takes a `locale` prop
+(Input, date-picker, Calendar, MonthGrid; the TimeStepper has no
+locale words) with the page's `<html lang>` as the ambient default
+(prop > ambient; SSR-safe no-document fallback 'en'). The LOCALE owns
+field order via one formatter ("August 2026" / "2026年8月", never
+concatenation); date-picker's format:'locale' trigger lane rides the
+same law. Tests: 4 new cases (zh-CN calendar + month cells, ambient
+<html lang>, explicit-outranks-ambient). Docs: a zh-CN date sample +
+the locale props row. English ambient visual delta: weekday heads
+become the CLDR 3-letter form (Mon..Sun, was the hand-rolled Mo..Su).
+
 ## Layering invariants held
 
 - Tier-1 bare markup untouched — platform steppers/panels remain on

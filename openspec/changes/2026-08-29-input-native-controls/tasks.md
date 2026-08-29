@@ -48,3 +48,7 @@
 - [x] E2: week hover preview — hovering a day highlights its whole
       Monday-first week (all 7 days, out-month cells included); the
       picked week paints all 7 too (exclusive next-Monday range end)
+- [x] E3: picker vocabulary through Intl — month label / weekday
+      heads / month cells / locale display format render via
+      Intl.DateTimeFormat; `locale` prop + `<html lang>` ambient,
+      the English hand-rolled tables retire (2026-08-30)

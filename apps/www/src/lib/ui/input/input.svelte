@@ -150,6 +150,10 @@
         native-controls /> keeps the UA popup (presence = true,
         absence = the library default) */
     nativeControls?: boolean;
+    /** BCP 47 locale for the picker panels' vocabulary (month label,
+        weekday heads, month cells — Intl.DateTimeFormat); default =
+        the page's <html lang>, else the browser language (2026-08-30) */
+    locale?: string;
     /** fires when the custom picker commits a value */
     onselect?: (value: string) => void;
     /** fine-grained panel content — takes precedence over the embedded
@@ -187,6 +191,7 @@
     'aria-invalid': ariaInvalid,
     'aria-describedby': ariaDescribedBy,
     nativeControls = false,
+    locale,
     onselect,
     picker,
     ...rest
@@ -609,6 +614,7 @@
               anchor={monthAnchor}
               min={(rest as { min?: string }).min}
               max={(rest as { max?: string }).max}
+              {locale}
               onpick={(v) => {
                 commitFromPanel(v);
                 closePicker();
@@ -638,6 +644,7 @@
               rangeStart={type === 'week' ? weekAnchor : undefined}
               rangeEnd={type === 'week' ? weekEndExclusive : undefined}
               weekHover={type === 'week'}
+              {locale}
               min={(rest as { min?: string }).min}
               max={(rest as { max?: string }).max}
               initialView={type === 'week' ? weekAnchor : datePart}

@@ -365,3 +365,60 @@ describe('Input · the number stepper (jx-number-shell)', () => {
     expect(container.querySelector('[data-testid="locked-value"]')?.textContent).toBe('');
   });
 });
+
+// ---------------------------------------------------------------------------
+// Input · picker locale — the panels' vocabulary renders through Intl
+// (Owner request 2026-08-30; month label, weekday heads, month cells)
+// ---------------------------------------------------------------------------
+describe('Input · picker locale', () => {
+  it('locale="zh-CN" localizes the calendar: month label + weekday heads + aria', () => {
+    const { container } = render(Input, {
+      type: 'date',
+      id: 'pb-loc1',
+      value: '2026-08-20',
+      locale: 'zh-CN',
+    });
+    expect(container.querySelector('[data-jx-date-month]')?.textContent).toBe('2026年8月');
+    const firstWd = container.querySelector('[data-jx-date-weekday]');
+    expect(firstWd?.textContent).toBe('周一'); // Monday-first heads
+    expect(firstWd?.getAttribute('aria-label')).toBe('星期一');
+  });
+
+  it('locale flows to the month grid cells (1月..12月)', () => {
+    const { container } = render(Input, {
+      type: 'month',
+      id: 'pb-loc2',
+      value: '2026-08',
+      locale: 'zh-CN',
+    });
+    expect(container.querySelector('#pb-loc2-pmonth-m-2026-01')?.textContent).toBe('1月');
+    expect(container.querySelector('#pb-loc2-pmonth-m-2026-12')?.textContent).toBe('12月');
+  });
+
+  it('ambient default: the page <html lang> drives the vocabulary when no locale passes', () => {
+    const prev = document.documentElement.lang;
+    document.documentElement.lang = 'zh-CN';
+    try {
+      const { container } = render(Input, { type: 'date', id: 'pb-loc3', value: '2026-08-20' });
+      expect(container.querySelector('[data-jx-date-month]')?.textContent).toBe('2026年8月');
+    } finally {
+      document.documentElement.lang = prev;
+    }
+  });
+
+  it('an explicit locale outranks the page lang (prop > ambient)', () => {
+    const prev = document.documentElement.lang;
+    document.documentElement.lang = 'zh-CN';
+    try {
+      const { container } = render(Input, {
+        type: 'date',
+        id: 'pb-loc4',
+        value: '2026-08-20',
+        locale: 'en',
+      });
+      expect(container.querySelector('[data-jx-date-month]')?.textContent).toBe('August 2026');
+    } finally {
+      document.documentElement.lang = prev;
+    }
+  });
+});

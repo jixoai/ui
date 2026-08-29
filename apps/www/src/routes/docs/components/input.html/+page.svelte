@@ -485,6 +485,12 @@
             label="datetime-local (Calendar + time row)"
             name="bridge_datetime"
           />
+          <Input
+            type="date"
+            label="date (locale=zh-CN)"
+            name="bridge_date_zh"
+            locale="zh-CN"
+          />
         </div>
         <p class="font-mono text-xs text-muted-foreground">
           committed: {bridgeDatePicked || '—'} · swatch: {bridgeColor} · week: {bridgeWeek || '—'}
@@ -496,7 +502,11 @@
           grid; the time panel is the custom HH:MM stepper, committing live as the arrows run.
           The datetime-local panel is the Calendar plus a time-stepper row — a day-pick keeps
           the panel open so the time can be adjusted before it closes, and the commit carries
-          both halves. On Firefox week and month have no platform control at all (the lanes
+          both halves. The panels' vocabulary — month label, weekday heads, month cells —
+          renders through <code class="text-accent">Intl.DateTimeFormat</code>: the page's
+          own <code class="text-accent">&lt;html lang&gt;</code> is the default, or pass
+          <code class="text-accent">locale</code> per field (the zh-CN sample above renders
+          2026年8月 / 周一…). On Firefox week and month have no platform control at all (the lanes
           degrade to plain text), so there the embedded panel is the only control on the
           engine.
         </p>
@@ -599,6 +609,7 @@
           { name: 'error', type: 'string', default: '—', description: 'Error text: sets aria-invalid, wires aria-describedby, dashes the shell.' },
           { name: 'clearable', type: 'boolean', default: 'false', description: 'Text-like only: adds the × button in the inner-inline-end seam.' },
           { name: 'native-controls', type: 'boolean', default: 'false', description: 'The bare attribute opts back into the platform controls: number gets its platform spinner back, and date/datetime-local/week/month/time/color open the platform popups instead of the embedded panels.' },
+          { name: 'locale', type: 'string', default: 'page <html lang>', description: "BCP 47 locale for the panels' vocabulary — month label, weekday heads, month cells — through Intl.DateTimeFormat (e.g. zh-CN renders 2026年8月 / 周一 / 1月)." },
           { name: 'picker', type: 'Snippet', default: '—', description: 'Replaces the default embedded panel for any picker type (number is not a panel type); its ctx carries value, commit and close.' },
           { name: 'onselect', type: '(value: string) => void', default: '—', description: 'Fires when a custom panel commits a selection (date day-pick, color swatch…).' },
           { name: 'value', type: 'string | number', default: '—', description: 'Bindable; bound ⇒ controlled, absent ⇒ purely uncontrolled.', bindable: true },

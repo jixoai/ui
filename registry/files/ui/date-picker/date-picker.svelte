@@ -56,7 +56,7 @@
   import { onDestroy } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
-  import { MONTHS_SHORT, parseIso, todayIso, validIso } from './calendar-math';
+  import { ambientLocale, dayLabel, parseIso, todayIso, validIso } from './calendar-math';
   import Calendar from './calendar.svelte';
   import './date-picker.css';
 
@@ -79,6 +79,10 @@
     max?: string;
     /** display format — the committed value stays ISO regardless */
     format?: 'iso' | 'locale';
+    /** BCP 47 locale for the panel vocabulary + the 'locale' display
+        format (Intl.DateTimeFormat); default = the page's <html lang>
+        (2026-08-30 — the hand-rolled English tables retired) */
+    locale?: string;
     /** wired into label[for] / error[id]; auto-generated when omitted */
     id?: string;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
@@ -100,6 +104,7 @@
     min,
     max,
     format = 'iso',
+    locale,
     id = autoId,
     variant = 'auto',
     class: className = '',
@@ -144,10 +149,12 @@
   });
 
   // ---- display formatting (value itself is always ISO) --------------------
+  const loc = $derived(locale ?? ambientLocale());
   function display(iso: string): string {
     if (format === 'iso') return iso;
-    const p = parseIso(iso);
-    return p ? `${MONTHS_SHORT[p.month]} ${p.day}, ${p.year}` : iso;
+    // Intl owns the field order and spacing ("Aug 30, 2026" /
+    // "2026年8月30日") — never hand concatenation
+    return dayLabel(loc, iso);
   }
 
   const hasValue = $derived(mode === 'single' ? selectedIso != null : startIso != null);
@@ -313,6 +320,7 @@
           min={minIso}
           max={maxIso}
           initialView={openAnchor}
+          {locale}
           idPrefix={id}
           ariaLabel={label ? `${label} calendar` : 'calendar'}
           onpick={commitDay}

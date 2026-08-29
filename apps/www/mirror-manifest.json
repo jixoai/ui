@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-29T16:01:18.316Z",
+  "generatedAt": "2026-08-29T16:11:05.935Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -652,8 +652,8 @@
           "source": "registry/files/ui/input/input.svelte",
           "mirror": "apps/www/src/lib/ui/input/input.svelte",
           "target": "@ui/input/input.svelte",
-          "sourceSha": "a77cbec473c88201ffc121f0d1345e32f3d700281961145e6ecbb9f1f22e6fcd",
-          "mirrorSha": "a77cbec473c88201ffc121f0d1345e32f3d700281961145e6ecbb9f1f22e6fcd"
+          "sourceSha": "aa657937faa80e2fa2ea6a15096083239d8a096194196e0ffb7a62797a2de63b",
+          "mirrorSha": "aa657937faa80e2fa2ea6a15096083239d8a096194196e0ffb7a62797a2de63b"
         },
         {
           "source": "registry/files/ui/input/input.css",
@@ -1111,8 +1111,8 @@
           "source": "registry/files/ui/date-picker/date-picker.svelte",
           "mirror": "apps/www/src/lib/ui/date-picker/date-picker.svelte",
           "target": "@ui/date-picker/date-picker.svelte",
-          "sourceSha": "9d758ed0f83b4614ec0264ffd22eeb002b92b818168d529d5efba4d1312b290c",
-          "mirrorSha": "9d758ed0f83b4614ec0264ffd22eeb002b92b818168d529d5efba4d1312b290c"
+          "sourceSha": "4956a69f2522fcb91c0e70d4a9f1eb9d7633612ee0f304666a470b394019a665",
+          "mirrorSha": "4956a69f2522fcb91c0e70d4a9f1eb9d7633612ee0f304666a470b394019a665"
         },
         {
           "source": "registry/files/ui/date-picker/index.ts",
@@ -1132,15 +1132,15 @@
           "source": "registry/files/ui/date-picker/calendar.svelte",
           "mirror": "apps/www/src/lib/ui/date-picker/calendar.svelte",
           "target": "@ui/date-picker/calendar.svelte",
-          "sourceSha": "96d7252ac82f887ed8568a70a24a71c582f5de1c1e290e2bd707a8f9601154dd",
-          "mirrorSha": "96d7252ac82f887ed8568a70a24a71c582f5de1c1e290e2bd707a8f9601154dd"
+          "sourceSha": "f0682a5c559a5cdfadc6369fad41efb0d1d25524f28dc7b781ccc74c2aa2f740",
+          "mirrorSha": "f0682a5c559a5cdfadc6369fad41efb0d1d25524f28dc7b781ccc74c2aa2f740"
         },
         {
           "source": "registry/files/ui/date-picker/calendar-math.ts",
           "mirror": "apps/www/src/lib/ui/date-picker/calendar-math.ts",
           "target": "@ui/date-picker/calendar-math.ts",
-          "sourceSha": "34597d121b682fc8e13a855519b3a4a08488dbf8322db3656b99a2d6f4c15d91",
-          "mirrorSha": "34597d121b682fc8e13a855519b3a4a08488dbf8322db3656b99a2d6f4c15d91"
+          "sourceSha": "0a3afe22701dc1be65a6da04f48e791c1a1d7dca853ccf6cd201e769cd017c8b",
+          "mirrorSha": "0a3afe22701dc1be65a6da04f48e791c1a1d7dca853ccf6cd201e769cd017c8b"
         },
         {
           "source": "registry/files/ui/date-picker/time-stepper.svelte",
@@ -1153,8 +1153,8 @@
           "source": "registry/files/ui/date-picker/month-grid.svelte",
           "mirror": "apps/www/src/lib/ui/date-picker/month-grid.svelte",
           "target": "@ui/date-picker/month-grid.svelte",
-          "sourceSha": "48ae77cb96b79bcabe682fac7586416e84272d8f35ea7808cc07168989d1e32c",
-          "mirrorSha": "48ae77cb96b79bcabe682fac7586416e84272d8f35ea7808cc07168989d1e32c"
+          "sourceSha": "b0751e91a5d8d9af9dd38cff5d1e7082b0f9ed06d7c4f31facf679aeaefc745a",
+          "mirrorSha": "b0751e91a5d8d9af9dd38cff5d1e7082b0f9ed06d7c4f31facf679aeaefc745a"
         }
       ]
     },

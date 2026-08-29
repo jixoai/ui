@@ -38,15 +38,15 @@
   import { icons } from '$lib/icons';
   import { cn } from '$lib/utils';
   import {
-    MONTHS,
-    WEEKDAYS,
-    WEEKDAYS_FULL,
     addDays,
+    ambientLocale,
     daysInMonth,
     isoOf,
+    monthYearLabel,
     parseIso,
     todayIso,
     validIso,
+    weekdayNames,
   } from './calendar-math';
   import './date-picker.css';
 
@@ -62,6 +62,10 @@
         week — all 7 days, out-month cells included; the preview of the
         week a pick will commit (Owner request, 2026-08-29) */
     weekHover?: boolean;
+    /** BCP 47 locale for the month label + weekday vocabulary
+        (Intl.DateTimeFormat); default = the page's <html lang>, else
+        the browser language (Owner request, 2026-08-30) */
+    locale?: string;
     /** inclusive ISO bound — earlier days render disabled */
     min?: string;
     /** inclusive ISO bound — later days render disabled */
@@ -86,6 +90,7 @@
     rangeStart,
     rangeEnd,
     weekHover = false,
+    locale,
     min,
     max,
     initialView,
@@ -162,7 +167,13 @@
     return rows;
   });
 
-  const monthLabel = $derived(`${MONTHS[viewMonth]} ${viewYear}`);
+  // ---- locale: the vocabulary renders through Intl (month label,
+  // weekday heads + their aria-labels); read once at mount — a page
+  // retargeting <html lang> mid-flight passes `locale` instead ------
+  const loc = $derived(locale ?? ambientLocale());
+  const monthLabel = $derived(monthYearLabel(loc, viewYear, viewMonth));
+  const weekdayHeads = $derived(weekdayNames(loc, 'short'));
+  const weekdayAria = $derived(weekdayNames(loc, 'long'));
   // nav clamps: disable when the entire neighbor month sits out of bounds
   const prevDisabled = $derived.by(() => {
     if (minIso == null) return false;
@@ -291,8 +302,8 @@
     onkeydown={onGridKeydown}
   >
     <div role="row" data-jx-date-headrow class="grid grid-cols-[repeat(7,2rem)] gap-0.5">
-      {#each WEEKDAYS as wd, index (wd)}
-        <span role="columnheader" data-jx-date-weekday class="flex items-center justify-center h-6 font-nav text-[10px] tracking-[0.08em] uppercase text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]" aria-label={WEEKDAYS_FULL[index]}>{wd}</span>
+      {#each weekdayHeads as wd, index (wd)}
+        <span role="columnheader" data-jx-date-weekday class="flex items-center justify-center h-6 font-nav text-[10px] tracking-[0.08em] uppercase text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]" aria-label={weekdayAria[index]}>{wd}</span>
       {/each}
     </div>
     {#each weeks as week}

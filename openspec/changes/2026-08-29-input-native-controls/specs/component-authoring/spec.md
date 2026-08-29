@@ -80,6 +80,28 @@ nothing; an empty value flips the mode without seeding one.
 - THEN every crossing (24h → AM → PM → 24h) commits nothing —
   12 AM, 12 PM and 12:00 share the number 12
 
+### Requirement: the picker vocabulary renders through Intl (Owner follow-up, 2026-08-30)
+
+The panels' locale-sensitive words — the calendar's month label and
+weekday heads (visible + aria), the month grid's cells, the
+date-picker's locale display format — SHALL render through
+`Intl.DateTimeFormat`, never hand-rolled tables. A `locale` prop
+(BCP 47) overrides; the default resolves the page's `<html lang>`,
+else the browser language, else English (SSR-safe). The LOCALE owns
+field order and spacing (one formatter — "August 2026" /
+"2026年8月", never concatenation); the committed values stay ISO
+always. Formatters cache per (locale, shape); the week vocabulary
+reads a Monday-first anchor week (2024-01-01) in UTC so output is
+deterministic in any runtime timezone.
+
+#### Scenario: a zh-CN field opens its panels
+
+- GIVEN `<Input type="date" locale="zh-CN" />` opening on 2026-08
+- THEN the nav reads `2026年8月`, the heads read 周一..周日 (aria
+  星期一..星期日), and a month panel's cells read 1月..12月
+- AND with no `locale` prop the page's `<html lang>` drives the same
+  vocabulary; an explicit `locale` outranks it
+
 ### Requirement: the datetime panel owns the time part
 
 The datetime-local panel SHALL carry a custom time stepper (HH/MM,
