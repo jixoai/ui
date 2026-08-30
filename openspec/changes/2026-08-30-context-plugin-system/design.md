@@ -49,6 +49,11 @@ rawValue：provider 写入的唯一可写 $state
 exposed = $derived( after 链( before 链( rawValue ) ) )   // 只读投影
 ```
 
+- **洋葱序（Owner 定案）**：插件按解析序成层，before 外→内、
+  after 内→外——`raw → beforeA → beforeB → 值 → afterB → afterA →
+  消费者`。before 侧后注册者在上层加工（内层精化外层结果）；
+  after 侧先注册者最后定夺（外层收口全部内层投影）。与 WebComponent
+  成对生命周期（外挂内拆）同构；嵌套根合成扁平链后同律（父根外层）。
 - before/after 全是 `$derived` 段，**结果永不回写 raw**；
 - filter 关门 → derived 自动从 raw 重算 → 恢复原始值（身份测试：
   往返后引用等于 raw 引用）；
@@ -69,8 +74,8 @@ exposed = $derived( after 链( before 链( rawValue ) ) )   // 只读投影
 - **链在 context 实例创建（provide）时捕获**（getContextPlugins() 就近
   取，含祖先链）；resolve/get 时不重取——context 对象身份稳定。
 - 嵌套：插件根可以在 context provider 外或内；捕获坐标 = provide 时
-  就近可见链。两个方向的 fixture（外 provider+内插件 / 反向）固化
-  该语义。
+  就近可见链（父根插件在外层）。两个方向的 fixture（外 provider+
+  内插件 / 反向）固化该语义与洋葱两侧的话语权。
 - 同名去重：同根内后者覆盖前者（warn）；跨根不去重（父子的同名插件
   叠加作用，序 = 父先子后）。defaults 合并：init 返回值按插件序逐个
   浅合并，后覆盖先。
@@ -93,6 +98,7 @@ prepareSnapshot（getAnimations pause→clone→resume），不要求
 
 ## 措辞降级 [r1 证据纪律]
 
-「byte-identical / 零开销 / 高性能」全部改为可测合同：零插件时不建
+「byte-identical / 零开销 / 高性能」全部改为可测合同（含洋葱序的
+A/B 双插件执行序断言：beforeA→beforeB→afterB→afterA）：零插件时不建
 链（组合函数不被调用的结构断言）+ 全量既有套件作行为回归 +
 依赖计数微基准。「1071+」改为「实施时点的既有套件」。
