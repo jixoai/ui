@@ -10,6 +10,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DatePicker, { type DatePickerRange } from '$lib/ui/date-picker/date-picker.svelte';
+  import { addDays, todayIso } from '$lib/ui/date-picker/calendar-math';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -32,6 +33,7 @@
 
   const dateUsage = `const deploy = $state('2026-08-24');
 const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
+const at = $state('2026-08-30T14:05'); // canonical datetime
 
 <!-- single: commits ISO "YYYY-MM-DD" — format only changes the display -->
 <DatePicker label="deploy date" bind:value={deploy} />
@@ -41,7 +43,28 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
 <DatePicker label="windowed" min="2026-08-01" max="2026-08-31" bind:value={deploy} />
 
 <!-- range: first click anchors, second closes (backwards swaps) -->
-<DatePicker label="sprint" mode="range" bind:range={sprint} />`;
+<DatePicker label="sprint" mode="range" bind:range={sprint} />
+
+<!-- presets: the lane is the component's, the entries are yours —
+     plain dates in single mode, {start,end} pairs in range mode -->
+<DatePicker
+  label="quick picks"
+  mode="range"
+  presets={[
+    { label: 'today', value: todayIso() },
+    { label: 'last 7', value: { start: addDays(todayIso(), -6), end: todayIso() } },
+  ]}
+  bind:range={sprint}
+/>
+
+<!-- showTime (v1 single-mode only; range + time is a type error):
+     the canonical value becomes "YYYY-MM-DDTHH:mm" local wall-clock —
+     the grid mutates the date part, the stepper the time part -->
+<DatePicker label="at" showTime format="locale" bind:value={at} />
+
+<!-- isDisabled: your days wear the outside-day law (visible,
+     not-allowed, uncommittable); the arrow walk skips them -->
+<DatePicker label="weekdays only" isDisabled={(iso) => [0, 6].includes(new Date(iso + 'T00:00:00Z').getUTCDay())} bind:value={deploy} />`;
 
   const datePickerFiles: TreeFile[] = [
     { name: 'registry/files/ui/date-picker.svelte', content: datePickerSource },
@@ -54,6 +77,25 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
   let windowedDate = $state<string | undefined>(undefined);
   let auditDate = $state<string | undefined>(undefined);
   let sprintRange = $state<DatePickerRange>({ start: '2026-08-10', end: '2026-08-16' });
+  // picker reach (enhance-picker-feedback, 2026-08-30)
+  let quickRange = $state<DatePickerRange | undefined>(undefined);
+  let datetimeValue = $state('2026-08-30T14:05');
+  let weekdayOnlyDate = $state<string | undefined>(undefined);
+
+  // the quick-pick lane demo entries — the lane is the component's, the
+  // entries are the consumer's (value domain: plain dates or {start,end})
+  const sprintPresets = [
+    { label: 'today', value: todayIso() },
+    { label: 'last 7', value: { start: addDays(todayIso(), -6), end: todayIso() } },
+    { label: 'last 30', value: { start: addDays(todayIso(), -29), end: todayIso() } },
+  ];
+
+  // the consumer day predicate: weekends wear the outside-day law
+  // (visible, not-allowed, uncommittable) and the arrow walk skips them
+  const weekendGuard = (iso: string): boolean => {
+    const dow = new Date(`${iso}T00:00:00Z`).getUTCDay();
+    return dow === 0 || dow === 6;
+  };
 
   // ---- canvas playground ----------------------------------------------------------
   // Playground protocol: the page owns the snapshot + reset; the echo
@@ -201,6 +243,42 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
               error wiring: aria-invalid + dashed trigger
             </span>
           </div>
+          <!-- picker reach (enhance-picker-feedback, 2026-08-30) -->
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <DatePicker
+              label="quick picks (presets)"
+              mode="range"
+              presets={sprintPresets}
+              bind:range={quickRange}
+            />
+            <span class="text-muted-foreground text-[12.5px]">
+              preset commit = grid pick: <code class="text-accent"
+                >{quickRange?.start ?? '—'} → {quickRange?.end ?? '—'}</code
+              >
+            </span>
+          </div>
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <DatePicker
+              label="date + time (showTime)"
+              showTime
+              format="locale"
+              bind:value={datetimeValue}
+            />
+            <span class="text-muted-foreground text-[12.5px]">
+              canonical value: <code class="text-accent">{datetimeValue}</code> · grid keeps the
+              time, stepper keeps the day
+            </span>
+          </div>
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <DatePicker
+              label="weekdays only (isDisabled)"
+              isDisabled={weekendGuard}
+              bind:value={weekdayOnlyDate}
+            />
+            <span class="text-muted-foreground text-[12.5px]">
+              weekend cells: not-allowed paint, arrow walk skips them
+            </span>
+          </div>
         </CardGrid>
         <p class="text-muted-foreground text-pretty text-[13px] leading-6">
           Open one and keep typing: the panel is a terminal bezel like the Select dropdown, the
@@ -226,7 +304,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
     </div>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Bind value (single) or range (range); format is display-only, bounds are inclusive ISO days."><CodeBlock code={dateUsage} lang="svelte" meta="DatePicker usage" /></SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The grid is one focus stop: arrows walk the cursor across month boundaries, Enter commits, Escape and light dismiss are the platform's."><A11yTable keys={[{ key: '↑ ↓ ← →', action: 'On the trigger: open the panel; in the grid: walk the cursor across month boundaries (the view follows)' }, { key: 'Enter / Space', action: 'Commit the focused day; open the panel from the trigger' }, { key: 'Escape', action: 'Native popover dismiss — focus restitutes to the trigger on every close path' }]} aria={[{ name: 'aria-invalid', value: 'true', description: 'Set on the trigger when error is present' }, { name: 'aria-describedby', value: '{id}-error', description: 'References the validation message' }, { name: 'role: grid', value: 'one focus stop', description: 'The calendar grid is a single tab stop with a roving day cursor' }]} /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The grid is one focus stop: arrows walk the cursor across month boundaries and skip disabled days, Enter commits, Escape and light dismiss are the platform's."><A11yTable keys={[{ key: '↑ ↓ ← →', action: 'On the trigger: open the panel; in the grid: walk the cursor across month boundaries (the view follows) — disabled days (min/max, isDisabled) are skipped' }, { key: 'Enter / Space', action: 'Commit the focused day; open the panel from the trigger; preset lane buttons commit like a grid pick' }, { key: 'Escape', action: 'Native popover dismiss — focus restitutes to the trigger on every close path' }]} aria={[{ name: 'aria-invalid', value: 'true', description: 'Set on the trigger when error is present' }, { name: 'aria-describedby', value: '{id}-error', description: 'References the validation message' }, { name: 'role: grid', value: 'one focus stop', description: 'The calendar grid is a single tab stop with a roving day cursor' }, { name: 'aria-disabled', value: 'true', description: 'Painted on disabled day cells (min/max bounds and isDisabled days)' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The trigger inherits the family's density rhythm; the panel anchors via a generated --jx-date-* anchor name and opens through the shared --jx-p motion number."><div class="flex flex-col gap-6"><DensityDemo><DatePicker label="deploy date" id="density-date" /></DensityDemo><TokenTable tokens={[{ name: '--jx-date-{id}', default: 'anchor-name', source: 'component' }, { name: '--jx-p', default: '0 → 1', source: 'component', description: 'WAAPI-animated @property progress every panel formula derives from' }, { name: 'variant', default: "'solid' | 'acrylic' | 'auto'", source: 'component', description: 'Floating-surface fill; auto defers to reduced-transparency' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the DatePicker Props interface; value and range are bindable commit seams."><PropsTable props={[{ name: 'value', type: 'string', default: '—', description: 'ISO "YYYY-MM-DD"; single mode committed value.', bindable: true }, { name: 'range', type: 'DatePickerRange', default: '—', description: '{ start?, end? }; range mode committed value.', bindable: true }, { name: 'mode', type: "'single' | 'range'", default: "'single'", description: 'Commit mode for the calendar.' }, { name: 'label', type: 'string', default: '—', description: 'Field label; renders label[for] above the trigger.' }, { name: 'error', type: 'string', default: '—', description: 'Error text → aria-invalid + describedby + dashed trigger.' }, { name: 'placeholder', type: 'string', default: "'Select date...'", description: 'Trigger text when nothing is committed.' }, { name: 'min', type: 'string', default: '—', description: 'ISO date; earlier days render disabled.' }, { name: 'max', type: 'string', default: '—', description: 'ISO date; later days render disabled.' }, { name: 'format', type: "'iso' | 'locale'", default: "'iso'", description: 'Display format — the committed value stays ISO regardless.' }, { name: 'id', type: 'string', default: 'auto', description: 'Wired into label[for] / error[id]; auto-generated when omitted.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface variant for the panel fill.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the DatePicker Props interface; value and range are bindable commit seams."><PropsTable props={[{ name: 'value', type: 'string', default: '—', description: 'ISO "YYYY-MM-DD" (or canonical "YYYY-MM-DDTHH:mm" with showTime); single mode committed value.', bindable: true }, { name: 'range', type: 'DatePickerRange', default: '—', description: '{ start?, end? }; range mode committed value.', bindable: true }, { name: 'mode', type: "'single' | 'range'", default: "'single'", description: 'Commit mode for the calendar.' }, { name: 'showTime', type: 'boolean', default: 'false', description: 'v1 single-mode ONLY — mode="range" + showTime is a type error. Canonical "YYYY-MM-DDTHH:mm" local wall-clock value; the TimeStepper row mutates the time part, the grid the date part; each preserves the other.' }, { name: 'presets', type: 'DatePickerPreset[]', default: '—', description: 'Quick-pick lane entries ({ label, value: ISO date | { start, end } }); activation rides the exact grid-pick pipeline (commit + close). Malformed values are dropped.' }, { name: 'preset', type: 'Snippet<[DatePickerPreset]>', default: '—', description: 'Snippet escape for per-entry rich content; default renders the label text.' }, { name: 'isDisabled', type: '(iso: string) => boolean', default: '—', description: 'Consumer day predicate — true days wear the outside-day law (visible, not-allowed, uncommittable); the arrow walk skips them.' }, { name: 'label', type: 'string', default: '—', description: 'Field label; renders label[for] above the trigger.' }, { name: 'error', type: 'string', default: '—', description: 'Error text → aria-invalid + describedby + dashed trigger.' }, { name: 'placeholder', type: 'string', default: "'Select date...'", description: 'Trigger text when nothing is committed.' }, { name: 'min', type: 'string', default: '—', description: 'ISO date; earlier days render disabled.' }, { name: 'max', type: 'string', default: '—', description: 'ISO date; later days render disabled.' }, { name: 'format', type: "'iso' | 'locale'", default: "'iso'", description: 'Display format — the committed value stays canonical regardless.' }, { name: 'id', type: 'string', default: 'auto', description: 'Wired into label[for] / error[id]; auto-generated when omitted.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface variant for the panel fill.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough.' }]} /></SectionCard></div>
 </div>
