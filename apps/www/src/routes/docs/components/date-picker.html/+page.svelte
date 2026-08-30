@@ -13,6 +13,10 @@
   import { addDays, todayIso } from '$lib/ui/date-picker/calendar-math';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
+  import { meta as datePickerMeta } from '$lib/meta/date-picker.meta';
+  import { DATE_PICKER_DOCS } from '$lib/ui/props-table/docs/date-picker.docs';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
@@ -161,6 +165,15 @@ const at = $state('2026-08-30T14:05'); // canonical datetime
     </SectionCard>
   </div>
 
+  <!-- the demo-standard skeleton (2026-08-30): Install then Usage sit
+       ABOVE the demos — Intro → Install → Usage → Examples → API →
+       See Also is the page law; the sections between stay page-local. -->
+  <div data-reveal="">
+    <DocsInstall name="date-picker" />
+  </div>
+
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Bind value (single) or range (range); format is display-only, bounds are inclusive ISO days."><CodeBlock code={dateUsage} lang="svelte" meta="DatePicker usage" /></SectionCard></div>
+
   <!-- component canvas (audit P1-A2) -->
   <div data-reveal="">
     <ComponentCanvas
@@ -303,8 +316,13 @@ const at = $state('2026-08-30T14:05'); // canonical datetime
       <div class="flex flex-col gap-3 border border-border p-4"><DatePicker label="range (start/end)" id="types-range" mode="range" /></div>
     </div>
   </SectionCard></div>
-  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Bind value (single) or range (range); format is display-only, bounds are inclusive ISO days."><CodeBlock code={dateUsage} lang="svelte" meta="DatePicker usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The grid is one focus stop: arrows walk the cursor across month boundaries and skip disabled days, Enter commits, Escape and light dismiss are the platform's."><A11yTable keys={[{ key: '↑ ↓ ← →', action: 'On the trigger: open the panel; in the grid: walk the cursor across month boundaries (the view follows) — disabled days (min/max, isDisabled) are skipped' }, { key: 'Enter / Space', action: 'Commit the focused day; open the panel from the trigger; preset lane buttons commit like a grid pick' }, { key: 'Escape', action: 'Native popover dismiss — focus restitutes to the trigger on every close path' }]} aria={[{ name: 'aria-invalid', value: 'true', description: 'Set on the trigger when error is present' }, { name: 'aria-describedby', value: '{id}-error', description: 'References the validation message' }, { name: 'role: grid', value: 'one focus stop', description: 'The calendar grid is a single tab stop with a roving day cursor' }, { name: 'aria-disabled', value: 'true', description: 'Painted on disabled day cells (min/max bounds and isDisabled days)' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The trigger inherits the family's density rhythm; the panel anchors via a generated --jx-date-* anchor name and opens through the shared --jx-p motion number."><div class="flex flex-col gap-6"><DensityDemo><DatePicker label="deploy date" id="density-date" /></DensityDemo><TokenTable tokens={[{ name: '--jx-date-{id}', default: 'anchor-name', source: 'component' }, { name: '--jx-p', default: '0 → 1', source: 'component', description: 'WAAPI-animated @property progress every panel formula derives from' }, { name: 'variant', default: "'solid' | 'acrylic' | 'auto'", source: 'component', description: 'Floating-surface fill; auto defers to reduced-transparency' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the DatePicker Props interface; value and range are bindable commit seams."><PropsTable props={[{ name: 'value', type: 'string', default: '—', description: 'ISO "YYYY-MM-DD" (or canonical "YYYY-MM-DDTHH:mm" with showTime); single mode committed value.', bindable: true }, { name: 'range', type: 'DatePickerRange', default: '—', description: '{ start?, end? }; range mode committed value.', bindable: true }, { name: 'mode', type: "'single' | 'range'", default: "'single'", description: 'Commit mode for the calendar.' }, { name: 'showTime', type: 'boolean', default: 'false', description: 'v1 single-mode ONLY — mode="range" + showTime is a type error. Canonical "YYYY-MM-DDTHH:mm" local wall-clock value; the TimeStepper row mutates the time part, the grid the date part; each preserves the other.' }, { name: 'presets', type: 'DatePickerPreset[]', default: '—', description: 'Quick-pick lane entries ({ label, value: ISO date | { start, end } }); activation rides the exact grid-pick pipeline (commit + close). Malformed values are dropped.' }, { name: 'preset', type: 'Snippet<[DatePickerPreset]>', default: '—', description: 'Snippet escape for per-entry rich content; default renders the label text.' }, { name: 'isDisabled', type: '(iso: string) => boolean', default: '—', description: 'Consumer day predicate — true days wear the outside-day law (visible, not-allowed, uncommittable); the arrow walk skips them.' }, { name: 'label', type: 'string', default: '—', description: 'Field label; renders label[for] above the trigger.' }, { name: 'error', type: 'string', default: '—', description: 'Error text → aria-invalid + describedby + dashed trigger.' }, { name: 'placeholder', type: 'string', default: "'Select date...'", description: 'Trigger text when nothing is committed.' }, { name: 'min', type: 'string', default: '—', description: 'ISO date; earlier days render disabled.' }, { name: 'max', type: 'string', default: '—', description: 'ISO date; later days render disabled.' }, { name: 'format', type: "'iso' | 'locale'", default: "'iso'", description: 'Display format — the committed value stays canonical regardless.' }, { name: 'id', type: 'string', default: 'auto', description: 'Wired into label[for] / error[id]; auto-generated when omitted.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface variant for the panel fill.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the DatePicker Props interface; value and range are bindable commit seams."><PropsTable meta={datePickerMeta} docs={DATE_PICKER_DOCS} /></SectionCard></div>
+
+  <!-- the skeleton's closing section: related components, derived from
+       the docs reading chain (data, not a hand list) -->
+  <div data-reveal="">
+    <DocsSeeAlso name="date-picker" />
+  </div>
 </div>

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// verify-docs-structure — the docs page skeleton lint (site-polish F10).
+// verify-docs-structure — the docs page skeleton lint (site-polish F10
+// + docs-demo-standard's STAGED skeleton contract).
 //
 // Every /docs/components/<name>.html must keep the lintable skeleton:
 //   - exactly ONE `Usage` H2, spelled `Usage` (the toc page's lowercase
@@ -17,6 +18,17 @@
 //     region — is the lint target, so the canvas's OWN structural
 //     chrome (its h2 title, the h3 Playground) stays exempt.
 //
+// The STAGED skeleton contract (docs-demo-standard, 2026-08-30) rides
+// on top — the six sections in order:
+//   Intro (one h1) → Install (`data-doc-install` + the copy-ready
+//   `npx jixoai-ui add <name>`) → Usage → Examples (a demo surface,
+//   no numbered demo titles) → API (`data-doc-props-table`) →
+//   See Also (`data-doc-see-also` with ≥1 component-page link).
+//   scripts/docs-skeleton-scope.json is the committed data: in-scope
+//   violations HARD-FAIL; out-of-scope routes WARN and increment the
+//   printed backlog; the scope file's `successor` names the change
+//   that flips the gate global (the staged exit criterion).
+//
 // Source of truth is the BUILT page (the SSR output is where component
 // titles become real heading elements — SectionCard `title="…"` props
 // are only resolvable after render). `apps/www/dist` is scanned when
@@ -32,6 +44,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const SCOPE_FILE = resolve(root, 'scripts/docs-skeleton-scope.json');
 
 // ---- pure lint core (the fixtures ride this) -------------------------------
 
@@ -169,6 +182,140 @@ export function lintDocsPage(html, name = '(page)') {
   return failures.length ? failures.map((f) => `${name}: ${f}`) : [];
 }
 
+// ---- the STAGED skeleton contract (docs-demo-standard 5.1) ------------------
+//
+// Six sections in order, detected on the built page by marker position
+// in the RAW html (monotonic coordinate space):
+//   intro < install < usage < examples < api < see-also
+
+/** raw-html index of the first element carrying `marker`, else -1 */
+const rawIndexOf = (html, marker) => html.indexOf(marker);
+
+/** the section slice from a marker to its closing </section> (the
+ *  DocsInstall/DocsSeeAlso roots contain no nested sections) */
+function sectionSlice(html, marker) {
+  const start = html.indexOf(marker);
+  if (start === -1) return undefined;
+  const end = html.indexOf('</section>', start);
+  return end === -1 ? html.slice(start) : html.slice(start, end);
+}
+
+/** raw-html index of the (single, non-chrome) Usage h2's open tag */
+function usageHeadingIndex(html) {
+  const re = /<h2\b([^>]*)>([\s\S]*?)<\/h2>/gi;
+  let m;
+  let found = -1;
+  while ((m = re.exec(html))) {
+    if (/\bdata-jx-[a-z-]+-title\b/.test(m[1])) continue;
+    if (stripTags(m[2]).toLowerCase() !== 'usage') continue;
+    if (found !== -1) return found; // duplicates are the old rule's catch
+    found = m.index;
+  }
+  return found;
+}
+
+/** demo/section titles that are numbered — the ability grammar's
+ *  mechanical subset ("demo 1", "example 2"); the semantic half
+ *  (one phrase, one capability) is review law, not lint law */
+export function numberedDemoTitles(html) {
+  const out = [];
+  const re = /<h[23]\b([^>]*)>([\s\S]*?)<\/h[23]>/gi;
+  let m;
+  while ((m = re.exec(html))) {
+    if (/\bdata-jx-[a-z-]+-title\b/.test(m[1])) continue;
+    const text = stripTags(m[2]);
+    if (/\b(?:demo|example)\s+\d+\b/i.test(text)) out.push(text);
+  }
+  return out;
+}
+
+/**
+ * The skeleton contract proper.
+ * @param {string} html the built page
+ * @param {string} name the route name (page filename without .html)
+ * @returns {string[]} failures naming the missing/reordered sections
+ */
+export function lintSkeleton(html, name) {
+  const failures = [];
+  const pos = {
+    intro: rawIndexOf(html, '<h1'),
+    install: rawIndexOf(html, 'data-doc-install'),
+    usage: usageHeadingIndex(html),
+    examples: (() => {
+      const a = rawIndexOf(html, 'data-jx-canvas-stage');
+      const b = rawIndexOf(html, 'data-doc-demo-content');
+      const cand = [a, b].filter((i) => i !== -1);
+      return cand.length ? Math.min(...cand) : -1;
+    })(),
+    api: rawIndexOf(html, 'data-doc-props-table'),
+    seeAlso: rawIndexOf(html, 'data-doc-see-also'),
+  };
+
+  if (pos.intro === -1) failures.push('skeleton: no Intro (exactly one h1 expected)');
+  const h1Count = (html.match(/<h1\b/g) ?? []).length;
+  if (h1Count > 1) failures.push(`skeleton: ${h1Count} h1 elements (exactly one Intro)`);
+
+  if (pos.install === -1) {
+    failures.push('skeleton: no Install section (data-doc-install)');
+  } else {
+    const slice = sectionSlice(html, 'data-doc-install') ?? '';
+    if (!stripTags(slice).includes(`npx jixoai-ui add ${name}`)) {
+      failures.push(`skeleton: Install lacks the copy-ready \`npx jixoai-ui add ${name}\``);
+    }
+  }
+
+  if (pos.usage === -1) failures.push('skeleton: no Usage section (the old rule names duplicates)');
+
+  if (pos.examples === -1) failures.push('skeleton: no Examples surface (canvas stage or demo wrapper)');
+  for (const title of numberedDemoTitles(html)) {
+    failures.push(`skeleton: numbered demo title "${title}" — name the ability, not a number`);
+  }
+
+  if (pos.api === -1) failures.push('skeleton: no API section (a data-doc-props-table)');
+
+  if (pos.seeAlso === -1) {
+    failures.push('skeleton: no See Also section (data-doc-see-also)');
+  } else {
+    const slice = sectionSlice(html, 'data-doc-see-also') ?? '';
+    if (!/href=["']\/docs\/components\//.test(slice)) {
+      failures.push('skeleton: See Also holds no link to another component page');
+    }
+  }
+
+  const ORDER = [
+    ['intro', 'Intro'],
+    ['install', 'Install'],
+    ['usage', 'Usage'],
+    ['examples', 'Examples'],
+    ['api', 'API'],
+    ['seeAlso', 'See Also'],
+  ];
+  for (let i = 1; i < ORDER.length; i++) {
+    const [prevKey, prevLabel] = ORDER[i - 1];
+    const [key, label] = ORDER[i];
+    if (pos[prevKey] !== -1 && pos[key] !== -1 && pos[key] < pos[prevKey]) {
+      failures.push(`skeleton: ${label} renders before ${prevLabel} (the six keep their order)`);
+    }
+  }
+
+  return failures.map((f) => `${name}: ${f}`);
+}
+
+/** load + validate the staged scope file (the committed lint data) */
+export function loadSkeletonScope() {
+  if (!existsSync(SCOPE_FILE)) {
+    throw new Error(`staged scope file missing: ${SCOPE_FILE}`);
+  }
+  const scope = JSON.parse(readFileSync(SCOPE_FILE, 'utf8'));
+  if (scope.version !== 1) throw new Error('scope file: unsupported version');
+  if (typeof scope.successor !== 'string' || !scope.successor) {
+    throw new Error('scope file: `successor` (the change that flips the gate global) is required');
+  }
+  if (!Array.isArray(scope.inScope)) throw new Error('scope file: `inScope` array required');
+  if (!Array.isArray(scope.backlog)) throw new Error('scope file: `backlog` array required');
+  return scope;
+}
+
 // ---- fixtures (spec: canvas chrome passes, wrapper heading fails) ----------
 
 export function selftest() {
@@ -229,6 +376,51 @@ export function selftest() {
     lintDocsPage(passPage.replace('data-jx-canvas-playground-title', 'data-x'), 'noplay').join(' ').includes('PLAYGROUND'),
     'canvas without Playground must FAIL',
   );
+
+  // ---- the staged skeleton contract (docs-demo-standard) ----
+  const skeletonPage = `<!doctype html><html><head><title>Select · jixoai-ui</title></head><body>
+    <h1>select — the popover listbox</h1>
+    <section data-doc-install=""><code>npx jixoai-ui add select</code></section>
+    <h2>Usage</h2><p>…</p>
+    <div data-jx-canvas-stage><div data-doc-demo-content="">demo</div></div>
+    <h2>Examples</h2>
+    <table data-doc-props-table=""><th>Property</th></table>
+    <section data-doc-see-also=""><a href="/docs/components/native-select.html">native-select</a></section>
+  </body></html>`;
+  expect(lintSkeleton(skeletonPage, 'select').length === 0, 'the full skeleton must PASS');
+  expect(
+    lintSkeleton(skeletonPage.replace('<div data-jx-canvas-stage><div data-doc-demo-content="">demo</div></div>', ''), 'select')
+      .join(' ')
+      .includes('no Examples surface'),
+    'a page missing its Examples section must FAIL naming it',
+  );
+  expect(
+    lintSkeleton(skeletonPage.replace('npx jixoai-ui add select', 'pip install select'), 'select')
+      .join(' ')
+      .includes('copy-ready'),
+    'an Install section without the command must FAIL',
+  );
+  expect(
+    lintSkeleton(skeletonPage.replace('href="/docs/components/native-select.html"', 'href="/tokens.html"'), 'select')
+      .join(' ')
+      .includes('no link to another component page'),
+    'a See Also without component links must FAIL',
+  );
+  expect(
+    lintSkeleton(skeletonPage.replace('<h2>Examples</h2>', '<h2>demo 1</h2>'), 'select')
+      .join(' ')
+      .includes('numbered demo title'),
+    'a numbered demo title must FAIL (name the ability)',
+  );
+  expect(
+    lintSkeleton(
+      skeletonPage.replace('<h2>Usage</h2><p>…</p>', '').replace('<table data-doc-props-table=""><th>Property</th></table>', '<table data-doc-props-table=""><th>Property</th></table><h2>Usage</h2>'),
+      'select',
+    )
+      .join(' ')
+      .includes('before'),
+    'a section out of order must FAIL (Usage must precede API)',
+  );
   console.error(process.exitCode ? '✗ docs-structure fixtures FAILED' : '✓ docs-structure fixtures pass');
   return process.exitCode ?? 0;
 }
@@ -250,17 +442,57 @@ if (process.argv[1] && import.meta.url === new URL(`file://${resolve(process.arg
     process.exit(1);
   }
 
+  // the staged skeleton scope — committed data, hard requirement
+  let scope;
+  try {
+    scope = loadSkeletonScope();
+  } catch (err) {
+    console.error(`[verify-docs-structure] ${err.message}`);
+    process.exit(1);
+  }
+  const inScope = new Set(scope.inScope);
+
   const pages = readdirSync(pagesDir).filter((f) => f.endsWith('.html'));
   const failures = [];
+  const warns = [];
+  let compliant = 0;
   for (const page of pages) {
+    const route = page.replace(/\.html$/, '');
     const html = readFileSync(resolve(pagesDir, page), 'utf8');
-    failures.push(...lintDocsPage(html, page.replace(/\.html$/, '')));
+    // the site-polish rules stay GLOBAL (every page, hard)
+    failures.push(...lintDocsPage(html, route));
+
+    // the skeleton contract is STAGED (docs-demo-standard 5.1):
+    // in-scope violations hard-fail; out-of-scope routes warn and
+    // feed the printed backlog
+    const skeletonFailures = lintSkeleton(html, route);
+    if (inScope.has(route)) {
+      failures.push(...skeletonFailures);
+      if (skeletonFailures.length === 0) compliant += 1;
+    } else if (skeletonFailures.length > 0) {
+      warns.push(...skeletonFailures);
+    }
   }
-  console.log(`[verify-docs-structure] ${pages.length} docs pages linted from ${pagesDir}`);
+
+  console.log(
+    `[verify-docs-structure] ${pages.length} docs pages linted from ${pagesDir} — ` +
+      `skeleton staged: ${compliant}/${inScope.size} in-scope routes fully compliant, ` +
+      `${warns.length} out-of-scope problem(s) in the backlog`,
+  );
+  if (warns.length) {
+    console.error('[verify-docs-structure] backlog (out-of-scope — WARN, gate stays green):');
+    for (const w of warns) console.error(`  [backlog] ${w}`);
+    for (const entry of scope.backlog) {
+      console.error(`  [backlog] ${entry.route} — owner: ${entry.owner}`);
+    }
+    console.error(
+      `[verify-docs-structure] staged exit: successor change \`${scope.successor}\` flips the skeleton gate global (hard-fail-everywhere) once this backlog is empty`,
+    );
+  }
   if (failures.length) {
     console.error(`[verify-docs-structure] FAILED — ${failures.length} problem(s):`);
     for (const f of failures) console.error(`  ${f}`);
     process.exit(1);
   }
-  console.log('[verify-docs-structure] ✓ all docs pages pass the skeleton lint');
+  console.log('[verify-docs-structure] ✓ all docs pages pass the skeleton lint (staged scope green)');
 }

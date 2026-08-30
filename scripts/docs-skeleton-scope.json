@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "note": "The staged skeleton scope (docs-demo-standard 5.1/5.2, spec delta: 'Adoption is STAGED, not partial-by-omission'). verify-docs-structure HARD-FAILS every inScope route violating the skeleton contract and WARNS on every other route while printing the backlog. The successor change below flips the lint to hard-fail-everywhere — the staged exit criterion is the empty warn list at that flip.",
+  "successor": "2026-08-30-docs-demo-standard-global-gate",
+  "inScope": [
+    "select",
+    "popover",
+    "checkbox",
+    "card-grid",
+    "date-picker",
+    "toast",
+    "combobox"
+  ],
+  "backlog": [
+    { "route": "press-button", "owner": "2026-08-30-canvas-floor-lab", "note": "pilot-twelve member; props-table migration lands with the canvas batch's own pilot work" },
+    { "route": "input", "owner": "2026-08-30-canvas-floor-lab", "note": "pilot-twelve member" },
+    { "route": "dialog", "owner": "2026-08-30-canvas-floor-lab", "note": "pilot-twelve member" },
+    { "route": "badge", "owner": "2026-08-30-canvas-floor-lab", "note": "pilot-twelve member" },
+    { "route": "table", "owner": "2026-08-30-table-grid-toolbar", "note": "pilot-twelve member; page owned by the table batch" },
+    { "route": "(all remaining routes)", "owner": "(mass migration)", "note": "the lint's warn list IS this entry's expansion — every out-of-scope route missing sections increments the printed backlog" }
+  ]
+}

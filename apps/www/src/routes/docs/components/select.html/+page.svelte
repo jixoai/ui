@@ -9,6 +9,8 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import Input from '$lib/ui/input/input.svelte';
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -16,6 +18,8 @@
   import Select, { type SelectOption } from '$lib/ui/select/select.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
+  import { meta as selectMeta } from '$lib/meta/select.meta';
+  import { SELECT_DOCS } from '$lib/ui/props-table/docs/select.docs';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
 
@@ -126,6 +130,25 @@
         <span class="pill">FormData-ready</span>
         <span class="pill">rtl: logical properties only</span>
       </div>
+    </SectionCard>
+  </div>
+
+  <!-- the demo-standard skeleton (2026-08-30): Install then Usage sit
+       ABOVE the demos — Intro → Install → Usage → Examples → API →
+       See Also is the page law; the sections between stay page-local. -->
+  <div data-reveal="">
+    <DocsInstall name="select" />
+  </div>
+
+  <div id="usage" data-reveal="">
+    <SectionCard
+      family="usage"
+      headerRegion="usage"
+      eyebrow="usage"
+      title="Usage"
+      summary="Bind the committed value; rows with descriptions and disabled entries are plain data on the options array."
+    >
+      <CodeBlock code={selectUsage} lang="svelte" meta="Select usage" />
     </SectionCard>
   </div>
 
@@ -316,17 +339,6 @@
       </div>
     </SectionCard>
   </div>
-  <div id="usage" data-reveal="">
-    <SectionCard
-      family="usage"
-      headerRegion="usage"
-      eyebrow="usage"
-      title="Usage"
-      summary="Bind the committed value; rows with descriptions and disabled entries are plain data on the options array."
-    >
-      <CodeBlock code={selectUsage} lang="svelte" meta="Select usage" />
-    </SectionCard>
-  </div>
   <div id="accessibility" data-reveal="">
     <SectionCard
       family="accessibility"
@@ -386,20 +398,16 @@
       title="API"
       summary="Props extend native button attributes on the trigger; form submission rides the faceless jx-form-field bridge (the committed value, never the label, reaches FormData)."
     >
-      <PropsTable
-        props={[
-          { name: 'options', type: 'SelectOption[]', default: '—', description: 'The full option list; order = panel order.', required: true },
-          { name: 'value', type: 'string', default: '—', description: 'Committed value; undefined shows the placeholder.', bindable: true },
-          { name: 'placeholder', type: 'string', default: "'Select...'", description: 'Trigger text when nothing is selected.' },
-          { name: 'label', type: 'string', default: '—', description: 'Field label rendered as label[for] above the trigger.' },
-          { name: 'name', type: 'string', default: '—', description: 'Form field name — the bridge submits the committed value under it.' },
-          { name: 'error', type: 'string', default: '—', description: 'Error text: sets aria-invalid, wires aria-describedby, dashes the shell.' },
-          { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the trigger and the form-bridge field.' },
-          { name: 'multiple', type: 'boolean', default: 'false', description: 'Reserved extension direction — not implemented in v1 (warns).' },
-          { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface fill of the panel.' },
-          { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'inherited', description: 'Overrides the inherited density scope.' },
-        ]}
-      />
+      <!-- the props table renders from the GENERATED meta (one source,
+           docs-demo-standard 4.2): name/type/default from the registry
+           interface, prose from the SELECT_DOCS curation -->
+      <PropsTable meta={selectMeta} docs={SELECT_DOCS} />
     </SectionCard>
+  </div>
+
+  <!-- the skeleton's closing section: related components, derived from
+       the docs reading chain (data, not a hand list) -->
+  <div data-reveal="">
+    <DocsSeeAlso name="select" />
   </div>
 </div>

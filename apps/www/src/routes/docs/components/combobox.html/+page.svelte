@@ -13,6 +13,10 @@
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
+  import { meta as comboboxMeta } from '$lib/meta/combobox.meta';
+  import { COMBOBOX_DOCS } from '$lib/ui/props-table/docs/combobox.docs';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
   import { PlayFields, PlayRow, PlayToggle, PlayHelp } from '$lib/playground';
@@ -141,6 +145,15 @@ const stacks = $state<string[]>([]);`;
       </div>
     </SectionCard>
   </div>
+
+  <!-- the demo-standard skeleton (2026-08-30): Install then Usage sit
+       ABOVE the demos — Intro → Install → Usage → Examples → API →
+       See Also is the page law; the sections between stay page-local. -->
+  <div data-reveal="">
+    <DocsInstall name="combobox" />
+  </div>
+
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The filter text is input state, never committed state — value only changes through an explicit commit."><CodeBlock code={comboboxUsage} lang="svelte" meta="Combobox usage" /></SectionCard></div>
 
   <!-- component canvas (audit P1-A2) -->
   <div data-reveal="">
@@ -340,8 +353,13 @@ const stacks = $state<string[]>([]);`;
       </div>
     </div>
   </SectionCard></div>
-  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The filter text is input state, never committed state — value only changes through an explicit commit."><CodeBlock code={comboboxUsage} lang="svelte" meta="Combobox usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Focus never enters the panel — the roving highlight rides aria-activedescendant off the input itself."><A11yTable keys={[{ key: '↑ / ↓', action: 'Move the roving highlight through the filtered rows' }, { key: 'Enter', action: 'Commit the highlighted row (or the raw text with allowCustom)' }, { key: 'Escape', action: 'Revert to the committed display and close the panel' }, { key: 'Tab', action: 'Keep the typed text: resolve to an option, custom value, or revert' }]} aria={[{ name: 'role', value: 'combobox', description: 'On the trigger input, with aria-haspopup="listbox".' }, { name: 'aria-activedescendant', value: '{id}-opt-n', description: 'The keyboard/aria cursor; focus stays in the input the whole time.' }, { name: 'aria-controls / aria-owns', value: '{id}-listbox', description: 'The top-layer promoted listbox is a DOM sibling of the input.' }, { name: 'aria-expanded', value: 'true/false', description: 'On the input; mirrors panel state.' }, { name: 'aria-multiselectable', value: "'true'", description: 'On the listbox in multiple mode; picked rows carry aria-selected plus the check glyph.' }, { name: 'aria-label', value: '"remove X" / "clear selection"', description: 'On the chip remove × buttons and the showClear ×.' }, { name: 'aria-invalid / aria-describedby', value: 'true / {id}-error', description: 'Error wiring — dashed shell plus the validation message.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The shell consumes the .jx-field scaffold; the panel is the popover=auto terminal bezel with the 2px primary selected edge."><div class="flex flex-col gap-5"><DensityDemo><Combobox label="density" options={backendOptions} /></DensityDemo><TokenTable tokens={[{ name: '--jx-cbx-{id}', default: 'anchor-name', source: 'component', description: 'Per-instance CSS anchor the panel positions against.' }, { name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'The surface-motion kernel driving the panel open/close.' }, { name: '--jx-scrollbar-thin', default: 'thin lane', source: 'component', description: 'Stable-gutter scrollbar compensation in the panel.' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend the native input attributes (except value); the name prop rides the faceless form-field bridge."><PropsTable props={[{ name: 'options', type: 'ComboboxOption[]', default: '—', description: 'The full option list (order = panel order): { value, label, description?, disabled? }.', required: true }, { name: 'value', type: 'string | string[]', default: '—', description: 'Committed value (bind:value) — a listed option’s value or a custom string; in multiple mode the selected string[] in SELECTION ORDER (breaking: no compat shim).', bindable: true }, { name: 'multiple', type: 'boolean', default: 'false', description: 'Multi-select: options toggle membership, trigger chips + panel check states, aria-multiselectable, and the bridge commits repeated same-name FormData entries via the MULTIVALUE seam.' }, { name: 'showClear', type: 'boolean', default: 'false', description: '× in the trigger lane when something is committed; clearing submits honestly empty.' }, { name: 'placeholder', type: 'string', default: "'Search or type...'", description: 'Input placeholder while nothing is committed.' }, { name: 'label', type: 'string', default: '—', description: 'Renders label[for] above the control.' }, { name: 'name', type: 'string', default: '—', description: 'Form field name — intercepted off the input; the bridge submits the VALUE, never the display text.' }, { name: 'error', type: 'string', default: '—', description: 'Adds aria-invalid + aria-describedby + the dashed border.' }, { name: 'id', type: 'string', default: 'auto', description: 'Wired into label[for] / error[id]; auto-generated when omitted.' }, { name: 'allowCustom', type: 'boolean', default: 'true', description: 'Accept typed text that matches no option as the committed value (multiple: it joins the selection as a chip).' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Disable the input, the chips and the chevron together.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface paint of the panel.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the shell.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend the native input attributes (except value); the name prop rides the faceless form-field bridge."><PropsTable meta={comboboxMeta} docs={COMBOBOX_DOCS} /></SectionCard></div>
+
+  <!-- the skeleton's closing section: related components, derived from
+       the docs reading chain (data, not a hand list) -->
+  <div data-reveal="">
+    <DocsSeeAlso name="combobox" />
+  </div>
 </div>
