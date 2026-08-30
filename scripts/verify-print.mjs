@@ -296,6 +296,40 @@ check(
   structural.slice(0, 3).join(' | ') || 'clean',
 );
 
+// ---- 7b. the code gutter: print wraps lines and numbers them -----------
+// (Owner acceptance r1 — asserted on REAL computed styles under print
+// emulation; counter() content itself is unresolvable via getComputedStyle
+// per the prototype finding, so the gutter is asserted by its structural
+// prerequisites: pre-wrap on lines, block display, the named counter)
+await page.emulateMedia({ media: 'print' });
+{
+  const r = await page.evaluate(() => {
+    const block = document.querySelector('[data-jx-paged-code] pre');
+    const line = document.querySelector('[data-jx-paged-code] .jx-paged-line');
+    if (!block || !line) return { ok: false };
+    const ln = getComputedStyle(line);
+    return {
+      ok: true,
+      whiteSpace: ln.whiteSpace,
+      display: ln.display,
+      counter: ln.counterIncrement,
+      lineCount: document.querySelectorAll('[data-jx-paged-code] .jx-paged-line').length,
+    };
+  });
+  const pass =
+    r.ok &&
+    /pre-wrap/.test(r.whiteSpace ?? '') &&
+    r.display === 'block' &&
+    /jx-paged-line/.test(r.counter ?? '') &&
+    r.lineCount > 0;
+  check(
+    'code gutter: lines wrap (pre-wrap) and carry the numbered counter under print',
+    pass,
+    r.ok
+      ? `white-space ${r.whiteSpace}, display ${r.display}, counter ${r.counter}, ${r.lineCount} lines`
+      : 'no code block found on the pilot page',
+  );
+}
 await page.emulateMedia({ media: null });
 await browser.close();
 

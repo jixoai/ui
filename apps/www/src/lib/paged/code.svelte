@@ -7,6 +7,11 @@
   printOverflow="shrink": the font-size steps down instead (the
   @layer components print rule). Screen behavior is identical either
   way: a plain scrollable pre.
+
+  Print carries a numbered gutter (Owner acceptance r1, 2026-08-30):
+  each line renders as a .jx-paged-line span so the print projection
+  can wrap long lines AND number them via a CSS counter ::before —
+  screen stays clean (no gutter), the sim preview mirrors print.
 -->
 <script lang="ts">
   interface Props {
@@ -21,6 +26,11 @@
   }
 
   let { code, caption, printOverflow = 'flow', class: className = '' }: Props = $props();
+
+  // per-line spans: block-level inside the pre, so rendering is
+  // line-for-line identical to plain text while giving the print
+  // projection a numbering anchor. An empty line keeps its height.
+  const lines = $derived(code.split('\n'));
 </script>
 
 <figure data-jx-paged-code data-print-overflow={printOverflow} class={className}>
@@ -29,5 +39,5 @@
   {/if}
   <!-- the flatten verb: whitelisted print rule lifts overflow AND any
        block-size cap, defeating utilities riding the same node -->
-  <pre data-jx-print={printOverflow === 'flow' ? 'flatten' : undefined}><code>{code}</code></pre>
+  <pre data-jx-print={printOverflow === 'flow' ? 'flatten' : undefined}><code>{#each lines as line, i (i)}<span class="jx-paged-line" data-line={i + 1}>{line || ' '}</span>{/each}</code></pre>
 </figure>

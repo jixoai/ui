@@ -64,6 +64,30 @@ describe('PagedCode printOverflow', () => {
     // shrink steps the font instead — no flatten verb on the pre
     expect(shrink.querySelector('pre')?.hasAttribute('data-jx-print')).toBe(false);
   });
+
+  it('renders per-line spans for the print gutter — numbered, order-preserving, empty lines keep height', () => {
+    const { container } = render(FamilyHost);
+    const flow = container.querySelector('[data-jx-paged-code]')!;
+    const lines = [...flow.querySelectorAll('.jx-paged-line')];
+    // 'flow pose' is one line — the span structure exists for the
+    // counter ::before without changing screen rendering
+    expect(lines).toHaveLength(1);
+    expect(lines[0]!.getAttribute('data-line')).toBe('1');
+    expect(lines[0]!.textContent).toBe('flow pose');
+  });
+
+  it('multi-line code splits exactly on newlines (empty lines become a space, not a collapsed block)', async () => {
+    const host = render(FamilyHost);
+    // extend via a fresh mount with a multi-line sample through the
+    // component directly — the fixture carries single-line poses
+    const { default: PagedCode } = await import('$lib/paged/code.svelte');
+    const { container } = render(PagedCode, {
+      code: 'alpha\nbeta\n\ngamma',
+    });
+    const lines = [...container.querySelectorAll('.jx-paged-line')];
+    expect(lines.map((l) => l.textContent)).toEqual(['alpha', 'beta', ' ', 'gamma']);
+    expect(lines.map((l) => l.getAttribute('data-line'))).toEqual(['1', '2', '3', '4']);
+  });
 });
 
 describe('the heading keeper', () => {

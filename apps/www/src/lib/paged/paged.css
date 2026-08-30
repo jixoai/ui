@@ -260,6 +260,11 @@
     line-height: 1.65;
     overflow: auto; /* the screen scrollport; printOverflow flow lifts it via the flatten verb */
   }
+  /* per-line spans: block-level so the pre reads line-for-line like
+     plain text; the numbered gutter itself is print/sim-only */
+  [data-jx-paged-code] .jx-paged-line {
+    display: block;
+  }
   [data-jx-paged-code][data-print-overflow='shrink'] figcaption {
     margin-block-end: 0.35rem;
     font-size: 0.8rem;
@@ -293,6 +298,25 @@
       box-shadow: var(--shadow-sm);
       padding: var(--jx-paged-page-margin, 18mm 16mm);
       max-inline-size: var(--jx-paged-page-w, 210mm);
+    }
+    /* sim mirrors the print code gutter (the fourth consumer sees
+       what paper sees — wrap + numbers, no screen chrome) */
+    [data-jx-print-sim][data-jx-paged-doc] [data-jx-paged-code] pre {
+      counter-reset: jx-paged-line 0;
+    }
+    [data-jx-print-sim][data-jx-paged-doc] [data-jx-paged-code] .jx-paged-line {
+      counter-increment: jx-paged-line;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    [data-jx-print-sim][data-jx-paged-doc] [data-jx-paged-code] .jx-paged-line::before {
+      content: counter(jx-paged-line);
+      display: inline-block;
+      min-inline-size: 2.5ch;
+      margin-inline-end: 1ch;
+      text-align: end;
+      color: var(--jx-paged-muted);
+      font-variant-numeric: tabular-nums;
     }
   }
 
@@ -377,6 +401,26 @@
       font-size: 7.5pt;
       overflow: visible;
       max-block-size: none;
+    }
+
+    /* code lines: wrap instead of clipping (long lines survive the
+       page width) and carry a numbered gutter — screen stays clean */
+    [data-jx-paged-code] pre {
+      counter-reset: jx-paged-line 0;
+    }
+    [data-jx-paged-code] .jx-paged-line {
+      counter-increment: jx-paged-line;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    [data-jx-paged-code] .jx-paged-line::before {
+      content: counter(jx-paged-line);
+      display: inline-block;
+      min-inline-size: 2.5ch;
+      margin-inline-end: 1ch;
+      text-align: end;
+      color: var(--jx-paged-muted);
+      font-variant-numeric: tabular-nums;
     }
 
     /* the ToC prints with section numbers standing in for page
