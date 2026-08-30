@@ -1,0 +1,80 @@
+# Proposal: print-pipeline — paged.js 内核 + 冻结克隆 + 现有页零改动
+
+## Why
+
+Owner 验收裁决（2026-08-30，三条反馈 + 架构定调）：
+
+1. 前一版 Paged\* 家族是「平行宇宙」——接管了整页布局。正确形态：
+   **现有文档页正常网页流原样不动**，Paged 只做打印侧优化与自适应。
+2. 核心只有两件事：**生成打印相关 CSS** + **基于打印模式控制 Context**。
+3. 引擎不自研：**直接用 paged.js**。它的 DOM 复制只发生在打印预览
+   （sim）——包装一层：按我们的配置冻结（克隆 + 暂停动画），把这份
+   DOM 交给 paged.js 内核生成打印预览；**真打印走同一管线**（sim 与
+   纸同源）。真页眉页脚（margin boxes）、目录页（target-counter）、
+   真页码由内核供给。
+
+证据基座：pagedjs-source-research.md（源码级研究，master@6b0ff80，
+preview(content,stylesheets,renderTo) 共存模式、handlers 全表、
+CSS 共存边界、503KB/97KB gzip 懒加载）。
+
+## What Changes
+
+### 1. 冻结与克隆（`lib/print/freeze.svelte.ts`）
+
+- **时序合同**（研究最大风险的直接对策）：媒介态迁移 → print
+  ContextPlugin 干预 live contexts（density→paper 档、hue→钉缺省、
+  motion→冻结，响应式落 DOM 属性）→ `document.fonts.ready` +
+  图片就绪门 → 深克隆 → 克隆上注入动画暂停 CSS（只染克隆）→
+  克隆变换（见 3/4）→ 交内核。
+- 退出（afterprint / sim 关闭）：contexts 响应式回弹，克隆销毁。
+
+### 2. 内核管线（`lib/print/pipeline.svelte.ts`）
+
+- `pagedjs@0.5.0-beta.2` 锁版安装（npm 停滞，vendor 心态；懒加载
+  chunk、仅客户端——SSR 零路径）。
+- `preview(clone, stylesheets, renderTo)`：sim 容器挂页化产物；
+  真打印同一产物 + `@media print` 隐藏 app 根（内核不代劳）。
+- **样式表分离法**（研究红线）：喂内核的 print CSS 与站点 sim 的
+  `@media not print` 副本是**两个源头**，后者绝不入内核。
+- 探针时序：computed 断言一律在 `rendered` 事件后（渲染期内核临时
+  禁 overflow 规则会短暂失真）。
+
+### 3. 打印 CSS 层（喂内核那份）
+
+- 既有 unlayered 白名单/投影法则**保留迁移**（hide/flatten/滚动解除/
+  代码块换行）；paged.js 产物本身 unlayered 落 head 尾——层叠权威
+  心智一致（研究确认）。
+- 代码块打印行为（换行 + 行号槽）迁入克隆变换：**pre→行 span 拆分
+  在克隆上做**（活 DOM 零接触），行号 `lineNumbers` 配置位随 freeze
+  配置走；print/sim 两态同一变换。
+
+### 4. 目录页与页眉页脚（内核供真）
+
+- **ToC**：web = 站点既有 ToC（零新组件）；打印 = 克隆变换注入
+  目录页（nav + `target-counter` 两条 content 规则，章节源 = 站点
+  既有 heading 结构，不另养注册表）。
+- **margin boxes**：配置驱动的 @page 规则（页眉 string-set/running
+  element、页脚 counter(page)/pages），sim 里真实可见——上一版
+  「Chromium fixed 复位」假货退役。
+
+### 5. print 插件（`lib/print/context-plugin.ts`）
+
+context-plugin-system 的第一个真实消费者：init/filter/before 组合，
+print/sim 媒介门控，density→paper、hue→pin-default、motion→freeze。
+
+### 6. 落页与退役
+
+- **验收面 = 现有页**：print 层接入 docs +layout（全部文档页获得
+  打印优化，web 零改动）；打印入口 = 页内打印按钮（sim 开关 +
+  直接打印）。
+- `/docs/paged.html` **重做为普通文档页**：讲打印能力，自身吃层。
+- 退役：PagedDoc/PagedSection/PagedFigure/PagedAside/PagedRef/
+  PagedBlock/PagedTable/PagedToC（平行布局组件）与旧试点页内容；
+  medium.svelte.ts、白名单/投影 CSS、verify-print 骨架保留融入。
+
+## Impact
+
+新：lib/print/（freeze/pipeline/sim 组件/两份 CSS/插件）、pagedjs
+依赖（devDep+懒加载）[package.json 归集成者]、paged.html 重做、
+layout 接线。退役：lib/paged/ 平行组件（manifest/引用/测试同步）。
+既有页 web 行为零改动（全量测试回归证明）。
