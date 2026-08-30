@@ -107,8 +107,8 @@ ${close}
 
   <div id="tour-workbench" data-region="tour-workbench" data-reveal="">
     <ComponentCanvas
-      title="tour — default card"
-      description="Start it: the first demo card takes the lease (inspect its style), the hole+tint frame it. Next advances (←/→ also work), the last step's button reads Finish, Escape or Skip ends with focus back on the opener. No card snippet — the default card renders the steps' title/description metadata."
+      title="tour"
+      description="The default card: start it — the first demo card takes the lease (inspect its style), the hole+tint frame it. Next advances (←/→ also work), the last step's button reads Finish, Escape or Skip ends with focus back on the opener. No card snippet — the default card renders the steps' title/description metadata."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/tour/tour.svelte"
       files={canvasFiles}
       stage="start"

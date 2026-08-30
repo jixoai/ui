@@ -99,11 +99,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="carousel-base" data-reveal="">
-    <SectionCard family="carousel-base" headerRegion="carousel-base" eyebrow="W3C foundation" title="Usage">
-      <CodeBlock code={usage} lang="svelte" meta="usage" />
-    </SectionCard>
-  </div>
+  
   </div>
 </div>
 

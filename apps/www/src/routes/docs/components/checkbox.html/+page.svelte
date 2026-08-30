@@ -9,6 +9,8 @@
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import Checkbox from '$lib/ui/checkbox/checkbox.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
@@ -16,6 +18,11 @@
   import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
+  import { PlayFields, PlayRow, PlayToggle, PlaySegmented, PlayHelp } from '$lib/playground';
+
+  // Same-source law: the canvas drawer shows the exact registry copy this site runs.
+  import checkboxSource from '$lib/ui/checkbox/checkbox.svelte?raw';
+  import checkboxCssSource from '$lib/ui/checkbox/checkbox.css?raw';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
   const heroSummary = CATALOG.find((entry) => entry.name === 'checkbox')?.summary;
@@ -49,6 +56,43 @@
     outputs.push('form submitted ✓');
     result = { outputs };
   }
+
+  // ---- canvas playground (site-polish F10: the standard opening) -----------
+  const canvasInitial = {
+    checked: true,
+    indeterminate: false,
+    disabled: false,
+    labelSide: 'right' as 'left' | 'right',
+  };
+  let canvasChecked = $state(canvasInitial.checked);
+  let canvasIndeterminate = $state(canvasInitial.indeterminate);
+  let canvasDisabled = $state(canvasInitial.disabled);
+  let canvasLabelSide = $state(canvasInitial.labelSide);
+
+  function resetCheckboxCanvas(): void {
+    canvasChecked = canvasInitial.checked;
+    canvasIndeterminate = canvasInitial.indeterminate;
+    canvasDisabled = canvasInitial.disabled;
+    canvasLabelSide = canvasInitial.labelSide;
+  }
+
+  const canvasUsage = $derived(`<Checkbox
+  label="subscribe"
+  bind:checked
+  indeterminate={${canvasIndeterminate}}
+  labelSide="${canvasLabelSide}"${canvasDisabled ? '\n  disabled' : ''}
+/>`);
+
+  // stable named resolver: the usage file tracks live playground state
+  const resolveCheckboxUsage =
+    (file: TreeFile): string =>
+      file.name.endsWith('usage.svelte') ? canvasUsage : file.content;
+
+  const canvasFiles: TreeFile[] = [
+    { name: 'registry/files/ui/checkbox/checkbox.svelte', content: checkboxSource },
+    { name: 'registry/files/ui/checkbox/checkbox.css', content: checkboxCssSource },
+    { name: 'src/lib/ui/checkbox-usage.svelte', content: usage },
+  ];
 </script>
 
 <svelte:head>
@@ -85,6 +129,54 @@
         <span class="pill">label[for] + aria wiring</span>
       </div>
     </SectionCard>
+  </div>
+
+  <!-- component canvas (site-polish F10): the standard opening — live demo + PLAYGROUND -->
+  <div data-reveal="">
+    <ComponentCanvas
+      title="checkbox"
+      description="appearance-none square with a clip-path check — the native input keeps form participation, keyboard toggling, and :checked/:indeterminate state; the glyph is pure CSS."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/checkbox/checkbox.svelte"
+      files={canvasFiles}
+      stage="center"
+      onreset={resetCheckboxCanvas}
+      output={[{ label: 'checked', value: canvasChecked }]}
+      resolveFileContent={resolveCheckboxUsage}
+    >
+      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+        <Checkbox
+          label="subscribe"
+          name="canvas-checkbox"
+          bind:checked={canvasChecked}
+          indeterminate={canvasIndeterminate}
+          labelSide={canvasLabelSide}
+          disabled={canvasDisabled}
+        />
+      </div>
+      {#snippet playground()}
+        <PlayFields>
+          <PlayRow label="indeterminate">
+            <PlayToggle bind:value={canvasIndeterminate} />
+          </PlayRow>
+          <PlayRow label="disabled">
+            <PlayToggle bind:value={canvasDisabled} />
+          </PlayRow>
+          <PlayRow label="labelSide">
+            <PlaySegmented
+              bind:value={canvasLabelSide}
+              options={[
+                { value: 'left', label: 'left' },
+                { value: 'right', label: 'right' },
+              ]}
+            />
+          </PlayRow>
+          <PlayHelp>
+            one pseudo-element, six vertices in every state — :checked grows the check,
+            :indeterminate rotates the same box into a dash, so CSS interpolates the morph.
+          </PlayHelp>
+        </PlayFields>
+      {/snippet}
+    </ComponentCanvas>
   </div>
 
   <!-- the selectors, redrawn in pure CSS -->

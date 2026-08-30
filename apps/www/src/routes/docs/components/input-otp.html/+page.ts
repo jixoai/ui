@@ -10,7 +10,6 @@ const toc: TocSection[] = [
   { id: 'theming', label: 'Theming' },
   { id: 'api', label: 'API' },
   { id: 'otp-demo', label: 'live demo' },
-  { id: 'otp-base', label: 'usage' },
 ];
 
 export const load = () => ({ toc });

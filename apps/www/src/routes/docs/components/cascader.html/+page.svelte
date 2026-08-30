@@ -124,16 +124,7 @@ const options = [
     </ComponentCanvas>
   </div>
 
-  <div id="cascader-base" data-reveal="">
-    <SectionCard
-      family="cascader-base"
-      headerRegion="cascader-base"
-      eyebrow="composition"
-      title="Usage"
-    >
-      <CodeBlock code={usage} lang="svelte" meta="usage" />
-    </SectionCard>
-  </div>
+  
   </div>
 </div>
 

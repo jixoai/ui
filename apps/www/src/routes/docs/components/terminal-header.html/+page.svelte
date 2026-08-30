@@ -152,19 +152,26 @@ two tiers
         {files}
       >
         <div class="flex w-full flex-col gap-5">
-          <SectionCard
-            eyebrow="live stage, replaced"
-            title="You are already wearing the demo"
-            summary="The bar above this page — brand left, pills right, hue switcher in the switcher slot — is the component, rendered exactly once by the site layout with the nav composed from the navigation-menu family. Rendering a second instance here would nest one banner landmark inside the page and duplicate the primary navigation, so the stage shows the structure instead."
-          >
-            <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-              Open the code drawer below for the verbatim source (the chrome + the three css
-              bands), then click the <em>Components</em> pill in the real header above — the
-              mega panel that drops is the docs tree mapped onto NavigationMenuItem/Trigger/Panel
-              in the layout, running live. On a narrow viewport the same routes fold into the
-              hamburger drawer.
-            </p>
-          </SectionCard>
+          <!-- styled non-heading card (site-polish F10): concept-copy must
+               not emit a real heading into the page outline -->
+          <div class="border border-border bg-card shadow-xs">
+            <div class="flex flex-col gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4">
+              <div class="flex flex-col gap-2.5">
+                <p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">live stage, replaced</p>
+                <p class="font-nav text-balance text-[1.05rem] tracking-tight leading-tight text-foreground sm:text-[1.22rem]">You are already wearing the demo</p>
+                <p class="max-w-[64ch] text-pretty text-[13px] leading-5 text-muted-foreground sm:text-[14px] sm:leading-6">The bar above this page — brand left, pills right, hue switcher in the switcher slot — is the component, rendered exactly once by the site layout with the nav composed from the navigation-menu family. Rendering a second instance here would nest one banner landmark inside the page and duplicate the primary navigation, so the stage shows the structure instead.</p>
+              </div>
+            </div>
+            <div class="px-4 py-4 sm:px-5 sm:py-5">
+              <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+                Open the code drawer below for the verbatim source (the chrome + the three css
+                bands), then click the <em>Components</em> pill in the real header above — the
+                mega panel that drops is the docs tree mapped onto NavigationMenuItem/Trigger/Panel
+                in the layout, running live. On a narrow viewport the same routes fold into the
+                hamburger drawer.
+              </p>
+            </div>
+          </div>
           <CodeBlock code={architecture} lang="txt" meta="architecture" />
         </div>
         {#snippet playground()}

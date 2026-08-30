@@ -163,16 +163,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="breadcrumb-base" data-reveal="">
-    <SectionCard
-      family="breadcrumb-base"
-      headerRegion="breadcrumb-base"
-      eyebrow="W3C foundation"
-      title="Usage"
-    >
-      <CodeBlock code={usage} lang="svelte" meta="usage" />
-    </SectionCard>
-  </div>
+  
   </div>
 </div>
 

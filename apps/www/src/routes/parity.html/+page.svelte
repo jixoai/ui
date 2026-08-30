@@ -21,10 +21,27 @@
 </script>
 
 <svelte:head>
-  <title>native parity fixtures</title>
+  <title>Native parity fixtures · jixoai-ui</title>
+  <!-- internal verification surface (verify-native-parity.mjs) — never indexed -->
+  <meta name="robots" content="noindex" />
 </svelte:head>
 
 <main class="flex flex-col gap-10 p-10">
+  <!-- attribution (site-polish F7): the page is a gate surface, but it
+       must explain itself when reached from a stale link or a search -->
+  <header class="flex flex-col gap-2">
+    <h1 class="font-nav text-lg uppercase tracking-[0.3em]">Native parity fixtures</h1>
+    <p class="text-muted-foreground max-w-prose text-[13px] leading-6">
+      Internal verification surface, not a docs page: every vocabulary row below renders
+      TWICE — <code data-parity-note="tier0">tier0</code>, the bare DOM the jx-pure law
+      paints, beside <code data-parity-note="tier1">tier1</code>, the registry component —
+      under identical density and darkness.
+      <code>scripts/verify-native-parity.mjs</code> probes both sides' computed styles
+      across the state matrix and fails on drift. It carries
+      <code>noindex</code> for the same reason.
+    </p>
+  </header>
+
   <!-- row: toggle-group — both renderers consume the SAME Part A law
        (.jx-tgroup), so parity here guards against component-side
        overrides ever creeping in -->

@@ -79,6 +79,10 @@
 
   const visible = $derived(items.slice(-maxVisible));
   const renders = $derived([...visible.filter((v) => !leavingItems.some((l) => l.id === v.id)), ...leavingItems]);
+  // queue honesty (site-polish F6): the store may hold more toasts than
+  // the viewport renders — a tail chip says so instead of the stack
+  // silently hiding them. Pure paint: no behavior, no timers.
+  const queuedCount = $derived(Math.max(0, items.length - maxVisible));
 
   // variant grammar (variant-grammar change): the ladder drives border
   // + ink over the FLOATING surface law (bg-popover stays — toasts
@@ -142,4 +146,13 @@
       </button>
     </div>
   {/each}
+  {#if queuedCount > 0}
+    <div
+      data-jx-toast-queued={queuedCount}
+      class="self-end box-border px-2.5 py-1 border rounded bg-popover text-popover-foreground font-nav text-[0.6875rem] tracking-[0.1em] uppercase text-muted-foreground forced-colors:bg-[Canvas] forced-colors:border-[CanvasText] forced-colors:text-[CanvasText]"
+      aria-hidden="true"
+    >
+      +{queuedCount} queued
+    </div>
+  {/if}
 </div>

@@ -111,9 +111,9 @@ ${close}
 
   <div data-reveal="">
     <ComponentCanvas
-      title="popconfirm — default panel"
+      title="popconfirm"
       stage="center"
-      description="Open it — focus lands on Cancel. Confirm runs the action; clicking outside or pressing Escape runs the cancel path instead. Either way the outcome surfaces below."
+      description="The default panel: open it — focus lands on Cancel. Confirm runs the action; clicking outside or pressing Escape runs the cancel path instead. Either way the outcome surfaces below."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/popconfirm/popconfirm.svelte"
       files={canvasFiles}
       onreset={resetCanvas}

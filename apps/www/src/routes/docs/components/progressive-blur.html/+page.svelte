@@ -127,16 +127,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="pblur-usage" data-reveal="">
-    <SectionCard
-      family="pblur-usage"
-      headerRegion="pblur-usage"
-      eyebrow="composition"
-      title="Usage"
-    >
-      <CodeBlock code={usage} lang="svelte" meta="usage" />
-    </SectionCard>
-  </div>
+  
 
   <div id="pblur-law" data-reveal="">
     <SectionCard

@@ -8,12 +8,18 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import Textarea from '$lib/ui/textarea/textarea.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
+  import { PlayFields, PlayRow, PlayToggle, PlayNumber, PlayHelp } from '$lib/playground';
+
+  // Same-source law: the canvas drawer shows the exact registry copy this site runs.
+  import textareaSource from '$lib/ui/textarea/textarea.svelte?raw';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
   const heroSummary = CATALOG.find((entry) => entry.name === 'textarea')?.summary;
@@ -45,6 +51,44 @@
 
   // ---- slot system demo state (controlled textarea) -------------------------
   let notes = $state('spawn a durable shell');
+
+  // ---- canvas playground (site-polish F10: the standard opening) -----------
+  const canvasInitial = { value: 'spawn a durable shell', rows: 4, count: true, disabled: false };
+  let canvasText = $state(canvasInitial.value);
+  let canvasRows = $state(canvasInitial.rows);
+  let canvasCount = $state(canvasInitial.count);
+  let canvasDisabled = $state(canvasInitial.disabled);
+
+  function resetTextareaCanvas(): void {
+    canvasText = canvasInitial.value;
+    canvasRows = canvasInitial.rows;
+    canvasCount = canvasInitial.count;
+    canvasDisabled = canvasInitial.disabled;
+  }
+
+  const canvasUsage = $derived(
+    [
+      '<Textarea',
+      '  label="notes"',
+      `  rows={${canvasRows}}`,
+      '  bind:value',
+      canvasCount ? '  count' : [],
+      canvasDisabled ? '  disabled' : [],
+      '/>',
+    ]
+      .flat()
+      .join('\n'),
+  );
+
+  // stable named resolver: the usage file tracks live playground state
+  const resolveTextareaUsage =
+    (file: TreeFile): string =>
+      file.name.endsWith('usage.svelte') ? canvasUsage : file.content;
+
+  const canvasFiles: TreeFile[] = [
+    { name: 'registry/files/ui/textarea/textarea.svelte', content: textareaSource },
+    { name: 'src/lib/ui/textarea-usage.svelte', content: usage },
+  ];
 </script>
 
 <svelte:head>
@@ -81,6 +125,47 @@
         <span class="pill">zero deps · Svelte 5 runes</span>
       </div>
     </SectionCard>
+  </div>
+
+  <!-- component canvas (site-polish F10): the standard opening — live demo + PLAYGROUND -->
+  <div data-reveal="">
+    <ComponentCanvas
+      title="textarea"
+      description="the multiline half of the shell family — label + count rows, locked vertical resize, and the same label/error contract as input; value is $bindable."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/textarea/textarea.svelte"
+      files={canvasFiles}
+      stage="center"
+      onreset={resetTextareaCanvas}
+      output={[{ label: 'length', value: canvasText.length }]}
+      resolveFileContent={resolveTextareaUsage}
+    >
+      <div class="flex w-full max-w-md flex-col gap-3">
+        <Textarea
+          label="notes"
+          bind:value={canvasText}
+          rows={canvasRows}
+          count={canvasCount}
+          disabled={canvasDisabled}
+        />
+      </div>
+      {#snippet playground()}
+        <PlayFields>
+          <PlayRow label="rows">
+            <PlayNumber bind:value={canvasRows} />
+          </PlayRow>
+          <PlayRow label="count">
+            <PlayToggle bind:value={canvasCount} />
+          </PlayRow>
+          <PlayRow label="disabled">
+            <PlayToggle bind:value={canvasDisabled} />
+          </PlayRow>
+          <PlayHelp>
+            the shell is the input's — toolbar/status rows slot behind hairlines; resize is
+            locked to the vertical axis.
+          </PlayHelp>
+        </PlayFields>
+      {/snippet}
+    </ComponentCanvas>
   </div>
 
   <!-- base shell -->

@@ -238,6 +238,7 @@ ${close}
     </SectionCard>
   </div>
 
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="Pagination usage" /></SectionCard></div>
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="The root and links carry the core public contract; composition supplies list structure and page-window policy.">
       <div class="flex flex-col gap-6">
@@ -249,13 +250,13 @@ ${close}
         <PropsTable title="PaginationLink" props={[
           { name: 'page', type: 'number', required: true, description: 'Page number and default visible label.' },
           { name: 'isActive', type: 'boolean', default: 'false', description: 'Applies active paint and aria-current=page.' },
-          { name: 'href', type: 'string', default: 'undefined', description: 'Destination; omit only for an onclick-only button.' },
-          { name: 'onclick', type: '(event: MouseEvent) => void', default: 'undefined', description: 'Click-only page action.' },
-          { name: 'child', type: 'Snippet', default: 'undefined', description: 'Optional replacement anchor element.' },
+          { name: 'href', type: 'string', default: '—', description: 'Destination; omit only for an onclick-only button.' },
+          { name: 'onclick', type: '(event: MouseEvent) => void', default: '—', description: 'Click-only page action.' },
+          { name: 'child', type: 'Snippet', default: '—', description: 'Optional replacement anchor element.' },
         ]} />
         <PropsTable title="PaginationPrevious and PaginationNext" props={[
-          { name: 'href', type: 'string', default: 'undefined', description: 'Destination; omission renders an honest disabled span.' },
-          { name: 'onclick', type: '(event: MouseEvent) => void', default: 'undefined', description: 'Click-only edge action.' },
+          { name: 'href', type: 'string', default: '—', description: 'Destination; omission renders an honest disabled span.' },
+          { name: 'onclick', type: '(event: MouseEvent) => void', default: '—', description: 'Click-only edge action.' },
           { name: 'children', type: 'Snippet', default: 'default label', description: 'Replacement edge label.' },
         ]} />
       </div>

@@ -9,6 +9,8 @@
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -17,6 +19,10 @@
   import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
+  import { PlayFields, PlayRow, PlayToggle, PlayHelp } from '$lib/playground';
+
+  // Same-source law: the canvas drawer shows the exact registry copy this site runs.
+  import nativeSelectSource from '$lib/ui/native-select/native-select.svelte?raw';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
   const heroSummary = CATALOG.find((entry) => entry.name === 'native-select')?.summary;
@@ -52,6 +58,43 @@
 
   // ---- bound-value demo state -------------------------------------------------
   let runtimeNative = $state('node');
+
+  // ---- canvas playground (site-polish F10: the standard opening) -----------
+  const canvasInitial = { value: 'pro', disabled: false };
+  let canvasValue = $state(canvasInitial.value);
+  let canvasDisabled = $state(canvasInitial.disabled);
+
+  function resetNativeSelectCanvas(): void {
+    canvasValue = canvasInitial.value;
+    canvasDisabled = canvasInitial.disabled;
+  }
+
+  const canvasUsage = $derived(
+    [
+      '<NativeSelect',
+      '  label="plan"',
+      '  name="plan"',
+      '  bind:value',
+      canvasDisabled ? '  disabled' : [],
+      '>',
+      '  <option value="free">free</option>',
+      '  <option value="pro">pro</option>',
+      '  <option value="team">team</option>',
+      '</NativeSelect>',
+    ]
+      .flat()
+      .join('\n'),
+  );
+
+  // stable named resolver: the usage file tracks live playground state
+  const resolveNativeSelectUsage =
+    (file: TreeFile): string =>
+      file.name.endsWith('usage.svelte') ? canvasUsage : file.content;
+
+  const canvasFiles: TreeFile[] = [
+    { name: 'registry/files/ui/native-select/native-select.svelte', content: nativeSelectSource },
+    { name: 'src/lib/ui/native-select-usage.svelte', content: usage },
+  ];
 
   // ---- form participation demo (from the family example form) ---------------
   // NativeHTML end to end: the name/value pair is the point — FormData
@@ -104,6 +147,39 @@
         <span class="pill">zero deps · Svelte 5 runes</span>
       </div>
     </SectionCard>
+  </div>
+
+  <!-- component canvas (site-polish F10): the standard opening — live demo + PLAYGROUND -->
+  <div data-reveal="">
+    <ComponentCanvas
+      title="native-select"
+      description="the simple-scenario select: a real <select> under the jx-pure face — the platform's overlay picker on touch, a real name/value pair in FormData."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/native-select/native-select.svelte"
+      files={canvasFiles}
+      stage="center"
+      onreset={resetNativeSelectCanvas}
+      output={[{ label: 'value', value: canvasValue }]}
+      resolveFileContent={resolveNativeSelectUsage}
+    >
+      <div class="flex w-full max-w-xs flex-col gap-3">
+        <NativeSelect label="plan" name="canvas-plan" bind:value={canvasValue} disabled={canvasDisabled}>
+          <option value="free">free</option>
+          <option value="pro">pro</option>
+          <option value="team">team</option>
+        </NativeSelect>
+      </div>
+      {#snippet playground()}
+        <PlayFields>
+          <PlayRow label="disabled">
+            <PlayToggle bind:value={canvasDisabled} />
+          </PlayRow>
+          <PlayHelp>
+            native first: the chevron, the overlay picker, and the keyboard model are the
+            platform's — the component adds the label/error contract over the face.
+          </PlayHelp>
+        </PlayFields>
+      {/snippet}
+    </ComponentCanvas>
   </div>
 
   <!-- native first -->

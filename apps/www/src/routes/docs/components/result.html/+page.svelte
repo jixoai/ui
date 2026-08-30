@@ -79,11 +79,7 @@
     </ComponentCanvas>
   </div>
 
-  <div id="result-base" data-reveal="">
-    <SectionCard family="result-base" headerRegion="result-base" eyebrow="law" title="Usage">
-      <CodeBlock code={usage} lang="svelte" meta="usage" />
-    </SectionCard>
-  </div>
+  
   <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Outcome states" summary="Result distinguishes success, error, warning and info without taking over routing or recovery logic."><div class="grid gap-4 md:grid-cols-2"><Result status="success" title="Deployed" /><Result status="error" title="Build failed" /></div></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'status', value: 'visible glyph and title', description: 'Status is communicated with text, not color alone.' }, { name: 'actions', value: 'native controls', description: 'Keep recovery actions keyboard reachable.' }]} /></SectionCard></div>

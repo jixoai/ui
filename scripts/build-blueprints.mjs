@@ -53,6 +53,43 @@ const die = (message) => {
   process.exit(1);
 };
 
+// ---- scene audit (site-polish F8, task 5.2) --------------------------------
+// The satori canvas CLIPS at the stage edge and paints every text run
+// exactly where the browser measured it — so a run that escapes the
+// stage, or two runs that paint over each other, render as visible
+// garbage in the tile (the toc-engine overlap / list-item clip class).
+// The serializer emits per-LINE tight rects (Range API), so an overlap
+// here is a real glyph collision, not two layout boxes touching.
+const clipText = (t) => (t.length > 32 ? t.slice(0, 32) + '…' : t);
+
+function auditScene(scene) {
+  const problems = [];
+  const texts = scene.nodes.filter((n) => n.k === 'txt' && n.t && n.t.trim());
+  for (const t of texts) {
+    if (t.x < -0.5 || t.y < -0.5 || t.x + t.w > scene.w + 0.5 || t.y + t.h > scene.h + 0.5) {
+      problems.push(
+        `text "${clipText(t.t)}" escapes the ${scene.w}x${scene.h} stage (x=${t.x} y=${t.y} w=${t.w} h=${t.h})`,
+      );
+    }
+  }
+  for (let i = 0; i < texts.length; i++) {
+    for (let j = i + 1; j < texts.length; j++) {
+      const a = texts[i];
+      const b = texts[j];
+      // low-opacity ghosts are decorative layering, not collisions
+      if ((a.op ?? 1) < 0.3 || (b.op ?? 1) < 0.3) continue;
+      const ox = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+      const oy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+      if (ox > 2 && oy > 2) {
+        problems.push(
+          `text "${clipText(a.t)}" overlaps "${clipText(b.t)}" (${ox.toFixed(1)}x${oy.toFixed(1)}px)`,
+        );
+      }
+    }
+  }
+  return problems;
+}
+
 /** same vite-bin resolution trick as build-site.mjs */
 function buildSite() {
   const packageDir = path.dirname(require.resolve('vite/package.json', { paths: [wwwDir] }));
@@ -147,6 +184,8 @@ async function main() {
   let hits = 0;
   const misses = [];
   const rendered = [];
+  const auditFailures = [];
+  const strict = args.has('--strict');
 
   for (const name of targets) {
     // scroll the stage to the viewport center first: anchor-positioned
@@ -157,13 +196,21 @@ async function main() {
     }, name);
     await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
     const scene = await page.evaluate(serializeStageInPage, `[data-blueprint="${name}"]`);
+    // F8 overflow probe: a text run outside the stage or over another run
+    // is visible garbage in the tile. --strict skips + fails the scene;
+    // default runs render anyway (no silent stale artifacts) and report.
+    const problems = auditScene(scene);
+    if (problems.length) auditFailures.push({ name, problems });
+    if (problems.length && strict) continue;
     const hash = createHash('sha256').update(CONVERTER_FINGERPRINT + JSON.stringify(scene)).digest('hex');
     if (cache.entries[name] === hash && existsSync(path.join(outDir, `${name}.svg`))) {
       hits++;
       continue;
     }
     const svg = await renderScene(scene);
-    writeFileSync(path.join(outDir, `${name}.svg`), svg);
+    // committed convention: no trailing newline (keeps regenerated artifacts
+    // byte-stable against the repo copies for unchanged scenes)
+    writeFileSync(path.join(outDir, `${name}.svg`), svg.replace(/\n$/, ''));
     cache.entries[name] = hash;
     misses.push(name);
     rendered.push(`${name}: ${(svg.length / 1024).toFixed(1)}KB`);
@@ -192,6 +239,20 @@ async function main() {
 
   console.log(`[build-blueprints] ${targets.length} stages: ${hits} cache hits, ${misses.length} rendered`);
   for (const line of rendered) console.log(`  ${line}`);
+  if (auditFailures.length) {
+    // site-polish F8: the audit's walkthrough eyeballed TWO tiles, but the
+    // probe shows the overflow class is systemic across the scene catalog
+    // (~20 scenes). The gate FAILS under --strict; until those scenes get
+    // the same measure-then-fit pass, default runs report the inventory so
+    // the data is never lost.
+    console.error(`\n[build-blueprints] scene audit: ${auditFailures.length} stage(s) with text overflow/overlap${strict ? '' : ' (report-only — pass --strict to fail)'}:`);
+    for (const { name, problems } of auditFailures) {
+      for (const problem of problems) console.error(`  ${name}: ${problem}`);
+    }
+    if (strict) process.exit(1);
+  } else {
+    console.log('[build-blueprints] scene audit: all stages clean');
+  }
   console.log(`[build-blueprints] done in ${((Date.now() - startedAt) / 1000).toFixed(1)}s → apps/www/static/blueprints/`);
 }
 

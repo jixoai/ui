@@ -77,11 +77,7 @@
     </ComponentCanvas>
   </div>
 
-  <div id="spin-base" data-reveal="">
-    <SectionCard family="spin-base" headerRegion="spin-base" eyebrow="law" title="Usage">
-      <CodeBlock code={usage} lang="svelte" meta="usage" />
-    </SectionCard>
-  </div>
+  
   </div>
 </div>
 

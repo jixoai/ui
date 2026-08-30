@@ -60,7 +60,7 @@ ${close}
   import Avatar from '@ui/avatar.svelte';
 ${close}
 
-<Avatar src="/favicon.png" name=${q(name)} variant=${q(variant)} size="lg" />
+<Avatar src="/icon.svg" name=${q(name)} variant=${q(variant)} size="lg" />
 <Avatar name=${q(name)} variant=${q(variant)} size="lg"${tooltip ? '' : ' tooltip={false}'} />`);
   const resolveCanvasUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? canvasUsageLive : file.content;
@@ -116,10 +116,10 @@ ${close}
       resolveFileContent={resolveCanvasUsage}
     >
       <div class="flex flex-wrap items-center gap-5">
-        <Avatar src="/favicon.png" {name} {variant} size="lg" {tooltip} />
+        <Avatar src="/icon.svg" {name} {variant} size="lg" {tooltip} />
         <Avatar {name} {variant} size="lg" {tooltip} />
         <div class="flex items-center gap-2">
-          <Avatar src="/favicon.png" {name} {variant} size="sm" {tooltip} />
+          <Avatar src="/icon.svg" {name} {variant} size="sm" {tooltip} />
           <Avatar {name} {variant} size="sm" {tooltip} />
         </div>
       </div>
@@ -215,7 +215,7 @@ ${close}
       <div class="border border-border p-4">
         <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">image + tooltip</p>
         <div class="flex items-center gap-3">
-          <Avatar src="/favicon.png" name="JX AoI" size="lg" />
+          <Avatar src="/icon.svg" name="JX AoI" size="lg" />
           <span class="text-[12.5px] text-muted-foreground">hover or focus — the full name rides the default tooltip</span>
         </div>
       </div>

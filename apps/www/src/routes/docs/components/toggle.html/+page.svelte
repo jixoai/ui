@@ -8,6 +8,8 @@
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
@@ -16,6 +18,10 @@
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import Toggle from '$lib/ui/toggle/toggle.svelte';
   import { CATALOG } from '$lib/catalog';
+  import { PlayFields, PlayRow, PlayToggle, PlaySegmented, PlayHelp } from '$lib/playground';
+
+  // Same-source law: the canvas drawer shows the exact registry copy this site runs.
+  import toggleSource from '$lib/ui/toggle/toggle.svelte?raw';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
   const heroSummary = CATALOG.find((entry) => entry.name === 'toggle')?.summary;
@@ -31,6 +37,45 @@
 <!-- density controls the rail through the shared control aliases -->
 <Toggle label="compact" density="sm" />
 <Toggle label="roomy" density="lg" />`;
+
+  // ---- canvas playground (site-polish F10: the standard opening) -----------
+  const canvasInitial = {
+    checked: true,
+    disabled: false,
+    density: 'default' as 'sm' | 'default' | 'lg',
+  };
+  let canvasChecked = $state(canvasInitial.checked);
+  let canvasDisabled = $state(canvasInitial.disabled);
+  let canvasDensity = $state(canvasInitial.density);
+
+  function resetToggleCanvas(): void {
+    canvasChecked = canvasInitial.checked;
+    canvasDisabled = canvasInitial.disabled;
+    canvasDensity = canvasInitial.density;
+  }
+
+  const canvasUsage = $derived(
+    [
+      '<Toggle',
+      '  label="notifications"',
+      '  bind:checked',
+      canvasDensity !== 'default' ? `  density="${canvasDensity}"` : [],
+      canvasDisabled ? '  disabled' : [],
+      '/>',
+    ]
+      .flat()
+      .join('\n'),
+  );
+
+  // stable named resolver: the usage file tracks live playground state
+  const resolveToggleUsage =
+    (file: TreeFile): string =>
+      file.name.endsWith('usage.svelte') ? canvasUsage : file.content;
+
+  const canvasFiles: TreeFile[] = [
+    { name: 'registry/files/ui/toggle/toggle.svelte', content: toggleSource },
+    { name: 'src/lib/ui/toggle-usage.svelte', content: usage },
+  ];
 
   // ---- demo state ------------------------------------------------------------
   let notifications = $state(true);
@@ -87,6 +132,51 @@
         <span class="pill">label[for] + aria wiring</span>
       </div>
     </SectionCard>
+  </div>
+
+  <!-- component canvas (site-polish F10): the standard opening — live demo + PLAYGROUND -->
+  <div data-reveal="">
+    <ComponentCanvas
+      title="toggle"
+      description="a checkbox in inline-end posture — label left, rounded rail right, a slide instead of a glyph; the visually-hidden native input keeps keyboard toggling and form participation."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/toggle/toggle.svelte"
+      files={canvasFiles}
+      stage="center"
+      onreset={resetToggleCanvas}
+      output={[{ label: 'checked', value: canvasChecked }]}
+      resolveFileContent={resolveToggleUsage}
+    >
+      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+        <Toggle
+          label="notifications"
+          name="canvas-toggle"
+          bind:checked={canvasChecked}
+          density={canvasDensity}
+          disabled={canvasDisabled}
+        />
+      </div>
+      {#snippet playground()}
+        <PlayFields>
+          <PlayRow label="density">
+            <PlaySegmented
+              bind:value={canvasDensity}
+              options={[
+                { value: 'sm', label: 'sm' },
+                { value: 'default', label: 'md' },
+                { value: 'lg', label: 'lg' },
+              ]}
+            />
+          </PlayRow>
+          <PlayRow label="disabled">
+            <PlayToggle bind:value={canvasDisabled} />
+          </PlayRow>
+          <PlayHelp>
+            the rail slides instead of morphing a glyph — the hidden checkbox carries
+            :checked, so the platform owns every state transition.
+          </PlayHelp>
+        </PlayFields>
+      {/snippet}
+    </ComponentCanvas>
   </div>
 
   <!-- the selectors, redrawn in pure CSS -->

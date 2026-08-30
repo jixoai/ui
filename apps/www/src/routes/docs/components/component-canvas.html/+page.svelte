@@ -89,7 +89,7 @@ ${close}
 </script>
 
 <svelte:head>
-  <title>component-canvas · jixoai-ui</title>
+  <title>Component canvas · jixoai-ui</title>
   <meta
     name="description"
     content="The jixoai component-canvas component: the documentation workbench — a LIVE demo stage, an optional Playground controls pane, and a collapsible code drawer combining tree-view with code-card. This page renders it recursively: the LIVE stage holds a simplified second canvas, capped at depth two."

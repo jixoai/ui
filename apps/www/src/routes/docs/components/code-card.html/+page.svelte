@@ -266,7 +266,7 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
 </script>
 
 <svelte:head>
-  <title>code-card · jixoai-ui</title>
+  <title>Code card · jixoai-ui</title>
   <meta
     name="description"
     content="The jixoai code-card component: a figure + pre/code readonly surface with a filename-tab head, a header/footer snippet, and a compact copy control — highlighted by Shiki through lib/shiki: on-demand grammars and themes (separate lazy chunks, JavaScript regex engine, no WASM) and the zero-download jixoai css-variables theme bound to the --tok-* palette."

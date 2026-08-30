@@ -89,7 +89,7 @@ ${close}
           stage="fill"
         >
           <section id="anchor-what" data-region="anchor-what" class="flex flex-col gap-3">
-            <h3 class="font-nav text-[1.05rem] tracking-tight sm:text-[1.15rem]">what it does</h3>
+            <h3 data-doc-demo-heading="" class="font-nav text-[1.05rem] tracking-tight sm:text-[1.15rem]">what it does</h3>
             <p class="max-w-[64ch] text-pretty text-[13px] leading-6 text-muted-foreground sm:text-[14px]">
               A composed list of in-page anchors: clicking navigates the fragment natively (smooth via
               scroll-behavior), hovering and focusing behave like any link. The root owns ONE
@@ -97,7 +97,7 @@ ${close}
             </p>
           </section>
           <section id="anchor-pick" data-region="anchor-pick" class="mt-8 flex flex-col gap-3">
-            <h3 class="font-nav text-[1.05rem] tracking-tight sm:text-[1.15rem]">the line pick</h3>
+            <h3 data-doc-demo-heading="" class="font-nav text-[1.05rem] tracking-tight sm:text-[1.15rem]">the line pick</h3>
             <p class="max-w-[64ch] text-pretty text-[13px] leading-6 text-muted-foreground sm:text-[14px]">
               The pick is the LAST target whose top sits at or past the viewport-top line (offset
               prop, default 96px for sticky headers) — the toc engine's downward-resolution rule,
@@ -106,7 +106,7 @@ ${close}
             </p>
           </section>
           <section id="anchor-vs-toc" data-region="anchor-vs-toc" class="mt-8 flex flex-col gap-3">
-            <h3 class="font-nav text-[1.05rem] tracking-tight sm:text-[1.15rem]">anchor vs toc</h3>
+            <h3 data-doc-demo-heading="" class="font-nav text-[1.05rem] tracking-tight sm:text-[1.15rem]">anchor vs toc</h3>
             <p class="max-w-[64ch] text-pretty text-[13px] leading-6 text-muted-foreground sm:text-[14px]">
               Where the ToC measures IoM weights and draws the rule tracker, anchor answers the
               simpler which-section question with zero coupling beyond target ids existing.
@@ -203,8 +203,8 @@ ${close}
         ]} />
         <PropsTable title="AnchorItem" props={[
           { name: 'href', type: 'string', required: true, description: 'Target fragment such as #section-id.' },
-          { name: 'child', type: 'Snippet', default: 'undefined', description: 'Optional replacement anchor element.' },
-          { name: 'children', type: 'Snippet', default: 'undefined', description: 'Visible link label.' },
+          { name: 'child', type: 'Snippet', default: '—', description: 'Optional replacement anchor element.' },
+          { name: 'children', type: 'Snippet', default: '—', description: 'Visible link label.' },
         ]} />
       </div>
     </SectionCard>

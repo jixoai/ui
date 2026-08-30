@@ -147,16 +147,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="tgroup-base" data-reveal="">
-    <SectionCard
-      family="tgroup-base"
-      headerRegion="tgroup-base"
-      eyebrow="composition"
-      title="Usage"
-    >
-      <CodeBlock code={usage} lang="svelte" meta="usage" />
-    </SectionCard>
-  </div>
+  
 
   <div id="tgroup-segmented" data-reveal="">
     <SectionCard

@@ -7,12 +7,19 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import Range from '$lib/ui/range/range.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
+  import { PlayFields, PlayRow, PlayToggle, PlayNumber, PlayHelp } from '$lib/playground';
+
+  // Same-source law: the canvas drawer shows the exact registry copy this site runs.
+  import rangeSource from '$lib/ui/range/range.svelte?raw';
+  import rangeCssSource from '$lib/ui/range/range.css?raw';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
   const heroSummary = CATALOG.find((entry) => entry.name === 'range')?.summary;
@@ -37,6 +44,48 @@
   let gain = $state(6);
   let tolerance = $state(0.35);
   let volumeRtl = $state(70);
+
+  // ---- canvas playground (site-polish F10: the standard opening) -----------
+  const canvasInitial = { value: 40, min: 0, max: 100, step: 1, ticks: false };
+  let canvasValue = $state(canvasInitial.value);
+  let canvasMin = $state(canvasInitial.min);
+  let canvasMax = $state(canvasInitial.max);
+  let canvasStep = $state(canvasInitial.step);
+  let canvasTicks = $state(canvasInitial.ticks);
+
+  function resetRangeCanvas(): void {
+    canvasValue = canvasInitial.value;
+    canvasMin = canvasInitial.min;
+    canvasMax = canvasInitial.max;
+    canvasStep = canvasInitial.step;
+    canvasTicks = canvasInitial.ticks;
+  }
+
+  const canvasUsage = $derived(
+    [
+      '<Range',
+      '  label="volume"',
+      '  bind:value',
+      `  min={${canvasMin}}`,
+      `  max={${canvasMax}}`,
+      `  step={${canvasStep}}`,
+      canvasTicks ? '  ticks' : [],
+      '/>',
+    ]
+      .flat()
+      .join('\n'),
+  );
+
+  // stable named resolver: the usage file tracks live playground state
+  const resolveRangeUsage =
+    (file: TreeFile): string =>
+      file.name.endsWith('usage.svelte') ? canvasUsage : file.content;
+
+  const canvasFiles: TreeFile[] = [
+    { name: 'registry/files/ui/range/range.svelte', content: rangeSource },
+    { name: 'registry/files/ui/range/range.css', content: rangeCssSource },
+    { name: 'src/lib/ui/range-usage.svelte', content: rangeUsage },
+  ];
 </script>
 
 <svelte:head>
@@ -73,6 +122,51 @@
         <span class="pill">rtl: logical properties only</span>
       </div>
     </SectionCard>
+  </div>
+
+  <!-- component canvas (site-polish F10): the standard opening — live demo + PLAYGROUND -->
+  <div data-reveal="">
+    <ComponentCanvas
+      title="range"
+      description="No input[type=range] anywhere: pointer events over a 4px track with a square thumb; the keyboard carries the full aria slider contract."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/range/range.svelte"
+      files={canvasFiles}
+      stage="center"
+      onreset={resetRangeCanvas}
+      output={[{ label: 'value', value: canvasValue }]}
+      resolveFileContent={resolveRangeUsage}
+    >
+      <div class="flex w-full max-w-xs flex-col gap-3">
+        <Range
+          label="volume"
+          bind:value={canvasValue}
+          min={canvasMin}
+          max={canvasMax}
+          step={canvasStep}
+          ticks={canvasTicks}
+        />
+      </div>
+      {#snippet playground()}
+        <PlayFields>
+          <PlayRow label="min">
+            <PlayNumber bind:value={canvasMin} />
+          </PlayRow>
+          <PlayRow label="max">
+            <PlayNumber bind:value={canvasMax} />
+          </PlayRow>
+          <PlayRow label="step">
+            <PlayNumber bind:value={canvasStep} />
+          </PlayRow>
+          <PlayRow label="ticks">
+            <PlayToggle bind:value={canvasTicks} />
+          </PlayRow>
+          <PlayHelp>
+            pointerdown jumps and captures; ←→/↑↓ step, Home/End jump. Decimal steps snap at
+            the step's precision.
+          </PlayHelp>
+        </PlayFields>
+      {/snippet}
+    </ComponentCanvas>
   </div>
 
   <!-- slider catalogue -->

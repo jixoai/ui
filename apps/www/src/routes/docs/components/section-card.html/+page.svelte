@@ -135,22 +135,27 @@ ${close}
         {#snippet children()}
           <!-- The LIVE instance is driven by the Playground: tone, eyebrow
                presence, and summary presence are live props — flip each
-               control to walk the variants. -->
-          <SectionCard
-            class="w-full max-w-2xl"
-            headingLevel={2}
-            tone={demoTone}
-            eyebrow={demoEyebrow === '' ? undefined : demoEyebrow}
-            title={demoTitle}
-            summary={showSummary ? demoSummary : undefined}
-          >
-            <div class="flex flex-wrap gap-3">
-              <span class="pill">body snippet</span>
-              <span class="pill">heading: h2</span>
-              <span class="pill">tone: {demoTone}</span>
-              <span class="pill">{demoEyebrow === '' ? 'no eyebrow' : 'eyebrow on'}</span>
-            </div>
-          </SectionCard>
+               control to walk the variants. data-doc-demo-scope: the
+               component under test EXISTS to render headings — its title
+               is the demo's subject, so this subtree opts out of the
+               no-headings lint rule. -->
+          <div data-doc-demo-scope="headings-ok">
+            <SectionCard
+              class="w-full max-w-2xl"
+              headingLevel={2}
+              tone={demoTone}
+              eyebrow={demoEyebrow === '' ? undefined : demoEyebrow}
+              title={demoTitle}
+              summary={showSummary ? demoSummary : undefined}
+            >
+              <div class="flex flex-wrap gap-3">
+                <span class="pill">body snippet</span>
+                <span class="pill">heading: h2</span>
+                <span class="pill">tone: {demoTone}</span>
+                <span class="pill">{demoEyebrow === '' ? 'no eyebrow' : 'eyebrow on'}</span>
+              </div>
+            </SectionCard>
+          </div>
         {/snippet}
         {#snippet playground()}
           <PlayFields>

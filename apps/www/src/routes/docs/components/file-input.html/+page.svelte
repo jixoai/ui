@@ -326,11 +326,7 @@ ${close}
   </div>
 
   <!-- usage -->
-  <div id="fi-usage" data-reveal="">
-    <SectionCard family="fi-usage" headerRegion="fi-usage" eyebrow="composition" title="Usage">
-      <CodeBlock code={usage} lang="svelte" meta="usage" />
-    </SectionCard>
-  </div>
+  
   </div>
 </div>
 

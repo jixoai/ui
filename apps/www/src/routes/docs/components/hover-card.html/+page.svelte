@@ -103,11 +103,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="hover-card-base" data-reveal="">
-    <SectionCard family="hover-card-base" headerRegion="hover-card-base" eyebrow="W3C foundation" title="Usage">
-      <CodeBlock code={usage} lang="svelte" meta="usage" />
-    </SectionCard>
-  </div>
+  
   </div>
 </div>
 

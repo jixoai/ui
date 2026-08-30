@@ -70,11 +70,7 @@
     </ComponentCanvas>
   </div>
 
-  <div id="statistic-base" data-reveal="">
-    <SectionCard family="statistic-base" headerRegion="statistic-base" eyebrow="law" title="Usage">
-      <CodeBlock code={usage} lang="svelte" meta="usage" />
-    </SectionCard>
-  </div>
+  
   <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Metric states" summary="The readout supports neutral metrics, directional trends and composed affixes."><div class="grid gap-4 sm:grid-cols-3"><Statistic title="neutral" value="69" /><Statistic title="up" value="42" trend="up" /><Statistic title="down" value="3" trend="down" /></div></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'title', value: 'visible label', description: 'Names the metric for every reader.' }, { name: 'value', value: 'text content', description: 'Keeps formatted values readable and copyable.' }]} /></SectionCard></div>

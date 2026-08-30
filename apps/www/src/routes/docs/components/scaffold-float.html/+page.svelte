@@ -92,12 +92,17 @@ ${close}
                lives in its static chrome slot, not the float plane). A
                demo float would stack page chrome atop page chrome; the
                concept card stands in. -->
-          <SectionCard
-            class="w-full max-w-3xl"
-            eyebrow="portal concept · no LIVE instance"
-            title="Authored in the page, adopted by the top layer"
-            summary="A float must dock to a website-scaffold provider — and the only one reachable from this page is the site's own shell. So this card explains the adoption instead; every component page's ToC rail rides the real float plane every day (it adopts itself)."
-          >
+          <!-- styled non-heading card (site-polish F10): concept-copy
+               must not emit a real heading into the page outline -->
+          <div class="border border-border bg-card shadow-xs w-full max-w-3xl">
+            <div class="flex flex-col gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4">
+              <div class="flex flex-col gap-2.5">
+                <p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">portal concept · no LIVE instance</p>
+                <p class="font-nav text-balance text-[1.05rem] tracking-tight leading-tight text-foreground sm:text-[1.22rem]">Authored in the page, adopted by the top layer</p>
+                <p class="max-w-[64ch] text-pretty text-[13px] leading-5 text-muted-foreground sm:text-[14px] sm:leading-6">A float must dock to a website-scaffold provider — and the only one reachable from this page is the site&rsquo;s own shell. So this card explains the adoption instead; every component page&rsquo;s ToC rail rides the real float plane every day (it adopts itself).</p>
+              </div>
+            </div>
+            <div class="px-4 py-4 sm:px-5 sm:py-5">
             <div class="flex flex-col gap-5">
               <pre class="jx-float-diagram" aria-label="float portal adoption diagram"><code>authoring DOM (full Svelte ownership)     .jx-top-layer (scroll-free plane)
 ────────────────────────────────────     ────────────────────────────────────
@@ -117,7 +122,8 @@ ${close}
                   <span><strong class="font-semibold">ride</strong> — because the float now lives inside the top layer, the immersive hide/reveal carries it together with the header by construction: no second scroll listener exists anywhere</span></li>
               </ol>
             </div>
-          </SectionCard>
+  </div>
+          </div>
         {/snippet}
         {#snippet playground()}
           <PlayFields>

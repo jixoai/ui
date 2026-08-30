@@ -345,7 +345,7 @@ ${close}
 </script>
 
 <svelte:head>
-  <title>tree-view · jixoai-ui</title>
+  <title>Tree view · jixoai-ui</title>
   <meta
     name="description"
     content="The jixoai tree-view component: a generic ARIA tree with an extension surface — prefix/suffix slots with onPrefixSlotRender/onSuffixSlotRender resolvers, a built-in multiselect extension with tri-state cascade, disabled nodes, and built-in variants (chevron/plus togglers, guide lines, custom indent). Seven demos mirroring the reui.io reference plus suffix-actions and disabled showcases."

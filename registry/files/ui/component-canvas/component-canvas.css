@@ -38,8 +38,11 @@
 }
 
 /* fill posture (D2): consumer children span the stage row — snippet
-   children, markup utilities can't reach them */
-:where([data-jx-canvas-stage][data-stage='fill'] > *) {
+   children, markup utilities can't reach them. The demo-content scope
+   (site-polish F10) is display:contents — no box of its own — so the
+   law re-attaches to the demo nodes one level down. */
+:where([data-jx-canvas-stage][data-stage='fill'] > *),
+:where([data-jx-canvas-stage][data-stage='fill'] > [data-doc-demo-content] > *) {
   flex: 1 1 100%;
   inline-size: 100%;
   max-inline-size: 100%;

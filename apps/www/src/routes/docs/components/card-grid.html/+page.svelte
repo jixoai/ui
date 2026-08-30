@@ -118,7 +118,11 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
         resolveFileContent={resolveUsage}
       >
         {#snippet children()}
-          <CardGrid min={`${minPx}px`} class="w-full">
+          <!-- data-doc-demo-scope: the demo's subject IS the shared header
+               row — SectionCard headings are the functional data being
+               aligned, so this subtree opts out of the no-headings rule -->
+          <div data-doc-demo-scope="headings-ok">
+            <CardGrid min={`${minPx}px`} class="w-full">
             <SectionCard
               eyebrow="card 01"
               title="Short header"
@@ -165,7 +169,8 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
                 </div>
               </SectionCard>
             {/if}
-          </CardGrid>
+            </CardGrid>
+          </div>
         {/snippet}
         {#snippet playground()}
           <PlayFields>

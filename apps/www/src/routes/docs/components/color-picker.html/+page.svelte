@@ -7,12 +7,18 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import ColorPicker from '$lib/ui/color-picker/color-picker.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
+  import { PlayFields, PlayRow, PlaySegmented, PlayToggle, PlayHelp } from '$lib/playground';
+
+  // Same-source law: the canvas drawer shows the exact registry copy this site runs.
+  import colorPickerSource from '$lib/ui/color-picker/color-picker.svelte?raw';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
   const heroSummary = CATALOG.find((entry) => entry.name === 'color-picker')?.summary;
@@ -38,6 +44,45 @@
   let accentColor = $state('oklch(0.6489 0.237 145)');
   let swatchOnly = $state('#b7d7a8');
   let errorColor = $state('#8a5a2f');
+
+  // ---- canvas playground (site-polish F10: the standard opening) -----------
+  type CanvasFormat = 'hex' | 'hsl' | 'oklch';
+  const canvasInitial = { value: '#007924', format: 'hex' as CanvasFormat, showSwatch: true, showValue: true };
+  let canvasColor = $state(canvasInitial.value);
+  let canvasFormat = $state(canvasInitial.format);
+  let canvasShowSwatch = $state(canvasInitial.showSwatch);
+  let canvasShowValue = $state(canvasInitial.showValue);
+
+  function resetColorPickerCanvas(): void {
+    canvasColor = canvasInitial.value;
+    canvasFormat = canvasInitial.format;
+    canvasShowSwatch = canvasInitial.showSwatch;
+    canvasShowValue = canvasInitial.showValue;
+  }
+
+  const canvasUsage = $derived(
+    [
+      '<ColorPicker',
+      '  label="brand"',
+      '  bind:value',
+      canvasFormat !== 'hex' ? `  format="${canvasFormat}"` : [],
+      !canvasShowSwatch ? '  showSwatch={false}' : [],
+      !canvasShowValue ? '  showValue={false}' : [],
+      '/>',
+    ]
+      .flat()
+      .join('\n'),
+  );
+
+  // stable named resolver: the usage file tracks live playground state
+  const resolveColorPickerUsage =
+    (file: TreeFile): string =>
+      file.name.endsWith('usage.svelte') ? canvasUsage : file.content;
+
+  const canvasFiles: TreeFile[] = [
+    { name: 'registry/files/ui/color-picker/color-picker.svelte', content: colorPickerSource },
+    { name: 'src/lib/ui/color-picker-usage.svelte', content: colorUsage },
+  ];
 </script>
 
 <svelte:head>
@@ -74,6 +119,54 @@
         <span class="pill">zero deps · Svelte 5 runes</span>
       </div>
     </SectionCard>
+  </div>
+
+  <!-- component canvas (site-polish F10): the standard opening — live demo + PLAYGROUND -->
+  <div data-reveal="">
+    <ComponentCanvas
+      title="color-picker"
+      description="the oklch-hub popover picker: SV pad + hue bar, hex/hsl/oklch round-trips, direct value input that reverts invalid pastes, and Eye Dropper when the platform has it."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/color-picker/color-picker.svelte"
+      files={canvasFiles}
+      stage="center"
+      onreset={resetColorPickerCanvas}
+      output={[{ label: 'value', value: canvasColor }]}
+      resolveFileContent={resolveColorPickerUsage}
+    >
+      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+        <ColorPicker
+          label="brand"
+          bind:value={canvasColor}
+          format={canvasFormat}
+          showSwatch={canvasShowSwatch}
+          showValue={canvasShowValue}
+        />
+      </div>
+      {#snippet playground()}
+        <PlayFields>
+          <PlayRow label="format">
+            <PlaySegmented
+              bind:value={canvasFormat}
+              options={[
+                { value: 'hex', label: 'hex' },
+                { value: 'hsl', label: 'hsl' },
+                { value: 'oklch', label: 'oklch' },
+              ]}
+            />
+          </PlayRow>
+          <PlayRow label="showSwatch">
+            <PlayToggle bind:value={canvasShowSwatch} />
+          </PlayRow>
+          <PlayRow label="showValue">
+            <PlayToggle bind:value={canvasShowValue} />
+          </PlayRow>
+          <PlayHelp>
+            the committed value's notation follows format — oklch is the conversion hub, so
+            every round-trip stays exact.
+          </PlayHelp>
+        </PlayFields>
+      {/snippet}
+    </ComponentCanvas>
   </div>
 
   <!-- picker catalogue -->

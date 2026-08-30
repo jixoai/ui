@@ -5,7 +5,6 @@ import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
   { id: 'tgroup-demo', label: 'live demo' },
-  { id: 'tgroup-base', label: 'usage' },
   { id: 'tgroup-segmented', label: 'segmented → type=single' },
   { id: 'types', label: 'Types' },
   { id: 'usage', label: 'Usage' },

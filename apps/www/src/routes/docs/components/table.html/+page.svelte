@@ -95,7 +95,7 @@
 </script>
 
 <svelte:head>
-  <title>table · jixoai-ui</title>
+  <title>Table · jixoai-ui</title>
   <meta
     name="description"
     content="The jixoai table component deepened with the CodePen JjxGgmm container-query law: the figure frame reads its own width — wide frames keep the scroll law with opt-in pinned columns (data-sticky), narrow frames fold into label:value card rows (data-label). Every paint routes through the --jx-table-* token surface, so hover already carries the --brand-hue flow."

@@ -101,16 +101,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="otp-base" data-reveal="">
-    <SectionCard
-      family="otp-base"
-      headerRegion="otp-base"
-      eyebrow="composition"
-      title="Usage"
-    >
-      <CodeBlock code={usage} lang="svelte" meta="usage" />
-    </SectionCard>
-  </div>
+  
   </div>
 </div>
 

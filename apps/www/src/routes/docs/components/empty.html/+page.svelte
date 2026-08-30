@@ -75,11 +75,7 @@
     </ComponentCanvas>
   </div>
 
-  <div id="empty-base" data-reveal="">
-    <SectionCard family="empty-base" headerRegion="empty-base" eyebrow="law" title="Usage">
-      <CodeBlock code={usage} lang="svelte" meta="usage" />
-    </SectionCard>
-  </div>
+  
   <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Empty composition" summary="Empty has one required title and optional description, illustration and actions slots."><div class="grid gap-4 md:grid-cols-2"><Empty title="no artifacts" /><Empty title="no checks" description="Add the first check.">{#snippet actions()}<PressButton>add check</PressButton>{/snippet}</Empty></div></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'figure', value: 'empty root', description: 'Groups the no-data message.' }, { name: 'figcaption', value: 'title + description', description: 'Keeps the message discoverable.' }, { name: 'aria-hidden', value: 'illustration', description: 'Prevents decorative art from interrupting the message.' }]} /></SectionCard></div>

@@ -119,12 +119,17 @@ ${close}
                viewport's single scroll plane, and a second 100svh overlay
                would trap the page. This site IS the running instance —
                the card below documents the layers instead. -->
-          <SectionCard
-            class="w-full max-w-3xl"
-            eyebrow="architecture · no nested LIVE instance"
-            title="This page is already the demo"
-            summary="You are reading main#main inside .jx-shell-body right now — the nav band above is .jx-top-layer. A second scaffold cannot nest here without trapping the page in two competing scroll planes, so the LIVE area holds the architecture; use the Playground buttons to drive the real top layer."
-          >
+          <!-- styled non-heading card (site-polish F10): concept-copy
+               must not emit a real heading into the page outline -->
+          <div class="border border-border bg-card shadow-xs w-full max-w-3xl">
+            <div class="flex flex-col gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4">
+              <div class="flex flex-col gap-2.5">
+                <p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">architecture · no nested LIVE instance</p>
+                <p class="font-nav text-balance text-[1.05rem] tracking-tight leading-tight text-foreground sm:text-[1.22rem]">This page is already the demo</p>
+                <p class="max-w-[64ch] text-pretty text-[13px] leading-5 text-muted-foreground sm:text-[14px] sm:leading-6">You are reading main#main inside .jx-shell-body right now — the nav band above is .jx-top-layer. A second scaffold cannot nest here without trapping the page in two competing scroll planes, so the LIVE area holds the architecture; use the Playground buttons to drive the real top layer.</p>
+              </div>
+            </div>
+            <div class="px-4 py-4 sm:px-5 sm:py-5">
             <div class="flex flex-col gap-5">
               <pre class="jx-arch-diagram" aria-label="scaffold layer diagram"><code>.jx-shell-host              container: jx-shell (inline-size) · 100dvh
 └── .jx-shell                ONE grid · cols [rail][content][toc] per form
@@ -151,7 +156,8 @@ ${close}
                     per-breakpoint JS (Owner request, 2026-08-23)</span></li>
               </ul>
             </div>
-          </SectionCard>
+            </div>
+          </div>
         {/snippet}
         {#snippet playground()}
           <PlayFields>

@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-30T04:30:56.644Z",
+  "generatedAt": "2026-08-30T07:25:29.214Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -91,8 +91,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "4efd70d3b94fad42bfdca15ba183207df96365a6e259a8b9762b1489c21d3ff0",
-          "mirrorSha": "4efd70d3b94fad42bfdca15ba183207df96365a6e259a8b9762b1489c21d3ff0"
+          "sourceSha": "7374baba41c33ca70dcf2555f98ce3813135f37b44005bdc98deb487f6793b67",
+          "mirrorSha": "7374baba41c33ca70dcf2555f98ce3813135f37b44005bdc98deb487f6793b67"
         }
       ]
     },
@@ -936,8 +936,8 @@
           "source": "registry/files/ui/component-canvas/component-canvas.svelte",
           "mirror": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
           "target": "@ui/component-canvas/component-canvas.svelte",
-          "sourceSha": "d607efb8f1dce79c22a017fde90b00011b5a2163c0cdc6e11a96bdcbf632ab44",
-          "mirrorSha": "d607efb8f1dce79c22a017fde90b00011b5a2163c0cdc6e11a96bdcbf632ab44"
+          "sourceSha": "d8bbf60b56d41a3f09c9fb8868604dc07419c17c0b24c85f3ee7ba32b8ee668c",
+          "mirrorSha": "d8bbf60b56d41a3f09c9fb8868604dc07419c17c0b24c85f3ee7ba32b8ee668c"
         },
         {
           "source": "registry/files/ui/component-canvas/index.ts",
@@ -950,8 +950,8 @@
           "source": "registry/files/ui/component-canvas/component-canvas.css",
           "mirror": "apps/www/src/lib/ui/component-canvas/component-canvas.css",
           "target": "@ui/component-canvas/component-canvas.css",
-          "sourceSha": "b4bc4f575cbb6b23ed1fb97526d4ab558df7920f5f046c4ae872221e26469c4c",
-          "mirrorSha": "b4bc4f575cbb6b23ed1fb97526d4ab558df7920f5f046c4ae872221e26469c4c"
+          "sourceSha": "34f102e9e2ca395e0d16cfbd765a3c79828abe528735cea95cee09936b1fbbde",
+          "mirrorSha": "34f102e9e2ca395e0d16cfbd765a3c79828abe528735cea95cee09936b1fbbde"
         }
       ]
     },
@@ -1818,8 +1818,8 @@
           "source": "registry/files/ui/toast/toast-viewport.svelte",
           "mirror": "apps/www/src/lib/ui/toast/toast-viewport.svelte",
           "target": "@ui/toast/toast-viewport.svelte",
-          "sourceSha": "43aaca77558b6060a2927dda6940193ffefe293eb018ba376cf82abdd3ccbf68",
-          "mirrorSha": "43aaca77558b6060a2927dda6940193ffefe293eb018ba376cf82abdd3ccbf68"
+          "sourceSha": "d46e06c4d785679f9057281f7d944ab0d4b5c0b458f6f4da189e22ced3570e02",
+          "mirrorSha": "d46e06c4d785679f9057281f7d944ab0d4b5c0b458f6f4da189e22ced3570e02"
         },
         {
           "source": "registry/files/ui/toast/index.ts",

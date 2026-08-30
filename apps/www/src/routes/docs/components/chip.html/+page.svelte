@@ -226,7 +226,8 @@ ${close}
               variant rides the same <code>.jx-press</code> physics and the same
               <code>min-block-size: var(--jx-hit)</code> lane.
               <code>effect</code> defaults to <code>ripple()</code> — press-point
-              ink from the shared press-button runtime; <code>null</code> disables
+              ink from the shared press-button runtime; the
+              <code>none</code> option commits an empty effect and disables
               every loop, and the other builders pass through unchanged. Reduced
               motion freezes the ink; the anchored press still answers.
             </PlayHelp>
@@ -452,6 +453,7 @@ ${close}
     </SectionCard>
   </div>
 
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="Chip usage" /></SectionCard></div>
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="The public contract: the ladder, the silhouette, one optional effect, navigation, and two snippet lanes around the required children.">
       <PropsTable props={[
@@ -459,14 +461,14 @@ ${close}
         { name: 'variant', type: "'fill' | 'tonal' | 'outline' | 'ghost'", default: "'tonal'", description: 'Selects the grammar ladder step.' },
         { name: 'shape', type: "'square' | 'pill'", default: "'square'", description: 'Square keeps the site radius; pill rounds fully.' },
         { name: 'effect', type: 'PressEffect | null', default: 'ripple()', description: 'One press-button effect builder; undefined resolves to the ripple() defaults, null disables every loop.' },
-        { name: 'href', type: 'string', default: 'undefined', description: 'Renders an anchor and navigates to the target.' },
+        { name: 'href', type: 'string', default: '—', description: 'Renders an anchor and navigates to the target.' },
         { name: 'external', type: 'boolean', default: 'auto', description: 'Opens non-internal hrefs in a new tab.' },
-        { name: 'onclick', type: '() => void', default: 'undefined', description: 'Runs for button activation (and through the ripple runtime when ink is on).' },
+        { name: 'onclick', type: '() => void', default: '—', description: 'Runs for button activation (and through the ripple runtime when ink is on).' },
         { name: 'type', type: "'button' | 'submit'", default: "'button'", description: 'Native button type.' },
-        { name: 'ariaLabel', type: 'string', default: 'undefined', description: 'Accessible name override for icon-only use.' },
+        { name: 'ariaLabel', type: 'string', default: '—', description: 'Accessible name override for icon-only use.' },
         { name: 'class', type: 'string', default: "''", description: 'Appended to the composed classes; hue injection rides here (jx-hue-error; arbitrary form for values outside the closed set).' },
-        { name: 'slotStart', type: 'Snippet', default: 'undefined', description: 'Leading lane — svg pinned to var(--jx-text-secondary).' },
-        { name: 'slotEnd', type: 'Snippet', default: 'undefined', description: 'Trailing lane — svg pinned to var(--jx-text-secondary).' },
+        { name: 'slotStart', type: 'Snippet', default: '—', description: 'Leading lane — svg pinned to var(--jx-text-secondary).' },
+        { name: 'slotEnd', type: 'Snippet', default: '—', description: 'Trailing lane — svg pinned to var(--jx-text-secondary).' },
         { name: 'children', type: 'Snippet', required: true, description: 'Chip label content.' },
       ]} />
     </SectionCard>

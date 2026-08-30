@@ -11,9 +11,12 @@
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { createTocEngine } from '$lib/toc-engine';
   import { deriveTocOutline } from '$lib/toc-outline';
+  import { PlayFields, PlayRow, PlaySegmented, PlayNumber, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import tocOutlineSource from '$lib/toc-outline.ts?raw';
+  import scrollAreaSource from '$lib/ui/scroll-area/scroll-area.svelte?raw';
+  import scrollAreaCssSource from '$lib/ui/scroll-area/scroll-area.css?raw';
 
   const close = '</' + 'script>';
 
@@ -22,6 +25,52 @@
   // tree under #sa-content on hydration (the reveal philosophy: prerendered
   // output shows the rail empty, then it fills).
   const pageOutline = { root: '#sa-content', levels: [2] };
+
+  // ---- canvas playground (site-polish F10: the standard opening) -----------
+  type ScrollOrientationOpt = 'vertical' | 'horizontal';
+  type ScrollbarOpt = 'native' | 'overlay';
+  const canvasInitial = {
+    scrollbar: 'native' as ScrollbarOpt,
+    orientation: 'vertical' as ScrollOrientationOpt,
+    pad: 0.75,
+  };
+  let canvasScrollbar = $state(canvasInitial.scrollbar);
+  let canvasOrientation = $state(canvasInitial.orientation);
+  let canvasPad = $state(canvasInitial.pad);
+
+  function resetScrollAreaCanvas(): void {
+    canvasScrollbar = canvasInitial.scrollbar;
+    canvasOrientation = canvasInitial.orientation;
+    canvasPad = canvasInitial.pad;
+  }
+
+  const canvasUsage = $derived(
+    [
+      '<ScrollArea',
+      '  label="config demo"',
+      `  scrollbar="${canvasScrollbar}"`,
+      `  orientation="${canvasOrientation}"`,
+      `  pad="${canvasPad}rem"`,
+      '  class="h-40"',
+      '>',
+      '  …scrolling content…',
+      '</ScrollArea>',
+    ]
+      .flat()
+      .join('\n'),
+  );
+
+  // stable named resolver: the usage file tracks live playground state
+  const resolveScrollAreaUsage =
+    (file: TreeFile): string =>
+      file.name.endsWith('usage.svelte') ? canvasUsage : file.content;
+
+  const canvasFiles: TreeFile[] = [
+    { name: 'registry/files/ui/scroll-area/scroll-area.svelte', content: scrollAreaSource },
+    { name: 'registry/files/ui/scroll-area/scroll-area.css', content: scrollAreaCssSource },
+    // initial snapshot only — resolveScrollAreaUsage serves the live state
+    { name: 'src/lib/ui/scroll-area-usage.svelte', content: canvasUsage },
+  ];
 
   // ---- toc-metadata demo: the inner scroller linkage, engine-direct ----
   // The Toc component assumes the page shell (its line law measures the
@@ -125,6 +174,70 @@ const sections = tocOutlineToSections(entries);
     </SectionCard>
   </div>
 
+  <!-- component canvas (site-polish F10): the standard opening — live demo + PLAYGROUND -->
+  <div data-reveal="">
+    <ComponentCanvas
+      title="scroll-area"
+      description="the component IS a native scroll container — wheel, touch momentum, keyboard and scroll-snap stay platform behavior; the variants dress the scrollbar."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/scroll-area/scroll-area.svelte"
+      files={canvasFiles}
+      stage="center"
+      onreset={resetScrollAreaCanvas}
+      output={[
+        { label: 'scrollbar', value: canvasScrollbar },
+        { label: 'orientation', value: canvasOrientation },
+      ]}
+      resolveFileContent={resolveScrollAreaUsage}
+    >
+      <div class="flex w-full max-w-md flex-col gap-3">
+        <ScrollArea
+          label="config demo"
+          scrollbar={canvasScrollbar}
+          orientation={canvasOrientation}
+          pad={`${canvasPad}rem`}
+          class="h-40"
+        >
+          <ol class="flex flex-col gap-2">
+            {#each Array(12) as _, i (i)}
+              <li class="border border-border/40 bg-muted/40 px-3 py-1.5 text-[12.5px]">
+                item {i + 1} — scroll me in both variants
+              </li>
+            {/each}
+          </ol>
+        </ScrollArea>
+      </div>
+      {#snippet playground()}
+        <PlayFields>
+          <PlayRow label="scrollbar">
+            <PlaySegmented
+              bind:value={canvasScrollbar}
+              options={[
+                { value: 'native', label: 'native' },
+                { value: 'overlay', label: 'overlay' },
+              ]}
+            />
+          </PlayRow>
+          <PlayRow label="orientation">
+            <PlaySegmented
+              bind:value={canvasOrientation}
+              options={[
+                { value: 'vertical', label: 'vertical' },
+                { value: 'horizontal', label: 'horizontal' },
+              ]}
+            />
+          </PlayRow>
+          <PlayRow label="pad">
+            <PlayNumber bind:value={canvasPad} />
+          </PlayRow>
+          <PlayHelp>
+            native encapsulates the theme scrollbar law; overlay floats a square virtual thumb
+            (desktop fine-pointer only, fades after idle).
+          </PlayHelp>
+        </PlayFields>
+      {/snippet}
+    </ComponentCanvas>
+  </div>
+
   <div data-reveal="">
     <SectionCard
       family="scroll-native"
@@ -213,8 +326,14 @@ const sections = tocOutlineToSections(entries);
             {#each metaSections as section, i (section)}
               <section>
                 <!-- h3 keeps clean document order under the h2 section; explicit
-                     ids are respected by the derivation (the readout matches) -->
-                <h3 id="toc-metadata-demo-{i}" class="font-nav text-[0.95rem]">{section}</h3>
+                     ids are respected by the derivation (the readout matches).
+                     data-doc-demo-heading: the heading IS the demo's data —
+                     deriveTocOutline derives from it (lint opt-out) -->
+                <h3
+                  id="toc-metadata-demo-{i}"
+                  data-doc-demo-heading=""
+                  class="font-nav text-[0.95rem]"
+                >{section}</h3>
                 <p class="mt-1 text-[12.5px] leading-6 text-muted-foreground">
                   {['deriveTocOutline scans the heading tree, slugs labels, stamps ids back — the ToC links are real fragments.',
                     'extents (heading → next heading) feed toc-engine directly: weights and pick without a single data attribute.',
@@ -243,22 +362,17 @@ const sections = tocOutlineToSections(entries);
           </p>
         </aside>
       </div>
+      {#snippet playground()}
+        <PlayFields>
+          <PlayHelp>
+            this canvas is the engine dogfood: the demo document's headings are FUNCTIONAL
+            DATA — deriveTocOutline derives the outline from them, so they are marked
+            <code>data-doc-demo-heading</code> rather than demoted to styled text. Scroll the
+            inner area: weights and the line pick update from the inner scroller's geometry.
+          </PlayHelp>
+        </PlayFields>
+      {/snippet}
     </ComponentCanvas>
-  </div>
-
-  <div data-reveal="">
-    <SectionCard
-      family="scroll-usage"
-      headerRegion="scroll-usage"
-      eyebrow="composition"
-      title="Usage"
-    >
-      <div class="flex flex-col gap-4">
-        <CodeBlock code={nativeUsage} lang="svelte" meta="native" />
-        <CodeBlock code={overlayUsage} lang="svelte" meta="overlay" />
-        <CodeBlock code={tocUsage} lang="ts" meta="toc-outline" />
-      </div>
-    </SectionCard>
   </div>
 
   <!-- Material3 sections (2026-08-26): inside #sa-content so the
@@ -269,7 +383,7 @@ const sections = tocOutlineToSections(entries);
       <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">overlay</span><ScrollArea scrollbar="overlay" class="h-40" label="overlay sample"><div class="jx-log">{#each Array(16) as _, i (i)}<p class="jx-log-line"><span class="text-muted-foreground">[{(i * 137) % 1000}</span> ms] overlay thumb, desktop fine-pointer only</p>{/each}</div></ScrollArea></div>
     </div>
   </SectionCard></div>
-  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Give it a height, a label, and pad for the gutter compensation; the rest is a native scroll container."><CodeBlock code={nativeUsage} lang="svelte" meta="ScrollArea usage" /></SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Give it a height, a label, and pad for the gutter compensation; the rest is a native scroll container."><div class="flex flex-col gap-4"><CodeBlock code={nativeUsage} lang="svelte" meta="native" /><CodeBlock code={overlayUsage} lang="svelte" meta="overlay" /><CodeBlock code={tocUsage} lang="ts" meta="toc-outline" /></div></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The WAI scrollable-region pattern: role=region + name + tabindex makes the scrollport itself keyboard-focusable."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the scrollable area' }, { key: '↑ ↓ ← → / Home / End / PgUp / PgDn', action: 'Native scrollport scrolling once the region is focused' }, { key: 'pointer drag', action: 'The overlay thumb drags with pointer capture; keyboard never needs it' }]} aria={[{ name: 'aria-label', value: 'label prop', description: 'Accessible name for the region (default "scrollable content")' }, { name: 'role', value: 'region', description: 'Plus tabindex=0 — the WAI scrollable-region pattern' }, { name: 'aria-hidden', value: 'true', description: 'On the decorative overlay thumbs' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The scrollbar law is token-driven: thin themed thumbs, transparent tracks, gutter compensation via pad."><div class="flex flex-col gap-6"><DensityDemo><ScrollArea class="h-36" label="density sample" pad="0.75rem"><ol class="flex flex-col gap-2">{#each Array(10) as _, i (i)}<li class="border border-border/40 bg-muted/40 px-3 py-1.5 text-[12.5px]">item {i + 1}</li>{/each}</ol></ScrollArea></DensityDemo><TokenTable tokens={[{ name: '--jx-scrollbar-thin', default: 'thin thumb width', source: 'component' }, { name: '--jx-scroll-thumb-w', default: 'overlay thumb width', source: 'component' }, { name: '--jx-scroll-pad', default: 'pad prop', source: 'component', description: 'The ring padding the gutter compensation recipe hands back' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ScrollArea Props interface; getViewport()/scrollTo() are the imperative exports."><PropsTable props={[{ name: 'orientation', type: "'vertical' | 'horizontal' | 'both'", default: "'vertical'", description: 'Which axes scroll: overflow-y/x mapping.' }, { name: 'scrollbar', type: "'native' | 'overlay'", default: "'native'", description: 'Theme scrollbar law or the custom overlay thumb (fine-pointer only).' }, { name: 'label', type: 'string', default: "'scrollable content'", description: 'a11y name for the region.' }, { name: 'pad', type: 'string', default: '0', description: 'Ring padding (CSS length), inline-axis — feeds the gutter compensation recipe.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough.' }, { name: 'style', type: 'string', default: '—', description: 'Style passthrough.' }, { name: 'onscroll', type: '(event: ViewportScrollEvent) => void', default: '—', description: 'Scroll callback from the viewport.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The scrolling content.', required: true }, { name: 'getViewport()', type: '() => HTMLDivElement | null', default: 'export', description: 'The scrollport element — Toc scrollRoot / engine-direct linkage.' }]} /></SectionCard></div>

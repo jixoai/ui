@@ -30,7 +30,13 @@
           </tr>
         </thead>
         <tbody>
-          {#each keys as entry (entry.key)}
+          <!-- site-polish F10: the key is NAME+INDEX — a component
+               legitimately documents the SAME attribute on several
+               elements (dialog's two aria-label rows), and a keyed each
+               over the bare name threw each_key_duplicate on hydration,
+               collapsing whole pages to their last sections (the
+               "gutted dialog/sheet" misdiagnosis) -->
+          {#each keys as entry, i (entry.key + ':' + i)}
             <tr class="border-b border-border/50">
               <td class="py-[var(--jx-stack)] px-[var(--jx-inset)]">
                 <kbd class="border border-border bg-muted px-[calc(var(--jx-inset)/2)] py-[calc(var(--jx-stack)/3)] font-mono text-[length:var(--jx-text)]">{entry.key}</kbd>
@@ -54,7 +60,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each aria as entry (entry.name)}
+          {#each aria as entry, i (entry.name + ':' + i)}
             <tr class="border-b border-border/50">
               <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)]">{entry.name}</td>
               <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground">{entry.value}</td>

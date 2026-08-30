@@ -153,19 +153,9 @@
       </ComponentCanvas>
     </div>
 
-    <div id="descriptions-base" data-reveal="">
-      <SectionCard
-        family="descriptions-base"
-        headerRegion="descriptions-base"
-        eyebrow="law"
-        title="Usage"
-        summary="The composition contract in one sample: import the family from the registry barrel (@ui/descriptions/index — per-part targets exist per file). There is no items[] prop and no value snippet — rich cells are plain children of the Item."
-      >
-        <CodeBlock code={usage} lang="svelte" meta="usage" />
-      </SectionCard>
-    </div>
+    
     <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Description layouts" summary="Descriptions is a semantic dl: choose one or more term/value pairs per row and opt into the bordered treatment."><div class="grid gap-3 md:grid-cols-2"><div class="border border-border p-4"><Descriptions><DescriptionsItem term="owner">gaubee</DescriptionsItem></Descriptions></div><div class="border border-border p-4"><Descriptions columns={2} bordered><DescriptionsItem term="status">live</DescriptionsItem><DescriptionsItem term="scope">public</DescriptionsItem></Descriptions></div></div></SectionCard></div>
-    <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
+    <div id="usage" data-reveal=""><SectionCard summary="The composition contract in one sample: import the family from the registry barrel (@ui/descriptions/index — per-part targets exist per file). There is no items[] prop and no value snippet — rich cells are plain children of the Item." eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
     <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'dl', value: 'Descriptions root', description: 'Preserves description-list semantics.' }, { name: 'dt', value: 'term', description: 'Names each property.' }, { name: 'dd', value: 'value', description: 'Contains the corresponding value.' }]} /></SectionCard></div>
     <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Descriptions><DescriptionsItem term="density">scoped</DescriptionsItem></Descriptions></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-desc-cols', default: 'columns prop', source: 'structural' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
     <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Descriptions props"><PropsTable props={[{ name: 'columns', type: 'number', default: '1', description: 'Term/value pairs per row.' }, { name: 'bordered', type: 'boolean', default: 'false', description: 'Paints hairline cell borders.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }]} /></SectionCard></div>

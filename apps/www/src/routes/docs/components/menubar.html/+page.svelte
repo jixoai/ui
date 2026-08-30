@@ -149,16 +149,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="menubar-base" data-reveal="">
-    <SectionCard
-      family="menubar-base"
-      headerRegion="menubar-base"
-      eyebrow="composition"
-      title="Usage"
-    >
-      <CodeBlock code={usage} lang="svelte" meta="usage" />
-    </SectionCard>
-  </div>
+  
   </div>
 </div>
 

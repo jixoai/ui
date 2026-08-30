@@ -132,7 +132,7 @@ ${close}
       <div class="grid w-full gap-8 min-[900px]:grid-cols-[minmax(0,1fr)_14rem]">
         <article id="toc-workbench-article" class="flex w-full min-w-0 flex-col gap-8">
           <div id="toc-what" class="flex flex-col gap-4">
-            <h2 class="font-nav text-[1.05rem] tracking-tight sm:text-[1.22rem]">what it tracks</h2>
+            <h2 data-doc-demo-heading="" class="font-nav text-[1.05rem] tracking-tight sm:text-[1.22rem]">what it tracks</h2>
             <p class="max-w-[64ch] text-pretty text-[13px] leading-6 text-muted-foreground sm:text-[14px]">
               Scroll this page and watch the rails: nodes fill proportionally to how much of their
               block occupies the viewport — a half-visible heading block reads ~50%, not a binary
@@ -140,7 +140,7 @@ ${close}
               is 100%.
             </p>
             <div id="toc-weights" class="flex flex-col gap-4">
-              <h3 class="font-nav text-[0.95rem] tracking-tight">IoM weights</h3>
+              <h3 data-doc-demo-heading="" class="font-nav text-[0.95rem] tracking-tight">IoM weights</h3>
               <p class="max-w-[64ch] text-pretty text-[13px] leading-6 text-muted-foreground">
                 Intersection-over-minimum: the intersection area divided by the smaller of the block
                 and the viewport. Tall blocks don't dwarf small ones — a short block fully visible
@@ -148,7 +148,7 @@ ${close}
               </p>
             </div>
             <div id="toc-line" class="flex flex-col gap-4">
-              <h3 class="font-nav text-[0.95rem] tracking-tight">the line pick</h3>
+              <h3 data-doc-demo-heading="" class="font-nav text-[0.95rem] tracking-tight">the line pick</h3>
               <p class="max-w-[64ch] text-pretty text-[13px] leading-6 text-muted-foreground">
                 The bold marker is the viewport-top LINE: whichever region contains it is the pick.
                 Margins between blocks resolve downward to the next block — the line never floats in
@@ -157,7 +157,7 @@ ${close}
             </div>
           </div>
           <section id="toc-anatomy" class="flex flex-col gap-4">
-            <h2 class="font-nav text-[1.05rem] tracking-tight sm:text-[1.22rem]">two modes, one family</h2>
+            <h2 data-doc-demo-heading="" class="font-nav text-[1.05rem] tracking-tight sm:text-[1.22rem]">two modes, one family</h2>
             <p class="max-w-[64ch] text-pretty text-[13px] leading-6 text-muted-foreground sm:text-[14px]">
               MANUAL mode is a composed list tree — TocList (ul), TocItem (li), TocLink (a); nesting
               is a TocList inside a TocItem, and anchors never nest. AUTO mode (outline) derives the
@@ -167,7 +167,7 @@ ${close}
             </p>
           </section>
           <section id="toc-engine" class="flex flex-col gap-4">
-            <h2 class="font-nav text-[1.05rem] tracking-tight sm:text-[1.22rem]">the engine</h2>
+            <h2 data-doc-demo-heading="" class="font-nav text-[1.05rem] tracking-tight sm:text-[1.22rem]">the engine</h2>
             <p class="max-w-[64ch] text-pretty text-[13px] leading-6 text-muted-foreground sm:text-[14px]">
               toc-engine.ts is framework-free, and the family talks to it entirely through the DOM:
               the root re-queries its own subtree per update (no registration — keyed reorders and
@@ -177,7 +177,7 @@ ${close}
             </p>
           </section>
           <section id="toc-usage" class="flex flex-col gap-4">
-            <h2 class="font-nav text-[1.05rem] tracking-tight sm:text-[1.22rem]">usage</h2>
+            <h2 data-doc-demo-heading="" class="font-nav text-[1.05rem] tracking-tight sm:text-[1.22rem]">usage</h2>
             <CodeBlock code={usage} lang="svelte" meta="usage" />
           </section>
         </article>

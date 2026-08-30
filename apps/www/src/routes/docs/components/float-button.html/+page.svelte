@@ -268,14 +268,15 @@ ${close}
     </SectionCard>
   </div>
 
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="FloatButton usage" /></SectionCard></div>
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="FloatButton owns position and popover wiring while leaving command content to the caller.">
       <PropsTable props={[
         { name: 'label', type: 'string', required: true, description: 'Accessible name for the icon-only control.' },
         { name: 'density', type: 'Density', default: 'inherited', description: 'Overrides the surrounding density scale.' },
         { name: 'corner', type: "'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'", default: "'bottom-right'", description: 'Viewport corner for the fixed control.' },
-        { name: 'onclick', type: '() => void', default: 'undefined', description: 'Plain-action handler.' },
-        { name: 'actions', type: 'Snippet', default: 'undefined', description: 'Turns the control into a popover menu trigger.' },
+        { name: 'onclick', type: '() => void', default: '—', description: 'Plain-action handler.' },
+        { name: 'actions', type: 'Snippet', default: '—', description: 'Turns the control into a popover menu trigger.' },
         { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Menu panel surface treatment.' },
         { name: 'children', type: 'Snippet', required: true, description: 'Decorative icon or glyph.' },
       ]} />

@@ -336,6 +336,7 @@ ${drivenNormal}${usageTail}`;
     </SectionCard>
   </div>
 
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="IconButton usage" /></SectionCard></div>
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="IconButton composes the press-button contract with an explicit label and decorative icon.">
       <PropsTable props={[
@@ -346,10 +347,10 @@ ${drivenNormal}${usageTail}`;
         { name: 'iconOnly', type: 'boolean', default: 'false', description: 'Collapses into a square tooltip trigger.' },
         { name: 'placement', type: 'TooltipPlacement', default: "'top'", description: 'Icon-only tooltip placement.' },
         { name: 'arrow', type: 'boolean', default: 'true', description: 'Shows the tooltip pointer notch.' },
-        { name: 'effect', type: 'PressEffect', default: 'undefined', description: 'Optional inherited press effect.' },
-        { name: 'href', type: 'string', default: 'undefined', description: 'Renders a link instead of a button.' },
+        { name: 'effect', type: 'PressEffect', default: '—', description: 'Optional inherited press effect.' },
+        { name: 'href', type: 'string', default: '—', description: 'Renders a link instead of a button.' },
         { name: 'external', type: 'boolean', default: 'auto', description: 'Controls external-link behavior.' },
-        { name: 'onclick', type: '() => void', default: 'undefined', description: 'Button activation handler.' },
+        { name: 'onclick', type: '() => void', default: '—', description: 'Button activation handler.' },
         { name: 'type', type: "'button' | 'submit'", default: "'button'", description: 'Native button type.' },
       ]} />
     </SectionCard>

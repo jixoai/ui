@@ -174,7 +174,7 @@ const sprint = $state({ start: '2026-08-10', end: '2026-08-16' });
           <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
             <DatePicker label="review (locale display)" format="locale" bind:value={localeDate} />
             <span class="text-muted-foreground text-[12.5px]">
-              display locale · value: <code class="text-accent">{localeDate ?? 'undefined'}</code>
+              display locale · value: <code class="text-accent">{localeDate ?? '—'}</code>
             </span>
           </div>
           <div class="demo-cell flex flex-col gap-3" data-no-subgrid>

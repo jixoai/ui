@@ -7,12 +7,18 @@
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import Radio from '$lib/ui/radio/radio.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
+  import { PlayFields, PlayRow, PlayToggle, PlaySegmented, PlayHelp } from '$lib/playground';
+
+  // Same-source law: the canvas drawer shows the exact registry copy this site runs.
+  import radioSource from '$lib/ui/radio/radio.svelte?raw';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
   const heroSummary = CATALOG.find((entry) => entry.name === 'radio')?.summary;
@@ -28,6 +34,41 @@
 
 <!-- labelSide="left" flips the label to the inline-start -->
 <Radio label="pro" name="plan" labelSide="left" />`;
+
+  // ---- canvas playground (site-polish F10: the standard opening) -----------
+  const canvasInitial = {
+    group: 'bun',
+    disabled: false,
+    labelSide: 'right' as 'left' | 'right',
+  };
+  let canvasGroup = $state(canvasInitial.group);
+  let canvasDisabled = $state(canvasInitial.disabled);
+  let canvasLabelSide = $state(canvasInitial.labelSide);
+
+  function resetRadioCanvas(): void {
+    canvasGroup = canvasInitial.group;
+    canvasDisabled = canvasInitial.disabled;
+    canvasLabelSide = canvasInitial.labelSide;
+  }
+
+  const canvasUsage = $derived(`<Radio
+  label="node"
+  name="runtime"
+  bind:group={picked}${canvasDisabled ? '\n  disabled' : ''}
+/>
+<Radio label="bun" name="runtime" bind:group={picked} />
+<Radio label="deno" name="runtime" bind:group={picked} />
+<!-- picked = '${canvasGroup}' -->`);
+
+  // stable named resolver: the usage file tracks live playground state
+  const resolveRadioUsage =
+    (file: TreeFile): string =>
+      file.name.endsWith('usage.svelte') ? canvasUsage : file.content;
+
+  const canvasFiles: TreeFile[] = [
+    { name: 'registry/files/ui/radio/radio.svelte', content: radioSource },
+    { name: 'src/lib/ui/radio-usage.svelte', content: usage },
+  ];
 </script>
 
 <svelte:head>
@@ -64,6 +105,46 @@
         <span class="pill">label[for] + aria wiring</span>
       </div>
     </SectionCard>
+  </div>
+
+  <!-- component canvas (site-polish F10): the standard opening — live demo + PLAYGROUND -->
+  <div data-reveal="">
+    <ComponentCanvas
+      title="radio"
+      description="appearance-none circle with a scaled dot — the native input keeps form participation, keyboard toggling, and same-name arrow-key walking; the glyph is pure CSS."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/radio/radio.svelte"
+      files={canvasFiles}
+      stage="center"
+      onreset={resetRadioCanvas}
+      output={[{ label: 'group', value: canvasGroup }]}
+      resolveFileContent={resolveRadioUsage}
+    >
+      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+        <Radio label="node" name="canvas-radio" value="node" bind:group={canvasGroup} labelSide={canvasLabelSide} disabled={canvasDisabled} />
+        <Radio label="bun" name="canvas-radio" value="bun" bind:group={canvasGroup} labelSide={canvasLabelSide} disabled={canvasDisabled} />
+        <Radio label="deno" name="canvas-radio" value="deno" bind:group={canvasGroup} labelSide={canvasLabelSide} disabled={canvasDisabled} />
+      </div>
+      {#snippet playground()}
+        <PlayFields>
+          <PlayRow label="labelSide">
+            <PlaySegmented
+              bind:value={canvasLabelSide}
+              options={[
+                { value: 'left', label: 'left' },
+                { value: 'right', label: 'right' },
+              ]}
+            />
+          </PlayRow>
+          <PlayRow label="disabled">
+            <PlayToggle bind:value={canvasDisabled} />
+          </PlayRow>
+          <PlayHelp>
+            the group is the bind channel (bind:group, Svelte's radio law) — arrow keys walk
+            the same-name set exactly as the platform walks native radios.
+          </PlayHelp>
+        </PlayFields>
+      {/snippet}
+    </ComponentCanvas>
   </div>
 
   <!-- the selectors, redrawn in pure CSS -->

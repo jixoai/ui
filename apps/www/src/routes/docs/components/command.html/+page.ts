@@ -4,7 +4,6 @@
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
-  { id: 'command-base', label: 'usage' },
   { id: 'types', label: 'types' },
   { id: 'usage', label: 'usage' },
   { id: 'accessibility', label: 'accessibility' },

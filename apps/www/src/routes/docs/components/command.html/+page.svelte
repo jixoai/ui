@@ -190,11 +190,7 @@ ${close}
       </CommandList>
     </Command>
 
-    <div id="command-base" data-reveal="">
-      <SectionCard family="command-base" headerRegion="command-base" eyebrow="law" title="Usage">
-        <CodeBlock code={usage} lang="svelte" meta="usage" />
-      </SectionCard>
-    </div>
+    
   </div>
 </div>
 

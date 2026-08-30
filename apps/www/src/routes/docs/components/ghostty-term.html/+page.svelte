@@ -461,7 +461,7 @@ export default {
 </script>
 
 <svelte:head>
-  <title>ghostty-term · jixoai-ui</title>
+  <title>Ghostty term · jixoai-ui</title>
   <meta
     name="description"
     content="The jixoai ghostty-term component: the live terminal surface — a DPR-aware canvas grid painted by the real libghostty-vt wasm with rAF-batched dirty-row painting, density-derived cell metrics, auto or explicit cols/rows, the onData input bridge (keyEncode, paste gate, IME composition, mouse reporting, OSC 52 clipboard), and typed error degradation through the @jixoai/vite-plugin wasm supply chain."

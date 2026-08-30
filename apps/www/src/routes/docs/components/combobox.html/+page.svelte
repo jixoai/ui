@@ -134,7 +134,7 @@
       files={comboboxFiles}
       stage="center"
       onreset={resetComboboxCanvas}
-      output={[{ label: 'value', value: canvasBackend ?? 'undefined' }]}
+      output={[{ label: 'value', value: canvasBackend ?? '—' }]}
       resolveFileContent={resolveComboboxUsage}
     >
       <div class="flex w-full max-w-xs flex-col items-start gap-3">
@@ -183,7 +183,7 @@
           <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
             <Combobox label="backend — type to filter" bind:value={backendRoute} options={backendOptions} />
             <span class="text-muted-foreground text-[12.5px]">
-              allowCustom (default) · bound value: <code class="text-accent">{backendRoute ?? 'undefined'}</code>
+              allowCustom (default) · bound value: <code class="text-accent">{backendRoute ?? '—'}</code>
             </span>
           </div>
           <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
@@ -195,7 +195,7 @@
             />
             <span class="text-muted-foreground text-[12.5px]">
               allowCustom={'{false}'} · blur reverts stray text · value:
-              <code class="text-accent">{backendStrict ?? 'undefined'}</code>
+              <code class="text-accent">{backendStrict ?? '—'}</code>
             </span>
           </div>
           <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
@@ -207,7 +207,7 @@
             />
             <span class="text-muted-foreground text-[12.5px]">
               no match → “Use “xxx”” row · value:
-              <code class="text-accent">{backendCustom ?? 'undefined'}</code>
+              <code class="text-accent">{backendCustom ?? '—'}</code>
             </span>
           </div>
           <div class="demo-cell flex flex-col gap-3" data-no-subgrid>

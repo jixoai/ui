@@ -281,7 +281,16 @@
         )}
         aria-label={`${title} demo`}
       >
-        {@render children()}
+        <!-- the demo-content scope (site-polish F10): consumer-authored
+             demo markup renders inside this marker so the docs structure
+             lint (verify-docs-structure.mjs) can scope its heading rule —
+             a real h1-h3 in demo copy pollutes the page outline and fails
+             the lint, while this canvas's OWN chrome (title, Playground)
+             stays outside the wrapper and exempt. display:contents keeps
+             the stage's flex layout on the demo nodes themselves. -->
+        <div data-doc-demo-content="" class="contents">
+          {@render children()}
+        </div>
       </div>
     </div>
     {#if playground}

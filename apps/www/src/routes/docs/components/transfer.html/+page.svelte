@@ -127,16 +127,7 @@ const options = [
     </ComponentCanvas>
   </div>
 
-  <div id="transfer-base" data-reveal="">
-    <SectionCard
-      family="transfer-base"
-      headerRegion="transfer-base"
-      eyebrow="composition"
-      title="Usage"
-    >
-      <CodeBlock code={usage} lang="svelte" meta="usage" />
-    </SectionCard>
-  </div>
+  
   </div>
 </div>
 

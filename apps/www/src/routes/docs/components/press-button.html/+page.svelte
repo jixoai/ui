@@ -417,17 +417,18 @@ ${close}
     </SectionCard>
   </div>
 
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="PressButton usage" /></SectionCard></div>
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="The public contract is intentionally small: semantic paint, optional navigation, and one press effect builder.">
       <PropsTable props={[
         { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'inherited', description: 'Overrides the surrounding density scope.' },
         { name: 'variant', type: "'fill' | 'tonal' | 'outline' | 'ghost' | 'link'", default: "'outline'", description: 'Selects the ladder rung; link is the interaction exception. Semantic hue injects through --jx-fill/--jx-fill-ink, --jx-tonal, --jx-outline classes at the call site.' },
-        { name: 'effect', type: 'PressEffect', default: 'undefined', description: 'One shimmer, pulse, rainbow, or ripple builder.' },
-        { name: 'href', type: 'string', default: 'undefined', description: 'Renders an anchor and navigates to the target.' },
+        { name: 'effect', type: 'PressEffect', default: '—', description: 'One shimmer, pulse, rainbow, or ripple builder.' },
+        { name: 'href', type: 'string', default: '—', description: 'Renders an anchor and navigates to the target.' },
         { name: 'external', type: 'boolean', default: 'auto', description: 'Opens non-internal hrefs in a new tab.' },
-        { name: 'onclick', type: '() => void', default: 'undefined', description: 'Runs for button activation.' },
+        { name: 'onclick', type: '() => void', default: '—', description: 'Runs for button activation.' },
         { name: 'type', type: "'button' | 'submit'", default: "'button'", description: 'Native button type.' },
-        { name: 'ariaLabel', type: 'string', default: 'undefined', description: 'Accessible name override for icon-only use.' },
+        { name: 'ariaLabel', type: 'string', default: '—', description: 'Accessible name override for icon-only use.' },
         { name: 'square', type: 'boolean', default: 'false', description: 'Uses the square hit-target geometry.' },
         { name: 'children', type: 'Snippet', required: true, description: 'Button label and optional inline icon content.' },
       ]} />

@@ -14,7 +14,6 @@ const toc: TocSection[] = [
   { id: 'fi-list', label: 'The file list' },
   { id: 'fi-variants', label: 'button variant · disabled' },
   { id: 'fi-overflow', label: 'Narrow hosts' },
-  { id: 'fi-usage', label: 'usage' },
 ];
 
 export const load = () => ({ toc });
