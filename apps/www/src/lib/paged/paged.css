@@ -318,6 +318,11 @@
       color: var(--jx-paged-muted);
       font-variant-numeric: tabular-nums;
     }
+    [data-jx-print-sim][data-jx-paged-doc]
+      [data-jx-paged-code][data-line-numbers='false']
+      .jx-paged-line::before {
+      content: none;
+    }
   }
 
   /* ══════════════════════════════════════════════════════════════════════
@@ -421,6 +426,11 @@
       text-align: end;
       color: var(--jx-paged-muted);
       font-variant-numeric: tabular-nums;
+    }
+    /* the opt-out: lineNumbers={false} drops the gutter (and its
+       indent — content:none generates no box) while wrapping stays */
+    [data-jx-paged-code][data-line-numbers='false'] .jx-paged-line::before {
+      content: none;
     }
 
     /* the ToC prints with section numbers standing in for page

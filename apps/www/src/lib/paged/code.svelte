@@ -8,10 +8,11 @@
   @layer components print rule). Screen behavior is identical either
   way: a plain scrollable pre.
 
-  Print carries a numbered gutter (Owner acceptance r1, 2026-08-30):
+  Print carries a numbered gutter (Owner acceptance r1/r2, 2026-08-30):
   each line renders as a .jx-paged-line span so the print projection
   can wrap long lines AND number them via a CSS counter ::before —
-  screen stays clean (no gutter), the sim preview mirrors print.
+  screen stays clean (no gutter), the sim preview mirrors print. The
+  gutter is the `lineNumbers` prop, default ON, opt-out per block.
 -->
 <script lang="ts">
   interface Props {
@@ -22,10 +23,18 @@
     caption?: string;
     /** flow (default) = flatten the scrollport; shrink = font step-down */
     printOverflow?: 'flow' | 'shrink';
+    /** the print/sim numbered gutter — default ON (Owner acceptance r2) */
+    lineNumbers?: boolean;
     class?: string;
   }
 
-  let { code, caption, printOverflow = 'flow', class: className = '' }: Props = $props();
+  let {
+    code,
+    caption,
+    printOverflow = 'flow',
+    lineNumbers = true,
+    class: className = '',
+  }: Props = $props();
 
   // per-line spans: block-level inside the pre, so rendering is
   // line-for-line identical to plain text while giving the print
@@ -33,7 +42,12 @@
   const lines = $derived(code.split('\n'));
 </script>
 
-<figure data-jx-paged-code data-print-overflow={printOverflow} class={className}>
+<figure
+  data-jx-paged-code
+  data-print-overflow={printOverflow}
+  data-line-numbers={lineNumbers ? undefined : 'false'}
+  class={className}
+>
   {#if caption}
     <figcaption data-jx-paged-code-caption>{caption}</figcaption>
   {/if}

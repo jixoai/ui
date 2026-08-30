@@ -358,6 +358,11 @@ ${close}
     {#snippet lede()}一段 usage 就是全部：变体是形态学阶梯，效果环是可选的注意力回路。{/snippet}
     <PagedCode code={usage} />
     <PagedAside><b>同一份源</b> —— 代码抽屉与这段 usage 来自同一模板；本页的 CodeCard/`?raw` 导入遵守 same-source 法则。</PagedAside>
+    <PagedCode
+      code={`<!-- lineNumbers={false}: the gutter is a prop, default ON —\n     short snippets where numbers are noise opt out; wrapping stays -->`}
+      lineNumbers={false}
+      caption="the no-numbers pose"
+    />
   </PagedSection>
 
   <PagedSection id="examples" title="Examples — the live workbench">

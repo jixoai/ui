@@ -88,6 +88,18 @@ describe('PagedCode printOverflow', () => {
     expect(lines.map((l) => l.textContent)).toEqual(['alpha', 'beta', ' ', 'gamma']);
     expect(lines.map((l) => l.getAttribute('data-line'))).toEqual(['1', '2', '3', '4']);
   });
+
+  it('the numbered gutter is a prop — default ON (no suppression stamp), lineNumbers={false} opts out', async () => {
+    const { default: PagedCode } = await import('$lib/paged/code.svelte');
+    // default: no data-line-numbers attr → the print gutter applies
+    const on = render(PagedCode, { code: 'x' });
+    expect(on.container.querySelector('[data-jx-paged-code]')!.hasAttribute('data-line-numbers')).toBe(false);
+    // opt-out: stamped 'false' → the ::before suppression rule matches
+    const off = render(PagedCode, { code: 'x', lineNumbers: false });
+    expect(off.container.querySelector('[data-jx-paged-code]')!.getAttribute('data-line-numbers')).toBe('false');
+    // the line structure exists either way (wrapping is not gated)
+    expect(off.container.querySelectorAll('.jx-paged-line')).toHaveLength(1);
+  });
 });
 
 describe('the heading keeper', () => {
