@@ -1,0 +1,33 @@
+@layer theme, base, components, utilities;
+
+/* jixoai pattern-cta css — D1-exempt residue (tw4, 2026-08-30).
+ * ONLY the ascii `+` corner brackets — pseudo-element content no
+ * utility can express, the brutalist frame mark the terminal
+ * patterns carry (same law as pattern-login; each item stays
+ * self-contained for single-item installs). Static residue,
+ * @layer components, :where() so consumer utilities always win. */
+
+@layer components {
+  :where(.jx-pattern-cta) {
+    position: relative;
+  }
+  :where(.jx-pattern-cta)::before,
+  :where(.jx-pattern-cta)::after {
+    content: '+';
+    position: absolute;
+    z-index: 1;
+    font-family: var(--font-nav);
+    font-size: 0.75rem;
+    line-height: 1;
+    color: var(--jx-pattern-corner, var(--border));
+    pointer-events: none;
+  }
+  :where(.jx-pattern-cta)::before {
+    top: -0.5rem;
+    left: -0.4375rem;
+  }
+  :where(.jx-pattern-cta)::after {
+    right: -0.4375rem;
+    bottom: -0.5rem;
+  }
+}

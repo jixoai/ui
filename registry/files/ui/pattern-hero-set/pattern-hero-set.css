@@ -1,0 +1,45 @@
+@layer theme, base, components, utilities;
+
+/* jixoai pattern-hero-set css — D1-exempt residue (tw4, 2026-08-30).
+ * ONLY the marquee machinery lives here: the seamless-loop track
+ * (flex + max-content width + the -50% keyframe — selector
+ * architecture no utility owns) and the reduced-motion kill that
+ * folds the duplicate away and leaves a static scrollable row (the
+ * reduced-motion law: never a frozen half-row). The ascii hero and
+ * the terminal hero carry no residue — their paint is utilities. */
+
+@keyframes jx-hero-marquee-slide {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@layer components {
+  :where(.jx-hero-marquee-track) {
+    --jx-hero-marquee-gap: 1.75rem;
+    display: flex;
+    width: max-content;
+    animation: jx-hero-marquee-slide var(--jx-hero-marquee-duration, 24s) linear infinite;
+  }
+  :where(.jx-hero-marquee-row) {
+    display: flex;
+    align-items: center;
+    /* the row's trailing inset is the seam allowance: both halves
+       identical, so -50% lands exactly on the duplicate's start */
+    padding-inline-end: var(--jx-hero-marquee-gap);
+  }
+  :where(.jx-hero-marquee-row) > :where(li) + :where(li) {
+    padding-inline-start: var(--jx-hero-marquee-gap);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-hero-marquee-track) {
+    animation: none;
+  }
+  /* the duplicate folds away — the strip stays one readable,
+     scrollable row (the container's overflow-x utility owns it) */
+  :where(.jx-hero-marquee-track) > :where(ul[aria-hidden='true']) {
+    display: none;
+  }
+}

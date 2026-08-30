@@ -1,0 +1,36 @@
+@layer theme, base, components, utilities;
+
+/* jixoai pattern-login css — D1-exempt residue (tw4, 2026-08-30).
+ * The card's box/border/shell paint rides token utilities in the
+ * markup; ONLY the ascii corner brackets stay here — pseudo-element
+ * `content` glyphs no utility can express, the brutalist frame mark
+ * every terminal pattern carries. Static residue, @layer components,
+ * :where() so consumer utilities always win. */
+
+@layer components {
+  :where(.jx-pattern-login) {
+    position: relative;
+  }
+  /* the `+` corner marks sit ON the frame corners, one step outside
+     the border box — set the color per corner pair; consumers retune
+     through the --jx-pattern-corner token (defaults to the rule hue) */
+  :where(.jx-pattern-login)::before,
+  :where(.jx-pattern-login)::after {
+    content: '+';
+    position: absolute;
+    z-index: 1;
+    font-family: var(--font-nav);
+    font-size: 0.75rem;
+    line-height: 1;
+    color: var(--jx-pattern-corner, var(--border));
+    pointer-events: none;
+  }
+  :where(.jx-pattern-login)::before {
+    top: -0.5rem;
+    left: -0.4375rem;
+  }
+  :where(.jx-pattern-login)::after {
+    right: -0.4375rem;
+    bottom: -0.5rem;
+  }
+}

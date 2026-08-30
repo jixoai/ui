@@ -1,0 +1,22 @@
+@layer theme, base, components, utilities;
+
+/* jixoai pattern-faq css — D1-exempt residue (tw4, 2026-08-30).
+ * ONLY the man-page leader row: the dotted rule that stretches to
+ * fill the space between a section label (NAME / SEE ALSO) and its
+ * content — a pseudo-element on a flex-grow box, print-manual
+ * geometry no utility can express. Static residue, @layer
+ * components, :where() so consumer utilities always win. */
+
+@layer components {
+  :where(.jx-man-row) {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+  :where(.jx-man-leader) {
+    flex: 1 1 2rem;
+    min-width: 1.5rem;
+    border-block-end: 1px dotted color-mix(in oklab, var(--border) 80%, transparent);
+    transform: translateY(-0.2em);
+  }
+}

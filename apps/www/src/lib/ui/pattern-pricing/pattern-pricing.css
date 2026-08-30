@@ -1,0 +1,22 @@
+@layer theme, base, components, utilities;
+
+/* jixoai pattern-pricing css — D1-exempt residue (tw4, 2026-08-30).
+ * ONLY the recommended-column paint reaches consumer-authored table
+ * cells (the table.css precedent: rules that must reach descendant
+ * markup ride class selectors inside @layer components, where the
+ * utilities layer still outranks them). Body cells take brand INSET
+ * RULES, never a background swap — the row-hover law and the sticky
+ * opaque-surface law stay the table's own. */
+
+@layer components {
+  /* the recommended head cell: one place a tint is safe (no hover) */
+  .jx-pattern-pricing th[data-jx-recommended] {
+    background: color-mix(in oklab, var(--primary) 14%, var(--jx-table-head));
+    box-shadow: inset 2px 0 0 var(--primary), inset -2px 0 0 var(--primary);
+  }
+  /* body cells: flanking brand rules — readable in BOTH themes, the
+     row hover paint keeps flowing underneath */
+  .jx-pattern-pricing td[data-jx-recommended] {
+    box-shadow: inset 2px 0 0 var(--primary), inset -2px 0 0 var(--primary);
+  }
+}
