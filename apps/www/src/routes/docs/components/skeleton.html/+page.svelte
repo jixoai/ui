@@ -97,6 +97,65 @@
     </ComponentCanvas>
   </div>
 
+  <div id="composition" data-reveal="">
+    <SectionCard
+      family="composition"
+      headerRegion="composition"
+      eyebrow="demo"
+      title="Composition shells"
+      summary="Card, list and table loading mirrors — each shell is your real layout composed from bare blocks, with aria-busy on the shell container. The async-feedback pair: these shells are what shows while a PressButton is in its loading pose or a promise toast says pending."
+    >
+      <div class="grid gap-4 sm:grid-cols-3">
+        <div class="border border-border p-4">
+          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">card shell</span>
+          <div class="mt-3 flex flex-col gap-3" aria-busy="true">
+            <Skeleton class="h-28 w-full" />
+            <div class="flex items-center gap-3">
+              <Skeleton class="size-8" />
+              <div class="flex flex-1 flex-col gap-2">
+                <Skeleton class="h-3 w-2/3" />
+                <Skeleton class="h-3 w-1/3" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="border border-border p-4">
+          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">list shell</span>
+          <div class="mt-3 flex flex-col gap-3" aria-busy="true">
+            {#each [64, 92, 78, 85] as w (w)}
+              <div class="flex items-center gap-3">
+                <Skeleton class="size-6" />
+                <Skeleton class="h-3" style="width: {w}%" />
+              </div>
+            {/each}
+          </div>
+        </div>
+        <div class="border border-border p-4">
+          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">table shell</span>
+          <div class="mt-3 flex flex-col gap-2" aria-busy="true">
+            <div class="grid grid-cols-3 gap-2">
+              <Skeleton class="h-3" />
+              <Skeleton class="h-3" />
+              <Skeleton class="h-3" />
+            </div>
+            {#each [0, 1, 2] as row (row)}
+              <div class="grid grid-cols-3 gap-2 border-t border-border/60 pt-2">
+                <Skeleton class="h-3 w-4/5" />
+                <Skeleton class="h-3 w-full" />
+                <Skeleton class="h-3 w-2/3" />
+              </div>
+            {/each}
+          </div>
+        </div>
+      </div>
+      <p class="text-muted-foreground mt-4 text-[13px] leading-6">
+        Geometry is always the consumer's — the blocks are bare, the shells are your layout, and the
+        loading STATE lives on the shell (<code class="text-accent">aria-busy="true"</code>), never
+        per block.
+      </p>
+    </SectionCard>
+  </div>
+
   <div id="skeleton-base" data-reveal="">
     <SectionCard
       family="skeleton-base"

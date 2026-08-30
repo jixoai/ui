@@ -12,6 +12,11 @@
 //   effects     typed builders (module-script exports): shimmer
 //               perimeter spark, pulse sonar rings, rainbow border
 //               gradient flow, ripple press-point ink
+//   loading     the async two-step (enhance-picker-feedback, 2026-08-30):
+//               the loading pose's anchor contract (aria-disabled,
+//               focusable, pointer+keyboard+href suppressed, leading
+//               spinner) AND the press law holding in that pose, plus
+//               the one-shot success flash and its rest
 //
 // Requires the built site on :4173 — `cd apps/www && npx vite build &&
 // npx vite preview --port 4173` (or PORT=… to retarget).
@@ -408,6 +413,138 @@ check(
   matrixFailures.length === 0,
   matrixFailures.slice(0, 6).join(' | ') || 'clean',
 );
+
+// ---- the async two-step (enhance-picker-feedback, 2026-08-30): the
+// loading pose's ANCHOR CONTRACT + the press law HOLDING in that pose.
+// Demo hooks: #async-demo (fill deploy: loading 1.4s → flash 1.2s) and
+// #async-anchor-demo (href variant: loading 2.5s, navigation blocked).
+// The press law is a PHYSICS law: loading changes semantics only —
+// hover still grows the shadow, active still presses +1px.
+const deployBtn = page.locator('#async-demo button');
+const deployEcho = () => page.textContent('[data-async-echo]');
+
+await deployBtn.scrollIntoViewIfNeeded();
+await page.waitForTimeout(200);
+await deployBtn.click(); // start the fake task → the loading pose
+await page.waitForTimeout(120);
+
+const loadingState = await page.evaluate(() => {
+  const btn = document.querySelector('#async-demo button');
+  return {
+    ariaDisabled: btn?.getAttribute('aria-disabled'),
+    hardDisabled: btn?.hasAttribute('disabled'),
+    tabindex: btn?.getAttribute('tabindex'),
+    spinner: !!btn?.querySelector('[data-jx-press-spin]'),
+  };
+});
+check(
+  'loading: aria-disabled=true, focusable (no disabled attr, native tab order), spinner in the leading lane',
+  loadingState.ariaDisabled === 'true' &&
+    loadingState.hardDisabled === false &&
+    loadingState.tabindex === null &&
+    loadingState.spinner,
+  JSON.stringify(loadingState),
+);
+
+// the press law in the LOADING pose: hover grows the shadow only
+await page.hover('#async-demo button');
+await page.waitForTimeout(250);
+const loadingHover = await page.evaluate(() => {
+  const el = document.querySelector('#async-demo button');
+  const shadow = getComputedStyle(el).boxShadow;
+  return {
+    translate: getComputedStyle(el).translate,
+    layers: (shadow.match(/rgba?\(/g) ?? []).length,
+  };
+});
+check(
+  'loading pose press law: hover moves no body, shadow still grows',
+  (loadingHover.translate === 'none' || loadingHover.translate === '0px 0px') &&
+    loadingHover.layers >= 2,
+  JSON.stringify(loadingHover),
+);
+
+// ...and active still presses +1px on the counter-shrunk pose
+await page.mouse.down();
+await page.waitForTimeout(250);
+const loadingActive = await page.evaluate(() => {
+  const el = document.querySelector('#async-demo button');
+  return { translate: getComputedStyle(el).translate, shadow: getComputedStyle(el).boxShadow };
+});
+await page.mouse.up();
+check(
+  'loading pose press law: active body +1px,+1px on the press pose',
+  loadingActive.translate === '1px 1px' && / 1px 1px/.test(loadingActive.shadow),
+  JSON.stringify(loadingActive),
+);
+
+// activation suppression: a second click AND Enter are no-ops mid-task
+const echoWhileLoading = await deployEcho();
+await deployBtn.click();
+await deployBtn.press('Enter');
+await page.waitForTimeout(120);
+check(
+  'loading lock: second click AND Enter are no-ops (task still in flight)',
+  (await deployEcho()) === echoWhileLoading &&
+    (await page.evaluate(() => document.querySelector('#async-demo button')?.getAttribute('aria-disabled'))) === 'true',
+  `echo=${await deployEcho()}`,
+);
+
+// the one-shot success flash: ✓ + data-jx-press-state for ~1.2s, then rest
+await page.waitForFunction(
+  () => document.querySelector('#async-demo button')?.getAttribute('aria-disabled') === null,
+  null,
+  { timeout: 4000 },
+);
+const flashState = await page.evaluate(() => {
+  const btn = document.querySelector('#async-demo button');
+  return {
+    state: btn?.getAttribute('data-jx-press-state'),
+    check: !!btn?.querySelector('[data-jx-press-check]'),
+  };
+});
+check(
+  'settle: one-shot success flash (data-jx-press-state=success + ✓ glyph)',
+  flashState.state === 'success' && flashState.check,
+  JSON.stringify(flashState),
+);
+await page.waitForFunction(
+  () => document.querySelector('#async-demo button')?.getAttribute('data-jx-press-state') === null,
+  null,
+  { timeout: 2500 },
+);
+check('flash rests after ~1.2s (data-jx-press-state gone)', true, 'one-shot confirmed');
+
+// the href variant: navigation itself is blocked while loading
+const navAnchor = page.locator('#async-anchor-demo a');
+const navTaskBtn = page.locator('#async-anchor-demo button'); // "start fake task"
+await navAnchor.scrollIntoViewIfNeeded();
+await page.waitForTimeout(200);
+await navTaskBtn.click(); // arms the 2.5s loading window
+await page.waitForTimeout(120);
+const urlBefore = page.url();
+const navLoadingState = await page.evaluate(() => {
+  const a = document.querySelector('#async-anchor-demo a');
+  return {
+    ariaDisabled: a?.getAttribute('aria-disabled'),
+    spinner: !!a?.querySelector('[data-jx-press-spin]'),
+  };
+});
+await navAnchor.click(); // mid-loading → preventDefault, navigation blocked
+await page.waitForTimeout(150);
+check(
+  'loading anchor: aria-disabled + spinner, and a mid-loading click navigates NOWHERE',
+  navLoadingState.ariaDisabled === 'true' &&
+    navLoadingState.spinner &&
+    page.url() === urlBefore,
+  JSON.stringify({ ...navLoadingState, url: page.url() }),
+);
+await page.waitForFunction(
+  () => document.querySelector('#async-anchor-demo a')?.getAttribute('aria-disabled') === null,
+  null,
+  { timeout: 4000 },
+);
+check('loading anchor returns to rest (navigation works again)', true, 'anchor rested');
 
 await browser.close();
 

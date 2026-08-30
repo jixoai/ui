@@ -37,6 +37,29 @@
   when Chip needed the same loop; its visual halves stay in this
   folder's press-button.css.
 
+  The async idiom (enhance-picker-feedback, 2026-08-30) — `loading`
+  pose + `flash()` success, the two-step deploy pattern:
+
+  - loading's ANCHOR CONTRACT: aria-disabled="true" (the element stays
+    focusable — tab order unchanged — and stays opaque to WHY it is
+    inert), pointer AND keyboard activation suppressed at the one seam
+    every path funnels through (click — native buttons synthesize it
+    from Enter/Space), and for `href` anchors the navigation itself is
+    blocked (preventDefault). Never the disabled attribute: that would
+    drop the button from the tab order and mute its semantics.
+  - the spinner glyph takes the LEADING lane (before the label): the
+    spin family's bracket cursor, inlined (registry items stay
+    dependency-free) — keyframes in press-button.css (D1-exempt
+    residue), reduced motion freezes on the static first frame.
+  - the press law HOLDS in the loading pose: hover still grows only
+    the shadow, active still presses +1px — loading is a SEMANTIC
+    state, never a physics change.
+  - success is a ONE-SHOT `flash()` helper (instance export via
+    bind:this): the leading lane swaps to a ✓ check for 1.2s (default,
+    ms overridable) with data-jx-press-state="success", then rests.
+    ONE idiom, deliberately — declarative state toggles would invite
+    half-wired two-step buttons.
+
   tw4 (2026-08-24): the button body was already utility-authored
   (variants + the --jx-press* pose wiring ride utilities — the press
   law's wiring is untouched); the effect loops move VERBATIM to
@@ -164,7 +187,9 @@
 </script>
 
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import type { Snippet } from 'svelte';
+  import { icons } from '$lib/icons';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import { createRipple } from './ripple.svelte';
   import './press-button.css';
@@ -181,6 +206,12 @@
     href?: string;
     /** Opens non-internal hrefs (not starting with "/") in a new tab. */
     external?: boolean;
+    /** the ASYNC pose (enhance-picker-feedback): aria-disabled="true",
+     *  focusable, pointer AND keyboard activation suppressed, href
+     *  navigation blocked, spinner glyph in the leading lane — the
+     *  press law (hover shadow / active +1px) holds unchanged. Pair
+     *  with the one-shot flash() on settle. */
+    loading?: boolean;
     onclick?: () => void;
     type?: 'button' | 'submit';
     ariaLabel?: string;
@@ -201,6 +232,7 @@
     effect = undefined,
     href,
     external = undefined,
+    loading = false,
     onclick,
     type = 'button',
     ariaLabel,
@@ -208,6 +240,29 @@
     class: className = '',
     children,
   }: Props = $props();
+
+  // ---- the one-shot success flash (the async idiom's second step) -----
+  // ONE idiom, component-owned: flash() paints the ✓ glyph +
+  // data-jx-press-state="success" for 1.2s (ms overridable), then the
+  // button rests. No declarative success prop — half-wired two-step
+  // buttons are exactly the drift this closes.
+  let flashState = $state<'idle' | 'success'>('idle');
+  let flashTimer: ReturnType<typeof setTimeout> | undefined;
+
+  /** the second step of the async two-step: call when the promise
+   *  resolves — a one-shot ✓ check flash (default 1.2s), then rest */
+  export function flash(ms = 1200): void {
+    if (flashTimer !== undefined) clearTimeout(flashTimer);
+    flashState = 'success';
+    flashTimer = setTimeout(() => {
+      flashState = 'idle';
+      flashTimer = undefined;
+    }, ms);
+  }
+
+  onDestroy(() => {
+    if (flashTimer !== undefined) clearTimeout(flashTimer);
+  });
 
   const inheritedDensity = getDensityContext();
   const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
@@ -285,10 +340,39 @@
   // factory — the anchored press already answers the pointer.
   const rippleRuntime = createRipple(() => onclick?.());
 
+  // ---- the loading lock (the anchor contract's enforcement seam) ------
+  // EVERY activation path funnels through click — native buttons
+  // synthesize it from Enter AND Space, anchors from Enter — so one
+  // guard covers pointer and keyboard alike. loading: buttons no-op;
+  // anchors preventDefault (the navigation itself is blocked). Tab
+  // order is untouched — aria-disabled, never the disabled attribute.
+  function onButtonClick(event: MouseEvent & { currentTarget: HTMLElement }): void {
+    if (loading) return;
+    // the ripple is part of the ACTIVATION path — it must spawn (or be
+    // suppressed with the loading lock) exactly when the consumer fires
+    if (effect?.type === 'ripple') {
+      rippleRuntime.onclick(event as MouseEvent & { currentTarget: HTMLAnchorElement });
+      return;
+    }
+    onclick?.();
+  }
+  function onAnchorClick(event: MouseEvent & { currentTarget: HTMLAnchorElement }): void {
+    if (loading) {
+      event.preventDefault();
+      return;
+    }
+    if (effect?.type === 'ripple') rippleRuntime.onclick(event);
+  }
+
   const classes = $derived(
     `${base} ${variants[variant]}${effectClass ? ` ${effectClass}` : ''}${className ? ` ${className}` : ''}`
   );
   const isExternal = $derived(external ?? (href !== undefined && !href.startsWith('/')));
+
+  // the leading lane (enhance-picker-feedback): loading swaps in the
+  // bracket-cursor spinner (the spin family's glyph, inlined), the
+  // flash swaps in the ✓ check — one glyph slot, never both
+  const leadingGlyph = $derived(loading ? 'spin' : flashState === 'success' ? 'check' : 'none');
 </script>
 
 {#snippet layers()}
@@ -320,12 +404,29 @@
   {/if}
 {/snippet}
 
+{#snippet leadingLane()}
+  {#if leadingGlyph === 'spin'}
+    <!-- the bracket-cursor spinner, the spin family's glyph inlined
+         (registry items stay dependency-free); keyframes + the
+         reduced-motion static-frame freeze live in press-button.css -->
+    <span data-jx-press-spin="" class="jx-press-spin font-mono text-primary" aria-hidden="true">[&nbsp;<span class="jx-press-spin-frames relative inline-grid w-[1ch] text-center align-bottom"><i class="not-italic row-start-1 col-start-1 visible animate-[jx-press-spin-frame_800ms_steps(1)_infinite]">/</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-press-spin-frame_800ms_steps(1)_infinite] [animation-delay:200ms]">—</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-press-spin-frame_800ms_steps(1)_infinite] [animation-delay:400ms]">\\</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-press-spin-frame_800ms_steps(1)_infinite] [animation-delay:600ms]">|</i></span>&nbsp;]</span>
+  {:else if leadingGlyph === 'check'}
+    <!-- the one-shot success flash glyph (flash() painted it; it
+         rests after 1.2s) -->
+    <span data-jx-press-check="" class="inline-flex flex-none items-center text-primary [&_svg]:h-3.5 [&_svg]:w-3.5" aria-hidden="true">
+      {@html icons.check}
+    </span>
+  {/if}
+{/snippet}
+
 {#if href}
   <a
     {href}
     target={isExternal ? '_blank' : undefined}
     rel={isExternal ? 'noreferrer' : undefined}
     aria-label={ariaLabel}
+    aria-disabled={loading ? 'true' : undefined}
+    data-jx-press-state={flashState === 'success' ? 'success' : undefined}
     data-density={resolvedDensity}
     data-jx-press-button={variant}
     data-jx-shimmer-host={effect?.type === 'shimmer' ? '' : undefined}
@@ -333,16 +434,19 @@
     data-jx-ripple-host={effect?.type === 'ripple' ? '' : undefined}
     class={classes}
     style={effectStyle || undefined}
-    onclick={effect?.type === 'ripple' ? rippleRuntime.onclick : undefined}
+    onclick={onAnchorClick}
   >
     {@render layers()}
+    {@render leadingLane()}
     {@render children()}
   </a>
 {:else}
   <button
     {type}
-    onclick={effect?.type === 'ripple' ? rippleRuntime.onclick : onclick}
+    onclick={onButtonClick}
     aria-label={ariaLabel}
+    aria-disabled={loading ? 'true' : undefined}
+    data-jx-press-state={flashState === 'success' ? 'success' : undefined}
     data-density={resolvedDensity}
     data-jx-press-button={variant}
     data-jx-shimmer-host={effect?.type === 'shimmer' ? '' : undefined}
@@ -352,6 +456,7 @@
     style={effectStyle || undefined}
   >
     {@render layers()}
+    {@render leadingLane()}
     {@render children()}
   </button>
 {/if}

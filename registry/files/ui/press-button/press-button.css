@@ -310,6 +310,31 @@
   }
 }
 
+/* the loading idiom's spinner (enhance-picker-feedback, 2026-08-30):
+   the leading-lane bracket cursor — the spin family's glyph, inlined
+   so the registry item stays dependency-free. ONLY the frame keyframes
+   are D1-exempt residue here (the frames' visibility rests in the
+   markup: frame 1 visible, the rest invisible → killing the animation
+   under reduced motion lands on the static first frame, exactly the
+   spin.css precedent). The kill overrides the markup's animate
+   utility, so it rides the unlayered :where carve-out. */
+@keyframes jx-press-spin-frame {
+  0%,
+  24% {
+    visibility: visible;
+  }
+  25%,
+  100% {
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-press-spin-frames i) {
+    animation: none;
+  }
+}
+
 /* effect loops under reduced motion: every loop freezes and the
    traveling light vanishes (a frozen stripe mid-surface reads as a
    defect); the ripple is skipped in JS too (WAAPI never spawns).

@@ -23,6 +23,28 @@
      pre-extraction toggle-path behavior. onpick lands in commitDay;
      single closes via hidePopover there, range's anchor/swap law stays.
 
+  Picker reach (enhance-picker-feedback, 2026-08-30), three orthogonal
+  extensions of the same seams:
+
+  4. presets — the quick-pick LANE is the component's (a border-right
+     column inside the panel; native buttons, so keyboard reachable);
+     the preset ENTRIES are the consumer's ({label, value} payload +
+     the `preset` snippet escape for rich per-item content). A preset
+     activation rides the EXACT grid-pick pipeline: commitDay's value
+     contract (single value / range anchor-swap pair) + hidePopover.
+  5. showTime (v1 SINGLE-mode only; mode='range' + showTime is a
+     TYPE-level error via the Props union) — the canonical value
+     becomes "YYYY-MM-DDTHH:mm" local wall-clock, NO zone conversion;
+     the grid consumes the DATE part (commitDay composes the preserved
+     time half), the TimeStepper row mutates only the TIME part
+     (commitTime, live, panel stays open), and each preserves the
+     other. Prebound datetimes open on their day with their time
+     restored. `showTime={false}` keeps every original path verbatim.
+  6. isDisabled — the consumer day predicate rides calendar.svelte's
+     outside-day law (visible, not-allowed, uncommittable) and its
+     arrow walk skips disabled days; a range anchor can never START on
+     a disabled day because pick() refuses the first press.
+
   format ('iso' | 'locale') changes the DISPLAY only — the committed
   value stays ISO forever. min/max are inclusive ISO bounds; days
   outside render at 0.3 opacity with cursor: not-allowed.
@@ -50,24 +72,25 @@
     start?: string;
     end?: string;
   }
-</script>
 
-<script lang="ts">
-  import { onDestroy } from 'svelte';
-  import { createSurfaceMotion } from '$lib/surface-motion';
-  import { cn } from '$lib/utils';
-  import { dayLabel, parseIso, todayIso, validIso } from './calendar-math';
-  import { ambientLocale } from '$lib/locale.svelte';
-  import Calendar from './calendar.svelte';
-  import './date-picker.css';
+  /** one quick-pick entry (enhance-picker-feedback, 2026-08-30). The
+   *  presets LANE is the component's; the ENTRIES are the consumer's —
+   *  this {label, value} payload is the value-domain convenience only,
+   *  and per-item RICH CONTENT rides the `preset` snippet escape
+   *  (composition-first law). */
+  export interface DatePickerPreset {
+    label: string;
+    /** single mode: ISO "YYYY-MM-DD" (or canonical datetime when
+     *  showTime); range mode: { start?, end? } */
+    value: string | DatePickerRange;
+  }
 
-  interface Props {
-    /** ISO "YYYY-MM-DD"; $bindable — single mode's committed value */
+  interface DatePickerCommon {
+    /** ISO "YYYY-MM-DD" (date mode) or canonical "YYYY-MM-DDTHH:mm"
+        (showTime); $bindable — single mode's committed value */
     value?: string;
     /** { start?, end? }; $bindable — range mode's committed value */
     range?: DatePickerRange;
-    /** 'single' (default) | 'range' */
-    mode?: 'single' | 'range';
     /** field label; renders label[for] above the trigger */
     label?: string;
     /** error text → aria-invalid + aria-describedby + dashed trigger */
@@ -78,7 +101,7 @@
     min?: string;
     /** ISO date; later days render disabled */
     max?: string;
-    /** display format — the committed value stays ISO regardless */
+    /** display format — the committed value stays canonical regardless */
     format?: 'iso' | 'locale';
     /** BCP 47 locale for the panel vocabulary + the 'locale' display
         format (Intl.DateTimeFormat); default = the page's <html lang>
@@ -90,7 +113,58 @@
         the environment asks for reduced transparency; the bezel fill
         follows the variant through the jx-surface fill props) */
     variant?: 'solid' | 'acrylic' | 'auto';
+    /** quick-pick lane entries — the lane renders INSIDE the panel and
+        commits exactly like a grid pick (value + close contract) */
+    presets?: DatePickerPreset[];
+    /** snippet escape for per-entry rich content; receives the preset —
+        the default renders the {label} text (composition-first law) */
+    preset?: import('svelte').Snippet<[DatePickerPreset]>;
+    /** consumer day predicate: true days wear the outside-day law
+        (visible, not-allowed, uncommittable) and the arrow walk skips
+        them; range anchors refuse a disabled start (pick() refusal) */
+    isDisabled?: (iso: string) => boolean;
+    /** class passthrough on the trigger */
+    class?: string;
   }
+
+</script>
+
+<script lang="ts">
+  import { onDestroy } from 'svelte';
+  import { createSurfaceMotion } from '$lib/surface-motion';
+  import { cn } from '$lib/utils';
+  import {
+    composeDateTime,
+    dayLabel,
+    dayTimeLabel,
+    parseDateTime,
+    todayIso,
+    validIso,
+  } from './calendar-math';
+  import { ambientLocale } from '$lib/locale.svelte';
+  import Calendar from './calendar.svelte';
+  import TimeStepper from './time-stepper.svelte';
+  import './date-picker.css';
+
+  // mode × showTime is a TYPE-LEVEL contract (enhance-picker-feedback):
+  // `showTime` is v1 SINGLE-mode only. `{ mode: 'range', showTime: true }`
+  // matches NEITHER branch — TypeScript rejects it at the call site;
+  // the range branch pins showTime to false/undefined.
+  interface SingleTimeProps extends DatePickerCommon {
+    mode?: 'single';
+    /** wall-clock time row under the grid: the canonical value becomes
+        "YYYY-MM-DDTHH:mm" (local wall-clock, NO zone conversion); the
+        calendar mutates the date part, the TimeStepper row the time
+        part, each preserving the other */
+    showTime?: boolean;
+  }
+  interface RangeOnlyProps extends DatePickerCommon {
+    mode: 'range';
+    /** v1: range + time is REJECTED — passing true here is a type error */
+    showTime?: false;
+  }
+
+  type Props = SingleTimeProps | RangeOnlyProps;
 
   // $props.id() must live in its own top-level initializer (compiler law)
   const autoId = $props.id();
@@ -99,6 +173,7 @@
     value = $bindable(),
     range = $bindable(),
     mode = 'single',
+    showTime = false,
     label,
     error,
     placeholder = 'Select date...',
@@ -106,17 +181,31 @@
     max,
     format = 'iso',
     locale,
+    presets,
+    preset,
+    isDisabled,
     id = autoId,
     variant = 'auto',
     class: className = '',
   }: Props = $props();
 
   // ---- committed state views ----------------------------------------------
-  const selectedIso = $derived(mode === 'single' ? validIso(value) : undefined);
+  // single + showTime rides the datetime domain: the canonical value is
+  // "YYYY-MM-DDTHH:mm" and the calendar grid consumes only the DATE part
+  // (an invalid value degrades to no-committed-value — trust-but-verify).
+  // showTime is IGNORED in range mode (the type-level rejection's runtime
+  // echo); `showTime={false}` keeps the original date-only paths verbatim.
+  const timeMode = $derived(mode === 'single' && showTime);
+  const selectedIso = $derived(
+    mode === 'single'
+      ? timeMode
+        ? parseDateTime(value)?.date
+        : validIso(value)
+      : undefined,
+  );
+  const timeValue = $derived(timeMode ? parseDateTime(value)?.time : undefined);
   const startIso = $derived(mode === 'range' ? validIso(range?.start) : undefined);
   const endIso = $derived(mode === 'range' ? validIso(range?.end) : undefined);
-  const minIso = $derived(validIso(min));
-  const maxIso = $derived(validIso(max));
 
   const errorId = $derived(`${id}-error`);
   const invalid = $derived(error != null && error !== '');
@@ -149,13 +238,19 @@
     return [startIso, endIso].filter((iso): iso is string => iso != null);
   });
 
-  // ---- display formatting (value itself is always ISO) --------------------
+  // ---- display formatting (value itself is always canonical) ---------------
   const loc = $derived(locale ?? ambientLocale());
   function display(iso: string): string {
     if (format === 'iso') return iso;
     // Intl owns the field order and spacing ("Aug 30, 2026" /
     // "2026年8月30日") — never hand concatenation
     return dayLabel(loc, iso);
+  }
+  /** showTime trigger lane: canonical "YYYY-MM-DDTHH:mm" in iso format,
+   *  the Intl day+time label in locale format — no zone conversion */
+  function displayDateTime(canonical: string): string {
+    if (format === 'iso') return canonical;
+    return dayTimeLabel(loc, canonical);
   }
 
   const hasValue = $derived(mode === 'single' ? selectedIso != null : startIso != null);
@@ -166,15 +261,43 @@
         ? `${display(startIso)} → ${display(endIso)}`
         : `${display(startIso)} → …`;
     }
-    return selectedIso != null ? display(selectedIso) : placeholder;
+    if (selectedIso == null) return placeholder;
+    return timeMode ? displayDateTime(validDateTimeOf(value)) : display(selectedIso);
   });
+
+  /** normalized canonical datetime of the committed value (the parse is
+   *  the validation; triggerText only calls this when a day was parsed) */
+  function validDateTimeOf(v: string | undefined): string {
+    const p = parseDateTime(v);
+    return p ? `${p.date}T${p.time}` : '';
+  }
+
+  // ---- the presets lane (component's; entries are the consumer's) ---------
+  // trust-but-verify: entries whose value validates in the ACTIVE mode are
+  // rendered — malformed payloads are dropped, never thrown
+  const laneEntries = $derived.by(() => {
+    if (!presets || presets.length === 0) return [];
+    return presets.filter((p) => {
+      if (typeof p.value === 'string') {
+        // showTime accepts canonical datetimes AND plain dates (a date
+        // composes with the current time half); date-only otherwise
+        return timeMode
+          ? parseDateTime(p.value) != null || validIso(p.value) != null
+          : validIso(p.value) != null;
+      }
+      return validIso(p.value.start) != null || validIso(p.value.end) != null;
+    });
+  });
+  const hasLane = $derived(laneEntries.length > 0);
 
   // ---- selection ------------------------------------------------------------
   // onpick arrives from the calendar (guaranteed non-disabled non-out):
   // single commits and closes; range keeps the anchor/swap law here
   function commitDay(iso: string): void {
     if (mode === 'single') {
-      value = iso;
+      // showTime: the grid mutates ONLY the date part — the committed
+      // time half is preserved (default wall-clock midnight when unset)
+      value = timeMode ? composeDateTime(iso, timeValue) : iso;
       panelEl?.hidePopover(); // the toggle handler restitutes focus
       return;
     }
@@ -191,6 +314,38 @@
           : { start, end: iso };
       panelEl?.hidePopover();
     }
+  }
+
+  /** the TimeStepper row's live commit: mutate ONLY the time part — the
+   *  committed day (else today as the staging context) is preserved; the
+   *  panel stays open for the day adjustment */
+  function commitTime(t: string): void {
+    value = composeDateTime(selectedIso ?? todayIso(), t);
+  }
+
+  /** a preset activation rides the SAME pipeline as a grid pick: the
+   *  value contract above, then the panel close — nothing else */
+  function commitPreset(entry: (typeof laneEntries)[number]): void {
+    if (mode === 'single') {
+      if (typeof entry.value !== 'string') return; // a range pair can never commit in single mode
+      const dt = timeMode ? parseDateTime(entry.value) : null;
+      const iso = dt != null ? dt.date : validIso(entry.value);
+      if (iso == null) return;
+      // showTime: a datetime preset carries its own time half; a plain
+      // date composes with the currently committed time (else midnight)
+      value = timeMode ? composeDateTime(iso, dt?.time ?? timeValue) : iso;
+    } else {
+      if (typeof entry.value === 'string') return; // an ISO day is not a pair
+      const start = validIso(entry.value.start);
+      const end = validIso(entry.value.end);
+      if (start == null && end == null) return;
+      // backwards pairs swap, per the range contract
+      range =
+        start != null && end != null && end < start
+          ? { start: end, end: start }
+          : { start: start ?? undefined, end: end ?? undefined };
+    }
+    panelEl?.hidePopover();
   }
 
   // THE orchestration seam: one native event covers every open/close path
@@ -307,9 +462,14 @@
          (Owner ruling r18) -->
     <div data-jx-date-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
     <!-- surface body (bezel paint + ::after shadow); the popover element
-         paints nothing (floating-surface law arch r3) -->
-    <div data-jx-date-surface class="jx-surface-body px-3.5 py-3">
-      {#if open}
+         paints nothing (floating-surface law arch r3). The quick-pick lane
+         turns the body into a row (lane | calendar column) ONLY when
+         presets are present — bare panels keep the original DOM. -->
+    <div
+      data-jx-date-surface
+      class={cn('jx-surface-body px-3.5 py-3', hasLane && 'flex items-stretch gap-3')}
+    >
+      {#snippet calendar()}
         <!-- the embeddable calendar (2026-08-28 extraction): nav + grid +
              keyboard cursor live in calendar.svelte; mounting it per open
              makes initialView={openAnchor} the reset-on-open seam. The
@@ -318,8 +478,9 @@
           anchors={anchorList}
           rangeStart={startIso}
           rangeEnd={endIso}
-          min={minIso}
-          max={maxIso}
+          {min}
+          {max}
+          {isDisabled}
           initialView={openAnchor}
           {locale}
           idPrefix={id}
@@ -327,6 +488,49 @@
           onpick={commitDay}
           bind:this={calendarRef}
         />
+      {/snippet}
+      {#if open}
+        <!-- the presets lane (enhance-picker-feedback): the LANE is the
+             component's, the entries the consumer's; per-item rich
+             content rides the `preset` snippet escape. Native buttons =
+             keyboard reachable; activation = the grid-pick commit
+             pipeline (value contract + panel close). -->
+        {#if hasLane}
+          <div
+            data-jx-date-presets
+            role="group"
+            aria-label="quick picks"
+            class="flex w-24 flex-none flex-col justify-start gap-0.5 max-h-56 overflow-y-auto border-r border-border pr-2"
+          >
+            {#each laneEntries as entry (entry.label)}
+              <button
+                type="button"
+                data-jx-date-preset
+                class="jx-date-nav-btn inline-flex w-full items-center justify-start h-7 px-2 text-start text-xs cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+                onclick={() => commitPreset(entry)}
+              >
+                {#if preset}{@render preset(entry)}{:else}{entry.label}{/if}
+              </button>
+            {/each}
+          </div>
+        {/if}
+        {#if hasLane || timeMode}
+          <div class="flex min-w-0 flex-col gap-2">
+            {@render calendar()}
+            {#if timeMode}
+              <!-- the showTime row: mutates ONLY the time part (the day is
+                   preserved); live commit, the panel stays open -->
+              <div
+                data-jx-date-timerow
+                class="flex items-center border-t border-border pt-2"
+              >
+                <TimeStepper value={timeValue} oncommit={commitTime} idPrefix="{id}-time" />
+              </div>
+            {/if}
+          </div>
+        {:else}
+          {@render calendar()}
+        {/if}
       {/if}
   </div>
   </div>

@@ -20,6 +20,11 @@
   4. marks — anchors (fill) and rangeStart/rangeEnd (strictly-inside
      tint); all ISO props arrive as trust-but-verify strings.
 
+  isDisabled (enhance-picker-feedback, 2026-08-30): a consumer day
+  predicate joins min/max in the SAME disabled law — outside-day paint
+  (visible, not-allowed), pick() refusal, and the arrow walk skips
+  landable disabled days (a capped sweep; Enter always refuses).
+
   Selection semantics (single commit, range anchor/swap) and popover
   orchestration stay in the HOST — this fragment only fires onpick(iso)
   for guaranteed non-disabled, non-out days. The math lives in
@@ -70,6 +75,10 @@
     min?: string;
     /** inclusive ISO bound — later days render disabled */
     max?: string;
+    /** consumer day predicate (enhance-picker-feedback, 2026-08-30):
+        true days wear the SAME outside-day law as min/max cells (visible,
+        not-allowed, uncommittable) and are SKIPPED by the arrow walk */
+    isDisabled?: (iso: string) => boolean;
     /** initial view month (any ISO day inside it); default = today's month */
     initialView?: string;
     /** fired when a day is picked — guaranteed non-disabled, non-out */
@@ -93,6 +102,7 @@
     locale,
     min,
     max,
+    isDisabled,
     initialView,
     onpick,
     idPrefix = autoId,
@@ -146,7 +156,10 @@
       iso,
       day,
       out,
-      disabled: (minIso != null && iso < minIso) || (maxIso != null && iso > maxIso),
+      disabled:
+        (minIso != null && iso < minIso) ||
+        (maxIso != null && iso > maxIso) ||
+        (isDisabled?.(iso) ?? false),
       today: iso === today,
     });
     // Monday-first offset of the 1st
@@ -234,6 +247,17 @@
     onpick?.(iso);
   }
 
+  // the disabled law the walk honors: a day the cursor may not LAND on —
+  // min/max bounds and isDisabled cells (out cells are stepped through as
+  // today; they were never landable and pick() refuses them). Only STAGED
+  // cells are known: beyond the mounted months the cursor may rest on an
+  // unknown-disabled day and Enter refuses it there (the pre-existing
+  // min/max walk contract, unchanged).
+  function walkBlocked(iso: string): boolean {
+    const cell = weeks.flat().find((c) => c.iso === iso);
+    return cell != null && !cell.out && cell.disabled;
+  }
+
   function onGridKeydown(event: KeyboardEvent): void {
     let delta = 0;
     if (event.key === 'ArrowLeft') delta = -1;
@@ -242,7 +266,13 @@
     else if (event.key === 'ArrowDown') delta = 7;
     if (delta !== 0) {
       event.preventDefault();
-      activeIso = addDays(activeIso, delta);
+      // the arrow walk SKIPS disabled days (the isDisabled law): keep
+      // stepping in the same direction until a landable day — the sweep
+      // is capped at two leap years so a fully disabled calendar can
+      // never trap the cursor in a loop
+      let next = addDays(activeIso, delta);
+      for (let i = 0; i < 732 && walkBlocked(next); i++) next = addDays(next, delta);
+      activeIso = next;
       // the view follows the cursor across month boundaries
       const p = parseIso(activeIso)!;
       viewYear = p.year;

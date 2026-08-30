@@ -18,6 +18,10 @@
 //    week 1 holds the year's first Thursday (Jan 4 is always in W01);
 //    edge days can belong to a NEIGHBOR ISO year. Pure Date.UTC
 //    arithmetic only — no locale tricks, no Date globals.
+// 4. strict datetime math ("YYYY-MM-DDTHH:mm") — the showTime value
+//    domain (enhance-picker-feedback, 2026-08-30): a local wall-clock
+//    split/compose/format vocabulary with NO zone conversion; the
+//    localized display formats the wall-clock fields AS UTC.
 //
 // Everything here is pure. todayIso() reads the clock on every call —
 // never a module-level snapshot (a long-lived host must not freeze
@@ -75,6 +79,66 @@ export function dayLabel(locale: string, iso: string): string {
   return cachedFmt(locale, { year: 'numeric', month: 'short', day: 'numeric' }).format(
     new Date(Date.UTC(p.year, p.month, p.day)),
   );
+}
+
+/** a locale-formatted day+time for the showTime trigger lane ("Aug 30,
+    2026, 2:05 PM" / "2026年8月30日 14:05") — the wall-clock fields are
+    formatted AS UTC so no zone conversion ever touches them; the VALUE
+    stays the canonical "YYYY-MM-DDTHH:mm" always */
+export function dayTimeLabel(locale: string, dateTime: string): string {
+  const p = parseDateTime(dateTime);
+  if (!p) return dateTime;
+  const y = Number(p.date.slice(0, 4));
+  const mo = Number(p.date.slice(5, 7)) - 1;
+  const d = Number(p.date.slice(8, 10));
+  const h = Number(p.time.slice(0, 2));
+  const mi = Number(p.time.slice(3, 5));
+  return cachedFmt(locale, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(new Date(Date.UTC(y, mo, d, h, mi)));
+}
+
+// ---- datetime ("YYYY-MM-DDTHH:mm" — the showTime value domain) ----------
+// The datetime contract (enhance-picker-feedback, 2026-08-30): the
+// CANONICAL stored value is a local wall-clock "YYYY-MM-DDTHH:mm" — no
+// zone conversion anywhere; the calendar grid consumes the DATE part and
+// the TimeStepper mutates only the TIME part. These helpers are the strict
+// parse/format half of that contract (the compose/preserve logic lives in
+// date-picker.svelte, the same split as the ISO vocabulary).
+
+const DATETIME_RE = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})$/;
+
+/** strict split of a canonical datetime into its date and normalized
+ *  "HH:MM" parts — null unless BOTH halves validate (a real calendar day,
+ *  hour ≤ 23, minute ≤ 59). Unpadded or malformed input is rejected, not
+ *  repaired: values arrive as trust-but-verify strings. */
+export function parseDateTime(
+  v: string | undefined
+): { date: string; time: string } | null {
+  if (!v) return null;
+  const m = DATETIME_RE.exec(v);
+  if (!m) return null;
+  const date = validIso(m[1]);
+  const h = Number(m[2]);
+  const mi = Number(m[3]);
+  if (date == null || h > 23 || mi > 59) return null;
+  return { date, time: `${pad2(h)}:${pad2(mi)}` };
+}
+
+/** validated-or-undefined canonical "YYYY-MM-DDTHH:mm" (normalized) */
+export function validDateTime(v: string | undefined): string | undefined {
+  const p = parseDateTime(v);
+  return p ? `${p.date}T${p.time}` : undefined;
+}
+
+/** compose a canonical datetime from a date half and an "HH:MM" half —
+ *  an absent time half is the wall-clock midnight default */
+export function composeDateTime(date: string, time?: string): string {
+  return `${date}T${time ?? '00:00'}`;
 }
 
 const ISO_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
