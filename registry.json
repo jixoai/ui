@@ -497,7 +497,6 @@
       "title": "Hero section",
       "description": "The landing hero with opened content: title/badges/terminal/secondary/copy are snippets (the caller composes Badge children; the default copy CTA rides the copyCommand payload; the em accent paint lives in family css).",
       "registryDependencies": [
-        "@jixoai/reveal",
         "@jixoai/jixoai-theme",
         "@jixoai/icons"
       ],
