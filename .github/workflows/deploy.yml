@@ -96,3 +96,38 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+  # Post-publish smoke (2026-08-30-registry-install-integrity task 3.2):
+  # the registry's ONE product promise is that the advertised install
+  # URLs resolve — ui.jixoai.com must serve the site, the registry index,
+  # and a registry item. Any non-200 fails the run WITH THE REMEDIATION:
+  # the Pages custom-domain binding lives in repo settings (+ Owner DNS),
+  # which no artifact can set — a DNS-lag failure is expected to re-run
+  # green after the domain is re-attached.
+  smoke:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Smoke https://ui.jixoai.com (/, /r/registry.json, /r/press-button.json)
+        run: |
+          fail=0
+          for path in / /r/registry.json /r/press-button.json; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "https://ui.jixoai.com${path}") || code=000
+            if [ "$code" != "200" ]; then
+              echo "::error::https://ui.jixoai.com${path} returned ${code} (expected 200)"
+              fail=1
+            else
+              echo "ok: https://ui.jixoai.com${path} -> 200"
+            fi
+          done
+          if [ "$fail" != "0" ]; then
+            cat <<'EOF'
+          REMEDIATION — the deployed artifact does not serve ui.jixoai.com:
+            1. GitHub Pages settings → re-attach the custom domain
+               (gh api repos/jixoai/ui/pages -X PUT -f cname=ui.jixoai.com),
+               or re-run this job once the artifact's CNAME takes effect.
+            2. Owner DNS: ui.jixoai.com must CNAME to jixoai.github.io
+               (DNS propagation can lag minutes to hours after (re-)binding).
+            3. Then re-run: gh workflow run deploy.yml (or re-run the smoke job).
+          EOF
+            exit 1
+          fi

@@ -9,6 +9,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import { icons } from '$lib/icons';
   import { GITHUB_URL } from '$lib/site';
+  import { FEATURED_ITEMS, REGISTRY_TOTAL } from '$lib/catalog';
 
   const initCode = String.raw`# register the @jixoai namespace, install the theme, set the hue
 npx jixoai-ui init --hue 330
@@ -39,29 +40,8 @@ npx jixoai-ui add press-button section-card toc`;
       id: 'dogfooded',
       eyebrow: 'Law 03',
       title: 'Dogfooded by this site',
-      body: 'This page is built from the exact files the registry ships: the token sheet, the reveal action, press buttons, section cards, and the Combo ToC on the Components page. If the registry regresses, this site visibly regresses with it.',
+      body: 'This page is built from the exact files the registry ships: the token sheet, the data-reveal + CSS entrance law (scroll-triggered by the theme sheet — static markup, no runtime action), press buttons, section cards, and the Combo ToC on the Components page. If the registry regresses, this site visibly regresses with it.',
     },
-  ];
-
-  interface CatalogItem {
-    name: string;
-    type: string;
-    blurb: string;
-  }
-
-  const catalog: CatalogItem[] = [
-    { name: 'jixoai-theme', type: 'registry:theme', blurb: 'The full OKLCH token sheet with the --brand-hue law, hard shadows, radius 0 + bevel upgrade, mono-first fonts.' },
-    { name: 'toc-engine', type: 'registry:lib', blurb: 'Framework-free ToC geometry: IoM weights, viewport-top line pick, margin-resolves-downward law, 76px mobile line.' },
-    { name: 'reveal', type: 'registry:lib', blurb: 'Scroll-reveal action: static data-reveal hook law, delay/rise staggering, reduced-motion safety.' },
-    { name: 'press-button', type: 'registry:ui', blurb: 'The press-law button: hover grows the shadow only, active presses into the page on an anchored shadow. 7 variants + opt-in shimmer / pulse / rainbow / ripple effect loops.' },
-    { name: 'section-card', type: 'registry:ui', blurb: 'The content atom: bordered card, eyebrow in brand hue, font-nav title, text-pretty summary, body slot.' },
-    { name: 'terminal-header', type: 'registry:ui', blurb: 'Terminal-bar site header: always-dark CRT bezel, nav pills, external links with ↗, theme slot.' },
-    { name: 'terminal-footer', type: 'registry:ui', blurb: 'Ghost wordmark footer: huge hollow brand word, muted meta row transitioning to brand hue.' },
-    { name: 'theme-toggle', type: 'registry:ui', blurb: 'light / dark / system cycler in Share Tech Mono, paired with the no-flash inline bootstrap.' },
-    { name: 'toc', type: 'registry:ui', blurb: 'The Combo ToC: desktop Rule Tracker spine + mobile Terminal Rail glass single-row viewport.' },
-    { name: 'terminal-card', type: 'registry:ui', blurb: 'The Broadside hero terminal: traffic-light bar, typed command, line-by-line outputs, 6px hard shadow.' },
-    { name: 'hero-section', type: 'registry:ui', blurb: 'The openspecui-composed hero: lead type with primary accent, badges, copy-command CTA, terminal column.' },
-    { name: 'website-scaffold', type: 'registry:ui', blurb: 'WebsiteScaffold: presentation-site scaffold — overlay top layer (header + float), immersive hide/reveal, SPA carousel transitions.' },
   ];
 </script>
 
@@ -153,12 +133,13 @@ npx jixoai-ui add press-button section-card toc`;
   </SectionCard>
 </div>
 
-<!-- Catalog table: the 9 registry items. -->
+<!-- Catalog table: the curated featured projection (catalog.ts), under a
+     REGISTRY-TOTAL heading — the two counts are never equated. -->
 <section class="mx-auto w-full max-w-[90rem] px-4 pt-8 sm:px-6 lg:px-8" data-reveal="">
   <SectionCard
     eyebrow="Catalog"
-    title="Nine items, one grammar"
-    summary="Every item is listed in registry.json and served as JSON from this domain. The add commands below are copy-ready — they resolve through the @jixoai registry URL."
+    title={`${REGISTRY_TOTAL} items, one grammar — registry total`}
+    summary={`registry.json advertises ${REGISTRY_TOTAL} items, every one listed on the docs index and served as JSON from this domain. The ${FEATURED_ITEMS.length} rows below are the curated featured tour, not the total.`}
   >
     <div class="table-scroll">
       <table class="data-table">
@@ -171,11 +152,11 @@ npx jixoai-ui add press-button section-card toc`;
           </tr>
         </thead>
         <tbody>
-          {#each catalog as item (item.name)}
+          {#each FEATURED_ITEMS as item (item.name)}
             <tr>
               <td><span class="pill">{item.name}</span></td>
               <td class="dim">{item.type}</td>
-              <td>{item.blurb}</td>
+              <td>{item.summary}</td>
               <td>
                 <code>npx jixoai-ui add {item.name}</code>
               </td>

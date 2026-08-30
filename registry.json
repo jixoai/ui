@@ -8,7 +8,7 @@
       "name": "jixoai-theme",
       "type": "registry:theme",
       "title": "jixoai theme",
-      "description": "The jixoai design-language token sheet: OKLCH colors with the one-brand-hue law, hard offset shadows, radius 0 with bevel upgrade, mono-first fonts, terminal surfaces, and the reveal hook styles.",
+      "description": "The jixoai design-language token sheet: OKLCH colors with the one-brand-hue law, hard offset shadows, radius 0 with bevel upgrade, mono-first fonts, terminal surfaces, and the data-reveal entrance styles (static markup + CSS).",
       "files": [
         {
           "path": "registry/files/theme/jixoai.css",
@@ -81,7 +81,8 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/density"
       ]
     },
     {
@@ -498,7 +499,9 @@
       "description": "The landing hero with opened content: title/badges/terminal/secondary/copy are snippets (the caller composes Badge children; the default copy CTA rides the copyCommand payload; the em accent paint lives in family css).",
       "registryDependencies": [
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/utils",
+        "@jixoai/press-button"
       ],
       "files": [
         {

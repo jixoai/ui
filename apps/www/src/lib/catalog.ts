@@ -109,3 +109,51 @@ export function catalogByGroup(): { group: CatalogGroup; entries: CatalogEntry[]
     entries: CATALOG.filter((entry) => entry.group === group.id),
   }));
 }
+
+/** the registry total — the ONLY item count derived truth allows
+ * (2026-08-30-registry-install-integrity task 4.2). Featured surfaces
+ * must label it as the registry total and never equate it with their
+ * own curated row count. */
+export const REGISTRY_TOTAL = CATALOG.length;
+
+/**
+ * Curated homepage selection (2026-08-30-registry-install-integrity
+ * task 4.1): an explicit item-ID list, validated against the catalog at
+ * module load (build time — the homepage prerenders). Validation teeth:
+ * an unknown ID throws naming the ghost (a deleted registry item can no
+ * longer keep a hand-maintained row alive — the exact drift that let the
+ * `reveal` ghost ship), a duplicate ID throws too. A new item appears on
+ * the homepage only when deliberately selected here.
+ */
+export const FEATURED_IDS = [
+  'jixoai-theme',
+  'toc-engine',
+  'press-button',
+  'section-card',
+  'terminal-header',
+  'terminal-footer',
+  'theme-toggle',
+  'toc',
+  'terminal-card',
+  'hero-section',
+  'website-scaffold',
+] as const;
+
+/** the validated featured projection — rows for curated catalog surfaces */
+export const FEATURED_ITEMS: CatalogEntry[] = (() => {
+  const byName = new Map(CATALOG.map((entry) => [entry.name, entry]));
+  const seen = new Set<string>();
+  return FEATURED_IDS.map((id) => {
+    const entry = byName.get(id);
+    if (!entry) {
+      throw new Error(
+        `featured projection: registry has no item "${id}" — remove it from FEATURED_IDS (apps/www/src/lib/catalog.ts) or restore the registry item`,
+      );
+    }
+    if (seen.has(id)) {
+      throw new Error(`featured projection: duplicate featured id "${id}" in FEATURED_IDS (apps/www/src/lib/catalog.ts)`);
+    }
+    seen.add(id);
+    return entry;
+  });
+})();

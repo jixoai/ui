@@ -9,10 +9,16 @@
  *     the local-dev fallback, not the CI path).
  *  1. Build apps/www (SvelteKit + adapter-static) into apps/www/dist.
  *  2. Empty public/ (the committed registry JSON is regenerated next).
+ *  2.5. Write public/CNAME (ui.jixoai.com) — the custom domain RIDES THE
+ *     ARTIFACT: every deploy re-attaches ui.jixoai.com to the Pages
+ *     target, so the advertised https://ui.jixoai.com/r/{name}.json
+ *     install URLs never silently fall back to the jixoai.github.io/ui/
+ *     subpath (where absolute /r/... links resolve wrong).
  *  3. Copy the site dist/* into public/ FIRST.
  *  4. Run `shadcn build` (root) which emits public/r/*.json — the registry
  *     paths (/r/<name>.json) keep working unchanged on the root domain.
- *  5. Assert both artifacts coexist (index.html + r/registry.json).
+ *  5. Assert the artifact is complete: index.html + r/registry.json +
+ *     CNAME must coexist.
  *  6. Generate the AI-facing exports (llms.txt / llms-full.txt / per-page
  *     .md) from the FINAL public/ — after the registry JSON exists so the
  *     index can link it, and only here (never inside the vite build too:
@@ -36,6 +42,12 @@ const wwwDir = path.join(repoRoot, "apps", "www");
 const wwwDist = path.join(wwwDir, "dist");
 const publicDir = path.join(repoRoot, "public");
 const pluginDir = path.join(repoRoot, "packages", "vite-plugin");
+/** The custom domain rides the artifact (2026-08-30-registry-install-integrity
+ *  task 3.1): GitHub Pages reads CNAME from the deploy root, so every
+ *  artifact re-attaches ui.jixoai.com — the domain binding can no longer
+ *  silently detach (the 2026-08-30 incident: Pages reported cname:null and
+ *  every advertised /r/... install URL 404'd). */
+const CUSTOM_DOMAIN = "ui.jixoai.com";
 
 // The four frozen build outputs of @jixoai/vite-plugin (design.md D3:
 // tsdown emits dist/index.js + dist/probe.js + dist/index.d.ts +
@@ -114,10 +126,12 @@ function buildSite() {
   }
 }
 
-/** 2-3. Fresh public/: site pages first, registry JSON on top. */
+/** 2-3. Fresh public/: CNAME first (2.5), then site pages, registry JSON
+ * on top. */
 function publishPublic() {
   rmSync(publicDir, { recursive: true, force: true });
   mkdirSync(publicDir, { recursive: true });
+  writeFileSync(path.join(publicDir, "CNAME"), `${CUSTOM_DOMAIN}\n`);
   cpSync(wwwDist, publicDir, { recursive: true });
 }
 
@@ -253,7 +267,7 @@ function main() {
   ensureVitePluginDist();
   console.log("[build-site] 1/8 building apps/www (SvelteKit static)");
   buildSite();
-  console.log("[build-site] 2/8 emptying public/");
+  console.log("[build-site] 2/8 emptying public/ — CNAME rides the artifact (2.5)");
   console.log("[build-site] 3/8 copying site dist → public/");
   publishPublic();
   console.log("[build-site] 4/8 emitting legacy doc-route shells");
@@ -262,13 +276,16 @@ function main() {
   buildRegistry();
 
   // Fail BEFORE generating the index: an index whose registry link 404s
-  // must never be written.
+  // must never be written, and an artifact without its domain would
+  // detach ui.jixoai.com on the next deploy.
   const index = existsSync(path.join(publicDir, "index.html"));
   const registry = existsSync(path.join(publicDir, "r", "registry.json"));
+  const cname = existsSync(path.join(publicDir, "CNAME"));
   if (!index) die("public/index.html missing after build");
   if (!registry) die("public/r/registry.json missing after shadcn build");
+  if (!cname) die("public/CNAME missing after the prepare phase");
 
-  console.log("[build-site] 6/8 asserted site + registry coexist");
+  console.log("[build-site] 6/8 asserted site + registry + CNAME coexist");
   console.log("[build-site] 7/8 generating llms.txt / llms-full.txt / page .md mirrors");
   generateAiExports();
   if (!existsSync(path.join(publicDir, "llms.txt"))) {

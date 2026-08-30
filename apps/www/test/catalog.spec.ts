@@ -19,7 +19,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { CATALOG, CATALOG_GROUPS, catalogByGroup } from '../src/lib/catalog';
+import { CATALOG, CATALOG_GROUPS, catalogByGroup, FEATURED_IDS, FEATURED_ITEMS, REGISTRY_TOTAL } from '../src/lib/catalog';
 import { docsComponentGroups } from '../src/lib/docs-route-model';
 
 const repoRoot = resolve(fileURLToPath(import.meta.url), '../../../..');
@@ -105,5 +105,29 @@ describe('catalog ↔ registry single-source derivation', () => {
       expect(html, 'engines section is gone').not.toContain('id="engines"');
       expect(html, 'guides section is gone').not.toContain('id="guides"');
     }
+  });
+});
+
+describe('featured projection (2026-08-30-registry-install-integrity task 4.1)', () => {
+  // importing catalog.ts above already RAN the projection validation:
+  // an unknown or duplicate FEATURED_IDS entry throws at module load, so
+  // a green import here IS the build-time teeth. The assertions below
+  // pin the projection's contract on top of that.
+  it('every featured id resolves exactly once (no ghosts, no duplicates)', () => {
+    const names = CATALOG.map((entry) => entry.name);
+    for (const id of FEATURED_IDS) {
+      expect(names.filter((name) => name === id).length, `featured id "${id}" must resolve exactly once`).toBe(1);
+    }
+  });
+
+  it('the registry-total and the featured count stay separate numbers', () => {
+    expect(REGISTRY_TOTAL).toBe(CATALOG.length);
+    expect(FEATURED_ITEMS.length).toBe(FEATURED_IDS.length);
+    expect(FEATURED_IDS.length).toBeLessThan(REGISTRY_TOTAL);
+  });
+
+  it('the reveal ghost never comes back (the 2026-08-30 purge)', () => {
+    expect(FEATURED_IDS as readonly string[]).not.toContain('reveal');
+    expect(CATALOG.some((entry) => entry.name === 'reveal')).toBe(false);
   });
 });
