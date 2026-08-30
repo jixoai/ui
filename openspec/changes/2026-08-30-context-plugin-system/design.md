@@ -1,53 +1,98 @@
-# Design: context-plugin-system
+# Design: context-plugin-system (r2)
 
-## 不可变管道（Owner 裁决的实现形态）
+r1 评审 codex-plan-review-print-r1.md 五阻塞全闭合；裁决记录标 [r1-n]。
 
-每个 context 的暴露值由两层 `$derived` 组合：
+## 类型域与身份 [r1-1]
 
-```
-rawValue（页面/组件写入）
-  → beforeChain：ordered plugins 的 before 逐级（filter 通过者）
-  → storeValue（链后值，$state 仅存这份）
-  → afterChain：ordered plugins 的 after 逐级
-  → 暴露给 consumer 的只读投影
-```
-
-- 每一级都是 `value => newValue` 的纯函数；禁止原地修改
-  （测试冻结入参断言：`Object.freeze` 输入，插件返回新引用）。
-- Svelte 细粒度响应：插件链中 `env.medium` 等依赖变化时只重算
-  受影响的 context 投影——这就是「高性能干预」的落点，不需要
-  额外调度器。
-- `'skip'` 否决实现：init 阶段决定，context provider 直接不
-  setContext——消费侧 getContext 得 null（与「未提供」同语义）。
-
-## 排序（vite 语义裁剪）
-
-基序 = 注册数组序；`enforce:'pre'` 稳定前移、`'post'` 稳定后移；
-同名插件后者覆盖前者（warn）。不做 vite 的 enforce:'normal' 显式
-档——数组序即 normal。
-
-## 嵌套叠加
-
-```
-provideContextPlugins([A])            // 外根
-  provideContextPlugins([B])          // 内根
-// 有效链 = sort(A) ++ sort(B)：父先子后
-// 「最近根最后作用」= 子根插件能覆盖父根的干预结果
+```ts
+interface ContextDef<T> {
+  key: string              // 稳定身份：'density' | 'medium' | 'hue'
+  defaults(): T            // 无插件无 provider 时的初值
+  ssrSafe: T               // SSR/无 window 时的值（SSR 初值显式化）
+}
+interface ContextEnv {     // getter 背书的响应式环境（生产者见下）
+  readonly medium: MediumState
+  readonly root: HTMLElement | undefined
+}
+interface ContextPlugin<T> {
+  name: string
+  targets: readonly string[]          // 命中的 def.key 清单（matcher）
+  enforce?: 'pre' | 'post'
+  init?(def: ContextDef<T>): Partial<T>   // 仅默认值注入，一次性，无环境
+  filter?(def: ContextDef<T>, env: ContextEnv): boolean
+  before?(value: T, env: ContextEnv): T
+  after?(value: T, env: ContextEnv): T
+}
 ```
 
-这与 density 的显式盖章同构：干预权向内收窄，永不向上泄漏。
+- **异构注册**：根数组是 `UnknownPlugin`（存在类型），命中判定
+  `plugin.targets.includes(def.key)`；注册处提供
+  `definePlugin<T>(def: ContextDef<T>, p: Omit<ContextPlugin<T>,'targets'>)`
+  把 targets 冻结为 `[def.key]` —— 类型级测试证明 density 插件注册不进
+  medium（definePlugin 泛型收窄 + 运行时 targets 断言双保险）。
+- **env 生产者**：`env.medium` 由最近 medium context 的 getter 派生
+  （SSR = 'screen'）；`env.root` = 最近插件根元素。env 是 getter 背书
+  对象，进 `$derived` 依赖图（「只重算受影响段」由此成立，微基准
+  spec 记录依赖计数）。
 
-## density / medium 接线
+## init 语义修正 [r1-2]
 
-- density：现有 `getDensityContext/provideDensity/resolveDensity`
-  签名不变；内部 getter 值过链（before: 显式盖章仍最高优先——
-  插件链在盖章解析**之后**，即插件看到的是已解析值，可再干预）。
-- medium：`getMedium()` 返回值过链（print 插件可把 'print' 下的
-  density 需求表达为对别的 context 的干预，而非改 medium 本身）。
-- 恒等快速路径：`plugins.length === 0` 时直接短路返回原值，
-  零开销（基准：既有全量测试 + 一条微基准 spec 记录短路不建链）。
+`init` = **无环境、一次性、仅默认值注入**（返回 Partial 并入 defaults，
+后注册覆盖先注册）。**无 skip**——否决/资格是可逆的，归 `filter`
+（响应式）：filter false 时本插件对该 context 实例整体跳过，context
+照常挂载。可逆媒介往返由此天然成立。
 
-## 出界（本 change 不做）
+## raw 值所有权 [r1-3]
 
-print 插件本体、hue/locale 接线、registry 化、跨 iframe 插件、
-插件热插拔（提供即固定，Svelte 响应式已覆盖动态值）。
+```
+rawValue：provider 写入的唯一可写 $state
+exposed = $derived( after 链( before 链( rawValue ) ) )   // 只读投影
+```
+
+- before/after 全是 `$derived` 段，**结果永不回写 raw**；
+- filter 关门 → derived 自动从 raw 重算 → 恢复原始值（身份测试：
+  往返后引用等于 raw 引用）；
+- 消费者读 exposed 只读 getter（与今日 density getter 契约同形）。
+
+## density 接线点与值域 [r1-4]
+
+- 插件唯一入口 = **`resolveDensity` 的最终结果**（explicit ?? inherited
+  ?? fallback 之后）：exposed density = before 链过的 resolved 值。
+  盖章优先级不变，插件看到的是已解析值。
+- **不发明 paper 档**：print 插件把 density 映射到**既有 `sm` 档**
+  （四档法则内）；kernel 侧字号/车道随 @page 上下文再缩放。
+- 矩阵测试：explicit / inherited / fallback / 无 opinion × 插件开/关，
+  断言 data-density 落点。
+
+## 叠加的评价坐标 [r1-5]
+
+- **链在 context 实例创建（provide）时捕获**（getContextPlugins() 就近
+  取，含祖先链）；resolve/get 时不重取——context 对象身份稳定。
+- 嵌套：插件根可以在 context provider 外或内；捕获坐标 = provide 时
+  就近可见链。两个方向的 fixture（外 provider+内插件 / 反向）固化
+  该语义。
+- 同名去重：同根内后者覆盖前者（warn）；跨根不去重（父子的同名插件
+  叠加作用，序 = 父先子后）。defaults 合并：init 返回值按插件序逐个
+  浅合并，后覆盖先。
+
+## medium 的值域保护
+
+`medium` def 的 value domain = **只读 MediumState 字符串投影**；
+`deriveMedium` 与 `isPrintProjection` 不变量保持——插件对 medium
+def **只读**（targets 不接受 'medium'，definePlugin 类型拒绝；
+运行时注册守卫）。
+
+## 范围（r2 扩）
+
+接线三件：**density（最终值）+ medium（只读暴露）+ hue adapter**
+（hue-runtime 重构为 context 背书：值经 def 暴露、DOM stamp 同步
+documentElement —— print 插件「钉缺省」由此可兑现）。
+motion 不设 context：打印冻结走 print-pipeline 的
+prepareSnapshot（getAnimations pause→clone→resume），不要求
+动画拥有者改造。
+
+## 措辞降级 [r1 证据纪律]
+
+「byte-identical / 零开销 / 高性能」全部改为可测合同：零插件时不建
+链（组合函数不被调用的结构断言）+ 全量既有套件作行为回归 +
+依赖计数微基准。「1071+」改为「实施时点的既有套件」。

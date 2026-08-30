@@ -7,11 +7,11 @@ Owner 验收裁决（2026-08-30，三条反馈 + 架构定调）：
 1. 前一版 Paged\* 家族是「平行宇宙」——接管了整页布局。正确形态：
    **现有文档页正常网页流原样不动**，Paged 只做打印侧优化与自适应。
 2. 核心只有两件事：**生成打印相关 CSS** + **基于打印模式控制 Context**。
-3. 引擎不自研：**直接用 paged.js**。它的 DOM 复制只发生在打印预览
-   （sim）——包装一层：按我们的配置冻结（克隆 + 暂停动画），把这份
-   DOM 交给 paged.js 内核生成打印预览；**真打印走同一管线**（sim 与
-   纸同源）。真页眉页脚（margin boxes）、目录页（target-counter）、
-   真页码由内核供给。
+3. 引擎不自研：**直接用 paged.js**。包装一层：按我们的配置冻结
+   （live 干预 → 动画 pause → 深克隆），把这份**脱离 live tree 的
+   克隆**交给 paged.js 内核；paged.js 只接触该克隆与页产物——
+   **sim 与真打印同管线同产物**。真页眉页脚（margin boxes）、
+   目录页（target-counter）、真页码由内核供给。
 
 证据基座：pagedjs-source-research.md（源码级研究，master@6b0ff80，
 preview(content,stylesheets,renderTo) 共存模式、handlers 全表、
@@ -64,9 +64,11 @@ print/sim 媒介门控，density→paper、hue→pin-default、motion→freeze�
 
 ### 6. 落页与退役
 
-- **验收面 = 现有页**：print 层接入 docs +layout（全部文档页获得
-  打印优化，web 零改动）；打印入口 = 页内打印按钮（sim 开关 +
-  直接打印）。
+- **验收面 = 现有页**：print 层接入 docs +layout（**内容根正常流与
+  页面自有样式不变**；layout 的打印控件/输出 sibling 是声明增量）；
+  打印入口 = 页内按钮（sim 开关 + 直接打印，UI 入口完成
+  prepareSnapshot 后才 window.print；Ctrl+P = 原生降级路径，文档化
+  不入合同）。
 - `/docs/paged.html` **重做为普通文档页**：讲打印能力，自身吃层。
 - 退役：PagedDoc/PagedSection/PagedFigure/PagedAside/PagedRef/
   PagedBlock/PagedTable/PagedToC（平行布局组件）与旧试点页内容；

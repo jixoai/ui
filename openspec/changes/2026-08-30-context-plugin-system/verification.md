@@ -1,14 +1,18 @@
-# Verification: context-plugin-system
+# Verification: context-plugin-system (r2)
 
 ## Unit（vitest）
 
-- 排序与叠加全矩阵（见 tasks 3.1/3.4）；init skip 后 getContext
-  为 null；filter 以 env.medium 动态开关插件；before/after 冻结
-  入参下产出新值（不可变纪律）。
-- density/medium：零插件路径与改造前逐位一致（全量既有套件 +
-  微基准断言短路）。
+- 类型域：definePlugin targets 收窄 + 'medium' 拒绝（编译期 fixture
+  与运行时守卫）。
+- 生命周期矩阵：init 默认注入（后覆盖先）；filter 媒介门可逆
+  （screen→sim→print→sim→screen 全往返，值与引用精确回弹）；
+  before/after 冻结入参新值出；raw 不被回写。
+- 叠加：双方向嵌套 fixture（链 = provide 时捕获）；同根同名覆盖、
+  跨根叠加父先子后。
+- density 四路矩阵；hue adapter 挂钟与 DOM stamp 行为不变。
+- 恒等：零插件不建链（结构断言）+ env 依赖计数微基准。
 
 ## 门禁
 
-- verify:all 全绿（既有 1071+ 用例零回归是本 change 的行为不变证明）。
-- lib/context-plugin.svelte.ts 零 npm 依赖（bundle 探针同款扫描）。
+- verify:all 全绿；既有套件（实施时点的全量数）零回归即行为不变
+  证明；lib/context-plugin.svelte.ts 零 npm 依赖。

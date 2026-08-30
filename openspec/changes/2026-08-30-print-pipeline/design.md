@@ -1,77 +1,87 @@
-# Design: print-pipeline
+# Design: print-pipeline (r2)
 
-研究基座：pagedjs-source-research.md（行号级证据）；系统底座：
-2026-08-30-context-plugin-system change。
+研究基座：pagedjs-source-research.md；r1 评审 codex-plan-review-print-r1.md
+六阻塞+接缝合同全闭合，裁决标 [r1-n]。
 
-## 管线全景（一个管线，两个出口）
+## 管线全景（prepareSnapshot 事务 [r1-1]）
 
 ```
-触发（sim 开关 | beforeprint）
-→ medium 派生 'sim' | 'print'
-→ print ContextPlugin 干预 live contexts（不可变管道，DOM 属性响应式落）
-→ readiness gate（document.fonts.ready + img complete 轮询上限）
-→ 深克隆 app 根
-→ 克隆变换：动画暂停 CSS 注入 · pre→行 span · 目录页 nav 注入
-   （全部只染克隆；活 DOM 零接触）
-→ pagedjs preview(clone, [kernel-print.css, page-config.css], renderTo)
-   ├─ sim：sim 容器（屏幕上的页化呈现，margin boxes 可见）
-   └─ print：同一产物 + @media print 隐藏 app 根 → window.print()
-→ 退出：afterprint / sim 关 → contexts 回弹（插件 filter 关门）→ 克隆销毁
+触发（UI 打印入口：sim 开关 | 「直接打印」按钮；Ctrl+P = 原生回退路径，文档化降级，不入合同）
+→ medium 派生 'sim' | 'print'（print 插件 filter 开门）
+→ 不可变干预落 live：density→sm（resolveDensity 终值）、hue→钉缺省（hue adapter）
+→ 动画冻结：document.getAnimations() → pause() → 等一帧 settle
+→ 【DOM-commit 屏障】double-rAF + 断言 source 根 stamp 已落
+   （data-density=sm 等 —— 断言失败 fail-loud，不静默出页）
+→ readiness gate：document.fonts.ready + 全图 eager+decode()
+   （lazy 属性先解除再等；超时预算带进度与取消）
+→ 深克隆 source 根（[data-print-source]）
+→ 克隆上变换（只染克隆）：动画暂停 style 注入 · pre→行 span
+   （lineNumbers 配置）· 目录页 nav 注入 · id 保持
+→ resume live 动画（源树已不再需要）
+→ pagedjs preview(clone, [kernel-print.css, compiled @page css], renderTo)
+→ 退出：filter 关门 → live contexts 响应式回弹（断言精确回 raw）
+   → 幂等 cleanup → 克隆/产物销毁
 ```
 
-## 样式表分离（研究红线，硬法）
+## 根与并发合同 [r1-2]
 
-三个源头，互不喂错：
-1. `kernel-print.css` —— 喂内核的打印规则（迁移自白名单/投影 +
-   代码块换行/行号 + 目录页 target-counter + @page margin boxes 配置）
-2. `sim-shell.css` —— 站点侧 sim 容器外观（`@media not print` 包裹，
-   绝不喂内核——内核的 PrintMedia 会解包 print 块删其他 media）
-3. 站点运行时 CSS —— 不喂（内核只需要它要分页的那份规则）
-探针在 rendered 后断言三者边界（喂入清单快照测试）。
+- **source root**：docs layout 内容根 `[data-print-source]`（不可变
+  selector）；**render root**：文档内独立 sibling `[data-print-output]`
+  （已连接、空容器，每次运行前清空——绝不嵌进 source，二次 sim 不含
+  旧 .pagedjs_pages）。
+- **single-flight**：in-flight token；新请求取消旧运行（含 preview 中
+  断与 cleanup）。
+- **幂等 cleanup**：pages DOM、Polisher 注入 head 的 style（逐条记录
+  句柄）、listeners —— success/failure/afterprint/sim-off 四路全清；
+  失败后重试无残留。测试：连续 sim、sim→print、失败重试三场景。
 
-## @page 配置面（真页眉页脚）
+## 同一产物语义 [r1-3]
+
+artifacts 由管线模块持有；有效期 = (frozen snapshot hash + stylesheet
+hash) 不变。sim 与「直接打印」复用同一完成产物；失效则以同一冻结
+快照重建。验收以页数、目录页码、@page CSS hash 三元组比对两出口。
+
+## 样式表 gate（可执行 [r1-4]）
+
+- 三源头分离不变；新增 **AST 静态 gate**：kernel-print.css 零
+  `@media not print`、零 `[data-jx-print-sim]`；sim-shell.css 永不出现在
+  preview 参数（**runtime spy** 捕获真实 preview() 入参快照）。
+- 白名单**正式迁转**：完整 selector/property 表 + 意图头写入
+  kernel-print.css 顶部，css-architecture spec delta 同步登记
+  （不再「保留迁移」措辞）。
+
+## PrintPageConfig 受限语法 [r1-5]
+
+结构化值 + 校验器，拒绝裸字符串拼接：
 
 ```ts
-interface PrintPageConfig {
-  size?: string; margin?: string; bleed?: string; marks?: 'crop'|'cross'|'both'
-  header?: { start?: string; center?: string; end?: string }   // string-set/counter
-  footer?: { start?: string; center?: 'counter(page)'; end?: 'counter(pages)' }
-  firstPageHeader?: boolean
-}
+size: 'A4' | 'Letter' | { width: number; length: number; unit: 'mm'|'cm'|'in' }
+margin: { top; right; bottom; left }（number + 同 unit 枚举）
+marks: 'crop' | 'cross' | 'both' | undefined
+header/footer: string-set 名 | 'counter(page)' | 'counter(pages)' 枚举位
 ```
-编译为 @page + margin-box content 规则，作为第二份 stylesheet 喂内核；
-sim 与真打印同规则。
+parser 单测覆盖无效值拒绝（负数、未知单位、非法 enum）。
 
-## 目录页（target-counter 官方机制）
+## 退役表 [r1-6]
 
-克隆变换在克隆首插 `<nav class="print-toc">`：条目 = 克隆内
-h2[id]（沿用站点既有 heading/id 体系，不养平行注册表）；两条 content
-规则（target-text + target-counter(attr(href url), page)）让内核逐页
-回填真页码。web ToC 零改动。
+| 旧件 | 归宿 |
+| --- | --- |
+| PagedDoc/Section/Figure/Aside/Ref/Block/Table/ToC/**PagedCode** | 删除（换行/行号语义迁克隆变换） |
+| registry.svelte.ts / paged.css / print-projection.css | 删除；白名单表迁 kernel-print.css；print 投影规则迁 |
+| medium.svelte.ts | 保留（context-plugin 接线） |
+| verify-print.mjs | 重写：零 pagedjs 断言 → 懒加载 chunk 隔离断言（SSR/prerender 产物零 pagedjs）+ 管线冒烟 |
+| /docs/paged.html 旧内容 | 重做为普通文档页 |
 
-## 克隆变换的纪律
+顺序法：**先改 gate 再删目录**；删后对 `lib/paged` 与 `Paged*` 做
+零引用断言（源/barrel/import/manifest/route/tests/CSS 全扫）。
 
-- 变换是纯 DOM 函数（clone in → clone out），逐条可测（vitest 用
-  jsdom 直接跑变换，不起内核）
-- 动画暂停 = 克隆上注入 style 元素（animation-play-state:paused +
-  负 delay 擦洗位预留），配置驱动（frame?: number）
-- pre→行 span：code-block/CodeCard 的 pre 全量拆分；lineNumbers 配置
-  （默认 true，可全局/逐块禁用——沿用上一版已验收的属性语义）
-- id 保持：内核 id→data-id 机制保锚点（研究确认）
+## web 不变的精确边界 [r1 证据纪律]
 
-## 与既有资产的关系
+「docs **内容根**的正常流与页面自有样式不变」；layout 所有的打印
+控件与输出 sibling 是**声明的增量**。不再宣称整页 byte-for-byte。
 
-- medium.svelte.ts：保留（驱动触发与插件门）
-- 白名单/投影：迁入 kernel-print.css；unlayered 权威不变（内核产物
-  也是 unlayered head 尾，层级心智一致）
-- verify-print.mjs：保留扩展——rendered 后断言 + 喂入清单快照 +
-  pipeline 冒烟（sim 开 → 容器有页 → 关 → 容器清）
-- 退役面：lib/paged 平行组件、旧 paged.html 内容；其测试迁转或删
+## 事实修正
 
-## 风险与对策（研究结论落法）
-
-- 资源迟到重排风暴 → readiness gate 硬门（超时 fail-loud 不静默出页）
-- 表格断点脆弱 → 表格类页面进验收清单首轮人工核（followup 记录）
-- 不可分超页元素 fail 整次渲染 → pipeline 捕获渲染错误 → sim 容器
-  显示诊断行（不白屏）
-- npm 停滞 → 锁 0.5.0-beta.2 + lockfile 审计注释（vendor 心态）
+proposal 中「paged.js 的 DOM 复制只在 sim」修正为：**应用先交脱离
+live tree 的克隆；paged.js 只接触该克隆与页产物**（两出口同律）。
+readiness（lazy 解除/超时预算/进度取消）为合同，非既成事实。

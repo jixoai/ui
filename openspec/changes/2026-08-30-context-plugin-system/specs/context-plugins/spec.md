@@ -32,18 +32,22 @@ last. There SHALL be no module-level singleton registry.
 
 ### Requirement: the lifecycle covers init, filter, before, after
 
-`init` SHALL inject defaults for a context or veto it ('skip' — the
-context does not mount, consumers read null); `filter` SHALL
-dynamically exclude a plugin from a context (e.g. medium-gated);
-`before`/`after` SHALL intervene on the value's entry and projection
-sides. Ordering SHALL follow the user array with stable 'pre'/'post'
-anchors (vite semantics).
+`init` SHALL be an environment-free one-time defaults injection (later
+registrations override earlier; NO veto power); `filter` SHALL be the
+reversible eligibility gate (a closed filter excludes the plugin from
+that context while the context stays mounted — e.g. medium-gated,
+surviving screen→print→screen round-trips); `before`/`after` SHALL
+intervene on the value's entry and projection sides. Ordering SHALL
+follow the user array with stable 'pre'/'post' anchors (vite
+semantics); the plugin chain is captured when the context instance is
+created (nested roots compose parent-first, nearest root last).
 
-#### Scenario: veto under a gate
+#### Scenario: gated exclusion is reversible
 
-- GIVEN a plugin returning 'skip' from init for a context under print
-- WHEN that context initializes in print medium
-- THEN the context does not mount and consumers read null
+- GIVEN a print plugin whose filter matches env.medium !== 'screen'
+- WHEN the medium goes screen → print → screen
+- THEN its intervention applies and then lifts, and the exposed value
+  and its reference identity return exactly to the raw provider value
 
 ### Requirement: zero plugins is the identity fast path
 

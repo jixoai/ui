@@ -1,41 +1,51 @@
-# Tasks: print-pipeline
+# Tasks: print-pipeline (r2)
 
 ## 1. 冻结与克隆 [P]
 
-- [ ] 1.1 `lib/print/freeze.svelte.ts`：readiness gate（fonts+img，
-      超时 fail-loud）、深克隆、动画暂停注入（frame 擦洗位）、
-      pre→行 span 变换（lineNumbers 配置）、目录页 nav 注入。
-      变换纯函数化，jsdom 可测。
-- [ ] 1.2 退出协议：克隆销毁、contexts 回弹验证。
+- [ ] 1.1 `lib/print/freeze.svelte.ts`：**prepareSnapshot 事务**
+      （媒介→插件干预→getAnimations pause→DOM-commit 屏障
+      double-rAF+stamp 断言 fail-loud→readiness gate（lazy 解除+
+      超时预算+进度/取消）→深克隆→克隆变换→resume live）。
+      变换纯函数（动画暂停注入/pre 行拆分 lineNumbers/目录页 nav/
+      id 保持），jsdom 可测。
+- [ ] 1.2 根与并发：[data-print-source]/[data-print-output] sibling
+      合同、single-flight token、四路幂等 cleanup（pages/head-style
+      句柄/listeners）、退出回弹断言（精确回 raw 引用）。
 
 ## 2. 内核管线 [P]
 
-- [ ] 2.1 `lib/print/pipeline.svelte.ts`：pagedjs 懒加载、
-      preview(content, stylesheets, renderTo) 封装、rendered 门、
-      渲染错误 → sim 诊断行。
-- [ ] 2.2 `kernel-print.css`（白名单/投影迁移 + 换行/行号 + 目录页
-      规则）与 `sim-shell.css`（not-print 包裹）分离落盘。
-- [ ] 2.3 `lib/print/page-config.ts`：PrintPageConfig → @page/margin
-      -box content 规则编译。
-- [ ] 2.4 sim 容器组件 + 真打印出口（@media print 隐藏 app 根 +
-      window.print）。
+- [ ] 2.1 `lib/print/pipeline.svelte.ts`：pagedjs 懒加载、preview
+      封装、rendered 门、渲染错误→sim 诊断行；**同一产物语义**
+      （snapshot hash + stylesheet hash 有效期；失效重建）。
+- [ ] 2.2 `kernel-print.css`（白名单表+意图头正式迁转+投影+换行/
+      行号+目录页规则）与 `sim-shell.css`（not-print 包裹）分离；
+      **AST gate**（kernel 零 not-print/零 sim 选择器）+ preview 入参
+      runtime spy 快照。
+- [ ] 2.3 `lib/print/page-config.ts`：结构化值+校验器（拒绝无效
+      size/margin/marks/header-footer），parser 单测。
+- [ ] 2.4 sim 容器组件 + 真打印出口（prepareSnapshot 完成后
+      window.print；@media print 隐藏 app 根）。
 
 ## 3. print 插件（context-plugin 首个消费者）[P]
 
-- [ ] 3.1 `lib/print/context-plugin.ts`：density→paper、hue→
-      pin-default、motion→freeze；filter 媒介门；不可变纪律测试。
+- [ ] 3.1 `lib/print/context-plugin.ts`：density→sm、hue→钉缺省
+      （经 hue adapter）；filter 媒介门；不可变纪律；**接缝合同**
+      ——依赖 context-plugin-system 先行落地（含 hue adapter 与
+      definePlugin 契约），未验收前本任务不开工。
 
 ## 4. 落页与退役 [P]
 
-- [ ] 4.1 docs +layout 接入 print 层（web 零改动证明 = 全量回归）；
-      打印按钮控件（sim 开关 + 直接打印）。
+- [ ] 4.1 docs +layout 接入（内容根不变；打印按钮控件）；验收面 =
+      现有页（press-button.html 优先）。
 - [ ] 4.2 `/docs/paged.html` 重做为普通文档页（讲打印能力，自身吃层）。
-- [ ] 4.3 lib/paged 平行组件退役（引用/测试/manifest 同步清理；
-      medium/白名单/verify-print 保留项迁转清单）。
+- [ ] 4.3 退役表执行（design 的表；含 PagedCode/registry/paged.css/
+      print-projection.css；**先改 gate 再删**；删后零引用断言）。
 
 ## 5. 门禁与集成 [I]
 
-- [ ] 5.1 pagedjs devDep + 懒加载接线 [package.json 归集成者]。
-- [ ] 5.2 verify-print 扩展：rendered 后断言、喂入清单快照、pipeline
-      冒烟；verify:all 全绿。
+- [ ] 5.1 pagedjs devDep（锁 0.5.0-beta.2）+ 懒加载接线
+      [package.json 归集成者]。
+- [ ] 5.2 verify-print 重写：SSR/prerender 产物零 pagedjs 断言、
+      管线冒烟（sim 开→页产物+margin boxes+目录页码→关→清理回弹）、
+      三场景残留测试（连续 sim/sim→print/失败重试）。
 - [ ] 5.3 manifest SITE_ONLY（lib/print/）+ taxonomy/route 同步。
