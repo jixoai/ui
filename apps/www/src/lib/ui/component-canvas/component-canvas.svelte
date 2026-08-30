@@ -30,9 +30,159 @@
   contract classes (.jx-play-fields …) live in the residue sheet until
   the kit migration removes them.
 
+  Schema mode (canvas-schema-pipeline, 2026-08-30): an optional
+  `schema` prop (a LOWERED jsonSchema — `toJSONSchema` export from
+  $lib/schema, passed by value) makes the canvas a jsonSchema2Form
+  consumer: it renders the control rows itself from `controlsFor`
+  (below — self-contained, registry law: no $lib/schema import, the
+  mirror would break), keeps `bind:values` two-way (initialized from
+  schema defaults), and exposes an `onvalue(key, value)` seam so the
+  page owns value semantics for non-representable props (e.g. mapping
+  effect names to builders). Precedence: `playground` snippet > schema
+  rows > plain canvas; reset falls back to schema defaults when
+  `onreset` is absent.
+
   The stage keeps the readonly-code tint (color-mix muted 42%) in BOTH
   themes; the playground pane answers with the lighter muted-12% layer.
 -->
+<script module lang="ts">
+  // ── jsonSchema control rows (canvas-schema-pipeline, 2026-08-30) ──
+  // The canvas's OWN mapping vocabulary, self-contained in the MODULE
+  // script so it is statically importable (the press-builder law:
+  // module exports are the component's importable surface) and
+  // registry-safe (no $lib/schema import — the mirror would break).
+  // $lib/schema/schema2form.ts re-exports it as the kernel surface:
+  // one implementation, no second copy. The input type below is
+  // structurally lower.ts's SchemaObject: same shape, no import.
+
+  /** x-ui annotation block as the canvas reads it (kernel XUI, by shape). */
+  export interface CanvasXUI {
+    control?: 'segmented' | 'select' | 'toggle' | 'stepper' | 'slider' | 'text' | 'none';
+    label?: string;
+    description?: string;
+    lane?: 'end' | 'block';
+    unit?: string;
+    sourceType?: string;
+  }
+
+  /** One lowered prop node: standard jsonSchema keywords + x-ui passthrough. */
+  export interface CanvasSchemaProp {
+    type?: 'string' | 'boolean' | 'number';
+    enum?: string[];
+    minimum?: number;
+    maximum?: number;
+    multipleOf?: number;
+    default?: string | number | boolean;
+    'x-ui'?: CanvasXUI;
+  }
+
+  /** The lowered schema the canvas consumes (lower.ts SchemaObject, by shape). */
+  export interface CanvasSchema {
+    type: 'object';
+    properties: Record<string, CanvasSchemaProp>;
+    required?: string[];
+  }
+
+  export type ControlKind = 'segmented' | 'select' | 'toggle' | 'stepper' | 'slider' | 'text';
+
+  /** Typed row descriptor the schema pane renders. */
+  export interface ControlRow {
+    key: string;
+    control: ControlKind;
+    label: string;
+    description?: string;
+    lane: 'end' | 'block';
+    unit?: string;
+    /** segmented/select options — the labels ARE the values */
+    values?: string[];
+    minimum?: number;
+    maximum?: number;
+    /** stepper/slider step: multipleOf when the schema constrains it, else 1 */
+    step: number;
+    default?: string | number | boolean;
+  }
+
+  /** enum length at/below which the segmented control renders */
+  const SEGMENTED_MAX = 5;
+  /** text rows switch to the block lane when the description runs long */
+  const BLOCK_DESCRIPTION_LENGTH = 48;
+
+  function feasibleControl(hint: string, node: CanvasSchemaProp): boolean {
+    switch (hint) {
+      case 'segmented':
+      case 'select':
+        return Array.isArray(node.enum);
+      case 'toggle':
+        return node.type === 'boolean';
+      case 'stepper':
+        return node.type === 'number';
+      case 'slider':
+        return (
+          node.type === 'number' &&
+          typeof node.minimum === 'number' &&
+          typeof node.maximum === 'number'
+        );
+      case 'text':
+        return node.type === 'string';
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Lowered schema → panel rows. `x-ui.control: 'none'` (the lowering's
+   * mark for snippet/opaque nodes) and unrepresentable shapes are
+   * excluded; an explicit, feasible x-ui hint wins over inference.
+   */
+  export function controlsFor(schema: CanvasSchema | undefined | null): ControlRow[] {
+    const rows: ControlRow[] = [];
+    for (const [key, node] of Object.entries(schema?.properties ?? {})) {
+      const hint = node['x-ui']?.control;
+      if (hint === 'none') continue;
+      let control: ControlKind | undefined;
+      if (hint !== undefined && feasibleControl(hint, node)) {
+        control = hint;
+      } else if (Array.isArray(node.enum)) {
+        control = node.enum.length <= SEGMENTED_MAX ? 'segmented' : 'select';
+      } else if (node.type === 'boolean') {
+        control = 'toggle';
+      } else if (node.type === 'number') {
+        control = 'stepper';
+      } else if (node.type === 'string') {
+        control = 'text';
+      }
+      if (control === undefined) continue;
+      const description = node['x-ui']?.description;
+      const row: ControlRow = {
+        key,
+        control,
+        label: node['x-ui']?.label ?? key,
+        lane:
+          node['x-ui']?.lane ??
+          (control === 'text' && (description?.length ?? 0) > BLOCK_DESCRIPTION_LENGTH ? 'block' : 'end'),
+        step: typeof node.multipleOf === 'number' && node.multipleOf > 0 ? node.multipleOf : 1,
+      };
+      if (description !== undefined) row.description = description;
+      if (node['x-ui']?.unit !== undefined) row.unit = node['x-ui'].unit;
+      if (Array.isArray(node.enum)) row.values = [...node.enum];
+      if (typeof node.minimum === 'number') row.minimum = node.minimum;
+      if (typeof node.maximum === 'number') row.maximum = node.maximum;
+      if (node.default !== undefined) row.default = node.default;
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  /** The schema-defaults record an unbound `values` initializes to. */
+  export function schemaDefaultsOf(schema: CanvasSchema): Record<string, string | number | boolean> {
+    const out: Record<string, string | number | boolean> = {};
+    for (const [key, node] of Object.entries(schema.properties)) {
+      if (node.default !== undefined) out[key] = node.default;
+    }
+    return out;
+  }
+</script>
+
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
@@ -92,6 +242,10 @@
     }
   }
 
+  // ── jsonSchema control rows: types + controlsFor live in the MODULE
+  // script (statically importable, registry-safe) — see above. The
+  // instance consumes them through the shared module scope.
+
   interface Props {
     /** Component name shown in the header (e.g. "press-button"). */
     title: string;
@@ -110,6 +264,20 @@
     stage?: 'fill' | 'center' | 'start';
     /** PlayCanvas controls pane — consumer-authored interactive controls. */
     playground?: Snippet;
+    /**
+     * jsonSchema control mode: a LOWERED schema (`toJSONSchema` export)
+     * the pane renders rows from. The `playground` snippet, when both
+     * are supplied, still takes precedence (escape-hatch law).
+     */
+    schema?: CanvasSchema;
+    /** Schema-mode panel values — two-way; initialized from schema defaults. */
+    values?: Record<string, unknown>;
+    /**
+     * Schema-mode change seam: the page intercepts and owns value
+     * semantics for non-representable props (effect builders, …),
+     * writing back through `bind:values`.
+     */
+    onvalue?: (key: string, value: unknown) => void;
     /** Page-owned reset: shows the pane's reset button and calls back. */
     onreset?: () => void;
     /** Read-only state projection rows under the controls. */
@@ -129,6 +297,9 @@
     children,
     stage = 'fill',
     playground,
+    schema,
+    values = $bindable(),
+    onvalue,
     onreset,
     output,
     resolveFileContent,
@@ -148,6 +319,59 @@
       .replace(/^-+|-+$/g, '');
   const titleId = `jx-canvas-${canvasId}-title`;
   const drawerId = `jx-canvas-${canvasId}-drawer`;
+
+  // ---- schema mode (canvas-schema-pipeline, 2026-08-30) ----------------
+  // Rows come from the one mapping (controlsFor, module scope); values
+  // initialize from the schema's defaults when the page binds none (a
+  // bound page object always wins — including a bound undefined, the
+  // documented way to say "canvas, own my values"). Precedence law:
+  // playground snippet > schema rows > plain canvas.
+  const rows = $derived(controlsFor(schema));
+  const defaults = $derived(schema === undefined ? {} : schemaDefaultsOf(schema));
+  // one-shot by design: schema identity is a mount-time contract, not
+  // reactive state the pane tracks
+  // svelte-ignore state_referenced_locally
+  if (values === undefined && schema !== undefined) values = schemaDefaultsOf(schema);
+
+  function setValue(key: string, value: unknown): void {
+    values = values === undefined ? { [key]: value } : { ...values, [key]: value };
+    onvalue?.(key, value);
+  }
+
+  /** The reset fallback: restore schema defaults (onreset replaces this). */
+  function resetValues(): void {
+    if (!schema) return;
+    const previous = values ?? {};
+    const next = { ...defaults };
+    values = next;
+    // the seam stays complete across a reset: the page's onvalue mapping
+    // (e.g. effect-name → builder) re-runs for every key it settles
+    for (const key of Object.keys(next)) {
+      if (previous[key] !== next[key]) onvalue?.(key, next[key]);
+    }
+  }
+
+  const rowValue = (row: ControlRow): unknown => values?.[row.key] ?? row.default;
+
+  function stepValue(row: ControlRow, direction: 1 | -1): void {
+    let next = Number(rowValue(row));
+    if (!Number.isFinite(next)) next = row.minimum ?? 0;
+    if (row.minimum !== undefined) next = Math.max(row.minimum, next);
+    if (row.maximum !== undefined) next = Math.min(row.maximum, next);
+    next += row.step * direction;
+    if (row.minimum !== undefined) next = Math.max(row.minimum, next);
+    if (row.maximum !== undefined) next = Math.min(row.maximum, next);
+    setValue(row.key, next);
+  }
+
+  const stepText = (row: ControlRow): string => {
+    const n = Number(rowValue(row));
+    return Number.isFinite(n) ? String(n) : String(row.minimum ?? 0);
+  };
+
+  const ctlId = (key: string): string => `jx-canvas-${canvasId}-ctl-${key}`;
+  const labelId = (key: string): string => `jx-canvas-${canvasId}-ctl-${key}-label`;
+  const descId = (key: string): string => `jx-canvas-${canvasId}-ctl-${key}-desc`;
 
   // flat files → nested tree: split on "/", intermediate segments are
   // directories; a name without "/" stays a root-level file. The file
@@ -293,30 +517,143 @@
         </div>
       </div>
     </div>
-    {#if playground}
+    {#if playground || schema}
       <aside
         class="jx-canvas-playground flex flex-col min-w-0 pt-[0.85rem] px-4 pb-4 bg-[color-mix(in_oklab,var(--muted)_12%,var(--background))] border-t border-border"
         aria-label={`Controls for ${title}`}
       >
         <div data-jx-canvas-playground-head class="flex items-center justify-between gap-3">
           <h3 data-jx-canvas-playground-title class="jx-canvas-pane-title m-0 mb-[0.65rem] text-muted-foreground font-nav text-[10px] tracking-[0.24em] uppercase">Playground</h3>
-          {#if onreset}
+          {#if onreset || (!playground && schema)}
             <!-- icon-only reset (D6): press physics — a state mutation must
-                 never be a feedback-free bare glyph -->
+                 never be a feedback-free bare glyph. Page-owned onreset
+                 wins; schema mode falls back to schema defaults -->
             <button
               type="button"
               data-jx-canvas-reset
               class="jx-press jx-canvas-reset mb-[0.45rem] inline-flex size-6 items-center justify-center border border-border bg-background text-muted-foreground hover:text-foreground cursor-pointer [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
               aria-label="Reset playground"
               title="Reset playground"
-              onclick={() => onreset?.()}
+              onclick={() => (onreset ? onreset() : resetValues())}
             >
               <span class="[&_svg]:h-3 [&_svg]:w-3" aria-hidden="true">{@html icons.rotateCcw}</span>
             </button>
           {/if}
         </div>
         <div class="jx-canvas-playground-body flex flex-col gap-[0.85rem] min-h-0 min-w-0">
-          {@render playground()}
+          {#if playground}
+            <!-- escape-hatch precedence: the snippet renders and the schema
+                 rows are NOT duplicated beside it -->
+            {@render playground()}
+          {:else}
+            {#each rows as row (row.key)}
+              {#if row.control === 'toggle'}
+                <!-- the toggle row's ROOT is the label: the physical hit
+                     lane spans the whole row (hit-lane law — a corner
+                     click toggles), the native checkbox keeps its glyph
+                     size inside the lane -->
+                <label
+                  data-jx-canvas-row
+                  data-jx-canvas-control="toggle"
+                  data-lane={row.lane}
+                  class="jx-canvas-ctl"
+                >
+                  <span class="jx-canvas-ctl-label" data-jx-canvas-row-label>{row.label}</span>
+                  <input
+                    type="checkbox"
+                    class="jx-canvas-toggle"
+                    data-jx-canvas-toggle
+                    checked={Boolean(rowValue(row))}
+                    aria-describedby={row.description ? descId(row.key) : undefined}
+                    onchange={(event) => setValue(row.key, event.currentTarget.checked)}
+                  />
+                  {#if row.description}
+                    <span class="jx-canvas-ctl-desc" id={descId(row.key)}>{row.description}</span>
+                  {/if}
+                </label>
+              {:else}
+                <div
+                  data-jx-canvas-row
+                  data-jx-canvas-control={row.control}
+                  data-lane={row.lane}
+                  class="jx-canvas-ctl"
+                >
+                  <label class="jx-canvas-ctl-label" data-jx-canvas-row-label for={ctlId(row.key)} id={labelId(row.key)}>{row.label}</label>
+                  <div class="jx-canvas-ctl-control">
+                    {#if row.control === 'segmented'}
+                      <div class="jx-canvas-seg" role="group" aria-labelledby={labelId(row.key)} data-jx-canvas-seg>
+                        {#each row.values ?? [] as option (option)}
+                          <button
+                            type="button"
+                            class="jx-press jx-canvas-seg-btn"
+                            data-jx-canvas-seg-option={option}
+                            aria-pressed={String(rowValue(row)) === option}
+                            onclick={() => setValue(row.key, option)}
+                          >{option}</button>
+                        {/each}
+                      </div>
+                    {:else if row.control === 'select'}
+                      <select
+                        class="jx-canvas-select"
+                        id={ctlId(row.key)}
+                        data-jx-canvas-select
+                        aria-describedby={row.description ? descId(row.key) : undefined}
+                        onchange={(event) => setValue(row.key, event.currentTarget.value)}
+                      >
+                        {#each row.values ?? [] as option (option)}
+                          <option value={option} selected={String(rowValue(row)) === option}>{option}</option>
+                        {/each}
+                      </select>
+                    {:else if row.control === 'stepper'}
+                      <div class="jx-canvas-stepper" role="group" aria-labelledby={labelId(row.key)} data-jx-canvas-stepper>
+                        <button
+                          type="button"
+                          class="jx-press jx-canvas-step-btn"
+                          data-jx-canvas-step="dec"
+                          aria-label={`Decrease ${row.label}`}
+                          onclick={() => stepValue(row, -1)}
+                        >−</button>
+                        <span class="jx-canvas-step-value" data-jx-canvas-stepper-value>{stepText(row)}{row.unit ? ` ${row.unit}` : ''}</span>
+                        <button
+                          type="button"
+                          class="jx-press jx-canvas-step-btn"
+                          data-jx-canvas-step="inc"
+                          aria-label={`Increase ${row.label}`}
+                          onclick={() => stepValue(row, 1)}
+                        >+</button>
+                      </div>
+                    {:else if row.control === 'slider'}
+                      <input
+                        type="range"
+                        class="jx-canvas-slider"
+                        id={ctlId(row.key)}
+                        data-jx-canvas-slider
+                        min={row.minimum}
+                        max={row.maximum}
+                        step={row.step}
+                        value={Number(rowValue(row) ?? row.minimum ?? 0)}
+                        aria-describedby={row.description ? descId(row.key) : undefined}
+                        oninput={(event) => setValue(row.key, Number(event.currentTarget.value))}
+                      />
+                    {:else}
+                      <input
+                        type="text"
+                        class="jx-canvas-text"
+                        id={ctlId(row.key)}
+                        data-jx-canvas-text
+                        value={String(rowValue(row) ?? '')}
+                        aria-describedby={row.description ? descId(row.key) : undefined}
+                        oninput={(event) => setValue(row.key, event.currentTarget.value)}
+                      />
+                    {/if}
+                  </div>
+                  {#if row.description}
+                    <p class="jx-canvas-ctl-desc" id={descId(row.key)}>{row.description}</p>
+                  {/if}
+                </div>
+              {/if}
+            {/each}
+          {/if}
         </div>
         {#if output?.length}
           <!-- the output projection (D4): read-only rows in the item rhythm;

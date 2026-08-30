@@ -15,7 +15,18 @@
  *
  * Rules that override the component's OWN utility paint ride the
  * UNLAYERED :where() carve-out; static contracts sit in @layer
- * components so consumer utilities still win. */
+ * components so consumer utilities still win.
+ *
+ * Schema-mode control rows (canvas-schema-pipeline, 2026-08-30): the
+ * pane's self-contained jsonSchema2Form surface — grid rows (label
+ * inline-start / control inline-end / description sub-line, data-lane
+ * switches label-above), native controls only, every interactive lane
+ * at min-block-size var(--jx-hit) (the hit-lane law), focus rings in
+ * the site's contained-ring block below, no motion (reduced-motion
+ * static by construction). The segmented idiom mirrors the playground
+ * kit's (muted gap seam, primary active) so both panes read as one
+ * surface during the migration window.
+ */
 
 @layer components {
   /* narrow host form: the header text takes the full first row so the
@@ -112,11 +123,170 @@
   border: none;
 }
 
+/* ── schema-mode control rows (canvas-schema-pipeline, 2026-08-30) ──
+   Layout grammar: one grid per row — label inline-start, control
+   inline-end, description spanning below (data-lane='block' stacks
+   label above). Interactive lanes sit at the density hit minimum. */
+:where(.jx-canvas-ctl) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.75rem;
+  row-gap: 0.2rem;
+}
+:where(.jx-canvas-ctl[data-lane='block']) {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: start;
+}
+/* toggle rows: the ROOT is the label — the whole row is the physical
+   activation lane (hit-lane law; a corner click toggles the input) */
+:where(label.jx-canvas-ctl) {
+  cursor: pointer;
+}
+:where(.jx-canvas-ctl-label) {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--jx-hit);
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 1.35;
+}
+:where(.jx-canvas-ctl[data-lane='block'] .jx-canvas-ctl-label) {
+  min-block-size: auto;
+  align-items: flex-start;
+  font-family: var(--font-nav);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+:where(.jx-canvas-ctl-desc) {
+  grid-column: 1 / -1;
+  margin: 0;
+  max-inline-size: 62ch;
+  color: var(--muted-foreground);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+:where(.jx-canvas-ctl-control) {
+  display: inline-flex;
+  align-items: center;
+  justify-self: end;
+  min-block-size: var(--jx-hit);
+}
+:where(.jx-canvas-ctl[data-lane='block'] .jx-canvas-ctl-control) {
+  justify-self: stretch;
+}
+
+/* segmented: the kit's terminal idiom — muted gap seam, primary active */
+:where(.jx-canvas-seg) {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  border: 1px solid var(--border);
+  background: var(--border);
+}
+:where(.jx-canvas-seg-btn) {
+  min-block-size: var(--jx-hit);
+  min-inline-size: 1.75rem;
+  padding-inline: 0.5rem;
+  border: 0;
+  background: var(--background);
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+}
+:where(.jx-canvas-seg-btn:hover) {
+  color: var(--foreground);
+}
+:where(.jx-canvas-seg-btn[aria-pressed='true']) {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* native text-like controls: bordered, density-hit lanes, radius law */
+:where(.jx-canvas-select),
+:where(.jx-canvas-text) {
+  min-block-size: var(--jx-hit);
+  inline-size: 100%;
+  max-inline-size: 14rem;
+  padding-inline: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+:where(.jx-canvas-ctl[data-lane='end'] .jx-canvas-select),
+:where(.jx-canvas-ctl[data-lane='end'] .jx-canvas-text) {
+  inline-size: auto;
+  min-inline-size: 8rem;
+}
+
+/* stepper: bordered trio, mono value, hit-height buttons */
+:where(.jx-canvas-stepper) {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  background: var(--background);
+}
+:where(.jx-canvas-step-btn) {
+  min-block-size: var(--jx-hit);
+  min-inline-size: 1.6rem;
+  border: 0;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+:where(.jx-canvas-step-btn:hover) {
+  color: var(--foreground);
+  background: color-mix(in oklab, var(--muted) 55%, transparent);
+}
+:where(.jx-canvas-step-value) {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--jx-hit);
+  padding-inline: 0.55rem;
+  border-inline: 1px solid var(--border);
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* slider: the native track stretched to the lane */
+:where(.jx-canvas-slider) {
+  inline-size: 100%;
+  min-block-size: var(--jx-hit);
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+/* toggle: the native checkbox at glyph size inside the row's own lane */
+:where(.jx-canvas-toggle) {
+  inline-size: 0.95rem;
+  block-size: 0.95rem;
+  margin: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
 /* focus rings: the site's contained-ring law at canvas scale */
 :where(.jx-canvas-reset:focus-visible),
 :where(.jx-canvas-copy-usage:focus-visible),
 :where(.jx-canvas-code-toggle:focus-visible),
-:where(.jx-canvas-source:focus-visible) {
+:where(.jx-canvas-source:focus-visible),
+:where(.jx-canvas-seg-btn:focus-visible),
+:where(.jx-canvas-select:focus-visible),
+:where(.jx-canvas-toggle:focus-visible),
+:where(.jx-canvas-text:focus-visible),
+:where(.jx-canvas-slider:focus-visible),
+:where(.jx-canvas-step-btn:focus-visible) {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }

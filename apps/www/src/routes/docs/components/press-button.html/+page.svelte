@@ -4,11 +4,13 @@
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
-  import PressButton, { pulse, rainbow, ripple, shimmer } from '$lib/ui/press-button/press-button.svelte';
+  import PressButton, { pulse, rainbow, ripple, shimmer, type PressEffect } from '$lib/ui/press-button/press-button.svelte';
   import pressButtonSource from '$lib/ui/press-button/press-button.svelte?raw';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
-  import { PlayFields, PlayRow, PlaySelect, PlayHelp } from '$lib/playground';
+  import { annotations, meta } from '$lib/meta/press-button.meta';
+  import { withAnnotations, type ComponentMeta } from '$lib/schema/ir';
+  import { toJSONSchema } from '$lib/schema/lower';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // ToC outline: the anchors demo + the closing law, in page order. The
@@ -53,10 +55,12 @@ ${close}
     { name: 'src/lib/ui/press-button-usage.svelte', content: usage },
   ];
 
-  // playground protocol (P1): the page owns the state; the canvas only
-  // calls back — snapshot + reset + live usage (the selects carry their
-  // own readout, so no echo rows). The select speaks effect NAMES; the
-  // builders run in the map below.
+  // schema pipeline (canvas-schema-pipeline, 2026-08-30): the generated
+  // meta is the structure source of truth; the effect enum lives
+  // PAGE-SIDE (the builders are module functions, not prop values — the
+  // enum speaks names, the onvalue seam maps them) and is swapped into
+  // the meta before the one lowering. The pane rows, the bound values
+  // and the exported schema all come from that same lowering.
   type Variant = 'fill' | 'tonal' | 'outline' | 'ghost' | 'link';
   type EffectName = 'none' | 'shimmer' | 'pulse' | 'rainbow' | 'ripple';
   const effectBuilders = {
@@ -66,34 +70,68 @@ ${close}
     rainbow: () => rainbow(),
     ripple: () => ripple(),
   } as const;
-  const canvasInitial = { variant: 'fill' as Variant, effect: 'none' as EffectName };
-  let variant = $state(canvasInitial.variant);
-  let effect = $state(canvasInitial.effect);
-  function resetCanvas(): void {
-    variant = canvasInitial.variant;
-    effect = canvasInitial.effect;
+  const effectNames: readonly EffectName[] = ['none', 'shimmer', 'pulse', 'rainbow', 'ripple'];
+  const metaWithEffect: ComponentMeta = {
+    ...meta,
+    props: {
+      ...meta.props,
+      effect: { kind: 'enum', values: [...effectNames], default: 'none' },
+    },
+  };
+  const schema = toJSONSchema(withAnnotations(metaWithEffect, annotations));
+
+  // the page owns the initial values (bind:values); reset falls back to
+  // the schema defaults (variant 'outline', effect 'none', loading off)
+  type CanvasValues = { variant: Variant; effect: EffectName; loading: boolean };
+  let canvasValues = $state<Record<string, unknown>>({ variant: 'fill', effect: 'none', loading: false });
+  const v = $derived(canvasValues as CanvasValues);
+
+  // the onvalue seam: schema drives the CONTROL, the page owns the
+  // VALUE semantics — effect names map to typed builders here
+  let effectValue: PressEffect | undefined = $state(undefined);
+  function onCanvasValue(key: string, value: unknown): void {
+    if (key === 'effect') {
+      effectValue = value === 'none' ? undefined : effectBuilders[value as EffectName]();
+    }
   }
-  // kit option maps: the enum controls speak the typed unions directly
-  const variantOptions: { value: Variant; label: string }[] = [
-    { value: 'fill', label: 'fill' },
-    { value: 'tonal', label: 'tonal' },
-    { value: 'outline', label: 'outline' },
-    { value: 'ghost', label: 'ghost' },
-    { value: 'link', label: 'link' },
-  ];
-  const effectOptions: { value: EffectName; label: string }[] = [
-    { value: 'none', label: 'none' },
-    { value: 'shimmer', label: 'shimmer' },
-    { value: 'pulse', label: 'pulse' },
-    { value: 'rainbow', label: 'rainbow' },
-    { value: 'ripple', label: 'ripple' },
-  ];
+
   // free text must become a legal string literal (q() = JSON.stringify)
   const q = (value: string): string => JSON.stringify(value);
   const usageLive = $derived(`${usageHead}
-<PressButton variant=${q(variant)}${effect === 'none' ? '' : ` effect={${effect}()}`}>deploy</PressButton>${usageTail}`);
+<PressButton variant=${q(v.variant)}${v.effect === 'none' ? '' : ` effect={${v.effect}()}`}${v.loading ? ' loading' : ''}>deploy</PressButton>${usageTail}`);
   const resolveUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? usageLive : file.content;
+
+  // ---- the async two-step demo (enhance-picker-feedback, 2026-08-30) ---
+  // loading prop in; flash() on settle — the documented ONE idiom
+  let deployState = $state<'idle' | 'loading'>('idle');
+  let deployEcho = $state('idle — press me');
+  let deployBtn: { flash: (ms?: number) => void } | undefined;
+
+  async function deploy(): Promise<void> {
+    if (deployState === 'loading') return; // the lock itself, from the host side too
+    deployState = 'loading';
+    deployEcho = 'loading — presses and Enter/Space are no-ops';
+    await new Promise((r) => setTimeout(r, 1400));
+    deployState = 'idle';
+    deployEcho = 'success flashed ✓ (one-shot, 1.2s), then rest';
+    deployBtn?.flash();
+  }
+
+  // the href variant: while loading, navigation itself is blocked. The
+  // task is driven by the tonal button (an anchor's onclick is not part
+  // of the contract — anchors route activation to their href)
+  let navLoading = $state(false);
+  let navEcho = $state('idle — start the fake task, then try the anchor');
+  function navTask(): void {
+    if (navLoading) return;
+    navLoading = true;
+    navEcho = 'loading — the anchor\'s href navigation is blocked';
+    setTimeout(() => {
+      navLoading = false;
+      navEcho = 'rest — the anchor navigates again';
+    }, 2500);
+  }
 </script>
 
 <svelte:head>
@@ -128,11 +166,13 @@ ${close}
     <div data-reveal="">
       <ComponentCanvas
         title="press-button"
-        description="The press-law button: hover grows the shadow only (xs → sm, the body never moves); active presses the body +1px into the page while the shadow layer stays anchored. The playground drives the lower instance."
+        description="The press-law button: hover grows the shadow only (xs → sm, the body never moves); active presses the body +1px into the page while the shadow layer stays anchored. The playground rows render from the generated component schema (meta → toJSONSchema); reset returns the schema defaults."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/press-button/press-button.svelte"
         {files}
         stage="center"
-        onreset={resetCanvas}
+        {schema}
+        bind:values={canvasValues}
+        onvalue={onCanvasValue}
         resolveFileContent={resolveUsage}
       >
         <div class="flex flex-col items-center gap-6">
@@ -203,32 +243,11 @@ ${close}
             <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">
               driven by the playground
             </span>
-            <PressButton {variant} effect={effect === 'none' ? undefined : effectBuilders[effect]()}>
-              {variant}
+            <PressButton variant={v.variant} effect={effectValue} loading={v.loading}>
+              {v.variant}
             </PressButton>
           </div>
         </div>
-        {#snippet playground()}
-          <PlayFields>
-            <PlayRow label="variant">
-              <PlaySelect bind:value={variant} options={variantOptions} />
-            </PlayRow>
-            <PlayRow label="effect">
-              <PlaySelect bind:value={effect} options={effectOptions} />
-            </PlayRow>
-            <PlayHelp>
-              every surface shares one physics — <code>variant</code> changes
-              only the paint. Hover one: the shadow grows, the body never moves. Press one: the
-              body slides +1px,+1px into the page while its box-shadow counter-shrinks 1px (the
-              theme's <code>.jx-press</code> law swaps to the
-              <code>*-press</code> pose — the shadow paint stays put).
-              <code>effect</code> adds ONE attention loop — a perimeter spark
-              (shimmer), sonar rings (pulse), a border gradient flow (rainbow), or press-point ink
-              (ripple) — built by typed constructors from the component's module script, and
-              reduced motion freezes them all.
-            </PlayHelp>
-          </PlayFields>
-        {/snippet}
       </ComponentCanvas>
     </div>
 
@@ -271,6 +290,41 @@ ${close}
             </div>
           </div>
           <CodeBlock code={usage} lang="svelte" meta="usage" />
+        </div>
+      </SectionCard>
+    </div>
+
+    <div id="async" data-reveal="">
+      <SectionCard
+        family="async"
+        headerRegion="async"
+        eyebrow="demo"
+        title="The async two-step"
+        summary="loading is an ANCHOR CONTRACT: aria-disabled='true' (the button stays focusable — tab order unchanged, opaque to why it is inert), pointer AND keyboard activation suppressed (Enter/Space no-op), and for href anchors the navigation itself is blocked. The spinner glyph takes the leading lane and the press law holds unchanged — hover grows only the shadow, active still presses +1px. On settle, the one-shot flash() swaps the leading lane to a ✓ check for 1.2s, then the button rests."
+      >
+        <div class="flex flex-col gap-5">
+          <div id="async-demo" class="flex flex-wrap items-center gap-x-8 gap-y-5">
+            <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
+              <span>async deploy</span>
+              <PressButton
+                bind:this={deployBtn}
+                variant="fill"
+                loading={deployState === 'loading'}
+                onclick={deploy}
+              >
+                deploy
+              </PressButton>
+            </div>
+            <div id="async-anchor-demo" class="text-muted-foreground flex items-center gap-2.5 text-xs">
+              <span>loading anchor</span>
+              <PressButton variant="tonal" onclick={navTask}>start fake task</PressButton>
+              <PressButton variant="outline" href="/docs/components.html" loading={navLoading}>
+                read the docs
+              </PressButton>
+            </div>
+            <span class="text-muted-foreground text-[12.5px]" data-async-echo>{deployEcho}</span>
+            <span class="text-muted-foreground text-[12.5px]">{navEcho}</span>
+          </div>
         </div>
       </SectionCard>
     </div>
@@ -323,6 +377,13 @@ ${close}
             <span><code class="text-accent">href</code> switches the element to an anchor;
               hrefs not starting with <code class="text-accent">/</code> open a new tab with
               <code class="text-accent">noreferrer</code> automatically</span></li>
+          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+            <span><code class="text-accent">loading</code> is the async pose with an explicit anchor
+              contract: <code class="text-accent">aria-disabled="true"</code> (focusable — tab order
+              unchanged), pointer AND keyboard activation suppressed (Enter/Space no-op), and
+              <code class="text-accent">href</code> navigation blocked; the spinner glyph takes the
+              leading lane and the press law holds unchanged — pair with the one-shot
+              <code class="text-accent">flash()</code> helper (bind:this) for the ✓ success flash</span></li>
           <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
             <span>the label is a snippet, so icons compose inline — spacing comes from the
               component's own <code class="text-accent">gap-2.5</code></span></li>
@@ -392,7 +453,7 @@ ${close}
     <SectionCard eyebrow="a11y" title="Keyboard and semantics" summary="Native buttons and anchors retain their platform behavior; labels and focus rings remain part of the contract.">
       <A11yTable
         keys={[{ key: 'Tab', action: 'Move focus to the button or link' }, { key: 'Enter / Space', action: 'Activate a button' }, { key: 'Enter', action: 'Follow an href rendered as an anchor' }]}
-        aria={[{ name: 'aria-label', value: 'optional', description: 'Names icon-only or otherwise unlabeled controls.' }, { name: 'href', value: 'optional', description: 'Switches the root from button to anchor semantics.' }, { name: 'prefers-reduced-motion', value: 'supported', description: 'Disables press transitions and effect loops.' }]}
+        aria={[{ name: 'aria-label', value: 'optional', description: 'Names icon-only or otherwise unlabeled controls.' }, { name: 'aria-disabled', value: 'true while loading', description: 'The anchor contract: the element stays focusable (tab order unchanged) while pointer, keyboard, and href activation are suppressed.' }, { name: 'href', value: 'optional', description: 'Switches the root from button to anchor semantics.' }, { name: 'prefers-reduced-motion', value: 'supported', description: 'Disables press transitions and effect loops; freezes the loading spinner on its first frame.' }]}
       />
     </SectionCard>
   </div>
@@ -425,6 +486,7 @@ ${close}
         { name: 'variant', type: "'fill' | 'tonal' | 'outline' | 'ghost' | 'link'", default: "'outline'", description: 'Selects the ladder rung; link is the interaction exception. Semantic hue injects through --jx-fill/--jx-fill-ink, --jx-tonal, --jx-outline classes at the call site.' },
         { name: 'effect', type: 'PressEffect', default: '—', description: 'One shimmer, pulse, rainbow, or ripple builder.' },
         { name: 'href', type: 'string', default: '—', description: 'Renders an anchor and navigates to the target.' },
+        { name: 'loading', type: 'boolean', default: 'false', description: 'The async pose: aria-disabled=true, pointer AND keyboard activation suppressed, href navigation blocked, spinner glyph in the leading lane. Press law holds unchanged. Pair with the one-shot flash() helper (bind:this) on settle.' },
         { name: 'external', type: 'boolean', default: 'auto', description: 'Opens non-internal hrefs in a new tab.' },
         { name: 'onclick', type: '() => void', default: '—', description: 'Runs for button activation.' },
         { name: 'type', type: "'button' | 'submit'", default: "'button'", description: 'Native button type.' },
