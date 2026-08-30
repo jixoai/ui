@@ -1,0 +1,49 @@
+/**
+ * button-group.css — the hairline seam law (OpenSpec
+ * 2026-08-30-expand-form-family F2).
+ *
+ * The component-owned residue ONLY (the layout is markup utilities):
+ *
+ *  - THE SEAM: adjacent DIRECT children collapse their 1px borders
+ *    into ONE hairline (a -1px margin pulls each neighbor onto the
+ *    previous border — a joined row of outline buttons reads as one
+ *    control, never a 2px double border). Child-scoped on purpose: a
+ *    nested ButtonGroup is ONE child for the outer seam, so cluster
+ *    joins never leak the inner seams outward.
+ *  - THE DIVIDER: a 1px var(--border) block that REPLACES the
+ *    collapsed seam — it collapses into the neighbors' borders too
+ *    (start via the seam rule, end via its own -1px), so the total
+ *    seam between the clusters stays exactly 1px.
+ *
+ * Everything here rides @layer components behind :where() — zero
+ * specificity, so consumer utilities still win (the layer law).
+ * Reduced motion: nothing here moves (layout only).
+ */
+@layer theme, base, components, utilities;
+
+@layer components {
+  /* the seam: every direct child after the first pulls onto the
+     previous child's edge border */
+  :where([data-jx-btngroup='horizontal']) > * + * {
+    margin-inline-start: -1px;
+  }
+  :where([data-jx-btngroup='vertical']) > * + * {
+    margin-block-start: -1px;
+  }
+
+  /* the divider: the hairline paint, geometry follows the group axis */
+  :where([data-jx-btngroup-divider]) {
+    flex: none;
+    background: var(--border);
+  }
+  :where([data-jx-btngroup='horizontal']) > [data-jx-btngroup-divider] {
+    inline-size: 1px;
+    align-self: stretch;
+    margin-inline-end: -1px;
+  }
+  :where([data-jx-btngroup='vertical']) > [data-jx-btngroup-divider] {
+    block-size: 1px;
+    align-self: stretch;
+    margin-block-end: -1px;
+  }
+}

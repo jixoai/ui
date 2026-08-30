@@ -1,0 +1,58 @@
+/**
+ * input-group.css — the joined field shell's state machines
+ * (OpenSpec 2026-08-30-expand-form-family F2).
+ *
+ * The component-owned residue ONLY: the group root's :has() state
+ * machines keyed on the data-jx-igroup hook (the base box is
+ * markup utilities, tags-input-shell precedent; the Tier-2 shell
+ * vocabulary stays consumed-only — this sheet never redefines it):
+ *
+ *  - hover lift + the inset focus ring + the invalid dashed border —
+ *    the SAME paint law .jx-html-control-shell owns, so a group reads
+ *    as the input family's shell whatever addons compose inside;
+ *  - the disabled paint (:has(:disabled) — the lane's native disabled
+ *    is the one truth; the inert addons follow from the context);
+ *  - the ADDON SEAMS: one hairline per addon, always on the edge
+ *    facing the lane, keyed on the valued data-jx-igroup-addon hook —
+ *    the shell carries ONE border, each addon ONE seam, the input
+ *    stays chromeless: no double borders by construction.
+ *
+ * Everything here rides @layer components behind :where() — zero
+ * specificity, so consumer utilities still win (the layer law).
+ */
+@layer theme, base, components, utilities;
+
+@layer components {
+  /* ---- the shell's state machines (the input family's paint law) --- */
+  :where([data-jx-igroup]):hover:not(:has(:focus-visible)) {
+    box-shadow: var(--shadow-2xs);
+  }
+  :where([data-jx-igroup]):has(:focus-visible) {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+  }
+  :where([data-jx-igroup]):has([aria-invalid='true']) {
+    border-style: dashed;
+  }
+  :where([data-jx-igroup]):has(:disabled) {
+    border-color: var(--muted);
+    cursor: not-allowed;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :where([data-jx-igroup]) {
+      transition: none;
+    }
+  }
+
+  /* ---- the addon seams (one hairline, facing the lane) --------------
+     the valued hook carries the lane side: inline-start addons seam
+     their inline-end, inline-end addons their inline-start — the
+     markup never re-authors these edges */
+  :where([data-jx-igroup-addon='inline-start']) {
+    border-inline-end: 1px solid var(--border);
+  }
+  :where([data-jx-igroup-addon='inline-end']) {
+    border-inline-start: 1px solid var(--border);
+  }
+}
