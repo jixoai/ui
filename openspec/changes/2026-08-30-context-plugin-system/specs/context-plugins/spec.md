@@ -1,0 +1,58 @@
+# context-plugins delta — contexts become intervenable
+
+## ADDED Requirements
+
+### Requirement: plugins are pure immutable interventions
+
+A ContextPlugin SHALL be a pure value transformer set: `before`
+(entry-side) and `after` (projection-side) each take an immutable value
+and return a NEW value; mutating inputs is a contract violation. The
+pipeline SHALL compose these with Svelte's fine-grained reactivity so
+only affected contexts recompute.
+
+#### Scenario: a print plugin swaps density
+
+- GIVEN a plugin whose before maps density to the paper tier under
+  env.medium === 'print'
+- WHEN the medium derives 'print'
+- THEN consumers read the paper-tier density and the original context
+  object was never mutated
+
+### Requirement: registration is root-scoped and stacks
+
+`provideContextPlugins(plugins)` SHALL provide at a root; nested
+roots stack parent-first so the nearest root's interventions land
+last. There SHALL be no module-level singleton registry.
+
+#### Scenario: nested roots
+
+- GIVEN an outer root providing [A] and an inner root providing [B]
+- WHEN a context under the inner root resolves
+- THEN A's intervention applies, then B's — B may override A
+
+### Requirement: the lifecycle covers init, filter, before, after
+
+`init` SHALL inject defaults for a context or veto it ('skip' — the
+context does not mount, consumers read null); `filter` SHALL
+dynamically exclude a plugin from a context (e.g. medium-gated);
+`before`/`after` SHALL intervene on the value's entry and projection
+sides. Ordering SHALL follow the user array with stable 'pre'/'post'
+anchors (vite semantics).
+
+#### Scenario: veto under a gate
+
+- GIVEN a plugin returning 'skip' from init for a context under print
+- WHEN that context initializes in print medium
+- THEN the context does not mount and consumers read null
+
+### Requirement: zero plugins is the identity fast path
+
+With no plugins provided, contexts SHALL behave byte-identically to
+the pre-plugin system, short-circuiting the chain (no composition,
+no overhead); the full existing suite is the regression proof.
+
+#### Scenario: today's pages
+
+- GIVEN any existing docs page (no plugin roots)
+- WHEN rendered
+- THEN density/medium behave exactly as before this change
