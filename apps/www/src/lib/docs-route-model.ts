@@ -52,6 +52,8 @@ export const docsSections: DocsSection[] = [
       { title: 'recipes', subtitle: 'where wrapping stops', href: '/docs/recipes.html' },
       { title: 'jx-pure', subtitle: 'the componentless face', href: '/docs/jx-pure.html' },
       { title: 'variant-grammar', subtitle: 'one ladder, four slots', href: '/docs/variant-grammar.html' },
+      { title: 'demo-standard', subtitle: 'one skeleton, six sections', href: '/docs/demo-standard.html' },
+      { title: 'patterns', subtitle: 'the composed pages', href: '/patterns.html' },
     ],
   },
   {

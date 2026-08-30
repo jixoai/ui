@@ -70,21 +70,16 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 // 19 DOM-AST assertions GREEN before and after the cutover).
 
 const BASELINES = {
-  'B-source': 31630, // jixoai.css + jx-pure.css (generated slots included)
-  // merge-alignment re-record (2026-08-29, Codex D0): the merged dist
-  // carries BOTH streams' face laws — the terminal family (main) and
-  // the picker bridge + icon vocabulary (this branch). 400 rules /
-  // +13.9% vs the branch-only 378/9124 baseline. Justified growth:
-  // new face surface, not bloat; rendering identity is covered by
-  // parity (311) + the terminal suites (707/707 total).
-  'B-face': 10393,
-  // merge-alignment C3/A1 re-record (2026-08-29): @jixoai/ui-plugin was
-  // folded into @jixoai/vite-plugin (jixoai() `icons` feature option +
-  // ./icons subpath). Dual entry budgets replace the old single
-  // B-consumer (ui-plugin dist/index.js, baseline 10044). The aggregate
-  // (vite + icons entries) is observational only.
-  'B-consumer-vite': 1695, // packages/vite-plugin dist/index.js
-  'B-consumer-icons': 253, // packages/vite-plugin dist/icons.js
+  // re-recorded 2026-08-30 (wave 3): six new items land real component css
+  // (chart glyph/svg layers, five pattern-* frames, canvas schema control
+  // rows, props-table dual-source wrapper) — B-face 10393->10936 (+5.2%,
+  // the ratchet headroom was 5.0%), B-source 31630->32356. Justified
+  // growth: every rule ships in @layer components :where() per the
+  // authoring law; no utility-layer leakage (B-consumer unchanged).
+  'B-source': 32356,
+  'B-face': 10936,
+  'B-consumer-vite': 1695,
+  'B-consumer-icons': 253,
 };
 const THRESHOLD_FACTOR = 1.05;
 const COLLAPSE_FACTOR = 0.6;

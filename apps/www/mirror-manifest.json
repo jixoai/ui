@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-08-30T09:51:39.687Z",
+  "generatedAt": "2026-08-30T10:56:07.036Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -82,7 +82,13 @@
     "icon-button": "registry/files/ui/icon-button/icon-button.svelte",
     "progressive-blur": "registry/files/ui/progressive-blur/progressive-blur.svelte",
     "button-group": "registry/files/ui/button-group/button-group.svelte",
-    "input-group": "registry/files/ui/input-group/input-group.svelte"
+    "input-group": "registry/files/ui/input-group/input-group.svelte",
+    "chart": "registry/files/ui/chart/chart.svelte",
+    "pattern-login": "registry/files/ui/pattern-login/pattern-login.svelte",
+    "pattern-pricing": "registry/files/ui/pattern-pricing/pattern-pricing.svelte",
+    "pattern-hero-set": "registry/files/ui/pattern-hero-set/pattern-hero-set.svelte",
+    "pattern-faq": "registry/files/ui/pattern-faq/pattern-faq.svelte",
+    "pattern-cta": "registry/files/ui/pattern-cta/pattern-cta.svelte"
   },
   "items": [
     {
@@ -938,8 +944,8 @@
           "source": "registry/files/ui/component-canvas/component-canvas.svelte",
           "mirror": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
           "target": "@ui/component-canvas/component-canvas.svelte",
-          "sourceSha": "36ede8f3a7dc63c7fef862036de26f19a9675ce090e2e4d88f75e6b12a7195dc",
-          "mirrorSha": "36ede8f3a7dc63c7fef862036de26f19a9675ce090e2e4d88f75e6b12a7195dc"
+          "sourceSha": "29fa9199f43c8913da8d06b467a6b79a794a4db52aec61780212c983e4300c89",
+          "mirrorSha": "29fa9199f43c8913da8d06b467a6b79a794a4db52aec61780212c983e4300c89"
         },
         {
           "source": "registry/files/ui/component-canvas/index.ts",
@@ -952,8 +958,8 @@
           "source": "registry/files/ui/component-canvas/component-canvas.css",
           "mirror": "apps/www/src/lib/ui/component-canvas/component-canvas.css",
           "target": "@ui/component-canvas/component-canvas.css",
-          "sourceSha": "318d6bc3d2fd0e1719b42484ddfaa0b662d791155b13d14f62f3e16a42f977b4",
-          "mirrorSha": "318d6bc3d2fd0e1719b42484ddfaa0b662d791155b13d14f62f3e16a42f977b4"
+          "sourceSha": "ba7abe3a6fe217eb017a54ac7bd56d521777f5b52d4f0916240e6b507cebe27c",
+          "mirrorSha": "ba7abe3a6fe217eb017a54ac7bd56d521777f5b52d4f0916240e6b507cebe27c"
         }
       ]
     },
@@ -2969,6 +2975,223 @@
           "target": "@ui/input-group/index.ts",
           "sourceSha": "1f9a5b987d42b3bbf47e5cf75eda48274011034c4370e795eb69e20aab045f05",
           "mirrorSha": "1f9a5b987d42b3bbf47e5cf75eda48274011034c4370e795eb69e20aab045f05"
+        }
+      ]
+    },
+    {
+      "itemName": "chart",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/chart/chart.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/chart/chart.svelte",
+          "mirror": "apps/www/src/lib/ui/chart/chart.svelte",
+          "target": "@ui/chart/chart.svelte",
+          "sourceSha": "fb72823f81bf3a591fcc031d752f982e613d2e86d9331b8b68f8767240dc7917",
+          "mirrorSha": "fb72823f81bf3a591fcc031d752f982e613d2e86d9331b8b68f8767240dc7917"
+        },
+        {
+          "source": "registry/files/ui/chart/chart-bar.svelte",
+          "mirror": "apps/www/src/lib/ui/chart/chart-bar.svelte",
+          "target": "@ui/chart/chart-bar.svelte",
+          "sourceSha": "6c2c0e2b70ffe36bcd528e64465cbb620f8323884c5b0a51497267adc3fbc01d",
+          "mirrorSha": "6c2c0e2b70ffe36bcd528e64465cbb620f8323884c5b0a51497267adc3fbc01d"
+        },
+        {
+          "source": "registry/files/ui/chart/chart-sparkline.svelte",
+          "mirror": "apps/www/src/lib/ui/chart/chart-sparkline.svelte",
+          "target": "@ui/chart/chart-sparkline.svelte",
+          "sourceSha": "9147ad36fd467e3b3e0afb4a1731ec607cdb40b92138dc3814ec015bce7f1c26",
+          "mirrorSha": "9147ad36fd467e3b3e0afb4a1731ec607cdb40b92138dc3814ec015bce7f1c26"
+        },
+        {
+          "source": "registry/files/ui/chart/chart-line.svelte",
+          "mirror": "apps/www/src/lib/ui/chart/chart-line.svelte",
+          "target": "@ui/chart/chart-line.svelte",
+          "sourceSha": "00440cc2bb102e0bb54a38309d666d00af8254d74cd518df14818cc071da2e89",
+          "mirrorSha": "00440cc2bb102e0bb54a38309d666d00af8254d74cd518df14818cc071da2e89"
+        },
+        {
+          "source": "registry/files/ui/chart/chart-donut.svelte",
+          "mirror": "apps/www/src/lib/ui/chart/chart-donut.svelte",
+          "target": "@ui/chart/chart-donut.svelte",
+          "sourceSha": "0df96a43de69e8921a2d18208a845b01200f906908707dc0c762b78f2b65fe04",
+          "mirrorSha": "0df96a43de69e8921a2d18208a845b01200f906908707dc0c762b78f2b65fe04"
+        },
+        {
+          "source": "registry/files/ui/chart/chart.css",
+          "mirror": "apps/www/src/lib/ui/chart/chart.css",
+          "target": "@ui/chart/chart.css",
+          "sourceSha": "ef97dad79ba775dc774adad0ce5cac28102d9cceb513515252915f39c693a583",
+          "mirrorSha": "ef97dad79ba775dc774adad0ce5cac28102d9cceb513515252915f39c693a583"
+        },
+        {
+          "source": "registry/files/ui/chart/index.ts",
+          "mirror": "apps/www/src/lib/ui/chart/index.ts",
+          "target": "@ui/chart/index.ts",
+          "sourceSha": "27d8c6610599bb7664281e63989ff90048e4eead86da0f7a83438decb41cc74c",
+          "mirrorSha": "27d8c6610599bb7664281e63989ff90048e4eead86da0f7a83438decb41cc74c"
+        }
+      ]
+    },
+    {
+      "itemName": "pattern-login",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/pattern-login/pattern-login.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/pattern-login/pattern-login.svelte",
+          "mirror": "apps/www/src/lib/ui/pattern-login/pattern-login.svelte",
+          "target": "@ui/pattern-login/pattern-login.svelte",
+          "sourceSha": "0000f9161e9aeb2e02ba26e5f1e72c6d90fb46c23a9ce8f121dd42996190e3c1",
+          "mirrorSha": "0000f9161e9aeb2e02ba26e5f1e72c6d90fb46c23a9ce8f121dd42996190e3c1"
+        },
+        {
+          "source": "registry/files/ui/pattern-login/pattern-login-otp.svelte",
+          "mirror": "apps/www/src/lib/ui/pattern-login/pattern-login-otp.svelte",
+          "target": "@ui/pattern-login/pattern-login-otp.svelte",
+          "sourceSha": "797eec2377a18db8d962e2c3967486d792b61496ddffc17676909db596b39013",
+          "mirrorSha": "797eec2377a18db8d962e2c3967486d792b61496ddffc17676909db596b39013"
+        },
+        {
+          "source": "registry/files/ui/pattern-login/pattern-login.css",
+          "mirror": "apps/www/src/lib/ui/pattern-login/pattern-login.css",
+          "target": "@ui/pattern-login/pattern-login.css",
+          "sourceSha": "6861be5b1ac3c30550c6a4da0611abe15cf36ce547d2eb036d2dc29334a401d6",
+          "mirrorSha": "6861be5b1ac3c30550c6a4da0611abe15cf36ce547d2eb036d2dc29334a401d6"
+        },
+        {
+          "source": "registry/files/ui/pattern-login/index.ts",
+          "mirror": "apps/www/src/lib/ui/pattern-login/index.ts",
+          "target": "@ui/pattern-login/index.ts",
+          "sourceSha": "8b22f542e77c52e5ca902d15708b3971e2ce34920b541f085c4cbd94a7a86145",
+          "mirrorSha": "8b22f542e77c52e5ca902d15708b3971e2ce34920b541f085c4cbd94a7a86145"
+        }
+      ]
+    },
+    {
+      "itemName": "pattern-pricing",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/pattern-pricing/pattern-pricing.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/pattern-pricing/pattern-pricing.svelte",
+          "mirror": "apps/www/src/lib/ui/pattern-pricing/pattern-pricing.svelte",
+          "target": "@ui/pattern-pricing/pattern-pricing.svelte",
+          "sourceSha": "2e69c07d11e307844592cd6708e567f8475bfd20affeb7fec64a85b1a63d1372",
+          "mirrorSha": "2e69c07d11e307844592cd6708e567f8475bfd20affeb7fec64a85b1a63d1372"
+        },
+        {
+          "source": "registry/files/ui/pattern-pricing/pattern-pricing.css",
+          "mirror": "apps/www/src/lib/ui/pattern-pricing/pattern-pricing.css",
+          "target": "@ui/pattern-pricing/pattern-pricing.css",
+          "sourceSha": "664239508743730426aa4c7f81a7ff5fd5cda4633687937eba568aa1d1ed3a61",
+          "mirrorSha": "664239508743730426aa4c7f81a7ff5fd5cda4633687937eba568aa1d1ed3a61"
+        },
+        {
+          "source": "registry/files/ui/pattern-pricing/index.ts",
+          "mirror": "apps/www/src/lib/ui/pattern-pricing/index.ts",
+          "target": "@ui/pattern-pricing/index.ts",
+          "sourceSha": "af15f404fc448613d6a19f3c34c65c71253f81b61a26acbecd5de94bccd4af66",
+          "mirrorSha": "af15f404fc448613d6a19f3c34c65c71253f81b61a26acbecd5de94bccd4af66"
+        }
+      ]
+    },
+    {
+      "itemName": "pattern-hero-set",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/pattern-hero-set/pattern-hero-set.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/pattern-hero-set/pattern-hero-set.svelte",
+          "mirror": "apps/www/src/lib/ui/pattern-hero-set/pattern-hero-set.svelte",
+          "target": "@ui/pattern-hero-set/pattern-hero-set.svelte",
+          "sourceSha": "3c9d9a03037fde65acabb02f0abe3086f13544c766bd848e33f222f7e31c9c55",
+          "mirrorSha": "3c9d9a03037fde65acabb02f0abe3086f13544c766bd848e33f222f7e31c9c55"
+        },
+        {
+          "source": "registry/files/ui/pattern-hero-set/pattern-hero-ascii.svelte",
+          "mirror": "apps/www/src/lib/ui/pattern-hero-set/pattern-hero-ascii.svelte",
+          "target": "@ui/pattern-hero-set/pattern-hero-ascii.svelte",
+          "sourceSha": "ecad31270dc11581ded0c06901586230c51ab5c860f1bf0d3431722f5cb09254",
+          "mirrorSha": "ecad31270dc11581ded0c06901586230c51ab5c860f1bf0d3431722f5cb09254"
+        },
+        {
+          "source": "registry/files/ui/pattern-hero-set/pattern-hero-marquee.svelte",
+          "mirror": "apps/www/src/lib/ui/pattern-hero-set/pattern-hero-marquee.svelte",
+          "target": "@ui/pattern-hero-set/pattern-hero-marquee.svelte",
+          "sourceSha": "16c187126b84b68b10b3a6b26e7758f7fbb0b7dbf16d2f244a0b0acb0bd3c6a5",
+          "mirrorSha": "16c187126b84b68b10b3a6b26e7758f7fbb0b7dbf16d2f244a0b0acb0bd3c6a5"
+        },
+        {
+          "source": "registry/files/ui/pattern-hero-set/pattern-hero-set.css",
+          "mirror": "apps/www/src/lib/ui/pattern-hero-set/pattern-hero-set.css",
+          "target": "@ui/pattern-hero-set/pattern-hero-set.css",
+          "sourceSha": "ff3b7a898c325c034844f68c7f7a74d42e85eff7d53c6a2a7cbb2cba236b54ac",
+          "mirrorSha": "ff3b7a898c325c034844f68c7f7a74d42e85eff7d53c6a2a7cbb2cba236b54ac"
+        },
+        {
+          "source": "registry/files/ui/pattern-hero-set/index.ts",
+          "mirror": "apps/www/src/lib/ui/pattern-hero-set/index.ts",
+          "target": "@ui/pattern-hero-set/index.ts",
+          "sourceSha": "b994d7163ce7a67315b8d82bc743de73de67a00f3c363ddd1c65421fb411e521",
+          "mirrorSha": "b994d7163ce7a67315b8d82bc743de73de67a00f3c363ddd1c65421fb411e521"
+        }
+      ]
+    },
+    {
+      "itemName": "pattern-faq",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/pattern-faq/pattern-faq.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/pattern-faq/pattern-faq.svelte",
+          "mirror": "apps/www/src/lib/ui/pattern-faq/pattern-faq.svelte",
+          "target": "@ui/pattern-faq/pattern-faq.svelte",
+          "sourceSha": "73bcadbf8607a54342cf71009238e4dbd818ed2085cadf94eab790faf1e92e9a",
+          "mirrorSha": "73bcadbf8607a54342cf71009238e4dbd818ed2085cadf94eab790faf1e92e9a"
+        },
+        {
+          "source": "registry/files/ui/pattern-faq/pattern-faq.css",
+          "mirror": "apps/www/src/lib/ui/pattern-faq/pattern-faq.css",
+          "target": "@ui/pattern-faq/pattern-faq.css",
+          "sourceSha": "405ebc1164a4407e11b060abab123980a99a0be47efce4cbca357d1b87b2fa14",
+          "mirrorSha": "405ebc1164a4407e11b060abab123980a99a0be47efce4cbca357d1b87b2fa14"
+        },
+        {
+          "source": "registry/files/ui/pattern-faq/index.ts",
+          "mirror": "apps/www/src/lib/ui/pattern-faq/index.ts",
+          "target": "@ui/pattern-faq/index.ts",
+          "sourceSha": "6913ca7575cc218cba1867614004ad993fd97d56c82b1749c23fef76ed24ad48",
+          "mirrorSha": "6913ca7575cc218cba1867614004ad993fd97d56c82b1749c23fef76ed24ad48"
+        }
+      ]
+    },
+    {
+      "itemName": "pattern-cta",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/pattern-cta/pattern-cta.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/pattern-cta/pattern-cta.svelte",
+          "mirror": "apps/www/src/lib/ui/pattern-cta/pattern-cta.svelte",
+          "target": "@ui/pattern-cta/pattern-cta.svelte",
+          "sourceSha": "75c8b4cfbe51be0fb47cc871e90bca05bb747a69bebdddfbfc724b4a39026169",
+          "mirrorSha": "75c8b4cfbe51be0fb47cc871e90bca05bb747a69bebdddfbfc724b4a39026169"
+        },
+        {
+          "source": "registry/files/ui/pattern-cta/pattern-cta.css",
+          "mirror": "apps/www/src/lib/ui/pattern-cta/pattern-cta.css",
+          "target": "@ui/pattern-cta/pattern-cta.css",
+          "sourceSha": "0b1ef307903aaa84ef3586388348521da8fb08cbb1dcb9fc692424cf0a1ea563",
+          "mirrorSha": "0b1ef307903aaa84ef3586388348521da8fb08cbb1dcb9fc692424cf0a1ea563"
+        },
+        {
+          "source": "registry/files/ui/pattern-cta/index.ts",
+          "mirror": "apps/www/src/lib/ui/pattern-cta/index.ts",
+          "target": "@ui/pattern-cta/index.ts",
+          "sourceSha": "94db17c9158aa44615817315c14635a1cb33544e01abb6c2a9dca9965752ca14",
+          "mirrorSha": "94db17c9158aa44615817315c14635a1cb33544e01abb6c2a9dca9965752ca14"
         }
       ]
     }

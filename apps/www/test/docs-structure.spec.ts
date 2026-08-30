@@ -74,10 +74,14 @@ describe('docs-route-model — the section spine', () => {
     // out second — terminal-card/-footer leave layout (10→8),
     // terminal-header leaves data-display (16→15), ghostty-term lands
     // with them (terminal:4, 78 ui items).
+    // Re-frozen 2026-08-30 (waves 2+3): button-group joins general
+    // (8->9), input-group joins data-entry (18->19), the chart family
+    // joins data-display (15->16), and the five pattern-* composition
+    // pages join layout (8->13) — 95 ui items.
     const shape = docsComponentGroups.map(({ group, entries }) => `${group.id}:${entries.length}`);
     expect(shape).toEqual([
-      'general:8', 'terminal:4', 'layout:8', 'navigation:10', 'layer:10',
-      'data-entry:18', 'data-display:15', 'feedback:5',
+      'general:9', 'terminal:4', 'layout:13', 'navigation:10', 'layer:10',
+      'data-entry:19', 'data-display:16', 'feedback:5',
     ]);
     expect(shape.every((x) => !x.endsWith(':1')), 'no single-member groups').toBe(true);
   });
@@ -232,7 +236,7 @@ describe('docs-route-model — install targets & the legacy map', () => {
       // (the css probe + the native-parity fixtures), never catalog pages
       '/', '/probe-folder-css', '/parity.html', '/docs.html', '/docs/components.html',
       '/docs/components/form.html', '/docs/registry.html', '/docs/recipes.html',
-      '/docs/jx-pure.html', '/docs/variant-grammar.html', '/docs/llms-txt.html', '/tokens.html', '/blueprints.html',
+      '/docs/jx-pure.html', '/docs/variant-grammar.html', '/docs/demo-standard.html', '/docs/llms-txt.html', '/tokens.html', '/blueprints.html', '/patterns.html',
       ...canonical,
     ]);
     const missing = [...expected].filter((e) => !entries.has(e));

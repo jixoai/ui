@@ -132,6 +132,11 @@ const SITE_ONLY_PREFIXES = [
   'apps/www/src/lib/playground/', // component-canvas demo controls (site-only, canvas redesign 2026-08-25)
   'apps/www/src/lib/schema/', // jsonSchema kernel (www-only, canvas-schema-pipeline 2026-08-30)
   'apps/www/src/lib/meta/', // generated + annotated component meta (canvas-schema-pipeline 2026-08-30)
+  'apps/www/src/lib/registry-source.ts', // canvas-floor-lab: registry path -> sourceUrl projection (site-only docs infra)
+  'apps/www/src/lib/docs-install.svelte', // docs-demo-standard: install chrome (site-only)
+  'apps/www/src/lib/docs-see-also.svelte', // docs-demo-standard: reading-chain chrome (site-only)
+  'apps/www/src/lib/ui/props-table/docs/', // docs-demo-standard: per-component curated docs layer (site-only)
+  'apps/www/src/lib/ui/props-table/from-meta.ts', // docs-demo-standard: meta -> PropEntry projection (site-only)
   'apps/www/src/lib/__probe__/', // P0 scratch (removed when the probe retires)
 ];
 

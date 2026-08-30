@@ -1021,7 +1021,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: title, description?, sourceUrl?, files: TreeFile[]; snippets children (live demo), playground? (interactive controls).",
+      "docs": "Props: title, description?, sourceUrl? (derived page-side via the registry path projection), install? (copy-command badge), files: TreeFile[] (2 or fewer -> filename tabs over one CodeCard, 3+ -> tree pane), stage?, theme?/density? (bindable, scoped to the stage element); snippets children (live demo), playground? (escape-hatch precedence over schema rows); schema mode: schema?, bind:values, onvalue.",
       "meta": {
         "group": "data-display",
         "href": "/docs/components/component-canvas.html"
@@ -3279,6 +3279,104 @@
         "group": "data-entry",
         "href": "/docs/components/input-group.html"
       }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "chart",
+      "type": "registry:ui",
+      "title": "Chart",
+      "description": "Terminal-native charts, zero runtime dependencies: horizontal block-glyph bars on the mono text grid (label + value lanes, fill/tonal/outline ink), one-line sparklines (block or braille cells), an SVG polyline over hairline grid rules (optional 12% tonal area, non-scaling round markers, axes as authored snippet slots — never guessed), and a stroke-dasharray donut ring in the --chart-1..5 semantic palette with a neutral brand-hue oklch ladder. Deterministic display primitives: every degenerate input (empty, all-negative, constant, NaN, zero-total) has a frozen, unit-tested output; each part is role=img with a REQUIRED label and an opt-in visually-hidden data table fallback. The glyph math exports from the folder for tests; the Chart root only shares a density tier.",
+      "files": [
+        { "path": "registry/files/ui/chart/chart.svelte", "target": "@ui/chart/chart.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/chart/chart-bar.svelte", "target": "@ui/chart/chart-bar.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/chart/chart-sparkline.svelte", "target": "@ui/chart/chart-sparkline.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/chart/chart-line.svelte", "target": "@ui/chart/chart-line.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/chart/chart-donut.svelte", "target": "@ui/chart/chart-donut.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/chart/chart.css", "target": "@ui/chart/chart.css", "type": "registry:file" },
+        { "path": "registry/files/ui/chart/index.ts", "target": "@ui/chart/index.ts", "type": "registry:file" }
+      ],
+      "docs": "Props (all parts): data (readonly number[], required), label (string, REQUIRED accessible name — no default by contract), table? (opt-in visually-hidden data table fallback), density?, class?, ...rest. ChartBar: labels? (parallel label lane), variant? ('fill'|'tonal'|'outline' through the global hue slots), cells? (bar budget in character cells, default 20), values? (value lane, default true). ChartSparkline: cells? ('block'|'braille', default 'braille'). ChartLine: area?, markers? (default true), xAxis?/yAxis? (authored axis snippets). ChartDonut: size? (96), thickness? (12), children? (center slot). Chart root: density? (provided to the subtree). Pure math exported from the folder for tests.",
+      "meta": { "group": "data-display", "href": "/docs/components/chart.html" },
+      "registryDependencies": ["@jixoai/utils", "@jixoai/jixoai-theme", "@jixoai/density"],
+      "dependencies": []
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "pattern-login",
+      "type": "registry:ui",
+      "title": "Pattern login",
+      "description": "The `ssh user@host` login card — a composition product, not a primitive: user/host lanes are plain Input (innerInlineStart carries the user@ / --host= glyphs), the passphrase reveal rides the Input's own eye (hard F1 prerequisite — no pattern-local fallback), the OTP second-factor screen rides input-otp (joined form value; incomplete codes submit empty), the submit is a PressButton, and the footer is the copyable npx bootstrap line — the terminal idiom's magic-link analog.",
+      "files": [
+        { "path": "registry/files/ui/pattern-login/pattern-login.svelte", "target": "@ui/pattern-login/pattern-login.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/pattern-login/pattern-login-otp.svelte", "target": "@ui/pattern-login/pattern-login-otp.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/pattern-login/pattern-login.css", "target": "@ui/pattern-login/pattern-login.css", "type": "registry:file" },
+        { "path": "registry/files/ui/pattern-login/index.ts", "target": "@ui/pattern-login/index.ts", "type": "registry:file" }
+      ],
+      "docs": "Barrel: default = the login card; PatternLoginOtp = the 2FA screen. Card props: host/user/password (bindable), command, onsignin?, children? (extra lanes). OTP props: host, length (6), value (bindable), hint?, onverify?(code).",
+      "meta": { "group": "layout", "href": "/docs/components/pattern-login.html" },
+      "registryDependencies": ["@jixoai/input", "@jixoai/input-otp", "@jixoai/press-button", "@jixoai/jixoai-theme", "@jixoai/icons"]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "pattern-pricing",
+      "type": "registry:ui",
+      "title": "Pattern pricing",
+      "description": "The `$ plan --compare` section: the comparison matrix rides the Table family (consumer authors thead/tbody; the recommended column opts in with data-jx-recommended on the th AND its td's — pattern css paints brand inset rules that keep the row-hover law intact), each tier's install command rides a CodeCard with a copy PressButton in its footer, plan labels ride Badge. Commands/labels are value-domain payload; no atom is patched.",
+      "files": [
+        { "path": "registry/files/ui/pattern-pricing/pattern-pricing.svelte", "target": "@ui/pattern-pricing/pattern-pricing.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/pattern-pricing/pattern-pricing.css", "target": "@ui/pattern-pricing/pattern-pricing.css", "type": "registry:file" },
+        { "path": "registry/files/ui/pattern-pricing/index.ts", "target": "@ui/pattern-pricing/index.ts", "type": "registry:file" }
+      ],
+      "docs": "Props: tiers (readonly PricingTier[]: plan, command, recommended?, note?), children (the thead/tbody snippet — the Table contract), eyebrow?, caption?, class?. The heading stays out of the pattern; the page owns its h2.",
+      "meta": { "group": "layout", "href": "/docs/components/pattern-pricing.html" },
+      "registryDependencies": ["@jixoai/table", "@jixoai/code-card", "@jixoai/press-button", "@jixoai/badge", "@jixoai/jixoai-theme", "@jixoai/icons"]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "pattern-hero-set",
+      "type": "registry:ui",
+      "title": "Pattern hero set",
+      "description": "Three hero forms of the terminal grammar: the terminal-window hero (hero-section with the right column prewired to a terminal-card whose command derives from copyCommand — one string drives the CTA label, the clipboard payload and the typed demo), the ASCII-art headline hero (art as whitespace-preserved payload in a pre under the mono scale law — wide banners scroll, ascii never reflows), and the badge-marquee hero (plain mono token strip with an aria-hidden duplicate on a seamless -50% CSS loop; prefers-reduced-motion kills the animation, folds the duplicate away and leaves a static scrollable row).",
+      "files": [
+        { "path": "registry/files/ui/pattern-hero-set/pattern-hero-set.svelte", "target": "@ui/pattern-hero-set/pattern-hero-set.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/pattern-hero-set/pattern-hero-ascii.svelte", "target": "@ui/pattern-hero-set/pattern-hero-ascii.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/pattern-hero-set/pattern-hero-marquee.svelte", "target": "@ui/pattern-hero-set/pattern-hero-marquee.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/pattern-hero-set/pattern-hero-set.css", "target": "@ui/pattern-hero-set/pattern-hero-set.css", "type": "registry:file" },
+        { "path": "registry/files/ui/pattern-hero-set/index.ts", "target": "@ui/pattern-hero-set/index.ts", "type": "registry:file" }
+      ],
+      "docs": "Barrel: default = the terminal-window hero (eyebrow, summary, copyCommand required; title/badges/secondary snippets forwarded; barTitle/outputs/theme/speed for the terminal). PatternHeroAscii: art required, cta/secondary label+href. PatternHeroMarquee: items required, title? snippet, duration (24s).",
+      "meta": { "group": "layout", "href": "/docs/components/pattern-hero-set.html" },
+      "registryDependencies": ["@jixoai/hero-section", "@jixoai/terminal-card", "@jixoai/press-button", "@jixoai/jixoai-theme", "@jixoai/icons"]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "pattern-faq",
+      "type": "registry:ui",
+      "title": "Pattern faq",
+      "description": "The man-page FAQ: a command(section) head with the print-style dotted NAME leader over the accordion family (native details/summary — exclusive by default, questions compose as AccordionItem children or bare details), closing on a SEE ALSO line. The pattern owns only the framing; disclosure semantics, keyboard and SSR state belong to the accordion.",
+      "files": [
+        { "path": "registry/files/ui/pattern-faq/pattern-faq.svelte", "target": "@ui/pattern-faq/pattern-faq.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/pattern-faq/pattern-faq.css", "target": "@ui/pattern-faq/pattern-faq.css", "type": "registry:file" },
+        { "path": "registry/files/ui/pattern-faq/index.ts", "target": "@ui/pattern-faq/index.ts", "type": "registry:file" }
+      ],
+      "docs": "Props: children (the questions — AccordionItem parts), command? ('jixoai-ui-faq'), section? ('7'), summary?, exclusive? (true), seeAlso? (snippet — compose links), class?.",
+      "meta": { "group": "layout", "href": "/docs/components/pattern-faq.html" },
+      "registryDependencies": ["@jixoai/accordion", "@jixoai/jixoai-theme", "@jixoai/icons"]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "pattern-cta",
+      "type": "registry:ui",
+      "title": "Pattern cta",
+      "description": "The shell-prompt CTA band: a lead block (eyebrow / heading / summary / optional outline escape) beside the install command on a CodeCard (copyable=false — the band owns exactly ONE copy affordance) with the copy PressButton in the card's footer: fill rung, copy → check flip, 1.4s copied surface. Press physics stay the button's own.",
+      "files": [
+        { "path": "registry/files/ui/pattern-cta/pattern-cta.svelte", "target": "@ui/pattern-cta/pattern-cta.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/pattern-cta/pattern-cta.css", "target": "@ui/pattern-cta/pattern-cta.css", "type": "registry:file" },
+        { "path": "registry/files/ui/pattern-cta/index.ts", "target": "@ui/pattern-cta/index.ts", "type": "registry:file" }
+      ],
+      "docs": "Props: command ('npx jixoai-ui init'), heading?, summary?, actionLabel? ('copy command'), secondaryLabel?/secondaryHref? (renders the outline escape when set), class?.",
+      "meta": { "group": "layout", "href": "/docs/components/pattern-cta.html" },
+      "registryDependencies": ["@jixoai/press-button", "@jixoai/code-card", "@jixoai/jixoai-theme", "@jixoai/icons"]
     }
   ]
 }
