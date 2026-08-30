@@ -79,11 +79,7 @@
         "group": "general",
         "href": "/docs/components/press-button.html"
       },
-      "registryDependencies": [
-        "@jixoai/utils",
-        "@jixoai/jixoai-theme",
-        "@jixoai/density"
-      ]
+      "registryDependencies": ["@jixoai/utils", "@jixoai/jixoai-theme", "@jixoai/density", "@jixoai/icons"]
     },
     {
       "name": "list-item",
@@ -3243,6 +3239,45 @@
       "meta": {
         "group": "engines",
         "href": "/docs/components.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "button-group",
+      "type": "registry:ui",
+      "title": "Button group",
+      "description": "Joined action layout container: orientation/justify shell that presses edge-to-edge press-buttons (and icon-buttons) over the hairline seam law — adjacent children collapse borders via a -1px margin so a joined row of outline buttons reads as ONE control with 1px seams, never a 2px double border. The container owns NOTHING but layout and seam: buttons keep their own paint (variant ladder, press physics, density tier); the group paints no bezel. role=group with a required label (grouping of related actions, never a selection surface — joined selection is toggle-group).",
+      "files": [
+        { "path": "registry/files/ui/button-group/button-group.svelte", "target": "@ui/button-group/button-group.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/button-group/button-group-divider.svelte", "target": "@ui/button-group/button-group-divider.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/button-group/button-group.css", "target": "@ui/button-group/button-group.css", "type": "registry:file" },
+        { "path": "registry/files/ui/button-group/index.ts", "target": "@ui/button-group/index.ts", "type": "registry:file" }
+      ],
+      "docs": "Props: label (REQUIRED aria name), orientation ('horizontal'|'vertical'), justify ('start'|'end'|'center'|'between'), density, class. ROLE LAW: root is role=group — actions keep their own tab stops and activation; the group adds NO selection semantics (joined selection is toggle-group's contract). Composition: children are plain PressButton/icon-button instances; ButtonGroupDivider inserts a 1px seam member. Paint: the shared seam lives in button-group.css keyed on the data-jx-bgroup hook (Tier-2 vocabulary consumed-only).",
+      "registryDependencies": ["@jixoai/utils", "@jixoai/jixoai-theme", "@jixoai/density"],
+      "meta": {
+        "group": "general",
+        "href": "/docs/components/button-group.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "input-group",
+      "type": "registry:ui",
+      "title": "Input group",
+      "description": "The joined field shell — ONE 1px var(--border) bezel, the var(--background) fill, hover lift, inset focus ring and invalid dashed border ride the SAME paint as the shared html-control-shell law (state machines in input-group.css keyed on the data-jx-igroup hook). A composition frame, not a closed composite: InputGroupAddon lanes (hairline seams per addon edge — no double borders by construction), InputGroupInput as the native input member, press-buttons ride the inline-end addon. disabled on the ROOT disables the whole group natively (InputGroupInput renders disabled, every addon renders inert — the platform's containment).",
+      "files": [
+        { "path": "registry/files/ui/input-group/input-group.svelte", "target": "@ui/input-group/input-group.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/input-group/input-group-addon.svelte", "target": "@ui/input-group/input-group-addon.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/input-group/input-group-input.svelte", "target": "@ui/input-group/input-group-input.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/input-group/input-group.css", "target": "@ui/input-group/input-group.css", "type": "registry:file" },
+        { "path": "registry/files/ui/input-group/index.ts", "target": "@ui/input-group/index.ts", "type": "registry:file" }
+      ],
+      "docs": "Props (root): label (REQUIRED a11y name), name/value/bind:value forwarded to the InputGroupInput member, disabled (native propagation: input renders disabled, addons render inert), invalid, density, class. Members: InputGroupAddon (align 'inline-start'|'inline-end', decorative lane), InputGroupInput (the native input — its own name= submits through the input family contract, MULTIVALUE-ready via the form-field seam when composed so). The shell is a composition frame: children compose freely inside the lane; seams are the addons' hairlines, the shell carries exactly one border.",
+      "registryDependencies": ["@jixoai/jixoai-theme", "@jixoai/utils", "@jixoai/density"],
+      "meta": {
+        "group": "data-entry",
+        "href": "/docs/components/input-group.html"
       }
     }
   ]
