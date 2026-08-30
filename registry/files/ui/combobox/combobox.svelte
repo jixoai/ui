@@ -69,6 +69,31 @@
   against the live wrap anchor; the panel carries jx-waapi behind
   motion.supported plus the REAL .jx-surface-shadow child; jixoai.css
   owns every visible formula.
+
+  MULTIPLE + SHOWCLEAR (2026-08-30, expand-form-family F1):
+
+  5. multiple — `multiple` flips the $bindable contract to string[]
+     (a discriminated GENERIC: `Multiple extends boolean`, no compat
+     shim — the breaking change is documented). Options TOGGLE
+     membership in SELECTION ORDER (pick a, b, c → getAll = a, b, c;
+     re-pick removes). The selection renders as trigger CHIPS (the
+     tags-input chip law: muted fill, 1px border, 12px text, per-chip
+     remove ×); the panel rows carry aria-multiselectable + a check
+     glyph on the picked rows, and picking keeps the panel OPEN (multi-
+     pick is a conversation, not a shot). Submission rides the form-
+     field bridge's MULTIVALUE seam (design.md, the exclusively-lossless
+     transport): the committed array is handed to <jx-form-field> via
+     the `values` PROPERTY (setValues) — never the string value
+     attribute — and commits as FormData with repeated same-name
+     entries, so getAll(name) returns the values in order byte-for-byte;
+     form.reset() restores the mount array, disabled/fieldset omission
+     stay the platform's. Blur no longer commits raw text in multiple
+     mode (chips commit through explicit Enter/click only).
+  6. showClear — × in the trigger lane (before the chevron) when
+     something is committed; clears the selection and submits honestly
+     empty (the bridge's empty law: no entry). The glyphs (chip ×, clear
+     ×, panel check) are CSS-mask icon slots with inline fallbacks —
+     --jx-icon-clear for the ×s — so the item needs no icon dependency.
 -->
 <script module lang="ts">
   /** One row of the Combobox listbox. */
@@ -84,10 +109,11 @@
   }
 </script>
 
-<script lang="ts">
+<script lang="ts" generics="Multiple extends boolean = false">
   // side-effect import: registers the faceless <jx-form-field> element
   // (client-only, idempotent) that carries this field's form association
   import '$lib/form-field';
+  import type { FormField } from '$lib/form-field';
   import { onDestroy } from 'svelte';
   import type { HTMLInputAttributes } from 'svelte/elements';
   import { createSurfaceMotion } from '$lib/surface-motion';
@@ -97,14 +123,21 @@
   interface Props extends Omit<HTMLInputAttributes, 'value'> {
     /** the full option list (order = panel order) */
     options: ComboboxOption[];
-    /** committed value; bind:value — a listed option's value or a custom string */
-    value?: string;
+    /** committed value; bind:value — SINGLE mode: a listed option's
+        value or a custom string. MULTIPLE: the selected string[] in
+        SELECTION ORDER (the discriminated generic swaps the contract;
+        no backward-compat shim — the docs call the breaking change) */
+    value?: Multiple extends true ? string[] : string;
+    /** multi-select mode: options toggle membership (chips + check
+        states + the bridge's MULTIVALUE FormData submission) */
+    multiple?: Multiple;
     /** input placeholder while nothing is committed */
     placeholder?: string;
     /** field label; renders label[for] above the control */
     label?: string;
     /** form field name — intercepted OFF the native input; the bridge
-        submits the committed VALUE under it, never the display text */
+        submits the committed VALUE under it, never the display text
+        (multiple: repeated same-name FormData entries via setValues) */
     name?: string;
     /** error text → aria-invalid + aria-describedby + dashed border */
     error?: string;
@@ -112,6 +145,9 @@
     id?: string;
     /** accept typed text that matches no option as the committed value */
     allowCustom?: boolean;
+    /** × in the trigger lane when something is committed — clears the
+        selection; the field then submits honestly empty */
+    showClear?: boolean;
     /** disable the input and the chevron together */
     disabled?: boolean;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
@@ -126,22 +162,44 @@
   let {
     options,
     value = $bindable(),
+    multiple = false,
     placeholder = 'Search or type...',
     label,
     name,
     error,
     id = autoId,
     allowCustom = true,
+    showClear = false,
     disabled = false,
     variant = 'auto',
     class: className = '',
     ...rest
   }: Props = $props();
 
-  // form lifecycle: what jx-reset restores, and the form-disable mirror
-  const initialValue = value;
+  // form lifecycle: what jx-reset restores, and the form-disable mirror.
+  // An array mount value is SNAPSHOT — the reset target never aliases
+  // the caller's array.
+  const initialValue = Array.isArray(value) ? [...value] : value;
   let formDisabled = $state(false);
   const isDisabled = $derived(disabled || formDisabled);
+
+  /** one cast point between the discriminated contract halves */
+  type Val = Multiple extends true ? string[] : string | undefined;
+  const commitValue = (next: string | string[] | undefined): void => {
+    value = next as Val;
+  };
+
+  // ---- committed vs typing state ------------------------------------------
+  // single mode: the committed string; multiple: the ordered selection.
+  const multiValues = $derived(
+    multiple && Array.isArray(value) ? (value as string[]) : [],
+  );
+  const selected = $derived(
+    multiple ? undefined : options.find((option) => option.value === value),
+  );
+  const display = $derived(multiple ? '' : (selected?.label ?? value ?? ''));
+  const hasSelection = $derived(multiple ? multiValues.length > 0 : (value ?? '') !== '');
+  const showClearButton = $derived(showClear && !isDisabled && hasSelection);
 
   const errorId = $derived(`${id}-error`);
   const invalid = $derived(error != null && error !== '');
@@ -154,10 +212,6 @@
   // dashed token so any consumer id yields a valid --jx-cbx-* name.
   const anchorName = $derived(`--jx-cbx-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
   const optionId = (index: number): string => `${id}-opt-${index}`;
-
-  // ---- committed vs typing state ------------------------------------------
-  const selected = $derived(options.find((option) => option.value === value));
-  const display = $derived(selected?.label ?? value ?? '');
 
   /** the live filter text — typing state, never the committed value */
   let query = $state('');
@@ -201,10 +255,12 @@
   function firstEnabledRow(): number {
     return rows.findIndex((_, index) => rowEnabled(index));
   }
-  /** fresh-open highlight: continue from context like the native select */
+  /** fresh-open highlight: continue from context like the native select
+      (multiple: the first selected member's row) */
   function freshActive(): number {
+    const picked: unknown[] = multiple ? multiValues : [value];
     const selectedRow = rows.findIndex(
-      (row) => row.kind === 'option' && row.option.value === value
+      (row) => row.kind === 'option' && picked.includes(row.option.value)
     );
     return selectedRow >= 0 ? selectedRow : firstEnabledRow();
   }
@@ -283,24 +339,61 @@
   }
 
   // ---- commit paths ----------------------------------------------------------
+  /** membership test for the panel's aria-selected / check / edge paint */
+  function isSelected(v: string): boolean {
+    return multiple ? multiValues.includes(v) : value === v;
+  }
+
   function chooseRow(row: Row): void {
     if (row.kind === 'option') {
       if (row.option.disabled) return; // a disabled row neither selects nor closes
-      value = row.option.value;
+      if (multiple) {
+        // toggle membership — SELECTION ORDER is the commit order
+        commitValue(
+          multiValues.includes(row.option.value)
+            ? multiValues.filter((v) => v !== row.option.value)
+            : [...multiValues, row.option.value],
+        );
+      } else {
+        commitValue(row.option.value);
+      }
     } else {
-      value = row.text;
+      // the "Use "xxx"" affordance: custom text joins the selection
+      if (multiple) {
+        if (!multiValues.includes(row.text)) commitValue([...multiValues, row.text]);
+      } else {
+        commitValue(row.text);
+      }
     }
     query = '';
     if (inputEl) inputEl.value = display; // derived re-evaluates after the write
-    hidePanel();
+    if (!multiple) hidePanel(); // multi-pick keeps the panel open
   }
 
-  /** resolve typed text: exact option → that value; else allowCustom → raw;
-      else no commit (the blur-sync effect reverts the stray text) */
+  /** chip ×: remove one member, keep the panel/flow as it is */
+  function removeValue(v: string): void {
+    if (isDisabled) return;
+    commitValue(multiValues.filter((member) => member !== v));
+    inputEl?.focus();
+  }
+
+  /** the trigger ×: clear the whole selection — the field then submits
+      honestly empty (the bridge contributes nothing) */
+  function clearSelection(): void {
+    if (isDisabled) return;
+    commitValue(multiple ? [] : undefined);
+    query = '';
+    if (inputEl) inputEl.value = display;
+    inputEl?.focus();
+  }
+
+  /** resolve typed text (SINGLE mode): exact option → that value; else
+      allowCustom → raw; else no commit (the blur-sync effect reverts
+      the stray text) */
   function commitFromText(): void {
     const text = (inputEl?.value ?? '').trim();
     if (text === '') {
-      if (value !== undefined) value = undefined;
+      if (value !== undefined) commitValue(undefined);
       return;
     }
     const lower = text.toLowerCase();
@@ -308,11 +401,41 @@
       (option) => !option.disabled && (option.value.toLowerCase() === lower || option.label.toLowerCase() === lower)
     );
     if (exact) {
-      if (value !== exact.value) value = exact.value;
+      if (value !== exact.value) commitValue(exact.value);
     } else if (allowCustom) {
-      if (value !== text) value = text;
+      if (value !== text) commitValue(text);
     }
   }
+
+  /** resolve typed text (MULTIPLE mode): Enter with nothing highlighted —
+      an exact option toggles, else allowCustom appends the raw text as a
+      chip. Blur never commits raw text in multiple mode. */
+  function commitMultiFromText(): void {
+    const text = (inputEl?.value ?? '').trim();
+    if (text === '') return;
+    const lower = text.toLowerCase();
+    const exact = options.find(
+      (option) => !option.disabled && (option.value.toLowerCase() === lower || option.label.toLowerCase() === lower)
+    );
+    if (exact) {
+      chooseRow({ kind: 'option', option: exact });
+    } else if (allowCustom && !multiValues.includes(text)) {
+      commitValue([...multiValues, text]);
+    }
+  }
+
+  // ---- the MULTIVALUE bridge handoff (design.md) --------------------------
+  // The committed array crosses to <jx-form-field> as a PROPERTY
+  // (setValues) — never the string value attribute — and commits as
+  // FormData with repeated same-name entries: getAll(name) returns the
+  // selection in order, byte-for-byte. Single mode DISARMS the seam
+  // (null): the value attribute governs again. The element ref is bound
+  // in the markup; $effect keeps the handoff on every commit + reset.
+  let bridgeEl = $state<FormField | null>(null);
+  $effect(() => {
+    if (!bridgeEl || typeof bridgeEl.setValues !== 'function') return;
+    bridgeEl.setValues(multiple ? multiValues : null);
+  });
 
   // ---- input events ----------------------------------------------------------
   function onInput(event: Event): void {
@@ -337,6 +460,7 @@
       event.preventDefault();
       const row = rows[active];
       if (row && rowEnabled(active)) chooseRow(row);
+      else if (multiple) commitMultiFromText(); // nothing highlighted → resolve the raw text into the selection
       else commitFromText(); // nothing highlighted → resolve the raw text
     } else if (event.key === 'Escape') {
       // no preventDefault: the popover's native close request runs; we only revert
@@ -365,7 +489,9 @@
   function onFocusOut(): void {
     focused = false; // the display-sync effect below reverts/refreshes the text
     hidePanel();
-    commitFromText();
+    // multiple mode: blur never commits raw text — chips join through
+    // explicit Enter / row click only
+    if (!multiple) commitFromText();
     query = ''; // the filter is focus-scoped — a closed panel never holds a stale one
   }
 
@@ -390,16 +516,21 @@
        form lifecycle back into this component. Owns no box, no content —
        the `contents` utility keeps the prerendered HTML from flashing an
        extra flex gap pre-upgrade.
+       MULTIPLE: the string value attribute stays EMPTY — the committed
+       array crosses through the `values` PROPERTY (setValues, the
+       MULTIVALUE seam) instead, which commits repeated same-name FormData
+       entries (design.md: no joined-string channel exists).
        disabled passes `|| undefined`: Svelte has no boolean-attribute
        semantics for custom elements and would render disabled="false"
        as a PRESENT attribute (presence = true in HTML). -->
   <jx-form-field
+    bind:this={bridgeEl}
     class="contents"
     aria-hidden="true"
     {name}
-    value={value ?? ''}
+    value={multiple ? undefined : (value ?? '')}
     disabled={isDisabled || undefined}
-    onjx-reset={() => (value = initialValue)}
+    onjx-reset={() => commitValue(Array.isArray(initialValue) ? [...initialValue] : initialValue)}
     onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
   ></jx-form-field>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
@@ -408,17 +539,41 @@
       data-jx-combobox-invalid={invalid ? '' : undefined}
       class={cn(
         'jx-combobox-shell flex items-center gap-2 w-full max-w-full min-h-10 px-3 border border-border rounded-none bg-background scheme-light dark:scheme-dark transition-[box-shadow] duration-150 ease-out',
+        multiple && 'flex-wrap',
         invalid && 'border-dashed',
         className,
       )}
     >
+      {#if multiple}
+        {#each multiValues as member (member)}
+          <!-- the trigger chips: the tags-input chip law (muted fill, 1px
+               border, 12px text, per-chip remove ×). The × keeps the
+               pointer from blurring the input (the panel law) so removal
+               never trips a blur-commit. -->
+          <span data-jx-combobox-chip class="inline-flex flex-none items-center gap-1 ps-2 border border-border bg-muted text-foreground text-xs leading-none h-6">
+            <span data-jx-combobox-chip-label class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{options.find((option) => option.value === member)?.label ?? member}</span>
+            <button
+              type="button"
+              class="jx-combobox-x inline-flex items-center justify-center self-stretch w-6 p-0 border-0 bg-transparent cursor-pointer text-muted-foreground transition-colors duration-100 ease-out hover:text-foreground disabled:cursor-not-allowed"
+              aria-label="remove {options.find((option) => option.value === member)?.label ?? member}"
+              disabled={isDisabled}
+              onmousedown={(event) => event.preventDefault()}
+              onclick={() => removeValue(member)}
+            >
+              <span class="jx-combobox-x-glyph" aria-hidden="true"></span>
+            </button>
+          </span>
+        {/each}
+      {/if}
       <!-- jx-html-control-lane (B2, ui-plugin-followup): the input is a
            LANE inside the shell (the shell owns the box law), so the
            standard layer's lane utility is the appropriate form-lane
            adoption — flex/min-width/min-height/border-0/outline/
            transparent/foreground/font-size/placeholder all
            single-sourced there. p-0 stays: the UA input padding reset
-           the Part A shell-pair rule normally carries. -->
+           the Part A shell-pair rule normally carries. multiple: the
+           lane shares the wrapped row with the chips (a small floor so
+           the typing lane never collapses). -->
       <input
         bind:this={inputEl}
         {...rest}
@@ -437,7 +592,10 @@
         autocapitalize="off"
         spellcheck="false"
         data-jx-combobox-input
-        class="jx-html-control-lane p-0"
+        class={cn(
+          'jx-html-control-lane p-0',
+          multiple && 'flex-[1_1_6rem] min-w-[6rem]',
+        )}
         {placeholder}
         disabled={isDisabled}
         oninput={onInput}
@@ -446,6 +604,23 @@
         onclick={onClick}
         onfocusout={onFocusOut}
       />
+      {#if showClearButton}
+        <!-- the trigger × (showClear): clears the whole selection — the
+             bridge then contributes NOTHING (honest empty submit). Same
+             pointer law as the chip ×: mousedown is prevented so the
+             input keeps focus. -->
+        <button
+          type="button"
+          class="jx-combobox-x flex-none inline-flex items-center justify-center w-5 h-5 p-0 border-0 bg-transparent text-muted-foreground cursor-pointer transition-colors duration-100 ease-out hover:text-foreground disabled:cursor-not-allowed"
+          tabindex="-1"
+          aria-label="clear selection"
+          disabled={isDisabled}
+          onmousedown={(event) => event.preventDefault()}
+          onclick={clearSelection}
+        >
+          <span class="jx-combobox-x-glyph" aria-hidden="true"></span>
+        </button>
+      {/if}
       <button
         type="button"
         class="jx-combobox-toggle flex-none inline-flex items-center justify-center w-5 h-5 p-0 border-0 bg-transparent text-muted-foreground cursor-pointer disabled:cursor-not-allowed"
@@ -502,6 +677,7 @@
         class="m-0 p-0 list-none"
         role="listbox"
         aria-label={label ?? placeholder}
+        aria-multiselectable={multiple ? 'true' : undefined}
         onmousedown={(event) => event.preventDefault()}
       >
         {#each rows as row, index (row.kind === 'option' ? row.option.value : `custom:${row.text}`)}
@@ -512,15 +688,15 @@
           <li
             id={optionId(index)}
             role="option"
-            aria-selected={row.kind === 'option' && row.option.value === value ? 'true' : 'false'}
+            aria-selected={row.kind === 'option' && isSelected(row.option.value) ? 'true' : 'false'}
             aria-disabled={row.kind === 'option' && row.option.disabled ? 'true' : undefined}
             data-jx-combobox-active={index === active ? '' : undefined}
-            data-jx-combobox-selected={row.kind === 'option' && row.option.value === value ? '' : undefined}
+            data-jx-combobox-selected={row.kind === 'option' && isSelected(row.option.value) ? '' : undefined}
             data-jx-combobox-disabled={row.kind === 'option' && row.option.disabled ? '' : undefined}
             class={cn(
-              'jx-combobox-option flex flex-col gap-0.5 px-[10px] py-[6px] text-[13px] leading-[1.45] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
+              'jx-combobox-option relative flex flex-col gap-0.5 px-[10px] py-[6px] text-[13px] leading-[1.45] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
               index === active && 'bg-terminal-hover text-terminal-foreground',
-              row.kind === 'option' && row.option.value === value && 'bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
+              row.kind === 'option' && isSelected(row.option.value) && 'bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
               row.kind === 'option' && row.option.disabled && 'opacity-50 pointer-events-none',
             )}
             onclick={() => chooseRow(row)}
@@ -532,6 +708,13 @@
               {/if}
             {:else}
               <span data-jx-combobox-use class="text-primary">Use “{row.text}”</span>
+            {/if}
+            {#if multiple && row.kind === 'option' && isSelected(row.option.value)}
+              <!-- the multiple check glyph: a CSS-mask icon slot
+                   (--jx-icon-check with the inline fallback) pinned to
+                   the row's inline end — the pick state readable at a
+                   glance, aria-hidden (aria-selected carries the state) -->
+              <span class="jx-combobox-check" aria-hidden="true"></span>
             {/if}
           </li>
         {/each}

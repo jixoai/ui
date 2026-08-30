@@ -95,6 +95,25 @@
   rows stay inline (one-off wrappers). ONLY the clear glyph's svg
   descendant sizing, the search-cancel pseudo kill and the clear
   hover/focus states remain as the D1-exempt residue.
+
+  2026-08-30 · expand-form-family (F1): three family capabilities —
+    count        the "n / max" CODE-POINT readout in the hint lane below
+                 the shell; the cap rides the native maxlength (the
+                 platform owns clamping); aria-live sits at off and
+                 flips to polite near the limit (from 90% of the cap).
+    reveal       type="password" renders the eye toggle by DEFAULT
+                 (reveal={false} opts out); it starts HIDDEN — the VALUE
+                 is never revealed by default — and flips only the
+                 input's type between password/text. End-lane order:
+                 innerInlineEnd snippet > clearable × > eye, each keeping
+                 the --jx-hit edge-lane geometry (END-INSET OWNERSHIP).
+    labelMode    'floating' renders the terminal BRACKET — the label
+                 rides the shell's top border like a fieldset legend (a
+                 recorded divergence from the SaaS in-field morph); the
+                 ink state machine is pure CSS: :placeholder-shown
+                 (committed ink) / :focus-visible (live ink) / :has
+                 (error ink wins). Additive: a modifier class, the
+                 default stacked paint untouched.
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
@@ -126,6 +145,22 @@
     error?: string;
     /** text-like only: × button in the inner-inline-end area */
     clearable?: boolean;
+    /** text-like only: the "n / max" code-point readout in the hint lane
+        below the shell (plain n without a maxlength). aria-live is OFF
+        by default and flips to polite near the limit (from 90% of the
+        cap) — the readout never chatters per keystroke (2026-08-30) */
+    count?: boolean;
+    /** password reveal toggle — DEFAULT ON for type="password" (the
+        VALUE starts hidden; the toggle only flips the input's type
+        between password/text). reveal={false} opts out. End-lane order:
+        innerInlineEnd snippet > clearable × > eye (2026-08-30) */
+    reveal?: boolean;
+    /** label posture: 'stacked' (default) renders label[for] above the
+        shell; 'floating' renders the terminal BRACKET — the label rides
+        the shell's top border like a fieldset legend (a recorded
+        divergence from the SaaS in-field morph), with the state machine
+        pure CSS (:placeholder-shown / :focus-visible / :has) */
+    labelMode?: 'stacked' | 'floating';
     /** inside the shell, left of the input (prefix icon / unit) */
     innerInlineStart?: Snippet;
     /** inside the shell, right of the input (suffix / unit / action) */
@@ -182,6 +217,10 @@
     id = autoId,
     error,
     clearable = false,
+    count = false,
+    reveal = true,
+    labelMode = 'stacked',
+    placeholder,
     innerInlineStart,
     innerInlineEnd,
     outerBlockStart,
@@ -210,6 +249,26 @@
   const isNumber = $derived(type === 'number');
   // declared before `slotted` reads it (runes are declarations, not hoists)
   const customStepper = $derived(isNumber && !nativeControls);
+  // the text-like shell lane is the only one that takes the floating
+  // bracket (range/color/hidden keep the stacked label law)
+  const isTextLike = $derived(!isHidden && !isRange && !isColor);
+  const floating = $derived(
+    labelMode === 'floating' && label != null && outerBlockStart == null && isTextLike,
+  );
+
+  // ---- password reveal ----------------------------------------------------
+  // default ON (reveal={false} opts out); the toggle starts HIDDEN — the
+  // VALUE is never revealed by default (design.md). Flipping only swaps
+  // the input's type between password/text: autocomplete and password-
+  // manager behavior stay the platform's.
+  let revealed = $state(false);
+  const showReveal = $derived(type === 'password' && reveal);
+  const inputType = $derived(type === 'password' && revealed ? 'text' : type);
+  // floating brackets ride :placeholder-shown — the empty state must be
+  // expressible even without a consumer placeholder (a single space)
+  const shellPlaceholder = $derived(
+    floating && (placeholder == null || placeholder === '') ? ' ' : placeholder,
+  );
 
   // ---- controlled / clearable plumbing ---------------------------------
   // liveValue mirrors the DOM only after real user input — the one piece
@@ -221,6 +280,21 @@
   const shownValue = $derived(liveValue ?? (controlled ? String(value) : ''));
   const slotted = $derived(Boolean(innerInlineStart || innerInlineEnd || clearable || customStepper));
   const showClear = $derived(clearable && rest.disabled !== true && shownValue !== '');
+
+  // ---- count plumbing (code points, never UTF-16 units) -----------------
+  // "n / max" in the hint lane; the cap rides the native maxlength
+  // attribute (the platform owns clamping — typing and paste truncate at
+  // the element). Near the limit (from 90% of the cap) the readout's
+  // aria-live flips from off to polite; elsewhere it never chatters.
+  const codePointCount = (s: string): number => [...s].length;
+  const shownCount = $derived(codePointCount(shownValue));
+  const countMax = $derived.by(() => {
+    const raw = (rest as { maxlength?: string | number }).maxlength;
+    const n = typeof raw === 'number' ? raw : Number(raw);
+    return raw != null && raw !== '' && Number.isFinite(n) && n > 0 ? n : null;
+  });
+  const countNear = $derived(countMax != null && shownCount >= Math.ceil(countMax * 0.9));
+  const countLabel = $derived(countMax != null ? `${shownCount} / ${countMax}` : `${shownCount}`);
 
   function syncValue(event: Event) {
     const el = event.currentTarget as HTMLInputElement;
@@ -442,16 +516,17 @@
 
 {#if isHidden}
   <!-- hidden: bare native passthrough (value rides as a plain attribute) -->
-  <input {id} {type} {value} {...rest} data-density={resolvedDensity} />
+  <input {id} {type} {value} {placeholder} {...rest} data-density={resolvedDensity} />
 {:else}
   <div class="jx-field" data-density={resolvedDensity}>
     {#if outerBlockStart}
       <div data-jx-outer data-jx-outer-start class="text-muted-foreground text-xs -mb-1">{@render outerBlockStart()}</div>
-    {:else if label}<label class="jx-label" for={id}>{label}</label>{/if}
+    {:else if label && !floating}<label class="jx-label" for={id}>{label}</label>{/if}
     {#if isRange}
       <input
         {id}
         {type}
+        {placeholder}
         {...rest}
         value={controlled ? value : undefined}
         oninput={syncValue}
@@ -473,6 +548,7 @@
         <input
           {id}
           {type}
+          {placeholder}
           {...rest}
           value={controlled ? value : undefined}
           oninput={syncValue}
@@ -497,9 +573,11 @@
       </label>
     {:else}
       <!-- the shell owns the box law; the input inside is chromeless.
-           Outermost positions: [−][prefix] lane [suffix][+][clear?] —
-           the stepper pair sits OUTSIDE the snippet slots so custom
-           prefix/suffix content never displaces the stepping controls -->
+           Outermost positions: [−][prefix] lane [suffix][+][clear?][eye?]
+           — the stepper pair sits OUTSIDE the snippet slots so custom
+           prefix/suffix content never displaces the stepping controls;
+           the reveal eye is the OUTERMOST end child (the end-lane order
+           innerInlineEnd > clearable × > eye, 2026-08-30) -->
       <div
         bind:this={pickerAnchorEl}
         class={'jx-html-control-shell ' + className}
@@ -507,9 +585,16 @@
         class:jx-invalid={invalid}
         class:jx-clearable={clearable}
         class:jx-number-shell={customStepper}
+        class:jx-floating={floating}
         data-jx-custom-picker={customPicker ? '' : undefined}
         style={customPicker ? `anchor-name: ${pickerAnchor}` : undefined}
       >
+        {#if floating}
+          <!-- the terminal BRACKET label (labelMode="floating"): rides the
+               shell's top border like a fieldset legend — no in-field
+               morph; the ink state machine is pure CSS (input.css) -->
+          <label class="jx-floating-label" for={id}>{label}</label>
+        {/if}
         {#if customStepper}
           <button
             type="button"
@@ -528,7 +613,8 @@
         <input
           bind:this={inputEl}
           {id}
-          {type}
+          type={inputType}
+          placeholder={shellPlaceholder}
           {...rest}
           value={controlled ? value : undefined}
           oninput={syncValue}
@@ -563,6 +649,23 @@
                  --jx-icon-clear (overridable via the plugin); the inline
                  lucide SVG fallback serves without the plugin -->
             <span class="jx-clear-glyph" aria-hidden="true"></span>
+          </button>
+        {/if}
+        {#if showReveal}
+          <!-- the reveal eye: the OUTERMOST end-lane child. aria-pressed
+               mirrors the reveal state (starts false — the VALUE is never
+               revealed by default); the glyph swaps eye → eyeOff while
+               the password shows. Only the input's type flips —
+               autocomplete / password-manager behavior untouched. -->
+          <button
+            type="button"
+            class="jx-input-reveal"
+            aria-pressed={revealed}
+            aria-label={revealed ? 'hide password' : 'show password'}
+            disabled={rest.disabled}
+            onclick={() => (revealed = !revealed)}
+          >
+            {@html revealed ? icons.eyeOff : icons.eye}
           </button>
         {/if}
       </div>
@@ -669,6 +772,21 @@
       </div>
     {/if}
     {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}
+    {#if count}
+      <!-- the hint lane: the "n / max" code-point readout. aria-live sits
+           at OFF and flips to polite near the limit (from 90% of the
+           maxlength cap) — the readout never chatters per keystroke -->
+      <div data-jx-hint class="flex items-center">
+        <p
+          data-jx-count
+          class="ms-auto m-0 font-nav text-[11px] tracking-[0.08em] text-muted-foreground"
+          aria-live={countNear ? 'polite' : 'off'}
+          aria-atomic="true"
+        >
+          {countLabel}
+        </p>
+      </div>
+    {/if}
     {#if outerBlockEnd}<div data-jx-outer data-jx-outer-end class="text-muted-foreground text-xs -mt-1">{@render outerBlockEnd()}</div>{/if}
   </div>
 {/if}

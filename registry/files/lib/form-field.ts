@@ -13,6 +13,18 @@
  *  - the component feeds it three attributes only: name, value, disabled.
  *    Any change re-syncs setFormValue(); a missing name, an empty value
  *    or a disabled field contributes NOTHING (native control semantics).
+ *  - MULTIVALUE seam (2026-08-30, expand-form-family design.md): a
+ *    `values: string[]` property — equivalently `setValues(values)` —
+ *    hands the element an ordered array that bypasses the string `value`
+ *    attribute entirely and commits as `internals.setFormValue(FormData)`
+ *    with REPEATED same-name entries, so `formData.getAll(name)` returns
+ *    the values IN ORDER, each byte-for-byte the committed string
+ *    (newline/quote/Unicode values survive losslessly — no joined-string
+ *    channel exists). While armed, the `value` attribute is never read
+ *    for submission; `setValues(null)` disarms back to the attribute.
+ *    The initial array is captured on first handoff: form.reset()
+ *    restores it (and jx-reset tells the component). No coercion: a
+ *    non-string entry is a programmer error and throws.
  *  - form lifecycle flows back as two bubbling CustomEvents the component
  *    may listen to on the element itself: jx-reset (restore the mount
  *    value) and jx-disabled (detail: boolean — form/fieldset disable).
@@ -48,6 +60,11 @@ export class FormField extends BaseElement {
 
   readonly #internals = this.attachInternals();
 
+  /** the MULTIVALUE handoff — null = the seam is disarmed (attribute mode) */
+  #values: string[] | null = null;
+  /** the first array ever handed in; form.reset() restores it */
+  #initialValues: string[] | null = null;
+
   connectedCallback(): void {
     this.style.display = 'contents';
     this.#sync();
@@ -57,8 +74,46 @@ export class FormField extends BaseElement {
     this.#sync();
   }
 
+  /** MULTIVALUE read: the live array while the seam is armed, else null */
+  get values(): string[] | null {
+    return this.#values;
+  }
+  set values(values: string[] | null | undefined) {
+    this.setValues(values);
+  }
+
+  /** MULTIVALUE handoff (property form — the array never crosses element
+      boundaries as a string): arm with a string[] (copied), disarm with
+      null. Entries are stored in ORDER; submission preserves it. */
+  setValues(values: string[] | null | undefined): void {
+    if (values == null) {
+      this.#values = null;
+    } else {
+      const list: string[] = [];
+      for (const entry of values) {
+        if (typeof entry !== 'string') {
+          // no coercion — a foreign value is a programmer error (design.md)
+          throw new TypeError(
+            `jx-form-field: setValues expects string[], got ${typeof entry} entry`,
+          );
+        }
+        list.push(entry);
+      }
+      this.#values = list;
+      // lifecycle stays native: the first handoff is the reset target
+      if (this.#initialValues === null) this.#initialValues = [...list];
+    }
+    this.#sync();
+  }
+
   formResetCallback(): void {
-    this.setAttribute('value', '');
+    if (this.#values !== null || this.#initialValues !== null) {
+      // MULTIVALUE: restore the initial array (an empty one contributes
+      // nothing — the honest empty), then let the component follow
+      this.#values = this.#initialValues ? [...this.#initialValues] : [];
+    } else {
+      this.setAttribute('value', '');
+    }
     this.dispatchEvent(new CustomEvent('jx-reset', { bubbles: true }));
   }
 
@@ -68,14 +123,31 @@ export class FormField extends BaseElement {
 
   #sync(): void {
     const name = this.getAttribute('name');
-    const value = this.getAttribute('value') ?? '';
     const disabled = this.hasAttribute('disabled');
-    if (!name || disabled || value === '') {
+    if (!name || disabled) {
       this.#internals.setFormValue(null);
       return;
     }
-    // multivalue: checkbox-set semantics — newline-separated entries
-    // submit as SEPARATE FormData entries under the same name.
+    // MULTIVALUE seam (2026-08-30, expand-form-family design.md): the
+    // FormData PAYLOAD form of setFormValue — the union member the DOM
+    // typings accept — carries the ordered array as REPEATED same-name
+    // entries. Each entry submits byte-for-byte the committed string
+    // (newline/quote/Unicode safe); an empty array contributes nothing.
+    // The legacy newline-split `multivalue` attribute keeps serving the
+    // transfer component below this seam.
+    if (this.#values !== null) {
+      const data = new FormData();
+      for (const entry of this.#values) data.append(name, entry);
+      this.#internals.setFormValue(data);
+      return;
+    }
+    const value = this.getAttribute('value') ?? '';
+    if (value === '') {
+      this.#internals.setFormValue(null);
+      return;
+    }
+    // legacy multivalue: checkbox-set semantics — newline-separated
+    // entries submit as SEPARATE FormData entries under the same name.
     // ElementInternals.setFormValue is NOT variadic; the multi-entry
     // contract is expressed by handing it a FormData (the only way the
     // platform accepts multiple values for one control)

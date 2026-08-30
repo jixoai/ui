@@ -108,7 +108,14 @@
   const shownValue = $derived(liveValue ?? (controlled ? String(value) : ''));
   const slotted = $derived(Boolean(innerBlockStart || innerBlockEnd || count));
   const maxLen = $derived(typeof rest.maxlength === 'number' && rest.maxlength > 0 ? rest.maxlength : null);
-  const countLabel = $derived(maxLen != null ? `${shownValue.length} / ${maxLen}` : `${shownValue.length}`);
+  // code-point counting (expand-form-family passthrough, 2026-08-30):
+  // the same law input's count readout uses — surrogate pairs (emoji,
+  // ext-B CJK) count as ONE character, never two UTF-16 units. Near the
+  // limit (from 90% of the cap) the readout's aria-live flips from off
+  // to polite; elsewhere it never chatters per keystroke.
+  const shownCount = $derived([...shownValue].length);
+  const countNear = $derived(maxLen != null && shownCount >= Math.ceil(maxLen * 0.9));
+  const countLabel = $derived(maxLen != null ? `${shownCount} / ${maxLen}` : `${shownCount}`);
 
   function syncValue(event: Event) {
     const el = event.currentTarget as HTMLTextAreaElement;
@@ -148,7 +155,11 @@
     {#if innerBlockEnd || count}
       <div data-jx-inner data-jx-inner-end class="flex items-center gap-3 py-1.5 text-muted-foreground text-xs border-t border-border">
         {#if innerBlockEnd}{@render innerBlockEnd()}{/if}
-        {#if count}<span data-jx-count class="ms-auto font-nav text-[11px] tracking-[0.08em]">{countLabel}</span>{/if}
+        {#if count}<span
+          data-jx-count
+          class="ms-auto font-nav text-[11px] tracking-[0.08em]"
+          aria-live={countNear ? 'polite' : 'off'}
+          aria-atomic="true">{countLabel}</span>{/if}
       </div>
     {/if}
   </div>

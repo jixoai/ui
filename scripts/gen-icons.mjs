@@ -92,6 +92,14 @@ const GROUPS = [
       ['chevronLeft', 'ChevronLeft'],
     ],
   },
+  {
+    comment:
+      "// input password-reveal set (2026-08-30, expand-form-family): the\n// eye/eye-off pair the reveal toggle paints — eye while the value is\n// hidden, eyeOff while revealed.",
+    icons: [
+      ['eye', 'Eye'],
+      ['eyeOff', 'EyeOff'],
+    ],
+  },
 ];
 
 // hand-era one-liners kept past the wrap threshold (byte-compat)

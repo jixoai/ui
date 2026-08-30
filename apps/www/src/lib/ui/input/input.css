@@ -37,6 +37,11 @@
  *    against the border instead of centered in their zones — the
  *    self-insetting child law now applies to it like it already did
  *    to the clear button) — 2026-08-29
+ *  - the password reveal eye (the clear button's geometry law, the
+ *    OUTERMOST end child: innerInlineEnd > × > eye) and the floating
+ *    bracket label (labelMode="floating" — legend on the border, pure
+ *    CSS :placeholder-shown/:focus-visible/:has ink states, additive
+ *    under the .jx-floating modifier) — 2026-08-30
  */
 @layer theme, base, components, utilities;
 
@@ -156,6 +161,101 @@
     :where(button.jx-input-suffix-icon-button) {
       transition: none;
     }
+  }
+
+  /* ---- the password reveal eye (expand-form-family F1, 2026-08-30) ----
+     The CLEAR BUTTON's geometry law, verbatim (END-INSET OWNERSHIP): a
+     full var(--jx-hit) edge lane flush with the border, glyph centered
+     on BOTH axes. It is the OUTERMOST end child (end-lane order:
+     innerInlineEnd snippet > clearable × > eye), so its :has() padding
+     drop below owns the shell's inline-end inset whenever it renders —
+     with or without the clear × beside it. Same color/focus/disabled
+     laws as the stepper pair (muted → hover foreground; the site's
+     inset 1px focus-visible ring). The glyph is the shared inline icon
+     set (icons.eye / icons.eyeOff — 16px baked), swapped by the
+     component when the password shows. */
+  :where(button.jx-input-reveal) {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--jx-hit, 2.5rem);
+    min-height: var(--jx-hit, 2.5rem);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    transition: color 150ms ease-out;
+  }
+  :where(button.jx-input-reveal):hover:not(:disabled) {
+    color: var(--foreground);
+  }
+  :where(button.jx-input-reveal):focus-visible {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+  }
+  :where(button.jx-input-reveal):disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  :where(.jx-html-control-shell):has(> .jx-input-reveal:last-child) {
+    padding-inline-end: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :where(button.jx-input-reveal) {
+      transition: none;
+    }
+  }
+
+  /* ---- the floating bracket label (labelMode="floating", 2026-08-30) --
+     The terminal translation of the floating label: the label rides the
+     shell's TOP BORDER like a fieldset legend (the bracket), never the
+     SaaS in-field morph — zero motion, position constant for the
+     field's whole life. The background notch cuts the border under the
+     label; the state machine is pure CSS keyed on the lane inside:
+       rest (empty, unfocused)  muted prompt ink (.jx-label law)
+       filled  (:not(:placeholder-shown))  committed foreground ink
+       focused (:focus-visible)            live foreground ink
+       error   ([aria-invalid='true'])     destructive ink — wins
+     ADDITIVE ONLY: every rule is scoped under the .jx-floating modifier
+     (or the .jx-floating-label child it positions) — the default
+     stacked label law (jx-pure Part A) is untouched. The component
+     seeds placeholder=" " when none is given so :placeholder-shown can
+     express the empty state honestly. */
+  :where(.jx-html-control-shell.jx-floating) {
+    position: relative;
+    /* room for the bracket's upper half overhanging the border */
+    margin-block-start: 0.625rem;
+  }
+  :where(.jx-floating-label) {
+    position: absolute;
+    top: 0;
+    inset-inline-start: var(--jx-inset, 0.75rem);
+    transform: translateY(-50%);
+    padding-inline: 0.375rem;
+    background: var(--background);
+    font-family: var(--font-nav);
+    font-size: var(--jx-text-secondary, 11px);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    line-height: 1;
+    color: var(--muted-foreground);
+    z-index: 1;
+  }
+  :where(.jx-floating:has(> .jx-html-control-lane:not(:placeholder-shown)))
+    > :where(.jx-floating-label) {
+    color: var(--foreground);
+  }
+  :where(.jx-floating:has(> .jx-html-control-lane:focus-visible))
+    > :where(.jx-floating-label) {
+    color: var(--foreground);
+  }
+  /* the error composition: destructive ink outranks filled/focused
+     (last rule, equal specificity) — the label matches the dashed shell */
+  :where(.jx-floating:has(> .jx-html-control-lane[aria-invalid='true']))
+    > :where(.jx-floating-label) {
+    color: var(--destructive);
   }
 
   /* ---- panel: the date-panel law (bezel surface on the jx-surface

@@ -54,6 +54,22 @@
   let backendStrict = $state<string | undefined>(undefined);
   let backendRtl = $state<string | undefined>('bun-terminal');
 
+  // multiple + clear (expand-form-family F1, 2026-08-30)
+  let pickedStacks = $state<string[]>(['node-pty']);
+  let clearedRoute = $state<string | undefined>('bun-terminal');
+
+  const multipleUsage = `<!-- multiple: bind an ARRAY in selection order; the committed
+     array submits as repeated same-name FormData entries through the
+     form-field bridge's MULTIVALUE seam — getAll(name) returns the
+     picks byte-for-byte in order (BREAKING: value becomes string[]) -->
+<Combobox label="stacks" multiple bind:value={stacks} options={backends} />
+
+<!-- showClear: × in the trigger lane when something is committed;
+     clearing submits honestly empty (no entry, never "undefined") -->
+<Combobox label="backend" showClear bind:value={backend} options={backends} />
+
+const stacks = $state<string[]>([]);`;
+
   const backendOptions: ComboboxOption[] = [
     { value: 'node-pty', label: 'node-pty', description: 'conpty / forkpty — the battle-tested addon' },
     { value: 'bun-terminal', label: 'Bun.Terminal', description: 'linux/macos since 1.3.13, windows 1.3.14' },
@@ -120,6 +136,7 @@
         <span class="pill">live label filter</span>
         <span class="pill">↑/↓ + Enter / Escape / Tab</span>
         <span class="pill">allowCustom “Use “xxx””</span>
+        <span class="pill">multiple chips · showClear</span>
         <span class="pill">rtl: logical properties only</span>
       </div>
     </SectionCard>
@@ -232,6 +249,47 @@
     </SectionCard>
   </div>
 
+  <!-- multiple + clear (expand-form-family F1, 2026-08-30) -->
+  <div id="multiple" data-reveal="">
+    <SectionCard
+      family="multiple"
+      headerRegion="multiple"
+      eyebrow="multiple"
+      title="multiple — chips, check states, and a lossless form bridge"
+      summary="multiple flips the bindable to string[] in SELECTION ORDER: options toggle membership (pick to add, re-pick to remove), the trigger wears chips with per-chip remove ×, panel rows carry aria-multiselectable plus a check glyph, and picking keeps the panel open. Submission rides the form-field bridge's MULTIVALUE seam — the committed array crosses as a values PROPERTY and lands in FormData as repeated same-name entries, so getAll(name) returns every pick byte-for-byte in order; form.reset() restores the mount array and disabled fields submit nothing. showClear adds an × in the trigger lane that empties the selection — the field then submits honestly empty."
+    >
+      <div class="flex flex-col gap-5">
+        <div class="grid gap-5 min-[760px]:grid-cols-2">
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <Combobox label="stacks (multiple)" multiple name="stacks" bind:value={pickedStacks} options={backendOptions} placeholder="pick several…" />
+            <span class="text-muted-foreground text-[12.5px]">
+              selection order: <code class="text-accent">[{pickedStacks.join(', ')}]</code> — chips remove ×,
+              panel check state, re-pick toggles off
+            </span>
+          </div>
+          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <Combobox label="backend (showClear)" showClear name="backend-clear" bind:value={clearedRoute} options={backendOptions} />
+            <span class="text-muted-foreground text-[12.5px]">
+              the × clears the commit — the form then contributes
+              <code class="text-accent">nothing</code>, never "undefined" · value:
+              <code class="text-accent">{clearedRoute ?? '—'}</code>
+            </span>
+          </div>
+        </div>
+        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+          The transport is the DECIDED one (design.md): no hidden inputs, no joined-string
+          channel — newline-bearing, quote-bearing and arbitrary Unicode values survive
+          byte-for-byte because each value is a separate FormData entry. The breaking change is
+          deliberate and documented: in multiple mode <code class="text-accent">bind:value</code>
+          is <code class="text-accent">string[]</code> — there is no compatibility shim. Blur no
+          longer commits raw text in multiple mode; chips join through explicit Enter / row click
+          only.
+        </p>
+        <CodeBlock code={multipleUsage} lang="svelte" meta="multiple · showClear" />
+      </div>
+    </SectionCard>
+  </div>
+
   <!-- RTL geometry -->
   <div id="rtl" data-reveal="">
     <SectionCard
@@ -283,7 +341,7 @@
     </div>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The filter text is input state, never committed state — value only changes through an explicit commit."><CodeBlock code={comboboxUsage} lang="svelte" meta="Combobox usage" /></SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Focus never enters the panel — the roving highlight rides aria-activedescendant off the input itself."><A11yTable keys={[{ key: '↑ / ↓', action: 'Move the roving highlight through the filtered rows' }, { key: 'Enter', action: 'Commit the highlighted row (or the raw text with allowCustom)' }, { key: 'Escape', action: 'Revert to the committed display and close the panel' }, { key: 'Tab', action: 'Keep the typed text: resolve to an option, custom value, or revert' }]} aria={[{ name: 'role', value: 'combobox', description: 'On the trigger input, with aria-haspopup="listbox".' }, { name: 'aria-activedescendant', value: '{id}-opt-n', description: 'The keyboard/aria cursor; focus stays in the input the whole time.' }, { name: 'aria-controls / aria-owns', value: '{id}-listbox', description: 'The top-layer promoted listbox is a DOM sibling of the input.' }, { name: 'aria-expanded', value: 'true/false', description: 'On the input; mirrors panel state.' }, { name: 'aria-invalid / aria-describedby', value: 'true / {id}-error', description: 'Error wiring — dashed shell plus the validation message.' }]} /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Focus never enters the panel — the roving highlight rides aria-activedescendant off the input itself."><A11yTable keys={[{ key: '↑ / ↓', action: 'Move the roving highlight through the filtered rows' }, { key: 'Enter', action: 'Commit the highlighted row (or the raw text with allowCustom)' }, { key: 'Escape', action: 'Revert to the committed display and close the panel' }, { key: 'Tab', action: 'Keep the typed text: resolve to an option, custom value, or revert' }]} aria={[{ name: 'role', value: 'combobox', description: 'On the trigger input, with aria-haspopup="listbox".' }, { name: 'aria-activedescendant', value: '{id}-opt-n', description: 'The keyboard/aria cursor; focus stays in the input the whole time.' }, { name: 'aria-controls / aria-owns', value: '{id}-listbox', description: 'The top-layer promoted listbox is a DOM sibling of the input.' }, { name: 'aria-expanded', value: 'true/false', description: 'On the input; mirrors panel state.' }, { name: 'aria-multiselectable', value: "'true'", description: 'On the listbox in multiple mode; picked rows carry aria-selected plus the check glyph.' }, { name: 'aria-label', value: '"remove X" / "clear selection"', description: 'On the chip remove × buttons and the showClear ×.' }, { name: 'aria-invalid / aria-describedby', value: 'true / {id}-error', description: 'Error wiring — dashed shell plus the validation message.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The shell consumes the .jx-field scaffold; the panel is the popover=auto terminal bezel with the 2px primary selected edge."><div class="flex flex-col gap-5"><DensityDemo><Combobox label="density" options={backendOptions} /></DensityDemo><TokenTable tokens={[{ name: '--jx-cbx-{id}', default: 'anchor-name', source: 'component', description: 'Per-instance CSS anchor the panel positions against.' }, { name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'The surface-motion kernel driving the panel open/close.' }, { name: '--jx-scrollbar-thin', default: 'thin lane', source: 'component', description: 'Stable-gutter scrollbar compensation in the panel.' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend the native input attributes (except value); the name prop rides the faceless form-field bridge."><PropsTable props={[{ name: 'options', type: 'ComboboxOption[]', default: '—', description: 'The full option list (order = panel order): { value, label, description?, disabled? }.', required: true }, { name: 'value', type: 'string', default: '—', description: 'Committed value (bind:value) — a listed option’s value or a custom string.', bindable: true }, { name: 'placeholder', type: 'string', default: "'Search or type...'", description: 'Input placeholder while nothing is committed.' }, { name: 'label', type: 'string', default: '—', description: 'Renders label[for] above the control.' }, { name: 'name', type: 'string', default: '—', description: 'Form field name — intercepted off the input; the bridge submits the VALUE, never the display text.' }, { name: 'error', type: 'string', default: '—', description: 'Adds aria-invalid + aria-describedby + the dashed border.' }, { name: 'id', type: 'string', default: 'auto', description: 'Wired into label[for] / error[id]; auto-generated when omitted.' }, { name: 'allowCustom', type: 'boolean', default: 'true', description: 'Accept typed text that matches no option as the committed value.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Disable the input and the chevron together.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface paint of the panel.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the shell.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend the native input attributes (except value); the name prop rides the faceless form-field bridge."><PropsTable props={[{ name: 'options', type: 'ComboboxOption[]', default: '—', description: 'The full option list (order = panel order): { value, label, description?, disabled? }.', required: true }, { name: 'value', type: 'string | string[]', default: '—', description: 'Committed value (bind:value) — a listed option’s value or a custom string; in multiple mode the selected string[] in SELECTION ORDER (breaking: no compat shim).', bindable: true }, { name: 'multiple', type: 'boolean', default: 'false', description: 'Multi-select: options toggle membership, trigger chips + panel check states, aria-multiselectable, and the bridge commits repeated same-name FormData entries via the MULTIVALUE seam.' }, { name: 'showClear', type: 'boolean', default: 'false', description: '× in the trigger lane when something is committed; clearing submits honestly empty.' }, { name: 'placeholder', type: 'string', default: "'Search or type...'", description: 'Input placeholder while nothing is committed.' }, { name: 'label', type: 'string', default: '—', description: 'Renders label[for] above the control.' }, { name: 'name', type: 'string', default: '—', description: 'Form field name — intercepted off the input; the bridge submits the VALUE, never the display text.' }, { name: 'error', type: 'string', default: '—', description: 'Adds aria-invalid + aria-describedby + the dashed border.' }, { name: 'id', type: 'string', default: 'auto', description: 'Wired into label[for] / error[id]; auto-generated when omitted.' }, { name: 'allowCustom', type: 'boolean', default: 'true', description: 'Accept typed text that matches no option as the committed value (multiple: it joins the selection as a chip).' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Disable the input, the chips and the chevron together.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface paint of the panel.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the shell.' }]} /></SectionCard></div>
 </div>

@@ -38,6 +38,10 @@
 <!-- clearable adds the × in the inner-inline-end seam; value is $bindable -->
 <Input type="search" label="search" clearable bind:value={q} />
 
+<!-- count rides the native maxlength; the eye (on by default for
+     password) flips only the input type, starting hidden -->
+<Input label="bio" count maxlength={20} bind:value={bio} />
+
 <!-- four slot seams; the shell still owns border / hover / focus -->
 <Input label="endpoint" placeholder="api.jixoai.com">
   {#snippet innerInlineStart()}<span>https://</span>{/snippet}
@@ -177,6 +181,39 @@
 
   // ---- slot system demo state (controlled search field) --------------------
   let search = $state('pty');
+
+  // ---- capability demos (expand-form-family F1, 2026-08-30) ----------------
+  let counted = $state('');
+  let revealDemo = $state('jixo-terminal-Δ key');
+  let revealOptOut = $state('');
+  let floatingEmpty = $state('');
+  let floatingFilled = $state('not-an-email');
+  let floatingError = $state('');
+
+  const capabilityUsage = `<!-- count: the "n / max" code-point readout in the hint lane
+     (CJK and emoji count as one character); aria-live stays off until
+     the value crosses 90% of the maxlength cap, then reads polite -->
+<Input label="bio" count maxlength={20} bind:value />
+
+<!-- password reveal: ON by default, but the VALUE starts hidden — the
+     eye only flips the input's type between password/text (aria-pressed
+     mirrors the state; autocomplete/password managers untouched) -->
+<Input type="password" label="api key" bind:value />
+
+<!-- opt out with the bare false -->
+<Input type="password" label="api key" reveal={false} />
+
+<!-- end-lane order when the seam fills: snippet > clearable × > eye -->
+<Input type="password" label="key" clearable>
+  {#snippet innerInlineEnd()}<span class="text-foreground!">owned</span>{/snippet}
+</Input>
+
+<!-- floating: the terminal BRACKET — the label rides the shell's top
+     border like a fieldset legend (no SaaS in-field morph); the ink
+     states are pure CSS (empty muted / focused+filled foreground /
+     error destructive) -->
+<Input label="email" labelMode="floating" placeholder="you@host.tld" />
+<Input label="email" labelMode="floating" error="email is required" />`;
 </script>
 
 <svelte:head>
@@ -209,6 +246,7 @@
         <span class="pill">all native types</span>
         <span class="pill">4 slot seams</span>
         <span class="pill">clearable</span>
+        <span class="pill">count · reveal · floating</span>
         <span class="pill">label[for] + aria wiring</span>
         <span class="pill">zero deps · Svelte 5 runes</span>
       </div>
@@ -412,6 +450,60 @@
     </SectionCard>
   </div>
 
+  <!-- count / reveal / floating (expand-form-family F1, 2026-08-30) -->
+  <div id="capabilities" data-reveal="">
+    <SectionCard
+      family="capabilities"
+      headerRegion="capabilities"
+      eyebrow="input"
+      title="count · reveal · floating label"
+      summary="Three family capabilities: a code-point character count with a near-limit live region, the password reveal eye (default on — but the value starts hidden), and the floating bracket label that rides the shell's top border like a fieldset legend."
+    >
+      <div class="flex flex-col gap-6">
+        <div class="grid gap-5 min-[760px]:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <Input
+              label="bio (count, maxlength=20)"
+              name="cap_count"
+              count
+              maxlength={20}
+              placeholder="type past 18 chars…"
+              bind:value={counted}
+            />
+            <span class="text-muted-foreground text-[12.5px]">
+              code-point readout — 你好𠀀👍 counts 4; aria-live flips
+              <code class="text-accent">off → polite</code> from 90% of the cap
+            </span>
+          </div>
+          <Input label="bio (plain n without a cap)" name="cap_count_free" count placeholder="no maxlength" />
+        </div>
+        <div class="grid gap-5 min-[760px]:grid-cols-3">
+          <Input type="password" label="reveal (default on)" name="cap_reveal" bind:value={revealDemo} autocomplete="off" />
+          <Input type="password" label="reveal = false (opt-out)" name="cap_reveal_off" reveal={false} bind:value={revealOptOut} autocomplete="off" />
+          <Input type="password" label="clearable + reveal" name="cap_reveal_clear" value="s3cret" clearable autocomplete="off" />
+        </div>
+        <div class="grid gap-5 min-[760px]:grid-cols-3">
+          <Input label="floating (empty)" name="cap_float_empty" labelMode="floating" placeholder="you@host.tld" bind:value={floatingEmpty} />
+          <Input label="floating (filled)" name="cap_float_filled" labelMode="floating" bind:value={floatingFilled} />
+          <Input label="floating (error)" name="cap_float_error" labelMode="floating" error="email is required" bind:value={floatingError} />
+        </div>
+        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+          The count readout lives in the hint lane below the shell and counts CODE POINTS —
+          surrogate pairs (emoji, ext-B CJK) are one character, never two UTF-16 units — while the
+          maxlength clamp itself stays the platform's. The reveal eye mounts by default on
+          <code class="text-accent">type="password"</code> but starts HIDDEN (aria-pressed="false"):
+          pressing it flips only the input's <code class="text-accent">type</code> between
+          password/text, so autocomplete and password-manager behavior are untouched, and it takes
+          the outermost end-lane seat (snippet &gt; clearable × &gt; eye, each keeping the
+          --jx-hit edge-lane geometry). The floating label is the terminal translation: the label
+          NEVER enters the field — it rides the top border as a bracket, and its ink follows the
+          lane through pure CSS (empty muted, focused or filled foreground, error destructive).
+        </p>
+        <CodeBlock code={capabilityUsage} lang="svelte" meta="count · reveal · floating" />
+      </div>
+    </SectionCard>
+  </div>
+
   <!-- label + error wiring -->
   <div id="error-wiring" data-reveal="">
     <SectionCard
@@ -569,6 +661,9 @@
           { name: 'aria-invalid', value: "'true'", description: 'Set on the native input when the error prop is provided' },
           { name: 'aria-describedby', value: '{id}-error', description: 'Points at the "! message" validation line' },
           { name: 'aria-label', value: '"clear value"', description: 'On the clearable × button (type="button")' },
+          { name: 'aria-label', value: '"show password" / "hide password"', description: 'On the reveal eye; it swaps with the state' },
+          { name: 'aria-pressed', value: 'true/false', description: 'On the reveal eye — starts false (the value is never revealed by default); pressing flips only the input type' },
+          { name: 'aria-live', value: "'off' / 'polite'", description: 'On the count readout — off until the value crosses 90% of the maxlength cap, then polite' },
         ]}
       />
     </SectionCard>
@@ -611,6 +706,9 @@
           { name: 'label', type: 'string', default: '—', description: 'Field label rendered as label[for] above the control.' },
           { name: 'error', type: 'string', default: '—', description: 'Error text: sets aria-invalid, wires aria-describedby, dashes the shell.' },
           { name: 'clearable', type: 'boolean', default: 'false', description: 'Text-like only: adds the × button in the inner-inline-end seam.' },
+          { name: 'count', type: 'boolean', default: 'false', description: 'Text-like only: the "n / max" code-point readout in the hint lane below the shell; the cap rides the native maxlength; aria-live flips off → polite from 90% of the cap.' },
+          { name: 'reveal', type: 'boolean', default: 'true', description: 'type="password" only: the reveal eye in the end lane (outermost: snippet > clearable × > eye). Starts hidden; pressing flips only the input type between password/text. Pass false to omit.' },
+          { name: 'label-mode', type: "'stacked' | 'floating'", default: "'stacked'", description: "floating renders the terminal bracket — the label rides the shell's top border like a fieldset legend (recorded divergence from the SaaS in-field morph); ink states are pure CSS (empty muted / focused+filled foreground / error destructive)." },
           { name: 'native-controls', type: 'boolean', default: 'false', description: 'The bare attribute opts back into the platform controls: number gets its platform spinner back, and date/datetime-local/week/month/time/color open the platform popups instead of the embedded panels.' },
           { name: 'locale', type: 'string', default: 'page <html lang>', description: "BCP 47 locale for the panels' vocabulary — month label, weekday heads, month cells — through Intl.DateTimeFormat (e.g. zh-CN renders 2026年8月 / 周一 / 1月)." },
           { name: 'picker', type: 'Snippet', default: '—', description: 'Replaces the default embedded panel for any picker type (number is not a panel type); its ctx carries value, commit and close.' },

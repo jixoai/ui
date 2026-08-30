@@ -8,6 +8,9 @@
  *  - the anchor-positioned panel (static residue: CSS Anchor
  *    Positioning has no utilities; the @supports fallback and the
  *    ::backdrop pseudo ride along) — @layer components;
+ *  - the glyph icon slots (the chevron, plus 2026-08-30 expand-form-
+ *    family: the × glyphs on --jx-icon-clear and the multiple check on
+ *    --jx-icon-check) — @layer components;
  *  - the shell's :has() hover/focus/disabled machines and the toggle /
  *    row hover states (unlayered carve-out per the Part A precedent —
  *    they override the component's own utility paint);
@@ -56,6 +59,36 @@
     background-color: currentColor;
     -webkit-mask: var(--jx-icon-chevron, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")) center / contain no-repeat;
     mask: var(--jx-icon-chevron, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")) center / contain no-repeat;
+  }
+  /* the × glyphs (expand-form-family F1, 2026-08-30): the showClear
+   * trigger × and the multiple chips' remove × share ONE slot — the
+   * family's --jx-icon-clear (the same × the input family's clear
+   * button masks), inline fallback stroke-width 2. Zero icon-import:
+   * the item needs no @jixoai/icons dependency. Sizing rides markup
+   * utilities on the glyph span's parent buttons (w-5/w-6 lanes). */
+  :where(.jx-combobox-x-glyph) {
+    display: block;
+    width: 0.75rem;
+    height: 0.75rem;
+    background-color: currentColor;
+    -webkit-mask: var(--jx-icon-clear, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E")) center / contain no-repeat;
+    mask: var(--jx-icon-clear, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E")) center / contain no-repeat;
+  }
+  /* the multiple check glyph: pinned to the picked row's inline end,
+   * painted in the primary edge's ink (--primary), slot
+   * --jx-icon-check with the inline fallback. aria-hidden — the state
+   * rides aria-selected. */
+  :where(.jx-combobox-check) {
+    position: absolute;
+    inset-inline-end: 10px;
+    top: 50%;
+    translate: 0 -50%;
+    display: block;
+    width: 0.875rem;
+    height: 0.875rem;
+    background-color: var(--primary);
+    -webkit-mask: var(--jx-icon-check, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")) center / contain no-repeat;
+    mask: var(--jx-icon-check, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")) center / contain no-repeat;
   }
 }
 
