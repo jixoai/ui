@@ -45,7 +45,12 @@
   }
 </script>
 
-<div class={cn('w-full overflow-x-auto', className)}>
+<!-- data-jx-props-table-scroll: the print-projection markup contract
+     (paged-doc-family, 2026-08-30) — the audited unlayered whitelist
+     flattens this wrapper's overflow under print/sim so wide API
+     tables flow instead of clipping. Component-owned stamp: pages
+     never hand-write it (source-guarded). -->
+<div data-jx-props-table-scroll="" class={cn('w-full overflow-x-auto', className)}>
   {#if title}
     <h4 class="font-nav mb-[var(--jx-stack)] text-[length:var(--jx-text)] font-medium">{title}</h4>
   {/if}
