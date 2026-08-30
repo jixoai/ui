@@ -678,3 +678,227 @@ from the icon module but MUST be declared in the change record.
 - WHEN the surrounding rule sets `stroke-width: 2.5` on the svg
 - THEN the presentation attribute yields to the CSS cascade and no
   manifest variant is created
+
+### Requirement: the async action idiom
+
+`press-button` SHALL own a `loading` pose with an explicit anchor
+contract: `aria-disabled="true"` (focusable), pointer AND keyboard
+activation suppressed (Enter/Space no-op), `href` navigation blocked,
+tab order unchanged, spinner glyph in the leading lane — plus a
+one-shot success flash idiom. `toast`'s store SHALL own
+`api.promise(p, { pending, success, error })` — both framework-free,
+no module side effects.
+
+#### Scenario: a deploy button
+
+- GIVEN the async button demo
+- WHEN the promise is in flight
+- THEN the button shows the spinner, ignores presses AND Enter/Space,
+  and an `href` variant navigates nowhere; on settle it flashes
+  success once, then returns to rest
+
+#### Scenario: a rejected promise
+
+- GIVEN `api.promise` with a rejecting task
+- WHEN the task settles
+- THEN the pushed toast is the error variant, assertive, sticky
+
+### Requirement: date-picker presets, time, and disabled rules
+
+- `presets` renders a quick-pick lane whose commit path is identical
+  to a grid pick. The lane is the component's; the preset ENTRIES are
+  the consumer's — the `{label, value}` payload array is a value-domain
+  convenience only, and per-item CONTENT (rich labels) MUST ride the
+  snippet escape (composition-first law).
+- `showTime` (v1: single mode ONLY; range + time is rejected) defines
+  the datetime state contract: canonical stored value
+  `YYYY-MM-DDTHH:mm` local wall-clock (no zone conversion), localized
+  display via `Intl`; the calendar mutates the date part, the
+  TimeStepper mutates the time part, and each preserves the other;
+  prebound datetimes restore day AND time.
+- `isDisabled(date)` cells follow the outside-day law (visible,
+  not-allowed) and are skipped by the keyboard walk.
+
+#### Scenario: presets lane
+
+- GIVEN the presets lane carries a `Last 7 days` entry
+- WHEN the preset is activated
+- THEN the range commits and the panel closes exactly as a grid pick
+
+#### Scenario: a prebound datetime survives day navigation
+
+- GIVEN `showTime` and value `2026-08-30T14:05`
+- WHEN the consumer opens the panel and picks a different day
+- THEN the committed value keeps `T14:05` and the panel closes
+
+### Requirement: combobox multiple commits an array through the bridge
+
+`combobox` SHALL support `multiple`, binding `string[]`; submission
+goes through the form-field bridge's MULTIVALUE mode: the consumer
+sets `values: string[]` (a property on the jx-form-field element, or
+its `setValues(values: string[])` setter) — MULTIVALUE bypasses the
+string `value` attribute entirely; the bridge then constructs
+`internals.setFormValue(FormData)` with repeated same-name entries in
+selection order (`getAll(name)`), preserving form.reset() (back to
+the initial array) and disabled-fieldset omission. No joined-string
+channel exists in this mode — the FormData payload is the ONLY
+transport, and no value-rejection path exists. Selection renders via
+the chip law with per-chip removal;
+the panel declares `aria-multiselectable`.
+
+#### Scenario: a multi-select combobox in a submitted form
+
+- GIVEN `<Combobox multiple value={[]} options={[...]} name="tags" />`
+- WHEN two options are picked and the form submits
+- THEN `FormData.getAll("tags")` returns the two values in selection
+  order, the trigger shows two removable chips, and a later
+  form.reset() restores the initial empty array
+
+### Requirement: the input shell carries count, reveal, and the floating bracket
+
+- `count` SHALL render a live "n / max" readout in the hint lane.
+- `type="password"` SHALL offer the reveal toggle (opt-out
+  `reveal={false}`) with `aria-pressed` semantics.
+- `labelMode="floating"` SHALL paint the label as a fieldset-bracket
+  on the shell border (the terminal divergence from in-field label
+  morphs), pure-CSS state driven.
+
+#### Scenario: counting a textarea
+
+- GIVEN `<Input count maxlength={120} textarea />`
+- WHEN the value is 118 code points
+- THEN the readout shows "118 / 120" and the live region stays silent
+  until the polite threshold
+
+### Requirement: charts render from data with zero dependencies
+
+The chart family (`registry/files/ui/chart/`) SHALL render entirely
+from props data using text glyphs and inline SVG — no chart/animation
+runtime dependency. It is a family of DETERMINISTIC DISPLAY
+PRIMITIVES, not a chart library: tooltips, interaction, automatic
+axes/layout/collision engines, streaming, and generated data tables
+are explicitly OUT of scope. Each part SHALL freeze its semantics for
+degenerate data (empty, all-negative, constant, NaN/non-finite,
+zero-total) — every part's render is a pure function of props, and
+those cases are unit-tested. Every chart SHALL carry `role="img"`
+with a REQUIRED accessible name enforced by the type contract (label
+prop without a default), plus an opt-in visually-hidden data table
+fallback.
+
+#### Scenario: a sparkline in a stat row
+
+- GIVEN `<ChartSparkline data={[3,5,2,8,7]} label="deploys this week" />`
+- WHEN it renders
+- THEN the glyphs are proportional to the data, the accessible name is
+  "deploys this week", and the DOM contains no runtime library import
+
+#### Scenario: degenerate data is frozen, not invented
+
+- GIVEN `data={[NaN, 5]}` on any chart part
+- WHEN it renders
+- THEN the output is the documented frozen behavior for non-finite
+  input (same input, same output, every time)
+
+#### Scenario: reduced motion
+
+- GIVEN `prefers-reduced-motion: reduce`
+- WHEN any chart mounts
+- THEN it paints its final state immediately (no entrance animation)
+
+### Requirement: the canvas stays out of the outline
+
+The canvas root SHALL carry `data-toc-skip`; its title and Playground
+headings SHALL NOT be real outline headings (styled non-heading
+elements or `h3`+skip). DensityDemo's children-quadrupling SHALL be
+retired in favor of the stage density toggle.
+
+#### Scenario: a docs page ToC
+
+- GIVEN a docs page with three canvas instances
+- WHEN the outline is derived
+- THEN no canvas-internal heading appears; the page's own sections only
+
+### Requirement: the floor is affordable for two-file items
+
+A demo page whose item has ≤2 files SHALL render filename TABS over a
+single CodeCard (no tree pane); files SHALL come only from `?raw`
+imports of the mirrored sources — hand-pasted source in a docs page
+is a gate failure. The GitHub source link SHALL be derived from the
+item's registry path, never hand-written.
+
+#### Scenario: a two-file floor
+
+- GIVEN press-button (component + usage)
+- WHEN the drawer opens
+- THEN two filename tabs swap one CodeCard, and the header's source
+  link resolves on GitHub (derived, not authored)
+
+### Requirement: the stage carries theme and density as scoped attributes
+
+The canvas stage SHALL expose light/dark and comfortable/compact
+toggles that set `data-theme`/`data-density` on the STAGE element
+only; toggle state SHALL be page-owned (bindable), never held inside
+the canvas.
+
+#### Scenario: previewing a dialog in light compact
+
+- WHEN the toggles flip to light + compact
+- THEN only the stage re-themes; the docs chrome and other instances
+  are untouched; and the page's bound state reflects the change
+
+### Requirement: the lab's code follows the controls
+
+The flagship lab's code panel SHALL render the page's authored snippet
+function over the current control state (single source: the taught
+string and the shown string are the same function). A reset control
+SHALL restore the documented defaults, and a read-only state
+projection SHALL echo the current bound state.
+
+#### Scenario: dragging variant to ghost
+
+- GIVEN the lab with variant control
+- WHEN the consumer selects ghost
+- THEN the code panel shows the ghost snippet generated from the same
+  function the usage section teaches
+
+### Requirement: patterns are composition-only items
+
+Pattern items are FLAT registry:ui items under the existing UI area:
+`registry/files/ui/pattern-<name>/` (folder law unchanged; the prefix
+is a product namespace, NOT a new source root), mirrored to
+`apps/www/src/lib/ui/pattern-<name>/` with generated canonicalMain
+manifest entries verified by `verify:mirror`. A pattern SHALL compose
+ONLY the atoms it lists as direct `registryDependencies` — it SHALL
+NOT re-implement atom behavior, duplicate atom paint, or add props to
+an atom (a needed prop change belongs to the atom's own family
+change, recorded as a followup). `verify:deps` compares
+target-resolved imports to those direct edges; resolver traversal
+owns only the transitive closure.
+
+#### Scenario: a pattern needs a new atom prop
+
+- GIVEN the hero marquee pattern wants a new press-button behavior
+- WHEN the gap is found
+- THEN the pattern records a followup instead of patching the atom,
+  and ships without the behavior until the atom change lands
+
+#### Scenario: installing a pattern
+
+- WHEN `npx shadcn add @jixoai/pattern-login` runs in a fresh consumer
+  (the A change's data-driven clean-install harness)
+- THEN every directly declared atom installs through the resolved
+  registryDependencies closure and the canonical entry BUILDS
+
+### Requirement: patterns have canonical docs routes
+
+Each pattern item SHALL own a canonical docs route under
+`/docs/components/pattern-<name>.html` with a unique meta.group and
+meta.href, a prerender entry, and docs-structure assertions — the
+same contract as every registry:ui item. `/docs/patterns.html` is a
+GALLERY linking those canonical routes, never their replacement.
+
+#### Scenario: the docs navigation enumerates patterns
+
+- WHEN the components navigation is built
+- THEN each of the five pattern items appears exactly once with a
+  unique canonical href
