@@ -1,0 +1,69 @@
+/**
+ * chart.css — the chart family's component-owned residue (OpenSpec
+ * 2026-08-30-add-chart-family).
+ *
+ * Orthogonal intents:
+ *   - text-glyph runs (bar / sparkline): the MONO LOCK — font-family,
+ *     pre whitespace, tabular figures. The mono metric IS the chart's
+ *     geometry (block glyphs must measure as cells), so this can
+ *     never be a markup utility the consumer might drop.
+ *   - the opt-in data table fallback: visually hidden (clip-path
+ *     recipe), really present — a REAL sibling table the AT reads.
+ *   - svg paint: stroke/fill colors that presentation ATTRIBUTES
+ *     cannot carry (var() does not resolve in attributes) — grid
+ *     hairlines, the line's brand stroke, the 12% tonal area, donut
+ *     track and segments. Geometry (dasharray, offsets, points)
+ *     stays inline in the markup: it is data, not paint.
+ *
+ * Everything rides @layer components behind :where() — zero
+ * specificity, so consumer utilities still win (the layer law).
+ * Colors are tokens only: --chart-1..5, --border, --muted, and the
+ * per-segment --jx-chart-seg-color custom property the component
+ * computes from the token-derived ramp. No density branching (the
+ * aliases flow from the theme's density scopes).
+ */
+@layer theme, base, components, utilities;
+
+@layer components {
+  /* ---- text-glyph runs: the mono lock (the grid is the metric) ---- */
+  :where(.jx-chart-glyphs) {
+    font-family: var(--font-mono);
+    white-space: pre;
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  /* ---- the opt-in table fallback: hidden from the eye, real to AT -- */
+  :where(.jx-chart-table) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ---- svg paint (attributes cannot carry var()) ------------------- */
+  :where([data-jx-chart-line]) .jx-chart-grid {
+    stroke: var(--border);
+  }
+  :where([data-jx-chart-line]) .jx-chart-path {
+    stroke: var(--chart-1);
+  }
+  :where([data-jx-chart-line]) .jx-chart-area {
+    fill: color-mix(in oklab, var(--chart-1) 12%, transparent);
+  }
+  :where([data-jx-chart-line]) .jx-chart-mark {
+    stroke: var(--chart-1);
+  }
+  :where([data-jx-chart-donut]) .jx-chart-track {
+    stroke: var(--muted);
+  }
+  :where([data-jx-chart-donut]) .jx-chart-seg {
+    stroke: var(--jx-chart-seg-color, var(--chart-1));
+  }
+}
