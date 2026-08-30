@@ -118,8 +118,10 @@
      min-h/min-w var(--jx-hit) and the glyph var(--jx-icon) (geometry
      authority lives on the element's token pair, NOT here; inside the
      bezel's data-jx-chrome band that is 32×32 with a 16px glyph).
-     Shadow only appears on hover; active presses on the anchored
-     layer ── */
+     Ghost law (registry press-button ghost, 2026-08-29): all three
+     shadow poses none — a hard slab under a transparent icon reads as
+     a ghost square; hover is the bezel's terminal-hover fill and the
+     bare +1px press survives on :active ── */
   .jx-hue-trigger {
     display: inline-flex;
     align-items: center;
@@ -127,9 +129,12 @@
     color: inherit;
     background: transparent;
     --jx-press-shadow: none;
-    --jx-press-shadow-hover: var(--shadow-xs);
-    --jx-press-shadow-active: var(--shadow-xs-press);
+    --jx-press-shadow-hover: none;
+    --jx-press-shadow-active: none;
     cursor: pointer;
+  }
+  .jx-hue-trigger:hover {
+    background: var(--terminal-hover);
   }
   /* ── panel: token-driven, from the registry popover's panel law ── */
 
