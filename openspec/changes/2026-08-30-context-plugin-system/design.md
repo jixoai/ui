@@ -5,35 +5,43 @@ r1 评审 codex-plan-review-print-r1.md 五阻塞全闭合；裁决记录标 [r1
 ## 类型域与身份 [r1-1]
 
 ```ts
-interface ContextDef<T> {
-  key: string              // 稳定身份：'density' | 'medium' | 'hue'
-  defaults(): T            // 无插件无 provider 时的初值
-  ssrSafe: T               // SSR/无 window 时的值（SSR 初值显式化）
+interface ContextDef<K extends string, T> {
+  readonly key: K              // 稳定身份：'density' | 'medium' | 'hue'
+  defaults(): T                // 无插件无 provider 时的初值
+  readonly ssrSafe: T          // SSR/无 window 时的值（SSR 初值显式化）
 }
-interface ContextEnv {     // getter 背书的响应式环境（生产者见下）
+interface ContextEnv {         // getter 背书的响应式环境（生产者见下）
   readonly medium: MediumState
   readonly root: HTMLElement | undefined
 }
-interface ContextPlugin<T> {
-  name: string
-  targets: readonly string[]          // 命中的 def.key 清单（matcher）
-  enforce?: 'pre' | 'post'
-  init?(def: ContextDef<T>): Partial<T>   // 仅默认值注入，一次性，无环境
-  filter?(def: ContextDef<T>, env: ContextEnv): boolean
+interface PluginHooks<K extends string, T> {
+  init?(def: ContextDef<K, T>): (defaults: T) => T   // 完整值 reducer
+  filter?(def: ContextDef<K, T>, env: ContextEnv): boolean
   before?(value: T, env: ContextEnv): T
   after?(value: T, env: ContextEnv): T
 }
+// definePlugin 的产物：targets 冻结为 readonly [K]，构造器私有
+// （brand 字段），唯一注册入口 —— key 进泛型，类型级不可伪造
+interface DefinedPlugin<K extends string, T> extends PluginHooks<K, T> {
+  readonly name: string
+  readonly targets: readonly [K]
+  readonly enforce?: 'pre' | 'post'
+}
+type UnknownPlugin = { targets: readonly string[] } & Record<string, unknown>
 ```
 
-- **异构注册**：根数组是 `UnknownPlugin`（存在类型），命中判定
-  `plugin.targets.includes(def.key)`；注册处提供
-  `definePlugin<T>(def: ContextDef<T>, p: Omit<ContextPlugin<T>,'targets'>)`
-  把 targets 冻结为 `[def.key]` —— 类型级测试证明 density 插件注册不进
-  medium（definePlugin 泛型收窄 + 运行时 targets 断言双保险）。
-- **env 生产者**：`env.medium` 由最近 medium context 的 getter 派生
-  （SSR = 'screen'）；`env.root` = 最近插件根元素。env 是 getter 背书
-  对象，进 `$derived` 依赖图（「只重算受影响段」由此成立，微基准
-  spec 记录依赖计数）。
+- **异构注册**：根数组元素只接受 `definePlugin` 产物（brand 存在类型）；
+  命中判定 `plugin.targets.includes(def.key)`。`K` 进泛型 → density
+  插件的 targets 类型即 `readonly ['density']`，注册进 medium 数组
+  编译期报错 + 运行时守卫双保险（fixture 双断言）。
+- **init 是完整值 reducer**（非 Partial 浅合并）：`(defaults: T) => T`
+  —— 标量（density 联合串/medium 串/hue 数值）与对象 context 统一
+  可实施；插件序逐个套用，后覆盖先。
+- **root 绑定与 SSR**：`provideContextPlugins(plugins, { root })`——
+  root 缺省 = 提供组件的宿主元素（bind:this/action 传入）；SSR/无
+  元素时 `env.root === undefined`、`env.medium === 'screen'`（显式
+  初值，无 window 访问）。env 是 getter 背书对象，进 `$derived`
+  依赖图（「只重算受影响段」由此成立，微基准 spec 记录依赖计数）。
 
 ## init 语义修正 [r1-2]
 
@@ -77,8 +85,8 @@ exposed = $derived( after 链( before 链( rawValue ) ) )   // 只读投影
   就近可见链（父根插件在外层）。两个方向的 fixture（外 provider+
   内插件 / 反向）固化该语义与洋葱两侧的话语权。
 - 同名去重：同根内后者覆盖前者（warn）；跨根不去重（父子的同名插件
-  叠加作用，序 = 父先子后）。defaults 合并：init 返回值按插件序逐个
-  浅合并，后覆盖先。
+  叠加作用，序 = 父先子后）。defaults：init reducer 按插件序逐个套用
+  （上一个是下一个的输入），后覆盖先——与洋葱 before 同向。
 
 ## medium 的值域保护
 

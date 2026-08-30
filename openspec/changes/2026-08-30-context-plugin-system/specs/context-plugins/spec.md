@@ -7,16 +7,17 @@
 A ContextPlugin SHALL be a pure value transformer set: `before`
 (entry-side) and `after` (projection-side) each take an immutable value
 and return a NEW value; mutating inputs is a contract violation. The
-pipeline SHALL compose these with Svelte's fine-grained reactivity so
-only affected contexts recompute.
+pipeline SHALL compose these as derived projections over the single
+writable raw state; recomputation scope is asserted by a
+dependency-count test (not claimed as performance).
 
 #### Scenario: a print plugin swaps density
 
-- GIVEN a plugin whose before maps density to the paper tier under
-  env.medium === 'print'
+- GIVEN a plugin whose before maps density to the existing sm tier
+  under env.medium === 'print'
 - WHEN the medium derives 'print'
-- THEN consumers read the paper-tier density and the original context
-  object was never mutated
+- THEN consumers read sm density and the original context object was
+  never mutated
 
 ### Requirement: registration is root-scoped and stacks
 
@@ -51,9 +52,10 @@ created (nested roots compose parent-first, nearest root last).
 
 ### Requirement: zero plugins is the identity fast path
 
-With no plugins provided, contexts SHALL behave byte-identically to
-the pre-plugin system, short-circuiting the chain (no composition,
-no overhead); the full existing suite is the regression proof.
+With no plugins provided, contexts SHALL behave as the pre-plugin
+system (the full existing suite is the regression proof) and the
+composition is structurally skipped (a no-chain assertion, not a
+performance claim).
 
 #### Scenario: today's pages
 

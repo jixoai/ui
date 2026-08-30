@@ -7,9 +7,17 @@
 
 ```
 触发（UI 打印入口：sim 开关 | 「直接打印」按钮；Ctrl+P = 原生回退路径，文档化降级，不入合同）
-→ medium 派生 'sim' | 'print'（print 插件 filter 开门）
+→ 【预备媒介信号】sim 开关=盖 stamp；「直接打印」=同一入口先盖 stamp
+   （medium 'sim' → print 插件 filter 开门）→ prepareSnapshot 完成后
+   window.print()（realPrint 升级 medium 为 'print'，真 > sim）→
+   afterprint → 摘 stamp → screen。beforeprint 仅作真实信号，永不
+   担任异步准备入口。
 → 不可变干预落 live：density→sm（resolveDensity 终值）、hue→钉缺省（hue adapter）
-→ 动画冻结：document.getAnimations() → pause() → 等一帧 settle
+→ 动画冻结（作用域协议）：只枚举 source 根 subtree
+   （root.getAnimations({subtree:true})）；逐项记录
+   {anim, wasRunning, currentTime}；仅 pause wasRunning 的项——
+   事务前已 paused 的永不触碰、也永不恢复；restore token 幂等，
+   只恢复本事务暂停的项
 → 【DOM-commit 屏障】double-rAF + 断言 source 根 stamp 已落
    （data-density=sm 等 —— 断言失败 fail-loud，不静默出页）
 → readiness gate：document.fonts.ready + 全图 eager+decode()
@@ -29,8 +37,11 @@
   selector）；**render root**：文档内独立 sibling `[data-print-output]`
   （已连接、空容器，每次运行前清空——绝不嵌进 source，二次 sim 不含
   旧 .pagedjs_pages）。
-- **single-flight**：in-flight token；新请求取消旧运行（含 preview 中
-  断与 cleanup）。
+- **single-flight 与取消边界**：in-flight token 取消**准备阶段**（preview
+  之前的任意步）；进入 preview 后的取消 = 移除 output 根 + 销毁产物句柄
+  （best-effort，fixture 断言无残留）。renderTo 前置断言：output 根
+  **非 display:none 且可测量**（offsetWidth > 0——paged.js 对零尺寸
+  容器产出零尺寸页；打印专用态用离屏定位而非隐藏）。
 - **幂等 cleanup**：pages DOM、Polisher 注入 head 的 style（逐条记录
   句柄）、listeners —— success/failure/afterprint/sim-off 四路全清；
   失败后重试无残留。测试：连续 sim、sim→print、失败重试三场景。

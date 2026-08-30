@@ -70,9 +70,12 @@ print/sim 媒介门控，density→paper、hue→pin-default、motion→freeze�
   prepareSnapshot 后才 window.print；Ctrl+P = 原生降级路径，文档化
   不入合同）。
 - `/docs/paged.html` **重做为普通文档页**：讲打印能力，自身吃层。
-- 退役：PagedDoc/PagedSection/PagedFigure/PagedAside/PagedRef/
-  PagedBlock/PagedTable/PagedToC（平行布局组件）与旧试点页内容；
-  medium.svelte.ts、白名单/投影 CSS、verify-print 骨架保留融入。
+- 退役（完整表见 design「退役表」）：PagedDoc/Section/Figure/Aside/
+  Ref/Block/Table/ToC/**PagedCode**、registry.svelte.ts、paged.css、
+  print-projection.css 与旧试点页内容；白名单**正式迁转**入
+  kernel-print.css（表+意图头+css-architecture delta 同步登记）；
+  medium.svelte.ts 保留接线、verify-print 重写（产物零 pagedjs 断言
+  + 管线冒烟），先改 gate 再删目录，删后零引用断言。
 
 ## Impact
 

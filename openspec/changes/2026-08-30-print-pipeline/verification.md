@@ -7,7 +7,13 @@
   id/锚点保持。
 - page-config 编译：margin boxes/页码 counter 规则快照。
 - print 插件：三干预 + 媒介门 + 不可变（冻结入参断言）。
-- 样式表分离：喂入清单快照（sim-shell.css 不在内核清单）。
+- 样式表分离：**AST gate**（kernel-print.css 零 `@media not print`、
+  零 `[data-jx-print-sim]`）+ **runtime spy** 捕获真实 preview() 入参
+  （sim-shell.css 绝不在场）+ 零引用 gate（lib/paged 与 Paged* 全扫）。
+- 同一产物：sim→直接打印复用（页数/目录页码/@page hash 三元组相等）；
+  失效重建（改 config 后三元组变化）。
+- 动画协议：预暂停项不被启动不被恢复；CSS 动画 source/clone 同帧
+  fixture；WAAPI 走诊断行。
 
 ## 管线（verify-print，真实 Chromium）
 
