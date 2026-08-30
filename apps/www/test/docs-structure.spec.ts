@@ -236,7 +236,7 @@ describe('docs-route-model — install targets & the legacy map', () => {
       // (the css probe + the native-parity fixtures), never catalog pages
       '/', '/probe-folder-css', '/parity.html', '/docs.html', '/docs/components.html',
       '/docs/components/form.html', '/docs/registry.html', '/docs/recipes.html',
-      '/docs/jx-pure.html', '/docs/variant-grammar.html', '/docs/demo-standard.html', '/docs/llms-txt.html', '/tokens.html', '/blueprints.html', '/patterns.html',
+      '/docs/jx-pure.html', '/docs/variant-grammar.html', '/docs/demo-standard.html', '/docs/paged.html', '/docs/llms-txt.html', '/tokens.html', '/blueprints.html', '/patterns.html',
       ...canonical,
     ]);
     const missing = [...expected].filter((e) => !entries.has(e));

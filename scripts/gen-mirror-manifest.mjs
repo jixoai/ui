@@ -137,6 +137,8 @@ const SITE_ONLY_PREFIXES = [
   'apps/www/src/lib/docs-see-also.svelte', // docs-demo-standard: reading-chain chrome (site-only)
   'apps/www/src/lib/ui/props-table/docs/', // docs-demo-standard: per-component curated docs layer (site-only)
   'apps/www/src/lib/ui/props-table/from-meta.ts', // docs-demo-standard: meta -> PropEntry projection (site-only)
+  'apps/www/src/lib/paged/', // paged-doc-family: the publication family (site-only docs infra)
+  'apps/www/src/lib/medium.svelte.ts', // paged-doc-family: the three-state medium context (site-only)
   'apps/www/src/lib/__probe__/', // P0 scratch (removed when the probe retires)
 ];
 
