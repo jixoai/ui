@@ -9,13 +9,14 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
-  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import Input from '$lib/ui/input/input.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
+  import { playOutputs, playState } from '$lib/playground';
   import { PlayFields, PlayRow, PlaySelect, PlayToggle, PlayHelp } from '$lib/playground';
+  import { registrySourceUrl } from '$lib/registry-source';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // hero summary derives from the registry catalog — no hand-maintained copy
@@ -52,7 +53,7 @@
 <Input type="email" label="email" value="not-an-email" error="email is required" />`;
 
   const inputFiles: TreeFile[] = [
-    { name: 'registry/files/ui/input.svelte', content: inputSource },
+    { name: 'registry/files/ui/input/input.svelte', content: inputSource },
     { name: 'src/lib/ui/input-usage.svelte', content: inputUsage },
   ];
 
@@ -109,17 +110,16 @@
   <input class="jx-control-lane" placeholder="api.jixoai.com" />
 </label>`;
 
-  // ---- canvas playground state ---------------------------------------------
-  // Playground protocol: the canvas carries an initial snapshot + reset
-  // (the page owns the state — the canvas only calls back), an echo
-  // projection for the read-only footer, and a live usage generator so the
-  // code drawer tracks the current prop values instead of lying.
-  const canvasInitial = {
+  // ---- canvas playground state (canvas-floor-lab 2.1) ---------------------
+  // ONE typed state object, page-owned: the kit controls bind into
+  // play.current.<key>, reset() restores the documented defaults
+  // in place, and playOutputs() feeds the read-only output lane. The
+  // canvas only projects — it never holds this state.
+  const play = playState({
     email: '',
     inputType: 'text' as 'text' | 'email' | 'password' | 'search',
     inputClearable: true,
-  };
-  let canvasEmail = $state(canvasInitial.email);
+  });
   // picker-bridge demo state
   let bridgeDate = $state('');
   let bridgeDatePicked = $state('');
@@ -143,8 +143,6 @@
     <MyWeekGrid value={ctx.value} onpick={ctx.commit} />
   {/snippet}
 </Input>`;
-  let canvasInputType = $state(canvasInitial.inputType);
-  let canvasInputClearable = $state(canvasInitial.inputClearable);
 
   // kit option map: the enum control speaks the typed union directly
   const typeOptions: { value: 'text' | 'email' | 'password' | 'search'; label: string }[] = [
@@ -154,21 +152,15 @@
     { value: 'search', label: 'search' },
   ];
 
-  function resetInputCanvas(): void {
-    canvasEmail = canvasInitial.email;
-    canvasInputType = canvasInitial.inputType;
-    canvasInputClearable = canvasInitial.inputClearable;
-  }
-
   // live usage code: generated from the CURRENT playground state so the
   // drawer never shows stale prop values. Free-text values go through q()
   // (a JSON string literal) so input like O'Reilly or a double quote can
   // never break the generated source
   const q = (value: string): string => JSON.stringify(value);
   const inputUsageLive = $derived(`<Input
-  type="${canvasInputType}"
+  type="${play.current.inputType}"
   label="endpoint"
-  placeholder=${q(canvasInputType === 'password' ? '••••••••' : 'you@host.tld')}${canvasInputClearable ? '\n  clearable' : ''}
+  placeholder=${q(play.current.inputType === 'password' ? '••••••••' : 'you@host.tld')}${play.current.inputClearable ? '\n  clearable' : ''}
   bind:value
 />`);
 
@@ -259,29 +251,30 @@
     <ComponentCanvas
       title="input"
       description="The text-shell base of the NativeHTML family: every native type passes through untouched — the component owns only label/error wiring, four slot seams, and the bordered shell."
-      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/input.svelte"
+      sourceUrl={registrySourceUrl('input')}
+      install="input"
       files={inputFiles}
       stage="center"
-      onreset={resetInputCanvas}
-      output={[{ label: 'value', value: canvasEmail || '—' }]}
+      onreset={() => play.reset()}
+      output={playOutputs(play.current)}
       resolveFileContent={resolveInputUsage}
     >
       <div class="flex w-full max-w-xs flex-col items-start gap-3">
         <Input
-          type={canvasInputType}
-          label={`endpoint (${canvasInputType})`}
-          placeholder={canvasInputType === 'password' ? '••••••••' : 'you@host.tld'}
-          clearable={canvasInputClearable}
-          bind:value={canvasEmail}
+          type={play.current.inputType}
+          label={`endpoint (${play.current.inputType})`}
+          placeholder={play.current.inputType === 'password' ? '••••••••' : 'you@host.tld'}
+          clearable={play.current.inputClearable}
+          bind:value={play.current.email}
         />
       </div>
       {#snippet playground()}
         <PlayFields>
           <PlayRow label="type">
-            <PlaySelect bind:value={canvasInputType} options={typeOptions} />
+            <PlaySelect bind:value={play.current.inputType} options={typeOptions} />
           </PlayRow>
           <PlayRow label="clearable">
-            <PlayToggle bind:value={canvasInputClearable} />
+            <PlayToggle bind:value={play.current.inputClearable} />
           </PlayRow>
           <PlayHelp>
             <code>type</code> lands on the element verbatim — switch it and the
@@ -677,9 +670,12 @@
       summary="The shell, label, and error rhythm are pure density-scope tokens; resize the scope and the whole field stack follows."
     >
       <div class="flex flex-col gap-6">
-        <DensityDemo>
-          <Input label="density sample" name="density-input" placeholder="Type here..." />
-        </DensityDemo>
+        <p class="text-muted-foreground text-[13px] leading-6">
+          the shell, label, and error rhythm are pure density-scope tokens — flip the canvas
+          stage's density toggle (comfortable / compact) above to re-scope the workbench stage
+          alone; the docs chrome and every other canvas keep their seats. The four-copy
+          DensityDemo row is retired by that toggle.
+        </p>
         <TokenTable
           tokens={[
             { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' },

@@ -7,3 +7,7 @@ export { default as PlaySegmented } from './play-segmented.svelte';
 export { default as PlayNumber } from './play-number.svelte';
 export { default as PlayText } from './play-text.svelte';
 export { default as PlayHelp } from './play-help.svelte';
+// the typed state object (canvas-floor-lab 2.1): page-owned control
+// state + reset + output-lane projection for the Play* route
+export { playState, playOutputs } from './play-state.svelte';
+export type { PlayState, PlayValue } from './play-state.svelte';

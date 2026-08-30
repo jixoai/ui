@@ -2,13 +2,13 @@
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayRow, PlayToggle, PlayHelp } from '$lib/playground';
+  import { registrySourceUrl } from '$lib/registry-source';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import componentCanvasSource from '$lib/ui/component-canvas/component-canvas.svelte?raw';
@@ -30,18 +30,23 @@
 
   // Live usage: the sample tracks the toggle — snippet present or absent,
   // exactly what the stage renders (free text would go through q(); the
-  // toggle is a closed boolean so it splices structurally instead).
+  // toggle is a closed boolean so it splices structurally instead). The
+  // source link is DERIVED from the registry path projection — never a
+  // hand-written github href.
   const usageLive = $derived(`<script lang="ts">
   import ComponentCanvas from '@ui/component-canvas.svelte';
   import PressButton from '@ui/press-button.svelte';
+  import { registrySourceUrl } from '$lib/registry-source';
   import { PlayFields, PlayRow, PlaySelect } from '$lib/playground';
 ${close}
 
-<!-- files: flat TreeFile list; paths split on "/" build the tree levels -->
+<!-- files: flat TreeFile list; ≤2 files render filename TABS over one
+     CodeCard, ≥3 split their "/" paths into tree levels -->
 <ComponentCanvas
   title="press-button"
   description="hover grows the shadow, active presses on an anchored shadow."
-  sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/press-button.svelte"
+  install="press-button"
+  sourceUrl={registrySourceUrl('press-button')}
   files={[{ name: 'src/lib/ui/press-button-usage.svelte', content: usage }]}
 >
   <PressButton variant="fill">deploy</PressButton>${innerPlayground ? `
@@ -55,7 +60,7 @@ ${close}
 </ComponentCanvas>`);
 
   const files: TreeFile[] = [
-    { name: 'registry/files/ui/component-canvas.svelte', content: componentCanvasSource },
+    { name: 'registry/files/ui/component-canvas/component-canvas.svelte', content: componentCanvasSource },
     { name: 'src/lib/ui/component-canvas-usage.svelte', content: '' },
   ];
   const resolveUsage = (file: TreeFile): string =>
@@ -75,13 +80,16 @@ ${close}
   // Usage snippet for the Material3 usage section (static, drawer-free).
   const usageCode = `<script lang="ts">
   import ComponentCanvas from '@ui/component-canvas.svelte';
+  import { registrySourceUrl } from '$lib/registry-source';
 ${close}
 
-<!-- files: flat TreeFile list; paths split on "/" build the tree levels -->
+<!-- files: flat TreeFile list; ≤2 files render filename TABS over one
+     CodeCard, ≥3 split their "/" paths into tree levels -->
 <ComponentCanvas
   title="press-button"
   description="hover grows the shadow, active presses on an anchored shadow."
-  sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/press-button.svelte"
+  install="press-button"
+  sourceUrl={registrySourceUrl('press-button')}
   files={[{ name: 'src/lib/ui/press-button-usage.svelte', content: usage }]}
 >
   <PressButton variant="fill">deploy</PressButton>
@@ -110,12 +118,13 @@ ${close}
       tone="hero"
       eyebrow="registry:ui · Docs Tooling"
       title="component-canvas — the documentation workbench"
-      summary="One bordered surface per component: header (font-nav title, description, Source press button), a LIVE demo stage on the muted tint so components prove themselves on a differently-toned ground, an optional Playground pane of consumer-authored controls, and a collapsible code drawer pairing the tree-view file tree with code-card highlighting. Every component page on this site is one canvas — this one renders the component inside itself."
+      summary="One bordered surface per component: header (font-nav title, description, copy-command badge, Source anchor, stage theme/density toggles), a LIVE demo stage on the muted tint so components prove themselves on a differently-toned ground — re-themable and re-densifiable from the header without touching the page — an optional Playground pane of consumer-authored controls, and a collapsible code drawer: filename tabs over one code-card for the two-file median, the tree pane for bigger items. Every component page on this site is one canvas — this one renders the component inside itself."
     >
       <div class="flex flex-wrap gap-3">
         <span class="pill">LIVE stage · muted tint</span>
+        <span class="pill">stage theme · density toggles</span>
         <span class="pill">playground pane</span>
-        <span class="pill">tree-view × code-card drawer</span>
+        <span class="pill">tabs ≤2 files · tree ≥3</span>
         <span class="pill">recursion · depth 2</span>
       </div>
     </SectionCard>
@@ -125,8 +134,9 @@ ${close}
   <div id="canvas-workbench" data-region="canvas-workbench" data-reveal="">
     <ComponentCanvas
       title="component-canvas"
-      description="The canvas rendering a canvas: the LIVE stage below embeds a simplified second instance. The Playground checkbox toggles the inner pane — and the usage file in this drawer tracks it."
-      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/component-canvas.svelte"
+      description="The canvas rendering a canvas: the LIVE stage below embeds a simplified second instance. The Playground checkbox toggles the inner pane — and the usage file in this drawer tracks it. The header's segmented pairs re-scope this stage only; the inner canvas keeps its own seats."
+      sourceUrl={registrySourceUrl('component-canvas')}
+      install="component-canvas"
       {files}
       stage="fill"
       onreset={resetCanvas}
@@ -140,8 +150,8 @@ ${close}
       <div class="w-full max-w-[38rem]">
         <ComponentCanvas
           title="press-button"
-          description="The inner canvas — a simplified instance living in the outer LIVE stage."
-          sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/press-button.svelte"
+          description="The inner canvas — a simplified instance living in the outer LIVE stage. Its header toggles re-scope ITS stage only; the outer canvas keeps its seats (the scoping law)."
+          sourceUrl={registrySourceUrl('press-button')}
           files={innerFiles}
           stage="center"
         >
@@ -221,6 +231,6 @@ ${close}
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Children are the LIVE stage; files feed the drawer; the playground snippet is optional."><CodeBlock code={usageCode} lang="svelte" meta="ComponentCanvas usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The drawer is a disclosure: aria-expanded/controls plus inert keeps collapsed content out of the tab order."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through header, playground controls, then the open drawer' }, { key: 'Enter / Space', action: 'Toggles the code drawer disclosure; triggers copy and reset buttons' }]} aria={[{ name: 'aria-expanded', value: 'boolean', description: 'On the drawer toggle; tracks the 0fr/1fr grid collapse' }, { name: 'aria-controls', value: '{id}-drawer', description: 'Pairs the toggle with the drawer region' }, { name: 'inert', value: 'when collapsed', description: 'Removes collapsed drawer content from tab and screen-reader order' }, { name: 'aria-label', value: 'string', description: 'On the source link, stage ("{title} demo"), controls, and copy button' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The canvas is chrome, not a density-scaled control: it sizes from its own type ramp and container queries, and carries the press shadow tokens for its buttons."><div class="flex flex-col gap-6"><DensityDemo><ComponentCanvas title="canvas" description="density sample" files={innerFiles} stage="center"><PressButton variant="fill">deploy</PressButton></ComponentCanvas></DensityDemo><TokenTable tokens={[{ name: '--jx-press-shadow', default: '0 1px 2px rgb(0 0 0 / 0.08)', source: 'component' }, { name: '--jx-press-shadow-hover', default: 'grown shadow', source: 'component' }, { name: '--jx-press-shadow-active', default: 'anchored press', source: 'component' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the canvas Props interface; snippets are render seams, callbacks keep state page-owned."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'Component name shown in the header.', required: true }, { name: 'description', type: 'string', default: '—', description: 'One-line description under the title.' }, { name: 'sourceUrl', type: 'string', default: '—', description: 'GitHub source link (header right, icon-only external anchor).' }, { name: 'files', type: 'TreeFile[]', default: '—', description: 'Demo code files; flat list, names may carry paths.', required: true }, { name: 'children', type: 'Snippet', default: '—', description: 'LIVE demo area — the consumer renders the component instance.', required: true }, { name: 'stage', type: "'fill' | 'center' | 'start'", default: "'fill'", description: 'Stage posture: fill, center (intrinsic, centered), or start (intrinsic, left).' }, { name: 'playground', type: 'Snippet', default: '—', description: 'Consumer-authored controls pane; absent pane yields a full-width stage.' }, { name: 'onreset', type: '() => void', default: '—', description: 'Page-owned reset: shows the pane reset button and calls back.' }, { name: 'output', type: 'readonly PlayOutput[]', default: '—', description: 'Read-only state projection rows under the controls.' }, { name: 'resolveFileContent', type: '(file: TreeFile) => string', default: '—', description: 'Code-drawer content override — lets usage files track live state.' }, { name: 'id', type: 'string', default: 'slug(title)', description: 'Explicit id override when two canvases would slug-collide.' }, { name: 'class', type: 'string', default: '—', description: 'Class passthrough to the root element.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The canvas is chrome, not a density-scaled control: it sizes from its own type ramp and container queries, and carries the press shadow tokens for its buttons. The stage's theme/density toggles are the scoped re-theming surface — they stamp data-theme/data-density (plus the theme sheet's dark/jx-light token-scope classes) on the stage element only."><div class="flex flex-col gap-6"><p class="text-muted-foreground text-[13px] leading-6">the DensityDemo four-copy row is retired by the stage toggles: flip the header's segmented pairs above to preview the stage in dark or compact — the docs chrome, the ToC, and every sibling canvas keep their seats. Toggle state is page-owned through <code class="text-accent">bind:theme</code>/<code class="text-accent">bind:density</code>.</p><TokenTable tokens={[{ name: '--jx-press-shadow', default: '0 1px 2px rgb(0 0 0 / 0.08)', source: 'component' }, { name: '--jx-press-shadow-hover', default: 'grown shadow', source: 'component' }, { name: '--jx-press-shadow-active', default: 'anchored press', source: 'component' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the canvas Props interface; snippets are render seams, callbacks keep state page-owned."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'Component name shown in the header.', required: true }, { name: 'description', type: 'string', default: '—', description: 'One-line description under the title.' }, { name: 'sourceUrl', type: 'string', default: '—', description: 'GitHub source link (header right, icon-only external anchor). The value is page-side DERIVED from the registry path projection ($lib/registry-source) — never hand-written.' }, { name: 'install', type: 'string', default: '—', description: 'Registry item name — renders the header copy-command badge (npx jixoai-ui add <name>) with a clipboard flash.' }, { name: 'files', type: 'TreeFile[]', default: '—', description: 'Demo code files; flat list, names may carry paths. ≤2 files render filename TABS over one CodeCard; ≥3 keep the tree pane. Content comes from the page\'s ?raw imports.', required: true }, { name: 'children', type: 'Snippet', default: '—', description: 'LIVE demo area — the consumer renders the component instance.', required: true }, { name: 'stage', type: "'fill' | 'center' | 'start'", default: "'fill'", description: 'Stage posture: fill, center (intrinsic, centered), or start (intrinsic, left).' }, { name: 'theme', type: "'light' | 'dark'", default: "'light'", description: 'Stage preview theme — page-owned bindable. Projects data-theme + the theme sheet dark/jx-light scope onto the stage element only.' }, { name: 'density', type: "'comfortable' | 'compact'", default: "'comfortable'", description: 'Stage preview density — page-owned bindable. compact maps onto the sm density scope, projected as data-density on the stage element only.' }, { name: 'playground', type: 'Snippet', default: '—', description: 'Consumer-authored controls pane; absent pane yields a full-width stage. Takes precedence over schema rows (escape-hatch law).' }, { name: 'schema', type: 'CanvasSchema', default: '—', description: 'jsonSchema control mode: a LOWERED schema (toJSONSchema) the pane renders rows from; bind:values + onvalue own the value semantics.' }, { name: 'onreset', type: '() => void', default: '—', description: 'Page-owned reset: shows the pane reset button and calls back.' }, { name: 'output', type: 'readonly PlayOutput[]', default: '—', description: 'Read-only state projection rows under the controls.' }, { name: 'resolveFileContent', type: '(file: TreeFile) => string', default: '—', description: 'Code-drawer content override — lets usage files track live state.' }, { name: 'id', type: 'string', default: 'slug(title)', description: 'Explicit id override when two canvases would slug-collide.' }, { name: 'class', type: 'string', default: '—', description: 'Class passthrough to the root element.' }]} /></SectionCard></div>
 </div>

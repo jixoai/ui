@@ -2,7 +2,6 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import Chip from '$lib/ui/chip/chip.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
@@ -16,7 +15,8 @@
   import chipSource from '$lib/ui/chip/chip.svelte?raw';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
-  import { PlayFields, PlayRow, PlaySelect, PlayHelp } from '$lib/playground';
+  import { playOutputs, playState, PlayFields, PlayRow, PlaySelect, PlayHelp } from '$lib/playground';
+  import { registrySourceUrl } from '$lib/registry-source';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // ToC outline: anchors + slots + the hit-lane ruling, then the house
@@ -69,29 +69,23 @@ ${close}
     { name: 'src/lib/ui/chip-usage.svelte', content: usage },
   ];
 
-  // playground protocol (P1): the page owns the state; the canvas only
-  // calls back — snapshot + reset + live usage. The effect select speaks
-  // 'default' (the ripple() defaults via undefined) and 'none' (null).
+  // playground (canvas-floor-lab 2.1): ONE typed state object, page-owned
+  // — the kit controls bind into play.current, reset() restores the
+  // documented defaults in place, playOutputs() feeds the output lane.
+  // The effect select speaks 'default' (the ripple() defaults via
+  // undefined) and 'none' (null).
   type Variant = 'fill' | 'tonal' | 'outline' | 'ghost';
   type Shape = 'square' | 'pill';
   type EffectName = 'default' | 'none' | 'shimmer' | 'pulse' | 'rainbow' | 'ripple';
   const effectFor = (name: EffectName): PressEffect | null | undefined =>
-    name === 'default' ? undefined : name === 'none' ? null : { shimmer, pulse, rainbow, ripple }[name]();
-  const canvasInitial = {
+    name === 'default' ? undefined : name === 'none' ? null : { shimmer, pulse, rainbow, ripple }[name]!;
+  const play = playState({
     variant: 'tonal' as Variant,
     shape: 'square' as Shape,
     effect: 'default' as EffectName,
-  };
+  });
   // the anchors demo's toggle chip flips its own label through onclick
   let following = $state(false);
-  let variant = $state(canvasInitial.variant);
-  let shape = $state(canvasInitial.shape);
-  let effect = $state(canvasInitial.effect);
-  function resetCanvas(): void {
-    variant = canvasInitial.variant;
-    shape = canvasInitial.shape;
-    effect = canvasInitial.effect;
-  }
   // kit option maps: the enum controls speak the typed unions directly
   const variantOptions: { value: Variant; label: string }[] = [
     { value: 'fill', label: 'fill' },
@@ -113,13 +107,17 @@ ${close}
   ];
   // free text must become a legal string literal (q() = JSON.stringify)
   const q = (value: string): string => JSON.stringify(value);
-  // $derived reads the live $state; deriving the expression keeps it
+  // $derived reads the live state; deriving the expression keeps it
   // reactive instead of capturing effect's initial value
   const effectExpr = $derived(
-    effect === 'default' ? '' : effect === 'none' ? ' effect={null}' : ` effect={${effect}()}`
+    play.current.effect === 'default'
+      ? ''
+      : play.current.effect === 'none'
+        ? ' effect={null}'
+        : ` effect={${play.current.effect}()}`,
   );
   const usageLive = $derived(`${usageHead}
-<Chip variant=${q(variant)} shape=${q(shape)}${effectExpr}>filter</Chip>${usageTail}`);
+<Chip variant=${q(play.current.variant)} shape=${q(play.current.shape)}${effectExpr}>filter</Chip>${usageTail}`);
   const resolveUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? usageLive : file.content;
 </script>
@@ -157,10 +155,12 @@ ${close}
       <ComponentCanvas
         title="chip"
         description="The grammar ladder on the hit lane. The top row is the four variants; the second row shows the default ripple ink (press one), the bevel-silhouette ripple, and the shimmer loop; the bottom instance is driven by the playground."
-        sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/chip/chip.svelte"
+        sourceUrl={registrySourceUrl('chip')}
+        install="chip"
         {files}
         stage="center"
-        onreset={resetCanvas}
+        onreset={() => play.reset()}
+        output={playOutputs(play.current)}
         resolveFileContent={resolveUsage}
       >
         <div class="flex flex-col items-center gap-6">
@@ -204,19 +204,19 @@ ${close}
             <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">
               driven by the playground
             </span>
-            <Chip {variant} {shape} effect={effectFor(effect)}>filter</Chip>
+            <Chip variant={play.current.variant} shape={play.current.shape} effect={effectFor(play.current.effect)}>filter</Chip>
           </div>
         </div>
         {#snippet playground()}
           <PlayFields>
             <PlayRow label="variant">
-              <PlaySelect bind:value={variant} options={variantOptions} />
+              <PlaySelect bind:value={play.current.variant} options={variantOptions} />
             </PlayRow>
             <PlayRow label="shape">
-              <PlaySelect bind:value={shape} options={shapeOptions} />
+              <PlaySelect bind:value={play.current.shape} options={shapeOptions} />
             </PlayRow>
             <PlayRow label="effect">
-              <PlaySelect bind:value={effect} options={effectOptions} />
+              <PlaySelect bind:value={play.current.effect} options={effectOptions} />
             </PlayRow>
             <PlayHelp>
               the ladder changes paint only — <code>fill</code> is the solid ground
@@ -424,9 +424,11 @@ ${close}
   <div id="theming" data-reveal="">
     <SectionCard eyebrow="theming" title="Density and tokens" summary="Geometry rides the inherited density scale; color rides the four global grammar slots — inject a hue anywhere above a chip and every slot consumer inside retunes.">
       <div class="flex flex-col gap-5">
-        <DensityDemo scopes={['xs', 'sm', 'default', 'lg']}>
-          <Chip variant="tonal">filter</Chip>
-        </DensityDemo>
+        <p class="text-muted-foreground text-[13px] leading-6">
+          geometry rides the inherited density scale — flip the workbench stage's density toggle
+          (comfortable / compact) to re-scope the hit lane on the stage alone; the four-copy
+          DensityDemo row is retired by that toggle.
+        </p>
         <div class="flex flex-wrap items-center gap-3">
           <Chip class="jx-hue-success">passing</Chip>
           <Chip class="jx-hue-warning">degraded</Chip>

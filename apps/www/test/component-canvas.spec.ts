@@ -16,9 +16,9 @@ import CanvasPlainHost from './fixtures/canvas-plain-host.svelte';
 import CanvasEchoDupesHost from './fixtures/canvas-output-dupes-host.svelte';
 
 describe('ComponentCanvas semantics', () => {
-  it('derives stable aria ids from the title (h2/h3 labelling + drawer controls)', () => {
+  it('derives stable aria ids from the title (p-title demotion + drawer controls)', () => {
     const { container } = render(CanvasPlainHost);
-    const title = container.querySelector('h2[data-jx-canvas-title]')!;
+    const title = container.querySelector('p[data-jx-canvas-title]')!;
     expect(title.id).toBe('jx-canvas-host-widget-title');
 
     // code toggle ↔ drawer wiring
@@ -82,13 +82,13 @@ describe('ComponentCanvas playground protocol', () => {
 
   it('honors an explicit id override over the title slug', () => {
     const { container } = render(CanvasHost);
-    const title = container.querySelector('h2[data-jx-canvas-title]')!;
+    const title = container.querySelector('p[data-jx-canvas-title]')!;
     expect(title.id).toBe('jx-canvas-explicit-title');
     const drawer = container.querySelector<HTMLElement>('.jx-canvas-code-drawer')!;
     expect(drawer.id).toBe('jx-canvas-explicit-drawer');
   });
 
-  it('resolveFileContent overrides only the drawer view, not the tree', async () => {
+  it('resolveFileContent overrides only the drawer view, not the file payload', async () => {
     const { container } = render(CanvasHost);
     const input = container.querySelector<HTMLInputElement>('[data-testid="label-input"]')!;
     await fireEvent.input(input, { target: { value: 'live!' } });

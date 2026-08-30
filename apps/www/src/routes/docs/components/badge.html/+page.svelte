@@ -3,10 +3,10 @@
   import Badge from '$lib/ui/badge/badge.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
+  import { registrySourceUrl } from '$lib/registry-source';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import { icons } from '$lib/icons';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -69,7 +69,8 @@ ${close}
     <ComponentCanvas
       title="badge"
       description="The variant ladder plus the hue-injection recipes. The chip composes anywhere a span does — headings, table cells, terminal cards."
-      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/badge/badge.svelte"
+      sourceUrl={registrySourceUrl('badge')}
+      install="badge"
       files={canvasFiles}
       stage="center"
     >
@@ -149,7 +150,7 @@ ${close}
   <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Badge variants and axes"><div class="flex flex-col items-start gap-3"><div class="flex flex-wrap items-center gap-3"><Badge>default</Badge><Badge variant="fill">fill</Badge><Badge variant="outline">outline</Badge></div><div class="flex flex-wrap items-center gap-3"><Badge class="jx-hue-neutral">neutral</Badge><Badge class="jx-hue-error">error</Badge><Badge class="jx-hue-success">success</Badge></div><div class="flex flex-wrap items-center gap-3"><Badge shape="square">square</Badge><Badge shape="pill">pill</Badge><Badge shape="pill" variant="outline">outline pill</Badge></div></div></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'span', value: 'inline status', description: 'Use visible text; do not rely on color alone. Under forced colors the chip degrades to Canvas/CanvasText with the 1px border intact.' }, { name: 'aria-label', value: 'consumer supplied', description: 'Add context when the visible label is abbreviated.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Badge>status</Badge></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-fill', default: 'var(--primary)', source: 'color', description: 'Fill ground + same-hue border.' }, { name: '--jx-fill-ink', default: 'var(--primary-foreground)', source: 'color', description: 'Ink on fill — always injected with --jx-fill.' }, { name: '--jx-tonal', default: 'var(--primary)', source: 'color', description: 'Tonal ground/border/text hue source — the status injection seam: jx-hue-* intent utilities, arbitrary form only outside the closed set.' }, { name: '--jx-outline', default: 'var(--border)', source: 'color', description: 'Outline border source.' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><p class="text-muted-foreground text-[13px] leading-6">the chip rides the density scale through tokens — flip the workbench stage's density toggle (comfortable / compact) above to re-scope the stage alone; the four-copy DensityDemo row is retired by that toggle.</p><div class="mt-5"><TokenTable tokens={[{ name: '--jx-fill', default: 'var(--primary)', source: 'color', description: 'Fill ground + same-hue border.' }, { name: '--jx-fill-ink', default: 'var(--primary-foreground)', source: 'color', description: 'Ink on fill — always injected with --jx-fill.' }, { name: '--jx-tonal', default: 'var(--primary)', source: 'color', description: 'Tonal ground/border/text hue source — the status injection seam: jx-hue-* intent utilities, arbitrary form only outside the closed set.' }, { name: '--jx-outline', default: 'var(--border)', source: 'color', description: 'Outline border source.' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Badge props"><PropsTable props={[{ name: 'variant', type: "'fill' | 'tonal' | 'outline'", default: "'tonal'", description: 'Prominence ladder. Hue comes from the global tokens — never a local override.' }, { name: 'shape', type: "'square' | 'pill'", default: "'square'", description: 'Corner law: --radius (square) or fully round (pill).' }, { name: 'slotStart', type: 'Snippet', description: 'Icon lane before the label; svg sized to the secondary text, inline padding adapts.' }, { name: 'slotEnd', type: 'Snippet', description: 'Icon lane after the label; same adaptive law.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }, { name: 'class', type: 'string', description: 'Consumer classes — also the hue-injection seam, e.g. jx-hue-error (arbitrary form for values outside the closed set).' }]} /></SectionCard></div>
   </div>
 </div>

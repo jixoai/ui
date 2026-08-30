@@ -2,12 +2,12 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import PressButton, { pulse, rainbow, ripple, shimmer, type PressEffect } from '$lib/ui/press-button/press-button.svelte';
   import pressButtonSource from '$lib/ui/press-button/press-button.svelte?raw';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
+  import { registrySourceUrl } from '$lib/registry-source';
   import { annotations, meta } from '$lib/meta/press-button.meta';
   import { withAnnotations, type ComponentMeta } from '$lib/schema/ir';
   import { toJSONSchema } from '$lib/schema/lower';
@@ -105,6 +105,13 @@ ${close}
   // ---- the async two-step demo (enhance-picker-feedback, 2026-08-30) ---
   // loading prop in; flash() on settle — the documented ONE idiom
   let deployState = $state<'idle' | 'loading'>('idle');
+
+  // ---- the floor (canvas-floor-lab): page-owned stage state ---------------
+  // theme/density are BINDABLES — the page owns them, the canvas only
+  // projects data-theme/data-density onto the stage element (the spec's
+  // composition-first law). Defaults = the documented rest pose.
+  let stageTheme = $state<'light' | 'dark'>('light');
+  let stageDensity = $state<'comfortable' | 'compact'>('comfortable');
   let deployEcho = $state('idle — press me');
   let deployBtn: { flash: (ms?: number) => void } | undefined;
 
@@ -167,9 +174,12 @@ ${close}
       <ComponentCanvas
         title="press-button"
         description="The press-law button: hover grows the shadow only (xs → sm, the body never moves); active presses the body +1px into the page while the shadow layer stays anchored. The playground rows render from the generated component schema (meta → toJSONSchema); reset returns the schema defaults."
-        sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/press-button/press-button.svelte"
+        sourceUrl={registrySourceUrl('press-button')}
+        install="press-button"
         {files}
         stage="center"
+        bind:theme={stageTheme}
+        bind:density={stageDensity}
         {schema}
         bind:values={canvasValues}
         onvalue={onCanvasValue}
@@ -459,11 +469,13 @@ ${close}
   </div>
 
   <div id="theming" data-reveal="">
-    <SectionCard eyebrow="theming" title="Density and tokens" summary="The button reads its geometry from the inherited density scale, so one theme change updates every instance together.">
+    <SectionCard eyebrow="theming" title="Density and tokens" summary="The button reads its geometry from the inherited density scale, so one scope change updates every instance together. The canvas's stage density toggle (comfortable / compact) is the live proof — it re-scopes only the stage; the DensityDemo four-copy hack is retired by it.">
       <div class="flex flex-col gap-5">
-        <DensityDemo scopes={['xs', 'sm', 'default', 'lg']}>
-          <PressButton variant="fill">deploy</PressButton>
-        </DensityDemo>
+        <p class="text-muted-foreground text-[13px] leading-6">
+          flip the stage toggle above to <code class="text-accent">compact</code> — the workbench
+          canvas re-densifies its own stage (the density scope lands on the stage element only),
+          never the docs chrome around it. Both theme seats work the same way.
+        </p>
         <TokenTable tokens={[
           { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Minimum interactive height and width.' },
           { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Inline button padding.' },

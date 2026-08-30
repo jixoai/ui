@@ -6,11 +6,12 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { playOutputs, playState } from '$lib/playground';
   import { PlayFields, PlayRow, PlayHelp } from '$lib/playground';
+  import { registrySourceUrl } from '$lib/registry-source';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import dialogSource from '$lib/ui/dialog/dialog.svelte?raw';
@@ -59,12 +60,10 @@ ${close}
 </Dialog>`;
 
   // ---- component canvas (audit P1-A2): LIVE trigger + title playground --
-  const canvasInitial = { title: 'Deploy queued' };
-  let canvasOpen = $state(false);
-  let canvasTitle = $state(canvasInitial.title);
-  function resetCanvas(): void {
-    canvasTitle = canvasInitial.title;
-  }
+  // ONE typed state object (canvas-floor-lab 2.1): open + title live in
+  // play.current; reset() restores the documented defaults (closed,
+  // "Deploy queued") with every binding still live.
+  const play = playState({ open: false, title: 'Deploy queued' });
 
   // ToC outline: pairs with the section ids below, in page order.
 
@@ -84,7 +83,7 @@ ${close}
 </Dialog>`;
 
   const canvasFiles: TreeFile[] = [
-    { name: 'registry/files/ui/dialog.svelte', content: dialogSource },
+    { name: 'registry/files/ui/dialog/dialog.svelte', content: dialogSource },
     { name: 'src/lib/ui/dialog-usage.svelte', content: canvasUsage },
   ];
 </script>
@@ -124,25 +123,23 @@ ${close}
   <div data-reveal="">
     <ComponentCanvas
       title="dialog"
-      description="One native <dialog> driven by showModal(): the browser owns the focus trap, Escape, and the top layer — the component adds bindable open state and a 120ms close fade. Retitle it from the Playground."
-      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/dialog.svelte"
+      description="One native <dialog> driven by showModal(): the browser owns the focus trap, Escape, and the top layer — the component adds bindable open state and a 120ms close fade. Retitle it from the Playground; preview the scrim in both stage themes."
+      sourceUrl={registrySourceUrl('dialog')}
+      install="dialog"
       files={canvasFiles}
       stage="center"
-      onreset={resetCanvas}
-      output={[
-        { label: 'open', value: canvasOpen ? 'true' : 'false' },
-        { label: 'title', value: canvasTitle || '—' },
-      ]}
+      onreset={() => play.reset()}
+      output={playOutputs(play.current)}
     >
       <div class="flex flex-col items-center gap-5">
-        <PressButton onclick={() => (canvasOpen = true)}>Open dialog</PressButton>
+        <PressButton onclick={() => (play.current.open = true)}>Open dialog</PressButton>
       </div>
       <!-- closed dialogs render nothing — the instance lives right here in
            the stage; showModal() lifts it into the top layer when open -->
-      <Dialog title={canvasTitle} bind:open={canvasOpen}>
+      <Dialog title={play.current.title} bind:open={play.current.open}>
         <p>build #128 is waiting for a runner. The log streams once it picks up.</p>
         {#snippet footer()}
-          <PressButton onclick={() => (canvasOpen = false)}>Close</PressButton>
+          <PressButton onclick={() => (play.current.open = false)}>Close</PressButton>
         {/snippet}
       </Dialog>
       {#snippet playground()}
@@ -154,7 +151,7 @@ ${close}
               placeholder="Deploy queued"
               aria-label="title"
               class="w-40 text-[12.5px]"
-              bind:value={canvasTitle}
+              bind:value={play.current.title}
             />
           </PlayRow>
           <PlayHelp>
@@ -312,6 +309,6 @@ ${close}
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Flip bind:open from anywhere — every exit (×, Escape, code) runs the same 120ms fade."><CodeBlock code={basicUsage} lang="svelte" meta="Dialog usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native dialog element carries the modal contract — role, focus trap, and Escape are the platform's."><A11yTable keys={[{ key: 'Tab', action: 'Cycles inside the dialog — the showModal() focus trap; the page behind is inert' }, { key: 'Escape', action: 'Cancel event, intercepted only to share the animated close' }, { key: 'Enter / Space', action: 'Activate the focused control (× button, footer buttons, form method="dialog" submits)' }]} aria={[{ name: 'aria-label', value: 'title', description: 'On the dialog element — the header heading when given.' }, { name: 'role', value: 'dialog (native)', description: 'The platform element; no ARIA roles to maintain.' }, { name: 'aria-label', value: '"Close"', description: 'On the × button.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The surface rides the shared motion kernel — one animated custom property drives entry, exit, and the scrim."><div class="flex flex-col gap-5"><DensityDemo><div class="flex flex-col gap-3"><PressButton onclick={() => (basicOpen = true)}>open dialog</PressButton><span class="text-[12.5px] text-muted-foreground">the trigger inherits scope; the surface inherits through the DOM tree.</span></div></DensityDemo><TokenTable tokens={[{ name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Surface-motion progress: blurIn/slide/materials/shadow + backdrop opacity.' }, { name: '--scrim', default: 'black 14% / white 14%', source: 'color', description: '::backdrop — semi-transparent black (light) / white (dark), never a brand tint.' }, { name: '--jx-surface-in-x/y', default: '0px / 6px', source: 'component', description: 'Entry translate offset.' }, { name: 'surface width', default: 'min(92vw, 26rem)', source: 'structural' }, { name: 'close fade', default: '120ms (skipped under reduced motion)', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The surface rides the shared motion kernel — one animated custom property drives entry, exit, and the scrim."><div class="flex flex-col gap-5"><p class="text-muted-foreground text-[13px] leading-6">the trigger inherits the density scope, the surface inherits through the DOM tree — flip the workbench stage's density toggle (comfortable / compact) to re-scope them together; the scrim reads in both stage themes the same way. The four-copy DensityDemo row is retired by that toggle.</p><TokenTable tokens={[{ name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Surface-motion progress: blurIn/slide/materials/shadow + backdrop opacity.' }, { name: '--scrim', default: 'black 14% / white 14%', source: 'color', description: '::backdrop — semi-transparent black (light) / white (dark), never a brand tint.' }, { name: '--jx-surface-in-x/y', default: '0px / 6px', source: 'component', description: 'Entry translate offset.' }, { name: 'surface width', default: 'min(92vw, 26rem)', source: 'structural' }, { name: 'close fade', default: '120ms (skipped under reduced motion)', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Five props — the browser owns every behavior; the component owns state binding and one motion."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'Heading in the header bar; omit for a chrome-less body.' }, { name: 'open', type: 'boolean', default: 'false', description: 'Bindable open state: true → showModal(), false → animated close.', bindable: true }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface paint; auto defers to the environment’s transparency preference.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Dialog body.', required: true }, { name: 'footer', type: 'Snippet', default: '—', description: 'Action area (top-border slot) — Cancel / Confirm row.' }]} /></SectionCard></div>
 </div>
