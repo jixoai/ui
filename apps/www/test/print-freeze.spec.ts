@@ -249,6 +249,24 @@ describe('planFrameTransfer', () => {
     expect(plan.diagnostics.map((d) => d.code)).toEqual(['UNMATCHED_SLOT']);
   });
 
+  it('a DIAGNOSTIC-ONLY element emits no write (pagedjs UndisplayedFilter baits on [style])', () => {
+    // walkthrough fix 2026-08-31: a scroll-driven reveal (computed
+    // duration 0) classifies FINISHED — writing a pause-only inline
+    // would tag the element for pagedjs's data-undisplayed filter
+    const root = document.createElement('div');
+    root.innerHTML = '<section class="reveal-thing"><h2>hi</h2></section>';
+    const section = root.firstElementChild!;
+    // 0.4s × 2 iterations, finished long ago → FINISHED, delayPrime null
+    const record = fakeCssAnimation({ target: section, name: 'jx-reveal-rise', currentTime: 5000 });
+    const plan = planFrameTransfer(
+      root,
+      [record],
+      () => info({ names: ['jx-reveal-rise'], delays: [100], durations: [400], iterations: [2] }),
+    );
+    expect(plan.diagnostics.map((d) => d.code)).toEqual(['FINISHED']);
+    expect(plan.writes).toHaveLength(0);
+  });
+
   it('composes multi-slot lists: transferred slots get delay′, untouched slots keep computed values', () => {
     const root = document.createElement('div');
     root.innerHTML = '<span class="fx">x</span>';
@@ -354,6 +372,22 @@ describe('injectTocNav', () => {
     const clone = document.createElement('article');
     clone.innerHTML = '<p>nothing</p><h3 id="x">only an h3</h3>';
     expect(injectTocNav(clone)).toBeNull();
+  });
+
+  it('the ID MOVE: wrapper-borne entry ids ride onto their h2 (pagedjs strips ids off split-across-pages wrappers)', () => {
+    // walkthrough fix 2026-08-31: a long section wrapper gets its id
+    // → data-id by pagedjs's rebuildAncestors, breaking the ToC's
+    // target-counter resolution; the heading never splits, so the id
+    // moves there (clone-only — the web tree keeps its own ids)
+    const clone = document.createElement('article');
+    clone.innerHTML = '<div id="long-section"><h2>Long Ones</h2><p>' + 'x'.repeat(200) + '</p></div><h2 id="own">Own</h2>';
+    const nav = injectTocNav(clone)!;
+    const anchors = [...nav.querySelectorAll('a')];
+    expect(anchors.map((a) => a.getAttribute('href'))).toEqual(['#long-section', '#own']);
+    // the wrapper's id moved onto its heading; the own-id heading stays
+    expect(clone.querySelector('div#long-section')).toBeNull();
+    expect(clone.querySelector('h2#long-section')!.textContent).toBe('Long Ones');
+    expect(clone.querySelector('h2#own')).not.toBeNull();
   });
 
   it('ids survive the deep clone (the id-preservation law)', () => {

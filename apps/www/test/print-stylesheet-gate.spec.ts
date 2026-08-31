@@ -59,6 +59,21 @@ describe('kernel-print.css — the AST gate', () => {
     }
   });
 
+  it('carries the reveal flatten (scroll-driven entrances park at opacity:0 — paper has no scrollport)', () => {
+    // walkthrough fix 2026-08-31: without this rule every below-fold
+    // [data-reveal] section prints as its `from` frame — blank pages
+    const m = /\[data-reveal\],\s*\[data-reveal='rule'\]\s*\{([^}]*)\}/.exec(kernelClean);
+    expect(m, 'missing the reveal flatten rule').not.toBeNull();
+    for (const decl of [
+      'animation: none !important',
+      'transition: none !important',
+      'opacity: 1 !important',
+      'transform: none !important',
+    ]) {
+      expect(m![1], `the reveal flatten must force ${decl}`).toContain(decl);
+    }
+  });
+
   it('carries the intent header (the migration table, named)', () => {
     expect(kernelCss).toContain('AUDITED WHITELIST');
     expect(kernelCss).toContain('data-jx-props-table-scroll');

@@ -459,9 +459,18 @@ export function planFrameTransfer(
     if (pending) pending.slots.push(slotWrite);
   }
 
-  // compose the per-element writes
+  // compose the per-element writes. A DIAGNOSTIC-ONLY element (every
+  // slot untransferable — FINISHED/ALTERNATE/unmatched, and the
+  // scroll-driven reveal entrances whose computed duration is 0)
+  // gets NO inline at all: the kernel stylesheet owns its halt (the
+  // freeze verb / the reveal flatten), while a pause-only write
+  // would tag the element [style] for pagedjs's UndisplayedFilter
+  // (data-undisplayed on EVERY [style] element it deems removable) —
+  // a layout-path side effect with zero visual value.
   const writes: ElementWrite[] = [];
   for (const pending of byElement.values()) {
+    const hasTransfer = pending.slots.some((slot) => slot.delayPrime !== null);
+    if (!hasTransfer && !pending.hasTransition) continue;
     const info = readComputed(pending.el);
     const delays: (number | string)[] = [];
     for (let i = 0; i < info.names.length; i++) delays.push(`${info.delays[i] ?? 0}ms`);
@@ -573,6 +582,17 @@ export function splitPreLines(clone: ParentNode, options: { lineNumbers: boolean
  * site's web toc already scrolls to — no parallel registry). Page
  * numbers resolve through the kernel's target-counter rules (real
  * kernel-computed numbers — no parallel web component survives).
+ *
+ * THE ID MOVE (walkthrough fix, 2026-08-31): paged.js strips the id
+ * of any element its rebuildAncestors splits across pages (id →
+ * data-id, duplicate protection) — a LONG section therefore loses
+ * the very id target-counter resolves against, and its ToC entry
+ * falls back to 0. The transform moves every wrapper-borne entry id
+ * onto its own h2 first (clone-only, web ids untouched): a one-line
+ * heading never rides a split path, the kernel finds it on the
+ * section's opening page, and the ToC number means "where the
+ * section starts" — which is what a table of contents has always
+ * meant.
  */
 export function injectTocNav(
   clone: HTMLElement,
@@ -581,9 +601,16 @@ export function injectTocNav(
   const entries: { id: string; label: string }[] = [];
   const seen = new Set<string>();
   for (const head of [...clone.querySelectorAll('h2')]) {
-    const id = head.id || head.closest('[id]')?.id;
+    const holder = head.id ? head : head.closest('[id]');
+    const id = holder?.id;
     if (!id || seen.has(id)) continue;
     seen.add(id);
+    // the id move: wrapper-borne ids ride onto the heading (see
+    // header comment) — headings are unsplittable, wrappers are not
+    if (holder !== head) {
+      holder.removeAttribute('id');
+      head.id = id;
+    }
     entries.push({ id, label: head.textContent?.trim() ?? '' });
   }
   if (entries.length === 0) return null;

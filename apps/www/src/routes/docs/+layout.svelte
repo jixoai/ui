@@ -28,9 +28,21 @@
 
   let { children }: { children: Snippet } = $props();
 
-  // optional per-page grammar (+page.ts load) — serializable by
-  // construction (structured values, no strings-as-CSS)
-  const printConfig = $derived(page.data.printConfig as PrintPageConfig | undefined);
+  // The docs-wide default grammar — the acceptance surface is EVERY
+  // docs page, not just the pilot: A4, breathing margins, kernel-real
+  // folios (current page / total pages). A page overrides through its
+  // own printConfig page data (structured values, devalue-safe);
+  // undefined here means "adopt the site default", never "letter with
+  // no margins" (the pipeline's raw default — fine for a library,
+  // wrong for documentation).
+  const DEFAULT_PRINT_CONFIG: PrintPageConfig = {
+    size: 'A4',
+    margin: { top: 18, right: 16, bottom: 18, left: 16, unit: 'mm' },
+    footer: { 'bottom-left': 'counter(page)', 'bottom-right': 'counter(pages)' },
+  };
+  const printConfig = $derived(
+    (page.data.printConfig as PrintPageConfig | undefined) ?? DEFAULT_PRINT_CONFIG,
+  );
 </script>
 
 <PrintDoc>

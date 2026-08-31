@@ -125,8 +125,12 @@
   onjx-print-cancel={() => pipeline?.cancel()}
 />
 
-<!-- the sim's diagnostic carrier: one row per structured diagnostic -->
-{#if pipeline && pipeline.diagnostics.length > 0}
+<!-- the sim's diagnostic carrier: one row per structured diagnostic —
+     rendered ONLY while the sim is open (the rows are the sim
+     transaction's own report surface; the closed web flow carries
+     zero residue — the direct-print exit's carriers are the artifact
+     metadata + the console) -->
+{#if pipeline && simOpen && pipeline.diagnostics.length > 0}
   <ul data-jx-print-diagnostics class="mt-1 flex flex-col gap-0.5 font-mono text-[11px]">
     {#each pipeline.diagnostics as row (row.code + row.owner + row.message)}
       <li data-jx-print-diagnostic data-code={row.code}>

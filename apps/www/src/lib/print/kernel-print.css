@@ -49,6 +49,23 @@
       numbers; the web ToC stays the site's own — no parallel
       component survives) and owns its page.
 
+   5. THE REVEAL FLATTEN (walkthrough fix, 2026-08-31) — the site's
+      scroll-driven entrances ([data-reveal], animation-timeline:
+      view()) park below-fold sections at their `from` frame
+      (opacity: 0); a deep clone carries that 0% pose onto paper that
+      has NO scrollport to advance it — blank pages. Paper flattens
+      the entrances to their final state. !important is load-bearing:
+      it out-ranks the frame-transfer inline styles a scroll-driven
+      slot may carry (their computed duration is 0 — the FINISHED
+      diagnostic — so transfer writes nothing today, but the flatten
+      holds even if that ever changes).
+
+        selector                       forced result
+        ─────────────────────────────  ─────────────────────────────────
+        [data-reveal], [data-reveal='rule']
+                                       animation: none; transition: none;
+                                       opacity: 1; transform: none
+
    AST GATE LAW (test/print-stylesheet-gate.spec.ts): this file
    contains ZERO `@media not print` wrappers and ZERO
    `[data-jx-print-sim]` selectors — the sim shell is a DIFFERENT
@@ -151,6 +168,16 @@ nav[data-jx-print-toc] a::after {
   font-family: var(--font-mono, monospace);
   font-size: 0.8em;
   opacity: 0.8;
+}
+
+/* ── 5. the reveal flatten — paper has no scrollport ────────────────── */
+
+[data-reveal],
+[data-reveal='rule'] {
+  animation: none !important;
+  transition: none !important;
+  opacity: 1 !important;
+  transform: none !important;
 }
 
 /* ── the projection hygiene the pages inherit ────────────────────────── */
