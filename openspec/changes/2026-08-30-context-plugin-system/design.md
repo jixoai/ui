@@ -45,10 +45,11 @@ type UnknownPlugin = { targets: readonly string[] } & Record<string, unknown>
 
 ## init 语义修正 [r1-2]
 
-`init` = **无环境、一次性、仅默认值注入**（返回 Partial 并入 defaults，
-后注册覆盖先注册）。**无 skip**——否决/资格是可逆的，归 `filter`
-（响应式）：filter false 时本插件对该 context 实例整体跳过，context
-照常挂载。可逆媒介往返由此天然成立。
+`init` = **无环境、一次性、仅默认值注入**——完整值 reducer
+`(defaults: T) => T`：插件序逐个套用（上一个输出是下一个输入），
+后覆盖先；字符串/数值/对象统一语义，无浅合并。**无 skip**——
+否决/资格是可逆的，归 `filter`（响应式）：filter false 时本插件
+对该 context 实例整体跳过，context 照常挂载。可逆媒介往返天然成立。
 
 ## raw 值所有权 [r1-3]
 

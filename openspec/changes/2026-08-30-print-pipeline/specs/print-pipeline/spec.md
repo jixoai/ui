@@ -18,15 +18,46 @@ is the regression proof. Print optimization is projection-only.
 
 ### Requirement: prepareSnapshot is a transaction with a commit barrier
 
-The pipeline SHALL run as one `prepareSnapshot()` transaction: medium
-derivation → print plugin interventions landing on the live tree
-(density/hue stamps) → document.getAnimations() paused → a DOM-commit
-barrier (double-rAF plus fail-loud assertions that the source root
-carries the intervened stamps) → readiness gate (fonts ready, lazy
-loading lifted, images decoded, timeout budget with progress and
-cancel) → deep clone of the immutable source root → clone-only
-transforms → live animations resumed. Exiting (sim off / after
-printing) SHALL restore the live tree exactly to raw values.
+The pipeline SHALL run as one `prepareSnapshot()` transaction:
+preparatory medium signal first (the sim toggle or the direct-print
+button stamps the doc, opening the plugin filters — beforeprint is a
+real-print signal only, never the async preparation entry) → print
+plugin interventions landing on the live tree (density/hue stamps) →
+SCOPED animation capture (source-root subtree only via
+getAnimations({subtree:true}); per-animation {wasRunning, currentTime}
+recorded; ONLY running ones paused — pre-paused animations are never
+touched nor resumed) → a DOM-commit barrier (double-rAF plus fail-loud
+assertions that the source root carries the intervened stamps) →
+readiness gate (fonts ready, lazy loading lifted, images decoded,
+timeout budget with progress and cancel) → deep clone of the immutable
+source root → clone-only transforms (CSS animation frames transferred
+to matching clone elements via negative animation-delay derived from
+the recorded currentTime; WAAPI/JS animations are NOT transferable —
+the transaction CONTINUES with a diagnostic row naming the unsupported
+owners, never rejecting) → live animations resumed via an idempotent
+restore token that only touches animations this transaction paused.
+Exiting (sim off / after printing) SHALL restore the live tree exactly
+to raw values and remove the stamp (afterprint).
+
+#### Scenario: the preparatory stamp precedes everything
+
+- GIVEN the direct-print button pressed
+- WHEN prepareSnapshot begins
+- THEN the doc already carries the stamp (filters open); after
+  afterprint the stamp is removed and the medium returns to screen
+
+#### Scenario: a pre-paused animation stays paused
+
+- GIVEN a source animation paused before the transaction
+- WHEN prepareSnapshot captures and later restores
+- THEN it is neither resumed nor its currentTime disturbed
+
+#### Scenario: WAAPI owners continue with a diagnostic
+
+- GIVEN a WAAPI-driven element inside the source tree
+- WHEN the clone is built
+- THEN the transaction completes and the sim diagnostic row names the
+  unsupported animation owner (no rejection, no throw)
 
 #### Scenario: the barrier catches a late intervention
 
@@ -92,6 +123,15 @@ note; the kernel SHALL load as a lazy client chunk with zero SSR path.
 
 - WHEN the site builds
 - THEN no pagedjs code appears in any server/prerender bundle
+
+#### Scenario: an unmeasurable output root fails loudly
+
+- GIVEN the output sibling hidden with display:none
+- WHEN preview is about to run
+- THEN the measurability assertion (offsetWidth > 0) fails the
+  transaction instead of emitting zero-size pages; cancelling after
+  preview entry is best-effort (remove the output root + destroy the
+  artifact handle) and the no-residue fixture holds
 
 ### Requirement: page config is a constrained grammar
 

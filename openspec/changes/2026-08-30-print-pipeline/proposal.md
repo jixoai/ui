@@ -21,9 +21,11 @@ CSS 共存边界、503KB/97KB gzip 懒加载）。
 
 ### 1. 冻结与克隆（`lib/print/freeze.svelte.ts`）
 
-- **时序合同**（研究最大风险的直接对策）：媒介态迁移 → print
-  ContextPlugin 干预 live contexts（density→paper 档、hue→钉缺省、
-  motion→冻结，响应式落 DOM 属性）→ `document.fonts.ready` +
+- **时序合同**（研究最大风险的直接对策）：**预备媒介信号**
+  （sim 盖 stamp / 直接打印同入口先盖 stamp，filter 开门；beforeprint
+  仅真实信号）→ print 插件干预 live contexts（density→**既有 sm 档**、
+  hue→钉缺省，响应式落 DOM；motion 冻结走作用域动画协议**不是插件**）
+  → `document.fonts.ready` +
   图片就绪门 → 深克隆 → 克隆上注入动画暂停 CSS（只染克隆）→
   克隆变换（见 3/4）→ 交内核。
 - 退出（afterprint / sim 关闭）：contexts 响应式回弹，克隆销毁。
@@ -41,7 +43,7 @@ CSS 共存边界、503KB/97KB gzip 懒加载）。
 
 ### 3. 打印 CSS 层（喂内核那份）
 
-- 既有 unlayered 白名单/投影法则**保留迁移**（hide/flatten/滚动解除/
+- 既有 unlayered 白名单/投影法则**正式迁转**（完整表+意图头入 kernel-print.css，css-architecture delta 同步登记；hide/flatten/滚动解除/
   代码块换行）；paged.js 产物本身 unlayered 落 head 尾——层叠权威
   心智一致（研究确认）。
 - 代码块打印行为（换行 + 行号槽）迁入克隆变换：**pre→行 span 拆分
@@ -60,7 +62,6 @@ CSS 共存边界、503KB/97KB gzip 懒加载）。
 ### 5. print 插件（`lib/print/context-plugin.ts`）
 
 context-plugin-system 的第一个真实消费者：init/filter/before 组合，
-print/sim 媒介门控，density→paper、hue→pin-default、motion→freeze。
 
 ### 6. 落页与退役
 

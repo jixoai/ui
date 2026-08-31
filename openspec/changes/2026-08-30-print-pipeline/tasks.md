@@ -3,14 +3,21 @@
 ## 1. 冻结与克隆 [P]
 
 - [ ] 1.1 `lib/print/freeze.svelte.ts`：**prepareSnapshot 事务**
-      （媒介→插件干预→getAnimations pause→DOM-commit 屏障
-      double-rAF+stamp 断言 fail-loud→readiness gate（lazy 解除+
-      超时预算+进度/取消）→深克隆→克隆变换→resume live）。
-      变换纯函数（动画暂停注入/pre 行拆分 lineNumbers/目录页 nav/
-      id 保持），jsdom 可测。
+      （**预备 stamp 盖/摘**（sim 与直接打印共用入口；beforeprint 仅
+      真实信号）→插件干预→**作用域动画捕获**（subtree 枚举、记录
+      {wasRunning, currentTime}、仅暂停 running、预暂停永不触碰）→
+      DOM-commit 屏障 double-rAF+stamp 断言 fail-loud→readiness gate
+      （lazy 解除+超时预算+进度/取消）→深克隆→克隆变换→**幂等
+      restore token** 只恢复本事务暂停项）。
+      变换纯函数（**CSS 负 delay 帧转移**（currentTime→克隆元素
+      animation-delay 公式）/**WAAPI 诊断行（继续不拒绝）**/pre 行
+      拆分 lineNumbers/目录页 nav/id 保持），jsdom 可测。
 - [ ] 1.2 根与并发：[data-print-source]/[data-print-output] sibling
-      合同、single-flight token、四路幂等 cleanup（pages/head-style
-      句柄/listeners）、退出回弹断言（精确回 raw 引用）。
+      合同、**renderTo 可测量断言**（offsetWidth>0，失败 fail-loud）、
+      single-flight token（准备阶段取消；preview 后 best-effort=
+      移除 output 根+销毁产物句柄）、四路幂等 cleanup（pages/
+      head-style 句柄/listeners）、退出回弹断言（精确回 raw 引用 +
+      afterprint 摘 stamp）。
 
 ## 2. 内核管线 [P]
 
@@ -47,5 +54,9 @@
       [package.json 归集成者]。
 - [ ] 5.2 verify-print 重写：SSR/prerender 产物零 pagedjs 断言、
       管线冒烟（sim 开→页产物+margin boxes+目录页码→关→清理回弹）、
-      三场景残留测试（连续 sim/sim→print/失败重试）。
+      **stamp 时序断言**（prepare 前可见、afterprint 后移除）、
+      **动画协议 fixture**（预暂停不启动不扰 currentTime；CSS
+      source/clone 同帧；WAAPI 诊断行不 throw）、**可测量失败 +
+      preview 后取消无残留**、三场景残留测试（连续 sim/sim→print/
+      失败重试）。
 - [ ] 5.3 manifest SITE_ONLY（lib/print/）+ taxonomy/route 同步。

@@ -22,8 +22,10 @@
 
 ## 3. 测试 [P]
 
-- [ ] 3.1 排序：数组序/pre/post 稳定/同名覆盖（同根+跨根叠加）。
-- [ ] 3.2 生命周期：init 默认注入（后覆盖先、无环境、无 skip）、
+- [ ] 3.1 排序：数组序/pre/post 稳定/同名覆盖（同根+跨根叠加）+
+      A/B 洋葱执行序断言（调用日志精确等于 beforeA→beforeB→
+      afterB→afterA；同根与父/子根合成两个 fixture）。
+- [ ] 3.2 生命周期：init 完整值 reducer（字符串/数值/对象三类 fixture）、
       filter 媒介门可逆（screen→sim→print→sim→screen 往返）。
 - [ ] 3.3 不可变：冻结入参新值出、raw 永不被链回写（往返后引用
       === raw 引用）。

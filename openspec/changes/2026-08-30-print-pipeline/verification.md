@@ -12,8 +12,12 @@
   （sim-shell.css 绝不在场）+ 零引用 gate（lib/paged 与 Paged* 全扫）。
 - 同一产物：sim→直接打印复用（页数/目录页码/@page hash 三元组相等）；
   失效重建（改 config 后三元组变化）。
-- 动画协议：预暂停项不被启动不被恢复；CSS 动画 source/clone 同帧
-  fixture；WAAPI 走诊断行。
+- 动画协议：预暂停项不被启动、currentTime 不被扰动；CSS 动画
+  source/clone 同帧（负 delay 公式 fixture）；WAAPI 诊断行在场
+  不 throw（继续不拒绝）。
+- stamp 时序：prepare 前 stamp 可见、afterprint 后移除（medium 回
+  screen）；renderTo 可测量失败 fail-loud；preview 后取消无
+  pages/head-style/listener 残留。
 
 ## 管线（verify-print，真实 Chromium）
 

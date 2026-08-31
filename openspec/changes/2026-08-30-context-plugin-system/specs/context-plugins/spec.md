@@ -33,8 +33,9 @@ last. There SHALL be no module-level singleton registry.
 
 ### Requirement: the lifecycle covers init, filter, before, after
 
-`init` SHALL be an environment-free one-time defaults injection (later
-registrations override earlier; NO veto power); `filter` SHALL be the
+`init` SHALL be an environment-free one-time defaults injection as a
+full-value reducer `(defaults) => next` applied in plugin order
+(string/number/object contexts alike; NO veto power); `filter` SHALL be the
 reversible eligibility gate (a closed filter excludes the plugin from
 that context while the context stays mounted — e.g. medium-gated,
 surviving screen→print→screen round-trips); `before`/`after` SHALL
@@ -42,6 +43,13 @@ intervene on the value's entry and projection sides. Ordering SHALL
 follow the user array with stable 'pre'/'post' anchors (vite
 semantics); the plugin chain is captured when the context instance is
 created (nested roots compose parent-first, nearest root last).
+
+#### Scenario: the onion order is observable
+
+- GIVEN plugins A then B registered on one root
+- WHEN a value flows the pipeline
+- THEN the hook call log reads exactly beforeA → beforeB → afterB →
+  afterA (same shape on a parent/child composed chain)
 
 #### Scenario: gated exclusion is reversible
 
