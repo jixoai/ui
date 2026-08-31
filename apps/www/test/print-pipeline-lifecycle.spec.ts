@@ -38,6 +38,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PRINT_SIM_ATTR } from '../src/lib/medium.svelte';
 import { createPrintPipeline, type PrintPipeline } from '../src/lib/print/pipeline.svelte';
+import { PageConfigError } from '../src/lib/print/page-config';
 
 interface PreviewCall {
   content: DocumentFragment;
@@ -405,5 +406,73 @@ describe('ambient print: a browser-initiated print auto-initializes the pipeline
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+// =========================================================================
+// codex r2 residuals — the P1-4/P1-5 closure
+// =========================================================================
+describe('codex r2: the afterprint wait and the config-failure road close', () => {
+  it('a print() that dispatches afterprint SYNCHRONOUSLY settles inside the call — zero stray timers', async () => {
+    vi.useFakeTimers(FAKE_CLOCK);
+    try {
+      // the embedded-environment shape: the stub dispatches the event
+      // synchronously, INSIDE window.print() — the grace timer must
+      // already exist for settle to clear it (r2: the old order armed
+      // it after the call, leaving a dead 400ms timer behind)
+      vi.stubGlobal('print', () => {
+        window.dispatchEvent(new Event('afterprint'));
+      });
+      root.setAttribute(PRINT_SIM_ATTR, ''); // the caller's sim — survives
+      const run_ = pipeline.runPrint({ config: CONFIG });
+      await untilReady(); // drive the (fake-rAF) preparation to ready
+      await flush(); // the wait executor: print() + the SYNC settle inside it
+      await run_;
+      expect(vi.getTimerCount()).toBe(0); // the fallback was CLEARED, not orphaned
+      expect(pipeline.status).toBe('ready');
+      expect(root.hasAttribute(PRINT_SIM_ATTR)).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('sim-survives direct prints keep the afterprint listener book BALANCED (no closure drift)', async () => {
+    vi.useFakeTimers(FAKE_CLOCK);
+    try {
+      const addSpy = vi.spyOn(window, 'addEventListener');
+      const removeSpy = vi.spyOn(window, 'removeEventListener');
+      root.setAttribute(PRINT_SIM_ATTR, '');
+      for (let i = 0; i < 2; i++) {
+        const run_ = pipeline.runPrint({ config: CONFIG });
+        await untilReady();
+        await drive(400); // the headless stub's grace fallback settles each
+        await run_;
+      }
+      const added = addSpy.mock.calls.filter(([type]) => type === 'afterprint').length;
+      const removed = removeSpy.mock.calls.filter(([type]) => type === 'afterprint').length;
+      // each print's waiter detached ITSELF at settle (r2: the
+      // registry closure went with it — no accumulation until dispose)
+      expect(added).toBe(2);
+      expect(removed).toBe(2);
+      expect(pipeline.status).toBe('ready');
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('a config the grammar rejects releases the self-stamp (no stranded medium)', async () => {
+    // config is a PUBLIC unknown boundary — parsePageConfig throws
+    // PageConfigError AFTER the transaction self-stamped (r2: the
+    // throw used to bypass every release guard)
+    const bad = {
+      size: 'A4',
+      margin: { top: -1, right: 16, bottom: 18, left: 16, unit: 'mm' },
+    };
+    await expect(pipeline.runPrint({ config: bad })).rejects.toThrow(PageConfigError);
+    expect(root.hasAttribute(PRINT_SIM_ATTR)).toBe(false); // NOT stranded
+    expect(pipeline.status).toBe('error');
+    expect(document.querySelector('[data-print-output]')).toBeNull();
+    expect(document.documentElement.hasAttribute('data-jx-print-active')).toBe(false);
   });
 });

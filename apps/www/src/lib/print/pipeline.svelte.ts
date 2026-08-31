@@ -198,6 +198,10 @@ export function createPrintPipeline(
    *  event that already passed) */
   let ambientSettle: (() => void) | undefined;
   let ambientAfterprintSeen = true;
+  /** the direct-print afterprint wait's settle handle — dispose()/
+   *  cancel() end the wait THROUGH it (the 400ms grace fallback is a
+   *  headless backstop, not the only way the promise clears; codex r2) */
+  let pendingPrintSettle: (() => void) | undefined;
   const ownedListeners: (() => void)[] = [];
   const cssCache = new Map<string, string>();
 
@@ -222,13 +226,23 @@ export function createPrintPipeline(
   const stylesheetHashFor = (options: PrintRunOptions | undefined): string =>
     hashString(`${parsedSignature(options)}\u0000${pageCssFor(options)}`);
 
+  /** returns the TARGETED un-listen: detaches the listener AND splices
+   *  its own registry entry — a short-lived waiter (the afterprint
+   *  hook) that settles itself must not leave its closure in the
+   *  dispose-drained array until the next dispose (codex r2, P1-4) */
   const addListener = (
     target: { addEventListener: typeof window.addEventListener },
     type: string,
     listener: EventListener,
-  ): void => {
+  ): (() => void) => {
     target.addEventListener(type, listener);
-    ownedListeners.push(() => target.removeEventListener(type, listener));
+    const unlisten = (): void => {
+      target.removeEventListener(type, listener);
+      const at = ownedListeners.indexOf(unlisten);
+      if (at !== -1) ownedListeners.splice(at, 1);
+    };
+    ownedListeners.push(unlisten);
+    return unlisten;
   };
 
   const removeOwnedListeners = (): void => {
@@ -446,6 +460,11 @@ export function createPrintPipeline(
     ambientAfterprintSeen = true;
     ambientSettle?.();
     ambientSettle = undefined;
+    // the direct-print wait settles through its own handle — release,
+    // hygiene and the promise clear NOW, not on the 400ms backstop
+    // (codex r2, P1-4: dispose must not depend on an unmanaged timer)
+    pendingPrintSettle?.();
+    pendingPrintSettle = undefined;
     removeArtifactDom(artifact);
     artifact = undefined;
     removeOwnedListeners();
@@ -500,7 +519,18 @@ export function createPrintPipeline(
     diagnostics = snapshot.diagnostics;
     liveSnapshot = snapshot;
 
-    const stylesheetHash = stylesheetHashFor(options);
+    // a config the grammar rejects is fail-loud input — but it lands
+    // AFTER the transaction self-stamped (config is a public unknown
+    // boundary; parsePageConfig throws). The release law holds on
+    // this road too (codex r2, P1-5): the self-stamp unwinds before
+    // the throw reaches guarded's dispose-only catch
+    let stylesheetHash: string;
+    try {
+      stylesheetHash = stylesheetHashFor(options);
+    } catch (error) {
+      snapshot.releaseStamp();
+      throw error;
+    }
     const current = artifact;
     if (
       current !== undefined &&
@@ -688,29 +718,31 @@ export function createPrintPipeline(
       await new Promise<void>((resolve) => {
         let settled = false;
         let fallback: ReturnType<typeof setTimeout> | undefined;
-        const onAfterPrint = (): void => {
+        let unlisten: (() => void) | undefined;
+        // ONE settle owns the whole exit (codex r1 P1-4 + r2): the
+        // grace timer, the window listener AND its registry entry,
+        // the settle handle dispose/cancel reach — idempotent through
+        // the settled guard
+        const settle = (): void => {
           if (settled) return;
           settled = true;
-          // FIRST entry owns the exit hygiene (codex review P1,
-          // 2026-08-30): clear the grace timer and detach the
-          // listener EXPLICITLY — the sim-survives branch never runs
-          // dispose(), so a dispose-dependent cleanup would strand
-          // both on the window. Why this is safe: production
-          // window.print() is a MODAL call that blocks the event
-          // loop, so the 400ms fallback cannot beat the real
-          // afterprint — the fallback exists ONLY for headless
-          // probes/tests that stub window.print
+          pendingPrintSettle = undefined;
           if (fallback !== undefined) clearTimeout(fallback);
-          window.removeEventListener('afterprint', onAfterPrint as EventListener);
+          unlisten?.();
           settlePrintExit();
           resolve();
         };
-        addListener(window, 'afterprint', onAfterPrint as EventListener);
+        pendingPrintSettle = settle;
+        unlisten = addListener(window, 'afterprint', settle as EventListener);
+        // the grace fallback arms BEFORE the modal call (codex r2,
+        // P1-4): an embedded environment whose print() dispatches
+        // afterprint SYNCHRONOUSLY settles inside the call — the
+        // timer must already exist for settle to clear it. Production
+        // window.print() is modal and blocks the event loop, so
+        // arming early cannot fire mid-dialog; without a real
+        // afterprint the fallback is what clears the headless stub
+        fallback = setTimeout(settle, 400);
         window.print();
-        // headless probes stub window.print (no dialog fires
-        // afterprint) — settle on a grace timeout so the promise and
-        // the single-flight slot always clear
-        fallback = setTimeout(onAfterPrint, 400);
       });
     })();
     inFlight = flight;
