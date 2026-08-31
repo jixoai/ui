@@ -61,7 +61,12 @@ CSS 共存边界、503KB/97KB gzip 懒加载）。
 
 ### 5. print 插件（`lib/print/context-plugin.ts`）
 
-context-plugin-system 的第一个真实消费者：init/filter/before 组合，
+context-plugin-system 的第一个真实消费者：**filter**（sim/print 媒介
+门控——预备 stamp 之后开门）+ **before**（density→既有 sm 档、
+hue→钉缺省，经 hue adapter）——**不用 init**（无默认值注入需求）。
+motion 冻结不是插件：走 prepareSnapshot 的作用域动画协议（含
+per-slot CSS 帧转移与六类诊断码，两出口分载：sim 渲染诊断行 /
+direct print 记 artifact metadata + console）。
 
 ### 6. 落页与退役
 
