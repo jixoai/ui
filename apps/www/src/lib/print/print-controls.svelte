@@ -132,7 +132,7 @@
      metadata + the console) -->
 {#if pipeline && simOpen && pipeline.diagnostics.length > 0}
   <ul data-jx-print-diagnostics class="mt-1 flex flex-col gap-0.5 font-mono text-[11px]">
-    {#each pipeline.diagnostics as row (row.code + row.owner + row.message)}
+    {#each pipeline.diagnostics as row, i (row.code + row.owner + row.message + i)}
       <li data-jx-print-diagnostic data-code={row.code}>
         <b class="text-amber-600">{row.code}</b>
         <span class="opacity-70"> {row.owner}</span>
