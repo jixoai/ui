@@ -2,7 +2,10 @@
 /**
  * The ONE dev entry (scripts/dev.mjs, scripts overhaul 2026-08-31).
  *
- *   pnpm dev                    # registry ⇄ www mirror sync + vite dev (HMR)
+ *   pnpm dev                    # vite dev on :5199 (the dev server's
+ *                               # own vite plugin runs the registry ⇄
+ *                               # www mirror sync — see
+ *                               # apps/www/vite.config.ts devMirrorSync)
  *   pnpm dev --port 3000        # custom port (any vite flag passes through)
  *   pnpm dev --prod             # production mode + the experimental
  *                               # client bundle strategy (single file)
@@ -14,18 +17,17 @@
  *
  * What it replaces: `shadcn build --watch` (a flag the CLI never had —
  * the old root `dev` was broken outright) and dev-site.mjs (which
- * spawned npm by name). Registry development now means: edit either
- * side of the mirror pair, the other side receives the exact bytes,
- * vite hot-reloads the www side. The registry JSON payloads
- * (public/r/*.json) are BUILD output — `build:registry` regenerates
- * them; dev never needs them (the dev server serves /r/*.json from
- * the committed public/ via its fallback middleware).
+ * spawned npm by name). This is now a THIN argument translator: the
+ * mirror sync rides the dev server itself (any way you start it —
+ * this entry, `vite dev` directly, bun — the plugin is always in),
+ * and the registry JSON payloads (public/r/*.json) are BUILD output
+ * (`build:registry`), never needed in dev (the fallback middleware
+ * serves /r/*.json from the committed public/).
  */
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { resolveViteBin } from './lib/vite-bin.mjs';
-import { createMirrorSync } from './lib/mirror-sync.mjs';
 
 const repoRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const wwwDir = join(repoRoot, 'apps', 'www');
@@ -61,29 +63,10 @@ if (prod) viteArgs.push('--mode', 'production');
 const env = { ...process.env };
 if (bundleStrategy) env.JIXOAI_BUNDLE = bundleStrategy;
 
-const sync = createMirrorSync(repoRoot);
-await sync.reportDrift();
-const stopMirror = await sync.startWatch();
-
 console.log(`[dev] vite ${viteArgs.join(' ')}${bundleStrategy ? ` (bundle: ${bundleStrategy})` : ''}`);
 const child = spawn(process.execPath, [resolveViteBin(wwwDir), ...viteArgs], {
   cwd: wwwDir,
   stdio: 'inherit',
   env,
 });
-
-const shutdown = () => {
-  void stopMirror();
-};
-child.on('exit', (code) => {
-  void stopMirror();
-  process.exit(code ?? 0);
-});
-process.on('SIGINT', () => {
-  shutdown();
-  child.kill('SIGINT');
-});
-process.on('SIGTERM', () => {
-  shutdown();
-  child.kill('SIGTERM');
-});
+child.on('exit', (code) => process.exit(code ?? 0));

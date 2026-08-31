@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * The registry ⇄ www mirror sync (scripts/lib/mirror-sync.mjs,
- * scripts overhaul 2026-08-31).
+ * The registry ⇄ www mirror sync LOGIC (scripts/lib/mirror-sync.mjs,
+ * scripts overhaul 2026-08-31; watch-free since the chokidar handoff).
  *
  * THE LAW (mirror-manifest, tw4-css-modularization P0.3):
  * `registry/files/**` is the canonical registry source tree;
@@ -15,26 +15,25 @@
  * and is ignored; everything else under registry/files (docs tooling
  * like llms-txt.mjs) maps nowhere and is ignored too.
  *
+ * WATCHING IS NOT DONE HERE — on purpose. The host (the dev server's
+ * chokidar via the vite plugin in apps/www/vite.config.ts) drives
+ * `schedule(path)` with absolute paths; this module only maps, syncs,
+ * and suppresses echoes. (The first cut used fs.watch({recursive}),
+ * which libuv only supports on macOS/Windows — a Linux landmine. The
+ * vite watcher is cross-platform and its lifecycle comes free.)
+ *
  * Behavior:
- *   - startWatch() reports initial drift (both directions), then
- *     mirrors live edits BOTH ways: change one side, the other
- *     receives the exact bytes (vite HMR picks the www side up);
+ *   - schedule(path) debounces (60ms) and syncs: change one side, the
+ *     other receives the exact bytes (vite HMR picks the www side up);
+ *   - a missing source file propagates as a mirror deletion;
  *   - echo suppression: after a sync write, the copy-back event on
  *     the OTHER side is recognized by content hash and skipped — no
  *     feedback loop, no double logs;
- *   - deletions propagate (a file vanishing on one side removes the
- *     mirror on the other);
- *   - zero dependencies: fs.watch({recursive:true}) (Node ≥20 and
- *     Bun both support it on macOS/Linux), content hashing via
- *     node:crypto.
- *
- * Deliberately NOT done here: startup overwrites. A drift report is
- * information, not a mandate — silently clobbering one side on
- * launch would eat unsaved work. `verify:mirror` stays the drift
- * gate; the next edit on either side re-converges that file.
+ *   - reportDrift() is the startup reconciliation: informational,
+ *     NEVER writes (silently clobbering one side on launch would eat
+ *     unsaved work; verify:mirror stays the drift gate).
  */
 import { createHash } from 'node:crypto';
-import { watch } from 'node:fs'; // callback-form watcher — fs/promises' watch() is an async ITERATOR; a callback lands in an ignored third argument and events are silently never consumed
 import { copyFile, mkdir, readFile, readdir, rm, stat } from 'node:fs/promises';
 import { dirname, join, relative, sep } from 'node:path';
 import { isSiteOnly } from './site-only.mjs';
@@ -150,12 +149,10 @@ export function createMirrorSync(repoRoot) {
     return { diverged, wwwOnly };
   }
 
-  // ── live sync ─────────────────────────────────────────────────────
+  // ── live sync (host-driven) ────────────────────────────────────────
   const DEBOUNCE_MS = 60;
   const pending = new Map(); // abs path → timer
   const echo = new Map(); // path just written by us → sha we wrote
-  let stopped = false;
-  const watchers = [];
 
   const log = (direction, from) =>
     console.log(`[mirror] ${direction} ${relative(repoRoot, from)}`);
@@ -202,6 +199,7 @@ export function createMirrorSync(repoRoot) {
     }
   }
 
+  /** the host (the dev server's watcher) calls this per event */
   function schedule(absPath) {
     const existing = pending.get(absPath);
     if (existing !== undefined) clearTimeout(existing);
@@ -214,29 +212,5 @@ export function createMirrorSync(repoRoot) {
     );
   }
 
-  async function watchTree(root) {
-    const watcher = watch(root, { recursive: true }, (_event, filename) => {
-      if (stopped || typeof filename !== 'string') return;
-      schedule(join(root, filename));
-    });
-    watcher.on('error', (err) => {
-      console.warn(`[mirror] watcher error on ${root}: ${err.message}`);
-    });
-    watchers.push(watcher);
-  }
-
-  /** start the bidirectional watch; returns a stop() */
-  async function startWatch() {
-    watchTree(registryFiles);
-    watchTree(wwwLib);
-    console.log(`[mirror] watching registry ⇄ www (${registryFiles} ⇄ ${wwwLib})`);
-    return async () => {
-      stopped = true;
-      for (const watcher of watchers) watcher.close();
-      for (const timer of pending.values()) clearTimeout(timer);
-      pending.clear();
-    };
-  }
-
-  return { reportDrift, startWatch, toMirror, listPairs };
+  return { reportDrift, schedule, toMirror, listPairs };
 }
