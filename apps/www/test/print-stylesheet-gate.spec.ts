@@ -99,11 +99,19 @@ describe('kernel-print.css — the AST gate', () => {
     expect(codeCard![1]).toContain('border: none');
     // the continuation dash on pagedjs split markers — INNERMOST only
     // (the pipeline's data-jx-split-outer quiets the rebuilt ancestor
-    // chain: one cut, one dash), and keep-with-next for orphans
+    // chain: one cut, one dash), the outer layers' own borders at the
+    // cut are suppressed (a section's hairline 1px from the dash is
+    // the r4 doubled cut), and keep-with-next guards the real strip
+    // shapes (a code head is a FIGCAPTION; a section header is the
+    // card's first div; the code foot guards its break-BEFORE)
     expect(kernelClean).toMatch(/\[data-split-to\]:not\(\[data-jx-split-outer\]\)\s*\{[^}]*border-block-end: 1px dashed/);
     expect(kernelClean).toMatch(/\[data-split-from\]:not\(\[data-jx-split-outer\]\)\s*\{[^}]*border-block-start: 1px dashed/);
+    expect(kernelClean).toMatch(/\[data-split-to\]\[data-jx-split-outer\]\s*\{[^}]*border-block-end: none/);
+    expect(kernelClean).toMatch(/\[data-split-from\]\[data-jx-split-outer\]\s*\{[^}]*border-block-start: none/);
     expect(kernelClean).toMatch(/h1,\s*\nh2,\s*\nh3\s*\{[^}]*break-after: avoid/);
-    expect(kernelClean).toMatch(/:where\(\.jx-code-card > div\)\s*\{[^}]*break-after: avoid/);
+    expect(kernelClean).toMatch(/section\.bg-card > div:first-child\s*\{[^}]*break-after: avoid/);
+    expect(kernelClean).toMatch(/\.jx-code-card > figcaption\s*\{[^}]*break-after: avoid/);
+    expect(kernelClean).toMatch(/\[data-jx-code-card-foot\]\s*\{[^}]*break-before: avoid/);
     // pagedjs's break parser splits selectors on BARE commas — a
     // :where() comma list would shatter into invalid fragments
     // ("' h3)' is not a valid selector", the r3 hang). Only break-*

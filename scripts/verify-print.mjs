@@ -252,40 +252,156 @@ check(
 // print variant — the card's closed box dissolves (NO side borders),
 // the block-end separator is solid unless a split dash takes the edge
 // (continuation halves legitimately carry the dashed rule). The dash
-// is INNERMOST-only: the pipeline's normalization quiets the rebuilt
-// ancestor chain (one cut, one dash — no stacked sawtooth band)
+// is INNERMOST-only AND the whole edge is dash-ALONE: the pipeline's
+// normalization quiets the rebuilt ancestor chain and the kernel
+// suppresses the outer layers' own borders at the cut (one cut, one
+// dash, nothing else draws there — no stacked band). Keep-with-next
+// covers headings, a section card's header block, and a code card's
+// head strip (a FIGCAPTION — the CodeBlock meta rides CodeCard's
+// header snippet; vision r4's stranded "→ the layer, assembled").
 const paperProjection = await page.evaluate(() => {
   const out = document.querySelector('[data-print-output]');
   const cards = [...out.querySelectorAll('section.bg-card')];
-  const noClosedBox = (cs) =>
-    cs.borderLeftStyle === 'none' && cs.borderRightStyle === 'none' &&
-    ['none', 'dashed'].includes(cs.borderTopStyle) &&
-    ['solid', 'dashed'].includes(cs.borderBottomStyle);
-  const borderless = cards.filter((c) => noClosedBox(getComputedStyle(c))).length;
+  // side borders always gone; top may be a continuation dash; bottom
+  // may be the hairline (solid), a dash, or nothing-at-all when the
+  // card is a split outer layer (its hairline suppressed at the cut)
+  const noClosedBox = (el) => {
+    const cs = getComputedStyle(el);
+    if (cs.borderLeftStyle !== 'none' || cs.borderRightStyle !== 'none') return false;
+    const topOk = cs.borderTopStyle === 'none' ||
+      (cs.borderTopStyle === 'dashed' && el.hasAttribute('data-split-from'));
+    const bottomOk = cs.borderBottomStyle === 'solid' ||
+      (['dashed', 'none'].includes(cs.borderBottomStyle) && el.hasAttribute('data-split-to'));
+    return topOk && bottomOk;
+  };
+  const borderless = cards.filter((c) => noClosedBox(c)).length;
   const innerFrom = [...out.querySelectorAll('[data-split-from]:not([data-jx-split-outer])')];
   const innerDashed = innerFrom.filter((el) => getComputedStyle(el).borderTopStyle === 'dashed').length;
+  // the outer chain is quiet on its CUT side — not just non-dashed:
+  // the suppression is `none` (an authored hairline at a cut edge
+  // would stack 1px from the innermost dash — vision r4's double line)
   const outerQuiet = [...out.querySelectorAll('[data-jx-split-outer]')].filter((el) => {
     const cs = getComputedStyle(el);
-    return cs.borderTopStyle !== 'dashed' && cs.borderBottomStyle !== 'dashed';
+    const topOk = !el.hasAttribute('data-split-from') || cs.borderTopStyle === 'none';
+    const bottomOk = !el.hasAttribute('data-split-to') || cs.borderBottomStyle === 'none';
+    return topOk && bottomOk;
   }).length;
   const outerTotal = out.querySelectorAll('[data-jx-split-outer]').length;
   const splitTotal = out.querySelectorAll('[data-split-from]').length;
-  // keep-with-next: pagedjs CONSUMES the break-after declaration and
-  // re-materializes it as data-break-after on the element (the same
-  // hijack shape as its counters) — the orphan guard rides there
-  const h2keep = [...out.querySelectorAll('.pagedjs_page h2')].filter(
-    (h) => h.getAttribute('data-break-after') === 'avoid',
-  ).length;
-  const h2total = out.querySelectorAll('.pagedjs_page h2').length;
-  return { cards: cards.length, borderless, innerDashed, innerFrom: innerFrom.length, outerQuiet, outerTotal, splitTotal, h2keep, h2total };
+  // keep-with-next: pagedjs CONSUMES the break-after/before declaration
+  // and re-materializes it as data-break-* on the element (the same
+  // hijack shape as its counters) — the orphan guards ride there
+  const stamped = (sel, attr) => {
+    const els = [...out.querySelectorAll(sel)];
+    return { total: els.length, kept: els.filter((el) => el.getAttribute(attr) === 'avoid').length };
+  };
+  const h2 = stamped('.pagedjs_page h2', 'data-break-after');
+  const cardHead = stamped('.pagedjs_page section.bg-card > div:first-child', 'data-break-after');
+  const codeHead = stamped('.pagedjs_page .jx-code-card > figcaption', 'data-break-after');
+  const codeFoot = stamped('.pagedjs_page [data-jx-code-card-foot]', 'data-break-before');
+  // pagedjs's chunking REBUILDS split sections — a continuation half's
+  // first child is body content that never saw the parse-time stamp;
+  // the stamped count must equal the SOURCE's real header count
+  const source = document.querySelector('[data-print-source]');
+  const cardHeadSource = source ? source.querySelectorAll('section.bg-card > div:first-child').length : 0;
+  // GEOMETRY: at a cut edge exactly one line may draw — every same-y
+  // (±3px) x-overlapping pair where BOTH sides are systemic (a split
+  // marker or the card hairline) is a doubled cut; a dash adjacent to
+  // an authored separator of UNMARKED content is reported, not gated
+  const pageNo = (el) => el.closest('.pagedjs_page')?.getAttribute('data-page-number') ?? '?';
+  const lines = [];
+  for (const el of out.querySelectorAll('*')) {
+    const cs = getComputedStyle(el);
+    const r = el.getBoundingClientRect();
+    if (r.width < 8) continue;
+    for (const side of ['top', 'bottom']) {
+      if (parseFloat(cs[`border-${side}-width`]) === 0) continue;
+      const st = cs[`border-${side}-style`];
+      if (st === 'none' || st === 'hidden') continue;
+      lines.push({
+        page: pageNo(el), y: Math.round(side === 'top' ? r.top : r.bottom),
+        x0: Math.round(r.left), x1: Math.round(r.right), style: st,
+        systemic: el.hasAttribute('data-split-to') || el.hasAttribute('data-split-from') || el.matches('section.bg-card'),
+        el: el.tagName.toLowerCase(),
+      });
+    }
+  }
+  const byPage = {};
+  for (const ln of lines) (byPage[ln.page] ??= []).push(ln);
+  let doubledCuts = 0;
+  const authoredNearCut = [];
+  for (const lns of Object.values(byPage)) {
+    lns.sort((a, b) => a.y - b.y);
+    let group = [lns[0]];
+    const flush = () => {
+      for (let i = 1; i < group.length; i++) {
+        const a = group[i - 1], b = group[i];
+        if (Math.abs(a.y - b.y) > 3) continue;
+        if (!(a.x0 < b.x1 - 2 && b.x0 < a.x1 - 2)) continue;
+        if (a.systemic && b.systemic) doubledCuts++;
+        else if (a.style === 'dashed' || b.style === 'dashed')
+          authoredNearCut.push({ page: a.page, y: a.y, a: a.el + ':' + a.style, b: b.el + ':' + b.style });
+      }
+    };
+    for (let i = 1; i < lns.length; i++) {
+      if (lns[i].y - group[group.length - 1].y <= 3) group.push(lns[i]);
+      else { flush(); group = [lns[i]]; }
+    }
+    flush();
+  }
+  // STRANDS: a stamped keep carrier still ending its page while its
+  // host continues on a later page — the pipeline's relocation pass
+  // must leave none (pagedjs's own avoid backwalk misses these)
+  const pagesArr = [...out.querySelectorAll('.pagedjs_page')];
+  const strands = [];
+  pagesArr.forEach((p, i) => {
+    if (i === pagesArr.length - 1) return;
+    const content = p.querySelector('.pagedjs_page_content');
+    if (!content) return;
+    let deepest = null;
+    let deepestBottom = -Infinity;
+    for (const el of content.querySelectorAll('*')) {
+      const r = el.getBoundingClientRect();
+      if (r.height <= 1) continue;
+      let leaf = true;
+      for (const child of el.children) {
+        if (child.getBoundingClientRect().height > 1) { leaf = false; break; }
+      }
+      if (leaf && r.bottom > deepestBottom) { deepestBottom = r.bottom; deepest = el; }
+    }
+    if (!deepest) return;
+    const carriers = [];
+    for (let el = deepest; el && el !== content; el = el.parentElement) {
+      if (el.getAttribute('data-break-after') === 'avoid') carriers.push(el);
+    }
+    const carrier = carriers.reverse().find((el) => (el.parentElement?.getAttribute('data-ref') ?? '') !== '');
+    const host = carrier?.parentElement;
+    const ref = host?.getAttribute('data-ref');
+    if (!carrier || !host || !ref) return;
+    const continues = pagesArr
+      .slice(i + 1)
+      .some((q) => q.querySelector(`[data-ref="${ref}"][data-split-from]`));
+    if (continues) strands.push({ page: p.getAttribute('data-page-number'), ref: String(ref).slice(0, 8) });
+  });
+  return {
+    cards: cards.length, borderless, innerDashed, innerFrom: innerFrom.length,
+    outerQuiet, outerTotal, splitTotal, doubledCuts, authoredNearCut, strands,
+    keepRelocated: JSON.parse(out.dataset.jxPrintMeta ?? '{}').keepRelocated ?? null,
+    h2, cardHead, cardHeadSource, codeHead, codeFoot,
+  };
 });
 check(
-  'paper projection: cards borderless; ONE dash per cut (ancestors quiet); headings keep-with-next',
+  'paper projection: cards borderless; ONE dash per cut, outer layers fully quiet; headings/card heads/code heads keep-with-next (strands relocated)',
   paperProjection.cards >= 5 && paperProjection.borderless === paperProjection.cards &&
     paperProjection.splitTotal >= 1 && paperProjection.innerFrom >= 1 &&
     paperProjection.innerDashed === paperProjection.innerFrom &&
     (paperProjection.outerTotal === 0 || paperProjection.outerQuiet === paperProjection.outerTotal) &&
-    paperProjection.h2total >= 3 && paperProjection.h2keep === paperProjection.h2total,
+    paperProjection.doubledCuts === 0 &&
+    paperProjection.keepRelocated >= 1 && paperProjection.strands.length === 0 &&
+    paperProjection.h2.total >= 3 && paperProjection.h2.kept === paperProjection.h2.total &&
+    paperProjection.cardHeadSource >= 3 && paperProjection.cardHead.kept >= 1 &&
+    paperProjection.codeHead.total >= 1 && paperProjection.codeHead.kept === paperProjection.codeHead.total &&
+    (paperProjection.codeFoot.total === 0 || paperProjection.codeFoot.kept === paperProjection.codeFoot.total),
   JSON.stringify(paperProjection),
 );
 

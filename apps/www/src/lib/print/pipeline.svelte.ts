@@ -69,6 +69,10 @@ export interface PrintArtifactMetadata {
   stylesheetHash: string;
   purpose: 'sim' | 'print';
   createdStamp: boolean;
+  /** stranded keep-with-next carriers the pipeline relocated into
+   *  their continuation halves (pagedjs's own avoid backwalk is
+   *  blind to breaks that start deep inside the next block) */
+  keepRelocated: number;
   diagnostics: PrintDiagnostic[];
   transfer: {
     applied: number;
@@ -228,6 +232,72 @@ export function createPrintPipeline(
     for (const el of [...outputRoot.querySelectorAll('[data-split-from]')]) {
       if (el.querySelector('[data-split-from]')) el.setAttribute('data-jx-split-outer', '');
     }
+  };
+
+  /** the keep-with-next ENFORCEMENT (vision r4): pagedjs consumes the
+   *  break-after: avoid declaration (data-break-after) but its own
+   *  backwalk is blind to a break that starts deep inside the next
+   *  block — a code card's head strip or a section card's header
+   *  strand alone at a page's bottom edge over dead space, their body
+   *  moved whole. The pipeline enforces the keep on the FINISHED
+   *  layout: a stamped carrier whose subtree is the page's last
+   *  rendered content, whose host (figure/section) continues on a
+   *  later page, moves INTO that continuation half — pagedjs's
+   *  rebuilds preserve data-ref, so the halves pair up. The emptied
+   *  half drops; the cut dash lands on real content. */
+  const relocateStrandedKeeps = (outputRoot: HTMLElement): number => {
+    let moved = 0;
+    const pages = [...outputRoot.querySelectorAll<HTMLElement>('.pagedjs_page')];
+    for (let i = 0; i < pages.length - 1; i++) {
+      const content = pages[i].querySelector<HTMLElement>('.pagedjs_page_content');
+      if (!content) continue;
+      // the page's last rendered content = its bottom-most visible
+      // LEAF (containers own the bottom edge through padding — the
+      // stranded carrier hides INSIDE the outermost container)
+      let deepest: HTMLElement | null = null;
+      let deepestBottom = -Infinity;
+      for (const el of content.querySelectorAll<HTMLElement>('*')) {
+        const rect = el.getBoundingClientRect();
+        if (rect.height <= 1) continue;
+        let leaf = true;
+        for (const child of el.children) {
+          if ((child as HTMLElement).getBoundingClientRect().height > 1) {
+            leaf = false;
+            break;
+          }
+        }
+        if (leaf && rect.bottom > deepestBottom) {
+          deepestBottom = rect.bottom;
+          deepest = el;
+        }
+      }
+      if (!deepest) continue;
+      // the stranded carrier: the OUTERMOST avoid-stamped ancestor of
+      // that content whose host carries a data-ref (the figure/section
+      // pagedjs re-identified across the break)
+      const carriers: HTMLElement[] = [];
+      for (let el: HTMLElement | null = deepest; el && el !== content; el = el.parentElement) {
+        if (el.getAttribute('data-break-after') === 'avoid') carriers.push(el);
+      }
+      const carrier = carriers
+        .reverse()
+        .find((el) => (el.parentElement?.getAttribute('data-ref') ?? '') !== '');
+      const host = carrier?.parentElement ?? null;
+      const ref = host?.getAttribute('data-ref');
+      if (!carrier || !host || !ref) continue;
+      // the continuation half: same ref, split-from, on a LATER page
+      const continuation = pages
+        .slice(i + 1)
+        .map((p) => p.querySelector<HTMLElement>(`[data-ref="${CSS.escape(ref)}"][data-split-from]`))
+        .find((el): el is HTMLElement => el !== null);
+      if (!continuation) continue;
+      continuation.prepend(carrier);
+      moved++;
+      // a half emptied by the move is a dead strip — its dash would
+      // cut at nothing (the figcaption-only figure half)
+      if (host.hasAttribute('data-split-to') && !host.querySelector('*')) host.remove();
+    }
+    return moved;
   };
 
   /** the sim ToC click takeover: ids repeat between source and pages —
@@ -396,6 +466,11 @@ export function createPrintPipeline(
       );
       const pages =
         Number(flow?.total) || outputRoot.querySelectorAll('.pagedjs_page').length;
+      // the keep enforcement runs on the finished layout, BEFORE the
+      // metadata freezes (the count rides meta.keepRelocated) and
+      // BEFORE the dash normalization (relocation may drop emptied
+      // halves — the quiet pass must see the final split tree)
+      const keepRelocated = relocateStrandedKeeps(outputRoot);
       const built: Artifact = {
         snapshotHash: snapshot.hash,
         stylesheetHash,
@@ -407,6 +482,7 @@ export function createPrintPipeline(
           stylesheetHash,
           purpose,
           createdStamp: snapshot.createdStamp,
+          keepRelocated,
           diagnostics: snapshot.diagnostics,
           transfer: {
             applied: snapshot.transfer.applied,

@@ -356,6 +356,18 @@ describe('splitPreLines', () => {
     // data-line is the counter-free carrier (walkthrough fix 2026-08-31)
     expect(lines.map((l) => l.getAttribute('data-line'))).toEqual(['1', '2']);
   });
+
+  it('strips the pre inline style (pagedjs UndisplayedFilter marks [style] elements undisplayed)', () => {
+    // vision r4: a Shiki pre's theme inline style got the code marked
+    // data-undisplayed — the kernel moved it WHOLE across the break
+    // (stranding the head strip over a dead half-page) and skipped it
+    // as a neighbor, killing the head's keep stamp chain
+    const host = document.createElement('div');
+    host.innerHTML =
+      '<pre style="background-color:#0d1117;color:#c9d1d9"><code>a\nb</code></pre>';
+    splitPreLines(host, { lineNumbers: true });
+    expect(host.querySelector('pre')!.getAttribute('style')).toBeNull();
+  });
 });
 
 describe('injectTocNav', () => {

@@ -93,9 +93,13 @@
       convention of dictionaries and ledgers — solid separates,
       dashed continues). pagedjs marks the WHOLE rebuilt ancestor
       chain, so the pipeline's normalization quiets every layer but
-      the innermost cut (data-jx-split-outer) — one cut, one dash.
-      Keep-with-next rides here too: headings and a code card's meta
-      strip never strand at a page's bottom edge.
+      the innermost cut (data-jx-split-outer) — and an outer layer's
+      OWN border at the cut is not a real edge either (the borderless
+      hairline, a strip's authored separator): one cut, one dash,
+      nothing else draws there. Keep-with-next rides here too: a
+      heading, a section card's header block, and a code card's head
+      strip never strand at a page's bottom edge; a code card's foot
+      never opens a page alone.
 
         selector                       forced result
         ─────────────────────────────  ─────────────────────────────────
@@ -103,7 +107,13 @@
                                        border-block-end: dashed hairline
         [data-split-from]:not([data-jx-split-outer])
                                        border-block-start: dashed hairline
-        h1, h2, h3; .jx-code-card>div  break-after: avoid
+        [data-split-to][data-jx-split-outer]
+                                       border-block-end: none
+        [data-split-from][data-jx-split-outer]
+                                       border-block-start: none
+        h1, h2, h3; section.bg-card > div:first-child;
+        .jx-code-card > figcaption     break-after: avoid
+        [data-jx-code-card-foot]       break-before: avoid
 
    8. THE TOC PAGE, RESTYLED (Owner walkthrough r2, 2026-08-31) — a
       real table of contents: page-title, entries with a dot leader
@@ -229,7 +239,11 @@ pre[data-jx-print-lines='off'] .jx-print-line::before {
 /* ── 7. the split dash — continuation, not separation ───────────────── */
 /* pagedjs marks the WHOLE rebuilt ancestor chain; the pipeline's
    normalization quiets every layer but the innermost cut element
-   (data-jx-split-outer) — one cut, one dash (vision r3) */
+   (data-jx-split-outer) — one cut, one dash. The outer layers' own
+   authored borders at the cut are suppressed too: a section's
+   borderless hairline or a strip's separator at a cut edge says
+   "this ends here" while the content continues — the dash speaks
+   for the whole stack (vision r4's doubled cut lines) */
 
 [data-split-to]:not([data-jx-split-outer]) {
   border-block-end: 1px dashed var(--border, currentcolor);
@@ -237,19 +251,35 @@ pre[data-jx-print-lines='off'] .jx-print-line::before {
 [data-split-from]:not([data-jx-split-outer]) {
   border-block-start: 1px dashed var(--border, currentcolor);
 }
+[data-split-to][data-jx-split-outer] {
+  border-block-end: none;
+}
+[data-split-from][data-jx-split-outer] {
+  border-block-start: none;
+}
 
-/* keep-with-next: a heading never strands at a page's bottom edge,
-   and a code card's meta strip never separates from its code
-   (vision r3's orphan headers). NOTE: no :where() comma lists here —
-   pagedjs's break parser splits selectors on bare commas, a
-   ":where(h1, h2, h3)" would shatter into invalid fragments */
+/* keep-with-next: a heading, a section card's header block (eyebrow/
+   title/summary — its authored border-b is the separator the
+   borderless projection keeps), and a code card's head strip (a
+   figcaption — the CodeBlock meta rides CodeCard's header snippet)
+   never strand at a page's bottom edge; a code card's foot (the
+   copy bar) never opens a page alone. vision r3/r4's orphan strips.
+   NOTE: bare selectors, no :where() and no comma lists — pagedjs's
+   break registry splits rule keys on bare commas, a ":where(a, b)"
+   shatters into invalid fragments */
 h1,
 h2,
 h3 {
   break-after: avoid;
 }
-:where(.jx-code-card > div) {
+section.bg-card > div:first-child {
   break-after: avoid;
+}
+.jx-code-card > figcaption {
+  break-after: avoid;
+}
+[data-jx-code-card-foot] {
+  break-before: avoid;
 }
 
 /* ── 8. the ToC page, restyled — title, leader, folio, subtitle ─────── */

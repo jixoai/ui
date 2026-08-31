@@ -547,6 +547,15 @@ export function applyFrameTransfer(clone: HTMLElement, plan: FrameTransferPlan):
 export function splitPreLines(clone: ParentNode, options: { lineNumbers: boolean }): number {
   let split = 0;
   for (const pre of [...clone.querySelectorAll('pre')]) {
+    // pagedjs's UndisplayedFilter marks EVERY [style]-bearing element
+    // data-undisplayed (a guess it cannot evaluate pre-layout): a Shiki
+    // pre carries its theme inline style, so the kernel treated the
+    // code as undisplayed — it moved WHOLE across the break (stranding
+    // the card's head strip over a dead half-page) and it was skipped
+    // as a neighbor, so the head's data-previous-break-after stamp
+    // never landed. The style is print-dead anyway: the kernel's own
+    // pre rule is the projection authority (vision r4).
+    pre.removeAttribute('style');
     const code = pre.querySelector('code') ?? pre;
     const markedUp = [...code.childNodes].some((n) => n.nodeType === Node.ELEMENT_NODE);
     if (!options.lineNumbers) pre.setAttribute('data-jx-print-lines', 'off');
