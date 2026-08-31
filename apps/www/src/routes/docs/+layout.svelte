@@ -32,16 +32,21 @@
   let { children }: { children: Snippet } = $props();
 
   // The docs-wide default grammar — the acceptance surface is EVERY
-  // docs page, not just the pilot: A4, breathing margins, kernel-real
-  // folios (current page / total pages). A page overrides through its
-  // own printConfig page data (structured values, devalue-safe);
-  // undefined here means "adopt the site default", never "letter with
-  // no margins" (the pipeline's raw default — fine for a library,
-  // wrong for documentation).
+  // docs page, not just the pilot: A4, breathing margins, and the
+  // documented-print conventions (Owner acceptance r5, 2026-09-01):
+  // the brand icon + the page's OWN h1 title as the top-left running
+  // head (string-set by the kernel; string(name, first) carries the
+  // value page to page), the current h2 section as the top-right
+  // running head, and the page number composed CENTERED in the
+  // footer ("X / Y"). A page overrides through its own printConfig
+  // page data (structured values, devalue-safe); undefined here means
+  // "adopt the site default".
   const DEFAULT_PRINT_CONFIG: PrintPageConfig = {
     size: 'A4',
-    margin: { top: 18, right: 16, bottom: 18, left: 16, unit: 'mm' },
-    footer: { 'bottom-left': 'counter(page)', 'bottom-right': 'counter(pages)' },
+    margin: { top: 22, right: 16, bottom: 20, left: 16, unit: 'mm' },
+    headerIcon: '/icon.svg',
+    header: { 'top-left': 'string:docTitle', 'top-right': 'string:sectionTitle' },
+    footer: { 'bottom-center': 'counter(page) " / " counter(pages)' },
   };
   const printConfig = $derived(
     (page.data.printConfig as PrintPageConfig | undefined) ?? DEFAULT_PRINT_CONFIG,

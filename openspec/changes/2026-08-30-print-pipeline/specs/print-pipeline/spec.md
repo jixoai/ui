@@ -150,22 +150,67 @@ is destroyed.
 
 ### Requirement: headers, footers and the ToC page are kernel-real
 
-Page headers/footers SHALL come from @page margin boxes (string-set /
-counter(page) / counter(pages)) driven by the PrintPageConfig; the
-print ToC page SHALL be injected into the clone as a nav whose entries
-carry real page numbers — the pipeline backfills each anchor's page
-from the finished layout onto a data attribute the stylesheet renders
-(attr-carried, not target-counter: pagedjs's own resolver loses
-targets moved by keep-with-next, and its counter machinery rewrites
-author rules; walkthrough r2/r3). The web ToC is
+Page headers/footers SHALL come from @page margin boxes driven by the
+PrintPageConfig — token SEQUENCES (whitespace-separated) of the two
+counters, `string:<name>` reads and balanced quoted literals (the
+folio pair `counter(page) " / " counter(pages)` compiles to ONE
+content value); the running heads ride string-set sources the kernel
+declares on the content (h1→docTitle, h2→sectionTitle — string(name,
+first) carries the value across pages), and a `headerIcon`
+(site-relative plain path) SHALL be stamped by the pipeline as a real
+img into the top-left margin boxes (margin-box content CSS cannot
+carry images) — the icon + doc title left, the running section right,
+the folio pair centered, corners clipped to ellipsis so an overlong
+head never crosses the sheet (Owner r5, the industry-standard
+furniture). The print ToC page SHALL be injected into the clone as a
+nav whose entries carry real page numbers — the pipeline backfills
+each anchor's page from the finished layout onto a data attribute the
+stylesheet renders (attr-carried, not target-counter: pagedjs's own
+resolver loses targets moved by keep-with-next, and its counter
+machinery rewrites author rules; walkthrough r2/r3). The web ToC is
 the site's existing one — no parallel component survives.
 
-#### Scenario: a customized footer
+#### Scenario: the folio pair
 
-- GIVEN footer: { end: 'counter(pages)' }
+- GIVEN footer: { 'bottom-center': 'counter(page) " / " counter(pages)' }
 - WHEN the pipeline renders
-- THEN every page's bottom margin box shows N/total with the real
-  kernel-computed total
+- THEN every page's bottom-center margin box shows N / total as ONE
+  combined content value with the real kernel-computed total
+
+#### Scenario: running heads and the brand icon
+
+- GIVEN headerIcon: '/icon.svg' and top-left/top-right string tokens
+- WHEN the pipeline renders
+- THEN every content page's top-left shows the loaded icon plus the
+  SAME doc title (a page before its first h1 legitimately reads
+  empty), the top-right shows the section the page is in, and no
+  retired corner slot carries content
+
+### Requirement: print typography is a medium judgment, and the keep chain ends clean
+
+The projection SHALL set paper code leading (~1.2 — the screen's 1.6
+rides the clone verbatim and reads airy on paper; the source tree
+keeps its screen value), and the borderless card's CHILD inset SHALL
+flatten (the page margin is the frame — padding inside it is the
+box-in-a-box double whitespace; margins keep the block rhythm). Page
+breaks SHALL follow the declared keep chain (headings, a card's
+header block, a code card's head strip keep with what follows; a code
+card's foot never opens a page alone) consumed by pagedjs, PLUS a
+finished-layout enforcement pass that relocates a stranded keep
+carrier into its host's continuation half — and a page whose bottom
+edge is a CUT (the deepest content's ancestor carries data-split-to)
+is never a strand site: the cut itself proves the content continues,
+and acting there would tear a card's head into its continuation
+(Owner r5: the flattened inset moved a split into a stamped head
+div).
+
+#### Scenario: a split through a stamped head's card
+
+- GIVEN a tall card whose first div carries break-after: avoid and
+  whose body splits across a page boundary
+- WHEN the enforcement pass runs
+- THEN the pass leaves the page alone (cut edge — no relocation, no
+  torn head) and the finished layout carries zero stranded keeps
 
 ### Requirement: pagedjs is vendored, lazy and client-only
 
@@ -189,15 +234,23 @@ note; the kernel SHALL load as a lazy client chunk with zero SSR path.
 ### Requirement: page config is a constrained grammar
 
 PrintPageConfig SHALL accept structured values (named sizes or
-number+unit pairs, enum marks/header-footer tokens) validated before
-compilation; invalid input is rejected, never string-concatenated
-into CSS.
+number+unit pairs, enum marks/header-footer tokens — a slot's value
+a token sequence whose parts are each validated, so a quoted literal
+may carry spaces but no css meta characters; headerIcon a
+site-relative plain path) validated before compilation; invalid
+input is rejected, never string-concatenated into CSS.
 
 #### Scenario: an invalid margin
 
 - GIVEN margin: { top: -1, unit: 'mm' }
 - WHEN the config compiles
 - THEN the validator rejects it and no @page rule is emitted
+
+#### Scenario: a broken literal
+
+- GIVEN footer: { 'bottom-center': 'counter(page) " /' }
+- WHEN the config compiles
+- THEN the validator rejects the unterminated literal part whole
 
 ### Requirement: the parallel Paged* family retires completely
 

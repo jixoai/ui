@@ -123,6 +123,29 @@
       span with a dotted bottom rule; the number still rides the
       anchor ::after.
 
+   9. THE RUNNING HEADERS + PRINT TYPOGRAPHY (Owner acceptance r5,
+      2026-09-01) — the documented-print conventions: the document
+      title and the running section ride the TOP margin (string-set
+      from the page's own h1/h2 — structured info, not a parallel
+      registry; string(name, first) carries across pages, the
+      book-grade running head), page numbers compose CENTERED in the
+      footer ("X / Y"), and the brand icon is stamped into the top
+      margin boxes by the pipeline (margin-box content css cannot
+      carry images). Paper typography is NOT screen typography: code
+      leading tightens to 1.2 (1.6 reads airy on paper — the screen
+      value was carried verbatim, the clone was faithful; this is a
+      medium judgment, not a kernel bug), and the borderless card's
+      CHILD padding flattens — the page margin is the frame, a
+      header/body inset inside it is a box inside the box again.
+
+        selector                       forced result
+        ─────────────────────────────  ─────────────────────────────────
+        h1 / h2                        string-set: docTitle/sectionTitle
+        .pagedjs_margin-content        small muted running-head type
+        .jx-print-header-icon          ~1em inline brand mark
+        pre, code, .jx-print-line      line-height: 1.2
+        section.bg-card > div          padding: 0 (margins keep rhythm)
+
    AST GATE LAW (test/print-stylesheet-gate.spec.ts): this file
    contains ZERO `@media not print` wrappers and ZERO
    `[data-jx-print-sim]` selectors — the sim shell is a DIFFERENT
@@ -352,4 +375,62 @@ nav[data-jx-print-toc] [data-jx-print-toc-sub] {
 :where(main, article) :where(p, li) {
   orphans: 2;
   widows: 2;
+}
+
+/* ── 9. the running headers + print typography (Owner r5) ────────────── */
+
+/* the running head's sources: the page's OWN h1/h2, string-set for
+   the margin boxes to read (string(name, first) carries the value
+   across pages — the book-grade persistence). Bare single selectors:
+   pagedjs's handlers key on the rule's raw selector text */
+h1 {
+  string-set: docTitle content();
+}
+h2 {
+  string-set: sectionTitle content();
+}
+/* the margin boxes' typography: small, muted, the nav face — a
+   running head whispers, it never competes with the page */
+.pagedjs_margin-content {
+  font-family: var(--font-nav, sans-serif);
+  font-size: 8.5pt;
+  letter-spacing: 0.04em;
+  color: color-mix(in oklab, currentColor 55%, transparent);
+}
+/* the running heads never wrap nor overrun the sheet: a long doc
+   title would run into the section head across the top edge — the
+   margin grid bounds the box, an overlong head clips to ellipsis
+   (the centered footer folio stays free: "X / Y" never grows) */
+.pagedjs_margin-top-left .pagedjs_margin-content,
+.pagedjs_margin-top-right .pagedjs_margin-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* the brand icon the pipeline stamps into the top margin boxes
+   (margin-box content css cannot carry images) */
+.jx-print-header-icon {
+  height: 1em;
+  width: auto;
+  vertical-align: -0.12em;
+  margin-inline-end: 0.6ch;
+  opacity: 0.8;
+}
+/* paper code leading: the screen's 1.6 (20px at 12.5px) rides the
+   clone verbatim and reads AIRY on paper — print code sets tighter
+   (the documented convention, ~1.2; solid 1.0 would let wrapped
+   lines touch). A medium judgment enforced in the projection, the
+   source tree keeps its screen value */
+pre {
+  line-height: 1.2;
+}
+/* the borderless card's CHILD padding flattens: the page margin is
+   the frame, the header/body inset (px-4/py-3, p-5) inside it is
+   the box-inside-the-box double whitespace again (Owner r5) —
+   margins, not padding, keep the block rhythm */
+:where(section.bg-card) > div {
+  padding: 0;
+}
+:where(section.bg-card) > div + div {
+  margin-block-start: 0.65rem;
 }

@@ -64,3 +64,38 @@
       preview 后取消无残留**、三场景残留测试（连续 sim/sim→print/
       失败重试）。
 - [x] 5.3 manifest SITE_ONLY（lib/print/）+ taxonomy/route 同步。
+
+## 6. Owner 验收反馈轮（r5，2026-09-01 四点）[P]
+
+- [x] 6.1 **页眉页脚行业规范**（①）：page-config 语法扩展——token
+      序列（空白分隔）+ 引号字面量（`" / "` 可含空格，禁引号内 css
+      元字符；splitTokens 引号感知 tokenizer 修复裸引号致渲染挂起）
+      + `headerIcon`（站点相对路径校验）；kernel 第 9 族——
+      `h1/h2 string-set: docTitle/sectionTitle` 裸选择器、margin 家具
+      低语排版（nav 字体 8.5pt/55% 色）、角落 nowrap+ellipsis 防长题名
+      越纸；pipeline stampHeaderIcons（真 img 盖进 top-left 盒——
+      margin-box content css 带不了图）；docs 布局规范版默认
+      （icon+docTitle 左/sectionTitle 右/`counter(page) " / "
+      counter(pages)` 居中）；试点页旧覆盖退役。
+- [x] 6.2 **双层留白**（②）：kernel `:where(section.bg-card) > div
+      { padding: 0 }` + 兄弟 `margin-block-start` 保节奏——页边距是
+      唯一 frame。
+- [x] 6.3 **打印行高**（③）：实证源/克隆 computed 逐行一致
+      （12.5px/20px）——**非 pagedjs 克隆 bug**，是媒介排版判断；
+      kernel `pre { line-height: 1.2 }`（1.0 会让 wrap 行贴死）。
+- [x] 6.4 **换页判定**（④）：诊断页界——p1 ToC 页（break-after:
+      page 设计如此）；p2 61% 填充是 pagedjs 对 avoid 链的保守整链
+      搬移（eyebrow+figcaption+pre 绑定链不尝试链尾代码内再切）——
+      keep 语义的代价，Owner ④要求的团聚已由声明式 keep 链+后渲染
+      执法达成，无需全量二次智能排版。
+- [x] 6.5 **切割边法则**（本轮实证发现）：relocateStrandedKeeps 增
+      切割感知——页底为 data-split-to 切割边时永不搬移（切割本身证明
+      内容在延续；r5 压平后分页落进带 stamp 的头 div 内，旧检测器
+      会撕裂卡片头）；verify-print strands 检测器同步。
+- [x] 6.6 门禁同步：verify-print margin grammar 断言重写
+      （组合 folio/running heads/icon 计数+加载/空角盒 content:none/
+      icon complete 等待）、keepRelocated 降级诊断字段（布局干净时
+      执法空转是正解）、动画 phaseSource wrap 感知推进断言；
+      page-config spec +4 用例（序列/字面量/headerIcon 正反）；gate
+      spec +1 用例（r5 家具九族法则）；registry 镜像散件清除
+      （mirror 门禁恢复 GREEN）。

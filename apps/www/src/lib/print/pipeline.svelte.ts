@@ -318,6 +318,31 @@ export function createPrintPipeline(
     }
   };
 
+  /** the running header's brand mark (Owner acceptance r5, 2026-09-01):
+   *  margin-box content css cannot carry images — after layout, every
+   *  top-LEFT margin box carrying header content gets the configured
+   *  icon as its first child (the ::after title text follows; the icon
+   *  reads left of it) */
+  const stampHeaderIcons = (
+    outputRoot: HTMLElement,
+    icon: string | undefined,
+    withTitle: boolean,
+  ): number => {
+    if (!icon || !withTitle) return 0;
+    let stamped = 0;
+    for (const box of outputRoot.querySelectorAll<HTMLElement>(
+      '.pagedjs_margin-top-left .pagedjs_margin-content',
+    )) {
+      const img = document.createElement('img');
+      img.src = icon;
+      img.alt = '';
+      img.className = 'jx-print-header-icon';
+      box.prepend(img);
+      stamped++;
+    }
+    return stamped;
+  };
+
   /** the keep-with-next ENFORCEMENT (vision r4): pagedjs consumes the
    *  break-after: avoid declaration (data-break-after) but its own
    *  backwalk is blind to a break that starts deep inside the next
@@ -356,6 +381,17 @@ export function createPrintPipeline(
         }
       }
       if (!deepest) continue;
+      // a page whose bottom edge is a CUT (an ancestor of the deepest
+      // leaf carries data-split-to) is never a strand site: the cut
+      // itself proves the content continues — the stamped head can sit
+      // mid-card far above the edge while the BODY is what got cut
+      // (the r5 flatten moved a split into a stamped head div; acting
+      // there would tear the card's head into the continuation half)
+      let cutEdge = false;
+      for (let el: HTMLElement | null = deepest; el && el !== content; el = el.parentElement) {
+        if (el.hasAttribute('data-split-to')) { cutEdge = true; break; }
+      }
+      if (cutEdge) continue;
       // the stranded carrier: the OUTERMOST avoid-stamped ancestor of
       // that content whose host carries a data-ref (the figure/section
       // pagedjs re-identified across the break)
@@ -664,6 +700,14 @@ export function createPrintPipeline(
       // computed probe sees the quieted ancestor chain + the folios
       quietOuterSplitDashes(outputRoot);
       fillTocFolios(outputRoot);
+      // the running header's brand mark (config already validated by
+      // the stylesheet hash road above — no rethrow path here)
+      const parsedConfig = parsePageConfig(options?.config ?? {});
+      stampHeaderIcons(
+        outputRoot,
+        parsedConfig.headerIcon,
+        parsedConfig.header?.['top-left'] !== undefined,
+      );
       // the overlay UX rides any mounted artifact while the sim stamp
       // is live — sim builds AND direct-print rebuilds over a sim
       if (!standby) {

@@ -41,11 +41,14 @@ export interface StructuredMargin {
 export type Marks = 'crop' | 'cross' | 'both';
 
 /**
- * A margin-box content token: the two counters, or the NAME of a
- * string-set the content CSS defines (e.g. `chapterTitle`). The enum
- * lives here so the compiler never interpolates raw strings.
+ * A margin-box content token: the two counters, the NAME of a
+ * string-set the content CSS defines (e.g. `chapterTitle`), or a
+ * QUOTED literal (the brand line). The enum lives here so the
+ * compiler never interpolates raw strings. A slot's value is a
+ * whitespace-separated SEQUENCE of tokens — `"3" " / " "7"` style
+ * composition ("page X / Y") is the documented footer convention.
  */
-export type HeaderFooterToken = 'counter(page)' | 'counter(pages)' | `string:${string}`;
+export type HeaderFooterToken = 'counter(page)' | 'counter(pages)' | `string:${string}` | `"${string}"`;
 
 /** which margin box (the css-page-3 subset the kernel compiles) */
 export type MarginBoxSlot =
@@ -60,6 +63,10 @@ export interface PrintPageConfig {
   readonly size?: PageSize;
   readonly margin?: StructuredMargin;
   readonly marks?: Marks;
+  /** a site-relative icon URL stamped into the top margin boxes by
+   *  the pipeline after layout (margin-box content css cannot carry
+   *  images) — the running header's brand mark (Owner, 2026-09-01) */
+  readonly headerIcon?: string;
   readonly header?: Partial<Record<MarginBoxSlot, HeaderFooterToken>>;
   readonly footer?: Partial<Record<MarginBoxSlot, HeaderFooterToken>>;
 }
@@ -84,7 +91,29 @@ const BOX_SLOTS: readonly MarginBoxSlot[] = [
   'bottom-center',
   'bottom-right',
 ];
-const TOKEN_RE = /^(counter\(page\)|counter\(pages\)|string:[A-Za-z][A-Za-z0-9_-]*)$/;
+// one token: a counter, a string-set NAME, or a balanced quoted
+// literal (no quotes inside — the literal cannot smuggle css meta
+// characters past the validator)
+const TOKEN_RE =
+  /^(counter\(page\)|counter\(pages\)|string:[A-Za-z][A-Za-z0-9_-]*|"[^"\\;{}]+")$/;
+/** tokenize a slot's value: whitespace OUTSIDE quotes separates the
+ *  tokens — a quoted literal may itself carry spaces (" / ") */
+function splitTokens(value: string): string[] {
+  const parts: string[] = [];
+  let current = '';
+  let inQuote = false;
+  for (const ch of value) {
+    if (ch === '"') inQuote = !inQuote;
+    if (!inQuote && /\s/.test(ch)) {
+      if (current) parts.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  if (current) parts.push(current);
+  return parts;
+}
 
 const isFiniteNumber = (v: unknown): v is number =>
   typeof v === 'number' && Number.isFinite(v);
@@ -154,14 +183,38 @@ function parseBoxes(
     if (!BOX_SLOTS.includes(slot as MarginBoxSlot)) {
       throw new PageConfigError(`${where}.${slot}: not a compilable margin box (${BOX_SLOTS.join(' | ')})`);
     }
-    if (typeof token !== 'string' || !TOKEN_RE.test(token)) {
+    if (typeof token === 'string' && token.length > 0) {
+      // tokenize quote-aware, validate each part (a quoted literal may
+      // carry spaces: " / ")
+      for (const part of splitTokens(token)) {
+        if (!TOKEN_RE.test(part)) {
+          throw new PageConfigError(
+            `${where}.${slot}: invalid token ${JSON.stringify(part)} — 'counter(page)' | 'counter(pages)' | 'string:<name>' | '"literal"'`,
+          );
+        }
+      }
+      out[slot as MarginBoxSlot] = token as HeaderFooterToken;
+    } else {
       throw new PageConfigError(
-        `${where}.${slot}: invalid token ${JSON.stringify(token)} — 'counter(page)' | 'counter(pages)' | 'string:<name>'`,
+        `${where}.${slot}: invalid token sequence ${JSON.stringify(token)} — whitespace-separated 'counter(page)' | 'counter(pages)' | 'string:<name>' | '"literal"'`,
       );
     }
-    out[slot as MarginBoxSlot] = token as HeaderFooterToken;
   }
   return out;
+}
+
+function parseHeaderIcon(value: unknown): string | undefined {
+  if (value === undefined) return undefined;
+  if (
+    typeof value !== 'string' ||
+    !/^\/[A-Za-z0-9._~/-]*$/.test(value) ||
+    value.length > 200
+  ) {
+    throw new PageConfigError(
+      `headerIcon: expected a site-relative URL (starts with "/", plain path), got ${JSON.stringify(value)}`,
+    );
+  }
+  return value;
 }
 
 /**
@@ -179,6 +232,7 @@ export function parsePageConfig(input: unknown): PrintPageConfig {
     size: parseSize(raw.size),
     margin: parseMargin(raw.margin),
     marks: parseMarks(raw.marks),
+    headerIcon: parseHeaderIcon(raw.headerIcon),
     header: parseBoxes(raw.header, 'header'),
     footer: parseBoxes(raw.footer, 'footer'),
   };
@@ -207,12 +261,18 @@ export function sheetMm(size: PageSize | undefined): { width: number; length: nu
   };
 }
 
-/** one token → its margin-box content declaration */
+/** one token → its margin-box content value */
 function tokenContent(token: HeaderFooterToken): string {
   if (token === 'counter(page)') return 'counter(page)';
   if (token === 'counter(pages)') return 'counter(pages)';
-  // string:<name> → the css-page-3 string-set read (first value on page)
-  return `string(${token.slice('string:'.length)}, first)`;
+  if (token.startsWith('string:')) {
+    // string:<name> → the css-page-3 string-set read (first value on
+    // page, carried from previous pages when none set — the running
+    // header's persistence law)
+    return `string(${token.slice('string:'.length)}, first)`;
+  }
+  // a quoted literal rides through verbatim (already balanced+safe)
+  return token;
 }
 
 /**
@@ -253,7 +313,11 @@ export function compilePageCss(config: PrintPageConfig): string {
     for (const slot of BOX_SLOTS) {
       const token = boxes[slot];
       if (token === undefined) continue;
-      lines.push(`@page {\n  @${slot} {\n    content: ${tokenContent(token)};\n  }\n}`);
+      // a token SEQUENCE joins space-separated into one content value
+      const value = splitTokens(token)
+        .map((part) => tokenContent(part as HeaderFooterToken))
+        .join(' ');
+      lines.push(`@page {\n  @${slot} {\n    content: ${value};\n  }\n}`);
     }
   };
   emitBoxes(config.header);

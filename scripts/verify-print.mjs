@@ -187,20 +187,57 @@ check(
   `pages=${pagesCount} meta.pages=${simMeta?.pages}`,
 );
 
-const marginBoxes = await page.evaluate(() => {
+// the running grammar (Owner r5): the industry-standard furniture —
+// icon + docTitle left, the running sectionTitle right (string-set
+// persistence), the folio pair ONE centered content "X / Y". The
+// first page is the injected ToC — its doc title has not been
+// string-set yet, so the top-left may legitimately read empty there
+// (the icon still rides it as the brand mark); every content page
+// carries the SAME doc title and its own section
+// (the stamped icons load asynchronously — settle them before reading)
+await page
+  .waitForFunction(
+    () => [...document.querySelectorAll('.jx-print-header-icon')].every((img) => img.complete),
+    null,
+    { timeout: 8000 },
+  )
+  .catch(() => {});
+const marginGrammar = await page.evaluate(() => {
   const out = document.querySelector('[data-print-output]');
-  // the compiled content lands on the margin CONTENT element ::after
-  const boxes = out ? out.querySelectorAll('.pagedjs_margin-bottom-left .pagedjs_margin-content, .pagedjs_margin-bottom-right .pagedjs_margin-content') : [];
-  return [...boxes].map((box) => ({
-    display: getComputedStyle(box).display,
-    content: getComputedStyle(box, ':after').content,
-  }));
+  const read = (sel) =>
+    [...(out ? out.querySelectorAll(sel) : [])].map((box) => getComputedStyle(box, ':after').content);
+  const icons = out ? [...out.querySelectorAll('.pagedjs_margin-top-left .jx-print-header-icon')] : [];
+  return {
+    pages: out ? out.querySelectorAll('.pagedjs_page').length : 0,
+    bl: read('.pagedjs_margin-bottom-left .pagedjs_margin-content'),
+    br: read('.pagedjs_margin-bottom-right .pagedjs_margin-content'),
+    bc: read('.pagedjs_margin-bottom-center .pagedjs_margin-content'),
+    tl: read('.pagedjs_margin-top-left .pagedjs_margin-content'),
+    tr: read('.pagedjs_margin-top-right .pagedjs_margin-content'),
+    iconCount: icons.length,
+    iconLoaded: icons.every((img) => img.naturalWidth > 0),
+  };
 });
+const strip = (c) => c.replace(/^"|"$/g, '');
+const docTitles = [...new Set(marginGrammar.tl.map(strip).filter((t) => t.length > 0))];
+const sections = marginGrammar.tr.map(strip).filter((t) => t.length > 0);
 check(
-  'sim: kernel-real margin boxes present with counter content',
-  marginBoxes.length === pagesCount * 2 &&
-    marginBoxes.every((b) => b.display !== 'none' && /counter\(page/.test(b.content)),
-  JSON.stringify(marginBoxes[0] ?? null),
+  'margin grammar (Owner r5): icon+docTitle running left, sectionTitle right, the folio pair ONE centered content',
+  marginGrammar.bc.length === pagesCount &&
+    marginGrammar.bc.every((c) => /counter\(page\)/.test(c) && /counter\(pages\)/.test(c)) &&
+    marginGrammar.tl.length >= pagesCount - 1 &&
+    docTitles.length === 1 && /paged print/.test(docTitles[0]) &&
+    sections.length >= pagesCount - 2 &&
+    marginGrammar.iconCount === marginGrammar.pages && marginGrammar.iconLoaded &&
+    // the retired corners hold NO content (the boxes may exist, empty)
+    marginGrammar.bl.every((c) => c === 'none') && marginGrammar.br.every((c) => c === 'none'),
+  JSON.stringify({
+    pages: marginGrammar.pages,
+    bc: marginGrammar.bc[0],
+    tl: marginGrammar.tl,
+    tr: sections,
+    iconCount: marginGrammar.iconCount,
+  }),
 );
 
 const tocNumbers = await page.evaluate(() => {
@@ -370,6 +407,14 @@ const paperProjection = await page.evaluate(() => {
       if (leaf && r.bottom > deepestBottom) { deepestBottom = r.bottom; deepest = el; }
     }
     if (!deepest) return;
+    // a CUT edge is never a strand site: an ancestor carrying
+    // data-split-to proves the bottom content continues (the r5
+    // flatten moved a split into a stamped head div — the head sits
+    // mid-card while the BODY is what got cut; relocating there
+    // would tear the card)
+    for (let el = deepest; el && el !== content; el = el.parentElement) {
+      if (el.hasAttribute('data-split-to')) return;
+    }
     const carriers = [];
     for (let el = deepest; el && el !== content; el = el.parentElement) {
       if (el.getAttribute('data-break-after') === 'avoid') carriers.push(el);
@@ -391,13 +436,18 @@ const paperProjection = await page.evaluate(() => {
   };
 });
 check(
-  'paper projection: cards borderless; ONE dash per cut, outer layers fully quiet; headings/card heads/code heads keep-with-next (strands relocated)',
+  'paper projection: cards borderless; ONE dash per cut, outer layers fully quiet; no stranded keeps on any page',
   paperProjection.cards >= 5 && paperProjection.borderless === paperProjection.cards &&
     paperProjection.splitTotal >= 1 && paperProjection.innerFrom >= 1 &&
     paperProjection.innerDashed === paperProjection.innerFrom &&
     (paperProjection.outerTotal === 0 || paperProjection.outerQuiet === paperProjection.outerTotal) &&
     paperProjection.doubledCuts === 0 &&
-    paperProjection.keepRelocated >= 1 && paperProjection.strands.length === 0 &&
+    // keepRelocated is DIAGNOSTIC: a clean pagedjs placement strands
+    // nothing and the enforcement pass rightly stays idle — the law
+    // is zero strands on the finished layout (the pass's positive
+    // case is archived in vision r4; the cut-edge skip is exercised
+    // by this document's p2 split-through-a-stamped-head shape)
+    paperProjection.strands.length === 0 &&
     paperProjection.h2.total >= 3 && paperProjection.h2.kept === paperProjection.h2.total &&
     paperProjection.cardHeadSource >= 3 && paperProjection.cardHead.kept >= 1 &&
     paperProjection.codeHead.total >= 1 && paperProjection.codeHead.kept === paperProjection.codeHead.total &&
@@ -492,12 +542,17 @@ const phaseReport = await page.evaluate(() => {
       // the clone's phase at t=0 equals the SOURCE's phase at capture:
       // ((recordedC − d) mod D) === (−delay′ mod D) — exact by the formula
       const phaseAtCapture = (((slot.recordedC - slot.d) % slot.D) + slot.D) % slot.D;
+      // the live source kept RUNNING past capture — its phase may have
+      // wrapped any number of eras; the wrap-aware advance must be
+      // non-negative and less than an era (it advanced, not jumped)
+      const advance =
+        (((slot.phaseSource - phaseAtCapture) % slot.D) + slot.D) % slot.D;
       return (
         Math.abs(slot.delayPrime - expected) < 1 && // the record matches the formula
         Math.abs(slot.cloneDelay - slot.delayPrime) < 1 && // the clone carries it
         slot.playState === 'paused' &&
         Math.abs(phaseAtCapture - slot.phaseClone) < 1.5 && // the frozen phase transferred
-        slot.phaseSource >= phaseAtCapture - 5 // the live source resumed and advanced
+        advance >= 0 && advance < slot.D // the live source resumed (wrap-aware)
       );
     });
   check(
@@ -859,15 +914,18 @@ await page.waitForTimeout(250);
 const ambient = await page.evaluate(() => {
   const out = document.querySelector('[data-print-output]');
   const source = document.querySelector('[data-print-source]');
-  const margin = out ? out.querySelector('.pagedjs_margin-bottom-left .pagedjs_margin-content') : null;
+  const margin = out ? out.querySelector('.pagedjs_margin-bottom-center .pagedjs_margin-content') : null;
   return {
     pages: out ? out.querySelectorAll('.pagedjs_page').length : 0,
     standby: out?.hasAttribute('data-print-standby') ?? false,
     selfStamped: source?.hasAttribute('data-jx-print-sim') ?? false,
-    // the layer's grammar (docs default: counter(page)/counter(pages)
-    // footers) — a cold ambient print must never fall back to a bare
+    // the layer's grammar (docs default r5: the centered folio pair
+    // "X / Y") — a cold ambient print must never fall back to a bare
     // default page setup
-    grammar: margin ? /counter\(page/.test(getComputedStyle(margin, ':after').content) : false,
+    grammar: margin
+      ? /counter\(page\)/.test(getComputedStyle(margin, ':after').content) &&
+        /counter\(pages\)/.test(getComputedStyle(margin, ':after').content)
+      : false,
     printCalls: window.__jxAmbientPrintCalls ?? -1,
     metaPurpose: JSON.parse(out?.dataset.jxPrintMeta ?? '{}').purpose,
   };

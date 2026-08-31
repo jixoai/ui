@@ -8,12 +8,12 @@
 // targets moved by keep-with-next — never a web component). The
 // prerender entry '/docs/paged.html' already sits in svelte.config.js.
 //
-// printConfig: the page grammar the docs layout's print controls
-// compile — structured values only (the parser rejects anything
-// else); it rides page data so the layer stays ONE wiring for the
-// whole tree while each page owns its paper.
+// printConfig: RETIRED as a page override (Owner acceptance r5,
+// 2026-09-01) — the docs layout's default IS the convention now (the
+// brand icon + running doc/section heads, the composed centered
+// folio); the pilot adopts it like every other page instead of
+// pinning the pre-convention grammar.
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
-import type { PrintPageConfig } from '$lib/print';
 
 const toc: TocSection[] = [
   { id: 'transaction', label: 'The transaction' },
@@ -24,10 +24,4 @@ const toc: TocSection[] = [
   { id: 'toc', label: 'The injected ToC page' },
 ];
 
-const printConfig: PrintPageConfig = {
-  size: 'A4',
-  margin: { top: 18, right: 16, bottom: 18, left: 16, unit: 'mm' },
-  footer: { 'bottom-left': 'counter(page)', 'bottom-right': 'counter(pages)' },
-};
-
-export const load = () => ({ toc, printConfig });
+export const load = () => ({ toc });
