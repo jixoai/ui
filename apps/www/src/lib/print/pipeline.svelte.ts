@@ -360,62 +360,91 @@ export function createPrintPipeline(
     for (let i = 0; i < pages.length - 1; i++) {
       const content = pages[i].querySelector<HTMLElement>('.pagedjs_page_content');
       if (!content) continue;
-      // the page's last rendered content = its bottom-most visible
-      // LEAF (containers own the bottom edge through padding — the
-      // stranded carrier hides INSIDE the outermost container)
-      let deepest: HTMLElement | null = null;
-      let deepestBottom = -Infinity;
-      for (const el of content.querySelectorAll<HTMLElement>('*')) {
-        const rect = el.getBoundingClientRect();
-        if (rect.height <= 1) continue;
-        let leaf = true;
-        for (const child of el.children) {
-          if ((child as HTMLElement).getBoundingClientRect().height > 1) {
-            leaf = false;
-            break;
+      // a relocation EXPOSES the next strand: the page's new bottom
+      // edge may itself strand (the pilot's p2 — the figcaption moved
+      // first, the transaction block it revealed stranded next). Each
+      // move strictly empties the page, so re-examination settles;
+      // the round bound is a safety net, not the terminator
+      for (let round = 0; round < 5; round++) {
+        // the page's last rendered content = its bottom-most visible
+        // LEAF (containers own the bottom edge through padding — the
+        // stranded carrier hides INSIDE the outermost container)
+        let deepest: HTMLElement | null = null;
+        let deepestBottom = -Infinity;
+        for (const el of content.querySelectorAll<HTMLElement>('*')) {
+          const rect = el.getBoundingClientRect();
+          if (rect.height <= 1) continue;
+          let leaf = true;
+          for (const child of el.children) {
+            if ((child as HTMLElement).getBoundingClientRect().height > 1) {
+              leaf = false;
+              break;
+            }
+          }
+          if (leaf && rect.bottom > deepestBottom) {
+            deepestBottom = rect.bottom;
+            deepest = el;
           }
         }
-        if (leaf && rect.bottom > deepestBottom) {
-          deepestBottom = rect.bottom;
-          deepest = el;
+        if (!deepest) break;
+        // the stranded carrier: the OUTERMOST avoid-stamped ancestor of
+        // that content whose host carries a data-ref (the figure/section
+        // pagedjs re-identified across the break)
+        const carriers: HTMLElement[] = [];
+        for (let el: HTMLElement | null = deepest; el && el !== content; el = el.parentElement) {
+          if (el.getAttribute('data-break-after') === 'avoid') carriers.push(el);
         }
+        const carrier = carriers
+          .reverse()
+          .find((el) => (el.parentElement?.getAttribute('data-ref') ?? '') !== '');
+        const host = carrier?.parentElement ?? null;
+        const ref = host?.getAttribute('data-ref');
+        if (!carrier || !host || !ref) break;
+        // CUT-AWARE, bounded at the carrier (subagent r5 pre-review): a
+        // cut marker AT OR BELOW the carrier means the carrier's own
+        // subtree continues at the page's bottom edge — a cut half, not
+        // a stranded head; acting there would tear the card. The scan
+        // MUST stop at the carrier: pagedjs's split pairing stamps
+        // data-split-to on the HOST of every classic strand (the head
+        // ended whole, the body moved on), so a whole-chain scan would
+        // disable the pass entirely (the shipped pilot carried a
+        // stranded figcaption over ~338px of dead space, keepRelocated
+        // pinned at 0)
+        let cutInsideCarrier = carrier.hasAttribute('data-split-to');
+        for (let el: HTMLElement | null = deepest; el && el !== carrier; el = el.parentElement) {
+          if (el.hasAttribute('data-split-to')) { cutInsideCarrier = true; break; }
+        }
+        if (cutInsideCarrier) break;
+        // the continuation half: same ref, split-from, on a LATER page
+        const continuation = pages
+          .slice(i + 1)
+          .map((p) => p.querySelector<HTMLElement>(`[data-ref="${CSS.escape(ref)}"][data-split-from]`))
+          .find((el): el is HTMLElement => el !== null);
+        if (!continuation) break;
+        // FIT: the keep must be physically satisfiable — the block +
+        // its follower exceed every page's remainder when pagedjs cut
+        // between them despite the avoid (an unsatisfiable keep is
+        // the least-bad break already). Moving a block the target
+        // page cannot host would overflow its page box
+        const contArea = continuation
+          .closest('.pagedjs_page')
+          ?.querySelector<HTMLElement>('.pagedjs_page_content');
+        if (contArea) {
+          let contPageBottom = -Infinity;
+          for (const el of contArea.querySelectorAll<HTMLElement>('*')) {
+            const rect = el.getBoundingClientRect();
+            if (rect.height <= 1) continue;
+            if (rect.bottom > contPageBottom) contPageBottom = rect.bottom;
+          }
+          const available = contArea.getBoundingClientRect().bottom - contPageBottom;
+          if (carrier.getBoundingClientRect().height > available + 1) break;
+        }
+        continuation.prepend(carrier);
+        moved++;
+        // a half emptied by the move is a dead strip — its dash would
+        // cut at nothing (the figcaption-only figure half)
+        if (host.hasAttribute('data-split-to') && !host.querySelector('*')) host.remove();
       }
-      if (!deepest) continue;
-      // a page whose bottom edge is a CUT (an ancestor of the deepest
-      // leaf carries data-split-to) is never a strand site: the cut
-      // itself proves the content continues — the stamped head can sit
-      // mid-card far above the edge while the BODY is what got cut
-      // (the r5 flatten moved a split into a stamped head div; acting
-      // there would tear the card's head into the continuation half)
-      let cutEdge = false;
-      for (let el: HTMLElement | null = deepest; el && el !== content; el = el.parentElement) {
-        if (el.hasAttribute('data-split-to')) { cutEdge = true; break; }
-      }
-      if (cutEdge) continue;
-      // the stranded carrier: the OUTERMOST avoid-stamped ancestor of
-      // that content whose host carries a data-ref (the figure/section
-      // pagedjs re-identified across the break)
-      const carriers: HTMLElement[] = [];
-      for (let el: HTMLElement | null = deepest; el && el !== content; el = el.parentElement) {
-        if (el.getAttribute('data-break-after') === 'avoid') carriers.push(el);
-      }
-      const carrier = carriers
-        .reverse()
-        .find((el) => (el.parentElement?.getAttribute('data-ref') ?? '') !== '');
-      const host = carrier?.parentElement ?? null;
-      const ref = host?.getAttribute('data-ref');
-      if (!carrier || !host || !ref) continue;
-      // the continuation half: same ref, split-from, on a LATER page
-      const continuation = pages
-        .slice(i + 1)
-        .map((p) => p.querySelector<HTMLElement>(`[data-ref="${CSS.escape(ref)}"][data-split-from]`))
-        .find((el): el is HTMLElement => el !== null);
-      if (!continuation) continue;
-      continuation.prepend(carrier);
-      moved++;
-      // a half emptied by the move is a dead strip — its dash would
-      // cut at nothing (the figcaption-only figure half)
-      if (host.hasAttribute('data-split-to') && !host.querySelector('*')) host.remove();
     }
     return moved;
   };

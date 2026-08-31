@@ -407,14 +407,6 @@ const paperProjection = await page.evaluate(() => {
       if (leaf && r.bottom > deepestBottom) { deepestBottom = r.bottom; deepest = el; }
     }
     if (!deepest) return;
-    // a CUT edge is never a strand site: an ancestor carrying
-    // data-split-to proves the bottom content continues (the r5
-    // flatten moved a split into a stamped head div — the head sits
-    // mid-card while the BODY is what got cut; relocating there
-    // would tear the card)
-    for (let el = deepest; el && el !== content; el = el.parentElement) {
-      if (el.hasAttribute('data-split-to')) return;
-    }
     const carriers = [];
     for (let el = deepest; el && el !== content; el = el.parentElement) {
       if (el.getAttribute('data-break-after') === 'avoid') carriers.push(el);
@@ -423,10 +415,42 @@ const paperProjection = await page.evaluate(() => {
     const host = carrier?.parentElement;
     const ref = host?.getAttribute('data-ref');
     if (!carrier || !host || !ref) return;
+    // cut-aware, BOUNDED AT THE CARRIER (mirrors the pipeline pass):
+    // a cut marker at or below the carrier = the carrier's own
+    // subtree continues (a cut half, not a stranded head). The scan
+    // stops at the carrier on purpose — the HOST of every classic
+    // strand carries data-split-to (the head ended whole, the body
+    // moved on), so a whole-chain scan makes this gate vacuously
+    // green while orphans ship (subagent r5 pre-review)
+    let cutInsideCarrier = carrier.hasAttribute('data-split-to');
+    for (let el = deepest; el && el !== carrier; el = el.parentElement) {
+      if (el.hasAttribute('data-split-to')) { cutInsideCarrier = true; break; }
+    }
+    if (cutInsideCarrier) return;
     const continues = pagesArr
       .slice(i + 1)
       .some((q) => q.querySelector(`[data-ref="${ref}"][data-split-from]`));
-    if (continues) strands.push({ page: p.getAttribute('data-page-number'), ref: String(ref).slice(0, 8) });
+    if (!continues) return;
+    // FIT exemption (mirrors the pass): a keep whose block + follower
+    // exceed every page's remainder is UNSATISFIABLE — pagedjs's cut
+    // between them is the least-bad break, not a shippable orphan.
+    // The strand is only gateable when the continuation's page could
+    // host the carrier (space below its current content bottom)
+    const contHalf = pagesArr
+      .slice(i + 1)
+      .map((q) => q.querySelector(`[data-ref="${ref}"][data-split-from]`))
+      .find(Boolean);
+    const contArea = contHalf?.closest('.pagedjs_page')?.querySelector('.pagedjs_page_content');
+    if (contHalf && contArea) {
+      let bottom = -Infinity;
+      for (const el of contArea.querySelectorAll('*')) {
+        const r = el.getBoundingClientRect();
+        if (r.height > 1 && r.bottom > bottom) bottom = r.bottom;
+      }
+      const available = contArea.getBoundingClientRect().bottom - bottom;
+      if (carrier.getBoundingClientRect().height > available + 1) return;
+    }
+    strands.push({ page: p.getAttribute('data-page-number'), ref: String(ref).slice(0, 8) });
   });
   return {
     cards: cards.length, borderless, innerDashed, innerFrom: innerFrom.length,
@@ -442,11 +466,15 @@ check(
     paperProjection.innerDashed === paperProjection.innerFrom &&
     (paperProjection.outerTotal === 0 || paperProjection.outerQuiet === paperProjection.outerTotal) &&
     paperProjection.doubledCuts === 0 &&
-    // keepRelocated is DIAGNOSTIC: a clean pagedjs placement strands
-    // nothing and the enforcement pass rightly stays idle — the law
-    // is zero strands on the finished layout (the pass's positive
-    // case is archived in vision r4; the cut-edge skip is exercised
-    // by this document's p2 split-through-a-stamped-head shape)
+    // zero strands is the law, NON-vacuously: the detector exempts
+    // only cut-halves (bounded at the carrier) and UNSATISFIABLE
+    // keeps (the continuation page cannot host the carrier — the
+    // least-bad break pagedjs already chose; forcing it would push
+    // content past the page box, the 28px-into-0px overflow the fit
+    // check now refuses). A carrier with room that the pass left
+    // behind still fails here. keepRelocated rides as diagnostic:
+    // this layout's strands are all fit-exempt, so a silent pass and
+    // an honest one both report 0 — the teeth live in the detector
     paperProjection.strands.length === 0 &&
     paperProjection.h2.total >= 3 && paperProjection.h2.kept === paperProjection.h2.total &&
     paperProjection.cardHeadSource >= 3 && paperProjection.cardHead.kept >= 1 &&
@@ -544,7 +572,8 @@ const phaseReport = await page.evaluate(() => {
       const phaseAtCapture = (((slot.recordedC - slot.d) % slot.D) + slot.D) % slot.D;
       // the live source kept RUNNING past capture — its phase may have
       // wrapped any number of eras; the wrap-aware advance must be
-      // non-negative and less than an era (it advanced, not jumped)
+      // strictly positive (it genuinely ticked past the capture — a
+      // bare `>= 0` is a tautology under the mod, subagent pre-review)
       const advance =
         (((slot.phaseSource - phaseAtCapture) % slot.D) + slot.D) % slot.D;
       return (
@@ -552,7 +581,7 @@ const phaseReport = await page.evaluate(() => {
         Math.abs(slot.cloneDelay - slot.delayPrime) < 1 && // the clone carries it
         slot.playState === 'paused' &&
         Math.abs(phaseAtCapture - slot.phaseClone) < 1.5 && // the frozen phase transferred
-        advance >= 0 && advance < slot.D // the live source resumed (wrap-aware)
+        advance > 0 // the live source resumed (wrap-aware, genuinely ticked)
       );
     });
   check(

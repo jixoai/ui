@@ -88,10 +88,18 @@
       搬移（eyebrow+figcaption+pre 绑定链不尝试链尾代码内再切）——
       keep 语义的代价，Owner ④要求的团聚已由声明式 keep 链+后渲染
       执法达成，无需全量二次智能排版。
-- [x] 6.5 **切割边法则**（本轮实证发现）：relocateStrandedKeeps 增
-      切割感知——页底为 data-split-to 切割边时永不搬移（切割本身证明
-      内容在延续；r5 压平后分页落进带 stamp 的头 div 内，旧检测器
-      会撕裂卡片头）；verify-print strands 检测器同步。
+- [x] 6.5 **切割边法则（载体为界）**（子代理预复核修正）：重定位
+      执法增切割感知——data-split-to 标记在载体层或以下（载体自身
+      子树被切）永不搬移（搬了会撕裂卡片）；标记只在 host 级恰是
+      经典 strand（头完整收尾、身整体后移）必须搬移。全链扫描版
+      会把每个 strand 的 host 标记都看到、执法整通道哑火（实证：
+      p2 figcaption 孤悬 ~338px 死空间、keepRelocated 钉 0 出货）
+      ——子代理实证捕获后当日修正，pipeline+verify 同步。两条配套
+      法则：①搬移后复访同页（搬移暴露新页底，可能再 strand）；
+      ②适配检查——续半块所在页装不下载体 = keep 物理不可满足
+      （pagedjs 已选的 least-bad 断点），强制搬=推出页盒（实证：
+      28px figcaption 塞进 0px 余量的 p3 即溢出 28px），豁免不搬
+      不告警；门禁法则 = strands 0（有牙：有空间而未搬仍告警）。
 - [x] 6.6 门禁同步：verify-print margin grammar 断言重写
       （组合 folio/running heads/icon 计数+加载/空角盒 content:none/
       icon complete 等待）、keepRelocated 降级诊断字段（布局干净时

@@ -92,10 +92,10 @@ const BOX_SLOTS: readonly MarginBoxSlot[] = [
   'bottom-right',
 ];
 // one token: a counter, a string-set NAME, or a balanced quoted
-// literal (no quotes inside — the literal cannot smuggle css meta
-// characters past the validator)
+// literal (no quotes/control characters inside — the literal cannot
+// smuggle css meta characters or a raw newline past the validator)
 const TOKEN_RE =
-  /^(counter\(page\)|counter\(pages\)|string:[A-Za-z][A-Za-z0-9_-]*|"[^"\\;{}]+")$/;
+  /^(counter\(page\)|counter\(pages\)|string:[A-Za-z][A-Za-z0-9_-]*|"[^"\\\n\r;{}]+")$/;
 /** tokenize a slot's value: whitespace OUTSIDE quotes separates the
  *  tokens — a quoted literal may itself carry spaces (" / ") */
 function splitTokens(value: string): string[] {
@@ -185,8 +185,15 @@ function parseBoxes(
     }
     if (typeof token === 'string' && token.length > 0) {
       // tokenize quote-aware, validate each part (a quoted literal may
-      // carry spaces: " / ")
-      for (const part of splitTokens(token)) {
+      // carry spaces: " / "); a whitespace-only value tokenizes to
+      // NOTHING — rejected whole (it would compile to `content: ;`)
+      const parts = splitTokens(token);
+      if (parts.length === 0) {
+        throw new PageConfigError(
+          `${where}.${slot}: invalid token sequence ${JSON.stringify(token)} — whitespace-separated 'counter(page)' | 'counter(pages)' | 'string:<name>' | '"literal"'`,
+        );
+      }
+      for (const part of parts) {
         if (!TOKEN_RE.test(part)) {
           throw new PageConfigError(
             `${where}.${slot}: invalid token ${JSON.stringify(part)} — 'counter(page)' | 'counter(pages)' | 'string:<name>' | '"literal"'`,
@@ -207,7 +214,9 @@ function parseHeaderIcon(value: unknown): string | undefined {
   if (value === undefined) return undefined;
   if (
     typeof value !== 'string' ||
-    !/^\/[A-Za-z0-9._~/-]*$/.test(value) ||
+    // `//host/...` is a PROTOCOL-relative URL — an external origin
+    // wearing the leading slash of a site-relative path
+    !/^\/(?!\/)[A-Za-z0-9._~/-]*$/.test(value) ||
     value.length > 200
   ) {
     throw new PageConfigError(

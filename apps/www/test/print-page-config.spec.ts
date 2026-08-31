@@ -68,7 +68,7 @@ describe('parsePageConfig — the validator', () => {
     expect(config.header?.['top-center']).toBe('"CONFIDENTIAL — internal draft"');
   });
 
-  it('REJECTS the broken-literal shapes (unbalanced quote, meta characters, empty)', () => {
+  it('REJECTS the broken-literal shapes (unbalanced quote, meta characters, empty, control chars)', () => {
     // the r5 rendering hang: a lone quote tokenized to a bare '"' part
     expect(() => parsePageConfig({ footer: { 'bottom-center': '"' as never } })).toThrow(
       /invalid token/,
@@ -87,6 +87,17 @@ describe('parsePageConfig — the validator', () => {
     expect(() => parsePageConfig({ footer: { 'bottom-center': '' as never } })).toThrow(
       /invalid token sequence/,
     );
+    // a raw newline inside the literal is not a css string (subagent
+    // pre-review: it rode TOKEN_RE's negated class into the output)
+    expect(() =>
+      parsePageConfig({ header: { 'top-center': '"two\nlines"' as never } }),
+    ).toThrow(/invalid token/);
+    // whitespace-only tokenizes to NOTHING — it must not compile to
+    // `content: ;` (the emit-invalid-css class this grammar exists
+    // to prevent)
+    expect(() => parsePageConfig({ footer: { 'bottom-center': '   ' as never } })).toThrow(
+      /invalid token sequence/,
+    );
   });
 
   it('validates headerIcon as a site-relative plain path', () => {
@@ -99,6 +110,8 @@ describe('parsePageConfig — the validator', () => {
     );
     expect(() => parsePageConfig({ headerIcon: 'icon.svg' })).toThrow(/headerIcon/);
     expect(() => parsePageConfig({ headerIcon: '/a?b' })).toThrow(/headerIcon/);
+    // a PROTOCOL-relative URL wears the leading slash of a real path
+    expect(() => parsePageConfig({ headerIcon: '//evil.example/x.png' })).toThrow(/headerIcon/);
     expect(() => parsePageConfig({ headerIcon: '/' + 'a'.repeat(200) })).toThrow(/headerIcon/);
   });
 

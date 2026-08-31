@@ -143,7 +143,7 @@
         h1 / h2                        string-set: docTitle/sectionTitle
         .pagedjs_margin-content        small muted running-head type
         .jx-print-header-icon          ~1em inline brand mark
-        pre, code, .jx-print-line      line-height: 1.2
+        pre (code/line inherit)   line-height: 1.2
         section.bg-card > div          padding: 0 (margins keep rhythm)
 
    AST GATE LAW (test/print-stylesheet-gate.spec.ts): this file

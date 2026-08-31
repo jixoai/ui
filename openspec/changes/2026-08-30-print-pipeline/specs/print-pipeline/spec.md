@@ -197,20 +197,48 @@ breaks SHALL follow the declared keep chain (headings, a card's
 header block, a code card's head strip keep with what follows; a code
 card's foot never opens a page alone) consumed by pagedjs, PLUS a
 finished-layout enforcement pass that relocates a stranded keep
-carrier into its host's continuation half — and a page whose bottom
-edge is a CUT (the deepest content's ancestor carries data-split-to)
-is never a strand site: the cut itself proves the content continues,
-and acting there would tear a card's head into its continuation
-(Owner r5: the flattened inset moved a split into a stamped head
-div).
+carrier into its host's continuation half — bounded by two laws.
+CUT-awareness is BOUNDED AT THE CARRIER: a cut marker at or below
+the carrier means the carrier's own subtree continues at the page's
+bottom edge (a cut half — never a relocation site, acting there
+would tear the card); but a cut marker on the HOST is exactly the
+classic strand (the head ended whole, the body moved on) and MUST
+relocate — a whole-chain scan would see the host's marker on every
+strand and silently disable the pass (the r5 pre-review caught
+exactly that: a stranded figcaption shipped over ~338px of dead
+space with the pass pinned at zero). And the keep must be
+SATISFIABLE: a relocation happens only when the continuation's page
+can host the carrier (space below its content bottom); a block whose
+block-plus-follower exceeds every page's remainder is the least-bad
+break pagedjs already chose — forcing it would push content past the
+page box (the pass does not re-chunk), so it ships as the cut and
+the gate exempts it. A relocation also re-examines its page: the
+move exposes a new bottom edge that may itself strand.
 
 #### Scenario: a split through a stamped head's card
 
 - GIVEN a tall card whose first div carries break-after: avoid and
   whose body splits across a page boundary
 - WHEN the enforcement pass runs
-- THEN the pass leaves the page alone (cut edge — no relocation, no
-  torn head) and the finished layout carries zero stranded keeps
+- THEN the pass leaves the cut half alone (the marker sits at or
+  below the carrier — its own subtree continues) and no tear occurs
+
+#### Scenario: the classic stranded head over dead space, hosted
+
+- GIVEN an avoid-stamped code card head at a page's bottom with its
+  body moved whole to the next page (the host carries the cut
+  marker) and the next page's content bottom leaves room for it
+- WHEN the enforcement pass runs
+- THEN the head relocates into the host's continuation half and the
+  finished layout carries zero strands
+
+#### Scenario: an unsatisfiable keep is the least-bad break
+
+- GIVEN the same stranded head but the continuation page is already
+  full to its content bottom
+- WHEN the enforcement pass runs
+- THEN the pass leaves the layout alone (no push past the page box)
+  and the zero-strands gate exempts the shape
 
 ### Requirement: pagedjs is vendored, lazy and client-only
 

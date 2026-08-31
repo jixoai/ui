@@ -97,9 +97,13 @@ verify-print**（jsdom 不能测 CSS 动画 timeline）。
 size: 'A4' | 'Letter' | { width: number; length: number; unit: 'mm'|'cm'|'in' }
 margin: { top; right; bottom; left }（number + 同 unit 枚举）
 marks: 'crop' | 'cross' | 'both' | undefined
-header/footer: string-set 名 | 'counter(page)' | 'counter(pages)' 枚举位
+header/footer: token 序列（空白分隔，逐 part 校验）——'counter(page)' | 'counter(pages)'
+  | 'string:<name>' | 平衡引号字面量（内可含空格；禁引号/反斜杠/换行/`;{}`；
+  引号感知 tokenizer；空白 only 整体拒绝——绝不编译 `content: ;`）
+headerIcon: 站点相对纯路径（`/` 开头且非 `//` 协议相对、字符集受限、≤200）
 ```
-parser 单测覆盖无效值拒绝（负数、未知单位、非法 enum）。
+parser 单测覆盖无效值拒绝（负数、未知单位、非法 enum、破字面量、
+协议相对 icon）。
 
 ## 退役表 [r1-6]
 
