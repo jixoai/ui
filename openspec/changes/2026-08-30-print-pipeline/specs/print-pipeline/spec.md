@@ -61,10 +61,13 @@ to raw values and remove the stamp (afterprint).
 - GIVEN an element with two named CSS animations (non-zero original
   delays, different currentTimes, non-alternate, running)
 - WHEN the clone is built
-- THEN each slot's computed animation-delay equals the per-slot
-  formula (phase = ((c − d) mod D); pre-delay → remaining delay),
+- THEN each slot's computed animation-delay equals the design's
+  per-slot write rule (delay′ = (c<d) ? (d−c) : −((c−d) mod D)),
   play-state is paused, and the clone's computed phase matches the
-  source; finished/alternate/unmatched slots ride the diagnostic row
+  source — asserted under real Chromium in verify-print (jsdom keeps
+  only the pure path/slot/math/diagnostic function tests);
+  FINISHED/ALTERNATE/UNMATCHED_SLOT/NO_NAME/WAAPI/JS slots ride the
+  structured diagnostic row
 
 #### Scenario: a pre-paused animation stays paused
 

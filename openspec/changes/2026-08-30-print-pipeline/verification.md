@@ -12,16 +12,20 @@
   （sim-shell.css 绝不在场）+ 零引用 gate（lib/paged 与 Paged* 全扫）。
 - 同一产物：sim→直接打印复用（页数/目录页码/@page hash 三元组相等）；
   失效重建（改 config 后三元组变化）。
-- 动画协议：预暂停项不被启动、currentTime 不被扰动；CSS per-slot
-  同帧 fixture（双 slot+非零原 delay+相异 currentTime，断言 clone
-  computed 相位）；finished/alternate/unmatched 与 WAAPI 走结构化
-  诊断（不 throw；sim 渲染行、direct print 记 artifact metadata）。
+- 动画协议（jsdom 纯函数）：路径/slot 解析、delay′ 算式、诊断
+  分类（六码）；预暂停项不被启动、currentTime 不被扰动。
 - stamp 所有权：sim→直接打印→afterprint 后 medium === 'sim'（既有
   stamp 存续）；screen→直接打印→afterprint 后 === 'screen'。
 - stamp 时序：prepare 前 stamp 可见；afterprint 只摘事务自盖的 stamp；renderTo 可测量失败 fail-loud；preview 后取消无
   pages/head-style/listener 残留。
 
 ## 管线（verify-print，真实 Chromium）
+
+- **CSS 帧转移 computed 断言**：双 slot + 非零原 delay + 相异
+  currentTime 的 fixture，断言 clone 各槽 computed animation-delay
+  === delay′ 公式值、play-state paused、computed 相位与源相等；
+  finished/alternate/unmatched 与 WAAPI 走结构化诊断（不 throw；
+  sim 渲染行、direct print 记 artifact metadata）。
 
 - sim 开 → 容器出现页化产物（pagedjs 页类选择器存在）→
   margin boxes computed 可见 → 目录页条目带真页码 → sim 关 →

@@ -54,6 +54,32 @@ artifacts 由管线模块持有；有效期 = (frozen snapshot hash + stylesheet
 hash) 不变。sim 与「直接打印」复用同一完成产物；失效则以同一冻结
 快照重建。验收以页数、目录页码、@page CSS hash 三元组比对两出口。
 
+## CSS 帧转移 per-slot 算法（完整定义 [r5-2]）
+
+**输入单位与域**：`c` = Animations API `Animation.currentTime`（ms，
+含 delay 段）；`d` = 该 slot 的 computed `animation-delay`（解析为
+ms）；`D` = 该 slot 的 computed `animation-duration`（ms）；
+`N` = computed `animation-iteration-count`。
+
+**slot key**：`(元素序路径, animationName, 同名重复序)`——元素序
+路径在克隆时记录（每元素在父内的 index 序列，克隆保序）；同名第
+n 次出现按 computed `animation-name` 列表的槽位序。
+
+**最终写入**（clone 元素 inline style）：
+- `animation-play-state: paused`
+- 逐槽组合 `animation-delay` 列表：转移槽 `delay′ = (c < d) ?
+  (d − c) : −((c − d) mod D)`（pre-delay 段→剩余延迟；运行段→
+  负相位使 t=0 即源相位）；未转移槽保留原 computed 值。
+
+**边界与诊断码**（一律结构化诊断·继续不拒绝）：
+`FINISHED`（N 有限且 c ≥ d + D·N）｜`ALTERNATE`（direction 含
+alternate——相位公式不含方向翻转）｜`UNMATCHED_SLOT`（克隆槽位
+列表与源不一致）｜`NO_NAME`（animation-name:none）｜`WAAPI`｜`JS`。
+
+**验证分层**：纯函数（路径/slot 解析、时间算式、诊断分类）归
+vitest/jsdom；**clone computed 相位断言只归真实 Chromium
+verify-print**（jsdom 不能测 CSS 动画 timeline）。
+
 ## 样式表 gate（可执行 [r1-4]）
 
 - 三源头分离不变；新增 **AST 静态 gate**：kernel-print.css 零
