@@ -442,10 +442,20 @@ const paperProjection = await page.evaluate(() => {
       .find(Boolean);
     const contArea = contHalf?.closest('.pagedjs_page')?.querySelector('.pagedjs_page_content');
     if (contHalf && contArea) {
+      // LEAF-only bottom (mirrors the pass): pagedjs's rebuilt
+      // wrappers inherit the area's height and touch its bottom on
+      // every page — an any-element scan reads available = 0 always
+      // and would exempt every candidate, making this gate vacuous
+      // (codex r6 + ZCode probe: any bottom 100% vs leaf 49-98%)
       let bottom = -Infinity;
       for (const el of contArea.querySelectorAll('*')) {
         const r = el.getBoundingClientRect();
-        if (r.height > 1 && r.bottom > bottom) bottom = r.bottom;
+        if (r.height <= 1) continue;
+        let leaf = true;
+        for (const child of el.children) {
+          if (child.getBoundingClientRect().height > 1) { leaf = false; break; }
+        }
+        if (leaf && r.bottom > bottom) bottom = r.bottom;
       }
       const available = contArea.getBoundingClientRect().bottom - bottom;
       if (carrier.getBoundingClientRect().height > available + 1) return;
@@ -467,15 +477,15 @@ check(
     (paperProjection.outerTotal === 0 || paperProjection.outerQuiet === paperProjection.outerTotal) &&
     paperProjection.doubledCuts === 0 &&
     // zero strands is the law, NON-vacuously: the detector exempts
-    // only cut-halves (bounded at the carrier) and UNSATISFIABLE
-    // keeps (the continuation page cannot host the carrier — the
-    // least-bad break pagedjs already chose; forcing it would push
-    // content past the page box, the 28px-into-0px overflow the fit
-    // check now refuses). A carrier with room that the pass left
-    // behind still fails here. keepRelocated rides as diagnostic:
-    // this layout's strands are all fit-exempt, so a silent pass and
-    // an honest one both report 0 — the teeth live in the detector
-    paperProjection.strands.length === 0 &&
+    // only cut-halves (bounded at the carrier) and genuinely
+    // unsatisfiable keeps (leaf-measured room < carrier). And the
+    // pass must be LIVE on this document: the pilot's stranded
+    // figcaption has real room on its continuation page (leaf bottom
+    // 95% of the area, ~45px free vs the 28px carrier), so
+    // keepRelocated >= 1 holds — both historical failure modes (the
+    // whole-chain cut guard, the any-element fit scan reading
+    // available=0 forever) pinned it at 0 while shipping orphans
+    paperProjection.keepRelocated >= 1 && paperProjection.strands.length === 0 &&
     paperProjection.h2.total >= 3 && paperProjection.h2.kept === paperProjection.h2.total &&
     paperProjection.cardHeadSource >= 3 && paperProjection.cardHead.kept >= 1 &&
     paperProjection.codeHead.total >= 1 && paperProjection.codeHead.kept === paperProjection.codeHead.total &&

@@ -208,11 +208,16 @@ strand and silently disable the pass (the r5 pre-review caught
 exactly that: a stranded figcaption shipped over ~338px of dead
 space with the pass pinned at zero). And the keep must be
 SATISFIABLE: a relocation happens only when the continuation's page
-can host the carrier (space below its content bottom); a block whose
-block-plus-follower exceeds every page's remainder is the least-bad
-break pagedjs already chose — forcing it would push content past the
-page box (the pass does not re-chunk), so it ships as the cut and
-the gate exempts it. A relocation also re-examines its page: the
+can host the carrier — LEAF-measured room below its rendered content
+(pagedjs's rebuilt wrappers inherit the area's full height and touch
+its bottom edge on every page; an any-element scan reads zero room
+forever and exempts every candidate, silencing the pass a second way
+— codex r6, confirmed by live probe: any-element bottom 100% of the
+area vs leaf bottom 49-98%); a block whose block-plus-follower
+exceeds every page's remainder is the least-bad break pagedjs
+already chose — forcing it would push content past the page box (the
+pass does not re-chunk), so it ships as the cut and the gate exempts
+it. A relocation also re-examines its page: the
 move exposes a new bottom edge that may itself strand.
 
 #### Scenario: a split through a stamped head's card

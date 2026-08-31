@@ -107,3 +107,14 @@
       page-config spec +4 用例（序列/字面量/headerIcon 正反）；gate
       spec +1 用例（r5 家具九族法则）；registry 镜像散件清除
       （mirror 门禁恢复 GREEN）。
+
+- [x] 6.7 **codex r6 轮（leaf 测量修正）**：codex 独立复核确认适配
+      检查的 content-bottom 扫描把 pagedjs 重建的继承高度包裹 div
+      也计入（恒触区域底 → available 恒 0 → 全员豁免——da65ccf 的
+      "0px 余量/不可满足"叙事是坏测量的假象，figcaption 实际有
+      45px 真余量）；ZCode 探针复证（anyBottom 100% vs leaf
+      49-98%）。修复 = 双检测器 leaf-only 底测量；门禁重锁
+      keepRelocated≥1（figcaption 搬移复活为稳定正例，复访轮对
+      新暴露的 208px transaction 块按 17px 真余量正确豁免）。
+      codex 侧随后遭上游 API GROUP_DELETED 硬中断，最终评分未出，
+      档案见 codex-impl-review-print-r6-outcome.md。

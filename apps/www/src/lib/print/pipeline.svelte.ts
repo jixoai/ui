@@ -430,11 +430,24 @@ export function createPrintPipeline(
           .closest('.pagedjs_page')
           ?.querySelector<HTMLElement>('.pagedjs_page_content');
         if (contArea) {
+          // LEAF-only bottom: pagedjs's rebuilt wrappers inherit the
+          // area's full height and touch its bottom edge on every
+          // page — an any-element scan reads available = 0 always and
+          // exempts every candidate, killing the pass a second way
+          // (codex r6 confirmed statically; ZCode's live probe: any
+          // bottom 100% vs leaf bottom 49-98% of the area)
           let contPageBottom = -Infinity;
           for (const el of contArea.querySelectorAll<HTMLElement>('*')) {
             const rect = el.getBoundingClientRect();
             if (rect.height <= 1) continue;
-            if (rect.bottom > contPageBottom) contPageBottom = rect.bottom;
+            let leaf = true;
+            for (const child of el.children) {
+              if ((child as HTMLElement).getBoundingClientRect().height > 1) {
+                leaf = false;
+                break;
+              }
+            }
+            if (leaf && rect.bottom > contPageBottom) contPageBottom = rect.bottom;
           }
           const available = contArea.getBoundingClientRect().bottom - contPageBottom;
           if (carrier.getBoundingClientRect().height > available + 1) break;
