@@ -58,7 +58,9 @@
  * exit, including the dialog-closed-early settle. The listeners ride
  * their own arm/disarm pair: dispose() re-arms (the pipeline keeps
  * serving the next print), destroy() — the layer's unmount — is the
- * only disarm.
+ * only disarm, ENFORCED by a destroyed flag no later dispose() can
+ * undo (a late flight's error branch re-arms nothing; the run
+ * entries reject).
  *
  * DIAGNOSTIC CARRIERS: the sim renders rows; direct print records
  * into the artifact metadata + the console.
@@ -159,8 +161,11 @@ export interface PrintPipeline {
   cancel(): void;
   dispose(): void;
   /** TERMINAL teardown — the print layer's unmount: dispose() plus
-   *  the ambient print entry's listeners (a disposed pipeline still
-   *  serves the next print; a destroyed one serves nothing) */
+   *  the ambient print entry's disarm, BEHIND a destroyed flag that
+   *  no later dispose() (a late flight's error branch, an external
+   *  call) can undo — the run entries reject afterwards (a disposed
+   *  pipeline still serves the next print; a destroyed one serves
+   *  nothing, enforced) */
   destroy(): void;
 }
 
@@ -202,6 +207,11 @@ export function createPrintPipeline(
    *  cancel() end the wait THROUGH it (the 400ms grace fallback is a
    *  headless backstop, not the only way the promise clears; codex r2) */
   let pendingPrintSettle: (() => void) | undefined;
+  /** TERMINAL, and ENFORCED (codex r3): once the layer left the tree,
+   *  every later dispose() (a late flight's error branch, an external
+   *  call) cleans state but never re-arms the ambient entry, and the
+   *  run entries reject instead of resurrecting the layer */
+  let destroyed = false;
   const ownedListeners: (() => void)[] = [];
   const cssCache = new Map<string, string>();
 
@@ -473,7 +483,11 @@ export function createPrintPipeline(
     previewEntered = false;
     pageCount = 0;
     status = 'idle';
-    armAmbient();
+    // the terminal gate (codex r3): on a destroyed pipeline dispose
+    // still cleans, but NEVER re-arms — a late flight's error branch
+    // lands here after destroy() and must not put the unmounted
+    // layer's listeners back on the window
+    if (!destroyed) armAmbient();
   };
 
   const publishMetadata = (target: Artifact): void => {
@@ -677,6 +691,14 @@ export function createPrintPipeline(
     options?: PrintRunOptions,
     ambient = false,
   ): Promise<void> => {
+    if (destroyed) {
+      // the terminal gate (codex r3): a destroyed pipeline serves
+      // nothing — a retained external reference must not resurrect
+      // the unmounted layer's output
+      return Promise.reject(
+        new Error('[print/pipeline] destroyed — the print layer left the tree; a new layer owns the next print'),
+      );
+    }
     if (inFlight !== undefined) return inFlight; // single-flight
     const gen = ++generation; // this flight's token — retires any zombie attempt
     previewEntered = false; // never inherit a previous flight's phase
@@ -789,6 +811,9 @@ export function createPrintPipeline(
    *  pipeline must keep serving the NEXT ambient print — dispose()
    *  re-arms; only destroy() (the print layer's unmount) disarms. */
   const onAmbientBeforePrint = (): void => {
+    // the terminal gate's belt (codex r3): disarm already removed us,
+    // but a destroy() racing this dispatch must be a no-op too
+    if (destroyed) return;
     // ours already owns the pose — a mounted artifact (the sim), or
     // our own print flight (its window.print() fired this event)
     if (inFlight !== undefined || artifact !== undefined) return;
@@ -873,8 +898,13 @@ export function createPrintPipeline(
     },
     dispose,
     destroy() {
-      // TERMINAL: the print layer left the tree — the ambient entry
-      // goes with it (dispose re-arms; only this takes it down)
+      // TERMINAL, and enforced (codex r3): the flag lands FIRST —
+      // abort any in-flight preparation, then the (guarded) dispose
+      // cleans without re-arming, then the disarm. A late flight's
+      // error branch may still call dispose() after this; the flag
+      // holds. Idempotent.
+      destroyed = true;
+      controllerRef?.abort();
       dispose();
       disarmAmbient();
     },

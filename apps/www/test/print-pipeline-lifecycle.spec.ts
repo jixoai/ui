@@ -50,6 +50,10 @@ const kernel = vi.hoisted(() => ({
   calls: [] as PreviewCall[],
   mode: 'immediate' as 'immediate' | 'deferred' | 'fail',
   deferreds: [] as (() => void)[],
+  // the deferred lane's reject side (codex r3): a late REJECTION
+  // rides guarded's NORMAL error branch — the resolve-only lane
+  // could not exercise it
+  rejects: [] as ((error: Error) => void)[],
 }));
 
 vi.mock('pagedjs', () => ({
@@ -77,11 +81,12 @@ vi.mock('pagedjs', () => ({
         renderTo.appendChild(pages);
       };
       if (kernel.mode === 'deferred') {
-        return new Promise<{ total: number }>((resolve) => {
+        return new Promise<{ total: number }>((resolve, reject) => {
           kernel.deferreds.push(() => {
             build();
             resolve({ total: 3 });
           });
+          kernel.rejects.push((error: Error) => reject(error));
         });
       }
       build();
@@ -154,6 +159,7 @@ beforeEach(() => {
   kernel.calls.length = 0;
   kernel.mode = 'immediate';
   kernel.deferreds.length = 0;
+  kernel.rejects.length = 0;
   makeMeasurable(800);
   vi.stubGlobal('print', vi.fn());
   root = document.createElement('main');
@@ -474,5 +480,58 @@ describe('codex r2: the afterprint wait and the config-failure road close', () =
     expect(pipeline.status).toBe('error');
     expect(document.querySelector('[data-print-output]')).toBeNull();
     expect(document.documentElement.hasAttribute('data-jx-print-active')).toBe(false);
+  });
+});
+
+// =========================================================================
+// codex r3 — destroy is a terminal STATE, not a suggestion
+// =========================================================================
+describe('codex r3: destroy is terminal and enforced', () => {
+  const dispatchBeforePrint = (): void => {
+    window.dispatchEvent(new Event('beforeprint'));
+  };
+
+  it('a public dispose() after destroy does not resurrect the ambient entry', async () => {
+    vi.useFakeTimers(FAKE_CLOCK);
+    try {
+      pipeline.destroy();
+      pipeline.dispose(); // an external call — or a late flight's error branch
+      dispatchBeforePrint();
+      await drive(50);
+      expect(kernel.calls).toHaveLength(0); // nothing re-initialized
+      expect(document.documentElement.hasAttribute('data-jx-print-active')).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('a late preview REJECT after destroy re-arms nothing (the error branch disposes, but the flag holds)', async () => {
+    vi.useFakeTimers(FAKE_CLOCK);
+    try {
+      kernel.mode = 'deferred';
+      dispatchBeforePrint();
+      await vi.waitFor(() => expect(kernel.deferreds).toHaveLength(1)); // render pends
+      pipeline.destroy(); // the layer leaves while the preview is in flight
+      kernel.rejects[0]!(new Error('late rejection (test fixture)')); // the reject lane
+      await drive(50); // the error branch: guarded catch → dispose (flagged — no re-arm)
+      dispatchBeforePrint(); // whatever survived must not serve
+      await drive(50);
+      expect(kernel.calls).toHaveLength(1); // only the FIRST ambient render
+      expect(pipeline.lastError).toMatch(/late rejection/); // the failure DID surface
+      expect(document.querySelector('[data-print-output]')).toBeNull();
+      expect(document.documentElement.hasAttribute('data-jx-print-active')).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('runSim/runPrint reject after destroy — no output, no stamps, no listeners', async () => {
+    pipeline.destroy();
+    await expect(pipeline.runSim({ config: CONFIG })).rejects.toThrow(/destroyed/);
+    await expect(pipeline.runPrint({ config: CONFIG })).rejects.toThrow(/destroyed/);
+    expect(kernel.calls).toHaveLength(0);
+    expect(document.querySelector('[data-print-output]')).toBeNull();
+    expect(document.documentElement.hasAttribute('data-jx-print-active')).toBe(false);
+    expect(root.hasAttribute(PRINT_SIM_ATTR)).toBe(false);
   });
 });
