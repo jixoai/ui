@@ -204,37 +204,17 @@ check(
 );
 
 const tocNumbers = await page.evaluate(() => {
-  // the kernel resolves target-counter by inserting per-target rules
-  // that reset a counter to the target's REAL page number; each toc
-  // anchor carries data-target-counter-<k>="<target data-ref>" — join
-  // the two and read the numbers back
-  const rules = [];
-  for (const sheet of document.styleSheets) {
-    let cssRules;
-    try {
-      cssRules = sheet.cssRules;
-    } catch {
-      continue;
-    }
-    for (const rule of cssRules) {
-      if (rule.type !== CSSRule.STYLE_RULE) continue;
-      const decl = rule.style?.getPropertyValue?.('counter-reset') ?? '';
-      if (!/target-counter/.test(decl)) continue;
-      const m = /\[data-target-counter-[^\]=]+="([^\]]+)"\]::after/.exec(rule.selectorText ?? '');
-      const n = /(-?\d+)\s*$/.exec(decl.trim());
-      if (m && n) rules.push({ ref: m[1], page: Number(n[1]) });
-    }
-  }
+  // the folios are BACKFILLED (data-jx-folio) once the layout has
+  // placed every section — attr(), not target-counter: pagedjs's own
+  // resolver loses targets moved by keep-with-next (the moved clone
+  // sheds its id); [data-id] survives every id-shedding path
   const anchors = [...document.querySelectorAll('[data-print-output] nav[data-jx-print-toc] a')];
-  const numbers = anchors.map((a) => {
-    const entry = Object.entries(a.dataset).find(([key]) => key.startsWith('targetCounter'));
-    if (!entry) return null;
-    const rule = rules.find((r) => r.ref === entry[1]);
-    return rule ? rule.page : null;
-  });
   return {
     hrefs: anchors.map((a) => a.getAttribute('href').slice(1)),
-    numbers,
+    numbers: anchors.map((a) => {
+      const folio = a.getAttribute('data-jx-folio');
+      return folio === null ? null : Number(folio);
+    }),
   };
 });
 check(
@@ -271,7 +251,9 @@ check(
 // the borderless paper projection (Owner walkthrough r2): the default
 // print variant — the card's closed box dissolves (NO side borders),
 // the block-end separator is solid unless a split dash takes the edge
-// (continuation halves legitimately carry the dashed rule)
+// (continuation halves legitimately carry the dashed rule). The dash
+// is INNERMOST-only: the pipeline's normalization quiets the rebuilt
+// ancestor chain (one cut, one dash — no stacked sawtooth band)
 const paperProjection = await page.evaluate(() => {
   const out = document.querySelector('[data-print-output]');
   const cards = [...out.querySelectorAll('section.bg-card')];
@@ -280,17 +262,30 @@ const paperProjection = await page.evaluate(() => {
     ['none', 'dashed'].includes(cs.borderTopStyle) &&
     ['solid', 'dashed'].includes(cs.borderBottomStyle);
   const borderless = cards.filter((c) => noClosedBox(getComputedStyle(c))).length;
-  const splitFrom = [...out.querySelectorAll('[data-split-from]')].filter((el) => {
+  const innerFrom = [...out.querySelectorAll('[data-split-from]:not([data-jx-split-outer])')];
+  const innerDashed = innerFrom.filter((el) => getComputedStyle(el).borderTopStyle === 'dashed').length;
+  const outerQuiet = [...out.querySelectorAll('[data-jx-split-outer]')].filter((el) => {
     const cs = getComputedStyle(el);
-    return cs.borderTopStyle === 'dashed';
+    return cs.borderTopStyle !== 'dashed' && cs.borderBottomStyle !== 'dashed';
   }).length;
+  const outerTotal = out.querySelectorAll('[data-jx-split-outer]').length;
   const splitTotal = out.querySelectorAll('[data-split-from]').length;
-  return { cards: cards.length, borderless, splitFrom, splitTotal };
+  // keep-with-next: pagedjs CONSUMES the break-after declaration and
+  // re-materializes it as data-break-after on the element (the same
+  // hijack shape as its counters) — the orphan guard rides there
+  const h2keep = [...out.querySelectorAll('.pagedjs_page h2')].filter(
+    (h) => h.getAttribute('data-break-after') === 'avoid',
+  ).length;
+  const h2total = out.querySelectorAll('.pagedjs_page h2').length;
+  return { cards: cards.length, borderless, innerDashed, innerFrom: innerFrom.length, outerQuiet, outerTotal, splitTotal, h2keep, h2total };
 });
 check(
-  'paper projection: cards are borderless with a block-end separator; split edges carry the continuation dash',
+  'paper projection: cards borderless; ONE dash per cut (ancestors quiet); headings keep-with-next',
   paperProjection.cards >= 5 && paperProjection.borderless === paperProjection.cards &&
-    paperProjection.splitTotal >= 1 && paperProjection.splitFrom === paperProjection.splitTotal,
+    paperProjection.splitTotal >= 1 && paperProjection.innerFrom >= 1 &&
+    paperProjection.innerDashed === paperProjection.innerFrom &&
+    (paperProjection.outerTotal === 0 || paperProjection.outerQuiet === paperProjection.outerTotal) &&
+    paperProjection.h2total >= 3 && paperProjection.h2keep === paperProjection.h2total,
   JSON.stringify(paperProjection),
 );
 

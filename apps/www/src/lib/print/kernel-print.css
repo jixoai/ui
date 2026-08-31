@@ -45,9 +45,10 @@
       drops the gutter while wrapping stays.
 
    4. THE TOC PAGE — the nav the clone transform injects resolves its
-      page numbers through target-counter (real kernel-computed
-      numbers; the web ToC stays the site's own — no parallel
-      component survives) and owns its page.
+      page numbers BACKFILLED by the pipeline once the layout has
+      placed every section (real kernel-computed numbers; the web ToC
+      stays the site's own — no parallel component survives) and owns
+      its page.
 
    5. THE REVEAL FLATTEN (walkthrough fix, 2026-08-31) — the site's
       scroll-driven entrances ([data-reveal], animation-timeline:
@@ -86,22 +87,27 @@
                                        border: 1px hairline; bg/shadow lift
         .jx-code-card                  border: none
 
-   7. THE SPLIT DASH (Owner walkthrough r2, 2026-08-31) — content the
+   7. THE SPLIT DASH (Owner walkthrough r2, vision r3) — content the
       chunker cuts across a page break carries pagedjs's split
       markers; the cut edge renders a DASHED rule (the continuation
       convention of dictionaries and ledgers — solid separates,
-      dashed continues). Declared LAST so the dash owns the edge over
-      the borderless separator when a card is itself the split
-      element.
+      dashed continues). pagedjs marks the WHOLE rebuilt ancestor
+      chain, so the pipeline's normalization quiets every layer but
+      the innermost cut (data-jx-split-outer) — one cut, one dash.
+      Keep-with-next rides here too: headings and a code card's meta
+      strip never strand at a page's bottom edge.
 
         selector                       forced result
         ─────────────────────────────  ─────────────────────────────────
-        [data-split-to]                border-block-end: dashed hairline
-        [data-split-from]              border-block-start: dashed hairline
+        [data-split-to]:not([data-jx-split-outer])
+                                       border-block-end: dashed hairline
+        [data-split-from]:not([data-jx-split-outer])
+                                       border-block-start: dashed hairline
+        h1, h2, h3; .jx-code-card>div  break-after: avoid
 
    8. THE TOC PAGE, RESTYLED (Owner walkthrough r2, 2026-08-31) — a
       real table of contents: page-title, entries with a dot leader
-      stretch and the kernel's target-counter folio right-aligned,
+      stretch and the pipeline-backfilled folio right-aligned,
       and the section's summary as a small sub line (paper has the
       width). pagedjs implements no leader() — the leader is a flex
       span with a dotted bottom rule; the number still rides the
@@ -155,6 +161,11 @@ pre {
   max-block-size: none;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  /* the borderless projection: a bare pre's authored utility frame
+     (overflow-auto border bg-background) is an embedded box — paper
+     has the frame (vision r3's half-framed long sample) */
+  border: none;
+  background: none;
 }
 /* the gutter number rides data-line (set by the clone transform), NOT
    a CSS counter: pagedjs's Counters handler strips author
@@ -216,12 +227,29 @@ pre[data-jx-print-lines='off'] .jx-print-line::before {
 }
 
 /* ── 7. the split dash — continuation, not separation ───────────────── */
+/* pagedjs marks the WHOLE rebuilt ancestor chain; the pipeline's
+   normalization quiets every layer but the innermost cut element
+   (data-jx-split-outer) — one cut, one dash (vision r3) */
 
-[data-split-to] {
+[data-split-to]:not([data-jx-split-outer]) {
   border-block-end: 1px dashed var(--border, currentcolor);
 }
-[data-split-from] {
+[data-split-from]:not([data-jx-split-outer]) {
   border-block-start: 1px dashed var(--border, currentcolor);
+}
+
+/* keep-with-next: a heading never strands at a page's bottom edge,
+   and a code card's meta strip never separates from its code
+   (vision r3's orphan headers). NOTE: no :where() comma lists here —
+   pagedjs's break parser splits selectors on bare commas, a
+   ":where(h1, h2, h3)" would shatter into invalid fragments */
+h1,
+h2,
+h3 {
+  break-after: avoid;
+}
+:where(.jx-code-card > div) {
+  break-after: avoid;
 }
 
 /* ── 8. the ToC page, restyled — title, leader, folio, subtitle ─────── */
@@ -262,18 +290,31 @@ nav[data-jx-print-toc] [data-jx-print-toc-leader] {
   transform: translateY(-0.22em);
 }
 nav[data-jx-print-toc] a::after {
-  content: target-counter(attr(href url), page);
+  /* the folio is BACKFILLED by the pipeline (data-jx-folio) once the
+     layout has placed every section — attr(), not target-counter:
+     pagedjs's own resolver loses targets whose block got moved by
+     keep-with-next (the moved clone sheds its id), and its Counters
+     machinery already proved hostile. Same philosophy as the line
+     gutter: a static fact of the finished layout rides an attribute */
+  content: attr(data-jx-folio);
   font-family: var(--font-mono, monospace);
   font-size: 0.85em;
   font-variant-numeric: tabular-nums;
 }
-/* the section's summary — paper has the width the web toc never had */
+/* the section's summary — paper has the width the web toc never had,
+   but the TOC stays a TOC: two lines, then the ellipsis (the full
+   summary lives on its section's own page) */
 nav[data-jx-print-toc] [data-jx-print-toc-sub] {
   margin: 0.15rem 0 0;
   max-inline-size: 64ch;
   font-size: 0.78rem;
   line-height: 1.5;
   opacity: 0.62;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 /* ── the projection hygiene the pages inherit ────────────────────────── */

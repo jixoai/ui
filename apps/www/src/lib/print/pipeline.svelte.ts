@@ -191,6 +191,45 @@ export function createPrintPipeline(
     else document.documentElement.removeAttribute(ACTIVE_ATTR);
   };
 
+  /** The ToC folio backfill (vision r3): page numbers are a static
+   *  fact of the FINISHED layout, so once preview has placed every
+   *  section the pipeline stamps each nav anchor with
+   *  data-jx-folio = the target's real page. attr() beats
+   *  target-counter here: pagedjs's own resolver loses targets whose
+   *  block was moved by keep-with-next (the moved clone sheds its
+   *  id), and [data-id] survives every id-shedding path — the same
+   *  read the sim's click-takeover uses. Same philosophy as the line
+   *  gutter's data-line. */
+  const fillTocFolios = (outputRoot: HTMLElement): void => {
+    for (const anchor of [...outputRoot.querySelectorAll<HTMLAnchorElement>('nav[data-jx-print-toc] a[href^="#"]')]) {
+      const id = anchor.getAttribute('href')?.slice(1);
+      if (!id) continue;
+      const escaped = (window.CSS && CSS.escape) ? CSS.escape(id) : id;
+      const target =
+        outputRoot.querySelector(`#${escaped}`) ??
+        outputRoot.querySelector(`[data-id="${escaped}"]`);
+      const pageNo = target?.closest('.pagedjs_page')?.getAttribute('data-page-number');
+      if (pageNo) anchor.setAttribute('data-jx-folio', pageNo);
+    }
+  };
+
+  /** the split-dash normalization (vision r3): pagedjs marks the
+   *  WHOLE rebuilt ancestor chain with data-split-from/to, so a naive
+   *  per-element dashed rule stacks seven deep at one cut edge — a
+   *  thick sawtooth band. The INNERMOST marked element owns the dash;
+   *  every marked element whose subtree still carries the same-side
+   *  marker is an ancestor layer and gets data-jx-split-outer, which
+   *  the kernel rule excludes. Runs on the mounted pages, both exits
+   *  (the sim overlay and the standby paper see the same product). */
+  const quietOuterSplitDashes = (outputRoot: HTMLElement): void => {
+    for (const el of [...outputRoot.querySelectorAll('[data-split-to]')]) {
+      if (el.querySelector('[data-split-to]')) el.setAttribute('data-jx-split-outer', '');
+    }
+    for (const el of [...outputRoot.querySelectorAll('[data-split-from]')]) {
+      if (el.querySelector('[data-split-from]')) el.setAttribute('data-jx-split-outer', '');
+    }
+  };
+
   /** the sim ToC click takeover: ids repeat between source and pages —
    *  native anchors would jump into the LIVE tree; we scroll the
    *  output stack to the page carrying the target instead */
@@ -390,6 +429,10 @@ export function createPrintPipeline(
       artifact = built;
       publishMetadata(built);
       pageCount = pages;
+      // the post-layout passes BEFORE the rendered gate — every
+      // computed probe sees the quieted ancestor chain + the folios
+      quietOuterSplitDashes(outputRoot);
+      fillTocFolios(outputRoot);
       // the overlay UX rides any mounted artifact while the sim stamp
       // is live — sim builds AND direct-print rebuilds over a sim
       if (!standby) {

@@ -11,7 +11,7 @@ Owner 验收裁决（2026-08-30，三条反馈 + 架构定调）：
    （live 干预 → 动画 pause → 深克隆），把这份**脱离 live tree 的
    克隆**交给 paged.js 内核；paged.js 只接触该克隆与页产物——
    **sim 与真打印同管线同产物**。真页眉页脚（margin boxes）、
-   目录页（target-counter）、真页码由内核供给。
+   目录页（attr 回填页码）、真页码由内核布局供给。
 
 证据基座：pagedjs-source-research.md（源码级研究，master@6b0ff80，
 preview(content,stylesheets,renderTo) 共存模式、handlers 全表、
@@ -53,8 +53,10 @@ CSS 共存边界、503KB/97KB gzip 懒加载）。
 ### 4. 目录页与页眉页脚（内核供真）
 
 - **ToC**：web = 站点既有 ToC（零新组件）；打印 = 克隆变换注入
-  目录页（nav + `target-counter` 两条 content 规则，章节源 = 站点
-  既有 heading 结构，不另养注册表）。
+  目录页（nav + attr 回填页码：布局完成后管线把每条目的真页号
+  回填为数据属性、样式表以 attr() 渲染——walkthrough r2/r3 弃
+  target-counter：其解析器丢 keep-with-next 挪动的目标；章节源 =
+  站点既有 heading 结构，不另养注册表）。
 - **margin boxes**：配置驱动的 @page 规则（页眉 string-set/running
   element、页脚 counter(page)/pages），sim 里真实可见——上一版
   「Chromium fixed 复位」假货退役。

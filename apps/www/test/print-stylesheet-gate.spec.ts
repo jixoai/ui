@@ -97,15 +97,21 @@ describe('kernel-print.css — the AST gate', () => {
     const codeCard = /:where\(\.jx-code-card\)\s*\{([^}]*)\}/.exec(kernelClean);
     expect(codeCard, 'missing the code-card frame drop').not.toBeNull();
     expect(codeCard![1]).toContain('border: none');
-    // the continuation dash on pagedjs split markers — declared after
-    // the separator so the dash owns the split edge
-    const splitTo = kernelClean.indexOf('[data-split-to]');
-    const separator = kernelClean.indexOf('section.bg-card)');
-    expect(splitTo).toBeGreaterThan(-1);
-    expect(separator).toBeGreaterThan(-1);
-    expect(splitTo).toBeGreaterThan(separator);
-    expect(kernelClean).toMatch(/\[data-split-to\]\s*\{[^}]*border-block-end: 1px dashed/);
-    expect(kernelClean).toMatch(/\[data-split-from\]\s*\{[^}]*border-block-start: 1px dashed/);
+    // the continuation dash on pagedjs split markers — INNERMOST only
+    // (the pipeline's data-jx-split-outer quiets the rebuilt ancestor
+    // chain: one cut, one dash), and keep-with-next for orphans
+    expect(kernelClean).toMatch(/\[data-split-to\]:not\(\[data-jx-split-outer\]\)\s*\{[^}]*border-block-end: 1px dashed/);
+    expect(kernelClean).toMatch(/\[data-split-from\]:not\(\[data-jx-split-outer\]\)\s*\{[^}]*border-block-start: 1px dashed/);
+    expect(kernelClean).toMatch(/h1,\s*\nh2,\s*\nh3\s*\{[^}]*break-after: avoid/);
+    expect(kernelClean).toMatch(/:where\(\.jx-code-card > div\)\s*\{[^}]*break-after: avoid/);
+    // pagedjs's break parser splits selectors on BARE commas — a
+    // :where() comma list would shatter into invalid fragments
+    // ("' h3)' is not a valid selector", the r3 hang). Only break-*
+    // declarations ride that parser; assert none of them hide behind
+    // a :where comma list.
+    for (const m of kernelClean.matchAll(/([^{}]+)\{[^}]*break-(?:after|before|inside)[^}]*\}/g)) {
+      expect(m[1], `break rule selector must be comma-plain: ${m[1].trim()}`).not.toMatch(/:where\([^)]*,/);
+    }
     // the restyled ToC: the dot-leader stretch + the attr-folio
     expect(kernelClean).toContain('[data-jx-print-toc-leader]');
     expect(kernelClean).toMatch(/border-block-end: 1px dotted/);
@@ -117,8 +123,13 @@ describe('kernel-print.css — the AST gate', () => {
     expect(kernelCss).toContain('data-jx-props-table-scroll');
   });
 
-  it('carries the ToC target-counter law (kernel-real page numbers)', () => {
-    expect(kernelClean).toContain('target-counter(attr(href url), page)');
+  it('carries the attr-backfilled folio law (the ToC page numbers ride data-jx-folio)', () => {
+    // vision r3: pagedjs's target-counter resolver loses targets
+    // moved by keep-with-next (the moved clone sheds its id); the
+    // pipeline backfills the finished layout's page numbers as a
+    // static attribute — attr(), never a counter
+    expect(kernelClean).toContain('content: attr(data-jx-folio)');
+    expect(kernelClean).not.toContain('target-counter');
   });
 });
 

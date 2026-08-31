@@ -127,7 +127,11 @@ is destroyed.
 Page headers/footers SHALL come from @page margin boxes (string-set /
 counter(page) / counter(pages)) driven by the PrintPageConfig; the
 print ToC page SHALL be injected into the clone as a nav whose entries
-resolve through target-counter to real page numbers. The web ToC is
+carry real page numbers — the pipeline backfills each anchor's page
+from the finished layout onto a data attribute the stylesheet renders
+(attr-carried, not target-counter: pagedjs's own resolver loses
+targets moved by keep-with-next, and its counter machinery rewrites
+author rules; walkthrough r2/r3). The web ToC is
 the site's existing one — no parallel component survives.
 
 #### Scenario: a customized footer
