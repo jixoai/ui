@@ -1,0 +1,161 @@
+/* =========================================================================
+   jixoai kernel-print.css (lib/print/, print-pipeline 2026-08-30).
+
+   THE stylesheet fed to the paged.js kernel — preview(clone,
+   [kernel-print.css, compiled @page css], renderTo) and nothing else
+   ever receives it. It is NOT imported into the document: the site's
+   own sheets never see these rules; the Polisher unwraps and inserts
+   them (unlayered, at the head's end) where their unlayered position
+   out-ranks every @layer (utilities included) — the same layer law
+   the audited whitelist always rode.
+
+   INTENT HEADER — why each rule family exists:
+
+   1. THE AUDITED WHITELIST (migrated verbatim from the retired
+      print-projection.css — the css-architecture delta's named
+      table). Print is a PROJECTION of the document tree, not a
+      second tree: nodes carrying a print verb defeat the utilities
+      riding the same node (display:flex / overflow:auto /
+      max-block-size caps), because an unprojectioned scrollport
+      would clip the flowed page.
+
+        selector                       forced result
+        ─────────────────────────────  ─────────────────────────────────
+        [data-jx-print="hide"]         display: none
+        [data-jx-print="flatten"]      overflow: visible; max-block-size: none
+        [data-jx-canvas-scroll]        overflow: visible; max-block-size: none
+        [data-jx-code-card-pre]        overflow: visible; max-block-size: none
+        [data-jx-props-table-scroll]   overflow: visible; max-block-size: none
+
+      The three *-scroll entries lift overflow AND the block-size cap
+      (min(32rem,60vh) on the canvas scroll layer — its own unlayered
+      rule); an unlifted cap keeps the flowed content clipped.
+
+   2. THE FREEZE VERB's CSS half — animations halt inside frozen
+      subtrees (same DOM, halted). The per-slot frame transfer writes
+      inline animation-delay/play-state on clone elements with CAPTURED
+      phases; this rule freezes everything else under a freeze verb
+      (belt to the inline braces — and the WAAPI-diagnostic'd owners
+      still halt visually).
+
+   3. CODE BLOCKS — the retired code-block component's semantics,
+      migrated to the clone transform + this sheet: lines wrap (long
+      lines survive the page width) and carry a numbered gutter;
+      `lineNumbers=false` (the pre stamped data-jx-print-lines="off")
+      drops the gutter while wrapping stays.
+
+   4. THE TOC PAGE — the nav the clone transform injects resolves its
+      page numbers through target-counter (real kernel-computed
+      numbers; the web ToC stays the site's own — no parallel
+      component survives) and owns its page.
+
+   AST GATE LAW (test/print-stylesheet-gate.spec.ts): this file
+   contains ZERO `@media not print` wrappers and ZERO
+   `[data-jx-print-sim]` selectors — the sim shell is a DIFFERENT
+   source (sim-shell.css, document-side) that must never reach the
+   kernel; a runtime spy asserts the preview() inputs.
+   ========================================================================= */
+
+/* ── 1. the audited unlayered whitelist ─────────────────────────────── */
+
+/* hide — excluded from print (defeats any display utility) */
+:where([data-jx-print='hide']) {
+  display: none;
+}
+/* flatten — structural re-layout: scrollports open to flow */
+:where([data-jx-print='flatten']) {
+  overflow: visible;
+  max-block-size: none;
+}
+/* canvas scroll layer — overflow AND the min(32rem,60vh) cap */
+:where([data-jx-canvas-scroll]) {
+  overflow: visible;
+  max-block-size: none;
+}
+/* code-card pre scrollport */
+:where([data-jx-code-card-pre]) {
+  overflow: visible;
+  max-block-size: none;
+}
+/* props-table wrapper overflow-x */
+:where([data-jx-props-table-scroll]) {
+  overflow: visible;
+  max-block-size: none;
+}
+
+/* ── 2. the freeze verb's CSS half ──────────────────────────────────── */
+
+:where([data-jx-print='freeze'], [data-jx-print='freeze'] *) {
+  animation-play-state: paused;
+  transition: none;
+}
+
+/* ── 3. code blocks: wrap + the numbered gutter ─────────────────────── */
+
+pre {
+  overflow: visible;
+  max-block-size: none;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+pre .jx-print-line {
+  display: block;
+  counter-increment: jx-print-line;
+}
+pre {
+  counter-reset: jx-print-line 0;
+}
+pre .jx-print-line::before {
+  content: counter(jx-print-line);
+  display: inline-block;
+  min-inline-size: 2.5ch;
+  margin-inline-end: 1ch;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.55;
+}
+/* the opt-out: lineNumbers=false drops the gutter (content:none
+   generates no box — the indent leaves with it); wrapping stays */
+pre[data-jx-print-lines='off'] .jx-print-line::before {
+  content: none;
+}
+
+/* ── 4. the ToC page ────────────────────────────────────────────────── */
+
+nav[data-jx-print-toc] {
+  break-after: page;
+  margin-block-end: 1.5rem;
+}
+nav[data-jx-print-toc] [data-jx-print-toc-eyebrow] {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-block: 0 0.6rem;
+}
+nav[data-jx-print-toc] ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+nav[data-jx-print-toc] li {
+  margin-block: 0.2rem;
+}
+nav[data-jx-print-toc] a {
+  text-decoration: none;
+  color: inherit;
+}
+nav[data-jx-print-toc] a::after {
+  content: ' ' target-counter(attr(href url), page);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8em;
+  opacity: 0.8;
+}
+
+/* ── the projection hygiene the pages inherit ────────────────────────── */
+
+:where(main, article) :where(p, li) {
+  orphans: 2;
+  widows: 2;
+}

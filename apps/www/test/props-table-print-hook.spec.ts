@@ -37,15 +37,14 @@ describe('PropsTable markup contract', () => {
 describe('source guard (one writer, no hand-written substitutes)', () => {
   const SRC = resolve(__dirname, '../src');
   // the attribute may appear ONLY in these files: the owning
-  // component, the audited whitelist sheet, and the pilot page —
-  // which is the print law's LIVING FIXTURE (its probe strip rides
-  // the hook against three utilities on purpose, and its PropsTable
-  // instance carries the component-owned stamp itself; a substitute
-  // would be a page REPLACING the table with a hand-rolled scroll
-  // wrapper — not this)
+  // component, the audited whitelist sheet (kernel-print.css, the
+  // print-pipeline migration), and the capability page — which is
+  // the print law's LIVING FIXTURE (its probe strip rides the hook
+  // against three utilities on purpose; a substitute would be a page
+  // REPLACING the table with a hand-rolled scroll wrapper — not this)
   const ALLOWED = new Set([
     'lib/ui/props-table/props-table.svelte',
-    'lib/paged/print-projection.css',
+    'lib/print/kernel-print.css',
     'routes/docs/paged.html/+page.svelte',
   ]);
 

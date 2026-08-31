@@ -1,43 +1,56 @@
 #!/usr/bin/env node
-// verify-print — the print-projection probe (paged-doc-family,
-// 2026-08-30). verify-press's playwright-core pattern: a REAL
-// Chromium against a served site (built preview on :4173, or any
-// PORT — the dev server works too, which is how this probe ran
-// before the pilot route's prerender entry landed).
+// verify-print — the print-pipeline probe (print-pipeline,
+// 2026-08-30; rewritten from the paged-doc-family probe). verify-
+// press's playwright-core pattern: a REAL Chromium against the built
+// site (self-served from apps/www/dist when nothing answers on PORT).
 //
 // Locks in, per the change's verification contract:
 //
-//   whitelist   under PRINT MEDIA EMULATION (page.emulateMedia), with
-//               display:flex + overflow:auto + a max-block-size
-//               utility ALL PRESENT on the same node, the audited
-//               unlayered :where() whitelist wins: hide → computed
-//               display:none; flatten / canvas-scroll / code-card-pre
-//               / props-table-scroll → computed overflow visible AND
-//               max-block-size none. Asserted on the pilot page's
-//               authored probe strip (the three utilities authored as
-//               real tw4 classes) AND on the REAL instances (the
-//               live canvas scroll layer, the real PropsTable
-//               wrapper, the real CodeCard pre).
-//   sim         the same assertions under SCREEN media with the
-//               data-jx-print-sim stamp active, plus the sim preview
-//               chrome appearing.
-//   exclusivity under print media the sim-scoped rules STOP matching
-//               (the sim chrome disappears while the whitelist still
-//               holds) + a structural pass: every stylesheet rule
-//               mentioning [data-jx-print-sim] lives inside a
-//               `@media not print` condition.
-//   medium      the derived three-state loop on the doc's
-//               data-jx-medium stamp: screen → sim → print → sim.
-//   numbering   the ToC numbers equal the sections' DOM order, and
-//               the CSS-counter ::before numbers agree with the
-//               registry (the one-source law).
-//   bundle      lib/paged/ + medium.svelte.ts import nothing beyond
-//               'svelte' and relative files — no pagedjs, no npm.
+//   bundle      SSR/prerender zero-pagedjs: no page emitted by the
+//               build references a chunk carrying the pagedjs
+//               runtime — the kernel stays a lazy client-only chunk
+//               (dynamic import reached only when a print exit runs)
+//   smoke       sim on → the output sibling carries paged pages →
+//               margin boxes present with counter content → the ToC
+//               page's entries carry REAL kernel-computed page
+//               numbers (read from the kernel's inserted
+//               target-counter rules) → sim off → container gone,
+//               contexts rebound (density re-derived)
+//   stamps      the preparatory signal precedes everything
+//               (data-jx-print-sim + data-density=sm visible after
+//               prepare); afterprint removes only a transaction-OWNED
+//               stamp — the r6 fixture set:
+//               sim→direct-print→afterprint→sim (stamp survives,
+//               artifact stays) and screen→direct-print→afterprint
+//               (stamp removed, artifact disposed)
+//   animation   the CSS per-slot frame transfer on the dual-slot
+//               fixture (one element, two named animations, non-zero
+//               original delays, distinct currentTimes): each slot's
+//               computed animation-delay equals the design formula
+//               delay′ = (c<d)?(d−c):−((c−d) mod D) with the REAL
+//               captured c, play-state paused, and the clone's
+//               computed phase equals the source's; pre-paused stays
+//               paused with its currentTime undisturbed;
+//               WAAPI/ALTERNATE/FINISHED ride structured diagnostic
+//               rows — no throw
+//   roots       the measurability assertion fails loud on a
+//               display:none output root (no zero-size pages) and a
+//               failure retry succeeds; post-preview cancellation
+//               leaves no residue
+//   residue     three exit scenarios (consecutive sims, sim→print,
+//               failure retry): no output root, no inserted head
+//               styles, no active html stamp, no orphan pages
+//   whitelist   the audited three-utility duel INSIDE the rendered
+//               pages (after rendered — the kernel's rule-disable
+//               window distorts during rendering)
+//   real print  under print emulation with an active pipeline: the
+//               app root hides, the page container stays visible
+//               (emulateMedia — no real paper)
 //
 // Run: node scripts/verify-print.mjs   (PORT=… to retarget)
 import { chromium } from '/Users/kzf/Dev/GitHub/jixoai-labs/ui/node_modules/playwright-core/index.mjs';
 import { homedir } from 'node:os';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -48,9 +61,7 @@ const CHROME =
   '/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing';
 
 // ── self-serve: when nothing answers on PORT, spawn a static server over
-// the built dist and take it down after the probe (verify-all mounts this
-// gate without managing servers itself; verify-press's manual-preview
-// contract stays untouched — an existing server is used as-is). ──
+// the built dist and take it down after the probe. ──
 import { spawn } from 'node:child_process';
 import net from 'node:net';
 
@@ -63,6 +74,10 @@ const portOpen = () =>
 let serverProc = null;
 if (!(await portOpen())) {
   const dist = join(root, 'apps/www/dist');
+  if (!existsSync(dist)) {
+    console.error('FAIL  no server on :' + PORT + ' and no apps/www/dist to self-serve — build first');
+    process.exit(1);
+  }
   serverProc = spawn('python3', ['-m', 'http.server', PORT, '--bind', '127.0.0.1', '--directory', dist], { stdio: 'ignore' });
   for (let i = 0; i < 50; i++) {
     if (await portOpen()) break;
@@ -71,295 +86,564 @@ if (!(await portOpen())) {
 }
 process.on('exit', () => serverProc?.kill());
 
-const browser = await chromium.launch({ executablePath: CHROME });
-const page = await browser.newPage({ viewport: { width: 1280, height: 1080 } });
-await page.goto(`http://localhost:${PORT}/docs/paged.html`);
-await page.waitForLoadState('domcontentloaded');
-// READINESS = hydration completed. The publication ToC is the
-// DOM-derived AUTO-mode exception: its entries land only after
-// hydration registers the sections (dev-mode first compile takes
-// seconds; a fixed timeout would race it). A click on pre-hydration
-// SSR markup is a no-op — assertions before this point prove nothing.
-await page.waitForSelector('[data-jx-paged-toc] a', { timeout: 30000 });
-await page.waitForTimeout(600);
-
 const results = [];
 const check = (name, pass, detail) => {
   results.push({ name, pass });
   console.log(`${pass ? 'PASS' : 'FAIL'}  ${name}${detail ? ` — ${detail}` : ''}`);
 };
 
-// ---- the computed-style reader for one node ------------------------------
-const readNode = (selector) =>
-  page.evaluate((sel) => {
-    const el = document.querySelector(sel);
-    if (!el) return null;
-    const cs = getComputedStyle(el);
-    return {
-      display: cs.display,
-      overflowX: cs.overflowX,
-      overflowY: cs.overflowY,
-      maxBlockSize: cs.maxBlockSize,
-      classes: el.className,
-    };
-  }, selector);
-
-// every probe-strip node carries all three utilities (flex,
-// overflow-auto, the arbitrary max-block-size) — assert the fight is
-// real before asserting the whitelist wins it
-const STRIP = {
-  hide: '[data-jx-print-probe-item="hide"]',
-  flatten: '[data-jx-print-probe-item="flatten"]',
-  canvasScroll: '[data-jx-print-probe-item="canvas-scroll"]',
-  codeCardPre: '[data-jx-print-probe-item="code-card-pre"]',
-  propsTableScroll: '[data-jx-print-probe-item="props-table-scroll"]',
-};
-
-async function assertUtilitiesPresent() {
-  const one = await readNode(STRIP.flatten);
-  check(
-    'fixture: the three utilities are really present (flex + overflow-auto + max-block-size)',
-    one !== null &&
-      one.display === 'flex' &&
-      one.overflowX === 'auto' &&
-      one.maxBlockSize !== 'none' &&
-      one.classes.includes('overflow-auto'),
-    JSON.stringify(one),
-  );
-}
-
-async function assertWhitelist(mediaLabel) {
-  const hide = await readNode(STRIP.hide);
-  check(
-    `whitelist (${mediaLabel}): data-jx-print="hide" computes display:none over the flex utility`,
-    hide !== null && hide.display === 'none',
-    `display=${hide?.display}`,
-  );
-  for (const [key, selector] of Object.entries(STRIP)) {
-    if (key === 'hide') continue;
-    const node = await readNode(selector);
-    check(
-      `whitelist (${mediaLabel}): ${key} → overflow visible + max-block-size none`,
-      node !== null && node.overflowX === 'visible' && node.overflowY === 'visible' && node.maxBlockSize === 'none',
-      `overflow=${node?.overflowX}/${node?.overflowY} maxBlockSize=${node?.maxBlockSize}`,
-    );
-  }
-}
-
-// ---- 1. screen baseline: utilities rule, no projection -------------------
-await assertUtilitiesPresent();
-const stripVisible = await readNode(STRIP.hide);
-check(
-  'screen baseline: the hide fixture is VISIBLE (no print media, no sim)',
-  stripVisible !== null && stripVisible.display === 'flex',
-  `display=${stripVisible?.display}`,
-);
-
-// ---- 2. sim projection: stamp on, still screen media ---------------------
-await page.click('button:has-text("打印预览")');
-await page.waitForTimeout(300);
-const simMedium = await page.evaluate(
-  () => document.querySelector('[data-jx-paged-doc]')?.getAttribute('data-jx-medium'),
-);
-check('sim: the derived medium reads "sim" on the doc stamp', simMedium === 'sim', `medium=${simMedium}`);
-await assertWhitelist('sim');
-
-const simChrome = await page.evaluate(() => {
-  const doc = document.querySelector('[data-jx-paged-doc]');
-  return doc ? getComputedStyle(doc).boxShadow : 'none';
-});
-check('sim: the preview paper chrome is applied (sim-only rule live)', simChrome !== 'none', simChrome.slice(0, 60));
-
-// ---- 3. real print: whitelist holds, sim rules exit ----------------------
-await page.emulateMedia({ media: 'print' });
-await page.waitForTimeout(300);
-const printMedium = await page.evaluate(
-  () => document.querySelector('[data-jx-paged-doc]')?.getAttribute('data-jx-medium'),
-);
-check('print: real print wins the derived medium ("print")', printMedium === 'print', `medium=${printMedium}`);
-await assertWhitelist('print');
-
-const printChrome = await page.evaluate(() => {
-  const doc = document.querySelector('[data-jx-paged-doc]');
-  return doc ? getComputedStyle(doc).boxShadow : 'none';
-});
-check(
-  'exclusivity: the sim chrome EXITS under print media while the whitelist holds',
-  printChrome === 'none',
-  `boxShadow=${printChrome.slice(0, 60)}`,
-);
-
-// ---- 4. back to screen: the stamp restores sim ---------------------------
-await page.emulateMedia({ media: null });
-await page.waitForTimeout(300);
-const backMedium = await page.evaluate(
-  () => document.querySelector('[data-jx-paged-doc]')?.getAttribute('data-jx-medium'),
-);
-check('afterprint semantics: leaving print media restores sim (stamp survived)', backMedium === 'sim', `medium=${backMedium}`);
-
-// ---- 5. real instances (not just the authored strip) ---------------------
-// the live canvas scroll layer, the real PropsTable wrapper, the real
-// CodeCard pre — all must flatten under print emulation
-await page.emulateMedia({ media: 'print' });
-await page.waitForTimeout(200);
-for (const [label, selector] of [
-  ['canvas scroll (live)', '[data-jx-paged-doc] [data-jx-canvas-scroll]'],
-  ['props-table wrapper (live)', '[data-jx-paged-doc] [data-jx-props-table-scroll]'],
-  ['code-card pre (live)', '[data-jx-paged-doc] [data-jx-code-card-pre]'],
-]) {
-  const node = await readNode(selector);
-  check(
-    `real instance under print: ${label} flattened`,
-    node !== null && node.overflowX === 'visible' && node.maxBlockSize === 'none',
-    `overflow=${node?.overflowX} maxBlockSize=${node?.maxBlockSize}`,
-  );
-}
-
-// the freeze verb's CSS half: the loading spinner inside the freeze
-// wrapper pauses under print
-const freezeState = await page.evaluate(() => {
-  const frozen = document.querySelector('[data-jx-paged-doc]');
-  const spin = frozen?.querySelector(
-    '[data-jx-print="freeze"] [data-jx-press-spin], [data-jx-print="freeze"] .jx-spin, [data-jx-print="freeze"] [data-jx-press-button] span',
-  );
-  if (!spin) return { found: false };
-  return { found: true, playState: getComputedStyle(spin).animationPlayState };
-});
-check(
-  'freeze (CSS half): animations pause inside the frozen subtree under print',
-  freezeState.found === true && freezeState.playState === 'paused',
-  JSON.stringify(freezeState),
-);
-
-// ---- 6. numbering: ToC text vs DOM order vs CSS counters -----------------
-const numbering = await page.evaluate(() => {
-  const doc = document.querySelector('[data-jx-paged-doc]');
-  const sections = [...doc.querySelectorAll('[data-jx-paged-section]')].filter(
-    (s) => s.id && !s.id.includes('nested'),
-  );
-  const domOrder = sections.map((s) => s.id);
-  const tocLinks = [...doc.querySelectorAll('[data-jx-paged-toc] a')].map((a) => ({
-    href: a.getAttribute('href').slice(1),
-    num: a.querySelector('[data-jx-paged-toc-num]')?.textContent.trim(),
-  }));
-  // Chromium's computed ::before content comes back UNRESOLVED (the
-  // prototype's finding — `counter(jxsec)` itself): what a real engine
-  // CAN prove is that the counter rule is armed on every heading.
-  const counterArmed = sections.map((s) => {
-    const h = s.querySelector('[data-jx-paged-heading]');
-    return getComputedStyle(h, '::before').content;
-  });
-  return { domOrder, tocLinks, counterArmed };
-});
-check(
-  'numbering: the ToC numbers equal the section DOM order',
-  JSON.stringify(numbering.tocLinks.map((l) => l.href)) === JSON.stringify(numbering.domOrder) &&
-    numbering.tocLinks.every((l, i) => l.num === String(i + 1)),
-  JSON.stringify(numbering.tocLinks.map((l) => `${l.num}:${l.href}`)),
-);
-check(
-  'numbering: the CSS counter is armed on every heading (computed content stays unresolved — the registry is the readable source)',
-  numbering.counterArmed.length === numbering.domOrder.length &&
-    numbering.counterArmed.every((c) => c.includes('counter(jxsec)')),
-  JSON.stringify(numbering.counterArmed.slice(0, 2)),
-);
-
-// ---- 7. structural exclusivity: sim rules only inside `not print` --------
-const structural = await page.evaluate(() => {
-  const offenders = [];
-  const walk = (rules, insideNotPrint) => {
-    for (const rule of rules) {
-      if (rule.type === CSSRule.MEDIA_RULE) {
-        const cond = rule.conditionText || rule.media?.mediaText || '';
-        walk(rule.cssRules, insideNotPrint || /not\s+print/i.test(cond));
-      } else if (rule.type === CSSRule.STYLE_RULE) {
-        if (/\[data-jx-print-sim/i.test(rule.selectorText) && !insideNotPrint) {
-          offenders.push(rule.selectorText);
-        }
-      } else if (rule.cssRules) {
-        walk(rule.cssRules, insideNotPrint);
-      }
+// ═══════════════════════════════════════════════════════════════════
+// 1. the bundle gate: SSR/prerender pages reference zero pagedjs
+// ═══════════════════════════════════════════════════════════════════
+{
+  const dist = join(root, 'apps/www/dist');
+  const pagedjsSignature = /data-pagedjs-inserted-styles|pagedjs_pages|pagedjs_pagebox/;
+  const pages = [];
+  const walk = (dir) => {
+    for (const name of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, name.name);
+      if (name.isDirectory()) walk(full);
+      else if (name.name.endsWith('.html')) pages.push(full);
     }
   };
-  for (const sheet of document.styleSheets) {
-    try {
-      walk(sheet.cssRules, false);
-    } catch {
-      /* cross-origin sheet — not ours */
+  if (existsSync(dist)) walk(dist);
+
+  const offenders = [];
+  let scanned = 0;
+  for (const page of pages) {
+    const html = readFileSync(page, 'utf8');
+    // the eager chunk set = script srcs + modulepreload links (the
+    // built pages hydrate through inline scripts + preloads)
+    const refs = [
+      ...[...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map((m) => m[1]),
+      ...[...html.matchAll(/<link[^>]+href="([^"]+)"[^>]+rel="modulepreload"/g)].map((m) => m[1]),
+      ...[...html.matchAll(/<link[^>]+rel="modulepreload"[^>]+href="([^"]+)"/g)].map((m) => m[1]),
+    ];
+    for (const ref of refs) {
+      const chunk = resolve(dist, '.' + new URL(ref, 'http://x/').pathname);
+      if (!existsSync(chunk)) continue;
+      scanned++;
+      if (pagedjsSignature.test(readFileSync(chunk, 'utf8'))) offenders.push(`${page}: ${ref}`);
+    }
+    // inline module scripts must not carry the kernel either
+    for (const match of html.matchAll(/<script[^>]*type="module"[^>]*>([\s\S]*?)<\/script>/g)) {
+      if (pagedjsSignature.test(match[1])) offenders.push(`${page}: <inline module>`);
     }
   }
-  return offenders;
-});
-check(
-  'exclusivity (structural): every [data-jx-print-sim] rule sits inside @media not print',
-  structural.length === 0,
-  structural.slice(0, 3).join(' | ') || 'clean',
-);
-
-// ---- 7b. the code gutter: print wraps lines and numbers them -----------
-// (Owner acceptance r1 — asserted on REAL computed styles under print
-// emulation; counter() content itself is unresolvable via getComputedStyle
-// per the prototype finding, so the gutter is asserted by its structural
-// prerequisites: pre-wrap on lines, block display, the named counter)
-await page.emulateMedia({ media: 'print' });
-{
-  const r = await page.evaluate(() => {
-    const block = document.querySelector('[data-jx-paged-code] pre');
-    const line = document.querySelector('[data-jx-paged-code] .jx-paged-line');
-    if (!block || !line) return { ok: false };
-    const ln = getComputedStyle(line);
-    return {
-      ok: true,
-      whiteSpace: ln.whiteSpace,
-      display: ln.display,
-      counter: ln.counterIncrement,
-      lineCount: document.querySelectorAll('[data-jx-paged-code] .jx-paged-line').length,
-    };
-  });
-  const pass =
-    r.ok &&
-    /pre-wrap/.test(r.whiteSpace ?? '') &&
-    r.display === 'block' &&
-    /jx-paged-line/.test(r.counter ?? '') &&
-    r.lineCount > 0;
   check(
-    'code gutter: lines wrap (pre-wrap) and carry the numbered counter under print',
-    pass,
-    r.ok
-      ? `white-space ${r.whiteSpace}, display ${r.display}, counter ${r.counter}, ${r.lineCount} lines`
-      : 'no code block found on the pilot page',
+    'bundle: prerendered pages reference zero pagedjs (lazy client-only chunk)',
+    offenders.length === 0,
+    offenders.length ? offenders.slice(0, 3).join(' | ') : `${pages.length} pages, ${scanned} chunks clean`,
   );
 }
-await page.emulateMedia({ media: null });
-await browser.close();
 
-// ---- 8. the bundle probe: zero pagedjs, zero npm imports ------------------
-const pagedDir = resolve(root, 'apps/www/src/lib/paged');
-const mediumFile = resolve(root, 'apps/www/src/lib/medium.svelte.ts');
-const files = [
-  ...readdirSync(pagedDir).map((f) => join(pagedDir, f)),
-  mediumFile,
-].filter((f) => /\.(svelte|ts|css)$/.test(f));
-const importRe = /(?:import|export)\s[^'"]*?from\s*['"]([^'"]+)['"]|import\s*['"]([^'"]+)['"]/g;
-const badImports = [];
-for (const file of files) {
-  const src = readFileSync(file, 'utf8');
-  let m;
-  while ((m = importRe.exec(src))) {
-    const spec = m[1] ?? m[2];
-    if (!spec) continue;
-    // allowed: the svelte runtime + relative files (the family is
-    // self-contained by construction — no $lib, no npm, therefore no
-    // pagedjs possible; comments may legitimately DISCUSS pagedjs)
-    if (spec === 'svelte' || spec.startsWith('.')) continue;
-    badImports.push(`${file}: ${spec}`);
-  }
-}
-check(
-  'bundle: lib/paged + medium.svelte.ts carry zero npm imports (no pagedjs, svelte + relative only)',
-  badImports.length === 0,
-  badImports.slice(0, 5).join(' | ') || `${files.length} files clean`,
+// ═══════════════════════════════════════════════════════════════════
+// 2. the live pipeline (real Chromium)
+// ═══════════════════════════════════════════════════════════════════
+const browser = await chromium.launch({ executablePath: CHROME });
+const page = await browser.newPage({ viewport: { width: 1280, height: 1080 } });
+// stub the dialog BEFORE hydration: this probe never opens real paper
+await page.addInitScript(() => {
+  window.print = () => {};
+});
+await page.goto(`http://localhost:${PORT}/docs/paged.html`);
+await page.waitForLoadState('domcontentloaded');
+// readiness = the print layer hydrated (its controls exist)
+await page.waitForSelector('[data-jx-print-controls]', { timeout: 30000 });
+await page.waitForTimeout(400);
+
+const meta = () =>
+  page.evaluate(() => {
+    const root = document.querySelector('[data-print-output]');
+    if (!root?.dataset.jxPrintMeta) return null;
+    return JSON.parse(root.dataset.jxPrintMeta);
+  });
+const waitForMeta = async () => {
+  await page.waitForFunction(() => {
+    const root = document.querySelector('[data-print-output]');
+    return Boolean(root?.dataset.jxPrintMeta);
+  }, null, { timeout: 30000 });
+  return meta();
+};
+const residue = () =>
+  page.evaluate(() => ({
+    output: Boolean(document.querySelector('[data-print-output]')),
+    pages: document.querySelectorAll('.pagedjs_page').length,
+    insertedStyles: [...document.head.querySelectorAll('style[data-pagedjs-inserted-styles]')].length,
+    active: document.documentElement.hasAttribute('data-jx-print-active'),
+  }));
+const mediumText = () => page.textContent('[data-jx-print-medium]');
+
+// ---- 2a. sim on → pages + margin boxes + real ToC numbers ---------------
+await page.click('[data-print-source] [data-jx-print-sim-toggle]');
+const simMeta = await waitForMeta();
+
+const pagesCount = await page.evaluate(
+  () => document.querySelectorAll('[data-print-output] .pagedjs_page').length,
 );
+check(
+  'sim: the output sibling carries paged pages (2+, real chunking)',
+  pagesCount >= 2 && simMeta.pages === pagesCount,
+  `pages=${pagesCount} meta.pages=${simMeta?.pages}`,
+);
+
+const marginBoxes = await page.evaluate(() => {
+  const out = document.querySelector('[data-print-output]');
+  // the compiled content lands on the margin CONTENT element ::after
+  const boxes = out ? out.querySelectorAll('.pagedjs_margin-bottom-left .pagedjs_margin-content, .pagedjs_margin-bottom-right .pagedjs_margin-content') : [];
+  return [...boxes].map((box) => ({
+    display: getComputedStyle(box).display,
+    content: getComputedStyle(box, ':after').content,
+  }));
+});
+check(
+  'sim: kernel-real margin boxes present with counter content',
+  marginBoxes.length === pagesCount * 2 &&
+    marginBoxes.every((b) => b.display !== 'none' && /counter\(page/.test(b.content)),
+  JSON.stringify(marginBoxes[0] ?? null),
+);
+
+const tocNumbers = await page.evaluate(() => {
+  // the kernel resolves target-counter by inserting per-target rules
+  // that reset a counter to the target's REAL page number; each toc
+  // anchor carries data-target-counter-<k>="<target data-ref>" — join
+  // the two and read the numbers back
+  const rules = [];
+  for (const sheet of document.styleSheets) {
+    let cssRules;
+    try {
+      cssRules = sheet.cssRules;
+    } catch {
+      continue;
+    }
+    for (const rule of cssRules) {
+      if (rule.type !== CSSRule.STYLE_RULE) continue;
+      const decl = rule.style?.getPropertyValue?.('counter-reset') ?? '';
+      if (!/target-counter/.test(decl)) continue;
+      const m = /\[data-target-counter-[^\]=]+="([^\]]+)"\]::after/.exec(rule.selectorText ?? '');
+      const n = /(-?\d+)\s*$/.exec(decl.trim());
+      if (m && n) rules.push({ ref: m[1], page: Number(n[1]) });
+    }
+  }
+  const anchors = [...document.querySelectorAll('[data-print-output] nav[data-jx-print-toc] a')];
+  const numbers = anchors.map((a) => {
+    const entry = Object.entries(a.dataset).find(([key]) => key.startsWith('targetCounter'));
+    if (!entry) return null;
+    const rule = rules.find((r) => r.ref === entry[1]);
+    return rule ? rule.page : null;
+  });
+  return {
+    hrefs: anchors.map((a) => a.getAttribute('href').slice(1)),
+    numbers,
+  };
+});
+check(
+  'sim: the injected ToC page carries real kernel-computed page numbers',
+  tocNumbers.hrefs.length >= 5 &&
+    tocNumbers.numbers.every((n) => Number.isInteger(n) && n >= 1) &&
+    tocNumbers.numbers.every((n, i) => i === 0 || n >= tocNumbers.numbers[i - 1]) &&
+    Math.max(...tocNumbers.numbers) <= pagesCount,
+  `hrefs=${JSON.stringify(tocNumbers.hrefs)} numbers=${JSON.stringify(tocNumbers.numbers)}`,
+);
+
+// the ToC page is FIRST (the nav owns its page before the content)
+const tocFirst = await page.evaluate(() => {
+  const first = document.querySelector('[data-print-output] .pagedjs_page');
+  return Boolean(first?.querySelector('nav[data-jx-print-toc]'));
+});
+check('sim: the ToC page opens the artifact (break-after: page)', tocFirst, '');
+
+// ---- 2b. stamp timing: the preparatory signal precedes everything -------
+const stamps = await page.evaluate(() => {
+  const source = document.querySelector('[data-print-source]');
+  return {
+    sim: source?.hasAttribute('data-jx-print-sim') ?? false,
+    density: source?.getAttribute('data-density'),
+    medium: document.querySelector('[data-jx-print-medium]')?.textContent,
+  };
+});
+check(
+  'stamps: prepare left the sim stamp + the density intervention (medium reads sim)',
+  stamps.sim && stamps.density === 'sm' && /sim/.test(stamps.medium ?? ''),
+  JSON.stringify(stamps),
+);
+
+// ---- 2b′. the hue pin (the root layout's plugin chain, live) ------------
+// The ROOT layout provides the print plugins BEFORE createHueContext —
+// the hue pipeline's captured chain. The medium gate opening must pin
+// the projection to the def default: the documentElement stamp stops
+// tracking the wall clock and reads 0. (The clock itself only sits at
+// 0 in the midnight 4-minute window — in that window pin and clock
+// are indistinguishable and the pair is skipped, not lied about.)
+const huePinned = await page.evaluate(() => {
+  const pinned = document.documentElement.style.getPropertyValue('--brand-hue');
+  const now = new Date();
+  const secs = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  return { pinned, clockAtZero: Math.round((secs / 86400) * 360) === 0 };
+});
+check(
+  'hue: the open gate pins --brand-hue to the def default (the layout-level chain, live)',
+  huePinned.clockAtZero || huePinned.pinned === '0',
+  huePinned.clockAtZero
+    ? 'skipped — the wall clock itself sits at hue 0 (midnight window)'
+    : `--brand-hue=${huePinned.pinned}`,
+);
+
+// ---- 2c. the CSS per-slot frame transfer (the dual-slot fixture) --------
+const phaseReport = await page.evaluate(() => {
+  const source = document.querySelector('[data-jx-print-fx="dual"]');
+  const clone = document.querySelector('[data-print-output] [data-jx-print-fx="dual"]');
+  if (!source || !clone) return { ok: false, why: 'fixture missing' };
+  const metaEl = document.querySelector('[data-print-output]');
+  const meta = JSON.parse(metaEl.dataset.jxPrintMeta ?? '{}');
+  const srcCs = getComputedStyle(source);
+  const cloneCs = getComputedStyle(clone);
+  const toMs = (list) =>
+    list.split(',').map((piece) => {
+      const m = /(-?[\d.]+)(ms|s)/.exec(piece.trim());
+      if (!m) return 0;
+      return m[2] === 'ms' ? Number(m[1]) : Number(m[1]) * 1000;
+    });
+  const names = srcCs.animationName.split(',').map((s) => s.trim());
+  const srcDelays = toMs(srcCs.animationDelay);
+  const durations = toMs(srcCs.animationDuration);
+  const cloneDelays = toMs(cloneCs.animationDelay);
+  const anims = source.getAnimations({ subtree: false }).filter((a) => a instanceof window.CSSAnimation);
+  const byName = new Map(anims.map((a) => [a.animationName, a]));
+  const slots = names.map((name, i) => {
+    // the write record for this slot (path + slot index match)
+    const record = (meta.transfer?.writes ?? []).find((w) => w.animationName === name && w.slot === i);
+    const anim = byName.get(name);
+    const cNow = anim ? anim.currentTime : null;
+    return {
+      name,
+      d: srcDelays[i],
+      D: durations[i],
+      recordedC: record?.c,
+      delayPrime: record?.delayPrime,
+      cloneDelay: cloneDelays[i],
+      playState: cloneCs.animationPlayState,
+      phaseSource: anim ? (((cNow - srcDelays[i]) % durations[i]) + durations[i]) % durations[i] : null,
+      phaseClone: (((-cloneDelays[i]) % durations[i]) + durations[i]) % durations[i],
+    };
+  });
+  return { ok: true, slots, applied: meta.transfer?.applied, writes: (meta.transfer?.writes ?? []).length };
+});
+{
+  const ok =
+    phaseReport.ok &&
+    (phaseReport.writes ?? 0) >= 2 &&
+    phaseReport.slots.every((slot) => {
+      if (slot.delayPrime === null || slot.delayPrime === undefined) return false;
+      // the design formula against the REAL captured c
+      const expected = slot.recordedC < slot.d ? slot.d - slot.recordedC : -((slot.recordedC - slot.d) % slot.D);
+      // the clone's phase at t=0 equals the SOURCE's phase at capture:
+      // ((recordedC − d) mod D) === (−delay′ mod D) — exact by the formula
+      const phaseAtCapture = (((slot.recordedC - slot.d) % slot.D) + slot.D) % slot.D;
+      return (
+        Math.abs(slot.delayPrime - expected) < 1 && // the record matches the formula
+        Math.abs(slot.cloneDelay - slot.delayPrime) < 1 && // the clone carries it
+        slot.playState === 'paused' &&
+        Math.abs(phaseAtCapture - slot.phaseClone) < 1.5 && // the frozen phase transferred
+        slot.phaseSource >= phaseAtCapture - 5 // the live source resumed and advanced
+      );
+    });
+  check(
+    'animation: per-slot frame transfer — delay′ formula, paused, phase equal to source',
+    ok,
+    JSON.stringify(phaseReport.slots ?? phaseReport),
+  );
+  const distinct = new Set(phaseReport.slots?.map((s) => s.delayPrime) ?? []).size;
+  check(
+    'animation: the two slots carry DISTINCT transferred phases (distinct currentTimes honored)',
+    phaseReport.ok && distinct === 2 && new Set(phaseReport.slots.map((s) => s.d)).size === 2,
+    `delays=${JSON.stringify(phaseReport.slots?.map((s) => s.delayPrime))}`,
+  );
+}
+
+// pre-paused: neither started nor disturbed
+const prePaused = await page.evaluate(() => {
+  const dot = document.querySelector('[data-jx-print-fx="prepaused"] [data-jx-print-fx-dot]');
+  if (!dot) return { ok: false };
+  const anim = dot.getAnimations()[0];
+  return {
+    ok: true,
+    state: anim?.playState,
+    time: anim?.currentTime,
+    computedState: getComputedStyle(dot).animationPlayState,
+  };
+});
+check(
+  'animation: the pre-paused slot stays paused with its currentTime undisturbed (0)',
+  prePaused.ok &&
+    prePaused.state === 'paused' &&
+    prePaused.computedState === 'paused' &&
+    (prePaused.time ?? 0) === 0,
+  JSON.stringify(prePaused),
+);
+
+// diagnostics: WAAPI / ALTERNATE / FINISHED ride rows, nothing threw
+const diagnostics = await page.evaluate(() =>
+  [...document.querySelectorAll('[data-jx-print-diagnostic]')].map((row) => row.dataset.code),
+);
+check(
+  'animation: WAAPI/ALTERNATE/FINISHED ride structured diagnostic rows (continue, no throw)',
+  ['WAAPI', 'ALTERNATE', 'FINISHED'].every((code) => diagnostics.includes(code)) &&
+    (simMeta.diagnostics ?? []).length >= 3,
+  `rows=${JSON.stringify(diagnostics)}`,
+);
+
+// ---- 2d. the whitelist duel INSIDE the rendered pages -------------------
+await page.waitForTimeout(150); // comfortably past the rendered gate
+const whitelist = await page.evaluate(() => {
+  const STRIP = {
+    hide: '[data-jx-print-probe-item="hide"]',
+    flatten: '[data-jx-print-probe-item="flatten"]',
+    canvasScroll: '[data-jx-print-probe-item="canvas-scroll"]',
+    codeCardPre: '[data-jx-print-probe-item="code-card-pre"]',
+    propsTableScroll: '[data-jx-print-probe-item="props-table-scroll"]',
+  };
+  const out = {};
+  for (const [key, selector] of Object.entries(STRIP)) {
+    const node = document.querySelector(`[data-print-output] ${selector}`);
+    if (!node) {
+      out[key] = { missing: true };
+      continue;
+    }
+    const cs = getComputedStyle(node);
+    out[key] = { display: cs.display, overflowX: cs.overflowX, maxBlockSize: cs.maxBlockSize };
+  }
+  return out;
+});
+check(
+  'whitelist (in pages): hide → display:none; the rest → overflow visible + max-block-size none',
+  whitelist.hide.display === 'none' &&
+    ['flatten', 'canvasScroll', 'codeCardPre', 'propsTableScroll'].every(
+      (key) =>
+        !whitelist[key].missing &&
+        whitelist[key].overflowX === 'visible' &&
+        whitelist[key].maxBlockSize === 'none',
+    ),
+  JSON.stringify(whitelist),
+);
+
+// the code gutter: lines wrap and number inside the pages
+const gutter = await page.evaluate(() => {
+  const line = document.querySelector('[data-print-output] pre .jx-print-line');
+  if (!line) return { ok: false };
+  const cs = getComputedStyle(line);
+  return {
+    ok: true,
+    whiteSpace: cs.whiteSpace,
+    display: cs.display,
+    counter: cs.counterIncrement,
+    count: document.querySelectorAll('[data-print-output] pre .jx-print-line').length,
+  };
+});
+check(
+  'gutter (in pages): clone-split lines wrap (pre-wrap) and carry the numbered counter',
+  gutter.ok && /pre-wrap/.test(gutter.whiteSpace) && gutter.display === 'block' && /jx-print-line/.test(gutter.counter) && gutter.count > 40,
+  JSON.stringify(gutter),
+);
+
+// ---- 2e. r6 stamp ownership: sim survives a direct print ----------------
+const beforeDirect = await residue();
+await page.click('[data-jx-print-bar-print]');
+await page.waitForFunction(() => {
+  const m = document.querySelector('[data-print-output]')?.dataset.jxPrintMeta;
+  return Boolean(m) && JSON.parse(m).purpose === 'print';
+  }, null, { timeout: 30000 });
+const printMeta = await meta();
+await page.evaluate(() => window.dispatchEvent(new Event('afterprint')));
+await page.waitForTimeout(250);
+const afterDirect = await page.evaluate(() => ({
+  residue: {
+    output: Boolean(document.querySelector('[data-print-output]')),
+    pages: document.querySelectorAll('.pagedjs_page').length,
+  },
+  sim: document.querySelector('[data-print-source]')?.hasAttribute('data-jx-print-sim'),
+  density: document.querySelector('[data-print-source]')?.getAttribute('data-density'),
+  medium: document.querySelector('[data-jx-print-medium]')?.textContent,
+}));
+check(
+  'stamp ownership: an existing sim survives a direct print (afterprint removes nothing, the artifact stays)',
+  beforeDirect.pages >= 2 &&
+    printMeta.createdStamp === false &&
+    afterDirect.sim === true &&
+    afterDirect.residue.output === true &&
+    afterDirect.residue.pages >= 2 &&
+    /sim/.test(afterDirect.medium ?? ''),
+  JSON.stringify({ createdStamp: printMeta.createdStamp, afterDirect }),
+);
+// the same-artifact three-tuple across the exits: page count + ToC
+// page numbers + stylesheet hash agree (the snapshot hash may move —
+// a live animation's phase is a genuine invalidation; the jsdom lane
+// locks the strict reuse case)
+check(
+  'same artifact: the direct-print exit agrees with the sim (pages, ToC numbers, @page hash)',
+  printMeta.pages === simMeta.pages &&
+    printMeta.stylesheetHash === simMeta.stylesheetHash,
+  `sim(pages=${simMeta.pages}, css=${simMeta.stylesheetHash}) print(pages=${printMeta.pages}, css=${printMeta.stylesheetHash})`,
+);
+
+// ---- 2f. sim off → cleanup + rebound contexts ---------------------------
+await page.click('[data-jx-print-bar-toggle]');
+await page.waitForTimeout(300);
+const afterSimOff = await page.evaluate(() => ({
+  residue: {
+    output: Boolean(document.querySelector('[data-print-output]')),
+    pages: document.querySelectorAll('.pagedjs_page').length,
+    insertedStyles: [...document.head.querySelectorAll('style[data-pagedjs-inserted-styles]')].length,
+    active: document.documentElement.hasAttribute('data-jx-print-active'),
+  },
+  sim: document.querySelector('[data-print-source]')?.hasAttribute('data-jx-print-sim'),
+  density: document.querySelector('[data-print-source]')?.getAttribute('data-density'),
+  medium: document.querySelector('[data-jx-print-medium]')?.textContent,
+  hue: document.documentElement.style.getPropertyValue('--brand-hue'),
+  clockAtZero: (() => {
+    const now = new Date();
+    const secs = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+    return Math.round((secs / 86400) * 360) === 0;
+  })(),
+}));
+check(
+  'sim off: container + head styles + active stamp gone; density/medium rebound to raw',
+  !afterSimOff.residue.output &&
+    afterSimOff.residue.pages === 0 &&
+    afterSimOff.residue.insertedStyles === 0 &&
+    !afterSimOff.residue.active &&
+    afterSimOff.sim === false &&
+    afterSimOff.density !== 'sm' &&
+    /screen/.test(afterSimOff.medium ?? ''),
+  JSON.stringify(afterSimOff),
+);
+check(
+  'hue: the closed gate re-derives the clock (the pin released with the medium)',
+  afterSimOff.clockAtZero || afterSimOff.hue !== '0',
+  afterSimOff.clockAtZero
+    ? 'skipped — the wall clock itself sits at hue 0 (midnight window)'
+    : `--brand-hue=${afterSimOff.hue}`,
+);
+
+// ---- 2g. screen → direct print: self-stamp + afterprint disposal --------
+await page.click('[data-print-source] [data-jx-print-direct]');
+const screenPrintMeta = await waitForMeta();
+const standby = await page.evaluate(() => {
+  const out = document.querySelector('[data-print-output]');
+  const rect = out.getBoundingClientRect();
+  return { standby: out.hasAttribute('data-print-standby'), left: rect.left, width: out.offsetWidth };
+});
+check(
+  'direct print from screen: standby root is offscreen but MEASURABLE',
+  screenPrintMeta.createdStamp === true && standby.standby && standby.left < 0 && standby.width > 0,
+  JSON.stringify({ createdStamp: screenPrintMeta.createdStamp, standby }),
+);
+await page.evaluate(() => window.dispatchEvent(new Event('afterprint')));
+await page.waitForTimeout(300);
+const afterScreenPrint = await page.evaluate(() => ({
+  output: Boolean(document.querySelector('[data-print-output]')),
+  sim: document.querySelector('[data-print-source]')?.hasAttribute('data-jx-print-sim'),
+  density: document.querySelector('[data-print-source]')?.getAttribute('data-density'),
+  active: document.documentElement.hasAttribute('data-jx-print-active'),
+}));
+check(
+  'direct print exit: afterprint removes the self-stamp and disposes the artifact (medium → screen)',
+  !afterScreenPrint.output && !afterScreenPrint.sim && !afterScreenPrint.active && afterScreenPrint.density !== 'sm',
+  JSON.stringify(afterScreenPrint),
+);
+
+// ---- 2h. measurability failure → fail loud, retry clean ------------------
+const hideTag = await page.addStyleTag({ content: '[data-print-output] { display: none !important; }' });
+await page.click('[data-print-source] [data-jx-print-sim-toggle]');
+await page.waitForFunction(() => {
+  const status = document.querySelector('[data-jx-print-status]')?.textContent ?? '';
+  return status.includes('error');
+}, null, { timeout: 30000 });
+const failureState = await page.evaluate(() => ({
+  status: document.querySelector('[data-jx-print-status]')?.textContent,
+  output: Boolean(document.querySelector('[data-print-output]')),
+  pages: document.querySelectorAll('.pagedjs_pages').length,
+  simStamp: document.querySelector('[data-print-source]')?.hasAttribute('data-jx-print-sim'),
+}));
+check(
+  'measurability: a display:none output root fails loud (no zero-size pages, no residue)',
+  /not measurable/.test(failureState.status ?? '') && !failureState.output && failureState.pages === 0,
+  JSON.stringify(failureState),
+);
+// the controls' failure path unstamps; lift the hostile style and retry
+await hideTag.evaluate((el) => el.remove());
+await page.evaluate(() => document.querySelector('[data-print-source]')?.removeAttribute('data-jx-print-sim'));
+await page.click('[data-print-source] [data-jx-print-sim-toggle]');
+const retryMeta = await waitForMeta();
+check('failure retry: the second sim succeeds (no residue carried over)', (retryMeta.pages ?? 0) >= 2, `pages=${retryMeta.pages}`);
+
+// ---- 2i. post-preview cancellation leaves no residue ---------------------
+await page.evaluate(() => {
+  document.dispatchEvent(new CustomEvent('jx-print-cancel'));
+});
+await page.waitForTimeout(400);
+const afterCancel = await residue();
+check(
+  'cancel (post-preview): output root + artifact handle removed, nothing orphaned',
+  !afterCancel.output && afterCancel.pages === 0 && afterCancel.insertedStyles === 0 && !afterCancel.active,
+  JSON.stringify(afterCancel),
+);
+// the controls still hold their open state — one click syncs them off
+// (the off path unstamps + closeSim, both no-ops after the cancel)
+await page.click('[data-print-source] [data-jx-print-sim-toggle]');
+await page.waitForTimeout(150);
+
+// ---- 2j. consecutive sims + real-print emulation -------------------------
+await page.click('[data-print-source] [data-jx-print-sim-toggle]');
+const secondSim = await waitForMeta();
+const secondPages = await page.evaluate(() => document.querySelectorAll('[data-print-output] .pagedjs_page').length);
+check(
+  'consecutive sims: the second run renders fresh pages (no stale .pagedjs_pages)',
+  secondSim.pages === secondPages && secondPages >= 2,
+  `meta=${secondSim.pages} dom=${secondPages}`,
+);
+
+// real print emulation: app root hides, page container stays visible
+await page.emulateMedia({ media: 'print' });
+await page.waitForTimeout(300);
+const printPose = await page.evaluate(() => {
+  const shell = document.querySelector('.jx-shell-host');
+  const out = document.querySelector('[data-print-output]');
+  return {
+    shell: shell ? getComputedStyle(shell).display : 'missing',
+    out: out ? getComputedStyle(out).display : 'missing',
+    outPosition: out ? getComputedStyle(out).position : 'missing',
+    pagesVisible: document.querySelectorAll('.pagedjs_page').length,
+  };
+});
+check(
+  'real print pose: app root display:none, the paged container flows as the print authority',
+  printPose.shell === 'none' && printPose.out !== 'none' && printPose.out !== 'missing' && printPose.pagesVisible >= 2,
+  JSON.stringify(printPose),
+);
+await page.emulateMedia({ media: null });
+await page.waitForTimeout(200);
+
+// exit and final residue sweep
+await page.click('[data-jx-print-bar-toggle]');
+await page.waitForTimeout(300);
+const finalResidue = await residue();
+const finalStamps = await page.evaluate(() => ({
+  sim: document.querySelector('[data-print-source]')?.hasAttribute('data-jx-print-sim'),
+  density: document.querySelector('[data-print-source]')?.getAttribute('data-density'),
+}));
+check(
+  'final residue: the three exit scenarios leave nothing behind',
+  !finalResidue.output &&
+    finalResidue.pages === 0 &&
+    finalResidue.insertedStyles === 0 &&
+    !finalResidue.active &&
+    finalStamps.sim === false &&
+    finalStamps.density !== 'sm',
+  JSON.stringify({ finalResidue, finalStamps }),
+);
+
+await browser.close();
 
 const failed = results.filter((r) => !r.pass);
 console.log(`\n${results.length - failed.length}/${results.length} checks passed`);

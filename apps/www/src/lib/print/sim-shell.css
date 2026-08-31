@@ -1,0 +1,119 @@
+/* =========================================================================
+   jixoai sim-shell.css (lib/print/, print-pipeline 2026-08-30).
+
+   THE DOCUMENT-SIDE half of the print layer — the screen chrome for
+   the paged output and the real-print authority switch. This file is
+   the OTHER stylesheet source (the red line): it is imported into the
+   document by the print layer components and is NEVER fed to the
+   paged.js kernel (the AST gate + the preview-inputs runtime spy hold
+   that: kernel-print.css is the kernel's only stylesheet besides the
+   compiled @page rules).
+
+   Three jobs:
+
+   1. THE SIM SHELL (@media not print — the exclusion law): while the
+      sim runs, the output sibling [data-print-output] is a fixed
+      paper overlay: opaque ground, a scrollable stack of real paged
+      pages with sheet shadows. Static by construction (no
+      transitions — reduced-motion safe with no carve-out needed).
+
+   2. THE STANDBY MODE: a direct print without a live sim still needs
+      a MEASURABLE, connected render root (paged.js reads layout from
+      the first construct; display:none would emit zero-size pages) —
+      so the transaction positions the output root OFFSCREEN, not
+      hidden (offsetWidth stays > 0; the measurability assertion
+      holds; the user's screen never shows it).
+
+   3. THE REAL-PRINT SWITCH (@media print, gated on the pipeline's
+      html[data-jx-print-active] stamp): while a pipeline artifact is
+      mounted the app root hides and the paged output becomes the sole
+      print authority (the kernel does not hide the rest of the
+      document itself — this is the integration contract). With no
+      active pipeline, NONE of these rules match: the browser's native
+      Ctrl+P keeps the site's own degraded print projection untouched.
+   ========================================================================= */
+
+/* ── 1. the sim shell (screen only — the not-print exclusion law) ───── */
+
+@media not print {
+  [data-print-output] {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: block;
+    overflow: auto;
+    background: var(--background, #111114);
+    padding-block: 2rem;
+    padding-inline: 1.5rem;
+  }
+  /* the paper stack: paged.js renders .pagedjs_pages sheets — shadow
+     + spacing read as paper on the sim ground (screen-only chrome) */
+  [data-print-output] .pagedjs_pages {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  [data-print-output] .pagedjs_page {
+    background: #fff;
+    box-shadow: 0 10px 30px rgb(0 0 0 / 0.35), 0 2px 8px rgb(0 0 0 / 0.25);
+  }
+  /* the sim toolbar strip the pipeline stamps at the overlay's top */
+  [data-jx-print-sim-bar] {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-inline: auto;
+    margin-block-end: 1.25rem;
+    max-inline-size: 32rem;
+    padding: 0.5rem 0.9rem;
+    border: 1px solid color-mix(in oklab, currentColor 18%, transparent);
+    border-radius: 0.6rem;
+    background: color-mix(in oklab, var(--background, #111114) 88%, transparent);
+    font-family: var(--font-mono, monospace);
+    font-size: 12px;
+  }
+}
+
+/* ── 2. the standby mode (measurable, offscreen — never hidden) ─────── */
+
+[data-print-output][data-print-standby] {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: -200vw;
+  inline-size: 210mm;
+  margin: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ── 3. the real-print switch (pipeline-active only) ────────────────── */
+
+@media print {
+  /* the app root yields the paper to the paged artifact */
+  html[data-jx-print-active] .jx-shell-host {
+    display: none !important;
+  }
+  /* the output root drops every screen pose (fixed overlay, standby
+     offscreen) and flows as the print authority */
+  html[data-jx-print-active] [data-print-output] {
+    position: static !important;
+    inset: auto;
+    z-index: auto;
+    display: block;
+    overflow: visible;
+    background: none;
+    padding: 0;
+  }
+  html[data-jx-print-active] [data-print-output][data-print-standby] {
+    inset-inline-start: auto;
+    inline-size: auto;
+  }
+  html[data-jx-print-active] [data-jx-print-sim-bar] {
+    display: none;
+  }
+}
