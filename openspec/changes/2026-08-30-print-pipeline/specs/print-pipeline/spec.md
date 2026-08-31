@@ -21,7 +21,9 @@ is the regression proof. Print optimization is projection-only.
 The pipeline SHALL run as one `prepareSnapshot()` transaction:
 preparatory medium signal first (the sim toggle or the direct-print
 button stamps the doc, opening the plugin filters — beforeprint is a
-real-print signal only, never the async preparation entry) → print
+real-print signal only, never the async preparation entry; the
+transaction records whether IT created the stamp — an existing sim
+stamp is reused, not owned) → print
 plugin interventions landing on the live tree (density/hue stamps) →
 SCOPED animation capture (source-root subtree only via
 getAnimations({subtree:true}); per-animation {wasRunning, currentTime}
@@ -33,8 +35,9 @@ timeout budget with progress and cancel) → deep clone of the immutable
 source root → clone-only transforms (CSS animation frames transferred
 to matching clone elements via negative animation-delay derived from
 the recorded currentTime; WAAPI/JS animations are NOT transferable —
-the transaction CONTINUES with a diagnostic row naming the unsupported
-owners, never rejecting) → live animations resumed via an idempotent
+the transaction CONTINUES with a structured diagnostic list naming
+the unsupported owners, never rejecting; the sim renders it as rows
+and direct print records it into the artifact metadata + console) → live animations resumed via an idempotent
 restore token that only touches animations this transaction paused.
 Exiting (sim off / after printing) SHALL restore the live tree exactly
 to raw values and remove the stamp (afterprint).
@@ -44,7 +47,24 @@ to raw values and remove the stamp (afterprint).
 - GIVEN the direct-print button pressed
 - WHEN prepareSnapshot begins
 - THEN the doc already carries the stamp (filters open); after
-  afterprint the stamp is removed and the medium returns to screen
+  afterprint only a transaction-owned stamp is removed
+
+#### Scenario: an existing sim survives a direct print
+
+- GIVEN sim active (its stamp present) and direct print pressed
+- WHEN afterprint fires
+- THEN the transaction removes nothing it did not create and the
+  medium re-derives to sim
+
+#### Scenario: CSS frames transfer per slot
+
+- GIVEN an element with two named CSS animations (non-zero original
+  delays, different currentTimes, non-alternate, running)
+- WHEN the clone is built
+- THEN each slot's computed animation-delay equals the per-slot
+  formula (phase = ((c − d) mod D); pre-delay → remaining delay),
+  play-state is paused, and the clone's computed phase matches the
+  source; finished/alternate/unmatched slots ride the diagnostic row
 
 #### Scenario: a pre-paused animation stays paused
 

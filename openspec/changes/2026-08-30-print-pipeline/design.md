@@ -7,11 +7,13 @@
 
 ```
 触发（UI 打印入口：sim 开关 | 「直接打印」按钮；Ctrl+P = 原生回退路径，文档化降级，不入合同）
-→ 【预备媒介信号】sim 开关=盖 stamp；「直接打印」=同一入口先盖 stamp
-   （medium 'sim' → print 插件 filter 开门）→ prepareSnapshot 完成后
-   window.print()（realPrint 升级 medium 为 'print'，真 > sim）→
-   afterprint → 摘 stamp → screen。beforeprint 仅作真实信号，永不
-   担任异步准备入口。
+→ 【预备媒介信号·事务所有权】sim 开关=盖 stamp；「直接打印」
+   记录 createdStamp：**medium 已是 'sim' 则复用既有 stamp（不新建
+   不持有）**，screen 才自盖。prepareSnapshot 完成后 window.print()
+   （realPrint 升级 medium 为 'print'，真 > sim）→ afterprint 只摘
+   **本事务自盖的** stamp——既有 sim 存续时 medium 重派生回 'sim'
+   （三态 reducer 原生语义，sim→直接打印→afterprint→sim 的 fixture
+   固化）。beforeprint 仅作真实信号，永不担任异步准备入口。
 → 不可变干预落 live：density→sm（resolveDensity 终值）、hue→钉缺省（hue adapter）
 → 动画冻结（作用域协议）：只枚举 source 根 subtree
    （root.getAnimations({subtree:true})）；逐项记录
