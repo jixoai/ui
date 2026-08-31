@@ -5,7 +5,7 @@
 // landed on that candidate's edge relations. The bottom row's own
 // candidates cannot fit in this scenario — they legitimately fall back
 // to the clamped initial spot; the audit re-runs them with the trigger
-// pinned to the TOP so they have room. Requires `npm run site` first.
+// pinned to the TOP so they have room. Requires `pnpm dev` first.
 //
 // Engine facts this locks in (learned the hard way):
 //   - @position-try candidates must use PHYSICAL insets + anchor() +

@@ -7,7 +7,7 @@
 // pre-migration oracle; `after-p<N>` labels diff against it
 // (pixel-diff via the compare mode).
 //
-// Usage (dev server must run, e.g. `npm run site` on :5199):
+// Usage (dev server must run, e.g. `pnpm dev` on :5199):
 //   node scripts/capture-baseline.mjs baseline
 //   node scripts/capture-baseline.mjs after-p1
 //   node scripts/capture-baseline.mjs compare after-p1     # diff vs baseline

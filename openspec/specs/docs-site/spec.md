@@ -51,7 +51,7 @@ development. `scripts/build-site.mjs` remains the only WRITER of
 
 #### Scenario: a contributor opens the registry overview in dev
 
-- GIVEN `npm run site` is running
+- GIVEN `pnpm dev` is running
 - WHEN the registry-overview table's `registry.json` link is followed
 - THEN JSON is served (HTTP 200), not the SPA 404 fallback
 

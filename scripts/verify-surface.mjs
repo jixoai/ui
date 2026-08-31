@@ -2,7 +2,7 @@
 // Floating-surface law walkthrough (Owner tooling, 2026-08-22).
 //
 // Drives a real browser against a RUNNING dev server (start one first:
-// `npm run site`), then samples the law the way a human eye would —
+// `pnpm dev`), then samples the law the way a human eye would —
 // frame by frame — plus computed-style assertions for every rule the
 // architecture pins down:
 //
@@ -21,7 +21,7 @@
 //                        shadow direction (no stale cache)
 //
 // Usage:
-//   npm run site &            # server on :5199
+//   pnpm dev &            # server on :5199
 //   npm run verify:surface    # or: node scripts/verify-surface.mjs --url http://localhost:5199
 import { chromium } from 'playwright-core';
 import { existsSync, readdirSync } from 'node:fs';

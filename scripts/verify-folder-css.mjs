@@ -2,7 +2,7 @@
 // folder-css contract probe (tw4-css-modularization P0.1, 2026-08-24).
 //
 // Verifies the D2 folder-css contract in a REAL browser against the
-// RUNNING dev server (start one first: `npm run site`):
+// RUNNING dev server (start one first: `pnpm dev`):
 //   1. output   — the probe route renders, the relative side-effect
 //                 css import from a Svelte component works;
 //   2. layer    — the folder css rules live inside a real CSS
@@ -18,7 +18,7 @@
 //                 for folder css).
 //
 // Usage:
-//   npm run site &               # server on :5199
+//   pnpm dev &               # server on :5199
 //   node scripts/verify-folder-css.mjs         # default port 5199
 //   node scripts/verify-folder-css.mjs 5200
 import { chromium } from 'playwright-core';

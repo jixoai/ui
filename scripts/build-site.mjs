@@ -29,14 +29,13 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { createRequire } from "node:module";
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { generateLlmsTxt } from "../registry/files/llms-txt/llms-txt.mjs";
+import { resolveShadcnBin, resolveViteBin } from "./lib/vite-bin.mjs";
 
-const require = createRequire(import.meta.url);
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const wwwDir = path.join(repoRoot, "apps", "www");
 const wwwDist = path.join(wwwDir, "dist");
@@ -61,18 +60,6 @@ const die = (message) => {
   console.error(`[build-site] ${message}`);
   process.exit(1);
 };
-
-/** vite's exports map hides ./bin/vite.js — resolve the package root through
- *  the exported ./package.json and join the bin path explicitly (same trick
- *  as unipty's www build script). */
-function resolveViteBin() {
-  const packageDir = path.dirname(require.resolve("vite/package.json", { paths: [wwwDir] }));
-  const bin = path.join(packageDir, "bin", "vite.js");
-  if (!existsSync(bin)) {
-    die("cannot locate the vite binary; run `npm install` in apps/www first");
-  }
-  return bin;
-}
 
 /** 0. @jixoai/vite-plugin prelude: apps/www's file: dependency points at
  *  packages/vite-plugin, whose dist/ is gitignored. On a clean checkout
@@ -110,9 +97,10 @@ function ensureVitePluginDist() {
 /** 1. Static site build. adapter-static empties apps/www/dist itself. */
 function buildSite() {
   if (!existsSync(path.join(wwwDir, "node_modules"))) {
-    die("apps/www/node_modules missing; run `npm install` in apps/www first");
+    die("apps/www/node_modules missing; run the install there first");
   }
-  const result = spawnSync(process.execPath, [resolveViteBin(), "build"], {
+  // runtime transparency: whatever runs THIS script also runs vite
+  const result = spawnSync(process.execPath, [resolveViteBin(wwwDir), "build"], {
     cwd: wwwDir,
     stdio: "inherit",
   });
@@ -179,12 +167,14 @@ function emitLegacyShells() {
   console.log(`[build-site] legacy shells: ${emitted} emitted from the frozen map`);
 }
 
-/** 4. Registry JSON: `shadcn build` from the repo root → public/r/*.json. */
+/** 4. Registry JSON: the shadcn CLI from the repo root → public/r/*.json.
+ * Spawned directly (no `npm run` indirection — the root `build` script
+ * no longer means shadcn since the scripts overhaul 2026-08-31). */
 function buildRegistry() {
-  if (!existsSync(path.join(repoRoot, "node_modules", "shadcn"))) {
-    die("root node_modules/shadcn missing; run `npm install` at the repo root first");
-  }
-  const result = spawnSync("npm", ["run", "build"], { cwd: repoRoot, stdio: "inherit" });
+  const result = spawnSync(process.execPath, [resolveShadcnBin(repoRoot), "build"], {
+    cwd: repoRoot,
+    stdio: "inherit",
+  });
   if (result.status !== 0) {
     die(`shadcn build failed (exit ${result.status})`);
   }

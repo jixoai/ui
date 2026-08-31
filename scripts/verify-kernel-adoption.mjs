@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Kernel-adoption walkthrough (surface-kernel-adoption change, 2026-08-25).
 //
-// Drives a RUNNING dev server (`npm run site`, :5199) and probes the
+// Drives a RUNNING dev server (`pnpm dev`, :5199) and probes the
 // NEW kernel adopters the way verify-surface probes popover: the
 // panel must carry .jx-waapi + the real shadow child, and the toggle
 // must drive --jx-p 0→1 (entry) / 1→0 (exit) with the panel held

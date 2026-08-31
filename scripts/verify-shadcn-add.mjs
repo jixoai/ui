@@ -47,6 +47,7 @@ import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, write
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:net';
+import { resolveShadcnBin } from './lib/vite-bin.mjs';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const scratch = join(root, '.agents/fixtures/2026-08-30-registry-install-integrity');
@@ -105,12 +106,11 @@ const walkFilesNamed = (dir, predicate, hits = []) => {
 // bytes a real consumer fetches from https://ui.jixoai.com/r/. CI runs
 // this harness BEFORE build-site, so generating here keeps it
 // self-sufficient; build-site later re-runs the same build for publish.
-if (!existsSync(join(root, 'node_modules', 'shadcn'))) {
-  die('root node_modules/shadcn missing; run `npm install` at the repo root first');
-}
 console.log('shadcn build (generate public/r payloads)…');
 {
-  const build = spawnSync('npm', ['run', 'build'], { cwd: root, encoding: 'utf8', stdio: 'pipe' });
+  // the CLI spawned directly — the root `build` script means the full
+  // site artifact since the scripts overhaul 2026-08-31
+  const build = spawnSync(process.execPath, [resolveShadcnBin(root), 'build'], { cwd: root, encoding: 'utf8', stdio: 'pipe' });
   if (build.status !== 0) die(`shadcn build failed:\n${build.stdout}\n${build.stderr}`);
 }
 if (!existsSync(join(publicR, 'registry.json'))) die('public/r/registry.json missing after shadcn build');

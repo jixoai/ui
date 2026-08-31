@@ -11,7 +11,7 @@
 // pseudos through getComputedStyle(el, pseudo) — element-level computed
 // styles + served-rule scans are the reliable probes (verify-hue lesson).
 //
-// Usage (site must be running, e.g. `npm run site` on :5199):
+// Usage (site must be running, e.g. `pnpm dev` on :5199):
 //   node scripts/verify-jx-pure.mjs            # default :5199
 //   node scripts/verify-jx-pure.mjs 5200       # vite fell back to another port
 import { chromium } from 'playwright-core';

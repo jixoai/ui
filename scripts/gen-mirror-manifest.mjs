@@ -14,31 +14,10 @@
 //   node scripts/gen-mirror-manifest.mjs           # write the manifest
 //   node scripts/gen-mirror-manifest.mjs --check   # verify trees vs committed manifest
 //
-// Curated classifications (the ONLY hand-maintained part):
-const SITE_ONLY = [
-  // mirror files that are docs-site chrome, never registry items
-  { path: 'apps/www/src/lib/ui/docs-sections-nav.svelte', note: 'site docs sections rail (docs-restructure D2)' },
-  { path: 'apps/www/src/lib/catalog.ts', note: 'site catalog index' },
-  { path: 'apps/www/src/lib/site.ts', note: 'site helpers' },
-  { path: 'apps/www/src/lib/hue-runtime.ts', note: 'tokens-page hue lab runtime' },
-  { path: 'apps/www/src/lib/code-block.svelte', note: 'site docs code surface' },
-  { path: 'apps/www/src/lib/copy-command.svelte', note: 'site docs copy affordance' },
-  { path: 'apps/www/src/lib/copy-icon-button.svelte', note: 'site docs copy affordance' },
-  { path: 'apps/www/src/lib/overview-card.svelte', note: 'site docs overview card' },
-  { path: 'apps/www/src/lib/docs-route-model.ts', note: 'docs-restructure: the docs tree nav model (site-only)' },
-  { path: 'apps/www/src/lib/ui/docs-pager.svelte', note: 'docs-restructure: per-page prev/next pager (site-only, rendered by layout)' },
-  { path: 'apps/www/src/lib/ui/docs-pager.css', note: 'docs-restructure: pager styles (site-only)' },
-  { path: 'apps/www/src/lib/ui/docs-sections-nav.svelte', note: 'docs-restructure: sections rail (site-only)' },
-  { path: 'apps/www/src/lib/ui/docs-sections-nav.css', note: 'sections rail companion sheet — the VT presence law (site-only)' },
-  { path: 'apps/www/src/lib/ui/a11y-table/a11y-table.svelte', note: 'docs-upgrade: Material3-style a11y reference table (site-only docs infra)' },
-  { path: 'apps/www/src/lib/ui/a11y-table/index.ts', note: 'docs-upgrade: a11y-table barrel (site-only)' },
-  { path: 'apps/www/src/lib/ui/density-demo/density-demo.svelte', note: 'docs-upgrade: all-scopes density wrapper (site-only docs infra)' },
-  { path: 'apps/www/src/lib/ui/density-demo/index.ts', note: 'docs-upgrade: density-demo barrel (site-only)' },
-  { path: 'apps/www/src/lib/ui/props-table/props-table.svelte', note: 'docs-upgrade: API reference table (site-only docs infra)' },
-  { path: 'apps/www/src/lib/ui/props-table/index.ts', note: 'docs-upgrade: props-table barrel (site-only)' },
-  { path: 'apps/www/src/lib/ui/token-table/token-table.svelte', note: 'docs-upgrade: token reference table (site-only docs infra)' },
-  { path: 'apps/www/src/lib/ui/token-table/index.ts', note: 'docs-upgrade: token-table barrel (site-only)' },
-];
+// Curated classifications live in scripts/lib/site-only.mjs — the
+// single source shared with the dev-time mirror sync (scripts
+// overhaul 2026-08-31; previously inline here).
+import { SITE_ONLY, SITE_ONLY_PREFIXES } from './lib/site-only.mjs';
 const REGISTRY_ONLY = [
   // registry files with NO mirror and no item reference — resolved by P1
 ];
@@ -123,26 +102,6 @@ for (const item of items) {
   manifestItems.push({ itemName: item.name, type: item.type, ...(item.type === 'registry:ui' ? { canonicalMain: canonicalMain[item.name] } : {}), files });
 }
 
-// ── completeness: every file on both sides is classified ───────────
-// site-only DIRECTORY prefixes under apps/www/src/lib (whole trees)
-const SITE_ONLY_PREFIXES = [
-  'apps/www/src/lib/blueprints/', // blueprint scene stage (site-only)
-  'apps/www/src/lib/components/', // site-composed components
-  'apps/www/src/lib/site/', // site-only surface modules (tw4 P2.2 placement law)
-  'apps/www/src/lib/playground/', // component-canvas demo controls (site-only, canvas redesign 2026-08-25)
-  'apps/www/src/lib/schema/', // jsonSchema kernel (www-only, canvas-schema-pipeline 2026-08-30)
-  'apps/www/src/lib/meta/', // generated + annotated component meta (canvas-schema-pipeline 2026-08-30)
-  'apps/www/src/lib/registry-source.ts', // canvas-floor-lab: registry path -> sourceUrl projection (site-only docs infra)
-  'apps/www/src/lib/docs-install.svelte', // docs-demo-standard: install chrome (site-only)
-  'apps/www/src/lib/docs-see-also.svelte', // docs-demo-standard: reading-chain chrome (site-only)
-  'apps/www/src/lib/ui/props-table/docs/', // docs-demo-standard: per-component curated docs layer (site-only)
-  'apps/www/src/lib/ui/props-table/from-meta.ts', // docs-demo-standard: meta -> PropEntry projection (site-only)
-  'apps/www/src/lib/print/', // print-pipeline: the paged.js layer (site-only docs infra; the paged/ family retired)
-  'apps/www/src/lib/medium.svelte.ts', // print-pipeline: the three-state medium context (site-only)
-  'apps/www/src/lib/context-plugin.svelte.ts', // context-plugin-system: the plugin kernel (site-only)
-  'apps/www/src/lib/hue-runtime.svelte.ts', // context-plugin-system: hue adapter (runes need the .svelte.ts suffix)
-  'apps/www/src/lib/__probe__/', // P0 scratch (removed when the probe retires)
-];
 
 const classified = new Set([
   ...manifestItems.flatMap((i) => i.files.flatMap((f) => [f.source, f.mirror])),

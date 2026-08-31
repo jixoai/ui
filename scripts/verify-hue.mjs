@@ -6,7 +6,7 @@
 // native UA styling. The fix rides the Tier-1 .jx-range law
 // (registry/files/theme/jx-pure.css (Part A)) with hue-only overrides.
 //
-// Usage (site must be running, e.g. `npm run site` on :5199):
+// Usage (site must be running, e.g. `pnpm dev` on :5199):
 //   node scripts/verify-hue.mjs            # default :5199
 //   node scripts/verify-hue.mjs 5200       # vite fell back to another port
 import { chromium } from 'playwright-core';

@@ -13,7 +13,7 @@
 // change fails here — the "gate-locked" half of the management
 // design.
 //
-// Usage (site must be running, e.g. `npm run site` on :5199):
+// Usage (site must be running, e.g. `pnpm dev` on :5199):
 //   node scripts/verify-native-parity.mjs            # default :5199
 //   node scripts/verify-native-parity.mjs 5200
 import { chromium } from 'playwright-core';

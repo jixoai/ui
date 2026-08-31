@@ -1,11 +1,22 @@
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
+// The experimental client bundle strategy (SvelteKit ≥2.13
+// `kit.output.bundleStrategy`: 'split' | 'single' | 'inline') — opt-in
+// via env so `pnpm dev --prod` (scripts/dev.mjs) and CI builds can
+// flip it without editing this file. Default/absent = the framework's
+// own default (split).
+const bundleStrategy = process.env.JIXOAI_BUNDLE;
+if (bundleStrategy && !['split', 'single', 'inline'].includes(bundleStrategy)) {
+  throw new Error(`svelte.config: JIXOAI_BUNDLE must be split|single|inline (got ${JSON.stringify(bundleStrategy)})`);
+}
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   preprocess: vitePreprocess({ script: true }),
   kit: {
     adapter: adapter({ pages: 'dist', assets: 'dist', strict: true }),
+    ...(bundleStrategy ? { output: { bundleStrategy } } : {}),
     // Flat multi-page artifact (index.html / components.html / tokens.html):
     // links point at real files and the registry JSON is copied into public/
     // after the build, so there is nothing to crawl.

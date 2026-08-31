@@ -208,7 +208,7 @@ Generation happens at exactly one point (never inside the vite build).
 
 #### Scenario: full site build
 
-- WHEN `npm run build:site` executes
+- WHEN `pnpm build` executes
 - THEN `public/` is directly deployable (GitHub Pages) with both the
   site pages and `/r/<name>.json` registry payloads coexisting
 

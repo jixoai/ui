@@ -101,7 +101,21 @@ and theme are framework-free. Non-Svelte consumers can still install
 
 ```bash
 pnpm install
-pnpm build   # shadcn build → public/r/*.json (the distributables)
+
+pnpm dev                # the site + live registry development:
+                        #   registry/files ⇄ apps/www/src/lib mirror sync
+                        #   (edit either side, the other receives the bytes,
+                        #   vite HMR picks it up) + vite dev on :5199
+pnpm dev --prod         # dev server in production mode + the
+                        # experimental client bundle strategy (single;
+                        # JIXOAI_BUNDLE=split|single|inline to pick)
+pnpm build              # full deployable artifact → public/ (site +
+                        # /r/*.json registry payloads + llms.txt exports)
+pnpm build:registry     # just the shadcn payloads → public/r/*.json
+
+bun run --bun dev       # the whole chain under bun instead of node
+                        # (runtime-transparent scripts: children spawn
+                        # from process.execPath, nothing hardcodes node)
 ```
 
 Item sources live under `registry/files/…`; `registry.json` is the index.

@@ -16,6 +16,7 @@
 
 import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 import {
@@ -69,8 +70,32 @@ export class GhosttyResolveError extends Error {
   }
 }
 
+/**
+ * The workspace-root cache location. The plugin may run with any cwd
+ * (apps/www under vite, the repo root under tooling) — but a monorepo
+ * wants ONE cache: a wasm fetched by a build is already verified for
+ * the dev server, and vice versa. The root is discovered by walking
+ * up from cwd for the first workspace marker; with no marker the cwd
+ * itself stands.
+ *
+ * Markers are pnpm-workspace.yaml and .git ONLY — package-lock.json
+ * is deliberately NOT one (a nested workspace like apps/www can carry
+ * its own lockfile while still belonging to the parent repo; that
+ * exact case split the cache in two and broke `pnpm site`).
+ * (Scripts overhaul 2026-08-31.)
+ */
 export function defaultCacheDir(): string {
-  return join(process.cwd(), 'node_modules', '.cache', 'jixoai-ghostty');
+  let dir = process.cwd();
+  for (;;) {
+    if (existsSync(join(dir, 'pnpm-workspace.yaml')) || existsSync(join(dir, '.git'))) {
+      return join(dir, 'node_modules', '.cache', 'jixoai-ghostty');
+    }
+    const parent = resolve(dir, '..');
+    if (parent === dir) {
+      return join(process.cwd(), 'node_modules', '.cache', 'jixoai-ghostty');
+    }
+    dir = parent;
+  }
 }
 
 export function sha256Hex(bytes: Uint8Array): string {

@@ -2,7 +2,7 @@
 // Layer-law verification (tw4-css-modularization P2.3, 2026-08-24).
 //
 // The TWO acceptance axes of P2 (+ the compiled-context probe), against
-// the RUNNING dev server (`npm run site`, :5199):
+// the RUNNING dev server (`pnpm dev`, :5199):
 //
 //   axis-a prerequisites (sheets healthy):
 //     1. every .jx-toc / .jx-shell rule sits inside @layer components
