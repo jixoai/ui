@@ -7,8 +7,15 @@
  * discipline (patched getAnimations; jsdom has no CSS animation
  * timeline — the computed-phase assertions live in verify-print's
  * real Chromium lane by contract).
+ *
+ * Section 7 runs the WHOLE transaction (Codex review P1-1/P1-2,
+ * 2026-08-30): jsdom's visual rAF makes doubleRaf real, document.fonts
+ * is optional, and captureAnimations no-ops without the Web Animations
+ * API — a patched root.getAnimations is the capture ORDERING
+ * observable, and the live img attributes are the reversibility one.
  */
 import { describe, expect, it, vi } from 'vitest';
+import { PRINT_SIM_ATTR } from '../src/lib/medium.svelte';
 import {
   applyFrameTransfer,
   captureAnimations,
@@ -16,10 +23,12 @@ import {
   elementPath,
   hashSnapshot,
   injectTocNav,
+  liftImages,
   makeRestoreToken,
   parseIterationList,
   parseTimeList,
   planFrameTransfer,
+  prepareSnapshot,
   resolvePath,
   slotIndexOf,
   splitPreLines,
@@ -497,5 +506,128 @@ describe('captureAnimations + the idempotent restore token', () => {
   it('no Web Animations API → empty capture (feature-detected)', () => {
     const root = document.createElement('div');
     expect(captureAnimations(root)).toEqual([]);
+  });
+});
+
+// =========================================================================
+// 7 · the transaction's reversibility laws (P1-1 capture-after-barrier,
+//     P1-2 raw-attribute exit) — prepareSnapshot runs WHOLE in jsdom
+// =========================================================================
+describe('liftImages — the reversible lazy lift (P1-2)', () => {
+  it('lifts loading/decoding and restores the RAW state (absent stays absent, no fabricated defaults)', () => {
+    const root = document.createElement('div');
+    root.innerHTML = '<img loading="lazy"><img><img loading="eager" decoding="async">';
+    const [lazy, bare, custom] = [...root.querySelectorAll('img')];
+    const lift = liftImages(root);
+    expect(lazy.getAttribute('loading')).toBe('eager');
+    expect(bare.getAttribute('decoding')).toBe('sync');
+    lift.restore();
+    lift.restore(); // idempotent
+    expect(lazy.getAttribute('loading')).toBe('lazy');
+    expect(lazy.getAttribute('decoding')).toBeNull();
+    expect(bare.getAttribute('loading')).toBeNull();
+    expect(bare.getAttribute('decoding')).toBeNull();
+    expect(custom.getAttribute('loading')).toBe('eager');
+    expect(custom.getAttribute('decoding')).toBe('async');
+  });
+});
+
+describe('prepareSnapshot — P1-2: the live tree exits on RAW image attributes', () => {
+  function imageFixture(): HTMLElement {
+    const root = document.createElement('div');
+    root.setAttribute('data-density', 'sm');
+    // the three authoring shapes: lazy / bare / non-default decoding
+    root.innerHTML = '<img loading="lazy"><img><img loading="eager" decoding="async">';
+    return root;
+  }
+
+  it('success: lifted in-transaction, clone keeps the lifted values, live tree restored', async () => {
+    const root = imageFixture();
+    const [lazy, bare, custom] = [...root.querySelectorAll('img')];
+    const duringGate: string[] = [];
+    const snapshot = await prepareSnapshot(root, {
+      purpose: 'sim',
+      onProgress: (p) => {
+        if (p.phase === 'fonts' && p.done === 0) {
+          // in-transaction: the lift is in force while the gate waits
+          duringGate.push(lazy.getAttribute('loading')!, bare.getAttribute('decoding')!);
+        }
+      },
+    });
+    expect(duringGate).toEqual(['eager', 'sync']); // the lift really ran
+    // the live tree is back to RAW — lazy returns, absent stays absent,
+    // async decoding round-trips (no decoding="auto" fabrication)
+    expect(lazy.getAttribute('loading')).toBe('lazy');
+    expect(lazy.getAttribute('decoding')).toBeNull();
+    expect(bare.getAttribute('loading')).toBeNull();
+    expect(bare.getAttribute('decoding')).toBeNull();
+    expect(custom.getAttribute('loading')).toBe('eager');
+    expect(custom.getAttribute('decoding')).toBe('async');
+    // the clone is the frozen PRODUCT — it KEEPS the lifted attributes
+    expect(snapshot.clone).not.toBe(root);
+    const [cLazy, cBare] = [...snapshot.clone.querySelectorAll('img')];
+    expect(cLazy.getAttribute('loading')).toBe('eager');
+    expect(cLazy.getAttribute('decoding')).toBe('sync');
+    expect(cBare.getAttribute('decoding')).toBe('sync');
+  });
+
+  it('failure AFTER the lift (readiness timeout): the catch still restores the live tree', async () => {
+    const root = imageFixture();
+    const [never] = [...root.querySelectorAll('img')];
+    // an image that never completes: the gate's load wait hangs until
+    // the budget rejects — a failure that lands AFTER the lift
+    Object.defineProperty(never, 'complete', { get: () => false });
+    await expect(prepareSnapshot(root, { purpose: 'sim', timeoutMs: 20 })).rejects.toThrow(
+      /readiness timeout/,
+    );
+    expect(never.getAttribute('loading')).toBe('lazy');
+    expect(never.getAttribute('decoding')).toBeNull();
+  });
+});
+
+describe('prepareSnapshot — P1-1: the capture lands AFTER the DOM-commit barrier', () => {
+  it('barrier failure (density never committed): throws with NOTHING captured, planned or lifted', async () => {
+    const root = document.createElement('div');
+    root.setAttribute('data-density', 'md'); // the intervention's frame never landed
+    root.innerHTML = '<img loading="lazy">';
+    const img = root.querySelector('img')!;
+    const getAnimations = vi.fn(() => [] as Animation[]);
+    root.getAnimations = getAnimations as unknown as typeof root.getAnimations;
+    const readComputed = vi.fn(() => info()); // planFrameTransfer's read — must never run
+    await expect(
+      prepareSnapshot(root, { purpose: 'print', readComputed }),
+    ).rejects.toThrow(/DOM-commit barrier/);
+    // no capture ATTEMPT (nothing paused → nothing to restore), no
+    // computed reads (the frame transfer was never planned), no
+    // live-tree rewrite, and the self-stamped ownership is released
+    expect(getAnimations).not.toHaveBeenCalled();
+    expect(readComputed).not.toHaveBeenCalled();
+    expect(img.getAttribute('loading')).toBe('lazy');
+    expect(img.getAttribute('decoding')).toBeNull();
+    expect(root.hasAttribute(PRINT_SIM_ATTR)).toBe(false);
+  });
+
+  it('success: the capture observes the COMMITTED tree (the intervention lands before the barrier closes)', async () => {
+    const root = document.createElement('div');
+    root.innerHTML = '<p>body</p>';
+    // the reactive intervention commits on a LATER macrotask — after
+    // the sync prologue, before double-rAF closes (jsdom's visual rAF
+    // rides a ~16ms timer; a timeout queued now lands first either
+    // way, including under the setTimeout fallback)
+    setTimeout(() => root.setAttribute('data-density', 'sm'), 0);
+    const observed: (string | null)[] = [];
+    const getAnimations = vi.fn(() => {
+      observed.push(root.getAttribute('data-density'));
+      return [] as Animation[];
+    });
+    root.getAnimations = getAnimations as unknown as typeof root.getAnimations;
+    const snapshot = await prepareSnapshot(root, { purpose: 'sim' });
+    expect(snapshot.clone.querySelector('p')!.textContent).toBe('body');
+    // the capture ran exactly once, subtree-scoped, and it saw the
+    // committed density stamp — the pre-P1-1 order captured it here
+    // while the tree was still un-committed (the cross-frame mix)
+    expect(getAnimations).toHaveBeenCalledTimes(1);
+    expect(getAnimations).toHaveBeenCalledWith({ subtree: true });
+    expect(observed).toEqual(['sm']);
   });
 });

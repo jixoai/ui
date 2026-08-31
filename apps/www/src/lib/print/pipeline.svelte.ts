@@ -31,7 +31,23 @@
  * starting from SCREEN self-stamps (recorded on the snapshot); an
  * existing sim stamp is reused, never owned; afterprint releases
  * ONLY the transaction's own stamp — a surviving sim re-derives the
- * medium back to 'sim' and KEEPS the artifact.
+ * medium back to 'sim' and KEEPS the artifact. Every failure road
+ * AFTER a successful prepare carries the same law (codex review P1,
+ * 2026-08-30): the measurability throw and the preview-phase catch
+ * both release the transaction's own stamp — releaseStamp is
+ * ownership-guarded, so a reused sim stamp is a structural no-op.
+ *
+ * FLIGHT SUPERSEDE (codex review P1, 2026-08-30): a generation
+ * token — dispose(), cancel() and every NEW flight bump it. An
+ * attempt that observes a bump after any await (a late
+ * prepareSnapshot, a late kernel import, a late preview) is stale:
+ * it unwinds ITS OWN attempt DOM, releases its own stamp and exits
+ * SILENTLY (FlightSuperseded — guarded's catch skips the error
+ * flip). It never publishes an artifact, never registers listeners
+ * into an array dispose() already drained, never flips status. The
+ * afterprint grace fallback carries the same hygiene: cleared and
+ * detached on FIRST entry (the sim-survives branch never runs
+ * dispose), and a stale fallback resolves without touching state.
  *
  * DIAGNOSTIC CARRIERS: the sim renders rows; direct print records
  * into the artifact metadata + the console.
@@ -100,6 +116,18 @@ interface Artifact {
 
 const ACTIVE_ATTR = 'data-jx-print-active';
 
+/** the supersede abort (codex review P1, 2026-08-30): thrown by a
+ *  stale flight's resumption points. guarded's catch recognizes the
+ *  shape and exits SILENTLY — the invalidator (dispose/cancel/a
+ *  newer flight) owns the pipeline state by then, so a superseded
+ *  attempt must not flip status to 'error' nor rethrow at the caller */
+class FlightSuperseded extends Error {
+  constructor() {
+    super('[print/pipeline] flight superseded — disposed/cancelled while in flight');
+    this.name = 'FlightSuperseded';
+  }
+}
+
 export interface PrintPipeline {
   readonly status: PrintStatus;
   readonly progress: PrintProgress | undefined;
@@ -133,7 +161,16 @@ export function createPrintPipeline(
 
   let artifact: Artifact | undefined;
   let inFlight: Promise<void> | undefined;
+  /** PER-FLIGHT "preview entered" gate — reset at every guarded entry
+   *  (a stale true left by a previous flight would misroute cancel()
+   *  into the post-preview branch while the new attempt is still
+   *  preparing — the cross-flight leak, codex review P1 2026-08-30);
+   *  dispose clears it too */
   let previewEntered = false;
+  /** the generation token (codex review P1, 2026-08-30): bumped by
+   *  dispose()/cancel()/every new flight — an attempt that observes a
+   *  bump after any await is stale and must unwind, not publish */
+  let generation = 0;
   /** the in-flight transaction's abort handle (cancel() reaches it) */
   let controllerRef: AbortController | undefined;
   /** the transaction whose stamp the afterprint hook may release */
@@ -358,9 +395,25 @@ export function createPrintPipeline(
     for (const style of target.headStyles) style.remove();
   };
 
+  /** THIS ATTEMPT's unwinder (codex review P1, 2026-08-30): the output
+   *  root + every head style inserted since the attempt began + the
+   *  active stamp. Serves both roads that fail BEFORE an artifact
+   *  handle exists (dispose() cannot reach this DOM — `artifact` is
+   *  still undefined while a preview pends): the preview-phase catch
+   *  and the stale-flight resumption gates */
+  const teardownAttempt = (outputRoot: HTMLElement, headBefore: Element[]): void => {
+    outputRoot.remove();
+    for (const style of collectHeadStyles(headBefore)) style.remove();
+    stampActive(false);
+  };
+
   /** IDEMPOTENT cleanup — all four paths land here (success / failure /
    *  afterprint / sim-off): pages, head-style handles, listeners */
   const dispose = (): void => {
+    // invalidate any in-flight attempt FIRST (codex review P1,
+    // 2026-08-30): its late continuations must not publish DOM nor
+    // register listeners into the array this function is about to drain
+    generation++;
     removeArtifactDom(artifact);
     artifact = undefined;
     removeOwnedListeners();
@@ -382,6 +435,7 @@ export function createPrintPipeline(
     purpose: 'sim' | 'print',
     options: PrintRunOptions | undefined,
     signal: AbortSignal,
+    gen: number,
   ): Promise<FrozenSnapshot> => {
     const root = getSourceRoot();
     if (root === undefined || !root.isConnected) {
@@ -400,6 +454,16 @@ export function createPrintPipeline(
       signal,
       onProgress: (p) => (progress = p),
     });
+    // ── the supersede gate, checkpoint 1 (codex review P1,
+    //    2026-08-30): dispose()/cancel() may have landed while the
+    //    transaction sat between awaits. A stale attempt touches NO
+    //    pipeline state — it only unwinds the stamp it owns
+    //    (prepareSnapshot already resumed what it paused before
+    //    returning); releaseStamp is a no-op for a reused sim stamp
+    if (gen !== generation) {
+      snapshot.releaseStamp();
+      throw new FlightSuperseded();
+    }
     diagnostics = snapshot.diagnostics;
     liveSnapshot = snapshot;
 
@@ -439,6 +503,11 @@ export function createPrintPipeline(
     if (outputRoot.offsetWidth <= 0) {
       outputRoot.remove();
       stampActive(false);
+      // a failure road AFTER a successful prepare still unwinds the
+      // transaction's own self-stamp (codex review P1, 2026-08-30) —
+      // without this a screen→direct-print that dies here strands
+      // data-jx-print-sim on the source and the medium sticks on 'sim'
+      snapshot.releaseStamp();
       throw new Error(
         `[print/pipeline] the output root is not measurable (offsetWidth=${outputRoot.offsetWidth}) — paged.js would emit zero-size pages; use offscreen positioning, not display:none`,
       );
@@ -449,6 +518,9 @@ export function createPrintPipeline(
       status = 'rendering';
       // ── the lazy client-only kernel chunk (SSR carries zero pagedjs)
       const { Previewer } = await import('pagedjs');
+      // ── the supersede gate, checkpoint 2: the chunk pended — a
+      //    dispose/cancel may own the state by now
+      if (gen !== generation) throw new FlightSuperseded();
       const previewer = new Previewer();
       // the clone rides in a DocumentFragment: paged.js's walker
       // breaks on element roots (findElement/replaceOrAppend null
@@ -464,6 +536,12 @@ export function createPrintPipeline(
         ],
         outputRoot,
       );
+      // ── the supersede gate, checkpoint 3 (the LAST await): the
+      //    preview resolved after a dispose/cancel — publishing now
+      //    would resurrect the artifact dispose() removed and push
+      //    listeners into the array it drained. Unwind instead; the
+      //    catch below is the shared unwinder
+      if (gen !== generation) throw new FlightSuperseded();
       const pages =
         Number(flow?.total) || outputRoot.querySelectorAll('.pagedjs_page').length;
       // the keep enforcement runs on the finished layout, BEFORE the
@@ -518,33 +596,61 @@ export function createPrintPipeline(
       status = 'ready';
       return snapshot;
     } catch (error) {
-      // the failure road: best-effort teardown of this attempt's DOM
-      outputRoot.remove();
-      for (const style of collectHeadStyles(headBefore)) style.remove();
-      stampActive(false);
+      // the failure road: best-effort teardown of this attempt's DOM.
+      // PLUS the stamp release (codex review P1, 2026-08-30): every
+      // road that fails AFTER a successful prepare unwinds the stamp
+      // this transaction self-created — releaseStamp is
+      // ownership-guarded (a reused sim stamp is a no-op), and
+      // prepareSnapshot's OWN catch has already released on its
+      // failures, so this can never double-release
+      teardownAttempt(outputRoot, headBefore);
+      snapshot.releaseStamp();
       throw error;
     }
   };
 
   const guarded = async (purpose: 'sim' | 'print', options?: PrintRunOptions): Promise<void> => {
     if (inFlight !== undefined) return inFlight; // single-flight
+    const gen = ++generation; // this flight's token — retires any zombie attempt
+    previewEntered = false; // never inherit a previous flight's phase
     const controller = new AbortController();
     controllerRef = controller;
     const flight = (async () => {
-      const snapshot = await run(purpose, options, controller.signal);
+      const snapshot = await run(purpose, options, controller.signal, gen);
       if (purpose !== 'print') return;
       // ── the direct-print exit: prepareSnapshot has COMPLETED; the
       //    real dialog upgrades the medium ('print' > 'sim'); the
       //    afterprint hook is the only exit
       await new Promise<void>((resolve) => {
         let settled = false;
+        let fallback: ReturnType<typeof setTimeout> | undefined;
         const onAfterPrint = (): void => {
           if (settled) return;
           settled = true;
+          // FIRST entry owns the exit hygiene (codex review P1,
+          // 2026-08-30): clear the grace timer and detach the
+          // listener EXPLICITLY — the sim-survives branch never runs
+          // dispose(), so a dispose-dependent cleanup would strand
+          // both on the window. Why this is safe: production
+          // window.print() is a MODAL call that blocks the event
+          // loop, so the 400ms fallback cannot beat the real
+          // afterprint — the fallback exists ONLY for headless
+          // probes/tests that stub window.print
+          if (fallback !== undefined) clearTimeout(fallback);
+          window.removeEventListener('afterprint', onAfterPrint as EventListener);
           // ownership law: release ONLY the transaction's own stamp —
           // a surviving sim re-derives the medium to 'sim' and keeps
-          // the artifact
+          // the artifact. This stays ours to do even on a superseded
+          // wait: dispose() cannot release a stamp it does not own
           snapshot.releaseStamp();
+          // the supersede gate, afterprint checkpoint: a dispose/
+          // cancel landed while the dialog (or the stubbed grace
+          // window) was open — the invalidator owns the state, this
+          // flight resolves without flipping anything back
+          if (gen !== generation) {
+            resolve();
+            return;
+          }
           const root = getSourceRoot();
           const simSurvives = root?.hasAttribute(PRINT_SIM_ATTR) ?? false;
           if (!simSurvives) dispose();
@@ -556,13 +662,19 @@ export function createPrintPipeline(
         // headless probes stub window.print (no dialog fires
         // afterprint) — settle on a grace timeout so the promise and
         // the single-flight slot always clear
-        setTimeout(onAfterPrint, 400);
+        fallback = setTimeout(onAfterPrint, 400);
       });
     })();
     inFlight = flight;
     try {
       await flight;
     } catch (error) {
+      if (error instanceof FlightSuperseded) {
+        // a superseded attempt has already unwound its own DOM and
+        // stamp; the invalidator owns the pipeline state — silent
+        // exit, no error flip, no rethrow at the caller
+        return;
+      }
       lastError = error instanceof Error ? error.message : String(error);
       dispose();
       status = 'error';
@@ -609,6 +721,12 @@ export function createPrintPipeline(
       dispose();
     },
     cancel() {
+      // invalidate any in-flight attempt (codex review P1,
+      // 2026-08-30): the signal abort only unwinds the preparation
+      // phase's budget waits — a prepareSnapshot/import/preview that
+      // already raced past the last checkpoint must still die at its
+      // next resumption gate
+      generation++;
       if (inFlight !== undefined) {
         if (!previewEntered) {
           // preparation-phase cancellation: the transaction aborts

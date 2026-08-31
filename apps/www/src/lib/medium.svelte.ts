@@ -172,8 +172,14 @@ export function provideMedium(options: {
     // The DOM is the source of truth (any writer may stamp); the
     // observer mirrors attribute changes into the signal. The
     // document root observes its whole SUBTREE (stamps land on
-    // page-owned source roots, not on <html> itself); any other root
-    // observes itself only — the per-layer scope.
+    // page-owned source roots, not on <html> itself) and its CHILD
+    // LIST: navigation replaces the docs source root wholesale, and a
+    // departing root that still carries the stamp — or an arriving
+    // root stamped before insertion — emits NO attribute mutation,
+    // only tree membership changes. Without childList the document
+    // medium would stay stuck at 'sim' after such a navigation and
+    // every later page would keep eating the print plugins. Any other
+    // root observes itself only — the per-layer scope.
     const el = options.root();
     const documentScoped = el === document.documentElement;
     const hasStamp = (node: HTMLElement | undefined): boolean => {
@@ -193,6 +199,7 @@ export function provideMedium(options: {
         attributes: true,
         attributeFilter: [PRINT_SIM_ATTR],
         subtree: documentScoped,
+        childList: documentScoped,
       });
     }
     readStamp();

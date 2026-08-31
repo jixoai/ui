@@ -11,17 +11,27 @@
  *                              screen state self-stamps
  *   plugin interventions       land on the live tree reactively
  *                              (density→sm, hue→pin — print plugin)
- *   scoped animation capture   source-root subtree ONLY via
+ *   DOM-commit barrier         double-rAF + fail-loud assertions that
+ *                              the source root carries the intervened
+ *                              stamps (data-density="sm")
+ *   scoped animation capture   AFTER the barrier (P1-1, Codex review
+ *                              2026-08-30: a medium intervention can
+ *                              change animation computed values, so a
+ *                              pre-barrier capture froze currentTime
+ *                              on the pre-commit frame while the
+ *                              clone-phase d/D reads landed on the
+ *                              post-commit one — a cross-frame mix);
+ *                              source-root subtree ONLY via
  *                              getAnimations({subtree:true}); per item
  *                              {wasRunning, currentTime}; ONLY running
  *                              ones pause — pre-paused animations are
  *                              never touched nor resumed
- *   DOM-commit barrier         double-rAF + fail-loud assertions that
- *                              the source root carries the intervened
- *                              stamps (data-density="sm")
- *   readiness gate             fonts ready, lazy loading lifted,
- *                              images decoded — timeout budget with
- *                              progress and cancellation
+ *   readiness gate             fonts ready, lazy loading lifted
+ *                              REVERSIBLY (the live tree exits on its
+ *                              raw attributes — P1-2, the clone keeps
+ *                              the lifted ones), images decoded —
+ *                              timeout budget with progress and
+ *                              cancellation
  *   deep clone                 of the immutable source root
  *   clone-only transforms      CSS per-slot frame transfer (negative
  *                              animation-delay from the recorded
@@ -786,9 +796,50 @@ async function withBudget<T>(
 }
 
 /**
- * The readiness gate: lift lazy loading FIRST (clone-side images never
- * load), then fonts, then every image complete+decoded — inside the
- * timeout budget, with progress and cancellation.
+ * The lazy lift, the readiness gate's opening move — LIVE tree,
+ * REVERSIBLE (P1-2, Codex review 2026-08-30): loading=lazy→eager and
+ * decoding=sync, because the clone-side images never load on their
+ * own. Every image's RAW state (whether each attribute existed + its
+ * original value) is recorded BEFORE the first write; the returned
+ * restore is idempotent and puts the live tree back exactly as the
+ * author wrote it — the live tree must exit the transaction on raw
+ * values, never on print-shaped ones (the CLONE keeps the lifted
+ * attributes: it is the frozen product). Caller-owned rather than a
+ * readinessGate step because the restore must wait for the deep clone
+ * (success) or the catch (a failure before the clone lifts too).
+ */
+export function liftImages(root: HTMLElement): { restore(): void } {
+  const raw = [...root.querySelectorAll('img')].map((img) => {
+    const state = {
+      img,
+      loading: img.getAttribute('loading'),
+      decoding: img.getAttribute('decoding'),
+    };
+    if (state.loading === 'lazy') img.setAttribute('loading', 'eager');
+    img.setAttribute('decoding', 'sync');
+    return state;
+  });
+  let done = false;
+  return {
+    restore() {
+      if (done) return;
+      done = true;
+      for (const { img, loading, decoding } of raw) {
+        if (loading === null) img.removeAttribute('loading');
+        else img.setAttribute('loading', loading);
+        if (decoding === null) img.removeAttribute('decoding');
+        else img.setAttribute('decoding', decoding);
+      }
+    },
+  };
+}
+
+/**
+ * The readiness gate: fonts ready, then every image complete+decoded —
+ * inside the timeout budget, with progress and cancellation. The lazy
+ * LIFT itself lives in liftImages (caller-owned restore, P1-2) and
+ * still runs immediately before this gate: eager loading must be in
+ * force before the complete-waits start.
  */
 async function readinessGate(
   root: HTMLElement,
@@ -797,20 +848,15 @@ async function readinessGate(
   const timeoutMs = options.timeoutMs ?? 8000;
   const report = options.onProgress ?? (() => {});
 
-  // 1. lazy lift — attributes only, live behavior is a scroll away
   const images = [...root.querySelectorAll('img')];
-  for (const img of images) {
-    if (img.getAttribute('loading') === 'lazy') img.setAttribute('loading', 'eager');
-    img.setAttribute('decoding', 'sync');
-  }
 
-  // 2. fonts (pagedjs's own loadFonts waits for the document; we front-run it)
+  // 1. fonts (pagedjs's own loadFonts waits for the document; we front-run it)
   report({ phase: 'fonts', done: 0, total: 1 });
   const fonts = (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts;
   await withBudget(fonts?.ready ?? Promise.resolve(), 'document.fonts.ready', timeoutMs, options.signal);
   report({ phase: 'fonts', done: 1, total: 1 });
 
-  // 3. images complete + decoded
+  // 2. images complete + decoded
   let done = 0;
   await Promise.all(
     images.map((img) =>
@@ -877,13 +923,21 @@ export async function prepareSnapshot(
     root.removeAttribute(PRINT_SIM_ATTR);
   };
 
-  // ── 1. scoped animation capture (before the try: the failure path
-  //    must still resume what it paused) ─────────────────────────────
-  const records = captureAnimations(root);
-  const restoreToken = makeRestoreToken(records);
+  // ── ordering law (P1-1, Codex review 2026-08-30): the DOM-commit
+  //    barrier runs FIRST; the scoped capture and the image lift land
+  //    only on the committed tree. A medium intervention (density=sm)
+  //    can change animation computed values — capturing before the
+  //    barrier froze currentTime on the pre-intervention frame while
+  //    the clone-phase d/D reads landed on the post-intervention one
+  //    (a cross-frame mix). Both handles stay undefined until their
+  //    step runs, so a barrier failure pauses and rewrites NOTHING;
+  //    the catch restores through optional chaining (idempotent on
+  //    the never-created case).
+  let restoreToken: ReturnType<typeof makeRestoreToken> | undefined;
+  let imageLift: ReturnType<typeof liftImages> | undefined;
 
   try {
-    // ── 2. the DOM-commit barrier ───────────────────────────────────
+    // ── 1. the DOM-commit barrier ───────────────────────────────────
     report({ phase: 'interventions', done: 0, total: 1 });
     await doubleRaf();
     if (options.signal?.aborted) throw new PrepareAborted('cancel');
@@ -896,7 +950,13 @@ export async function prepareSnapshot(
       }
     }
 
-    // ── 3. readiness gate ───────────────────────────────────────────
+    // ── 2. scoped animation capture (post-barrier, per the ordering
+    //    law above — the failure path still resumes what it paused) ──
+    const records = captureAnimations(root);
+    restoreToken = makeRestoreToken(records);
+
+    // ── 3. readiness gate (the reversible lazy lift rides in front) ─
+    imageLift = liftImages(root);
     await readinessGate(root, options);
 
     // ── 4. the deep clone ───────────────────────────────────────────
@@ -907,6 +967,12 @@ export async function prepareSnapshot(
     // and the source marker never ride into the paged output
     clone.removeAttribute(PRINT_SIM_ATTR);
     clone.removeAttribute('data-print-source');
+    // the live tree exits on its RAW image attributes (P1-2): the
+    // clone KEEPS the lifted loading/decoding (clone-side images never
+    // load on their own) while the live tree goes back to exactly what
+    // the author wrote — the catch restores the same way for failures
+    // that land before the clone
+    imageLift.restore();
 
     // ── 5. clone-only transforms ────────────────────────────────────
     const plan = planFrameTransfer(root, records, options.readComputed ?? readComputedDefault);
@@ -929,13 +995,17 @@ export async function prepareSnapshot(
       tocEntries: tocNav ? tocNav.querySelectorAll('a').length : 0,
       createdStamp,
       hash: hashSnapshot(clone, configSignature),
-      restore: () => restoreToken.restore(),
+      restore: () => restoreToken?.restore(),
       releaseStamp,
     };
   } catch (error) {
-    // a failed transaction still releases what it stamped and resumes
-    // what it paused — no half-frozen tree survives a failure
-    restoreToken.restore();
+    // a failed transaction still releases what it stamped, resumes
+    // what it paused and un-lifts what it lifted — no half-frozen (or
+    // half-print-shaped) tree survives a failure; the handles may be
+    // unset (a barrier failure touched nothing), and restore is
+    // idempotent either way
+    restoreToken?.restore();
+    imageLift?.restore();
     releaseStamp();
     throw error;
   }

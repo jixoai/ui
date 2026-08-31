@@ -1,9 +1,12 @@
 // Route policy for /docs/paged.html (print-pipeline, 2026-08-30 —
 // the page is now a NORMAL docs page: the layout toc rail serves it
 // like every other /docs page; the PRINT ToC is a different thing —
-// a nav the clone transform injects, resolved by the kernel's
-// target-counter, never a web component). The prerender entry
-// '/docs/paged.html' already sits in svelte.config.js.
+// a nav the clone transform injects, its folios BACKFILLED by the
+// pipeline: fillTocFolios stamps data-jx-folio once the layout has
+// placed every section, and the kernel renders content:
+// attr(data-jx-folio) — pagedjs's own target-counter resolver loses
+// targets moved by keep-with-next — never a web component). The
+// prerender entry '/docs/paged.html' already sits in svelte.config.js.
 //
 // printConfig: the page grammar the docs layout's print controls
 // compile — structured values only (the parser rejects anything
