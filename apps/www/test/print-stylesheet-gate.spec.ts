@@ -74,6 +74,15 @@ describe('kernel-print.css — the AST gate', () => {
     }
   });
 
+  it('carries the attr-numbered gutter (ZERO counter rules — pagedjs Counters hijacks them)', () => {
+    // walkthrough fix 2026-08-31: pagedjs strips author counter-reset/
+    // increment and re-derives negative per-element increments — with
+    // multiple pres the gutter counted from −N; the number rides
+    // data-line + attr() instead, immune by construction
+    expect(kernelClean).toContain("content: attr(data-line)");
+    expect(kernelClean).not.toMatch(/counter-reset|counter-increment/);
+  });
+
   it('carries the intent header (the migration table, named)', () => {
     expect(kernelCss).toContain('AUDITED WHITELIST');
     expect(kernelCss).toContain('data-jx-props-table-scroll');

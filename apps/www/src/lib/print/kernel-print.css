@@ -115,15 +115,16 @@ pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+/* the gutter number rides data-line (set by the clone transform), NOT
+   a CSS counter: pagedjs's Counters handler strips author
+   counter-reset/increment rules and re-derives them as per-element
+   negative increments — multiple pres on one page counted the gutter
+   from −N (walkthrough fix, 2026-08-31). attr() sails through. */
 pre .jx-print-line {
   display: block;
-  counter-increment: jx-print-line;
-}
-pre {
-  counter-reset: jx-print-line 0;
 }
 pre .jx-print-line::before {
-  content: counter(jx-print-line);
+  content: attr(data-line);
   display: inline-block;
   min-inline-size: 2.5ch;
   margin-inline-end: 1ch;

@@ -427,22 +427,53 @@ check(
   JSON.stringify(whitelist),
 );
 
-// the code gutter: lines wrap and number inside the pages
+// the code gutter: lines wrap and number inside the pages. The gutter
+// is ATTR-numbered (data-line, set by the clone transform): pagedjs's
+// Counters handler strips author counter rules and re-derives them as
+// per-element negative increments — with multiple pres the gutter
+// counted from −N (walkthrough fix, 2026-08-31). Assertions: every
+// block opens at ≥1, the rendered ::before carries the attr/number,
+// and ZERO jx-print-line counter rules exist anywhere (no hijack left).
 const gutter = await page.evaluate(() => {
-  const line = document.querySelector('[data-print-output] pre .jx-print-line');
-  if (!line) return { ok: false };
-  const cs = getComputedStyle(line);
+  const lines = [...document.querySelectorAll('[data-print-output] pre .jx-print-line')];
+  if (lines.length === 0) return { ok: false };
+  const firsts = [...document.querySelectorAll('[data-print-output] pre')].map(
+    (pre) => pre.querySelector('.jx-print-line')?.getAttribute('data-line'),
+  );
+  let counterHijack = 0;
+  for (const sheet of document.styleSheets) {
+    let cssRules;
+    try {
+      cssRules = sheet.cssRules;
+    } catch {
+      continue;
+    }
+    for (const rule of cssRules) {
+      const css = rule.cssText ?? '';
+      if (css.includes('jx-print-line') && /counter-(reset|increment)/.test(css)) counterHijack++;
+    }
+  }
+  const cs = getComputedStyle(lines[0]);
   return {
     ok: true,
+    count: lines.length,
     whiteSpace: cs.whiteSpace,
     display: cs.display,
-    counter: cs.counterIncrement,
-    count: document.querySelectorAll('[data-print-output] pre .jx-print-line').length,
+    firsts,
+    before: getComputedStyle(lines[0], ':before').content,
+    counterHijackRules: counterHijack,
   };
 });
 check(
-  'gutter (in pages): clone-split lines wrap (pre-wrap) and carry the numbered counter',
-  gutter.ok && /pre-wrap/.test(gutter.whiteSpace) && gutter.display === 'block' && /jx-print-line/.test(gutter.counter) && gutter.count > 40,
+  'gutter (in pages): lines wrap (pre-wrap), attr-numbered per block, zero counter hijack',
+  gutter.ok &&
+    /pre-wrap/.test(gutter.whiteSpace) &&
+    gutter.display === 'block' &&
+    gutter.count > 40 &&
+    gutter.firsts[0] === '1' &&
+    gutter.firsts.every((f) => f !== undefined && Number(f) >= 1) &&
+    gutter.counterHijackRules === 0 &&
+    /attr\(data-line\)|^"?\d+"?$/.test(gutter.before),
   JSON.stringify(gutter),
 );
 

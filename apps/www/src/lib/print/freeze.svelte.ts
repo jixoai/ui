@@ -552,9 +552,15 @@ export function splitPreLines(clone: ParentNode, options: { lineNumbers: boolean
     if (!options.lineNumbers) pre.setAttribute('data-jx-print-lines', 'off');
     if (markedUp) {
       if (options.lineNumbers) {
-        for (const line of code.querySelectorAll(':scope > span.line')) {
+        // numbered by TRANSFORM (data-line), not by CSS counters:
+        // pagedjs's Counters handler strips author counter-reset/
+        // increment rules and re-derives them as per-element negative
+        // increments — with more than one pre on a page the gutter
+        // counts from −N. attr() carries the number through untouched.
+        code.querySelectorAll(':scope > span.line').forEach((line, i) => {
           line.classList.add('jx-print-line');
-        }
+          line.dataset.line = String(i + 1);
+        });
       }
       continue;
     }

@@ -351,6 +351,10 @@ describe('splitPreLines', () => {
     const lines = [...host.querySelectorAll('.jx-print-line')];
     expect(lines).toHaveLength(2);
     expect(lines[0]!.textContent).toBe('const a = 1;');
+    // numbered by transform (attr-gutter): pagedjs's Counters handler
+    // strips CSS counter rules and re-derives negative increments —
+    // data-line is the counter-free carrier (walkthrough fix 2026-08-31)
+    expect(lines.map((l) => l.getAttribute('data-line'))).toEqual(['1', '2']);
   });
 });
 
