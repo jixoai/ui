@@ -5,7 +5,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
-  import { currentHue, playing, resumeHue, setHueManually, toggleHuePlay } from '$lib/hue-runtime';
+  import { currentHue, playing, resumeHue, setHueManually, toggleHuePlay } from '$lib/hue-runtime.svelte';
   // site-only token-lab surfaces (tw4 P2.2): swatches + scope panels + hue slider
   import '$lib/site/token-lab.css';
   import { TokenTable } from '$lib/ui/token-table';
@@ -28,7 +28,7 @@
   playing.subscribe((v) => (isPlaying = v));
 
   // Same-source law: the drawer shows the exact runtime this site runs.
-  import hueRuntimeSource from '$lib/hue-runtime?raw';
+  import hueRuntimeSource from '$lib/hue-runtime.svelte?raw';
 
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.
@@ -58,7 +58,7 @@
   );
 
   const hueUsage = `<script lang="ts">
-  import { currentHue, playing, setHueManually, toggleHuePlay } from '$lib/hue-runtime';
+  import { currentHue, playing, setHueManually, toggleHuePlay } from '$lib/hue-runtime.svelte';
 ${close}
 
 <!-- one variable is the whole identity: the slider writes (auto-pauses),
@@ -80,7 +80,7 @@ playing.subscribe((v) => (isPlaying = v));
 </button>`;
 
   const hueFiles: TreeFile[] = [
-    { name: 'apps/www/src/lib/hue-runtime.ts', content: hueRuntimeSource },
+    { name: 'apps/www/src/lib/hue-runtime.svelte.ts', content: hueRuntimeSource },
     { name: 'src/lib/tokens/hue-usage.svelte', content: hueUsage },
   ];
 
@@ -173,7 +173,7 @@ playing.subscribe((v) => (isPlaying = v));
     <ComponentCanvas
       title="hue runtime"
       description="The runtime seeds --brand-hue from the time of day (one full day = one full 360° turn) and the hue always equals the wall-clock position (4min/deg). The slider writes manually — pausing the cycle; the play/pause toggle resumes from wherever the hue is. Every swatch and the CSS law below bind to the LIVE hue."
-      sourceUrl="https://github.com/jixoai/ui/blob/main/apps/www/src/lib/hue-runtime.ts"
+      sourceUrl="https://github.com/jixoai/ui/blob/main/apps/www/src/lib/hue-runtime.svelte.ts"
       files={hueFiles}
       stage="start"
       onreset={resetHueLab}

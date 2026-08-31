@@ -43,11 +43,28 @@
  * environment truth, not an opinion to resolve.
  */
 import { getContext, setContext } from 'svelte';
+import type { ContextDef } from './context-plugin.svelte';
 
 export type MediumState = 'screen' | 'sim' | 'print';
 
 /** The sim stamp attribute — the DOM side of the second signal source. */
 export const PRINT_SIM_ATTR = 'data-jx-print-sim' as const;
+
+/**
+ * The medium's context-plugin def — a READ-ONLY value domain: the
+ * derived MediumState string projection (context-plugin-system,
+ * 2026-08-30). Plugins can never target 'medium' — definePlugin
+ * rejects it at the type level and at runtime, and the plugin root's
+ * registration guard re-checks it — the medium is environment truth,
+ * not an opinion to intervene on. The def exists so the kernel's
+ * ContextEnv can read the projection (env.medium) under the same
+ * vocabulary every other context uses.
+ */
+export const MEDIUM_DEF: ContextDef<'medium', MediumState> = {
+  key: 'medium',
+  defaults: () => 'screen',
+  ssrSafe: 'screen',
+};
 
 /**
  * The pure derived reducer (the whole state machine in one

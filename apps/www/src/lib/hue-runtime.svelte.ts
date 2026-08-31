@@ -19,12 +19,86 @@
  * Manual interaction (slider drag) auto-pauses; resuming activates the
  * 2s cubic-out rule. Reduced-motion skips all animations: entry and
  * resume land instantly at the target.
+ *
+ * Context endorsement (context-plugin-system, 2026-08-30): the value
+ * now flows through the ContextPlugin kernel as the 'hue' def — the
+ * runtime's applyHue writes the RAW normalized hue into a withPlugins
+ * pipeline (captured once at createHueContext, called from the site
+ * layout's component init), and everything downstream (the currentHue
+ * store AND the documentElement --brand-hue stamp) reads the chained
+ * EXPOSED projection. Wall-clock behavior and the documentElement
+ * write cadence (deduped on the rounded written value) are unchanged;
+ * with zero plugins the pipeline is the identity fast path — no chain
+ * is built and exposed === raw by reference. The document-global
+ * nature (one documentElement custom property) is why the pipeline
+ * sink is module-level; the PLUGIN registration itself stays
+ * root-scoped in the kernel — this module holds no plugin list.
  */
 
+import { getContext, setContext } from 'svelte';
 import { get } from 'svelte/store';
 import { writable } from 'svelte/store';
+import {
+  getContextPlugins,
+  withPlugins,
+  type ContextDef,
+  type PluginPipeline,
+} from './context-plugin.svelte';
 
-/** Reactive hue value (0–359, fractional degrees). */
+/** The hue def: 0–359 fractional degrees (rounded at the DOM seam). */
+const HUE_DEF: ContextDef<'hue', number> = {
+  key: 'hue',
+  defaults: () => 0,
+  ssrSafe: 0,
+};
+
+/** Read-only hue context (getter-backed; the exposed chained value). */
+export interface HueContext {
+  readonly hue: number;
+}
+
+export const HUE_KEY = Symbol('jx-hue');
+
+/** The document-global pipeline sink — assigned by createHueContext
+ * (the site layout's init), read by applyHue. Null before creation
+ * and on server renders that never start the runtime. */
+let pipeline: PluginPipeline<number> | null = null;
+
+/**
+ * Create (and provide) the hue context. MUST run during a component's
+ * initialisation (the site layout's) so the plugin chain visible there
+ * is captured once, at context-instance creation — the kernel's
+ * capture coordinate. Re-creation (HMR, a re-keyed layout) simply
+ * re-points the document-global sink at the fresh pipeline.
+ *
+ * The DOM stamp lives in an $effect reading the EXPOSED projection:
+ * it follows raw writes (the runtime's wall-clock ticks, manual sets)
+ * AND environment changes (a print plugin pinning the hue flips the
+ * stamp when the medium moves) — one write owner, same dedup law.
+ * Effects never run during SSR, so the server render stays DOM-free.
+ */
+export function createHueContext(options: { root?: HTMLElement } = {}): HueContext {
+  const instance = withPlugins(HUE_DEF, getContextPlugins());
+  pipeline = instance;
+  const context: HueContext = {
+    get hue() {
+      return instance.exposed;
+    },
+  };
+  setContext(HUE_KEY, context);
+  void options; // root is accepted for future element-scoped hue work
+
+  $effect(() => {
+    stampHue(instance.exposed);
+  });
+  return context;
+}
+
+export function getHueContext(): HueContext | undefined {
+  return getContext<HueContext | undefined>(HUE_KEY);
+}
+
+/** Reactive hue value (0–359, integer degrees — the rounded exposed). */
 export const currentHue = writable<number>(0);
 
 /** Whether the auto-cycle is running (cruising, entry, or resuming). */
@@ -50,16 +124,34 @@ function timeOfDayHue(now = new Date()): number {
   return dayFraction * 360;
 }
 
+const normalize = (value: number): number => ((value % 360) + 360) % 360;
+
 let lastWrittenHue = -1;
 
-function applyHue(value: number): void {
-  const hue = Math.round(((value % 360) + 360) % 360);
+/** The single DOM-stamp owner: round, dedup on the rounded WRITTEN
+ *  value, mirror into the store, write documentElement. A plugin
+ *  pinning the hue constant therefore stops the writes entirely. */
+function stampHue(exposed: number): void {
+  const hue = Math.round(normalize(exposed));
   // 4min/deg means the integer hue changes only once every ~2.4 minutes;
   // skip redundant CSS writes when the rounded value hasn't moved
   if (hue === lastWrittenHue) return;
   lastWrittenHue = hue;
   currentHue.set(hue);
   document.documentElement.style.setProperty('--brand-hue', String(hue));
+}
+
+function applyHue(value: number): void {
+  const normalized = normalize(value);
+  if (pipeline === null) {
+    // no context instance (a stray runtime start before the layout
+    // created one) — keep the pre-endorsement write path alive
+    stampHue(normalized);
+    return;
+  }
+  // the raw write (full fractional precision — plugins see the truth);
+  // the stamp effect reads the chained EXPOSED projection from here
+  pipeline.setRaw(normalized);
 }
 
 function prefersReducedMotion(): boolean {
@@ -121,7 +213,7 @@ function startCruising(): void {
     if (phase === 'cruising') {
       applyHue(timeOfDayHue());
     }
-  }, 1_000);
+  }, 1_000) as unknown as number;
 }
 
 /** Resuming: 2s cubic-out toward the wall-clock hue. */

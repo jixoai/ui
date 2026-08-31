@@ -139,6 +139,8 @@ const SITE_ONLY_PREFIXES = [
   'apps/www/src/lib/ui/props-table/from-meta.ts', // docs-demo-standard: meta -> PropEntry projection (site-only)
   'apps/www/src/lib/paged/', // paged-doc-family: the publication family (site-only docs infra)
   'apps/www/src/lib/medium.svelte.ts', // paged-doc-family: the three-state medium context (site-only)
+  'apps/www/src/lib/context-plugin.svelte.ts', // context-plugin-system: the plugin kernel (site-only)
+  'apps/www/src/lib/hue-runtime.svelte.ts', // context-plugin-system: hue adapter (runes need the .svelte.ts suffix)
   'apps/www/src/lib/__probe__/', // P0 scratch (removed when the probe retires)
 ];
 

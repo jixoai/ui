@@ -14,7 +14,7 @@
 <script lang="ts">
   import Popover from '$lib/ui/popover/popover.svelte';
   import ThemeToggle from '$lib/ui/theme-toggle/theme-toggle.svelte';
-  import { currentHue, playing, toggleHuePlay, setHueManually } from '$lib/hue-runtime';
+  import { currentHue, playing, toggleHuePlay, setHueManually } from '$lib/hue-runtime.svelte';
 
   let hue = $state(0);
   let isPlaying = $state(true);
