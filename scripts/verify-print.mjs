@@ -253,6 +253,47 @@ const tocFirst = await page.evaluate(() => {
 });
 check('sim: the ToC page opens the artifact (break-after: page)', tocFirst, '');
 
+// the restyled ToC (Owner walkthrough r2): every entry carries its
+// auto-collected summary as a sub line + the dot-leader structure
+const tocStyle = await page.evaluate(() => {
+  const out = document.querySelector('[data-print-output]');
+  const subs = [...out.querySelectorAll('nav[data-jx-print-toc] [data-jx-print-toc-sub]')];
+  const leaders = out.querySelectorAll('nav[data-jx-print-toc] [data-jx-print-toc-leader]').length;
+  const entries = out.querySelectorAll('nav[data-jx-print-toc] a').length;
+  return { subs: subs.length, nonEmpty: subs.filter((s) => ((s.textContent ?? '').trim().length > 10)).length, leaders, entries };
+});
+check(
+  'toc style: auto-collected subtitle sub lines + the dot-leader stretch on every entry',
+  tocStyle.entries >= 5 && tocStyle.leaders === tocStyle.entries && tocStyle.subs >= 4 && tocStyle.nonEmpty === tocStyle.subs,
+  JSON.stringify(tocStyle),
+);
+
+// the borderless paper projection (Owner walkthrough r2): the default
+// print variant — the card's closed box dissolves (NO side borders),
+// the block-end separator is solid unless a split dash takes the edge
+// (continuation halves legitimately carry the dashed rule)
+const paperProjection = await page.evaluate(() => {
+  const out = document.querySelector('[data-print-output]');
+  const cards = [...out.querySelectorAll('section.bg-card')];
+  const noClosedBox = (cs) =>
+    cs.borderLeftStyle === 'none' && cs.borderRightStyle === 'none' &&
+    ['none', 'dashed'].includes(cs.borderTopStyle) &&
+    ['solid', 'dashed'].includes(cs.borderBottomStyle);
+  const borderless = cards.filter((c) => noClosedBox(getComputedStyle(c))).length;
+  const splitFrom = [...out.querySelectorAll('[data-split-from]')].filter((el) => {
+    const cs = getComputedStyle(el);
+    return cs.borderTopStyle === 'dashed';
+  }).length;
+  const splitTotal = out.querySelectorAll('[data-split-from]').length;
+  return { cards: cards.length, borderless, splitFrom, splitTotal };
+});
+check(
+  'paper projection: cards are borderless with a block-end separator; split edges carry the continuation dash',
+  paperProjection.cards >= 5 && paperProjection.borderless === paperProjection.cards &&
+    paperProjection.splitTotal >= 1 && paperProjection.splitFrom === paperProjection.splitTotal,
+  JSON.stringify(paperProjection),
+);
+
 // ---- 2b. stamp timing: the preparatory signal precedes everything -------
 const stamps = await page.evaluate(() => {
   const source = document.querySelector('[data-print-source]');

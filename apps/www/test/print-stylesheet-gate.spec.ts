@@ -83,6 +83,35 @@ describe('kernel-print.css — the AST gate', () => {
     expect(kernelClean).not.toMatch(/counter-reset|counter-increment/);
   });
 
+  it('carries the borderless paper projection + the split dash + the restyled ToC (walkthrough r2)', () => {
+    // the DEFAULT print variant: block border → separator, paper is
+    // the frame; the boxed opt-out keeps a frame; the code card's
+    // embedded frame drops
+    const card = /:where\(section\.bg-card\)\s*\{([^}]*)\}/.exec(kernelClean);
+    expect(card, 'missing the section-card borderless rule').not.toBeNull();
+    expect(card![1]).toContain('border: none');
+    expect(card![1]).toContain('border-block-end: 1px solid');
+    const boxed = /:where\(section\.bg-card\[data-jx-print='boxed'\]\)\s*\{([^}]*)\}/.exec(kernelClean);
+    expect(boxed, 'missing the boxed opt-out').not.toBeNull();
+    expect(boxed![1]).toContain('border: 1px solid');
+    const codeCard = /:where\(\.jx-code-card\)\s*\{([^}]*)\}/.exec(kernelClean);
+    expect(codeCard, 'missing the code-card frame drop').not.toBeNull();
+    expect(codeCard![1]).toContain('border: none');
+    // the continuation dash on pagedjs split markers — declared after
+    // the separator so the dash owns the split edge
+    const splitTo = kernelClean.indexOf('[data-split-to]');
+    const separator = kernelClean.indexOf('section.bg-card)');
+    expect(splitTo).toBeGreaterThan(-1);
+    expect(separator).toBeGreaterThan(-1);
+    expect(splitTo).toBeGreaterThan(separator);
+    expect(kernelClean).toMatch(/\[data-split-to\]\s*\{[^}]*border-block-end: 1px dashed/);
+    expect(kernelClean).toMatch(/\[data-split-from\]\s*\{[^}]*border-block-start: 1px dashed/);
+    // the restyled ToC: the dot-leader stretch + the attr-folio
+    expect(kernelClean).toContain('[data-jx-print-toc-leader]');
+    expect(kernelClean).toMatch(/border-block-end: 1px dotted/);
+    expect(kernelClean).toContain('[data-jx-print-toc-sub]');
+  });
+
   it('carries the intent header (the migration table, named)', () => {
     expect(kernelCss).toContain('AUDITED WHITELIST');
     expect(kernelCss).toContain('data-jx-props-table-scroll');

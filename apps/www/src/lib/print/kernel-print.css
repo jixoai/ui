@@ -66,6 +66,47 @@
                                        animation: none; transition: none;
                                        opacity: 1; transform: none
 
+   6. THE BORDERLESS PAPER PROJECTION (Owner walkthrough r2,
+      2026-08-31) — paper is itself a bounded material (margins are
+      the frame), so a card's closed box reads as a box inside a box.
+      The DEFAULT print variant is borderless: the card's block
+      border dissolves into a hairline SEPARATOR (block-end), the
+      background/shadow lift, and the embedded frames inside cards
+      (the code card's border) drop. The explicit opt-out verb
+      data-jx-print="boxed" keeps the framed look on any one card.
+      The header block's border-b (eyebrow/title/summary above body)
+      already IS a separator — it stays.
+
+        selector                       forced result
+        ─────────────────────────────  ─────────────────────────────────
+        section.bg-card                border: none; background: none;
+                                       box-shadow: none;
+                                       border-block-end: hairline
+        section.bg-card[data-jx-print='boxed']
+                                       border: 1px hairline; bg/shadow lift
+        .jx-code-card                  border: none
+
+   7. THE SPLIT DASH (Owner walkthrough r2, 2026-08-31) — content the
+      chunker cuts across a page break carries pagedjs's split
+      markers; the cut edge renders a DASHED rule (the continuation
+      convention of dictionaries and ledgers — solid separates,
+      dashed continues). Declared LAST so the dash owns the edge over
+      the borderless separator when a card is itself the split
+      element.
+
+        selector                       forced result
+        ─────────────────────────────  ─────────────────────────────────
+        [data-split-to]                border-block-end: dashed hairline
+        [data-split-from]              border-block-start: dashed hairline
+
+   8. THE TOC PAGE, RESTYLED (Owner walkthrough r2, 2026-08-31) — a
+      real table of contents: page-title, entries with a dot leader
+      stretch and the kernel's target-counter folio right-aligned,
+      and the section's summary as a small sub line (paper has the
+      width). pagedjs implements no leader() — the leader is a flex
+      span with a dotted bottom rule; the number still rides the
+      anchor ::after.
+
    AST GATE LAW (test/print-stylesheet-gate.spec.ts): this file
    contains ZERO `@media not print` wrappers and ZERO
    `[data-jx-print-sim]` selectors — the sim shell is a DIFFERENT
@@ -138,38 +179,8 @@ pre[data-jx-print-lines='off'] .jx-print-line::before {
   content: none;
 }
 
-/* ── 4. the ToC page ────────────────────────────────────────────────── */
-
-nav[data-jx-print-toc] {
-  break-after: page;
-  margin-block-end: 1.5rem;
-}
-nav[data-jx-print-toc] [data-jx-print-toc-eyebrow] {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.62rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  opacity: 0.7;
-  margin-block: 0 0.6rem;
-}
-nav[data-jx-print-toc] ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-nav[data-jx-print-toc] li {
-  margin-block: 0.2rem;
-}
-nav[data-jx-print-toc] a {
-  text-decoration: none;
-  color: inherit;
-}
-nav[data-jx-print-toc] a::after {
-  content: ' ' target-counter(attr(href url), page);
-  font-family: var(--font-mono, monospace);
-  font-size: 0.8em;
-  opacity: 0.8;
-}
+/* ── 4. (the ToC nav's mechanism: the clone transform injects it, the
+   kernel resolves the folios — the STYLE lives in section 8 below) ── */
 
 /* ── 5. the reveal flatten — paper has no scrollport ────────────────── */
 
@@ -179,6 +190,90 @@ nav[data-jx-print-toc] a::after {
   transition: none !important;
   opacity: 1 !important;
   transform: none !important;
+}
+
+/* ── 6. the borderless paper projection (the DEFAULT print variant) ── */
+
+/* the section card: block border → a hairline separator; paper is
+   the frame (bg/shadow lift — a shadow on paper is a smudge) */
+:where(section.bg-card) {
+  border: none;
+  background: none;
+  box-shadow: none;
+  border-block-end: 1px solid var(--border, currentcolor);
+  margin-block-end: 1.25rem;
+}
+/* the explicit opt-out: a card that WANTS its frame on paper */
+:where(section.bg-card[data-jx-print='boxed']) {
+  border: 1px solid var(--border, currentcolor);
+  border-radius: 0.375rem;
+}
+/* embedded frames inside cards drop their border (no box inside the
+   box inside the paper); the code card's meta/footer hairlines are
+   functional separators and stay */
+:where(.jx-code-card) {
+  border: none;
+}
+
+/* ── 7. the split dash — continuation, not separation ───────────────── */
+
+[data-split-to] {
+  border-block-end: 1px dashed var(--border, currentcolor);
+}
+[data-split-from] {
+  border-block-start: 1px dashed var(--border, currentcolor);
+}
+
+/* ── 8. the ToC page, restyled — title, leader, folio, subtitle ─────── */
+
+nav[data-jx-print-toc] {
+  break-after: page;
+  margin-block-end: 1.5rem;
+}
+nav[data-jx-print-toc] [data-jx-print-toc-eyebrow] {
+  font-family: var(--font-nav, sans-serif);
+  font-size: 1.35rem;
+  letter-spacing: 0.01em;
+  margin-block: 0 0.35rem;
+}
+nav[data-jx-print-toc] ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-block-start: 1px solid var(--border, currentcolor);
+}
+nav[data-jx-print-toc] li {
+  margin-block: 0.55rem;
+}
+nav[data-jx-print-toc] a {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6ch;
+  text-decoration: none;
+  color: inherit;
+  font-size: 0.95rem;
+}
+/* the dot leader stretch (pagedjs implements no leader()): a flex
+   span with a dotted bottom rule; the folio rides the ::after */
+nav[data-jx-print-toc] [data-jx-print-toc-leader] {
+  flex: 1 1 auto;
+  min-inline-size: 2.5ch;
+  border-block-end: 1px dotted color-mix(in oklab, currentColor 45%, transparent);
+  transform: translateY(-0.22em);
+}
+nav[data-jx-print-toc] a::after {
+  content: target-counter(attr(href url), page);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85em;
+  font-variant-numeric: tabular-nums;
+}
+/* the section's summary — paper has the width the web toc never had */
+nav[data-jx-print-toc] [data-jx-print-toc-sub] {
+  margin: 0.15rem 0 0;
+  max-inline-size: 64ch;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  opacity: 0.62;
 }
 
 /* ── the projection hygiene the pages inherit ────────────────────────── */

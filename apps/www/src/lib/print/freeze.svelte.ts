@@ -599,12 +599,19 @@ export function splitPreLines(clone: ParentNode, options: { lineNumbers: boolean
  * section's opening page, and the ToC number means "where the
  * section starts" — which is what a table of contents has always
  * meant.
+ *
+ * THE SUBTITLE (Owner walkthrough r2, 2026-08-31): paper has the
+ * width the web toc never had — each entry carries the section's
+ * summary as a small sub line, auto-collected from the site's ONE
+ * heading shape (the title container's <p>), no registry, no config.
+ * The dot leader is a flex stretch (pagedjs implements no leader());
+ * the page number still rides the ::after's target-counter.
  */
 export function injectTocNav(
   clone: HTMLElement,
   options: { label?: string } = {},
 ): HTMLElement | null {
-  const entries: { id: string; label: string }[] = [];
+  const entries: { id: string; label: string; sub?: string }[] = [];
   const seen = new Set<string>();
   for (const head of [...clone.querySelectorAll('h2')]) {
     const holder = head.id ? head : head.closest('[id]');
@@ -617,7 +624,13 @@ export function injectTocNav(
       holder.removeAttribute('id');
       head.id = id;
     }
-    entries.push({ id, label: head.textContent?.trim() ?? '' });
+    // the SUBTITLE (Owner walkthrough r2, 2026-08-31): paper has the
+    // width to carry it. Structured auto-collection, zero config:
+    // SectionCard's title container is the heading's own parent, and
+    // its summary is that container's <p> — the site's ONE heading
+    // shape. Absent summary → no sub line (natural degradation).
+    const sub = head.parentElement?.querySelector(':scope > p')?.textContent?.trim();
+    entries.push({ id, label: head.textContent?.trim() ?? '', sub: sub || undefined });
   }
   if (entries.length === 0) return null;
   const nav = document.createElement('nav');
@@ -632,8 +645,23 @@ export function injectTocNav(
     const item = document.createElement('li');
     const anchor = document.createElement('a');
     anchor.href = `#${entry.id}`;
-    anchor.textContent = entry.label;
+    const title = document.createElement('span');
+    title.setAttribute('data-jx-print-toc-entry', '');
+    title.textContent = entry.label;
+    // the dot leader stretch: the page number rides the anchor's
+    // ::after (target-counter), the leader fills between (pagedjs has
+    // no leader() implementation — flex + dotted rule is the carrier)
+    const leader = document.createElement('span');
+    leader.setAttribute('data-jx-print-toc-leader', '');
+    leader.setAttribute('aria-hidden', 'true');
+    anchor.append(title, leader);
     item.appendChild(anchor);
+    if (entry.sub) {
+      const sub = document.createElement('p');
+      sub.setAttribute('data-jx-print-toc-sub', '');
+      sub.textContent = entry.sub;
+      item.appendChild(sub);
+    }
     list.appendChild(item);
   }
   nav.append(eyebrow, list);

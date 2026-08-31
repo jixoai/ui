@@ -372,6 +372,25 @@ describe('injectTocNav', () => {
     expect(nav!.getAttribute('role')).toBe('doc-toc');
   });
 
+  it('auto-collects the section summary as the entry sub (paper has the width) + rides the dot-leader structure', () => {
+    // SectionCard's ONE heading shape: the title container is the
+    // h2's parent, its <p> is the summary (eyebrow sits one level up)
+    const clone = document.createElement('article');
+    clone.innerHTML =
+      '<section class="bg-card"><div class="hdr"><p class="eyebrow">usage</p>' +
+      '<div class="tc"><h2 id="s1">Usage</h2><p>The one transaction to know.</p></div></div></section>' +
+      '<div id="s2"><div class="tc"><h2>Bare</h2></div></div>';
+    const nav = injectTocNav(clone)!;
+    const subs = [...nav.querySelectorAll('[data-jx-print-toc-sub]')];
+    expect(subs).toHaveLength(1); // absent summary → no sub line
+    expect(subs[0]!.textContent).toBe('The one transaction to know.');
+    // the dot leader span rides inside the anchor (the folio is the
+    // ::after's target-counter — no web-side number)
+    const anchor = nav.querySelector('a[href="#s1"]')!;
+    expect(anchor.querySelector('[data-jx-print-toc-entry]')!.textContent).toBe('Usage');
+    expect(anchor.querySelector('[data-jx-print-toc-leader]')).not.toBeNull();
+  });
+
   it('no h2s (or none addressable) → no nav', () => {
     const clone = document.createElement('article');
     clone.innerHTML = '<p>nothing</p><h3 id="x">only an h3</h3>';
