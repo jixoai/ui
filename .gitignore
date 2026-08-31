@@ -16,3 +16,6 @@ pnpm-lock.yaml
 
 # tw-context-probe fixture (generated at test time)
 apps/www/.tw-probe-fixture/
+
+# svelte-kit build dir wherever a tool drops it (observed: registry/ after a bun dev run)
+**/.svelte-kit/
