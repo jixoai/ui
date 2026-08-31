@@ -23,6 +23,17 @@
  * REAL (freeze's double-raf barrier rides it), so the drive loop
  * sleeps on the captured-original setTimeout while the 400ms grace
  * fallback sits frozen at zero.
+ *
+ * THE AMBIENT PRINT ENTRY (Owner directive, 2026-09-01): a print the
+ * BROWSER initiates auto-initializes the pipeline — beforeprint
+ * stamps the print pose SYNCHRONOUSLY (the dialog can never print
+ * the raw screen), the async half runs the button-print transaction
+ * with the layer's grammar (never a fallback default), the flight
+ * never calls window.print (the dialog is already open — a second
+ * call would stack another), and afterprint owns the exit including
+ * the dialog-closed-early settle. dispose() re-arms the entry (the
+ * pipeline keeps serving); destroy() — the layer's unmount — is the
+ * only disarm.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PRINT_SIM_ATTR } from '../src/lib/medium.svelte';
@@ -134,6 +145,10 @@ const dispatchAfterPrint = (): void => {
   window.dispatchEvent(new Event('afterprint'));
 };
 
+/** flush the microtask chain (drive(0) advances nothing — its slice
+ *  loop is empty at 0ms; the settle continuations ride microtasks) */
+const flush = (): Promise<void> => vi.advanceTimersByTimeAsync(0);
+
 beforeEach(() => {
   kernel.calls.length = 0;
   kernel.mode = 'immediate';
@@ -146,11 +161,14 @@ beforeEach(() => {
   root.innerHTML =
     '<h2 id="transaction">The transaction</h2><p>one</p><h2 id="animation">Animation</h2><pre><code>a\nb</code></pre>';
   document.body.appendChild(root);
-  pipeline = createPrintPipeline(() => root);
+  pipeline = createPrintPipeline(() => root, () => ({ config: CONFIG }));
 });
 
 afterEach(() => {
-  pipeline.dispose();
+  // destroy, not bare dispose: the ambient entry re-arms on dispose
+  // (the pipeline survives it) — only destroy disarms, and these
+  // listeners must not leak onto the shared jsdom window
+  pipeline.destroy();
   root.remove();
   document.querySelector('[data-print-output]')?.remove();
   document.documentElement.removeAttribute('data-jx-print-active');
@@ -277,5 +295,115 @@ describe('P1-5: post-prepare failure roads unwind the self-stamp', () => {
     expect(root.hasAttribute(PRINT_SIM_ATTR)).toBe(false); // NOT stranded
     expect(pipeline.status).toBe('error');
     expect(document.querySelector('[data-print-output]')).toBeNull();
+  });
+});
+
+// =========================================================================
+// THE AMBIENT PRINT ENTRY — beforeprint auto-init (Owner, 2026-09-01)
+// =========================================================================
+describe('ambient print: a browser-initiated print auto-initializes the pipeline', () => {
+  const dispatchBeforePrint = (): void => {
+    window.dispatchEvent(new Event('beforeprint'));
+  };
+
+  it('the pose lands synchronously, the pages mount with the layer grammar, afterprint owns the exit', async () => {
+    vi.useFakeTimers(FAKE_CLOCK);
+    try {
+      dispatchBeforePrint();
+      // the SYNCHRONOUS half: the pose beats the dialog — the app
+      // shell is hidden the instant the dialog opens, whatever the
+      // async half manages to mount in time
+      expect(document.documentElement.hasAttribute('data-jx-print-active')).toBe(true);
+      // the async half: the same transaction the print button runs,
+      // with the layer's grammar (a cold Ctrl/Cmd+P never falls back
+      // to a default page setup)
+      await untilReady();
+      expect(kernel.calls).toHaveLength(1);
+      expect(kernel.calls[0]!.stylesheets.map((sheet) => Object.values(sheet).join('')).join('')).toContain('counter(page)');
+      expect(pipeline.artifactMetadata).toBeDefined();
+      expect(root.hasAttribute(PRINT_SIM_ATTR)).toBe(true); // the ambient self-stamp
+      // the flight NEVER calls window.print — the dialog is already
+      // open (a second call would stack another)
+      expect((window.print as ReturnType<typeof vi.fn>).mock.calls).toHaveLength(0);
+      dispatchAfterPrint();
+      await flush(); // flush the settle + dispose microtasks
+      expect(root.hasAttribute(PRINT_SIM_ATTR)).toBe(false); // released
+      expect(pipeline.status).toBe('idle');
+      expect(document.querySelector('[data-print-output]')).toBeNull();
+      expect(document.documentElement.hasAttribute('data-jx-print-active')).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('a dialog that closes before the render finishes settles at completion (the artifact never outlives its print)', async () => {
+    vi.useFakeTimers(FAKE_CLOCK);
+    try {
+      kernel.mode = 'deferred';
+      dispatchBeforePrint();
+      await vi.waitFor(() => expect(kernel.deferreds).toHaveLength(1)); // render pends
+      dispatchAfterPrint(); // the dialog LEFT while the render was in flight
+      kernel.deferreds[0]!(); // the render lands AFTER afterprint
+      await drive(50); // flush to completion + the immediate settle
+      expect(kernel.calls).toHaveLength(1); // the render ran (the live dialog got the pages)
+      expect(pipeline.status).toBe('idle'); // …and settled at once
+      expect(root.hasAttribute(PRINT_SIM_ATTR)).toBe(false);
+      expect(document.querySelector('[data-print-output]')).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('a beforeprint ours already owns is a no-op (the sim artifact, or our own in-flight print)', async () => {
+    vi.useFakeTimers(FAKE_CLOCK);
+    try {
+      // the sim artifact case: the pose is ours, the dialog prints the
+      // paged output, no second render kicks
+      const sim_ = pipeline.runSim({ config: CONFIG });
+      await untilReady();
+      dispatchBeforePrint();
+      await flush();
+      expect(kernel.calls).toHaveLength(1);
+      await sim_;
+      pipeline.closeSim();
+      // the in-flight print case: OUR window.print() is what fires
+      // beforeprint — the single-flight guard must not treat it as
+      // ambient
+      kernel.mode = 'deferred';
+      const print_ = pipeline.runPrint({ config: CONFIG });
+      await vi.waitFor(() => expect(kernel.deferreds).toHaveLength(1));
+      dispatchBeforePrint();
+      expect(kernel.calls).toHaveLength(2); // still just the print flight's render
+      kernel.deferreds[0]!();
+      await untilReady();
+      dispatchAfterPrint();
+      await print_;
+      expect(kernel.calls).toHaveLength(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('dispose re-arms the ambient entry; destroy (the layer unmount) is the only disarm', async () => {
+    vi.useFakeTimers(FAKE_CLOCK);
+    try {
+      dispatchBeforePrint();
+      await untilReady();
+      dispatchAfterPrint();
+      await flush(); // the exit disposed the artifact…
+      expect(pipeline.status).toBe('idle');
+      // …but the pipeline SURVIVES: the next ambient print re-initializes
+      dispatchBeforePrint();
+      await vi.waitFor(() => expect(kernel.calls).toHaveLength(2));
+      dispatchAfterPrint();
+      await flush();
+      // TERMINAL: destroy takes the entry down with the layer
+      pipeline.destroy();
+      dispatchBeforePrint();
+      await drive(50);
+      expect(kernel.calls).toHaveLength(2); // nothing re-initialized
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

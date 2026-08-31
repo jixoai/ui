@@ -15,7 +15,10 @@
     Owner acceptance surface), no per-page wiring;
   - the page grammar comes from PAGE DATA: a page may export
     `printConfig` (a structured PrintPageConfig — devalue-safe) to
-    drive the exits; undefined = the pipeline's default A4.
+    drive the exits; undefined = the pipeline's default A4. The SAME
+    grammar feeds PrintDoc's printOptions — the AMBIENT entry
+    (beforeprint auto-init, 2026-09-01): a cold Ctrl/Cmd+P runs the
+    pipeline with the document's chosen setup, never a fallback.
 
   Pages that need their own fixture surface (the print-pipeline pilot)
   ship CONTENT only — the layer is here, once, for the whole tree.
@@ -45,7 +48,7 @@
   );
 </script>
 
-<PrintDoc>
+<PrintDoc printOptions={{ config: printConfig }}>
   <div data-jx-print="hide" class="mx-auto w-full max-w-[90rem] px-4 pt-6 sm:px-6 lg:px-8">
     <PrintControls config={printConfig} label="docs · print" />
   </div>

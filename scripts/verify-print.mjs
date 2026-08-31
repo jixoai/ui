@@ -826,6 +826,78 @@ check(
   JSON.stringify({ finalResidue, finalStamps }),
 );
 
+// ---- the AMBIENT PRINT ENTRY (Owner directive, 2026-09-01): a print
+// the BROWSER initiates (Ctrl/Cmd+P, the menu) auto-initializes the
+// pipeline. The events stand in for the dialog: beforeprint opens it,
+// afterprint closes it. From a COLD screen (no sim, no prior flight)
+// — the pipeline's own listener runs first (registered at creation),
+// a test listener behind it reads the pose INSIDE the same dispatch:
+// the synchronous half is the law (the dialog can never print the raw
+// screen), the async half mounts the pages with the layer's grammar
+const ambientPose = await page.evaluate(() => {
+  let activeAtDispatch = false;
+  window.addEventListener(
+    'beforeprint',
+    () => {
+      activeAtDispatch = document.documentElement.hasAttribute('data-jx-print-active');
+    },
+    { once: true },
+  );
+  // a counting stub: the ambient flight must NEVER call window.print
+  // (the dialog is already open — a second call would stack another)
+  window.__jxAmbientPrintCalls = 0;
+  const original = window.print;
+  window.print = () => {
+    window.__jxAmbientPrintCalls = (window.__jxAmbientPrintCalls ?? 0) + 1;
+    original?.call(window);
+  };
+  window.dispatchEvent(new Event('beforeprint'));
+  return activeAtDispatch;
+});
+const ambientMeta = await waitForMeta();
+await page.waitForTimeout(250);
+const ambient = await page.evaluate(() => {
+  const out = document.querySelector('[data-print-output]');
+  const source = document.querySelector('[data-print-source]');
+  const margin = out ? out.querySelector('.pagedjs_margin-bottom-left .pagedjs_margin-content') : null;
+  return {
+    pages: out ? out.querySelectorAll('.pagedjs_page').length : 0,
+    standby: out?.hasAttribute('data-print-standby') ?? false,
+    selfStamped: source?.hasAttribute('data-jx-print-sim') ?? false,
+    // the layer's grammar (docs default: counter(page)/counter(pages)
+    // footers) — a cold ambient print must never fall back to a bare
+    // default page setup
+    grammar: margin ? /counter\(page/.test(getComputedStyle(margin, ':after').content) : false,
+    printCalls: window.__jxAmbientPrintCalls ?? -1,
+    metaPurpose: JSON.parse(out?.dataset.jxPrintMeta ?? '{}').purpose,
+  };
+});
+check(
+  'ambient print: beforeprint auto-initializes — the pose is synchronous, the pages mount with the layer grammar, window.print is never called',
+  ambientPose === true &&
+    ambient.pages >= 2 &&
+    ambient.standby &&
+    ambient.selfStamped &&
+    ambient.grammar &&
+    ambient.printCalls === 0 &&
+    ambient.metaPurpose === 'print',
+  JSON.stringify({ ambientPose, ambient }),
+);
+await page.evaluate(() => {
+  window.dispatchEvent(new Event('afterprint'));
+});
+await page.waitForTimeout(300);
+const ambientResidue = await residue();
+check(
+  'ambient print: afterprint owns the exit — zero residue, the stamp released',
+  ambientResidue.output === false &&
+    ambientResidue.pages === 0 &&
+    ambientResidue.insertedStyles === 0 &&
+    ambientResidue.active === false &&
+    (await page.evaluate(() => document.querySelector('[data-print-source]')?.hasAttribute('data-jx-print-sim') === false)),
+  JSON.stringify(ambientResidue),
+);
+
 await browser.close();
 
 const failed = results.filter((r) => !r.pass);

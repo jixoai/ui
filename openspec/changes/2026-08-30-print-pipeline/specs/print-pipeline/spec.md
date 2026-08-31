@@ -96,11 +96,10 @@ hold, rebuilt from the same snapshot otherwise): prepareSnapshot →
 clone-only transforms (animation pause, pre→line spans, ToC-page nav
 injection) → paged.js preview into the document-connected output
 sibling. Real print additionally hides the app root under print media
-and calls window.print() only after prepareSnapshot completes (the
-browser's native Ctrl+P is a documented degraded path, not the
-contract). The sim stylesheet (`@media not print`) SHALL never reach
-the kernel — enforced by an AST gate on the kernel stylesheet and a
-runtime spy on the preview() inputs.
+and calls window.print() only after prepareSnapshot completes. The
+sim stylesheet (`@media not print`) SHALL never reach the kernel —
+enforced by an AST gate on the kernel stylesheet and a runtime spy on
+the preview() inputs.
 
 #### Scenario: sim then real print agree
 
@@ -108,6 +107,33 @@ runtime spy on the preview() inputs.
 - WHEN sim runs and when real print runs
 - THEN both outputs come from the same chunked artifact with the same
   @page rules — headers, footers and ToC page numbers are real
+
+### Requirement: a browser-initiated print auto-initializes the pipeline
+
+A print the BROWSER initiates (Ctrl/Cmd+P, the menu, a foreign
+window.print) SHALL drive the same transaction the print button
+drives. The beforeprint handler SHALL synchronously stamp the print
+pose (the app root hides under print media the instant the dialog
+opens — the dialog can never print the raw screen), then run the
+prepare→preview→standby transaction asynchronously with the layer's
+own page grammar (never a fallback default), and SHALL NOT call
+window.print (the dialog is already open — a second call would stack
+another). afterprint owns the exit under the stamp-ownership law,
+including the dialog-closed-early settle (the artifact never outlives
+the print that requested it). A beforeprint ours already owns (a
+mounted sim artifact, or the pipeline's own in-flight print) is a
+no-op. The ambient entry arms with the print layer and survives
+dispose (the pipeline keeps serving the next print); only the layer's
+unmount disarms it.
+
+#### Scenario: a cold Ctrl/Cmd+P
+
+- GIVEN a docs page at rest (no sim, no prior flight)
+- WHEN the browser fires beforeprint as its print dialog opens
+- THEN the active stamp lands within the same dispatch, the pages
+  mount into the standby output with the layer's configured grammar,
+  window.print is never called by the pipeline, and afterprint leaves
+  zero residue with the self-stamp released
 
 ### Requirement: clone transforms never touch the live DOM
 

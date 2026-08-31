@@ -29,7 +29,7 @@
   import { provideContextPlugins } from '../context-plugin.svelte';
   import { printPlugins } from './context-plugin';
   import { getDensityContext, resolveDensity } from '../density.svelte';
-  import { createPrintPipeline, type PrintPipeline } from './pipeline.svelte';
+  import { createPrintPipeline, type PrintPipeline, type PrintRunOptions } from './pipeline.svelte';
   import { PRINT_PIPELINE_KEY } from './print-context';
   import './sim-shell.css';
 
@@ -37,7 +37,17 @@
     children,
     id,
     class: className = '',
-  }: { children: Snippet; id?: string; class?: string } = $props();
+    printOptions,
+  }: {
+    children: Snippet;
+    id?: string;
+    class?: string;
+    /** the run options the AMBIENT print entry uses (beforeprint
+     *  auto-init, 2026-09-01): the same grammar the controls pass on
+     *  the button exits — a cold Ctrl/Cmd+P must not fall back to a
+     *  default page setup the document never chose */
+    printOptions?: PrintRunOptions;
+  } = $props();
 
   let rootEl = $state<HTMLElement | undefined>(undefined);
 
@@ -53,14 +63,20 @@
   const density = $derived(resolveDensity(undefined, getDensityContext()));
 
   // the pipeline instance (client-lazy: nothing touches the document
-  // until a control drives it)
-  const pipeline: PrintPipeline = createPrintPipeline(() => rootEl);
+  // until a control — or the ambient print entry — drives it); the
+  // getter reads the LIVE prop so a navigation that swaps printConfig
+  // re-targets the next ambient print
+  const pipeline: PrintPipeline = createPrintPipeline(
+    () => rootEl,
+    () => printOptions,
+  );
   setContext(PRINT_PIPELINE_KEY, pipeline);
 
   // unmount hygiene: a sim still open when the layer leaves the tree
   // (a mid-sim navigation) must not strand the body-level overlay —
-  // dispose is the idempotent all-paths cleanup
-  $effect(() => () => pipeline.dispose());
+  // destroy is dispose PLUS the ambient entry's disarm (the listeners
+  // must not outlive the layer that owns them)
+  $effect(() => () => pipeline.destroy());
 </script>
 
 <div bind:this={rootEl} {id} data-print-source data-density={density} class={className}>

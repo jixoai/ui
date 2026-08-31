@@ -49,6 +49,17 @@
  * detached on FIRST entry (the sim-survives branch never runs
  * dispose), and a stale fallback resolves without touching state.
  *
+ * THE AMBIENT PRINT ENTRY (Owner directive, 2026-09-01): a print the
+ * BROWSER initiates (Ctrl/Cmd+P, the menu, a foreign window.print)
+ * auto-initializes the pipeline — beforeprint stamps the print pose
+ * SYNCHRONOUSLY (the dialog can never print the raw screen), then
+ * runs the button-print transaction async (Chromium's live print
+ * preview picks the pages up as they mount); afterprint owns the
+ * exit, including the dialog-closed-early settle. The listeners ride
+ * their own arm/disarm pair: dispose() re-arms (the pipeline keeps
+ * serving the next print), destroy() — the layer's unmount — is the
+ * only disarm.
+ *
  * DIAGNOSTIC CARRIERS: the sim renders rows; direct print records
  * into the artifact metadata + the console.
  */
@@ -147,10 +158,15 @@ export interface PrintPipeline {
    *  (remove the output root + destroy the artifact handle) */
   cancel(): void;
   dispose(): void;
+  /** TERMINAL teardown — the print layer's unmount: dispose() plus
+   *  the ambient print entry's listeners (a disposed pipeline still
+   *  serves the next print; a destroyed one serves nothing) */
+  destroy(): void;
 }
 
 export function createPrintPipeline(
   getSourceRoot: () => HTMLElement | undefined,
+  ambientOptions?: () => PrintRunOptions | undefined,
 ): PrintPipeline {
   let status = $state<PrintStatus>('idle');
   let progress = $state<PrintProgress | undefined>(undefined);
@@ -175,6 +191,13 @@ export function createPrintPipeline(
   let controllerRef: AbortController | undefined;
   /** the transaction whose stamp the afterprint hook may release */
   let liveSnapshot: FrozenSnapshot | undefined;
+  /** AMBIENT PRINT (Owner directive, 2026-09-01): the settle handle of
+   *  an ambient flight's afterprint wait + whether that afterprint has
+   *  already fired (a dialog that closed before the render finished —
+   *  the flight settles itself at completion instead of waiting for an
+   *  event that already passed) */
+  let ambientSettle: (() => void) | undefined;
+  let ambientAfterprintSeen = true;
   const ownedListeners: (() => void)[] = [];
   const cssCache = new Map<string, string>();
 
@@ -408,12 +431,21 @@ export function createPrintPipeline(
   };
 
   /** IDEMPOTENT cleanup — all four paths land here (success / failure /
-   *  afterprint / sim-off): pages, head-style handles, listeners */
+   *  afterprint / sim-off): pages, head-style handles, listeners. The
+   *  pipeline SURVIVES dispose (the next sim/print reuses it), so the
+   *  ambient print entry re-arms at the end — only destroy() (the
+   *  layer's unmount) takes it down for good */
   const dispose = (): void => {
     // invalidate any in-flight attempt FIRST (codex review P1,
     // 2026-08-30): its late continuations must not publish DOM nor
-    // register listeners into the array this function is about to drain
+    //  register listeners into the array this function is about to drain
     generation++;
+    // a pending ambient wait must not outlive the state that owns it —
+    // settle it STALE (the flight's exit checks the token and leaves
+    // the state to this invalidator)
+    ambientAfterprintSeen = true;
+    ambientSettle?.();
+    ambientSettle = undefined;
     removeArtifactDom(artifact);
     artifact = undefined;
     removeOwnedListeners();
@@ -422,6 +454,7 @@ export function createPrintPipeline(
     previewEntered = false;
     pageCount = 0;
     status = 'idle';
+    armAmbient();
   };
 
   const publishMetadata = (target: Artifact): void => {
@@ -609,7 +642,11 @@ export function createPrintPipeline(
     }
   };
 
-  const guarded = async (purpose: 'sim' | 'print', options?: PrintRunOptions): Promise<void> => {
+  const guarded = async (
+    purpose: 'sim' | 'print',
+    options?: PrintRunOptions,
+    ambient = false,
+  ): Promise<void> => {
     if (inFlight !== undefined) return inFlight; // single-flight
     const gen = ++generation; // this flight's token — retires any zombie attempt
     previewEntered = false; // never inherit a previous flight's phase
@@ -618,6 +655,33 @@ export function createPrintPipeline(
     const flight = (async () => {
       const snapshot = await run(purpose, options, controller.signal, gen);
       if (purpose !== 'print') return;
+      // the print-exit law, shared by both entries: release ONLY the
+      // transaction's own stamp (a surviving sim re-derives the medium
+      // and keeps the artifact); on a superseded wait the invalidator
+      // owns the state, so the flight resolves without flipping it
+      const settlePrintExit = (): void => {
+        snapshot.releaseStamp();
+        if (gen !== generation) return;
+        const root = getSourceRoot();
+        const simSurvives = root?.hasAttribute(PRINT_SIM_ATTR) ?? false;
+        if (!simSurvives) dispose();
+        else status = 'ready';
+      };
+      if (ambient) {
+        // ── the AMBIENT exit: the browser already opened its dialog
+        //    (beforeprint kicked this flight) — calling window.print()
+        //    here would stack a SECOND dialog. The exit is the
+        //    afterprint that ends the print in progress; a dialog that
+        //    closed before the render finished settles at once (the
+        //    artifact never outlives the print that requested it)
+        if (!ambientAfterprintSeen) {
+          await new Promise<void>((resolve) => {
+            ambientSettle = resolve;
+          });
+        }
+        settlePrintExit();
+        return;
+      }
       // ── the direct-print exit: prepareSnapshot has COMPLETED; the
       //    real dialog upgrades the medium ('print' > 'sim'); the
       //    afterprint hook is the only exit
@@ -638,23 +702,7 @@ export function createPrintPipeline(
           // probes/tests that stub window.print
           if (fallback !== undefined) clearTimeout(fallback);
           window.removeEventListener('afterprint', onAfterPrint as EventListener);
-          // ownership law: release ONLY the transaction's own stamp —
-          // a surviving sim re-derives the medium to 'sim' and keeps
-          // the artifact. This stays ours to do even on a superseded
-          // wait: dispose() cannot release a stamp it does not own
-          snapshot.releaseStamp();
-          // the supersede gate, afterprint checkpoint: a dispose/
-          // cancel landed while the dialog (or the stubbed grace
-          // window) was open — the invalidator owns the state, this
-          // flight resolves without flipping anything back
-          if (gen !== generation) {
-            resolve();
-            return;
-          }
-          const root = getSourceRoot();
-          const simSurvives = root?.hasAttribute(PRINT_SIM_ATTR) ?? false;
-          if (!simSurvives) dispose();
-          else status = 'ready';
+          settlePrintExit();
           resolve();
         };
         addListener(window, 'afterprint', onAfterPrint as EventListener);
@@ -691,6 +739,58 @@ export function createPrintPipeline(
       if (controllerRef === controller) controllerRef = undefined;
     }
   };
+
+  /** THE AMBIENT PRINT ENTRY (Owner directive, 2026-09-01): a print
+   *  the BROWSER initiates (Ctrl/Cmd+P, the menu, a foreign
+   *  window.print) fires beforeprint synchronously as its dialog
+   *  opens — there is no await-room inside the handler and no
+   *  cancelling the dialog. The synchronous half is the POSE: the
+   *  active stamp hides the app shell through @media print at once,
+   *  so the dialog can never print the raw screen. The async half is
+   *  the very transaction the print button runs (prepare → paged
+   *  preview → the standby mount); Chromium's print preview is LIVE
+   *  (it re-renders as the DOM mutates), so the pages appear in the
+   *  open dialog as they mount. afterprint owns the exit.
+   *
+   *  The listeners ride their OWN arm/disarm pair, NOT addListener:
+   *  dispose() drains the owned array after every print exit, and the
+   *  pipeline must keep serving the NEXT ambient print — dispose()
+   *  re-arms; only destroy() (the print layer's unmount) disarms. */
+  const onAmbientBeforePrint = (): void => {
+    // ours already owns the pose — a mounted artifact (the sim), or
+    // our own print flight (its window.print() fired this event)
+    if (inFlight !== undefined || artifact !== undefined) return;
+    const root = getSourceRoot();
+    if (root === undefined || !root.isConnected) return; // nothing printable: the raw print stands
+    ambientAfterprintSeen = false;
+    stampActive(true); // synchronous — the pose beats the dialog
+    void guarded('print', ambientOptions?.(), true).catch(() => {
+      // guarded surfaces failures (lastError, status, console)
+    });
+  };
+  const onAmbientAfterPrint = (): void => {
+    ambientAfterprintSeen = true;
+    ambientSettle?.();
+    ambientSettle = undefined;
+  };
+  let ambientArmed = false;
+  // SSR-inert: the pipeline's creation touches no browser global (the
+  // print layer prerenders on the server, where beforeprint cannot
+  // fire) — the entry arms on the client, and dispose()'s re-arm is a
+  // no-op there too
+  const armAmbient = (): void => {
+    if (ambientArmed || typeof window === 'undefined') return;
+    ambientArmed = true;
+    window.addEventListener('beforeprint', onAmbientBeforePrint);
+    window.addEventListener('afterprint', onAmbientAfterPrint);
+  };
+  const disarmAmbient = (): void => {
+    if (!ambientArmed || typeof window === 'undefined') return;
+    ambientArmed = false;
+    window.removeEventListener('beforeprint', onAmbientBeforePrint);
+    window.removeEventListener('afterprint', onAmbientAfterPrint);
+  };
+  armAmbient();
 
   return {
     get status() {
@@ -740,5 +840,11 @@ export function createPrintPipeline(
       } else dispose();
     },
     dispose,
+    destroy() {
+      // TERMINAL: the print layer left the tree — the ambient entry
+      // goes with it (dispose re-arms; only this takes it down)
+      dispose();
+      disarmAmbient();
+    },
   };
 }
