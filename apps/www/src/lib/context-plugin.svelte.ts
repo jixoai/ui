@@ -275,8 +275,8 @@ export function provideContextPlugins(
 
   // env.medium: the medium context captured HERE (provide time). A
   // getter so every read lands in whichever derived reads it; absent
-  // provider (SSR, or a root above every PagedDoc) → the explicit
-  // 'screen' initial — never a window access.
+  // provider (SSR, or a root above every print-doc layer) → the
+  // explicit 'screen' initial — never a window access.
   const mediumContext = getMedium();
   const env: ContextEnv = Object.freeze({
     get medium(): MediumState {

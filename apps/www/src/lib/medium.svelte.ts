@@ -25,14 +25,12 @@
  * the screen print preview, kept in lockstep with the CSS mirror by
  * construction (both derive from the same two sources).
  *
- * CSS EXCLUSION LAW: the sim projection copy in
- * `lib/paged/print-projection.css` is wrapped in `@media not print`,
- * so under real print the sim rules stop matching entirely and the
- * `@media print` product is the sole authority — the two CSS halves
- * never both apply. Nothing in this module keys CSS off a medium
- * stamp (the §0 ruling: no data-medium CSS scope); the
- * `data-jx-medium` attribute PagedDoc projects is a read-only
- * telemetry hook no stylesheet targets.
+ * CSS EXCLUSION LAW: the sim chrome half (lib/print/sim-shell.css)
+ * is wrapped in `@media not print`, so under real print the sim
+ * rules stop matching entirely and the `@media print` product is the
+ * sole authority — the two CSS halves never both apply. Nothing in
+ * this module keys CSS off a medium stamp (the §0 ruling: no
+ * data-medium CSS scope).
  *
  * SSR SAFETY: no module-top-level window access; browser
  * subscriptions live inside component effects, which never run on
@@ -100,10 +98,21 @@ export function getMedium(): MediumContext | undefined {
 
 /**
  * Provide the medium for a subtree. `root` returns the element whose
- * `data-jx-print-sim` attribute is the sim signal (PagedDoc passes
- * its article; any ancestor stamp observed by that element is the
+ * `data-jx-print-sim` attribute is the sim signal (print-doc passes
+ * its wrapper; any ancestor stamp observed by that element is the
  * page's choice to wire). `initialSim` covers the server render,
  * where the stamp is known from props but not yet observable.
+ *
+ * THE DOCUMENT ROOT special case: when `root` resolves to
+ * `document.documentElement` the observation widens to the whole
+ * subtree — a stamp carried by ANY element (the print layer always
+ * stamps the docs source root, which lives deeper in the tree and
+ * changes across navigations) flips the document-level medium. This
+ * is how the SITE ROOT layout provides the medium its plugin scopes
+ * read (env.medium): a print transaction on any page, driven through
+ * any source root, opens the same gate — without this, a long-lived
+ * observer bound to one page's wrapper would go stale on navigation
+ * and never see the next page's stamp.
  */
 export function provideMedium(options: {
   root: () => HTMLElement | undefined;
@@ -161,15 +170,30 @@ export function provideMedium(options: {
 
     // ---- source 2: the sim stamp ---------------------------------------
     // The DOM is the source of truth (any writer may stamp); the
-    // observer mirrors attribute changes into the signal.
+    // observer mirrors attribute changes into the signal. The
+    // document root observes its whole SUBTREE (stamps land on
+    // page-owned source roots, not on <html> itself); any other root
+    // observes itself only — the per-layer scope.
     const el = options.root();
+    const documentScoped = el === document.documentElement;
+    const hasStamp = (node: HTMLElement | undefined): boolean => {
+      if (!node) return false;
+      return documentScoped
+        ? node.hasAttribute(PRINT_SIM_ATTR) ||
+            node.querySelector(`[${PRINT_SIM_ATTR}]`) !== null
+        : node.hasAttribute(PRINT_SIM_ATTR);
+    };
     let observer: MutationObserver | undefined;
     const readStamp = () => {
-      simStamp = el?.hasAttribute(PRINT_SIM_ATTR) ?? false;
+      simStamp = hasStamp(el);
     };
     if (el && typeof MutationObserver !== 'undefined') {
       observer = new MutationObserver(readStamp);
-      observer.observe(el, { attributes: true, attributeFilter: [PRINT_SIM_ATTR] });
+      observer.observe(el, {
+        attributes: true,
+        attributeFilter: [PRINT_SIM_ATTR],
+        subtree: documentScoped,
+      });
     }
     readStamp();
 

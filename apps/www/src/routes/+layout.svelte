@@ -27,6 +27,11 @@
   import NavigationMenuLink from '$lib/ui/navigation-menu/navigation-menu-link.svelte';
   import HuePopover from '$lib/components/hue-popover.svelte';
   import { createHueContext, startHueRuntime, stopHueRuntime } from '$lib/hue-runtime.svelte';
+  import { provideMedium } from '$lib/medium.svelte';
+  import { provideContextPlugins } from '$lib/context-plugin.svelte';
+  // the print plugins leaf (NOT the lib/print barrel — the root layout
+  // must not pull the pipeline/pagedjs graph into every route's chunk)
+  import { printPlugins } from '$lib/print/context-plugin';
   import { onMount } from 'svelte';
   import { GITHUB_URL } from '$lib/site';
   import { icons } from '$lib/icons';
@@ -37,12 +42,27 @@
 
   let { children }: { children: Snippet } = $props();
 
+  // The print layer's ROOT capture coordinates (print-pipeline,
+  // 2026-08-30). Order is the contract: the document medium first
+  // (its documentElement subtree sees the sim stamp wherever the
+  // print layer lands it), then the print plugin root — its
+  // env.medium getter endorses that medium — and only THEN the hue
+  // context, whose pipeline captures the plugin chain HERE (the
+  // kernel's provide-time capture coordinate). This is why the hue
+  // pin lives in the ROOT layout: a page-level plugin root could
+  // never be seen by the hue pipeline created above it.
+  provideMedium({ root: () => document.documentElement });
+  provideContextPlugins(printPlugins);
+
   // The hue context instance (context-plugin-system, 2026-08-30):
   // created at layout init so the plugin chain visible HERE is
   // captured once (the kernel's provide-time capture coordinate) and
   // provided to the tree — hue-runtime's documentElement stamp and the
   // currentHue store read the chained exposed projection from now on.
-  // Zero plugin roots exist on the site today: the identity fast path.
+  // With the print plugins above, the chain is live-but-gated: on the
+  // open web the medium gate keeps it the identity fast path; a print
+  // transaction opening the gate pins the projection without a
+  // single line of hue-runtime retrofit.
   createHueContext();
 
   // Brand hue runs free: time-of-day seed + 30s auto-cycle (Owner, 2026-08-21).

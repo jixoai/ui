@@ -45,8 +45,10 @@ import {
   type PluginPipeline,
 } from './context-plugin.svelte';
 
-/** The hue def: 0–359 fractional degrees (rounded at the DOM seam). */
-const HUE_DEF: ContextDef<'hue', number> = {
+/** The hue def: 0–359 fractional degrees (rounded at the DOM seam).
+ *  Exported so the print plugin can pin the projection to the def's
+ *  OWN default (one source of truth for the pinned value). */
+export const HUE_DEF: ContextDef<'hue', number> = {
   key: 'hue',
   defaults: () => 0,
   ssrSafe: 0,
