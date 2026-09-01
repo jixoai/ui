@@ -541,17 +541,20 @@
   }
   $effect(trimTabStops);
 
-  // one observer, two jobs (2026-09-02, A-9/A-11): childList flips
-  // invalidate the stamp's trigger cache (a late-mounted trigger joins
-  // the walk), and disabled flips re-trim the roving tabindex — a
-  // dynamically disabled tab stop must hand the stop to the first
-  // enabled trigger, or the strip loses its only keyboard entry
+  // one observer, three jobs (2026-09-02, A-9/A-11 + CR-1 P3-4):
+  // childList flips invalidate the stamp's trigger cache (a
+  // late-mounted trigger joins the walk AND gets its edge factors
+  // stamped — no blank first frame on ramp materials), and disabled
+  // flips re-trim the roving tabindex — a dynamically disabled tab
+  // stop must hand the stop to the first enabled trigger, or the
+  // strip loses its only keyboard entry
   $effect(() => {
     const list = listEl;
     if (!list || typeof MutationObserver === 'undefined') return;
     const mo = new MutationObserver(() => {
       triggerCache = null;
       trimTabStops();
+      restamp?.();
     });
     // subtree is required to see attribute flips on the trigger
     // children; the attributeFilter keeps Svelte's own tabindex trims

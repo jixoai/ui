@@ -156,7 +156,13 @@
 </script>
 
 <div data-jx-carousel="" class={cn('flex flex-col gap-3', className)} role="region" aria-roledescription="carousel" aria-label={label}>
-  <div data-jx-carousel-window="" class="relative">
+  <!-- the window is a ONE-CELL GRID (CR-2 P1-3, 2026-09-02): the track
+       is the base layer, the arrows are grid items of the same cell —
+       self-center + justify-self per side, hung 1rem outside the cell
+       by a negative margin (the tabs host dialect; the old
+       position:absolute chevrons sat in the grid-law rejection
+       scenario verbatim) -->
+  <div data-jx-carousel-window="" class="grid">
     <!-- tabindex: the scroll region itself is the keyboard surface
          (native arrow scrolling); buttons page explicitly -->
     <!-- svelte-ignore a11y_no_static_element_interactions, a11y_no_noninteractive_element_interactions -- the
@@ -164,7 +170,7 @@
          (mandatory snap eats native arrow keys) and pan with the mouse;
          the dots and arrows remain the explicit controls -->
     <div
-      class="jx-carousel-track flex gap-3 overflow-x-auto snap-x snap-mandatory overscroll-x-contain pb-1 focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      class="jx-carousel-track [grid-area:1/1] flex gap-3 overflow-x-auto snap-x snap-mandatory overscroll-x-contain pb-1 focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
       style="--jx-slide-w: {slideWidth}"
       use:collectSlides
       tabindex="0"
@@ -181,7 +187,7 @@
       type="button"
       data-jx-carousel-arrow=""
       data-jx-carousel-prev=""
-      class="absolute top-1/2 -translate-y-1/2 -left-4 appearance-none inline-flex items-center justify-center size-8 border border-border bg-popover text-foreground text-lg leading-none cursor-pointer shadow-xs hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      class="[grid-area:1/1] justify-self-start self-center -ml-4 appearance-none inline-flex items-center justify-center size-8 border border-border bg-popover text-foreground text-lg leading-none cursor-pointer shadow-xs hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
       aria-label="previous slide"
       onclick={() => step(-1)}
     >{prevLabel}</button>
@@ -189,7 +195,7 @@
       type="button"
       data-jx-carousel-arrow=""
       data-jx-carousel-next=""
-      class="absolute top-1/2 -translate-y-1/2 -right-4 appearance-none inline-flex items-center justify-center size-8 border border-border bg-popover text-foreground text-lg leading-none cursor-pointer shadow-xs hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      class="[grid-area:1/1] justify-self-end self-center -mr-4 appearance-none inline-flex items-center justify-center size-8 border border-border bg-popover text-foreground text-lg leading-none cursor-pointer shadow-xs hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
       aria-label="next slide"
       onclick={() => step(1)}
     >{nextLabel}</button>

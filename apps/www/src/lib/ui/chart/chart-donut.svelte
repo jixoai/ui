@@ -70,9 +70,9 @@
   aria-label={label}
   data-jx-chart-donut=""
   data-density={resolvedDensity}
-  class={cn('relative inline-block', className)}
+  class={cn('grid', className)}
 >
-  <svg viewBox="0 0 {size} {size}" width={size} height={size} fill="none" aria-hidden="true">
+  <svg viewBox="0 0 {size} {size}" width={size} height={size} fill="none" aria-hidden="true" class="[grid-area:1/1]">
     <g transform="rotate(-90 {size / 2} {size / 2})">
       <circle
         class="jx-chart-track"
@@ -99,7 +99,8 @@
     </g>
   </svg>
   {#if children}
-    <div data-jx-chart-donut-center="" class="absolute inset-0 grid place-items-center">
+    <!-- the center slot is a grid item of the SAME cell (CR-2, 2026-09-02): grid stacking, not absolute overlay -->
+    <div data-jx-chart-donut-center="" class="[grid-area:1/1] grid place-items-center">
       {@render children()}
     </div>
   {/if}

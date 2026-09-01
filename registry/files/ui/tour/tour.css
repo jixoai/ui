@@ -12,9 +12,14 @@
  * reliable) — and its top/left fallbacks likewise own no utility
  * counterparts. Without anchor positioning support: a plain
  * full-viewport tint, no hole. Card/text paint lives in the markup. */
+/* the spotlight tint is a MODAL SCRIM (CR-2 P1-1, 2026-09-02): it rode
+ * a hand-mixed background tint — additive ink outside both the scrim
+ * token and the subtraction law, and backwards in light mode (a
+ * spotlight must DIM the surroundings, not wash them white). The
+ * scrim family token dims black in light / lifts white in dark */
 :where(.jx-tour-hole) {
   inset: 0;
-  background: color-mix(in oklab, var(--background) 55%, transparent);
+  background: var(--scrim);
 }
 @supports (anchor-name: --jx-tour-support) and (width: anchor-size(width)) {
   :where(.jx-tour-hole-anchored) {
@@ -25,7 +30,7 @@
     height: anchor-size(height);
     background: transparent;
     border: 1px solid var(--primary);
-    box-shadow: 0 0 0 100vmax color-mix(in oklab, var(--background) 55%, transparent);
+    box-shadow: 0 0 0 100vmax var(--scrim);
   }
 }
 

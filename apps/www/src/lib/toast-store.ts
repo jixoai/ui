@@ -270,7 +270,20 @@ export function createToastStore(): ToastStore {
       const visible = ids === null ? null : new Set(ids);
       for (const internal of live.values()) {
         if (internal.expiresAt === Infinity) continue; // sticky: no clock
-        const seen = visible === null || visible.has(internal.item.id);
+        // detach (ids === null): no viewport owns the hold anymore —
+        // a hover/focus pause must not outlive its viewport, or the
+        // toast freezes forever with no one left to resume it
+        // (CR-1 P3-2, 2026-09-02). Everything resumes arm-at-push
+        if (visible === null) {
+          if (internal.remaining !== undefined) {
+            internal.held = false;
+            internal.expiresAt = now() + internal.remaining;
+            internal.remaining = undefined;
+            arm(internal);
+          }
+          continue;
+        }
+        const seen = visible.has(internal.item.id);
         // never stomp the viewport's hover/focus hold: `held` is the
         // user pause; the visibility hold only pauses/resumes toasts
         // the hold does not own

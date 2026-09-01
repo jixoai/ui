@@ -39,14 +39,18 @@
 </script>
 
 {#if children}
-  <div data-jx-spin-wrap="" class={cn('relative block', className)} aria-busy="true">
-    <div data-jx-spin-live="" class="absolute start-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1] px-3.5 py-2 border border-border bg-popover shadow" role="status" aria-label={label}>
+  <!-- container posture (CR-2, 2026-09-02): one-cell GRID stacking — the
+       badge centers by place-self, the busy-scrim stretches — no
+       position:absolute anywhere; the scrim is the --scrim family token
+       (a modal dim, never the retired hand-mixed background tint) -->
+  <div data-jx-spin-wrap="" class={cn('grid', className)} aria-busy="true">
+    <div data-jx-spin-live="" class="z-[1] [grid-area:1/1] place-self-center px-3.5 py-2 border border-border bg-popover shadow" role="status" aria-label={label}>
       <span data-jx-spin-cursor="" class="font-mono text-[0.875rem] text-primary" aria-hidden="true">[&nbsp;<span class="jx-spin-frames relative inline-grid w-[1ch] text-center align-bottom"><i class="not-italic row-start-1 col-start-1 visible animate-[jx-spin-frame_800ms_steps(1)_infinite]">/</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-spin-frame_800ms_steps(1)_infinite] [animation-delay:200ms]">—</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-spin-frame_800ms_steps(1)_infinite] [animation-delay:400ms]">\\</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-spin-frame_800ms_steps(1)_infinite] [animation-delay:600ms]">|</i></span>&nbsp;]</span>
     </div>
-    <div data-jx-spin-content="" aria-hidden="false">
+    <div data-jx-spin-content="" class="[grid-area:1/1]" aria-hidden="false">
       {@render children()}
     </div>
-    <div data-jx-spin-scrim="" class="absolute inset-0 bg-[color-mix(in_oklab,var(--background)_55%,transparent)]" aria-hidden="true"></div>
+    <div data-jx-spin-scrim="" class="[grid-area:1/1] bg-(--scrim)" aria-hidden="true"></div>
   </div>
 {:else}
   <span data-jx-spin-inline="" class={cn('inline-flex items-center font-mono text-[0.8125rem] text-primary', className)} role="status" aria-label={label}>

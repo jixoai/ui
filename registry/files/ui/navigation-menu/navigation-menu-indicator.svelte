@@ -210,11 +210,27 @@
   // childList too (B-6, 2026-09-02): a current entry mounted AFTER the
   // bar measured (hydration order) carries its aria-current ready-made —
   // attributeFilter never fires for a brand-new node, so the insertion
-  // itself is the settling measure
+  // itself is the settling measure. The childList arm is RELEVANCE-
+  // FILTERED (CR-1 P3-4, 2026-09-02): the nav subtree mutates for
+  // reasons that never move the current entry (badges, labels), and an
+  // unfiltered observe cancelled the in-flight animation on every one
+  // of them — only a mutation that touches the current entry's box
+  // (its own insertion, or an insertion inside it) may remeasure
   onMount(() => {
     const bar = barEl();
     if (!bar) return;
-    const mo = new MutationObserver(() => measure(true));
+    const touchesCurrent = (muts: MutationRecord[]): boolean =>
+      muts.some((m) => {
+        if (m.type === 'attributes') return true; // an aria-current flip
+        const current = currentEntry();
+        if (current && (m.target === current || current.contains(m.target as Node))) return true;
+        return [...m.addedNodes].some(
+          (n) => n instanceof HTMLElement && (n.hasAttribute('aria-current') || !!n.querySelector('[aria-current]')),
+        );
+      });
+    const mo = new MutationObserver((muts) => {
+      if (touchesCurrent(muts)) measure(true);
+    });
     mo.observe(bar, { subtree: true, childList: true, attributeFilter: ['aria-current'] });
     const ro =
       typeof ResizeObserver === 'undefined'

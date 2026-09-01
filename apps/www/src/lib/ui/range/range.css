@@ -136,8 +136,10 @@
 /* invalid dashes the thumb's ring (the family's error law — the old
    custom build's dashed-border thumb, carried to the native face).
    Hand residue: the .jx-invalid class is the component's own state,
-   not the law's — it rides AFTER the mount slot so source order lets
-   it win over the generated solid border */
+   not the law's — it wins because these rules are UNLAYERED while the
+   mount slot rides @layer components: an unlayered rule beats any
+   layered rule regardless of source order (CR-1 P3-3, 2026-09-02 —
+   the previous "source order" attribution would mislead a reorder) */
 [data-jx-range].jx-invalid::-webkit-slider-thumb {
   border-style: dashed;
   border-color: var(--foreground);
