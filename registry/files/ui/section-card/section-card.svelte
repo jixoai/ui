@@ -49,7 +49,7 @@
   );
 </script>
 
-<section class={`border border-border bg-card shadow-xs ${className}`} data-family={family} data-region={region}>
+<section class={`border border-border bg-card shadow-2xs ${className}`} data-family={family} data-region={region}>
   <div class="flex flex-col gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4" data-region={headerRegion}>
     {#if eyebrow}
       <p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">{eyebrow}</p>

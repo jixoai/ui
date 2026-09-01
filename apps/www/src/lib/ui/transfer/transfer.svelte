@@ -156,7 +156,7 @@
   <div class="jx-tr-movers flex flex-col gap-2">
     <button
       type="button"
-      class="jx-tr-move appearance-none w-8 h-8 border border-border bg-card text-foreground text-base leading-none cursor-pointer shadow-2xs disabled:opacity-35 disabled:cursor-not-allowed"
+      class="jx-tr-move appearance-none w-8 h-8 border border-border bg-card text-foreground text-base leading-none cursor-pointer shadow-xs disabled:opacity-35 disabled:cursor-not-allowed"
       aria-label="move selected to {targetTitle}"
       disabled={movableSource.length === 0}
       onclick={() => move('to-target')}
@@ -164,7 +164,7 @@
     >
     <button
       type="button"
-      class="jx-tr-move appearance-none w-8 h-8 border border-border bg-card text-foreground text-base leading-none cursor-pointer shadow-2xs disabled:opacity-35 disabled:cursor-not-allowed"
+      class="jx-tr-move appearance-none w-8 h-8 border border-border bg-card text-foreground text-base leading-none cursor-pointer shadow-xs disabled:opacity-35 disabled:cursor-not-allowed"
       aria-label="move selected to {sourceTitle}"
       disabled={movableTarget.length === 0}
       onclick={() => move('to-source')}

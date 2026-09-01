@@ -107,7 +107,7 @@
 <div
   data-jx-terminal
   class={cn(
-    'border-border bg-terminal text-terminal-foreground w-full border [box-shadow:6px_6px_0_0_var(--shadow)]',
+    'border-border bg-terminal text-terminal-foreground w-full border shadow',
     scope === 'dark' ? 'dark [color-scheme:dark]' : 'jx-light [color-scheme:light]',
   )}
 >

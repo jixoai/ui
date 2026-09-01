@@ -181,7 +181,7 @@
       type="button"
       data-jx-carousel-arrow=""
       data-jx-carousel-prev=""
-      class="absolute top-1/2 -translate-y-1/2 -left-4 appearance-none inline-flex items-center justify-center size-8 border border-border bg-popover text-foreground text-lg leading-none cursor-pointer shadow-2xs hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      class="absolute top-1/2 -translate-y-1/2 -left-4 appearance-none inline-flex items-center justify-center size-8 border border-border bg-popover text-foreground text-lg leading-none cursor-pointer shadow-xs hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
       aria-label="previous slide"
       onclick={() => step(-1)}
     >{prevLabel}</button>
@@ -189,7 +189,7 @@
       type="button"
       data-jx-carousel-arrow=""
       data-jx-carousel-next=""
-      class="absolute top-1/2 -translate-y-1/2 -right-4 appearance-none inline-flex items-center justify-center size-8 border border-border bg-popover text-foreground text-lg leading-none cursor-pointer shadow-2xs hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      class="absolute top-1/2 -translate-y-1/2 -right-4 appearance-none inline-flex items-center justify-center size-8 border border-border bg-popover text-foreground text-lg leading-none cursor-pointer shadow-xs hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
       aria-label="next slide"
       onclick={() => step(1)}
     >{nextLabel}</button>

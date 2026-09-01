@@ -44,7 +44,7 @@
 
 <section
   data-jx-pattern-login-otp=""
-  class={`jx-pattern-login box-border mx-auto w-full max-w-[26rem] border border-border bg-card rounded-(--radius) [box-shadow:4px_4px_0_0_var(--shadow)] ${className}`}
+  class={`jx-pattern-login box-border mx-auto w-full max-w-[26rem] border border-border bg-card rounded-(--radius) shadow ${className}`}
   aria-label="terminal two-factor verification"
 >
   <header data-jx-pattern-login-echo="" class="border-b border-border px-4 py-2.5" aria-hidden="true">

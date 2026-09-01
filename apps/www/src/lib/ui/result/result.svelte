@@ -56,7 +56,7 @@
   <div
     data-jx-result-icon=""
     class={cn(
-      'inline-flex items-center justify-center [width:calc(var(--jx-icon)*2)] [height:calc(var(--jx-icon)*2)] border border-border bg-card shadow-xs',
+      'inline-flex items-center justify-center [width:calc(var(--jx-icon)*2)] [height:calc(var(--jx-icon)*2)] border border-border bg-card shadow-2xs',
       iconBorder[status],
     )}
     aria-hidden="true"
