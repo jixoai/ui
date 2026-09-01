@@ -253,7 +253,7 @@ function generateAiExports() {
   );
 }
 
-function main() {
+async function main() {
   console.log("[build-site] 0/8 ensuring @jixoai/vite-plugin dist (file: dep, gitignored output)");
   ensureVitePluginDist();
   console.log("[build-site] 1/8 building apps/www (SvelteKit static)");
@@ -286,7 +286,11 @@ function main() {
   // 2026-09-02): same final-artifact scan lane as llms.txt, one phase
   // later; /search/ has exactly this writer (declared-outputs law)
   console.log("[build-site] 7.5/8 generating /search/corpus.json (page-semantics)");
-  generateSearchCorpusArtifact();
+  // awaited: unlike the sync llms-txt generator, the corpus phase is
+  // async (the tokenizer dynamic-import chain) — the artifact assert
+  // below must not race ahead of the write, and a failure must fail
+  // the build loudly, not reject unhandled
+  await generateSearchCorpusArtifact();
 
   const items = readdirSync(path.join(publicDir, "r"));
   console.log(
@@ -295,8 +299,8 @@ function main() {
   console.log("[build-site] preview: python3 -m http.server --directory public");
 }
 
-function generateSearchCorpusArtifact() {
-  const report = generateSearchCorpus(publicDir, {
+async function generateSearchCorpusArtifact() {
+  const report = await generateSearchCorpus(publicDir, {
     exclude: [
       "404.html",
       "blueprints.html",
@@ -312,4 +316,4 @@ function generateSearchCorpusArtifact() {
   );
 }
 
-main();
+await main();

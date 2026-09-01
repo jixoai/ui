@@ -61,6 +61,7 @@
     "color-picker -> @jixoai/jx-pure",
     "component-canvas -> @jixoai/shiki",
     "press-button -> @jixoai/utils",
-    "scaffold-float -> @jixoai/website-scaffold"
+    "scaffold-float -> @jixoai/website-scaffold",
+    "search-corpus -> @jixoai/llms-txt"
   ]
 }

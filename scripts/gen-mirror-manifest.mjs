@@ -26,6 +26,15 @@ const UNREFERENCED_LIB = [
   // (color-utils left this list in the ghostty-term change: it now has an
   //  owning registry:lib item and color-picker/ghostty-term depend on it)
   { path: 'registry/files/ui/tree-view/tree-view-multiselect.svelte', note: 'folded into the tree-view folder (P1); still unreferenced by items — future change either ships it or removes it' },
+  // STOPGAP classification (2026-09-02): the in-flight search stream
+  // (85e9f3c) landed mirrored pairs no registry item references yet —
+  // factually unreferenced today; the search stream owns the final
+  // home (registry:lib/registry:ui items or site-only) and these
+  // entries retire when it lands
+  { path: 'registry/files/lib/search/engine-minisearch.ts', note: 'search stream (85e9f3c) — final classification pending' },
+  { path: 'registry/files/lib/search/engine-types.ts', note: 'search stream (85e9f3c) — final classification pending' },
+  { path: 'registry/files/lib/search/tokenizer.ts', note: 'search stream (85e9f3c) — final classification pending' },
+  { path: 'registry/files/ui/search-palette.svelte', note: 'search stream (85e9f3c) — final classification pending' },
 ];
 // canonical main overrides for registry:ui items whose main file is not
 // name-identical (B11/B9 ruling: manifest is the single machine source)
@@ -38,6 +47,7 @@ const CANONICAL_MAIN_OVERRIDES = {
 const MIRROR_PATH_OVERRIDES = {};
 
 import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -115,8 +125,30 @@ const classified = new Set([
   }),
 ]);
 
-const registryFiles = walk(join(root, 'registry/files')).map((p) => `registry/files/${p}`);
-const mirrorFiles = walk(join(root, 'apps/www/src/lib')).map((p) => `apps/www/src/lib/${p}`);
+// gitignored paths never classify (2026-09-02): the dev syncer drops
+// live copies under registry/files/routes/** (and any other ignored
+// corner) whenever a routes-side file changes — they are transport
+// droppings, not tree content, and they used to hard-fail the walk
+const notIgnored = (paths) => {
+  // git check-ignore exits 1 when NOTHING on stdin is ignored (a
+  // convention, not an error) — spawnSync lets us read that as "no
+  // matches" instead of a throw
+  const res = spawnSync('git', ['-C', root, 'check-ignore', '--stdin'], {
+    input: paths.join('\n'),
+    maxBuffer: 16 * 1024 * 1024,
+  });
+  if (res.status !== null && res.status > 1) {
+    die(`git check-ignore failed (status ${res.status}): ${res.stderr}`);
+  }
+  const ignored = new Set(
+    (res.stdout?.toString() ?? '')
+      .split('\n')
+      .filter(Boolean),
+  );
+  return paths.filter((p) => !ignored.has(p));
+};
+const registryFiles = notIgnored(walk(join(root, 'registry/files')).map((p) => `registry/files/${p}`));
+const mirrorFiles = notIgnored(walk(join(root, 'apps/www/src/lib')).map((p) => `apps/www/src/lib/${p}`));
 
 const stray = [];
 for (const p of registryFiles) if (!classified.has(p) && !REGISTRY_ONLY.some((e) => e.path === p) && !UNREFERENCED_LIB.some((e) => e.path === p)) stray.push(p);

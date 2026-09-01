@@ -3249,7 +3249,7 @@
         "href": "/docs/llms-txt.html"
       },
       "registryDependencies": [
-        "llms-txt"
+        "@jixoai/llms-txt"
       ]
     },
     {
