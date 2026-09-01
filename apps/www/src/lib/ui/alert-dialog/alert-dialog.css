@@ -1,17 +1,51 @@
 @layer theme, base, components, utilities;
 
-/* jixoai alert-dialog — D1-exempt residue (tw4, 2026-08-24): ONLY the
- * ::backdrop scrim pseudo (the WAAPI kernel animates its opacity via
- * --jx-p; its color is paint no utility owns — pseudo elements are not
- * class-targetable). The platform element still paints NOTHING; the
- * theme's jx-surface-body owns fill + border + blur, the shadow layer
- * owns the shadow (the floating-surface law, intact). Static residue,
- * @layer components. */
+/* jixoai alert-dialog — residue (tw4, 2026-08-24 → popover-engine
+ * rebuild 2026-09-01). The panel is a popover="manual" element anchored
+ * to its trigger (CSS Anchor Positioning — the geometry mirrors the
+ * popover engine): fixed positioning carried BY the popover layer, the
+ * try-fallbacks flip it at viewport edges, anchors-visible hides it if
+ * the trigger scrolled away. Engines without the FULL anchored set get
+ * the authored viewport-center (margin auto !important — the old
+ * missing-m-auto bug class cannot recur by construction).
+ *
+ * The ::backdrop scrim stays alert-grade: semi-transparent black
+ * (light) / white (dark), never a brand tint; manual popover = no
+ * light dismiss, Escape belongs to the component. The platform element
+ * still paints NOTHING; the theme's jx-surface-body owns fill + border
+ * + blur, the shadow layer owns the shadow (floating-surface law). */
 
 @layer components {
+  :where([data-jx-adlg]) {
+    position: fixed;
+    position-visibility: anchors-visible;
+    width: fit-content;
+    height: fit-content;
+    padding: 0;
+  }
+
+  /* Engines without the full anchored-positioning set (JOINT check —
+     the popover law): authored viewport-center, margin auto pinned */
+  @supports not (
+    (anchor-name: --jx-adlg-fallback) and
+      (position-anchor: --jx-adlg-fallback) and
+      (position-area: bottom) and
+      (position-try-fallbacks: flip-block)
+  ) {
+    :where([data-jx-adlg]) {
+      position-anchor: auto !important;
+      inset-area: none !important;
+      position-area: none !important;
+      position-try: none !important;
+      position-try-fallbacks: none !important;
+      inset: 0;
+      margin: auto !important;
+    }
+  }
+
   /* Scrim law: --scrim — semi-transparent black (light) / white (dark),
-     never a brand tint. Only the ::backdrop fade is component-owned. */
-  :where(.jx-adlg)::backdrop {
+     never a brand tint. The popover layer's ::backdrop carries it. */
+  :where([data-jx-adlg])::backdrop {
     background: var(--scrim);
   }
 }

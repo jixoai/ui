@@ -31,11 +31,17 @@
     'data-jx-adlg-trigger': '',
     'aria-haspopup': 'dialog',
     'aria-expanded': String(api.open),
+    // the ANCHOR: the alert panel's position-anchor resolves here (the
+    // popover-engine rebuild — the alert rises beside this button)
+    style: `anchor-name: --${api.uid};${(rest as Record<string, string>).style ? ` ${(rest as Record<string, string>).style}` : ''}`,
     // the direct-prop path layers the consumer handler UNDER the open
     // call; the child() replacement path is pure spread (the consumer
     // who overrides a handler owns its consequences — merge law)
     onclick: (event: MouseEvent) => {
       onclick?.(event);
+      // the invoker registers itself — the anchored alert returns
+      // focus here when it hides
+      api.setInvoker(event.currentTarget as HTMLButtonElement);
       api.setOpen(true);
     },
     class: cn(className),

@@ -1,9 +1,10 @@
 <!--
   jixoai AlertDialogAction
   (registry/files/ui/alert-dialog/alert-dialog-action.svelte, 2026-08-25).
-  The confirm half: runs the root's onconfirm seam, then closes through
-  Content's shared animated path (native dialog close restores focus
-  to the invoker — the platform's restore contract, kept verbatim).
+  The confirm half: runs the root's onconfirm seam — the state flip
+  drives Content's open effect (the family's single animated shut);
+  hiding the popover restores focus to the invoker (the platform's
+  restore contract, kept verbatim).
 
   Variant grammar (2026-08-26, variant-grammar change): the old
   tone: destructive | primary prop migrates INTO the grammar — the

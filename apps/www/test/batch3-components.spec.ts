@@ -160,8 +160,8 @@ describe('AlertDialog', () => {
   it('exposes role=alertdialog with labelled title and described body', async () => {
     const rendered = render(OverlayHost);
     await fireEvent.click(rendered.container.querySelector('button')!);
-    const dlg = rendered.container.querySelector('dialog[role="alertdialog"]') as HTMLDialogElement;
-    expect(dlg.open).toBe(true);
+    const dlg = rendered.container.querySelector('[popover="manual"][role="alertdialog"]') as HTMLElement;
+    expect(dlg.matches(':popover-open')).toBe(true);
     expect(dlg.getAttribute('aria-labelledby')).toBe(`${dlg.querySelector('[data-jx-adlg-title]')!.id}`);
     expect(dlg.getAttribute('aria-describedby')).toBe(
       `${dlg.querySelector('[data-jx-adlg-desc]')!.id}`,
