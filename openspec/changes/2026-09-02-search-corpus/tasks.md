@@ -24,5 +24,5 @@
 
 - [x] 3.1 corpus spec（确定性/排除/结构保真/id 只读）。
 - [x] 3.2 面板交互 spec + 分词 spec。
-- [ ] 3.3 verify-all 接线（corpus 生成冒烟）+ 全量回归 + openspec
+- [x] 3.3 verify-all 接线（corpus 生成冒烟）+ 全量回归 + openspec（全管线 npm run build 冒烟：99 页 → 741KB；锚点 v2 后活体门禁 832/832 收敛）
       strict。

@@ -65,6 +65,9 @@
     window.location.assign(hit.href);
   };
   const onKey = (event: KeyboardEvent): void => {
+    // IME composition (Chinese input): the Enter that COMMITS a
+    // composition must not navigate — only a real Enter does
+    if (event.isComposing || event.keyCode === 229) return;
     if (event.key === 'Escape') {
       event.preventDefault();
       close();

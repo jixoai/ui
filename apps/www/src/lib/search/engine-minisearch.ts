@@ -54,6 +54,8 @@ export function createMinisearchEngine(
   const ensureIndex = async (): Promise<void> => {
     if (engine !== undefined) return;
     loading ??= (async () => {
+      // a failed load must not poison the cache forever (the pre-review
+      // catch): the next query retries; the UI reads it as no hits
       const [{ default: MiniSearch }, pages] = await Promise.all([
         import('minisearch'),
         loadCorpus(),
@@ -87,14 +89,21 @@ export function createMinisearchEngine(
       // the index adds documents AFTER construction (searchOptions
       // already carries the defaults the UI relies on)
       (engine as unknown as { addAll: (d: EngineDoc[]) => void }).addAll(docs);
-    })();
+    })().catch((error) => {
+      loading = undefined;
+      throw error;
+    });
     await loading;
   };
 
   return {
     async search(query: string): Promise<SearchHit[]> {
       if (query.trim() === '') return [];
-      await ensureIndex();
+      try {
+        await ensureIndex();
+      } catch {
+        return []; // a failed corpus load reads as no hits — retried next query
+      }
       if (engine === undefined) return [];
       return engine.search(query, { fuzzy: 0.2, prefix: true, boost: { pageTitle: 3, heading: 2, summary: 1.5 } }).map(
         (result) => {

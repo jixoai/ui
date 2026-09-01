@@ -46,14 +46,24 @@
 - 字节确定：除 generatedAt 外全排序；generatedAt 恒定后整文件
   sha 稳定（门禁锁）。
 
-## 锚点解析（实施修正：放弃 id 烘焙）
+## 锚点解析（v2：祖先步退役，r8 修复轮）
 
-- 整页 HTML 重写会危及 SvelteKit 水合标记——改为收割侧寻址：
-  标题自身 id → **最近带 id 祖先**（injectTocNav 的既有锚点法
-  则，站点包装 div 即真实目标）→ slug 回退（slugOf 移植，与
-  运行时 deriveTocOutline 收敛，等价 spec 锁定）。
-- 实测：试点页六节 id = 包装 div id（transaction/animation/…），
-  e2e 跳转锚点命中。
+- v1（实施修正：放弃 id 烘焙）采用 标题自身 id → 最近带 id 祖先
+  （injectTocNav 先例）→ slug 回退。全管线冒烟暴露盲区：去重集混
+  入祖先 id（chip/press-button 等页 wrapper div id="usage"×2），
+  后续同名标题的 slug 被推成 `usage-2`，而运行时盖章器
+  （deriveTocOutline）的去重集只认自身 id + 已盖 slug——盖章
+  `usage`，`usage-2` 无人持有 → 5 个死锚点（832 中）。
+- v2 法则：收割与盖章严格同律——**标题自身 id → slug**（去重仅计
+  已发射 id），祖先 id 完全不参与。根布局（routes/+layout.svelte）
+  成为唯一盖章权威：`$effect` 依赖 `page.url.pathname`（layout 跨
+  客户端导航持久，无依赖只跑一次），每次换页后对新 DOM 幂等盖章
+  （既有 id 恒胜）。语料覆盖的全部页面（docs + 顶层 3 页）的
+  fragment 从此都有活体目标。
+- 验证：夹具级（等价 spec 新增 wrapper 盲区夹具：id 祖先不参与
+  寻址与去重）+ 活体级（corpus spec 新增 live 门禁：build 产物在
+  时，832 sections × 99 页与真 deriveTocOutline 输出逐一相等；
+  fresh clone 无 build 自动 skip）。
 
 ## 分词与引擎（客户端，site-only 先行）
 

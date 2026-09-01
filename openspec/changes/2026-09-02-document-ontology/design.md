@@ -174,7 +174,7 @@ document（面）
   frontMatter[] / backMatter[]: 有序槽位描述
 
 section（线）
-  id: string                 // 显式 id 法则；收割只读不造
+  id: string                 // 寻址法则 v2：自身 id → slug（去重仅计已发射 id；根布局统一盖章，与 deriveTocOutline 严格同律；search-corpus as-built）
   heading / level / summary  // toc-outline + injectTocNav 先例
   role: 'section'|'entry'|'sequence'|'float'|'note'|'ref'|'break'
   ordering: 'linear'|'alpha'|'timeline'|'tree'|null   // 面预设可约束
@@ -195,8 +195,11 @@ block（点）
 2. **编号是显示货币，显式 id 是稳定寻址**。先例：paged-doc-family
    裁决原话；pipeline 的 folio 回填是其运行实例（页码是布局完成后
    回填的静态事实）。推论：`number` 只收逻辑编号，永不收页码。
-3. **收割只读不造**。先例：search-corpus「id 烘焙 build 侧做、
-   运行时幂等、收割器只读不造 id」。本合同扩展到编号：收割器读
+3. **寻址收敛，收割不重写产物**。先例（search-corpus as-built）：
+   id 烘焙因水合风险弃用；v2 收割法则「自身 id → slug」与运行时
+   盖章器严格同律（祖先步退役：根布局统一盖章后 slug 恒有活体
+   目标；收割去重集不再计入 wrapper id——chip/press-button
+   usage-2 死锚根因）。本合同扩展到编号：收割器读
    DOM 上的编号标记，不计算编号。
 4. **字段必须 DOM 可见**。先例：search-corpus 收割最终产物 HTML；
    任何只活在 JS 状态里的字段（exif、measure 元数据）必须以结构化

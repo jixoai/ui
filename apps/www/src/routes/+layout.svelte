@@ -13,6 +13,10 @@
   // per-OS scrollbar widths (--jx-scrollbar-thin/auto) feeding the theme's
   // both-edges padding compensation
   import '$lib/scrollbar-measure';
+  // anchor stamping (search-corpus, anchor law v2): the root layout is
+  // the ONE stamper — every harvested page (docs AND top-level) gets
+  // its id-less headings slugged, so corpus fragment ids resolve live
+  import { deriveTocOutline } from '$lib/toc-outline';
   import { afterNavigate, onNavigate } from '$app/navigation';
   import { page } from '$app/state';
   import type { Snippet } from 'svelte';
@@ -86,6 +90,18 @@
       document.removeEventListener('click', onClickHashLink, true);
       removeEventListener('hashchange', onHashChange);
     };
+  });
+
+  // ANCHOR STAMPING (search-corpus change, anchor law v2): the corpus
+  // addresses sections by the slug this very derivation would stamp —
+  // running it root-wide makes that address REAL on every page, ToC or
+  // no ToC (idempotent: existing ids always win). Layouts persist
+  // across client navigations, so the pathname dependency re-stamps
+  // each freshly swapped page
+  $effect(() => {
+    void page.url.pathname;
+    const root = document.querySelector('main');
+    if (root !== null) deriveTocOutline(root);
   });
 
   // Pages are flat files (/, /docs.html, /docs/components.html, /tokens.html); prerendered

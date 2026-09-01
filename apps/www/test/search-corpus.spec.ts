@@ -7,7 +7,7 @@
  * ids only because it computes exactly what the runtime stamps).
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { mkdtempSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync, readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -16,6 +16,7 @@ import {
   headingIds,
 } from '../../../registry/files/search-corpus/search-corpus.mjs';
 import { deriveTocOutline } from '../src/lib/toc-outline';
+import { JSDOM } from 'jsdom';
 
 const PAGE = (body: string, head = ''): string =>
   `<!DOCTYPE html><html><head><title>P · site</title><meta name="description" content="the page description">${head}</head><body><main>${body}</main></body></html>`;
@@ -109,7 +110,9 @@ describe('the slug law converges with the runtime outline', () => {
       <h2>打印管线</h2>
       <h2>打印管线</h2>
       <h3>Deep &amp; deeper!!</h3>
-      <h3>Deep &amp; deeper!!</h3>`);
+      <h3>Deep &amp; deeper!!</h3>
+      <div id="usage"><h2>Usage</h2></div>
+      <div id="usage"><h2>Usage</h2></div>`);
     const page = await harvestPage(html, 'c.html');
     // the runtime side: jsdom stamps ids on a live DOM
     const host = document.createElement('div');
@@ -119,6 +122,10 @@ describe('the slug law converges with the runtime outline', () => {
     expect(page.sections.map((s) => s.id)).toEqual(outline.map((entry) => entry.id));
     expect(page.sections[0]!.id).toBe('kept'); // existing ids win on both sides
     expect(page.sections[2]!.id).toMatch(/^section-/); // CJK positional fallback
+    // the wrapper blind spot (anchor law v2): id-bearing ancestors are
+    // NOT the heading's address and never join the dedup set — the
+    // stamper owns the anchor (chip/press-button usage-2 regression)
+    expect(page.sections.slice(6).map((s) => s.id)).toEqual(['usage', 'usage-2']);
     host.remove();
   });
 
@@ -130,4 +137,57 @@ describe('the slug law converges with the runtime outline', () => {
     ] as never);
     expect(ids).toEqual(['same', 'same-2', 'section-3']);
   });
+});
+
+/* ── the live convergence gate (anchor law v2): when a built public/
+      tree exists, EVERY corpus section id must equal what the REAL
+      runtime stamper (deriveTocOutline) would write on that page —
+      catches law drift the fixture tests cannot (fresh clones without
+      a build skip this; the build pipeline itself always has one) ── */
+describe('the live corpus converges with the real stamper (built pages)', () => {
+  const pub = join(import.meta.dirname, '../../..', 'public');
+  const hasCorpus = existsSync(join(pub, 'search', 'corpus.json'));
+
+  function walkHtml(dir: string, base = ''): string[] {
+    const out: string[] = [];
+    for (const name of readdirSync(dir)) {
+      const rel = base === '' ? name : `${base}/${name}`;
+      const full = join(dir, name);
+      if (statSync(full).isDirectory()) out.push(...walkHtml(full, rel));
+      else if (name.endsWith('.html')) out.push(rel);
+    }
+    return out;
+  }
+
+  it.skipIf(!hasCorpus)(
+    'corpus section ids === deriveTocOutline output on every built page',
+    { timeout: 120_000 },
+    () => {
+      const corpus = JSON.parse(readFileSync(join(pub, 'search/corpus.json'), 'utf8'));
+      const files = new Set(walkHtml(pub));
+      let checked = 0;
+      const divergences: string[] = [];
+      for (const page of corpus.pages as { url: string; sections: { id: string; heading: string }[] }[]) {
+        const rel = page.url === '/' ? 'index.html' : page.url.slice(1);
+        const html = readFileSync(join(pub, rel), 'utf8');
+        const dom = new JSDOM(html);
+        const host = (dom.window.document.querySelector('main') ?? dom.window.document.body) as HTMLElement;
+        const stamped = deriveTocOutline(host, { levels: [2, 3] }).map((e) => ({ id: e.id, heading: e.label }));
+        let si = 0;
+        for (const sec of page.sections) {
+          while (si < stamped.length && stamped[si]!.heading !== sec.heading) si++;
+          if (si >= stamped.length) {
+            divergences.push(`${page.url}#${sec.id}: heading "${sec.heading}" not in outline`);
+            break;
+          }
+          if (stamped[si]!.id !== sec.id)
+            divergences.push(`${page.url}#${sec.id}: stamper says "${stamped[si]!.id}" ("${sec.heading}")`);
+          si++;
+          checked++;
+        }
+      }
+      console.log(`live convergence: checked ${checked} sections over ${files.size} built files`);
+      expect(divergences, divergences.join('\n')).toEqual([]);
+    },
+  );
 });

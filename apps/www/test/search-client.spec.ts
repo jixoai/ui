@@ -71,6 +71,41 @@ describe('the minisearch adapter', () => {
 });
 
 describe('the palette', () => {
+  it('the IME commit Enter does NOT navigate (composition-safe, the CJK-first law)', async () => {
+    const load = vi.fn(async () => FIXTURE);
+    const engine = createMinisearchEngine(tokenize, load);
+    await engine.search('transaction'); // index warm, hits exist
+    const target = document.createElement('div');
+    document.body.appendChild(target);
+    const palette = mount(SearchPalette, { target });
+    document.dispatchEvent(new CustomEvent('jx-search-open'));
+    await vi.waitFor(() => expect(target.querySelector('[role="dialog"]')).not.toBeNull());
+    const input = target.querySelector<HTMLInputElement>('input')!;
+    const before = window.location.href;
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, isComposing: true }),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(window.location.href).toBe(before); // no navigation
+    expect(target.querySelector('[role="dialog"]')).not.toBeNull(); // still open
+    unmount(palette as never);
+    target.remove();
+  });
+
+  it('a failed corpus load is retried on the next query (no poisoned cache)', async () => {
+    let fail = true;
+    const load = vi.fn(async () => {
+      if (fail) throw new Error('corpus down');
+      return FIXTURE;
+    });
+    const engine = createMinisearchEngine(tokenize, load);
+    expect(await engine.search('transaction')).toEqual([]); // failure → empty
+    fail = false;
+    const hits = await engine.search('transaction'); // retry succeeds
+    expect(hits[0]?.heading).toBe('The transaction');
+    expect(load).toHaveBeenCalledTimes(2);
+  });
+
   it('opens on the document trigger event and closes on Escape', async () => {
     const fetchStub = vi.fn(async () => ({
       ok: true,

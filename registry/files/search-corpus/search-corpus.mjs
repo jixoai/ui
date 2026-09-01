@@ -72,12 +72,17 @@ const firstElement = (node, name) => {
 
 /* ── the slug law (ported from toc-outline.ts — convergence is locked
       by the equivalence spec; ids are READ when present, computed only
-      when the heading carries none) ────────────────────────────────── */
+      when the heading carries none). ANCHOR LAW v2 (2026-09-02): the
+      nearest-id-ancestor step RETIRED — the runtime stamper
+      (deriveTocOutline, mounted root-layout-wide) writes the slug onto
+      every id-less heading, so the heading's own stamped id is always
+      the live target; counting wrapper ids in the dedup set produced
+      anchors nothing owns (chip/press-button usage-2) ───────────── */
 
 export function headingIds(headings) {
   const used = new Set();
   return headings.map((heading, index) => {
-    const existing = heading.nearestId ?? heading.attrs?.id;
+    const existing = heading.attrs?.id;
     if (existing !== undefined && existing !== '' && !used.has(existing)) {
       used.add(existing);
       return existing;
@@ -128,25 +133,20 @@ function blockMeta(element, { decode }) {
  * the section fold consumes: headings (skipping data-toc-skip
  * subtrees — the outline law) and point-block roots.
  */
-function walkStream(node, { decode, skip, ancestorIds }, out) {
+function walkStream(node, { decode, skip }, out) {
   if (node.type === 'text') return;
   if (node.type !== 'element' && node.type !== 'root') return;
   const skipping = skip || node.attrs?.['data-toc-skip'] !== undefined;
   if (node.type === 'element') {
     const level = /^h([1-6])$/.exec(node.name);
     if (level && !skipping) {
-      // the ANCHOR LAW (injectTocNav precedent): a heading is
-      // addressed by its own id or the NEAREST id-bearing ancestor —
-      // the site's wrapper divs (data-region) are the real targets
-      // on pages whose ToC never stamps heading ids
+      // the heading's address is its OWN id (or the slug the runtime
+      // stamps back — anchor law v2); wrapper-div ids are not consulted
       out.push({
         type: 'heading',
         level: Number(level[1]),
         label: collapse(subtreeText(node, { decode })),
         attrs: node.attrs ?? {},
-        nearestId:
-          (node.attrs?.id !== undefined && node.attrs.id !== '' ? node.attrs.id : undefined) ??
-          [...ancestorIds].reverse().find((id) => id !== undefined && id !== ''),
         node,
       });
       return; // the heading subtree is the label, not content
@@ -164,10 +164,8 @@ function walkStream(node, { decode, skip, ancestorIds }, out) {
       return;
     }
   }
-  const ownId = node.type === 'element' ? node.attrs?.id : undefined;
-  const childAncestors = ownId !== undefined && ownId !== '' ? [...ancestorIds, ownId] : ancestorIds;
   for (const child of node.children) {
-    walkStream(child, { decode, skip: skipping, ancestorIds: childAncestors }, out);
+    walkStream(child, { decode, skip: skipping }, out);
   }
 }
 
@@ -193,7 +191,7 @@ export async function harvestPage(html, rel, options = {}) {
   const levels = options.levels ?? [2, 3];
   const page = llms.extractPage(html);
   const stream = [];
-  walkStream(page.contentNode, { decode: llms.decodeEntities, skip: false, ancestorIds: [] }, stream);
+  walkStream(page.contentNode, { decode: llms.decodeEntities, skip: false }, stream);
   const headings = stream.filter((item) => item.type === 'heading');
   const levelsSet = new Set(levels);
   const outline = headings.filter((item) => levelsSet.has(item.level));

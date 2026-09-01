@@ -58,9 +58,11 @@
   <div data-jx-print="hide" class="mx-auto w-full max-w-[90rem] px-4 pt-6 sm:px-6 lg:px-8">
     <PrintControls config={printConfig} label="docs · print" />
   </div>
-  <!-- full-text search (search-corpus change): ⌘K or the nav's trigger;
-       excluded from print by its own layer-less nature (it renders only
-       while open) -->
-  <SearchPalette />
+  <!-- full-text search (search-corpus change): ⌘K or the nav's
+       trigger. print-HIDDEN: an open palette would otherwise ride into
+       the print source clone (the whitelist never sees it) -->
+  <div data-jx-print="hide">
+    <SearchPalette />
+  </div>
   {@render children()}
 </PrintDoc>
