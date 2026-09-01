@@ -11,3 +11,5 @@ export { default as NavigationMenuPanel } from './navigation-menu-panel.svelte';
 export * from './navigation-menu-panel.svelte';
 export { default as NavigationMenuLink } from './navigation-menu-link.svelte';
 export * from './navigation-menu-link.svelte';
+export { default as NavigationMenuIndicator } from './navigation-menu-indicator.svelte';
+export * from './navigation-menu-indicator.svelte';
