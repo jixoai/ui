@@ -1,11 +1,12 @@
-<!-- composition-a spec fixture: the timeline family composed — full
-     Dice anatomy (Dot/Connector/Content/Time/Title) with a free-children
-     body and a parameterized pending flag on the last entry. -->
+<!-- composition-a spec fixture: the timeline family composed — the
+     grid-engine anatomy (Dot + its spatial slots / auto-line /
+     Content/Time/Title) with a free-children body and a parameterized
+     pending flag on the last entry. The line is AUTHORED-FREE since
+     the 2026-09-01 rebuild (no Connector part anymore). -->
 <script lang="ts">
   import Timeline, {
     TimelineItem,
     TimelineDot,
-    TimelineConnector,
     TimelineContent,
     TimelineTime,
     TimelineTitle,
@@ -21,8 +22,9 @@
 
 <Timeline>
   <TimelineItem>
-    <TimelineDot />
-    <TimelineConnector />
+    <TimelineDot>
+      {#snippet blockStart()}<span>07:02</span>{/snippet}
+    </TimelineDot>
     <TimelineContent>
       <TimelineTime datetime="2026-08-22T07:02:00Z">07:02</TimelineTime>
       <TimelineTitle>pushed</TimelineTitle>
@@ -30,8 +32,7 @@
     </TimelineContent>
   </TimelineItem>
   <TimelineItem {pending}>
-    <TimelineDot />
-    <TimelineConnector />
+    <TimelineDot variant="ring" />
     <TimelineContent>
       <TimelineTitle>auditing</TimelineTitle>
     </TimelineContent>

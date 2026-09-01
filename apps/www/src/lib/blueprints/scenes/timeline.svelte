@@ -1,12 +1,11 @@
-<!-- timeline blueprint: the activity stream — timestamped entries on the
-     CSS spine, per-item bodies as free children, the last entry pending
-     (hollow dot). composition-first-apis: Dice anatomy parts authored in
-     the tree. -->
+<!-- timeline blueprint: the activity stream — the grid-engine spine
+     (2026-09-01 rebuild), timestamps as blockStart cutouts on the line,
+     per-item bodies as free children, the last entry pending (ring dot).
+     The line is authored-free. -->
 <script lang="ts">
   import Timeline, {
     TimelineItem,
     TimelineDot,
-    TimelineConnector,
     TimelineContent,
     TimelineTime,
     TimelineTitle,
@@ -16,8 +15,9 @@
 <div class="flex h-full w-full flex-col justify-center p-10">
   <Timeline density="lg">
     <TimelineItem>
-      <TimelineDot />
-      <TimelineConnector />
+      <TimelineDot>
+        {#snippet blockStart()}<span>09:41</span>{/snippet}
+      </TimelineDot>
       <TimelineContent>
         <TimelineTime datetime="2026-08-22T09:41:00Z">09:41</TimelineTime>
         <TimelineTitle>commit pushed</TimelineTitle>
@@ -25,8 +25,9 @@
       </TimelineContent>
     </TimelineItem>
     <TimelineItem>
-      <TimelineDot />
-      <TimelineConnector />
+      <TimelineDot>
+        {#snippet blockStart()}<span>09:43</span>{/snippet}
+      </TimelineDot>
       <TimelineContent>
         <TimelineTime datetime="2026-08-22T09:43:00Z">09:43</TimelineTime>
         <TimelineTitle>build passed</TimelineTitle>
@@ -34,8 +35,9 @@
       </TimelineContent>
     </TimelineItem>
     <TimelineItem>
-      <TimelineDot />
-      <TimelineConnector />
+      <TimelineDot>
+        {#snippet blockStart()}<span>09:44</span>{/snippet}
+      </TimelineDot>
       <TimelineContent>
         <TimelineTime datetime="2026-08-22T09:44:00Z">09:44</TimelineTime>
         <TimelineTitle>deploy started</TimelineTitle>
@@ -43,8 +45,9 @@
       </TimelineContent>
     </TimelineItem>
     <TimelineItem pending>
-      <TimelineDot />
-      <TimelineConnector />
+      <TimelineDot>
+        {#snippet blockStart()}<span>09:45</span>{/snippet}
+      </TimelineDot>
       <TimelineContent>
         <TimelineTime datetime="2026-08-22T09:45:00Z">09:45</TimelineTime>
         <TimelineTitle>propagating</TimelineTitle>

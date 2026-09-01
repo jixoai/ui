@@ -1,47 +1,450 @@
 @layer theme, base, components, utilities;
 
-/* jixoai timeline — spine + pending residue (composition-first-apis,
- * 2026-08-25). Keyed on REAL DOM hooks (the default-parts law:
- * component names never appear in the DOM):
+/* jixoai timeline — the grid engine (Owner rebuild, 2026-09-01).
+ * KEYED ON REAL DOM HOOKS (the default-parts law):
  *
- *   [data-jx-tl-connector]        the authored overlay; its ::before
- *                                 is the spine segment through the dot
- *   [data-jx-tl-item]:last-child  the self-hide chrome exception: the
- *                                 last entry's connector never shows
- *   [data-jx-tl-dot]              the marker fill — primary, hollowed
- *                                 (transparent) under pending
- *   [data-jx-tl-title]            the headline color — foreground,
- *                                 muted under pending
+ *   [data-jx-timeline]                 the ol; a 5-lane grid whose
+ *                                      center lane is the spine channel
+ *   [data-axis='vertical'|'horizontal'] the flow axis
+ *   [data-direction='ltr'|'revert'|'interlaced']  which side(s) content
+ *                                      takes; ltr collapses the start
+ *                                      zone, revert the end zone,
+ *                                      interlaced keeps both and items
+ *                                      alternate
+ *   [data-anim='view'|'scroll']        entrance / progress animation
+ *   [data-jx-tl-item]                  li; SUBGRID into the lanes —
+ *                                      its own rows are the node's
+ *                                      9-grid rows (bs/dot/be)
+ *   [data-jx-tl-dot]                   the center cell of the 9-grid
+ *   [data-jx-tl-slot][data-dir=…]      the 8 logical-direction cells
+ *                                      around the dot
+ *   [data-jx-tl-line]                  THE LINE: by grid essence it
+ *                                      occupies the dot's two block
+ *                                      neighbors (bs + be) plus the
+ *                                      center — auto-rendered by the
+ *                                      item, replaceable per-index via
+ *                                      the root's `line` snippet; the
+ *                                      -stack end margin bridges the
+ *                                      row gap into the next node
+ *   [data-jx-tl-progress]              the scroll-driven progress
+ *                                      spine (anim='scroll')
  *
- * The pending pair is ATTRIBUTE PAINT on purpose (design law): the Dot
- * and Title parts stay stateless; the state lives on the item's
- * data-jx-tl-pending attribute alone. Both colors live here (base +
- * pending override, source order) so consumer utilities still win by
- * the layer law. */
+ * Direction zones are grid tracks, not margins (minmax(0,0fr)
+ * collapses a lane to zero); logical slot names never change meaning
+ * when the axis flips — the engine transposes. Pending stays ATTRIBUTE
+ * PAINT (data-jx-tl-pending hollows the dot, mutes the title). */
 
 @layer components {
-  :where([data-jx-tl-connector])::before {
-    content: '';
-    position: absolute;
-    left: calc(var(--jx-icon) / 2);
-    top: var(--jx-icon);
-    bottom: calc(var(--jx-stack) * -1);
-    width: 1px;
-    background: var(--border);
+  /* ── the root: vertical form ── */
+  :where([data-jx-timeline][data-axis='vertical']) {
+    --tl-z1: 0fr;
+    --tl-z2: 1fr;
+    display: grid;
+    row-gap: var(--jx-stack);
+    grid-template-columns:
+      [z1-start] minmax(0, var(--tl-z1)) [z1-end is-start] auto [is-end dot-start]
+      max-content [dot-end ie-start] auto [ie-end z2-start] minmax(0, var(--tl-z2)) [z2-end];
   }
-  :where([data-jx-tl-item]:last-child) [data-jx-tl-connector] {
-    display: none;
+  /* direction = which zones stay: revert mirrors, interlaced keeps both */
+  :where([data-jx-timeline][data-direction='revert'][data-axis='vertical']) {
+    --tl-z1: 1fr;
+    --tl-z2: 0fr;
+  }
+  :where([data-jx-timeline][data-direction='interlaced'][data-axis='vertical']) {
+    --tl-z1: 1fr;
+    --tl-z2: 1fr;
+  }
+
+  /* ── the root: horizontal form (the transpose) ── */
+  :where([data-jx-timeline][data-axis='horizontal']) {
+    --tl-z1: 0fr;
+    --tl-z2: 1fr;
+    display: grid;
+    grid-auto-flow: column;
+    column-gap: var(--jx-gap);
+    grid-template-rows:
+      [z1-start] minmax(0, var(--tl-z1)) [z1-end is-start] auto [is-end dot-start]
+      max-content [dot-end ie-start] auto [ie-end z2-start] minmax(0, var(--tl-z2)) [z2-end];
+  }
+  :where([data-jx-timeline][data-direction='revert'][data-axis='horizontal']) {
+    --tl-z1: 1fr;
+    --tl-z2: 0fr;
+  }
+  :where([data-jx-timeline][data-direction='interlaced'][data-axis='horizontal']) {
+    --tl-z1: 1fr;
+    --tl-z2: 1fr;
+  }
+
+  /* ── the item: subgrid lanes + the node's own 3 rows ── */
+  :where([data-axis='vertical'] [data-jx-tl-item]) {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: [bs-start] auto [bs-end dot-start] auto [dot-end be-start] auto [be-end];
+  }
+  :where([data-axis='horizontal'] [data-jx-tl-item]) {
+    grid-row: 1 / -1;
+    display: grid;
+    grid-template-rows: subgrid;
+    grid-template-columns:
+      [bs-start] auto [bs-end dot-start] auto [dot-end be-start] auto [be-end];
+  }
+
+  /* ── the line: the dot's two block neighbors + center, bridged ── */
+  :where([data-axis='vertical'] [data-jx-tl-line]) {
+    grid-column: dot;
+    grid-row: bs-start / be-end;
+    justify-self: center;
+    inline-size: 1px;
+    margin-block-end: calc(-1 * var(--jx-stack));
+    background: var(--border);
+    z-index: 0;
+  }
+  :where([data-axis='horizontal'] [data-jx-tl-line]) {
+    grid-row: dot;
+    grid-column: bs-start / be-end;
+    align-self: center;
+    block-size: 1px;
+    margin-inline-end: calc(-1 * var(--jx-gap));
+    background: var(--border);
+    z-index: 0;
+  }
+  /* the chronology's ends: the first line starts AT the first dot, the
+     last stops after the last dot — no orphan stubs */
+  :where([data-axis='vertical'] [data-jx-tl-item:first-child] [data-jx-tl-line]) {
+    grid-row: dot-start / be-end;
+  }
+  :where([data-axis='vertical'] [data-jx-tl-item:last-child] [data-jx-tl-line]) {
+    grid-row: bs-start / dot-end;
+    margin-block-end: 0;
+  }
+  :where([data-axis='horizontal'] [data-jx-tl-item:first-child] [data-jx-tl-line]) {
+    grid-column: dot-start / be-end;
+  }
+  :where([data-axis='horizontal'] [data-jx-tl-item:last-child] [data-jx-tl-line]) {
+    grid-column: bs-start / dot-end;
+    margin-inline-end: 0;
+  }
+
+  /* ── the dot: the 9-grid's center cell ── */
+  :where([data-axis='vertical'] [data-jx-tl-dot]),
+  :where([data-axis='horizontal'] [data-jx-tl-dot]) {
+    grid-column: dot;
+    grid-row: dot;
+    justify-self: center;
+    align-self: center;
   }
   :where([data-jx-tl-dot]) {
+    z-index: 1;
+    box-sizing: border-box;
+    inline-size: var(--jx-icon);
+    block-size: var(--jx-icon);
+    border: 1px solid var(--primary);
     background: var(--primary);
   }
+  :where([data-jx-tl-dot][data-variant='round']) {
+    border-radius: 9999px;
+  }
+  :where([data-jx-tl-dot][data-variant='ring']) {
+    background: transparent;
+    border-width: 2px;
+  }
+  /* pending: attribute paint — hollow center, muted title */
   :where([data-jx-tl-pending]) :where([data-jx-tl-dot]) {
     background: transparent;
   }
+
+  /* ── the 8 logical-direction cells ──
+     bs/be ride the spine channel as labeled cutouts (the line's own
+     cells, by essence); is/ie and the four corners flank the dot. */
+  :where([data-jx-tl-slot]) {
+    z-index: 1;
+    min-inline-size: 0;
+    font-family: var(--font-mono);
+    font-size: var(--jx-text-secondary);
+    line-height: var(--jx-line-secondary);
+    color: var(--muted-foreground);
+  }
+  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='bs']),
+  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='be']) {
+    grid-column: is-start / ie-end;
+    justify-self: center;
+    text-align: center;
+    padding-inline: var(--jx-inset);
+    background: var(--background);
+  }
+  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='bs']) {
+    grid-row: bs;
+    margin-block-end: var(--jx-gap);
+  }
+  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='be']) {
+    grid-row: be;
+    margin-block-start: var(--jx-gap);
+  }
+  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='is']) {
+    grid-column: is;
+    grid-row: dot;
+    justify-self: end;
+    padding-inline-end: var(--jx-gap);
+  }
+  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='ie']) {
+    grid-column: ie;
+    grid-row: dot;
+    justify-self: start;
+    padding-inline-start: var(--jx-gap);
+  }
+  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='bsIs']) {
+    grid-column: is;
+    grid-row: bs;
+    justify-self: end;
+  }
+  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='bsIe']) {
+    grid-column: ie;
+    grid-row: bs;
+    justify-self: start;
+  }
+  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='beIs']) {
+    grid-column: is;
+    grid-row: be;
+    justify-self: end;
+  }
+  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='beIe']) {
+    grid-column: ie;
+    grid-row: be;
+    justify-self: start;
+  }
+
+  /* horizontal: the transpose — bs/be flank inline, is/ie ride the
+     spine channel as labeled cutouts */
+  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='is']),
+  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='ie']) {
+    grid-column: dot;
+    grid-row: is-start / ie-end;
+    align-self: center;
+    justify-self: center;
+    text-align: center;
+    padding-inline: var(--jx-inset);
+    background: var(--background);
+  }
+  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='is']) {
+    padding-block-end: 0;
+  }
+  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='ie']) {
+    padding-block-start: 0;
+  }
+  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='bs']) {
+    grid-row: dot;
+    grid-column: bs;
+    justify-self: end;
+    align-self: center;
+    padding-inline-end: var(--jx-gap);
+  }
+  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='be']) {
+    grid-row: dot;
+    grid-column: be;
+    justify-self: start;
+    align-self: center;
+    padding-inline-start: var(--jx-gap);
+  }
+  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='bsIs']) {
+    grid-row: is;
+    grid-column: bs;
+    align-self: end;
+    justify-self: end;
+  }
+  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='bsIe']) {
+    grid-row: ie;
+    grid-column: bs;
+    align-self: start;
+    justify-self: end;
+  }
+  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='beIs']) {
+    grid-row: is;
+    grid-column: be;
+    align-self: end;
+    justify-self: start;
+  }
+  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='beIe']) {
+    grid-row: ie;
+    grid-column: be;
+    align-self: start;
+    justify-self: start;
+  }
+
+  /* ── the content zone: placed by direction, never by margin ── */
+  :where([data-axis='vertical'] [data-jx-tl-content]) {
+    grid-row: 1 / -1;
+    min-inline-size: 0;
+    align-self: start;
+    padding-inline-start: var(--jx-gap);
+  }
+  :where([data-direction='ltr'][data-axis='vertical'] [data-jx-tl-content]) {
+    grid-column: z2;
+  }
+  :where([data-direction='revert'][data-axis='vertical'] [data-jx-tl-content]) {
+    grid-column: z1;
+    padding-inline-start: 0;
+    padding-inline-end: var(--jx-gap);
+  }
+  :where([data-direction='interlaced'][data-axis='vertical'] [data-jx-tl-item]:nth-child(odd) [data-jx-tl-content]) {
+    grid-column: z2;
+  }
+  :where([data-direction='interlaced'][data-axis='vertical'] [data-jx-tl-item]:nth-child(even) [data-jx-tl-content]) {
+    grid-column: z1;
+    padding-inline-start: 0;
+    padding-inline-end: var(--jx-gap);
+  }
+
+  :where([data-axis='horizontal'] [data-jx-tl-content]) {
+    grid-column: 1 / -1;
+    min-inline-size: 0;
+    padding-block-start: var(--jx-gap);
+  }
+  :where([data-direction='ltr'][data-axis='horizontal'] [data-jx-tl-content]) {
+    grid-row: z2;
+  }
+  :where([data-direction='revert'][data-axis='horizontal'] [data-jx-tl-content]) {
+    grid-row: z1;
+    padding-block-start: 0;
+    padding-block-end: var(--jx-gap);
+  }
+  :where([data-direction='interlaced'][data-axis='horizontal'] [data-jx-tl-item]:nth-child(odd) [data-jx-tl-content]) {
+    grid-row: z2;
+  }
+  :where([data-direction='interlaced'][data-axis='horizontal'] [data-jx-tl-item]:nth-child(even) [data-jx-tl-content]) {
+    grid-row: z1;
+    padding-block-start: 0;
+    padding-block-end: var(--jx-gap);
+  }
+
+  /* ── the title's attribute paint ── */
   :where([data-jx-tl-title]) {
     color: var(--foreground);
   }
   :where([data-jx-tl-pending]) :where([data-jx-tl-title]) {
     color: var(--muted-foreground);
+  }
+
+  /* ── line presets (the `line` snippet replacements) ── */
+  :where([data-axis='vertical'] [data-jx-tl-line][data-line='dashed']) {
+    background: repeating-linear-gradient(180deg, var(--border) 0 4px, transparent 4px 8px);
+  }
+  :where([data-axis='horizontal'] [data-jx-tl-line][data-line='dashed']) {
+    background: repeating-linear-gradient(90deg, var(--border) 0 4px, transparent 4px 8px);
+  }
+  :where([data-jx-tl-line][data-line='beam']) {
+    position: relative;
+    overflow: hidden;
+  }
+  :where([data-axis='vertical'] [data-jx-tl-line][data-line='beam'])::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    block-size: 40%;
+    background: linear-gradient(180deg, transparent, var(--primary), transparent);
+    animation: jx-tl-beam-v 2.4s linear infinite;
+  }
+  :where([data-axis='horizontal'] [data-jx-tl-line][data-line='beam'])::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    inline-size: 40%;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    animation: jx-tl-beam-h 2.4s linear infinite;
+  }
+
+  /* ── the scroll-progress spine (anim='scroll'): a grid child of the
+     root riding the whole spine channel; engines without scroll()
+     timelines never show it ── */
+  :where([data-jx-tl-progress]) {
+    display: none;
+  }
+  @supports (animation-timeline: scroll()) {
+    :where([data-anim='scroll'] > [data-jx-tl-progress]) {
+      display: block;
+      z-index: 0;
+      background: color-mix(in oklab, var(--primary) 55%, transparent);
+    }
+    :where([data-axis='vertical'][data-anim='scroll'] > [data-jx-tl-progress]) {
+      grid-column: dot;
+      grid-row: 1 / -1;
+      justify-self: center;
+      inline-size: 1px;
+      transform-origin: top;
+      animation: jx-tl-grow-y linear both;
+      animation-timeline: scroll(nearest block);
+    }
+    :where([data-axis='horizontal'][data-anim='scroll'] > [data-jx-tl-progress]) {
+      grid-row: dot;
+      grid-column: 1 / -1;
+      align-self: center;
+      block-size: 1px;
+      transform-origin: left;
+      animation: jx-tl-grow-x linear both;
+      animation-timeline: scroll(nearest inline);
+    }
+  }
+
+  /* ── the view-driven entrance (anim='view'): items rise as they
+     enter the scrollport; engines without view() timelines render the
+     final state (no declaration → no animation) ── */
+  @supports (animation-timeline: view()) {
+    :where([data-anim='view'] [data-jx-tl-item]) {
+      animation: jx-tl-rise 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+}
+
+@keyframes jx-tl-beam-v {
+  from {
+    top: -40%;
+  }
+  to {
+    top: 100%;
+  }
+}
+@keyframes jx-tl-beam-h {
+  from {
+    left: -40%;
+  }
+  to {
+    left: 100%;
+  }
+}
+@keyframes jx-tl-grow-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes jx-tl-grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes jx-tl-rise {
+  from {
+    opacity: 0;
+    translate: 0 var(--jx-tl-rise, 8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where([data-jx-tl-line][data-line='beam'])::after,
+  :where([data-anim='view'] [data-jx-tl-item]),
+  :where([data-anim='scroll'] > [data-jx-tl-progress]) {
+    animation: none;
+  }
+  :where([data-anim='scroll'] > [data-jx-tl-progress]) {
+    display: none;
   }
 }
