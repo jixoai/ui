@@ -57,6 +57,11 @@
     duration?: number;
     /** the slide's timing curve */
     easing?: string;
+    /** hug inset per edge, px — DEFAULT 0: the indicator spans the
+        measured entry exactly (it IS the entry's active background).
+        Breathing inside the entry is a declared decision, never a
+        guessed constant — a consumer states the number it designed */
+    inset?: number;
     class?: string;
   }
 
@@ -65,6 +70,7 @@
     name = 'jx-nav-indicator',
     duration = 240,
     easing = 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+    inset = 0,
     class: className = '',
   }: Props = $props();
 
@@ -88,12 +94,6 @@
     );
   }
 
-  /** hug inset per edge — the tabs pill dialect */
-  function hugInset(bar: HTMLElement): number {
-    const raw = parseFloat(getComputedStyle(bar).getPropertyValue('--jx-inset'));
-    return (Number.isFinite(raw) ? raw : 8) / 2;
-  }
-
   type Geo = { x: number; y: number; w: number; h: number };
   let prev: Geo | null = null;
   let first = true;
@@ -108,7 +108,6 @@
       prev = null;
       return;
     }
-    const inset = hugInset(bar);
     // clamped at 0: a degenerate box (jsdom's zero layout) still writes
     // a legal style instead of a dropped negative one
     const next: Geo = {

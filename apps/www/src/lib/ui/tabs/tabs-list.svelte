@@ -107,7 +107,12 @@
    *  riding the list's content edge on the orientation axis */
   function geometryFor(t: HTMLElement, list: HTMLElement): TabsIndicatorGeo {
     if (material !== 'line') {
-      const inset = (parseFloat(getComputedStyle(list).getPropertyValue('--jx-inset')) || 8) / 2;
+      // the pill family breathes by the label's OWN inset rhythm — the
+      // trigger's resolved padding-inline (the used value, so density
+      // tiers and calc() tokens arrive as real px; jsdom's zero layout
+      // resolves to 0, where geometry numbers are unasserted anyway).
+      // Derived, never a guessed constant.
+      const inset = parseFloat(getComputedStyle(t).paddingInlineStart || '0') / 2 || 0;
       return {
         x: t.offsetLeft + inset,
         y: t.offsetTop + inset,
