@@ -4,9 +4,26 @@
   The Broadside hero, composed after the openspecui reference: large lead
   type with a primary-colored accent, badge row, a copy-command PRIMARY
   CTA (icon + command, copied feedback) plus a secondary outline slot,
-  and the terminal card in the second column when the hero has room
-  (min-1100px two-column, bottom-aligned; terminal falls below on
-  narrower screens).
+  and an OPTIONAL second column (the terminal card) for the wide form.
+
+  Container-responsive + cm measure (Owner ruling, 2026-09-01):
+  - the SECTION is the named container (@container/jx-hero); the row
+    form is a CONTAINER tier (≥64rem content), not a viewport one —
+    an embedded hero answers its own box. Wide: two columns, the aside
+    bottom-aligned; below the tier — or whenever `terminal` is absent —
+    the single column stacks the aside BELOW, and a wide hero without
+    an aside keeps the right side EMPTY (whitespace is the focus; the
+    brand lead stays left).
+  - the measure is CENTIMETRES, the ergonomic reading unit: the lead
+    caps at 16cm, the title block at 22cm, the aside column tracks
+    10.5–13cm. Line-length research (Bringhurst: 45–75 characters per
+    line, ideal ≈66; Dyson & Haselgrove 2001; Bernard et al. 2002 —
+    preference clusters at 45–70 CPL; ISO 9241-210 visual-angle
+    guidance) converges on a 12–20cm single-column measure at desktop
+    viewing distance: the hero reads as a BRAND STATEMENT at that
+    measure, not as an article. CSS cm is the 96dpi reference unit
+    (≈37.8px/cm) — the print-measure idiom, by intent; every cm cap
+    rides min(100%, …) so narrow containers never overflow.
 
   Composition-first API (composition-first-apis, 2026-08-25) — content
   is authored, not configured:
@@ -55,7 +72,9 @@
     badges?: Snippet;
     /** replaces the default copy CTA */
     copy?: Snippet;
-    terminal: Snippet;
+    /** the OPTIONAL second-column aside (usually terminal-card); absent
+     *  → the wide form keeps the right side empty (whitespace focus) */
+    terminal?: Snippet;
     secondary?: Snippet;
     class?: string;
   }
@@ -100,11 +119,15 @@
 </script>
 
 <section
-  class={cn('mx-auto w-full max-w-[90rem] px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:px-8', className)}
+  class={cn('@container/jx-hero mx-auto w-full max-w-[90rem] px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:px-8', className)}
   {...rest}
 >
+  <!-- the container tier: ≥64rem CONTENT (the section is the container —
+       an embedded hero answers its own box, not the viewport). The cm
+       tracks are the ergonomic print-measure idiom; the aside drops
+       below the tier -->
   <div
-    class="grid min-[1100px]:grid-cols-[minmax(0,1fr)_minmax(25rem,31rem)] min-[1100px]:items-end gap-10 min-[1100px]:gap-14"
+    class="grid @min-[64rem]/jx-hero:grid-cols-[minmax(0,1fr)_minmax(10.5cm,13cm)] @min-[64rem]/jx-hero:items-end gap-10 @min-[64rem]/jx-hero:gap-14"
   >
     <div class="min-w-0">
       <p class="{step} font-nav text-primary text-[11px] uppercase tracking-[0.24em]" style="--jx-hero-delay: 0ms">
@@ -113,14 +136,14 @@
       {#if title}
         <h1
           data-jx-hero-title=""
-          class="{step} mt-4 text-[clamp(2.4rem,5vw,4.4rem)] font-bold leading-[1.2] tracking-[-0.02em] text-balance"
+          class="{step} mt-4 max-w-[min(100%,22cm)] text-[clamp(2.4rem,6cqi,4.4rem)] font-bold leading-[1.2] tracking-[-0.02em] text-balance"
           style="--jx-hero-delay: 60ms; --jx-hero-rise: 14px"
         >
           {@render title()}
         </h1>
       {/if}
       <p
-        class="{step} text-muted-foreground mt-5 max-w-[62ch] text-pretty text-[15px] leading-6 sm:text-base sm:leading-7"
+        class="{step} text-muted-foreground mt-5 max-w-[min(100%,16cm)] text-pretty text-[15px] leading-6 sm:text-base sm:leading-7"
         style="--jx-hero-delay: 120ms"
       >
         {summary}
@@ -163,8 +186,10 @@
         {/if}
       </div>
     </div>
-    <div class="{step} min-w-0" style="--jx-hero-delay: 260ms; --jx-hero-rise: 12px">
-      {@render terminal()}
-    </div>
+    {#if terminal}
+      <div class="{step} min-w-0" style="--jx-hero-delay: 260ms; --jx-hero-rise: 12px">
+        {@render terminal()}
+      </div>
+    {/if}
   </div>
 </section>

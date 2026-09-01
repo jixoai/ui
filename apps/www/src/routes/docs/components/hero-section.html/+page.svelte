@@ -49,7 +49,7 @@ ${close}
 
 <HeroSection
   eyebrow="my-app · v1"
-  summary="One paragraph of max-62ch lead context."
+  summary="One paragraph of lead context at the 16cm ergonomic measure."
   copyCommand="npx jixoai-ui init --hue 200"
 >
   {#snippet title()}Ship terminals anywhere. <em>One hue.</em>{/snippet}
@@ -77,7 +77,7 @@ ${close}
   <title>Hero section · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai hero-section component, composition-first: title and badges arrive as snippets (the em carries the accent paint, Badge parts compose the row), the copy-command CTA stays a default overridable by a copy snippet, the terminal snippet rides the second column at min-1100px."
+    content="The jixoai hero-section component, composition-first: title and badges arrive as snippets (the em carries the accent paint, Badge parts compose the row), the copy-command CTA stays a default overridable by a copy snippet, and the optional terminal snippet rides the second column at the ≥64rem CONTAINER tier — below it, or without it, the hero stacks and the wide form keeps its whitespace focus. The measure is centimetres (lead 16cm, title 22cm): the ergonomic reading brand."
   />
 </svelte:head>
 
@@ -106,7 +106,7 @@ ${close}
       <ComponentCanvas
         title="hero-section"
         stage="fill"
-        description="A complete composed hero — the title snippet carries its own accent em, the badges snippet composes Badge parts, the default copy CTA flips to its copied surface on press. Narrow the viewport past 1100px and the terminal card drops below the lead."
+        description="A complete composed hero — the title snippet carries its own accent em, the badges snippet composes Badge parts, the default copy CTA flips to its copied surface on press. Narrow the container past the 64rem tier and the terminal card drops below the lead."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/hero-section/hero-section.svelte"
         files={canvasFiles}      >
         <div class="w-full border border-border bg-muted/40">
@@ -176,9 +176,10 @@ ${close}
               <span><code class="text-accent">copy</code> snippet — replaces the default copy CTA
                 (the command string is still yours to use however you render it)</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">terminal</code> snippet — usually a terminal-card;
-                the hero only owns the column and the bottom alignment
-                (<code class="text-accent">min-[1100px]</code> two-column grid)</span></li>
+              <span><code class="text-accent">terminal</code> snippet — usually a terminal-card, and
+                OPTIONAL: the hero only owns the column and the bottom alignment
+                (<code class="text-accent">@min-[64rem]/jx-hero</code> container-tier grid; without
+                the snippet the wide form keeps the right side empty — whitespace is the focus)</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
               <span><code class="text-accent">secondary</code> snippet — outline CTAs after the
                 copy button; omit it and the row holds the CTA alone</span></li>
@@ -200,5 +201,5 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Snippets own content; strings stay payload. The em inside the title snippet carries the accent paint."><CodeBlock code={usage} lang="svelte" meta="HeroSection usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The hero is landmark chrome: one h1, a real button for the copy CTA, decorative SVGs hidden."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the copy CTA and secondary CTAs in reading order' }, { key: 'Enter / Space', action: 'Activates the copy CTA — command hits the clipboard, surface flips to copied' }]} aria={[{ name: 'aria-label', value: 'copyLabel', description: 'Accessible name for the default copy CTA ("copy" / localized)' }, { name: 'aria-hidden', value: 'true', description: 'On decorative copy-check SVGs' }, { name: 'heading structure', value: 'h1', description: 'The title snippet renders inside the page h1 — keep it one per page' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Display chrome, not a density-scaled control: the hero sizes from the page type ramp and owns one motion token — the staggered reveal delay."><div class="flex flex-col gap-6"><DensityDemo><HeroSection eyebrow="your-app" summary="A compact density sample." copyCommand="npx jixoai-ui init">{#snippet terminal()}<span class="text-muted-foreground text-[12px]">terminal snippet</span>{/snippet}</HeroSection></DensityDemo><TokenTable tokens={[{ name: '--jx-hero-delay', default: 'stagger step', source: 'component', description: 'Per-child delay of the entrance stagger' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the HeroSection Props interface — required payload as strings, authored content as snippets."><PropsTable props={[{ name: 'eyebrow', type: 'string', default: '—', description: 'Mono uppercase strip above the title.', required: true }, { name: 'summary', type: 'string', default: '—', description: 'Lead paragraph (max-62ch measure).', required: true }, { name: 'copyCommand', type: 'string', default: '—', description: 'Clipboard payload — the default CTA label AND copy target.', required: true }, { name: 'copyLabel', type: 'string', default: "'copy'", description: 'aria affordance for the default copy CTA.' }, { name: 'title', type: 'Snippet', default: '—', description: 'The h1 content; <em> inside carries the accent paint.' }, { name: 'badges', type: 'Snippet', default: '—', description: 'The badge row — compose Badge children.' }, { name: 'copy', type: 'Snippet', default: '—', description: 'Replaces the default copy CTA.' }, { name: 'terminal', type: 'Snippet', default: '—', description: 'The second-column terminal (usually terminal-card); hero owns column + bottom alignment.', required: true }, { name: 'secondary', type: 'Snippet', default: '—', description: 'Outline CTAs after the copy button.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to the root.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the HeroSection Props interface — required payload as strings, authored content as snippets."><PropsTable props={[{ name: 'eyebrow', type: 'string', default: '—', description: 'Mono uppercase strip above the title.', required: true }, { name: 'summary', type: 'string', default: '—', description: 'Lead paragraph (16cm ergonomic measure).', required: true }, { name: 'copyCommand', type: 'string', default: '—', description: 'Clipboard payload — the default CTA label AND copy target.', required: true }, { name: 'copyLabel', type: 'string', default: "'copy'", description: 'aria affordance for the default copy CTA.' }, { name: 'title', type: 'Snippet', default: '—', description: 'The h1 content; <em> inside carries the accent paint.' }, { name: 'badges', type: 'Snippet', default: '—', description: 'The badge row — compose Badge children.' }, { name: 'copy', type: 'Snippet', default: '—', description: 'Replaces the default copy CTA.' }, { name: 'terminal', type: 'Snippet', default: '—', description: 'The OPTIONAL second-column aside (usually terminal-card); hero owns column + bottom alignment at the ≥64rem container tier; without it the wide form keeps the right side empty.' }, { name: 'secondary', type: 'Snippet', default: '—', description: 'Outline CTAs after the copy button.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to the root.' }]} /></SectionCard></div>
 </div>
