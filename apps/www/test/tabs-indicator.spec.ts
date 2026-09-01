@@ -84,7 +84,7 @@ function setup() {
 // The shared indicator engine
 // ---------------------------------------------------------------------------
 describe('Tabs · shared indicator engine', () => {
-  it('renders the indicator span as the LAST child of the list, wired with the default material and layout', () => {
+  it('renders the indicator span as the LAST child of the strip container (the run), wired with the default material and layout', () => {
     const { list, ind } = setup();
     expect(list('line')).toBeTruthy();
     expect(list('line').getAttribute('data-indicator')).toBe('line');
@@ -94,8 +94,11 @@ describe('Tabs · shared indicator engine', () => {
     expect(indicator).toBeTruthy();
     expect(indicator!.getAttribute('data-material')).toBe('line');
     expect(indicator!.getAttribute('aria-hidden')).toBe('true');
-    // the wrapper is engine-owned and sits after every trigger
-    expect(list('line').lastElementChild).toBe(indicator);
+    // the wrapper is engine-owned and sits after every trigger, inside
+    // the run (the horizontal strip's scroller — the one-cell grid host
+    // law below)
+    expect(ind('line')!.parentElement).toBe(list('line').querySelector('[data-jx-tabs-run]'));
+    expect(ind('line')!.parentElement!.lastElementChild).toBe(indicator);
   });
 
   it('stamps each material on both the list hook and the indicator', () => {
@@ -271,11 +274,14 @@ describe('Tabs · trigger anatomy', () => {
 });
 
 describe('Tabs · layout contract', () => {
-  it('wrap flows rows instead of scrolling: flex-wrap + data-layout=wrap', () => {
+  it('wrap flows rows instead of scrolling: flex-wrap lands on the run (the triggers\' flex row), data-layout=wrap on both host and run', () => {
     const { list } = setup();
     const wrap = list('wrap');
     expect(wrap.getAttribute('data-layout')).toBe('wrap');
-    expect(wrap.className).toContain('flex-wrap');
+    const run = wrap.querySelector('[data-jx-tabs-run]');
+    expect(run).toBeTruthy();
+    expect(run!.className).toContain('flex-wrap');
+    expect(run!.getAttribute('data-layout')).toBe('wrap');
   });
 
   it('scroll is a declared overflow run — the overflow itself is css-owned, not a markup class', () => {
@@ -285,11 +291,21 @@ describe('Tabs · layout contract', () => {
     expect(scroll.className).not.toContain('overflow-x-auto');
   });
 
-  it('horizontal strips name themselves as their scroll-button anchor (uid-scoped); vertical strips do not', () => {
+  it('horizontal strips are one-cell grid hosts wrapping a presentation run; vertical strips stay flat', () => {
     const { list } = setup();
-    expect(list('line').getAttribute('style')).toContain('--jx-tabs-anchor: --jx-tabs-strip-');
-    expect(list('wrap').getAttribute('style')).toContain('--jx-tabs-anchor: --jx-tabs-strip-');
-    expect(list('vertical-pill').getAttribute('style') ?? '').not.toContain('--jx-tabs-anchor');
+    const horiz = list('line');
+    expect(horiz.className).toContain('grid');
+    const run = horiz.querySelector(':scope > [data-jx-tabs-run]');
+    expect(run).toBeTruthy();
+    expect(run!.getAttribute('role')).toBe('presentation');
+    // the run carries the triggers' flex row
+    expect(run!.className).toContain('flex');
+    // the flat vertical law: no run, triggers are direct children
+    const vertical = list('vertical-pill');
+    expect(vertical.querySelector('[data-jx-tabs-run]')).toBeNull();
+    expect(vertical.querySelector(':scope > [role="tab"]')).toBeTruthy();
+    // the anchor machinery is retired with the absolute overlay
+    expect((horiz.getAttribute('style') ?? '')).not.toContain('anchor');
   });
 });
 
@@ -396,56 +412,38 @@ describe('Tabs · indicator css law (tabs-trigger.css, source-pinned)', () => {
 });
 
 describe('Tabs · horizontal overflow contract (tabs-trigger.css, source-pinned)', () => {
-  // jsdom renders no pseudos and no anchor layout — the overflow law is
-  // pinned on the css source (same-source: byte-identical to the
-  // registry copy)
-  const horiz = /\.jx-tabs-horizontal/;
+  // jsdom renders no pseudos — the overflow law is pinned on the css
+  // source (same-source: byte-identical to the registry copy)
   const startBtn = /::scroll-button\(\s*inline-start\s*\)/;
   const endBtn = /::scroll-button\(\s*inline-end\s*\)/;
 
-  it('every horizontal strip degrades to a scroll run: overflow-x auto, hidden scrollbar, walk-clearing scroll padding', () => {
+  it('the horizontal list is a ONE-CELL GRID HOST — the run and the button boxes stack in the same cell', () => {
     expect(tabsTriggerCss).toMatch(
-      new RegExp(`${horiz.source}[^{]*\\{[^}]*overflow-x:\\s*auto`, 's'),
+      new RegExp(`\\.jx-tabs-horizontal[^{]*\\{[^}]*display:\\s*grid`, 's'),
     );
     expect(tabsTriggerCss).toMatch(
-      new RegExp(`${horiz.source}[^{]*\\{[^}]*scrollbar-width:\\s*none`, 's'),
+      new RegExp(`\\.jx-tabs-horizontal[^{]*\\{[^}]*grid-template-columns:\\s*minmax\\(0,\\s*1fr\\)`, 's'),
     );
+    expect(tabsTriggerCss).toMatch(new RegExp(`\\.jx-tabs-run[^{]*\\{[^}]*grid-area:\\s*1\\s*/\\s*1`, 's'));
     expect(tabsTriggerCss).toMatch(
-      new RegExp(`${horiz.source}[^{]*\\{[^}]*scroll-padding-inline`, 's'),
+      new RegExp(`${startBtn.source}[\\s\\S]{0,120}?${endBtn.source}[^{]*\\{[^}]*grid-area:\\s*1\\s*/\\s*1`, 's'),
     );
   });
 
-  it('both button directions are authored, but stay display:none without position-area (progressive enhancement)', () => {
+  it('the run degrades to a scroll run: overflow-x auto, hidden scrollbar, walk-clearing scroll padding', () => {
+    expect(tabsTriggerCss).toMatch(new RegExp(`\\.jx-tabs-run[^{]*\\{[^}]*overflow-x:\\s*auto`, 's'));
+    expect(tabsTriggerCss).toMatch(new RegExp(`\\.jx-tabs-run[^{]*\\{[^}]*scrollbar-width:\\s*none`, 's'));
+    expect(tabsTriggerCss).toMatch(new RegExp(`\\.jx-tabs-run[^{]*\\{[^}]*scroll-padding-inline`, 's'));
+  });
+
+  it('both button directions are authored, pinned to their inline edges (justify-self), stacked above the run', () => {
     expect(tabsTriggerCss).toMatch(startBtn);
     expect(tabsTriggerCss).toMatch(endBtn);
-    // the ungated shared rule defaults the buttons OFF
+    expect(tabsTriggerCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*justify-self:\\s*end`, 's'));
+    expect(tabsTriggerCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*justify-self:\\s*start`, 's'));
     expect(tabsTriggerCss).toMatch(
-      new RegExp(`${startBtn.source}[\\s\\S]{0,120}?${endBtn.source}[^{]*\\{[^}]*display:\\s*none`, 's'),
+      new RegExp(`${startBtn.source}[\\s\\S]{0,120}?${endBtn.source}[^{]*\\{[^}]*z-index:\\s*1`, 's'),
     );
-  });
-
-  it('the overlay is anchor-positioned against the strip: @supports position-anchor gates the anchored insets', () => {
-    const gate = tabsTriggerCss.match(/@supports\s*\(\s*position-anchor:\s*[^)]+\)\s*\{([\s\S]*?)\n\}/);
-    expect(gate).toBeTruthy();
-    const body = gate?.[1] ?? '';
-    expect(body).toMatch(/anchor-name:\s*var\(--jx-tabs-anchor\)/);
-    expect(body).toMatch(/position-anchor:\s*var\(--jx-tabs-anchor\)/);
-    expect(body).toMatch(/inset-block:\s*0/);
-    // each direction pins its own inline edge against the anchor
-    expect(body).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*inset-inline-end:\\s*0`, 's'));
-    expect(body).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*inset-inline-start:\\s*0`, 's'));
-  });
-
-  it('a dead direction never paints: generation itself is the gate — the paint is unconditional over generated boxes', () => {
-    // Chromium 146 (verified 2026-09-01): a direction's ::scroll-button()
-    // box is generated ONLY while it can scroll; :enabled/:disabled do not
-    // even match the pseudo (no disabled state to style). The paint rule
-    // therefore stays flat/unconditional — and must never grow a state
-    // compound, which this pin guards against by accident
-    expect(tabsTriggerCss).toMatch(
-      new RegExp(`${startBtn.source}\\s*,[\\s\\S]{0,120}?${endBtn.source}\\s*\\{[^}]*display:\\s*flex`, 's'),
-    );
-    expect(tabsTriggerCss).not.toMatch(/::scroll-button\([^)]*\):(enabled|disabled|not)/);
   });
 
   it('the hit box is the full button (width from density tokens), painted as a masked chevron over theme ink', () => {
@@ -454,5 +452,19 @@ describe('Tabs · horizontal overflow contract (tabs-trigger.css, source-pinned)
     );
     expect(tabsTriggerCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*mask:\\s*url\\(`, 's'));
     expect(tabsTriggerCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*mask:\\s*url\\(`, 's'));
+  });
+
+  it('a dead direction never paints (generation itself is the gate — Chromium 146) and the overlay carries NO absolute/anchor machinery (grid stacking law, Owner 2026-09-01)', () => {
+    // a direction's ::scroll-button() box is generated ONLY while it can
+    // scroll; :enabled/:disabled do not even match the pseudo (verified
+    // 2026-09-01) — the paint stays unconditional over generated boxes,
+    // and the layering is grid, never position:absolute
+    expect(tabsTriggerCss).not.toMatch(/::scroll-button\([^)]*\):(enabled|disabled|not)/);
+    const scrollBtnLines = tabsTriggerCss
+      .split('\n')
+      .filter((line) => line.includes('scroll-button'))
+      .join('\n');
+    expect(scrollBtnLines).not.toMatch(/position:\s*absolute/);
+    expect(tabsTriggerCss).not.toMatch(/anchor-name|position-anchor/);
   });
 });

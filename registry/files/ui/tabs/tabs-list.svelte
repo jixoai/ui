@@ -27,8 +27,11 @@
   this engine still owns the geometry (a snippet rides the pill-family
   hug box; data-material reports 'custom'). Only the `line` material
   keeps the structural border; `layout` adds grow/scroll/wrap strip
-  shapes — and every horizontal strip degrades to a hidden-scrollbar
-  scroll run with on-demand ::scroll-button() chevrons (css-owned,
+  shapes. Every horizontal strip is a ONE-CELL GRID HOST whose scroll
+  run (role=presentation, the real scroller) degrades to a
+  hidden-scrollbar overflow run with on-demand ::scroll-button()
+  chevrons stacked over the same cell — grid layering, never
+  position:absolute (Owner, 2026-09-01; the css contract lives in
   tabs-trigger.css).
 -->
 <script lang="ts" module>
@@ -204,13 +207,10 @@
   });
 
   /** liquid needs its displacement filter referenced from the list (the
-   *  indicator span inherits the custom property); a horizontal strip
-   *  also names itself as the anchor its ::scroll-button() chevrons
-   *  overlay (uid-scoped: several strips may share a page). A consumer
-   *  style APPENDS (merge law, alert-dialog dialect — never clobber) */
+   *  indicator span inherits the custom property); a consumer style
+   *  APPENDS (merge law, alert-dialog dialect — never clobber) */
   const listStyle = $derived(
     [
-      orientation === 'horizontal' ? `--jx-tabs-anchor: --jx-tabs-strip-${tabs.uid}` : '',
       material === 'liquid'
         ? `--jx-tabs-liquid-bf: url('#${tabs.uid}-liquid') blur(2px) saturate(1.6)`
         : '',
@@ -267,25 +267,7 @@
   }
 </script>
 
-<div
-  bind:this={listEl}
-  data-jx-tabs-list=""
-  data-indicator={material}
-  data-layout={layout}
-  class={cn(
-    `jx-tabs-${orientation} relative flex items-stretch [gap:var(--jx-gap)] box-border`,
-    orientation === 'vertical' && 'flex-col',
-    material === 'line' && (orientation === 'vertical' ? 'border-r border-border' : 'border-b border-border'),
-    layout === 'wrap' && 'flex-wrap',
-    className,
-  )}
-  style={listStyle}
-  onkeydown={handleKeydown}
-  {...rest}
-  role="tablist"
-  aria-orientation={orientation}
->
-  {@render children()}
+{#snippet runTail()}
   {#if material === 'liquid'}
     <!-- zero-size SVG carrying the displacement filter the liquid
          backdrop references by fragment id -->
@@ -311,5 +293,52 @@
     >
       {#if indicatorSnippet && geo}{@render indicatorSnippet(geo)}{/if}
     </span>
+  {/if}
+{/snippet}
+
+<div
+  bind:this={listEl}
+  data-jx-tabs-list=""
+  data-indicator={material}
+  data-layout={layout}
+  class={cn(
+    'relative box-border',
+    // the horizontal list is a ONE-CELL GRID HOST (Owner, 2026-09-01 —
+    // grid stacking law, never position:absolute): the scroll run and
+    // the engine-generated ::scroll-button() boxes (the run's siblings
+    // by construction) stack in the same cell; the vertical list keeps
+    // the flat flex column
+    orientation === 'horizontal'
+      ? 'jx-tabs-horizontal grid [grid-template-columns:minmax(0,1fr)]'
+      : 'jx-tabs-vertical flex flex-col items-stretch [gap:var(--jx-gap)]',
+    material === 'line' && (orientation === 'vertical' ? 'border-r border-border' : 'border-b border-border'),
+    orientation === 'vertical' && layout === 'wrap' && 'flex-wrap',
+    className,
+  )}
+  style={listStyle}
+  onkeydown={handleKeydown}
+  {...rest}
+  role="tablist"
+  aria-orientation={orientation}
+>
+  {#if orientation === 'horizontal'}
+    <!-- the run: the strip's REAL scroller. role=presentation flattens
+         it out of the accessibility tree (the tablist keeps owning its
+         tabs); it stays UNPOSITIONED so trigger offset geometry keeps
+         resolving against the list; the engine's ::scroll-button()
+         boxes generate as the run's siblings and stack over the same
+         grid cell (the css contract lives in tabs-trigger.css) -->
+    <div
+      role="presentation"
+      data-jx-tabs-run=""
+      data-layout={layout}
+      class={cn('jx-tabs-run flex items-stretch [gap:var(--jx-gap)]', layout === 'wrap' && 'flex-wrap')}
+    >
+      {@render children()}
+      {@render runTail()}
+    </div>
+  {:else}
+    {@render children()}
+    {@render runTail()}
   {/if}
 </div>

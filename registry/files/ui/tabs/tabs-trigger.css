@@ -66,72 +66,70 @@
 
 /* ── the horizontal overflow contract (Owner, 2026-09-01) ──
  * Every horizontal strip degrades to a scroll run the moment its
- * content outgrows the container (overflow-x: auto, scrollbar hidden)
- * — and it must LOOK scrollable: the engine's ::scroll-button()
- * chevrons overlay the inline edges, only toward directions that can
- * actually travel — generation itself is the gate: Chromium 146
- * generates a direction's box ONLY while it can scroll (verified:
- * neither :enabled nor :disabled even matches the pseudo — there is
- * no disabled state to style, a dead direction simply has no box), so
- * the paint below is unconditional over generated boxes. The engine's
- * default placement stacks the boxes as block siblings BELOW the
- * strip, so anchor-relative insets overlay them at the edges
- * (inset-block stretches the lane, the per-direction inline inset
- * pins the side); engines without anchor positioning keep the buttons
- * display: none (a bare hidden-scrollbar strip, progressive
- * enhancement, no fallback machinery). Geometry derives from the
- * density tokens: width = two insets, breathing = half an inset.
- * scroll-padding-inline walks the focused trigger clear of the lanes.
+ * content outgrows the container (overflow-x: auto on the run,
+ * scrollbar hidden) — and it must LOOK scrollable: the engine's
+ * ::scroll-button() chevrons ride the inline edges, only toward
+ * directions that can actually travel — generation itself is the
+ * gate (Chromium 146: a direction's box exists ONLY while it can
+ * scroll; :enabled/:disabled do not even match the pseudo, so the
+ * paint below is unconditional over generated boxes).
+ *
+ * Stacking is GRID, never position:absolute (Owner, 2026-09-01 — the
+ * project's layout law): the list is a ONE-CELL grid host; the run
+ * (the real scroller, role=presentation so the a11y tree flattens it
+ * and the tablist keeps owning its tabs) and the engine-generated
+ * button boxes — siblings of the run by construction — land in the
+ * SAME cell; justify-self pins each direction to its inline edge and
+ * align-self: stretch plus margin-block gives the full-height lane
+ * with half-inset breathing. Geometry derives from the density
+ * tokens: width = two insets. scroll-padding-inline walks the
+ * focused trigger clear of the lanes. Engines without
+ * ::scroll-button() never generate the boxes — the strip simply
+ * keeps its hidden scrollbar (progressive enhancement, no
+ * fallback machinery).
  * (Pipeline scar, 2026-09-01: a lost comment opener here — raw
  * comment text as tokens, engine's-apostrophe eaten as a string
  * quote — 500'd the whole route through the tailwind css transform.
  * A comment is load-bearing: keep its opener intact.) */
 :where(.jx-tabs-horizontal) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+:where(.jx-tabs-run) {
+  grid-area: 1 / 1;
   overflow-x: auto;
   scrollbar-width: none;
   scroll-padding-inline: calc(var(--jx-inset) * 2);
 }
-:where(.jx-tabs-horizontal)::-webkit-scrollbar {
+:where(.jx-tabs-run)::-webkit-scrollbar {
   display: none;
 }
-:where(.jx-tabs-horizontal)::scroll-button(inline-start),
-:where(.jx-tabs-horizontal)::scroll-button(inline-end) {
-  display: none;
+:where(.jx-tabs-run)::scroll-button(inline-start),
+:where(.jx-tabs-run)::scroll-button(inline-end) {
+  /* the one shared cell: stacked with the run, pinned to its edge */
+  grid-area: 1 / 1;
+  z-index: 1;
+  align-self: stretch;
+  width: calc(var(--jx-inset) * 2);
+  margin-block: calc(var(--jx-inset) / 2);
+  content: '';
+  background-color: var(--muted-foreground);
+  background-image: none;
+  cursor: pointer;
 }
-@supports (position-anchor: --jx-tabs-anchor) {
-  :where(.jx-tabs-horizontal) {
-    anchor-name: var(--jx-tabs-anchor);
-  }
-  :where(.jx-tabs-horizontal)::scroll-button(inline-start),
-  :where(.jx-tabs-horizontal)::scroll-button(inline-end) {
-    display: flex;
-    position: absolute;
-    position-anchor: var(--jx-tabs-anchor);
-    /* anchor-relative insets stretch the lane: full strip height minus
-     * the half-inset breathing; the inline side pins per direction
-     * (physical-inset writing-mode flip keeps RTL honest) */
-    inset-block: 0;
-    width: calc(var(--jx-inset) * 2);
-    margin-block: calc(var(--jx-inset) / 2);
-    content: '';
-    background-color: var(--muted-foreground);
-    background-image: none;
-    cursor: pointer;
-  }
-  :where(.jx-tabs-horizontal)::scroll-button(inline-end) {
-    inset-inline-end: 0;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M9 5l7 7-7 7'/%3E%3C/svg%3E")
-      center / 0.4375rem no-repeat;
-  }
-  :where(.jx-tabs-horizontal)::scroll-button(inline-start) {
-    inset-inline-start: 0;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M15 5l-7 7 7 7'/%3E%3C/svg%3E")
-      center / 0.4375rem no-repeat;
-  }
-  :where(.jx-tabs-horizontal)::scroll-button(inline-start):hover,
-  :where(.jx-tabs-horizontal)::scroll-button(inline-end):hover {
-    background-color: var(--foreground);
-  }
+:where(.jx-tabs-run)::scroll-button(inline-end) {
+  justify-self: end;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M9 5l7 7-7 7'/%3E%3C/svg%3E")
+    center / 0.4375rem no-repeat;
+}
+:where(.jx-tabs-run)::scroll-button(inline-start) {
+  justify-self: start;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M15 5l-7 7 7 7'/%3E%3C/svg%3E")
+    center / 0.4375rem no-repeat;
+}
+:where(.jx-tabs-run)::scroll-button(inline-start):hover,
+:where(.jx-tabs-run)::scroll-button(inline-end):hover {
+  background-color: var(--foreground);
 }
 }
 
