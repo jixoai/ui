@@ -122,9 +122,10 @@
 }
 :where(.jx-tabs-run)::scroll-button(inline-start),
 :where(.jx-tabs-run)::scroll-button(inline-end) {
-  /* the one shared cell: stacked with the run, pinned to its edge */
+  /* the one shared cell: stacked with the run, pinned to its edge.
+   * z 2: above the veil (z 1), never below the blur it rides on */
   grid-area: 1 / 1;
-  z-index: 1;
+  z-index: 2;
   align-self: stretch;
   width: calc(var(--jx-inset) * 2);
   margin-block: calc(var(--jx-inset) / 2);
@@ -155,6 +156,100 @@
 :where(.jx-tabs-run)::scroll-button(inline-start):hover,
 :where(.jx-tabs-run)::scroll-button(inline-end):hover {
   background-color: var(--foreground);
+}
+
+/* ── scrollEffect (Owner, 2026-09-01): edge treatments for the run ──
+ * Two kinds. (1) blur / slide / blur+slide — EACH trigger blurs,
+ * fades and/or slides as it slips under the run's edge: a per-element
+ * view()-timeline animation (unlike the chevrons, triggers are real
+ * elements INSIDE the run, so the timeline attaches cleanly). The
+ * ramps ride the outer 12% of each trigger's transit; every knob is a
+ * var (blur radius, slide distance). (2) progressBlur — the
+ * progressive-blur ladder veils both inline edges (grid-dialect
+ * bands, sibling items of the run in the host's cell), hidden while
+ * the run cannot scroll — the veil width derives from the density
+ * tokens. */
+:where(.jx-tabs-run) {
+  --jx-tabs-edge-blur: 4px;
+  --jx-tabs-edge-slide: 8px;
+}
+/* the veil width rides the HOST, not the run: the bands are the run's
+ * SIBLINGS (custom properties inherit downward only — a var on the
+ * run never reaches them) */
+:where(.jx-tabs-horizontal) {
+  --jx-tabs-veil: calc(var(--jx-inset) * 4);
+}
+@keyframes jx-tabs-edge-blur {
+  0% {
+    opacity: 0;
+    filter: blur(var(--jx-tabs-edge-blur));
+  }
+  12%,
+  88% {
+    opacity: 1;
+    filter: none;
+  }
+  100% {
+    opacity: 0;
+    filter: blur(var(--jx-tabs-edge-blur));
+  }
+}
+@keyframes jx-tabs-edge-slide {
+  0% {
+    opacity: 0;
+    translate: calc(-1 * var(--jx-tabs-edge-slide)) 0;
+  }
+  12%,
+  88% {
+    opacity: 1;
+    translate: none;
+  }
+  100% {
+    opacity: 0;
+    translate: var(--jx-tabs-edge-slide) 0;
+  }
+}
+@keyframes jx-tabs-edge-blur-slide {
+  0% {
+    opacity: 0;
+    filter: blur(var(--jx-tabs-edge-blur));
+    translate: calc(-1 * var(--jx-tabs-edge-slide)) 0;
+  }
+  12%,
+  88% {
+    opacity: 1;
+    filter: none;
+    translate: none;
+  }
+  100% {
+    opacity: 0;
+    filter: blur(var(--jx-tabs-edge-blur));
+    translate: var(--jx-tabs-edge-slide) 0;
+  }
+}
+@supports (animation-timeline: view()) {
+  :where(.jx-tabs-run)[data-scroll-effect='blur'] > [role='tab'] {
+    animation: jx-tabs-edge-blur linear both;
+    animation-timeline: view(inline);
+  }
+  :where(.jx-tabs-run)[data-scroll-effect='slide'] > [role='tab'] {
+    animation: jx-tabs-edge-slide linear both;
+    animation-timeline: view(inline);
+  }
+  :where(.jx-tabs-run)[data-scroll-effect='blur+slide'] > [role='tab'] {
+    animation: jx-tabs-edge-blur-slide linear both;
+    animation-timeline: view(inline);
+  }
+}
+/* the veil is scenery for a SCROLLING run — a strip that cannot
+ * travel shows no bands (the JS-stamped scroll-state is the truth).
+ * Layering is z-index ONLY (Owner, 2026-09-01): run 0 · veil 1 ·
+ * chevrons 2 */
+:where(.jx-tabs-veil) {
+  z-index: 1;
+}
+:where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='none']) > :where(.jx-tabs-veil) {
+  display: none;
 }
 
 /* ── the on-demand fade, scroll-driven (Owner, 2026-09-01) ──

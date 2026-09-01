@@ -88,6 +88,22 @@
 </Tabs>
 
 <Tabs value="alpha">
+  <TabsList data-list="effect-blur" layout="scroll" scrollEffect="blur+slide">
+    <TabsTrigger value="alpha">Alpha</TabsTrigger>
+    <TabsTrigger value="beta">Beta</TabsTrigger>
+    <TabsTrigger value="gamma">Gamma</TabsTrigger>
+  </TabsList>
+</Tabs>
+
+<Tabs value="alpha">
+  <TabsList data-list="effect-veil" layout="scroll" scrollEffect="progressBlur">
+    <TabsTrigger value="alpha">Alpha</TabsTrigger>
+    <TabsTrigger value="beta">Beta</TabsTrigger>
+    <TabsTrigger value="gamma">Gamma</TabsTrigger>
+  </TabsList>
+</Tabs>
+
+<Tabs value="alpha">
   <TabsList data-list="vertical-pill" orientation="vertical" indicator="pill">
     <TabsTrigger value="alpha">Alpha</TabsTrigger>
     <TabsTrigger value="beta">Beta</TabsTrigger>

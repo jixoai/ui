@@ -52,6 +52,15 @@
    *  strip additionally degrades to a scroll run when content outgrows
    *  the container (css-owned, tabs-trigger.css) */
   export type TabsLayout = 'inline' | 'grow' | 'scroll' | 'wrap';
+
+  /** edge treatment for a scrolling run (Owner, 2026-09-01):
+   *  - 'blur' | 'slide' | 'blur+slide': each trigger blurs/fades/(and)
+   *    slides as it slips under the run's edge — a per-element
+   *    view()-timeline animation (real elements inside the run, so the
+   *    timeline attaches cleanly)
+   *  - 'progressBlur': the progressive-blur ladder veils both inline
+   *    edges (static bands, hidden while the run cannot scroll) */
+  export type TabsScrollEffect = 'none' | 'blur' | 'slide' | 'blur+slide' | 'progressBlur';
 </script>
 
 <script lang="ts">
@@ -60,6 +69,7 @@
   import { getContext } from 'svelte';
   import { cn } from '$lib/utils';
   import { TABS_KEY, type TabsApi } from './tabs.svelte';
+  import ProgressiveBlur from '../progressive-blur/progressive-blur.svelte';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
     /** axis of travel: horizontal ←/→ · vertical ↑/↓ (layout is yours) */
@@ -70,6 +80,9 @@
     /** inline: natural sizes · grow: triggers share the strip · scroll: a
      *  declared overflow run · wrap: rows flow instead of scrolling */
     layout?: TabsLayout;
+    /** edge treatment while the run scrolls — blur / slide / blur+slide
+     *  (view()-driven per trigger) or the progressBlur edge veil */
+    scrollEffect?: TabsScrollEffect;
     children: Snippet;
   }
 
@@ -77,6 +90,7 @@
     orientation = 'horizontal',
     indicator = 'line',
     layout = 'inline',
+    scrollEffect = 'none',
     class: className = '',
     style: consumerStyle,
     children,
@@ -355,22 +369,35 @@
   aria-orientation={orientation}
 >
   {#if orientation === 'horizontal'}
+    {#if scrollEffect === 'progressBlur'}
+      <!-- the veil: twin bands as SIBLING items in the host's one grid
+           cell (pin="grid" — positioning by GRID, layering by z-index,
+           never position:*). Grid items of the host do not scroll with
+           the run's content, so the bands stay pinned at the edges;
+           hidden while the run cannot scroll (css, scroll-state) -->
+      <ProgressiveBlur pin="grid" position="start" reveal="static" height="var(--jx-tabs-veil)" class="jx-tabs-veil" />
+    {/if}
     <!-- the run: the strip's REAL scroller. role=presentation flattens
          it out of the accessibility tree (the tablist keeps owning its
-         tabs); it stays UNPOSITIONED so trigger offset geometry keeps
-         resolving against the list; the engine's ::scroll-button()
-         boxes generate as the run's siblings and stack over the same
-         grid cell (the css contract lives in tabs-trigger.css) -->
+         tabs); it is the indicator's containing block (position:
+         relative) so trigger offset geometry and the bar share one
+         coordinate space; the engine's ::scroll-button() boxes generate
+         as the run's siblings and stack over the same grid cell (the
+         css contract lives in tabs-trigger.css) -->
     <div
       bind:this={runEl}
       role="presentation"
       data-jx-tabs-run=""
       data-layout={layout}
+      data-scroll-effect={scrollEffect}
       class={cn('jx-tabs-run flex items-stretch [gap:var(--jx-gap)]', layout === 'wrap' && 'flex-wrap')}
     >
       {@render children()}
       {@render runTail()}
     </div>
+    {#if scrollEffect === 'progressBlur'}
+      <ProgressiveBlur pin="grid" position="end" reveal="static" height="var(--jx-tabs-veil)" class="jx-tabs-veil" />
+    {/if}
   {:else}
     {@render children()}
     {@render runTail()}

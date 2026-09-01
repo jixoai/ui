@@ -293,6 +293,32 @@ describe('Tabs · layout contract', () => {
     expect(list('vertical-pill').querySelector('[data-jx-tabs-run]')).toBeNull();
   });
 
+  it('scrollEffect stamps the run and mounts the veil as twin GRID bands beside the run (position-free)', () => {
+    const { list } = setup();
+    // default: none — no veil anywhere
+    expect(list('line').querySelector('[data-jx-tabs-run]')?.getAttribute('data-scroll-effect')).toBe('none');
+    expect(list('line').querySelector('.jx-pblur')).toBeNull();
+    // blur+slide: the value rides the run for the css view() wiring
+    expect(list('effect-blur').querySelector('[data-jx-tabs-run]')?.getAttribute('data-scroll-effect')).toBe('blur+slide');
+    // progressBlur: twin bands as SIBLING grid items of the host — the
+    // start band before the run, the end band after it; never inside
+    // the scroller, never a positioned element
+    const host = list('effect-veil');
+    const run = host.querySelector('[data-jx-tabs-run]')!;
+    const bands = [...host.querySelectorAll(':scope > .jx-tabs-veil')];
+    expect(bands).toHaveLength(2);
+    expect(bands[0].getAttribute('data-position')).toBe('start');
+    expect(bands[1].getAttribute('data-position')).toBe('end');
+    expect(run.previousElementSibling).toBe(bands[0]);
+    expect(run.nextElementSibling).toBe(bands[1]);
+    // the grid dialect: grid-area stacking + justify-self, no position tech
+    expect(bands[0].className).toContain('[grid-area:1/1]');
+    expect(bands[0].className).not.toContain('sticky');
+    // each band carries the progressive-blur ladder layers (also grid items)
+    expect(bands[0].querySelectorAll('.jx-pblur-layer').length).toBeGreaterThan(1);
+    expect([...bands[0].querySelectorAll('.jx-pblur-layer')].every((l) => l.className.includes('[grid-area:1/1]'))).toBe(true);
+  });
+
   it('scroll is a declared overflow run — the overflow itself is css-owned, not a markup class', () => {
     const { list } = setup();
     const scroll = list('scroll');
@@ -445,14 +471,16 @@ describe('Tabs · horizontal overflow contract (tabs-trigger.css, source-pinned)
     expect(tabsTriggerCss).toMatch(new RegExp(`\\.jx-tabs-run[^{]*\\{[^}]*scroll-padding-inline`, 's'));
   });
 
-  it('both button directions are authored, pinned to their inline edges (justify-self), stacked above the run', () => {
+  it('both button directions are authored, pinned to their inline edges (justify-self), stacked above run AND veil', () => {
     expect(tabsTriggerCss).toMatch(startBtn);
     expect(tabsTriggerCss).toMatch(endBtn);
     expect(tabsTriggerCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*justify-self:\\s*end`, 's'));
     expect(tabsTriggerCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*justify-self:\\s*start`, 's'));
+    // z law: run 0 · veil 1 · chevron 2
     expect(tabsTriggerCss).toMatch(
-      new RegExp(`${startBtn.source}[\\s\\S]{0,120}?${endBtn.source}[^{]*\\{[^}]*z-index:\\s*1`, 's'),
+      new RegExp(`${startBtn.source}[\\s\\S]{0,120}?${endBtn.source}[^{]*\\{[^}]*z-index:\\s*2`, 's'),
     );
+    expect(tabsTriggerCss).toMatch(/\.jx-tabs-veil[^{]*\{[^}]*z-index:\s*1/s);
   });
 
   it('the hit box is the full button (width from density tokens); the glyph lives in css vars the mask references (context-swappable icons)', () => {
@@ -504,6 +532,35 @@ describe('Tabs · horizontal overflow contract (tabs-trigger.css, source-pinned)
     // generation itself is the on-demand gate (Chromium 146: a dead
     // direction has NO box; :enabled/:disabled never match the pseudo)
     expect(tabsTriggerCss).not.toMatch(/::scroll-button\([^)]*\):(enabled|disabled|not)/);
+  });
+
+  it('scrollEffect #1 — view()-driven edge ramps: blur/slide combos wire per-trigger timelines, knobs are vars', () => {
+    for (const effect of ['blur', 'slide', 'blur+slide']) {
+      const escaped = effect.replace('+', '\\+');
+      expect(tabsTriggerCss).toMatch(
+        new RegExp(
+          `data-scroll-effect='${escaped}'\\] > \\[role='tab'\\][^{]*\\{[^}]*animation-timeline:\\s*view\\(inline\\)`,
+          's',
+        ),
+      );
+      expect(tabsTriggerCss).toMatch(new RegExp(`@keyframes jx-tabs-edge-${effect.replace('+', '-')}`));
+    }
+    // every knob is a var (blur radius, slide distance)
+    expect(tabsTriggerCss).toMatch(/--jx-tabs-edge-blur:\s*4px/);
+    expect(tabsTriggerCss).toMatch(/--jx-tabs-edge-slide:\s*8px/);
+  });
+
+  it('scrollEffect #2 — the progressBlur veil: width derives from density tokens and vanishes when the run cannot scroll', () => {
+    // the var rides the HOST: the bands are the run's siblings — a var
+    // declared on the run never inherits to them (width would collapse)
+    expect(tabsTriggerCss).toMatch(
+      /\.jx-tabs-horizontal[^{]*\{[^}]*--jx-tabs-veil:\s*calc\(var\(--jx-inset\)\s*\*\s*4\)/s,
+    );
+    const runBlock = tabsTriggerCss.match(/\.jx-tabs-run[^{]*\{[\s\S]*?\n\}/)?.[0] ?? '';
+    expect(runBlock).not.toContain('--jx-tabs-veil');
+    expect(tabsTriggerCss).toMatch(
+      /:has\(\s*>\s*\[data-jx-tabs-run\]\[data-jx-scroll-state='none'\]\)[^{]*\{[^}]*display:\s*none/s,
+    );
   });
 
   it('the on-demand fade is scroll-driven: the run animates a REGISTERED progress var on its own scroll timeline; buttons inherit it and calc opacity', () => {
