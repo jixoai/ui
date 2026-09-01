@@ -68,18 +68,24 @@
  * Every horizontal strip degrades to a scroll run the moment its
  * content outgrows the container (overflow-x: auto, scrollbar hidden)
  * — and it must LOOK scrollable: the engine's ::scroll-button()
- * chevrons overlay the inline edges, generated only toward directions
- * that can actually travel (the UA itself hides a disabled direction's
- * box — Chromium 146, verified: exactly one rendered button at either
- * scroll extreme). The engine's default placement stacks the boxes as
- * block siblings BELOW the strip, so anchor-relative insets overlay
- * them at the edges (inset-block stretches the lane, the per-direction
- * inline inset pins the side); engines without anchor positioning keep
- * the buttons display: none (a bare hidden-scrollbar strip,
- * progressive enhancement, no fallback machinery). Geometry derives
- * from the density tokens: width = two insets, breathing = half an
- * inset. scroll-padding-inline walks the focused trigger clear of the
- * lanes. */
+ * chevrons overlay the inline edges, only toward directions that can
+ * actually travel — generation itself is the gate: Chromium 146
+ * generates a direction's box ONLY while it can scroll (verified:
+ * neither :enabled nor :disabled even matches the pseudo — there is
+ * no disabled state to style, a dead direction simply has no box), so
+ * the paint below is unconditional over generated boxes. The engine's
+ * default placement stacks the boxes as block siblings BELOW the
+ * strip, so anchor-relative insets overlay them at the edges
+ * (inset-block stretches the lane, the per-direction inline inset
+ * pins the side); engines without anchor positioning keep the buttons
+ * display: none (a bare hidden-scrollbar strip, progressive
+ * enhancement, no fallback machinery). Geometry derives from the
+ * density tokens: width = two insets, breathing = half an inset.
+ * scroll-padding-inline walks the focused trigger clear of the lanes.
+ * (Pipeline scar, 2026-09-01: a lost comment opener here — raw
+ * comment text as tokens, engine's-apostrophe eaten as a string
+ * quote — 500'd the whole route through the tailwind css transform.
+ * A comment is load-bearing: keep its opener intact.) */
 :where(.jx-tabs-horizontal) {
   overflow-x: auto;
   scrollbar-width: none;

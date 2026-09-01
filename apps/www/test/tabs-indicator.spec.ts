@@ -436,6 +436,18 @@ describe('Tabs · horizontal overflow contract (tabs-trigger.css, source-pinned)
     expect(body).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*inset-inline-start:\\s*0`, 's'));
   });
 
+  it('a dead direction never paints: generation itself is the gate — the paint is unconditional over generated boxes', () => {
+    // Chromium 146 (verified 2026-09-01): a direction's ::scroll-button()
+    // box is generated ONLY while it can scroll; :enabled/:disabled do not
+    // even match the pseudo (no disabled state to style). The paint rule
+    // therefore stays flat/unconditional — and must never grow a state
+    // compound, which this pin guards against by accident
+    expect(tabsTriggerCss).toMatch(
+      new RegExp(`${startBtn.source}\\s*,[\\s\\S]{0,120}?${endBtn.source}\\s*\\{[^}]*display:\\s*flex`, 's'),
+    );
+    expect(tabsTriggerCss).not.toMatch(/::scroll-button\([^)]*\):(enabled|disabled|not)/);
+  });
+
   it('the hit box is the full button (width from density tokens), painted as a masked chevron over theme ink', () => {
     expect(tabsTriggerCss).toMatch(
       new RegExp(`${startBtn.source}[\\s\\S]{0,120}?${endBtn.source}[^{]*\\{[^}]*width:\\s*calc\\(var\\(--jx-inset\\)\\s*\\*\\s*2\\)`, 's'),
