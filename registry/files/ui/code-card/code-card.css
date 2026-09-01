@@ -71,6 +71,41 @@
     padding-inline: max(0.875rem - var(--jx-scrollbar-thin, 0px), 0px);
     tab-size: 4;
   }
+
+  /* horizontal scroll affordance (V1-8/V2-8, 2026-09-02): the wrapper
+     ([data-jx-code-card-scroll], the pre's veil host) fades its start/end
+     edges ONLY while that direction can still scroll — the component
+     toggles the data flags from scroll events + ResizeObserver. On
+     classic-scrollbar systems the thin thumb already announces the
+     lane; on overlay-scrollbar systems these veils are the only rest-
+     state hint, so a long line never just hard-clips at the edge. Veil
+     ink is the card's own ground over the code (the scrollbar law
+     above stays the interactive affordance); code reads left-to-right,
+     so the gradient directions are physical by design. Known limit: a
+     named Shiki theme that paints its own pre ground via preStyle is
+     not reflected in the veil color. */
+  [data-jx-code-card-scroll]::before,
+  [data-jx-code-card-scroll]::after {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inline-size: 1.75rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 150ms ease-out;
+  }
+  [data-jx-code-card-scroll]::before {
+    inset-inline-start: 0;
+    background: linear-gradient(to right, var(--readonly-code-bg), transparent);
+  }
+  [data-jx-code-card-scroll]::after {
+    inset-inline-end: 0;
+    background: linear-gradient(to left, var(--readonly-code-bg), transparent);
+  }
+  [data-jx-code-card-scroll][data-hscroll-start]::before,
+  [data-jx-code-card-scroll][data-hscroll-end]::after {
+    opacity: 1;
+  }
 }
 
 :where(.jx-code-card pre:focus-visible) {
@@ -84,6 +119,11 @@
 
 @media (prefers-reduced-motion: reduce) {
   :where(.jx-code-card-copy) {
+    transition: none;
+  }
+  /* the edge veils settle without a transition (static by construction) */
+  [data-jx-code-card-scroll]::before,
+  [data-jx-code-card-scroll]::after {
     transition: none;
   }
 }

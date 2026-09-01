@@ -13,6 +13,14 @@
 
   Composition-only laws (terminal-patterns delta): no atom prop is
   patched, no atom paint re-implemented.
+
+  Elevation (F-7, adversarial-review 2026-09-02): the band floats on
+  the `shadow` utility (--shadow, the elevation grammar's float tier)
+  — the old `[box-shadow:4px_4px_0_0_var(--shadow)]` arbitrary value
+  was doubly wrong: hardcoded geometry OFF the tokens, and var(--shadow)
+  is a full shadow LIST, not a color — the substitution produced five
+  lengths and the whole declaration computed to none (the band rendered
+  shadowless). Geometry lives only in the theme sheet.
 -->
 <script lang="ts">
   import { icons } from '$lib/icons';
@@ -68,7 +76,7 @@
 
 <section
   data-jx-pattern-cta=""
-  class={`jx-pattern-cta box-border grid w-full gap-8 border border-border bg-card px-4 py-8 rounded-(--radius) [box-shadow:4px_4px_0_0_var(--shadow)] min-[820px]:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)] min-[820px]:items-center min-[820px]:px-8 ${className}`}
+  class={`jx-pattern-cta box-border grid w-full gap-8 border border-border bg-card px-4 py-8 rounded-(--radius) shadow min-[820px]:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)] min-[820px]:items-center min-[820px]:px-8 ${className}`}
   aria-label="call to action"
 >
   <div class="min-w-0">

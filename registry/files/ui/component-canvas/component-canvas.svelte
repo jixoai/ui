@@ -75,6 +75,17 @@
     toggle-groups, the source anchor (h/w var(--jx-hit)) and the badge
     (min-h var(--jx-hit)) all ride the chrome band's ONE hit size.
 
+  Stage POSTURE opt-outs (adversarial-review batch 6, 2026-09-02):
+  - `scroll='grow'` lifts the scroll layer's default block cap — for
+    full-composition demos (hero-section) whose own stacking IS the
+    presentation: a capped scrollport cuts the composition mid-element
+    and shows only the bottom element's top sliver (the V2-4 black-bar
+    root cause). The page accepts a longer canvas instead.
+  - `pane='below'` keeps the playground stacked UNDER the stage at
+    every host tier — for demos whose WIDTH is the feature (a steps
+    row needs its columns readable; the ≥48rem side column would
+    starve them — the V2-3 word-waterfall root cause).
+
   The stage keeps the readonly-code tint (color-mix muted 42%) in BOTH
   themes; the playground pane answers with the lighter muted-12% layer.
 -->
@@ -308,6 +319,22 @@
      */
     stage?: 'fill' | 'center' | 'start';
     /**
+     * Stage scroll posture: 'capped' (DEFAULT — the scroll layer bounds
+     * at min(32rem, 60vh) with native auto-scroll) | 'grow' (the cap
+     * lifts; the canvas grows to fit the demo in full). For
+     * full-composition demos whose own stacking is the presentation —
+     * a capped scrollport would cut the composition mid-element.
+     */
+    scroll?: 'capped' | 'grow';
+    /**
+     * Playground pane posture at the host's ≥48rem tier: 'side'
+     * (DEFAULT — the pane takes its clamp(18rem, 26cqi, 22rem) column
+     * right of the stage) | 'below' (the pane always stacks under the
+     * stage; for demos whose width is the feature — the side column
+     * would starve their columns).
+     */
+    pane?: 'side' | 'below';
+    /**
      * Stage preview theme — PAGE-OWNED (bindable). Projects
      * `data-theme` + the theme sheet's `dark`/`jx-light` token-scope
      * class onto the STAGE element only; the docs chrome and sibling
@@ -356,6 +383,8 @@
     files,
     children,
     stage = 'fill',
+    scroll = 'capped',
+    pane = 'side',
     theme = $bindable('light'),
     density = $bindable('comfortable'),
     playground,
@@ -464,6 +493,14 @@
   }
 
   const tree = $derived(buildTree(files));
+  // the tree's id grammar (F-13, 2026-09-02): TreeView builds every id
+  // by joining the split path segments — the SAME normalization
+  // buildTree applies when it nests the nodes (empty segments dropped).
+  // The selected-path lookup must speak that grammar too: an authored
+  // name with a stray './' or '//' builds a normalized tree id that
+  // never equals the raw name, so the selection would silently fall
+  // back to the usage file. Normalize both sides of the comparison.
+  const treeIdOf = (name: string): string => name.split('/').filter(Boolean).join('/');
   // every directory open on drawer mount (the workbench law)
   const openFolders = $derived.by(() => {
     const ids: string[] = [];
@@ -486,7 +523,7 @@
   // drawer default: the usage file when the list carries one (what readers
   // of a workbench open the drawer for), else the first file
   const current = $derived(
-    files.find((f) => f.name === selectedPath) ??
+    files.find((f) => treeIdOf(f.name) === selectedPath) ??
       files.find((f) => f.name.endsWith('usage.svelte')) ??
       files[0],
   );
@@ -622,12 +659,15 @@
     </div>
   </header>
 
-  <div class="jx-canvas-stage-row flex flex-col">
+  <div data-pane={pane} class="jx-canvas-stage-row flex flex-col">
     <!-- the scroll layer (D5): default bounded height + native auto-scroll;
          the NAMED demo container sits on the scrollport so demo container
-         queries see the width the scrollbar actually leaves -->
+         queries see the width the scrollbar actually leaves. data-scroll
+         is the V2-4 posture seam: 'grow' lifts the block cap for
+         full-composition demos (see Props) -->
     <div
       data-jx-canvas-scroll
+      data-scroll={scroll}
       class="jx-canvas-scroll @container/jx-canvas flex-1 min-h-0 min-w-0"
     >
       <div
@@ -810,7 +850,13 @@
                 class="grid items-baseline gap-[0.6rem] grid-cols-[minmax(5.5rem,auto)_minmax(0,1fr)] bg-[color-mix(in_oklab,var(--muted)_30%,transparent)] border border-[color-mix(in_oklab,var(--border)_60%,transparent)] px-[0.5rem] py-[0.28rem]"
               >
                 <dt class="text-muted-foreground font-nav text-[10px] tracking-[0.14em] uppercase">{item.label}</dt>
-                <dd class="text-[color:var(--accent-foreground,var(--foreground))] font-mono text-[11.5px] m-0 min-w-0 [overflow-wrap:anywhere]">{formatOutput(item.value)}</dd>
+                <!-- VALUE ink = text-foreground (V1-4/V2-9, 2026-09-02):
+                     the old --accent-foreground pick was a token-category
+                     error — that token is the ink meant to sit ON an
+                     accent FILL (white in light, black in dark), so on
+                     the neutral pane it rendered near-invisible in BOTH
+                     themes (249-on-249 light, black-on-black dark) -->
+                <dd class="text-foreground font-mono text-[11.5px] m-0 min-w-0 [overflow-wrap:anywhere]">{formatOutput(item.value)}</dd>
               </div>
             {/each}
           </dl>
@@ -878,7 +924,7 @@
           <TreeView
             nodes={tree}
             defaultExpanded={openFolders}
-            selected={current?.name}
+            selected={current ? treeIdOf(current.name) : undefined}
             fileIcons
             onselect={(ctx) => (selectedPath = ctx.id)}
           />

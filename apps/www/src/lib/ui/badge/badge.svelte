@@ -16,8 +16,10 @@
 
   Geometry is the kbd law: height from --jx-line-secondary, inline
   insets only, never block padding. slotStart/slotEnd render icon lanes
-  (svg sized to the secondary text) with adaptive inline padding;
-  shape square | pill. Forced colors (§6): Canvas ground + CanvasText
+  (svg sized to the secondary text) with adaptive inline padding — an
+  icon-only badge (no children) keeps the SYMMETRIC inset so the glyph
+  centers (the tabs-trigger guard, F-6 2026-09-02); shape square |
+  pill. Forced colors (§6): Canvas ground + CanvasText
   ink, the 1px border survives.
 
   A plain <span> so it composes anywhere (inside headings, table cells,
@@ -75,7 +77,15 @@
   data-jx-badge={variant}
   data-density={resolvedDensity}
   class={cn(
-    'inline-flex items-center gap-[calc(var(--jx-gap)/2)] box-border max-w-full [padding-inline:var(--jx-inset)] has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)] has-[[data-icon=inline-end]]:pr-[calc(var(--jx-inset)/2)] border font-nav [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] tracking-[0.14em] uppercase whitespace-nowrap rounded-(--radius) forced-color-adjust-auto [@media(forced-colors:active)]:bg-[Canvas] [@media(forced-colors:active)]:border-[CanvasText] [@media(forced-colors:active)]:text-[CanvasText]',
+    'inline-flex items-center gap-[calc(var(--jx-gap)/2)] box-border max-w-full [padding-inline:var(--jx-inset)] border font-nav [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] tracking-[0.14em] uppercase whitespace-nowrap rounded-(--radius) forced-color-adjust-auto [@media(forced-colors:active)]:bg-[Canvas] [@media(forced-colors:active)]:border-[CanvasText] [@media(forced-colors:active)]:text-[CanvasText]',
+    // slot-vs-padding law (tabs-trigger dialect, F-6 2026-09-02): an
+    // icon lane replaces its side's label inset — ONLY beside a label.
+    // An icon-only badge (no children) keeps the symmetric padding so
+    // the glyph centers; the unconditional has() lanes would halve one
+    // side's inset and shove the glyph off-center
+    children
+      ? 'has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)] has-[[data-icon=inline-end]]:pr-[calc(var(--jx-inset)/2)]'
+      : '',
     shape === 'pill' && 'rounded-full',
     variantUtilities[variant],
     className,

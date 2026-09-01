@@ -106,7 +106,8 @@ ${close}
       <ComponentCanvas
         title="hero-section"
         stage="fill"
-        description="A complete composed hero — the title snippet carries its own accent em, the badges snippet composes Badge parts, the default copy CTA flips to its copied surface on press. Narrow the container past the 64rem tier and the terminal card drops below the lead."
+        scroll="grow"
+        description="A complete composed hero in the stacked (below-tier) form — the docs column cannot offer the 64rem of content the wide tier needs, so this stage shows the terminal card stacked under the lead, rendered in full (the canvas's scroll cap is lifted for this composition demo). The wide form lives in the sample below. The title snippet carries its own accent em, the badges snippet composes Badge parts, the default copy CTA flips to its copied surface on press."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/hero-section/hero-section.svelte"
         files={canvasFiles}      >
         <div class="w-full border border-border bg-muted/40">
@@ -147,6 +148,59 @@ ${close}
           </PlayFields>
         {/snippet}
       </ComponentCanvas>
+    </div>
+
+    <div id="wide-form" data-reveal="">
+      <SectionCard
+        family="wide-form"
+        headerRegion="wide-form"
+        eyebrow="container tier"
+        title="the wide form — 64rem of the hero's own content"
+        summary="The row form answers the hero's own box, not the viewport: at ≥64rem of CONTENT the grid takes its second column and the terminal aside bottom-aligns against the lead. This docs column cannot offer that width, so the sample below pans sideways in its own scroll lane — an honest presentation of a container tier the page's column can never reach."
+      >
+        <div class="flex flex-col gap-3">
+          <div
+            data-jx-hero-wide-pan=""
+            class="overflow-x-auto border border-border bg-muted/40"
+          >
+            <!-- 67rem floor = the 64rem tier + the section's own px-4
+                 insets: the container query reads the section's CONTENT
+                 box, so the pan must clear the tier PLUS the section
+                 padding for the row form to engage -->
+            <div class="min-w-[67rem]">
+              <HeroSection
+                eyebrow="your-app · v0"
+                summary="The same composition at full width — the lead keeps its 16cm ergonomic measure while the aside column tracks 10.5–13cm beside it."
+                copyCommand="npx jixoai-ui init --hue 210"
+              >
+                {#snippet title()}Ship the registry into your repo. <em>Keep the source.</em>{/snippet}
+                {#snippet badges()}
+                  <Badge>registry</Badge>
+                  <Badge>copy CTA</Badge>
+                  <Badge variant="outline">terminal demo</Badge>
+                {/snippet}
+                {#snippet secondary()}
+                  <PressButton variant="outline" href="/docs/components.html">
+                    browse components
+                  </PressButton>
+                {/snippet}
+                {#snippet terminal()}
+                  <TerminalCard
+                    barTitle="quick-start — zsh"
+                    command="npx jixoai-ui init --hue 210"
+                    outputs={['theme installed', 'hue applied · 210']}
+                  />
+                {/snippet}
+              </HeroSection>
+            </div>
+          </div>
+          <p class="m-0 text-muted-foreground text-[12.5px] leading-5">
+            pan the lane sideways — its thin scrollbar is the affordance (the site scrollbar law).
+            The tier boundary is a CONTAINER query on the hero section itself, so embedding the
+            hero in any ≥64rem box takes the row form regardless of the viewport.
+          </p>
+        </div>
+      </SectionCard>
     </div>
 
     <div id="slots" data-reveal="">

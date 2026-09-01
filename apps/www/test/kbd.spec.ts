@@ -1,12 +1,16 @@
 /**
- * Kbd contract suite (test/kbd.spec.ts, 2026-09-01).
+ * Kbd contract suite (test/kbd.spec.ts, 2026-09-01; header re-worded
+ * 2026-09-02, F-8 — the stale "chip geometry … shadow-2xs lift" claim
+ * retired with the engrave migration).
  *
  * The native keyboard glyph on the variant ladder (variant-grammar
  * frozen r1): tonal (the 12%/45% tint recipe over --jx-tonal, which
  * aliases primary at :root) is the DEFAULT rung; fill and outline sit
  * beside it. Semantic hue injects from outside via jx-hue-* utilities,
- * never as a variant name. The chip geometry — 1px border, shadow-2xs
- * lift, mono, secondary text scale — rides every rung unchanged.
+ * never as a variant name. The kbd geometry — 1px border, the
+ * --shadow-engrave inset (a glyph incised into the plane, the
+ * elevation grammar's engrave tier — never a lift), mono, secondary
+ * text scale — rides every rung unchanged.
  *
  * Assertion law: state is read back through the DOM the way a user or
  * assistive tech sees it (element, attributes, classes) — never through

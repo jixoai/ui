@@ -505,9 +505,14 @@ export default {
       >
         <!-- xtermjs-style window chrome: traffic bar (terminal-card paint
              law) + the terminal filling the remaining height (auto mode's
-             fill-host contract) + a replay affordance in the bar -->
+             fill-host contract) + a replay affordance in the bar. The
+             window floats on the shadow-md utility (--shadow-md, the
+             elevation grammar's float tier — F-7 2026-09-02: the old
+             6px arbitrary variant was hardcoded geometry OFF the tokens,
+             and var(--shadow) is a shadow LIST not a color, so the
+             declaration actually computed to none) -->
         <div
-          class="border-border bg-terminal text-terminal-foreground flex h-[380px] w-full flex-col overflow-hidden border [box-shadow:6px_6px_0_0_var(--shadow)]"
+          class="border-border bg-terminal text-terminal-foreground flex h-[380px] w-full flex-col overflow-hidden border shadow-md"
         >
           <div
             class="text-terminal-foreground/55 flex items-center gap-1.5 border-b px-3.5 py-2 font-nav text-xs tracking-[0.1em]"

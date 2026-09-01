@@ -116,6 +116,10 @@
     clearTimeout(copyTimer);
     copyTimer = setTimeout(() => (copied = false), 1400);
   };
+
+  // destroy hygiene (F-9, 2026-09-02): a pending copied-reset timer
+  // never outlives the hero
+  $effect(() => () => clearTimeout(copyTimer));
 </script>
 
 <section

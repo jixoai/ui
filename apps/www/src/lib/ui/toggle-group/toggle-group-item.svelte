@@ -12,10 +12,16 @@
   Spread contract: {...rest} lands on the INPUT FIRST — the
   part's own type/name/value/checked/disabled bindings follow and
   win, so a consumer spread can never sever the value law; consumer
-  attributes (title/data-*/aria-*) still flow verbatim. Interactive
-  descendants are banned inside the content (a label owns exactly
-  one labelable — the input). Duplicate values inside one group are
-  a contract violation (breaks radio identity and the projection).
+  attributes (title/data-*/aria-*) still flow verbatim. TITLE
+  CONTRACT (F-14, 2026-09-02): the input is VISUALLY HIDDEN (the
+  Part A .jx-tgroup law) — a `title` riding the spread renders a
+  tooltip no one can ever see (and hover lands on the label anyway).
+  Surface hover text on the LABEL, the visible face: the `class`
+  passthrough rides the label, so a title-bearing utility/attribute
+  belongs there, not in the input spread. Interactive descendants
+  are banned inside the content (a label owns exactly one labelable
+  — the input). Duplicate values inside one group are a contract
+  violation (breaks radio identity and the projection).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';

@@ -77,6 +77,10 @@
   box-shadow: calc(-100cqw - var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color);
 }
 
+.jx-slider:dir(rtl)::-webkit-slider-thumb {
+  box-shadow: calc(100cqw + var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color);
+}
+
 .jx-slider::-moz-range-track {
   height: var(--jx-range-track);
   border-radius: calc(infinity * 1px);
@@ -226,9 +230,11 @@
   border-radius: 0;
   background: var(--background);
   color: var(--foreground);
+  box-shadow: var(--shadow-well);
+  caret-color: var(--primary);
   font-size: var(--jx-text, 0.875rem);
   color-scheme: light;
-  transition: box-shadow 150ms ease-out;
+  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
 }
 
 .jx-control::placeholder {
@@ -237,12 +243,13 @@
 }
 
 .jx-control:hover {
-  box-shadow: var(--shadow-2xs);
+  box-shadow: var(--shadow-well-hover);
 }
 
 .jx-control:focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
+  border-color: var(--ring);
 }
 
 .jx-control:disabled {
@@ -864,7 +871,13 @@
     font-size: 0.8125rem;
   }
   :where(.jx-pure) kbd:not(.no-jx-pure, .no-jx-pure *) {
-    box-shadow: 0 1px 0 var(--border); /* the key cap's lifted edge */
+    /* the key cap is ENGRAVED, not lifted (F-2, adversarial-review
+       2026-09-02 — Owner kbd ruling): --shadow-engrave inset, the
+       elevation grammar's engrave tier, unified with the registry kbd
+       component (shadow-engrave). The old `0 1px 0 var(--border)`
+       lifted-edge dialect is retired — one kbd face across the bare
+       element and the component. */
+    box-shadow: var(--shadow-engrave);
   }
   :where(.jx-pure) pre:not(.no-jx-pure, .no-jx-pure *) {
     padding: 0.75rem 1rem;
@@ -986,10 +999,12 @@
   border-radius: 0;
   background: var(--background);
   color: var(--foreground);
+  box-shadow: var(--shadow-well);
+  caret-color: var(--primary);
   font: inherit;
   font-size: var(--jx-text, 0.875rem);
   line-height: var(--jx-leading, 1.45);
-  transition: box-shadow 150ms ease-out;
+  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
 }
 
 :where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *))::placeholder {
@@ -998,19 +1013,18 @@
 }
 
 :where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *)):hover:not(:disabled) {
-  box-shadow: var(--shadow-2xs);
+  box-shadow: var(--shadow-well-hover);
 }
 
 :where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *)):focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
-  box-shadow: none;
+  border-color: var(--ring);
 }
 
 :where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *)):disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
 :where(.jx-pure) input:where(:not([type]), [type='text'], [type='password'], [type='email'], [type='url'], [type='tel'], [type='search'], [type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'], [type='number']):where(:not(.no-jx-pure, .no-jx-pure *))[aria-invalid='true'] {
@@ -1082,10 +1096,12 @@
   border-radius: 0;
   background: var(--background);
   color: var(--foreground);
+  box-shadow: var(--shadow-well);
+  caret-color: var(--primary);
   font: inherit;
   font-size: var(--jx-text, 0.875rem);
   line-height: var(--jx-leading, 1.45);
-  transition: box-shadow 150ms ease-out;
+  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
   height: auto;
   resize: vertical;
 }
@@ -1096,19 +1112,18 @@
 }
 
 :where(.jx-pure) textarea:where(:not(.no-jx-pure, .no-jx-pure *)):hover:not(:disabled) {
-  box-shadow: var(--shadow-2xs);
+  box-shadow: var(--shadow-well-hover);
 }
 
 :where(.jx-pure) textarea:where(:not(.no-jx-pure, .no-jx-pure *)):focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
-  box-shadow: none;
+  border-color: var(--ring);
 }
 
 :where(.jx-pure) textarea:where(:not(.no-jx-pure, .no-jx-pure *)):disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
 :where(.jx-pure) textarea:where(:not(.no-jx-pure, .no-jx-pure *))[aria-invalid='true'] {
@@ -1181,10 +1196,12 @@
   border-radius: 0;
   background: var(--background);
   color: var(--foreground);
+  box-shadow: var(--shadow-well);
+  caret-color: var(--primary);
   font: inherit;
   font-size: var(--jx-text, 0.875rem);
   line-height: var(--jx-leading, 1.45);
-  transition: box-shadow 150ms ease-out;
+  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
   cursor: pointer;
   padding-inline-end: calc(var(--jx-inset, 0.75rem) + var(--jx-icon, 1.25rem));
 }
@@ -1195,19 +1212,18 @@
 }
 
 :where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *)):hover:not(:disabled), :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *)):hover:not(:disabled) {
-  box-shadow: var(--shadow-2xs);
+  box-shadow: var(--shadow-well-hover);
 }
 
 :where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *)):focus-visible, :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *)):focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
-  box-shadow: none;
+  border-color: var(--ring);
 }
 
 :where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *)):disabled, :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *)):disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
 :where(.jx-pure) select:where(:not(.no-jx-pure, .no-jx-pure *))[aria-invalid='true'], :where(.jx-pure) select:where([multiple], [size]):where(:not(.no-jx-pure, .no-jx-pure *))[aria-invalid='true'] {
@@ -1561,6 +1577,10 @@
   border: var(--jx-range-ring) solid var(--primary);
   background: var(--background);
   box-shadow: calc(-100cqw - var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color);
+}
+
+:where(.jx-pure) input:where([type='range']:not(.no-jx-pure, .no-jx-pure *)):dir(rtl)::-webkit-slider-thumb {
+  box-shadow: calc(100cqw + var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color);
 }
 
 :where(.jx-pure) input:where([type='range']:not(.no-jx-pure, .no-jx-pure *))::-moz-range-track {
@@ -2190,16 +2210,22 @@
          drift, not design) */
       --shadow-2xs: 1px 1px 0px 0px hsl(0 0% 100% / 0.5);
       --shadow-xs: 2px 2px 0px 0px hsl(0 0% 100% / 0.5);
+      /* ink compensation (F-11, 2026-09-02): the second layer's alpha is
+         deliberately NOT mirrored (0.5 light / 1.0 dark) — the black ring
+         rides directly on the white offset over a black ground, where
+         half-alpha would read as a gray smear; geometry stays rung for
+         rung, only the ink density compensates */
       --shadow-sm: 2px 2px 0px 0px hsl(0 0% 100% / 1), 1px 1px 0px 1px hsl(0 0% 0% / 1);
       --shadow: 4px 4px 0px 0px hsl(0 0% 100% / 1);
       --shadow-md: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 2px 4px -1px hsl(0 0% 0% / 1);
-      --shadow-lg: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 4px 6px -1px hsl(0 0% 0% / 1);
+      /* --shadow-lg removed with the light block (F-10) */
       /* press poses — same minus-1px law as the light block above */
       --shadow-xs-press: 1px 1px 0px 0px hsl(0 0% 100% / 0.5);
       --shadow-sm-press: 1px 1px 0px 0px hsl(0 0% 100% / 1), 0px 0px 0px 1px hsl(0 0% 0% / 1);
       --shadow-md-press: 3px 3px 0px 0px hsl(0 0% 100% / 1), 3px 1px 4px -1px hsl(0 0% 0% / 1);
       /* elevation grammar, dark side: same geometry rung for rung, the
-         ink inverted to white (the white-shadow law) */
+         ink inverted to white (the white-shadow law); --shadow-paper is
+         theme-INDEPENDENT (paper stays white — see the light block) */
       --shadow-engrave: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.4);
       --shadow-well: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.12);
       --shadow-well-hover: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.28);

@@ -94,7 +94,9 @@
   --shadow-sm: 2px 2px 0px 0px hsl(0 0% 0% / 1), 1px 1px 0px 1px hsl(0 0% 100% / 0.5);
   --shadow: 4px 4px 0px 0px hsl(0 0% 0% / 1);
   --shadow-md: 4px 4px 0px 0px hsl(0 0% 0% / 1), 4px 2px 4px -1px hsl(0 0% 100% / 1);
-  --shadow-lg: 4px 4px 0px 0px hsl(0 0% 0% / 1), 4px 4px 6px -1px hsl(0 0% 100% / 1);
+  /* --shadow-lg REMOVED (F-10, adversarial-review 2026-09-02): dead
+     rung — zero consumers anywhere in the workspace; --shadow-md is
+     the float tier's ceiling */
   /* press poses (2026-08-23 r2): each hover pose minus the 1px press
      vector — .jx-press:active swaps to them so the shadow paint stays
      anchored while the body slides; keep in sync when a base changes */
@@ -102,12 +104,18 @@
   --shadow-sm-press: 1px 1px 0px 0px hsl(0 0% 0% / 1), 0px 0px 0px 1px hsl(0 0% 100% / 0.5);
   --shadow-md-press: 3px 3px 0px 0px hsl(0 0% 0% / 1), 3px 1px 4px -1px hsl(0 0% 100% / 1);
 
-  /* ── the elevation grammar (Owner ruling, 2026-09-01) ──────────────
+  /* ── the elevation grammar (Owner ruling, 2026-09-01; float tier
+     re-worded 2026-09-02, adversarial-review F-4) ────────────────────
      Shadow offset ∝ the distance between the element's plane and the
      surface it casts upon (website-scaffold: the top layer floats
      above the shell body). Five tiers, one physics:
-       float   topLayer → mainLayer projection — --shadow / --shadow-md
-               (float-button, popover/dialog/menu panels, overlays)
+       float   topLayer → mainLayer projection. TWO tracks, honestly
+               named: INTERACTIVE surfaces (float-button, overlays
+               that are controls) ride the --shadow / --shadow-md
+               tokens; the PANEL/DIALOG families ride the floating-
+               surface law below (.jx-surface — the subtractive ink
+               layer: --surface-shadow veil over the fixed backdrop
+               treatment), NOT these offset tokens
        raise   in-layer interactive lift — the .jx-press law,
                xs → sm (press-button, chip, action buttons)
        lift    static focus surface, light raise — --shadow-2xs
@@ -123,6 +131,15 @@
   --shadow-engrave: inset 1px 1px 0px 0px hsl(0 0% 0% / 0.4);
   --shadow-well: inset 1px 1px 0px 0px hsl(0 0% 0% / 0.12);
   --shadow-well-hover: inset 1px 1px 0px 0px hsl(0 0% 0% / 0.28);
+
+  /* paper metaphor (print sim, F-5 2026-09-02): the paged preview's
+     sheet depth — a DOCUMENTED exemption from the offset grammar
+     above. Paper photographed on a desk casts soft photographic depth,
+     not the grammar's hard plane offsets. Theme-INDEPENDENT by design:
+     the sheet is white in both themes, so its shadow stays black —
+     one definition, no .dark override (consumed by lib/print
+     sim-shell.css with this same fallback) */
+  --shadow-paper: 0 10px 30px hsl(0 0% 0% / 0.35), 0 2px 8px hsl(0 0% 0% / 0.25);
 
   /* floating-surface law (2026-08-22): restrained black-only scrims;
      the shadow LAYER keeps its original color, always SEMI-TRANSPARENT
@@ -197,16 +214,22 @@
      drift, not design) */
   --shadow-2xs: 1px 1px 0px 0px hsl(0 0% 100% / 0.5);
   --shadow-xs: 2px 2px 0px 0px hsl(0 0% 100% / 0.5);
+  /* ink compensation (F-11, 2026-09-02): the second layer's alpha is
+     deliberately NOT mirrored (0.5 light / 1.0 dark) — the black ring
+     rides directly on the white offset over a black ground, where
+     half-alpha would read as a gray smear; geometry stays rung for
+     rung, only the ink density compensates */
   --shadow-sm: 2px 2px 0px 0px hsl(0 0% 100% / 1), 1px 1px 0px 1px hsl(0 0% 0% / 1);
   --shadow: 4px 4px 0px 0px hsl(0 0% 100% / 1);
   --shadow-md: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 2px 4px -1px hsl(0 0% 0% / 1);
-  --shadow-lg: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 4px 6px -1px hsl(0 0% 0% / 1);
+  /* --shadow-lg removed with the light block (F-10) */
   /* press poses — same minus-1px law as the light block above */
   --shadow-xs-press: 1px 1px 0px 0px hsl(0 0% 100% / 0.5);
   --shadow-sm-press: 1px 1px 0px 0px hsl(0 0% 100% / 1), 0px 0px 0px 1px hsl(0 0% 0% / 1);
   --shadow-md-press: 3px 3px 0px 0px hsl(0 0% 100% / 1), 3px 1px 4px -1px hsl(0 0% 0% / 1);
   /* elevation grammar, dark side: same geometry rung for rung, the
-     ink inverted to white (the white-shadow law) */
+     ink inverted to white (the white-shadow law); --shadow-paper is
+     theme-INDEPENDENT (paper stays white — see the light block) */
   --shadow-engrave: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.4);
   --shadow-well: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.12);
   --shadow-well-hover: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.28);
@@ -730,10 +753,10 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --shadow-sm: var(--shadow-sm);
   --shadow: var(--shadow);
   --shadow-md: var(--shadow-md);
-  --shadow-lg: var(--shadow-lg);
   --shadow-engrave: var(--shadow-engrave);
   --shadow-well: var(--shadow-well);
   --shadow-well-hover: var(--shadow-well-hover);
+  --shadow-paper: var(--shadow-paper);
 }
 
 /* Reveal hooks, scroll-driven era (Owner approval, 2026-08-24): pure CSS.
@@ -963,10 +986,12 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   border-radius: 0;
   background: var(--background);
   color: var(--foreground);
+  box-shadow: var(--shadow-well);
+  caret-color: var(--primary);
   font: inherit;
   font-size: var(--jx-text, 0.875rem);
   line-height: var(--jx-leading, 1.45);
-  transition: box-shadow 150ms ease-out;
+  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
 }
 
 .jx-html-input::placeholder {
@@ -975,19 +1000,18 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 }
 
 .jx-html-input:hover:not(:disabled) {
-  box-shadow: var(--shadow-2xs);
+  box-shadow: var(--shadow-well-hover);
 }
 
 .jx-html-input:focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
-  box-shadow: none;
+  border-color: var(--ring);
 }
 
 .jx-html-input:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
 .jx-html-input[aria-invalid='true'] {
@@ -1059,10 +1083,12 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   border-radius: 0;
   background: var(--background);
   color: var(--foreground);
+  box-shadow: var(--shadow-well);
+  caret-color: var(--primary);
   font: inherit;
   font-size: var(--jx-text, 0.875rem);
   line-height: var(--jx-leading, 1.45);
-  transition: box-shadow 150ms ease-out;
+  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
   height: auto;
   resize: vertical;
 }
@@ -1073,19 +1099,18 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 }
 
 .jx-html-textarea:hover:not(:disabled) {
-  box-shadow: var(--shadow-2xs);
+  box-shadow: var(--shadow-well-hover);
 }
 
 .jx-html-textarea:focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
-  box-shadow: none;
+  border-color: var(--ring);
 }
 
 .jx-html-textarea:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
 .jx-html-textarea[aria-invalid='true'] {
@@ -1158,10 +1183,12 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   border-radius: 0;
   background: var(--background);
   color: var(--foreground);
+  box-shadow: var(--shadow-well);
+  caret-color: var(--primary);
   font: inherit;
   font-size: var(--jx-text, 0.875rem);
   line-height: var(--jx-leading, 1.45);
-  transition: box-shadow 150ms ease-out;
+  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
   cursor: pointer;
   padding-inline-end: calc(var(--jx-inset, 0.75rem) + var(--jx-icon, 1.25rem));
 }
@@ -1172,19 +1199,18 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 }
 
 .jx-html-select:hover:not(:disabled) {
-  box-shadow: var(--shadow-2xs);
+  box-shadow: var(--shadow-well-hover);
 }
 
 .jx-html-select:focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
-  box-shadow: none;
+  border-color: var(--ring);
 }
 
 .jx-html-select:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
 .jx-html-select[aria-invalid='true'] {
@@ -1540,6 +1566,10 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   box-shadow: calc(-100cqw - var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color);
 }
 
+.jx-html-range:dir(rtl)::-webkit-slider-thumb {
+  box-shadow: calc(100cqw + var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color);
+}
+
 .jx-html-range::-moz-range-track {
   height: var(--jx-range-track);
   border-radius: calc(infinity * 1px);
@@ -1722,9 +1752,11 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   border-radius: 0;
   background: var(--background);
   color: var(--foreground);
+  box-shadow: var(--shadow-well);
+  caret-color: var(--primary);
   font-size: var(--jx-text, 0.875rem);
   color-scheme: light;
-  transition: box-shadow 150ms ease-out;
+  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
 }
 
 .jx-html-control::placeholder {
@@ -1733,12 +1765,13 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 }
 
 .jx-html-control:hover {
-  box-shadow: var(--shadow-2xs);
+  box-shadow: var(--shadow-well-hover);
 }
 
 .jx-html-control:focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
+  border-color: var(--ring);
 }
 
 .jx-html-control:disabled {

@@ -15,7 +15,11 @@
      stay tabs, long lines never wrap), vertical when maxHeight caps it or
      when fill mode pins head/foot and hands the whole body height to the
      <pre>; the theme scrollbar law (thin currentColor + both-edges
-     gutters), overscroll containment, keyboard-focusable.
+     gutters), overscroll containment, keyboard-focusable. The horizontal
+     AFFORDANCE (V1-8/V2-8): a non-scrolling wrapper hosts start/end edge
+     veils that appear only while that direction can scroll — the rest-
+     state hint overlay-scrollbar systems never give (see the effect
+     below).
   3. named Shiki themes ride along: the theme's editor colors from Shiki's
      <pre> output are re-applied to this card's <pre> verbatim, so a real
      theme (github-dark, …) paints its own ground instead of fighting the
@@ -166,6 +170,41 @@
     clearTimeout(copyTimer);
     copyTimer = setTimeout(() => (copied = false), 1600);
   };
+
+  // ---- horizontal scroll affordance (V1-8/V2-8, 2026-09-02) -------------
+  // The <pre> has always been the scrollport (Tab stays tabs, long lines
+  // never wrap), but on overlay-scrollbar systems NOTHING at rest says
+  // "there is more to the right" — the line just hard-clips at the edge.
+  // The wrapper below carries two edge veils (css) that appear only
+  // while that direction can still scroll; scroll events + a
+  // ResizeObserver on the pre AND its <code> catch every geometry
+  // change (the plain↔highlight swap, font resolution, container
+  // resizes) without listening to the wheel.
+  let preEl = $state<HTMLElement>();
+  let hScrollStart = $state(false);
+  let hScrollEnd = $state(false);
+
+  function readScrollState(): void {
+    const pre = preEl;
+    if (!pre) return;
+    hScrollStart = pre.scrollLeft > 1;
+    hScrollEnd = pre.scrollLeft + pre.clientWidth < pre.scrollWidth - 1;
+  }
+
+  $effect(() => {
+    const pre = preEl;
+    if (!pre) return;
+    readScrollState();
+    pre.addEventListener('scroll', readScrollState, { passive: true });
+    const ro = new ResizeObserver(readScrollState);
+    ro.observe(pre);
+    const codeEl = pre.querySelector('code');
+    if (codeEl) ro.observe(codeEl);
+    return () => {
+      pre.removeEventListener('scroll', readScrollState);
+      ro.disconnect();
+    };
+  });
 </script>
 
 <figure
@@ -196,17 +235,30 @@
   <!-- tabindex keeps the scrollport keyboard-reachable (arrow scrolling for
        long lines / capped bodies) — the a11y lint prefers interactive roles,
        but this is the same contract Shiki's own <pre tabindex="0"> ships -->
-  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-  <pre
-    data-lang={lang}
-    data-jx-code-card-pre
-    class={cn(maxHeight !== '' && 'vscroll overflow-y-auto', fill && 'flex-1 min-h-0 overflow-y-auto')}
-    style={[preStyle, maxHeight !== '' ? `max-height:${maxHeight}` : '']
-      .filter(Boolean)
-      .join(';')}
-    tabindex="0"
-    aria-label={filename ? `${filename} code sample` : `${lang} code sample`}
-  ><code>{#if tokenHtml}{@html tokenHtml}{:else}{code}{/if}</code></pre>
+  <!-- the wrapper is the VEIL HOST (V1-8/V2-8): it never scrolls itself —
+       it only frames the pre so the edge fades can sit still while the
+       code moves under them (a pseudo on the pre itself would scroll
+       along). In fill mode the wrapper inherits the flex plumbing the
+       pre used to carry alone; the pre keeps its own scroll laws -->
+  <div
+    data-jx-code-card-scroll
+    data-hscroll-start={hScrollStart || undefined}
+    data-hscroll-end={hScrollEnd || undefined}
+    class={cn('relative min-w-0', fill && 'flex flex-1 min-h-0 flex-col')}
+  >
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <pre
+      bind:this={preEl}
+      data-lang={lang}
+      data-jx-code-card-pre
+      class={cn(maxHeight !== '' && 'vscroll overflow-y-auto', fill && 'flex-1 min-h-0 overflow-y-auto')}
+      style={[preStyle, maxHeight !== '' ? `max-height:${maxHeight}` : '']
+        .filter(Boolean)
+        .join(';')}
+      tabindex="0"
+      aria-label={filename ? `${filename} code sample` : `${lang} code sample`}
+    ><code>{#if tokenHtml}{@html tokenHtml}{:else}{code}{/if}</code></pre>
+  </div>
   {#if footer || copyable}
     <div
       data-jx-code-card-foot

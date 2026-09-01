@@ -58,6 +58,18 @@
   scrollbar-gutter: stable;
 }
 
+/* scroll posture opt-out (V2-4, adversarial-review batch 6 2026-09-02):
+   'grow' lifts the default block cap. Full-composition demos (the
+   hero-section docs stage) stack taller than min(32rem, 60vh); under
+   the cap the scrollport CLIPS the composition mid-element — the DOM
+   keeps full geometry (a 604×159 terminal card) while the visible
+   region shows only the crossing element's top sliver (the 10-17px
+   black bar at the stage bottom, all conditions). The page opts into
+   a longer canvas instead of a truncated demo. */
+:where([data-jx-canvas-scroll][data-scroll='grow']) {
+  max-block-size: none;
+}
+
 /* fill posture (D2): consumer children span the stage row — snippet
    children, markup utilities can't reach them. The demo-content scope
    (site-polish F10) is display:contents — no box of its own — so the
@@ -116,6 +128,25 @@
     min-height: 0;
     overflow-y: auto;
     width: 14rem;
+  }
+}
+
+/* pane posture opt-out (V2-3, adversarial-review batch 6 2026-09-02):
+   'below' keeps the stacked stage-over-pane posture at EVERY host tier.
+   Demos whose WIDTH is the feature (the steps docs demo: a three-column
+   wizard row) read as a word-waterfall inside the split — the side pane
+   takes clamp(18rem, 26cqi, 22rem) and starves the stage column, and
+   the item grid's 1fr connector lane eats half of what remains
+   (measured 20+83+83px per item). Source order after the wide block +
+   equal :where() specificity = these win only for the opt-in flag. */
+@container jx-canvas-host (min-width: 48rem) {
+  :where([data-jx-canvas-stage-row][data-pane='below']) {
+    display: flex;
+    flex-direction: column;
+  }
+  :where([data-jx-canvas-stage-row][data-pane='below'] .jx-canvas-playground) {
+    border-top: 1px solid var(--border);
+    border-left: none;
   }
 }
 

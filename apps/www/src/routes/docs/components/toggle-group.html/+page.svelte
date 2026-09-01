@@ -29,7 +29,11 @@
 
   // Playground protocol: the page owns the snapshots + reset; the echo footer
   // replaces the hand-written "value/values" captions; usage file tracks live.
-  const canvasInitial = { single: '', many: [] as string[] };
+  // V2-10 (2026-09-02): the demo ships MEANINGFUL initial values — a single
+  // 'center' press and a 'bold' entry — so the selected segments and the echo
+  // footer read as the component's contract at first paint, not as an empty
+  // state the reader must poke before anything renders.
+  const canvasInitial = { single: 'center', many: ['bold'] as string[] };
   let single = $state<string>(canvasInitial.single);
   let many = $state<string[]>(canvasInitial.many);
   function resetCanvas(): void {
