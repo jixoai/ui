@@ -33,21 +33,39 @@ describe('density adoption packet B', () => {
     expect(radio.container.querySelector('.jx-html-radio')).not.toBeNull();
   });
 
-  it('keeps range interaction and color trigger roots present', () => {
+  it('keeps range and color trigger roots present', () => {
     const range = render(Range, { props: { label: 'volume', density: 'sm' } });
     expect(range.container.querySelector('[data-density]')?.getAttribute('data-density')).toBe('sm');
     const color = render(ColorPicker, { props: { label: 'accent', density: 'default' } });
     expect(color.container.querySelector('.jx-color-picker-trigger')).not.toBeNull();
   });
 
-  it('preserves the range keyboard contract while density owns its hit lane', async () => {
+  it('rides the NATIVE input[type=range] — the platform owns the slider contract', async () => {
     const { container } = render(Range, { props: { label: 'volume', value: 5, min: 0, max: 10, step: 1 } });
-    const slider = container.querySelector('[role="slider"]') as HTMLElement;
-    expect(slider.getAttribute('aria-valuenow')).toBe('5');
-    await fireEvent.keyDown(slider, { key: 'ArrowRight' });
-    expect(slider.getAttribute('aria-valuenow')).toBe('6');
-    await fireEvent.keyDown(slider, { key: 'End' });
-    expect(slider.getAttribute('aria-valuenow')).toBe('10');
+    // the base is the real element — no div simulation, no hand-held
+    // role=slider shadow (native rebase, 2026-09-01)
+    expect(container.querySelector('div[role="slider"]')).toBeNull();
+    const input = container.querySelector('input[type="range"]') as HTMLInputElement;
+    expect(input).not.toBeNull();
+    // a REAL label binds through for/id (labelable — the div never was)
+    expect(container.querySelector(`label[for="${input.id}"]`)).not.toBeNull();
+    // the numeric model rides native attributes; the readout precision
+    // reaches assistive tech through aria-valuetext
+    expect(input.min).toBe('0');
+    expect(input.max).toBe('10');
+    expect(input.step).toBe('1');
+    expect(input.value).toBe('5');
+    expect(input.getAttribute('aria-valuetext')).toBe('5');
+    // the platform steps the value on arrow keys — a native commit
+    // flows back into the $bindable seam
+    input.value = '6';
+    await fireEvent.input(input);
+    expect(input.value).toBe('6');
+    // error wires the native invalid seam
+    const errored = render(Range, { props: { label: 'vol', error: 'too loud', showValue: false } });
+    const bad = errored.container.querySelector('input[type="range"]') as HTMLInputElement;
+    expect(bad.getAttribute('aria-invalid')).toBe('true');
+    expect(bad.getAttribute('aria-describedby')).toBeTruthy();
   });
 
   it('does not expose a toggle size/controlSize footprint API', () => {

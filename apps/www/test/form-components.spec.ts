@@ -573,16 +573,18 @@ describe('FormField bridge', () => {
     expect(formDataOf(bridge, input).get('backend')).toBe('bun'); // ...FormData the VALUE
   });
 
-  it('Range contributes its numeric string and follows keyboard commits', async () => {
+  it('Range submits its numeric string through the NATIVE input', async () => {
     const { container } = render(Range, {
       props: { name: 'volume', value: 40, min: 0, max: 100, showValue: false },
     });
-    const bridge = container.querySelector<HTMLElement>('jx-form-field')!;
-    const slider = container.querySelector<HTMLElement>('[role="slider"]')!;
+    const input = container.querySelector<HTMLInputElement>('input[type="range"]')!;
 
-    expect(formDataOf(bridge).get('volume')).toBe('40');
-    await fireEvent.keyDown(slider, { key: 'ArrowRight' });
-    expect(formDataOf(bridge).get('volume')).toBe('41');
+    expect(formDataOf(input).get('volume')).toBe('40');
+    // a native commit (the platform's arrow-key step lands here) rides
+    // the input's own FormData lane — no bridge element anymore
+    input.value = '41';
+    await fireEvent.input(input);
+    expect(formDataOf(input).get('volume')).toBe('41');
   });
 
   it('TagsInput submits its tag values as one JSON array; the empty set stays out', async () => {

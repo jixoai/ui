@@ -1,91 +1,58 @@
 <!--
-  jixoai range (registry/files/ui/range/range.svelte).
+  jixoai range (registry/files/ui/range/range.svelte; native rebase
+  2026-09-01).
 
-  2026-08-20 · Form wave 2 (original request: "Range 滑杆完全自绘（不用
-  原生 range 控件）"). Fully custom slider: a div + Pointer Events, never
-  input[type=range] — the native control paints differently per engine and
-  cannot give the ringed disc thumb or the filled progress law.
+  Owner ruling (2026-09-01, restating the standing law the 2026-08-20
+  divergence had inverted): the registry component rides the NATIVE
+  input[type=range] as its base — jx-pure is the foundation of the
+  whole form face; the registry version's job is richer slots and a
+  more semantic surface, NEVER a re-drawn simulation. The old "fully
+  custom slider, never input[type=range]" (div + Pointer Events +
+  hand-held role=slider + the jx-form-field bridge) is retired WITH its
+  entire shadow system: the platform now owns the pointer, the
+  keyboard (←/→/↑/↓ step, Home/End jump, PageUp/PageDown stride), RTL,
+  the labelable-element contract (a real label[for] binds — a div
+  never could), and form submission (real name/value into FormData,
+  native reset and form-disable) — engine-tested for free.
 
-  Orthogonal intents:
-  1. geometry — the shared slider law (2026-08-23 Tier rebase, same
-     geometry as the Tier-1 .jx-slider lane in the jx-pure sheet):
-     the daisyUI round language (2026-08-24 rebuild) — a pill groove at
-     half-thumb height, a light disc thumb on a thick primary ring, the
-     primary fill as a full-strip-height pill from the inline-start edge,
-     and the optional tick ruler under the track (one 4px mark per step).
-     The root stem is .jx-slider so the Tier-1 sheet owns the .jx-slider
-     vocabulary for the native control.
-  2. interaction — pointerdown/move/up with pointer capture (touch-safe,
-     touch-action none), pointerdown jumps to the point, dblclick re-jumps
-     (subsumed by the pointerdown jump but kept explicit per request),
-     keyboard ←→ step / ↑↓ step / Home / End, aria slider contract:
-     role="slider" + aria-valuemin/max/now + aria-orientation + tabindex=0.
-  3. semantics — the family law: label (aria-labelledby — a div is not
-     labelable, so label[for] cannot bind to it), error → "! message" line
-     + aria-describedby + dashed thumb border, showValue readout right of
-     the label row, $bindable value snapped to step.
-  4. direction — RTL by logical properties: the fill grows from
-     inset-inline-start, the thumb rides inset-inline-start, the tick ruler
-     mirrors via :dir(rtl); pointer/arrow math flips on computed direction.
-
-  Zero dependencies. Decimal steps snap at the step's precision. Form
-  submission rides the FACELESS jx-form-field bridge
-  (registry/files/lib/form-field.ts): pass name= and the numeric string
-  of the committed value reaches FormData through ElementInternals; form
-  reset bubbles back as jx-reset, form/fieldset disable as jx-disabled.
-  The bridge owns no box, no content, no paint — the slider keeps its
-  fully custom geometry.
-
-  NativeHTML base audit (2026-08-20, updated by the form-field bridge the
-  same day): deliberately no native
-  input[type=range] underneath (see intent 1) — form association rides
-  the jx-form-field bridge instead, and
-  the a11y contract is hand-held: role="slider" +
-  tabindex + aria-valuemin/max/now/valuetext + aria-labelledby (a div
-  is not labelable). disabled blocks pointerdown/dblclick AND keydown
-  at their entries (tabindex already leaves the tab order at -1); no
-  native disabled semantics exist to lean on.
-
-  tw4 (2026-08-24): static geometry (head row, readout, groove, fill,
-  disc thumb, tick ruler geometry) is token/arbitrary utilities in the
-  markup; the .jx-field/.jx-label/.jx-error scaffolding is CONSUMED from
-  the jx-pure sheet's Part A; only the tick ruler's repeating-gradient
-  pair (:dir(rtl) mirror utilities cannot key on computed direction),
-  the focus-visible machine (root outline kill + thumb ring) and the
-  invalid→thumb repaint remain in range.css (D1-exempt residue). The
-  old scoped block's vestigial reduced-motion kill (a transition:none
-  on a thumb that carries no transition) was dropped as a no-op.
+  What the registry version ADDS over the bare jx-pure face (the
+  family's slot + semantic layer, unchanged in shape from the custom
+  era): the label row (a REAL label[for] now), the live value readout
+  (step-precision formatting), the tick ruler (one mark per step), the
+  error line (aria-describedby + aria-invalid + the dashed-ring thumb
+  repaint), density tiers, and external-write snapping into [min,max]
+  on the step. The paint is the jx-pure range recipe verbatim, mounted
+  UNSCOPED on the component's own hook (a registry component cannot
+  assume the consumer mounted .jx-pure) — one visual law, two mounting
+  surfaces.
 -->
 <script lang="ts">
-  // side-effect import: registers the faceless <jx-form-field> element
-  // (client-only, idempotent) that carries this field's form association
-  import '$lib/form-field';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
   import './range.css';
 
   interface Props {
-    /** committed value; bind:value — snapped into [min, max] on the step */
+    /** committed value; bind:value — external writes snap into [min, max] on the step */
     value?: number;
     min?: number;
     max?: number;
     step?: number;
-    /** form field name — the bridge submits the numeric string under it */
+    /** form field name — the native input submits its numeric string under it */
     name?: string;
-    /** field label rendered above the track (aria-labelledby binding) */
+    /** field label rendered above the track (a real label[for] binding) */
     label?: string;
-    /** error text → "! message" line + dashed thumb border */
+    /** error text → "! message" line + dashed-ring thumb */
     error?: string;
-    /** visually hide the label while keeping the aria-labelledby wiring
+    /** visually hide the label while keeping the label[for] wiring
         (field-like compositions name the control from outside) */
     srLabel?: boolean;
     /** show the current value right of the label row (default true) */
     showValue?: boolean;
     /** draw one 4px tick per step under the track */
     ticks?: boolean;
-    /** disables pointer + keyboard interaction, mutes the paint */
+    /** the platform's own disabled semantics (pointer, keyboard, form) */
     disabled?: boolean;
-    /** wired into aria-labelledby / error[id]; auto-generated when omitted */
+    /** pairs the label[for] and the error's aria-describedby; auto-generated when omitted */
     id?: string;
     class?: string;
     density?: Density;
@@ -116,18 +83,13 @@
   const inheritedDensity = getDensityContext();
   const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
 
-  // form lifecycle: what jx-reset restores, and the form-disable mirror
-  const initialValue = value;
-  let formDisabled = $state(false);
-  const isDisabled = $derived(disabled || formDisabled);
-
-  const labelId = $derived(`${id}-label`);
   const errorId = $derived(`${id}-error`);
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : undefined);
   const invalidAttr = $derived(invalid ? 'true' : undefined);
 
-  // step precision: decimals of step/min/max, so 0.5 steps commit 1.5, not 1.4999…
+  // step precision: decimals of step/min/max, so 0.5 steps commit 1.5,
+  // not 1.4999… (the readout formats at the same precision)
   function decimalsOf(n: number): number {
     if (!Number.isFinite(n)) return 0;
     const dot = String(n).indexOf('.');
@@ -141,169 +103,61 @@
     return Number(stepped.toFixed(decimals));
   }
 
-  // clamped initial/external writes keep the aria contract honest
+  // external/initial writes keep the $bindable contract honest (the
+  // input's OWN commits are already step-snapped by the platform)
   $effect(() => {
     const snapped = clampToStep(value);
     if (snapped !== value) value = snapped;
   });
 
-  const fraction = $derived(max > min ? (value - min) / (max - min) : 0);
   const tickCount = $derived(Math.round((max - min) / step));
   const tickStepPct = $derived(tickCount > 0 ? 100 / tickCount : 100);
   const display = $derived(value.toFixed(decimals));
-
-  let rootEl = $state<HTMLDivElement | null>(null);
-  let dragging = $state(false);
-  let pressed = $state(false);
-
-  function isRtl(): boolean {
-    return rootEl !== null && getComputedStyle(rootEl).direction === 'rtl';
-  }
-
-  function fractionFromPointer(event: PointerEvent): number {
-    if (!rootEl) return 0;
-    const rect = rootEl.getBoundingClientRect();
-    if (rect.width === 0) return 0;
-    let f = (event.clientX - rect.left) / rect.width;
-    if (isRtl()) f = 1 - f;
-    return Math.min(1, Math.max(0, f));
-  }
-
-  function commitFromPointer(event: PointerEvent): void {
-    const f = fractionFromPointer(event);
-    value = clampToStep(min + f * (max - min));
-  }
-
-  function onPointerDown(event: PointerEvent) {
-    if (isDisabled || event.button !== 0) return;
-    dragging = true;
-    pressed = true;
-    rootEl?.setPointerCapture(event.pointerId);
-    commitFromPointer(event);
-  }
-
-  function onPointerMove(event: PointerEvent) {
-    if (!dragging) return;
-    commitFromPointer(event);
-  }
-
-  function endDrag(event: PointerEvent) {
-    if (!dragging) return;
-    dragging = false;
-    pressed = false;
-    if (rootEl?.hasPointerCapture(event.pointerId)) {
-      rootEl.releasePointerCapture(event.pointerId);
-    }
-  }
-
-  // pointerdown already jumps to the click point; dblclick keeps the
-  // explicit contract (a fast double press lands on the same spot)
-  function onDblClick(event: MouseEvent) {
-    if (isDisabled) return;
-    commitFromPointer(event as PointerEvent);
-  }
-
-  function onKeydown(event: KeyboardEvent) {
-    if (isDisabled) return; // keyboard is an interaction path too (2026-08-20 fix)
-    let next: number | null = null;
-    const rtl = isRtl();
-    switch (event.key) {
-      case 'ArrowRight':
-        next = value + (rtl ? -step : step);
-        break;
-      case 'ArrowLeft':
-        next = value + (rtl ? step : -step);
-        break;
-      case 'ArrowUp':
-        next = value + step;
-        break;
-      case 'ArrowDown':
-        next = value - step;
-        break;
-      case 'Home':
-        next = min;
-        break;
-      case 'End':
-        next = max;
-        break;
-      default:
-        return;
-    }
-    event.preventDefault();
-    value = clampToStep(next);
-  }
 </script>
 
-<div data-density={resolvedDensity} class={'jx-field ' + className}>
-  <!-- faceless form bridge (form-field.ts law): the numeric string of the
-       committed value rides ElementInternals into FormData; jx-reset /
-       jx-disabled bubble the form lifecycle back into this component.
-       Owns no box, no content — the `contents` utility keeps the
-       prerendered HTML from flashing an extra flex gap pre-upgrade.
-       disabled passes `|| undefined`: Svelte has no boolean-attribute
-       semantics for custom elements and would render disabled="false"
-       as a PRESENT attribute (presence = true in HTML). -->
-  <jx-form-field
-    class="contents"
-    aria-hidden="true"
-    {name}
-    value={String(value)}
-    disabled={isDisabled || undefined}
-    onjx-reset={() => (value = initialValue)}
-    onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
-  ></jx-form-field>
+<div data-density={resolvedDensity} class={cn('jx-field', className)}>
   {#if label || showValue}
     <div data-jx-slider-head class="flex items-baseline justify-between gap-3">
-      {#if label}<span class={"jx-label" + (srLabel ? " sr-only" : "")} id={labelId}>{label}</span>{/if}
-      {#if showValue}<span data-jx-slider-value class={cn('jx-slider-value font-mono text-foreground tabular-nums', invalid && 'text-destructive')} class:jx-invalid={invalid}>{display}</span>{/if}
+      {#if label}
+        <label class={'jx-label' + (srLabel ? ' sr-only' : '')} for={id}>{label}</label>
+      {/if}
+      {#if showValue}
+        <span
+          data-jx-slider-value
+          class={cn('jx-slider-value font-mono text-foreground tabular-nums', invalid && 'text-destructive')}
+        >{display}</span>
+      {/if}
     </div>
   {/if}
 
-  <div
-    bind:this={rootEl}
+  <!-- the base: a REAL input[type=range] — semantics, keyboard,
+       pointer, RTL, label[for] and form submission are the platform's.
+       aria-valuetext carries the step-precision readout for assistive
+       tech (decimal steps); every other value/min/max/step attribute is
+       native truth -->
+  <input
+    type="range"
     id={id}
-    role="slider"
-    tabindex={isDisabled ? -1 : 0}
-    aria-labelledby={label ? labelId : undefined}
-    aria-valuemin={min}
-    aria-valuemax={max}
-    aria-valuenow={value}
+    data-jx-range=""
+    bind:value
+    {min}
+    {max}
+    {step}
+    {name}
+    {disabled}
     aria-valuetext={display}
-    aria-orientation="horizontal"
     aria-invalid={invalidAttr}
     aria-describedby={describedBy}
-    aria-disabled={isDisabled ? 'true' : undefined}
-      class={cn(
-      'jx-slider relative block w-full min-h-[var(--jx-hit)] m-0 cursor-pointer touch-none select-none',
-      isDisabled && 'opacity-50 cursor-not-allowed',
-    )}
-    data-jx-disabled={isDisabled ? '' : undefined}
-    data-jx-pressed={pressed ? '' : undefined}
     class:jx-invalid={invalid}
-    onpointerdown={onPointerDown}
-    onpointermove={onPointerMove}
-    onpointerup={endDrag}
-    onpointercancel={endDrag}
-    ondblclick={onDblClick}
-    onkeydown={onKeydown}
-  >
+  />
+
+  {#if ticks && tickCount > 0}
     <div
-      data-jx-slider-track
-      class="jx-slider-track absolute inset-x-0 top-1/2 -translate-y-1/2 bg-[color-mix(in_oklab,var(--foreground)_10%,transparent)] rounded-[calc(infinity*1px)]"
+      class="jx-slider-ticks mt-0.5 h-1"
+      style="--jx-tick-step: {tickStepPct}%"
+      aria-hidden="true"
     ></div>
-    <div
-      data-jx-slider-fill
-      class="jx-slider-fill absolute start-0 bg-primary rounded-[calc(infinity*1px)]"
-      style:width="{fraction * 100}%"
-    ></div>
-    <div
-      class="jx-slider-thumb absolute top-1/2 -translate-y-1/2 bg-background border-4 border-primary rounded-[calc(infinity*1px)] shadow-none pointer-events-none"
-      style="inset-inline-start: calc({fraction * 100}% - var(--jx-icon) / 2)"
-    ></div>
-    {#if ticks && tickCount > 0}
-      <div class="jx-slider-ticks absolute inset-x-0 top-[calc(50%_+_10px)] h-1 pointer-events-none" style="--jx-tick-step: {tickStepPct}%"></div>
-    {/if}
-  </div>
+  {/if}
 
   {#if invalid}
     <p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>
