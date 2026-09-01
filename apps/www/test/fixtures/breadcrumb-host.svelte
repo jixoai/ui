@@ -14,6 +14,7 @@
   import BreadcrumbSeparator from '../../src/lib/ui/breadcrumb/breadcrumb-separator.svelte';
   import BreadcrumbCollapse from '../../src/lib/ui/breadcrumb/breadcrumb-collapse.svelte';
   import BreadcrumbEllipsis from '../../src/lib/ui/breadcrumb/breadcrumb-ellipsis.svelte';
+  import BreadcrumbDropdown from '../../src/lib/ui/breadcrumb/breadcrumb-dropdown.svelte';
   import { cn } from '../../src/lib/utils';
 
   const middle = [2, 3, 4, 5, 6];
@@ -65,6 +66,30 @@
           {/snippet}
         </BreadcrumbLink>
       </BreadcrumbItem>
+    </BreadcrumbList>
+  </Breadcrumb>
+</div>
+
+<div data-testid="dropdown">
+  <Breadcrumb>
+    <BreadcrumbList>
+      <BreadcrumbItem><BreadcrumbLink href="/">ui.jixoai.com</BreadcrumbLink></BreadcrumbItem>
+      <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+      <BreadcrumbItem>
+        <BreadcrumbDropdown
+          label="components"
+          current="/docs/components/toast.html"
+          items={[
+            { label: 'tabs', href: '/docs/components/tabs.html' },
+            { label: 'toast', href: '/docs/components/toast.html' },
+            { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+          ]}
+        />
+      </BreadcrumbItem>
+      <BreadcrumbItem>
+        <BreadcrumbSeparator><span data-testid="slash">/</span></BreadcrumbSeparator>
+      </BreadcrumbItem>
+      <BreadcrumbItem><BreadcrumbPage href="/docs/components/toast.html">toast</BreadcrumbPage></BreadcrumbItem>
     </BreadcrumbList>
   </Breadcrumb>
 </div>

@@ -2,19 +2,32 @@
 
 @layer components {
 /* jixoai breadcrumb (composition-first, 2026-08-25): ONLY the
- * separator chevron remains here — a pseudo-element build on the
- * Separator part's hook (a rotated border square, not expressible as
- * utilities). Everything else (trail layout, link paint, current-page
- * paint) lives as token utilities in the markup. */
-:where([data-jx-breadcrumb-separator])::before {
+ * separator chevron and the dropdown item's current-page paint live
+ * here — pseudo-element/parent-builds utilities cannot express. The
+ * chevron keys on data-glyph="chevron" so a `children` glyph override
+ * (data-glyph="custom") stands the build down by construction. The
+ * trail's rhythm comes from the ol's own gap — the glyph adds no
+ * margin of its own (symmetric by construction). Everything else
+ * (trail layout, link paint, current-page paint) lives as token
+ * utilities in the markup. */
+:where([data-jx-breadcrumb-separator][data-glyph='chevron'])::before {
   content: '';
   display: inline-block;
-  margin-right: 0.375rem;
   width: 0.375rem;
   height: 0.375rem;
   border-right: 1px solid var(--muted-foreground);
   border-bottom: 1px solid var(--muted-foreground);
   transform: rotate(-45deg);
   opacity: 0.7;
+}
+
+/* BreadcrumbDropdown's current entry: the menu root's walk owns the
+ * transient aria-current="true" highlight (it wipes and rewrites the
+ * attribute on every arrow); the TRAIL's "you are here" is a static
+ * paint of its own — same recipe as the menu's current highlight,
+ * owned by this family because the semantics are the breadcrumb's. */
+:where([data-jx-breadcrumb-menu-item][aria-current='page']) {
+  color: var(--foreground);
+  background: color-mix(in oklab, var(--muted) 70%, transparent);
 }
 }

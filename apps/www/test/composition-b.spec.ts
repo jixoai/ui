@@ -27,7 +27,9 @@
  *   terminal-footer  the composed column meta row over the ghost chrome
  */
 import { fireEvent, render } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
 
 import { pageRange } from '../src/lib/ui/pagination/pagination-range';
 import AnchorHost from './fixtures/anchor-host.svelte';
@@ -178,6 +180,67 @@ describe('Breadcrumb family', () => {
     expect(link.className).not.toContain('text-accent');
     // the part's non-conflicting paint survives the merge
     expect(link.className).toContain('hover:text-primary');
+  });
+
+  it('Separator: the chevron build hook ships, and a children snippet swaps the glyph', async () => {
+    const { getByTestId } = await render(BreadcrumbHost);
+    // default: the pseudo-build hook (breadcrumb.css keys on it — the
+    // css import rides the part, so the chevron actually renders)
+    const plain = getByTestId('plain').querySelector('[data-jx-breadcrumb-separator]')!;
+    expect(plain.getAttribute('data-glyph')).toBe('chevron');
+    const css = readFileSync('src/lib/ui/breadcrumb/breadcrumb.css', 'utf8');
+    expect(css).toContain("[data-glyph='chevron'])::before");
+    // override: the authored glyph replaces the build, aria-hidden stays
+    const custom = getByTestId('dropdown').querySelector(
+      '[data-jx-breadcrumb-separator][data-glyph="custom"]',
+    )!;
+    expect(custom.textContent).toBe('/');
+    expect(custom.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('Dropdown: the sibling-jump node — menu wiring, REAL anchor items, current marker', async () => {
+    const { getByTestId } = await render(BreadcrumbHost);
+    const scope = getByTestId('dropdown');
+
+    // the trigger: a breadcrumb-painted button wired to the menu
+    const trigger = scope.querySelector('[data-jx-breadcrumb-dropdown]') as HTMLButtonElement;
+    expect(trigger.getAttribute('aria-haspopup')).toBe('menu');
+    const menu = scope.querySelector('[role="menu"]') as HTMLElement;
+    expect(trigger.getAttribute('popovertarget')).toBe(menu.id);
+    expect(trigger.textContent).toContain('components');
+
+    // the entries: REAL anchors (middle-click/reload/crawler honest)
+    const items = [...menu.querySelectorAll('[role="menuitem"]')] as HTMLAnchorElement[];
+    expect(items.every((a) => a.tagName === 'A')).toBe(true);
+    expect(items.map((a) => a.getAttribute('href'))).toEqual([
+      '/docs/components/tabs.html',
+      '/docs/components/toast.html',
+      '/docs/components/breadcrumb.html',
+    ]);
+
+    // the current page among the peers carries the static page marker
+    // (the walk's transient aria-current="true" is the menu root's own)
+    const current = items.find((a) => a.getAttribute('aria-current') === 'page')!;
+    expect(current.getAttribute('href')).toBe('/docs/components/toast.html');
+  });
+
+  it('Dropdown: selection dismisses the menu and returns focus to the trail node', async () => {
+    const { getByTestId } = await render(BreadcrumbHost);
+    const scope = getByTestId('dropdown');
+    const trigger = scope.querySelector('[data-jx-breadcrumb-dropdown]') as HTMLButtonElement;
+    const menu = scope.querySelector('[role="menu"]') as HTMLElement;
+
+    await fireEvent.click(trigger);
+    await new Promise(requestAnimationFrame);
+    expect(menu.matches(':popover-open')).toBe(true);
+
+    // navigating through an entry still runs the dismissal contract —
+    // the popover must not linger over the page we navigated to
+    const target = menu.querySelector<HTMLAnchorElement>('a[href="/docs/components/tabs.html"]')!;
+    await fireEvent.click(target);
+    await tick();
+    expect(menu.matches(':popover-open')).toBe(false);
+    expect(document.activeElement).toBe(trigger);
   });
 });
 

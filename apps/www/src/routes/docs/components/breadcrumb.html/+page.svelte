@@ -22,10 +22,12 @@
   import BreadcrumbPage from '$lib/ui/breadcrumb/breadcrumb-page.svelte';
   import BreadcrumbSeparator from '$lib/ui/breadcrumb/breadcrumb-separator.svelte';
   import BreadcrumbCollapse from '$lib/ui/breadcrumb/breadcrumb-collapse.svelte';
+  import BreadcrumbDropdown from '$lib/ui/breadcrumb/breadcrumb-dropdown.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import breadcrumbSource from '$lib/ui/breadcrumb/breadcrumb.svelte?raw';
   import breadcrumbCollapseSource from '$lib/ui/breadcrumb/breadcrumb-collapse.svelte?raw';
+  import breadcrumbDropdownSource from '$lib/ui/breadcrumb/breadcrumb-dropdown.svelte?raw';
   import breadcrumbCssSource from '$lib/ui/breadcrumb/breadcrumb.css?raw';
 
   const close = '</' + 'script>';
@@ -40,6 +42,7 @@
     BreadcrumbPage,
     BreadcrumbSeparator,
     BreadcrumbCollapse,
+    BreadcrumbDropdown,
   } from '@ui/breadcrumb/index';
 ${close}
 
@@ -58,11 +61,25 @@ ${close}
      items self-hide and the ellipsis links to the first hidden page -->
 <BreadcrumbCollapse>
   <BreadcrumbItem><BreadcrumbLink href="/2">page 2</BreadcrumbLink></BreadcrumbItem>
-</BreadcrumbCollapse>`;
+</BreadcrumbCollapse>
+
+<!-- sibling jump: one node opens a menu of peer pages — REAL anchors,
+     the current one marked, selection dismisses and navigates -->
+<BreadcrumbItem>
+  <BreadcrumbDropdown
+    label="components"
+    current="/docs/components/breadcrumb.html"
+    items={[
+      { label: 'tabs', href: '/docs/components/tabs.html' },
+      { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+    ]}
+  />
+</BreadcrumbItem>`;
 
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/breadcrumb/breadcrumb.svelte', content: breadcrumbSource },
     { name: 'registry/files/ui/breadcrumb/breadcrumb-collapse.svelte', content: breadcrumbCollapseSource },
+    { name: 'registry/files/ui/breadcrumb/breadcrumb-dropdown.svelte', content: breadcrumbDropdownSource },
     { name: 'registry/files/ui/breadcrumb/breadcrumb.css', content: breadcrumbCssSource },
     { name: 'src/lib/ui/breadcrumb-usage.svelte', content: usage, kind: 'usage' },
   ];
@@ -70,13 +87,21 @@ ${close}
   // the eight-page trail: first + fold(p2..p6) + last two — the same
   // shape the closed collapse=4 produced
   const folded = [2, 3, 4, 5, 6].map((n) => `/docs/components/breadcrumb.html?trail=${n}`);
+
+  // peer docs pages for the sibling-jump demo (REAL hrefs — the menu
+  // entries navigate exactly like trail links do)
+  const peerPages = [
+    { label: 'tabs', href: '/docs/components/tabs.html' },
+    { label: 'toast', href: '/docs/components/toast.html' },
+    { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+  ];
 </script>
 
 <svelte:head>
   <title>Breadcrumb · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai breadcrumb family: a nav landmark over an ordered list of real links — List/Item/Link/Page/Separator parts, aria-current on the page, and an opt-in BreadcrumbCollapse fold whose ellipsis keeps every page one click away."
+    content="The jixoai breadcrumb family: a nav landmark over an ordered list of real links — List/Item/Link/Page/Separator parts (separator glyph overridable through children), aria-current on the page, an opt-in BreadcrumbCollapse fold whose ellipsis keeps every page one click away, and BreadcrumbDropdown: the sibling-jump node that opens a menu of peer pages and navigates on selection."
   />
 </svelte:head>
 
@@ -168,9 +193,33 @@ ${close}
 </div>
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Breadcrumb variants" summary="Use a complete trail for short paths, or wrap the middle items for an opt-in fold."><div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div><div class="border border-border p-4"><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbCollapse href="/docs"><BreadcrumbItem><BreadcrumbLink href="/docs">docs</BreadcrumbLink></BreadcrumbItem></BreadcrumbCollapse><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div></div></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Breadcrumb variants" summary="Use a complete trail for short paths, wrap the middle items for an opt-in fold, or swap the separator glyph through its children snippet (aria-hidden stays by construction)."><div class="grid gap-4 sm:grid-cols-3"><div class="border border-border p-4"><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div><div class="border border-border p-4"><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbCollapse href="/docs"><BreadcrumbItem><BreadcrumbLink href="/docs">docs</BreadcrumbLink></BreadcrumbItem></BreadcrumbCollapse><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div><div class="border border-border p-4"><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator><span class="text-muted-foreground">/</span></BreadcrumbSeparator></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div></div></SectionCard></div>
+
+  <div id="dropdown" data-reveal="">
+    <SectionCard
+      family="dropdown"
+      headerRegion="dropdown"
+      eyebrow="demo"
+      title="Dropdown — the sibling jump"
+      summary="BreadcrumbDropdown is one trail node that opens a menu of peer destinations: click — or the dropdown-menu keyboard contract (arrows, typeahead, Home/End) — opens the popover; every entry is a REAL anchor, so middle-click, reload and crawlers stay honest; the current page among the peers carries the you-are-here paint; selecting dismisses the menu and navigates."
+    >
+      <div class="max-w-xl border border-border p-4">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={peerPages} />
+            </BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbPage href="/docs/components/breadcrumb.html">breadcrumb</BreadcrumbPage></BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+    </SectionCard>
+  </div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Author the ordered list directly; the ol order is the hierarchy and the current page remains a real page part."><CodeBlock code={usage} lang="svelte" meta="Breadcrumb usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Native navigation landmark, ordered list, links, and aria-current carry the full semantics."><A11yTable aria={[{ name: 'aria-label', value: 'Breadcrumb', description: 'Names the navigation landmark.' }, { name: 'aria-current', value: 'page', description: 'Marks the current trail destination.' }, { name: 'aria-hidden', value: 'true', description: 'Hides decorative separators and manual ellipses.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Breadcrumb has no component-specific --jx tokens; parts inherit the shared density context."><div class="flex flex-col gap-5"><DensityDemo scopes={['xs', 'default', 'lg']}><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></DensityDemo><TokenTable tokens={[]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The root and composition parts keep the trail structure explicit."><PropsTable title="Breadcrumb" props={[{ name: 'label', type: 'string', default: "'Breadcrumb'", description: 'Accessible navigation landmark label.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }]} /><div class="mt-5"><PropsTable title="BreadcrumbLink / Page / Collapse" props={[{ name: 'href', type: 'string', description: 'Destination for a link or collapse target.' }, { name: 'aria-current', type: '"page"', default: 'Page only', description: 'BreadcrumbPage marks the current destination.' }, { name: 'children', type: 'Snippet', required: true, description: 'Composed trail content.' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The root and composition parts keep the trail structure explicit."><PropsTable title="Breadcrumb" props={[{ name: 'label', type: 'string', default: "'Breadcrumb'", description: 'Accessible navigation landmark label.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }]} /><div class="mt-5"><PropsTable title="BreadcrumbLink / Page / Collapse / Separator" props={[{ name: 'href', type: 'string', description: 'Destination for a link or collapse target.' }, { name: 'aria-current', type: '"page"', default: 'Page only', description: 'BreadcrumbPage marks the current destination.' }, { name: 'children', type: 'Snippet', required: true, description: 'Composed trail content; on Separator it REPLACES the chevron glyph (data-glyph=custom, aria-hidden stays).' }]} /></div><div class="mt-5"><PropsTable title="BreadcrumbDropdown" props={[{ name: 'label', type: 'string', required: true, description: 'The trail label on the trigger — the section this node stands for.' }, { name: 'items', type: '{ label, href }[]', required: true, description: 'Peer destinations offered in the menu — every entry a REAL anchor.' }, { name: 'current', type: 'string', description: 'href of the current page among the items: aria-current=page + the you-are-here paint.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }]} /></div></SectionCard></div>
 </div>
