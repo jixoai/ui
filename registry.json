@@ -3232,6 +3232,28 @@
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "search-corpus",
+      "type": "registry:file",
+      "title": "structured search corpus",
+      "description": "Build-time search corpus generator: harvests the final static dist into the page-semantics model (sections from the heading-tree law, code/table/prose blocks with industry meta) keyed on the document components' semantic markers. Engine-neutral JSON (minisearch/fuse compile client-side); byte-deterministic; noindex/exclude honored; Intl.Segmenter CJK at the client layer. Zero deps beyond the sibling llms-txt tokenizer.",
+      "files": [
+        {
+          "path": "registry/files/search-corpus/search-corpus.mjs",
+          "target": "vite-plugins/search-corpus.mjs",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Orchestrated sites call generateSearchCorpus() on the FINAL output directory after every other step (same lane as generateLlmsTxt); the corpus lands at /search/corpus.json for a client-side engine adapter to consume.",
+      "meta": {
+        "group": "docs",
+        "href": "/docs/llms-txt.html"
+      },
+      "registryDependencies": [
+        "llms-txt"
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "utils",
       "type": "registry:lib",
       "title": "cn() class-merge utility",

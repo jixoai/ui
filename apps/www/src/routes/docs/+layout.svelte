@@ -28,6 +28,7 @@
   import type { Snippet } from 'svelte';
   import { PrintDoc, PrintControls } from '$lib/print';
   import type { PrintPageConfig } from '$lib/print';
+  import SearchPalette from '$lib/ui/search-palette.svelte';
 
   let { children }: { children: Snippet } = $props();
 
@@ -57,5 +58,9 @@
   <div data-jx-print="hide" class="mx-auto w-full max-w-[90rem] px-4 pt-6 sm:px-6 lg:px-8">
     <PrintControls config={printConfig} label="docs · print" />
   </div>
+  <!-- full-text search (search-corpus change): ⌘K or the nav's trigger;
+       excluded from print by its own layer-less nature (it renders only
+       while open) -->
+  <SearchPalette />
   {@render children()}
 </PrintDoc>

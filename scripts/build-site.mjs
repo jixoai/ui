@@ -34,6 +34,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { generateLlmsTxt } from "../registry/files/llms-txt/llms-txt.mjs";
+import { generateSearchCorpus } from "../registry/files/search-corpus/search-corpus.mjs";
 import { resolveShadcnBin, resolveViteBin } from "./lib/vite-bin.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -281,12 +282,34 @@ function main() {
   if (!existsSync(path.join(publicDir, "llms.txt"))) {
     die("public/llms.txt missing after generation");
   }
+  // 7.5 — the structured search corpus (search-corpus change,
+  // 2026-09-02): same final-artifact scan lane as llms.txt, one phase
+  // later; /search/ has exactly this writer (declared-outputs law)
+  console.log("[build-site] 7.5/8 generating /search/corpus.json (page-semantics)");
+  generateSearchCorpusArtifact();
 
   const items = readdirSync(path.join(publicDir, "r"));
   console.log(
     `[build-site] ok: site + registry + llms.txt coexist in public/ (${items.length} registry files: ${items.sort().join(", ")})`,
   );
   console.log("[build-site] preview: python3 -m http.server --directory public");
+}
+
+function generateSearchCorpusArtifact() {
+  const report = generateSearchCorpus(publicDir, {
+    exclude: [
+      "404.html",
+      "blueprints.html",
+      "components.html",
+      "components/**",
+    ],
+  });
+  if (!existsSync(path.join(publicDir, "search", "corpus.json"))) {
+    die("public/search/corpus.json missing after generation");
+  }
+  console.log(
+    `[build-site] search-corpus: ${report.pages} pages → ${report.corpusPath} (${report.bytes}B, ${report.skipped.length} noindex skipped)`,
+  );
 }
 
 main();
