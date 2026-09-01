@@ -3,8 +3,9 @@
  *
  * Covers the variant-grammar §4 Chip row: the four-step ladder as
  * deterministic per-variant utility strings consuming the global
- * tokens, the ROOT hit lane (min-block-size var(--jx-hit) — the
- * physical activation rectangle, control-scale), the default ripple
+ * tokens, the badge-twin scale law (Owner ruling, 2026-09-01 — badge
+ * geometry verbatim, the activation root the only difference; slot
+ * lanes replace their side's padding), the default ripple
  * ink (undefined effect resolves to the ripple() defaults; null
  * disables every loop), the button/anchor duality, and the
  * slotStart/slotEnd lanes. Rendered from the same-source copy the
@@ -20,8 +21,6 @@
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import { tick } from 'svelte';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 
 import ChipHost from './fixtures/chip-host.svelte';
 import { ripple, shimmer } from '../src/lib/ui/press-button/press-button.svelte';
@@ -122,31 +121,29 @@ describe('chip root and variants', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Hit lane — the ROOT box is the physical target
+// Scale — the badge's activation twin
 // ---------------------------------------------------------------------------
-describe('chip hit lane', () => {
-  it('the root carries min-block-size var(--jx-hit) as a real utility', () => {
+describe('chip scale — the badge twin law', () => {
+  it('rides badge geometry: height from the secondary line, no hit lane', () => {
     const { container } = render(ChipHost);
-    expect(container.querySelector('button')!.className).toContain(
-      '[min-block-size:var(--jx-hit)]',
-    );
+    const btn = container.querySelector('button')!;
+    expect(btn.className).not.toContain('[min-block-size:var(--jx-hit)]');
+    expect(btn.className).toContain('[line-height:var(--jx-line-secondary)]');
+    expect(btn.className).toContain('[font-size:var(--jx-text-secondary)]');
+    expect(btn.className).toContain('[padding-inline:var(--jx-inset)]');
   });
 
-  it('the theme floors --jx-hit at max(row-min, the hit-floor guardrail) for the default density', () => {
-    // jsdom does not process Tailwind or resolve var() chains, so the
-    // computed probe is asserted at the token SOURCE: --jx-hit aliases
-    // the density hit-min, itself max(row-min, --jx-hit-floor) — the
-    // guardrail is unit × 7 (28px), the row floor rides the density
-    // ladder (density §3, hit-floor rework).
-    // (a ?raw css import comes back EMPTY under vitest's css pipeline —
-    // the sheet is read from the config-root-relative source instead)
-    const sheet = readFileSync(resolve(process.cwd(), 'src/lib/jixoai.css'), 'utf8');
-    expect(sheet).toContain('--jx-unit: 0.25rem');
-    expect(sheet).toContain('--jx-hit-floor: calc(var(--jx-unit) * 7);');
-    expect(sheet).toContain(
-      '--jx-density-hit-min-default: max(var(--jx-density-row-min-default), var(--jx-hit-floor));',
+  it('slot lanes replace their side of the padding (the data-icon law)', () => {
+    const { container } = render(ChipHost, { props: { withSlots: true } });
+    const btn = container.querySelector('button')!;
+    expect(btn.className).toContain(
+      'has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)]',
     );
-    expect(sheet).toContain('--jx-hit: var(--jx-density-hit-min-default);');
+    expect(btn.className).toContain(
+      'has-[[data-icon=inline-end]]:pr-[calc(var(--jx-inset)/2)]',
+    );
+    expect(btn.querySelector('[data-icon="inline-start"]')).toBeTruthy();
+    expect(btn.querySelector('[data-icon="inline-end"]')).toBeTruthy();
   });
 });
 
@@ -264,13 +261,16 @@ describe('chip anchor mode', () => {
 // Slots — data-icon lanes around the label
 // ---------------------------------------------------------------------------
 describe('chip slots', () => {
-  it('slotStart/slotEnd render as data-icon spans wrapping the label', () => {
+  it('slotStart/slotEnd render as VALUED data-icon spans wrapping the label', () => {
     const { container } = render(ChipHost, { props: { withSlots: true } });
     const btn = container.querySelector('button')!;
     const lanes = btn.querySelectorAll('[data-icon]');
     expect(lanes).toHaveLength(2);
+    // the valued attributes are the padding-law hooks (has-[[data-icon=inline-start]])
+    expect(lanes[0].getAttribute('data-icon')).toBe('inline-start');
+    expect(lanes[1].getAttribute('data-icon')).toBe('inline-end');
     for (const lane of lanes) {
-      expect(lane.className).toContain('[&_svg]:h-[var(--jx-text-secondary)]');
+      expect(lane.className).toContain('[&>svg]:size-[var(--jx-text-secondary)]');
       expect(lane.querySelector('svg')).toBeTruthy();
     }
     // lane order: start before the label, end after it

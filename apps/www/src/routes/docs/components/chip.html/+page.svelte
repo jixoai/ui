@@ -19,7 +19,7 @@
   import { registrySourceUrl } from '$lib/registry-source';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
-  // ToC outline: anchors + slots + the hit-lane ruling, then the house
+  // ToC outline: anchors + slots + the scale ruling, then the house
   // template sections, in page order. The engine pairs these ids with
   // the SectionCard data-family extents + header data-region leaves.
 
@@ -126,7 +126,7 @@ ${close}
   <title>Chip · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai chip: the variant grammar's compact activation — badge micro-label voice on the control-scale hit lane (~44px at default density), the four-step ladder (fill / tonal / outline / ghost) consumed as global tokens, button or anchor root, slotStart/slotEnd lanes, and the press-button effect loops with ripple as the default ink."
+    content="The jixoai chip: the badge's activation twin — badge geometry verbatim, the button/anchor root the only structural difference — riding the four-step ladder (fill / tonal / outline / ghost) consumed as global tokens, slotStart/slotEnd lanes that replace their side's padding, and the press-button effect loops with ripple as the default ink."
   />
 </svelte:head>
 
@@ -140,10 +140,10 @@ ${close}
         tone="hero"
         eyebrow="registry:ui · General"
         title="chip — the grammar's compact activation"
-        summary="The chip is what a filter, a toggle, or an inline nav target looks like in this language: the badge's font-nav uppercase micro-label voice, but control-scale — the root box sits on the hit lane (min-block-size var(--jx-hit), ~44px at default density), so every chip is a real finger target, not a 20px badge. The paint is the frozen variant ladder consumed as global tokens — fill for the one active filter, tonal for the resting set, outline for structure, ghost for the quiet seats — and semantic hue is always injected (jx-hue-success), never named. Press physics are the theme's shared .jx-press law, and the press-button effect loops pass through with ripple as the default: press a chip and ink expands from your pointer."
+        summary="The chip is what a filter, a toggle, or an inline nav target looks like in this language: the badge's font-nav uppercase micro-label voice at badge scale — badge geometry verbatim, the ONLY structural difference being the activation root (button/anchor, press physics, the focus law; Owner ruling 2026-09-01, superseding the control-scale hit-lane floor). The paint is the frozen variant ladder consumed as global tokens — fill for the one active filter, tonal for the resting set, outline for structure, ghost for the quiet seats — and semantic hue is always injected (jx-hue-success), never named. Press physics are the theme's shared .jx-press law, and the press-button effect loops pass through with ripple as the default: press a chip and ink expands from your pointer."
       >
         <div class="flex flex-wrap gap-3">
-          <span class="pill">hit lane · var(--jx-hit)</span>
+          <span class="pill">badge twin · inline scale</span>
           <span class="pill">fill · tonal · outline · ghost</span>
           <span class="pill">default ripple ink</span>
           <span class="pill">button or anchor</span>
@@ -154,7 +154,7 @@ ${close}
     <div data-reveal="">
       <ComponentCanvas
         title="chip"
-        description="The grammar ladder on the hit lane. The top row is the four variants; the second row shows the default ripple ink (press one), the bevel-silhouette ripple, and the shimmer loop; the bottom instance is driven by the playground."
+        description="The grammar ladder at badge scale. The top row is the four variants; the second row shows the default ripple ink (press one), the bevel-silhouette ripple, and the shimmer loop; the bottom instance is driven by the playground."
         sourceUrl={registrySourceUrl('chip')}
         install="chip"
         {files}
@@ -224,7 +224,7 @@ ${close}
               <code>outline</code> the structural border with an 8% hover overlay,
               <code>ghost</code> transparent at rest with the tonal hover. Every
               variant rides the same <code>.jx-press</code> physics and the same
-              <code>min-block-size: var(--jx-hit)</code> lane.
+              badge-scale geometry — height from the secondary line.
               <code>effect</code> defaults to <code>ripple()</code> — press-point
               ink from the shared press-button runtime; the
               <code>none</code> option commits an empty effect and disables
@@ -347,36 +347,35 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="hit-lane" data-reveal="">
+    <div id="scale" data-reveal="">
       <SectionCard
-        family="hit-lane"
-        headerRegion="hit-lane"
+        family="scale"
+        headerRegion="scale"
         eyebrow="law"
-        title="The hit lane is the real box"
-        summary="Chips are control-scale: the root itself carries min-block-size var(--jx-hit) — about 44px at default density — so the physical activation rectangle is the visible chip, not a pseudo-element stretched around a 20px label."
+        title="The badge's activation twin"
+        summary="Chips ride badge geometry verbatim (Owner ruling, 2026-09-01, superseding the control-scale hit-lane floor): height from the secondary line, inline insets only, never block padding — the ONLY structural difference from a Badge is the activation root."
       >
         <div class="flex flex-col gap-4">
           <div class="flex flex-wrap items-end gap-x-8 gap-y-5">
             <div class="text-muted-foreground flex flex-col gap-2 text-xs">
-              <Chip variant="tonal">control-scale</Chip>
-              <span>root ≥ var(--jx-hit) · 44px</span>
+              <Chip variant="tonal">activation</Chip>
+              <span>chip · button root + press physics</span>
             </div>
             <div class="text-muted-foreground flex flex-col gap-2 text-xs">
-              <Badge>display-scale</Badge>
-              <span>badge · sub-lane height</span>
+              <Badge>display</Badge>
+              <span>badge · span, same geometry</span>
             </div>
           </div>
           <ul class="flex flex-col gap-2 text-[13px] leading-6">
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>the hit-lane law (component-authoring spec): every interactive
-              control exposes a physical activation rectangle at
-              <code class="text-accent">min-block-size: var(--jx-hit)</code> — the variant-grammar
-              design froze the chip as control-scale (~44px at default density), explicitly
-              rejecting pseudo-element lane expansion: chip nature lives in paint and
-              typography, but the target is the real box</span></li>
+              <span>the scale law: badge geometry verbatim — height from
+              <code class="text-accent">--jx-line-secondary</code>, inline insets from
+              <code class="text-accent">--jx-inset</code>, never block padding; what makes it a
+              chip is the activation root, not a bigger box</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>a badge is the display-scale sibling — sub-lane height, no hit
-              contract; when the element activates something, it is a chip, not a badge</span></li>
+              <span>slotStart/slotEnd lanes replace their side's padding (the data-icon
+              law): the icon lane carries the edge at half the inset — the same law badge
+              practices and the input's edge glyph lanes (clear, steppers) take to zero</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
               <span>forced colors degrade explicitly (design §6): fill becomes
               ButtonFace/ButtonText, tonal/outline become Canvas/CanvasText with the
@@ -389,7 +388,7 @@ ${close}
   </div>
 
   <div id="types" data-reveal="">
-    <SectionCard eyebrow="types" title="Variant ladder" summary="Prominence, never semantic hue — every variant keeps the same hit lane, border weight and press physics.">
+    <SectionCard eyebrow="types" title="Variant ladder" summary="Prominence, never semantic hue — every variant keeps the same badge-scale geometry, border weight and press physics.">
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {#each [
           ['fill', 'Solid ground'],

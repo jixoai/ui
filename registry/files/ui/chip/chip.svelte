@@ -16,11 +16,13 @@
   --jx-outline from the outside (class="jx-hue-error"),
   never named as a variant.
 
-  Hit-lane law (component-authoring spec): the ROOT carries
-  min-block-size var(--jx-hit) — chips are control-scale (~40px at
-  default density; hit tracks the type scale since the 2026-08-29
-  floor ruling), not 20px badges; pseudo-element lane expansion was
-  rejected (Codex, design r1) — the real box is the target.
+  Scale law (Owner ruling, 2026-09-01, supersedes the 2026-08-29
+  hit-lane floor): the chip is the badge's ACTIVATION TWIN — badge
+  geometry verbatim (height from --jx-line-secondary, inline insets
+  only, never block padding); the ONLY structural difference from a
+  Badge is the activation root (button/anchor + press physics + the
+  focus law). Pseudo-element lane expansion stays rejected: the real
+  box is the target.
 
   Effect loops: press-button's typed builders pass through the effect
   prop; ripple is the DEFAULT — undefined resolves to the ripple()
@@ -102,12 +104,13 @@
   // the chip's resting attention; null opts out of every loop
   const activeEffect = $derived(effect === undefined ? ripple() : effect);
 
-  // the hit lane: the ROOT box is the physical target; the micro-label
-  // voice at secondary text scale, half-gap lanes, 1px border always
-  // (ghost keeps geometry through the transparent one). The focus
-  // utilities pin the §6 forced-colors ring: 2px Highlight, offset 2.
+  // badge geometry verbatim (the badge's activation twin): height from
+  // the secondary line, inline insets only; slot lanes replace their
+  // side's padding (the data-icon law, badge dialect: the inset halves
+  // — the lane carries the edge). The focus utilities pin the §6
+  // forced-colors ring: 2px Highlight, offset 2.
   const base =
-    'inline-flex [min-block-size:var(--jx-hit)] items-center justify-center gap-[calc(var(--jx-gap)/2)] px-[var(--jx-inset)] font-nav text-[length:var(--jx-text-secondary)] leading-[var(--jx-line-secondary)] uppercase tracking-[0.14em] whitespace-nowrap forced-colors:focus-visible:outline-2 forced-colors:focus-visible:outline-offset-2 forced-colors:focus-visible:[outline-color:Highlight]';
+    'inline-flex items-center justify-center gap-[calc(var(--jx-gap)/2)] box-border max-w-full [padding-inline:var(--jx-inset)] has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)] has-[[data-icon=inline-end]]:pr-[calc(var(--jx-inset)/2)] font-nav [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] tracking-[0.14em] uppercase whitespace-nowrap forced-colors:focus-visible:outline-2 forced-colors:focus-visible:outline-offset-2 forced-colors:focus-visible:[outline-color:Highlight]';
   const silhouette = $derived(shape === 'pill' ? 'rounded-full' : 'rounded-(--radius)');
   // the bordered, shadow-bearing body (ghost presses without a shadow).
   // TW4 collision law (batch D probe, 2026-08-26): a rung is the SOLE
@@ -172,10 +175,7 @@
 
 {#snippet start()}
   {#if slotStart}
-    <span
-      data-icon
-      class="inline-flex shrink-0 items-center [&_svg]:h-[var(--jx-text-secondary)] [&_svg]:w-[var(--jx-text-secondary)]"
-    >
+    <span data-icon="inline-start" class="inline-flex [&>svg]:size-[var(--jx-text-secondary)]">
       {@render slotStart()}
     </span>
   {/if}
@@ -183,10 +183,7 @@
 
 {#snippet end()}
   {#if slotEnd}
-    <span
-      data-icon
-      class="inline-flex shrink-0 items-center [&_svg]:h-[var(--jx-text-secondary)] [&_svg]:w-[var(--jx-text-secondary)]"
-    >
+    <span data-icon="inline-end" class="inline-flex [&>svg]:size-[var(--jx-text-secondary)]">
       {@render slotEnd()}
     </span>
   {/if}

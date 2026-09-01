@@ -17,7 +17,8 @@
 
   // single usage sample: the drawer file and the body CodeBlock share it
   const usage = `<Kbd>⌘</Kbd> + <Kbd>K</Kbd> opens the palette
-<Kbd>Shift</Kbd> + <Kbd>?</Kbd> for shortcuts`;
+<Kbd>Shift</Kbd> + <Kbd>?</Kbd> for shortcuts
+<Kbd variant="fill">Enter</Kbd> commits · <Kbd variant="outline">Esc</Kbd> exits`;
 
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/kbd.svelte', content: kbdSource },
@@ -29,7 +30,7 @@
   <title>Kbd · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai kbd: the native keyboard-input glyph with the jixoai chip paint — no key parsing, no platform detection, compose by hand."
+    content="The jixoai kbd: the native keyboard-input glyph on the variant ladder — tonal (primary) by default, fill and outline beside it — no key parsing, no platform detection, compose by hand."
   />
 </svelte:head>
 
@@ -46,11 +47,12 @@
         tone="hero"
         eyebrow="registry:ui · General"
         title="kbd — the element, chipped"
-        summary="A native <kbd> — the element whose entire meaning is 'this is keyboard input' — with the jixoai chip paint: 1px border, shadow-2xs lift, mono. Deliberately no key-parsing and no platform detection (⌘/Ctrl string opinions belong to the caller); keys compose by hand."
+        summary="A native <kbd> — the element whose entire meaning is 'this is keyboard input' — on the grammar's variant ladder: tonal (12%/45% primary tint) by default, fill and outline beside it, over the engraved geometry (1px border + the --shadow-engrave inset, mono). Deliberately no key-parsing and no platform detection (⌘/Ctrl string opinions belong to the caller); keys compose by hand."
       >
         <div class="flex flex-wrap gap-3">
           <span class="pill">native &lt;kbd&gt;</span>
           <span class="pill">zero parsing</span>
+          <span class="pill">variant ladder · tonal default</span>
         </div>
       </SectionCard>
     </div>
@@ -135,10 +137,10 @@
       </SectionCard>
     </div>
 
-    <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Keyboard glyphs" summary="Kbd is a native semantic element; compose one key or a chord from several instances."><div class="flex flex-wrap items-center gap-2"><Kbd>⌘</Kbd><span>+</span><Kbd>K</Kbd><span class="text-muted-foreground">or</span><Kbd>Shift</Kbd><Kbd>?</Kbd></div></SectionCard></div>
-    <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage" summary="The platform gives the semantics: <kbd> means keyboard input to assistive tech with zero ARIA. We add only the chip paint — 1px border, shadow-2xs, mono — and nothing else."><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
+    <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Keyboard glyphs" summary="Kbd is a native semantic element; compose one key or a chord from several instances."><div class="flex flex-col gap-3"><div class="flex flex-wrap items-center gap-2"><Kbd>⌘</Kbd><span>+</span><Kbd>K</Kbd><span class="text-muted-foreground">or</span><Kbd>Shift</Kbd><Kbd>?</Kbd></div><div class="flex flex-wrap items-center gap-2 text-[12.5px]"><span class="w-14 flex-none text-muted-foreground">tonal</span><Kbd>⌘</Kbd><Kbd>K</Kbd><span class="w-14 flex-none text-muted-foreground">outline</span><Kbd variant="outline">Shift</Kbd><Kbd variant="outline">?</Kbd><span class="w-14 flex-none text-muted-foreground">fill</span><Kbd variant="fill">Enter</Kbd></div></div></SectionCard></div>
+    <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage" summary="The platform gives the semantics: <kbd> means keyboard input to assistive tech with zero ARIA. We add only the ladder paint — 1px border, the engrave inset, mono — and nothing else."><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
     <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'kbd', value: 'native element', description: 'Communicates keyboard input without extra ARIA.' }]} /></SectionCard></div>
-    <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Kbd>K</Kbd></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
-    <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Kbd props"><PropsTable props={[{ name: 'density', type: 'Density', description: 'Overrides inherited density.' }, { name: 'class', type: 'string', description: 'Adds consumer classes.' }]} /></SectionCard></div>
+    <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Kbd>K</Kbd></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-tonal', default: 'var(--primary)', source: 'variant grammar' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+    <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Kbd props"><PropsTable props={[{ name: 'density', type: 'Density', description: 'Overrides inherited density.' }, { name: 'variant', type: "'fill' | 'tonal' | 'outline'", description: 'Paint-ladder rung; tonal (primary) is the default. Semantic hue injects via jx-hue-* classes, never as a variant name.' }, { name: 'class', type: 'string', description: 'Adds consumer classes.' }]} /></SectionCard></div>
   </div>
 </div>

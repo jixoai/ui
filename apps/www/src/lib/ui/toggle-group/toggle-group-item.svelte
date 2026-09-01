@@ -53,7 +53,17 @@
   const active = $derived(group.isActive(value));
 </script>
 
-<label class={cn('jx-tgroup-item', className)}>
+<label
+  class={cn(
+    // slot-lane law (badge dialect, 2026-09-01): a leading/trailing
+    // icon lane replaces its side's label inset — has() rides the
+    // label (the padding owner); the utility beats the shared
+    // components-layer paint by layer order
+    'jx-tgroup-item',
+    'has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)] has-[[data-icon=inline-end]]:pr-[calc(var(--jx-inset)/2)]',
+    className,
+  )}
+>
   <input
     {...rest}
     type={group.type === 'single' ? 'radio' : 'checkbox'}
@@ -64,9 +74,16 @@
     required={group.required || undefined}
     data-jx-tgroup={active ? 'on' : undefined}
   />
-  <span class="jx-tgroup-content">
-    {#if slotStart}{@render slotStart()}{/if}
+  <span
+    class={cn(
+      'jx-tgroup-content',
+      // flex only when lanes exist — text-only items keep the exact
+      // anonymous-box rendering the shared sheet paints today
+      (slotStart || slotEnd) && 'inline-flex items-center gap-[calc(var(--jx-gap)/2)]',
+    )}
+  >
+    {#if slotStart}<span data-icon="inline-start" class="inline-flex [&>svg]:size-[var(--jx-text-secondary)]">{@render slotStart()}</span>{/if}
     {@render children()}
-    {#if slotEnd}{@render slotEnd()}{/if}
+    {#if slotEnd}<span data-icon="inline-end" class="inline-flex [&>svg]:size-[var(--jx-text-secondary)]">{@render slotEnd()}</span>{/if}
   </span>
 </label>
