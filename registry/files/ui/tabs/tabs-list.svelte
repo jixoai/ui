@@ -16,9 +16,35 @@
 
   tw4 (2026-08-24): PURE utility migration, zero css residue — the
   orientation axis is a prop, so the horizontal/vertical border rides
-  conditional utility strings; jx-tabs-vertical stays as the hook the
-  trigger's selected-bar residue keys on.
+  conditional utility strings; jx-tabs-vertical stays as the semantic
+  hook consumers/variants may key on.
+
+  Indicator engine (2026-09-01, tabs variant system): the list owns a
+  shared sliding indicator span (LAST child) measured against its OWN
+  selected trigger — offsetLeft/offsetTop layout coords (scroll-proof,
+  RTL-safe). `indicator` picks a built-in material ('none' renders
+  nothing) OR passes a Snippet: the snippet replaces the paint while
+  this engine still owns the geometry (a snippet rides the pill-family
+  hug box; data-material reports 'custom'). Only the `line` material
+  keeps the structural border; `layout` adds grow/scroll strip shapes.
 -->
+<script lang="ts" module>
+  /** indicator paint materials — 'none' renders no indicator at all */
+  export type TabsIndicatorMaterial = 'line' | 'pill' | 'outline' | 'glass' | 'liquid' | 'none';
+
+  /** measured geometry the engine hands a custom indicator snippet */
+  export type TabsIndicatorGeo = {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    orientation: 'horizontal' | 'vertical';
+  };
+
+  /** strip shape: inline (natural) · grow (triggers stretch) · scroll (overflow) */
+  export type TabsLayout = 'inline' | 'grow' | 'scroll';
+</script>
+
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
@@ -29,19 +55,44 @@
   interface Props extends HTMLAttributes<HTMLDivElement> {
     /** axis of travel: horizontal ←/→ · vertical ↑/↓ (layout is yours) */
     orientation?: 'horizontal' | 'vertical';
+    /** selection indicator: a built-in material, or a Snippet that owns
+     *  the paint while the engine keeps owning the measured geometry */
+    indicator?: TabsIndicatorMaterial | Snippet<[TabsIndicatorGeo]>;
+    /** inline: natural sizes · grow: triggers share the strip · scroll: overflow-x */
+    layout?: TabsLayout;
     children: Snippet;
   }
 
   let {
     orientation = 'horizontal',
+    indicator = 'line',
+    layout = 'inline',
     class: className = '',
+    style: consumerStyle,
     children,
     ...rest
   }: Props = $props();
 
+  /** name-collision law: a function IS the override snippet (Svelte's
+   *  own runtime check for snippets); a string selects a built-in */
+  function isIndicatorSnippet(value: Props['indicator']): value is Snippet<[TabsIndicatorGeo]> {
+    return typeof value === 'function';
+  }
+
+  const indicatorSnippet = $derived(isIndicatorSnippet(indicator) ? indicator : undefined);
+  /** the material actually reported/painted — a custom snippet has no
+   *  built-in paint, so it never keeps the structural border either */
+  const material = $derived(isIndicatorSnippet(indicator) ? 'custom' : indicator);
+
   const tabs = getContext<TabsApi>(TABS_KEY);
 
   let listEl = $state<HTMLDivElement>();
+  let indEl = $state<HTMLSpanElement>();
+  /** measured geometry of the selected trigger; null = nothing selected */
+  let geo = $state<TabsIndicatorGeo | null>(null);
+  /** the FIRST placement after mount must not animate (no 0,0 slide-in);
+   *  selection moves afterwards slide */
+  let quietNext = true;
 
   /** this list's OWN triggers — nested tablists (a panel hosting its own
    *  Tabs) keep their own walker, so closest() must resolve HERE */
@@ -50,6 +101,88 @@
       (tab) => tab.closest('[role=tablist]') === listEl,
     );
   }
+
+  /** geometry law (px numbers, layout coords): pill-family hugs the
+   *  trigger inset by half the inline inset token; line is a 2px bar
+   *  riding the list's content edge on the orientation axis */
+  function geometryFor(t: HTMLElement, list: HTMLElement): TabsIndicatorGeo {
+    if (material !== 'line') {
+      const inset = (parseFloat(getComputedStyle(list).getPropertyValue('--jx-inset')) || 8) / 2;
+      return {
+        x: t.offsetLeft + inset,
+        y: t.offsetTop + inset,
+        w: t.offsetWidth - inset * 2,
+        h: t.offsetHeight - inset * 2,
+        orientation,
+      };
+    }
+    if (orientation === 'horizontal') {
+      return { x: t.offsetLeft, y: list.clientHeight - 2, w: t.offsetWidth, h: 2, orientation };
+    }
+    return { x: list.clientWidth - 2, y: t.offsetTop, w: 2, h: t.offsetHeight, orientation };
+  }
+
+  /** measure the list's OWN selected trigger and place the indicator;
+   *  quiet placements set data-quiet BEFORE the style write and clear
+   *  it a frame later, so the css transition never picks them up.
+   *  A selection-driven measure ALWAYS strips a leftover quiet flag —
+   *  a throttled/stalled clear frame (backgrounded tab) must never
+   *  leave the bar transition-less for good */
+  function measure(quiet: boolean) {
+    const list = listEl;
+    if (!list) return;
+    const active = [...list.querySelectorAll<HTMLElement>('[role=tab][aria-selected="true"]')].find(
+      (tab) => tab.closest('[role=tablist]') === list,
+    );
+    if (!active) {
+      geo = null;
+      return;
+    }
+    if (quiet && indEl) {
+      indEl.setAttribute('data-quiet', '');
+      const el = indEl;
+      requestAnimationFrame(() => el.removeAttribute('data-quiet'));
+      setTimeout(() => el.removeAttribute('data-quiet'), 64);
+    } else {
+      indEl?.removeAttribute('data-quiet');
+    }
+    geo = geometryFor(active, list);
+  }
+
+  // selection-driven placement: re-measure when the selection moves and
+  // when the geometry law itself flips (material family / axis / layout)
+  $effect(() => {
+    if (material === 'none') {
+      geo = null;
+      return;
+    }
+    void tabs.selected;
+    void material;
+    void orientation;
+    void layout;
+    measure(quietNext);
+    quietNext = false;
+  });
+
+  // size-driven remeasure (density/font/layout shifts resize the strip)
+  // — always QUIET: a resize is not a selection move, the bar must not
+  // slide. jsdom has no ResizeObserver; the guard keeps tests honest
+  $effect(() => {
+    const list = listEl;
+    if (!list || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => measure(true));
+    ro.observe(list);
+    return () => ro.disconnect();
+  });
+
+  /** liquid needs its displacement filter referenced from the list (the
+   *  indicator span inherits the custom property); a consumer style
+   *  APPENDS (merge law, alert-dialog dialect — never clobber) */
+  const listStyle = $derived(
+    material === 'liquid'
+      ? `--jx-tabs-liquid-bf: url('#${tabs.uid}-liquid') blur(2px) saturate(1.6)${consumerStyle ? ` ${consumerStyle}` : ''}`
+      : (consumerStyle ?? undefined),
+  );
 
   // the empty state (no focus, no selection) renders every trigger
   // tabbable for SSR/JS-off entry; trim to the FIRST enabled tab only —
@@ -101,15 +234,46 @@
 <div
   bind:this={listEl}
   data-jx-tabs-list=""
+  data-indicator={material}
+  data-layout={layout}
   class={cn(
-    `jx-tabs-${orientation} flex items-stretch [gap:var(--jx-gap)] box-border`,
-    orientation === 'vertical' ? 'flex-col border-r border-border' : 'border-b border-border',
+    `jx-tabs-${orientation} relative flex items-stretch [gap:var(--jx-gap)] box-border`,
+    orientation === 'vertical' && 'flex-col',
+    material === 'line' && (orientation === 'vertical' ? 'border-r border-border' : 'border-b border-border'),
+    layout === 'scroll' && 'overflow-x-auto',
     className,
   )}
+  style={listStyle}
   onkeydown={handleKeydown}
   {...rest}
   role="tablist"
   aria-orientation={orientation}
 >
   {@render children()}
+  {#if material === 'liquid'}
+    <!-- zero-size SVG carrying the displacement filter the liquid
+         backdrop references by fragment id -->
+    <svg aria-hidden="true" class="absolute h-0 w-0">
+      <filter id="{tabs.uid}-liquid" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.012" numOctaves="2" seed="7" />
+        <feDisplacementMap in="SourceGraphic" scale="14" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
+  {/if}
+  {#if material !== 'none'}
+    <!-- the engine-owned wrapper: geometry lands here, a custom
+         snippet paints inside it -->
+    <span
+      bind:this={indEl}
+      data-jx-tabs-ind=""
+      data-material={material}
+      aria-hidden="true"
+      hidden={geo === null}
+      style={geo === null
+        ? undefined
+        : `transform: translate(${geo.x}px, ${geo.y}px); width: ${geo.w}px; height: ${geo.h}px`}
+    >
+      {#if indicatorSnippet && geo}{@render indicatorSnippet(geo)}{/if}
+    </span>
+  {/if}
 </div>

@@ -6,32 +6,55 @@
   tabs-list.svelte do the walking). Deterministic ids pair it with the
   matching tabs-content for assistive tech, lazily rendered or not.
 
-  Terminal styling: font-nav micro-label; the selected tab carries a
-  2px brand underline that rides the list's bottom border (negative
-  margin re-draws OVER the border — no layout shift on selection).
+  Terminal styling: font-nav micro-label; the selected tab carries the
+  jx-tab-selected semantic hook (the paint moved to the list's shared
+  sliding indicator — 2026-09-01 tabs variant system), and the button
+  sits at z-[1] so its ink paints above that indicator.
 
-  tw4 (2026-08-24): paint as token utilities in the markup (selected/
-  disabled ride conditional strings — the states are JS-known); ONLY
-  the selected ::after bar (a pseudo-element build, vertical variant
-  via the .jx-tabs-vertical descendant) remains in tabs-trigger.css —
-  D1-exempt residue.
+  Anatomy (toggle-group dialect): optional icon / iconEnd snippet lanes
+  (aria-hidden, svg sized to the secondary text token) take their side's
+  half-inset through the has() slot law; stack=true flips the button to
+  a column for icon-over-label tabs. Spread contract: {...rest} lands
+  FIRST, the part's own type/role/id/aria-*/tabindex follow and win
+  (component-owned); onclick/onfocus are destructured out and MERGED —
+  consumer handler first, then the family wiring (merge law).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLButtonAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
   import { cn } from '$lib/utils';
   import { TABS_KEY, type TabsApi } from './tabs.svelte';
   import './tabs-trigger.css';
 
-  interface Props {
+  interface Props extends HTMLButtonAttributes {
     /** the tab's identity — pairs with the same value on a TabsContent */
     value: string;
     disabled?: boolean;
-    children: Snippet;
+    /** leading icon lane — an inline-start snippet (svg sized to the secondary text token) */
+    icon?: Snippet;
+    /** trailing icon lane — an inline-end snippet */
+    iconEnd?: Snippet;
+    /** stack the icon lane OVER the label (column) instead of beside it */
+    stack?: boolean;
     class?: string;
+    /** OPTIONAL: an icon-only tab (icon + aria-label through ...rest)
+        carries no label children — children renders guarded */
+    children?: Snippet;
   }
 
-  let { value, disabled = false, children, class: className = '' }: Props = $props();
+  let {
+    value,
+    disabled = false,
+    icon,
+    iconEnd,
+    stack = false,
+    class: className = '',
+    onclick,
+    onfocus,
+    children,
+    ...rest
+  }: Props = $props();
 
   const tabs = getContext<TabsApi>(TABS_KEY);
 
@@ -44,6 +67,7 @@
 </script>
 
 <button
+  {...rest}
   type="button"
   role="tab"
   id="{tabs.uid}-tab-{value}"
@@ -52,13 +76,27 @@
   tabindex={isTabStop ? 0 : -1}
   data-jx-tab=""
   class={cn(
-    'relative inline-flex appearance-none items-center [gap:var(--jx-gap)] border-0 bg-transparent [padding-inline:var(--jx-inset)] [min-block-size:var(--jx-hit)] font-nav [font-size:var(--jx-text)] [line-height:var(--jx-line)] uppercase tracking-[0.12em] cursor-pointer transition-colors duration-150 ease-out hover:[&:not(:disabled)]:text-foreground disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+    'relative z-[1] inline-flex appearance-none items-center [padding-inline:var(--jx-inset)] [min-block-size:var(--jx-hit)] font-nav [font-size:var(--jx-text)] [line-height:var(--jx-line)] uppercase tracking-[0.12em] cursor-pointer transition-colors duration-150 ease-out hover:[&:not(:disabled)]:text-foreground disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+    // stack flips the axis: a tighter column gap replaces the row gap
+    // (min-block-size and the padding law stay untouched)
+    stack ? 'flex-col justify-center [gap:calc(var(--jx-gap)*0.35)]' : '[gap:var(--jx-gap)]',
+    // slot-vs-padding law (toggle-group dialect): an icon lane replaces
+    // its side's label inset
+    'has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)] has-[[data-icon=inline-end]]:pr-[calc(var(--jx-inset)/2)]',
     selected ? 'jx-tab-selected text-foreground' : 'text-muted-foreground',
     className,
   )}
   {disabled}
-  onclick={() => tabs.select(value)}
-  onfocus={() => tabs.setTabStop(value)}
+  onclick={(event: MouseEvent) => {
+    onclick?.(event);
+    tabs.select(value);
+  }}
+  onfocus={(event: FocusEvent) => {
+    onfocus?.(event);
+    tabs.setTabStop(value);
+  }}
 >
-  {@render children()}
+  {#if icon}<span data-icon="inline-start" aria-hidden="true" class="inline-flex shrink-0 [&>svg]:size-[var(--jx-text-secondary)]">{@render icon()}</span>{/if}
+  {@render children?.()}
+  {#if iconEnd}<span data-icon="inline-end" aria-hidden="true" class="inline-flex shrink-0 [&>svg]:size-[var(--jx-text-secondary)]">{@render iconEnd()}</span>{/if}
 </button>

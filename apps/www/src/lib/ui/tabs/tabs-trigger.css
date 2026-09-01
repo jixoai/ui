@@ -1,26 +1,77 @@
 @layer theme, base, components, utilities;
 
 @layer components {
-/* jixoai tabs trigger — D1-exempt residue (tw4, 2026-08-24): the
- * selection bar is a pseudo-element build (utilities cannot author
- * ::after), redrawn 1px over the list's own bottom border (or the
- * right border, vertical — the list's orientation hook carries the
- * variant). All paint besides this bar lives as token utilities in
- * the markup. */
-.jx-tab-selected::after {
-  content: '';
+/* jixoai tabs indicator — D1-exempt residue (tw4, 2026-09-01 tabs
+ * variant system). The selection indicator is a shared span the LIST
+ * measures and drives (transform/width/height law in tabs-list.svelte);
+ * utilities cannot author an absolutely-positioned sibling paint keyed
+ * on the list's data attributes, nor hide the scrollbar pseudo-element
+ * — both stay here. All other trigger paint lives as token utilities
+ * in the markup; the static per-trigger ::after bar this sheet used
+ * to carry is deleted (the sliding indicator replaces it).
+ *
+ * Material law: line = 2px primary bar at the strip edge · pill =
+ * tonal hug · outline = border hug · glass/liquid = backdrop hug
+ * (liquid swaps its backdrop-filter for the SVG displacement filter
+ * the list mounts). layout law: grow stretches the triggers · scroll
+ * hides the strip's own scrollbar. */
+:where([data-jx-tabs-list]) {
+  position: relative;
+}
+:where([data-jx-tabs-ind]) {
   position: absolute;
-  inset-inline: 0;
-  bottom: -1px;
-  height: 2px;
+  inset: 0 auto auto 0;
+  pointer-events: none;
+  z-index: 0;
+  transition:
+    transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    width 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    height 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+/* quiet placement: first placement after mount and every resize
+ * remeasure snap into place — the slide is a selection-move signal */
+:where([data-jx-tabs-ind][data-quiet]) {
+  transition: none;
+}
+:where([data-jx-tabs-ind][data-material='line']) {
   background: var(--primary);
 }
-.jx-tabs-vertical .jx-tab-selected::after {
-  inset-block: 0;
-  inset-inline: auto;
-  left: auto;
-  right: -1px;
-  width: 2px;
-  height: auto;
+:where([data-jx-tabs-ind][data-material='pill']) {
+  background: color-mix(in oklab, var(--jx-tonal) 14%, transparent);
+  border-radius: calc(var(--radius) - 2px);
 }
+:where([data-jx-tabs-ind][data-material='outline']) {
+  border: 1px solid var(--jx-outline);
+  border-radius: calc(var(--radius) - 2px);
+  box-sizing: border-box;
+}
+:where([data-jx-tabs-ind][data-material='glass']),
+:where([data-jx-tabs-ind][data-material='liquid']) {
+  backdrop-filter: blur(10px) saturate(1.5);
+  -webkit-backdrop-filter: blur(10px) saturate(1.5);
+  background: color-mix(in oklab, var(--background) 40%, transparent);
+  border: 1px solid color-mix(in oklab, var(--foreground) 12%, transparent);
+  border-radius: calc(var(--radius) - 2px);
+}
+:where([data-jx-tabs-ind][data-material='liquid']) {
+  backdrop-filter: var(--jx-tabs-liquid-bf, blur(10px) saturate(1.5));
+  -webkit-backdrop-filter: var(--jx-tabs-liquid-bf, blur(10px) saturate(1.5));
+}
+:where([data-layout='grow']) > [role='tab'] {
+  flex: 1 1 0;
+  justify-content: center;
+}
+:where([data-layout='scroll']) {
+  scrollbar-width: none;
+}
+:where([data-layout='scroll'])::-webkit-scrollbar {
+  display: none;
+}
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where([data-jx-tabs-ind]) {
+    transition: none;
+  }
 }
