@@ -53,14 +53,69 @@
    *  the container (css-owned, tabs-trigger.css) */
   export type TabsLayout = 'inline' | 'grow' | 'scroll' | 'wrap';
 
-  /** edge treatment for a scrolling run (Owner, 2026-09-01):
-   *  - 'blur' | 'slide' | 'blur+slide': each trigger blurs/fades/(and)
-   *    slides as it slips under the run's edge — a per-element
-   *    view()-timeline animation (real elements inside the run, so the
-   *    timeline attaches cleanly)
-   *  - 'progressBlur': the progressive-blur ladder veils both inline
-   *    edges (static bands, hidden while the run cannot scroll) */
-  export type TabsScrollEffect = 'none' | 'blur' | 'slide' | 'blur+slide' | 'progressBlur';
+  /** edge treatment for a scrolling run (Owner, 2026-09-01), built by
+   *  the typed builders below (the press-button effect convention —
+   *  builders keep options typed and discoverable). slide is the
+   *  DEFAULT (translate+opacity only, no filter cost):
+   *  - slide() / blur() / blurSlide(): each trigger ramps as it
+   *    clips under a run edge — scroll-following per-trigger factors
+   *    (--jx-edge-start/end, the clipped fraction of the trigger's
+   *    own width) stamped by the scroll handler and calc'd in css;
+   *    rest is factor 0 by arithmetic, on every engine (view()
+   *    timelines were tried and rejected: Chromium 152 resolves
+   *    named ranges garbage at rest — the stuck-first-button bug)
+   *  - progressBlur(): the progressive-blur ladder veils both inline
+   *    edges — gated and faded EXACTLY like the chevrons (per-edge
+   *    scroll-state + the same progress window) */
+  export type TabsScrollEffect = SlideEffect | BlurEffect | BlurSlideEffect | ProgressBlurEffect;
+
+  export interface SlideOptions {
+    /** how far a crossing trigger offsets along the inline axis */
+    distance?: string;
+  }
+  export interface SlideEffect {
+    readonly type: 'slide';
+    distance: string;
+  }
+  export function slide({ distance = '8px' }: SlideOptions = {}): SlideEffect {
+    return { type: 'slide', distance };
+  }
+
+  export interface BlurOptions {
+    /** the blur radius a crossing trigger ramps to */
+    radius?: string;
+  }
+  export interface BlurEffect {
+    readonly type: 'blur';
+    radius: string;
+  }
+  export function blur({ radius = '4px' }: BlurOptions = {}): BlurEffect {
+    return { type: 'blur', radius };
+  }
+
+  export interface BlurSlideOptions extends BlurOptions, SlideOptions {}
+  export interface BlurSlideEffect {
+    readonly type: 'blur+slide';
+    radius: string;
+    distance: string;
+  }
+  export function blurSlide({ radius = '4px', distance = '8px' }: BlurSlideOptions = {}): BlurSlideEffect {
+    return { type: 'blur+slide', radius, distance };
+  }
+
+  export interface ProgressBlurOptions {
+    /** per-layer blur px of the edge veil, inner-edge first (≥2 levels) */
+    blurLevels?: number[];
+  }
+  export interface ProgressBlurEffect {
+    readonly type: 'progressBlur';
+    blurLevels: number[];
+  }
+  export function progressBlur({
+    blurLevels = [0.5, 1, 2, 4, 8, 16, 32, 64],
+  }: ProgressBlurOptions = {}): ProgressBlurEffect {
+    return { type: 'progressBlur', blurLevels };
+  }
 </script>
 
 <script lang="ts">
@@ -80,8 +135,8 @@
     /** inline: natural sizes · grow: triggers share the strip · scroll: a
      *  declared overflow run · wrap: rows flow instead of scrolling */
     layout?: TabsLayout;
-    /** edge treatment while the run scrolls — blur / slide / blur+slide
-     *  (view()-driven per trigger) or the progressBlur edge veil */
+    /** edge treatment while the run scrolls — built by slide() (the
+     *  default, cheapest) / blur() / blurSlide() / progressBlur() */
     scrollEffect?: TabsScrollEffect;
     children: Snippet;
   }
@@ -90,7 +145,7 @@
     orientation = 'horizontal',
     indicator = 'line',
     layout = 'inline',
-    scrollEffect = 'none',
+    scrollEffect = slide(),
     class: className = '',
     style: consumerStyle,
     children,
@@ -229,19 +284,57 @@
   });
 
   /** the run's scrollability verdict (Owner, 2026-09-01): the engine's
-   *  own button generation differs across engines — this JS stamp is
-   *  the single truth the css keys the chevrons on (a strip that
-   *  cannot scroll shows nothing at all; a closed direction never
-   *  paints). Updated on scroll, resize and mount */
+   * own button generation differs across engines — this JS stamp is
+   * the single truth the css keys the chevrons AND the progressBlur
+   * veil on (a strip that cannot scroll shows nothing at all; a
+   * closed direction never paints). Updated on scroll, resize and
+   * mount. The same pass stamps --jx-tabs-progress (0–1 travel) on
+   * the HOST — the one number the chevron fade and the veil fade
+   * both calc from (the bands are the run's SIBLINGS; a var animated
+   * on the run itself could never reach them) — and, for the ramp
+   * effects, per-trigger edge factors: --jx-edge-start / --jx-edge-end
+   * (0–1, the clipped fraction of that trigger's own width) on the
+   * ≤2 triggers actually crossing an edge (view()-timelines were
+   * tried and rejected: Chromium 152 resolves named ranges garbage
+   * at rest — the stuck-first-button bug; stamps are arithmetic) */
   $effect(() => {
     const run = runEl;
     if (!run) return;
+    const host = listEl;
+    const ramps = scrollEffect.type !== 'progressBlur';
+    const stamp = (el: HTMLElement, name: string, v: number) => {
+      if (v > 0) el.style.setProperty(name, v.toFixed(3));
+      else el.style.removeProperty(name);
+    };
     const update = () => {
       const max = run.scrollWidth - run.clientWidth;
-      if (max <= 1) run.setAttribute('data-jx-scroll-state', 'none');
-      else if (run.scrollLeft <= 1) run.setAttribute('data-jx-scroll-state', 'start-closed');
-      else if (run.scrollLeft >= max - 1) run.setAttribute('data-jx-scroll-state', 'end-closed');
-      else run.setAttribute('data-jx-scroll-state', 'open');
+      const state =
+        max <= 1
+          ? 'none'
+          : run.scrollLeft <= 1
+            ? 'start-closed'
+            : run.scrollLeft >= max - 1
+              ? 'end-closed'
+              : 'open';
+      run.setAttribute('data-jx-scroll-state', state);
+      host?.style.setProperty('--jx-tabs-progress', max > 1 ? String(run.scrollLeft / max) : '0');
+      if (!ramps) return;
+      // per-trigger edge factors: clipped px over the trigger's own
+      // width — offset layout coords are scroll-proof; LTR documented
+      // (the veil ladder's same assumption). Zero-width (jsdom) is 0
+      const sl = run.scrollLeft;
+      const w = run.clientWidth;
+      for (const t of ownTabs()) {
+        const x = t.offsetLeft;
+        const tw = t.offsetWidth;
+        if (max <= 1 || tw <= 0) {
+          stamp(t, '--jx-edge-start', 0);
+          stamp(t, '--jx-edge-end', 0);
+          continue;
+        }
+        stamp(t, '--jx-edge-start', Math.min(tw, Math.max(0, sl - x)) / tw);
+        stamp(t, '--jx-edge-end', Math.min(tw, Math.max(0, x + tw - (sl + w))) / tw);
+      }
     };
     update();
     run.addEventListener('scroll', update, { passive: true });
@@ -251,6 +344,21 @@
       run.removeEventListener('scroll', update);
       ro?.disconnect();
     };
+  });
+
+  /** the effect's knobs land as css vars on the RUN (inline beats the
+   * stylesheet; the view() ramps on the triggers inherit them) */
+  const runStyle = $derived.by(() => {
+    switch (scrollEffect.type) {
+      case 'slide':
+        return `--jx-tabs-edge-slide: ${scrollEffect.distance}`;
+      case 'blur':
+        return `--jx-tabs-edge-blur: ${scrollEffect.radius}`;
+      case 'blur+slide':
+        return `--jx-tabs-edge-blur: ${scrollEffect.radius}; --jx-tabs-edge-slide: ${scrollEffect.distance}`;
+      default:
+        return '';
+    }
   });
 
   /** liquid needs its displacement filter referenced from the list (the
@@ -369,13 +477,21 @@
   aria-orientation={orientation}
 >
   {#if orientation === 'horizontal'}
-    {#if scrollEffect === 'progressBlur'}
+    {#if scrollEffect.type === 'progressBlur'}
       <!-- the veil: twin bands as SIBLING items in the host's one grid
            cell (pin="grid" — positioning by GRID, layering by z-index,
            never position:*). Grid items of the host do not scroll with
            the run's content, so the bands stay pinned at the edges;
-           hidden while the run cannot scroll (css, scroll-state) -->
-      <ProgressiveBlur pin="grid" position="start" reveal="static" height="var(--jx-tabs-veil)" class="jx-tabs-veil" />
+           gated and faded EXACTLY like the chevrons (css: per-edge
+           scroll-state + the host's --jx-tabs-progress window) -->
+      <ProgressiveBlur
+        pin="grid"
+        position="start"
+        reveal="static"
+        height="var(--jx-tabs-veil)"
+        blurLevels={scrollEffect.blurLevels}
+        class="jx-tabs-veil"
+      />
     {/if}
     <!-- the run: the strip's REAL scroller. role=presentation flattens
          it out of the accessibility tree (the tablist keeps owning its
@@ -389,14 +505,22 @@
       role="presentation"
       data-jx-tabs-run=""
       data-layout={layout}
-      data-scroll-effect={scrollEffect}
+      data-scroll-effect={scrollEffect.type}
+      style={runStyle || undefined}
       class={cn('jx-tabs-run flex items-stretch [gap:var(--jx-gap)]', layout === 'wrap' && 'flex-wrap')}
     >
       {@render children()}
       {@render runTail()}
     </div>
-    {#if scrollEffect === 'progressBlur'}
-      <ProgressiveBlur pin="grid" position="end" reveal="static" height="var(--jx-tabs-veil)" class="jx-tabs-veil" />
+    {#if scrollEffect.type === 'progressBlur'}
+      <ProgressiveBlur
+        pin="grid"
+        position="end"
+        reveal="static"
+        height="var(--jx-tabs-veil)"
+        blurLevels={scrollEffect.blurLevels}
+        class="jx-tabs-veil"
+      />
     {/if}
   {:else}
     {@render children()}

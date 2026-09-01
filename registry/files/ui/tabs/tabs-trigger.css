@@ -159,140 +159,74 @@
 }
 
 /* ── scrollEffect (Owner, 2026-09-01): edge treatments for the run ──
- * Two kinds. (1) blur / slide / blur+slide — EACH trigger blurs,
- * fades and/or slides as it slips under the run's edge: a per-element
- * view()-timeline animation (unlike the chevrons, triggers are real
- * elements INSIDE the run, so the timeline attaches cleanly). The
- * ramps ride the outer 12% of each trigger's transit; every knob is a
- * var (blur radius, slide distance). (2) progressBlur — the
- * progressive-blur ladder veils both inline edges (grid-dialect
- * bands, sibling items of the run in the host's cell), hidden while
- * the run cannot scroll — the veil width derives from the density
- * tokens. */
-:where(.jx-tabs-run) {
-  --jx-tabs-edge-blur: 4px;
-  --jx-tabs-edge-slide: 8px;
-}
+ * Built by the typed builders — slide() / blur() / blurSlide() /
+ * progressBlur(), the press-button effect convention (tabs-list.svelte
+ * exports them); slide is the DEFAULT, the cheapest: translate+opacity
+ * only, no filter. The knobs (--jx-tabs-edge-blur / -slide) ride the
+ * run's INLINE style from the builder object; this sheet only consumes.
+ *
+ * The ramps are SCROLL-FOLLOWING, not view()-timelines (empirical,
+ * Chromium 152, real + headless: named-range view() resolution at
+ * rest is garbage — an element sitting flush at an edge reads a
+ * phantom ~36% progress and stays treated; the stuck-first-button
+ * bug). Instead the list's scroll handler stamps --jx-edge-start /
+ * --jx-edge-end (0–1, the clipped fraction of that trigger's own
+ * width) on the ≤2 triggers actually crossing an edge — the same
+ * single-truth law as the chevron fade and the veil. Rest = factor 0
+ * = the element's natural self, by arithmetic, on every engine (no
+ * scroll-driven-animation support required). The treatments are keyed
+ * per type so slide (the default) never pays for a filter; a
+ * fully-clipped trigger is factor 1 = fully treated (invisible
+ * anyway — the ramp matters while clipping). */
 /* the veil width rides the HOST, not the run: the bands are the run's
  * SIBLINGS (custom properties inherit downward only — a var on the
  * run never reaches them) */
 :where(.jx-tabs-horizontal) {
   --jx-tabs-veil: calc(var(--jx-inset) * 4);
 }
-@keyframes jx-tabs-edge-blur {
-  0% {
-    opacity: 0;
-    filter: blur(var(--jx-tabs-edge-blur));
-  }
-  12%,
-  88% {
-    opacity: 1;
-    filter: none;
-  }
-  100% {
-    opacity: 0;
-    filter: blur(var(--jx-tabs-edge-blur));
-  }
+:where(.jx-tabs-run)[data-scroll-effect='slide'] > [role='tab'] {
+  opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
+  translate: calc((var(--jx-edge-end, 0) - var(--jx-edge-start, 0)) * var(--jx-tabs-edge-slide, 0px)) 0;
 }
-@keyframes jx-tabs-edge-slide {
-  0% {
-    opacity: 0;
-    translate: calc(-1 * var(--jx-tabs-edge-slide)) 0;
-  }
-  12%,
-  88% {
-    opacity: 1;
-    translate: none;
-  }
-  100% {
-    opacity: 0;
-    translate: var(--jx-tabs-edge-slide) 0;
-  }
+:where(.jx-tabs-run)[data-scroll-effect='blur'] > [role='tab'] {
+  opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
+  filter: blur(calc(max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * var(--jx-tabs-edge-blur, 0px)));
 }
-@keyframes jx-tabs-edge-blur-slide {
-  0% {
-    opacity: 0;
-    filter: blur(var(--jx-tabs-edge-blur));
-    translate: calc(-1 * var(--jx-tabs-edge-slide)) 0;
-  }
-  12%,
-  88% {
-    opacity: 1;
-    filter: none;
-    translate: none;
-  }
-  100% {
-    opacity: 0;
-    filter: blur(var(--jx-tabs-edge-blur));
-    translate: var(--jx-tabs-edge-slide) 0;
-  }
+:where(.jx-tabs-run)[data-scroll-effect='blur+slide'] > [role='tab'] {
+  opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
+  translate: calc((var(--jx-edge-end, 0) - var(--jx-edge-start, 0)) * var(--jx-tabs-edge-slide, 0px)) 0;
+  filter: blur(calc(max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * var(--jx-tabs-edge-blur, 0px)));
 }
-@supports (animation-timeline: view()) {
-  :where(.jx-tabs-run)[data-scroll-effect='blur'] > [role='tab'] {
-    animation: jx-tabs-edge-blur linear both;
-    animation-timeline: view(inline);
-  }
-  :where(.jx-tabs-run)[data-scroll-effect='slide'] > [role='tab'] {
-    animation: jx-tabs-edge-slide linear both;
-    animation-timeline: view(inline);
-  }
-  :where(.jx-tabs-run)[data-scroll-effect='blur+slide'] > [role='tab'] {
-    animation: jx-tabs-edge-blur-slide linear both;
-    animation-timeline: view(inline);
-  }
-}
-/* the veil is scenery for a SCROLLING run — a strip that cannot
- * travel shows no bands (the JS-stamped scroll-state is the truth).
- * Layering is z-index ONLY (Owner, 2026-09-01): run 0 · veil 1 ·
- * chevrons 2 */
+/* the progressBlur veil mirrors the CHEVRONS exactly (Owner,
+ * 2026-09-01): gated per edge by the JS-stamped scroll-state (a
+ * closed direction paints neither chevron nor band — a band blurring
+ * content at an edge that cannot travel was the reported anomaly) and
+ * faded by the SAME --jx-tabs-progress window the chevron calc uses —
+ * chevron at 0.5 opacity, band at 0.5. Layering is z-index ONLY:
+ * veil 1 under chevrons 2, both over the run */
 :where(.jx-tabs-veil) {
   z-index: 1;
 }
-:where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='none']) > :where(.jx-tabs-veil) {
-  display: none;
+:where(.jx-tabs-horizontal) > :where(.jx-tabs-veil)[data-position='start'] {
+  opacity: min(1, calc(var(--jx-tabs-progress, 0) / 0.15));
+}
+:where(.jx-tabs-horizontal) > :where(.jx-tabs-veil)[data-position='end'] {
+  opacity: min(1, calc((1 - var(--jx-tabs-progress, 0)) / 0.15));
 }
 
-/* ── the on-demand fade, scroll-driven (Owner, 2026-09-01) ──
+/* ── the on-demand fade, scroll-following (Owner, 2026-09-01) ──
  * The chevron toward a boundary fades OUT as the run approaches it
- * and fades back IN as travel opens again — the run's own scroll
- * offset is the clock (scroll(self)), no listeners, no JS.
- *
- * Wiring law (empirical, Chromium 146): a timeline cannot be
- * attached to the ::scroll-button() boxes themselves — they are UA
- * internals; neither scroll(nearest) nor a timeline-scope-hoisted
- * name activates on them. So the ANIMATION rides the RUN (a
- * scroller referencing its own scroll container — the
- * scroll-progress-bar pattern) and animates a REGISTERED custom
- * property; the buttons INHERIT that number (pseudos inherit from
- * their originator) and calc their own opacity: each chevron ramps
- * over the outer 15% of the run's travel. The un-animated initial
- * value 0 also gives non-scroll-driven engines the honest static
- * state (start hidden, end open) while the engine's generation
- * gate keeps deciding existence. (Verification scar: a paused/
- * occluded webview never advances scroll timelines — rAF stalls —
- * so this wiring can only be observed in a live-rendering tab.) */
-@property --jx-tabs-progress {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 0;
-}
-@keyframes jx-tabs-progress {
-  from {
-    --jx-tabs-progress: 0;
-  }
-  to {
-    --jx-tabs-progress: 1;
-  }
-}
-@supports (animation-timeline: scroll()) {
-  :where(.jx-tabs-run) {
-    animation: jx-tabs-progress linear both;
-    animation-timeline: scroll(self inline);
-  }
-}
-/* the ramp window: each chevron fades over the outer 15% of the
- * run's travel (dividing the 0–1 progress by 0.15 stretches that
- * window to the full 0–1 opacity range) */
+ * and fades back IN as travel opens again. Wiring law (empirical,
+ * Chromium 146): a timeline cannot attach to the ::scroll-button()
+ * boxes (UA internals), and a var animated on the run never reaches
+ * the run's sibling veil bands — so the list's scroll handler STAMPS
+ * --jx-tabs-progress (0–1 travel) on the HOST (tabs-list.svelte, the
+ * same pass that stamps data-jx-scroll-state): one inherited number
+ * serves the chevron pseudos (via the run) AND the veil bands (via
+ * the host) — chevron and band always agree. Each direction ramps
+ * over the outer 15% of travel (dividing by 0.15 stretches that
+ * window to the full 0–1 opacity range); the un-stamped fallback 0
+ * is the honest no-JS state (start hidden, end open). */
 :where(.jx-tabs-run)::scroll-button(inline-start) {
   opacity: min(1, calc(var(--jx-tabs-progress, 0) / 0.15));
 }
@@ -301,8 +235,27 @@
 }
 }
 
+/* the veil gates are UNLAYERED on purpose (cascade law, 2026-09-01):
+ * the band's own `grid` utility rides @layer utilities, which BEATS
+ * this sheet's @layer components — a layered display:none never wins
+ * (empirically: the bands stayed display:grid at closed edges). A
+ * band is gated off EXACTLY when its chevron is: per-edge
+ * scroll-state */
+:where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='none']) > :where(.jx-tabs-veil),
+:where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='start-closed']) > :where(.jx-tabs-veil)[data-position='start'],
+:where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='end-closed']) > :where(.jx-tabs-veil)[data-position='end'] {
+  display: none;
+}
+
+/* unlayered on purpose: the reduced-motion override must beat every
+ * layered rule regardless of layer order */
 @media (prefers-reduced-motion: reduce) {
   :where([data-jx-tabs-ind]) {
     transition: none;
+  }
+  /* the edge treatments' translate is exactly the motion the
+   * preference suppresses; blur + opacity stay (not vestibular) */
+  :where(.jx-tabs-run)[data-scroll-effect] > [role='tab'] {
+    translate: none;
   }
 }

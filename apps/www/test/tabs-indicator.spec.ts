@@ -36,6 +36,7 @@ import { describe, expect, it } from 'vitest';
 import { fireEvent, render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 
+import { blur, blurSlide, progressBlur, slide } from '../src/lib/ui/tabs/tabs-list.svelte';
 import IndicatorHost from './fixtures/tabs-indicator-host.svelte';
 
 // ---- ResizeObserver resilience ------------------------------------------------
@@ -295,11 +296,16 @@ describe('Tabs · layout contract', () => {
 
   it('scrollEffect stamps the run and mounts the veil as twin GRID bands beside the run (position-free)', () => {
     const { list } = setup();
-    // default: none — no veil anywhere
-    expect(list('line').querySelector('[data-jx-tabs-run]')?.getAttribute('data-scroll-effect')).toBe('none');
+    // default: slide (the cheapest) — stamped, but no veil anywhere
+    expect(list('line').querySelector('[data-jx-tabs-run]')?.getAttribute('data-scroll-effect')).toBe('slide');
     expect(list('line').querySelector('.jx-pblur')).toBeNull();
-    // blur+slide: the value rides the run for the css view() wiring
-    expect(list('effect-blur').querySelector('[data-jx-tabs-run]')?.getAttribute('data-scroll-effect')).toBe('blur+slide');
+    // the builder's knobs land as inline vars on the run (the css only consumes)
+    expect(list('line').querySelector('[data-jx-tabs-run]')?.getAttribute('style')).toContain('--jx-tabs-edge-slide: 8px');
+    // blur+slide: the type rides the run for the css view() wiring, both knobs inline
+    const blurRun = list('effect-blur').querySelector('[data-jx-tabs-run]')!;
+    expect(blurRun.getAttribute('data-scroll-effect')).toBe('blur+slide');
+    expect(blurRun.getAttribute('style')).toContain('--jx-tabs-edge-blur: 4px');
+    expect(blurRun.getAttribute('style')).toContain('--jx-tabs-edge-slide: 8px');
     // progressBlur: twin bands as SIBLING grid items of the host — the
     // start band before the run, the end band after it; never inside
     // the scroller, never a positioned element
@@ -317,6 +323,40 @@ describe('Tabs · layout contract', () => {
     // each band carries the progressive-blur ladder layers (also grid items)
     expect(bands[0].querySelectorAll('.jx-pblur-layer').length).toBeGreaterThan(1);
     expect([...bands[0].querySelectorAll('.jx-pblur-layer')].every((l) => l.className.includes('[grid-area:1/1]'))).toBe(true);
+  });
+
+  it('the scroll handler stamps --jx-tabs-progress on the HOST and per-trigger edge factors — one truth for chevrons, veil and ramps', () => {
+    const { list, tabsIn } = setup();
+    const host = list('scroll');
+    const run = host.querySelector('[data-jx-tabs-run]')!;
+    // jsdom has no layout: an unscrollable run reports travel 0
+    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('0');
+    // fake geometry: 600 of content in a 200-wide run; the first trigger
+    // owns [0, 100] of it
+    Object.defineProperty(run, 'scrollWidth', { value: 600, configurable: true });
+    Object.defineProperty(run, 'clientWidth', { value: 200, configurable: true });
+    const first = tabsIn('scroll')[0];
+    Object.defineProperty(first, 'offsetLeft', { value: 0, configurable: true });
+    Object.defineProperty(first, 'offsetWidth', { value: 100, configurable: true });
+    // walked 50 in: travel 0.125, the first trigger HALF clipped (0.5)
+    run.scrollLeft = 50;
+    run.dispatchEvent(new Event('scroll'));
+    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('0.125');
+    expect(run.getAttribute('data-jx-scroll-state')).toBe('open');
+    expect(first.style.getPropertyValue('--jx-edge-start')).toBe('0.500');
+    // a zero factor REMOVES the stamp — rest is the natural self
+    expect(first.style.getPropertyValue('--jx-edge-end')).toBe('');
+    // fully past the left edge: factor 1 (clamped at the trigger's width)
+    run.scrollLeft = 400;
+    run.dispatchEvent(new Event('scroll'));
+    expect(run.getAttribute('data-jx-scroll-state')).toBe('end-closed');
+    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('1');
+    expect(first.style.getPropertyValue('--jx-edge-start')).toBe('1.000');
+    // back at rest: the stuck repro — the first trigger is CLEAN again
+    run.scrollLeft = 0;
+    run.dispatchEvent(new Event('scroll'));
+    expect(first.style.getPropertyValue('--jx-edge-start')).toBe('');
+    expect(first.style.getPropertyValue('--jx-edge-end')).toBe('');
   });
 
   it('scroll is a declared overflow run — the overflow itself is css-owned, not a markup class', () => {
@@ -446,6 +486,25 @@ describe('Tabs · indicator css law (tabs-trigger.css, source-pinned)', () => {
   });
 });
 
+describe('Tabs · scrollEffect builders (the press-button effect convention)', () => {
+  it('slide is the cheapest — translate distance only', () => {
+    expect(slide()).toEqual({ type: 'slide', distance: '8px' });
+    expect(slide({ distance: '12px' })).toEqual({ type: 'slide', distance: '12px' });
+  });
+  it('blur and blurSlide carry the radius (+ distance)', () => {
+    expect(blur()).toEqual({ type: 'blur', radius: '4px' });
+    expect(blurSlide({ radius: '6px', distance: '10px' })).toEqual({
+      type: 'blur+slide',
+      radius: '6px',
+      distance: '10px',
+    });
+  });
+  it('progressBlur carries the ladder (≥2 levels, normalized downstream)', () => {
+    expect(progressBlur().blurLevels.length).toBeGreaterThanOrEqual(2);
+    expect(progressBlur({ blurLevels: [1, 2, 4] }).blurLevels).toEqual([1, 2, 4]);
+  });
+});
+
 describe('Tabs · horizontal overflow contract (tabs-trigger.css, source-pinned)', () => {
   // jsdom renders no pseudos — the overflow law is pinned on the css
   // source (same-source: byte-identical to the registry copy)
@@ -534,46 +593,71 @@ describe('Tabs · horizontal overflow contract (tabs-trigger.css, source-pinned)
     expect(tabsTriggerCss).not.toMatch(/::scroll-button\([^)]*\):(enabled|disabled|not)/);
   });
 
-  it('scrollEffect #1 — view()-driven edge ramps: blur/slide combos wire per-trigger timelines, knobs are vars', () => {
+  it('scrollEffect #1 — scroll-following edge ramps: per-trigger stamped factors calc the treatment; NO view() timelines (Chromium 152 resolves named ranges garbage at rest — the stuck-first-button law)', () => {
     for (const effect of ['blur', 'slide', 'blur+slide']) {
       const escaped = effect.replace('+', '\\+');
-      expect(tabsTriggerCss).toMatch(
-        new RegExp(
-          `data-scroll-effect='${escaped}'\\] > \\[role='tab'\\][^{]*\\{[^}]*animation-timeline:\\s*view\\(inline\\)`,
-          's',
-        ),
-      );
-      expect(tabsTriggerCss).toMatch(new RegExp(`@keyframes jx-tabs-edge-${effect.replace('+', '-')}`));
+      const rule =
+        tabsTriggerCss.match(new RegExp(`data-scroll-effect='${escaped}'\\] > \\[role='tab'\\] \\{[\\s\\S]*?\\n\\}`))
+          ?.[0] ?? '';
+      expect(rule, `the ${effect} rule`).toContain('opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)))');
+      if (effect !== 'blur') {
+        // slide composes the two directions along the inline axis
+        expect(rule).toMatch(
+          /translate:\s*calc\(\(var\(--jx-edge-end, 0\) - var\(--jx-edge-start, 0\)\) \* var\(--jx-tabs-edge-slide, 0px\)\) 0/,
+        );
+      }
+      if (effect !== 'slide') {
+        expect(rule).toMatch(
+          /filter:\s*blur\(calc\(max\(var\(--jx-edge-start, 0\), var\(--jx-edge-end, 0\)\) \* var\(--jx-tabs-edge-blur, 0px\)\)\)/,
+        );
+      }
+      // slide (the default) never pays for a filter
+      if (effect === 'slide') expect(rule).not.toContain('filter');
     }
-    // every knob is a var (blur radius, slide distance)
-    expect(tabsTriggerCss).toMatch(/--jx-tabs-edge-blur:\s*4px/);
-    expect(tabsTriggerCss).toMatch(/--jx-tabs-edge-slide:\s*8px/);
+    // the ramp law: no timeline machinery at all — stamps + calc only
+    expect(tabsTriggerCss).not.toMatch(/animation-timeline/);
+    expect(tabsTriggerCss).not.toMatch(/animation-range/);
+    expect(tabsTriggerCss).not.toMatch(/@keyframes jx-tabs-edge/);
+    // reduced motion keeps blur+opacity, kills the translate only
+    expect(tabsTriggerCss).toMatch(
+      /\[data-scroll-effect\]\s*>\s*\[role='tab'\][^{]*\{[^}]*translate:\s*none/s,
+    );
   });
 
-  it('scrollEffect #2 — the progressBlur veil: width derives from density tokens and vanishes when the run cannot scroll', () => {
-    // the var rides the HOST: the bands are the run's siblings — a var
-    // declared on the run never inherits to them (width would collapse)
+  it('scrollEffect #2 — the progressBlur veil mirrors the chevrons: host var, per-edge gates, the same fade window', () => {
+    // the veil width var rides the HOST: the bands are the run's siblings —
+    // a var declared on the run never inherits to them (width would collapse)
     expect(tabsTriggerCss).toMatch(
       /\.jx-tabs-horizontal[^{]*\{[^}]*--jx-tabs-veil:\s*calc\(var\(--jx-inset\)\s*\*\s*4\)/s,
     );
     const runBlock = tabsTriggerCss.match(/\.jx-tabs-run[^{]*\{[\s\S]*?\n\}/)?.[0] ?? '';
     expect(runBlock).not.toContain('--jx-tabs-veil');
+    // a band is gated off EXACTLY when its chevron is: per-edge scroll-state
+    expect(tabsTriggerCss).toMatch(
+      /data-jx-scroll-state='start-closed'\][^{]*\{[^}]*display:\s*none/s,
+    );
+    expect(tabsTriggerCss).toMatch(
+      /data-jx-scroll-state='end-closed'\][^{]*\{[^}]*display:\s*none/s,
+    );
     expect(tabsTriggerCss).toMatch(
       /:has\(\s*>\s*\[data-jx-tabs-run\]\[data-jx-scroll-state='none'\]\)[^{]*\{[^}]*display:\s*none/s,
     );
+    // and faded by the SAME window the chevron calc uses — the start band
+    // ramps in with travel, the end band ramps out
+    expect(tabsTriggerCss).toMatch(
+      /\.jx-tabs-veil\)\[data-position='start'\][^{]*\{[^}]*opacity:\s*min\(1,\s*calc\(var\(--jx-tabs-progress, 0\) \/ 0\.15\)\)/s,
+    );
+    expect(tabsTriggerCss).toMatch(
+      /\.jx-tabs-veil\)\[data-position='end'\][^{]*\{[^}]*opacity:\s*min\(1,\s*calc\(\(1 - var\(--jx-tabs-progress, 0\)\) \/ 0\.15\)\)/s,
+    );
   });
 
-  it('the on-demand fade is scroll-driven: the run animates a REGISTERED progress var on its own scroll timeline; buttons inherit it and calc opacity', () => {
-    // registration (animatable, inherited into the pseudo boxes)
-    expect(tabsTriggerCss).toMatch(
-      /@property\s+--jx-tabs-progress\s*\{[^}]*syntax:\s*'<number>'[^}]*inherits:\s*true/s,
-    );
-    // the timeline rides the run itself — scroll(self), never a time-based run
-    expect(tabsTriggerCss).toMatch(
-      /@supports\s*\(\s*animation-timeline:\s*scroll\(\)\s*\)\s*\{[\s\S]*?\.jx-tabs-run[^{]*\{[^}]*animation-timeline:\s*scroll\(self\s+inline\)/,
-    );
-    expect(tabsTriggerCss).toMatch(/@keyframes\s+jx-tabs-progress[\s\S]*?--jx-tabs-progress:\s*1/);
-    // each direction ramps over the outer 15% of travel
+  it('the on-demand fade follows the host-stamped --jx-tabs-progress (no timeline machinery can reach the pseudo boxes or the sibling bands)', () => {
+    // the @property/scroll(self) machinery is GONE — the JS stamp in
+    // tabs-list.svelte is the single truth for chevrons AND veil
+    expect(tabsTriggerCss).not.toMatch(/@property\s+--jx-tabs-progress/);
+    expect(tabsTriggerCss).not.toMatch(/scroll\(self/);
+    // each direction ramps over the outer 15% of travel, unconditionally
     expect(tabsTriggerCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*opacity:\\s*min\\(1,\\s*calc\\(var\\(--jx-tabs-progress, 0\\) / 0\\.15\\)\\)`, 's'));
     expect(tabsTriggerCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*opacity:\\s*min\\(1,\\s*calc\\(\\(1 - var\\(--jx-tabs-progress, 0\\)\\) / 0\\.15\\)\\)`, 's'));
   });
