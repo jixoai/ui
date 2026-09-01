@@ -27,13 +27,15 @@
  * kit's (muted gap seam, primary active) so both panes read as one
  * surface during the migration window.
  *
- * The floor (canvas-floor-lab, 2026-08-30): the header's stage-toggle
- * segmented pairs reuse .jx-canvas-seg/-btn above; the two-file drawer
- * adds .jx-canvas-tabs/-tab (filename tabs, same segmented law); the
- * tree mode's side-by-side window is now scoped to
- * .jx-canvas-code-panels[data-shape='tree']. Theme/density scoping
- * needs no rule here — the stage carries the theme sheet's own
- * dark/jx-light classes and data-density scale values.
+ * The floor (canvas-floor-lab, 2026-08-30 → 2026-09-01): the header's
+ * stage toggles are the REGISTRY toggle-group (native radios painted by
+ * the shared .jx-html-tgroup law) — .jx-canvas-seg/-btn below remains
+ * the SCHEMA-ROW segmented idiom only. The two-file tabs drawer was
+ * REVERTED (Owner, 2026-09-01) — the tree pane is the one drawer shape
+ * at every file count, so the side-by-side window applies to
+ * .jx-canvas-code-panels unconditionally (container-query tiers).
+ * Theme/density scoping and the stage/pane text-foreground anchors ride
+ * the markup utilities — no rules needed here.
  */
 
 @layer components {
@@ -99,10 +101,10 @@
   :where(.jx-canvas-output) {
     flex: none;
   }
-  /* the drawer window goes side-by-side — TREE MODE ONLY (the tab bar
-     rides above the code view in the two-file floor; data-shape is the
-     drawer's own mode marker) */
-  :where(.jx-canvas-code-panels[data-shape='tree']) {
+  /* the drawer window goes side-by-side — tree column left of the code
+     view (the ONE drawer shape, Owner revert 2026-09-01; stacked below
+     this tier via the flex-col base) */
+  :where(.jx-canvas-code-panels) {
     flex-direction: row;
   }
   /* the tree pane: a right-ruled 14rem column, stretching and scrolling
@@ -123,36 +125,6 @@
   scrollbar-gutter: stable both-edges;
   padding-block: 0.5rem;
   padding-inline: max(0.4rem - var(--jx-scrollbar-thin, 0px), 0px);
-}
-
-/* ── the two-file drawer (canvas-floor-lab, 2026-08-30) ──
-   Filename tabs over one CodeCard: the segmented idiom at drawer scale
-   (mono 11px, muted gap seam, primary active), scrolling horizontally
-   when long names overflow. Static under reduced motion — no transition
-   rides a tab switch. */
-:where(.jx-canvas-tabs) {
-  display: flex;
-  gap: 1px;
-  background: var(--border);
-  border-bottom: 1px solid var(--border);
-}
-:where(.jx-canvas-tab) {
-  min-block-size: 1.9rem;
-  padding-inline: 0.65rem;
-  border: 0;
-  background: var(--background);
-  color: var(--muted-foreground);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  white-space: nowrap;
-  cursor: pointer;
-}
-:where(.jx-canvas-tab:hover) {
-  color: var(--foreground);
-}
-:where(.jx-canvas-tab[aria-selected='true']) {
-  background: var(--primary);
-  color: var(--primary-foreground);
 }
 
 /* the card fills the cell edge to edge; the drawer is already framed by
@@ -217,7 +189,7 @@
   justify-self: stretch;
 }
 
-/* segmented: the kit's terminal idiom — muted gap seam, primary active */
+/* segmented (schema rows): the kit's terminal idiom — muted gap seam, primary active */
 :where(.jx-canvas-seg) {
   display: inline-flex;
   flex-wrap: wrap;
@@ -322,7 +294,6 @@
 :where(.jx-canvas-code-toggle:focus-visible),
 :where(.jx-canvas-source:focus-visible),
 :where(.jx-canvas-install:focus-visible),
-:where(.jx-canvas-tab:focus-visible),
 :where(.jx-canvas-seg-btn:focus-visible),
 :where(.jx-canvas-select:focus-visible),
 :where(.jx-canvas-toggle:focus-visible),

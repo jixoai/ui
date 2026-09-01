@@ -1,11 +1,11 @@
 <!--
   ComponentCanvas floor host (test/fixtures/canvas-floor-host.svelte,
   canvas-floor-lab 2026-08-30): TWO canvases sharing a page —
-  · canvas A ("floor widget"): 2 files (tabs drawer), bind:theme /
+  · canvas A ("floor widget"): 2 files (tree drawer — the one shape), bind:theme /
     bind:density page-owned, install badge, playground snippet with a
     playState-driven PlaySelect — the flagship-lab composition in one
     surface;
-  · canvas B ("tree widget"): 3 files (tree drawer kept), its own
+  · canvas B ("tree widget"): 3 files (same tree drawer), its own
     unbound toggles — the isolation control.
   The wrapper carries a real page h2 so the ToC probe can prove the
   canvas chrome stays out of the outline while the page section joins.

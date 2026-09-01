@@ -12,16 +12,17 @@
  *    the theme sheet's dark/jx-light token-scope class riding along;
  *    bind:theme/bind:density write back to the page (ownership law);
  *    sibling canvases are untouched.
- * 3. DRAWER SHAPE — ≤2 files render a real tablist (roving tabindex,
- *    aria-selected, arrows select) over ONE CodeCard with no tree
- *    pane; ≥3 files keep the tree. Drawer default = the usage file.
+ * 3. DRAWER SHAPE — the tree pane is the ONE drawer shape (Owner revert
+ *    2026-09-01: the two-file tabs floor is gone): every canvas renders
+ *    the tree over/aside ONE CodeCard, no tablist anywhere. Drawer
+ *    default = the usage file; clicking a tree row swaps the code.
  * 4. INSTALL BADGE — copies `npx jixoai-ui add <name>` with a flash.
  * 5. DERIVATION — registrySourceUrl projects the registry path for the
  *    six pilot items onto existing files (fs check), and no pilot page
  *    carries a literal sourceUrl="https://…" attribute (the no-github
  *    -href law, scoped to source links; demo href anchors are content).
- * 6. SCHEMA COEXISTENCE — schema rows + stage toggles + tabs in one
- *    canvas (schema mode must not regress under the floor rework).
+ * 6. SCHEMA COEXISTENCE — schema rows + stage toggles + the tree drawer
+ *    in one canvas (schema mode must not regress under the floor rework).
  */
 import { fireEvent, render } from '@testing-library/svelte';
 import { existsSync, readFileSync } from 'node:fs';
@@ -75,7 +76,7 @@ describe('floor: stage theme/density toggles', () => {
     expect(floorStage.classList.contains('jx-light')).toBe(true);
 
     await fireEvent.click(
-      container.querySelector<HTMLButtonElement>('[data-jx-canvas-theme-option="dark"]')!,
+      container.querySelector<HTMLInputElement>('[data-jx-canvas-theme-option="dark"]')!,
     );
     expect(floorStage.getAttribute('data-theme')).toBe('dark');
     expect(floorStage.classList.contains('dark')).toBe(true);
@@ -93,7 +94,7 @@ describe('floor: stage theme/density toggles', () => {
     expect(floorStage.getAttribute('data-density')).toBe('default');
 
     await fireEvent.click(
-      container.querySelector<HTMLButtonElement>('[data-jx-canvas-density-option="compact"]')!,
+      container.querySelector<HTMLInputElement>('[data-jx-canvas-density-option="compact"]')!,
     );
     expect(floorStage.getAttribute('data-density')).toBe('sm');
     expect(
@@ -101,67 +102,66 @@ describe('floor: stage theme/density toggles', () => {
     ).toBe('compact');
 
     await fireEvent.click(
-      container.querySelector<HTMLButtonElement>('[data-jx-canvas-density-option="comfortable"]')!,
+      container.querySelector<HTMLInputElement>('[data-jx-canvas-density-option="comfortable"]')!,
     );
     expect(floorStage.getAttribute('data-density')).toBe('default');
   });
 
-  it('segments are aria-pressed groups painted per the jx segmented law', () => {
+  it('header toggles are native radio groups (registry toggle-group law)', () => {
     const { container } = render(CanvasFloorHost);
     const themeSeg = container.querySelector<HTMLElement>('[data-jx-canvas-theme-seg]')!;
-    expect(themeSeg.getAttribute('role')).toBe('group');
-    const dark = container.querySelector<HTMLButtonElement>('[data-jx-canvas-theme-option="dark"]')!;
-    expect(dark.className).toContain('jx-canvas-seg-btn');
-    expect(dark.getAttribute('aria-pressed')).toBe('false');
+    expect(themeSeg.getAttribute('role')).toBe('radiogroup');
+    expect(themeSeg.getAttribute('aria-label')).toBe('Stage theme');
+    const light = container.querySelector<HTMLInputElement>('[data-jx-canvas-theme-option="light"]')!;
+    const dark = container.querySelector<HTMLInputElement>('[data-jx-canvas-theme-option="dark"]')!;
+    expect(light.type).toBe('radio');
+    // name-scoped grouping: exclusivity + arrow-walking are native
+    expect(light.name).toBe(dark.name);
+    expect(light.name).toBe('jx-canvas-floor-theme');
+    expect(light.checked).toBe(true);
+    expect(dark.checked).toBe(false);
   });
 });
 
-describe('floor: the two-file drawer renders tabs, the ≥3 tree stays', () => {
-  it('≤2 files: filename tablist over one CodeCard, no tree pane', async () => {
+describe('floor: the tree pane is the one drawer shape (tabs revert)', () => {
+  it('≤2 files: the tree pane renders over one CodeCard, no tablist', async () => {
     const { container } = render(CanvasFloorHost);
     const floor = container.querySelector('[data-jx-canvas]')!;
-    const tabs = floor.querySelector<HTMLElement>('[data-jx-canvas-tabs]')!;
-    expect(tabs.getAttribute('role')).toBe('tablist');
-    const tabButtons = [...tabs.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
-    expect(tabButtons.length).toBe(2);
-    expect(floor.querySelector('.jx-canvas-tree')).toBeNull();
+    // the tabs floor is gone at every file count
+    expect(floor.querySelector('[data-jx-canvas-tabs]')).toBeNull();
+    expect(floor.querySelector('[role="tablist"], [role="tab"], [role="tabpanel"]')).toBeNull();
+    // the tree pane + exactly one CodeCard
+    const tree = floor.querySelector<HTMLElement>('.jx-canvas-tree')!;
+    expect(tree.querySelector('[role="tree"]')).not.toBeNull();
     expect(floor.querySelectorAll('.jx-code-card, [data-jx-code-card]').length).toBe(1);
 
-    // drawer default = the usage file (second tab selected)
-    expect(tabButtons[1].getAttribute('aria-selected')).toBe('true');
-    expect(tabButtons[1].tabIndex).toBe(0);
-    expect(tabButtons[0].getAttribute('aria-selected')).toBe('false');
+    // drawer default = the usage file (its treeitem selected)
+    const usageItem = tree.querySelector<HTMLElement>(
+      '[data-path="src/lib/ui/floor-widget-usage.svelte"]',
+    )!;
+    expect(usageItem.getAttribute('aria-selected')).toBe('true');
+    const sourceItem = tree.querySelector<HTMLElement>(
+      '[data-path="registry/files/ui/floor-widget/floor-widget.svelte"]',
+    )!;
+    expect(sourceItem.getAttribute('aria-selected')).toBe('false');
 
-    // click swaps the single CodeCard's file + selection
-    await fireEvent.click(tabButtons[0]);
-    expect(tabButtons[0].getAttribute('aria-selected')).toBe('true');
+    // clicking a tree row swaps the single CodeCard's file + selection
+    await fireEvent.click(sourceItem.querySelector('.jx-tree-row')!);
+    expect(sourceItem.getAttribute('aria-selected')).toBe('true');
+    expect(usageItem.getAttribute('aria-selected')).toBe('false');
     expect(floor.querySelector('.jx-code-card')!.textContent).toContain('source');
-
-    // panel ↔ tab wiring
-    const panel = floor.querySelector('[role="tabpanel"]')!;
-    expect(panel.getAttribute('aria-labelledby')).toBe(tabButtons[0].id);
   });
 
-  it('arrow keys move selection (automatic activation, roving tabindex)', async () => {
-    const { container } = render(CanvasFloorHost);
-    const tabs = container.querySelector<HTMLElement>('[data-jx-canvas-tabs]')!;
-    const [first, second] = [...tabs.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
-    second.focus();
-    await fireEvent.keyDown(tabs, { key: 'ArrowLeft' });
-    expect(first.getAttribute('aria-selected')).toBe('true');
-    expect(document.activeElement).toBe(first);
-    await fireEvent.keyDown(tabs, { key: 'End' });
-    expect(second.getAttribute('aria-selected')).toBe('true');
-  });
-
-  it('≥3 files: the tree pane stays, no tablist', () => {
+  it('≥3 files: the same tree drawer, no tablist', () => {
     const { container } = render(CanvasFloorHost);
     const canvases = [...container.querySelectorAll('[data-jx-canvas]')];
-    const treeCanvas = canvases.find((c) =>
-      c.querySelector('[data-jx-canvas-playground-title]') === null && c !== canvases[0],
+    const treeCanvas = canvases.find(
+      (c) =>
+        c.querySelector('[data-jx-canvas-playground-title]') === null && c !== canvases[0],
     )!;
     expect(treeCanvas.querySelector('.jx-canvas-tree')).not.toBeNull();
     expect(treeCanvas.querySelector('[data-jx-canvas-tabs]')).toBeNull();
+    expect(treeCanvas.querySelector('[role="tablist"], [role="tab"]')).toBeNull();
   });
 });
 
@@ -218,15 +218,15 @@ describe('floor: schema mode coexistence (no regression)', () => {
 
     const stage = container.querySelector<HTMLElement>('[data-jx-canvas-stage]')!;
     await fireEvent.click(
-      container.querySelector<HTMLButtonElement>('[data-jx-canvas-theme-option="dark"]')!,
+      container.querySelector<HTMLInputElement>('[data-jx-canvas-theme-option="dark"]')!,
     );
     expect(stage.getAttribute('data-theme')).toBe('dark');
-    expect(container.querySelector('[data-jx-canvas-tabs]')).not.toBeNull();
+    expect(container.querySelector('.jx-canvas-tree')).not.toBeNull();
   });
 });
 
 describe('floor: the real pilot pages (dialog, component-canvas)', () => {
-  it('dialog page mounts with a derived source link, tabs and toggles', async () => {
+  it('dialog page mounts with a derived source link, tree drawer and toggles', async () => {
     const DialogPage = (await import('../src/routes/docs/components/dialog.html/+page.svelte')).default;
     const { container } = render(DialogPage);
     const source = container.querySelector<HTMLAnchorElement>('[data-jx-canvas-source]')!;
@@ -234,7 +234,7 @@ describe('floor: the real pilot pages (dialog, component-canvas)', () => {
     expect(container.querySelector('[data-jx-canvas-install]')!.textContent).toContain(
       'npx jixoai-ui add dialog',
     );
-    expect(container.querySelector('[data-jx-canvas-tabs]')).not.toBeNull();
+    expect(container.querySelector('.jx-canvas-tree')).not.toBeNull();
     expect(container.querySelector('[data-jx-canvas-theme-seg]')).not.toBeNull();
 
     // the REAL outline probe: SectionCard h2s join, canvas chrome never
@@ -243,13 +243,13 @@ describe('floor: the real pilot pages (dialog, component-canvas)', () => {
     expect(labels).not.toContain('playground');
   });
 
-  it('badge and chip pages mount with derived links, tabs and play-state labs', async () => {
+  it('badge and chip pages mount with derived links, tree drawers and play-state labs', async () => {
     const BadgePage = (await import('../src/routes/docs/components/badge.html/+page.svelte')).default;
     const badge = render(BadgePage);
     expect(
       badge.container.querySelector<HTMLAnchorElement>('[data-jx-canvas-source]')!.getAttribute('href'),
     ).toBe(registrySourceUrl('badge'));
-    expect(badge.container.querySelector('[data-jx-canvas-tabs]')).not.toBeNull();
+    expect(badge.container.querySelector('.jx-canvas-tree')).not.toBeNull();
 
     const ChipPage = (await import('../src/routes/docs/components/chip.html/+page.svelte')).default;
     const chip = render(ChipPage);

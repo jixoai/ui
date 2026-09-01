@@ -118,13 +118,13 @@ ${close}
       tone="hero"
       eyebrow="registry:ui · Docs Tooling"
       title="component-canvas — the documentation workbench"
-      summary="One bordered surface per component: header (font-nav title, description, copy-command badge, Source anchor, stage theme/density toggles), a LIVE demo stage on the muted tint so components prove themselves on a differently-toned ground — re-themable and re-densifiable from the header without touching the page — an optional Playground pane of consumer-authored controls, and a collapsible code drawer: filename tabs over one code-card for the two-file median, the tree pane for bigger items. Every component page on this site is one canvas — this one renders the component inside itself."
+      summary="One bordered surface per component: header (font-nav title, description, copy-command badge, Source anchor, stage theme/density toggles), a LIVE demo stage on the muted tint so components prove themselves on a differently-toned ground — re-themable and re-densifiable from the header without touching the page — an optional Playground pane of consumer-authored controls, and a collapsible code drawer: the file tree pane beside one code-card, stacking under the canvas's narrow tier. Every component page on this site is one canvas — this one renders the component inside itself."
     >
       <div class="flex flex-wrap gap-3">
         <span class="pill">LIVE stage · muted tint</span>
         <span class="pill">stage theme · density toggles</span>
         <span class="pill">playground pane</span>
-        <span class="pill">tabs ≤2 files · tree ≥3</span>
+        <span class="pill">tree drawer · container queries</span>
         <span class="pill">recursion · depth 2</span>
       </div>
     </SectionCard>

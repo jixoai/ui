@@ -48,23 +48,32 @@
     never a real heading — the page's own outline stays page-owned
     (the h2 leak, audit root cause). The Playground h3 lives inside
     the skipped root, so it never joins the ToC either.
-  - STAGE TOGGLES: light/dark + comfortable/compact segmented pairs in
-    the header project `bind:theme`/`bind:density` onto the STAGE
-    element only — `data-theme` plus the theme sheet's own `dark` /
-    `jx-light` token-scope classes, and `data-density` mapped onto the
-    sheet's scale (compact → 'sm', comfortable → 'default'). State is
-    composition-first: the page owns it through the bindables; the
-    canvas only renders controls and scoping attributes. Static under
-    reduced motion by construction (no transition rides the re-theme).
-  - DRAWER SHAPE: ≤2 files render filename TABS over one CodeCard
-    (real tablist: roving tabindex, arrows/Home/End, automatic
-    activation); ≥3 files keep the tree pane. Files always arrive as
-    data — the page's `?raw` imports own every byte shown.
+  - STAGE TOGGLES: light/dark + comfortable/compact pairs in the header
+    (the REGISTRY toggle-group: name-scoped radios — native exclusivity,
+    arrow-walking, one tab stop per group) project `bind:theme`/
+    `bind:density` onto the STAGE element only — `data-theme` plus the
+    theme sheet's own `dark` / `jx-light` token-scope classes, and
+    `data-density` mapped onto the sheet's scale (compact → 'sm',
+    comfortable → 'default'). State is composition-first: the page owns
+    it through the bindables; the canvas only renders controls and
+    scoping attributes. The stage and the pane anchor `text-foreground`
+    themselves: the scope classes redefine TOKENS only, so inherit-based
+    text must re-anchor or it keeps the page's resolved color (the
+    white-on-light-stage leak, 2026-09-01). Static under reduced motion
+    by construction (no transition rides the re-theme).
+  - DRAWER SHAPE: the tree pane ALWAYS — one shape for every file count
+    (Owner revert 2026-09-01: the two-file tabs floor of canvas-floor-lab
+    is gone). Container-query responsive: stacked (tree over code) under
+    the host's 48rem tier, side-by-side (tree column left of the code
+    view) at ≥48rem. Files always arrive as data — the page's `?raw`
+    imports own every byte shown.
   - INSTALL BADGE: an optional `install` prop (registry item name)
     renders the copy-command chip (`npx jixoai-ui add <name>`) with a
     clipboard flash. The sourceUrl VALUE is derived page-side from the
     registry path projection ($lib/registry-source) — the canvas just
-    anchors it.
+    anchors it. The header's ACTIONS ROW is stamped data-jx-chrome: the
+    toggle-groups, the source anchor (h/w var(--jx-hit)) and the badge
+    (min-h var(--jx-hit)) all ride the chrome band's ONE hit size.
 
   The stage keeps the readonly-code tint (color-mix muted 42%) in BOTH
   themes; the playground pane answers with the lighter muted-12% layer.
@@ -212,6 +221,8 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
   import TreeView, { type TreeNode } from '$lib/ui/tree-view/tree-view.svelte';
+  import ToggleGroup from '$lib/ui/toggle-group/toggle-group.svelte';
+  import ToggleGroupItem from '$lib/ui/toggle-group/toggle-group-item.svelte';
   import { icons } from '$lib/icons';
   import { cn } from '$lib/utils';
   import './component-canvas.css';
@@ -484,41 +495,10 @@
   );
   let codeOpen = $state(false);
 
-  // ---- drawer shape (canvas-floor-lab, 2026-08-30) -----------------------
-  // ≤2 files: filename TABS over one CodeCard (the two-file floor —
-  // press-button + its usage file is the median docs item); ≥3: the
-  // tree pane stays. A real tablist: roving tabindex, arrows/Home/End,
-  // automatic activation (selection follows focus).
-  const drawerMode = $derived(files.length <= 2 ? 'tabs' : 'tree');
-  const currentTabIndex = $derived(
-    current ? files.findIndex((f) => f.name === current.name) : -1,
-  );
-  const tabId = (index: number): string => `jx-canvas-${canvasId}-tab-${index}`;
-  const panelId = `jx-canvas-${canvasId}-code-panel`;
-  let tabsEl = $state<HTMLDivElement | null>(null);
-  function onTabsKeydown(event: KeyboardEvent): void {
-    const deltas: Record<string, number | 'home' | 'end'> = {
-      ArrowLeft: -1,
-      ArrowRight: 1,
-      Home: 'home',
-      End: 'end',
-    };
-    const move = deltas[event.key];
-    if (move === undefined) return;
-    const buttons = tabsEl ? [...tabsEl.querySelectorAll<HTMLButtonElement>('[role="tab"]')] : [];
-    if (buttons.length === 0) return;
-    event.preventDefault();
-    const currentIdx = buttons.findIndex((b) => b.tabIndex === 0);
-    const next =
-      move === 'home'
-        ? 0
-        : move === 'end'
-          ? buttons.length - 1
-          : (currentIdx + move + buttons.length) % buttons.length;
-    selectedPath = files[next]?.name ?? '';
-    buttons[next]?.focus();
-  }
-
+  // ---- drawer shape (Owner revert 2026-09-01) ----------------------------
+  // ONE shape: the tree pane, every file count. The two-file tabs floor
+  // (canvas-floor-lab) is removed — the tree is the file surface, the
+  // container-query tiers below 48rem/≥48rem own its responsive posture.
   const leafName = (path: string): string => path.split('/').pop() ?? path;
 
   const usageFile = $derived(
@@ -570,7 +550,11 @@
         <p data-jx-canvas-description class="m-0 mt-[0.3rem] text-muted-foreground text-[12.5px] leading-[1.5] max-w-[62ch] text-pretty">{description}</p>
       {/if}
     </div>
-    <div data-jx-canvas-head-actions class="flex flex-none flex-wrap items-center gap-2 pt-[0.1rem]">
+    <!-- the actions row is POINTER-MODAL CHROME (chrome-density-tier law):
+         data-jx-chrome pins the 32px hit band (U×8) + sm-tier text/inset,
+         so the toggle-groups, the source anchor and the install badge
+         share ONE size law instead of three (2026-09-01 misalignment) -->
+    <div data-jx-canvas-head-actions data-jx-chrome class="flex flex-none flex-wrap items-center gap-2 pt-[0.1rem]">
       {#if install}
         <!-- copy-command badge (the Terminal-round absorbed output): the
              install argument in mono, clipboard flash on commit -->
@@ -578,7 +562,7 @@
           type="button"
           data-jx-canvas-install
           data-copied={copiedInstall || undefined}
-          class="jx-press jx-canvas-install inline-flex items-center gap-[0.45rem] border border-border bg-background px-[0.55rem] text-foreground/80 hover:text-foreground cursor-pointer text-[11px] font-mono whitespace-nowrap [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
+          class="jx-press jx-canvas-install inline-flex min-h-[calc(var(--jx-hit)+2px)] items-center gap-[0.45rem] border border-border bg-background px-[0.55rem] text-foreground/80 hover:text-foreground cursor-pointer text-[11px] font-mono whitespace-nowrap [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
           aria-label={copiedInstall ? 'Install command copied' : `Copy the install command for ${install}`}
           title={copiedInstall ? 'copied' : 'copy install command'}
           onclick={() => copyInstall()}
@@ -587,46 +571,45 @@
           <span class="[&_svg]:h-3 [&_svg]:w-3" aria-hidden="true">{@html (copiedInstall ? icons.check : icons.copy)}</span>
         </button>
       {/if}
-      <!-- stage toggles (the floor): page-owned bindables projected onto the
-           STAGE element only — segmented law, static under reduced motion -->
-      <div class="jx-canvas-seg" role="group" aria-label="Stage theme" data-jx-canvas-theme-seg>
-        <button
-          type="button"
-          class="jx-press jx-canvas-seg-btn"
-          data-jx-canvas-theme-option="light"
-          aria-pressed={theme === 'light'}
-          onclick={() => (theme = 'light')}
-        >light</button>
-        <button
-          type="button"
-          class="jx-press jx-canvas-seg-btn"
-          data-jx-canvas-theme-option="dark"
-          aria-pressed={theme === 'dark'}
-          onclick={() => (theme = 'dark')}
-        >dark</button>
-      </div>
-      <div class="jx-canvas-seg" role="group" aria-label="Stage density" data-jx-canvas-density-seg>
-        <button
-          type="button"
-          class="jx-press jx-canvas-seg-btn"
-          data-jx-canvas-density-option="comfortable"
-          aria-pressed={density === 'comfortable'}
-          onclick={() => (density = 'comfortable')}
-        >comfortable</button>
-        <button
-          type="button"
-          class="jx-press jx-canvas-seg-btn"
-          data-jx-canvas-density-option="compact"
-          aria-pressed={density === 'compact'}
-          onclick={() => (density = 'compact')}
-        >compact</button>
-      </div>
+      <!-- stage toggles (the floor, native-html edition): page-owned
+           bindables projected onto the STAGE element only — the registry
+           toggle-group rides name-scoped radios (native exclusivity +
+           arrow-walking, one tab stop per group; re-press clear is not
+           radio law) -->
+      <ToggleGroup
+        type="single"
+        name={`jx-canvas-${canvasId}-theme`}
+        label="Stage theme"
+        value={theme}
+        onValueChange={(next) => {
+          if (typeof next === 'string' && next !== '') theme = next as 'light' | 'dark';
+        }}
+        data-jx-canvas-theme-seg
+      >
+        <ToggleGroupItem value="light" data-jx-canvas-theme-option="light">light</ToggleGroupItem>
+        <ToggleGroupItem value="dark" data-jx-canvas-theme-option="dark">dark</ToggleGroupItem>
+      </ToggleGroup>
+      <ToggleGroup
+        type="single"
+        name={`jx-canvas-${canvasId}-density`}
+        label="Stage density"
+        value={density}
+        onValueChange={(next) => {
+          if (typeof next === 'string' && next !== '') density = next as 'comfortable' | 'compact';
+        }}
+        data-jx-canvas-density-seg
+      >
+        <ToggleGroupItem value="comfortable" data-jx-canvas-density-option="comfortable">comfortable</ToggleGroupItem>
+        <ToggleGroupItem value="compact" data-jx-canvas-density-option="compact">compact</ToggleGroupItem>
+      </ToggleGroup>
       {#if sourceUrl}
         <!-- icon-only source anchor: press physics, the label lives in the
-             accessible name (D6 — the full button crowded the header) -->
+             accessible name (D6 — the full button crowded the header).
+             +2px on the band: the bordered siblings' outer frame (band +
+             their 1px group border on both edges) — one flush toolbar line -->
         <a
           data-jx-canvas-source
-          class="jx-press inline-flex size-7 flex-none items-center justify-center border border-border bg-background text-foreground/70 hover:text-foreground [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]"
+          class="jx-press inline-flex h-[calc(var(--jx-hit)+2px)] w-[calc(var(--jx-hit)+2px)] flex-none items-center justify-center border border-border bg-background text-foreground/70 hover:text-foreground [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]"
           href={sourceUrl}
           target="_blank"
           rel="noreferrer"
@@ -653,10 +636,13 @@
         data-theme={theme}
         data-density={density === 'compact' ? 'sm' : 'default'}
         class={cn(
-          'jx-canvas-stage flex min-h-[200px] min-w-0 gap-4 p-6 bg-[color-mix(in_oklab,var(--muted)_42%,var(--background))]',
+          'jx-canvas-stage flex min-h-[200px] min-w-0 gap-4 p-6 bg-[color-mix(in_oklab,var(--muted)_42%,var(--background))] text-foreground',
           // theme sheet vocabulary, scoped to the stage subtree only: .dark
           // flips the token set (and dark: utilities) inside the demo;
-          // .jx-light pins light tokens even under a dark docs page
+          // .jx-light pins light tokens even under a dark docs page.
+          // text-foreground re-anchors inherit-based demo text onto the
+          // STAGE's scoped token — the scope classes redefine tokens only,
+          // so without it inherited color stays the page's (2026-09-01)
           theme === 'dark' ? 'dark' : 'jx-light',
           stage === 'center' && 'flex-wrap items-center justify-center',
           stage === 'start' && 'flex-wrap items-start justify-start',
@@ -678,7 +664,7 @@
     </div>
     {#if playground || schema}
       <aside
-        class="jx-canvas-playground flex flex-col min-w-0 pt-[0.85rem] px-4 pb-4 bg-[color-mix(in_oklab,var(--muted)_12%,var(--background))] border-t border-border"
+        class="jx-canvas-playground flex flex-col min-w-0 pt-[0.85rem] px-4 pb-4 bg-[color-mix(in_oklab,var(--muted)_12%,var(--background))] border-t border-border text-foreground"
         aria-label={`Controls for ${title}`}
       >
         <div data-jx-canvas-playground-head class="flex items-center justify-between gap-3">
@@ -884,68 +870,32 @@
     inert={!codeOpen || undefined}
   >
     <div data-jx-canvas-code-clip class="min-h-0 overflow-hidden">
-      <div class="jx-canvas-code-panels flex flex-col max-h-[28rem]" data-shape={drawerMode}>
-        {#if drawerMode === 'tree'}
-          <aside
-            class="jx-canvas-tree bg-background border-b border-border flex-none max-h-40 overflow-y-auto"
-            aria-label="demo files"
-          >
-            <TreeView
-              nodes={tree}
-              defaultExpanded={openFolders}
-              selected={current?.name}
-              fileIcons
-              onselect={(ctx) => (selectedPath = ctx.id)}
-            />
-          </aside>
-        {:else}
-          <!-- the two-file floor: filename tabs over ONE CodeCard — no tree
-               pane. Real tablist semantics: roving tabindex + automatic
-               activation (arrows/Home/End select and focus) -->
-          <div
-            class="jx-canvas-tabs bg-background border-b border-border flex-none overflow-x-auto"
-            role="tablist"
-            aria-label="demo files"
-            data-jx-canvas-tabs
-            bind:this={tabsEl}
-            onkeydown={onTabsKeydown}
-          >
-            {#each files as file, index (file.name)}
-              {@const selected = current?.name === file.name}
-              <button
-                type="button"
-                role="tab"
-                id={tabId(index)}
-                class="jx-press jx-canvas-tab"
-                data-jx-canvas-tab={file.name}
-                aria-selected={selected}
-                tabindex={selected ? 0 : -1}
-                title={file.name}
-                onclick={() => (selectedPath = file.name)}
-              >{leafName(file.name)}</button>
-            {/each}
-          </div>
-        {/if}
+      <div class="jx-canvas-code-panels flex flex-col max-h-[28rem]">
+        <aside
+          class="jx-canvas-tree bg-background border-b border-border flex-none max-h-40 overflow-y-auto"
+          aria-label="demo files"
+        >
+          <TreeView
+            nodes={tree}
+            defaultExpanded={openFolders}
+            selected={current?.name}
+            fileIcons
+            onselect={(ctx) => (selectedPath = ctx.id)}
+          />
+        </aside>
         <div class="jx-canvas-code-view flex flex-1 flex-col min-h-0 min-w-0">
           {#if current}
             <!-- copyable=false: the code bar's inline-end copy button owns
                  copying — a footer bar with one duplicate button is noise
                  (Owner ruling, 2026-08-25) -->
-            <div
-              role="tabpanel"
-              id={panelId}
-              aria-labelledby={currentTabIndex >= 0 ? tabId(currentTabIndex) : undefined}
-              class="contents"
-            >
-              <CodeCard
-                filename={leafName(current.name)}
-                lang={current.lang ?? inferTreeLang(current.name)}
-                code={currentCode}
-                copyable={false}
-                fill
-                minHeight="16rem"
-              />
-            </div>
+            <CodeCard
+              filename={leafName(current.name)}
+              lang={current.lang ?? inferTreeLang(current.name)}
+              code={currentCode}
+              copyable={false}
+              fill
+              minHeight="16rem"
+            />
           {/if}
         </div>
       </div>
