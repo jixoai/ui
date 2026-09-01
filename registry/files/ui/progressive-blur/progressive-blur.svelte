@@ -10,6 +10,20 @@
     zero layout cost). The band (height prop) hangs INTO the viewport
     from that edge; its layers carry the effect.
 
+    THE GRID DIALECT (Owner, 2026-09-01) — pin='grid' swaps the sticky
+    pin for position-free tech: the band is a grid item of the
+    consumer's ONE-CELL host (grid-area 1/1 + justify-self per edge),
+    the ladder layers stack as grid items of the band, and a no-op
+    translateZ(0) buys each band compositor isolation — without it a
+    band at the scroll-origin edge samples a dead backdrop (the
+    left-veil-is-invisible bug, measured 2026-09-01).
+
+    THE HOLD (2026-09-01, grid dialect) — hold (0–100, clamped to it)
+    parks the ladder's peak across the outer share of the band and
+    compresses the ramp into the inboard (100-hold)%: strips whose
+    readable content parks inboard of the clip edge (the tabs'
+    chevron lane) would see a pure edge-peaked ramp blanch over blank.
+
     THE LADDER — one gradient formula for every layer (Magic UI's
     first/last special cases are the clamped edges of the same form):
     step = 100/levels; layer i masks transparent→opaque→opaque→
@@ -42,8 +56,10 @@
     /** per-layer blur px, inner-edge first; ≥2 levels */
     blurLevels?: number[];
     /** static = always painted (Magic UI parity); scroll = fades in
-        with the nearest scroller (CSS scroll timeline, @supports-gated —
-        block-axis edges only: the inline bands stay static) */
+        with the nearest scroller (CSS scroll timeline, @supports-gated
+        — block-axis edges only; the scroll() timeline has no inline
+        aim, so inline edges keep the always-painted static law and are
+        never hidden — B-5, 2026-09-02) */
     reveal?: 'static' | 'scroll';
     /** how the band pins to its edge. sticky = the zero-layout sticky
      *  root INSIDE a scroller (the original atom); grid = a position-free
@@ -53,14 +69,15 @@
      *  the ladder layers stack as grid items of the band itself.
      *  start/end edges only in the grid dialect */
     pin?: 'sticky' | 'grid';
-    /** grid dialect only: the outer share of the band (0–100, %) that
-     *  HOLDS the ladder's peak instead of ramping — for strips whose
-     *  readable content parks inboard of the clip edge (a control lane:
-     *  the tabs' chevron lane + snap padding park the first label
-     *  ~1.5 lanes in, so a pure edge-peaked ramp blanches over blank —
-     *  the measured left-veil-is-invisible bug, 2026-09-01). The ramp
-     *  compresses into the inboard (100-hold)% and the top layers hold
-     *  full strength through the lane to the edge */
+    /** grid dialect only: the outer share of the band (0–100, clamped
+     *  to it, %) that HOLDS the ladder's peak instead of ramping — for
+     *  strips whose readable content parks inboard of the clip edge (a
+     *  control lane: the tabs' chevron lane + snap padding park the
+     *  first label ~1.5 lanes in, so a pure edge-peaked ramp blanches
+     *  over blank — the measured left-veil-is-invisible bug,
+     *  2026-09-01). The ramp compresses into the inboard (100-hold)%
+     *  and the top layers hold full strength through the lane to the
+     *  edge */
     hold?: number;
     class?: string;
   }
@@ -90,7 +107,11 @@
   // ladder rather than render a degenerate band
   const levels = $derived(blurLevels.length >= 2 ? blurLevels : [0.5, 1, 2, 4, 8, 16, 32, 64]);
 
-  const pct = (v: number): string => `${Math.round(v * 100) / 100}%`;
+  // hold clamps to [0,100] (B-11, 2026-09-02): a runaway hold drives
+  // the ramp (100-hold) negative — gradient stops below 0% silently
+  // kill the mask. At the clamp the ramp collapses onto a full-strength
+  // band; below 0 the plain ladder stands
+  const holdPct = $derived(Math.min(100, Math.max(0, hold)));
 
   /** layer i's paint: cumulative backdrop blur + its mask band. The
    *  gradient aims PHYSICALLY (css gradients have no logical 'to
@@ -103,8 +124,8 @@
     const g = (v: number) => `rgba(0, 0, 0, ${v})`;
     const pct = (v: number) => `${Math.round(v * 100) / 100}%`;
     let stops: string;
-    if (hold > 0 && pin === 'grid') {
-      const ramp = 100 - hold;
+    if (holdPct > 0 && pin === 'grid') {
+      const ramp = 100 - holdPct;
       const step = ramp / levels.length;
       const holdsPeak = (i + 3) * step >= ramp - 0.01;
       stops = holdsPeak

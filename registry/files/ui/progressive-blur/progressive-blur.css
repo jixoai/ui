@@ -12,11 +12,17 @@
  * until the scroller approaches its end). Engines without scroll
  * timelines keep the authored opacity 0 → data-variant='scroll'
  * degrades to NO effect (never a wrongly-painted band); the static
- * variant never touches this law at all. The attribute is
- * data-VARIANT on purpose: bare [data-reveal] belongs to the docs
- * site's entrance system — the collision once pinned the band ~10px
- * off the clip edge via a view()-timeline transform. */
-:where(.jx-pblur[data-variant='scroll']) .jx-pblur-layer {
+ * variant never touches this law at all. The authored opacity 0 is
+ * gated to BLOCK-axis edges only (B-5, 2026-09-02): the @supports
+ * revival covers just top/bottom — the scroll() timeline has no
+ * inline aim — so an ungated base rule left INLINE bands permanently
+ * invisible; inline edges now degrade to the always-painted static
+ * law instead. The attribute is data-VARIANT on purpose: bare
+ * [data-reveal] belongs to the docs site's entrance system — the
+ * collision once pinned the band ~10px off the clip edge via a
+ * view()-timeline transform. */
+:where(.jx-pblur[data-variant='scroll'][data-position='top']) .jx-pblur-layer,
+:where(.jx-pblur[data-variant='scroll'][data-position='bottom']) .jx-pblur-layer {
   opacity: 0;
 }
 @supports (animation-timeline: scroll()) {

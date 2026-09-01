@@ -12,13 +12,18 @@
  *
  * The engine (both laws): one measured element; first placement,
  * resize/font remeasures and reduced-motion JUMP; aria-current flips
- * (the DOM-delegated route signal) animate. Entries inside an open
+ * (the DOM-delegated route signal) animate. Two interrupt laws
+ * (2026-09-02): a mid-flight slide re-anchors from its current
+ * computed frame (B-3), and a RUNNING View Transition suppresses the
+ * overlay — the morph carries the motion (B-1, probe
+ * .agents/scripts/probe-vt-waapi.mjs). Entries inside an open
  * [popover] never steal the bar indicator. jsdom has no WAAPI and no
  * ResizeObserver — the guards degrade to direct style writes, which
- * is exactly what these locks read.
+ * is exactly what these locks read (the setup.ts animate stub keeps
+ * the WAAPI path honest for call-count spies).
  */
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import Host from './fixtures/navmenu-indicator-host.svelte';
 
@@ -77,6 +82,65 @@ describe('NavigationMenuIndicator', () => {
     await waitFor(() => {
       expect(ind.style.opacity).toBe('1');
     });
+  });
+
+  it('late-inserted current entries get their settling measure (childList seam, B-6)', async () => {
+    const { getByTestId } = render(Host);
+    const scope = getByTestId('waapi-motion');
+    const nav = scope.querySelector('nav')!;
+    const ind = scope.querySelector('[data-jx-navmenu-ind]') as HTMLElement;
+    const [a] = [...scope.querySelectorAll('[data-jx-navmenu-link]')] as HTMLElement[];
+    // the bar goes dark first…
+    a.setAttribute('aria-current', 'false');
+    await waitFor(() => {
+      expect(ind.style.opacity).toBe('0');
+    });
+    // …then the current entry mounts LATE (hydration order): its
+    // aria-current arrives ready-made, so attributeFilter alone never
+    // fires — the childList observation is the settling measure
+    const late = document.createElement('a');
+    late.setAttribute('data-jx-navmenu-link', '');
+    late.setAttribute('aria-current', 'page');
+    late.textContent = 'late';
+    nav.appendChild(late);
+    await waitFor(() => {
+      expect(ind.style.opacity).toBe('1');
+    });
+  });
+
+  it('a running View Transition suppresses the WAAPI overlay (B-1)', async () => {
+    const { getByTestId } = render(Host);
+    const scope = getByTestId('waapi-motion');
+    const ind = scope.querySelector('[data-jx-navmenu-ind]') as HTMLElement;
+    const [a, b] = [...scope.querySelectorAll('[data-jx-navmenu-link]')] as HTMLElement[];
+    const spy = vi.spyOn(ind, 'animate');
+    // a quiet same-document flip: the overlay animates over the write
+    b.setAttribute('aria-current', 'page');
+    a.setAttribute('aria-current', 'false');
+    await waitFor(() => {
+      expect(ind.style.opacity).toBe('1');
+    });
+    expect(spy).toHaveBeenCalledTimes(1);
+    // inside a VT window (SvelteKit onNavigate mutates aria-current
+    // INSIDE updateCallback; probe .agents/scripts/probe-vt-waapi.mjs):
+    // the overlay is skipped — the style write alone lands the new box
+    // before capture-new, the VT morph carries the motion
+    spy.mockClear();
+    Object.defineProperty(document, 'activeViewTransition', {
+      configurable: true,
+      value: {},
+    });
+    try {
+      a.setAttribute('aria-current', 'page');
+      b.setAttribute('aria-current', 'false');
+      await waitFor(() => {
+        expect(ind.style.opacity).toBe('1');
+      });
+      expect(spy).not.toHaveBeenCalled();
+    } finally {
+      delete (document as Document & { activeViewTransition?: unknown }).activeViewTransition;
+      spy.mockRestore();
+    }
   });
 
   it('hides when the only current entry lives inside a popover panel', async () => {

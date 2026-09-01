@@ -214,7 +214,12 @@
              pages through the preserved vt-nav-active name; the bezel
              paint — backdrop brightener, never a fill — rides the css
              key on the part's hook (utilities overridden through the
-             class seam: transparent ground, square corners) -->
+             class seam: transparent ground, square corners). The
+             retired engine's 150ms ease-out opacity fade (appear/
+             disappear) is restored through the same seam (B-8,
+             2026-09-02 — "verbatim in behavior" made whole; the first
+             placement stays instant: the fade only arms after the
+             initial paint) -->
         <div
           class="relative hidden items-center border border-terminal-foreground/25 p-0.5 sm:flex"
         >
@@ -222,7 +227,7 @@
             name="vt-nav-active"
             duration={450}
             easing="cubic-bezier(0.22, 1, 0.36, 1)"
-            class="jx-indicator bg-transparent rounded-none"
+            class="bg-transparent rounded-none transition-opacity duration-150 ease-out"
           />
           {@render children?.()}
         </div>

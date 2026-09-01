@@ -30,8 +30,13 @@
   (offsetLeft/offsetTop — layout coords, scroll/RTL-safe), animated
   between the previous and next box on entry changes; the FIRST
   placement, resize/font-driven remeasures and prefers-reduced-motion
-  JUMP instead of animating. Repaint triggers are DOM-delegated (the
-  part owns no nav data): an aria-current MutationObserver, a
+  JUMP instead of animating. Two interrupt laws (2026-09-02): a
+  mid-flight slide is re-anchored from its CURRENT computed frame
+  (never the stale previous target), and a RUNNING View Transition
+  suppresses the overlay entirely (the morph carries the motion — see
+  the B-1 note in measure()). Repaint triggers are DOM-delegated (the
+  part owns no nav data): an aria-current+childList MutationObserver
+  (late-mounted current entries get their settling measure), a
   ResizeObserver on the bar, and fonts.ready. jsdom (no WAAPI, no RO)
   degrades to direct style writes — everything stays truthful.
 
@@ -42,7 +47,7 @@
   (e.g. a backdrop-filter brightness pill over a dark bezel).
 -->
 <script lang="ts">
-  import { onDestroy, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import { cn } from '$lib/utils';
 
   interface Props {
@@ -97,6 +102,24 @@
   type Geo = { x: number; y: number; w: number; h: number };
   let prev: Geo | null = null;
   let first = true;
+  /** the in-flight WAAPI slide (B-3, 2026-09-02): kept so an interrupt
+   *  can cancel it — its fill would keep repainting the stale target */
+  let running: Pick<Animation, 'cancel'> | null = null;
+
+  /** the mid-flight frame off the computed style: the live 2D matrix
+   *  (tx/ty) + the animated box. Engines resolving no matrix (jsdom
+   *  echoes the authored translate, never a matrix) yield null — the
+   *  caller stands on the previous target */
+  function snapshotFlight(ind: HTMLElement): Geo | null {
+    const cs = getComputedStyle(ind);
+    const m = /^matrix\(([^)]*)\)$/.exec(cs.transform);
+    const w = parseFloat(cs.width);
+    const h = parseFloat(cs.height);
+    if (!m || !Number.isFinite(w) || !Number.isFinite(h)) return null;
+    const t = m[1].split(',').map((v) => Number(v.trim()));
+    if (t.length < 6 || t.some((v) => !Number.isFinite(v))) return null;
+    return { x: t[4], y: t[5], w, h };
+  }
 
   function measure(animate: boolean) {
     const bar = barEl();
@@ -104,6 +127,8 @@
     if (!bar || !ind) return;
     const entry = currentEntry();
     if (!entry) {
+      running?.cancel();
+      running = null;
       ind.style.opacity = '0';
       prev = null;
       return;
@@ -119,15 +144,38 @@
     const reduce =
       typeof matchMedia === 'function' &&
       matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const from = prev;
+    // B-3 (2026-09-02): a fast second flip interrupts the slide — the
+    // honest `from` is the flight's CURRENT frame, not the previous
+    // target (jump-to-target-then-slide-back reads as a glitch).
+    // Snapshot BEFORE cancel (a cancelled animation stops contributing;
+    // computed style falls back to the stale underlying target) and
+    // BEFORE the restyle below (after it, computed reads the NEW box)
+    let from: Geo | null = prev;
+    if (running) {
+      from = snapshotFlight(ind) ?? prev;
+      running.cancel();
+      running = null;
+    }
+    // B-1 (2026-09-02; probe .agents/scripts/probe-vt-waapi.mjs, real
+    // Chromium): under motion="navigation" SvelteKit's onNavigate flips
+    // aria-current INSIDE the VT updateCallback, so the MO below fires
+    // in that window (log: updateCallback-start → mo-fired →
+    // updateCallback-end; document.activeViewTransition non-null there)
+    // and capture-new would snapshot the overlay's t≈0 frame — the
+    // morph degenerates to a static indicator. While a VT runs, SKIP
+    // the overlay: the style writes below land the NEW box before the
+    // capture and the VT morph itself carries the motion (jsdom has no
+    // activeViewTransition — the gate is inert there)
+    const inVT =
+      (document as Document & { activeViewTransition?: unknown }).activeViewTransition != null;
     // the style lands immediately; a legal move paints an animation OVER
     // it — the element is never left mid-flight if WAAPI is missing
     ind.style.opacity = '1';
     ind.style.width = `${next.w}px`;
     ind.style.height = `${next.h}px`;
     ind.style.transform = `translate(${next.x}px, ${next.y}px)`;
-    if (animate && !first && !reduce && from && typeof ind.animate === 'function') {
-      ind.animate(
+    if (animate && !first && !reduce && !inVT && from && typeof ind.animate === 'function') {
+      running = ind.animate(
         [
           {
             transform: `translate(${from.x}px, ${from.y}px)`,
@@ -158,12 +206,16 @@
   });
 
   // DOM-delegated repaint triggers: route swaps flip aria-current; box
-  // resizes and late font loads shift geometry — all remeasure QUIETLY
+  // resizes and late font loads shift geometry — all remeasure QUIETLY.
+  // childList too (B-6, 2026-09-02): a current entry mounted AFTER the
+  // bar measured (hydration order) carries its aria-current ready-made —
+  // attributeFilter never fires for a brand-new node, so the insertion
+  // itself is the settling measure
   onMount(() => {
     const bar = barEl();
     if (!bar) return;
     const mo = new MutationObserver(() => measure(true));
-    mo.observe(bar, { subtree: true, attributeFilter: ['aria-current'] });
+    mo.observe(bar, { subtree: true, childList: true, attributeFilter: ['aria-current'] });
     const ro =
       typeof ResizeObserver === 'undefined'
         ? null
@@ -174,11 +226,6 @@
       mo.disconnect();
       ro?.disconnect();
     };
-  });
-
-  // late-mount entries (hydration order): one settling measure
-  onDestroy(() => {
-    prev = null;
   });
 </script>
 

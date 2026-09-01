@@ -72,7 +72,7 @@ describe('terminal-header — chrome + composed nav', () => {
     expect(nav.getAttribute('aria-label')).toBe('Primary');
     // …inside the header's chrome, with the sliding indicator element
     expect(nav.closest('header')).toBe(header());
-    expect(header().querySelector('.jx-indicator')).toBeTruthy();
+    expect(header().querySelector('[data-jx-navmenu-ind]')).toBeTruthy();
   });
 
   it('the nav slot composes family parts: one Item/Trigger/Panel pair + bare links', () => {
