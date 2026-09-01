@@ -1,63 +1,75 @@
 <!--
   jixoai color picker (registry/files/ui/color-picker/color-picker.svelte).
 
-  2026-08-20 · Form wave 2 (original request: "Color 选择器" with SV pad,
-  hue bar, format switch, direct value input and Eye Dropper). The native
-  input[type=color] cannot offer any of that — this is the one form-family
-  member that is a full custom widget.
+  2026-09-01 · NATIVE REBASE (the standing Owner law, restated by the
+  range rebase the same day): jx-pure is the foundation — the registry
+  component's job is richer slots + more semantic development, NEVER a
+  re-drawn simulation of a native control. The 2026-08-20 build made
+  the whole value surface div-built (a button trigger with painted
+  spans, zero native inputs). That era is retired:
+
+  - the FIELD is a REAL input[type=text] — it carries the value, is
+    the label[for] target (labelable), submits under name= through its
+    own FormData lane, and owns native focus, selection, autocomplete
+    and disabled semantics. No jx-form-field bridge (the old
+    simulation era's shadow system — range.svelte law).
+  - the SWATCH is a REAL input[type=color] styled to the swatch chrome
+    (appearance-none + the component hook). Clicking it opens the
+    ENGINE picker in WebKit/Firefox — a feature: every input mode
+    gets a picker even without the panel. The custom editor below
+    remains the rich path.
+  - the SV pad and the hue rail STAY custom (a 2D saturation/value
+    plane and a hue rail are picker surfaces no native element
+    provides — the same legitimacy class as date-picker's calendar
+    grid). Their pointer math lives in editor.svelte; every value
+    flows through the SAME state the native inputs bind (one truth).
 
   Orthogonal intents:
-  1. trigger — the family trigger paint (1px border shell, radius 0, inset
-     focus law, chevron that flips while open) carrying the 16×16 swatch,
-     a font-mono 12px value readout, and label[for] binding (a button IS
-     labelable). error → "! message" line + dashed border + aria wiring.
-  2. popover — native popover="auto" + popovertarget (light dismiss,
-     Escape, top layer for free), CSS Anchor Positioning under the trigger
-     with flip-block fallback; engines without anchors get the authored
-     viewport-center fallback (select.svelte law). ontoggle syncs
-     aria-expanded and restitutes focus to the trigger on every close.
-  3. editor delegation (2026-08-28 pure-register fusion) — the panel body
-     IS editor.svelte, the embeddable professional editor extracted for
-     the Input picker bridge (SV pad + hue bar + format switch + value
-     input + Eye Dropper + Swatches; no popover/trigger/motion of its
-     own). The host seeds the editor's NOTATION by canonicalizing the
-     initial color through `format` (the editor infers its format mode
-     from the seed string — the format-prop law survives the extraction);
-     picks forward VERBATIM to the bindable value (the raised string
-     already carries the editor's active notation); external value
-     writes pass through RAW and the editor re-seats its pad.
+  1. trigger lane — the family shell paint (1px border shell, radius 0,
+     inset focus law) wrapping the native swatch input, the native
+     text field and the chevron button that flips while open. error →
+     "! message" line + dashed border + aria wiring on the field.
+  2. popover — native popover="auto" + popovertarget on the chevron
+     (light dismiss, Escape, top layer for free), CSS Anchor
+     Positioning under the lane with flip-block fallback; engines
+     without anchors get the authored viewport-center fallback
+     (select.svelte law). ontoggle syncs aria-expanded and restitutes
+     focus to the field on every close.
+  3. editor delegation (2026-08-28 pure-register fusion) — the panel
+     body IS editor.svelte, the embeddable professional editor
+     (SV pad + hue bar + format switch + value input + Eye Dropper +
+     Swatches). The host seeds the editor's NOTATION by
+     canonicalizing the initial color through `format`; picks forward
+     VERBATIM to the bindable value; external value writes pass
+     through RAW and the editor re-seats its pad.
+  4. one truth — four entry surfaces (field typing, native swatch
+     pick, editor drag, external bind write) all funnel through the
+     bindable `value` string. Field and swatch commits canonicalize
+     through the ACTIVE notation (inferred from the editor seed the
+     host tracks); the editor's in-panel format switch changes that
+     notation by re-emitting the same color in the new one.
 
-  The panel surface is the terminal bezel (var(--terminal) in both modes)
-  — the same law as the Select panel, so the picker reads as one family.
-  Reduced motion: nothing animates during drag (markers track the pointer
-  directly); only the chevron flip is transitioned and neutralized.
+  The panel surface is the terminal bezel (var(--terminal) in both
+  modes) — the same law as the Select panel. Reduced motion: nothing
+  animates during drag (markers track the pointer directly); only the
+  chevron flip is transitioned and neutralized.
 
-  tw4 (2026-08-24): trigger/pad/bar/marker static paint is token/arbitrary
-  utilities in the markup (the SV ground reads the live hue through the
-  --jx-color-picker-hue custom property set inline); the .jx-field scaffold
-  is consumed from jx-pure Part A. Only the anchor-positioned panel
-  (static residue with its closed-state display law, @supports fallback +
-  ::backdrop), the SV pad's overlay pseudos (color-space constants, not
-  themeable), the trigger/pick hover/focus machines and the reduced-motion
-  kill remain in color-picker.css (D1-exempt residue under the layer law).
+  tw4: lane/swatch/chevron static paint is token/arbitrary utilities
+  in the markup; the native-face builds (appearance-none swatch +
+  color-swatch pseudos, the chromeless text lane) and the
+  anchor-positioned panel live in color-picker.css keyed on the
+  component hooks (D1-exempt residue under the layer law — the
+  range.css precedent).
 
-  Motion kernel (2026-08-25): the panel rides the shared surface motion
-  kernel (lib/surface-motion.ts; popover.svelte wiring law) — WAAPI
-  animates the single --jx-p progress number, jixoai.css formulas paint
-  every visible property; the toggle seam plays 1/0 with
-  start/stopTracking, reading open state LIVE from :popover-open
-  (ToggleEvent state fields never trusted). The real shadow layer is a
-  DOM child (data-jx-color-picker-shadow) because WAAPI cannot animate
-  pseudo-elements. Drags never animate (markers track the pointer
-  directly) — the kernel only owns the panel's enter/exit.
-
-  Pure-register fusion (2026-08-28): the whole editor body (color
-  geometry + value model, the old intents 3/4) moved into editor.svelte
-  so the Input picker bridge can mount the CONTINUOUS professional
-  picking experience as its default color panel (the 48-cell discrete
-  grid alone felt "潦草"). This host keeps the popover shell, the
-  trigger and the notation seed; everything about its external contract
-  (props, classes, DOM law, emitted notations) is unchanged.
+  Motion kernel (2026-08-25): the panel rides the shared surface
+  motion kernel (lib/surface-motion.ts; popover.svelte wiring law) —
+  WAAPI animates the single --jx-p progress number, jixoai.css
+  formulas paint every visible property; the toggle seam plays 1/0
+  with start/stopTracking, reading open state LIVE from
+  :popover-open. The real shadow layer is a DOM child
+  (data-jx-color-picker-shadow) because WAAPI cannot animate
+  pseudo-elements. Drags never animate — the kernel only owns the
+  panel's enter/exit.
 -->
 <script lang="ts">
   import { onDestroy } from 'svelte';
@@ -73,17 +85,24 @@
     value?: string;
     /** output/input notation (default 'hex') */
     format?: ColorFormat;
-    /** field label; renders label[for] above the trigger */
+    /** form field name — the native text field submits its string under it */
+    name?: string;
+    /** field label; renders label[for] above the lane, binding the text field */
     label?: string;
-    /** error text → "! message" line + dashed trigger border */
+    /** error text → "! message" line + dashed lane border + field aria wiring */
     error?: string;
+    /** the platform's own disabled semantics (field, swatch, chevron) */
+    disabled?: boolean;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency; the bezel fill
         follows the variant through the jx-surface fill props) */
     variant?: 'solid' | 'acrylic' | 'auto';
-    /** show the 16×16 swatch in the trigger (default true) */
+    /** mount the native input[type=color] swatch (default true) — the
+        engine picker path on the lane */
     showSwatch?: boolean;
-    /** show the value text in the trigger (default true) */
+    /** show the value text lane (default true) — false keeps the native
+        text field mounted (value/name/ARIA contract intact) but
+        visually collapsed to the sr-only lane */
     showValue?: boolean;
     /** wired into label[for] / error[id]; auto-generated when omitted */
     id?: string;
@@ -98,8 +117,10 @@
   let {
     value = $bindable('#000000'),
     format = 'hex',
+    name,
     label,
     error,
+    disabled = false,
     showSwatch = true,
     showValue = true,
     id = autoId,
@@ -131,30 +152,75 @@
   let editorValue = $state(formatColor(initial, format));
   /** the last string WE forwarded — external changes never match it */
   let lastEmitted = value;
+  /** live text in the native field — the bind draft (free typing);
+      change events commit it (parsed → canonical, invalid → revert) */
+  // svelte-ignore state_referenced_locally
+  let fieldText = $state(value ?? '');
 
-  const swatch = $derived(formatColor(parseColor(editorValue) ?? initial, 'hex'));
+  /** the ACTIVE notation — inferred from the editor seed the host owns
+      (seeded through `format`, carried by every verbatim pick), so field
+      and swatch commits canonicalize into the notation the panel is
+      currently emitting */
+  const activeFormat = $derived(inferFormat(editorValue));
+
+  function inferFormat(text: string | undefined): ColorFormat {
+    const t = text?.trim().toLowerCase() ?? '';
+    if (t.startsWith('hsl')) return 'hsl';
+    if (t.startsWith('oklch')) return 'oklch';
+    return 'hex';
+  }
+
+  /** the hex6 projection the native input[type=color] binds (the element
+      only accepts #rrggbb — the notation lane stays the text field) */
+  const swatchHex = $derived(formatColor(parseColor(editorValue) ?? initial, 'hex'));
+
+  /** ONE commit path: every surface funnels here (the editor's continuous
+      pick, the native swatch's input event, the field's parsed change) */
+  function commit(color: string): void {
+    lastEmitted = color;
+    editorValue = color;
+    fieldText = color;
+    value = color;
+  }
 
   /** the editor's continuous commit: forward verbatim to the bindable
       value (the raised string already carries the active notation) */
   function handlePick(color: string): void {
-    lastEmitted = color;
-    editorValue = color;
-    value = color;
+    commit(color);
+  }
+
+  /** the native swatch pick: the engine hands #rrggbb — canonicalize
+      through the ACTIVE notation so a hex pick never rewrites an
+      oklch/hsl picker's value surface */
+  function onSwatchInput(event: Event): void {
+    const parsed = parseColor((event.currentTarget as HTMLInputElement).value);
+    if (parsed) commit(formatColor(parsed, activeFormat));
+  }
+
+  /** the field's change commit (Enter / blur): parse any notation,
+      canonicalize into the active one; invalid drafts revert to the
+      last committed string (the editor's commitText law) */
+  function onFieldChange(event: Event): void {
+    const parsed = parseColor((event.currentTarget as HTMLInputElement).value);
+    if (parsed) commit(formatColor(parsed, activeFormat));
+    else fieldText = lastEmitted ?? '';
   }
 
   // external value writes (bindings, resets) pass through RAW — the
-  // editor re-parses and re-seats its own pad and text draft
+  // editor re-parses and re-seats its own pad and text draft, and the
+  // native field re-displays the raw string
   $effect(() => {
     if (value === lastEmitted) return;
     const parsed = parseColor(value ?? '');
     if (!parsed) return;
     lastEmitted = value;
     editorValue = value;
+    fieldText = value ?? '';
   });
 
   // ---- popover orchestration (select.svelte toggle law) -----------------
   let open = $state(false);
-  let triggerEl = $state<HTMLButtonElement | null>(null);
+  let fieldEl = $state<HTMLInputElement | null>(null);
   let panelEl = $state<HTMLDivElement | null>(null);
   // the anchor wrapper — the enter kernel measures the slide direction
   // against it at every open
@@ -173,7 +239,7 @@
       panelEl?.classList.remove('jx-rest');
       motion.play(0);
       motion.stopTracking();
-      triggerEl?.focus(); // focus restitution on every close path
+      fieldEl?.focus(); // focus restitution on every close path
     }
   }
 
@@ -190,29 +256,61 @@
 <div data-density={resolvedDensity} class={'jx-field ' + className}>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
 
-  <span data-jx-color-picker-wrap class="relative block w-full" style="anchor-name: {anchorName}" bind:this={anchorEl}>
-    <button
-      bind:this={triggerEl}
-      type="button"
+  <!-- the trigger lane: the shell owns the box law (input.svelte law);
+       the native controls inside are chromeless. The anchor wrapper is
+       the span itself so the panel centers on the whole lane -->
+  <span
+    data-jx-color-picker-wrap
+    class="jx-color-picker-trigger relative flex items-center w-full border border-border rounded-none bg-background text-foreground transition-[box-shadow] duration-150 ease-out"
+    style="anchor-name: {anchorName}"
+    bind:this={anchorEl}
+  >
+    {#if showSwatch}
+      <!-- the NATIVE picker path: a real input[type=color] in the swatch
+           chrome — WebKit/Firefox open the engine picker on click -->
+      <input
+        type="color"
+        data-jx-color-picker-swatch
+        value={swatchHex}
+        aria-label="system color picker"
+        {disabled}
+        oninput={onSwatchInput}
+      />
+    {/if}
+    <!-- the FIELD: a REAL input[type=text] carrying the value — the
+         label[for] target, the name= FormData lane, native focus and
+         selection. showValue=false keeps the value contract intact as
+         the sr-only native field (the text is hidden, the value
+         surface never becomes a div) -->
+    <input
+      bind:this={fieldEl}
+      type="text"
       id={id}
-      class="jx-color-picker-trigger flex items-center w-full border border-border rounded-none bg-background text-foreground cursor-pointer transition-[box-shadow] duration-150 ease-out"
+      data-jx-color-picker-field
+      class={cn('font-mono', !showValue && 'sr-only')}
+      {name}
+      {disabled}
+      bind:value={fieldText}
+      spellcheck="false"
+      autocomplete="off"
+      autocapitalize="none"
+      aria-invalid={invalidAttr}
+      aria-describedby={describedBy}
+      onchange={onFieldChange}
+    />
+    <button
+      type="button"
+      class={cn(
+        'jx-color-picker-chevron flex-none w-3 h-3 border-0 bg-transparent p-0 text-muted-foreground transition-transform duration-150 ease-out',
+        open && 'rotate-180',
+      )}
       popovertarget={panelId}
+      aria-label="open color picker"
       aria-haspopup="dialog"
       aria-expanded={open}
       aria-controls={panelId}
-      aria-invalid={invalidAttr}
-      aria-describedby={describedBy}
-    >
-      {#if showSwatch}<span data-jx-color-picker-swatch class="flex-none border border-border bg-muted" style:background={swatch}></span>{/if}
-      {#if showValue}<span data-jx-color-picker-value class="flex-[1_1_auto] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-start font-mono text-xs">{value}</span>{/if}
-      <span
-        class={cn(
-          'jx-color-picker-chevron flex-none w-3 h-3 pointer-events-none text-muted-foreground transition-transform duration-150 ease-out',
-          open && 'rotate-180',
-        )}
-        aria-hidden="true"
-      ></span>
-    </button>
+      {disabled}
+    ></button>
   </span>
 
   <div

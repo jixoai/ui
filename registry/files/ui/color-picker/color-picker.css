@@ -1,19 +1,20 @@
 @layer theme, base, components, utilities;
 
-/* jixoai color-picker — D1-exempt residue (tw4, 2026-08-24): trigger,
- * SV pad, hue bar and markers paint as token/arbitrary utilities in the
- * markup; the .jx-field scaffold is consumed from jx-pure Part A. What
- * remains here:
- *  - the anchor-positioned panel (static residue: CSS Anchor Positioning
- *    + anchor-center have no utilities; the closed-state display law,
- *    the @supports fallback and the ::backdrop pseudo ride along) —
- *    @layer components;
+/* jixoai color-picker — native rebase (2026-09-01). The lane paint is
+ * token/arbitrary utilities in the markup; the .jx-field scaffold is
+ * consumed from jx-pure Part A. What remains here:
+ *  - the NATIVE FACE builds keyed on the component hooks (the range.css
+ *    precedent): the appearance-none input[type=color] swatch with its
+ *    engine color-swatch pseudos, and the chromeless input[type=text]
+ *    field inside the shell — @layer components;
+ *  - the anchor-positioned panel (static residue: CSS Anchor
+ *    Positioning + anchor-center have no utilities; the closed-state
+ *    display law, the @supports fallback and the ::backdrop pseudo ride
+ *    along) — @layer components;
  *  - the SV pad's overlay pseudos (white→transparent / black→transparent
  *    gradients are COLOR-SPACE constants, not themeable tokens) —
  *    @layer components;
- *  - the Pick-from-screen button descendant (PressButton takes no class
- *    prop) — @layer components;
- *  - the trigger hover/focus machines and the reduced-motion kill
+ *  - the lane hover/focus machines and the reduced-motion kill
  *    (unlayered carve-out per the Part A precedent). */
 
 @layer components {
@@ -25,9 +26,57 @@
     font-size: var(--jx-text);
     line-height: var(--jx-line);
   }
+
+  /* ---- the native swatch: a REAL input[type=color] in the swatch
+     chrome. appearance-none strips the engine well; the color-swatch
+     pseudos carry the chip itself. WebKit/Firefox open the ENGINE
+     picker on click — the native path every input mode gets. */
   :where([data-jx-color-picker-swatch]) {
+    appearance: none;
+    -webkit-appearance: none;
+    flex: none;
     width: var(--jx-icon);
     height: var(--jx-icon);
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 0;
+    background: var(--muted);
+    cursor: pointer;
+  }
+  :where([data-jx-color-picker-swatch])::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  :where([data-jx-color-picker-swatch])::-webkit-color-swatch {
+    border: 0;
+    border-radius: 0;
+  }
+  :where([data-jx-color-picker-swatch])::-moz-color-swatch {
+    border: 0;
+    border-radius: 0;
+  }
+
+  /* ---- the native field: a REAL input[type=text] carrying the value.
+     Chromeless inside the shell (the shell owns the box law — the
+     input.svelte lane law); the density text metrics reach the input
+     explicitly because form controls inherit no font. */
+  :where([data-jx-color-picker-field]) {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: var(--jx-text);
+    line-height: var(--jx-line);
+    outline: none;
+  }
+
+  :where([data-jx-color-picker-swatch]):disabled,
+  :where([data-jx-color-picker-field]):disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   /* ---- panel: terminal bezel popover (select.svelte law) ---------------
@@ -80,25 +129,20 @@
     inset: 0;
     background: linear-gradient(to top, #000, transparent);
   }
-
-  /* the pick row's button fills the wrapper (PressButton takes no class) */
-  :where(.jx-color-picker-pick) :where(button) {
-    justify-content: center;
-    width: 100%;
-  }
 }
 
 /* ---- the state machines (unlayered carve-out) ----------------------- */
-:where(.jx-color-picker-trigger:hover:not(:focus-visible)) {
+:where(.jx-color-picker-trigger:hover:not(:focus-within)) {
   box-shadow: var(--shadow-2xs);
 }
-/* the site focus law: inset 1px outline on the ring token */
-:where(.jx-color-picker-trigger:focus-visible) {
+/* the site focus law: inset 1px outline on the ring token — the lane
+   reads as ONE field whichever native control inside holds focus */
+:where(.jx-color-picker-trigger:focus-within) {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
   box-shadow: none;
 }
-:where(.jx-color-picker-trigger[aria-invalid='true']) {
+:where(.jx-color-picker-trigger:has([aria-invalid='true'])) {
   border-style: dashed;
 }
 

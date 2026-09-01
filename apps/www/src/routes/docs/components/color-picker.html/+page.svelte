@@ -30,13 +30,15 @@
 
   const colorUsage = `<!-- value notation follows format; oklch is the conversion hub -->
 <ColorPicker label="brand" bind:value={brandColor} />
-<ColorPicker label="accent" bind:value={accentColor} format="oklch" />
+<ColorPicker label="accent" bind:value={accentColor} format="oklch" name="accent" />
 
-<!-- trigger surface: swatch + mono value + chevron (either can be hidden) -->
+<!-- the lane: a REAL input[type=text] field (label[for], name=, native
+     focus/selection) + a REAL input[type=color] swatch that opens the
+     ENGINE picker on click — every input mode gets a picker -->
 <ColorPicker label="swatch only" bind:value={c} showValue={false} />
 
-<!-- paste any notation into the panel input — invalid pastes revert;
-     Eye Dropper appears when window.EyeDropper exists -->
+<!-- paste any notation into the field — invalid drafts revert; the
+     chevron opens the pro editor (Eye Dropper when present) -->
 <ColorPicker label="theme hue" bind:value={c} format="hsl" />`;
 
   // ---- demo state ---------------------------------------------------------------
@@ -89,7 +91,7 @@
   <title>Color picker · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai color-picker component: the oklch-hub popover picker — SV pad + hue bar, hex/hsl/oklch format switching with OKLCH as the conversion hub, direct value input that reverts invalid pastes, Eye Dropper support, and the family label/error contract."
+    content="The jixoai color-picker component: a native input[type=text] value field (label, name, FormData) with a native input[type=color] swatch that opens the engine picker, plus a professional popover editor — SV pad + hue bar, hex/hsl/oklch format switching through OKLCH, direct value entry that reverts invalid drafts, and Eye Dropper support."
   />
 </svelte:head>
 
@@ -108,14 +110,16 @@
       headingLevel={1}
       tone="hero"
       eyebrow="registry:ui · Data Entry"
-      title="color-picker — the oklch-hub popover"
+      title="color-picker — native field, pro editor"
       summary={heroSummary}
     >
       <div class="flex flex-wrap gap-3">
+        <span class="pill">native input[type=text] field</span>
+        <span class="pill">native input[type=color] swatch</span>
         <span class="pill">SV pad + hue bar</span>
         <span class="pill">hex / hsl / oklch</span>
         <span class="pill">Eye Dropper API</span>
-        <span class="pill">invalid pastes revert</span>
+        <span class="pill">invalid drafts revert</span>
         <span class="pill">zero deps · Svelte 5 runes</span>
       </div>
     </SectionCard>
@@ -125,7 +129,7 @@
   <div data-reveal="">
     <ComponentCanvas
       title="color-picker"
-      description="the oklch-hub popover picker: SV pad + hue bar, hex/hsl/oklch round-trips, direct value input that reverts invalid pastes, and Eye Dropper when the platform has it."
+      description="the value field is a REAL input[type=text] (label[for], name=, native focus and selection) and the swatch is a REAL input[type=color] that opens the ENGINE picker on click; the chevron opens the pro editor — SV pad + hue bar, hex/hsl/oklch round-trips, direct value entry that reverts invalid drafts, and Eye Dropper when the platform has it."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/color-picker/color-picker.svelte"
       files={canvasFiles}
       stage="center"
@@ -175,8 +179,8 @@
       family="demo"
       headerRegion="demo"
       eyebrow="color-picker"
-      title="The full custom widget"
-      summary="The one form member that is a full custom widget, because the native input[type=color] offers none of this: a terminal-bezel popover (native popover=auto + popovertarget — light dismiss, Escape and top layer are the browser's) holding a 200×150 saturation/value pad (pure-hue ground with white→transparent horizontal and black→transparent vertical overlays), a 12px full-spectrum hue bar, a hex/hsl/oklch format switch, a direct value input that parses any notation and reverts invalid pastes, and an Eye Dropper button when window.EyeDropper exists. OKLCH is the conversion hub — the token system's space — so every notation round-trips through one canonical model with zero dependencies (lib/color-utils)."
+      title="Native base, custom picker surfaces"
+      summary="The lane rides native controls (2026-09-01 native rebase): the value field is a REAL input[type=text] — label[for] binds it, name= submits through its own FormData lane, focus, selection and disabled are the platform's — and the swatch is a REAL input[type=color] styled to the swatch chrome, so clicking it opens the ENGINE picker in WebKit/Firefox: every input mode gets a picker. The chevron button opens the rich editor in a terminal-bezel popover (native popover=auto + popovertarget — light dismiss, Escape and top layer are the browser's): a 200×150 saturation/value pad and a 12px full-spectrum hue bar — 2D picker surfaces no native element provides, the same legitimacy class as date-picker's calendar grid — plus a hex/hsl/oklch format switch, a direct value input that parses any notation and reverts invalid drafts, and an Eye Dropper button when window.EyeDropper exists. OKLCH is the conversion hub — the token system's space — so every notation round-trips through one canonical model with zero dependencies (lib/color-utils), and every surface (field typing, swatch pick, editor drag, bind write) flows through the ONE value string."
     >
       <div class="flex flex-col gap-5">
         <div class="grid gap-5 min-[760px]:grid-cols-3">
@@ -200,23 +204,28 @@
           </div>
         </div>
         <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-          Open one and drag: the SV pad maps color space (saturation right, value up) pinned to
-          ltr — the trigger, not the map, is what rtl mirrors — and both pad and bar drive through
-          Pointer Events with capture. Switching format re-emits the SAME color in the new
-          notation; pasting <code class="text-accent">#0f2</code> into an oklch picker parses,
-          converts through OKLCH, and commits canonical oklch text. The panel anchors under the
-          trigger with CSS Anchor Positioning (flip-block fallback; engines without it get the
-          authored viewport-center), and focus restitutes to the trigger on every close path.
+          Type in the field: parsed text commits canonically in the active notation and invalid
+          drafts revert on change — native focus and selection throughout. Click the swatch: the
+          engine's own color picker opens (a real input[type=color]; the pick re-emits through
+          the same one-truth value, so a hex pick never rewrites an oklch picker's notation). The
+          chevron opens the editor — drag the SV pad (saturation right, value up, pinned to ltr —
+          the lane, not the map, is what rtl mirrors) or the hue bar, both through Pointer Events
+          with capture. Switching format re-emits the SAME color in the new notation; pasting
+          <code class="text-accent">#0f2</code> into an oklch picker parses, converts through
+          OKLCH, and commits canonical oklch text. The panel anchors under the lane with CSS
+          Anchor Positioning (flip-block fallback; engines without it get the authored
+          viewport-center), and focus restitutes to the field on every close path.
         </p>
         <div class="border-border mt-1 border-t pt-5">
           <h3 class="text-[15px] font-bold tracking-tight">error wiring</h3>
           <div class="mt-4 grid gap-5 min-[760px]:grid-cols-2">
             <ColorPicker label="theme hue" error="theme hue is required" bind:value={errorColor} />
             <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-              Same law as every family member: label[for] binds to the trigger (a button is
-              labelable), <code class="text-accent">error</code> dashes the trigger border and
-              wires <code class="text-accent">aria-invalid</code> +
-              <code class="text-accent">aria-describedby</code> to the “! message” line.
+              Same law as every family member: label[for] binds the native field,
+              <code class="text-accent">error</code> dashes the lane border and wires
+              <code class="text-accent">aria-invalid</code> +
+              <code class="text-accent">aria-describedby</code> on the input to the “! message”
+              line.
             </p>
           </div>
         </div>
@@ -228,9 +237,9 @@
 </div>
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Color picker variants" summary="The trigger can show the swatch, the formatted value, or both; the value model supports three notations."><div class="grid gap-4 sm:grid-cols-3"><div class="border border-border p-4"><ColorPicker label="hex" value="#007924" format="hex" /></div><div class="border border-border p-4"><ColorPicker label="hsl" value="hsl(145 100% 24%)" format="hsl" /></div><div class="border border-border p-4"><ColorPicker label="oklch" value="oklch(0.6489 0.237 145)" format="oklch" showValue={false} /></div></div></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Color picker variants" summary="The lane can show the native swatch (input[type=color]), the native value field (input[type=text]), or both; the value model supports three notations."><div class="grid gap-4 sm:grid-cols-3"><div class="border border-border p-4"><ColorPicker label="hex" value="#007924" format="hex" /></div><div class="border border-border p-4"><ColorPicker label="hsl" value="hsl(145 100% 24%)" format="hsl" /></div><div class="border border-border p-4"><ColorPicker label="oklch" value="oklch(0.6489 0.237 145)" format="oklch" showValue={false} /></div></div></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Bind a string value and choose the notation emitted by the picker."><CodeBlock code={colorUsage} lang="svelte" meta="ColorPicker usage" /></SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The trigger is a labelled button; the native popover supplies Escape and light-dismiss behavior."><A11yTable keys={[{ key: 'Enter / Space', action: 'Open the color picker popover' }, { key: 'Escape', action: 'Close the popover and restore trigger focus' }, { key: 'Tab', action: 'Move through the picker fields' }]} aria={[{ name: 'aria-expanded', value: 'true | false', description: 'Reflects popover visibility' }, { name: 'aria-controls', value: '{id}-panel', description: 'Connects trigger to its panel' }, { name: 'aria-invalid', value: 'true', description: 'Set when error is present' }]} /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The value surface is a native input[type=text] (label, focus, selection); the swatch is a native input[type=color]; the popover supplies Escape and light-dismiss behavior."><A11yTable keys={[{ key: 'Type + Enter', action: 'Edit the value in the native field; parsed text commits, invalid drafts revert' }, { key: 'Click swatch', action: 'Open the engine color picker (native input[type=color])' }, { key: 'Enter / Space on chevron', action: 'Open the editor popover (native popover=auto)' }, { key: 'Escape', action: 'Close the popover and restore field focus' }, { key: 'Tab', action: 'Move through the lane controls and picker fields' }]} aria={[{ name: 'aria-invalid', value: 'true', description: 'Set on the field when error is present' }, { name: 'aria-describedby', value: '{id}-error', description: 'Points the field at the “! message” line' }, { name: 'aria-expanded', value: 'true | false', description: 'On the chevron; reflects popover visibility' }, { name: 'aria-controls', value: '{id}-panel', description: 'Connects the chevron to its panel' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Trigger lane geometry follows density; the picker panel keeps its color-space dimensions stable."><div class="flex flex-col gap-5"><DensityDemo><ColorPicker label="density sample" value="#007924" /></DensityDemo><TokenTable tokens={[{ name: '--jx-color-lane', default: 'max(var(--jx-hit), calc(var(--jx-icon) + ...))', source: 'component' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-color-picker-hue', default: 'runtime hue angle', source: 'component' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props control notation, trigger content, surface treatment, and validation."><PropsTable props={[{ name: 'value', type: 'string', default: "'#000000'", description: 'Bindable color string emitted in format.', bindable: true }, { name: 'format', type: "'hex' | 'hsl' | 'oklch'", default: "'hex'", description: 'Input and output notation.' }, { name: 'showSwatch', type: 'boolean', default: 'true', description: 'Shows the 16px color swatch.' }, { name: 'showValue', type: 'boolean', default: 'true', description: 'Shows formatted value text.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Popover surface treatment.' }, { name: 'error', type: 'string', default: '—', description: 'Adds invalid state and message.' }, { name: 'density', type: 'Density', default: 'inherited', description: 'Overrides the inherited density scope.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props control notation, lane content, surface treatment, validation, and the native form contract."><PropsTable props={[{ name: 'value', type: 'string', default: "'#000000'", description: 'Bindable color string emitted in format; every surface (field, swatch, editor, bind) flows through it.', bindable: true }, { name: 'format', type: "'hex' | 'hsl' | 'oklch'", default: "'hex'", description: 'Input and output notation.' }, { name: 'name', type: 'string', default: '—', description: 'Form field name — the native input[type=text] submits its string under it.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'The platform disabled semantics on the field, swatch and chevron.' }, { name: 'showSwatch', type: 'boolean', default: 'true', description: 'Mounts the native input[type=color] swatch — the engine picker path.' }, { name: 'showValue', type: 'boolean', default: 'true', description: 'Shows the value text; false keeps the native field as the sr-only value carrier (label, name and ARIA intact).' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Popover surface treatment.' }, { name: 'error', type: 'string', default: '—', description: 'Adds invalid state and message.' }, { name: 'density', type: 'Density', default: 'inherited', description: 'Overrides the inherited density scope.' }]} /></SectionCard></div>
 </div>
