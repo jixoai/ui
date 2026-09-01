@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-01T13:00:50.282Z",
+  "generatedAt": "2026-09-01T13:12:50.693Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -2878,8 +2878,8 @@
           "source": "registry/files/ui/progressive-blur/progressive-blur.svelte",
           "mirror": "apps/www/src/lib/ui/progressive-blur/progressive-blur.svelte",
           "target": "@ui/progressive-blur/progressive-blur.svelte",
-          "sourceSha": "97ab567779393ec0b1bd18f5405af7b66c2b3d7839b605eee7ccbca9590dbf69",
-          "mirrorSha": "97ab567779393ec0b1bd18f5405af7b66c2b3d7839b605eee7ccbca9590dbf69"
+          "sourceSha": "3290a75b21a001e97b51c1aec055faa10cd6143970ca9e317cae612e767bd365",
+          "mirrorSha": "3290a75b21a001e97b51c1aec055faa10cd6143970ca9e317cae612e767bd365"
         },
         {
           "source": "registry/files/ui/progressive-blur/progressive-blur.css",

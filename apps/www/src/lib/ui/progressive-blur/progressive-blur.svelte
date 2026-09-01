@@ -128,17 +128,17 @@
 {#each edges as edge (edge)}
   {#if pin === 'grid'}
     <!-- the grid dialect (Owner, 2026-09-01): positioning by GRID and
-         layering by z-index — never position:sticky/absolute for the
-         BAND. The consumer places this band as a sibling item in a
-         ONE-CELL grid host. PAINT LAW (empirical, Chromium 152): (1)
-         the ladder layers fill the band absolutely (the sticky
-         dialect's internal shape), (2) the band must paint AFTER the
-         scrolled content, (3) translateZ(0) — a no-op compositor
-         isolation, never positioning — gives EACH band its own
-         compositing layer; without it only the first band after the
-         scroller samples a backdrop and a band at the scroll-origin
-         edge paints nothing (the left-veil-is-invisible bug, measured
-         2026-09-01) -->
+         layering by z-index — the band is a grid item of the
+         consumer's ONE-CELL host and the ladder layers are grid items
+         of the band ([grid-area:1/1] each) — no position tech
+         anywhere. PAINT LAW (empirical, Chromium 152): the band must
+         paint AFTER the scrolled content and carry a no-op
+         translateZ(0) — compositor isolation, never positioning —
+         which gives EACH band its own layer; without it a band at the
+         scroll-origin edge samples a dead backdrop and only the first
+         band after the scroller paints (the left-veil-is-invisible
+         bug, measured 2026-09-01; with translateZ the grid-item
+         layers paint full-strength — verified pixel-equal) -->
     <div
       class={cn(
         'jx-pblur pointer-events-none grid [grid-area:1/1] self-stretch [transform:translateZ(0)]',
@@ -152,7 +152,7 @@
       aria-hidden="true"
     >
       {#each levels as _, i (i)}
-        <div class="jx-pblur-layer absolute inset-0" style={layerStyle(edge, i)}></div>
+        <div class="jx-pblur-layer [grid-area:1/1]" style={layerStyle(edge, i)}></div>
       {/each}
     </div>
   {:else}

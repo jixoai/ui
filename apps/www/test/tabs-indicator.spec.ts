@@ -320,18 +320,18 @@ describe('Tabs · layout contract', () => {
     expect(run.previousElementSibling).toBeNull();
     expect(run.nextElementSibling).toBe(bands[0]);
     expect(bands[0].nextElementSibling).toBe(bands[1]);
-    // the grid dialect: grid-area stacking + justify-self on the BAND
-    // (grid positions it), no position tech; the compositor-isolation
-    // translateZ(0) (each band its own layer — without it only the
-    // first band after the scroller samples a backdrop); the ladder
-    // layers fill the band absolutely
+    // the grid dialect — PURE grid: the band is a grid item of the host
+    // (grid-area + justify-self), and the ladder layers are grid items of
+    // the band; no position tech anywhere. translateZ(0) is compositor
+    // isolation, never positioning (without it only the first band after
+    // the scroller samples a backdrop)
     expect(bands[0].className).toContain('[grid-area:1/1]');
     expect(bands[0].className).toContain('[transform:translateZ(0)]');
     expect(bands[0].className).not.toContain('sticky');
     expect(bands[0].className).not.toContain('absolute');
-    // each band carries the progressive-blur ladder layers (absolutely filled)
+    // each band carries the progressive-blur ladder layers (grid items of the band)
     expect(bands[0].querySelectorAll('.jx-pblur-layer').length).toBeGreaterThan(1);
-    expect([...bands[0].querySelectorAll('.jx-pblur-layer')].every((l) => l.className.includes('inset-0'))).toBe(true);
+    expect([...bands[0].querySelectorAll('.jx-pblur-layer')].every((l) => l.className.includes('[grid-area:1/1]'))).toBe(true);
     // the HOLD law: the outer third (the chevron lane, where snap parks the
     // first label inboard) carries the ladder's peak — the strongest layer's
     // mask runs OPAQUE to 100% instead of tapering (a pure edge-peaked ramp
