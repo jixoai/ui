@@ -27,11 +27,12 @@
   navColumns are DEAD: what renders is the consumer's tree; the header
   wraps it in the bezel. What survives here, verbatim in behavior:
 
-    - the pill-group box + the sliding active indicator (vt-nav-active)
-      over the composed entries — the header owns no nav data, so the
-      repaint triggers are DOM-delegated (aria-current MutationObserver
-      + ResizeObserver + late font loads; panel links never steal the
-      indicator — entries inside a [popover] are excluded)
+    - the pill-group box + the family's NavigationMenuIndicator over
+      the composed entries (indicator migration, 2026-09-01: the
+      private 70-line DOM-delegated engine is RETIRED — the part
+      carries the measurement, the WAAPI slide, the quiet laws and the
+      vt-nav-active morph name; the bezel paint (backdrop brightener,
+      never a fill) rides the class seam + terminal-header.css)
     - the mobile drawer SHELL: the hamburger fold, the grid-rows
       0fr→1fr collapse, the bounded scroll viewport, Escape→close with
       focus returned to the hamburger, and the tier-cross reset; the
@@ -54,6 +55,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import NavigationMenuIndicator from '../navigation-menu/navigation-menu-indicator.svelte';
   import './terminal-header.css';
 
   interface Props extends HTMLAttributes<HTMLElement> {
@@ -163,70 +165,6 @@
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
   });
-
-  /* -----------------------------------------------------------------
-   * Sliding indicator (Owner, 2026-08-21): a dedicated element acts as
-   * the active background and slides between nav entries (measured
-   * translateX + width). It carries the vt-nav-active name, so
-   * cross-page navigations morph it via the view transition; same-page
-   * swaps fall back to its own CSS transition.
-   * The header owns no nav data anymore, so the measure triggers are
-   * DOM-delegated: the first paint measures instantly, then aria-
-   * current flips (route swaps), box resizes and late font loads
-   * re-measure. Direct pills only — entries inside a [popover] panel
-   * (the composed mega links) carry their own aria-current and must
-   * never steal the indicator; offsetLeft/offsetWidth measure against
-   * the pill box (the nearest positioned ancestor).
-   * --------------------------------------------------------------- */
-  let navSlotEl = $state<HTMLElement | null>(null);
-  let indicatorEl = $state<HTMLElement | null>(null);
-
-  const pillEntries = (): HTMLElement[] =>
-    [
-      ...(navSlotEl?.querySelectorAll<HTMLElement>(
-        '[data-jx-navmenu-link][aria-current="page"], [data-jx-navmenu-trigger][aria-current="true"]',
-      ) ?? []),
-    ].filter((el) => el.closest('[popover]') === null);
-
-  const positionIndicator = (instant = false) => {
-    if (!navSlotEl || !indicatorEl) return;
-    const active = pillEntries()[0];
-    if (!(active instanceof HTMLElement)) {
-      indicatorEl.style.opacity = '0';
-      return;
-    }
-    if (instant) indicatorEl.classList.add('jx-indicator-instant');
-    indicatorEl.style.opacity = '1';
-    indicatorEl.style.width = `${active.offsetWidth}px`;
-    indicatorEl.style.transform = `translateX(${active.offsetLeft}px)`;
-    if (instant) {
-      requestAnimationFrame(() => indicatorEl?.classList.remove('jx-indicator-instant'));
-    }
-  };
-
-  let measured = false;
-  $effect(() => {
-    // the first measure is instant (no slide from 0); every later move
-    // animates via the CSS transition — the VT morph covers the visual
-    // when a transition runs
-    positionIndicator(!measured);
-    measured = true;
-  });
-
-  onMount(() => {
-    const reposition = () => positionIndicator(false);
-    const slot = navSlotEl;
-    if (!slot) return;
-    const mo = new MutationObserver(reposition);
-    mo.observe(slot, { subtree: true, attributeFilter: ['aria-current'] });
-    const ro = new ResizeObserver(reposition);
-    ro.observe(slot);
-    document.fonts?.ready.then(reposition).catch(() => {});
-    return () => {
-      mo.disconnect();
-      ro.disconnect();
-    };
-  });
 </script>
 
 <header
@@ -269,12 +207,23 @@
       <!-- RIGHT WING · the nav pill slot + controls -->
       <div class="flex flex-none items-center gap-3">
         <!-- the pill box: chrome the composed nav lands in (the nav
-             landmark itself is the consumer's NavigationMenu root) -->
+             landmark itself is the consumer's NavigationMenu root).
+             The INDICATOR is the family's part, sunk here (2026-09-01):
+             it measures against this box (the part's parent fallback),
+             slides via WAAPI on the bezel curve, and morphs across
+             pages through the preserved vt-nav-active name; the bezel
+             paint — backdrop brightener, never a fill — rides the css
+             key on the part's hook (utilities overridden through the
+             class seam: transparent ground, square corners) -->
         <div
           class="relative hidden items-center border border-terminal-foreground/25 p-0.5 sm:flex"
-          bind:this={navSlotEl}
         >
-          <span class="jx-indicator" bind:this={indicatorEl} aria-hidden="true"></span>
+          <NavigationMenuIndicator
+            name="vt-nav-active"
+            duration={450}
+            easing="cubic-bezier(0.22, 1, 0.36, 1)"
+            class="jx-indicator bg-transparent rounded-none"
+          />
           {@render children?.()}
         </div>
         <!-- frame law (walkthrough report, 2026-08-26): every bezel

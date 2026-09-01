@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-01T05:06:20.941Z",
+  "generatedAt": "2026-09-01T05:22:44.998Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -336,8 +336,8 @@
           "source": "registry/files/ui/terminal-header/terminal-header.svelte",
           "mirror": "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
           "target": "@ui/terminal-header/terminal-header.svelte",
-          "sourceSha": "7ef7d008ebe2a5febabf60ef76c27ab3ee9d12cb73efe92c3a625a525b22ab35",
-          "mirrorSha": "7ef7d008ebe2a5febabf60ef76c27ab3ee9d12cb73efe92c3a625a525b22ab35"
+          "sourceSha": "cce257e3e22c01821fd06180c14802e25374501db50e4ac48092967dff49d6d4",
+          "mirrorSha": "cce257e3e22c01821fd06180c14802e25374501db50e4ac48092967dff49d6d4"
         },
         {
           "source": "registry/files/ui/terminal-header/index.ts",
@@ -350,8 +350,8 @@
           "source": "registry/files/ui/terminal-header/terminal-header.css",
           "mirror": "apps/www/src/lib/ui/terminal-header/terminal-header.css",
           "target": "@ui/terminal-header/terminal-header.css",
-          "sourceSha": "848effa05686b60d46c50cb65e186074302ee71d935b459cba33212f5b260a00",
-          "mirrorSha": "848effa05686b60d46c50cb65e186074302ee71d935b459cba33212f5b260a00"
+          "sourceSha": "9d27280fa4d89f272ac079a72f313aa83d1d5b52b658e670503a1dc73e40739c",
+          "mirrorSha": "9d27280fa4d89f272ac079a72f313aa83d1d5b52b658e670503a1dc73e40739c"
         }
       ]
     },
@@ -2155,8 +2155,8 @@
           "source": "registry/files/ui/navigation-menu/navigation-menu-indicator.svelte",
           "mirror": "apps/www/src/lib/ui/navigation-menu/navigation-menu-indicator.svelte",
           "target": "@ui/navigation-menu/navigation-menu-indicator.svelte",
-          "sourceSha": "7265c6203bb8206c26c2543699e18b95c8d4cbd6cca9f5f441cca1e4f27c7637",
-          "mirrorSha": "7265c6203bb8206c26c2543699e18b95c8d4cbd6cca9f5f441cca1e4f27c7637"
+          "sourceSha": "a2213cf1fa4f3d00c8a10ecd484ddc9c33dee1b27d60545b3b6132e8ed28fa9b",
+          "mirrorSha": "a2213cf1fa4f3d00c8a10ecd484ddc9c33dee1b27d60545b3b6132e8ed28fa9b"
         },
         {
           "source": "registry/files/ui/navigation-menu/index.ts",

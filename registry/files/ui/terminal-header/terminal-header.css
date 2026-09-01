@@ -30,29 +30,20 @@
  *      without a probe. */
 
 @layer components {
-  /* the sliding active background: its own element, measured into place;
-     morphs across pages via the vt-nav-active view-transition-name.
-     No background (Owner, 2026-08-21): a solid fill would cover the pill
+  /* the bezel paint over the family's indicator part (indicator
+     migration, 2026-09-01): the engine (measurement, WAAPI slide,
+     quiet laws, the vt-nav-active morph name) lives in
+     NavigationMenuIndicator — keyed here through its data hook. No
+     background (Owner, 2026-08-21): a solid fill would cover the pill
      text when the VT group hoists this element above the header; a
      backdrop brightener stays visually identical on the always-dark
-     bezel and is stacking-proof. */
-  :where(.jx-nav .jx-indicator) {
-    position: absolute;
-    top: 2px;
-    bottom: 2px;
-    left: 0;
-    width: 0;
-    z-index: 0;
+     bezel and is stacking-proof. The part's tonal ground + radius are
+     merged away through the class seam (transparent/square). */
+  :where(.jx-nav [data-jx-navmenu-ind]) {
     -webkit-backdrop-filter: brightness(2);
     backdrop-filter: brightness(2);
-    opacity: 0;
-    view-transition-name: vt-nav-active;
-    transition:
-      transform 450ms cubic-bezier(0.22, 1, 0.36, 1),
-      width 450ms cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 150ms ease-out;
   }
-  :where(.jx-nav.jx-light .jx-indicator) {
+  :where(.jx-nav.jx-light [data-jx-navmenu-ind]) {
     /* light bezel: the same "subtle shift" reads as a slight darken */
     -webkit-backdrop-filter: brightness(0.85);
     backdrop-filter: brightness(0.85);
@@ -81,9 +72,6 @@
 :where(.jx-nav a[aria-expanded='true'] .jx-caret),
 :where(.jx-nav button[aria-expanded='true'] .jx-caret) {
   transform: rotate(180deg);
-}
-:where(.jx-nav .jx-indicator.jx-indicator-instant) {
-  transition: none;
 }
 
 /* the bezel's pill language over the composed family's own paint: the

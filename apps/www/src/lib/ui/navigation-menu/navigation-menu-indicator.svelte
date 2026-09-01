@@ -55,6 +55,8 @@
     name?: string;
     /** slide duration in ms (reduced-motion ignores it) */
     duration?: number;
+    /** the slide's timing curve */
+    easing?: string;
     class?: string;
   }
 
@@ -62,13 +64,16 @@
     motion = 'navigation',
     name = 'jx-nav-indicator',
     duration = 240,
+    easing = 'cubic-bezier(0.2, 0.8, 0.2, 1)',
     class: className = '',
   }: Props = $props();
 
   let indEl = $state<HTMLSpanElement | null>(null);
 
-  /** the bar this part renders in (the nearest nav) */
-  const barEl = (): HTMLElement | null => indEl?.closest('nav') ?? null;
+  /** the bar this part renders in: the nearest nav — or, when composed
+   *  into chrome AROUND the family (TerminalHeader's pill box hosts the
+   *  part beside the consumer's nav), the immediate parent box */
+  const barEl = (): HTMLElement | null => indEl?.closest('nav') ?? indEl?.parentElement ?? null;
 
   /** the current DIRECT entry of THIS bar — mega-panel links (inside a
    *  [popover]) carry their own current truth and never steal the bar's
@@ -92,8 +97,6 @@
   type Geo = { x: number; y: number; w: number; h: number };
   let prev: Geo | null = null;
   let first = true;
-
-  const EASE = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
 
   function measure(animate: boolean) {
     const bar = barEl();
@@ -138,7 +141,7 @@
             height: `${next.h}px`,
           },
         ],
-        { duration, easing: EASE },
+        { duration, easing },
       );
     }
     prev = next;
