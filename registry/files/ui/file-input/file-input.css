@@ -28,6 +28,23 @@
   }
 }
 
+/* ---- F-1 well sweep: the resting pose (2026-09-02) ------------------- */
+/* the drop zone and the file trigger are FILLABLE surfaces — resting
+   becomes the well tier (--shadow-well); hover deepens the ink
+   (--shadow-well-hover — intensity, not tier). These land at the same
+   :where(.jx-file) :is(...) precedence as the drag-over poses below
+   so they outrank the unlayered .jx-press law's token-driven poses
+   ([--jx-press-shadow:*] utilities in the markup); the press
+   translate physics survive untouched. The drag-over poses keep
+   their transient lift — a DRAG state, not a hover state. */
+:where(.jx-file) :is(.jx-file-zone, .jx-file-trigger) {
+  box-shadow: var(--shadow-well);
+  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
+}
+:where(.jx-file) :is(.jx-file-zone:hover, .jx-file-trigger:hover) {
+  box-shadow: var(--shadow-well-hover);
+}
+
 /* ---- the drag-over poses ((0,3,0) vs the unlayered press law) -------- */
 /* drag-over: the dash turns primary + the surface lifts and tints —
    press physics from the trigger law, magnetism from ant's Dragger */
@@ -89,6 +106,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* the well-rest rule's own selector repeated: its :is() specificity
+     must be matched or the transition kill loses the cascade */
+  :where(.jx-file) :is(.jx-file-zone, .jx-file-trigger),
   :where(.jx-file-zone),
   :where(.jx-file-trigger),
   :where(.jx-file-remove),

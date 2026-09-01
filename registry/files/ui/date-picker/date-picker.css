@@ -66,14 +66,24 @@
 }
 
 /* ---- the state machines (unlayered carve-out) ----------------------- */
-:where(.jx-date-trigger:hover:not(:focus-visible)) {
-  box-shadow: var(--shadow-2xs);
+/* F-1 well sweep (2026-09-02): the date trigger is a FILLABLE closed
+   control — the well tier (the input-law / control-shell ruling):
+   resting --shadow-well; hover deepens the ink (--shadow-well-hover —
+   intensity, not tier); focus answers in border only. The retired
+   hover lift and focus shadow-kill are gone. */
+:where(.jx-date-trigger) {
+  box-shadow: var(--shadow-well);
+  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
 }
-/* the site focus law: inset 1px outline on the ring token */
+:where(.jx-date-trigger:hover:not(:disabled)) {
+  box-shadow: var(--shadow-well-hover);
+}
+/* the site focus law: inset 1px outline on the ring token + the border
+   tint answers in kind */
 :where(.jx-date-trigger:focus-visible) {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
-  box-shadow: none;
+  border-color: var(--ring);
 }
 :where(.jx-date-trigger[aria-invalid='true']) {
   border-style: dashed;

@@ -70,14 +70,16 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 // 19 DOM-AST assertions GREEN before and after the cutover).
 
 const BASELINES = {
-  // re-recorded 2026-08-30 (wave 3): six new items land real component css
-  // (chart glyph/svg layers, five pattern-* frames, canvas schema control
-  // rows, props-table dual-source wrapper) — B-face 10393->10936 (+5.2%,
-  // the ratchet headroom was 5.0%), B-source 31630->32356. Justified
-  // growth: every rule ships in @layer components :where() per the
-  // authoring law; no utility-layer leakage (B-consumer unchanged).
-  'B-source': 32356,
-  'B-face': 10936,
+  // re-recorded 2026-09-02 (adversarial-review wave): B-source
+  // 32356->34353 (+6.2%) — the well-law second sweep lands resting/hover
+  // well rules in the generated input/control laws, the range law gains
+  // the :dir(rtl) fill mirror + the mount projection slot, and the
+  // elevation-grammar/subtraction-ink/grid-law comment blocks land in the
+  // hand regions. B-face 10936->11405 (picker well faces + pblur gating).
+  // Justified growth: laws and their documentation, zero utility-layer
+  // leakage (B-consumer rows unchanged).
+  'B-source': 34353,
+  'B-face': 11405,
   'B-consumer-vite': 1695,
   'B-consumer-icons': 253,
 };

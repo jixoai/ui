@@ -1203,7 +1203,6 @@
       ],
       "docs": "Props: label?, error?, showValue?, min/max/step, name?, value ($bindable). role=slider contract; aria-labelledby wiring per the family law.",
       "registryDependencies": [
-        "@jixoai/form-field",
         "@jixoai/jixoai-theme",
         "@jixoai/utils"
       ],
@@ -1454,7 +1453,7 @@
       "name": "separator",
       "type": "registry:ui",
       "title": "Separator",
-      "description": "W3C-first: the horizontal separator IS the native <hr> (thematic break semantics for free); only the vertical posture takes the ARIA route (<div role=separator>). 1px var(--border) both ways; length is the consumer's layout.",
+      "description": "W3C-first: the horizontal separator IS the native <hr> (thematic break semantics for free); only the vertical posture takes the ARIA route (<div role=separator>). No color, only physics: the default ink is a backdrop-filter contrast ghost that self-adapts to any background (the ink law); geometry variants (dashed/dense/dotted/wavy) are masks over that strip, and the fade variant rides a blend-mode gradient.",
       "files": [
         {
           "path": "registry/files/ui/separator/separator.svelte",
@@ -1664,7 +1663,8 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/progressive-blur"
       ]
     },
     {
@@ -2038,7 +2038,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/scaffold-float",
+        "@jixoai/website-scaffold"
       ]
     },
     {
@@ -2545,7 +2547,7 @@
       "name": "steps",
       "type": "registry:ui",
       "title": "Steps",
-      "description": "The wizard progress as a composed family (shadcn-vue Stepper anatomy): bind:current (0-based) plus REQUIRED explicit step ordinals — state is pure comparison, never registration. The done Indicator becomes the button (a link back) when onclick is given; the current step is aria-current=step; future steps are inert spans — never aria-disabled. CSS connector; check glyph on done; the Separator self-hides on the last item.",
+      "description": "The wizard progress as a composed family: a nine-word state vocabulary (auto trio + middle pending, success/error/hint/emphasis/disabled) overrides the derived done/current/todo comparison when stated explicitly. The done Indicator becomes the button (a link back) when onclick is given; the current step is aria-current=step; future steps are inert spans. CSS connector; check glyph on done; the Separator self-hides on the last item.",
       "files": [
         {
           "path": "registry/files/ui/steps/index.ts",

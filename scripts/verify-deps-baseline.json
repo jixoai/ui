@@ -4,6 +4,7 @@
     "anchor -> @jixoai/density",
     "badge -> @jixoai/density",
     "breadcrumb -> @jixoai/density",
+    "breadcrumb -> @jixoai/icons",
     "checkbox -> @jixoai/density",
     "chip -> @jixoai/density",
     "color-picker -> @jixoai/density",
@@ -11,7 +12,9 @@
     "combobox -> @jixoai/popover",
     "command -> @jixoai/density",
     "command -> @jixoai/popover",
+    "component-canvas -> @jixoai/toggle-group",
     "descriptions -> @jixoai/density",
+    "dialog -> @jixoai/entity",
     "dialog -> @jixoai/popover",
     "dropdown-menu -> @jixoai/density",
     "dropdown-menu -> @jixoai/popover",
@@ -58,7 +61,6 @@
     "color-picker -> @jixoai/jx-pure",
     "component-canvas -> @jixoai/shiki",
     "press-button -> @jixoai/utils",
-    "scaffold-float -> @jixoai/website-scaffold",
-    "terminal-header -> @jixoai/navigation-menu"
+    "scaffold-float -> @jixoai/website-scaffold"
   ]
 }

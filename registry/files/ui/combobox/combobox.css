@@ -93,20 +93,31 @@
 }
 
 /* ---- the state machines (unlayered carve-out) ----------------------- */
-:where(.jx-combobox-shell:not(:has(input:disabled)):hover:not(:has(:focus-visible))) {
-  box-shadow: var(--shadow-2xs);
+/* F-1 well sweep (2026-09-02): the shell is a FILLABLE wrapper — the
+   control-shell law's well ruling verbatim: resting --shadow-well;
+   hover deepens the ink (--shadow-well-hover — intensity, not tier);
+   focus answers in border + caret only (the lane's caret-color is the
+   control-lane law's). The retired hover lift and focus shadow-kill
+   are gone. */
+:where(.jx-combobox-shell) {
+  box-shadow: var(--shadow-well);
+  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
+}
+:where(.jx-combobox-shell:not(:has(input:disabled)):hover) {
+  box-shadow: var(--shadow-well-hover);
 }
 /* the site focus law (input.svelte): the shell carries the inset 1px
    outline on the ring token for the input inside */
+:where(.jx-combobox-shell:has(:focus)) {
+  border-color: var(--ring);
+}
 :where(.jx-combobox-shell:has(:focus-visible)) {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
-  box-shadow: none;
 }
 :where(.jx-combobox-shell:has(input:disabled)) {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
 }
 :where(.jx-combobox-toggle:hover:not(:disabled)) {
   color: var(--foreground);
