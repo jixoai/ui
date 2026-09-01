@@ -81,8 +81,11 @@
     // (min-block-size and the padding law stay untouched)
     stack ? 'flex-col justify-center [gap:calc(var(--jx-gap)*0.35)]' : '[gap:var(--jx-gap)]',
     // slot-vs-padding law (toggle-group dialect): an icon lane replaces
-    // its side's label inset
-    'has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)] has-[[data-icon=inline-end]]:pr-[calc(var(--jx-inset)/2)]',
+    // its side's label inset — ONLY beside a label. An icon-only tab
+    // (no children) keeps the symmetric padding so the glyph centers
+    children
+      ? 'has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)] has-[[data-icon=inline-end]]:pr-[calc(var(--jx-inset)/2)]'
+      : '',
     selected ? 'jx-tab-selected text-foreground' : 'text-muted-foreground',
     className,
   )}
