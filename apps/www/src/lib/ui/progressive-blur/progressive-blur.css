@@ -42,4 +42,110 @@
     opacity: 1;
   }
 }
+
+/* the ladder masks (CR-1 P2-1, 2026-09-02): DIRECTION lives here, not
+   in the component's inline strings — the inline style supplies only
+   the stop data (--jx-pblur-s0..s3 + the tail alpha), because css
+   gradients have no logical 'to start' and the component is
+   direction-blind. The four-stop shape: transparent at the band's
+   inboard start, opaque through the layer's rung, then the tail
+   (alpha 0 fades out; alpha 1 holds the peak through the outer lane
+   — the hold dialect). The inline pair flips its physical aim under
+   :dir(rtl); the block pair never mirrors. */
+:where([data-jx-pblur][data-position='top']) .jx-pblur-layer {
+  -webkit-mask-image: linear-gradient(
+    to top,
+    transparent var(--jx-pblur-s0),
+    rgb(0 0 0) var(--jx-pblur-s1),
+    rgb(0 0 0) var(--jx-pblur-s2),
+    rgb(0 0 0 / var(--jx-pblur-tail-a, 0)) var(--jx-pblur-s3)
+  );
+  mask-image: linear-gradient(
+    to top,
+    transparent var(--jx-pblur-s0),
+    rgb(0 0 0) var(--jx-pblur-s1),
+    rgb(0 0 0) var(--jx-pblur-s2),
+    rgb(0 0 0 / var(--jx-pblur-tail-a, 0)) var(--jx-pblur-s3)
+  );
+}
+:where([data-jx-pblur][data-position='bottom']) .jx-pblur-layer {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent var(--jx-pblur-s0),
+    rgb(0 0 0) var(--jx-pblur-s1),
+    rgb(0 0 0) var(--jx-pblur-s2),
+    rgb(0 0 0 / var(--jx-pblur-tail-a, 0)) var(--jx-pblur-s3)
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent var(--jx-pblur-s0),
+    rgb(0 0 0) var(--jx-pblur-s1),
+    rgb(0 0 0) var(--jx-pblur-s2),
+    rgb(0 0 0 / var(--jx-pblur-tail-a, 0)) var(--jx-pblur-s3)
+  );
+}
+:where([data-jx-pblur][data-position='start']) .jx-pblur-layer {
+  -webkit-mask-image: linear-gradient(
+    to left,
+    transparent var(--jx-pblur-s0),
+    rgb(0 0 0) var(--jx-pblur-s1),
+    rgb(0 0 0) var(--jx-pblur-s2),
+    rgb(0 0 0 / var(--jx-pblur-tail-a, 0)) var(--jx-pblur-s3)
+  );
+  mask-image: linear-gradient(
+    to left,
+    transparent var(--jx-pblur-s0),
+    rgb(0 0 0) var(--jx-pblur-s1),
+    rgb(0 0 0) var(--jx-pblur-s2),
+    rgb(0 0 0 / var(--jx-pblur-tail-a, 0)) var(--jx-pblur-s3)
+  );
+}
+:where([data-jx-pblur][data-position='end']) .jx-pblur-layer {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent var(--jx-pblur-s0),
+    rgb(0 0 0) var(--jx-pblur-s1),
+    rgb(0 0 0) var(--jx-pblur-s2),
+    rgb(0 0 0 / var(--jx-pblur-tail-a, 0)) var(--jx-pblur-s3)
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent var(--jx-pblur-s0),
+    rgb(0 0 0) var(--jx-pblur-s1),
+    rgb(0 0 0) var(--jx-pblur-s2),
+    rgb(0 0 0 / var(--jx-pblur-tail-a, 0)) var(--jx-pblur-s3)
+  );
+}
+:dir(rtl) :where([data-jx-pblur][data-position='start']) .jx-pblur-layer {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent var(--jx-pblur-s0),
+    rgb(0 0 0) var(--jx-pblur-s1),
+    rgb(0 0 0) var(--jx-pblur-s2),
+    rgb(0 0 0 / var(--jx-pblur-tail-a, 0)) var(--jx-pblur-s3)
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent var(--jx-pblur-s0),
+    rgb(0 0 0) var(--jx-pblur-s1),
+    rgb(0 0 0) var(--jx-pblur-s2),
+    rgb(0 0 0 / var(--jx-pblur-tail-a, 0)) var(--jx-pblur-s3)
+  );
+}
+:dir(rtl) :where([data-jx-pblur][data-position='end']) .jx-pblur-layer {
+  -webkit-mask-image: linear-gradient(
+    to left,
+    transparent var(--jx-pblur-s0),
+    rgb(0 0 0) var(--jx-pblur-s1),
+    rgb(0 0 0) var(--jx-pblur-s2),
+    rgb(0 0 0 / var(--jx-pblur-tail-a, 0)) var(--jx-pblur-s3)
+  );
+  mask-image: linear-gradient(
+    to left,
+    transparent var(--jx-pblur-s0),
+    rgb(0 0 0) var(--jx-pblur-s1),
+    rgb(0 0 0) var(--jx-pblur-s2),
+    rgb(0 0 0 / var(--jx-pblur-tail-a, 0)) var(--jx-pblur-s3)
+  );
+}
 }

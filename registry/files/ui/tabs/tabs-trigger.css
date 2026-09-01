@@ -253,6 +253,18 @@
 :where(.jx-tabs-veil-layer) > :where(.jx-tabs-veil)[data-position='end'] {
   translate: calc(max(0, (var(--jx-tabs-progress, 0) - 0.85) / 0.15) * 100%) 0;
 }
+/* RTL physicality (CR-1 P2-1, 2026-09-02): the positions are LOGICAL —
+   the start band hangs on the physical RIGHT under :dir(rtl) — so the
+   entrance signs and the mask ramps flip with it. Without this, an RTL
+   strip's start veil rests INSIDE the view and the ramps fade the wrong
+   way (the JS stamp layer is already direction-normalized; these are
+   the CSS halves) */
+:dir(rtl) :where(.jx-tabs-veil-layer) > :where(.jx-tabs-veil)[data-position='start'] {
+  translate: calc((1 - min(1, var(--jx-tabs-progress, 0) / 0.15)) * 100%) 0;
+}
+:dir(rtl) :where(.jx-tabs-veil-layer) > :where(.jx-tabs-veil)[data-position='end'] {
+  translate: calc(max(0, (var(--jx-tabs-progress, 0) - 0.85) / 0.15) * -100%) 0;
+}
 /* the SHADOW veil (Owner, 2026-09-01 R5) — the separator's INK law as
  * an edge treatment, and a standing best practice: a shade veil NEVER
  * adds black — backdrop-filter contrast() SUBTRACTS color toward mid
@@ -272,6 +284,16 @@
 :where(.jx-tabs-shadow)[data-position='end'] {
   mask: linear-gradient(to right, transparent, rgb(0, 0, 0));
   -webkit-mask-image: linear-gradient(to right, transparent, rgb(0, 0, 0));
+}
+/* the ramps aim at the strip's OUTER edge of each logical side —
+   physical left/right swaps under :dir(rtl) (CR-1 P2-1) */
+:dir(rtl) :where(.jx-tabs-shadow)[data-position='start'] {
+  mask: linear-gradient(to right, transparent, rgb(0, 0, 0));
+  -webkit-mask-image: linear-gradient(to right, transparent, rgb(0, 0, 0));
+}
+:dir(rtl) :where(.jx-tabs-shadow)[data-position='end'] {
+  mask: linear-gradient(to left, transparent, rgb(0, 0, 0));
+  -webkit-mask-image: linear-gradient(to left, transparent, rgb(0, 0, 0));
 }
 
 /* ── the on-demand fade, scroll-following (Owner, 2026-09-01) ──

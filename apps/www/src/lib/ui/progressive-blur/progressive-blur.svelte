@@ -113,35 +113,52 @@
   // band; below 0 the plain ladder stands
   const holdPct = $derived(Math.min(100, Math.max(0, hold)));
 
-  /** layer i's paint: cumulative backdrop blur + its mask band. The
-   *  gradient aims PHYSICALLY (css gradients have no logical 'to
-   *  start'): the inline bands assume LTR — start maps 'to left',
-   *  end 'to right'. With hold > 0 (grid dialect) the ramp compresses
-   *  into the inboard (100-hold)% and every layer whose rung reaches
-   *  the ramp's end stays OPAQUE through the outer lane to 100% */
+  /** layer i's paint: the backdrop blur (per-layer data) plus the
+   *  ladder's STOP DATA as custom properties (--jx-pblur-s0..s3, tail
+   *  alpha). The gradient DIRECTION is css-owned — progressive-blur.css
+   *  composes the masks keyed on data-position, with :dir(rtl) flipping
+   *  the inline pair's physical aim (CR-1 P2-1, 2026-09-02: gradients
+   *  have no logical 'to start', so the aim cannot live in this
+   *  direction-blind string). With hold > 0 (grid dialect) the ramp
+   *  compresses into the inboard (100-hold)% and every layer whose
+   *  rung reaches the ramp's end stays OPAQUE through the outer lane
+   *  to 100% (tail alpha 1) */
   const layerStyle = (edge: 'top' | 'bottom' | 'start' | 'end', i: number): string => {
-    const aim = edge === 'start' ? 'left' : edge === 'end' ? 'right' : edge;
-    const g = (v: number) => `rgba(0, 0, 0, ${v})`;
+    void edge;
     const pct = (v: number) => `${Math.round(v * 100) / 100}%`;
-    let stops: string;
+    let s0: number, s1: number, s2: number, s3: number, tailA: 0 | 1;
     if (holdPct > 0 && pin === 'grid') {
       const ramp = 100 - holdPct;
       const step = ramp / levels.length;
       const holdsPeak = (i + 3) * step >= ramp - 0.01;
-      stops = holdsPeak
-        ? `${g(0)} ${pct(i * step)}, ${g(1)} ${pct((i + 1) * step)}, ${g(1)} 100%`
-        : `${g(0)} ${pct(i * step)}, ${g(1)} ${pct((i + 1) * step)}, ${g(1)} ${pct((i + 2) * step)}, ${g(0)} ${pct(Math.min(100, (i + 3) * step))}`;
+      s0 = i * step;
+      s1 = (i + 1) * step;
+      if (holdsPeak) {
+        s2 = 100;
+        s3 = 100;
+        tailA = 1;
+      } else {
+        s2 = (i + 2) * step;
+        s3 = Math.min(100, (i + 3) * step);
+        tailA = 0;
+      }
     } else {
       const step = 100 / levels.length;
-      stops = `${g(0)} ${pct(i * step)}, ${g(1)} ${pct((i + 1) * step)}, ${g(1)} ${pct((i + 2) * step)}, ${g(0)} ${pct(Math.min(100, (i + 3) * step))}`;
+      s0 = i * step;
+      s1 = (i + 1) * step;
+      s2 = (i + 2) * step;
+      s3 = Math.min(100, (i + 3) * step);
+      tailA = 0;
     }
-    const mask = `linear-gradient(to ${aim}, ${stops})`;
     const blur = `blur(${levels[i]}px)`;
     return [
       `-webkit-backdrop-filter: ${blur}`,
       `backdrop-filter: ${blur}`,
-      `-webkit-mask-image: ${mask}`,
-      `mask-image: ${mask}`,
+      `--jx-pblur-s0: ${pct(s0)}`,
+      `--jx-pblur-s1: ${pct(s1)}`,
+      `--jx-pblur-s2: ${pct(s2)}`,
+      `--jx-pblur-s3: ${pct(s3)}`,
+      `--jx-pblur-tail-a: ${tailA}`,
     ].join('; ');
   };
 </script>

@@ -337,9 +337,12 @@ describe('Tabs · layout contract', () => {
     expect([...bands[0].querySelectorAll('.jx-pblur-layer')].every((l) => l.className.includes('[grid-area:1/1]'))).toBe(true);
     // the HOLD law: the outer third (the chevron lane, where snap parks the
     // first label inboard) carries the ladder's peak — the strongest layer's
-    // mask runs OPAQUE to 100% instead of tapering
+    // tail stays OPAQUE to 100% instead of tapering (the stop-data split,
+    // 2026-09-02: the mask's direction lives in progressive-blur.css; the
+    // inline style carries the stops + tail alpha)
     const topLayer = bands[0].querySelector('.jx-pblur-layer:last-child')!;
-    expect(topLayer.getAttribute('style')).toMatch(/(?:rgba\(0, 0, 0, 1\)|rgb\(0, 0, 0\)) 100%/);
+    expect(topLayer.getAttribute('style')).toMatch(/--jx-pblur-tail-a: 1/);
+    expect(topLayer.getAttribute('style')).toMatch(/--jx-pblur-s3: 100%/);
     // the chevrons are REAL DOM BUTTONS (Owner, 2026-09-01 R4 — the
     // ::scroll-button() pseudos are retired): after the veil layer, OUTSIDE
     // the tablist (scroll controls are not tabs — the a11y tree stays clean)

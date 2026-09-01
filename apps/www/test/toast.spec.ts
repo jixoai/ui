@@ -69,10 +69,12 @@ describe('toast — the viewport does not float itself', () => {
       `:where(.jx-float-slot > [data-area='float']){\n  pointer-events: none;\n}`,
     );
     // the wrapper never stretches over the stage (V1-1): the float
-    // area rule itself carries the corner placement
+    // area rule itself carries the corner placement — the stage's
+    // TOP-right corner (integration correction 2026-09-02: `end` alone
+    // parked toasts bottom-right; `start end` is the adoption contract)
     const floatRule = css.indexOf(":where(.jx-top-layer [data-area='float']){");
     expect(floatRule).toBeGreaterThan(-1);
-    expect(css.indexOf('place-self: end;')).toBeGreaterThan(floatRule);
+    expect(css.indexOf('place-self: start end;')).toBeGreaterThan(floatRule);
 
     // the stack paints itself transparent; every CARD opts back in —
     // with the wrapper transparent, only the cards are interactive
