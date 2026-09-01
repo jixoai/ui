@@ -53,11 +53,14 @@
   transform: rotate(180deg);
 }
 
-/* the item walk's highlight: aria-current is authored imperatively by
- * the root on ANY [role=menuitem] (raw consumer items included) — a
- * markup utility can never carry it */
+/* the item walk's highlight: data-walk-active is authored imperatively
+ * by the root on ANY [role=menuitem] (raw consumer items included) —
+ * a markup utility can never carry it. PAINT-ONLY by law (D-5,
+ * 2026-09-02): the walk never rewrites aria-current; consumer-set
+ * aria-current (e.g. the breadcrumb dropdown's aria-current="page")
+ * keeps its semantics and its own paint. */
 :where(.jx-menu-item:hover),
-:where(.jx-menu-item[aria-current='true']),
+:where(.jx-menu-item[data-walk-active]),
 :where(.jx-menu-item:focus-visible) {
   background: color-mix(in oklab, currentColor 8%, transparent);
   outline: none;
@@ -72,7 +75,7 @@
 }
 
 :where(.jx-menu-item-destructive:hover),
-:where(.jx-menu-item-destructive[aria-current='true']) {
+:where(.jx-menu-item-destructive[data-walk-active]) {
   background: var(--destructive);
   color: var(--destructive-foreground);
 }

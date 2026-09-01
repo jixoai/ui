@@ -8,15 +8,17 @@
 
   The destructive variant is a paint state (red text, destructive hover
   fill), not a different element — semantics stay one menuitem.
-  Keyboard walking, typeahead and aria-current highlight live on the
-  root (DOM delegation over [role=menuitem]) — this file owns only the
-  item's own paint and the select-and-close path.
+  Keyboard walking, typeahead and the walk highlight (data-walk-
+  active) live on the root (DOM delegation over [role=menuitem]) —
+  this file owns only the item's own paint and the select-and-close
+  path.
 
   tw4 (2026-08-24): static paint as token utilities (destructive rides
-  a conditional string); the hover/[aria-current]/focus-visible state
-  machines stay in dropdown-menu.css (shared with the root) — aria-
-  current is authored imperatively by the ROOT on any menuitem,
-  including raw consumer items, so it can never be a markup utility.
+  a conditional string); the hover/[data-walk-active]/focus-visible
+  state machines stay in dropdown-menu.css (shared with the root) —
+  the walk attribute is authored imperatively by the ROOT on any
+  menuitem, including raw consumer items, so it can never be a markup
+  utility.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';

@@ -15,8 +15,21 @@
  *                  everything (line placement, never areas — see the
  *                  component header comment)
  *   .jx-top-layer  column-subgrid + own rows/areas per form; chrome plane
- *   .jx-shell-body column-subgrid only; the scroller; chrome reserved by
- *                  padding driven by --jx-header-h (the one measurement)
+ *   .jx-shell-body spans the whole shell (grid-column 1 / -1 — no subgrid
+ *                  since the 2026-09-01 full-width+padding form; row-subgrid
+ *                  was disproven by a live Chromium test: tall main
+ *                  overflows the page track and overlaps the footer); the
+ *                  scroller; chrome reserved by padding driven by
+ *                  --jx-header-h (the one measurement)
+ *
+ * THE OVERLAY POINTER LAW (adjudicated D-1 fix, 2026-09-02): every
+ * overlay container is pointer-TRANSPARENT and only real content opts
+ * back in. The top layer and its slots are pointer-events:none; chrome
+ * children (header/toc/tree) opt in as whole surfaces, but a FLOAT
+ * wrapper never does — adopted float content re-enables pointers on
+ * its own interactive surface (the toast stack is pointer-events:none
+ * and its cards pointer-events:auto). An adopted float that covers
+ * the stage must never shield the page beneath it.
  *
  * SPA view-transition system (Plan A, 2026-08-21 — unchanged): the header
  * band is "site-header" and persists; the ACTIVE nav pill is
@@ -166,6 +179,17 @@
 :where(.jx-float-slot > *){
   pointer-events: auto;
 }
+/* …but the OVERLAY POINTER LAW stops the same grant at float wrappers
+   (adjudicated D-1 fix, 2026-09-02 — the P0 click shield): the float
+   plane's adopted [data-area='float'] node is pointer-TRANSPARENT;
+   the content inside opts back in where it is actually interactive
+   (the toast stack paints pointer-events:none, its cards auto). An
+   adopted float that covers the stage must never shield the page
+   beneath it. This rule MUST follow the generic child grant above —
+   equal :where() specificity, source order decides. */
+:where(.jx-float-slot > [data-area='float']){
+  pointer-events: none;
+}
 
 /* role → cell resolution (one role, many cells — never per-form JS) */
 :where(.jx-top-layer [data-area='toc']){
@@ -178,6 +202,14 @@
     /* leave room for the tree bottom bar on the medium form */
     max-height: calc(100% - 5rem);
     overflow: hidden auto;
+    /* KNOWN COST (F-15, 2026-09-02): this scrollable interaction box
+       spans the rail's full inline size, INCLUDING the strip where the
+       body's own scrollbar rides (the 2026-09-01 full-width form moved
+       the page scrollbar to the viewport's right edge, under this
+       rail). Dragging the page scrollbar at the exact right edge
+       inside the toc's vertical extent must start above or below it.
+       Adjudicated: recorded, not yielded — a fixed inset yield would
+       guess the scrollbar width and break the rail's own edge. */
   }
 
 }
@@ -201,6 +233,13 @@
 }
 :where(.jx-top-layer [data-area='float']){
   grid-area: stage;
+  /* content-sized at the stage's TOP-right corner (V1-1, 2026-09-02;
+     corner corrected end→start end same day — toasts ride the top
+     corner per the adoption contract): the float wrapper NEVER
+     stretches over the stage — the adopted stack owns its own
+     geometry, so a stretched plane (and with it the stretched-card
+     defect) cannot exist by construction. */
+  place-self: start end;
 }
 
 /* ── the scrolling layer ──

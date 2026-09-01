@@ -311,7 +311,12 @@ describe('DropdownMenu', () => {
     await fireEvent.click(trigger);
     await new Promise(requestAnimationFrame);
     expect(document.activeElement).toBe(items[0]);
-    expect(items[0].getAttribute('aria-current')).toBe('true');
+    // the walk highlight is PAINT-ONLY (adjudicated D-5 fix, 2026-09-02):
+    // data-walk-active carries the roving highlight — the walk never
+    // touches aria-current (a static aria-current on a raw item is the
+    // author's semantics)
+    expect(items[0].getAttribute('data-walk-active')).toBe('');
+    expect(items[0].getAttribute('aria-current')).toBeNull();
   });
 
   it('ArrowDown/Home/End walk the items, wrapping', async () => {

@@ -1,20 +1,27 @@
 /**
- * Toast material/effect/adoption suite (test/toast.spec.ts, 2026-09-01).
+ * Toast material/effect/adoption suite (test/toast.spec.ts, 2026-09-01;
+ * D-fix wave 2026-09-02).
  *
  * The viewport does not float itself (the float-button law): inside a
  * website-scaffold it adopts into the top layer's float plane through
  * the jx-top-layer context (ScaffoldFloat), flowing inside the plane —
- * the fixed corner is the STANDALONE fallback only. The stack is a
- * grid (rows stack naturally); each toast is a lane grid
- * (leading | body | trailing | dismiss). MATERIAL picks the ground
- * (popover solid | glass backdrop-filter), EFFECT picks the loop
- * (pulse | sweep), and the countdown companion drains the duration in
- * the trailing lane (sticky toasts get none). Deeper behavior (live
- * regions, pause, exit frames) stays covered by batch3 and
- * enhance-picker-feedback.
+ * the fixed corner is the STANDALONE fallback only. Since the D-6
+ * ruling the adoption test mounts the REAL WebsiteScaffold (no fake
+ * adopt() stubs) and asserts the overlay pointer law against the real
+ * css. The stack is a grid (rows stack naturally); each toast is a
+ * lane grid (leading | body | trailing | dismiss). MATERIAL picks the
+ * ground (popover solid | glass backdrop-filter), EFFECT picks the
+ * loop (pulse | sweep), and the countdown companion drains the
+ * duration in the trailing lane (sticky toasts get none). The D-wave
+ * locks: expiry arms at FIRST VISIBILITY (D-2 — queued toasts never
+ * die unseen), no ghost exit for never-seen toasts (D-3), exit frames
+ * render in queue order (D-8). Deeper behavior (live regions, pause)
+ * stays covered by batch3 and enhance-picker-feedback.
  */
 import { render } from '@testing-library/svelte';
-import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { tick } from 'svelte';
+import { describe, expect, it, vi } from 'vitest';
 
 import ToastViewport from '../src/lib/ui/toast/toast-viewport.svelte';
 import { createToastStore } from '../src/lib/toast-store';
@@ -22,15 +29,60 @@ import ToastAdoptHost from './fixtures/toast-adopt-host.svelte';
 import ToastFeaturesHost from './fixtures/toast-features-host.svelte';
 
 describe('toast — the viewport does not float itself', () => {
-  it('inside a float plane (jx-top-layer context) it ADOPTS: flow mode, no fixed', () => {
+  it('inside a REAL website-scaffold it ADOPTS: wrapper in the float slot, flow mode, no fixed', async () => {
     const { container } = render(ToastAdoptHost);
+    await tick();
     const stack = container.querySelector('[data-jx-toasts]') as HTMLElement;
     expect(stack).toBeTruthy();
-    // the adoption path renders through ScaffoldFloat's content node
-    expect(stack.closest('[data-jx-float-content]')).toBeTruthy();
+    // the adoption path renders through ScaffoldFloat's content node,
+    // which the real provider re-parented into .jx-float-slot with the
+    // float role stamped
+    const wrapper = stack.closest('[data-jx-float-content]') as HTMLElement;
+    expect(wrapper).toBeTruthy();
+    expect(wrapper.getAttribute('data-area')).toBe('float');
+    expect(wrapper.closest('.jx-float-slot')).toBeTruthy();
     // and the stack FLOWS inside the plane — no self-floating
     expect(stack.className).not.toContain('fixed');
-    expect(stack.className).toContain('align-content-end');
+    // V1-1 defense: rows are min-content and packed to the end — the
+    // dead `align-content-end` utility (align-content never applied)
+    // is gone, real alignment utilities took its place
+    expect(stack.className).not.toContain('align-content-end');
+    expect(stack.className).toContain('content-end');
+    expect(stack.className).toContain('auto-rows-min');
+  });
+
+  it('THE OVERLAY POINTER LAW (D-1): the float wrapper is transparent; the stack and cards opt in themselves', async () => {
+    const { container } = render(ToastAdoptHost);
+    await tick();
+    const wrapper = container.querySelector('.jx-float-slot > [data-area="float"]') as HTMLElement;
+    expect(wrapper).toBeTruthy();
+
+    // the law as css-source: the exact transparent rule ships AFTER
+    // the generic child grant (equal :where() specificity — source
+    // order decides), and the wrapper is content-sized at the corner
+    const css = readFileSync('src/lib/ui/website-scaffold/website-scaffold.css', 'utf8');
+    const grant = css.indexOf(":where(.jx-float-slot > *){");
+    const law = css.indexOf(":where(.jx-float-slot > [data-area='float']){");
+    expect(grant).toBeGreaterThan(-1);
+    expect(law).toBeGreaterThan(grant);
+    expect(css).toContain(
+      `:where(.jx-float-slot > [data-area='float']){\n  pointer-events: none;\n}`,
+    );
+    // the wrapper never stretches over the stage (V1-1): the float
+    // area rule itself carries the corner placement
+    const floatRule = css.indexOf(":where(.jx-top-layer [data-area='float']){");
+    expect(floatRule).toBeGreaterThan(-1);
+    expect(css.indexOf('place-self: end;')).toBeGreaterThan(floatRule);
+
+    // the stack paints itself transparent; every CARD opts back in —
+    // with the wrapper transparent, only the cards are interactive
+    // (jsdom cannot cascade @layer rules from the imported css, so the
+    // wrapper's computed pointer-events is asserted as css-source law
+    // above; the content's half is the class contract on real nodes)
+    const stack = wrapper.querySelector('[data-jx-toasts]') as HTMLElement;
+    expect(stack.className).toContain('pointer-events-none');
+    const card = stack.querySelector('[data-jx-toast]') as HTMLElement;
+    expect(card.className).toContain('pointer-events-auto');
   });
 
   it('standalone (no scaffold) keeps the legacy fixed corner fallback', () => {
@@ -38,6 +90,89 @@ describe('toast — the viewport does not float itself', () => {
     const { container } = render(ToastViewport, { props: { store } });
     const stack = container.querySelector('[data-jx-toasts]') as HTMLElement;
     expect(stack.className).toContain('fixed');
+  });
+});
+
+describe('toast — the visibility handshake (D-2)', () => {
+  it('a queued toast never expires unseen: expiry arms at FIRST visibility', async () => {
+    vi.useFakeTimers();
+    try {
+      const store = createToastStore();
+      const { container } = render(ToastViewport, { props: { store, maxVisible: 1 } });
+      await tick();
+
+      // 'a' is expiring; the sticky 'b' holds the only visible slot —
+      // from b's arrival on, a is QUEUED (the slice favors the newest)
+      store.api.push({ title: 'a', duration: 100 });
+      await tick();
+      store.api.push({ title: 'b', duration: 0 });
+      await tick();
+
+      // the queued toast's clock is HELD while invisible — the old
+      // store would have silently expired it here
+      await vi.advanceTimersByTimeAsync(500);
+      expect(store.api.snapshot().map((t) => t.title)).toEqual(['a', 'b']);
+
+      // dismissing b frees the slice: a becomes visible — its clock
+      // ARMS now (full duration from first visibility)
+      store.api.dismiss(store.api.snapshot()[1].id);
+      await tick();
+      await vi.advanceTimersByTimeAsync(50);
+      expect(store.api.snapshot().map((t) => t.title)).toEqual(['a']);
+      await vi.advanceTimersByTimeAsync(100);
+      expect(store.api.snapshot()).toHaveLength(0);
+      // let the exit sweeper run on the same fake clock, then the DOM
+      // is fully drained
+      await vi.advanceTimersByTimeAsync(300);
+      expect(container.querySelectorAll('[data-jx-toast]')).toHaveLength(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+describe('toast — exit frames (D-3 ghost + D-8 order)', () => {
+  it('a toast dismissed while OFF-SCREEN (queued out of the slice) paints NO ghost exit frame', async () => {
+    const store = createToastStore();
+    const { container } = render(ToastViewport, { props: { store, maxVisible: 1 } });
+    await tick();
+    store.api.push({ title: 'older', duration: 0 });
+    await tick();
+    // the newer arrival takes the only slot — 'older' is queued now
+    store.api.push({ title: 'fresh', duration: 0 });
+    await tick();
+    expect(container.querySelector('[data-jx-toast]')!.textContent).toContain('fresh');
+
+    // dismissing the off-screen toast must not conjure a 220ms exit
+    // snapshot for pixels that are not on screen (D-3)
+    store.api.dismiss(store.api.snapshot()[0].id);
+    await tick();
+    expect(container.textContent).not.toContain('older');
+    expect(container.querySelectorAll('.jx-toast-leaving')).toHaveLength(0);
+    expect(container.querySelector('[data-jx-toast]')!.textContent).toContain('fresh');
+  });
+
+  it('a leaving toast keeps its QUEUE position — it never jumps below newer arrivals', async () => {
+    const store = createToastStore();
+    const { container } = render(ToastViewport, { props: { store, maxVisible: 4 } });
+    await tick();
+    const a = store.api.push({ title: 'first', duration: 0 });
+    store.api.push({ title: 'second', duration: 0 });
+    await tick();
+
+    // first leaves (exit window) while a new toast arrives — the exit
+    // snapshot must stay ABOVE the new card (queue order, not append)
+    store.api.dismiss(a);
+    store.api.push({ title: 'third', duration: 0 });
+    await tick();
+
+    const titles = [...container.querySelectorAll('[data-jx-toast]')].map(
+      (el) => el.querySelector('[data-jx-toast-title]')!.textContent,
+    );
+    expect(titles).toEqual(['first', 'second', 'third']);
+    expect(container.querySelector('[data-jx-toast]')!.classList.contains('jx-toast-leaving')).toBe(
+      true,
+    );
   });
 });
 

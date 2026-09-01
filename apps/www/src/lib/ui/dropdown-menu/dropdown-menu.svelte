@@ -26,10 +26,13 @@
   tw4 (2026-08-24): trigger/caret/scroll paint as token utilities (the
   press poses ride --jx-press* custom-property utilities, verbatim
   law); dropdown-menu.css keeps ONLY what utilities cannot express —
-  the caret's :has()+:popover-open flip, the item hover/[aria-current]/
-  focus-visible state machines (aria-current is set imperatively by
-  this root on ANY [role=menuitem], including raw consumer items), the
-  anchored panel law (@supports fallback), and ::backdrop.
+  the caret's :has()+:popover-open flip, the item hover/[data-walk-
+  active]/focus-visible state machines (the walk's highlight is a
+  paint-only data attribute authored imperatively by this root on ANY
+  [role=menuitem], including raw consumer items — it never touches
+  aria-current; a static aria-current on an item is consumer
+  semantics, D-5 2026-09-02), the anchored panel law (@supports
+  fallback), and ::backdrop.
 
   Motion kernel (2026-08-25): the panel adopts the shared surface
   motion kernel (lib/surface-motion.ts, popover wiring verbatim) —
@@ -136,9 +139,14 @@
 
   function focusItem(items: HTMLElement[], next: HTMLElement): void {
     next.focus();
-    // keep the roving state visible to CSS (hover highlight follows)
-    items.forEach((item) => item.removeAttribute('aria-current'));
-    next.setAttribute('aria-current', 'true');
+    // keep the roving state visible to CSS (hover highlight follows).
+    // data-walk-active is a PAINT-ONLY hook (adjudicated D-5 fix,
+    // 2026-09-02): the walk must never touch aria-current — a static
+    // aria-current="page" on a raw item (the breadcrumb dropdown) is
+    // consumer semantics Svelte will not re-render once imperatively
+    // removed. APG's "current" token stays the author's decision.
+    items.forEach((item) => item.removeAttribute('data-walk-active'));
+    next.setAttribute('data-walk-active', '');
   }
 
   // ---- the toggle seam: open focuses item 1, close restores focus -----

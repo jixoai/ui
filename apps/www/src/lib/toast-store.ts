@@ -19,6 +19,10 @@
  *     REPLACES it; a rejection lands the error shape (tonal +
  *     jx-hue-error, assertive, sticky). Framework-free, no module
  *     side effects.
+ *  5. setVisible — the viewport handshake (adjudicated D-2 fix,
+ *     2026-09-02): expiry arms at FIRST VISIBILITY for viewport
+ *     consumers; headless push stays arm-at-push. See the store
+ *     interface doc below.
  *
  * Variant grammar (2026-08-26, variant-grammar change): the retired
  * tone law (default/primary/destructive) becomes the ladder —
@@ -111,6 +115,10 @@ interface ToastInternal {
   /** remaining ms while paused; undefined while the timer runs */
   remaining: number | undefined;
   expiresAt: number;
+  /** true while the VIEWPORT's hold (hover/focus) froze this toast —
+   *  kept distinct from the visibility hold so the handshake below
+   *  never stomps a user pause */
+  held: boolean;
 }
 
 export interface ToastStore {
@@ -120,6 +128,15 @@ export interface ToastStore {
   pause(id: number): void;
   /** unfreeze; restarts from the remaining time */
   resume(id: number): void;
+  /** the visibility handshake (adjudicated D-2 fix, 2026-09-02): the
+   *  viewport reports the id set it actually renders. Toasts OUTSIDE
+   *  the set are held (expiry paused, remaining preserved — a queued
+   *  toast never expires unseen); a held toast ARMS when it first
+   *  enters the set, which is also when the countdown companion
+   *  mounts — the two clocks start together. Headless consumers never
+   *  call this: arm-at-push stays the default semantics. `null`
+   *  detaches (everything resumes arm-at-push). */
+  setVisible(ids: readonly number[] | null): void;
 }
 
 const DEFAULT_DURATION = 5000;
@@ -169,9 +186,13 @@ export function createToastStore(): ToastStore {
       timer: undefined,
       remaining: undefined,
       expiresAt: duration === 0 ? Infinity : now() + duration,
+      held: false,
     };
     queue = [...queue, item];
     live.set(id, internal);
+    // arm-at-push is the DEFAULT (headless) semantics; when a viewport
+    // has reported a visible set, its effect follows with setVisible —
+    // a pushed-but-queued toast is held there within the same flush
     if (duration !== 0) arm(internal);
     emit();
     return id;
@@ -234,14 +255,36 @@ export function createToastStore(): ToastStore {
       const internal = live.get(id);
       if (!internal || internal.timer === undefined || internal.expiresAt === Infinity) return;
       internal.remaining = internal.expiresAt - now();
+      internal.held = true;
       clearTimer(internal);
     },
     resume(id: number): void {
       const internal = live.get(id);
-      if (!internal || internal.remaining === undefined) return;
-      internal.expiresAt = now() + internal.remaining;
+      if (!internal || !internal.held) return;
+      internal.held = false;
+      internal.expiresAt = now() + (internal.remaining ?? 0);
       internal.remaining = undefined;
       arm(internal);
+    },
+    setVisible(ids: readonly number[] | null): void {
+      const visible = ids === null ? null : new Set(ids);
+      for (const internal of live.values()) {
+        if (internal.expiresAt === Infinity) continue; // sticky: no clock
+        const seen = visible === null || visible.has(internal.item.id);
+        // never stomp the viewport's hover/focus hold: `held` is the
+        // user pause; the visibility hold only pauses/resumes toasts
+        // the hold does not own
+        if (!seen && !internal.held && internal.timer !== undefined) {
+          internal.remaining = internal.expiresAt - now();
+          clearTimer(internal);
+        } else if (seen && !internal.held && internal.remaining !== undefined) {
+          // first visibility (or re-entry): the clock starts NOW —
+          // aligned with the countdown companion mounting this frame
+          internal.expiresAt = now() + internal.remaining;
+          internal.remaining = undefined;
+          arm(internal);
+        }
+      }
     },
   };
 }

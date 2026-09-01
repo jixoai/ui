@@ -21,11 +21,13 @@
   opacity: 0.7;
 }
 
-/* BreadcrumbDropdown's current entry: the menu root's walk owns the
- * transient aria-current="true" highlight (it wipes and rewrites the
- * attribute on every arrow); the TRAIL's "you are here" is a static
- * paint of its own — same recipe as the menu's current highlight,
- * owned by this family because the semantics are the breadcrumb's. */
+/* BreadcrumbDropdown's current entry: the TRAIL's "you are here" is a
+ * static paint of its own — same recipe as the menu's walk highlight,
+ * owned by this family because the semantics are the breadcrumb's.
+ * The menu root's walk paints its transient highlight through a
+ * PAINT-ONLY data-walk-active attribute (dropdown-menu.css, D-5
+ * 2026-09-02) — it never touches aria-current, so this static page
+ * marker keeps both its semantics and its paint while walking. */
 :where([data-jx-breadcrumb-menu-item][aria-current='page']) {
   color: var(--foreground);
   background: color-mix(in oklab, var(--muted) 70%, transparent);

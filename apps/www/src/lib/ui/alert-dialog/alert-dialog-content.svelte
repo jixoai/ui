@@ -13,7 +13,11 @@
 
   Manual popover = alert gravity: NO light dismiss (an outside click
   must not silently answer a destructive question); Escape is OURS —
-  re-routed into the animated cancel; the top layer + ::backdrop scrim
+  re-routed into the animated cancel. SCOPING (D-12, 2026-09-02): the
+  keydown lives on the panel itself, so Escape cancels while focus is
+  INSIDE the panel; the alert is non-modal by design (no trap) — a
+  user who tabs back to the page has left the question, and Escape
+  there is the page's own. The top layer + ::backdrop scrim
   still come from the platform. role=alertdialog + aria-labelledby/
   aria-describedby wire the deterministic derived ids (a Content
   without a Title part is caller error — the alertdialog contract).
@@ -41,7 +45,17 @@
     class?: string;
   }
 
-  let { variant = 'auto', children, class: className = '', ...rest }: Props = $props();
+  // style is destructured OUT of rest so the consumer's declarations
+  // ride AFTER the anchoring style (the Trigger's merge law, :36) —
+  // {...rest} before the fix let a consumer style attribute silently
+  // drop the anchor geometry (D-4, 2026-09-02)
+  let {
+    variant = 'auto',
+    children,
+    class: className = '',
+    style = '',
+    ...rest
+  }: Props = $props();
 
   const api = getContext<AlertDialogApi>(ALERT_DIALOG_KEY);
 
@@ -100,6 +114,9 @@
   };
 </script>
 
+<!-- the panel: margin is SYMMETRIC (all sides, D-13 2026-09-02 — the
+     .jx-menu family precedent): a flip-block fallback must find the
+     same gap on the flipped side, never stick to the trigger -->
 <div
   bind:this={panel}
   popover="manual"
@@ -110,7 +127,7 @@
   )}
   data-variant={variant}
   data-jx-adlg=""
-  style="position-anchor: --{api.uid}; position-area: block-end; inset-area: block-end; position-try: flip-block, flip-inline, flip-block flip-inline; position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline; margin: var(--jx-gap, 0.5rem) 0 0 0;"
+  style="position-anchor: --{api.uid}; position-area: block-end; inset-area: block-end; position-try: flip-block, flip-inline, flip-block flip-inline; position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline; margin: var(--jx-gap, 0.5rem); {style}"
   {...rest}
   role="alertdialog"
   aria-labelledby="{api.uid}-title"

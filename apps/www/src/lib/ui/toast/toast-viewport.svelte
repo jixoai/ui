@@ -14,14 +14,23 @@
   context contract (via ScaffoldFloat — one adoption mechanism); the
   stack then flows inside the plane (end-corner alignment, zero fixed
   positioning). Without a scaffold (registry standalone), the legacy
-  fixed corner remains the fallback.
+  fixed corner remains the fallback. The adopted WRAPPER is pointer-
+  transparent and content-sized (the overlay pointer law, D-1 2026-09-02
+  — see website-scaffold.css): the STACK paints pointer-events:none and
+  every CARD opts back in with pointer-events:auto, so the plane can
+  never shield the page beneath it, and its grid rows are min-content
+  (auto-rows-min + content-end) so no wrapper height can ever inflate
+  a card.
 
   THE STACK IS A GRID (2026-09-01): rows auto-stack — no column
   tricks; every toast is a row of the plane's own grid. Each TOAST is
   itself a grid with LANES: leading | body | trailing | dismiss — the
   store's leading/trailing snippets compose into them (an icon, an
   action row, the countdown companion), the built-in countdown flag
-  mounts ToastCountdown in the trailing lane.
+  mounts ToastCountdown in the trailing lane. The stack container
+  carries role=group + aria-label (D-14, 2026-09-02): an aria-label
+  needs a role to be legal, and per-item live regions (not the
+  container) carry the announcing.
 
   MATERIAL × EFFECT (float-button's model): material picks the GROUND
   (popover solid, default | glass — backdrop-filter translucent, the
@@ -36,10 +45,21 @@
   HOLD (pointer enter / focus freezes BOTH clocks — the store's expiry
   timer and the countdown companion's drain — leave/cross-out resumes).
 
+  THE VISIBILITY HANDSHAKE (D-2, 2026-09-02): the viewport reports the
+  id slice it renders to the store (store.setVisible); a toast's expiry
+  ARMS at first visibility, so queued toasts beyond maxVisible never
+  expire unseen — and the countdown companion, which mounts at
+  visibility, starts with the store's clock instead of drifting from
+  push time. Queued toasts are not in the accessibility tree until
+  they render (the +N chip is aria-hidden decoration).
+
   Exit frames: a dismissed toast's SNAPSHOT survives in a leaving map
-  until the exit animation window passes (animationend or the sweeper)
-  — the store already dropped the item, but the pixels finish their
-  sentence. prefers-reduced-motion collapses every animation to none.
+  for the exit window — swept by a timeout (there is no animationend
+  listener; the sweeper is the only path, D-10 2026-09-02). Only
+  toasts that were previously VISIBLE paint an exit frame (D-3), and
+  leaving snapshots render in queue order (id order — D-8).
+  prefers-reduced-motion skips the snapshot entirely: the toast is
+  removed immediately, no opaque stall (D-9).
 -->
 <script lang="ts">
   import { getContext, onMount } from 'svelte';
@@ -73,15 +93,23 @@
   /** exit-window timers — all cleared when the viewport unmounts */
   const exitTimers = new Set<ReturnType<typeof setTimeout>>();
 
+  // reduced motion removes a dismissed toast IMMEDIATELY (D-9,
+  // 2026-09-02): the exit animation is killed by toast.css anyway, so
+  // a snapshot would sit fully opaque for the whole window — skip it
+  const REDUCED_MOTION =
+    typeof window !== 'undefined' &&
+    !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
   const EXIT_MS = 220; // 180ms animation + a frame of margin
 
   onMount(() => {
     const unsubscribe = store.subscribe((next) => {
-      // adopt dismissals as exit snapshots BEFORE swapping the queue
-      const gone = items.filter((prev) => !next.some((n) => n.id === prev.id));
-      leavingItems = [...leavingItems, ...gone];
-      items = next;
-      if (gone.length > 0) {
+      // exit snapshots: ONLY toasts that were previously VISIBLE (D-3)
+      // — a queued toast the user never saw paints no ghost exit frame
+      const prevVisible = items.slice(-maxVisible);
+      const gone = prevVisible.filter((prev) => !next.some((n) => n.id === prev.id));
+      if (gone.length > 0 && !REDUCED_MOTION) {
+        leavingItems = [...leavingItems.filter((l) => !gone.some((g) => g.id === l.id)), ...gone];
         const timer = setTimeout(() => {
           exitTimers.delete(timer);
           leavingItems = leavingItems.filter(
@@ -90,20 +118,39 @@
         }, EXIT_MS);
         exitTimers.add(timer);
       }
+      items = next;
     });
     return () => {
       unsubscribe();
+      // detach the visibility handshake: the store resumes arm-at-push
+      // semantics for whoever mounts next
+      store.setVisible(null);
       for (const timer of exitTimers) clearTimeout(timer);
       exitTimers.clear();
     };
   });
 
   const visible = $derived(items.slice(-maxVisible));
-  const renders = $derived([...visible.filter((v) => !leavingItems.some((l) => l.id === v.id)), ...leavingItems]);
+  // queue order is id order (the store's ids are monotonic): leaving
+  // snapshots merge back at their ORIGINAL position (D-8) — a toast
+  // painting its exit never jumps below newer arrivals
+  const renders = $derived(
+    [...visible.filter((v) => !leavingItems.some((l) => l.id === v.id)), ...leavingItems].sort(
+      (a, b) => a.id - b.id,
+    ),
+  );
   // queue honesty (site-polish F6): the store may hold more toasts than
   // the viewport renders — a tail chip says so instead of the stack
   // silently hiding them. Pure paint: no behavior, no timers.
   const queuedCount = $derived(Math.max(0, items.length - maxVisible));
+
+  // the visibility handshake (D-2): report the rendered slice so the
+  // store arms expiry at FIRST VISIBILITY — queued toasts never expire
+  // unseen, and the countdown (mounted at visibility) starts with the
+  // store's clock
+  $effect(() => {
+    store.setVisible(visible.map((item) => item.id));
+  });
 
   // the unified hold — one freeze for both clocks
   function hold(id: number): void {
@@ -144,17 +191,23 @@
 
 <!-- THE STACK — one snippet, two homes: adopted into the scaffold's
      float plane (flow inside the overlay grid; the end-corner is the
-     grid's own alignment), or the legacy fixed corner when standalone -->
+     grid's own alignment), or the legacy fixed corner when standalone.
+     Pointer law (D-1): the stack is pointer-events:none — only the
+     CARDS opt in (pointer-events-auto below) — so the adopted plane's
+     transparent wrapper inherits nothing interactive. Row sizing
+     defense (V1-1): content-end + auto-rows-min keep every row at
+     min-content no matter what height any wrapper ever carries. -->
 {#snippet stack()}
   <div
     data-jx-toasts=""
     class={cn(
-      'grid gap-2 justify-items-stretch pointer-events-none',
+      'grid content-end auto-rows-min gap-2 justify-items-stretch pointer-events-none',
       topLevel
-        ? 'h-full w-auto justify-self-end align-content-end p-4'
+        ? 'h-full w-auto justify-self-end p-4'
         : 'fixed right-4 bottom-4 z-[90] w-[min(22rem,calc(100vw-2rem))]',
       className,
     )}
+    role="group"
     aria-label="notifications"
   >
     {#each renders as item (item.id)}

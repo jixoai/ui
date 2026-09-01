@@ -16,11 +16,21 @@
                         click-through chrome plane (pointer-events none,
                         children opt back in); per-zone immersive
                         transforms — the plane itself never moves
-    .jx-shell-body      column-subgrid ONLY (row-subgrid disproven by a
-                        live Chromium test: tall main overflows the page
+    .jx-shell-body      spans the whole shell (grid-column 1 / -1 — no
+                        subgrid since the 2026-09-01 full-width+padding
+                        form; row-subgrid was disproven by a live
+                        Chromium test: tall main overflows the page
                         track and overlaps the footer); the scroll
                         container; reserves chrome via padding driven by
                         the single measured var --jx-header-h
+
+  THE OVERLAY POINTER LAW (adjudicated D-1 fix, 2026-09-02): overlay
+  containers are pointer-TRANSPARENT; real content opts back in.
+  Chrome surfaces (header/toc/tree) opt in as whole nodes, but an
+  adopted FLOAT wrapper never does — float content re-enables pointers
+  only on its own interactive surface, so a float plane covering the
+  stage can never shield the page beneath it (see the float-slot rules
+  in website-scaffold.css).
 
   Forms (container queries on jx-shell; areas on the top layer):
     >=1200px  cols [rail 16rem][content 1fr][toc 15rem]   tree nav rail

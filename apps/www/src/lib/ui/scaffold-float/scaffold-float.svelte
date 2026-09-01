@@ -14,6 +14,15 @@
   ONE adoption mechanism for the float plane — the toc's and tree-nav's
   automatic top-layer mounts use the same contract.
 
+  THE OVERLAY POINTER LAW (adjudicated D-1 fix, 2026-09-02): the float
+  WRAPPER this component creates is pointer-TRANSPARENT (website-
+  scaffold.css keys on [data-area='float']) and content-sized at the
+  stage's end corner — it never stretches over the stage and never
+  shields the page beneath it. Floated content must opt back in on its
+  own interactive surface (the toast stack paints pointer-events:none
+  and re-enables it per card). A float that needs its whole box
+  interactive must say so itself.
+
   API:
     <ScaffoldFloat area="float">
       …anything that should stick to the chrome plane…

@@ -25,11 +25,17 @@
   }
 
   /* Engines without the full anchored-positioning set (JOINT check —
-     the popover law): authored viewport-center, margin auto pinned */
+     the popover law, D-7 2026-09-02): probe EXACTLY the value set the
+     inline style carries — the NEW position-try name AND its alias
+     position-try-fallbacks, plus the LOGICAL position-area: block-end
+     (not a physical keyword). An engine shipping only one name or only
+     physical area values must take the authored viewport-center
+     fallback, never a half-anchored panel. */
   @supports not (
     (anchor-name: --jx-adlg-fallback) and
       (position-anchor: --jx-adlg-fallback) and
-      (position-area: bottom) and
+      (position-area: block-end) and
+      (position-try: flip-block) and
       (position-try-fallbacks: flip-block)
   ) {
     :where([data-jx-adlg]) {

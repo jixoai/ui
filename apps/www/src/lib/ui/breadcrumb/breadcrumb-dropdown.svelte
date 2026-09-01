@@ -29,9 +29,10 @@
 
   The current entry carries aria-current="page" for assistive tech and
   the static you-are-here paint (breadcrumb.css). The menu root's
-  keyboard walk owns the transient highlight and rewrites
-  aria-current="true" as focus moves — the static page marker cedes to
-  it while walking (documented trade, dropdown-menu law).
+  keyboard walk paints its transient highlight through a PAINT-ONLY
+  data-walk-active attribute — it never touches aria-current (D-5,
+  2026-09-02), so the static page marker survives walking with both
+  its semantics and its paint intact.
 -->
 <script lang="ts" module>
   /** a peer destination — a REAL link */

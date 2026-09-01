@@ -103,7 +103,13 @@
       invoker = el;
     },
     restoreInvoker() {
-      invoker?.focus();
+      // the connected invoker is the contract; a REMOVED invoker
+      // (D-11, 2026-09-02) deliberately leaves focus wherever the
+      // engine puts it after the popover hides (the body) — a dead
+      // panel must not keep it, and guessing a "logical parent" of a
+      // detached subtree would land focus somewhere the user never
+      // was. Documented decision, mirrored in the docs a11y table.
+      if (invoker?.isConnected) invoker.focus();
     },
   });
 </script>

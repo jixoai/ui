@@ -1,18 +1,27 @@
-<!-- toast spec fixture: a FAKE float plane — setContext provides the
-     jx-top-layer contract, so the viewport renders through ScaffoldFloat
-     (the adoption path) instead of self-floating. -->
+<!-- toast spec fixture: the REAL float plane (D-6 ruling, 2026-09-02 —
+     no fake adopt() stubs): a full WebsiteScaffold mount whose
+     jx-top-layer context the viewport adopts through, so the pointer
+     law and the adoption path are asserted against the real provider,
+     the real slot and the real website-scaffold.css. -->
 <script lang="ts">
-  import { setContext } from 'svelte';
+  import { onMount } from 'svelte';
   import ToastViewport from '../../src/lib/ui/toast/toast-viewport.svelte';
+  import WebsiteScaffold from '../../src/lib/ui/website-scaffold/website-scaffold.svelte';
   import { createToastStore } from '../../src/lib/toast-store';
-  import type { TopLayerApi } from '../../src/lib/ui/website-scaffold/website-scaffold.svelte';
 
   const store = createToastStore();
-  setContext<TopLayerApi>('jx-top-layer', {
-    adopt: () => () => {},
+  // one sticky toast so the adopted card is IN the DOM (the pointer
+  // law asserts the card's own opt-in class, not an empty plane)
+  onMount(() => {
+    store.api.push({ title: 'adopted', duration: 0 });
   });
 </script>
 
-<div data-testid="plane">
+{#snippet header()}
+  <div data-testid="band">site header</div>
+{/snippet}
+
+<WebsiteScaffold {header}>
+  <p data-testid="page">page content under the float plane</p>
   <ToastViewport {store} />
-</div>
+</WebsiteScaffold>
