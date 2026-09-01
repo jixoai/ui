@@ -204,18 +204,23 @@
 }
 
 /* ── the scrolling layer ──
-   The scrollbar mounts on the CORRECT DOM (Owner ruling, 2026-08-24,
-   rev.3): the scroller IS the content-column cell — not a full-width
-   underlay beneath the chrome. Its scrollbar renders at the content
-   column's own edge: geometrically inside the layout, touching no
-   chrome, needing no parity compensation anywhere. The slot-aware
-   columns make it degrade perfectly — with no toc rail the content
-   column IS the full width, so the scrollbar sits at the viewport
-   edge. The scroller keeps the full grid height (content scrolls under
-   the header band via the --jx-header-h padding reservation). */
+   The full-width + padding form (Owner experiment, 2026-09-01 —
+   supersedes the 2026-08-24 rev.3 content-cell ruling): the body
+   spans the WHOLE shell (1 / -1); the side reservations move from
+   grid tracks to PADDING, reading the same shared --jx-rail-w /
+   --jx-toc-w vars the tracks read (slot-aware: both collapse to 0
+   when their chrome is absent, so the <900 form keeps its full-width
+   body with no reservations). Pure CSS — the ONE truth stays the
+   shell's own custom properties, inherited by the body. Geometry is
+   byte-identical to the content-cell form: content box x/width equal
+   the old content column exactly; the difference is only the box the
+   SCROLLBAR rides — now the viewport's own right edge (the toc rail's
+   ground is transparent, so the strip stays visible through it). */
 :where(.jx-shell-body){
   grid-row: 1;
-  grid-column: content;
+  grid-column: 1 / -1;
+  padding-inline-start: var(--jx-rail-w, 0px);
+  padding-inline-end: var(--jx-toc-w, 0px);
   overflow-y: auto;
   overscroll-behavior-y: none;
   /* chrome reservation: header band (+ the narrow toc bar) on top; the
