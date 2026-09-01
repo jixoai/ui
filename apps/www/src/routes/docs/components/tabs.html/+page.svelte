@@ -386,7 +386,7 @@ ${close}
       headerRegion="layouts"
       eyebrow="layouts"
       title="Layouts — inline, grow, scroll, wrap"
-      summary="The strip's geometry is a prop, and it composes with every material. inline (the default) sizes the strip to its content. grow stretches every trigger to an equal share of the full width — the Material full-bleed top bar. scroll declares a horizontal overflow run; wrap flows multiple rows instead of scrolling. Overflow is a contract, not a memory: every horizontal strip degrades to a hidden-scrollbar scroll run the moment its content outgrows the container, and ::scroll-button() chevrons overlay the inline edges on demand — only toward the direction that can still travel. Grow, scroll and wrap accept any indicator — the demos stage grow with pill and scroll with the default line on purpose; wrap rides the default line too, where each row underlines its own active tab."
+      summary="The strip's geometry is a prop, and it composes with every material. inline (the default) sizes the strip to its content. grow stretches every trigger to an equal share of the full width — the Material full-bleed top bar. scroll declares a horizontal overflow run; wrap flows multiple rows instead of scrolling. Overflow is a contract, not a memory: every horizontal strip degrades to a hidden-scrollbar scroll run the moment its content outgrows the container, and ::scroll-button() chevrons overlay the inline edges on demand — only toward the direction that can still travel, fading scroll-driven as the run approaches its boundary. Grow, scroll and wrap accept any indicator — the demos stage grow with pill and scroll with the default line on purpose; wrap rides the default line too, where each row underlines its own active tab."
     >
       <div class="flex w-full max-w-2xl flex-col gap-7">
         <div class="flex flex-col gap-2.5">
@@ -430,7 +430,7 @@ ${close}
               <TabsTrigger value="mu">mu</TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">twelve triggers in the overflow run — the scrollbar is hidden, the chevron marks the open direction, the walk is not.</span>
+          <span class="text-muted-foreground text-[12px]">twelve triggers in the overflow run — the scrollbar is hidden, the chevron fades scroll-driven toward the boundary it reaches, the walk is not.</span>
         </div>
         <div class="flex flex-col gap-2.5">
           <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">wrap</span>

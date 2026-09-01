@@ -86,7 +86,8 @@
  * focused trigger clear of the lanes. Engines without
  * ::scroll-button() never generate the boxes — the strip simply
  * keeps its hidden scrollbar (progressive enhancement, no
- * fallback machinery).
+ * fallback machinery). The on-demand fade itself is scroll-driven
+ * (below).
  * (Pipeline scar, 2026-09-01: a lost comment opener here — raw
  * comment text as tokens, engine's-apostrophe eaten as a string
  * quote — 500'd the whole route through the tailwind css transform.
@@ -130,6 +131,54 @@
 :where(.jx-tabs-run)::scroll-button(inline-start):hover,
 :where(.jx-tabs-run)::scroll-button(inline-end):hover {
   background-color: var(--foreground);
+}
+
+/* ── the on-demand fade, scroll-driven (Owner, 2026-09-01) ──
+ * The chevron toward a boundary fades OUT as the run approaches it
+ * and fades back IN as travel opens again — the run's own scroll
+ * offset is the clock (scroll(self)), no listeners, no JS.
+ *
+ * Wiring law (empirical, Chromium 146): a timeline cannot be
+ * attached to the ::scroll-button() boxes themselves — they are UA
+ * internals; neither scroll(nearest) nor a timeline-scope-hoisted
+ * name activates on them. So the ANIMATION rides the RUN (a
+ * scroller referencing its own scroll container — the
+ * scroll-progress-bar pattern) and animates a REGISTERED custom
+ * property; the buttons INHERIT that number (pseudos inherit from
+ * their originator) and calc their own opacity: each chevron ramps
+ * over the outer 15% of the run's travel. The un-animated initial
+ * value 0 also gives non-scroll-driven engines the honest static
+ * state (start hidden, end open) while the engine's generation
+ * gate keeps deciding existence. (Verification scar: a paused/
+ * occluded webview never advances scroll timelines — rAF stalls —
+ * so this wiring can only be observed in a live-rendering tab.) */
+@property --jx-tabs-progress {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+@keyframes jx-tabs-progress {
+  from {
+    --jx-tabs-progress: 0;
+  }
+  to {
+    --jx-tabs-progress: 1;
+  }
+}
+@supports (animation-timeline: scroll()) {
+  :where(.jx-tabs-run) {
+    animation: jx-tabs-progress linear both;
+    animation-timeline: scroll(self inline);
+  }
+}
+/* the ramp window: each chevron fades over the outer 15% of the
+ * run's travel (dividing the 0–1 progress by 0.15 stretches that
+ * window to the full 0–1 opacity range) */
+:where(.jx-tabs-run)::scroll-button(inline-start) {
+  opacity: min(1, calc(var(--jx-tabs-progress, 0) / 0.15));
+}
+:where(.jx-tabs-run)::scroll-button(inline-end) {
+  opacity: min(1, calc((1 - var(--jx-tabs-progress, 0)) / 0.15));
 }
 }
 

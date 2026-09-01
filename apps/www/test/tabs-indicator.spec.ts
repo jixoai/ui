@@ -454,17 +454,31 @@ describe('Tabs · horizontal overflow contract (tabs-trigger.css, source-pinned)
     expect(tabsTriggerCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*mask:\\s*url\\(`, 's'));
   });
 
-  it('a dead direction never paints (generation itself is the gate — Chromium 146) and the overlay carries NO absolute/anchor machinery (grid stacking law, Owner 2026-09-01)', () => {
-    // a direction's ::scroll-button() box is generated ONLY while it can
-    // scroll; :enabled/:disabled do not even match the pseudo (verified
-    // 2026-09-01) — the paint stays unconditional over generated boxes,
-    // and the layering is grid, never position:absolute
-    expect(tabsTriggerCss).not.toMatch(/::scroll-button\([^)]*\):(enabled|disabled|not)/);
-    const scrollBtnLines = tabsTriggerCss
+  it('the layout law: the scroll-button overlay carries NO position:absolute and no anchor machinery (grid stacking only)', () => {
+    const scrollBtnRules = tabsTriggerCss
       .split('\n')
       .filter((line) => line.includes('scroll-button'))
       .join('\n');
-    expect(scrollBtnLines).not.toMatch(/position:\s*absolute/);
-    expect(tabsTriggerCss).not.toMatch(/anchor-name|position-anchor/);
+    expect(scrollBtnRules).not.toMatch(/position:\s*absolute/);
+    expect(tabsTriggerCss).not.toMatch(/anchor-name/);
+    expect(tabsTriggerCss).not.toMatch(/position-anchor/);
+    // generation itself is the on-demand gate (Chromium 146: a dead
+    // direction has NO box; :enabled/:disabled never match the pseudo)
+    expect(tabsTriggerCss).not.toMatch(/::scroll-button\([^)]*\):(enabled|disabled|not)/);
+  });
+
+  it('the on-demand fade is scroll-driven: the run animates a REGISTERED progress var on its own scroll timeline; buttons inherit it and calc opacity', () => {
+    // registration (animatable, inherited into the pseudo boxes)
+    expect(tabsTriggerCss).toMatch(
+      /@property\s+--jx-tabs-progress\s*\{[^}]*syntax:\s*'<number>'[^}]*inherits:\s*true/s,
+    );
+    // the timeline rides the run itself — scroll(self), never a time-based run
+    expect(tabsTriggerCss).toMatch(
+      /@supports\s*\(\s*animation-timeline:\s*scroll\(\)\s*\)\s*\{[\s\S]*?\.jx-tabs-run[^{]*\{[^}]*animation-timeline:\s*scroll\(self\s+inline\)/,
+    );
+    expect(tabsTriggerCss).toMatch(/@keyframes\s+jx-tabs-progress[\s\S]*?--jx-tabs-progress:\s*1/);
+    // each direction ramps over the outer 15% of travel
+    expect(tabsTriggerCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*opacity:\\s*min\\(1,\\s*calc\\(var\\(--jx-tabs-progress, 0\\) / 0\\.15\\)\\)`, 's'));
+    expect(tabsTriggerCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*opacity:\\s*min\\(1,\\s*calc\\(\\(1 - var\\(--jx-tabs-progress, 0\\)\\) / 0\\.15\\)\\)`, 's'));
   });
 });
