@@ -14,11 +14,6 @@
   here, but any [role=tab] joins the walk) — keyboard handling is DOM
   delegation over :scope [role=tab]:not([disabled]), no registration.
 
-  tw4 (2026-08-24): PURE utility migration, zero css residue — the
-  orientation axis is a prop, so the horizontal/vertical border rides
-  conditional utility strings; jx-tabs-vertical stays as the semantic
-  hook consumers/variants may key on.
-
   Indicator engine (2026-09-01, tabs variant system): the list owns a
   shared sliding indicator span (LAST child) measured against its OWN
   selected trigger — offsetLeft/offsetTop layout coords (scroll-proof,
@@ -27,12 +22,25 @@
   this engine still owns the geometry (a snippet rides the pill-family
   hug box; data-material reports 'custom'). Only the `line` material
   keeps the structural border; `layout` adds grow/scroll/wrap strip
-  shapes. Every horizontal strip is a ONE-CELL GRID HOST whose scroll
-  run (role=presentation, the real scroller) degrades to a
-  hidden-scrollbar overflow run with on-demand ::scroll-button()
-  chevrons stacked over the same cell — grid layering, never
-  position:absolute (Owner, 2026-09-01; the css contract lives in
-  tabs-trigger.css).
+  shapes.
+
+  STRUCTURE (Owner, 2026-09-01 R4): the TABLIST is the scrollable
+  region — the a11y scroll region and the DOM scroller are one element
+  (data-jx-tabs-list, the .jx-tabs-run). Children of a scroller scroll
+  with its content, so the OVERLAYS mount on the component root
+  instead: the root is a ONE-CELL GRID HOST (grid positioning, z-index
+  layering — never position:*) stacking three kinds of grid items in
+  the same cell: the tablist scroller (base), the merged veil layer
+  (z 1, scrollEffect=progressBlur) and the two chevron BUTTONS (z 2) —
+  real DOM, not ::scroll-button() pseudos (UA boxes: no timeline, no
+  mask control, flaky generation — DOM buttons are standard,
+  styleable, keyboard-scrollable and live OUTSIDE the tablist, keeping
+  the a11y tree clean of non-tab controls). The veil layer is one
+  overflow:clip grid item holding both edge veils; each veil ENTERS by
+  scroll-driven translate (start: -100% → 0 as travel opens the start
+  edge; end: 0 → +100% as travel closes the end edge) — the strip's
+  own --jx-tabs-progress drives it, clipped by the layer (the css
+  contract lives in tabs-trigger.css).
 -->
 <script lang="ts" module>
   /** indicator paint materials — 'none' renders no indicator at all */
@@ -65,8 +73,8 @@
    *    timelines were tried and rejected: Chromium 152 resolves
    *    named ranges garbage at rest — the stuck-first-button bug)
    *  - progressBlur(): the progressive-blur ladder veils both inline
-   *    edges — gated and faded EXACTLY like the chevrons (per-edge
-   *    scroll-state + the same progress window) */
+   *    edges — gated by scrollability and ENTERING by scroll-driven
+   *    translate, exactly like the chevrons it sits under */
   export type TabsScrollEffect = SlideEffect | BlurEffect | BlurSlideEffect | ProgressBlurEffect;
 
   export interface SlideOptions {
@@ -165,9 +173,15 @@
 
   const tabs = getContext<TabsApi>(TABS_KEY);
 
+  /** the component root — the one-cell grid HOST carrying the overlays
+   *  (the tablist scroller scrolls its own children; overlays must not
+   *  scroll, so they mount here, in the same grid cell) */
+  let hostEl = $state<HTMLDivElement>();
+  /** the tablist — role=tablist AND (horizontal strips) the .jx-tabs-run
+   *  scroller: the a11y scroll region and the DOM scroller are one */
   let listEl = $state<HTMLDivElement>();
-  /** the horizontal scroll run (null on vertical lists — flat law) */
-  let runEl = $state<HTMLDivElement | null>(null);
+  /** the horizontal scroll run (the tablist itself; null on vertical) */
+  const runEl = $derived(orientation === 'horizontal' ? listEl : null);
   let indEl = $state<HTMLSpanElement>();
   /** measured geometry of the selected trigger; null = nothing selected */
   let geo = $state<TabsIndicatorGeo | null>(null);
@@ -187,10 +201,10 @@
    *  trigger inset by half the inline inset token; line is a 2px bar
    *  riding the strip's content edge on the orientation axis. All
    *  offsets resolve against the trigger's offsetParent — the RUN on
-   *  horizontal lists (position: relative, so the indicator scrolls
-   *  WITH the content instead of stranding at the viewport edge) and
-   *  the list itself on flat vertical ones (jsdom's null offsetParent
-   *  falls back to the list) */
+   *  horizontal lists (the tablist scroller, position: relative, so the
+   *  indicator scrolls WITH the content instead of stranding at the
+   *  viewport edge) and the list itself on flat vertical ones (jsdom's
+   *  null offsetParent falls back to the list) */
   function geometryFor(t: HTMLElement, list: HTMLElement): TabsIndicatorGeo {
     const box = (t.offsetParent as HTMLElement | null) ?? list;
     if (material !== 'line') {
@@ -283,24 +297,19 @@
     return () => ro.disconnect();
   });
 
-  /** the run's scrollability verdict (Owner, 2026-09-01): the engine's
-   * own button generation differs across engines — this JS stamp is
-   * the single truth the css keys the chevrons AND the progressBlur
-   * veil on (a strip that cannot scroll shows nothing at all; a
-   * closed direction never paints). Updated on scroll, resize and
-   * mount. The same pass stamps --jx-tabs-progress (0–1 travel) on
-   * the HOST — the one number the chevron fade and the veil fade
-   * both calc from (the bands are the run's SIBLINGS; a var animated
-   * on the run itself could never reach them) — and, for the ramp
-   * effects, per-trigger edge factors: --jx-edge-start / --jx-edge-end
-   * (0–1, the clipped fraction of that trigger's own width) on the
-   * ≤2 triggers actually crossing an edge (view()-timelines were
-   * tried and rejected: Chromium 152 resolves named ranges garbage
-   * at rest — the stuck-first-button bug; stamps are arithmetic) */
+  /** the run's scrollability verdict (Owner, 2026-09-01): this JS stamp
+   *  is the single truth the css keys the chevrons AND the veil layer on
+   *  (a strip that cannot scroll shows nothing at all; a closed
+   *  direction never paints). Updated on scroll, resize and mount. The
+   *  same pass stamps --jx-tabs-progress (0–1 travel) on the HOST — the
+   *  one number every overlay (chevrons, veil) calcs from — and, for
+   *  the ramp effects, per-trigger edge factors: --jx-edge-start/end
+   *  (0–1, the clipped fraction of that trigger's own width) on the
+   *  ≤2 triggers actually crossing an edge */
   $effect(() => {
     const run = runEl;
     if (!run) return;
-    const host = listEl;
+    const host = hostEl;
     const ramps = scrollEffect.type !== 'progressBlur';
     const stamp = (el: HTMLElement, name: string, v: number) => {
       if (v > 0) el.style.setProperty(name, v.toFixed(3));
@@ -346,34 +355,42 @@
     };
   });
 
-  /** the effect's knobs land as css vars on the RUN (inline beats the
-   * stylesheet; the view() ramps on the triggers inherit them) */
-  const runStyle = $derived.by(() => {
-    switch (scrollEffect.type) {
-      case 'slide':
-        return `--jx-tabs-edge-slide: ${scrollEffect.distance}`;
-      case 'blur':
-        return `--jx-tabs-edge-blur: ${scrollEffect.radius}`;
-      case 'blur+slide':
-        return `--jx-tabs-edge-blur: ${scrollEffect.radius}; --jx-tabs-edge-slide: ${scrollEffect.distance}`;
-      default:
-        return '';
-    }
-  });
+  /** the chevron's scroll step: one strip page minus the two lanes, so
+   *  the next page's leading trigger lands clear of both lanes — the
+   *  lane width IS the run's own scroll-padding (derived, no second
+   *  constant). smooth comes from the run's scroll-behavior */
+  function nudge(direction: -1 | 1) {
+    const run = runEl;
+    if (!run) return;
+    const lane = parseFloat(getComputedStyle(run).scrollPaddingInlineStart || '0') || 0;
+    run.scrollBy({ left: direction * Math.max(1, run.clientWidth - lane * 2) });
+  }
 
   /** liquid needs its displacement filter referenced from the list (the
-   *  indicator span inherits the custom property); a consumer style
-   *  APPENDS (merge law, alert-dialog dialect — never clobber) */
-  const listStyle = $derived(
-    [
-      material === 'liquid'
-        ? `--jx-tabs-liquid-bf: url('#${tabs.uid}-liquid') blur(2px) saturate(1.6)`
-        : '',
-      consumerStyle ?? '',
-    ]
-      .filter(Boolean)
-      .join('; ') || undefined,
-  );
+   *  indicator span inherits the custom property); the effect knobs land
+   *  beside it on the HOST (the overlays are the run's siblings — a var
+   *  on the run never reaches them); a consumer style APPENDS (merge
+   *  law, alert-dialog dialect — never clobber) */
+  const hostStyle = $derived.by(() => {
+    const parts = [
+      material === 'liquid' ? `--jx-tabs-liquid-bf: url('#${tabs.uid}-liquid') blur(2px) saturate(1.6)` : '',
+      '',
+    ];
+    switch (scrollEffect.type) {
+      case 'slide':
+        parts[1] = `--jx-tabs-edge-slide: ${scrollEffect.distance}`;
+        break;
+      case 'blur':
+        parts[1] = `--jx-tabs-edge-blur: ${scrollEffect.radius}`;
+        break;
+      case 'blur+slide':
+        parts[1] = `--jx-tabs-edge-blur: ${scrollEffect.radius}; --jx-tabs-edge-slide: ${scrollEffect.distance}`;
+        break;
+      default:
+        break;
+    }
+    return [...parts, consumerStyle ?? ''].filter(Boolean).join('; ') || undefined;
+  });
 
   // the empty state (no focus, no selection) renders every trigger
   // tabbable for SSR/JS-off entry; trim to the FIRST enabled tab only —
@@ -452,17 +469,15 @@
 {/snippet}
 
 <div
-  bind:this={listEl}
-  data-jx-tabs-list=""
+  bind:this={hostEl}
+  data-jx-tabs-host=""
   data-indicator={material}
   data-layout={layout}
   class={cn(
     'relative box-border',
-    // the horizontal list is a ONE-CELL GRID HOST (Owner, 2026-09-01 —
-    // grid stacking law, never position:absolute): the scroll run and
-    // the engine-generated ::scroll-button() boxes (the run's siblings
-    // by construction) stack in the same cell; the vertical list keeps
-    // the flat flex column
+    // the ONE-CELL GRID HOST (Owner law): the tablist scroller, the
+    // veil layer and the chevron buttons stack in the same cell —
+    // grid positions them, z-index layers them, never position:*
     orientation === 'horizontal'
       ? 'jx-tabs-horizontal grid [grid-template-columns:minmax(0,1fr)]'
       : 'jx-tabs-vertical flex flex-col items-stretch [gap:var(--jx-gap)]',
@@ -470,68 +485,82 @@
     orientation === 'vertical' && layout === 'wrap' && 'flex-wrap',
     className,
   )}
-  style={listStyle}
-  onkeydown={handleKeydown}
+  style={hostStyle}
   {...rest}
-  role="tablist"
-  aria-orientation={orientation}
 >
-  {#if orientation === 'horizontal'}
-    <!-- the run: the strip's REAL scroller. role=presentation flattens
-         it out of the accessibility tree (the tablist keeps owning its
-         tabs); it is the indicator's containing block (position:
-         relative) so trigger offset geometry and the bar share one
-         coordinate space; the engine's ::scroll-button() boxes generate
-         as the run's siblings and stack over the same grid cell (the
-         css contract lives in tabs-trigger.css). The veil bands render
-         AFTER the run (below) on purpose: Chromium only samples the
-         run's scrolled content into the bands' backdrop when they
-         paint after it (empirical, 2026-09-01) -->
-    <div
-      bind:this={runEl}
-      role="presentation"
-      data-jx-tabs-run=""
-      data-layout={layout}
-      data-scroll-effect={scrollEffect.type}
-      style={runStyle || undefined}
-      class={cn('jx-tabs-run flex items-stretch [gap:var(--jx-gap)]', layout === 'wrap' && 'flex-wrap')}
-    >
-      {@render children()}
-      {@render runTail()}
-    </div>
-    {#if scrollEffect.type === 'progressBlur'}
-      <!-- the veil: twin bands as SIBLING items in the host's one grid
-           cell (pin="grid" — positioning by GRID, layering by z-index,
-           never position:*). Grid items of the host do not scroll with
-           the run's content, so the bands stay pinned at the edges;
-           gated and faded EXACTLY like the chevrons (css: per-edge
-           scroll-state + the host's --jx-tabs-progress window).
-           hold=33: the outer third (the chevron lane, inset·2 of the
-           inset·6 band) carries the ladder's PEAK instead of ramping —
-           snap + scroll-padding park the first label's text ~1.5 lanes
-           inboard, so a pure edge-peaked ramp blanches over parked
-           blank (the left-veil-is-invisible bug, measured 2026-09-01) -->
-      <ProgressiveBlur
-        pin="grid"
-        position="start"
-        reveal="static"
-        height="var(--jx-tabs-veil)"
-        hold={33}
-        blurLevels={scrollEffect.blurLevels}
-        class="jx-tabs-veil"
-      />
-      <ProgressiveBlur
-        pin="grid"
-        position="end"
-        reveal="static"
-        height="var(--jx-tabs-veil)"
-        hold={33}
-        blurLevels={scrollEffect.blurLevels}
-        class="jx-tabs-veil"
-      />
-    {/if}
-  {:else}
+  <div
+    bind:this={listEl}
+    data-jx-tabs-list=""
+    data-jx-tabs-run={orientation === 'horizontal' ? '' : undefined}
+    role="tablist"
+    aria-orientation={orientation}
+    class={cn(
+      'box-border',
+      // horizontal: THE run — role=tablist IS the scroller (the a11y
+      // scroll region and the DOM scroller are one element); it is the
+      // indicator's containing block (position: relative — offsets are
+      // run-relative, the bar scrolls WITH the content). Vertical
+      // strips keep the flat flex column
+      orientation === 'horizontal'
+        ? 'jx-tabs-run relative flex items-stretch overflow-x-auto [gap:var(--jx-gap)]' + (layout === 'wrap' ? ' flex-wrap' : '')
+        : 'flex flex-col',
+    )}
+    data-layout={orientation === 'horizontal' ? layout : undefined}
+    data-scroll-effect={orientation === 'horizontal' ? scrollEffect.type : undefined}
+    onkeydown={handleKeydown}
+  >
     {@render children()}
     {@render runTail()}
+  </div>
+  {#if orientation === 'horizontal'}
+    {#if scrollEffect.type === 'progressBlur'}
+      <!-- the merged veil layer: ONE grid item (z 1) clipping both edge
+           veils; each veil ENTERS by scroll-driven translate (the strip's
+           --jx-tabs-progress drives it — start slides in from -100% as
+           travel opens the start edge, end slides out to +100% as travel
+           closes the end edge; overflow:clip hides the translated-out
+           halves). The veils themselves stay pure grid items of this
+           layer -->
+      <div class="jx-tabs-veil-layer pointer-events-none grid [grid-area:1/1]">
+        <ProgressiveBlur
+          pin="grid"
+          position="start"
+          reveal="static"
+          height="var(--jx-tabs-veil)"
+          hold={33}
+          blurLevels={scrollEffect.blurLevels}
+          class="jx-tabs-veil"
+        />
+        <ProgressiveBlur
+          pin="grid"
+          position="end"
+          reveal="static"
+          height="var(--jx-tabs-veil)"
+          hold={33}
+          blurLevels={scrollEffect.blurLevels}
+          class="jx-tabs-veil"
+        />
+      </div>
+    {/if}
+    <!-- the chevrons: REAL DOM BUTTONS (Owner, 2026-09-01 R4 — the
+         ::scroll-button() pseudos are gone: UA boxes took no timelines,
+         no mask control and generated flakily). They live OUTSIDE the
+         tablist — scroll controls are not tabs, the a11y tree stays
+         clean; the css keys their existence on the JS-stamped
+         scroll-state and their fade on --jx-tabs-progress -->
+    <button
+      type="button"
+      tabindex="-1"
+      aria-label="Scroll tabs backward"
+      data-jx-chevron="inline-start"
+      onclick={() => nudge(-1)}
+    ></button>
+    <button
+      type="button"
+      tabindex="-1"
+      aria-label="Scroll tabs forward"
+      data-jx-chevron="inline-end"
+      onclick={() => nudge(1)}
+    ></button>
   {/if}
 </div>

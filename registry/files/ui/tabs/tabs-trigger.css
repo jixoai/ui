@@ -15,7 +15,8 @@
  * (liquid swaps its backdrop-filter for the SVG displacement filter
  * the list mounts). layout law: grow stretches the triggers · wrap
  * flows rows · every horizontal strip degrades to a hidden-scrollbar
- * scroll run with on-demand ::scroll-button() chevrons (below). */
+ * scroll run (the tablist IS the run) with DOM chevron buttons and
+ * the merged veil layer over it (below). */
 :where([data-jx-tabs-list]) {
   position: relative;
 }
@@ -64,37 +65,36 @@
   justify-content: center;
 }
 
-/* ── the horizontal overflow contract (Owner, 2026-09-01) ──
+/* ── the horizontal overflow contract (Owner, 2026-09-01 R4) ──
  * Every horizontal strip degrades to a scroll run the moment its
- * content outgrows the container (overflow-x: auto on the run,
- * scrollbar hidden) — and it must LOOK scrollable: the engine's
- * ::scroll-button() chevrons ride the inline edges, only toward
- * directions that can actually travel — generation itself is the
- * gate (Chromium 146: a direction's box exists ONLY while it can
- * scroll; :enabled/:disabled do not even match the pseudo, so the
- * paint below is unconditional over generated boxes).
+ * content outgrows the container — and the TABLIST IS THE RUN (the
+ * a11y scroll region and the DOM scroller are one element,
+ * data-jx-tabs-list/.jx-tabs-run): hidden scrollbar, smooth travel,
+ * proximity snap, and scroll-padding that walks the focused trigger
+ * clear of the overlay lanes.
  *
- * Stacking is GRID, never position:absolute (Owner, 2026-09-01 — the
- * project's layout law): the list is a ONE-CELL grid host; the run
- * (the real scroller, role=presentation so the a11y tree flattens it
- * and the tablist keeps owning its tabs) and the engine-generated
- * button boxes — siblings of the run by construction — land in the
- * SAME cell; justify-self pins each direction to its inline edge and
- * align-self: stretch plus margin-block gives the full-height lane
- * with half-inset breathing. Geometry derives from the density
- * tokens: width = two insets. scroll-padding-inline walks the
- * focused trigger clear of the lanes. Engines without
- * ::scroll-button() never generate the boxes — the strip simply
- * keeps its hidden scrollbar (progressive enhancement, no
- * fallback machinery). The on-demand fade itself is scroll-driven
- * (below).
- * (Pipeline scar, 2026-09-01: a lost comment opener here — raw
- * comment text as tokens, engine's-apostrophe eaten as a string
- * quote — 500'd the whole route through the tailwind css transform.
- * A comment is load-bearing: keep its opener intact.) */
+ * Children of a scroller scroll with its content, so the OVERLAYS
+ * mount on the ROOT — the one-cell grid host stacking the run, the
+ * merged veil layer (z 1) and the chevron BUTTONS (z 2) in the same
+ * cell. The chevrons are REAL DOM (Owner, 2026-09-01 R4 — the
+ * engine's scroll-button pseudos are retired: UA-internal boxes took
+ * no timelines, offered no mask control and generated flakily across
+ * engines; DOM buttons are standard, styleable and live OUTSIDE the
+ * tablist so the a11y tree holds only tabs). Existence keys on the
+ * JS-stamped data-jx-scroll-state; the fade calcs from the host's
+ * --jx-tabs-progress. Positioning is GRID + z-index ONLY — never
+ * position:absolute/sticky (project law). */
 :where(.jx-tabs-horizontal) {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  /* the shared var family rides the HOST — the overlays are the run's
+   * siblings (custom properties inherit downward only): the chevron
+   * glyphs (context-swappable icons + the family's icon token) and
+   * the veil width (lane + ramp; see the veil section) */
+  --jx-tabs-chevron-inline-end: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M9 5l7 7-7 7'/%3E%3C/svg%3E");
+  --jx-tabs-chevron-inline-start: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M15 5l-7 7 7 7'/%3E%3C/svg%3E");
+  --jx-tabs-chevron-size: var(--jx-text-secondary);
+  --jx-tabs-veil: calc(var(--jx-inset) * 6);
 }
 :where(.jx-tabs-run) {
   grid-area: 1 / 1;
@@ -107,12 +107,6 @@
   scroll-padding-inline: calc(var(--jx-inset) * 2);
   scroll-behavior: smooth;
   scroll-snap-type: x proximity;
-  /* the chevron glyphs live in vars — a consumer, theme or context
-   * swaps the icon (or its size) by overriding these, never by
-   * forking the css; defaults ride the family's icon token */
-  --jx-tabs-chevron-inline-end: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M9 5l7 7-7 7'/%3E%3C/svg%3E");
-  --jx-tabs-chevron-inline-start: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M15 5l-7 7 7 7'/%3E%3C/svg%3E");
-  --jx-tabs-chevron-size: var(--jx-text-secondary);
 }
 :where(.jx-tabs-run)::-webkit-scrollbar {
   display: none;
@@ -120,42 +114,38 @@
 :where(.jx-tabs-run) > [role='tab'] {
   scroll-snap-align: start;
 }
-:where(.jx-tabs-run)::scroll-button(inline-start),
-:where(.jx-tabs-run)::scroll-button(inline-end) {
-  /* the one shared cell: stacked with the run, pinned to its edge.
-   * z 2: above the veil (z 1), never below the blur it rides on */
+:where([data-jx-chevron='inline-start']),
+:where([data-jx-chevron='inline-end']) {
   grid-area: 1 / 1;
   z-index: 2;
   align-self: stretch;
   width: calc(var(--jx-inset) * 2);
   margin-block: calc(var(--jx-inset) / 2);
-  content: '';
+  border: 0;
+  padding: 0;
+  appearance: none;
   background-color: var(--muted-foreground);
-  background-image: none;
   cursor: pointer;
 }
-:where(.jx-tabs-run)::scroll-button(inline-end) {
+:where([data-jx-chevron='inline-end']) {
   justify-self: end;
   mask: var(--jx-tabs-chevron-inline-end) center / var(--jx-tabs-chevron-size) no-repeat;
 }
-:where(.jx-tabs-run)::scroll-button(inline-start) {
+:where([data-jx-chevron='inline-start']) {
   justify-self: start;
   mask: var(--jx-tabs-chevron-inline-start) center / var(--jx-tabs-chevron-size) no-repeat;
 }
-/* the JS-stamped scrollability verdict (Owner, 2026-09-01): the
- * engine's own generation gate differs across engines — the run's
- * data-jx-scroll-state is the single truth, so a direction that
- * cannot travel NEVER paints (a strip that cannot scroll at all
- * shows nothing) */
-:where(.jx-tabs-run)[data-jx-scroll-state='none']::scroll-button(inline-start),
-:where(.jx-tabs-run)[data-jx-scroll-state='none']::scroll-button(inline-end),
-:where(.jx-tabs-run)[data-jx-scroll-state='start-closed']::scroll-button(inline-start),
-:where(.jx-tabs-run)[data-jx-scroll-state='end-closed']::scroll-button(inline-end) {
-  display: none;
-}
-:where(.jx-tabs-run)::scroll-button(inline-start):hover,
-:where(.jx-tabs-run)::scroll-button(inline-end):hover {
+:where([data-jx-chevron='inline-start']):hover,
+:where([data-jx-chevron='inline-end']):hover {
   background-color: var(--foreground);
+}
+/* the JS-stamped scrollability verdict is the single truth: a
+ * direction that cannot travel NEVER paints its chevron */
+:where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='none']) > :where([data-jx-chevron='inline-start']),
+:where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='none']) > :where([data-jx-chevron='inline-end']),
+:where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='start-closed']) > :where([data-jx-chevron='inline-start']),
+:where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='end-closed']) > :where([data-jx-chevron='inline-end']) {
+  display: none;
 }
 
 /* ── scrollEffect (Owner, 2026-09-01): edge treatments for the run ──
@@ -178,15 +168,8 @@
  * per type so slide (the default) never pays for a filter; a
  * fully-clipped trigger is factor 1 = fully treated (invisible
  * anyway — the ramp matters while clipping). */
-/* the veil width rides the HOST, not the run: the bands are the run's
- * SIBLINGS (custom properties inherit downward only — a var on the
- * run never reaches them). inset·6 = the chevron lane (inset·2, where
- * snap-parked content is blank) + the ramp that must reach the parked
- * label's readable text (~inset·4 inboard) — a narrower band puts its
- * mass over parked blank (the measured left-veil-is-invisible bug) */
-:where(.jx-tabs-horizontal) {
-  --jx-tabs-veil: calc(var(--jx-inset) * 6);
-}
+/* the ramp rules are keyed on the run (the tablist scroller) — the
+ * triggers are its direct children; the knobs are host-inherited vars */
 :where(.jx-tabs-run)[data-scroll-effect='slide'] > [role='tab'] {
   opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
   translate: calc((var(--jx-edge-end, 0) - var(--jx-edge-start, 0)) * var(--jx-tabs-edge-slide, 0px)) 0;
@@ -200,53 +183,58 @@
   translate: calc((var(--jx-edge-end, 0) - var(--jx-edge-start, 0)) * var(--jx-tabs-edge-slide, 0px)) 0;
   filter: blur(calc(max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * var(--jx-tabs-edge-blur, 0px)));
 }
-/* the progressBlur veil mirrors the CHEVRONS exactly (Owner,
- * 2026-09-01): gated per edge by the JS-stamped scroll-state (a
- * closed direction paints neither chevron nor band — a band blurring
- * content at an edge that cannot travel was the reported anomaly) and
- * faded by the SAME --jx-tabs-progress window the chevron calc uses —
- * chevron at 0.5 opacity, band at 0.5. Layering is z-index ONLY:
- * veil 1 under chevrons 2, both over the run */
-:where(.jx-tabs-veil) {
+/* the merged veil layer (Owner, 2026-09-01 R4): ONE grid item over the
+ * run (z 1, under the chevrons' z 2) holding both edge veils. overflow:
+ * clip is LOAD-BEARING — the veils ENTER by scroll-driven translate
+ * (below), sliding in from outside their own edge; the layer clips the
+ * translated-out halves. The veils themselves stay pure grid items of
+ * the layer ([grid-area:1/1] + justify-self per edge, their own
+ * dialect). The width var rides the HOST (the layer is the run's
+ * sibling): inset·6 = the chevron lane (inset·2, where snap-parked
+ * content is blank) + the ramp that must reach the parked label's
+ * readable text */
+:where(.jx-tabs-veil-layer) {
   z-index: 1;
+  overflow: clip;
 }
-:where(.jx-tabs-horizontal) > :where(.jx-tabs-veil)[data-position='start'] {
-  opacity: min(1, calc(var(--jx-tabs-progress, 0) / 0.15));
+/* the entrance (Owner, 2026-09-01 R4): the start veil rests fully
+ * translated OUT (-100%, clipped) and slides IN over the first 15% of
+ * travel as the start direction opens; the end veil rests in place and
+ * slides OUT (+100%) over the last 15% as travel closes the end — the
+ * strip's own scroll is the animation clock (the same
+ * --jx-tabs-progress window the chevron fade calcs from), so the
+ * entrance is exactly as smooth as the scrolling itself */
+:where(.jx-tabs-veil-layer) > :where(.jx-tabs-veil)[data-position='start'] {
+  translate: calc((1 - min(1, var(--jx-tabs-progress, 0) / 0.15)) * -100%) 0;
 }
-:where(.jx-tabs-horizontal) > :where(.jx-tabs-veil)[data-position='end'] {
-  opacity: min(1, calc((1 - var(--jx-tabs-progress, 0)) / 0.15));
+:where(.jx-tabs-veil-layer) > :where(.jx-tabs-veil)[data-position='end'] {
+  translate: calc(max(0, (var(--jx-tabs-progress, 0) - 0.85) / 0.15) * 100%) 0;
 }
 
 /* ── the on-demand fade, scroll-following (Owner, 2026-09-01) ──
  * The chevron toward a boundary fades OUT as the run approaches it
- * and fades back IN as travel opens again. Wiring law (empirical,
- * Chromium 146): a timeline cannot attach to the ::scroll-button()
- * boxes (UA internals), and a var animated on the run never reaches
- * the run's sibling veil bands — so the list's scroll handler STAMPS
+ * and fades back IN as travel opens again. The scroll handler STAMPS
  * --jx-tabs-progress (0–1 travel) on the HOST (tabs-list.svelte, the
  * same pass that stamps data-jx-scroll-state): one inherited number
- * serves the chevron pseudos (via the run) AND the veil bands (via
- * the host) — chevron and band always agree. Each direction ramps
- * over the outer 15% of travel (dividing by 0.15 stretches that
- * window to the full 0–1 opacity range); the un-stamped fallback 0
- * is the honest no-JS state (start hidden, end open). */
-:where(.jx-tabs-run)::scroll-button(inline-start) {
+ * serves the chevron buttons AND the veil entrance — they always
+ * agree. Each direction ramps over the outer 15% of travel; the
+ * un-stamped fallback 0 is the honest no-JS state (start hidden, end
+ * open) */
+:where([data-jx-chevron='inline-start']) {
   opacity: min(1, calc(var(--jx-tabs-progress, 0) / 0.15));
 }
-:where(.jx-tabs-run)::scroll-button(inline-end) {
+:where([data-jx-chevron='inline-end']) {
   opacity: min(1, calc((1 - var(--jx-tabs-progress, 0)) / 0.15));
 }
 }
 
-/* the veil gates are UNLAYERED on purpose (cascade law, 2026-09-01):
- * the band's own `grid` utility rides @layer utilities, which BEATS
- * this sheet's @layer components — a layered display:none never wins
- * (empirically: the bands stayed display:grid at closed edges). A
- * band is gated off EXACTLY when its chevron is: per-edge
- * scroll-state */
-:where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='none']) > :where(.jx-tabs-veil),
-:where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='start-closed']) > :where(.jx-tabs-veil)[data-position='start'],
-:where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='end-closed']) > :where(.jx-tabs-veil)[data-position='end'] {
+/* the veil layer gate is UNLAYERED on purpose (cascade law,
+ * 2026-09-01): the layer's own `grid` utility rides @layer utilities,
+ * which BEATS this sheet's @layer components — a layered display:none
+ * never wins. A strip that cannot scroll at all shows no veils (the
+ * per-edge hiding is the translate entrance itself, clipped by the
+ * layer) */
+:where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='none']) > :where(.jx-tabs-veil-layer) {
   display: none;
 }
 
@@ -257,8 +245,10 @@
     transition: none;
   }
   /* the edge treatments' translate is exactly the motion the
-   * preference suppresses; blur + opacity stay (not vestibular) */
-  :where(.jx-tabs-run)[data-scroll-effect] > [role='tab'] {
+   * preference suppresses; blur + opacity stay (not vestibular). The
+   * veil entrance translate dies too — the veils rest in place */
+  :where(.jx-tabs-run)[data-scroll-effect] > [role='tab'],
+  :where(.jx-tabs-veil-layer) > :where(.jx-tabs-veil) {
     translate: none;
   }
 }
