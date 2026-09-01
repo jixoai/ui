@@ -32,6 +32,9 @@ export const controlLaneLaw: ComponentLaw = {
     outline: 'none',
     background: 'transparent',
     color: 'var(--foreground)',
+    /* the well's focus ink (elevation grammar, 2026-09-01): the caret
+     * answers focus in the ring hue — the shell's border tints in kind */
+    'caret-color': 'var(--primary)',
     font: 'inherit',
     'font-size': 'var(--jx-text, 0.875rem)',
   },

@@ -23,9 +23,19 @@
 @layer theme, base, components, utilities;
 
 @layer components {
-  /* ---- the shell's state machines (the input family's paint law) --- */
+  /* ---- the shell's state machines (the input family's paint law) ---
+     the elevation grammar's WELL tier (Owner ruling, 2026-09-01):
+     inset at rest, hover deepens the INTENSITY only, focus tints the
+     border (the caret answers in kind) — the shadow's hierarchy never
+     moves; the keyboard ring stays for focus-visible */
+  :where([data-jx-igroup]) {
+    box-shadow: var(--shadow-well);
+  }
   :where([data-jx-igroup]):hover:not(:has(:focus-visible)) {
-    box-shadow: var(--shadow-2xs);
+    box-shadow: var(--shadow-well-hover);
+  }
+  :where([data-jx-igroup]):has(:focus) {
+    border-color: var(--ring);
   }
   :where([data-jx-igroup]):has(:focus-visible) {
     outline: 1px solid var(--ring);

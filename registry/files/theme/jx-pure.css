@@ -321,7 +321,8 @@
   border: 1px solid var(--border);
   border-radius: 0;
   background: var(--background);
-  transition: box-shadow 150ms ease-out;
+  box-shadow: var(--shadow-well);
+  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
 }
 
 .jx-control-shell:has(> .jx-html-clear:last-child) {
@@ -329,7 +330,11 @@
 }
 
 .jx-control-shell:hover {
-  box-shadow: var(--shadow-2xs);
+  box-shadow: var(--shadow-well-hover);
+}
+
+.jx-control-shell:has(:focus) {
+  border-color: var(--ring);
 }
 
 .jx-control-shell:has(:focus-visible) {
@@ -361,6 +366,7 @@
   outline: none;
   background: transparent;
   color: var(--foreground);
+  caret-color: var(--primary);
   font: inherit;
   font-size: var(--jx-text, 0.875rem);
 }
@@ -2178,16 +2184,25 @@
       --chart-5: var(--error);
 
       --shadow-color: hsl(0 0% 100%);
-      --shadow-2xs: 4px 4px 0px 0px hsl(0 0% 100% / 0.5);
-      --shadow-xs: 4px 4px 0px 0px hsl(0 0% 100% / 0.5);
-      --shadow-sm: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 1px 2px -1px hsl(0 0% 0% / 1);
+      /* shadow GEOMETRY rides the light baseline rung for rung (Owner ruling,
+         2026-09-01: sizes must not drift between themes — only the INK
+         inverts to white; the old 4px-everywhere small rungs were copy-paste
+         drift, not design) */
+      --shadow-2xs: 1px 1px 0px 0px hsl(0 0% 100% / 0.5);
+      --shadow-xs: 2px 2px 0px 0px hsl(0 0% 100% / 0.5);
+      --shadow-sm: 2px 2px 0px 0px hsl(0 0% 100% / 1), 1px 1px 0px 1px hsl(0 0% 0% / 1);
       --shadow: 4px 4px 0px 0px hsl(0 0% 100% / 1);
       --shadow-md: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 2px 4px -1px hsl(0 0% 0% / 1);
       --shadow-lg: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 4px 6px -1px hsl(0 0% 0% / 1);
       /* press poses — same minus-1px law as the light block above */
-      --shadow-xs-press: 3px 3px 0px 0px hsl(0 0% 100% / 0.5);
-      --shadow-sm-press: 3px 3px 0px 0px hsl(0 0% 100% / 1), 3px 0px 2px -1px hsl(0 0% 0% / 1);
+      --shadow-xs-press: 1px 1px 0px 0px hsl(0 0% 100% / 0.5);
+      --shadow-sm-press: 1px 1px 0px 0px hsl(0 0% 100% / 1), 0px 0px 0px 1px hsl(0 0% 0% / 1);
       --shadow-md-press: 3px 3px 0px 0px hsl(0 0% 100% / 1), 3px 1px 4px -1px hsl(0 0% 0% / 1);
+      /* elevation grammar, dark side: same geometry rung for rung, the
+         ink inverted to white (the white-shadow law) */
+      --shadow-engrave: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.4);
+      --shadow-well: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.12);
+      --shadow-well-hover: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.28);
 
       /* floating-surface law, dark side: inverted — scrims and the shadow
          layer are semi-transparent WHITE and BRIGHTEN (the white-shadow

@@ -102,6 +102,28 @@
   --shadow-sm-press: 1px 1px 0px 0px hsl(0 0% 0% / 1), 0px 0px 0px 1px hsl(0 0% 100% / 0.5);
   --shadow-md-press: 3px 3px 0px 0px hsl(0 0% 0% / 1), 3px 1px 4px -1px hsl(0 0% 100% / 1);
 
+  /* ── the elevation grammar (Owner ruling, 2026-09-01) ──────────────
+     Shadow offset ∝ the distance between the element's plane and the
+     surface it casts upon (website-scaffold: the top layer floats
+     above the shell body). Five tiers, one physics:
+       float   topLayer → mainLayer projection — --shadow / --shadow-md
+               (float-button, popover/dialog/menu panels, overlays)
+       raise   in-layer interactive lift — the .jx-press law,
+               xs → sm (press-button, chip, action buttons)
+       lift    static focus surface, light raise — --shadow-2xs
+               (card family: section-card, alert, empty, result…)
+       engrave glyph incised INTO the plane — --shadow-engrave (kbd)
+       well    fillable container recess — --shadow-well; interaction
+               NEVER changes the tier: hover changes intensity only
+               (--shadow-well-hover), focus changes border + caret
+               color (input/textarea/select shells)
+     Ink inverts per theme (the white-shadow law); geometry never
+     drifts between themes. Off-default expression is a deliberate
+     prop/custom modulation — never a per-component invention. */
+  --shadow-engrave: inset 1px 1px 0px 0px hsl(0 0% 0% / 0.4);
+  --shadow-well: inset 1px 1px 0px 0px hsl(0 0% 0% / 0.12);
+  --shadow-well-hover: inset 1px 1px 0px 0px hsl(0 0% 0% / 0.28);
+
   /* floating-surface law (2026-08-22): restrained black-only scrims;
      the shadow LAYER keeps its original color, always SEMI-TRANSPARENT
      (Owner ruling, 2026-08-22 r2: light mode = translucent black,
@@ -169,16 +191,25 @@
   --chart-5: var(--error);
 
   --shadow-color: hsl(0 0% 100%);
-  --shadow-2xs: 4px 4px 0px 0px hsl(0 0% 100% / 0.5);
-  --shadow-xs: 4px 4px 0px 0px hsl(0 0% 100% / 0.5);
-  --shadow-sm: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 1px 2px -1px hsl(0 0% 0% / 1);
+  /* shadow GEOMETRY rides the light baseline rung for rung (Owner ruling,
+     2026-09-01: sizes must not drift between themes — only the INK
+     inverts to white; the old 4px-everywhere small rungs were copy-paste
+     drift, not design) */
+  --shadow-2xs: 1px 1px 0px 0px hsl(0 0% 100% / 0.5);
+  --shadow-xs: 2px 2px 0px 0px hsl(0 0% 100% / 0.5);
+  --shadow-sm: 2px 2px 0px 0px hsl(0 0% 100% / 1), 1px 1px 0px 1px hsl(0 0% 0% / 1);
   --shadow: 4px 4px 0px 0px hsl(0 0% 100% / 1);
   --shadow-md: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 2px 4px -1px hsl(0 0% 0% / 1);
   --shadow-lg: 4px 4px 0px 0px hsl(0 0% 100% / 1), 4px 4px 6px -1px hsl(0 0% 0% / 1);
   /* press poses — same minus-1px law as the light block above */
-  --shadow-xs-press: 3px 3px 0px 0px hsl(0 0% 100% / 0.5);
-  --shadow-sm-press: 3px 3px 0px 0px hsl(0 0% 100% / 1), 3px 0px 2px -1px hsl(0 0% 0% / 1);
+  --shadow-xs-press: 1px 1px 0px 0px hsl(0 0% 100% / 0.5);
+  --shadow-sm-press: 1px 1px 0px 0px hsl(0 0% 100% / 1), 0px 0px 0px 1px hsl(0 0% 0% / 1);
   --shadow-md-press: 3px 3px 0px 0px hsl(0 0% 100% / 1), 3px 1px 4px -1px hsl(0 0% 0% / 1);
+  /* elevation grammar, dark side: same geometry rung for rung, the
+     ink inverted to white (the white-shadow law) */
+  --shadow-engrave: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.4);
+  --shadow-well: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.12);
+  --shadow-well-hover: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.28);
 
   /* floating-surface law, dark side: inverted — scrims and the shadow
      layer are semi-transparent WHITE and BRIGHTEN (the white-shadow
@@ -700,6 +731,9 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --shadow: var(--shadow);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
+  --shadow-engrave: var(--shadow-engrave);
+  --shadow-well: var(--shadow-well);
+  --shadow-well-hover: var(--shadow-well-hover);
 }
 
 /* Reveal hooks, scroll-driven era (Owner approval, 2026-08-24): pure CSS.
@@ -1783,7 +1817,8 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   border: 1px solid var(--border);
   border-radius: 0;
   background: var(--background);
-  transition: box-shadow 150ms ease-out;
+  box-shadow: var(--shadow-well);
+  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
 }
 
 .jx-html-control-shell:has(> .jx-html-clear:last-child) {
@@ -1791,7 +1826,11 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 }
 
 .jx-html-control-shell:hover {
-  box-shadow: var(--shadow-2xs);
+  box-shadow: var(--shadow-well-hover);
+}
+
+.jx-html-control-shell:has(:focus) {
+  border-color: var(--ring);
 }
 
 .jx-html-control-shell:has(:focus-visible) {
@@ -1823,6 +1862,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   outline: none;
   background: transparent;
   color: var(--foreground);
+  caret-color: var(--primary);
   font: inherit;
   font-size: var(--jx-text, 0.875rem);
 }

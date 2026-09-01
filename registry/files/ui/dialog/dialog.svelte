@@ -31,6 +31,7 @@
   import type { Snippet } from 'svelte';
   import { icons } from '$lib/icons';
   import { createSurfaceMotion } from '$lib/surface-motion';
+  import { provideEntity } from '$lib/entity.svelte';
   import './dialog.css';
 
   interface Props {
@@ -48,6 +49,12 @@
   }
 
   let { title, open = $bindable(false), variant = 'auto', children, footer }: Props = $props();
+
+  // THE ENTITY LAW (2026-09-01): the dialog panel IS the solid object —
+  // form shells inside dissolve (border + ground transparent; the well
+  // inset carries the affordance). provideEntity() accumulates depth,
+  // so a dialog nested in a dialog auto-reasserts hairlines at depth 2.
+  const entityDepth = provideEntity();
 
   let dialog = $state<HTMLDialogElement | null>(null);
 
@@ -99,6 +106,7 @@
   bind:this={dialog}
   class="jx-dialog jx-surface m-auto p-0 w-[min(92vw,26rem)] max-w-full text-popover-foreground {motion.supported ? 'jx-waapi' : ''}"
   data-variant={variant}
+  data-jx-entity={entityDepth}
   aria-label={title}
   onclose={handleClose}
   oncancel={handleCancel}

@@ -120,9 +120,18 @@ describe('InputGroup · the seam structure', () => {
     expect(addon.className).not.toMatch(/border-/);
   });
 
-  it('the shell keeps the input family state machines (hover lift, inset ring, invalid dash, disabled paint)', () => {
+  it('the shell keeps the input family state machines (well inset, hover intensity, inset ring, invalid dash, disabled paint)', () => {
+    // the elevation grammar's well tier: inset at rest, hover deepens
+    // intensity only, focus tints the border — the shadow's hierarchy
+    // never moves
     expect(inputGroupCss).toMatch(
-      /\[data-jx-igroup\]\):hover:not\(:has\(:focus-visible\)\)\s*\{\s*box-shadow:\s*var\(--shadow-2xs\);/,
+      /\[data-jx-igroup\]\)\s*\{\s*box-shadow:\s*var\(--shadow-well\);/,
+    );
+    expect(inputGroupCss).toMatch(
+      /\[data-jx-igroup\]\):hover:not\(:has\(:focus-visible\)\)\s*\{\s*box-shadow:\s*var\(--shadow-well-hover\);/,
+    );
+    expect(inputGroupCss).toMatch(
+      /\[data-jx-igroup\]\):has\(:focus\)\s*\{\s*border-color:\s*var\(--ring\);/,
     );
     expect(inputGroupCss).toMatch(
       /\[data-jx-igroup\]\):has\(:focus-visible\)\s*\{\s*outline:\s*1px solid var\(--ring\);\s*outline-offset:\s*-1px;/,

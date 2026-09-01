@@ -1,0 +1,47 @@
+/*
+ * The entity law's paint projections (registry/files/lib/entity.css,
+ * 2026-09-01). Border is objecthood; inside an entity most borders
+ * should not exist. Keyed on the REAL DOM hook the context stamps
+ * (data-jx-entity={depth}) and the REAL hooks of the form-shell family
+ * — see entity.svelte.ts for the depth mathematics.
+ *
+ * Specificity is deliberate here (NOT :where): the dissolve must beat
+ * the shells' own utility paint regardless of sheet order, and every
+ * border rule carries :not(:has(:focus)) so the focus tint always
+ * wins the border back. The force-spend and the depth-2 re-assert
+ * outrank the dissolve by one class of specificity.
+ */
+@layer theme, base, components, utilities;
+
+@layer components {
+  /* ── depth 1: the dissolve — border + ground go transparent; the
+     well inset (the elevation grammar) carries the affordance ── */
+  [data-jx-entity] .jx-html-control-shell:not(:has(:focus)),
+  [data-jx-entity] [data-jx-igroup]:not(:has(:focus)) {
+    border-color: transparent;
+  }
+  [data-jx-entity] .jx-html-control-shell,
+  [data-jx-entity] [data-jx-igroup] {
+    background: transparent;
+  }
+  /* the lane answers focus in kind even while dissolved: the focus
+     rule (border-color: var(--ring)) is untouched — the :not() guard
+     above keeps this dissolve out of its way */
+
+  /* ── depth ≥2: the accumulated nesting AUTO-TRIGGERS the edge — a
+     hairline at reduced alpha re-asserts the structure ── */
+  [data-jx-entity='2'] .jx-html-control-shell:not(:has(:focus)),
+  [data-jx-entity='2'] [data-jx-igroup]:not(:has(:focus)),
+  [data-jx-entity='3'] .jx-html-control-shell:not(:has(:focus)),
+  [data-jx-entity='3'] [data-jx-igroup]:not(:has(:focus)) {
+    border-color: color-mix(in oklab, var(--border) 55%, transparent);
+  }
+
+  /* ── the force-spend: [data-assert-border] spends the entity budget
+     early — the full object edge + ground at any depth ── */
+  [data-jx-entity] [data-assert-border].jx-html-control-shell,
+  [data-jx-entity] [data-assert-border][data-jx-igroup] {
+    border-color: var(--border);
+    background: var(--background);
+  }
+}

@@ -4,9 +4,11 @@
   passes through untouched, no per-type wrappers. Rendering lanes by type:
 
     text-like (text/password/email/number/search/url/tel/date/time/...)
-      1px var(--border) shell, var(--background) fill, radius 0; hover
-      lifts one pixel (shadow-2xs), focus-visible takes the site's inset
-      1px outline law (outline-offset: -1px on the ring token).
+      1px var(--border) shell, var(--background) fill, radius 0 — the
+      elevation grammar's WELL tier: inset shadow at rest, hover
+      deepens the intensity only, focus tints border + caret; the
+      keyboard ring stays the site's inset 1px outline law
+      (outline-offset: -1px on the ring token).
     checkbox / radio / toggle / file
       SPLIT OUT — checkbox/radio/toggle redraw in their own components
       (checkbox.svelte, radio.svelte, toggle.svelte); the professional

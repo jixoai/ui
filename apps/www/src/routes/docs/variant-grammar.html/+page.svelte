@@ -4,6 +4,7 @@
   import Chip from '$lib/ui/chip/chip.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import InlineCode from '$lib/ui/inline-code/inline-code.svelte';
+  import Kbd from '$lib/ui/kbd/kbd.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
@@ -892,6 +893,86 @@ split — two utilities; both properties land:
               section is a candidate follow-up change.
             </p>
           </div>
+        </div>
+      </SectionCard>
+    </div>
+
+    <div id="elevation" data-reveal="">
+      <SectionCard
+        family="elevation"
+        headerRegion="elevation"
+        eyebrow="grammar"
+        title="Elevation — the shadow physics"
+        summary="Paint says what a surface is; elevation says where it sits. Shadow offset ∝ the distance between an element's plane and the surface it casts upon (Owner ruling, 2026-09-01): the website-scaffold's top layer floats above the shell body, so what crosses that gap projects large, what stays in the layer lifts little, and what is cut into the plane casts nothing outward at all. Ink inverts per theme; geometry never drifts between themes."
+      >
+        <div class="flex flex-col gap-5">
+          <div class="flex flex-wrap items-end gap-x-10 gap-y-5 text-[12.5px]">
+            <div class="text-muted-foreground flex flex-col gap-2">
+              <PressButton variant="fill">raise</PressButton>
+              <span>press law · xs → sm on hover</span>
+            </div>
+            <div class="text-muted-foreground flex flex-col gap-2">
+              <Kbd>engrave</Kbd>
+              <span>--shadow-engrave · incised inset</span>
+            </div>
+            <div class="text-muted-foreground flex flex-col gap-2">
+              <Chip variant="outline">raise twin</Chip>
+              <span>badge scale, press physics</span>
+            </div>
+            <div class="text-muted-foreground flex flex-col gap-2">
+              <Badge>flush</Badge>
+              <span>display glyph · no elevation</span>
+            </div>
+          </div>
+          <TokenTable
+            tokens={[
+              { name: 'float', default: '--shadow · --shadow-md', source: 'topLayer → mainLayer projection — float-button, popover/dialog/menu panels, overlays; the cross-layer distance is the large offset' },
+              { name: 'raise', default: '.jx-press: xs → sm', source: 'in-layer interactive lift — press-button, chip, action buttons' },
+              { name: 'lift', default: '--shadow-2xs', source: 'static focus surface — section-card, alert, empty, result' },
+              { name: 'engrave', default: '--shadow-engrave (inset)', source: 'glyph incised into the plane — kbd' },
+              { name: 'well', default: '--shadow-well (+ -hover)', source: 'fillable container recess — input/textarea/select shells' },
+            ]}
+          />
+          <ul class="flex flex-col gap-2 text-[13px] leading-6">
+            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <span>interaction NEVER changes an element's tier: a well's hover deepens the
+              inset's intensity only (<code class="text-accent">--shadow-well-hover</code>), and its focus
+              tints border + caret color — the shadow's hierarchy never moves</span></li>
+            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <span>these are the DEFAULT expressions: a deliberate off-default modulation is a
+              prop or a --jx-press-shadow* custom (e.g. code-card's quiet copy button), never a
+              per-component invention</span></li>
+          </ul>
+        </div>
+      </SectionCard>
+    </div>
+
+    <div id="entity" data-reveal="">
+      <SectionCard
+        family="entity"
+        headerRegion="entity"
+        eyebrow="law"
+        title="The entity law — border is objecthood"
+        summary="Elevation says where a surface sits; entity says whether it should BE a surface at all. Border is objecthood: a bordered box asserts itself as a solid object, and inside an already-solid entity (a dialog panel) every extra border is another object competing with its container. The law is mathematical, not per-component taste (Owner ruling, 2026-09-01): the entity context ACCUMULATES depth — form shells dissolve at depth 1 (transparent border + ground; the well inset carries the affordance), accumulated nesting AUTO-TRIGGERS the hairline edge at depth ≥2, and data-assert-border force-spends the budget early. Background rides the same restraint: transparency first, backdrop-filter as the tint — never a second opaque fill. Hairlines are exempt: a structural rule organizes, it does not objectify."
+      >
+        <div class="flex flex-col gap-5">
+          <TokenTable
+            tokens={[
+              { name: 'depth 0', default: 'the page floor', source: 'entity context — the control border IS its object edge: visible' },
+              { name: 'depth 1', default: 'the dissolve', source: 'entity context — border + ground transparent; the well inset carries the fill affordance; focus still tints, hover still deepens' },
+              { name: 'depth ≥2', default: 'the re-assertion', source: 'entity context — accumulated nesting auto-triggers the hairline edge (border at 55% alpha) for legibility' },
+              { name: 'data-assert-border', default: 'the force-spend', source: 'the escape hatch — spends the entity budget early: the full edge + ground at any depth' },
+            ]}
+          />
+          <ul class="flex flex-col gap-2 text-[13px] leading-6">
+            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <span>the channel is the Context technique: provideEntity() (dialog panels today, the
+              popover family next) reads the ambient depth and accumulates +1 — nesting is
+              automatic, no per-component accounting</span></li>
+            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <span>a hairline is NOT an entity border: the dialog head/foot rules organize their
+              panel; they never objectify. The law governs object edges only</span></li>
+          </ul>
         </div>
       </SectionCard>
     </div>

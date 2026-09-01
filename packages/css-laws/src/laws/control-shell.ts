@@ -29,7 +29,12 @@ export const controlShellLaw: ComponentLaw = {
     border: '1px solid var(--border)',
     'border-radius': '0',
     background: 'var(--background)',
-    transition: 'box-shadow 150ms ease-out',
+    /* the elevation grammar's WELL tier (Owner ruling, 2026-09-01): a
+     * fillable container is a recess — inset shadow at rest; interaction
+     * never changes the tier (hover changes INTENSITY only, focus
+     * changes border + caret color, never the shadow's hierarchy) */
+    'box-shadow': 'var(--shadow-well)',
+    transition: 'box-shadow 150ms ease-out, border-color 150ms ease-out',
   },
   states: [
     /* END-INSET OWNERSHIP: the shell's 0.6em end padding is the inset
@@ -42,9 +47,16 @@ export const controlShellLaw: ComponentLaw = {
       selector: ':has(> .jx-html-clear:last-child)',
       declarations: { 'padding-inline-end': '0' },
     },
+    /* well-hover: same inset rung, deeper ink — intensity, not tier */
     {
       selector: ':hover',
-      declarations: { 'box-shadow': 'var(--shadow-2xs)' },
+      declarations: { 'box-shadow': 'var(--shadow-well-hover)' },
+    },
+    /* focus tints the shell's border (the lane's caret answers in
+     * kind) — the shadow's hierarchy never moves */
+    {
+      selector: ':has(:focus)',
+      declarations: { 'border-color': 'var(--ring)' },
     },
     {
       selector: ':has(:focus-visible)',

@@ -196,7 +196,7 @@ ${close}
       headerRegion="dialog-form"
       eyebrow="demo"
       title="With a footer — form type"
-      summary="The footer snippet owns the action row (top border, right-aligned). Cancel drops the dialog; Confirm does its work first, then closes through the same animated path."
+      summary="The footer snippet owns the action row (top border, right-aligned). Cancel drops the dialog; Confirm does its work first, then closes through the same animated path. The form shells inside DISSOLVE (the entity law): the dialog is the one solid object — the inputs ride its ground with the well inset alone, no competing borders or fills; focus still tints, hover still deepens."
     >
       <div class="flex flex-col gap-5">
         <div class="flex flex-wrap items-center gap-4">
@@ -268,12 +268,7 @@ ${close}
     <p>Minting a new key revokes the current one after 24 hours.</p>
     <label class="flex flex-col gap-1.5 text-[12px]">
       <span class="text-muted-foreground">key name</span>
-      <input
-        type="text"
-        value="ci-runner"
-        class="border-border bg-transparent px-2.5 py-2 text-[13px] text-foreground"
-        style="border: 1px solid var(--border)"
-      />
+      <Input type="text" value="ci-runner" />
     </label>
   </div>
   {#snippet footer()}

@@ -13,6 +13,8 @@ const toc: TocSection[] = [
   { id: 'forced-colors', label: 'Forced colors' },
   { id: 'migration', label: 'Migration' },
   { id: 'guards', label: 'Guards & a11y' },
+  { id: 'elevation', label: 'Elevation' },
+  { id: 'entity', label: 'The entity law' },
 ];
 
 export const load = () => ({ toc });
