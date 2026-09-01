@@ -31,7 +31,8 @@
   instead: the root is a ONE-CELL GRID HOST (grid positioning, z-index
   layering — never position:*) stacking three kinds of grid items in
   the same cell: the tablist scroller (base), the merged veil layer
-  (z 1, scrollEffect=progressBlur) and the two chevron BUTTONS (z 2) —
+  (z 1, shared by BOTH veil effects — progressBlur's ladder and
+  shadow's contrast bands) and the two chevron BUTTONS (z 2) —
   real DOM, not ::scroll-button() pseudos (UA boxes: no timeline, no
   mask control, flaky generation — DOM buttons are standard,
   styleable, keyboard-scrollable and live OUTSIDE the tablist, keeping
@@ -41,6 +42,16 @@
   edge; end: 0 → +100% as travel closes the end edge) — the strip's
   own --jx-tabs-progress drives it, clipped by the layer (the css
   contract lives in tabs-trigger.css).
+
+  Scroll-contract hardening (2026-09-02 fix wave): RTL runs normalize
+  the spec's negative scrollLeft (state, progress and the physical
+  edge-factor window all read inline-true, A-1/A-2/A-3); the stamp
+  caches the trigger list (MutationObserver invalidation, A-11/B-4)
+  and splits its read pass from its write pass; document.fonts.ready
+  and the first/last trigger boxes restamp the verdict quietly
+  (A-4/B-2); the indicator inherits the ACTIVE trigger's edge factors
+  so an exiting selected tab takes its bar with it (V1-2); disabled
+  flips re-trim the roving tabindex (A-9).
 -->
 <script lang="ts" module>
   /** indicator paint materials — 'none' renders no indicator at all */
@@ -167,7 +178,8 @@
      *  declared overflow run · wrap: rows flow instead of scrolling */
     layout?: TabsLayout;
     /** edge treatment while the run scrolls — built by slide() (the
-     *  default, cheapest) / blur() / blurSlide() / progressBlur() */
+     *  default, cheapest) / blur() / blurSlide() / progressBlur() /
+     *  shadow() */
     scrollEffect?: TabsScrollEffect;
     children: Snippet;
   }
@@ -212,12 +224,34 @@
    *  selection moves afterwards slide */
   let quietNext = true;
 
+  /** cached own-trigger list (2026-09-02, A-11/B-4): the scroll stamp
+   *  walks this on every scroll event — the DOM query was the recurring
+   *  O(N) cost. Invalidated by the list's MutationObserver below */
+  let triggerCache: HTMLElement[] | null = null;
+
+  /** the ACTIVE trigger (2026-09-02, V1-2): measure() refreshes it; the
+   *  scroll stamp copies its edge factors onto the indicator span so a
+   *  selected trigger clipping under an edge never leaves a
+   *  full-opacity orphan slice its fading label no longer explains */
+  let activeTab: HTMLElement | null = null;
+
+  /** the scroll stamp, reachable from measure() (a selection move must
+   *  re-fade the indicator against the NEW active trigger without
+   *  waiting for the next scroll) — assigned by the scroll-state effect */
+  let restamp: (() => void) | undefined;
+
   /** this list's OWN triggers — nested tablists (a panel hosting its own
    *  Tabs) keep their own walker, so closest() must resolve HERE */
   function ownTabs(): HTMLElement[] {
     return [...(listEl?.querySelectorAll<HTMLElement>('[role=tab]') ?? [])].filter(
       (tab) => tab.closest('[role=tablist]') === listEl,
     );
+  }
+
+  /** the cached variant — builds on first use, rebuilds after MO
+   *  invalidation (late-mounted triggers join the stamp and the walk) */
+  function cachedTabs(): HTMLElement[] {
+    return (triggerCache ??= ownTabs());
   }
 
   /** geometry law (px numbers, layout coords): pill-family hugs the
@@ -281,6 +315,8 @@
     );
     if (!active) {
       geo = null;
+      activeTab = null;
+      restamp?.();
       return;
     }
     if (quiet && indEl) {
@@ -292,6 +328,9 @@
       indEl?.removeAttribute('data-quiet');
     }
     geo = geometryFor(active, list);
+    activeTab = active;
+    // the indicator's edge factors follow the NEW active trigger now
+    restamp?.();
   }
 
   // selection-driven placement: re-measure when the selection moves and
@@ -320,59 +359,123 @@
     return () => ro.disconnect();
   });
 
-  /** the run's scrollability verdict (Owner, 2026-09-01): this JS stamp
-   *  is the single truth the css keys the chevrons AND the veil layer on
-   *  (a strip that cannot scroll shows nothing at all; a closed
-   *  direction never paints). Updated on scroll, resize and mount. The
-   *  same pass stamps --jx-tabs-progress (0–1 travel) on the HOST — the
-   *  one number every overlay (chevrons, veil) calcs from — and, for
-   *  the ramp effects, per-trigger edge factors: --jx-edge-start/end
-   *  (0–1, the clipped fraction of that trigger's own width) on the
-   *  ≤2 triggers actually crossing an edge */
+  /** the run's scrollability verdict (Owner, 2026-09-01; hardened
+   *  2026-09-02): this JS stamp is the single truth the css keys the
+   *  chevrons AND the veil layer on (a strip that cannot scroll shows
+   *  nothing at all; a closed direction never paints). Updated on
+   *  scroll, on resize (the run's OWN box and the first/last trigger
+   *  boxes — label growth re-verdicts, A-4/B-2), on mount, and once
+   *  more when the document's fonts settle. The same pass stamps
+   *  --jx-tabs-progress (0–1 INLINE travel, RTL-normalized) on the HOST
+   *  — the one number every overlay (chevrons, veil) calcs from — and
+   *  the edge factors --jx-edge-start/end (0–1, the clipped fraction
+   *  of each trigger's own width) on every trigger of the run (a rest
+   *  trigger stamps 0 = its natural self, so no stale factor survives
+   *  a scroll back), plus the ACTIVE trigger's factors on the
+   *  indicator span itself (V1-2) */
   $effect(() => {
     const run = runEl;
     if (!run) return;
     const host = hostEl;
-    const ramps = scrollEffect.type !== 'progressBlur';
+    // the ramps are the per-trigger edge treatments ONLY — explicit
+    // enumeration (2026-09-02, A-6): the veil effects never pay the
+    // per-trigger stamp loop (their css consumes none of it)
+    const ramps =
+      scrollEffect.type === 'slide' || scrollEffect.type === 'blur' || scrollEffect.type === 'blur+slide';
     const stamp = (el: HTMLElement, name: string, v: number) => {
       if (v > 0) el.style.setProperty(name, v.toFixed(3));
       else el.style.removeProperty(name);
     };
-    const update = () => {
-      const max = run.scrollWidth - run.clientWidth;
-      const state =
-        max <= 1
-          ? 'none'
-          : run.scrollLeft <= 1
-            ? 'start-closed'
-            : run.scrollLeft >= max - 1
-              ? 'end-closed'
-              : 'open';
-      run.setAttribute('data-jx-scroll-state', state);
-      host?.style.setProperty('--jx-tabs-progress', max > 1 ? String(run.scrollLeft / max) : '0');
-      if (!ramps) return;
-      // per-trigger edge factors: clipped px over the trigger's own
-      // width — offset layout coords are scroll-proof; LTR documented
-      // (the veil ladder's same assumption). Zero-width (jsdom) is 0
-      const sl = run.scrollLeft;
-      const w = run.clientWidth;
-      for (const t of ownTabs()) {
-        const x = t.offsetLeft;
-        const tw = t.offsetWidth;
-        if (max <= 1 || tw <= 0) {
-          stamp(t, '--jx-edge-start', 0);
-          stamp(t, '--jx-edge-end', 0);
-          continue;
+    // content growth re-verdicts (A-4/B-2): watch the current first and
+    // last trigger — observed ONCE per element (the jsdom RO polyfill
+    // fires synchronously on every observe(); re-observing inside the
+    // callback would recurse). Cache-invalidated sets observe their new
+    // edges on the next update
+    const observed = new WeakSet<HTMLElement>();
+    const observeEdges = () => {
+      const ts = triggerCache ?? ownTabs();
+      for (const t of [ts[0], ts.at(-1)]) {
+        if (t && !observed.has(t)) {
+          observed.add(t);
+          ro?.observe(t);
         }
-        stamp(t, '--jx-edge-start', Math.min(tw, Math.max(0, sl - x)) / tw);
-        stamp(t, '--jx-edge-end', Math.min(tw, Math.max(0, x + tw - (sl + w))) / tw);
       }
     };
+    const update = () => {
+      const max = run.scrollWidth - run.clientWidth;
+      // RTL normalization (2026-09-02, A-1/A-2/A-3): spec engines run
+      // RTL scrollLeft 0→−max — the inline travel is the negation, and
+      // the PHYSICAL window origin the offset* geometry measures
+      // against is max+scrollLeft. offsetLeft/offsetWidth stay
+      // physical; only the state/progress math normalizes
+      const rtl = getComputedStyle(run).direction === 'rtl';
+      const pos = rtl ? -run.scrollLeft : run.scrollLeft;
+      const state =
+        max <= 1 ? 'none' : pos <= 1 ? 'start-closed' : pos >= max - 1 ? 'end-closed' : 'open';
+      const w = run.clientWidth;
+      const xL = rtl ? max + run.scrollLeft : run.scrollLeft;
+      // clipped fractions against the physical window [xL, xL+w]; the
+      // slot NAMES are the LTR documentary bias — the stamps are
+      // physical left/right, which keeps the css slide calc exit-ward
+      // under RTL too (a trigger slides toward the edge clipping it)
+      const factors = (x: number, tw: number): [number, number] =>
+        max <= 1 || tw <= 0
+          ? [0, 0]
+          : [
+              Math.min(tw, Math.max(0, xL - x)) / tw,
+              Math.min(tw, Math.max(0, x + tw - (xL + w))) / tw,
+            ];
+      // READ pass — every geometry query lands before the first style
+      // write (no interleaved forced layout, A-11/B-4); the list is the
+      // MO-invalidated cache
+      const rows: { t: HTMLElement; s: number; e: number }[] = [];
+      if (ramps) {
+        for (const t of cachedTabs()) {
+          const [s, e] = factors(t.offsetLeft, t.offsetWidth);
+          rows.push({ t, s, e });
+        }
+      }
+      const a = activeTab;
+      const ind = indEl;
+      const indFactors: [number, number] = a ? factors(a.offsetLeft, a.offsetWidth) : [0, 0];
+      // WRITE pass
+      run.setAttribute('data-jx-scroll-state', state);
+      host?.style.setProperty('--jx-tabs-progress', max > 1 ? String(pos / max) : '0');
+      for (const { t, s, e } of rows) {
+        stamp(t, '--jx-edge-start', s);
+        stamp(t, '--jx-edge-end', e);
+      }
+      // the indicator fades with its ACTIVE trigger on EVERY effect
+      // type (V1-2): the veil runs skip the per-trigger loop but never
+      // the bar — an exiting selected tab takes its bar with it
+      if (ind) {
+        stamp(ind, '--jx-edge-start', indFactors[0]);
+        stamp(ind, '--jx-edge-end', indFactors[1]);
+      }
+      observeEdges();
+    };
+    restamp = update;
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => {
+      update();
+      // a trigger box change also moves the indicator's geometry — the
+      // remeasure is quiet (a resize is not a selection move)
+      measure(true);
+    });
     update();
     run.addEventListener('scroll', update, { passive: true });
-    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
     ro?.observe(run);
+    // late fonts re-widen every label (A-4/B-2): one quiet restamp when
+    // the document's font set settles — both the verdict and the
+    // indicator geometry; the alive flag keeps teardown clean
+    let alive = true;
+    document.fonts?.ready.then(() => {
+      if (!alive) return;
+      update();
+      measure(true);
+    });
     return () => {
+      alive = false;
+      restamp = undefined;
       run.removeEventListener('scroll', update);
       ro?.disconnect();
     };
@@ -381,12 +484,15 @@
   /** the chevron's scroll step: one strip page minus the two lanes, so
    *  the next page's leading trigger lands clear of both lanes — the
    *  lane width IS the run's own scroll-padding (derived, no second
-   *  constant). smooth comes from the run's scroll-behavior */
+   *  constant). smooth comes from the run's scroll-behavior. scrollBy's
+   *  left is the PHYSICAL axis — the inline direction flips the sign
+   *  under RTL (2026-09-02, A-3) */
   function nudge(direction: -1 | 1) {
     const run = runEl;
     if (!run) return;
+    const rtl = getComputedStyle(run).direction === 'rtl';
     const lane = parseFloat(getComputedStyle(run).scrollPaddingInlineStart || '0') || 0;
-    run.scrollBy({ left: direction * Math.max(1, run.clientWidth - lane * 2) });
+    run.scrollBy({ left: direction * (rtl ? -1 : 1) * Math.max(1, run.clientWidth - lane * 2) });
   }
 
   /** liquid needs its displacement filter referenced from the list (the
@@ -425,15 +531,33 @@
   // tabbable for SSR/JS-off entry; trim to the FIRST enabled tab only —
   // exactly one tab stop, per the APG roving law (disabled triggers
   // explicitly -1: browsers skip them, the DOM should say so too)
-  // TODO(batch-3): re-trim when a trigger's disabled state flips
-  // dynamically — the effect only runs on tabStop transitions today
-  $effect(() => {
+  function trimTabStops() {
     if (tabs.tabStop !== '' || !listEl) return;
-    const triggers = ownTabs();
+    const triggers = cachedTabs();
     const firstEnabled = triggers.find((tab) => !tab.hasAttribute('disabled'));
     for (const tab of triggers) {
       tab.setAttribute('tabindex', tab === firstEnabled ? '0' : '-1');
     }
+  }
+  $effect(trimTabStops);
+
+  // one observer, two jobs (2026-09-02, A-9/A-11): childList flips
+  // invalidate the stamp's trigger cache (a late-mounted trigger joins
+  // the walk), and disabled flips re-trim the roving tabindex — a
+  // dynamically disabled tab stop must hand the stop to the first
+  // enabled trigger, or the strip loses its only keyboard entry
+  $effect(() => {
+    const list = listEl;
+    if (!list || typeof MutationObserver === 'undefined') return;
+    const mo = new MutationObserver(() => {
+      triggerCache = null;
+      trimTabStops();
+    });
+    // subtree is required to see attribute flips on the trigger
+    // children; the attributeFilter keeps Svelte's own tabindex trims
+    // (and every other attribute) out of the loop
+    mo.observe(list, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
+    return () => mo.disconnect();
   });
 
   /** APG keyboard walk — arrows along the axis (flipped under an
@@ -551,12 +675,20 @@
            halves) -->
       <div class="jx-tabs-veil-layer pointer-events-none grid [grid-area:1/1]">
         {#if scrollEffect.type === 'progressBlur'}
+          <!-- hold = the chevron lane's share of the band (2026-09-02,
+               A-7/B-9): lane inset·2 inside a veil inset·6 = 1/3 — the
+               ladder's peak covers exactly the blank lane snap parks
+               content clear of. 100/3, not 33 — the derivation is the
+               point. A width knob overrides the band WITHOUT re-deriving
+               this ratio (an arbitrary css length has no px math before
+               layout): a widened band widens the peak past the lane —
+               accepted, documented coupling -->
           <ProgressiveBlur
             pin="grid"
             position="start"
             reveal="static"
             height="var(--jx-tabs-veil)"
-            hold={33}
+            hold={100 / 3}
             blurLevels={scrollEffect.blurLevels}
             class="jx-tabs-veil"
           />
@@ -565,7 +697,7 @@
             position="end"
             reveal="static"
             height="var(--jx-tabs-veil)"
-            hold={33}
+            hold={100 / 3}
             blurLevels={scrollEffect.blurLevels}
             class="jx-tabs-veil"
           />

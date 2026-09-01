@@ -23,7 +23,12 @@
  *    an icon-only trigger named through the rest spread (aria-label
  *    lands verbatim), stack, and the slot-vs-padding utility law;
  *  - APG regressions: aria-selected flips on click, the roving
- *    tabindex trims to one tab stop, arrows still walk + select;
+ *    tabindex trims to one tab stop, arrows still walk + select —
+ *    and a disabled flip re-trims it (the strip never loses its only
+ *    tab stop);
+ *  - the RTL scroll contract (2026-09-02 fix wave): spec-negative
+ *    scrollLeft normalized into inline-true state/progress, the
+ *    physical-window edge factors, and the flipped nudge axis;
  *  - the css law pinned at SOURCE (jsdom computes no css): the
  *    [data-jx-tabs-ind] block, the [data-quiet] transition kill,
  *    per-material ink (glass/liquid backdrop-filter, liquid riding the
@@ -427,6 +432,67 @@ describe('Tabs · layout contract', () => {
     expect(first.style.getPropertyValue('--jx-edge-end')).toBe('');
   });
 
+  it('RTL runs normalize the spec scrollLeft (0→−max): state, progress and the physical-window factors all read inline-true', () => {
+    const { list, tabsIn } = setup();
+    const host = list('rtl');
+    const run = host.querySelector('[data-jx-tabs-run]')!;
+    // jsdom's cascade never maps the dir attribute to computed direction
+    // — pin inline the very computed value the engine reads
+    run.style.direction = 'rtl';
+    // fake geometry: 600 of content in a 200-wide run; alpha sits at the
+    // inline start (physical RIGHT, offsetLeft 480), beta inboard
+    Object.defineProperty(run, 'scrollWidth', { value: 600, configurable: true });
+    Object.defineProperty(run, 'clientWidth', { value: 200, configurable: true });
+    const [alpha, beta] = tabsIn('rtl');
+    Object.defineProperty(alpha, 'offsetLeft', { value: 480, configurable: true });
+    Object.defineProperty(alpha, 'offsetWidth', { value: 100, configurable: true });
+    Object.defineProperty(beta, 'offsetLeft', { value: 420, configurable: true });
+    Object.defineProperty(beta, 'offsetWidth', { value: 80, configurable: true });
+    // rest: scrollLeft 0 is the inline START — start-closed, alpha clean
+    run.scrollLeft = 0;
+    run.dispatchEvent(new Event('scroll'));
+    expect(run.getAttribute('data-jx-scroll-state')).toBe('start-closed');
+    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('0');
+    expect(alpha.style.getPropertyValue('--jx-edge-start')).toBe('');
+    expect(alpha.style.getPropertyValue('--jx-edge-end')).toBe('');
+    // walked 100 toward the inline end (physical left): spec RTL
+    // scrollLeft = −100 → travel 0.25, physical window [300, 500]
+    run.scrollLeft = -100;
+    run.dispatchEvent(new Event('scroll'));
+    expect(run.getAttribute('data-jx-scroll-state')).toBe('open');
+    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('0.25');
+    // alpha [480, 580] clips 80/100 under the physical-right edge —
+    // factor 0.800; the VISIBLE beta [420, 500] stays clean (the A-2
+    // regression: no visible trigger ever stamps to 1)
+    expect(alpha.style.getPropertyValue('--jx-edge-start')).toBe('');
+    expect(alpha.style.getPropertyValue('--jx-edge-end')).toBe('0.800');
+    expect(beta.style.getPropertyValue('--jx-edge-start')).toBe('');
+    expect(beta.style.getPropertyValue('--jx-edge-end')).toBe('');
+    // fully traveled: −400 is the inline end — end-closed, travel 1
+    run.scrollLeft = -400;
+    run.dispatchEvent(new Event('scroll'));
+    expect(run.getAttribute('data-jx-scroll-state')).toBe('end-closed');
+    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('1');
+  });
+
+  it('RTL chevrons nudge on the flipped physical axis — inline-forward is scrollBy left NEGATIVE', () => {
+    const { list } = setup();
+    const host = list('rtl');
+    const run = host.querySelector('[data-jx-tabs-run]')!;
+    run.style.direction = 'rtl';
+    Object.defineProperty(run, 'clientWidth', { value: 200, configurable: true });
+    const calls: number[] = [];
+    run.scrollBy = (opts?: ScrollToOptions) => {
+      calls.push(opts?.left ?? 0);
+      return undefined;
+    };
+    (host.querySelector(':scope > [data-jx-chevron="inline-end"]') as HTMLButtonElement).click();
+    (host.querySelector(':scope > [data-jx-chevron="inline-start"]') as HTMLButtonElement).click();
+    expect(calls).toHaveLength(2);
+    expect(calls[0]).toBeLessThan(0);
+    expect(calls[1]).toBeGreaterThan(0);
+  });
+
   it('scroll is a declared overflow run — the overflow itself is css-owned, not a markup class', () => {
     const { list } = setup();
     const scroll = list('scroll');
@@ -483,6 +549,20 @@ describe('Tabs · APG regressions', () => {
     expect(document.activeElement).toBe(beta);
     expect(beta.getAttribute('aria-selected')).toBe('true');
   });
+
+  it('a disabled flip re-trims the roving tabindex — the strip never loses its only tab stop', async () => {
+    const { tabsIn } = setup();
+    const [alpha, beta] = tabsIn('empty');
+    // the empty state trimmed alpha to THE tab stop
+    expect(alpha.tabIndex).toBe(0);
+    expect(beta.tabIndex).toBe(-1);
+    // disable it dynamically — an attribute flip no reactive effect
+    // sees; the list's MutationObserver must hand the stop over
+    alpha.setAttribute('disabled', '');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(alpha.tabIndex).toBe(-1);
+    expect(beta.tabIndex).toBe(0);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -535,6 +615,13 @@ describe('Tabs · indicator css law (tabs-trigger.css, source-pinned)', () => {
     expect(tabsTriggerCss).toMatch(
       /@media\s*\(\s*prefers-reduced-motion[^)]*\)[\s\S]*?transition:\s*none/,
     );
+  });
+
+  it('the chevron glyphs are the LUCIDE geometry (icons.ts same source): stroke 2, chevron-right/left paths', () => {
+    expect(tabsTriggerCss).toContain("path d='m9 18 6-6-6-6'");
+    expect(tabsTriggerCss).toContain("path d='m15 18-6-6 6-6'");
+    expect(tabsTriggerCss).toContain("stroke-width='2'");
+    expect(tabsTriggerCss).not.toContain("stroke-width='2.5'");
   });
 
   it("the grow layout stretches its triggers ([data-layout='grow'] > [role=tab])", () => {
@@ -756,5 +843,36 @@ describe('Tabs · horizontal overflow contract (tabs-trigger.css, source-pinned)
     // each direction ramps over the outer 15% of travel, unconditionally
     expect(tabsTriggerCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*opacity:\\s*min\\(1,\\s*calc\\(var\\(--jx-tabs-progress, 0\\) / 0\\.15\\)\\)`, 's'));
     expect(tabsTriggerCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*opacity:\\s*min\\(1,\\s*calc\\(\\(1 - var\\(--jx-tabs-progress, 0\\)\\) / 0\\.15\\)\\)`, 's'));
+  });
+
+  it('pre-hydration hides EVERY overlay — no scroll verdict yet (or ever, JS-off): no chevrons, no veil layer, no click targets (A-10/B-7)', () => {
+    // the chevron gate: display:none + pointer-events:none on the
+    // un-stamped run (the un-stamped start chevron used to sit at
+    // opacity:0 yet still take pointer events)
+    expect(tabsTriggerCss).toMatch(
+      /:not\(\[data-jx-scroll-state\]\)\)[^{]*>[^{]*\{[^}]*display:\s*none;[^}]*pointer-events:\s*none/s,
+    );
+    // the veil gate rides unlayered beside the state=none gate (same
+    // cascade reason — the layer's grid utility beats @layer components)
+    expect(tabsTriggerCss).toMatch(
+      /:not\(\[data-jx-scroll-state\]\)\)\s*>\s*:where\(\.jx-tabs-veil-layer\)\s*\{[^}]*display:\s*none/s,
+    );
+  });
+
+  it('reduced motion rests a veil ONLY where travel can reach — a CLOSED edge hides outright instead of parking in place (A-5)', () => {
+    // inside the reduced-motion block itself (not the runtime chevron
+    // gates): start-closed hides the start veil, end-closed the end
+    expect(tabsTriggerCss).toMatch(
+      /prefers-reduced-motion[\s\S]*?data-jx-scroll-state='start-closed'[\s\S]{0,600}?\[data-position='start'\][^{]*\{[^}]*display:\s*none/s,
+    );
+    expect(tabsTriggerCss).toMatch(
+      /prefers-reduced-motion[\s\S]*?data-jx-scroll-state='end-closed'[\s\S]{0,600}?\[data-position='end'\][^{]*\{[^}]*display:\s*none/s,
+    );
+  });
+
+  it('the indicator fades with its ACTIVE trigger — the stamp copies the edge factors onto the span, so an exiting selected tab takes its bar with it (V1-2)', () => {
+    expect(tabsTriggerCss).toMatch(
+      /\[data-scroll-effect\]\s*>\s*\[data-jx-tabs-ind\]\s*\{[^}]*opacity:\s*calc\(1 - max\(var\(--jx-edge-start, 0\), var\(--jx-edge-end, 0\)\)\)/s,
+    );
   });
 });

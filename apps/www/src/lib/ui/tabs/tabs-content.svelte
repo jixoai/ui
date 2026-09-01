@@ -1,5 +1,8 @@
 <!--
-  jixoai tabs content (registry/files/ui/tabs/tabs-content.svelte).
+  jixoai tabs content (registry/files/ui/tabs/tabs-content.svelte,
+  2026-09-01 tabs variant system — contract stable since; the panel
+  half carries no scroll/indicator machinery, so the 2026-09-02 fix
+  wave left it untouched).
   The panel half of the tabs family: role=tabpanel labelled by its
   trigger (deterministic ids — no registration handshake), tabindex=0
   per APG so the panel body is keyboard-reachable even when it holds no

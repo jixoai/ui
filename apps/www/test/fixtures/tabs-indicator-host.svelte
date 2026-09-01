@@ -1,11 +1,15 @@
 <!--
-  Test host for the tabs shared-indicator variant system: one Tabs root
-  per scenario, each list addressable through a data-list hook so the
+  Test host for the tabs shared-indicator variant system (2026-09-01;
+  2026-09-02 fix wave added the RTL scenario): one Tabs root per
+  scenario, each list addressable through a data-list hook so the
   spec never depends on DOM order. Scenarios:
 
   - materials: line (the default, nothing passed), pill, outline,
     glass, liquid, none — plus a vertical list wearing pill
   - layouts: grow, scroll and wrap (data-layout wiring)
+  - an RTL run (dir="rtl" wrapper around a scroll list) for the
+    normalized-stamp contract — the spec pins the computed direction
+    on the run itself (jsdom's cascade never maps the dir attribute)
   - trigger anatomy: a leading icon, a trailing iconEnd, an icon-only
     trigger named by aria-label (its content is the empty expression so
     the host still mounts against a trigger without the rest spread),
@@ -13,7 +17,8 @@
   - a snippet-override indicator that echoes the measured geometry back
     through data attributes — jsdom offsets are all 0; the numbers are
     the engine's, the echo just surfaces them for the spec
-  - the empty-value state: the indicator must render hidden
+  - the empty-value state: the indicator must render hidden — and its
+    trimmed tab stop feeds the disabled-flip re-trim regression
 -->
 <script lang="ts">
   import Tabs from '../../src/lib/ui/tabs/tabs.svelte';
@@ -76,6 +81,16 @@
     <TabsTrigger value="alpha">Alpha</TabsTrigger>
     <TabsTrigger value="beta">Beta</TabsTrigger>
   </TabsList>
+</Tabs>
+
+<Tabs value="alpha">
+  <div dir="rtl">
+    <TabsList data-list="rtl" layout="scroll">
+      <TabsTrigger value="alpha">Alpha</TabsTrigger>
+      <TabsTrigger value="beta">Beta</TabsTrigger>
+      <TabsTrigger value="gamma">Gamma</TabsTrigger>
+    </TabsList>
+  </div>
 </Tabs>
 
 <Tabs value="alpha">

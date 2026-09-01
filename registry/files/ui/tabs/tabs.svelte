@@ -1,5 +1,7 @@
 <!--
-  jixoai tabs — the ROOT half (registry/files/ui/tabs/tabs.svelte).
+  jixoai tabs — the ROOT half (registry/files/ui/tabs/tabs.svelte,
+  2026-09-01 tabs variant system; 2026-09-02 fix wave touched only
+  comment/format hygiene here — the context contract is stable).
   WAI-ARIA APG tabs pattern, composition-first: this component owns ONLY
   the shared state (the selected value) and hands it to the family
   through context — the tablist, triggers and panels can be laid out
@@ -87,7 +89,8 @@
     },
     get tabStop() {
       return focused || value;
-    },    setTabStop(next: string) {
+    },
+    setTabStop(next: string) {
       focused = next;
     },
     select(next: string) {

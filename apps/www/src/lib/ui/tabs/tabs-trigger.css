@@ -10,6 +10,12 @@
  * in the markup; the static per-trigger ::after bar this sheet used
  * to carry is deleted (the sliding indicator replaces it).
  *
+ * 2026-09-02 fix wave: chevron glyphs on the lucide geometry (icons.ts
+ * same source), pre-hydration overlay gates (no scroll verdict → no
+ * overlays), reduced-motion veil rest gated by the closed edges, the
+ * indicator's edge fade (V1-2 — the stamps themselves live in
+ * tabs-list.svelte, RTL-normalized).
+ *
  * Material law: line = 2px primary bar at the strip edge · pill =
  * tonal hug · outline = border hug · glass/liquid = backdrop hug
  * (liquid swaps its backdrop-filter for the SVG displacement filter
@@ -90,9 +96,12 @@
   /* the shared var family rides the HOST — the overlays are the run's
    * siblings (custom properties inherit downward only): the chevron
    * glyphs (context-swappable icons + the family's icon token) and
-   * the veil width (lane + ramp; see the veil section) */
-  --jx-tabs-chevron-inline-end: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M9 5l7 7-7 7'/%3E%3C/svg%3E");
-  --jx-tabs-chevron-inline-start: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M15 5l-7 7 7 7'/%3E%3C/svg%3E");
+   * the veil width (lane + ramp; see the veil section). The glyphs are
+   * the LUCIDE chevron geometry (2026-09-02, A-12: icons.ts
+   * chevronRight/chevronLeft, stroke 2 — one glyph law across the
+   * family; the vars stay the swappable indirection) */
+  --jx-tabs-chevron-inline-end: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
+  --jx-tabs-chevron-inline-start: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='m15 18-6-6 6-6'/%3E%3C/svg%3E");
   --jx-tabs-chevron-size: var(--jx-text-secondary);
   --jx-tabs-veil: calc(var(--jx-inset) * 6);
 }
@@ -147,13 +156,24 @@
 :where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='end-closed']) > :where([data-jx-chevron='inline-end']) {
   display: none;
 }
+/* pre-hydration (2026-09-02, A-10/B-7): before the stamp lands — and
+ * without JS at all — there is NO verdict, so neither chevron paints
+ * and neither is a click target (the un-stamped start chevron used to
+ * sit at opacity:0 yet still take pointer events). The fade fallback
+ * below is the stamped runtime's ramp, not the no-JS story */
+:where(.jx-tabs-horizontal):has(> [data-jx-tabs-run]:not([data-jx-scroll-state])) > :where([data-jx-chevron='inline-start']),
+:where(.jx-tabs-horizontal):has(> [data-jx-tabs-run]:not([data-jx-scroll-state])) > :where([data-jx-chevron='inline-end']) {
+  display: none;
+  pointer-events: none;
+}
 
 /* ── scrollEffect (Owner, 2026-09-01): edge treatments for the run ──
  * Built by the typed builders — slide() / blur() / blurSlide() /
- * progressBlur(), the press-button effect convention (tabs-list.svelte
- * exports them); slide is the DEFAULT, the cheapest: translate+opacity
- * only, no filter. The knobs (--jx-tabs-edge-blur / -slide) ride the
- * run's INLINE style from the builder object; this sheet only consumes.
+ * progressBlur() / shadow(), the press-button effect convention
+ * (tabs-list.svelte exports them); slide is the DEFAULT, the cheapest:
+ * translate+opacity only, no filter. The knobs (--jx-tabs-edge-blur /
+ * -slide) ride the run's INLINE style from the builder object; this
+ * sheet only consumes.
  *
  * The ramps are SCROLL-FOLLOWING, not view()-timelines (empirical,
  * Chromium 152, real + headless: named-range view() resolution at
@@ -161,13 +181,14 @@
  * phantom ~36% progress and stays treated; the stuck-first-button
  * bug). Instead the list's scroll handler stamps --jx-edge-start /
  * --jx-edge-end (0–1, the clipped fraction of that trigger's own
- * width) on the ≤2 triggers actually crossing an edge — the same
- * single-truth law as the chevron fade and the veil. Rest = factor 0
- * = the element's natural self, by arithmetic, on every engine (no
- * scroll-driven-animation support required). The treatments are keyed
- * per type so slide (the default) never pays for a filter; a
- * fully-clipped trigger is factor 1 = fully treated (invisible
- * anyway — the ramp matters while clipping). */
+ * width) on every trigger of the run, every pass — the same
+ * single-truth law as the chevron fade and the veil. Rest stamps 0 =
+ * the element's natural self, by arithmetic, on every engine (no
+ * scroll-driven-animation support required) — and no stale factor
+ * survives a scroll back. The treatments are keyed per type so slide
+ * (the default) never pays for a filter; a fully-clipped trigger is
+ * factor 1 = fully treated (invisible anyway — the ramp matters
+ * while clipping). */
 /* the ramp rules are keyed on the run (the tablist scroller) — the
  * triggers are its direct children; the knobs are host-inherited vars */
 :where(.jx-tabs-run)[data-scroll-effect='slide'] > [role='tab'] {
@@ -183,16 +204,38 @@
   translate: calc((var(--jx-edge-end, 0) - var(--jx-edge-start, 0)) * var(--jx-tabs-edge-slide, 0px)) 0;
   filter: blur(calc(max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * var(--jx-tabs-edge-blur, 0px)));
 }
+/* the indicator rides the SAME edge fade (2026-09-02, V1-2): the
+ * stamp pass copies the ACTIVE trigger's factors onto the indicator
+ * span, so a selected trigger clipping under an edge takes its bar
+ * with it — no full-opacity orphan slice decoupled from its fading
+ * label at the run's edge. Opacity only: the bar stays glued to the
+ * trigger's measured box (slide/blur stay the trigger's own
+ * treatments). The rule keys on [data-scroll-effect] at large — the
+ * veil types carry no trigger ramp, yet their exiting bar fades
+ * under the veil too (the conservative side: the bar never outlives
+ * its label) */
+:where(.jx-tabs-run)[data-scroll-effect] > [data-jx-tabs-ind] {
+  opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
+}
 /* the merged veil layer (Owner, 2026-09-01 R4): ONE grid item over the
- * run (z 1, under the chevrons' z 2) holding both edge veils. overflow:
- * clip is LOAD-BEARING — the veils ENTER by scroll-driven translate
- * (below), sliding in from outside their own edge; the layer clips the
- * translated-out halves. The veils themselves stay pure grid items of
- * the layer ([grid-area:1/1] + justify-self per edge, their own
- * dialect). The width var rides the HOST (the layer is the run's
+ * run (z 1, under the chevrons' z 2) holding both edge veils — BOTH
+ * veil effects share it (progressBlur's ladder and shadow's contrast
+ * bands; the layer is effect-agnostic, the bands carry the paint).
+ * overflow: clip is LOAD-BEARING — the veils ENTER by scroll-driven
+ * translate (below), sliding in from outside their own edge; the layer
+ * clips the translated-out halves. The veils themselves stay pure grid
+ * items of the layer ([grid-area:1/1] + justify-self per edge, their
+ * own dialect). The width var rides the HOST (the layer is the run's
  * sibling): inset·6 = the chevron lane (inset·2, where snap-parked
  * content is blank) + the ramp that must reach the parked label's
- * readable text */
+ * readable text.
+ *
+ * Layering intent (2026-09-02, V1-3): the layer deliberately paints
+ * OVER the run's content — the selection indicator included. An
+ * exiting selected trigger's bar is edge content like its label: it
+ * fades by its own stamped edge factors first (the rule above), and
+ * whatever remains rides under the veil with the rest of the edge
+ * content. The bar never floats above the veil */
 :where(.jx-tabs-veil-layer) {
   z-index: 1;
   overflow: clip;
@@ -237,9 +280,10 @@
  * --jx-tabs-progress (0–1 travel) on the HOST (tabs-list.svelte, the
  * same pass that stamps data-jx-scroll-state): one inherited number
  * serves the chevron buttons AND the veil entrance — they always
- * agree. Each direction ramps over the outer 15% of travel; the
- * un-stamped fallback 0 is the honest no-JS state (start hidden, end
- * open) */
+ * agree. Each direction ramps over the outer 15% of travel; the var's
+ * un-stamped fallback 0 only ever shows pre-stamp, where the
+ * pre-hydration gate above already hides the buttons (no verdict, no
+ * overlay — 2026-09-02) */
 :where([data-jx-chevron='inline-start']) {
   opacity: min(1, calc(var(--jx-tabs-progress, 0) / 0.15));
 }
@@ -257,6 +301,12 @@
 :where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='none']) > :where(.jx-tabs-veil-layer) {
   display: none;
 }
+/* pre-hydration twin of the chevron gate (2026-09-02, A-10/B-7): no
+ * verdict yet — or ever, without JS — no veil. Unlayered for the same
+ * cascade reason as the gate above */
+:where(.jx-tabs-horizontal):has(> [data-jx-tabs-run]:not([data-jx-scroll-state])) > :where(.jx-tabs-veil-layer) {
+  display: none;
+}
 
 /* unlayered on purpose: the reduced-motion override must beat every
  * layered rule regardless of layer order */
@@ -270,5 +320,14 @@
   :where(.jx-tabs-run)[data-scroll-effect] > [role='tab'],
   :where(.jx-tabs-veil-layer) > :where(.jx-tabs-veil) {
     translate: none;
+  }
+  /* but a resting veil only paints where travel can reach (2026-09-02,
+   * A-5): translate:none parks a CLOSED edge's veil in place — the
+   * entrance that would have carried it out is suppressed, so the
+   * closed edge hides outright instead (the same display gate the
+   * chevrons use) */
+  :where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='start-closed']) > :where(.jx-tabs-veil-layer) > :where([data-position='start']),
+  :where(.jx-tabs-horizontal):has(> [data-jx-tabs-run][data-jx-scroll-state='end-closed']) > :where(.jx-tabs-veil-layer) > :where([data-position='end']) {
+    display: none;
   }
 }
