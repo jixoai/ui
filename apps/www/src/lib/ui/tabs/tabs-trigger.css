@@ -180,9 +180,12 @@
  * anyway — the ramp matters while clipping). */
 /* the veil width rides the HOST, not the run: the bands are the run's
  * SIBLINGS (custom properties inherit downward only — a var on the
- * run never reaches them) */
+ * run never reaches them). inset·6 = the chevron lane (inset·2, where
+ * snap-parked content is blank) + the ramp that must reach the parked
+ * label's readable text (~inset·4 inboard) — a narrower band puts its
+ * mass over parked blank (the measured left-veil-is-invisible bug) */
 :where(.jx-tabs-horizontal) {
-  --jx-tabs-veil: calc(var(--jx-inset) * 4);
+  --jx-tabs-veil: calc(var(--jx-inset) * 6);
 }
 :where(.jx-tabs-run)[data-scroll-effect='slide'] > [role='tab'] {
   opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));

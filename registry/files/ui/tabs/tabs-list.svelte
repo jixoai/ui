@@ -477,29 +477,16 @@
   aria-orientation={orientation}
 >
   {#if orientation === 'horizontal'}
-    {#if scrollEffect.type === 'progressBlur'}
-      <!-- the veil: twin bands as SIBLING items in the host's one grid
-           cell (pin="grid" — positioning by GRID, layering by z-index,
-           never position:*). Grid items of the host do not scroll with
-           the run's content, so the bands stay pinned at the edges;
-           gated and faded EXACTLY like the chevrons (css: per-edge
-           scroll-state + the host's --jx-tabs-progress window) -->
-      <ProgressiveBlur
-        pin="grid"
-        position="start"
-        reveal="static"
-        height="var(--jx-tabs-veil)"
-        blurLevels={scrollEffect.blurLevels}
-        class="jx-tabs-veil"
-      />
-    {/if}
     <!-- the run: the strip's REAL scroller. role=presentation flattens
          it out of the accessibility tree (the tablist keeps owning its
          tabs); it is the indicator's containing block (position:
          relative) so trigger offset geometry and the bar share one
          coordinate space; the engine's ::scroll-button() boxes generate
          as the run's siblings and stack over the same grid cell (the
-         css contract lives in tabs-trigger.css) -->
+         css contract lives in tabs-trigger.css). The veil bands render
+         AFTER the run (below) on purpose: Chromium only samples the
+         run's scrolled content into the bands' backdrop when they
+         paint after it (empirical, 2026-09-01) -->
     <div
       bind:this={runEl}
       role="presentation"
@@ -513,11 +500,32 @@
       {@render runTail()}
     </div>
     {#if scrollEffect.type === 'progressBlur'}
+      <!-- the veil: twin bands as SIBLING items in the host's one grid
+           cell (pin="grid" — positioning by GRID, layering by z-index,
+           never position:*). Grid items of the host do not scroll with
+           the run's content, so the bands stay pinned at the edges;
+           gated and faded EXACTLY like the chevrons (css: per-edge
+           scroll-state + the host's --jx-tabs-progress window).
+           hold=33: the outer third (the chevron lane, inset·2 of the
+           inset·6 band) carries the ladder's PEAK instead of ramping —
+           snap + scroll-padding park the first label's text ~1.5 lanes
+           inboard, so a pure edge-peaked ramp blanches over parked
+           blank (the left-veil-is-invisible bug, measured 2026-09-01) -->
+      <ProgressiveBlur
+        pin="grid"
+        position="start"
+        reveal="static"
+        height="var(--jx-tabs-veil)"
+        hold={33}
+        blurLevels={scrollEffect.blurLevels}
+        class="jx-tabs-veil"
+      />
       <ProgressiveBlur
         pin="grid"
         position="end"
         reveal="static"
         height="var(--jx-tabs-veil)"
+        hold={33}
         blurLevels={scrollEffect.blurLevels}
         class="jx-tabs-veil"
       />

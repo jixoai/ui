@@ -306,23 +306,38 @@ describe('Tabs · layout contract', () => {
     expect(blurRun.getAttribute('data-scroll-effect')).toBe('blur+slide');
     expect(blurRun.getAttribute('style')).toContain('--jx-tabs-edge-blur: 4px');
     expect(blurRun.getAttribute('style')).toContain('--jx-tabs-edge-slide: 8px');
-    // progressBlur: twin bands as SIBLING grid items of the host — the
-    // start band before the run, the end band after it; never inside
-    // the scroller, never a positioned element
+    // progressBlur: twin bands as SIBLING grid items of the host — both
+    // rendered AFTER the run (paint law, empirical Chromium: the bands'
+    // backdrop only samples the scrolled content when they paint after
+    // it — a before-run band paints nothing at the scroll-origin edge);
+    // never inside the scroller, never a positioned element
     const host = list('effect-veil');
     const run = host.querySelector('[data-jx-tabs-run]')!;
     const bands = [...host.querySelectorAll(':scope > .jx-tabs-veil')];
     expect(bands).toHaveLength(2);
     expect(bands[0].getAttribute('data-position')).toBe('start');
     expect(bands[1].getAttribute('data-position')).toBe('end');
-    expect(run.previousElementSibling).toBe(bands[0]);
-    expect(run.nextElementSibling).toBe(bands[1]);
-    // the grid dialect: grid-area stacking + justify-self, no position tech
+    expect(run.previousElementSibling).toBeNull();
+    expect(run.nextElementSibling).toBe(bands[0]);
+    expect(bands[0].nextElementSibling).toBe(bands[1]);
+    // the grid dialect: grid-area stacking + justify-self on the BAND
+    // (grid positions it), no position tech; the compositor-isolation
+    // translateZ(0) (each band its own layer — without it only the
+    // first band after the scroller samples a backdrop); the ladder
+    // layers fill the band absolutely
     expect(bands[0].className).toContain('[grid-area:1/1]');
+    expect(bands[0].className).toContain('[transform:translateZ(0)]');
     expect(bands[0].className).not.toContain('sticky');
-    // each band carries the progressive-blur ladder layers (also grid items)
+    expect(bands[0].className).not.toContain('absolute');
+    // each band carries the progressive-blur ladder layers (absolutely filled)
     expect(bands[0].querySelectorAll('.jx-pblur-layer').length).toBeGreaterThan(1);
-    expect([...bands[0].querySelectorAll('.jx-pblur-layer')].every((l) => l.className.includes('[grid-area:1/1]'))).toBe(true);
+    expect([...bands[0].querySelectorAll('.jx-pblur-layer')].every((l) => l.className.includes('inset-0'))).toBe(true);
+    // the HOLD law: the outer third (the chevron lane, where snap parks the
+    // first label inboard) carries the ladder's peak — the strongest layer's
+    // mask runs OPAQUE to 100% instead of tapering (a pure edge-peaked ramp
+    // puts its mass over parked blank — the left-veil-is-invisible bug)
+    const topLayer = bands[0].querySelector('.jx-pblur-layer:last-child')!;
+    expect(topLayer.getAttribute('style')).toMatch(/(?:rgba\(0, 0, 0, 1\)|rgb\(0, 0, 0\)) 100%/);
   });
 
   it('the scroll handler stamps --jx-tabs-progress on the HOST and per-trigger edge factors — one truth for chevrons, veil and ramps', () => {
@@ -626,9 +641,11 @@ describe('Tabs · horizontal overflow contract (tabs-trigger.css, source-pinned)
 
   it('scrollEffect #2 — the progressBlur veil mirrors the chevrons: host var, per-edge gates, the same fade window', () => {
     // the veil width var rides the HOST: the bands are the run's siblings —
-    // a var declared on the run never inherits to them (width would collapse)
+    // a var declared on the run never inherits to them (width would collapse).
+    // inset·6 = the chevron lane (inset·2, snap-parked blank) + the ramp that
+    // must reach the parked label's readable text
     expect(tabsTriggerCss).toMatch(
-      /\.jx-tabs-horizontal[^{]*\{[^}]*--jx-tabs-veil:\s*calc\(var\(--jx-inset\)\s*\*\s*4\)/s,
+      /\.jx-tabs-horizontal[^{]*\{[^}]*--jx-tabs-veil:\s*calc\(var\(--jx-inset\)\s*\*\s*6\)/s,
     );
     const runBlock = tabsTriggerCss.match(/\.jx-tabs-run[^{]*\{[\s\S]*?\n\}/)?.[0] ?? '';
     expect(runBlock).not.toContain('--jx-tabs-veil');

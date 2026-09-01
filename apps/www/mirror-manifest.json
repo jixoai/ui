@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-01T12:01:22.512Z",
+  "generatedAt": "2026-09-01T13:00:50.282Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1483,8 +1483,8 @@
           "source": "registry/files/ui/tabs/tabs-list.svelte",
           "mirror": "apps/www/src/lib/ui/tabs/tabs-list.svelte",
           "target": "@ui/tabs/tabs-list.svelte",
-          "sourceSha": "abae3f87316f672775287c7e296c80e53913e9546a6449876dba13933d4c766a",
-          "mirrorSha": "abae3f87316f672775287c7e296c80e53913e9546a6449876dba13933d4c766a"
+          "sourceSha": "5c2d9701a1cb21abcad94a587f7fb246873f516565e58310f893edad03ff03b9",
+          "mirrorSha": "5c2d9701a1cb21abcad94a587f7fb246873f516565e58310f893edad03ff03b9"
         },
         {
           "source": "registry/files/ui/tabs/tabs-trigger.svelte",
@@ -1511,8 +1511,8 @@
           "source": "registry/files/ui/tabs/tabs-trigger.css",
           "mirror": "apps/www/src/lib/ui/tabs/tabs-trigger.css",
           "target": "@ui/tabs/tabs-trigger.css",
-          "sourceSha": "cd9012ed94b6f18b8b8063289c99e0e9e85f27b8979343891da57c44925a9eeb",
-          "mirrorSha": "cd9012ed94b6f18b8b8063289c99e0e9e85f27b8979343891da57c44925a9eeb"
+          "sourceSha": "848a9be44d551f07ed71abd47aecbacab1e6110c7dc5014fa32651e4da7b3119",
+          "mirrorSha": "848a9be44d551f07ed71abd47aecbacab1e6110c7dc5014fa32651e4da7b3119"
         }
       ]
     },
@@ -2878,8 +2878,8 @@
           "source": "registry/files/ui/progressive-blur/progressive-blur.svelte",
           "mirror": "apps/www/src/lib/ui/progressive-blur/progressive-blur.svelte",
           "target": "@ui/progressive-blur/progressive-blur.svelte",
-          "sourceSha": "2f97112deca29477926a23f7a82fe948d0c91291c3f04545606d134cff288db8",
-          "mirrorSha": "2f97112deca29477926a23f7a82fe948d0c91291c3f04545606d134cff288db8"
+          "sourceSha": "97ab567779393ec0b1bd18f5405af7b66c2b3d7839b605eee7ccbca9590dbf69",
+          "mirrorSha": "97ab567779393ec0b1bd18f5405af7b66c2b3d7839b605eee7ccbca9590dbf69"
         },
         {
           "source": "registry/files/ui/progressive-blur/progressive-blur.css",
