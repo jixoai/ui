@@ -16,8 +16,11 @@
   import separatorSource from '$lib/ui/separator/separator.svelte?raw';
 
   // single usage sample: the drawer file and the body CodeBlock share it
-  const usage = `<Separator />                        <!-- hr: thematic break -->
+  const usage = `<Separator />                        <!-- hr: the contrast ghost -->
 <Separator orientation="vertical" />  <!-- ARIA div: inline peer split -->
+<Separator variant="dashed" />        <!-- 6/4 dashes over the ghost -->
+<Separator variant="wavy" />          <!-- the SVG sine mask -->
+<Separator variant="fade" />          <!-- blend: transparent→dark→transparent -->
 
 <!-- length is layout: -->
 <Separator class="my-6" />
@@ -33,7 +36,7 @@
   <title>Separator · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai separator: W3C-first — the horizontal separator IS the native hr; only the vertical posture takes the ARIA route. 1px var(--border), geometry from the consumer's layout."
+    content="The jixoai separator: W3C-first — the horizontal separator IS the native hr; the vertical takes the ARIA route. The ink is the backdrop's own contrast ghost (backdrop-filter: contrast(0.5), auto-adaptive over any ground); dashed/dense/dotted/wavy are masks over it, fade rides a mix-blend-mode difference gradient — zero color tokens."
   />
 </svelte:head>
 
@@ -50,12 +53,13 @@
         tone="hero"
         eyebrow="registry:ui · Layout"
         title="separator — <hr> is the separator"
-        summary="The W3C already built this one: <hr> carries thematic-break semantics, announcements, and styling for free. Only the vertical posture — splitting inline peers — has no native element, so it takes the ARIA route: a div with role=separator. No props beyond orientation; length is your layout's job."
+        summary="The W3C already built this one: <hr> carries thematic-break semantics, announcements, and styling for free. Only the vertical posture — splitting inline peers — has no native element, so it takes the ARIA route: a div with role=separator. The ink paints no color: the default line is the backdrop's own contrast ghost, and every shaped variant rides the same engine."
       >
         <div class="flex flex-wrap gap-3">
           <span class="pill">native &lt;hr&gt;</span>
           <span class="pill">role=separator vertical</span>
-          <span class="pill">1px var(--border)</span>
+          <span class="pill">contrast ghost ink</span>
+          <span class="pill">6 variants · mask + blend</span>
         </div>
       </SectionCard>
     </div>
@@ -90,6 +94,37 @@
           </PlayFields>
         {/snippet}
       </ComponentCanvas>
+    </div>
+
+    <div id="variants" data-reveal="">
+      <SectionCard
+        family="variants"
+        headerRegion="variants"
+        eyebrow="ink engine"
+        title="The ink engine — no color, only physics"
+        summary="A separator paints no color (Owner ruling, 2026-09-01): border-color is for borders. The default ink is the backdrop's own CONTRAST GHOST — a backdrop-filter: contrast(0.5) strip reads as a tonal shift over any ground. Dashed, dense, dotted and wavy are MASKS over that same strip; fade rides the BLEND engine — an alpha-ramped white gradient under mix-blend-mode: difference, inverting the backdrop toward mid exactly as its alpha ramps: transparent → light → dark → light → transparent."
+      >
+        <div class="flex flex-col gap-6">
+          <div class="flex w-full max-w-lg flex-col gap-4">
+            {#each [['line', 'the contrast ghost (default)'], ['dashed', '6/4 dashes'], ['dense', '3/3 dense dashes'], ['dotted', 'a chain of dots'], ['wavy', 'the SVG sine mask'], ['fade', 'blend: transparent → dark → transparent']] as [v, label]}
+              <div class="flex flex-col gap-1.5">
+                <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">{v}</span>
+                <Separator variant={v} />
+                <span class="text-muted-foreground text-[12px]">{label}</span>
+              </div>
+            {/each}
+          </div>
+          <div class="flex w-full max-w-lg flex-col gap-4 border border-border p-4"
+            style="background: linear-gradient(90deg, oklch(0.98 0 0), oklch(0.35 0 0), oklch(0.98 0 0))"
+          >
+            <span class="font-nav text-[11px] uppercase tracking-[0.24em] text-foreground">auto-adaptive proof — over a light→dark→light gradient</span>
+            <Separator />
+            <Separator variant="dashed" />
+            <Separator variant="fade" />
+            <span class="text-[12px] text-foreground">every variant stays legible across the whole ramp — no color token anywhere</span>
+          </div>
+        </div>
+      </SectionCard>
     </div>
 
     <div id="length-layout" data-reveal="">
@@ -145,6 +180,6 @@
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="One prop, no length API on purpose — length is your layout's job."><CodeBlock code={usage} lang="svelte" meta="Separator usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Horizontal needs no ARIA at all — the browser announces hr natively; vertical carries the WAI-ARIA separator pattern."><A11yTable keys={[]} aria={[{ name: 'hr', value: 'native', description: 'Announced as a separator/thematic break by the platform — zero wiring owed' }, { name: 'role', value: 'separator', description: 'On the vertical path only (component-owned, not overridable)' }, { name: 'aria-orientation', value: '"vertical"', description: 'Set with the role on the vertical path' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="One color decision and no density footprint: the 1px line is var(--border), length comes from layout."><div class="flex flex-col gap-6"><DensityDemo><div class="flex h-8 items-stretch gap-4 text-[13px]"><span>a</span><Separator orientation="vertical" /><span>b</span></div></DensityDemo><TokenTable tokens={[{ name: '--border', default: '1px line', source: 'color', description: 'The only paint decision the component makes' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the Separator Props interface — everything else rides through as native hr attributes."><PropsTable props={[{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'horizontal renders the native hr; vertical renders the role=separator div.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough — width/height/margin live here, by design.' }, { name: '...rest', type: 'HTMLAttributes<HTMLHRElement>', default: 'spread', description: 'Every other attribute lands on the element (vertical spreads onto the div).' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No color decision at all — the ink is physics, not tokens: the contrast ghost adapts to whatever ground it crosses, the blend fade inverts it. Length comes from layout."><div class="flex flex-col gap-6"><DensityDemo><div class="flex h-8 items-stretch gap-4 text-[13px]"><span>a</span><Separator orientation="vertical" /><span>b</span></div></DensityDemo><TokenTable tokens={[{ name: 'contrast ghost', default: 'backdrop-filter: contrast(0.5)', source: 'ink engine', description: 'The default ink — the backdrop\'s own tonal shift, over any ground' }, { name: 'blend fade', default: 'mix-blend-mode: difference', source: 'ink engine', description: 'The alpha-ramped gradient inverts the backdrop toward mid: transparent → light → dark → light → transparent' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the Separator Props interface — everything else rides through as native hr attributes."><PropsTable props={[{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'horizontal renders the native hr; vertical renders the role=separator div. The mask axis swaps with it.' }, { name: 'variant', type: "'line' | 'dashed' | 'dense' | 'dotted' | 'wavy' | 'fade'", default: "'line'", description: 'The ink geometry: line is the bare contrast ghost; dashed (6/4), dense (3/3), dotted and wavy are masks over it; fade rides the blend engine.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough — width/height/margin live here, by design.' }, { name: '...rest', type: 'HTMLAttributes<HTMLHRElement>', default: 'spread', description: 'Every other attribute lands on the element (vertical spreads onto the div).' }]} /></SectionCard></div>
 </div>

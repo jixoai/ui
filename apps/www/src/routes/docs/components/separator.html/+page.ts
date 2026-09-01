@@ -4,6 +4,7 @@
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
+  { id: 'variants', label: 'The ink engine' },
   { id: 'length-layout', label: 'Length is layout' },
   { id: 'separator-base', label: 'W3C foundation' },
   { id: 'types', label: 'Types' },

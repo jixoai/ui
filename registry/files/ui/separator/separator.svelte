@@ -4,37 +4,58 @@
   styling, zero ARIA. Only the vertical posture has no native element, so
   it takes the ARIA route: <div role="separator" aria-orientation>.
 
-  orientation="horizontal" (default) renders <hr> — a thematic break
-  between content sections (paragraphs, card blocks).
-  orientation="vertical"   renders the ARIA div — a visual divider
-  between inline peers (toolbar items, footer columns).
+  The INK law (Owner ruling, 2026-09-01): a separator paints no COLOR —
+  border-color is for borders, not for separators. The default ink is
+  the backdrop's own CONTRAST GHOST: a backdrop-filter: contrast(0.5)
+  strip reads as a tonal shift over ANY ground (near-black lifts toward
+  mid, near-white dims — auto-adaptive, theme-agnostic, zero color
+  tokens). Shaped variants — dashed (6/4), dense (3/3), dotted, wavy —
+  are MASKS over the same contrast strip: one ink engine, many
+  geometries. The fade variant rides the BLEND engine instead: an
+  alpha-ramped white gradient under mix-blend-mode: difference inverts
+  the backdrop toward mid — transparent → light → dark → light →
+  transparent, visible on any ground. Orientation swaps the mask axis
+  (the vertical posture reads the same laws top-to-bottom).
 
-  1px var(--border) both ways; length is the consumer's job (the element
-  is display:block horizontal / inline-block vertical — width/height via
-  the class prop or the parent's layout).
-
-  tw4 (2026-08-24): pure token utilities, zero css residue.
+  Length stays the consumer's job (block horizontal / inline-block
+  vertical — width/height via the class prop or the parent's layout);
+  the ink engine (backdrop-filter, mask data-URIs, blend) lives in
+  separator.css — utilities cannot express it (the D1-exempt law).
 -->
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import './separator.css';
+
+  type Variant = 'line' | 'dashed' | 'dense' | 'dotted' | 'wavy' | 'fade';
 
   interface Props extends HTMLAttributes<HTMLHRElement> {
     orientation?: 'horizontal' | 'vertical';
+    /** the ink geometry: masks over the contrast ghost, or the blend
+     *  engine for fade (transparent → light → dark → light → transparent) */
+    variant?: Variant;
   }
 
-  let { orientation = 'horizontal', class: className = '', ...rest }: Props = $props();
+  let { orientation = 'horizontal', variant = 'line', class: className = '', ...rest }: Props =
+    $props();
 </script>
 
 {#if orientation === 'vertical'}
   <!-- component-owned semantics land AFTER the spread: role/aria here
        are not overridable — the separator contract is the component's -->
   <div
-    data-jx-separator-v class={cn('inline-block self-stretch flex-none w-px min-w-px bg-border', className)}
+    data-jx-separator={variant}
+    data-orientation="vertical"
+    class={cn('inline-block self-stretch flex-none', className)}
     {...(rest as HTMLAttributes<HTMLDivElement>)}
     role="separator"
     aria-orientation="vertical"
   ></div>
 {:else}
-  <hr data-jx-separator-h class={cn('flex-none border-0 border-t border-border m-0', className)} {...rest} />
+  <hr
+    data-jx-separator={variant}
+    data-orientation="horizontal"
+    class={cn('flex-none m-0 border-0', className)}
+    {...rest}
+  />
 {/if}
