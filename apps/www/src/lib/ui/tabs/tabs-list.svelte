@@ -26,7 +26,10 @@
   nothing) OR passes a Snippet: the snippet replaces the paint while
   this engine still owns the geometry (a snippet rides the pill-family
   hug box; data-material reports 'custom'). Only the `line` material
-  keeps the structural border; `layout` adds grow/scroll strip shapes.
+  keeps the structural border; `layout` adds grow/scroll/wrap strip
+  shapes — and every horizontal strip degrades to a hidden-scrollbar
+  scroll run with on-demand ::scroll-button() chevrons (css-owned,
+  tabs-trigger.css).
 -->
 <script lang="ts" module>
   /** indicator paint materials — 'none' renders no indicator at all */
@@ -41,8 +44,11 @@
     orientation: 'horizontal' | 'vertical';
   };
 
-  /** strip shape: inline (natural) · grow (triggers stretch) · scroll (overflow) */
-  export type TabsLayout = 'inline' | 'grow' | 'scroll';
+  /** strip shape: inline (natural) · grow (triggers stretch) · scroll
+   *  (declared overflow run) · wrap (multi-row flow) — every horizontal
+   *  strip additionally degrades to a scroll run when content outgrows
+   *  the container (css-owned, tabs-trigger.css) */
+  export type TabsLayout = 'inline' | 'grow' | 'scroll' | 'wrap';
 </script>
 
 <script lang="ts">
@@ -58,7 +64,8 @@
     /** selection indicator: a built-in material, or a Snippet that owns
      *  the paint while the engine keeps owning the measured geometry */
     indicator?: TabsIndicatorMaterial | Snippet<[TabsIndicatorGeo]>;
-    /** inline: natural sizes · grow: triggers share the strip · scroll: overflow-x */
+    /** inline: natural sizes · grow: triggers share the strip · scroll: a
+     *  declared overflow run · wrap: rows flow instead of scrolling */
     layout?: TabsLayout;
     children: Snippet;
   }
@@ -121,10 +128,26 @@
         orientation,
       };
     }
+    // line material: the 2px bar rides the STRIP edge — but a wrapped
+    // strip has no single travel edge, so the bar rides the trigger's
+    // own edge on the far side (the Material fixed-tabs wrap reads this
+    // way: each row underlines its own active tab)
     if (orientation === 'horizontal') {
-      return { x: t.offsetLeft, y: list.clientHeight - 2, w: t.offsetWidth, h: 2, orientation };
+      return {
+        x: t.offsetLeft,
+        y: layout === 'wrap' ? t.offsetTop + t.offsetHeight - 2 : list.clientHeight - 2,
+        w: t.offsetWidth,
+        h: 2,
+        orientation,
+      };
     }
-    return { x: list.clientWidth - 2, y: t.offsetTop, w: 2, h: t.offsetHeight, orientation };
+    return {
+      x: layout === 'wrap' ? t.offsetLeft + t.offsetWidth - 2 : list.clientWidth - 2,
+      y: t.offsetTop,
+      w: 2,
+      h: t.offsetHeight,
+      orientation,
+    };
   }
 
   /** measure the list's OWN selected trigger and place the indicator;
@@ -181,12 +204,20 @@
   });
 
   /** liquid needs its displacement filter referenced from the list (the
-   *  indicator span inherits the custom property); a consumer style
-   *  APPENDS (merge law, alert-dialog dialect — never clobber) */
+   *  indicator span inherits the custom property); a horizontal strip
+   *  also names itself as the anchor its ::scroll-button() chevrons
+   *  overlay (uid-scoped: several strips may share a page). A consumer
+   *  style APPENDS (merge law, alert-dialog dialect — never clobber) */
   const listStyle = $derived(
-    material === 'liquid'
-      ? `--jx-tabs-liquid-bf: url('#${tabs.uid}-liquid') blur(2px) saturate(1.6)${consumerStyle ? ` ${consumerStyle}` : ''}`
-      : (consumerStyle ?? undefined),
+    [
+      orientation === 'horizontal' ? `--jx-tabs-anchor: --jx-tabs-strip-${tabs.uid}` : '',
+      material === 'liquid'
+        ? `--jx-tabs-liquid-bf: url('#${tabs.uid}-liquid') blur(2px) saturate(1.6)`
+        : '',
+      consumerStyle ?? '',
+    ]
+      .filter(Boolean)
+      .join('; ') || undefined,
   );
 
   // the empty state (no focus, no selection) renders every trigger
@@ -245,7 +276,7 @@
     `jx-tabs-${orientation} relative flex items-stretch [gap:var(--jx-gap)] box-border`,
     orientation === 'vertical' && 'flex-col',
     material === 'line' && (orientation === 'vertical' ? 'border-r border-border' : 'border-b border-border'),
-    layout === 'scroll' && 'overflow-x-auto',
+    layout === 'wrap' && 'flex-wrap',
     className,
   )}
   style={listStyle}

@@ -250,14 +250,16 @@ describe('Tabs · trigger anatomy', () => {
     expect(stacked.className).toContain('flex-col');
   });
 
-  it('applies the slot-vs-padding law when an icon lane is present', () => {
+  it('applies the slot-vs-padding law beside a label — never on an icon-only trigger (the glyph centers)', () => {
     const { tabsIn } = setup();
     const [alpha, beta, settings] = tabsIn('anatomy');
-    // an icon eats into the trigger's inline padding — by exactly half
+    // an icon eats into the labeled trigger's inline padding — by exactly half
     expect(alpha.className).toContain('has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)]');
     expect(beta.className).toContain('has-[[data-icon=inline-end]]:pr-[calc(var(--jx-inset)/2)]');
-    // icon-only carries the same start-side law
-    expect(settings.className).toContain('has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)]');
+    // icon-only: no label, no dialect — the padding stays symmetric so the
+    // glyph centers (Owner, 2026-09-01)
+    expect(settings.className).not.toContain('has-[[data-icon=inline-start]]');
+    expect(settings.className).not.toContain('has-[[data-icon=inline-end]]');
   });
 
   it('keeps the jx-tab-selected class token on the selected trigger', () => {
@@ -265,6 +267,29 @@ describe('Tabs · trigger anatomy', () => {
     const [alpha, beta] = tabsIn('anatomy');
     expect(alpha.className).toContain('jx-tab-selected');
     expect(beta.className).not.toContain('jx-tab-selected');
+  });
+});
+
+describe('Tabs · layout contract', () => {
+  it('wrap flows rows instead of scrolling: flex-wrap + data-layout=wrap', () => {
+    const { list } = setup();
+    const wrap = list('wrap');
+    expect(wrap.getAttribute('data-layout')).toBe('wrap');
+    expect(wrap.className).toContain('flex-wrap');
+  });
+
+  it('scroll is a declared overflow run — the overflow itself is css-owned, not a markup class', () => {
+    const { list } = setup();
+    const scroll = list('scroll');
+    expect(scroll.getAttribute('data-layout')).toBe('scroll');
+    expect(scroll.className).not.toContain('overflow-x-auto');
+  });
+
+  it('horizontal strips name themselves as their scroll-button anchor (uid-scoped); vertical strips do not', () => {
+    const { list } = setup();
+    expect(list('line').getAttribute('style')).toContain('--jx-tabs-anchor: --jx-tabs-strip-');
+    expect(list('wrap').getAttribute('style')).toContain('--jx-tabs-anchor: --jx-tabs-strip-');
+    expect(list('vertical-pill').getAttribute('style') ?? '').not.toContain('--jx-tabs-anchor');
   });
 });
 
@@ -367,5 +392,55 @@ describe('Tabs · indicator css law (tabs-trigger.css, source-pinned)', () => {
 
   it('the old .jx-tab-selected::after bar is DELETED (the shared indicator replaces it)', () => {
     expect(tabsTriggerCss).not.toContain('jx-tab-selected');
+  });
+});
+
+describe('Tabs · horizontal overflow contract (tabs-trigger.css, source-pinned)', () => {
+  // jsdom renders no pseudos and no anchor layout — the overflow law is
+  // pinned on the css source (same-source: byte-identical to the
+  // registry copy)
+  const horiz = /\.jx-tabs-horizontal/;
+  const startBtn = /::scroll-button\(\s*inline-start\s*\)/;
+  const endBtn = /::scroll-button\(\s*inline-end\s*\)/;
+
+  it('every horizontal strip degrades to a scroll run: overflow-x auto, hidden scrollbar, walk-clearing scroll padding', () => {
+    expect(tabsTriggerCss).toMatch(
+      new RegExp(`${horiz.source}[^{]*\\{[^}]*overflow-x:\\s*auto`, 's'),
+    );
+    expect(tabsTriggerCss).toMatch(
+      new RegExp(`${horiz.source}[^{]*\\{[^}]*scrollbar-width:\\s*none`, 's'),
+    );
+    expect(tabsTriggerCss).toMatch(
+      new RegExp(`${horiz.source}[^{]*\\{[^}]*scroll-padding-inline`, 's'),
+    );
+  });
+
+  it('both button directions are authored, but stay display:none without position-area (progressive enhancement)', () => {
+    expect(tabsTriggerCss).toMatch(startBtn);
+    expect(tabsTriggerCss).toMatch(endBtn);
+    // the ungated shared rule defaults the buttons OFF
+    expect(tabsTriggerCss).toMatch(
+      new RegExp(`${startBtn.source}[\\s\\S]{0,120}?${endBtn.source}[^{]*\\{[^}]*display:\\s*none`, 's'),
+    );
+  });
+
+  it('the overlay is anchor-positioned against the strip: @supports position-anchor gates the anchored insets', () => {
+    const gate = tabsTriggerCss.match(/@supports\s*\(\s*position-anchor:\s*[^)]+\)\s*\{([\s\S]*?)\n\}/);
+    expect(gate).toBeTruthy();
+    const body = gate?.[1] ?? '';
+    expect(body).toMatch(/anchor-name:\s*var\(--jx-tabs-anchor\)/);
+    expect(body).toMatch(/position-anchor:\s*var\(--jx-tabs-anchor\)/);
+    expect(body).toMatch(/inset-block:\s*0/);
+    // each direction pins its own inline edge against the anchor
+    expect(body).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*inset-inline-end:\\s*0`, 's'));
+    expect(body).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*inset-inline-start:\\s*0`, 's'));
+  });
+
+  it('the hit box is the full button (width from density tokens), painted as a masked chevron over theme ink', () => {
+    expect(tabsTriggerCss).toMatch(
+      new RegExp(`${startBtn.source}[\\s\\S]{0,120}?${endBtn.source}[^{]*\\{[^}]*width:\\s*calc\\(var\\(--jx-inset\\)\\s*\\*\\s*2\\)`, 's'),
+    );
+    expect(tabsTriggerCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*mask:\\s*url\\(`, 's'));
+    expect(tabsTriggerCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*mask:\\s*url\\(`, 's'));
   });
 });

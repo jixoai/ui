@@ -1624,7 +1624,7 @@
       "name": "tabs",
       "type": "registry:ui",
       "title": "Tabs",
-      "description": "WAI-ARIA APG tabs with the INDICATOR ENGINE (2026-09-01): a single shared element measured to the active trigger and animated between positions (240ms, reduced-motion-safe, ResizeObserver re-fits without animating). Materials: line (default, 2px primary), pill (tonal fill), outline (segmented), glass (backdrop-filter frosted), liquid (SVG displacement — liquid glass where the engine supports backdrop-filter url(), glass otherwise), none — or a snippet override that owns the paint while the engine owns geometry. Trigger anatomy (Material grammar): text, icon / iconEnd snippet lanes (slot-vs-padding law), icon-only (aria-label), stack (icon over label). Layouts: inline / grow (equal widths) / scroll (hidden-scrollbar overflow strip), composable with any material; vertical axis throughout. Automatic or manual activation, roving tabindex, deterministic id pairing, hidden background panels.",
+      "description": "WAI-ARIA APG tabs with the INDICATOR ENGINE (2026-09-01): a single shared element measured to the active trigger and animated between positions (240ms, reduced-motion-safe, ResizeObserver re-fits without animating). Materials: line (default, 2px primary), pill (tonal fill), outline (segmented), glass (backdrop-filter frosted), liquid (SVG displacement — liquid glass where the engine supports backdrop-filter url(), glass otherwise), none — or a snippet override that owns the paint while the engine owns geometry. Trigger anatomy (Material grammar): text, icon / iconEnd snippet lanes (slot-vs-padding law), icon-only (aria-label), stack (icon over label). Layouts: inline / grow (equal widths) / scroll (hidden-scrollbar overflow strip) / wrap (multi-row flow, the line bar underlining each row's own tab), composable with any material; every horizontal strip auto-degrades to a scroll run with on-demand ::scroll-button() chevrons when content outgrows the container; vertical axis throughout. Automatic or manual activation, roving tabindex, deterministic id pairing, hidden background panels.",
       "files": [
         {
           "path": "registry/files/ui/tabs/tabs.svelte",
@@ -1657,7 +1657,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Root: value ($bindable, '' = none), onchange, activation ('automatic'|'manual'), density. TabsList: orientation, indicator ('line'|'pill'|'outline'|'glass'|'liquid'|'none' or a Snippet<[TabsIndicatorGeo]> paint override), layout ('inline'|'grow'|'scroll'). TabsTrigger: value, disabled, icon?, iconEnd?, stack? (children optional — icon-only tabs pass aria-label). TabsContent: value.",
+      "docs": "Root: value ($bindable, '' = none), onchange, activation ('automatic'|'manual'), density. TabsList: orientation, indicator ('line'|'pill'|'outline'|'glass'|'liquid'|'none' or a Snippet<[TabsIndicatorGeo]> paint override), layout ('inline'|'grow'|'scroll'|'wrap'). TabsTrigger: value, disabled, icon?, iconEnd?, stack? (children optional — icon-only tabs pass aria-label). TabsContent: value.",
       "meta": {
         "group": "navigation",
         "href": "/docs/components/tabs.html"

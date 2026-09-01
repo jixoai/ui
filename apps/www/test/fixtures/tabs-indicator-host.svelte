@@ -5,7 +5,7 @@
 
   - materials: line (the default, nothing passed), pill, outline,
     glass, liquid, none — plus a vertical list wearing pill
-  - layouts: grow and scroll (data-layout wiring)
+  - layouts: grow, scroll and wrap (data-layout wiring)
   - trigger anatomy: a leading icon, a trailing iconEnd, an icon-only
     trigger named by aria-label (its content is the empty expression so
     the host still mounts against a trigger without the rest spread),
@@ -79,6 +79,15 @@
 </Tabs>
 
 <Tabs value="alpha">
+  <TabsList data-list="wrap" layout="wrap">
+    <TabsTrigger value="alpha">Alpha</TabsTrigger>
+    <TabsTrigger value="beta">Beta</TabsTrigger>
+    <TabsTrigger value="gamma">Gamma</TabsTrigger>
+    <TabsTrigger value="delta">Delta</TabsTrigger>
+  </TabsList>
+</Tabs>
+
+<Tabs value="alpha">
   <TabsList data-list="vertical-pill" orientation="vertical" indicator="pill">
     <TabsTrigger value="alpha">Alpha</TabsTrigger>
     <TabsTrigger value="beta">Beta</TabsTrigger>
@@ -97,7 +106,6 @@
     </TabsTrigger>
     <TabsTrigger value="settings" aria-label="Settings">
       {#snippet icon()}<i data-glyph="settings"></i>{/snippet}
-      {''}
     </TabsTrigger>
     <TabsTrigger value="stacked" stack>
       {#snippet icon()}<i data-glyph="stack"></i>{/snippet}

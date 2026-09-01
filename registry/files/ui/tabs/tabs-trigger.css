@@ -13,8 +13,9 @@
  * Material law: line = 2px primary bar at the strip edge · pill =
  * tonal hug · outline = border hug · glass/liquid = backdrop hug
  * (liquid swaps its backdrop-filter for the SVG displacement filter
- * the list mounts). layout law: grow stretches the triggers · scroll
- * hides the strip's own scrollbar. */
+ * the list mounts). layout law: grow stretches the triggers · wrap
+ * flows rows · every horizontal strip degrades to a hidden-scrollbar
+ * scroll run with on-demand ::scroll-button() chevrons (below). */
 :where([data-jx-tabs-list]) {
   position: relative;
 }
@@ -62,11 +63,69 @@
   flex: 1 1 0;
   justify-content: center;
 }
-:where([data-layout='scroll']) {
+
+/* ── the horizontal overflow contract (Owner, 2026-09-01) ──
+ * Every horizontal strip degrades to a scroll run the moment its
+ * content outgrows the container (overflow-x: auto, scrollbar hidden)
+ * — and it must LOOK scrollable: the engine's ::scroll-button()
+ * chevrons overlay the inline edges, generated only toward directions
+ * that can actually travel (the UA itself hides a disabled direction's
+ * box — Chromium 146, verified: exactly one rendered button at either
+ * scroll extreme). The engine's default placement stacks the boxes as
+ * block siblings BELOW the strip, so anchor-relative insets overlay
+ * them at the edges (inset-block stretches the lane, the per-direction
+ * inline inset pins the side); engines without anchor positioning keep
+ * the buttons display: none (a bare hidden-scrollbar strip,
+ * progressive enhancement, no fallback machinery). Geometry derives
+ * from the density tokens: width = two insets, breathing = half an
+ * inset. scroll-padding-inline walks the focused trigger clear of the
+ * lanes. */
+:where(.jx-tabs-horizontal) {
+  overflow-x: auto;
   scrollbar-width: none;
+  scroll-padding-inline: calc(var(--jx-inset) * 2);
 }
-:where([data-layout='scroll'])::-webkit-scrollbar {
+:where(.jx-tabs-horizontal)::-webkit-scrollbar {
   display: none;
+}
+:where(.jx-tabs-horizontal)::scroll-button(inline-start),
+:where(.jx-tabs-horizontal)::scroll-button(inline-end) {
+  display: none;
+}
+@supports (position-anchor: --jx-tabs-anchor) {
+  :where(.jx-tabs-horizontal) {
+    anchor-name: var(--jx-tabs-anchor);
+  }
+  :where(.jx-tabs-horizontal)::scroll-button(inline-start),
+  :where(.jx-tabs-horizontal)::scroll-button(inline-end) {
+    display: flex;
+    position: absolute;
+    position-anchor: var(--jx-tabs-anchor);
+    /* anchor-relative insets stretch the lane: full strip height minus
+     * the half-inset breathing; the inline side pins per direction
+     * (physical-inset writing-mode flip keeps RTL honest) */
+    inset-block: 0;
+    width: calc(var(--jx-inset) * 2);
+    margin-block: calc(var(--jx-inset) / 2);
+    content: '';
+    background-color: var(--muted-foreground);
+    background-image: none;
+    cursor: pointer;
+  }
+  :where(.jx-tabs-horizontal)::scroll-button(inline-end) {
+    inset-inline-end: 0;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M9 5l7 7-7 7'/%3E%3C/svg%3E")
+      center / 0.4375rem no-repeat;
+  }
+  :where(.jx-tabs-horizontal)::scroll-button(inline-start) {
+    inset-inline-start: 0;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M15 5l-7 7 7 7'/%3E%3C/svg%3E")
+      center / 0.4375rem no-repeat;
+  }
+  :where(.jx-tabs-horizontal)::scroll-button(inline-start):hover,
+  :where(.jx-tabs-horizontal)::scroll-button(inline-end):hover {
+    background-color: var(--foreground);
+  }
 }
 }
 

@@ -25,3 +25,5 @@ registry/files/routes/
 registry/mirror-manifest.json
 registry/static/
 registry/test/
+registry/.tw-probe-fixture/
+registry/.tw-standard-probe/

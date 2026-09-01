@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-01T05:30:27.614Z",
+  "generatedAt": "2026-09-01T06:12:59.333Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1483,15 +1483,15 @@
           "source": "registry/files/ui/tabs/tabs-list.svelte",
           "mirror": "apps/www/src/lib/ui/tabs/tabs-list.svelte",
           "target": "@ui/tabs/tabs-list.svelte",
-          "sourceSha": "ab6aea47e5a2062c5e3d3a50a021fb9adbe5f7eaca90a2f44cf547a704275ec4",
-          "mirrorSha": "ab6aea47e5a2062c5e3d3a50a021fb9adbe5f7eaca90a2f44cf547a704275ec4"
+          "sourceSha": "ea9ee2824ea56b7bc2f8cdbb14049bf5675b9297208d62f3dbb3de7b522205b1",
+          "mirrorSha": "ea9ee2824ea56b7bc2f8cdbb14049bf5675b9297208d62f3dbb3de7b522205b1"
         },
         {
           "source": "registry/files/ui/tabs/tabs-trigger.svelte",
           "mirror": "apps/www/src/lib/ui/tabs/tabs-trigger.svelte",
           "target": "@ui/tabs/tabs-trigger.svelte",
-          "sourceSha": "9dab6aca7189592ec6e12c634edd0667c14f0a760d85ac1fd0b3223b57269edf",
-          "mirrorSha": "9dab6aca7189592ec6e12c634edd0667c14f0a760d85ac1fd0b3223b57269edf"
+          "sourceSha": "78ada835e02214032412529ad7efe23d0cc5f516f94a166876f723985e9fe1d0",
+          "mirrorSha": "78ada835e02214032412529ad7efe23d0cc5f516f94a166876f723985e9fe1d0"
         },
         {
           "source": "registry/files/ui/tabs/tabs-content.svelte",
@@ -1511,8 +1511,8 @@
           "source": "registry/files/ui/tabs/tabs-trigger.css",
           "mirror": "apps/www/src/lib/ui/tabs/tabs-trigger.css",
           "target": "@ui/tabs/tabs-trigger.css",
-          "sourceSha": "876cabf9a188ecbfd0b5bb4dd3a13def9050c33f76f22bee4671c3f26e4b0a94",
-          "mirrorSha": "876cabf9a188ecbfd0b5bb4dd3a13def9050c33f76f22bee4671c3f26e4b0a94"
+          "sourceSha": "5d8309b043fe2a4ba809bb3133a859bbb4ee0a6e515c823cc596f39ca741ed79",
+          "mirrorSha": "5d8309b043fe2a4ba809bb3133a859bbb4ee0a6e515c823cc596f39ca741ed79"
         }
       ]
     },
