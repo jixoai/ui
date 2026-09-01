@@ -79,7 +79,12 @@
         "group": "general",
         "href": "/docs/components/press-button.html"
       },
-      "registryDependencies": ["@jixoai/utils", "@jixoai/jixoai-theme", "@jixoai/density", "@jixoai/icons"]
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme",
+        "@jixoai/density",
+        "@jixoai/icons"
+      ]
     },
     {
       "name": "list-item",
@@ -1178,7 +1183,7 @@
       "name": "range",
       "type": "registry:ui",
       "title": "Range",
-      "description": "Fully custom slider (never input[type=range]): div + Pointer Events with pointer capture over the shared slider law (2026-08-23 Tier rebase — same geometry as the Tier-1 .jx-range lane): thin bordered track box, primary fill to the thumb, 1.25rem square primary thumb with hover lift and press, optional step tick ruler, keyboard (arrows/Home/End) and full aria slider contract, RTL by logical properties. Decimal steps snap at step precision; name= submits the numeric string through the faceless form-field bridge.",
+      "description": "The native slider, semantic surface: a REAL input[type=range] as the base (2026-09-01 native rebase — jx-pure is the foundation; the registry version adds slots and semantics, never re-draws the control). The platform owns pointer, keyboard (arrows/Home/End/PageUp/Down), RTL, the label[for] binding and form submission (name= rides the input own FormData lane); the component adds the label row, the step-precision value readout, the optional tick ruler (one mark per step), the family error law (aria-invalid + aria-describedby + dashed-ring thumb), density tiers and external-write snapping. Paint is the jx-pure range recipe verbatim on the component hook — one visual law, two mounting surfaces.",
       "files": [
         {
           "path": "registry/files/ui/range/range.svelte",
@@ -1306,7 +1311,7 @@
       "name": "color-picker",
       "type": "registry:ui",
       "title": "Color picker",
-      "description": "Color selection with SV pad + hue bar, format constraints (hex/hsl/oklch), Eye Dropper API support, swatch + value display, native Popover panel on terminal bezel. OKLCH as intermediate representation matching the token system. Floating-surface law: ::after shadow layer (semi-transparent black/white) + @starting-style entry; variant='solid' | 'acrylic' | 'auto' (acrylic falls back to solid under prefers-reduced-transparency; the terminal bezel keeps its identity through the jx-surface fill props).",
+      "description": "Color picking on NATIVE controls (2026-09-01 rebase — jx-pure is the foundation; the registry surface adds slots and semantics, never re-drawn inputs): the value field is a real input[type=text] (label[for], name= rides its own FormData lane, native focus/selection/disabled) and the swatch is a real input[type=color] that opens the engine picker; the chevron opens the pro popover editor — SV pad + hue bar (custom 2D picker surfaces, the legitimacy class of date-picker's calendar), hex/hsl/oklch switching with OKLCH as the conversion hub, invalid-draft revert, Eye Dropper API. One truth: every surface flows through the bindable value string.",
       "files": [
         {
           "path": "registry/files/ui/color-picker/color-picker.svelte",
@@ -1454,6 +1459,11 @@
         {
           "path": "registry/files/ui/separator/separator.svelte",
           "target": "@ui/separator/separator.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/separator/separator.css",
+          "target": "@ui/separator/separator.css",
           "type": "registry:file"
         },
         {
@@ -1614,7 +1624,7 @@
       "name": "tabs",
       "type": "registry:ui",
       "title": "Tabs",
-      "description": "WAI-ARIA APG tabs, composition-first: four family files sharing one context. The root owns only the selected value; tablist/triggers/panels lay out anywhere in the subtree. Automatic activation (focus moves select), roving tabindex, deterministic trigger/panel id pairing, hidden (not CSS-hidden) background panels. value='' means nothing selected — SSR-honest explicit initial state.",
+      "description": "WAI-ARIA APG tabs with the INDICATOR ENGINE (2026-09-01): a single shared element measured to the active trigger and animated between positions (240ms, reduced-motion-safe, ResizeObserver re-fits without animating). Materials: line (default, 2px primary), pill (tonal fill), outline (segmented), glass (backdrop-filter frosted), liquid (SVG displacement — liquid glass where the engine supports backdrop-filter url(), glass otherwise), none — or a snippet override that owns the paint while the engine owns geometry. Trigger anatomy (Material grammar): text, icon / iconEnd snippet lanes (slot-vs-padding law), icon-only (aria-label), stack (icon over label). Layouts: inline / grow (equal widths) / scroll (hidden-scrollbar overflow strip), composable with any material; vertical axis throughout. Automatic or manual activation, roving tabindex, deterministic id pairing, hidden background panels.",
       "files": [
         {
           "path": "registry/files/ui/tabs/tabs.svelte",
@@ -1647,7 +1657,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Root props: value ($bindable, '' = none selected), onchange?. TabsList: orientation? ('horizontal'|'vertical'). TabsTrigger: value, disabled?. TabsContent: value.",
+      "docs": "Root: value ($bindable, '' = none), onchange, activation ('automatic'|'manual'), density. TabsList: orientation, indicator ('line'|'pill'|'outline'|'glass'|'liquid'|'none' or a Snippet<[TabsIndicatorGeo]> paint override), layout ('inline'|'grow'|'scroll'). TabsTrigger: value, disabled, icon?, iconEnd?, stack? (children optional — icon-only tabs pass aria-label). TabsContent: value.",
       "meta": {
         "group": "navigation",
         "href": "/docs/components/tabs.html"
@@ -1830,7 +1840,7 @@
       "name": "breadcrumb",
       "type": "registry:ui",
       "title": "Breadcrumb",
-      "description": "The breadcrumb as composed shadcn anatomy: List/Item/Link(child)/Page/Separator/Ellipsis parts. Collapse is an OPT-IN part (BreadcrumbCollapse wraps the middle items; its ellipsis links to the first hidden page). No width magic in Root.",
+      "description": "The breadcrumb as composed shadcn anatomy: List/Item/Link(child)/Page/Separator(children glyph override)/Ellipsis parts. Collapse is an OPT-IN part (BreadcrumbCollapse wraps the middle items; its ellipsis links to the first hidden page). Dropdown is the sibling-jump part (BreadcrumbDropdown: click opens a menu of peer destinations — REAL anchor entries, current page marked, selection dismisses and navigates). No width magic in Root.",
       "files": [
         {
           "path": "registry/files/ui/breadcrumb/breadcrumb-collapse.svelte",
@@ -1868,6 +1878,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/breadcrumb/breadcrumb-dropdown.svelte",
+          "target": "@ui/breadcrumb/breadcrumb-dropdown.svelte",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/breadcrumb/breadcrumb.css",
           "target": "@ui/breadcrumb/breadcrumb.css",
           "type": "registry:file"
@@ -1883,14 +1898,15 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: crumbs ({label, href}[], last = current page), label?, collapse? (max visible before the middle folds, 0 = never).",
+      "docs": "Props: crumbs ({label, href}[], last = current page), label?, collapse? (max visible before the middle folds, 0 = never). Dropdown: label, items ({label, href}[]), current? (href marked aria-current=page).",
       "meta": {
         "group": "navigation",
         "href": "/docs/components/breadcrumb.html"
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/dropdown-menu"
       ]
     },
     {
@@ -2007,6 +2023,11 @@
         {
           "path": "registry/files/ui/toast/toast.css",
           "target": "@ui/toast/toast.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/toast/toast-countdown.svelte",
+          "target": "@ui/toast/toast-countdown.svelte",
           "type": "registry:file"
         }
       ],
@@ -2318,8 +2339,13 @@
       "name": "navigation-menu",
       "type": "registry:ui",
       "title": "Navigation menu",
-      "description": "The site-nav bar as a composed family riding the Popover primitive: declarative popovertarget wire, light dismiss, one-at-a-time; Item/Trigger/Panel/Link parts; the mega-grid is authored INSIDE the panel by the consumer. Viewport/Indicator are recorded divergences (per-panel CSS anchoring replaces the Radix shared viewport).",
+      "description": "The site-nav bar as a composed family riding the Popover primitive: declarative popovertarget wire, light dismiss, one-at-a-time; Item/Trigger/Panel/Link parts; the mega-grid is authored INSIDE the panel by the consumer. Viewport/Indicator are recorded divergences (per-panel CSS anchoring replaces the Radix shared viewport). OPTIONAL NavigationMenuIndicator part: the sliding-active indicator with two motion laws — motion=\"navigation\" stamps a view-transition-name for page-level View Transition morphs (inert without transitions; same-document moves animate via WAAPI), motion=\"waapi\" is the pure Web Animations path for apps without View Transitions.",
       "files": [
+        {
+          "path": "registry/files/ui/navigation-menu/navigation-menu-indicator.svelte",
+          "target": "@ui/navigation-menu/navigation-menu-indicator.svelte",
+          "type": "registry:file"
+        },
         {
           "path": "registry/files/ui/navigation-menu/index.ts",
           "target": "@ui/navigation-menu/index.ts",
@@ -2351,7 +2377,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: items ({id,label,href?,current?,hasPanel?}[]), label?, panel? (snippet [item]), variant? ('auto' | 'solid' | 'acrylic'). The panel rides the popover primitive's motion kernel; open state mirrors the native toggle seam only.",
+      "docs": "Props: items ({id,label,href?,current?,hasPanel?}[]), label?, panel? (snippet [item]), variant? ('auto' | 'solid' | 'acrylic'). The panel rides the popover primitive's motion kernel; open state mirrors the native toggle seam only. Indicator (optional part): motion ('navigation'|'waapi'), name (view-transition-name), duration.",
       "meta": {
         "group": "navigation",
         "href": "/docs/components/navigation-menu.html"
@@ -2638,21 +2664,16 @@
       "name": "timeline",
       "type": "registry:ui",
       "title": "Timeline",
-      "description": "The activity stream as a composed family (Dice UI anatomy): TimelineItem + authored Dot/Connector/Content/Time(datetime)/Title parts; body is free children. The in-flight semantic is the item-level pending flag (attribute paint: hollow dot + muted title); the spine and the last-item connector self-hide ride family css.",
+      "description": "The activity stream rebuilt as a 5-lane grid engine: direction ltr/revert/interlaced, axis vertical/horizontal, per-node 9-grid dots (8 logical slots + center dot via grid+subgrid), the line authored-free by default and replaceable through a line(i) snippet, preset line components (Dashed, animated Beam), scroll- and view-driven animations (@supports-gated, reduced-motion-safe). timeline-connector is retired — the line IS grid tracks.",
       "files": [
         {
-          "path": "registry/files/ui/timeline/index.ts",
-          "target": "@ui/timeline/index.ts",
+          "path": "registry/files/ui/timeline/timeline.svelte",
+          "target": "@ui/timeline/timeline.svelte",
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/timeline/timeline-connector.svelte",
-          "target": "@ui/timeline/timeline-connector.svelte",
-          "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/timeline/timeline-content.svelte",
-          "target": "@ui/timeline/timeline-content.svelte",
+          "path": "registry/files/ui/timeline/timeline-item.svelte",
+          "target": "@ui/timeline/timeline-item.svelte",
           "type": "registry:file"
         },
         {
@@ -2661,8 +2682,18 @@
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/timeline/timeline-item.svelte",
-          "target": "@ui/timeline/timeline-item.svelte",
+          "path": "registry/files/ui/timeline/timeline-line-dashed.svelte",
+          "target": "@ui/timeline/timeline-line-dashed.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/timeline/timeline-line-beam.svelte",
+          "target": "@ui/timeline/timeline-line-beam.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/timeline/timeline-content.svelte",
+          "target": "@ui/timeline/timeline-content.svelte",
           "type": "registry:file"
         },
         {
@@ -2681,12 +2712,12 @@
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/timeline/timeline.svelte",
-          "target": "@ui/timeline/timeline.svelte",
+          "path": "registry/files/ui/timeline/index.ts",
+          "target": "@ui/timeline/index.ts",
           "type": "registry:file"
         }
       ],
-      "docs": "Props: items ({title, time?, datetime?, pending?}[]), body? (per-item snippet [item, index]). time renders inside <time datetime> when the ISO instant is given.",
+      "docs": "Timeline props: axis ('vertical'|'horizontal'), direction ('ltr'|'revert'|'interlaced'), animation ('none'|'view'|'scroll'). TimelineDot: 8 logical snippet slots (blockStart/inlineStart/inlineEnd/blockEnd and the four corners) + center dot, variant square/round/ring. Line presets: TimelineLineDashed, TimelineLineBeam; or replace wholesale with a line(i) snippet.",
       "meta": {
         "group": "data-display",
         "href": "/docs/components/timeline.html"
@@ -3248,13 +3279,33 @@
       "title": "Button group",
       "description": "Joined action layout container: orientation/justify shell that presses edge-to-edge press-buttons (and icon-buttons) over the hairline seam law — adjacent children collapse borders via a -1px margin so a joined row of outline buttons reads as ONE control with 1px seams, never a 2px double border. The container owns NOTHING but layout and seam: buttons keep their own paint (variant ladder, press physics, density tier); the group paints no bezel. role=group with a required label (grouping of related actions, never a selection surface — joined selection is toggle-group).",
       "files": [
-        { "path": "registry/files/ui/button-group/button-group.svelte", "target": "@ui/button-group/button-group.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/button-group/button-group-divider.svelte", "target": "@ui/button-group/button-group-divider.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/button-group/button-group.css", "target": "@ui/button-group/button-group.css", "type": "registry:file" },
-        { "path": "registry/files/ui/button-group/index.ts", "target": "@ui/button-group/index.ts", "type": "registry:file" }
+        {
+          "path": "registry/files/ui/button-group/button-group.svelte",
+          "target": "@ui/button-group/button-group.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/button-group/button-group-divider.svelte",
+          "target": "@ui/button-group/button-group-divider.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/button-group/button-group.css",
+          "target": "@ui/button-group/button-group.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/button-group/index.ts",
+          "target": "@ui/button-group/index.ts",
+          "type": "registry:file"
+        }
       ],
       "docs": "Props: label (REQUIRED aria name), orientation ('horizontal'|'vertical'), justify ('start'|'end'|'center'|'between'), density, class. ROLE LAW: root is role=group — actions keep their own tab stops and activation; the group adds NO selection semantics (joined selection is toggle-group's contract). Composition: children are plain PressButton/icon-button instances; ButtonGroupDivider inserts a 1px seam member. Paint: the shared seam lives in button-group.css keyed on the data-jx-bgroup hook (Tier-2 vocabulary consumed-only).",
-      "registryDependencies": ["@jixoai/utils", "@jixoai/jixoai-theme", "@jixoai/density"],
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme",
+        "@jixoai/density"
+      ],
       "meta": {
         "group": "general",
         "href": "/docs/components/button-group.html"
@@ -3267,14 +3318,38 @@
       "title": "Input group",
       "description": "The joined field shell — ONE 1px var(--border) bezel, the var(--background) fill, hover lift, inset focus ring and invalid dashed border ride the SAME paint as the shared html-control-shell law (state machines in input-group.css keyed on the data-jx-igroup hook). A composition frame, not a closed composite: InputGroupAddon lanes (hairline seams per addon edge — no double borders by construction), InputGroupInput as the native input member, press-buttons ride the inline-end addon. disabled on the ROOT disables the whole group natively (InputGroupInput renders disabled, every addon renders inert — the platform's containment).",
       "files": [
-        { "path": "registry/files/ui/input-group/input-group.svelte", "target": "@ui/input-group/input-group.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/input-group/input-group-addon.svelte", "target": "@ui/input-group/input-group-addon.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/input-group/input-group-input.svelte", "target": "@ui/input-group/input-group-input.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/input-group/input-group.css", "target": "@ui/input-group/input-group.css", "type": "registry:file" },
-        { "path": "registry/files/ui/input-group/index.ts", "target": "@ui/input-group/index.ts", "type": "registry:file" }
+        {
+          "path": "registry/files/ui/input-group/input-group.svelte",
+          "target": "@ui/input-group/input-group.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/input-group/input-group-addon.svelte",
+          "target": "@ui/input-group/input-group-addon.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/input-group/input-group-input.svelte",
+          "target": "@ui/input-group/input-group-input.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/input-group/input-group.css",
+          "target": "@ui/input-group/input-group.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/input-group/index.ts",
+          "target": "@ui/input-group/index.ts",
+          "type": "registry:file"
+        }
       ],
       "docs": "Props (root): label (REQUIRED a11y name), name/value/bind:value forwarded to the InputGroupInput member, disabled (native propagation: input renders disabled, addons render inert), invalid, density, class. Members: InputGroupAddon (align 'inline-start'|'inline-end', decorative lane), InputGroupInput (the native input — its own name= submits through the input family contract, MULTIVALUE-ready via the form-field seam when composed so). The shell is a composition frame: children compose freely inside the lane; seams are the addons' hairlines, the shell carries exactly one border.",
-      "registryDependencies": ["@jixoai/jixoai-theme", "@jixoai/utils", "@jixoai/density"],
+      "registryDependencies": [
+        "@jixoai/jixoai-theme",
+        "@jixoai/utils",
+        "@jixoai/density"
+      ],
       "meta": {
         "group": "data-entry",
         "href": "/docs/components/input-group.html"
@@ -3287,17 +3362,52 @@
       "title": "Chart",
       "description": "Terminal-native charts, zero runtime dependencies: horizontal block-glyph bars on the mono text grid (label + value lanes, fill/tonal/outline ink), one-line sparklines (block or braille cells), an SVG polyline over hairline grid rules (optional 12% tonal area, non-scaling round markers, axes as authored snippet slots — never guessed), and a stroke-dasharray donut ring in the --chart-1..5 semantic palette with a neutral brand-hue oklch ladder. Deterministic display primitives: every degenerate input (empty, all-negative, constant, NaN, zero-total) has a frozen, unit-tested output; each part is role=img with a REQUIRED label and an opt-in visually-hidden data table fallback. The glyph math exports from the folder for tests; the Chart root only shares a density tier.",
       "files": [
-        { "path": "registry/files/ui/chart/chart.svelte", "target": "@ui/chart/chart.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/chart/chart-bar.svelte", "target": "@ui/chart/chart-bar.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/chart/chart-sparkline.svelte", "target": "@ui/chart/chart-sparkline.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/chart/chart-line.svelte", "target": "@ui/chart/chart-line.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/chart/chart-donut.svelte", "target": "@ui/chart/chart-donut.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/chart/chart.css", "target": "@ui/chart/chart.css", "type": "registry:file" },
-        { "path": "registry/files/ui/chart/index.ts", "target": "@ui/chart/index.ts", "type": "registry:file" }
+        {
+          "path": "registry/files/ui/chart/chart.svelte",
+          "target": "@ui/chart/chart.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/chart/chart-bar.svelte",
+          "target": "@ui/chart/chart-bar.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/chart/chart-sparkline.svelte",
+          "target": "@ui/chart/chart-sparkline.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/chart/chart-line.svelte",
+          "target": "@ui/chart/chart-line.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/chart/chart-donut.svelte",
+          "target": "@ui/chart/chart-donut.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/chart/chart.css",
+          "target": "@ui/chart/chart.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/chart/index.ts",
+          "target": "@ui/chart/index.ts",
+          "type": "registry:file"
+        }
       ],
       "docs": "Props (all parts): data (readonly number[], required), label (string, REQUIRED accessible name — no default by contract), table? (opt-in visually-hidden data table fallback), density?, class?, ...rest. ChartBar: labels? (parallel label lane), variant? ('fill'|'tonal'|'outline' through the global hue slots), cells? (bar budget in character cells, default 20), values? (value lane, default true). ChartSparkline: cells? ('block'|'braille', default 'braille'). ChartLine: area?, markers? (default true), xAxis?/yAxis? (authored axis snippets). ChartDonut: size? (96), thickness? (12), children? (center slot). Chart root: density? (provided to the subtree). Pure math exported from the folder for tests.",
-      "meta": { "group": "data-display", "href": "/docs/components/chart.html" },
-      "registryDependencies": ["@jixoai/utils", "@jixoai/jixoai-theme", "@jixoai/density"],
+      "meta": {
+        "group": "data-display",
+        "href": "/docs/components/chart.html"
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme",
+        "@jixoai/density"
+      ],
       "dependencies": []
     },
     {
@@ -3307,14 +3417,39 @@
       "title": "Pattern login",
       "description": "The `ssh user@host` login card — a composition product, not a primitive: user/host lanes are plain Input (innerInlineStart carries the user@ / --host= glyphs), the passphrase reveal rides the Input's own eye (hard F1 prerequisite — no pattern-local fallback), the OTP second-factor screen rides input-otp (joined form value; incomplete codes submit empty), the submit is a PressButton, and the footer is the copyable npx bootstrap line — the terminal idiom's magic-link analog.",
       "files": [
-        { "path": "registry/files/ui/pattern-login/pattern-login.svelte", "target": "@ui/pattern-login/pattern-login.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/pattern-login/pattern-login-otp.svelte", "target": "@ui/pattern-login/pattern-login-otp.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/pattern-login/pattern-login.css", "target": "@ui/pattern-login/pattern-login.css", "type": "registry:file" },
-        { "path": "registry/files/ui/pattern-login/index.ts", "target": "@ui/pattern-login/index.ts", "type": "registry:file" }
+        {
+          "path": "registry/files/ui/pattern-login/pattern-login.svelte",
+          "target": "@ui/pattern-login/pattern-login.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pattern-login/pattern-login-otp.svelte",
+          "target": "@ui/pattern-login/pattern-login-otp.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pattern-login/pattern-login.css",
+          "target": "@ui/pattern-login/pattern-login.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pattern-login/index.ts",
+          "target": "@ui/pattern-login/index.ts",
+          "type": "registry:file"
+        }
       ],
       "docs": "Barrel: default = the login card; PatternLoginOtp = the 2FA screen. Card props: host/user/password (bindable), command, onsignin?, children? (extra lanes). OTP props: host, length (6), value (bindable), hint?, onverify?(code).",
-      "meta": { "group": "layout", "href": "/docs/components/pattern-login.html" },
-      "registryDependencies": ["@jixoai/input", "@jixoai/input-otp", "@jixoai/press-button", "@jixoai/jixoai-theme", "@jixoai/icons"]
+      "meta": {
+        "group": "layout",
+        "href": "/docs/components/pattern-login.html"
+      },
+      "registryDependencies": [
+        "@jixoai/input",
+        "@jixoai/input-otp",
+        "@jixoai/press-button",
+        "@jixoai/jixoai-theme",
+        "@jixoai/icons"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -3323,13 +3458,35 @@
       "title": "Pattern pricing",
       "description": "The `$ plan --compare` section: the comparison matrix rides the Table family (consumer authors thead/tbody; the recommended column opts in with data-jx-recommended on the th AND its td's — pattern css paints brand inset rules that keep the row-hover law intact), each tier's install command rides a CodeCard with a copy PressButton in its footer, plan labels ride Badge. Commands/labels are value-domain payload; no atom is patched.",
       "files": [
-        { "path": "registry/files/ui/pattern-pricing/pattern-pricing.svelte", "target": "@ui/pattern-pricing/pattern-pricing.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/pattern-pricing/pattern-pricing.css", "target": "@ui/pattern-pricing/pattern-pricing.css", "type": "registry:file" },
-        { "path": "registry/files/ui/pattern-pricing/index.ts", "target": "@ui/pattern-pricing/index.ts", "type": "registry:file" }
+        {
+          "path": "registry/files/ui/pattern-pricing/pattern-pricing.svelte",
+          "target": "@ui/pattern-pricing/pattern-pricing.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pattern-pricing/pattern-pricing.css",
+          "target": "@ui/pattern-pricing/pattern-pricing.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pattern-pricing/index.ts",
+          "target": "@ui/pattern-pricing/index.ts",
+          "type": "registry:file"
+        }
       ],
       "docs": "Props: tiers (readonly PricingTier[]: plan, command, recommended?, note?), children (the thead/tbody snippet — the Table contract), eyebrow?, caption?, class?. The heading stays out of the pattern; the page owns its h2.",
-      "meta": { "group": "layout", "href": "/docs/components/pattern-pricing.html" },
-      "registryDependencies": ["@jixoai/table", "@jixoai/code-card", "@jixoai/press-button", "@jixoai/badge", "@jixoai/jixoai-theme", "@jixoai/icons"]
+      "meta": {
+        "group": "layout",
+        "href": "/docs/components/pattern-pricing.html"
+      },
+      "registryDependencies": [
+        "@jixoai/table",
+        "@jixoai/code-card",
+        "@jixoai/press-button",
+        "@jixoai/badge",
+        "@jixoai/jixoai-theme",
+        "@jixoai/icons"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -3338,15 +3495,44 @@
       "title": "Pattern hero set",
       "description": "Three hero forms of the terminal grammar: the terminal-window hero (hero-section with the right column prewired to a terminal-card whose command derives from copyCommand — one string drives the CTA label, the clipboard payload and the typed demo), the ASCII-art headline hero (art as whitespace-preserved payload in a pre under the mono scale law — wide banners scroll, ascii never reflows), and the badge-marquee hero (plain mono token strip with an aria-hidden duplicate on a seamless -50% CSS loop; prefers-reduced-motion kills the animation, folds the duplicate away and leaves a static scrollable row).",
       "files": [
-        { "path": "registry/files/ui/pattern-hero-set/pattern-hero-set.svelte", "target": "@ui/pattern-hero-set/pattern-hero-set.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/pattern-hero-set/pattern-hero-ascii.svelte", "target": "@ui/pattern-hero-set/pattern-hero-ascii.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/pattern-hero-set/pattern-hero-marquee.svelte", "target": "@ui/pattern-hero-set/pattern-hero-marquee.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/pattern-hero-set/pattern-hero-set.css", "target": "@ui/pattern-hero-set/pattern-hero-set.css", "type": "registry:file" },
-        { "path": "registry/files/ui/pattern-hero-set/index.ts", "target": "@ui/pattern-hero-set/index.ts", "type": "registry:file" }
+        {
+          "path": "registry/files/ui/pattern-hero-set/pattern-hero-set.svelte",
+          "target": "@ui/pattern-hero-set/pattern-hero-set.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pattern-hero-set/pattern-hero-ascii.svelte",
+          "target": "@ui/pattern-hero-set/pattern-hero-ascii.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pattern-hero-set/pattern-hero-marquee.svelte",
+          "target": "@ui/pattern-hero-set/pattern-hero-marquee.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pattern-hero-set/pattern-hero-set.css",
+          "target": "@ui/pattern-hero-set/pattern-hero-set.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pattern-hero-set/index.ts",
+          "target": "@ui/pattern-hero-set/index.ts",
+          "type": "registry:file"
+        }
       ],
       "docs": "Barrel: default = the terminal-window hero (eyebrow, summary, copyCommand required; title/badges/secondary snippets forwarded; barTitle/outputs/theme/speed for the terminal). PatternHeroAscii: art required, cta/secondary label+href. PatternHeroMarquee: items required, title? snippet, duration (24s).",
-      "meta": { "group": "layout", "href": "/docs/components/pattern-hero-set.html" },
-      "registryDependencies": ["@jixoai/hero-section", "@jixoai/terminal-card", "@jixoai/press-button", "@jixoai/jixoai-theme", "@jixoai/icons"]
+      "meta": {
+        "group": "layout",
+        "href": "/docs/components/pattern-hero-set.html"
+      },
+      "registryDependencies": [
+        "@jixoai/hero-section",
+        "@jixoai/terminal-card",
+        "@jixoai/press-button",
+        "@jixoai/jixoai-theme",
+        "@jixoai/icons"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -3355,13 +3541,32 @@
       "title": "Pattern faq",
       "description": "The man-page FAQ: a command(section) head with the print-style dotted NAME leader over the accordion family (native details/summary — exclusive by default, questions compose as AccordionItem children or bare details), closing on a SEE ALSO line. The pattern owns only the framing; disclosure semantics, keyboard and SSR state belong to the accordion.",
       "files": [
-        { "path": "registry/files/ui/pattern-faq/pattern-faq.svelte", "target": "@ui/pattern-faq/pattern-faq.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/pattern-faq/pattern-faq.css", "target": "@ui/pattern-faq/pattern-faq.css", "type": "registry:file" },
-        { "path": "registry/files/ui/pattern-faq/index.ts", "target": "@ui/pattern-faq/index.ts", "type": "registry:file" }
+        {
+          "path": "registry/files/ui/pattern-faq/pattern-faq.svelte",
+          "target": "@ui/pattern-faq/pattern-faq.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pattern-faq/pattern-faq.css",
+          "target": "@ui/pattern-faq/pattern-faq.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pattern-faq/index.ts",
+          "target": "@ui/pattern-faq/index.ts",
+          "type": "registry:file"
+        }
       ],
       "docs": "Props: children (the questions — AccordionItem parts), command? ('jixoai-ui-faq'), section? ('7'), summary?, exclusive? (true), seeAlso? (snippet — compose links), class?.",
-      "meta": { "group": "layout", "href": "/docs/components/pattern-faq.html" },
-      "registryDependencies": ["@jixoai/accordion", "@jixoai/jixoai-theme", "@jixoai/icons"]
+      "meta": {
+        "group": "layout",
+        "href": "/docs/components/pattern-faq.html"
+      },
+      "registryDependencies": [
+        "@jixoai/accordion",
+        "@jixoai/jixoai-theme",
+        "@jixoai/icons"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -3370,13 +3575,58 @@
       "title": "Pattern cta",
       "description": "The shell-prompt CTA band: a lead block (eyebrow / heading / summary / optional outline escape) beside the install command on a CodeCard (copyable=false — the band owns exactly ONE copy affordance) with the copy PressButton in the card's footer: fill rung, copy → check flip, 1.4s copied surface. Press physics stay the button's own.",
       "files": [
-        { "path": "registry/files/ui/pattern-cta/pattern-cta.svelte", "target": "@ui/pattern-cta/pattern-cta.svelte", "type": "registry:file" },
-        { "path": "registry/files/ui/pattern-cta/pattern-cta.css", "target": "@ui/pattern-cta/pattern-cta.css", "type": "registry:file" },
-        { "path": "registry/files/ui/pattern-cta/index.ts", "target": "@ui/pattern-cta/index.ts", "type": "registry:file" }
+        {
+          "path": "registry/files/ui/pattern-cta/pattern-cta.svelte",
+          "target": "@ui/pattern-cta/pattern-cta.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pattern-cta/pattern-cta.css",
+          "target": "@ui/pattern-cta/pattern-cta.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pattern-cta/index.ts",
+          "target": "@ui/pattern-cta/index.ts",
+          "type": "registry:file"
+        }
       ],
       "docs": "Props: command ('npx jixoai-ui init'), heading?, summary?, actionLabel? ('copy command'), secondaryLabel?/secondaryHref? (renders the outline escape when set), class?.",
-      "meta": { "group": "layout", "href": "/docs/components/pattern-cta.html" },
-      "registryDependencies": ["@jixoai/press-button", "@jixoai/code-card", "@jixoai/jixoai-theme", "@jixoai/icons"]
+      "meta": {
+        "group": "layout",
+        "href": "/docs/components/pattern-cta.html"
+      },
+      "registryDependencies": [
+        "@jixoai/press-button",
+        "@jixoai/code-card",
+        "@jixoai/jixoai-theme",
+        "@jixoai/icons"
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "entity",
+      "type": "registry:lib",
+      "title": "Entity context",
+      "description": "The entity law as a Context channel: border is objecthood — depth accumulates through provideEntity() (dialog panels, popovers), form shells dissolve at depth 1, hairlines auto-reassert at depth 2+, and [data-assert-border] force-spends the budget. Background rides the same restraint: transparency first, backdrop-filter as the tint.",
+      "files": [
+        {
+          "path": "registry/files/lib/entity.svelte.ts",
+          "target": "@lib/entity.svelte.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/entity.css",
+          "target": "@lib/entity.css",
+          "type": "registry:file"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "meta": {
+        "group": "engines",
+        "href": "/docs/variant-grammar.html"
+      }
     }
   ]
 }
