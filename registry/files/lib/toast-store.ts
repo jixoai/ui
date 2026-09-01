@@ -32,11 +32,31 @@
 
 export type ToastVariant = 'outline' | 'tonal';
 
+/** the surface MATERIAL axis (float-button's model) — the ground the
+ *  toast paints; variant stays the prominence ladder independently */
+export type ToastMaterial = 'popover' | 'glass';
+
+/** the EFFECT loop axis — pulse (breathing ring) | sweep (traveling light) */
+export type ToastEffect = 'none' | 'pulse' | 'sweep';
+
 export interface ToastInit {
   title: string;
   description?: string;
   /** ladder prominence: outline (plain notice, default) | tonal (tinted emphasis) */
   variant?: ToastVariant;
+  /** the surface material: popover (solid, default) | glass (backdrop-filter
+   *  translucent — the entity law's restrained ground) */
+  material?: ToastMaterial;
+  /** the effect loop: none (default) | pulse (breathing ring) | sweep (a
+   *  traveling light — the live/pending signal) */
+  effect?: ToastEffect;
+  /** render the countdown companion in the trailing lane (needs duration > 0;
+   *  hover/focus pause freezes it) */
+  countdown?: boolean;
+  /** the toast grid's inline-start lane (an icon snippet) */
+  leading?: import('svelte').Snippet;
+  /** the toast grid's inline-end lane (actions, custom companions) */
+  trailing?: import('svelte').Snippet;
   /** consumer classes — the hue-injection seam, e.g. 'jx-hue-error' */
   class?: string;
   /** ms until auto-dismiss; 0 = sticky. Default 5000 */

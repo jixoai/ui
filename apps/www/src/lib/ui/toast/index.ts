@@ -3,3 +3,5 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './toast-viewport.svelte';
 export * from './toast-viewport.svelte';
+export { default as ToastCountdown } from './toast-countdown.svelte';
+export * from './toast-countdown.svelte';

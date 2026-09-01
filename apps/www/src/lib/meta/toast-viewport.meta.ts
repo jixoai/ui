@@ -23,8 +23,10 @@ export const meta = defineComponentMeta(
       "data-jx-toast-body",
       "data-jx-toast-desc",
       "data-jx-toast-dismiss",
+      "data-jx-toast-leading",
       "data-jx-toast-queued",
       "data-jx-toast-title",
+      "data-jx-toast-trailing",
       "data-jx-toasts"
     ]
   }

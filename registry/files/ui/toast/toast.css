@@ -1,11 +1,24 @@
 @layer theme, base, components, utilities;
 
-/* jixoai toast — D1-exempt residue (tw4, 2026-08-24): ONLY the enter/
- * exit keyframes (not expressible as utilities) and the reduced-motion
- * kill. The animations themselves live as arbitrary-value animate
- * utilities in the markup (the leaving swap is a conditional that
- * tailwind-merge resolves inside cn()); the kill overrides them, so
- * it rides UNLAYERED behind :where() — the toggle/Part A precedent. */
+/* jixoai toast — residue (tw4, 2026-08-24 → 2026-09-01): the enter/
+ * exit keyframes (not expressible as utilities), the reduced-motion
+ * kill, and — since the material/effect rebuild — the effect loops
+ * and the countdown companion's drain. The enter/exit animations
+ * themselves live as arbitrary-value animate utilities in the markup
+ * (the leaving swap is a conditional that tailwind-merge resolves
+ * inside cn()); the kill overrides them, so it rides UNLAYERED behind
+ * :where() — the toggle/Part A precedent.
+ *
+ * THE EFFECT LOOPS (2026-09-01) paint dedicated LAYERS, never the
+ * element's own animation slot (the enter/exit pair owns it):
+ *   [data-effect='pulse'] ::before  the breathing ring — an inset ring
+ *                                   glow for the urgent/attentive toast
+ *   [data-effect='sweep']  ::after  the traveling light — a primary
+ *                                   gradient pulse along the toast, the
+ *                                   live/in-flight signal (the beam
+ *                                   law's toast voice)
+ * THE COUNTDOWN (2026-09-01): a lane-sized gauge draining over the
+ * toast's duration; .paused (the viewport's hold) freezes the drain. */
 
 @keyframes jx-toast-in {
   from {
@@ -20,9 +33,95 @@
   }
 }
 
+@layer components {
+  /* ── the effect layers ── */
+  :where([data-jx-toast][data-effect='pulse']) {
+    position: relative;
+  }
+  :where([data-jx-toast][data-effect='pulse'])::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border: 1px solid var(--primary);
+    opacity: 0;
+    pointer-events: none;
+    animation: jx-toast-pulse 1.6s ease-in-out infinite;
+  }
+  :where([data-jx-toast][data-effect='sweep']) {
+    position: relative;
+    overflow: hidden;
+  }
+  :where([data-jx-toast][data-effect='sweep'])::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    inline-size: 40%;
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--primary) 45%, transparent), transparent);
+    pointer-events: none;
+    animation: jx-toast-sweep 2.4s linear infinite;
+  }
+
+  /* ── the countdown companion ── */
+  :where([data-jx-toast-countdown]) {
+    position: relative;
+    align-self: center;
+    inline-size: 3rem;
+    block-size: 3px;
+    background: color-mix(in oklab, currentColor 18%, transparent);
+    overflow: hidden;
+  }
+  :where([data-jx-toast-countdown])::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--primary);
+    transform-origin: left;
+    animation: jx-toast-countdown var(--jx-toast-countdown, 5000ms) linear forwards;
+  }
+  :where([data-jx-toast-countdown].paused)::after {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes jx-toast-pulse {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+@keyframes jx-toast-sweep {
+  from {
+    left: -40%;
+  }
+  to {
+    left: 100%;
+  }
+}
+@keyframes jx-toast-countdown {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   :where(.jx-toast),
   :where(.jx-toast-leaving) {
     animation: none;
+  }
+  :where([data-jx-toast][data-effect='pulse'])::before,
+  :where([data-jx-toast][data-effect='sweep'])::after {
+    animation: none;
+    content: none;
+  }
+  :where([data-jx-toast-countdown])::after {
+    animation: none;
+    transform: scaleX(0.5);
   }
 }
