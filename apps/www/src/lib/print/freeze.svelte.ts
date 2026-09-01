@@ -605,21 +605,28 @@ export function splitPreLines(
             node.remove();
           }
         }
-        if (options.lineNumbers) {
-          // numbered by TRANSFORM (data-line), not by CSS counters:
-          // pagedjs's Counters handler strips author counter-reset/
-          // increment rules and re-derives them as per-element negative
-          // increments — with more than one pre on a page the gutter
-          // counts from −N. attr() carries the number through untouched.
-          lineSpans.forEach((line, i) => {
-            // an EMPTY line's height came from the \n's anonymous box —
-            // with the separators gone the block would collapse to 0;
-            // one space keeps the line box (the plain path's own trick)
-            if (line.textContent === '') line.textContent = ' ';
-            line.classList.add('jx-print-line');
+        // the BLOCK carrier adopts the line spans REGARDLESS of the
+        // gutter flag (subagent r7 pre-review): the \n strip above is
+        // unconditional, so gating the class too collapses the code
+        // into one run-on line when lineNumbers=false — the kernel's
+        // pre[data-jx-print-lines='off'] rule already hides the
+        // numbered ::after, and the >40 chunking rides the same
+        // .jx-print-line query either way
+        lineSpans.forEach((line, i) => {
+          // an EMPTY line's height came from the \n's anonymous box —
+          // with the separators gone the block would collapse to 0;
+          // one space keeps the line box (the plain path's own trick)
+          if (line.textContent === '') line.textContent = ' ';
+          line.classList.add('jx-print-line');
+          if (options.lineNumbers) {
+            // numbered by TRANSFORM (data-line), not by CSS counters:
+            // pagedjs's Counters handler strips author counter-reset/
+            // increment rules and re-derives them as per-element negative
+            // increments — with more than one pre on a page the gutter
+            // counts from −N. attr() carries the number through untouched.
             line.dataset.line = String(i + 1);
-          });
-        }
+          }
+        });
       }
       continue;
     }

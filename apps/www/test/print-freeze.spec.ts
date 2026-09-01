@@ -378,6 +378,22 @@ describe('splitPreLines', () => {
     expect(host.querySelector('pre')!.getAttribute('style')).toBeNull();
   });
 
+  it('lineNumbers=false keeps shiki lines as BLOCKS (the gutter goes, the line breaks stay — r7 pre-review)', () => {
+    // the \n strip is unconditional, so the .jx-print-line carrier must
+    // be too: gating it on the flag collapsed the code into one run-on
+    // line. The opt-out attr hides the numbered ::after via the kernel
+    const host = document.createElement('div');
+    host.innerHTML =
+      '<pre><code><span class="line">const a = 1;</span>\n<span class="line">const b = 2;</span></code></pre>';
+    splitPreLines(host, { lineNumbers: false });
+    expect(host.querySelector('pre')!.getAttribute('data-jx-print-lines')).toBe('off');
+    const lines = [...host.querySelectorAll('.jx-print-line')];
+    expect(lines).toHaveLength(2); // block carriers present
+    expect(lines.every((l) => l.getAttribute('data-line') === null)).toBe(true); // no gutter data
+    const textChildren = [...host.querySelector('code')!.childNodes].filter((n) => n.nodeType === Node.TEXT_NODE);
+    expect(textChildren).toHaveLength(0); // separators still stripped
+  });
+
   it('strips the shiki \\n text nodes between line spans (the airy-line root cause, Owner r7)', () => {
     // shiki's classic structure pushes a literal "\n" between every
     // pair of span.line; the kernel lays .jx-print-line out as BLOCKS
