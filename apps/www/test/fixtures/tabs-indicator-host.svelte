@@ -17,7 +17,7 @@
 -->
 <script lang="ts">
   import Tabs from '../../src/lib/ui/tabs/tabs.svelte';
-  import TabsList, { blurSlide, progressBlur } from '../../src/lib/ui/tabs/tabs-list.svelte';
+  import TabsList, { blurSlide, progressBlur, shadow } from '../../src/lib/ui/tabs/tabs-list.svelte';
   import TabsTrigger from '../../src/lib/ui/tabs/tabs-trigger.svelte';
 </script>
 
@@ -97,6 +97,22 @@
 
 <Tabs value="alpha">
   <TabsList data-list="effect-veil" layout="scroll" scrollEffect={progressBlur()}>
+    <TabsTrigger value="alpha">Alpha</TabsTrigger>
+    <TabsTrigger value="beta">Beta</TabsTrigger>
+    <TabsTrigger value="gamma">Gamma</TabsTrigger>
+  </TabsList>
+</Tabs>
+
+<Tabs value="alpha">
+  <TabsList data-list="effect-shadow" layout="scroll" scrollEffect={shadow()}>
+    <TabsTrigger value="alpha">Alpha</TabsTrigger>
+    <TabsTrigger value="beta">Beta</TabsTrigger>
+    <TabsTrigger value="gamma">Gamma</TabsTrigger>
+  </TabsList>
+</Tabs>
+
+<Tabs value="alpha">
+  <TabsList data-list="effect-narrow" layout="scroll" scrollEffect={shadow({ width: '120px' })}>
     <TabsTrigger value="alpha">Alpha</TabsTrigger>
     <TabsTrigger value="beta">Beta</TabsTrigger>
     <TabsTrigger value="gamma">Gamma</TabsTrigger>

@@ -72,10 +72,14 @@
    *    rest is factor 0 by arithmetic, on every engine (view()
    *    timelines were tried and rejected: Chromium 152 resolves
    *    named ranges garbage at rest — the stuck-first-button bug)
-   *  - progressBlur(): the progressive-blur ladder veils both inline
-   *    edges — gated by scrollability and ENTERING by scroll-driven
-   *    translate, exactly like the chevrons it sits under */
-  export type TabsScrollEffect = SlideEffect | BlurEffect | BlurSlideEffect | ProgressBlurEffect;
+   *  - progressBlur() / shadow(): the merged veil layer veils both
+   *    inline edges, gated by scrollability and ENTERING by
+   *    scroll-driven translate — progressBlur is the multi-layer
+   *    blur ladder; shadow is the single-layer contrast ghost (the
+   *    separator's INK law: backdrop-filter contrast() subtracts
+   *    color, never adds black — auto-adaptive in dark mode). width
+   *    overrides the band width (--jx-tabs-veil) */
+  export type TabsScrollEffect = SlideEffect | BlurEffect | BlurSlideEffect | ProgressBlurEffect | ShadowEffect;
 
   export interface SlideOptions {
     /** how far a crossing trigger offsets along the inline axis */
@@ -114,15 +118,34 @@
   export interface ProgressBlurOptions {
     /** per-layer blur px of the edge veil, inner-edge first (≥2 levels) */
     blurLevels?: number[];
+    /** the band width (any css length) — overrides the --jx-tabs-veil default */
+    width?: string;
   }
   export interface ProgressBlurEffect {
     readonly type: 'progressBlur';
     blurLevels: number[];
+    width?: string;
   }
   export function progressBlur({
     blurLevels = [0.5, 1, 2, 4, 8, 16, 32, 64],
+    width,
   }: ProgressBlurOptions = {}): ProgressBlurEffect {
-    return { type: 'progressBlur', blurLevels };
+    return { type: 'progressBlur', blurLevels, width };
+  }
+
+  export interface ShadowOptions {
+    /** the band width (any css length) — overrides the --jx-tabs-veil default */
+    width?: string;
+  }
+  export interface ShadowEffect {
+    readonly type: 'shadow';
+    width?: string;
+  }
+  /** the contrast-ghost veil: backdrop-filter contrast() subtracts
+   *  color toward mid tone (the separator's INK law) — one layer, no
+   *  ladder, theme-agnostic by construction */
+  export function shadow({ width }: ShadowOptions = {}): ShadowEffect {
+    return { type: 'shadow', width };
   }
 </script>
 
@@ -386,6 +409,12 @@
       case 'blur+slide':
         parts[1] = `--jx-tabs-edge-blur: ${scrollEffect.radius}; --jx-tabs-edge-slide: ${scrollEffect.distance}`;
         break;
+      case 'progressBlur':
+      case 'shadow':
+        // the builder's width overrides the band-width default (inline
+        // beats the stylesheet)
+        parts[1] = scrollEffect.width ? `--jx-tabs-veil: ${scrollEffect.width}` : '';
+        break;
       default:
         break;
     }
@@ -513,33 +542,52 @@
     {@render runTail()}
   </div>
   {#if orientation === 'horizontal'}
-    {#if scrollEffect.type === 'progressBlur'}
+    {#if scrollEffect.type === 'progressBlur' || scrollEffect.type === 'shadow'}
       <!-- the merged veil layer: ONE grid item (z 1) clipping both edge
            veils; each veil ENTERS by scroll-driven translate (the strip's
            --jx-tabs-progress drives it — start slides in from -100% as
            travel opens the start edge, end slides out to +100% as travel
            closes the end edge; overflow:clip hides the translated-out
-           halves). The veils themselves stay pure grid items of this
-           layer -->
+           halves) -->
       <div class="jx-tabs-veil-layer pointer-events-none grid [grid-area:1/1]">
-        <ProgressiveBlur
-          pin="grid"
-          position="start"
-          reveal="static"
-          height="var(--jx-tabs-veil)"
-          hold={33}
-          blurLevels={scrollEffect.blurLevels}
-          class="jx-tabs-veil"
-        />
-        <ProgressiveBlur
-          pin="grid"
-          position="end"
-          reveal="static"
-          height="var(--jx-tabs-veil)"
-          hold={33}
-          blurLevels={scrollEffect.blurLevels}
-          class="jx-tabs-veil"
-        />
+        {#if scrollEffect.type === 'progressBlur'}
+          <ProgressiveBlur
+            pin="grid"
+            position="start"
+            reveal="static"
+            height="var(--jx-tabs-veil)"
+            hold={33}
+            blurLevels={scrollEffect.blurLevels}
+            class="jx-tabs-veil"
+          />
+          <ProgressiveBlur
+            pin="grid"
+            position="end"
+            reveal="static"
+            height="var(--jx-tabs-veil)"
+            hold={33}
+            blurLevels={scrollEffect.blurLevels}
+            class="jx-tabs-veil"
+          />
+        {:else}
+          <!-- the shadow veil: one band per edge — the separator's INK
+               law (Owner best practice, 2026-09-01): backdrop-filter
+               contrast() SUBTRACTS color toward mid tone, never adds
+               black; near-white grounds dim, near-black grounds lift
+               (dark mode reverses itself, zero color tokens). The bands
+               carry .jx-tabs-veil, so the width var, the translate
+               entrance and the layer clip all apply unchanged -->
+          <div
+            class="jx-tabs-shadow jx-tabs-veil [grid-area:1/1] justify-self-start [transform:translateZ(0)]"
+            data-position="start"
+            aria-hidden="true"
+          ></div>
+          <div
+            class="jx-tabs-shadow jx-tabs-veil [grid-area:1/1] justify-self-end [transform:translateZ(0)]"
+            data-position="end"
+            aria-hidden="true"
+          ></div>
+        {/if}
       </div>
     {/if}
     <!-- the chevrons: REAL DOM BUTTONS (Owner, 2026-09-01 R4 — the

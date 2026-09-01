@@ -210,6 +210,26 @@
 :where(.jx-tabs-veil-layer) > :where(.jx-tabs-veil)[data-position='end'] {
   translate: calc(max(0, (var(--jx-tabs-progress, 0) - 0.85) / 0.15) * 100%) 0;
 }
+/* the SHADOW veil (Owner, 2026-09-01 R5) — the separator's INK law as
+ * an edge treatment, and a standing best practice: a shade veil NEVER
+ * adds black — backdrop-filter contrast() SUBTRACTS color toward mid
+ * tone, so near-white grounds dim and near-black grounds lift: dark
+ * mode reverses itself, zero color tokens. One band per edge (no
+ * ladder), the mask ramp shapes it; the bands carry .jx-tabs-veil, so
+ * the width var, the entrance and the layer clip apply unchanged */
+:where(.jx-tabs-shadow) {
+  width: var(--jx-tabs-veil);
+  backdrop-filter: contrast(0.5);
+  -webkit-backdrop-filter: contrast(0.5);
+}
+:where(.jx-tabs-shadow)[data-position='start'] {
+  mask: linear-gradient(to left, transparent, rgb(0, 0, 0));
+  -webkit-mask-image: linear-gradient(to left, transparent, rgb(0, 0, 0));
+}
+:where(.jx-tabs-shadow)[data-position='end'] {
+  mask: linear-gradient(to right, transparent, rgb(0, 0, 0));
+  -webkit-mask-image: linear-gradient(to right, transparent, rgb(0, 0, 0));
+}
 
 /* ── the on-demand fade, scroll-following (Owner, 2026-09-01) ──
  * The chevron toward a boundary fades OUT as the run approaches it

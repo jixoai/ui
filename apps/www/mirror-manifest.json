@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-01T13:55:57.010Z",
+  "generatedAt": "2026-09-01T14:18:40.454Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1483,8 +1483,8 @@
           "source": "registry/files/ui/tabs/tabs-list.svelte",
           "mirror": "apps/www/src/lib/ui/tabs/tabs-list.svelte",
           "target": "@ui/tabs/tabs-list.svelte",
-          "sourceSha": "5582d43f863af03e2eea7179332b6fdce358f41a4e701b4e4a08b715111f2c3a",
-          "mirrorSha": "5582d43f863af03e2eea7179332b6fdce358f41a4e701b4e4a08b715111f2c3a"
+          "sourceSha": "3aa01cab3a4ef2f7d97a0a2d79afb52585b358f8754343a450dc3fdcb53dbb5c",
+          "mirrorSha": "3aa01cab3a4ef2f7d97a0a2d79afb52585b358f8754343a450dc3fdcb53dbb5c"
         },
         {
           "source": "registry/files/ui/tabs/tabs-trigger.svelte",
@@ -1511,8 +1511,8 @@
           "source": "registry/files/ui/tabs/tabs-trigger.css",
           "mirror": "apps/www/src/lib/ui/tabs/tabs-trigger.css",
           "target": "@ui/tabs/tabs-trigger.css",
-          "sourceSha": "0a4346a555469135e709e2327e29e29104d5fba2871296ccf9332d973c589122",
-          "mirrorSha": "0a4346a555469135e709e2327e29e29104d5fba2871296ccf9332d973c589122"
+          "sourceSha": "c773aeda99afce159910cb1be2866bb31876b5260155846ba99c87fd23656709",
+          "mirrorSha": "c773aeda99afce159910cb1be2866bb31876b5260155846ba99c87fd23656709"
         }
       ]
     },

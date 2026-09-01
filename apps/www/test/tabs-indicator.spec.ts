@@ -36,7 +36,7 @@ import { describe, expect, it } from 'vitest';
 import { fireEvent, render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 
-import { blur, blurSlide, progressBlur, slide } from '../src/lib/ui/tabs/tabs-list.svelte';
+import { blur, blurSlide, progressBlur, shadow, slide } from '../src/lib/ui/tabs/tabs-list.svelte';
 import IndicatorHost from './fixtures/tabs-indicator-host.svelte';
 
 // ---- ResizeObserver resilience ------------------------------------------------
@@ -348,6 +348,30 @@ describe('Tabs · layout contract', () => {
     }
   });
 
+  it('the shadow effect rides the SAME layer: one contrast-ghost band per edge, width knob overrides the var inline', () => {
+    const { list } = setup();
+    const host = list('effect-shadow');
+    const layer = host.querySelector(':scope > .jx-tabs-veil-layer')!;
+    expect(layer).toBeTruthy();
+    const bands = [...layer.querySelectorAll(':scope > .jx-tabs-shadow')];
+    expect(bands).toHaveLength(2);
+    expect(bands[0].getAttribute('data-position')).toBe('start');
+    expect(bands[1].getAttribute('data-position')).toBe('end');
+    // the bands carry the veil contract: width var + entrance + clip apply unchanged
+    for (const b of bands) {
+      expect(b.className).toContain('jx-tabs-veil');
+      expect(b.className).toContain('[grid-area:1/1]');
+      expect(b.className).toContain('[transform:translateZ(0)]');
+      expect(b.getAttribute('aria-hidden')).toBe('true');
+    }
+    // no pblur ladder in the shadow mode
+    expect(layer.querySelector('.jx-pblur')).toBeNull();
+    // the width knob stamps --jx-tabs-veil inline on the host (overrides the css default)
+    expect(list('effect-narrow').getAttribute('style')).toContain('--jx-tabs-veil: 120px');
+    // without the knob, no inline width var
+    expect(list('effect-veil').getAttribute('style')).not.toContain('--jx-tabs-veil');
+  });
+
   it('the DOM chevrons nudge the run by a strip page (lane-derived), both directions', () => {
     const { list } = setup();
     const host = list('scroll');
@@ -547,9 +571,16 @@ describe('Tabs · scrollEffect builders (the press-button effect convention)', (
       distance: '10px',
     });
   });
-  it('progressBlur carries the ladder (≥2 levels, normalized downstream)', () => {
+  it('progressBlur carries the ladder (≥2 levels, normalized downstream) and the width knob', () => {
     expect(progressBlur().blurLevels.length).toBeGreaterThanOrEqual(2);
     expect(progressBlur({ blurLevels: [1, 2, 4] }).blurLevels).toEqual([1, 2, 4]);
+    expect(progressBlur().width).toBeUndefined();
+    expect(progressBlur({ width: '120px' }).width).toBe('120px');
+  });
+
+  it('shadow carries the width knob — the contrast ghost is otherwise config-free', () => {
+    expect(shadow()).toEqual({ type: 'shadow', width: undefined });
+    expect(shadow({ width: '6rem' })).toEqual({ type: 'shadow', width: '6rem' });
   });
 });
 
@@ -696,6 +727,24 @@ describe('Tabs · horizontal overflow contract (tabs-trigger.css, source-pinned)
     // reduced motion rests the veils in place (no translate)
     expect(tabsTriggerCss).toMatch(
       /\.jx-tabs-veil-layer\)\s*>\s*:where\(\.jx-tabs-veil\)[^{]*\{[^}]*translate:\s*none/s,
+    );
+  });
+
+  it('scrollEffect #3 — the shadow veil is the separator INK law: backdrop contrast SUBTRACTS color, never adds black', () => {
+    // the ink engine: contrast() pulls the backdrop toward mid tone —
+    // near-white dims, near-black lifts (dark mode reverses itself);
+    // NO background color anywhere on the band
+    expect(tabsTriggerCss).toMatch(/\.jx-tabs-shadow\)\s*\{[^}]*backdrop-filter:\s*contrast\(0\.5\)/s);
+    const shadowBlock = tabsTriggerCss.match(/\.jx-tabs-shadow\)\s*\{[\s\S]*?\n\}/)?.[0] ?? '';
+    expect(shadowBlock).not.toMatch(/background|box-shadow|rgb\(/);
+    // the band rides the veil width var
+    expect(shadowBlock).toMatch(/width:\s*var\(--jx-tabs-veil\)/);
+    // the ramp is a MASK per direction (strongest at the outer edge)
+    expect(tabsTriggerCss).toMatch(
+      /\.jx-tabs-shadow\)\[data-position='start'\][^{]*\{[^}]*mask:[^}]*to left/s,
+    );
+    expect(tabsTriggerCss).toMatch(
+      /\.jx-tabs-shadow\)\[data-position='end'\][^{]*\{[^}]*mask:[^}]*to right/s,
     );
   });
 
