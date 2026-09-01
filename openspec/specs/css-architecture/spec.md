@@ -296,49 +296,62 @@ every specialization.
 Overlay and layer stacking SHALL be expressed by grid placement —
 one-cell hosts with `grid-area: 1/1` siblings and `z-index` for
 order (the tabs host: the run base, the veil layer, the chevron
-buttons; the top layer's named areas) — never by `position:
-absolute/sticky` for LAYOUT. `position: absolute` remains legal only
-for TRANSIENT INK and containing-block needs, each documented at the
-site: the indicator span inside the scroll run (its containing
-block is the scroller so it travels with content), the liquid-SVG
-zero-size filter carrier, effect pseudos (toast pulse/sweep, timeline
-beam), and the popover platform's engine positioning (Anchor
-Positioning / popover top layer). Platform-carried positioning
-(`position: fixed` from `popover=manual`) is the engine's, not
-author, layout.
+buttons; the carousel window: track + arrows; the top layer's named
+areas) — never by `position: absolute/sticky` for LAYOUT.
+`position: absolute` remains legal only for these CATEGORIES (each
+USE carries a site comment naming its category — the exemption list
+is open by category, closed by un-annotated use):
+
+- TRANSIENT INK — effect pseudos (toast pulse/sweep, timeline beam,
+  press-button shimmer/spark) and decorative carriers (the liquid-SVG
+  zero-size filter def);
+- CONTAINING-BLOCK NEEDS — the indicator span inside the scroll run
+  (its containing block is the scroller so it travels with content);
+  the timeline scroll-progress spine's absolute channel (geometry
+  that must span implicit tracks, 2026-09-02);
+- PLATFORM POSITIONING — popover/anchor engines (position-anchor,
+  top layer) and visually-hidden skip targets.
 
 Overlay planes SHALL be pointer-transparent except on their actual
 content: the plane container sets `pointer-events: none` and content
-opts back in (`auto`). A stretched plane with `pointer-events: auto`
-is a click shield over the page (the toast float-plane incident,
-2026-09-02). Adopted planes must also size their stacks to content
-(`align-content: start`) so stretch never inflates children.
+opts back in (`auto`). A plane stretched over the stage with
+`pointer-events: auto` is a click shield over the page (the toast
+float-plane incident, 2026-09-02). The INVARIANT is "an adopted plane
+never becomes a shield or inflates its children" — the mechanism is
+free (today: the float wrapper is content-sized at the stage corner
+via place-self and the toast stack rides content-end rows); laws pin
+invariants, implementations pick mechanisms.
 
 #### Scenario: an overlay is positioned instead of gridded
 
-- GIVEN a component adds a scroll chevron / veil / badge overlay
-- WHEN it is placed with position:absolute (outside the documented
-  exemptions) instead of a grid area on the shared host
-- THEN review rejects it — grid + z-index is the law
+- GIVEN a component adds a scroll chevron / veil / badge / center
+  overlay (donut center, busy scrim, dropdown menu)
+- WHEN it is placed with position:absolute instead of a grid area on
+  the shared host — or, for menus, the popover platform
+- THEN review rejects it — grid + z-index (or the platform) is the law
 
 #### Scenario: an adopted float plane intercepts the page
 
-- GIVEN a top-layer plane (ScaffoldFloat area) stretched over the
-  stage with pointer-events:auto and no content
-- WHEN a user clicks page content underneath
-- THEN the click must reach the page — planes are pointer-transparent;
-  a computed pointer-events probe on a real scaffold mount guards
-  this
+- GIVEN a top-layer plane (ScaffoldFloat area) over the stage
+- WHEN a user clicks page content underneath the plane's empty areas
+- THEN the click must reach the page — planes are pointer-transparent
+  and content-sized; the css-source law (pointer-events: none after
+  the grant) plus the real-scaffold mount fixture guard this
 
 ### Requirement: the component-mount projection for generated laws (adversarial review, 2026-09-02)
 
-A registry component that mounts a generated bare-element face on
-its own hook (e.g. range's face on `[data-jx-range]`) SHALL receive
-that face through a css-laws marker slot (`@jixoai/css-laws:begin:
-<law>-mount`) generated from the SAME law source — never a
-hand-copied block. The generated mount rides `@layer components`,
-keeps the law's own escape hatches, and `build --check` gates its
-freshness exactly like the sheet projections. Intentional face
+A registry component that mounts a generated bare-element FACE (the
+law's full rule-set) on its own hook SHALL receive it through a
+css-laws marker slot (`@jixoai/css-laws:begin:<law>-mount`) generated
+from the SAME law source — never a hand-copied block. The generated
+mount rides `@layer components`, keeps the law's own escape hatches,
+and `build --check` gates its freshness exactly like the sheet
+projections. The boundary: TIER APPLICATIONS that merely consume
+elevation tokens (`box-shadow: var(--shadow-well)` + hover/focus
+states, as the six picker faces carry) may stay hand-written — the
+tokens are the single source there — but sweep commits owe them a
+grep-verifiable pattern, and a repeated multi-file face is mount-
+projection debt to retire at the next touch. Intentional face
 divergences (the color-picker swatch chip vs the colorLaw well) are
 ruled divergences and carry a comment naming the ruling.
 
@@ -347,8 +360,8 @@ ruled divergences and carry a comment naming the ruling.
 - GIVEN a component css carrying a verbatim copy of a law's face
 - WHEN the law source evolves
 - THEN the copy silently wins or loses by cascade accident — which is
-  why the marker projection is mandatory and the copy is rejected in
-  review
+  why the marker projection is mandatory for faces and the copy is
+  rejected in review
 
 ### Requirement: icon geometry provenance (icon upstream, 2026-08-29)
 

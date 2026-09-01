@@ -8,7 +8,7 @@ The jixoai token-sheet law: OKLCH one-hue colors with dark drift, structure laws
 > `jixoai-theme`, mirrored at `apps/www/src/lib/jixoai.css` with
 > `--brand-hue: 330`). One number — the hue — changes per project.
 
-## Current contract (state: 2026-08-24)
+## Current contract (state: 2026-09-02, adversarial-review rulings merged)
 
 ## Requirements
 
@@ -117,11 +117,10 @@ reviewable. Unregistered literals fail with the owning family row.
 
 ### Requirement: the elevation grammar (Owner ruling, 2026-09-01)
 
-Every component's elevation SHALL sit on the five tier tokens —
-float / raise / lift / engrave / well — derived from the `--shadow-*`
-rungs in the theme sheet (float/raise/lift reuse the md/xs/2xs rungs;
-engrave and well add dedicated tokens). Tier semantics are physical,
-not decorative:
+Every component's elevation SHALL sit on the five TIERS —
+float / raise / lift / engrave / well: float/raise/lift reuse the
+`--shadow*` rungs already in the theme sheet, engrave and well carry
+dedicated tokens. Tier semantics are physical, not decorative:
 
 - float — projects from the TOP layer down onto the content
   (float-button; large offset);
@@ -139,11 +138,13 @@ surfaces (float-button) ride the tier tokens; panel/dialog families
 ride the floating-surface law's `.jx-surface` subtractive ink layer
 (css-architecture). The dark theme pins geometry rung-for-rung with
 the light theme — only the ink inverts (a shadow's size/offset must
-NOT change between themes; the one documented compensation is the
-`--shadow-sm` second-layer alpha, where dark needs more ink to stay
-perceptible). Marker-style insets (indicator rims, hairline accents
-painted via box-shadow as a drawing tool) are NOT elevation and are
-exempt from the tier grammar.
+NOT change between themes; the documented ink compensations are the
+`--shadow-sm`/`--shadow-sm-press` second-layer alphas, where dark
+needs more ink to stay perceptible). Exempt from the tier grammar,
+each with a site comment: marker-style insets (indicator rims,
+hairline accents painted via box-shadow as a drawing tool), the
+press-button pulse signal keyframes, the range thumb's cqw fill
+drawing, and the color-picker handles' color-space-constant halos.
 
 #### Scenario: a control's hover changes its shadow tier
 
@@ -171,9 +172,13 @@ lightens, so light/dark themes are mutual inverses with ZERO color
 tokens. Geometry and range are expressed by mask gradients
 (backdrop-filter only paints where the element draws); progressive
 falloff uses the progressive-blur ladder; blend-mode `difference` is
-the sanctioned technique for fade-style separators. State-carrying
-lines (timeline done segments, step connectors) and signal layers
-(toast pulse/sweep) may paint additive ink because subtraction cannot
+the sanctioned technique for fade-style separators. MODAL SCRIMS are
+the named additive exception and ride the `--scrim` token family
+(dialog ::backdrop, the tour spotlight, the spin busy-scrim) — a
+scrim dims/lightens, never colors, and a hand-mixed background tint
+in a scrim's place is retired practice. State-carrying lines
+(timeline done segments, step connectors) and signal layers (toast
+pulse/sweep) may paint additive ink because subtraction cannot
 express state — that boundary is part of this law. The known limit:
 an additive `background` cutout reads wrong on non-flat backdrops;
 mask-based cutouts are the long-term direction.

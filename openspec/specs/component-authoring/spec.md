@@ -8,7 +8,7 @@ The Svelte 5 component contracts: the Tier system, native-element-first law, pro
 > `apps/www/src/lib/ui/**`). Components are Svelte 5 runes-first,
 > native-element-first, and follow the Tier system below.
 
-## Current contract (state: 2026-08-25, composition-first-apis merged)
+## Current contract (state: 2026-09-02, adversarial-review rulings merged)
 
 ## Requirements
 
@@ -66,23 +66,31 @@ lane (icon, glyph, adornment), the lane SHALL REPLACE its side's
 `padding-inline` — never stack on top of it: the side's padding
 collapses to the half-inset lane width (`has-[[data-icon=inline-start]]:
 pl-[calc(var(--jx-inset)/2)]` and the mirror), so slot-present and
-slot-absent rhythms stay one system. The icon-ONLY exception: when
-no label/children render, symmetric padding is KEPT so the lone
-glyph centers (guarded by children presence, not by slot presence
-— badge's icon-only posture needs the same guard tabs-trigger
-already has). Adopters today: badge, chip, kbd, toggle-group-item,
-tabs-trigger, input's edge zones (the shell dialect: square hit
-children zero their side's padding — same law, box-shaped). New
-components with slot lanes adopt the same rule; a lane that
-double-pads (full inset + lane) is a rhythm violation.
+slot-absent rhythms stay one system. The icon-ONLY exception applies
+to components whose label is OPTIONAL: when no children render,
+symmetric padding is KEPT so the lone glyph centers — guarded by
+children presence, never by slot presence (badge and tabs-trigger
+carry the guard; children-required families like chip and
+toggle-group-item take the unconditional lanes). Adopters today:
+badge, chip, toggle-group-item, tabs-trigger, input's edge zones
+(the shell dialect: square hit children zero their side's padding —
+same law, box-shaped). New components with slot lanes adopt the same
+rule; a lane that double-pads (full inset + lane) is a rhythm
+violation.
 
 #### Scenario: a chip renders a leading icon
 
 - GIVEN a chip with and without a slot-start icon, side by side
 - WHEN the icon-to-text gap and the no-icon text inset are measured
 - THEN the icon sits in the lane where the inset was (half-inset gap,
-  no accumulated double space), and the icon-only chip centers its
-  glyph symmetrically
+  no accumulated double space)
+
+#### Scenario: an optional-label component renders icon-only
+
+- GIVEN a badge (optional children) with only a slot-start icon
+- WHEN its symmetric padding is measured
+- THEN the glyph centers — the children guard kept the full inset;
+  an unconditional lane would have pinned it off-center
 
 #### Scenario: a component adds an icon slot without the lane law
 
