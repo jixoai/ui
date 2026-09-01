@@ -128,7 +128,7 @@ let current = \$state(1);
   <title>Steps · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai steps family (shadcn-vue Stepper anatomy): bind:current plus explicit step ordinals — state is pure comparison. Completed steps are clickable links back (the done Indicator becomes the button), the current step is aria-current=step, future steps are inert spans — never aria-disabled."
+    content="The jixoai steps family: bind:current plus explicit step ordinals — the derived trio is pure comparison (done/current/todo), and a nine-word STATE VOCABULARY overrides it for everything the trio cannot say: pending (the form-submitted middle state), success, error, hint, emphasis (the quest-giver !), disabled. The connector rides its own grid lane — never through the labels."
   />
 </svelte:head>
 
@@ -146,7 +146,8 @@ let current = \$state(1);
           <span class="pill">bind:current · 0-based</span>
           <span class="pill">required <code class="text-accent">step</code> ordinals</span>
           <span class="pill">done marker = the button</span>
-          <span class="pill">future inert · never aria-disabled</span>
+          <span class="pill">9-word state vocabulary</span>
+          <span class="pill">connector on its own lane</span>
         </div>
       </SectionCard>
     </div>
@@ -189,11 +190,44 @@ let current = \$state(1);
       </ComponentCanvas>
     </div>
 
-    
-    <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Step states" summary="Each item compares its explicit ordinal with current: completed, current and future are projections of one number."><div class="w-full max-w-2xl"><Steps current={1}><StepsItem step={0}><StepsIndicator /><StepsTitle>done</StepsTitle><StepsSeparator /></StepsItem><StepsItem step={1}><StepsIndicator /><StepsTitle>current</StepsTitle><StepsSeparator /></StepsItem><StepsItem step={2}><StepsIndicator /><StepsTitle>future</StepsTitle></StepsItem></Steps></div></SectionCard></div>
+    <div id="states" data-reveal="">
+      <SectionCard
+        family="states"
+        headerRegion="states"
+        eyebrow="law"
+        title="the state vocabulary — nine words for where a step stands"
+        summary="The derived trio (done / current / todo) is pure ordinal comparison — it cannot say submitted-but-waiting, it cannot say won or lost, it cannot say look here or closed. The state prop overrides the trio with the missing words. Read it as a wizard form AND as the markers over an NPC's head: ⋯ is the quest in flight, ! is the quest-giver, ✓ is turn-in day, ✕ is the failure state."
+      >
+        <div class="flex flex-col gap-6">
+          <div class="w-full max-w-2xl">
+            <Steps current={1}>
+              <StepsItem step={0} label="done"><StepsIndicator /><StepsTitle>done</StepsTitle><StepsDescription>step &lt; current · ✓ · connector painted primary</StepsDescription><StepsSeparator /></StepsItem>
+              <StepsItem step={1}><StepsIndicator /><StepsTitle>current</StepsTitle><StepsDescription>step = current · aria-current=step · filled marker</StepsDescription><StepsSeparator /></StepsItem>
+              <StepsItem step={2} state="pending"><StepsIndicator /><StepsTitle>pending</StepsTitle><StepsDescription>the middle state · ⋯ breathing · submitted, in flight</StepsDescription><StepsSeparator /></StepsItem>
+            </Steps>
+          </div>
+          <div class="w-full max-w-2xl">
+            <Steps current={1}>
+              <StepsItem step={0} state="success"><StepsIndicator /><StepsTitle>success</StepsTitle><StepsDescription>the terminal win · ✓ on the success pair</StepsDescription><StepsSeparator /></StepsItem>
+              <StepsItem step={1} state="error"><StepsIndicator /><StepsTitle>error</StepsTitle><StepsDescription>the terminal failure · ✕ on the error pair</StepsDescription><StepsSeparator /></StepsItem>
+              <StepsItem step={2} state="hint"><StepsIndicator /><StepsTitle>hint</StepsTitle><StepsDescription>informational · i on the info pair</StepsDescription><StepsSeparator /></StepsItem>
+            </Steps>
+          </div>
+          <div class="w-full max-w-2xl">
+            <Steps current={1}>
+              <StepsItem step={0} state="emphasis"><StepsIndicator /><StepsTitle>emphasis</StepsTitle><StepsDescription>the quest-giver ! · filled primary · look here</StepsDescription><StepsSeparator /></StepsItem>
+              <StepsItem step={1} state="disabled"><StepsIndicator /><StepsTitle>disabled</StepsTitle><StepsDescription>declared out-of-reach · aria-disabled — unlike todo (the merely unreached)</StepsDescription><StepsSeparator /></StepsItem>
+              <StepsItem step={2}><StepsIndicator /><StepsTitle>todo</StepsTitle><StepsDescription>step &gt; current · inert, never aria-disabled</StepsDescription></StepsItem>
+            </Steps>
+          </div>
+        </div>
+      </SectionCard>
+    </div>
+
+    <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Step states" summary="Each item compares its explicit ordinal with current: completed, current and future are projections of one number. The explicit state prop overrides the comparison when the trio cannot say it."><div class="w-full max-w-2xl"><Steps current={1}><StepsItem step={0}><StepsIndicator /><StepsTitle>done</StepsTitle><StepsSeparator /></StepsItem><StepsItem step={1}><StepsIndicator /><StepsTitle>current</StepsTitle><StepsSeparator /></StepsItem><StepsItem step={2}><StepsIndicator /><StepsTitle>future</StepsTitle></StepsItem></Steps></div></SectionCard></div>
     <div id="usage" data-reveal=""><SectionCard summary="The composition contract in one sample: import the family from the registry barrel (@ui/steps/index — per-part targets exist per file), give every StepsItem its explicit step ordinal, author the parts you want. The Separator self-hides on the last item through the family css — chrome, not authoring." eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
     <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'aria-current', value: 'step', description: 'Marks the current step.' }, { name: 'button', value: 'completed indicator', description: 'Makes completed steps keyboard actionable only when onclick is supplied.' }]} /></SectionCard></div>
     <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Steps current={0}><StepsItem step={0}><StepsIndicator /><StepsTitle>step</StepsTitle></StepsItem></Steps></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
-    <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Steps props"><PropsTable props={[{ name: 'current', type: 'number', default: '0', description: '0-based current ordinal.', bindable: true }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }, { name: 'class', type: 'string', description: 'Adds consumer classes.' }]} /></SectionCard></div>
+    <div id="api" data-reveal=""><SectionCard eyebrow="api" title="API" summary="Steps owns current (bindable); StepsItem owns the ordinal and the state vocabulary; the parts stay authored."><PropsTable props={[{ name: 'Steps.current', type: 'number', default: '0', description: '0-based current ordinal.', bindable: true }, { name: 'StepsItem.step', type: 'number', default: '—', description: 'REQUIRED explicit ordinal — compared against current.', required: true }, { name: 'StepsItem.state', type: "'auto' | 'done' | 'current' | 'todo' | 'pending' | 'success' | 'error' | 'hint' | 'emphasis' | 'disabled'", default: "'auto'", description: 'The state vocabulary: auto = the derived trio (pure comparison); the semantic overrides paint the middle state (pending ⋯), the terminals (success ✓ / error ✕), hint (i), emphasis (the quest-giver !) and disabled (aria-disabled).' }, { name: 'StepsItem.label', type: 'string', description: 'Accessible name for the done-marker button.' }, { name: 'StepsItem.onclick', type: '(e) => void', description: 'Fires only from the done state — makes the Indicator the button.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }, { name: 'class', type: 'string', description: 'Adds consumer classes.' }]} /></SectionCard></div>
   </div>
 </div>

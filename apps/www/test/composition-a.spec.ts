@@ -161,10 +161,19 @@ describe('Steps family — marker button only when onclick + done', () => {
 // ---------------------------------------------------------------------------
 // Steps — connector css (source guard) + authored separators
 // ---------------------------------------------------------------------------
-describe('Steps family — the connector build and self-hide (css law)', () => {
-  it("steps.css keeps the pseudo build, the done repaint and the last-child self-hide on REAL DOM hooks", () => {
-    expect(stepsCss).toContain(':where([data-jx-step-separator])::after');
-    expect(stepsCss).toContain(`:where([data-jx-step='done']) :where([data-jx-step-separator])::after`);
+describe('Steps family — the grid anatomy and self-hide (css law)', () => {
+  it("steps.css keeps the grid lanes, the real connector box, the state repaints and the last-child self-hide on REAL DOM hooks", () => {
+    // the anatomy: marker | body | tail lanes — the connector rides its
+    // own lane on the marker's center line, never through the labels
+    expect(stepsCss).toContain('[marker] max-content [body] minmax(0, 1fr) [tail]');
+    // the connector is a REAL box now (the absolute ::after is retired)
+    expect(stepsCss).not.toContain('[data-jx-step-separator])::after');
+    expect(stepsCss).toContain('margin-block-start: calc((var(--jx-icon) - 1px) / 2)');
+    // the passed states repaint their connector: done (primary), success
+    expect(stepsCss).toContain(`:where([data-jx-step='done']) :where([data-jx-step-separator])`);
+    expect(stepsCss).toContain(`:where([data-jx-step='success']) :where([data-jx-step-separator])`);
+    // the pending middle state breathes (reduced-motion freezes it)
+    expect(stepsCss).toContain(`:where([data-jx-step='pending']) :where([data-jx-step-index])`);
     expect(stepsCss).toContain(':where([data-jx-step-item]:last-child) [data-jx-step-separator]');
     // component names never appear in the DOM contract: no .jx-step* class selectors
     expect(stepsCss).not.toMatch(/\.jx-step/);
@@ -173,6 +182,76 @@ describe('Steps family — the connector build and self-hide (css law)', () => {
   it('separators are authored parts — one per item, present in the DOM everywhere', () => {
     const { container } = render(StepsHost, { props: { ordinals: [0, 1, 2], current: 1 } });
     expect(container.querySelectorAll('[data-jx-step-separator]').length).toBe(3);
+  });
+
+  // -------------------------------------------------------------------------
+  // The state vocabulary — the derived trio's semantic overrides
+  // (form in-flight · terminal wins/failures · the NPC marker reading)
+  // -------------------------------------------------------------------------
+  describe('Steps family — the state vocabulary', () => {
+    const last = (container: HTMLElement) =>
+      [...container.querySelectorAll('[data-jx-step-item]')].at(-1)!;
+
+    it("the explicit override wins: state='pending' paints the middle state (⋯, breathing)", () => {
+      const { container } = render(StepsHost, { props: { lastState: 'pending' } });
+      const li = last(container);
+      expect(li.getAttribute('data-jx-step')).toBe('pending');
+      expect(li.querySelector('[data-jx-step-index]')!.textContent).toBe('⋯');
+      // the override is NOT the derived trio's current — no aria-current
+      expect(li.getAttribute('aria-current')).toBeNull();
+      // the middle state is not a control: never a button
+      expect(li.querySelector('button')).toBeNull();
+      expect(li.querySelector('[data-jx-step-indicator]')!.className).toContain('border-primary');
+    });
+
+    it("the terminal states carry their semantic glyphs and pairs: success ✓ / error ✕", () => {
+      const win = render(StepsHost, { props: { lastState: 'success' } });
+      const winLi = last(win.container);
+      expect(winLi.getAttribute('data-jx-step')).toBe('success');
+      expect(winLi.querySelector('[data-jx-step-index]')!.textContent).toBe('✓');
+      expect(winLi.querySelector('[data-jx-step-indicator]')!.className).toContain('bg-success');
+      win.unmount();
+
+      const fail = render(StepsHost, { props: { lastState: 'error' } });
+      const failLi = last(fail.container);
+      expect(failLi.getAttribute('data-jx-step')).toBe('error');
+      expect(failLi.querySelector('[data-jx-step-index]')!.textContent).toBe('✕');
+      expect(failLi.querySelector('[data-jx-step-indicator]')!.className).toContain('bg-error');
+    });
+
+    it("hint carries the info pair (i) and emphasis the quest-giver ! (filled)", () => {
+      const hint = render(StepsHost, { props: { lastState: 'hint' } });
+      const hintLi = last(hint.container);
+      expect(hintLi.querySelector('[data-jx-step-index]')!.textContent).toBe('i');
+      expect(hintLi.querySelector('[data-jx-step-indicator]')!.className).toContain('text-info');
+      hint.unmount();
+
+      const emph = render(StepsHost, { props: { lastState: 'emphasis' } });
+      const emphLi = last(emph.container);
+      expect(emphLi.querySelector('[data-jx-step-index]')!.textContent).toBe('!');
+      expect(emphLi.querySelector('[data-jx-step-indicator]')!.className).toContain('bg-primary');
+    });
+
+    it('disabled is a DECLARED out-of-reach (aria-disabled), unlike todo (the unreached)', () => {
+      const { container } = render(StepsHost, {
+        props: { ordinals: [0, 1, 2, 3], current: 1, lastState: 'disabled' },
+      });
+      const li = last(container);
+      expect(li.getAttribute('data-jx-step')).toBe('disabled');
+      expect(li.getAttribute('aria-disabled')).toBe('true');
+      // the derived trio's todo NEVER carries aria-disabled (unreached ≠ disabled)
+      const todo = [...container.querySelectorAll('[data-jx-step-item]')].at(-2)!;
+      expect(todo.getAttribute('data-jx-step')).toBe('todo');
+      expect(todo.getAttribute('aria-disabled')).toBeNull();
+    });
+
+    it("auto keeps the derived trio byte-identical (the override's default)", () => {
+      const { container } = render(StepsHost, { props: { ordinals: [0, 1, 2], current: 1 } });
+      const states = [...container.querySelectorAll('[data-jx-step-item]')].map((li) =>
+        li.getAttribute('data-jx-step'),
+      );
+      expect(states).toEqual(['done', 'current', 'todo']);
+    });
   });
 });
 
@@ -212,7 +291,7 @@ describe('Steps family — SSR-honest first paint', () => {
 // Timeline — Dice anatomy, pending attribute paint, free-children body
 // ---------------------------------------------------------------------------
 describe('Timeline family — composed anatomy', () => {
-  it('ol of items carrying dot, connector, content, time and title', () => {
+  it('ol of items carrying dot, the authored-free line, content, time and title', () => {
     const { container } = render(TimelineHost);
     const ol = container.querySelector('ol[data-jx-timeline]')!;
     expect(ol.getAttribute('role')).toBe('list');
@@ -220,7 +299,7 @@ describe('Timeline family — composed anatomy', () => {
     expect(items.length).toBe(2);
     for (const li of items) {
       expect(li.querySelector('[data-jx-tl-dot]')).toBeTruthy();
-      expect(li.querySelector('[data-jx-tl-connector]')).toBeTruthy();
+      expect(li.querySelector('[data-jx-tl-line]')).toBeTruthy();
       expect(li.querySelector('[data-jx-tl-content]')).toBeTruthy();
     }
     const time = items[0]!.querySelector('time')!;
@@ -249,10 +328,18 @@ describe('Timeline family — composed anatomy', () => {
   });
 });
 
-describe('Timeline family — spine, self-hide and attribute paint (css law)', () => {
-  it('timeline.css carries the spine build, the last-child self-hide and the pending pair', () => {
-    expect(timelineCss).toContain(':where([data-jx-tl-connector])::before');
-    expect(timelineCss).toContain(':where([data-jx-tl-item]:last-child) [data-jx-tl-connector]');
+describe('Timeline family — the grid engine (css law)', () => {
+  it('timeline.css carries the subgrid engine, the line essence and the pending pair', () => {
+    // the 5-lane root + the item subgrid
+    expect(timelineCss).toContain("[data-axis='vertical']");
+    expect(timelineCss).toContain('grid-template-columns: subgrid');
+    // the line: the dot's two block neighbors + the center, bridged
+    expect(timelineCss).toContain('grid-row: bs-start / be-end');
+    expect(timelineCss).toContain('margin-block-end: calc(-1 * var(--jx-stack))');
+    // the 8 logical-direction slot cells
+    expect(timelineCss).toContain("[data-dir='bsIs']");
+    expect(timelineCss).toContain("[data-dir='beIe']");
+    // attribute paint pair
     expect(timelineCss).toContain(':where([data-jx-tl-dot])');
     expect(timelineCss).toContain(`:where([data-jx-tl-pending]) :where([data-jx-tl-dot])`);
     expect(timelineCss).toContain(':where([data-jx-tl-title])');
@@ -260,9 +347,16 @@ describe('Timeline family — spine, self-hide and attribute paint (css law)', (
     expect(timelineCss).not.toMatch(/\.jx-tl/);
   });
 
-  it('connectors are authored parts — present on every item including the last', () => {
+  it('the line is authored-free — auto-rendered on every item including the last', () => {
     const { container } = render(TimelineHost);
-    expect(container.querySelectorAll('[data-jx-tl-connector]').length).toBe(2);
+    expect(container.querySelectorAll('[data-jx-tl-line]').length).toBe(2);
+  });
+
+  it('the 9-grid node: spatial slots land as valued data-dir cells', () => {
+    const { container } = render(TimelineHost);
+    const bs = container.querySelector('[data-jx-tl-slot][data-dir="bs"]');
+    expect(bs).toBeTruthy();
+    expect(bs!.textContent).toBe('07:02');
   });
 });
 
@@ -280,7 +374,7 @@ describe('Timeline family — SSR-honest first paint', () => {
     expect(items.length).toBe(2);
     expect(items[1]!.hasAttribute('data-jx-tl-pending')).toBe(true);
     expect(items[0]!.querySelector('time')!.getAttribute('datetime')).toBe('2026-08-22T07:02:00Z');
-    expect(container.querySelectorAll('[data-jx-tl-connector]').length).toBe(2);
+    expect(container.querySelectorAll('[data-jx-tl-line]').length).toBe(2);
     expect(container.querySelector('.tl-body')).toBeTruthy();
   });
 });

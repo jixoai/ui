@@ -1,35 +1,93 @@
 @layer theme, base, components, utilities;
 
-/* jixoai steps — connector residue (composition-first-apis, 2026-08-25).
- * ONLY the connector pseudo build lives here, keyed on REAL DOM hooks
- * (the default-parts law: component names never appear in the DOM):
+/* jixoai steps — the grid anatomy + state engine (2026-09-01).
+ * KEYED ON REAL DOM HOOKS (the default-parts law):
  *
- *   [data-jx-step-separator]           the authored overlay; its ::after
- *                                      is the line running from this
- *                                      marker toward the next
- *   [data-jx-step='done']              the owning li's state paint —
- *                                      repaints its connector primary
- *   [data-jx-step-item]:last-child     the self-hide chrome exception:
- *                                      the last item's separator never
- *                                      shows
+ *   [data-jx-step-item]        the li; its OWN grid places the parts:
+ *                              marker | body (title over description)
+ *                              | tail (the connector lane) — the
+ *                              connector never strikes the labels
+ *   [data-jx-step-indicator]   the marker cell (spans both body rows)
+ *   [data-jx-step-title]       body row 1
+ *   [data-jx-step-description] body row 2
+ *   [data-jx-step-separator]   the tail cell — the connector as a REAL
+ *                              box on the marker's center line
+ *   [data-jx-step='done' | 'success']
+ *                              the owning li's state paint — repaints
+ *                              its connector
+ *   [data-jx-step-item]:last-child
+ *                              the self-hide chrome exception: the
+ *                              last item's separator never shows
+ *   [data-jx-step='pending']   the middle state — the glyph breathes
  *
  * All same-element paint lives as token utilities in the markup (the
  * :where keeps the residue consumer-overridable under the layer law). */
 
 @layer components {
-  :where([data-jx-step-separator])::after {
-    content: '';
-    position: absolute;
-    top: calc(var(--jx-icon) / 2);
-    left: calc(var(--jx-icon) + var(--jx-gap));
-    right: var(--jx-gap);
-    height: 1px;
+  /* ── the item anatomy: one grid, three lanes ── */
+  :where([data-jx-step-item]) {
+    display: grid;
+    grid-template-columns:
+      [marker] max-content [body] minmax(0, 1fr) [tail] minmax(var(--jx-gap), 1fr);
+    column-gap: var(--jx-gap);
+    row-gap: calc(var(--jx-stack) / 2);
+    grid-template-rows: auto auto;
+    align-items: start;
+    padding-inline-end: var(--jx-inset);
+  }
+  :where([data-jx-step-indicator]) {
+    grid-column: marker;
+    grid-row: 1 / span 2;
+  }
+  :where([data-jx-step-title]) {
+    grid-column: body;
+    grid-row: 1;
+  }
+  :where([data-jx-step-description]) {
+    grid-column: body;
+    grid-row: 2;
+  }
+
+  /* ── the connector: a real box on the marker's center line ── */
+  :where([data-jx-step-separator]) {
+    grid-column: tail;
+    grid-row: 1;
+    align-self: start;
+    margin-block-start: calc((var(--jx-icon) - 1px) / 2);
+    block-size: 1px;
+    inline-size: 100%;
     background: var(--border);
   }
-  :where([data-jx-step='done']) :where([data-jx-step-separator])::after {
+  /* the passed states repaint their connector — done (primary) and the
+     terminal success (the success pair) */
+  :where([data-jx-step='done']) :where([data-jx-step-separator]) {
     background: var(--primary);
+  }
+  :where([data-jx-step='success']) :where([data-jx-step-separator]) {
+    background: var(--success);
   }
   :where([data-jx-step-item]:last-child) [data-jx-step-separator] {
     display: none;
+  }
+
+  /* ── the middle state: the pending glyph breathes ── */
+  :where([data-jx-step='pending']) :where([data-jx-step-index]) {
+    animation: jx-step-breathe 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes jx-step-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where([data-jx-step='pending']) :where([data-jx-step-index]) {
+    animation: none;
   }
 }

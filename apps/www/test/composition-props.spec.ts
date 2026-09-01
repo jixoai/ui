@@ -28,9 +28,9 @@ describe('props discipline — consumer attributes flow to the part root', () =>
     expect(li.id).toBe('probe-steps-item');
     expect(li.dataset.probeKind).toBe('steps');
     // class merges through cn(): the part's own utilities survive beside
-    // the consumer's
+    // the consumer's (the grid-anatomy item — a flex-1 lane of the ol)
     expect(li.className).toContain('probe-extra');
-    expect(li.className).toContain('relative');
+    expect(li.className).toContain('flex-1');
   });
 
   it('breadcrumb-link: id/data-*/class land on the anchor', () => {

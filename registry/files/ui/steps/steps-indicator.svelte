@@ -1,8 +1,8 @@
 <!--
-  jixoai StepsIndicator (registry/files/ui/steps/steps-indicator.svelte,
-  composition-first-apis, 2026-08-25).
-  The marker half of the steps family: the numbered square that becomes
-  a ✓ when its Item is done. Two forms, decided by the Item's context:
+  jixoai StepsIndicator (registry/files/ui/steps/steps-indicator.svelte;
+  state-vocabulary rebuild, 2026-09-01).
+  The marker half — the state made visible (the NPC marker reading:
+  ✓/✕/⋯/i/!/number). Two forms, decided by the Item's context:
 
     done + Item onclick → <button> — the interactive element (the repo
       ruling keeps future steps INERT, so the done marker is the only
@@ -12,8 +12,10 @@
       affordance.
 
   State paint (border/background/token colors) is JS-known through the
-  item context, so it rides conditional token utilities (tw4 law).
-  (props-discipline sweep, 2026-08-25)
+  item context, so it rides conditional token utilities (tw4 law) — one
+  rung per vocabulary word, all on the theme's semantic pairs:
+  primary (done/current/emphasis), success, error, info, muted (todo/
+  disabled). The pending glyph breathes (css; reduced-motion freezes).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -23,8 +25,8 @@
   import { STEPS_ITEM_KEY, type StepsItemApi } from './steps-item.svelte';
 
   interface Props extends HTMLAttributes<HTMLElement> {
-    /** replaces the default glyph content (✓ when done, the number
-     *  otherwise) */
+    /** replaces the default glyph content (the state's glyph, or the
+     *  step number where the vocabulary says so) */
     children?: Snippet;
     /** child({ props }) — offered ONLY on the interactive button form
      *  (done + Item onclick); the replacement element must preserve the
@@ -39,10 +41,31 @@
 
   const item = getContext<StepsItemApi>(STEPS_ITEM_KEY);
 
+  // one rung per vocabulary word — the theme's semantic pairs
   const markerPaint = {
     done: 'border-primary bg-card text-primary',
     current: 'border-primary bg-primary text-primary-foreground',
     todo: 'border-border bg-card text-muted-foreground',
+    pending: 'border-primary bg-card text-primary',
+    success: 'border-success bg-success text-success-foreground',
+    error: 'border-error bg-error text-error-foreground',
+    hint: 'border-info bg-card text-info',
+    emphasis: 'border-primary bg-primary text-primary-foreground',
+    disabled: 'border-border bg-muted text-muted-foreground cursor-not-allowed',
+  } as const;
+
+  // the default glyph per state (children override; the number where
+  // ordinal identity still speaks)
+  const glyph = {
+    done: '✓',
+    current: String(item.step + 1),
+    todo: String(item.step + 1),
+    pending: '⋯',
+    success: '✓',
+    error: '✕',
+    hint: 'i',
+    emphasis: '!',
+    disabled: String(item.step + 1),
   } as const;
 
   // the no-dead-affordance law: a handler exists AND the step is done
@@ -72,7 +95,7 @@
     {@render child({ props })}
   {:else}
     <button {...props}>
-      <span data-jx-step-index="" aria-hidden="true">{#if children}{@render children()}{:else}✓{/if}</span>
+      <span data-jx-step-index="" aria-hidden="true">{#if children}{@render children()}{:else}{glyph[item.state]}{/if}</span>
     </button>
   {/if}
 {:else}
@@ -86,6 +109,6 @@
     {...rest}
     aria-hidden="true"
   >
-    <span data-jx-step-index="">{#if children}{@render children()}{:else}{item.step + 1}{/if}</span>
+    <span data-jx-step-index="">{#if children}{@render children()}{:else}{glyph[item.state]}{/if}</span>
   </span>
 {/if}

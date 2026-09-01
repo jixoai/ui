@@ -10,6 +10,7 @@
     StepsDescription,
     StepsSeparator,
   } from '../../src/lib/ui/steps';
+  import type { StepState } from '../../src/lib/ui/steps';
 
   interface Props {
     /** the authored ordinals (duplicates and gaps included on purpose) */
@@ -20,6 +21,8 @@
     interactive?: boolean;
     /** forwarded with the step ordinal on every marker click */
     onclick?: (step: number) => void;
+    /** explicit state override on the LAST item (the vocabulary probe) */
+    lastState?: StepState;
   }
 
   let {
@@ -27,6 +30,7 @@
     current: initial = 1,
     interactive = false,
     onclick,
+    lastState,
   }: Props = $props();
 
   // the fixture SNAPSHOT-seeds current from the initial prop (fresh mount
@@ -44,7 +48,12 @@
 
 <Steps bind:current>
   {#each ordinals as step, index (index)}
-    <StepsItem {step} label="step {step}" onclick={interactive ? handler(step) : undefined}>
+    <StepsItem
+      {step}
+      label="step {step}"
+      state={index === ordinals.length - 1 ? lastState : 'auto'}
+      onclick={interactive ? handler(step) : undefined}
+    >
       <StepsIndicator />
       <StepsTitle>step {step}</StepsTitle>
       <StepsDescription>ordinal {step}</StepsDescription>
