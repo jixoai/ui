@@ -1,13 +1,15 @@
 /**
  * The serializer — the ONLY code that turns ComponentLaw objects into CSS.
  *
- * Three output modes, one declaration source:
+ * Four output modes, one declaration source:
  *   'utility': .{className} rules          → jixoai.css @layer components slot
  *   'face':    {elementSelector} rules     → jx-pure.css Part B (inside the sheet's @layer components)
  *   'alias':   .{alias} rules per alias    → jx-pure.css Part A (unlayered)
+ *   'mount':   {mountAnchor} rules         → the component's own css file
+ *                                            (inside its @layer components slot)
  *
  * Cascade contract (css-architecture placement law):
- *   utility/face sit in @layer components — consumer utilities win;
+ *   utility/face/mount sit in @layer components — consumer utilities win;
  *   alias rides unlayered — the Tier-2 vocabulary wins by design.
  *
  * Selector laws:
@@ -87,11 +89,14 @@ function elementParts(law: ComponentLaw): string[] {
 /**
  * the anchor selectors for a law in the given format — the strings
  * every suffix hangs off. utility: ['.cls']; face: scoped element
- * parts; alias: one per application.aliases class.
+ * parts; alias: one per application.aliases class; mount: the
+ * component hook anchor (no anchors emitted when it is absent —
+ * an anchorless law projects to nothing, same as the alias path).
  */
 function anchors(law: ComponentLaw, opts: SerializeOptions): string[] {
   if (opts.format === 'utility') return [`.${law.application.className}`];
   if (opts.format === 'alias') return (law.application.aliases ?? []).map((a) => `.${a}`);
+  if (opts.format === 'mount') return opts.mountAnchor ? [opts.mountAnchor] : [];
   // face
   const scope = law.application.scoped ? ':where(.jx-pure) ' : '';
   return elementParts(law).map((p) => `${scope}${p}`);

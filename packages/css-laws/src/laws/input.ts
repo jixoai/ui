@@ -4,6 +4,12 @@
  * this law). Ported byte-faithful from jixoai.css @utility jx-html-input
  * (native-contract-fusion V2, 2026-08-27) — the declarations are the
  * single source now; the @utility is retired at cutover.
+ *
+ * 2026-09-02 · F-1 well sweep: the fillable single-box control sits on
+ * the elevation grammar's WELL tier (the control-shell law's ruling):
+ * resting --shadow-well, hover --shadow-well-hover (intensity, not
+ * tier), focus answers in border + caret only. The retired hover lift
+ * (shadow-2xs) and focus shadow-kill are gone.
  */
 import type { ComponentLaw } from '../types';
 import { iconSlot } from '../icon-uris';
@@ -36,10 +42,17 @@ export const inputLaw: ComponentLaw = {
     'border-radius': '0',
     background: 'var(--background)',
     color: 'var(--foreground)',
+    /* the well tier (F-1 sweep, 2026-09-02; the control-shell law): a
+     * fillable box is a recess — inset shadow at rest; interaction
+     * changes INTENSITY only, focus answers in border + caret, never
+     * in the shadow's hierarchy */
+    'box-shadow': 'var(--shadow-well)',
+    /* the well's focus ink: the caret answers focus in the ring hue */
+    'caret-color': 'var(--primary)',
     font: 'inherit',
     'font-size': 'var(--jx-text, 0.875rem)',
     'line-height': 'var(--jx-leading, 1.45)',
-    transition: 'box-shadow 150ms ease-out',
+    transition: 'box-shadow 150ms ease-out, border-color 150ms ease-out',
   },
   pseudos: {
     placeholder: {
@@ -50,16 +63,19 @@ export const inputLaw: ComponentLaw = {
     },
   },
   states: [
+    /* well-hover: same inset rung, deeper ink — intensity, not tier */
     {
       selector: ':hover:not(:disabled)',
-      declarations: { 'box-shadow': 'var(--shadow-2xs)' },
+      declarations: { 'box-shadow': 'var(--shadow-well-hover)' },
     },
+    /* focus tints the border (the caret answers in kind) — the shadow's
+     * hierarchy never moves */
     {
       selector: ':focus-visible',
       declarations: {
         outline: '1px solid var(--ring)',
         'outline-offset': '-1px',
-        'box-shadow': 'none',
+        'border-color': 'var(--ring)',
       },
     },
     {
@@ -67,7 +83,6 @@ export const inputLaw: ComponentLaw = {
       declarations: {
         opacity: '0.5',
         cursor: 'not-allowed',
-        'box-shadow': 'none',
       },
     },
     {

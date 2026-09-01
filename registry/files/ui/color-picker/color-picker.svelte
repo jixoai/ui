@@ -49,6 +49,23 @@
      host tracks); the editor's in-panel format switch changes that
      notation by re-emitting the same color in the new one.
 
+  5. invalid-color policy (E-9, 2026-09-02 — the RULE the three
+     surfaces follow): an unparseable color string is PRESERVED RAW.
+     The $bindable keeps the raw string; the field displays it (the
+     free-typing draft law: change commits parse-or-revert); the
+     native swatch and the editor render BLACK — the input[type=color]
+     platform fallback (an invalid bound value reads as #000000) —
+     until a parseable value replaces it. Consumers surface the error
+     state themselves through the `error` prop (aria-invalid +
+     describedby on the field); this component never silently
+     canonicalizes a string it could not parse.
+
+  6. form reset (E-4, the toggle-group law) — the platform restores
+     the field's own value (the markup value at parse time) but fires
+     no input/change events; the reset listener re-syncs the bindable,
+     the field draft and the editor seed once the browser has applied
+     the reset.
+
   The panel surface is the terminal bezel (var(--terminal) in both
   modes) — the same law as the Select panel. Reduced motion: nothing
   animates during drag (markers track the pointer directly); only the
@@ -208,7 +225,8 @@
 
   // external value writes (bindings, resets) pass through RAW — the
   // editor re-parses and re-seats its own pad and text draft, and the
-  // native field re-displays the raw string
+  // native field re-displays the raw string (the E-9 policy: an
+  // unparseable write is preserved, not silently canonicalized)
   $effect(() => {
     if (value === lastEmitted) return;
     const parsed = parseColor(value ?? '');
@@ -217,6 +235,29 @@
     editorValue = value;
     fieldText = value ?? '';
   });
+
+  // ---- form reset sync (E-4, the toggle-group law) ----------------------
+  // the platform restores the FIELD's own value (its markup value at
+  // parse time) but fires no input/change events — the one-truth state
+  // stays stale. Re-read once the browser has applied the reset; the
+  // raw string is preserved (E-9), the editor re-seats only when it
+  // parses (the pad's own fallback renders black otherwise).
+  $effect(() => {
+    if (!fieldEl) return;
+    const form = fieldEl.closest('form');
+    form?.addEventListener('reset', onFormReset);
+    return () => form?.removeEventListener('reset', onFormReset);
+  });
+  function onFormReset(): void {
+    queueMicrotask(() => {
+      const raw = fieldEl?.value ?? '';
+      if (raw === lastEmitted) return;
+      lastEmitted = raw;
+      fieldText = raw;
+      value = raw;
+      if (parseColor(raw)) editorValue = raw;
+    });
+  }
 
   // ---- popover orchestration (select.svelte toggle law) -----------------
   let open = $state(false);
@@ -261,18 +302,21 @@
        the span itself so the panel centers on the whole lane -->
   <span
     data-jx-color-picker-wrap
-    class="jx-color-picker-trigger relative flex items-center w-full border border-border rounded-none bg-background text-foreground transition-[box-shadow] duration-150 ease-out"
+    class="jx-color-picker-trigger relative flex items-center w-full border border-border rounded-none bg-background text-foreground transition-[box-shadow,border-color] duration-150 ease-out"
     style="anchor-name: {anchorName}"
     bind:this={anchorEl}
   >
     {#if showSwatch}
       <!-- the NATIVE picker path: a real input[type=color] in the swatch
-           chrome — WebKit/Firefox open the engine picker on click -->
+           chrome — WebKit/Firefox open the engine picker on click. The
+           swatch SHARES the field's error wiring (E-11): both native
+           controls inside the lane answer the one "! message" line -->
       <input
         type="color"
         data-jx-color-picker-swatch
         value={swatchHex}
         aria-label="system color picker"
+        aria-describedby={describedBy}
         {disabled}
         oninput={onSwatchInput}
       />
@@ -306,7 +350,7 @@
       )}
       popovertarget={panelId}
       aria-label="open color picker"
-      aria-haspopup="dialog"
+      aria-haspopup="true"
       aria-expanded={open}
       aria-controls={panelId}
       {disabled}

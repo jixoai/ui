@@ -66,6 +66,20 @@ export const rangeLaw: ComponentLaw = {
         'box-shadow': 'calc(-100cqw - var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color)',
       },
     },
+    /* RTL fill mirror (E-2, 2026-09-02): the box-shadow fill is
+       PHYSICAL — the x-offset paints the bar from the thumb toward the
+       track's START edge. In RTL the start edge is the physical RIGHT,
+       so the offset flips sign or the fill covers the wrong side
+       (pixel-verified: value=10 painted ~90% on the left). Gecko's
+       ::-moz-range-progress is logical and needs no mirror. Rides
+       AFTER the thumb rule (equal order, stable sort keeps authored
+       sequence) so the mirror wins when both match. */
+    {
+      selector: ':dir(rtl)::-webkit-slider-thumb',
+      declarations: {
+        'box-shadow': 'calc(100cqw + var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color)',
+      },
+    },
     {
       selector: '::-moz-range-track',
       declarations: {

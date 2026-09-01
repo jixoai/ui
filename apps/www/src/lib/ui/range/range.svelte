@@ -13,18 +13,24 @@
   keyboard (←/→/↑/↓ step, Home/End jump, PageUp/PageDown stride), RTL,
   the labelable-element contract (a real label[for] binds — a div
   never could), and form submission (real name/value into FormData,
-  native reset and form-disable) — engine-tested for free.
+  native reset and form-disable). "For free" is NOT absolute: native
+  reset restores the input's own value but fires NO input/change
+  events, so the reset listener below re-syncs the $bindable by hand
+  (E-4, 2026-09-02) — the readout and aria-valuetext follow the state.
 
   What the registry version ADDS over the bare jx-pure face (the
   family's slot + semantic layer, unchanged in shape from the custom
   era): the label row (a REAL label[for] now), the live value readout
-  (step-precision formatting), the tick ruler (one mark per step), the
-  error line (aria-describedby + aria-invalid + the dashed-ring thumb
-  repaint), density tiers, and external-write snapping into [min,max]
-  on the step. The paint is the jx-pure range recipe verbatim, mounted
-  UNSCOPED on the component's own hook (a registry component cannot
-  assume the consumer mounted .jx-pure) — one visual law, two mounting
-  surfaces.
+  (step-precision formatting), the tick ruler (one mark per step, at
+  the SNAP points i·step — plus the explicit end tick at 100%, E-12),
+  the error line (aria-describedby + aria-invalid + the dashed-ring
+  thumb repaint), density tiers, and external-write snapping into
+  [min,max] on the step. The paint is the jx-pure range law VERBATIM,
+  mounted on the component's own hook through the GENERATED
+  range-mount marker slot in range.css (E-1, 2026-09-02 — the 4th
+  mounting surface is machine-projected from laws/range.ts, gated by
+  the css-laws build; a registry component cannot assume the consumer
+  mounted .jx-pure, but the visual law is ONE).
 -->
 <script lang="ts">
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
@@ -89,17 +95,29 @@
   const invalidAttr = $derived(invalid ? 'true' : undefined);
 
   // step precision: decimals of step/min/max, so 0.5 steps commit 1.5,
-  // not 1.4999… (the readout formats at the same precision)
+  // not 1.4999… (the readout formats at the same precision). Exponent
+  // notation carries its magnitude in the exponent ('1e-7' → 7).
   function decimalsOf(n: number): number {
     if (!Number.isFinite(n)) return 0;
-    const dot = String(n).indexOf('.');
-    return dot === -1 ? 0 : String(n).length - dot - 1;
+    const s = String(n);
+    if (s.includes('e')) {
+      const [mantissa, exponent] = s.split('e');
+      const dot = mantissa.indexOf('.');
+      const mantissaDecimals = dot === -1 ? 0 : mantissa.length - dot - 1;
+      return Math.max(0, mantissaDecimals - Number(exponent));
+    }
+    const dot = s.indexOf('.');
+    return dot === -1 ? 0 : s.length - dot - 1;
   }
   const decimals = $derived(Math.max(decimalsOf(step), decimalsOf(min), decimalsOf(max)));
 
+  // step guard (E-8): step<=0 or non-finite would NaN-poison the snap
+  // math and the tick ruler — fall back to the platform default (1)
+  const safeStep = $derived(step > 0 && Number.isFinite(step) ? step : 1);
+
   function clampToStep(raw: number): number {
     const bounded = Math.min(max, Math.max(min, raw));
-    const stepped = min + Math.round((bounded - min) / step) * step;
+    const stepped = min + Math.round((bounded - min) / safeStep) * safeStep;
     return Number(stepped.toFixed(decimals));
   }
 
@@ -110,9 +128,38 @@
     if (snapped !== value) value = snapped;
   });
 
-  const tickCount = $derived(Math.round((max - min) / step));
-  const tickStepPct = $derived(tickCount > 0 ? 100 / tickCount : 100);
+  // tick math (E-3, 2026-09-02): one mark per SNAP point —
+  // i·step/(max−min)·100 — not an even split of 100% across a rounded
+  // tick count (a non-dividing step used to drift the ruler off its
+  // own snap points). The quotient is cleaned at 1e-6 percent — far
+  // below any sub-pixel the ruler can express — so 7/100·100 renders
+  // as 7%, never 7.000000000000001%
+  const span = $derived(max - min);
+  const tickCount = $derived(span > 0 ? Math.round(span / safeStep) : 0);
+  const tickStepPct = $derived(
+    tickCount > 0 ? Math.round(((safeStep / span) * 100) * 1e6) / 1e6 : 100,
+  );
   const display = $derived(value.toFixed(decimals));
+
+  // ---- form reset sync (E-4, the toggle-group law) ----------------------
+  // the platform restores the input's own value (the markup's value
+  // attribute at parse time) but fires NO input/change events — the
+  // bind:value channel stays stale. Re-read once the browser has
+  // applied the reset (microtask); the readout + aria-valuetext derive
+  // from `value` and follow for free.
+  let inputEl = $state<HTMLInputElement | null>(null);
+  $effect(() => {
+    if (!inputEl) return;
+    const form = inputEl.closest('form');
+    form?.addEventListener('reset', onFormReset);
+    return () => form?.removeEventListener('reset', onFormReset);
+  });
+  function onFormReset(): void {
+    queueMicrotask(() => {
+      const restored = Number(inputEl?.value);
+      if (Number.isFinite(restored) && restored !== value) value = restored;
+    });
+  }
 </script>
 
 <div data-density={resolvedDensity} class={cn('jx-field', className)}>
@@ -139,10 +186,11 @@
     type="range"
     id={id}
     data-jx-range=""
+    bind:this={inputEl}
     bind:value
     {min}
     {max}
-    {step}
+    step={safeStep}
     {name}
     {disabled}
     aria-valuetext={display}

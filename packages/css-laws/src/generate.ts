@@ -11,6 +11,14 @@
  *   vocab   → jx-pure.css  jx-icon-vocab slot (the icon vocabulary:
  *             --jx-icon-* custom properties + the two mask rules;
  *             URI geometry from lucide via icon-uris.ts)
+ *   mount   → the component's own css file, <law>-mount slot (E-1,
+ *             2026-09-02: a registry component mounting a generated
+ *             face on its hook — range on [data-jx-range] — receives
+ *             the SAME law's rules re-anchored on that hook, inside
+ *             the component sheet's own @layer components context so
+ *             it beats nothing unfairly; the anchor keeps the law's
+ *             :not(.no-jx-pure) opt-out so the escape hatch is
+ *             consistent across every mounting surface)
  *
  * Marker law: content between begin/end markers is GENERATED — never
  * hand-edit. The generator errors if markers are missing (run the
@@ -18,10 +26,10 @@
  *
  * Run: npx tsx src/generate.ts
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, copyFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { serializeCollection } from './serializers/core';
+import { serializeCollection, serializeLaw } from './serializers/core';
 import type { ComponentLaw } from './types';
 import { allLaws } from './laws/all';
 import { buildIconVocabSheet } from './icon-vocab';
@@ -60,25 +68,72 @@ function replaceSlot(css: string, slot: string, content: string, source: string 
   return `${head}${b}${body}${e}${tail}`;
 }
 
+/**
+ * the component-mount registry — WHICH laws ride a component hook and
+ * WHERE. The registry/files copy is canonical (the mirror law); run()
+ * writes it first, then copies the exact bytes to the apps/www mirror
+ * exactly like the theme sheets.
+ */
+export interface ComponentMount {
+  /** the law's name in allLaws */
+  readonly law: string;
+  /** marker slot name — the <law>-mount convention */
+  readonly slot: string;
+  /** the full hook anchor, INCLUDING the law's opt-out */
+  readonly anchor: string;
+  /** repo-relative registry source file carrying the marker slot */
+  readonly registryPath: string;
+  /** repo-relative apps/www mirror (byte-identical, the mirror law) */
+  readonly mirrorPath: string;
+}
+
+export const COMPONENT_MOUNTS: readonly ComponentMount[] = [
+  {
+    law: 'range',
+    slot: 'range-mount',
+    anchor: '[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)',
+    registryPath: 'registry/files/ui/range/range.css',
+    mirrorPath: 'apps/www/src/lib/ui/range/range.css',
+  },
+];
+
+function mountSheetFor(laws: readonly ComponentLaw[], mount: ComponentMount): string {
+  const law = laws.find((l) => l.name === mount.law);
+  if (!law) {
+    throw new Error(`component mount ${mount.slot}: no law named "${mount.law}" in the law registry`);
+  }
+  const css = serializeLaw(law, { format: 'mount', mountAnchor: mount.anchor }).css;
+  if (!css.trim()) {
+    throw new Error(`component mount ${mount.slot}: law "${mount.law}" serialized to nothing`);
+  }
+  // the component sheet's own @layer components context — the mount
+  // beats nothing unfairly (consumer utilities still win, alias tiers
+  // still outrank it; spec: the component-mount projection, 2026-09-02)
+  return `@layer components {\n${css}\n}`;
+}
+
 export function generateAll(laws: readonly ComponentLaw[]): {
   utilitySheet: string;
   faceSheet: string;
   aliasSheet: string;
   iconVocabSheet: string;
+  mountSheets: Record<string, string>;
 } {
   const collection = { laws };
   const utility = serializeCollection(collection, { format: 'utility' });
   const face = serializeCollection(collection, { format: 'face' });
   const alias = serializeCollection(collection, { format: 'alias' });
+  const mountSheets: Record<string, string> = {};
+  for (const mount of COMPONENT_MOUNTS) mountSheets[mount.slot] = mountSheetFor(laws, mount);
 
   const utilitySheet = `@layer components {
 ${utility}
 }`;
-  return { utilitySheet, faceSheet: face, aliasSheet: alias, iconVocabSheet: buildIconVocabSheet() };
+  return { utilitySheet, faceSheet: face, aliasSheet: alias, iconVocabSheet: buildIconVocabSheet(), mountSheets };
 }
 
 export function run(): void {
-  const { utilitySheet, faceSheet, aliasSheet, iconVocabSheet } = generateAll(allLaws);
+  const { utilitySheet, faceSheet, aliasSheet, iconVocabSheet, mountSheets } = generateAll(allLaws);
 
   const jixoaiPath = resolve(repoRoot, 'registry/files/theme/jixoai.css');
   const jxPurePath = resolve(repoRoot, 'registry/files/theme/jx-pure.css');
@@ -97,6 +152,19 @@ export function run(): void {
   console.log(`✓ jx-pure.css [${FACE_SLOT}] ${faceSheet.length} bytes`);
   console.log(`✓ jx-pure.css [${ALIAS_SLOT}] ${aliasSheet.length} bytes`);
   console.log(`✓ jx-pure.css [${ICON_VOCAB_SLOT}] ${iconVocabSheet.length} bytes`);
+
+  // the 4th surface: component-mount slots (registry copy canonical,
+  // then the exact bytes to the apps/www mirror — the theme-sheet law)
+  for (const mount of COMPONENT_MOUNTS) {
+    const registryPath = resolve(repoRoot, mount.registryPath);
+    const mirrorPath = resolve(repoRoot, mount.mirrorPath);
+    const sheet = mountSheets[mount.slot];
+    let css = readFileSync(registryPath, 'utf8');
+    css = replaceSlot(css, mount.slot, sheet);
+    writeFileSync(registryPath, css);
+    copyFileSync(registryPath, mirrorPath);
+    console.log(`✓ ${mount.registryPath} [${mount.slot}] ${sheet.length} bytes (+ mirror synced)`);
+  }
 }
 
 // laws barrel keeps the law list in one place (laws/all.ts)

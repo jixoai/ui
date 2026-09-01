@@ -1,13 +1,16 @@
 @layer theme, base, components, utilities;
 
-/* jixoai range — native rebase (2026-09-01). The track/thumb/fill face
- * below is the jx-pure input[type=range] recipe VERBATIM, mounted
- * UNSCOPED on the component's own hook: a registry component cannot
- * assume the consumer mounted .jx-pure, but the visual law is ONE —
- * the bare element under jx-pure and the Range component render the
- * same slider. Pseudo-element builds (utilities cannot author
- * ::-webkit-slider-thumb) and the :dir(rtl) tick mirror are D1-exempt
- * residue by construction.
+/* jixoai range — native rebase (2026-09-01). The native face below is
+ * GENERATED from packages/css-laws/src/laws/range.ts — the SAME law
+ * that paints the bare element under jx-pure (Part B face) and the
+ * .jx-html-range utility, re-anchored on the component's own hook
+ * [data-jx-range]: the 4th mounting surface (E-1, 2026-09-02). A
+ * registry component cannot assume the consumer mounted .jx-pure, but
+ * the visual law is ONE. The mount rides @layer components (it beats
+ * nothing unfairly — consumer utilities still win) and keeps the law's
+ * own :not(.no-jx-pure) escape hatch. NEVER hand-edit between the
+ * markers — `npx tsx src/build.ts --check` (packages/css-laws) gates
+ * freshness exactly like the theme-sheet projections.
  * The .jx-field / .jx-label / .jx-error scaffolding is consumed from
  * the jx-pure sheet (Part A). */
 
@@ -18,13 +21,26 @@
   }
 
   /* tick ruler: one 4px mark per step, drawn as a repeating gradient
-     (a mark every --jx-tick-step %; mirrors under :dir(rtl)) */
+     (a mark every --jx-tick-step %; mirrors under :dir(rtl)). The
+     ::after end tick pins the FINAL mark at 100%: a repeating
+     gradient paints marks only at segment starts, so without it
+     step=10/0-100 ends at 90 (E-12, 2026-09-02) */
   :where(.jx-slider-ticks) {
+    position: relative;
     background: repeating-linear-gradient(
       to right,
       var(--border) 0 1px,
       transparent 1px var(--jx-tick-step)
     );
+  }
+  :where(.jx-slider-ticks)::after {
+    content: '';
+    position: absolute;
+    inset-inline-end: 0;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
   }
   :where(.jx-slider-ticks):dir(rtl) {
     background: repeating-linear-gradient(
@@ -35,8 +51,10 @@
   }
 }
 
-/* ---- the native face (jx-pure Part A's range recipe, unscoped) ------ */
-[data-jx-range] {
+/* ---- the native face — GENERATED from laws/range.ts (E-1) ------------- */
+/* @jixoai/css-laws:begin:range-mount — GENERATED, do not edit (source: packages/css-laws/src/laws) */
+@layer components {
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *) {
   --jx-range-thumb: 100cqh;
   --jx-range-track: calc(100cqh / 2.5);
   --jx-range-ring: calc(100cqh / 8);
@@ -57,13 +75,13 @@
   cursor: pointer;
 }
 
-[data-jx-range]::-webkit-slider-runnable-track {
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)::-webkit-slider-runnable-track {
   height: var(--jx-range-track);
   border-radius: calc(infinity * 1px);
   background: var(--muted);
 }
 
-[data-jx-range]::-webkit-slider-thumb {
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   box-sizing: border-box;
@@ -77,19 +95,23 @@
   box-shadow: calc(-100cqw - var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color);
 }
 
-[data-jx-range]::-moz-range-track {
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *):dir(rtl)::-webkit-slider-thumb {
+  box-shadow: calc(100cqw + var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)::-moz-range-track {
   height: var(--jx-range-track);
   border-radius: calc(infinity * 1px);
   background: var(--muted);
 }
 
-[data-jx-range]::-moz-range-progress {
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)::-moz-range-progress {
   height: var(--jx-range-track);
   border-radius: calc(infinity * 1px);
   background: var(--jx-slider-fill-color);
 }
 
-[data-jx-range]::-moz-range-thumb {
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)::-moz-range-thumb {
   box-sizing: border-box;
   corner-shape: var(--corner-shape, bevel);
   width: var(--jx-range-thumb);
@@ -99,18 +121,23 @@
   background: var(--background);
 }
 
-[data-jx-range]:focus-visible {
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *):focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: 2px;
 }
 
-[data-jx-range]:disabled {
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *):disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
+}
+/* @jixoai/css-laws:end:range-mount */
 
 /* invalid dashes the thumb's ring (the family's error law — the old
-   custom build's dashed-border thumb, carried to the native face) */
+   custom build's dashed-border thumb, carried to the native face).
+   Hand residue: the .jx-invalid class is the component's own state,
+   not the law's — it rides AFTER the mount slot so source order lets
+   it win over the generated solid border */
 [data-jx-range].jx-invalid::-webkit-slider-thumb {
   border-style: dashed;
   border-color: var(--foreground);

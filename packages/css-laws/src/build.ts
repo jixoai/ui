@@ -1,14 +1,15 @@
 /**
  * Build CLI — generate the four projections into the theme sheets,
- * mirror-sync to apps/www, and refresh the mirror manifest.
+ * project the component-mount slots, mirror-sync to apps/www, and
+ * refresh the mirror manifest.
  *
- * Run: npx tsx src/build.ts          (generate + sync + manifest)
+ * Run: npx tsx src/build.ts          (generate + project + sync + manifest)
  *      npx tsx src/build.ts --check  (verify committed sheets are fresh)
  */
 import { readFileSync, writeFileSync, copyFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { run, repoRoot, generateAll } from './generate';
+import { run, repoRoot, generateAll, COMPONENT_MOUNTS } from './generate';
 import { allLaws } from './laws/all';
 
 const checkMode = process.argv.includes('--check');
@@ -16,7 +17,7 @@ const checkMode = process.argv.includes('--check');
 if (checkMode) {
   // freshness: the committed sheet content between markers must equal
   // a fresh generation from the current law sources
-  const { utilitySheet, faceSheet, aliasSheet, iconVocabSheet } = generateAll(allLaws);
+  const { utilitySheet, faceSheet, aliasSheet, iconVocabSheet, mountSheets } = generateAll(allLaws);
   const jixoai = readFileSync(resolve(repoRoot, 'registry/files/theme/jixoai.css'), 'utf8');
   const jxPure = readFileSync(resolve(repoRoot, 'registry/files/theme/jx-pure.css'), 'utf8');
   const slotOf = (css: string, slot: string) => {
@@ -51,6 +52,22 @@ if (checkMode) {
   if (slotOf(jxPure, 'jx-icon-vocab').trim() !== expectVocab.trim()) {
     console.error('[css-laws] jx-pure.css icon-vocab slot is STALE — run: npx tsx src/build.ts');
     process.exit(1);
+  }
+  // the 4th surface: component-mount slots gate exactly like the
+  // sheet projections (E-1) — stale slot or diverged mirror fails here
+  for (const mount of COMPONENT_MOUNTS) {
+    const expected = `/* @jixoai/css-laws:begin:${mount.slot} — GENERATED, do not edit (source: packages/css-laws/src/laws) */\n${mountSheets[mount.slot]}\n`;
+    const registryCss = readFileSync(resolve(repoRoot, mount.registryPath), 'utf8');
+    if (slotOf(registryCss, mount.slot).trim() !== expected.trim()) {
+      console.error(`[css-laws] ${mount.registryPath} [${mount.slot}] is STALE — run: npx tsx src/build.ts`);
+      process.exit(1);
+    }
+    const mirrorCss = readFileSync(resolve(repoRoot, mount.mirrorPath), 'utf8');
+    if (mirrorCss !== registryCss) {
+      console.error(`[css-laws] ${mount.mirrorPath} diverged from its registry source — run: npx tsx src/build.ts`);
+      process.exit(1);
+    }
+    console.log(`✓ ${mount.registryPath} [${mount.slot}] fresh (+ mirror identical)`);
   }
   console.log('[css-laws] check GREEN: committed slots match the law sources');
   process.exit(0);

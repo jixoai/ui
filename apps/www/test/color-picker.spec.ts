@@ -99,13 +99,16 @@ describe('ColorPicker · the native field', () => {
     ).toBe(true);
   });
 
-  it('error wires the NATIVE invalid seam on the field', () => {
+  it('error wires the NATIVE invalid seam on the field — and the swatch shares the describedby (E-11)', () => {
     const { container } = render(ColorPicker, { props: { label: 'theme hue', error: 'required' } });
     const field = container.querySelector('input[type="text"]') as HTMLInputElement;
     expect(field.getAttribute('aria-invalid')).toBe('true');
     const describedBy = field.getAttribute('aria-describedby');
     expect(describedBy).toBeTruthy();
     expect(container.querySelector(`#${describedBy}`)?.textContent).toContain('required');
+    // both native controls inside the lane answer the one message line
+    const swatch = container.querySelector('input[type="color"]') as HTMLInputElement;
+    expect(swatch.getAttribute('aria-describedby')).toBe(describedBy);
   });
 
   it('showValue=false keeps the native value contract (sr-only field, lane intact)', () => {
@@ -166,7 +169,9 @@ describe('ColorPicker · the lane + editor popover', () => {
     const panel = container.querySelector('#cp-pop-panel') as HTMLElement;
     expect(panel.getAttribute('popover')).toBe('auto');
     expect(chevron.getAttribute('popovertarget')).toBe('cp-pop-panel');
-    expect(chevron.getAttribute('aria-haspopup')).toBe('dialog');
+    // the honest generic promise — the panel opens as role=group, not
+    // a dialog (E-7: the pairing must match, not overpromise)
+    expect(chevron.getAttribute('aria-haspopup')).toBe('true');
     // the 2D picker surfaces no native element provides — custom by law
     expect(panel.querySelector('.jx-color-picker-sv')).not.toBeNull();
     expect(panel.querySelector('[data-jx-color-picker-hue]')).not.toBeNull();
@@ -189,5 +194,32 @@ describe('ColorPicker · the lane + editor popover', () => {
     await fireEvent.change(select, { target: { value: 'hsl' } });
     flushSync();
     expect(field.value.startsWith('hsl(')).toBe(true);
+  });
+});
+
+describe('ColorPicker · form reset (E-4)', () => {
+  it('a host form reset re-syncs the bindable, the field draft and the editor seat', async () => {
+    const { container } = render(ColorPickerHost);
+    const form = container.querySelector('form') as HTMLFormElement;
+    const field = container.querySelector('input[type="text"]') as HTMLInputElement;
+    const swatch = container.querySelector('input[type="color"]') as HTMLInputElement;
+    // what SSR markup would carry: the reset restores the value
+    // ATTRIBUTE (client-only renders set the property, so pin the
+    // defaultValue the parsed HTML would have had)
+    field.defaultValue = '#007924';
+    // drive the one-truth away through the field (change commits)
+    await fireEvent.input(field, { target: { value: '#ff0000' } });
+    await fireEvent.change(field);
+    flushSync();
+    expect(container.querySelector('[data-testid="out"]')?.textContent).toBe('#ff0000');
+    // the platform restores the field but fires NO input/change events
+    form.reset();
+    await Promise.resolve(); // let the reset listener's microtask run
+    flushSync();
+    expect(field.value).toBe('#007924');
+    expect(container.querySelector('[data-testid="out"]')?.textContent).toBe('#007924');
+    // the editor re-seats: the swatch's hex projection follows the
+    // restored color (a stale seat would still paint #ff0000)
+    expect(swatch.value.toLowerCase()).toBe('#007924');
   });
 });

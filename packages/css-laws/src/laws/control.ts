@@ -11,6 +11,11 @@
  * literal), so the prefix law grows start padding from the token and
  * the icon sits at the token's edge.
  *
+ * 2026-09-02 · F-1 well sweep: same ruling as the input law — the
+ * fillable single-box control sits on the WELL tier (resting inset,
+ * hover intensity, focus border + caret only); the retired hover lift
+ * is gone.
+ *
  * SINGLE DECLARATION SOURCE: this file. Never edit the generated CSS.
  */
 import type { ComponentLaw } from '../types';
@@ -34,9 +39,14 @@ export const controlLaw: ComponentLaw = {
     'border-radius': '0',
     background: 'var(--background)',
     color: 'var(--foreground)',
+    /* the well tier (F-1 sweep, 2026-09-02; the control-shell law):
+     * resting inset; hover deepens the ink, focus answers in border +
+     * caret — the shadow's hierarchy never moves */
+    'box-shadow': 'var(--shadow-well)',
+    'caret-color': 'var(--primary)',
     'font-size': 'var(--jx-text, 0.875rem)',
     'color-scheme': 'light',
-    transition: 'box-shadow 150ms ease-out',
+    transition: 'box-shadow 150ms ease-out, border-color 150ms ease-out',
   },
   pseudos: {
     placeholder: {
@@ -47,15 +57,19 @@ export const controlLaw: ComponentLaw = {
     },
   },
   states: [
+    /* well-hover: same inset rung, deeper ink — intensity, not tier */
     {
       selector: ':hover',
-      declarations: { 'box-shadow': 'var(--shadow-2xs)' },
+      declarations: { 'box-shadow': 'var(--shadow-well-hover)' },
     },
+    /* focus tints the border (the caret answers in kind) — the shadow's
+     * hierarchy never moves */
     {
       selector: ':focus-visible',
       declarations: {
         outline: '1px solid var(--ring)',
         'outline-offset': '-1px',
+        'border-color': 'var(--ring)',
       },
     },
     {

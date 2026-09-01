@@ -17,7 +17,9 @@ import { checkboxLaw } from '../src/laws/checkbox';
 import { rangeLaw } from '../src/laws/range';
 import { selectLaw } from '../src/laws/select';
 import { radioLaw } from '../src/laws/radio';
+import { controlLaw } from '../src/laws/control';
 import { allLaws } from '../src/laws/all';
+import { generateAll, COMPONENT_MOUNTS } from '../src/generate';
 import { parseCSS, fingerprintMultiset, selectorParts } from './parse-css';
 
 const laws = allLaws;
@@ -142,6 +144,98 @@ describe('law fidelity spot-checks (the r1 tests could not catch these)', () => 
     const first = parseCSS(face)[0];
     expect(first.selector).toContain("[type='datetime-local']");
     expect(first.selector).toContain("[type='number']");
+  });
+});
+
+describe('the well law (F-1 sweep, 2026-09-02)', () => {
+  it('input: resting well; hover is intensity; focus never touches the shadow', () => {
+    const css = serializeLaw(inputLaw, { format: 'utility' }).css;
+    // resting: the base rule carries the well + the caret ink
+    expect(css).toMatch(/\.jx-html-input \{[^}]*box-shadow: var\(--shadow-well\);/s);
+    expect(css).toContain('caret-color: var(--primary)');
+    // hover: same inset rung, deeper ink — the retired lift is gone
+    expect(css).toContain('.jx-html-input:hover:not(:disabled) {\n  box-shadow: var(--shadow-well-hover);\n}');
+    expect(css).not.toContain('shadow-2xs');
+    // focus answers in border only — no shadow kill anywhere
+    const focus = css.match(/\.jx-html-input:focus-visible \{[^}]*\}/s)?.[0] ?? '';
+    expect(focus).toContain('border-color: var(--ring)');
+    expect(focus).not.toContain('box-shadow');
+    const disabled = css.match(/\.jx-html-input:disabled \{[^}]*\}/s)?.[0] ?? '';
+    expect(disabled).not.toContain('box-shadow');
+  });
+
+  it('control: the same well law on the .jx-control twin', () => {
+    const css = serializeLaw(controlLaw, { format: 'utility' }).css;
+    expect(css).toMatch(/\.jx-html-control \{[^}]*box-shadow: var\(--shadow-well\);/s);
+    expect(css).toContain('.jx-html-control:hover {\n  box-shadow: var(--shadow-well-hover);\n}');
+    expect(css).not.toContain('shadow-2xs');
+    const focus = css.match(/\.jx-html-control:focus-visible \{[^}]*\}/s)?.[0] ?? '';
+    expect(focus).toContain('border-color: var(--ring)');
+    expect(focus).not.toContain('box-shadow');
+  });
+});
+
+describe('the component-mount projection (E-1, 2026-09-02)', () => {
+  const RANGE_ANCHOR = '[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)';
+
+  it('range: every rule hangs off the component hook, opt-out included', () => {
+    const css = serializeLaw(rangeLaw, { format: 'mount', mountAnchor: RANGE_ANCHOR }).css;
+    expect(css).toBeTruthy();
+    for (const rule of parseCSS(css)) {
+      for (const part of selectorParts(rule.selector)) {
+        expect(
+          part.startsWith(RANGE_ANCHOR),
+          `"${part}" escaped the component hook`,
+        ).toBe(true);
+      }
+    }
+    // the engine pseudos and the rtl mirror ride along
+    expect(css).toContain('::-webkit-slider-thumb');
+    expect(css).toContain(':dir(rtl)::-webkit-slider-thumb');
+  });
+
+  it('mount shares the law declaration fingerprints with the utility projection', () => {
+    const mount = serializeLaw(rangeLaw, { format: 'mount', mountAnchor: RANGE_ANCHOR }).css;
+    const utility = serializeLaw(rangeLaw, { format: 'utility' }).css;
+    expect(fingerprintMultiset(mount)).toEqual(fingerprintMultiset(utility));
+  });
+
+  it('a mountAnchor-less law projects to NOTHING (anchorless, like the alias path)', () => {
+    expect(serializeLaw(rangeLaw, { format: 'mount' }).css).toBe('');
+  });
+
+  it('generateAll: the mount sheet rides @layer components and is byte-stable', () => {
+    const a = generateAll(allLaws);
+    const b = generateAll(allLaws);
+    for (const mount of COMPONENT_MOUNTS) {
+      const sheet = a.mountSheets[mount.slot];
+      expect(sheet, `slot ${mount.slot} missing`).toBeTruthy();
+      expect(sheet).toBe(b.mountSheets[mount.slot]); // byte-stable
+      expect(sheet.startsWith('@layer components {')).toBe(true);
+      expect(sheet).toContain(`${mount.anchor} {`);
+    }
+    // every declared mount names a real law (the run() wiring contract)
+    for (const mount of COMPONENT_MOUNTS) {
+      expect(allLaws.some((l) => l.name === mount.law), `law "${mount.law}" not found`).toBe(true);
+    }
+  });
+});
+
+describe('range RTL fill mirror (E-2, 2026-09-02)', () => {
+  it('the :dir(rtl) thumb rule reverses the physical x-offset', () => {
+    const css = serializeLaw(rangeLaw, { format: 'utility' }).css;
+    const rtl = css.match(/:dir\(rtl\)::-webkit-slider-thumb \{[^}]*\}/s)?.[0] ?? '';
+    expect(rtl).toContain('calc(100cqw + var(--jx-range-thumb) / 2)');
+    // the base fill still paints toward the physical left (LTR start)
+    expect(css).toContain('calc(-100cqw - var(--jx-range-thumb) / 2)');
+  });
+
+  it('the mirror rides AFTER the base thumb rule (stable order at the default rung)', () => {
+    const css = serializeLaw(rangeLaw, { format: 'utility' }).css;
+    const base = css.indexOf('.jx-html-range::-webkit-slider-thumb');
+    const rtl = css.indexOf('.jx-html-range:dir(rtl)::-webkit-slider-thumb');
+    expect(base).toBeGreaterThan(-1);
+    expect(rtl).toBeGreaterThan(base);
   });
 });
 

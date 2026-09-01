@@ -11,10 +11,12 @@
  *    Positioning + anchor-center have no utilities; the closed-state
  *    display law, the @supports fallback and the ::backdrop pseudo ride
  *    along) — @layer components;
- *  - the SV pad's overlay pseudos (white→transparent / black→transparent
- *    gradients are COLOR-SPACE constants, not themeable tokens) —
- *    @layer components;
- *  - the lane hover/focus machines and the reduced-motion kill
+ *  - the SV pad's overlay pseudos and the pointer dots' #000 halo
+ *    (white→transparent / black→transparent / #000 are COLOR-SPACE
+ *    constants, not themeable tokens — the exemption is commented at
+ *    each site) — @layer components;
+ *  - the lane's well state machine (F-1 sweep: resting well, hover
+ *    intensity, focus border + caret) and the reduced-motion kill
  *    (unlayered carve-out per the Part A precedent). */
 
 @layer components {
@@ -28,9 +30,16 @@
   }
 
   /* ---- the native swatch: a REAL input[type=color] in the swatch
-     chrome. appearance-none strips the engine well; the color-swatch
-     pseudos carry the chip itself. WebKit/Firefox open the ENGINE
-     picker on click — the native path every input mode gets. */
+     chrome. RULED DIVERGENCE (the adversarial review's H1 verdict,
+     2026-09-02): this face is an INTENTIONAL fork from the color law
+     (laws/color.ts = the .jx-color-swatch conic WELL chip: round, UA
+     padding, conic ground) — the picker lane wants a SQUARE CHIP that
+     reads as a color token, not a well. It stays hand-authored on the
+     component hook and does NOT ride a component-mount marker; if the
+     law ever changes shape, revisit this ruling. appearance-none
+     strips the engine well; the color-swatch pseudos carry the chip
+     itself. WebKit/Firefox open the ENGINE picker on click — the
+     native path every input mode gets. */
   :where([data-jx-color-picker-swatch]) {
     appearance: none;
     -webkit-appearance: none;
@@ -59,7 +68,8 @@
   /* ---- the native field: a REAL input[type=text] carrying the value.
      Chromeless inside the shell (the shell owns the box law — the
      input.svelte lane law); the density text metrics reach the input
-     explicitly because form controls inherit no font. */
+     explicitly because form controls inherit no font. The caret
+     answers focus in the well's ring hue (the control-lane law). */
   :where([data-jx-color-picker-field]) {
     flex: 1 1 auto;
     min-width: 0;
@@ -70,6 +80,7 @@
     color: inherit;
     font-size: var(--jx-text);
     line-height: var(--jx-line);
+    caret-color: var(--primary);
     outline: none;
   }
 
@@ -129,18 +140,40 @@
     inset: 0;
     background: linear-gradient(to top, #000, transparent);
   }
+
+  /* ---- the pointer dots' #000 halo (E-6, 2026-09-02) --------------------
+     COLOR-SPACE CONSTANT, not a themeable token — the same exemption
+     class as the pad overlays above: the halo must read on EVERY hue
+     the pad/rail can sit on, and #000 is the only constant that does.
+     (Moved out of the editor markup's arbitrary-utility shadow.) */
+  :where([data-jx-color-picker-dot]) {
+    box-shadow: 0 0 0 1px #000;
+  }
 }
 
 /* ---- the state machines (unlayered carve-out) ----------------------- */
-:where(.jx-color-picker-trigger:hover:not(:focus-within)) {
-  box-shadow: var(--shadow-2xs);
+/* F-1 well sweep (2026-09-02): the trigger lane is a FILLABLE control —
+   the well tier (the input-law / control-shell ruling): resting
+   --shadow-well; hover deepens the ink (--shadow-well-hover —
+   intensity, not tier); focus answers in border + caret only (the
+   field's caret-color is set in the components block above). The
+   retired hover lift and focus shadow-kill are gone. */
+:where(.jx-color-picker-trigger) {
+  box-shadow: var(--shadow-well);
+  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
+}
+:where(.jx-color-picker-trigger:hover:not(:has(input:disabled))) {
+  box-shadow: var(--shadow-well-hover);
 }
 /* the site focus law: inset 1px outline on the ring token — the lane
-   reads as ONE field whichever native control inside holds focus */
+   reads as ONE field whichever native control inside holds focus; the
+   border tint answers in kind */
+:where(.jx-color-picker-trigger:has(:focus)) {
+  border-color: var(--ring);
+}
 :where(.jx-color-picker-trigger:focus-within) {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
-  box-shadow: none;
 }
 :where(.jx-color-picker-trigger:has([aria-invalid='true'])) {
   border-style: dashed;

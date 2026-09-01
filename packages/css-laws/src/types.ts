@@ -6,8 +6,8 @@
  * are strings; subtrees express relative paths but not recursive
  * structure; at-rule interleaving is the numeric `order` model, not
  * an authored rule tree. What it buys — ONE declaration source per
- * law, three projections (utility class / bare-element face /
- * Tier-2 alias), TS-level composition, and machine-checked
+ * law, four projections (utility class / bare-element face /
+ * Tier-2 alias / component-mount) and machine-checked
  * cross-projection equality — is exactly what the jx-html closed
  * set needs. General component paint stays in Tailwind utilities;
  * do not grow this package into a CSS framework.
@@ -17,13 +17,19 @@
  * machines, its subtree rules, its degradation laws — all as typed
  * TS objects.
  *
- * One law → THREE CSS projections (single declaration source):
+ * One law → FOUR CSS projections (single declaration source):
  *   utility — .{className} rules in @layer components (jixoai.css;
  *             registry markup consumes the class)
  *   face    — element-default rules under :where(.jx-pure)
  *             (jx-pure.css Part B; bare elements get the law)
  *   alias   — Tier-2 opt-in classes, unlayered (jx-pure.css Part A;
  *             the frozen vocabulary beats layered utilities by design)
+ *   mount   — the face re-anchored on a registry component's hook
+ *             (e.g. [data-jx-range]:not(.no-jx-pure, .no-jx-pure *)),
+ *             generated INTO the component's own css file between
+ *             marker slots (adversarial review E-1, 2026-09-02: the
+ *             4th mounting surface is machine-projected, never
+ *             hand-copied; build --check gates its freshness)
  *
  * Laws compose in TS (composeLaw); @apply composition is retired.
  * CSS files are generated — never hand-edited inside marker slots.
@@ -210,15 +216,21 @@ export interface LawCollection {
 
 // ── serializer contract ─────────────────────────────────────────────
 
-export type SerializeFormat = 'utility' | 'face' | 'alias';
+export type SerializeFormat = 'utility' | 'face' | 'alias' | 'mount';
 
 export interface SerializeOptions {
   /**
    * 'utility': .{className} rules (jixoai.css @layer components slot)
    * 'face':    element-default rules under :where(.jx-pure)
    * 'alias':   one rule-set per application.aliases class, unlayered
+   * 'mount':   rules hanging off `mountAnchor` — the law's face
+   *            re-anchored on a registry component hook (the anchor
+   *            must carry the law's own opt-out so the escape hatch
+   *            stays consistent across every mounting surface)
    */
   readonly format: SerializeFormat;
+  /** the component hook anchor for format 'mount' (required there) */
+  readonly mountAnchor?: string;
   /** indent for the output CSS (default 2 spaces) */
   readonly indent?: string;
 }

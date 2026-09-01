@@ -239,8 +239,15 @@
   data-jx-color-picker-editor
   class={cn('jx-color-picker-editor flex flex-col gap-2.5', className)}
 >
+  <!-- the SV pad and the hue rail are DECORATIVE input aids
+       (aria-hidden, E-5 2026-09-02): they are pointer-only surfaces —
+       the semantic paths are the value input, the format select and
+       the Swatches grid (plus the host lane's native field/swatch).
+       Their dots' #000 halo lives in color-picker.css (the
+       color-space-constant exemption, E-6) -->
   <div
     bind:this={svEl}
+    aria-hidden="true"
     class="jx-color-picker-sv relative [direction:ltr] w-full h-[150px] border border-border bg-[hsl(var(--jx-color-picker-hue)_100%_50%)] cursor-crosshair touch-none select-none"
     style="--jx-color-picker-hue: {hue}"
     onpointerdown={onSvDown}
@@ -250,7 +257,7 @@
   >
     <span
       data-jx-color-picker-dot
-      class="absolute w-2.5 h-2.5 rounded-full bg-transparent border border-white shadow-[0_0_0_1px_#000] pointer-events-none"
+      class="absolute w-2.5 h-2.5 rounded-full bg-transparent border border-white pointer-events-none"
       style="inset-inline-start: calc({sat * 100}% - 5px); top: calc({(1 - val) * 100}% - 5px)"
     ></span>
   </div>
@@ -258,13 +265,14 @@
   <div
     bind:this={hueEl}
     data-jx-color-picker-hue
+    aria-hidden="true"
     class="relative [direction:ltr] w-full h-3 border border-border cursor-crosshair touch-none select-none bg-[linear-gradient(to_right,hsl(0_100%_50%),hsl(60_100%_50%),hsl(120_100%_50%),hsl(180_100%_50%),hsl(240_100%_50%),hsl(300_100%_50%),hsl(360_100%_50%))]"
     onpointerdown={onHueDown}
     onpointermove={(event) => dragHue && hueFromPointer(event)}
     onpointerup={(event) => (dragHue = endDrag(hueEl, event, dragHue) ? false : dragHue)}
     onpointercancel={(event) => (dragHue = endDrag(hueEl, event, dragHue) ? false : dragHue)}
   >
-    <span data-jx-color-picker-dot data-jx-color-picker-dot-hue class="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-transparent border border-white shadow-[0_0_0_1px_#000] pointer-events-none" style="inset-inline-start: calc({(hue / 360) * 100}% - 5px)"></span>
+    <span data-jx-color-picker-dot data-jx-color-picker-dot-hue class="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-transparent border border-white pointer-events-none" style="inset-inline-start: calc({(hue / 360) * 100}% - 5px)"></span>
   </div>
 
   <!-- LAYOUT LAW (final-check report): the VALUE ROW is the column's

@@ -63,14 +63,25 @@
 }
 
 /* ---- the state machines (unlayered carve-out) ----------------------- */
-:where(.jx-sel-trigger:hover:not(:focus-visible)) {
-  box-shadow: var(--shadow-2xs);
+/* F-1 well sweep (2026-09-02): the closed trigger is a FILLABLE control
+   — it sits on the well tier (the input-law / control-shell ruling):
+   resting --shadow-well; hover deepens the ink (--shadow-well-hover —
+   intensity, not tier); focus answers in border only (the retired
+   hover lift and the focus shadow-kill are gone; the shadow's
+   hierarchy never moves). */
+:where(.jx-sel-trigger) {
+  box-shadow: var(--shadow-well);
+  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
 }
-/* the site focus law: inset 1px outline on the ring token */
+:where(.jx-sel-trigger:hover:not(:disabled)) {
+  box-shadow: var(--shadow-well-hover);
+}
+/* the site focus law: inset 1px outline on the ring token + the border
+   tint answers in kind */
 :where(.jx-sel-trigger:focus-visible) {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
-  box-shadow: none;
+  border-color: var(--ring);
 }
 :where(.jx-sel-trigger:disabled) {
   opacity: 0.5;
