@@ -130,7 +130,7 @@ Reedsy 正典）、注释三态（脚注=页底／尾注=章末书末／**边注
    math（点）。收割时 number 落 block.number、源落 block.meta，
    两轨分离（§5 法则 2 的收割面投影）。
 2. `blocks.kind` 开放枚举逐轮扩展（search-corpus 已立先例），每轮
-   落一个 kind + meta 定型 + 夹具，非 breaking。
+   落一个 kind + 定型扁平字段 + 夹具，非 breaking。
 3. 点的字段表就是搜索的 facet 面：字典可按 POS 过滤、编年体可按
    年代过滤、照片可按 exif 检索——**没有结构化表达就没有可收割的
    语义**，这是本体论对创作者与对机器的同一条利益。
@@ -182,7 +182,11 @@ section（线）
 
 block（点）
   kind: 开放枚举             // 'prose'|'code'|… 行业点逐轮扩展
-  text / meta {…按 kind 定型} // §3 点矩阵即 meta 定型表
+  text                       // 块文本（截断上限沿 corpus 法则）
+  <kind 定型扁平字段>        // as-built 先例（search-corpus v1）：code→
+                             // lang,label 扁平直挂；R1+ 逐点扩展沿用扁平
+                             // （§3 点矩阵即定型字段表；meta 包装仅在嵌套
+                             // 结构确有必要时引入，须新一轮裁决）
   number?: string            // 浮编号（'式 4.5'）——打印 ToC 与搜索摘要共用
   refids[]: string           // 本块引用的 id（线之引的收割面）
   noteids[]: string          // 锚定的注（线之注的收割面）

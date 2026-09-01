@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-01T22:11:14.306Z",
+  "generatedAt": "2026-09-01T22:48:14.157Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -2918,8 +2918,8 @@
           "source": "registry/files/search-corpus/search-corpus.mjs",
           "mirror": "registry/files/search-corpus/search-corpus.mjs",
           "target": "vite-plugins/search-corpus.mjs",
-          "sourceSha": "c2e2f9abaec1adbd037ac067e08c593ccba2f9f5632f0195bd651dbc37622081",
-          "mirrorSha": "c2e2f9abaec1adbd037ac067e08c593ccba2f9f5632f0195bd651dbc37622081"
+          "sourceSha": "551b8c1b27ea4b889c907ca92fda0364a890ae0b4e9ffd8a7ec26b4e40ef4624",
+          "mirrorSha": "551b8c1b27ea4b889c907ca92fda0364a890ae0b4e9ffd8a7ec26b4e40ef4624"
         }
       ]
     },

@@ -34,7 +34,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { generateLlmsTxt } from "../registry/files/llms-txt/llms-txt.mjs";
-import { generateSearchCorpus } from "../registry/files/search-corpus/search-corpus.mjs";
+import { generateSearchCorpus, assertNoStraySearchWrites } from "../registry/files/search-corpus/search-corpus.mjs";
 import { resolveShadcnBin, resolveViteBin } from "./lib/vite-bin.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -292,6 +292,10 @@ async function main() {
   // the build loudly, not reject unhandled
   await generateSearchCorpusArtifact();
 
+  // the one-generation-point audit (delta spec): after every phase has
+  // run, public/search/ must hold ONLY the declared corpus artifact —
+  // a later-phase stray writer dies here naming the offender
+  assertNoStraySearchWrites(publicDir);
   const items = readdirSync(path.join(publicDir, "r"));
   console.log(
     `[build-site] ok: site + registry + llms.txt coexist in public/ (${items.length} registry files: ${items.sort().join(", ")})`,

@@ -120,7 +120,7 @@
   >
     <div class="jx-glass search-panel" role="dialog" aria-modal="true" aria-label="全文搜索">
       <div class="flex items-center gap-2 border-b border-border/40 px-3 py-2.5">
-        <span class="font-mono text-[12px] text-muted-foreground select-none">⌘K</span>
+        <span class="font-mono text-[12px] text-muted-foreground select-none" aria-hidden="true">⌕</span>
         <input
           bind:this={inputEl}
           bind:value={query}
@@ -128,6 +128,7 @@
           class="w-full bg-transparent font-mono text-[13px] outline-none placeholder:text-muted-foreground/60"
           placeholder="搜索全部文档（中英皆可）…"
           aria-label="搜索查询"
+          title="全文搜索 — ⌘K / Ctrl-K 开关，↑↓ 选择，↵ 跳转，esc 关闭"
         />
         {#if searching}<span class="text-[11px] text-muted-foreground">…</span>{/if}
       </div>
@@ -163,10 +164,6 @@
             {/if}
           {/each}
         </ul>
-      {:else}
-        <div class="px-3 py-6 text-center text-[11.5px] text-muted-foreground/80">
-          输入以搜索全部文档 · ↑↓ 选择 · ↵ 跳转 · esc 关闭
-        </div>
       {/if}
     </div>
   </div>

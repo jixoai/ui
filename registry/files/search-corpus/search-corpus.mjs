@@ -28,7 +28,7 @@
  * PrintDoc genre presets — null until that family lands).
  */
 
-import { readdirSync, readFileSync, mkdirSync, writeFileSync, statSync } from 'node:fs';
+import { readdirSync, readFileSync, mkdirSync, writeFileSync, statSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 let llmsTxtModule = null;
@@ -169,21 +169,6 @@ function walkStream(node, { decode, skip }, out) {
   }
 }
 
-/** prose text of a subtree EXCLUDING its block roots and headings */
-function proseText(node, { decode }) {
-  if (node.type === 'text') return decode(node.text);
-  if (node.type !== 'element' && node.type !== 'root') return '';
-  if (classifyBlock(node) !== null) return '';
-  if (node.type === 'element' && /^h[1-6]$/.test(node.name)) return '';
-  const inner = node.children
-    .map((child) => proseText(child, { decode }))
-    .join('')
-    .replace(/[\t\r\n ]+/g, ' ');
-  return node.type === 'element' && /^(p|li|blockquote|dd|dt)$/.test(node.name)
-    ? `${inner}\n`
-    : inner;
-}
-
 const TRUNCATE_TEXT = 4000;
 
 export async function harvestPage(html, rel, options = {}) {
@@ -301,6 +286,23 @@ function listHtmlFiles(dir, prefix = '') {
 const matchAny = (rel, globs, globToRegExp) =>
   globs.some((glob) => globToRegExp(glob).test(rel));
 
+/** the one-generation-point law (delta spec): /search/ holds ONLY the
+ *  declared outputs — any other file there is a stray writer and fails
+ *  the build NAMING the offender */
+export function assertNoStraySearchWrites(distDir, declared = ['search/corpus.json']) {
+  const searchDir = join(distDir, 'search');
+  if (!existsSync(searchDir)) return;
+  const allowed = new Set(declared.map((d) => d.split('/').pop()));
+  const offenders = readdirSync(searchDir).filter((name) => !allowed.has(name));
+  if (offenders.length > 0) {
+    throw new Error(
+      `[search-corpus] stray writer(s) in public/search/ — declared: ${declared.join(', ')}; offenders: ${offenders
+        .map((name) => `search/${name}`)
+        .join(', ')}`,
+    );
+  }
+}
+
 export async function generateSearchCorpus(distDir, config = {}) {
   const llms = await loadLlmsTxt();
 
@@ -342,6 +344,7 @@ export async function generateSearchCorpus(distDir, config = {}) {
       `[search-corpus] corpus exceeds the ${maxBytes}-byte cap (${json.length}) — raise config.maxBytes consciously`,
     );
   }
+  assertNoStraySearchWrites(distDir, [outPath]);
   const absolute = join(distDir, outPath);
   mkdirSync(join(absolute, '..'), { recursive: true });
   writeFileSync(absolute, json);

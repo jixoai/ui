@@ -7,11 +7,12 @@
  * ids only because it computes exactly what the runtime stamps).
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { mkdtempSync, rmSync, writeFileSync, readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync, readFileSync, mkdirSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   generateSearchCorpus,
+  assertNoStraySearchWrites,
   harvestPage,
   headingIds,
 } from '../../../registry/files/search-corpus/search-corpus.mjs';
@@ -74,6 +75,7 @@ describe('harvestPage — structure, not guesses', () => {
 describe('the corpus artifact', () => {
   const write = (rel: string, html: string): void => {
     const full = join(dir, ...rel.split('/'));
+    mkdirSync(join(full, '..'), { recursive: true });
     writeFileSync(full, html, { flag: 'w' });
   };
 
@@ -89,6 +91,14 @@ describe('the corpus artifact', () => {
     expect(strip(jsonA)).toBe(strip(jsonB));
     const corpus = JSON.parse(jsonB);
     expect(corpus.pages.map((p: { url: string }) => p.url)).toEqual(['/a.html', '/b.html']);
+  });
+
+  it('a stray writer in /search/ fails loud naming the offender (one generation point)', async () => {
+    write('a.html', PAGE('<h2>A</h2><p>ay</p>'));
+    write('search/stray.json', '{}');
+    await expect(generateSearchCorpus(dir, {})).rejects.toThrow(/stray writer.*search\/stray\.json/);
+    // the audit export stands alone too (build-site calls it end-of-main)
+    expect(() => assertNoStraySearchWrites(dir)).toThrow(/search\/stray\.json/);
   });
 
   it('honors noindex and exclude (the AI-layer omissions never leak into search)', async () => {
