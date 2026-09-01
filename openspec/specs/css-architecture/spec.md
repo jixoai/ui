@@ -291,6 +291,65 @@ every specialization.
   .jx-surface-body / .jx-surface-shadow and the one --jx-p kernel,
   with reduced-motion, no-JS and exit-cancellation locked alike
 
+### Requirement: grid supplies stacking; position is for transient ink (Owner law, 2026-09-01)
+
+Overlay and layer stacking SHALL be expressed by grid placement —
+one-cell hosts with `grid-area: 1/1` siblings and `z-index` for
+order (the tabs host: the run base, the veil layer, the chevron
+buttons; the top layer's named areas) — never by `position:
+absolute/sticky` for LAYOUT. `position: absolute` remains legal only
+for TRANSIENT INK and containing-block needs, each documented at the
+site: the indicator span inside the scroll run (its containing
+block is the scroller so it travels with content), the liquid-SVG
+zero-size filter carrier, effect pseudos (toast pulse/sweep, timeline
+beam), and the popover platform's engine positioning (Anchor
+Positioning / popover top layer). Platform-carried positioning
+(`position: fixed` from `popover=manual`) is the engine's, not
+author, layout.
+
+Overlay planes SHALL be pointer-transparent except on their actual
+content: the plane container sets `pointer-events: none` and content
+opts back in (`auto`). A stretched plane with `pointer-events: auto`
+is a click shield over the page (the toast float-plane incident,
+2026-09-02). Adopted planes must also size their stacks to content
+(`align-content: start`) so stretch never inflates children.
+
+#### Scenario: an overlay is positioned instead of gridded
+
+- GIVEN a component adds a scroll chevron / veil / badge overlay
+- WHEN it is placed with position:absolute (outside the documented
+  exemptions) instead of a grid area on the shared host
+- THEN review rejects it — grid + z-index is the law
+
+#### Scenario: an adopted float plane intercepts the page
+
+- GIVEN a top-layer plane (ScaffoldFloat area) stretched over the
+  stage with pointer-events:auto and no content
+- WHEN a user clicks page content underneath
+- THEN the click must reach the page — planes are pointer-transparent;
+  a computed pointer-events probe on a real scaffold mount guards
+  this
+
+### Requirement: the component-mount projection for generated laws (adversarial review, 2026-09-02)
+
+A registry component that mounts a generated bare-element face on
+its own hook (e.g. range's face on `[data-jx-range]`) SHALL receive
+that face through a css-laws marker slot (`@jixoai/css-laws:begin:
+<law>-mount`) generated from the SAME law source — never a
+hand-copied block. The generated mount rides `@layer components`,
+keeps the law's own escape hatches, and `build --check` gates its
+freshness exactly like the sheet projections. Intentional face
+divergences (the color-picker swatch chip vs the colorLaw well) are
+ruled divergences and carry a comment naming the ruling.
+
+#### Scenario: a hand-copied face drifts from its law
+
+- GIVEN a component css carrying a verbatim copy of a law's face
+- WHEN the law source evolves
+- THEN the copy silently wins or loses by cascade accident — which is
+  why the marker projection is mandatory and the copy is rejected in
+  review
+
 ### Requirement: icon geometry provenance (icon upstream, 2026-08-29)
 
 Every SVG glyph in the theme sheets — law-slot fallbacks, the

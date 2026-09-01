@@ -114,3 +114,80 @@ reviewable. Unregistered literals fail with the owning family row.
 - WHEN a density-owned property carries a px/rem literal with no
   registered exception
 - THEN the failure names the owning family row, selector, and value
+
+### Requirement: the elevation grammar (Owner ruling, 2026-09-01)
+
+Every component's elevation SHALL sit on the five tier tokens —
+float / raise / lift / engrave / well — derived from the `--shadow-*`
+rungs in the theme sheet (float/raise/lift reuse the md/xs/2xs rungs;
+engrave and well add dedicated tokens). Tier semantics are physical,
+not decorative:
+
+- float — projects from the TOP layer down onto the content
+  (float-button; large offset);
+- raise — a pressable lifting within the CURRENT layer
+  (press-button/chip via `.jx-press`; xs→sm on press);
+- lift — static visual focus one step above the page (card family;
+  2xs);
+- engrave — carved INTO the surface (kbd keycaps; inset);
+- well — a fillable container depressed into the page (input-class
+  controls; inset at rest, hover changes INTENSITY not tier, focus
+  changes border + caret only — never the shadow tier).
+
+Two tracks for "floating" surfaces are legal and named: interactive
+surfaces (float-button) ride the tier tokens; panel/dialog families
+ride the floating-surface law's `.jx-surface` subtractive ink layer
+(css-architecture). The dark theme pins geometry rung-for-rung with
+the light theme — only the ink inverts (a shadow's size/offset must
+NOT change between themes; the one documented compensation is the
+`--shadow-sm` second-layer alpha, where dark needs more ink to stay
+perceptible). Marker-style insets (indicator rims, hairline accents
+painted via box-shadow as a drawing tool) are NOT elevation and are
+exempt from the tier grammar.
+
+#### Scenario: a control's hover changes its shadow tier
+
+- GIVEN a well-tier control (input-like, fillable)
+- WHEN it is hovered, then focused
+- THEN hover swaps `--shadow-well` → `--shadow-well-hover` (intensity
+  only) and focus returns the shadow to rest while border + caret
+  change — a tier jump on hover/focus is a violation
+
+#### Scenario: a component hand-writes an elevation shadow
+
+- GIVEN any family css in lib/ui
+- WHEN a box-shadow literal (px offsets + color) appears instead of a
+  tier token (outside a documented exemption such as the print paper
+  metaphor)
+- THEN review rejects it and the sweep moves it onto the grammar
+
+### Requirement: the subtraction ink law (Owner ruling, 2026-09-01)
+
+Masks, shades, veils and darkening overlays SHALL NOT add ink: no
+dark `background`, no black `box-shadow` over content. They SHALL
+subtract color instead — `backdrop-filter` (e.g. `contrast(0.5)`)
+pulls the backdrop toward middle tones: near-white darkens, near-black
+lightens, so light/dark themes are mutual inverses with ZERO color
+tokens. Geometry and range are expressed by mask gradients
+(backdrop-filter only paints where the element draws); progressive
+falloff uses the progressive-blur ladder; blend-mode `difference` is
+the sanctioned technique for fade-style separators. State-carrying
+lines (timeline done segments, step connectors) and signal layers
+(toast pulse/sweep) may paint additive ink because subtraction cannot
+express state — that boundary is part of this law. The known limit:
+an additive `background` cutout reads wrong on non-flat backdrops;
+mask-based cutouts are the long-term direction.
+
+#### Scenario: an edge veil darkens the content under it
+
+- GIVEN a scroll-edge veil (tabs scrollEffect shadow)
+- WHEN it paints over content near the run's edge
+- THEN it desaturates via backdrop contrast — a black gradient or
+  darkening background under it violates the law
+
+#### Scenario: a separator needs to read on any backdrop
+
+- GIVEN the separator's default ink
+- WHEN it renders on light, dark, or mid-tone surfaces
+- THEN the contrast ghost self-adapts (no per-theme color token); a
+  border-color literal as separator ink is retired practice

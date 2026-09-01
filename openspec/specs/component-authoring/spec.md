@@ -59,6 +59,39 @@ paint, not a badge-sized control.
 - THEN the root's min-block-size resolves to `var(--jx-hit)` — the
   tinted micro-label paint does not shrink the physical lane
 
+### Requirement: the slot-vs-padding law (badge dialect, Owner ruling, 2026-09-01)
+
+When a component renders an optional inline-start/inline-end slot
+lane (icon, glyph, adornment), the lane SHALL REPLACE its side's
+`padding-inline` — never stack on top of it: the side's padding
+collapses to the half-inset lane width (`has-[[data-icon=inline-start]]:
+pl-[calc(var(--jx-inset)/2)]` and the mirror), so slot-present and
+slot-absent rhythms stay one system. The icon-ONLY exception: when
+no label/children render, symmetric padding is KEPT so the lone
+glyph centers (guarded by children presence, not by slot presence
+— badge's icon-only posture needs the same guard tabs-trigger
+already has). Adopters today: badge, chip, kbd, toggle-group-item,
+tabs-trigger, input's edge zones (the shell dialect: square hit
+children zero their side's padding — same law, box-shaped). New
+components with slot lanes adopt the same rule; a lane that
+double-pads (full inset + lane) is a rhythm violation.
+
+#### Scenario: a chip renders a leading icon
+
+- GIVEN a chip with and without a slot-start icon, side by side
+- WHEN the icon-to-text gap and the no-icon text inset are measured
+- THEN the icon sits in the lane where the inset was (half-inset gap,
+  no accumulated double space), and the icon-only chip centers its
+  glyph symmetrically
+
+#### Scenario: a component adds an icon slot without the lane law
+
+- GIVEN review of a new family with slot-start/slot-end snippets
+- WHEN its css carries unconditional padding-inline with the lane
+  layered over it
+- THEN the review flags the missing `has-[[data-icon=…]]` collapse —
+  the lane replaces the padding, it does not ride on it
+
 ### Requirement: native-element-first, W3C-first
 
 The platform element IS the component where possible (accordion =
