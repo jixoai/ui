@@ -97,6 +97,8 @@
   const tabs = getContext<TabsApi>(TABS_KEY);
 
   let listEl = $state<HTMLDivElement>();
+  /** the horizontal scroll run (null on vertical lists — flat law) */
+  let runEl = $state<HTMLDivElement | null>(null);
   let indEl = $state<HTMLSpanElement>();
   /** measured geometry of the selected trigger; null = nothing selected */
   let geo = $state<TabsIndicatorGeo | null>(null);
@@ -114,8 +116,14 @@
 
   /** geometry law (px numbers, layout coords): pill-family hugs the
    *  trigger inset by half the inline inset token; line is a 2px bar
-   *  riding the list's content edge on the orientation axis */
+   *  riding the strip's content edge on the orientation axis. All
+   *  offsets resolve against the trigger's offsetParent — the RUN on
+   *  horizontal lists (position: relative, so the indicator scrolls
+   *  WITH the content instead of stranding at the viewport edge) and
+   *  the list itself on flat vertical ones (jsdom's null offsetParent
+   *  falls back to the list) */
   function geometryFor(t: HTMLElement, list: HTMLElement): TabsIndicatorGeo {
+    const box = (t.offsetParent as HTMLElement | null) ?? list;
     if (material !== 'line') {
       // the pill family breathes by the label's OWN inset rhythm — the
       // trigger's resolved padding-inline (the used value, so density
@@ -138,14 +146,14 @@
     if (orientation === 'horizontal') {
       return {
         x: t.offsetLeft,
-        y: layout === 'wrap' ? t.offsetTop + t.offsetHeight - 2 : list.clientHeight - 2,
+        y: layout === 'wrap' ? t.offsetTop + t.offsetHeight - 2 : box.clientHeight - 2,
         w: t.offsetWidth,
         h: 2,
         orientation,
       };
     }
     return {
-      x: layout === 'wrap' ? t.offsetLeft + t.offsetWidth - 2 : list.clientWidth - 2,
+      x: layout === 'wrap' ? t.offsetLeft + t.offsetWidth - 2 : box.clientWidth - 2,
       y: t.offsetTop,
       w: 2,
       h: t.offsetHeight,
@@ -204,6 +212,31 @@
     const ro = new ResizeObserver(() => measure(true));
     ro.observe(list);
     return () => ro.disconnect();
+  });
+
+  /** the run's scrollability verdict (Owner, 2026-09-01): the engine's
+   *  own button generation differs across engines — this JS stamp is
+   *  the single truth the css keys the chevrons on (a strip that
+   *  cannot scroll shows nothing at all; a closed direction never
+   *  paints). Updated on scroll, resize and mount */
+  $effect(() => {
+    const run = runEl;
+    if (!run) return;
+    const update = () => {
+      const max = run.scrollWidth - run.clientWidth;
+      if (max <= 1) run.setAttribute('data-jx-scroll-state', 'none');
+      else if (run.scrollLeft <= 1) run.setAttribute('data-jx-scroll-state', 'start-closed');
+      else if (run.scrollLeft >= max - 1) run.setAttribute('data-jx-scroll-state', 'end-closed');
+      else run.setAttribute('data-jx-scroll-state', 'open');
+    };
+    update();
+    run.addEventListener('scroll', update, { passive: true });
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
+    ro?.observe(run);
+    return () => {
+      run.removeEventListener('scroll', update);
+      ro?.disconnect();
+    };
   });
 
   /** liquid needs its displacement filter referenced from the list (the
@@ -329,6 +362,7 @@
          boxes generate as the run's siblings and stack over the same
          grid cell (the css contract lives in tabs-trigger.css) -->
     <div
+      bind:this={runEl}
       role="presentation"
       data-jx-tabs-run=""
       data-layout={layout}

@@ -284,6 +284,15 @@ describe('Tabs · layout contract', () => {
     expect(run!.getAttribute('data-layout')).toBe('wrap');
   });
 
+  it('the run carries the JS-stamped scrollability verdict (none when it cannot scroll)', () => {
+    const { list } = setup();
+    const run = list('line').querySelector('[data-jx-tabs-run]');
+    // jsdom has no layout: scrollWidth === clientWidth → cannot scroll → none
+    expect(run?.getAttribute('data-jx-scroll-state')).toBe('none');
+    // vertical lists have no run — nothing to stamp
+    expect(list('vertical-pill').querySelector('[data-jx-tabs-run]')).toBeNull();
+  });
+
   it('scroll is a declared overflow run — the overflow itself is css-owned, not a markup class', () => {
     const { list } = setup();
     const scroll = list('scroll');
@@ -446,12 +455,42 @@ describe('Tabs · horizontal overflow contract (tabs-trigger.css, source-pinned)
     );
   });
 
-  it('the hit box is the full button (width from density tokens), painted as a masked chevron over theme ink', () => {
+  it('the hit box is the full button (width from density tokens); the glyph lives in css vars the mask references (context-swappable icons)', () => {
     expect(tabsTriggerCss).toMatch(
       new RegExp(`${startBtn.source}[\\s\\S]{0,120}?${endBtn.source}[^{]*\\{[^}]*width:\\s*calc\\(var\\(--jx-inset\\)\\s*\\*\\s*2\\)`, 's'),
     );
-    expect(tabsTriggerCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*mask:\\s*url\\(`, 's'));
-    expect(tabsTriggerCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*mask:\\s*url\\(`, 's'));
+    // the chevrons are vars, not hardcoded urls: defaults on the run, mask by reference
+    expect(tabsTriggerCss).toMatch(
+      /--jx-tabs-chevron-inline-end:\s*url\(/,
+    );
+    expect(tabsTriggerCss).toMatch(/--jx-tabs-chevron-inline-start:\s*url\(/);
+    expect(tabsTriggerCss).toMatch(
+      new RegExp(`${endBtn.source}[^{]*\\{[^}]*mask:\\s*var\\(--jx-tabs-chevron-inline-end\\)`, 's'),
+    );
+    expect(tabsTriggerCss).toMatch(
+      new RegExp(`${startBtn.source}[^{]*\\{[^}]*mask:\\s*var\\(--jx-tabs-chevron-inline-start\\)`, 's'),
+    );
+    // the glyph size rides the family's icon token (never a hardcoded px)
+    expect(tabsTriggerCss).toMatch(/--jx-tabs-chevron-size:\s*var\(--jx-text-secondary\)/);
+  });
+
+  it('a direction that cannot travel NEVER paints: the JS-stamped data-jx-scroll-state is the truth the css keys on', () => {
+    // none = the strip cannot scroll at all; start/end-closed = that edge
+    // is exhausted — every state keys a ::scroll-button rule
+    for (const state of ['none', 'start-closed', 'end-closed']) {
+      expect(tabsTriggerCss).toMatch(`data-jx-scroll-state='${state}']::scroll-button`);
+    }
+    expect(tabsTriggerCss).toMatch(
+      /data-jx-scroll-state='none'\]::scroll-button\(inline-start\)[\s\S]{0,400}?display:\s*none/s,
+    );
+  });
+
+  it('the run is the indicator containing block and a snap-scroller: relative, smooth, proximity snap', () => {
+    const runBlock = tabsTriggerCss.match(/\.jx-tabs-run[^{]*\{[\s\S]*?\n\}/)?.[0] ?? '';
+    expect(runBlock).toMatch(/position:\s*relative/);
+    expect(runBlock).toMatch(/scroll-behavior:\s*smooth/);
+    expect(runBlock).toMatch(/scroll-snap-type:\s*x\s+proximity/);
+    expect(tabsTriggerCss).toMatch(/\.jx-tabs-run[^{]*>\s*\[role='tab'\][^{]*\{[^}]*scroll-snap-align:\s*start/s);
   });
 
   it('the layout law: the scroll-button overlay carries NO position:absolute and no anchor machinery (grid stacking only)', () => {

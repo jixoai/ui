@@ -98,12 +98,27 @@
 }
 :where(.jx-tabs-run) {
   grid-area: 1 / 1;
+  /* the indicator's containing block: the run — the bar scrolls WITH
+   * the content (offsets are run-relative) and clips at the run edge,
+   * never stranded when its trigger scrolls away */
+  position: relative;
   overflow-x: auto;
   scrollbar-width: none;
   scroll-padding-inline: calc(var(--jx-inset) * 2);
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  /* the chevron glyphs live in vars — a consumer, theme or context
+   * swaps the icon (or its size) by overriding these, never by
+   * forking the css; defaults ride the family's icon token */
+  --jx-tabs-chevron-inline-end: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M9 5l7 7-7 7'/%3E%3C/svg%3E");
+  --jx-tabs-chevron-inline-start: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M15 5l-7 7 7 7'/%3E%3C/svg%3E");
+  --jx-tabs-chevron-size: var(--jx-text-secondary);
 }
 :where(.jx-tabs-run)::-webkit-scrollbar {
   display: none;
+}
+:where(.jx-tabs-run) > [role='tab'] {
+  scroll-snap-align: start;
 }
 :where(.jx-tabs-run)::scroll-button(inline-start),
 :where(.jx-tabs-run)::scroll-button(inline-end) {
@@ -120,13 +135,22 @@
 }
 :where(.jx-tabs-run)::scroll-button(inline-end) {
   justify-self: end;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M9 5l7 7-7 7'/%3E%3C/svg%3E")
-    center / 0.4375rem no-repeat;
+  mask: var(--jx-tabs-chevron-inline-end) center / var(--jx-tabs-chevron-size) no-repeat;
 }
 :where(.jx-tabs-run)::scroll-button(inline-start) {
   justify-self: start;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M15 5l-7 7 7 7'/%3E%3C/svg%3E")
-    center / 0.4375rem no-repeat;
+  mask: var(--jx-tabs-chevron-inline-start) center / var(--jx-tabs-chevron-size) no-repeat;
+}
+/* the JS-stamped scrollability verdict (Owner, 2026-09-01): the
+ * engine's own generation gate differs across engines — the run's
+ * data-jx-scroll-state is the single truth, so a direction that
+ * cannot travel NEVER paints (a strip that cannot scroll at all
+ * shows nothing) */
+:where(.jx-tabs-run)[data-jx-scroll-state='none']::scroll-button(inline-start),
+:where(.jx-tabs-run)[data-jx-scroll-state='none']::scroll-button(inline-end),
+:where(.jx-tabs-run)[data-jx-scroll-state='start-closed']::scroll-button(inline-start),
+:where(.jx-tabs-run)[data-jx-scroll-state='end-closed']::scroll-button(inline-end) {
+  display: none;
 }
 :where(.jx-tabs-run)::scroll-button(inline-start):hover,
 :where(.jx-tabs-run)::scroll-button(inline-end):hover {
