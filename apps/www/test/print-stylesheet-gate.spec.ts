@@ -140,7 +140,7 @@ describe('kernel-print.css — the AST gate', () => {
     expect(kernelClean).not.toContain('target-counter');
   });
 
-  it('carries the r5 furniture: running-head sources, whisper type + clip, paper code leading, the flattened card inset', () => {
+  it('carries the r5/r7 furniture: running-head sources, whisper type + clip, ONE-line head, fragmentable code cards, the flattened card inset', () => {
     // the running head's string-set SOURCES (docTitle/sectionTitle
     // feed the margin boxes through string(name, first) persistence)
     // — bare selectors: pagedjs's Strings handler keys on the raw
@@ -155,10 +155,25 @@ describe('kernel-print.css — the AST gate', () => {
       /\.pagedjs_margin-top-left \.pagedjs_margin-content,\s*\.pagedjs_margin-top-right \.pagedjs_margin-content\s*\{[^}]*text-overflow: ellipsis/,
     );
     expect(kernelClean).toMatch(/\.jx-print-header-icon\s*\{[^}]*height: 1em/);
-    // paper code leading: the screen's 1.6 rides the clone verbatim
-    // and reads airy on paper — the projection sets ~1.2 (never 1.0:
-    // wrapped lines would touch)
-    expect(kernelClean).toMatch(/pre\s*\{[^}]*line-height: 1\.2/);
+    // the head rides ONE line (Owner r7): pagedjs injects display:block
+    // on stamped margin-content children and forces the ::after block
+    // — the kernel out-ranks both with the .pagedjs_pages-prefixed
+    // selectors, or the icon and title stack vertically
+    expect(kernelClean).toMatch(
+      /\.pagedjs_pages \.pagedjs_page \.pagedjs_margin-top \.pagedjs_margin-content::after\s*\{[^}]*display: inline/,
+    );
+    expect(kernelClean).toMatch(
+      /\.pagedjs_pages \.pagedjs_page \.pagedjs_margin-top \.pagedjs_margin-content \.jx-print-header-icon\s*\{[^}]*display: inline-block/,
+    );
+    // paper code leading rides the SCREEN value verbatim (Owner r7):
+    // the airy anomaly was shiki's \n text nodes between the line
+    // blocks — splitPreLines strips them (print-freeze locks the law);
+    // NO kernel line-height judgment remains
+    expect(kernelClean).not.toMatch(/pre\s*\{[^}]*line-height/);
+    // the code card returns to FRAGMENTABLE flow (Owner r7): the
+    // figure flex monolith let pagedjs only MOVE the card — taller
+    // than a page, the tail vanished behind the sheet's clip
+    expect(kernelClean).toMatch(/\.pagedjs_page \.jx-code-card\s*\{[^}]*display: block/);
     // the borderless card's CHILD inset flattens — the page margin is
     // the frame; margins, not padding, keep the block rhythm
     expect(kernelClean).toMatch(/:where\(section\.bg-card\) > div\s*\{[^}]*padding: 0/);

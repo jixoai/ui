@@ -58,7 +58,13 @@
     background: #fff;
     box-shadow: 0 10px 30px rgb(0 0 0 / 0.35), 0 2px 8px rgb(0 0 0 / 0.25);
   }
-  /* the sim toolbar strip the pipeline stamps at the overlay's top */
+  /* the sim toolbar strip (Owner r7): GLASS material + shadow — the
+     .jx-glass house law (translucent surface + real backdrop blur;
+     OUTLINE not border, so the box line never affects layout and
+     stays crisp over the blurred backdrop) and the pages' own shadow
+     ladder so the chrome floats over the view instead of sitting on
+     it. Carries the flight's stage text (data-jx-print-bar-status);
+     the print button stays disabled until the artifact is ready */
   [data-jx-print-sim-bar] {
     position: sticky;
     top: 0;
@@ -71,11 +77,38 @@
     margin-block-end: 1.25rem;
     max-inline-size: 32rem;
     padding: 0.5rem 0.9rem;
-    border: 1px solid color-mix(in oklab, currentColor 18%, transparent);
     border-radius: 0.6rem;
-    background: color-mix(in oklab, var(--background, #111114) 88%, transparent);
+    background: color-mix(in oklab, var(--background, #111114) 68%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(1.35);
+    backdrop-filter: blur(14px) saturate(1.35);
+    outline: 1px solid color-mix(in oklab, currentColor 18%, transparent);
+    outline-offset: -1px;
+    box-shadow:
+      0 10px 30px rgb(0 0 0 / 0.35),
+      0 2px 8px rgb(0 0 0 / 0.25);
     font-family: var(--font-mono, monospace);
     font-size: 12px;
+  }
+  [data-jx-print-sim-bar] [data-jx-print-bar-title] {
+    opacity: 0.55;
+  }
+  [data-jx-print-sim-bar] [data-jx-print-bar-status] {
+    opacity: 0.8;
+    min-inline-size: 12ch;
+    text-align: start;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  [data-jx-print-sim-bar] button {
+    border-radius: 0.45rem;
+    padding: 0.3rem 0.75rem;
+    background: color-mix(in oklab, currentColor 10%, transparent);
+    cursor: pointer;
+  }
+  [data-jx-print-sim-bar] button:disabled {
+    opacity: 0.45;
+    cursor: default;
   }
 }
 

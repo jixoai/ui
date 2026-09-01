@@ -118,3 +118,42 @@
       新暴露的 208px transaction 块按 17px 真余量正确豁免）。
       codex 侧随后遭上游 API GROUP_DELETED 硬中断，最终评分未出，
       档案见 codex-impl-review-print-r6-outcome.md。
+
+## 7. Owner 验收反馈轮（r7，2026-09-02 五点）[P]
+
+- [x] 7.1 **页眉一行 + icon 预计算**（①）：kernel (0,4,0) 特异性盖
+      pagedjs 注入的 `> *` display:block 与 ::after 块化——icon
+      inline-block、题名 inline，同一行；prewarm 缝（PrintDoc
+      $effect → pipeline.prewarm）把 headerIcon fetch 成 data-URI
+      缓存（btoa 分块构造，无 FileReader），run() 内有界等待兜底，
+      stamp 零网络竞态（预览=导出）；idle 预取 pagedjs chunk。
+- [x] 7.2 **行高根因**（②）：Shiki classic 在 span.line 间留字面
+      \n 文本节点，kernel 把行设 block 后每个 \n 生成匿名空行块=
+      双倍行距；splitPreLines 剥 whitespace-only 分隔符（仅
+      span.line 形状，空行注空格保高）+ 删 pre line-height:1.2
+      ——行距回归授权值原样克隆（verify 锁 step=20px±2）。
+- [x] 7.3 **吞页**（③）：三层根因连破——(a) Shiki token 的
+      color:var(--tok-*) 内联样式被 UndisplayedFilter 标
+      data-undisplayed（920/1049）致 chunker 失明 → 颜色迁
+      .jx-tk-* 类 + 预览器第三样式表 jx-tok.css；(b) figure 的
+      flex 单体（jx-pure figure 法则 + fill 工具类）→
+      .pagedjs_page .jx-code-card display:block；(c) 生产环境
+      chunker 拒绝在单个高 pre 内断开（沙箱完全复刻可切、生产
+      不切，根因未隔离）→ freeze 预分块：>40 行 pre 拆后继
+      <pre> 兄弟（行原样搬移、jx-print-cont 续类、锚点顺序
+      插入），verify 反吞页门禁（120 行全落页区、零失明元素）。
+- [x] 7.4 **sim-bar 状态 + glass**（④）：pending 即盖（飞行开始
+      时带 [data-jx-print-bar-status] 与置灰按钮），管线状态面
+      （preparing+phase/done/total → rendering → N pages·ready /
+      error）直写；.jx-glass 同款材质（blur(14px)
+      saturate(1.35)+outline 代 border）+ 页面同款阴影层级；
+      @media print 隐藏保留。
+- [x] 7.5 **bar-print 零重跑**（⑤）：挂载 sim 产物即打印权威
+      （与 ambient 入口对齐）——guarded('print') 快路径跳过
+      prepareSnapshot，metadata 加 renderId 单调计数，verify 断言
+      bar-print 后 renderId/pages/@page hash 三不变 +
+      window.print 恰一次。
+- [x] 7.6 门禁同步：verify-print 32 检查（新增一行页眉+bar、
+      行距奇偶、\n 零残留、反吞页、renderId 复用；bundle 签名
+      修正——.pagedjs_pages 字面量躺内核 ?raw 文本致假阳性）；
+      freeze/lifecycle/gate spec 共 +6 用例；全量回归绿。

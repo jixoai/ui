@@ -50,6 +50,22 @@
 // enums rejected — no @page rule emitted); compilePageCss(page)
 // emits the kernel stylesheet. No string concatenation anywhere.`;
 
+  // the TALL CodeBlock (Owner r7): a card taller than one page — the
+  // fragmentability fixture. The card's figure is flex on screen (the
+  // site's figure law); the projection returns it to block flow so
+  // pagedjs can split the body and the tail never vanishes behind the
+  // sheet's overflow clip
+  const tallSample = Array.from({ length: 120 }, (_, i) => {
+    const kind = i % 3;
+    const body =
+      kind === 0
+        ? `function shard${i}(doc: Node): Node { return doc; }`
+        : kind === 1
+          ? `const page${i} = await render(chunk, { size: 'A4' });`
+          : `// line ${i}: the fragment flows to the next sheet, nothing swallowed`;
+    return body.padEnd(64, ' ');
+  }).join('\n');
+
   // the WAAPI fixture: element.animate is not transferable — the
   // transaction continues with a structured diagnostic row
   let waapiHost = $state<HTMLElement | undefined>(undefined);
@@ -235,6 +251,10 @@
         summary="克隆变换把纯文本 pre 拆成行 span（活 DOM 零接触）；内核样式表让行换行并携带行号槽——lineNumbers 配置位随事务走。这段长样本同时 forcing 分页，让目录页的 target-counter 页码落在真页码上。"
       >
         <pre data-jx-print-sample class="overflow-auto border border-border bg-background p-3 font-mono text-[11.5px] leading-[1.6]"><code>{longSample}</code></pre>
+        <p class="text-[13px] leading-[1.7] text-muted-foreground">
+          下面这张卡超过一页：屏幕上 figure 是 flex 列，投影把它放回块流——分页引擎能在卡身内断开，溢出的行流到下一页，不会被页盒裁掉。
+        </p>
+        <CodeBlock code={tallSample} lang="ts" meta="the tall card — fragmentability fixture" />
       </SectionCard>
     </div>
 

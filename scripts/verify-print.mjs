@@ -97,7 +97,12 @@ const check = (name, pass, detail) => {
 // ═══════════════════════════════════════════════════════════════════
 {
   const dist = join(root, 'apps/www/dist');
-  const pagedjsSignature = /data-pagedjs-inserted-styles|pagedjs_pages|pagedjs_pagebox/;
+  // the runtime markers ONLY: 'pagedjs_pages' alone is a false
+  // positive — the kernel stylesheet (imported ?raw into the layout
+  // chunk) legitimately carries .pagedjs_pages SELECTORS since r7's
+  // one-line head rules; the pagebox class + the inserted-styles
+  // attribute exist only in pagedjs runtime code
+  const pagedjsSignature = /data-pagedjs-inserted-styles|pagedjs_pagebox/;
   const pages = [];
   const walk = (dir) => {
     for (const name of readdirSync(dir, { withFileTypes: true })) {
@@ -238,6 +243,47 @@ check(
     tr: sections,
     iconCount: marginGrammar.iconCount,
   }),
+);
+
+// ── the r7 one-line head + bar law: the icon and the doc title share
+//    ONE line (pagedjs's injected display:block stacking is
+//    out-ranked), and the glass bar carries the ready stage with the
+//    print button enabled (the pending stage is jsdom-locked)
+const headLine = await page.evaluate(() => {
+  const out = document.querySelector('[data-print-output]');
+  const boxes = out ? [...out.querySelectorAll('.pagedjs_margin-top-left .pagedjs_margin-content')] : [];
+  const oneLine = boxes.filter((box) => {
+    const icon = box.querySelector('.jx-print-header-icon');
+    if (!icon) return true; // the ToC page legitimately rides the icon alone
+    const ir = icon.getBoundingClientRect();
+    const br = box.getBoundingClientRect();
+    // same line: vertical centers within half the icon height
+    return Math.abs((ir.top + ir.bottom) / 2 - (br.top + br.bottom) / 2) < ir.height / 2 + 1;
+  }).length;
+  const bar = out?.querySelector('[data-jx-print-sim-bar]') ?? null;
+  const status = bar?.querySelector('[data-jx-print-bar-status]') ?? null;
+  const printBtn = bar?.querySelector('[data-jx-print-bar-print]') ?? null;
+  const barCs = bar ? getComputedStyle(bar) : null;
+  return {
+    boxes: boxes.length,
+    oneLine,
+    bar: Boolean(bar),
+    statusText: status?.textContent ?? null,
+    printEnabled: printBtn ? !printBtn.disabled : false,
+    backdrop: barCs?.backdropFilter ?? null,
+    shadow: barCs ? Boolean(barCs.boxShadow && barCs.boxShadow !== 'none') : false,
+  };
+});
+check(
+  'head + bar (r7): icon and title share ONE line; the glass bar shows the ready stage with the print button enabled',
+  headLine.boxes >= 1 &&
+    headLine.oneLine === headLine.boxes &&
+    headLine.bar &&
+    /pages/.test(headLine.statusText ?? '') &&
+    headLine.printEnabled &&
+    /blur/.test(headLine.backdrop ?? '') &&
+    headLine.shadow,
+  JSON.stringify(headLine),
 );
 
 const tocNumbers = await page.evaluate(() => {
@@ -700,6 +746,39 @@ const gutter = await page.evaluate(() => {
     }
   }
   const cs = getComputedStyle(lines[0]);
+  // ── the r7 airy-line law: ZERO separator text nodes may survive in
+  //    a marked-up pre (shiki's "\n" between span.line renders an
+  //    anonymous blank line box under pre-wrap — the doubled leading
+  //    the Owner measured; splitPreLines strips them)
+  const separatorNodes = [...document.querySelectorAll('[data-print-output] pre code')]
+    .filter((code) => code.querySelector(':scope > .jx-print-line') !== null)
+    .reduce(
+      (n, code) =>
+        n +
+        [...code.childNodes].filter(
+          (node) => node.nodeType === Node.TEXT_NODE && (node.textContent ?? '') !== '',
+        ).length,
+      0,
+    );
+  // ── the r7 parity law: consecutive code lines sit ONE line-height
+  //    apart (the authored 1.6 — the screen value rides verbatim now);
+  //    a surviving separator doubles the delta
+  const sample = lines[0].closest('pre');
+  const sampleLines = sample ? [...sample.querySelectorAll('.jx-print-line')] : [];
+  const deltas = [];
+  for (let i = 1; i < Math.min(sampleLines.length, 12); i++) {
+    deltas.push(
+      sampleLines[i].getBoundingClientRect().top - sampleLines[i - 1].getBoundingClientRect().top,
+    );
+  }
+  const preCs = sample ? getComputedStyle(sample) : null;
+  // the browser resolves a numeric line-height to its USED pixel
+  // value ('20px') — only a 'normal' needs the fontSize × ratio fall
+  const expectedStep = preCs
+    ? preCs.lineHeight.endsWith('px')
+      ? parseFloat(preCs.lineHeight)
+      : parseFloat(preCs.fontSize) * (parseFloat(preCs.lineHeight) || 1.6)
+    : null;
   return {
     ok: true,
     count: lines.length,
@@ -708,6 +787,10 @@ const gutter = await page.evaluate(() => {
     firsts,
     before: getComputedStyle(lines[0], ':before').content,
     counterHijackRules: counterHijack,
+    separatorNodes,
+    stepMin: deltas.length ? Math.min(...deltas) : null,
+    stepMax: deltas.length ? Math.max(...deltas) : null,
+    expectedStep,
   };
 });
 check(
@@ -722,14 +805,95 @@ check(
     /attr\(data-line\)|^"?\d+"?$/.test(gutter.before),
   JSON.stringify(gutter),
 );
+check(
+  'code leading (r7): zero separator text nodes; consecutive lines sit one authored line-height apart',
+  gutter.ok &&
+    gutter.separatorNodes === 0 &&
+    gutter.expectedStep !== null &&
+    gutter.stepMin !== null &&
+    Math.abs(gutter.stepMin - gutter.expectedStep) < 2 &&
+    Math.abs(gutter.stepMax - gutter.expectedStep) < 2,
+  `separators=${gutter.separatorNodes} step=[${gutter.stepMin?.toFixed(1)}..${gutter.stepMax?.toFixed(1)}] expected=${gutter.expectedStep?.toFixed(1)}`,
+);
 
-// ---- 2e. r6 stamp ownership: sim survives a direct print ----------------
+// ── the r7 anti-swallow gate: the tall CodeBlock (a card taller than
+//    one page) must fragment — every source line lands inside some
+//    page's area box, none swallowed behind the sheet clip (the flex
+//    figure monolith clipped the tail before the kernel returned the
+//    card to block flow)
+const tallCard = await page.evaluate(() => {
+  const source = document.querySelector('[data-print-source]');
+  const sourceCard = [...(source?.querySelectorAll('figure.jx-code-card') ?? [])].find((f) =>
+    (f.textContent ?? '').includes('fragmentability fixture') ||
+    (f.querySelector('[data-jx-code-card-file]')?.textContent ?? '').includes('tall card'),
+  );
+  if (!sourceCard) return { ok: false, why: 'tall fixture missing from the source' };
+  const sourceLines = sourceCard.querySelectorAll('pre .line, pre .jx-print-line').length;
+  const out = document.querySelector('[data-print-output]');
+  // the chunks ride successive <pre> siblings; pagedjs's split rebuild
+  // distributes them across SEPARATE figure fragments (only the first
+  // keeps the head strip) — count by the tall sample's own line shapes
+  const printedLines = [...out.querySelectorAll('.jx-print-line')].filter((l) =>
+    /^(function shard\d+\(|const page\d+ = await|\/\/ line \d+: the fragment)/.test((l.textContent ?? '').trim()),
+  );
+  let outside = 0;
+  const pagesWithLines = new Set();
+  for (const line of printedLines) {
+    const page = line.closest('.pagedjs_page');
+    const area = page?.querySelector('.pagedjs_page_content');
+    if (!page || !area) continue;
+    pagesWithLines.add(page.getAttribute('data-page-number'));
+    const lr = line.getBoundingClientRect();
+    const ar = area.getBoundingClientRect();
+    if (lr.bottom > ar.bottom + 2 || lr.top < ar.top - 2) outside++;
+  }
+  // the BLINDNESS law: pagedjs's UndisplayedFilter marks every
+  // [style] element data-undisplayed and the chunker cannot break
+  // inside it — the freeze moves Shiki's token colors to classes, so
+  // ZERO style-bearing (or marked) elements may remain inside pres
+  const styledInPres = out.querySelectorAll('pre [style]').length;
+  const undisplayedInPres = out.querySelectorAll('pre [data-undisplayed]').length;
+  return {
+    ok: true,
+    sourceLines,
+    printedLines: printedLines.length,
+    outside,
+    styledInPres,
+    undisplayedInPres,
+    pagesWithLines: [...pagesWithLines],
+  };
+});
+check(
+  'tall card (r7): a card taller than one page fragments — every line lands inside a page area (nothing swallowed)',
+  tallCard.ok &&
+    tallCard.sourceLines >= 100 &&
+    tallCard.printedLines === tallCard.sourceLines &&
+    tallCard.outside === 0 &&
+    tallCard.styledInPres === 0 &&
+    tallCard.undisplayedInPres === 0 &&
+    tallCard.pagesWithLines.length >= 2,
+  JSON.stringify(tallCard),
+);
+
+// ---- 2e. the r7 mounted-artifact print: sim survives, ZERO rebuild -----
 const beforeDirect = await residue();
+// a counting stub: the bar's print must call window.print ONCE and
+// reuse the mounted artifact — no second preview pass (the metadata's
+// renderId is the rebuild counter)
+await page.evaluate(() => {
+  window.__jxBarPrintCalls = 0;
+  const original = window.print;
+  window.print = () => {
+    window.__jxBarPrintCalls = (window.__jxBarPrintCalls ?? 0) + 1;
+    original?.call(window);
+  };
+});
 await page.click('[data-jx-print-bar-print]');
-await page.waitForFunction(() => {
-  const m = document.querySelector('[data-print-output]')?.dataset.jxPrintMeta;
-  return Boolean(m) && JSON.parse(m).purpose === 'print';
-  }, null, { timeout: 30000 });
+await page.waitForFunction(
+  () => (window.__jxBarPrintCalls ?? 0) >= 1,
+  null,
+  { timeout: 30000 },
+);
 const printMeta = await meta();
 await page.evaluate(() => window.dispatchEvent(new Event('afterprint')));
 await page.waitForTimeout(250);
@@ -752,15 +916,18 @@ check(
     /sim/.test(afterDirect.medium ?? ''),
   JSON.stringify({ createdStamp: printMeta.createdStamp, afterDirect }),
 );
-// the same-artifact three-tuple across the exits: page count + ToC
-// page numbers + stylesheet hash agree (the snapshot hash may move —
-// a live animation's phase is a genuine invalidation; the jsdom lane
-// locks the strict reuse case)
+// the r7 ZERO-REBUILD law: the bar's print exit reuses the mounted
+// artifact — renderId (the monotonic rebuild counter) HOLDS, as do the
+// pages and the @page hash. The pre-r7 behavior re-ran the whole
+// prepareSnapshot + preview (a live animation's phase moved the
+// snapshot hash, the overlay tore down and rebuilt page by page —
+// the "collapses into chaos, then recovers" the Owner watched)
 check(
-  'same artifact: the direct-print exit agrees with the sim (pages, ToC numbers, @page hash)',
-  printMeta.pages === simMeta.pages &&
+  'same artifact (r7): the bar print reuses the mounted sim — renderId/pages/@page hash all hold, window.print called once',
+  printMeta.renderId === simMeta.renderId &&
+    printMeta.pages === simMeta.pages &&
     printMeta.stylesheetHash === simMeta.stylesheetHash,
-  `sim(pages=${simMeta.pages}, css=${simMeta.stylesheetHash}) print(pages=${printMeta.pages}, css=${printMeta.stylesheetHash})`,
+  `sim(renderId=${simMeta.renderId}, pages=${simMeta.pages}) print(renderId=${printMeta.renderId}, pages=${printMeta.pages})`,
 );
 
 // ---- 2f. sim off → cleanup + rebound contexts ---------------------------

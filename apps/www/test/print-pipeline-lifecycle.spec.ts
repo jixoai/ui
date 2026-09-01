@@ -73,6 +73,15 @@ vi.mock('pagedjs', () => ({
         for (let i = 0; i < 3; i++) {
           const page = document.createElement('div');
           page.className = 'pagedjs_page';
+          // the top-left margin box (r7): the header-icon stamp targets
+          // it — present on every mocked page so the fixture exercises
+          // the prewarm→data-URI road
+          const margin = document.createElement('div');
+          margin.className = 'pagedjs_margin pagedjs_margin-top-left';
+          const marginContent = document.createElement('div');
+          marginContent.className = 'pagedjs_margin-content';
+          margin.appendChild(marginContent);
+          page.appendChild(margin);
           const holder = document.createElement('section');
           holder.setAttribute('data-id', i === 0 ? 'transaction' : `sec-${i}`);
           page.appendChild(holder);
@@ -533,5 +542,85 @@ describe('codex r3: destroy is terminal and enforced', () => {
     expect(document.querySelector('[data-print-output]')).toBeNull();
     expect(document.documentElement.hasAttribute('data-jx-print-active')).toBe(false);
     expect(root.hasAttribute(PRINT_SIM_ATTR)).toBe(false);
+  });
+});
+
+// =========================================================================
+// r7 — the mounted-artifact print fast path, prewarm, the pending bar
+// =========================================================================
+describe('r7: the bar print reuses the mounted sim (zero rebuild)', () => {
+  it('a print with a mounted artifact never re-runs the pipeline — renderId holds, print is called, the artifact survives', async () => {
+    root.setAttribute(PRINT_SIM_ATTR, '');
+    await pipeline.runSim({ config: CONFIG });
+    const callsAfterSim = kernel.calls.length;
+    const output = document.querySelector('[data-print-output]') as HTMLElement;
+    const metaBefore = JSON.parse(output.dataset.jxPrintMeta ?? '{}') as { renderId: number };
+    expect(typeof metaBefore.renderId).toBe('number');
+
+    const run_ = pipeline.runPrint({ config: CONFIG }); // the bar's print button
+    await vi.waitFor(() => expect(vi.mocked(window.print)).toHaveBeenCalled());
+    dispatchAfterPrint();
+    await run_;
+
+    expect(kernel.calls).toHaveLength(callsAfterSim); // ZERO rebuilds — the Owner's chaos is gone
+    const metaAfter = JSON.parse(output.dataset.jxPrintMeta ?? '{}') as { renderId: number };
+    expect(metaAfter.renderId).toBe(metaBefore.renderId); // same BUILD serves both exits
+    expect(output.isConnected).toBe(true); // the sim stamp kept the artifact
+    expect(pipeline.status).toBe('ready');
+  });
+});
+
+describe('r7: prewarm resolves the header icon before any flight', () => {
+  it('prewarm fetches the icon once and the stamp carries the data URI (synchronous bytes)', async () => {
+    const config = {
+      ...CONFIG,
+      headerIcon: '/icon.svg',
+      header: { 'top-left': 'string:docTitle' as const },
+    };
+    // string body: a jsdom-realm Blob chokes undici's Response
+    // constructor (cross-realm BodyInit) — the string form is native
+    const fetchMock = vi.fn(
+      async () => new Response('<svg viewBox="0 0 48 48"/>', { headers: { 'content-type': 'image/svg+xml' } }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    await pipeline.prewarm({ config });
+    expect(fetchMock).toHaveBeenCalledWith('/icon.svg');
+
+    root.setAttribute(PRINT_SIM_ATTR, '');
+    await pipeline.runSim({ config });
+    expect(fetchMock).toHaveBeenCalledTimes(1); // the flight hit the cache
+    const icons = [...document.querySelectorAll('.jx-print-header-icon')] as HTMLImageElement[];
+    expect(icons.length).toBe(3); // one per mocked page
+    for (const icon of icons) {
+      expect(icon.getAttribute('src')).toMatch(/^data:image\/svg\+xml;base64,/);
+    }
+  });
+
+  it('prewarm never throws on an invalid config (the flight fails loud instead)', async () => {
+    await expect(
+      pipeline.prewarm({ config: { ...CONFIG, margin: { top: -1, right: 0, bottom: 0, left: 0, unit: 'mm' } as never } }),
+    ).resolves.toBeUndefined();
+    expect(kernel.calls).toHaveLength(0);
+  });
+});
+
+describe('r7: the sim bar precedes the render', () => {
+  it('a pending flight carries stage text and a disabled print button; ready enables it', async () => {
+    kernel.mode = 'deferred';
+    root.setAttribute(PRINT_SIM_ATTR, '');
+    const run_ = pipeline.runSim({ config: CONFIG });
+    await vi.waitFor(() => expect(kernel.deferreds).toHaveLength(1)); // the render pends
+
+    const bar = document.querySelector('[data-jx-print-sim-bar]') as HTMLElement | null;
+    expect(bar).not.toBeNull();
+    const status = bar!.querySelector<HTMLElement>('[data-jx-print-bar-status]');
+    expect(status?.textContent).toMatch(/rendering/);
+    const printBtn = bar!.querySelector<HTMLButtonElement>('[data-jx-print-bar-print]');
+    expect(printBtn?.disabled).toBe(true); // nothing to print yet
+
+    kernel.deferreds[0]!(); // the render lands
+    await run_;
+    expect(printBtn?.disabled).toBe(false);
+    expect(status?.textContent).toMatch(/3 pages/);
   });
 });

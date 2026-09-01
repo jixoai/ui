@@ -94,6 +94,10 @@ export interface PrintRunOptions {
 
 export interface PrintArtifactMetadata {
   pages: number;
+  /** monotonic per-BUILD id: unchanged when a later exit REUSES the
+   *  artifact (the mounted-artifact fast path) — the zero-rebuild
+   *  signal the gates assert on */
+  renderId: number;
   snapshotHash: string;
   stylesheetHash: string;
   purpose: 'sim' | 'print';
@@ -154,6 +158,14 @@ export interface PrintPipeline {
   /** the direct-print exit — prepareSnapshot completes, then
    *  window.print(); afterprint owns the exit */
   runPrint(options?: PrintRunOptions): Promise<void>;
+  /** PREWARM (Owner r7): resolve the async准备工作 before a print
+   *  exit wants it — the header icon's bytes as a data URI (the
+   *  margin-box stamp goes synchronous) and the pagedjs chunk at
+   *  idle (the lazy-client-only bundle law holds; the bytes are
+   *  simply warm). PrintDoc calls this at mount off its live
+   *  printOptions getter. Never throws — a bad config fails loud
+   *  at the flight, not here */
+  prewarm(options?: PrintRunOptions): Promise<void>;
   /** sim off: the CALLER removes its own stamp; this disposes the artifact */
   closeSim(): void;
   /** cancel: preparation-phase abort; post-preview best-effort
@@ -214,6 +226,40 @@ export function createPrintPipeline(
   let destroyed = false;
   const ownedListeners: (() => void)[] = [];
   const cssCache = new Map<string, string>();
+  /** the stamped sim bar's live handle (Owner r7) — the pipeline owns
+   *  the bar's stage text; detached with the output root it rode */
+  let simBar: HTMLElement | undefined;
+  /** monotonic per-BUILD render id — a reuse never bumps it */
+  let renderSeq = 0;
+  /** the PREWARMED header-icon bytes (Owner r7): margin-box content
+   *  css cannot carry images and a post-render img.src races the
+   *  print dialog — PrintDoc prewarms at mount, the bytes land here
+   *  as a data URI, and the stamp is synchronous for both exits */
+  const headerIconCache = new Map<string, string>();
+
+  /** resolve the icon to stampable bytes: the cache when prewarmed,
+   *  a bounded in-flight fetch otherwise (a cold ambient print), the
+   *  raw URL as the best-effort fallback on failure */
+  const ensureHeaderIcon = async (icon: string): Promise<string> => {
+    const cached = headerIconCache.get(icon);
+    if (cached !== undefined) return cached;
+    try {
+      const blob = await fetch(icon).then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.blob();
+      });
+      const bytes = new Uint8Array(await blob.arrayBuffer());
+      let binary = '';
+      for (let i = 0; i < bytes.length; i += 0x8000) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+      }
+      const dataUri = `data:${blob.type || 'image/svg+xml'};base64,${btoa(binary)}`;
+      headerIconCache.set(icon, dataUri);
+      return dataUri;
+    } catch {
+      return icon; // the URL rides as-is; the sim has time to load it
+    }
+  };
 
   const parsedSignature = (options: PrintRunOptions | undefined): string =>
     JSON.stringify([
@@ -322,7 +368,9 @@ export function createPrintPipeline(
    *  margin-box content css cannot carry images — after layout, every
    *  top-LEFT margin box carrying header content gets the configured
    *  icon as its first child (the ::after title text follows; the icon
-   *  reads left of it) */
+   *  reads left of it on ONE line, r7). The bytes arrive prewarmed as
+   *  a data URI (PrintDoc.prewarm) — synchronous, no network race
+   *  between the preview and the export */
   const stampHeaderIcons = (
     outputRoot: HTMLElement,
     icon: string | undefined,
@@ -481,15 +529,27 @@ export function createPrintPipeline(
     addListener(outputRoot, 'click', onClick as EventListener);
   };
 
-  /** the sim overlay's own control bar: the overlay covers the live
-   *  controls, so it carries a close button + a direct-print button,
-   *  driving the same exits through document-level custom events (the
-   *  controls' event protocol — kept symmetrical with probes) */
-  const stampSimBar = (outputRoot: HTMLElement): void => {
+  /** the sim overlay's own control bar (Owner r7): stamped the moment
+   *  a VISIBLE flight starts — BEFORE pagedjs renders anything, so the
+   *  dynamic re-layout is watched through the bar's stage text, never
+   *  a silent void — carrying [data-jx-print-bar-status] (fed from the
+   *  pipeline's own status/progress surface at every transition) and
+   *  buttons that stay disabled until the artifact is ready. The
+   *  overlay covers the live controls, so it drives the same exits
+   *  through document-level custom events (the controls' event
+   *  protocol — kept symmetrical with probes) */
+  const stampSimBar = (outputRoot: HTMLElement, ready: boolean): void => {
+    if (simBar?.isConnected) {
+      syncSimBar(ready);
+      return;
+    }
     const bar = document.createElement('div');
     bar.setAttribute('data-jx-print-sim-bar', '');
     const title = document.createElement('span');
+    title.setAttribute('data-jx-print-bar-title', '');
     title.textContent = 'print-pipeline · sim';
+    const status_ = document.createElement('span');
+    status_.setAttribute('data-jx-print-bar-status', '');
     const print_ = document.createElement('button');
     print_.type = 'button';
     print_.setAttribute('data-jx-print-bar-print', '');
@@ -498,15 +558,41 @@ export function createPrintPipeline(
     close.type = 'button';
     close.setAttribute('data-jx-print-bar-toggle', '');
     close.textContent = '退出预览';
-    bar.append(title, print_, close);
+    bar.append(title, status_, print_, close);
     outputRoot.prepend(bar);
+    simBar = bar;
     const fire = (name: string) => () => document.dispatchEvent(new CustomEvent(name));
     bar.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
       if (target.closest('[data-jx-print-bar-print]')) fire('jx-print-direct')();
       else if (target.closest('[data-jx-print-bar-toggle]')) fire('jx-print-sim-toggle')();
     });
-    ownedListeners.push(() => bar.remove());
+    ownedListeners.push(() => {
+      bar.remove();
+      if (simBar === bar) simBar = undefined;
+    });
+    syncSimBar(ready);
+  };
+
+  /** the bar's stage text, derived from the pipeline's reactive
+   *  surface — the same fields the app-side controls read */
+  const syncSimBar = (ready: boolean): void => {
+    if (simBar === undefined) return;
+    const statusEl = simBar.querySelector<HTMLElement>('[data-jx-print-bar-status]');
+    if (statusEl !== null) {
+      statusEl.textContent =
+        status === 'preparing'
+          ? `preparing${progress ? ` · ${progress.phase} ${progress.done}/${progress.total}` : ''}`
+          : status === 'rendering'
+            ? 'rendering pages…'
+            : status === 'error'
+              ? `error: ${lastError ?? ''}`
+              : status === 'ready'
+                ? `${pageCount} pages · ready`
+                : '';
+    }
+    const printBtn = simBar.querySelector<HTMLButtonElement>('[data-jx-print-bar-print]');
+    if (printBtn !== null) printBtn.disabled = !ready;
   };
 
   const collectHeadStyles = (before: Element[]): Element[] => {
@@ -596,7 +682,10 @@ export function createPrintPipeline(
       tocLabel: options?.tocLabel,
       timeoutMs: options?.timeoutMs,
       signal,
-      onProgress: (p) => (progress = p),
+      onProgress: (p) => {
+        progress = p;
+        syncSimBar(false);
+      },
     });
     // ── the supersede gate, checkpoint 1 (codex review P1,
     //    2026-08-30): dispose()/cancel() may have landed while the
@@ -617,8 +706,10 @@ export function createPrintPipeline(
     // this road too (codex r2, P1-5): the self-stamp unwinds before
     // the throw reaches guarded's dispose-only catch
     let stylesheetHash: string;
+    let parsedConfig: ReturnType<typeof parsePageConfig>;
     try {
       stylesheetHash = stylesheetHashFor(options);
+      parsedConfig = parsePageConfig(options?.config ?? {});
     } catch (error) {
       snapshot.releaseStamp();
       throw error;
@@ -632,13 +723,12 @@ export function createPrintPipeline(
       // the SAME completed artifact serves both exits — no rebuild
       if (purpose === 'sim') {
         current.outputRoot.removeAttribute('data-print-standby');
-        if (!current.outputRoot.querySelector('[data-jx-print-sim-bar]')) {
-          stampSimBar(current.outputRoot);
-        }
+        stampSimBar(current.outputRoot, true);
       }
       publishMetadata(current);
       pageCount = current.metadata.pages;
       status = 'ready';
+      syncSimBar(true);
       return snapshot;
     }
 
@@ -653,6 +743,9 @@ export function createPrintPipeline(
     const outputRoot = ensureOutputRoot(standby);
     const headBefore = [...document.head.children];
     stampActive(true);
+    // the bar precedes the render (Owner r7): a visible flight shows
+    // its stages from the first frame, never a silent void
+    if (!standby) stampSimBar(outputRoot, false);
 
     // ── the measurability assertion (fail-loud, never zero-size pages)
     if (outputRoot.offsetWidth <= 0) {
@@ -671,6 +764,7 @@ export function createPrintPipeline(
 
     try {
       status = 'rendering';
+      syncSimBar(false);
       // ── the lazy client-only kernel chunk (SSR carries zero pagedjs)
       const { Previewer } = await import('pagedjs');
       // ── the supersede gate, checkpoint 2: the chunk pended — a
@@ -683,11 +777,20 @@ export function createPrintPipeline(
       // the "detached from the live tree" handoff the design demands
       const fragment = document.createDocumentFragment();
       fragment.appendChild(snapshot.clone);
+      // the token-color mapping (Owner r7): the freeze moved Shiki's
+      // inline color:var(--tok-*) OFF the token spans (pagedjs's
+      // UndisplayedFilter marks [style] elements data-undisplayed and
+      // the chunker goes blind inside the code — the swallowed-tail
+      // root cause); this stylesheet restores the colors class-backed
+      const tokenCss = snapshot.tokenKinds
+        .map((variable) => `.jx-tk-${variable.slice('--tok-'.length)} { color: var(${variable}); }`)
+        .join('\n');
       const flow = await previewer.preview(
         fragment,
         [
           { 'jx-kernel-print.css': kernelPrintCss },
           { 'jx-page.css': pageCssFor(options) },
+          ...(tokenCss ? [{ 'jx-tok.css': tokenCss }] : []),
         ],
         outputRoot,
       );
@@ -699,6 +802,14 @@ export function createPrintPipeline(
       if (gen !== generation) throw new FlightSuperseded();
       const pages =
         Number(flow?.total) || outputRoot.querySelectorAll('.pagedjs_page').length;
+      // the header icon's bytes resolve HERE (Owner r7): prewarmed,
+      // the cache answers synchronously; a cold flight pays one
+      // bounded fetch before the stamp — the export and the preview
+      // then agree, no network race at dialog time
+      const headerIcon = parsedConfig.headerIcon
+        ? await ensureHeaderIcon(parsedConfig.headerIcon)
+        : undefined;
+      if (gen !== generation) throw new FlightSuperseded();
       // the keep enforcement runs on the finished layout, BEFORE the
       // metadata freezes (the count rides meta.keepRelocated) and
       // BEFORE the dash normalization (relocation may drop emptied
@@ -711,6 +822,7 @@ export function createPrintPipeline(
         headStyles: collectHeadStyles(headBefore),
         metadata: {
           pages,
+          renderId: ++renderSeq,
           snapshotHash: snapshot.hash,
           stylesheetHash,
           purpose,
@@ -744,19 +856,19 @@ export function createPrintPipeline(
       fillTocFolios(outputRoot);
       // the running header's brand mark (config already validated by
       // the stylesheet hash road above — no rethrow path here)
-      const parsedConfig = parsePageConfig(options?.config ?? {});
       stampHeaderIcons(
         outputRoot,
-        parsedConfig.headerIcon,
+        headerIcon,
         parsedConfig.header?.['top-left'] !== undefined,
       );
       // the overlay UX rides any mounted artifact while the sim stamp
       // is live — sim builds AND direct-print rebuilds over a sim
       if (!standby) {
         wireTocTakeover(outputRoot);
-        stampSimBar(outputRoot);
+        stampSimBar(outputRoot, true);
       }
       status = 'ready';
+      syncSimBar(true);
       return snapshot;
     } catch (error) {
       // the failure road: best-effort teardown of this attempt's DOM.
@@ -791,14 +903,34 @@ export function createPrintPipeline(
     const controller = new AbortController();
     controllerRef = controller;
     const flight = (async () => {
-      const snapshot = await run(purpose, options, controller.signal, gen);
-      if (purpose !== 'print') return;
+      // ── the MOUNTED-ARTIFACT fast path (Owner r7, the bar's print
+      //    button): a COMPLETED artifact on screen IS the print
+      //    authority — the ambient beforeprint entry has honored a
+      //    mounted sim this way since r6. Re-running prepareSnapshot
+      //    would hash a live animation's phase, invalidate the cache,
+      //    tear the visible overlay down and rebuild it page by page
+      //    (the "collapses into chaos, then recovers" the Owner
+      //    watched). Print what is on screen; changed content
+      //    re-opens the sim. (Never ambient: the ambient entry itself
+      //    no-ops on a mounted artifact — window.print would stack a
+      //    second dialog on the open one)
+      const reuse = purpose === 'print' && !ambient && artifact !== undefined;
+      let releaseStamp: (() => void) | undefined;
+      if (reuse) {
+        pageCount = artifact.metadata.pages;
+        status = 'ready';
+        syncSimBar(true);
+      } else {
+        const snapshot = await run(purpose, options, controller.signal, gen);
+        releaseStamp = () => snapshot.releaseStamp();
+        if (purpose !== 'print') return;
+      }
       // the print-exit law, shared by both entries: release ONLY the
       // transaction's own stamp (a surviving sim re-derives the medium
       // and keeps the artifact); on a superseded wait the invalidator
       // owns the state, so the flight resolves without flipping it
       const settlePrintExit = (): void => {
-        snapshot.releaseStamp();
+        releaseStamp?.();
         if (gen !== generation) return;
         const root = getSourceRoot();
         const simSurvives = root?.hasAttribute(PRINT_SIM_ATTR) ?? false;
@@ -959,6 +1091,24 @@ export function createPrintPipeline(
     },
     async runPrint(options) {
       await guarded('print', options);
+    },
+    async prewarm(options) {
+      if (typeof window === 'undefined') return; // creation stays browser-free
+      try {
+        const parsed = parsePageConfig(options?.config ?? {});
+        if (parsed.headerIcon !== undefined) {
+          await ensureHeaderIcon(parsed.headerIcon);
+        }
+      } catch {
+        // prewarm never throws — an invalid config fails loud at the flight
+      }
+      // the kernel chunk, fetched at idle: never competes with page
+      // load, warm before any print exit wants it
+      const warm = (): void => {
+        void import('pagedjs').catch(() => {});
+      };
+      if (typeof requestIdleCallback === 'function') requestIdleCallback(() => warm());
+      else setTimeout(warm, 500);
     },
     closeSim() {
       dispose();

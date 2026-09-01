@@ -377,6 +377,64 @@ describe('splitPreLines', () => {
     splitPreLines(host, { lineNumbers: true });
     expect(host.querySelector('pre')!.getAttribute('style')).toBeNull();
   });
+
+  it('strips the shiki \\n text nodes between line spans (the airy-line root cause, Owner r7)', () => {
+    // shiki's classic structure pushes a literal "\n" between every
+    // pair of span.line; the kernel lays .jx-print-line out as BLOCKS
+    // and under pre-wrap each surviving newline renders an anonymous
+    // empty line box — one blank line after every code line. The
+    // transform removes the separators; pre-wrap (indentation, line
+    // wrapping) keeps its meaning
+    const host = document.createElement('div');
+    host.innerHTML =
+      '<pre><code><span class="line">const a = 1;</span>\n<span class="line">  const b = 2;</span>\n<span class="line"></span>\n<span class="line">const c = 3;</span></code></pre>';
+    splitPreLines(host, { lineNumbers: true });
+    const code = host.querySelector('code')!;
+    const textChildren = [...code.childNodes].filter((n) => n.nodeType === Node.TEXT_NODE);
+    expect(textChildren).toHaveLength(0); // no separator survives
+    const lines = [...code.querySelectorAll('.jx-print-line')];
+    expect(lines.map((l) => l.getAttribute('data-line'))).toEqual(['1', '2', '3', '4']);
+    expect(lines[1]!.textContent).toBe('  const b = 2;'); // in-line indent intact
+    // an EMPTY line keeps its box: its height previously rode the \n's
+    // anonymous line — the strip would collapse it to 0 without the
+    // space placeholder
+    expect(lines[2]!.textContent).toBe(' ');
+  });
+
+  it('chunks an oversize pre into 40-line <pre> siblings (the production-safe break plane, Owner r7)', () => {
+    // the production chunker breaks BETWEEN element siblings reliably but
+    // never inside one tall pre (cause not isolated — a fully replicated
+    // sandbox splits fine); the transform gives it real boundaries
+    const host = document.createElement('div');
+    const text = Array.from({ length: 95 }, (_, i) => `line-${i}`).join('\n');
+    host.innerHTML = `<pre><code></code></pre>`;
+    host.querySelector('code')!.textContent = text;
+    splitPreLines(host, { lineNumbers: true });
+    const pres = [...host.querySelectorAll('pre')];
+    expect(pres).toHaveLength(3);
+    expect(pres.map((p) => p.querySelectorAll('.jx-print-line').length)).toEqual([40, 40, 15]);
+    // continuation chunks carry the marker; the LINES MOVE in order
+    expect(pres[0]!.classList.contains('jx-print-cont')).toBe(false);
+    expect(pres[1]!.classList.contains('jx-print-cont')).toBe(true);
+    expect(pres[2]!.classList.contains('jx-print-cont')).toBe(true);
+    const numbers = pres.flatMap((p) =>
+      [...p.querySelectorAll('.jx-print-line')].map((l) => l.getAttribute('data-line')),
+    );
+    expect(numbers).toEqual(Array.from({ length: 95 }, (_, i) => String(i + 1)));
+  });
+
+  it('keeps REAL text children of arbitrary marked-up pres (content, not separators)', () => {
+    // a marked-up pre without shiki's span.line shape: the text nodes
+    // are CONTENT (inline markup mid-code), never separators — the
+    // strip is scoped to the line-span shape only
+    const host = document.createElement('div');
+    host.innerHTML = '<pre><code>const <em>x</em> = 1;</code></pre>';
+    splitPreLines(host, { lineNumbers: true });
+    const text = host.querySelector('code')!.textContent ?? '';
+    expect(text).toContain('const ');
+    expect(text).toContain(' = 1;');
+    expect(host.querySelectorAll('.jx-print-line')).toHaveLength(0);
+  });
 });
 
 describe('injectTocNav', () => {

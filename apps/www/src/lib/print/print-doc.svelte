@@ -77,6 +77,16 @@
   // destroy is dispose PLUS the ambient entry's disarm (the listeners
   // must not outlive the layer that owns them)
   $effect(() => () => pipeline.destroy());
+
+  // PREWARM (Owner r7): the async准备工作 resolves at mount, off the
+  // live prop — the header icon's bytes land as a data URI (the
+  // margin-box stamp goes synchronous; preview and export agree) and
+  // the pagedjs chunk warms at idle. beforeprint then applies what is
+  // already prepared instead of racing the dialog
+  $effect(() => {
+    const options = printOptions;
+    void pipeline.prewarm(options);
+  });
 </script>
 
 <div bind:this={rootEl} {id} data-print-source data-density={density} class={className}>

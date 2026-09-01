@@ -124,27 +124,34 @@
       anchor ::after.
 
    9. THE RUNNING HEADERS + PRINT TYPOGRAPHY (Owner acceptance r5,
-      2026-09-01) — the documented-print conventions: the document
-      title and the running section ride the TOP margin (string-set
-      from the page's own h1/h2 — structured info, not a parallel
-      registry; string(name, first) carries across pages, the
-      book-grade running head), page numbers compose CENTERED in the
-      footer ("X / Y"), and the brand icon is stamped into the top
-      margin boxes by the pipeline (margin-box content css cannot
-      carry images). Paper typography is NOT screen typography: code
-      leading tightens to 1.2 (1.6 reads airy on paper — the screen
-      value was carried verbatim, the clone was faithful; this is a
-      medium judgment, not a kernel bug), and the borderless card's
-      CHILD padding flattens — the page margin is the frame, a
-      header/body inset inside it is a box inside the box again.
+      2026-09-01; r7 corrections) — the documented-print conventions:
+      the document title and the running section ride the TOP margin
+      (string-set from the page's own h1/h2 — structured info, not a
+      parallel registry; string(name, first) carries across pages,
+      the book-grade running head), page numbers compose CENTERED in
+      the footer ("X / Y"), and the brand icon is stamped into the
+      top margin boxes by the pipeline as prewarmed data-URI bytes
+      (margin-box content css cannot carry images; prewarm makes the
+      stamp synchronous — no preview/export divergence). The head is
+      ONE line: pagedjs's injected display:block on stamped children
+      and the ::after is overridden here (r7's two-line bug). Paper
+      code leading rides the screen value VERBATIM (r7: the airy
+      anomaly was Shiki's \n text nodes between the line blocks —
+      splitPreLines strips them now; no kernel line-height judgment),
+      the borderless card's CHILD padding flattens — the page margin
+      is the frame, a header/body inset inside it is a box inside
+      the box again — and the code card returns to BLOCK flow so
+      pagedjs can fragment a taller-than-page card (the flex figure
+      monolith swallowed its tail, r7).
 
         selector                       forced result
         ─────────────────────────────  ─────────────────────────────────
         h1 / h2                        string-set: docTitle/sectionTitle
         .pagedjs_margin-content        small muted running-head type
-        .jx-print-header-icon          ~1em inline brand mark
-        pre (code/line inherit)   line-height: 1.2
+        .pagedjs_margin-content::after display: inline (top row, one line)
+        .jx-print-header-icon          ~1em inline brand mark (inline-block)
         section.bg-card > div          padding: 0 (margins keep rhythm)
+        .pagedjs_page .jx-code-card    display: block (fragmentable flow)
 
    AST GATE LAW (test/print-stylesheet-gate.spec.ts): this file
    contains ZERO `@media not print` wrappers and ZERO
@@ -207,6 +214,22 @@ pre {
    from −N (walkthrough fix, 2026-08-31). attr() sails through. */
 pre .jx-print-line {
   display: block;
+}
+/* the line blocks need a BLOCK parent: <code> is UA-inline and block
+   children inside an inline box wrap in anonymous blocks — column
+   fragmentation (pagedjs's pagination substrate) refuses to break
+   inside an inline element, so a card taller than a page stayed
+   whole with its tail swallowed (Owner r7). One declaration makes
+   the nesting block > block > lines, fragmentable end to end */
+pre code {
+  display: block;
+}
+/* the oversize continuation chunk (the freeze splits a >40-line pre
+   into successive <pre> siblings — the production-safe break plane):
+   a continuation rides flush against its predecessor (no repeated
+   top padding mid-page); at a page top it simply starts the sheet */
+pre.jx-print-cont {
+  padding-block-start: 0;
 }
 pre .jx-print-line::before {
   content: attr(data-line);
@@ -407,8 +430,23 @@ h2 {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* the head rides ONE line (Owner r7): pagedjs injects a page-scoped
+   `… > .pagedjs_margin-content > *` → display:block for stamped
+   children and its base forces the content ::after to display:block
+   — the icon and the title stack into TWO lines no matter the
+   white-space. These out-rank both (the .pagedjs_pages prefix
+   clears the injected (0,3,0); the ::after needs the extra
+   .pagedjs_page hop to beat the base rule on order) */
+.pagedjs_pages .pagedjs_page .pagedjs_margin-top .pagedjs_margin-content::after {
+  display: inline;
+}
+.pagedjs_pages .pagedjs_page .pagedjs_margin-top .pagedjs_margin-content .jx-print-header-icon {
+  display: inline-block;
+}
 /* the brand icon the pipeline stamps into the top margin boxes
-   (margin-box content css cannot carry images) */
+   (margin-box content css cannot carry images); the bytes arrive
+   from the pipeline's prewarm cache as a data URI — synchronous,
+   no network race between preview and export) */
 .jx-print-header-icon {
   height: 1em;
   width: auto;
@@ -416,21 +454,25 @@ h2 {
   margin-inline-end: 0.6ch;
   opacity: 0.8;
 }
-/* paper code leading: the screen's 1.6 (20px at 12.5px) rides the
-   clone verbatim and reads AIRY on paper — print code sets tighter
-   (the documented convention, ~1.2; solid 1.0 would let wrapped
-   lines touch). A medium judgment enforced in the projection, the
-   source tree keeps its screen value */
-pre {
-  line-height: 1.2;
-}
 /* the borderless card's CHILD padding flattens: the page margin is
    the frame, the header/body inset (px-4/py-3, p-5) inside it is
-   the box-inside-the-box double whitespace again (Owner r5) —
+   the box-in-a-box double whitespace again (Owner r5) —
    margins, not padding, keep the block rhythm */
 :where(section.bg-card) > div {
   padding: 0;
 }
 :where(section.bg-card) > div + div {
   margin-block-start: 0.65rem;
+}
+/* the code card returns to FRAGMENTABLE flow (Owner r7, the
+   swallowed tail): .jx-code-card is a <figure> and the site's
+   figure law (plus the card's own fill utilities) lays it out as a
+   flex column — pagedjs only MOVES flex children, never fragments
+   them, so a card taller than one page lands whole and the sheet's
+   overflow:hidden clips the tail into invisibility. Block flow
+   fragments between the figcaption/pre/foot naturally (and the
+   keep chain does the header gluing). (0,2,0) beats both the
+   :where() figure law (0) and the (0,1,0) utilities */
+.pagedjs_page .jx-code-card {
+  display: block;
 }

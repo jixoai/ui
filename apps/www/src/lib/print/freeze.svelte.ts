@@ -554,7 +554,11 @@ export function applyFrameTransfer(clone: HTMLElement, plan: FrameTransferPlan):
  * class. Empty lines keep their height. `lineNumbers=false` stamps
  * the opt-out the kernel stylesheet keys the gutter off.
  */
-export function splitPreLines(clone: ParentNode, options: { lineNumbers: boolean }): number {
+export function splitPreLines(
+  clone: ParentNode,
+  options: { lineNumbers: boolean },
+  tokenKinds?: Set<string>,
+): number {
   let split = 0;
   for (const pre of [...clone.querySelectorAll('pre')]) {
     // pagedjs's UndisplayedFilter marks EVERY [style]-bearing element
@@ -566,20 +570,56 @@ export function splitPreLines(clone: ParentNode, options: { lineNumbers: boolean
     // never landed. The style is print-dead anyway: the kernel's own
     // pre rule is the projection authority (vision r4).
     pre.removeAttribute('style');
+    // the TOKEN spans too (Owner r7, the swallowed tail): Shiki rides
+    // color:var(--tok-*) inline on every token — the UndisplayedFilter
+    // marks all of them data-undisplayed and the chunker goes BLIND
+    // inside the code (no break points: a card taller than a page
+    // stays whole, 3881px jammed into one column). The colors move to
+    // .jx-tk-* classes; the flight compiles the mapping stylesheet
+    const TOKEN_STYLE = /^color:\s*var\((--tok-[a-z0-9-]+)\s*(?:,[^()]*)?\)$/;
+    for (const el of [...pre.querySelectorAll<HTMLElement>('[style]')]) {
+      const match = TOKEN_STYLE.exec((el.getAttribute('style') ?? '').trim());
+      if (!match) continue; // foreign inline styles stay (not ours to judge)
+      el.classList.add('jx-tk-' + match[1]!.slice('--tok-'.length));
+      el.removeAttribute('style');
+      tokenKinds?.add(match[1]!);
+    }
     const code = pre.querySelector('code') ?? pre;
     const markedUp = [...code.childNodes].some((n) => n.nodeType === Node.ELEMENT_NODE);
     if (!options.lineNumbers) pre.setAttribute('data-jx-print-lines', 'off');
     if (markedUp) {
-      if (options.lineNumbers) {
-        // numbered by TRANSFORM (data-line), not by CSS counters:
-        // pagedjs's Counters handler strips author counter-reset/
-        // increment rules and re-derives them as per-element negative
-        // increments — with more than one pre on a page the gutter
-        // counts from −N. attr() carries the number through untouched.
-        code.querySelectorAll(':scope > span.line').forEach((line, i) => {
-          line.classList.add('jx-print-line');
-          line.dataset.line = String(i + 1);
-        });
+      const lineSpans = [...code.querySelectorAll(':scope > span.line')];
+      if (lineSpans.length > 0) {
+        // Shiki's classic structure pushes a literal "\n" TEXT node
+        // between every pair of span.line elements. The kernel lays
+        // .jx-print-line out as BLOCKS, and under pre-wrap each
+        // surviving newline generates an anonymous empty line box —
+        // one blank line after every code line, the r7 "airy" anomaly
+        // (a line-height override only scales both boxes and can never
+        // fix it; the plain-text path below never had the nodes).
+        // WHITESPACE-ONLY nodes between line spans carry nothing the
+        // spans don't; real text children (arbitrary inline markup)
+        // are content and stay.
+        for (const node of [...code.childNodes]) {
+          if (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim() === '') {
+            node.remove();
+          }
+        }
+        if (options.lineNumbers) {
+          // numbered by TRANSFORM (data-line), not by CSS counters:
+          // pagedjs's Counters handler strips author counter-reset/
+          // increment rules and re-derives them as per-element negative
+          // increments — with more than one pre on a page the gutter
+          // counts from −N. attr() carries the number through untouched.
+          lineSpans.forEach((line, i) => {
+            // an EMPTY line's height came from the \n's anonymous box —
+            // with the separators gone the block would collapse to 0;
+            // one space keeps the line box (the plain path's own trick)
+            if (line.textContent === '') line.textContent = ' ';
+            line.classList.add('jx-print-line');
+            line.dataset.line = String(i + 1);
+          });
+        }
       }
       continue;
     }
@@ -596,6 +636,31 @@ export function splitPreLines(clone: ParentNode, options: { lineNumbers: boolean
     code.textContent = '';
     code.appendChild(fragment);
     split++;
+  }
+  // ── the oversize chunking (Owner r7, the swallowed tail): the
+  //  production chunker reliably breaks BETWEEN element siblings but
+  //  (production-only; a fully-replicated sandbox splits fine, cause
+  //  not isolated) never breaks INSIDE one tall pre — a >CHUNK pre
+  //  therefore becomes successive <pre> siblings (the lines MOVE,
+  //  numbering and markup intact; the figcaption keep binds the
+  //  first chunk; the split-dash decoration rides the real breaks).
+  //  CHUNK ≈ 40 lines ≈ 800px at the authored leading — headroom in
+  //  a ~964px page area for the card head and neighbors
+  const CHUNK = 40;
+  for (const pre of [...clone.querySelectorAll('pre')]) {
+    const code = pre.querySelector('code') ?? pre;
+    const lines = [...code.querySelectorAll(':scope > .jx-print-line')];
+    if (lines.length <= CHUNK) continue;
+    let anchor: Node = pre;
+    for (let start = CHUNK; start < lines.length; start += CHUNK) {
+      const next = pre.cloneNode(false) as HTMLElement;
+      next.classList.add('jx-print-cont');
+      const nextCode = code.cloneNode(false) as HTMLElement;
+      for (const line of lines.slice(start, start + CHUNK)) nextCode.appendChild(line);
+      next.appendChild(nextCode);
+      anchor.parentElement?.insertBefore(next, anchor.nextSibling);
+      anchor = next;
+    }
   }
   return split;
 }
@@ -745,6 +810,12 @@ export interface FrozenSnapshot {
     readonly applied: number;
   };
   readonly lineSplits: number;
+  /** the --tok-* custom-property names the token spans carried as
+   *  inline colors (moved to .jx-tk-* classes — pagedjs's
+   *  UndisplayedFilter marks every [style] element data-undisplayed
+   *  and the chunker goes blind inside the code); the pipeline
+   *  compiles these into the flight's jx-tok.css stylesheet */
+  readonly tokenKinds: readonly string[];
   readonly tocEntries: number;
   readonly createdStamp: boolean;
   readonly hash: string;
@@ -978,7 +1049,8 @@ export async function prepareSnapshot(
     const plan = planFrameTransfer(root, records, options.readComputed ?? readComputedDefault);
     const applied = applyFrameTransfer(clone, plan);
     const diagnostics = [...plan.diagnostics, ...applied.diagnostics];
-    const lineSplits = splitPreLines(clone, { lineNumbers });
+    const tokenKinds = new Set<string>();
+    const lineSplits = splitPreLines(clone, { lineNumbers }, tokenKinds);
     const tocNav = toc ? injectTocNav(clone, { label: options.tocLabel }) : null;
 
     // ── 6. live animations resume (the source tree is no longer needed)
@@ -992,6 +1064,7 @@ export async function prepareSnapshot(
       diagnostics,
       transfer: { writes: plan.writes, applied: applied.applied },
       lineSplits,
+      tokenKinds: [...tokenKinds],
       tocEntries: tocNav ? tocNav.querySelectorAll('a').length : 0,
       createdStamp,
       hash: hashSnapshot(clone, configSignature),
