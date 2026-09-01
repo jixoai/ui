@@ -22,8 +22,18 @@
     success   the terminal win (✓ on the success pair)
     error     the terminal failure (✕ on the error pair)
     hint      informational (i on the info pair)
-    emphasis  the "look here" marker — the quest-giver ! (filled)
-    disabled  genuinely out of reach NOW (muted, aria-disabled)
+    emphasis  the "look here" marker — the quest-giver ! (hollow+halo)
+    disabled  genuinely out of reach NOW (dashed ring, reduced contrast)
+
+  AT VISIBILITY (2026-09-02, the C-6 ruling): the marker glyphs are
+  aria-hidden chrome (the done button names itself through its own
+  aria-label), so EVERY item speaks its effective state as an sr-only
+  status text — the vocabulary reaches screen readers as words, not
+  data attributes. `disabled` rides that TEXT too ("unavailable"):
+  aria-disabled on a non-control li is ignored by AT, and the li now
+  carries tabindex=-1 as the family's programmatic focus-resting slot
+  (the C-16 focus law: a done-marker button that unmounts after its
+  click parks focus on its own item, never on body).
 
   `onclick` fires ONLY from the done state and is what makes the
   Indicator render as a <button> (no-dead-affordance ruling); without a
@@ -101,8 +111,28 @@
   const derived = $derived(
     step < steps.current ? 'done' : step === steps.current ? 'current' : 'todo',
   );
-  // the explicit override wins; 'auto' rides the derived trio
-  const effective = $derived((state === 'auto' ? derived : state) as Exclude<StepState, 'auto'>);
+  // the explicit override wins; 'auto' rides the derived trio (the
+  // annotation keeps the rune's type stable for the template reads)
+  const effective: Exclude<StepState, 'auto'> = $derived(
+    state === 'auto' ? derived : state,
+  );
+
+  // the state's AT-readable name — the vocabulary is data-jx-step paint
+  // (invisible to AT), so every item SPEAKS its state as text (C-6).
+  // disabled rides this text ("unavailable"): aria-disabled on a
+  // non-control li is ignored by screen readers. Static map — the
+  // template's [effective] lookup is the reactive read
+  const statusText: Record<Exclude<StepState, 'auto'>, string> = {
+    done: 'completed',
+    current: 'current step',
+    todo: 'not started',
+    pending: 'in progress',
+    success: 'succeeded',
+    error: 'failed',
+    hint: 'information',
+    emphasis: 'attention',
+    disabled: 'unavailable',
+  };
 
   setContext<StepsItemApi>(STEPS_ITEM_KEY, {
     get step() {
@@ -125,8 +155,9 @@
   data-jx-step={effective}
   class={cn('flex-1 min-w-[9rem]', className)}
   {...rest}
-  aria-current={derived === 'current' && state === 'auto' ? 'step' : undefined}
-  aria-disabled={effective === 'disabled' ? 'true' : undefined}
+  tabindex="-1"
+  aria-current={effective === 'current' ? 'step' : undefined}
 >
+  <span class="sr-only">{statusText[effective]}</span>
   {@render children()}
 </li>

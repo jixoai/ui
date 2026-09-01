@@ -3,7 +3,8 @@
   2026-09-01).
   A line PRESET for the root's `line` seam: the spine channel carrying
   a traveling light — a primary gradient pulse looping along the flow
-  (axis-aware; reduced-motion freezes the light, the base line stays).
+  (axis-aware; under reduced motion the beam rests at the line head —
+  the decorative motion goes, the base line stays).
   Signals an ACTIVE channel (a deploying pipeline, a live trace).
 -->
 <script lang="ts">

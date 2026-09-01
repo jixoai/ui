@@ -14,7 +14,9 @@
   geometries. The fade variant rides the BLEND engine instead: an
   alpha-ramped white gradient under mix-blend-mode: difference inverts
   the backdrop toward mid — transparent → light → dark → light →
-  transparent, visible on any ground. Orientation swaps the mask axis
+  transparent, visible on any ground (peak alpha capped at 0.6; an
+  exact 50% backdrop is difference's blind spot — separator.css
+  documents the math). Orientation swaps the mask axis
   (the vertical posture reads the same laws top-to-bottom).
 
   Length stays the consumer's job (block horizontal / inline-block

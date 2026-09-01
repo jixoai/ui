@@ -20,6 +20,14 @@
  *                              last item's separator never shows
  *   [data-jx-step='pending']   the middle state — the glyph breathes
  *
+ * The marker's state PAINT (border/background/token colors + the
+ * V2-6 distinct-pairs shaping — done solid+✓, pending hollow+⋯,
+ * current solid+number, emphasis hollow+halo ring, disabled dashed
+ * ring at reduced contrast, todo hollow at full contrast) rides the
+ * token utilities in steps-indicator.svelte: the states are JS-known,
+ * one rung per vocabulary word. This sheet owns only the geometry and
+ * the css-cheapest state laws (connector repaints, the breathe).
+ *
  * All same-element paint lives as token utilities in the markup (the
  * :where keeps the residue consumer-overridable under the layer law). */
 

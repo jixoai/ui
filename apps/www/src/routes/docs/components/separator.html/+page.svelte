@@ -1,3 +1,18 @@
+<!--
+  Docs page for the separator family (ink-engine ruling, 2026-09-01).
+  Intents:
+  1. Hero + canvas: the native hr / ARIA-div pair over the contrast
+     ghost (the hero summary is hand-written here — this page predates
+     the CATALOG binding; the registry description is ZCode's lane).
+  2. Ink-engine gallery: line · dashed · dense · dotted · wavy (masks
+     over the ghost) + fade (the blend engine), with the auto-adaptive
+     proof box over a light→dark→light tonal ramp.
+  3. Length-is-layout demo, the W3C foundation, a11y/theming/api.
+  (2026-09-02 fix wave: fade peak α 0.9→0.6; the proof-box captions
+  ride solid chips so they stay legible across the ramp, and the copy
+  no longer over-claims the fade at exact mid-gray — difference's one
+  blind spot.)
+-->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
@@ -117,11 +132,11 @@
           <div class="flex w-full max-w-lg flex-col gap-4 border border-border p-4"
             style="background: linear-gradient(90deg, oklch(0.98 0 0), oklch(0.35 0 0), oklch(0.98 0 0))"
           >
-            <span class="font-nav text-[11px] uppercase tracking-[0.24em] text-foreground">auto-adaptive proof — over a light→dark→light gradient</span>
+            <span class="w-fit self-start rounded-sm bg-background px-1.5 py-0.5 font-nav text-[11px] uppercase tracking-[0.24em] text-foreground">auto-adaptive proof — over a light→dark→light gradient</span>
             <Separator />
             <Separator variant="dashed" />
             <Separator variant="fade" />
-            <span class="text-[12px] text-foreground">every variant stays legible across the whole ramp — no color token anywhere</span>
+            <span class="w-fit self-start rounded-sm bg-background px-1.5 py-0.5 text-[12px] text-foreground">the ghost and its masks track the whole ramp; the fade's blend eases toward exact mid-gray — its one blind spot — and stays a tonal shift everywhere else. No color token anywhere.</span>
           </div>
         </div>
       </SectionCard>

@@ -11,6 +11,13 @@
  *     mix-blend-mode: difference — the backdrop inverts toward mid
  *     proportionally to alpha: transparent → light → dark → light →
  *     transparent, visible on any ground without a single color.
+ *     PEAK ALPHA is capped at 0.6 (2026-09-02): a white difference
+ *     layer dead-centers exactly at a 50% backdrop (Co = Cb for ANY
+ *     alpha there — the engine's one blind spot), and a 0.9 peak
+ *     slammed the ramp's bright/dark ends to near-full inversion
+ *     (0.98 ground → 0.12 output). The softer peak keeps the band a
+ *     tonal shift, not a black slash; the exact-mid dip is inherent
+ *     to colorless ink and documented, not fixable by alpha.
  *
  * Orientation swaps the mask AXIS (vertical reads top-to-bottom);
  * everything rides :where() so consumer utilities always win.
@@ -90,14 +97,15 @@
   }
 
   /* ── fade: the blend engine (no filter, no mask) — the backdrop
-     inverts toward mid proportionally to the gradient's alpha ── */
+     inverts toward mid proportionally to the gradient's alpha; peak
+     capped at 0.6 (the header documents the exact-mid blind spot) ── */
   :where([data-jx-separator='fade'][data-orientation='horizontal']) {
     backdrop-filter: none;
     background: linear-gradient(
       90deg,
       transparent,
       rgb(255 255 255 / 0.35) 30%,
-      rgb(255 255 255 / 0.9) 50%,
+      rgb(255 255 255 / 0.6) 50%,
       rgb(255 255 255 / 0.35) 70%,
       transparent
     );
@@ -109,7 +117,7 @@
       180deg,
       transparent,
       rgb(255 255 255 / 0.35) 30%,
-      rgb(255 255 255 / 0.9) 50%,
+      rgb(255 255 255 / 0.6) 50%,
       rgb(255 255 255 / 0.35) 70%,
       transparent
     );

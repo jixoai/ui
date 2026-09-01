@@ -23,13 +23,16 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
-import { fireEvent, render } from '@testing-library/svelte';
+import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
 import { describe, expect, it } from 'vitest';
 
 import StepsHost from './fixtures/steps-host.svelte';
 import TimelineHost from './fixtures/timeline-host.svelte';
 import DescriptionsHost from './fixtures/descriptions-host.svelte';
+import StepsIndicator from '../src/lib/ui/steps/steps-indicator.svelte';
+import StepsTitle from '../src/lib/ui/steps/steps-title.svelte';
+import type { StepState } from '../src/lib/ui/steps';
 
 const specDir = resolve(fileURLToPath(import.meta.url), '..');
 const stepsCss = readFileSync(resolve(specDir, '../src/lib/ui/steps/steps.css'), 'utf8');
@@ -159,6 +162,62 @@ describe('Steps family — marker button only when onclick + done', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Steps — the 2026-09-02 fix wave: named contract errors (C-3), the
+// focus-resting law for unmounting done buttons (C-16), the live glyph
+// (C-16), and the clean item interior (no stray template text)
+// ---------------------------------------------------------------------------
+describe('Steps family — contract errors, focus law, live glyph (2026-09-02)', () => {
+  it('StepsIndicator outside a StepsItem throws the NAMED family error, not a bare TypeError (C-3)', () => {
+    expect(() => render(StepsIndicator)).toThrowError(
+      /StepsIndicator must live inside a StepsItem/,
+    );
+  });
+
+  it('StepsTitle outside a StepsItem throws the NAMED family error too (C-3)', () => {
+    // the cast only satisfies the required-children prop typing — the
+    // contract error fires during init, the snippet never renders
+    expect(() =>
+      render(StepsTitle, { props: { children: (() => {}) as never } }),
+    ).toThrowError(/StepsTitle must live inside a StepsItem/);
+  });
+
+  it('clicking a done marker parks focus on its item — never body — after the button retires (C-16)', async () => {
+    const { container } = render(StepsHost, {
+      props: { ordinals: [0, 1, 2], current: 1, interactive: true },
+    });
+    const items = () => [...container.querySelectorAll('[data-jx-step-item]')];
+    const button = container.querySelector('button[data-jx-step-indicator]')! as HTMLButtonElement;
+    expect(items()[0]!.getAttribute('tabindex')).toBe('-1'); // the resting slot
+    button.focus();
+    expect(document.activeElement).toBe(button);
+    fireEvent.click(button);
+    flushSync(); // the swap lands: done → current ⇒ span form
+    expect(container.querySelectorAll('button').length).toBe(0);
+    await waitFor(() => expect(document.activeElement).toBe(items()[0]));
+  });
+
+  it('the glyph tracks the item ordinal prop — a plain const froze the number at first mount (C-16)', async () => {
+    const { container, rerender } = render(StepsHost, { props: { ordinals: [0, 1, 2], current: 1 } });
+    const todoGlyph = () =>
+      [...container.querySelectorAll('[data-jx-step-item]')].at(-1)!.querySelector('[data-jx-step-index]')!;
+    expect(todoGlyph().textContent).toBe('3'); // step 2 → "3"
+    await rerender({ ordinals: [0, 1, 4], current: 1 });
+    expect(todoGlyph().textContent).toBe('5'); // step 4 → "5", not the stale "3"
+  });
+
+  it('the item interior carries no stray template text — only elements and render anchors', () => {
+    const { container } = render(StepsHost, {
+      props: { ordinals: [0, 1, 2], current: 1, interactive: true },
+    });
+    for (const li of container.querySelectorAll('[data-jx-step-item]')) {
+      const strayText = [...li.childNodes].filter((n) => n.nodeType === Node.TEXT_NODE && n.textContent!.trim());
+      expect(strayText, 'template comments must be Svelte comments, never // text').toEqual([]);
+    }
+    expect(container.innerHTML).not.toContain('// rest');
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Steps — connector css (source guard) + authored separators
 // ---------------------------------------------------------------------------
 describe('Steps family — the grid anatomy and self-hide (css law)', () => {
@@ -229,20 +288,29 @@ describe('Steps family — the grid anatomy and self-hide (css law)', () => {
       const emph = render(StepsHost, { props: { lastState: 'emphasis' } });
       const emphLi = last(emph.container);
       expect(emphLi.querySelector('[data-jx-step-index]')!.textContent).toBe('!');
-      expect(emphLi.querySelector('[data-jx-step-indicator]')!.className).toContain('bg-primary');
+      // V2-6: emphasis is the hollow + halo ring now (current keeps the fill)
+      expect(emphLi.querySelector('[data-jx-step-indicator]')!.className).toContain('ring-1');
+      expect(emphLi.querySelector('[data-jx-step-indicator]')!.className).not.toContain('bg-primary');
     });
 
-    it('disabled is a DECLARED out-of-reach (aria-disabled), unlike todo (the unreached)', () => {
+    it('disabled is a DECLARED out-of-reach — dashed, reduced contrast, SPOKEN — unlike todo (the unreached)', () => {
       const { container } = render(StepsHost, {
         props: { ordinals: [0, 1, 2, 3], current: 1, lastState: 'disabled' },
       });
       const li = last(container);
       expect(li.getAttribute('data-jx-step')).toBe('disabled');
-      expect(li.getAttribute('aria-disabled')).toBe('true');
-      // the derived trio's todo NEVER carries aria-disabled (unreached ≠ disabled)
+      // the state speaks as TEXT (C-6): aria-disabled on a non-control li
+      // is ignored by AT, so disabled rides the sr-only status line
+      expect(li.getAttribute('aria-disabled')).toBeNull();
+      expect(li.querySelector('.sr-only')!.textContent).toBe('unavailable');
+      // V2-6: DISABLED ≠ TODO — dashed ring at reduced contrast
+      expect(li.querySelector('[data-jx-step-indicator]')!.className).toContain('border-dashed');
+      // the derived trio's todo NEVER carries the disabled grammar (unreached ≠ disabled)
       const todo = [...container.querySelectorAll('[data-jx-step-item]')].at(-2)!;
       expect(todo.getAttribute('data-jx-step')).toBe('todo');
       expect(todo.getAttribute('aria-disabled')).toBeNull();
+      expect(todo.querySelector('.sr-only')!.textContent).toBe('not started');
+      expect(todo.querySelector('[data-jx-step-indicator]')!.className).not.toContain('border-dashed');
     });
 
     it("auto keeps the derived trio byte-identical (the override's default)", () => {
@@ -251,6 +319,64 @@ describe('Steps family — the grid anatomy and self-hide (css law)', () => {
         li.getAttribute('data-jx-step'),
       );
       expect(states).toEqual(['done', 'current', 'todo']);
+    });
+
+    it("state='current' carries aria-current=step too (C-2: the effective state decides, not the derivation path)", () => {
+      const { container } = render(StepsHost, { props: { lastState: 'current' } });
+      const li = last(container);
+      expect(li.getAttribute('data-jx-step')).toBe('current');
+      expect(li.getAttribute('aria-current')).toBe('step');
+      // and it reads as current to AT through the status text as well
+      expect(li.querySelector('.sr-only')!.textContent).toBe('current step');
+    });
+
+    it('every state is AT-visible as sr-only status text — the words, not the paint (C-6)', () => {
+      const words: [StepState, string][] = [
+        ['pending', 'in progress'],
+        ['success', 'succeeded'],
+        ['error', 'failed'],
+        ['hint', 'information'],
+        ['emphasis', 'attention'],
+      ];
+      for (const [state, text] of words) {
+        const { container } = render(StepsHost, { props: { lastState: state } });
+        const li = last(container);
+        const status = li.querySelector('.sr-only')!;
+        expect(status, state).toBeTruthy();
+        expect(status.textContent, state).toBe(text);
+        // the status rides FIRST inside the item: state before content
+        expect(li.firstElementChild).toBe(status);
+      }
+      // the trio speaks too
+      const trio = render(StepsHost, { props: { ordinals: [0, 1, 2], current: 1 } });
+      const texts = [...trio.container.querySelectorAll('.sr-only')].map((n) => n.textContent);
+      expect(texts).toEqual(['completed', 'current step', 'not started']);
+    });
+
+    it('the confusable pairs are shape-separated, not glyph-only (V2-6)', () => {
+      const marker = (state: StepState): string => {
+        const { container } = render(StepsHost, { props: { lastState: state } });
+        return last(container).querySelector('[data-jx-step-indicator]')!.className;
+      };
+      // PENDING vs DONE: done went SOLID primary; pending stays hollow
+      const done = render(StepsHost, {
+        props: { ordinals: [0, 1, 2], current: 1, interactive: true },
+      }).container.querySelector('button[data-jx-step-indicator]')!;
+      expect(done.className).toContain('bg-primary');
+      expect(marker('pending')).toContain('bg-card');
+      expect(marker('pending')).not.toContain('bg-primary');
+      // CURRENT vs EMPHASIS: current keeps the solid fill; emphasis is hollow + halo
+      const current = render(StepsHost, { props: { ordinals: [0, 1, 2], current: 1 } })
+        .container.querySelectorAll('[data-jx-step-item]')[1]!
+        .querySelector('[data-jx-step-indicator]')!;
+      expect(current.className).toContain('bg-primary');
+      const emphasis = marker('emphasis');
+      expect(emphasis).toContain('ring-1');
+      expect(emphasis).toContain('ring-offset-2');
+      expect(emphasis).not.toContain('bg-primary');
+      // DISABLED vs TODO: dashed + reduced contrast vs the solid hollow ring
+      expect(marker('disabled')).toMatch(/border-dashed border-border\/60/);
+      expect(marker('todo')).not.toContain('border-dashed');
     });
   });
 });
@@ -341,7 +467,7 @@ describe('Timeline family — the grid engine (css law)', () => {
     expect(timelineCss).toContain("[data-dir='beIe']");
     // attribute paint pair
     expect(timelineCss).toContain(':where([data-jx-tl-dot])');
-    expect(timelineCss).toContain(`:where([data-jx-tl-pending]) :where([data-jx-tl-dot])`);
+    expect(timelineCss).toContain(`:where([data-jx-tl-pending]) > :where([data-jx-tl-dot])`);
     expect(timelineCss).toContain(':where([data-jx-tl-title])');
     expect(timelineCss).toContain(`:where([data-jx-tl-pending]) :where([data-jx-tl-title])`);
     expect(timelineCss).not.toMatch(/\.jx-tl/);
@@ -376,6 +502,121 @@ describe('Timeline family — SSR-honest first paint', () => {
     expect(items[0]!.querySelector('time')!.getAttribute('datetime')).toBe('2026-08-22T07:02:00Z');
     expect(container.querySelectorAll('[data-jx-tl-line]').length).toBe(2);
     expect(container.querySelector('.tl-body')).toBeTruthy();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Timeline — the 2026-09-02 fix-wave laws: the scroll spine (C-1), the
+// chrome span vs of-type selectors (C-4), nested-family scoping (C-15),
+// the dashed phase anchor (V2-5), the line seam contract (C-5/C-10)
+// ---------------------------------------------------------------------------
+describe('Timeline family — the scroll spine and chrome laws (2026-09-02)', () => {
+  it("anim='scroll' mounts the spine as the ol's FIRST child — the li-scoped of-type selectors must survive it", () => {
+    const { container } = render(TimelineHost, { props: { animation: 'scroll' } });
+    const ol = container.querySelector('ol[data-jx-timeline]')!;
+    expect(ol.getAttribute('data-anim')).toBe('scroll');
+    const spine = ol.querySelector(':scope > [data-jx-tl-progress]')!;
+    expect(spine).toBeTruthy();
+    expect(spine.getAttribute('aria-hidden')).toBe('true');
+    // the chrome span precedes the items — :first-child would hit NOTHING,
+    // :nth-child would flip the interlaced phase (the C-4 defect)
+    const firstElement = ol.firstElementChild!;
+    expect(firstElement).toBe(spine);
+    const items = [...ol.querySelectorAll(':scope > [data-jx-tl-item]')];
+    expect(items.length).toBe(2);
+    expect(items.map((li) => li.tagName)).toEqual(['LI', 'LI']);
+    // no spine outside anim='scroll'
+    const plain = render(TimelineHost).container;
+    expect(plain.querySelector('[data-jx-tl-progress]')).toBeNull();
+  });
+
+  it("the spine never spans implicit-only tracks (C-1): the flow axis has no explicit rows, so the spine rides the absolute-positioning channel with a deliberate long span instead", () => {
+    // the root becomes the containing-block anchor exactly when the spine runs
+    expect(timelineCss).toMatch(
+      /\[data-jx-timeline\]\[data-anim='scroll'\]\) \{\s*\r?\n\s*position: relative/,
+    );
+    // the spine is out of flow (the shared rule); the axis rules give it a
+    // containing block that covers every item-born track — `1 / -1` resolved
+    // against the empty explicit grid and collapsed to 0×0 (Chromium-probed;
+    // see .agents/scripts/probe-c1-spine.mjs for the before/after geometry)
+    const sharedSpine = timelineCss.match(
+      /:where\(\[data-anim='scroll'\] > \[data-jx-tl-progress\]\) \{([^}]*)\}/,
+    )!;
+    expect(sharedSpine).toBeTruthy();
+    expect(sharedSpine[1]).toContain('position: absolute');
+    const vSpine = timelineCss.match(
+      /:where\(\[data-axis='vertical'\]\[data-anim='scroll'\] > \[data-jx-tl-progress\]\) \{([^}]*)\}/,
+    )!;
+    expect(vSpine).toBeTruthy();
+    expect(vSpine[1]).toContain('grid-column: dot'); // cross axis: the dot lane
+    expect(vSpine[1]).toContain('grid-row: 1 / span 10000'); // flow axis: every item-born row
+    expect(vSpine[1]).toContain('inset-block: 0');
+    expect(vSpine[1]).not.toContain('1 / -1'); // the zero-size collapse is gone
+    const hSpine = timelineCss.match(
+      /:where\(\[data-axis='horizontal'\]\[data-anim='scroll'\] > \[data-jx-tl-progress\]\) \{([^}]*)\}/,
+    )!;
+    expect(hSpine[1]).toContain('grid-row: dot');
+    expect(hSpine[1]).toContain('grid-column: 1 / span 10000'); // overflowed item columns included
+    expect(hSpine[1]).toContain('inset-inline: 0');
+    expect(hSpine[1]).not.toContain('1 / -1');
+  });
+
+  it('the engine selectors are direct-child scoped (C-15): a nested timeline of another axis cannot be painted by the outer engine', () => {
+    // every axis/direction engine selector hops ol > li (and li > part)
+    expect(timelineCss).toMatch(/\[data-jx-timeline\]\[data-axis='vertical'\] > \[data-jx-tl-item\]/);
+    expect(timelineCss).toMatch(/\[data-jx-timeline\]\[data-axis='horizontal'\] > \[data-jx-tl-item\]/);
+    expect(timelineCss).toMatch(
+      /\[data-jx-timeline\]\[data-direction='interlaced'\]\[data-axis='vertical'\] > \[data-jx-tl-item\]:nth-of-type\(odd\)\) > \[data-jx-tl-content\]/,
+    );
+    // no bare descendant axis hop survives anywhere in the sheet
+    expect(timelineCss).not.toMatch(/\[data-axis='[a-z]+'\] \[data-jx-tl-/);
+    expect(timelineCss).not.toMatch(/\[data-direction='[a-z]+'\] \[data-jx-tl-/);
+  });
+
+  it('end-caps and interlaced phases count li TYPES, not children (C-4) — the chrome span never shifts them', () => {
+    expect(timelineCss).toMatch(/\[data-jx-tl-item\]:first-of-type\) > \[data-jx-tl-line\]/);
+    expect(timelineCss).toMatch(/\[data-jx-tl-item\]:last-of-type\) > \[data-jx-tl-line\]/);
+    expect(timelineCss).not.toContain(':first-child');
+    expect(timelineCss).not.toContain(':nth-child(');
+  });
+
+  it('the dashed preset phase-anchors its chain to the dot edge (V2-5)', () => {
+    const vDashed = timelineCss.match(
+      /:where\(\[data-jx-timeline\]\[data-axis='vertical'\] > \[data-jx-tl-item\]\) > \[data-jx-tl-line\]\[data-line='dashed'\] \{([^}]*)\}/,
+    )!;
+    expect(vDashed[1]).toContain('repeating-linear-gradient(180deg, var(--border) 0 4px, transparent 4px 8px)');
+    // the tiling origin rides --jx-icon: a dash STARTS at the dot's flow-end
+    // edge at every density (default icon 20px ≡ 4 mod 8 left a dead window)
+    expect(vDashed[1]).toContain('background-position: 0 var(--jx-icon)');
+    const hDashed = timelineCss.match(
+      /:where\(\[data-jx-timeline\]\[data-axis='horizontal'\] > \[data-jx-tl-item\]\) > \[data-jx-tl-line\]\[data-line='dashed'\] \{([^}]*)\}/,
+    )!;
+    expect(hDashed[1]).toContain('background-position: var(--jx-icon) 0');
+  });
+});
+
+describe('Timeline family — the line seam (C-5 instantiation order, C-10 getter context)', () => {
+  it('a line(i) snippet replaces the authored-free line, receiving instantiation-order indices', () => {
+    const { container } = render(TimelineHost, { props: { useLine: true } });
+    // the authored snippet wins over the default span — everywhere
+    expect(container.querySelectorAll('[data-jx-tl-line]').length).toBe(0);
+    const authored = [...container.querySelectorAll('[data-testid="tl-authored-line"]')];
+    expect(authored.map((n) => n.textContent)).toEqual(['L0', 'L1']); // document order = index order
+  });
+
+  it('the root context reads the line seam through a GETTER — swapping the prop retiles mounted items (C-10)', async () => {
+    const { container, rerender } = render(TimelineHost);
+    expect(container.querySelectorAll('[data-jx-tl-line]').length).toBe(2);
+    await rerender({ useLine: true });
+    expect(container.querySelectorAll('[data-jx-tl-line]').length).toBe(0);
+    expect([...container.querySelectorAll('[data-testid="tl-authored-line"]')].length).toBe(2);
+  });
+
+  it('the seam contract is documented where the index is minted (C-5: keyed reorders keep first-mount indices)', () => {
+    const root = readFileSync(resolve(specDir, '../src/lib/ui/timeline/timeline.svelte'), 'utf8');
+    const item = readFileSync(resolve(specDir, '../src/lib/ui/timeline/timeline-item.svelte'), 'utf8');
+    expect(root).toContain('THE line(index) SEAM CONTRACT');
+    expect(item).toMatch(/keyed \{#each\} reorder MOVES this/);
   });
 });
 

@@ -62,8 +62,11 @@
   }: Props = $props();
 
   // one cell per snippet — a fragment of grid children placed by
-  // timeline.css through the valued data-dir hook
-  const cells: [dir: string, snippet: Snippet | undefined][] = [
+  // timeline.css through the valued data-dir hook. $derived (2026-09-02):
+  // the snippet props are reactive state; a plain const array captured
+  // their first-mount values (8× state_referenced_locally) and never
+  // re-tiled when a snippet slot swapped
+  const cells = $derived<[dir: string, snippet: Snippet | undefined][]>([
     ['bsIs', blockStartInlineStart],
     ['bs', blockStart],
     ['bsIe', blockStartInlineEnd],
@@ -72,7 +75,7 @@
     ['beIs', blockEndInlineStart],
     ['be', blockEnd],
     ['beIe', blockEndInlineEnd],
-  ];
+  ]);
 </script>
 
 {#each cells as [dir, snippet] (dir)}

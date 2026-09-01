@@ -32,7 +32,14 @@
  * Direction zones are grid tracks, not margins (minmax(0,0fr)
  * collapses a lane to zero); logical slot names never change meaning
  * when the axis flips — the engine transposes. Pending stays ATTRIBUTE
- * PAINT (data-jx-tl-pending hollows the dot, mutes the title). */
+ * PAINT (data-jx-tl-pending hollows the dot, mutes the title).
+ *
+ * NESTING LAW (2026-09-02): every ENGINE selector (axis · direction ·
+ * placement) is DIRECT-CHILD scoped — [data-jx-timeline] > item > part.
+ * A descendant hop would leak the outer axis onto a nested timeline's
+ * items (the inner engine got painted by both). The UNIVERSAL paints
+ * (base dot/line/title/pending pair) carry no axis and may cascade
+ * into nested families — color-level only, never placement. */
 
 @layer components {
   /* ── the root: vertical form ── */
@@ -76,13 +83,13 @@
   }
 
   /* ── the item: subgrid lanes + the node's own 3 rows ── */
-  :where([data-axis='vertical'] [data-jx-tl-item]) {
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]) {
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: subgrid;
     grid-template-rows: [bs-start] auto [bs-end dot-start] auto [dot-end be-start] auto [be-end];
   }
-  :where([data-axis='horizontal'] [data-jx-tl-item]) {
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]) {
     grid-row: 1 / -1;
     display: grid;
     grid-template-rows: subgrid;
@@ -91,7 +98,7 @@
   }
 
   /* ── the line: the dot's two block neighbors + center, bridged ── */
-  :where([data-axis='vertical'] [data-jx-tl-line]) {
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-line] {
     grid-column: dot;
     grid-row: bs-start / be-end;
     justify-self: center;
@@ -100,7 +107,7 @@
     background: var(--border);
     z-index: 0;
   }
-  :where([data-axis='horizontal'] [data-jx-tl-line]) {
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-line] {
     grid-row: dot;
     grid-column: bs-start / be-end;
     align-self: center;
@@ -110,25 +117,27 @@
     z-index: 0;
   }
   /* the chronology's ends: the first line starts AT the first dot, the
-     last stops after the last dot — no orphan stubs */
-  :where([data-axis='vertical'] [data-jx-tl-item:first-child] [data-jx-tl-line]) {
+     last stops after the last dot — no orphan stubs. OF-TYPE, not
+     -child: the anim='scroll' chrome span is the ol's first child and
+     must never shift the end-caps or the interlaced phase (2026-09-02) */
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]:first-of-type) > [data-jx-tl-line] {
     grid-row: dot-start / be-end;
   }
-  :where([data-axis='vertical'] [data-jx-tl-item:last-child] [data-jx-tl-line]) {
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]:last-of-type) > [data-jx-tl-line] {
     grid-row: bs-start / dot-end;
     margin-block-end: 0;
   }
-  :where([data-axis='horizontal'] [data-jx-tl-item:first-child] [data-jx-tl-line]) {
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]:first-of-type) > [data-jx-tl-line] {
     grid-column: dot-start / be-end;
   }
-  :where([data-axis='horizontal'] [data-jx-tl-item:last-child] [data-jx-tl-line]) {
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]:last-of-type) > [data-jx-tl-line] {
     grid-column: bs-start / dot-end;
     margin-inline-end: 0;
   }
 
   /* ── the dot: the 9-grid's center cell ── */
-  :where([data-axis='vertical'] [data-jx-tl-dot]),
-  :where([data-axis='horizontal'] [data-jx-tl-dot]) {
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-dot],
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-dot] {
     grid-column: dot;
     grid-row: dot;
     justify-self: center;
@@ -149,8 +158,9 @@
     background: transparent;
     border-width: 2px;
   }
-  /* pending: attribute paint — hollow center, muted title */
-  :where([data-jx-tl-pending]) :where([data-jx-tl-dot]) {
+  /* pending: attribute paint — hollow center, muted title (the dot is
+     a DIRECT child of the pending li; the title rides the content part) */
+  :where([data-jx-tl-pending]) > :where([data-jx-tl-dot]) {
     background: transparent;
   }
 
@@ -165,50 +175,50 @@
     line-height: var(--jx-line-secondary);
     color: var(--muted-foreground);
   }
-  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='bs']),
-  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='be']) {
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='bs'],
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='be'] {
     grid-column: is-start / ie-end;
     justify-self: center;
     text-align: center;
     padding-inline: var(--jx-inset);
     background: var(--background);
   }
-  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='bs']) {
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='bs'] {
     grid-row: bs;
     margin-block-end: var(--jx-gap);
   }
-  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='be']) {
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='be'] {
     grid-row: be;
     margin-block-start: var(--jx-gap);
   }
-  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='is']) {
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='is'] {
     grid-column: is;
     grid-row: dot;
     justify-self: end;
     padding-inline-end: var(--jx-gap);
   }
-  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='ie']) {
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='ie'] {
     grid-column: ie;
     grid-row: dot;
     justify-self: start;
     padding-inline-start: var(--jx-gap);
   }
-  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='bsIs']) {
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='bsIs'] {
     grid-column: is;
     grid-row: bs;
     justify-self: end;
   }
-  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='bsIe']) {
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='bsIe'] {
     grid-column: ie;
     grid-row: bs;
     justify-self: start;
   }
-  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='beIs']) {
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='beIs'] {
     grid-column: is;
     grid-row: be;
     justify-self: end;
   }
-  :where([data-axis='vertical'] [data-jx-tl-slot][data-dir='beIe']) {
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='beIe'] {
     grid-column: ie;
     grid-row: be;
     justify-self: start;
@@ -216,8 +226,8 @@
 
   /* horizontal: the transpose — bs/be flank inline, is/ie ride the
      spine channel as labeled cutouts */
-  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='is']),
-  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='ie']) {
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='is'],
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='ie'] {
     grid-column: dot;
     grid-row: is-start / ie-end;
     align-self: center;
@@ -226,45 +236,45 @@
     padding-inline: var(--jx-inset);
     background: var(--background);
   }
-  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='is']) {
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='is'] {
     padding-block-end: 0;
   }
-  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='ie']) {
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='ie'] {
     padding-block-start: 0;
   }
-  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='bs']) {
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='bs'] {
     grid-row: dot;
     grid-column: bs;
     justify-self: end;
     align-self: center;
     padding-inline-end: var(--jx-gap);
   }
-  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='be']) {
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='be'] {
     grid-row: dot;
     grid-column: be;
     justify-self: start;
     align-self: center;
     padding-inline-start: var(--jx-gap);
   }
-  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='bsIs']) {
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='bsIs'] {
     grid-row: is;
     grid-column: bs;
     align-self: end;
     justify-self: end;
   }
-  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='bsIe']) {
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='bsIe'] {
     grid-row: ie;
     grid-column: bs;
     align-self: start;
     justify-self: end;
   }
-  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='beIs']) {
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='beIs'] {
     grid-row: is;
     grid-column: be;
     align-self: end;
     justify-self: start;
   }
-  :where([data-axis='horizontal'] [data-jx-tl-slot][data-dir='beIe']) {
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-slot][data-dir='beIe'] {
     grid-row: ie;
     grid-column: be;
     align-self: start;
@@ -272,46 +282,46 @@
   }
 
   /* ── the content zone: placed by direction, never by margin ── */
-  :where([data-axis='vertical'] [data-jx-tl-content]) {
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-content] {
     grid-row: 1 / -1;
     min-inline-size: 0;
     align-self: start;
     padding-inline-start: var(--jx-gap);
   }
-  :where([data-direction='ltr'][data-axis='vertical'] [data-jx-tl-content]) {
+  :where([data-jx-timeline][data-direction='ltr'][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-content] {
     grid-column: z2;
   }
-  :where([data-direction='revert'][data-axis='vertical'] [data-jx-tl-content]) {
+  :where([data-jx-timeline][data-direction='revert'][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-content] {
     grid-column: z1;
     padding-inline-start: 0;
     padding-inline-end: var(--jx-gap);
   }
-  :where([data-direction='interlaced'][data-axis='vertical'] [data-jx-tl-item]:nth-child(odd) [data-jx-tl-content]) {
+  :where([data-jx-timeline][data-direction='interlaced'][data-axis='vertical'] > [data-jx-tl-item]:nth-of-type(odd)) > [data-jx-tl-content] {
     grid-column: z2;
   }
-  :where([data-direction='interlaced'][data-axis='vertical'] [data-jx-tl-item]:nth-child(even) [data-jx-tl-content]) {
+  :where([data-jx-timeline][data-direction='interlaced'][data-axis='vertical'] > [data-jx-tl-item]:nth-of-type(even)) > [data-jx-tl-content] {
     grid-column: z1;
     padding-inline-start: 0;
     padding-inline-end: var(--jx-gap);
   }
 
-  :where([data-axis='horizontal'] [data-jx-tl-content]) {
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-content] {
     grid-column: 1 / -1;
     min-inline-size: 0;
     padding-block-start: var(--jx-gap);
   }
-  :where([data-direction='ltr'][data-axis='horizontal'] [data-jx-tl-content]) {
+  :where([data-jx-timeline][data-direction='ltr'][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-content] {
     grid-row: z2;
   }
-  :where([data-direction='revert'][data-axis='horizontal'] [data-jx-tl-content]) {
+  :where([data-jx-timeline][data-direction='revert'][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-content] {
     grid-row: z1;
     padding-block-start: 0;
     padding-block-end: var(--jx-gap);
   }
-  :where([data-direction='interlaced'][data-axis='horizontal'] [data-jx-tl-item]:nth-child(odd) [data-jx-tl-content]) {
+  :where([data-jx-timeline][data-direction='interlaced'][data-axis='horizontal'] > [data-jx-tl-item]:nth-of-type(odd)) > [data-jx-tl-content] {
     grid-row: z2;
   }
-  :where([data-direction='interlaced'][data-axis='horizontal'] [data-jx-tl-item]:nth-child(even) [data-jx-tl-content]) {
+  :where([data-jx-timeline][data-direction='interlaced'][data-axis='horizontal'] > [data-jx-tl-item]:nth-of-type(even)) > [data-jx-tl-content] {
     grid-row: z1;
     padding-block-start: 0;
     padding-block-end: var(--jx-gap);
@@ -326,17 +336,28 @@
   }
 
   /* ── line presets (the `line` snippet replacements) ── */
-  :where([data-axis='vertical'] [data-jx-tl-line][data-line='dashed']) {
+  /* dashed (4 on / 4 off): the chain is PHASE-ANCHORED to the dot edge
+     (2026-09-02) — the pattern's origin rides background-position at
+     var(--jx-icon), so a dash STARTS at the dot's flow-end edge no
+     matter the density scale (the dot is --jx-icon tall; shifting the
+     tiling by exactly that lands phase 0 on the edge — the old
+     top-anchored chain left a 4px dead window at default density,
+     where 20px ≡ 4 mod 8). True whenever the bs row is empty (the
+     authored default); a blockStart slot re-phases by its own content
+     height — inherent to a per-element background, noted here. */
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-line][data-line='dashed'] {
     background: repeating-linear-gradient(180deg, var(--border) 0 4px, transparent 4px 8px);
+    background-position: 0 var(--jx-icon);
   }
-  :where([data-axis='horizontal'] [data-jx-tl-line][data-line='dashed']) {
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-line][data-line='dashed'] {
     background: repeating-linear-gradient(90deg, var(--border) 0 4px, transparent 4px 8px);
+    background-position: var(--jx-icon) 0;
   }
   :where([data-jx-tl-line][data-line='beam']) {
     position: relative;
     overflow: hidden;
   }
-  :where([data-axis='vertical'] [data-jx-tl-line][data-line='beam'])::after {
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-item]) > [data-jx-tl-line][data-line='beam']::after {
     content: '';
     position: absolute;
     left: 0;
@@ -345,7 +366,7 @@
     background: linear-gradient(180deg, transparent, var(--primary), transparent);
     animation: jx-tl-beam-v 2.4s linear infinite;
   }
-  :where([data-axis='horizontal'] [data-jx-tl-line][data-line='beam'])::after {
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item]) > [data-jx-tl-line][data-line='beam']::after {
     content: '';
     position: absolute;
     top: 0;
@@ -355,32 +376,53 @@
     animation: jx-tl-beam-h 2.4s linear infinite;
   }
 
-  /* ── the scroll-progress spine (anim='scroll'): a grid child of the
-     root riding the whole spine channel; engines without scroll()
-     timelines never show it ── */
+  /* ── the scroll-progress spine (anim='scroll') ──
+     The chronology's flow axis has NO explicit tracks — every row is
+     item-born (implicit) — so the classic grid-area span `1 / -1`
+     resolves against an empty explicit grid and collapses to a
+     zero-size area (the C-1 lesson: never span implicit-only tracks;
+     Chromium measured 0×0, and a plain abspos `auto` axis fares no
+     better). The spine rides the ABSOLUTE-POSITIONING channel with a
+     DELIBERATE flow-axis span instead: `1 / span 10000` makes the
+     spine's containing block cover every item-born track — including
+     tracks that overflow the ol's box on the horizontal axis — while
+     the empty implicit tracks it forces stay 0-sized (layout untouched,
+     and out-of-flow children never disturb item auto-placement). The
+     cross axis anchors by the named lane. Engines without scroll()
+     timelines never show it. */
   :where([data-jx-tl-progress]) {
     display: none;
   }
   @supports (animation-timeline: scroll()) {
+    :where([data-jx-timeline][data-anim='scroll']) {
+      position: relative; /* the spine's containing-block anchor */
+    }
     :where([data-anim='scroll'] > [data-jx-tl-progress]) {
       display: block;
+      position: absolute;
       z-index: 0;
       background: color-mix(in oklab, var(--primary) 55%, transparent);
     }
     :where([data-axis='vertical'][data-anim='scroll'] > [data-jx-tl-progress]) {
-      grid-column: dot;
-      grid-row: 1 / -1;
-      justify-self: center;
+      grid-column: dot; /* containing block, cross axis: the dot lane */
+      grid-row: 1 / span 10000; /* flow axis: every item-born row */
+      inset-block: 0;
+      left: 0;
+      right: 0;
       inline-size: 1px;
+      margin-inline: auto; /* center the 1px spine on the lane */
       transform-origin: top;
       animation: jx-tl-grow-y linear both;
       animation-timeline: scroll(nearest block);
     }
     :where([data-axis='horizontal'][data-anim='scroll'] > [data-jx-tl-progress]) {
-      grid-row: dot;
-      grid-column: 1 / -1;
-      align-self: center;
+      grid-row: dot; /* containing block, cross axis: the dot lane */
+      grid-column: 1 / span 10000; /* flow axis: every item-born column, overflow included */
+      inset-inline: 0;
+      top: 0;
+      bottom: 0;
       block-size: 1px;
+      margin-block: auto; /* center the 1px spine on the lane */
       transform-origin: left;
       animation: jx-tl-grow-x linear both;
       animation-timeline: scroll(nearest inline);
@@ -389,9 +431,10 @@
 
   /* ── the view-driven entrance (anim='view'): items rise as they
      enter the scrollport; engines without view() timelines render the
-     final state (no declaration → no animation) ── */
+     final state (no declaration → no animation). Direct-child scoped —
+     a nested timeline's items keep their own motion owner ── */
   @supports (animation-timeline: view()) {
-    :where([data-anim='view'] [data-jx-tl-item]) {
+    :where([data-jx-timeline][data-anim='view'] > [data-jx-tl-item]) {
       animation: jx-tl-rise 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
       animation-timeline: view();
       animation-range: entry 0% entry 60%;
@@ -439,8 +482,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* the beam rests at the line head (decorative motion removed, the
+     base line stays); view entries rest in place; the progress spine
+     stays hidden — no frozen mid-flight paint anywhere */
   :where([data-jx-tl-line][data-line='beam'])::after,
-  :where([data-anim='view'] [data-jx-tl-item]),
+  :where([data-jx-timeline][data-anim='view'] > [data-jx-tl-item]),
   :where([data-anim='scroll'] > [data-jx-tl-progress]) {
     animation: none;
   }

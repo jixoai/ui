@@ -72,8 +72,16 @@ describe('separator ink engine (css source law)', () => {
 
   it('fade rides the blend engine: difference over an alpha ramp', () => {
     expect(css).toContain('mix-blend-mode: difference');
-    expect(css).toMatch(/rgb\(255 255 255 \/ 0\.9\) 50%/);
+    expect(css).toMatch(/rgb\(255 255 255 \/ 0\.6\) 50%/);
     // the blend variant drops the filter (one engine at a time)
     expect(css).toMatch(/fade'\]\[data-orientation='horizontal'\]\) \{\s*backdrop-filter: none/);
+  });
+
+  it('the fade peak stays capped (0.6): a 0.9 white-difference layer slams bright grounds to near-black — and exact mid-gray is the engine blind spot either way', () => {
+    // the peak stop is the only alpha allowed above the 0.35 shoulders
+    const peaks = [...css.matchAll(/rgb\(255 255 255 \/ ([\d.]+)\) 50%/g)].map((m) => m[1]);
+    expect(peaks.length).toBe(2); // both orientations
+    for (const alpha of peaks) expect(Number(alpha)).toBeLessThanOrEqual(0.6);
+    expect(css).not.toContain('rgb(255 255 255 / 0.9)');
   });
 });

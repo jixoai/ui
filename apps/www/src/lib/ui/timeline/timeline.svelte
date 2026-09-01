@@ -23,6 +23,17 @@
                  TimelineLineBeam. Absent → the default 1px line is
                  auto-rendered by every item (the line is authored-free).
 
+  THE line(index) SEAM CONTRACT (2026-09-02, the C-5 ruling): the index
+  handed to the snippet is the item's INSTANTIATION ordinal — SSR-honest
+  and lifecycle-free, but Svelte 5 MOVES keyed {#each} children without
+  re-instantiating them, so a reorder keeps every item's first-mount
+  index. The seam therefore contracts on AUTHORED/stable order: dynamic
+  insert/remove/reorder of TimelineItems is out of contract while a
+  `line` snippet is supplied (the default authored-free line ignores
+  the index and is unaffected). Making the index reorder-correct needs
+  mount-time registration — banned by the family's SSR-honest
+  zero-lifecycle law; documented here instead.
+
   A timeline is a chronology display, not a stepper; the in-flight
   semantic stays the per-item `pending` flag. role=list survives
   list-none (Safari strips list semantics from marker-less lists).
@@ -36,7 +47,8 @@
   import './timeline.css';
 
   /** the context surface: the line seam + the SSR-honest index counter
-   *  (instantiation order IS document order, server and client alike) */
+   *  (instantiation order IS document order, server and client alike —
+   *  the C-5 seam contract lives in the header comment above) */
   export interface TimelineApi {
     readonly line: Snippet<[number]> | undefined;
     nextIndex(): number;
@@ -70,7 +82,12 @@
 
   let counter = 0;
   setContext<TimelineApi>('jx-timeline', {
-    line,
+    // GETTER (2026-09-02): a swapped `line` snippet reaches already-
+    // mounted items — the api object is set once (SSR-honest, no
+    // lifecycle), so the seam must read through it, not capture it
+    get line() {
+      return line;
+    },
     nextIndex: () => counter++,
   });
 </script>
@@ -86,9 +103,11 @@
   role="list"
 >
   {#if animation === 'scroll'}
-    <!-- the progress spine: a grid child riding the whole spine channel
-         (paint is @supports-gated — engines without scroll() timelines
-         never show it) -->
+    <!-- the progress spine: the ol's FIRST child, out of flow (timeline.css
+         parks it on the absolute-positioning channel so it covers every
+         implicit item row; paint is @supports-gated — engines without
+         scroll() timelines never show it. Being a span, it never counts
+         in the li-scoped :first-of-type/:nth-of-type engine selectors) -->
     <span data-jx-tl-progress aria-hidden="true"></span>
   {/if}
   {@render children()}

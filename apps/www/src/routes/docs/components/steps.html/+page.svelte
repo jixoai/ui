@@ -11,6 +11,14 @@
      navigate back; the drawer's usage file tracks the live state.
   4. Usage CodeBlock: the copyable composition sample (the canvas
      drawer shares the same string, live-tracked).
+  5. State-vocabulary gallery (2026-09-01): the nine-word override
+     over the derived trio — three composed Steps rows, one per state
+     group. The V2-6 pass (2026-09-02) shape-separated the confusable
+     pairs (done solid+✓ / pending hollow+⋯ · current solid+number /
+     emphasis hollow+halo ! · disabled dashed+reduced / todo hollow)
+     and every gallery description below tracks that grammar; the C-6
+     ruling (2026-09-02) made each state AT-visible as sr-only text
+     (the a11y table carries the row).
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
@@ -156,14 +164,18 @@ let current = \$state(1);
       <ComponentCanvas
         title="steps"
         stage="center"
-        description="Walk the wizard: click a completed step's check-marker to go back, or drive current from the playground — every Indicator, Title, Description and Separator below is authored, never auto-inserted."
+        pane="below"
+        description="Walk the wizard: click a completed step's check-marker to go back, or drive current from the playground — every Indicator, Title, Description and Separator below is authored, never auto-inserted. The pane rides BELOW the stage on this canvas: a three-column wizard row needs its full width, and the side pane would squeeze each item back into the word-waterfall."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/steps/steps.svelte"
         files={canvasFiles}
         onreset={resetCanvas}
         output={[{ label: 'current', value: current }]}
         resolveFileContent={resolveUsage}
       >
-        <div class="w-full max-w-2xl">
+        <!-- V2-3 demo layout: the main wizard row spans the FULL stage
+             (pane=below bought the width; no max-w cap — the states
+             gallery below keeps its compact max-w-2xl) -->
+        <div class="w-full">
           <Steps {current}>
             {#each [0, 1, 2] as step (step)}
               <StepsItem {step} label={titles[step]} onclick={() => (currentOption = String(step))}>
@@ -201,9 +213,9 @@ let current = \$state(1);
         <div class="flex flex-col gap-6">
           <div class="w-full max-w-2xl">
             <Steps current={1}>
-              <StepsItem step={0} label="done"><StepsIndicator /><StepsTitle>done</StepsTitle><StepsDescription>step &lt; current · ✓ · connector painted primary</StepsDescription><StepsSeparator /></StepsItem>
-              <StepsItem step={1}><StepsIndicator /><StepsTitle>current</StepsTitle><StepsDescription>step = current · aria-current=step · filled marker</StepsDescription><StepsSeparator /></StepsItem>
-              <StepsItem step={2} state="pending"><StepsIndicator /><StepsTitle>pending</StepsTitle><StepsDescription>the middle state · ⋯ breathing · submitted, in flight</StepsDescription><StepsSeparator /></StepsItem>
+              <StepsItem step={0} label="done"><StepsIndicator /><StepsTitle>done</StepsTitle><StepsDescription>step &lt; current · solid fill + ✓ · connector painted primary</StepsDescription><StepsSeparator /></StepsItem>
+              <StepsItem step={1}><StepsIndicator /><StepsTitle>current</StepsTitle><StepsDescription>step = current · aria-current=step · solid fill + its number</StepsDescription><StepsSeparator /></StepsItem>
+              <StepsItem step={2} state="pending"><StepsIndicator /><StepsTitle>pending</StepsTitle><StepsDescription>the middle state · hollow + the breathing ⋯ · submitted, in flight</StepsDescription><StepsSeparator /></StepsItem>
             </Steps>
           </div>
           <div class="w-full max-w-2xl">
@@ -215,9 +227,9 @@ let current = \$state(1);
           </div>
           <div class="w-full max-w-2xl">
             <Steps current={1}>
-              <StepsItem step={0} state="emphasis"><StepsIndicator /><StepsTitle>emphasis</StepsTitle><StepsDescription>the quest-giver ! · filled primary · look here</StepsDescription><StepsSeparator /></StepsItem>
-              <StepsItem step={1} state="disabled"><StepsIndicator /><StepsTitle>disabled</StepsTitle><StepsDescription>declared out-of-reach · aria-disabled — unlike todo (the merely unreached)</StepsDescription><StepsSeparator /></StepsItem>
-              <StepsItem step={2}><StepsIndicator /><StepsTitle>todo</StepsTitle><StepsDescription>step &gt; current · inert, never aria-disabled</StepsDescription></StepsItem>
+              <StepsItem step={0} state="emphasis"><StepsIndicator /><StepsTitle>emphasis</StepsTitle><StepsDescription>the quest-giver ! · hollow + halo ring · look here</StepsDescription><StepsSeparator /></StepsItem>
+              <StepsItem step={1} state="disabled"><StepsIndicator /><StepsTitle>disabled</StepsTitle><StepsDescription>declared out-of-reach · dashed ring, reduced contrast, spoken "unavailable" — unlike todo (the merely unreached)</StepsDescription><StepsSeparator /></StepsItem>
+              <StepsItem step={2}><StepsIndicator /><StepsTitle>todo</StepsTitle><StepsDescription>step &gt; current · hollow ring at full contrast · inert</StepsDescription></StepsItem>
             </Steps>
           </div>
         </div>
@@ -226,8 +238,8 @@ let current = \$state(1);
 
     <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Step states" summary="Each item compares its explicit ordinal with current: completed, current and future are projections of one number. The explicit state prop overrides the comparison when the trio cannot say it."><div class="w-full max-w-2xl"><Steps current={1}><StepsItem step={0}><StepsIndicator /><StepsTitle>done</StepsTitle><StepsSeparator /></StepsItem><StepsItem step={1}><StepsIndicator /><StepsTitle>current</StepsTitle><StepsSeparator /></StepsItem><StepsItem step={2}><StepsIndicator /><StepsTitle>future</StepsTitle></StepsItem></Steps></div></SectionCard></div>
     <div id="usage" data-reveal=""><SectionCard summary="The composition contract in one sample: import the family from the registry barrel (@ui/steps/index — per-part targets exist per file), give every StepsItem its explicit step ordinal, author the parts you want. The Separator self-hides on the last item through the family css — chrome, not authoring." eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
-    <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'aria-current', value: 'step', description: 'Marks the current step.' }, { name: 'button', value: 'completed indicator', description: 'Makes completed steps keyboard actionable only when onclick is supplied.' }]} /></SectionCard></div>
+    <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'aria-current', value: 'step', description: 'Marks the current step — the derived trio and an explicit state="current" both carry it.' }, { name: 'sr-only status', value: 'per-item state text', description: 'The marker glyphs are aria-hidden chrome, so every item speaks its effective state as text (completed · current step · in progress · unavailable · …) — the vocabulary reaches AT as words.' }, { name: 'button', value: 'completed indicator', description: 'Makes completed steps keyboard actionable only when onclick is supplied; after a go-back click, focus rests on the item (tabindex=-1), never on body.' }]} /></SectionCard></div>
     <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Steps current={0}><StepsItem step={0}><StepsIndicator /><StepsTitle>step</StepsTitle></StepsItem></Steps></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
-    <div id="api" data-reveal=""><SectionCard eyebrow="api" title="API" summary="Steps owns current (bindable); StepsItem owns the ordinal and the state vocabulary; the parts stay authored."><PropsTable props={[{ name: 'Steps.current', type: 'number', default: '0', description: '0-based current ordinal.', bindable: true }, { name: 'StepsItem.step', type: 'number', default: '—', description: 'REQUIRED explicit ordinal — compared against current.', required: true }, { name: 'StepsItem.state', type: "'auto' | 'done' | 'current' | 'todo' | 'pending' | 'success' | 'error' | 'hint' | 'emphasis' | 'disabled'", default: "'auto'", description: 'The state vocabulary: auto = the derived trio (pure comparison); the semantic overrides paint the middle state (pending ⋯), the terminals (success ✓ / error ✕), hint (i), emphasis (the quest-giver !) and disabled (aria-disabled).' }, { name: 'StepsItem.label', type: 'string', description: 'Accessible name for the done-marker button.' }, { name: 'StepsItem.onclick', type: '(e) => void', description: 'Fires only from the done state — makes the Indicator the button.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }, { name: 'class', type: 'string', description: 'Adds consumer classes.' }]} /></SectionCard></div>
+    <div id="api" data-reveal=""><SectionCard eyebrow="api" title="API" summary="Steps owns current (bindable); StepsItem owns the ordinal and the state vocabulary; the parts stay authored."><PropsTable props={[{ name: 'Steps.current', type: 'number', default: '0', description: '0-based current ordinal.', bindable: true }, { name: 'StepsItem.step', type: 'number', default: '—', description: 'REQUIRED explicit ordinal — compared against current.', required: true }, { name: 'StepsItem.state', type: "'auto' | 'done' | 'current' | 'todo' | 'pending' | 'success' | 'error' | 'hint' | 'emphasis' | 'disabled'", default: "'auto'", description: 'The state vocabulary: auto = the derived trio (pure comparison); the semantic overrides paint the middle state (pending ⋯), the terminals (success ✓ / error ✕), hint (i), emphasis (the quest-giver !) and disabled (dashed ring, spoken "unavailable").' }, { name: 'StepsItem.label', type: 'string', description: 'Accessible name for the done-marker button.' }, { name: 'StepsItem.onclick', type: '(e) => void', description: 'Fires only from the done state — makes the Indicator the button.' }, { name: 'density', type: 'Density', description: 'Overrides inherited density.' }, { name: 'class', type: 'string', description: 'Adds consumer classes.' }]} /></SectionCard></div>
   </div>
 </div>

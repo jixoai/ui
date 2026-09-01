@@ -30,15 +30,20 @@
   let { pending = false, class: className = '', children, ...rest }: Props = $props();
 
   const ctx = getContext<TimelineApi>('jx-timeline');
-  // instantiation order is document order on the server AND the client —
-  // the counter needs no lifecycle to stay honest
+  // INSTANTIATION order is document order at first paint (server AND
+  // client) — the C-5 seam: a keyed {#each} reorder MOVES this
+  // component without re-instantiating it, so `index` keeps its
+  // first-mount value. The line(index) seam contracts on authored/
+  // stable order (the root header documents the full ruling); a
+  // reorder-correct index would need mount-time registration, banned
+  // by the family's SSR-honest zero-lifecycle law.
   const index = ctx?.nextIndex() ?? -1;
 </script>
 
 <li
   data-jx-tl-item=""
   data-jx-tl-pending={pending ? '' : undefined}
-  class={cn('relative min-w-0', className)}
+  class={cn('min-w-0', className)}
   {...rest}
 >
   {#if ctx?.line}
