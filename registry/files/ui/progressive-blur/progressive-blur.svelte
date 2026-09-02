@@ -47,9 +47,9 @@
   import { cn } from '$lib/utils';
   import './progressive-blur.css';
 
-  export interface ProgressiveBlurProps {
-    /** which scrollport edge(s) the band hangs from */
-    position?: 'top' | 'bottom' | 'both' | 'start' | 'end' | 'inline';
+  /** band law shared by both dialects — size, ladder and reveal are
+   *  dialect-free */
+  interface ProgressiveBlurBandProps {
     /** band size along its hang axis — any definite CSS length
         (px/rem); % unsupported */
     height?: string;
@@ -61,26 +61,45 @@
         aim, so inline edges keep the always-painted static law and are
         never hidden — B-5, 2026-09-02) */
     reveal?: 'static' | 'scroll';
-    /** how the band pins to its edge. sticky = the zero-layout sticky
-     *  root INSIDE a scroller (the original atom); grid = a position-free
-     *  dialect (Owner, 2026-09-01 — grid provides positioning, z-index
-     *  the layering): the band is a sibling item in the consumer's
-     *  ONE-CELL grid host (grid-area 1/1 + justify-self per edge), and
-     *  the ladder layers stack as grid items of the band itself.
-     *  start/end edges only in the grid dialect */
-    pin?: 'sticky' | 'grid';
-    /** grid dialect only: the outer share of the band (0–100, clamped
-     *  to it, %) that HOLDS the ladder's peak instead of ramping — for
-     *  strips whose readable content parks inboard of the clip edge (a
-     *  control lane: the tabs' chevron lane + snap padding park the
-     *  first label ~1.5 lanes in, so a pure edge-peaked ramp blanches
-     *  over blank — the measured left-veil-is-invisible bug,
-     *  2026-09-01). The ramp compresses into the inboard (100-hold)%
-     *  and the top layers hold full strength through the lane to the
-     *  edge */
-    hold?: number;
     class?: string;
   }
+
+  /** the sticky dialect: the zero-layout sticky root INSIDE a scroller
+   *  (the original atom) — every edge vocabulary is placeable */
+  interface ProgressiveBlurStickyProps extends ProgressiveBlurBandProps {
+    pin?: 'sticky';
+    /** which scrollport edge(s) the band hangs from */
+    position?: 'top' | 'bottom' | 'both' | 'start' | 'end' | 'inline';
+    /** hold is GRID-only: `undefined` here closes the destructuring
+     *  hole the union would otherwise open (a sticky hold is a
+     *  compile error, not a silently-ignored number) */
+    hold?: undefined;
+  }
+
+  /** the grid dialect (Owner, 2026-09-01 — grid provides positioning,
+   *  z-index the layering): the band is a sibling item in the
+   *  consumer's ONE-CELL grid host (grid-area 1/1 + justify-self per
+   *  edge), and the ladder layers stack as grid items of the band
+   *  itself. justify-self aims along the INLINE axis only, so the
+   *  position vocabulary narrows to start/end — a block-edge or pair
+   *  position has NO placement law in this dialect (Codex P2,
+   *  2026-09-02: the non-discriminated union made those combos
+   *  compile-legal and they rendered broken geometry) */
+  interface ProgressiveBlurGridProps extends ProgressiveBlurBandProps {
+    pin: 'grid';
+    position: 'start' | 'end';
+    /** the outer share of the band (0–100, clamped to it, %) that
+     *  HOLDS the ladder's peak instead of ramping — for strips whose
+     *  readable content parks inboard of the clip edge (a control
+     *  lane: the tabs' chevron lane + snap padding park the first
+     *  label ~1.5 lanes in, so a pure edge-peaked ramp blanches over
+     *  blank — the measured left-veil-is-invisible bug, 2026-09-01).
+     *  The ramp compresses into the inboard (100-hold)% and the top
+     *  layers hold full strength through the lane to the edge */
+    hold?: number;
+  }
+
+  export type ProgressiveBlurProps = ProgressiveBlurStickyProps | ProgressiveBlurGridProps;
 
   let {
     position = 'bottom',
@@ -93,14 +112,24 @@
   }: ProgressiveBlurProps = $props();
 
   /** which edges render: 'both' = the block pair, 'inline' = the
-   *  inline pair (start+end) — the horizontal-overflow strip shape */
-  const edges = $derived(
-    position === 'both'
-      ? (['top', 'bottom'] as const)
-      : position === 'inline'
-        ? (['start', 'end'] as const)
-        : ([position] as const),
-  );
+   *  inline pair (start+end) — the horizontal-overflow strip shape.
+   *  The runtime twin of the discriminated union (Codex P2,
+   *  2026-09-02): JS callers bypass the types, so a grid band outside
+   *  its start/end vocabulary normalizes to 'start' (documented
+   *  fallback) instead of rendering the broken justify-self geometry
+   *  the type now forbids */
+  const edges = $derived.by(() => {
+    if (pin === 'grid' && position !== 'start' && position !== 'end') {
+      return ['start'] as const;
+    }
+    return (
+      position === 'both'
+        ? (['top', 'bottom'] as const)
+        : position === 'inline'
+          ? (['start', 'end'] as const)
+          : ([position] as const)
+    ) as readonly ('top' | 'bottom' | 'start' | 'end')[];
+  });
 
   // ladder normalization: fewer than 2 levels cannot express a ramp
   // (step = 100/0, or one full-band rung) — fall back to the default

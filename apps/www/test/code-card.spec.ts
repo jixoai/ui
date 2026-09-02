@@ -7,14 +7,23 @@
  * tag in the sample is inert data), theme editor colors applied verbatim to
  * the card's pre, the scrollport law (pre owns scrolling; maxHeight turns
  * on the vertical lane), and the copied feedback on the copy control.
- * Assertions read the DOM only, never component internals.
+ * Assertions read the DOM only, never component internals. The edge-veil
+ * engine (backdrop contrast + mask) is asserted at the css SOURCE —
+ * jsdom computes neither (the separator.spec precedent).
  */
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { flushSync } from 'svelte';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 import CodeCard from '../src/lib/ui/code-card/code-card.svelte';
 import CodeCardHost from './fixtures/code-card-host.svelte';
+
+const codeCardCss = readFileSync(
+  resolve(process.cwd(), 'src/lib/ui/code-card/code-card.css'),
+  'utf8',
+);
 
 // jsdom ships no clipboard (the copy path falls back) and no execCommand
 document.execCommand = vi.fn(() => true) as unknown as typeof document.execCommand;
@@ -120,5 +129,54 @@ describe('CodeCard', () => {
     const bare = render(CodeCard, { props: { code: 'x', copyable: false } });
     expect(bare.container.querySelector('[data-jx-code-card-head]')).toBeNull();
     expect(bare.container.querySelector('[data-jx-code-card-foot]')).toBeNull();
+  });
+});
+
+describe('CodeCard · edge-veil engine (code-card.css, source-pinned)', () => {
+  // SUBTRACTION INK LAW (design-tokens, Owner ruling 2026-09-01): a
+  // veil never ADDS ground — backdrop contrast subtracts toward mid
+  // tone, the mask ramp shapes the range. The old
+  // --readonly-code-bg linear-gradient was the violation this locks out.
+  it('paints the scroll-edge veils with backdrop contrast + mask ramps, never a background gradient', () => {
+    // per-edge rules: the FIRST ::before/::after match is the shared
+    // engine block — the ramp blocks are the ones carrying the mask
+    const ramp = (edge: 'before' | 'after'): string =>
+      [...codeCardCss.matchAll(
+        new RegExp(`:where\\(\\[data-jx-code-card-scroll\\]\\)::${edge}\\s*\\{[^}]*\\}`, 'g'),
+      )]
+        .map((m) => m[0])
+        .find((b) => b.includes('mask:')) ?? '';
+    const shared = codeCardCss.match(
+      /:where\(\[data-jx-code-card-scroll\]\)::before,\s*:where\(\[data-jx-code-card-scroll\]\)::after\s*\{[^}]*\}/,
+    )?.[0] ?? '';
+    const before = ramp('before');
+    const after = ramp('after');
+    expect(shared, 'the shared veil block must exist as a :where() static').not.toBe('');
+    expect(shared).toContain('backdrop-filter: contrast(0.5)');
+    for (const veil of [before, after]) {
+      expect(veil, 'the per-edge ramp rules must exist as :where() statics').not.toBe('');
+      expect(veil).toContain('mask: linear-gradient(');
+      expect(veil).not.toMatch(/background[^:]*:\s*linear-gradient/);
+    }
+    // the ramps are mirror images
+    expect(before).toContain('to right, rgb(0, 0, 0), transparent');
+    expect(after).toContain('to left, rgb(0, 0, 0), transparent');
+    expect(codeCardCss).not.toContain('linear-gradient(to right, var(--readonly-code-bg)');
+    expect(codeCardCss).not.toContain('linear-gradient(to left, var(--readonly-code-bg)');
+  });
+
+  // placement law (css-architecture): every static selector in the
+  // sheet rides @layer components behind :where() — consumer
+  // utilities win. A rule-OPENING line (2-space indent, ends in `{`;
+  // declarations end in `;`, at-rules sit at column 0) must start
+  // with :where( — a raw selector fails here regardless of count.
+  it('wraps every static selector in :where()', () => {
+    const openers = codeCardCss.match(/^ {2}[^\n]*\{ ?$/gm) ?? [];
+    for (const rule of openers) {
+      expect(rule.trim()).toMatch(/^:where\(/);
+    }
+    // the sheet's own census: tokens, dark tokens, pre law, the veil
+    // blocks (shared openers carry the brace) + the focus/kill pair
+    expect(openers.length).toBeGreaterThanOrEqual(9);
   });
 });

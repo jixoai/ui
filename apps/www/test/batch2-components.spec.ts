@@ -11,6 +11,8 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 import DropdownMenu from '../src/lib/ui/dropdown-menu/dropdown-menu.svelte';
 import DropdownMenuItem from '../src/lib/ui/dropdown-menu/dropdown-menu-item.svelte';
@@ -372,6 +374,26 @@ describe('DropdownMenu', () => {
     const { items } = setup();
     const del = items.find((i) => i.textContent === 'Delete')!;
     expect(del.className).toContain('jx-menu-item-destructive');
+  });
+
+  // ---- the walk highlight paints RAW menuitems too (css law) ---------
+  // The root stamps data-walk-active on ANY [role=menuitem] (raw
+  // consumer items included); jsdom computes no css, so the paint is
+  // asserted at the SOURCE (the separator.spec precedent): both the
+  // class selector (styled family) and the role selector (the walk's
+  // true contract) must carry the highlight — a role-only item with
+  // the attribute and zero feedback was Codex P2, 2026-09-02.
+  it('dropdown-menu.css paints data-walk-active through BOTH the class and the role selector', () => {
+    const css = readFileSync(
+      resolve(process.cwd(), 'src/lib/ui/dropdown-menu/dropdown-menu.css'),
+      'utf8',
+    );
+    const walkRule = css.match(
+      /:where\(\.jx-menu-item:hover\),\s*:where\(\.jx-menu-item\[data-walk-active\]\),[^{]*\{[^}]*\}/,
+    )?.[0] ?? '';
+    expect(walkRule, 'the walk highlight rule must exist').not.toBe('');
+    expect(walkRule).toContain(`:where([role='menuitem'][data-walk-active])`);
+    expect(walkRule).toContain('background: color-mix(in oklab, currentColor 8%, transparent)');
   });
 
   // ---- custom trigger: adopted for aria + focus restoration ----------

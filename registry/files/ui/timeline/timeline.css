@@ -375,6 +375,15 @@
     background: linear-gradient(90deg, transparent, var(--primary), transparent);
     animation: jx-tl-beam-h 2.4s linear infinite;
   }
+  /* RTL (the toast countdown/sweep house pattern): the beam travels
+     physical left→right; under :dir(rtl) the chronology reads
+     right→left, so the light runs the other way — reverse, not a
+     mirrored keyframe (the gradient itself is symmetric); the
+     VERTICAL beam is direction-neutral and never takes this branch */
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-item])
+    > :where([data-jx-tl-line][data-line='beam']):dir(rtl)::after {
+    animation-direction: reverse;
+  }
 
   /* ── the scroll-progress spine (anim='scroll') ──
      The chronology's flow axis has NO explicit tracks — every row is
@@ -426,6 +435,15 @@
       transform-origin: left;
       animation: jx-tl-grow-x linear both;
       animation-timeline: scroll(nearest inline);
+    }
+    /* RTL (the toast countdown house pattern): the scroll() timeline's
+       0% already sits at the reading start (inline end = physical
+       RIGHT under :dir(rtl)); scaleX grows AWAY from its origin, so
+       the origin flips with the direction — without this the spine
+       grows from the far edge while the reader is at the near one.
+       The VERTICAL spine's origin (top) is direction-neutral */
+    :where([data-axis='horizontal'][data-anim='scroll'] > [data-jx-tl-progress]):dir(rtl) {
+      transform-origin: right;
     }
   }
 

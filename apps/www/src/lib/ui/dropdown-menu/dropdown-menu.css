@@ -58,10 +58,14 @@
  * a markup utility can never carry it. PAINT-ONLY by law (D-5,
  * 2026-09-02): the walk never rewrites aria-current; consumer-set
  * aria-current (e.g. the breadcrumb dropdown's aria-current="page")
- * keeps its semantics and its own paint. */
+ * keeps its semantics and its own paint. The ROLE selector is the
+ * walk's true contract (Codex P2, 2026-09-02): without it a raw
+ * consumer menuitem gets the attribute and ZERO feedback; the class
+ * selector stays for the styled family's hover/focus states */
 :where(.jx-menu-item:hover),
 :where(.jx-menu-item[data-walk-active]),
-:where(.jx-menu-item:focus-visible) {
+:where(.jx-menu-item:focus-visible),
+:where([role='menuitem'][data-walk-active]) {
   background: color-mix(in oklab, currentColor 8%, transparent);
   outline: none;
 }

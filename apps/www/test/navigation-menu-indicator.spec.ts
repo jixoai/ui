@@ -152,6 +152,40 @@ describe('NavigationMenuIndicator', () => {
     expect(ind.style.opacity).toBe('0');
   });
 
+  // OWNED-nav scoping (Codex P2, 2026-09-02): the [popover] exclusion
+  // alone let a nested plain <nav> inside an INLINE panel leak its
+  // aria-current link to the outer bar — the traveling highlight would
+  // mark an entry the bar never owned. The shape-aware rule (the
+  // family root's navTriggers identity dialect, extended for
+  // chrome-box bars) keeps BOTH truths: nested navs own their current,
+  // chrome boxes still measure their single consumer nav.
+  it('ignores aria-current inside a nested plain nav of an inline panel', async () => {
+    const { getByTestId } = render(Host);
+    const scope = getByTestId('nested-nav');
+    const ind = scope.querySelector('[data-jx-navmenu-ind]') as HTMLElement;
+    // the bar's own entry is NOT current; the only aria-current lives
+    // in the nested nav — the indicator stands down
+    expect(ind.style.opacity).toBe('0');
+    // …and it wakes when the bar's OWN entry takes the token (the leak
+    // never wedged the bar dark either)
+    const own = scope.querySelector('nav > [data-jx-navmenu-link]') as HTMLElement;
+    own.setAttribute('aria-current', 'page');
+    await waitFor(() => {
+      expect(ind.style.opacity).toBe('1');
+    });
+  });
+
+  it('a chrome-box bar (no nav ancestor) still measures the consumer nav inside it', async () => {
+    const { getByTestId } = render(Host);
+    const scope = getByTestId('chrome-box');
+    const ind = scope.querySelector('[data-jx-navmenu-ind]') as HTMLElement;
+    // the TerminalHeader pill shape: the indicator composes beside the
+    // family nav inside a plain box — the single-nav-layer rule must
+    // not reject the box's own consumer nav
+    expect(ind.style.opacity).toBe('1');
+    expect(ind.style.transform).toContain('translate(');
+  });
+
   it('keeps the bar walk contract intact (the part adds no tab stops)', async () => {
     const { getByTestId } = render(Host);
     const scope = getByTestId('navigation-motion');

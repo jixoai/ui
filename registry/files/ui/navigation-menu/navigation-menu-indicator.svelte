@@ -8,7 +8,9 @@
   Render it as a child of <NavigationMenu>; it measures the bar's
   current entry — [data-jx-navmenu-link][aria-current="page"] or
   [data-jx-navmenu-trigger][aria-current="true"], NEVER an entry inside
-  an open [popover] panel (mega links carry their own current truth) —
+  an open [popover] panel (mega links carry their own current truth)
+  and never one owned by a NESTED plain <nav> (Codex P2, 2026-09-02:
+  an inline panel's nav is its own current truth — see ownedEntry) —
   and slides to it.
 
   TWO motion laws (Owner ruling, 2026-09-01 — the offering, not a
@@ -95,8 +97,26 @@
     return (
       [...bar.querySelectorAll<HTMLElement>(
         '[data-jx-navmenu-link][aria-current="page"], [data-jx-navmenu-trigger][aria-current="true"]',
-      )].find((el) => el.closest('[popover]') === null) ?? null
+      )].find((el) => el.closest('[popover]') === null && ownedEntry(el, bar)) ?? null
     );
+  }
+
+  /** OWNED-nav scoping (Codex P2, 2026-09-02): the [popover] exclusion
+   *  alone let a nested plain <nav> inside an INLINE panel leak its
+   *  aria-current links to the outer bar. The family root's walk scope
+   *  is nav-identity (navigation-menu.svelte navTriggers:
+   *  closest('nav') === navEl); this bar may also be a CHROME BOX
+   *  (the TerminalHeader pill — the consumer nav lands inside it), so
+   *  ownership is the shape-aware form: the entry's nearest nav must be
+   *  the bar's SINGLE nav layer — the bar itself, or a nav with no
+   *  further nav between it and the bar. A deeper chain means an inner
+   *  nav owns that link's current truth (nested panels, footers). */
+  function ownedEntry(el: HTMLElement, bar: HTMLElement): boolean {
+    const nav = el.closest('nav');
+    if (nav === null || nav === bar) return true;
+    if (!bar.contains(nav)) return false;
+    const outer = nav.parentElement?.closest('nav') ?? null;
+    return outer === null || !bar.contains(outer);
   }
 
   type Geo = { x: number; y: number; w: number; h: number };

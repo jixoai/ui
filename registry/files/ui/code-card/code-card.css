@@ -2,14 +2,14 @@
 
 /* jixoai code-card — D1-exempt residue (tw4, 2026-08-24). Card/head/
  * foot/copy statics and the fill/vscroll branches live as token
- * utilities in the markup; what remains:
+ * utilities in the markup; what remains (all @layer components behind
+ * :where() per the placement law — consumer utilities win):
  *   - the --tok-* Shiki css-variables palette + its .dark adaptation
  *     (theme wiring, the documented contract with lib/shiki) and the
- *     --readonly-code-* meta tints — @layer components, so a consumer
- *     can retune any of them with one arbitrary-property utility;
+ *     --readonly-code-* meta tints;
  *   - the pre scrollport law: the scrollbar-gutter compensation
  *     recipe (both-edges gutters, padding-inline hands the gutter
- *     back) — a coherent law, @layer components;
+ *     back) — a coherent law;
  *   - focus-visible rings and the reduced-motion kill — state
  *     machines on the UNLAYERED :where() carve-out (they override the
  *     component's own utility paint; the toggle/Part A precedent). */
@@ -20,7 +20,7 @@
      with only the jixoai-theme sheet installed. The variable names are the
      Shiki css-variables theme contract (--tok-foreground / --tok-token-*),
      so lib/shiki's default theme paints straight from here. */
-  .jx-code-card {
+  :where(.jx-code-card) {
     --readonly-code-bg: color-mix(in oklab, var(--muted) 42%, var(--background));
     --readonly-code-border: color-mix(in oklab, var(--border) 18%, transparent);
     --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 12%, var(--background));
@@ -42,7 +42,7 @@
     --tok-token-deleted: oklch(0.55 0.16 25);
     --tok-token-changed: oklch(0.68 0.12 85);
   }
-  .dark .jx-code-card {
+  :where(.dark .jx-code-card) {
     --readonly-code-bg: color-mix(in oklab, var(--muted) 78%, var(--background));
     --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 18%, var(--background));
     --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 60%, oklch(1 0 0));
@@ -57,7 +57,7 @@
      scroll instead of wrapping; scrollbar paint is the THEME scrollbar law
      (thin, currentColor, hover chain) with containment so a horizontal
      wheel/flick never chains to the page */
-  .jx-code-card pre {
+  :where(.jx-code-card pre) {
     font-size: 12.5px;
     line-height: 1.6;
     margin: 0;
@@ -73,19 +73,23 @@
   }
 
   /* horizontal scroll affordance (V1-8/V2-8, 2026-09-02): the wrapper
-     ([data-jx-code-card-scroll], the pre's veil host) fades its start/end
-     edges ONLY while that direction can still scroll — the component
-     toggles the data flags from scroll events + ResizeObserver. On
-     classic-scrollbar systems the thin thumb already announces the
-     lane; on overlay-scrollbar systems these veils are the only rest-
-     state hint, so a long line never just hard-clips at the edge. Veil
-     ink is the card's own ground over the code (the scrollbar law
-     above stays the interactive affordance); code reads left-to-right,
-     so the gradient directions are physical by design. Known limit: a
-     named Shiki theme that paints its own pre ground via preStyle is
-     not reflected in the veil color. */
-  [data-jx-code-card-scroll]::before,
-  [data-jx-code-card-scroll]::after {
+   * ([data-jx-code-card-scroll], the pre's veil host) fades its start/end
+   * edges ONLY while that direction can still scroll — the component
+   * toggles the data flags from scroll events + ResizeObserver. On
+   * classic-scrollbar systems the thin thumb already announces the
+   * lane; on overlay-scrollbar systems these veils are the only rest-
+   * state hint, so a long line never just hard-clips at the edge.
+   * Veil ink is the SUBTRACTION INK LAW (design-tokens, Owner ruling
+   * 2026-09-01; the tabs shadow-veil dialect): backdrop contrast()
+   * pulls the backdrop toward mid tone — no added ground, so a named
+   * Shiki theme that paints its own pre ground is followed for free
+   * (the old --readonly-code-bg gradient's known limit, retired) —
+   * and the mask ramp shapes the range (backdrop-filter only paints
+   * where the element draws). The scrollbar law above stays the
+   * interactive affordance; code reads left-to-right, so the ramp
+   * directions are physical by design. */
+  :where([data-jx-code-card-scroll])::before,
+  :where([data-jx-code-card-scroll])::after {
     content: '';
     position: absolute;
     inset-block: 0;
@@ -93,17 +97,21 @@
     pointer-events: none;
     opacity: 0;
     transition: opacity 150ms ease-out;
+    backdrop-filter: contrast(0.5);
+    -webkit-backdrop-filter: contrast(0.5);
   }
-  [data-jx-code-card-scroll]::before {
+  :where([data-jx-code-card-scroll])::before {
     inset-inline-start: 0;
-    background: linear-gradient(to right, var(--readonly-code-bg), transparent);
+    mask: linear-gradient(to right, rgb(0, 0, 0), transparent);
+    -webkit-mask-image: linear-gradient(to right, rgb(0, 0, 0), transparent);
   }
-  [data-jx-code-card-scroll]::after {
+  :where([data-jx-code-card-scroll])::after {
     inset-inline-end: 0;
-    background: linear-gradient(to left, var(--readonly-code-bg), transparent);
+    mask: linear-gradient(to left, rgb(0, 0, 0), transparent);
+    -webkit-mask-image: linear-gradient(to left, rgb(0, 0, 0), transparent);
   }
-  [data-jx-code-card-scroll][data-hscroll-start]::before,
-  [data-jx-code-card-scroll][data-hscroll-end]::after {
+  :where([data-jx-code-card-scroll][data-hscroll-start])::before,
+  :where([data-jx-code-card-scroll][data-hscroll-end])::after {
     opacity: 1;
   }
 }
@@ -122,8 +130,8 @@
     transition: none;
   }
   /* the edge veils settle without a transition (static by construction) */
-  [data-jx-code-card-scroll]::before,
-  [data-jx-code-card-scroll]::after {
+  :where([data-jx-code-card-scroll])::before,
+  :where([data-jx-code-card-scroll])::after {
     transition: none;
   }
 }

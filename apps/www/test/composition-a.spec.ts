@@ -484,6 +484,31 @@ describe('Timeline family — the grid engine (css law)', () => {
     expect(bs).toBeTruthy();
     expect(bs!.textContent).toBe('07:02');
   });
+
+  // RTL (Codex P2, 2026-09-02): the horizontal travelers — the scroll
+  // spine's scaleX origin and the beam's travel direction — are
+  // physical; without :dir(rtl) branches both run backwards against
+  // the reading direction. The toast countdown/sweep house pattern.
+  it('the horizontal progress spine and beam carry :dir(rtl) mirror branches', () => {
+    const spineRtl = timelineCss.match(
+      /:where\(\[data-axis='horizontal'\]\[data-anim='scroll'\] > \[data-jx-tl-progress\]\):dir\(rtl\)\s*\{[^}]*\}/,
+    )?.[0] ?? '';
+    expect(spineRtl).not.toBe('');
+    expect(spineRtl).toContain('transform-origin: right');
+
+    // the beam's :dir(rtl) rides OUTSIDE the :where (specificity: the
+    // base beam rule is un-:where'd — an inside-:where mirror loses
+    // the cascade to the shorthand's animation-direction, re-attack P2)
+    const beamRtl = timelineCss.match(
+      /:where\(\[data-jx-tl-line\]\[data-line='beam'\]\):dir\(rtl\)::after\s*\{[^}]*\}/,
+    )?.[0] ?? '';
+    expect(beamRtl).not.toBe('');
+    expect(beamRtl).toContain('animation-direction: reverse');
+    // the physical LTR originals stay the defaults
+    expect(timelineCss).toContain('transform-origin: left');
+    expect(timelineCss).toMatch(/@keyframes jx-tl-beam-h\s*\{[^@]*left: -40%/s);
+    expect(timelineCss).toMatch(/@keyframes jx-tl-beam-h\s*\{[^@]*left: 100%/s);
+  });
 });
 
 describe('Timeline family — SSR-honest first paint', () => {

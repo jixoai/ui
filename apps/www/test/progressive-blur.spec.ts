@@ -33,6 +33,10 @@ const css = readFileSync(
   resolve(process.cwd(), 'src/lib/ui/progressive-blur/progressive-blur.css'),
   'utf8',
 );
+const svelteSrc = readFileSync(
+  resolve(process.cwd(), 'src/lib/ui/progressive-blur/progressive-blur.svelte'),
+  'utf8',
+);
 
 /** the layer's inline declarations as a map (the style attribute holds
  *  the -webkit- twins alongside — the map keys them apart) */
@@ -116,10 +120,49 @@ describe('progressive-blur hold (grid dialect)', () => {
 
   it('a negative hold reads as the plain ladder (clamped to 0)', () => {
     const { container } = render(ProgressiveBlur, {
-      props: { position: 'top', pin: 'grid', hold: -20, blurLevels: [1, 2, 4, 8] },
+      props: { position: 'start', pin: 'grid', hold: -20, blurLevels: [1, 2, 4, 8] },
     });
     const rungs = layers(container);
     expect(stops(rungs[0])).toEqual(['0%', '25%', '50%', '75%', '0']);
+  });
+});
+
+describe('progressive-blur dialect discrimination (Codex P2, 2026-09-02)', () => {
+  // grid + a block-edge position rendered broken geometry (justify-
+  // self has no block-axis placement law). Two defenses: the Props
+  // type now DISCRIMINATES (grid narrows position to 'start'|'end' —
+  // invalid combos are compile errors), and a runtime twin normalizes
+  // JS callers that bypass the types to the documented 'start'
+  // fallback.
+  it('the Props type is a dialect-discriminated union: grid narrows position to start/end', () => {
+    expect(svelteSrc).toContain(
+      'export type ProgressiveBlurProps = ProgressiveBlurStickyProps | ProgressiveBlurGridProps;',
+    );
+    // the grid branch's position vocabulary is exactly the inline pair
+    const gridBranch = svelteSrc.match(
+      /interface ProgressiveBlurGridProps[\s\S]*?\{([\s\S]*?)\n  \}/,
+    )?.[1] ?? '';
+    expect(gridBranch).not.toBe('');
+    expect(gridBranch).toContain("position: 'start' | 'end';");
+    expect(gridBranch).not.toContain("'top'");
+    expect(gridBranch).not.toContain("'both'");
+    // the sticky branch keeps the full vocabulary
+    const stickyBranch = svelteSrc.match(
+      /interface ProgressiveBlurStickyProps[\s\S]*?\{([\s\S]*?)\n  \}/,
+    )?.[1] ?? '';
+    expect(stickyBranch).toContain("'inline'");
+  });
+
+  it('a JS caller passing grid + top normalizes to the start band, never broken geometry', () => {
+    const { container } = render(ProgressiveBlur, {
+      // @ts-expect-error the combo IS the compile error this exercises —
+      // the runtime twin serves the untyped caller
+      props: { pin: 'grid', position: 'top' },
+    });
+    const bands = [...container.querySelectorAll('[data-jx-pblur]')];
+    expect(bands.length).toBe(1);
+    expect(bands[0]!.getAttribute('data-position')).toBe('start');
+    expect(bands[0]!.className).toContain('justify-self-start');
   });
 });
 
