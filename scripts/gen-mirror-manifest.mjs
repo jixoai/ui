@@ -35,9 +35,13 @@ const UNREFERENCED_LIB = [
   { path: 'registry/files/lib/search/engine-types.ts', note: 'search stream (85e9f3c) — final classification pending' },
   { path: 'registry/files/lib/search/tokenizer.ts', note: 'search stream (85e9f3c) — final classification pending' },
   { path: 'registry/files/ui/search-palette.svelte', note: 'search stream (85e9f3c) — final classification pending' },
-  // (the highlight stopgap RETIRED, r9 2541bce: the highlight
-  // registry:lib item now covers the shipped six; context.svelte.ts
-  // went site-only — the kernel-coupled creation never ships)
+  // the highlight context-kernel wiring (r9): the registry ITEM ships
+  // the zero-dep HIGHLIGHT_KEY seam only (the install-completeness
+  // law — createHighlightContext statically imports the kernel), but
+  // the dev mirror syncer keeps the byte pair alive on disk; the
+  // stopgap classifies the DISK copy, the item's file list stays the
+  // contract — retires if the syncer model adopts site-only for it
+  { path: 'registry/files/lib/highlight/context.svelte.ts', note: 'highlight context wiring — mirrored by the syncer, shipped by no item (r9 seam ruling)' },
 ];
 // canonical main overrides for registry:ui items whose main file is not
 // name-identical (B11/B9 ruling: manifest is the single machine source)
