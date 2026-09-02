@@ -2043,7 +2043,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "const toast = createToastStore(); <ToastViewport store={toast} /> … toast.api.push({ title, description?, variant? 'outline'|'tonal', material?, effect?, countdown?, duration?, assertive?, expandable?, swipeDirections? }). toast-v2: the stack collapses with depth and expands on hover/touch (expand prop pins it), swipe dismisses toward the corner edges (48px / 0.11 px·ms), a hidden page freezes every clock (pauseAll/resumeAll), and expandable toasts morph into a dialog through a view transition.",
+      "docs": "const toast = createToastStore(); <ToastViewport store={toast} /> … toast.api.push({ title, description?, variant? 'outline'|'tonal', material?, effect?, countdown?, duration?, assertive?, expandable?, swipeDirections? }). toast-v2/R3: nine float slots via pos (default right-bottom), the stack collapses with depth and expands on hover/touch (expand prop pins it; a touch tap lifts stickily until an outside tap), swipe dismisses toward the slot’s nearest screen edges (48px / 0.11 px·ms), a hidden page freezes every clock (pauseAll/resumeAll), and expandable toasts morph into a dialog through a view transition.",
       "meta": {
         "group": "layer",
         "href": "/docs/components/toast.html"
@@ -3062,7 +3062,8 @@
       ],
       "docs": "interface HighlightBackend { id; highlight(el, code, { lang, theme }) } — the backend owns painting the element; factories shiki() / prismjs() / microLighter() are runtime values (zero build step). The app side owns the default (site wiring uses createHighlightContext over the context kernel; installers read HIGHLIGHT_KEY via plain getContext — the shipped seam) (definePlugin({ targets: ['highlight'] })). See lib/highlight/backend.ts for the two output models and the print-freeze range limitation.",
       "meta": {
-        "highlight": true
+        "group": "engines",
+        "href": "/docs/components/code-card.html"
       }
     },
     {
