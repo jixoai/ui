@@ -185,6 +185,15 @@
         EFFECTIVE variant (own prop, else the inherited scope) is
         ghost — the borderless row has no other seam */
     separator?: boolean;
+    /** the LEADING SEAM (r14-13, Owner): paint the seam in the
+        cluster's opening slot too — the first button's inline-start
+        edge carries the boundary line, FLUSH by construction (it is
+        the button's own ::before, not a sibling element some gap
+        could detach). The stamp records the INTENT; the css composes
+        it with the seam policy — the rule requires both stamps, so it
+        only paints when separators are active (the dialog footer's
+        actions region is the canonical consumer) */
+    leadingSeam?: boolean;
     /** what happens when the joined row overflows its available
         inline space (horizontal groups only): wrap (default) breaks
         measured rows; collapse folds the overflow tail into a
@@ -212,6 +221,7 @@
     label,
     variant,
     separator,
+    leadingSeam = false,
     overflow: overflowMode = 'wrap',
     moreLabel = 'more actions',
     density,
@@ -473,6 +483,7 @@
   {role}
   data-jx-btngroup={orientation}
   data-jx-separator={separatorOn ? '' : undefined}
+  data-jx-leading-seam={leadingSeam ? '' : undefined}
   data-density={resolvedDensity}
   aria-label={ariaLabel ?? label}
   bind:this={groupEl}

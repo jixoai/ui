@@ -297,6 +297,8 @@ ${close}
           { name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'The join axis; carries the valued data-jx-btngroup hook.' },
           { name: 'justify', type: "'start' | 'center' | 'end'", default: "'start'", description: 'Cluster placement on the main axis.' },
           { name: 'label', type: 'string', default: '—', description: 'Accessible group name (aria-label); an explicit rest aria-label wins.' },
+          { name: 'separator', type: 'boolean', default: 'ghost ⇒ true', description: 'The seam policy: a 1px contrast-ghost separator in every collapsed seam slot. DEFAULT on when the group’s EFFECTIVE variant (own prop, else the inherited scope) is ghost — the borderless row has no other seam.' },
+          { name: 'leadingSeam', type: 'boolean', default: 'false', description: 'The cluster’s opening bracket (r14-13): paint the seam in the leading slot too — the first button’s own flush ::before, never a sibling element a parent gap could detach. Only paints under an active seam policy (the dialog footer’s actions region is the canonical consumer).' },
           { name: 'density', type: 'Density', default: 'inherited', description: 'Density tier, provided to the subtree so joined buttons adopt it.' },
           { name: 'role', type: 'string', default: "'group'", description: 'The group role — a labeled toolbar is the consumer’s explicit override.' },
           { name: 'class', type: 'string', default: "''", description: 'Merged into the root (cn()).' },

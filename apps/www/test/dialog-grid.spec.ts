@@ -165,17 +165,21 @@ describe('the foot zone — the footer snippet is RAW; DialogFooter is the conte
     expect(ended.container.querySelector('.jx-dialog-foot-grid')).not.toBeNull(); // the grid still carries the end content
   });
 
-  it('DialogFooter: the actions cluster opens with a vertical Separator (r14-11) — both faces, never on an empty foot', () => {
+  it('DialogFooter: the opening line is the GROUP\'s leading seam (r14-13) — no standalone Separator, none under the raw end face', () => {
     const grouped = render(DialogFooter, { props: { children } });
-    const line = grouped.container.querySelector('.jx-dialog-foot-grid > [data-jx-separator]');
-    expect(line?.getAttribute('data-orientation')).toBe('vertical');
-    expect(line?.getAttribute('aria-hidden')).toBe('true'); // decorative region boundary
-    expect(grouped.container.querySelector('.jx-dialog-foot-grid > :first-child')).toBe(line);
+    // the capability rides the ButtonGroup: the cluster opens through
+    // its own seam pseudo, flush by construction — no sibling element
+    // the foot grid's column-gap could detach
+    const group = grouped.container.querySelector('.jx-dialog-foot-grid > [data-jx-btngroup]');
+    expect(group?.hasAttribute('data-jx-leading-seam')).toBe(true);
+    expect(grouped.container.querySelector('.jx-dialog-foot-grid > [data-jx-separator="line"]')).toBeNull();
 
+    // the end face replaces the group — the bracket goes with it
     const ended = render(DialogFooter, {
       props: { end: (() => {}) as unknown as Snippet },
     });
-    expect(ended.container.querySelector('.jx-dialog-foot-grid > [data-jx-separator]')).not.toBeNull();
+    expect(ended.container.querySelector('[data-jx-btngroup]')).toBeNull();
+    expect(ended.container.querySelector('[data-jx-separator="line"]')).toBeNull();
 
     const bare = render(DialogFooter, { props: {} });
     expect(bare.container.querySelector('[data-jx-separator]')).toBeNull(); // no cluster → no dangling line

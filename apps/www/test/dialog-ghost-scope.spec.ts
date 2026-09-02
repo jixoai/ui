@@ -34,6 +34,9 @@ describe('the dialog ghost scope (r14-2 → r14-9)', () => {
     // rides the group's data-jx-separator stamp
     const group = target.querySelector('[data-jx-dialog-foot] [data-jx-btngroup]')!;
     expect(group.hasAttribute('data-jx-separator')).toBe(true);
+    // r14-13: the actions cluster opens through the group's own
+    // leading seam (the first button's flush bracket)
+    expect(group.hasAttribute('data-jx-leading-seam')).toBe(true);
     target.remove();
   });
 });

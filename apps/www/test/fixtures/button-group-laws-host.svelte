@@ -20,6 +20,20 @@
   <PressButton variant="outline">delete</PressButton>
 </ButtonGroup>
 
+<!-- the leading seam (r14-13): the ghost cluster opens with its own
+     boundary line — the first button's seam pseudo, flush -->
+<ButtonGroup label="lead laws" variant="ghost" leadingSeam data-testid="lead-group">
+  <PressButton>alpha</PressButton>
+  <PressButton>beta</PressButton>
+</ButtonGroup>
+
+<!-- leadingSeam without an active seam policy stays off (bordered
+     rungs read through the -1px law — an opening line would double) -->
+<ButtonGroup label="lead plain" leadingSeam data-testid="lead-plain-group">
+  <PressButton>one</PressButton>
+  <PressButton>two</PressButton>
+</ButtonGroup>
+
 <!-- explicit separators on a bordered group -->
 <ButtonGroup label="sep laws" separator data-testid="sep-group">
   <PressButton>alpha</PressButton>

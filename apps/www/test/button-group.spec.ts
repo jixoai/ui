@@ -232,6 +232,30 @@ describe('ButtonGroup · the separator policy (r13: ghost\'s seam)', () => {
       container.querySelector('[data-testid="scope-tonal-group"]')?.hasAttribute('data-jx-separator'),
     ).toBe(false);
   });
+
+  it('the LEADING SEAM (r14-13): the intent stamp composes with the seam policy in the css', () => {
+    const { container } = render(LawsHost);
+    expect(
+      container.querySelector('[data-testid="lead-group"]')?.hasAttribute('data-jx-leading-seam'),
+    ).toBe(true);
+    // the stamp records INTENT: it rides even a bordered group — but
+    // the paint composes with the seam policy (css requires BOTH
+    // stamps), so a bordered cluster never doubles its opening edge
+    expect(
+      container.querySelector('[data-testid="lead-plain-group"]')?.hasAttribute('data-jx-leading-seam'),
+    ).toBe(true);
+    expect(
+      container.querySelector('[data-testid="lead-plain-group"]')?.hasAttribute('data-jx-separator'),
+    ).toBe(false);
+    // the default group does not opt in
+    expect(
+      container.querySelector('[data-testid="ghost-group"]')?.hasAttribute('data-jx-leading-seam'),
+    ).toBe(false);
+    // source-pinned: the leading rule requires the seam stamp too
+    expect(buttonGroupCss).toMatch(
+      /\[data-jx-separator\]\[data-jx-leading-seam\][^{}]*first-child/,
+    );
+  });
 });
 
 describe('ButtonGroup · the separator css law (r13, source-pinned)', () => {

@@ -114,6 +114,31 @@
     block-size: 1px;
     backdrop-filter: contrast(0.5);
   }
+  /* ── the LEADING SEAM (r14-13, Owner): the cluster's opening slot
+     paints the same seam on the FIRST button — the boundary line is
+     the button's own ::before, flush by construction (a sibling
+     element some parent gap could detach is exactly the failure the
+     old standalone Separator had in the dialog foot grid). Rides the
+     seam system: [data-jx-separator] is required. In wrap overflow
+     the first child IS a row lead — this rule outranks the row-lead
+     drop by specificity ((0,2,0) vs (0,1,0)), and later row leads
+     are not :first-child so they still drop ── */
+  :where([data-jx-btngroup='horizontal'][data-jx-separator][data-jx-leading-seam]) > *:first-child:not([data-jx-btngroup-divider])::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: -1px;
+    inset-block: 0;
+    inline-size: 1px;
+    backdrop-filter: contrast(0.5);
+  }
+  :where([data-jx-btngroup='vertical'][data-jx-separator][data-jx-leading-seam]) > *:first-child:not([data-jx-btngroup-divider])::before {
+    content: '';
+    position: absolute;
+    inset-block-start: -1px;
+    inset-inline: 0;
+    block-size: 1px;
+    backdrop-filter: contrast(0.5);
+  }
 
   /* ── the wrap tracks (r13): measured rows over the same seam law ── */
   :where([data-jx-btngroup][data-jx-overflow='wrap']) {
