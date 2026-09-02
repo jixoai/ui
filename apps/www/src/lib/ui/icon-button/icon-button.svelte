@@ -49,6 +49,11 @@
     iconOnly?: boolean;
     /** iconOnly: which side the tooltip leans */
     placement?: 'top' | 'bottom' | 'top-start' | 'bottom-start' | 'top-end' | 'bottom-end';
+    /** iconOnly: the tooltip carriage, DEFAULT ON — tip={false} keeps
+     *  ONLY the accessible name (aria-label from `text`): the quiet
+     *  square, for chrome that must not float hints (the dialog's
+     *  close, r14-6) */
+    tip?: boolean;
     /** iconOnly: the tip's pointer notch, aimed at the anchor point the
      *  placement names (on by default — a square trigger reads best with
      *  the pin; opt out for plain bubbles) */
@@ -72,6 +77,7 @@
     text,
     variant = undefined,
     iconOnly = false,
+    tip = true,
     placement,
     arrow = true,
     effect = undefined,
@@ -104,7 +110,7 @@
 {/snippet}
 
 <!-- one control, two shells — the tooltip wraps it only in icon-only -->
-{#if iconOnly}
+{#if iconOnly && tip}
   <Tooltip {text} placement={placement ?? 'top'} {arrow}>
     {@render control()}
   </Tooltip>

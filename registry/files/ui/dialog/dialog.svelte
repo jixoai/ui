@@ -232,8 +232,7 @@
               icon={xGlyph}
               text="Close"
               iconOnly
-              placement="bottom-start"
-              arrow={false}
+              tip={false}
               type="button"
               onclick={shut}
               class="jx-dialog-x [&_svg]:stroke-[2.5]"

@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-02T16:40:29.065Z",
+  "generatedAt": "2026-09-02T16:46:35.273Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -758,8 +758,8 @@
           "source": "registry/files/ui/dialog/dialog.svelte",
           "mirror": "apps/www/src/lib/ui/dialog/dialog.svelte",
           "target": "@ui/dialog/dialog.svelte",
-          "sourceSha": "a806d52986b8f994ae6b65c6ab106099cfa32fcff8fef9705bdeb41bb4c7bffd",
-          "mirrorSha": "a806d52986b8f994ae6b65c6ab106099cfa32fcff8fef9705bdeb41bb4c7bffd"
+          "sourceSha": "bb1834b835d3e90f6657aad3b65da900ffca6e5eddf7dfa7ea7a1a88e0619d82",
+          "mirrorSha": "bb1834b835d3e90f6657aad3b65da900ffca6e5eddf7dfa7ea7a1a88e0619d82"
         },
         {
           "source": "registry/files/ui/dialog/index.ts",
@@ -2926,8 +2926,8 @@
           "source": "registry/files/ui/icon-button/icon-button.svelte",
           "mirror": "apps/www/src/lib/ui/icon-button/icon-button.svelte",
           "target": "@ui/icon-button/icon-button.svelte",
-          "sourceSha": "67368786b880d5dfc59777c9b0def18e004ec07a9b04c7240945de5655f3afb5",
-          "mirrorSha": "67368786b880d5dfc59777c9b0def18e004ec07a9b04c7240945de5655f3afb5"
+          "sourceSha": "b2f2f2c7c8a65631c8a4f9bc26e7520593a9ff2bfb6c7157ddcf3a8838b987f9",
+          "mirrorSha": "b2f2f2c7c8a65631c8a4f9bc26e7520593a9ff2bfb6c7157ddcf3a8838b987f9"
         },
         {
           "source": "registry/files/ui/icon-button/index.ts",
