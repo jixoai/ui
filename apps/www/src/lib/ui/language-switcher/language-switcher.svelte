@@ -4,14 +4,19 @@
 
     pair — icon + segmented two-locale group (EN / 中文 style): the active
            locale fills with the brand hue; anchored navigation (SSG-safe)
-    menu — icon + current-locale button opening a dropdown list for three
-           or more locales; same anchor model, closes on select / outside
-           click / Escape
+    menu — icon + current-locale button opening a popover of locale links
+           for three or more locales; same anchor model, closes on select /
+           outside click / Escape
 
-  Locales are links, not buttons: each entry carries its own href (e.g.
-  the localized path of the current page), so the switcher works on fully
-  prerendered sites. Terminal-surface styling matches theme-toggle
-  (light border on the dark bezel).
+  Locales are links, not options (2026-09-02 honesty pass): the menu
+  panel is a nav landmark of plain anchors — no listbox/option composite
+  roles, because nothing here implements arrow-key roving or
+  aria-activedescendant; the keyboard contract is the links' native
+  Tab/Enter, and the trigger is a bare disclosure (aria-expanded, no
+  aria-haspopup — the popover is not a menu widget). Each entry carries
+  its own href (e.g. the localized path of the current page), so the
+  switcher works on fully prerendered sites. Terminal-surface styling
+  matches theme-toggle (light border on the dark bezel).
 
   tw4 (2026-08-24): PURE utility migration, zero css residue — the
   bezel's currentColor color-mix paint rides arbitrary-value utilities,
@@ -23,6 +28,10 @@
   pattern) — the retired hand-positioned absolute dropdown needed its
   own outside-click/Escape wiring and sat in the grid-law's gray zone.
   Light dismiss, Escape, and the top layer are the platform's now.
+  The anchor name derives from $props.id() (SSG law, 2026-09-02): the
+  id travels through a hydration marker, so SSR html and the hydrated
+  client agree on the name — a Math.random name would diverge across
+  the seam and briefly orphan the popover.
 -->
 <script lang="ts">
   import { icons } from '$lib/icons';
@@ -43,12 +52,18 @@
 
   let { variant = 'pair', locales, current, ariaLabel = 'Language' }: Props = $props();
 
+  // $props.id() must live in its own top-level initializer (compiler law)
+  const autoId = $props.id();
+
   let open = $state(false);
-  let menu = $state<HTMLUListElement | null>(null);
+  let menu = $state<HTMLElement | null>(null);
   let activeLabel = $derived(locales.find((l) => l.code === current)?.label ?? current);
   // a per-instance anchor name (CSS anchor positioning namespaces by
-  // document — two switchers on one page must not share one anchor)
-  const anchor = `--jx-lang-${Math.random().toString(36).slice(2, 8)}`;
+  // document — two switchers on one page must not share one anchor).
+  // $props.id() keeps the name SSG-true: the id rides a hydration
+  // marker, so SSR html and the hydrated client derive the identical
+  // value; its s1/c1 shape is already ident-safe (no sanitize needed)
+  const anchor = `--jx-lang-${autoId}`;
 </script>
 
 <div data-jx-lang="" class="flex items-center gap-2">
@@ -67,7 +82,7 @@
         <a
           href={locale.href}
           hreflang={locale.code}
-          aria-current={locale.code === current ? 'true' : undefined}
+          aria-current={locale.code === current ? 'page' : undefined}
           data-jx-lang-item=""
           data-jx-lang-active={locale.code === current ? '' : undefined}
           class={cn(
@@ -86,7 +101,6 @@
       type="button"
       data-jx-lang-btn=""
       class="inline-flex cursor-pointer items-center gap-1.5 border border-[color-mix(in_oklab,currentColor_30%,transparent)] bg-[color-mix(in_oklab,currentColor_6%,transparent)] px-2.5 py-1 text-xs font-medium text-[color-mix(in_oklab,currentColor_72%,transparent)] transition-[color,border-color] duration-150 ease-out hover:border-[color-mix(in_oklab,currentColor_70%,transparent)] hover:text-current"
-      aria-haspopup="listbox"
       aria-expanded={open}
       aria-label={ariaLabel}
       style="anchor-name: {anchor}"
@@ -99,38 +113,41 @@
     </button>
     <!-- popover=auto: hidden by the UA until shown — always mounted so
          togglePopover() never races an {#if} render; the toggle event
-         is the one truth for `open` (light dismiss included) -->
-    <ul
+         is the one truth for `open` (light dismiss included). The
+         panel is a nav landmark: locale entries are navigation links,
+         and the trigger a bare disclosure (aria-expanded only) — the
+         links' native Tab/Enter is the whole keyboard contract -->
+    <nav
       bind:this={menu}
       data-jx-lang-menu=""
       popover="auto"
-      class="m-0 min-w-[9rem] list-none border border-border bg-terminal p-1 text-terminal-foreground shadow"
-      style="position-anchor: {anchor}; position-area: block-end; position-try: flip-block; margin: 0.375rem;"
-      role="listbox"
       aria-label={ariaLabel}
+      class="m-0 min-w-[9rem] border border-border bg-terminal p-1 text-terminal-foreground shadow"
+      style="position-anchor: {anchor}; position-area: block-end; position-try: flip-block; margin: 0.375rem;"
       ontoggle={(e) => (open = e.newState === 'open')}
     >
-      {#each locales as locale (locale.code)}
-        <li>
-          <a
-            href={locale.href}
-            hreflang={locale.code}
-            role="option"
-            aria-selected={locale.code === current ? 'true' : undefined}
-            data-jx-lang-menu-item=""
-            data-jx-lang-menu-active={locale.code === current ? '' : undefined}
-            class={cn(
-              'block px-2.5 py-1.5 text-xs no-underline transition-[color,background-color] duration-150 ease-out',
-              locale.code === current
-                ? 'text-primary'
-                : 'text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:bg-terminal-hover hover:text-terminal-foreground',
-            )}
-            onclick={() => menu?.hidePopover()}
-          >
-            {locale.label}
-          </a>
-        </li>
-      {/each}
-    </ul>
+      <ul class="m-0 list-none p-0">
+        {#each locales as locale (locale.code)}
+          <li>
+            <a
+              href={locale.href}
+              hreflang={locale.code}
+              aria-current={locale.code === current ? 'page' : undefined}
+              data-jx-lang-menu-item=""
+              data-jx-lang-menu-active={locale.code === current ? '' : undefined}
+              class={cn(
+                'block px-2.5 py-1.5 text-xs no-underline transition-[color,background-color] duration-150 ease-out',
+                locale.code === current
+                  ? 'text-primary'
+                  : 'text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:bg-terminal-hover hover:text-terminal-foreground',
+              )}
+              onclick={() => menu?.hidePopover()}
+            >
+              {locale.label}
+            </a>
+          </li>
+        {/each}
+      </ul>
+    </nav>
   {/if}
 </div>
