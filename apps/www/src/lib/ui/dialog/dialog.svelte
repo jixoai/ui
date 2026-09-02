@@ -74,6 +74,12 @@
      */
     head?: Snippet;
     /**
+     * The RAW end slot (the Owner's footerEnd reference, r14-7): when
+     * present it REPLACES the footer/actions grouped cluster entirely —
+     * the opt-out for non-button content or a fully custom cluster.
+     */
+    end?: Snippet;
+    /**
      * Predicate consulted on the native cancel request (Escape):
      * returning TRUE blocks the close (the palette holds the dialog
      * open through an IME composition). The default path is the
@@ -104,6 +110,7 @@
     variant = 'auto',
     class: platformClass = '',
     head,
+    end,
     cancelGuard,
     children,
     footer,
@@ -124,7 +131,7 @@
   // the css stays independent of that invariant and the chrome reads
   // off the DOM. The foot zone exists iff either footer face is passed;
   // absent both, the zone AND its separator row simply never render.
-  const hasFoot = $derived(footer !== undefined || actions !== undefined);
+  const hasFoot = $derived(footer !== undefined || actions !== undefined || end !== undefined);
 
   let dialog = $state<HTMLDialogElement | null>(null);
 
@@ -270,18 +277,31 @@
           <div
             class="jx-dialog-foot-grid @max-[15rem]/jx-dialog:flex-col-reverse @max-[15rem]/jx-dialog:items-stretch"
           >
-            {#if footer}
-              {@render footer()}
-            {/if}
-            {#if actions}
+            {#if end}
+              <!-- the RAW end slot (r14-7, the Owner's footerEnd
+                   reference): present ⇒ it REPLACES the grouped cluster
+                   entirely — the opt-out for non-button content or a
+                   fully custom cluster -->
+              {@render end()}
+            {:else}
               {#if footer}
-                <!-- between GROUPS exactly one divider (Owner r13);
-                     decorative -->
-                <Separator aria-hidden="true" class="self-stretch" />
+                <!-- the footer's buttons hang in ONE button-group (the
+                     Owner's inline-end-actions-slot law): the leading
+                     cluster -->
+                <ButtonGroup label="Dialog footer">
+                  {@render footer()}
+                </ButtonGroup>
               {/if}
-              <ButtonGroup label="Dialog actions">
-                {@render actions()}
-              </ButtonGroup>
+              {#if actions}
+                {#if footer}
+                  <!-- between GROUPS exactly one divider (Owner r13);
+                       decorative -->
+                  <Separator aria-hidden="true" class="self-stretch" />
+                {/if}
+                <ButtonGroup label="Dialog actions">
+                  {@render actions()}
+                </ButtonGroup>
+              {/if}
             {/if}
           </div>
         </ButtonVariantScope>

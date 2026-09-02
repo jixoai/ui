@@ -150,21 +150,27 @@ describe('the foot zone — actions auto-group, footer leads', () => {
     expect(grid.querySelector('[data-jx-btngroup]')).not.toBeNull();
   });
 
-  it('the footer is ONE end-packed cluster: footer buttons join the actions at inline-end (r14-5)', () => {
+  it('footer buttons hang in ONE button-group; actions groups separately; one divider between (r14-7)', () => {
     const both = render(Dialog, { props: { title: 't', children, footer, actions } });
     const grid = both.container.querySelector('.jx-dialog-foot-grid')!;
-    // direct children only: the EMPTY snippet stubs render no content
-    // nodes, so the children are exactly [divider, group] — no leading
-    // wrapper, no slot wrapper (real footer content joins as more
-    // direct children, before the divider)
-    const kids = [...grid.children];
-    expect(kids.length).toBe(2);
-    expect(grid.querySelector('.jx-dialog-foot-leading')).toBeNull();
-    expect(grid.querySelector('.jx-dialog-end-actions-slot')).toBeNull();
-    // the actions group is the LAST child (terminal cluster)
-    expect(kids.at(-1)?.getAttribute('data-jx-btngroup')).toBe('horizontal');
-    // between the two clusters exactly one decorative separator
-    expect(grid.querySelectorAll('[data-jx-dialog-sep], hr').length).toBe(1);
+    const groups = [...grid.querySelectorAll(':scope > [data-jx-btngroup]')];
+    expect(groups.length).toBe(2); // the footer cluster AND the actions cluster
+    expect(groups[0]?.getAttribute('aria-label')).toBe('Dialog footer');
+    expect(groups[1]?.getAttribute('aria-label')).toBe('Dialog actions');
+    // between the two groups exactly one decorative separator
+    expect(grid.querySelectorAll(':scope > hr').length).toBe(1);
+    // the actions group stays the terminal child
+    expect([...grid.children].at(-1)?.getAttribute('data-jx-btngroup')).toBe('horizontal');
+  });
+
+  it('the RAW end slot replaces the grouped cluster entirely (the footerEnd reference)', () => {
+    const ended = render(Dialog, {
+      props: { title: 't', children, footer, actions, end: (() => {}) as unknown as Snippet },
+    });
+    const grid = ended.container.querySelector('.jx-dialog-foot-grid')!;
+    expect(grid.querySelectorAll('[data-jx-btngroup], hr').length).toBe(0); // no groups, no divider
+    // the foot zone still exists (end drives hasFoot)
+    expect(ended.container.querySelector('[data-jx-dialog-foot]')).not.toBeNull();
   });
 });
 
