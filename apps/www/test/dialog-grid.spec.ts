@@ -164,6 +164,22 @@ describe('the foot zone — the footer snippet is RAW; DialogFooter is the conte
     expect(ended.container.querySelector('[data-jx-btngroup]')).toBeNull(); // no group under the raw face
     expect(ended.container.querySelector('.jx-dialog-foot-grid')).not.toBeNull(); // the grid still carries the end content
   });
+
+  it('DialogFooter: the actions cluster opens with a vertical Separator (r14-11) — both faces, never on an empty foot', () => {
+    const grouped = render(DialogFooter, { props: { children } });
+    const line = grouped.container.querySelector('.jx-dialog-foot-grid > [data-jx-separator]');
+    expect(line?.getAttribute('data-orientation')).toBe('vertical');
+    expect(line?.getAttribute('aria-hidden')).toBe('true'); // decorative region boundary
+    expect(grouped.container.querySelector('.jx-dialog-foot-grid > :first-child')).toBe(line);
+
+    const ended = render(DialogFooter, {
+      props: { end: (() => {}) as unknown as Snippet },
+    });
+    expect(ended.container.querySelector('.jx-dialog-foot-grid > [data-jx-separator]')).not.toBeNull();
+
+    const bare = render(DialogFooter, { props: {} });
+    expect(bare.container.querySelector('[data-jx-separator]')).toBeNull(); // no cluster → no dangling line
+  });
 });
 
 describe('the r12 composition face survives the restructure', () => {
