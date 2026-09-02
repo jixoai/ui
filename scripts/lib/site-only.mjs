@@ -9,6 +9,11 @@
  * lists that used to live inline in gen-mirror-manifest.mjs.
  */
 export const SITE_ONLY = [
+  // the context-kernel wiring of the highlight family (r9): the
+  // registry item ships the zero-dep HIGHLIGHT_KEY seam only —
+  // createHighlightContext statically imports the kernel and stays
+  // app-side (the install-completeness law)
+  { path: 'apps/www/src/lib/highlight/context.svelte.ts', note: 'highlight context-kernel wiring — app-side by the density-seam precedent (r9)' },
   // mirror files that are docs-site chrome, never registry items
   { path: 'apps/www/src/lib/ui/docs-sections-nav.svelte', note: 'site docs sections rail (docs-restructure D2)' },
   { path: 'apps/www/src/lib/catalog.ts', note: 'site catalog index' },

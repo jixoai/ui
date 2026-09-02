@@ -35,6 +35,9 @@ const UNREFERENCED_LIB = [
   { path: 'registry/files/lib/search/engine-types.ts', note: 'search stream (85e9f3c) — final classification pending' },
   { path: 'registry/files/lib/search/tokenizer.ts', note: 'search stream (85e9f3c) — final classification pending' },
   { path: 'registry/files/ui/search-palette.svelte', note: 'search stream (85e9f3c) — final classification pending' },
+  // (the highlight stopgap RETIRED, r9 2541bce: the highlight
+  // registry:lib item now covers the shipped six; context.svelte.ts
+  // went site-only — the kernel-coupled creation never ships)
 ];
 // canonical main overrides for registry:ui items whose main file is not
 // name-identical (B11/B9 ruling: manifest is the single machine source)

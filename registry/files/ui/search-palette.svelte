@@ -83,6 +83,34 @@
     active = 0;
     opener?.focus();
   };
+  // the cancel request (Escape): while an IME composition is live the
+  // palette must NOT close — the commit key belongs to the IME, not the
+  // dialog (pre-review hardening; keydown suppression is platform
+  // behavior, the cancel event gets an explicit guard). Direct
+  // listeners: cancel never bubbles and composition events ride up
+  // from the input, both reach the dialog node itself
+  $effect(() => {
+    const dialog = dialogEl;
+    if (dialog === undefined) return;
+    let composing = false;
+    const onStart = (): void => {
+      composing = true;
+    };
+    const onEnd = (): void => {
+      composing = false;
+    };
+    const onCancel = (event: Event): void => {
+      if (composing) event.preventDefault();
+    };
+    dialog.addEventListener('compositionstart', onStart);
+    dialog.addEventListener('compositionend', onEnd);
+    dialog.addEventListener('cancel', onCancel);
+    return () => {
+      dialog.removeEventListener('compositionstart', onStart);
+      dialog.removeEventListener('compositionend', onEnd);
+      dialog.removeEventListener('cancel', onCancel);
+    };
+  });
   const onDialogClick = (event: MouseEvent): void => {
     // the native idiom: a click whose target IS the dialog hit the
     // backdrop — children (the panel surface) never match

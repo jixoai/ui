@@ -167,6 +167,30 @@ describe('the palette', () => {
     target.remove();
   });
 
+  it('a cancel request during an IME composition is prevented — the commit key belongs to the IME', async () => {
+    const target = document.createElement('div');
+    document.body.appendChild(target);
+    const palette = mount(SearchPalette, { target });
+    await flush();
+    document.dispatchEvent(new CustomEvent('jx-search-open'));
+    const dialog = target.querySelector('dialog')!;
+    await vi.waitFor(() => expect(dialog.open).toBe(true));
+    const input = target.querySelector<HTMLInputElement>('input')!;
+    input.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+    const cancel = new Event('cancel', { cancelable: true });
+    dialog.dispatchEvent(cancel);
+    expect(cancel.defaultPrevented).toBe(true); // composing: the palette refuses to close
+    expect(dialog.open).toBe(true);
+    input.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true }));
+    const cancel2 = new Event('cancel', { cancelable: true });
+    dialog.dispatchEvent(cancel2);
+    expect(cancel2.defaultPrevented).toBe(false); // composition over: the platform owns it again
+    dialog.close();
+    await vi.waitFor(() => expect(dialog.open).toBe(false)); // leave no open dialog for the next test
+    unmount(palette);
+    target.remove();
+  });
+
   it('a click on the dialog itself (the backdrop idiom) closes; children do not', async () => {
     const target = document.createElement('div');
     document.body.appendChild(target);

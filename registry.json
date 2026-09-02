@@ -839,7 +839,6 @@
       ],
       "registryDependencies": [
         "@jixoai/jixoai-theme",
-        "@jixoai/shiki",
         "@jixoai/highlight",
         "@jixoai/utils",
         "@jixoai/icons"
@@ -3011,7 +3010,7 @@
       "name": "highlight",
       "type": "registry:lib",
       "title": "Pluggable highlight backends",
-      "description": "The highlighter-agnostic layer (r9 acceptance, 2026-09-02): a HighlightBackend paints a given <code> element — markup backends (shiki token spans, prismjs classed spans) write into the DOM, range backends (microlighter, CSS Custom Highlight API) register Highlight ranges with zero markup. Three factories ship: shiki() wrapping lib/shiki, prismjs() lazy-loading the manual-mode core, microLighter() behind a feature gate. The default backend rides the context kernel (createHighlightContext / HIGHLIGHT_DEF plugins); <CodeCard backend={shiki() | prismjs() | microLighter()}> overrides per instance. Known limitation, test-locked: the print freeze clones DOM, so range backends degrade to plain text on paper while markup backends survive.",
+      "description": "The highlighter-agnostic layer (r9 acceptance, 2026-09-02): a HighlightBackend paints a given <code> element — markup backends (shiki token spans, prismjs classed spans) write into the DOM, range backends (microlighter, CSS Custom Highlight API) register Highlight ranges with zero markup. Three factories ship: shiki() wrapping lib/shiki, prismjs() lazy-loading the manual-mode core, microLighter() behind a feature gate. The context SEAM ships zero-dep (HIGHLIGHT_KEY via plain getContext — the density precedent); context-kernel wiring stays app-side (no kernel dependency rides the item); <CodeCard backend={shiki() | prismjs() | microLighter()}> overrides per instance. Known limitation, test-locked: the print freeze clones DOM, so range backends degrade to plain text on paper while markup backends survive.",
       "files": [
         {
           "path": "registry/files/lib/highlight/backend.ts",
@@ -3021,11 +3020,6 @@
         {
           "path": "registry/files/lib/highlight/context-key.ts",
           "target": "@lib/highlight/context-key.ts",
-          "type": "registry:file"
-        },
-        {
-          "path": "registry/files/lib/highlight/context.svelte.ts",
-          "target": "@lib/highlight/context.svelte.ts",
           "type": "registry:file"
         },
         {
@@ -3054,10 +3048,9 @@
         "microlighter@^2.1.0"
       ],
       "registryDependencies": [
-        "@jixoai/shiki",
-        "@jixoai/utils"
+        "@jixoai/shiki"
       ],
-      "docs": "interface HighlightBackend { id; highlight(el, code, { lang, theme }) } — the backend owns painting the element; factories shiki() / prismjs() / microLighter() are runtime values (zero build step). The default comes from createHighlightContext(initial) and can be switched at runtime via set(backend) or projected by context plugins (definePlugin({ targets: ['highlight'] })). See lib/highlight/backend.ts for the two output models and the print-freeze range limitation.",
+      "docs": "interface HighlightBackend { id; highlight(el, code, { lang, theme }) } — the backend owns painting the element; factories shiki() / prismjs() / microLighter() are runtime values (zero build step). The app side owns the default (site wiring uses createHighlightContext over the context kernel; installers read HIGHLIGHT_KEY via plain getContext — the shipped seam) (definePlugin({ targets: ['highlight'] })). See lib/highlight/backend.ts for the two output models and the print-freeze range limitation.",
       "meta": {
         "highlight": true
       }
