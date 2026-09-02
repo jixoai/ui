@@ -43,11 +43,15 @@
     position: relative;
   }
   :where([data-jx-toast][data-effect='pulse'])::before {
+    /* inset 0 — the card's overflow-hidden (the floor's corner clip,
+       R3-4) swallows every pixel outside the padding box; the breathing
+       ring hugs the edge from INSIDE (adversarial R3 P2-1, browser-
+       proved: a -2px ring paints nothing under the clip) */
     content: '';
     position: absolute;
-    inset: -2px;
+    inset: 0;
     border: 1px solid var(--primary);
-    opacity: 0;
+    border-radius: inherit;
     pointer-events: none;
     animation: jx-toast-pulse 1.6s ease-in-out infinite;
   }
@@ -148,6 +152,29 @@
    The ::after bridge keeps the pointer inside the stack between
    cards while expanded (transient-ink category; pointer-events:none). */
 @layer components {
+  /* the card's NAMED-AREA grid (Owner R3-4): leading / body / close in
+     one content row — close owns the top-right corner, edge-equal by
+     the card's own uniform padding */
+  :where([data-jx-toasts] [data-jx-toast]) {
+    /* the floor's anchor (and the effect layers') */
+    position: relative;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-areas: 'leading body trail close';
+  }
+  /* inside a CARD the countdown is always the FLOOR: a full-width
+     drain pinned to the card's bottom edge. ABSOLUTE per the
+     transient-ink exemption (decoration pinned to its parent, the
+     bridge-pseudo precedent) — a grid track cannot sit flush against
+     the border box (probed: 5px gap through negative margins); the
+     card's overflow-hidden clips the rounded corners, and the press
+     shadow paints outside and is never touched */
+  :where([data-jx-toasts] [data-jx-toast]) > [data-jx-toast-countdown] {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    inline-size: auto;
+  }
   /* scoped to CARD WRAPPERS — the +N queued chip is also a direct
      child div; without :not() it inherits the depth transform, the
      z-index ladder, and touch-action it never asked for (R1 P3-1) */
@@ -213,4 +240,21 @@
   :where([data-jx-toasts] [data-jx-toast-queued]) {
     transition: none;
   }
+}
+
+/* ── the expandable morph's bounce (Owner R3-2) ────────────────────────
+   The card↔dialog shared element rides a view transition carrying the
+   jx-toast-morph TYPE (open and close both); the group's geometry
+   interpolation gets the overshoot curve — the panel BOUNCES out of
+   the card and back into it. Snapshot cross-fades stay short so the
+   shared element, not the fade, reads as the motion. Reduced motion
+   never reaches here (the viewport gates the VT itself). */
+::view-transition-group(.jx-toast-morph) {
+  animation-duration: 340ms;
+  animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+::view-transition-image-pair(.jx-toast-morph) {
+  /* short cross-fade so the shared element's geometry (and its bounce)
+     reads as the motion — long fades double-expose the text (vision R3) */
+  animation-duration: 120ms;
 }

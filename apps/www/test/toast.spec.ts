@@ -45,11 +45,11 @@ describe('toast — the viewport does not float itself', () => {
     expect(stack.className).not.toContain('fixed');
     // V1-1 defense: rows are min-content and packed — the dead
     // `align-content-end` utility (align-content never applied) is
-    // gone, real alignment utilities took its place. toast-v2 growth
-    // law: the ADOPTED pile descends from the cell top (content-start);
-    // only the standalone fallback packs to the end (content-end)
+    // gone, real alignment utilities took its place. R3 nine-slot law:
+    // the DEFAULT slot is right-bottom → the pile CLIMBS from the
+    // anchor (content-end); a top slot descends (content-start)
     expect(stack.className).not.toContain('align-content-end');
-    expect(stack.className).toContain('content-start');
+    expect(stack.className).toContain('content-end');
     expect(stack.className).toContain('auto-rows-min');
   });
 
@@ -71,12 +71,27 @@ describe('toast — the viewport does not float itself', () => {
       `:where(.jx-float-slot > [data-area='float']){\n  pointer-events: none;\n}`,
     );
     // the wrapper never stretches over the stage (V1-1): the float
-    // area rule itself carries the corner placement — the stage's
-    // TOP-right corner (integration correction 2026-09-02: `end` alone
-    // parked toasts bottom-right; `start end` is the adoption contract)
+    // area rule carries the DEFAULT slot — right-bottom (Owner R3-1:
+    // place-self: end, sonner's corner; the pre-R3 top corner was
+    // `start end`, now just one of the nine slots)
     const floatRule = css.indexOf(":where(.jx-top-layer [data-area='float']){");
     expect(floatRule).toBeGreaterThan(-1);
-    expect(css.indexOf('place-self: start end;')).toBeGreaterThan(floatRule);
+    const defaultSlot = css.indexOf('place-self: end;', floatRule);
+    expect(defaultSlot).toBeGreaterThan(floatRule);
+    // and the NINE-SLOT vocabulary is complete (physical names over
+    // the stage cell; right-bottom is the stated default, not repeated)
+    for (const slot of [
+      'left-top',
+      'center-top',
+      'right-top',
+      'left-center',
+      'center-center',
+      'right-center',
+      'left-bottom',
+      'center-bottom',
+    ]) {
+      expect(css).toContain(`[data-float-pos='${slot}']`);
+    }
 
     // the stack paints itself transparent; every CARD opts back in —
     // with the wrapper transparent, only the cards are interactive
@@ -202,23 +217,33 @@ describe('toast — material × effect × countdown', () => {
     expect(sticky.hasAttribute('data-effect')).toBe(false);
   });
 
-  it('the countdown companion drains the duration in the trailing lane; sticky gets none', () => {
+  it('the countdown companion is the card FLOOR — full-width bottom drain; sticky gets none', () => {
     const { container } = render(ToastFeaturesHost);
     const countdowns = container.querySelectorAll('[data-jx-toast-countdown]');
     expect(countdowns.length).toBe(1);
     expect((countdowns[0] as HTMLElement).style.getPropertyValue('--jx-toast-countdown')).toBe(
       '8000ms',
     );
-    // rides the trailing lane of its toast
-    expect(countdowns[0].closest('[data-jx-toast-trailing]')).toBeTruthy();
+    // R3-4: the drain spans the card's floor — a direct child of the
+    // toast (the trailing lane is for actions), flushed to the bottom
+    // border by the floor rule in toast.css
+    expect(countdowns[0].parentElement?.hasAttribute('data-jx-toast')).toBe(true);
+    expect(countdowns[0].closest('[data-jx-toast-trailing]')).toBeNull();
     // the sticky toast asked for a countdown and got none
     expect(container.querySelectorAll('[data-jx-toast]')[2].querySelector('[data-jx-toast-countdown]')).toBeNull();
   });
 
-  it('each toast is a lane grid: leading | body | trailing | dismiss', () => {
+  it('each toast is the named-area grid: leading | body | close + floor (R3-4)', () => {
     const { container } = render(ToastFeaturesHost);
     const toast = container.querySelector('[data-jx-toast]') as HTMLElement;
-    expect(toast.className).toContain('grid-cols-[auto_minmax(0,1fr)_auto_auto]');
+    // the template lives in toast.css (named areas beat positional
+    // columns); the card carries the shared material frame (R3-5)
+    expect(toast.className).toContain('jx-press');
+    expect(toast.className).toContain('[--jx-press-shadow:var(--shadow)]');
+    expect(toast.className).toContain('[--jx-press-shadow-hover:var(--shadow-md)]');
+    // the close slot is the named icon (R3-3), never a literal symbol
+    expect(toast.querySelector('[data-jx-toast-dismiss] [data-jx-icon]')).toBeTruthy();
+    expect(toast.querySelector('[data-jx-toast-dismiss]')?.textContent?.trim()).toBe('');
     // lanes absent by default (no leading/trailing authored)
     expect(toast.querySelector('[data-jx-toast-leading]')).toBeNull();
     expect(toast.querySelector('[data-jx-toast-body]')).toBeTruthy();

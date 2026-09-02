@@ -99,9 +99,10 @@ const LEGACY: Record<string, PropEntry[]> = {
   toast: [
     { name: 'store', type: 'ToastStore', default: '—', description: 'The app-created store (createToastStore()) — never a module singleton.', required: true },
     { name: 'maxVisible', type: 'number', default: '4', description: 'Max toasts rendered at once; older ones stay queued behind the +N queued chip.' },
+    { name: 'pos', type: 'FloatPos', default: '—', description: 'The float slot’s nine-grid position (left-top … right-bottom). Default right-bottom; the pile grows AWAY from the slot’s block edge and swipes toward its nearest screen edges.' },
     { name: 'expand', type: 'boolean', default: 'false', description: 'Pins the expanded posture — the full list, every card at its own height. Hover/touch still lifts into it while inside.' },
     { name: 'gap', type: 'number', default: '8', description: 'The stack’s rung spacing in px — the collapsed depth stairs and the expanded ladder both space by it.' },
-    { name: 'swipeDirections', type: 'readonly SwipeDirection[]', default: '—', description: 'Default swipe directions when a push names none — resolved per POSTURE toward the nearest screen edges (adopted top-right → right + up; standalone bottom-right → right + down).' },
+    { name: 'swipeDirections', type: 'readonly SwipeDirection[]', default: '—', description: 'Default swipe directions when a push names none — resolved per SLOT toward its nearest screen edges (right-bottom → right + down; the center takes none).' },
     { name: 'class', type: 'string', default: "''", description: 'Extra classes on the corner stack.' },
   ],
   combobox: [
@@ -168,7 +169,7 @@ const PILOTS: { name: string; meta: typeof selectMeta; docs: PropsDocs; rendered
     name: 'toast',
     meta: toastViewportMeta,
     docs: TOAST_VIEWPORT_DOCS,
-    renderedOrder: ['store', 'maxVisible', 'expand', 'gap', 'swipeDirections', 'class'],
+    renderedOrder: ['store', 'maxVisible', 'pos', 'expand', 'gap', 'swipeDirections', 'class'],
   },
   {
     name: 'combobox',
@@ -293,6 +294,7 @@ const OVERRIDE_FIELDS_IN_PLAY = {
   toast: {
     store: ['required', 'description'],
     maxVisible: ['description'],
+    pos: ['description'],
     expand: ['description'],
     gap: ['description'],
     swipeDirections: ['description'],

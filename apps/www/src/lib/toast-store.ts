@@ -57,9 +57,7 @@ export type SwipeDirection = 'up' | 'down' | 'left' | 'right';
  *  toast dismisses toward its NEAREST screen edges — the position
  *  tokens ARE the directions (top-right → up + right). The keys use
  *  the place-self grammar of the anchor corner: 'start end' =
- *  block-start + inline-end = top-right (the adopted float posture),
- *  'end end' = bottom-right (the standalone fallback). Exported so
- *  the viewport resolves the default per posture. */
+ *  block-start + inline-end = top-right, 'end end' = bottom-right. */
 export const SWIPE_BY_POSITION: Readonly<Record<string, readonly SwipeDirection[]>> = Object.freeze(
   {
     'start start': ['left', 'up'],
@@ -68,6 +66,38 @@ export const SWIPE_BY_POSITION: Readonly<Record<string, readonly SwipeDirection[
     'end end': ['right', 'down'],
   },
 );
+
+/** the float plane's NINE slots (Owner R3, 2026-09-02): physical names
+ *  over the float slot's grid cell. Corners resolve through
+ *  SWIPE_BY_POSITION (toward the nearest edges); edge slots take the
+ *  ONE outward axis (sonner's top-center precedent); the center takes
+ *  none — an equidistant toast has no nearest edge, the × and expiry
+ *  own its dismissal. Keys map 1:1 to data-float-pos. */
+export const SWIPE_BY_FLOAT_POS: Readonly<Record<string, readonly SwipeDirection[]>> = Object.freeze(
+  {
+    'left-top': SWIPE_BY_POSITION['start start'],
+    'center-top': ['up'],
+    'right-top': SWIPE_BY_POSITION['start end'],
+    'left-center': ['left'],
+    'center-center': [],
+    'right-center': ['right'],
+    'left-bottom': SWIPE_BY_POSITION['end start'],
+    'center-bottom': ['down'],
+    'right-bottom': SWIPE_BY_POSITION['end end'],
+  },
+);
+
+/** the nine slot names (the data-float-pos vocabulary) */
+export type FloatPos =
+  | 'left-top'
+  | 'center-top'
+  | 'right-top'
+  | 'left-center'
+  | 'center-center'
+  | 'right-center'
+  | 'left-bottom'
+  | 'center-bottom'
+  | 'right-bottom';
 
 export interface ToastInit {
   title: string;

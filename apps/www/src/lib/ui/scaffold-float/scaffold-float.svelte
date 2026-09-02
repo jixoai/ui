@@ -37,9 +37,15 @@
     children: Snippet;
     /** semantic placement role; the shell grid resolves the cell */
     area?: TopLayerArea;
+    /** the NINE-SLOT position inside the cell (Owner R3, 2026-09-02):
+     *  physical names (left-top … right-bottom) stamped as
+     *  data-float-pos — website-scaffold.css resolves each to a
+     *  place-self. 'right-bottom' is the unstated default (the float
+     *  rule itself carries it, so most floats never name a pos). */
+    pos?: string;
   }
 
-  let { children, area = 'float' }: Props = $props();
+  let { children, area = 'float', pos = 'right-bottom' }: Props = $props();
 
   const api = getContext<TopLayerApi>('jx-top-layer');
 
@@ -63,7 +69,9 @@
 <!-- hidden anchor in place (preserves the authoring DOM position) -->
 <div data-jx-float-anchor bind:this={anchorEl} aria-hidden="true"></div>
 
-<!-- the actual float content: starts here, gets adopted into .jx-top-layer -->
-<div data-jx-float-content bind:this={contentEl}>
+<!-- the actual float content: starts here, gets adopted into .jx-top-layer.
+     data-float-pos names the nine-slot corner (the default right-bottom
+     is also stated in CSS — the attr keeps it explicit for consumers) -->
+<div data-jx-float-content data-float-pos={pos} bind:this={contentEl}>
   {@render children()}
 </div>

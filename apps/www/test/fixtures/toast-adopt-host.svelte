@@ -5,6 +5,9 @@
      the real slot and the real website-scaffold.css. -->
 <script lang="ts">
   import { onMount } from 'svelte';
+  // pos is forwarded for the nine-slot forwarding test (R3 adversarial
+  // P1-1) — the default host keeps the viewport's right-bottom default
+  let { pos = undefined }: { pos?: string } = $props();
   import ToastViewport from '../../src/lib/ui/toast/toast-viewport.svelte';
   import WebsiteScaffold from '../../src/lib/ui/website-scaffold/website-scaffold.svelte';
   import { createToastStore } from '../../src/lib/toast-store';
@@ -23,5 +26,5 @@
 
 <WebsiteScaffold {header}>
   <p data-testid="page">page content under the float plane</p>
-  <ToastViewport {store} />
+  <ToastViewport {store} {pos} />
 </WebsiteScaffold>

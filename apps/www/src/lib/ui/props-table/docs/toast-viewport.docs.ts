@@ -20,6 +20,10 @@ export const TOAST_VIEWPORT_DOCS: PropsDocs = {
     maxVisible: {
       description: 'Max toasts rendered at once; older ones stay queued behind the +N queued chip.',
     },
+    pos: {
+      description:
+        'The float slot’s nine-grid position (left-top … right-bottom). Default right-bottom; the pile grows AWAY from the slot’s block edge and swipes toward its nearest screen edges.',
+    },
     expand: {
       description:
         'Pins the expanded posture — the full list, every card at its own height. Hover/touch still lifts into it while inside.',
@@ -30,7 +34,7 @@ export const TOAST_VIEWPORT_DOCS: PropsDocs = {
     },
     swipeDirections: {
       description:
-        'Default swipe directions when a push names none — resolved per POSTURE toward the nearest screen edges (adopted top-right → right + up; standalone bottom-right → right + down).',
+        'Default swipe directions when a push names none — resolved per SLOT toward its nearest screen edges (right-bottom → right + down; the center takes none).',
     },
     class: {
       description: 'Extra classes on the corner stack.',

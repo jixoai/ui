@@ -13,6 +13,10 @@ export const meta = defineComponentMeta(
         "kind": "number",
         "default": 4
       },
+      "pos": {
+        "kind": "opaque",
+        "typeText": "FloatPos"
+      },
       "expand": {
         "kind": "boolean",
         "default": false

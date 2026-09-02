@@ -43,7 +43,7 @@
   element state survives). Cross-axis carry is damped ×0.2. Release
   judges displacement ≥ 48px OR velocity > 0.11 px/ms along an ALLOWED
   direction (the push's swipeDirections, defaulting from
-  SWIPE_BY_POSITION) → dismiss through the normal pipeline; anything
+  SWIPE_BY_FLOAT_POS) → dismiss through the normal pipeline; anything
   else springs back (the vars are removed; the CSS transition returns
   the card). setPointerCapture keeps the drag when the pointer leaves.
 
@@ -86,7 +86,14 @@
 -->
 <script lang="ts">
   import { getContext, onMount, tick } from 'svelte';
-  import { SWIPE_BY_POSITION, type SwipeDirection, type ToastItem, type ToastStore } from '$lib/toast-store';
+  import {
+    SWIPE_BY_FLOAT_POS,
+    type FloatPos,
+    type SwipeDirection,
+    type ToastItem,
+    type ToastStore,
+  } from '$lib/toast-store';
+  import { icons } from '$lib/icons';
   import { cn } from '$lib/utils';
   import ScaffoldFloat from '$lib/ui/scaffold-float/scaffold-float.svelte';
   import type { TopLayerApi } from '$lib/ui/website-scaffold/website-scaffold.svelte';
@@ -100,12 +107,17 @@
     store: ToastStore;
     /** max toasts rendered at once; older ones stay queued (default 4) */
     maxVisible?: number;
+    /** R3: the float slot's nine-grid position — physical names
+     *  (left-top … right-bottom). Default right-bottom (sonner's
+     *  corner); the stack grows AWAY from the slot's block edge and
+     *  swipes toward its nearest screen edges */
+    pos?: FloatPos;
     /** toast-v2: force the expanded posture (hover/touch still works) */
     expand?: boolean;
     /** toast-v2: the stack's visual gap in px (default 8) */
     gap?: number;
     /** toast-v2: default swipe directions when a push names none —
-     *  resolved per POSTURE from SWIPE_BY_POSITION (the growth law:
+     *  resolved per POSTURE from the slot vocabulary (the growth law:
      *  a drag dismisses toward the stack's nearest screen edges) */
     swipeDirections?: readonly SwipeDirection[];
     /** extra classes on the stack */
@@ -115,6 +127,7 @@
   let {
     store,
     maxVisible = 4,
+    pos = 'right-bottom',
     expand = false,
     gap = 8,
     swipeDirections,
@@ -126,6 +139,8 @@
   const topLevel = getContext<TopLayerApi | undefined>('jx-top-layer');
 
   let items = $state<ToastItem[]>([]);
+  /** the stack container (bind:this) — the touch lift's outside check */
+  let stackEl = $state<HTMLElement | null>(null);
   /** dismissed snapshots still painting their exit frame, by id */
   let leavingItems = $state<ToastItem[]>([]);
   /** the unified hold: ids currently frozen (hover/focus can overlap —
@@ -134,9 +149,15 @@
   let heldIds = $state<ReadonlySet<number>>(new Set());
   /** hover/touch wants the full list (transient — lifts while inside) */
   let hoverExpanded = $state(false);
+  /** a TOUCH tap expands and STAYS expanded (Owner R3-6, 2026-09-02):
+   *  a touch pointer fires pointerleave the instant it lifts, so the
+   *  pre-R3 behavior expanded the stack and collapsed it in the same
+   *  beat. The lift is sticky until a pointerdown lands OUTSIDE the
+   *  stack — the touch idiom for "hover" */
+  let touchExpanded = $state(false);
   /** the stacking posture: the prop PINS it expanded, hover lifts into
    *  it; leaving collapses only when the pin is off */
-  const expanded = $derived(expand || hoverExpanded);
+  const expanded = $derived(expand || hoverExpanded || touchExpanded);
   /** the id whose ToastDialog is open (expandable toasts) */
   let dialogId = $state<number | null>(null);
   /** exit-window timers — all cleared when the viewport unmounts */
@@ -193,11 +214,14 @@
       else store.resumeAll();
     };
     document.addEventListener('visibilitychange', onVisibility);
+    // the touch lift's release: a tap anywhere outside the stack
+    document.addEventListener('pointerdown', onOutsidePointerDown, true);
     if (document.hidden) store.pauseAll();
     return () => {
       unsubscribe();
       mq?.removeEventListener?.('change', onMotion);
       document.removeEventListener('visibilitychange', onVisibility);
+      document.removeEventListener('pointerdown', onOutsidePointerDown, true);
       // detach the visibility handshake: the store resumes arm-at-push
       // semantics (and RETIRES the page-visibility source) for whoever
       // mounts next
@@ -224,17 +248,36 @@
   // ── the stacking dialect geometry (toast-v2) ────────────────────────
   // renders are oldest→newest; the FRONT (index 0) is the newest card.
   // THE GROWTH LAW (sonner's, restated): the stack grows AWAY from its
-  // anchor edge — the adopted float plane anchors block-START (the
-  // pile descends into the content), the standalone fallback anchors
-  // the viewport bottom (the pile climbs). Collapsed: uniform depth
-  // stairs per depth; expanded: each card sits at the summed heights
-  // of the newer cards, plus gaps. Both ride the single-cell grid item
-  // as transform-only offsets (the grid-not-position law).
-  const growsDown = !!topLevel;
-  const dir = growsDown ? 1 : -1;
+  // slot's block edge — a TOP slot descends into the content, every
+  // other slot climbs (R3 made the slot nine-way; the default
+  // right-bottom climbs, matching the standalone fallback exactly).
+  // Collapsed: uniform depth stairs per depth; expanded: each card
+  // sits at the summed heights of the newer cards, plus gaps. Both
+  // ride the single-cell grid item as transform-only offsets (the
+  // grid-not-position law).
+  const growsDown = $derived(pos.endsWith('-top'));
+  const dir = $derived(growsDown ? 1 : -1);
   /** the page direction at mount (a live language switch mid-session is
    *  accepted as remount territory — same class as the posture itself) */
   const rtl = typeof document !== 'undefined' && document.documentElement.dir === 'rtl';
+  /** the anchor's physical inline side: standalone pins physically;
+   *  the adopted slot mirrors under RTL (logical place-self) */
+  const physicalLeft = $derived(
+    topLevel ? (rtl ? pos.startsWith('right-') : pos.startsWith('left-')) : pos.startsWith('left-'),
+  );
+  /** the nine-slot fixed-inset vocabulary for the standalone posture —
+   *  physical names, physical insets (the mirror of the adopted CSS) */
+  const STANDALONE_POS_CLASS: Record<string, string> = {
+    'left-top': 'fixed left-4 top-4',
+    'center-top': 'fixed left-1/2 top-4 -translate-x-1/2',
+    'right-top': 'fixed right-4 top-4',
+    'left-center': 'fixed left-4 top-1/2 -translate-y-1/2',
+    'center-center': 'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2',
+    'right-center': 'fixed right-4 top-1/2 -translate-y-1/2',
+    'left-bottom': 'fixed left-4 bottom-4',
+    'center-bottom': 'fixed left-1/2 bottom-4 -translate-x-1/2',
+    'right-bottom': 'fixed right-4 bottom-4',
+  };
   const rows = $derived.by(() => {
     void measureTick;
     const n = renders.length;
@@ -261,7 +304,10 @@
       `--jx-toast-enter: ${growsDown ? -8 : 8}px`,
       // the exit frame rides physical x: toward the anchor's inline
       // edge (an RTL top-left pile exits LEFT, into its own edge)
-      `--jx-toast-exit-x: ${growsDown && rtl ? -12 : 12}px`,
+      // the exit rides toward the anchor's PHYSICAL inline side: a
+      // left-anchored pile (standalone left-*; adopted right-* under
+      // RTL mirroring) exits LEFT, into its own edge
+      `--jx-toast-exit-x: ${physicalLeft ? -12 : 12}px`,
     ].join('; ');
 
   // how far the VISUAL pile extends past its layout row (transforms
@@ -282,11 +328,20 @@
   });
 
   // hover/touch the stack expands it; leaving collapses (unless pinned)
-  function stackPointerEnter(): void {
-    hoverExpanded = true;
+  // hover lifts the stack; a TOUCH tap lifts it stickily (the pointer
+  // "leaves" the instant it lifts — that leave must not collapse); an
+  // outside pointerdown releases the touch lift
+  function stackPointerEnter(e: PointerEvent): void {
+    if (e.pointerType === 'touch') touchExpanded = true;
+    else hoverExpanded = true;
   }
-  function stackPointerLeave(): void {
+  function stackPointerLeave(e: PointerEvent): void {
+    if (e.pointerType === 'touch') return;
     hoverExpanded = false;
+  }
+  function onOutsidePointerDown(e: PointerEvent): void {
+    if (!touchExpanded) return;
+    if (stackEl && !stackEl.contains(e.target as Node)) touchExpanded = false;
   }
 
   // the card ref registry via a Svelte action (an each-keyed bind:this
@@ -348,11 +403,17 @@
     // logically (place-self is logical; the float area lands top-LEFT)
     // while the vocabulary stays physical — remap so a drag still
     // dismisses toward the stack's nearest screen edges (R1 P2-1)
-    const resolveDirs = (el: HTMLElement): readonly SwipeDirection[] => {
+    const resolveDirs = (): readonly SwipeDirection[] => {
       if (item.swipeDirections ?? swipeDirections) return item.swipeDirections ?? swipeDirections!;
-      if (!growsDown) return SWIPE_BY_POSITION['end end']; // physical pin
-      const rtl = getComputedStyle(el).direction === 'rtl';
-      return SWIPE_BY_POSITION[rtl ? 'start start' : 'start end'];
+      // the ADOPTED slot mirrors under RTL (place-self is logical) —
+      // mirror the vocabulary's horizontal name so the drag still
+      // dismisses toward the stack's nearest screen edges. The
+      // standalone fallback is physically pinned and never mirrors.
+      const key =
+        rtl && topLevel
+          ? pos.replace(/^left-/, '␦').replace(/^right-/, 'left-').replace(/^␦/, 'right-')
+          : pos;
+      return SWIPE_BY_FLOAT_POS[key] ?? SWIPE_BY_FLOAT_POS['right-bottom'];
     };
     const state = (el: HTMLElement): DragState =>
       ((el as HTMLElement & { _toastDrag?: DragState })._toastDrag ??= {
@@ -373,7 +434,7 @@
         const s = state(e.currentTarget);
         s.pid = e.pointerId;
         s.armed = false;
-        s.dirs = resolveDirs(e.currentTarget);
+        s.dirs = resolveDirs();
         s.startX = e.clientX;
         s.startY = e.clientY;
         s.startT = performance.now();
@@ -425,6 +486,20 @@
     };
   }
 
+  // the morph transition: the object form carries TYPES so the CSS
+  // can key the bounce on ::view-transition-group(.jx-toast-morph)
+  // without knowing per-toast names (Owner R3-2); the DOM lib's older
+  // callback-only typing is widened locally
+  function startMorphTransition(update: () => void): { finished: Promise<unknown> } | null {
+    const d = document as Document & {
+      startViewTransition?: (
+        o: (() => void) | { update: () => void; types: readonly string[] },
+      ) => { finished: Promise<unknown> };
+    };
+    if (typeof d.startViewTransition !== 'function') return null;
+    return d.startViewTransition({ update, types: ['jx-toast-morph'] });
+  }
+
   // ── the expandable dialog (toast-v2) ────────────────────────────────
   // shared-element contract: the name must be UNIQUE in each captured
   // state. OPEN: the card is named for the OLD capture, then releases
@@ -447,25 +522,34 @@
     store.pause(item.id);
     // reduced motion skips the morph entirely — the platform does not
     // auto-skip view transitions (adversarial R1 P2-6)
-    const useVT = !reducedMotion && typeof document.startViewTransition === 'function';
-    if (useVT) {
-      // shared element: the card names itself, the dialog panel carries
-      // the same name — the platform morphs one into the other
-      cardEl.style.viewTransitionName = `jx-toast-${item.id}`;
-      document.startViewTransition(() => {
+    // shared element: the card names itself for the OLD capture, the
+    // dialog carries the same name — the platform morphs one into the
+    // other with the R3 bounce (the jx-toast-morph type keys the CSS)
+    const open = () => {
+      dialogId = item.id;
+      store.pause(item.id);
+    };
+    cardEl.style.viewTransitionName = `jx-toast-${item.id}`;
+    cardEl.style.viewTransitionClass = 'jx-toast-morph';
+    const vt =
+      !reducedMotion &&
+      startMorphTransition(() => {
         cardEl.style.viewTransitionName = '';
+        cardEl.style.viewTransitionClass = '';
         // expiry can land inside the capture window (the clock had
         // near-zero remaining when the click raced it): mounting the
         // dialog for a dead id strands dialogId (adversarial R1 P3-1)
         if (!items.some((i) => i.id === item.id)) return;
-        dialogId = item.id;
-        store.pause(item.id);
+        open();
       });
-    } else {
-      dialogId = item.id;
-      store.pause(item.id);
+    if (!vt) {
+      cardEl.style.viewTransitionName = '';
+      cardEl.style.viewTransitionClass = ''; // no engine (or RM): no morph
+      open();
       if (!reducedMotion) {
-        // the WAAPI-law fallback: the panel rises from the card's rect
+        // the WAAPI-law fallback (navmenu's two-motion precedent): the
+        // panel rises from the card's rect where VT is absent, on the
+        // same bounce the VT path carries
         requestAnimationFrame(() => {
           const panel = document.querySelector<HTMLElement>(`[data-jx-toast-dialog="${item.id}"]`);
           if (!panel) return;
@@ -483,7 +567,7 @@
               },
               { transform: 'none', opacity: 1 },
             ],
-            { duration: 240, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' },
+            { duration: 340, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
           );
         });
       }
@@ -507,26 +591,36 @@
         store.setVisible(visible.map((i) => i.id));
       }
       // focus returns to the OPENER card (tabindex=-1 below) — not the
-      // oldest card in the DOM (adversarial R1 P2-5)
-      cardEls.get(id)?.focus?.();
+      // oldest card in the DOM (adversarial R1 P2-5). Deferred a tick:
+      // the card was `invisible` while its dialog owned the screen and
+      // focus() on a hidden element is a silent no-op
+      tick().then(() => cardEls.get(id)?.focus?.());
     };
     const cardEl = cardEls.get(id);
-    const useVT = !reducedMotion && typeof document.startViewTransition === 'function';
-    if (useVT && cardEl) {
-      // mirror of the open: the card re-takes the name so the dialog's
-      // removal morphs back into it; cleared once the transition
-      // settles. A second transition SKIPS this one — finished then
-      // rejects, so the catch must precede the cleanup (R1 P3-2)
+    if (cardEl && !reducedMotion) {
+      // mirror of the open: the card re-takes the name BEFORE the
+      // capture starts so the dialog's removal morphs back into it.
+      // A second transition SKIPS this one — finished then rejects,
+      // so the catch must precede the cleanup (R1 P3-2)
       cardEl.style.viewTransitionName = `jx-toast-${id}`;
-      const vt = document.startViewTransition(finish);
-      vt.finished
-        .catch(() => {})
-        .finally(() => {
-          // a rapid close→reopen RE-STAMPS the name before this skipped
-          // transition settles — clearing blindly would strip the new
-          // open's shared element (re-attack R2 P3-5b)
-          if (dialogId !== id) cardEl.style.viewTransitionName = '';
-        });
+      cardEl.style.viewTransitionClass = 'jx-toast-morph';
+      const vt = startMorphTransition(finish);
+      if (vt) {
+        vt.finished
+          .catch(() => {})
+          .finally(() => {
+            // a rapid close→reopen RE-STAMPS the name before this
+            // skipped transition settles — clearing blindly would strip
+            // the new open's shared element (re-attack R2 P3-5b)
+            if (dialogId !== id) {
+              cardEl.style.viewTransitionName = '';
+              cardEl.style.viewTransitionClass = '';
+            }
+          });
+      } else {
+        cardEl.style.viewTransitionName = ''; // no engine: undo + finish
+        finish();
+      }
     } else {
       finish();
     }
@@ -611,11 +705,16 @@
   <div
     data-jx-toasts=""
     data-expanded={expanded ? '' : undefined}
+    bind:this={stackEl}
     class={cn(
       'grid auto-rows-min pointer-events-none',
-      // the growth law in alignment form: adopted = pile descends from
-      // the cell top; standalone = pile climbs from the viewport bottom
-      topLevel ? 'content-start h-full w-auto justify-self-end p-4' : 'content-end fixed right-4 bottom-4 z-[90] w-[min(22rem,calc(100vw-2rem))]',
+      // the growth law in alignment form: a TOP slot descends from the
+      // cell top, every other slot climbs from its anchor; standalone
+      // mirrors the adopted slot with physical fixed insets
+      growsDown ? 'content-start' : 'content-end',
+      topLevel
+        ? 'h-full w-auto p-4'
+        : `${STANDALONE_POS_CLASS[pos] ?? STANDALONE_POS_CLASS['right-bottom']} z-[90] w-[min(22rem,calc(100vw-2rem))]`,
       className,
     )}
     style={`gap: ${gap}px; --jx-toast-gap: ${gap}px; --jx-toast-extend: ${stackExtend}px`}
@@ -643,11 +742,22 @@
           data-material={material}
           data-effect={item.effect && item.effect !== 'none' ? item.effect : undefined}
           class={cn(
-            'jx-toast grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-start gap-2.5 box-border px-3.5 py-3 border text-popover-foreground shadow rounded animate-[jx-toast-in_200ms_cubic-bezier(0.22,1,0.36,1)]',
+            // the float-button material (Owner R3-5): the press law at
+            // float scale — rest on --shadow, hover grows, active
+            // counter-shrinks; the card is a float-tier interactive
+            // surface exactly like the fab
+            'jx-toast jx-press grid items-start gap-x-2.5 gap-y-1.5 box-border px-3.5 py-3 border text-popover-foreground rounded overflow-hidden animate-[jx-toast-in_200ms_cubic-bezier(0.22,1,0.36,1)] [--jx-press-shadow:var(--shadow)] [--jx-press-shadow-hover:var(--shadow-md)] [--jx-press-shadow-active:var(--shadow-md-press)]',
             material === 'glass' ? materialGround.glass : variant === 'tonal' ? tonalGround : materialGround.popover,
             variantBorder[variant],
             leaving && 'jx-toast-leaving animate-[jx-toast-out_180ms_ease-in_forwards]',
             item.expandable && 'cursor-pointer',
+            // the ORIGIN card hides while its dialog is open: the
+            // shared element morphs out of it, and a card painted
+            // underneath the flight doubles the content mid-morph and
+            // strands a half-faded remnant at the origin (vision R3).
+            // visibility (not display) keeps its box — the collapse
+            // morph needs the rect to fly back into
+            dialogId === item.id && 'invisible',
             item.class,
           )}
           role={item.assertive ? 'alert' : 'status'}
@@ -657,7 +767,7 @@
           onfocusin={() => hold(item.id)}
           onfocusout={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement; relatedTarget: EventTarget | null }) => {
             // focus crossing WITHIN the toast must not resume the countdown
-            if (!e.currentTarget.contains(e.relatedTarget)) release(item.id);
+            if (!e.currentTarget.contains(e.relatedTarget as Node | null)) release(item.id);
           }}
           onclick={(e) => {
             if (!item.expandable) return;
@@ -666,9 +776,9 @@
           }}
         >
           {#if item.leading}
-            <div data-jx-toast-leading="" class="flex-none self-start pt-0.5">{@render item.leading()}</div>
+            <div data-jx-toast-leading="" class="flex-none self-start pt-0.5 [grid-area:leading]">{@render item.leading()}</div>
           {/if}
-          <div data-jx-toast-body="" class="grid min-w-0 gap-1">
+          <div data-jx-toast-body="" class="grid min-w-0 gap-1 [grid-area:body]">
             <p data-jx-toast-title="" class={cn('font-nav text-xs tracking-[0.1em] uppercase', titleInk[variant])}>{item.title}</p>
             {#if item.description}
               {#if collapsedSlab}
@@ -681,23 +791,29 @@
               {/if}
             {/if}
           </div>
-          {#if item.trailing || (item.countdown && (item.duration ?? 5000) > 0)}
-            <div data-jx-toast-trailing="" class="flex flex-none items-center gap-2.5 self-stretch">
-              {#if item.trailing}{@render item.trailing()}{/if}
-              {#if item.countdown && (item.duration ?? 5000) > 0}
-                <ToastCountdown duration={item.duration ?? 5000} paused={heldIds.has(item.id) || dialogId === item.id} />
-              {/if}
-            </div>
+          {#if item.trailing}
+            <div data-jx-toast-trailing="" class="flex flex-none items-center gap-2.5 self-stretch [grid-area:trail]">{@render item.trailing()}</div>
           {/if}
           <button
             type="button"
             data-jx-toast-dismiss=""
-            class="flex-none appearance-none inline-flex items-center justify-center size-5 -mt-0.5 -mr-1 border-0 bg-transparent text-muted-foreground text-base leading-none cursor-pointer hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px] forced-colors:outline-2 forced-colors:outline-offset-2 forced-colors:[outline-color:Highlight] forced-colors:text-[ButtonText]"
+            class="flex-none appearance-none inline-flex items-center justify-center size-5 mt-[3px] border-0 bg-transparent text-muted-foreground cursor-pointer hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px] forced-colors:outline-2 forced-colors:outline-offset-2 forced-colors:[outline-color:Highlight] forced-colors:text-[ButtonText] [grid-area:close]"
             aria-label="dismiss notification"
             onclick={() => store.api.dismiss(item.id)}
           >
-            ×
+            <!-- the named icon library (Owner R3-3): the glyph is the
+                 icon system's x, never a literal symbol -->
+            <span class="inline-flex" aria-hidden="true">{@html icons.x}</span>
           </button>
+          {#if item.countdown && (item.duration ?? 5000) > 0}
+            <!-- the countdown FLOOR (Owner R3-4): a full-width drain
+                 across the card's bottom — the trailing lane is for
+                 actions, the floor is time -->
+            <ToastCountdown
+              duration={item.duration ?? 5000}
+              paused={heldIds.has(item.id) || dialogId === item.id}
+            />
+          {/if}
         </div>
       </div>
     {/each}
@@ -724,7 +840,7 @@
 
 {#if topLevel}
   <!-- the float plane owns the viewport — no fixed positioning anywhere -->
-  <ScaffoldFloat area="float">{@render stack()}{@render dialogHost()}</ScaffoldFloat>
+  <ScaffoldFloat area="float" {pos}>{@render stack()}{@render dialogHost()}</ScaffoldFloat>
 {:else}
   {@render stack()}{@render dialogHost()}
 {/if}

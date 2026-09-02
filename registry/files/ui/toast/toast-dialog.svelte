@@ -66,7 +66,7 @@
     'pointer-events-auto box-border m-0 fixed left-1/2 top-[10vh] -translate-x-1/2 w-[min(36rem,calc(100vw-2rem))] max-h-[80vh] overflow-y-auto p-5 border rounded bg-popover text-popover-foreground shadow-lg outline-none cursor-default',
     className,
   )}
-  style="view-transition-name: {vtName};"
+    style={`view-transition-name: ${vtName}; view-transition-class: jx-toast-morph;`}
   role="dialog"
   aria-label={item.title}
   tabindex="-1"

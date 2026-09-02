@@ -36,3 +36,14 @@
 - [x] vision 子代理视觉验证两轮（首轮抓 D-1 溢出→生长法则修复；复轮进行中）
 - [ ] 对抗收敛轮（双攻击代理运行中：状态机镜头 + 手势/几何/RTL/docs 镜头）
 - [ ] 镜像/manifest/payload/verify 门禁收尾 + 分域提交（全量 vitest 1402 绿，仅用户在途 code-card-backend 5 败非本域；manifest 已加 highlight/ stopgap 分类）
+
+## R3（Owner 六项，2026-09-02 下午）
+
+- [x] ① jx-float-slot 九宫格：grid/subgrid 上 `[data-float-pos]` 九条 place-self（物理命名 left-top…right-bottom）；默认 **右下**（place-self: end）；ScaffoldFloat `pos` prop 盖章；SWIPE_BY_FLOAT_POS 词表（角=双最近边/边=朝外单轴/心=无）；standalone 物理 inset 对偶表
+- [x] ② VT bounce 共享过渡：`startViewTransition({update, types:['jx-toast-morph']})`（开/合双向）+ `::view-transition-group(.jx-toast-morph)` 过冲曲线（cubic-bezier(0.34,1.56,0.64,1) 340ms）；WAAPI 回退同曲线
+- [x] ③ × 换命名图标库（icons.x / data-jx-icon），无字面符号
+- [x] ④ 卡命名区域 grid：leading|body|close + close 右上槽位（px-3.5=py-3 边缘等距，实测 23/24px）+ countdown **地板**（绝对钉底 transient-ink 豁免，卡 overflow-hidden 裁圆角，实测贴齐边框 1px 内）；trailing 归位 body 行内动作位
+- [x] ⑤ 材质共享 float-button 帧：jx-press + --jx-press-shadow 三姿态（--shadow/--shadow-md/--shadow-md-press）
+- [x] ⑥ touch 粘滞展开：pointerenter/leave 按 pointerType 分流，touch 提升 touchExpanded，栈外 pointerdown（capture）释放；鼠标行为不变
+- [x] 测试 36 绿 + meta 再生成 + 漂移快照（pos 排 maxVisible 后）+ docs/registry 同步
+- [ ] vision 验证 + 对抗轮（均后台运行中）→ 修复 → 提交

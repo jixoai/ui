@@ -19,9 +19,11 @@
 import { render, fireEvent, cleanup } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
 
-import { createToastStore } from '../src/lib/toast-store';
+import { createToastStore, SWIPE_BY_FLOAT_POS } from '../src/lib/toast-store';
 import ToastViewport from '../src/lib/ui/toast/toast-viewport.svelte';
+import ToastAdoptHost from './fixtures/toast-adopt-host.svelte';
 import { frictionShift, judgeSwipe, SWIPE_FRICTION } from '../src/lib/ui/toast/toast-swipe';
 
 afterEach(() => {
@@ -386,5 +388,103 @@ describe('toast v2 — adversarial R1 regressions (swipe + hold + chip)', () => 
     expect(chip!.getAttribute('aria-hidden')).toBe('true');
     // the wrapper rule is scoped away from the chip: no depth stamp
     expect(chip!.style.getPropertyValue('--jx-toast-i')).toBe('');
+  });
+});
+
+describe('toast v2 — R3: the nine slots, the touch lift, the pos prop', () => {
+  it('SWIPE_BY_FLOAT_POS: corners toward both nearest edges, edges outward-only, center none', () => {
+    expect(SWIPE_BY_FLOAT_POS['right-bottom']).toEqual(['right', 'down']);
+    expect(SWIPE_BY_FLOAT_POS['left-top']).toEqual(['left', 'up']);
+    expect(SWIPE_BY_FLOAT_POS['right-top']).toEqual(['right', 'up']);
+    expect(SWIPE_BY_FLOAT_POS['left-bottom']).toEqual(['left', 'down']);
+    expect(SWIPE_BY_FLOAT_POS['center-top']).toEqual(['up']);
+    expect(SWIPE_BY_FLOAT_POS['center-bottom']).toEqual(['down']);
+    expect(SWIPE_BY_FLOAT_POS['left-center']).toEqual(['left']);
+    expect(SWIPE_BY_FLOAT_POS['right-center']).toEqual(['right']);
+    // the equidistant center has no nearest edge — no swipe, the × and
+    // expiry own dismissal
+    expect(SWIPE_BY_FLOAT_POS['center-center']).toEqual([]);
+  });
+
+  it('a top pos descends the pile (positive depth y); the default climbs', async () => {
+    const store = createToastStore();
+    const { container } = render(ToastViewport, { props: { store, pos: 'right-top' } });
+    store.api.push({ title: 'a', duration: 0 });
+    store.api.push({ title: 'b', duration: 0 });
+    await new Promise((r) => setTimeout(r, 0));
+    const rear = [...container.querySelectorAll<HTMLElement>('[data-jx-toasts] > div')].find(
+      (w) => w.style.getPropertyValue('--jx-toast-i') === '1',
+    )!;
+    expect(rear.style.getPropertyValue('--jx-toast-y')).toBe('8px'); // descends
+    expect(rear.style.getPropertyValue('transform-origin')).toContain('top');
+  });
+
+  it('a TOUCH tap expands the stack and the synthetic leave does NOT collapse it (R3-6)', async () => {
+    const store = createToastStore();
+    const { container } = render(ToastViewport, { props: { store } });
+    store.api.push({ title: 'a', duration: 0 });
+    store.api.push({ title: 'b', duration: 0 });
+    await new Promise((r) => setTimeout(r, 0));
+    const stack = container.querySelector('[data-jx-toasts]') as HTMLElement;
+
+    await fireEvent.pointerEnter(stack, { pointerType: 'touch' });
+    expect(stack.getAttribute('data-expanded')).toBe(''); // lifted
+    // the touch pointer "leaves" the instant it lifts — sticky by design
+    await fireEvent.pointerLeave(stack, { pointerType: 'touch' });
+    expect(stack.getAttribute('data-expanded')).toBe('');
+    // a pointerdown OUTSIDE the stack releases the lift
+    await fireEvent.pointerDown(document.body, { pointerType: 'touch' });
+    await new Promise((r) => setTimeout(r, 0));
+    expect(stack.getAttribute('data-expanded')).toBeNull();
+  });
+
+  it('a mouse hover still collapses on leave (the touch stickiness never leaks to pointers)', async () => {
+    const store = createToastStore();
+    const { container } = render(ToastViewport, { props: { store } });
+    store.api.push({ title: 'a', duration: 0 });
+    store.api.push({ title: 'b', duration: 0 });
+    await new Promise((r) => setTimeout(r, 0));
+    const stack = container.querySelector('[data-jx-toasts]') as HTMLElement;
+    await fireEvent.pointerEnter(stack, { pointerType: 'mouse' });
+    expect(stack.getAttribute('data-expanded')).toBe('');
+    await fireEvent.pointerLeave(stack, { pointerType: 'mouse' });
+    expect(stack.getAttribute('data-expanded')).toBeNull();
+  });
+
+});
+
+describe('toast v2 — R3 adversarial regressions', () => {
+  it('pos IS forwarded through the float plane (P1-1): the nine slots reach the adopted wrapper', async () => {
+    const { container } = render(ToastAdoptHost, { props: { pos: 'left-top' } });
+    await new Promise((r) => setTimeout(r, 50));
+    const wrapper = container.querySelector('[data-jx-float-content]') as HTMLElement;
+    expect(wrapper.getAttribute('data-float-pos')).toBe('left-top');
+    // and the site's default (no pos) stays right-bottom
+    cleanup();
+    const again = render(ToastAdoptHost);
+    await new Promise((r) => setTimeout(r, 50));
+    const w2 = again.container.querySelector('[data-jx-float-content]') as HTMLElement;
+    expect(w2.getAttribute('data-float-pos')).toBe('right-bottom');
+  });
+
+  it('the trailing snippet rides its OWN lane beside the body — never overlapping it (P1-2)', async () => {
+    const store = createToastStore();
+    const { container } = render(ToastViewport, { props: { store } });
+    store.api.push({
+      title: 'with actions',
+      duration: 0,
+      trailing: (() => {
+        const el = document.createElement('button');
+        el.setAttribute('data-trail-probe', '');
+        el.textContent = 'act';
+        return () => el;
+      })(),
+    });
+    await new Promise((r) => setTimeout(r, 0));
+    const trail = container.querySelector('[data-jx-toast-trailing]') as HTMLElement;
+    expect(trail.style.getPropertyValue('grid-area') + trail.className).toContain('grid-area:trail');
+    // css-source: the template carries four lanes
+    const css = readFileSync('src/lib/ui/toast/toast.css', 'utf8');
+    expect(css).toContain("grid-template-areas: 'leading body trail close'");
   });
 });

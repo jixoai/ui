@@ -233,14 +233,45 @@
 }
 :where(.jx-top-layer [data-area='float']){
   grid-area: stage;
-  /* content-sized at the stage's TOP-right corner (V1-1, 2026-09-02;
-     corner corrected end→start end same day — toasts ride the top
-     corner per the adoption contract): the float wrapper NEVER
-     stretches over the stage — the adopted stack owns its own
+  /* content-sized at the stage's corner — the float wrapper NEVER
+     stretches over the stage: the adopted stack owns its own
      geometry, so a stretched plane (and with it the stretched-card
-     defect) cannot exist by construction. */
+     defect) cannot exist by construction.
+     THE NINE SLOTS (Owner R3, 2026-09-02): data-float-pos names a
+     physical slot of the stage cell; the default is the BOTTOM-right
+     (place-self: end — the classic toast corner, sonner's default).
+     Slot names are physical words; place-self VALUES are logical, so
+     an RTL page mirrors the slot (left-top renders top-right) — the
+     same mirroring the pre-R3 single-corner rule had, kept honest
+     instead of physically pinned. */
+  place-self: end;
+}
+:where(.jx-top-layer [data-area='float'][data-float-pos='left-top']){
+  place-self: start start;
+}
+:where(.jx-top-layer [data-area='float'][data-float-pos='center-top']){
+  place-self: start center;
+}
+:where(.jx-top-layer [data-area='float'][data-float-pos='right-top']){
   place-self: start end;
 }
+:where(.jx-top-layer [data-area='float'][data-float-pos='left-center']){
+  place-self: center start;
+}
+:where(.jx-top-layer [data-area='float'][data-float-pos='center-center']){
+  place-self: center;
+}
+:where(.jx-top-layer [data-area='float'][data-float-pos='right-center']){
+  place-self: center end;
+}
+:where(.jx-top-layer [data-area='float'][data-float-pos='left-bottom']){
+  place-self: end start;
+}
+:where(.jx-top-layer [data-area='float'][data-float-pos='center-bottom']){
+  place-self: end center;
+}
+/* right-bottom IS the default (place-self: end) — stated once above,
+   not duplicated here */
 
 /* ── the scrolling layer ──
    The full-width + padding form (Owner experiment, 2026-09-01 —
