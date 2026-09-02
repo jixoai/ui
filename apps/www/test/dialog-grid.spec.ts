@@ -100,7 +100,11 @@ describe('the zones — borders retired, content rides the 1fr track', () => {
     expect(flushed.container.querySelector('.jx-dialog-head-content')).toBeNull();
     expect(flushed.container.querySelector('h2')).toBeNull();
     const bodyRow = container.querySelector('[data-jx-dialog-body] > div')!;
-    expect(bodyRow.className).toMatch(/p-3\.5/);
+    // the body cell rides the scrollbar-law compensation (r14-16,
+    // Owner): authored 0.875rem inline minus the probed thin width —
+    // the both-edges gutter reserves space the padding gives back
+    expect(bodyRow.className).toMatch(/py-3\.5/);
+    expect(bodyRow.className).toMatch(/px-\[max\(0\.875rem-var\(--jx-scrollbar-thin,0px\),0px\)\]/);
   });
 
   it('the retired column ruler leaves no residue (no inset token, no subgrid, no col-start)', () => {

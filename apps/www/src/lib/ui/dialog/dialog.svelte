@@ -260,8 +260,14 @@
          decorative chrome, hidden from AT -->
     <Separator data-jx-dialog-sep="head" aria-hidden="true" />
     <div data-jx-dialog-body="" data-jx-scroll={scroll ? undefined : 'off'}>
+      <!-- the content cell's inline padding COMPENSATES the both-edges
+           gutter (the scrollbar law, jixoai.css): the gutter reserves
+           space between the zone's inner border edge and the cell's
+           padding edge, so subtracting the probed thin width keeps the
+           visual inset at the authored 0.875rem — overlay-scrollbar
+           systems probe 0px and keep it whole -->
       <div
-        class="min-w-0 p-3.5 text-[13px] leading-[1.6] text-[color-mix(in_oklab,var(--popover-foreground)_80%,transparent)]"
+        class="min-w-0 py-3.5 px-[max(0.875rem-var(--jx-scrollbar-thin,0px),0px)] text-[13px] leading-[1.6] text-[color-mix(in_oklab,var(--popover-foreground)_80%,transparent)]"
       >
         {@render children()}
       </div>
