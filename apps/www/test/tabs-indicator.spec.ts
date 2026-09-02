@@ -26,9 +26,20 @@
  *    tabindex trims to one tab stop, arrows still walk + select —
  *    and a disabled flip re-trims it (the strip never loses its only
  *    tab stop);
+ *  - the roving tabindex under dynamic disable (2026-09-02 P1): a
+ *    disabled stop — selected OR focused — hands the only tab stop to
+ *    the first enabled trigger through the context; the tablist
+ *    itself is NEVER a tab stop (tabindex=-1 states the focus
+ *    contract);
  *  - the RTL scroll contract (2026-09-02 fix wave): spec-negative
  *    scrollLeft normalized into inline-true state/progress, the
  *    physical-window edge factors, and the flipped nudge axis;
+ *  - ONE direction truth + the three RTL scrollLeft engines
+ *    (2026-09-02 P2): the resolver prefers computed direction ([dir]
+ *    fallback — walk and scroll math agree under pure-css rtl), the
+ *    engine probe decides negative / positive-ascending /
+ *    positive-descending, and the canonical adapters carry state,
+ *    progress, window factors and nudge signs for all three;
  *  - the css law pinned at SOURCE (jsdom computes no css): the
  *    [data-jx-tabs-ind] block, the [data-quiet] transition kill,
  *    per-material ink (glass/liquid backdrop-filter, liquid riding the
@@ -41,7 +52,18 @@ import { describe, expect, it } from 'vitest';
 import { fireEvent, render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 
-import { blur, blurSlide, progressBlur, shadow, slide } from '../src/lib/ui/tabs/tabs-list.svelte';
+import {
+  blur,
+  blurSlide,
+  detectRtlScrollModel,
+  isRtlDirection,
+  progressBlur,
+  rtlScrollFromCanonical,
+  rtlScrollToCanonical,
+  shadow,
+  slide,
+  type RtlScrollModel,
+} from '../src/lib/ui/tabs/tabs-list.svelte';
 import IndicatorHost from './fixtures/tabs-indicator-host.svelte';
 
 // ---- ResizeObserver resilience ------------------------------------------------
@@ -478,22 +500,37 @@ describe('Tabs · layout contract', () => {
     expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('1');
   });
 
-  it('RTL chevrons nudge on the flipped physical axis — inline-forward is scrollBy left NEGATIVE', () => {
+  it('RTL chevrons nudge on the flipped physical axis — inline-forward writes an ABSOLUTE negative target (re-attack P3)', () => {
     const { list } = setup();
     const host = list('rtl');
     const run = host.querySelector('[data-jx-tabs-run]')!;
     run.style.direction = 'rtl';
     Object.defineProperty(run, 'clientWidth', { value: 200, configurable: true });
+    Object.defineProperty(run, 'scrollWidth', { value: 600, configurable: true });
+    let raw = 0;
+    Object.defineProperty(run, 'scrollLeft', {
+      get: () => raw,
+      set: (v: number) => {
+        raw = Math.min(400, Math.max(-400, v));
+      },
+      configurable: true,
+    });
     const calls: number[] = [];
-    run.scrollBy = (opts?: ScrollToOptions) => {
+    // RTL writes ride ABSOLUTE canonical targets through scrollTo (a
+    // bare scrollBy delta mis-maps on descending engines) — the run
+    // needs a real scroll distance (max=400) for the canonical path
+    run.scrollTo = (opts?: ScrollToOptions) => {
       calls.push(opts?.left ?? 0);
       return undefined;
     };
     (host.querySelector(':scope > [data-jx-chevron="inline-end"]') as HTMLButtonElement).click();
+    // inline-back from a mid-scroll rest: the absolute target walks
+    // TOWARD 0 (raw on the negative engine == canonical)
+    run.scrollLeft = -350;
     (host.querySelector(':scope > [data-jx-chevron="inline-start"]') as HTMLButtonElement).click();
     expect(calls).toHaveLength(2);
-    expect(calls[0]).toBeLessThan(0);
-    expect(calls[1]).toBeGreaterThan(0);
+    expect(calls[0]).toBeLessThan(0); // inline-forward: negative-space target
+    expect(calls[1]).toBe(-150); // -350 + step(200), clamped inside [−max, 0]
   });
 
   it('scroll is a declared overflow run — the overflow itself is css-owned, not a markup class', () => {
@@ -565,6 +602,201 @@ describe('Tabs · APG regressions', () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(alpha.tabIndex).toBe(-1);
     expect(beta.tabIndex).toBe(0);
+  });
+
+  it('a disabled SELECTED stop hands the only tab stop to the first enabled trigger (P1)', async () => {
+    const { tabsIn } = setup();
+    // value="alpha": the un-focused stop IS the selected trigger
+    const [alpha, beta, gamma] = tabsIn('line');
+    expect(alpha.tabIndex).toBe(0);
+    alpha.setAttribute('disabled', '');
+    await tick();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    // the hand-over went through the CONTEXT (setTabStop): the
+    // triggers' isTabStop derived re-rendered the roving flip
+    expect(alpha.tabIndex).toBe(-1);
+    expect(beta.tabIndex).toBe(0);
+    expect(gamma.tabIndex).toBe(-1);
+  });
+
+  it('a disabled FOCUSED stop hands the only tab stop back to the first enabled trigger (P1)', async () => {
+    const { tabsIn } = setup();
+    const [alpha, beta] = tabsIn('line');
+    // focus moves the roving stop off the selected trigger
+    beta.focus();
+    await tick();
+    expect(beta.tabIndex).toBe(0);
+    expect(alpha.tabIndex).toBe(-1);
+    beta.setAttribute('disabled', '');
+    await tick();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(beta.tabIndex).toBe(-1);
+    expect(alpha.tabIndex).toBe(0);
+  });
+
+  it('the tablist itself is NEVER a tab stop — tabindex=-1 states the focus contract (the checker reads it, no suppression)', () => {
+    const { list, tabsIn } = setup();
+    const run = list('line').querySelector('[data-jx-tabs-run]')!;
+    expect(run.getAttribute('role')).toBe('tablist');
+    expect(run.getAttribute('tabindex')).toBe('-1');
+    // the roving stop lives on a TRIGGER — exactly one tabbable, and
+    // it is enabled
+    const stops = tabsIn('line').filter((tab) => tab.tabIndex === 0);
+    expect(stops).toHaveLength(1);
+    expect(stops[0].hasAttribute('disabled')).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// RTL resolution — one direction truth, three scrollLeft engines (P2)
+// ---------------------------------------------------------------------------
+describe('Tabs · RTL resolution (one truth, three engines)', () => {
+  it('isRtlDirection: computed direction is the law; [dir] stands in only when the cascade reports nothing', () => {
+    expect(isRtlDirection('rtl', undefined)).toBe(true);
+    // computed wins over a contradicting ancestor attribute — it is
+    // the used value, inheritance already resolved
+    expect(isRtlDirection('rtl', 'ltr')).toBe(true);
+    expect(isRtlDirection('ltr', 'rtl')).toBe(false);
+    // the fallback arm: no cascade verdict, nearest [dir] decides
+    expect(isRtlDirection('', 'rtl')).toBe(true);
+    expect(isRtlDirection('', 'ltr')).toBe(false);
+    expect(isRtlDirection('', undefined)).toBe(false);
+    expect(isRtlDirection('', null)).toBe(false);
+  });
+
+  it('the walk and the scroll math AGREE under pure-css rtl (no [dir] attribute anywhere)', async () => {
+    const { list, tabsIn } = setup();
+    const host = list('rtl');
+    const run = host.querySelector('[data-jx-tabs-run]')!;
+    // strip the fixture's [dir] wrapper: direction now arrives by css
+    // alone — the old walk read only [dir] and walked the WRONG way
+    run.closest('[dir]')!.removeAttribute('dir');
+    run.style.direction = 'rtl';
+    // scroll side: spec-negative raw reads inline-true (progress 0.25)
+    Object.defineProperty(run, 'scrollWidth', { value: 600, configurable: true });
+    Object.defineProperty(run, 'clientWidth', { value: 200, configurable: true });
+    run.scrollLeft = -100;
+    run.dispatchEvent(new Event('scroll'));
+    expect(run.getAttribute('data-jx-scroll-state')).toBe('open');
+    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('0.25');
+    // walk side: ArrowRight is BACKWARD under rtl — alpha wraps to
+    // gamma (old code: forward to beta), ArrowLeft walks forward back
+    const [alpha, , gamma] = tabsIn('rtl');
+    alpha.focus();
+    await fireEvent.keyDown(alpha, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(gamma);
+    expect(gamma.getAttribute('aria-selected')).toBe('true');
+    await fireEvent.keyDown(gamma, { key: 'ArrowLeft' });
+    expect(document.activeElement).toBe(alpha);
+  });
+
+  it('detectRtlScrollModel decides all three engines from rest + the −1 probe', () => {
+    const engine = (model: RtlScrollModel, max = 400) => {
+      let raw = model === 'positive-descending' ? max : 0;
+      const clamp = (v: number) =>
+        model === 'negative' ? Math.min(0, Math.max(-max, v)) : Math.min(max, Math.max(0, v));
+      return {
+        read: () => raw,
+        write: (v: number) => {
+          raw = clamp(v);
+        },
+      };
+    };
+    for (const model of ['negative', 'positive-ascending', 'positive-descending'] as const) {
+      const e = engine(model);
+      const verdict = detectRtlScrollModel(e.read(), () => {
+        e.write(-1);
+        return e.read();
+      });
+      expect(verdict).toBe(model);
+    }
+  });
+
+  it('the canonical adapters: one inline truth from every engine (travel = −canon, physical origin = max + canon)', () => {
+    const max = 400;
+    // mid-travel raws per engine, all meaning "walked 100 toward the
+    // inline end"
+    const raws: [RtlScrollModel, number][] = [
+      ['negative', -100],
+      ['positive-ascending', 100],
+      ['positive-descending', 300],
+    ];
+    for (const [model, raw] of raws) {
+      const canon = rtlScrollToCanonical(model, raw, max);
+      expect(canon).toBe(-100);
+      expect(-canon).toBe(100); // inline travel
+      expect(max + canon).toBe(300); // physical window origin
+      expect(rtlScrollFromCanonical(model, canon, max)).toBe(raw); // round-trip
+    }
+  });
+
+  it('a positive-ascending engine (legacy WebKit) reads inline-true through the normalizer — verdict, progress, edge factors, nudge sign', () => {
+    const { list, tabsIn } = setup();
+    const host = list('rtl');
+    const run = host.querySelector('[data-jx-tabs-run]')!;
+    run.style.direction = 'rtl';
+    Object.defineProperty(run, 'scrollWidth', { value: 600, configurable: true });
+    Object.defineProperty(run, 'clientWidth', { value: 200, configurable: true });
+    // the ascending engine: raw clamps to [0, +max], rests at 0
+    let raw = 0;
+    Object.defineProperty(run, 'scrollLeft', {
+      get: () => raw,
+      set: (v: number) => {
+        raw = Math.min(400, Math.max(0, v));
+      },
+      configurable: true,
+    });
+    // first stamp AT REST — the −1 probe clamps to 0, separating
+    // ascending from the spec-negative engine
+    run.dispatchEvent(new Event('scroll'));
+    expect(run.getAttribute('data-jx-scroll-state')).toBe('start-closed');
+    // fake geometry shared with the negative-engine law: alpha owns
+    // [480, 580]; walking raw +100 is canon −100 → window [300, 500]
+    const [alpha] = tabsIn('rtl');
+    Object.defineProperty(alpha, 'offsetLeft', { value: 480, configurable: true });
+    Object.defineProperty(alpha, 'offsetWidth', { value: 100, configurable: true });
+    raw = 100;
+    run.dispatchEvent(new Event('scroll'));
+    expect(run.getAttribute('data-jx-scroll-state')).toBe('open');
+    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('0.25');
+    expect(alpha.style.getPropertyValue('--jx-edge-start')).toBe('');
+    expect(alpha.style.getPropertyValue('--jx-edge-end')).toBe('0.800');
+    // nudge: inline-forward writes a POSITIVE raw ABSOLUTE target on
+    // this engine (canonical -100 - step → FromCanonical flips sign)
+    const calls: number[] = [];
+    run.scrollTo = (opts?: ScrollToOptions) => {
+      calls.push(opts?.left ?? 0);
+      return undefined;
+    };
+    (host.querySelector(':scope > [data-jx-chevron="inline-end"]') as HTMLButtonElement).click();
+    expect(calls[0]).toBeGreaterThan(0);
+  });
+
+  it('a positive-descending engine (legacy IE/Edge) is detected from its +max rest and reads inline-true', () => {
+    const { list } = setup();
+    const host = list('rtl');
+    const run = host.querySelector('[data-jx-tabs-run]')!;
+    run.style.direction = 'rtl';
+    Object.defineProperty(run, 'scrollWidth', { value: 600, configurable: true });
+    Object.defineProperty(run, 'clientWidth', { value: 200, configurable: true });
+    // the descending engine: raw clamps to [0, +max], RESTS at +max
+    // (no probe — a −1 write would clamp to 0, the far end)
+    let raw = 400;
+    Object.defineProperty(run, 'scrollLeft', {
+      get: () => raw,
+      set: (v: number) => {
+        raw = Math.min(400, Math.max(0, v));
+      },
+      configurable: true,
+    });
+    run.dispatchEvent(new Event('scroll'));
+    expect(run.getAttribute('data-jx-scroll-state')).toBe('start-closed');
+    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('0');
+    // raw DESCENDS toward the inline end: 100 is canon −300 → travel 0.75
+    raw = 100;
+    run.dispatchEvent(new Event('scroll'));
+    expect(run.getAttribute('data-jx-scroll-state')).toBe('open');
+    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('0.75');
   });
 });
 

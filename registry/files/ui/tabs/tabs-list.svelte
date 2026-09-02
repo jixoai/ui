@@ -9,8 +9,11 @@
 
   Activation follows the root's `activation` prop: 'automatic' selects
   on every focus move (terminal immediacy); 'manual' moves focus only —
-  Enter/Space commit through the trigger's native click.
-  Triggers are whatever the consumer nests (tabs-trigger.svelte pairs
+  Enter/Space commit through the trigger's native click. The tablist
+  itself sits at tabindex="-1" — deliberately OUT of the Tab order (the
+  roving stop belongs to a trigger; stating it in the DOM is the focus
+  contract the a11y checker reads, no suppression). Triggers are
+  whatever the consumer nests (tabs-trigger.svelte pairs
   here, but any [role=tab] joins the walk) — keyboard handling is DOM
   delegation over :scope [role=tab]:not([disabled]), no registration.
 
@@ -45,13 +48,19 @@
 
   Scroll-contract hardening (2026-09-02 fix wave): RTL runs normalize
   the spec's negative scrollLeft (state, progress and the physical
-  edge-factor window all read inline-true, A-1/A-2/A-3); the stamp
+  edge-factor window all read inline-true, A-1/A-2/A-3); direction
+  resolution is ONE law everywhere — computed direction first, [dir]
+  attribute fallback (P2: the walk and the scroll math can no longer
+  disagree under pure-css rtl) — and all three RTL scrollLeft engines
+  (negative / positive-ascending / positive-descending) funnel through
+  one canonical [−max, 0] inline space; the stamp
   caches the trigger list (MutationObserver invalidation, A-11/B-4)
   and splits its read pass from its write pass; document.fonts.ready
   and the first/last trigger boxes restamp the verdict quietly
   (A-4/B-2); the indicator inherits the ACTIVE trigger's edge factors
   so an exiting selected tab takes its bar with it (V1-2); disabled
-  flips re-trim the roving tabindex (A-9).
+  flips re-trim the roving tabindex, handing a dead stop to the first
+  enabled trigger through the context (A-9, P1).
 -->
 <script lang="ts" module>
   /** indicator paint materials — 'none' renders no indicator at all */
@@ -158,6 +167,54 @@
   export function shadow({ width }: ShadowOptions = {}): ShadowEffect {
     return { type: 'shadow', width };
   }
+
+  /** the three RTL scrollLeft engines a browser may run (2026-09-02,
+   *  P2): spec-negative (0→−max, every modern engine),
+   *  positive-ascending (0→+max, legacy WebKit) and
+   *  positive-descending (+max→0, legacy IE/Edge) */
+  export type RtlScrollModel = 'negative' | 'positive-ascending' | 'positive-descending';
+
+  /** the engine probe's decision core (pure — rest value + probe read
+   *  in, engine out): at rest a negative engine reports ≤0 and a
+   *  descending one parks at its +max; only a 0 rest is ambiguous, and
+   *  the −1 write separates it (spec engines keep −1, ascending clamps
+   *  to 0) */
+  export function detectRtlScrollModel(rest: number, probe: () => number): RtlScrollModel {
+    if (rest < 0) return 'negative';
+    if (rest > 0) return 'positive-descending';
+    return probe() < 0 ? 'negative' : 'positive-ascending';
+  }
+
+  /** raw engine scrollLeft → the CANONICAL inline space [−max, 0] (0 =
+   *  inline start): one arithmetic for state, progress and the physical
+   *  window origin (origin = max + canon holds on EVERY engine) */
+  export function rtlScrollToCanonical(model: RtlScrollModel, raw: number, max: number): number {
+    if (model === 'positive-ascending') return -raw;
+    if (model === 'positive-descending') return raw - max;
+    return raw;
+  }
+
+  /** canonical → the engine's raw scrollLeft (the write path; scrollBy
+   *  deltas ride the same mapping — the ±max offsets cancel in a
+   *  delta) */
+  export function rtlScrollFromCanonical(model: RtlScrollModel, canon: number, max: number): number {
+    if (model === 'positive-ascending') return -canon;
+    if (model === 'positive-descending') return canon + max;
+    return canon;
+  }
+
+  /** ONE direction truth for the family (P2): the computed direction is
+   *  the LAW (it resolves [dir], css `direction` and inheritance into
+   *  the used value — pure-css rtl included); the nearest [dir]
+   *  attribute stands in only where the cascade reports nothing */
+  export function isRtlDirection(computed: string, dirAttr: string | null | undefined): boolean {
+    if (computed) return computed === 'rtl';
+    return (dirAttr ?? 'ltr') === 'rtl';
+  }
+
+  /** probed engines, per run element — the probe WRITES scrollLeft, so
+   *  it must run at most once per element */
+  const rtlScrollModels = new WeakMap<HTMLElement, RtlScrollModel>();
 </script>
 
 <script lang="ts">
@@ -252,6 +309,40 @@
    *  invalidation (late-mounted triggers join the stamp and the walk) */
   function cachedTabs(): HTMLElement[] {
     return (triggerCache ??= ownTabs());
+  }
+
+  /** the family-wide rtl verdict (P2, 2026-09-02): the walk, the scroll
+   *  state and the nudges all ask HERE — the old split (computed for
+   *  scroll, [dir] for the walk) made a pure-css rtl run walk
+   *  backwards while its scroll math ran forwards */
+  function isRtl(el: HTMLElement | null | undefined): boolean {
+    if (!el) return false;
+    return isRtlDirection(getComputedStyle(el).direction, (el.closest('[dir]') as HTMLElement | null)?.dir);
+  }
+
+  /** the run's scrollLeft engine (P2), probed ONCE at first need and
+   *  cached: rest value first (a descending engine parks at +max — its
+   *  −1 probe would clamp to 0, the far END, and jump the run), then
+   *  the −1 write, then restore. Unscrollable runs never probe (−1
+   *  clamps to 0 on every engine) and never cache — a run that GROWS
+   *  scrollable later still probes at its rest */
+  function rtlScrollModel(run: HTMLElement, max: number): RtlScrollModel {
+    if (max <= 1) return 'negative';
+    let model = rtlScrollModels.get(run);
+    if (model) return model;
+    // scroll-behavior:smooth SMOOTHS EVEN ASSIGNMENTS — the sync read
+    // back would return the pre-animation value and misclassify Chrome
+    // as positive-ascending (re-attack P1, browser-proved). Neutralize
+    // the behavior for the probe's lifetime, restore after
+    const savedBehavior = run.style.scrollBehavior;
+    run.style.scrollBehavior = 'auto';
+    const saved = run.scrollLeft;
+    if (saved === 0) run.scrollLeft = -1;
+    model = detectRtlScrollModel(saved, () => run.scrollLeft);
+    run.scrollLeft = saved;
+    run.style.scrollBehavior = savedBehavior;
+    rtlScrollModels.set(run, model);
+    return model;
   }
 
   /** geometry law (px numbers, layout coords): pill-family hugs the
@@ -403,17 +494,23 @@
     };
     const update = () => {
       const max = run.scrollWidth - run.clientWidth;
-      // RTL normalization (2026-09-02, A-1/A-2/A-3): spec engines run
-      // RTL scrollLeft 0→−max — the inline travel is the negation, and
-      // the PHYSICAL window origin the offset* geometry measures
-      // against is max+scrollLeft. offsetLeft/offsetWidth stay
-      // physical; only the state/progress math normalizes
-      const rtl = getComputedStyle(run).direction === 'rtl';
-      const pos = rtl ? -run.scrollLeft : run.scrollLeft;
+      // RTL normalization (2026-09-02, A-1/A-2/A-3 → P2): the raw
+      // scrollLeft first maps through the run's probed ENGINE into the
+      // canonical inline space [−max, 0] (0 = inline start) — the
+      // inline travel is −canon, and the PHYSICAL window origin the
+      // offset* geometry measures against is max+canon, identically on
+      // all three engines (negative: max+raw · ascending: max−raw ·
+      // descending: raw). offsetLeft/offsetWidth stay physical; only
+      // the state/progress math normalizes
+      const rtl = isRtl(run);
+      const canon = rtl
+        ? rtlScrollToCanonical(rtlScrollModel(run, max), run.scrollLeft, max)
+        : run.scrollLeft;
+      const pos = rtl ? -canon : canon;
       const state =
         max <= 1 ? 'none' : pos <= 1 ? 'start-closed' : pos >= max - 1 ? 'end-closed' : 'open';
       const w = run.clientWidth;
-      const xL = rtl ? max + run.scrollLeft : run.scrollLeft;
+      const xL = rtl ? max + canon : canon;
       // clipped fractions against the physical window [xL, xL+w]; the
       // slot NAMES are the LTR documentary bias — the stamps are
       // physical left/right, which keeps the css slide calc exit-ward
@@ -485,14 +582,28 @@
    *  the next page's leading trigger lands clear of both lanes — the
    *  lane width IS the run's own scroll-padding (derived, no second
    *  constant). smooth comes from the run's scroll-behavior. scrollBy's
-   *  left is the PHYSICAL axis — the inline direction flips the sign
-   *  under RTL (2026-09-02, A-3) */
+   *  left runs on the ENGINE's raw axis — the canonical adapters flip
+   *  it per engine (A-3 → P2) */
   function nudge(direction: -1 | 1) {
     const run = runEl;
     if (!run) return;
-    const rtl = getComputedStyle(run).direction === 'rtl';
+    const rtl = isRtl(run);
     const lane = parseFloat(getComputedStyle(run).scrollPaddingInlineStart || '0') || 0;
-    run.scrollBy({ left: direction * (rtl ? -1 : 1) * Math.max(1, run.clientWidth - lane * 2) });
+    const step = Math.max(1, run.clientWidth - lane * 2);
+    const max = run.scrollWidth - run.clientWidth;
+    if (!rtl || max <= 1) {
+      // LTR, or a run with no scroll distance (jsdom/degenerate): the
+      // plain delta is the honest write
+      run.scrollBy({ left: direction * step });
+      return;
+    }
+    // RTL writes go through ABSOLUTE canonical targets (a bare delta
+    // mis-maps on descending engines — the ±max offset only cancels
+    // between two mapped absolutes, re-attack P3)
+    const model = rtlScrollModel(run, max);
+    const curCanon = rtlScrollToCanonical(model, run.scrollLeft, max);
+    const targetCanon = Math.min(0, Math.max(-max, curCanon - direction * step));
+    run.scrollTo({ left: rtlScrollFromCanonical(model, targetCanon, max) });
   }
 
   /** liquid needs its displacement filter referenced from the list (the
@@ -532,8 +643,25 @@
   // exactly one tab stop, per the APG roving law (disabled triggers
   // explicitly -1: browsers skip them, the DOM should say so too)
   function trimTabStops() {
-    if (tabs.tabStop !== '' || !listEl) return;
+    if (!listEl) return;
     const triggers = cachedTabs();
+    // a NON-empty stop must be validated before the bail (2026-09-02,
+    // P1): the stop trigger going disabled at runtime strands a dead
+    // tabindex=0 while every sibling sits at -1 — the strip's only
+    // keyboard entry gone. The hand-over goes through the CONTEXT (the
+    // trigger's isTabStop derived is tabindex's single writer; a raw
+    // attribute write here would be reverted by the next render), and
+    // only to a trigger carrying the family id — a foreign [role=tab]
+    // has no context value to receive the stop
+    if (tabs.tabStop !== '') {
+      const dead = triggers.find((tab) => tab.tabIndex === 0 && tab.hasAttribute('disabled'));
+      if (dead) {
+        const prefix = `${tabs.uid}-tab-`;
+        const next = triggers.find((tab) => !tab.hasAttribute('disabled') && tab.id.startsWith(prefix));
+        if (next) tabs.setTabStop(next.id.slice(prefix.length));
+      }
+      return;
+    }
     const firstEnabled = triggers.find((tab) => !tab.hasAttribute('disabled'));
     for (const tab of triggers) {
       tab.setAttribute('tabindex', tab === firstEnabled ? '0' : '-1');
@@ -563,12 +691,12 @@
     return () => mo.disconnect();
   });
 
-  /** APG keyboard walk — arrows along the axis (flipped under an
-   *  inherited RTL direction — nearest [dir] ancestor, html included),
-   *  Home/End to the ends; wraps; skips disabled triggers */
+  /** APG keyboard walk — arrows along the axis (flipped under rtl — the
+   *  ONE resolver: computed law, [dir] fallback, so the walk can never
+   *  disagree with the scroll math under pure-css rtl), Home/End to the
+   *  ends; wraps; skips disabled triggers */
   function handleKeydown(event: KeyboardEvent) {
-    const rtl =
-      orientation === 'horizontal' && ((listEl?.closest('[dir]') as HTMLElement | null)?.dir ?? 'ltr') === 'rtl';
+    const rtl = orientation === 'horizontal' && isRtl(listEl);
     const forward = orientation === 'horizontal' ? (rtl ? 'ArrowLeft' : 'ArrowRight') : 'ArrowDown';
     const back = orientation === 'horizontal' ? (rtl ? 'ArrowRight' : 'ArrowLeft') : 'ArrowUp';
     if (event.key !== forward && event.key !== back && event.key !== 'Home' && event.key !== 'End') {
@@ -650,6 +778,7 @@
     data-jx-tabs-run={orientation === 'horizontal' ? '' : undefined}
     role="tablist"
     aria-orientation={orientation}
+    tabindex="-1"
     class={cn(
       'box-border',
       // horizontal: THE run — role=tablist IS the scroller (the a11y
