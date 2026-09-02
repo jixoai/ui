@@ -34,11 +34,19 @@
   STAMPED (data-sep-head / data-sep-foot on the host — the
   stamped-attribute painting law). THE r14 TUNING (Owner): the
   --jx-dialog-inset token and the [inset 1fr inset] column ruler
-  RETIRED — the variable mediated every zone while the real content
-  owns its geometry (the head's Input provides the row's height and
-  padding; body/foot pad themselves with plain utilities). The head
-  zone is FLUSH by default — consumer head snippets span edge-to-edge.
-  dialog.css paints stamps only. No-subgrid environments fall back to
+  RETIRED — the real content owns its geometry. The head zone is FLUSH
+  by default — consumer head snippets span edge-to-edge.
+
+  ZONES vs CONTENT (r14-9, Owner correction): the footer's slot
+  architecture belongs to the footer REGION — carried by components,
+  not by sibling snippets on Dialog. Dialog keeps the zones, the
+  snippet transports, the ghost variant scopes (Context, written over
+  head and foot), and the × close contract; the CONTENT faces are
+  composition: <DialogHeader> (the title row / a custom flush head —
+  rendered internally for the untitled default) and <DialogFooter> (the
+  auto button-group at inline-end, the raw end slot). The footer
+  snippet is the RAW full override of the foot zone — the actions/end
+  sibling snippets are retired. No-subgrid environments fall back to
   the padding geometry (dialog.css, the law's mandatory fallback).
 -->
 <script lang="ts">
@@ -48,9 +56,9 @@
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { provideEntity } from '$lib/entity.svelte';
   import Separator from '$lib/ui/separator/separator.svelte';
-  import ButtonGroup from '$lib/ui/button-group/button-group.svelte';
   import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
+  import DialogHeader from './dialog-header.svelte';
   import './dialog.css';
 
   interface Props {
@@ -70,18 +78,20 @@
     class?: string;
     /**
      * Replaces the visible title row, flush edge-to-edge — the snippet
-     * owns the row's geometry (the palette's Input is the canonical
-     * consumer). The × close still rides the head grid's end slot, and
-     * title keeps naming the dialog (aria-label) with its visual row
-     * gone.
+     * owns the row's geometry (typically a <DialogHeader> wrapping the
+     * custom content). The × close still rides the head grid's end
+     * slot, and title keeps naming the dialog (aria-label) with its
+     * visual row gone.
      */
     head?: Snippet;
     /**
-     * The RAW end slot (the Owner's footerEnd reference, r14-7): when
-     * present it REPLACES the footer/actions grouped cluster entirely —
-     * the opt-out for non-button content or a fully custom cluster.
+     * The RAW full override of the foot zone (r14-9, Owner): using it
+     * means owning everything the foot shows. The standard face is
+     * <DialogFooter> — its buttons auto-join one end-packed
+     * ButtonGroup (ghost via this zone's scope); its end slot replaces
+     * the grouped arrangement.
      */
-    end?: Snippet;
+    footer?: Snippet;
     /**
      * Predicate consulted on the native cancel request (Escape):
      * returning TRUE blocks the close (the palette holds the dialog
@@ -91,20 +101,6 @@
     cancelGuard?: () => boolean;
     /** Dialog body. */
     children: Snippet;
-    /** Action area (below the body's separator) — free-form footer. */
-    footer?: Snippet;
-    /**
-     * The actions shortcut face of footer: the snippet's buttons are
-     * auto-wrapped in a ButtonGroup (justify end) inside the foot
-     * zone. The ghost contract: until ButtonGroup ships its
-     * context-passed variant (B batch), the buttons inside SHOULD
-     * declare variant="ghost" themselves — the integration point for
-     * the group-level default is this ButtonGroup instance. When both
-     * footer and actions are passed, actions owns the terminal button
-     * cluster (rendered last, at the row's end) and footer renders as
-     * the leading content beside it.
-     */
-    actions?: Snippet;
   }
 
   let {
@@ -113,11 +109,9 @@
     variant = 'auto',
     class: platformClass = '',
     head,
-    end,
+    footer,
     cancelGuard,
     children,
-    footer,
-    actions,
   }: Props = $props();
 
   // THE ENTITY LAW (2026-09-01): the dialog panel IS the solid object —
@@ -132,9 +126,10 @@
   // UNCONDITIONAL (the x-button contract keeps a close affordance on
   // every dialog), so its separator is structural — stamped anyway so
   // the css stays independent of that invariant and the chrome reads
-  // off the DOM. The foot zone exists iff either footer face is passed;
-  // absent both, the zone AND its separator row simply never render.
-  const hasFoot = $derived(footer !== undefined || actions !== undefined || end !== undefined);
+  // off the DOM. The foot zone exists iff the footer snippet is passed
+  // (the r14-9 correction: one transport, the raw override); absent
+  // it, the zone AND its separator row simply never render.
+  const hasFoot = $derived(footer !== undefined);
 
   let dialog = $state<HTMLDialogElement | null>(null);
 
@@ -204,8 +199,8 @@
   <!-- the surface body (fill + acrylic blur) wraps the scroll ring; the
        <dialog> itself paints nothing (floating-surface law arch r3) -->
   <div data-jx-dialog-surface="" class="jx-surface-body">
-  <!-- THE RULER HOST (r13): columns [inset 1fr inset] + named separator
-       rows; the stamps carry the resolved zone presence -->
+  <!-- THE RULER HOST (r13): named separator rows; the stamps carry the
+       resolved zone presence -->
   <div
     data-jx-dialog-scroll=""
     data-sep-head=""
@@ -225,15 +220,14 @@
            the inherit-then-provide chain) -->
       <ButtonVariantScope variant="ghost">
         <div class="jx-dialog-head-grid">
-          <div class="jx-dialog-head-content {head ? '' : 'px-3.5 py-2.5'}">
-            {#if head}
-              {@render head()}
-            {:else if title}
-              <h2 data-jx-dialog-title="" class="font-nav text-[15px] leading-[1.3] tracking-[0.01em]">{title}</h2>
-            {:else}
-              <span data-jx-dialog-title="" aria-hidden="true"></span>
-            {/if}
-          </div>
+          <!-- the content column: a custom head snippet, else the
+               DEFAULT FACE is the DialogHeader component itself (one
+               source for the title row) -->
+          {#if head}
+            {@render head()}
+          {:else}
+            <DialogHeader {title} />
+          {/if}
           <div class="jx-dialog-end-action-slot">
             <!-- the close is a CONTEXT consumer (r14-4, Owner): an
                  IconButton with NO variant — the default path inherits
@@ -265,50 +259,14 @@
     {#if hasFoot}
       <Separator data-jx-dialog-sep="foot" aria-hidden="true" />
       <div data-jx-dialog-foot="">
-        <!-- THE FOOT GRID (r14 tuning 2, Owner): NO zone padding — the
-             grid controls dimensions. [leading] rides minmax(0,1fr)
-             and pads itself; [inline-end-actions-slot] is the
-             content-sized end track where buttons AUTO-JOIN a button
-             group and stretch the footer open. The ghost scope is the
-             zone's default for every button (Context); the actions
-             group no longer repeats it (inherit-then-provide) -->
+        <!-- THE RAW FOOT ZONE (r14-9, Owner correction): the footer
+             snippet overrides everything the foot shows — no grid, no
+             grouping, no dividers from Dialog. The standard face is
+             <DialogFooter> (auto button-group at inline-end, the raw
+             end slot); the ghost scope stays the zone's default for
+             every button (Context, written by Dialog) -->
         <ButtonVariantScope variant="ghost">
-          <!-- the r14-5 law (Owner): footer buttons hang at INLINE-END —
-               the footer snippet's content joins the actions in ONE
-               end-packed cluster (footer | divider | actions group);
-               the grid packs the column flow to the end edge -->
-          <div
-            class="jx-dialog-foot-grid @max-[15rem]/jx-dialog:flex-col-reverse @max-[15rem]/jx-dialog:items-stretch"
-          >
-            {#if end}
-              <!-- the RAW end slot (r14-7, the Owner's footerEnd
-                   reference): present ⇒ it REPLACES the grouped cluster
-                   entirely — the opt-out for non-button content or a
-                   fully custom cluster -->
-              {@render end()}
-            {:else}
-              {#if footer}
-                <!-- the footer's buttons hang in ONE button-group (the
-                     Owner's inline-end-actions-slot law): the leading
-                     cluster -->
-                <ButtonGroup label="Dialog footer">
-                  {@render footer()}
-                </ButtonGroup>
-              {/if}
-              {#if actions}
-                {#if footer}
-                  <!-- between GROUPS exactly one divider (Owner r13);
-                       decorative, VERTICAL posture — the foot grid is a
-                     column flow, a horizontal hr there collapses to a
-                     zero-width track (r14-8 live-probe finding) -->
-                  <Separator orientation="vertical" aria-hidden="true" />
-                {/if}
-                <ButtonGroup label="Dialog actions">
-                  {@render actions()}
-                </ButtonGroup>
-              {/if}
-            {/if}
-          </div>
+          {@render footer()}
         </ButtonVariantScope>
       </div>
     {/if}
