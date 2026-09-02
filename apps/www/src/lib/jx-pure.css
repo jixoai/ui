@@ -2321,7 +2321,7 @@
          layer are semi-transparent WHITE and BRIGHTEN (the white-shadow
          law; same 0.32 veil strength as light mode's black) */
       --scrim: hsl(0 0% 100% / 0.1);
-      --surface-shadow: hsl(0 0% 100% / 0.32);
+      --surface-shadow: oklch(0 0 0 / 0.32); /* black — r14-17, Owner */
     color-scheme: dark;
   }
   /* the scope-root companion: without it B0's color-scheme: light would

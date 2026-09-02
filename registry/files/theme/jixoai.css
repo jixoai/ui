@@ -146,7 +146,7 @@
      (Owner ruling, 2026-08-22 r2: light mode = translucent black,
      dark mode = translucent white) — light mode DARKENS what it covers */
   --scrim: hsl(0 0% 0% / 0.32);
-  --surface-shadow: hsl(0 0% 0% / 0.32);
+  --surface-shadow: oklch(1 0 0 / 0.32); /* white — r14-17, Owner */
 
   /* Scrollbar law (Owner, 2026-08-22): every scrollable area paints a
      thin, theme-linked thumb over a transparent track. currentColor is
@@ -238,7 +238,7 @@
      layer are semi-transparent WHITE and BRIGHTEN (the white-shadow
      law; same 0.32 veil strength as light mode's black) */
   --scrim: hsl(0 0% 100% / 0.1);
-  --surface-shadow: hsl(0 0% 100% / 0.32);
+  --surface-shadow: oklch(0 0 0 / 0.32); /* black — r14-17, Owner */
 }
 
 :where([data-density='lg']) {
@@ -351,12 +351,16 @@
      auto     acrylic, falling back to solid under
               prefers-reduced-transparency
 
-   The shadow veil: --surface-shadow (black light / white dark, 0.32)
-   over a FIXED backdrop-filter — brightness(0.5) blur(8px)
-   contrast(2) — identical in light and dark. Full rect, UNDER the
-   body fill; its offset (--jx-surface-ox/oy, 6px fallback) shares its
-   signs with the slide vector, so the shadow falls to the panel's
-   outward side.
+   The shadow veil: --surface-shadow (WHITE light / BLACK dark, 0.32 —
+   r14-17, Owner: inverted from the scrim's polarity) over a FIXED
+   backdrop-filter — brightness(0.5) blur(8px) contrast(2) — identical
+   in light and dark. Full rect, UNDER the body fill; its offset
+   (--jx-surface-ox/oy, 6px fallback) shares its signs with the slide
+   vector, so the shadow falls to the panel's outward side. The veil's
+   MASS rides the backdrop-filter, not the background: the scrim has
+   already darkened (light) / lightened (dark) the page behind, so a
+   like-polarity veil would double it into mud — the inverted, lighter
+   base lets the filter's own effect read through.
 
    Scrim law: dialog-family ::backdrop uses --scrim — semi-transparent
    BLACK in light mode, WHITE in dark. Never a brand tint.
@@ -480,8 +484,12 @@
   );
 }
 .jx-surface.jx-surface.jx-waapi .jx-surface-shadow {
+  /* from the VEIL token (r14-17): the animated alpha rides the token's
+     polarity — white in light, black in dark — instead of the generic
+     --shadow-color, so the resting pose lands exactly on
+     oklch(1 0 0 / 0.32) / oklch(0 0 0 / 0.32) */
   background: oklch(
-    from var(--shadow-color)
+    from var(--surface-shadow)
     l c h / calc(1 - clamp(calc((var(--jx-p) - 0.5) * 2), 0, 1) * 0.68)
   );
   translate:
