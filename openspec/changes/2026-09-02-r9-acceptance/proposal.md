@@ -75,3 +75,30 @@ defect, highlighter lock-in).
   4ch + text-indent: -4ch`，::before 行号骑首行，折行续行天然落在
   列右；opt-out 连带清零缩进。verify-print 32/32（display=block
   实测）、tall-card 120/120 分页如常
+
+
+## r11 验收升级（Owner：动画再升级，2026-09-02）
+
+- **palette 骑表面内核**（还 floating-surface 法则的债）：dialog 成为
+  `.jx-surface` 平台层（什么都不画），玻璃面板迁 `-body`，阴影独立
+  层；`.jx-waapi` 门由 CSS.registerProperty 探针决定，::backdrop 的
+  opacity 就是 `--jx-p`——开合动画、reduced-motion 直跳、no-JS、
+  exit-cancellation 全部继承法则锁。Chromium 活体实证：入场飞行中
+  捕获 progress=0.326、backdropOpacity=0.326（同一时间线）
+- **列表错落入场**（"快速敏捷"）：每命中项 160ms rise+fade，
+  18ms/item 错落、首 8 项封顶（长列表整队落地，绝不慢倒）；仅
+  transform/opacity，永不碰布局属性；reduced-motion/WAAPI 缺席直落
+- **状态切换**（Pending/Results/NoResult）：每个状态块 150ms 快升
+  入场——快节拍取代出退场编排（这些时长下出场只会拖慢答案）
+
+### 动画库选型结论（本轮不引库）
+
+仓库已有动效体系：WAAPI 表面内核（--jx-p 单注册属性 + CSS 公式，
+Chrome 动画面板可调试）+ 法则锁（reduced-motion/no-JS/exit-cancel）
++ CSS keyframes 民用层。本轮两项目标（列表敏捷 + 状态切换）在
+该体系内零依赖达成；为此引入运行时库不成比例。**系统性引入的
+触发条件**（届时首选 Motion/motion.dev——WAAPI-first、可摇树、
+与内核同构；GSAP 因许可与体量出局；auto-animate 因词汇表不可控
+出局）：需要弹簧物理词汇、手势联动（拖拽/swipe 编排）、
+scroll-linked 叙事三者之一成为跨组件需求时，以独立 openspec
+change 提出 motion-vocabulary v2（弹簧 tokens + 内核整合）。

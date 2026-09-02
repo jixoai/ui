@@ -17,3 +17,8 @@
 - [x] 4.1 面板留白/排版去拥挤 + Pending/NoResult 双态（specs 14/14）
 - [x] 4.2 触发钮迁 `[Search][Navs][Hue]` 位
 - [x] 4.3 打印崩溃修复：gutter 回退悬挂缩进（pagedjs indexOfTextNode 崩溃源=匿名单元格；32/32 + 121/121 全量）
+
+## 5. r11 动画升级（Owner）
+- [x] 5.1 palette 骑表面内核（jx-surface 三层 + jx-waapi 门 + backdrop 同时间线；Chromium 活体实证）
+- [x] 5.2 列表错落入场（160ms rise + 18ms stagger，首 8 项封顶）+ 状态块快升切换
+- [x] 5.3 动画库选型结论：本轮零依赖；Motion 作为条件触发的未来采用（见 proposal r11 段）

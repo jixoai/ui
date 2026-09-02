@@ -20,6 +20,7 @@
   import { tokenize } from '$lib/search/tokenizer';
   import type { SearchHit } from '$lib/search/engine-types';
   import { icons } from '$lib/icons';
+  import { createSurfaceMotion, surfaceMotionSupported } from '$lib/surface-motion';
 
   let dialogEl = $state<HTMLDialogElement | undefined>(undefined);
   let inputEl = $state<HTMLInputElement | undefined>(undefined);
@@ -32,6 +33,65 @@
   // focus restoration: whoever held focus when the palette opened
   // (the header trigger, most often) receives it back on close
   let opener: HTMLElement | null = null;
+
+  // the FLOATING-SURFACE law (css-architecture): a dialog family rides
+  // the one WAAPI kernel — the dialog is the .jx-surface platform, the
+  // glass panel the -body, the ::backdrop scrim rides the SAME --jx-p
+  // timeline. Kernel-less engines (no CSS.registerProperty, jsdom)
+  // rest directly at the open pose; reduced motion jumps to complete
+  const motion = createSurfaceMotion(() => dialogEl);
+
+  // content motion (r11, Owner: "fast and agile"): enter-only WAAPI —
+  // a fast rise+fade whose stagger makes lists feel summoned, not
+  // poured. Layout properties stay untouched (transform/opacity only,
+  // the kernel's own law); reduced motion or a WAAPI-less engine
+  // skips straight to rest. Outgoing branches simply unmount — at
+  // these durations an exit choreography only delays the answer
+  const canAnimate = (): boolean =>
+    surfaceMotionSupported &&
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches === false;
+
+  /** mount-time rise: state blocks swap with one fast beat */
+  const riseIn = (node: HTMLElement): { destroy: () => void } => {
+    if (!canAnimate() || typeof node.animate !== 'function') return { destroy: () => {} };
+    const anim = node.animate(
+      [
+        { opacity: 0, transform: 'translateY(6px)' },
+        { opacity: 1, transform: 'translateY(0)' },
+      ],
+      { duration: 150, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', fill: 'backwards' },
+    );
+    return { destroy: () => anim.cancel() };
+  };
+
+  // list entrance: each result rises with a tight stagger (18ms/item,
+  // first 8 only — long lists land as one fleet, never a slow pour)
+  let listGen = 0;
+  $effect(() => {
+    void hits;
+    const dialog = dialogEl;
+    if (dialog === undefined || !canAnimate()) return;
+    const token = ++listGen;
+    const items = [...dialog.querySelectorAll<HTMLLIElement>('[role="option"]')];
+    items.forEach((item, i) => {
+      if (typeof item.animate !== 'function') return;
+      item.animate(
+        [
+          { opacity: 0, transform: 'translateY(5px)' },
+          { opacity: 1, transform: 'translateY(0)' },
+        ],
+        {
+          duration: 160,
+          easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+          fill: 'backwards',
+          delay: i < 8 ? i * 18 : 0,
+        },
+      );
+    });
+    // superseded runs (a faster query) must not fight the newer paint
+    void token;
+  });
 
   const engine = createMinisearchEngine(tokenize, async (): Promise<CorpusPage[]> => {
     const response = await fetch('/search/corpus.json');
@@ -80,11 +140,13 @@
     if (!dialogEl.open) {
       opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       dialogEl.showModal();
+      if (surfaceMotionSupported) motion.play(1);
     }
     inputEl?.focus();
   };
   const close = (): void => {
-    dialogEl?.close();
+    if (surfaceMotionSupported) motion.play(0);
+    dialogEl?.close(); // allow-discrete holds the exit through 460ms
   };
   // EVERY native close path lands here (Escape's cancel request, the
   // backdrop click, a picked result): reset the palette and hand
@@ -180,11 +242,16 @@
      top layer above the page when modal, its ::backdrop the scrim -->
 <dialog
   bind:this={dialogEl}
-  class="jx-glass search-dialog"
+  class="jx-surface search-dialog"
+  class:jx-waapi={surfaceMotionSupported}
   aria-label="Search the docs"
   onclick={onDialogClick}
   onclose={onClosed}
 >
+  <!-- the floating-surface law: the platform paints nothing; the
+       shadow is its own layer; the glass bezel lives on the BODY -->
+  <div class="jx-surface-shadow" aria-hidden="true"></div>
+  <div class="jx-surface-body jx-glass search-body">
   <div class="flex items-center gap-3 border-b border-border/40 px-4 py-3">
     <!-- the shared magnifier (icons law): 16px baked, 18px here via
          consumer CSS; currentColor rides the muted chain -->
@@ -214,13 +281,13 @@
          the field until there is something to say -->
   {:else if busy}
     <!-- PENDING (Owner r10): a named state, not a trailing ellipsis -->
-    <div class="flex items-center gap-3 px-5 py-8" data-jx-search-pending role="status">
+    <div class="flex items-center gap-3 px-5 py-8" data-jx-search-pending role="status" use:riseIn>
       <span class="jx-flight flex gap-1" aria-hidden="true"><i></i><i></i><i></i></span>
       <span class="font-mono text-[12px] text-muted-foreground">Searching…</span>
     </div>
   {:else if hits.length === 0}
     <!-- NO RESULT (Owner r10): a real empty state, not a stray line -->
-    <div class="flex flex-col items-center gap-2 px-5 py-9 text-center" data-jx-search-empty>
+    <div class="flex flex-col items-center gap-2 px-5 py-9 text-center" data-jx-search-empty use:riseIn>
       <span
         class="select-none text-muted-foreground/50 [&_svg]:h-6 [&_svg]:w-6"
         aria-hidden="true">{@html icons.search}</span>
@@ -230,7 +297,7 @@
       <p class="text-[11px] text-muted-foreground/70">try a shorter or different term</p>
     </div>
   {:else}
-    <ul class="max-h-[60vh] overflow-y-auto p-2" role="listbox">
+    <ul class="max-h-[60vh] overflow-y-auto p-2" role="listbox" use:riseIn>
       {#each hits as hit, i (hit.href)}
         <li role="option" aria-selected={i === active}>
           <a
@@ -255,6 +322,7 @@
       {/each}
     </ul>
   {/if}
+  </div>
 </dialog>
 
 <style>
@@ -265,7 +333,13 @@
     margin: 14vh auto auto;
     inline-size: min(44rem, calc(100vw - 2rem));
     padding: 0;
-    border: none;
+    /* the surface platform's open-side entrance vector rides the law's
+       default (6px rise); the exit re-reads the same variable */
+  }
+  /* the BODY is the whole visible surface: the glass fill comes from
+     .jx-glass, the frame and depth live here (the law: the platform
+     paints nothing, the body carries bezel + border) */
+  .search-body {
     border-radius: 0.75rem;
     color: var(--foreground);
     outline: 1px solid color-mix(in oklab, currentColor 18%, transparent);
@@ -273,6 +347,7 @@
     box-shadow:
       0 24px 60px rgb(0 0 0 / 0.4),
       0 4px 16px rgb(0 0 0 / 0.25);
+    overflow: hidden;
   }
   /* the scrim rides the house subtraction law (never added black):
      contrast pulls the page behind toward mid-tones — near-white

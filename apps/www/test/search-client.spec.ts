@@ -167,6 +167,23 @@ describe('the palette', () => {
     vi.unstubAllGlobals();
   });
 
+  it('rides the floating-surface law: platform/body/shadow layers, waapi only when the engine supports it', async () => {
+    const target = document.createElement('div');
+    document.body.appendChild(target);
+    const palette = mount(SearchPalette, { target });
+    await flush();
+    const dialog = target.querySelector('dialog')!;
+    // the three-layer contract (css-architecture: one surface law)
+    expect(dialog.classList.contains('jx-surface')).toBe(true);
+    expect(dialog.querySelector(':scope > .jx-surface-shadow')).not.toBeNull();
+    expect(dialog.querySelector(':scope > .jx-surface-body.jx-glass')).not.toBeNull();
+    // jsdom has no CSS.registerProperty: the kernel gate stays OFF and
+    // the dialog rests at the open pose (kernel-less pose in the law)
+    expect(dialog.classList.contains('jx-waapi')).toBe(false);
+    unmount(palette);
+    target.remove();
+  });
+
   it('opens on the document trigger event: showModal, input focused, copy contract', async () => {
     const target = document.createElement('div');
     document.body.appendChild(target);
