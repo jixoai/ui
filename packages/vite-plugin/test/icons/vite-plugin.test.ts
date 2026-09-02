@@ -22,17 +22,31 @@ import { join, resolve } from 'node:path';
 import type { ViteDevServer } from 'vite';
 import { describe, expect, test, vi } from 'vitest';
 
-vi.mock('../../src/icons/serializer.js', () => ({
-  // mirrors the real P3.1 contract: null = warn-mode rejection
-  serializeIcon: vi.fn(
+vi.mock('../../src/icons/serializer.js', () => {
+  // mirrors the real serializer contract: null = warn-mode rejection;
+  // ink variants bake a literal ink marker so matrix assertions can
+  // tell the theme flips apart
+  const uri = (svg: string, suffix: string): string =>
+    `url("data:image/svg+xml,${encodeURIComponent(`${svg}${suffix}`)}")`;
+  const serializeIcon = vi.fn(
     (asset: { readonly svg: string }, mode?: 'css-var' | 'dom-string'): string | null =>
       asset.svg.includes('REJECT')
         ? null
         : mode === 'dom-string'
           ? asset.svg
-          : `url("data:image/svg+xml,${encodeURIComponent(asset.svg)}")`,
-  ),
-}));
+          : uri(asset.svg, ''),
+  );
+  const serializeInkVariant = vi.fn(
+    (
+      asset: { readonly svg: string },
+      opts: { readonly ink: string; readonly strokeWidth?: number },
+    ): string | null =>
+      asset.svg.includes('REJECT')
+        ? null
+        : uri(asset.svg, ` ink=${opts.ink} sw=${String(opts.strokeWidth ?? 'own')}`),
+  );
+  return { serializeIcon, serializeInkVariant };
+});
 
 import { createIconPlugin, VIRTUAL_MODULE_ID } from '../../src/icons/vite-plugin.js';
 import type { Plugin } from 'vite';
@@ -185,7 +199,9 @@ describe('createIconPlugin() vite plugin', () => {
     expect(css).toContain('@layer theme {');
     expect(css).toContain('  :root {');
     for (const slot of SLOT_NAMES) {
-      expect(css).toContain(`--jx-icon-${slot}: url("data:image/svg+xml,`);
+      // invalid is ink-only — its derived variable is the line that exists
+      const name = slot === 'invalid' ? '--jx-icon-invalid-ink' : `--jx-icon-${slot}`;
+      expect(css).toContain(`${name}: url("data:image/svg+xml,`);
     }
     expect(css.trimEnd().endsWith('}')).toBe(true);
   });
@@ -243,6 +259,76 @@ describe('createIconPlugin() vite plugin', () => {
     );
     expect(css).not.toContain('--jx-icon-');
     expect(css).toContain('jixoai-icons'); // the comment-only module
+  });
+
+  test('derived ink family: covering a concept writes plain + ink + the .dark/.jx-light matrix', async () => {
+    const { buildStart, resolveId, load } = lifecycle(createIconPlugin({ icons: factoryOf(fullProvider()) }));
+    await buildStart();
+    const css = unwrap(
+      await load(mustResolve(resolveId(VIRTUAL_MODULE_ID, '/app/src/app.css'))),
+      'css module',
+    );
+
+    // :root rides @layer theme; the matrix blocks follow unlayered (the
+    // vocabulary sheet's own cascade shape)
+    expect(css).toContain('@layer theme {');
+    expect(css.indexOf('.dark {')).toBeGreaterThan(css.indexOf('@layer theme {'));
+    expect(css.indexOf('.jx-light {')).toBeGreaterThan(css.indexOf('.dark {'));
+
+    // the ink quartet derivations land in :root
+    for (const vocab of ['calendar-ink', 'clock-ink', 'valid-ink', 'invalid-ink']) {
+      expect(css).toContain(`--jx-icon-${vocab}:`);
+    }
+    // invalid is ink-only — the vocabulary declares no plain invalid var
+    expect(css).not.toContain('--jx-icon-invalid:');
+
+    // the dark matrix flips to white ink (the mock markers carry it —
+    // encodeURIComponent escapes the `=`/spaces, so match the encoded form)
+    const dark = css.slice(css.indexOf('.dark {'), css.indexOf('.jx-light {'));
+    expect(dark).toContain('--jx-icon-calendar: url("data:image/svg+xml,');
+    expect(dark).toContain('ink%3D%23fff');
+    // .jx-light mirrors the matrix at black ink
+    const light = css.slice(css.indexOf('.jx-light {'));
+    expect(light).toContain('ink%3D%23000');
+    expect(light).not.toContain('ink%3D%23fff');
+  });
+
+  test('palette joins :root but sits out the theme matrix (mask + currentColor themes it)', async () => {
+    const { buildStart, resolveId, load } = lifecycle(createIconPlugin({ icons: factoryOf(fullProvider()) }));
+    await buildStart();
+    const css = unwrap(
+      await load(mustResolve(resolveId(VIRTUAL_MODULE_ID, '/app/src/app.css'))),
+      'css module',
+    );
+    expect(css).toContain('--jx-icon-palette:');
+    const dark = css.slice(css.indexOf('.dark {'), css.indexOf('.jx-light {'));
+    expect(dark).not.toContain('--jx-icon-palette:');
+  });
+
+  test('covering one slot derives its whole family from the same asset (mixing impossible)', async () => {
+    const calendarOnly: IconProvider = {
+      getIcon: (slot) => (slot === 'calendar' ? svgAsset('CALX') : null),
+    };
+    const { buildStart, resolveId, load } = lifecycle(createIconPlugin({ icons: factoryOf(calendarOnly) }));
+    await buildStart();
+    const css = unwrap(
+      await load(mustResolve(resolveId(VIRTUAL_MODULE_ID, '/app/src/app.css'))),
+      'css module',
+    );
+
+    // only the covered concept's family appears
+    const root = css.slice(css.indexOf('  :root {'), css.indexOf('\n  }\n}'));
+    expect(root).toContain('--jx-icon-calendar:');
+    expect(root).toContain('--jx-icon-calendar-ink:');
+    for (const slot of SLOT_NAMES) {
+      if (slot !== 'calendar') expect(root).not.toContain(`--jx-icon-${slot}:`);
+    }
+
+    // both values bake from the SAME asset bytes, through the matrix too
+    expect(root).toContain('CALX');
+    const dark = css.slice(css.indexOf('.dark {'), css.indexOf('.jx-light {'));
+    expect(dark).toContain('CALX');
+    expect(dark).toContain('ink%3D%23fff');
   });
 
   test('the factory receives a ProviderContext whose loadSource does the file I/O (svg)', async () => {

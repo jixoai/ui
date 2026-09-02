@@ -136,11 +136,14 @@ describe.skipIf(wawoff2 === null)('WOFF2 real round-trip (C3)', () => {
       expect(css).toBeTruthy();
 
       // 3. …and the serializer embedded it in the virtual CSS module
+      // (ink-baked frozen dialect: single-quoted attrs, literal ink —
+      // the fill glyph's currentColor becomes #000 + stroke='none')
       expect(css).toContain('--jx-icon-calendar: url("data:image/svg+xml,');
       const decoded = decodeURIComponent(css!);
-      expect(decoded).toContain('viewBox="0 0 24 24"');
-      expect(decoded).toContain('fill="currentColor"');
-      const pathMatch = /<path d="([^"]*)"/.exec(decoded);
+      expect(decoded).toContain("viewBox='0 0 24 24'");
+      expect(decoded).toContain("fill='#000'");
+      expect(decoded).toContain("stroke='none'");
+      const pathMatch = /<path d='([^']*)'/.exec(decoded);
       expect(pathMatch).not.toBeNull();
       expect(pathMatch?.[1]).toBeDefined();
       // the canonical square, contain-fitted: (0,24)(24,24)(24,0)(0,0)

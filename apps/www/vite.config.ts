@@ -1,5 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { jixoai } from '@jixoai/vite-plugin';
+import { lucideIconProvider } from '@jixoai/vite-plugin/icons';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type Plugin } from 'vite';
 import { createReadStream, existsSync, statSync } from 'node:fs';
@@ -121,6 +122,79 @@ function devMirrorSync(): Plugin {
   };
 }
 
+// icons-docs ICON-4 (2026-09-02): the site dogfoods the icon plugin
+// pipeline — lucide's inline defaults, default warn-mode safety, every
+// slot default (zero overrides). src/routes/+layout.svelte imports
+// 'virtual:jixoai-icons.css', so the rendering path really consumes the
+// plugin output: the serializer's declarations ride every build,
+// byte-identical to jx-pure.css's frozen vocabulary block (same
+// @layer theme :root names and values — dual supply, rendering
+// zero-diff); apps/www/test/icons-dogfood.spec.ts locks the built dist
+// against drift.
+//
+// Why the .css alias exists (and `@import 'virtual:jixoai-icons'` in
+// app.css does NOT): the plugin's documented CSS-entry posture assumes
+// vite's own CSS pipeline, but this site's entry is compiled by
+// @tailwindcss/vite's generate pass, which resolves the entry's whole
+// @import graph through enhanced-resolve WITHOUT plugin resolveId
+// hooks — a virtual: id fails the build there ("Can't resolve
+// 'virtual:jixoai-icons'", observed 2026-09-02). A bare JS import
+// fails too: vite classifies CSS modules by CSS_LANGS_RE on the module
+// id, and the plugin's resolveId normalizes every css-kind specifier
+// to the extension-less '\0virtual:jixoai-icons' (which vite would
+// then parse as JS). The alias below resolves to a .css-suffixed id —
+// css-classified — and LOADS by delegating to the registered icon
+// plugin's own load hook: same single plugin instance, same provider
+// factory, same serializer; no packages/ change, no second config.
+// (Dev-HMR note: the icon plugin invalidates only its own module id;
+// the lucide provider registers no watched files, so the alias can
+// never go stale short of a restart.)
+const jixoaiPlugins = jixoai({
+  icons: { provider: lucideIconProvider(), safety: { mode: 'warn' } },
+});
+const jixoaiIconsPlugin = jixoaiPlugins.find((plugin) => plugin.name === 'jixoai-icons');
+if (!jixoaiIconsPlugin) {
+  throw new Error('jixoai({ icons }) did not register the jixoai-icons plugin');
+}
+
+function jixoaiIconsCssEntry(): Plugin {
+  const SPECIFIER = 'virtual:jixoai-icons.css';
+  const RESOLVED_ID = '\0virtual:jixoai-icons.css';
+  return {
+    name: 'www-jixoai-icons-css-entry',
+    enforce: 'pre',
+    resolveId(id) {
+      if (id === SPECIFIER) return RESOLVED_ID;
+      return null;
+    },
+    async load(id) {
+      if (id !== RESOLVED_ID) return null;
+      const load = jixoaiIconsPlugin.load;
+      if (typeof load !== 'function') {
+        throw new Error('jixoai-icons plugin exposes no load hook');
+      }
+      // classifyVirtualId('virtual:jixoai-icons') → the CSS module; its
+      // load awaits the provider factory itself (idempotent with the
+      // plugin's own buildStart)
+      return load.call(this, 'virtual:jixoai-icons');
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [sveltekit(), tailwindcss(), ...jixoai(), devRegistryFallback(), devSearchCorpusFallback(), devMirrorSync()],
+  plugins: [
+    sveltekit(),
+    tailwindcss(),
+    ...jixoaiPlugins,
+    jixoaiIconsCssEntry(),
+    devRegistryFallback(),
+    devSearchCorpusFallback(),
+    // devMirrorSync loads scripts/lib/site-only.mjs ONCE at server
+    // start (static import, cached per process): a NEW site-only
+    // classification only takes effect after a config-change restart
+    // — removing a mirror copy before the restart propagates as a
+    // mirror DELETION back onto the www original (learned live,
+    // icons-docs integration 2026-09-02).
+    devMirrorSync(),
+  ],
 });

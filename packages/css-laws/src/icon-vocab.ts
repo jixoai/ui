@@ -17,18 +17,26 @@
  * invalid-ink glyph is lucide CircleAlert (was a hand-drawn bare
  * exclamation) — the mission's sanctioned swap; everything else is
  * byte-frozen (test/icon-uris.test.ts guards the relocation).
+ *
+ * 2026-09-02 · ICON-2 vocabulary hole fix: the plain `check` slot
+ * joins the vocabulary (combobox.css consumes --jx-icon-check with an
+ * inline sw-2 fallback — the slot now exists sheet-side, default
+ * strokeWidth; the 2.5 weight stays valid-ink-exclusive). Frozen
+ * order law: check rides the tail of every plain order.
  */
 import { iconUri, iconSlot, jxGlyphs, type IconInk } from './icon-uris';
 
 // ── the vocabulary data ─────────────────────────────────────────────
 
 /** :root plain-slot order (mail/search ride after clock here; the
- *  .dark/.jx-light blocks lead with them instead — frozen sheet order) */
-const ROOT_PLAIN_ORDER = ['calendar', 'clock', 'mail', 'search', 'chevron', 'clear'] as const;
+ *  .dark/.jx-light blocks lead with them instead — frozen sheet order;
+ *  check is the ICON-2 tail append, 2026-09-02) */
+const ROOT_PLAIN_ORDER = ['calendar', 'clock', 'mail', 'search', 'chevron', 'clear', 'check'] as const;
 
 /** .dark/.jx-light plain-slot order (mail/search first — the comment
- *  below explains why the ink flip covers the plain slots) */
-const DARK_PLAIN_ORDER = ['mail', 'search', 'calendar', 'clock', 'chevron', 'clear'] as const;
+ *  below explains why the ink flip covers the plain slots; check is
+ *  the ICON-2 tail append, 2026-09-02) */
+const DARK_PLAIN_ORDER = ['mail', 'search', 'calendar', 'clock', 'chevron', 'clear', 'check'] as const;
 
 /** the ink quartet: UA-shadow pseudos that reject author mask paint */
 const INK_QUARTET = [

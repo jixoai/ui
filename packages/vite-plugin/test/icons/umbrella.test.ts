@@ -65,6 +65,10 @@ describe('jixoai() icons feature option (A1)', () => {
     const css = await load(resolved!);
     expect(css).toContain('--jx-icon-calendar: url("data:image/svg+xml,');
     expect(css).toContain('@layer theme {');
+    // the derived ink family rides the same path (icons-docs §2)
+    expect(css).toContain('--jx-icon-calendar-ink:');
+    expect(css).toContain('.dark {');
+    expect(css).toContain('.jx-light {');
   });
 
   test('safety nests inside the icons option and reaches the serializer', async () => {

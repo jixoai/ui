@@ -71,7 +71,7 @@ describe('svgIconProvider', () => {
     const { ctx, loadSource } = makeContext(fullDir(dir));
     const provider: IconProvider = await svgIconProvider({ dir })(ctx);
 
-    expect(loadSource).toHaveBeenCalledTimes(7);
+    expect(loadSource).toHaveBeenCalledTimes(9);
     for (const slot of SLOT_NAMES) {
       expect(loadSource).toHaveBeenCalledWith(`${dir}/${slot}.svg`);
       expect(provider.getIcon(slot), `slot "${slot}"`).not.toBeNull();
@@ -83,7 +83,7 @@ describe('svgIconProvider', () => {
     const { ctx, watchFile } = makeContext(fullDir(dir));
     await svgIconProvider({ dir })(ctx);
 
-    expect(watchFile).toHaveBeenCalledTimes(7);
+    expect(watchFile).toHaveBeenCalledTimes(9);
     for (const slot of SLOT_NAMES) {
       expect(watchFile).toHaveBeenCalledWith(`${dir}/${slot}.svg`, expect.any(Function));
     }
@@ -128,10 +128,10 @@ describe('svgIconProvider', () => {
     const provider = await svgIconProvider({ dir: './icons' })(ctx);
 
     expect(provider.getIcon('chevron')).not.toBeNull();
-    for (const slot of ['calendar', 'clock', 'pipette', 'clear'] as const) {
+    for (const slot of ['calendar', 'clock', 'palette', 'clear'] as const) {
       expect(provider.getIcon(slot), slot).toBeNull();
     }
-    expect(warnSpy).toHaveBeenCalledTimes(6);
+    expect(warnSpy).toHaveBeenCalledTimes(8);
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('./icons/calendar.svg'));
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('falls back to the next provider'));
   });
@@ -139,12 +139,12 @@ describe('svgIconProvider', () => {
   it('warns and skips slots whose svg is malformed (missing viewBox / no svg root)', async () => {
     const { ctx } = makeContext({
       './icons/clock.svg': '<svg xmlns="http://www.w3.org/2000/svg"><circle cx="1" cy="1" r="1"/></svg>',
-      './icons/pipette.svg': '<div>not an icon</div>',
+      './icons/palette.svg': '<div>not an icon</div>',
     });
     const provider = await svgIconProvider({ dir: './icons' })(ctx);
 
     expect(provider.getIcon('clock')).toBeNull();
-    expect(provider.getIcon('pipette')).toBeNull();
+    expect(provider.getIcon('palette')).toBeNull();
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('missing viewBox'));
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('no <svg> root element'));
   });

@@ -31,9 +31,10 @@ const LUCIDE_VIEWBOX = { width: 24, height: 24 } as const;
  *
  * - No width/height: the theme owns sizing (frozen principle #3).
  * - stroke="currentColor": in 'dom-string' mode (the clear slot's ×
- *   button) it inherits the surrounding text color; in 'css-var' data
- *   URIs currentColor computes to the initial `color` value (black),
- *   matching the %23000-encoded fallbacks baked into jx-pure.css.
+ *   button) it inherits the surrounding text color. In 'css-var' data
+ *   URIs the serializer BAKES literal ink over it (src/icons/ink.ts —
+ *   data-URI documents cannot inherit author color), so the emitted
+ *   bytes match the %23000-encoded fallbacks baked into jx-pure.css.
  */
 const lucideSvg = (paths: string): string =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
@@ -65,14 +66,20 @@ const SLOT_ICONS = {
   clock: 'Clock',
   /** lucide `chevron-down` — the select dropdown arrow */
   chevron: 'ChevronDown',
+  /** lucide `palette` — the color picker shell's indicator (ICON-1 rename:
+   *  the slot and the glyph now both face the vocabulary's palette var) */
+  palette: 'Palette',
+  /** lucide `x` — the input clear button (×) */
+  clear: 'X',
   /** lucide `mail` — envelope for email inputs */
   mail: 'Mail',
   /** lucide `search` — magnifier for search inputs */
   search: 'Search',
-  /** lucide `pipette` — the color picker indicator */
-  pipette: 'Pipette',
-  /** lucide `x` — the input clear button (×) */
-  clear: 'X',
+  /** lucide `check` — the combobox selected-row indicator (ICON-2) */
+  check: 'Check',
+  /** lucide `circle-alert` — the invalid-ink mark (the sanctioned swap,
+   *  css-laws icon-uris 2026-08-29) */
+  invalid: 'CircleAlert',
 } as const satisfies Readonly<Record<IconSlot, keyof typeof import('lucide')>>;
 
 /**

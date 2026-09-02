@@ -120,7 +120,9 @@ export const jxGlyphs = {
 
 export type JxGlyph = keyof typeof jxGlyphs;
 
-/** slots the laws embed as var() fallbacks (the ink glyphs ride the vocab sheet only) */
+/** slots consumers embed as var() fallbacks — the laws' var() chains,
+ *  plus the combobox's check (ICON-2, 2026-09-02; the ink glyphs ride
+ *  the vocab sheet only) */
 export type JxIconSlotName =
   | 'calendar'
   | 'clock'
@@ -128,6 +130,7 @@ export type JxIconSlotName =
   | 'search'
   | 'chevron'
   | 'clear'
+  | 'check'
   | 'palette';
 
 /** slot fallback URIs at the vocabulary defaults (ink #000, sw 2) */
@@ -138,6 +141,7 @@ export const jxIconSlots: Readonly<Record<JxIconSlotName, string>> = {
   search: iconUri(jxGlyphs.search),
   chevron: iconUri(jxGlyphs.chevron),
   clear: iconUri(jxGlyphs.clear),
+  check: iconUri(jxGlyphs.check),
   palette: iconUri(jxGlyphs.palette),
 };
 

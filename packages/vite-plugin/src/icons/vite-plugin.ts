@@ -12,11 +12,17 @@
  *        @layer theme {
  *          :root {
  *            --jx-icon-calendar: url("data:image/svg+xml,...");
+ *            --jx-icon-calendar-ink: url("data:image/svg+xml,...");
  *            ...
  *          }
  *        }
+ *        .dark { ...white-ink matrix... }
+ *        .jx-light { ...black-ink matrix... }
  *
- *      …for `@import 'virtual:jixoai-icons';` in the
+ *      Covering a concept slot emits its plain value AND its derived
+ *      ink family (icons-docs §2 — one swap, the whole family follows;
+ *      a mixed plain/ink pair cannot occur). …for
+ *      `@import 'virtual:jixoai-icons';` in the
  *      consumer's CSS entry (the ONLY injection path — frozen
  *      principle #1). JS consumers (the clear slot's {@html} DOM
  *      injection) import the explicit `…icons?dom` form, which exports
@@ -32,8 +38,9 @@
 import { readFile } from 'node:fs/promises';
 import { extname, resolve as resolvePath } from 'node:path';
 import type { Plugin, ViteDevServer } from 'vite';
+import { INK_DERIVATIONS } from './ink.js';
 import { createSafetyChecker } from './safety.js';
-import { serializeIcon } from './serializer.js';
+import { serializeIcon, serializeInkVariant } from './serializer.js';
 import { SLOT_NAMES, SLOT_REGISTRY } from './types.js';
 import type {
   IconProvider,
@@ -219,7 +226,9 @@ function generateModules(
   provider: IconProvider,
   checker: SafetyChecker,
 ): { readonly css: string; readonly js: string } {
-  const declarations: string[] = [];
+  const rootDeclarations: string[] = [];
+  const darkDeclarations: string[] = [];
+  const lightDeclarations: string[] = [];
   const domEntries: string[] = [];
 
   for (const slot of SLOT_NAMES) {
@@ -227,10 +236,58 @@ function generateModules(
     if (asset === null) continue; // not this provider's slot — standard layer fallback serves
     // serializeIcon returns null when a warn-mode safety check rejects the
     // asset — the slot is omitted and the standard layer fallback serves
-    // (an error-mode check throws and fails the build)
-    const value = serializeIcon(asset, 'css-var', checker);
-    if (value === null) continue;
-    declarations.push(`    --jx-icon-${slot}: ${value};`);
+    // (an error-mode check throws and fails the build). The derived ink
+    // variants share this gate: the baking law only substitutes fixed
+    // attribute values into the checked source, so one gate covers the
+    // whole family (and a rejected slot warns once, not once per variant).
+    const plainValue = serializeIcon(asset, 'css-var', checker);
+    if (plainValue === null) continue;
+    const definition = SLOT_REGISTRY[slot];
+    const derivation = INK_DERIVATIONS[slot];
+
+    // :root — the plain value plus the derived ink value (icons-docs §2:
+    // covering a concept re-bakes its whole ink family from the SAME
+    // asset; a mixed plain/ink pair cannot occur). `invalid` is
+    // ink-only — no plain variable exists to write.
+    if (definition.plain) {
+      rootDeclarations.push(`    --jx-icon-${slot}: ${plainValue};`);
+    }
+    if (derivation !== undefined) {
+      rootDeclarations.push(
+        `    --jx-icon-${derivation.vocab}: ${serializeInkVariant(asset, {
+          ink: '#000',
+          strokeWidth: derivation.strokeWidth,
+        })};`,
+      );
+    }
+
+    // the .dark/.jx-light white-ink matrix (the vocabulary sheet's own
+    // law: black data-URI ink vanishes on the dark token sheet).
+    // palette paints through a mask + currentColor background —
+    // theme-agnostic, it joins no matrix.
+    if (definition.flipsInDark) {
+      if (definition.plain) {
+        darkDeclarations.push(
+          `  --jx-icon-${slot}: ${serializeInkVariant(asset, { ink: '#fff' })};`,
+        );
+        lightDeclarations.push(`  --jx-icon-${slot}: ${plainValue};`);
+      }
+      if (derivation !== undefined) {
+        darkDeclarations.push(
+          `  --jx-icon-${derivation.vocab}: ${serializeInkVariant(asset, {
+            ink: '#fff',
+            strokeWidth: derivation.strokeWidth,
+          })};`,
+        );
+        lightDeclarations.push(
+          `  --jx-icon-${derivation.vocab}: ${serializeInkVariant(asset, {
+            ink: '#000',
+            strokeWidth: derivation.strokeWidth,
+          })};`,
+        );
+      }
+    }
+
     if (usesDomInjection(slot)) {
       const domString = serializeIcon(asset, 'dom-string', checker);
       if (domString !== null) {
@@ -239,9 +296,21 @@ function generateModules(
     }
   }
 
+  // the override surface: :root rides `@layer theme` exactly as the
+  // current output plane does; the .dark/.jx-light matrix mirrors the
+  // vocabulary sheet — unlayered, so it beats the layered standard
+  // vocabulary inside those scopes.
+  const cssBlocks: string[] = [];
+  if (rootDeclarations.length > 0) {
+    cssBlocks.push(`@layer theme {\n  :root {\n${rootDeclarations.join('\n')}\n  }\n}`);
+  }
+  if (darkDeclarations.length > 0) {
+    cssBlocks.push(`.dark {\n${darkDeclarations.join('\n')}\n}`);
+    cssBlocks.push(`.jx-light {\n${lightDeclarations.join('\n')}\n}`);
+  }
   const css =
-    declarations.length > 0
-      ? `@layer theme {\n  :root {\n${declarations.join('\n')}\n  }\n}\n`
+    cssBlocks.length > 0
+      ? `${cssBlocks.join('\n')}\n`
       : `/* jixoai-icons: no icons resolved — standard layer inline fallbacks serve */\n`;
 
   const js =

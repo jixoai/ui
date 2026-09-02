@@ -6,7 +6,7 @@
   `copied` pseudo-variant) instead of inventing a new button.
 -->
 <script lang="ts">
-  import { Check, Copy } from 'lucide-svelte';
+  import { icons } from '$lib/icons';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
 
   interface Props {
@@ -37,10 +37,10 @@
   ariaLabel={`copy ${command}`}
 >
   {#if copied}
-    <Check size={13} strokeWidth={2.25} aria-hidden="true" />
+    <span class="inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px] [&_svg]:stroke-[2.25]" aria-hidden="true">{@html icons.check}</span>
     <span>copied</span>
   {:else}
-    <Copy size={13} strokeWidth={2.25} aria-hidden="true" />
+    <span class="inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px] [&_svg]:stroke-[2.25]" aria-hidden="true">{@html icons.copy}</span>
     <span class="font-mono text-[12px]">{label ?? command}</span>
   {/if}
 </PressButton>

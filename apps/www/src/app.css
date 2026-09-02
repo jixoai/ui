@@ -23,6 +23,16 @@
 @import 'tailwindcss';
 @import './lib/jixoai.css';
 @import './lib/jx-pure.css';
+/* icons vocabulary (ICON-4 dogfood, 2026-09-02): the icon plugin's
+ * virtual CSS rides the JS entry (+layout.svelte imports
+ * 'virtual:jixoai-icons.css', aliased in vite.config.ts) — a CSS
+ * `@import 'virtual:jixoai-icons'` here is IMPOSSIBLE under
+ * @tailwindcss/vite: its generate pass resolves this file's whole
+ * @import graph through enhanced-resolve WITHOUT plugin resolveId
+ * hooks, so virtual: ids can never resolve. The plugin's declarations
+ * are byte-identical to jx-pure.css's frozen vocabulary block above
+ * (same @layer theme :root names and values, same .dark/.jx-light
+ * matrix) — dual supply, rendering zero-diff by construction. */
 
 /* jx-html standard-layer candidates: TW4's auto-detection can miss
    new @utility names in svelte cn() calls during dev; this comment

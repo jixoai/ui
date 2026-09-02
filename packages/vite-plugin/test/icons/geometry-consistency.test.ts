@@ -13,7 +13,7 @@
  * cleanly, and per-attribute (order-tolerant on both element order
  * and attribute order; the geometry itself must still match).
  */
-import { Calendar, ChevronDown, Clock, Pipette, X } from 'lucide';
+import { Calendar, Check, ChevronDown, Clock, Palette, X } from 'lucide';
 import type { IconNode, IconNodeChild } from 'lucide';
 import { describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -35,7 +35,8 @@ const SHARED_SLOTS: readonly { slot: IconSlot; icon: IconNode; exportName: strin
   { slot: 'calendar', icon: Calendar, exportName: 'calendar' },
   { slot: 'clock', icon: Clock, exportName: 'clock' },
   { slot: 'chevron', icon: ChevronDown, exportName: 'chevronDown' },
-  { slot: 'pipette', icon: Pipette, exportName: 'pipette' },
+  { slot: 'palette', icon: Palette, exportName: 'palette' },
+  { slot: 'check', icon: Check, exportName: 'check' },
   { slot: 'clear', icon: X, exportName: 'x' },
 ];
 

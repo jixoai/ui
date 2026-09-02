@@ -209,7 +209,7 @@ describe('fontIconProvider', () => {
     expect(calendar).not.toBeNull();
     expect(chevron).not.toBeNull();
     expect(pathD(calendar!.svg)).not.toBe(pathD(chevron!.svg));
-    expect(provider.getIcon('pipette')).toBeNull();
+    expect(provider.getIcon('palette')).toBeNull(); // unmapped slot
     expect(provider.getIcon('clear')).toBeNull();
   });
 

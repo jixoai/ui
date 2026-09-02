@@ -55,7 +55,7 @@ describe('mixinIconProvider', () => {
 
     expect(mixin.getIcon('chevron')!.svg).toContain('override-chevron');
     expect(mixin.getIcon('calendar')!.svg).toContain('base-calendar');
-    expect(mixin.getIcon('pipette')).toBeNull(); // neither provider has it
+    expect(mixin.getIcon('palette')).toBeNull(); // neither provider has it
   });
 
   it('falls through to the base when the override returns null for its slot', async () => {

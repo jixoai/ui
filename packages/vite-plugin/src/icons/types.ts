@@ -14,10 +14,12 @@ export type IconSlot =
   | 'calendar'
   | 'clock'
   | 'chevron'
-  | 'pipette'
+  | 'palette'
   | 'clear'
   | 'mail'
   | 'search'
+  | 'check'
+  | 'invalid'
   ;
 
 /** per-consumer capability — a slot may have multiple consumers with different techniques */
@@ -35,12 +37,28 @@ export interface ConsumerCapability {
 export interface SlotDefinition {
   readonly slot: IconSlot;
   readonly consumers: readonly ConsumerCapability[];
+  /**
+   * does the slot write a plain `--jx-icon-<slot>` line? `invalid` is
+   * ink-only — the vocabulary declares no plain invalid variable, so
+   * covering the concept bakes ONLY its derived ink (icons-docs §1).
+   */
+  readonly plain: boolean;
+  /**
+   * does the slot join the `.dark`/`.jx-light` ink matrix? `palette`
+   * paints through a mask + currentColor background (theme-agnostic —
+   * the sheet declares no palette lines to flip); everything else the
+   * vocabulary serves flips, because black data-URI ink vanishes on
+   * the dark token sheet.
+   */
+  readonly flipsInDark: boolean;
 }
 
 /** the CONCRETE registry — iterable at build time (the vite plugin walks this) */
 export const SLOT_REGISTRY: Readonly<Record<IconSlot, SlotDefinition>> = {
   calendar: {
     slot: 'calendar',
+    plain: true,
+    flipsInDark: true,
     consumers: [
       {
         consumer: 'jx-html-input ::-webkit-calendar-picker-indicator',
@@ -52,6 +70,8 @@ export const SLOT_REGISTRY: Readonly<Record<IconSlot, SlotDefinition>> = {
   },
   clock: {
     slot: 'clock',
+    plain: true,
+    flipsInDark: true,
     consumers: [
       {
         consumer: 'jx-html-input[type=time] ::-webkit-calendar-picker-indicator',
@@ -63,6 +83,8 @@ export const SLOT_REGISTRY: Readonly<Record<IconSlot, SlotDefinition>> = {
   },
   chevron: {
     slot: 'chevron',
+    plain: true,
+    flipsInDark: true,
     consumers: [
       {
         consumer: 'jx-html-select (native select)',
@@ -72,18 +94,23 @@ export const SLOT_REGISTRY: Readonly<Record<IconSlot, SlotDefinition>> = {
       },
     ],
   },
-  pipette: {
-    slot: 'pipette',
+  palette: {
+    slot: 'palette',
+    plain: true,
+    flipsInDark: false,
     consumers: [
       {
-        consumer: '.jx-color-shell::after (wrapper — input is replaced element)',
+        consumer: '.jx-color-shell::after mask reading --jx-icon-palette',
         technique: 'mask',
         browsers: 'all',
+        notes: 'wrapper paints it (input[type=color] is a replaced element); currentColor themes it — no ink flip',
       },
     ],
   },
   clear: {
     slot: 'clear',
+    plain: true,
+    flipsInDark: true,
     consumers: [
       {
         consumer: 'input component × button',
@@ -102,6 +129,8 @@ export const SLOT_REGISTRY: Readonly<Record<IconSlot, SlotDefinition>> = {
   },
   mail: {
     slot: 'mail',
+    plain: true,
+    flipsInDark: true,
     consumers: [
       {
         consumer: "jx-html-input[type=email] / jx-html-control-lane[type=email] background-image",
@@ -113,12 +142,40 @@ export const SLOT_REGISTRY: Readonly<Record<IconSlot, SlotDefinition>> = {
   },
   search: {
     slot: 'search',
+    plain: true,
+    flipsInDark: true,
     consumers: [
       {
         consumer: "jx-html-input[type=search] / jx-html-control-lane[type=search] background-image",
         technique: 'background-image',
         browsers: 'all',
         notes: 'Magnifier icon at inline-start',
+      },
+    ],
+  },
+  check: {
+    slot: 'check',
+    plain: true,
+    flipsInDark: true,
+    consumers: [
+      {
+        consumer: '.jx-combobox-check mask reading --jx-icon-check',
+        technique: 'mask',
+        browsers: 'all',
+        notes: 'combobox selected-row indicator, painted var(--primary) (ICON-2, 2026-09-02)',
+      },
+    ],
+  },
+  invalid: {
+    slot: 'invalid',
+    plain: false,
+    flipsInDark: true,
+    consumers: [
+      {
+        consumer: "input/textarea[aria-invalid='true'] background-image reading --jx-icon-invalid-ink",
+        technique: 'background-image',
+        browsers: 'all',
+        notes: 'ink quartet (css-laws icon-vocab INK_QUARTET) — ink-only concept: no plain variable',
       },
     ],
   },

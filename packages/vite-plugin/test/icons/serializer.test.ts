@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { serializeAllSlots, serializeIcon } from '../../src/icons/serializer.js';
+import { serializeAllSlots, serializeIcon, serializeInkVariant } from '../../src/icons/serializer.js';
 import { createSafetyChecker } from '../../src/icons/safety.js';
 import { SLOT_NAMES } from '../../src/icons/types.js';
 import type { IconSlot, SvgAsset } from '../../src/icons/types.js';
@@ -8,6 +8,14 @@ const CALENDAR_SVG =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" ' +
   'fill="none" stroke="currentColor" stroke-width="2">' +
   '<path d="M8 2v4M16 2v4M3 10h18"/>' +
+  '</svg>';
+
+/** the ink-baked dialect form of CALENDAR_SVG (ink.ts law: literal #000,
+ *  single-quoted attributes, geometry otherwise untouched) */
+const CALENDAR_BAKED =
+  "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' " +
+  "fill='none' stroke='#000' stroke-width='2'>" +
+  "<path d='M8 2v4M16 2v4M3 10h18'/>" +
   '</svg>';
 
 const SCRIPT_SVG =
@@ -35,21 +43,33 @@ describe('serializeIcon — css-var mode', () => {
     expect(value?.endsWith('")')).toBe(true);
   });
 
-  it('round-trips: the encoded payload decodes to the original SVG', () => {
+  it('bakes literal black ink in the frozen dialect (ink.ts port)', () => {
     const value = serializeIcon(makeAsset(CALENDAR_SVG));
     const payload = value?.slice('url("data:image/svg+xml,'.length, -2);
     expect(payload).toBeDefined();
-    expect(decodeURIComponent(payload ?? '')).toBe(CALENDAR_SVG);
+    expect(decodeURIComponent(payload ?? '')).toBe(CALENDAR_BAKED);
+    expect(payload).toContain("stroke='%23000'");
+    expect(payload).not.toContain('currentColor');
   });
 
-  it('URI-encodes characters that break data URIs and CSS strings', () => {
+  it('round-trips: the payload decodes to the ink-baked svg', () => {
+    const value = serializeIcon(makeAsset(CALENDAR_SVG));
+    const payload = value?.slice('url("data:image/svg+xml,'.length, -2);
+    expect(payload).toBeDefined();
+    expect(decodeURIComponent(payload ?? '')).toBe(CALENDAR_BAKED);
+  });
+
+  it('URI-encodes exactly the dialect bytes (< > # plus defensive %22 for content quotes)', () => {
     const svg = '<svg xmlns="http://www.w3.org/2000/svg">#"<>&</svg>';
     const value = serializeIcon(makeAsset(svg));
     if (value === null) throw new Error('expected a serialized value');
     const payload = value.slice('url("data:image/svg+xml,'.length, -2);
     // no raw quotes / fragment / tags inside the payload
     expect(payload).not.toMatch(/["#<>]/);
-    expect(decodeURIComponent(payload)).toBe(svg);
+    // stroke-less artwork gains the ink stroke (the law assigns unconditionally)
+    expect(decodeURIComponent(payload)).toBe(
+      "<svg xmlns='http://www.w3.org/2000/svg' stroke='#000'>#\"<>&</svg>",
+    );
   });
 
   it('is the default mode', () => {
@@ -128,6 +148,38 @@ describe('serializeIcon — validation with a checker', () => {
         errorChecker,
       ),
     ).toThrowError(/font-glyph U\+00D7/);
+  });
+});
+
+describe('serializeInkVariant — the derived ink family', () => {
+  it('bakes the requested ink and forced stroke width', () => {
+    const asset = makeAsset(CALENDAR_SVG);
+    const white = serializeInkVariant(asset, { ink: '#fff', strokeWidth: 2.5 });
+    expect(white).toContain("stroke='%23fff'");
+    expect(white).toContain("stroke-width='2.5'");
+    const black = serializeInkVariant(asset, { ink: '#000', strokeWidth: 2 });
+    expect(black).toBe(serializeIcon(asset)); // black at the artwork's own weight = the plain value
+  });
+
+  it('preserves the artwork weight when no strokeWidth is forced', () => {
+    const heavy = CALENDAR_SVG.replace('stroke-width="2"', 'stroke-width="3"');
+    expect(serializeInkVariant(makeAsset(heavy), { ink: '#fff' })).toContain("stroke-width='3'");
+  });
+
+  it('unchecked when no checker is provided', () => {
+    expect(serializeInkVariant(makeAsset(SCRIPT_SVG), { ink: '#fff' })).toMatch(/^url\("data:image\/svg\+xml,/);
+  });
+
+  it('carries the same warn/error safety contract as serializeIcon', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    expect(
+      serializeInkVariant(makeAsset(SCRIPT_SVG), { ink: '#fff' }, createSafetyChecker({ mode: 'warn' })),
+    ).toBeNull();
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(() =>
+      serializeInkVariant(makeAsset(SCRIPT_SVG), { ink: '#fff' }, createSafetyChecker({ mode: 'error' })),
+    ).toThrowError(/safety check failed/);
+    warn.mockRestore();
   });
 });
 

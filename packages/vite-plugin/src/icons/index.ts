@@ -34,8 +34,12 @@ export { mixinIconProvider } from './providers/mixin.js';
 export type { IconProviderOverrides } from './providers/mixin.js';
 
 // infrastructure
-export { serializeIcon, serializeAllSlots } from './serializer.js';
+export { serializeIcon, serializeAllSlots, serializeInkVariant } from './serializer.js';
+export type { InkVariantOptions } from './serializer.js';
 export { createSafetyChecker } from './safety.js';
+// the ink-baking law (byte-equivalent port of css-laws' iconUri — icons-docs §2)
+export { bakeInkSvg, bakeInkUri, INK_DERIVATIONS } from './ink.js';
+export type { IconInk, InkVocab, InkDerivation, BakeInkOptions } from './ink.js';
 
 // vite plugin (optional peer — import fails gracefully without vite)
 export { createIconPlugin, VIRTUAL_MODULE_ID } from './vite-plugin.js';

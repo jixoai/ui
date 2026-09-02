@@ -7,7 +7,7 @@
  * DERIVED from `import { ... } from 'lucide'` via a local serializer
  * over the IconNode children, never from hand-written geometry.
  */
-import { Calendar, ChevronDown, Clock, Mail, Pipette, Search, X } from 'lucide';
+import { Calendar, Check, ChevronDown, CircleAlert, Clock, Mail, Palette, Search, X } from 'lucide';
 import type { IconNode, IconNodeChild } from 'lucide';
 import { describe, expect, it, vi } from 'vitest';
 import { lucideIconProvider } from '../../../src/icons/providers/lucide.js';
@@ -25,10 +25,12 @@ const SLOT_LUCIDE_ICONS: Readonly<Record<IconSlot, IconNode>> = {
   calendar: Calendar,
   clock: Clock,
   chevron: ChevronDown,
+  palette: Palette,
+  clear: X,
   mail: Mail,
   search: Search,
-  pipette: Pipette,
-  clear: X,
+  check: Check,
+  invalid: CircleAlert,
 };
 
 /** the provider's inner-SVG grammar: attrs in insertion order, self-closing, no separators */
@@ -55,7 +57,7 @@ describe('lucideIconProvider', () => {
   it('serves every registered slot with a valid SvgAsset', async () => {
     const { ctx } = makeContext();
     const provider = await lucideIconProvider()(ctx);
-    expect(SLOT_NAMES.length).toBe(7);
+    expect(SLOT_NAMES.length).toBe(9);
     for (const slot of SLOT_NAMES) {
       const asset = provider.getIcon(slot);
       expect(asset, `slot "${slot}" must be served`).not.toBeNull();

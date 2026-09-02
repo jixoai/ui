@@ -7,6 +7,8 @@
  * jx-pure.css). If lucide reorders children or attributes upstream,
  * these tests fail BEFORE any sheet diff ships. The single sanctioned
  * deviation: --jx-icon-invalid-ink re-derives as lucide CircleAlert.
+ * 2026-09-02 · ICON-2: the plain check slot joins the vocabulary
+ * (default sw 2 — valid-ink keeps the 2.5 weight exclusively).
  */
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -22,13 +24,14 @@ import { committedRootVars, committedDarkVars, committedPaletteMask } from './ic
 
 const WHITE = '#fff' as const;
 
-/** the sanctioned invalid-ink swap: lucide CircleAlert at sw 2.5 */
-const circleAlertBlack =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' x2='12' y1='8' y2='12'/%3E%3Cline x1='12' x2='12.01' y1='16' y2='16'/%3E%3C/svg%3E\")";
-const circleAlertWhite = circleAlertBlack.replace("stroke='%23000'", "stroke='%23fff'");
+/** the sanctioned invalid-ink swap: lucide CircleAlert at sw 2.5.
+ * B3 (2026-09-02): the bytes ride the FIXTURES now (re-extracted from
+ * the sheet) — no copied literals anywhere in this suite */
+const circleAlertBlack = committedRootVars['--jx-icon-invalid-ink'];
+const circleAlertWhite = committedDarkVars['--jx-icon-invalid-ink'];
 
 describe('byte-stability: lucide derivation vs the committed sheet bytes', () => {
-  const plainSlots = ['calendar', 'clock', 'mail', 'search', 'chevron', 'clear'] as const;
+  const plainSlots = ['calendar', 'clock', 'mail', 'search', 'chevron', 'clear', 'check'] as const;
 
   for (const slot of plainSlots) {
     it(`${slot}: reproduces the committed :root URI byte-for-byte`, () => {
@@ -135,20 +138,18 @@ describe('icon vocabulary sheet (the 4th projection)', () => {
   const sheet = buildIconVocabSheet();
   const vars = vocabVars(sheet);
 
-  it(':root vars match the committed bytes (invalid-ink = CircleAlert)', () => {
+  it(':root vars match the committed bytes (fixture = sheet truth, no exemptions)', () => {
     for (const [name, uri] of Object.entries(committedRootVars)) {
-      const expected = name === '--jx-icon-invalid-ink' ? circleAlertBlack : uri;
-      expect(vars[':root'][name], `:root ${name}`).toBe(expected);
+      expect(vars[':root'][name], `:root ${name}`).toBe(uri);
     }
-    expect(Object.keys(vars[':root']).length).toBe(10); // 6 plain + 4 ink (placeholder is not an icon var)
+    expect(Object.keys(vars[':root']).length).toBe(11); // 7 plain + 4 ink (placeholder is not an icon var)
   });
 
-  it('.dark vars match the committed bytes (invalid-ink = CircleAlert white)', () => {
+  it('.dark vars match the committed bytes (fixture = sheet truth, no exemptions)', () => {
     for (const [name, uri] of Object.entries(committedDarkVars)) {
-      const expected = name === '--jx-icon-invalid-ink' ? circleAlertWhite : uri;
-      expect(vars['.dark'][name], `.dark ${name}`).toBe(expected);
+      expect(vars['.dark'][name], `.dark ${name}`).toBe(uri);
     }
-    expect(Object.keys(vars['.dark']).length).toBe(10);
+    expect(Object.keys(vars['.dark']).length).toBe(11);
   });
 
   it('.jx-light mirrors .dark at black ink', () => {
