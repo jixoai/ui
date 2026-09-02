@@ -8,7 +8,7 @@ The Svelte 5 component contracts: the Tier system, native-element-first law, pro
 > `apps/www/src/lib/ui/**`). Components are Svelte 5 runes-first,
 > native-element-first, and follow the Tier system below.
 
-## Current contract (state: 2026-09-02, adversarial-review rulings merged)
+## Current contract (state: 2026-09-03, adversarial-review rulings merged + the r14 tuning casebook)
 
 ## Requirements
 
@@ -943,3 +943,125 @@ GALLERY linking those canonical routes, never their replacement.
 - WHEN the components navigation is built
 - THEN each of the five pattern items appears exactly once with a
   unique canonical href
+
+### Requirement: a floating surface's zones and its content faces are separate components
+
+A surface component (dialog, popover, sheet) renders the ZONES — the
+row ruler, the presence stamps, the variant scopes, the close
+contract, the motion — and offers per-zone SNIPPETS as the transport
+(the default children render inside the body cell; only a snippet
+reaches another row). The zone's standard CONTENT is a separate
+composition component that the snippet typically carries.
+
+#### Scenario: the dialog footer's slot architecture (r14-9)
+
+- GIVEN Dialog shipped `footer`/`actions`/`end` as three sibling
+  snippets with Dialog itself grouping the buttons
+- WHEN the Owner ruled the slot architecture belongs to the FOOTER
+  REGION ("actions 本身是包含在 footer 内…应该提供 <DialogFooter>")
+- THEN `actions`/`end` retired, the `footer` snippet became the RAW
+  full-zone override, and `<DialogFooter>` (children auto-join one
+  end-packed ButtonGroup; `end` replaces the grouping) carries the
+  economy — with `<DialogHeader>` landing symmetric
+
+### Requirement: derived policies resolve from the same source as the paint they follow
+
+When a policy derives from a theme-ish input (variant, density), it
+SHALL key the RESOLVED value (explicit ?? enclosing scope ?? own
+default) — the same chain the visible paint keys. Two chains over one
+context tree drift apart silently.
+
+#### Scenario: the ghost seam policy (r14-10)
+
+- GIVEN ButtonGroup resolved its buttons' variant through
+  inherit-then-provide (`variant ?? enclosingGroup?.variant`) but
+  keyed the seam policy on the LOCAL prop alone
+  (`separator ?? variant === 'ghost'`)
+- WHEN a DialogFooter group inherited ghost from the dialog zone's
+  variant scope (no variant prop of its own)
+- THEN the buttons PAINTED ghost while `data-jx-separator` never
+  stamped — the 1px seams never lit until the policy rekeyed
+  `effectiveVariant`
+
+### Requirement: stamps carry intent; css composes policies
+
+A component stamps what the CONSUMER asked for; the selectors decide
+when it paints. Composition belongs in css (selector AND), not in
+JS-side preconditions that erase the intent from the DOM.
+
+#### Scenario: the leading seam stamp (r14-13)
+
+- GIVEN `leadingSeam` gated its stamp behind `separatorOn` in JS
+- WHEN a standalone DialogFooter (no ghost scope around it) rendered
+  in a test
+- THEN the stamp vanished and the DOM could not prove the prop was
+  even passed — the stamp moved to record the intent
+  (`data-jx-leading-seam` whenever the prop is set), and the paint
+  rule requires `[data-jx-separator][data-jx-leading-seam]` together,
+  so a bordered cluster never doubles its opening edge
+
+### Requirement: decorative lines ride their host, not a sibling
+
+A line that must sit flush against an element SHALL be that element's
+own pseudo (the seam-slot language), never a sibling node — any
+parent layout property (a grid gap, a flex gap, a margin) detaches a
+sibling, and only construction can guarantee flush.
+
+#### Scenario: the dialog foot's opening line (r14-11 → r14-13)
+
+- GIVEN DialogFooter rendered a standalone `<Separator
+  orientation="vertical">` before its ButtonGroup inside
+  `.jx-dialog-foot-grid` (column-gap: 0.625rem)
+- WHEN the Owner caught the gap between the line and the actions
+- THEN the line became the ButtonGroup's `leadingSeam` capability —
+  the first button's own `::before` at `inset-inline-start: -1px`,
+  the same slot language as the intra-cluster seams
+
+### Requirement: a field boundary never rides the shadow alone
+
+Inside a solid surface, a form control is an engraved WELL: the
+hairline edge carries extent, the DISSOLVED ground keeps one solid
+object, the inset shadow carries depth. A shadow is a soft gradient —
+it conveys depth, never a boundary.
+
+#### Scenario: the entity dissolve over-rotated (r14-12)
+
+- GIVEN the entity law's depth-1 projection set border AND background
+  transparent, leaving the input's affordance to the well inset alone
+- WHEN the Owner reported "完全看不到边框，只看到内阴影，这很奇怪"
+- THEN the recalibration kept the shell's own 1px var(--border) edge
+  painting through, dissolved only the ground, retired the depth-2
+  55% re-assert (subsumed), and added the symmetric overrides
+  (`data-assert-border` grounds back, `data-dissolve-border` for
+  flush edge-to-edge fields like the palette head — the edge there
+  would double the panel's own border)
+
+### Requirement: a declared capability and its costs retire together
+
+An opt-out that disables a capability SHALL retire its accompanying
+reserved costs in the same declaration — half-retired states are
+never honest.
+
+#### Scenario: scroll={false} (r14-15)
+
+- GIVEN the dialog body zone is the only scroll ring with
+  `scrollbar-gutter: stable both-edges` reserving symmetric space
+- WHEN the consumer declares the body fits (`scroll={false}`)
+- THEN the zone stamps `data-jx-scroll="off"` and ONE css rule retires
+  the scroll authority (`overflow-y: visible` — mis-declared overflow
+  paints out honestly) together with the gutter (`auto`)
+
+### Requirement: animated formulas derive from the resting token
+
+When a property has both a static paint and a motion-kernel formula,
+the formula SHALL derive from the same token the static paint reads —
+two handwritten copies of one visual value drift apart.
+
+#### Scenario: the surface veil's polarity (r14-17)
+
+- GIVEN the veil's static paint read `--surface-shadow` while the
+  WAAPI resting formula derived from the generic `--shadow-color`
+- WHEN the Owner flipped the polarity (white in light, black in dark)
+- THEN the tokens flipped AND the formula rekeyed
+  `oklch(from var(--surface-shadow) …)`, so the resting pose lands
+  exactly on the token in both themes

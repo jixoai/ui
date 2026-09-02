@@ -252,7 +252,7 @@ ${close}
   <title>Dialog · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai dialog component: a native <dialog> base — showModal() focus trap, ::backdrop scrim, Escape teardown — plus bindable open state and a 120ms close fade. Zero focus plumbing."
+    content="The jixoai dialog component: a native <dialog> base — showModal() focus trap, ::backdrop scrim, Escape teardown — plus bindable open state and the 460ms WAAPI surface timeline. Zero focus plumbing."
   />
 </svelte:head>
 
@@ -267,14 +267,14 @@ ${close}
       tone="hero"
       eyebrow="registry:ui · NativeHTML"
       title="dialog — the platform owns the hard parts"
-      summary="One native <dialog> element, opened with showModal() and closed with close(). Focus trapping, the inert page behind, top-layer rendering above every sticky header, and the Escape key are browser features — the component only binds open state to them and adds a 120ms close fade. Closed dialogs render nothing in the page, with or without JavaScript."
+      summary="One native <dialog> element, opened with showModal() and closed with close(). Focus trapping, the inert page behind, top-layer rendering above every sticky header, and the Escape key are browser features — the component only binds open state to them and adds the shared WAAPI surface timeline. Closed dialogs render nothing in the page, with or without JavaScript."
     >
       <div class="flex flex-wrap gap-3">
         <span class="pill">&lt;dialog&gt; + showModal()</span>
         <span class="pill">focus trap · inert · top layer</span>
         <span class="pill">::backdrop 14% brand</span>
         <span class="pill">Escape → cancel</span>
-        <span class="pill">120ms close fade</span>
+        <span class="pill">460ms WAAPI surface timeline</span>
         <span class="pill">footer buttons auto-group · ghost</span>
       </div>
     </SectionCard>
@@ -284,7 +284,7 @@ ${close}
   <div data-reveal="">
     <ComponentCanvas
       title="dialog"
-      description="One native <dialog> driven by showModal(): the browser owns the focus trap, Escape, and the top layer — the component adds bindable open state and a 120ms close fade. Retitle it from the Playground; preview the scrim in both stage themes."
+      description="One native <dialog> driven by showModal(): the browser owns the focus trap, Escape, and the top layer — the component adds bindable open state and the shared WAAPI surface timeline. Retitle it from the Playground; preview the scrim in both stage themes."
       sourceUrl={registrySourceUrl('dialog')}
       install="dialog"
       files={canvasFiles}
@@ -344,7 +344,7 @@ ${close}
         </div>
         <p class="text-muted-foreground text-pretty text-[13px] leading-6">
           Every exit — ×, Escape, or setting <code class="text-accent">open = false</code> from
-          code — runs the same 120ms opacity fade before the real
+          code — runs the same 460ms surface timeline before the real
           <code class="text-accent">close()</code>. Reduced-motion users get the instant close.
         </p>
         <CodeBlock code={basicUsage} lang="svelte" meta="usage" />
@@ -482,7 +482,7 @@ ${close}
               <span><code class="text-accent">bind:open</code> — rising edge calls
                 <code class="text-accent">showModal()</code>, falling edge runs the teardown</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>close fade — the single motion addition: opacity 120ms on dialog + backdrop, none under reduced motion</span></li>
+              <span>surface timeline — the single motion addition: the 460ms --jx-p kernel drives entry, exit, and the scrim; instant under reduced motion</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
               <span>floating-surface law — the hard offset shadow is a REAL <code class="text-accent">::after</code> layer; <code class="text-accent">@starting-style</code> entry pulls the layers apart, the close fade presses them back; <code class="text-accent">variant="solid | acrylic | auto"</code> paints the surface (acrylic = dual-layer <code class="text-accent">backdrop-filter</code>)</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
@@ -673,7 +673,7 @@ ${close}
       </div>
     </div>
   </SectionCard></div>
-  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Flip bind:open from anywhere — every exit (×, Escape, code) runs the same 120ms fade."><CodeBlock code={basicUsage} lang="svelte" meta="Dialog usage" /></SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Flip bind:open from anywhere — every exit (×, Escape, code) runs the same animated close."><CodeBlock code={basicUsage} lang="svelte" meta="Dialog usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native dialog element carries the modal contract — role, focus trap, and Escape are the platform's."><A11yTable keys={[{ key: 'Tab', action: 'Cycles inside the dialog — the showModal() focus trap; the page behind is inert' }, { key: 'Escape', action: 'Cancel event, intercepted only to share the animated close' }, { key: 'Enter / Space', action: 'Activate the focused control (× button, footer buttons, form method="dialog" submits)' }]} aria={[{ name: 'aria-label', value: 'title', description: 'On the dialog element — the header heading when given.' }, { name: 'role', value: 'dialog (native)', description: 'The platform element; no ARIA roles to maintain.' }, { name: 'aria-label', value: '"Close"', description: 'On the × button.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The surface rides the shared motion kernel — one animated custom property drives entry, exit, and the scrim."><div class="flex flex-col gap-5"><p class="text-muted-foreground text-[13px] leading-6">the trigger inherits the density scope, the surface inherits through the DOM tree — flip the workbench stage's density toggle (comfortable / compact) to re-scope them together; the scrim reads in both stage themes the same way. The four-copy DensityDemo row is retired by that toggle.</p><TokenTable tokens={[{ name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Surface-motion progress: blurIn/slide/materials/shadow + backdrop opacity.' }, { name: '--scrim', default: 'black 14% / white 14%', source: 'color', description: '::backdrop — semi-transparent black (light) / white (dark), never a brand tint.' }, { name: '--jx-surface-in-x/y', default: '0px / 6px', source: 'component', description: 'Entry translate offset.' }, { name: 'surface width', default: 'min(92vw, 26rem)', source: 'structural' }, { name: 'close fade', default: '120ms (skipped under reduced motion)', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Nine props — the platform owns every behavior; the component owns state binding, zone presence, and the zone variant scopes. The footer snippet is the RAW full override of the foot zone; the head/footer content faces are the composition components below."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'Heading of the default title row (rendered through DialogHeader); omit for a chrome-less body. Still names the dialog (aria-label) when a head snippet replaces the visible row.' }, { name: 'open', type: 'boolean', default: 'false', description: 'Bindable open state: true → showModal(), false → animated close.', bindable: true }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface paint; auto defers to the environment’s transparency preference.' }, { name: 'class', type: 'string', default: "''", description: 'Geometry-only utilities appended after the law’s own (a consumer’s anchor/width, a scroll-ring cap); the platform still paints nothing.' }, { name: 'scroll', type: 'boolean', default: 'true', description: 'The body zone’s scroll authority (the panel never scrolls). false asserts the body fits — the scroll authority and the stable both-edges gutter reservation retire together.' }, { name: 'head', type: 'Snippet', default: '—', description: 'Replaces the visible title row — typically a DialogHeader wrapping custom content; the × close still rides the head grid’s end slot.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Dialog body — the only scrollable zone.', required: true }, { name: 'footer', type: 'Snippet', default: '—', description: 'The RAW full override of the foot zone — its standard content is a DialogFooter (buttons auto-joined in one end-packed group, ghost by the zone’s scope).' }, { name: 'cancelGuard', type: '() => boolean', default: '—', description: 'Consulted on the native cancel request (Escape); returning true holds the dialog open (e.g. through an IME composition).' }]} /></SectionCard></div>

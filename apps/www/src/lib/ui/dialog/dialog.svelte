@@ -5,9 +5,10 @@
   showModal()/close(). The platform supplies the focus trap, the Escape
   key (cancel event), an inert page behind, top-layer rendering, and
   closed-by-default (no-JS page loads never paint dialog contents inline).
-  The component adds exactly two things: bindable open state, and a 120ms
-  close fade (skipped under prefers-reduced-motion) whose layer choreography
-  (surface sinks, shadow presses back) lives in the jx-surface law.
+  The component adds exactly two things: bindable open state, and the
+  shared WAAPI surface timeline (460ms, --jx-p — skipped under
+  prefers-reduced-motion) whose layer choreography (surface sinks, shadow
+  presses back, scrim rides the same progress) lives in the jx-surface law.
 
   Floating-surface law (2026-08-22): the panel carries jx-surface — the
   hard offset shadow is a REAL ::after layer, entry runs the

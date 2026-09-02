@@ -760,7 +760,7 @@
       "name": "dialog",
       "type": "registry:ui",
       "title": "Dialog",
-      "description": "NativeHTML dialog: native <dialog> + showModal() (focus trap, Escape, top layer). Floating-surface law: ::after shadow layer + @starting-style pull-apart entry; variant='solid' | 'acrylic' | 'auto'; scrim = --scrim (semi-transparent black/white, never a brand tint); 120ms JS close fade presses the layers back together.",
+      "description": "NativeHTML dialog: native <dialog> + showModal() (focus trap, Escape, top layer). Floating-surface law: ::after shadow layer + @starting-style pull-apart entry; variant='solid' | 'acrylic' | 'auto'; scrim = --scrim (semi-transparent black/white, never a brand tint); the 460ms WAAPI --jx-p timeline presses the layers back together.",
       "files": [
         {
           "path": "registry/files/ui/dialog/dialog.svelte",
