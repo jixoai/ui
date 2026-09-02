@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-02T05:53:10.380Z",
+  "generatedAt": "2026-09-02T05:55:06.903Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3314,10 +3314,6 @@
   ],
   "siteOnly": [
     {
-      "path": "apps/www/src/lib/highlight/context.svelte.ts",
-      "note": "highlight context-kernel wiring — app-side by the density-seam precedent (r9)"
-    },
-    {
       "path": "apps/www/src/lib/ui/docs-sections-nav.svelte",
       "note": "site docs sections rail (docs-restructure D2)"
     },
@@ -3423,6 +3419,10 @@
     {
       "path": "registry/files/ui/search-palette.svelte",
       "note": "search stream (85e9f3c) — final classification pending"
+    },
+    {
+      "path": "registry/files/lib/highlight/context.svelte.ts",
+      "note": "highlight context wiring — mirrored by the syncer, shipped by no item (r9 seam ruling)"
     }
   ]
 }
