@@ -2,11 +2,21 @@
     import { catalogByGroup, CATALOG } from '$lib/catalog';
   import DocsSectionsNav from '$lib/ui/docs-sections-nav.svelte';
   import DocsPager from '$lib/ui/docs-pager.svelte';
+  // site-wide ⌘K (nav-fuzzy-filter change, N2): the palette rides the
+  // ROOT layout — one mount for every route, so the header trigger and
+  // the ⌘K key answer off docs too (they used to be dead there)
+  import SearchPalette from '$lib/ui/search-palette.svelte';
   import Toc, { type TocSection } from '$lib/ui/toc/toc.svelte';
   import TocList from '$lib/ui/toc/toc-list.svelte';
   import TocItem from '$lib/ui/toc/toc-item.svelte';
   import TocLink from '$lib/ui/toc/toc-link.svelte';
   import '../app.css';
+  // icons vocabulary (ICON-4 dogfood): the site's rendering path
+  // consumes the icon plugin's virtual CSS — declarations byte-equal
+  // to jx-pure.css's frozen vocabulary block (dual supply, zero-diff;
+  // see vite.config.ts for why this is a JS import, not an app.css
+  // @import)
+  import 'virtual:jixoai-icons.css';
   // site-only docs surfaces (tw4 P2.2): tables + pill serve several routes
   import '$lib/site/docs-tables.css';
   // scrollbar law (2026-08-22): side-effect probe publishes the measured
@@ -827,6 +837,20 @@
     </TerminalFooter>
   {/snippet}
 </WebsiteScaffold>
+
+<!-- the site-wide search palette (nav-fuzzy-filter change, N2): hoisted
+     from the docs subtree to the ROOT layout — the single mount that
+     makes ⌘K and the header's jx-search-open trigger live on every
+     page. Placement notes: the palette is a native <dialog> (closed it
+     paints nothing; open it rides the top layer), so it sits OUTSIDE
+     the shell grid as document-level chrome and the layout structure
+     is untouched. print-HIDDEN (the verb the docs-side mount carried):
+     an open palette must never ride into the print source clone — the
+     pipeline's medium root is documentElement, so the exclusion is
+     positional only through this stamp -->
+<div data-jx-print="hide">
+  <SearchPalette />
+</div>
 
 <style>
   /* Logo breathing (Owner request, 2026-08-21): a traveling sine wave —

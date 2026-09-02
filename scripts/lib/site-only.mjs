@@ -31,6 +31,7 @@ export const SITE_ONLY = [
   { path: 'apps/www/src/lib/ui/props-table/index.ts', note: 'docs-upgrade: props-table barrel (site-only)' },
   { path: 'apps/www/src/lib/ui/token-table/token-table.svelte', note: 'docs-upgrade: token reference table (site-only docs infra)' },
   { path: 'apps/www/src/lib/ui/token-table/index.ts', note: 'docs-upgrade: token-table barrel (site-only)' },
+  { path: 'apps/www/src/lib/icon-table/icon-table.svelte', note: 'icons-docs: icon vocabulary reference table with live glyph previews (site-only docs infra, token-table precedent)' },
 ];
 
 /** site-only DIRECTORY prefixes under apps/www/src/lib (whole trees) */

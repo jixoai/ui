@@ -17,8 +17,7 @@ export const meta = defineComponentMeta(
           "outline",
           "ghost",
           "link"
-        ],
-        "default": "outline"
+        ]
       },
       "effect": {
         "kind": "opaque",
@@ -45,6 +44,9 @@ export const meta = defineComponentMeta(
           "submit"
         ],
         "default": "button"
+      },
+      "popovertarget": {
+        "kind": "string"
       },
       "ariaLabel": {
         "kind": "string"

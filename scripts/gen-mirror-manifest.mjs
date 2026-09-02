@@ -35,6 +35,19 @@ const UNREFERENCED_LIB = [
   { path: 'registry/files/lib/search/engine-types.ts', note: 'search stream (85e9f3c) — final classification pending' },
   { path: 'registry/files/lib/search/tokenizer.ts', note: 'search stream (85e9f3c) — final classification pending' },
   { path: 'registry/files/ui/search-palette.svelte', note: 'search stream (85e9f3c) — final classification pending' },
+  // nav-fuzzy-filter (2026-09-02): the fuzzysort nav kernel joins the
+  // search-stream family's pending classification — same-source pair,
+  // referenced by no registry item (the change's N1 ruling: not a
+  // registry item); retires with the family when the search stream lands
+  { path: 'registry/files/lib/search/nav-filter.ts', note: 'nav-fuzzy-filter — search-stream family, final classification pending' },
+  // icons-docs (2026-09-02): icon-table is SITE-ONLY by ruling
+  // (token-table precedent) — this on-disk copy is a relic of the
+  // pre-classification syncer era (mirror deletions back-propagate
+  // while any dev server still holds the old site-only list; multiple
+  // stale watchers live on this machine). Retire the copy + this
+  // entry once the servers have reloaded — the loading law is
+  // documented at the devMirrorSync call in apps/www/vite.config.ts.
+  { path: 'registry/files/lib/icon-table/icon-table.svelte', note: 'icons-docs — site-only ruling; on-disk relic pending dev-server reload' },
   // the highlight context-kernel wiring (r9): the registry ITEM ships
   // the zero-dep HIGHLIGHT_KEY seam only (the install-completeness
   // law — createHighlightContext statically imports the kernel), but
