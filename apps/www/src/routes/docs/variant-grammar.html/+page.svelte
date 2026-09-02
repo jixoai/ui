@@ -953,15 +953,15 @@ split — two utilities; both properties land:
         headerRegion="entity"
         eyebrow="law"
         title="The entity law — border is objecthood"
-        summary="Elevation says where a surface sits; entity says whether it should BE a surface at all. Border is objecthood: a bordered box asserts itself as a solid object, and inside an already-solid entity (a dialog panel) every extra border is another object competing with its container. The law is mathematical, not per-component taste (Owner ruling, 2026-09-01): the entity context ACCUMULATES depth — form shells dissolve at depth 1 (transparent border + ground; the well inset carries the affordance), accumulated nesting AUTO-TRIGGERS the hairline edge at depth ≥2, and data-assert-border force-spends the budget early. Background rides the same restraint: transparency first, backdrop-filter as the tint — never a second opaque fill. Hairlines are exempt: a structural rule organizes, it does not objectify."
+        summary="Elevation says where a surface sits; entity says whether it should BE a surface at all. Border is objecthood: a bordered box asserts itself as a solid object, and inside an already-solid entity (a dialog panel) every extra FILL is another object competing with its container. The law is mathematical, not per-component taste (Owner rulings 2026-09-01 + r14-12): the entity context ACCUMULATES depth — at depth ≥1 a form control is an engraved WELL of the entity’s surface: the GROUND dissolves (the entity’s surface is the basin’s interior — never a second opaque fill, backdrop-filter as the tint) while the well’s hairline EDGE STAYS (a boundary must never ride on the shadow alone; the edge is structure, not objecthood); data-assert-border force-spends the ground back early, and data-dissolve-border opts a flush edge-to-edge field out (the palette’s head — the edge there would double the panel’s border)."
       >
         <div class="flex flex-col gap-5">
           <TokenTable
             tokens={[
               { name: 'depth 0', default: 'the page floor', source: 'entity context — the control border IS its object edge: visible' },
-              { name: 'depth 1', default: 'the dissolve', source: 'entity context — border + ground transparent; the well inset carries the fill affordance; focus still tints, hover still deepens' },
-              { name: 'depth ≥2', default: 'the re-assertion', source: 'entity context — accumulated nesting auto-triggers the hairline edge (border at 55% alpha) for legibility' },
-              { name: 'data-assert-border', default: 'the force-spend', source: 'the escape hatch — spends the entity budget early: the full edge + ground at any depth' },
+              { name: 'depth ≥1', default: 'the engraved well', source: 'entity context — the GROUND dissolves (the entity’s surface is the basin’s interior) while the well’s hairline edge stays: crisp extent, inherited ground, inset depth; focus still tints, hover still deepens' },
+              { name: 'data-assert-border', default: 'the force-spend', source: 'the escape hatch — spends the entity budget early: the ground back at any depth (the edge never leaves)' },
+              { name: 'data-dissolve-border', default: 'the opt-out', source: 'the full dissolve on demand — edge transparent too, for flush edge-to-edge fields (the palette’s head)' },
             ]}
           />
           <ul class="flex flex-col gap-2 text-[13px] leading-6">

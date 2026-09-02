@@ -231,6 +231,8 @@
     class: className = '',
     'aria-invalid': ariaInvalid,
     'aria-describedby': ariaDescribedBy,
+    'data-assert-border': assertBorder = false,
+    'data-dissolve-border': dissolveBorder = false,
     nativeControls = false,
     locale,
     onselect,
@@ -589,6 +591,8 @@
         class:jx-number-shell={customStepper}
         class:jx-floating={floating}
         data-jx-custom-picker={customPicker ? '' : undefined}
+        data-assert-border={assertBorder ? '' : undefined}
+        data-dissolve-border={dissolveBorder ? '' : undefined}
         style={customPicker ? `anchor-name: ${pickerAnchor}` : undefined}
       >
         {#if floating}

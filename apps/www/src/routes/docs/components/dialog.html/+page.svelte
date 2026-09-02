@@ -358,7 +358,7 @@ ${close}
       headerRegion="dialog-form"
       eyebrow="demo"
       title="With a footer — form type"
-      summary="The footer snippet is the RAW override of the foot zone — and its standard content is <DialogFooter>: the buttons passed as children auto-join one button-group at the row's inline end, ghost by default through the Dialog's zone scope, an explicit fill still winning for the primary. Cancel drops the dialog; Confirm does its work first, then closes through the same animated path. The form shells inside DISSOLVE (the entity law): the dialog is the one solid object — the inputs ride its ground with the well inset alone, no competing borders or fills; focus still tints, hover still deepens."
+      summary="The footer snippet is the RAW override of the foot zone — and its standard content is <DialogFooter>: the buttons passed as children auto-join one button-group at the row's inline end, ghost by default through the Dialog's zone scope, an explicit fill still winning for the primary. Cancel drops the dialog; Confirm does its work first, then closes through the same animated path. The form shells inside are engraved WELLS (the entity law, r14-12): the dialog is the one solid object — the inputs keep their crisp hairline edge while their ground dissolves into the panel's surface, the well inset carrying the depth; focus still tints, hover still deepens."
     >
       <div class="flex flex-col gap-5">
         <div class="flex flex-wrap items-center gap-4">

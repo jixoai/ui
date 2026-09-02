@@ -10,15 +10,19 @@
  *
  *   depth 0   page level — a control's border IS its object edge:
  *             visible (the floor of objecthood)
- *   depth 1   inside ONE entity — form shells DISSOLVE: border and
- *             ground go transparent; the elevation grammar's WELL
- *             inset carries the fillable affordance; focus still tints
- *             the (transparent) border, hover still deepens the inset
- *   depth ≥2  entity in entity — the accumulated nesting AUTO-TRIGGERS
- *             the edge back (a hairline at reduced alpha): deep
- *             structure re-asserts itself for legibility
+ *   depth ≥1  inside an entity — the GROUND dissolves (the entity's
+ *             surface is the well's interior) but the well's hairline
+ *             edge STAYS: r14-12, Owner — the edge is STRUCTURE, not
+ *             objecthood, and a boundary must never ride the shadow
+ *             alone (a field reads as an engraved well: crisp edge
+ *             for extent, inherited ground, inset shadow for depth).
+ *             The old full dissolve (border transparent too) and the
+ *             depth-2 re-assert are retired with it
  *   force     提前消费 — [data-assert-border] on any part SPENDS the
- *             budget early: full border + ground at any depth
+ *             budget early: the ground back at any depth
+ *   opt-out   [data-dissolve-border] — the old full dissolve on
+ *             demand, for flush edge-to-edge fields (the palette's
+ *             head: the edge there would double the panel's border)
  *
  * Background rides the same restraint: a dissolved shell shows the
  * ENTITY's ground through transparency; when a hint of ground is

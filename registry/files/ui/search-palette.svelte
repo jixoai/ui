@@ -244,6 +244,7 @@
         placeholder="Search the docs…"
         aria-label="Search the docs"
         title="Full-text search — ⌘K / Ctrl-K toggles, ↑↓ selects, ↵ opens, esc closes"
+        data-dissolve-border
       >
         {#snippet innerInlineStart()}
           <span

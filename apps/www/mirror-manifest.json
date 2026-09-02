@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-02T18:56:57.110Z",
+  "generatedAt": "2026-09-02T19:07:53.360Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -660,8 +660,8 @@
           "source": "registry/files/ui/input/input.svelte",
           "mirror": "apps/www/src/lib/ui/input/input.svelte",
           "target": "@ui/input/input.svelte",
-          "sourceSha": "1f7f64891338b77f9b5c28ef1d07d06bb8abce5094e36a4a713758fd64bfd591",
-          "mirrorSha": "1f7f64891338b77f9b5c28ef1d07d06bb8abce5094e36a4a713758fd64bfd591"
+          "sourceSha": "f28ee207225686f9d8799db8d5e6b46d78fa237961773797d95549d3478e563b",
+          "mirrorSha": "f28ee207225686f9d8799db8d5e6b46d78fa237961773797d95549d3478e563b"
         },
         {
           "source": "registry/files/ui/input/input.css",
@@ -3348,15 +3348,15 @@
           "source": "registry/files/lib/entity.svelte.ts",
           "mirror": "apps/www/src/lib/entity.svelte.ts",
           "target": "@lib/entity.svelte.ts",
-          "sourceSha": "5dbbbc3cad6d2ea5fc0caff18cba33995e3346f0d4926ff0ae7ad30cda32b5ec",
-          "mirrorSha": "5dbbbc3cad6d2ea5fc0caff18cba33995e3346f0d4926ff0ae7ad30cda32b5ec"
+          "sourceSha": "9753fd6e45bf6db5ef1d8d4cd5c225598aae701da6bb22a135fbb2a337343ed4",
+          "mirrorSha": "9753fd6e45bf6db5ef1d8d4cd5c225598aae701da6bb22a135fbb2a337343ed4"
         },
         {
           "source": "registry/files/lib/entity.css",
           "mirror": "apps/www/src/lib/entity.css",
           "target": "@lib/entity.css",
-          "sourceSha": "e0c0d653fa91a647799584be31840449671ac73160b0eca25d086e2c80f1bc24",
-          "mirrorSha": "e0c0d653fa91a647799584be31840449671ac73160b0eca25d086e2c80f1bc24"
+          "sourceSha": "242e41e3fd331de0c3e215ffcdcd9d4b5896184f40c530a3750d97316bf3ddef",
+          "mirrorSha": "242e41e3fd331de0c3e215ffcdcd9d4b5896184f40c530a3750d97316bf3ddef"
         }
       ]
     }

@@ -1,6 +1,7 @@
-<!-- entity blueprint: the entity law — border is objecthood. Depth 0
-     owns its edge; depth 1 dissolves (well inset alone); the
-     force-spend restores the edge early. -->
+<!-- entity blueprint: the entity law — border is objecthood, but a
+     well's edge is structure (r14-12). Depth 0 owns edge + ground;
+     depth 1 keeps the well hairline and dissolves the ground; the
+     force-spend restores the ground; the opt-out dissolves fully. -->
 <script lang="ts">
   import Input from '$lib/ui/input/input.svelte';
   import { provideEntity } from '$lib/entity.svelte';
@@ -10,7 +11,7 @@
 
 <div class="flex h-full w-full flex-col justify-center gap-4 p-10">
   <div class="font-nav text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-    entity law · border = objecthood · depth 1 = dissolve
+    entity law · border = objecthood · the well edge is structure
   </div>
   <div class="flex flex-wrap items-start gap-6">
     <label class="flex w-52 flex-col gap-1.5 text-[11px]">
@@ -25,12 +26,16 @@
         the entity (depth 1) — one solid object
       </div>
       <label class="flex flex-col gap-1.5 text-[11px]">
-        <span class="text-muted-foreground">dissolved — the well inset alone</span>
-        <Input type="text" value="no border, no ground" />
+        <span class="text-muted-foreground">depth 1 — edge stays, ground dissolves</span>
+        <Input type="text" value="hairline + inset, no ground" />
       </label>
       <label class="flex flex-col gap-1.5 text-[11px]">
         <span class="text-muted-foreground">force-spend (data-assert-border)</span>
-        <Input type="text" value="spent early" data-assert-border />
+        <Input type="text" value="ground spent early" data-assert-border />
+      </label>
+      <label class="flex flex-col gap-1.5 text-[11px]">
+        <span class="text-muted-foreground">opt-out (data-dissolve-border)</span>
+        <Input type="text" value="the inset alone" data-dissolve-border />
       </label>
     </div>
   </div>
