@@ -31,11 +31,24 @@
  *    through the input's OWN channel (input.value + the input/change
  *    pair) — the end tick IS max even when the step does not divide
  *    the span; RTL mirrors the mapping; focus lands on the input;
- *  - RULER-WHEEL: one notch ≈ one step, sub-notch deltas accumulate,
- *    the value clamps into [min,max], ctrlKey pinch is never hijacked,
- *    disabled ignores everything; the event never bubbles past the
- *    slider (2026-09-02 ruling) and Shift+wheel — axis-swapped onto
- *    deltaX by the engines — fine-tunes through the same path.
+ *  - RULER-WHEEL: the wheel surface is DECLARATIVE in the touch-action
+ *    axis grammar — `wheel` is true/'xy' (default) | 'y' | 'x' |
+ *    false/'none' | { x?, y? } where each axis takes false (off), true
+ *    (one input-step per detent) or a per-detent multiplier
+ *    (0.2 → five detents per input-step, 5 → one detent, five steps),
+ *    all reactive (`wheel={bbb()}`); the engine counts DETENTS (events
+ *    clamped to ±20px — a mouse notch and a trackpad detent both step
+ *    exactly once, fractions carry over losslessly); an OWNED gesture
+ *    is swallowed AND default-prevented (the page never scrolls under
+ *    the slider); an excluded axis is untouched; ctrlKey pinch is
+ *    never hijacked; disabled ignores everything;
+ *  - TICKS-SNIPPET: the ruler composes declaratively — `ticks` (true)
+ *    draws one default RangeTick per step; a `ticks` snippet composes
+ *    RangeTick scales whose marks sit at scale × step periods and
+ *    whose default lengths grade ascending BY VALUE
+ *    (order-independent); the parent owns the surface and every event
+ *    on it; clicking still snaps at the input-step granularity (the
+ *    drawn marks are its subset).
  *
  * Assertion law: state is read back through the DOM the way a user or
  * a form sees it (input.value, attributes, FormData) — never through
@@ -47,8 +60,9 @@ import { flushSync } from 'svelte';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import Range from '../src/lib/ui/range/range.svelte';
+import Range, { RangeTick } from '../src/lib/ui/range';
 import RangeHost from './fixtures/range-host.svelte';
+import RangeRulerHost from './fixtures/range-ruler-host.svelte';
 
 const rangeCss = readFileSync(resolve(process.cwd(), 'src/lib/ui/range/range.css'), 'utf8');
 
@@ -103,23 +117,26 @@ describe('Range · the native base', () => {
 });
 
 describe('Range · the tick ruler (E-3/E-12)', () => {
-  it('ticks sit at the SNAP points: --jx-tick-step = step/(max−min)·100', () => {
+  it('the default mark sits at the SNAP points: --jx-tick-step = step/(max−min)·100', () => {
     const { container } = render(Range, {
       props: { label: 'gain', value: 0, min: 0, max: 100, step: 7, ticks: true },
     });
-    const ruler = container.querySelector('.jx-slider-ticks') as HTMLElement;
-    expect(ruler).not.toBeNull();
+    const strip = container.querySelector('[data-jx-tick-scale]') as HTMLElement;
+    expect(strip).not.toBeNull();
+    expect(strip.getAttribute('data-jx-tick-scale')).toBe('1');
     // 7/100·100 = 7% per mark — marks at 0,7,14…98 (the snap points);
     // the retired math split 100 by a rounded count (100/14 = 7.142857)
-    expect(ruler.style.getPropertyValue('--jx-tick-step')).toBe('7%');
+    expect(strip.style.getPropertyValue('--jx-tick-step')).toBe('7%');
+    // the lone default scale spans the full ruler
+    expect(strip.style.getPropertyValue('--jx-tick-len')).toBe('100%');
   });
 
   it('non-dividing decimal steps keep the snap geometry', () => {
     const { container } = render(Range, {
       props: { label: 'gain', value: 0, min: 0, max: 10, step: 0.5, ticks: true },
     });
-    const ruler = container.querySelector('.jx-slider-ticks') as HTMLElement;
-    expect(ruler.style.getPropertyValue('--jx-tick-step')).toBe('5%');
+    const strip = container.querySelector('[data-jx-tick-scale]') as HTMLElement;
+    expect(strip.style.getPropertyValue('--jx-tick-step')).toBe('5%');
   });
 
   it('the ruler is aria-hidden (the step semantics live on the input)', () => {
@@ -133,8 +150,8 @@ describe('Range · the tick ruler (E-3/E-12)', () => {
     // the repeating gradient paints marks at segment STARTS only; the
     // ::after end tick pins the final mark at the inline end
     expect(rangeCss).toMatch(/\.jx-slider-ticks\)::after \{[^}]*inset-inline-end: 0;/s);
-    // and the gradient itself mirrors under :dir(rtl)
-    expect(rangeCss).toContain('.jx-slider-ticks):dir(rtl)');
+    // and the strips' gradients mirror under :dir(rtl)
+    expect(rangeCss).toContain('.jx-range-tick):dir(rtl)');
   });
 });
 
@@ -212,20 +229,18 @@ describe('Range · the ruler is the thumb-travel surface (2026-09-02)', () => {
 });
 
 describe('Range · wheel fine-tune (2026-09-02)', () => {
-  it('one notch ≈ one step; sub-notch deltas accumulate', async () => {
+  it('every detent steps: a mouse notch and a sub-notch event both = 1 step', async () => {
     const { container } = render(Range, {
       props: { label: 'gain', value: 0, min: 0, max: 100, step: 10, ticks: true },
     });
     const input = sliderOf(container);
-    // 60px below the notch: the page keeps scrolling, no step yet
-    // (dispatchEvent resolves true = the event was NOT cancelled)
-    expect(await fireEvent.wheel(input, { deltaY: -60 })).toBe(true);
-    expect(input.value).toBe('0');
-    // the accumulated −120 crosses the notch → +1 step (up = raise),
-    // and the wheel is captured (preventDefault → dispatch false)
-    expect(await fireEvent.wheel(input, { deltaY: -60 })).toBe(false);
+    // a physical mouse notch (~100px in ONE event) clamps to one detent
+    expect(await fireEvent.wheel(input, { deltaY: -100 })).toBe(false);
     expect(input.value).toBe('10');
-    expect(container.querySelector('[data-jx-slider-value]')?.textContent).toBe('10');
+    // a small trackpad detent (~60px) is equally one detent → one step
+    expect(await fireEvent.wheel(input, { deltaY: -60 })).toBe(false);
+    expect(input.value).toBe('20');
+    expect(container.querySelector('[data-jx-slider-value]')?.textContent).toBe('20');
   });
 
   it('the wheel clamps into [min,max] like every other channel', async () => {
@@ -263,20 +278,18 @@ describe('Range · wheel fine-tune (2026-09-02)', () => {
     expect(sliderOf(container).value).toBe('30');
   });
 
-  it('the wheel never bubbles past the slider — notch or sub-notch', async () => {
+  it('the wheel never bubbles past the slider — detent or not', async () => {
     const { container } = render(Range, {
       props: { label: 'gain', value: 0, min: 0, max: 100, step: 10, ticks: true },
     });
     const input = sliderOf(container);
     const seen: Event[] = [];
     container.addEventListener('wheel', (event) => seen.push(event));
-    // a full notch: captured (preventDefault) AND swallowed
+    // both gestures: captured (preventDefault → dispatch false) AND swallowed
     expect(await fireEvent.wheel(input, { deltaY: -100 })).toBe(false);
-    expect(sliderOf(container).value).toBe('10');
-    // a sub-notch: not prevented (the page keeps its native scroll)
-    // but still swallowed — an ancestor handler never acts on it
-    expect(await fireEvent.wheel(input, { deltaY: -60 })).toBe(true);
-    expect(sliderOf(container).value).toBe('10');
+    expect(input.value).toBe('10');
+    expect(await fireEvent.wheel(input, { deltaY: -60 })).toBe(false);
+    expect(input.value).toBe('20');
     expect(seen).toHaveLength(0);
   });
 
@@ -290,6 +303,109 @@ describe('Range · wheel fine-tune (2026-09-02)', () => {
     expect(input.value).toBe('50');
     expect(await fireEvent.wheel(input, { deltaY: 0, deltaX: 100, shiftKey: true })).toBe(false);
     expect(input.value).toBe('40');
+  });
+});
+
+describe('Range · the wheel axis grammar (2026-09-02)', () => {
+  it('wheel={false} disables the surface — the event is not ours', async () => {
+    const { container } = render(Range, {
+      props: { label: 'gain', value: 40, min: 0, max: 100, step: 10, wheel: false },
+    });
+    const input = sliderOf(container);
+    const seen: Event[] = [];
+    container.addEventListener('wheel', (event) => seen.push(event));
+    // not captured, not swallowed: the page scrolls, ancestors act
+    expect(await fireEvent.wheel(input, { deltaY: -100 })).toBe(true);
+    expect(input.value).toBe('40');
+    expect(seen).toHaveLength(1);
+  });
+
+  it('wheel="y" steps on the plain wheel and ignores the x axis', async () => {
+    const { container } = render(Range, {
+      props: { label: 'gain', value: 40, min: 0, max: 100, step: 10, wheel: 'y' },
+    });
+    const input = sliderOf(container);
+    expect(await fireEvent.wheel(input, { deltaY: -100 })).toBe(false);
+    expect(input.value).toBe('50');
+    // the x gesture (the engines' shift+wheel shape) is NOT ours: untouched
+    expect(await fireEvent.wheel(input, { deltaY: 0, deltaX: -100, shiftKey: true })).toBe(true);
+    expect(input.value).toBe('50');
+  });
+
+  it('wheel="x" steps on the shift gesture and ignores the y axis', async () => {
+    const { container } = render(Range, {
+      props: { label: 'gain', value: 40, min: 0, max: 100, step: 10, wheel: 'x' },
+    });
+    const input = sliderOf(container);
+    expect(await fireEvent.wheel(input, { deltaY: -100 })).toBe(true);
+    expect(input.value).toBe('40');
+    expect(await fireEvent.wheel(input, { deltaY: 0, deltaX: -100, shiftKey: true })).toBe(false);
+    expect(input.value).toBe('50');
+  });
+
+  it('per-axis multipliers: { y: 0.2 } → five detents per input-step', async () => {
+    const { container } = render(Range, {
+      props: { label: 'gain', value: 0, min: 0, max: 100, step: 10, wheel: { y: 0.2 } },
+    });
+    const input = sliderOf(container);
+    // four detents carry 0.8 units — no step yet
+    for (let i = 0; i < 4; i += 1) {
+      expect(await fireEvent.wheel(input, { deltaY: -100 })).toBe(false);
+      expect(input.value).toBe('0');
+    }
+    // the fifth detent completes one input-step, fraction carried losslessly
+    expect(await fireEvent.wheel(input, { deltaY: -100 })).toBe(false);
+    expect(input.value).toBe('10');
+  });
+
+  it('per-axis multipliers: { y: 5 } → one detent, five steps', async () => {
+    const { container } = render(Range, {
+      props: { label: 'gain', value: 0, min: 0, max: 100, step: 10, wheel: { y: 5 } },
+    });
+    await fireEvent.wheel(sliderOf(container), { deltaY: -100 });
+    expect(sliderOf(container).value).toBe('50');
+  });
+
+  it('{ x: true, y: false } isolates the axes', async () => {
+    const { container } = render(Range, {
+      props: { label: 'gain', value: 40, min: 0, max: 100, step: 10, wheel: { x: true, y: false } },
+    });
+    const input = sliderOf(container);
+    expect(await fireEvent.wheel(input, { deltaY: -100 })).toBe(true);
+    expect(input.value).toBe('40');
+    expect(await fireEvent.wheel(input, { deltaX: -100 })).toBe(false);
+    expect(input.value).toBe('50');
+  });
+
+  it('non-positive / non-finite multipliers fall back to step 1 (the E-8 guard)', async () => {
+    const { container } = render(Range, {
+      props: { label: 'gain', value: 40, min: 0, max: 100, step: 10, wheel: { y: 0 } },
+    });
+    const input = sliderOf(container);
+    expect(await fireEvent.wheel(input, { deltaY: -100 })).toBe(false);
+    expect(input.value).toBe('50');
+  });
+
+  it('the config is reactive — wheel={bbb()} flips the surface live', async () => {
+    const { container, rerender } = render(Range, {
+      props: { label: 'gain', value: 40, min: 0, max: 100, step: 10, wheel: true },
+    });
+    const input = sliderOf(container);
+    expect(await fireEvent.wheel(input, { deltaY: -100 })).toBe(false);
+    expect(input.value).toBe('50');
+    // off: the same gesture stops touching the slider (rerender carries
+    // the committed value — TL re-applies the prop set, and the external
+    // write path re-snaps it honestly)
+    await rerender({ wheel: false, value: 50 });
+    expect(await fireEvent.wheel(input, { deltaY: -100 })).toBe(true);
+    expect(input.value).toBe('50');
+    // 'x': the y axis is excluded…
+    await rerender({ wheel: 'x', value: 50 });
+    expect(await fireEvent.wheel(input, { deltaY: -100 })).toBe(true);
+    expect(input.value).toBe('50');
+    // …and the x gesture fine-tunes from where 'xy' left it
+    expect(await fireEvent.wheel(input, { deltaY: 0, deltaX: -100, shiftKey: true })).toBe(false);
+    expect(input.value).toBe('60');
   });
 });
 
@@ -508,5 +624,63 @@ describe('Range · the generated mount face (E-1)', () => {
     expect(rangeCss).toMatch(
       /\[data-jx-range\]:not\(\.no-jx-pure, \.no-jx-pure \*\):dir\(rtl\)::-webkit-slider-thumb/,
     );
+  });
+});
+
+describe('Range · the RangeTick ruler composition (2026-09-02)', () => {
+  function stripsOf(container: HTMLElement): HTMLElement[] {
+    return [...container.querySelectorAll('[data-jx-tick-scale]')] as HTMLElement[];
+  }
+
+  it('the ticks snippet composes multi-scale rulers (the ruler metaphor)', () => {
+    const { container } = render(RangeRulerHost, { props: { scales: [1, 5, 10], step: 10 } });
+    const strips = stripsOf(container);
+    expect(strips.map((s) => s.getAttribute('data-jx-tick-scale'))).toEqual(['1', '5', '10']);
+    // periods = the snap step × the scale (E-3's law, layered)
+    expect(strips[0].style.getPropertyValue('--jx-tick-step')).toBe('10%');
+    expect(strips[1].style.getPropertyValue('--jx-tick-step')).toBe('50%');
+    expect(strips[2].style.getPropertyValue('--jx-tick-step')).toBe('100%');
+    // default lengths grade ascending by value: 1/3, 2/3, full
+    expect(strips[0].style.getPropertyValue('--jx-tick-len')).toBe('33.33%');
+    expect(strips[1].style.getPropertyValue('--jx-tick-len')).toBe('66.67%');
+    expect(strips[2].style.getPropertyValue('--jx-tick-len')).toBe('100%');
+  });
+
+  it('the ranking is order-independent (DOM order is irrelevant)', () => {
+    const { container } = render(RangeRulerHost, { props: { scales: [10, 1, 5], step: 10 } });
+    const strips = stripsOf(container);
+    // the DOM keeps the consumer's order…
+    expect(strips.map((s) => s.getAttribute('data-jx-tick-scale'))).toEqual(['10', '1', '5']);
+    // …but the grading follows the value rank
+    expect(strips[0].style.getPropertyValue('--jx-tick-len')).toBe('100%');
+    expect(strips[1].style.getPropertyValue('--jx-tick-len')).toBe('33.33%');
+    expect(strips[2].style.getPropertyValue('--jx-tick-len')).toBe('66.67%');
+  });
+
+  it('invalid scales fall back to 1 and dedupe in the ranking (the guard)', () => {
+    const { container } = render(RangeRulerHost, { props: { scales: [-3, 0], step: 10 } });
+    const strips = stripsOf(container);
+    expect(strips.map((s) => s.getAttribute('data-jx-tick-scale'))).toEqual(['1', '1']);
+    expect(strips[0].style.getPropertyValue('--jx-tick-len')).toBe('100%');
+  });
+
+  it('ticks={false} without a snippet draws no ruler', () => {
+    const { container } = render(Range, { props: { label: 'v', value: 0, ticks: false } });
+    expect(container.querySelector('.jx-slider-ticks')).toBeNull();
+  });
+
+  it('a standalone RangeTick renders nothing (no range context)', () => {
+    const { container } = render(RangeTick, { props: { scale: 5 } });
+    expect(container.querySelector('[data-jx-tick-scale]')).toBeNull();
+  });
+
+  it('clicking a composed ruler still snaps at the input-step granularity', async () => {
+    const { container } = render(RangeRulerHost, { props: { scales: [1, 5, 10], step: 10 } });
+    const ruler = rulerOf(container);
+    // x = 54 → nearest STEP (round(0.27·10) = 3) → 30; the drawn 5/10
+    // marks are the VISUAL layer — the input-step stays the snap truth
+    await fireEvent.pointerDown(ruler, { clientX: 54 });
+    expect(sliderOf(container).value).toBe('30');
+    expect(container.querySelector('[data-testid="out"]')?.textContent).toBe('30');
   });
 });

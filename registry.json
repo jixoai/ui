@@ -1185,7 +1185,7 @@
       "name": "range",
       "type": "registry:ui",
       "title": "Range",
-      "description": "The native slider, semantic surface: a REAL input[type=range] as the base (2026-09-01 native rebase — jx-pure is the foundation; the registry version adds slots and semantics, never re-draws the control). The platform owns pointer, keyboard (arrows/Home/End/PageUp/Down), RTL, the label[for] binding and form submission (name= rides the input own FormData lane); the component adds the label row, the step-precision value readout, the optional tick ruler (one mark per step, inset to the thumb's travel; click a mark to snap, the wheel fine-tunes one step per notch), the vertical orientation face (orient attribute + writing-mode: min at the physical bottom, geometry on the width axis, the ruler maps bottom-up), the family error law (aria-invalid + aria-describedby + dashed-ring thumb), density tiers and external-write snapping. Paint is the jx-pure range recipe verbatim on the component hook — one visual law, two mounting surfaces.",
+      "description": "The native slider, semantic surface: a REAL input[type=range] as the base (2026-09-01 native rebase — jx-pure is the foundation; the registry version adds slots and semantics, never re-draws the control). The platform owns pointer, keyboard (arrows/Home/End/PageUp/Down), RTL, the label[for] binding and form submission (name= rides the input own FormData lane); the component adds the label row, the step-precision value readout, the optional tick ruler (one mark per step, inset to the thumb's travel; click a mark to snap, the wheel fine-tunes one input-step per detent behind a declarative touch-action axis grammar (wheel: true | 'x' | 'y' | 'xy' | 'none' | { x?, y? } with per-detent multipliers — owned gestures are swallowed and default-prevented, the page never scrolls under the slider), the ruler composes declaratively through RangeTick scales (marks at scale × step periods, lengths grading ascending by value), the vertical orientation face (orient attribute + writing-mode: min at the physical bottom, geometry on the width axis, the ruler maps bottom-up), the family error law (aria-invalid + aria-describedby + dashed-ring thumb), density tiers and external-write snapping. Paint is the jx-pure range recipe verbatim on the component hook — one visual law, two mounting surfaces.",
       "files": [
         {
           "path": "registry/files/ui/range/range.svelte",
@@ -1197,6 +1197,11 @@
           "target": "@ui/range/index.ts",
           "type": "registry:file"
         },
+   {
+    "path": "registry/files/ui/range/range-tick.svelte",
+    "target": "@ui/range/range-tick.svelte",
+    "type": "registry:file"
+   },
         {
           "path": "registry/files/ui/range/range.css",
           "target": "@ui/range/range.css",

@@ -25,26 +25,20 @@
      the same inline inset — the thumb IS the input's height (100cqh of
      its own container = the icon token), and the ruler lives in the
      same density scope, so half the icon token is the exact inset
-     (owner ruling, 2026-09-02). One 4px mark per step, drawn as a
-     repeating gradient (a mark every --jx-tick-step %; mirrors under
-     :dir(rtl)). The ::after end tick pins the FINAL mark at 100%: a
-     repeating gradient paints marks only at segment starts, so without
-     it step=10/0-100 ends at 90 (E-12, 2026-09-02). The ruler is also
-     a live surface: pointerdown snaps to the nearest mark, the wheel
-     steps one notch at a time (range.svelte, 2026-09-02 ruling). The
-     sizing lives here (not utilities) so the vertical override below
-     can swap the axes cleanly. */
+     (owner ruling, 2026-09-02). The ruler is also a live surface:
+     pointerdown snaps to the nearest mark, the wheel steps one detent
+     at a time (range.svelte, 2026-09-02 ruling). The MARKS are drawn
+     by RangeTick strips (the ruler componentization, 2026-09-02): one
+     absolutely-positioned layer per scale, its repeating gradient
+     period = the snap step × the scale, its length graded by the
+     parent's value-ranking — the ruler metaphor, minor ticks short,
+     major ticks long. */
   :where(.jx-slider-ticks) {
     position: relative;
     height: 0.25rem;
     margin-block-start: 0.125rem;
     margin-inline: calc(var(--jx-icon, 1.5rem) / 2);
     cursor: pointer;
-    background: repeating-linear-gradient(
-      to right,
-      var(--border) 0 1px,
-      transparent 1px var(--jx-tick-step)
-    );
   }
   :where(.jx-slider-ticks)::after {
     content: '';
@@ -55,7 +49,20 @@
     width: 1px;
     background: var(--border);
   }
-  :where(.jx-slider-ticks):dir(rtl) {
+
+  /* one RangeTick strip: a layer of marks at scale × step periods */
+  :where(.jx-range-tick) {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: var(--jx-tick-len, 100%);
+    background: repeating-linear-gradient(
+      to right,
+      var(--border) 0 1px,
+      transparent 1px var(--jx-tick-step)
+    );
+  }
+  :where(.jx-range-tick):dir(rtl) {
     background: repeating-linear-gradient(
       to left,
       var(--border) 0 1px,
@@ -69,7 +76,7 @@
      BLOCK axis — half a thumb top and bottom, so the marks run exactly
      over the thumb's vertical travel (min at the physical bottom, the
      law pins it). The ::after end tick moves to the block-end (the min
-     mark at the bottom); the gradient runs to bottom, so tick marks
+     mark at the bottom); the strips' gradient runs to bottom, so marks
      paint from the TOP (= max) downward — min is the pinned end. */
   .jx-field[data-orient='vertical'] [data-jx-range-body] {
     display: flex;
@@ -82,11 +89,6 @@
     align-self: stretch;
     margin-block: calc(var(--jx-icon, 1.5rem) / 2);
     margin-inline: 0;
-    background: repeating-linear-gradient(
-      to bottom,
-      var(--border) 0 1px,
-      transparent 1px var(--jx-tick-step)
-    );
   }
   .jx-field[data-orient='vertical'] :where(.jx-slider-ticks)::after {
     inset-inline-end: auto;
@@ -96,6 +98,19 @@
     right: 0;
     width: auto;
     height: 1px;
+  }
+  .jx-field[data-orient='vertical'] :where(.jx-range-tick) {
+    inset-inline: auto;
+    inset-block: 0;
+    top: auto;
+    inset-inline-start: 0;
+    width: var(--jx-tick-len, 100%);
+    height: auto;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--border) 0 1px,
+      transparent 1px var(--jx-tick-step)
+    );
   }
 }
 

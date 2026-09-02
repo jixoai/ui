@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-02T11:06:52.381Z",
+  "generatedAt": "2026-09-02T11:51:43.425Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1091,22 +1091,29 @@
           "source": "registry/files/ui/range/range.svelte",
           "mirror": "apps/www/src/lib/ui/range/range.svelte",
           "target": "@ui/range/range.svelte",
-          "sourceSha": "1ebf1c7eb96ab2d7847b49a4b9245d1d72d43500d98a874b4ceb914aec27ec33",
-          "mirrorSha": "1ebf1c7eb96ab2d7847b49a4b9245d1d72d43500d98a874b4ceb914aec27ec33"
+          "sourceSha": "ee38f821dbfeefafa0295750288e2caf96d3542feefa8c06bb5ffab1a9d68f9a",
+          "mirrorSha": "ee38f821dbfeefafa0295750288e2caf96d3542feefa8c06bb5ffab1a9d68f9a"
         },
         {
           "source": "registry/files/ui/range/index.ts",
           "mirror": "apps/www/src/lib/ui/range/index.ts",
           "target": "@ui/range/index.ts",
-          "sourceSha": "5e1fdd9771ddb4d6f0aa23ad9e95f86f913222b39254f2dfe344205da7549431",
-          "mirrorSha": "5e1fdd9771ddb4d6f0aa23ad9e95f86f913222b39254f2dfe344205da7549431"
+          "sourceSha": "7dabc07508e62298fe055fac3d0afd8d16264b87354e159f7d755ee7fa6278a6",
+          "mirrorSha": "7dabc07508e62298fe055fac3d0afd8d16264b87354e159f7d755ee7fa6278a6"
+        },
+        {
+          "source": "registry/files/ui/range/range-tick.svelte",
+          "mirror": "apps/www/src/lib/ui/range/range-tick.svelte",
+          "target": "@ui/range/range-tick.svelte",
+          "sourceSha": "0a1b6ceacc837c5bbdfbc311330e58ce68e4eaf0da04b302e3e7696f56b919a5",
+          "mirrorSha": "0a1b6ceacc837c5bbdfbc311330e58ce68e4eaf0da04b302e3e7696f56b919a5"
         },
         {
           "source": "registry/files/ui/range/range.css",
           "mirror": "apps/www/src/lib/ui/range/range.css",
           "target": "@ui/range/range.css",
-          "sourceSha": "d9cfc983efdf667c2b5251ed75865d96462218e70c40f979109299f5e0f1f59c",
-          "mirrorSha": "d9cfc983efdf667c2b5251ed75865d96462218e70c40f979109299f5e0f1f59c"
+          "sourceSha": "cecec68865536f38d58df9e1ec7ebfc305c0745b832d68ab369ec26dbd0fedb7",
+          "mirrorSha": "cecec68865536f38d58df9e1ec7ebfc305c0745b832d68ab369ec26dbd0fedb7"
         }
       ]
     },

@@ -70,16 +70,17 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 // 19 DOM-AST assertions GREEN before and after the cutover).
 
 const BASELINES = {
-  // re-recorded 2026-09-02 (adversarial-review wave): B-source
-  // 32356->34353 (+6.2%) — the well-law second sweep lands resting/hover
-  // well rules in the generated input/control laws, the range law gains
-  // the :dir(rtl) fill mirror + the mount projection slot, and the
-  // elevation-grammar/subtraction-ink/grid-law comment blocks land in the
-  // hand regions. B-face 10936->11405 (picker well faces + pblur gating).
-  // Justified growth: laws and their documentation, zero utility-layer
-  // leakage (B-consumer rows unchanged).
+  // re-recorded 2026-09-02 (range orientation + ruler round): B-face
+  // 11405->12519 (+9.8%) — the range law gains the [orient="vertical"]
+  // face (writing-mode branch, width-axis geometry tokens, the
+  // block-axis fill and its rtl guard) projected across every mounting
+  // surface, and the ruler's RangeTick strips carry per-scale
+  // repeating-gradient faces. B-source unchanged (34850 measured under
+  // the old ceiling). Justified growth: law + component css and their
+  // documentation, zero utility-layer leakage (B-consumer rows
+  // unchanged).
   'B-source': 34353,
-  'B-face': 11405,
+  'B-face': 12519,
   'B-consumer-vite': 1695,
   'B-consumer-icons': 253,
 };

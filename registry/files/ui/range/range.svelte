@@ -26,14 +26,21 @@
   snaps to the nearest mark, and commits ride the input's OWN channel
   (assign input.value + dispatch the input/change pair a user gesture
   would — bind:value, the readout, aria-valuetext and form truth all
-  follow one path). The wheel fine-tunes: one notch ≈ one step,
-  trackpad deltas accumulate below a notch, ctrlKey pinch-zoom is
-  never hijacked, sub-notch movement still scrolls the page. The
-  slider OWNS its wheel — the event stops at the slider (an ancestor
-  handler/scroll region never also acts on it), and Shift+wheel
-  (axis-swapped onto deltaX by the engines) rides the same path. The
-  geometry is written in logical properties so a future orientation
-  face inherits it; no vertical variant exists today (2026-09-02).
+  follow one path). The wheel fine-tunes, declarative in the
+  touch-action axis grammar (owner ruling, 2026-09-02): `wheel` —
+  true/'xy' (default) = both axes, 'y' = the plain wheel, 'x' = the
+  shift+wheel gesture (the engines axis-swap it onto deltaX),
+  false/'none' = off (the event is not ours, the page scrolls
+  freely), `{ x?, y? }` = per-axis config with a per-detent
+  multiplier (input-steps; fractional = several detents per
+  input-step; 0.2 → five detents per step, 5 → one detent, five
+  steps). The engine counts DETENTS — each event clamped to ±20px —
+  so a physical mouse notch and a trackpad detent both step exactly
+  once. A gesture on an owned axis is swallowed (an ancestor
+  handler/scroll region never acts) AND default-prevented (the page
+  never scrolls under the slider); ctrlKey pinch-zoom is never
+  hijacked. The geometry is written in logical properties so the
+  orientation faces inherit it.
 
   Orientation round (owner, 2026-09-02): `orientation="vertical"` rides
   the PLATFORM's vertical slider — the input carries `orient="vertical"`
@@ -60,9 +67,12 @@
   mounted .jx-pure, but the visual law is ONE).
 -->
 <script lang="ts">
-  import type { HTMLInputAttributes } from 'svelte/elements';
+  import { setContext, untrack } from 'svelte';
+  import type { HTMLInputAttributes, HTMLAttributes } from 'svelte/elements';
+  import type { Snippet } from 'svelte';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import RangeTick, { RANGE_TICK_CONTEXT, type RangeTickContext } from './range-tick.svelte';
   import './range.css';
 
   // native passthrough (the input.svelte law): the interface rides the
@@ -86,12 +96,32 @@
     srLabel?: boolean;
     /** show the current value right of the label row (default true) */
     showValue?: boolean;
-    /** draw one 4px tick per snap point under the track, inset to the
-        thumb's travel; pointerdown on the ruler snaps to that mark */
-    ticks?: boolean;
+    /** the tick ruler: `true` draws one default mark per step; pass a
+        `ticks` snippet to compose RangeTick scales (the ruler metaphor
+        — minor ticks short, major ticks long); `false` (default) draws
+        nothing. The ruler insets to the thumb's travel and pointerdown
+        snaps to the nearest mark */
+    ticks?: boolean | Snippet;
     /** slider axis — vertical rides the platform's writing-mode face
         (min at the physical bottom; Gecko's orient attribute) */
     orientation?: 'horizontal' | 'vertical';
+    /** the wheel fine-tune surface, declarative in the touch-action
+        axis grammar: `true`/'xy' (default) = both axes, one input-step
+        per detent; 'y' = the plain wheel; 'x' = the shift+wheel
+        gesture (axis-swapped onto deltaX by the engines); false/'none'
+        disables it; `{ x?, y? }` configures each axis separately —
+        false off, true = step 1, a number = input-steps per detent
+        (0.2 → five detents per input-step, 5 → one detent, five
+        steps). Owned gestures are swallowed and default-prevented —
+        the page never scrolls under the slider. ctrlKey pinch-zoom is
+        never captured. Fully reactive: wheel={bbb()} */
+    wheel?:
+      | boolean
+      | 'x'
+      | 'y'
+      | 'xy'
+      | 'none'
+      | { x?: boolean | number; y?: boolean | number };
     /** the platform's own disabled semantics (pointer, keyboard, form) */
     disabled?: boolean;
     /** pairs the label[for] and the error's aria-describedby; auto-generated when omitted */
@@ -120,6 +150,7 @@
     showValue = true,
     ticks = false,
     orientation = 'horizontal',
+    wheel = true,
     disabled = false,
     id = autoId,
     class: className = '',
@@ -136,6 +167,30 @@
   const errorId = $derived(`${id}-error`);
   const invalid = $derived(error != null && error !== '');
   const vertical = $derived(orientation === 'vertical');
+  // the ruler: on when the boolean is true OR a ticks snippet composes it
+  const ticksSnippet = $derived(typeof ticks === 'function' ? ticks : null);
+  const ticksOn = $derived(ticks === true || ticksSnippet !== null);
+
+  // ---- the ruler's registration channel (the parent manages its ticks)
+  // RangeTick strips register their scale here; the ranking is BY VALUE
+  // (order-independent) so the default lengths grade ascending. The
+  // mutations run UNTRACKED: a registration effect that pushed to a
+  // tracked array would read its own write and loop forever.
+  const tickScales = $state<number[]>([]);
+  function registerTickScale(scale: number): () => void {
+    untrack(() => tickScales.push(scale));
+    return () =>
+      untrack(() => {
+        const at = tickScales.indexOf(scale);
+        if (at !== -1) tickScales.splice(at, 1);
+      });
+  }
+  const tickContext: RangeTickContext = {
+    register: registerTickScale,
+    scales: () => [...new Set(tickScales)].sort((a, b) => a - b),
+    stepPct: () => tickStepPct,
+  };
+  setContext(RANGE_TICK_CONTEXT, tickContext);
   // the error law outranks caller aria, but never DROPS it (input.svelte)
   const describedBy = $derived(invalid ? errorId : ariaDescribedBy);
   const invalidAttr = $derived(invalid ? 'true' : ariaInvalid);
@@ -256,30 +311,48 @@
     inputEl.focus();
   }
 
-  // one notch ≈ one step (notch ≈ 100px, a line ≈ 33px, a page ≈ 100px
-  // of delta); trackpad deltas accumulate below the threshold — and
-  // sub-notch movement is NOT prevented, so the page still scrolls.
-  // ctrlKey wheel is the browser's pinch-zoom: never hijacked.
-  // Shift+wheel arrives axis-swapped on most engines (the gesture
-  // rides deltaX, deltaY stays 0) — read whichever axis is live so
-  // the modifier fine-tunes like the plain wheel. The slider OWNS its
-  // wheel: the event never bubbles past it (an ancestor handler or
-  // scroll region must not also act on the same gesture), while the
-  // default action is cancelled only when a step actually applies.
-  const WHEEL_STEP = 100;
-  let wheelAcc = 0;
+  // one detent = one step unit (owner ruling, 2026-09-02 — "every
+  // detent steps"): a wheel event is CLAMPED to ±20px (one trackpad
+  // detent), so a physical mouse notch (~100px in one event) and a
+  // trackpad detent (~20px) both count exactly once. The per-axis
+  // multiplier scales the unit — fractional values make one input-step
+  // take several detents (0.2 → five detents), multipliers above 1
+  // stride several steps per detent — with the fraction carried over
+  // losslessly between gestures.
+  const WHEEL_DETENT = 20;
+  let wheelUnits = 0;
+  function wheelAxisStep(v: boolean | number | undefined): number | null {
+    if (v === false || v == null) return null;
+    if (v === true) return 1;
+    return Number.isFinite(v) && v > 0 ? v : 1;
+  }
+  const wheelAxes = $derived.by((): { x: number | null; y: number | null } => {
+    if (wheel === false || wheel === 'none') return { x: null, y: null };
+    if (wheel === 'x') return { x: 1, y: null };
+    if (wheel === 'y') return { y: 1, x: null };
+    if (wheel === true || wheel === 'xy') return { x: 1, y: 1 };
+    return { x: wheelAxisStep(wheel.x), y: wheelAxisStep(wheel.y) };
+  });
   function onWheel(event: WheelEvent): void {
     if (disabled || !inputEl || event.ctrlKey) return;
-    let delta = event.deltaY !== 0 ? event.deltaY : event.deltaX;
-    if (event.deltaMode === 1) delta *= 33;
-    else if (event.deltaMode === 2) delta *= 100;
+    // Shift+wheel arrives axis-swapped on most engines (the gesture
+    // rides deltaX, deltaY stays 0) — the live axis decides ownership:
+    // an axis the config turns off is NOT ours — the page scrolls,
+    // ancestor handlers act
+    const onY = event.deltaY !== 0;
+    const axis = onY ? wheelAxes.y : wheelAxes.x;
+    const raw = onY ? event.deltaY : event.deltaX;
+    if (raw === 0 || axis === null) return;
+    let delta = event.deltaMode === 1 ? raw * 33 : event.deltaMode === 2 ? raw * 100 : raw;
+    delta = Math.max(-WHEEL_DETENT, Math.min(WHEEL_DETENT, delta));
+    // the slider OWNS the gesture: swallowed (no ancestor acts) and
+    // default-prevented (the page never scrolls under it), detent or not
     event.stopPropagation();
-    if (delta === 0) return;
-    wheelAcc += delta;
-    const steps = Math.trunc(wheelAcc / WHEEL_STEP);
-    if (steps === 0) return;
     event.preventDefault();
-    wheelAcc -= steps * WHEEL_STEP;
+    wheelUnits += (delta / WHEEL_DETENT) * axis;
+    const steps = Math.trunc(wheelUnits);
+    if (steps === 0) return;
+    wheelUnits -= steps;
     // wheel up (negative delta) raises the value — a dial, not a scrollbar
     commitValue(value - steps * safeStep);
   }
@@ -350,17 +423,25 @@
       class:jx-invalid={invalid}
     />
 
-    {#if ticks && tickCount > 0}
+    {#if ticksOn && tickCount > 0}
       <!-- svelte-ignore a11y_no_static_element_interactions — the ruler
            intentionally stays aria-hidden (the step semantics live on
-           the input); pointerdown is a redundant fine-tune surface -->
+           the input); pointerdown is a redundant fine-tune surface.
+           The parent owns the surface and its events; the strips are
+           composed declaratively — the default single scale, or the
+           consumer's RangeTick rulers via the ticks snippet -->
       <div
         bind:this={rulerEl}
         class="jx-slider-ticks"
-        style="--jx-tick-step: {tickStepPct}%"
         aria-hidden="true"
         onpointerdown={onRulerPointerDown}
-      ></div>
+      >
+        {#if ticksSnippet}
+          {@render ticksSnippet()}
+        {:else}
+          <RangeTick scale={1} />
+        {/if}
+      </div>
     {/if}
   </div>
 
