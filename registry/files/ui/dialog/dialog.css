@@ -62,12 +62,14 @@
      ZONE is the only ring. min-height:0 kills the grid item's implicit
      auto floor so the 1fr row can actually constrain it; overflow-y
      owns the scroll; the scrollbar rides the zone's edge (the padded
-     cell scrolls inside it) */
+     cell scrolls inside it). BOTH-EDGES (Owner, r14-14): the gutter
+     reserves symmetric space — a stable gutter on the scrollbar side
+     alone shifts the content optically off-center */
   :where([data-jx-dialog-body]) {
     grid-row: body;
     min-height: 0;
     overflow-y: auto;
-    scrollbar-gutter: stable;
+    scrollbar-gutter: stable both-edges;
   }
   :where([data-jx-dialog-foot]) {
     grid-row: foot;

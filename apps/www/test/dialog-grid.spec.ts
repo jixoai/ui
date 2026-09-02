@@ -117,11 +117,11 @@ describe('the zones — borders retired, content rides the 1fr track', () => {
     expect(ring.className).not.toMatch(/overflow(-[xy])?-?(auto|scroll)/);
     expect(ring.className).toMatch(/max-h-/);
     // the body ZONE is the scroll ring (min-height:0 unlocks the 1fr row)
-    const bodyZone = container.querySelector('[data-jx-dialog-body]')!;
-    const bodyCss = 'overflow-y: auto; scrollbar-gutter: stable; min-height: 0;';
-    void bodyZone; void bodyCss;
     expect(css).toMatch(/\[data-jx-dialog-body\][^}]*min-height: 0/s);
     expect(css).toMatch(/\[data-jx-dialog-body\][^}]*overflow-y: auto/s);
+    // the gutter is stable on BOTH edges (r14-14, Owner): a one-sided
+    // reservation shifts the scrolling content optically off-center
+    expect(css).toMatch(/\[data-jx-dialog-body\][^}]*scrollbar-gutter: stable both-edges/s);
     // the css gives body the ONLY flexible row (head/foot pinned)
     expect(css).toContain('[body] minmax(0, 1fr)');
     expect(css).not.toContain('[body] minmax(0, auto)');
