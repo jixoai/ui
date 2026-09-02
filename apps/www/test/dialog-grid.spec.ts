@@ -144,8 +144,11 @@ describe('the foot zone — actions auto-group, footer leads', () => {
     expect(container.querySelector('[data-jx-dialog-foot] > .jx-dialog-foot-grid')).not.toBeNull();
   });
 
-  it('actions wraps its snippet in a ButtonGroup (justify end, named)', () => {
-    const { container } = render(Dialog, { props: { title: 't', children, actions } });
+  it('actions wraps its snippet in a ButtonGroup (named; the grid packs the end)', () => {
+    const acted = render(Dialog, { props: { title: 't', children, actions } });
+    const grid = acted.container.querySelector('.jx-dialog-foot-grid')!;
+    expect(grid.querySelector('[data-jx-btngroup]')).not.toBeNull();
+  });
     const group = container.querySelector('[data-jx-btngroup]')!;
     expect(group).not.toBeNull();
     expect(group.getAttribute('data-jx-btngroup')).toBe('horizontal');
@@ -153,16 +156,19 @@ describe('the foot zone — actions auto-group, footer leads', () => {
     expect(group.className).toContain('justify-end');
   });
 
-  it('both faces: footer leads in the leading track, actions own the inline-end-actions-slot', () => {
+  it('the footer is ONE end-packed cluster: footer buttons join the actions at inline-end (r14-5)', () => {
     const both = render(Dialog, { props: { title: 't', children, footer, actions } });
     const grid = both.container.querySelector('.jx-dialog-foot-grid')!;
-    expect(grid.className).toContain('jx-dialog-foot-grid');
-    expect(both.container.querySelector('.jx-dialog-foot-leading')).not.toBeNull();
-    const slot = both.container.querySelector('.jx-dialog-end-actions-slot')!;
-    expect(slot.querySelector('.jx-dialog-foot-leading')).toBeNull(); // leading never leaks in
-    expect(slot.querySelector('button')?.closest('[data-jx-btngroup]')).not.toBeNull(); // auto-grouped
+    // direct children only: the footer snippet's content, one divider,
+    // the actions group — no leading wrapper, no slot wrapper
+    const kids = [...grid.children];
+    expect(kids.length).toBe(3);
+    expect(grid.querySelector('.jx-dialog-foot-leading')).toBeNull();
+    expect(grid.querySelector('.jx-dialog-end-actions-slot')).toBeNull();
+    // the actions group is the LAST child (terminal cluster)
+    expect(kids.at(-1)?.getAttribute('data-jx-btngroup')).toBe('horizontal');
     // between the two clusters exactly one decorative separator
-    expect(slot.querySelectorAll('hr, [role="separator"], .jx-surface-shadow + hr').length).toBe(1);
+    expect(grid.querySelectorAll('[data-jx-dialog-sep], hr').length).toBe(1);
   });
 });
 

@@ -264,27 +264,26 @@
              zone's default for every button (Context); the actions
              group no longer repeats it (inherit-then-provide) -->
         <ButtonVariantScope variant="ghost">
+          <!-- the r14-5 law (Owner): footer buttons hang at INLINE-END —
+               the footer snippet's content joins the actions in ONE
+               end-packed cluster (footer | divider | actions group);
+               the grid packs the column flow to the end edge -->
           <div
             class="jx-dialog-foot-grid @max-[15rem]/jx-dialog:flex-col-reverse @max-[15rem]/jx-dialog:items-stretch"
           >
             {#if footer}
-              <div class="jx-dialog-foot-leading">
-                {@render footer()}
-              </div>
+              {@render footer()}
             {/if}
-            <div class="jx-dialog-end-actions-slot">
-              {#if actions}
-                {#if footer}
-                  <!-- the ghost contract (Owner r13): between GROUPS
-                       exactly one divider — the leading cluster and the
-                       actions group; decorative -->
-                  <Separator aria-hidden="true" class="self-stretch" />
-                {/if}
-                <ButtonGroup justify="end" label="Dialog actions">
-                  {@render actions()}
-                </ButtonGroup>
+            {#if actions}
+              {#if footer}
+                <!-- between GROUPS exactly one divider (Owner r13);
+                     decorative -->
+                <Separator aria-hidden="true" class="self-stretch" />
               {/if}
-            </div>
+              <ButtonGroup label="Dialog actions">
+                {@render actions()}
+              </ButtonGroup>
+            {/if}
           </div>
         </ButtonVariantScope>
       </div>

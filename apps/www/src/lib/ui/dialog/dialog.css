@@ -102,20 +102,16 @@
     justify-self: end;
     align-self: start;
   }
+  /* the footer is ONE end-packed cluster (r14-5, Owner): every child —
+     the footer snippet's buttons, the divider, the actions group — is
+     an auto column; the grid packs the whole flow to the inline end */
   :where(.jx-dialog-foot-grid) {
     display: grid;
-    grid-template-columns:
-      [leading] minmax(0, 1fr)
-      [inline-end-actions-slot] auto;
+    grid-auto-flow: column;
+    grid-auto-columns: auto;
+    justify-content: end;
     align-items: center;
-  }
-  :where(.jx-dialog-foot-leading) {
-    grid-column: leading;
-    min-inline-size: 0;
-  }
-  :where(.jx-dialog-end-actions-slot) {
-    grid-column: inline-end-actions-slot;
-    justify-self: end;
+    column-gap: 0.625rem;
   }
 
   /* ── the D1-exempt residue ─────────────────────────────────────── */
