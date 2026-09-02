@@ -58,7 +58,10 @@ function sliderOf(container: HTMLElement): HTMLInputElement {
   return input;
 }
 
-function rulerOf(container: HTMLElement): HTMLElement {
+function rulerOf(
+  container: HTMLElement,
+  shape: { width: number; height: number } = { width: 200, height: 4 },
+): HTMLElement {
   const ruler = container.querySelector('.jx-slider-ticks') as HTMLElement;
   expect(ruler).not.toBeNull();
   // jsdom has no layout: hand the ruler the box the click math reads
@@ -68,10 +71,10 @@ function rulerOf(container: HTMLElement): HTMLElement {
       y: 0,
       top: 0,
       left: 0,
-      right: 200,
-      bottom: 4,
-      width: 200,
-      height: 4,
+      right: shape.width,
+      bottom: shape.height,
+      width: shape.width,
+      height: shape.height,
       toJSON: () => ({}),
     }) as DOMRect;
   return ruler;
@@ -287,6 +290,91 @@ describe('Range · wheel fine-tune (2026-09-02)', () => {
     expect(input.value).toBe('50');
     expect(await fireEvent.wheel(input, { deltaY: 0, deltaX: 100, shiftKey: true })).toBe(false);
     expect(input.value).toBe('40');
+  });
+});
+
+describe('Range · the vertical orientation (2026-09-02)', () => {
+  it('orientation=vertical wires the platform hooks; horizontal stays attribute-free', () => {
+    const { container } = render(Range, {
+      props: { label: 'fader', value: 30, orientation: 'vertical', ticks: true },
+    });
+    expect(sliderOf(container).getAttribute('orient')).toBe('vertical');
+    expect(container.querySelector('[data-orient="vertical"]')).not.toBeNull();
+    // input + ruler share the body row (the vertical layout hook)
+    expect(container.querySelector('[data-jx-range-body]')).not.toBeNull();
+    const plain = render(Range, { props: { label: 'h', value: 0, ticks: true } });
+    expect(sliderOf(plain.container).getAttribute('orient')).toBeNull();
+    expect(plain.container.querySelector('[data-orient]')).toBeNull();
+  });
+
+  it('the generated law carries the vertical face (writing-mode + width-axis tokens)', () => {
+    // Chromium rides writing-mode (min at the physical bottom via rtl);
+    // the geometry swaps to the WIDTH axis (100cqw)
+    expect(rangeCss).toMatch(
+      /\[orient="vertical"\] \{[^}]*--jx-range-thumb: 100cqw;[^}]*writing-mode: vertical-lr;[^}]*direction: rtl;/s,
+    );
+    // the fill paints DOWNWARD from the thumb (toward min at the bottom)
+    expect(rangeCss).toMatch(
+      /\[orient="vertical"\]::-webkit-slider-thumb \{[^}]*box-shadow: 0 calc\(100cqh \+ var\(--jx-range-thumb\) \/ 2\) 0 100cqh/s,
+    );
+    // and the horizontal :dir(rtl) mirror must not flip the vertical fill
+    expect(rangeCss).toMatch(/\[orient="vertical"\]:dir\(rtl\)::-webkit-slider-thumb/);
+  });
+
+  it('the vertical ruler swaps to the block axis (half-thumb inset top and bottom)', () => {
+    expect(rangeCss).toMatch(
+      /\.jx-field\[data-orient='vertical'\] :where\(\.jx-slider-ticks\) \{[^}]*margin-block: calc\(var\(--jx-icon, 1\.5rem\) \/ 2\);/s,
+    );
+    // the end tick pins the MIN mark at the physical bottom
+    expect(rangeCss).toMatch(
+      /\.jx-field\[data-orient='vertical'\] :where\(\.jx-slider-ticks\)::after \{[^}]*bottom: 0;/s,
+    );
+  });
+
+  it('pointerdown maps along the block axis bottom-up (min at the bottom)', async () => {
+    const { container } = render(Range, {
+      props: {
+        label: 'fader',
+        value: 0,
+        min: 0,
+        max: 100,
+        step: 10,
+        ticks: true,
+        orientation: 'vertical',
+      },
+    });
+    const ruler = rulerOf(container, { width: 12, height: 200 });
+    // 25% from the TOP → 75% up the value axis → tick 8 → 80
+    await fireEvent.pointerDown(ruler, { clientX: 6, clientY: 50 });
+    expect(sliderOf(container).value).toBe('80');
+    // the very top is the max tick
+    await fireEvent.pointerDown(ruler, { clientX: 6, clientY: 0 });
+    expect(sliderOf(container).value).toBe('100');
+    // the very bottom is the min tick (the ::after pinned end)
+    await fireEvent.pointerDown(ruler, { clientX: 6, clientY: 200 });
+    expect(sliderOf(container).value).toBe('0');
+  });
+
+  it('the vertical axis has no RTL flip — the value axis is fixed by the law', async () => {
+    const { container } = render(Range, {
+      props: {
+        label: 'fader',
+        value: 0,
+        min: 0,
+        max: 100,
+        step: 10,
+        ticks: true,
+        orientation: 'vertical',
+      },
+    });
+    const ruler = rulerOf(container, { width: 12, height: 200 });
+    // even under an rtl PAGE the vertical mapping stays bottom-up
+    const spy = vi
+      .spyOn(window, 'getComputedStyle')
+      .mockReturnValue({ direction: 'rtl' } as CSSStyleDeclaration);
+    await fireEvent.pointerDown(ruler, { clientX: 6, clientY: 50 });
+    spy.mockRestore();
+    expect(sliderOf(container).value).toBe('80');
   });
 });
 

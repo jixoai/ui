@@ -35,6 +35,16 @@
   geometry is written in logical properties so a future orientation
   face inherits it; no vertical variant exists today (2026-09-02).
 
+  Orientation round (owner, 2026-09-02): `orientation="vertical"` rides
+  the PLATFORM's vertical slider — the input carries `orient="vertical"`
+  (Gecko's native attribute; the law's vertical branch keys on it and
+  adds writing-mode: vertical-lr + direction: rtl so min sits at the
+  physical BOTTOM everywhere). The geometry swaps to the width axis
+  (100cqw), the ruler becomes a vertical strip on the inline end inset
+  on the BLOCK axis (half a thumb, top and bottom), and the click
+  mapping runs bottom-up (min at the bottom; no RTL flip — the value
+  axis is fixed by the law).
+
   What the registry version ADDS over the bare jx-pure face (the
   family's slot + semantic layer, unchanged in shape from the custom
   era): the label row (a REAL label[for] now), the live value readout
@@ -79,6 +89,9 @@
     /** draw one 4px tick per snap point under the track, inset to the
         thumb's travel; pointerdown on the ruler snaps to that mark */
     ticks?: boolean;
+    /** slider axis — vertical rides the platform's writing-mode face
+        (min at the physical bottom; Gecko's orient attribute) */
+    orientation?: 'horizontal' | 'vertical';
     /** the platform's own disabled semantics (pointer, keyboard, form) */
     disabled?: boolean;
     /** pairs the label[for] and the error's aria-describedby; auto-generated when omitted */
@@ -106,6 +119,7 @@
     srLabel = false,
     showValue = true,
     ticks = false,
+    orientation = 'horizontal',
     disabled = false,
     id = autoId,
     class: className = '',
@@ -121,6 +135,7 @@
 
   const errorId = $derived(`${id}-error`);
   const invalid = $derived(error != null && error !== '');
+  const vertical = $derived(orientation === 'vertical');
   // the error law outranks caller aria, but never DROPS it (input.svelte)
   const describedBy = $derived(invalid ? errorId : ariaDescribedBy);
   const invalidAttr = $derived(invalid ? 'true' : ariaInvalid);
@@ -219,14 +234,23 @@
 
   // pointerdown snaps to the NEAREST mark (generous hit targets even
   // at dense tick counts); index tickCount is the ::after end tick —
-  // max itself when the step does not divide the span. Focus follows
-  // the platform's own click so the arrows refine from the new value.
+  // max itself when the step does not divide the span. Horizontal
+  // maps along the inline axis (RTL mirrors); vertical maps along the
+  // block axis bottom-up — the law pins min at the physical bottom,
+  // so no direction flip exists on that axis. Focus follows the
+  // platform's own click so the arrows refine from the new value.
   function onRulerPointerDown(event: PointerEvent): void {
     if (disabled || !inputEl || !rulerEl) return;
     const rect = rulerEl.getBoundingClientRect();
-    if (rect.width <= 0) return;
-    let ratio = (event.clientX - rect.left) / rect.width;
-    if (getComputedStyle(inputEl).direction === 'rtl') ratio = 1 - ratio;
+    let ratio: number;
+    if (vertical) {
+      if (rect.height <= 0) return;
+      ratio = 1 - (event.clientY - rect.top) / rect.height;
+    } else {
+      if (rect.width <= 0) return;
+      ratio = (event.clientX - rect.left) / rect.width;
+      if (getComputedStyle(inputEl).direction === 'rtl') ratio = 1 - ratio;
+    }
     const i = Math.min(tickCount, Math.max(0, Math.round(ratio * tickCount)));
     commitValue(i >= tickCount ? max : min + i * safeStep);
     inputEl.focus();
@@ -274,7 +298,11 @@
   });
 </script>
 
-<div data-density={resolvedDensity} class={cn('jx-field', className)}>
+<div
+  data-density={resolvedDensity}
+  data-orient={vertical ? 'vertical' : undefined}
+  class={cn('jx-field', className)}
+>
   {#if label || showValue}
     <div data-jx-slider-head class="flex items-baseline justify-between gap-3">
       {#if label}
@@ -289,44 +317,52 @@
     </div>
   {/if}
 
-  <!-- the base: a REAL input[type=range] — semantics, keyboard,
-       pointer, RTL, label[for] and form submission are the platform's.
+  <!-- the body: input + ruler share one row container so the vertical
+       face can lay them side by side (horizontal keeps the plain block
+       flow — the wrapper renders identically). The base: a REAL
+       input[type=range] — semantics, keyboard, pointer, RTL, label[for]
+       and form submission are the platform's. `orient` is Gecko's own
+       vertical attribute and the law's vertical hook; the law pairs it
+       with writing-mode for Chromium (min at the physical bottom).
        aria-valuetext carries the step-precision readout for assistive
        tech (decimal steps); every other value/min/max/step attribute is
        native truth. The rest spread lands HERE (aria-label without a
        label, title, data-testid…) and sits BEFORE the component-owned
        wiring, so type/value/step/aria can never be hijacked through it
        (input.svelte law) -->
-  <input
-    id={id}
-    bind:this={inputEl}
-    {...rest}
-    type="range"
-    data-jx-range=""
-    bind:value
-    {min}
-    {max}
-    step={safeStep}
-    {name}
-    {disabled}
-    aria-valuetext={display}
-    aria-invalid={invalidAttr}
-    aria-describedby={describedBy}
-    class:jx-invalid={invalid}
-  />
+  <div data-jx-range-body>
+    <input
+      id={id}
+      bind:this={inputEl}
+      {...rest}
+      type="range"
+      data-jx-range=""
+      orient={vertical ? 'vertical' : undefined}
+      bind:value
+      {min}
+      {max}
+      step={safeStep}
+      {name}
+      {disabled}
+      aria-valuetext={display}
+      aria-invalid={invalidAttr}
+      aria-describedby={describedBy}
+      class:jx-invalid={invalid}
+    />
 
-  {#if ticks && tickCount > 0}
-    <!-- svelte-ignore a11y_no_static_element_interactions — the ruler
-         intentionally stays aria-hidden (the step semantics live on
-         the input); pointerdown is a redundant fine-tune surface -->
-    <div
-      bind:this={rulerEl}
-      class="jx-slider-ticks mt-0.5 h-1"
-      style="--jx-tick-step: {tickStepPct}%"
-      aria-hidden="true"
-      onpointerdown={onRulerPointerDown}
-    ></div>
-  {/if}
+    {#if ticks && tickCount > 0}
+      <!-- svelte-ignore a11y_no_static_element_interactions — the ruler
+           intentionally stays aria-hidden (the step semantics live on
+           the input); pointerdown is a redundant fine-tune surface -->
+      <div
+        bind:this={rulerEl}
+        class="jx-slider-ticks"
+        style="--jx-tick-step: {tickStepPct}%"
+        aria-hidden="true"
+        onpointerdown={onRulerPointerDown}
+      ></div>
+    {/if}
+  </div>
 
   {#if invalid}
     <p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>

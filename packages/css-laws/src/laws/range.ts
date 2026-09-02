@@ -23,6 +23,9 @@ export const rangeLaw: ComponentLaw = {
     '--jx-range-track': 'calc(100cqh / 2.5)',
     '--jx-range-ring': 'calc(100cqh / 8)',
     '--jx-slider-fill-color': 'var(--primary)',
+    /* the vertical slider's LENGTH (owner orientation round,
+       2026-09-02) — the one axis the icon token cannot derive */
+    '--jx-range-length': 'calc(var(--jx-unit, 0.25rem) * 40)',
   },
   base: {
     appearance: 'none',
@@ -78,6 +81,74 @@ export const rangeLaw: ComponentLaw = {
       selector: ':dir(rtl)::-webkit-slider-thumb',
       declarations: {
         'box-shadow': 'calc(100cqw + var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color)',
+      },
+    },
+    /* vertical face (owner orientation round, 2026-09-02): the
+       platform's own vertical slider — Chromium rides writing-mode
+       (vertical-lr + direction:rtl = min at the physical BOTTOM, the
+       fader convention), Gecko rides the orient attribute. The
+       geometry tokens swap to the WIDTH axis (100cqw): the thumb is
+       the icon token, the track its /2.5 thickness across the strip.
+       The fill box-shadow flips to the block axis and paints DOWNWARD
+       from the thumb (toward min at the bottom); the horizontal
+       :dir(rtl) mirror must not flip it, so the vertical rtl variant
+       below outranks it by specificity ([orient] attribute).
+       Gecko's ::-moz-range-progress is logical, only the thickness
+       axis needs the swap. */
+    {
+      selector: '[orient="vertical"]',
+      declarations: {
+        '--jx-range-thumb': '100cqw',
+        '--jx-range-track': 'calc(100cqw / 2.5)',
+        '--jx-range-ring': 'calc(100cqw / 8)',
+        'writing-mode': 'vertical-lr',
+        direction: 'rtl',
+        width: 'var(--jx-icon, 1.5rem)',
+        height: 'var(--jx-range-length)',
+      },
+    },
+    {
+      selector: '[orient="vertical"]::-webkit-slider-runnable-track',
+      declarations: {
+        width: 'var(--jx-range-track)',
+        height: 'auto',
+        'border-radius': 'calc(infinity * 1px)',
+        background: 'var(--muted)',
+      },
+    },
+    {
+      selector: '[orient="vertical"]::-webkit-slider-thumb',
+      declarations: {
+        /* centering swaps to the thickness (horizontal) axis */
+        'margin-top': '0',
+        'margin-left': 'calc((var(--jx-range-track) - var(--jx-range-thumb)) / 2)',
+        'box-shadow':
+          '0 calc(100cqh + var(--jx-range-thumb) / 2) 0 100cqh var(--jx-slider-fill-color)',
+      },
+    },
+    {
+      selector: '[orient="vertical"]:dir(rtl)::-webkit-slider-thumb',
+      declarations: {
+        'box-shadow':
+          '0 calc(100cqh + var(--jx-range-thumb) / 2) 0 100cqh var(--jx-slider-fill-color)',
+      },
+    },
+    {
+      selector: '[orient="vertical"]::-moz-range-track',
+      declarations: {
+        width: 'var(--jx-range-track)',
+        height: 'auto',
+        'border-radius': 'calc(infinity * 1px)',
+        background: 'var(--muted)',
+      },
+    },
+    {
+      selector: '[orient="vertical"]::-moz-range-progress',
+      declarations: {
+        width: 'var(--jx-range-track)',
+        height: 'auto',
+        'border-radius': 'calc(infinity * 1px)',
+        background: 'var(--jx-slider-fill-color)',
       },
     },
     {

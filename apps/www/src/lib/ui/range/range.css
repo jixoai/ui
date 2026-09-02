@@ -31,9 +31,13 @@
      repeating gradient paints marks only at segment starts, so without
      it step=10/0-100 ends at 90 (E-12, 2026-09-02). The ruler is also
      a live surface: pointerdown snaps to the nearest mark, the wheel
-     steps one notch at a time (range.svelte, 2026-09-02 ruling). */
+     steps one notch at a time (range.svelte, 2026-09-02 ruling). The
+     sizing lives here (not utilities) so the vertical override below
+     can swap the axes cleanly. */
   :where(.jx-slider-ticks) {
     position: relative;
+    height: 0.25rem;
+    margin-block-start: 0.125rem;
     margin-inline: calc(var(--jx-icon, 1.5rem) / 2);
     cursor: pointer;
     background: repeating-linear-gradient(
@@ -58,6 +62,41 @@
       transparent 1px var(--jx-tick-step)
     );
   }
+
+  /* vertical face (orientation round, 2026-09-02): input + ruler share
+     one row (data-jx-range-body renders as plain block horizontally);
+     the ruler becomes a vertical strip on the inline end, inset on the
+     BLOCK axis — half a thumb top and bottom, so the marks run exactly
+     over the thumb's vertical travel (min at the physical bottom, the
+     law pins it). The ::after end tick moves to the block-end (the min
+     mark at the bottom); the gradient runs to bottom, so tick marks
+     paint from the TOP (= max) downward — min is the pinned end. */
+  .jx-field[data-orient='vertical'] [data-jx-range-body] {
+    display: flex;
+    align-items: stretch;
+    gap: 0.375rem;
+  }
+  .jx-field[data-orient='vertical'] :where(.jx-slider-ticks) {
+    width: 0.75rem;
+    height: auto;
+    align-self: stretch;
+    margin-block: calc(var(--jx-icon, 1.5rem) / 2);
+    margin-inline: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--border) 0 1px,
+      transparent 1px var(--jx-tick-step)
+    );
+  }
+  .jx-field[data-orient='vertical'] :where(.jx-slider-ticks)::after {
+    inset-inline-end: auto;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 1px;
+  }
 }
 
 /* ---- the native face — GENERATED from laws/range.ts (E-1) ------------- */
@@ -68,6 +107,7 @@
   --jx-range-track: calc(100cqh / 2.5);
   --jx-range-ring: calc(100cqh / 8);
   --jx-slider-fill-color: var(--primary);
+  --jx-range-length: calc(var(--jx-unit, 0.25rem) * 40);
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
@@ -106,6 +146,47 @@
 
 [data-jx-range]:not(.no-jx-pure, .no-jx-pure *):dir(rtl)::-webkit-slider-thumb {
   box-shadow: calc(100cqw + var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)[orient="vertical"] {
+  --jx-range-thumb: 100cqw;
+  --jx-range-track: calc(100cqw / 2.5);
+  --jx-range-ring: calc(100cqw / 8);
+  writing-mode: vertical-lr;
+  direction: rtl;
+  width: var(--jx-icon, 1.5rem);
+  height: var(--jx-range-length);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)[orient="vertical"]::-webkit-slider-runnable-track {
+  width: var(--jx-range-track);
+  height: auto;
+  border-radius: calc(infinity * 1px);
+  background: var(--muted);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)[orient="vertical"]::-webkit-slider-thumb {
+  margin-top: 0;
+  margin-left: calc((var(--jx-range-track) - var(--jx-range-thumb)) / 2);
+  box-shadow: 0 calc(100cqh + var(--jx-range-thumb) / 2) 0 100cqh var(--jx-slider-fill-color);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)[orient="vertical"]:dir(rtl)::-webkit-slider-thumb {
+  box-shadow: 0 calc(100cqh + var(--jx-range-thumb) / 2) 0 100cqh var(--jx-slider-fill-color);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)[orient="vertical"]::-moz-range-track {
+  width: var(--jx-range-track);
+  height: auto;
+  border-radius: calc(infinity * 1px);
+  background: var(--muted);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)[orient="vertical"]::-moz-range-progress {
+  width: var(--jx-range-track);
+  height: auto;
+  border-radius: calc(infinity * 1px);
+  background: var(--jx-slider-fill-color);
 }
 
 [data-jx-range]:not(.no-jx-pure, .no-jx-pure *)::-moz-range-track {
