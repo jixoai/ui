@@ -167,20 +167,22 @@ describe('the palette', () => {
     vi.unstubAllGlobals();
   });
 
-  it('rides the floating-surface law: platform/body/shadow layers, waapi only when the engine supports it', async () => {
+  it('composes the Dialog component: the surface law rides inside it, geometry overrides outside', async () => {
     const target = document.createElement('div');
     document.body.appendChild(target);
-    const palette = mount(SearchPalette, { target });
+    mount(SearchPalette, { target });
     await flush();
     const dialog = target.querySelector('dialog')!;
-    // the three-layer contract (css-architecture: one surface law)
+    // the three-layer contract comes FROM the Dialog component now
+    expect(dialog.classList.contains('jx-dialog')).toBe(true);
     expect(dialog.classList.contains('jx-surface')).toBe(true);
     expect(dialog.querySelector(':scope > .jx-surface-shadow')).not.toBeNull();
-    expect(dialog.querySelector(':scope > .jx-surface-body.jx-glass')).not.toBeNull();
-    // jsdom has no CSS.registerProperty: the kernel gate stays OFF and
-    // the dialog rests at the open pose (kernel-less pose in the law)
+    expect(dialog.querySelector(':scope > .jx-surface-body')).not.toBeNull();
+    // jsdom has no CSS.registerProperty: the kernel gate stays OFF
     expect(dialog.classList.contains('jx-waapi')).toBe(false);
-    unmount(palette);
+    // the palette's geometry-only platform overrides ride the class list
+    expect(dialog.className).toContain('mt-[14vh]');
+    expect(dialog.className).toContain('w-[min(92vw,44rem)]');
     target.remove();
   });
 
@@ -209,7 +211,7 @@ describe('the palette', () => {
     target.remove();
   });
 
-  it('Escape is the platform close request: cancel stays unprevented, close resets the query', async () => {
+  it('Escape routes through Dialog: the cancel is claimed (preventDefault) and the animated shut closes', async () => {
     const target = document.createElement('div');
     document.body.appendChild(target);
     const palette = mount(SearchPalette, { target });
@@ -220,20 +222,17 @@ describe('the palette', () => {
     const input = target.querySelector<HTMLInputElement>('input')!;
     input.value = 'zzz';
     input.dispatchEvent(new Event('input', { bubbles: true }));
-    // the UA close request: a cancel event the palette must NOT
-    // prevent, then the platform's close (jsdom needs the second step
-    // spelled out — setup.ts polyfill only carries the close event)
+    // Dialog's handleCancel claims the request and runs its own shut
     const cancel = new Event('cancel', { cancelable: true });
     dialog.dispatchEvent(cancel);
-    expect(cancel.defaultPrevented).toBe(false);
-    dialog.close();
+    expect(cancel.defaultPrevented).toBe(true); // claimed, never the raw UA path
     await vi.waitFor(() => expect(dialog.open).toBe(false));
-    await vi.waitFor(() => expect(input.value).toBe('')); // the close handler resets the query
+    await vi.waitFor(() => expect(input.value).toBe('')); // the close edge resets the query
     unmount(palette);
     target.remove();
   });
 
-  it('a cancel request during an IME composition is prevented — the commit key belongs to the IME', async () => {
+  it('a cancel request during an IME composition is claimed AND held — the commit key belongs to the IME', async () => {
     const target = document.createElement('div');
     document.body.appendChild(target);
     const palette = mount(SearchPalette, { target });
@@ -245,16 +244,16 @@ describe('the palette', () => {
     input.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
     const cancel = new Event('cancel', { cancelable: true });
     dialog.dispatchEvent(cancel);
-    expect(cancel.defaultPrevented).toBe(true); // composing: the palette refuses to close
-    expect(dialog.open).toBe(true);
+    expect(cancel.defaultPrevented).toBe(true); // Dialog claims it…
+    await new Promise((r) => setTimeout(r, 50));
+    expect(dialog.open).toBe(true); // …and the cancelGuard holds the shut through the composition
     input.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true }));
     const cancel2 = new Event('cancel', { cancelable: true });
     dialog.dispatchEvent(cancel2);
-    expect(cancel2.defaultPrevented).toBe(false); // composition over: the platform owns it again
-    dialog.close();
-    await vi.waitFor(() => expect(dialog.open).toBe(false)); // leave no open dialog for the next test
+    await vi.waitFor(() => expect(dialog.open).toBe(false)); // composition over: the animated shut runs
     unmount(palette);
     target.remove();
+    (document.activeElement as HTMLElement | null)?.blur();
   });
 
   it('a click on the dialog itself (the backdrop idiom) closes; children do not', async () => {
@@ -265,11 +264,16 @@ describe('the palette', () => {
     document.dispatchEvent(new CustomEvent('jx-search-open'));
     const dialog = target.querySelector('dialog')!;
     await vi.waitFor(() => expect(dialog.open).toBe(true));
+    await vi.waitFor(() => expect((target.querySelector('input') as HTMLInputElement) !== null));
     const input = target.querySelector('input')!;
     input.click(); // inside the panel — stays open
     expect(dialog.open).toBe(true);
-    dialog.click(); // target === dialog — the backdrop hit
-    expect(dialog.open).toBe(false);
+    // the platform click (target IS the dialog) arms after the open
+    // effect — wait for the listener, then the falling edge shuts
+    await vi.waitFor(() => {
+      dialog.dispatchEvent(new MouseEvent('click', { bubbles: false }));
+      expect(dialog.open).toBe(false);
+    });
     unmount(palette);
     target.remove();
   });

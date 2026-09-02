@@ -42,13 +42,41 @@
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
     variant?: 'solid' | 'acrylic' | 'auto';
+    /**
+     * Platform-element utilities appended AFTER the law's own — for
+     * GEOMETRY overrides only (a consumer's anchor/width, e.g. the
+     * search palette's 14vh top anchor). The platform still paints
+     * nothing; anything visual belongs to a variant or the body.
+     */
+    class?: string;
+    /**
+     * Replaces the default head row (title + x). The x button is the
+     * consumer's to include when it overrides — composition-first.
+     */
+    head?: Snippet;
+    /**
+     * Predicate consulted on the native cancel request (Escape):
+     * returning TRUE blocks the close (the palette holds the dialog
+     * open through an IME composition). The default path is the
+     * animated shutdown.
+     */
+    cancelGuard?: () => boolean;
     /** Dialog body. */
     children: Snippet;
     /** Action area (top-border slot) — Cancel / Confirm row. */
     footer?: Snippet;
   }
 
-  let { title, open = $bindable(false), variant = 'auto', children, footer }: Props = $props();
+  let {
+    title,
+    open = $bindable(false),
+    variant = 'auto',
+    class: platformClass = '',
+    head,
+    cancelGuard,
+    children,
+    footer,
+  }: Props = $props();
 
   // THE ENTITY LAW (2026-09-01): the dialog panel IS the solid object —
   // form shells inside dissolve (border + ground transparent; the well
@@ -90,6 +118,7 @@
 
   const handleCancel = (event: Event): void => {
     event.preventDefault();
+    if (cancelGuard?.() === true) return; // held open (e.g. IME flight)
     shut();
   };
 
@@ -104,7 +133,7 @@
 
 <dialog
   bind:this={dialog}
-  class="jx-dialog jx-surface m-auto p-0 w-[min(92vw,26rem)] max-w-full text-popover-foreground {motion.supported ? 'jx-waapi' : ''}"
+  class="jx-dialog jx-surface m-auto p-0 w-[min(92vw,26rem)] max-w-full text-popover-foreground {motion.supported ? 'jx-waapi' : ''} {platformClass}"
   data-variant={variant}
   data-jx-entity={entityDepth}
   aria-label={title}
@@ -119,7 +148,9 @@
   <div data-jx-dialog-surface="" class="jx-surface-body">
   <div data-jx-dialog-scroll="" class="jx-surface-scroll max-h-[calc(100dvh-2rem)] overflow-auto">
     <div data-jx-dialog-head="" class="flex items-center justify-between gap-3 py-2.5 pr-2.5 pl-3.5 border-b border-border">
-      {#if title}
+      {#if head}
+        {@render head()}
+      {:else if title}
         <h2 data-jx-dialog-title="" class="font-nav text-[15px] leading-[1.3] tracking-[0.01em]">{title}</h2>
       {:else}
         <span data-jx-dialog-title="" aria-hidden="true"></span>

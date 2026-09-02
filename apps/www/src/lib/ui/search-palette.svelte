@@ -1,29 +1,33 @@
 <script lang="ts">
   /**
-   * The full-text search palette (search-corpus change, 2026-09-02;
-   * native-dialog rewrite, r9 acceptance). A real <dialog> driven by
-   * showModal()/close(): the platform supplies the top layer, the
-   * ::backdrop scrim, the focus trap, the inert page behind, and the
-   * Escape close (the cancel request — no hand-rolled Escape handler).
-   * The palette adds only the house laws on top: the glass material on
-   * the dialog box, the subtraction scrim on ::backdrop, the 14vh top
-   * anchor via dialog MARGIN (never a fixed overlay div), focus handed
-   * back to the recorded opener on close, and click-away through the
-   * native idiom (event.target === dialog — the backdrop pseudo
-   * belongs to the dialog's own hit area). Results are
+   * The full-text search palette (search-corpus change, 2026-09-02).
+   * r12: the surface COMPOSES the Dialog component — the house's
+   * dialog family carries the curated motion essence (the --jx-p
+   * kernel entry, the cancel-routed ANIMATED exit, live tracking, the
+   * --scrim law, the entity depth). The palette hand-rolling its own
+   * kernel wiring in r11 missed exactly that essence (Owner: "use the
+   * Dialog component — it already animates"); now it adds only the
+   * search specifics: the input head, the three states, the staggered
+   * results, the IME cancel guard, backdrop-click close, and focus
+   * handed back to the opener. ⌘K/Ctrl-K toggles; results are
    * SECTION-granularity (page × heading, deep-linked via the corpus's
-   * converging ids); ⌘K/Ctrl-K toggles; the palette speaks ONLY the
-   * SearchEngine interface — which engine backs it is a wiring
-   * decision (engine-minisearch today).
+   * converging ids); the palette speaks ONLY the SearchEngine
+   * interface (engine-minisearch today).
    */
+  import Dialog from '$lib/ui/dialog/dialog.svelte';
   import { createMinisearchEngine, type CorpusPage } from '$lib/search/engine-minisearch';
   import { tokenize } from '$lib/search/tokenizer';
   import type { SearchHit } from '$lib/search/engine-types';
   import { icons } from '$lib/icons';
-  import { createSurfaceMotion, surfaceMotionSupported } from '$lib/surface-motion';
 
-  let dialogEl = $state<HTMLDialogElement | undefined>(undefined);
+  // the palette's own root; the Dialog's platform element is found
+  // beneath it (bind:this on a component yields its bindings, not its
+  // DOM — a wrapper query is the composition-safe route)
+  let rootEl = $state<HTMLDivElement | undefined>(undefined);
+  const platform = (): HTMLDialogElement | null =>
+    rootEl?.querySelector('dialog') ?? null;
   let inputEl = $state<HTMLInputElement | undefined>(undefined);
+  let open = $state(false);
   let query = $state('');
   let hits = $state<SearchHit[]>([]);
   let searching = $state(false);
@@ -33,65 +37,9 @@
   // focus restoration: whoever held focus when the palette opened
   // (the header trigger, most often) receives it back on close
   let opener: HTMLElement | null = null;
-
-  // the FLOATING-SURFACE law (css-architecture): a dialog family rides
-  // the one WAAPI kernel — the dialog is the .jx-surface platform, the
-  // glass panel the -body, the ::backdrop scrim rides the SAME --jx-p
-  // timeline. Kernel-less engines (no CSS.registerProperty, jsdom)
-  // rest directly at the open pose; reduced motion jumps to complete
-  const motion = createSurfaceMotion(() => dialogEl);
-
-  // content motion (r11, Owner: "fast and agile"): enter-only WAAPI —
-  // a fast rise+fade whose stagger makes lists feel summoned, not
-  // poured. Layout properties stay untouched (transform/opacity only,
-  // the kernel's own law); reduced motion or a WAAPI-less engine
-  // skips straight to rest. Outgoing branches simply unmount — at
-  // these durations an exit choreography only delays the answer
-  const canAnimate = (): boolean =>
-    surfaceMotionSupported &&
-    typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches === false;
-
-  /** mount-time rise: state blocks swap with one fast beat */
-  const riseIn = (node: HTMLElement): { destroy: () => void } => {
-    if (!canAnimate() || typeof node.animate !== 'function') return { destroy: () => {} };
-    const anim = node.animate(
-      [
-        { opacity: 0, transform: 'translateY(6px)' },
-        { opacity: 1, transform: 'translateY(0)' },
-      ],
-      { duration: 150, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', fill: 'backwards' },
-    );
-    return { destroy: () => anim.cancel() };
-  };
-
-  // list entrance: each result rises with a tight stagger (18ms/item,
-  // first 8 only — long lists land as one fleet, never a slow pour)
-  let listGen = 0;
-  $effect(() => {
-    void hits;
-    const dialog = dialogEl;
-    if (dialog === undefined || !canAnimate()) return;
-    const token = ++listGen;
-    const items = [...dialog.querySelectorAll<HTMLLIElement>('[role="option"]')];
-    items.forEach((item, i) => {
-      if (typeof item.animate !== 'function') return;
-      item.animate(
-        [
-          { opacity: 0, transform: 'translateY(5px)' },
-          { opacity: 1, transform: 'translateY(0)' },
-        ],
-        {
-          duration: 160,
-          easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
-          fill: 'backwards',
-          delay: i < 8 ? i * 18 : 0,
-        },
-      );
-    });
-    // superseded runs (a faster query) must not fight the newer paint
-    void token;
-  });
+  // IME flight: while a composition is live the cancel request (Escape)
+  // must hold — the commit key belongs to the IME (Dialog's cancelGuard)
+  let composing = false;
 
   const engine = createMinisearchEngine(tokenize, async (): Promise<CorpusPage[]> => {
     const response = await fetch('/search/corpus.json');
@@ -135,60 +83,36 @@
   // engine's await — one busy flag drives the pending state
   const busy = $derived(debouncing || searching);
 
-  const openPalette = (): void => {
-    if (dialogEl === undefined) return;
-    if (!dialogEl.open) {
-      opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-      dialogEl.showModal();
-      if (surfaceMotionSupported) motion.play(1);
+  // the open edge: record the opener, focus the input, and arm the
+  // native backdrop-click idiom on the platform element (the Dialog
+  // owns the element; an added listener composes, never forks)
+  $effect(() => {
+    const dialog = platform();
+    if (!open || dialog === null) return;
+    opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    queueMicrotask(() => inputEl?.focus());
+    const onPlatformClick = (event: MouseEvent): void => {
+      if (event.target === dialog) open = false; // the falling edge runs Dialog's animated shut
+    };
+    dialog.addEventListener('click', onPlatformClick);
+    return () => dialog.removeEventListener('click', onPlatformClick);
+  });
+  // the close edge: focus goes home (the header trigger law) and the
+  // palette state resets
+  $effect(() => {
+    if (!open) {
+      opener?.focus();
+      query = '';
+      hits = [];
+      active = 0;
     }
-    inputEl?.focus();
+  });
+
+  const openPalette = (): void => {
+    open = true;
   };
   const close = (): void => {
-    if (surfaceMotionSupported) motion.play(0);
-    dialogEl?.close(); // allow-discrete holds the exit through 460ms
-  };
-  // EVERY native close path lands here (Escape's cancel request, the
-  // backdrop click, a picked result): reset the palette and hand
-  // focus back to the opener
-  const onClosed = (): void => {
-    query = '';
-    hits = [];
-    active = 0;
-    opener?.focus();
-  };
-  // the cancel request (Escape): while an IME composition is live the
-  // palette must NOT close — the commit key belongs to the IME, not the
-  // dialog (pre-review hardening; keydown suppression is platform
-  // behavior, the cancel event gets an explicit guard). Direct
-  // listeners: cancel never bubbles and composition events ride up
-  // from the input, both reach the dialog node itself
-  $effect(() => {
-    const dialog = dialogEl;
-    if (dialog === undefined) return;
-    let composing = false;
-    const onStart = (): void => {
-      composing = true;
-    };
-    const onEnd = (): void => {
-      composing = false;
-    };
-    const onCancel = (event: Event): void => {
-      if (composing) event.preventDefault();
-    };
-    dialog.addEventListener('compositionstart', onStart);
-    dialog.addEventListener('compositionend', onEnd);
-    dialog.addEventListener('cancel', onCancel);
-    return () => {
-      dialog.removeEventListener('compositionstart', onStart);
-      dialog.removeEventListener('compositionend', onEnd);
-      dialog.removeEventListener('cancel', onCancel);
-    };
-  });
-  const onDialogClick = (event: MouseEvent): void => {
-    // the native idiom: a click whose target IS the dialog hit the
-    // backdrop — children (the panel surface) never match
-    if (event.target === dialogEl) close();
+    open = false;
   };
   const go = (hit: SearchHit): void => {
     close();
@@ -197,8 +121,8 @@
   const onKey = (event: KeyboardEvent): void => {
     // IME composition (Chinese input): the Enter that COMMITS a
     // composition must not navigate — only a real Enter does (Escape
-    // never travels this path anymore: the platform's cancel request
-    // owns it, and it stays suppressed while composing)
+    // never travels this path: Dialog routes the cancel request, and
+    // the cancelGuard holds it through the composition)
     if (event.isComposing || event.keyCode === 229) return;
     if (event.key === 'ArrowDown' || (event.key === 'n' && event.ctrlKey)) {
       event.preventDefault();
@@ -216,21 +140,71 @@
   const onGlobalKey = (event: KeyboardEvent): void => {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
       event.preventDefault();
-      if (dialogEl?.open) close();
+      if (open) close();
       else openPalette();
     }
   };
 
+  // content motion (r11, kept): enter-only WAAPI — a fast rise whose
+  // stagger makes lists feel summoned. transform/opacity only; reduced
+  // motion or a WAAPI-less engine skips straight to rest
+  const canAnimate = (): boolean =>
+    typeof window !== 'undefined' &&
+    typeof document !== 'undefined' &&
+    typeof document.body.animate === 'function' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches === false;
+
+  /** mount-time rise: state blocks swap with one fast beat */
+  const riseIn = (node: HTMLElement): { destroy: () => void } => {
+    if (!canAnimate()) return { destroy: () => {} };
+    const anim = node.animate(
+      [
+        { opacity: 0, transform: 'translateY(6px)' },
+        { opacity: 1, transform: 'translateY(0)' },
+      ],
+      { duration: 150, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', fill: 'backwards' },
+    );
+    return { destroy: () => anim.cancel() };
+  };
+
+  // list entrance: each result rises with a tight stagger (18ms/item,
+  // first 8 only — long lists land as one fleet, never a slow pour)
+  $effect(() => {
+    void hits;
+    const dialog = platform();
+    if (dialog === null || !open || !canAnimate()) return;
+    const items = [...dialog.querySelectorAll<HTMLLIElement>('[role="option"]')];
+    items.forEach((item, i) => {
+      if (typeof item.animate !== 'function') return;
+      item.animate(
+        [
+          { opacity: 0, transform: 'translateY(5px)' },
+          { opacity: 1, transform: 'translateY(0)' },
+        ],
+        {
+          duration: 160,
+          easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+          fill: 'backwards',
+          delay: i < 8 ? i * 18 : 0,
+        },
+      );
+    });
+  });
+
+  const MARK_OPEN = '\x01';
+  const MARK_CLOSE = '\x02';
   const highlight = (text: string, terms: string[]): string => {
     if (text === '' || terms.length === 0) return text;
     const pattern = terms
       .map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
       .join('|');
-    return text.replace(new RegExp(`(${pattern})`, 'gi'), '\u0001$1\u0002');
+    return text.replace(new RegExp(`(${pattern})`, 'gi'), `${MARK_OPEN}$1${MARK_CLOSE}`);
   };
   const parts = (marked: string): { text: string; mark: boolean }[] =>
     marked
-      .split(/[\u0001\u0002]/)
+      .split(MARK_OPEN)
+      .flatMap((chunk) => chunk.split(MARK_CLOSE))
       .map((chunk, i) => ({ text: chunk, mark: i % 2 === 1 }))
       .filter((part) => part.text !== '');
 </script>
@@ -238,55 +212,53 @@
 <svelte:window onkeydown={onGlobalKey} />
 <svelte:document onjx-search-open={() => openPalette()} />
 
-<!-- the dialog IS the panel: closed by default (the UA hides it), the
-     top layer above the page when modal, its ::backdrop the scrim -->
-<dialog
-  bind:this={dialogEl}
-  class="jx-surface search-dialog"
-  class:jx-waapi={surfaceMotionSupported}
-  aria-label="Search the docs"
-  onclick={onDialogClick}
-  onclose={onClosed}
+<!-- the palette IS the Dialog now (r12): geometry-only platform
+     overrides (the 14vh top anchor, the wider 44rem); the motion, the
+     scrim, the entity depth, and the animated cancel exit all come
+     from the component -->
+<div bind:this={rootEl} class="contents">
+<Dialog
+  bind:open={open}
+  title="Search the docs"
+  variant="auto"
+  class="mt-[14vh] w-[min(92vw,44rem)]"
+  cancelGuard={() => composing}
 >
-  <!-- the floating-surface law: the platform paints nothing; the
-       shadow is its own layer; the glass bezel lives on the BODY -->
-  <div class="jx-surface-shadow" aria-hidden="true"></div>
-  <div class="jx-surface-body jx-glass search-body">
-  <div class="flex items-center gap-3 border-b border-border/40 px-4 py-3">
-    <!-- the shared magnifier (icons law): 16px baked, 18px here via
-         consumer CSS; currentColor rides the muted chain -->
-    <span
-      class="flex-none select-none text-muted-foreground [&_svg]:h-[18px] [&_svg]:w-[18px]"
-      aria-hidden="true">{@html icons.search}</span>
-    <input
-      bind:this={inputEl}
-      bind:value={query}
-      onkeydown={onKey}
-      class="w-full bg-transparent font-mono text-[14px] outline-none placeholder:text-muted-foreground/60"
-      placeholder="Search the docs…"
-      aria-label="Search the docs"
-      title="Full-text search — ⌘K / Ctrl-K toggles, ↑↓ selects, ↵ opens, esc closes"
-    />
-    {#if busy}
-      <!-- the quiet flight cue rides the input row: three pulsing
-           dots, no words (the state block below carries the text) -->
-      <span class="jx-flight flex flex-none gap-1" aria-hidden="true">
-        <i></i><i></i><i></i>
-      </span>
-    {/if}
-  </div>
+  {#snippet head()}
+    <!-- the input row IS the head: magnifier + query + the flight cue;
+         Dialog's x button rides the row's right end -->
+    <div class="flex min-w-0 flex-1 items-center gap-3">
+      <span
+        class="flex-none select-none text-muted-foreground [&_svg]:h-[18px] [&_svg]:w-[18px]"
+        aria-hidden="true">{@html icons.search}</span>
+      <input
+        bind:this={inputEl}
+        bind:value={query}
+        onkeydown={onKey}
+        oncompositionstart={() => (composing = true)}
+        oncompositionend={() => (composing = false)}
+        class="w-full min-w-0 bg-transparent font-mono text-[14px] outline-none placeholder:text-muted-foreground/60"
+        placeholder="Search the docs…"
+        aria-label="Search the docs"
+        title="Full-text search — ⌘K / Ctrl-K toggles, ↑↓ selects, ↵ opens, esc closes"
+      />
+      {#if busy}
+        <span class="jx-flight flex flex-none gap-1" aria-hidden="true"><i></i><i></i><i></i></span>
+      {/if}
+    </div>
+  {/snippet}
 
   {#if query.trim() === ''}
     <!-- idle: no teaching copy (the global law) — the palette is just
          the field until there is something to say -->
   {:else if busy}
-    <!-- PENDING (Owner r10): a named state, not a trailing ellipsis -->
+    <!-- PENDING: a named state, not a trailing ellipsis -->
     <div class="flex items-center gap-3 px-5 py-8" data-jx-search-pending role="status" use:riseIn>
       <span class="jx-flight flex gap-1" aria-hidden="true"><i></i><i></i><i></i></span>
       <span class="font-mono text-[12px] text-muted-foreground">Searching…</span>
     </div>
   {:else if hits.length === 0}
-    <!-- NO RESULT (Owner r10): a real empty state, not a stray line -->
+    <!-- NO RESULT: a real empty state, not a stray line -->
     <div class="flex flex-col items-center gap-2 px-5 py-9 text-center" data-jx-search-empty use:riseIn>
       <span
         class="select-none text-muted-foreground/50 [&_svg]:h-6 [&_svg]:w-6"
@@ -322,41 +294,10 @@
       {/each}
     </ul>
   {/if}
-  </div>
-</dialog>
+</Dialog>
+</div>
 
 <style>
-  /* UA geometry re-anchored with MARGIN alone: the fixed inset-0 box
-     keeps margin-inline auto for centering and takes 14vh at the top —
-     no fixed overlay, no transform tricks */
-  .search-dialog {
-    margin: 14vh auto auto;
-    inline-size: min(44rem, calc(100vw - 2rem));
-    padding: 0;
-    /* the surface platform's open-side entrance vector rides the law's
-       default (6px rise); the exit re-reads the same variable */
-  }
-  /* the BODY is the whole visible surface: the glass fill comes from
-     .jx-glass, the frame and depth live here (the law: the platform
-     paints nothing, the body carries bezel + border) */
-  .search-body {
-    border-radius: 0.75rem;
-    color: var(--foreground);
-    outline: 1px solid color-mix(in oklab, currentColor 18%, transparent);
-    outline-offset: -1px;
-    box-shadow:
-      0 24px 60px rgb(0 0 0 / 0.4),
-      0 4px 16px rgb(0 0 0 / 0.25);
-    overflow: hidden;
-  }
-  /* the scrim rides the house subtraction law (never added black):
-     contrast pulls the page behind toward mid-tones — near-white
-     darkens, near-black lightens, both themes correct at zero color
-     tokens (the tabs/separator contrast-ghost law) */
-  .search-dialog::backdrop {
-    -webkit-backdrop-filter: contrast(0.5);
-    backdrop-filter: contrast(0.5);
-  }
   /* the flight cue: three dots pulsing in sequence — the quiet way
      to say busy without a spinner's motion weight */
   .jx-flight {

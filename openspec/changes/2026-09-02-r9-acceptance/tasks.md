@@ -22,3 +22,7 @@
 - [x] 5.1 palette 骑表面内核（jx-surface 三层 + jx-waapi 门 + backdrop 同时间线；Chromium 活体实证）
 - [x] 5.2 列表错落入场（160ms rise + 18ms stagger，首 8 项封顶）+ 状态块快升切换
 - [x] 5.3 动画库选型结论：本轮零依赖；Motion 作为条件触发的未来采用（见 proposal r11 段）
+
+## 6. r12 验收修正（Owner：用 Dialog）
+- [x] 6.1 palette 组合 Dialog（动画精髓来自组件；活体实证入场/静止/动画退场三点）
+- [x] 6.2 Dialog 可加性扩展：class/head/cancelGuard（零破坏，存量消费者不动）

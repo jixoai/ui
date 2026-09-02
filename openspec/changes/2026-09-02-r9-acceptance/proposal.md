@@ -102,3 +102,20 @@ Chrome 动画面板可调试）+ 法则锁（reduced-motion/no-JS/exit-cancel）
 出局）：需要弹簧物理词汇、手势联动（拖拽/swipe 编排）、
 scroll-linked 叙事三者之一成为跨组件需求时，以独立 openspec
 change 提出 motion-vocabulary v2（弹簧 tokens + 内核整合）。
+
+
+## r12 验收修正（Owner：用 Dialog 组件，别手抄动画）
+
+- r11 的教训被 Owner 点破：手抄内核三件套≠精髓。palette 改为
+  **组合 Dialog 组件**——cancel 请求被组件认领并路由进**同一条
+  动画退场**（r11 手抄版的 Escape 是硬切）、开面跑 startTracking
+  （rest 态管理与 lastP 采样是活的）、scrim 走法则的 --scrim。
+  Chromium 活体实证：入场 p=0.145 → 静止 p=1+rest → Escape 退场
+  open=false 而 p=0.746 下行（allow-discrete 持有面板）
+- Dialog 组件获得三个可加性扩展：`class`（平台几何覆盖——palette
+  的 14vh 顶锚 + 44rem）、`head` snippet（输入行即头）、
+  `cancelGuard`（IME 组合期持留）
+- palette 保留的自身 specifics：三态 + 列表错落 + 焦点归还 +
+  backdrop 点击（组合式 addEventListener，不 fork）
+- 测试随语义迁移：cancel=被认领+动画关、IME=认领且持留、表面
+  契约来自组件、几何覆盖骑 class list（15/15）
