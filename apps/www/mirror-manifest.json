@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-01T22:48:14.157Z",
+  "generatedAt": "2026-09-02T05:21:36.553Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -821,8 +821,8 @@
           "source": "registry/files/ui/code-card/code-card.svelte",
           "mirror": "apps/www/src/lib/ui/code-card/code-card.svelte",
           "target": "@ui/code-card/code-card.svelte",
-          "sourceSha": "47b1991190bc2ae9d62ee156000d429ec2141ab205e7c94e544c48b26569e4d4",
-          "mirrorSha": "47b1991190bc2ae9d62ee156000d429ec2141ab205e7c94e544c48b26569e4d4"
+          "sourceSha": "7c1c51c823fe1fa7e9ed5906740b2cfa075b27fd7ec2026ad07fd29cdd5457fb",
+          "mirrorSha": "7c1c51c823fe1fa7e9ed5906740b2cfa075b27fd7ec2026ad07fd29cdd5457fb"
         },
         {
           "source": "registry/files/ui/code-card/index.ts",
@@ -861,8 +861,8 @@
           "source": "registry/files/lib/icons.ts",
           "mirror": "apps/www/src/lib/icons.ts",
           "target": "@lib/icons.ts",
-          "sourceSha": "b36b3efcd6b10939962d2ce3d586911fc43d1d0cc383c4f6e637875459c65492",
-          "mirrorSha": "b36b3efcd6b10939962d2ce3d586911fc43d1d0cc383c4f6e637875459c65492"
+          "sourceSha": "fd248d7a423169d5812836ad9f120caff0e9908ad6de745c9886e2ff3e9596f4",
+          "mirrorSha": "fd248d7a423169d5812836ad9f120caff0e9908ad6de745c9886e2ff3e9596f4"
         }
       ]
     },
@@ -1833,29 +1833,29 @@
           "source": "registry/files/lib/toast-store.ts",
           "mirror": "apps/www/src/lib/toast-store.ts",
           "target": "@lib/toast-store.ts",
-          "sourceSha": "9ba86efe67ddaeb68644116bb465b236f895a5f8da3c5dd4394a143367498e3b",
-          "mirrorSha": "9ba86efe67ddaeb68644116bb465b236f895a5f8da3c5dd4394a143367498e3b"
+          "sourceSha": "c4d7dcc9133c04f31651ba743f93ac8cb06589d56b106fedf36bd93a37bffb83",
+          "mirrorSha": "c4d7dcc9133c04f31651ba743f93ac8cb06589d56b106fedf36bd93a37bffb83"
         },
         {
           "source": "registry/files/ui/toast/toast-viewport.svelte",
           "mirror": "apps/www/src/lib/ui/toast/toast-viewport.svelte",
           "target": "@ui/toast/toast-viewport.svelte",
-          "sourceSha": "c66b69828ae8f42affc221f7d099609e97a1184dfdea2cee6bb213a60624bc78",
-          "mirrorSha": "c66b69828ae8f42affc221f7d099609e97a1184dfdea2cee6bb213a60624bc78"
+          "sourceSha": "13599a6756bf5235f55977d398a6a711ef3b8b0c86fbcdfea0da637525c09304",
+          "mirrorSha": "13599a6756bf5235f55977d398a6a711ef3b8b0c86fbcdfea0da637525c09304"
         },
         {
           "source": "registry/files/ui/toast/index.ts",
           "mirror": "apps/www/src/lib/ui/toast/index.ts",
           "target": "@ui/toast/index.ts",
-          "sourceSha": "ac8edc30052e530f42ba3491d62fda4d0c6600ba63a67c99e5e7593f321e2b09",
-          "mirrorSha": "ac8edc30052e530f42ba3491d62fda4d0c6600ba63a67c99e5e7593f321e2b09"
+          "sourceSha": "203c44b3a8c61effc259deba03ab0d47675d9b51a4b3ad47e98eb6219135162d",
+          "mirrorSha": "203c44b3a8c61effc259deba03ab0d47675d9b51a4b3ad47e98eb6219135162d"
         },
         {
           "source": "registry/files/ui/toast/toast.css",
           "mirror": "apps/www/src/lib/ui/toast/toast.css",
           "target": "@ui/toast/toast.css",
-          "sourceSha": "b3cd4d02bebadf20b1a42fc2170d610cd14e97ccacdcced781f524a99e6c75bd",
-          "mirrorSha": "b3cd4d02bebadf20b1a42fc2170d610cd14e97ccacdcced781f524a99e6c75bd"
+          "sourceSha": "a3240a0bad3d33699ae68232e5b4cb60248f379a96b9d826e8eb15432030f9ef",
+          "mirrorSha": "a3240a0bad3d33699ae68232e5b4cb60248f379a96b9d826e8eb15432030f9ef"
         },
         {
           "source": "registry/files/ui/toast/toast-countdown.svelte",
@@ -1863,6 +1863,20 @@
           "target": "@ui/toast/toast-countdown.svelte",
           "sourceSha": "4c899d76bda3dd6349f3cec512e7650de9914c44e6eb1e893792d7315dc67705",
           "mirrorSha": "4c899d76bda3dd6349f3cec512e7650de9914c44e6eb1e893792d7315dc67705"
+        },
+        {
+          "source": "registry/files/ui/toast/toast-dialog.svelte",
+          "mirror": "apps/www/src/lib/ui/toast/toast-dialog.svelte",
+          "target": "@ui/toast/toast-dialog.svelte",
+          "sourceSha": "e570384c3ec25fc134b67c6d46b90d629de31917f952665460a60fb5e9bca6af",
+          "mirrorSha": "e570384c3ec25fc134b67c6d46b90d629de31917f952665460a60fb5e9bca6af"
+        },
+        {
+          "source": "registry/files/ui/toast/toast-swipe.ts",
+          "mirror": "apps/www/src/lib/ui/toast/toast-swipe.ts",
+          "target": "@ui/toast/toast-swipe.ts",
+          "sourceSha": "736a159f3d6e8fad53d7aae6e969c6793da40bba23740534cdb7bbeac5174e9d",
+          "mirrorSha": "736a159f3d6e8fad53d7aae6e969c6793da40bba23740534cdb7bbeac5174e9d"
         }
       ]
     },
@@ -2748,6 +2762,61 @@
       ]
     },
     {
+      "itemName": "highlight",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/highlight/backend.ts",
+          "mirror": "apps/www/src/lib/highlight/backend.ts",
+          "target": "@lib/highlight/backend.ts",
+          "sourceSha": "ed74aa405a34eaf84a36e11bfc4fc0275f459d31bf1a05d7e64a243726d48db3",
+          "mirrorSha": "ed74aa405a34eaf84a36e11bfc4fc0275f459d31bf1a05d7e64a243726d48db3"
+        },
+        {
+          "source": "registry/files/lib/highlight/context-key.ts",
+          "mirror": "apps/www/src/lib/highlight/context-key.ts",
+          "target": "@lib/highlight/context-key.ts",
+          "sourceSha": "e203359380155186a203a99d45a7622b9137ca345f63e980c3b532ed5f854142",
+          "mirrorSha": "e203359380155186a203a99d45a7622b9137ca345f63e980c3b532ed5f854142"
+        },
+        {
+          "source": "registry/files/lib/highlight/context.svelte.ts",
+          "mirror": "apps/www/src/lib/highlight/context.svelte.ts",
+          "target": "@lib/highlight/context.svelte.ts",
+          "sourceSha": "2aaa1bc274c6fc36f0e147d3dff45828eaed725c0ceaac9e467391a2e82a9edc",
+          "mirrorSha": "2aaa1bc274c6fc36f0e147d3dff45828eaed725c0ceaac9e467391a2e82a9edc"
+        },
+        {
+          "source": "registry/files/lib/highlight/shiki.ts",
+          "mirror": "apps/www/src/lib/highlight/shiki.ts",
+          "target": "@lib/highlight/shiki.ts",
+          "sourceSha": "8c8e8036264c1864dca090ac24171df2ccda553a2cd2f23f547a344c9480b1eb",
+          "mirrorSha": "8c8e8036264c1864dca090ac24171df2ccda553a2cd2f23f547a344c9480b1eb"
+        },
+        {
+          "source": "registry/files/lib/highlight/prismjs.ts",
+          "mirror": "apps/www/src/lib/highlight/prismjs.ts",
+          "target": "@lib/highlight/prismjs.ts",
+          "sourceSha": "d585a299ec89d5aff5579ccdeb0b242726bcab3b4acf0b151a2d64972dca8999",
+          "mirrorSha": "d585a299ec89d5aff5579ccdeb0b242726bcab3b4acf0b151a2d64972dca8999"
+        },
+        {
+          "source": "registry/files/lib/highlight/microlighter.ts",
+          "mirror": "apps/www/src/lib/highlight/microlighter.ts",
+          "target": "@lib/highlight/microlighter.ts",
+          "sourceSha": "b91786754ff8ea8e24275d22503b4bc3279559ecc6b1636da3002eceeb8104f9",
+          "mirrorSha": "b91786754ff8ea8e24275d22503b4bc3279559ecc6b1636da3002eceeb8104f9"
+        },
+        {
+          "source": "registry/files/lib/highlight/vendor.d.ts",
+          "mirror": "apps/www/src/lib/highlight/vendor.d.ts",
+          "target": "@lib/highlight/vendor.d.ts",
+          "sourceSha": "037fb2b1d78bd8b3e2ab29ce4cfa80fe857f58f9fee594cdb6e9c35ca5d169a2",
+          "mirrorSha": "037fb2b1d78bd8b3e2ab29ce4cfa80fe857f58f9fee594cdb6e9c35ca5d169a2"
+        }
+      ]
+    },
+    {
       "itemName": "color-utils",
       "type": "registry:lib",
       "files": [
@@ -3371,6 +3440,34 @@
     {
       "path": "registry/files/ui/search-palette.svelte",
       "note": "search stream (85e9f3c) — final classification pending"
+    },
+    {
+      "path": "registry/files/lib/highlight/backend.ts",
+      "note": "highlight rework (shiki item not yet updated) — final classification pending"
+    },
+    {
+      "path": "registry/files/lib/highlight/context-key.ts",
+      "note": "highlight rework (shiki item not yet updated) — final classification pending"
+    },
+    {
+      "path": "registry/files/lib/highlight/context.svelte.ts",
+      "note": "highlight rework (shiki item not yet updated) — final classification pending"
+    },
+    {
+      "path": "registry/files/lib/highlight/microlighter.ts",
+      "note": "highlight rework (shiki item not yet updated) — final classification pending"
+    },
+    {
+      "path": "registry/files/lib/highlight/prismjs.ts",
+      "note": "highlight rework (shiki item not yet updated) — final classification pending"
+    },
+    {
+      "path": "registry/files/lib/highlight/shiki.ts",
+      "note": "highlight rework (shiki item not yet updated) — final classification pending"
+    },
+    {
+      "path": "registry/files/lib/highlight/vendor.d.ts",
+      "note": "highlight rework (shiki item not yet updated) — final classification pending"
     }
   ]
 }

@@ -100,6 +100,11 @@ const GROUPS = [
       ['eyeOff', 'EyeOff'],
     ],
   },
+  {
+    comment:
+      '// search entry set (2026-09-02, r9 acceptance): the magnifier the\n// TerminalHeader trigger + the palette input carry (16px baked law;\n// sizing stays consumer CSS).',
+    icons: [['search', 'Search']],
+  },
 ];
 
 // hand-era one-liners kept past the wrap threshold (byte-compat)

@@ -833,11 +833,14 @@
       "title": "Code card",
       "description": "Code display highlighting through Shiki (lib/shiki — shiki/core + the JavaScript regex engine, no WASM): on-demand grammars and themes as separate lazy chunks, the default zero-download jixoai theme is Shiki's css-variables recipe bound to the --tok-* palette. figure+pre+code base, filename tab + header snippet slot, footer snippet slot, copyable control. Scroll law: pre is the scrollport — horizontal always (tabs stay tabs), vertical when maxHeight caps it, thin scrollbars, overscroll containment, keyboard-focusable. Code is a runtime prop; Shiki escapes it, so literal </script> is inert.",
       "dependencies": [
-        "shiki"
+        "shiki",
+        "prismjs@^1.30.0",
+        "microlighter@^2.1.0"
       ],
       "registryDependencies": [
         "@jixoai/jixoai-theme",
         "@jixoai/shiki",
+        "@jixoai/highlight",
         "@jixoai/utils",
         "@jixoai/icons"
       ],
@@ -3002,6 +3005,62 @@
       },
       "registryDependencies": [],
       "dependencies": []
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "highlight",
+      "type": "registry:lib",
+      "title": "Pluggable highlight backends",
+      "description": "The highlighter-agnostic layer (r9 acceptance, 2026-09-02): a HighlightBackend paints a given <code> element — markup backends (shiki token spans, prismjs classed spans) write into the DOM, range backends (microlighter, CSS Custom Highlight API) register Highlight ranges with zero markup. Three factories ship: shiki() wrapping lib/shiki, prismjs() lazy-loading the manual-mode core, microLighter() behind a feature gate. The default backend rides the context kernel (createHighlightContext / HIGHLIGHT_DEF plugins); <CodeCard backend={shiki() | prismjs() | microLighter()}> overrides per instance. Known limitation, test-locked: the print freeze clones DOM, so range backends degrade to plain text on paper while markup backends survive.",
+      "files": [
+        {
+          "path": "registry/files/lib/highlight/backend.ts",
+          "target": "@lib/highlight/backend.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight/context-key.ts",
+          "target": "@lib/highlight/context-key.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight/context.svelte.ts",
+          "target": "@lib/highlight/context.svelte.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight/shiki.ts",
+          "target": "@lib/highlight/shiki.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight/prismjs.ts",
+          "target": "@lib/highlight/prismjs.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight/microlighter.ts",
+          "target": "@lib/highlight/microlighter.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight/vendor.d.ts",
+          "target": "@lib/highlight/vendor.d.ts",
+          "type": "registry:file"
+        }
+      ],
+      "dependencies": [
+        "prismjs@^1.30.0",
+        "microlighter@^2.1.0"
+      ],
+      "registryDependencies": [
+        "@jixoai/shiki",
+        "@jixoai/utils"
+      ],
+      "docs": "interface HighlightBackend { id; highlight(el, code, { lang, theme }) } — the backend owns painting the element; factories shiki() / prismjs() / microLighter() are runtime values (zero build step). The default comes from createHighlightContext(initial) and can be switched at runtime via set(backend) or projected by context plugins (definePlugin({ targets: ['highlight'] })). See lib/highlight/backend.ts for the two output models and the print-freeze range limitation.",
+      "meta": {
+        "highlight": true
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",

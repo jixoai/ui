@@ -69,14 +69,16 @@
      stays crisp over the blurred backdrop) and the pages' own shadow
      ladder so the chrome floats over the view instead of sitting on
      it. Carries the flight's stage text (data-jx-print-bar-status);
-     the print button stays disabled until the artifact is ready */
+     the print button stays disabled until the artifact is ready.
+     THE r9 LAYOUT: [copy | actions] — space-between, the stacked
+     label+description block left, the button group right */
   [data-jx-print-sim-bar] {
     position: sticky;
     top: 0;
     z-index: 1;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     gap: 0.75rem;
     margin-inline: auto;
     margin-block-end: 1.25rem;
@@ -94,16 +96,34 @@
     font-family: var(--font-mono, monospace);
     font-size: 12px;
   }
+  /* the stacked copy block (Owner r9): title reads as the LABEL (the
+     strong line), status as the DESCRIPTION (muted, one line). The
+     flex-row child carries min-inline-size 0 — the description's
+     ellipsis cannot engage against the auto minimum */
+  [data-jx-print-sim-bar] [data-jx-print-bar-copy] {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    text-align: start;
+  }
   [data-jx-print-sim-bar] [data-jx-print-bar-title] {
-    opacity: 0.55;
+    font-weight: 600;
+    opacity: 0.92;
   }
   [data-jx-print-sim-bar] [data-jx-print-bar-status] {
-    opacity: 0.8;
-    min-inline-size: 12ch;
-    text-align: start;
+    opacity: 0.55;
+    font-size: 11px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  /* the button group (r9): never squeezed by a growing description */
+  [data-jx-print-sim-bar] [data-jx-print-bar-actions] {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
   }
   [data-jx-print-sim-bar] button {
     border-radius: 0.45rem;

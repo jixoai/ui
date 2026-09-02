@@ -1,16 +1,29 @@
 <!--
   jixoai code card (registry/files/ui/code-card/code-card.svelte).
-  Readonly code surface — highlighting IS Shiki (lib/shiki.ts): a stock
-  `shiki/core` highlighter with on-demand grammars and themes, the JavaScript
-  regex engine (no WASM), and the default zero-download `jixoai` theme built
-  from Shiki's own css-variables recipe so token paint resolves to the --tok-*
-  palette below — light/dark adaptation is pure CSS, one markup both themes.
+  Readonly code surface — highlighting IS pluggable
+  (highlight-backend-pluggable, 2026-09-02): a `backend` prop
+  (shiki() | prismjs() | microLighter() | custom, lib/highlight) or,
+  without one, the context-provided default
+  (createHighlightContext at any subtree root — the kernel-endorsed
+  runtime value; stock fallback is the SAME lib/shiki integration the
+  card always shipped). Backends paint the card's own <code> element:
+  markup backends (shiki, prismjs) swap token spans in; range backends
+  (microlighter) register CSS Custom Highlight ranges and keep the
+  plain text — see lib/highlight/backend.ts for the contract and the
+  print-freeze limitation of range backends. The default theme remains
+  the zero-download `jixoai` css-variables theme bound to the --tok-*
+  palette below; non-shiki backends map the theme prop into their own
+  vocabulary.
 
   Intent list (2026-08-22, user): "基于 Shiki 的成熟高亮，按需加载；良好的
   滚动支持；明确声明基于 Shiki，不过度封装，兼容 Shiki 生态。"
+  (2026-09-02, Owner): "配置默认使用的高亮库 … 不需要编译，只是一个默认
+  的值，利用 context 技术，运行中配置 backend={…}。"
   1. progressive enhancement: prerender paints the escaped plain sample
-     (readable, zero JS); after hydration Shiki resolves and the SAME <code>
-     element swaps in token spans — same box, same font, no layout shift.
+     (readable, zero JS); after hydration the resolved backend paints
+     the SAME <code> element asynchronously — same box, same font, no
+     layout shift. A backend that rejects leaves the plain sample
+     standing (warn in the console).
   2. scroll law: the <pre> is the scrollport — horizontal always (Tab chars
      stay tabs, long lines never wrap), vertical when maxHeight caps it or
      when fill mode pins head/foot and hands the whole body height to the
@@ -21,14 +34,15 @@
      state hint overlay-scrollbar systems never give (see the effect
      below).
   3. named Shiki themes ride along: the theme's editor colors from Shiki's
-     <pre> output are re-applied to this card's <pre> verbatim, so a real
-     theme (github-dark, …) paints its own ground instead of fighting the
-     card.
+     <pre> output are re-applied to this card's <pre> verbatim (the shiki
+     backend's applyDeclarations), so a real theme (github-dark, …) paints
+     its own ground instead of fighting the card.
 
-  `code` is a runtime prop, never markup-inlined text: Shiki HTML-escapes all
-  source, so a sample containing a literal closing-script tag is inert data
-  and cannot terminate the host page's script — consumers owe no
-  template-level escaping.
+  `code` is a runtime prop, never markup-inlined text: markup backends
+  (shiki, prismjs) escape all source into inert spans, so a sample
+  containing a literal closing-script tag is inert data and cannot
+  terminate the host page's script — consumers owe no template-level
+  escaping. The microlighter backend never writes markup at all.
 
   tw4 (2026-08-24): card/head/foot/copy statics + the fill/vscroll
   conditional paint ride token utilities in the markup (deterministic
@@ -39,22 +53,35 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { getContext } from 'svelte';
   import { icons } from '$lib/icons';
-  import { highlightCode } from '$lib/shiki';
   import { cn } from '$lib/utils';
+  import type { HighlightBackend } from '$lib/highlight/backend';
+  // registry-safe seam (the density law): the key + structural type
+  // only — the card never imports the kernel side
+  // (lib/highlight/context.svelte.ts stays a site-only module)
+  import { HIGHLIGHT_KEY, type HighlightContextValue } from '$lib/highlight/context-key';
+  import { DEFAULT_SHIKI_BACKEND } from '$lib/highlight/shiki';
   import './code-card.css';
 
   interface Props {
-    /** Code sample (runtime string; Shiki escapes it into inert spans). */
+    /** Code sample (runtime string; markup backends escape it into inert spans). */
     code: string;
     /** Shiki language id (ts/tsx/js/jsx/svelte/html/css/scss/json/bash/… and aliases). */
     lang?: string;
     /**
-     * Shiki theme: 'jixoai' (default — the css-variables theme bound to the
-     * --tok-* palette) or any theme registered in lib/shiki (github-dark,
-     * vitesse-light, … or your own registerTheme entry).
+     * Theme name — shiki vocabulary ('jixoai' default, or any theme
+     * registered in lib/shiki). Non-shiki backends map it into their
+     * own theme vocabulary (see each backend factory).
      */
     theme?: string;
+    /**
+     * Highlight backend instance — shiki() | prismjs() | microLighter()
+     * (lib/highlight). Omitted: the context-provided default applies
+     * (createHighlightContext at any subtree root); no provider: the
+     * stock shiki default — the pre-pluggable behavior, unchanged.
+     */
+    backend?: HighlightBackend;
     /** Filename tab on the head's left. The head renders when filename or header exists. */
     filename?: string;
     /** Custom head-right area; fully replaces the default lang label (filename stays left). */
@@ -85,6 +112,7 @@
     code,
     lang = 'ts',
     theme = 'jixoai',
+    backend,
     filename = '',
     header,
     footer,
@@ -95,60 +123,63 @@
     class: className = '',
   }: Props = $props();
 
-  /** Shiki token markup (inner of its <code>); '' = plain-text paint. */
-  let tokenHtml = $state('');
-  /** Shiki's <pre> inline style (theme editor colors), applied verbatim. */
-  let preStyle = $state('');
+  // backend resolution: prop → context default → stock shiki. The
+  // context is captured ONCE at init (Svelte's getContext phase); its
+  // getter-backed `.backend` stays reactive inside the derived below,
+  // so an app-side `highlight.set(...)` repaints this card live.
+  const highlightContext = getContext<HighlightContextValue | undefined>(HIGHLIGHT_KEY);
+  const activeBackend = $derived(backend ?? highlightContext?.backend ?? DEFAULT_SHIKI_BACKEND);
+
+  /** The <code> box the resolved backend paints into. */
+  let codeEl = $state<HTMLElement>();
   /** Guards against out-of-order resolutions when props change quickly. */
   let generation = 0;
+  /**
+   * Stale-resolution reconciliation channel: a backend call that
+   * resolves AFTER a newer run took over may have painted stale
+   * content over the newer paint — bumping re-runs the effect with
+   * the CURRENT props (fresh resolutions never bump: no loop).
+   */
+  let repaintTick = $state(0);
 
   $effect(() => {
+    void repaintTick;
+    const el = codeEl;
+    if (!el) return;
     const source = code;
-    const language = lang;
-    const themeName = theme;
+    const backendNow = activeBackend;
     const mine = ++generation;
     // drop the previous paint IMMEDIATELY: until the new highlight resolves,
     // the plain fallback shows the CURRENT code — never stale highlighted
-    // content from a previous code/lang/theme (Codex r1 P1)
-    tokenHtml = '';
-    preStyle = '';
-    highlightCode(source, { lang: language, theme: themeName })
-      .then((html) => {
-        if (mine !== generation) return;
-        tokenHtml = innerCodeHtml(html);
-        preStyle = preStyleOf(html);
-      })
+    // content from a previous code/lang/theme/backend (Codex r1 P1)
+    resetToPlain(el, source);
+    backendNow
+      .highlight(el, source, { lang, theme })
       .catch((error: unknown) => {
-        // unknown lang/theme or a highlighter failure: the plain sample is
-        // already on screen — keep it and say why in the console
+        // unknown lang/theme or a backend failure: keep the plain sample
+        // on screen and say why in the console
         if (mine !== generation) return;
-        tokenHtml = '';
-        preStyle = '';
+        resetToPlain(el, source);
         console.warn('[jixoai/code-card] plain-text fallback:', error);
+      })
+      .finally(() => {
+        if (mine !== generation) repaintTick++;
       });
   });
 
   /**
-   * Shiki's classic structure is <pre …><code…>INNER</code></pre>; source
-   * text is entity-escaped inside INNER, so the first <code open and the
-   * last </code> close bracket exactly the token markup. Keeping only the
-   * inner markup makes this card's <pre> the single scrollport — padding,
-   * scrollbars and max-height stay one implementation across the plain and
-   * highlighted paints (no CLS on the swap, no nested scroll areas).
-   * Any structure we do not recognize yields '' — the plain-text fallback —
-   * rather than feeding foreign markup to {@html} (Codex r1 hardening).
+   * The synchronous plain reset: the sample text back into the code box
+   * (also the microlighter single-text-node contract) and the pre's
+   * inline style back to this card's own baseline — markup backends
+   * append their engine's editor colors to the pre (applyDeclarations),
+   * and maxHeight is the only inline law this card itself owns. Writing
+   * the attribute directly matches what the template's style binding
+   * computes, so the two owners never diverge.
    */
-  function innerCodeHtml(html: string): string {
-    const open = html.indexOf('<code');
-    const openEnd = html.indexOf('>', open);
-    const close = html.lastIndexOf('</code>');
-    if (open === -1 || openEnd === -1 || close === -1 || close <= openEnd) return '';
-    return html.slice(openEnd + 1, close);
-  }
-
-  /** the theme's editor colors from Shiki's <pre style="…">, verbatim */
-  function preStyleOf(html: string): string {
-    return /^<pre[^>]*style="([^"]*)"/.exec(html)?.[1] ?? '';
+  function resetToPlain(el: HTMLElement, source: string): void {
+    el.textContent = source;
+    const pre = el.closest('pre');
+    if (pre) pre.setAttribute('style', maxHeight !== '' ? `max-height:${maxHeight}` : '');
   }
 
   let copied = $state(false);
@@ -198,8 +229,8 @@
     pre.addEventListener('scroll', readScrollState, { passive: true });
     const ro = new ResizeObserver(readScrollState);
     ro.observe(pre);
-    const codeEl = pre.querySelector('code');
-    if (codeEl) ro.observe(codeEl);
+    const codeBox = pre.querySelector('code');
+    if (codeBox) ro.observe(codeBox);
     return () => {
       pre.removeEventListener('scroll', readScrollState);
       ro.disconnect();
@@ -252,12 +283,13 @@
       data-lang={lang}
       data-jx-code-card-pre
       class={cn(maxHeight !== '' && 'vscroll overflow-y-auto', fill && 'flex-1 min-h-0 overflow-y-auto')}
-      style={[preStyle, maxHeight !== '' ? `max-height:${maxHeight}` : '']
-        .filter(Boolean)
-        .join(';')}
+      style={maxHeight !== '' ? `max-height:${maxHeight}` : ''}
       tabindex="0"
       aria-label={filename ? `${filename} code sample` : `${lang} code sample`}
-    ><code>{#if tokenHtml}{@html tokenHtml}{:else}{code}{/if}</code></pre>
+    ><!-- the plain sample is the progressive-enhancement floor AND the
+        microlighter contract target: the resolved backend paints this
+        very <code> element (markup swaps, ranges register over the text
+        node) after hydration — same box, no layout shift --><code bind:this={codeEl}>{code}</code></pre>
   </div>
   {#if footer || copyable}
     <div

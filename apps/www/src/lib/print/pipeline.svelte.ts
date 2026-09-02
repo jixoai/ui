@@ -537,7 +537,15 @@ export function createPrintPipeline(
    *  buttons that stay disabled until the artifact is ready. The
    *  overlay covers the live controls, so it drives the same exits
    *  through document-level custom events (the controls' event
-   *  protocol — kept symmetrical with probes) */
+   *  protocol — kept symmetrical with probes).
+   *
+   *  THE r9 LAYOUT (Owner acceptance): [copy | actions] — the two
+   *  texts STACK inside [data-jx-print-bar-copy] as a label
+   *  ([data-jx-print-bar-title]) over a description
+   *  ([data-jx-print-bar-status]); the button group
+   *  ([data-jx-print-bar-actions]) rides the right edge. The stamp
+   *  attribute names are a gate contract (verify-print + lifecycle
+   *  specs) — the nesting may change, the names never */
   const stampSimBar = (outputRoot: HTMLElement, ready: boolean): void => {
     if (simBar?.isConnected) {
       syncSimBar(ready);
@@ -545,11 +553,16 @@ export function createPrintPipeline(
     }
     const bar = document.createElement('div');
     bar.setAttribute('data-jx-print-sim-bar', '');
+    const copy = document.createElement('div');
+    copy.setAttribute('data-jx-print-bar-copy', '');
     const title = document.createElement('span');
     title.setAttribute('data-jx-print-bar-title', '');
     title.textContent = 'print-pipeline · sim';
     const status_ = document.createElement('span');
     status_.setAttribute('data-jx-print-bar-status', '');
+    copy.append(title, status_);
+    const actions = document.createElement('div');
+    actions.setAttribute('data-jx-print-bar-actions', '');
     const print_ = document.createElement('button');
     print_.type = 'button';
     print_.setAttribute('data-jx-print-bar-print', '');
@@ -558,7 +571,8 @@ export function createPrintPipeline(
     close.type = 'button';
     close.setAttribute('data-jx-print-bar-toggle', '');
     close.textContent = '退出预览';
-    bar.append(title, status_, print_, close);
+    actions.append(print_, close);
+    bar.append(copy, actions);
     outputRoot.prepend(bar);
     simBar = bar;
     const fire = (name: string) => () => document.dispatchEvent(new CustomEvent(name));

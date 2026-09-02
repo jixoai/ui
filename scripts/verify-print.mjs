@@ -719,7 +719,9 @@ check(
   JSON.stringify(whitelist),
 );
 
-// the code gutter: lines wrap and number inside the pages. The gutter
+// the code gutter (r9: the gutter is a real table COLUMN — each line
+// a row, the number a cell; wrapped code stays right of the column).
+// The gutter
 // is ATTR-numbered (data-line, set by the clone transform): pagedjs's
 // Counters handler strips author counter rules and re-derives them as
 // per-element negative increments — with multiple pres the gutter
@@ -797,7 +799,7 @@ check(
   'gutter (in pages): lines wrap (pre-wrap), attr-numbered per block, zero counter hijack',
   gutter.ok &&
     /pre-wrap/.test(gutter.whiteSpace) &&
-    gutter.display === 'block' &&
+    gutter.display === 'table-row' &&
     gutter.count > 40 &&
     gutter.firsts[0] === '1' &&
     gutter.firsts.every((f) => f !== undefined && Number(f) >= 1) &&

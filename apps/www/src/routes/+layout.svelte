@@ -761,6 +761,20 @@
         </svg>
       {/snippet}
       {#snippet switcher()}
+        <!-- full-text search entry (search-corpus, r9): an icon button
+             in the bezel's control cluster — the palette listens for
+             the document event (⌘K is the keyboard path); the shared
+             magnifier rides the icon law (16px baked, 18px consumer
+             CSS, currentColor through the muted chain) -->
+        <button
+          type="button"
+          class="flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] flex-none items-center justify-center text-terminal-foreground/70 transition-colors hover:text-terminal-foreground [&_svg]:h-[18px] [&_svg]:w-[18px]"
+          aria-label="Search the docs"
+          title="Search the docs (⌘K)"
+          onclick={() => document.dispatchEvent(new CustomEvent('jx-search-open'))}
+        >
+          {@html icons.search}
+        </button>
         <HuePopover />
       {/snippet}
       {#snippet drawer()}

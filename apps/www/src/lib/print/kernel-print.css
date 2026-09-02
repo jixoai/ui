@@ -207,22 +207,27 @@ pre {
   border: none;
   background: none;
 }
-/* the gutter number rides data-line (set by the clone transform), NOT
+/* THE GUTTER IS A REAL COLUMN (r9, Owner): table semantics — code is
+   the table, each line a row, the number a cell, the code text an
+   anonymous cell. The r7-era ::before inline-block sat IN the text
+   flow: a wrapped line's continuation dropped BELOW the gutter
+   (under the numbers) and the baseline pairing was fragile. A table
+   row owns two columns — wrapped text stays right of the gutter, the
+   number column self-sizes to its widest member (3ch floor keeps the
+   freeze's >40-line continuation chunks aligned as siblings).
+   The number still rides data-line (set by the clone transform), NOT
    a CSS counter: pagedjs's Counters handler strips author
    counter-reset/increment rules and re-derives them as per-element
-   negative increments — multiple pres on one page counted the gutter
-   from −N (walkthrough fix, 2026-08-31). attr() sails through. */
-pre .jx-print-line {
-  display: block;
-}
-/* the line blocks need a BLOCK parent: <code> is UA-inline and block
-   children inside an inline box wrap in anonymous blocks — column
-   fragmentation (pagedjs's pagination substrate) refuses to break
-   inside an inline element, so a card taller than a page stayed
-   whole with its tail swallowed (Owner r7). One declaration makes
-   the nesting block > block > lines, fragmentable end to end */
+   negative increments (walkthrough fix, 2026-08-31). attr() sails
+   through. Rows are the natural fragmentation unit — the table
+   breaks between rows; the freeze's CHUNK pre-split stays the robust
+   break plane for tall cards */
 pre code {
-  display: block;
+  display: table;
+  border-spacing: 0;
+}
+pre .jx-print-line {
+  display: table-row;
 }
 /* the oversize continuation chunk (the freeze splits a >40-line pre
    into successive <pre> siblings — the production-safe break plane):
@@ -233,15 +238,18 @@ pre.jx-print-cont {
 }
 pre .jx-print-line::before {
   content: attr(data-line);
-  display: inline-block;
-  min-inline-size: 2.5ch;
-  margin-inline-end: 1ch;
+  display: table-cell;
+  min-inline-size: 3ch;
+  padding-inline-end: 1ch;
   text-align: end;
+  vertical-align: baseline;
+  white-space: pre;
   font-variant-numeric: tabular-nums;
   opacity: 0.55;
 }
-/* the opt-out: lineNumbers=false drops the gutter (content:none
-   generates no box — the indent leaves with it); wrapping stays */
+/* the opt-out: lineNumbers=false drops the gutter CELL (content:none
+   generates no box — the anonymous text cell then spans the full
+   row); wrapping stays */
 pre[data-jx-print-lines='off'] .jx-print-line::before {
   content: none;
 }

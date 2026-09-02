@@ -142,15 +142,6 @@
           <button type="button" class="jx-dsn-clear" aria-label="Clear the filter" onclick={() => (filter = '')}>{@html icons.x}</button>
         {/if}
       </div>
-      <!-- full-text search trigger (search-corpus change): opens the
-           ⌘K palette — the title filter above stays nav-only -->
-      <button
-        type="button"
-        class="jx-dsn-fulltext"
-        aria-label="Open full-text search (⌘K)"
-        title="全文搜索 (⌘K)"
-        onclick={() => document.dispatchEvent(new CustomEvent('jx-search-open'))}
-      >⌕</button>
     </div>
     <div data-jx-dsn-groups>
       {#if needle && visibleSections.length === 0}
@@ -325,22 +316,6 @@
     display: flex;
     align-items: center;
     margin: 0 0 0.625rem;
-  }
-  /* the full-text trigger: rides the head row beside the title filter
-     (a compact glyph chip — the palette itself is the real surface) */
-  .jx-dsn-head .jx-dsn-fulltext {
-    flex: none;
-    margin: 0 0 0.625rem 0.375rem;
-    border: 1px solid color-mix(in oklab, var(--border) 90%, transparent);
-    background: color-mix(in oklab, var(--background) 55%, transparent);
-    color: var(--muted-foreground);
-    font-size: 0.75rem;
-    line-height: 1;
-    padding: 0.34rem 0.45rem;
-    cursor: pointer;
-  }
-  .jx-dsn-head .jx-dsn-fulltext:hover {
-    color: var(--foreground);
   }
   .jx-dsn-input {
     width: 100%;

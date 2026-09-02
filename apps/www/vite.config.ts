@@ -1,9 +1,5 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { jixoai } from '@jixoai/vite-plugin';
-// default-only import — @tailwindcss/vite 4.x ships `tailwindcss` AS
-// the default export (see its dist/index.d.mts). The named form only
-// ever worked through a stale .vite-temp bundle; any config edit
-// re-bundles, externalizes the package, and the named import dies.
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type Plugin } from 'vite';
 import { createReadStream, existsSync, statSync } from 'node:fs';
@@ -51,6 +47,45 @@ function devRegistryFallback(): Plugin {
   };
 }
 
+// Dev-only /search/corpus.json fallback (r9 acceptance, S1): the
+// search palette fetches the page-semantics corpus, but the corpus is
+// written into the repo-root public/search/ by build-site's declared
+// phase (never inside the www asset space), so dev 404s and the
+// palette reads as "no matches" (Owner hit exactly this). Same law as
+// devRegistryFallback: read-only mapping onto the repo-root file, the
+// build stays the only writer, a miss passes through so the 404 stays
+// honest (no public/ yet: search stays empty until one root build;
+// the middleware logs the hint once).
+function devSearchCorpusFallback(): Plugin {
+  const wwwDir = dirname(fileURLToPath(import.meta.url));
+  const corpusFile = resolve(wwwDir, '../../public/search/corpus.json');
+  let hinted = false;
+
+  return {
+    name: 'dev-search-corpus-fallback',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use((req: IncomingMessage, res: ServerResponse, next: () => void) => {
+        const url = (req.url ?? '').split('?')[0];
+        if (url !== '/search/corpus.json') return next();
+        if (existsSync(corpusFile) && statSync(corpusFile).isFile()) {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          createReadStream(corpusFile).pipe(res);
+          return;
+        }
+        if (!hinted) {
+          hinted = true;
+          server.config.logger.info(
+            '[dev-search-corpus] no public/search/corpus.json yet (run a root npm run build once)',
+          );
+        }
+        return next();
+      });
+    },
+  };
+}
+
 // Dev-only registry ⇄ www mirror sync (scripts overhaul 2026-08-31).
 // registry/files/** is the canonical source tree; apps/www/src/lib/**
 // holds byte-identical mirrors (the mirror-manifest law). Editing
@@ -87,5 +122,5 @@ function devMirrorSync(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [sveltekit(), tailwindcss(), ...jixoai(), devRegistryFallback(), devMirrorSync()],
+  plugins: [sveltekit(), tailwindcss(), ...jixoai(), devRegistryFallback(), devSearchCorpusFallback(), devMirrorSync()],
 });

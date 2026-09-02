@@ -1,9 +1,15 @@
 /**
- * The search client gates (search-corpus change): the shared
- * tokenizer (Intl.Segmenter word granularity — CJK 是词级, latin
- * lowercase), the minisearch engine adapter over a fixture corpus
- * (section-granularity docs, prefix + fuzzy, code labels
- * searchable), and the palette's open/close contract.
+ * The search client gates (search-corpus change; native-dialog
+ * rewrite, r9): the shared tokenizer (Intl.Segmenter word granularity
+ * — CJK 是词级, latin lowercase), the minisearch engine adapter over a
+ * fixture corpus (section-granularity docs, prefix + fuzzy, code
+ * labels searchable), and the palette's <dialog> contract —
+ * showModal()/close() through the setup polyfill (jsdom 29 ships
+ * HTMLDialogElement WITHOUT the modal methods; test/setup.ts
+ * polyfills open/close-event semantics, so these specs drive the
+ * platform paths: the cancel request is emulated as
+ * dispatch('cancel') + close() — exactly the UA's unprevented-cancel
+ * steps).
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { tokenize } from '../src/lib/search/tokenizer';
@@ -71,6 +77,11 @@ describe('the minisearch adapter', () => {
 });
 
 describe('the palette', () => {
+  // the palette's bind:this refs land with the mount-effect flush —
+  // one microtask after mount() returns (a real user cannot click
+  // inside the same synchronous tick, and neither may these specs)
+  const flush = (): Promise<void> => Promise.resolve();
+
   it('the IME commit Enter does NOT navigate (composition-safe, the CJK-first law)', async () => {
     const load = vi.fn(async () => FIXTURE);
     const engine = createMinisearchEngine(tokenize, load);
@@ -78,8 +89,9 @@ describe('the palette', () => {
     const target = document.createElement('div');
     document.body.appendChild(target);
     const palette = mount(SearchPalette, { target });
+    await flush();
     document.dispatchEvent(new CustomEvent('jx-search-open'));
-    await vi.waitFor(() => expect(target.querySelector('[role="dialog"]')).not.toBeNull());
+    await vi.waitFor(() => expect(target.querySelector('dialog[open]')).not.toBeNull());
     const input = target.querySelector<HTMLInputElement>('input')!;
     const before = window.location.href;
     input.dispatchEvent(
@@ -87,7 +99,7 @@ describe('the palette', () => {
     );
     await new Promise((resolve) => setTimeout(resolve, 50));
     expect(window.location.href).toBe(before); // no navigation
-    expect(target.querySelector('[role="dialog"]')).not.toBeNull(); // still open
+    expect(target.querySelector('dialog[open]')).not.toBeNull(); // still open
     unmount(palette as never);
     target.remove();
   });
@@ -106,25 +118,105 @@ describe('the palette', () => {
     expect(load).toHaveBeenCalledTimes(2);
   });
 
-  it('opens on the document trigger event and closes on Escape', async () => {
-    const fetchStub = vi.fn(async () => ({
-      ok: true,
-      json: async () => ({ pages: FIXTURE }),
-    }));
-    vi.stubGlobal('fetch', fetchStub);
+  it('opens on the document trigger event: showModal, input focused, copy contract', async () => {
     const target = document.createElement('div');
     document.body.appendChild(target);
     const palette = mount(SearchPalette, { target });
-    expect(target.querySelector('[role="dialog"]')).toBeNull();
+    // the native dialog ships closed (the UA hides it) — never a fixed overlay div
+    const dialog = target.querySelector('dialog')!;
+    expect(dialog).not.toBeNull();
+    expect(dialog.open).toBe(false);
+    expect(target.querySelector('.fixed')).toBeNull();
+    await flush();
     document.dispatchEvent(new CustomEvent('jx-search-open'));
-    await vi.waitFor(() => expect(target.querySelector('[role="dialog"]')).not.toBeNull());
-    target.querySelector<HTMLInputElement>('input')!.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
-    );
-    await vi.waitFor(() => expect(target.querySelector('[role="dialog"]')).toBeNull());
+    await vi.waitFor(() => expect(target.querySelector('dialog[open]')).not.toBeNull());
+    // focus lands in the query input
+    const input = target.querySelector<HTMLInputElement>('input')!;
+    expect(document.activeElement).toBe(input);
+    // the house copy: english placeholder/labels, the shared magnifier icon
+    expect(input.placeholder).toBe('Search the docs…');
+    expect(input.getAttribute('aria-label')).toBe('Search the docs');
+    expect(dialog.getAttribute('aria-label')).toBe('Search the docs');
+    const icon = dialog.querySelector('[data-jx-icon]');
+    expect(icon).not.toBeNull();
     unmount(palette);
     target.remove();
-    vi.unstubAllGlobals();
+  });
+
+  it('Escape is the platform close request: cancel stays unprevented, close resets the query', async () => {
+    const target = document.createElement('div');
+    document.body.appendChild(target);
+    const palette = mount(SearchPalette, { target });
+    await flush();
+    document.dispatchEvent(new CustomEvent('jx-search-open'));
+    const dialog = target.querySelector('dialog')!;
+    await vi.waitFor(() => expect(dialog.open).toBe(true));
+    const input = target.querySelector<HTMLInputElement>('input')!;
+    input.value = 'zzz';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    // the UA close request: a cancel event the palette must NOT
+    // prevent, then the platform's close (jsdom needs the second step
+    // spelled out — setup.ts polyfill only carries the close event)
+    const cancel = new Event('cancel', { cancelable: true });
+    dialog.dispatchEvent(cancel);
+    expect(cancel.defaultPrevented).toBe(false);
+    dialog.close();
+    await vi.waitFor(() => expect(dialog.open).toBe(false));
+    await vi.waitFor(() => expect(input.value).toBe('')); // the close handler resets the query
+    unmount(palette);
+    target.remove();
+  });
+
+  it('a click on the dialog itself (the backdrop idiom) closes; children do not', async () => {
+    const target = document.createElement('div');
+    document.body.appendChild(target);
+    const palette = mount(SearchPalette, { target });
+    await flush();
+    document.dispatchEvent(new CustomEvent('jx-search-open'));
+    const dialog = target.querySelector('dialog')!;
+    await vi.waitFor(() => expect(dialog.open).toBe(true));
+    const input = target.querySelector('input')!;
+    input.click(); // inside the panel — stays open
+    expect(dialog.open).toBe(true);
+    dialog.click(); // target === dialog — the backdrop hit
+    expect(dialog.open).toBe(false);
+    unmount(palette);
+    target.remove();
+  });
+
+  it('close returns focus to the opener (the header trigger law)', async () => {
+    const opener = document.createElement('button');
+    opener.setAttribute('aria-label', 'Search the docs');
+    document.body.appendChild(opener);
+    opener.focus();
+    const target = document.createElement('div');
+    document.body.appendChild(target);
+    const palette = mount(SearchPalette, { target });
+    await flush();
+    document.dispatchEvent(new CustomEvent('jx-search-open'));
+    const dialog = target.querySelector('dialog')!;
+    await vi.waitFor(() => expect(dialog.open).toBe(true));
+    expect(document.activeElement).toBe(target.querySelector('input')); // palette holds it
+    dialog.close();
+    await vi.waitFor(() => expect(dialog.open).toBe(false));
+    expect(document.activeElement).toBe(opener); // handed back
+    unmount(palette);
+    target.remove();
+    opener.remove();
+  });
+
+  it('⌘K / Ctrl-K toggles globally', async () => {
+    const target = document.createElement('div');
+    document.body.appendChild(target);
+    const palette = mount(SearchPalette, { target });
+    await flush();
+    const dialog = target.querySelector('dialog')!;
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }));
+    await vi.waitFor(() => expect(dialog.open).toBe(true));
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }));
+    await vi.waitFor(() => expect(dialog.open).toBe(false));
+    unmount(palette);
+    target.remove();
   });
 });
 

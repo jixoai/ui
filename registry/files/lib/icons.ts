@@ -118,6 +118,11 @@ export const eyeOff = svg(
   '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>'
 );
 
+// search entry set (2026-09-02, r9 acceptance): the magnifier the
+// TerminalHeader trigger + the palette input carry (16px baked law;
+// sizing stays consumer CSS).
+export const search = svg('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>');
+
 /** named-access bag for {@html icons.<name>} consumption */
 export const icons = {
   arrowRight,
@@ -153,4 +158,5 @@ export const icons = {
   chevronLeft,
   eye,
   eyeOff,
+  search,
 };

@@ -617,6 +617,18 @@ describe('r7: the sim bar precedes the render', () => {
     expect(status?.textContent).toMatch(/rendering/);
     const printBtn = bar!.querySelector<HTMLButtonElement>('[data-jx-print-bar-print]');
     expect(printBtn?.disabled).toBe(true); // nothing to print yet
+    // the r9 layout: [copy | actions] — the two texts STACK inside ONE
+    // copy block (title label over status description), the buttons
+    // group on the right; the stamp attribute names are unchanged
+    const copy = bar!.querySelector<HTMLElement>('[data-jx-print-bar-copy]');
+    expect(bar!.children).toHaveLength(2);
+    expect(copy).not.toBeNull();
+    expect(copy!.querySelector('[data-jx-print-bar-title]')).not.toBeNull();
+    expect(copy!.contains(status!)).toBe(true);
+    const actions = bar!.querySelector<HTMLElement>('[data-jx-print-bar-actions]');
+    expect(actions).not.toBeNull();
+    expect(actions!.contains(printBtn!)).toBe(true);
+    expect(actions!.querySelector('[data-jx-print-bar-toggle]')).not.toBeNull();
 
     kernel.deferreds[0]!(); // the render lands
     await run_;
