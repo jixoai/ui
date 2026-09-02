@@ -207,27 +207,29 @@ pre {
   border: none;
   background: none;
 }
-/* THE GUTTER IS A REAL COLUMN (r9, Owner): table semantics — code is
-   the table, each line a row, the number a cell, the code text an
-   anonymous cell. The r7-era ::before inline-block sat IN the text
-   flow: a wrapped line's continuation dropped BELOW the gutter
-   (under the numbers) and the baseline pairing was fragile. A table
-   row owns two columns — wrapped text stays right of the gutter, the
-   number column self-sizes to its widest member (3ch floor keeps the
-   freeze's >40-line continuation chunks aligned as siblings).
+/* THE GUTTER IS A HANGING INDENT (r10, Owner): every line pads its
+   inline start 4ch and pulls its FIRST visual line back with a
+   matching negative text-indent — the ::before number rides that
+   first line, wrapped continuation lines start at the padding (right
+   of the gutter). Same geometry as the r9 table attempt, but built
+   ONLY from r7-proven primitives: pagedjs's overflow walker
+   (Layout.createOverflow → indexOfTextNode) crashed on the table
+   variant — anonymous table cells carry no element reference, and a
+   row landing on a page boundary sent the walker into undefined
+   (Owner hit it live; the tall-card fixture's split points happened
+   to dodge it). Inline-block + padding + text-indent are the exact
+   display types the walker already survived all of r7 with.
    The number still rides data-line (set by the clone transform), NOT
    a CSS counter: pagedjs's Counters handler strips author
-   counter-reset/increment rules and re-derives them as per-element
-   negative increments (walkthrough fix, 2026-08-31). attr() sails
-   through. Rows are the natural fragmentation unit — the table
-   breaks between rows; the freeze's CHUNK pre-split stays the robust
-   break plane for tall cards */
+   counter-reset/increment rules (walkthrough fix, 2026-08-31).
+   attr() sails through */
 pre code {
-  display: table;
-  border-spacing: 0;
+  display: block;
 }
 pre .jx-print-line {
-  display: table-row;
+  display: block;
+  padding-inline-start: 4ch;
+  text-indent: -4ch;
 }
 /* the oversize continuation chunk (the freeze splits a >40-line pre
    into successive <pre> siblings — the production-safe break plane):
@@ -238,18 +240,22 @@ pre.jx-print-cont {
 }
 pre .jx-print-line::before {
   content: attr(data-line);
-  display: table-cell;
+  display: inline-block;
   min-inline-size: 3ch;
   padding-inline-end: 1ch;
   text-align: end;
-  vertical-align: baseline;
   white-space: pre;
   font-variant-numeric: tabular-nums;
   opacity: 0.55;
 }
-/* the opt-out: lineNumbers=false drops the gutter CELL (content:none
-   generates no box — the anonymous text cell then spans the full
-   row); wrapping stays */
+/* the opt-out: lineNumbers=false drops the gutter (content:none
+   generates no box) AND the hanging indent with it (the negative
+   text-indent would strand the first line 4ch left of every
+   continuation); wrapping stays */
+pre[data-jx-print-lines='off'] .jx-print-line {
+  padding-inline-start: 0;
+  text-indent: 0;
+}
 pre[data-jx-print-lines='off'] .jx-print-line::before {
   content: none;
 }

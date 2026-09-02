@@ -12,3 +12,8 @@
 - [ ] 3.1 镜像同步（search-palette/code-card/docs-nav 双侧）+ manifest 再生
 - [x] 3.2 依赖落盘；全管线 build 绿（99 页语料 749KB）+ verify:print 32/32（table-row 实证）+ r9 specs 160/160
 - [ ] 3.3 子代理对抗预审 → codex 送审（r9）→ 消化 → Owner 终报
+
+## 4. r10 验收修正（Owner 复验）
+- [x] 4.1 面板留白/排版去拥挤 + Pending/NoResult 双态（specs 14/14）
+- [x] 4.2 触发钮迁 `[Search][Navs][Hue]` 位
+- [x] 4.3 打印崩溃修复：gutter 回退悬挂缩进（pagedjs indexOfTextNode 崩溃源=匿名单元格；32/32 + 121/121 全量）

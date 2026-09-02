@@ -799,7 +799,7 @@ check(
   'gutter (in pages): lines wrap (pre-wrap), attr-numbered per block, zero counter hijack',
   gutter.ok &&
     /pre-wrap/.test(gutter.whiteSpace) &&
-    gutter.display === 'table-row' &&
+    gutter.display === 'block' &&
     gutter.count > 40 &&
     gutter.firsts[0] === '1' &&
     gutter.firsts.every((f) => f !== undefined && Number(f) >= 1) &&

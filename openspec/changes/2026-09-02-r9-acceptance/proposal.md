@@ -55,3 +55,23 @@ defect, highlighter lock-in).
 导出在途变动，apps/www 构建一度不可用）。本轮全部 app 级验证
 （全管线 build/verify-print 32 断言版/corpus 再生）以并行线落地
 后的整合门禁为准。
+
+
+## r10 验收修正（Owner 复验，2026-09-02）
+
+搜索：
+- 面板去拥挤：输入行/命中项留白与排版重做（页面名升 overline、
+  标题主行化、摘要双行松弛、面板 44rem、命中区 60vh）
+- 双态补齐：**Pending**（debounce+引擎在途的三点飞行态，
+  `data-jx-search-pending`）与 **NoResult**（放大镜空态 +
+  回显查询 + 温和提示，`data-jx-search-empty`）；各有专属 spec
+- 触发钮迁位：`[Search-Icon] [Navs] [Hue-Popover]`——pill 盒首槽，
+  与 hue-popover 解耦
+
+打印：
+- **gutter 回退悬挂缩进**（r9 的 table 变体在真实页面触发 pagedjs
+  崩溃：`Layout.createOverflow → indexOfTextNode` 读匿名单元格的
+  undefined ref）。同几何、仅 r7 已验证原语：`padding-inline-start:
+  4ch + text-indent: -4ch`，::before 行号骑首行，折行续行天然落在
+  列右；opt-out 连带清零缩进。verify-print 32/32（display=block
+  实测）、tall-card 120/120 分页如常

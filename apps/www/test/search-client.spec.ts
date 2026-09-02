@@ -118,6 +118,55 @@ describe('the palette', () => {
     expect(load).toHaveBeenCalledTimes(2);
   });
 
+  it('the pending state names the flight (debounce + engine await), then lands', async () => {
+    let release: (() => void) | undefined;
+    vi.stubGlobal(
+      'fetch',
+      () => new Promise((resolve) => { release = () => resolve({ ok: true, json: async () => ({ pages: [] }) }); }),
+    );
+    const target = document.createElement('div');
+    document.body.appendChild(target);
+    const palette = mount(SearchPalette, { target });
+    await flush();
+    document.dispatchEvent(new CustomEvent('jx-search-open'));
+    const input = target.querySelector<HTMLInputElement>('input')!;
+    input.value = 'gutter';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    // debounce (120ms) + the held fetch: pending is the visible state
+    await vi.waitFor(() => expect(target.querySelector('[data-jx-search-pending]')).not.toBeNull());
+    // the fetch fires once the debounce lands — release only exists then
+    await vi.waitFor(() => expect(release).toBeTypeOf('function'));
+    release!();
+    // the flight ends in the empty state (empty corpus ⇒ no hits)
+    await vi.waitFor(() => expect(target.querySelector('[data-jx-search-empty]')).not.toBeNull());
+    expect(target.querySelector('[data-jx-search-pending]')).toBeNull();
+    unmount(palette);
+    target.remove();
+    (document.activeElement as HTMLElement | null)?.blur();
+    vi.unstubAllGlobals();
+  });
+
+  it('the no-result state echoes the query as a real empty state', async () => {
+    vi.stubGlobal('fetch', async () => ({ ok: true, json: async () => ({ pages: [] }) }));
+    const target = document.createElement('div');
+    document.body.appendChild(target);
+    const palette = mount(SearchPalette, { target });
+    await flush();
+    document.dispatchEvent(new CustomEvent('jx-search-open'));
+    const input = target.querySelector<HTMLInputElement>('input')!;
+    input.value = 'zz-no-such-term';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    await vi.waitFor(() => {
+      const empty = target.querySelector('[data-jx-search-empty]');
+      expect(empty).not.toBeNull();
+      expect(empty!.textContent).toContain('zz-no-such-term');
+    });
+    unmount(palette);
+    target.remove();
+    (document.activeElement as HTMLElement | null)?.blur();
+    vi.unstubAllGlobals();
+  });
+
   it('opens on the document trigger event: showModal, input focused, copy contract', async () => {
     const target = document.createElement('div');
     document.body.appendChild(target);
