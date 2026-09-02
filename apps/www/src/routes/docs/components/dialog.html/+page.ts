@@ -6,6 +6,9 @@ import type { TocSection } from '$lib/ui/toc/toc.svelte';
 const toc: TocSection[] = [
   { id: 'dialog-basic', label: 'basic' },
   { id: 'dialog-form', label: 'form type' },
+  { id: 'dialog-footer-clusters', label: 'footer clusters' },
+  { id: 'dialog-head', label: 'custom head' },
+  { id: 'dialog-scroll', label: 'scrolling body' },
   { id: 'dialog-base', label: 'NativeHTML base' },
   { id: 'types', label: 'Types' },
   { id: 'usage', label: 'Usage' },

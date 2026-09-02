@@ -157,8 +157,13 @@ describe('the foot zone — actions auto-group, footer leads', () => {
     expect(groups.length).toBe(2); // the footer cluster AND the actions cluster
     expect(groups[0]?.getAttribute('aria-label')).toBe('Dialog footer');
     expect(groups[1]?.getAttribute('aria-label')).toBe('Dialog actions');
-    // between the two groups exactly one decorative separator
-    expect(grid.querySelectorAll(':scope > hr').length).toBe(1);
+    // between the two groups exactly one decorative separator — the
+    // VERTICAL posture (the foot grid is a column flow: a horizontal hr
+    // there collapses to a zero-width track, the r14-8 live-probe find)
+    const divider = grid.querySelector(':scope > [data-jx-separator]');
+    expect(grid.querySelectorAll(':scope > [data-jx-separator]').length).toBe(1);
+    expect(divider?.getAttribute('data-orientation')).toBe('vertical');
+    expect(divider?.getAttribute('aria-hidden')).toBe('true');
     // the actions group stays the terminal child
     expect([...grid.children].at(-1)?.getAttribute('data-jx-btngroup')).toBe('horizontal');
   });
@@ -168,7 +173,7 @@ describe('the foot zone — actions auto-group, footer leads', () => {
       props: { title: 't', children, footer, actions, end: (() => {}) as unknown as Snippet },
     });
     const grid = ended.container.querySelector('.jx-dialog-foot-grid')!;
-    expect(grid.querySelectorAll('[data-jx-btngroup], hr').length).toBe(0); // no groups, no divider
+    expect(grid.querySelectorAll('[data-jx-btngroup], [data-jx-separator]').length).toBe(0); // no groups, no divider
     // the foot zone still exists (end drives hasFoot)
     expect(ended.container.querySelector('[data-jx-dialog-foot]')).not.toBeNull();
   });
@@ -189,16 +194,6 @@ describe('the r12 composition face survives the restructure', () => {
     const { container } = render(Dialog, { props: { title: 't', children, head } });
     expect(container.querySelector('h2')).toBeNull(); // the default title row is gone
     expect(container.querySelector('button[aria-label="Close"]')).not.toBeNull();
-  });
-
-  it('the close button ships NO tooltip carriage; the accessible name survives (r14-6)', () => {
-    const { container } = render(Dialog, { props: { title: 't', children } });
-    const x = container.querySelector('.jx-dialog-x')!;
-    expect(x.getAttribute('aria-label')).toBe('Close');
-    // the popover-manual tooltip carriage is GONE (tip={false}), not
-    // merely hidden — the quiet square
-    expect(x.closest('[popover]')).toBeNull();
-    expect(container.querySelector('[popover]')).toBeNull();
   });
 
   it('the close button ships NO tooltip carriage; the accessible name survives (r14-6)', () => {

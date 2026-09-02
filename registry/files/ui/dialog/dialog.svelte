@@ -69,8 +69,11 @@
      */
     class?: string;
     /**
-     * Replaces the default head row (title + x). The x button is the
-     * consumer's to include when it overrides — composition-first.
+     * Replaces the visible title row, flush edge-to-edge — the snippet
+     * owns the row's geometry (the palette's Input is the canonical
+     * consumer). The × close still rides the head grid's end slot, and
+     * title keeps naming the dialog (aria-label) with its visual row
+     * gone.
      */
     head?: Snippet;
     /**
@@ -295,8 +298,10 @@
               {#if actions}
                 {#if footer}
                   <!-- between GROUPS exactly one divider (Owner r13);
-                       decorative -->
-                  <Separator aria-hidden="true" class="self-stretch" />
+                       decorative, VERTICAL posture — the foot grid is a
+                     column flow, a horizontal hr there collapses to a
+                     zero-width track (r14-8 live-probe finding) -->
+                  <Separator orientation="vertical" aria-hidden="true" />
                 {/if}
                 <ButtonGroup label="Dialog actions">
                   {@render actions()}
