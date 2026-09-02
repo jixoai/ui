@@ -793,7 +793,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: title?, open ($bindable), variant?, class? (geometry-only), cancelGuard?; snippets children, head? (custom flush head, typically <DialogHeader>), footer? (the RAW full foot override — usually a <DialogFooter>: children auto-join one end-packed ButtonGroup, ghost via the zone's Context scope; the end slot replaces the grouped arrangement). Escape goes through the cancel event and shares the animated close path.",
+      "docs": "Props: title?, open ($bindable), variant?, class? (geometry-only), scroll? (default true — the body zone's scroll authority; false retires it with the stable both-edges gutter reservation), cancelGuard?; snippets children, head? (custom flush head, typically <DialogHeader>), footer? (the RAW full foot override — usually a <DialogFooter>: children auto-join one end-packed ButtonGroup with ghost seams and the leadingSeam bracket, ghost via the zone's Context scope; the end slot replaces the grouped arrangement). Escape goes through the cancel event and shares the animated close path.",
       "meta": {
         "group": "layer",
         "href": "/docs/components/dialog.html"
