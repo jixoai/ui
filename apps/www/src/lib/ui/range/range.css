@@ -20,13 +20,22 @@
     line-height: var(--jx-line);
   }
 
-  /* tick ruler: one 4px mark per step, drawn as a repeating gradient
-     (a mark every --jx-tick-step %; mirrors under :dir(rtl)). The
-     ::after end tick pins the FINAL mark at 100%: a repeating
-     gradient paints marks only at segment starts, so without it
-     step=10/0-100 ends at 90 (E-12, 2026-09-02) */
+  /* tick ruler: the thumb's TRAVEL box made visible. The native thumb
+     center runs inset half a thumb from each end, so the ruler carries
+     the same inline inset — the thumb IS the input's height (100cqh of
+     its own container = the icon token), and the ruler lives in the
+     same density scope, so half the icon token is the exact inset
+     (owner ruling, 2026-09-02). One 4px mark per step, drawn as a
+     repeating gradient (a mark every --jx-tick-step %; mirrors under
+     :dir(rtl)). The ::after end tick pins the FINAL mark at 100%: a
+     repeating gradient paints marks only at segment starts, so without
+     it step=10/0-100 ends at 90 (E-12, 2026-09-02). The ruler is also
+     a live surface: pointerdown snaps to the nearest mark, the wheel
+     steps one notch at a time (range.svelte, 2026-09-02 ruling). */
   :where(.jx-slider-ticks) {
     position: relative;
+    margin-inline: calc(var(--jx-icon, 1.5rem) / 2);
+    cursor: pointer;
     background: repeating-linear-gradient(
       to right,
       var(--border) 0 1px,

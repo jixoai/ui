@@ -53,12 +53,13 @@
      surfaces follow): an unparseable color string is PRESERVED RAW.
      The $bindable keeps the raw string; the field displays it (the
      free-typing draft law: change commits parse-or-revert); the
-     native swatch and the editor render BLACK — the input[type=color]
-     platform fallback (an invalid bound value reads as #000000) —
-     until a parseable value replaces it. Consumers surface the error
-     state themselves through the `error` prop (aria-invalid +
-     describedby on the field); this component never silently
-     canonicalizes a string it could not parse.
+     picker's own projection (the editor seat, the swatch's hex
+     derivation) keeps the LAST VALID color — the one-truth split: the
+     value lane goes raw, the seats never go invalid — until a
+     parseable value replaces it. Consumers surface the error state
+     themselves through the `error` prop (aria-invalid + describedby
+     on the field); this component never silently canonicalizes a
+     string it could not parse.
 
   6. form reset (E-4, the toggle-group law) — the platform restores
      the field's own value (the markup value at parse time) but fires
@@ -89,7 +90,8 @@
   panel's enter/exit.
 -->
 <script lang="ts">
-  import { onDestroy } from 'svelte';
+  import type { HTMLInputAttributes } from 'svelte/elements';
+  import { onDestroy, type Snippet } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
@@ -97,7 +99,11 @@
   import './color-picker.css';
   import { formatColor, parseColor, type ColorFormat, type Oklch } from '$lib/color-utils';
 
-  interface Props {
+  // native passthrough (the input.svelte law): the interface rides the
+  // platform's own attribute surface; the rest spread lands on the
+  // FIELD — the labeled, named, focusable value surface of the lane
+  // (the swatch and the chevron keep their own chrome wiring)
+  interface Props extends HTMLInputAttributes {
     /** committed color string; bind:value — notation follows `format` */
     value?: string;
     /** output/input notation (default 'hex') */
@@ -121,11 +127,23 @@
         text field mounted (value/name/ARIA contract intact) but
         visually collapsed to the sr-only lane */
     showValue?: boolean;
+    /** the Owner's slot ask (2026-09-02 color rebase): a custom LANE
+     *  rendered beside the law-face swatch — the input-color base plus
+     *  a slot, richer customization. The DEFAULT lane (no snippet) is
+     *  the input-text; with `lane`, YOUR content owns the visible spot
+     *  and the native text field goes sr-only (label[for]/name/ARIA
+     *  survive untouched — the showValue precedent). The snippet sees
+     *  the live draft text and the open state. */
+    lane?: Snippet<[lane: { text: string; open: boolean; disabled: boolean }]>;
     /** wired into label[for] / error[id]; auto-generated when omitted */
     id?: string;
     class?: string;
     density?: Density;
     'data-density'?: string;
+    /** caller-supplied validation relations — used only when the
+        control's own error wiring is absent (the input.svelte merge) */
+    'aria-invalid'?: 'true' | 'false' | undefined;
+    'aria-describedby'?: string | undefined;
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -140,11 +158,15 @@
     disabled = false,
     showSwatch = true,
     showValue = true,
+    lane = undefined,
     id = autoId,
     variant = 'auto',
     class: className = '',
     density,
     'data-density': _callerDensity,
+    'aria-invalid': ariaInvalid,
+    'aria-describedby': ariaDescribedBy,
+    ...rest
   }: Props = $props();
 
   const inheritedDensity = getDensityContext();
@@ -156,8 +178,9 @@
 
   const errorId = $derived(`${id}-error`);
   const invalid = $derived(error != null && error !== '');
-  const describedBy = $derived(invalid ? errorId : undefined);
-  const invalidAttr = $derived(invalid ? 'true' : undefined);
+  // the error law outranks caller aria, but never DROPS it (input.svelte)
+  const describedBy = $derived(invalid ? errorId : ariaDescribedBy);
+  const invalidAttr = $derived(invalid ? 'true' : ariaInvalid);
 
   // ---- editor wiring: notation seed + verbatim pick forwarding ----------
   const initial = parseColor(value) ?? ({ l: 0, c: 0, h: 0 } satisfies Oklch);
@@ -226,14 +249,17 @@
   // external value writes (bindings, resets) pass through RAW — the
   // editor re-parses and re-seats its own pad and text draft, and the
   // native field re-displays the raw string (the E-9 policy: an
-  // unparseable write is preserved, not silently canonicalized)
+  // unparseable write is preserved, not silently canonicalized). An
+  // INVALID write still consumes the channel (lastEmitted tracks it,
+  // so the write is never re-processed) and re-displays raw — only the
+  // picker's own projection (editorValue, the swatch/pad seats derived
+  // from it) keeps the LAST VALID color until a parseable write lands
   $effect(() => {
     if (value === lastEmitted) return;
-    const parsed = parseColor(value ?? '');
-    if (!parsed) return;
-    lastEmitted = value;
-    editorValue = value;
-    fieldText = value ?? '';
+    const raw = value ?? '';
+    lastEmitted = raw;
+    fieldText = raw;
+    if (parseColor(raw)) editorValue = raw;
   });
 
   // ---- form reset sync (E-4, the toggle-group law) ----------------------
@@ -325,13 +351,18 @@
          label[for] target, the name= FormData lane, native focus and
          selection. showValue=false keeps the value contract intact as
          the sr-only native field (the text is hidden, the value
-         surface never becomes a div) -->
+         surface never becomes a div). The rest spread lands HERE (the
+         field is the lane's semantic surface: aria-label without a
+         label, title, data-testid, placeholder…) and sits BEFORE the
+         component-owned wiring, so type/autocomplete/aria can never be
+         hijacked through it (input.svelte law) -->
     <input
       bind:this={fieldEl}
-      type="text"
       id={id}
+      {...rest}
+      type="text"
       data-jx-color-picker-field
-      class={cn('font-mono', !showValue && 'sr-only')}
+      class={cn('font-mono', (!showValue || lane) && 'sr-only')}
       {name}
       {disabled}
       bind:value={fieldText}
@@ -342,6 +373,14 @@
       aria-describedby={describedBy}
       onchange={onFieldChange}
     />
+    {#if lane}
+      <!-- the Owner's slot lane (2026-09-02 rebase): consumer content
+           owns the visible spot; the native field above went sr-only —
+           one truth (the bindable value), any face -->
+      <div data-jx-color-picker-lane="" class="flex min-w-0 flex-1 items-center gap-2">
+        {@render lane({ text: fieldText, open, disabled })}
+      </div>
+    {/if}
     <button
       type="button"
       class={cn(

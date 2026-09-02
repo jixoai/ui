@@ -29,41 +29,51 @@
     line-height: var(--jx-line);
   }
 
-  /* ---- the native swatch: a REAL input[type=color] in the swatch
-     chrome. RULED DIVERGENCE (the adversarial review's H1 verdict,
-     2026-09-02): this face is an INTENTIONAL fork from the color law
-     (laws/color.ts = the .jx-color-swatch conic WELL chip: round, UA
-     padding, conic ground) — the picker lane wants a SQUARE CHIP that
-     reads as a color token, not a well. It stays hand-authored on the
-     component hook and does NOT ride a component-mount marker; if the
-     law ever changes shape, revisit this ruling. appearance-none
-     strips the engine well; the color-swatch pseudos carry the chip
-     itself. WebKit/Firefox open the ENGINE picker on click — the
+  /* ---- the native swatch: a REAL input[type=color] riding the COLOR
+     LAW face (the .jx-color-swatch conic well chip: round, --jx-hit
+     sized, the current color filling the well). The Owner's rebase
+     (2026-09-02) RETIRES the H1 ruled divergence — the square
+     hand-authored chip — in favor of the 4th mounting surface: the
+     generated projection below re-anchors laws/color.ts onto the
+     component hook, byte-faithful with every other surface (the range
+     precedent). WebKit/Firefox open the ENGINE picker on click — the
      native path every input mode gets. */
-  :where([data-jx-color-picker-swatch]) {
-    appearance: none;
-    -webkit-appearance: none;
-    flex: none;
-    width: var(--jx-icon);
-    height: var(--jx-icon);
-    margin: 0;
-    padding: 0;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--muted);
-    cursor: pointer;
-  }
-  :where([data-jx-color-picker-swatch])::-webkit-color-swatch-wrapper {
-    padding: 0;
-  }
-  :where([data-jx-color-picker-swatch])::-webkit-color-swatch {
-    border: 0;
-    border-radius: 0;
-  }
-  :where([data-jx-color-picker-swatch])::-moz-color-swatch {
-    border: 0;
-    border-radius: 0;
-  }
+
+  /* ---- the native face — GENERATED from laws/color.ts (E-1) ------------- */
+  /* @jixoai/css-laws:begin:color-mount — GENERATED, do not edit (source: packages/css-laws/src/laws) */
+@layer components {
+[data-jx-color-picker-swatch]:not(.no-jx-pure, .no-jx-pure *) {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  width: calc(var(--jx-hit, 2.5rem) - 2px);
+  height: auto;
+  align-self: stretch;
+  flex: none;
+  padding: calc(var(--jx-hit, 2.5rem) / 6);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  corner-shape: round;
+  background: conic-gradient(from 0deg, #ff0000 0deg, #ffff00 60deg, #00ff00 120deg, #00ffff 180deg, #0000ff 240deg, #ff00ff 300deg, #ff0000 360deg);
+  cursor: pointer;
+}
+
+[data-jx-color-picker-swatch]:not(.no-jx-pure, .no-jx-pure *)::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+[data-jx-color-picker-swatch]:not(.no-jx-pure, .no-jx-pure *)::-webkit-color-swatch {
+  border: 2px solid #FFF;
+  border-radius: 50%;
+  corner-shape: round;
+}
+
+[data-jx-color-picker-swatch]:not(.no-jx-pure, .no-jx-pure *)::-moz-color-swatch {
+  border: 0;
+  border-radius: 0;
+}
+}
+/* @jixoai/css-laws:end:color-mount */
 
   /* ---- the native field: a REAL input[type=text] carrying the value.
      Chromeless inside the shell (the shell owns the box law — the

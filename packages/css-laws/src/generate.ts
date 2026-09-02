@@ -95,6 +95,18 @@ export const COMPONENT_MOUNTS: readonly ComponentMount[] = [
     registryPath: 'registry/files/ui/range/range.css',
     mirrorPath: 'apps/www/src/lib/ui/range/range.css',
   },
+  {
+    // the Owner's color rebase (2026-09-02): the picker's swatch rides
+    // the color LAW face (the conic well chip) — retiring the H1 ruled
+    // divergence (the square hand-authored chip). One visual law, every
+    // mounting surface; the component adds SLOTS and semantics on top,
+    // never re-draws the control (the range precedent verbatim).
+    law: 'color',
+    slot: 'color-mount',
+    anchor: '[data-jx-color-picker-swatch]:not(.no-jx-pure, .no-jx-pure *)',
+    registryPath: 'registry/files/ui/color-picker/color-picker.css',
+    mirrorPath: 'apps/www/src/lib/ui/color-picker/color-picker.css',
+  },
 ];
 
 function mountSheetFor(laws: readonly ComponentLaw[], mount: ComponentMount): string {

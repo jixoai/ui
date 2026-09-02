@@ -18,6 +18,23 @@
   events, so the reset listener below re-syncs the $bindable by hand
   (E-4, 2026-09-02) — the readout and aria-valuetext follow the state.
 
+  Ruler ruling (owner, 2026-09-02): the tick ruler is anchored to the
+  THUMB's travel, not the track's raw box — the thumb center runs
+  inset half a thumb from each end, so the ruler carries the same
+  half-thumb inline inset and its marks land exactly where the thumb
+  can sit. The ruler is also a live fine-tune surface: pointerdown
+  snaps to the nearest mark, and commits ride the input's OWN channel
+  (assign input.value + dispatch the input/change pair a user gesture
+  would — bind:value, the readout, aria-valuetext and form truth all
+  follow one path). The wheel fine-tunes: one notch ≈ one step,
+  trackpad deltas accumulate below a notch, ctrlKey pinch-zoom is
+  never hijacked, sub-notch movement still scrolls the page. The
+  slider OWNS its wheel — the event stops at the slider (an ancestor
+  handler/scroll region never also acts on it), and Shift+wheel
+  (axis-swapped onto deltaX by the engines) rides the same path. The
+  geometry is written in logical properties so a future orientation
+  face inherits it; no vertical variant exists today (2026-09-02).
+
   What the registry version ADDS over the bare jx-pure face (the
   family's slot + semantic layer, unchanged in shape from the custom
   era): the label row (a REAL label[for] now), the live value readout
@@ -33,11 +50,16 @@
   mounted .jx-pure, but the visual law is ONE).
 -->
 <script lang="ts">
+  import type { HTMLInputAttributes } from 'svelte/elements';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
   import './range.css';
 
-  interface Props {
+  // native passthrough (the input.svelte law): the interface rides the
+  // platform's own attribute surface, so aria-label without a label,
+  // title, data-testid, required… all land on the REAL input through
+  // the rest spread — a label-less slider keeps its accessible name
+  interface Props extends HTMLInputAttributes {
     /** committed value; bind:value — external writes snap into [min, max] on the step */
     value?: number;
     min?: number;
@@ -54,7 +76,8 @@
     srLabel?: boolean;
     /** show the current value right of the label row (default true) */
     showValue?: boolean;
-    /** draw one 4px tick per step under the track */
+    /** draw one 4px tick per snap point under the track, inset to the
+        thumb's travel; pointerdown on the ruler snaps to that mark */
     ticks?: boolean;
     /** the platform's own disabled semantics (pointer, keyboard, form) */
     disabled?: boolean;
@@ -63,6 +86,10 @@
     class?: string;
     density?: Density;
     'data-density'?: string;
+    /** caller-supplied validation relations — used only when the
+        control's own error wiring is absent (the input.svelte merge) */
+    'aria-invalid'?: 'true' | 'false' | undefined;
+    'aria-describedby'?: string | undefined;
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -84,6 +111,9 @@
     class: className = '',
     density,
     'data-density': _callerDensity,
+    'aria-invalid': ariaInvalid,
+    'aria-describedby': ariaDescribedBy,
+    ...rest
   }: Props = $props();
 
   const inheritedDensity = getDensityContext();
@@ -91,8 +121,9 @@
 
   const errorId = $derived(`${id}-error`);
   const invalid = $derived(error != null && error !== '');
-  const describedBy = $derived(invalid ? errorId : undefined);
-  const invalidAttr = $derived(invalid ? 'true' : undefined);
+  // the error law outranks caller aria, but never DROPS it (input.svelte)
+  const describedBy = $derived(invalid ? errorId : ariaDescribedBy);
+  const invalidAttr = $derived(invalid ? 'true' : ariaInvalid);
 
   // step precision: decimals of step/min/max, so 0.5 steps commit 1.5,
   // not 1.4999… (the readout formats at the same precision). Exponent
@@ -117,8 +148,17 @@
 
   function clampToStep(raw: number): number {
     const bounded = Math.min(max, Math.max(min, raw));
+    // min and max are TERMINAL snap points (platform truth, 2026-09-02):
+    // the native step scale anchors both ends — a step-mismatched max
+    // (100 with step 7) is still a value the platform holds and the
+    // ruler's end tick commits verbatim. Everything else snaps to the
+    // nearest step and is RE-CLAMPED (E-13, 2026-09-02): rounding can
+    // jump PAST max (value=100/min=0/max=100/step=60 used to commit
+    // 120 into the bindable) — the public [min,max] contract outranks
+    // the snap
+    if (bounded === min || bounded === max) return Number(bounded.toFixed(decimals));
     const stepped = min + Math.round((bounded - min) / safeStep) * safeStep;
-    return Number(stepped.toFixed(decimals));
+    return Number(Math.min(max, Math.max(min, stepped)).toFixed(decimals));
   }
 
   // external/initial writes keep the $bindable contract honest (the
@@ -160,6 +200,78 @@
       if (Number.isFinite(restored) && restored !== value) value = restored;
     });
   }
+
+  // ---- the ruler as a fine-tune surface (owner ruling, 2026-09-02) -----
+  // Click-to-snap + wheel step, committed through the input's OWN
+  // channel: assign input.value and dispatch the input/change pair a
+  // user gesture would — bind:value, the readout, aria-valuetext and
+  // form submission follow one path (the form-reset honesty, E-4).
+  let rulerEl = $state<HTMLDivElement | null>(null);
+
+  function commitValue(raw: number): void {
+    if (!inputEl || disabled) return;
+    const snapped = clampToStep(raw);
+    if (String(snapped) === inputEl.value) return;
+    inputEl.value = String(snapped);
+    inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+    inputEl.dispatchEvent(new Event('change'));
+  }
+
+  // pointerdown snaps to the NEAREST mark (generous hit targets even
+  // at dense tick counts); index tickCount is the ::after end tick —
+  // max itself when the step does not divide the span. Focus follows
+  // the platform's own click so the arrows refine from the new value.
+  function onRulerPointerDown(event: PointerEvent): void {
+    if (disabled || !inputEl || !rulerEl) return;
+    const rect = rulerEl.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    let ratio = (event.clientX - rect.left) / rect.width;
+    if (getComputedStyle(inputEl).direction === 'rtl') ratio = 1 - ratio;
+    const i = Math.min(tickCount, Math.max(0, Math.round(ratio * tickCount)));
+    commitValue(i >= tickCount ? max : min + i * safeStep);
+    inputEl.focus();
+  }
+
+  // one notch ≈ one step (notch ≈ 100px, a line ≈ 33px, a page ≈ 100px
+  // of delta); trackpad deltas accumulate below the threshold — and
+  // sub-notch movement is NOT prevented, so the page still scrolls.
+  // ctrlKey wheel is the browser's pinch-zoom: never hijacked.
+  // Shift+wheel arrives axis-swapped on most engines (the gesture
+  // rides deltaX, deltaY stays 0) — read whichever axis is live so
+  // the modifier fine-tunes like the plain wheel. The slider OWNS its
+  // wheel: the event never bubbles past it (an ancestor handler or
+  // scroll region must not also act on the same gesture), while the
+  // default action is cancelled only when a step actually applies.
+  const WHEEL_STEP = 100;
+  let wheelAcc = 0;
+  function onWheel(event: WheelEvent): void {
+    if (disabled || !inputEl || event.ctrlKey) return;
+    let delta = event.deltaY !== 0 ? event.deltaY : event.deltaX;
+    if (event.deltaMode === 1) delta *= 33;
+    else if (event.deltaMode === 2) delta *= 100;
+    event.stopPropagation();
+    if (delta === 0) return;
+    wheelAcc += delta;
+    const steps = Math.trunc(wheelAcc / WHEEL_STEP);
+    if (steps === 0) return;
+    event.preventDefault();
+    wheelAcc -= steps * WHEEL_STEP;
+    // wheel up (negative delta) raises the value — a dial, not a scrollbar
+    commitValue(value - steps * safeStep);
+  }
+
+  $effect(() => {
+    const el = inputEl;
+    const ruler = rulerEl;
+    if (!el) return;
+    // non-passive by necessity: the slider owns its wheel while hovered
+    el.addEventListener('wheel', onWheel, { passive: false });
+    ruler?.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', onWheel);
+      ruler?.removeEventListener('wheel', onWheel);
+    };
+  });
 </script>
 
 <div data-density={resolvedDensity} class={cn('jx-field', className)}>
@@ -181,12 +293,16 @@
        pointer, RTL, label[for] and form submission are the platform's.
        aria-valuetext carries the step-precision readout for assistive
        tech (decimal steps); every other value/min/max/step attribute is
-       native truth -->
+       native truth. The rest spread lands HERE (aria-label without a
+       label, title, data-testid…) and sits BEFORE the component-owned
+       wiring, so type/value/step/aria can never be hijacked through it
+       (input.svelte law) -->
   <input
-    type="range"
     id={id}
-    data-jx-range=""
     bind:this={inputEl}
+    {...rest}
+    type="range"
+    data-jx-range=""
     bind:value
     {min}
     {max}
@@ -200,10 +316,15 @@
   />
 
   {#if ticks && tickCount > 0}
+    <!-- svelte-ignore a11y_no_static_element_interactions — the ruler
+         intentionally stays aria-hidden (the step semantics live on
+         the input); pointerdown is a redundant fine-tune surface -->
     <div
+      bind:this={rulerEl}
       class="jx-slider-ticks mt-0.5 h-1"
       style="--jx-tick-step: {tickStepPct}%"
       aria-hidden="true"
+      onpointerdown={onRulerPointerDown}
     ></div>
   {/if}
 
