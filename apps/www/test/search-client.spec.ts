@@ -183,6 +183,15 @@ describe('the palette', () => {
     // the palette's geometry-only platform overrides ride the class list
     expect(dialog.className).toContain('mt-[14vh]');
     expect(dialog.className).toContain('w-[min(92vw,44rem)]');
+    // r13 grid ruler: the palette's head snippet rides the head zone and
+    // its separator track; no footer face is passed → no foot zone/stamp
+    const scroll = dialog.querySelector('[data-jx-dialog-scroll]')!;
+    expect(scroll.hasAttribute('data-sep-head')).toBe(true);
+    expect(scroll.hasAttribute('data-sep-foot')).toBe(false);
+    const headZone = dialog.querySelector('[data-jx-dialog-head]')!;
+    expect(headZone.querySelector('input')).not.toBeNull(); // the snippet still lands
+    expect(dialog.querySelector('[data-jx-dialog-sep="head"]')!.tagName).toBe('HR');
+    expect(dialog.querySelector('[data-jx-dialog-foot]')).toBeNull();
     target.remove();
   });
 

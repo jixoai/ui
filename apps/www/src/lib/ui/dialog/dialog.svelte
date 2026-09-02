@@ -25,6 +25,21 @@
   targets: the WAAPI kernel owns the ::backdrop timeline now (the
   theme's kernel reduced-motion block kills it), and the x button's
   transition chain is the press law's own (jixoai.css).
+
+  GRID RULER (r13, 2026-09-02 — the list-item subgrid precedent): the
+  scroll ring (head/body/foot's common parent) is the RULER HOST. Its
+  column tracks [inset 1fr inset] replace every inline padding
+  (--jx-dialog-inset, container-responsive); the three zones rent the
+  ruler through grid-template-columns: subgrid, so the title's, the
+  body's, and the foot's content edges are ONE shared edge — no
+  repeated constants. The head/body and body/foot dividing lines are
+  Separator components placed in EXPLICIT 1px row tracks (named lines
+  [head] [sep-head] [body] [sep-foot] [foot]), edge-to-edge exactly
+  where the retired borders sat; the zones' border-b/border-t are gone.
+  Zone presence is resolved here and STAMPED (data-sep-head /
+  data-sep-foot on the host — the stamped-attribute painting law);
+  dialog.css paints stamps only. No-subgrid environments fall back to
+  the padding geometry (dialog.css, the law's mandatory fallback).
 -->
 <script lang="ts">
   import { onDestroy, untrack } from 'svelte';
@@ -32,6 +47,8 @@
   import { icons } from '$lib/icons';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { provideEntity } from '$lib/entity.svelte';
+  import Separator from '$lib/ui/separator/separator.svelte';
+  import ButtonGroup from '$lib/ui/button-group/button-group.svelte';
   import './dialog.css';
 
   interface Props {
@@ -63,8 +80,20 @@
     cancelGuard?: () => boolean;
     /** Dialog body. */
     children: Snippet;
-    /** Action area (top-border slot) — Cancel / Confirm row. */
+    /** Action area (below the body's separator) — free-form footer. */
     footer?: Snippet;
+    /**
+     * The actions shortcut face of footer: the snippet's buttons are
+     * auto-wrapped in a ButtonGroup (justify end) inside the foot
+     * zone. The ghost contract: until ButtonGroup ships its
+     * context-passed variant (B batch), the buttons inside SHOULD
+     * declare variant="ghost" themselves — the integration point for
+     * the group-level default is this ButtonGroup instance. When both
+     * footer and actions are passed, actions owns the terminal button
+     * cluster (rendered last, at the row's end) and footer renders as
+     * the leading content beside it.
+     */
+    actions?: Snippet;
   }
 
   let {
@@ -76,6 +105,7 @@
     cancelGuard,
     children,
     footer,
+    actions,
   }: Props = $props();
 
   // THE ENTITY LAW (2026-09-01): the dialog panel IS the solid object —
@@ -83,6 +113,16 @@
   // inset carries the affordance). provideEntity() accumulates depth,
   // so a dialog nested in a dialog auto-reasserts hairlines at depth 2.
   const entityDepth = provideEntity();
+
+  // Presence resolution (the stamped-attribute painting law): the
+  // component resolves which zones exist and stamps; css paints stamps
+  // only, never infers from descendant context. The head zone is
+  // UNCONDITIONAL (the x-button contract keeps a close affordance on
+  // every dialog), so its separator is structural — stamped anyway so
+  // the css stays independent of that invariant and the chrome reads
+  // off the DOM. The foot zone exists iff either footer face is passed;
+  // absent both, the zone AND its separator row simply never render.
+  const hasFoot = $derived(footer !== undefined || actions !== undefined);
 
   let dialog = $state<HTMLDialogElement | null>(null);
 
@@ -133,7 +173,7 @@
 
 <dialog
   bind:this={dialog}
-  class="jx-dialog jx-surface m-auto p-0 w-[min(92vw,26rem)] max-w-full text-popover-foreground {motion.supported ? 'jx-waapi' : ''} {platformClass}"
+  class="jx-dialog jx-surface m-auto p-0 w-[min(92vw,26rem)] max-w-full text-popover-foreground @container/jx-dialog {motion.supported ? 'jx-waapi' : ''} {platformClass}"
   data-variant={variant}
   data-jx-entity={entityDepth}
   aria-label={title}
@@ -146,32 +186,69 @@
   <!-- the surface body (fill + acrylic blur) wraps the scroll ring; the
        <dialog> itself paints nothing (floating-surface law arch r3) -->
   <div data-jx-dialog-surface="" class="jx-surface-body">
-  <div data-jx-dialog-scroll="" class="jx-surface-scroll max-h-[calc(100dvh-2rem)] overflow-auto">
-    <div data-jx-dialog-head="" class="flex items-center justify-between gap-3 py-2.5 pr-2.5 pl-3.5 border-b border-border">
-      {#if head}
-        {@render head()}
-      {:else if title}
-        <h2 data-jx-dialog-title="" class="font-nav text-[15px] leading-[1.3] tracking-[0.01em]">{title}</h2>
-      {:else}
-        <span data-jx-dialog-title="" aria-hidden="true"></span>
-      {/if}
-      <button
-        type="button"
-        class="jx-press jx-dialog-x inline-flex items-center justify-center flex-none size-[30px] p-0 border border-border bg-popover cursor-pointer [&_svg]:stroke-[2.5] [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-[color-mix(in_oklab,var(--popover-foreground)_6%,transparent)]"
-        onclick={shut}
-        aria-label="Close"
+  <!-- THE RULER HOST (r13): columns [inset 1fr inset] + named separator
+       rows; the stamps carry the resolved zone presence -->
+  <div
+    data-jx-dialog-scroll=""
+    data-sep-head=""
+    data-sep-foot={hasFoot ? '' : undefined}
+    class="jx-surface-scroll max-h-[calc(100dvh-2rem)] overflow-auto"
+  >
+    <div data-jx-dialog-head="" class="py-2.5">
+      <!-- the content cell rides the ruler's 1fr track (track 2) -->
+      <div class="col-start-2 flex min-w-0 items-center justify-between gap-3">
+        {#if head}
+          {@render head()}
+        {:else if title}
+          <h2 data-jx-dialog-title="" class="font-nav text-[15px] leading-[1.3] tracking-[0.01em]">{title}</h2>
+        {:else}
+          <span data-jx-dialog-title="" aria-hidden="true"></span>
+        {/if}
+        <button
+          type="button"
+          class="jx-press jx-dialog-x inline-flex items-center justify-center flex-none size-[30px] p-0 border border-border bg-popover cursor-pointer [&_svg]:stroke-[2.5] [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-[color-mix(in_oklab,var(--popover-foreground)_6%,transparent)]"
+          onclick={shut}
+          aria-label="Close"
+        >
+          <!-- glyph from the shared icons module; dialog.css owns its 14px
+               descendant scale, the strokier × rides a consuming utility -->
+          {@html icons.x}
+        </button>
+      </div>
+    </div>
+    <!-- the dividing lines are Separator INSTANCES in their own 1px
+         tracks, spanning edge-to-edge (the retired border's extent);
+         decorative chrome, hidden from AT -->
+    <Separator data-jx-dialog-sep="head" aria-hidden="true" />
+    <!-- the body zone carries NO padding: the ruler's inset tracks own
+         the inline geometry, the cell's py owns the block rhythm -->
+    <div data-jx-dialog-body="">
+      <div
+        class="col-start-2 min-w-0 py-3.5 text-[13px] leading-[1.6] text-[color-mix(in_oklab,var(--popover-foreground)_80%,transparent)]"
       >
-        <!-- glyph from the shared icons module; dialog.css owns its 14px
-             descendant scale, the strokier × rides a consuming utility -->
-        {@html icons.x}
-      </button>
+        {@render children()}
+      </div>
     </div>
-    <div data-jx-dialog-body="" class="p-3.5 text-[13px] leading-[1.6] text-[color-mix(in_oklab,var(--popover-foreground)_80%,transparent)]">
-      {@render children()}
-    </div>
-    {#if footer}
-      <div data-jx-dialog-foot="" class="flex justify-end gap-2.5 px-3.5 py-3 border-t border-border">
-        {@render footer()}
+    {#if hasFoot}
+      <Separator data-jx-dialog-sep="foot" aria-hidden="true" />
+      <div data-jx-dialog-foot="" class="py-3">
+        <!-- ultra-narrow containers stack the actions in reverse (the
+             container-query tier, dialog.css owns the inset tiers) -->
+        <div
+          class="col-start-2 flex min-w-0 items-center justify-end gap-2.5 @max-[15rem]/jx-dialog:flex-col-reverse @max-[15rem]/jx-dialog:items-stretch"
+        >
+          {#if footer}
+            {@render footer()}
+          {/if}
+          {#if actions}
+            <!-- the ghost contract lives on this instance (see the
+                 actions prop doc) until ButtonGroup passes variants
+                 through its context -->
+            <ButtonGroup justify="end" label="Dialog actions" variant="ghost">
+              {@render actions()}
+            </ButtonGroup>
+          {/if}
+        </div>
       </div>
     {/if}
   </div>

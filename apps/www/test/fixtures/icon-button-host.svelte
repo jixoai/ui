@@ -17,6 +17,7 @@
     arrow = undefined,
     effect = undefined,
     href = '',
+    popovertarget = undefined,
     class: className = undefined,
   }: {
     text?: string;
@@ -26,6 +27,7 @@
     arrow?: boolean;
     effect?: PressEffect;
     href?: string;
+    popovertarget?: string;
     class?: string;
   } = $props();
 </script>
@@ -35,7 +37,7 @@
     {#snippet icon()}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z" /></svg>{/snippet}
   </IconButton>
 {:else}
-  <IconButton {variant} {iconOnly} {placement} {arrow} {effect} class={className} {text}>
+  <IconButton {variant} {iconOnly} {placement} {arrow} {effect} {popovertarget} class={className} {text}>
     {#snippet icon()}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z" /></svg>{/snippet}
   </IconButton>
 {/if}

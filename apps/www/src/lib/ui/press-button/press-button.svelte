@@ -60,6 +60,13 @@
     ONE idiom, deliberately — declarative state toggles would invite
     half-wired two-step buttons.
 
+  GROUP CONTEXT (r13, ButtonGroup upgrade): inside a ButtonGroup the
+  button ADOPTS the group's variant when the consumer passes none —
+  `explicit ?? group ?? 'outline'` (the stamped-attribute law's
+  consumer face: an explicit prop ALWAYS wins, the group config is
+  the inherited default, the own default never changes). The ladder
+  itself is untouched — context selects a rung, never mints one.
+
   tw4 (2026-08-24): the button body was already utility-authored
   (variants + the --jx-press* pose wiring ride utilities — the press
   law's wiring is untouched); the effect loops move VERBATIM to
@@ -187,10 +194,11 @@
 </script>
 
 <script lang="ts">
-  import { onDestroy } from 'svelte';
+  import { onDestroy, getContext } from 'svelte';
   import type { Snippet } from 'svelte';
   import { icons } from '$lib/icons';
   import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import { BUTTON_GROUP_KEY, type ButtonGroupApi } from '$lib/ui/button-group/button-group.svelte';
   import { createRipple } from './ripple.svelte';
   import './press-button.css';
 
@@ -199,7 +207,8 @@
     density?: Density;
     /** the ladder rung; semantic hue is injected through the grammar
      *  tokens (--jx-fill/--jx-fill-ink, --jx-tonal, --jx-outline) at
-     *  the call site, never a variant */
+     *  the call site, never a variant. Inside a ButtonGroup an absent
+     *  prop ADOPTS the group's variant (explicit always wins) */
     variant?: PressButtonVariant;
     /** built by shimmer() / pulse() / rainbow() / ripple() — one loop per button */
     effect?: PressEffect;
@@ -214,6 +223,13 @@
     loading?: boolean;
     onclick?: () => void;
     type?: 'button' | 'submit';
+    /** the native popover invoker association (button-only; anchors
+     *  cannot invoke popovers) — composers like ButtonGroup's overflow
+     *  trigger drive a popover panel's open/close through the platform
+     *  path with zero component listeners. Set aria-haspopup through
+     *  the composing family (it names the panel's role, not this
+     *  button's) */
+    popovertarget?: string;
     ariaLabel?: string;
     /** square pose: a size-10.5 (42px) frame with no padding — the
      *  icon/toolbar idiom, level with the text button's own band;
@@ -228,18 +244,26 @@
 
   let {
     density,
-    variant = 'outline',
+    variant = undefined,
     effect = undefined,
     href,
     external = undefined,
     loading = false,
     onclick,
     type = 'button',
+    popovertarget = undefined,
     ariaLabel,
     square = false,
     class: className = '',
     children,
   }: Props = $props();
+
+  // the group context is read ONCE at init (the density pattern); the
+  // api's getters keep the read reactive under rerenders. explicit
+  // prop → the group's variant → the own 'outline' default: the
+  // stamped-attribute law's consumer face (explicit ALWAYS wins)
+  const group = getContext<ButtonGroupApi | undefined>(BUTTON_GROUP_KEY);
+  const resolvedVariant = $derived(variant ?? group?.variant ?? 'outline');
 
   // ---- the one-shot success flash (the async idiom's second step) -----
   // ONE idiom, component-owned: flash() paints the ✓ glyph +
@@ -365,7 +389,7 @@
   }
 
   const classes = $derived(
-    `${base} ${variants[variant]}${effectClass ? ` ${effectClass}` : ''}${className ? ` ${className}` : ''}`
+    `${base} ${variants[resolvedVariant]}${effectClass ? ` ${effectClass}` : ''}${className ? ` ${className}` : ''}`
   );
   const isExternal = $derived(external ?? (href !== undefined && !href.startsWith('/')));
 
@@ -428,7 +452,7 @@
     aria-disabled={loading ? 'true' : undefined}
     data-jx-press-state={flashState === 'success' ? 'success' : undefined}
     data-density={resolvedDensity}
-    data-jx-press-button={variant}
+    data-jx-press-button={resolvedVariant}
     data-jx-shimmer-host={effect?.type === 'shimmer' ? '' : undefined}
     data-jx-pulse-host={effect?.type === 'pulse' ? '' : undefined}
     data-jx-ripple-host={effect?.type === 'ripple' ? '' : undefined}
@@ -448,7 +472,8 @@
     aria-disabled={loading ? 'true' : undefined}
     data-jx-press-state={flashState === 'success' ? 'success' : undefined}
     data-density={resolvedDensity}
-    data-jx-press-button={variant}
+    data-jx-press-button={resolvedVariant}
+    popovertarget={popovertarget}
     data-jx-shimmer-host={effect?.type === 'shimmer' ? '' : undefined}
     data-jx-pulse-host={effect?.type === 'pulse' ? '' : undefined}
     data-jx-ripple-host={effect?.type === 'ripple' ? '' : undefined}

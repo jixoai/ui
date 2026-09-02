@@ -1,6 +1,7 @@
 /**
  * button-group.css — the hairline seam law (OpenSpec
- * 2026-08-30-expand-form-family F2).
+ * 2026-08-30-expand-form-family F2) + the r13 upgrades: the ghost
+ * separator seam, the wrap tracks, and the overflow display flips.
  *
  * The component-owned residue ONLY (the layout is markup utilities):
  *
@@ -9,11 +10,36 @@
  *    previous border — a joined row of outline buttons reads as one
  *    control, never a 2px double border). Child-scoped on purpose: a
  *    nested ButtonGroup is ONE child for the outer seam, so cluster
- *    joins never leak the inner seams outward.
+ *    joins never leak the inner seams outward. The margins carry
+ *    into the r13 grid container unchanged: an auto track sizes to
+ *    its item's margin-box, so each -1px overlap is exact and the
+ *    group edges stay flush — the law never mentioned flex.
+ *
  *  - THE DIVIDER: a 1px var(--border) block that REPLACES the
  *    collapsed seam — it collapses into the neighbors' borders too
  *    (start via the seam rule, end via its own -1px), so the total
  *    seam between the clusters stays exactly 1px.
+ *
+ *  - THE SEPARATOR (r13): ghost's seam. The bordered rungs read
+ *    through the -1px law (their collapsed borders ARE the hairline);
+ *    ghost paints no border, so [data-jx-separator] paints the seam
+ *    slot instead — a 1px strip carrying the SEPARATOR INK LAW
+ *    (separator/separator.css, 2026-09-01: a separator paints no
+ *    color — the backdrop's own contrast ghost, auto-adaptive over
+ *    any ground, zero color tokens). It is a ::before on the later
+ *    neighbor — a decorative carrier in the position-for-transient-
+ *    ink exemption's category, and aria-invisible by construction
+ *    (the ButtonGroupDivider stays the group's SEMANTIC boundary;
+ *    this is the decorative seam between adjacent buttons).
+ *
+ *  - THE WRAP TRACKS (r13): [data-jx-overflow='wrap'] swaps the
+ *    single line for measured rows — the component stamps each item's
+ *    greedy cell as inline grid placement (CSS cannot express
+ *    per-row packing), row leads carry data-jx-row-start, and this
+ *    sheet only paints the stamps: flow stays row (DOM order =
+ *    visual order; dense would backfill holes with later items),
+ *    implicit columns hug content, and a row lead drops the -1px
+ *    seam + the separator pseudo (it has no inline-start neighbor).
  *
  * Everything here rides @layer components behind :where() — zero
  * specificity, so consumer utilities still win (the layer law).
@@ -46,4 +72,60 @@
     align-self: stretch;
     margin-block-end: -1px;
   }
+
+  /* ── the ghost separator (r13): the seam slot, painted with the
+     separator ink engine — backdrop contrast(0.5), the same 1px
+     strip the Separator component paints; no color, no border. The
+     ButtonGroupDivider is EXEMPT: it already IS the explicit line —
+     a separator pseudo under it would double the seam ── */
+  /* the seam pseudo's containing block (the later neighbor hosts it) */
+  :where([data-jx-btngroup][data-jx-separator]) > * {
+    position: relative;
+  }
+  :where([data-jx-btngroup='horizontal'][data-jx-separator]) > * + *:not([data-jx-btngroup-divider])::before {
+    content: '';
+    position: absolute; /* decorative carrier — the transient-ink category */
+    inset-inline-start: -1px;
+    inset-block: 0;
+    inline-size: 1px;
+    backdrop-filter: contrast(0.5);
+  }
+  :where([data-jx-btngroup='vertical'][data-jx-separator]) > * + *:not([data-jx-btngroup-divider])::before {
+    content: '';
+    position: absolute; /* decorative carrier — the transient-ink category */
+    inset-block-start: -1px;
+    inset-inline: 0;
+    block-size: 1px;
+    backdrop-filter: contrast(0.5);
+  }
+
+  /* ── the wrap tracks (r13): measured rows over the same seam law ── */
+  :where([data-jx-btngroup][data-jx-overflow='wrap']) {
+    grid-auto-flow: row;
+    grid-auto-columns: max-content;
+  }
+  /* a row lead has no inline-start neighbor: no collapsed seam, no
+     separator pseudo (source order after the seam rules — same
+     zero-specificity layer, later declaration wins) */
+  :where([data-jx-btngroup][data-jx-overflow='wrap']) > [data-jx-row-start] {
+    margin-inline-start: 0;
+  }
+  :where([data-jx-btngroup][data-jx-overflow='wrap']) > [data-jx-row-start]::before {
+    content: none;
+  }
+}
+
+/* ── CASCADE CARVE-OUT (the dropdown-menu caret precedent): the
+   overflow display flips are STATE-MACHINE rules that must beat the
+   items' own display utilities (an inline-flex button class lives in
+   the utilities layer, which always wins over @layer components) —
+   they ride UNLAYERED behind :where(), zero specificity, so consumer
+   css still ties-wins within the unlayered level. The
+   [data-jx-measuring] guard suspends both flips during the
+   component's atomic measuring pass (every item reports its natural
+   line width); the flips key off the container's overflow stamp
+   ONLY — no descendant inference (the stamped-attribute law). */
+:where([data-jx-btngroup]:not([data-jx-measuring]):not([data-jx-overflow='collapse'])) > [data-jx-btngroup-more],
+:where([data-jx-btngroup]:not([data-jx-measuring])[data-jx-overflow='collapse']) > [data-jx-overflow-hidden='true'] {
+  display: none;
 }

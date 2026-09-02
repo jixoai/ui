@@ -16,16 +16,18 @@
     effect = undefined,
     href = '',
     type = 'button',
+    popovertarget = undefined,
   }: {
     variant?: PressButtonVariant;
     effect?: PressEffect;
     href?: string;
     type?: 'button' | 'submit';
+    popovertarget?: string;
   } = $props();
 </script>
 
 {#if href}
   <PressButton {variant} {effect} {href}>deploy</PressButton>
 {:else}
-  <PressButton {variant} {effect} {type}>deploy</PressButton>
+  <PressButton {variant} {effect} {type} {popovertarget}>deploy</PressButton>
 {/if}

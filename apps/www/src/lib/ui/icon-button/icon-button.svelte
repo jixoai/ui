@@ -18,10 +18,12 @@
   capability passes through verbatim: the paint variants (fill …
   link — the variant-grammar ladder, imported not re-declared), the
   effect loops (shimmer/pulse/rainbow/ripple), href/
-  external anchoring, type, class. Press law and shadow tokens are
-  therefore identical to a text button BY CONSTRUCTION (the square
-  rides the same 42px band, not a smaller silhouette); the
-  pre-composition copy had drifted its own markup and geometry.
+  external anchoring, type, class, and the ButtonGroup context
+  adoption (an absent variant falls through to press-button, which
+  reads the group's — explicit still wins). Press law and shadow
+  tokens are therefore identical to a text button BY CONSTRUCTION
+  (the square rides the same 42px band, not a smaller silhouette);
+  the pre-composition copy had drifted its own markup and geometry.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -39,7 +41,9 @@
     icon: Snippet;
     /** the ONE label: visible text by default, tooltip + accessible name in iconOnly */
     text: string;
-    /** paint — the press-button variant union, imported (not re-declared) */
+    /** paint — the press-button variant union, imported (not
+     *  re-declared); absent falls through to press-button's group
+     *  adoption (inside a ButtonGroup the group's variant applies) */
     variant?: PressButtonVariant;
     /** collapse to the square: text moves to the tooltip + aria-label */
     iconOnly?: boolean;
@@ -56,6 +60,9 @@
     external?: boolean;
     onclick?: () => void;
     type?: 'button' | 'submit';
+    /** the native popover invoker association, forwarded verbatim
+     *  (button posture only) — ButtonGroup's overflow trigger rides it */
+    popovertarget?: string;
     class?: string;
   }
 
@@ -63,7 +70,7 @@
     density,
     icon,
     text,
-    variant = 'outline',
+    variant = undefined,
     iconOnly = false,
     placement,
     arrow = true,
@@ -72,6 +79,7 @@
     external = undefined,
     onclick,
     type = 'button',
+    popovertarget = undefined,
     class: className = '',
   }: Props = $props();
 </script>
@@ -86,6 +94,7 @@
     {external}
     {onclick}
     {type}
+    {popovertarget}
     ariaLabel={iconOnly ? text : undefined}
     class={className}
   >

@@ -87,4 +87,12 @@ describe('IconButton', () => {
     const { container } = render(IconButtonHost, { props: { class: 'extra-class' } });
     expect(container.querySelector('button')!.className).toContain('extra-class');
   });
+
+  it('popovertarget forwards verbatim (the overflow-trigger path)', async () => {
+    const { container } = render(IconButtonHost, {
+      props: { text: 'more actions', iconOnly: true, popovertarget: 'jx-menu-y' },
+    });
+    await tick();
+    expect(container.querySelector('button')!.getAttribute('popovertarget')).toBe('jx-menu-y');
+  });
 });

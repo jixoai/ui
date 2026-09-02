@@ -269,4 +269,10 @@ describe('press-button anchor mode', () => {
     const btn = container.querySelector('button')!;
     expect(btn.getAttribute('type')).toBe('submit');
   });
+
+  it('popovertarget wires the native invoker on the button posture (r13: group overflow trigger path)', () => {
+    const { container } = render(PressButtonHost, { props: { popovertarget: 'jx-menu-x' } });
+    const btn = container.querySelector('button')!;
+    expect(btn.getAttribute('popovertarget')).toBe('jx-menu-x');
+  });
 });
