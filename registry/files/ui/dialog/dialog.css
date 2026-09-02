@@ -1,49 +1,30 @@
 @layer theme, base, components, utilities;
 
-/* jixoai dialog css — TWO residents, one sheet:
+/* jxoai dialog css — TWO residents, one sheet:
  *
- * 1. THE GRID RULER (r13, 2026-09-02 — the Owner's grid mandate, the
- *    list-item subgrid precedent). The scroll ring
- *    ([data-jx-dialog-scroll], head/body/foot's common parent) is the
- *    RULER HOST; the three zones rent its column ruler through
- *    subgrid, and the dividing lines are Separator instances placed in
- *    explicit 1px row tracks. Presence is STAMPED by the component
- *    (data-sep-head / data-sep-foot on the host) — css paints stamps
- *    only, never infers from descendant context:
+ * 1. THE ROW RULER (r13 + the r14 tuning): the scroll ring
+ *    ([data-jx-dialog-scroll], head/body/foot's common parent) is a
+ *    single-column grid whose NAMED ROWS carry the dividing lines —
+ *    Separator instances sit in explicit 1px tracks (grid-placed, the
+ *    borders they replaced are still dead). Presence is STAMPED by
+ *    the component (data-sep-head / data-sep-foot on the host) — css
+ *    paints stamps only, never infers from descendant context.
  *
- *      columns   var(--jx-dialog-inset)  minmax(0,1fr)  var(--jx-dialog-inset)
- *                └─ inset track ─┘        └─ content ─┘  └─ inset track ─┘
- *      rows      [head] auto
- *                [sep-head] 1px      ← <Separator> edge-to-edge
- *                [body] minmax(0,auto)
- *                [sep-foot] 1px      ← stamped-present only
- *                [foot] auto
+ *    THE r14 TUNING (Owner): the --jx-dialog-inset token and its
+ *    [inset 1fr inset] column ruler RETIRED — the variable mediated
+ *    every zone's layout while the real content already owns its own
+ *    geometry (the head's Input provides the row's height and padding;
+ *    the body/foot pad themselves with plain utilities). A single
+ *    column of stacked zones needs no subgrid rental; the separators
+ *    keep their tracks. The head zone is FLUSH by default — a consumer
+ *    head snippet (the palette's Input) spans edge-to-edge; the
+ *    default title row carries its own px/py utilities.
  *
- *    The inset tracks eat the padding's job — the body zone carries NO
- *    padding, its content cell rides the 1fr track, and the title /
- *    body / foot content edges are the SAME shared edge (no repeated
- *    constants). Every track is explicit; no presence combination
- *    mints an implicit track (the head zone is unconditional — the
- *    x-button contract — so only the foot matrix branches).
- *
- *    NO-SUBGRID FALLBACK (the law's mandatory second path, item.css's
- *    pattern): the base block below is the self-contained padding
- *    geometry — zones pad their own inline edges from the same
- *    --jx-dialog-inset token and the separators flow between them as
- *    plain block-level <hr>s. The subgrid block ADDS the ruler on top
- *    (@supports), re-zeroing the zone padding — the same cascade order
- *    the list-item standalone/grouped split uses.
- *
- *    RESPONSIVE (the container-query tier): the platform element is a
- *    NAMED inline-size container (@container/jx-dialog, markup
- *    utility). The inset token steps down with the panel's own width —
- *    never the viewport's (a 44rem palette and a 26rem dialog each
- *    resolve their own tier):
- *      > 22rem  inset 0.875rem  (p-3.5 — the retired body padding, byte-equal)
- *      ≤ 22rem  inset 0.5rem    (p-2 — phone-tier panels)
- *      ≤ 15rem  inset 0.3125rem (p-1.25 — ultra-narrow; the foot cell
- *                                stacks column-reverse via the markup
- *                                @max-[15rem]/jx-dialog variants)
+ *      rows   [head] auto            ← flush zone; content pads itself
+ *             [sep-head] 1px         ← <Separator> edge-to-edge
+ *             [body] minmax(0,auto)
+ *             [sep-foot] 1px         ← stamped-present only
+ *             [foot] auto
  *
  * 2. THE D1-EXEMPT RESIDUE (tw4, 2026-08-24): ONLY the ::backdrop
  *    scrim (a pseudo the WAAPI kernel cannot reach for PAINT — its
@@ -54,86 +35,39 @@
  *    intact). */
 
 @layer components {
-  /* ── the inset token + the responsive ladder ──────────────────── */
+  /* ── the row ruler: named rows, separator tracks, one column ──── */
   :where([data-jx-dialog-scroll]) {
-    --jx-dialog-inset: 0.875rem;
+    display: grid;
+    grid-template-rows:
+      [head] auto
+      [sep-head] 1px
+      [body] minmax(0, auto);
   }
-  @container jx-dialog (max-width: 22rem) {
-    :where([data-jx-dialog-scroll]) {
-      --jx-dialog-inset: 0.5rem;
-    }
+  /* the foot matrix (stamped presence): two more explicit tracks */
+  :where([data-jx-dialog-scroll][data-sep-foot]) {
+    grid-template-rows:
+      [head] auto
+      [sep-head] 1px
+      [body] minmax(0, auto)
+      [sep-foot] 1px
+      [foot] auto;
   }
-  @container jx-dialog (max-width: 15rem) {
-    :where([data-jx-dialog-scroll]) {
-      --jx-dialog-inset: 0.3125rem;
-    }
+  :where([data-jx-dialog-head]) {
+    grid-row: head;
   }
-
-  /* ── the no-subgrid base: self-contained padding geometry ─────── */
-  :where([data-jx-dialog-head]),
-  :where([data-jx-dialog-body]),
+  :where([data-jx-dialog-body]) {
+    grid-row: body;
+  }
   :where([data-jx-dialog-foot]) {
-    padding-inline: var(--jx-dialog-inset);
+    grid-row: foot;
   }
-
-  /* ── the ruler: columns [inset 1fr inset], named separator rows ── */
-  @supports (grid-template-columns: subgrid) {
-    :where([data-jx-dialog-scroll]) {
-      display: grid;
-      column-gap: 0;
-      grid-template-columns:
-        var(--jx-dialog-inset)
-        minmax(0, 1fr)
-        var(--jx-dialog-inset);
-      grid-template-rows:
-        [head] auto
-        [sep-head] 1px
-        [body] minmax(0, auto);
-    }
-    /* the foot matrix (stamped presence): two more explicit tracks */
-    :where([data-jx-dialog-scroll][data-sep-foot]) {
-      grid-template-rows:
-        [head] auto
-        [sep-head] 1px
-        [body] minmax(0, auto)
-        [sep-foot] 1px
-        [foot] auto;
-    }
-
-    /* the zones rent the shared column ruler (grid supplies the
-       geometry; the padding it replaces dies here) */
-    :where([data-jx-dialog-head]),
-    :where([data-jx-dialog-body]),
-    :where([data-jx-dialog-foot]) {
-      display: grid;
-      grid-template-columns: subgrid;
-      grid-template-rows: minmax(0, auto);
-      grid-column: 1 / -1;
-      column-gap: 0;
-      padding-inline: 0;
-    }
-    :where([data-jx-dialog-head]) {
-      grid-row: head;
-    }
-    :where([data-jx-dialog-body]) {
-      grid-row: body;
-    }
-    :where([data-jx-dialog-foot]) {
-      grid-row: foot;
-    }
-
-    /* the Separator instances ride their 1px tracks, spanning the
-       panel edge-to-edge — the retired borders' exact extent */
-    :where([data-jx-dialog-sep='head']) {
-      grid-row: sep-head;
-    }
-    :where([data-jx-dialog-sep='foot']) {
-      grid-row: sep-foot;
-    }
-    :where([data-jx-dialog-sep='head']),
-    :where([data-jx-dialog-sep='foot']) {
-      grid-column: 1 / -1;
-    }
+  /* the Separator instances ride their 1px tracks, spanning the
+     panel edge-to-edge — the retired borders' exact extent */
+  :where([data-jx-dialog-sep='head']) {
+    grid-row: sep-head;
+  }
+  :where([data-jx-dialog-sep='foot']) {
+    grid-row: sep-foot;
   }
 
   /* ── the D1-exempt residue ─────────────────────────────────────── */

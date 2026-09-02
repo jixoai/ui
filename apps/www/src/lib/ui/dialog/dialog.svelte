@@ -26,18 +26,18 @@
   theme's kernel reduced-motion block kills it), and the x button's
   transition chain is the press law's own (jixoai.css).
 
-  GRID RULER (r13, 2026-09-02 — the list-item subgrid precedent): the
-  scroll ring (head/body/foot's common parent) is the RULER HOST. Its
-  column tracks [inset 1fr inset] replace every inline padding
-  (--jx-dialog-inset, container-responsive); the three zones rent the
-  ruler through grid-template-columns: subgrid, so the title's, the
-  body's, and the foot's content edges are ONE shared edge — no
-  repeated constants. The head/body and body/foot dividing lines are
-  Separator components placed in EXPLICIT 1px row tracks (named lines
-  [head] [sep-head] [body] [sep-foot] [foot]), edge-to-edge exactly
-  where the retired borders sat; the zones' border-b/border-t are gone.
-  Zone presence is resolved here and STAMPED (data-sep-head /
-  data-sep-foot on the host — the stamped-attribute painting law);
+  ROW RULER (r13 + the r14 tuning): the scroll ring (head/body/foot's
+  common parent) is a single-column grid whose NAMED ROWS carry the
+  dividing lines — Separator components sit in EXPLICIT 1px row tracks
+  ([head] [sep-head] [body] [sep-foot] [foot]), edge-to-edge exactly
+  where the retired borders sat. Zone presence is resolved here and
+  STAMPED (data-sep-head / data-sep-foot on the host — the
+  stamped-attribute painting law). THE r14 TUNING (Owner): the
+  --jx-dialog-inset token and the [inset 1fr inset] column ruler
+  RETIRED — the variable mediated every zone while the real content
+  owns its geometry (the head's Input provides the row's height and
+  padding; body/foot pad themselves with plain utilities). The head
+  zone is FLUSH by default — consumer head snippets span edge-to-edge.
   dialog.css paints stamps only. No-subgrid environments fall back to
   the padding geometry (dialog.css, the law's mandatory fallback).
 -->
@@ -194,9 +194,16 @@
     data-sep-foot={hasFoot ? '' : undefined}
     class="jx-surface-scroll max-h-[calc(100dvh-2rem)] overflow-auto"
   >
-    <div data-jx-dialog-head="" class="py-2.5">
-      <!-- the content cell rides the ruler's 1fr track (track 2) -->
-      <div class="col-start-2 flex min-w-0 items-center justify-between gap-3">
+    <!-- the head zone is FLUSH (the r14 tuning): a consumer head
+         snippet (the palette's Input) spans edge-to-edge and owns its
+         own geometry; the default title row pads itself -->
+    <div data-jx-dialog-head="">
+      <!-- the padding belongs to the DEFAULT title row; a consumer head
+     snippet renders FLUSH (the r14 law: the snippet's own content
+     owns the geometry) -->
+<div
+      class="flex min-w-0 items-center justify-between gap-3 {head ? '' : 'px-3.5 py-2.5'}"
+    >
         {#if head}
           {@render head()}
         {:else if title}
@@ -220,22 +227,19 @@
          tracks, spanning edge-to-edge (the retired border's extent);
          decorative chrome, hidden from AT -->
     <Separator data-jx-dialog-sep="head" aria-hidden="true" />
-    <!-- the body zone carries NO padding: the ruler's inset tracks own
-         the inline geometry, the cell's py owns the block rhythm -->
     <div data-jx-dialog-body="">
       <div
-        class="col-start-2 min-w-0 py-3.5 text-[13px] leading-[1.6] text-[color-mix(in_oklab,var(--popover-foreground)_80%,transparent)]"
+        class="min-w-0 p-3.5 text-[13px] leading-[1.6] text-[color-mix(in_oklab,var(--popover-foreground)_80%,transparent)]"
       >
         {@render children()}
       </div>
     </div>
     {#if hasFoot}
       <Separator data-jx-dialog-sep="foot" aria-hidden="true" />
-      <div data-jx-dialog-foot="" class="py-3">
-        <!-- ultra-narrow containers stack the actions in reverse (the
-             container-query tier, dialog.css owns the inset tiers) -->
+      <div data-jx-dialog-foot="">
+        <!-- ultra-narrow containers stack the actions in reverse -->
         <div
-          class="col-start-2 flex min-w-0 items-center justify-end gap-2.5 @max-[15rem]/jx-dialog:flex-col-reverse @max-[15rem]/jx-dialog:items-stretch"
+          class="flex min-w-0 items-center justify-end gap-2.5 px-3.5 py-3 @max-[15rem]/jx-dialog:flex-col-reverse @max-[15rem]/jx-dialog:items-stretch"
         >
           {#if footer}
             {@render footer()}

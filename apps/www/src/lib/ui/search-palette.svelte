@@ -15,6 +15,7 @@
    * interface (engine-minisearch today).
    */
   import Dialog from '$lib/ui/dialog/dialog.svelte';
+  import Input from '$lib/ui/input/input.svelte';
   import { createMinisearchEngine, type CorpusPage } from '$lib/search/engine-minisearch';
   import { tokenize } from '$lib/search/tokenizer';
   import type { SearchHit } from '$lib/search/engine-types';
@@ -26,7 +27,9 @@
   let rootEl = $state<HTMLDivElement | undefined>(undefined);
   const platform = (): HTMLDialogElement | null =>
     rootEl?.querySelector('dialog') ?? null;
-  let inputEl = $state<HTMLInputElement | undefined>(undefined);
+  // the native field, found under the Dialog's platform (bind:this on
+  // the Input component yields its bindings, not its DOM)
+  const field = (): HTMLInputElement | null => rootEl?.querySelector('input') ?? null;
   let open = $state(false);
   let query = $state('');
   let hits = $state<SearchHit[]>([]);
@@ -90,7 +93,7 @@
     const dialog = platform();
     if (!open || dialog === null) return;
     opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    queueMicrotask(() => inputEl?.focus());
+    queueMicrotask(() => field()?.focus());
     const onPlatformClick = (event: MouseEvent): void => {
       if (event.target === dialog) open = false; // the falling edge runs Dialog's animated shut
     };
@@ -225,27 +228,31 @@
   cancelGuard={() => composing}
 >
   {#snippet head()}
-    <!-- the input row IS the head: magnifier + query + the flight cue;
-         Dialog's x button rides the row's right end -->
-    <div class="flex min-w-0 flex-1 items-center gap-3">
-      <span
-        class="flex-none select-none text-muted-foreground [&_svg]:h-[18px] [&_svg]:w-[18px]"
-        aria-hidden="true">{@html icons.search}</span>
-      <input
-        bind:this={inputEl}
-        bind:value={query}
-        onkeydown={onKey}
-        oncompositionstart={() => (composing = true)}
-        oncompositionend={() => (composing = false)}
-        class="w-full min-w-0 bg-transparent font-mono text-[14px] outline-none placeholder:text-muted-foreground/60"
-        placeholder="Search the docs…"
-        aria-label="Search the docs"
-        title="Full-text search — ⌘K / Ctrl-K toggles, ↑↓ selects, ↵ opens, esc closes"
-      />
-      {#if busy}
-        <span class="jx-flight flex flex-none gap-1" aria-hidden="true"><i></i><i></i><i></i></span>
-      {/if}
-    </div>
+    <!-- the r14 tuning: the Input component IS the head (flush,
+         edge-to-edge) — its prefix-icon lane carries the magnifier,
+         its suffix lane the flight cue, its own shell the row's
+         height and padding. Dialog's x button rides the row's end -->
+    <Input
+      class="w-full min-w-0 flex-1"
+      bind:value={query}
+      onkeydown={onKey}
+      oncompositionstart={() => (composing = true)}
+      oncompositionend={() => (composing = false)}
+      placeholder="Search the docs…"
+      aria-label="Search the docs"
+      title="Full-text search — ⌘K / Ctrl-K toggles, ↑↓ selects, ↵ opens, esc closes"
+    >
+      {#snippet innerInlineStart()}
+        <span
+          class="flex-none select-none text-muted-foreground [&_svg]:h-[16px] [&_svg]:w-[16px]"
+          aria-hidden="true">{@html icons.search}</span>
+      {/snippet}
+      {#snippet innerInlineEnd()}
+        {#if busy}
+          <span class="jx-flight flex flex-none gap-1" aria-hidden="true"><i></i><i></i><i></i></span>
+        {/if}
+      {/snippet}
+    </Input>
   {/snippet}
 
   {#if query.trim() === ''}

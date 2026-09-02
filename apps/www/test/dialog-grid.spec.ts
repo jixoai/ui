@@ -83,23 +83,31 @@ describe('the separators — Separator instances in explicit tracks', () => {
 });
 
 describe('the zones — borders retired, content rides the 1fr track', () => {
-  it('no zone carries border or inline-padding utilities (block rhythm py stays); the body zone carries none at all', () => {
+  it('zones stay flush and border-free (the r14 tuning: geometry belongs to content, not zones)', () => {
     const { container } = render(Dialog, { props: { title: 't', children, footer } });
     for (const zone of ['head', 'body', 'foot']) {
       const el = container.querySelector(`[data-jx-dialog-${zone}]`)!;
       expect(el.className).not.toMatch(/border-[tb]/);
-      // INLINE padding is the ruler's job now — p-/px-/pl-/pr- are banned
-      expect(el.className).not.toMatch(/\bp(x|l|r)?-[\d.]/);
+      expect(el.getAttribute('class')).toBeNull(); // the zone element carries NO utilities
     }
-    expect(container.querySelector('[data-jx-dialog-body]')!.getAttribute('class')).toBeNull();
+    // the DEFAULT title row owns its rhythm; a consumer head snippet
+    // renders FLUSH (the row drops its padding utilities entirely)
+    const headRow = container.querySelector('[data-jx-dialog-head] > div')!;
+    expect(headRow.className).toMatch(/px-3\.5/);
+    expect(headRow.className).toMatch(/py-2\.5/);
+    const flushed = render(Dialog, { props: { head, children } });
+    const flushedRow = flushed.container.querySelector('[data-jx-dialog-head] > div')!;
+    expect(flushedRow.className).not.toContain('px-');
+    expect(flushedRow.className).not.toContain('py-');
+    const bodyRow = container.querySelector('[data-jx-dialog-body] > div')!;
+    expect(bodyRow.className).toMatch(/p-3\.5/);
   });
 
-  it("each zone's content cell rides the ruler's 1fr track (col-start-2)", () => {
+  it('the retired column ruler leaves no residue (no inset token, no subgrid, no col-start)', () => {
+    expect(css).not.toMatch(/--jx-dialog-inset\s*:/); // the NAME may live in the retirement note; the DECLARATION may not
+    expect(css).not.toContain('grid-template-columns: subgrid'); // mentions may live in notes; usage may not
     const { container } = render(Dialog, { props: { title: 't', children, footer } });
-    for (const zone of ['head', 'body', 'foot']) {
-      const cell = container.querySelector(`[data-jx-dialog-${zone}] > div`)!;
-      expect(cell.className).toContain('col-start-2');
-    }
+    expect(container.querySelector('.col-start-2')).toBeNull();
   });
 
   it('the platform element is the named inline-size container', () => {
@@ -167,18 +175,11 @@ describe('the r12 composition face survives the restructure', () => {
 });
 
 describe('the ruler — css source law', () => {
-  it('the scroll ring is the ruler host: [inset 1fr inset] columns behind the inset token', () => {
-    expect(css).toContain('--jx-dialog-inset');
-    expect(css).toMatch(
-      /grid-template-columns:\s*var\(--jx-dialog-inset\)\s*minmax\(0, 1fr\)\s*var\(--jx-dialog-inset\)/,
-    );
-    expect(css).toContain('column-gap: 0'); // no gap tracks beside the insets
-  });
-
-  it('the zones rent the ruler through subgrid (grid-column 1/-1)', () => {
-    expect(css).toContain('@supports (grid-template-columns: subgrid)');
-    expect(css).toContain('grid-template-columns: subgrid');
-    expect(css).toContain('grid-column: 1 / -1');
+  it('the scroll ring is the ROW-RULER host: one column, named rows (r14)', () => {
+    expect(css).toMatch(/display: grid;/);
+    expect(css).toContain('[head] auto');
+    expect(css).toContain('[body] minmax(0, auto)');
+    expect(css).not.toContain('grid-template-columns'); // no column ruler at all
   });
 
   it('explicit named 1px separator rows; the foot matrix branches on the stamp', () => {
@@ -189,20 +190,14 @@ describe('the ruler — css source law', () => {
     expect(css).toContain("[data-jx-dialog-sep='foot']");
   });
 
-  it('the no-subgrid fallback keeps the padding geometry (the law, the item.css pattern)', () => {
-    // base block (outside @supports): zones self-pad from the same token
-    const base = css.split('@supports (grid-template-columns: subgrid)')[0];
-    expect(base).toContain('padding-inline: var(--jx-dialog-inset)');
-    // the ruler path re-zeroes it — the tracks own the inset there
-    expect(css).toContain('padding-inline: 0');
+  it('the r14 tuning records itself in the sheet (the retirement note)', () => {
+    expect(css).toContain('RETIRED');
+    expect(css).toMatch(/r14 tuning/i);
   });
 
-  it('the responsive ladder: named container tiers step the inset down', () => {
-    expect(css).toContain('@container jx-dialog (max-width: 22rem)');
-    expect(css).toContain('@container jx-dialog (max-width: 15rem)');
-    expect(css).toContain('--jx-dialog-inset: 0.875rem');
-    expect(css).toContain('--jx-dialog-inset: 0.5rem');
-    expect(css).toContain('--jx-dialog-inset: 0.3125rem');
+  it('the inset ladder is gone; the platform stays a named container (the 15rem foot variants ride it)', () => {
+    expect(css).not.toContain('@container jx-dialog (max-width: 22rem)');
+    expect(css).not.toMatch(/--jx-dialog-inset\s*:/); // the NAME may live in the retirement note; the DECLARATION may not
   });
 
   it('no zone border paint creeps back into the family sheet', () => {
