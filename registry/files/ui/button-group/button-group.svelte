@@ -157,7 +157,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
-  import { setContext } from 'svelte';
+  import { getContext, setContext } from 'svelte';
   import { getDensityContext, provideDensity, resolveDensity, type Density } from '$lib/density.svelte';
   import { icons } from '$lib/icons';
   import DropdownMenu from '$lib/ui/dropdown-menu/dropdown-menu.svelte';
@@ -232,12 +232,18 @@
   // variants may still override paint; the seam policy stays uniform)
   const separatorOn = $derived(separator ?? variant === 'ghost');
 
+  // INHERIT-THEN-PROVIDE (r14 tuning 2, the density maneuver): a group
+  // with no variant of its own passes the enclosing scope's through —
+  // a ghost-scoped dialog footer's button group stays ghost without
+  // repeating itself; a group that sets one shadows the scope
+  const enclosingGroup = getContext<ButtonGroupApi | undefined>(BUTTON_GROUP_KEY);
+  const effectiveVariant = $derived(variant ?? enclosingGroup?.variant);
   setContext<ButtonGroupApi>(BUTTON_GROUP_KEY, {
     get orientation() {
       return orientation;
     },
     get variant() {
-      return variant;
+      return effectiveVariant;
     },
     get separator() {
       return separatorOn;

@@ -92,11 +92,11 @@ describe('the zones — borders retired, content rides the 1fr track', () => {
     }
     // the DEFAULT title row owns its rhythm; a consumer head snippet
     // renders FLUSH (the row drops its padding utilities entirely)
-    const headRow = container.querySelector('[data-jx-dialog-head] > div')!;
+    const headRow = container.querySelector('.jx-dialog-head-content')!;
     expect(headRow.className).toMatch(/px-3\.5/);
     expect(headRow.className).toMatch(/py-2\.5/);
     const flushed = render(Dialog, { props: { head, children } });
-    const flushedRow = flushed.container.querySelector('[data-jx-dialog-head] > div')!;
+    const flushedRow = flushed.container.querySelector('.jx-dialog-head-content')!;
     expect(flushedRow.className).not.toContain('px-');
     expect(flushedRow.className).not.toContain('py-');
     const bodyRow = container.querySelector('[data-jx-dialog-body] > div')!;
@@ -117,6 +117,16 @@ describe('the zones — borders retired, content rides the 1fr track', () => {
 });
 
 describe('the foot zone — actions auto-group, footer leads', () => {
+  it('the ghost scope covers header and footer buttons (Context, r14-2)', () => {
+    const { container } = render(Dialog, { props: { title: 't', children, footer, actions } });
+    // both zones wrap their content in the variant scope
+    expect(container.querySelectorAll('button').length).toBeGreaterThan(0);
+    // the scope component renders NO element (a context boundary, not a
+    // container) — the slot grids sit directly under the zones
+    expect(container.querySelector('[data-jx-dialog-head] > .jx-dialog-head-grid')).not.toBeNull();
+    expect(container.querySelector('[data-jx-dialog-foot] > .jx-dialog-foot-grid')).not.toBeNull();
+  });
+
   it('actions wraps its snippet in a ButtonGroup (justify end, named)', () => {
     const { container } = render(Dialog, { props: { title: 't', children, actions } });
     const group = container.querySelector('[data-jx-btngroup]')!;
@@ -126,8 +136,17 @@ describe('the foot zone — actions auto-group, footer leads', () => {
     expect(group.className).toContain('justify-end');
   });
 
-  it('both faces: footer renders as leading content, actions owns the terminal cluster', () => {
-    const { container } = render(Dialog, { props: { title: 't', children, footer, actions } });
+  it('both faces: footer leads in the leading track, actions own the inline-end-actions-slot', () => {
+    const both = render(Dialog, { props: { title: 't', children, footer, actions } });
+    const grid = both.container.querySelector('.jx-dialog-foot-grid')!;
+    expect(grid.className).toContain('jx-dialog-foot-grid');
+    expect(both.container.querySelector('.jx-dialog-foot-leading')).not.toBeNull();
+    const slot = both.container.querySelector('.jx-dialog-end-actions-slot')!;
+    expect(slot.querySelector('.jx-dialog-foot-leading')).toBeNull(); // leading never leaks in
+    expect(slot.querySelector('button')?.closest('[data-jx-btngroup]')).not.toBeNull(); // auto-grouped
+    // between the two clusters exactly one decorative separator
+    expect(slot.querySelectorAll('hr, [role="separator"], .jx-surface-shadow + hr').length).toBe(1);
+  });
     const cell = container.querySelector('[data-jx-dialog-foot] > div')!;
     expect(cell.className).toContain('justify-end');
     // the ButtonGroup is the cell's LAST child — the terminal cluster
@@ -179,7 +198,10 @@ describe('the ruler — css source law', () => {
     expect(css).toMatch(/display: grid;/);
     expect(css).toContain('[head] auto');
     expect(css).toContain('[body] minmax(0, auto)');
-    expect(css).not.toContain('grid-template-columns'); // no column ruler at all
+    // no column ruler on the scroll RING (the zone-level slot grids
+    // own their own two-track columns — that is the r14-2 law)
+    const ring = css.slice(css.indexOf('[data-jx-dialog-scroll]'), css.indexOf('.jx-dialog-head-grid'));
+    expect(ring).not.toContain('grid-template-columns');
   });
 
   it('explicit named 1px separator rows; the foot matrix branches on the stamp', () => {

@@ -49,6 +49,7 @@
   import { provideEntity } from '$lib/entity.svelte';
   import Separator from '$lib/ui/separator/separator.svelte';
   import ButtonGroup from '$lib/ui/button-group/button-group.svelte';
+  import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
   import './dialog.css';
 
   interface Props {
@@ -198,30 +199,39 @@
          snippet (the palette's Input) spans edge-to-edge and owns its
          own geometry; the default title row pads itself -->
     <div data-jx-dialog-head="">
-      <!-- the padding belongs to the DEFAULT title row; a consumer head
-     snippet renders FLUSH (the r14 law: the snippet's own content
-     owns the geometry) -->
-<div
-      class="flex min-w-0 items-center justify-between gap-3 {head ? '' : 'px-3.5 py-2.5'}"
-    >
-        {#if head}
-          {@render head()}
-        {:else if title}
-          <h2 data-jx-dialog-title="" class="font-nav text-[15px] leading-[1.3] tracking-[0.01em]">{title}</h2>
-        {:else}
-          <span data-jx-dialog-title="" aria-hidden="true"></span>
-        {/if}
-        <button
-          type="button"
-          class="jx-press jx-dialog-x inline-flex items-center justify-center flex-none size-[30px] p-0 border border-border bg-popover cursor-pointer [&_svg]:stroke-[2.5] [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-[color-mix(in_oklab,var(--popover-foreground)_6%,transparent)]"
-          onclick={shut}
-          aria-label="Close"
-        >
-          <!-- glyph from the shared icons module; dialog.css owns its 14px
-               descendant scale, the strokier × rides a consuming utility -->
-          {@html icons.x}
-        </button>
-      </div>
+      <!-- THE HEAD GRID (r14 tuning 2, Owner): NO zone padding — the
+           grid controls dimensions. [content] rides minmax(0,1fr) and
+           pads ITSELF; [inline-end-action-slot] is a content-sized end
+           track hugging the top-right corner (no reserved space — the
+           button stretches the slot open). The ghost scope gives every
+           button in the header the zone's default variant (Context,
+           the inherit-then-provide chain) -->
+      <ButtonVariantScope variant="ghost">
+        <div class="jx-dialog-head-grid">
+          <div class="jx-dialog-head-content {head ? '' : 'px-3.5 py-2.5'}">
+            {#if head}
+              {@render head()}
+            {:else if title}
+              <h2 data-jx-dialog-title="" class="font-nav text-[15px] leading-[1.3] tracking-[0.01em]">{title}</h2>
+            {:else}
+              <span data-jx-dialog-title="" aria-hidden="true"></span>
+            {/if}
+          </div>
+          <div class="jx-dialog-end-action-slot">
+            <button
+              type="button"
+              class="jx-press jx-dialog-x inline-flex items-center justify-center flex-none size-[30px] p-0 border border-border bg-popover cursor-pointer [&_svg]:stroke-[2.5] [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-[color-mix(in_oklab,var(--popover-foreground)_6%,transparent)]"
+              onclick={shut}
+              aria-label="Close"
+            >
+              <!-- glyph from the shared icons module; dialog.css owns its
+                   14px descendant scale, the strokier × rides a consuming
+                   utility -->
+              {@html icons.x}
+            </button>
+          </div>
+        </div>
+      </ButtonVariantScope>
     </div>
     <!-- the dividing lines are Separator INSTANCES in their own 1px
          tracks, spanning edge-to-edge (the retired border's extent);
@@ -237,29 +247,37 @@
     {#if hasFoot}
       <Separator data-jx-dialog-sep="foot" aria-hidden="true" />
       <div data-jx-dialog-foot="">
-        <!-- ultra-narrow containers stack the actions in reverse -->
-        <div
-          class="flex min-w-0 items-center justify-end gap-2.5 px-3.5 py-3 @max-[15rem]/jx-dialog:flex-col-reverse @max-[15rem]/jx-dialog:items-stretch"
-        >
-          {#if footer}
-            {@render footer()}
-          {/if}
-          {#if actions}
+        <!-- THE FOOT GRID (r14 tuning 2, Owner): NO zone padding — the
+             grid controls dimensions. [leading] rides minmax(0,1fr)
+             and pads itself; [inline-end-actions-slot] is the
+             content-sized end track where buttons AUTO-JOIN a button
+             group and stretch the footer open. The ghost scope is the
+             zone's default for every button (Context); the actions
+             group no longer repeats it (inherit-then-provide) -->
+        <ButtonVariantScope variant="ghost">
+          <div
+            class="jx-dialog-foot-grid @max-[15rem]/jx-dialog:flex-col-reverse @max-[15rem]/jx-dialog:items-stretch"
+          >
             {#if footer}
-              <!-- the ghost contract (Owner r13): between GROUPS exactly
-                   one divider — the footer's own cluster and the actions
-                   group. Decorative (the ButtonGroupDivider owns the
-                   semantic, announced flavor) -->
-              <Separator aria-hidden="true" class="self-stretch" />
+              <div class="jx-dialog-foot-leading">
+                {@render footer()}
+              </div>
             {/if}
-            <!-- the ghost contract rides the group's context now
-                 (ButtonGroup's variant pass-down, r13-B): buttons
-                 without an explicit variant adopt ghost -->
-            <ButtonGroup justify="end" label="Dialog actions" variant="ghost">
-              {@render actions()}
-            </ButtonGroup>
-          {/if}
-        </div>
+            <div class="jx-dialog-end-actions-slot">
+              {#if actions}
+                {#if footer}
+                  <!-- the ghost contract (Owner r13): between GROUPS
+                       exactly one divider — the leading cluster and the
+                       actions group; decorative -->
+                  <Separator aria-hidden="true" class="self-stretch" />
+                {/if}
+                <ButtonGroup justify="end" label="Dialog actions">
+                  {@render actions()}
+                </ButtonGroup>
+              {/if}
+            </div>
+          </div>
+        </ButtonVariantScope>
       </div>
     {/if}
   </div>

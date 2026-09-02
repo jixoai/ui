@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-02T16:11:47.890Z",
+  "generatedAt": "2026-09-02T16:18:13.694Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -758,8 +758,8 @@
           "source": "registry/files/ui/dialog/dialog.svelte",
           "mirror": "apps/www/src/lib/ui/dialog/dialog.svelte",
           "target": "@ui/dialog/dialog.svelte",
-          "sourceSha": "649f244ce420c57bfefff7d814df9a930a21892ad3be70b324fe10df4155d1b5",
-          "mirrorSha": "649f244ce420c57bfefff7d814df9a930a21892ad3be70b324fe10df4155d1b5"
+          "sourceSha": "9f02c5fae67f419eff77b2ae3af008c1072f59ab8a0e002373be9271fe3961d6",
+          "mirrorSha": "9f02c5fae67f419eff77b2ae3af008c1072f59ab8a0e002373be9271fe3961d6"
         },
         {
           "source": "registry/files/ui/dialog/index.ts",
@@ -772,8 +772,8 @@
           "source": "registry/files/ui/dialog/dialog.css",
           "mirror": "apps/www/src/lib/ui/dialog/dialog.css",
           "target": "@ui/dialog/dialog.css",
-          "sourceSha": "2cc2654a840ff495115a069e4cdbbdb2a65136b365439152db68fb860fca130a",
-          "mirrorSha": "2cc2654a840ff495115a069e4cdbbdb2a65136b365439152db68fb860fca130a"
+          "sourceSha": "c27bc580234620938a77928fbe78e4688b8de412385739dbc3322f9dcad2e230",
+          "mirrorSha": "c27bc580234620938a77928fbe78e4688b8de412385739dbc3322f9dcad2e230"
         }
       ]
     },
@@ -3027,8 +3027,8 @@
           "source": "registry/files/ui/button-group/button-group.svelte",
           "mirror": "apps/www/src/lib/ui/button-group/button-group.svelte",
           "target": "@ui/button-group/button-group.svelte",
-          "sourceSha": "8a8d340c93398fb416c7a2081d5d6958f1ee060f577ee45d557a75db3f38bc4a",
-          "mirrorSha": "8a8d340c93398fb416c7a2081d5d6958f1ee060f577ee45d557a75db3f38bc4a"
+          "sourceSha": "7f1a76f5232e92f9466d2f5c5c9f050c39f4163bf74bc8e04fc2a2c3f4ec9d9c",
+          "mirrorSha": "7f1a76f5232e92f9466d2f5c5c9f050c39f4163bf74bc8e04fc2a2c3f4ec9d9c"
         },
         {
           "source": "registry/files/ui/button-group/button-group-divider.svelte",
@@ -3050,6 +3050,13 @@
           "target": "@ui/button-group/index.ts",
           "sourceSha": "e7c234d57d0d47489689a554deff243c4d37323116f3803341d2a3abb8efbe43",
           "mirrorSha": "e7c234d57d0d47489689a554deff243c4d37323116f3803341d2a3abb8efbe43"
+        },
+        {
+          "source": "registry/files/ui/button-group/button-variant-scope.svelte",
+          "mirror": "apps/www/src/lib/ui/button-group/button-variant-scope.svelte",
+          "target": "@ui/button-group/button-variant-scope.svelte",
+          "sourceSha": "ff14680ee649c607fd19a7084b44425e2c4619af8eb7b9be2000c92bce3c8db5",
+          "mirrorSha": "ff14680ee649c607fd19a7084b44425e2c4619af8eb7b9be2000c92bce3c8db5"
         }
       ]
     },

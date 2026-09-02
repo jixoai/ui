@@ -70,6 +70,43 @@
     grid-row: sep-foot;
   }
 
+  /* ── the head/foot slot grids (r14 tuning 2, Owner) ──────────────
+     NO zone padding: the grids control dimensions. Tracks are
+     content-sized at the inline end (the button stretches its slot
+     open — nothing pre-reserved), the leading/content side rides
+     minmax(0,1fr) and pads itself. */
+  :where(.jx-dialog-head-grid) {
+    display: grid;
+    grid-template-columns:
+      [content] minmax(0, 1fr)
+      [inline-end-action-slot] auto;
+    align-items: start;
+  }
+  :where(.jx-dialog-head-content) {
+    grid-column: content;
+    min-inline-size: 0;
+  }
+  :where(.jx-dialog-end-action-slot) {
+    grid-column: inline-end-action-slot;
+    justify-self: end;
+    align-self: start;
+  }
+  :where(.jx-dialog-foot-grid) {
+    display: grid;
+    grid-template-columns:
+      [leading] minmax(0, 1fr)
+      [inline-end-actions-slot] auto;
+    align-items: center;
+  }
+  :where(.jx-dialog-foot-leading) {
+    grid-column: leading;
+    min-inline-size: 0;
+  }
+  :where(.jx-dialog-end-actions-slot) {
+    grid-column: inline-end-actions-slot;
+    justify-self: end;
+  }
+
   /* ── the D1-exempt residue ─────────────────────────────────────── */
   /* Scrim law (Owner, 2026-08-22): semi-transparent black in light mode,
      white in dark mode (--scrim) — a scrim dims/lightens, never colors. */

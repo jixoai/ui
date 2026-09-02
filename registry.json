@@ -1200,11 +1200,11 @@
           "target": "@ui/range/index.ts",
           "type": "registry:file"
         },
-   {
-    "path": "registry/files/ui/range/range-tick.svelte",
-    "target": "@ui/range/range-tick.svelte",
-    "type": "registry:file"
-   },
+        {
+          "path": "registry/files/ui/range/range-tick.svelte",
+          "target": "@ui/range/range-tick.svelte",
+          "type": "registry:file"
+        },
         {
           "path": "registry/files/ui/range/range.css",
           "target": "@ui/range/range.css",
@@ -3393,6 +3393,11 @@
         {
           "path": "registry/files/ui/button-group/index.ts",
           "target": "@ui/button-group/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/button-group/button-variant-scope.svelte",
+          "target": "@ui/button-group/button-variant-scope.svelte",
           "type": "registry:file"
         }
       ],
