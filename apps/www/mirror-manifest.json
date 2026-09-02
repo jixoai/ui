@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-02T18:11:37.346Z",
+  "generatedAt": "2026-09-02T18:28:58.935Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3048,8 +3048,8 @@
           "source": "registry/files/ui/button-group/button-group.svelte",
           "mirror": "apps/www/src/lib/ui/button-group/button-group.svelte",
           "target": "@ui/button-group/button-group.svelte",
-          "sourceSha": "7f1a76f5232e92f9466d2f5c5c9f050c39f4163bf74bc8e04fc2a2c3f4ec9d9c",
-          "mirrorSha": "7f1a76f5232e92f9466d2f5c5c9f050c39f4163bf74bc8e04fc2a2c3f4ec9d9c"
+          "sourceSha": "d76a61e5fcec89d0e8bf22eaf70531c30d660834d53b60b9aa65ffa938e4ffd2",
+          "mirrorSha": "d76a61e5fcec89d0e8bf22eaf70531c30d660834d53b60b9aa65ffa938e4ffd2"
         },
         {
           "source": "registry/files/ui/button-group/button-group-divider.svelte",

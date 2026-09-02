@@ -182,7 +182,8 @@
     /** the separator policy: a 1px separator in every collapsed seam
         slot (ghost's seam — bordered rungs already read through the
         -1px law). Explicit true/false; DEFAULT on when the group's
-        variant is ghost (the borderless row has no other seam) */
+        EFFECTIVE variant (own prop, else the inherited scope) is
+        ghost — the borderless row has no other seam */
     separator?: boolean;
     /** what happens when the joined row overflows its available
         inline space (horizontal groups only): wrap (default) breaks
@@ -226,18 +227,21 @@
   const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
   provideDensity(() => resolvedDensity);
 
-  // the separator policy: explicit prop, else the ghost default —
-  // the borderless row has no seam to collapse, so the separator IS
-  // its seam. Keys off the GROUP's variant prop (per-child explicit
-  // variants may still override paint; the seam policy stays uniform)
-  const separatorOn = $derived(separator ?? variant === 'ghost');
-
   // INHERIT-THEN-PROVIDE (r14 tuning 2, the density maneuver): a group
   // with no variant of its own passes the enclosing scope's through —
   // a ghost-scoped dialog footer's button group stays ghost without
   // repeating itself; a group that sets one shadows the scope
   const enclosingGroup = getContext<ButtonGroupApi | undefined>(BUTTON_GROUP_KEY);
   const effectiveVariant = $derived(variant ?? enclosingGroup?.variant);
+
+  // the separator policy: explicit prop, else the ghost default —
+  // the borderless row has no seam to collapse, so the separator IS
+  // its seam. Keys off the EFFECTIVE variant (r14-10, Owner: the
+  // inherited ghost counts — a DialogFooter group under the dialog
+  // zone's ghost scope got no seams because this keyed the LOCAL prop
+  // alone; per-child explicit variants may still override paint, the
+  // seam policy stays uniform)
+  const separatorOn = $derived(separator ?? effectiveVariant === 'ghost');
   setContext<ButtonGroupApi>(BUTTON_GROUP_KEY, {
     get orientation() {
       return orientation;

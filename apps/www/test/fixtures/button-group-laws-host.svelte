@@ -7,6 +7,7 @@
 -->
 <script lang="ts">
   import ButtonGroup from '$lib/ui/button-group/button-group.svelte';
+  import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
 </script>
@@ -35,6 +36,22 @@
 <ButtonGroup label="plain" data-testid="plain-group">
   <PressButton>solo</PressButton>
 </ButtonGroup>
+
+<!-- the r14-10 regression (Owner: DialogFooter buttons had no seams): a
+     group with NO variant of its own under a ghost variant SCOPE
+     inherits ghost — the seam policy must follow the EFFECTIVE
+     variant, not the local prop alone -->
+<ButtonVariantScope variant="ghost">
+  <ButtonGroup label="scope inherited" data-testid="scope-ghost-group">
+    <PressButton>inherited-a</PressButton>
+    <PressButton>inherited-b</PressButton>
+  </ButtonGroup>
+  <!-- an explicit non-ghost variant shadows the scope AND the seam -->
+  <ButtonGroup label="scope shadowed" variant="tonal" data-testid="scope-tonal-group">
+    <PressButton>shadow-a</PressButton>
+    <PressButton>shadow-b</PressButton>
+  </ButtonGroup>
+</ButtonVariantScope>
 
 <!-- tonal group: IconButton adoption (iconOnly + text postures) -->
 <ButtonGroup label="icon laws" variant="tonal" data-testid="icon-group">

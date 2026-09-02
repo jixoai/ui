@@ -219,6 +219,19 @@ describe('ButtonGroup · the separator policy (r13: ghost\'s seam)', () => {
       false,
     );
   });
+
+  it('an INHERITED ghost counts (r14-10): a scope-wrapped group with no variant of its own seams too', () => {
+    const { container } = render(LawsHost);
+    // the DialogFooter shape exactly: the group inherits ghost from the
+    // zone's variant scope — the seam policy keys the EFFECTIVE variant
+    expect(
+      container.querySelector('[data-testid="scope-ghost-group"]')?.hasAttribute('data-jx-separator'),
+    ).toBe(true);
+    // an explicit non-ghost variant shadows the scope and the seam both
+    expect(
+      container.querySelector('[data-testid="scope-tonal-group"]')?.hasAttribute('data-jx-separator'),
+    ).toBe(false);
+  });
 });
 
 describe('ButtonGroup · the separator css law (r13, source-pinned)', () => {
