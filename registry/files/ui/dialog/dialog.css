@@ -71,6 +71,15 @@
     overflow-y: auto;
     scrollbar-gutter: stable both-edges;
   }
+  /* THE DECLARED NON-SCROLLER (r14-15, Owner): scroll={false} asserts
+     the body fits — the scroll authority and the gutter reservation
+     retire TOGETHER (the gutter exists only FOR the scrollbar; a
+     declared non-scroller keeps the full content width). Mis-declared
+     overflow paints out honestly (visible) rather than hiding */
+  :where([data-jx-dialog-body][data-jx-scroll='off']) {
+    overflow-y: visible;
+    scrollbar-gutter: auto;
+  }
   :where([data-jx-dialog-foot]) {
     grid-row: foot;
   }

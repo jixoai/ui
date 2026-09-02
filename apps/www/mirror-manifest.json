@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-02T19:23:32.424Z",
+  "generatedAt": "2026-09-02T19:27:47.378Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -758,8 +758,8 @@
           "source": "registry/files/ui/dialog/dialog.svelte",
           "mirror": "apps/www/src/lib/ui/dialog/dialog.svelte",
           "target": "@ui/dialog/dialog.svelte",
-          "sourceSha": "b77ed04e654443950b2ecc89e7bf019e8b0c050dc7aae3e3a7641c6786bbad9a",
-          "mirrorSha": "b77ed04e654443950b2ecc89e7bf019e8b0c050dc7aae3e3a7641c6786bbad9a"
+          "sourceSha": "b9509f1b4a44bfc9609dd31892f9af1fe25f0ebf27789dd97ba80a2e90283956",
+          "mirrorSha": "b9509f1b4a44bfc9609dd31892f9af1fe25f0ebf27789dd97ba80a2e90283956"
         },
         {
           "source": "registry/files/ui/dialog/dialog-header.svelte",
@@ -793,8 +793,8 @@
           "source": "registry/files/ui/dialog/dialog.css",
           "mirror": "apps/www/src/lib/ui/dialog/dialog.css",
           "target": "@ui/dialog/dialog.css",
-          "sourceSha": "8d843e1d4f0fd24ff9abc9e1e897e19e530adf527e2eca75b480c606c988ec45",
-          "mirrorSha": "8d843e1d4f0fd24ff9abc9e1e897e19e530adf527e2eca75b480c606c988ec45"
+          "sourceSha": "56fa7832aa4691704fbe2ea980843fd81ad0f221418f90a01397fdcf2eb16808",
+          "mirrorSha": "56fa7832aa4691704fbe2ea980843fd81ad0f221418f90a01397fdcf2eb16808"
         }
       ]
     },

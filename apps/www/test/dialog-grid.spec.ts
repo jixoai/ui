@@ -122,6 +122,10 @@ describe('the zones — borders retired, content rides the 1fr track', () => {
     // the gutter is stable on BOTH edges (r14-14, Owner): a one-sided
     // reservation shifts the scrolling content optically off-center
     expect(css).toMatch(/\[data-jx-dialog-body\][^}]*scrollbar-gutter: stable both-edges/s);
+    // the DECLARED non-scroller (r14-15, Owner): scroll={false} retires
+    // the scroll authority and the gutter reservation together
+    expect(css).toMatch(/\[data-jx-dialog-body\]\[data-jx-scroll='off'\][^}]*scrollbar-gutter: auto/s);
+    expect(css).toMatch(/\[data-jx-dialog-body\]\[data-jx-scroll='off'\][^}]*overflow-y: visible/s);
     // the css gives body the ONLY flexible row (head/foot pinned)
     expect(css).toContain('[body] minmax(0, 1fr)');
     expect(css).not.toContain('[body] minmax(0, auto)');
@@ -130,6 +134,13 @@ describe('the zones — borders retired, content rides the 1fr track', () => {
   it('the platform element is the named inline-size container', () => {
     const { container } = render(Dialog, { props: { title: 't', children } });
     expect(container.querySelector('dialog')!.className).toContain('@container/jx-dialog');
+  });
+
+  it('scroll={false} declares the body a non-scroller (r14-15): the off-stamp, absent by default', () => {
+    const plain = render(Dialog, { props: { title: 't', children } });
+    expect(plain.container.querySelector('[data-jx-dialog-body]')!.hasAttribute('data-jx-scroll')).toBe(false);
+    const fixed = render(Dialog, { props: { title: 't', children, scroll: false } });
+    expect(fixed.container.querySelector('[data-jx-dialog-body]')!.getAttribute('data-jx-scroll')).toBe('off');
   });
 });
 

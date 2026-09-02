@@ -93,6 +93,15 @@
      */
     footer?: Snippet;
     /**
+     * The body zone's scroll authority (the panel itself never scrolls
+     * — r14-3). DEFAULT on: the zone is the scroll ring with a stable
+     * BOTH-EDGES gutter reservation. Declare false to assert the body
+     * fits: the scroll authority and the gutter reservation retire
+     * together (the gutter exists only FOR the scrollbar — a declared
+     * non-scroller keeps the full content width).
+     */
+    scroll?: boolean;
+    /**
      * Predicate consulted on the native cancel request (Escape):
      * returning TRUE blocks the close (the palette holds the dialog
      * open through an IME composition). The default path is the
@@ -110,6 +119,7 @@
     class: platformClass = '',
     head,
     footer,
+    scroll = true,
     cancelGuard,
     children,
   }: Props = $props();
@@ -249,7 +259,7 @@
          tracks, spanning edge-to-edge (the retired border's extent);
          decorative chrome, hidden from AT -->
     <Separator data-jx-dialog-sep="head" aria-hidden="true" />
-    <div data-jx-dialog-body="">
+    <div data-jx-dialog-body="" data-jx-scroll={scroll ? undefined : 'off'}>
       <div
         class="min-w-0 p-3.5 text-[13px] leading-[1.6] text-[color-mix(in_oklab,var(--popover-foreground)_80%,transparent)]"
       >
