@@ -26,13 +26,13 @@ const pressButtonFixture: ComponentMeta = defineComponentMeta({
     variant: {
       kind: 'enum',
       values: ['fill', 'tonal', 'outline', 'ghost', 'link'],
-      default: 'outline',
     },
     effect: { kind: 'opaque', typeText: 'PressEffect' },
     href: { kind: 'string' },
     external: { kind: 'boolean' },
     loading: { kind: 'boolean', default: false },
     onclick: { kind: 'opaque', typeText: '() => void' },
+    popovertarget: { kind: 'string' },
     type: { kind: 'enum', values: ['button', 'submit'], default: 'button' },
     ariaLabel: { kind: 'string' },
     square: { kind: 'boolean', default: false },
@@ -64,26 +64,28 @@ describe('toJSONSchema (press-button fixture)', () => {
         density: { 'x-ui': { control: 'none', sourceType: 'Density' } },
         variant: {
           enum: ['fill', 'tonal', 'outline', 'ghost', 'link'],
-          default: 'outline',
         },
         effect: { 'x-ui': { control: 'none', sourceType: 'PressEffect' } },
         href: { type: 'string' },
         external: { type: 'boolean' },
         loading: { type: 'boolean', default: false },
         onclick: { 'x-ui': { control: 'none', sourceType: '() => void' } },
+        popovertarget: { type: 'string' },
         type: { enum: ['button', 'submit'], default: 'button' },
         ariaLabel: { type: 'string' },
         square: { type: 'boolean', default: false },
         class: { type: 'string', default: '' },
         children: { 'x-ui': { control: 'none', sourceType: 'Snippet' } },
       },
-      required: ['density', 'effect', 'href', 'external', 'onclick', 'ariaLabel', 'children'],
+      required: ['density', 'variant', 'effect', 'href', 'external', 'onclick', 'popovertarget', 'ariaLabel', 'children'],
     });
   });
 
   it('required lists exactly the props without defaults', () => {
     const out = toJSONSchema(pressButtonFixture);
-    const withDefaults = ['variant', 'loading', 'type', 'square', 'class'];
+    // r13 truth: variant's default left the statically-extractable
+    // zone (regenerated 2026-09-02) — it rides required now
+    const withDefaults = ['loading', 'type', 'square', 'class'];
     expect(out.required).not.toContain(...withDefaults);
     for (const key of Object.keys(out.properties)) {
       if (!withDefaults.includes(key)) expect(out.required).toContain(key);

@@ -62,7 +62,8 @@ describe('ButtonGroup · overflow: wrap (default)', () => {
     const kids = stub(og, 100, [50, 40, 30, 60]);
     rendered.component.poke();
     expect(og.getAttribute('data-jx-overflow')).toBe('wrap');
-    // rows: [50,40] (90 + seam) | [30,60] (90 + seam) — row-major, DOM order
+    // margin-box rows (jsdom computes 0 margins — the sheet never
+    // loads there): [50,40]=90 | [30,60]=90 — row-major, DOM order
     const cell = (i: number) => `${kids[i].style.gridRow}/${kids[i].style.gridColumn}`;
     expect(cell(0)).toBe('1/1');
     expect(cell(1)).toBe('1/2');
@@ -81,9 +82,10 @@ describe('ButtonGroup · overflow: wrap (default)', () => {
   it('a divider that would OPEN a row closes the previous cluster instead', async () => {
     const rendered = render(OverflowHost, { props: { withDivider: true } });
     const og = rendered.container.querySelector('[data-testid="og"]')!;
-    // row 1 fills at copy+move (96); the divider would open row 2 —
-    // it stays on row 1's TAIL instead (it closes the copy/move cluster)
-    const kids = stub(og, 96, [40, 55, 1, 60, 50, 50]);
+    // row 1 fills at copy+move (95); the divider's 1px would tip it
+    // over 95.5 → it stays on row 1's TAIL instead (it closes the
+    // copy/move cluster rather than dangling at a row edge)
+    const kids = stub(og, 95, [40, 55, 1, 60, 50, 50]);
     rendered.component.poke();
     expect(og.getAttribute('data-jx-overflow')).toBe('wrap');
     const divider = kids[2];
@@ -94,16 +96,16 @@ describe('ButtonGroup · overflow: wrap (default)', () => {
   it('hysteresis: leaving wrap needs margin — boundary jitter cannot flap', async () => {
     const rendered = render(OverflowHost);
     const og = rendered.container.querySelector('[data-testid="og"]')!;
-    const widths = [50, 40, 30, 60]; // natural = 177
+    const widths = [50, 40, 30, 60]; // natural margin-box sum = 180
     stub(og, 100, widths);
     rendered.component.poke();
     expect(og.getAttribute('data-jx-overflow')).toBe('wrap');
     // 4px slack: still wrapped (the HYST=8 band)
-    stub(og, 181, widths);
+    stub(og, 184, widths);
     rendered.component.poke();
     expect(og.getAttribute('data-jx-overflow')).toBe('wrap');
     // 8px slack: back to the single row, placements cleared
-    stub(og, 185, widths);
+    stub(og, 188, widths);
     rendered.component.poke();
     expect(og.hasAttribute('data-jx-overflow')).toBe(false);
     expect(og.children[0].style.gridRow).toBe('');
@@ -114,7 +116,8 @@ describe('ButtonGroup · overflow: collapse (the收纳 menu)', () => {
   it('folds the overflow tail into the menu; k buttons stay inline; at least one always does', async () => {
     const rendered = render(OverflowHost, { props: { overflow: 'collapse' } });
     const og = rendered.container.querySelector('[data-testid="og"]')!;
-    // needed(k) = 40k − (k−1) − 1 + 20(trigger): needed(2)=98 ≤ 100 < needed(3)
+    // needed(k) = Σ margin-boxes + trigger box: 40k + 20 →
+    // needed(2)=100 ≤ 100 < needed(3)=140
     const kids = stub(og, 100, [40, 40, 40, 40, 40], 20);
     rendered.component.poke();
     await tick(); // the folded entries render through Svelte state
@@ -134,7 +137,7 @@ describe('ButtonGroup · overflow: collapse (the收纳 menu)', () => {
   it('a divider with a hidden start neighbor folds too; the cluster boundary survives as the menu\'s plain hr', async () => {
     const rendered = render(OverflowHost, { props: { overflow: 'collapse', withDivider: true } });
     const og = rendered.container.querySelector('[data-testid="og"]')!;
-    // needed(2) = 98 > 90 → k collapses to 1: the divider's start
+    // needed(2) = 100 > 90 → k collapses to 1: the divider's start
     // neighbor (move) is hidden → the divider folds with it, and the
     // boundary between the folded clusters rides into the menu as an hr
     const kids = stub(og, 90, [40, 40, 1, 40, 40, 40], 20);
@@ -184,18 +187,18 @@ describe('ButtonGroup · overflow: collapse (the收纳 menu)', () => {
     const rendered = render(OverflowHost, { props: { overflow: 'collapse' } });
     const og = rendered.container.querySelector('[data-testid="og"]')!;
     const widths = [40, 40, 40, 40, 40];
-    stub(og, 100, widths, 20); // k=2 (needed(2)=98)
+    stub(og, 100, widths, 20); // k=2 (needed(2)=100)
     rendered.component.poke();
     expect(
       og.querySelectorAll('[data-jx-overflow-hidden="true"]'),
     ).toHaveLength(3);
 
-    // needed(3) = 137: 137+8 > 141 → still k=2 inside the band
+    // needed(3) = 140: 140+8 > 141 → still k=2 inside the band
     stub(og, 141, widths, 20);
     rendered.component.poke();
     expect(og.querySelectorAll('[data-jx-overflow-hidden="true"]')).toHaveLength(3);
 
-    // past the band: k=3 grows back
+    // past the band: k=3 grows back (140+8 ≤ 150)
     stub(og, 150, widths, 20);
     rendered.component.poke();
     expect(og.querySelectorAll('[data-jx-overflow-hidden="true"]')).toHaveLength(2);

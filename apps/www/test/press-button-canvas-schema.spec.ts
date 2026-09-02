@@ -16,9 +16,10 @@ import Page from '../src/routes/docs/components/press-button.html/+page.svelte';
 describe('pilot page schema playground', () => {
   it('renders schema-driven rows and drives the stage instance', async () => {
     const { container } = render(Page);
-    // rows: variant, effect, loading (segmented/segmented/toggle)
+    // rows: variant, effect, loading, popovertarget
+    // (segmented/segmented/toggle/text — r13 added popovertarget)
     const rows = container.querySelectorAll('[data-jx-canvas-row]');
-    expect(rows.length).toBe(3);
+    expect(rows.length).toBe(4);
     expect(container.querySelector('[data-jx-canvas-toggle]')).not.toBeNull();
     // no hand-written kit selects remain
     expect(container.querySelector('select')).toBeNull();

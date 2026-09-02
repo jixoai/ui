@@ -241,9 +241,16 @@
             {@render footer()}
           {/if}
           {#if actions}
-            <!-- the ghost contract lives on this instance (see the
-                 actions prop doc) until ButtonGroup passes variants
-                 through its context -->
+            {#if footer}
+              <!-- the ghost contract (Owner r13): between GROUPS exactly
+                   one divider — the footer's own cluster and the actions
+                   group. Decorative (the ButtonGroupDivider owns the
+                   semantic, announced flavor) -->
+              <Separator aria-hidden="true" class="self-stretch" />
+            {/if}
+            <!-- the ghost contract rides the group's context now
+                 (ButtonGroup's variant pass-down, r13-B): buttons
+                 without an explicit variant adopt ghost -->
             <ButtonGroup justify="end" label="Dialog actions" variant="ghost">
               {@render actions()}
             </ButtonGroup>

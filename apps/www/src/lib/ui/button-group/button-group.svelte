@@ -46,20 +46,35 @@
   within a cluster.
 
   GRID, not flex (r13, Owner law — the 2D nature is accepted): the
-  container is `inline-grid` — horizontal groups flow row-major
-  (grid-auto-flow: row, implicit auto columns), vertical groups flow
-  column-major (grid-auto-flow: column, implicit auto rows). The -1px
-  seam margins carry into grid unchanged: an auto track sizes to its
-  item's margin-box contribution, so each -1px margin overlaps the
-  neighbor by exactly 1px with flush group edges — the same law, the
-  same selectors, no flex. justify places the track cluster on the
-  main axis (justify-content inline-axis for horizontal, the content-*
-  utilities pack the row tracks' block axis for vertical — the same
-  cluster-placement semantics flex had). Item-level justify-self is
-  deliberately unused: tracks are content-sized and items fill them,
-  so group-level packing is the whole alignment story. A nested
-  ButtonGroup is ONE grid item for the outer seam (child-scoped
-  selectors), so cluster joins never leak the inner seams outward.
+  container is `inline-grid`. THE FLOW LAW (Codex B1 rework, pinned
+  empirically on Chromium): without an explicit template, auto-flow
+  ROW fills the ONE implicit column and grows ROWS (a vertical
+  stack); auto-flow COLUMN fills the one implicit row and grows
+  COLUMNS (the horizontal single line). So HORIZONTAL groups ride
+  grid-auto-flow:column + auto columns (exactly the task's original
+  wording — an earlier "row-major" reading was backwards and stacked
+  every horizontal group vertically), VERTICAL groups ride the
+  default row flow + auto rows. The wrap state swaps the horizontal
+  flow to row + per-item stamped cells (below). The -1px seam
+  margins carry into grid: an auto track sizes to its item's
+  MARGIN-BOX contribution, so each -1px margin overlaps the neighbor
+  by exactly 1px with flush group edges — the same law, the same
+  selectors, no flex. The DIVIDER is the one geometry the flex era
+  could afford and grid cannot: its old -1px/-1px pair made its
+  margin-box NEGATIVE (a 1px element overlapping both neighbors),
+  which auto tracks clamp to a ZERO-WIDTH track (the audit's
+  `72.8px 0px` readout) — the grid-era divider owns a REAL 1px
+  track with flush junction edges (button-group.css; the boundary
+  reads border·line·border, heavier than the 1px intra-cluster seam
+  — a boundary should). justify places the track cluster on the
+  main axis (justify-content inline-axis for horizontal, the
+  content-* utilities pack the row tracks' block axis for vertical
+  — the same cluster-placement semantics flex had). Item-level
+  justify-self is deliberately unused: tracks are content-sized and
+  items fill them, so group-level packing is the whole alignment
+  story. A nested ButtonGroup is ONE grid item for the outer seam
+  (child-scoped selectors), so cluster joins never leak the inner
+  seams outward.
 
   OVERFLOW (r13, horizontal only — a vertical stack overflows its
   block axis, which is the scroll container's business, not a
@@ -301,13 +316,24 @@
       kid.removeAttribute('data-jx-row-start');
       kid.removeAttribute('data-jx-overflow-hidden');
     }
-    const widths = kids.map((kid) => kid.getBoundingClientRect().width);
+    // MARGIN-BOX, measured (Codex nB2): the -1px seam margins are
+    // the seam law's, the divider's flush junction edges are the
+    // divider law's, the trigger's own -1px seam belongs to the
+    // trigger — the arithmetic never re-derives any of them, it
+    // READS them, so the formulas and the layout engine cannot drift
+    // apart (jsdom computes 0 margins: the css sheet never loads
+    // there, and the math degrades to plain width sums)
+    const box = (elm: HTMLElement): number => {
+      const w = elm.getBoundingClientRect().width;
+      const cs = getComputedStyle(elm);
+      return w + (parseFloat(cs.marginInlineStart) || 0) + (parseFloat(cs.marginInlineEnd) || 0);
+    };
+    const boxes = kids.map(box);
     const avail = el.getBoundingClientRect().width;
-    const moreW = moreEl?.getBoundingClientRect().width ?? 0;
-    // 2) resolve — pure functions of (widths, avail) with the
+    const moreBox = moreEl ? box(moreEl) : 0;
+    // 2) resolve — pure functions of (boxes, avail) with the
     // hysteresis margins on the transitions
-    const seam = (n: number): number => Math.max(0, n - 1);
-    const natural = widths.reduce((a, w) => a + w, 0) - seam(kids.length);
+    const natural = boxes.reduce((a, b) => a + b, 0);
     if (lastAvail === avail && ovState === 'none' && natural <= avail + 0.5) {
       el.removeAttribute('data-jx-measuring');
       return; // the RO re-entry guard: same box, same line — idempotent
@@ -321,17 +347,16 @@
     // 3) apply
     if (ovState === 'wrap') {
       el.setAttribute('data-jx-overflow', 'wrap');
-      // greedy rows: acc + seam + w must fit; row leads reset the
-      // seam. A divider that would OPEN a row stays on the previous
-      // row's tail instead — it separates clusters, and a cluster
-      // boundary at a row edge is a dangling 1px tick, not a lead
+      // greedy rows over margin-boxes; row leads reset the seam.
+      // A divider that would OPEN a row stays on the previous row's
+      // tail instead — it separates clusters, and a cluster boundary
+      // at a row edge is a dangling 1px tick, not a lead
       const rows: number[][] = [[]];
       let acc = 0;
       kids.forEach((kid, i) => {
         const row = rows[rows.length - 1];
-        const step = (row.length > 0 ? 1 : 0) + widths[i];
         const divider = kid.hasAttribute('data-jx-btngroup-divider');
-        if (row.length > 0 && acc + step > avail + 0.5) {
+        if (row.length > 0 && acc + boxes[i] > avail + 0.5) {
           if (divider) {
             row.push(i); // the boundary closes the previous cluster
             return;
@@ -339,9 +364,8 @@
           rows.push([]);
           acc = 0;
         }
-        const open = rows[rows.length - 1];
-        acc += (open.length > 0 ? 1 : 0) + widths[i];
-        open.push(i);
+        acc += boxes[i];
+        rows[rows.length - 1].push(i);
       });
       rows.forEach((row, r) =>
         row.forEach((i, c) => {
@@ -352,12 +376,11 @@
       );
       folded = [];
     } else if (ovState === 'collapse') {
-      // the largest k with prefix(k) - inner seams - the collapsed
-      // seam onto the trigger + trigger ≤ avail; k ≥ 1 (a group
-      // reduced to only ⋯ loses its identity — it overflows instead).
-      // Growth is gated by HYST.
+      // the largest k with prefix margin-boxes + the trigger's own
+      // margin-box ≤ avail; k ≥ 1 (a group reduced to only ⋯ loses
+      // its identity — it overflows instead). Growth is gated by HYST.
       const needed = (k: number): number =>
-        widths.slice(0, k).reduce((a, w) => a + w, 0) - seam(k) - 1 + moreW;
+        boxes.slice(0, k).reduce((a, b) => a + b, 0) + moreBox;
       let k = Math.min(inlineCount, kids.length);
       while (k < kids.length && needed(k + 1) + HYST <= avail) k++;
       while (k > 1 && needed(k) > avail) k--;
@@ -445,7 +468,11 @@
   bind:this={groupEl}
   class={cn(
     'inline-grid max-w-full',
-    orientation === 'vertical' ? 'grid-flow-col auto-rows-auto items-stretch' : 'grid-flow-row auto-cols-auto items-stretch',
+    // the flow law (see header): no-template flow COLUMN grows the
+    // one implicit ROW with columns (the horizontal line); flow row
+    // (the default) grows the one implicit COLUMN with rows (the
+    // vertical stack) — pinned on Chromium, see the r13 rework probe
+    orientation === 'vertical' ? 'grid-flow-row auto-rows-auto items-stretch' : 'grid-flow-col auto-cols-auto items-stretch',
     justifyClass,
     className,
   )}

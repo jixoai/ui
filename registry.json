@@ -83,6 +83,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/density",
+        "@jixoai/button-group",
         "@jixoai/icons"
       ]
     },
@@ -784,7 +785,9 @@
       },
       "registryDependencies": [
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/button-group",
+        "@jixoai/separator"
       ]
     },
     {
@@ -905,7 +908,7 @@
       "docs": "import { icons } from '@lib/icons'; then {@html icons.x}. Consumers own sizing via CSS; the SVGs default to 16x16 with class jx-icon.",
       "meta": {
         "group": "engines",
-        "href": "/docs/components.html"
+        "href": "/docs/icons.html"
       },
       "registryDependencies": []
     },
@@ -2057,6 +2060,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/scaffold-float",
+        "@jixoai/icons",
         "@jixoai/website-scaffold"
       ]
     },
@@ -3396,7 +3400,11 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/press-button",
+        "@jixoai/icons",
+        "@jixoai/icon-button",
+        "@jixoai/dropdown-menu"
       ],
       "meta": {
         "group": "general",

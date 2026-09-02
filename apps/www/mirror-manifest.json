@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-02T11:51:43.425Z",
+  "generatedAt": "2026-09-02T13:43:11.997Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -636,8 +636,8 @@
           "source": "registry/files/theme/jx-pure.css",
           "mirror": "apps/www/src/lib/jx-pure.css",
           "target": "@lib/jx-pure.css",
-          "sourceSha": "86450bda4752822fb3161e1ccced97ffe9ca0816c3bf6ccb39c39e1e85c1de55",
-          "mirrorSha": "86450bda4752822fb3161e1ccced97ffe9ca0816c3bf6ccb39c39e1e85c1de55"
+          "sourceSha": "addab5c788bcd0e04f68486423a3e0dc2a704abb1714ed69c25b48b1ede9872b",
+          "mirrorSha": "addab5c788bcd0e04f68486423a3e0dc2a704abb1714ed69c25b48b1ede9872b"
         }
       ]
     },
@@ -758,8 +758,8 @@
           "source": "registry/files/ui/dialog/dialog.svelte",
           "mirror": "apps/www/src/lib/ui/dialog/dialog.svelte",
           "target": "@ui/dialog/dialog.svelte",
-          "sourceSha": "65750c2dec28e883588415446c1e018e0bee4a9f9ca24aa4a223ffca44ccc063",
-          "mirrorSha": "65750c2dec28e883588415446c1e018e0bee4a9f9ca24aa4a223ffca44ccc063"
+          "sourceSha": "40f54970f40fff7c8b0be89161ec74d7c90805e188d44029fed482f36c848f27",
+          "mirrorSha": "40f54970f40fff7c8b0be89161ec74d7c90805e188d44029fed482f36c848f27"
         },
         {
           "source": "registry/files/ui/dialog/index.ts",
@@ -3027,8 +3027,8 @@
           "source": "registry/files/ui/button-group/button-group.svelte",
           "mirror": "apps/www/src/lib/ui/button-group/button-group.svelte",
           "target": "@ui/button-group/button-group.svelte",
-          "sourceSha": "b713ff0d3e5c3e6e45df5c74920ff9b4a9644df38c93f7e7470368dad156e43b",
-          "mirrorSha": "b713ff0d3e5c3e6e45df5c74920ff9b4a9644df38c93f7e7470368dad156e43b"
+          "sourceSha": "8a8d340c93398fb416c7a2081d5d6958f1ee060f577ee45d557a75db3f38bc4a",
+          "mirrorSha": "8a8d340c93398fb416c7a2081d5d6958f1ee060f577ee45d557a75db3f38bc4a"
         },
         {
           "source": "registry/files/ui/button-group/button-group-divider.svelte",
@@ -3041,8 +3041,8 @@
           "source": "registry/files/ui/button-group/button-group.css",
           "mirror": "apps/www/src/lib/ui/button-group/button-group.css",
           "target": "@ui/button-group/button-group.css",
-          "sourceSha": "9984662348cefaff94913d4ff7484b1cd78be6096f1dfac9b472d1f5bff73e92",
-          "mirrorSha": "9984662348cefaff94913d4ff7484b1cd78be6096f1dfac9b472d1f5bff73e92"
+          "sourceSha": "e9c86f27b9e83644d1f5131a16f178d6efed0d4ed0d7d07bddd69c822087891a",
+          "mirrorSha": "e9c86f27b9e83644d1f5131a16f178d6efed0d4ed0d7d07bddd69c822087891a"
         },
         {
           "source": "registry/files/ui/button-group/index.ts",
@@ -3417,6 +3417,10 @@
     {
       "path": "apps/www/src/lib/ui/token-table/index.ts",
       "note": "docs-upgrade: token-table barrel (site-only)"
+    },
+    {
+      "path": "apps/www/src/lib/icon-table/icon-table.svelte",
+      "note": "icons-docs: icon vocabulary reference table with live glyph previews (site-only docs infra, token-table precedent)"
     }
   ],
   "registryOnly": [],
@@ -3440,6 +3444,14 @@
     {
       "path": "registry/files/ui/search-palette.svelte",
       "note": "search stream (85e9f3c) — final classification pending"
+    },
+    {
+      "path": "registry/files/lib/search/nav-filter.ts",
+      "note": "nav-fuzzy-filter — search-stream family, final classification pending"
+    },
+    {
+      "path": "registry/files/lib/icon-table/icon-table.svelte",
+      "note": "icons-docs — site-only ruling; on-disk relic pending dev-server reload"
     },
     {
       "path": "registry/files/lib/highlight/context.svelte.ts",

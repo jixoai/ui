@@ -15,10 +15,16 @@
  *    its item's margin-box, so each -1px overlap is exact and the
  *    group edges stay flush — the law never mentioned flex.
  *
- *  - THE DIVIDER: a 1px var(--border) block that REPLACES the
- *    collapsed seam — it collapses into the neighbors' borders too
- *    (start via the seam rule, end via its own -1px), so the total
- *    seam between the clusters stays exactly 1px.
+ *  - THE DIVIDER: a 1px var(--border) block between the clusters.
+ *    GRID-ERA LAW (Codex B1 rework, pinned on Chromium): the
+ *    flex-era -1px/-1px pair (overlap both neighbors, total
+ *    junction 1px) gives a 1px element a NEGATIVE margin-box, and
+ *    grid auto tracks clamp that to a ZERO-WIDTH track — the
+ *    audit's `72.8px 0px` readout. The divider now owns a REAL 1px
+ *    track: both junction edges are FLUSH (the generic seam is
+ *    suppressed on the divider and on the element after it), so the
+ *    boundary reads border·line·border (3px) — heavier than the 1px
+ *    intra-cluster seam, which a cluster boundary should be.
  *
  *  - THE SEPARATOR (r13): ghost's seam. The bordered rungs read
  *    through the -1px law (their collapsed borders ARE the hairline);
@@ -57,20 +63,30 @@
     margin-block-start: -1px;
   }
 
-  /* the divider: the hairline paint, geometry follows the group axis */
+  /* the divider: the hairline paint, geometry follows the group axis.
+     The junction edges are FLUSH on both sides (source order after
+     the seam rules — same zero-specificity layer, later wins): the
+     divider's margin-box is its real 1px, never a clamped zero-width
+     track (see the header's grid-era law) */
   :where([data-jx-btngroup-divider]) {
     flex: none;
     background: var(--border);
   }
+  :where([data-jx-btngroup='horizontal']) > [data-jx-btngroup-divider],
+  :where([data-jx-btngroup='horizontal']) > [data-jx-btngroup-divider] + * {
+    margin-inline-start: 0;
+  }
   :where([data-jx-btngroup='horizontal']) > [data-jx-btngroup-divider] {
     inline-size: 1px;
     align-self: stretch;
-    margin-inline-end: -1px;
+  }
+  :where([data-jx-btngroup='vertical']) > [data-jx-btngroup-divider],
+  :where([data-jx-btngroup='vertical']) > [data-jx-btngroup-divider] + * {
+    margin-block-start: 0;
   }
   :where([data-jx-btngroup='vertical']) > [data-jx-btngroup-divider] {
     block-size: 1px;
     align-self: stretch;
-    margin-block-end: -1px;
   }
 
   /* ── the ghost separator (r13): the seam slot, painted with the
@@ -115,7 +131,8 @@
   }
 }
 
-/* ── CASCADE CARVE-OUT (the dropdown-menu caret precedent): the
+/* ── CASCADE CARVE-OUT (css-architecture exception #2, the P3
+   STATE-MACHINE CARVE-OUT — the dropdown-menu caret precedent): the
    overflow display flips are STATE-MACHINE rules that must beat the
    items' own display utilities (an inline-flex button class lives in
    the utilities layer, which always wins over @layer components) —

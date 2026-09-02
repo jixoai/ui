@@ -236,7 +236,7 @@ describe('docs-route-model — install targets & the legacy map', () => {
       // (the css probe + the native-parity fixtures), never catalog pages
       '/', '/probe-folder-css', '/parity.html', '/docs.html', '/docs/components.html',
       '/docs/components/form.html', '/docs/registry.html', '/docs/recipes.html',
-      '/docs/jx-pure.html', '/docs/variant-grammar.html', '/docs/demo-standard.html', '/docs/paged.html', '/docs/llms-txt.html', '/tokens.html', '/blueprints.html', '/patterns.html',
+      '/docs/jx-pure.html', '/docs/variant-grammar.html', '/docs/demo-standard.html', '/docs/paged.html', '/docs/llms-txt.html', '/docs/icons.html', '/tokens.html', '/blueprints.html', '/patterns.html',
       ...canonical,
     ]);
     const missing = [...expected].filter((e) => !entries.has(e));
@@ -262,7 +262,7 @@ describe('docs-route-model — install targets & the legacy map', () => {
       expect(existsSync(resolve(dist, path.slice(1))), `dist page ${path}`).toBe(true);
     }
     // the family hub + the moved sections pages are real routes too
-    for (const extra of ['/docs/components/form.html', '/docs/registry.html', '/docs/recipes.html', '/docs/jx-pure.html', '/docs/variant-grammar.html', '/docs/llms-txt.html']) {
+    for (const extra of ['/docs/components/form.html', '/docs/registry.html', '/docs/recipes.html', '/docs/jx-pure.html', '/docs/variant-grammar.html', '/docs/llms-txt.html', '/docs/icons.html']) {
       expect(existsSync(resolve(dist, extra.slice(1))), `dist page ${extra}`).toBe(true);
     }
   });

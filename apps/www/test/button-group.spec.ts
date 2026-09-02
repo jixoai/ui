@@ -111,13 +111,21 @@ describe('ButtonGroup · the seam structure (the css law)', () => {
     );
   });
 
-  it('the divider REPLACES the collapsed seam — 1px paint, collapsed on both edges', () => {
+  it('the divider owns a REAL 1px track — flush junction edges, never a clamped zero-width track (grid-era law, Codex B1)', () => {
+    // the flex-era -1px/-1px pair made the divider's margin-box
+    // NEGATIVE → grid auto tracks clamped it to 0px (the audit's
+    // `72.8px 0px` readout). The junction is now flush on both sides
     expect(buttonGroupCss).toMatch(
-      /\[data-jx-btngroup='horizontal'\]\)\s*>\s*\[data-jx-btngroup-divider\]\s*\{[^}]*inline-size:\s*1px;[^}]*margin-inline-end:\s*-1px;/s,
+      /\[data-jx-btngroup='horizontal'\]\)\s*>\s*\[data-jx-btngroup-divider\],\s*\n\s*:where\(\[data-jx-btngroup='horizontal'\]\)\s*>\s*\[data-jx-btngroup-divider\]\s*\+\s\*\s*\{\s*margin-inline-start:\s*0;/,
     );
     expect(buttonGroupCss).toMatch(
-      /\[data-jx-btngroup='vertical'\]\)\s*>\s*\[data-jx-btngroup-divider\]\s*\{[^}]*block-size:\s*1px;[^}]*margin-block-end:\s*-1px;/s,
+      /\[data-jx-btngroup='vertical'\]\)\s*>\s*\[data-jx-btngroup-divider\],\s*\n\s*:where\(\[data-jx-btngroup='vertical'\]\)\s*>\s*\[data-jx-btngroup-divider\]\s*\+\s\*\s*\{\s*margin-block-start:\s*0;/,
     );
+    expect(buttonGroupCss).toMatch(
+      /\[data-jx-btngroup='horizontal'\]\)\s*>\s*\[data-jx-btngroup-divider\]\s*\{[^}]*inline-size:\s*1px;/s,
+    );
+    // the old overlap geometry is RETIRED
+    expect(buttonGroupCss).not.toMatch(/divider[^{]*\{[^}]*margin-inline-end:\s*-1px/s);
   });
 
   it('the divider carries no border of its own (the hairline is paint, not a fifth edge)', () => {
@@ -128,22 +136,25 @@ describe('ButtonGroup · the seam structure (the css law)', () => {
 });
 
 describe('ButtonGroup · the grid container (r13: grid replaces flex)', () => {
-  it('is an inline grid flowing row-major with auto columns (horizontal)', () => {
+  it('is an inline grid flowing COLUMN with auto columns (horizontal — the no-template flow law, pinned on Chromium)', () => {
     const { container } = render(Host);
     const row = container.querySelector('[data-testid="row-group"]')!;
     expect(row.classList.contains('inline-grid')).toBe(true);
-    expect(row.classList.contains('grid-flow-row')).toBe(true);
+    // flow COLUMN grows the one implicit row with columns (the
+    // horizontal line); flow ROW would stack every button in one
+    // column — the Codex B1 regression
+    expect(row.classList.contains('grid-flow-col')).toBe(true);
     expect(row.classList.contains('auto-cols-auto')).toBe(true);
     // flex is retired — the Owner ruling, not a regression
     expect(row.className).not.toContain('inline-flex');
     expect(row.className).not.toContain('flex-row');
   });
 
-  it('vertical groups flow column-major with auto rows', () => {
+  it('vertical groups flow ROW (the default) with auto rows — one column, implicit rows', () => {
     const { container } = render(Host);
     const col = container.querySelector('[data-testid="col-group"]')!;
     expect(col.classList.contains('inline-grid')).toBe(true);
-    expect(col.classList.contains('grid-flow-col')).toBe(true);
+    expect(col.classList.contains('grid-flow-row')).toBe(true);
     expect(col.classList.contains('auto-rows-auto')).toBe(true);
   });
 
