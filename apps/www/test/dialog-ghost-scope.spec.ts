@@ -7,6 +7,11 @@ describe('the dialog ghost scope (r14-2)', () => {
     const target = document.createElement('div');
     document.body.appendChild(target);
     mount(Host, { target });
+    // the close button is a CONTEXT consumer too (r14-4): IconButton
+    // with no variant inherits the header's ghost scope
+    const x = target.querySelector('.jx-dialog-x');
+    expect(x?.getAttribute('data-jx-press-button')).toBe('ghost');
+
     const stamps = [...target.querySelectorAll('[data-jx-press-button]')].map(
       (b) => ({ label: b.textContent?.trim(), variant: b.getAttribute('data-variant') ?? b.getAttribute('data-jx-variant') ?? (b.dataset as Record<string, string>) }),
     );

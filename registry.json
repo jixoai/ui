@@ -784,9 +784,10 @@
         "href": "/docs/components/dialog.html"
       },
       "registryDependencies": [
-        "@jixoai/jixoai-theme",
-        "@jixoai/icons",
         "@jixoai/button-group",
+        "@jixoai/icon-button",
+        "@jixoai/icons",
+        "@jixoai/jixoai-theme",
         "@jixoai/separator"
       ]
     },

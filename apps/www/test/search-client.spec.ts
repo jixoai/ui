@@ -203,7 +203,9 @@ describe('the palette', () => {
     const dialog = target.querySelector('dialog')!;
     expect(dialog).not.toBeNull();
     expect(dialog.open).toBe(false);
-    expect(target.querySelector('.fixed')).toBeNull();
+    // no fixed overlay CARRIES the panel (IconButton's tooltip carriage
+    // — popover-manual, its own law — is not a palette overlay)
+    expect(dialog.closest('.fixed')).toBeNull();
     await flush();
     document.dispatchEvent(new CustomEvent('jx-search-open'));
     await vi.waitFor(() => expect(target.querySelector('dialog[open]')).not.toBeNull());

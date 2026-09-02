@@ -50,6 +50,7 @@
   import Separator from '$lib/ui/separator/separator.svelte';
   import ButtonGroup from '$lib/ui/button-group/button-group.svelte';
   import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
+  import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import './dialog.css';
 
   interface Props {
@@ -172,6 +173,12 @@
   };
 </script>
 
+{#snippet xGlyph()}
+  <!-- glyph from the shared icons module; dialog.css owns its 14px
+       descendant scale, the strokier × rides a consuming utility -->
+  {@html icons.x}
+{/snippet}
+
 <dialog
   bind:this={dialog}
   class="jx-dialog jx-surface m-auto p-0 w-[min(92vw,26rem)] max-w-full text-popover-foreground @container/jx-dialog {motion.supported ? 'jx-waapi' : ''} {platformClass}"
@@ -218,17 +225,19 @@
             {/if}
           </div>
           <div class="jx-dialog-end-action-slot">
-            <button
+            <!-- the close is a CONTEXT consumer (r14-4, Owner): an
+                 IconButton with NO variant — the default path inherits
+                 the Dialog's ghost scope; nothing hand-painted -->
+            <IconButton
+              icon={xGlyph}
+              text="Close"
+              iconOnly
+              placement="bottom-start"
+              arrow={false}
               type="button"
-              class="jx-press jx-dialog-x inline-flex items-center justify-center flex-none size-[30px] p-0 border border-border bg-popover cursor-pointer [&_svg]:stroke-[2.5] [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-[color-mix(in_oklab,var(--popover-foreground)_6%,transparent)]"
               onclick={shut}
-              aria-label="Close"
-            >
-              <!-- glyph from the shared icons module; dialog.css owns its
-                   14px descendant scale, the strokier × rides a consuming
-                   utility -->
-              {@html icons.x}
-            </button>
+              class="jx-dialog-x [&_svg]:stroke-[2.5]"
+            />
           </div>
         </div>
       </ButtonVariantScope>
