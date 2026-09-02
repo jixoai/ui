@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-02T13:43:11.997Z",
+  "generatedAt": "2026-09-02T15:52:05.344Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3452,6 +3452,10 @@
     {
       "path": "registry/files/lib/icon-table/icon-table.svelte",
       "note": "icons-docs — site-only ruling; on-disk relic pending dev-server reload"
+    },
+    {
+      "path": "registry/files/app.css",
+      "note": "registry standalone app entry — byte-mirror of www src/app.css, manual sync"
     },
     {
       "path": "registry/files/lib/highlight/context.svelte.ts",
