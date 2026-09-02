@@ -61,3 +61,17 @@ html[data-vt-rail='out']::view-transition-old(vt-rail-tree) {
     animation: none;
   }
 }
+
+/*
+  Fuzzy filter hit marks (nav-fuzzy-filter change, 2026-09-02): the
+  rail's answer to the search palette's <mark> — the same law
+  (transparent background, primary text) at rail scale. Scoped under
+  .jx-dsn so the law travels with the component; the UA's yellow mark
+  background is reset, the hit characters take the primary color (the
+  current-page link already reads primary — the mark keeps matched
+  chars legible inside it for the same reason).
+*/
+.jx-dsn :where(mark) {
+  background: transparent;
+  color: var(--primary);
+}

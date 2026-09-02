@@ -29,6 +29,12 @@
   import { page } from '$app/state';
   import { docsComponentGroups, docsSections } from '$lib/docs-route-model';
   import { icons } from '$lib/icons';
+  import {
+    navFilter,
+    navHighlightSegments,
+    type NavFilterHighlight,
+    type NavHighlightSegment,
+  } from '$lib/search/nav-filter';
   import ProgressiveBlur from '$lib/ui/progressive-blur/progressive-blur.svelte';
 
   const normalized = $derived(
@@ -53,7 +59,7 @@
     id: string;
     label: string;
     count?: number;
-    pages: { title: string; subtitle?: string; href: string }[];
+    pages: { title: string; subtitle?: string; href: string; count?: number }[];
   }
 
   const railTitle = $derived(inComponentsTree ? 'components' : 'docs');
@@ -87,26 +93,17 @@
   let open = $state(false);
   const close = () => (open = false);
 
-  // search filter (Owner request, 2026-08-25): typing filters pages by
-  // title OR subtitle across every section; empty sections hide. The
-  // rail is the primary surface; the mobile bar carries the same input
-  // at the top of its expansion.
+  // search filter (Owner request, 2026-08-25; fuzzy upgrade
+  // nav-fuzzy-filter, 2026-09-02): typing filters pages by title OR
+  // subtitle across every section through the nav-filter kernel
+  // (fuzzysort) — a SUPERSET of the old substring match. The engine
+  // only filters: group order and intra-group order ride the data
+  // source; empty sections hide; matched characters carry <mark>.
+  // The rail is the primary surface; the mobile bar carries the same
+  // input at the top of its expansion.
   let filter = $state('');
-  const needle = $derived(filter.trim().toLowerCase());
-  const visibleSections = $derived(
-    !needle
-      ? railGroups
-      : railGroups
-          .map((section) => ({
-            ...section,
-            pages: section.pages.filter(
-              (pg) =>
-                pg.title.toLowerCase().includes(needle) ||
-                (pg.subtitle?.toLowerCase().includes(needle) ?? false),
-            ),
-          }))
-          .filter((section) => section.pages.length > 0),
-  );
+  const needle = $derived(filter.trim());
+  const visibleSections = $derived(navFilter(railGroups, filter));
   const onFilterKeydown = (event: KeyboardEvent) => {
     // Escape clears and yields focus — and must not leak upward (the
     // page binds Escape for popover/disclosure closing)
@@ -115,6 +112,20 @@
       filter = '';
     }
   };
+
+  /** hit marks for one link line: the page's matched field splits
+   *  into marked/unmarked segments; the other line renders plain */
+  function lineSegments(
+    text: string | undefined,
+    highlight: NavFilterHighlight | undefined,
+    field: 'title' | 'subtitle',
+  ): NavHighlightSegment[] {
+    if (text === undefined || text === '') return [];
+    if (highlight === undefined || highlight.field !== field || highlight.indexes.length === 0) {
+      return [{ text, hit: false }];
+    }
+    return navHighlightSegments(text, highlight.indexes);
+  }
 </script>
 
 <nav class="jx-dsn" data-area="tree" aria-label="docs sections">
@@ -165,13 +176,17 @@
                   aria-current={isCurrent(pg.href) ? 'page' : undefined}
                 >
                   <span class="jx-dsn-link-row">
-                    <span class="jx-dsn-link-title">{pg.title}</span>
+                    <span class="jx-dsn-link-title">
+                      {#each lineSegments(pg.title, pg.highlight, 'title') as seg}{#if seg.hit}<mark>{seg.text}</mark>{:else}{seg.text}{/if}{/each}
+                    </span>
                     {#if pg.count !== undefined}
                       <span class="jx-dsn-count">{pg.count}</span>
                     {/if}
                   </span>
                   {#if pg.subtitle}
-                    <span class="jx-dsn-sub">{pg.subtitle}</span>
+                    <span class="jx-dsn-sub">
+                      {#each lineSegments(pg.subtitle, pg.highlight, 'subtitle') as seg}{#if seg.hit}<mark>{seg.text}</mark>{:else}{seg.text}{/if}{/each}
+                    </span>
                   {/if}
                 </a>
               </li>
@@ -242,13 +257,17 @@
                   onclick={close}
                 >
                   <span class="jx-dsn-link-row">
-                    <span class="jx-dsn-link-title">{pg.title}</span>
+                    <span class="jx-dsn-link-title">
+                      {#each lineSegments(pg.title, pg.highlight, 'title') as seg}{#if seg.hit}<mark>{seg.text}</mark>{:else}{seg.text}{/if}{/each}
+                    </span>
                     {#if pg.count !== undefined}
                       <span class="jx-dsn-count">{pg.count}</span>
                     {/if}
                   </span>
                   {#if pg.subtitle}
-                    <span class="jx-dsn-sub">{pg.subtitle}</span>
+                    <span class="jx-dsn-sub">
+                      {#each lineSegments(pg.subtitle, pg.highlight, 'subtitle') as seg}{#if seg.hit}<mark>{seg.text}</mark>{:else}{seg.text}{/if}{/each}
+                    </span>
                   {/if}
                 </a>
               </li>

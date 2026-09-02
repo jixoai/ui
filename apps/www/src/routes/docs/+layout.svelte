@@ -28,7 +28,6 @@
   import type { Snippet } from 'svelte';
   import { PrintDoc, PrintControls } from '$lib/print';
   import type { PrintPageConfig } from '$lib/print';
-  import SearchPalette from '$lib/ui/search-palette.svelte';
 
   let { children }: { children: Snippet } = $props();
 
@@ -58,11 +57,9 @@
   <div data-jx-print="hide" class="mx-auto w-full max-w-[90rem] px-4 pt-6 sm:px-6 lg:px-8">
     <PrintControls config={printConfig} label="docs · print" />
   </div>
-  <!-- full-text search (search-corpus change): ⌘K or the nav's
-       trigger. print-HIDDEN: an open palette would otherwise ride into
-       the print source clone (the whitelist never sees it) -->
-  <div data-jx-print="hide">
-    <SearchPalette />
-  </div>
+  <!-- the search palette left this subtree for the ROOT layout
+       (nav-fuzzy-filter change, N2): ONE mount site-wide — keeping a
+       second one here would double ⌘K listeners and stack two open
+       dialogs on every docs page -->
   {@render children()}
 </PrintDoc>
