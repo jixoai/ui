@@ -110,6 +110,23 @@ describe('the zones — borders retired, content rides the 1fr track', () => {
     expect(container.querySelector('.col-start-2')).toBeNull();
   });
 
+  it('the scroll law (r14-3): the panel never scrolls — only the body content cell is the ring', () => {
+    const { container } = render(Dialog, { props: { title: 't', children, footer } });
+    // the ruler host carries a height BOUND but no overflow authority
+    const ring = container.querySelector('[data-jx-dialog-scroll]')!;
+    expect(ring.className).not.toMatch(/overflow(-[xy])?-?(auto|scroll)/);
+    expect(ring.className).toMatch(/max-h-/);
+    // the body ZONE is the scroll ring (min-height:0 unlocks the 1fr row)
+    const bodyZone = container.querySelector('[data-jx-dialog-body]')!;
+    const bodyCss = 'overflow-y: auto; scrollbar-gutter: stable; min-height: 0;';
+    void bodyZone; void bodyCss;
+    expect(css).toMatch(/\[data-jx-dialog-body\][^}]*min-height: 0/s);
+    expect(css).toMatch(/\[data-jx-dialog-body\][^}]*overflow-y: auto/s);
+    // the css gives body the ONLY flexible row (head/foot pinned)
+    expect(css).toContain('[body] minmax(0, 1fr)');
+    expect(css).not.toContain('[body] minmax(0, auto)');
+  });
+
   it('the platform element is the named inline-size container', () => {
     const { container } = render(Dialog, { props: { title: 't', children } });
     expect(container.querySelector('dialog')!.className).toContain('@container/jx-dialog');
@@ -146,12 +163,6 @@ describe('the foot zone — actions auto-group, footer leads', () => {
     expect(slot.querySelector('button')?.closest('[data-jx-btngroup]')).not.toBeNull(); // auto-grouped
     // between the two clusters exactly one decorative separator
     expect(slot.querySelectorAll('hr, [role="separator"], .jx-surface-shadow + hr').length).toBe(1);
-  });
-    const cell = container.querySelector('[data-jx-dialog-foot] > div')!;
-    expect(cell.className).toContain('justify-end');
-    // the ButtonGroup is the cell's LAST child — the terminal cluster
-    const last = cell.lastElementChild!;
-    expect(last.getAttribute('data-jx-btngroup')).toBe('horizontal');
   });
 });
 
@@ -197,7 +208,7 @@ describe('the ruler — css source law', () => {
   it('the scroll ring is the ROW-RULER host: one column, named rows (r14)', () => {
     expect(css).toMatch(/display: grid;/);
     expect(css).toContain('[head] auto');
-    expect(css).toContain('[body] minmax(0, auto)');
+    expect(css).toContain('[body] minmax(0, 1fr)'); // the ONLY flexible row (the scroll law, r14-3)
     // no column ruler on the scroll RING (the zone-level slot grids
     // own their own two-track columns — that is the r14-2 law)
     const ring = css.slice(css.indexOf('[data-jx-dialog-scroll]'), css.indexOf('.jx-dialog-head-grid'));

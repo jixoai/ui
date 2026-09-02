@@ -22,7 +22,10 @@
  *
  *      rows   [head] auto            ← flush zone; content pads itself
  *             [sep-head] 1px         ← <Separator> edge-to-edge
- *             [body] minmax(0,auto)
+ *             [body] minmax(0,1fr)   ← THE ONLY SCROLL TRACK (r14-3:
+ *                                    Owner: the panel never scrolls;
+ *                                    the body's content cell is the
+ *                                    ring — head/foot stay pinned)
  *             [sep-foot] 1px         ← stamped-present only
  *             [foot] auto
  *
@@ -41,22 +44,30 @@
     grid-template-rows:
       [head] auto
       [sep-head] 1px
-      [body] minmax(0, auto);
+      [body] minmax(0, 1fr);
   }
   /* the foot matrix (stamped presence): two more explicit tracks */
   :where([data-jx-dialog-scroll][data-sep-foot]) {
     grid-template-rows:
       [head] auto
       [sep-head] 1px
-      [body] minmax(0, auto)
+      [body] minmax(0, 1fr)
       [sep-foot] 1px
       [foot] auto;
   }
   :where([data-jx-dialog-head]) {
     grid-row: head;
   }
+  /* THE SCROLL LAW (r14-3, Owner): the panel never scrolls — the body
+     ZONE is the only ring. min-height:0 kills the grid item's implicit
+     auto floor so the 1fr row can actually constrain it; overflow-y
+     owns the scroll; the scrollbar rides the zone's edge (the padded
+     cell scrolls inside it) */
   :where([data-jx-dialog-body]) {
     grid-row: body;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
   }
   :where([data-jx-dialog-foot]) {
     grid-row: foot;

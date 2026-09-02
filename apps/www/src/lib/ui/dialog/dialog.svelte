@@ -193,7 +193,7 @@
     data-jx-dialog-scroll=""
     data-sep-head=""
     data-sep-foot={hasFoot ? '' : undefined}
-    class="jx-surface-scroll max-h-[calc(100dvh-2rem)] overflow-auto"
+    class="max-h-[calc(100dvh-2rem)]"
   >
     <!-- the head zone is FLUSH (the r14 tuning): a consumer head
          snippet (the palette's Input) spans edge-to-edge and owns its
