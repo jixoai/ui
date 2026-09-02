@@ -14,9 +14,14 @@
  *              [sep-head]/[sep-foot] 1px tracks, the no-subgrid
  *              padding fallback, the container-query inset ladder.
  *   r12 FACE   class/head/cancelGuard survive the restructure intact.
+ *   r14-9      the actions/end sibling snippets are RETIRED — the
+ *              footer snippet is the RAW full foot override, and the
+ *              content faces are the composition components:
+ *              DialogHeader (the default title row, rendered
+ *              internally) and DialogFooter (the auto button-group).
  *
- * The palette composition (head snippet + geometry overrides) is
- * locked end-to-end in search-client.spec.ts.
+ * The palette composition (head snippet + DialogHeader + geometry
+ * overrides) is locked end-to-end in search-client.spec.ts.
  */
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -24,13 +29,13 @@ import { render } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 import type { Snippet } from 'svelte';
 import Dialog from '../src/lib/ui/dialog/dialog.svelte';
+import DialogFooter from '../src/lib/ui/dialog/dialog-footer.svelte';
 
 const css = readFileSync(resolve(process.cwd(), 'src/lib/ui/dialog/dialog.css'), 'utf8');
 
 /** the empty-snippet children every slot-bearing component accepts */
 const children = (() => {}) as unknown as Snippet;
 const footer = (() => {}) as unknown as Snippet;
-const actions = (() => {}) as unknown as Snippet;
 const head = (() => {}) as unknown as Snippet;
 
 const scroll = (c: HTMLElement) => c.querySelector('[data-jx-dialog-scroll]')!;
@@ -55,12 +60,6 @@ describe('the ruler host — presence stamps (the painting law)', () => {
     const footed = render(Dialog, { props: { title: 't', children, footer } });
     expect(scroll(footed.container).hasAttribute('data-sep-foot')).toBe(true);
     expect(footed.container.querySelector('[data-jx-dialog-foot]')).not.toBeNull();
-  });
-
-  it('actions is the foot zone too (the shortcut face)', () => {
-    const acted = render(Dialog, { props: { title: 't', children, actions } });
-    expect(scroll(acted.container).hasAttribute('data-sep-foot')).toBe(true);
-    expect(acted.container.querySelector('[data-jx-dialog-foot]')).not.toBeNull();
   });
 });
 
@@ -90,15 +89,16 @@ describe('the zones — borders retired, content rides the 1fr track', () => {
       expect(el.className).not.toMatch(/border-[tb]/);
       expect(el.getAttribute('class')).toBeNull(); // the zone element carries NO utilities
     }
-    // the DEFAULT title row owns its rhythm; a consumer head snippet
-    // renders FLUSH (the row drops its padding utilities entirely)
-    const headRow = container.querySelector('.jx-dialog-head-content')!;
+    // the DEFAULT title row IS the DialogHeader component — it owns the
+    // rhythm; a consumer head snippet renders RAW (no DialogHeader
+    // unless composed, nothing padded arriving from Dialog itself)
+    const headRow = container.querySelector('.jx-dialog-head-grid > .jx-dialog-head-content')!;
     expect(headRow.className).toMatch(/px-3\.5/);
     expect(headRow.className).toMatch(/py-2\.5/);
+    expect(headRow.querySelector('h2[data-jx-dialog-title]')).not.toBeNull();
     const flushed = render(Dialog, { props: { head, children } });
-    const flushedRow = flushed.container.querySelector('.jx-dialog-head-content')!;
-    expect(flushedRow.className).not.toContain('px-');
-    expect(flushedRow.className).not.toContain('py-');
+    expect(flushed.container.querySelector('.jx-dialog-head-content')).toBeNull();
+    expect(flushed.container.querySelector('h2')).toBeNull();
     const bodyRow = container.querySelector('[data-jx-dialog-body] > div')!;
     expect(bodyRow.className).toMatch(/p-3\.5/);
   });
@@ -133,49 +133,36 @@ describe('the zones — borders retired, content rides the 1fr track', () => {
   });
 });
 
-describe('the foot zone — actions auto-group, footer leads', () => {
+describe('the foot zone — the footer snippet is RAW; DialogFooter is the content face (r14-9)', () => {
   it('the ghost scope covers header and footer buttons (Context, r14-2)', () => {
-    const { container } = render(Dialog, { props: { title: 't', children, footer, actions } });
+    const { container } = render(Dialog, { props: { title: 't', children, footer } });
     // both zones wrap their content in the variant scope
     expect(container.querySelectorAll('button').length).toBeGreaterThan(0);
     // the scope component renders NO element (a context boundary, not a
-    // container) — the slot grids sit directly under the zones
+    // container) — the head slot grid sits directly under its zone
     expect(container.querySelector('[data-jx-dialog-head] > .jx-dialog-head-grid')).not.toBeNull();
-    expect(container.querySelector('[data-jx-dialog-foot] > .jx-dialog-foot-grid')).not.toBeNull();
+    // the foot zone renders the footer snippet RAW — no grid, no group,
+    // no divider from Dialog; the content face is DialogFooter's
+    expect(container.querySelector('[data-jx-dialog-foot] > .jx-dialog-foot-grid')).toBeNull();
+    expect(container.querySelector('[data-jx-dialog-foot] > [data-jx-btngroup]')).toBeNull();
+    expect(container.querySelector('[data-jx-dialog-foot] > [data-jx-separator]')).toBeNull();
   });
 
-  it('actions wraps its snippet in a ButtonGroup (named; the grid packs the end)', () => {
-    const acted = render(Dialog, { props: { title: 't', children, actions } });
-    const grid = acted.container.querySelector('.jx-dialog-foot-grid')!;
-    expect(grid.querySelector('[data-jx-btngroup]')).not.toBeNull();
-  });
-
-  it('footer buttons hang in ONE button-group; actions groups separately; one divider between (r14-7)', () => {
-    const both = render(Dialog, { props: { title: 't', children, footer, actions } });
-    const grid = both.container.querySelector('.jx-dialog-foot-grid')!;
-    const groups = [...grid.querySelectorAll(':scope > [data-jx-btngroup]')];
-    expect(groups.length).toBe(2); // the footer cluster AND the actions cluster
+  it('DialogFooter: children auto-join ONE ButtonGroup (named; the grid packs the end)', () => {
+    const { container } = render(DialogFooter, { props: { children } });
+    const grid = container.querySelector('.jx-dialog-foot-grid')!;
+    expect(grid).not.toBeNull();
+    const groups = grid.querySelectorAll(':scope > [data-jx-btngroup]');
+    expect(groups.length).toBe(1);
     expect(groups[0]?.getAttribute('aria-label')).toBe('Dialog footer');
-    expect(groups[1]?.getAttribute('aria-label')).toBe('Dialog actions');
-    // between the two groups exactly one decorative separator — the
-    // VERTICAL posture (the foot grid is a column flow: a horizontal hr
-    // there collapses to a zero-width track, the r14-8 live-probe find)
-    const divider = grid.querySelector(':scope > [data-jx-separator]');
-    expect(grid.querySelectorAll(':scope > [data-jx-separator]').length).toBe(1);
-    expect(divider?.getAttribute('data-orientation')).toBe('vertical');
-    expect(divider?.getAttribute('aria-hidden')).toBe('true');
-    // the actions group stays the terminal child
-    expect([...grid.children].at(-1)?.getAttribute('data-jx-btngroup')).toBe('horizontal');
   });
 
-  it('the RAW end slot replaces the grouped cluster entirely (the footerEnd reference)', () => {
-    const ended = render(Dialog, {
-      props: { title: 't', children, footer, actions, end: (() => {}) as unknown as Snippet },
+  it('DialogFooter: the end slot replaces the grouped arrangement entirely (the footerEnd reference)', () => {
+    const ended = render(DialogFooter, {
+      props: { children, end: (() => {}) as unknown as Snippet },
     });
-    const grid = ended.container.querySelector('.jx-dialog-foot-grid')!;
-    expect(grid.querySelectorAll('[data-jx-btngroup], [data-jx-separator]').length).toBe(0); // no groups, no divider
-    // the foot zone still exists (end drives hasFoot)
-    expect(ended.container.querySelector('[data-jx-dialog-foot]')).not.toBeNull();
+    expect(ended.container.querySelector('[data-jx-btngroup]')).toBeNull(); // no group under the raw face
+    expect(ended.container.querySelector('.jx-dialog-foot-grid')).not.toBeNull(); // the grid still carries the end content
   });
 });
 

@@ -768,6 +768,21 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/dialog/dialog-header.svelte",
+          "target": "@ui/dialog/dialog-header.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/dialog/dialog-footer.svelte",
+          "target": "@ui/dialog/dialog-footer.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/dialog/dialog-footer.css",
+          "target": "@ui/dialog/dialog-footer.css",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/dialog/index.ts",
           "target": "@ui/dialog/index.ts",
           "type": "registry:file"
@@ -778,7 +793,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: title?, open ($bindable); snippets children, footer?. Escape goes through the cancel event and shares the animated close path.",
+      "docs": "Props: title?, open ($bindable), variant?, class? (geometry-only), cancelGuard?; snippets children, head? (custom flush head, typically <DialogHeader>), footer? (the RAW full foot override — usually a <DialogFooter>: children auto-join one end-packed ButtonGroup, ghost via the zone's Context scope; the end slot replaces the grouped arrangement). Escape goes through the cancel event and shares the animated close path.",
       "meta": {
         "group": "layer",
         "href": "/docs/components/dialog.html"

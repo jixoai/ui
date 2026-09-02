@@ -3,6 +3,7 @@
      top-layer panels into the stage. -->
 <script lang="ts">
   import Dialog from '$lib/ui/dialog/dialog.svelte';
+  import DialogFooter from '$lib/ui/dialog/dialog-footer.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
 </script>
@@ -18,7 +19,9 @@
     This removes 3 deployments and their logs. The action cannot be undone.
   </p>
   {#snippet footer()}
-    <PressButton variant="outline">Cancel</PressButton>
-    <PressButton variant="fill">Delete</PressButton>
+    <DialogFooter>
+      <PressButton>Cancel</PressButton>
+      <PressButton variant="fill">Delete</PressButton>
+    </DialogFooter>
   {/snippet}
 </Dialog>

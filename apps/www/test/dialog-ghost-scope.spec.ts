@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import Host from '../test/fixtures/dialog-ghost-host.svelte';
 import { mount } from 'svelte';
 
-describe('the dialog ghost scope (r14-2)', () => {
-  it('footer and actions buttons default to ghost via Context; explicit wins', () => {
+describe('the dialog ghost scope (r14-2 → r14-9)', () => {
+  it('raw footer content and DialogFooter buttons default to ghost via Context; explicit wins', () => {
     const target = document.createElement('div');
     document.body.appendChild(target);
     mount(Host, { target });
@@ -12,17 +12,22 @@ describe('the dialog ghost scope (r14-2)', () => {
     const x = target.querySelector('.jx-dialog-x');
     expect(x?.getAttribute('data-jx-press-button')).toBe('ghost');
 
-    const stamps = [...target.querySelectorAll('[data-jx-press-button]')].map(
-      (b) => ({ label: b.textContent?.trim(), variant: b.getAttribute('data-variant') ?? b.getAttribute('data-jx-variant') ?? (b.dataset as Record<string, string>) }),
-    );
     const byLabel = Object.fromEntries(
       [...target.querySelectorAll('[data-jx-press-button]')].map((b) => [b.textContent?.trim(), b]),
     );
     const variantOf = (el?: Element) => el?.getAttribute('data-jx-press-button'); // the stamp carries the resolved variant
-    expect(byLabel['legacy-foot-button']).toBeTruthy();
-    expect(variantOf(byLabel['legacy-foot-button'])).toBe('ghost');
-    expect(variantOf(byLabel['action-one'])).toBe('ghost');
+    // the RAW footer snippet's button — the zone scope covers it directly
+    expect(variantOf(byLabel['raw-foot-button'])).toBe('ghost');
+    // the DialogFooter's grouped button — inheritance flows through the
+    // component into its ButtonGroup
+    expect(variantOf(byLabel['grouped-ghost'])).toBe('ghost');
     expect(variantOf(byLabel['explicit-wins'])).toBe('outline'); // explicit wins, always
+
+    // r14-9 integration: the footer snippet renders RAW in the zone —
+    // DialogFooter's grid rides directly under it (the variant scope
+    // renders no element), and exactly one grouped cluster exists
+    expect(target.querySelector('[data-jx-dialog-foot] > .jx-dialog-foot-grid')).not.toBeNull();
+    expect(target.querySelectorAll('[data-jx-dialog-foot] [data-jx-btngroup]').length).toBe(1);
     target.remove();
   });
 });

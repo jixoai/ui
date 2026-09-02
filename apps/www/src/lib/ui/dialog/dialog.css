@@ -102,17 +102,9 @@
     justify-self: end;
     align-self: start;
   }
-  /* the footer is ONE end-packed cluster (r14-5, Owner): every child —
-     the footer snippet's buttons, the divider, the actions group — is
-     an auto column; the grid packs the whole flow to the inline end */
-  :where(.jx-dialog-foot-grid) {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: auto;
-    justify-content: end;
-    align-items: center;
-    column-gap: 0.625rem;
-  }
+  /* the FOOT GRID moved to dialog-footer.css (r14-9): the foot's
+     button economy is the DialogFooter component's — Dialog renders
+     the footer snippet RAW inside the zone */
 
   /* ── the D1-exempt residue ─────────────────────────────────────── */
   /* Scrim law (Owner, 2026-08-22): semi-transparent black in light mode,

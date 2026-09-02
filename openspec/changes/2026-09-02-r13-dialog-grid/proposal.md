@@ -60,3 +60,20 @@ ButtonGroup 升级（Context 传递变体、按需分割线、grid 替代 flex�
   foot 不溢出；无 subgrid 环境回退可用
 - footer 传散按钮 → 自动 ghost 入组；两组间一条线
 - ButtonGroup 窄容器：默认换行；collapse 模式折叠进 menu
+
+## 纠偏（Owner，2026-09-03 r14-9）
+
+上述第 2 节的「`actions` slot + 两组间一条线」设计被 Owner 否定：
+footer 的槽位架构属于 **Footer 区域本身**，由组件承载，不是 Dialog
+的兄弟 snippet。已落地修正（r14-9）：
+
+- Dialog 的 `footer` snippet 语义定为**整个脚部内容的裸覆盖**；
+  `actions` / `end` 兄弟 snippet 退役
+- 新增 `<DialogFooter>`（dialog item 内分发）：children 即动作按钮，
+  自动挂入一个 ButtonGroup 骑 inline-end（ghost 继承 Dialog 的 zone
+  Context 作用域，显式变体赢）；`end` 裸槽出现即替换组排布
+- 对称新增 `<DialogHeader>`（title 默认标题行 / children 自定义
+  flush 头）；Dialog 内部默认面直接渲染 DialogHeader（单一来源）；
+  × 关闭钮与其 end-action-slot 保持 Dialog 的头架构
+- ghost zone 作用域、行轨、Separator 轨道、滚动法则全部不变；
+  「两组间一条线」场景随双簇语义一并退役

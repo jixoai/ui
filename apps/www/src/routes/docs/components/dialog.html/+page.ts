@@ -15,6 +15,7 @@ const toc: TocSection[] = [
   { id: 'accessibility', label: 'Accessibility' },
   { id: 'theming', label: 'Theming' },
   { id: 'api', label: 'API' },
+  { id: 'composition', label: 'Header · Footer' },
 ];
 
 export const load = () => ({ toc });
