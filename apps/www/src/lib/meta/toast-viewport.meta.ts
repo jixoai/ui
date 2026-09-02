@@ -13,6 +13,18 @@ export const meta = defineComponentMeta(
         "kind": "number",
         "default": 4
       },
+      "expand": {
+        "kind": "boolean",
+        "default": false
+      },
+      "gap": {
+        "kind": "number",
+        "default": 8
+      },
+      "swipeDirections": {
+        "kind": "opaque",
+        "typeText": "readonly SwipeDirection[]"
+      },
       "class": {
         "kind": "string",
         "default": ""

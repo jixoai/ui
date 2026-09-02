@@ -23,6 +23,10 @@
  *     2026-09-02): expiry arms at FIRST VISIBILITY for viewport
  *     consumers; headless push stays arm-at-push. See the store
  *     interface doc below.
+ *  6. pauseAll/resumeAll — the PAGE-VISIBILITY source (toast-v2,
+ *     2026-09-02): a hidden tab freezes every clock (a toast must not
+ *     burn out unseen); orthogonal to the per-id hold and the visible-
+ *     set handshake — three independent freeze sources, one timer.
  *
  * Variant grammar (2026-08-26, variant-grammar change): the retired
  * tone law (default/primary/destructive) becomes the ladder —
@@ -42,6 +46,28 @@ export type ToastMaterial = 'popover' | 'glass';
 
 /** the EFFECT loop axis — pulse (breathing ring) | sweep (traveling light) */
 export type ToastEffect = 'none' | 'pulse' | 'sweep';
+
+/** the swipe-away axes (toast-v2, 2026-09-02): physical directions a
+ *  drag may carry to dismiss; the per-position default vocabulary
+ *  lives in SWIPE_BY_POSITION (the viewport applies it when the push
+ *  does not name its own) */
+export type SwipeDirection = 'up' | 'down' | 'left' | 'right';
+
+/** per-POSTURE swipe defaults (sonner's law, restated from source): a
+ *  toast dismisses toward its NEAREST screen edges — the position
+ *  tokens ARE the directions (top-right → up + right). The keys use
+ *  the place-self grammar of the anchor corner: 'start end' =
+ *  block-start + inline-end = top-right (the adopted float posture),
+ *  'end end' = bottom-right (the standalone fallback). Exported so
+ *  the viewport resolves the default per posture. */
+export const SWIPE_BY_POSITION: Readonly<Record<string, readonly SwipeDirection[]>> = Object.freeze(
+  {
+    'start start': ['left', 'up'],
+    'start end': ['right', 'up'],
+    'end start': ['left', 'down'],
+    'end end': ['right', 'down'],
+  },
+);
 
 export interface ToastInit {
   title: string;
@@ -67,6 +93,13 @@ export interface ToastInit {
   duration?: number;
   /** true → the viewport announces this one assertively (role=alert) */
   assertive?: boolean;
+  /** toast-v2 (2026-09-02): clicking the card expands it into a dialog
+   *  through a view transition (shared element morph; WAAPI fallback in
+   *  engines without VT) — the full-content reading posture */
+  expandable?: boolean;
+  /** toast-v2: the drag axes that dismiss this toast; default from
+   *  SWIPE_BY_POSITION at the viewport's corner */
+  swipeDirections?: readonly SwipeDirection[];
 }
 
 export interface ToastItem extends ToastInit {
@@ -119,6 +152,15 @@ interface ToastInternal {
    *  kept distinct from the visibility hold so the handshake below
    *  never stomps a user pause */
   held: boolean;
+  /** true while the PAGE-VISIBILITY source froze this toast (toast-v2,
+   *  2026-09-02): the tab is hidden; orthogonal to `held` and to the
+   *  visible-set handshake — three freeze sources, one timer */
+  visHeld: boolean;
+  /** set when the visibility freeze captured a RUNNING timer (or the
+   *  toast was pushed while hidden): resumeAll re-arms ONLY these —
+   *  queued-never-seen toasts and hover-held toasts stay exactly as
+   *  their own sources left them */
+  visFrozenArmed: boolean;
 }
 
 export interface ToastStore {
@@ -137,6 +179,13 @@ export interface ToastStore {
    *  call this: arm-at-push stays the default semantics. `null`
    *  detaches (everything resumes arm-at-push). */
   setVisible(ids: readonly number[] | null): void;
+  /** toast-v2 (2026-09-02): the page-visibility source — freeze/resume
+   *  EVERY clock at once (a hidden tab must not burn toasts out).
+   *  Orthogonal to pause/resume (per-id hover hold) and setVisible
+   *  (the visibility handshake): a toast frozen by this source stays
+   *  frozen through the others' churn and re-arms only when it runs. */
+  pauseAll(): void;
+  resumeAll(): void;
 }
 
 const DEFAULT_DURATION = 5000;
@@ -147,6 +196,14 @@ export function createToastStore(): ToastStore {
   let queue: ToastItem[] = [];
   let nextId = 1;
   let now = () => Date.now();
+  /** the page-visibility source's global state (toast-v2): while true,
+   *  pushes do not arm — their full duration waits for the page */
+  let pageHidden = false;
+  /** the last visible set a viewport reported (toast-v2 R1, 2026-09-02):
+   *  resumeAll re-arms ONLY ids the viewport actually renders — a
+   *  pushed-while-hidden toast beyond maxVisible must NOT burn unseen
+   *  the moment the page returns (D-2). `null` = no handshake owner. */
+  let lastVisible: Set<number> | null = null;
 
   const emit = (): void => {
     const snapshot = [...queue];
@@ -187,13 +244,29 @@ export function createToastStore(): ToastStore {
       remaining: undefined,
       expiresAt: duration === 0 ? Infinity : now() + duration,
       held: false,
+      visHeld: false,
+      visFrozenArmed: false,
     };
     queue = [...queue, item];
     live.set(id, internal);
     // arm-at-push is the DEFAULT (headless) semantics; when a viewport
     // has reported a visible set, its effect follows with setVisible —
-    // a pushed-but-queued toast is held there within the same flush
-    if (duration !== 0) arm(internal);
+    // a pushed-but-queued toast is held there within the same flush.
+    // A HIDDEN page (toast-v2) holds the full duration instead: the
+    // clock never starts until the page can be seen. `remaining` (not
+    // just expiresAt) carries the duration so resume RESTARTS it whole
+    // — expiresAt-now() would go negative after a long hide and arm()
+    // would dismiss the toast the instant the user returns, unseen
+    // (adversarial R1 P1-2, 2026-09-02)
+    if (duration !== 0) {
+      if (pageHidden) {
+        internal.visHeld = true;
+        internal.visFrozenArmed = true;
+        internal.remaining = duration;
+      } else {
+        arm(internal);
+      }
+    }
     emit();
     return id;
   }
@@ -253,30 +326,84 @@ export function createToastStore(): ToastStore {
     },
     pause(id: number): void {
       const internal = live.get(id);
-      if (!internal || internal.timer === undefined || internal.expiresAt === Infinity) return;
-      internal.remaining = internal.expiresAt - now();
+      if (!internal || internal.expiresAt === Infinity) return;
+      if (internal.timer !== undefined) {
+        internal.remaining = internal.expiresAt - now();
+        clearTimer(internal);
+      }
+      // timer-less (already frozen by the hover hold or the handshake):
+      // the pause still CLAIMS the hold — without this, a pause after a
+      // pause is a no-op and the SECOND holder's release would re-arm
+      // the clock mid-freeze (the expandable dialog's reading posture,
+      // adversarial R1 P1-1, 2026-09-02)
       internal.held = true;
-      clearTimer(internal);
     },
     resume(id: number): void {
       const internal = live.get(id);
       if (!internal || !internal.held) return;
       internal.held = false;
+      // a hidden page keeps the clock frozen — release the hold flag,
+      // the page-visibility source re-arms on its own resume
+      if (internal.visHeld) return;
       internal.expiresAt = now() + (internal.remaining ?? 0);
       internal.remaining = undefined;
       arm(internal);
     },
+    pauseAll(): void {
+      pageHidden = true;
+      for (const internal of live.values()) {
+        if (internal.expiresAt === Infinity) continue; // sticky: no clock
+        if (internal.timer !== undefined) {
+          internal.remaining = internal.expiresAt - now();
+          clearTimer(internal);
+          internal.visFrozenArmed = true;
+        }
+        internal.visHeld = true;
+      }
+    },
+    resumeAll(): void {
+      pageHidden = false;
+      for (const internal of live.values()) {
+        const hadRemaining = internal.remaining !== undefined;
+        internal.visHeld = false;
+        internal.visFrozenArmed = false;
+        // re-arm toasts holding a FROZEN clock that the viewport
+        // actually renders — hover-held (held) and queued-never-seen
+        // (outside lastVisible) toasts keep their own state; the
+        // handshake re-arms a promoted toast when it first renders.
+        // The gate reads `remaining`, NOT the visFrozenArmed stamp: a
+        // toast PROMOTED while hidden carries remaining from the
+        // handshake but no stamp (pauseAll only stamps RUNNING timers)
+        // — gating on the stamp left it frozen forever with a draining
+        // countdown (re-attack R2 P2-1, 2026-09-02)
+        if (
+          hadRemaining &&
+          !internal.held &&
+          (lastVisible === null || lastVisible.has(internal.item.id))
+        ) {
+          arm(internal);
+        }
+      }
+    },
     setVisible(ids: readonly number[] | null): void {
       const visible = ids === null ? null : new Set(ids);
+      lastVisible = visible;
       for (const internal of live.values()) {
         if (internal.expiresAt === Infinity) continue; // sticky: no clock
         // detach (ids === null): no viewport owns the hold anymore —
         // a hover/focus pause must not outlive its viewport, or the
         // toast freezes forever with no one left to resume it
-        // (CR-1 P3-2, 2026-09-02). Everything resumes arm-at-push
+        // (CR-1 P3-2, 2026-09-02). The leaving viewport also owned the
+        // page-visibility listener — retire that source too, or the
+        // store stays pageHidden forever and every later push lands
+        // un-armed (adversarial R1 P2-3, 2026-09-02). Everything
+        // resumes arm-at-push.
         if (visible === null) {
+          pageHidden = false;
+          internal.visHeld = false;
+          internal.visFrozenArmed = false;
+          internal.held = false;
           if (internal.remaining !== undefined) {
-            internal.held = false;
             internal.expiresAt = now() + internal.remaining;
             internal.remaining = undefined;
             arm(internal);
@@ -286,11 +413,18 @@ export function createToastStore(): ToastStore {
         const seen = visible.has(internal.item.id);
         // never stomp the viewport's hover/focus hold: `held` is the
         // user pause; the visibility hold only pauses/resumes toasts
-        // the hold does not own
-        if (!seen && !internal.held && internal.timer !== undefined) {
-          internal.remaining = internal.expiresAt - now();
-          clearTimer(internal);
-        } else if (seen && !internal.held && internal.remaining !== undefined) {
+        // the hold does not own — and a hidden page outranks both.
+        // A toast OUTSIDE the visible set cannot be hovered — if a
+        // queue eviction removed the card under the pointer, void the
+        // stranded hold here: the handshake owns the freeze from now
+        // on and re-entry re-arms it (adversarial R1 P2-1, 2026-09-02)
+        if (!seen && !internal.visHeld) {
+          internal.held = false;
+          if (internal.timer !== undefined) {
+            internal.remaining = internal.expiresAt - now();
+            clearTimer(internal);
+          }
+        } else if (seen && !internal.held && !internal.visHeld && internal.remaining !== undefined) {
           // first visibility (or re-entry): the clock starts NOW —
           // aligned with the countdown companion mounting this frame
           internal.expiresAt = now() + internal.remaining;

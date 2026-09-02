@@ -43,11 +43,13 @@ describe('toast — the viewport does not float itself', () => {
     expect(wrapper.closest('.jx-float-slot')).toBeTruthy();
     // and the stack FLOWS inside the plane — no self-floating
     expect(stack.className).not.toContain('fixed');
-    // V1-1 defense: rows are min-content and packed to the end — the
-    // dead `align-content-end` utility (align-content never applied)
-    // is gone, real alignment utilities took its place
+    // V1-1 defense: rows are min-content and packed — the dead
+    // `align-content-end` utility (align-content never applied) is
+    // gone, real alignment utilities took its place. toast-v2 growth
+    // law: the ADOPTED pile descends from the cell top (content-start);
+    // only the standalone fallback packs to the end (content-end)
     expect(stack.className).not.toContain('align-content-end');
-    expect(stack.className).toContain('content-end');
+    expect(stack.className).toContain('content-start');
     expect(stack.className).toContain('auto-rows-min');
   });
 
@@ -80,11 +82,13 @@ describe('toast — the viewport does not float itself', () => {
     // with the wrapper transparent, only the cards are interactive
     // (jsdom cannot cascade @layer rules from the imported css, so the
     // wrapper's computed pointer-events is asserted as css-source law
-    // above; the content's half is the class contract on real nodes)
+    // above; the content's half is the class contract on real nodes).
+    // toast-v2 stacking dialect: the opt-in rides the card's grid-item
+    // WRAPPER (the visual card inside it inherits)
     const stack = wrapper.querySelector('[data-jx-toasts]') as HTMLElement;
     expect(stack.className).toContain('pointer-events-none');
-    const card = stack.querySelector('[data-jx-toast]') as HTMLElement;
-    expect(card.className).toContain('pointer-events-auto');
+    const cardHost = stack.querySelector('[data-jx-toast]')?.parentElement as HTMLElement;
+    expect(cardHost.className).toContain('pointer-events-auto');
   });
 
   it('standalone (no scaffold) keeps the legacy fixed corner fallback', () => {

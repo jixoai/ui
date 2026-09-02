@@ -4,4 +4,5 @@
 export { default } from './toast-viewport.svelte';
 export * from './toast-viewport.svelte';
 export { default as ToastCountdown } from './toast-countdown.svelte';
+export { default as ToastDialog } from './toast-dialog.svelte';
 export * from './toast-countdown.svelte';

@@ -2031,9 +2031,19 @@
           "path": "registry/files/ui/toast/toast-countdown.svelte",
           "target": "@ui/toast/toast-countdown.svelte",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/toast/toast-dialog.svelte",
+          "target": "@ui/toast/toast-dialog.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/toast/toast-swipe.ts",
+          "target": "@ui/toast/toast-swipe.ts",
+          "type": "registry:file"
         }
       ],
-      "docs": "const toast = createToastStore(); <ToastViewport store={toast} /> … toast.api.push({ title, description?, tone?, duration?, assertive? }). Tones: default / primary / destructive.",
+      "docs": "const toast = createToastStore(); <ToastViewport store={toast} /> … toast.api.push({ title, description?, variant? 'outline'|'tonal', material?, effect?, countdown?, duration?, assertive?, expandable?, swipeDirections? }). toast-v2: the stack collapses with depth and expands on hover/touch (expand prop pins it), swipe dismisses toward the corner edges (48px / 0.11 px·ms), a hidden page freezes every clock (pauseAll/resumeAll), and expandable toasts morph into a dialog through a view transition.",
       "meta": {
         "group": "layer",
         "href": "/docs/components/toast.html"

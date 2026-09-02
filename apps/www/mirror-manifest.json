@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-02T05:55:06.903Z",
+  "generatedAt": "2026-09-02T05:57:46.693Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1833,29 +1833,29 @@
           "source": "registry/files/lib/toast-store.ts",
           "mirror": "apps/www/src/lib/toast-store.ts",
           "target": "@lib/toast-store.ts",
-          "sourceSha": "9ba86efe67ddaeb68644116bb465b236f895a5f8da3c5dd4394a143367498e3b",
-          "mirrorSha": "9ba86efe67ddaeb68644116bb465b236f895a5f8da3c5dd4394a143367498e3b"
+          "sourceSha": "47b735ba4aa7f0b7799175c88e86c1428299735eddeec0dec295fdbc8bf1df1b",
+          "mirrorSha": "47b735ba4aa7f0b7799175c88e86c1428299735eddeec0dec295fdbc8bf1df1b"
         },
         {
           "source": "registry/files/ui/toast/toast-viewport.svelte",
           "mirror": "apps/www/src/lib/ui/toast/toast-viewport.svelte",
           "target": "@ui/toast/toast-viewport.svelte",
-          "sourceSha": "c66b69828ae8f42affc221f7d099609e97a1184dfdea2cee6bb213a60624bc78",
-          "mirrorSha": "c66b69828ae8f42affc221f7d099609e97a1184dfdea2cee6bb213a60624bc78"
+          "sourceSha": "27645f4c89d147364bbb38401589105156885aa5b086c8750425fa7fc8031a51",
+          "mirrorSha": "27645f4c89d147364bbb38401589105156885aa5b086c8750425fa7fc8031a51"
         },
         {
           "source": "registry/files/ui/toast/index.ts",
           "mirror": "apps/www/src/lib/ui/toast/index.ts",
           "target": "@ui/toast/index.ts",
-          "sourceSha": "ac8edc30052e530f42ba3491d62fda4d0c6600ba63a67c99e5e7593f321e2b09",
-          "mirrorSha": "ac8edc30052e530f42ba3491d62fda4d0c6600ba63a67c99e5e7593f321e2b09"
+          "sourceSha": "203c44b3a8c61effc259deba03ab0d47675d9b51a4b3ad47e98eb6219135162d",
+          "mirrorSha": "203c44b3a8c61effc259deba03ab0d47675d9b51a4b3ad47e98eb6219135162d"
         },
         {
           "source": "registry/files/ui/toast/toast.css",
           "mirror": "apps/www/src/lib/ui/toast/toast.css",
           "target": "@ui/toast/toast.css",
-          "sourceSha": "b3cd4d02bebadf20b1a42fc2170d610cd14e97ccacdcced781f524a99e6c75bd",
-          "mirrorSha": "b3cd4d02bebadf20b1a42fc2170d610cd14e97ccacdcced781f524a99e6c75bd"
+          "sourceSha": "7d3037732075e1103f0f3844ca079d5ef043e6ff527bcc4d07a74a85206edb72",
+          "mirrorSha": "7d3037732075e1103f0f3844ca079d5ef043e6ff527bcc4d07a74a85206edb72"
         },
         {
           "source": "registry/files/ui/toast/toast-countdown.svelte",
@@ -1863,6 +1863,20 @@
           "target": "@ui/toast/toast-countdown.svelte",
           "sourceSha": "4c899d76bda3dd6349f3cec512e7650de9914c44e6eb1e893792d7315dc67705",
           "mirrorSha": "4c899d76bda3dd6349f3cec512e7650de9914c44e6eb1e893792d7315dc67705"
+        },
+        {
+          "source": "registry/files/ui/toast/toast-dialog.svelte",
+          "mirror": "apps/www/src/lib/ui/toast/toast-dialog.svelte",
+          "target": "@ui/toast/toast-dialog.svelte",
+          "sourceSha": "e771eb2db38d44666ff90236c23d4611f4b05ce3459eccc58a260d0cfd4e658a",
+          "mirrorSha": "e771eb2db38d44666ff90236c23d4611f4b05ce3459eccc58a260d0cfd4e658a"
+        },
+        {
+          "source": "registry/files/ui/toast/toast-swipe.ts",
+          "mirror": "apps/www/src/lib/ui/toast/toast-swipe.ts",
+          "target": "@ui/toast/toast-swipe.ts",
+          "sourceSha": "61dab91b2489523d03aa0426b15c348d5d6f66ac0b9b42e0c56554bb1253bb2c",
+          "mirrorSha": "61dab91b2489523d03aa0426b15c348d5d6f66ac0b9b42e0c56554bb1253bb2c"
         }
       ]
     },
