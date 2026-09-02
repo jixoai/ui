@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-02T05:21:36.553Z",
+  "generatedAt": "2026-09-02T05:53:10.380Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1833,29 +1833,29 @@
           "source": "registry/files/lib/toast-store.ts",
           "mirror": "apps/www/src/lib/toast-store.ts",
           "target": "@lib/toast-store.ts",
-          "sourceSha": "c4d7dcc9133c04f31651ba743f93ac8cb06589d56b106fedf36bd93a37bffb83",
-          "mirrorSha": "c4d7dcc9133c04f31651ba743f93ac8cb06589d56b106fedf36bd93a37bffb83"
+          "sourceSha": "9ba86efe67ddaeb68644116bb465b236f895a5f8da3c5dd4394a143367498e3b",
+          "mirrorSha": "9ba86efe67ddaeb68644116bb465b236f895a5f8da3c5dd4394a143367498e3b"
         },
         {
           "source": "registry/files/ui/toast/toast-viewport.svelte",
           "mirror": "apps/www/src/lib/ui/toast/toast-viewport.svelte",
           "target": "@ui/toast/toast-viewport.svelte",
-          "sourceSha": "13599a6756bf5235f55977d398a6a711ef3b8b0c86fbcdfea0da637525c09304",
-          "mirrorSha": "13599a6756bf5235f55977d398a6a711ef3b8b0c86fbcdfea0da637525c09304"
+          "sourceSha": "c66b69828ae8f42affc221f7d099609e97a1184dfdea2cee6bb213a60624bc78",
+          "mirrorSha": "c66b69828ae8f42affc221f7d099609e97a1184dfdea2cee6bb213a60624bc78"
         },
         {
           "source": "registry/files/ui/toast/index.ts",
           "mirror": "apps/www/src/lib/ui/toast/index.ts",
           "target": "@ui/toast/index.ts",
-          "sourceSha": "203c44b3a8c61effc259deba03ab0d47675d9b51a4b3ad47e98eb6219135162d",
-          "mirrorSha": "203c44b3a8c61effc259deba03ab0d47675d9b51a4b3ad47e98eb6219135162d"
+          "sourceSha": "ac8edc30052e530f42ba3491d62fda4d0c6600ba63a67c99e5e7593f321e2b09",
+          "mirrorSha": "ac8edc30052e530f42ba3491d62fda4d0c6600ba63a67c99e5e7593f321e2b09"
         },
         {
           "source": "registry/files/ui/toast/toast.css",
           "mirror": "apps/www/src/lib/ui/toast/toast.css",
           "target": "@ui/toast/toast.css",
-          "sourceSha": "a3240a0bad3d33699ae68232e5b4cb60248f379a96b9d826e8eb15432030f9ef",
-          "mirrorSha": "a3240a0bad3d33699ae68232e5b4cb60248f379a96b9d826e8eb15432030f9ef"
+          "sourceSha": "b3cd4d02bebadf20b1a42fc2170d610cd14e97ccacdcced781f524a99e6c75bd",
+          "mirrorSha": "b3cd4d02bebadf20b1a42fc2170d610cd14e97ccacdcced781f524a99e6c75bd"
         },
         {
           "source": "registry/files/ui/toast/toast-countdown.svelte",
@@ -1863,20 +1863,6 @@
           "target": "@ui/toast/toast-countdown.svelte",
           "sourceSha": "4c899d76bda3dd6349f3cec512e7650de9914c44e6eb1e893792d7315dc67705",
           "mirrorSha": "4c899d76bda3dd6349f3cec512e7650de9914c44e6eb1e893792d7315dc67705"
-        },
-        {
-          "source": "registry/files/ui/toast/toast-dialog.svelte",
-          "mirror": "apps/www/src/lib/ui/toast/toast-dialog.svelte",
-          "target": "@ui/toast/toast-dialog.svelte",
-          "sourceSha": "e570384c3ec25fc134b67c6d46b90d629de31917f952665460a60fb5e9bca6af",
-          "mirrorSha": "e570384c3ec25fc134b67c6d46b90d629de31917f952665460a60fb5e9bca6af"
-        },
-        {
-          "source": "registry/files/ui/toast/toast-swipe.ts",
-          "mirror": "apps/www/src/lib/ui/toast/toast-swipe.ts",
-          "target": "@ui/toast/toast-swipe.ts",
-          "sourceSha": "736a159f3d6e8fad53d7aae6e969c6793da40bba23740534cdb7bbeac5174e9d",
-          "mirrorSha": "736a159f3d6e8fad53d7aae6e969c6793da40bba23740534cdb7bbeac5174e9d"
         }
       ]
     },
@@ -2780,13 +2766,6 @@
           "mirrorSha": "e203359380155186a203a99d45a7622b9137ca345f63e980c3b532ed5f854142"
         },
         {
-          "source": "registry/files/lib/highlight/context.svelte.ts",
-          "mirror": "apps/www/src/lib/highlight/context.svelte.ts",
-          "target": "@lib/highlight/context.svelte.ts",
-          "sourceSha": "2aaa1bc274c6fc36f0e147d3dff45828eaed725c0ceaac9e467391a2e82a9edc",
-          "mirrorSha": "2aaa1bc274c6fc36f0e147d3dff45828eaed725c0ceaac9e467391a2e82a9edc"
-        },
-        {
           "source": "registry/files/lib/highlight/shiki.ts",
           "mirror": "apps/www/src/lib/highlight/shiki.ts",
           "target": "@lib/highlight/shiki.ts",
@@ -3335,6 +3314,10 @@
   ],
   "siteOnly": [
     {
+      "path": "apps/www/src/lib/highlight/context.svelte.ts",
+      "note": "highlight context-kernel wiring — app-side by the density-seam precedent (r9)"
+    },
+    {
       "path": "apps/www/src/lib/ui/docs-sections-nav.svelte",
       "note": "site docs sections rail (docs-restructure D2)"
     },
@@ -3440,34 +3423,6 @@
     {
       "path": "registry/files/ui/search-palette.svelte",
       "note": "search stream (85e9f3c) — final classification pending"
-    },
-    {
-      "path": "registry/files/lib/highlight/backend.ts",
-      "note": "highlight rework (shiki item not yet updated) — final classification pending"
-    },
-    {
-      "path": "registry/files/lib/highlight/context-key.ts",
-      "note": "highlight rework (shiki item not yet updated) — final classification pending"
-    },
-    {
-      "path": "registry/files/lib/highlight/context.svelte.ts",
-      "note": "highlight rework (shiki item not yet updated) — final classification pending"
-    },
-    {
-      "path": "registry/files/lib/highlight/microlighter.ts",
-      "note": "highlight rework (shiki item not yet updated) — final classification pending"
-    },
-    {
-      "path": "registry/files/lib/highlight/prismjs.ts",
-      "note": "highlight rework (shiki item not yet updated) — final classification pending"
-    },
-    {
-      "path": "registry/files/lib/highlight/shiki.ts",
-      "note": "highlight rework (shiki item not yet updated) — final classification pending"
-    },
-    {
-      "path": "registry/files/lib/highlight/vendor.d.ts",
-      "note": "highlight rework (shiki item not yet updated) — final classification pending"
     }
   ]
 }
