@@ -234,6 +234,12 @@ export function createToastStore(): ToastStore {
    *  pushed-while-hidden toast beyond maxVisible must NOT burn unseen
    *  the moment the page returns (D-2). `null` = no handshake owner. */
   let lastVisible: Set<number> | null = null;
+  /** true once ANY viewport has reported a visible set (Codex Spec
+   *  P1-1 fix, 2026-09-02): a push after that carries its duration in
+   *  `remaining` and waits for the handshake's report — expiry arms at
+   *  FIRST VISIBILITY, never a flush before the card mounts. Headless
+   *  consumers never report: arm-at-push stays their default. */
+  let visibleOwner = false;
 
   const emit = (): void => {
     const snapshot = [...queue];
@@ -289,9 +295,15 @@ export function createToastStore(): ToastStore {
     // would dismiss the toast the instant the user returns, unseen
     // (adversarial R1 P1-2, 2026-09-02)
     if (duration !== 0) {
-      if (pageHidden) {
-        internal.visHeld = true;
-        internal.visFrozenArmed = true;
+      if (pageHidden || visibleOwner) {
+        // held until SEEN: a hidden page waits for the tab, a viewport
+        // owner waits for its visible-set report (first-visibility
+        // arming); `remaining` carries the whole duration for whoever
+        // arms it next
+        if (pageHidden) {
+          internal.visHeld = true;
+          internal.visFrozenArmed = true;
+        }
         internal.remaining = duration;
       } else {
         arm(internal);
@@ -418,6 +430,14 @@ export function createToastStore(): ToastStore {
     setVisible(ids: readonly number[] | null): void {
       const visible = ids === null ? null : new Set(ids);
       lastVisible = visible;
+      if (visible !== null) visibleOwner = true;
+      else {
+        // the owner LEFT (outside the loop: an EMPTY store detaches
+        // too): future pushes return to arm-at-push — a lingering
+        // visibleOwner would pend them forever with nobody left to
+        // report (re-attack matrix 5, 2026-09-02)
+        visibleOwner = false;
+      }
       for (const internal of live.values()) {
         if (internal.expiresAt === Infinity) continue; // sticky: no clock
         // detach (ids === null): no viewport owns the hold anymore —
@@ -434,6 +454,8 @@ export function createToastStore(): ToastStore {
           internal.visFrozenArmed = false;
           internal.held = false;
           if (internal.remaining !== undefined) {
+            // includes never-reported pushes: the owner is gone, the
+            // toast re-arms from its whole carried duration
             internal.expiresAt = now() + internal.remaining;
             internal.remaining = undefined;
             arm(internal);

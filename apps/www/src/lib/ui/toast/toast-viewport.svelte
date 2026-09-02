@@ -231,7 +231,10 @@
     };
   });
 
-  const visible = $derived(items.slice(-maxVisible));
+  // maxVisible <= 0 renders NOTHING (Codex Spec P2: slice(-0) is the
+  // WHOLE queue — the prop must never widen the render by lying about
+  // its sign); everything rides behind the +N chip
+  const visible = $derived(maxVisible > 0 ? items.slice(-maxVisible) : []);
   // queue order is id order (the store's ids are monotonic): leaving
   // snapshots merge back at their ORIGINAL position (D-8) — a toast
   // painting its exit never jumps below newer arrivals
@@ -243,7 +246,9 @@
   // queue honesty (site-polish F6): the store may hold more toasts than
   // the viewport renders — a tail chip says so instead of the stack
   // silently hiding them. Pure paint: no behavior, no timers.
-  const queuedCount = $derived(Math.max(0, items.length - maxVisible));
+  // clamp BOTH sides (re-attack P3): a negative maxVisible must not
+  // print "+N" beyond the queue's own length
+  const queuedCount = $derived(Math.max(0, items.length - Math.max(0, maxVisible)));
 
   // ── the stacking dialect geometry (toast-v2) ────────────────────────
   // renders are oldest→newest; the FRONT (index 0) is the newest card.

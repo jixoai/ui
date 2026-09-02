@@ -98,7 +98,7 @@ const LEGACY: Record<string, PropEntry[]> = {
   ],
   toast: [
     { name: 'store', type: 'ToastStore', default: '—', description: 'The app-created store (createToastStore()) — never a module singleton.', required: true },
-    { name: 'maxVisible', type: 'number', default: '4', description: 'Max toasts rendered at once; older ones stay queued behind the +N queued chip.' },
+    { name: 'maxVisible', type: 'number', default: '4', description: 'Max toasts rendered at once; older ones stay queued behind the +N queued chip. 0 renders none (everything queues — never a wider render).' },
     { name: 'pos', type: 'FloatPos', default: '—', description: 'The float slot’s nine-grid position (left-top … right-bottom). Default right-bottom; the pile grows AWAY from the slot’s block edge and swipes toward its nearest screen edges.' },
     { name: 'expand', type: 'boolean', default: 'false', description: 'Pins the expanded posture — the full list, every card at its own height. Hover/touch still lifts into it while inside.' },
     { name: 'gap', type: 'number', default: '8', description: 'The stack’s rung spacing in px — the collapsed depth stairs and the expanded ladder both space by it.' },

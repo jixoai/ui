@@ -488,3 +488,60 @@ describe('toast v2 — R3 adversarial regressions', () => {
     expect(css).toContain("grid-template-areas: 'leading body trail close'");
   });
 });
+
+describe('toast v2 — the Codex round (first-visibility arming, maxVisible honesty)', () => {
+  it('a push under a viewport owner does NOT arm until the visible-set report (Spec P1-1)', async () => {
+    vi.useFakeTimers();
+    const store = createToastStore();
+    render(ToastViewport, { props: { store } });
+    await tick(); // the mount effect reports [] — the owner exists
+
+    store.api.push({ title: 'race', duration: 100 });
+    // BEFORE any flush of the handshake: the toast must be PENDING —
+    // advancing past its whole duration now must NOT kill it
+    vi.advanceTimersByTime(500);
+    expect(store.api.snapshot()).toHaveLength(1);
+
+    await vi.advanceTimersByTimeAsync(0); // the report lands → arms NOW
+    vi.advanceTimersByTime(99);
+    expect(store.api.snapshot()).toHaveLength(1); // inside the fresh run
+    vi.advanceTimersByTime(2);
+    expect(store.api.snapshot()).toHaveLength(0); // first visibility, then expiry
+    vi.useRealTimers();
+  });
+
+  it('a headless store keeps arm-at-push (no viewport ever reports)', () => {
+    vi.useFakeTimers();
+    const store = createToastStore();
+    store.api.push({ title: 'headless', duration: 100 });
+    vi.advanceTimersByTime(100);
+    expect(store.api.snapshot()).toHaveLength(0);
+    vi.useRealTimers();
+  });
+
+  it('maxVisible=0 renders NOTHING behind the chip — slice(-0) never widens the render (Spec P2)', async () => {
+    const store = createToastStore();
+    const { container } = render(ToastViewport, { props: { store, maxVisible: 0 } });
+    store.api.push({ title: 'a', duration: 0 });
+    store.api.push({ title: 'b', duration: 0 });
+    await new Promise((r) => setTimeout(r, 0));
+    expect(container.querySelectorAll('[data-jx-toast]')).toHaveLength(0);
+    const chip = container.querySelector('[data-jx-toast-queued]');
+    expect(chip?.getAttribute('data-jx-toast-queued')).toBe('2');
+  });
+});
+
+describe('toast v2 — the detach leak (visibleOwner retires with its viewport)', () => {
+  it('a push AFTER the viewport unmounted returns to arm-at-push — never pends forever', async () => {
+    vi.useFakeTimers();
+    const store = createToastStore();
+    const host = render(ToastViewport, { props: { store } });
+    await tick();
+    store.setVisible(null); // the owner detaches (unmount path)
+    store.api.push({ title: 'post-detach', duration: 300 });
+    vi.advanceTimersByTime(300); // armed at push — expires on its own
+    expect(store.api.snapshot()).toHaveLength(0);
+    host.unmount();
+    vi.useRealTimers();
+  });
+});

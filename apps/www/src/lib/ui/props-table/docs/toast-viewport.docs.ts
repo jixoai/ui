@@ -18,7 +18,7 @@ export const TOAST_VIEWPORT_DOCS: PropsDocs = {
       required: true,
     },
     maxVisible: {
-      description: 'Max toasts rendered at once; older ones stay queued behind the +N queued chip.',
+      description: 'Max toasts rendered at once; older ones stay queued behind the +N queued chip. 0 renders none (everything queues — never a wider render).',
     },
     pos: {
       description:

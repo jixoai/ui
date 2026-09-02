@@ -1185,7 +1185,7 @@
       "name": "range",
       "type": "registry:ui",
       "title": "Range",
-      "description": "The native slider, semantic surface: a REAL input[type=range] as the base (2026-09-01 native rebase — jx-pure is the foundation; the registry version adds slots and semantics, never re-draws the control). The platform owns pointer, keyboard (arrows/Home/End/PageUp/Down), RTL, the label[for] binding and form submission (name= rides the input own FormData lane); the component adds the label row, the step-precision value readout, the optional tick ruler (one mark per step), the family error law (aria-invalid + aria-describedby + dashed-ring thumb), density tiers and external-write snapping. Paint is the jx-pure range recipe verbatim on the component hook — one visual law, two mounting surfaces.",
+      "description": "The native slider, semantic surface: a REAL input[type=range] as the base (2026-09-01 native rebase — jx-pure is the foundation; the registry version adds slots and semantics, never re-draws the control). The platform owns pointer, keyboard (arrows/Home/End/PageUp/Down), RTL, the label[for] binding and form submission (name= rides the input own FormData lane); the component adds the label row, the step-precision value readout, the optional tick ruler (one mark per step, inset to the thumb's travel; click a mark to snap, the wheel fine-tunes one step per notch), the family error law (aria-invalid + aria-describedby + dashed-ring thumb), density tiers and external-write snapping. Paint is the jx-pure range recipe verbatim on the component hook — one visual law, two mounting surfaces.",
       "files": [
         {
           "path": "registry/files/ui/range/range.svelte",
@@ -1203,7 +1203,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: label?, error?, showValue?, min/max/step, name?, value ($bindable). role=slider contract; aria-labelledby wiring per the family law.",
+      "docs": "Props: label?, error?, showValue?, min/max/step, name?, value ($bindable), plus FULL native attribute passthrough (aria-label/title/data-* land on the input[type=range] itself — the Codex-round honesty pass). The control IS the native input: label[for] binding (never role=slider fiction), arrows/Home/End/PageUp/Down from the platform, stepped commits re-clamped into [min,max]; min/max are terminal snap points (a step-mismatched max stays native truth). The tick ruler rides the thumb's travel box (half-thumb inline inset): pointerdown snaps to the nearest mark, the wheel steps one notch at a time (ctrlKey pinch never hijacked).",
       "registryDependencies": [
         "@jixoai/jixoai-theme",
         "@jixoai/utils"
