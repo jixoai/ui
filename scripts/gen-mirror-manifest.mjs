@@ -48,6 +48,11 @@ const UNREFERENCED_LIB = [
   // entry once the servers have reloaded — the loading law is
   // documented at the devMirrorSync call in apps/www/vite.config.ts.
   { path: 'registry/files/lib/icon-table/icon-table.svelte', note: 'icons-docs — site-only ruling; on-disk relic pending dev-server reload' },
+  // registry-standalone stream (2026-09-02): the registry package's own
+  // kit/vite app needs the global Tailwind fan-in entry — a byte-copy of
+  // apps/www/src/app.css living at the registry/files ROOT (outside the
+  // lib/theme auto-sync map; the registry stream owns its sync story)
+  { path: 'registry/files/app.css', note: 'registry standalone app entry — byte-mirror of www src/app.css, manual sync' },
   // the highlight context-kernel wiring (r9): the registry ITEM ships
   // the zero-dep HIGHLIGHT_KEY seam only (the install-completeness
   // law — createHighlightContext statically imports the kernel), but

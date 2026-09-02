@@ -1,0 +1,93 @@
+/* -------------------------------------------------------------------------
+ * ui.jixoai.com site entry — the GLOBAL Tailwind fan-in context
+ * (tw4 P2.2 three-way boundary, 2026-08-24):
+ *   1. this file KEEPS the sole `@import 'tailwindcss'`, the theme
+ *      imports, ALL global @theme/@custom-variant/@layer base rules
+ *      and the import order;
+ *   2. site-only, non-compiler-context surfaces live in named modules:
+ *      lib/site/docs-tables.css (+layout) and lib/site/token-lab.css
+ *      (tokens.html);
+ *   3. no global context rule is ever scattered into route css.
+ *
+ * The shared design-language token sheet (OKLCH one-hue law, dark -4°
+ * drift, hard offset shadows, radius/bevel law, mono-first fonts,
+ * terminal surfaces, reveal hook styles) is a same-source copy of
+ * registry/files/theme/jixoai.css (registry item `jixoai-theme`)
+ * installed at src/lib/jixoai.css; --brand-hue starts at 330 as the
+ * INITIAL FALLBACK — the site's hue-runtime (lib/hue-runtime.ts)
+ * animates it live (time-of-day cycle; Codex P3-r1 ruling 2026-08-24).
+ * Readonly code
+ * surfaces are owned end-to-end by the registry code-card (Shiki tokens
+ * through the component-scoped --tok-* palette).
+ * ---------------------------------------------------------------------- */
+@import 'tailwindcss';
+@import './lib/jixoai.css';
+@import './lib/jx-pure.css';
+/* icons vocabulary (ICON-4 dogfood, 2026-09-02): the icon plugin's
+ * virtual CSS rides the JS entry (+layout.svelte imports
+ * 'virtual:jixoai-icons.css', aliased in vite.config.ts) — a CSS
+ * `@import 'virtual:jixoai-icons'` here is IMPOSSIBLE under
+ * @tailwindcss/vite: its generate pass resolves this file's whole
+ * @import graph through enhanced-resolve WITHOUT plugin resolveId
+ * hooks, so virtual: ids can never resolve. The plugin's declarations
+ * are byte-identical to jx-pure.css's frozen vocabulary block above
+ * (same @layer theme :root names and values, same .dark/.jx-light
+ * matrix) — dual supply, rendering zero-diff by construction. */
+
+/* jx-html standard-layer candidates: TW4's auto-detection can miss
+   new @utility names in svelte cn() calls during dev; this comment
+   block guarantees the scanner sees them (the built css always
+   includes them via the @import chain + content detection) */
+/* jx-html-input jx-html-textarea jx-html-select jx-html-checkbox
+   jx-html-radio jx-html-switch jx-html-range jx-html-color
+   jx-html-tgroup jx-html-control jx-html-control-shell
+   jx-html-control-lane */
+
+/* Tailwind mapping supplements — kill the default rounded scale (radius law:
+ * 0 with bevel upgrade only); the registry sheet maps everything else. */
+@theme inline {
+  --radius-*: initial;
+  --radius: var(--radius);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    corner-shape: bevel;
+    accent-color: var(--primary);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-mono);
+  }
+  .font-nav {
+    font-family: var(--font-nav);
+  }
+  button {
+    cursor: pointer;
+  }
+  :where(a, button):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 30%, transparent);
+  }
+}
+
+/* Anchor targets clear the Combo ToC mobile rail exactly at its pick line:
+ * sticky bar bottom (44px) + 2em = 76px, matching the toc-engine line law. */
+
+/* -------------------------------------------------------------------------
+ * Reduced-motion law: the registry sheet already neutralizes reveal motion;
+ * this covers the site's own transitions.
+ * ---------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
