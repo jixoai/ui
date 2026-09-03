@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-03T14:30:46.044Z",
+  "generatedAt": "2026-09-03T19:48:39.606Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -100,8 +100,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "ff28945a0d0326ace8f8c7b1d4e715dfb7dedef0ac0ebc6bc261e166f6da7a68",
-          "mirrorSha": "ff28945a0d0326ace8f8c7b1d4e715dfb7dedef0ac0ebc6bc261e166f6da7a68"
+          "sourceSha": "91ea2b1d0e9f9ce7988dc2a9c87f3fa439971515df89a963655922eb78e35f9d",
+          "mirrorSha": "91ea2b1d0e9f9ce7988dc2a9c87f3fa439971515df89a963655922eb78e35f9d"
         }
       ]
     },
@@ -127,8 +127,8 @@
           "source": "registry/files/ui/press-button/press-button.svelte",
           "mirror": "apps/www/src/lib/ui/press-button/press-button.svelte",
           "target": "@ui/press-button/press-button.svelte",
-          "sourceSha": "c332355210d82c7f4d1127dd3bf191593a5df5f0e8d6f831382ad58e3dc9744f",
-          "mirrorSha": "c332355210d82c7f4d1127dd3bf191593a5df5f0e8d6f831382ad58e3dc9744f"
+          "sourceSha": "9c7cd8863a72b628e6e08b5e9db12354d7836d519179a4c2aa8d0be91eddedb4",
+          "mirrorSha": "9c7cd8863a72b628e6e08b5e9db12354d7836d519179a4c2aa8d0be91eddedb4"
         },
         {
           "source": "registry/files/ui/press-button/index.ts",
@@ -645,15 +645,15 @@
           "source": "registry/files/ui/card/card.svelte",
           "mirror": "apps/www/src/lib/ui/card/card.svelte",
           "target": "@ui/card/card.svelte",
-          "sourceSha": "ced808300e037688ff031b4b9f17c55a4823fb29f23c3ba81f6f41fa76c13038",
-          "mirrorSha": "ced808300e037688ff031b4b9f17c55a4823fb29f23c3ba81f6f41fa76c13038"
+          "sourceSha": "072362536269cd81b7ab94a807f8b9d7a3a36a1e213249761a34a1ba6bddac85",
+          "mirrorSha": "072362536269cd81b7ab94a807f8b9d7a3a36a1e213249761a34a1ba6bddac85"
         },
         {
           "source": "registry/files/ui/card/card.css",
           "mirror": "apps/www/src/lib/ui/card/card.css",
           "target": "@ui/card/card.css",
-          "sourceSha": "05111409740446d53b0568243200c8e02683719472a44ef4ebc24cfc48d176ba",
-          "mirrorSha": "05111409740446d53b0568243200c8e02683719472a44ef4ebc24cfc48d176ba"
+          "sourceSha": "8678efd93ee4277284c8dfb88a6e4af055c845608dab7affa761b5e78b189916",
+          "mirrorSha": "8678efd93ee4277284c8dfb88a6e4af055c845608dab7affa761b5e78b189916"
         },
         {
           "source": "registry/files/ui/card/card-header.svelte",
@@ -666,15 +666,15 @@
           "source": "registry/files/ui/card/card-footer.svelte",
           "mirror": "apps/www/src/lib/ui/card/card-footer.svelte",
           "target": "@ui/card/card-footer.svelte",
-          "sourceSha": "c05458542f65c3e78926a73b990ae3749cdbef7b295c6ec69b25974369982d2e",
-          "mirrorSha": "c05458542f65c3e78926a73b990ae3749cdbef7b295c6ec69b25974369982d2e"
+          "sourceSha": "17454de0b64222497540603e9a50f7941b2254ce355183bc5607a43898aade39",
+          "mirrorSha": "17454de0b64222497540603e9a50f7941b2254ce355183bc5607a43898aade39"
         },
         {
           "source": "registry/files/ui/card/card-footer.css",
           "mirror": "apps/www/src/lib/ui/card/card-footer.css",
           "target": "@ui/card/card-footer.css",
-          "sourceSha": "0a9207732a794fe4679079f4dca0b66afa4da20ee5f36b7c1661c2b345dce832",
-          "mirrorSha": "0a9207732a794fe4679079f4dca0b66afa4da20ee5f36b7c1661c2b345dce832"
+          "sourceSha": "8fbf8389e4c4c608c577f60f3f0704f9dde396dcec7dffa32935fb2d506e591f",
+          "mirrorSha": "8fbf8389e4c4c608c577f60f3f0704f9dde396dcec7dffa32935fb2d506e591f"
         },
         {
           "source": "registry/files/ui/card/index.ts",
@@ -815,8 +815,8 @@
           "source": "registry/files/ui/dialog/dialog.svelte",
           "mirror": "apps/www/src/lib/ui/dialog/dialog.svelte",
           "target": "@ui/dialog/dialog.svelte",
-          "sourceSha": "eb46042d3d5e6601a73c6ae2b228eeeae746becfdbb57d5f94dd591cdda614a5",
-          "mirrorSha": "eb46042d3d5e6601a73c6ae2b228eeeae746becfdbb57d5f94dd591cdda614a5"
+          "sourceSha": "c1fc067208227b906e0537e4e500b525785ab831833d46c661343e320d1d0b53",
+          "mirrorSha": "c1fc067208227b906e0537e4e500b525785ab831833d46c661343e320d1d0b53"
         },
         {
           "source": "registry/files/ui/dialog/dialog-header.svelte",
@@ -829,8 +829,8 @@
           "source": "registry/files/ui/dialog/dialog-footer.svelte",
           "mirror": "apps/www/src/lib/ui/dialog/dialog-footer.svelte",
           "target": "@ui/dialog/dialog-footer.svelte",
-          "sourceSha": "8e0bf274aa2f31a33ddc3c48a16a3721262b16a06ff2a40a766588e9b0992b80",
-          "mirrorSha": "8e0bf274aa2f31a33ddc3c48a16a3721262b16a06ff2a40a766588e9b0992b80"
+          "sourceSha": "f8ad47562320beaa2894db9c37d04574ecf585e2f8f698b483c5b6795c42767d",
+          "mirrorSha": "f8ad47562320beaa2894db9c37d04574ecf585e2f8f698b483c5b6795c42767d"
         },
         {
           "source": "registry/files/ui/dialog/dialog-footer.css",
@@ -3105,8 +3105,8 @@
           "source": "registry/files/ui/button-group/button-group.svelte",
           "mirror": "apps/www/src/lib/ui/button-group/button-group.svelte",
           "target": "@ui/button-group/button-group.svelte",
-          "sourceSha": "3e7541c66348b8f04d969197f6147bc27d4a782c22fe579fec1bbfb950adf054",
-          "mirrorSha": "3e7541c66348b8f04d969197f6147bc27d4a782c22fe579fec1bbfb950adf054"
+          "sourceSha": "802e471c979c967c87f588eb1a52ae6bcc7aafb462d9c723b7b5197021445ac7",
+          "mirrorSha": "802e471c979c967c87f588eb1a52ae6bcc7aafb462d9c723b7b5197021445ac7"
         },
         {
           "source": "registry/files/ui/button-group/button-group-divider.svelte",
@@ -3119,8 +3119,8 @@
           "source": "registry/files/ui/button-group/button-group.css",
           "mirror": "apps/www/src/lib/ui/button-group/button-group.css",
           "target": "@ui/button-group/button-group.css",
-          "sourceSha": "803ad31256557118378422adbc476d1d667daa41bb5c3cd78e5d397016fb8e5a",
-          "mirrorSha": "803ad31256557118378422adbc476d1d667daa41bb5c3cd78e5d397016fb8e5a"
+          "sourceSha": "0d6e6cab7e862e2500bb30ff30f26b279ba7d7abe84b7002a0da6577e9f3963f",
+          "mirrorSha": "0d6e6cab7e862e2500bb30ff30f26b279ba7d7abe84b7002a0da6577e9f3963f"
         },
         {
           "source": "registry/files/ui/button-group/index.ts",
@@ -3133,8 +3133,8 @@
           "source": "registry/files/ui/button-group/button-variant-scope.svelte",
           "mirror": "apps/www/src/lib/ui/button-group/button-variant-scope.svelte",
           "target": "@ui/button-group/button-variant-scope.svelte",
-          "sourceSha": "ff14680ee649c607fd19a7084b44425e2c4619af8eb7b9be2000c92bce3c8db5",
-          "mirrorSha": "ff14680ee649c607fd19a7084b44425e2c4619af8eb7b9be2000c92bce3c8db5"
+          "sourceSha": "d617e2db2a4c9dad9a8b00484340ff31eb7a740f3249b8f8d86cccb494af690e",
+          "mirrorSha": "d617e2db2a4c9dad9a8b00484340ff31eb7a740f3249b8f8d86cccb494af690e"
         }
       ]
     },

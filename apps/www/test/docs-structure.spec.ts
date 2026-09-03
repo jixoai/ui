@@ -78,9 +78,11 @@ describe('docs-route-model — the section spine', () => {
     // (8->9), input-group joins data-entry (18->19), the chart family
     // joins data-display (15->16), and the five pattern-* composition
     // pages join layout (8->13) — 95 ui items.
+    // Re-frozen 2026-09-03 (card): the structural surface lands in
+    // layout (13->14) — 96 ui items.
     const shape = docsComponentGroups.map(({ group, entries }) => `${group.id}:${entries.length}`);
     expect(shape).toEqual([
-      'general:9', 'terminal:4', 'layout:13', 'navigation:10', 'layer:10',
+      'general:9', 'terminal:4', 'layout:14', 'navigation:10', 'layer:10',
       'data-entry:19', 'data-display:16', 'feedback:5',
     ]);
     expect(shape.every((x) => !x.endsWith(':1')), 'no single-member groups').toBe(true);

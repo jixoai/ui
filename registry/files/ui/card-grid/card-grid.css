@@ -45,6 +45,24 @@
       grid-row: auto;
       grid-template-rows: none;
     }
+    /* THE FOOT MODE (Owner, 2026-09-03): `foot` declares a third
+       shared row — head aligns, body fills, FOOT aligns at the band
+       bottoms — for zone-trio cards (the card component's integer
+       cell placement resolves in every rented band). The mode is
+       EXPLICIT on the landlord: mixed spans in one grid silently
+       misplace bands (auto-placement packs a span-2 card into a
+       span-3 card's third row), so it is never inferred from the
+       children. The default two-row contract above stays
+       byte-identical for every existing consumer. */
+    .jx-card-grid[data-rows='foot'] {
+      grid-template-rows: auto 1fr auto;
+    }
+    .jx-card-grid[data-rows='foot'] > * {
+      grid-row: span 3;
+    }
+    .jx-card-grid[data-rows='foot'] > *[data-no-subgrid] {
+      grid-row: auto;
+    }
   }
 }
 

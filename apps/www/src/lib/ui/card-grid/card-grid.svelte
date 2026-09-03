@@ -21,6 +21,15 @@
   bottom edge, so the lines align across the row through the same
   equalized header row the old border-b used).
 
+  THE FOOT MODE (Owner, 2026-09-03): `foot` declares a THIRD shared row
+  — headers align, bodies fill, FEET align at the band bottoms — for
+  zone-trio cards (the card component: head/body/foot, integer-placed).
+  The mode is EXPLICIT, never presence-inferred: mixed spans in one
+  grid silently misplace bands (auto-placement packs a span-2 card into
+  a span-3 card's third row), so the landlord — not the tenants —
+  declares the row contract. Footed cards in the default two-row mode
+  overflow their foot into an implicit row: don't.
+
   The layout rules are on consumer children on purpose: the cards come
   from the consumer's children snippet, so no markup of ours can carry
   their paint (the subgrid law must reach them through the cascade).
@@ -48,11 +57,14 @@
   interface Props {
     /** Minimum column width before the grid collapses a column. */
     min?: string;
+    /** Declare the THIRD shared row (head/body/FOOT equalization) for
+        zone-trio cards — explicit, never inferred from the children. */
+    foot?: boolean;
     class?: string;
     children: import('svelte').Snippet;
   }
 
-  let { min = '320px', class: className = '', children }: Props = $props();
+  let { min = '320px', foot = false, class: className = '', children }: Props = $props();
 
   let gridEl = $state<HTMLElement | null>(null);
 
@@ -90,6 +102,7 @@
     className,
   )}
   style="--jx-grid-min: {min}"
+  data-rows={foot ? 'foot' : undefined}
   bind:this={gridEl}
 >
   {@render children()}
