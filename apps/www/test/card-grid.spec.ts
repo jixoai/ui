@@ -42,10 +42,27 @@ describe('card-grid — the content-agnostic equalizer (the css law)', () => {
       /\.jx-card-grid > \*\s*\{[^}]*grid-row: span 2[^}]*grid-template-rows: subgrid/s,
     );
   });
-  it('NO third shared row and NO named shared rows (rev.1 stranded wrapped bands)', () => {
+  it('NO third shared row and NO named shared rows by DEFAULT (rev.1 stranded wrapped bands)', () => {
     const body = cleanCss(gridCss);
-    expect(body).not.toMatch(/grid-row: span 3/);
     expect(body).not.toMatch(/grid-template-rows:\s*\[/);
+    // the unconditional child law stays span 2; span 3 exists ONLY
+    // under the explicit [data-rows='foot'] branch
+    const footBranch = /\.jx-card-grid\[data-rows='foot'\] > \*\s*\{[^}]*grid-row: span 3/s.exec(body);
+    expect(footBranch, 'the foot-mode span-3 branch').not.toBeNull();
+    const stripped = body.replace(/\.jx-card-grid\[data-rows='foot'\][^{}]*\{[^}]*\}/gs, '');
+    expect(stripped).not.toMatch(/span 3/);
+  });
+  it('THE FOOT MODE (2026-09-03): an EXPLICIT third shared row, declared by the landlord', () => {
+    const body = cleanCss(gridCss);
+    expect(body).toMatch(
+      /\.jx-card-grid\[data-rows='foot'\]\s*\{[^}]*grid-template-rows:\s*auto\s+1fr\s+auto/s,
+    );
+    expect(body).toMatch(/\.jx-card-grid\[data-rows='foot'\] > \*\s*\{[^}]*grid-row: span 3/s);
+    expect(body).toMatch(
+      /\.jx-card-grid\[data-rows='foot'\] > \*\[data-no-subgrid\]\s*\{[^}]*grid-row:\s*auto/s,
+    );
+    // the DEFAULT two-row contract stays byte-exact for existing consumers
+    expect(body).toMatch(/\.jx-card-grid\s*\{[^}]*grid-template-rows:\s*auto\s+1fr\s*;/s);
   });
   it('the no-subgrid opt-out survives untouched', () => {
     expect(cleanCss(gridCss)).toMatch(
@@ -121,6 +138,16 @@ describe('card-grid — the DOM contract (rendered composition)', () => {
       // the retired vocabulary: viewport variants on the card's own zones
       expect(header.className).not.toMatch(/\bsm:px-|\bsm:py-/);
       expect(body.className).not.toMatch(/\bsm:px-|\bsm:py-/);
+    }
+  });
+  it('the section declares its line identity — data-role always ships, data-ordering only when claimed', () => {
+    const { container } = render(CardGridHost);
+    const grid = container.querySelector('.jx-card-grid')!;
+    for (const card of [...grid.children].filter((c) => c.hasAttribute('data-jx-section'))) {
+      // the factory default IS the declaration (ontology R1): the
+      // harvester reads, never guesses
+      expect(card.getAttribute('data-role')).toBe('section');
+      expect(card.hasAttribute('data-ordering')).toBe(false);
     }
   });
   it('the grid container keeps the auto-fit column grammar and no card carries subgrid utilities', () => {

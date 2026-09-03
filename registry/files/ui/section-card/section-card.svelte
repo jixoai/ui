@@ -45,6 +45,15 @@
     /** data-region on the HEADER block only — the section's own leaf when
      *  its body carries child regions (non-overlapping by construction). */
     headerRegion?: string;
+    /** The line primitive this section plays in the document ontology
+     *  (ontology design §2) — emitted as data-role, harvested as
+     *  section.role. Default 'section' always ships: the factory default
+     *  IS the declaration, no guessing left to the harvester. */
+    role?: 'section' | 'entry' | 'sequence' | 'float' | 'note' | 'ref' | 'break';
+    /** The ordering semantics the section's children declare (ontology
+     *  design §5) — emitted as data-ordering only when passed; absent
+     *  means no ordering claim (harvested as null). */
+    ordering?: 'linear' | 'alpha' | 'timeline' | 'tree';
   }
 
   let {
@@ -58,6 +67,8 @@
     family,
     region,
     headerRegion,
+    role = 'section',
+    ordering,
   }: Props = $props();
 
   const titleClassName = $derived(
@@ -77,6 +88,8 @@
   class={`border border-border bg-card shadow-2xs ${className}`}
   data-family={family}
   data-region={region}
+  data-role={role}
+  data-ordering={ordering}
 >
   <div
     data-jx-section-header

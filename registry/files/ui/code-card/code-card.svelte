@@ -239,6 +239,7 @@
 </script>
 
 <figure
+  data-kind="code"
   class={cn(
     'jx-code-card bg-[color:var(--readonly-code-bg)] border border-[color:var(--readonly-code-border)] m-0 min-w-0',
     fill && 'fill flex flex-col h-full',

@@ -53,6 +53,10 @@ describe('harvestPage — structure, not guesses', () => {
     expect(section.id).toBe('the-transaction');
     expect(section.heading).toBe('The transaction');
     expect(section.summary).toBe('prepareSnapshot 是一个事务');
+    // the fallback lock (ontology R1): unmarked pages keep today's
+    // derivation — role/ordering ship as the schema defaults
+    expect(section.role).toBe('section');
+    expect(section.ordering).toBe(null);
     expect(section.blocks.map((b) => b.kind)).toEqual(['prose', 'code', 'table']);
     const code = section.blocks[1]!;
     expect(code.lang).toBe('ts');
@@ -69,6 +73,87 @@ describe('harvestPage — structure, not guesses', () => {
       'a.html',
     );
     expect(page.sections.map((s) => s.heading)).toEqual(['Real']);
+  });
+});
+
+/* ── ontology R1 (2026-09-03): DECLARED MARKERS WIN over shape guesses.
+      The line's identity (role/ordering) and its summary are READ from
+      the component's own zones; the point's kind is READ from the
+      data-kind registry mark. Shape heuristics survive only for
+      headings/roots without declarations — page-by-page retirement. ── */
+describe('ontology R1 — declared markers win', () => {
+  it('a declared section harvests role, ordering and summary from its host zones', async () => {
+    const page = await harvestPage(
+      PAGE(`
+        <section data-jx-section data-role="entry" data-ordering="alpha">
+          <div data-jx-section-header>
+            <p>verb</p>
+            <div><h2>Apple</h2><p>a fruit entry</p></div>
+          </div>
+          <hr data-jx-separator aria-hidden="true" />
+          <div data-jx-section-body><p>body prose here</p></div>
+        </section>`),
+      'r1-declared.html',
+    );
+    const section = page.sections[0]!;
+    expect(section.role).toBe('entry');
+    expect(section.ordering).toBe('alpha');
+    // the title block's LAST <p> is the summary — the eyebrow above it
+    // is never mistaken for one
+    expect(section.summary).toBe('a fruit entry');
+  });
+
+  it('a declared host without summary stays honest (no eyebrow harvest)', async () => {
+    const page = await harvestPage(
+      PAGE(`
+        <section data-jx-section data-role="note">
+          <div data-jx-section-header>
+            <p>eyebrow only</p>
+            <div><h2>Marginal</h2></div>
+          </div>
+          <div data-jx-section-body><p>note body</p></div>
+        </section>`),
+      'r1-nosummary.html',
+    );
+    expect(page.sections[0]!.role).toBe('note');
+    expect(page.sections[0]!.summary).toBe('');
+  });
+
+  it('a default host declares section/absent ordering; a bare heading keeps the fallback path', async () => {
+    const page = await harvestPage(
+      PAGE(`
+        <section data-jx-section>
+          <div data-jx-section-header><div><h2>Plain</h2><p>declared summary</p></div></div>
+          <div data-jx-section-body></div>
+        </section>
+        <h2>Bare</h2><p>fallback summary</p>`),
+      'r1-defaults.html',
+    );
+    const [declared, bare] = page.sections;
+    expect(declared!.role).toBe('section');
+    expect(declared!.ordering).toBe(null);
+    expect(declared!.summary).toBe('declared summary');
+    expect(bare!.role).toBe('section');
+    expect(bare!.summary).toBe('fallback summary');
+  });
+
+  it('data-kind declares the block kind regardless of tag shape (open registry)', async () => {
+    const page = await harvestPage(
+      PAGE(`
+        <h2>Root</h2>
+        <figure data-kind="code">
+          <figcaption><span>odd shape</span></figcaption>
+          <pre data-lang="py"><code>x = 1</code></pre>
+        </figure>
+        <div data-kind="math"><code>e = mc^2</code></div>`),
+      'r1-kind.html',
+    );
+    const section = page.sections[0]!;
+    expect(section.blocks.map((b) => b.kind)).toEqual(['code', 'math']);
+    const code = section.blocks[0]!;
+    expect(code.lang).toBe('py');
+    expect(code.label).toBe('odd shape');
+    expect(section.blocks[1]!.text).toContain('e = mc^2');
   });
 });
 

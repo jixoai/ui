@@ -106,19 +106,52 @@ const KIND_CODE = 'code';
 const KIND_TABLE = 'table';
 const KIND_PROSE = 'prose';
 
+/* ── ontology R1 (2026-09-03): DECLARED MARKERS WIN over shape guesses.
+   Line components stamp data-role/data-ordering on the [data-jx-section]
+   host; point blocks stamp data-kind (open registry, 'code' first).
+   The harvester READS declarations and falls back to tag shapes only
+   for unmarked pages — heuristics retire page by page (contract law 3:
+   the harvester never computes what the DOM declares). ─────────────── */
+
 /** classify an element as a point-block root, or null to recurse */
 function classifyBlock(element) {
+  const declared = element.attrs?.['data-kind'];
+  if (declared !== undefined && declared !== '') return declared;
   if (element.name === 'pre') return KIND_CODE;
   if (element.name === 'table') return KIND_TABLE;
   if (element.name === 'figure' && firstElement(element, 'pre')) return KIND_CODE;
   return null;
 }
 
+/** all descendant elements matching pred, in document order */
+function descendants(node, pred, out = []) {
+  if (node.type !== 'element' && node.type !== 'root') return out;
+  for (const child of node.children) {
+    if (child.type === 'element' && pred(child)) out.push(child);
+    descendants(child, pred, out);
+  }
+  return out;
+}
+
+/** the nearest ancestor element carrying attr (the llms-txt tree is
+    parentless, so ancestry is re-derived by search from the root) */
+function nearestAncestorWith(root, node, attr) {
+  let parent = parentOf(root, node);
+  while (parent !== undefined && parent.type === 'element') {
+    if (parent.attrs?.[attr] !== undefined) return parent;
+    parent = parentOf(root, parent);
+  }
+  return undefined;
+}
+
 function blockMeta(element, { decode }) {
   if (classifyBlock(element) !== KIND_CODE) return undefined;
-  const pre = element.name === 'pre' ? element : firstElement(element, 'pre');
-  const figure = element.name === 'figure' ? element : null;
-  const caption = figure ? firstElement(figure, 'figcaption') : undefined;
+  // descendant lookups, not direct children: the real CodeCard nests its
+  // pre inside a wrapper div (the old direct-child search never saw the
+  // caption from the figure root — labels were silently missed on every
+  // built page until the declared figure root made the fix obvious)
+  const pre = descendants(element, (el) => el.name === 'pre')[0];
+  const caption = descendants(element, (el) => el.name === 'figcaption')[0];
   const meta = {};
   if (pre?.attrs?.['data-lang']) meta.lang = pre.attrs['data-lang'];
   if (caption) {
@@ -202,6 +235,8 @@ export async function harvestPage(html, rel, options = {}) {
           id: ids[outlineIndex],
           heading: item.label.slice(0, 200),
           level: item.level,
+          role: 'section',
+          ordering: null,
           summary: '',
           blocks: [],
         };
@@ -216,10 +251,15 @@ export async function harvestPage(html, rel, options = {}) {
       continue;
     }
     if (current === null) continue; // pre-heading content: no section yet
-    if (item.kind === KIND_CODE || item.kind === KIND_TABLE) {
+    if (item.type === 'block') {
+      // every classified block enters the fold — the kind registry is
+      // OPEN (ontology R1): declared kinds ride through untouched, the
+      // tag-shape fallback still yields code/table for unmarked roots
       flushProse();
+      const pre =
+        item.kind === KIND_CODE ? descendants(item.node, (el) => el.name === 'pre')[0] : undefined;
       const text = collapse(
-        subtreeText(item.kind === KIND_CODE && item.node.name === 'figure' ? firstElement(item.node, 'pre') : item.node, {
+        subtreeText(pre ?? item.node, {
           decode: llms.decodeEntities,
         }),
       );
@@ -232,8 +272,27 @@ export async function harvestPage(html, rel, options = {}) {
   }
   flushProse();
 
-  // summary: the header block's <p> after the heading (SectionCard law)
+  // role / ordering / summary — DECLARED when the heading sits inside a
+  // [data-jx-section] host (ontology R1): identity and summary are READ
+  // from the component's own zones (the header zone's title block — its
+  // LAST <p> is the summary; the eyebrow <p> above is never mistaken for
+  // one). The parent's-first-<p> shape guess survives ONLY for headings
+  // with no host — the page-by-page heuristic retirement.
   for (let i = 0; i < outline.length; i++) {
+    const host = nearestAncestorWith(page.contentNode, outline[i].node, 'data-jx-section');
+    if (host !== undefined) {
+      sections[i].role = host.attrs?.['data-role'] ?? 'section';
+      sections[i].ordering = host.attrs?.['data-ordering'] ?? null;
+      const header = descendants(host, (el) => el.attrs?.['data-jx-section-header'] !== undefined)[0];
+      const titleBlock =
+        header?.children.find((child) => child.type === 'element' && child.name === 'div') ?? undefined;
+      const ps = titleBlock !== undefined ? descendants(titleBlock, (el) => el.name === 'p') : [];
+      const p = ps[ps.length - 1];
+    if (p !== undefined) {
+      sections[i].summary = collapse(subtreeText(p, { decode: llms.decodeEntities })).slice(0, 300);
+    }
+      continue;
+    }
     const parent = parentOf(page.contentNode, outline[i].node);
     if (parent === undefined) continue;
     const p = firstElement(parent, 'p');
@@ -334,7 +393,7 @@ export async function generateSearchCorpus(distDir, config = {}) {
   pages.sort((a, b) => a.url.localeCompare(b.url));
 
   const corpus = {
-    generator: 'jxoai search-corpus 1',
+    generator: 'jxoai search-corpus 2',
     generatedAt: new Date().toISOString(),
     pages,
   };

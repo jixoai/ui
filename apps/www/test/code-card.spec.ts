@@ -33,6 +33,14 @@ describe('CodeCard', () => {
     vi.clearAllMocks();
   });
 
+  it('declares its point kind on the figure root (ontology R1 registry mark)', () => {
+    const { container } = render(CodeCard, {
+      props: { code: 'x', lang: 'ts' },
+    });
+    const figure = container.querySelector('figure[data-kind="code"]');
+    expect(figure).not.toBeNull();
+  });
+
   it('paints the escaped plain sample first, then upgrades it with Shiki spans', async () => {
     const { container } = render(CodeCard, {
       props: { code: 'const value: number = 42;', lang: 'ts', filename: 'spawn.ts' },
