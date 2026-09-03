@@ -26,17 +26,20 @@
  *    boundary reads border·line·border (3px) — heavier than the 1px
  *    intra-cluster seam, which a cluster boundary should be.
  *
- *  - THE SEPARATOR (r13): ghost's seam. The bordered rungs read
- *    through the -1px law (their collapsed borders ARE the hairline);
- *    ghost paints no border, so [data-jx-separator] paints the seam
- *    slot instead — a 1px strip carrying the SEPARATOR INK LAW
- *    (separator/separator.css, 2026-09-01: a separator paints no
- *    color — the backdrop's own contrast ghost, auto-adaptive over
- *    any ground, zero color tokens). It is a ::before on the later
- *    neighbor — a decorative carrier in the position-for-transient-
- *    ink exemption's category, and aria-invisible by construction
- *    (the ButtonGroupDivider stays the group's SEMANTIC boundary;
- *    this is the decorative seam between adjacent buttons).
+ *  - THE SEPARATOR (r13 → the REAL-DOM era, Owner 2026-09-04: "我更
+ *    希望上真正的 DOM 来做分割线"): ghost's seam. The bordered rungs
+ *    read through the -1px law (their collapsed borders ARE the
+ *    hairline); ghost paints no border, so the group paints the seam
+ *    slots itself — REAL 1px elements it owns as children (the
+ *    leading seam declaratively, the inter-button seams injected at
+ *    runtime), carrying the SEPARATOR INK LAW (separator/
+ *    separator.css, 2026-09-01: a separator paints no color — the
+ *    backdrop's own contrast ghost, auto-adaptive over any ground,
+ *    zero color tokens). The r13/r14-13 ::before era retired: the
+ *    pseudo hung the group's responsibility inside its buttons.
+ *    aria-hidden carriers (the ButtonGroupDivider stays the group's
+ *    SEMANTIC boundary; this is the decorative seam between adjacent
+ *    buttons).
  *
  *  - THE WRAP TRACKS (r13): [data-jx-overflow='wrap'] swaps the
  *    single line for measured rows — the component stamps each item's
@@ -94,50 +97,45 @@
      strip the Separator component paints; no color, no border. The
      ButtonGroupDivider is EXEMPT: it already IS the explicit line —
      a separator pseudo under it would double the seam ── */
-  /* the seam pseudo's containing block (the later neighbor hosts it) */
-  :where([data-jx-btngroup][data-jx-separator]) > * {
-    position: relative;
+  /* ── THE REAL-DOM SEPARATORS (Owner, 2026-09-04: "我更希望上真正
+     的 DOM 来做分割线"): the seams are REAL elements the group owns
+     as children — the leading seam declaratively, the inter-button
+     seams injected by the component. The r13/r14-13 ::before era is
+     retired (the pseudo hung the group's own responsibility inside
+     its buttons). Paint is the unchanged SEPARATOR INK ENGINE —
+     backdrop contrast ghost, no color channel, the same 1px strip
+     the Separator component paints. aria-hidden carriers: the
+     ButtonGroupDivider stays the SEMANTIC boundary; this is the
+     decorative seam ── */
+  :where([data-jx-btngroup-sep]) {
+    flex: none;
+    backdrop-filter: contrast(0.5);
   }
-  :where([data-jx-btngroup='horizontal'][data-jx-separator]) > * + *:not([data-jx-btngroup-divider])::before {
-    content: '';
-    position: absolute; /* decorative carrier — the transient-ink category */
-    inset-inline-start: -1px;
-    inset-block: 0;
+  :where([data-jx-btngroup='horizontal']) > [data-jx-btngroup-sep] {
     inline-size: 1px;
-    backdrop-filter: contrast(0.5);
+    align-self: stretch;
   }
-  :where([data-jx-btngroup='vertical'][data-jx-separator]) > * + *:not([data-jx-btngroup-divider])::before {
-    content: '';
-    position: absolute; /* decorative carrier — the transient-ink category */
-    inset-block-start: -1px;
-    inset-inline: 0;
+  :where([data-jx-btngroup='vertical']) > [data-jx-btngroup-sep] {
     block-size: 1px;
-    backdrop-filter: contrast(0.5);
   }
-  /* ── the LEADING SEAM (r14-13, Owner): the cluster's opening slot
-     paints the same seam on the FIRST button — the boundary line is
-     the button's own ::before, flush by construction (a sibling
-     element some parent gap could detach is exactly the failure the
-     old standalone Separator had in the dialog foot grid). Rides the
-     seam system: [data-jx-separator] is required. In wrap overflow
-     the first child IS a row lead — this rule outranks the row-lead
-     drop by specificity ((0,2,0) vs (0,1,0)), and later row leads
-     are not :first-child so they still drop ── */
-  :where([data-jx-btngroup='horizontal'][data-jx-separator][data-jx-leading-seam]) > *:first-child:not([data-jx-btngroup-divider])::before {
-    content: '';
-    position: absolute;
-    inset-inline-start: -1px;
-    inset-block: 0;
-    inline-size: 1px;
-    backdrop-filter: contrast(0.5);
+  /* THE JUNCTION COLLAPSE (Owner correction, 2026-09-04: the seam
+     and the button were left a BORDER-WIDTH apart): the seam's own
+     track is its honest real 1px, but the FOLLOWING button keeps the
+     generic -1px seam law — its border slot rides ON the seam's
+     track pixel, so the line and the button's edge read as ONE line
+     (ghost's transparent border lets the ink through flush to the
+     wash/inset; bordered rungs collapse onto it exactly as they do
+     between each other). The -1px may NEVER ride the 1px seam
+     itself — its margin-box would clamp to a ZERO-WIDTH grid track
+     — so the seam's own margin stays 0 while the follower falls
+     through to `> * + *`. The DIVIDER's heavy border·line·border
+     boundary keeps its own no-collapse carve-out above (a cluster
+     boundary should read heavier than the intra-cluster seam) */
+  :where([data-jx-btngroup='horizontal']) > [data-jx-btngroup-sep] {
+    margin-inline-start: 0;
   }
-  :where([data-jx-btngroup='vertical'][data-jx-separator][data-jx-leading-seam]) > *:first-child:not([data-jx-btngroup-divider])::before {
-    content: '';
-    position: absolute;
-    inset-block-start: -1px;
-    inset-inline: 0;
-    block-size: 1px;
-    backdrop-filter: contrast(0.5);
+  :where([data-jx-btngroup='vertical']) > [data-jx-btngroup-sep] {
+    margin-block-start: 0;
   }
 
   /* ── the wrap tracks (r13): measured rows over the same seam law ── */
@@ -145,14 +143,17 @@
     grid-auto-flow: row;
     grid-auto-columns: max-content;
   }
-  /* a row lead has no inline-start neighbor: no collapsed seam, no
-     separator pseudo (source order after the seam rules — same
-     zero-specificity layer, later declaration wins) */
-  :where([data-jx-btngroup][data-jx-overflow='wrap']) > [data-jx-row-start] {
+  /* a row lead has no inline-start neighbor: no collapsed seam (the
+     component's seam sync never injects one before a row lead —
+     this belt-and-braces rule keeps the margin honest too).
+     THE LEADING-SEAM EXCEPTION (Owner 2026-09-04, round 2): row 1's
+     lead DIRECTLY FOLLOWS the leading seam — it HAS an inline-start
+     neighbor now that the seam is a real sibling, so it keeps the
+     generic -1px collapse onto the seam's track (a sep never opens
+     a row, so every OTHER row lead still follows a button — the
+     reset keeps owning exactly those) */
+  :where([data-jx-btngroup][data-jx-overflow='wrap']) > [data-jx-row-start]:not([data-jx-btngroup-sep] + *) {
     margin-inline-start: 0;
-  }
-  :where([data-jx-btngroup][data-jx-overflow='wrap']) > [data-jx-row-start]::before {
-    content: none;
   }
 }
 

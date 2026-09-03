@@ -33,17 +33,27 @@
   seam law (their collapsed borders ARE the hairline), but ghost
   paints no border — the seam law has nothing to collapse. `separator`
   (explicit, or ON by default when the group's variant resolves to
-  ghost) paints a 1px line in every collapsed seam slot, carrying the
-  SEPARATOR INK LAW (separator/separator.css, 2026-09-01: a separator
-  paints no color — the backdrop's own contrast ghost): the ::before
-  pseudo is a decorative carrier (the position-for-transient-ink
-  exemption list's category), aria-invisible by construction. DIVIDER
+  ghost) paints a 1px line in every seam slot, carrying the SEPARATOR
+  INK LAW (separator/separator.css, 2026-09-01: a separator paints
+  no color — the backdrop's own contrast ghost). THE REAL-DOM ERA
+  (Owner, 2026-09-04: "我更希望上真正的 DOM 来做分割线"): the seams
+  are REAL elements the GROUP owns as its own children — never a
+  pseudo hanging inside a button (the r13/r14-13 ::before era is
+  retired). The leading seam renders declaratively in the markup;
+  the inter-button seams are injected between the VISIBLE direct
+  children at runtime (the children snippet is opaque — neither
+  Svelte nor CSS can interleave into it; the DOM can). Geometry is
+  the divider's honest-1px-track law (a real track, flush junction
+  edges — a -1px overlap would clamp to a zero-width grid track);
+  paint is the unchanged ink engine (backdrop-filter, no color
+  channel); the elements are aria-hidden decorative carriers. DIVIDER
   vs SEPARATOR ruling: ButtonGroupDivider is the group's SEMANTIC
   boundary between consumer-authored clusters (role=separator, real
   element, announced); the separator is the DECORATIVE seam between
-  adjacent joined buttons (pseudo, policy-driven, invisible to AT).
-  Both coexist: dividers between clusters, separators between buttons
-  within a cluster.
+  adjacent joined buttons (policy-driven, invisible to AT). Both
+  coexist: dividers between clusters, separators between buttons
+  within a cluster (and never adjacent to a divider — that junction
+  already has its line).
 
   GRID, not flex (r13, Owner law — the 2D nature is accepted): the
   container is `inline-grid`. THE FLOW LAW (Codex B1 rework, pinned
@@ -179,20 +189,20 @@
         no variant of its own (explicit child prop always wins). No
         ladder is minted — context selects a press-button rung */
     variant?: PressButtonVariant;
-    /** the separator policy: a 1px separator in every collapsed seam
-        slot (ghost's seam — bordered rungs already read through the
-        -1px law). Explicit true/false; DEFAULT on when the group's
+    /** the separator policy: a real 1px separator element in every
+        seam slot (ghost's seam — bordered rungs already read through
+        the -1px law). Explicit true/false; DEFAULT on when the group's
         EFFECTIVE variant (own prop, else the inherited scope) is
         ghost — the borderless row has no other seam */
     separator?: boolean;
-    /** the LEADING SEAM (r14-13, Owner): paint the seam in the
-        cluster's opening slot too — the first button's inline-start
-        edge carries the boundary line, FLUSH by construction (it is
-        the button's own ::before, not a sibling element some gap
-        could detach). The stamp records the INTENT; the css composes
-        it with the seam policy — the rule requires both stamps, so it
-        only paints when separators are active (the dialog footer's
-        actions region is the canonical consumer) */
+    /** the LEADING SEAM (r14-13 → the real-DOM era, 2026-09-04): paint
+        the seam in the cluster's opening slot too — a REAL element the
+        group renders as its own first child, FLUSH by construction
+        (inside the group, no parent gap can detach it — the failure
+        that killed the old standalone Separator sibling). Composes
+        with the seam policy: it only renders when separators are
+        active (the dialog footer's actions region is the canonical
+        consumer) */
     leadingSeam?: boolean;
     /** what happens when the joined row overflows its available
         inline space (horizontal groups only): wrap (default) breaks
@@ -278,6 +288,103 @@
           : 'justify-start',
   );
 
+  // ── THE REAL-DOM SEAMS (Owner, 2026-09-04: "我更希望上真正的 DOM
+  // 来做分割线") ─────────────────────────────────────────────────────
+  // The separators are REAL elements the group owns — the leading seam
+  // declaratively (markup), the inter-button seams injected here. The
+  // children snippet is opaque: neither Svelte nor CSS can interleave
+  // into it, the DOM can. IDEMPOTENT BY BOX: every pass reconciles
+  // DIFFERENTIALLY (add the missing seams, remove the stale ones —
+  // never nuke-and-rebuild), because the REAL-DOM seams have layout
+  // footprint: a clear+reinsert cycle churns the group's box, re-fires
+  // the ResizeObserver, and loops the measurement forever (the pseudo
+  // era was box-idempotent for free; the DOM era must EARN it). It
+  // rides the existing measurement contract: mount, ResizeObserver,
+  // and the consumer's remeasure() for dynamic children — no new
+  // observers.
+  function syncSeps(): void {
+    const el = groupEl;
+    if (!el) return;
+    const leading = el.querySelector(':scope > [data-jx-btngroup-sep]:not([data-jx-injected])');
+    if (!separatorOn) {
+      // policy off: nothing paints — the declarative leader is absent
+      // by markup, the injected set is removed, any stray placement dies
+      for (const s of el.querySelectorAll(':scope > [data-jx-btngroup-sep][data-jx-injected]')) {
+        s.remove();
+      }
+      leading?.style.removeProperty('grid-row');
+      leading?.style.removeProperty('grid-column');
+      return;
+    }
+    // the seam audience: VISIBLE direct children (the measurement
+    // filter's seam face — the collapse-hidden tails and the group's
+    // own chrome never join; in the collapse state the ⋯ trigger is
+    // a visible row member and carries the seam like any button)
+    const moreVisible = el.getAttribute('data-jx-overflow') === 'collapse' && moreEl !== null;
+    const kids = [...el.children].filter(
+      (c): c is HTMLElement =>
+        c instanceof HTMLElement &&
+        !c.hasAttribute('popover') &&
+        c !== moreEl &&
+        !c.hasAttribute('data-jx-btngroup-sep') &&
+        c.getAttribute('data-jx-overflow-hidden') !== 'true',
+    );
+    const seamRow = moreVisible && moreEl ? [...kids, moreEl] : kids;
+    // the DESIRED set: a seam before each kid that HAS an inline-start
+    // neighbor, is not a row LEAD (wrap state), and does not sit at a
+    // DIVIDER junction (that junction already has its line)
+    const wants = new Set<HTMLElement>();
+    let prev: HTMLElement | null = null;
+    for (const kid of seamRow) {
+      const lead = kid.hasAttribute('data-jx-row-start');
+      const dividerJunction =
+        (prev?.hasAttribute('data-jx-btngroup-divider') ?? false) ||
+        kid.hasAttribute('data-jx-btngroup-divider');
+      if (prev && !lead && !dividerJunction) wants.add(kid);
+      prev = kid;
+    }
+    // reconcile: remove the stale, add the missing — the untouched
+    // majority keeps its nodes (and the box) exactly where they were
+    for (const s of el.querySelectorAll(':scope > [data-jx-btngroup-sep][data-jx-injected]')) {
+      const host = s.nextElementSibling;
+      if (!(host instanceof HTMLElement) || !wants.has(host)) s.remove();
+      else wants.delete(host);
+    }
+    for (const host of wants) {
+      const sep = document.createElement('span');
+      sep.setAttribute('data-jx-btngroup-sep', '');
+      sep.setAttribute('data-jx-injected', '');
+      sep.setAttribute('aria-hidden', 'true');
+      el.insertBefore(sep, host);
+    }
+    // the wrap state places every row member in an EXPLICIT cell, so
+    // the seps carry placement too: kids ride the EVEN tracks (2c+2,
+    // measured in measure()), a seam rides the track one step after
+    // its inline-start neighbor — the leading seam one step BEFORE
+    // the first kid. Outside the wrap state (the single line, the
+    // vertical stack) the DOM order is the layout: no stamps needed
+    if (el.getAttribute('data-jx-overflow') !== 'wrap') return;
+    const place = (node: Element, row: string, col: string): void => {
+      (node as HTMLElement).style.gridRow = row;
+      (node as HTMLElement).style.gridColumn = col;
+    };
+    for (const sep of el.querySelectorAll(':scope > [data-jx-btngroup-sep]')) {
+      let prevEl: Element | null = sep.previousElementSibling;
+      while (prevEl && (prevEl.hasAttribute('data-jx-btngroup-sep') || prevEl.getAttribute('data-jx-overflow-hidden') === 'true')) {
+        prevEl = prevEl.previousElementSibling;
+      }
+      let nextEl: Element | null = sep.nextElementSibling;
+      while (nextEl && (nextEl.hasAttribute('data-jx-btngroup-sep') || nextEl.getAttribute('data-jx-overflow-hidden') === 'true')) {
+        nextEl = nextEl.nextElementSibling;
+      }
+      if (!nextEl) continue;
+      const nextRow = nextEl.style.gridRow;
+      const nextCol = parseInt(nextEl.style.gridColumn, 10);
+      if (!nextRow || !Number.isFinite(nextCol)) continue;
+      place(sep, nextRow, prevEl ? String(parseInt(prevEl.style.gridColumn, 10) + 1 || nextCol - 1) : String(nextCol - 1));
+    }
+  }
+
   // ── THE OVERFLOW STATE MACHINE (r13) ─────────────────────────────────
   // measured, horizontal-only, hydration-time (the DOM-derived AUTO
   // exception to the SSR-complete family law: the static row IS the
@@ -315,27 +422,25 @@
   function measure(el: HTMLElement): void {
     const kids = [...el.children].filter(
       (c): c is HTMLElement =>
-        c instanceof HTMLElement && !c.hasAttribute('popover') && c !== moreEl,
+        c instanceof HTMLElement &&
+        !c.hasAttribute('popover') &&
+        c !== moreEl &&
+        !c.hasAttribute('data-jx-btngroup-sep'),
     );
     if (kids.length === 0) {
       el.removeAttribute('data-jx-overflow');
       folded = [];
       ovState = 'none';
+      syncSeps();
       return;
     }
-    // 1) the measuring pose: everything visible, single line, seams
-    // collapsed — the transient stamp suspends the display flips, the
-    // cleared placement lets each item report its NATURAL line width
-    el.setAttribute('data-jx-measuring', '');
-    el.removeAttribute('data-jx-overflow');
-    for (const kid of kids) {
-      // longhands, not the shorthand: jsdom's CSSOM does not clear
-      // grid-row/grid-column through grid-area=''
-      kid.style.gridRow = '';
-      kid.style.gridColumn = '';
-      kid.removeAttribute('data-jx-row-start');
-      kid.removeAttribute('data-jx-overflow-hidden');
-    }
+    // ── THE PRE-FLIGHT GUARD (the DOM-era requirement): read the
+    // CURRENT resting widths (kids' margin-boxes + the seams already
+    // in the DOM) and settle WITHOUT TOUCHING ANYTHING when nothing
+    // changes — a no-op pass that runs the measuring pose would churn
+    // the box (the pose transiently clears the very seams and stamps
+    // it re-applies), re-fire the observer, and never settle. The
+    // pseudo era could afford pose-first; real DOM cannot
     // MARGIN-BOX, measured (Codex nB2): the -1px seam margins are
     // the seam law's, the divider's flush junction edges are the
     // divider law's, the trigger's own -1px seam belongs to the
@@ -348,16 +453,43 @@
       const cs = getComputedStyle(elm);
       return w + (parseFloat(cs.marginInlineStart) || 0) + (parseFloat(cs.marginInlineEnd) || 0);
     };
-    const boxes = kids.map(box);
     const avail = el.getBoundingClientRect().width;
-    const moreBox = moreEl ? box(moreEl) : 0;
-    // 2) resolve — pure functions of (boxes, avail) with the
-    // hysteresis margins on the transitions
-    const natural = boxes.reduce((a, b) => a + b, 0);
-    if (lastAvail === avail && ovState === 'none' && natural <= avail + 0.5) {
-      el.removeAttribute('data-jx-measuring');
+    const restingNatural =
+      kids.reduce((a, k) => a + box(k), 0) +
+      el.querySelectorAll(':scope > [data-jx-btngroup-sep]').length;
+    if (lastAvail === avail && ovState === 'none' && restingNatural <= avail + 0.5) {
       return; // the RO re-entry guard: same box, same line — idempotent
     }
+    // 1) the measuring pose: everything visible, single line, seams
+    // resolved — the transient stamp suspends the display flips, the
+    // cleared placement lets each item report its NATURAL line width
+    el.setAttribute('data-jx-measuring', '');
+    el.removeAttribute('data-jx-overflow');
+    for (const kid of kids) {
+      // longhands, not the shorthand: jsdom's CSSOM does not clear
+      // grid-row/grid-column through grid-area=''
+      kid.style.gridRow = '';
+      kid.style.gridColumn = '';
+      kid.removeAttribute('data-jx-row-start');
+      kid.removeAttribute('data-jx-overflow-hidden');
+    }
+    for (const sep of el.querySelectorAll(':scope > [data-jx-btngroup-sep]')) {
+      (sep as HTMLElement).style.gridRow = '';
+      (sep as HTMLElement).style.gridColumn = '';
+    }
+    // the REAL-DOM seams reconcile inside the pose: the single line
+    // counts every 1px track the row will actually paint
+    syncSeps();
+    const boxes = kids.map(box);
+    const moreBox = moreEl ? box(moreEl) : 0;
+    // the REAL-DOM seam tracks are honest 1px columns — count them
+    // (margin-free by law, so 1px each; the collapse-hidden junctions
+    // have no sep in the DOM after the pose sync)
+    const sepPx = el.querySelectorAll(':scope > [data-jx-btngroup-sep]').length;
+    // 2) resolve — pure functions of (boxes, avail) with the
+    // hysteresis margins on the transitions (the no-op settle case
+    // already returned at the PRE-FLIGHT guard, before the pose)
+    const natural = boxes.reduce((a, b) => a + b, 0) + sepPx;
     lastAvail = avail;
     if (ovState === 'none') {
       if (natural > avail + 0.5) ovState = overflowMode === 'collapse' ? 'collapse' : 'wrap';
@@ -390,11 +522,15 @@
       rows.forEach((row, r) =>
         row.forEach((i, c) => {
           kids[i].style.gridRow = `${r + 1}`;
-          kids[i].style.gridColumn = `${c + 1}`;
+          // EVEN tracks for the row members: the odd tracks between
+          // them are the seam slots (syncSeps stamps those) — the
+          // leading seam rides track 1 of the first row
+          kids[i].style.gridColumn = `${2 * c + 2}`;
           if (c === 0) kids[i].setAttribute('data-jx-row-start', '');
         }),
       );
       folded = [];
+      syncSeps();
     } else if (ovState === 'collapse') {
       // the largest k with prefix margin-boxes + the trigger's own
       // margin-box ≤ avail; k ≥ 1 (a group reduced to only ⋯ loses
@@ -440,23 +576,38 @@
         while (entries.length > 0 && entries[entries.length - 1].divider) entries.pop();
         folded = entries;
       }
+      syncSeps();
     } else {
       el.removeAttribute('data-jx-overflow');
       folded = [];
       inlineCount = Number.MAX_SAFE_INTEGER;
+      syncSeps();
     }
     el.removeAttribute('data-jx-measuring');
   }
 
   $effect(() => {
-    // orientation/mode are read here: flips re-run the whole machine
+    // orientation/mode/policy are read here: flips re-run the whole machine
+    separatorOn;
     if (!groupEl || orientation !== 'horizontal') return;
-    if (typeof ResizeObserver === 'undefined') return; // static path: the line stays
+    if (typeof ResizeObserver === 'undefined') {
+      syncSeps(); // the static path: no measurement ever runs, but the seams are real DOM — they still join the visible line
+      return;
+    }
     const el = groupEl;
     const ro = new ResizeObserver(() => measure(el));
     ro.observe(el);
     measure(el);
     return () => ro.disconnect();
+  });
+
+  // the vertical stack never measures (a vertical group overflows its
+  // block axis — the scroll container's business): its seams sync on
+  // mount and on policy flips alone, DOM order being their layout
+  $effect(() => {
+    separatorOn;
+    if (!groupEl || orientation !== 'vertical') return;
+    syncSeps();
   });
 
   // the trigger names its panel for AT (aria-haspopup describes the
@@ -498,6 +649,12 @@
     className,
   )}
 >
+  {#if leadingSeam && separatorOn}
+    <!-- THE LEADING SEAM, declarative: a REAL element the group owns,
+         its own first child — flush by construction (inside the group
+         no parent gap can detach it; the css paints the ink) -->
+    <span data-jx-btngroup-sep aria-hidden="true"></span>
+  {/if}
   {@render children()}
   {#if overflowMode === 'collapse'}
     <!-- the收纳 trigger: hidden until the collapse state stamps it

@@ -63,12 +63,17 @@ describe('ButtonGroup · overflow: wrap (default)', () => {
     rendered.component.poke();
     expect(og.getAttribute('data-jx-overflow')).toBe('wrap');
     // margin-box rows (jsdom computes 0 margins — the sheet never
-    // loads there): [50,40]=90 | [30,60]=90 — row-major, DOM order
+    // loads there): [50,40]=90 | [30,60]=90 — row-major, DOM order.
+    // THE EVEN-TRACK LAW (the real-DOM seam era): every kid rides an
+    // EVEN track (2c+2); the odd tracks between them are the seam
+    // slots — zero-width when the separator policy is off (this host
+    // sets no variant), 1px when it paints. The layout is identical
+    // to the old contiguous arithmetic with the policy off
     const cell = (i: number) => `${kids[i].style.gridRow}/${kids[i].style.gridColumn}`;
-    expect(cell(0)).toBe('1/1');
-    expect(cell(1)).toBe('1/2');
-    expect(cell(2)).toBe('2/1');
-    expect(cell(3)).toBe('2/2');
+    expect(cell(0)).toBe('1/2');
+    expect(cell(1)).toBe('1/4');
+    expect(cell(2)).toBe('2/2');
+    expect(cell(3)).toBe('2/4');
     // EVERY row lead is stamped (row 1's lead is a first-child — the
     // stamp's margin reset is a no-op there, but the mark is uniform)
     expect(kids[0].hasAttribute('data-jx-row-start')).toBe(true);
@@ -89,7 +94,8 @@ describe('ButtonGroup · overflow: wrap (default)', () => {
     rendered.component.poke();
     expect(og.getAttribute('data-jx-overflow')).toBe('wrap');
     const divider = kids[2];
-    expect(`${divider.style.gridRow}/${divider.style.gridColumn}`).toBe('1/3');
+    // even-track law: the divider is row 1's THIRD member → track 6
+    expect(`${divider.style.gridRow}/${divider.style.gridColumn}`).toBe('1/6');
     expect(divider.hasAttribute('data-jx-row-start')).toBe(false);
   });
 

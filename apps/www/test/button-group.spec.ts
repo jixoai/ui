@@ -233,14 +233,14 @@ describe('ButtonGroup · the separator policy (r13: ghost\'s seam)', () => {
     ).toBe(false);
   });
 
-  it('the LEADING SEAM (r14-13): the intent stamp composes with the seam policy in the css', () => {
+  it('the LEADING SEAM (r14-13 → the real-DOM era): the intent stamp renders a REAL group-owned element only under an active seam policy', () => {
     const { container } = render(LawsHost);
     expect(
       container.querySelector('[data-testid="lead-group"]')?.hasAttribute('data-jx-leading-seam'),
     ).toBe(true);
     // the stamp records INTENT: it rides even a bordered group — but
-    // the paint composes with the seam policy (css requires BOTH
-    // stamps), so a bordered cluster never doubles its opening edge
+    // the element composes with the seam policy (svelte requires BOTH),
+    // so a bordered cluster never doubles its opening edge
     expect(
       container.querySelector('[data-testid="lead-plain-group"]')?.hasAttribute('data-jx-leading-seam'),
     ).toBe(true);
@@ -251,57 +251,100 @@ describe('ButtonGroup · the separator policy (r13: ghost\'s seam)', () => {
     expect(
       container.querySelector('[data-testid="ghost-group"]')?.hasAttribute('data-jx-leading-seam'),
     ).toBe(false);
-    // source-pinned: the leading rule requires the seam stamp too
-    expect(buttonGroupCss).toMatch(
-      /\[data-jx-separator\]\[data-jx-leading-seam\][^{}]*first-child/,
-    );
+  });
+
+  it('THE REAL-DOM SEAMS (Owner 2026-09-04: "我更希望上真正的 DOM 来做分割线"): the group injects REAL separator elements between its visible children — never a pseudo inside a button', () => {
+    const { container } = render(LawsHost);
+    const sepsOf = (id: string) =>
+      [...(container.querySelector(`[data-testid="${id}"]`)?.children ?? [])].filter((c) =>
+        c.hasAttribute('data-jx-btngroup-sep'),
+      );
+    // ghost default: 3 buttons → 2 seams; the elements are aria-hidden
+    // decorative carriers between the children (never inside a button)
+    const ghost = sepsOf('ghost-group');
+    expect(ghost).toHaveLength(2);
+    expect(ghost.every((s) => s.getAttribute('aria-hidden') === 'true')).toBe(true);
+    expect(container.querySelector('[data-testid="ghost-group"] button [data-jx-btngroup-sep]')).toBeNull();
+    // explicit separator on a bordered group paints the same way
+    expect(sepsOf('sep-group')).toHaveLength(1);
+    // the leading seam is the group's OWN first child (declarative,
+    // Svelte-owned) and the injected ones follow between the buttons
+    const lead = sepsOf('lead-group');
+    expect(lead).toHaveLength(2); // the declarative leader + one injected
+    expect(lead[0]?.hasAttribute('data-jx-injected')).toBe(false);
+    expect(lead[1]?.hasAttribute('data-jx-injected')).toBe(true);
+    expect(container.querySelector('[data-testid="lead-group"]')?.firstElementChild?.hasAttribute('data-jx-btngroup-sep')).toBe(true);
+    // policy off (explicit false, or a bordered group): nothing paints
+    expect(sepsOf('nosep-group')).toHaveLength(0);
+    expect(sepsOf('plain-group')).toHaveLength(0);
+    expect(sepsOf('scope-tonal-group')).toHaveLength(0);
+    // the inherited ghost counts for the REAL seams exactly as it did
+    // for the policy stamp (r14-10)
+    expect(sepsOf('scope-ghost-group')).toHaveLength(1);
   });
 });
 
-describe('ButtonGroup · the separator css law (r13, source-pinned)', () => {
-  // the two ::before blocks, extracted for the ink-law assertions
-  const sepH = buttonGroupCss.match(
-    /\[data-jx-btngroup='horizontal'\]\[data-jx-separator\]\)[^{}]*::before\s*\{([^}]*)\}/s,
-  )?.[1] ?? '';
-  const sepV = buttonGroupCss.match(
-    /\[data-jx-btngroup='vertical'\]\[data-jx-separator\]\)[^{}]*::before\s*\{([^}]*)\}/s,
-  )?.[1] ?? '';
-
-  it('the seam slot paints with the separator ink engine — backdrop contrast ghost, no color', () => {
+describe('ButtonGroup · the separator css law (the real-DOM era, source-pinned)', () => {
+  it('the seam element paints with the separator ink engine — backdrop contrast ghost, no color', () => {
     // the INK law (separator/separator.css, 2026-09-01): a separator
     // paints no color; the backdrop's own contrast ghost is the ink
-    expect(sepH).toMatch(/inline-size:\s*1px;/);
-    expect(sepH).toMatch(/backdrop-filter:\s*contrast\(0\.5\);/);
-    expect(sepV).toMatch(/block-size:\s*1px;/);
-    expect(sepV).toMatch(/backdrop-filter:\s*contrast\(0\.5\);/);
-    for (const block of [sepH, sepV]) {
-      expect(block).not.toContain('background:'); // no color channel — ever
-      expect(block.replace('backdrop-filter', '')).not.toMatch(/\bfilter:/); // only the backdrop engine
-    }
-  });
-
-  it('the seam pseudo is an absolutely-positioned decorative carrier on a relative child', () => {
     expect(buttonGroupCss).toMatch(
-      /\[data-jx-btngroup\]\[data-jx-separator\]\)\s*>\s\*\s*\{\s*position:\s*relative;/,
+      /:where\(\[data-jx-btngroup-sep\]\)\s*\{[^}]*backdrop-filter:\s*contrast\(0\.5\);/s,
     );
-    expect(sepH).toMatch(/position:\s*absolute;/);
-    expect(sepH).toMatch(/inset-inline-start:\s*-1px;/); // the collapsed seam slot
-  });
-
-  it('the divider is exempt — the explicit line never doubles with the separator seam', () => {
     expect(buttonGroupCss).toMatch(
-      /\[data-jx-separator\]\)\s*>\s\*\s\+\s\*:not\(\[data-jx-btngroup-divider\]\)::before/,
+      /:where\(\[data-jx-btngroup='horizontal'\]\)\s*>\s*\[data-jx-btngroup-sep\]\s*\{[^}]*inline-size:\s*1px;[^}]*align-self:\s*stretch;/s,
     );
+    expect(buttonGroupCss).toMatch(
+      /:where\(\[data-jx-btngroup='vertical'\]\)\s*>\s*\[data-jx-btngroup-sep\]\s*\{[^}]*block-size:\s*1px;/s,
+    );
+    // no color channel — ever, only the backdrop engine
+    const sepBlock = buttonGroupCss.match(/:where\(\[data-jx-btngroup-sep\]\)\s*\{([^}]*)\}/s)?.[1] ?? '';
+    expect(sepBlock).not.toContain('background');
   });
 
-  it('the wrap state swaps the flow to measured rows and drops the seam on row leads', () => {
+  it('THE PSEUDO ERA IS DEAD: no ::before seam rules anywhere in the sheet (the group never hangs its seams inside a button again)', () => {
+    // prose in the law comments may NAME the retired era; the law
+    // binds the rules — strip comments before the negative
+    const rules = buttonGroupCss.replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(rules).not.toMatch(/::before/);
+  });
+
+  it('THE JUNCTION COLLAPSE: the follower rides ON the seam track (Owner 2026-09-04 — the seam and the button were a border-width apart)', () => {
+    // the seam's own margin stays 0 (a 1px element's negative
+    // margin-box clamps to a zero-width grid track), but the
+    // FOLLOWING button keeps the generic -1px seam law — its border
+    // slot lands on the seam's 1px pixel, one line, flush to the
+    // paint (ghost's wash/inset, bordered rungs' collapsed edge)
+    expect(buttonGroupCss).toMatch(
+      /:where\(\[data-jx-btngroup='horizontal'\]\)\s*>\s*\[data-jx-btngroup-sep\]\s*\{\s*margin-inline-start:\s*0;/,
+    );
+    expect(buttonGroupCss).toMatch(
+      /:where\(\[data-jx-btngroup='vertical'\]\)\s*>\s*\[data-jx-btngroup-sep\]\s*\{\s*margin-block-start:\s*0;/,
+    );
+    // the generic law the follower falls through to
+    expect(buttonGroupCss).toMatch(
+      /:where\(\[data-jx-btngroup='horizontal'\]\)\s*>\s*\*\s*\+\s*\*\s*\{\s*margin-inline-start:\s*-1px;/,
+    );
+    // and NO seam-follower zeroing carve-out remains as a RULE (the
+    // :not() exception inside the wrap row-lead reset is the lawful
+    // opposite — it PRESERVES the collapse; the divider's heavy
+    // border·line·border boundary keeps its own — a cluster boundary
+    // should read heavier than the intra-cluster seam)
+    const rules = buttonGroupCss.replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(rules).not.toMatch(/\[data-jx-btngroup-sep\]\s*\+\s\*\s*\{/);
+    expect(rules).toMatch(/\[data-jx-btngroup-divider\]\s*\+\s\*\s*\{\s*margin-inline-start:\s*0;/);
+  });
+
+  it('the wrap state swaps the flow to measured rows; a row lead keeps its margin reset (the sync never injects a seam before a lead) — EXCEPT the lead that follows the leading seam (it has an inline-start neighbor now)', () => {
     expect(buttonGroupCss).toMatch(
       /\[data-jx-overflow='wrap'\]\)\s*\{\s*grid-auto-flow:\s*row;\s*grid-auto-columns:\s*max-content;/,
     );
+    // the reset owns only leads that break rows behind a BUTTON (a
+    // sep never opens a row); row 1's lead follows the LEADING SEAM
+    // and keeps the generic -1px collapse onto its track
     expect(buttonGroupCss).toMatch(
-      /\[data-jx-overflow='wrap'\]\)\s*>\s*\[data-jx-row-start\]\s*\{\s*margin-inline-start:\s*0;/,
+      /\[data-jx-overflow='wrap'\]\)\s*>\s*\[data-jx-row-start\]:not\(\[data-jx-btngroup-sep\]\s*\+\s\*\)\s*\{\s*margin-inline-start:\s*0;/,
     );
-    expect(buttonGroupCss).toMatch(/\[data-jx-row-start\]::before\s*\{\s*content:\s*none;/);
   });
 
   it('the overflow display flips ride UNLAYERED behind :where() with the measuring-state guard', () => {

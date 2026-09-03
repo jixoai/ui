@@ -18,13 +18,16 @@
               content or a fully custom cluster.
     label     the ButtonGroup's accessible name.
 
-  THE OPENING LINE (r14-11 → r14-13, Owner): the actions cluster
-  opens with a boundary line — but the line is BUTTON-GROUP's to draw
-  (leadingSeam): it paints as the first button's own seam pseudo,
-  flush by construction. A standalone Separator sibling here got
-  detached by the foot grid's column-gap — the exact failure the
-  Owner caught. With the group gone (the end face) the line goes with
-  it: the bracket belongs to the cluster, not the zone.
+  THE OPENING LINE (r14-11 → r14-13 → the real-DOM era, 2026-09-04):
+  the actions cluster opens with a boundary line — but the line is
+  BUTTON-GROUP's to draw (leadingSeam): a REAL element the group owns
+  as its own first child, flush by construction. The old standalone
+  Separator sibling got detached by the foot grid's column-gap (the
+  exact failure the Owner caught); the ::before interlude hung the
+  line inside the buttons (retired the same day — the Owner: "我更
+  希望上真正的 DOM 来做分割线"). With the group gone (the end face)
+  the line goes with it: the bracket belongs to the cluster, not
+  the zone.
 
   Standalone (outside a Dialog foot zone) it still renders the same
   grid — buttons then take their own default variants (and without an
