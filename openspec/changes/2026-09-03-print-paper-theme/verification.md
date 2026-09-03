@@ -50,4 +50,36 @@
 
 ## Codex 复核
 
-（异步进行中，结论回填于下）
+### 第一轮（gpt-5.6-terra · xhigh，2026-09-03，34m29s）— 评分 5.5/10，REVISE
+
+- **P1 阻塞（属实，已修）**：`runPrint` 的挂载产物 fast path
+  （pipeline.svelte.ts `reuse = purpose === 'print' && !ambient &&
+  artifact !== undefined`）不复比本次 options——「挂载 light sim →
+  显式 `theme:'dark'` 直接打印」静默打出旧浅色产物；挂载态下非法
+  theme 也不会 fail-loud。既有「theme-only rebuild」测试只覆盖
+  runSim→runSim 的全量路径，漏了 fast path 入口。
+- **非阻塞（已修）**：`PrintPaperTheme` 未从 print barrel 导出
+  （API 完整性缺口）。
+- **环境级（不成立/不采信为缺陷）**：复核沙箱内 Chromium 启动
+  SIGABRT、openspec CLI 不可用——本机 verify:print 34/34 为真实
+  运行输出（两轮），复核自身也独立确认了 build/mirror/定向
+  vitest 全过。
+
+### P1 修复（同日）
+
+fast path 只在「本次 options 的样式表哈希 === 产物哈希」时短路
+（`stylesheetHashFor(options) === artifact.stylesheetHash`）——哈希
+计算内含 `parsePageConfig`，非法声明在挂载态同样 fail-loud；r7
+零重建法则对「同声明的活内容」原样成立（探针 `same artifact (r7)`
+继续通过）。回归测试 ×3：挂载 light sim + dark 直接打印 → 重建且
+章为 dark；挂载态 + 非法 theme → reject；同 config → fast path
+保持零重建。
+
+复验：print-pipeline.spec 25/25；全量 vitest 1663/1665（仅两个
+tabs 键盘用例满载超时，隔离复跑 93/93 全过——与本变更零交集的
+负载抖动）；rebuild 后 verify:print **34/34**。
+
+### 第二轮（fix-only 复核）
+
+（进行中，结论回填于下）
+

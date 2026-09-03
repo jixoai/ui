@@ -233,6 +233,47 @@ describe('the light declaration retires dark:-variant utilities from the clone',
 });
 
 // =========================================================================
+// the mounted-artifact fast path honors the paper declaration
+// (codex print-paper-theme r1, 2026-09-03): the r7 zero-rebuild law
+// covers the SAME config's live content — a CHANGED declaration (or
+// an invalid one) must never print a stale scope silently
+// =========================================================================
+describe('the mounted-artifact fast path honors the declaration', () => {
+  it('a mounted LIGHT sim + a dark direct print REBUILDS (never prints the stale scope)', async () => {
+    root.setAttribute(PRINT_SIM_ATTR, '');
+    await pipeline.runSim({ config: CONFIG });
+    const run_ = pipeline.runPrint({ config: { ...CONFIG, theme: 'dark' } });
+    await vi.waitFor(() => expect(pipeline.status).toBe('ready'));
+    expect(spy.calls).toHaveLength(2); // NOT the fast path — the declaration changed
+    const out = document.querySelector<HTMLElement>('[data-print-output]')!;
+    expect(out.getAttribute('data-print-theme')).toBe('dark');
+    expect(out.classList.contains('dark')).toBe(true);
+    expect(out.classList.contains('jx-light')).toBe(false);
+    dispatchAfterPrint();
+    await run_;
+  });
+
+  it('a mounted artifact + an INVALID theme fails loud (the fast path parses too)', async () => {
+    root.setAttribute(PRINT_SIM_ATTR, '');
+    await pipeline.runSim({ config: CONFIG });
+    await expect(pipeline.runPrint({ config: { ...CONFIG, theme: 'blue' } })).rejects.toThrow(
+      /theme/,
+    );
+    expect(pipeline.status).toBe('error');
+  });
+
+  it('the SAME config keeps the r7 zero-rebuild fast path (the bar print law holds)', async () => {
+    root.setAttribute(PRINT_SIM_ATTR, '');
+    await pipeline.runSim({ config: CONFIG });
+    const run_ = pipeline.runPrint({ config: CONFIG });
+    await vi.waitFor(() => expect(pipeline.status).toBe('ready'));
+    expect(spy.calls).toHaveLength(1); // the mounted artifact, no rebuild
+    dispatchAfterPrint();
+    await run_;
+  });
+});
+
+// =========================================================================
 // stamp ownership (the r6 fixtures)
 // =========================================================================
 describe('stamp transaction ownership', () => {

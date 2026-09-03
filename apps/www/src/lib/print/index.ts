@@ -59,6 +59,7 @@ export {
   NAMED_SIZE_MM,
   PageConfigError,
   type PrintPageConfig,
+  type PrintPaperTheme,
   type PageSize,
   type StructuredSize,
   type StructuredMargin,

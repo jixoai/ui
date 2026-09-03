@@ -890,7 +890,21 @@ export function createPrintPipeline(
       //    re-opens the sim. (Never ambient: the ambient entry itself
       //    no-ops on a mounted artifact — window.print would stack a
       //    second dialog on the open one)
-      const reuse = purpose === 'print' && !ambient && artifact !== undefined;
+      //    The fast path holds ONLY for the SAME declaration the
+      //    artifact was built under (codex print-paper-theme r1,
+      //    2026-09-03): the config — the paper theme included — is a
+      //    page-level DECLARATION, not live-tree noise, so a changed
+      //    declaration rebuilds instead of printing a stale scope
+      //    (the full run's own hash check would catch it only AFTER
+      //    re-preparing), and an INVALID one fails loud right here
+      //    (stylesheetHashFor parses). The r7 zero-rebuild law
+      //    survives for what it was coined for: the same config's
+      //    live content never tears the overlay down.
+      const reuse =
+        purpose === 'print' &&
+        !ambient &&
+        artifact !== undefined &&
+        stylesheetHashFor(options) === artifact.stylesheetHash;
       let releaseStamp: (() => void) | undefined;
       if (reuse) {
         pageCount = artifact.metadata.pages;
