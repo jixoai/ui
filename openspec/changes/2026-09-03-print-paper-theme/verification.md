@@ -79,7 +79,23 @@ fast path 只在「本次 options 的样式表哈希 === 产物哈希」时短�
 tabs 键盘用例满载超时，隔离复跑 93/93 全过——与本变更零交集的
 负载抖动）；rebuild 后 verify:print **34/34**。
 
-### 第二轮（fix-only 复核）
+### 第二轮（fix-only 复核，56m02s）— P1 闭合，评分 8.5/10（上轮 5.5，+3.0）
 
-（进行中，结论回填于下）
+- **(a) P1 闭合：是**。行级依据（复核方独立核对）：哈希链
+  （parsedSignature→parsePageConfig 含 theme，pipeline.svelte.ts:285/
+  303）、fast path 哈希复比（:903）、挂载态非法 theme 沿既有
+  guarded() catch 走 lastError/dispose/status='error'/rethrow
+  （:987）、三条回归测试（print-pipeline.spec.ts:241）。
+- **(b) 新发现**：无阻塞。非阻塞两项本轮已处置——本文档占位行
+  与 EOF 空行（git diff --check 告警）已清。
+- **细节观察（记录不处理）**：缺席 theme 与显式 `theme:'light'` 的
+  parsedSignature 不同，二者切换会多付一次重建；不影响正确性
+  （仅效率），文档页单一 DEFAULT_PRINT_CONFIG 场景不触发。
+- **本轮独立验证（复核方）**：定向打印套件 117/117、生命周期隔离
+  20/20、`npm run build` 通过、verify:print bundle gate 通过；其沙箱
+  Chromium 启动 SIGABRT（环境缺口，两轮一致），34 项浏览器探针以
+  实现方本机两轮真实运行输出为准（均 34/34）。
+- **评分依据**：P1 消除、API 补齐、回归测试充分 → +3.0；未满 9 的
+  扣分即上述环境缺口与文档占位（占位本轮已清）。
 
+复核闭环：两轮 REVISE→闭合，任务验收完成。
