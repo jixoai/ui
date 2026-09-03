@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-03T08:45:58.005Z",
+  "generatedAt": "2026-09-03T14:30:46.044Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -16,6 +16,7 @@
     "hero-section": "registry/files/ui/hero-section/hero-section.svelte",
     "language-switcher": "registry/files/ui/language-switcher/language-switcher.svelte",
     "card-grid": "registry/files/ui/card-grid/card-grid.svelte",
+    "card": "registry/files/ui/card/card.svelte",
     "input": "registry/files/ui/input/input.svelte",
     "select": "registry/files/ui/select/select.svelte",
     "textarea": "registry/files/ui/textarea/textarea.svelte",
@@ -99,8 +100,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "065d5849bf0c5260f97ecbac5f1a7c553bb8fb9f46ad59ea6bc2af453d4aa413",
-          "mirrorSha": "065d5849bf0c5260f97ecbac5f1a7c553bb8fb9f46ad59ea6bc2af453d4aa413"
+          "sourceSha": "ff28945a0d0326ace8f8c7b1d4e715dfb7dedef0ac0ebc6bc261e166f6da7a68",
+          "mirrorSha": "ff28945a0d0326ace8f8c7b1d4e715dfb7dedef0ac0ebc6bc261e166f6da7a68"
         }
       ]
     },
@@ -315,8 +316,8 @@
           "source": "registry/files/ui/section-card/section-card.svelte",
           "mirror": "apps/www/src/lib/ui/section-card/section-card.svelte",
           "target": "@ui/section-card/section-card.svelte",
-          "sourceSha": "fc5fec144e293c71cbb0849ed1081eb68c6dfffe96ea12ec97eb524c723ce58b",
-          "mirrorSha": "fc5fec144e293c71cbb0849ed1081eb68c6dfffe96ea12ec97eb524c723ce58b"
+          "sourceSha": "a19bb50b6b08b85c4b9cd61df4d6da89b8138cb06fbf84bfd64349ee03d7bbbc",
+          "mirrorSha": "a19bb50b6b08b85c4b9cd61df4d6da89b8138cb06fbf84bfd64349ee03d7bbbc"
         },
         {
           "source": "registry/files/ui/section-card/section-card.css",
@@ -616,8 +617,8 @@
           "source": "registry/files/ui/card-grid/card-grid.svelte",
           "mirror": "apps/www/src/lib/ui/card-grid/card-grid.svelte",
           "target": "@ui/card-grid/card-grid.svelte",
-          "sourceSha": "1d458d24c5a7ee7f2ce759b575998e96a67d06b34e03625aee98adf69aed1f06",
-          "mirrorSha": "1d458d24c5a7ee7f2ce759b575998e96a67d06b34e03625aee98adf69aed1f06"
+          "sourceSha": "da9d5131a9d40c5e9571457a33e227b15a533ed962375d07ac04b1523008c239",
+          "mirrorSha": "da9d5131a9d40c5e9571457a33e227b15a533ed962375d07ac04b1523008c239"
         },
         {
           "source": "registry/files/ui/card-grid/index.ts",
@@ -630,8 +631,57 @@
           "source": "registry/files/ui/card-grid/card-grid.css",
           "mirror": "apps/www/src/lib/ui/card-grid/card-grid.css",
           "target": "@ui/card-grid/card-grid.css",
-          "sourceSha": "585c1b7d39918c424b445793ca69976ccef34f0224dd7edfea520be9cfe4b195",
-          "mirrorSha": "585c1b7d39918c424b445793ca69976ccef34f0224dd7edfea520be9cfe4b195"
+          "sourceSha": "ba62cb2d71f3b63675f0fcd94c604a9e873271b20d57665ff4d99907ac864829",
+          "mirrorSha": "ba62cb2d71f3b63675f0fcd94c604a9e873271b20d57665ff4d99907ac864829"
+        }
+      ]
+    },
+    {
+      "itemName": "card",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/card/card.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/card/card.svelte",
+          "mirror": "apps/www/src/lib/ui/card/card.svelte",
+          "target": "@ui/card/card.svelte",
+          "sourceSha": "ced808300e037688ff031b4b9f17c55a4823fb29f23c3ba81f6f41fa76c13038",
+          "mirrorSha": "ced808300e037688ff031b4b9f17c55a4823fb29f23c3ba81f6f41fa76c13038"
+        },
+        {
+          "source": "registry/files/ui/card/card.css",
+          "mirror": "apps/www/src/lib/ui/card/card.css",
+          "target": "@ui/card/card.css",
+          "sourceSha": "05111409740446d53b0568243200c8e02683719472a44ef4ebc24cfc48d176ba",
+          "mirrorSha": "05111409740446d53b0568243200c8e02683719472a44ef4ebc24cfc48d176ba"
+        },
+        {
+          "source": "registry/files/ui/card/card-header.svelte",
+          "mirror": "apps/www/src/lib/ui/card/card-header.svelte",
+          "target": "@ui/card/card-header.svelte",
+          "sourceSha": "6c7fc5e3893421b135b0dd25702b44caf4e153ee692f079a687b1bbd814e93d8",
+          "mirrorSha": "6c7fc5e3893421b135b0dd25702b44caf4e153ee692f079a687b1bbd814e93d8"
+        },
+        {
+          "source": "registry/files/ui/card/card-footer.svelte",
+          "mirror": "apps/www/src/lib/ui/card/card-footer.svelte",
+          "target": "@ui/card/card-footer.svelte",
+          "sourceSha": "c05458542f65c3e78926a73b990ae3749cdbef7b295c6ec69b25974369982d2e",
+          "mirrorSha": "c05458542f65c3e78926a73b990ae3749cdbef7b295c6ec69b25974369982d2e"
+        },
+        {
+          "source": "registry/files/ui/card/card-footer.css",
+          "mirror": "apps/www/src/lib/ui/card/card-footer.css",
+          "target": "@ui/card/card-footer.css",
+          "sourceSha": "0a9207732a794fe4679079f4dca0b66afa4da20ee5f36b7c1661c2b345dce832",
+          "mirrorSha": "0a9207732a794fe4679079f4dca0b66afa4da20ee5f36b7c1661c2b345dce832"
+        },
+        {
+          "source": "registry/files/ui/card/index.ts",
+          "mirror": "apps/www/src/lib/ui/card/index.ts",
+          "target": "@ui/card/index.ts",
+          "sourceSha": "ede82b43bfdd1b57506fc71e7f3917ceab94ddf44eb480c1de3ee8aaf17d4924",
+          "mirrorSha": "ede82b43bfdd1b57506fc71e7f3917ceab94ddf44eb480c1de3ee8aaf17d4924"
         }
       ]
     },
@@ -643,8 +693,8 @@
           "source": "registry/files/theme/jx-pure.css",
           "mirror": "apps/www/src/lib/jx-pure.css",
           "target": "@lib/jx-pure.css",
-          "sourceSha": "8f151c11659cb0e014deb96460ac4ebd1f30fae0f054d73256edeb49f6fb1f51",
-          "mirrorSha": "8f151c11659cb0e014deb96460ac4ebd1f30fae0f054d73256edeb49f6fb1f51"
+          "sourceSha": "706fb8ce592771f85a4c51f9010dcadb627f7995397a8663e3ca73ebe69a05e0",
+          "mirrorSha": "706fb8ce592771f85a4c51f9010dcadb627f7995397a8663e3ca73ebe69a05e0"
         }
       ]
     },
@@ -849,8 +899,8 @@
           "source": "registry/files/ui/code-card/code-card.svelte",
           "mirror": "apps/www/src/lib/ui/code-card/code-card.svelte",
           "target": "@ui/code-card/code-card.svelte",
-          "sourceSha": "7c1c51c823fe1fa7e9ed5906740b2cfa075b27fd7ec2026ad07fd29cdd5457fb",
-          "mirrorSha": "7c1c51c823fe1fa7e9ed5906740b2cfa075b27fd7ec2026ad07fd29cdd5457fb"
+          "sourceSha": "374c1b9ad1af062c590d46231df624c7ea891cdc9becb160242500ea839a2288",
+          "mirrorSha": "374c1b9ad1af062c590d46231df624c7ea891cdc9becb160242500ea839a2288"
         },
         {
           "source": "registry/files/ui/code-card/index.ts",
@@ -863,8 +913,8 @@
           "source": "registry/files/ui/code-card/code-card.css",
           "mirror": "apps/www/src/lib/ui/code-card/code-card.css",
           "target": "@ui/code-card/code-card.css",
-          "sourceSha": "58c7f7722f1f96605a62fae494ed999087f6d79fb076301b6f66ca3f3681691d",
-          "mirrorSha": "58c7f7722f1f96605a62fae494ed999087f6d79fb076301b6f66ca3f3681691d"
+          "sourceSha": "5c019c440882ea21607cf7d69d880663f78b83b56121b5ded6bd57589db4cd6c",
+          "mirrorSha": "5c019c440882ea21607cf7d69d880663f78b83b56121b5ded6bd57589db4cd6c"
         }
       ]
     },
@@ -3015,8 +3065,8 @@
           "source": "registry/files/search-corpus/search-corpus.mjs",
           "mirror": "registry/files/search-corpus/search-corpus.mjs",
           "target": "vite-plugins/search-corpus.mjs",
-          "sourceSha": "551b8c1b27ea4b889c907ca92fda0364a890ae0b4e9ffd8a7ec26b4e40ef4624",
-          "mirrorSha": "551b8c1b27ea4b889c907ca92fda0364a890ae0b4e9ffd8a7ec26b4e40ef4624"
+          "sourceSha": "8cd6b9df5622b32563448bc843109fc101c07e8c12740ef59c0e9bc0cb9a3d9b",
+          "mirrorSha": "8cd6b9df5622b32563448bc843109fc101c07e8c12740ef59c0e9bc0cb9a3d9b"
         }
       ]
     },

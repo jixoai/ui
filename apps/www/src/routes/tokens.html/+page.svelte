@@ -321,6 +321,8 @@ playing.subscribe((v) => (isPlaying = v));
               { name: '--jx-toggle-track', default: 'var(--jx-line)', source: 'component' },
               { name: '--jx-toggle-width', default: 'calc(var(--jx-toggle-track) * 2)', source: 'component' },
               { name: '--jx-toggle-knob', default: 'calc(var(--jx-toggle-track) - var(--jx-unit))', source: 'component' },
+              { name: '--jx-toggle-knob-border', default: '1px', source: 'component' },
+              { name: '--jx-toggle-knob-border-color', default: 'var(--primary)', source: 'component' },
               { name: '--jx-slider-track', default: 'max(var(--jx-unit), calc(var(--jx-line) / 2))', source: 'component' },
               { name: '--jx-textarea-min', default: 'max(var(--jx-hit), calc(var(--jx-line) * 3 + ...))', source: 'component' },
               { name: '--jx-color-lane', default: 'max(var(--jx-hit), calc(var(--jx-icon) + ...))', source: 'component' },
