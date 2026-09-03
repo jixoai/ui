@@ -16,6 +16,7 @@
  */
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
+import ZoneHost from './fixtures/press-zone-host.svelte';
 import { tick } from 'svelte';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -143,6 +144,60 @@ describe('press-button raised axis — the flat texture', () => {
     const css = readFileSync(resolve('src/lib/jixoai.css'), 'utf8');
     expect(css).toMatch(/\.jx-press:active\s*\{[^}]*translate:\s*var\(--jx-press-move,\s*1px\s+1px\)/s);
     expect(css).not.toMatch(/\.jx-press:active\s*\{[^}]*translate:\s*1px\s+1px\s*;/s);
+  });
+});
+
+/* ── THE ZONE TEXTURE (Owner 2026-09-04): a ButtonVariantScope may scope
+      the raised DEFAULT to false — the card/dialog foot law. Resolution:
+      explicit ?? zone ?? true; the texture rides its OWN context key so a
+      joined ButtonGroup (which RESETS BUTTON_GROUP_KEY) never shadows
+      physics — the context face of "physics never changes with paint". ── */
+describe('press-button zone texture — the foot-flat context', () => {
+  it('a raised={false} zone adopts the flat pose for a bare button with no explicit prop', () => {
+    const { container } = render(ZoneHost, { props: { zoneRaised: false } });
+    const btn = container.querySelector('button')!;
+    expect(btn.className).toContain('[--jx-press-shadow:none]');
+    expect(btn.className).toContain('[--jx-press-shadow-active:var(--shadow-engrave)]');
+    expect(btn.className).toContain('[--jx-press-move:none]');
+  });
+
+  it('an explicit raised=true wins inside a flat zone — explicit ?? zone ?? true', () => {
+    const { container } = render(ZoneHost, { props: { zoneRaised: false, raised: true } });
+    const btn = container.querySelector('button')!;
+    // the zone resolves ghost (its paint scope) — ghost's own none-trio
+    // may ride, but NONE of the flat block's seams do: no nulled vector,
+    // no engrave inset
+    expect(btn.className).not.toContain('--jx-press-move');
+    expect(btn.className).not.toContain('engrave');
+  });
+
+  it('the texture flows THROUGH a joined ButtonGroup — physics is not the group\'s to reset', () => {
+    const { container } = render(ZoneHost, { props: { zoneRaised: false, grouped: true } });
+    const btn = container.querySelector('button')!;
+    expect(btn.className).toContain('[--jx-press-move:none]');
+    // the group's PAINT policy still applied alongside (ghost via the scope)
+    expect(btn.getAttribute('data-jx-press-button')).toBe('ghost');
+  });
+
+  it('a paint-only nested scope never un-flattens the zone (inherit-then-provide)', () => {
+    const { container } = render(ZoneHost, { props: { zoneRaised: false, nested: true } });
+    const btn = container.querySelector('button')!;
+    // the inner scope narrowed PAINT to outline but inherited the flat physics
+    expect(btn.className).toContain('[--jx-press-move:none]');
+    expect(btn.getAttribute('data-jx-press-button')).toBe('outline');
+  });
+
+  it('a zone that declares no raised leaves the convex default — the scope alone changes nothing', () => {
+    const { container } = render(ZoneHost);
+    const btn = container.querySelector('button')!;
+    expect(btn.className).not.toContain('--jx-press-move');
+    expect(btn.className).not.toContain('engrave');
+  });
+
+  it('link stays inert inside a flat zone', () => {
+    const { container } = render(ZoneHost, { props: { zoneRaised: false, variant: 'link' } });
+    const btn = container.querySelector('button')!;
+    expect(btn.className).not.toContain('jx-press');
   });
 });
 

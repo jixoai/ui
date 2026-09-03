@@ -37,6 +37,20 @@ describe('the dialog ghost scope (r14-2 → r14-9)', () => {
     // r14-13: the actions cluster opens through the group's own
     // leading seam (the first button's flush bracket)
     expect(group.hasAttribute('data-jx-leading-seam')).toBe(true);
+
+    // 2026-09-04, Owner — the foot rides the FLAT texture: the zone's
+    // scope writes raised=false, so every footer button without an
+    // explicit prop adopts the engrave-tier inset press (raw or
+    // grouped — the texture flows THROUGH the ButtonGroup), while an
+    // explicit raised=true keeps the convex law (explicit ALWAYS wins)
+    const flatOf = (el?: Element) => el?.className.includes('[--jx-press-move:none]') ?? false;
+    expect(flatOf(byLabel['raw-foot-button'])).toBe(true);
+    expect(flatOf(byLabel['grouped-ghost'])).toBe(true);
+    expect(flatOf(byLabel['explicit-wins'])).toBe(true); // variant-explicit, physics still inherited
+    expect(flatOf(byLabel['raised-explicit'])).toBe(false); // the prop wins
+    // convex ghost keeps its own none-trio; the flat block's seams are gone
+    expect(byLabel['raised-explicit']?.className).not.toContain('--jx-press-move');
+    expect(byLabel['raised-explicit']?.className).not.toContain('engrave');
     target.remove();
   });
 });

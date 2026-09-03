@@ -281,8 +281,11 @@
              grouping, no dividers from Dialog. The standard face is
              <DialogFooter> (auto button-group at inline-end, the raw
              end slot); the ghost scope stays the zone's default for
-             every button (Context, written by Dialog) -->
-        <ButtonVariantScope variant="ghost">
+             every button (Context, written by Dialog), and the foot
+             rides the FLAT texture (Owner 2026-09-04): raised=false
+             scopes the physics default — foot buttons press as
+             engrave-tier insets, an explicit raised still wins -->
+        <ButtonVariantScope variant="ghost" raised={false}>
           {@render footer()}
         </ButtonVariantScope>
       </div>

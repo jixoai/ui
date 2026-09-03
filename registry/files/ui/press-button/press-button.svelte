@@ -82,6 +82,22 @@
    *  (icon-button) import this instead of re-declaring it */
   export type PressButtonVariant = 'fill' | 'tonal' | 'outline' | 'ghost' | 'link';
 
+  /** the zone texture context: a subtree-scoped default for the
+   *  physics axis, written by ButtonVariantScope (the same zero-DOM
+   *  boundary that scopes the variant) — a card/dialog FOOT zone sets
+   *  raised=false so its buttons ride flat unless an explicit prop
+   *  says otherwise (Owner 2026-09-04). A SEPARATE key from
+   *  BUTTON_GROUP_KEY on purpose: the group's context is paint policy
+   *  and every ButtonGroup RESETS it — physics is not the group's to
+   *  carry, so the texture flows THROUGH joined groups untouched (the
+   *  context face of "physics never changes with paint") */
+  export interface PressTextureApi {
+    /** the zone's raised default — consumed as explicit ?? zone ?? true */
+    readonly raised: boolean | undefined;
+  }
+  /** context key — global symbol registry (independent registry items) */
+  export const PRESS_TEXTURE_KEY = Symbol.for('jx-press-texture');
+
   /** the one opt-in effect loop — builders keep options typed and discoverable */
   export type PressEffect = ShimmerEffect | PulseEffect | RainbowEffect | RippleEffect;
 
@@ -242,7 +258,10 @@
      *  creates the pushed-into-the-plane illusion. All through the
      *  pose customs (press law, jixoai.css); the 1px border frame
      *  stays (an inset is never the sole affordance, r14-12). The
-     *  link rung carries no jx-press — this prop is inert there. */
+     *  link rung carries no jx-press — this prop is inert there.
+     *  No static default: a ButtonVariantScope zone (card/dialog
+     *  foot) may scope the default to false (Owner 2026-09-04) —
+     *  resolution is explicit ?? zone ?? true */
     raised?: boolean;
     /** appended to the composed classes (same-family overrides need
      *  the consumer's `!` — same-property utility order is not
@@ -263,7 +282,7 @@
     popovertarget = undefined,
     ariaLabel,
     square = false,
-    raised = true,
+    raised = undefined,
     class: className = '',
     children,
   }: Props = $props();
@@ -274,6 +293,15 @@
   // stamped-attribute law's consumer face (explicit ALWAYS wins)
   const group = getContext<ButtonGroupApi | undefined>(BUTTON_GROUP_KEY);
   const resolvedVariant = $derived(variant ?? group?.variant ?? 'outline');
+
+  // the zone texture context — same read-once pattern, its own key (a
+  // joined ButtonGroup never shadows physics, see the module comment).
+  // Resolution mirrors the variant's: explicit prop → the zone's
+  // default → the own convex default; the ladder of defaults never
+  // changes the LAWS — a zone scopes which texture a bare button
+  // adopts, never mints physics of its own
+  const texture = getContext<PressTextureApi | undefined>(PRESS_TEXTURE_KEY);
+  const resolvedRaised = $derived(raised ?? texture?.raised ?? true);
 
   // ---- the one-shot success flash (the async idiom's second step) -----
   // ONE idiom, component-owned: flash() paints the ✓ glyph +
@@ -409,7 +437,7 @@
   const flatPose =
     '[--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:var(--shadow-engrave)] [--jx-press-move:none]';
   const variantClasses = $derived(
-    !raised && resolvedVariant !== 'link'
+    !resolvedRaised && resolvedVariant !== 'link'
       ? `${variants[resolvedVariant].replace(/\s*\[--jx-press-shadow[^\]]*\]\s*/g, ' ')} ${flatPose}`
       : variants[resolvedVariant],
   );

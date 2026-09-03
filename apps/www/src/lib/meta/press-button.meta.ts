@@ -56,8 +56,7 @@ export const meta = defineComponentMeta(
         "default": false
       },
       "raised": {
-        "kind": "boolean",
-        "default": true
+        "kind": "boolean"
       },
       "class": {
         "kind": "string",
