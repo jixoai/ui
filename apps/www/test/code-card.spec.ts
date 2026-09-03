@@ -183,8 +183,36 @@ describe('CodeCard · edge-veil engine (code-card.css, source-pinned)', () => {
     for (const rule of openers) {
       expect(rule.trim()).toMatch(/^:where\(/);
     }
-    // the sheet's own census: tokens, dark tokens, pre law, the veil
-    // blocks (shared openers carry the brace) + the focus/kill pair
-    expect(openers.length).toBeGreaterThanOrEqual(9);
+    // the sheet's own census: tokens, dark tokens, the LIGHT re-flip,
+    // pre law, the veil blocks (shared openers carry the brace) + the
+    // focus/kill pair
+    expect(openers.length).toBeGreaterThanOrEqual(10);
+  });
+
+  // THE PAPER-IS-WHITE LAW (print-pipeline, Owner ruling 2026-09-03):
+  // `.dark` keys off ANCESTRY — under a dark document a `.jx-light`
+  // scope (the print artifact's forced-light stamp, a canvas light
+  // stage) still matches the dark override, and its literal
+  // oklch(1 0 0) mixes read washed on white paper. The re-flip block
+  // re-declares the light formulas AFTER the dark one: order wins.
+  it('re-flips the token palette under a .jx-light scope (declared light beats dark ancestry)', () => {
+    const dark = codeCardCss.match(/:where\(\.dark \.jx-code-card\)\s*\{([^}]*)\}/);
+    expect(dark, 'the dark adaptation must stay').not.toBeNull();
+    const light = codeCardCss.match(/:where\(\.jx-light \.jx-code-card\)\s*\{([^}]*)\}/);
+    expect(light, 'the light re-flip must exist').not.toBeNull();
+    // the literal white mixes are the real leak: the re-flip carries
+    // the var(--foreground) formulas instead
+    expect(light![1]).not.toContain('oklch(1 0 0)');
+    expect(light![1]).toContain(
+      '--tok-token-function: color-mix(in oklab, var(--primary) 62%, var(--foreground))',
+    );
+    expect(light![1]).toContain(
+      '--tok-token-constant: color-mix(in oklab, var(--secondary) 78%, var(--foreground))',
+    );
+    // ORDER IS LOAD-BEARING: the re-flip must come after the dark
+    // block or the override wins by cascade order (both :where (0,0,0))
+    expect(codeCardCss.indexOf(':where(.jx-light .jx-code-card)')).toBeGreaterThan(
+      codeCardCss.indexOf(':where(.dark .jx-code-card)'),
+    );
   });
 });

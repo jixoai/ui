@@ -156,6 +156,15 @@
   html[data-jx-print-active] .jx-shell-host {
     display: none !important;
   }
+  /* the canvas neutralizes too (paper-is-white law, 2026-09-03):
+     body's background propagates to the page canvas and was computed
+     under the DOCUMENT'S theme — a dark site would paint dark margins
+     behind the sheets when the user enables background graphics. The
+     artifact paints its own paper (the sheets); the canvas stays
+     bare in BOTH scopes */
+  html[data-jx-print-active] body {
+    background: none;
+  }
   /* the output root drops every screen pose (fixed overlay, standby
      offscreen) and flows as the print authority */
   html[data-jx-print-active] [data-print-output] {

@@ -52,6 +52,24 @@
     --tok-token-constant: var(--secondary);
     --tok-token-function: color-mix(in oklab, var(--primary) 58%, oklch(1 0 0));
   }
+  /* the light re-flip (the paper-is-white law, 2026-09-03; the
+     jx-pure icon-stroke precedent): `.dark` keys off ANCESTRY, so a
+     dark document's `.jx-light` scope (the print artifact's forced-
+     light stamp, a component-canvas light stage) still matches the
+     override above — and its literal oklch(1 0 0) mixes read washed
+     on white paper. This block re-declares the light formulas AFTER
+     the dark one, so the declared light scope wins by order. var()-
+     bearing formulas stay scope-correct under deeper nested islands
+     (an inner .dark stage resolves its own dark vars through them) */
+  :where(.jx-light .jx-code-card) {
+    --readonly-code-bg: color-mix(in oklab, var(--muted) 42%, var(--background));
+    --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 12%, var(--background));
+    --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 58%, var(--foreground));
+
+    --tok-token-comment: color-mix(in oklab, var(--foreground) 44%, transparent);
+    --tok-token-constant: color-mix(in oklab, var(--secondary) 78%, var(--foreground));
+    --tok-token-function: color-mix(in oklab, var(--primary) 62%, var(--foreground));
+  }
 
   /* the pre is the scrollport: native Tab characters stay tabs, long lines
      scroll instead of wrapping; scrollbar paint is the THEME scrollbar law

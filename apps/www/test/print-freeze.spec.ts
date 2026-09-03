@@ -30,6 +30,7 @@ import {
   planFrameTransfer,
   prepareSnapshot,
   resolvePath,
+  retireDarkUtilities,
   slotIndexOf,
   splitPreLines,
   transferDelay,
@@ -703,5 +704,43 @@ describe('prepareSnapshot — P1-1: the capture lands AFTER the DOM-commit barri
     expect(getAnimations).toHaveBeenCalledTimes(1);
     expect(getAnimations).toHaveBeenCalledWith({ subtree: true });
     expect(observed).toEqual(['sm']);
+  });
+});
+
+// =========================================================================
+// retireDarkUtilities — the paper-is-white clone half (Owner ruling,
+// 2026-09-03): under a LIGHT print declaration every dark:-variant
+// utility retires from the clone; a DARK declaration keeps them (they
+// are the adaptation); the live tree is never this function's business
+// =========================================================================
+describe('retireDarkUtilities — the light declaration retires dark: utilities', () => {
+  it('strips every dark:-prefixed class token, keeps everything else, counts what left', () => {
+    const clone = document.createElement('div');
+    clone.className = 'dark:bg-background dark:[--tok-token-function:oklch(1_0_0)]';
+    const chip = document.createElement('code');
+    chip.className = 'jx-inline-code scheme-light dark:scheme-dark [--tok-token-comment:oklch(0_0_0)]';
+    clone.appendChild(chip);
+    const nested = document.createElement('span');
+    nested.className = 'plain-token';
+    chip.appendChild(nested);
+    const retired = retireDarkUtilities(clone);
+    expect(retired).toBe(3);
+    expect(clone.className).toBe('');
+    expect(chip.className).toBe('jx-inline-code scheme-light [--tok-token-comment:oklch(0_0_0)]');
+    expect(nested.className).toBe('plain-token'); // untouched rides untouched
+  });
+
+  it('non-prefixed lookalikes stay (a class CONTAINING "dark:" mid-token is not a variant)', () => {
+    const clone = document.createElement('div');
+    clone.className = 'my-dark:thing notdark:x dark:gone';
+    expect(retireDarkUtilities(clone)).toBe(1);
+    expect(clone.className).toBe('my-dark:thing notdark:x');
+  });
+
+  it('a classless tree is a zero (no [class] attr fabrication)', () => {
+    const clone = document.createElement('div');
+    clone.innerHTML = '<p>plain</p>';
+    expect(retireDarkUtilities(clone)).toBe(0);
+    expect(clone.querySelector('p')!.hasAttribute('class')).toBe(false);
   });
 });

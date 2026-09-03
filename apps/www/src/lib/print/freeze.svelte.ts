@@ -761,6 +761,40 @@ export function injectTocNav(
   return nav;
 }
 
+// ── the paper-is-white clone retirement (Owner ruling, 2026-09-03) ─────────
+
+/**
+ * The paper's theme law, clone half: under a LIGHT print declaration
+ * every `dark:`-variant Tailwind utility RETIRES from the clone. The
+ * dark variant keys off `.dark` ANCESTRY (`&:where(.dark, .dark *)`)
+ * and a `.jx-light` scope class cannot turn it off — the artifact
+ * root's token stamp fixes token VALUES, but utility-level dark paint
+ * (inline-code's dark:[--tok-*], the form controls' dark:scheme-dark)
+ * needs the classes gone. Under a DARK declaration nothing retires:
+ * the utilities ARE the adaptation. Screen trees are never touched —
+ * the clone is the product.
+ *
+ * Returns how many classes retired (the probe/unit surface; the
+ * pipeline discards it — the stamp itself is the contract).
+ */
+export function retireDarkUtilities(clone: HTMLElement): number {
+  let retired = 0;
+  // the clone root itself carries the source wrapper's classes too
+  for (const el of [clone, ...clone.querySelectorAll('[class]')]) {
+    const classes = el.getAttribute('class');
+    if (classes === null || !classes.includes('dark:')) continue;
+    const kept = classes.split(/\s+/).filter((token) => {
+      if (token.startsWith('dark:')) {
+        retired++;
+        return false;
+      }
+      return true;
+    });
+    el.setAttribute('class', kept.join(' '));
+  }
+  return retired;
+}
+
 // ── hashing (the same-artifact semantics) ──────────────────────────────────
 
 /** FNV-1a 32-bit — stable, dependency-free */

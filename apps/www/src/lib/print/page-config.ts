@@ -41,6 +41,16 @@ export interface StructuredMargin {
 export type Marks = 'crop' | 'cross' | 'both';
 
 /**
+ * The paper's theme (Owner ruling, 2026-09-03): paper is a PHYSICAL
+ * material — the default projection renders in the LIGHT scope (white
+ * paper, dark ink) no matter what the live document wears. 'dark' is
+ * the DECLARED exception (black paper, light ink) and carries its own
+ * kernel adaptation. Absent = 'light' (the law is the default; only an
+ * explicit declaration opts into dark).
+ */
+export type PrintPaperTheme = 'light' | 'dark';
+
+/**
  * A margin-box content token: the two counters, the NAME of a
  * string-set the content CSS defines (e.g. `chapterTitle`), or a
  * QUOTED literal (the brand line). The enum lives here so the
@@ -63,6 +73,11 @@ export interface PrintPageConfig {
   readonly size?: PageSize;
   readonly margin?: StructuredMargin;
   readonly marks?: Marks;
+  /** the paper's theme scope (Owner, 2026-09-03) — consumed by the
+   *  pipeline (the output root's theme stamp + the clone's dark-
+   *  utility retirement), never compiled into @page css; absent =
+   *  'light' (paper is white) */
+  readonly theme?: PrintPaperTheme;
   /** a site-relative icon URL stamped into the top margin boxes by
    *  the pipeline after layout (margin-box content css cannot carry
    *  images) — the running header's brand mark (Owner, 2026-09-01) */
@@ -83,6 +98,7 @@ export class PageConfigError extends Error {
 const UNITS: readonly LengthUnit[] = ['mm', 'cm', 'in'];
 const MARKS: readonly Marks[] = ['crop', 'cross', 'both'];
 const SIZES: readonly NamedSize[] = ['A4', 'Letter'];
+const THEMES: readonly PrintPaperTheme[] = ['light', 'dark'];
 const BOX_SLOTS: readonly MarginBoxSlot[] = [
   'top-left',
   'top-center',
@@ -170,6 +186,14 @@ function parseMarks(value: unknown): Marks | undefined {
   return value as Marks;
 }
 
+function parseTheme(value: unknown): PrintPaperTheme | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== 'string' || !THEMES.includes(value as PrintPaperTheme)) {
+    throw new PageConfigError(`theme: unknown value ${JSON.stringify(value)} (light | dark)`);
+  }
+  return value as PrintPaperTheme;
+}
+
 function parseBoxes(
   value: unknown,
   where: 'header' | 'footer',
@@ -241,6 +265,7 @@ export function parsePageConfig(input: unknown): PrintPageConfig {
     size: parseSize(raw.size),
     margin: parseMargin(raw.margin),
     marks: parseMarks(raw.marks),
+    theme: parseTheme(raw.theme),
     headerIcon: parseHeaderIcon(raw.headerIcon),
     header: parseBoxes(raw.header, 'header'),
     footer: parseBoxes(raw.footer, 'footer'),

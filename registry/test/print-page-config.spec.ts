@@ -115,6 +115,23 @@ describe('parsePageConfig — the validator', () => {
     expect(() => parsePageConfig({ headerIcon: '/' + 'a'.repeat(200) })).toThrow(/headerIcon/);
   });
 
+  // ── the paper theme (Owner ruling, 2026-09-03): paper is white —
+  // light is the DEFAULT (absent), dark is the declared exception ──
+  it('validates theme as the declared light|dark pair (absent = light by law)', () => {
+    expect(parsePageConfig({ theme: 'dark' }).theme).toBe('dark');
+    expect(parsePageConfig({ theme: 'light' }).theme).toBe('light');
+    // absent stays undefined — the pipeline resolves it to 'light'
+    expect(parsePageConfig({}).theme).toBeUndefined();
+    expect(() => parsePageConfig({ theme: 'auto' as never })).toThrow(/theme/);
+    expect(() => parsePageConfig({ theme: 'DARK' as never })).toThrow(/theme/);
+  });
+
+  it('theme is pipeline-consumed, never compiled into @page css', () => {
+    const css = compilePageCss(parsePageConfig({ theme: 'dark' }));
+    expect(css).toBe('@page {\n}');
+    expect(css).not.toContain('dark');
+  });
+
   it('undefined input parses to the empty config', () => {
     expect(parsePageConfig(undefined)).toEqual({});
   });

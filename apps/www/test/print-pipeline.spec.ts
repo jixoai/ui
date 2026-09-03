@@ -19,6 +19,11 @@
  *     styles, no html active stamp, after sim-off / afterprint /
  *     failure / post-preview cancel
  *   - WAAPI diagnostics ride the sim rows without throwing
+ *   - THE PAPER THEME (Owner ruling, 2026-09-03): absent = light —
+ *     the output root stamps the theme sheet's own scope class +
+ *     color-scheme (data-print-theme); a theme-only change rebuilds;
+ *     under light the clone's dark:-variant utilities retire, under
+ *     a dark declaration they stay
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PRINT_SIM_ATTR } from '../src/lib/medium.svelte';
@@ -144,6 +149,86 @@ describe('preview() inputs (the runtime spy)', () => {
     await pipeline.runSim({ config: CONFIG });
     const clone = spy.calls[0]!.content.firstElementChild!;
     expect(clone.querySelectorAll('.jx-print-line')).toHaveLength(2);
+  });
+});
+
+// =========================================================================
+// the paper theme (Owner ruling, 2026-09-03): paper is white
+// =========================================================================
+describe('the paper theme stamp', () => {
+  it('absent theme stamps LIGHT by law: jx-light scope + color-scheme on the output root', async () => {
+    root.setAttribute(PRINT_SIM_ATTR, '');
+    await pipeline.runSim({ config: CONFIG });
+    const out = document.querySelector<HTMLElement>('[data-print-output]')!;
+    expect(out.getAttribute('data-print-theme')).toBe('light');
+    expect(out.classList.contains('jx-light')).toBe(true);
+    expect(out.classList.contains('dark')).toBe(false);
+    expect(out.style.colorScheme).toBe('light');
+  });
+
+  it("theme:'dark' declares the exception: dark scope + the stamp the kernel keys on", async () => {
+    root.setAttribute(PRINT_SIM_ATTR, '');
+    await pipeline.runSim({ config: { ...CONFIG, theme: 'dark' } });
+    const out = document.querySelector<HTMLElement>('[data-print-output]')!;
+    expect(out.getAttribute('data-print-theme')).toBe('dark');
+    expect(out.classList.contains('dark')).toBe(true);
+    expect(out.classList.contains('jx-light')).toBe(false);
+    expect(out.style.colorScheme).toBe('dark');
+  });
+
+  it('a theme-only change REBUILDS (the stamp never survives the other scope) — idempotent re-stamp', async () => {
+    root.setAttribute(PRINT_SIM_ATTR, '');
+    await pipeline.runSim({ config: CONFIG });
+    await pipeline.runSim({ config: { ...CONFIG, theme: 'dark' } });
+    expect(spy.calls).toHaveLength(2); // not the same artifact: the scope changed
+    const out = document.querySelector<HTMLElement>('[data-print-output]')!;
+    expect(out.classList.contains('dark')).toBe(true);
+    expect(out.classList.contains('jx-light')).toBe(false); // no residue of the light flight
+  });
+
+  it("an invalid theme fails loud (the grammar's boundary)", async () => {
+    root.setAttribute(PRINT_SIM_ATTR, '');
+    await expect(pipeline.runSim({ config: { ...CONFIG, theme: 'blue' } })).rejects.toThrow(
+      /theme/,
+    );
+    expect(spy.calls).toHaveLength(0);
+  });
+});
+
+describe('the light declaration retires dark:-variant utilities from the clone', () => {
+  const chipWithDarkUtilities = (): HTMLElement => {
+    // inline-code's real shape: the light palette as plain utilities,
+    // the dark adaptation as dark: variants (the form controls'
+    // scheme-light dark:scheme-dark rides the same law)
+    const chip = document.createElement('code');
+    chip.className =
+      'jx-inline-code [--tok-token-function:color-mix(in_oklab,var(--primary)_62%,var(--foreground))] dark:[--tok-token-function:color-mix(in_oklab,var(--primary)_58%,oklch(1_0_0))] scheme-light dark:scheme-dark';
+    root.querySelector('p')!.appendChild(chip);
+    return chip;
+  };
+
+  it('LIGHT retires every dark: class, keeps everything else (the paper-is-white clone half)', async () => {
+    const chip = chipWithDarkUtilities();
+    root.setAttribute(PRINT_SIM_ATTR, '');
+    await pipeline.runSim({ config: CONFIG });
+    const clone = spy.calls[0]!.content.firstElementChild!;
+    const clonedChip = clone.querySelector('code')!;
+    expect(clonedChip).not.toBe(chip); // the product, never the live tree
+    expect(clonedChip.classList.contains('dark:[--tok-token-function:color-mix(in_oklab,var(--primary)_58%,oklch(1_0_0))]')).toBe(false);
+    expect(clonedChip.classList.contains('dark:scheme-dark')).toBe(false);
+    // the light utilities ride untouched — they ARE the light palette
+    expect(clonedChip.classList.contains('scheme-light')).toBe(true);
+    expect(clonedChip.className).toContain('--tok-token-function:color-mix(in_oklab,var(--primary)_62%');
+    // the live tree never changed
+    expect(chip.className).toContain('dark:scheme-dark');
+  });
+
+  it('DARK keeps them — the utilities ARE the declared adaptation', async () => {
+    chipWithDarkUtilities();
+    root.setAttribute(PRINT_SIM_ATTR, '');
+    await pipeline.runSim({ config: { ...CONFIG, theme: 'dark' } });
+    const clone = spy.calls[0]!.content.firstElementChild!;
+    expect(clone.querySelector('code')!.className).toContain('dark:scheme-dark');
   });
 });
 

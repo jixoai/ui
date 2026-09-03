@@ -179,6 +179,42 @@
                                        a screen grid — paper fragments
                                        the card as plain blocks)
 
+   10. THE DECLARED DARK PAPER (Owner ruling, 2026-09-03) — paper is
+       a physical material: the DEFAULT projection renders in the
+       LIGHT scope whatever the live document wears (the pipeline
+       stamps the output root with the theme sheet's own scope
+       classes + color-scheme, and retires dark:-variant utilities
+       from the clone — the theme sheet and the freeze carry those
+       halves). TWO kernel rules carry the rest:
+       a. THE INK RIDE ORDER (both scopes): the artifact root
+          re-declares `color: var(--foreground)` — body computed its
+          inherited color under the document's own theme (a dark
+          site leaves every color-INHERITING element white through
+          the body), and a scope class only fixes var() CONSUMERS;
+          inheritance needs its own re-root.
+       b. THE DECLARED EXCEPTION (printConfig.theme='dark' — black
+          paper, light ink): the sheet itself must PAINT the paper
+          color and the export must KEEP it — browsers strip author
+          backgrounds on paper unless the property is declared
+          essential. print-color-adjust INHERITS: one declaration on
+          the stamped root covers the whole ink chain (the sheet
+          ground, split dashes, hairlines, the boxed opt-out —
+          anything the projection paints).
+
+        selector                       forced result
+        ─────────────────────────────  ─────────────────────────────────
+        [data-print-output]            color: var(--foreground)
+                                       (the inheritance re-root —
+                                       ink rides the stamp's scope)
+        [data-print-output]
+        [data-print-theme='dark']      print-color-adjust: exact
+                                       (inherited — backgrounds are
+                                       essential, the export keeps them)
+        [data-print-output]
+        [data-print-theme='dark']
+        .pagedjs_page                  background: var(--background)
+                                       (the sheet paints the paper)
+
    AST GATE LAW (test/print-stylesheet-gate.spec.ts): this file
    contains ZERO `@media not print` wrappers and ZERO
    `[data-jx-print-sim]` selectors — the sim shell is a DIFFERENT
@@ -393,10 +429,12 @@ section.bg-card > div:first-child {
 [data-jx-code-card-foot] {
   break-before: avoid;
 }
-/* the section's structural separator joins the chain: the header
-   keeps with the line (the rule above), the LINE keeps with the
-   body — a 1px rule never ends a page alone */
-[data-jx-section-sep] {
+/* the structural separators join the chain: the header keeps with
+   the line (the rule above), the LINE keeps with the body — a 1px
+   rule never ends a page alone. The card's separator rides the same
+   law (bare comma list — :where() shatters under pagedjs) */
+[data-jx-section-sep],
+[data-jx-card-sep] {
   break-after: avoid;
 }
 
@@ -557,4 +595,34 @@ h2 {
    header/body zones stack as plain blocks */
 .pagedjs_page section.bg-card {
   display: block;
+}
+
+/* ── 10. the declared dark paper (printConfig.theme='dark') ─────────── */
+/* THE ARTIFACT'S INK RIDE ORDER (unconditional — both scopes): body
+   computed its inherited color under the DOCUMENT'S own theme (a
+   dark site leaves every color-inheriting element white through
+   the body), and the root's theme scope class only fixes CONSUMERS
+   — elements that resolve var(--foreground) at themselves. The
+   artifact root re-roots the inheritance chain: one token
+   reference, theme-agnostic, resolving in whatever scope the
+   pipeline's stamp declares */
+[data-print-output] {
+  color: var(--foreground);
+}
+/* LIGHT needs no further kernel rule: the pipeline's output-root
+   stamp (the theme sheet's jx-light scope class + inline
+   color-scheme) flips the token cascade, and the freeze retired the
+   dark:-variant utilities from the clone. DARK paints the sheet and
+   declares the paint ESSENTIAL: unadjusted print strips author
+   backgrounds, and black paper without its ground is white paper
+   wearing light ink. The print-color-adjust declaration INHERITS —
+   one stamp covers every background the projection draws.
+   var(--background) resolves in the artifact's own dark scope (the
+   stamp), not the live document's */
+[data-print-output][data-print-theme='dark'] {
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+[data-print-output][data-print-theme='dark'] .pagedjs_page {
+  background: var(--background);
 }

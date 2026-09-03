@@ -108,7 +108,9 @@ describe('kernel-print.css — the AST gate', () => {
     // keep (a 1px rule never ends a page alone) and block flow (the
     // row ruler is a screen GRID — a monolith pagedjs cannot
     // fragment; the r7 lesson)
-    expect(kernelClean).toMatch(/\[data-jx-section-sep\]\s*\{[^}]*break-after: avoid/);
+    expect(kernelClean).toMatch(
+      /\[data-jx-section-sep\],\s*\[data-jx-card-sep\]\s*\{[^}]*break-after: avoid/,
+    );
     expect(kernelClean).toMatch(/\.pagedjs_page section\.bg-card\s*\{[^}]*display: block/);
     const boxed = /:where\(section\.bg-card\[data-jx-print='boxed'\]\)\s*\{([^}]*)\}/.exec(kernelClean);
     expect(boxed, 'missing the boxed opt-out').not.toBeNull();
@@ -153,6 +155,35 @@ describe('kernel-print.css — the AST gate', () => {
     expect(kernelClean).toContain('[data-jx-print-toc-leader]');
     expect(kernelClean).toMatch(/border-block-end: 1px dotted/);
     expect(kernelClean).toContain('[data-jx-print-toc-sub]');
+  });
+
+  it('carries the declared dark-paper family (the paper theme law, Owner 2026-09-03)', () => {
+    // THE INK RIDE ORDER (both scopes — the probe's inheritance find):
+    // body computed its inherited color under the document's own
+    // theme (a dark site leaves every color-INHERITING element white
+    // through the body); a scope class only fixes var() CONSUMERS,
+    // so the artifact root re-roots the chain with one theme-agnostic
+    // token reference
+    const ride = /\[data-print-output\]\s*\{([^}]*)\}/.exec(kernelClean);
+    expect(ride, 'missing the artifact ink re-root rule').not.toBeNull();
+    expect(ride![1]).toContain('color: var(--foreground)');
+    // the DECLARED exception: paint the sheet and declare the paint
+    // ESSENTIAL — unadjusted print strips author backgrounds, and
+    // black paper without its ground is white paper wearing light ink
+    const root = /\[data-print-output\]\[data-print-theme='dark'\]\s*\{([^}]*)\}/.exec(kernelClean);
+    expect(root, 'missing the dark-paper print-color-adjust rule').not.toBeNull();
+    expect(root![1]).toContain('print-color-adjust: exact');
+    expect(root![1]).toContain('-webkit-print-color-adjust: exact');
+    const sheet =
+      /\[data-print-output\]\[data-print-theme='dark'\]\s+\.pagedjs_page\s*\{([^}]*)\}/.exec(
+        kernelClean,
+      );
+    expect(sheet, 'missing the dark sheet ground').not.toBeNull();
+    expect(sheet![1]).toContain('background: var(--background)');
+    // and NOTHING theme-shaped exists for the light default — the
+    // stamp and the theme sheet's own scope classes carry it
+    expect(kernelClean).not.toMatch(/data-print-theme='light'/);
+    expect(kernelClean).not.toMatch(/\.(?:jx-light|dark)\b/);
   });
 
   it('carries the intent header (the migration table, named)', () => {

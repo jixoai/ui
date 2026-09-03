@@ -46,6 +46,13 @@
 //   real print  under print emulation with an active pipeline: the
 //               app root hides, the page container stays visible
 //               (emulateMedia — no real paper)
+//   paper theme the Owner ruling 2026-09-03: a DARK document still
+//               prints DARK ink on white paper (the light stamp on
+//               the output root, the code-card palette's light
+//               formulas — the literal oklch(1 0 0) mixes are the
+//               washed leak), and the declared-dark stamp flips the
+//               kernel's dark-paper family (sheet ground paints,
+//               print-color-adjust exact, the ink scope follows)
 //
 // Run: node scripts/verify-print.mjs   (PORT=… to retarget)
 import { chromium } from '/Users/kzf/Dev/GitHub/jixoai-labs/ui/node_modules/playwright-core/index.mjs';
@@ -1268,6 +1275,117 @@ check(
     (await page.evaluate(() => document.querySelector('[data-print-source]')?.hasAttribute('data-jx-print-sim') === false)),
   JSON.stringify(ambientResidue),
 );
+
+// ---- 2k. the paper theme (Owner ruling, 2026-09-03): paper is white --
+// The law's live-state adversary: a DARK document. Whatever the site
+// wears, the artifact stamps the theme sheet's LIGHT scope; the ink
+// inside the pages must read dark on white paper (the pre-law state
+// printed near-white text on the hard-coded #fff sim sheets), and the
+// code card's palette must carry the LIGHT formulas — the dark
+// override's literal oklch(1 0 0) mixes are the washed leak. The
+// DECLARED exception then gets its CSS-chain check: the kernel's
+// dark-paper family keys on the stamp the pipeline sets for
+// printConfig.theme='dark' (stamped here directly — the unit lane
+// locks the pipeline-side stamping, this locks the kernel half).
+const inkHelpers = `const luminance = (color) => {
+  if (!color) return null;
+  // Chromium serializes token colors as oklch(...) — the lightness
+  // channel IS the perceptual lightness; rgb() gets the WCAG
+  // relative-luminance treatment so both scales land comparable
+  const ok = /oklch\\(\\s*([\\d.]+)(%)?\\s/.exec(color);
+  if (ok) return ok[2] ? +ok[1] / 100 : +ok[1];
+  const m = /rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/.exec(color);
+  if (!m) return null;
+  const [r, g, b] = [+m[1], +m[2], +m[3]].map((v) => {
+    const s = v / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+// the white-mix literal serializes either raw or percent-normalized
+const whiteMix = (s) => s.includes('oklch(1 0 0)') || s.includes('oklch(100% 0 0)');`;
+await page.evaluate(() => {
+  // the adversary: the site wears its dark theme
+  document.documentElement.classList.add('dark');
+  document.documentElement.style.colorScheme = 'dark';
+});
+await page.click('[data-print-source] [data-jx-print-sim-toggle]');
+await waitForMeta();
+const lightPaper = await page.evaluate(`(function () {
+  ${inkHelpers}
+  const out = document.querySelector('[data-print-output]');
+  const firstPage = out?.querySelector('.pagedjs_page') ?? null;
+  const para = firstPage?.querySelector('p, li, h2') ?? null;
+  const card = out?.querySelector('.jx-code-card') ?? null;
+  const ink = para ? getComputedStyle(para).color : null;
+  return {
+    stamp: out?.getAttribute('data-print-theme') ?? null,
+    scopeLight: out?.classList.contains('jx-light') ?? false,
+    scopeDarkLeak: out?.classList.contains('dark') ?? false,
+    colorScheme: out?.style.colorScheme ?? null,
+    ink,
+    inkLuminance: luminance(ink),
+    tokFunction: card ? getComputedStyle(card).getPropertyValue('--tok-token-function') : null,
+    tokWhiteMix: card ? whiteMix(getComputedStyle(card).getPropertyValue('--tok-token-function')) : null,
+  };
+})()`);
+check(
+  'paper theme: a DARK document still prints DARK ink on white paper (the light stamp, never the site theme)',
+  lightPaper.stamp === 'light' &&
+    lightPaper.scopeLight &&
+    !lightPaper.scopeDarkLeak &&
+    lightPaper.colorScheme === 'light' &&
+    lightPaper.inkLuminance !== null &&
+    lightPaper.inkLuminance < 0.45 &&
+    lightPaper.tokFunction !== null &&
+    lightPaper.tokWhiteMix === false,
+  JSON.stringify(lightPaper),
+);
+// the declared exception's CSS half: stamp the dark pose the pipeline
+// sets for theme:'dark' and read the kernel's dark-paper family back
+const darkPaper = await page.evaluate(`(function () {
+  ${inkHelpers}
+  const out = document.querySelector('[data-print-output]');
+  const firstPage = out?.querySelector('.pagedjs_page') ?? null;
+  const para = firstPage?.querySelector('p, li, h2') ?? null;
+  const card = out?.querySelector('.jx-code-card') ?? null;
+  if (!out || !firstPage) return { ok: false };
+  out.setAttribute('data-print-theme', 'dark');
+  out.classList.remove('jx-light');
+  out.classList.add('dark');
+  out.style.colorScheme = 'dark';
+  const sheetBg = getComputedStyle(firstPage).backgroundColor;
+  const ink = para ? getComputedStyle(para).color : null;
+  const tokFunction = card ? getComputedStyle(card).getPropertyValue('--tok-token-function') : null;
+  return {
+    ok: true,
+    adjust: getComputedStyle(out).printColorAdjust,
+    sheetBg,
+    sheetLuminance: luminance(sheetBg),
+    ink,
+    inkLuminance: luminance(ink),
+    tokFunction,
+    tokWhiteMix: tokFunction !== null ? whiteMix(tokFunction) : null,
+  };
+})()`);
+check(
+  "paper theme: the declared dark stamp flips the kernel's dark-paper family (sheet paints, exact survives, the ink scope follows)",
+  darkPaper.ok === true &&
+    darkPaper.adjust === 'exact' &&
+    darkPaper.sheetLuminance !== null &&
+    darkPaper.sheetLuminance < 0.1 &&
+    darkPaper.inkLuminance !== null &&
+    darkPaper.inkLuminance > 0.55 &&
+    darkPaper.tokWhiteMix === true,
+  JSON.stringify(darkPaper),
+);
+// close the sim and lift the adversary state
+await page.click('[data-jx-print-bar-toggle]');
+await page.waitForTimeout(300);
+await page.evaluate(() => {
+  document.documentElement.classList.remove('dark');
+  document.documentElement.style.colorScheme = '';
+});
 
 await browser.close();
 

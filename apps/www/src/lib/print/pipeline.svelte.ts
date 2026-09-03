@@ -70,11 +70,12 @@ import { PRINT_SIM_ATTR } from '../medium.svelte';
 import {
   prepareSnapshot,
   hashString,
+  retireDarkUtilities,
   type FrozenSnapshot,
   type PrintDiagnostic,
   type PrintProgress,
 } from './freeze.svelte';
-import { compilePageCss, parsePageConfig } from './page-config';
+import { compilePageCss, parsePageConfig, type PrintPaperTheme } from './page-config';
 import {
   awaitSettledLayout,
   relocateStrandedKeeps,
@@ -143,6 +144,10 @@ interface Artifact {
 }
 
 const ACTIVE_ATTR = 'data-jx-print-active';
+/** the output root's theme stamp — the kernel's dark-paper family and
+ *  the probes key on it (light carries no kernel rule: the theme
+ *  sheet's own scope classes already carry it) */
+const PAPER_THEME_ATTR = 'data-print-theme';
 
 /** the supersede abort (codex review P1, 2026-08-30): thrown by a
  *  stale flight's resumption points. guarded's catch recognizes the
@@ -321,8 +326,18 @@ export function createPrintPipeline(
     while (ownedListeners.length) ownedListeners.pop()();
   };
 
-  /** the render root: connected, cleared before every run, measurable */
-  const ensureOutputRoot = (standby: boolean): HTMLElement => {
+  /** the render root: connected, cleared before every run, measurable.
+   *  THE PAPER THEME STAMP (Owner ruling, 2026-09-03): paper is a
+   *  physical material — the artifact renders in a DECLARED theme
+   *  scope no matter what the live document wears. The theme sheet's
+   *  own scope classes ARE the vocabulary (`jx-light` / `dark` — the
+   *  component-canvas stage precedent), so the whole token cascade
+   *  flips with one stamp on the pipeline-owned root: sim and real
+   *  print share it, and re-stamping is idempotent per flight (a
+   *  reused root never carries the previous flight's scope). The
+   *  inline color-scheme follows (the app.html/theme-toggle pairing
+   *  precedent) so UA chrome inside the artifact matches the paper */
+  const ensureOutputRoot = (standby: boolean, theme: PrintPaperTheme): HTMLElement => {
     let root = document.querySelector<HTMLElement>('[data-print-output]');
     if (root === null) {
       root = document.createElement('div');
@@ -331,6 +346,10 @@ export function createPrintPipeline(
       document.body.appendChild(root);
     }
     root.textContent = ''; // the second sim never contains stale pages
+    root.setAttribute(PAPER_THEME_ATTR, theme);
+    root.classList.toggle('jx-light', theme === 'light');
+    root.classList.toggle('dark', theme === 'dark');
+    root.style.colorScheme = theme;
     if (standby) root.setAttribute('data-print-standby', '');
     else root.removeAttribute('data-print-standby');
     return root;
@@ -634,7 +653,17 @@ export function createPrintPipeline(
     // transaction self-stamped — no sim artifact is on screen). An
     // existing sim keeps its overlay; the prepared stamp is OURS.
     const standby = purpose === 'print' && snapshot.createdStamp;
-    const outputRoot = ensureOutputRoot(standby);
+    // the paper's theme (Owner ruling, 2026-09-03): absent = light —
+    // the law is the default, only a declaration opts into dark. The
+    // theme rides parsedSignature → stylesheetHash, so a theme-only
+    // config change never falsely reuses the other scope's artifact
+    const theme: PrintPaperTheme = parsedConfig.theme ?? 'light';
+    const outputRoot = ensureOutputRoot(standby, theme);
+    // the light declaration's CLONE half: dark:-variant utilities key
+    // off html.dark ancestry and no scope class can turn them off —
+    // they retire from the product (a dark declaration keeps them:
+    // they ARE the adaptation)
+    if (theme === 'light') retireDarkUtilities(snapshot.clone);
     const headBefore = [...document.head.children];
     stampActive(true);
     // the bar precedes the render (Owner r7): a visible flight shows
