@@ -50,3 +50,17 @@ card/（含 card.svelte 的 foot-flat 挂载与 card.spec 断言）、
 button-group.svelte/.css、dialog-footer.svelte、button-group.spec、
 card-grid、blueprints、mirror-manifest.json、registry.json 等在途文件
 照旧不卷入本次提交——card 侧的 flat 挂载与断言随该流提交落地。
+
+## 裁决附录（2026-09-04 验收后的两条 Owner 裁决）
+
+1. **flat 不摘任何 rung 的 border**。此前"flat × tonal 摘 45% 描边"提案被否
+   （"tonal 不可以摘。要维持样式"）——fill/ghost 本无可见边框，tonal 的
+   45% 描边与 outline 的本体描边在 flat 下全部维持原样；r14-12 全量生效。
+2. **分割线 junction 折叠法则**（real-DOM 分割线时代的几何修订）：分割线
+   与按钮之间不得留出 border-width 的空档——跟随按钮保留通用 -1px 缝隙
+   法则，其 border 槽骑到 seam 的 1px 轨道像素上（单线、与油漆 flush；
+   ghost 的透明 border 让线透出，bordered rung 折叠同旧法则）。-1px 永不
+   挂在 1px seam 本体上（margin-box 零宽钳制）；Divider 的
+   border·line·border 重边界保留不折叠。落地：button-group.css +
+   button-group.spec 的 junction 法则测试（并行 card 流在途文件，未提交，
+   随该流提交）。
