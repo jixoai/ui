@@ -225,7 +225,7 @@
   bind:open={open}
   title="Search the docs"
   variant="auto"
-  class="mt-[14vh] w-[min(92vw,44rem)]"
+  class="mt-[14vh] w-[min(92vw,44rem)] max-h-[calc(100dvh-14vh-2rem)]"
   cancelGuard={() => composing}
 >
   {#snippet head()}
@@ -281,7 +281,10 @@
       <p class="text-[11px] text-muted-foreground/70">try a shorter or different term</p>
     </div>
   {:else}
-    <ul class="max-h-[60vh] overflow-y-auto p-2" role="listbox" use:riseIn>
+    <!-- the list rides the Dialog's OWN scroll ring (r14-3: the body
+         zone is the only scroller — no nested max-h/overflow, the
+         panel ceiling below is what lets the ring engage) -->
+    <ul class="p-2" role="listbox" use:riseIn>
       {#each hits as hit, i (hit.href)}
         <li role="option" aria-selected={i === active}>
           <a

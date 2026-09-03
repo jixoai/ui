@@ -136,3 +136,20 @@ describe('the ⌘K hoist — docs composition (no double instance)', () => {
     (document.activeElement as HTMLElement | null)?.blur();
   });
 });
+
+/* ── the scroll-authority law (r14-3, Owner 2026-09-03): the palette's
+      result list rides the Dialog's OWN body ring — a hand-written
+      max-h/overflow on the list nests a scroller inside the scroller
+      (the retired 60vh ceiling). The panel ceiling on the dialog host
+      is what lets the ring engage under the 14vh anchor. ── */
+describe('the palette scroll authority — one ring, the Dialog\'s', () => {
+  it('the list carries no hand-written scroll; the panel ceiling anchors the ring', () => {
+    const source = readFileSync(
+      join(import.meta.dirname, '../src/lib/ui/search-palette.svelte'),
+      'utf8',
+    );
+    const list = source.match(/<ul[^>]*role="listbox"[^>]*>/)?.[0] ?? '';
+    expect(list).not.toMatch(/max-h-\[|overflow-y-auto|overflow-auto/);
+    expect(source).toMatch(/class="mt-\[14vh\][^"]*max-h-\[calc\(100dvh-14vh-2rem\)\]"/);
+  });
+});
