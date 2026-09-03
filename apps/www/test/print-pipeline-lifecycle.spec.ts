@@ -129,6 +129,10 @@ const FAKE_CLOCK = {
     'clearInterval',
     'requestAnimationFrame',
     'cancelAnimationFrame',
+    // relocate's settled-layout gate times itself on performance.now
+    // — a real clock against fake-advanced frames never crosses its
+    // minimum window, stranding every flight in 'rendering'
+    'performance',
   ],
 };
 
@@ -271,6 +275,9 @@ describe('P1-4: the afterprint grace fallback hygiene', () => {
       expect(registered).toHaveLength(1);
       dispatchAfterPrint();
       await run_;
+      // retire the flight tail's post-ready mend (its settle window
+      // parks rAFs on the fake clock) before the timer hygiene read
+      await drive(3000);
       // timer hygiene: the fallback was CLEARED on first entry, not
       // left to fire at 400ms
       expect(vi.getTimerCount()).toBe(0);
@@ -360,7 +367,9 @@ describe('ambient print: a browser-initiated print auto-initializes the pipeline
       await vi.waitFor(() => expect(kernel.deferreds).toHaveLength(1)); // render pends
       dispatchAfterPrint(); // the dialog LEFT while the render was in flight
       kernel.deferreds[0]!(); // the render lands AFTER afterprint
-      await drive(50); // flush to completion + the immediate settle
+      await drive(450); // flush to completion + the settled-layout
+      // gate (relocate's awaitSettledLayout holds a 250ms minimum
+      // plus six quiet frames before the enforcement pass runs)
       expect(kernel.calls).toHaveLength(1); // the render ran (the live dialog got the pages)
       expect(pipeline.status).toBe('idle'); // …and settled at once
       expect(root.hasAttribute(PRINT_SIM_ATTR)).toBe(false);
@@ -443,6 +452,9 @@ describe('codex r2: the afterprint wait and the config-failure road close', () =
       await untilReady(); // drive the (fake-rAF) preparation to ready
       await flush(); // the wait executor: print() + the SYNC settle inside it
       await run_;
+      // the flight's tail fired the post-ready mend — retire its
+      // settle window before the zero-stray-timers assertion
+      await drive(3000);
       expect(vi.getTimerCount()).toBe(0); // the fallback was CLEARED, not orphaned
       expect(pipeline.status).toBe('ready');
       expect(root.hasAttribute(PRINT_SIM_ATTR)).toBe(true);

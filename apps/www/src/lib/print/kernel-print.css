@@ -68,52 +68,74 @@
                                        opacity: 1; transform: none
 
    6. THE BORDERLESS PAPER PROJECTION (Owner walkthrough r2,
-      2026-08-31) — paper is itself a bounded material (margins are
-      the frame), so a card's closed box reads as a box inside a box.
-      The DEFAULT print variant is borderless: the card's block
-      border dissolves into a hairline SEPARATOR (block-end), the
-      background/shadow lift, and the embedded frames inside cards
-      (the code card's border) drop. The explicit opt-out verb
-      data-jx-print="boxed" keeps the framed look on any one card.
-      The header block's border-b (eyebrow/title/summary above body)
-      already IS a separator — it stays.
+      2026-08-31; componentized separator, 2026-09-03) — paper is
+      itself a bounded material (margins are the frame), so a card's
+      closed box reads as a box inside a box. The DEFAULT print
+      variant is borderless AND purely typographic: the card's block
+      border, background and shadow dissolve — including the old
+      block-end hairline (a rule between rules adds nothing). The
+      dividing line is the COMPONENT'S OWN structural <Separator>
+      (Owner directive, 2026-09-03: standard componentization, the
+      Dialog row-ruler pattern — SectionCard ships a real Separator
+      instance in its own 1px grid track; consumers never hand-write
+      one), and the clone carries it verbatim: separator.css's
+      contrast-ghost ink renders on the sim sheet AND rasterizes
+      into the exported PDF (verified) — the kernel projects
+      NOTHING for it anymore, only the fragmentation plumbing
+      (block flow + the keep chain, §7/§9). The explicit opt-out
+      verb data-jx-print="boxed" keeps the framed look on any one
+      card.
 
         selector                       forced result
         ─────────────────────────────  ─────────────────────────────────
         section.bg-card                border: none; background: none;
-                                       box-shadow: none;
-                                       border-block-end: hairline
+                                       box-shadow: none (no end hairline;
+                                       the dividing line is the
+                                       COMPONENT'S structural
+                                       <Separator> — inherited, not
+                                       projected; see §9's block-flow
+                                       law for the fragmentation
+                                       plumbing)
         section.bg-card[data-jx-print='boxed']
                                        border: 1px hairline; bg/shadow lift
         .jx-code-card                  border: none
 
-   7. THE SPLIT DASH (Owner walkthrough r2, vision r3) — content the
-      chunker cuts across a page break carries pagedjs's split
-      markers; the cut edge renders a DASHED rule (the continuation
+   7. THE SPLIT DASH (Owner walkthrough r2, vision r3; BLOCK judgment
+      2026-09-03, corrected same day) — content the chunker cuts
+      across a page break carries pagedjs's split markers; a cut
+      BLOCK renders a DASHED rule at the edge (the continuation
       convention of dictionaries and ledgers — solid separates,
       dashed continues). pagedjs marks the WHOLE rebuilt ancestor
-      chain, so the pipeline's normalization quiets every layer but
-      the innermost cut (data-jx-split-outer) — and an outer layer's
-      OWN border at the cut is not a real edge either (the borderless
+      chain and every page boundary cuts some chain, so the dash is
+      a BLOCK judgment, not an element judgment — and the criterion
+      is the border the PRINT PREVIEW carries, not the screen's: a
+      code card (its head/foot strips survive the projection) and
+      the boxed section opt-out draw it, stamped data-jx-split-dash
+      by the pipeline; the DEFAULT borderless section card (paper is
+      the frame — its bottom hairline is a separator, not a box),
+      row-ruled tables, and plain flow crossing a page turn draw
+      nothing (the break itself is the signal). An outer layer's OWN
+      border at the cut is not a real edge either (the borderless
       hairline, a strip's authored separator): one cut, one dash,
-      nothing else draws there. Keep-with-next rides here too: a
-      heading, a section card's header block, and a code card's head
-      strip never strand at a page's bottom edge; a code card's foot
-      never opens a page alone.
+      nothing else draws there. Keep-with-next rides here too: EVERY
+      heading level, a section card's header block, and a code
+      card's head strip never strand at a page's bottom edge; a code
+      card's foot never opens a page alone.
 
         selector                       forced result
         ─────────────────────────────  ─────────────────────────────────
-        [data-split-to]:not([data-jx-split-outer])
-                                       border-block-end: dashed hairline
-        [data-split-from]:not([data-jx-split-outer])
-                                       border-block-start: dashed hairline
         [data-split-to][data-jx-split-outer]
                                        border-block-end: none
         [data-split-from][data-jx-split-outer]
                                        border-block-start: none
-        h1, h2, h3; section.bg-card > div:first-child;
+        [data-jx-split-dash][data-split-to]
+                                       border-block-end: dashed hairline
+        [data-jx-split-dash][data-split-from]
+                                       border-block-start: dashed hairline
+        h1–h6; section.bg-card > div:first-child;
         .jx-code-card > figcaption     break-after: avoid
         [data-jx-code-card-foot]       break-before: avoid
+        [data-jx-section-sep]          break-after: avoid
 
    8. THE TOC PAGE, RESTYLED (Owner walkthrough r2, 2026-08-31) — a
       real table of contents: page-title, entries with a dot leader
@@ -138,9 +160,10 @@
       code leading rides the screen value VERBATIM (r7: the airy
       anomaly was Shiki's \n text nodes between the line blocks —
       splitPreLines strips them now; no kernel line-height judgment),
-      the borderless card's CHILD padding flattens — the page margin
-      is the frame, a header/body inset inside it is a box inside
-      the box again — and the code card returns to BLOCK flow so
+      the borderless card's CHILD padding flattens on the INLINE axis
+      only (2026-09-03: text flush with the page frame; the authored
+      BLOCK padding rides as the rhythm around the separator track)
+      — and the code card returns to BLOCK flow so
       pagedjs can fragment a taller-than-page card (the flex figure
       monolith swallowed its tail, r7).
 
@@ -150,8 +173,11 @@
         .pagedjs_margin-content        small muted running-head type
         .pagedjs_margin-content::after display: inline (top row, one line)
         .jx-print-header-icon          ~1em inline brand mark (inline-block)
-        section.bg-card > div          padding: 0 (margins keep rhythm)
+        section.bg-card > div          padding-inline: 0 (block rides)
         .pagedjs_page .jx-code-card    display: block (fragmentable flow)
+        .pagedjs_page section.bg-card  display: block (the row ruler is
+                                       a screen grid — paper fragments
+                                       the card as plain blocks)
 
    AST GATE LAW (test/print-stylesheet-gate.spec.ts): this file
    contains ZERO `@media not print` wrappers and ZERO
@@ -275,15 +301,27 @@ pre[data-jx-print-lines='off'] .jx-print-line::before {
 
 /* ── 6. the borderless paper projection (the DEFAULT print variant) ── */
 
-/* the section card: block border → a hairline separator; paper is
-   the frame (bg/shadow lift — a shadow on paper is a smudge) */
+/* the section card: purely typographic on paper — no frame, and no
+   bottom hairline either (Owner, 2026-09-03: the section's own end
+   border reads as a rule between rules — the header separator below
+   is the ONE line the card needs); bg/shadow lift (a shadow on
+   paper is a smudge). NO invented spacing (Owner, 2026-09-03): the
+   source's section stack already governs inter-card rhythm (its
+   gap-*), and this projection once stacked its own 1.25rem end
+   margin on top (+62% gap) — removed */
 :where(section.bg-card) {
   border: none;
   background: none;
   box-shadow: none;
-  border-block-end: 1px solid var(--border, currentcolor);
-  margin-block-end: 1.25rem;
 }
+/* the section's dividing line is the COMPONENT'S OWN structural
+   Separator (Owner, 2026-09-03: standard componentization, the
+   Dialog row-ruler pattern — a real <Separator> instance in its own
+   1px track ships inside SectionCard, consumers never hand-write
+   one). The kernel's ::after projection RETIRED; the clone carries
+   the real element and separator.css's contrast-ghost ink renders
+   it (verified rasterized into the exported PDF). Paper keeps only
+   the fragmentation plumbing below: block flow + the keep chain */
 /* the explicit opt-out: a card that WANTS its frame on paper */
 :where(section.bg-card[data-jx-print='boxed']) {
   border: 1px solid var(--border, currentcolor);
@@ -296,40 +334,54 @@ pre[data-jx-print-lines='off'] .jx-print-line::before {
   border: none;
 }
 
-/* ── 7. the split dash — continuation, not separation ───────────────── */
-/* pagedjs marks the WHOLE rebuilt ancestor chain; the pipeline's
-   normalization quiets every layer but the innermost cut element
-   (data-jx-split-outer) — one cut, one dash. The outer layers' own
-   authored borders at the cut are suppressed too: a section's
-   borderless hairline or a strip's separator at a cut edge says
-   "this ends here" while the content continues — the dash speaks
-   for the whole stack (vision r4's doubled cut lines) */
+/* ── 7. the split dash — a BLOCK judgment (2026-09-03) ──────────────── */
+/* pagedjs marks the WHOLE rebuilt ancestor chain, and every page
+   boundary cuts some chain — so a per-element "innermost owns the
+   dash" rule drew a hairline at nearly every page turn, even where
+   plain flow simply continues (the page break itself is the
+   signal). The dash now belongs to BLOCK content only: a page cut
+   through a boxed card kind (a code card, a section card — things
+   that render a frame on screen) carries the "continues" marker,
+   stamped by the pipeline as data-jx-split-dash (one dash per cut
+   edge; a section and a code card cut together collapse to the
+   innermost). The outer layers' own authored borders at the cut are
+   still suppressed: a section's hairline or a strip's separator at
+   a cut edge says "this ends here" while the content continues —
+   the dash speaks for the whole stack (vision r4's doubled cut
+   lines). The dash rules ride AFTER the suppression so a stamped
+   owner's dash replaces its own quieted edge */
 
-[data-split-to]:not([data-jx-split-outer]) {
-  border-block-end: 1px dashed var(--border, currentcolor);
-}
-[data-split-from]:not([data-jx-split-outer]) {
-  border-block-start: 1px dashed var(--border, currentcolor);
-}
 [data-split-to][data-jx-split-outer] {
   border-block-end: none;
 }
 [data-split-from][data-jx-split-outer] {
   border-block-start: none;
 }
+[data-jx-split-dash][data-split-to] {
+  border-block-end: 1px dashed var(--border, currentcolor);
+}
+[data-jx-split-dash][data-split-from] {
+  border-block-start: 1px dashed var(--border, currentcolor);
+}
 
-/* keep-with-next: a heading, a section card's header block (eyebrow/
+/* keep-with-next: EVERY heading level (h4–h6 joined the chain
+   2026-09-03 — a component table's h4 strands exactly like a
+   section's h2), a section card's header block (eyebrow/
    title/summary — its authored border-b is the separator the
    borderless projection keeps), and a code card's head strip (a
    figcaption — the CodeBlock meta rides CodeCard's header snippet)
    never strand at a page's bottom edge; a code card's foot (the
    copy bar) never opens a page alone. vision r3/r4's orphan strips.
-   NOTE: bare selectors, no :where() and no comma lists — pagedjs's
-   break registry splits rule keys on bare commas, a ":where(a, b)"
-   shatters into invalid fragments */
+   NOTE: bare selectors, no :where() — pagedjs's break registry
+   splits rule keys on bare commas and re-queries each fragment, so
+   a bare comma list is safe while a ":where(a, b)" shatters into
+   invalid fragments */
 h1,
 h2,
-h3 {
+h3,
+h4,
+h5,
+h6 {
   break-after: avoid;
 }
 section.bg-card > div:first-child {
@@ -340,6 +392,12 @@ section.bg-card > div:first-child {
 }
 [data-jx-code-card-foot] {
   break-before: avoid;
+}
+/* the section's structural separator joins the chain: the header
+   keeps with the line (the rule above), the LINE keeps with the
+   body — a 1px rule never ends a page alone */
+[data-jx-section-sep] {
+  break-after: avoid;
 }
 
 /* ── 8. the ToC page, restyled — title, leader, folio, subtitle ─────── */
@@ -468,15 +526,17 @@ h2 {
   margin-inline-end: 0.6ch;
   opacity: 0.8;
 }
-/* the borderless card's CHILD padding flattens: the page margin is
-   the frame, the header/body inset (px-4/py-3, p-5) inside it is
-   the box-in-a-box double whitespace again (Owner r5) —
-   margins, not padding, keep the block rhythm */
+/* the borderless card's CHILD padding flattens on the INLINE axis
+   only (Owner, 2026-09-03): text stays flush with the page frame —
+   paper is the frame — while the BLOCK padding rides (the authored
+   py rhythm around the separator track above; the old full flatten
+   predated the separator, when zero padding was the only spacing
+   law the card had). NO invented sibling margin either (Owner,
+   2026-09-03): the 0.65rem the flatten era added as compensation
+   doubled the restored authored rhythm (+29% around the separator)
+   — the two divs manage their own spacing, exactly as authored */
 :where(section.bg-card) > div {
-  padding: 0;
-}
-:where(section.bg-card) > div + div {
-  margin-block-start: 0.65rem;
+  padding-inline: 0;
 }
 /* the code card returns to FRAGMENTABLE flow (Owner r7, the
    swallowed tail): .jx-code-card is a <figure> and the site's
@@ -488,5 +548,13 @@ h2 {
    keep chain does the header gluing). (0,2,0) beats both the
    :where() figure law (0) and the (0,1,0) utilities */
 .pagedjs_page .jx-code-card {
+  display: block;
+}
+/* the section card joins the same law (2026-09-03): the component's
+   row ruler lays it out as display:grid on screen — a grid section
+   is a monolith pagedjs cannot fragment (the r7 lesson), so paper
+   returns it to block flow; the structural <Separator> and the
+   header/body zones stack as plain blocks */
+.pagedjs_page section.bg-card {
   display: block;
 }

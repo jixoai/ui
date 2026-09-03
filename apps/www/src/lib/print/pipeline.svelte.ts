@@ -75,6 +75,12 @@ import {
   type PrintProgress,
 } from './freeze.svelte';
 import { compilePageCss, parsePageConfig } from './page-config';
+import {
+  awaitSettledLayout,
+  relocateStrandedKeeps,
+  resyncStringSets,
+  stampSplitDashes,
+} from './relocate';
 // the kernel stylesheet, as TEXT — the only form preview() receives;
 // sim-shell.css never appears below (the preview-inputs runtime spy)
 import kernelPrintCss from './kernel-print.css?raw';
@@ -106,6 +112,11 @@ export interface PrintArtifactMetadata {
    *  their continuation halves (pagedjs's own avoid backwalk is
    *  blind to breaks that start deep inside the next block) */
   keepRelocated: number;
+  /** cut avoid blocks reunited with their split pair — the heading
+   *  strand's dominant shape (a section header's eyebrow or
+   *  eyebrow+title shipped at a page bottom while the rest moved
+   *  on; relocate.ts reassembles the block on the pair's page) */
+  keepRejoined: number;
   diagnostics: PrintDiagnostic[];
   transfer: {
     applied: number;
@@ -229,6 +240,11 @@ export function createPrintPipeline(
   /** the stamped sim bar's live handle (Owner r7) — the pipeline owns
    *  the bar's stage text; detached with the output root it rode */
   let simBar: HTMLElement | undefined;
+  /** the flight's post-ready mend, armed by run() at ready and FIRED
+   *  by guarded() at the flight's tail (the sim path at return; the
+   *  print paths inside settlePrintExit) — never scheduled while a
+   *  flight is mid-wait, so timer-hygiene contracts stay clean */
+  let pendingFlightMend: (() => void) | undefined;
   /** monotonic per-BUILD render id — a reuse never bumps it */
   let renderSeq = 0;
   /** the PREWARMED header-icon bytes (Owner r7): margin-box content
@@ -347,23 +363,6 @@ export function createPrintPipeline(
     }
   };
 
-  /** the split-dash normalization (vision r3): pagedjs marks the
-   *  WHOLE rebuilt ancestor chain with data-split-from/to, so a naive
-   *  per-element dashed rule stacks seven deep at one cut edge — a
-   *  thick sawtooth band. The INNERMOST marked element owns the dash;
-   *  every marked element whose subtree still carries the same-side
-   *  marker is an ancestor layer and gets data-jx-split-outer, which
-   *  the kernel rule excludes. Runs on the mounted pages, both exits
-   *  (the sim overlay and the standby paper see the same product). */
-  const quietOuterSplitDashes = (outputRoot: HTMLElement): void => {
-    for (const el of [...outputRoot.querySelectorAll('[data-split-to]')]) {
-      if (el.querySelector('[data-split-to]')) el.setAttribute('data-jx-split-outer', '');
-    }
-    for (const el of [...outputRoot.querySelectorAll('[data-split-from]')]) {
-      if (el.querySelector('[data-split-from]')) el.setAttribute('data-jx-split-outer', '');
-    }
-  };
-
   /** the running header's brand mark (Owner acceptance r5, 2026-09-01):
    *  margin-box content css cannot carry images — after layout, every
    *  top-LEFT margin box carrying header content gets the configured
@@ -389,125 +388,6 @@ export function createPrintPipeline(
       stamped++;
     }
     return stamped;
-  };
-
-  /** the keep-with-next ENFORCEMENT (vision r4): pagedjs consumes the
-   *  break-after: avoid declaration (data-break-after) but its own
-   *  backwalk is blind to a break that starts deep inside the next
-   *  block — a code card's head strip or a section card's header
-   *  strand alone at a page's bottom edge over dead space, their body
-   *  moved whole. The pipeline enforces the keep on the FINISHED
-   *  layout: a stamped carrier whose subtree is the page's last
-   *  rendered content, whose host (figure/section) continues on a
-   *  later page, moves INTO that continuation half — pagedjs's
-   *  rebuilds preserve data-ref, so the halves pair up. The emptied
-   *  half drops; the cut dash lands on real content. */
-  const relocateStrandedKeeps = (outputRoot: HTMLElement): number => {
-    let moved = 0;
-    const pages = [...outputRoot.querySelectorAll<HTMLElement>('.pagedjs_page')];
-    for (let i = 0; i < pages.length - 1; i++) {
-      const content = pages[i].querySelector<HTMLElement>('.pagedjs_page_content');
-      if (!content) continue;
-      // a relocation EXPOSES the next strand: the page's new bottom
-      // edge may itself strand (the pilot's p2 — the figcaption moved
-      // first, the transaction block it revealed stranded next). Each
-      // move strictly empties the page, so re-examination settles;
-      // the round bound is a safety net, not the terminator
-      for (let round = 0; round < 5; round++) {
-        // the page's last rendered content = its bottom-most visible
-        // LEAF (containers own the bottom edge through padding — the
-        // stranded carrier hides INSIDE the outermost container)
-        let deepest: HTMLElement | null = null;
-        let deepestBottom = -Infinity;
-        for (const el of content.querySelectorAll<HTMLElement>('*')) {
-          const rect = el.getBoundingClientRect();
-          if (rect.height <= 1) continue;
-          let leaf = true;
-          for (const child of el.children) {
-            if ((child as HTMLElement).getBoundingClientRect().height > 1) {
-              leaf = false;
-              break;
-            }
-          }
-          if (leaf && rect.bottom > deepestBottom) {
-            deepestBottom = rect.bottom;
-            deepest = el;
-          }
-        }
-        if (!deepest) break;
-        // the stranded carrier: the OUTERMOST avoid-stamped ancestor of
-        // that content whose host carries a data-ref (the figure/section
-        // pagedjs re-identified across the break)
-        const carriers: HTMLElement[] = [];
-        for (let el: HTMLElement | null = deepest; el && el !== content; el = el.parentElement) {
-          if (el.getAttribute('data-break-after') === 'avoid') carriers.push(el);
-        }
-        const carrier = carriers
-          .reverse()
-          .find((el) => (el.parentElement?.getAttribute('data-ref') ?? '') !== '');
-        const host = carrier?.parentElement ?? null;
-        const ref = host?.getAttribute('data-ref');
-        if (!carrier || !host || !ref) break;
-        // CUT-AWARE, bounded at the carrier (subagent r5 pre-review): a
-        // cut marker AT OR BELOW the carrier means the carrier's own
-        // subtree continues at the page's bottom edge — a cut half, not
-        // a stranded head; acting there would tear the card. The scan
-        // MUST stop at the carrier: pagedjs's split pairing stamps
-        // data-split-to on the HOST of every classic strand (the head
-        // ended whole, the body moved on), so a whole-chain scan would
-        // disable the pass entirely (the shipped pilot carried a
-        // stranded figcaption over ~338px of dead space, keepRelocated
-        // pinned at 0)
-        let cutInsideCarrier = carrier.hasAttribute('data-split-to');
-        for (let el: HTMLElement | null = deepest; el && el !== carrier; el = el.parentElement) {
-          if (el.hasAttribute('data-split-to')) { cutInsideCarrier = true; break; }
-        }
-        if (cutInsideCarrier) break;
-        // the continuation half: same ref, split-from, on a LATER page
-        const continuation = pages
-          .slice(i + 1)
-          .map((p) => p.querySelector<HTMLElement>(`[data-ref="${CSS.escape(ref)}"][data-split-from]`))
-          .find((el): el is HTMLElement => el !== null);
-        if (!continuation) break;
-        // FIT: the keep must be physically satisfiable — the block +
-        // its follower exceed every page's remainder when pagedjs cut
-        // between them despite the avoid (an unsatisfiable keep is
-        // the least-bad break already). Moving a block the target
-        // page cannot host would overflow its page box
-        const contArea = continuation
-          .closest('.pagedjs_page')
-          ?.querySelector<HTMLElement>('.pagedjs_page_content');
-        if (contArea) {
-          // LEAF-only bottom: pagedjs's rebuilt wrappers inherit the
-          // area's full height and touch its bottom edge on every
-          // page — an any-element scan reads available = 0 always and
-          // exempts every candidate, killing the pass a second way
-          // (codex r6 confirmed statically; ZCode's live probe: any
-          // bottom 100% vs leaf bottom 49-98% of the area)
-          let contPageBottom = -Infinity;
-          for (const el of contArea.querySelectorAll<HTMLElement>('*')) {
-            const rect = el.getBoundingClientRect();
-            if (rect.height <= 1) continue;
-            let leaf = true;
-            for (const child of el.children) {
-              if ((child as HTMLElement).getBoundingClientRect().height > 1) {
-                leaf = false;
-                break;
-              }
-            }
-            if (leaf && rect.bottom > contPageBottom) contPageBottom = rect.bottom;
-          }
-          const available = contArea.getBoundingClientRect().bottom - contPageBottom;
-          if (carrier.getBoundingClientRect().height > available + 1) break;
-        }
-        continuation.prepend(carrier);
-        moved++;
-        // a half emptied by the move is a dead strip — its dash would
-        // cut at nothing (the figcaption-only figure half)
-        if (host.hasAttribute('data-split-to') && !host.querySelector('*')) host.remove();
-      }
-    }
-    return moved;
   };
 
   /** the sim ToC click takeover: ids repeat between source and pages —
@@ -824,11 +704,26 @@ export function createPrintPipeline(
         ? await ensureHeaderIcon(parsedConfig.headerIcon)
         : undefined;
       if (gen !== generation) throw new FlightSuperseded();
-      // the keep enforcement runs on the finished layout, BEFORE the
-      // metadata freezes (the count rides meta.keepRelocated) and
-      // BEFORE the dash normalization (relocation may drop emptied
-      // halves — the quiet pass must see the final split tree)
-      const keepRelocated = relocateStrandedKeeps(outputRoot);
+      // ── THE ENFORCEMENT SWEEP: settle → mend → re-settle, capped.
+      // pagedjs's flow promise can resolve while a late re-chunk
+      // still shifts geometry WITHOUT observable mutations (the live
+      // probe watched a cut eyebrow half sit mutation-quiet for
+      // 100ms at a mid-page slot, then ride 942px to its resting
+      // page-bottom slot) — a pure WAIT cannot see that tail. So the
+      // mend is DETECTION-driven: each sweep measures the layout it
+      // finds, mends what fits, and only stops when a settled layout
+      // needs nothing; a sweep that acted on a transient is healed
+      // by the next (the pass's own detection certifies the product)
+      let keepRelocated = 0;
+      let keepRejoined = 0;
+      for (let sweep = 0; sweep < 3; sweep++) {
+        await awaitSettledLayout(outputRoot);
+        if (gen !== generation) throw new FlightSuperseded();
+        const mended = relocateStrandedKeeps(outputRoot);
+        keepRelocated += mended.relocated;
+        keepRejoined += mended.rejoined;
+        if (mended.relocated === 0 && mended.rejoined === 0) break;
+      }
       const built: Artifact = {
         snapshotHash: snapshot.hash,
         stylesheetHash,
@@ -842,6 +737,7 @@ export function createPrintPipeline(
           purpose,
           createdStamp: snapshot.createdStamp,
           keepRelocated,
+          keepRejoined,
           diagnostics: snapshot.diagnostics,
           transfer: {
             applied: snapshot.transfer.applied,
@@ -865,8 +761,14 @@ export function createPrintPipeline(
       publishMetadata(built);
       pageCount = pages;
       // the post-layout passes BEFORE the rendered gate — every
-      // computed probe sees the quieted ancestor chain + the folios
-      quietOuterSplitDashes(outputRoot);
+      // computed probe sees the dash-stamped blocks, the quieted
+      // ancestor chain + the folios (relocate.ts: the dash is a
+      // BLOCK judgment — only boxed-card cuts draw it)
+      stampSplitDashes(outputRoot);
+      // a moved h2 changes what a page's running head names — the
+      // string-set vars pagedjs froze per page are re-derived from
+      // the FINAL DOM (relocate.ts)
+      resyncStringSets(outputRoot);
       fillTocFolios(outputRoot);
       // the running header's brand mark (config already validated by
       // the stylesheet hash road above — no rethrow path here)
@@ -883,6 +785,37 @@ export function createPrintPipeline(
       }
       status = 'ready';
       syncSimBar(true);
+      // ── THE POST-READY MEND, ARMED (fired at the flight's tail):
+      // pagedjs's re-chunk tail can re-slot a split half into its
+      // resting position well after any flight bounded wait (the
+      // live probe watched a cut eyebrow half ride 942px on a tail
+      // no settle window caught) — so detection runs ONCE MORE on
+      // the rested layout, off the critical path. The generation +
+      // artifact-identity guards retire the mend against dispose/
+      // cancel/a newer build; a mend re-derives the dash layers, the
+      // running-head vars and the folios, and republishes the
+      // metadata (Chromium's live print preview picks the pages up
+      // as they mutate — the ambient entry's own mechanism)
+      pendingFlightMend = (): void => {
+        void (async () => {
+          await awaitSettledLayout(outputRoot, 2500, 400);
+          if (gen !== generation || artifact !== built || destroyed) return;
+          try {
+            const mended = relocateStrandedKeeps(outputRoot);
+            if (mended.relocated === 0 && mended.rejoined === 0) return;
+            built.metadata.keepRelocated += mended.relocated;
+            built.metadata.keepRejoined += mended.rejoined;
+            stampSplitDashes(outputRoot);
+            resyncStringSets(outputRoot);
+            fillTocFolios(outputRoot);
+            publishMetadata(built);
+            syncSimBar(true);
+          } catch {
+            // best-effort upkeep — a failure leaves the published
+            // artifact exactly as the flight rendered it
+          }
+        })();
+      };
       return snapshot;
     } catch (error) {
       // the failure road: best-effort teardown of this attempt's DOM.
@@ -937,7 +870,13 @@ export function createPrintPipeline(
       } else {
         const snapshot = await run(purpose, options, controller.signal, gen);
         releaseStamp = () => snapshot.releaseStamp();
-        if (purpose !== 'print') return;
+        if (purpose !== 'print') {
+          // the sim flight ends here — its artifact is the product;
+          // the post-ready mend starts now (guarded internally)
+          pendingFlightMend?.();
+          pendingFlightMend = undefined;
+          return;
+        }
       }
       // the print-exit law, shared by both entries: release ONLY the
       // transaction's own stamp (a surviving sim re-derives the medium
@@ -945,6 +884,8 @@ export function createPrintPipeline(
       // owns the state, so the flight resolves without flipping it
       const settlePrintExit = (): void => {
         releaseStamp?.();
+        pendingFlightMend?.(); // a disposed road retires it at its first gate
+        pendingFlightMend = undefined;
         if (gen !== generation) return;
         const root = getSourceRoot();
         const simSurvives = root?.hasAttribute(PRINT_SIM_ATTR) ?? false;

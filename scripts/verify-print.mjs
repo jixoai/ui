@@ -182,6 +182,27 @@ const mediumText = () => page.textContent('[data-jx-print-medium]');
 // ---- 2a. sim on → pages + margin boxes + real ToC numbers ---------------
 await page.click('[data-print-source] [data-jx-print-sim-toggle]');
 const simMeta = await waitForMeta();
+// THE POST-READY MEND: relocate.ts's tail sweep can mend the layout
+// after the flight publishes ready (pagedjs's re-chunk tail re-slots
+// split halves late) — every read below must see the RESTED artifact,
+// so poll the metadata stamp until it goes quiet before asserting
+await page.waitForFunction(
+  () => {
+    const root = document.querySelector('[data-print-output]');
+    if (!root?.dataset.jxPrintMeta) return false;
+    const meta = JSON.parse(root.dataset.jxPrintMeta);
+    const stamp = `${meta.renderId}/${meta.keepRelocated}/${meta.keepRejoined}`;
+    if (window.__jxPrintMetaStamp === stamp) {
+      window.__jxPrintMetaStable = (window.__jxPrintMetaStable ?? 0) + 1;
+    } else {
+      window.__jxPrintMetaStamp = stamp;
+      window.__jxPrintMetaStable = 0;
+    }
+    return window.__jxPrintMetaStable >= 12;
+  },
+  null,
+  { timeout: 15000, polling: 100 },
+);
 
 const pagesCount = await page.evaluate(
   () => document.querySelectorAll('[data-print-output] .pagedjs_page').length,
@@ -345,25 +366,60 @@ check(
 const paperProjection = await page.evaluate(() => {
   const out = document.querySelector('[data-print-output]');
   const cards = [...out.querySelectorAll('section.bg-card')];
-  // side borders always gone; top may be a continuation dash; bottom
-  // may be the hairline (solid), a dash, or nothing-at-all when the
-  // card is a split outer layer (its hairline suppressed at the cut)
+  // purely typographic (2026-09-03): sides always gone; top may be a
+  // continuation dash; the section's own end hairline is RETIRED —
+  // bottom reads none, or a cut dash on a split half
   const noClosedBox = (el) => {
     const cs = getComputedStyle(el);
     if (cs.borderLeftStyle !== 'none' || cs.borderRightStyle !== 'none') return false;
     const topOk = cs.borderTopStyle === 'none' ||
       (cs.borderTopStyle === 'dashed' && el.hasAttribute('data-split-from'));
-    const bottomOk = cs.borderBottomStyle === 'solid' ||
-      (['dashed', 'none'].includes(cs.borderBottomStyle) && el.hasAttribute('data-split-to'));
+    const bottomOk = cs.borderBottomStyle === 'none' ||
+      (cs.borderBottomStyle === 'dashed' && el.hasAttribute('data-split-to'));
     return topOk && bottomOk;
   };
   const borderless = cards.filter((c) => noClosedBox(c)).length;
-  const innerFrom = [...out.querySelectorAll('[data-split-from]:not([data-jx-split-outer])')];
-  const innerDashed = innerFrom.filter((el) => getComputedStyle(el).borderTopStyle === 'dashed').length;
+  // the section's dividing line is the COMPONENT'S structural
+  // <Separator> (2026-09-03, standard componentization — the Dialog
+  // row-ruler pattern): the clone carries the real element, every
+  // stamped header zone must sit flush above one (width checks, not
+  // style: tw preflight defaults border-style to solid at width 0)
+  const headers = [...out.querySelectorAll("section.bg-card > div[data-break-after='avoid']")];
+  const headersBorderless = headers.filter(
+    (h) => getComputedStyle(h).borderBottomWidth === '0px',
+  ).length;
+  const seps = [...out.querySelectorAll('section.bg-card > [data-jx-section-sep]')];
+  const separatorTracks = seps.filter((s) => {
+    const cs = getComputedStyle(s);
+    return cs.display !== 'none' && cs.height === '1px' && /contrast/.test(cs.backdropFilter);
+  }).length;
+  // the dash is a BLOCK judgment (2026-09-03): only stamped block
+  // halves ([data-jx-split-dash] — boxed card cuts) may draw, and
+  // every stamp must actually dash its cut sides
+  const blockDashEls = [...out.querySelectorAll('[data-jx-split-dash]')];
+  const blockDashes = blockDashEls.length;
+  const blockDashed = blockDashEls.filter((el) => {
+    const cs = getComputedStyle(el);
+    if (el.hasAttribute('data-split-to') && cs.borderBottomStyle !== 'dashed') return false;
+    if (el.hasAttribute('data-split-from') && cs.borderTopStyle !== 'dashed') return false;
+    return true;
+  }).length;
+  // a cut-chain element dashing WITHOUT the stamp is the old
+  // per-element innermost rule shipping noise (the Owner's report)
+  const strayDashed = [...out.querySelectorAll('[data-split-to],[data-split-from]')]
+    .filter((el) => {
+      const cs = getComputedStyle(el);
+      const bottomDashed = el.hasAttribute('data-split-to') && cs.borderBottomStyle === 'dashed';
+      const topDashed = el.hasAttribute('data-split-from') && cs.borderTopStyle === 'dashed';
+      return (bottomDashed || topDashed) && !el.hasAttribute('data-jx-split-dash');
+    }).length;
   // the outer chain is quiet on its CUT side — not just non-dashed:
   // the suppression is `none` (an authored hairline at a cut edge
-  // would stack 1px from the innermost dash — vision r4's double line)
+  // would stack 1px from the owner's dash — vision r4's double
+  // line). A STAMPED block half ([data-jx-split-dash]) is the OWNER:
+  // its dash replaces the quieted edge by design
   const outerQuiet = [...out.querySelectorAll('[data-jx-split-outer]')].filter((el) => {
+    if (el.hasAttribute('data-jx-split-dash')) return true;
     const cs = getComputedStyle(el);
     const topOk = !el.hasAttribute('data-split-from') || cs.borderTopStyle === 'none';
     const bottomOk = !el.hasAttribute('data-split-to') || cs.borderBottomStyle === 'none';
@@ -432,11 +488,28 @@ const paperProjection = await page.evaluate(() => {
     }
     flush();
   }
-  // STRANDS: a stamped keep carrier still ending its page while its
-  // host continues on a later page — the pipeline's relocation pass
-  // must leave none (pagedjs's own avoid backwalk misses these)
+  // STRANDS + REJOINS (mirrors lib/print/relocate.ts): a stamped
+  // keep carrier still ending its page — relocated into its nearest
+  // split-continuation ancestor when uncut, REJOINED with its pair
+  // when itself cut — the pipeline's enforcement pass must leave
+  // zero of either wherever the target page has room (pagedjs's own
+  // avoid backwalk misses these)
   const pagesArr = [...out.querySelectorAll('.pagedjs_page')];
   const strands = [];
+  const rejoinGaps = [];
+  const leafBottomOf = (area) => {
+    let bottom = -Infinity;
+    for (const el of area.querySelectorAll('*')) {
+      const r = el.getBoundingClientRect();
+      if (r.height <= 1) continue;
+      let leaf = true;
+      for (const child of el.children) {
+        if (child.getBoundingClientRect().height > 1) { leaf = false; break; }
+      }
+      if (leaf && r.bottom > bottom) bottom = r.bottom;
+    }
+    return bottom;
+  };
   pagesArr.forEach((p, i) => {
     if (i === pagesArr.length - 1) return;
     const content = p.querySelector('.pagedjs_page_content');
@@ -458,80 +531,97 @@ const paperProjection = await page.evaluate(() => {
       if (el.getAttribute('data-break-after') === 'avoid') carriers.push(el);
     }
     const carrier = carriers.reverse().find((el) => (el.parentElement?.getAttribute('data-ref') ?? '') !== '');
-    const host = carrier?.parentElement;
-    const ref = host?.getAttribute('data-ref');
-    if (!carrier || !host || !ref) return;
-    // cut-aware, BOUNDED AT THE CARRIER (mirrors the pipeline pass):
-    // a cut marker at or below the carrier = the carrier's own
-    // subtree continues (a cut half, not a stranded head). The scan
-    // stops at the carrier on purpose — the HOST of every classic
-    // strand carries data-split-to (the head ended whole, the body
-    // moved on), so a whole-chain scan makes this gate vacuously
-    // green while orphans ship (subagent r5 pre-review)
-    let cutInsideCarrier = carrier.hasAttribute('data-split-to');
+    if (!carrier || !carrier.parentElement) return;
+    // cut-aware, BOUNDED AT THE CARRIER (mirrors the pass): a cut
+    // marker strictly below an uncut carrier would tear — the r5
+    // law; the scan stops at the carrier on purpose
+    let cutBelowCarrier = false;
     for (let el = deepest; el && el !== carrier; el = el.parentElement) {
-      if (el.hasAttribute('data-split-to')) { cutInsideCarrier = true; break; }
+      if (el.hasAttribute('data-split-to')) { cutBelowCarrier = true; break; }
     }
-    if (cutInsideCarrier) return;
-    const continues = pagesArr
-      .slice(i + 1)
-      .some((q) => q.querySelector(`[data-ref="${ref}"][data-split-from]`));
-    if (!continues) return;
+    if (cutBelowCarrier) return;
     // FIT exemption (mirrors the pass): a keep whose block + follower
     // exceed every page's remainder is UNSATISFIABLE — pagedjs's cut
     // between them is the least-bad break, not a shippable orphan.
-    // The strand is only gateable when the continuation's page could
-    // host the carrier (space below its current content bottom)
-    const contHalf = pagesArr
-      .slice(i + 1)
-      .map((q) => q.querySelector(`[data-ref="${ref}"][data-split-from]`))
-      .find(Boolean);
-    const contArea = contHalf?.closest('.pagedjs_page')?.querySelector('.pagedjs_page_content');
-    if (contHalf && contArea) {
-      // LEAF-only bottom (mirrors the pass): pagedjs's rebuilt
-      // wrappers inherit the area's height and touch its bottom on
-      // every page — an any-element scan reads available = 0 always
-      // and would exempt every candidate, making this gate vacuous
-      // (codex r6 + ZCode probe: any bottom 100% vs leaf 49-98%)
-      let bottom = -Infinity;
-      for (const el of contArea.querySelectorAll('*')) {
-        const r = el.getBoundingClientRect();
-        if (r.height <= 1) continue;
-        let leaf = true;
-        for (const child of el.children) {
-          if (child.getBoundingClientRect().height > 1) { leaf = false; break; }
-        }
-        if (leaf && r.bottom > bottom) bottom = r.bottom;
+    // LEAF-only bottom: pagedjs's rebuilt wrappers inherit the
+    // area's height and touch its bottom on every page — an
+    // any-element scan reads available = 0 always and exempts every
+    // candidate, making this gate vacuous (codex r6 + ZCode probe)
+    const fitsOn = (pageEl, need) => {
+      const area = pageEl?.querySelector('.pagedjs_page_content');
+      if (!area) return false;
+      return need <= area.getBoundingClientRect().bottom - leafBottomOf(area) + 1;
+    };
+    if (carrier.hasAttribute('data-split-to')) {
+      // REJOIN gap: the cut avoid block's pair waits on a later page
+      // with room — the pass must have reunited them
+      const ref = carrier.getAttribute('data-ref');
+      const pair = ref
+        ? pagesArr.slice(i + 1).map((q) => q.querySelector(`[data-ref="${CSS.escape(ref)}"][data-split-from]`)).find(Boolean)
+        : null;
+      if (!pair) return;
+      if (fitsOn(pair.closest('.pagedjs_page'), carrier.getBoundingClientRect().height)) {
+        rejoinGaps.push({ page: p.getAttribute('data-page-number'), ref: String(ref).slice(0, 8) });
       }
-      const available = contArea.getBoundingClientRect().bottom - bottom;
-      if (carrier.getBoundingClientRect().height > available + 1) return;
+      return;
     }
-    strands.push({ page: p.getAttribute('data-page-number'), ref: String(ref).slice(0, 8) });
+    // STRAND: the nearest split-continuation ancestor half (the
+    // carrier's own parent when it split — the classic mend; else
+    // the deepest ancestor that did — the ended-whole shape)
+    let target = null;
+    for (let el = carrier.parentElement; el && el !== content; el = el.parentElement) {
+      const ref = el.getAttribute('data-ref');
+      if (!ref) continue;
+      const half = pagesArr.slice(i + 1).map((q) => q.querySelector(`[data-ref="${CSS.escape(ref)}"][data-split-from]`)).find(Boolean);
+      if (half) { target = half; break; }
+    }
+    if (!target) return;
+    if (fitsOn(target.closest('.pagedjs_page'), carrier.getBoundingClientRect().height)) {
+      strands.push({ page: p.getAttribute('data-page-number'), ref: String(target.getAttribute('data-ref')).slice(0, 8) });
+    }
   });
   return {
-    cards: cards.length, borderless, innerDashed, innerFrom: innerFrom.length,
-    outerQuiet, outerTotal, splitTotal, doubledCuts, authoredNearCut, strands,
+    cards: cards.length, borderless, blockDashes, blockDashed, strayDashed,
+    headersTotal: headers.length, headersBorderless, separatorTracks, sepsTotal: seps.length,
+    outerQuiet, outerTotal, splitTotal, doubledCuts, authoredNearCut, strands, rejoinGaps,
     keepRelocated: JSON.parse(out.dataset.jxPrintMeta ?? '{}').keepRelocated ?? null,
+    keepRejoined: JSON.parse(out.dataset.jxPrintMeta ?? '{}').keepRejoined ?? null,
     h2, cardHead, cardHeadSource, codeHead, codeFoot,
   };
 });
 check(
-  'paper projection: cards borderless; ONE dash per cut, outer layers fully quiet; no stranded keeps on any page',
+  'paper projection: cards borderless; the dash is a BLOCK judgment (stamped card cuts only, zero stray); no stranded or un-rejoined keeps on any page',
   paperProjection.cards >= 5 && paperProjection.borderless === paperProjection.cards &&
-    paperProjection.splitTotal >= 1 && paperProjection.innerFrom >= 1 &&
-    paperProjection.innerDashed === paperProjection.innerFrom &&
+    // the separator as a STANDARD COMPONENT (2026-09-03): every
+    // section's structural <Separator> rides the clone and dashes
+    // its contrast ghost; every stamped header sits flush above one
+    // (zero authored border width)
+    paperProjection.headersTotal >= 5 &&
+    paperProjection.headersBorderless === paperProjection.headersTotal &&
+    paperProjection.sepsTotal >= 5 &&
+    paperProjection.separatorTracks === paperProjection.sepsTotal &&
+    paperProjection.splitTotal >= 1 &&
+    // the dash law, NON-vacuously: the pilot's tall code card
+    // fragments across pages 7-9, so block cuts with real dashes
+    // exist; every stamp dashes its cut sides, and NO unstamped
+    // cut-chain element draws (the old innermost rule dashed plain
+    // flow at nearly every page turn — the Owner's noise report)
+    paperProjection.blockDashes >= 2 && paperProjection.blockDashed === paperProjection.blockDashes &&
+    paperProjection.strayDashed === 0 &&
     (paperProjection.outerTotal === 0 || paperProjection.outerQuiet === paperProjection.outerTotal) &&
     paperProjection.doubledCuts === 0 &&
-    // zero strands is the law, NON-vacuously: the detector exempts
-    // only cut-halves (bounded at the carrier) and genuinely
-    // unsatisfiable keeps (leaf-measured room < carrier). And the
-    // pass must be LIVE on this document: the pilot's stranded
-    // figcaption has real room on its continuation page (leaf bottom
-    // 95% of the area, ~45px free vs the 28px carrier), so
-    // keepRelocated >= 1 holds — both historical failure modes (the
-    // whole-chain cut guard, the any-element fit scan reading
-    // available=0 forever) pinned it at 0 while shipping orphans
-    paperProjection.keepRelocated >= 1 && paperProjection.strands.length === 0 &&
+    // zero strands AND zero rejoin gaps is the law, NON-vacuously:
+    // the detector exempts only genuinely unsatisfiable keeps
+    // (leaf-measured room < carrier). And the passes must be LIVE on
+    // this document: the pilot carries both shapes (the stranded
+    // figcaption with room on its continuation page, and the
+    // eyebrow-only cut header whose pair has room), so
+    // keepRelocated >= 1 AND keepRejoined >= 1 hold — the historical
+    // failure modes (the whole-chain cut guard, the any-element fit
+    // scan reading available=0 forever) pinned the counters at 0
+    // while shipping orphans
+    paperProjection.keepRelocated >= 1 && paperProjection.keepRejoined >= 1 &&
+    paperProjection.strands.length === 0 && paperProjection.rejoinGaps.length === 0 &&
     paperProjection.h2.total >= 3 && paperProjection.h2.kept === paperProjection.h2.total &&
     paperProjection.cardHeadSource >= 3 && paperProjection.cardHead.kept >= 1 &&
     paperProjection.codeHead.total >= 1 && paperProjection.codeHead.kept === paperProjection.codeHead.total &&
@@ -764,8 +854,14 @@ const gutter = await page.evaluate(() => {
     );
   // ── the r7 parity law: consecutive code lines sit ONE line-height
   //    apart (the authored 1.6 — the screen value rides verbatim now);
-  //    a surviving separator doubles the delta
-  const sample = lines[0].closest('pre');
+  //    a surviving separator doubles the delta. The SAMPLE is the
+  //    first pre holding a real run of lines — the first pre in
+  //    document order can be a single-line snippet, and layout
+  //    shifts legitimately reorder which pre leads the document
+  const pres = [...document.querySelectorAll('[data-print-output] pre')].filter(
+    (p) => p.querySelectorAll('.jx-print-line').length >= 4,
+  );
+  const sample = pres[0] ?? lines[0].closest('pre');
   const sampleLines = sample ? [...sample.querySelectorAll('.jx-print-line')] : [];
   const deltas = [];
   for (let i = 1; i < Math.min(sampleLines.length, 12); i++) {
@@ -852,8 +948,17 @@ const tallCard = await page.evaluate(() => {
   // the BLINDNESS law: pagedjs's UndisplayedFilter marks every
   // [style] element data-undisplayed and the chunker cannot break
   // inside it — the freeze moves Shiki's token colors to classes, so
-  // ZERO style-bearing (or marked) elements may remain inside pres
-  const styledInPres = out.querySelectorAll('pre [style]').length;
+  // ZERO style-bearing (or marked) elements may remain inside pres.
+  // EXEMPT pagedjs's own width pins: layout.js's overflow check
+  // stamps resolved column widths as inline styles on the sibling
+  // chain ("make them attributes so removal of overflow doesn't do
+  // strange things") — engine bookkeeping that can land on any
+  // element including a pre, not an authored style surviving the
+  // freeze (the user's very first pages sample carried these pins
+  // on sections/divs long before any of this week's changes)
+  const styledInPres = [...out.querySelectorAll('pre [style]')].filter(
+    (el) => (el.getAttribute('style') ?? '').replace(/width:\s*[\d.]+px;?/g, '').trim() !== '',
+  ).length;
   const undisplayedInPres = out.querySelectorAll('pre [data-undisplayed]').length;
   return {
     ok: true,

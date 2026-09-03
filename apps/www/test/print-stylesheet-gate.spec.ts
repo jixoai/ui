@@ -90,25 +90,54 @@ describe('kernel-print.css — the AST gate', () => {
     const card = /:where\(section\.bg-card\)\s*\{([^}]*)\}/.exec(kernelClean);
     expect(card, 'missing the section-card borderless rule').not.toBeNull();
     expect(card![1]).toContain('border: none');
-    expect(card![1]).toContain('border-block-end: 1px solid');
+    // purely typographic (2026-09-03): the section's own end hairline
+    // is GONE (a rule between rules) — the header separator below is
+    // the one line the card needs
+    expect(card![1]).not.toContain('border-block-end');
+    // the section's dividing line is the COMPONENT'S structural
+    // <Separator> (2026-09-03, standard componentization — the Dialog
+    // row-ruler pattern ships a real Separator instance inside
+    // SectionCard; the clone carries it verbatim). The kernel
+    // projects NOTHING for it — the old ::after track and the
+    // border-b suppression must NOT survive
+    expect(kernelClean).not.toMatch(/div\[data-break-after='avoid'\]::after/);
+    expect(kernelClean).not.toMatch(
+      /div\[data-break-after='avoid'\]\s*\{[^}]*border-block-end: none/,
+    );
+    // paper keeps only the fragmentation plumbing: the separator's
+    // keep (a 1px rule never ends a page alone) and block flow (the
+    // row ruler is a screen GRID — a monolith pagedjs cannot
+    // fragment; the r7 lesson)
+    expect(kernelClean).toMatch(/\[data-jx-section-sep\]\s*\{[^}]*break-after: avoid/);
+    expect(kernelClean).toMatch(/\.pagedjs_page section\.bg-card\s*\{[^}]*display: block/);
     const boxed = /:where\(section\.bg-card\[data-jx-print='boxed'\]\)\s*\{([^}]*)\}/.exec(kernelClean);
     expect(boxed, 'missing the boxed opt-out').not.toBeNull();
     expect(boxed![1]).toContain('border: 1px solid');
     const codeCard = /:where\(\.jx-code-card\)\s*\{([^}]*)\}/.exec(kernelClean);
     expect(codeCard, 'missing the code-card frame drop').not.toBeNull();
     expect(codeCard![1]).toContain('border: none');
-    // the continuation dash on pagedjs split markers — INNERMOST only
-    // (the pipeline's data-jx-split-outer quiets the rebuilt ancestor
-    // chain: one cut, one dash), the outer layers' own borders at the
-    // cut are suppressed (a section's hairline 1px from the dash is
-    // the r4 doubled cut), and keep-with-next guards the real strip
-    // shapes (a code head is a FIGCAPTION; a section header is the
-    // card's first div; the code foot guards its break-BEFORE)
-    expect(kernelClean).toMatch(/\[data-split-to\]:not\(\[data-jx-split-outer\]\)\s*\{[^}]*border-block-end: 1px dashed/);
-    expect(kernelClean).toMatch(/\[data-split-from\]:not\(\[data-jx-split-outer\]\)\s*\{[^}]*border-block-start: 1px dashed/);
+    // the continuation dash is a BLOCK judgment (2026-09-03): only a
+    // cut through a boxed card kind draws it (the pipeline stamps
+    // data-jx-split-dash — plain flow crossing a page turn draws
+    // nothing, the break itself is the signal), the outer layers'
+    // own borders at the cut are suppressed (a section's hairline
+    // 1px from the dash is the r4 doubled cut), and keep-with-next
+    // guards the real strip shapes (a code head is a FIGCAPTION; a
+    // section header is the card's first div; the code foot guards
+    // its break-BEFORE)
+    expect(kernelClean).toMatch(/\[data-jx-split-dash\]\[data-split-to\]\s*\{[^}]*border-block-end: 1px dashed/);
+    expect(kernelClean).toMatch(/\[data-jx-split-dash\]\[data-split-from\]\s*\{[^}]*border-block-start: 1px dashed/);
     expect(kernelClean).toMatch(/\[data-split-to\]\[data-jx-split-outer\]\s*\{[^}]*border-block-end: none/);
     expect(kernelClean).toMatch(/\[data-split-from\]\[data-jx-split-outer\]\s*\{[^}]*border-block-start: none/);
-    expect(kernelClean).toMatch(/h1,\s*\nh2,\s*\nh3\s*\{[^}]*break-after: avoid/);
+    // the OLD per-element innermost-dash rule must NOT survive —
+    // every page boundary cuts some chain, and it drew a hairline at
+    // nearly every page turn (the Owner's dashed-line noise report)
+    expect(kernelClean).not.toMatch(/\[data-split-to\]:not\(\[data-jx-split-outer\]\)/);
+    expect(kernelClean).not.toMatch(/\[data-split-from\]:not\(\[data-jx-split-outer\]\)/);
+    // the WHOLE heading ladder keeps with what follows (h4–h6
+    // joined 2026-09-03 — a component table's h4 strands like a
+    // section's h2)
+    expect(kernelClean).toMatch(/h1,\s*\nh2,\s*\nh3,\s*\nh4,\s*\nh5,\s*\nh6\s*\{[^}]*break-after: avoid/);
     expect(kernelClean).toMatch(/section\.bg-card > div:first-child\s*\{[^}]*break-after: avoid/);
     expect(kernelClean).toMatch(/\.jx-code-card > figcaption\s*\{[^}]*break-after: avoid/);
     expect(kernelClean).toMatch(/\[data-jx-code-card-foot\]\s*\{[^}]*break-before: avoid/);
@@ -174,12 +203,16 @@ describe('kernel-print.css — the AST gate', () => {
     // figure flex monolith let pagedjs only MOVE the card — taller
     // than a page, the tail vanished behind the sheet's clip
     expect(kernelClean).toMatch(/\.pagedjs_page \.jx-code-card\s*\{[^}]*display: block/);
-    // the borderless card's CHILD inset flattens — the page margin is
-    // the frame; margins, not padding, keep the block rhythm
-    expect(kernelClean).toMatch(/:where\(section\.bg-card\) > div\s*\{[^}]*padding: 0/);
-    expect(kernelClean).toMatch(
-      /:where\(section\.bg-card\) > div \+ div\s*\{[^}]*margin-block-start/,
-    );
+    // the borderless card's CHILD padding flattens on the INLINE axis
+    // only (2026-09-03): text flush with the page frame; the authored
+    // BLOCK padding rides as the rhythm around the separator track.
+    // ZERO invented spacing (2026-09-03): the section's end margin
+    // and the sibling compensation margin are GONE — the component's
+    // own rhythm (stack gap, authored py) is the only spacing law
+    expect(kernelClean).toMatch(/:where\(section\.bg-card\) > div\s*\{[^}]*padding-inline: 0/);
+    expect(kernelClean).not.toMatch(/:where\(section\.bg-card\) > div\s*\{[^}]*padding: 0/);
+    expect(kernelClean).not.toMatch(/:where\(section\.bg-card\)\s*\{[^}]*margin-block-end/);
+    expect(kernelClean).not.toMatch(/:where\(section\.bg-card\) > div \+ div/);
   });
 });
 
