@@ -685,7 +685,9 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
    Pose opting: --jx-press-shadow / -hover / -active re-point all
    three poses (bigger floats rest on --shadow; shadow-less surfaces
    — ghost idioms — set all three to none and keep the bare +1px
-   press).
+   press). --jx-press-move is the fourth seam — the press VECTOR
+   itself (the flat texture nulls it and lets an engrave-tier inset
+   alone create the illusion of movement, Owner 2026-09-03).
    ============================================================ */
 .jx-press {
   box-shadow: var(--jx-press-shadow, var(--shadow-xs));
@@ -703,7 +705,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
    :hover, so a mouse press swaps the hover pose straight to its
    press twin */
 .jx-press:active {
-  translate: 1px 1px;
+  translate: var(--jx-press-move, 1px 1px);
   box-shadow: var(--jx-press-shadow-active, var(--shadow-sm-press));
 }
 @media (prefers-reduced-motion: reduce) {

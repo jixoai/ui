@@ -36,6 +36,7 @@ const pressButtonFixture: ComponentMeta = defineComponentMeta({
     type: { kind: 'enum', values: ['button', 'submit'], default: 'button' },
     ariaLabel: { kind: 'string' },
     square: { kind: 'boolean', default: false },
+    raised: { kind: 'boolean', default: true },
     class: { kind: 'string', default: '' },
     children: { kind: 'snippet', typeText: 'Snippet' },
   },
@@ -74,6 +75,7 @@ describe('toJSONSchema (press-button fixture)', () => {
         type: { enum: ['button', 'submit'], default: 'button' },
         ariaLabel: { type: 'string' },
         square: { type: 'boolean', default: false },
+        raised: { type: 'boolean', default: true },
         class: { type: 'string', default: '' },
         children: { 'x-ui': { control: 'none', sourceType: 'Snippet' } },
       },
@@ -85,7 +87,7 @@ describe('toJSONSchema (press-button fixture)', () => {
     const out = toJSONSchema(pressButtonFixture);
     // r13 truth: variant's default left the statically-extractable
     // zone (regenerated 2026-09-02) — it rides required now
-    const withDefaults = ['loading', 'type', 'square', 'class'];
+    const withDefaults = ['loading', 'type', 'square', 'raised', 'class'];
     expect(out.required).not.toContain(...withDefaults);
     for (const key of Object.keys(out.properties)) {
       if (!withDefaults.includes(key)) expect(out.required).toContain(key);

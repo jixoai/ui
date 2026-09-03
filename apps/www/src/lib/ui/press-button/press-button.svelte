@@ -235,6 +235,15 @@
      *  icon/toolbar idiom, level with the text button's own band;
      *  press law and every variant ride unchanged */
     square?: boolean;
+    /** THE PHYSICS AXIS (Owner 2026-09-03), orthogonal to the paint
+     *  ladder: raised=true (default) keeps the convex law byte-identical;
+     *  raised=false is the FLAT texture — no rest/hover shadow, the
+     *  body never moves on press, and an engrave-tier INSET alone
+     *  creates the pushed-into-the-plane illusion. All through the
+     *  pose customs (press law, jixoai.css); the 1px border frame
+     *  stays (an inset is never the sole affordance, r14-12). The
+     *  link rung carries no jx-press — this prop is inert there. */
+    raised?: boolean;
     /** appended to the composed classes (same-family overrides need
      *  the consumer's `!` — same-property utility order is not
      *  consumer-guaranteed) */
@@ -254,6 +263,7 @@
     popovertarget = undefined,
     ariaLabel,
     square = false,
+    raised = true,
     class: className = '',
     children,
   }: Props = $props();
@@ -388,8 +398,24 @@
     if (effect?.type === 'ripple') rippleRuntime.onclick(event);
   }
 
+  // THE FLAT POSE (raised={false}): the variant's own pose customs are
+  // stripped FIRST (ghost's none-trio would collide with the flat block
+  // — no two same-property utilities in one class list), then the flat
+  // block supplies all four seams: no rest shadow, no hover shadow,
+  // the press pose re-pointed to the engrave tier (an inset — pressed
+  // INTO the plane), and the press vector nulled (the body never
+  // moves; the inset alone creates the illusion). Link carries no
+  // jx-press: the strip is a no-op and the block is skipped.
+  const flatPose =
+    '[--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:var(--shadow-engrave)] [--jx-press-move:none]';
+  const variantClasses = $derived(
+    !raised && resolvedVariant !== 'link'
+      ? `${variants[resolvedVariant].replace(/\s*\[--jx-press-shadow[^\]]*\]\s*/g, ' ')} ${flatPose}`
+      : variants[resolvedVariant],
+  );
+
   const classes = $derived(
-    `${base} ${variants[resolvedVariant]}${effectClass ? ` ${effectClass}` : ''}${className ? ` ${className}` : ''}`
+    `${base} ${variantClasses}${effectClass ? ` ${effectClass}` : ''}${className ? ` ${className}` : ''}`
   );
   const isExternal = $derived(external ?? (href !== undefined && !href.startsWith('/')));
 

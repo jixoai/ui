@@ -16,10 +16,11 @@ import Page from '../src/routes/docs/components/press-button.html/+page.svelte';
 describe('pilot page schema playground', () => {
   it('renders schema-driven rows and drives the stage instance', async () => {
     const { container } = render(Page);
-    // rows: variant, effect, loading, popovertarget
-    // (segmented/segmented/toggle/text — r13 added popovertarget)
+    // rows: variant, effect, loading, popovertarget, raised
+    // (segmented/segmented/toggle/text/toggle — r13 added popovertarget,
+    // the raised physics axis added its toggle, Owner 2026-09-03)
     const rows = container.querySelectorAll('[data-jx-canvas-row]');
-    expect(rows.length).toBe(4);
+    expect(rows.length).toBe(5);
     expect(container.querySelector('[data-jx-canvas-toggle]')).not.toBeNull();
     // no hand-written kit selects remain
     expect(container.querySelector('select')).toBeNull();

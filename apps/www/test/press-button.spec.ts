@@ -17,6 +17,8 @@
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import { tick } from 'svelte';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 import PressButtonHost from './fixtures/press-button-host.svelte';
 import { pulse, rainbow, ripple, shimmer } from '../src/lib/ui/press-button/press-button.svelte';
@@ -85,6 +87,62 @@ describe('press-button variants', () => {
     expect(btn.className).toContain('border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)]');
     expect(btn.className).toContain('text-[color:var(--jx-tonal)]');
     expect(btn.getAttribute('data-jx-press-button')).toBe('tonal');
+  });
+});
+
+/* ── THE RAISED PHYSICS AXIS (Owner 2026-09-03): flat = raised={false} —
+      no rest/hover shadow, the press pose re-points to the engrave tier
+      (an inset — pushed INTO the plane), and the press vector is nulled
+      through the kernel's --jx-press-move seam. Paint stays untouched. ── */
+describe('press-button raised axis — the flat texture', () => {
+  it('the default (raised) carries NO pose customs — every existing button is byte-identical', () => {
+    const { container } = render(PressButtonHost);
+    const btn = container.querySelector('button')!;
+    expect(btn.className).not.toContain('--jx-press-shadow');
+    expect(btn.className).not.toContain('--jx-press-move');
+  });
+
+  it('flat supplies all four seams: none / none / engrave / no move', () => {
+    const { container } = render(PressButtonHost, { props: { variant: 'outline', raised: false } });
+    const btn = container.querySelector('button')!;
+    expect(btn.className).toContain('[--jx-press-shadow:none]');
+    expect(btn.className).toContain('[--jx-press-shadow-hover:none]');
+    expect(btn.className).toContain('[--jx-press-shadow-active:var(--shadow-engrave)]');
+    expect(btn.className).toContain('[--jx-press-move:none]');
+    // the paint rung rides unchanged
+    expect(btn.className).toContain('[border-color:var(--jx-outline)]');
+    expect(btn.className).toContain('jx-press border');
+  });
+
+  it('ghost+flat strips the rung\'s own pose trio first — no same-property collision', () => {
+    const { container } = render(PressButtonHost, { props: { variant: 'ghost', raised: false } });
+    const btn = container.querySelector('button')!;
+    // ghost's none-trio is REPLACED by the flat block, not doubled
+    expect(btn.className.match(/\[--jx-press-shadow-active:[^\]]*\]/g)).toEqual([
+      '[--jx-press-shadow-active:var(--shadow-engrave)]',
+    ]);
+    expect(btn.className.match(/\[--jx-press-shadow:[^\]]*\]/g)).toEqual(['[--jx-press-shadow:none]']);
+    // the strip takes ghost's block away wholesale — hover pose appears once
+    expect(btn.className.match(/\[--jx-press-shadow-hover:[^\]]*\]/g)).toEqual([
+      '[--jx-press-shadow-hover:none]',
+    ]);
+  });
+
+  it('link carries no jx-press — raised is inert there', () => {
+    const { container } = render(PressButtonHost, { props: { variant: 'link', raised: false } });
+    const btn = container.querySelector('button')!;
+    expect(btn.className).not.toContain('jx-press');
+    expect(btn.className).not.toContain('--jx-press-move');
+  });
+
+  it('the kernel seam law: the active translate rides --jx-press-move with the 1px 1px fallback', () => {
+    // source-law gate (jsdom has no cascade): the flat texture's
+    // no-movement contract hangs entirely on this seam — a regression
+    // to a literal translate: 1px 1px would silently move every flat
+    // button again
+    const css = readFileSync(resolve('src/lib/jixoai.css'), 'utf8');
+    expect(css).toMatch(/\.jx-press:active\s*\{[^}]*translate:\s*var\(--jx-press-move,\s*1px\s+1px\)/s);
+    expect(css).not.toMatch(/\.jx-press:active\s*\{[^}]*translate:\s*1px\s+1px\s*;/s);
   });
 });
 

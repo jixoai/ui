@@ -164,6 +164,7 @@ ${close}
         <div class="flex flex-wrap gap-3">
           <span class="pill">hover: shadow only</span>
           <span class="pill">active: anchored press</span>
+          <span class="pill">raised={false}: flat — the press is an inset, the body never moves</span>
           <span class="pill">shimmer · pulse · rainbow · ripple</span>
           <span class="pill">motion-reduce safe</span>
         </div>
@@ -206,6 +207,20 @@ ${close}
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>link</span>
               <PressButton variant="link">details</PressButton>
+            </label>
+          </div>
+          <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5 border-t border-border pt-5">
+            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+              <span>flat · outline</span>
+              <PressButton variant="outline" raised={false}>cancel</PressButton>
+            </label>
+            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+              <span>flat · tonal</span>
+              <PressButton variant="tonal" raised={false}>invite</PressButton>
+            </label>
+            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+              <span>flat · ghost — press me</span>
+              <PressButton variant="ghost" raised={false}>dismiss</PressButton>
             </label>
           </div>
           <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5 border-t border-border pt-5">
