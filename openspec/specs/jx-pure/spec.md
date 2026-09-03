@@ -42,7 +42,11 @@ a hard-coded 40px), type-allowlist text lanes, checkbox/radio
 repaints, the slider law (pill fill via cqw shadow + ringed disc
 thumb; rail = `--jx-slider-track`, thumb = `--jx-icon`), the switch
 (pill + round knob, [role=switch]; track = `--jx-toggle-width` ×
-`--jx-toggle-track`), color repaints (select = jx chevron by
+`--jx-toggle-track`; knob stroke = `--jx-toggle-knob-border` /
+`--jx-toggle-knob-border-color` — the border-box geometry DERIVES
+from the stroke token: box +2×stroke, inset/padding −1×stroke, so
+any value including 0px keeps the strokeless outer footprint),
+color repaints (select = jx chevron by
 default; Firefox keeps its platform arrow), number keeps the
 PLATFORM stepper, fieldset/legend, details/summary, nav/ol/ul/dl,
 tables, progress/meter/output, figure/figcaption + media, the
