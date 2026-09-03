@@ -97,11 +97,7 @@ npx jixoai-ui add press-button section-card toc`;
   </h2>
   <CardGrid class="mt-6">
     {#each why as card (card.id)}
-      <SectionCard
-        eyebrow={card.eyebrow}
-        title={card.title}
-        class="grid grid-rows-subgrid row-span-2"
-      >
+      <SectionCard eyebrow={card.eyebrow} title={card.title}>
         <p class="text-muted-foreground text-pretty text-[13px] leading-6">{card.body}</p>
       </SectionCard>
     {/each}

@@ -6,7 +6,7 @@ import Table from '../src/lib/ui/table/table.svelte';
 import Badge from '../src/lib/ui/badge/badge.svelte';
 import Tabs from '../src/lib/ui/tabs/tabs.svelte';
 
-const familyRoots = ['table', 'tabs', 'descriptions', 'statistic', 'badge', 'kbd', 'empty', 'result', 'timeline', 'steps'];
+const familyRoots = ['table', 'tabs', 'descriptions', 'statistic', 'badge', 'kbd', 'empty', 'result', 'timeline', 'steps', 'section-card'];
 
 describe('density adoption packet E', () => {
   it('Table is a sm policy root and stamps both frame and table', () => {

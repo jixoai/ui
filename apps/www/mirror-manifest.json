@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-02T21:08:26.519Z",
+  "generatedAt": "2026-09-03T08:45:58.005Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -315,8 +315,15 @@
           "source": "registry/files/ui/section-card/section-card.svelte",
           "mirror": "apps/www/src/lib/ui/section-card/section-card.svelte",
           "target": "@ui/section-card/section-card.svelte",
-          "sourceSha": "bc62a4d9ea56822c8a16aefa63bd014484db8c227bd371b3892da39c167c5b37",
-          "mirrorSha": "bc62a4d9ea56822c8a16aefa63bd014484db8c227bd371b3892da39c167c5b37"
+          "sourceSha": "fc5fec144e293c71cbb0849ed1081eb68c6dfffe96ea12ec97eb524c723ce58b",
+          "mirrorSha": "fc5fec144e293c71cbb0849ed1081eb68c6dfffe96ea12ec97eb524c723ce58b"
+        },
+        {
+          "source": "registry/files/ui/section-card/section-card.css",
+          "mirror": "apps/www/src/lib/ui/section-card/section-card.css",
+          "target": "@ui/section-card/section-card.css",
+          "sourceSha": "738ff9b09cff59e11501d4a811f5a36738ac2f7670816d48f19cc304b8598087",
+          "mirrorSha": "738ff9b09cff59e11501d4a811f5a36738ac2f7670816d48f19cc304b8598087"
         },
         {
           "source": "registry/files/ui/section-card/index.ts",
@@ -609,8 +616,8 @@
           "source": "registry/files/ui/card-grid/card-grid.svelte",
           "mirror": "apps/www/src/lib/ui/card-grid/card-grid.svelte",
           "target": "@ui/card-grid/card-grid.svelte",
-          "sourceSha": "5db4b128b7974bdc7784090507ddc6871b63a0162d805a745b6e7d4b78d2fd35",
-          "mirrorSha": "5db4b128b7974bdc7784090507ddc6871b63a0162d805a745b6e7d4b78d2fd35"
+          "sourceSha": "1d458d24c5a7ee7f2ce759b575998e96a67d06b34e03625aee98adf69aed1f06",
+          "mirrorSha": "1d458d24c5a7ee7f2ce759b575998e96a67d06b34e03625aee98adf69aed1f06"
         },
         {
           "source": "registry/files/ui/card-grid/index.ts",
@@ -623,8 +630,8 @@
           "source": "registry/files/ui/card-grid/card-grid.css",
           "mirror": "apps/www/src/lib/ui/card-grid/card-grid.css",
           "target": "@ui/card-grid/card-grid.css",
-          "sourceSha": "e454ae8be9780b172bc94cc43e51eba60d5b65b1f5bd8eb209c86f621f543fbc",
-          "mirrorSha": "e454ae8be9780b172bc94cc43e51eba60d5b65b1f5bd8eb209c86f621f543fbc"
+          "sourceSha": "585c1b7d39918c424b445793ca69976ccef34f0224dd7edfea520be9cfe4b195",
+          "mirrorSha": "585c1b7d39918c424b445793ca69976ccef34f0224dd7edfea520be9cfe4b195"
         }
       ]
     },

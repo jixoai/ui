@@ -228,6 +228,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/section-card/section-card.css",
+          "target": "@ui/section-card/section-card.css",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/section-card/index.ts",
           "target": "@ui/section-card/index.ts",
           "type": "registry:file"
@@ -238,7 +243,8 @@
         "href": "/docs/components/section-card.html"
       },
       "registryDependencies": [
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/separator"
       ]
     },
     {

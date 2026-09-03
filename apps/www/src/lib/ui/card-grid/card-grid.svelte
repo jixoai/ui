@@ -15,9 +15,11 @@
   two rows (header / body); every direct child spans both and opts into
   `grid-template-rows: subgrid`, so card HEADERS align to one shared
   height and card BODIES share the tallest body — no more ragged card
-  tops or unequal card bottoms. Works with any card whose first child is
-  the header block and second child the body (section-card qualifies
-  unchanged).
+  tops or unequal card bottoms. The grid NEVER asks what a child is: any
+  two-block card qualifies unchanged (first block = header, second =
+  body — section-card's structural separator rides its header row's
+  bottom edge, so the lines align across the row through the same
+  equalized header row the old border-b used).
 
   The layout rules are on consumer children on purpose: the cards come
   from the consumer's children snippet, so no markup of ours can carry

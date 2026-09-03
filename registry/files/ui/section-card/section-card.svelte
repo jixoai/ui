@@ -3,9 +3,32 @@
   The content atom of the site grammar: bordered card, header block with
   eyebrow (brand hue, font-nav, tracked 0.24em), font-nav title, text-pretty
   summary, body snippet slot. tone="hero" is for inner-page heads.
+
+  THE STRUCTURAL SEPARATOR (Owner, 2026-09-03 rev.2): the header zone's
+  authored border-b RETIRED — the dividing line is a structural
+  <Separator> instance pinned to the header row's bottom edge
+  (section-card.css: grid-area 1/1 + align-self end, edge-to-edge, zones
+  pad themselves — the Dialog r13/r14 economy). Integer cell placement
+  resolves identically standalone and inside every card-grid subgrid
+  band, so the line aligns across a row through the equalized header
+  row. It ships with the component; consumers never hand-write one.
+
+  DENSITY ADOPTION (Owner, 2026-09-03): the closed density aliases own
+  the card's compactness — token-derived formulas that resolve to the
+  exact legacy pixels at the default scope (padding-inline inset+1u =
+  16px, header padding-block stack+1u = 12px, body stack+2u = 16px,
+  eyebrow secondary−¼u = 11px, summary --jx-text/--jx-line = 13/20).
+  The old sm: viewport variants RETIRE: compactness is the density
+  axis's one job (the kernel's closed-set law) — a second viewport axis
+  is how dual-axis drift starts. xs/sm share the spacing rungs by the
+  scale's design; they differ on the TEXT step (and that difference now
+  actually renders — before adoption the density demo showed four
+  pixel-identical panes).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import Separator from '../separator/separator.svelte';
+  import './section-card.css';
 
   interface Props {
     eyebrow?: string;
@@ -45,16 +68,29 @@
   const summaryClassName = $derived(
     tone === 'hero'
       ? 'max-w-[62ch] text-pretty text-[13px] leading-6 text-foreground/78 sm:text-[14px] sm:leading-6'
-      : 'max-w-[64ch] text-pretty text-[13px] leading-5 text-muted-foreground sm:text-[14px] sm:leading-6',
+      : 'max-w-[64ch] text-pretty [font-size:var(--jx-text)] [line-height:var(--jx-line)] text-muted-foreground',
   );
 </script>
 
-<section class={`border border-border bg-card shadow-2xs ${className}`} data-family={family} data-region={region}>
-  <div class="flex flex-col gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4" data-region={headerRegion}>
+<section
+  data-jx-section
+  class={`border border-border bg-card shadow-2xs ${className}`}
+  data-family={family}
+  data-region={region}
+>
+  <div
+    data-jx-section-header
+    class="flex flex-col [gap:calc(var(--jx-stack)_+_var(--jx-unit))] [padding-inline:calc(var(--jx-inset)_+_var(--jx-unit))] [padding-block:calc(var(--jx-stack)_+_var(--jx-unit))]"
+    data-region={headerRegion}
+  >
     {#if eyebrow}
-      <p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">{eyebrow}</p>
+      <p
+        class="font-nav text-primary [font-size:calc(var(--jx-text-secondary)_-_calc(var(--jx-unit)_/_4))] uppercase tracking-[0.24em]"
+      >
+        {eyebrow}
+      </p>
     {/if}
-    <div class="flex flex-col gap-2.5">
+    <div class="flex flex-col [gap:calc(var(--jx-stack)_+_calc(var(--jx-unit)_/_2))]">
       {#if headingLevel === 1}
         <h1 class={titleClassName}>{title}</h1>
       {:else}
@@ -65,7 +101,11 @@
       {/if}
     </div>
   </div>
-  <div class="px-4 py-4 sm:px-5 sm:py-5">
+  <Separator data-jx-section-sep aria-hidden="true" />
+  <div
+    data-jx-section-body
+    class="[padding-inline:calc(var(--jx-inset)_+_var(--jx-unit))] [padding-block:calc(var(--jx-stack)_+_calc(var(--jx-unit)_*_2))]"
+  >
     {@render children()}
   </div>
 </section>

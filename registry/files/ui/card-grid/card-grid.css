@@ -25,7 +25,15 @@
     /* every card spans the shared rows and subgrids them: row 1 = header
        (all headers stretch to the tallest, e.g. a two-line eyebrow), row 2
        = body (fills to the tallest). row-gap 0: the card's own chrome
-       (borders/padding) provides the internal rhythm. */
+       (borders/padding) provides the internal rhythm.
+       THE CONTENT-AGNOSTIC LAW (Owner, 2026-09-03 rev.2): the grid NEVER
+       asks what a child is — any two-block card qualifies unchanged
+       (first block = header, second = body). A [sep] third shared row
+       (rev.1) taxed every two-block consumer and stranded zone-named
+       cards in wrapped bands' implicit rows; the section-card's structural
+       separator rides its header row's bottom edge instead
+       (section-card.css) — aligned across the row through the SAME
+       equalized header row the retired border-b always used. */
     .jx-card-grid > * {
       display: grid;
       grid-row: span 2;
