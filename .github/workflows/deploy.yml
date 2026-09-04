@@ -50,7 +50,7 @@ jobs:
       # needs it postdates the last successful deploy, and the vite-plugin
       # lock break hid this step behind an earlier failure)
       - name: Install css-laws deps (verify:laws runner)
-        run: npm install --no-fund --no-audit
+        run: npm ci --no-fund --no-audit
         working-directory: packages/css-laws
       # Tracked-wasm + pin-schema sentinel (ghostty-term design D2's
       # double guardrail, offline side): no network assertions, no cache
