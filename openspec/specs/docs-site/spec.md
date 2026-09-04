@@ -1,7 +1,7 @@
 # docs-site Specification
 
 ## Purpose
-TBD - created by archiving change 2026-08-30-site-polish. Update Purpose after archive.
+The site-level quality contract for the component docs site: every docs page follows the lintable skeleton (Intro / Install / one Usage / ability-named Examples / API / See Also, PLAYGROUND for interactive components), demos render honest state (empty values show an em dash, never `undefined`, and demo copy never fakes headings), and internal verification surfaces like `/parity.html` carry `noindex` with self-explanatory context. It serves the contributors and readers of the dogfooded site — dev serves the registry, enterprise data surfaces are demo-complete, and the canvas stage carries theme and density toggles. Core contract: a page either matches the declared skeleton or the lint names it; nothing degrades silently.
 
 ## Requirements
 

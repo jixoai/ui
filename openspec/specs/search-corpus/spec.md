@@ -1,7 +1,7 @@
 # search-corpus Specification
 
 ## Purpose
-TBD - created by archiving change 2026-09-02-search-corpus. Update Purpose after archive.
+The site search corpus: the build emits one byte-deterministic, engine-neutral artifact at `/search/corpus.json`, harvesting the final rendered HTML keyed on semantic markers and component declarations (heading-tree law, SectionCard shape, `data-kind`/`data-role`) — structured, not guessed — while honoring noindex/exclude and keeping exactly one writer. Search execution lives in pluggable client-side engine adapters (minisearch first) that lazily consume the corpus, with CJK tokenization via `Intl.Segmenter` shared by the document and query paths. Core contract: accuracy comes from structure harvested into the corpus; engines stay replaceable.
 
 ## Requirements
 

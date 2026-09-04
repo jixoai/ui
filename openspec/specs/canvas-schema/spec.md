@@ -1,7 +1,7 @@
 # canvas-schema Specification
 
 ## Purpose
-TBD - created by archiving change 2026-08-30-canvas-schema-pipeline. Update Purpose after archive.
+jsonSchema is the canvas's native tongue: a locked `component-metadata-gen` build step extracts component structure from registry `.svelte` sources into committed two-zone meta files, and the schema kernel lowers the IR to standard jsonSchema (`x-ui` passthrough, zero internal vocabulary leakage) so ComponentCanvas can render its control rows straight from the schema. It serves docs authors (no hand-copied option arrays or reset boilerplate) and third parties that lower their own schemas through the same front door. Core contract: the canvas renders controls from the lowered schema, with the consumer-authored `playground` snippet as the precedence escape hatch and honest degradation for non-representable props.
 
 ## Requirements
 

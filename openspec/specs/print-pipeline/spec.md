@@ -1,7 +1,19 @@
 # print-pipeline Specification
 
 ## Purpose
-TBD - created by archiving change 2026-08-30-print-pipeline. Update Purpose after archive.
+
+The print pipeline projects a docs page onto paper as a pure function of the
+document plus its printConfig: a prepareSnapshot transaction freezes the live
+tree (preparatory stamp, plugin interventions, scoped animation capture,
+readiness gates, commit barrier), deep-clones the immutable source, and every
+transform lands clone-only. The frozen clone is re-targeted into the
+pipeline-owned output viewport, where the vendored paged.js kernel lays out
+real @page furniture (margin boxes, folio pair, attr-backfilled ToC) from a
+structured, validated page-config grammar — and paper is white by law: the
+projection renders in a declared theme scope, light by default, dark only as
+an explicit config exception. Sim and real print share one deterministic
+artifact keyed by the frozen-snapshot and stylesheet hashes, so acceptance is
+a settled-geometry diff against the rested output under real Chromium.
 
 ## Requirements
 

@@ -1,7 +1,7 @@
 # paged-docs Specification
 
 ## Purpose
-TBD - created by archiving change 2026-08-30-paged-doc-family. Update Purpose after archive.
+The publication-grade document family: `PagedDoc flow="web"` renders a pageless immersive flow with zero runtime dependencies, where pagination exists only as the print projection of the same tree — numbering derives from a document-order section registry, the medium is a pure screen/sim/print three-state, and the print projection verbs (hide / freeze / static / flatten) stay orthogonal. It serves the docs site's long-form authoring need (the typesetting half of the docs-site problem). Core contract: paged output is a projection of one tree, never a second document.
 
 ## Requirements
 

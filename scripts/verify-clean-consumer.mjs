@@ -100,7 +100,7 @@ write('package.json', JSON.stringify({
     typescript: versions.typescript,
     '@tailwindcss/vite': versions['@tailwindcss/vite'],
     tailwindcss: versions.tailwindcss,
-    shadcn: '^4.18.0',
+    shadcn: '4.19.0',
   },
 }, null, 2));
 write('components.json', JSON.stringify({
@@ -108,7 +108,7 @@ write('components.json', JSON.stringify({
   style: 'new-york', rsc: false, tsx: true,
   tailwind: { config: '', css: 'src/app.css', baseColor: 'neutral', cssVariables: true, prefix: '' },
   iconLibrary: 'lucide',
-  aliases: { components: 'src/lib', utils: 'src/lib/utils', ui: 'src/lib/ui', lib: 'src/lib', hooks: 'src/lib/hooks' },
+  aliases: { components: '$lib', utils: '$lib/utils', ui: '$lib/ui', lib: '$lib', hooks: '$lib/hooks' },
   registries: { '@jixoai': `${BASE}/{name}.json` },
 }, null, 2));
 write('vite.config.ts', `import { defineConfig } from 'vite';

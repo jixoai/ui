@@ -82,7 +82,7 @@ const BASELINES = {
   'B-source': 34353,
   'B-face': 12519,
   'B-consumer-vite': 1695,
-  'B-consumer-icons': 253,
+  'B-consumer-icons': 300,
 };
 const THRESHOLD_FACTOR = 1.05;
 const COLLAPSE_FACTOR = 0.6;

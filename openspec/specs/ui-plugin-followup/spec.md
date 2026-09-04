@@ -1,7 +1,15 @@
 # ui-plugin-followup Specification
 
 ## Purpose
-TBD - created by archiving change ui-plugin-followup. Update Purpose after archive.
+
+This spec covers the @jixoai/vite-plugin package — the build-time plugin
+domain that compiles and serves the component library to consumers, distinct
+from the runtime context-plugin kernel in the site. It pins the follow-up
+contracts that hold plugin and site renders in lockstep: a DOM-AST
+isomorphism parity gate asserted before any computed-style comparison, face
+icon variables layered for plugin override, opentype.js kept external as a
+build-time-only tool that never ships in dist, and composite form components
+mounting the standard jx-html-* layer with connected icon slots.
 
 ## Requirements
 

@@ -116,7 +116,25 @@ console.log('shadcn build (generate public/r payloads)…');
 if (!existsSync(join(publicR, 'registry.json'))) die('public/r/registry.json missing after shadcn build');
 
 // ── 1. scratch registry = the generated public/r payloads ──────────
-rmSync(scratch, { recursive: true, force: true });
+// single-instance lock: a second run's rmSync below would vaporize the
+// first run's registry mid-case (observed: mutual 404s) — fail loud instead
+{
+  const lockPath = join(scratch, '.running.pid');
+  if (existsSync(lockPath)) {
+    const pid = Number(readFileSync(lockPath, 'utf8').trim());
+    let alive = false;
+    try {
+      process.kill(pid, 0);
+      alive = true;
+    } catch {
+      /* stale lock */
+    }
+    if (alive) die(`another verify-shadcn-add instance (pid ${pid}) holds the scratch — run one at a time`);
+  }
+}
+rmSync(scratch, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+mkdirSync(scratch, { recursive: true });
+writeFileSync(join(scratch, '.running.pid'), String(process.pid));
 mkdirSync(join(registryDir, 'colors'), { recursive: true });
 cpSync(publicR, registryDir, { recursive: true });
 
@@ -137,8 +155,31 @@ cpSync(neutralCache, join(registryDir, 'colors', 'neutral.json'));
 // python's http.server over node's: the shadcn CLI's undici fetch hit
 // Headers Timeout against a bare node keep-alive server; python's
 // battle-tested static server (same one build-site documents) does not.
+// Process-group lifecycle (env-debt-cleanup D2): every long-lived child is
+// spawned DETACHED in its own group and registered; exit/SIGINT/SIGTERM
+// handlers reap the whole set — die()'s process.exit cannot leak one.
+const CHILD_GROUPS = [];
+const killChildren = () => {
+  for (const pid of CHILD_GROUPS) {
+    try {
+      process.kill(-pid, 'SIGTERM');
+    } catch {
+      /* already gone */
+    }
+  }
+};
+process.on('exit', killChildren);
+process.on('SIGINT', () => {
+  killChildren();
+  process.exit(130);
+});
+process.on('SIGTERM', () => {
+  killChildren();
+  process.exit(143);
+});
 const registryRoot = join(scratch, 'registry');
-const server = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '127.0.0.1', '--directory', registryRoot], { stdio: 'ignore' });
+const server = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '127.0.0.1', '--directory', registryRoot], { stdio: 'ignore', detached: true });
+CHILD_GROUPS.push(server.pid);
 // wait until the registry answers — die loudly if it never does (a silent
 // proceed once made every add fail against an unrelated stale server)
 {
@@ -409,7 +450,11 @@ const consumerFiles = {
       typescript: versions.typescript,
       '@tailwindcss/vite': versions['@tailwindcss/vite'],
       tailwindcss: versions.tailwindcss,
-      shadcn: '^4.18.0',
+      // EXACT, not a range: the add-side CLI contract is versioned — a
+      // floating range made the same gate run different CLIs over time
+      // (4.19.0 = the repo's pnpm resolution; the root npm package-lock
+      // resolving 4.18.0 is a pre-existing dual-lock split, recorded)
+      shadcn: '4.19.0',
     },
   }, null, 2),
   'components.json': JSON.stringify({
@@ -419,7 +464,13 @@ const consumerFiles = {
     tsx: true,
     tailwind: { config: '', css: 'src/app.css', baseColor: 'neutral', cssVariables: true, prefix: '' },
     iconLibrary: 'lucide',
-    aliases: { components: 'src/lib', utils: 'src/lib/utils', ui: 'src/lib/ui', lib: 'src/lib', hooks: 'src/lib/hooks' },
+    // $lib-ROOTED, frozen table (env-debt-cleanup D2): the CLI rewrites
+    // `$lib/x` in delivered .ts files to the alias target — a `src/lib`
+    // target produced bare `src/lib/x` specifiers plain vite cannot
+    // resolve; `$lib` targets make the rewrite a no-op and the vite alias
+    // (below) does the resolving. .svelte files are never rewritten (the
+    // CLI's ext allowlist is ts/tsx/js/jsx only).
+    aliases: { components: '$lib', utils: '$lib/utils', ui: '$lib/ui', lib: '$lib', hooks: '$lib/hooks' },
     registries: { '@jixoai': `${BASE}/{name}.json` },
   }, null, 2),
   'vite.config.ts': `import { defineConfig } from 'vite';
@@ -459,13 +510,39 @@ mount(App, { target: document.getElementById('app')! });
 };
 for (const [p, c] of Object.entries(consumerFiles)) writeAt(templateDir, p, c);
 
-console.log('npm install (consumer template deps — installs once)…');
+// the version chain, printed at both ends (env-debt-cleanup D2): the ROOT
+// binary generates the payloads, the TEMPLATE binary runs the adds — the
+// interop of the printed pair is what the five cases below prove
 {
-  const r = spawnSync('npm', ['install', '--no-audit', '--no-fund', '--loglevel=error'], { cwd: templateDir, encoding: 'utf8', stdio: 'pipe' });
-  if (r.status !== 0) die(`npm install failed:\n${r.stdout}\n${r.stderr}`);
+  const rootV = spawnSync(process.execPath, [resolveShadcnBin(root), '--version'], { cwd: root, encoding: 'utf8', stdio: 'pipe' });
+  console.log(`[versions] root shadcn (build side)  = ${String(rootV.stdout || rootV.stderr).trim() || 'unknown'}`);
+  const tplV = spawnSync('npx', ['shadcn', '--version'], { cwd: templateDir, encoding: 'utf8', stdio: 'pipe' });
+  const tplVersion = String(tplV.stdout || '').trim();
+  console.log(`[versions] template shadcn (add side) = ${tplVersion || 'unknown'}`);
+  if (!tplVersion.includes('4.19.0')) die(`template shadcn must be 4.19.0 exactly (got: ${tplVersion || tplV.stderr})`);
+}
+
+console.log('npm install (consumer template deps — installs once, 600s group-budget)…');
+{
+  const child = spawn('npm', ['install', '--no-audit', '--no-fund', '--loglevel=error'], { cwd: templateDir, stdio: 'pipe', detached: true });
+  CHILD_GROUPS.push(child.pid);
+  let out = '';
+  child.stdout?.on('data', (d) => (out += d));
+  child.stderr?.on('data', (d) => (out += d));
+  const timer = setTimeout(() => {
+    try {
+      process.kill(-child.pid, 'SIGTERM');
+    } catch {
+      /* already gone */
+    }
+  }, 600_000);
+  const code = await new Promise((resolveExit) => child.on('exit', resolveExit));
+  clearTimeout(timer);
+  if (code !== 0) die(`npm install failed (exit ${code}):\n${out.slice(-1200)}`);
 }
 
 // ── 6. run the cases ───────────────────────────────────────────────
+let templateContractChecked = false;
 const runIn = (dir, cmd, args, env = {}) => {
   const r = spawnSync(cmd, args, {
     cwd: dir,
@@ -481,7 +558,7 @@ const runIn = (dir, cmd, args, env = {}) => {
 for (const testCase of CASES) {
   console.log(`\n━━ case: ${testCase.id} (add ${testCase.items.map((i) => `@jixoai/${i}`).join(' ')}) ━━━━━━━━━━━━━━━`);
   const dir = join(scratch, `consumer-${testCase.id}`);
-  rmSync(dir, { recursive: true, force: true });
+  rmSync(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
   mkdirSync(dirname(dir), { recursive: true });
   cpSync(templateDir, dir, { recursive: true });
   if (testCase.viteConfig) writeAt(dir, 'vite.config.ts', testCase.viteConfig);
@@ -501,17 +578,73 @@ for (const testCase of CASES) {
   check('shadcn add resolves from public/r payloads', add.status === 0, add.status === 0 ? '' : `${add.stdout}\n${add.stderr}`.slice(-800));
   if (add.status !== 0) continue; // later assertions are moot for this case
 
+  // ── the template contract (env-debt-cleanup D2, asserted once after the
+  // first successful add — the five frozen groups) ─────────────────────
+  if (!templateContractChecked) {
+    templateContractChecked = true;
+    // (a) the consumer's on-disk aliases are exactly the frozen $lib table
+    {
+      const frozen = { components: '$lib', utils: '$lib/utils', ui: '$lib/ui', lib: '$lib', hooks: '$lib/hooks' };
+      const consumerAliases = JSON.parse(ctx.read('components.json')).aliases;
+      check('template contract: consumer aliases = frozen $lib table', JSON.stringify(consumerAliases) === JSON.stringify(frozen), JSON.stringify(consumerAliases));
+    }
+    // (b) the template tsconfig resolves $lib[/suffix] into src/lib (the
+    // minimal baseUrl+paths resolver the CLI itself uses)
+    {
+      const tsconfig = JSON.parse(ctx.read('tsconfig.json'));
+      const paths = tsconfig.compilerOptions?.paths ?? {};
+      const resolves = (spec) => {
+        const hit = Object.keys(paths).find((p) => p.endsWith('/*') ? spec.startsWith(p.slice(0, -1)) : spec === p);
+        if (!hit) return null;
+        const target = paths[hit][0].replace(/\*$/, '');
+        return target + (hit.endsWith('/*') ? spec.slice(hit.length - 1) : '');
+      };
+      check('template contract: tsconfig resolves $lib → src/lib', resolves('$lib') === './src/lib' && resolves('$lib/ui/x') === './src/lib/ui/x', JSON.stringify(paths));
+    }
+    // (c) canonicalTargets dual derivation: the www-side alias table and
+    // the consumer's $lib-rooted aliases (resolved) hit the SAME physical
+    // paths — the payload layout is alias-shape independent
+    {
+      const consumerResolved = { ui: 'src/lib/ui', lib: 'src/lib' };
+      const wwwSide = canonicalTargets(testCase.items).sort();
+      const consumerSide = testCase.items
+        .flatMap((name) => (byName.get(name).files ?? []).map((f) => f.target ?? ''))
+        .map((t) => (t.startsWith('@ui/') ? `${consumerResolved.ui}/${t.slice(4)}` : t.startsWith('@lib/') ? `${consumerResolved.lib}/${t.slice(5)}` : null))
+        .filter(Boolean)
+        .sort();
+      check('template contract: canonical targets agree across alias tables', JSON.stringify(wwwSide) === JSON.stringify(consumerSide), `${wwwSide.length} vs ${consumerSide.length}`);
+    }
+    // (d) delivered .ts/.svelte.ts files keep their $lib imports — zero
+    // bare `src/lib` specifiers (the rewrite no-op proof)
+    {
+      const offenders = walkFilesNamed(join(dir, 'src'), (name, content) => name.endsWith('.ts') && /(?:from|import|require)\s*['"]src\/lib/.test(content));
+      check('template contract: delivered .ts keeps $lib (no bare src/lib specifiers)', offenders.length === 0, offenders.map((p) => `${p.slice(dir.length)}: ${(readFileSync(p, 'utf8').match(/['"]src\/lib[^'"]*['"]/) ?? [''])[0]}`).join(', ') || 'none');
+    }
+    // (e) the registry pointer the CLI actually consumed (on disk) points
+    // at the live server this harness probed
+    {
+      const pointer = JSON.parse(ctx.read('components.json')).registries['@jixoai'];
+      const u = new URL(pointer);
+      // pathname is percent-encoded ({name} → %7Bname%7D) — decode before strip
+      const originAndBase = `${u.origin}${decodeURIComponent(u.pathname).replace(/\/\{name\}\.json$/, '')}`;
+      check('template contract: registry pointer = live server', originAndBase === BASE, `${pointer} vs ${BASE}`);
+    }
+  }
+
   // GENERIC: every canonical target of every case item landed
   const missing = canonicalTargets(testCase.items).filter((p) => !ctx.exists(p));
   check('canonical target files landed', missing.length === 0, missing.join(', ') || 'complete');
 
   // GENERIC: declared npm dependencies arrive in package.json
-  // (registry `dependencies` may be an object map OR an array of names)
+  // (registry `dependencies` may be an object map OR an array of names;
+  // array entries may carry a version spec — compare against package.json
+  // KEYS, which npm always writes as bare names)
   {
+    const bare = (d) => (d.startsWith('@') ? d.split('@', 2).join('@') : d.split('@')[0]);
     const pkg = JSON.parse(ctx.read('package.json'));
     const deps = { ...pkg.dependencies, ...pkg.devDependencies };
     const depNames = (d) => (d == null ? [] : Array.isArray(d) ? d : Object.keys(d));
-    const wanted = testCase.items.flatMap((name) => depNames(byName.get(name).dependencies));
+    const wanted = testCase.items.flatMap((name) => depNames(byName.get(name).dependencies)).map(bare);
     const absent = [...new Set(wanted)].filter((d) => !deps[d]);
     check('declared npm dependencies installed', absent.length === 0, absent.join(', ') || 'complete');
   }
@@ -539,6 +672,7 @@ for (const testCase of CASES) {
 }
 
 server.kill();
+killChildren();
 
 // keep the scratch tree for inspection; next run wipes it
 const failed = results.filter((r) => !r.ok);

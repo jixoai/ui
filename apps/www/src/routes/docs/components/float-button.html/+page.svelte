@@ -277,7 +277,7 @@ ${close}
         { name: 'corner', type: "'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'", default: "'bottom-right'", description: 'Viewport corner for the fixed control.' },
         { name: 'onclick', type: '() => void', default: '—', description: 'Plain-action handler.' },
         { name: 'actions', type: 'Snippet', default: '—', description: 'Turns the control into a popover menu trigger.' },
-        { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Menu panel surface treatment. Defaults: literal slot — own ’auto’, ambient when an axis opens.' },
+        { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Menu panel surface treatment. Defaults: literal slot — own ’auto’, ambient when an axis opens.' },
         { name: 'children', type: 'Snippet', required: true, description: 'Decorative icon or glyph.' },
       ]} />
     </SectionCard>

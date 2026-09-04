@@ -52,8 +52,10 @@ try {
   die('standards');
 }
 
-// ── 1-3. the npm-script gates ────────────────────────────────────────
-for (const name of ['verify:laws', 'verify:icons', 'verify:mirror', 'verify:context', 'verify:deps', 'verify:shadcn-add', 'verify:budgets', 'verify:docs', 'verify:meta', 'verify:print']) {
+// ── 1-3. the npm-script gates (verify:shadcn-add lives ONLY in the final
+// real-consumer step below — running it here too made the chain pay for
+// the same five installs twice, out of the documented order) ─────────
+for (const name of ['verify:laws', 'verify:icons', 'verify:mirror', 'verify:context', 'verify:deps', 'verify:budgets', 'verify:docs', 'verify:meta', 'verify:print']) {
   step(name);
   try {
     execFileSync('npm', ['run', '--silent', name], { cwd: root, stdio: 'inherit' });

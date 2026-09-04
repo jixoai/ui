@@ -382,7 +382,7 @@ const stackSuggestions: Tag[] = [
           { name: 'maxTags', type: 'number', default: '—', description: 'Cap on the tag count; at the cap the input hides ("N/N tags").' },
           { name: 'allowDuplicates', type: 'boolean', default: 'false', description: 'Allow the same value twice; false flashes the existing chip instead.' },
           { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the input and every chip × (entry guards back the buttons).' },
-          { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface fill of the suggestion panel. Defaults: literal slot — own ’auto’, ambient when an axis opens.' },
+          { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface fill of the suggestion panel. Defaults: literal slot — own ’auto’, ambient when an axis opens.' },
         ]}
       />
       <PropsTable
