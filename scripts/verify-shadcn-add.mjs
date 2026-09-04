@@ -48,11 +48,161 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:net';
 import { resolveShadcnBin } from './lib/vite-bin.mjs';
+import { acquireLock, ChildRegistry, DieSignal } from './lib/child-lifecycle.mjs';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const scratch = join(root, '.agents/fixtures/2026-08-30-registry-install-integrity');
 const registryDir = join(scratch, 'registry', 'r');
 const publicR = join(root, 'public', 'r');
+// the single-instance lock lives OUTSIDE the scratch tree (the scratch is
+// wiped per run) and is a real mutex — atomic mkdir acquire, stale
+// takeover via rename-retirement, owner-checked release (B1)
+const LOCK_DIR = join(root, '.agents/fixtures/shadcn-add.lock');
+
+// ── the lifecycle spine (B2): every long-lived child registers here;
+// finish() is the ONE idempotent exit path — normal tail, die() throws,
+// uncaught errors and SIGINT/SIGTERM all funnel through it, so the reap
+// and the lock release cannot be bypassed ─────────────────────────────
+const CHILDREN = new ChildRegistry();
+let finished = false;
+// assigned once the lock is acquired below; the noop default keeps the
+// signal/uncaught paths safe before (or without) a held lock
+let releaseLock = () => {};
+const finish = async (code, { label = '' } = {}) => {
+  if (finished) return;
+  finished = true;
+  const report = await CHILDREN.reap();
+  if (report.terminated.length) {
+    console.log(`[lifecycle] reaped ${report.terminated.length} child group(s): ${report.terminated.join(', ')}${label ? ` (${label})` : ''}`);
+  }
+  if (report.escalated.length) console.error(`[lifecycle] SIGKILL escalation needed for: ${report.escalated.join(', ')}`);
+  if (report.leaked.length) console.error(`[lifecycle] LEAKED after SIGKILL (unreapable): ${report.leaked.join(', ')}`);
+  releaseLock();
+  process.exit(code);
+};
+process.on('SIGINT', () => void finish(130, { label: 'SIGINT' }));
+process.on('SIGTERM', () => void finish(143, { label: 'SIGTERM' }));
+process.on('exit', () => CHILDREN.reapSync());
+process.on('uncaughtException', (e) => {
+  // die() throws DieSignal after building its message; this is the ONE
+  // logging point for it (a top-level throw in ESM lands here too)
+  console.error(`[verify-shadcn-add] ${e instanceof DieSignal ? e.message : `uncaught: ${e?.stack ?? e}`}`);
+  void finish(1, { label: 'uncaught' });
+});
+
+const die = (msg) => {
+  throw new DieSignal(msg);
+};
+
+// ── self-test modes (B2 fixtures, impl-review r1): drive the REAL kernel
+// with REAL signals and subprocesses — timeout-style escalation, SIGINT
+// reaping across processes, lock denial, stale-lock takeover. The kernel
+// is imported from lib/child-lifecycle.mjs, never re-implemented here.
+if (process.argv.includes('--lock-deny')) {
+  // internal: a probe that must die because someone else holds the lock
+  acquireLock(LOCK_DIR);
+  console.error('[lock-deny] unexpectedly acquired — probe is broken');
+  process.exit(42);
+}
+if (process.argv.includes('--victim')) {
+  // internal: hold the lock + two sleeper groups, report readiness — and
+  // let the SPINE's own signal path do the reaping (finish → CHILDREN
+  // reap → releaseLock → exit 130); the victim registers no handler of
+  // its own because the spine path IS the contract under test
+  releaseLock = acquireLock(LOCK_DIR);
+  const sleepers = [0, 1].map(() =>
+    spawn(process.execPath, ['-e', 'setInterval(() => {}, 1 << 30)'], { stdio: 'ignore', detached: true })
+  );
+  sleepers.forEach((s, i) => CHILDREN.add(s.pid, `victim sleeper ${i}`));
+  console.log(`[victim] ready sleepers=${sleepers.map((s) => s.pid).join(',')} lock=${LOCK_DIR}`);
+  await new Promise(() => {}); // alive until the spine's SIGINT path reaps + releases + exits 130
+}
+
+// the lock is the FIRST thing this process does to the shared world —
+// before the payload build, before the scratch wipe (a second run's
+// rmSync would vaporize the first run's registry mid-case, observed as
+// mutual 404s; a stale lock names its dead holder and is taken over
+// atomically, never by wiping the scratch first)
+try {
+  releaseLock = acquireLock(LOCK_DIR);
+} catch (e) {
+  // no children exist yet and no lock is held by us — a direct exit is safe
+  if (e instanceof DieSignal) {
+    console.error(`[verify-shadcn-add] ${e.message}`);
+    process.exit(1);
+  }
+  throw e;
+}
+
+if (process.argv.includes('--lifecycle-self-test')) {
+  const pass = (m) => console.log(`  PASS  ${m}`);
+  const fail = (m) => { console.error(`  FAIL  ${m}`); process.exit(1); };
+
+  // 1. the lock this process already holds is well-formed (owner = us)
+  //    and denies a second instance cross-process (the real TOCTOU probe)
+  {
+    const owner = JSON.parse(readFileSync(join(LOCK_DIR, 'owner.json'), 'utf8'));
+    if (owner.pid !== process.pid) fail(`lock owner is ${owner.pid}, expected ${process.pid}`);
+    pass(`lock held: ${LOCK_DIR} (owner = self)`);
+    const deny = spawnSync(process.execPath, [process.argv[1], '--lock-deny'], { encoding: 'utf8' });
+    if (deny.status === 0) fail('lock-deny probe unexpectedly succeeded');
+    if (!String(deny.stderr).includes('holds')) fail(`lock-deny probe died for the wrong reason:\n${deny.stderr}`);
+    pass('a live holder denies a second instance (cross-process)');
+  }
+
+  // 2. escalation: a SIGTERM-immune sleeper must fall to SIGKILL, a
+  //    well-behaved one to SIGTERM — and NOTHING may leak
+  const stub = spawn(process.execPath, ['-e', 'process.on("SIGTERM", () => {}); setInterval(() => {}, 1 << 30)'], { stdio: 'ignore', detached: true });
+  const nice = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1 << 30)'], { stdio: 'ignore', detached: true });
+  CHILDREN.add(stub.pid, 'stubborn (SIGTERM-immune) sleeper');
+  CHILDREN.add(nice.pid, 'well-behaved sleeper');
+  // boot settle: both children must finish node startup and INSTALL their
+  // signal dispositions before the TERM arrives — reaping a half-booted
+  // child proves nothing about the handler path
+  await new Promise((r) => setTimeout(r, 600));
+  const report = await CHILDREN.reap({ graceMs: 1200, pollMs: 50 });
+  if (!report.escalated.includes(stub.pid)) fail(`the SIGTERM-immune sleeper was not escalated: ${JSON.stringify(report)}`);
+  if (report.escalated.includes(nice.pid)) fail(`the well-behaved sleeper needed escalation: ${JSON.stringify(report)}`);
+  if (report.leaked.length) fail(`leaked after SIGKILL: ${report.leaked.join(', ')}`);
+  pass(`reap: TERM sufficed for the well-behaved, KILL for the stubborn, zero leaks`);
+
+  // 3. stale-lock takeover: a dead holder's lock is retired atomically
+  releaseLock();
+  const deadHolder = spawnSync(process.execPath, ['-e', 'process.exit(0)']);
+  mkdirSync(LOCK_DIR, { recursive: true });
+  writeFileSync(join(LOCK_DIR, 'owner.json'), `${JSON.stringify({ pid: deadHolder.pid, started: 'long ago' })}\n`);
+  const rl2 = acquireLock(LOCK_DIR);
+  rl2();
+  if (existsSync(LOCK_DIR)) fail('release left the lock dir behind');
+  pass('a stale lock (dead holder) is taken over via rename-retirement');
+
+  // 4. SIGINT across processes: the victim's sleepers die and its lock
+  //    releases before it exits 130
+  const victim = spawn(process.execPath, [process.argv[1], '--victim'], { stdio: ['ignore', 'pipe', 'inherit'] });
+  let ready = '';
+  victim.stdout.on('data', (d) => (ready += d));
+  const waitFor = async (pred, what, ms = 10_000) => {
+    const end = Date.now() + ms;
+    while (Date.now() < end) {
+      if (pred()) return true;
+      await new Promise((r) => setTimeout(r, 100));
+    }
+    fail(`timeout waiting for ${what}`);
+  };
+  await waitFor(() => ready.includes('[victim] ready'), 'victim readiness');
+  const sleeperPids = (ready.match(/sleepers=([0-9,]+)/)?.[1] ?? '').split(',').filter(Boolean).map(Number);
+  let vcode = null;
+  victim.on('exit', (c) => (vcode = c)); // attached BEFORE the kill, or it never fires
+  victim.kill('SIGINT');
+  await waitFor(() => { try { process.kill(victim.pid, 0); return false; } catch { return true; } }, 'victim exit');
+  await waitFor(() => !existsSync(LOCK_DIR), 'victim lock release');
+  const sleeperDead = await waitFor(() => sleeperPids.every((p) => { try { process.kill(p, 0); return false; } catch { return true; } }), 'victim sleepers gone');
+  if (sleeperDead) pass('SIGINT: victim exited, sleepers reaped, lock released');
+  if (vcode !== 130) fail(`victim exited ${vcode}, expected 130`);
+
+  console.log('[lifecycle-self-test] GREEN — atomic lock, live denial, TERM/KILL escalation, stale takeover, cross-process SIGINT reap');
+  process.exit(0);
+}
 const templateDir = join(scratch, 'consumer-template');
 // A FREE port, probed at runtime: a fixed port gets squatted by a stale
 // fixture server (observed: an old run's python http.server survived on
@@ -68,7 +218,6 @@ const PORT = await new Promise((resolve, reject) => {
 });
 const BASE = `http://127.0.0.1:${PORT}/r`;
 
-const die = (msg) => { console.error(`[verify-shadcn-add] ${msg}`); process.exit(1); };
 const results = [];
 const check = (name, ok, detail = '') => {
   results.push({ name, ok });
@@ -116,25 +265,11 @@ console.log('shadcn build (generate public/r payloads)…');
 if (!existsSync(join(publicR, 'registry.json'))) die('public/r/registry.json missing after shadcn build');
 
 // ── 1. scratch registry = the generated public/r payloads ──────────
-// single-instance lock: a second run's rmSync below would vaporize the
-// first run's registry mid-case (observed: mutual 404s) — fail loud instead
-{
-  const lockPath = join(scratch, '.running.pid');
-  if (existsSync(lockPath)) {
-    const pid = Number(readFileSync(lockPath, 'utf8').trim());
-    let alive = false;
-    try {
-      process.kill(pid, 0);
-      alive = true;
-    } catch {
-      /* stale lock */
-    }
-    if (alive) die(`another verify-shadcn-add instance (pid ${pid}) holds the scratch — run one at a time`);
-  }
-}
+// the single-instance lock is already held (acquired before anything
+// touched the shared world — see acquireLock at the top); the scratch
+// wipe below is therefore exclusive by construction
 rmSync(scratch, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
 mkdirSync(scratch, { recursive: true });
-writeFileSync(join(scratch, '.running.pid'), String(process.pid));
 mkdirSync(join(registryDir, 'colors'), { recursive: true });
 cpSync(publicR, registryDir, { recursive: true });
 
@@ -155,31 +290,14 @@ cpSync(neutralCache, join(registryDir, 'colors', 'neutral.json'));
 // python's http.server over node's: the shadcn CLI's undici fetch hit
 // Headers Timeout against a bare node keep-alive server; python's
 // battle-tested static server (same one build-site documents) does not.
-// Process-group lifecycle (env-debt-cleanup D2): every long-lived child is
-// spawned DETACHED in its own group and registered; exit/SIGINT/SIGTERM
-// handlers reap the whole set — die()'s process.exit cannot leak one.
-const CHILD_GROUPS = [];
-const killChildren = () => {
-  for (const pid of CHILD_GROUPS) {
-    try {
-      process.kill(-pid, 'SIGTERM');
-    } catch {
-      /* already gone */
-    }
-  }
-};
-process.on('exit', killChildren);
-process.on('SIGINT', () => {
-  killChildren();
-  process.exit(130);
-});
-process.on('SIGTERM', () => {
-  killChildren();
-  process.exit(143);
-});
+// Process-group lifecycle (B2, impl-review r1): every long-lived child is
+// spawned DETACHED in its own group and registered in CHILDREN as
+// {pid, pgid, command}; the ONE exit path (finish()) reaps the whole set
+// with TERM→grace→KILL escalation and verifies every pid is gone — die()
+// throws, signals funnel through finish(), nothing escapes the reap.
 const registryRoot = join(scratch, 'registry');
 const server = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '127.0.0.1', '--directory', registryRoot], { stdio: 'ignore', detached: true });
-CHILD_GROUPS.push(server.pid);
+CHILDREN.add(server.pid, 'python3 http.server (scratch registry)');
 // wait until the registry answers — die loudly if it never does (a silent
 // proceed once made every add fail against an unrelated stale server)
 {
@@ -513,11 +631,14 @@ for (const [p, c] of Object.entries(consumerFiles)) writeAt(templateDir, p, c);
 console.log('npm install (consumer template deps — installs once, 600s group-budget)…');
 {
   const child = spawn('npm', ['install', '--no-audit', '--no-fund', '--loglevel=error'], { cwd: templateDir, stdio: 'pipe', detached: true });
-  CHILD_GROUPS.push(child.pid);
+  CHILDREN.add(child.pid, 'npm install (consumer template)');
   let out = '';
   child.stdout?.on('data', (d) => (out += d));
   child.stderr?.on('data', (d) => (out += d));
+  let timedOut = false;
   const timer = setTimeout(() => {
+    timedOut = true;
+    // the group dies in finish()'s reap; the flag rides the diagnostic
     try {
       process.kill(-child.pid, 'SIGTERM');
     } catch {
@@ -526,33 +647,61 @@ console.log('npm install (consumer template deps — installs once, 600s group-b
   }, 600_000);
   const code = await new Promise((resolveExit) => child.on('exit', resolveExit));
   clearTimeout(timer);
+  if (timedOut) die(`npm install exceeded the 600s group-budget — process group ${child.pid} SIGTERMed; tail:\n${out.slice(-1200)}`);
   if (code !== 0) die(`npm install failed (exit ${code}):\n${out.slice(-1200)}`);
 }
 
 // the version chain, printed at both ends (env-debt-cleanup D2): the ROOT
 // binary generates the payloads, the TEMPLATE binary runs the adds — the
-// interop of the printed pair is what the five cases below prove
+// interop of the printed pair is what the five cases below prove. Both
+// probes check their exit status; the root output must be a real version
+// (a silently broken probe must not print 'unknown' into the interop
+// log); the template must be 4.19.0 EXACTLY (S4, impl-review r1)
 {
   const rootV = spawnSync(process.execPath, [resolveShadcnBin(root), '--version'], { cwd: root, encoding: 'utf8', stdio: 'pipe' });
-  console.log(`[versions] root shadcn (build side)  = ${String(rootV.stdout || rootV.stderr).trim() || 'unknown'}`);
+  if (rootV.status !== 0) die(`root shadcn --version probe failed (exit ${rootV.status}): ${rootV.stderr}`);
+  const rootVersion = String(rootV.stdout || '').trim();
+  if (!/^\d+\.\d+\.\d+/.test(rootVersion)) die(`root shadcn --version printed no version (got: ${JSON.stringify(rootVersion)})`);
+  console.log(`[versions] root shadcn (build side)  = ${rootVersion}`);
   const tplV = spawnSync('npx', ['shadcn', '--version'], { cwd: templateDir, encoding: 'utf8', stdio: 'pipe' });
+  if (tplV.status !== 0) die(`template shadcn --version probe failed (exit ${tplV.status}): ${tplV.stderr}`);
   const tplVersion = String(tplV.stdout || '').trim();
-  console.log(`[versions] template shadcn (add side) = ${tplVersion || 'unknown'}`);
-  if (!tplVersion.includes('4.19.0')) die(`template shadcn must be 4.19.0 exactly (got: ${tplVersion || tplV.stderr})`);
+  console.log(`[versions] template shadcn (add side) = ${tplVersion}`);
+  if (tplVersion !== '4.19.0') die(`template shadcn must be 4.19.0 exactly (got: ${tplVersion})`);
 }
 
 // ── 6. run the cases ───────────────────────────────────────────────
 let templateContractChecked = false;
-const runIn = (dir, cmd, args, env = {}) => {
-  const r = spawnSync(cmd, args, {
+// runIn spawns DETACHED in its own process group and registers it — npx
+// and vite fan out node grandchildren that a bare parent-kill would
+// orphan; the group + reap contract (and the per-call budget below) is
+// what keeps them collectable. spawnSync survives only for genuinely
+// childless short probes (curl, --version).
+const runIn = async (dir, cmd, args, { env = {}, timeoutMs = 300_000, label = '' } = {}) => {
+  const child = spawn(cmd, args, {
     cwd: dir,
-    encoding: 'utf8',
     stdio: 'pipe',
+    detached: true,
     // The local base stays OFF any proxy (the machine proxy black-holes
     // localhost — the earlier curl 502).
     env: { ...process.env, REGISTRY_URL: BASE, NO_PROXY: 'localhost,127.0.0.1', no_proxy: 'localhost,127.0.0.1', ...env },
   });
-  return r;
+  CHILDREN.add(child.pid, `${cmd} ${args.join(' ')}${label ? ` (${label})` : ''}`);
+  let out = '';
+  child.stdout?.on('data', (d) => (out += d));
+  child.stderr?.on('data', (d) => (out += d));
+  let timedOut = false;
+  const timer = setTimeout(() => {
+    timedOut = true;
+    try {
+      process.kill(-child.pid, 'SIGTERM');
+    } catch {
+      /* already gone */
+    }
+  }, timeoutMs);
+  const status = await new Promise((resolveExit) => child.on('exit', resolveExit));
+  clearTimeout(timer);
+  return { status, stdout: out, stderr: out, timedOut };
 };
 
 for (const testCase of CASES) {
@@ -574,8 +723,8 @@ for (const testCase of CASES) {
     read: (p) => readFileSync(join(dir, p), 'utf8'),
   };
 
-  const add = runIn(dir, 'npx', ['shadcn', 'add', ...testCase.items.map((i) => `@jixoai/${i}`), '--yes', '--overwrite']);
-  check('shadcn add resolves from public/r payloads', add.status === 0, add.status === 0 ? '' : `${add.stdout}\n${add.stderr}`.slice(-800));
+  const add = await runIn(dir, 'npx', ['shadcn', 'add', ...testCase.items.map((i) => `@jixoai/${i}`), '--yes', '--overwrite'], { label: `case ${testCase.id}: shadcn add` });
+  check('shadcn add resolves from public/r payloads', add.status === 0 && !add.timedOut, add.status === 0 ? '' : add.timedOut ? `TIMED OUT (300s group-budget), tail:\n${add.stdout.slice(-800)}` : `${add.stdout}\n${add.stderr}`.slice(-800));
   if (add.status !== 0) continue; // later assertions are moot for this case
 
   // ── the template contract (env-debt-cleanup D2, asserted once after the
@@ -602,16 +751,38 @@ for (const testCase of CASES) {
       check('template contract: tsconfig resolves $lib → src/lib', resolves('$lib') === './src/lib' && resolves('$lib/ui/x') === './src/lib/ui/x', JSON.stringify(paths));
     }
     // (c) canonicalTargets dual derivation: the www-side alias table and
-    // the consumer's $lib-rooted aliases (resolved) hit the SAME physical
-    // paths — the payload layout is alias-shape independent
+    // the CONSUMER'S OWN on-disk aliases — resolved through the consumer's
+    // tsconfig paths — hit the SAME physical paths. Both sides are derived,
+    // nothing hardcoded: the payload layout is alias-shape independent
+    // (S1, impl-review r1)
     {
-      const consumerResolved = { ui: 'src/lib/ui', lib: 'src/lib' };
+      const consumerAliases = JSON.parse(ctx.read('components.json')).aliases;
+      const tsconfig = JSON.parse(ctx.read('tsconfig.json'));
+      const paths = tsconfig.compilerOptions?.paths ?? {};
+      const resolves = (spec) => {
+        const hit = Object.keys(paths).find((p) => p.endsWith('/*') ? spec.startsWith(p.slice(0, -1)) : spec === p);
+        if (!hit) return null;
+        const target = paths[hit][0].replace(/\*$/, '');
+        return target + (hit.endsWith('/*') ? spec.slice(hit.length - 1) : '');
+      };
+      // alias value ('$lib/ui') → physical dir ('src/lib/ui') via tsconfig
+      const physicalForAlias = Object.fromEntries(
+        Object.entries(consumerAliases).map(([k, v]) => [k, (resolves(v) ?? '').replace(/^\.\//, '')]),
+      );
       const wwwSide = canonicalTargets(testCase.items).sort();
       const consumerSide = testCase.items
         .flatMap((name) => (byName.get(name).files ?? []).map((f) => f.target ?? ''))
-        .map((t) => (t.startsWith('@ui/') ? `${consumerResolved.ui}/${t.slice(4)}` : t.startsWith('@lib/') ? `${consumerResolved.lib}/${t.slice(5)}` : null))
+        .map((t) => {
+          for (const [aliasKey, aliasPrefix] of Object.entries(consumerAliases)) {
+            const head = `@${aliasKey}/`;
+            if (t.startsWith(head)) return `${physicalForAlias[aliasKey]}/${t.slice(head.length)}`;
+          }
+          return null;
+        })
         .filter(Boolean)
         .sort();
+      const derivationValid = Object.values(physicalForAlias).every((p) => p.startsWith('src/lib'));
+      check('template contract: consumer alias table resolves fully through tsconfig', derivationValid, JSON.stringify(physicalForAlias));
       check('template contract: canonical targets agree across alias tables', JSON.stringify(wwwSide) === JSON.stringify(consumerSide), `${wwwSide.length} vs ${consumerSide.length}`);
     }
     // (d) delivered .ts/.svelte.ts files keep their $lib imports — zero
@@ -666,19 +837,18 @@ for (const testCase of CASES) {
   testCase.extraChecks?.(ctx);
 
   console.log('  vite build (import resolution + svelte compile gate)…');
-  const build = runIn(dir, 'npx', ['vite', 'build']);
-  check('consumer vite build passes', build.status === 0, build.status === 0 ? '' : `${build.stdout}\n${build.stderr}`.slice(-800));
+  const build = await runIn(dir, 'npx', ['vite', 'build'], { timeoutMs: 600_000, label: `case ${testCase.id}: vite build` });
+  check('consumer vite build passes', build.status === 0 && !build.timedOut, build.status === 0 ? '' : build.timedOut ? `TIMED OUT (600s group-budget), tail:\n${build.stdout.slice(-800)}` : `${build.stdout}\n${build.stderr}`.slice(-800));
   if (build.status === 0) testCase.postBuild?.(ctx);
 }
 
-server.kill();
-killChildren();
-
-// keep the scratch tree for inspection; next run wipes it
+// the ONE exit: reap every registered group (TERM→grace→KILL→verify),
+// release the lock, then exit with the case verdict. The scratch tree
+// stays for inspection; the next run wipes it under the lock.
 const failed = results.filter((r) => !r.ok);
 console.log(
   failed.length === 0
     ? `\nclean-install cases (${CASES.length}): ALL GREEN`
     : `\nclean-install cases (${CASES.length}): ${failed.length} FAILURE(S)`,
 );
-process.exit(failed.length === 0 ? 0 : 1);
+await finish(failed.length === 0 ? 0 : 1);

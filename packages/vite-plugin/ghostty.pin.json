@@ -1,22 +1,22 @@
 {
- "pinnedAt": "2026-09-04T00:00:00Z",
- "source": {
-  "repo": "ghostty-org/ghostty",
-  "tag": "tip",
-  "releaseUrl": "https://github.com/ghostty-org/ghostty/releases/tag/tip"
- },
- "variants": {
-  "full": {
-   "url": "https://github.com/ghostty-org/ghostty/releases/download/tip/ghostty-vt.wasm",
-   "sha256": "8517df17a2440592950b469c459b070e2106fe8b1008d417d7246ce786b45512",
-   "size": 999241,
-   "buildInfo": "0.1.0-dev"
+  "pinnedAt": "2026-09-04T00:00:00Z",
+  "source": {
+    "repo": "ghostty-org/ghostty",
+    "tag": "tip",
+    "releaseUrl": "https://github.com/ghostty-org/ghostty/releases/tag/tip"
   },
-  "small": {
-   "url": "https://github.com/ghostty-org/ghostty/releases/download/tip/ghostty-vt-small.wasm",
-   "sha256": "829d4bb028647f94ba34be97445e74c43384a9d740ce08168b6562b83ca2b047",
-   "size": 739911,
-   "buildInfo": "0.1.0-dev"
+  "variants": {
+    "full": {
+      "url": "https://github.com/ghostty-org/ghostty/releases/download/tip/ghostty-vt.wasm",
+      "sha256": "8517df17a2440592950b469c459b070e2106fe8b1008d417d7246ce786b45512",
+      "size": 999241,
+      "buildInfo": "0.1.0-dev"
+    },
+    "small": {
+      "url": "https://github.com/ghostty-org/ghostty/releases/download/tip/ghostty-vt-small.wasm",
+      "sha256": "829d4bb028647f94ba34be97445e74c43384a9d740ce08168b6562b83ca2b047",
+      "size": 739911,
+      "buildInfo": "0.1.0-dev"
+    }
   }
- }
 }

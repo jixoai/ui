@@ -34,7 +34,7 @@
  *     the canonical definePaintSlot 'ambient zone' row — locked by its own
  *     invariant, outside the matrix bijection
  */
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
@@ -347,14 +347,82 @@ describe('exemptions', () => {
 });
 
 // ── bijection: tasks.md batch lists ↔ matrix ↔ the pages' candidate rows ─
+// (impl-review r1 hardening, 2026-09-04: the route universe is derived
+// INDEPENDENTLY of the matrix — tasks.md's frozen batch lists, each token
+// validated against the filesystem page directories — so deleting every
+// entry of a route leaves that route's candidate rows uncovered instead
+// of silently shrinking the candidate set. Pages OUTSIDE the batches keep
+// their marker-less axis rows as recognized debt (zero-increment policy)
+// and are deliberately not bijection candidates. Removing a route from
+// BOTH the matrix and the archived tasks.md would evade this test — that
+// attack rewrites the frozen archive and is git history's to catch, not
+// a runtime gate's. Keys compare as MULTISETS (count maps), so a
+// duplicated occurrence or an extra same-key entry cannot cancel against
+// a missing one.)
 describe('matrix↔tasks bijection', () => {
-  const tasksMd = readFileSync(join(REPO, 'openspec/changes/2026-09-04-env-debt-cleanup/tasks.md'), 'utf8');
+  const tasksMd = readFileSync(
+    join(REPO, 'openspec/changes/archive/2026-09-04-env-debt-cleanup/tasks.md'),
+    'utf8',
+  );
 
+  // the independent route universe: every docs page directory that really
+  // exists on disk (the matrix is never consulted)
+  const pageUniverse = readdirSync(ROUTES, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && d.name.endsWith('.html'))
+    .map((d) => d.name.slice(0, -'.html'.length))
+    .filter((name) => existsSync(join(ROUTES, `${name}.html`, '+page.svelte')));
+
+  // tokens validated against the page universe — never filtered by MATRIX
   const batchRoutes = (batch: 'A' | 'B'): string[] => {
     const sec = tasksMd.split(`**批次 ${batch}**`)[1]?.split('\n- [')[0] ?? '';
-    return [...sec.matchAll(/([a-z][a-z0-9-]{2,})/g)].map((m) => m[1]).filter(
-      (t) => MATRIX.some((e) => e.route === t) && !['section-card（tone', '行'].includes(t),
-    );
+    const tokens = [...sec.matchAll(/([a-z][a-z0-9-]{2,})/g)].map((m) => m[1]);
+    return [...new Set(tokens.filter((t) => pageUniverse.includes(t)))];
+  };
+
+  // the bijection domain: exactly the batch-declared routes (tasks.md is
+  // the frozen source; the filesystem validates it), never the matrix's
+  const tasksUniverse = [...batchRoutes('A'), ...batchRoutes('B')];
+
+  const keyOf = (route: string, tableIndex: number, prop: string, occ: number) =>
+    `${route}|${tableIndex}|${prop}|${occ}`;
+  const countMap = (keys: string[]): Map<string, number> => {
+    const m = new Map<string, number>();
+    for (const k of keys) m.set(k, (m.get(k) ?? 0) + 1);
+    return m;
+  };
+
+  // candidate keys from the tasks universe; (tableIndex, prop, ordinal) is
+  // unique per page by construction, so each candidate key counts once
+  const candidateKeys = (): string[] => {
+    const out: string[] = [];
+    for (const route of tasksUniverse) {
+      for (const c of axisRowsOf(pageSource(route))) {
+        if (route === 'inline-code' && c.prop === 'variant') continue; // exempt: invariant-locked
+        out.push(keyOf(route, c.tableIndex, c.prop, c.ordinal));
+      }
+    }
+    return out;
+  };
+
+  // the pure comparator: mutated matrix CLONES feed this in the negatives —
+  // the real fixture is never a tested input of its own proof
+  const diffKeys = (matrix: Entry[]) => {
+    const mCounts = countMap(matrix.map((e) => keyOf(e.route, e.tableIndex, e.prop, e.occurrence)));
+    const cCounts = countMap(candidateKeys());
+    const uncovered: string[] = [];
+    const orphaned: string[] = [];
+    const countMismatch: string[] = [];
+    for (const [k, n] of cCounts) {
+      const m = mCounts.get(k) ?? 0;
+      if (m === 0) uncovered.push(k);
+      else if (m !== n) countMismatch.push(`${k}: pages ${n} vs matrix ${m}`);
+    }
+    for (const [k, n] of mCounts) {
+      const c = cCounts.get(k) ?? 0;
+      if (c === 0) orphaned.push(k);
+      else if (c !== n && !countMismatch.some((s) => s.startsWith(`${k}:`))) countMismatch.push(`${k}: pages ${c} vs matrix ${n}`);
+    }
+    return { uncovered, orphaned, countMismatch };
   };
 
   it('route→batch is page-level equal both ways', () => {
@@ -362,37 +430,53 @@ describe('matrix↔tasks bijection', () => {
     for (const e of MATRIX) byRoute.set(e.route, (byRoute.get(e.route) ?? new Set()).add(e.batch));
     for (const [route, batches] of byRoute) expect(batches.size, `${route} spans one batch`).toBe(1);
     for (const b of ['A', 'B'] as const) {
-      const listed = [...new Set(batchRoutes(b))].sort();
+      const listed = batchRoutes(b).sort();
       const matrixRoutes = [...new Set(MATRIX.filter((e) => e.batch === b).map((e) => e.route))].sort();
       expect(listed, `batch ${b} list`).toEqual(matrixRoutes);
     }
   });
 
-  it('the key multiset mutually covers the pages’ non-exempt candidate rows', () => {
-    const matrixKeys = new Set(MATRIX.map((e) => `${e.route}|${e.tableIndex}|${e.prop}|${e.occurrence}`));
-    const candidateKeys = new Set<string>();
-    for (const route of new Set(MATRIX.map((e) => e.route))) {
-      for (const c of axisRowsOf(pageSource(route))) {
-        if (route === 'inline-code' && c.prop === 'variant') continue; // exempt: invariant-locked
-        candidateKeys.add(`${route}|${c.tableIndex}|${c.prop}|${c.ordinal}`);
-      }
-    }
-    const uncovered = [...candidateKeys].filter((k) => !matrixKeys.has(k));
-    const orphaned = [...matrixKeys].filter((k) => !candidateKeys.has(k));
-    expect(uncovered, 'candidate rows the matrix forgot (delete-attack surface)').toEqual([]);
-    expect(orphaned, 'matrix rows with no candidate (add-attack surface)').toEqual([]);
+  it('every matrix route is a real docs page (no invented routes)', () => {
+    for (const e of MATRIX) expect(pageUniverse, `${e.route} exists on disk`).toContain(e.route);
   });
 
-  it('deleting a matrix row is RED (the bijection catches it)', () => {
-    const matrixKeys = new Set(MATRIX.map((e) => `${e.route}|${e.tableIndex}|${e.prop}|${e.occurrence}`));
-    matrixKeys.delete([...matrixKeys][0]);
-    const candidateKeys = new Set<string>();
-    for (const route of new Set(MATRIX.map((e) => e.route))) {
-      for (const c of axisRowsOf(pageSource(route))) {
-        if (route === 'inline-code' && c.prop === 'variant') continue;
-        candidateKeys.add(`${route}|${c.tableIndex}|${c.prop}|${c.ordinal}`);
-      }
-    }
-    expect([...candidateKeys].filter((k) => !matrixKeys.has(k)).length).toBeGreaterThan(0);
+  it('the key multiset mutually covers the pages’ non-exempt candidate rows', () => {
+    const { uncovered, orphaned, countMismatch } = diffKeys(MATRIX);
+    expect(uncovered, 'candidate rows the matrix forgot (delete-attack surface)').toEqual([]);
+    expect(orphaned, 'matrix rows with no candidate (add-attack surface)').toEqual([]);
+    expect(countMismatch, 'same-key multiplicity disagrees (duplicate-attack surface)').toEqual([]);
+  });
+
+  it('deleting EVERY entry of a route is RED (filesystem universe, not matrix-derived)', () => {
+    const victim = MATRIX[0].route;
+    const mutated = MATRIX.filter((e) => e.route !== victim);
+    const { uncovered } = diffKeys(mutated);
+    expect(uncovered.some((k) => k.startsWith(`${victim}|`)), `${victim} candidates left uncovered`).toBe(true);
+  });
+
+  it('adding a duplicate-key entry is RED (multiset, not Set)', () => {
+    const mutated = [...structuredClone(MATRIX), structuredClone(MATRIX[0])];
+    const { countMismatch } = diffKeys(mutated);
+    expect(countMismatch.length).toBeGreaterThan(0);
+  });
+
+  it('duplicating an occurrence inside one table is RED (1 candidate vs 2 matrix rows)', () => {
+    const mutated = structuredClone(MATRIX);
+    const target = mutated.find(
+      (e) =>
+        e.occurrence === 1 &&
+        mutated.filter((o) => o.route === e.route && o.tableIndex === e.tableIndex && o.prop === e.prop).length === 1,
+    );
+    target.occurrence = 2;
+    const { uncovered, orphaned } = diffKeys(mutated);
+    expect(uncovered.length + orphaned.length).toBeGreaterThan(0);
+  });
+
+  it('A/B-swapping a route between batches is RED (batch equality catches it)', () => {
+    const mutated = structuredClone(MATRIX);
+    mutated[0].batch = mutated[0].batch === 'A' ? 'B' : 'A';
+    const spans = new Map<string, Set<string>>();
+    for (const e of mutated) spans.set(e.route, (spans.get(e.route) ?? new Set()).add(e.batch));
+    expect([...spans.values()].some((s) => s.size > 1)).toBe(true);
   });
 });
