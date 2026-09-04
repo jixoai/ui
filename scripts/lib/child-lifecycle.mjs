@@ -21,7 +21,7 @@
 // never a re-implementation.
 
 import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 /** thrown by die() so the unified finally can reap before exiting */
 export class DieSignal extends Error {
@@ -121,6 +121,10 @@ export const acquireLock = (lockDir) => {
   const ownerFile = join(lockDir, 'owner.json');
   for (;;) {
     try {
+      // the PARENT is bootstrapped idempotently (it may not exist on a
+      // fresh checkout — .agents/ is gitignored); the lock dir itself
+      // stays NON-recursive so EEXIST remains the atomic acquire signal
+      mkdirSync(dirname(lockDir), { recursive: true });
       mkdirSync(lockDir);
       writeFileSync(ownerFile, `${JSON.stringify({ pid: process.pid, started: new Date().toISOString() })}\n`);
       break;
