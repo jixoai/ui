@@ -1161,7 +1161,9 @@
         "@jixoai/shiki",
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/toggle-group",
+        "@jixoai/list-item"
       ],
       "files": [
         {

@@ -47,7 +47,14 @@ vocabulary SHALL NOT appear in any export.
 
 ComponentCanvas SHALL accept an optional `schema` (lowered
 jsonSchema) and bindable `values` initialized from schema defaults,
-rendering control rows itself with zero new dependencies. The
+rendering control rows through the registry list-item family
+(declared `@jixoai/list-item`): toggle/select/text/slider rows via
+the ItemToggle/ItemSelect/ItemInput adapters, segmented/stepper via
+ItemField's control snippet — the same ItemField scaffold the site
+play kit's play-row bridges onto, so schema panes and snippet panes
+are one surface. The row grammar is ItemField's (the legacy
+hand-rolled `.jx-canvas-ctl` grid layer and the block lane are
+retired; `lane` stays advisory kernel metadata). The
 consumer-authored `playground` snippet SHALL take precedence when
 supplied; reset SHALL restore schema defaults when no `onreset` is
 given; an `onvalue` seam SHALL let the page own value semantics for
@@ -58,6 +65,14 @@ non-representable props.
 - GIVEN the pilot page passes schema + `bind:values`
 - THEN variant/size/loading/radius render as segmented/toggle/
   stepper rows, stage updates live, and reset returns defaults
+
+#### Scenario: both panes share one row surface
+
+- GIVEN a schema-mode canvas and a snippet-mode canvas
+- THEN both panes render ItemField outline rows in the same tight
+  fields rhythm, and the schema pane's leaf controls carry their own
+  focus paint (only the canvas-authored segmented/stepper idioms
+  keep rules in the canvas residue sheet)
 
 #### Scenario: escape hatch precedence
 

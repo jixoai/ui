@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-04T14:55:55.738Z",
+  "generatedAt": "2026-09-04T16:55:28.491Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1106,8 +1106,8 @@
           "source": "registry/files/ui/component-canvas/component-canvas.svelte",
           "mirror": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
           "target": "@ui/component-canvas/component-canvas.svelte",
-          "sourceSha": "f2cbc5fc5c841be528bb7bafeca719206d1a8c1599d1bc7e485f95b5a3c00bec",
-          "mirrorSha": "f2cbc5fc5c841be528bb7bafeca719206d1a8c1599d1bc7e485f95b5a3c00bec"
+          "sourceSha": "86c55ee2eb22099fdeae829aa78949dc1e64da3f5ae9c76a3f806af3ae34a60b",
+          "mirrorSha": "86c55ee2eb22099fdeae829aa78949dc1e64da3f5ae9c76a3f806af3ae34a60b"
         },
         {
           "source": "registry/files/ui/component-canvas/index.ts",
@@ -1120,8 +1120,8 @@
           "source": "registry/files/ui/component-canvas/component-canvas.css",
           "mirror": "apps/www/src/lib/ui/component-canvas/component-canvas.css",
           "target": "@ui/component-canvas/component-canvas.css",
-          "sourceSha": "43b3c40ae89cf9fca454a87a3953cbabfbb9a1353deaae78fa66166b1771e081",
-          "mirrorSha": "43b3c40ae89cf9fca454a87a3953cbabfbb9a1353deaae78fa66166b1771e081"
+          "sourceSha": "7fbb1b90f7b894ab113dbf65537777fd81597b3a3f5e4e6a5731c8e110e440dc",
+          "mirrorSha": "7fbb1b90f7b894ab113dbf65537777fd81597b3a3f5e4e6a5731c8e110e440dc"
         }
       ]
     },

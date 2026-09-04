@@ -42,6 +42,21 @@
   rows > plain canvas; reset falls back to schema defaults when
   `onreset` is absent.
 
+  Schema rows ride the list-item family (playground unification,
+  2026-09-04): the hand-rolled .jx-canvas-ctl grid layer is RETIRED —
+  toggle/select/text/slider rows render through the ItemToggle/
+  ItemSelect/ItemInput adapters, segmented/stepper through ItemField's
+  control snippet — the SAME ItemField scaffold the site play kit's
+  play-row bridges onto, so both panes are one surface (the migration
+  window the old css spoke of is closed). Consequences: the rows are
+  outline-variant standalone items in a tight fields grid; the block
+  LANE is retired (row.lane stays advisory kernel metadata — the
+  ItemField grammar owns row shape); the toggle row's physical hit
+  lane is the label[for] + control (ItemField law: never a second
+  label element around the control); leaf controls carry their own
+  focus paint, so only the canvas-authored segmented/stepper idioms
+  keep focus rules in the residue sheet.
+
   The floor (canvas-floor-lab, 2026-08-30):
   - OUTLINE LAW: the root section carries `data-toc-skip` and the
     header title is a STYLED PARAGRAPH (`p[data-jx-canvas-title]`),
@@ -234,6 +249,8 @@
   import TreeView, { type TreeNode } from '$lib/ui/tree-view/tree-view.svelte';
   import ToggleGroup from '$lib/ui/toggle-group/toggle-group.svelte';
   import ToggleGroupItem from '$lib/ui/toggle-group/toggle-group-item.svelte';
+  import { ItemField, ItemToggle, ItemSelect, ItemInput } from '$lib/ui/list-item';
+  import type { ItemFieldContext } from '$lib/ui/list-item';
   import { icons } from '$lib/icons';
   import { cn } from '$lib/utils';
   import './component-canvas.css';
@@ -460,9 +477,9 @@
     return Number.isFinite(n) ? String(n) : String(row.minimum ?? 0);
   };
 
+  // the ItemField id seed: deterministic + canvas-scoped so two canvases
+  // on one page never collide (label/description ids derive from it)
   const ctlId = (key: string): string => `jx-canvas-${canvasId}-ctl-${key}`;
-  const labelId = (key: string): string => `jx-canvas-${canvasId}-ctl-${key}-label`;
-  const descId = (key: string): string => `jx-canvas-${canvasId}-ctl-${key}-desc`;
 
   // flat files → nested tree: split on "/", intermediate segments are
   // directories; a name without "/" stays a root-level file. The file
@@ -731,113 +748,115 @@
                  rows are NOT duplicated beside it -->
             {@render playground()}
           {:else}
-            {#each rows as row (row.key)}
-              {#if row.control === 'toggle'}
-                <!-- the toggle row's ROOT is the label: the physical hit
-                     lane spans the whole row (hit-lane law — a corner
-                     click toggles), the native checkbox keeps its glyph
-                     size inside the lane -->
-                <label
-                  data-jx-canvas-row
-                  data-jx-canvas-control="toggle"
-                  data-lane={row.lane}
-                  class="jx-canvas-ctl"
-                >
-                  <span class="jx-canvas-ctl-label" data-jx-canvas-row-label>{row.label}</span>
-                  <input
-                    type="checkbox"
-                    class="jx-canvas-toggle"
-                    data-jx-canvas-toggle
-                    checked={Boolean(rowValue(row))}
-                    aria-describedby={row.description ? descId(row.key) : undefined}
-                    onchange={(event) => setValue(row.key, event.currentTarget.checked)}
-                  />
-                  {#if row.description}
-                    <span class="jx-canvas-ctl-desc" id={descId(row.key)}>{row.description}</span>
-                  {/if}
-                </label>
-              {:else}
-                <div
-                  data-jx-canvas-row
-                  data-jx-canvas-control={row.control}
-                  data-lane={row.lane}
-                  class="jx-canvas-ctl"
-                >
-                  <label class="jx-canvas-ctl-label" data-jx-canvas-row-label for={ctlId(row.key)} id={labelId(row.key)}>{row.label}</label>
-                  <div class="jx-canvas-ctl-control">
-                    {#if row.control === 'segmented'}
-                      <div class="jx-canvas-seg" role="group" aria-labelledby={labelId(row.key)} data-jx-canvas-seg>
-                        {#each row.values ?? [] as option (option)}
+            <!-- the unified row grammar (2026-09-04): the same ItemField
+                 scaffold the play kit's play-row bridges onto. data-jx-canvas-row
+                 wraps each row as display:contents — the DOM contract the tests
+                 and residue css key on, without touching the family API -->
+            <div class="jx-canvas-fields">
+              {#each rows as row (row.key)}
+                <div data-jx-canvas-row data-jx-canvas-control={row.control} class="contents">
+                  {#if row.control === 'toggle'}
+                    <ItemToggle
+                      id={ctlId(row.key)}
+                      label={row.label}
+                      description={row.description}
+                      variant="outline"
+                      checked={Boolean(rowValue(row))}
+                      onchange={(event) => setValue(row.key, event.currentTarget.checked)}
+                      data-jx-canvas-toggle
+                    />
+                  {:else if row.control === 'select'}
+                    <ItemSelect
+                      id={ctlId(row.key)}
+                      label={row.label}
+                      description={row.description}
+                      variant="outline"
+                      value={String(rowValue(row) ?? '')}
+                      onchange={(event) => setValue(row.key, event.currentTarget.value)}
+                      data-jx-canvas-select
+                    >
+                      {#each row.values ?? [] as option (option)}
+                        <option value={option}>{option}</option>
+                      {/each}
+                    </ItemSelect>
+                  {:else if row.control === 'text'}
+                    <ItemInput
+                      id={ctlId(row.key)}
+                      label={row.label}
+                      description={row.description}
+                      variant="outline"
+                      value={String(rowValue(row) ?? '')}
+                      oninput={(event) => setValue(row.key, event.currentTarget.value)}
+                      data-jx-canvas-text
+                    />
+                  {:else if row.control === 'slider'}
+                    <ItemInput
+                      id={ctlId(row.key)}
+                      label={row.label}
+                      description={row.description}
+                      variant="outline"
+                      type="range"
+                      min={row.minimum}
+                      max={row.maximum}
+                      step={row.step}
+                      value={Number(rowValue(row) ?? row.minimum ?? 0)}
+                      oninput={(event) => setValue(row.key, Number(event.currentTarget.value))}
+                      data-jx-canvas-slider
+                    />
+                  {:else if row.control === 'stepper'}
+                    <ItemField id={ctlId(row.key)} labelMode="text" label={row.label} description={row.description} variant="outline">
+                      {#snippet control(field: ItemFieldContext)}
+                        <div
+                          class="jx-canvas-stepper"
+                          role="group"
+                          aria-labelledby={field.labelId}
+                          aria-describedby={field.describedBy}
+                          data-jx-canvas-stepper
+                        >
                           <button
                             type="button"
-                            class="jx-press jx-canvas-seg-btn"
-                            data-jx-canvas-seg-option={option}
-                            aria-pressed={String(rowValue(row)) === option}
-                            onclick={() => setValue(row.key, option)}
-                          >{option}</button>
-                        {/each}
-                      </div>
-                    {:else if row.control === 'select'}
-                      <select
-                        class="jx-canvas-select"
-                        id={ctlId(row.key)}
-                        data-jx-canvas-select
-                        aria-describedby={row.description ? descId(row.key) : undefined}
-                        onchange={(event) => setValue(row.key, event.currentTarget.value)}
-                      >
-                        {#each row.values ?? [] as option (option)}
-                          <option value={option} selected={String(rowValue(row)) === option}>{option}</option>
-                        {/each}
-                      </select>
-                    {:else if row.control === 'stepper'}
-                      <div class="jx-canvas-stepper" role="group" aria-labelledby={labelId(row.key)} data-jx-canvas-stepper>
-                        <button
-                          type="button"
-                          class="jx-press jx-canvas-step-btn"
-                          data-jx-canvas-step="dec"
-                          aria-label={`Decrease ${row.label}`}
-                          onclick={() => stepValue(row, -1)}
-                        >−</button>
-                        <span class="jx-canvas-step-value" data-jx-canvas-stepper-value>{stepText(row)}{row.unit ? ` ${row.unit}` : ''}</span>
-                        <button
-                          type="button"
-                          class="jx-press jx-canvas-step-btn"
-                          data-jx-canvas-step="inc"
-                          aria-label={`Increase ${row.label}`}
-                          onclick={() => stepValue(row, 1)}
-                        >+</button>
-                      </div>
-                    {:else if row.control === 'slider'}
-                      <input
-                        type="range"
-                        class="jx-canvas-slider"
-                        id={ctlId(row.key)}
-                        data-jx-canvas-slider
-                        min={row.minimum}
-                        max={row.maximum}
-                        step={row.step}
-                        value={Number(rowValue(row) ?? row.minimum ?? 0)}
-                        aria-describedby={row.description ? descId(row.key) : undefined}
-                        oninput={(event) => setValue(row.key, Number(event.currentTarget.value))}
-                      />
-                    {:else}
-                      <input
-                        type="text"
-                        class="jx-canvas-text"
-                        id={ctlId(row.key)}
-                        data-jx-canvas-text
-                        value={String(rowValue(row) ?? '')}
-                        aria-describedby={row.description ? descId(row.key) : undefined}
-                        oninput={(event) => setValue(row.key, event.currentTarget.value)}
-                      />
-                    {/if}
-                  </div>
-                  {#if row.description}
-                    <p class="jx-canvas-ctl-desc" id={descId(row.key)}>{row.description}</p>
+                            class="jx-press jx-canvas-step-btn"
+                            data-jx-canvas-step="dec"
+                            aria-label={`Decrease ${row.label}`}
+                            onclick={() => stepValue(row, -1)}
+                          >−</button>
+                          <span class="jx-canvas-step-value" data-jx-canvas-stepper-value>{stepText(row)}{row.unit ? ` ${row.unit}` : ''}</span>
+                          <button
+                            type="button"
+                            class="jx-press jx-canvas-step-btn"
+                            data-jx-canvas-step="inc"
+                            aria-label={`Increase ${row.label}`}
+                            onclick={() => stepValue(row, 1)}
+                          >+</button>
+                        </div>
+                      {/snippet}
+                    </ItemField>
+                  {:else}
+                    <ItemField id={ctlId(row.key)} labelMode="text" label={row.label} description={row.description} variant="outline">
+                      {#snippet control(field: ItemFieldContext)}
+                        <div
+                          class="jx-canvas-seg"
+                          role="group"
+                          aria-labelledby={field.labelId}
+                          aria-describedby={field.describedBy}
+                          data-jx-canvas-seg
+                        >
+                          {#each row.values ?? [] as option (option)}
+                            <button
+                              type="button"
+                              class="jx-press jx-canvas-seg-btn"
+                              data-jx-canvas-seg-option={option}
+                              aria-pressed={String(rowValue(row)) === option}
+                              onclick={() => setValue(row.key, option)}
+                            >{option}</button>
+                          {/each}
+                        </div>
+                      {/snippet}
+                    </ItemField>
                   {/if}
                 </div>
-              {/if}
-            {/each}
+              {/each}
+            </div>
           {/if}
         </div>
         {#if output?.length}

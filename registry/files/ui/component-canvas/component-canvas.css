@@ -17,15 +17,18 @@
  * UNLAYERED :where() carve-out; static contracts sit in @layer
  * components so consumer utilities still win.
  *
- * Schema-mode control rows (canvas-schema-pipeline, 2026-08-30): the
- * pane's self-contained jsonSchema2Form surface — grid rows (label
- * inline-start / control inline-end / description sub-line, data-lane
- * switches label-above), native controls only, every interactive lane
- * at min-block-size var(--jx-hit) (the hit-lane law), focus rings in
- * the site's contained-ring block below, no motion (reduced-motion
- * static by construction). The segmented idiom mirrors the playground
- * kit's (muted gap seam, primary active) so both panes read as one
- * surface during the migration window.
+ * Schema-mode control rows (canvas-schema-pipeline, 2026-08-30;
+ * unified onto the list-item family 2026-09-04): the pane's
+ * jsonSchema2Form surface now rides the ItemField adapters — the row
+ * scaffold (grid grammar, label/description lanes, native control
+ * paint, focus rings) is the family's own (item.css + the leaf
+ * controls); what remains here is the pane's FIELDS RHYTHM (the tight
+ * grid the site play kit's .jx-play-fields owns on the snippet side),
+ * the row tightening that matches .jx-play-row, and the canvas-authored
+ * segmented/stepper control idioms (button rows without a registry
+ * adapter yet). Leaf-control widths ride the data-attr carve-out
+ * below. The block LANE is retired with the scaffold — row shape is
+ * the ItemField grammar's.
  *
  * The floor (canvas-floor-lab, 2026-08-30 → 2026-09-01): the header's
  * stage toggles are the REGISTRY toggle-group (native radios painted by
@@ -166,61 +169,81 @@
   border: none;
 }
 
-/* ── schema-mode control rows (canvas-schema-pipeline, 2026-08-30) ──
-   Layout grammar: one grid per row — label inline-start, control
-   inline-end, description spanning below (data-lane='block' stacks
-   label above). Interactive lanes sit at the density hit minimum. */
-:where(.jx-canvas-ctl) {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  column-gap: 0.75rem;
-  row-gap: 0.2rem;
-}
-:where(.jx-canvas-ctl[data-lane='block']) {
-  grid-template-columns: minmax(0, 1fr);
-  justify-items: start;
-}
-/* toggle rows: the ROOT is the label — the whole row is the physical
-   activation lane (hit-lane law; a corner click toggles the input) */
-:where(label.jx-canvas-ctl) {
-  cursor: pointer;
-}
-:where(.jx-canvas-ctl-label) {
-  display: inline-flex;
-  align-items: center;
-  min-block-size: var(--jx-hit);
-  color: var(--muted-foreground);
-  font-size: 12px;
-  line-height: 1.35;
-}
-:where(.jx-canvas-ctl[data-lane='block'] .jx-canvas-ctl-label) {
-  min-block-size: auto;
-  align-items: flex-start;
-  font-family: var(--font-nav);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-:where(.jx-canvas-ctl-desc) {
-  grid-column: 1 / -1;
-  margin: 0;
-  max-inline-size: 62ch;
-  color: var(--muted-foreground);
-  font-size: 11.5px;
-  line-height: 1.45;
-}
-:where(.jx-canvas-ctl-control) {
-  display: inline-flex;
-  align-items: center;
-  justify-self: end;
-  min-block-size: var(--jx-hit);
-}
-:where(.jx-canvas-ctl[data-lane='block'] .jx-canvas-ctl-control) {
-  justify-self: stretch;
+/* ── schema-mode rows: the fields rhythm (2026-09-04 unification) ──
+   The pane's own .jx-play-fields equivalent: one tight column of
+   outline ItemField rows (the kit's snippet-side grid, mirrored so
+   both panes read as one surface). The wrapper doubles as the width
+   probe for the pane law below. */
+@layer components {
+  .jx-canvas-fields {
+    container: jx-canvas-fields / inline-size;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+  }
 }
 
-/* segmented (schema rows): the kit's terminal idiom — muted gap seam, primary active */
+/* row tightening — the UNLAYERED :where() carve-out (item.css paints
+   .jx-item padding from @layer components; this tunes it the way the
+   kit's .jx-play-row does) */
+:where(.jx-canvas-fields .jx-item) {
+  padding-block: 0.3125rem;
+}
+
+/* the PANE-WIDTH LAW: the presence matrix sizes the end track at the
+   control's max-content, and grid growth lets a width-hungry control
+   (a five-option segmented enum, a 20ch text input) eat the whole
+   row before the label's fr track expands — the label column crushes
+   to one-character wraps (the r1 regression on the press-button
+   pane). Below 34rem the width-hungry kinds take the stacked shape —
+   label + description above, control on its own full-width line (the
+   retired block lane, reborn as a property of the CONTROL, not a
+   schema annotation); toggles keep the shared line (a 40px switch
+   never needs it). Wide panes ('below' posture) keep the matrix's
+   inline geometry — the cap rules below keep their growth bounded. */
+@container jx-canvas-fields (max-width: 34rem) {
+  :where([data-jx-canvas-control='segmented'] > .jx-item),
+  :where([data-jx-canvas-control='select'] > .jx-item),
+  :where([data-jx-canvas-control='text'] > .jx-item),
+  :where([data-jx-canvas-control='slider'] > .jx-item),
+  :where([data-jx-canvas-control='stepper'] > .jx-item) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'content' 'end';
+  }
+  :where([data-jx-canvas-control='segmented'] > .jx-item > [data-slot='item-end']),
+  :where([data-jx-canvas-control='select'] > .jx-item > [data-slot='item-end']),
+  :where([data-jx-canvas-control='text'] > .jx-item > [data-slot='item-end']),
+  :where([data-jx-canvas-control='slider'] > .jx-item > [data-slot='item-end']),
+  :where([data-jx-canvas-control='stepper'] > .jx-item > [data-slot='item-end']) {
+    justify-content: flex-start;
+  }
+  :where([data-jx-canvas-text]),
+  :where([data-jx-canvas-slider]) {
+    inline-size: 100%;
+  }
+}
+
+/* leaf lanes at the shared line: fixed caps so the auto end track
+   never wins the growth race against the label column (kit parity —
+   play-text pins w-40, play-range min 8rem) */
+:where([data-jx-canvas-text]) {
+  inline-size: 10rem;
+  max-inline-size: 14rem;
+}
+:where([data-jx-canvas-slider]) {
+  min-inline-size: 8rem;
+}
+
+/* segmented (schema rows, inside ItemField's end lane): the kit's
+   terminal idiom — muted gap seam, primary active. flex-grow fills
+   every wrapped line edge to edge: under the pane-width law the seg
+   folds at the lane edge, and without growth the last line's empty
+   remainder would expose the seam's INK background as a slab (the
+   r2 regression; at the shared line the max-content track keeps
+   natural widths — growth has nothing to fill) */
+:where(.jx-canvas-seg-btn) {
+  flex: 1 1 auto;
+}
 :where(.jx-canvas-seg) {
   display: inline-flex;
   flex-wrap: wrap;
@@ -247,27 +270,8 @@
   color: var(--primary-foreground);
 }
 
-/* native text-like controls: bordered, density-hit lanes, radius law */
-:where(.jx-canvas-select),
-:where(.jx-canvas-text) {
-  min-block-size: var(--jx-hit);
-  inline-size: 100%;
-  max-inline-size: 14rem;
-  padding-inline: 0.45rem;
-  border: 1px solid var(--border);
-  border-radius: 0;
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-mono);
-  font-size: 11px;
-}
-:where(.jx-canvas-ctl[data-lane='end'] .jx-canvas-select),
-:where(.jx-canvas-ctl[data-lane='end'] .jx-canvas-text) {
-  inline-size: auto;
-  min-inline-size: 8rem;
-}
-
-/* stepper: bordered trio, mono value, hit-height buttons */
+/* stepper (schema rows, inside ItemField's end lane): bordered trio,
+   mono value, hit-height buttons */
 :where(.jx-canvas-stepper) {
   display: inline-flex;
   align-items: stretch;
@@ -310,26 +314,16 @@
   cursor: pointer;
 }
 
-/* toggle: the native checkbox at glyph size inside the row's own lane */
-:where(.jx-canvas-toggle) {
-  inline-size: 0.95rem;
-  block-size: 0.95rem;
-  margin: 0;
-  accent-color: var(--primary);
-  cursor: pointer;
-}
-
-/* focus rings: the site's contained-ring law at canvas scale */
+/* focus rings: the site's contained-ring law at canvas scale. The
+   adapter-rendered leaf controls (toggle/select/text/slider) own
+   their focus paint; only the canvas-authored chrome + the segmented/
+   stepper idioms ride this block */
 :where(.jx-canvas-reset:focus-visible),
 :where(.jx-canvas-copy-usage:focus-visible),
 :where(.jx-canvas-code-toggle:focus-visible),
 :where(.jx-canvas-source:focus-visible),
 :where(.jx-canvas-install:focus-visible),
 :where(.jx-canvas-seg-btn:focus-visible),
-:where(.jx-canvas-select:focus-visible),
-:where(.jx-canvas-toggle:focus-visible),
-:where(.jx-canvas-text:focus-visible),
-:where(.jx-canvas-slider:focus-visible),
 :where(.jx-canvas-step-btn:focus-visible) {
   outline: 2px solid var(--ring);
   outline-offset: 2px;

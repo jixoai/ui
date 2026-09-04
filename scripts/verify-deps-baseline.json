@@ -5,7 +5,6 @@
     "color-picker -> @jixoai/popover",
     "combobox -> @jixoai/popover",
     "command -> @jixoai/popover",
-    "component-canvas -> @jixoai/toggle-group",
     "dialog -> @jixoai/entity",
     "dialog -> @jixoai/popover",
     "dropdown-menu -> @jixoai/popover",
