@@ -3985,6 +3985,7 @@
         "@jixoai/icon-button",
         "@jixoai/dropdown-menu",
         "@jixoai/separator",
+        "@jixoai/progressive-blur",
         "@jixoai/paint",
         "@jixoai/defaults"
       ],

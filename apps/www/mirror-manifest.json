@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-04T16:51:36.121Z",
+  "generatedAt": "2026-09-04T17:26:40.382Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -735,8 +735,8 @@
           "source": "registry/files/theme/jx-pure.css",
           "mirror": "apps/www/src/lib/jx-pure.css",
           "target": "@lib/jx-pure.css",
-          "sourceSha": "706fb8ce592771f85a4c51f9010dcadb627f7995397a8663e3ca73ebe69a05e0",
-          "mirrorSha": "706fb8ce592771f85a4c51f9010dcadb627f7995397a8663e3ca73ebe69a05e0"
+          "sourceSha": "aae2ffe50979778dce11dbacc8081827a1ce0bf75aac0f45abd084e2512d8440",
+          "mirrorSha": "aae2ffe50979778dce11dbacc8081827a1ce0bf75aac0f45abd084e2512d8440"
         }
       ]
     },
@@ -3570,8 +3570,8 @@
           "source": "registry/files/ui/button-group/button-group.svelte",
           "mirror": "apps/www/src/lib/ui/button-group/button-group.svelte",
           "target": "@ui/button-group/button-group.svelte",
-          "sourceSha": "081db0ac85fa88cd6f55bfa543bed0ecb22352d8c0ac6163696354416c5ab31b",
-          "mirrorSha": "081db0ac85fa88cd6f55bfa543bed0ecb22352d8c0ac6163696354416c5ab31b"
+          "sourceSha": "adc858e0973d83d22e7091dfe1736574c09e107a3e30b30b11ce7e432ce8ded3",
+          "mirrorSha": "adc858e0973d83d22e7091dfe1736574c09e107a3e30b30b11ce7e432ce8ded3"
         },
         {
           "source": "registry/files/ui/button-group/button-group-divider.svelte",
@@ -3584,8 +3584,8 @@
           "source": "registry/files/ui/button-group/button-group.css",
           "mirror": "apps/www/src/lib/ui/button-group/button-group.css",
           "target": "@ui/button-group/button-group.css",
-          "sourceSha": "5f6de3a8b761ff7706fb4cd0f677d3b25ab192fb440bc84e3487ce0005dd3b2c",
-          "mirrorSha": "5f6de3a8b761ff7706fb4cd0f677d3b25ab192fb440bc84e3487ce0005dd3b2c"
+          "sourceSha": "e253e19d7f1d7952e4f07f9c42cccf881ffd2531ba3f67efef1dd827f14373b3",
+          "mirrorSha": "e253e19d7f1d7952e4f07f9c42cccf881ffd2531ba3f67efef1dd827f14373b3"
         },
         {
           "source": "registry/files/ui/button-group/index.ts",

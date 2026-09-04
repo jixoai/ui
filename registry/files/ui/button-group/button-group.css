@@ -64,6 +64,17 @@
  *    implicit columns hug content, and a row lead drops the -1px
  *    seam + the separator pseudo (it has no inline-start neighbor).
  *
+ *  - THE SCROLL RUN (Owner 2026-09-04, the third overflow mode — the
+ *    tabs contract): the root becomes the scroller (hidden scrollbar,
+ *    smooth, proximity snap, scroll-padding); the overlays (chevron
+ *    buttons z2, the veil layer z1 — the separator INK law's
+ *    contrast bands, or the ProgressiveBlur ladder) mount on the
+ *    non-scrolling host, keyed on the JS-stamped scroll-state verdict
+ *    (no verdict — no chrome); the per-member edge ramps
+ *    (slide/blur/blurSlide) calc from the scroll handler's
+ *    --jx-edge-start/end stamps. The veil gates sit UNLAYERED below
+ *    (cascade law: the layer's grid utility beats this layer).
+ *
  * Everything here rides @layer components behind :where() — zero
  * specificity, so consumer utilities still win (the layer law).
  * Reduced motion: nothing here moves (layout only).
@@ -173,6 +184,160 @@
   :where([data-jx-btngroup][data-jx-overflow='wrap']) > [data-jx-row-start]:not([data-jx-btngroup-sep] + *) {
     margin-inline-start: 0;
   }
+
+  /* ── THE SCROLL RUN (Owner 2026-09-04, the third overflow mode — the
+     tabs contract): the ROOT IS THE SCROLLER (the group and the DOM
+     scroller are one element, data-jx-btngroup-run) — hidden
+     scrollbar, smooth travel, proximity snap, scroll-padding that
+     keeps a focused member clear of the veil lanes. Children of a
+     scroller scroll with its content, so the overlays (veil layer,
+     chevrons) mount on the non-scrolling HOST outside the run; the
+     cluster shadow rides the run's own box and stays anchored ── */
+  :where([data-jx-btngroup-run][data-jx-btngroup='horizontal']) {
+    grid-area: 1 / 1;
+    overflow-x: auto;
+    scrollbar-width: none;
+    scroll-padding-inline: calc(var(--jx-inset) * 2);
+    scroll-behavior: smooth;
+    scroll-snap-type: x proximity;
+  }
+  :where([data-jx-btngroup-run][data-jx-btngroup='vertical']) {
+    overflow-y: auto;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+  }
+  :where([data-jx-btngroup-run])::-webkit-scrollbar {
+    display: none;
+  }
+  :where([data-jx-btngroup-run]) > * {
+    scroll-snap-align: start;
+  }
+
+  /* the host's shared var family (the overlays are the run's siblings
+     — custom properties inherit downward only): the chevron glyphs
+     (the LUCIDE chevron geometry, one glyph law with tabs) and the
+     veil width (lane + ramp) */
+  :where(.jx-btngroup-scroll-host) {
+    --jx-btngroup-chevron-inline-end: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
+    --jx-btngroup-chevron-inline-start: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='m15 18-6-6 6-6'/%3E%3C/svg%3E");
+    --jx-btngroup-chevron-size: var(--jx-text-secondary);
+    --jx-btngroup-veil: calc(var(--jx-inset) * 6);
+  }
+
+  /* the chevrons: REAL DOM BUTTONS on the host (z 2), masked glyphs;
+     existence keys on the JS-stamped scroll-state (a direction that
+     cannot travel NEVER paints), the fade calcs from the host's
+     --jx-btngroup-progress */
+  :where([data-jx-btngroup-chevron='inline-start']),
+  :where([data-jx-btngroup-chevron='inline-end']) {
+    grid-area: 1 / 1;
+    z-index: 2;
+    align-self: stretch;
+    width: calc(var(--jx-inset) * 2);
+    margin-block: calc(var(--jx-inset) / 2);
+    border: 0;
+    padding: 0;
+    appearance: none;
+    background-color: var(--muted-foreground);
+    cursor: pointer;
+    opacity: min(1, calc(var(--jx-btngroup-progress, 0) / 0.15));
+  }
+  :where([data-jx-btngroup-chevron='inline-end']) {
+    justify-self: end;
+    mask: var(--jx-btngroup-chevron-inline-end) center / var(--jx-btngroup-chevron-size) no-repeat;
+    opacity: min(1, calc((1 - var(--jx-btngroup-progress, 0)) / 0.15));
+  }
+  :where([data-jx-btngroup-chevron='inline-start']) {
+    justify-self: start;
+    mask: var(--jx-btngroup-chevron-inline-start) center / var(--jx-btngroup-chevron-size) no-repeat;
+  }
+  :where([data-jx-btngroup-chevron='inline-start']):hover,
+  :where([data-jx-btngroup-chevron='inline-end']):hover {
+    background-color: var(--foreground);
+  }
+  /* the scrollability verdict is the single truth: a direction that
+     cannot travel NEVER paints its chevron */
+  :where(.jx-btngroup-scroll-host):has(> [data-jx-btngroup-run][data-jx-scroll-state='none']) > :where([data-jx-btngroup-chevron]),
+  :where(.jx-btngroup-scroll-host):has(> [data-jx-btngroup-run][data-jx-scroll-state='start-closed']) > [data-jx-btngroup-chevron='inline-start'],
+  :where(.jx-btngroup-scroll-host):has(> [data-jx-btngroup-run][data-jx-scroll-state='end-closed']) > [data-jx-btngroup-chevron='inline-end'] {
+    display: none;
+  }
+  /* pre-hydration: no verdict — and without JS at all — no chevron
+     paints and neither is a click target */
+  :where(.jx-btngroup-scroll-host):has(> [data-jx-btngroup-run]:not([data-jx-scroll-state])) > :where([data-jx-btngroup-chevron]) {
+    display: none;
+    pointer-events: none;
+  }
+
+  /* the scroll EFFECTS — per-member ramps (slide/blur/blurSlide): the
+     scroll handler stamps --jx-edge-start/end (the clipped fraction
+     of each member's own width) on every visible member; rest stamps
+     0 = the natural self, by arithmetic. The treatments are keyed per
+     type so slide (the default) never pays for a filter */
+  :where([data-jx-btngroup-run][data-scroll-effect='slide']) > * {
+    opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
+    translate: calc((var(--jx-edge-end, 0) - var(--jx-edge-start, 0)) * var(--jx-btngroup-edge-slide, 0px)) 0;
+  }
+  :where([data-jx-btngroup-run][data-scroll-effect='blur']) > * {
+    opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
+    filter: blur(calc(max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * var(--jx-btngroup-edge-blur, 0px)));
+  }
+  :where([data-jx-btngroup-run][data-scroll-effect='blur+slide']) > * {
+    opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
+    filter: blur(calc(max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * var(--jx-btngroup-edge-blur, 0px)));
+    translate: calc((var(--jx-edge-end, 0) - var(--jx-edge-start, 0)) * var(--jx-btngroup-edge-slide, 0px)) 0;
+  }
+
+  /* the merged veil layer (z 1, under the chevrons): ONE grid item
+     clipping both edge veils; overflow: clip is LOAD-BEARING — the
+     veils ENTER by scroll-driven translate, sliding in from outside
+     their own edge (start slides in from -100% over the first 15% of
+     travel, end slides out to +100% over the last 15%) */
+  :where(.jx-btngroup-veil-layer) {
+    z-index: 1;
+    overflow: clip;
+  }
+  :where(.jx-btngroup-veil-layer) > :where(.jx-btngroup-veil)[data-position='start'] {
+    translate: calc((1 - min(1, var(--jx-btngroup-progress, 0) / 0.15)) * -100%) 0;
+  }
+  :where(.jx-btngroup-veil-layer) > :where(.jx-btngroup-veil)[data-position='end'] {
+    translate: calc(max(0, (var(--jx-btngroup-progress, 0) - 0.85) / 0.15) * 100%) 0;
+  }
+  /* RTL physicality: the positions are LOGICAL — the entrance signs
+     flip with the direction (the JS stamp layer is already
+     direction-normalized; these are the css halves) */
+  :dir(rtl) :where(.jx-btngroup-veil-layer) > :where(.jx-btngroup-veil)[data-position='start'] {
+    translate: calc((1 - min(1, var(--jx-btngroup-progress, 0) / 0.15)) * 100%) 0;
+  }
+  :dir(rtl) :where(.jx-btngroup-veil-layer) > :where(.jx-btngroup-veil)[data-position='end'] {
+    translate: calc(max(0, (var(--jx-btngroup-progress, 0) - 0.85) / 0.15) * -100%) 0;
+  }
+  /* the SHADOW veil — the separator's INK law as an edge treatment: a
+     shade veil NEVER adds black; backdrop-filter contrast() subtracts
+     color toward mid tone (near-white dims, near-black lifts — dark
+     mode reverses itself, zero color tokens). One band per edge, the
+     mask ramp shapes it */
+  :where(.jx-btngroup-shadow) {
+    width: var(--jx-btngroup-veil);
+    backdrop-filter: contrast(0.5);
+    -webkit-backdrop-filter: contrast(0.5);
+  }
+  :where(.jx-btngroup-shadow)[data-position='start'] {
+    mask: linear-gradient(to left, transparent, rgb(0, 0, 0));
+    -webkit-mask-image: linear-gradient(to left, transparent, rgb(0, 0, 0));
+  }
+  :where(.jx-btngroup-shadow)[data-position='end'] {
+    mask: linear-gradient(to right, transparent, rgb(0, 0, 0));
+    -webkit-mask-image: linear-gradient(to right, transparent, rgb(0, 0, 0));
+  }
+  :dir(rtl) :where(.jx-btngroup-shadow)[data-position='start'] {
+    mask: linear-gradient(to right, transparent, rgb(0, 0, 0));
+    -webkit-mask-image: linear-gradient(to right, transparent, rgb(0, 0, 0));
+  }
+  :dir(rtl) :where(.jx-btngroup-shadow)[data-position='end'] {
+    mask: linear-gradient(to left, transparent, rgb(0, 0, 0));
+    -webkit-mask-image: linear-gradient(to left, transparent, rgb(0, 0, 0));
+  }
 }
 
 /* ── CASCADE CARVE-OUT (css-architecture exception #2, the P3
@@ -188,5 +353,15 @@
    ONLY — no descendant inference (the stamped-attribute law). */
 :where([data-jx-btngroup]:not([data-jx-measuring]):not([data-jx-overflow='collapse'])) > [data-jx-btngroup-more],
 :where([data-jx-btngroup]:not([data-jx-measuring])[data-jx-overflow='collapse']) > [data-jx-overflow-hidden='true'] {
+  display: none;
+}
+
+/* the veil-layer gates are UNLAYERED on purpose (cascade law, the
+   tabs precedent): the layer's own `grid` utility rides @layer
+   utilities, which BEATS this sheet's @layer components — a layered
+   display:none never wins. A run that cannot scroll shows no veils;
+   no verdict (pre-stamp, or no JS at all) shows none either */
+:where(.jx-btngroup-scroll-host):has(> [data-jx-btngroup-run][data-jx-scroll-state='none']) > :where(.jx-btngroup-veil-layer),
+:where(.jx-btngroup-scroll-host):has(> [data-jx-btngroup-run]:not([data-jx-scroll-state])) > :where(.jx-btngroup-veil-layer) {
   display: none;
 }

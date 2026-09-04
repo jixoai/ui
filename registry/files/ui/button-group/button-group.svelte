@@ -138,6 +138,24 @@
       element). The menu rides dropdown-menu's own keyboard contract
       (arrows/typeahead/Enter/Escape, focus returns to the trigger
       on selection or Escape; Tab light-dismisses — no focus trap).
+    overflow="scroll" (2026-09-04, the third mode — the tabs
+      contract): the ROOT becomes the scroll run (the group and the
+      DOM scroller are one element — hidden scrollbar, smooth,
+      proximity snap, scroll-padding clearing the veil lanes); the
+      joined line never breaks and NO measurement ever runs. The
+      scroll handler stamps the run's VERDICT (data-jx-scroll-state:
+      none | start-closed | end-closed | open — the single truth the
+      css keys the chevrons and the veil layer on; no verdict, no
+      chrome), the host's --jx-btngroup-progress (RTL-normalized —
+      the three scrollLeft engines funnel through one canonical
+      space, the tabs law), and per-member edge factors
+      (--jx-edge-start/end) for the scrollEffect ramps. The HOST is
+      a one-cell grid wrapper rendered ONLY in this mode (children
+      of a scroller scroll with its content — the veil layer z1 and
+      the chevron buttons z2 are the run's non-scrolling siblings;
+      non-scroll modes render no host, byte-identical DOM). A
+      VERTICAL group declaring scroll gets the bare block-axis
+      scroller only (the chrome is the horizontal contract).
 
   HYSTERESIS: overflow states and the collapse count are pure
   functions of the measured available width, but boundary resize
@@ -184,6 +202,126 @@
 
   /** context key — global symbol registry (independent registry items) */
   export const BUTTON_GROUP_KEY = Symbol.for('jx-button-group');
+
+  /** edge treatment while overflow='scroll' scrolls (Owner 2026-09-04,
+   *  the tabs scrollEffect convention — typed builders keep options
+   *  discoverable). slide is the DEFAULT, the cheapest:
+   *  translate+opacity only, no filter:
+   *  - slide() / blur() / blurSlide(): each joined member ramps as it
+   *    clips under a run edge — scroll-following per-member factors
+   *    (--jx-edge-start/end, the clipped fraction of the member's own
+   *    width) stamped by the scroll handler and calc'd in css; rest is
+   *    factor 0 by arithmetic (view() timelines were tried and
+   *    rejected in tabs: Chromium resolves named ranges garbage at
+   *    rest — the stuck-first-button bug)
+   *  - shadow() / progressBlur(): the veil layer over the run's edges
+   *    — shadow is the separator INK law's contrast ghost (backdrop
+   *    contrast() subtracts color toward mid, never adds black);
+   *    progressBlur mounts the ProgressiveBlur ladder. width overrides
+   *    the band width (--jx-btngroup-veil) */
+  export type ButtonGroupScrollEffect =
+    | BgSlideEffect
+    | BgBlurEffect
+    | BgBlurSlideEffect
+    | BgShadowEffect
+    | BgProgressBlurEffect;
+
+  export interface BgSlideOptions {
+    /** how far a crossing member offsets along the inline axis */
+    distance?: string;
+  }
+  export interface BgSlideEffect {
+    readonly type: 'slide';
+    distance: string;
+  }
+  export function slide({ distance = '8px' }: BgSlideOptions = {}): BgSlideEffect {
+    return { type: 'slide', distance };
+  }
+  export interface BgBlurOptions {
+    /** the blur radius a crossing member ramps to */
+    radius?: string;
+  }
+  export interface BgBlurEffect {
+    readonly type: 'blur';
+    radius: string;
+  }
+  export function blur({ radius = '4px' }: BgBlurOptions = {}): BgBlurEffect {
+    return { type: 'blur', radius };
+  }
+  export interface BgBlurSlideOptions extends BgBlurOptions, BgSlideOptions {}
+  export interface BgBlurSlideEffect {
+    readonly type: 'blur+slide';
+    radius: string;
+    distance: string;
+  }
+  export function blurSlide({ radius = '4px', distance = '8px' }: BgBlurSlideOptions = {}): BgBlurSlideEffect {
+    return { type: 'blur+slide', radius, distance };
+  }
+  export interface BgShadowOptions {
+    /** the band width (any css length) — overrides the --jx-btngroup-veil default */
+    width?: string;
+  }
+  export interface BgShadowEffect {
+    readonly type: 'shadow';
+    width?: string;
+  }
+  /** the contrast-ghost veil: backdrop-filter contrast() subtracts
+   *  color toward mid tone (the separator's INK law) — one layer, no
+   *  ladder, theme-agnostic by construction */
+  export function shadow({ width }: BgShadowOptions = {}): BgShadowEffect {
+    return { type: 'shadow', width };
+  }
+  export interface BgProgressBlurOptions {
+    /** per-layer blur px of the edge veil, inner-edge first (≥2 levels) */
+    blurLevels?: number[];
+    /** the band width (any css length) — overrides the --jx-btngroup-veil default */
+    width?: string;
+  }
+  export interface BgProgressBlurEffect {
+    readonly type: 'progressBlur';
+    blurLevels: number[];
+    width?: string;
+  }
+  export function progressBlur({
+    blurLevels = [0.5, 1, 2, 4, 8, 16, 32, 64],
+    width,
+  }: BgProgressBlurOptions = {}): BgProgressBlurEffect {
+    return { type: 'progressBlur', blurLevels, width };
+  }
+
+  // ── THE RTL SCROLL MACHINERY (copied VERBATIM from tabs-list, the
+  // source law — 2026-09-02 hardening wave; cross-family imports would
+  // drag the whole tabs component for four pure functions, the
+  // breadcrumb-separator precedent). Module-PRIVATE on purpose: tabs
+  // exports the same names from its own module, and both families'
+  // barrels ride export * — public twins would collide at the consumer
+  type RtlScrollModel = 'negative' | 'positive-ascending' | 'positive-descending';
+  function detectRtlScrollModel(rest: number, probe: () => number): RtlScrollModel {
+    if (rest < 0) return 'negative';
+    if (rest > 0) return 'positive-descending';
+    return probe() < 0 ? 'negative' : 'positive-ascending';
+  }
+  /** raw engine scrollLeft → the CANONICAL inline space [−max, 0] */
+  function rtlScrollToCanonical(model: RtlScrollModel, raw: number, max: number): number {
+    if (model === 'positive-ascending') return -raw;
+    if (model === 'positive-descending') return raw - max;
+    return raw;
+  }
+  /** canonical → the engine's raw scrollLeft (the write path) */
+  function rtlScrollFromCanonical(model: RtlScrollModel, canon: number, max: number): number {
+    if (model === 'positive-ascending') return -canon;
+    if (model === 'positive-descending') return canon + max;
+    return canon;
+  }
+  /** computed direction is the LAW; the nearest [dir] attribute stands
+   *  in only where the cascade reports nothing */
+  function isRtlDirection(computed: string, dirAttr: string | null | undefined): boolean {
+    if (computed) return computed === 'rtl';
+    return (dirAttr ?? 'ltr') === 'rtl';
+  }
+  /** probed engines, per run element — the probe WRITES scrollLeft, so
+   *  it must run at most once per element */
+  const rtlScrollModels = new WeakMap<HTMLElement, RtlScrollModel>();
 </script>
 
 <script lang="ts">
@@ -203,6 +341,7 @@
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import { cn } from '$lib/utils';
   import { PRESS_TEXTURE_KEY, type PressTextureApi } from '../press-button/press-button.svelte';
+  import ProgressiveBlur from '../progressive-blur/progressive-blur.svelte';
   import { ButtonGroupDefaults } from './button-group-defaults.svelte';
   import './button-group.css';
 
@@ -251,10 +390,21 @@
         consumer) */
     leadingSeam?: boolean;
     /** what happens when the joined row overflows its available
-        inline space (horizontal groups only): wrap (default) breaks
-        measured rows; collapse folds the overflow tail into a
-        DropdownMenu behind the ⋯ trigger */
-    overflow?: 'wrap' | 'collapse';
+     *  inline space (horizontal groups only): wrap (default) breaks
+     *  measured rows; collapse folds the overflow tail into a
+     *  DropdownMenu behind the ⋯ trigger; scroll (2026-09-04, the
+     *  third mode) rides a scroll run — the root becomes the
+     *  scroller (hidden scrollbar, smooth, proximity snap) and the
+     *  joined line never breaks; pair with scrollEffect for the edge
+     *  treatments. A VERTICAL group declaring scroll gets the bare
+     *  block-axis scroller only (the effect chrome is the horizontal
+     *  contract, the tabs law) */
+    overflow?: 'wrap' | 'collapse' | 'scroll';
+    /** edge treatment while overflow='scroll' scrolls — built by
+     *  slide() (the default, cheapest) / blur() / blurSlide() /
+     *  shadow() / progressBlur() (the tabs scrollEffect convention).
+     *  Inert outside scroll mode */
+    scrollEffect?: ButtonGroupScrollEffect;
     /** accessible name of the collapse trigger (aria-label + tooltip) */
     moreLabel?: string;
     /** density policy: explicit, inherited, then default — provided
@@ -280,6 +430,7 @@
     separator,
     leadingSeam = false,
     overflow: overflowMode = 'wrap',
+    scrollEffect = slide(),
     moreLabel = 'more actions',
     density,
     'data-density': _callerDensity,
@@ -517,9 +668,10 @@
 
   /** re-run the overflow measurement by hand — the dynamic-children
    *  seam: ResizeObserver sees box changes, not a consumer swapping
-   *  children at a constant width. Exported through bind:this */
+   *  children at a constant width. Exported through bind:this;
+   *  inert under overflow='scroll' (that mode owns no measurement) */
   export function remeasure(): void {
-    if (groupEl) measure(groupEl);
+    if (groupEl && overflowMode !== 'scroll') measure(groupEl);
   }
 
   function measure(el: HTMLElement): void {
@@ -690,9 +842,11 @@
   }
 
   $effect(() => {
-    // orientation/mode/policy are read here: flips re-run the whole machine
+    // orientation/mode/policy are read here: flips re-run the whole
+    // machine. scroll mode is EXEMPT: the run scrolls by css, no
+    // measurement ever flips its state (the scroll effect owns it)
     separatorOn;
-    if (!groupEl || orientation !== 'horizontal') return;
+    if (!groupEl || orientation !== 'horizontal' || overflowMode === 'scroll') return;
     if (typeof ResizeObserver === 'undefined') {
       syncSeps(); // the static path: no measurement ever runs, but the seams are real DOM — they still join the visible line
       return;
@@ -704,13 +858,196 @@
     return () => ro.disconnect();
   });
 
-  // the vertical stack never measures (a vertical group overflows its
-  // block axis — the scroll container's business): its seams sync on
+  // the vertical stack never measures (wrap/collapse are horizontal
+  // machines; a vertical group's block axis is the scroll container's
+  // business — its own, under overflow='scroll'): its seams sync on
   // mount and on policy flips alone, DOM order being their layout
   $effect(() => {
     separatorOn;
     if (!groupEl || orientation !== 'vertical') return;
     syncSeps();
+  });
+
+  // ── THE SCROLL RUN (Owner 2026-09-04, the third overflow mode) ────
+  // NO measurement machine here — css scrolls the joined line
+  // naturally. This effect owns the RUN'S VERDICT + the per-member
+  // edge factors (the tabs contract, copied lean):
+  // data-jx-scroll-state (none | start-closed | end-closed | open) is
+  // the single truth the css keys the chevrons and the veil layer on
+  // (no verdict — no JS, or pre-stamp — nothing paints);
+  // --jx-btngroup-progress (0–1 inline travel, RTL-normalized) drives
+  // the veil entrance and the chevron fade; --jx-edge-start/end (the
+  // clipped fraction of each member's own width) ramp the slide/blur
+  // treatments. Rest stamps 0 = the member's natural self, by
+  // arithmetic — no stale factor survives a scroll back
+  const isScroll = $derived(overflowMode === 'scroll');
+  /** the full chrome (host overlays, effects, chevrons) is the
+   *  HORIZONTAL contract (the tabs law); a vertical scroll group gets
+   *  the bare block-axis scroller */
+  const scrollChrome = $derived(isScroll && orientation === 'horizontal');
+  let hostEl = $state<HTMLDivElement | null>(null);
+
+  function isRtl(el: HTMLElement | null | undefined): boolean {
+    if (!el) return false;
+    return isRtlDirection(getComputedStyle(el).direction, (el.closest('[dir]') as HTMLElement | null)?.dir);
+  }
+  function rtlScrollModel(run: HTMLElement, max: number): RtlScrollModel {
+    if (max <= 1) return 'negative';
+    let model = rtlScrollModels.get(run);
+    if (model) return model;
+    // scroll-behavior:smooth SMOOTHS EVEN ASSIGNMENTS — neutralize it
+    // for the probe's lifetime, restore after (tabs' browser-proven
+    // re-attack: the sync read-back would misclassify engines)
+    const savedBehavior = run.style.scrollBehavior;
+    run.style.scrollBehavior = 'auto';
+    const saved = run.scrollLeft;
+    if (saved === 0) run.scrollLeft = -1;
+    model = detectRtlScrollModel(saved, () => run.scrollLeft);
+    run.scrollLeft = saved;
+    run.style.scrollBehavior = savedBehavior;
+    rtlScrollModels.set(run, model);
+    return model;
+  }
+
+  $effect(() => {
+    separatorOn;
+    scrollEffect.type;
+    const run = groupEl;
+    if (!run || !isScroll) return;
+    syncSeps(); // the seams join the single scrolling line
+    if (!scrollChrome) return;
+    let kids = [...run.children].filter(
+      (c): c is HTMLElement =>
+        c instanceof HTMLElement &&
+        !c.hasAttribute('popover') &&
+        c !== moreEl &&
+        !c.hasAttribute('data-jx-btngroup-sep') &&
+        c.getAttribute('data-jx-overflow-hidden') !== 'true',
+    );
+    const ramps =
+      scrollEffect.type === 'slide' || scrollEffect.type === 'blur' || scrollEffect.type === 'blur+slide';
+    const stamp = (el: HTMLElement, name: string, v: number) => {
+      if (v > 0) el.style.setProperty(name, v.toFixed(3));
+      else el.style.removeProperty(name);
+    };
+    // content growth re-verdicts: watch the run + the first/last
+    // members (observed once per element — re-observing inside the
+    // callback would recurse on the jsdom sync-fire polyfill)
+    const observed = new WeakSet<HTMLElement>();
+    const update = () => {
+      kids = [...run.children].filter(
+        (c): c is HTMLElement =>
+          c instanceof HTMLElement &&
+          !c.hasAttribute('popover') &&
+          c !== moreEl &&
+          !c.hasAttribute('data-jx-btngroup-sep') &&
+          c.getAttribute('data-jx-overflow-hidden') !== 'true',
+      );
+      const max = run.scrollWidth - run.clientWidth;
+      // RTL normalization: the raw scrollLeft maps through the run's
+      // probed engine into the canonical inline space [−max, 0]; the
+      // physical window origin the offset* geometry measures against
+      // is max+canon, identically on all three engines
+      const rtl = isRtl(run);
+      const canon = rtl
+        ? rtlScrollToCanonical(rtlScrollModel(run, max), run.scrollLeft, max)
+        : run.scrollLeft;
+      const pos = rtl ? -canon : canon;
+      const state =
+        max <= 1 ? 'none' : pos <= 1 ? 'start-closed' : pos >= max - 1 ? 'end-closed' : 'open';
+      const w = run.clientWidth;
+      const xL = rtl ? max + canon : canon;
+      const factors = (x: number, tw: number): [number, number] =>
+        max <= 1 || tw <= 0
+          ? [0, 0]
+          : [
+              Math.min(tw, Math.max(0, xL - x)) / tw,
+              Math.min(tw, Math.max(0, x + tw - (xL + w))) / tw,
+            ];
+      // READ pass — every geometry query before the first style write
+      const rows: { t: HTMLElement; s: number; e: number }[] = [];
+      if (ramps) {
+        for (const t of kids) {
+          const [s, e] = factors(t.offsetLeft, t.offsetWidth);
+          rows.push({ t, s, e });
+        }
+      }
+      // WRITE pass
+      run.setAttribute('data-jx-scroll-state', state);
+      hostEl?.style.setProperty('--jx-btngroup-progress', max > 1 ? String(pos / max) : '0');
+      for (const { t, s, e } of rows) {
+        stamp(t, '--jx-edge-start', s);
+        stamp(t, '--jx-edge-end', e);
+      }
+      for (const t of [kids[0], kids.at(-1)]) {
+        if (t && !observed.has(t)) {
+          observed.add(t);
+          ro?.observe(t);
+        }
+      }
+    };
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => update());
+    update();
+    run.addEventListener('scroll', update, { passive: true });
+    ro?.observe(run);
+    // late fonts re-widen labels: one quiet restamp when the font set
+    // settles
+    let alive = true;
+    document.fonts?.ready.then(() => {
+      if (alive) update();
+    });
+    return () => {
+      alive = false;
+      run.removeEventListener('scroll', update);
+      ro?.disconnect();
+    };
+  });
+
+  /** the chevron's scroll step: one viewport minus the two lanes (the
+   *  lane width IS the run's own scroll-padding, derived); RTL writes
+   *  go through ABSOLUTE canonical targets (a bare delta mis-maps on
+   *  descending engines) */
+  function nudge(direction: -1 | 1): void {
+    const run = groupEl;
+    if (!run) return;
+    const rtl = isRtl(run);
+    const lane = parseFloat(getComputedStyle(run).scrollPaddingInlineStart || '0') || 0;
+    const step = Math.max(1, run.clientWidth - lane * 2);
+    const max = run.scrollWidth - run.clientWidth;
+    if (!rtl || max <= 1) {
+      run.scrollBy({ left: direction * step });
+      return;
+    }
+    const model = rtlScrollModel(run, max);
+    const curCanon = rtlScrollToCanonical(model, run.scrollLeft, max);
+    const targetCanon = Math.min(0, Math.max(-max, curCanon - direction * step));
+    run.scrollTo({ left: rtlScrollFromCanonical(model, targetCanon, max) });
+  }
+
+  /** the effect knobs ride the HOST inline (the overlays are the run's
+   *  siblings — a var on the run never reaches them); a width knob
+   *  overrides the band default */
+  const hostStyle = $derived.by(() => {
+    if (!scrollChrome) return undefined;
+    const parts: string[] = [];
+    switch (scrollEffect.type) {
+      case 'slide':
+        parts.push(`--jx-btngroup-edge-slide: ${scrollEffect.distance}`);
+        break;
+      case 'blur':
+        parts.push(`--jx-btngroup-edge-blur: ${scrollEffect.radius}`);
+        break;
+      case 'blur+slide':
+        parts.push(
+          `--jx-btngroup-edge-blur: ${scrollEffect.radius}; --jx-btngroup-edge-slide: ${scrollEffect.distance}`,
+        );
+        break;
+      case 'shadow':
+      case 'progressBlur':
+        if (scrollEffect.width) parts.push(`--jx-btngroup-veil: ${scrollEffect.width}`);
+        break;
+    }
+    return parts.join('; ') || undefined;
   });
 
   // the trigger names its panel for AT (aria-haspopup describes the
@@ -732,54 +1069,142 @@
   }
 </script>
 
-<div
-  {...rest}
-  {role}
-  data-jx-btngroup={orientation}
-  data-jx-btngroup-flat={!clusterRaised ? '' : undefined}
-  data-jx-separator={separatorOn ? '' : undefined}
-  data-jx-leading-seam={leadingSeam ? '' : undefined}
-  data-density={d.density}
-  aria-label={ariaLabel ?? label}
-  bind:this={groupEl}
-  class={cn(
-    'inline-grid max-w-full',
-    // the flow law (see header): no-template flow COLUMN grows the
-    // one implicit ROW with columns (the horizontal line); flow row
-    // (the default) grows the one implicit COLUMN with rows (the
-    // vertical stack) — pinned on Chromium, see the r13 rework probe
-    orientation === 'vertical' ? 'grid-flow-row auto-rows-auto items-stretch' : 'grid-flow-col auto-cols-auto items-stretch',
-    justifyClass,
-    className,
-  )}
->
-  {#if leadingSeam && separatorOn}
-    <!-- THE LEADING SEAM, declarative: a REAL element the group owns,
-         its own first child — flush by construction (inside the group
-         no parent gap can detach it; the css paints the ink) -->
-    <span data-jx-btngroup-sep aria-hidden="true"></span>
-  {/if}
-  {@render children()}
-  {#if overflowMode === 'collapse'}
-    <!-- the收纳 trigger: hidden until the collapse state stamps it
-         visible (button-group.css); an icon-only IconButton carrying
-         the native popovertarget invoker — the group context reaches
-         it too, so a ghost group gets a ghost ⋯ -->
-    <span bind:this={moreEl} data-jx-btngroup-more class="inline-flex">
-      <DropdownMenu id={menuId} placement="bottom-end">
-        {#snippet trigger()}
-          <IconButton iconOnly text={moreLabel} popovertarget={menuId}>
-            {#snippet icon()}{@html icons.ellipsis}{/snippet}
-          </IconButton>
-        {/snippet}
-        {#each folded as entry, i (i)}
-          {#if entry.divider}
-            <hr />
-          {:else if entry.el}
-            <DropdownMenuItem onclick={() => activate(entry)}>{entry.label}</DropdownMenuItem>
-          {/if}
-        {/each}
-      </DropdownMenu>
-    </span>
-  {/if}
-</div>
+{#snippet runRoot()}
+  <div
+    {...rest}
+    {role}
+    data-jx-btngroup={orientation}
+    data-jx-btngroup-run={isScroll ? '' : undefined}
+    data-jx-btngroup-flat={!clusterRaised ? '' : undefined}
+    data-jx-separator={separatorOn ? '' : undefined}
+    data-jx-leading-seam={leadingSeam ? '' : undefined}
+    data-scroll-effect={scrollChrome ? scrollEffect.type : undefined}
+    data-density={d.density}
+    aria-label={ariaLabel ?? label}
+    bind:this={groupEl}
+    class={cn(
+      'inline-grid max-w-full',
+      // the flow law (see header): no-template flow COLUMN grows the
+      // one implicit ROW with columns (the horizontal line); flow row
+      // (the default) grows the one implicit COLUMN with rows (the
+      // vertical stack) — pinned on Chromium, see the r13 rework probe
+      orientation === 'vertical' ? 'grid-flow-row auto-rows-auto items-stretch' : 'grid-flow-col auto-cols-auto items-stretch',
+      justifyClass,
+      className,
+    )}
+  >
+    {#if leadingSeam && separatorOn}
+      <!-- THE LEADING SEAM, declarative: a REAL element the group owns,
+           its own first child — flush by construction (inside the group
+           no parent gap can detach it; the css paints the ink) -->
+      <span data-jx-btngroup-sep aria-hidden="true"></span>
+    {/if}
+    {@render children()}
+    {#if overflowMode === 'collapse'}
+      <!-- the收纳 trigger: hidden until the collapse state stamps it
+           visible (button-group.css); an icon-only IconButton carrying
+           the native popovertarget invoker — the group context reaches
+           it too, so a ghost group gets a ghost ⋯ -->
+      <span bind:this={moreEl} data-jx-btngroup-more class="inline-flex">
+        <DropdownMenu id={menuId} placement="bottom-end">
+          {#snippet trigger()}
+            <IconButton iconOnly text={moreLabel} popovertarget={menuId}>
+              {#snippet icon()}{@html icons.ellipsis}{/snippet}
+            </IconButton>
+          {/snippet}
+          {#each folded as entry, i (i)}
+            {#if entry.divider}
+              <hr />
+            {:else if entry.el}
+              <DropdownMenuItem onclick={() => activate(entry)}>{entry.label}</DropdownMenuItem>
+            {/if}
+          {/each}
+        </DropdownMenu>
+      </span>
+    {/if}
+  </div>
+{/snippet}
+
+{#if scrollChrome}
+  <!-- THE SCROLL HOST (the tabs one-cell grid law): children of a
+       scroller scroll with its content, so the overlays mount on this
+       non-scrolling host — the run (base), the veil layer (z 1) and
+       the chevron buttons (z 2) stack in one grid cell; grid-area +
+       z-index only, never position:* -->
+  <div
+    bind:this={hostEl}
+    data-jx-btngroup-host=""
+    class="jx-btngroup-scroll-host inline-grid max-w-full [grid-template-columns:minmax(0,1fr)]"
+    style={hostStyle}
+  >
+    {@render runRoot()}
+    {#if scrollEffect.type === 'shadow' || scrollEffect.type === 'progressBlur'}
+      <!-- the merged veil layer: ONE grid item (z 1) clipping both edge
+           veils; each veil ENTERS by scroll-driven translate (the
+           host's --jx-btngroup-progress drives it), gated by the
+           scroll-state verdict (button-group.css) -->
+      <div class="jx-btngroup-veil-layer pointer-events-none grid [grid-area:1/1]">
+        {#if scrollEffect.type === 'progressBlur'}
+          <!-- hold = the chevron lane's share of the band: lane inset·2
+               inside a veil inset·6 = 1/3 — the ladder's peak covers
+               exactly the blank lane snap parks content clear of -->
+          <ProgressiveBlur
+            pin="grid"
+            position="start"
+            reveal="static"
+            height="var(--jx-btngroup-veil)"
+            hold={100 / 3}
+            blurLevels={scrollEffect.blurLevels}
+            class="jx-btngroup-veil"
+          />
+          <ProgressiveBlur
+            pin="grid"
+            position="end"
+            reveal="static"
+            height="var(--jx-btngroup-veil)"
+            hold={100 / 3}
+            blurLevels={scrollEffect.blurLevels}
+            class="jx-btngroup-veil"
+          />
+        {:else}
+          <!-- the shadow veil: one band per edge — the separator's INK
+               law (backdrop contrast SUBTRACTS color toward mid tone,
+               never adds black; dark mode reverses itself, zero color
+               tokens). The bands carry .jx-btngroup-veil, so the width
+               var, the translate entrance and the layer clip apply
+               unchanged -->
+          <div
+            class="jx-btngroup-shadow jx-btngroup-veil [grid-area:1/1] justify-self-start [transform:translateZ(0)]"
+            data-position="start"
+            aria-hidden="true"
+          ></div>
+          <div
+            class="jx-btngroup-shadow jx-btngroup-veil [grid-area:1/1] justify-self-end [transform:translateZ(0)]"
+            data-position="end"
+            aria-hidden="true"
+          ></div>
+        {/if}
+      </div>
+    {/if}
+    <!-- the chevrons: REAL DOM BUTTONS on the host, OUTSIDE the run —
+         scroll controls are not actions of the group, the a11y tree
+         stays clean; the css keys their existence on the JS-stamped
+         scroll-state and their fade on --jx-btngroup-progress -->
+    <button
+      type="button"
+      tabindex="-1"
+      aria-label="Scroll actions backward"
+      data-jx-btngroup-chevron="inline-start"
+      onclick={() => nudge(-1)}
+    ></button>
+    <button
+      type="button"
+      tabindex="-1"
+      aria-label="Scroll actions forward"
+      data-jx-btngroup-chevron="inline-end"
+      onclick={() => nudge(1)}
+    ></button>
+  </div>
+{:else}
+  {@render runRoot()}
+{/if}
