@@ -51,3 +51,16 @@
   comparison, registry entry retirement after reap (pid-reuse guard), the timeout
   reap participates in promise resolution (pipe-hostage 'close' can no longer
   stretch a budget), STATUS records ca3de59's CI 33892150033.
+- impl review r4/r5 (2026-09-05, codex gpt-5.6-terra xhigh): r4 7.7 — the r3
+  retire was reference-identity and removed nothing (call sites pass equal-valued
+  ad-hoc objects; reap() never visited naturally-exited entries); fixed in 3452d53
+  (key-based retire + full-registry sweep + leaked-retention + two self-test
+  assertions proving both failure modes). 09d8627: the ghostty tip assets drifted
+  AGAIN within hours (999241→999503 / 739911→739918) — the documented emergency
+  catch-up, offline sentinel GREEN. **r5: 9.2/10 READY** — codex's independent
+  probes: ad-hoc and natural-exit retire both leave entries=[]; 3× self-test
+  (9 fixtures each) with zero marker/lock/staging residue; 8×100 lock contention
+  holders=0 max=1; drift 179/179; its own full-harness run hit the 600s npm
+  budget under hostile network and the hard-budget spine terminated in ~4s,
+  fail-loud, zero residue — the B3 contract proven in the wild. CI 33896492498
+  green end-to-end on 09d8627.
