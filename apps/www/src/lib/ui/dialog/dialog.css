@@ -117,6 +117,35 @@
      button economy is the DialogFooter component's — Dialog renders
      the footer snippet RAW inside the zone */
 
+  /* ── THE HEIGHT CONTINUITY (bug fix, Owner 2026-09-04: the search
+     palette overflowed the window) ─────────────────────────────────
+     A consumer's max-h lands on the PLATFORM element (platformClass)
+     while the scroll ring lives two wrappers down — and the surface
+     body between them is a plain block that transmits no ceiling. The
+     offset palette capped its platform at 100dvh-14vh-2rem while the
+     ring still wanted its own 100dvh-2rem: the taller ring overflowed
+     the capped platform and painted past the window's bottom edge —
+     the body zone scrolled, but its visible region sat below the
+     viewport (measured broken: ring bottom 880 in an 800 window; the
+     platform itself paints nothing visible out — its overflow stays
+     visible, only the shadow's 6px bleed reports in scrollHeight). The
+     platform and the surface body become flex columns so the
+     platform's ceiling REACHES the ring; the ring's own max-h keeps
+     guarding the centered default case. The body zone stays the only
+     scroller (r14-3, unchanged). */
+  :where(.jx-dialog) {
+    display: flex;
+    flex-direction: column;
+  }
+  :where([data-jx-dialog-surface]) {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  :where([data-jx-dialog-scroll]) {
+    min-height: 0;
+  }
+
   /* ── the D1-exempt residue ─────────────────────────────────────── */
   /* Scrim law (Owner, 2026-08-22): semi-transparent black in light mode,
      white in dark mode (--scrim) — a scrim dims/lightens, never colors. */
