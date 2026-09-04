@@ -1490,6 +1490,50 @@ never honest.
   the scroll authority (`overflow-y: visible` — mis-declared overflow
   paints out honestly) together with the gutter (`auto`)
 
+### Requirement: the scrollable region is ONE shared system (the scroll-run unification, Owner 2026-09-04 “统一成一套”)
+
+A horizontal overflow strip SHALL ride the shared `@jixoai/scroll-run`
+item — the stamp machine (`createScrollStamp`), the law sheet
+(`scroll-run.css`), and the DOM chrome (`ScrollChrome`) — never a
+family-local copy of any of the three. The run itself SHALL be the
+scroller (`data-jx-scroll-run` + `data-axis` on the strip element,
+inside a one-cell grid host), the JS-stamped verdict
+(`data-jx-scroll-state`: none | start-closed | end-closed | open)
+SHALL be the single truth every overlay gate keys on, and the
+per-member edge factors (`--jx-edge-start/end`) SHALL be consumed
+SQUARED by the css (the eased curve). Consumers keep ONLY their
+tuning (band widths, snap, mirrors onto companion elements).
+
+#### Scenario: tabs consumes the shared system
+
+- GIVEN the tablist degrades to a scroll run when its triggers
+  outgrow the strip
+- WHEN the shared machine stamps the verdict and factors
+- THEN the chips, the veil layer, and the ramp rules all come from
+  scroll-run.css, tabs-trigger.css carries only its own tuning
+  (the inset·2 lane, proximity snap, the inset·6 veil band), and the
+  indicator rides the SAME `> *` ramp rules through the machine's
+  `mirrors` wiring (no tabs-local fade rule exists)
+
+#### Scenario: button-group consumes the shared system
+
+- GIVEN a joined row declares `overflow='scroll'`
+- WHEN the group root becomes the run
+- THEN the frosted edge chips, the veil pair, and the `scrollEffect`
+  builders behave identically to tabs — the family sheet carries
+  NOTHING scroll-painted (a source-pinned negative test enforces it)
+
+#### Scenario: a NEW scrollable region adopts the raw contract
+
+- GIVEN any future strip (a chip rail, a palette row) needs overflow
+  with edge treatment
+- WHEN the consumer wires host + run hooks + ScrollChrome + ONE
+  createScrollStamp effect
+- THEN it inherits the verdict gating, the squared ramps, the RTL
+  three-engine funnel, and the background-tab wake with zero family
+  css of its own (the scroll-run docs page's live demo IS this
+  contract, family-neutral)
+
 ### Requirement: animated formulas derive from the resting token
 
 When a property has both a static paint and a motion-kernel formula,

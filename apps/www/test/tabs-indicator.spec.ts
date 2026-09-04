@@ -84,6 +84,10 @@ if (typeof globalThis.ResizeObserver === 'undefined') {
 // the css law is read from the source (same-source: byte-identical to
 // registry/files/ui/tabs/tabs-trigger.css); vitest stubs css imports,
 // so the raw text comes off disk
+const scrollRunCss = readFileSync(
+  resolve(process.cwd(), 'src/lib/ui/scroll-run/scroll-run.css'),
+  'utf8',
+);
 const tabsTriggerCss = readFileSync(
   resolve(process.cwd(), 'src/lib/ui/tabs/tabs-trigger.css'),
   'utf8',
@@ -328,21 +332,21 @@ describe('Tabs · layout contract', () => {
     expect(list('line').querySelector('.jx-pblur')).toBeNull();
     // the builder's knobs land as inline vars on the HOST (the overlays are
     // the run's siblings — a var on the run never reaches them)
-    expect(list('line').getAttribute('style')).toContain('--jx-tabs-edge-slide: 8px');
+    expect(list('line').getAttribute('style')).toContain('--jx-scroll-edge-slide: 8px');
     // blur+slide: the type rides the run for the css wiring, both knobs on the host
     const blurHost = list('effect-blur');
     expect(blurHost.querySelector('[data-jx-tabs-run]')!.getAttribute('data-scroll-effect')).toBe('blur+slide');
-    expect(blurHost.getAttribute('style')).toContain('--jx-tabs-edge-blur: 4px');
-    expect(blurHost.getAttribute('style')).toContain('--jx-tabs-edge-slide: 8px');
+    expect(blurHost.getAttribute('style')).toContain('--jx-scroll-edge-blur: 4px');
+    expect(blurHost.getAttribute('style')).toContain('--jx-scroll-edge-slide: 8px');
     // progressBlur: ONE merged veil layer over the run holding both bands —
     // painted AFTER the scroller (empirical Chromium: the bands' backdrop
     // only samples the scrolled content when they paint after it)
     const host = list('effect-veil');
     const run = host.querySelector('[data-jx-tabs-run]')!;
-    const layer = host.querySelector(':scope > .jx-tabs-veil-layer')!;
+    const layer = host.querySelector(':scope > .jx-scroll-veil-layer')!;
     expect(run.parentElement).toBe(host);
     expect(layer.previousElementSibling).toBe(run);
-    const bands = [...layer.querySelectorAll(':scope > .jx-tabs-veil')];
+    const bands = [...layer.querySelectorAll(':scope > .jx-scroll-veil')];
     expect(bands).toHaveLength(2);
     expect(bands[0].getAttribute('data-position')).toBe('start');
     expect(bands[1].getAttribute('data-position')).toBe('end');
@@ -368,9 +372,9 @@ describe('Tabs · layout contract', () => {
     // the chevrons are REAL DOM BUTTONS (Owner, 2026-09-01 R4 — the
     // ::scroll-button() pseudos are retired): after the veil layer, OUTSIDE
     // the tablist (scroll controls are not tabs — the a11y tree stays clean)
-    const chevrons = [...host.querySelectorAll(':scope > [data-jx-chevron]')];
+    const chevrons = [...host.querySelectorAll(':scope > [data-jx-scroll-chevron]')];
     expect(chevrons).toHaveLength(2);
-    expect(chevrons.map((c) => c.getAttribute('data-jx-chevron')).sort()).toEqual(['inline-end', 'inline-start']);
+    expect(chevrons.map((c) => c.getAttribute('data-jx-scroll-chevron')).sort()).toEqual(['inline-end', 'inline-start']);
     for (const c of chevrons) {
       expect(c.tagName).toBe('BUTTON');
       expect(c.getAttribute('tabindex')).toBe('-1');
@@ -381,15 +385,15 @@ describe('Tabs · layout contract', () => {
   it('the shadow effect rides the SAME layer: one contrast-ghost band per edge, width knob overrides the var inline', () => {
     const { list } = setup();
     const host = list('effect-shadow');
-    const layer = host.querySelector(':scope > .jx-tabs-veil-layer')!;
+    const layer = host.querySelector(':scope > .jx-scroll-veil-layer')!;
     expect(layer).toBeTruthy();
-    const bands = [...layer.querySelectorAll(':scope > .jx-tabs-shadow')];
+    const bands = [...layer.querySelectorAll(':scope > .jx-scroll-shadow')];
     expect(bands).toHaveLength(2);
     expect(bands[0].getAttribute('data-position')).toBe('start');
     expect(bands[1].getAttribute('data-position')).toBe('end');
     // the bands carry the veil contract: width var + entrance + clip apply unchanged
     for (const b of bands) {
-      expect(b.className).toContain('jx-tabs-veil');
+      expect(b.className).toContain('jx-scroll-veil');
       expect(b.className).toContain('[grid-area:1/1]');
       expect(b.className).toContain('[transform:translateZ(0)]');
       expect(b.getAttribute('aria-hidden')).toBe('true');
@@ -397,9 +401,9 @@ describe('Tabs · layout contract', () => {
     // no pblur ladder in the shadow mode
     expect(layer.querySelector('.jx-pblur')).toBeNull();
     // the width knob stamps --jx-tabs-veil inline on the host (overrides the css default)
-    expect(list('effect-narrow').getAttribute('style')).toContain('--jx-tabs-veil: 120px');
+    expect(list('effect-narrow').getAttribute('style')).toContain('--jx-scroll-veil: 120px');
     // without the knob, no inline width var
-    expect(list('effect-veil').getAttribute('style')).not.toContain('--jx-tabs-veil');
+    expect(list('effect-veil').getAttribute('style')).not.toContain('--jx-scroll-veil');
   });
 
   it('the DOM chevrons nudge the run by a strip page (lane-derived), both directions', () => {
@@ -416,19 +420,19 @@ describe('Tabs · layout contract', () => {
       run.dispatchEvent(new Event('scroll'));
       return undefined;
     };
-    (host.querySelector(':scope > [data-jx-chevron="inline-end"]') as HTMLButtonElement).click();
-    (host.querySelector(':scope > [data-jx-chevron="inline-start"]') as HTMLButtonElement).click();
+    (host.querySelector(':scope > [data-jx-scroll-chevron="inline-end"]') as HTMLButtonElement).click();
+    (host.querySelector(':scope > [data-jx-scroll-chevron="inline-start"]') as HTMLButtonElement).click();
     expect(calls).toHaveLength(2);
     expect(calls[0]).toBeGreaterThan(0);
     expect(calls[1]).toBeLessThan(0);
   });
 
-  it('the scroll handler stamps --jx-tabs-progress on the HOST and per-trigger edge factors — one truth for chevrons, veil and ramps', () => {
+  it('the scroll handler stamps --jx-scroll-progress on the HOST and per-trigger edge factors — one truth for chevrons, veil and ramps', () => {
     const { list, tabsIn } = setup();
     const host = list('scroll');
     const run = host.querySelector('[data-jx-tabs-run]')!;
     // jsdom has no layout: an unscrollable run reports travel 0
-    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('0');
+    expect(host.style.getPropertyValue('--jx-scroll-progress')).toBe('0');
     // fake geometry: 600 of content in a 200-wide run; the first trigger
     // owns [0, 100] of it
     Object.defineProperty(run, 'scrollWidth', { value: 600, configurable: true });
@@ -439,7 +443,7 @@ describe('Tabs · layout contract', () => {
     // walked 50 in: travel 0.125, the first trigger HALF clipped (0.5)
     run.scrollLeft = 50;
     run.dispatchEvent(new Event('scroll'));
-    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('0.125');
+    expect(host.style.getPropertyValue('--jx-scroll-progress')).toBe('0.125');
     expect(run.getAttribute('data-jx-scroll-state')).toBe('open');
     expect(first.style.getPropertyValue('--jx-edge-start')).toBe('0.500');
     // a zero factor REMOVES the stamp — rest is the natural self
@@ -448,7 +452,7 @@ describe('Tabs · layout contract', () => {
     run.scrollLeft = 400;
     run.dispatchEvent(new Event('scroll'));
     expect(run.getAttribute('data-jx-scroll-state')).toBe('end-closed');
-    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('1');
+    expect(host.style.getPropertyValue('--jx-scroll-progress')).toBe('1');
     expect(first.style.getPropertyValue('--jx-edge-start')).toBe('1.000');
     // back at rest: the stuck repro — the first trigger is CLEAN again
     run.scrollLeft = 0;
@@ -477,7 +481,7 @@ describe('Tabs · layout contract', () => {
     run.scrollLeft = 0;
     run.dispatchEvent(new Event('scroll'));
     expect(run.getAttribute('data-jx-scroll-state')).toBe('start-closed');
-    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('0');
+    expect(host.style.getPropertyValue('--jx-scroll-progress')).toBe('0');
     expect(alpha.style.getPropertyValue('--jx-edge-start')).toBe('');
     expect(alpha.style.getPropertyValue('--jx-edge-end')).toBe('');
     // walked 100 toward the inline end (physical left): spec RTL
@@ -485,7 +489,7 @@ describe('Tabs · layout contract', () => {
     run.scrollLeft = -100;
     run.dispatchEvent(new Event('scroll'));
     expect(run.getAttribute('data-jx-scroll-state')).toBe('open');
-    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('0.25');
+    expect(host.style.getPropertyValue('--jx-scroll-progress')).toBe('0.25');
     // alpha [480, 580] clips 80/100 under the physical-right edge —
     // factor 0.800; the VISIBLE beta [420, 500] stays clean (the A-2
     // regression: no visible trigger ever stamps to 1)
@@ -497,7 +501,7 @@ describe('Tabs · layout contract', () => {
     run.scrollLeft = -400;
     run.dispatchEvent(new Event('scroll'));
     expect(run.getAttribute('data-jx-scroll-state')).toBe('end-closed');
-    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('1');
+    expect(host.style.getPropertyValue('--jx-scroll-progress')).toBe('1');
   });
 
   it('RTL chevrons nudge on the flipped physical axis — inline-forward writes an ABSOLUTE negative target (re-attack P3)', () => {
@@ -523,11 +527,11 @@ describe('Tabs · layout contract', () => {
       calls.push(opts?.left ?? 0);
       return undefined;
     };
-    (host.querySelector(':scope > [data-jx-chevron="inline-end"]') as HTMLButtonElement).click();
+    (host.querySelector(':scope > [data-jx-scroll-chevron="inline-end"]') as HTMLButtonElement).click();
     // inline-back from a mid-scroll rest: the absolute target walks
     // TOWARD 0 (raw on the negative engine == canonical)
     run.scrollLeft = -350;
-    (host.querySelector(':scope > [data-jx-chevron="inline-start"]') as HTMLButtonElement).click();
+    (host.querySelector(':scope > [data-jx-scroll-chevron="inline-start"]') as HTMLButtonElement).click();
     expect(calls).toHaveLength(2);
     expect(calls[0]).toBeLessThan(0); // inline-forward: negative-space target
     expect(calls[1]).toBe(-150); // -350 + step(200), clamped inside [−max, 0]
@@ -678,7 +682,7 @@ describe('Tabs · RTL resolution (one truth, three engines)', () => {
     run.scrollLeft = -100;
     run.dispatchEvent(new Event('scroll'));
     expect(run.getAttribute('data-jx-scroll-state')).toBe('open');
-    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('0.25');
+    expect(host.style.getPropertyValue('--jx-scroll-progress')).toBe('0.25');
     // walk side: ArrowRight is BACKWARD under rtl — alpha wraps to
     // gamma (old code: forward to beta), ArrowLeft walks forward back
     const [alpha, , gamma] = tabsIn('rtl');
@@ -758,7 +762,7 @@ describe('Tabs · RTL resolution (one truth, three engines)', () => {
     raw = 100;
     run.dispatchEvent(new Event('scroll'));
     expect(run.getAttribute('data-jx-scroll-state')).toBe('open');
-    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('0.25');
+    expect(host.style.getPropertyValue('--jx-scroll-progress')).toBe('0.25');
     expect(alpha.style.getPropertyValue('--jx-edge-start')).toBe('');
     expect(alpha.style.getPropertyValue('--jx-edge-end')).toBe('0.800');
     // nudge: inline-forward writes a POSITIVE raw ABSOLUTE target on
@@ -768,7 +772,7 @@ describe('Tabs · RTL resolution (one truth, three engines)', () => {
       calls.push(opts?.left ?? 0);
       return undefined;
     };
-    (host.querySelector(':scope > [data-jx-chevron="inline-end"]') as HTMLButtonElement).click();
+    (host.querySelector(':scope > [data-jx-scroll-chevron="inline-end"]') as HTMLButtonElement).click();
     expect(calls[0]).toBeGreaterThan(0);
   });
 
@@ -791,12 +795,12 @@ describe('Tabs · RTL resolution (one truth, three engines)', () => {
     });
     run.dispatchEvent(new Event('scroll'));
     expect(run.getAttribute('data-jx-scroll-state')).toBe('start-closed');
-    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('0');
+    expect(host.style.getPropertyValue('--jx-scroll-progress')).toBe('0');
     // raw DESCENDS toward the inline end: 100 is canon −300 → travel 0.75
     raw = 100;
     run.dispatchEvent(new Event('scroll'));
     expect(run.getAttribute('data-jx-scroll-state')).toBe('open');
-    expect(host.style.getPropertyValue('--jx-tabs-progress')).toBe('0.75');
+    expect(host.style.getPropertyValue('--jx-scroll-progress')).toBe('0.75');
   });
 });
 
@@ -852,11 +856,11 @@ describe('Tabs · indicator css law (tabs-trigger.css, source-pinned)', () => {
     );
   });
 
-  it('the chevron glyphs are the LUCIDE geometry (icons.ts same source): stroke 2, chevron-right/left paths', () => {
-    expect(tabsTriggerCss).toContain("path d='m9 18 6-6-6-6'");
-    expect(tabsTriggerCss).toContain("path d='m15 18-6-6 6-6'");
-    expect(tabsTriggerCss).toContain("stroke-width='2'");
-    expect(tabsTriggerCss).not.toContain("stroke-width='2.5'");
+  it('the chevron glyphs are the LUCIDE geometry (icons.ts same source): stroke 2, chevron-right/left paths — the shared sheet carries them', () => {
+    expect(scrollRunCss).toContain("path d='m9 18 6-6-6-6'");
+    expect(scrollRunCss).toContain("path d='m15 18-6-6 6-6'");
+    expect(scrollRunCss).toContain("stroke-width='2'");
+    expect(scrollRunCss).not.toContain("stroke-width='2.5'");
   });
 
   it("the grow layout stretches its triggers ([data-layout='grow'] > [role=tab])", () => {
@@ -906,215 +910,185 @@ describe('Tabs · scrollEffect builders (the press-button effect convention)', (
   });
 });
 
-describe('Tabs · horizontal overflow contract (tabs-trigger.css, source-pinned)', () => {
-  // the overflow law is pinned on the css source (same-source:
-  // byte-identical to the registry copy) and the jsdom markup
-  const startBtn = /\[data-jx-chevron='inline-start'\]/;
-  const endBtn = /\[data-jx-chevron='inline-end'\]/;
+describe('Tabs · horizontal overflow contract (the SHARED scroll-run sheet, source-pinned)', () => {
+  // THE UNIFICATION (Owner 2026-09-04): the scroll chrome's paint
+  // laws live in the SHARED scroll-run.css (keyed on the
+  // data-jx-scroll-* names); tabs keeps only its tuning — snap, the
+  // wider lane padding, the wider veil band, the indicator fade
+  const startBtn = /\[data-jx-scroll-chevron='inline-start'\]/;
+  const endBtn = /\[data-jx-scroll-chevron='inline-end'\]/;
 
-  it('the horizontal list is a ONE-CELL GRID HOST — the run, the veil layer and the chevron buttons stack in the same cell', () => {
+  it('the horizontal list is a ONE-CELL GRID HOST — the run, the veil layer and the chips stack in the same cell', () => {
     expect(tabsTriggerCss).toMatch(
       new RegExp(`\\.jx-tabs-horizontal[^{]*\\{[^}]*display:\\s*grid`, 's'),
     );
     expect(tabsTriggerCss).toMatch(
       new RegExp(`\\.jx-tabs-horizontal[^{]*\\{[^}]*grid-template-columns:\\s*minmax\\(0,\\s*1fr\\)`, 's'),
     );
-    expect(tabsTriggerCss).toMatch(new RegExp(`\\.jx-tabs-run[^{]*\\{[^}]*grid-area:\\s*1\\s*/\\s*1`, 's'));
-    expect(tabsTriggerCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*grid-area:\\s*1\\s*/\\s*1`, 's'));
-    expect(tabsTriggerCss).toMatch(/\.jx-tabs-veil-layer[^{\/]*\{[^}]*z-index:\s*1/s);
+    expect(tabsTriggerCss).toMatch(new RegExp(`\\.jx-tabs-run[^{]*\\{[^}]*grid-area:\\s*1\\s*\\/\\s*1`, 's'));
+    expect(scrollRunCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*grid-area:\\s*1\\s*\\/\\s*1`, 's'));
+    expect(scrollRunCss).toMatch(/\.jx-scroll-veil-layer[^{\/]*\{[^}]*z-index:\s*1/s);
   });
 
-  it('the run (the tablist itself) degrades to a scroll run: overflow-x auto, hidden scrollbar, walk-clearing scroll padding', () => {
-    expect(tabsTriggerCss).toMatch(new RegExp(`\\.jx-tabs-run[^{]*\\{[^}]*overflow-x:\\s*auto`, 's'));
-    expect(tabsTriggerCss).toMatch(new RegExp(`\\.jx-tabs-run[^{]*\\{[^}]*scrollbar-width:\\s*none`, 's'));
-    expect(tabsTriggerCss).toMatch(new RegExp(`\\.jx-tabs-run[^{]*\\{[^}]*scroll-padding-inline`, 's'));
-  });
-
-  it('both chevron buttons are authored, pinned to their inline edges (justify-self), stacked above run AND veil', () => {
-    expect(tabsTriggerCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*justify-self:\\s*end`, 's'));
-    expect(tabsTriggerCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*justify-self:\\s*start`, 's'));
-    // z law: run base · veil layer 1 · chevrons 2
-    expect(tabsTriggerCss).toMatch(
-      new RegExp(`${startBtn.source}[^{]*\\{[^}]*z-index:\\s*2`, 's'),
+  it('the run (the tablist itself) degrades to a scroll run: the SHARED scroller contract on its data-jx-scroll-run hook', () => {
+    expect(scrollRunCss).toMatch(
+      /\[data-jx-scroll-run\]\[data-axis='horizontal'\]\)\s*\{[^}]*overflow-x:\s*auto;[^}]*scrollbar-width:\s*none;[^}]*scroll-padding-inline:[^;]*;/s,
     );
+    // the tablist carries BOTH hooks (its own .jx-tabs-run for the
+    // family laws, the shared one for the scroller contract)
+    expect(tabsTriggerCss).toMatch(/\.jx-tabs-run[^{]*\{[^}]*scroll-padding-inline:\s*calc\(var\(--jx-inset\)\s*\*\s*2\)/s);
   });
 
-  it('the chevron is a FROSTED EDGE CHIP (one law with button-group, Owner round 4): centered, tucked, blurred — the glyph in css vars the background references', () => {
-    // the chip: inset·1.5 square, vertically centered by grid, ink var,
-    // frost + soft lift; the glyph (14px = the SVG canvas, ink spans
-    // the middle half) is the chip's own background layer
-    expect(tabsTriggerCss).toMatch(
-      new RegExp(`${startBtn.source}[\\s\\S]{0,200}?${endBtn.source}[^{]*\\{[^}]*align-self:\\s*center;[^}]*inline-size:\\s*calc\\(var\\(--jx-inset\\)\\s*\\*\\s*1\\.5\\);[^}]*background-color:\\s*var\\(--jx-tabs-chevron-chip\\);[^}]*backdrop-filter:\\s*blur\\(2px\\);`, 's'),
-    );
-    expect(tabsTriggerCss).toMatch(/--jx-tabs-chevron-chip:\s*oklab\(1\s*0\s*0\s*\/\s*0\.8\);/);
-    expect(tabsTriggerCss).toMatch(/--jx-tabs-chevron-inline-end:\s*url\(/);
-    expect(tabsTriggerCss).toMatch(/--jx-tabs-chevron-inline-start:\s*url\(/);
-    expect(tabsTriggerCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*margin-inline-end:\\s*calc\\(var\\(--jx-inset\\)\\s*\\*\\s*-1\\);[^}]*background-image:\\s*var\\(--jx-tabs-chevron-inline-end\\)`, 's'));
-    expect(tabsTriggerCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*margin-inline-start:\\s*calc\\(var\\(--jx-inset\\)\\s*\\*\\s*-1\\);[^}]*background-image:\\s*var\\(--jx-tabs-chevron-inline-start\\)`, 's'));
-    // the retired eras never return: no mask, no blend glyph
-    const chip = tabsTriggerCss.match(new RegExp(`${startBtn.source}[\\s\\S]{0,200}?${endBtn.source}[^{]*\\{([^}]*)\\}`, 's'))?.[1] ?? '';
+  it('both chips are authored, pinned to their inline edges (justify-self), stacked above run AND veil', () => {
+    expect(scrollRunCss).toMatch(/:where\(\[data-jx-scroll-chevron='inline-end'\]\)\s*\{[^}]*justify-self:\s*end/s);
+    expect(scrollRunCss).toMatch(/:where\(\[data-jx-scroll-chevron='inline-start'\]\)\s*\{[^}]*justify-self:\s*start/s);
+    expect(scrollRunCss).toMatch(/:where\(\[data-jx-scroll-chevron='inline-start'\]\),\s*\n\s*:where\(\[data-jx-scroll-chevron='inline-end'\]\)\s*\{[^}]*z-index:\s*2/s);
+  });
+
+  it('the chip is a FROSTED EDGE CHIP (the shared law): centered, tucked, blurred — the glyph in css vars the background references', () => {
+    const chip =
+      scrollRunCss.match(
+        new RegExp(`${startBtn.source}[\\s\\S]{0,200}?${endBtn.source}[^{]*\\{([^}]*)\\}`, 's'),
+      )?.[1] ?? '';
+    expect(chip).toMatch(/align-self:\s*center;/);
+    expect(chip).toMatch(/inline-size:\s*calc\(var\(--jx-inset\)\s*\*\s*1\.5\);/);
+    expect(chip).toMatch(/background-color:\s*var\(--jx-scroll-chevron-chip\);/);
+    expect(chip).toMatch(/backdrop-filter:\s*blur\(2px\);/);
+    expect(scrollRunCss).toMatch(/--jx-scroll-chevron-chip:\s*oklab\(1\s*0\s*0\s*\/\s*0\.8\);/);
+    expect(scrollRunCss).toMatch(/--jx-scroll-chevron-inline-end:\s*url\(/);
+    expect(scrollRunCss).toMatch(/--jx-scroll-chevron-inline-start:\s*url\(/);
+    expect(scrollRunCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*margin-inline-end:\\s*calc\\(var\\(--jx-inset\\)\\s*\\*\\s*-1\\);[^}]*background-image:\\s*var\\(--jx-scroll-chevron-inline-end\\)`, 's'));
+    expect(scrollRunCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*margin-inline-start:\\s*calc\\(var\\(--jx-inset\\)\\s*\\*\\s*-1\\);[^}]*background-image:\\s*var\\(--jx-scroll-chevron-inline-start\\)`, 's'));
     expect(chip).not.toMatch(/mask/);
     expect(chip).not.toMatch(/mix-blend-mode/);
-    // the glyph size: 14px pinned (Owner 2026-09-04 — the text-derived
-    // size computed ~8–11px, an unreadable whisper; the background
-    // still references the var, so the indirection stays swappable)
-    expect(tabsTriggerCss).toMatch(/--jx-tabs-chevron-size:\s*14px;/);
+    expect(scrollRunCss).toMatch(/--jx-scroll-chevron-size:\s*14px;/);
   });
 
-  it('a direction that cannot travel NEVER paints: the JS-stamped data-jx-scroll-state is the truth the css keys on', () => {
-    // none = the strip cannot scroll at all; start/end-closed = that edge
-    // is exhausted — every state keys a [data-jx-chevron] gate
+  it('a direction that cannot travel NEVER paints: the JS-stamped data-jx-scroll-state is the truth the shared css keys on', () => {
     for (const state of ['none', 'start-closed', 'end-closed']) {
-      expect(tabsTriggerCss).toMatch(`data-jx-scroll-state='${state}']`);
+      expect(scrollRunCss).toMatch(`data-jx-scroll-state='${state}']`);
     }
-    expect(tabsTriggerCss).toMatch(
-      /data-jx-scroll-state='none'\][^{]*>\s*:where\(\[data-jx-chevron='inline-start'\]\)[\s\S]{0,400}?display:\s*none/s,
+    // the none gate is a THREE-selector list (none hides both chips,
+    // each closed edge hides its own) — the display rides the shared block
+    expect(scrollRunCss).toMatch(
+      /data-jx-scroll-state='none'\]\)[^{]*>\s*:where\(\[data-jx-scroll-chevron\]\)[\s\S]{0,400}?display:\s*none/s,
     );
   });
 
-  it('the run is the indicator containing block and a snap-scroller: relative, smooth, proximity snap', () => {
-    const runBlock = tabsTriggerCss.match(/:where\(\.jx-tabs-run\) \{[\s\S]*?\n\}/)?.[0] ?? '';
-    expect(runBlock).toMatch(/position:\s*relative/);
-    expect(runBlock).toMatch(/scroll-behavior:\s*smooth/);
-    expect(runBlock).toMatch(/scroll-snap-type:\s*x\s+proximity/);
+  it('the run is the indicator containing block and a snap-scroller: the shared contract + tabs\' snap tuning', () => {
+    const sharedRun = scrollRunCss.match(/\[data-jx-scroll-run\]\[data-axis='horizontal'\]\)\s*\{([^}]*)\}/s)?.[1] ?? '';
+    expect(sharedRun).toMatch(/position:\s*relative/);
+    expect(sharedRun).toMatch(/scroll-behavior:\s*smooth/);
+    // tabs keeps the snap (its triggers are pages; the button-group\'s
+    // retirement was a buttons-are-not-pages ruling)
+    expect(tabsTriggerCss).toMatch(/\.jx-tabs-run[^{]*\{[^}]*scroll-snap-type:\s*x\s*proximity/s);
     expect(tabsTriggerCss).toMatch(/\.jx-tabs-run[^{]*>\s*\[role='tab'\][^{]*\{[^}]*scroll-snap-align:\s*start/s);
   });
 
-  it('the layout law (R4): the chevrons are REAL DOM — no ::scroll-button() anywhere, no position:absolute, no anchor machinery', () => {
-    expect(tabsTriggerCss).not.toMatch(/::scroll-button/);
-    const overlayRules = tabsTriggerCss
+  it('the layout law (R4): the chips are REAL DOM — no ::scroll-button() anywhere, no position:absolute, no anchor machinery', () => {
+    for (const sheet of [tabsTriggerCss, scrollRunCss]) {
+      expect(sheet).not.toMatch(/::scroll-button/);
+      expect(sheet).not.toMatch(/anchor-name/);
+      expect(sheet).not.toMatch(/position-anchor/);
+      expect(sheet).not.toMatch(/::scroll-button\([^)]*\):(enabled|disabled|not)/);
+    }
+    const overlayRules = scrollRunCss
       .split('\n')
-      .filter((line) => line.includes('data-jx-chevron') || line.includes('jx-tabs-veil'))
+      .filter((line) => line.includes('data-jx-scroll-chevron') || line.includes('jx-scroll-veil'))
       .join('\n');
     expect(overlayRules).not.toMatch(/position:\s*absolute/);
-    expect(tabsTriggerCss).not.toMatch(/anchor-name/);
-    expect(tabsTriggerCss).not.toMatch(/position-anchor/);
-    // generation itself is the on-demand gate (Chromium 146: a dead
-    // direction has NO box; :enabled/:disabled never match the pseudo)
-    expect(tabsTriggerCss).not.toMatch(/::scroll-button\([^)]*\):(enabled|disabled|not)/);
   });
 
-  it('scrollEffect #1 — scroll-following edge ramps: per-trigger stamped factors calc the treatment; NO view() timelines (Chromium 152 resolves named ranges garbage at rest — the stuck-first-button law)', () => {
+  it('scrollEffect #1 — the SHARED eased ramps: squared factors calc the treatment; NO view() timelines', () => {
     for (const effect of ['blur', 'slide', 'blur+slide']) {
       const escaped = effect.replace('+', '\\+');
       const rule =
-        tabsTriggerCss.match(new RegExp(`data-scroll-effect='${escaped}'\\] > \\[role='tab'\\] \\{[\\s\\S]*?\\n\\}`))
-          ?.[0] ?? '';
-      expect(rule, `the ${effect} rule`).toContain('opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)))');
-      if (effect !== 'blur') {
-        // slide composes the two directions along the inline axis
-        expect(rule).toMatch(
-          /translate:\s*calc\(\(var\(--jx-edge-end, 0\) - var\(--jx-edge-start, 0\)\) \* var\(--jx-tabs-edge-slide, 0px\)\) 0/,
-        );
-      }
+        scrollRunCss.match(
+          new RegExp(`\\[data-scroll-effect='${escaped}'\\]\\)\\s*>\\s*\\*\\s*\\{[^}]*\\}`),
+        )?.[0] ?? '';
+      expect(rule, `the ${effect} rule`).toContain('opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)))');
       if (effect !== 'slide') {
-        expect(rule).toMatch(
-          /filter:\s*blur\(calc\(max\(var\(--jx-edge-start, 0\), var\(--jx-edge-end, 0\)\) \* var\(--jx-tabs-edge-blur, 0px\)\)\)/,
-        );
+        expect(rule).toMatch(/filter:\s*blur\(calc\(max\(var\(--jx-edge-start, 0\), var\(--jx-edge-end, 0\)\)\s*\*\s*max\(var\(--jx-edge-start, 0\), var\(--jx-edge-end, 0\)\)\s*\*\s*var\(--jx-scroll-edge-blur, 0px\)\)\)/);
       }
-      // slide (the default) never pays for a filter
       if (effect === 'slide') expect(rule).not.toContain('filter');
     }
-    // the ramp law: no timeline machinery at all — stamps + calc only
-    expect(tabsTriggerCss).not.toMatch(/animation-timeline/);
-    expect(tabsTriggerCss).not.toMatch(/animation-range/);
-    expect(tabsTriggerCss).not.toMatch(/@keyframes jx-tabs-edge/);
+    expect(scrollRunCss).not.toMatch(/animation-timeline/);
+    expect(scrollRunCss).not.toMatch(/animation-range/);
     // reduced motion keeps blur+opacity, kills the translate only
-    expect(tabsTriggerCss).toMatch(
-      /\[data-scroll-effect\]\s*>\s*\[role='tab'\][^{]*\{[^}]*translate:\s*none/s,
+    expect(scrollRunCss).toMatch(
+      /\[data-jx-scroll-run\]\[data-scroll-effect\]\)\s*>\s*\*[^{]*\{[^}]*translate:\s*none/s,
     );
   });
 
-  it('scrollEffect #2 — the merged veil layer: host var, clip gate, scroll-driven translate entrance (Owner, R4)', () => {
-    // the veil width var rides the HOST: the veil layer is the run's sibling
-    // — a var declared on the run never inherits to it. inset·6 = the
-    // chevron lane (inset·2, snap-parked blank) + the ramp that must reach
-    // the parked label's readable text
+  it('scrollEffect #2 — the merged veil layer: the shared entrance; tabs tunes the band width on its host', () => {
+    // tabs' ONE tuning override: the wider band (the strip\'s accepted
+    // scale; the shared default is the compact inset·1.5)
     expect(tabsTriggerCss).toMatch(
-      /\.jx-tabs-horizontal[^{]*\{[^}]*--jx-tabs-veil:\s*calc\(var\(--jx-inset\)\s*\*\s*6\)/s,
+      /\.jx-tabs-horizontal[^{]*\{[^}]*--jx-scroll-veil:\s*calc\(var\(--jx-inset\)\s*\*\s*6\)/s,
     );
-    const runBlock = tabsTriggerCss.match(/:where\(\.jx-tabs-run\) \{[\s\S]*?\n\}/)?.[0] ?? '';
-    expect(runBlock).not.toContain('--jx-tabs-veil');
-    // the layer: z 1 over the run, and overflow:clip is LOAD-BEARING — it
-    // hides the translated-out halves of the entrance below
-    expect(tabsTriggerCss).toMatch(/\.jx-tabs-veil-layer\)\s*\{[^}]*overflow:\s*clip/s);
-    // a strip that cannot scroll at all shows no veil layer (the gate is
-    // unlayered — the layer's `grid` utility beats @layer components)
-    expect(tabsTriggerCss).toMatch(
-      /:has\(\s*>\s*\[data-jx-tabs-run\]\[data-jx-scroll-state='none'\]\)[^{]*\{[^}]*display:\s*none/s,
+    expect(scrollRunCss).toMatch(/--jx-scroll-veil:\s*calc\(var\(--jx-inset\)\s*\*\s*1\.5\);/);
+    const layer = scrollRunCss.match(/\:where\(\.jx-scroll-veil-layer\)\s*\{([^}]*)\}/s)?.[1] ?? '';
+    expect(layer).toMatch(/z-index:\s*1/);
+    expect(layer).toMatch(/overflow:\s*clip/);
+    expect(scrollRunCss).toMatch(
+      /\.jx-scroll-veil-layer\)\s*>\s*:where\(\.jx-scroll-veil\)\[data-position='start'\]\s*\{[^}]*translate:\s*calc\(\(1\s*-\s*min\(1,\s*var\(--jx-scroll-progress,\s*0\)\s*\/\s*0\.15\)\)\s*\*\s*-100%\)\s*0/s,
     );
-    // the ENTRANCE (Owner, R4): the start veil rests fully translated out
-    // (-100%, clipped) and slides in over the first 15% of travel; the end
-    // veil rests in place and slides out (+100%) over the last 15% — the
-    // same --jx-tabs-progress window the chevron fade calcs from
-    expect(tabsTriggerCss).toMatch(
-      /\.jx-tabs-veil\)\[data-position='start'\][^{]*\{[^}]*translate:\s*calc\(\(1 - min\(1, var\(--jx-tabs-progress, 0\) \/ 0\.15\)\) \* -100\%\)/s,
+    expect(scrollRunCss).toMatch(
+      /\.jx-scroll-veil-layer\)\s*>\s*:where\(\.jx-scroll-veil\)\[data-position='end'\]\s*\{[^}]*translate:\s*calc\(max\(0,\s*\(var\(--jx-scroll-progress,\s*0\)\s*-\s*0\.85\)\s*\/\s*0\.15\)\s*\*\s*100%\)\s*0/s,
     );
-    expect(tabsTriggerCss).toMatch(
-      /\.jx-tabs-veil\)\[data-position='end'\][^{]*\{[^}]*translate:\s*calc\(max\(0, \(var\(--jx-tabs-progress, 0\) - 0\.85\) \/ 0\.15\) \* 100\%\)/s,
-    );
-    // reduced motion rests the veils in place (no translate)
-    expect(tabsTriggerCss).toMatch(
-      /\.jx-tabs-veil-layer\)\s*>\s*:where\(\.jx-tabs-veil\)[^{]*\{[^}]*translate:\s*none/s,
-    );
+    // RTL physicality: the entrance signs flip with the direction
+    expect(scrollRunCss).toMatch(/:dir\(rtl\)\s+:where\(\.jx-scroll-veil-layer\)/);
   });
 
   it('scrollEffect #3 — the shadow veil is the separator INK law: backdrop contrast SUBTRACTS color, never adds black', () => {
-    // the ink engine: contrast() pulls the backdrop toward mid tone —
-    // near-white dims, near-black lifts (dark mode reverses itself);
-    // NO background color anywhere on the band
-    expect(tabsTriggerCss).toMatch(/\.jx-tabs-shadow\)\s*\{[^}]*backdrop-filter:\s*contrast\(0\.5\)/s);
-    const shadowBlock = tabsTriggerCss.match(/\.jx-tabs-shadow\)\s*\{[\s\S]*?\n\}/)?.[0] ?? '';
-    expect(shadowBlock).not.toMatch(/background|box-shadow|rgb\(/);
-    // the band rides the veil width var
-    expect(shadowBlock).toMatch(/width:\s*var\(--jx-tabs-veil\)/);
-    // the ramp is a MASK per direction (strongest at the outer edge)
-    expect(tabsTriggerCss).toMatch(
-      /\.jx-tabs-shadow\)\[data-position='start'\][^{]*\{[^}]*mask:[^}]*to left/s,
-    );
-    expect(tabsTriggerCss).toMatch(
-      /\.jx-tabs-shadow\)\[data-position='end'\][^{]*\{[^}]*mask:[^}]*to right/s,
+    expect(scrollRunCss).toMatch(/\.jx-scroll-shadow\)\s*\{[^}]*backdrop-filter:\s*contrast\(0\.5\);/s);
+    const shadowBlock = scrollRunCss.match(/\.jx-scroll-shadow\)\s*\{([^}]*)\}/s)?.[1] ?? '';
+    expect(shadowBlock).not.toContain('background:');
+    expect(scrollRunCss).toMatch(
+      /\.jx-scroll-shadow\)\[data-position='start'\]\s*\{[^}]*mask:\s*linear-gradient\(to left, transparent, rgb\(0, 0, 0\)\);/s,
     );
   });
 
-  it('the on-demand fade follows the host-stamped --jx-tabs-progress — the chevron BUTTONS calc it directly (R4: no pseudos, no timelines)', () => {
-    // the @property/scroll(self) machinery is GONE — the JS stamp in
-    // tabs-list.svelte is the single truth for chevrons AND veil
-    expect(tabsTriggerCss).not.toMatch(/@property\s+--jx-tabs-progress/);
-    expect(tabsTriggerCss).not.toMatch(/scroll\(self/);
-    // each direction ramps over the outer 15% of travel, unconditionally
-    expect(tabsTriggerCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*opacity:\\s*min\\(1,\\s*calc\\(var\\(--jx-tabs-progress, 0\\) / 0\\.15\\)\\)`, 's'));
-    expect(tabsTriggerCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*opacity:\\s*min\\(1,\\s*calc\\(\\(1 - var\\(--jx-tabs-progress, 0\\)\\) / 0\\.15\\)\\)`, 's'));
+  it('the on-demand fade follows the host-stamped --jx-scroll-progress — the chips calc it directly (R4: no pseudos, no timelines)', () => {
+    expect(scrollRunCss).toMatch(/:where\(\[data-jx-scroll-chevron='inline-start'\]\),\s*\n\s*:where\(\[data-jx-scroll-chevron='inline-end'\]\)\s*\{[^}]*opacity:\s*min\(1,\s*calc\(var\(--jx-scroll-progress,\s*0\)\s*\/\s*0\.15\)\)/s);
+    expect(scrollRunCss).toMatch(/:where\(\[data-jx-scroll-chevron='inline-end'\]\)\s*\{[^}]*justify-self:\s*end;[^}]*opacity:\s*min\(1,\s*calc\(\(1\s*-\s*var\(--jx-scroll-progress,\s*0\)\)\s*\/\s*0\.15\)\)/s);
   });
 
-  it('pre-hydration hides EVERY overlay — no scroll verdict yet (or ever, JS-off): no chevrons, no veil layer, no click targets (A-10/B-7)', () => {
-    // the chevron gate: display:none + pointer-events:none on the
-    // un-stamped run (the un-stamped start chevron used to sit at
-    // opacity:0 yet still take pointer events)
-    expect(tabsTriggerCss).toMatch(
-      /:not\(\[data-jx-scroll-state\]\)\)[^{]*>[^{]*\{[^}]*display:\s*none;[^}]*pointer-events:\s*none/s,
+  it('pre-hydration hides EVERY overlay — no scroll verdict yet (or ever, JS-off): no chips, no veil layer, no click targets (A-10/B-7)', () => {
+    expect(scrollRunCss).toMatch(
+      /:not\(\[data-jx-scroll-state\]\)\)\s*>\s*:where\(\[data-jx-scroll-chevron\]\)\s*\{[^}]*display:\s*none;[^}]*pointer-events:\s*none/s,
     );
-    // the veil gate rides unlayered beside the state=none gate (same
-    // cascade reason — the layer's grid utility beats @layer components)
-    expect(tabsTriggerCss).toMatch(
-      /:not\(\[data-jx-scroll-state\]\)\)\s*>\s*:where\(\.jx-tabs-veil-layer\)\s*\{[^}]*display:\s*none/s,
+    expect(scrollRunCss).toMatch(
+      /:not\(\[data-jx-scroll-state\]\)\)\s*>\s*:where\(\.jx-scroll-veil-layer\)/,
     );
   });
 
   it('reduced motion rests a veil ONLY where travel can reach — a CLOSED edge hides outright instead of parking in place (A-5)', () => {
-    // inside the reduced-motion block itself (not the runtime chevron
-    // gates): start-closed hides the start veil, end-closed the end
-    expect(tabsTriggerCss).toMatch(
-      /prefers-reduced-motion[\s\S]*?data-jx-scroll-state='start-closed'[\s\S]{0,600}?\[data-position='start'\][^{]*\{[^}]*display:\s*none/s,
-    );
-    expect(tabsTriggerCss).toMatch(
-      /prefers-reduced-motion[\s\S]*?data-jx-scroll-state='end-closed'[\s\S]{0,600}?\[data-position='end'\][^{]*\{[^}]*display:\s*none/s,
+    const rm = scrollRunCss.slice(scrollRunCss.indexOf('@media (prefers-reduced-motion'));
+    expect(rm).toMatch(
+      /data-jx-scroll-state='start-closed'\]\)[^{]*>[^{]*>[^{]*\[data-position='start'\][^{]*\{[^}]*display:\s*none/s,
     );
   });
 
-  it('the indicator fades with its ACTIVE trigger — the stamp copies the edge factors onto the span, so an exiting selected tab takes its bar with it (V1-2)', () => {
-    expect(tabsTriggerCss).toMatch(
-      /\[data-scroll-effect\]\s*>\s*\[data-jx-tabs-ind\]\s*\{[^}]*opacity:\s*calc\(1 - max\(var\(--jx-edge-start, 0\), var\(--jx-edge-end, 0\)\)\)/s,
+  it('the indicator rides the SAME shared ramps — the machine MIRRORS its active trigger\'s factors onto the span (V1-2, the eased curve)', () => {
+    // css half: the shared ramp selectors treat EVERY direct child of the
+    // run (`> *`) — the indicator span included, so the mirrored factors
+    // consume the same squared curve as the triggers. The unification
+    // deleted tabs' own fade rule; nothing tabs-local re-derives it
+    for (const effect of ['slide', 'blur', 'blur\\+slide']) {
+      expect(scrollRunCss).toMatch(
+        new RegExp(`\\[data-scroll-effect='${effect}'\\]\\)\\s*>\\s*\\*\\s*\\{`),
+      );
+    }
+    expect(tabsTriggerCss).not.toMatch(/\[data-jx-tabs-ind\][^{]*\{[^}]*opacity:\s*calc/);
+    // wiring half: tabs-list registers the span as a MIRROR of the active
+    // trigger (createScrollStamp stamps the trigger's factors onto it, so
+    // an exiting selected tab takes its bar with it)
+    const listSrc = readFileSync(
+      resolve(process.cwd(), 'src/lib/ui/tabs/tabs-list.svelte'),
+      'utf8',
     );
+    expect(listSrc).toMatch(/mirrors:\s*\(\)\s*=>\s*\{[\s\S]{0,200}?target:\s*ind,\s*source:\s*a/);
   });
 });
+

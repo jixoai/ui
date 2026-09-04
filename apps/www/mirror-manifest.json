@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-04T19:51:12.855Z",
+  "generatedAt": "2026-09-04T20:46:04.102Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -82,6 +82,7 @@
     "tour": "registry/files/ui/tour/tour.svelte",
     "scroll-area": "registry/files/ui/scroll-area/scroll-area.svelte",
     "scroll-virtual": "registry/files/ui/scroll-virtual/scroll-virtual.svelte",
+    "scroll-run": "registry/files/ui/scroll-run/scroll-run.svelte.ts",
     "icon-button": "registry/files/ui/icon-button/icon-button.svelte",
     "progressive-blur": "registry/files/ui/progressive-blur/progressive-blur.svelte",
     "button-group": "registry/files/ui/button-group/button-group.svelte",
@@ -793,8 +794,8 @@
           "source": "registry/files/theme/jx-pure.css",
           "mirror": "apps/www/src/lib/jx-pure.css",
           "target": "@lib/jx-pure.css",
-          "sourceSha": "aae2ffe50979778dce11dbacc8081827a1ce0bf75aac0f45abd084e2512d8440",
-          "mirrorSha": "aae2ffe50979778dce11dbacc8081827a1ce0bf75aac0f45abd084e2512d8440"
+          "sourceSha": "4746056ab99cb3ab7bebc9219fae8718aa4edc149cf46124260685bcc48e65f0",
+          "mirrorSha": "4746056ab99cb3ab7bebc9219fae8718aa4edc149cf46124260685bcc48e65f0"
         }
       ]
     },
@@ -1822,8 +1823,8 @@
           "source": "registry/files/ui/tabs/tabs-list.svelte",
           "mirror": "apps/www/src/lib/ui/tabs/tabs-list.svelte",
           "target": "@ui/tabs/tabs-list.svelte",
-          "sourceSha": "813caff110d1964891c4d0e4ce3a635011c3a344baf9679b63fc91a19694747f",
-          "mirrorSha": "813caff110d1964891c4d0e4ce3a635011c3a344baf9679b63fc91a19694747f"
+          "sourceSha": "8f2d5a0fd2c69e76acda3a1f994e8c35e7f00acf6e3f0158307d8471f188ccd9",
+          "mirrorSha": "8f2d5a0fd2c69e76acda3a1f994e8c35e7f00acf6e3f0158307d8471f188ccd9"
         },
         {
           "source": "registry/files/ui/tabs/tabs-trigger.svelte",
@@ -1850,8 +1851,8 @@
           "source": "registry/files/ui/tabs/tabs-trigger.css",
           "mirror": "apps/www/src/lib/ui/tabs/tabs-trigger.css",
           "target": "@ui/tabs/tabs-trigger.css",
-          "sourceSha": "c5d28d5708f158e284ba2d008e4b00a83ae4b0564ace572d631491bb2ec57a43",
-          "mirrorSha": "c5d28d5708f158e284ba2d008e4b00a83ae4b0564ace572d631491bb2ec57a43"
+          "sourceSha": "c359cbc97b680fed733f0cd940a84c03bb477467e941fdd70a31f3aeb5dc4d41",
+          "mirrorSha": "c359cbc97b680fed733f0cd940a84c03bb477467e941fdd70a31f3aeb5dc4d41"
         },
         {
           "source": "registry/files/ui/tabs/tabs-defaults.svelte.ts",
@@ -3460,6 +3461,41 @@
       ]
     },
     {
+      "itemName": "scroll-run",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/scroll-run/scroll-run.svelte.ts",
+      "files": [
+        {
+          "source": "registry/files/ui/scroll-run/scroll-run.svelte.ts",
+          "mirror": "apps/www/src/lib/ui/scroll-run/scroll-run.svelte.ts",
+          "target": "@ui/scroll-run/scroll-run.svelte.ts",
+          "sourceSha": "05b220fc2d2d58c1127ec6f03eeff99e94f788e779d84649da42d67e59414db7",
+          "mirrorSha": "05b220fc2d2d58c1127ec6f03eeff99e94f788e779d84649da42d67e59414db7"
+        },
+        {
+          "source": "registry/files/ui/scroll-run/scroll-run.css",
+          "mirror": "apps/www/src/lib/ui/scroll-run/scroll-run.css",
+          "target": "@ui/scroll-run/scroll-run.css",
+          "sourceSha": "8a903480b23d9bf4436502bb6a2e56891f520d8fbd13fba218c201594d5fa585",
+          "mirrorSha": "8a903480b23d9bf4436502bb6a2e56891f520d8fbd13fba218c201594d5fa585"
+        },
+        {
+          "source": "registry/files/ui/scroll-run/scroll-chrome.svelte",
+          "mirror": "apps/www/src/lib/ui/scroll-run/scroll-chrome.svelte",
+          "target": "@ui/scroll-run/scroll-chrome.svelte",
+          "sourceSha": "a50e1f1ceaa3af96e9f4a14d931269a0342b77ebb29f1f1148bbeb0571a9c438",
+          "mirrorSha": "a50e1f1ceaa3af96e9f4a14d931269a0342b77ebb29f1f1148bbeb0571a9c438"
+        },
+        {
+          "source": "registry/files/ui/scroll-run/index.ts",
+          "mirror": "apps/www/src/lib/ui/scroll-run/index.ts",
+          "target": "@ui/scroll-run/index.ts",
+          "sourceSha": "fc09ef98b1d3c888492c29dfd3f425a0d81c2819c8e0a282466c468a97ea3693",
+          "mirrorSha": "fc09ef98b1d3c888492c29dfd3f425a0d81c2819c8e0a282466c468a97ea3693"
+        }
+      ]
+    },
+    {
       "itemName": "icon-button",
       "type": "registry:ui",
       "canonicalMain": "registry/files/ui/icon-button/icon-button.svelte",
@@ -3628,8 +3664,8 @@
           "source": "registry/files/ui/button-group/button-group.svelte",
           "mirror": "apps/www/src/lib/ui/button-group/button-group.svelte",
           "target": "@ui/button-group/button-group.svelte",
-          "sourceSha": "1189c69d27b476747e76fe54d58e0c87ec09b97bdd91c04382244a2ce0f46af9",
-          "mirrorSha": "1189c69d27b476747e76fe54d58e0c87ec09b97bdd91c04382244a2ce0f46af9"
+          "sourceSha": "8c29f68aa3a3e10fc5cfb3c0a70e711fc434aa7b2aee998addf05479987736c1",
+          "mirrorSha": "8c29f68aa3a3e10fc5cfb3c0a70e711fc434aa7b2aee998addf05479987736c1"
         },
         {
           "source": "registry/files/ui/button-group/button-group-divider.svelte",
@@ -3642,8 +3678,8 @@
           "source": "registry/files/ui/button-group/button-group.css",
           "mirror": "apps/www/src/lib/ui/button-group/button-group.css",
           "target": "@ui/button-group/button-group.css",
-          "sourceSha": "31353490c9fb83418e98ec8fdb6551f7b73ce74b00a002132242b63a2c61b208",
-          "mirrorSha": "31353490c9fb83418e98ec8fdb6551f7b73ce74b00a002132242b63a2c61b208"
+          "sourceSha": "e4fd4f9062a54f28e60ce09efb7dbd85d2152713dea1e71a66a6aab1e42edaac",
+          "mirrorSha": "e4fd4f9062a54f28e60ce09efb7dbd85d2152713dea1e71a66a6aab1e42edaac"
         },
         {
           "source": "registry/files/ui/button-group/index.ts",

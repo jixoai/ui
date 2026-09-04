@@ -66,6 +66,8 @@ const UNREFERENCED_LIB = [
 const CANONICAL_MAIN_OVERRIDES = {
   toast: 'registry/files/ui/toast/toast-viewport.svelte',
   'list-item': 'registry/files/ui/list-item/item.svelte',
+  // scroll-run's main is the stamp machine module, not a component
+  'scroll-run': 'registry/files/ui/scroll-run/scroll-run.svelte.ts',
 };
 // mirror-path overrides for files whose mirror does not follow the
 // default rule (pre-migration item css living at src/lib root)

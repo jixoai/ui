@@ -1958,7 +1958,7 @@
       "name": "tabs",
       "type": "registry:ui",
       "title": "Tabs",
-      "description": "WAI-ARIA APG tabs with the INDICATOR ENGINE (2026-09-01): a single shared element measured to the active trigger and animated between positions (240ms, reduced-motion-safe, ResizeObserver re-fits without animating). Materials: line (default, 2px primary), pill (tonal fill), outline (segmented), glass (backdrop-filter frosted), liquid (SVG displacement — liquid glass where the engine supports backdrop-filter url(), glass otherwise), none — or a snippet override that owns the paint while the engine owns geometry. Trigger anatomy (Material grammar): text, icon / iconEnd snippet lanes (slot-vs-padding law), icon-only (aria-label), stack (icon over label). Layouts: inline / grow (equal widths) / scroll (hidden-scrollbar overflow strip) / wrap (multi-row flow, the line bar underlining each row's own tab), composable with any material; every horizontal strip auto-degrades to a scroll run (the tablist IS the scroller) with on-demand DOM chevron buttons outside the tablist (chevron fade and the veil's translate entrance ride the same JS-stamped travel window, swappable css-var glyphs, smooth proximity-snap travel; the edge treatment is the scrollEffect builder prop, the press-button effect convention — slide() the default and cheapest, blur()/blurSlide() ramping each trigger by its clipped fraction at the edges (scroll-following JS-stamped factors, every engine), progressBlur({ blurLevels, width }) veiling the edges with the progressive-blur ladder, shadow({ width }) as the single-layer contrast ghost — backdrop-filter contrast() subtracts color toward mid tone (light grounds dim, dark grounds lift, never a black overlay; the separator ink law); both veils share the merged clip layer, enter by scroll-driven translate, and take an optional band width) when content outgrows the container; vertical axis throughout. Automatic or manual activation, roving tabindex, deterministic id pairing, hidden background panels.",
+      "description": "WAI-ARIA APG tabs with the INDICATOR ENGINE (2026-09-01): a single shared element measured to the active trigger and animated between positions (240ms, reduced-motion-safe, ResizeObserver re-fits without animating). Materials: line (default, 2px primary), pill (tonal fill), outline (segmented), glass (backdrop-filter frosted), liquid (SVG displacement — liquid glass where the engine supports backdrop-filter url(), glass otherwise), none — or a snippet override that owns the paint while the engine owns geometry. Trigger anatomy (Material grammar): text, icon / iconEnd snippet lanes (slot-vs-padding law), icon-only (aria-label), stack (icon over label). Layouts: inline / grow (equal widths) / scroll (hidden-scrollbar overflow strip) / wrap (multi-row flow, the line bar underlining each row's own tab), composable with any material; every horizontal strip auto-degrades to a scroll run (the tablist IS the scroller) on the SHARED @jixoai/scroll-run system (Owner 2026-09-04 unification — one law set for every scrollable region): the JS-stamped verdict gates the on-demand DOM chevron chips outside the tablist, swappable css-var glyphs, smooth proximity-snap travel; the edge treatment is the scrollEffect builder prop, the press-button effect convention — slide() the default and cheapest, blur()/blurSlide() ramping each trigger by its clipped fraction at the edges (scroll-following JS-stamped factors, consumed squared, every engine; the machine also MIRRORS the factors onto the indicator so the bar rides its active trigger out), progressBlur({ blurLevels, width }) veiling the edges with the progressive-blur ladder, shadow({ width }) as the single-layer contrast ghost — backdrop-filter contrast() subtracts color toward mid tone (light grounds dim, dark grounds lift, never a black overlay; the separator ink law); both veils share the merged clip layer and enter by scroll-driven translate) when content outgrows the container; vertical axis throughout. Automatic or manual activation, roving tabindex, deterministic id pairing, hidden background panels.",
       "files": [
         {
           "path": "registry/files/ui/tabs/tabs.svelte",
@@ -2001,13 +2001,13 @@
         "group": "navigation",
         "href": "/docs/components/tabs.html"
       },
-      "registryDependencies": [
-        "@jixoai/utils",
-        "@jixoai/jixoai-theme",
-        "@jixoai/progressive-blur",
-        "@jixoai/defaults",
-        "@jixoai/density"
-      ]
+  "registryDependencies": [
+    "@jixoai/utils",
+    "@jixoai/jixoai-theme",
+    "@jixoai/scroll-run",
+    "@jixoai/defaults",
+    "@jixoai/density"
+  ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -3759,6 +3759,44 @@
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "scroll-run",
+      "type": "registry:ui",
+      "title": "Scroll run",
+      "description": "The ONE scrollable-region system (Owner 2026-09-04, the unification — tabs and button-group are the first two consumers; every future scrollable strip reuses this, never a local copy). Three parts: scroll-run.svelte.ts (createScrollStamp, the JS half — the scrollability VERDICT stamped as data-jx-scroll-state none|start-closed|end-closed|open, the single truth the css gates every overlay on; per-member --jx-edge-start/end clipped-fraction factors + host --jx-scroll-progress, RTL-normalized; ResizeObserver + visibilitychange/focus wake for background tabs; the RTL three-engine canonical [−max,0] funnel detectRtlScrollModel/rtlScrollToCanonical/rtlScrollFromCanonical; nudgeRun, the padding-lane-aware page step; the ScrollEffect builders slide/blur/blurSlide/progressBlur/shadow, the press-button effect convention); scroll-run.css (the law sheet — the run IS the scroller: data-jx-scroll-run + data-axis degrade any strip to a hidden-scrollbar scroll run inside its host's ONE-CELL GRID; the edge factors consumed SQUARED, the eased curve; the frosted edge chips and the merged veil layer with its scroll-driven translate entrance; the shadow veil on the separator INK law — backdrop contrast subtracts color, never adds black; pre-hydration hides every overlay, reduced-motion kills the translate only); scroll-chrome.svelte (ScrollChrome, the DOM half of the chrome — the veil layer (progressBlur ladder or shadow bands) + the two chevron chips as real focusable buttons, wired to nudgeRun). Consumers keep ONLY their tuning: their own band widths, snap, mirrors onto companion elements (tabs mirrors the factors onto its indicator so the bar rides its active trigger).",
+      "registryDependencies": [
+        "@jixoai/progressive-blur",
+        "@jixoai/jixoai-theme"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/scroll-run/scroll-run.svelte.ts",
+          "target": "@ui/scroll-run/scroll-run.svelte.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/scroll-run/scroll-run.css",
+          "target": "@ui/scroll-run/scroll-run.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/scroll-run/scroll-chrome.svelte",
+          "target": "@ui/scroll-run/scroll-chrome.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/scroll-run/index.ts",
+          "target": "@ui/scroll-run/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Host contract: a ONE-CELL grid host (.jx-scroll-host, grid-template-columns: minmax(0,1fr)) stacking the run, the veil layer and the chips in one cell — grid positions, z-index layers, never position:*. The run (your strip's element) carries data-jx-scroll-run + data-axis and is the scroller itself. createScrollStamp(options): run, host, members() (the ramp audience), ramps (bool — stamp the per-member factors only for slide/blur/blurSlide), mirrors? (() => {target, source}[] — stamp a companion element with a member's factors, e.g. tabs' indicator), progressVar?. Builders: slide({distance}) default '8px', blur({radius}) default '4px', blurSlide(), progressBlur({blurLevels, width}) capped-ladder veil, shadow({width}) the contrast-ink veil. ScrollChrome props: effect (a builder's product), run, backwardLabel/forwardLabel (REQUIRED accessible names for the chips). CSS knobs on the HOST (overlays are the run's siblings): --jx-scroll-veil (band width, default inset·1.5), --jx-scroll-edge-slide/--jx-scroll-edge-blur, --jx-scroll-chevron-* (chip ink/size/glyphs).",
+      "meta": {
+        "group": "general",
+        "href": "/docs/components/scroll-run.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "icon-button",
       "type": "registry:ui",
       "title": "Icon button",
@@ -4003,7 +4041,7 @@
       "name": "button-group",
       "type": "registry:ui",
       "title": "Button group",
-      "description": "Joined action layout container: orientation/justify shell that presses edge-to-edge press-buttons (and icon-buttons) over the hairline seam law — adjacent children collapse borders via a -1px margin so a joined row of outline buttons reads as ONE control with 1px seams, never a 2px double border. The container owns NOTHING but layout and seam: buttons keep their own paint (variant ladder, press physics, density tier); the group paints no bezel. role=group with a required label (grouping of related actions, never a selection surface — joined selection is toggle-group).",
+      "description": "Joined action layout container: orientation/justify shell that presses edge-to-edge press-buttons (and icon-buttons) over the hairline seam law — adjacent children collapse borders via a -1px margin so a joined row of outline buttons reads as ONE control with 1px seams, never a 2px double border. The container owns NOTHING but layout and seam: buttons keep their own paint (variant ladder, press physics, density tier); the group paints no bezel. role=group with a required label (grouping of related actions, never a selection surface — joined selection is toggle-group). A joined row is fundamentally a CONTAINER, so it owns the overflow question (Owner 2026-09-04): overflow='wrap' (default, multi-row flow with the seam law per row), overflow='collapse' (measured collapse into a dropdown tail — buttons that no longer fit re-home into an overflow menu, dividers fence the tail), or overflow='scroll' (a hidden-scrollbar scroll run on the shared @jixoai/scroll-run system — data-jx-scroll-run IS the group root, the JS-stamped verdict gates the frosted edge chips, and scrollEffect picks the edge treatment via the same builder convention as tabs: slide() the default, blur()/blurSlide() ramping members by their clipped fraction, progressBlur()/shadow() the veil pair).",
       "files": [
         {
           "path": "registry/files/ui/button-group/button-group.svelte",
@@ -4037,19 +4075,19 @@
         }
       ],
       "docs": "Props: label (REQUIRED aria name), orientation ('horizontal'|'vertical'), justify ('start'|'end'|'center'|'between'), density, class. ROLE LAW: root is role=group — actions keep their own tab stops and activation; the group adds NO selection semantics (joined selection is toggle-group's contract). Composition: children are plain PressButton/icon-button instances; ButtonGroupDivider inserts a 1px seam member. Paint: the shared seam lives in button-group.css keyed on the data-jx-bgroup hook (Tier-2 vocabulary consumed-only).",
-      "registryDependencies": [
-        "@jixoai/utils",
-        "@jixoai/jixoai-theme",
-        "@jixoai/density",
-        "@jixoai/press-button",
-        "@jixoai/icons",
-        "@jixoai/icon-button",
-        "@jixoai/dropdown-menu",
-        "@jixoai/separator",
-        "@jixoai/progressive-blur",
-        "@jixoai/paint",
-        "@jixoai/defaults"
-      ],
+  "registryDependencies": [
+    "@jixoai/utils",
+    "@jixoai/jixoai-theme",
+    "@jixoai/density",
+    "@jixoai/press-button",
+    "@jixoai/icons",
+    "@jixoai/icon-button",
+    "@jixoai/dropdown-menu",
+    "@jixoai/separator",
+    "@jixoai/scroll-run",
+    "@jixoai/paint",
+    "@jixoai/defaults"
+  ],
       "meta": {
         "group": "general",
         "href": "/docs/components/button-group.html"

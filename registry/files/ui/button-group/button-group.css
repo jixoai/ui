@@ -64,16 +64,12 @@
  *    implicit columns hug content, and a row lead drops the -1px
  *    seam + the separator pseudo (it has no inline-start neighbor).
  *
- *  - THE SCROLL RUN (Owner 2026-09-04, the third overflow mode — the
- *    tabs contract): the root becomes the scroller (hidden scrollbar,
- *    smooth, proximity snap, scroll-padding); the overlays (chevron
- *    buttons z2, the veil layer z1 — the separator INK law's
- *    contrast bands, or the ProgressiveBlur ladder) mount on the
- *    non-scrolling host, keyed on the JS-stamped scroll-state verdict
- *    (no verdict — no chrome); the per-member edge ramps
- *    (slide/blur/blurSlide) calc from the scroll handler's
- *    --jx-edge-start/end stamps. The veil gates sit UNLAYERED below
- *    (cascade law: the layer's grid utility beats this layer).
+ *  - THE SCROLL RUN (Owner 2026-09-04, the unification): the machine,
+ *    the paint laws (run scroller, frosted chevron chips, veil layer,
+ *    ramps, gates) and the chrome markup are the SHARED scroll-run
+ *    item — nothing scroll-painted lives in this sheet; the family
+ *    only stamps its run (data-jx-scroll-run + data-axis) and mounts
+ *    ScrollChrome on its one-cell host.
  *
  * Everything here rides @layer components behind :where() — zero
  * specificity, so consumer utilities still win (the layer law).
@@ -185,201 +181,14 @@
     margin-inline-start: 0;
   }
 
-  /* ── THE SCROLL RUN (Owner 2026-09-04, the third overflow mode — the
-     tabs contract): the ROOT IS THE SCROLLER (the group and the DOM
-     scroller are one element, data-jx-btngroup-run) — hidden
-     scrollbar, smooth travel, proximity snap, scroll-padding that
-     keeps a focused member clear of the veil lanes. Children of a
-     scroller scroll with its content, so the overlays (veil layer,
-     chevrons) mount on the non-scrolling HOST outside the run; the
-     cluster shadow rides the run's own box and stays anchored.
-     position:relative is LOAD-BEARING (the tabs law): the run is the
-     offsetParent its members' offsetLeft measure against — without
-     it the edge-factor window reads a foreign coordinate space and
-     the ramps clip the wrong members. THE RESTRAINT RULING (Owner
-     2026-09-04, acceptance): a button group is a COMPACT action row,
-     not a tab strip — the chevron lane and the veil band ride
-     inset·1.5 / inset·3 (tabs runs inset·2 / inset·6). NO SNAP (the
-     acceptance ruling, a deliberate tabs divergence): proximity snap
-     yanked releases to member-flush positions where nothing clips
-     and the edge treatments POP off — a button row scrolls freely,
-     its treatments stay continuous ── */
-  :where([data-jx-btngroup-run][data-jx-btngroup='horizontal']) {
-    grid-area: 1 / 1;
-    position: relative;
-    overflow-x: auto;
-    scrollbar-width: none;
-    scroll-padding-inline: calc(var(--jx-inset) * 1.5);
-    scroll-behavior: smooth;
-  }
-  :where([data-jx-btngroup-run][data-jx-btngroup='vertical']) {
-    overflow-y: auto;
-    scrollbar-width: none;
-    scroll-behavior: smooth;
-  }
-  :where([data-jx-btngroup-run])::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* the host's shared var family (the overlays are the run's siblings
-     — custom properties inherit downward only): the chevron glyphs
-     (the LUCIDE chevron geometry, one glyph law with tabs), the chip
-     ink, and the veil width — THE RESTRAINT RULING (Owner acceptance
-     rounds, the band halved twice: inset·6 → inset·3 → inset·1.5) */
-  :where(.jx-btngroup-scroll-host) {
-    --jx-btngroup-chevron-inline-end: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
-    --jx-btngroup-chevron-inline-start: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='m15 18-6-6 6-6'/%3E%3C/svg%3E");
-    /* Owner 2026-09-04: the text-derived size computed ~8–11px — an
-     * unreadable whisper; the glyph pins at 14px (the background
-     * references it, so the indirection stays swappable) */
-    --jx-btngroup-chevron-size: 14px;
-    /* THE CHIP INK (Owner acceptance round 4): translucent white —
-     * theme-independent by design, the frost carries the adaptation
-     * (light grounds show the black glyph, dark grounds lift through
-     * the 80% white) */
-    --jx-btngroup-chevron-chip: oklab(1 0 0 / 0.8);
-    --jx-btngroup-veil: calc(var(--jx-inset) * 1.5);
-  }
-
-  /* the chevrons: REAL DOM BUTTONS on the host (z 2) — FROSTED EDGE
-     CHIPS (Owner acceptance round 4, retiring the blend-glyph era):
-     a compact square chip floating at the row's outer edge, VERTICALLY
-     CENTERED by grid placement (align-self on the one-cell host —
-     never position:*), tucked flush by a negative inset margin so it
-     overlaps the boundary and its backdrop blur catches the scrolling
-     edge content. The glyph is the chip's own background layer (black
-     stroke over the white frost); a soft 1px-offset shadow lifts the
-     chip off the content. Existence still keys on the JS-stamped
-     scroll-state (a direction that cannot travel NEVER paints), the
-     fade calcs from the host's --jx-btngroup-progress; hover states
-     stay retired (the chip is its own affordance — the cursor is the
-     signal) */
-  :where([data-jx-btngroup-chevron='inline-start']),
-  :where([data-jx-btngroup-chevron='inline-end']) {
-    grid-area: 1 / 1;
-    z-index: 2;
-    align-self: center;
-    /* the Owner's reference box: inset·1.5 square (≈12px at the
-     * default tier). The 14px glyph SIZE is its 24-unit canvas — the
-     * chevron ink spans only the canvas's middle half (≈7px), so it
-     * centers un-clipped inside the smaller chip */
-    inline-size: calc(var(--jx-inset) * 1.5);
-    block-size: calc(var(--jx-inset) * 1.5);
-    border: 0;
-    padding: 0;
-    appearance: none;
-    background-color: var(--jx-btngroup-chevron-chip);
-    background-position: center;
-    background-size: var(--jx-btngroup-chevron-size);
-    background-repeat: no-repeat;
-    box-shadow: 1px 1px 2px hsl(0 0% 0% / 0.2);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-    cursor: pointer;
-    opacity: min(1, calc(var(--jx-btngroup-progress, 0) / 0.15));
-  }
-  :where([data-jx-btngroup-chevron='inline-end']) {
-    justify-self: end;
-    margin-inline-end: calc(var(--jx-inset) * -1);
-    background-image: var(--jx-btngroup-chevron-inline-end);
-    opacity: min(1, calc((1 - var(--jx-btngroup-progress, 0)) / 0.15));
-  }
-  :where([data-jx-btngroup-chevron='inline-start']) {
-    justify-self: start;
-    margin-inline-start: calc(var(--jx-inset) * -1);
-    background-image: var(--jx-btngroup-chevron-inline-start);
-  }
-  /* the scrollability verdict is the single truth: a direction that
-     cannot travel NEVER paints its chevron */
-  :where(.jx-btngroup-scroll-host):has(> [data-jx-btngroup-run][data-jx-scroll-state='none']) > :where([data-jx-btngroup-chevron]),
-  :where(.jx-btngroup-scroll-host):has(> [data-jx-btngroup-run][data-jx-scroll-state='start-closed']) > [data-jx-btngroup-chevron='inline-start'],
-  :where(.jx-btngroup-scroll-host):has(> [data-jx-btngroup-run][data-jx-scroll-state='end-closed']) > [data-jx-btngroup-chevron='inline-end'] {
-    display: none;
-  }
-  /* pre-hydration: no verdict — and without JS at all — no chevron
-     paints and neither is a click target */
-  :where(.jx-btngroup-scroll-host):has(> [data-jx-btngroup-run]:not([data-jx-scroll-state])) > :where([data-jx-btngroup-chevron]) {
-    display: none;
-    pointer-events: none;
-  }
-
-  /* the scroll EFFECTS — per-member ramps (slide/blur/blurSlide): the
-     scroll handler stamps --jx-edge-start/end (the clipped fraction
-     of each member's own width) on every visible member; rest stamps
-     0 = the natural self, by arithmetic. The treatments are keyed per
-     type so slide (the default) never pays for a filter. THE EASED
-     CURVE (Owner acceptance 2026-09-04, round 2): the factor is
-     consumed SQUARED — a lightly clipped member (an edge sliver)
-     barely treats while a deeply clipped one ramps to full, so the
-     treatments read as continuous edges instead of popping on the
-     first clipped pixel (actions must stay readable; tab labels may
-     melt, buttons may not) */
-  :where([data-jx-btngroup-run][data-scroll-effect='slide']) > * {
-    opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
-    translate: calc((var(--jx-edge-end, 0) - var(--jx-edge-start, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * var(--jx-btngroup-edge-slide, 0px)) 0;
-  }
-  :where([data-jx-btngroup-run][data-scroll-effect='blur']) > * {
-    opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
-    filter: blur(calc(max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * var(--jx-btngroup-edge-blur, 0px)));
-  }
-  :where([data-jx-btngroup-run][data-scroll-effect='blur+slide']) > * {
-    opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
-    filter: blur(calc(max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * var(--jx-btngroup-edge-blur, 0px)));
-    translate: calc((var(--jx-edge-end, 0) - var(--jx-edge-start, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * var(--jx-btngroup-edge-slide, 0px)) 0;
-  }
-
-  /* the merged veil layer (z 1, under the chevrons): ONE grid item
-     clipping both edge veils; overflow: clip is LOAD-BEARING — the
-     veils ENTER by scroll-driven translate, sliding in from outside
-     their own edge (start slides in from -100% over the first 15% of
-     travel, end slides out to +100% over the last 15%) */
-  :where(.jx-btngroup-veil-layer) {
-    z-index: 1;
-    overflow: clip;
-  }
-  :where(.jx-btngroup-veil-layer) > :where(.jx-btngroup-veil)[data-position='start'] {
-    translate: calc((1 - min(1, var(--jx-btngroup-progress, 0) / 0.15)) * -100%) 0;
-  }
-  :where(.jx-btngroup-veil-layer) > :where(.jx-btngroup-veil)[data-position='end'] {
-    translate: calc(max(0, (var(--jx-btngroup-progress, 0) - 0.85) / 0.15) * 100%) 0;
-  }
-  /* RTL physicality: the positions are LOGICAL — the entrance signs
-     flip with the direction (the JS stamp layer is already
-     direction-normalized; these are the css halves) */
-  :dir(rtl) :where(.jx-btngroup-veil-layer) > :where(.jx-btngroup-veil)[data-position='start'] {
-    translate: calc((1 - min(1, var(--jx-btngroup-progress, 0) / 0.15)) * 100%) 0;
-  }
-  :dir(rtl) :where(.jx-btngroup-veil-layer) > :where(.jx-btngroup-veil)[data-position='end'] {
-    translate: calc(max(0, (var(--jx-btngroup-progress, 0) - 0.85) / 0.15) * -100%) 0;
-  }
-  /* the SHADOW veil — the separator's INK law as an edge treatment: a
-     shade veil NEVER adds black; backdrop-filter contrast() subtracts
-     color toward mid tone (near-white dims, near-black lifts — dark
-     mode reverses itself, zero color tokens). One band per edge, the
-     mask ramp shapes it */
-  :where(.jx-btngroup-shadow) {
-    width: var(--jx-btngroup-veil);
-    backdrop-filter: contrast(0.5);
-    -webkit-backdrop-filter: contrast(0.5);
-  }
-  :where(.jx-btngroup-shadow)[data-position='start'] {
-    mask: linear-gradient(to left, transparent, rgb(0, 0, 0));
-    -webkit-mask-image: linear-gradient(to left, transparent, rgb(0, 0, 0));
-  }
-  :where(.jx-btngroup-shadow)[data-position='end'] {
-    mask: linear-gradient(to right, transparent, rgb(0, 0, 0));
-    -webkit-mask-image: linear-gradient(to right, transparent, rgb(0, 0, 0));
-  }
-  :dir(rtl) :where(.jx-btngroup-shadow)[data-position='start'] {
-    mask: linear-gradient(to right, transparent, rgb(0, 0, 0));
-    -webkit-mask-image: linear-gradient(to right, transparent, rgb(0, 0, 0));
-  }
-  :dir(rtl) :where(.jx-btngroup-shadow)[data-position='end'] {
-    mask: linear-gradient(to left, transparent, rgb(0, 0, 0));
-    -webkit-mask-image: linear-gradient(to left, transparent, rgb(0, 0, 0));
-  }
+  /* ── THE SCROLL RUN (Owner 2026-09-04, the third overflow mode):
+     the machine, the paint laws and the chrome are the SHARED
+     scroll-run item now (one set for every scrollable region —
+     scroll-run.svelte.ts + scroll-run.css + scroll-chrome.svelte).
+     This family stamps the run (data-jx-scroll-run + data-axis) and
+     mounts ScrollChrome on its one-cell host; nothing scroll-painted
+     lives in this sheet anymore */
 }
-
 /* ── CASCADE CARVE-OUT (css-architecture exception #2, the P3
    STATE-MACHINE CARVE-OUT — the dropdown-menu caret precedent): the
    overflow display flips are STATE-MACHINE rules that must beat the

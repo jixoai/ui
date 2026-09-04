@@ -57,4 +57,13 @@ per-member 边缘 ramp、veil 墨律、chevron 步进）。三种模式合为
 
 - chevron 的自定义 glyph/位置 prop（tabs 的 var 间接可后续引入）
 - 纵组的边缘特效与 veil（横向契约；纵向溢出仍归滚动容器事务）
-- 把 tabs 的滚动机械抽取为共享 lib（等第三个消费者出现再沉淀）
+- ~~把 tabs 的滚动机械抽取为共享 lib（等第三个消费者出现再沉淀）~~
+  → 被 Owner 同日推翻，见下方追加
+
+## Owner 追加（2026-09-04，验收轮「统一成一套」）
+
+用户裁决：不是同步拷贝，而是统一成一套 utils —— 未来所有可滚动区域
+都复用。交付物升级为共享 `@jixoai/scroll-run` registry item（盖章机 +
+法则表 + ScrollChrome），tabs 与 button-group 双双改为消费方（tasks
+8-9）；本 change 的 button-group 实现从「参考 tabs 自建」改读为
+「第二个消费者」，原范围外条目作废。

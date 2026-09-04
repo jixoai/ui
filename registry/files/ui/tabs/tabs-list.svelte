@@ -99,122 +99,26 @@
    *    separator's INK law: backdrop-filter contrast() subtracts
    *    color, never adds black — auto-adaptive in dark mode). width
    *    overrides the band width (--jx-tabs-veil) */
-  export type TabsScrollEffect = SlideEffect | BlurEffect | BlurSlideEffect | ProgressBlurEffect | ShadowEffect;
-
-  export interface SlideOptions {
-    /** how far a crossing trigger offsets along the inline axis */
-    distance?: string;
-  }
-  export interface SlideEffect {
-    readonly type: 'slide';
-    distance: string;
-  }
-  export function slide({ distance = '8px' }: SlideOptions = {}): SlideEffect {
-    return { type: 'slide', distance };
-  }
-
-  export interface BlurOptions {
-    /** the blur radius a crossing trigger ramps to */
-    radius?: string;
-  }
-  export interface BlurEffect {
-    readonly type: 'blur';
-    radius: string;
-  }
-  export function blur({ radius = '4px' }: BlurOptions = {}): BlurEffect {
-    return { type: 'blur', radius };
-  }
-
-  export interface BlurSlideOptions extends BlurOptions, SlideOptions {}
-  export interface BlurSlideEffect {
-    readonly type: 'blur+slide';
-    radius: string;
-    distance: string;
-  }
-  export function blurSlide({ radius = '4px', distance = '8px' }: BlurSlideOptions = {}): BlurSlideEffect {
-    return { type: 'blur+slide', radius, distance };
-  }
-
-  export interface ProgressBlurOptions {
-    /** per-layer blur px of the edge veil, inner-edge first (≥2 levels) */
-    blurLevels?: number[];
-    /** the band width (any css length) — overrides the --jx-tabs-veil default */
-    width?: string;
-  }
-  export interface ProgressBlurEffect {
-    readonly type: 'progressBlur';
-    blurLevels: number[];
-    width?: string;
-  }
-  export function progressBlur({
-    blurLevels = [0.5, 1, 2, 4, 8, 16, 32, 64],
-    width,
-  }: ProgressBlurOptions = {}): ProgressBlurEffect {
-    return { type: 'progressBlur', blurLevels, width };
-  }
-
-  export interface ShadowOptions {
-    /** the band width (any css length) — overrides the --jx-tabs-veil default */
-    width?: string;
-  }
-  export interface ShadowEffect {
-    readonly type: 'shadow';
-    width?: string;
-  }
-  /** the contrast-ghost veil: backdrop-filter contrast() subtracts
-   *  color toward mid tone (the separator's INK law) — one layer, no
-   *  ladder, theme-agnostic by construction */
-  export function shadow({ width }: ShadowOptions = {}): ShadowEffect {
-    return { type: 'shadow', width };
-  }
-
-  /** the three RTL scrollLeft engines a browser may run (2026-09-02,
-   *  P2): spec-negative (0→−max, every modern engine),
-   *  positive-ascending (0→+max, legacy WebKit) and
-   *  positive-descending (+max→0, legacy IE/Edge) */
-  export type RtlScrollModel = 'negative' | 'positive-ascending' | 'positive-descending';
-
-  /** the engine probe's decision core (pure — rest value + probe read
-   *  in, engine out): at rest a negative engine reports ≤0 and a
-   *  descending one parks at its +max; only a 0 rest is ambiguous, and
-   *  the −1 write separates it (spec engines keep −1, ascending clamps
-   *  to 0) */
-  export function detectRtlScrollModel(rest: number, probe: () => number): RtlScrollModel {
-    if (rest < 0) return 'negative';
-    if (rest > 0) return 'positive-descending';
-    return probe() < 0 ? 'negative' : 'positive-ascending';
-  }
-
-  /** raw engine scrollLeft → the CANONICAL inline space [−max, 0] (0 =
-   *  inline start): one arithmetic for state, progress and the physical
-   *  window origin (origin = max + canon holds on EVERY engine) */
-  export function rtlScrollToCanonical(model: RtlScrollModel, raw: number, max: number): number {
-    if (model === 'positive-ascending') return -raw;
-    if (model === 'positive-descending') return raw - max;
-    return raw;
-  }
-
-  /** canonical → the engine's raw scrollLeft (the write path; scrollBy
-   *  deltas ride the same mapping — the ±max offsets cancel in a
-   *  delta) */
-  export function rtlScrollFromCanonical(model: RtlScrollModel, canon: number, max: number): number {
-    if (model === 'positive-ascending') return -canon;
-    if (model === 'positive-descending') return canon + max;
-    return canon;
-  }
-
-  /** ONE direction truth for the family (P2): the computed direction is
-   *  the LAW (it resolves [dir], css `direction` and inheritance into
-   *  the used value — pure-css rtl included); the nearest [dir]
-   *  attribute stands in only where the cascade reports nothing */
-  export function isRtlDirection(computed: string, dirAttr: string | null | undefined): boolean {
-    if (computed) return computed === 'rtl';
-    return (dirAttr ?? 'ltr') === 'rtl';
-  }
-
-  /** probed engines, per run element — the probe WRITES scrollLeft, so
-   *  it must run at most once per element */
-  const rtlScrollModels = new WeakMap<HTMLElement, RtlScrollModel>();
+  // ── THE UNIFICATION (Owner 2026-09-04: "统一成一套 utils") — the
+  // scroll machinery (stamp machine, RTL engine, nudge, effect
+  // builders) is the SHARED scroll-run item. The family's public API
+  // is preserved as re-exports (docs/specs import from here; import +
+  // re-export so the local destructure default `slide()` binds)
+  import {
+    blur,
+    blurSlide,
+    detectRtlScrollModel,
+    isRtlDirection,
+    progressBlur,
+    rtlScrollFromCanonical,
+    rtlScrollToCanonical,
+    shadow,
+    slide,
+    type RtlScrollModel,
+    type ScrollEffect,
+  } from '../scroll-run/scroll-run.svelte';
+  export { blur, blurSlide, detectRtlScrollModel, isRtlDirection, progressBlur, rtlScrollFromCanonical, rtlScrollToCanonical, shadow, slide };
+  export type { RtlScrollModel, ScrollEffect as TabsScrollEffect };
 </script>
 
 <script lang="ts">
@@ -223,7 +127,8 @@
   import { getContext } from 'svelte';
   import { cn } from '$lib/utils';
   import { TABS_KEY, type TabsApi } from './tabs.svelte';
-  import ProgressiveBlur from '../progressive-blur/progressive-blur.svelte';
+  import ScrollChrome from '../scroll-run/scroll-chrome.svelte';
+  import { createScrollStamp, nudgeRun, isRtlElement, type ScrollStamp } from '../scroll-run/scroll-run.svelte';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
     /** axis of travel: horizontal ←/→ · vertical ↑/↓ (layout is yours) */
@@ -315,35 +220,7 @@
    *  state and the nudges all ask HERE — the old split (computed for
    *  scroll, [dir] for the walk) made a pure-css rtl run walk
    *  backwards while its scroll math ran forwards */
-  function isRtl(el: HTMLElement | null | undefined): boolean {
-    if (!el) return false;
-    return isRtlDirection(getComputedStyle(el).direction, (el.closest('[dir]') as HTMLElement | null)?.dir);
-  }
-
-  /** the run's scrollLeft engine (P2), probed ONCE at first need and
-   *  cached: rest value first (a descending engine parks at +max — its
-   *  −1 probe would clamp to 0, the far END, and jump the run), then
-   *  the −1 write, then restore. Unscrollable runs never probe (−1
-   *  clamps to 0 on every engine) and never cache — a run that GROWS
-   *  scrollable later still probes at its rest */
-  function rtlScrollModel(run: HTMLElement, max: number): RtlScrollModel {
-    if (max <= 1) return 'negative';
-    let model = rtlScrollModels.get(run);
-    if (model) return model;
-    // scroll-behavior:smooth SMOOTHS EVEN ASSIGNMENTS — the sync read
-    // back would return the pre-animation value and misclassify Chrome
-    // as positive-ascending (re-attack P1, browser-proved). Neutralize
-    // the behavior for the probe's lifetime, restore after
-    const savedBehavior = run.style.scrollBehavior;
-    run.style.scrollBehavior = 'auto';
-    const saved = run.scrollLeft;
-    if (saved === 0) run.scrollLeft = -1;
-    model = detectRtlScrollModel(saved, () => run.scrollLeft);
-    run.scrollLeft = saved;
-    run.style.scrollBehavior = savedBehavior;
-    rtlScrollModels.set(run, model);
-    return model;
-  }
+  const isRtl = isRtlElement;
 
   /** geometry law (px numbers, layout coords): pill-family hugs the
    *  trigger inset by half the inline inset token; line is a 2px bar
@@ -450,160 +327,51 @@
     return () => ro.disconnect();
   });
 
-  /** the run's scrollability verdict (Owner, 2026-09-01; hardened
-   *  2026-09-02): this JS stamp is the single truth the css keys the
-   *  chevrons AND the veil layer on (a strip that cannot scroll shows
-   *  nothing at all; a closed direction never paints). Updated on
-   *  scroll, on resize (the run's OWN box and the first/last trigger
-   *  boxes — label growth re-verdicts, A-4/B-2), on mount, and once
-   *  more when the document's fonts settle. The same pass stamps
-   *  --jx-tabs-progress (0–1 INLINE travel, RTL-normalized) on the HOST
-   *  — the one number every overlay (chevrons, veil) calcs from — and
-   *  the edge factors --jx-edge-start/end (0–1, the clipped fraction
-   *  of each trigger's own width) on every trigger of the run (a rest
-   *  trigger stamps 0 = its natural self, so no stale factor survives
-   *  a scroll back), plus the ACTIVE trigger's factors on the
-   *  indicator span itself (V1-2) */
+  /** the run's scrollability verdict + edge factors (Owner
+   *  2026-09-01, hardened 2026-09-02, UNIFIED 2026-09-04): the SHARED
+   *  createScrollStamp machine owns the pass — the verdict
+   *  (data-jx-scroll-state, the single truth the shared css keys the
+   *  chips and the veil layer on), the host's --jx-scroll-progress
+   *  (RTL-normalized), and the per-trigger --jx-edge-* factors. The
+   *  family's OWN additions: the MO-invalidated trigger cache as the
+   *  ramp audience, and the indicator span as a MIRROR member (V1-2 —
+   *  the bar rides its ACTIVE trigger's factors, so an exiting
+   *  selected tab takes its bar with it); a trigger box change also
+   *  moves the indicator's geometry, so the RO pass re-measures
+   *  quietly */
+  let stampMachine: ScrollStamp | undefined;
   $effect(() => {
+    void scrollEffect.type; // flips re-arm the machine (ramps audience)
     const run = runEl;
     if (!run) return;
-    const host = hostEl;
     // the ramps are the per-trigger edge treatments ONLY — explicit
     // enumeration (2026-09-02, A-6): the veil effects never pay the
     // per-trigger stamp loop (their css consumes none of it)
-    const ramps =
-      scrollEffect.type === 'slide' || scrollEffect.type === 'blur' || scrollEffect.type === 'blur+slide';
-    const stamp = (el: HTMLElement, name: string, v: number) => {
-      if (v > 0) el.style.setProperty(name, v.toFixed(3));
-      else el.style.removeProperty(name);
-    };
-    // content growth re-verdicts (A-4/B-2): watch the current first and
-    // last trigger — observed ONCE per element (the jsdom RO polyfill
-    // fires synchronously on every observe(); re-observing inside the
-    // callback would recurse). Cache-invalidated sets observe their new
-    // edges on the next update
-    const observed = new WeakSet<HTMLElement>();
-    const observeEdges = () => {
-      const ts = triggerCache ?? ownTabs();
-      for (const t of [ts[0], ts.at(-1)]) {
-        if (t && !observed.has(t)) {
-          observed.add(t);
-          ro?.observe(t);
-        }
-      }
-    };
-    const update = () => {
-      const max = run.scrollWidth - run.clientWidth;
-      // RTL normalization (2026-09-02, A-1/A-2/A-3 → P2): the raw
-      // scrollLeft first maps through the run's probed ENGINE into the
-      // canonical inline space [−max, 0] (0 = inline start) — the
-      // inline travel is −canon, and the PHYSICAL window origin the
-      // offset* geometry measures against is max+canon, identically on
-      // all three engines (negative: max+raw · ascending: max−raw ·
-      // descending: raw). offsetLeft/offsetWidth stay physical; only
-      // the state/progress math normalizes
-      const rtl = isRtl(run);
-      const canon = rtl
-        ? rtlScrollToCanonical(rtlScrollModel(run, max), run.scrollLeft, max)
-        : run.scrollLeft;
-      const pos = rtl ? -canon : canon;
-      const state =
-        max <= 1 ? 'none' : pos <= 1 ? 'start-closed' : pos >= max - 1 ? 'end-closed' : 'open';
-      const w = run.clientWidth;
-      const xL = rtl ? max + canon : canon;
-      // clipped fractions against the physical window [xL, xL+w]; the
-      // slot NAMES are the LTR documentary bias — the stamps are
-      // physical left/right, which keeps the css slide calc exit-ward
-      // under RTL too (a trigger slides toward the edge clipping it)
-      const factors = (x: number, tw: number): [number, number] =>
-        max <= 1 || tw <= 0
-          ? [0, 0]
-          : [
-              Math.min(tw, Math.max(0, xL - x)) / tw,
-              Math.min(tw, Math.max(0, x + tw - (xL + w))) / tw,
-            ];
-      // READ pass — every geometry query lands before the first style
-      // write (no interleaved forced layout, A-11/B-4); the list is the
-      // MO-invalidated cache
-      const rows: { t: HTMLElement; s: number; e: number }[] = [];
-      if (ramps) {
-        for (const t of cachedTabs()) {
-          const [s, e] = factors(t.offsetLeft, t.offsetWidth);
-          rows.push({ t, s, e });
-        }
-      }
-      const a = activeTab;
-      const ind = indEl;
-      const indFactors: [number, number] = a ? factors(a.offsetLeft, a.offsetWidth) : [0, 0];
-      // WRITE pass
-      run.setAttribute('data-jx-scroll-state', state);
-      host?.style.setProperty('--jx-tabs-progress', max > 1 ? String(pos / max) : '0');
-      for (const { t, s, e } of rows) {
-        stamp(t, '--jx-edge-start', s);
-        stamp(t, '--jx-edge-end', e);
-      }
-      // the indicator fades with its ACTIVE trigger on EVERY effect
-      // type (V1-2): the veil runs skip the per-trigger loop but never
-      // the bar — an exiting selected tab takes its bar with it
-      if (ind) {
-        stamp(ind, '--jx-edge-start', indFactors[0]);
-        stamp(ind, '--jx-edge-end', indFactors[1]);
-      }
-      observeEdges();
-    };
-    restamp = update;
-    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => {
-      update();
-      // a trigger box change also moves the indicator's geometry — the
-      // remeasure is quiet (a resize is not a selection move)
-      measure(true);
+    stampMachine = createScrollStamp({
+      run,
+      host: hostEl,
+      members: cachedTabs,
+      ramps:
+        scrollEffect.type === 'slide' || scrollEffect.type === 'blur' || scrollEffect.type === 'blur+slide',
+      mirrors: () => {
+        const a = activeTab;
+        const ind = indEl;
+        return a && ind ? [{ target: ind, source: a }] : [];
+      },
     });
-    update();
-    run.addEventListener('scroll', update, { passive: true });
-    ro?.observe(run);
-    // late fonts re-widen every label (A-4/B-2): one quiet restamp when
-    // the document's font set settles — both the verdict and the
-    // indicator geometry; the alive flag keeps teardown clean
-    let alive = true;
-    document.fonts?.ready.then(() => {
-      if (!alive) return;
-      update();
-      measure(true);
-    });
+    restamp = () => stampMachine?.update();
     return () => {
-      alive = false;
       restamp = undefined;
-      run.removeEventListener('scroll', update);
-      ro?.disconnect();
+      stampMachine?.destroy();
+      stampMachine = undefined;
     };
   });
 
-  /** the chevron's scroll step: one strip page minus the two lanes, so
-   *  the next page's leading trigger lands clear of both lanes — the
-   *  lane width IS the run's own scroll-padding (derived, no second
-   *  constant). smooth comes from the run's scroll-behavior. scrollBy's
-   *  left runs on the ENGINE's raw axis — the canonical adapters flip
-   *  it per engine (A-3 → P2) */
+  /** the chevron's scroll step — the SHARED nudgeRun (one page minus
+   *  the two lanes, the lane derived from the run's own
+   *  scroll-padding; RTL writes through absolute canonical targets) */
   function nudge(direction: -1 | 1) {
-    const run = runEl;
-    if (!run) return;
-    const rtl = isRtl(run);
-    const lane = parseFloat(getComputedStyle(run).scrollPaddingInlineStart || '0') || 0;
-    const step = Math.max(1, run.clientWidth - lane * 2);
-    const max = run.scrollWidth - run.clientWidth;
-    if (!rtl || max <= 1) {
-      // LTR, or a run with no scroll distance (jsdom/degenerate): the
-      // plain delta is the honest write
-      run.scrollBy({ left: direction * step });
-      return;
-    }
-    // RTL writes go through ABSOLUTE canonical targets (a bare delta
-    // mis-maps on descending engines — the ±max offset only cancels
-    // between two mapped absolutes, re-attack P3)
-    const model = rtlScrollModel(run, max);
-    const curCanon = rtlScrollToCanonical(model, run.scrollLeft, max);
-    const targetCanon = Math.min(0, Math.max(-max, curCanon - direction * step));
-    run.scrollTo({ left: rtlScrollFromCanonical(model, targetCanon, max) });
+    if (runEl) nudgeRun(runEl, direction);
   }
 
   /** liquid needs its displacement filter referenced from the list (the
@@ -618,19 +386,19 @@
     ];
     switch (scrollEffect.type) {
       case 'slide':
-        parts[1] = `--jx-tabs-edge-slide: ${scrollEffect.distance}`;
+        parts[1] = `--jx-scroll-edge-slide: ${scrollEffect.distance}`;
         break;
       case 'blur':
-        parts[1] = `--jx-tabs-edge-blur: ${scrollEffect.radius}`;
+        parts[1] = `--jx-scroll-edge-blur: ${scrollEffect.radius}`;
         break;
       case 'blur+slide':
-        parts[1] = `--jx-tabs-edge-blur: ${scrollEffect.radius}; --jx-tabs-edge-slide: ${scrollEffect.distance}`;
+        parts[1] = `--jx-scroll-edge-blur: ${scrollEffect.radius}; --jx-scroll-edge-slide: ${scrollEffect.distance}`;
         break;
       case 'progressBlur':
       case 'shadow':
         // the builder's width overrides the band-width default (inline
         // beats the stylesheet)
-        parts[1] = scrollEffect.width ? `--jx-tabs-veil: ${scrollEffect.width}` : '';
+        parts[1] = scrollEffect.width ? `--jx-scroll-veil: ${scrollEffect.width}` : '';
         break;
       default:
         break;
@@ -776,6 +544,8 @@
     bind:this={listEl}
     data-jx-tabs-list=""
     data-jx-tabs-run={orientation === 'horizontal' ? '' : undefined}
+    data-jx-scroll-run={orientation === 'horizontal' ? '' : undefined}
+    data-axis={orientation === 'horizontal' ? 'horizontal' : undefined}
     role="tablist"
     aria-orientation={orientation}
     tabindex="-1"
@@ -798,81 +568,9 @@
     {@render runTail()}
   </div>
   {#if orientation === 'horizontal'}
-    {#if scrollEffect.type === 'progressBlur' || scrollEffect.type === 'shadow'}
-      <!-- the merged veil layer: ONE grid item (z 1) clipping both edge
-           veils; each veil ENTERS by scroll-driven translate (the strip's
-           --jx-tabs-progress drives it — start slides in from -100% as
-           travel opens the start edge, end slides out to +100% as travel
-           closes the end edge; overflow:clip hides the translated-out
-           halves) -->
-      <div class="jx-tabs-veil-layer pointer-events-none grid [grid-area:1/1]">
-        {#if scrollEffect.type === 'progressBlur'}
-          <!-- hold = the chevron lane's share of the band (2026-09-02,
-               A-7/B-9): lane inset·2 inside a veil inset·6 = 1/3 — the
-               ladder's peak covers exactly the blank lane snap parks
-               content clear of. 100/3, not 33 — the derivation is the
-               point. A width knob overrides the band WITHOUT re-deriving
-               this ratio (an arbitrary css length has no px math before
-               layout): a widened band widens the peak past the lane —
-               accepted, documented coupling -->
-          <ProgressiveBlur
-            pin="grid"
-            position="start"
-            reveal="static"
-            height="var(--jx-tabs-veil)"
-            hold={100 / 3}
-            blurLevels={scrollEffect.blurLevels}
-            class="jx-tabs-veil"
-          />
-          <ProgressiveBlur
-            pin="grid"
-            position="end"
-            reveal="static"
-            height="var(--jx-tabs-veil)"
-            hold={100 / 3}
-            blurLevels={scrollEffect.blurLevels}
-            class="jx-tabs-veil"
-          />
-        {:else}
-          <!-- the shadow veil: one band per edge — the separator's INK
-               law (Owner best practice, 2026-09-01): backdrop-filter
-               contrast() SUBTRACTS color toward mid tone, never adds
-               black; near-white grounds dim, near-black grounds lift
-               (dark mode reverses itself, zero color tokens). The bands
-               carry .jx-tabs-veil, so the width var, the translate
-               entrance and the layer clip all apply unchanged -->
-          <div
-            class="jx-tabs-shadow jx-tabs-veil [grid-area:1/1] justify-self-start [transform:translateZ(0)]"
-            data-position="start"
-            aria-hidden="true"
-          ></div>
-          <div
-            class="jx-tabs-shadow jx-tabs-veil [grid-area:1/1] justify-self-end [transform:translateZ(0)]"
-            data-position="end"
-            aria-hidden="true"
-          ></div>
-        {/if}
-      </div>
-    {/if}
-    <!-- the chevrons: REAL DOM BUTTONS (Owner, 2026-09-01 R4 — the
-         ::scroll-button() pseudos are gone: UA boxes took no timelines,
-         no mask control and generated flakily). They live OUTSIDE the
-         tablist — scroll controls are not tabs, the a11y tree stays
-         clean; the css keys their existence on the JS-stamped
-         scroll-state and their fade on --jx-tabs-progress -->
-    <button
-      type="button"
-      tabindex="-1"
-      aria-label="Scroll tabs backward"
-      data-jx-chevron="inline-start"
-      onclick={() => nudge(-1)}
-    ></button>
-    <button
-      type="button"
-      tabindex="-1"
-      aria-label="Scroll tabs forward"
-      data-jx-chevron="inline-end"
-      onclick={() => nudge(1)}
-    ></button>
+    <!-- the chrome (veil layer + chevron chips) is the SHARED
+         ScrollChrome — scroll-chrome.svelte; the paint laws in
+         scroll-run.css -->
+    <ScrollChrome effect={scrollEffect} run={runEl} backwardLabel="Scroll tabs backward" forwardLabel="Scroll tabs forward" />
   {/if}
 </div>
