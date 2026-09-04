@@ -1,10 +1,14 @@
 # Tasks: document-ontology R2 — 浮+引
 
 批次依赖：0（接口先行，ZCode 整合者落盘——共享文件纪律）→ 1 →
-2/3（可并行，消费批次 0 的冻结接口）→ 4 依赖 1+2+3；5 依赖 2+3
-的发射面（可与 4 并行）；6 收尾。fixture 清单（host 模式）：
-numbering-host、figure-host、reference-host、reorder-host（keyed
-each）、harvest-page。
+2/3（可并行，消费批次 0 的冻结接口；组件层各自止于源文件+测试）→
+4 依赖 1+2+3；5 依赖 2+3 发射面（可与 4 并行）；**6 registry 串行
+整合（整合者独占仓库级共享生成物）**；7 收尾。fixture 清单（host
+模式）：numbering-host、figure-host、reference-host、reorder-host
+（keyed each，figure+section 双形态）、section-tree-host（3/3.2.1/
+多根/嵌套值表）、registry-lifecycle-host（路由切换/重复 id/disposer）、
+reference-interaction-host（click/键盘/hydrate）、harvest-page
+（行内/裸/无前驱裸/缺失目标/多子块五分支）。
 
 ## 0. 接口先行（依赖：无；ui/figure/ 由 ZCode 统一落盘，子代理不得触碰）
 
@@ -45,8 +49,8 @@ each）、harvest-page。
       （JSON 数组）
 - [ ] 2.3 测试：计数矩阵（kind×scope×域嵌套，含嵌套域遮蔽、
       document 混合态、多根并列）+ citedIn 渲染/发射 + 裸用行为
-- [ ] 2.4 镜像 + registry 登记（registryDependencies 声明被
-      section-card 引用）+ manifest + catalog 接线
+- [ ] 2.4 （组件层止于源文件与测试；registry/镜像/manifest 归
+      批次 6 串行整合，见下）
 
 ## 3. Reference 家族（新 ui/reference/；依赖：0——消费既有注册表）
 
@@ -60,9 +64,8 @@ each）、harvest-page。
       前向引用 SSR 形态 `??(to)`→水合跟随）+ 逃生门 + 回退断言
       （`vi.spyOn(console,'warn')` 按 settle 口径调用一次含目标
       id + `??(to)` 在场 + 不抛错 + 无 data-ref-to）
-- [ ] 3.4 镜像 + registry 登记（meta.group/href；**registryDependencies
-      声明 reference → figure**——显示词映射与注册表 key 均来自
-      figure）+ manifest + catalog 接线（与 2.4 同律）
+- [ ] 3.4 （组件层止于源文件与测试；registry/镜像/manifest 归
+      批次 6 串行整合）
 
 ## 4. 交叉门（依赖：1+2+3）
 
@@ -70,28 +73,45 @@ each）、harvest-page。
       **keyed `{#each}` 数组换序驱动**（items.reverse()，实例保留
       仅移 DOM）；禁止静态标签换位弱夹具。断言：换序后编号重排、
       id 不动、**所有 Reference 显示值跟随新号**（引用跟随法则的
-      门——注册项 number 非快照的可断言证明）
+      门——注册项 number 非快照的可断言证明）；**keyed Section
+      reorder 同律断言**（3 → 3.2.1 路径与多根/嵌套值表各有夹具）
 - [ ] 4.2 打印探针：冻结捕获编号 ≡ live DOM 编号（含前引后浮
-      用例）；无重编号、无 print 侧特判
-- [ ] 4.3 docs 页（figure/reference 各一）+ 全量门禁（vitest/
+      用例，**keyed reorder 后立即打印**的 barrier 用例——
+      MutationObserver→$derived→clone 的可测协议）；无重编号、
+      无 print 侧特判
+- [ ] 4.3 **Reference 交互夹具**：真实 click fragment 跳转（原生
+      `<a href="#id">`）、键盘焦点走原生 anchor、SSR-hydrate 形态
+      （前向引用回退态→水合跟随）；**注册表生命周期夹具**：路由
+      切换后前页 id 不可解析、重复 id 先注册者胜 + dev warn、
+      disposer 卸载注销
+- [ ] 4.4 docs 页（figure/reference 各一）+ 全量门禁（vitest/
       mirror/payload parity）
 
 ## 5. 收割消费（依赖：2+3 的发射面；可与 4 并行）
 
 - [ ] 5.1 search-corpus.mjs 消费：data-number/data-ref-to/
       data-jx-figure/data-cited-in → block.number/block.refids[]/
-      block.citedIn/section number；**number 投影到被包块**（figure
-      包裹层不单独成块）；**tag-shape fallback 前显式排除
-      `data-jx-figure` 包裹层**（裸 pre 直接子元素的误判边角）；
-      行内 Reference 的 refids 挂最近块根，块级裸 Reference 不丢
+      block.citedIn/section number（投影 JSON 形状按 design §4
+      冻结：optional number、refids 去重保首现序、裸 Reference
+      挂最近前驱流项/无前驱 warn+跳过、多子块 Figure 投首个点块）；
+      **tag-shape fallback 前显式排除 `data-jx-figure` 包裹层**
 - [ ] 5.2 corpus schema 加性扩展（旧语料不重写；无可投影子块的
       Figure 不投影 number——记档）+ 语料 sha 稳定门禁基线重生成
-      + search-corpus.spec 夹具
+      + search-corpus.spec 夹具（**行内/裸/无前驱裸/缺失目标/
+      多子块 Figure 五分支**各一）
 
-## 6. 收尾
+## 6. registry 串行整合（依赖：2+3；**整合者独占**——registry.json、
+mirror-manifest、catalog、public 生成物的唯一写入者，子代理不碰）
 
-- [ ] 6.1 specs delta 措辞对齐（component-authoring + search-corpus
-      两份 delta 已随 change 开档，实施后校准 scenario 细节）；
-      **归档时以 MODIFIED 回写主 spec 的 auto-mode 例外句**（扩为
-      含 figure counters 与 reference resolution 的认领清单）
-- [ ] 6.2 verification 记录 + 归档准备
+- [ ] 6.1 figure 与 reference 双家族登记（registryDependencies：
+      section-card → figure、reference → figure）+ 字节镜像 +
+      gen-mirror-manifest + catalog/public 接线 + payload parity
+      验证
+
+## 7. 收尾
+
+- [ ] 7.1 specs delta 措辞校准（component-authoring 的 ADDED +
+      MODIFIED、paged-docs 的 MODIFIED、search-corpus 的 ADDED——
+      均已随 change 落档，实施后对齐 scenario 细节）；归档时
+      MODIFIED 自然回写 living spec，无额外迁移
+- [ ] 7.2 verification 记录 + 归档准备

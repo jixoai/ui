@@ -39,7 +39,30 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
 - (a) 声明 `numbering` 的 Section 持响应式注册表；Figure 挂载注册
   `{ el, kind, id? }`、卸载注销。**注册顺序永不赋序。**
 - (b) 序数是 `$derived`：读域的 `revision` $state，按
-  `compareDocumentPosition` 对同域同类已注册元素排序取位次；
+  `compareDocumentPosition` 对同域同类已注册元素排序取位次。
+
+### 1.1b Section 编号算法（P1-1 冻结）
+
+- **记录形状**：域内注册表收 `SectionRecord { el }` 与
+  `FigureRecord { el, kind, id? }` 两类；**文档级域注册表**收
+  `DomainRecord { el }`（每个声明 `numbering` 的根各一条）。
+- **`deriveSectionNumber()`（唯一算法）**：
+  1. 根域章序数 = 该域的 `DomainRecord` 在文档级域注册表中按
+     `compareDocumentPosition` 的位次（多根并列即文档序递增）；
+  2. 后代节编号 = `根章序数` + `.` + **结构路径**——结构父级 =
+     最近祖先 **Section 宿主元素**（section-card 的根元素，非
+     heading；heading 是显示，不承载结构）；
+  3. 同一结构父级下的子节位次 = 同父级已注册 SectionRecord 按
+     `compareDocumentPosition` 的位次（深度优先等价于文档序）；
+  4. 嵌套声明域：内层根的编号在内层算法内重新起算（外层前缀
+     不延伸），内层子树 Figure 归内层。
+- **document-scope 的域发现**：全篇连续 kind 的参与域迭代走
+  **文档级域注册表**（不是各自域根的 observer）——跨兄弟域的
+  全局顺序由此表唯一决定。
+- **更新信号**：Figure/Section 的增删移由所在域根的 observer
+  覆盖（域内 revision）；根域自身的增删移由文档级注册表的
+  observer 覆盖（文档级 revision）。两类 revision 各自驱动各
+  自的派生重算。
   `revision` 仅由域根的 MutationObserver（childList + subtree）
   bump——**DOM 增删移是重编号的唯一信号源**；effect 依赖 DOM
   位置、setTimeout 轮询均禁止。嵌套域下外层 observer 会观察到
@@ -80,9 +103,13 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   注册表 key 均由 figure 家族导出，Reference 消费不自建（单源，
   禁止 Reference 侧复制 kind→显示词映射）。
 - **接口先行（tasks 批次 0）**：域 context key、文档注册表、
-  显示词映射三件的模块落盘在 figure 家族文件夹，由整合者统一
-  落盘并冻结导出签名后，批次 1/2/3 才并行——子代理不触碰该
-  共享文件。
+  显示词映射三件的模块落盘在 figure 家族文件夹
+  **`ui/figure/numbering.svelte.ts`**，导出面冻结为：
+  `NUMBERING_DOMAIN_KEY`、`DOCUMENT_TARGETS_KEY`（均
+  `Symbol.for`）、`FigureKind` 类型、`FIGURE_LABELS`（kind→
+  图注全词/引用短词两列表）、`registerTarget()`（返回 disposer）、
+  `TargetEntry` 类型。由整合者统一落盘并冻结后，批次 1/2/3 才
+  并行——子代理不触碰该共享文件。
 
 ## 2. Figure 家族（Q6 + Q6a + Q8）
 
@@ -106,11 +133,16 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   可渲染、可收割 kind，只是无编号。
 - **`citedIn?: string[]`（Q8 手动标注槽）**：显式声明的显示串原样
   渲染于图注尾 + 发射 `data-cited-in`（**JSON 数组序列化**，收割器
-  可解析）。**缺口注释（必须落在组件头）**：自动反链渲染机件刻意
-  缺席——反链的自动态只存在于收割层（引用点 refids[] 的倒排）；
-  静态串不随重排更新（`§ 3.1` 换序后可能腐化——腐化压力正是回归
-  动因）；回归条件 = 某体裁真要上纸面「被引清单」（届时反向注册
-  context + Figure 读取，纯增量）。
+  可解析）。**composition-first 定位（P1-6 窄例外，living spec 记
+  档）**：citedIn 是**值域元数据 payload**（显示货币的镜像串），
+  不是 caller-defined repeated structure——串原样渲染、无逐项
+  内容主权（无 per-item 布局/油漆/槽），故不适用「payload 须带
+  snippet escape」条款；该窄例外随本 change 以 MODIFIED 回写
+  composition-first 法则。**缺口注释（必须落在组件头）**：自动
+  反链渲染机件刻意缺席——反链的自动态只存在于收割层（引用点
+  refids[] 的倒排）；静态串不随重排更新（`§ 3.1` 换序后可能
+  腐化——腐化压力正是回归动因）；回归条件 = 某体裁真要上纸面
+  「被引清单」（届时反向注册 context + Figure 读取，纯增量）。
 - **嵌套 figure 记档**：内容槽里的 CodeCard 自带 `<figure>`+
   figcaption（文件名栏），被 Figure 包裹形成嵌套——**本期接受为
   合法形状**（CodeCard 的 figcaption 是文件名 chrome 不是图注；
@@ -128,15 +160,39 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   （`Eq (4.5)` / `Fig 2-3` / `Table 6-1` / `Listing 3`），编号节
   渲染 `§ 3.2.1`，无编号目标降级渲染其**标题**（仅标题本体，无
   「参见」连接词——连接词是作者文案，走 children 逃生门）。
-- **目标注册表（文档级）**：`Symbol.for` key，根布局 `setContext`；
-  注册项 `{ id, kind: 'figure' | 'section', number, title }`（title
-  取 Section 的 title prop；**number 是 getter/派生值引用，禁止
-  注册时快照**——目标换号，引用自动跟随，这是引用跟随法则的
-  机件前提）。域 context 只服务计数，**寻址一律走文档注册表**
-  （跨域引用可达）。Reference 的显示形态 `$derived` 自注册表——
-  前向目标后注册 → 自动跟随。**可引目标类型域**：Figure（必有
-  编号——裸用无编号 Figure **不可引**，等同缺失 id 的响亮回退）∪
-  编号/未编号 Section；任意裸 id 元素**本期不可引**（同前）。
+  **显示词单源表（0.1 导出，Figure 与 Reference 共消费）**：每
+  kind 两列——图注列用全词（`Figure`/`Table`/`Equation`/
+  `Listing`），引用列用短词（`Fig`/`Table`/`Eq`/`Listing`）；
+  前缀规则同表钉死：chapter-scope = 短词 + `章.序`（`Eq (4.5)`、
+  `Fig 2-3`），document-scope = 短词 + 裸序（`Eq (12)`，ASME
+  连续式号无章前缀）。
+- **DOM 契约（P1-3 冻结）**：成功态渲染 `<a href="#${to}"
+  data-ref-to>`——原生 fragment 锚点，键盘焦点/ARIA 全走原生
+  anchor，无合成 tabindex/role；children 逃生门替换的是**锚点
+  的标签文本**，锚点语义与 href 恒在。缺失态渲染 `<span>` +
+  `??(to)` 标记（不可导航即不是锚点——坏目标不提供交互假象）。
+  真实 click/fragment 跳转/SSR-hydrate 形态各有夹具。
+- **目标注册表（文档级，P1-2 冻结形状）**：`Symbol.for` key；
+  注册项为可辨识联合
+  `TargetEntry = { id: string; kind: 'figure' | 'section'; readonly number: string | null; readonly title: string | null }`
+  ——figure 的 `number` 恒非空（可引 figure 必有编号）、`title =
+  null`（图注不是标题）；section 的 `number` 可空（未编号节）、
+  `title` 取其 title prop。**number/title 是 getter/派生值引用，
+  禁止注册时快照**——目标换号，引用自动跟随（引用跟随法则的
+  机件前提）。`registerTarget()` 返回 **disposer**，组件卸载
+  必调（unregister）。**重复 id**：dev warn + **先注册者胜**
+  （确定性稳定，后到忽略）。**reparent**：Svelte 模板内的跨域
+  移动必然走实例销毁重建（keyed each/key/snippet move 均如此），
+  注册随生命周期自然迁移；纯 DOM `adoptNode` 式搬移不在模型内
+  （记档）。**路由/文档边界**：注册表实例由**路由页面根**
+  （+page 渲染树）的 provider 创建，SvelteKit 路由切换销毁页面
+  组件即整表回收——**不放 root/docs layout**（它们跨路由长存，
+  会泄漏前页 id；「前页 id 在后页不可解析」是测试断言）。域
+  context 只服务计数，**寻址一律走文档注册表**（跨域引用可达）。
+  Reference 的显示形态 `$derived` 自注册表——前向目标后注册 →
+  自动跟随。**可引目标类型域**：Figure（必有编号——裸用无编号
+  Figure **不可引**，等同缺失 id 的响亮回退）∪ 编号/未编号
+  Section；任意裸 id 元素**本期不可引**（同前）。
 - **「尚未注册」≠「不存在」**：注册表响应式——水合后目标出现即
   自动解析；**warn 仅在 settle 后目标仍缺席时触发**（避免前向引用
   的误报风暴）。
@@ -164,13 +220,19 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
 - **消费（本轮交付）**：search-corpus.mjs 读 `data-number` /
   `data-ref-to` / `data-jx-figure` / `data-cited-in` →
   `block.number` / `block.refids[]` / `block.citedIn` / section
-  `number`；行内 Reference（data-ref-to 在段落内）的 refids 挂
-  **最近块根**（prose 块或点块），块级裸 Reference 不被流式遍历
-  静默穿过；**tag-shape fallback 前显式排除 `data-jx-figure`
-  包裹层**（裸 pre 直接子元素的误判边角）；Figure 内容槽无可投影
-  子块（纯文本）时不投影 number——记档。corpus schema **加性扩展**
-  （旧语料不重写），语料 sha 稳定门禁的基线随本批重生成。
-  specs/search-corpus delta 随实施落档。
+  `number`。**投影 JSON 形状（P1-5 冻结）**：`sections[].number`
+  与 `block.number` 均 **optional**（缺省 = 未编号，不写 null）；
+  `refids[]` **去重保首现序**（同块多次引同一目标合并为一条）；
+  `citedIn` = JSON 数组原序保留。**行内 Reference 落点**：
+  data-ref-to 在段落/点块内 → 挂该块；**裸 Reference**（直接位于
+  section body、无最近块根）→ 挂**最近前驱流项**（同 section 内
+  之前最近的段落/点块），section 内无前驱流项时 dev-warn + 跳过
+  （记档，非静默丢失）。**tag-shape fallback 前显式排除
+  `data-jx-figure` 包裹层**（裸 pre 直接子元素的误判边角）；
+  Figure 内容槽无可投影子块（纯文本）时不投影 number——记档；
+  多子块 Figure：number 投到**首个点块**，其余子块不重复携带。
+  corpus schema **加性扩展**（旧语料不重写），语料 sha 稳定门禁
+  的基线随本批重生成。specs/search-corpus delta 已随 change 落档。
 
 ## 5. 测试门（design §7 R2 行）
 

@@ -182,3 +182,115 @@ The typed cross-link SHALL carry zero grammar knowledge of its own.
   visible `??(id)` marker with one console warning and no
   `data-ref-to`, and `Eq (4.5)` after hydration — while the
   prerendered forward form reads `??(id)` without a settled warning
+
+## MODIFIED Requirements
+
+### Requirement: family context contract
+
+State-sharing context in a family SHALL carry state and behavior
+only — never membership order. Ordinal state compares explicit
+per-item values; keyboard walks and filtering are DOM-delegated and
+scoped to the nearest container (`closest()`), so nested families
+never leak into each other's walks. Where items carry metadata the
+DOM cannot express (match text), items SELF-match against context
+state instead of registering into a central ordered registry. What
+must register (imperative show/hide handles) registers at component
+initialization — synchronously, SSR-executed, under a family-defined
+stable DERIVED key (panel families: `${itemId}-panel`, never the
+registrant's own `$props.id()`), unregistered `onDestroy`; `onMount`
+is never the only registration path. Consequences that MUST hold: SSR output is semantically
+complete before hydration; keyed `{#each}` reorders, conditional
+inserts, deletions and restores never corrupt state or walk order.
+Declared DOM-derived AUTO-mode exceptions (a toc deriving links from
+rendered headings; the R2 figure counters and reference resolution):
+each renders its landmark shell server-side and completes on
+hydration — the data does not exist at render time. The exceptions
+split by shape — reference resolution rides the shell-plus-hydration
+form (a forward reference prerenders the fallback marker and follows
+on hydration), while figure numbering is SSR-complete (instantiation
+order = template order = static DOM order; hydration's first frame
+matches the SSR output) and touches the exception class only through
+incremental renumbering driven by DOM mutation. The exceptions apply
+to auto modes only, never to composed trees.
+
+#### Scenario: SSR renders the family complete
+
+- GIVEN a composed family rendered server-side
+- THEN the first paint carries every item with correct state paint
+  and no hydration-time re-registration flash
+
+#### Scenario: keyed reorder cannot corrupt state
+
+- GIVEN a Steps/Command/Anchor family whose items live in a keyed
+  `{#each}` that reorders at runtime
+- THEN item state and walk order follow the NEW tree order with no
+  stale ordinals and no ghost registration
+
+#### Scenario: nested families do not leak walks
+
+- GIVEN a MenubarPanel containing a nested dropdown-menu
+- WHEN the panel walker walks `[role=menuitem]`
+- THEN only entries whose `closest('[role=menu]')` is this panel
+  participate — the nested menu keeps its own walk
+
+### Requirement: composition-first API surface
+
+Repeated or nested UI structure SHALL be authored in the consumer's
+tree as family parts (Svelte 5 snippets/children), never described
+through props. A registered component MUST NOT own markup that is
+only reachable via data-array props, config trees, keyed render-props,
+or string-to-glyph mappings. Legal props are: value/state (bindable),
+behavior (`activation`, `placement`), presentation enums (`variant`,
+`size`, `orientation`), and value/behavior-domain payloads (option
+sets, tour targets, code strings, virtualizer rows) — the payload
+category MUST provide snippet escapes for per-item content. ONE
+declared narrow exception (R2, Owner 2026-09-04): a
+**display-currency metadata payload** — an array of plain display
+strings rendered verbatim as annotations with NO per-item content
+sovereignty (no per-item layout, paint, or slots; Figure's `citedIn`
+is the instance) — carries no snippet escape; the strings are the
+harvest contract's mirror, not caller-defined structure. The
+diagnostic for gray zones: a prop that changes WHAT renders (which
+rows/sections exist) must become a child component; a prop that
+changes HOW it renders (paint, layout mode) is legal.
+
+Families ship at ecosystem part granularity: the shadcn/shadcn-vue/
+Dice UI anatomy for the equivalent component is the floor, not the
+ceiling. Barrels follow the tabs precedent — `export { default }`
+for the canonical main when one exists, sub-parts as named defaults,
+`export *` for module types; NO Root aliases.
+
+#### Scenario: a new component needs repeated items
+
+- WHEN a component renders a list/sections/steps of caller-defined
+  content
+- THEN the registry ships the family parts and the consumer authors
+  each item in their tree; no `items`/`steps`/`sections` prop exists
+
+#### Scenario: ordinal state stays explicit
+
+- GIVEN a composed family with an active/progress ordinal
+- THEN items carry REQUIRED explicit ordinal/value props (`step`) and
+  state derives from comparing them to the bindable root state —
+  registration or instantiation order is never load-bearing
+
+#### Scenario: the keyed render-prop trap
+
+- GIVEN a component tempted to expose `body?: Snippet<[item, index]>`
+  as the only content path over a data array
+- THEN that design is rejected: iteration ownership moves to the
+  consumer and the snippet becomes plain children
+
+#### Scenario: value-domain payload with content escape
+
+- GIVEN an option-domain control (select options, tour targets) whose
+  items ARE the value
+- THEN the data prop is legal only if rich per-item content escapes
+  through snippets; a fully closed row renderer is a violation
+
+#### Scenario: computed structure ships logic, not markup
+
+- GIVEN structure computed from state (pagination windows)
+- THEN the computation lands as an exported pure helper and the
+  consumer composes the parts through it; the component does not
+  compute-and-render rows behind closed markup
