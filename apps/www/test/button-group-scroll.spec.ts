@@ -181,23 +181,35 @@ describe('ButtonGroup · overflow=scroll · the css law (source-pinned)', () => 
     expect(block).toContain('position: relative;');
   });
 
-  it('THE RESTRAINT RULING (Owner acceptance): compact-row scale — the band halved twice, the glyph pinned at 14px under the blend law', () => {
+  it('THE RESTRAINT + CHIP RULINGS (Owner acceptance rounds): the band halved twice; the chevron is a FROSTED EDGE CHIP — centered, tucked, blurred', () => {
     // the veil band: inset·1.5 (tabs runs inset·6 — halved twice)
     expect(buttonGroupCss).toMatch(/--jx-btngroup-veil:\s*calc\(var\(--jx-inset\)\s*\*\s*1\.5\);/);
-    // the chevron lane: inset·1.5 (tabs runs inset·2)
-    expect(buttonGroupCss).toMatch(
-      /\[data-jx-btngroup-chevron='inline-start'\]\),\s*\n\s*:where\(\[data-jx-btngroup-chevron='inline-end'\]\)\s*\{[^}]*width:\s*calc\(var\(--jx-inset\)\s*\*\s*1\.5\);/s,
-    );
-    // the glyph: 14px pinned (the text-derived size computed ~8px), and
-    // THE BLEND LAW — white through mix-blend-mode: difference inverts
-    // any ground (a solid ink glyph vanished over scrolling content);
-    // hover states are meaningless under difference
+    // the glyph: 14px pinned (the text-derived size computed ~8px)
     expect(buttonGroupCss).toMatch(/--jx-btngroup-chevron-size:\s*14px;/);
-    expect(buttonGroupCss).toMatch(/background-color:\s*#fff;\s*\n\s*mix-blend-mode:\s*difference;/);
-    const chevronBlock = buttonGroupCss.match(
-      /\[data-jx-btngroup-chevron='inline-start'\]\),[\s\S]{0,200}?\{([^}]*)\}/,
-    )?.[1] ?? '';
-    expect(chevronBlock).not.toContain('muted-foreground');
+    // the chip: ink var + a DERIVED box (glyph + inset, never a
+    // hardcoded px), vertically centered by grid, frosted
+    expect(buttonGroupCss).toMatch(/--jx-btngroup-chevron-chip:\s*oklab\(1\s*0\s*0\s*\/\s*0\.8\);/);
+    const chip =
+      buttonGroupCss.match(
+        /\[data-jx-btngroup-chevron='inline-start'\]\),\s*\n\s*:where\(\[data-jx-btngroup-chevron='inline-end'\]\)\s*\{([^}]*)\}/s,
+      )?.[1] ?? '';
+    expect(chip).toMatch(/align-self:\s*center;/);
+    expect(chip).toMatch(/inline-size:\s*calc\(var\(--jx-btngroup-chevron-size\)\s*\+\s*var\(--jx-inset\)\);/);
+    expect(chip).toMatch(/block-size:\s*calc\(var\(--jx-btngroup-chevron-size\)\s*\+\s*var\(--jx-inset\)\);/);
+    expect(chip).toMatch(/background-color:\s*var\(--jx-btngroup-chevron-chip\);/);
+    expect(chip).toMatch(/box-shadow:\s*1px\s*1px\s*2px\s*hsl\(0\s*0%\s*0%\s*\/\s*0\.2\);/);
+    expect(chip).toMatch(/backdrop-filter:\s*blur\(2px\);/);
+    // the glyph is the chip's own background layer (the mask era is
+    // retired), each edge tucking flush by a negative inset margin
+    expect(buttonGroupCss).toMatch(
+      /\[data-jx-btngroup-chevron='inline-end'\]\)\s*\{[^}]*margin-inline-end:\s*calc\(var\(--jx-inset\)\s*\*\s*-1\);[^}]*background-image:\s*var\(--jx-btngroup-chevron-inline-end\);/s,
+    );
+    expect(buttonGroupCss).toMatch(
+      /\[data-jx-btngroup-chevron='inline-start'\]\)\s*\{[^}]*margin-inline-start:\s*calc\(var\(--jx-inset\)\s*\*\s*-1\);[^}]*background-image:\s*var\(--jx-btngroup-chevron-inline-start\);/s,
+    );
+    // the retired eras never return: no mask, no blend glyph, no hover
+    expect(chip).not.toMatch(/mask/);
+    expect(chip).not.toMatch(/mix-blend-mode/);
     expect(buttonGroupCss).not.toMatch(/\[data-jx-btngroup-chevron[^\]]*\]\):hover/);
   });
 

@@ -223,49 +223,70 @@
 
   /* the host's shared var family (the overlays are the run's siblings
      — custom properties inherit downward only): the chevron glyphs
-     (the LUCIDE chevron geometry, one glyph law with tabs) and the
-     veil width — THE RESTRAINT RULING (Owner acceptance rounds, the
-     band halved twice: inset·6 → inset·3 → inset·1.5) */
+     (the LUCIDE chevron geometry, one glyph law with tabs), the chip
+     ink, and the veil width — THE RESTRAINT RULING (Owner acceptance
+     rounds, the band halved twice: inset·6 → inset·3 → inset·1.5) */
   :where(.jx-btngroup-scroll-host) {
     --jx-btngroup-chevron-inline-end: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
     --jx-btngroup-chevron-inline-start: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='m15 18-6-6 6-6'/%3E%3C/svg%3E");
+    /* Owner 2026-09-04: the text-derived size computed ~8–11px — an
+     * unreadable whisper; the glyph pins at 14px (the background
+     * references it, so the indirection stays swappable) */
     --jx-btngroup-chevron-size: 14px;
+    /* THE CHIP INK (Owner acceptance round 4): translucent white —
+     * theme-independent by design, the frost carries the adaptation
+     * (light grounds show the black glyph, dark grounds lift through
+     * the 80% white) */
+    --jx-btngroup-chevron-chip: oklab(1 0 0 / 0.8);
     --jx-btngroup-veil: calc(var(--jx-inset) * 1.5);
   }
 
-  /* the chevrons: REAL DOM BUTTONS on the host (z 2), masked glyphs;
-     existence keys on the JS-stamped scroll-state (a direction that
-     cannot travel NEVER paints), the fade calcs from the host's
-     --jx-btngroup-progress. THE BLEND LAW (Owner acceptance round 3,
-     one law with tabs): a solid ink glyph vanishes over scrolling
-     content — white through mix-blend-mode: difference inverts ANY
-     ground (light shows dark ink, dark shows light; a 50% backdrop
-     is the documented blind spot); the mask clips the blend to the
-     glyph, and hover states are meaningless under difference (always
-     max contrast) — the cursor is the affordance */
+  /* the chevrons: REAL DOM BUTTONS on the host (z 2) — FROSTED EDGE
+     CHIPS (Owner acceptance round 4, retiring the blend-glyph era):
+     a compact square chip floating at the row's outer edge, VERTICALLY
+     CENTERED by grid placement (align-self on the one-cell host —
+     never position:*), tucked flush by a negative inset margin so it
+     overlaps the boundary and its backdrop blur catches the scrolling
+     edge content. The glyph is the chip's own background layer (black
+     stroke over the white frost); a soft 1px-offset shadow lifts the
+     chip off the content. Existence still keys on the JS-stamped
+     scroll-state (a direction that cannot travel NEVER paints), the
+     fade calcs from the host's --jx-btngroup-progress; hover states
+     stay retired (the chip is its own affordance — the cursor is the
+     signal) */
   :where([data-jx-btngroup-chevron='inline-start']),
   :where([data-jx-btngroup-chevron='inline-end']) {
     grid-area: 1 / 1;
     z-index: 2;
-    align-self: stretch;
-    width: calc(var(--jx-inset) * 1.5);
-    margin-block: calc(var(--jx-inset) / 2);
+    align-self: center;
+    /* the chip breathes one inset around the pinned glyph (14px glyph
+     * + inset ≈ 22px square at the default tier — derived, never a
+     * hardcoded box) */
+    inline-size: calc(var(--jx-btngroup-chevron-size) + var(--jx-inset));
+    block-size: calc(var(--jx-btngroup-chevron-size) + var(--jx-inset));
     border: 0;
     padding: 0;
     appearance: none;
-    background-color: #fff;
-    mix-blend-mode: difference;
+    background-color: var(--jx-btngroup-chevron-chip);
+    background-position: center;
+    background-size: var(--jx-btngroup-chevron-size);
+    background-repeat: no-repeat;
+    box-shadow: 1px 1px 2px hsl(0 0% 0% / 0.2);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
     cursor: pointer;
     opacity: min(1, calc(var(--jx-btngroup-progress, 0) / 0.15));
   }
   :where([data-jx-btngroup-chevron='inline-end']) {
     justify-self: end;
-    mask: var(--jx-btngroup-chevron-inline-end) center / var(--jx-btngroup-chevron-size) no-repeat;
+    margin-inline-end: calc(var(--jx-inset) * -1);
+    background-image: var(--jx-btngroup-chevron-inline-end);
     opacity: min(1, calc((1 - var(--jx-btngroup-progress, 0)) / 0.15));
   }
   :where([data-jx-btngroup-chevron='inline-start']) {
     justify-self: start;
-    mask: var(--jx-btngroup-chevron-inline-start) center / var(--jx-btngroup-chevron-size) no-repeat;
+    margin-inline-start: calc(var(--jx-inset) * -1);
+    background-image: var(--jx-btngroup-chevron-inline-start);
   }
   /* the scrollability verdict is the single truth: a direction that
      cannot travel NEVER paints its chevron */
