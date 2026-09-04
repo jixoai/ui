@@ -45,6 +45,13 @@
     /** OPTIONAL raw prop — omission stays distinguishable:
         default-mode ?? 'auto', plain ?? 'none', muted forced 'none' */
     dividers?: 'auto' | 'none';
+    /** control integration (B5, 2026-09-05): 'integrated' declares the
+        group frame as the SOLE surface owner — in-row control shells
+        dissolve (background, border, well shadow; the state machine
+        stays legible). Opt-in on default mode only: muted (slab) and
+        plain (host-owned) never own the frame, the declaration is
+        overridden to 'self' there */
+    controlChrome?: 'integrated' | 'self';
     /** renders the frame as <section aria-labelledby> + visible label */
     label?: string;
     id?: string;
@@ -62,6 +69,7 @@
     layout = 'standard',
     ruler = 'content-end',
     dividers,
+    controlChrome,
     label,
     id,
     class: className = '',
@@ -116,6 +124,7 @@
   data-slot="item-group"
   data-density={d.density}
   data-mode={mode}
+  data-control-chrome={mode === 'default' ? (controlChrome ?? 'self') : 'self'}
   data-inset={d.inset ? 'true' : undefined}
   data-layout={layout}
   class={cn('jx-item-group', className)}

@@ -45,8 +45,22 @@
 - Tests: `test/list-item-size-contract.spec.ts` (stamps, guard,
   adapter forwarding, field-lane relaxation).
 
+## B5 (landed in the same change): control integration
+
+- ItemGroup grows `controlChrome?: 'integrated' | 'self'` — opt-in on
+  default mode only; muted (slab) and plain (host-owned) force 'self'
+  (the group never owns a frame it doesn't paint).
+- ItemField defaults 'integrated' (its outline row IS the frame owner);
+  'self' opts out. The stamp rides `data-control-chrome`.
+- The sheet dissolves in-row shells — background, border AND the well
+  shadow with its hover lift — via specificity EARNED with a compound
+  chain (no !important, deliberately not :where); the state machine
+  stays legible: focus-visible ring is outline-based (survives), and
+  focus/invalid/disabled re-assert border color. Tags ride the real
+  root hook `data-jx-tags-wrap`; InputGroup stays OUT (addon seam is
+  internal structure).
+
 ## Out of scope
 
-- B5 controlChrome/壳溶解 (follows this change's stamp system).
 - B6 ButtonGroup radius policy (the other session owns button-group).
 - Non-subgrid fallback behavior (stays the broader fold it is today).

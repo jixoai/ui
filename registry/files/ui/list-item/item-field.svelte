@@ -53,6 +53,10 @@
      *  a fitted field lane relaxes its never-split stance and joins the
      *  narrow fold — number/select/text-class controls declare it */
     fit?: ItemEndFit;
+    /** control integration (B5, 2026-09-05): the outline field row IS
+     *  the frame owner, so 'integrated' is the default — in-row shells
+     *  dissolve; 'self' opts out */
+    controlChrome?: 'integrated' | 'self';
     class?: string;
     control: Snippet<[ItemFieldContext]>;
   }
@@ -70,6 +74,7 @@
     density,
     layout = 'auto',
     fit,
+    controlChrome = 'integrated',
     class: className = '',
     control,
   }: Props = $props();
@@ -94,7 +99,7 @@
   });
 </script>
 
-<Item variant={d.variant} density={d.density} {layout} class={cn('jx-item-field', className)} data-item-field={labelMode}>
+<Item variant={d.variant} density={d.density} {layout} class={cn('jx-item-field', className)} data-item-field={labelMode} data-control-chrome={controlChrome}>
   <ItemContent>
     {#if labelMode === 'for'}
       <label class="jx-item-field-label" id={labelId} for={controlId}>{label}</label>

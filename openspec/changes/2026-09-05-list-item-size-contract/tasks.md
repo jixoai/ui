@@ -23,3 +23,12 @@
       conflict guard throws, adapter forwarding, field relaxation, flex fill source-pinned
 - [x] 3.3 targeted vitest (list-item specs + new spec) green
 - [x] 3.4 mirror sync + manifest (self-consistent worktree) + verify:deps
+
+## 4. B5 control integration (same change)
+
+- [x] 4.1 ItemGroup controlChrome prop — opt-in, muted/plain forced self
+- [x] 4.2 ItemField controlChrome default integrated + data-control-chrome stamp
+- [x] 4.3 item.css integration law — dissolve bg/border/well-shadow(+hover),
+      state machine re-asserts, real tags hook, InputGroup excluded
+- [x] 4.4 test/list-item-control-chrome.spec.ts — stamp matrix + source pins
+- [x] 4.5 prototype private dissolve block retired (family owns the law)

@@ -31,20 +31,10 @@
 .fusion :where([data-slot='item-content'] [data-jx-inline-code]) {
   margin-inline: 0.2em;
 }
-
-/* ── input-group law: in-row control shells go bare ──────────── */
-.fusion :where([data-slot='item-end'] .jx-html-control-shell),
-.fusion :where([data-slot='item-end'] .jx-html-select),
-.fusion :where([data-slot='item-end'] [data-jx-igroup]),
-.fusion :where([data-slot='item-end'] [data-jx-tags]),
-.fusion :where([data-slot='item-end'] [data-jx-number-input]),
-.fusion :where([data-slot='item-end'] textarea),
-.fusion :where([data-slot='item-end'] .jx-textarea) {
-  background: transparent;
-  border-color: transparent;
-}
-/* the checkbox box and the toggle track are the CONTROLS, not shells —
-   they keep their paint (affordance lives there) */
+/* ── input-group law: OWNED BY THE FAMILY since B5 —
+   [data-control-chrome='integrated'] dissolves in-row shells
+   (ItemField rows default integrated; groups opt in via the
+   controlChrome prop; muted/plain never own the frame) ── */
 
 /* ── rig ─────────────────────────────────────────────────────── */
 .fusion {
