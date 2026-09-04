@@ -616,14 +616,29 @@ variant.
   paint law: `PAINT_ZONE_KEY` stays the ONE paint lane
   (`BUTTON_GROUP_KEY` carries layout only), and a ButtonGroup
   inherit-then-provides the paint zone (shadows it only when it
-  declares a variant of its own) while physics must flow THROUGH
-  joined groups untouched — a footer's grouped buttons ride flat
-  exactly like its free-floating ones.
+  declares a variant of its own) while TAKING the physics axis over
+  at its own boundary (the cluster-shadow law, Owner 2026-09-04 —
+  below).
 - `ButtonVariantScope` (the zero-DOM zone boundary that already
   scopes the variant) carries `raised?: boolean`,
   inherit-then-provide: a paint-only scope (variant set, raised
   absent) passes the enclosing zone's texture through and never
   un-flattens it.
+- THE CLUSTER-SHADOW LAW (Owner 2026-09-04): the joined row is ONE
+  control, so it casts ONE shadow. A ButtonGroup writes the texture
+  key with `raised=false` for its joined subtree (per-button convex
+  shadows overlap at the -1px seams — the geometry defect this
+  closes; an explicit child prop still wins) and paints the
+  cluster's ONE convex shadow on its ROOT: `--shadow-xs` (the press
+  law's rest pose), behind `:where()` so consumer shadow utilities
+  win, with NO hover growth and NO active pose — the root never
+  presses ("不用做什么 actived 的效果，只需要去除阴影即可" — the
+  Owner's wording). The group's `raised?: boolean` resolves
+  `explicit ?? the enclosing texture zone ?? the top-level convex
+  default`, with one carve: a NESTED group defaults OFF (it is one
+  member of the OUTER cluster — one control, one shadow).
+  `raised={false}` removes the root shadow and NOTHING else; the
+  subtree's flat default is unconditional.
 - IconButton forwards `raised` verbatim (Owner 2026-09-04): the
   composition needs NO restate — the wrapped press-button reads the
   same ambient texture key in the same window, so the zone's flat
@@ -682,8 +697,9 @@ variant.
 - WHEN a PressButton renders inside a Dialog's footer (raw snippet
   or DialogFooter's grouped cluster) with no `raised` prop
 - THEN it adopts the flat texture (the four pose customs; the
-  grouped path included — the texture flows through the
-  ButtonGroup)
+  grouped path included — the footer's ButtonGroup writes the flat
+  texture itself, and the footer zone's raised={false} removes the
+  cluster shadow too)
 
 #### Scenario: an explicit raised beats the zone
 
@@ -708,6 +724,32 @@ variant.
   any zone
 - THEN the convex law holds byte-identically (no pose customs, the
   kernel's `1px 1px` fallback)
+
+#### Scenario: a bare joined group casts one cluster shadow
+
+- WHEN a ButtonGroup renders outside any texture zone with no
+  `raised` prop
+- THEN its root paints the one convex shadow (`--shadow-xs`, behind
+  `:where()`) and every joined button without its own `raised` prop
+  rides the flat texture (the group's texture write — the per-button
+  convex shadows that overlapped at the seams are gone)
+
+#### Scenario: the group's raised=false only removes the root shadow
+
+- WHEN the same group renders `raised={false}`, or inside a zone
+  that scopes `raised={false}` (a card/dialog foot)
+- THEN the root carries no box-shadow and no hover/active shadow
+  pose exists on it (the root never presses), while the joined
+  buttons' flat default is unchanged — an explicit `raised={true}`
+  on a child still wins
+
+#### Scenario: a nested cluster casts no shadow of its own
+
+- WHEN a ButtonGroup renders inside another ButtonGroup with no
+  `raised` prop
+- THEN the inner root paints nothing — the OUTER cluster owns the
+  one shadow (one control, one shadow); an explicit `raised` on the
+  inner group is the consumer's escape hatch
 
 ### Requirement: every registered component family ships a Defaults contract
 
