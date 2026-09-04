@@ -79,8 +79,17 @@ const BASELINES = {
   // the old ceiling). Justified growth: law + component css and their
   // documentation, zero utility-layer leakage (B-consumer rows
   // unchanged).
-  'B-source': 34353,
-  'B-face': 12519,
+  //
+  // re-recorded 2026-09-04 (engrave duet + icon-button physics axis,
+  // 10ae41b/589b04b): B-source 34353->36106 (+5.1%), B-face
+  // 12519->13090 (+4.6%) — the flat press's inner walls gain their own
+  // inks (--jx-engrave-shade/-glow) and the border ring's masked
+  // ::before gradient tints the four corners; the icon-button square
+  // rides the physics axis verbatim. The growth rode the theme file
+  // only (this gate's subject); it was masked in CI until the
+  // manifest-staleness fix let verify:all reach this step.
+  'B-source': 36106,
+  'B-face': 13090,
   'B-consumer-vite': 1695,
   'B-consumer-icons': 300,
 };
