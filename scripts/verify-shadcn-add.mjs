@@ -510,18 +510,6 @@ mount(App, { target: document.getElementById('app')! });
 };
 for (const [p, c] of Object.entries(consumerFiles)) writeAt(templateDir, p, c);
 
-// the version chain, printed at both ends (env-debt-cleanup D2): the ROOT
-// binary generates the payloads, the TEMPLATE binary runs the adds — the
-// interop of the printed pair is what the five cases below prove
-{
-  const rootV = spawnSync(process.execPath, [resolveShadcnBin(root), '--version'], { cwd: root, encoding: 'utf8', stdio: 'pipe' });
-  console.log(`[versions] root shadcn (build side)  = ${String(rootV.stdout || rootV.stderr).trim() || 'unknown'}`);
-  const tplV = spawnSync('npx', ['shadcn', '--version'], { cwd: templateDir, encoding: 'utf8', stdio: 'pipe' });
-  const tplVersion = String(tplV.stdout || '').trim();
-  console.log(`[versions] template shadcn (add side) = ${tplVersion || 'unknown'}`);
-  if (!tplVersion.includes('4.19.0')) die(`template shadcn must be 4.19.0 exactly (got: ${tplVersion || tplV.stderr})`);
-}
-
 console.log('npm install (consumer template deps — installs once, 600s group-budget)…');
 {
   const child = spawn('npm', ['install', '--no-audit', '--no-fund', '--loglevel=error'], { cwd: templateDir, stdio: 'pipe', detached: true });
@@ -539,6 +527,18 @@ console.log('npm install (consumer template deps — installs once, 600s group-b
   const code = await new Promise((resolveExit) => child.on('exit', resolveExit));
   clearTimeout(timer);
   if (code !== 0) die(`npm install failed (exit ${code}):\n${out.slice(-1200)}`);
+}
+
+// the version chain, printed at both ends (env-debt-cleanup D2): the ROOT
+// binary generates the payloads, the TEMPLATE binary runs the adds — the
+// interop of the printed pair is what the five cases below prove
+{
+  const rootV = spawnSync(process.execPath, [resolveShadcnBin(root), '--version'], { cwd: root, encoding: 'utf8', stdio: 'pipe' });
+  console.log(`[versions] root shadcn (build side)  = ${String(rootV.stdout || rootV.stderr).trim() || 'unknown'}`);
+  const tplV = spawnSync('npx', ['shadcn', '--version'], { cwd: templateDir, encoding: 'utf8', stdio: 'pipe' });
+  const tplVersion = String(tplV.stdout || '').trim();
+  console.log(`[versions] template shadcn (add side) = ${tplVersion || 'unknown'}`);
+  if (!tplVersion.includes('4.19.0')) die(`template shadcn must be 4.19.0 exactly (got: ${tplVersion || tplV.stderr})`);
 }
 
 // ── 6. run the cases ───────────────────────────────────────────────
