@@ -194,8 +194,10 @@ describe('ButtonGroup · overflow=scroll · the css law (source-pinned)', () => 
         /\[data-jx-btngroup-chevron='inline-start'\]\),\s*\n\s*:where\(\[data-jx-btngroup-chevron='inline-end'\]\)\s*\{([^}]*)\}/s,
       )?.[1] ?? '';
     expect(chip).toMatch(/align-self:\s*center;/);
-    expect(chip).toMatch(/inline-size:\s*calc\(var\(--jx-btngroup-chevron-size\)\s*\+\s*var\(--jx-inset\)\);/);
-    expect(chip).toMatch(/block-size:\s*calc\(var\(--jx-btngroup-chevron-size\)\s*\+\s*var\(--jx-inset\)\);/);
+    // the Owner's reference box: inset·1.5 square (the 14px glyph is
+    // its 24-unit CANVAS — the ink spans the middle half, un-clipped)
+    expect(chip).toMatch(/inline-size:\s*calc\(var\(--jx-inset\)\s*\*\s*1\.5\);/);
+    expect(chip).toMatch(/block-size:\s*calc\(var\(--jx-inset\)\s*\*\s*1\.5\);/);
     expect(chip).toMatch(/background-color:\s*var\(--jx-btngroup-chevron-chip\);/);
     expect(chip).toMatch(/box-shadow:\s*1px\s*1px\s*2px\s*hsl\(0\s*0%\s*0%\s*\/\s*0\.2\);/);
     expect(chip).toMatch(/backdrop-filter:\s*blur\(2px\);/);

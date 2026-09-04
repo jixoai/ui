@@ -259,11 +259,12 @@
     grid-area: 1 / 1;
     z-index: 2;
     align-self: center;
-    /* the chip breathes one inset around the pinned glyph (14px glyph
-     * + inset ≈ 22px square at the default tier — derived, never a
-     * hardcoded box) */
-    inline-size: calc(var(--jx-btngroup-chevron-size) + var(--jx-inset));
-    block-size: calc(var(--jx-btngroup-chevron-size) + var(--jx-inset));
+    /* the Owner's reference box: inset·1.5 square (≈12px at the
+     * default tier). The 14px glyph SIZE is its 24-unit canvas — the
+     * chevron ink spans only the canvas's middle half (≈7px), so it
+     * centers un-clipped inside the smaller chip */
+    inline-size: calc(var(--jx-inset) * 1.5);
+    block-size: calc(var(--jx-inset) * 1.5);
     border: 0;
     padding: 0;
     appearance: none;
