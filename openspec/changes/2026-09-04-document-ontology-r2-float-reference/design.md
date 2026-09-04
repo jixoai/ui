@@ -16,6 +16,14 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
 ```
 
 - `numbering?: 'decimal'`（本期唯一 scheme；值域扩展归 R5 预设轮）。
+- **`id?: string`（P1-5 接线，R2 冻结进 section-card Props）**：
+  寻址是线原语的职责——id 直落 section-card 根元素（`<section
+  id>`），并以同一 id 注册 `SectionTargetEntry`；未提供 id 的节
+  照常编号但不可被引（与 Figure 的 id 规则同律）。
+- **Figure props 冻结（非阻塞 4）**：`kind: FigureKind`（必需）；
+  `id?: string`（同上律）；`caption?: string`（图注正文，缺省时
+  只有 label+number）；children = 内容槽（必需——空内容槽是
+  作者错误，dev warn）；`class`/其余 attrs 透传 `<figure>` 根。
   声明节获得章序数；**后代节无需再声明**，在域内自动续十进制树
   （3 → 3.1 → 3.2 → 3.2.1）——「未声明 = 逐字节今日行为」的现状门
   量词因此收窄为：**不在任何 numbering 域子树内的节**。域内未声明
@@ -69,8 +77,11 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
 - **document-scope 的域发现**：全篇连续 kind 的参与域迭代走
   **文档级域注册表**（不是各自域根的 observer）——遍历**所有**
   为该 kind 声明了 `document` 的域（顶层与嵌套都算，各自声明
-  各自参与），参与域内的 Figure 按文档序连续计数；跨兄弟域的
-  全局顺序由此表唯一决定。
+  各自参与）发现候选，然后把**所有参与域的 FigureRecord 汇总，
+  按 `compareDocumentPosition` 全局排序**后连续计数（域列表只做
+  发现，**不提供顺序**——外域 F1、嵌套域 F2、外域 F3 的计数是
+  F1、F2、F3，不是按域列表的 F1、F3、F2；outer/inner/sibling
+  夹具断言之）。
 - **跨域移动唯一模型（提升到线原语层，Section/Figure/Reference
   同律）**：跨 numbering 域的移动**只经 Svelte 实例销毁重建发生**
   ——卸载即 disposer 注销（旧域注册表即时移除、不再计数；目标
@@ -114,14 +125,25 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
 - **Figure**：`data-number` 属性挂 `<figure>` 根；图注最小形状：
   `<figcaption><span data-jx-figure-label>Table</span> <span
   data-jx-number>6-1</span> <span>实测与预测对照</span><span
-  data-cited-in> · 被引于 § 3.1</span></figcaption>`——label 与
+  data-cited-in='["§ 3.1"]'> · 被引于 § 3.1</span></figcaption>`
+  ——`data-cited-in` 的**属性值即 JSON 数组 payload**（收割器
+  直读该值；HTML attribute 转义按标准序列化，空数组/未声明时
+  该节点不存在）；label 与
   number 以单空格连写（`Table 6-1`），caption 文本后置，citedIn
   尾以「 · 」引导、无 citedIn 时该节点不存在。
 ### 1.2 context 机件与法则认领
 
 - 计数域 context：`Symbol.for('jx-numbering-domain')`，**key 由
   figure 家族持有并 module 导出**（PRESS_TEXTURE_KEY 同律）；section
-  只提供，figure 消费。payload = 注册表 + `revision` 信号。
+  只提供，figure 消费。payload = `NumberingDomain`（§1.2 签名块：
+  注册表 + `domainRevision`）；文档级第二 context 的 payload =
+  `DomainRegistry`（domains + `documentRevision`）。
+- **结构 props 不可变前置条件**：`numbering`/`floatScope`/`kind`
+  声明为**挂载期结构参数**——变更等价于销毁重建（Svelte remount
+  自然完成注册迁移）；组件对挂载后更新这些 props 走 dev warn +
+  忽略。因此 revision 矩阵只需覆盖 DOM 增删移，无需 props 失效
+  入口（「目标 kind 变更引用跟随」指**换 target** 或重建后的
+  重注册，非原地突变）。
 - **法则认领**：component-authoring 既有法则「State-sharing context
   SHALL carry state and behavior only — never membership order」的
   DOM-derived AUTO modes 例外（auto modes only）——Figure 编号与
@@ -140,16 +162,23 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
 
   ```ts
   export type FigureKind = 'figure' | 'table' | 'equation' | 'listing';
+  // 真实字面量 initializer（单源，Reference 只消费此表）：
   export const FIGURE_LABELS: Record<FigureKind,
-    { caption: string; reference: string }>;   // 图注全词 / 引用短词
+    { caption: string; reference: string }> = {
+    figure:   { caption: 'Figure',   reference: 'Fig' },
+    table:    { caption: 'Table',    reference: 'Table' },
+    equation: { caption: 'Equation', reference: 'Eq' },
+    listing:  { caption: 'Listing',  reference: 'Listing' },
+  };
 
   export const NUMBERING_DOMAIN_KEY = Symbol.for('jx-numbering-domain');
   export const DOCUMENT_TARGETS_KEY = Symbol.for('jx-document-targets');
 
   // 真可辨识联合；派生字段统一以 accessor thunk 注册（读即现值，
-  // 在 $derived 内调用即响应式——禁止快照）：
+  // 在 $derived 内调用即响应式——禁止快照）。figure 侧必须携带
+  // figureKind——目标自述语法的显示词与 scope 格式都由它决定：
   export type FigureTargetEntry = {
-    id: string; kind: 'figure';
+    id: string; kind: 'figure'; figureKind: FigureKind;
     readonly number: () => string;      // 可引 figure 必有编号
     readonly title: null;               // 图注不是标题
   };
@@ -169,6 +198,23 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   // 页面根 provider 用 createTargetRegistry() 建实例 +
   // setContext(DOCUMENT_TARGETS_KEY, registry)；消费者经：
   export function targetRegistryFromContext(): TargetRegistry | undefined;
+
+  // ── NumberingDomain 侧（同批冻结，batch 0 唯一 owner）──
+  // 域 context payload（NumberingDomain_KEY 挂载）：
+  export interface NumberingDomain {
+    registerSection(rec: { el: Element }): () => void;
+    registerFigure(rec: { el: Element; kind: FigureKind; id?: string }): () => void;
+    readonly domainRevision: number;   // 域根 observer bump
+    // parentDomain 经 createNumberingDomain(parent) 工厂参数绑定
+  }
+  export function createNumberingDomain(parent: NumberingDomain | null): NumberingDomain;
+  // 文档级域注册表 payload（DOCUMENT_TARGETS 同级第二 context）：
+  export interface DomainRegistry {
+    registerDomain(domain: NumberingDomain): () => void;
+    readonly domains: readonly NumberingDomain[];
+    readonly documentRevision: number; // 文档级 observer bump
+  }
+  export function createDomainRegistry(): DomainRegistry;
   ```
 
   实例归属唯一：`registerTarget`/`getTarget` 都是 **registry 实例
@@ -183,9 +229,12 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   **文档身份（一页多 PagedDoc）**：document-scope 计数与目标
   注册表均以**路由页面 provider 实例**为单位——同页多个 PagedDoc
   共享一个注册表与一套 document-scope 计数（它们是同一「文档」
-  的不同面；Section 根的文档序跨 PagedDoc DOM 边界连续计算），
-  跨页不共享；provider 销毁时所有 Reference 收束为缺失态（无
-  悬挂 warning）；fixture 断言之。
+  的不同面），跨页不共享；provider 销毁时所有 Reference 收束为
+  缺失态（无悬挂 warning）；fixture 断言之。**同文档共同容器
+  规则**：一页多个 PagedDoc 必须渲染进同一路由文档的普通 DOM
+  （同 document、互相 connected——`compareDocumentPosition` 在
+  其间有效）；**禁止 portal 拆离到独立 root**（脱连节点的顺序
+  实现相关、不可稳定排序——编号文档不进 portal）。
 
 ## 2. Figure 家族（Q6 + Q6a + Q8）
 

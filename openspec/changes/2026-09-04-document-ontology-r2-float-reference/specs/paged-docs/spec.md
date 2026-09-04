@@ -51,4 +51,3 @@ contract clause.
 - GIVEN a nested domain declaring `numbering` inside an outer root
 - THEN its Figures count from 1 against the inner root's local
   numbering, never the outer chapter prefix
-

@@ -16,12 +16,21 @@ reference-interaction-host（click/键盘/hydrate）、harvest-page
 
 - [ ] 0.1 `ui/figure/numbering.svelte.ts` 按 design §1.2 的**可编译
       签名块**落盘：双 Symbol.for key、FigureKind、FIGURE_LABELS
-      双列表、FigureTargetEntry/SectionTargetEntry 真联合、
-      registerTarget（幂等 disposer）/getTarget、provider 值
-      （SvelteMap + 首存活者胜 + 晋升规则）
+      真实字面量表、FigureTargetEntry（含 figureKind 判别字段）/
+      SectionTargetEntry 真联合（accessor thunk）、TargetRegistry
+      实例 API（registerTarget 幂等 disposer/getTarget/
+      createTargetRegistry/targetRegistryFromContext）、
+      **NumberingDomain/DomainRegistry 家族**（registerSection/
+      registerFigure/createNumberingDomain(parent)/createDomainRegistry
+      + domainRevision/documentRevision 读法）
 - [ ] 0.2 冻结面：上述签名定稿即冻结（批次 1/2/3 按此并行，
       不得各自修改）；门 = `tsc --noEmit` 过 + 一个导出面快照
       单测（断言导出名与形状，防漂移）
+- [ ] 0.3 **路由页面根 provider 组件**（整合者 owner）：+page
+      渲染树接线 createTargetRegistry + setContext（含
+      DomainRegistry 双 context）；验收 = 路由切换回收、同页多
+      PagedDoc 共享（共同容器规则）、provider 销毁后 Reference
+      收束缺失态无悬挂 warning——先于批次 1/2/3
 
 ## 1. Section 编号树（依赖：0）
 
@@ -93,8 +102,9 @@ reference-interaction-host（click/键盘/hydrate）、harvest-page
       （前向引用回退态→水合跟随）；**注册表生命周期夹具**：路由
       切换后前页 id 不可解析、重复 id 先注册者胜 + dev warn、
       disposer 卸载注销
-- [ ] 4.4 docs 页（figure/reference 各一）+ 全量门禁（vitest/
-      mirror/payload parity）
+- [ ] 4.4 docs 页（figure/reference 各一）+ 源侧门（vitest）；
+      **全量 mirror/payload parity 门依赖批次 6 的生成物**（6 → 4.4
+      尾段 / 5.2 sha 基线同理——生成物未落盘前不得宣称全量门通过）
 
 ## 5. 收割消费（依赖：2+3 的发射面；可与 4 并行）
 
