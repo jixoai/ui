@@ -236,7 +236,9 @@ The typed cross-link SHALL carry zero grammar knowledge of its own.
   `data-ref-to` (dead anchors are a filed bug class; the harvester's
   target index filters edges whose target never exists).
 - The reference emits its forward face (`data-ref-to`) for the
-  harvest contract's `refids[]`.
+  harvest contract's `refids[]` — the attribute value is a SINGLE id
+  string under standard HTML serialization (no JSON, no compound
+  value; the harvester reads it directly).
 
 #### Scenario: the five target states resolve each in its own grammar
 

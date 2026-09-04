@@ -24,9 +24,11 @@ schema, additively — old corpora are never rewritten.
   (not-yet is not missing), while an edge whose target never exists
   in the index is filtered (the harvester is the
   static-completeness authority).
-- `data-ref-to` on a reference point projects onto that block's
-  `refids[]` with FIRST-OCCURRENCE dedup and stable order (multiple
-  references to the same target in one block collapse to one entry).
+- `data-ref-to` on a reference point (a SINGLE id string under
+  standard HTML serialization — no JSON, no compound value) projects
+  onto that block's `refids[]` with FIRST-OCCURRENCE dedup and
+  stable order (multiple references to the same target in one block
+  collapse to one entry).
   An INLINE reference hangs on its containing block; a BARE reference
   (directly in a section body, no block root) hangs on the nearest
   PRECEDING stream item in the same section; a bare reference with

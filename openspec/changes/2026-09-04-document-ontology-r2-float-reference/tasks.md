@@ -16,24 +16,31 @@ reference-interaction-host（click/键盘/hydrate）、harvest-page
 ## 0. 接口先行（依赖：无；ui/figure/ 由 ZCode 统一落盘，子代理不得触碰）
 
 - [ ] 0.1 `ui/figure/numbering.svelte.ts` 按 design §1.2 的**可编译
-      签名块**落盘：**三** Symbol.for key（NUMBERING_DOMAIN /
-      DOCUMENT_TARGETS / DOCUMENT_DOMAINS）、FigureKind、FIGURE_LABELS
-      真实字面量表、FigureTargetEntry（含 figureKind 判别字段）/
-      SectionTargetEntry 真联合（accessor thunk）、TargetRegistry
-      实例 API（registerTarget 幂等 disposer/getTarget/
-      createTargetRegistry/targetRegistryFromContext）、
-      **NumberingDomain/DomainRegistry 家族**（registerSection(id?)/
-      registerFigure/createNumberingDomain({parent, root, floatScope})/
+      签名块**落盘（**两阶段域生命周期**）：**三** Symbol.for key
+      （NUMBERING_DOMAIN / DOCUMENT_TARGETS / DOCUMENT_DOMAINS）、
+      FigureKind、FIGURE_LABELS 真实字面量表、FigureTargetEntry
+      （含 figureKind 判别字段）/SectionTargetEntry 真联合
+      （accessor thunk）、TargetRegistry 实例 API（registerTarget
+      幂等 disposer/getTarget/createTargetRegistry/
+      targetRegistryFromContext）、**NumberingDomain/DomainRegistry
+      家族**——`createNumberingDomain({parent, floatScope})`（无
+      root 参数）、`attachRoot(el)`（bind:this 时机、同 root 幂等、
+      **SSR 不调用**）、`registerSection/registerFigure({el?: Element,
+      …})`（attach 前 el 可缺，模板序代理排序）、
       createDomainRegistry/domainRegistryFromContext +
-      domainRevision/documentRevision 读法）
+      domainRevision/documentRevision 读法
 - [ ] 0.2 冻结面：上述签名定稿即冻结（批次 1/2/3 按此并行，
       不得各自修改）；门 = `tsc --noEmit` 过 + 一个导出面快照
-      单测（断言导出名与形状，防漂移）
+      单测（断言导出名与形状——**含新工厂签名、attachRoot、
+      可选 el**——防漂移）
 - [ ] 0.3 **路由页面根 provider 组件**（整合者 owner）：+page
       渲染树接线 createTargetRegistry + setContext（含
-      DomainRegistry 双 context）；验收 = 路由切换回收、同页多
-      PagedDoc 共享（共同容器规则）、provider 销毁后 Reference
-      收束缺失态无悬挂 warning——先于批次 1/2/3
+      DomainRegistry 双 context）+ **文档级 observer 生命周期**
+      （onMount observe document.documentElement / onDestroy
+      disconnect / SSR 期无 observer、documentRevision 恒 0）；
+      验收 = 路由切换回收、同页多 PagedDoc 共享（共同容器规则）、
+      provider 销毁后 Reference 收束缺失态无悬挂 warning——
+      先于批次 1/2/3
 
 ## 1. Section 编号树（依赖：0）
 
@@ -44,7 +51,7 @@ reference-interaction-host（click/键盘/hydrate）、harvest-page
       （DomainRecord 带 parentDomain，章序数仅过滤顶层根）；
       **注册顺序永不赋序**；**跨域移动唯一模型=销毁重建**
       （A→B 夹具：旧域不计数、新域立即计数、注册表单活动 entry）；
-      SSR 退化实例化序 + 水合首帧一致（mismatch 即失败）；CSR-only
+      SSR 退化为模板序代理（与 design §1.1(d) 同词——不是第二条赋序法则） + 水合首帧一致（mismatch 即失败）；CSR-only
       首帧可短暂无编号（settle 后一致，记档立场）
 - [ ] 1.2 `floatScope` kind 轴配置（默认全 chapter；document 连续
       例外；仅域级可声明；脱离 numbering = dev warn 后忽略）
@@ -124,8 +131,9 @@ reference-interaction-host（click/键盘/hydrate）、harvest-page
       Figure 不投影 number——记档）+ 语料 sha 稳定门禁基线重生成
       + search-corpus.spec 夹具（**与 fixture 清单同构的六分支 +
       未编号 Section 可引 / 未编号 Figure 过滤断言**）；收尾跑一次
-      全文 rg 门：旧目标索引措辞（data-number 全量索引）与未限定
-      的「缺失目标不发射」两种短语不得在任何文档残留
+      全文 rg 门（不自匹配形式——排除本行与 rg 模式行）：
+      `createNumberingDomain\(\{parent,\s*root` 与 data-number
+      全量索引旧措辞不得在任何文档残留
 
 ## 6. registry 串行整合（依赖：2+3；**整合者独占**——registry.json、
 mirror-manifest、catalog、public 生成物的唯一写入者，子代理不碰）
