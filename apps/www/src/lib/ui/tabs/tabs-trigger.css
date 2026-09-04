@@ -103,9 +103,13 @@
   --jx-tabs-chevron-inline-end: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
   --jx-tabs-chevron-inline-start: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='m15 18-6-6 6-6'/%3E%3C/svg%3E");
   /* Owner 2026-09-04: the text-derived size computed ~8–11px — an
-     unreadable whisper; the glyph pins at 14px (the mask references
-     it, so the indirection stays swappable) */
+     unreadable whisper; the glyph pins at 14px (the background
+     references it, so the indirection stays swappable) */
   --jx-tabs-chevron-size: 14px;
+  /* THE CHIP INK (Owner acceptance round 4, one law with
+   * button-group): translucent white — theme-independent by design,
+   * the frost carries the adaptation */
+  --jx-tabs-chevron-chip: oklab(1 0 0 / 0.8);
   --jx-tabs-veil: calc(var(--jx-inset) * 6);
 }
 :where(.jx-tabs-run) {
@@ -126,35 +130,48 @@
 :where(.jx-tabs-run) > [role='tab'] {
   scroll-snap-align: start;
 }
+/* the chevrons: REAL DOM BUTTONS on the host — FROSTED EDGE CHIPS
+ * (Owner acceptance round 4, one law with button-group's scroll
+ * chrome; retiring the full-height blend-glyph lane): a compact
+ * inset·1.5 square floating at the strip's outer edge, VERTICALLY
+ * CENTERED by grid placement (align-self on the one-cell host —
+ * never position:*), tucked flush by a negative inset margin so its
+ * backdrop blur catches the scrolling edge content. The glyph is the
+ * chip's own background layer (the 14px size is the SVG's 24-unit
+ * canvas — the ink spans the middle half, un-clipped in the smaller
+ * chip); a soft 1px-offset shadow lifts it off the content. Hover
+ * stays retired (the chip is its own affordance — the cursor is the
+ * signal) */
 :where([data-jx-chevron='inline-start']),
 :where([data-jx-chevron='inline-end']) {
   grid-area: 1 / 1;
   z-index: 2;
-  align-self: stretch;
-  width: calc(var(--jx-inset) * 2);
-  margin-block: calc(var(--jx-inset) / 2);
+  align-self: center;
+  inline-size: calc(var(--jx-inset) * 1.5);
+  block-size: calc(var(--jx-inset) * 1.5);
   border: 0;
   padding: 0;
   appearance: none;
-  /* Owner 2026-09-04 — THE BLEND LAW: a solid ink glyph vanishes over
-     scrolling content (label text under the lane); white through
-     mix-blend-mode: difference inverts ANY ground — light shows dark
-     ink, dark shows light (the fade separator engine's trick; an
-     exact-50% backdrop is difference's documented blind spot). The
-     mask clips the blend to the glyph shape; hover states are
-     meaningless under difference (always max contrast) — the cursor
-     is the affordance */
-  background-color: #fff;
-  mix-blend-mode: difference;
+  background-color: var(--jx-tabs-chevron-chip);
+  background-position: center;
+  background-size: var(--jx-tabs-chevron-size);
+  background-repeat: no-repeat;
+  box-shadow: 1px 1px 2px hsl(0 0% 0% / 0.2);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
   cursor: pointer;
+  opacity: min(1, calc(var(--jx-tabs-progress, 0) / 0.15));
 }
 :where([data-jx-chevron='inline-end']) {
   justify-self: end;
-  mask: var(--jx-tabs-chevron-inline-end) center / var(--jx-tabs-chevron-size) no-repeat;
+  margin-inline-end: calc(var(--jx-inset) * -1);
+  background-image: var(--jx-tabs-chevron-inline-end);
+  opacity: min(1, calc((1 - var(--jx-tabs-progress, 0)) / 0.15));
 }
 :where([data-jx-chevron='inline-start']) {
   justify-self: start;
-  mask: var(--jx-tabs-chevron-inline-start) center / var(--jx-tabs-chevron-size) no-repeat;
+  margin-inline-start: calc(var(--jx-inset) * -1);
+  background-image: var(--jx-tabs-chevron-inline-start);
 }
 /* the JS-stamped scrollability verdict is the single truth: a
  * direction that cannot travel NEVER paints its chevron */
@@ -302,23 +319,6 @@
 :dir(rtl) :where(.jx-tabs-shadow)[data-position='end'] {
   mask: linear-gradient(to left, transparent, rgb(0, 0, 0));
   -webkit-mask-image: linear-gradient(to left, transparent, rgb(0, 0, 0));
-}
-
-/* ── the on-demand fade, scroll-following (Owner, 2026-09-01) ──
- * The chevron toward a boundary fades OUT as the run approaches it
- * and fades back IN as travel opens again. The scroll handler STAMPS
- * --jx-tabs-progress (0–1 travel) on the HOST (tabs-list.svelte, the
- * same pass that stamps data-jx-scroll-state): one inherited number
- * serves the chevron buttons AND the veil entrance — they always
- * agree. Each direction ramps over the outer 15% of travel; the var's
- * un-stamped fallback 0 only ever shows pre-stamp, where the
- * pre-hydration gate above already hides the buttons (no verdict, no
- * overlay — 2026-09-02) */
-:where([data-jx-chevron='inline-start']) {
-  opacity: min(1, calc(var(--jx-tabs-progress, 0) / 0.15));
-}
-:where([data-jx-chevron='inline-end']) {
-  opacity: min(1, calc((1 - var(--jx-tabs-progress, 0)) / 0.15));
 }
 }
 

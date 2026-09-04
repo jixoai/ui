@@ -939,20 +939,25 @@ describe('Tabs · horizontal overflow contract (tabs-trigger.css, source-pinned)
     );
   });
 
-  it('the hit box is the full button (width from density tokens); the glyph lives in css vars the mask references (context-swappable icons)', () => {
+  it('the chevron is a FROSTED EDGE CHIP (one law with button-group, Owner round 4): centered, tucked, blurred — the glyph in css vars the background references', () => {
+    // the chip: inset·1.5 square, vertically centered by grid, ink var,
+    // frost + soft lift; the glyph (14px = the SVG canvas, ink spans
+    // the middle half) is the chip's own background layer
     expect(tabsTriggerCss).toMatch(
-      new RegExp(`${startBtn.source}[\\s\\S]{0,200}?${endBtn.source}[^{]*\\{[^}]*width:\\s*calc\\(var\\(--jx-inset\\)\\s*\\*\\s*2\\)`, 's'),
+      new RegExp(`${startBtn.source}[\\s\\S]{0,200}?${endBtn.source}[^{]*\\{[^}]*align-self:\\s*center;[^}]*inline-size:\\s*calc\\(var\\(--jx-inset\\)\\s*\\*\\s*1\\.5\\);[^}]*background-color:\\s*var\\(--jx-tabs-chevron-chip\\);[^}]*backdrop-filter:\\s*blur\\(2px\\);`, 's'),
     );
-    // the chevrons are vars, not hardcoded urls: defaults on the HOST
-    // (the buttons are the run's siblings — a var on the run never
-    // reaches them), mask by reference
+    expect(tabsTriggerCss).toMatch(/--jx-tabs-chevron-chip:\s*oklab\(1\s*0\s*0\s*\/\s*0\.8\);/);
     expect(tabsTriggerCss).toMatch(/--jx-tabs-chevron-inline-end:\s*url\(/);
     expect(tabsTriggerCss).toMatch(/--jx-tabs-chevron-inline-start:\s*url\(/);
-    expect(tabsTriggerCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*mask:\\s*var\\(--jx-tabs-chevron-inline-end\\)`, 's'));
-    expect(tabsTriggerCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*mask:\\s*var\\(--jx-tabs-chevron-inline-start\\)`, 's'));
+    expect(tabsTriggerCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*margin-inline-end:\\s*calc\\(var\\(--jx-inset\\)\\s*\\*\\s*-1\\);[^}]*background-image:\\s*var\\(--jx-tabs-chevron-inline-end\\)`, 's'));
+    expect(tabsTriggerCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*margin-inline-start:\\s*calc\\(var\\(--jx-inset\\)\\s*\\*\\s*-1\\);[^}]*background-image:\\s*var\\(--jx-tabs-chevron-inline-start\\)`, 's'));
+    // the retired eras never return: no mask, no blend glyph
+    const chip = tabsTriggerCss.match(new RegExp(`${startBtn.source}[\\s\\S]{0,200}?${endBtn.source}[^{]*\\{([^}]*)\\}`, 's'))?.[1] ?? '';
+    expect(chip).not.toMatch(/mask/);
+    expect(chip).not.toMatch(/mix-blend-mode/);
     // the glyph size: 14px pinned (Owner 2026-09-04 — the text-derived
-    // size computed ~8–11px, an unreadable whisper; the mask still
-    // references the var, so the indirection stays swappable)
+    // size computed ~8–11px, an unreadable whisper; the background
+    // still references the var, so the indirection stays swappable)
     expect(tabsTriggerCss).toMatch(/--jx-tabs-chevron-size:\s*14px;/);
   });
 
