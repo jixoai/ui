@@ -145,6 +145,39 @@ describe('press-button raised axis — the flat texture', () => {
     expect(css).toMatch(/\.jx-press:active\s*\{[^}]*translate:\s*var\(--jx-press-move,\s*1px\s+1px\)/s);
     expect(css).not.toMatch(/\.jx-press:active\s*\{[^}]*translate:\s*1px\s+1px\s*;/s);
   });
+
+  it('the engrave duet law: the tier paints BOTH inner walls from the shade/glow ink tokens, and the flat corner tint mixes from the same pair', () => {
+    // source-law gate (Owner ruling 2026-09-04): a single-sided inset
+    // reads as a smudge — the duet reads as carved; the corner tint
+    // must share the inks so the pressed edge stays one light model
+    const css = readFileSync(resolve('src/lib/jixoai.css'), 'utf8');
+    // the print-kernel scope carries a self-referential passthrough —
+    // the duet law binds the DEFINITIONS, not the mapping
+    const engraves = (css.match(/--shadow-engrave:[^;]+;/g) ?? []).filter(
+      (e) => !e.includes('var(--shadow-engrave)'),
+    );
+    expect(engraves.length).toBe(2); // light + dark
+    for (const e of engraves) {
+      expect(e).toContain('inset 1px 1px 0px 0px var(--jx-engrave-shade)');
+      expect(e).toContain('inset -1px -1px 0px 0px var(--jx-engrave-glow)');
+    }
+    // the corner tint ring: keyed on the flat stamp's :active, mixes
+    // from the same tokens, masked to the border ring only
+    expect(css).toMatch(
+      /\.jx-press\[data-jx-press-flat\]:active::before\s*\{[^}]*color-mix\(in oklab,\s*var\(--jx-engrave-shade\)/s,
+    );
+    expect(css).toMatch(/\.jx-press\[data-jx-press-flat\]:active::before\s*\{[^}]*var\(--jx-engrave-glow\)/s);
+    expect(css).toMatch(/\.jx-press\[data-jx-press-flat\]:active::before\s*\{[^}]*mask-composite:\s*exclude/s);
+  });
+
+  it('the flat STAMP: present on flat, absent on raised and link — the kernel tint keys on it', () => {
+    const flat = render(PressButtonHost, { props: { variant: 'outline', raised: false } });
+    expect(flat.container.querySelector('button')!.hasAttribute('data-jx-press-flat')).toBe(true);
+    const raised = render(PressButtonHost, { props: { variant: 'outline' } });
+    expect(raised.container.querySelector('button')!.hasAttribute('data-jx-press-flat')).toBe(false);
+    const link = render(PressButtonHost, { props: { variant: 'link', raised: false } });
+    expect(link.container.querySelector('button')!.hasAttribute('data-jx-press-flat')).toBe(false);
+  });
 });
 
 /* ── THE ZONE TEXTURE (Owner 2026-09-04): a ButtonVariantScope may scope

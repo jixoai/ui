@@ -318,6 +318,11 @@
   // same value as d.variant, named beside resolvedRaised for the
   // pose-vs-texture pairing
   const resolvedVariant = $derived(d.variant);
+  // the flat STAMP (Owner ruling 2026-09-04): the kernel's corner-tint
+  // border keys on it — the pressed face is one carved light model,
+  // not an inset beside a static frame. Same gate as the pose block
+  // (flat × non-link; link carries no jx-press at all)
+  const flat = $derived(!resolvedRaised && resolvedVariant !== 'link');
 
   // the zone texture context — same read-once pattern, its own key (a
   // joined ButtonGroup never shadows physics, see the module comment).
@@ -529,6 +534,7 @@
     data-jx-press-state={flashState === 'success' ? 'success' : undefined}
     data-density={d.density}
     data-jx-press-button={d.variant}
+    data-jx-press-flat={flat ? '' : undefined}
     data-jx-shimmer-host={effect?.type === 'shimmer' ? '' : undefined}
     data-jx-pulse-host={effect?.type === 'pulse' ? '' : undefined}
     data-jx-ripple-host={effect?.type === 'ripple' ? '' : undefined}
@@ -549,6 +555,7 @@
     data-jx-press-state={flashState === 'success' ? 'success' : undefined}
     data-density={d.density}
     data-jx-press-button={d.variant}
+    data-jx-press-flat={flat ? '' : undefined}
     popovertarget={popovertarget}
     data-jx-shimmer-host={effect?.type === 'shimmer' ? '' : undefined}
     data-jx-pulse-host={effect?.type === 'pulse' ? '' : undefined}

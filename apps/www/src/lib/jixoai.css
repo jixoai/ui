@@ -127,8 +127,20 @@
                color (input/textarea/select shells)
      Ink inverts per theme (the white-shadow law); geometry never
      drifts between themes. Off-default expression is a deliberate
-     prop/custom modulation — never a per-component invention. */
-  --shadow-engrave: inset 1px 1px 0px 0px hsl(0 0% 0% / 0.4);
+     prop/custom modulation — never a per-component invention.
+
+     THE ENGRAVE DUET (Owner ruling 2026-09-04): the tier paints BOTH
+     inner walls of the incision — the shade wall (top-left, where
+     the light is blocked) and the glow wall (bottom-right, where the
+     light catches) — a single-sided inset reads as a smudge, the
+     duet reads as carved. The two inks are tokens of their own: the
+     flat press's corner-tint border (below, the press law) mixes
+     from the SAME pair, so the whole pressed face stays one light
+     model. */
+  --jx-engrave-shade: hsl(0 0% 0% / 0.4);
+  --jx-engrave-glow: hsl(0 0% 100% / 0.96);
+  --shadow-engrave: inset 1px 1px 0px 0px var(--jx-engrave-shade),
+    inset -1px -1px 0px 0px var(--jx-engrave-glow);
   --shadow-well: inset 1px 1px 0px 0px hsl(0 0% 0% / 0.12);
   --shadow-well-hover: inset 1px 1px 0px 0px hsl(0 0% 0% / 0.28);
 
@@ -229,8 +241,13 @@
   --shadow-md-press: 3px 3px 0px 0px hsl(0 0% 100% / 1), 3px 1px 4px -1px hsl(0 0% 0% / 1);
   /* elevation grammar, dark side: same geometry rung for rung, the
      ink inverted to white (the white-shadow law); --shadow-paper is
-     theme-INDEPENDENT (paper stays white — see the light block) */
-  --shadow-engrave: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.4);
+     theme-INDEPENDENT (paper stays white — see the light block).
+     The engrave duet inverts BOTH inks (the law's mechanical face —
+     the glow wall's black on dark reads as the carved sheen) */
+  --jx-engrave-shade: hsl(0 0% 100% / 0.4);
+  --jx-engrave-glow: hsl(0 0% 0% / 0.96);
+  --shadow-engrave: inset 1px 1px 0px 0px var(--jx-engrave-shade),
+    inset -1px -1px 0px 0px var(--jx-engrave-glow);
   --shadow-well: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.12);
   --shadow-well-hover: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.28);
 
@@ -707,6 +724,45 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 .jx-press:active {
   translate: var(--jx-press-move, 1px 1px);
   box-shadow: var(--jx-press-shadow-active, var(--shadow-sm-press));
+}
+/* ── THE FLAT CORNER TINT (Owner ruling 2026-09-04): a pressed flat
+   button is a CARVED face, and the carving extends to the border —
+   the four corners of the ring mix toward the same duet the inset
+   paints (shade at top-left, glow at bottom-right), so the whole
+   pressed edge reads under ONE light model instead of a floating
+   inset beside a static frame. Keyed on the flat STAMP the
+   component emits with its pose block; the tint rides the border
+   RING only (an excluded-mask overlay over the 1px frame — paint is
+   alpha-composited over whatever rung color the border carries, no
+   per-rung knowledge), appears with :active, and never touches
+   layout (position:relative is paint-only geometry) ── */
+.jx-press[data-jx-press-flat] {
+  position: relative;
+}
+.jx-press[data-jx-press-flat]:active::before {
+  content: '';
+  position: absolute;
+  inset: -1px; /* over the border ring exactly: abs insets measure
+    from the padding edge, so -1px spans the 1px frame */
+  border: 1px solid transparent; /* offsets the mask's padding-box
+    back onto the button's own padding edge */
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      to bottom right,
+      color-mix(in oklab, var(--jx-engrave-shade) 55%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(
+      to top left,
+      color-mix(in oklab, var(--jx-engrave-glow) 55%, transparent),
+      transparent 60%
+    );
+  -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
 }
 @media (prefers-reduced-motion: reduce) {
   .jx-press {
