@@ -272,7 +272,10 @@
     return { type: 'shadow', width };
   }
   export interface BgProgressBlurOptions {
-    /** per-layer blur px of the edge veil, inner-edge first (≥2 levels) */
+    /** per-layer blur px of the edge veil, inner-edge first (≥2 levels);
+     *  the DEFAULT ladder is the restraint ruling's — the veil band is
+     *  inset·3 (half tabs' inset·6), so the peak halves twice over:
+     *  16px melts a 24–36px band completely, 64px was overkill */
     blurLevels?: number[];
     /** the band width (any css length) — overrides the --jx-btngroup-veil default */
     width?: string;
@@ -283,7 +286,7 @@
     width?: string;
   }
   export function progressBlur({
-    blurLevels = [0.5, 1, 2, 4, 8, 16, 32, 64],
+    blurLevels = [0.5, 1, 2, 4, 6, 8, 12, 16],
     width,
   }: BgProgressBlurOptions = {}): BgProgressBlurEffect {
     return { type: 'progressBlur', blurLevels, width };

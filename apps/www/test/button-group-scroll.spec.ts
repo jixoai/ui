@@ -155,6 +155,9 @@ describe('ButtonGroup · the scroll-effect builders (the tabs convention)', () =
     expect(shadow()).toEqual({ type: 'shadow', width: undefined });
     expect(shadow({ width: '48px' }).width).toBe('48px');
     expect(progressBlur({ blurLevels: [1, 2] }).blurLevels).toEqual([1, 2]);
+    // the restraint ruling's default ladder: the veil band is half
+    // tabs' width, so the peak melts at 16px (tabs climbs to 64)
+    expect(progressBlur().blurLevels).toEqual([0.5, 1, 2, 4, 6, 8, 12, 16]);
   });
 });
 
